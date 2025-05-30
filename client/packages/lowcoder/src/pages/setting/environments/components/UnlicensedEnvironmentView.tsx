@@ -92,6 +92,22 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
 
   return (
     <Level1SettingPageContent style={{ minWidth: "1000px" }}>
+
+      {/* Breadcrumbs */}
+      <ModernBreadcrumbs 
+        items={[
+          {
+            key: 'environments',
+            title: 'Environments',
+            onClick: () => history.push('/setting/environments')
+          },
+          {
+            key: 'current',
+            title: environment.environmentName || "Environment Detail"
+          }
+        ]}
+      />
+
       {/* Environment Header Component */}
       <EnvironmentHeader 
         environment={environment} 
@@ -112,20 +128,6 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
         ))}
       </Row>
 
-      {/* Breadcrumbs */}
-      <ModernBreadcrumbs 
-        items={[
-          {
-            key: 'environments',
-            title: 'Environments',
-            onClick: () => history.push('/setting/environments')
-          },
-          {
-            key: 'current',
-            title: environment.environmentName || "Environment Detail"
-          }
-        ]}
-      />
 
       {/* License Issue Card */}
       <Card
@@ -169,7 +171,6 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
                 <Button
                   type="primary"
                   size="large"
-                  icon={<CustomerServiceOutlined />}
                   onClick={() => setIsContactModalVisible(true)}
                   style={{
                     width: '100%',
