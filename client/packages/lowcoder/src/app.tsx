@@ -31,13 +31,13 @@ import {
   ADMIN_AUTH_URL,
   PUBLIC_APP_EDITOR_URL,
 } from "constants/routesURL";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import { Helmet } from "react-helmet";
-import { connect, Provider } from "react-redux";
+import { connect, Provider, useDispatch, useSelector } from "react-redux";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
 import type { AppState } from "redux/reducers";
-import { fetchConfigAction } from "redux/reduxActions/configActions";
+import { fetchConfigAction, fetchDeploymentIdAction } from "redux/reduxActions/configActions";
 import { fetchUserAction } from "redux/reduxActions/userActions";
 import { reduxStore } from "redux/store/store";
 import { developEnv } from "util/envUtils";
@@ -50,10 +50,10 @@ import { loadComps } from "comps";
 import { initApp } from "util/commonUtils";
 import { favicon } from "assets/images";
 import { hasQueryParam } from "util/urlUtils";
-import { isFetchUserFinished } from "redux/selectors/usersSelectors"; // getCurrentUser, 
+import { getUser, isFetchUserFinished } from "redux/selectors/usersSelectors"; // getCurrentUser, 
 import { getIsCommonSettingFetched } from "redux/selectors/commonSettingSelectors";
 import { SystemWarning } from "./components/SystemWarning";
-import { getBrandingConfig } from "./redux/selectors/configSelectors";
+import { getBrandingConfig, getDeploymentId } from "./redux/selectors/configSelectors";
 import { buildMaterialPreviewURL } from "./util/materialUtils";
 import GlobalInstances from 'components/GlobalInstances';
 // import posthog from 'posthog-js'
@@ -64,6 +64,7 @@ import { fetchBrandingSetting } from "./redux/reduxActions/enterpriseActions";
 import { EnterpriseProvider } from "./util/context/EnterpriseContext";
 import { SimpleSubscriptionContextProvider } from "./util/context/SimpleSubscriptionContext";
 import { getBrandingSetting } from "./redux/selectors/enterpriseSelectors";
+import { fetchSubscriptionsAction } from "./redux/reduxActions/subscriptionActions";
 
 const LazyUserAuthComp = React.lazy(() => import("pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
@@ -81,6 +82,22 @@ const Wrapper = React.memo((props: {
   language: string,
   fontFamily?: string
 }) => {
+  const deploymentId = useSelector(getDeploymentId);
+  const user = useSelector(getUser);
+  const dispatch = useDispatch();
+  
+  useEffect(() => {
+    if (user.currentOrgId) {
+      dispatch(fetchDeploymentIdAction());
+    }
+  }, [user.currentOrgId]);
+
+  useEffect(() => {
+    if(Boolean(deploymentId)) {
+      dispatch(fetchSubscriptionsAction())
+    }
+  }, [deploymentId]);
+  
   const theme = useMemo(() => {
     return {
       hashed: false,
