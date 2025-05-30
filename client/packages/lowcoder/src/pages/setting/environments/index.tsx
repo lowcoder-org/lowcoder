@@ -8,6 +8,7 @@ import { trans } from "i18n";
 import { useState } from "react";
 import { getUser } from "@lowcoder-ee/redux/selectors/usersSelectors";
 import { HubspotModal } from "../hubspotModal";
+import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
 
 const { Paragraph, Text } = Typography;
 
@@ -38,6 +39,7 @@ export const Environments = () => {
 const EnvironmentsPromo = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const user = useSelector(getUser);
+  const deploymentId = useSelector(getDeploymentId);
 
   return (
     <Level1SettingPageContent>
@@ -67,6 +69,34 @@ const EnvironmentsPromo = () => {
             <li>{trans("enterprise.EnvironmentsFeature3")}</li>
             <li>{trans("enterprise.EnvironmentsFeature5")}</li>
           </ul>
+        </Card>
+      </StyledSection>
+
+      <StyledSection>
+        <Card title={trans("enterprise.yourDeploymentID")}>
+          <Paragraph><h3>{deploymentId}</h3></Paragraph>
+        </Card>
+      </StyledSection>
+
+      <StyledSection>
+        <Card title={trans("enterprise.EnvironmentsFeaturePreviewTitle")}>
+          <Row gutter={[24, 24]}>
+            <Col span={8}>
+              <div className="image-placeholder">
+                <Text type="secondary">{trans("enterprise.ScreenshotPlaceholder1")}</Text>
+              </div>
+            </Col>
+            <Col span={8}>
+              <div className="image-placeholder">
+                <Text type="secondary">{trans("enterprise.ScreenshotPlaceholder2")}</Text>
+              </div>
+            </Col>
+            <Col span={8}>
+              <div className="image-placeholder">
+                <Text type="secondary">{trans("enterprise.ScreenshotPlaceholder3")}</Text>
+              </div>
+            </Col>
+          </Row>
         </Card>
       </StyledSection>
 

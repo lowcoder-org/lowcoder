@@ -2538,6 +2538,8 @@ export const en = {
     "EnvironmentsIntro1": "Lowcoder Environments allow you to separate your Dev, Test, and Prod stages cleanly and safely.",
     "EnvironmentsIntro2": "Enterprise teams benefit from structured release workflows, approval processes, and version stability across stages.",
     "EnvironmentsIntro3": "With the Environments feature, admins can control what gets deployed, when, and where — all from a single interface.",
+    "yourDeploymentID" : "Your Deployment ID",
+    "EnvironmentsFeaturePreviewTitle" : "Environments & Deployment in action",
 
     "EnvironmentsUseCasesTitle": "Why Use Environments?",
     "EnvironmentsUseCase1": "Prevent unintended changes in production by testing apps in dedicated Dev or QA environments.",
