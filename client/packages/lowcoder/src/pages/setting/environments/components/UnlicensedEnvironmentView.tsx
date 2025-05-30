@@ -16,6 +16,7 @@ import EnvironmentHeader from './EnvironmentHeader';
 import StatsCard from './StatsCard';
 import { Level1SettingPageContent } from "../../styled";
 import history from "@lowcoder-ee/util/history";
+import { trans } from 'i18n';
 
 const { Title, Text } = Typography;
 
@@ -54,37 +55,37 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
     
     switch (environment.licenseStatus) {
       case 'unlicensed':
-        return 'This environment needs a valid license to unlock its full capabilities and features. Please make sure your API Service URL is correctly configured and Plugin is installed.';
+        return trans("enterprise.environments.unlicensed.unlicensedDescription");
       case 'error':
-        return 'We encountered an issue while checking the license. Please review the configuration settings.';
+        return trans("enterprise.environments.unlicensed.errorDescription");
       default:
-        return 'This environment requires license configuration to proceed.';
+        return trans("enterprise.environments.unlicensed.defaultDescription");
     }
   };
 
   // Stats data consistent with other environment pages
   const statsData = [
     {
-      title: "Type",
-      value: environment.environmentType || "Unknown",
+      title: trans("enterprise.environments.unlicensed.type"),
+      value: environment.environmentType || trans("enterprise.environments.detail.unknown"),
       icon: <CloudServerOutlined />,
       color: "#1890ff"
     },
     {
-      title: "Status",
-      value: "Unlicensed",
+      title: trans("enterprise.environments.unlicensed.status"),
+      value: trans("enterprise.environments.detail.unlicensed"),
       icon: <CloseCircleOutlined />,
       color: "#ff4d4f"
     },
     {
-      title: "Master Env",
-      value: environment.isMaster ? "Yes" : "No",
+      title: trans("enterprise.environments.unlicensed.masterEnv"),
+      value: environment.isMaster ? trans("enterprise.environments.yes") : trans("enterprise.environments.no"),
       icon: <CloudServerOutlined />,
       color: environment.isMaster ? "#722ed1" : "#8c8c8c"
     },
     {
-      title: "License Issue",
-      value: environment.licenseStatus === 'error' ? "Error" : "Missing",
+      title: trans("enterprise.environments.unlicensed.licenseIssue"),
+      value: environment.licenseStatus === 'error' ? trans("enterprise.environments.unlicensed.error") : trans("enterprise.environments.unlicensed.missing"),
       icon: environment.licenseStatus === 'error' ? <ExclamationCircleOutlined /> : <CloseCircleOutlined />,
       color: environment.licenseStatus === 'error' ? "#faad14" : "#ff4d4f"
     }
@@ -117,12 +118,12 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
         items={[
           {
             key: 'environments',
-            title: 'Environments',
+            title: trans("enterprise.environments.title"),
             onClick: () => history.push('/setting/environments')
           },
           {
             key: 'current',
-            title: environment.environmentName || "Environment Detail"
+            title: environment.environmentName || trans("enterprise.environments.detail.environmentDetail")
           }
         ]}
       />
@@ -179,7 +180,7 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
                     fontWeight: 500
                   }}
                 >
-                  Contact Lowcoder Team
+                  {trans("enterprise.environments.unlicensed.contactLowcoderTeam")}
                 </Button>
 
                 <Button
@@ -194,7 +195,7 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
                     fontWeight: 500
                   }}
                 >
-                  Edit Environment
+                  {trans("enterprise.environments.unlicensed.editEnvironment")}
                 </Button>
 
                 <Button
@@ -209,7 +210,7 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
                     fontWeight: 500
                   }}
                 >
-                  Back to Environments
+                  {trans("enterprise.environments.unlicensed.backToEnvironments")}
                 </Button>
               </Space>
             </div>
@@ -233,7 +234,7 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
           display: 'block',
           lineHeight: '1.5'
         }}>
-          Need assistance? Contact our team for licensing support or edit the environment configuration to resolve this issue.
+          {trans("enterprise.environments.unlicensed.helpText")}
         </Text>
       </Card>
 
