@@ -31,7 +31,7 @@ import Title from 'antd/es/typography/Title';
 import { dropdownControl } from 'comps/controls/dropdownControl';
 import JsonFormsRenderer from "./JsonFormsRenderer";
 import { UISchemaElement } from "@jsonforms/core";
-import type { JsonFormsUiSchema } from "./JsonFormsRenderer";
+import type { JsonFormsUiSchema, ValidationState } from "./types";
 
 Theme.widgets.DateWidget = DateWidget(false);
 Theme.widgets.DateTimeWidget = DateWidget(true);
@@ -233,6 +233,7 @@ let FormBasicComp = (function () {
         __errors: ["Custom error for specific field"]
       }
     }),
+    validationState: jsonObjectExposingStateControl("validationState", {}),
   };
 
   return new UICompBuilder(childrenMap, (props) => {
@@ -294,8 +295,8 @@ let FormBasicComp = (function () {
       });
 
       return extraErrors;
-    };
-
+    };   
+    
     return (
       <ContainerWidthContext.Provider value={containerWidth}>
         <Container $style={props.style} $animationStyle={props.animationStyle} ref={containerRef}>
@@ -343,18 +344,26 @@ let FormBasicComp = (function () {
                       </Button>
                     }
                   />
-                </>
-              ) : (
-                <JsonFormsRenderer
+                </>) 
+                :( <JsonFormsRenderer
                   schema={props.schema}
                   data={props.data.value}
-                  onChange={(newData: any) => props.data.onChange(newData)}
+                  onChange={(newData: any) => {
+                    props.data.onChange(newData);
+                  }}
                   style={props.style}
                   showVerticalScrollbar={props.showVerticalScrollbar}
                   autoHeight={props.autoHeight}
                   resetAfterSubmit={props.resetAfterSubmit}
                   uiSchema={props.uiSchema as JsonFormsUiSchema}
-                  onSubmit={() => onSubmit(props)}
+                  onSubmit={() => {
+                    return onSubmit(props);
+                  }}
+                  validationState={props.validationState.value}
+                  showValidation={true}
+                  onValidationChange={(newValidationState: ValidationState) => {
+                    props.validationState.onChange(newValidationState);
+                  }}
                 />
               )}
             </ErrorBoundary>
@@ -467,11 +476,21 @@ let FormBasicComp = (function () {
                 key: trans("jsonSchemaForm.defaultData"),
                 label: trans("jsonSchemaForm.defaultData"),
               })}
-              {children.formType.getView() === "rjsf" && children.errorSchema.propertyView({
-                key: "errorSchema",
-                label: trans("jsonSchemaForm.errorSchema"),
-                tooltip: "Define custom error messages for form fields. Use __errors array for field-specific errors.",
-              })}
+              {children.formType.getView() === "rjsf" && (
+                children.errorSchema.propertyView({
+                  key: "errorSchema",
+                  label: trans("jsonSchemaForm.errorSchema"),
+                  tooltip: "Define custom error messages for form fields. Use __errors array for field-specific errors.",
+                })
+              ) 
+              // : (
+              //   children.validationState.propertyView({
+              //     key: "validationState",
+              //     label: trans("jsonSchemaForm.validationState"),
+              //     tooltip: "Current validation state of the form fields. Shows errors and touched state for each field.",
+              //   })
+              // )
+              }
             </Section>
           )}
 

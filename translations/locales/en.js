@@ -1203,6 +1203,8 @@ export const en = {
         "format": "Should Match the Format {value}",
         "errorSchema": "Error Schema",
         "formType": "Form Type",
+        "errorSchema": "Error Schema",
+        "validationState": "Validation State",
     },
     "select": {
         "inputValueDesc": "Input Search Value"

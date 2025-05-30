@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, ReactNode } from "react";
 import {
   Form,
   Input,
@@ -17,10 +17,20 @@ import {
 import styled from "styled-components";
 import type { JsonSchema } from "@jsonforms/core";
 import type { JSONSchema7 } from "json-schema";
-import debounce from "lodash/debounce";
+import { debounce } from "lodash";
 import dayjs from "dayjs";
 import { trans } from "i18n";
-
+import type { 
+  JsonFormsUiSchema, 
+  FieldUiSchema, 
+  Layout, 
+  Categorization,
+  ValidationState,
+  JsonFormsRendererProps,
+  Category,
+  Control
+} from "./types";
+import type { SwitchChangeEventHandler } from "antd/es/switch";
 const { TextArea } = Input;
 
 const Container = styled.div`
@@ -52,88 +62,9 @@ const Container = styled.div`
   }
 `;
 
-interface Category {
-  type: "Category";
-  label?: string;
-  i18n?: string;
-  elements: Array<Control | Layout>;
-  rule?: {
-    effect: "SHOW" | "HIDE";
-    condition: {
-      scope: string;
-      schema: {
-        const: any;
-      };
-    };
-  };
-}
-
-interface Control {
-  type: "Control";
-  scope: string;
-  options?: {
-    multi?: boolean;
-    slider?: boolean;
-    restrict?: boolean;
-  };
-  rule?: {
-    effect: "SHOW" | "HIDE";
-    condition: {
-      scope: string;
-      schema: {
-        const: any;
-      };
-    };
-  };
-}
-
 interface HorizontalLayout {
   type: "HorizontalLayout";
   elements: Control[];
-}
-
-type Layout = HorizontalLayout;
-
-interface Categorization {
-  type: "Categorization";
-  elements: Category[];
-  options?: {
-    variant?: "tabs" | "stepper";
-    showNavButtons?: boolean;
-  };
-}
-
-interface FieldUiSchema {
-  type?: string;
-  scope?: string;
-  options?: {
-    multi?: boolean;
-    slider?: boolean;
-    restrict?: boolean;
-  };
-  [key: string]: any;
-}
-
-export interface JsonFormsUiSchema {
-  type?: string;
-  elements?: Array<Category | Control | Layout>;
-  options?: {
-    variant?: "tabs" | "stepper";
-    showNavButtons?: boolean;
-  };
-  [key: string]: FieldUiSchema | JsonFormsUiSchema | any;
-}
-
-export interface JsonFormsRendererProps {
-  schema: JsonSchema;
-  data: any;
-  onChange: (data: any) => void;
-  style?: any;
-  showVerticalScrollbar?: boolean;
-  autoHeight?: boolean;
-  resetAfterSubmit?: boolean;
-  uiSchema?: JsonFormsUiSchema;
-  onSubmit?: () => void;
 }
 
 const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
@@ -144,12 +75,29 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
   uiSchema,
   onSubmit,
   resetAfterSubmit,
+  validationState: externalValidationState,
+  onValidationChange,
 }) => {
   // Local state to handle immediate updates
   const [localData, setLocalData] = useState(data);
   // Track focused field
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
+  const [internalValidationState, setInternalValidationState] = useState<ValidationState>({});
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // Use external validation state if provided, otherwise use internal
+  const validationState = externalValidationState || internalValidationState;
+  const setValidationState = useCallback((newState: ValidationState | ((prev: ValidationState) => ValidationState)) => {
+    if (typeof newState === 'function') {
+      const updatedState = newState(validationState);
+      setInternalValidationState(updatedState);
+      onValidationChange?.(updatedState);
+    } else {
+      setInternalValidationState(newState);
+      onValidationChange?.(newState);
+    }
+  }, [validationState, onValidationChange]);
 
   // Update local data when prop data changes
   useEffect(() => {
@@ -218,8 +166,8 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
       return (
         <Row gutter={16}>
           {layout.elements
-            .filter(shouldShowElement)
-            .map((element, index) => (
+            .filter((element: Control) => shouldShowElement(element))
+            .map((element: Control, index: number) => (
               <Col key={index} span={24 / layout.elements.length}>
                 {renderControl(element)}
               </Col>
@@ -269,17 +217,129 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
     return (
       <div key={category.label}>
         {category.elements
-          .filter(shouldShowElement)
-          .map((element, index) => {
+          .filter((element: Control | Layout) => shouldShowElement(element))
+          .map((element: Control | Layout, index: number) => {
             if (element.type === "Control") {
-              return <div key={index}>{renderControl(element)}</div>;
+              return <div key={index}>{renderControl(element as Control)}</div>;
             } else if (element.type === "HorizontalLayout") {
-              return <div key={index}>{renderLayout(element)}</div>;
+              return <div key={index}>{renderLayout(element as Layout)}</div>;
             }
             return null;
           })}
       </div>
     );
+  };
+  // Add validation function  
+  const validateField = useCallback((path: string, value: any, fieldSchema: any) => {
+    const errors: string[] = [];
+    
+    // Required field validation - check if field name is in schema.required array
+    const fieldName = path.split('.').pop() || '';
+    if (schema.required?.includes(fieldName) && (value === undefined || value === null || value === '')) {
+      errors.push('This field is required');
+    }
+
+    // Type-specific validation
+    if (value !== undefined && value !== null) {
+      switch (fieldSchema.type) {
+        case 'string':
+          if (fieldSchema.minLength && value.length < fieldSchema.minLength) {
+            errors.push(`Minimum length is ${fieldSchema.minLength}`);
+          }
+          if (fieldSchema.maxLength && value.length > fieldSchema.maxLength) {
+            errors.push(`Maximum length is ${fieldSchema.maxLength}`);
+          }
+          if (fieldSchema.pattern && !new RegExp(fieldSchema.pattern).test(value)) {
+            errors.push('Invalid format');
+          }
+          break;
+        case 'number':
+        case 'integer':
+          if (fieldSchema.minimum !== undefined && value < fieldSchema.minimum) {
+            errors.push(`Minimum value is ${fieldSchema.minimum}`);
+          }
+          if (fieldSchema.maximum !== undefined && value > fieldSchema.maximum) {
+            errors.push(`Maximum value is ${fieldSchema.maximum}`);
+          }
+          break;
+      }
+    }
+
+    return errors;
+  }, [])
+  // Helper to get value at a dot-separated path
+  const getValueAtPath = (obj: any, path: string) => {
+    if (!path) return obj;
+    return path.split('.').reduce((acc, part) => (acc ? acc[part] : undefined), obj);
+  };
+  // Update validation state when data changes
+  useEffect(() => {
+    if (isSubmitted) {
+      const newValidationState: ValidationState = {};
+      const validateObject = (obj: any, schema: any, path: string = '') => {
+        if (schema.properties) {
+          Object.entries(schema.properties).forEach(([key, fieldSchema]: [string, any]) => {
+            const fullPath = path ? `${path}.${key}` : key;
+            const value = getValueAtPath(obj, key);
+            newValidationState[fullPath] = {
+              errors: validateField(fullPath, getValueAtPath(obj, key), fieldSchema),
+              touched: true
+            };
+            if (fieldSchema.type === 'object' && fieldSchema.properties) {
+              validateObject(getValueAtPath(obj, key) || {}, fieldSchema, fullPath);
+            }
+          });
+        }
+      };
+      validateObject(data, schema);
+      setValidationState(newValidationState);
+    }
+  }, [data, schema, validateField, isSubmitted]);
+  const handleValueChange = (newValue: any, fieldKey: string, fieldPath?: string) => {
+    const newData = { ...localData };
+    if (fieldPath) {
+      const pathParts = fieldPath.split(".");
+      let current = newData;
+      for (let i = 0; i < pathParts.length; i++) {
+        if (i === pathParts.length - 1) {
+          current[pathParts[i]] = {
+            ...current[pathParts[i]],
+            [fieldKey]: newValue,
+          };
+        } else {
+          current = current[pathParts[i]];
+        }
+      }
+    } else {
+      newData[fieldKey] = newValue;
+    }
+
+    setLocalData(newData);
+    debouncedOnChange(newData);
+  };
+
+  const createInputHandler = (fieldKey: string, fieldPath?: string) => {
+    return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      handleValueChange(e.target.value, fieldKey, fieldPath);
+    };
+  };
+
+  const createNumberHandler = (fieldKey: string, fieldPath?: string) => {
+    return (value: number | null) => {
+      handleValueChange(value, fieldKey, fieldPath);
+    };
+  };
+
+  const createSwitchHandler = (fieldKey: string, fieldPath?: string) => {
+    return (checked: boolean) => {
+      handleValueChange(checked, fieldKey, fieldPath);
+    };
+  };
+
+  const createArrayHandler = (fieldKey: string, fieldPath?: string) => {
+    return (newItems: any[]) => {
+      handleValueChange(newItems, fieldKey, fieldPath);
+    };
   };
 
   const renderField = (
@@ -287,7 +347,7 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
     fieldSchema: any,
     value: any,
     path: string = ""
-  ) => {
+  ): ReactNode => {
     const fullPath = path ? `${path}.${key}` : key;
     const label = fieldSchema.title || key;
     const required = schema.required?.includes(key);
@@ -296,39 +356,39 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
     const isSlider = uiSchemaForField?.options?.slider === true;
     const isRestrict = uiSchemaForField?.options?.restrict === true;
     const isFocused = focusedField === fullPath;
+    const fieldValidation = validationState[fullPath];
+    const showErrors = isSubmitted && fieldValidation?.touched;
 
-    const handleFocus = () => setFocusedField(fullPath);
-    const handleBlur = () => setFocusedField(null);
-
-    const handleChange = (newValue: any) => {
-      const newData = { ...localData };
-      if (path) {
-        const pathParts = path.split(".");
-        let current = newData;
-        for (let i = 0; i < pathParts.length; i++) {
-          if (i === pathParts.length - 1) {
-            current[pathParts[i]] = {
-              ...current[pathParts[i]],
-              [key]: newValue,
-            };
-          } else {
-            current = current[pathParts[i]];
+    const handleFocus = () => setFocusedField(fullPath);    const handleBlur = () => {
+      setFocusedField(null);
+      // Validate field on blur
+      const errors = validateField(fullPath, value, fieldSchema);
+      setValidationState(prev => {
+        const newState = {
+          ...prev,
+          [fullPath]: {
+            errors,
+            touched: true
           }
-        }
-      } else {
-        newData[key] = newValue;
-      }
+        };
+        return newState;
+      });
+    };
 
-      // Update local state immediately
-      setLocalData(newData);
-      // Debounce the parent update
-      debouncedOnChange(newData);
+    // Modify Form.Item to include validation    
+    const formItemProps = {
+      key: fullPath,
+      label: label,
+      required: required,
+      extra: isFocused ? fieldSchema.description : undefined,
+      validateStatus: (fieldValidation?.touched && fieldValidation?.errors.length ? 'error' : undefined) as "" | "error" | "success" | "warning" | "validating" | undefined,
+      help: fieldValidation?.touched ? fieldValidation?.errors.join(', ') : undefined,
     };
 
     // Handle nested objects
     if (fieldSchema.type === "object" && fieldSchema.properties) {
       return (
-        <Form.Item key={fullPath} label={label} required={required}>
+        <Form.Item {...formItemProps}>
           <Space direction="vertical" style={{ width: "100%" }}>
             {Object.entries(fieldSchema.properties).map(
               ([subKey, subSchema]: [string, any]) =>
@@ -343,7 +403,7 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
     if (fieldSchema.type === "array") {
       const items = value || [];
       return (
-        <Form.Item key={fullPath} label={label} required={required}>
+        <Form.Item {...formItemProps}>
           <Space direction="vertical" style={{ width: "100%" }}>
             {items.map((item: any, index: number) => (
               <Space key={index}>
@@ -354,14 +414,14 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
                   onClick={() => {
                     const newItems = [...items];
                     newItems.splice(index, 1);
-                    handleChange(newItems);
+                    handleValueChange(newItems, key, fullPath);
                   }}
                 >
                   Remove
                 </Button>
               </Space>
             ))}
-            <Button type="dashed" onClick={() => handleChange([...items, ""])}>
+            <Button type="dashed" onClick={() => handleValueChange([...items, ""], key, fullPath)}>
               Add Item
             </Button>
           </Space>
@@ -374,20 +434,15 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
       case "string":
         if (fieldSchema.format === "date") {
           return (
-            <Form.Item 
-              key={fullPath} 
-              label={label} 
-              required={required}
-              extra={isFocused ? fieldSchema.description : undefined}
-            >
+            <Form.Item {...formItemProps}>
               <DatePicker
                 style={{ width: "100%" }}
                 value={value ? dayjs(value).isValid() ? dayjs(value) : null : null}
                 onChange={(date) => {
                   if (date && date.isValid()) {
-                    handleChange(date.format('YYYY-MM-DD'));
+                    handleValueChange(date.format('YYYY-MM-DD'), key, path);
                   } else {
-                    handleChange(null);
+                    handleValueChange(null, key, path);
                   }
                 }}
                 onFocus={handleFocus}
@@ -406,16 +461,11 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
         }
         if (fieldSchema.enum) {
           return (
-            <Form.Item 
-              key={fullPath} 
-              label={label} 
-              required={required}
-              extra={isFocused ? fieldSchema.description : undefined}
-            >
+            <Form.Item {...formItemProps}>
               <Select
                 style={{ width: "100%" }}
                 value={value}
-                onChange={handleChange}
+                onChange={(newValue) => handleValueChange(newValue, key, path)}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 options={fieldSchema.enum.map((option: string) => ({
@@ -429,15 +479,10 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
         // Check if this field should be multiline
         if (isMultiline) {
           return (
-            <Form.Item 
-              key={fullPath} 
-              label={label} 
-              required={required}
-              extra={isFocused ? fieldSchema.description : undefined}
-            >
+            <Form.Item {...formItemProps}>
               <TextArea
                 value={value || ""}
-                onChange={(e) => handleChange(e.target.value)}
+                onChange={createInputHandler(key, path)}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 autoComplete="off"
@@ -449,15 +494,10 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
           );
         }
         return (
-          <Form.Item 
-            key={fullPath} 
-            label={label} 
-            required={required}
-            extra={isFocused ? fieldSchema.description : undefined}
-          >
+          <Form.Item {...formItemProps}>
             <Input
               value={value || ""}
-              onChange={(e) => handleChange(e.target.value)}
+              onChange={createInputHandler(key, path)}
               onFocus={handleFocus}
               onBlur={handleBlur}
               autoComplete="off"
@@ -470,19 +510,14 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
       case "number":
       case "integer":
         return (
-          <Form.Item 
-            key={fullPath} 
-            label={label} 
-            required={required}
-            extra={isFocused ? fieldSchema.description : undefined}
-          >
+          <Form.Item {...formItemProps}>
             {isSlider ? (
               <Slider
                 style={{ width: "100%" }}
                 min={fieldSchema.minimum}
                 max={fieldSchema.maximum}
                 value={value}
-                onChange={handleChange}
+                onChange={createNumberHandler(key, path)}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
               />
@@ -490,7 +525,7 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
               <InputNumber
                 style={{ width: "100%" }}
                 value={value}
-                onChange={handleChange}
+                onChange={createNumberHandler(key, path)}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 min={fieldSchema.minimum}
@@ -499,7 +534,12 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
                 formatter={(value) =>
                   `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                 }
-                parser={(value) => value!.replace(/\$\s?|(,*)/g, "")}
+                parser={(value: string | undefined) => {
+                  if (!value) return NaN;
+                  const parsed = value.replace(/\$\s?|,*/g, "");
+                  const num = Number(parsed);
+                  return isNaN(num) ? NaN : num;
+                }}
               />
             )}
           </Form.Item>
@@ -507,17 +547,11 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
 
       case "boolean":
         return (
-          <Form.Item
-            key={fullPath}
-            label={label}
-            required={required}
-            valuePropName="checked"
-            extra={isFocused ? fieldSchema.description : undefined}
-          >
+          <Form.Item {...formItemProps} valuePropName="checked">
             <div onFocus={handleFocus} onBlur={handleBlur}>
               <Switch 
                 checked={value} 
-                onChange={handleChange}
+                onChange={createSwitchHandler(key, path)}
               />
             </div>
           </Form.Item>
@@ -525,15 +559,10 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
 
       default:
         return (
-          <Form.Item 
-            key={fullPath} 
-            label={label} 
-            required={required}
-            extra={isFocused ? fieldSchema.description : undefined}
-          >
+          <Form.Item {...formItemProps}>
             <Input
               value={value || ""}
-              onChange={(e) => handleChange(e.target.value)}
+              onChange={createInputHandler(key, path)}
               onFocus={handleFocus}
               onBlur={handleBlur}
               autoComplete="off"
@@ -543,12 +572,17 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
         );
     }
   };
-
   const handleSubmit = () => {
-    if (onSubmit) {
+    setIsSubmitted(true);
+    
+    // Check if there are any validation errors
+    const hasErrors = Object.values(validationState).some((state: ValidationState[string]) => state.errors.length);
+    if (!hasErrors && onSubmit) {
       onSubmit();
       if (resetAfterSubmit) {
         setCurrentStep(0);
+        setIsSubmitted(false);
+        setValidationState({});
       }
     }
   };
@@ -556,7 +590,7 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
   if (uiSchema?.type === "Categorization") {
     const categorization = uiSchema as Categorization;
     const variant = categorization.options?.variant || "tabs";
-    const visibleCategories = categorization.elements.filter(shouldShowElement);
+    const visibleCategories = categorization.elements.filter((category: Category) => shouldShowElement(category));
     const isLastStep = currentStep === visibleCategories.length - 1;
 
     const handleNext = () => {
