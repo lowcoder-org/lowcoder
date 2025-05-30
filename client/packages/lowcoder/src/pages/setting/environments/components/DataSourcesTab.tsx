@@ -21,6 +21,7 @@ import { ManagedObjectType, setManagedObject, unsetManagedObject } from '../serv
 import { useDeployModal } from '../context/DeployModalContext';
 import { dataSourcesConfig } from '../config/data-sources.config';
 import history from "@lowcoder-ee/util/history";
+import { trans } from 'i18n';
 
 const { Search } = Input;
 
@@ -115,10 +116,10 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
         unmanaged: prev.total - managed
       }));
       
-      messageInstance.success(`${dataSource.name} is now ${checked ? 'Managed' : 'Unmanaged'}`);
+      messageInstance.success(trans(checked ? "enterprise.environments.dataSources.managedSuccess" : "enterprise.environments.dataSources.unmanagedSuccess", { name: dataSource.name }));
       return true;
     } catch (error) {
-      messageInstance.error(`Failed to change managed status for ${dataSource.name}`);
+      messageInstance.error(trans("enterprise.environments.dataSources.managedError", { name: dataSource.name }));
       return false;
     } finally {
       setRefreshing(false);
@@ -139,7 +140,7 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
   // Table columns
   const columns = [
     {
-      title: 'Data Source',
+      title: trans("enterprise.environments.dataSources.dataSource"),
       key: 'datasource',
       render: (dataSource: DataSource) => (
         <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -161,7 +162,7 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
       ),
     },
     {
-      title: 'Type',
+      title: trans("enterprise.environments.dataSources.type"),
       dataIndex: 'type',
       key: 'type',
       render: (type: string) => (
@@ -171,19 +172,19 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
       ),
     },
     {
-      title: 'Status',
+      title: trans("enterprise.environments.dataSources.status"),
       key: 'status',
       render: (dataSource: DataSource) => (
         <Tag 
           color={dataSource.managed ? 'processing' : 'default'} 
           style={{ borderRadius: '4px' }}
         >
-          {dataSource.managed ? <CloudServerOutlined /> : <DisconnectOutlined />} {dataSource.managed ? 'Managed' : 'Unmanaged'}
+          {dataSource.managed ? <CloudServerOutlined /> : <DisconnectOutlined />} {dataSource.managed ? trans("enterprise.environments.dataSources.managed") : trans("enterprise.environments.dataSources.unmanaged")}
         </Tag>
       ),
     },
     {
-      title: 'Managed',
+      title: trans("enterprise.environments.dataSources.managed"),
       key: 'managed',
       render: (_: any, dataSource: DataSource) => (
         <Switch
@@ -194,22 +195,22 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
       ),
     },
     {
-      title: 'Actions',
+      title: trans("enterprise.environments.workspaces.actions"),
       key: 'actions',
       render: (_: any, dataSource: DataSource) => (
         <Space onClick={(e) => e.stopPropagation()}>
        
-          <Tooltip title={!dataSource.managed ? "Data source must be managed before it can be deployed" : "Deploy this data source to another environment"}>
+          <Tooltip title={!dataSource.managed ? trans("enterprise.environments.dataSources.dataSourceMustBeManagedToDeploy") : trans("enterprise.environments.dataSources.deployThisDataSource")}>
             <Button
               type="primary"
               icon={<CloudUploadOutlined />}
               onClick={() => openDeployModal(dataSource, dataSourcesConfig, environment)}
               disabled={!dataSource.managed}
             >
-              Deploy
+              {trans("enterprise.environments.dataSources.deploy")}
             </Button>
           </Tooltip>
-          <Tooltip title="View Audit Logs">
+          <Tooltip title={trans("enterprise.environments.dataSources.viewAuditLogs")}>
             <Button
               icon={<AuditOutlined />}
               onClick={(e) => {
@@ -218,7 +219,7 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
                 window.open(auditUrl, '_blank');
               }}
             >
-              Audit
+              {trans("enterprise.environments.dataSources.audit")}
             </Button>
           </Tooltip>
         </Space>
@@ -286,10 +287,10 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
       }}>
         <div>
           <Title level={4} style={{ margin: 0, marginBottom: '4px' }}>
-            <DatabaseOutlined style={{ marginRight: 8 }} /> Data Sources
+            <DatabaseOutlined style={{ marginRight: 8 }} /> {trans("enterprise.environments.dataSources.title")}
           </Title>
           <p style={{ marginBottom: 0, color: '#8c8c8c', fontSize: '14px' }}>
-            Manage workspace data connections
+            {trans("enterprise.environments.dataSources.subtitle")}
           </p>
         </div>
         <Button 
@@ -297,14 +298,14 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
           onClick={handleRefresh}
           loading={loading}
         >
-          Refresh
+          {trans("enterprise.environments.dataSources.refresh")}
         </Button>
       </div>
 
       {/* Error display */}
       {error && (
         <Alert
-          message="Error loading data sources"
+          message={trans("enterprise.environments.dataSources.errorLoadingDataSources")}
           description={error}
           type="error"
           showIcon
@@ -315,8 +316,8 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
       {/* Configuration warnings */}
       {(!environment.environmentApikey || !environment.environmentApiServiceUrl) && !error && (
         <Alert
-          message="Configuration Issue"
-          description="Missing required configuration: API key or API service URL"
+          message={trans("enterprise.environments.dataSources.configurationIssue")}
+          description={trans("enterprise.environments.dataSources.missingConfiguration")}
           type="warning"
           showIcon
           style={{ marginBottom: "16px" }}
@@ -327,28 +328,28 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
       <Row gutter={[16, 16]} style={{ marginBottom: '20px' }}>
         <Col xs={12} sm={12} md={6}>
           <StatCard 
-            title="Total Data Sources" 
+            title={trans("enterprise.environments.dataSources.totalDataSources")} 
             value={stats.total} 
             icon={<DatabaseOutlined />} 
           />
         </Col>
         <Col xs={12} sm={12} md={6}>
           <StatCard 
-            title="Available Types" 
+            title={trans("enterprise.environments.dataSources.availableTypes")} 
             value={stats.types} 
             icon={<ApiOutlined />} 
           />
         </Col>
         <Col xs={12} sm={12} md={6}>
           <StatCard 
-            title="Managed" 
+            title={trans("enterprise.environments.dataSources.managed")} 
             value={stats.managed} 
             icon={<CloudServerOutlined />} 
           />
         </Col>
         <Col xs={12} sm={12} md={6}>
           <StatCard 
-            title="Unmanaged" 
+            title={trans("enterprise.environments.dataSources.unmanaged")} 
             value={stats.unmanaged} 
             icon={<DisconnectOutlined />} 
           />
@@ -368,7 +369,7 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
           </div>
         ) : dataSources.length === 0 ? (
           <Empty
-            description={error || "No data sources found in this workspace"}
+            description={error || trans("enterprise.environments.dataSources.noDataSourcesFound")}
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           />
         ) : (
@@ -376,7 +377,7 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
             {/* Search and Filter Bar */}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
               <Search
-                placeholder="Search data sources by name or ID"
+                placeholder={trans("enterprise.environments.dataSources.searchDataSources")}
                 allowClear
                 onSearch={value => setSearchText(value)}
                 onChange={e => setSearchText(e.target.value)}
@@ -388,13 +389,13 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
                 icon={<FilterOutlined />}
                 style={{ marginLeft: '8px' }}
               >
-                {showManagedOnly ? 'Show All' : 'Managed Only'}
+                {showManagedOnly ? trans("enterprise.environments.dataSources.showAll") : trans("enterprise.environments.dataSources.managedOnly")}
               </Button>
             </div>
             
             {searchText &&  displayedDataSources.length !== dataSources.length && (
               <div style={{ marginBottom: 16, color: '#8c8c8c', fontSize: '13px' }}>
-                Showing {displayedDataSources.length} of {dataSources.length} data sources
+                {trans("enterprise.environments.dataSources.showingResults", { count: displayedDataSources.length, total: dataSources.length })}
               </div>
             )}
             
@@ -404,7 +405,7 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
               rowKey="id"
               pagination={{ 
                 pageSize: 10,
-                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} data sources`,
+                showTotal: (total, range) => trans("enterprise.environments.dataSources.paginationTotal", { start: range[0], end: range[1], total }),
                 size: 'small'
               }}
               size="middle"

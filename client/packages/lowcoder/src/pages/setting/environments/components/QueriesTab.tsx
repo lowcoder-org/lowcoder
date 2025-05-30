@@ -23,6 +23,7 @@ import { ManagedObjectType, setManagedObject, unsetManagedObject } from '../serv
 import { useDeployModal } from '../context/DeployModalContext';
 import { queryConfig } from '../config/query.config';
 import history from "@lowcoder-ee/util/history";
+import { trans } from 'i18n';
 
 const { Search } = Input;
 
@@ -116,10 +117,10 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
         unmanaged: prev.total - managed
       }));
       
-      messageInstance.success(`${query.name} is now ${checked ? 'Managed' : 'Unmanaged'}`);
+      messageInstance.success(trans(checked ? "enterprise.environments.queries.managedSuccess" : "enterprise.environments.queries.unmanagedSuccess", { name: query.name }));
       return true;
     } catch (error) {
-      messageInstance.error(`Failed to change managed status for ${query.name}`);
+      messageInstance.error(trans("enterprise.environments.queries.managedError", { name: query.name }));
       return false;
     } finally {
       setRefreshing(false);
@@ -151,7 +152,7 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
   // Table columns
   const columns = [
     {
-      title: 'Query',
+      title: trans("enterprise.environments.queries.query"),
       key: 'query',
       render: (query: Query) => (
         <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -174,7 +175,7 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
       ),
     },
     {
-      title: 'Creator',
+      title: trans("enterprise.environments.queries.creator"),
       dataIndex: 'creatorName',
       key: 'creatorName',
       render: (creatorName: string) => (
@@ -189,19 +190,19 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
       )
     },
     {
-      title: 'Status',
+      title: trans("enterprise.environments.queries.status"),
       key: 'status',
       render: (query: Query) => (
         <Tag 
           color={query.managed ? 'processing' : 'default'} 
           style={{ borderRadius: '4px' }}
         >
-          {query.managed ? <CloudServerOutlined /> : <DisconnectOutlined />} {query.managed ? 'Managed' : 'Unmanaged'}
+          {query.managed ? <CloudServerOutlined /> : <DisconnectOutlined />} {query.managed ? trans("enterprise.environments.queries.managed") : trans("enterprise.environments.queries.unmanaged")}
         </Tag>
       ),
     },
     {
-      title: 'Managed',
+      title: trans("enterprise.environments.queries.managed"),
       key: 'managed',
       render: (_: any, query: Query) => (
         <Switch
@@ -212,22 +213,22 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
       ),
     },
     {
-      title: 'Actions',
+      title: trans("enterprise.environments.workspaces.actions"),
       key: 'actions',
       render: (_: any, query: Query) => (
         <Space onClick={(e) => e.stopPropagation()}>
       
-          <Tooltip title={!query.managed ? "Query must be managed before it can be deployed" : "Deploy this query to another environment"}>
+          <Tooltip title={!query.managed ? trans("enterprise.environments.queries.queryMustBeManagedToDeploy") : trans("enterprise.environments.queries.deployThisQuery")}>
             <Button
               type="primary"
               icon={<CloudUploadOutlined />}
               onClick={() => openDeployModal(query, queryConfig, environment)}
               disabled={!query.managed}
             >
-              Deploy
+              {trans("enterprise.environments.queries.deploy")}
             </Button>
           </Tooltip>
-          <Tooltip title="View Audit Logs">
+          <Tooltip title={trans("enterprise.environments.queries.viewAuditLogs")}>
             <Button
               icon={<AuditOutlined />}
               onClick={(e) => {
@@ -236,7 +237,7 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
                 window.open(auditUrl, '_blank');
               }}
             >
-              Audit
+              {trans("enterprise.environments.queries.audit")}
             </Button>
           </Tooltip>
         </Space>
@@ -286,10 +287,10 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
       }}>
         <div>
           <Title level={4} style={{ margin: 0, marginBottom: '4px' }}>
-            <ThunderboltOutlined style={{ marginRight: 8 }} /> Queries
+            <ThunderboltOutlined style={{ marginRight: 8 }} /> {trans("enterprise.environments.queries.title")}
           </Title>
           <p style={{ marginBottom: 0, color: '#8c8c8c', fontSize: '14px' }}>
-            Manage workspace API queries
+            {trans("enterprise.environments.queries.subtitle")}
           </p>
         </div>
         <Button 
@@ -297,14 +298,14 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
           onClick={handleRefresh}
           loading={loading}
         >
-          Refresh
+          {trans("enterprise.environments.queries.refresh")}
         </Button>
       </div>
 
       {/* Error display */}
       {error && (
         <Alert
-          message="Error loading queries"
+          message={trans("enterprise.environments.queries.errorLoadingQueries")}
           description={error}
           type="error"
           showIcon
@@ -315,8 +316,8 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
       {/* Configuration warnings */}
       {(!environment.environmentApikey || !environment.environmentApiServiceUrl) && !error && (
         <Alert
-          message="Configuration Issue"
-          description="Missing required configuration: API key or API service URL"
+          message={trans("enterprise.environments.queries.configurationIssue")}
+          description={trans("enterprise.environments.queries.missingConfiguration")}
           type="warning"
           showIcon
           style={{ marginBottom: "16px" }}
@@ -327,21 +328,21 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
       <Row gutter={[16, 16]} style={{ marginBottom: '20px' }}>
         <Col xs={24} sm={8}>
           <StatCard 
-            title="Total Queries" 
+            title={trans("enterprise.environments.queries.totalQueries")} 
             value={stats.total} 
             icon={<CodeOutlined />} 
           />
         </Col>
         <Col xs={24} sm={8}>
           <StatCard 
-            title="Managed" 
+            title={trans("enterprise.environments.queries.managed")} 
             value={stats.managed} 
             icon={<CloudServerOutlined />} 
           />
         </Col>
         <Col xs={24} sm={8}>
           <StatCard 
-            title="Unmanaged" 
+            title={trans("enterprise.environments.queries.unmanaged")} 
             value={stats.unmanaged} 
             icon={<DisconnectOutlined />} 
           />
@@ -361,7 +362,7 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
           </div>
         ) : queries.length === 0 ? (
           <Empty
-            description={error || "No queries found in this workspace"}
+            description={error || trans("enterprise.environments.queries.noQueriesFound")}
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           />
         ) : (
@@ -369,7 +370,7 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
             {/* Search and Filter Bar */}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
               <Search
-                placeholder="Search queries by name or ID"
+                placeholder={trans("enterprise.environments.queries.searchQueries")}
                 allowClear
                 onSearch={value => setSearchText(value)}
                 onChange={e => setSearchText(e.target.value)}
@@ -381,13 +382,13 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
                 icon={<FilterOutlined />}
                 style={{ marginLeft: '8px' }}
               >
-                {showManagedOnly ? 'Show All' : 'Managed Only'}
+                {showManagedOnly ? trans("enterprise.environments.queries.showAll") : trans("enterprise.environments.queries.managedOnly")}
               </Button>
             </div>
             
             {searchText && displayedQueries.length !== queries.length && (
               <div style={{ marginBottom: 16, color: '#8c8c8c', fontSize: '13px' }}>
-                Showing {displayedQueries.length} of {queries.length} queries
+                {trans("enterprise.environments.queries.showingResults", { count: displayedQueries.length, total: queries.length })}
               </div>
             )}
             
@@ -397,7 +398,7 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
               rowKey="id"
               pagination={{ 
                 pageSize: 10,
-                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} queries`,
+                showTotal: (total, range) => trans("enterprise.environments.queries.paginationTotal", { start: range[0], end: range[1], total }),
                 size: 'small'
               }}
               size="middle"
