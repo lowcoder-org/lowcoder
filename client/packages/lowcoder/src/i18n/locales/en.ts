@@ -2914,6 +2914,10 @@ export const en = {
           "failedToDeployQuery": "Failed to deploy query",
           "queryGidRequired": "Query GID is required",
           "failedToDisconnectQuery": "Failed to disconnect query"
+        },
+        "apps": {
+          "failedToFetchApps": "Failed to fetch apps",
+          "failedToDeployApp": "Failed to deploy app"
         }
       }
     }
