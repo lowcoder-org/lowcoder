@@ -11,7 +11,7 @@ import { markdownCompCss, TacoMarkDown } from "lowcoder-design";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
-  ${markdownCompCss as any};
+  ${markdownCompCss};
   max-height: 32px;
 
   > .markdown-body {

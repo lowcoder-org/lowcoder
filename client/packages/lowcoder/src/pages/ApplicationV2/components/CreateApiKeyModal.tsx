@@ -38,7 +38,7 @@ const FormStyled = styled(Form)`
     font-size: 13px;
     line-height: 19px;
     .has-tip {
-      ${UnderlineCss as any};
+      ${UnderlineCss};
     }
   }
 

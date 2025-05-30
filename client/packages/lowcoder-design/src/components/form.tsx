@@ -1,4 +1,4 @@
-import { default as Form, FormProps } from "antd/es/form";
+import { default as Form } from "antd/es/form";
 import { default as AntdFormItem, FormItemProps as AntdFormItemProps} from "antd/es/form/FormItem";
 import { default as Input, InputProps } from "antd/es/input";
 import { default as TextArea, TextAreaProps } from "antd/es/input/TextArea";
@@ -429,7 +429,7 @@ export const FormKeyValueItem = (props: FormItemProps) => (
   </FormItemContain>
 );
 
-export const DatasourceForm = styled(Form)<FormProps>`
+export const DatasourceForm = styled(Form)`
   display: flex;
   flex-direction: column;
   gap: 8px;

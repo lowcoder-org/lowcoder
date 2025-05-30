@@ -15,9 +15,7 @@ const LabelWrapper = styled.div<{ $placement: ControlPlacement }>`
 `;
 
 const DropDownItemLabel = styled.div`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  ${EllipsisTextCss};
   width: 100%;
   font-size: 13px;
   line-height: 15px;

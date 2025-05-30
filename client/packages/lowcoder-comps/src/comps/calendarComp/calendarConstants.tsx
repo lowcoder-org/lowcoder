@@ -28,7 +28,7 @@ import {
   SlotLabelContentArg,
   ViewContentArg,
 } from "@fullcalendar/core";
-import { default as Form, FormProps } from "antd/es/form";
+import { default as Form } from "antd/es/form";
 
 type Theme = typeof Theme;
 type EventModalStyleType = typeof EventModalStyleType;
@@ -776,11 +776,9 @@ export const Event = styled.div<{
   }
 `;
 
-export const FormWrapper = styled(Form)<
-  FormProps & {
-    $modalStyle?: EventModalStyleType;
-  }
->`
+export const FormWrapper = styled(Form)<{
+  $modalStyle?: EventModalStyleType
+}>`
   .ant-form-item-label {
     width: 125px;
     text-align: left;
@@ -789,12 +787,12 @@ export const FormWrapper = styled(Form)<
     label:not(.ant-form-item-required) {
       margin-left: 2px;
     }
-     label.ant-form-item-required{
+      label.ant-form-item-required{
       margin-left: 2px;
     }
     label span {
       ${UnderlineCss}
-
+      
     }
   }
 

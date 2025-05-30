@@ -55,7 +55,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ant-design/colors@npm:^7.0.0, @ant-design/colors@npm:^7.2.0, @ant-design/colors@npm:^7.2.1":
+"@ant-design/colors@npm:^7.0.0, @ant-design/colors@npm:^7.2.0":
   version: 7.2.1
   resolution: "@ant-design/colors@npm:7.2.1"
   dependencies:
@@ -288,7 +288,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/helper-module-imports@npm:^7.0.0, @babel/helper-module-imports@npm:^7.16.7, @babel/helper-module-imports@npm:^7.22.5, @babel/helper-module-imports@npm:^7.27.1":
+"@babel/helper-module-imports@npm:^7.0.0, @babel/helper-module-imports@npm:^7.22.5, @babel/helper-module-imports@npm:^7.27.1":
   version: 7.27.1
   resolution: "@babel/helper-module-imports@npm:7.27.1"
   dependencies:
@@ -1861,27 +1861,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@date-io/core@npm:^3.2.0":
-  version: 3.2.0
-  resolution: "@date-io/core@npm:3.2.0"
-  checksum: 711e43b449bc29f5f1aaf49e34e722a9fe42238b1ee20e81e3a11692118002872d915c2a289f1ed24e53f88bd220ce3888d7ec0a1705c131e305478f534a3450
-  languageName: node
-  linkType: hard
-
-"@date-io/dayjs@npm:^3.0.0":
-  version: 3.2.0
-  resolution: "@date-io/dayjs@npm:3.2.0"
-  dependencies:
-    "@date-io/core": ^3.2.0
-  peerDependencies:
-    dayjs: ^1.8.17
-  peerDependenciesMeta:
-    dayjs:
-      optional: true
-  checksum: e0ad20dce42cfb600c907e4deb2861439377b1b490501362b76e20928ff98ee7ed29c4470d2425b399886ffedca556ea4669838c546fa05270a807fa4f74ba30
-  languageName: node
-  linkType: hard
-
 "@discoveryjs/json-ext@npm:0.5.7, @discoveryjs/json-ext@npm:^0.5.0":
   version: 0.5.7
   resolution: "@discoveryjs/json-ext@npm:0.5.7"
@@ -1951,49 +1930,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/babel-plugin@npm:^11.13.5":
-  version: 11.13.5
-  resolution: "@emotion/babel-plugin@npm:11.13.5"
-  dependencies:
-    "@babel/helper-module-imports": ^7.16.7
-    "@babel/runtime": ^7.18.3
-    "@emotion/hash": ^0.9.2
-    "@emotion/memoize": ^0.9.0
-    "@emotion/serialize": ^1.3.3
-    babel-plugin-macros: ^3.1.0
-    convert-source-map: ^1.5.0
-    escape-string-regexp: ^4.0.0
-    find-root: ^1.1.0
-    source-map: ^0.5.7
-    stylis: 4.2.0
-  checksum: c41df7e6c19520e76d1939f884be878bf88b5ba00bd3de9d05c5b6c5baa5051686ab124d7317a0645de1b017b574d8139ae1d6390ec267fbe8e85a5252afb542
-  languageName: node
-  linkType: hard
-
-"@emotion/cache@npm:^11.14.0":
-  version: 11.14.0
-  resolution: "@emotion/cache@npm:11.14.0"
-  dependencies:
-    "@emotion/memoize": ^0.9.0
-    "@emotion/sheet": ^1.4.0
-    "@emotion/utils": ^1.4.2
-    "@emotion/weak-memoize": ^0.4.0
-    stylis: 4.2.0
-  checksum: 0a81591541ea43bc7851742e6444b7800d72e98006f94e775ae6ea0806662d14e0a86ff940f5f19d33b4bb2c427c882aa65d417e7322a6e0d5f20fe65ed920c9
-  languageName: node
-  linkType: hard
-
 "@emotion/hash@npm:^0.8.0":
   version: 0.8.0
   resolution: "@emotion/hash@npm:0.8.0"
   checksum: 4b35d88a97e67275c1d990c96d3b0450451d089d1508619488fc0acb882cb1ac91e93246d471346ebd1b5402215941ef4162efe5b51534859b39d8b3a0e3ffaa
-  languageName: node
-  linkType: hard
-
-"@emotion/hash@npm:^0.9.2":
-  version: 0.9.2
-  resolution: "@emotion/hash@npm:0.9.2"
-  checksum: 379bde2830ccb0328c2617ec009642321c0e009a46aa383dfbe75b679c6aea977ca698c832d225a893901f29d7b3eef0e38cf341f560f6b2b56f1ff23c172387
   languageName: node
   linkType: hard
 
@@ -2006,87 +1946,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/is-prop-valid@npm:^1.3.0":
-  version: 1.3.1
-  resolution: "@emotion/is-prop-valid@npm:1.3.1"
-  dependencies:
-    "@emotion/memoize": ^0.9.0
-  checksum: fe6549d54f389e1a17cb02d832af7ee85fb6ea126fc18d02ca47216e8ff19332c1983f4a0ba68602cfcd3b325ffd4ebf0b2d0c6270f1e7e6fe3fca4ba7741e1a
-  languageName: node
-  linkType: hard
-
 "@emotion/memoize@npm:^0.8.1":
   version: 0.8.1
   resolution: "@emotion/memoize@npm:0.8.1"
   checksum: a19cc01a29fcc97514948eaab4dc34d8272e934466ed87c07f157887406bc318000c69ae6f813a9001c6a225364df04249842a50e692ef7a9873335fbcc141b0
-  languageName: node
-  linkType: hard
-
-"@emotion/memoize@npm:^0.9.0":
-  version: 0.9.0
-  resolution: "@emotion/memoize@npm:0.9.0"
-  checksum: 038132359397348e378c593a773b1148cd0cf0a2285ffd067a0f63447b945f5278860d9de718f906a74c7c940ba1783ac2ca18f1c06a307b01cc0e3944e783b1
-  languageName: node
-  linkType: hard
-
-"@emotion/react@npm:^11.14.0":
-  version: 11.14.0
-  resolution: "@emotion/react@npm:11.14.0"
-  dependencies:
-    "@babel/runtime": ^7.18.3
-    "@emotion/babel-plugin": ^11.13.5
-    "@emotion/cache": ^11.14.0
-    "@emotion/serialize": ^1.3.3
-    "@emotion/use-insertion-effect-with-fallbacks": ^1.2.0
-    "@emotion/utils": ^1.4.2
-    "@emotion/weak-memoize": ^0.4.0
-    hoist-non-react-statics: ^3.3.1
-  peerDependencies:
-    react: ">=16.8.0"
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-  checksum: 3cf023b11d132b56168713764d6fced8e5a1f0687dfe0caa2782dfd428c8f9e30f9826a919965a311d87b523cd196722aaf75919cd0f6bd0fd57f8a6a0281500
-  languageName: node
-  linkType: hard
-
-"@emotion/serialize@npm:^1.3.3":
-  version: 1.3.3
-  resolution: "@emotion/serialize@npm:1.3.3"
-  dependencies:
-    "@emotion/hash": ^0.9.2
-    "@emotion/memoize": ^0.9.0
-    "@emotion/unitless": ^0.10.0
-    "@emotion/utils": ^1.4.2
-    csstype: ^3.0.2
-  checksum: 510331233767ae4e09e925287ca2c7269b320fa1d737ea86db5b3c861a734483ea832394c0c1fe5b21468fe335624a75e72818831d303ba38125f54f44ba02e7
-  languageName: node
-  linkType: hard
-
-"@emotion/sheet@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "@emotion/sheet@npm:1.4.0"
-  checksum: eeb1212e3289db8e083e72e7e401cd6d1a84deece87e9ce184f7b96b9b5dbd6f070a89057255a6ff14d9865c3ce31f27c39248a053e4cdd875540359042586b4
-  languageName: node
-  linkType: hard
-
-"@emotion/styled@npm:^11.14.0":
-  version: 11.14.0
-  resolution: "@emotion/styled@npm:11.14.0"
-  dependencies:
-    "@babel/runtime": ^7.18.3
-    "@emotion/babel-plugin": ^11.13.5
-    "@emotion/is-prop-valid": ^1.3.0
-    "@emotion/serialize": ^1.3.3
-    "@emotion/use-insertion-effect-with-fallbacks": ^1.2.0
-    "@emotion/utils": ^1.4.2
-  peerDependencies:
-    "@emotion/react": ^11.0.0-rc.0
-    react: ">=16.8.0"
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-  checksum: 9c1b842e942e69fb6037d1ab161046d2bcfeff95fd2ccfdab30acaaf6b89dc07b14bb00f8cc8ec14df11e6746c8e4e1d781bc54d10bd739aab44966ded64d4fb
   languageName: node
   linkType: hard
 
@@ -2097,40 +1960,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/unitless@npm:^0.10.0":
-  version: 0.10.0
-  resolution: "@emotion/unitless@npm:0.10.0"
-  checksum: d79346df31a933e6d33518e92636afeb603ce043f3857d0a39a2ac78a09ef0be8bedff40130930cb25df1beeee12d96ee38613963886fa377c681a89970b787c
-  languageName: node
-  linkType: hard
-
 "@emotion/unitless@npm:^0.7.5":
   version: 0.7.5
   resolution: "@emotion/unitless@npm:0.7.5"
   checksum: f976e5345b53fae9414a7b2e7a949aa6b52f8bdbcc84458b1ddc0729e77ba1d1dfdff9960e0da60183877873d3a631fa24d9695dd714ed94bcd3ba5196586a6b
-  languageName: node
-  linkType: hard
-
-"@emotion/use-insertion-effect-with-fallbacks@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "@emotion/use-insertion-effect-with-fallbacks@npm:1.2.0"
-  peerDependencies:
-    react: ">=16.8.0"
-  checksum: 8ff6aec7f2924526ff8c8f8f93d4b8236376e2e12c435314a18c9a373016e24dfdf984e82bbc83712b8e90ff4783cd765eb39fc7050d1a43245e5728740ddd71
-  languageName: node
-  linkType: hard
-
-"@emotion/utils@npm:^1.4.2":
-  version: 1.4.2
-  resolution: "@emotion/utils@npm:1.4.2"
-  checksum: 04cf76849c6401205c058b82689fd0ec5bf501aed6974880fe9681a1d61543efb97e848f4c38664ac4a9068c7ad2d1cb84f73bde6cf95f1208aa3c28e0190321
-  languageName: node
-  linkType: hard
-
-"@emotion/weak-memoize@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@emotion/weak-memoize@npm:0.4.0"
-  checksum: db5da0e89bd752c78b6bd65a1e56231f0abebe2f71c0bd8fc47dff96408f7065b02e214080f99924f6a3bfe7ee15afc48dad999d76df86b39b16e513f7a94f52
   languageName: node
   linkType: hard
 
@@ -3023,7 +2856,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jsonforms/core@npm:3.5.1":
+"@jsonforms/core@npm:^3.5.1":
   version: 3.5.1
   resolution: "@jsonforms/core@npm:3.5.1"
   dependencies:
@@ -3032,38 +2865,6 @@ __metadata:
     ajv-formats: ^2.1.0
     lodash: ^4.17.21
   checksum: d1fcc52ec34cc1f60bb8b53ea029f72b0951f9587f3f790f5f3f53f657cc3c5c52b136506c960b344dcced6ee0f7620c8ce444581385a5232fdd0926afaaaa77
-  languageName: node
-  linkType: hard
-
-"@jsonforms/material-renderers@npm:^3.5.1":
-  version: 3.5.1
-  resolution: "@jsonforms/material-renderers@npm:3.5.1"
-  dependencies:
-    "@date-io/dayjs": ^3.0.0
-    dayjs: 1.10.7
-    lodash: ^4.17.21
-  peerDependencies:
-    "@emotion/react": ^11.4.1
-    "@emotion/styled": ^11.3.0
-    "@jsonforms/core": 3.5.1
-    "@jsonforms/react": 3.5.1
-    "@mui/icons-material": ^5.11.16 || ^6.0.0
-    "@mui/material": ^5.13.0 || ^6.0.0
-    "@mui/x-date-pickers": ^6.0.0 || ^7.0.0
-    react: ^16.12.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 93b15185bc0fa602f0123a523354ab694e7888910410944dcc087b1ba23b9b0d47ad620797f927c575ab266017917e2795db77d61af5fa3d2102bbeb3662db34
-  languageName: node
-  linkType: hard
-
-"@jsonforms/react@npm:3.5.1":
-  version: 3.5.1
-  resolution: "@jsonforms/react@npm:3.5.1"
-  dependencies:
-    lodash: ^4.17.21
-  peerDependencies:
-    "@jsonforms/core": 3.5.1
-    react: ^16.12.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: f38e35e53363c3f2c2fc13e846cc104c6df05fe1105e8553e461fdc2550bb2bd9d2710af24b102c2b6b025d7fccb8d62d6fdf1876ea8efc1cece0a5fa97b5346
   languageName: node
   linkType: hard
 
@@ -3619,25 +3420,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rjsf/antd@npm:^6.0.0-beta.10":
-  version: 6.0.0-beta.10
-  resolution: "@rjsf/antd@npm:6.0.0-beta.10"
-  dependencies:
-    classnames: ^2.5.1
-    lodash: ^4.17.21
-    lodash-es: ^4.17.21
-    rc-picker: 2.7.6
-  peerDependencies:
-    "@ant-design/icons": ^5.0.0
-    "@rjsf/core": ^6.0.0-beta
-    "@rjsf/utils": ^6.0.0-beta
-    antd: ^5.8.5
-    dayjs: ^1.8.0
-    react: ">=18"
-  checksum: f49f8260575b132091ba90093a2405e07bd2cc9036e5b8d6f8d40d153de2d60f8c36689d4b055964fd59e64cb97cc5fc5016e6cb4304169687b2c9d3953aedda
-  languageName: node
-  linkType: hard
-
 "@rjsf/core@npm:^5.24.9":
   version: 5.24.10
   resolution: "@rjsf/core@npm:5.24.10"
@@ -3651,22 +3433,6 @@ __metadata:
     "@rjsf/utils": ^5.24.x
     react: ^16.14.0 || >=17
   checksum: 90316d9dd90ae58805fc4f6fa2bb14dfd9a361abebb75bd3b1b7ed55b554e9a7d5145fc09ee5906bc91d362fc8f8c24619d4d4c432bae782da5cebb0a5b9cddf
-  languageName: node
-  linkType: hard
-
-"@rjsf/core@npm:^6.0.0-beta.10":
-  version: 6.0.0-beta.10
-  resolution: "@rjsf/core@npm:6.0.0-beta.10"
-  dependencies:
-    lodash: ^4.17.21
-    lodash-es: ^4.17.21
-    markdown-to-jsx: ^7.7.6
-    nanoid: ^5.1.5
-    prop-types: ^15.8.1
-  peerDependencies:
-    "@rjsf/utils": ^6.0.0-beta
-    react: ">=18"
-  checksum: 67e02a371c08a53f208d6d8edc91bf5649e86a45d3032992a32d855c710ec17d1b6c65aae543c6831c4a08d87506d8fa85c057a19ce73b9c35361803276e7476
   languageName: node
   linkType: hard
 
@@ -3685,23 +3451,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rjsf/utils@npm:^6.0.0-beta.10":
-  version: 6.0.0-beta.10
-  resolution: "@rjsf/utils@npm:6.0.0-beta.10"
-  dependencies:
-    fast-uri: ^3.0.6
-    json-schema-merge-allof: ^0.8.1
-    jsonpointer: ^5.0.1
-    lodash: ^4.17.21
-    lodash-es: ^4.17.21
-    nanoid: ^5.1.5
-    react-is: ^18.2.0
-  peerDependencies:
-    react: ">=18"
-  checksum: 3a23b3e4a2909bdaec239de12ac02edf2acd3d4c8906f634774bc0560d5021d42c479e613f89d6a4d0d315beb1a2623c1e21101433051b8b362ae2f2ae419c1e
-  languageName: node
-  linkType: hard
-
 "@rjsf/validator-ajv8@npm:^5.24.9":
   version: 5.24.10
   resolution: "@rjsf/validator-ajv8@npm:5.24.10"
@@ -3713,20 +3462,6 @@ __metadata:
   peerDependencies:
     "@rjsf/utils": ^5.24.x
   checksum: 920d466c972683108a3b093f813a0b77c289068a24c3ae74b6933a5f7346c2a0d7f3d02d0304f419fbfd8376f7ee59972a5f202939c827ac778aedc35bd0ed1b
-  languageName: node
-  linkType: hard
-
-"@rjsf/validator-ajv8@npm:^6.0.0-beta.10":
-  version: 6.0.0-beta.10
-  resolution: "@rjsf/validator-ajv8@npm:6.0.0-beta.10"
-  dependencies:
-    ajv: ^8.12.0
-    ajv-formats: ^2.1.1
-    lodash: ^4.17.21
-    lodash-es: ^4.17.21
-  peerDependencies:
-    "@rjsf/utils": ^6.0.0-beta
-  checksum: c61be5e9a055729326f230d758da44a6754aa8e8e4d294e13c252139bd241ad4a07d7c276a33d43e11321049a1d14d0f424bc61434345d0473f5c206b3658f95
   languageName: node
   linkType: hard
 
@@ -6346,66 +6081,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"antd@npm:^5.25.3":
-  version: 5.25.3
-  resolution: "antd@npm:5.25.3"
-  dependencies:
-    "@ant-design/colors": ^7.2.1
-    "@ant-design/cssinjs": ^1.23.0
-    "@ant-design/cssinjs-utils": ^1.1.3
-    "@ant-design/fast-color": ^2.0.6
-    "@ant-design/icons": ^5.6.1
-    "@ant-design/react-slick": ~1.1.2
-    "@babel/runtime": ^7.26.0
-    "@rc-component/color-picker": ~2.0.1
-    "@rc-component/mutate-observer": ^1.1.0
-    "@rc-component/qrcode": ~1.0.0
-    "@rc-component/tour": ~1.15.1
-    "@rc-component/trigger": ^2.2.6
-    classnames: ^2.5.1
-    copy-to-clipboard: ^3.3.3
-    dayjs: ^1.11.11
-    rc-cascader: ~3.34.0
-    rc-checkbox: ~3.5.0
-    rc-collapse: ~3.9.0
-    rc-dialog: ~9.6.0
-    rc-drawer: ~7.2.0
-    rc-dropdown: ~4.2.1
-    rc-field-form: ~2.7.0
-    rc-image: ~7.12.0
-    rc-input: ~1.8.0
-    rc-input-number: ~9.5.0
-    rc-mentions: ~2.20.0
-    rc-menu: ~9.16.1
-    rc-motion: ^2.9.5
-    rc-notification: ~5.6.4
-    rc-pagination: ~5.1.0
-    rc-picker: ~4.11.3
-    rc-progress: ~4.0.0
-    rc-rate: ~2.13.1
-    rc-resize-observer: ^1.4.3
-    rc-segmented: ~2.7.0
-    rc-select: ~14.16.8
-    rc-slider: ~11.1.8
-    rc-steps: ~6.0.1
-    rc-switch: ~4.1.0
-    rc-table: ~7.50.5
-    rc-tabs: ~15.6.1
-    rc-textarea: ~1.10.0
-    rc-tooltip: ~6.4.0
-    rc-tree: ~5.13.1
-    rc-tree-select: ~5.27.0
-    rc-upload: ~4.9.0
-    rc-util: ^5.44.4
-    scroll-into-view-if-needed: ^3.1.0
-    throttle-debounce: ^5.0.2
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 78a3ea9d76b877fd59ed27ba8b162dc965e86218b5fbd44b402efd9921567e546e34c004477ed5629b02166fe8c96bfb69d8aa86e256cfa97e08d853541608e7
-  languageName: node
-  linkType: hard
-
 "any-promise@npm:^1.0.0":
   version: 1.3.0
   resolution: "any-promise@npm:1.3.0"
@@ -7947,13 +7622,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"convert-source-map@npm:^1.5.0":
-  version: 1.9.0
-  resolution: "convert-source-map@npm:1.9.0"
-  checksum: dc55a1f28ddd0e9485ef13565f8f756b342f9a46c4ae18b843fe3c30c675d058d6a4823eff86d472f187b176f0adf51ea7b69ea38be34be4a63cbbf91b0593c8
-  languageName: node
-  linkType: hard
-
 "convert-source-map@npm:^2.0.0":
   version: 2.0.0
   resolution: "convert-source-map@npm:2.0.0"
@@ -8908,13 +8576,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   dependencies:
     "@babel/runtime": ^7.21.0
   checksum: f7be01523282e9bb06c0cd2693d34f245247a29098527d4420628966a2d9aad154bd0e90a6b1cf66d37adcb769cd108cf8a7bd49d76db0fb119af5cdd13644f4
-  languageName: node
-  linkType: hard
-
-"dayjs@npm:1.10.7":
-  version: 1.10.7
-  resolution: "dayjs@npm:1.10.7"
-  checksum: a0a4ca95abaa03d0702161dc2c35d16121188e342f5052b9c61cdf784dab68af766f477c04f87f71c6af666fd4d13db9b9853b87265850d6093b7b04e1bb1cd7
   languageName: node
   linkType: hard
 
@@ -10623,7 +10284,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"fast-uri@npm:^3.0.1, fast-uri@npm:^3.0.6":
+"fast-uri@npm:^3.0.1":
   version: 3.0.6
   resolution: "fast-uri@npm:3.0.6"
   checksum: 7161ba2a7944778d679ba8e5f00d6a2bb479a2142df0982f541d67be6c979b17808f7edbb0ce78161c85035974bde3fa52b5137df31da46c0828cb629ba67c4e
@@ -10792,13 +10453,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     common-path-prefix: ^3.0.0
     pkg-dir: ^7.0.0
   checksum: 52a456a80deeb27daa3af6e06059b63bdb9cc4af4d845fc6d6229887e505ba913cd56000349caa60bc3aa59dacdb5b4c37903d4ba34c75102d83cab330b70d2f
-  languageName: node
-  linkType: hard
-
-"find-root@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "find-root@npm:1.1.0"
-  checksum: b2a59fe4b6c932eef36c45a048ae8f93c85640212ebe8363164814990ee20f154197505965f3f4f102efc33bfb1cbc26fd17c4a2fc739ebc51b886b137cbefaf
   languageName: node
   linkType: hard
 
@@ -11666,7 +11320,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"hoist-non-react-statics@npm:^3.1.0, hoist-non-react-statics@npm:^3.3.0, hoist-non-react-statics@npm:^3.3.1, hoist-non-react-statics@npm:^3.3.2":
+"hoist-non-react-statics@npm:^3.1.0, hoist-non-react-statics@npm:^3.3.0, hoist-non-react-statics@npm:^3.3.2":
   version: 3.3.2
   resolution: "hoist-non-react-statics@npm:3.3.2"
   dependencies:
@@ -14307,17 +13961,8 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   dependencies:
     "@babel/preset-env": ^7.20.2
     "@babel/preset-typescript": ^7.18.6
-    "@emotion/react": ^11.14.0
-    "@emotion/styled": ^11.14.0
-    "@jsonforms/core": 3.5.1
-    "@jsonforms/material-renderers": ^3.5.1
-    "@jsonforms/react": 3.5.1
     "@lottiefiles/react-lottie-player": ^3.5.3
     "@remixicon/react": ^4.1.1
-    "@rjsf/antd": ^6.0.0-beta.10
-    "@rjsf/core": ^6.0.0-beta.10
-    "@rjsf/utils": ^6.0.0-beta.10
-    "@rjsf/validator-ajv8": ^6.0.0-beta.10
     "@rollup/plugin-typescript": ^12.1.0
     "@supabase/supabase-js": ^2.45.4
     "@testing-library/jest-dom": ^5.16.5
@@ -14339,13 +13984,11 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     "@types/ua-parser-js": ^0.7.36
     "@welldone-software/why-did-you-render": ^6.2.3
     add: ^2.0.6
-    antd: ^5.25.3
     antd-mobile: ^5.34.0
     babel-jest: ^29.3.0
     babel-preset-react-app: ^10.0.1
     babel-preset-vite: ^1.1.3
     chalk: 4
-    dayjs: ^1.11.13
     flag-icons: ^7.2.1
     husky: ^8.0.1
     jest: ^29.5.0
@@ -14364,7 +14007,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     rollup: ^4.22.5
     shelljs: ^0.8.5
     simplebar: ^6.2.5
-    styled-components: ^6.1.18
     svgo: ^3.0.0
     ts-node: ^10.4.0
     tui-image-editor: ^3.15.3
@@ -14470,6 +14112,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     "@fortawesome/free-regular-svg-icons": ^6.5.1
     "@fortawesome/free-solid-svg-icons": ^6.5.1
     "@fortawesome/react-fontawesome": latest
+    "@jsonforms/core": ^3.5.1
     "@lottiefiles/dotlottie-react": ^0.13.0
     "@manaflair/redux-batch": ^1.0.0
     "@rjsf/antd": ^5.24.9
@@ -14500,6 +14143,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     coolshapes-react: lowcoder-org/coolshapes-react
     copy-to-clipboard: ^3.3.3
     core-js: ^3.25.2
+    dayjs: ^1.11.13
     dotenv: ^16.0.3
     echarts: ^5.4.3
     echarts-for-react: ^3.0.2
@@ -14744,7 +14388,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"markdown-to-jsx@npm:^7.4.1, markdown-to-jsx@npm:^7.7.6":
+"markdown-to-jsx@npm:^7.4.1":
   version: 7.7.6
   resolution: "markdown-to-jsx@npm:7.7.6"
   peerDependencies:
@@ -16037,15 +15681,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   bin:
     nanoid: bin/nanoid.cjs
   checksum: 3be20d8866a57a6b6d218e82549711c8352ed969f9ab3c45379da28f405363ad4c9aeb0b39e9abc101a529ca65a72ff9502b00bf74a912c4b64a9d62dfd26c29
-  languageName: node
-  linkType: hard
-
-"nanoid@npm:^5.1.5":
-  version: 5.1.5
-  resolution: "nanoid@npm:5.1.5"
-  bin:
-    nanoid: bin/nanoid.js
-  checksum: 6de2d006b51c983be385ef7ee285f7f2a57bd96f8c0ca881c4111461644bd81fafc2544f8e07cb834ca0f3e0f3f676c1fe78052183f008b0809efe6e273119f5
   languageName: node
   linkType: hard
 
@@ -20125,13 +19760,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"source-map@npm:^0.5.7":
-  version: 0.5.7
-  resolution: "source-map@npm:0.5.7"
-  checksum: 5dc2043b93d2f194142c7f38f74a24670cd7a0063acdaf4bf01d2964b402257ae843c2a8fa822ad5b71013b5fcafa55af7421383da919752f22ff488bc553f4d
-  languageName: node
-  linkType: hard
-
 "source-map@npm:^0.6.0, source-map@npm:^0.6.1, source-map@npm:~0.6.0, source-map@npm:~0.6.1":
   version: 0.6.1
   resolution: "source-map@npm:0.6.1"
@@ -20637,7 +20265,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"styled-components@npm:^6.1.18, styled-components@npm:^6.1.8":
+"styled-components@npm:^6.1.8":
   version: 6.1.18
   resolution: "styled-components@npm:6.1.18"
   dependencies:
@@ -20654,13 +20282,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     react: ">= 16.8.0"
     react-dom: ">= 16.8.0"
   checksum: f6dfc215634c7974210fc235c7e543bbc45b316a23ce3c3ee4e5aa6d27952167d6a2bf8ace222122920707daa0241a0bf5e4d27a857d129c59f993c80333cc1f
-  languageName: node
-  linkType: hard
-
-"stylis@npm:4.2.0":
-  version: 4.2.0
-  resolution: "stylis@npm:4.2.0"
-  checksum: 0eb6cc1b866dc17a6037d0a82ac7fa877eba6a757443e79e7c4f35bacedbf6421fadcab4363b39667b43355cbaaa570a3cde850f776498e5450f32ed2f9b7584
   languageName: node
   linkType: hard
 
