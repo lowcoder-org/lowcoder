@@ -64,8 +64,6 @@ import { selectIsLicenseActive } from "redux/selectors/enterpriseSelectors";
 
 // adding App Editor, so we can show Apps inside the Admin Area
 import AppEditor from "../editor/AppEditor";
-import { fetchDeploymentIdAction } from "@lowcoder-ee/redux/reduxActions/configActions";
-import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
 import {LoadingBarHideTrigger} from "@lowcoder-ee/util/hideLoading";
 
 const TabLabel = styled.div`
@@ -95,16 +93,9 @@ export default function ApplicationHome() {
   const allFoldersCount = allFolders.length;
   const orgHomeId = "root";
   const subscriptions = useSelector(getSubscriptions);
-  const deploymentId = useSelector(getDeploymentId);
 
   const isOrgAdmin = org?.createdBy == user.id ? true : false;
   const isLicenseActive = useSelector(selectIsLicenseActive);
-
-  useEffect(() => {
-    if (user.currentOrgId) {
-      dispatch(fetchDeploymentIdAction());
-    }
-  }, [user.currentOrgId]);
 
   useEffect(() => {
     // tricky check, will be called for anonymous user to redirect to login page
@@ -112,12 +103,6 @@ export default function ApplicationHome() {
       dispatch(fetchHomeData({}));
     }
   }, [user.isAnonymous])
-
-  useEffect(() => {
-    if(Boolean(deploymentId)) {
-      dispatch(fetchSubscriptionsAction())
-    }
-  }, [deploymentId]);
 
   const supportSubscription = useMemo(() => {
     return subscriptions.some(
