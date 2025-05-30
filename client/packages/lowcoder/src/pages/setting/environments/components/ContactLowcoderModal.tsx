@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Card, Row, Col, Typography, Divider, Spin, Alert } from 'antd';
 import { CustomerServiceOutlined, CloudServerOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
+import { trans } from 'i18n';
 import { Environment } from '../types/environment.types';
 import { getEnvironmentDeploymentId } from '../services/environments.service';
 import { HubspotModal } from '../../hubspotModal';
@@ -34,7 +35,7 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
     const fetchDeploymentId = async () => {
       if (!visible || !environment.environmentApiServiceUrl || !environment.environmentApikey) {
         if (visible) {
-          setError('Environment API service URL or API key not configured');
+          setError(trans('enterprise.environments.contactLowcoder.apiConfigurationError'));
         }
         return;
       }
@@ -51,7 +52,7 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
         setShowHubspotModal(true);
       } catch (err) {
         console.error('Failed to fetch deployment ID:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch deployment ID');
+        setError(err instanceof Error ? err.message : trans('enterprise.environments.contactLowcoder.failedToFetchDeploymentId'));
       } finally {
         setIsLoading(false);
       }
@@ -91,7 +92,7 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
       title={
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <CustomerServiceOutlined style={{ fontSize: '20px', color: '#1890ff' }} />
-          <span style={{ fontSize: '18px', fontWeight: 600 }}>Contact Lowcoder Team</span>
+          <span style={{ fontSize: '18px', fontWeight: 600 }}>{trans('enterprise.environments.contactLowcoder.title')}</span>
         </div>
       }
       open={visible}
@@ -119,15 +120,15 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
           <Col flex={1}>
             <div>
               <Text strong style={{ fontSize: '16px', color: '#262626' }}>
-                Environment: {environment.environmentName || 'Unnamed Environment'}
+                {trans('enterprise.environments.contactLowcoder.environmentLabel')} {environment.environmentName || trans('enterprise.environments.contactLowcoder.unnamedEnvironment')}
               </Text>
               <br />
               <Text style={{ fontSize: '14px', color: '#8c8c8c', fontFamily: 'monospace' }}>
-                Environment ID: {environment.environmentId}
+                {trans('enterprise.environments.contactLowcoder.environmentIdLabel')} {environment.environmentId}
               </Text>
               <br />
               <Text style={{ fontSize: '14px', color: '#8c8c8c', fontFamily: 'monospace' }}>
-                Deployment ID: {isLoading ? 'Loading...' : deploymentId || 'Not available'}
+                {trans('enterprise.environments.contactLowcoder.deploymentIdLabel')} {isLoading ? trans('enterprise.environments.contactLowcoder.loading') : deploymentId || trans('enterprise.environments.contactLowcoder.notAvailable')}
               </Text>
             </div>
           </Col>
@@ -148,14 +149,14 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
           }}>
             <Spin size="large" />
             <Text style={{ marginTop: '16px', color: '#8c8c8c' }}>
-              Fetching deployment information...
+              {trans('enterprise.environments.contactLowcoder.fetchingDeploymentInfo')}
             </Text>
           </div>
         )}
 
         {error && (
           <Alert
-            message="Unable to Load Contact Form"
+            message={trans('enterprise.environments.contactLowcoder.unableToLoadContactForm')}
             description={error}
             type="error"
             showIcon
@@ -170,7 +171,7 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
             fontSize: '14px'
           }}>
             <CustomerServiceOutlined style={{ fontSize: '48px', marginBottom: '16px', color: '#d9d9d9' }} />
-            <div>Please ensure the environment is properly configured to contact support.</div>
+            <div>{trans('enterprise.environments.contactLowcoder.ensureProperConfiguration')}</div>
           </div>
         )}
       </div>

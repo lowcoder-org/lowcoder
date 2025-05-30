@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { trans } from 'i18n';
 import { EnvironmentLicense, DetailedLicenseInfo } from '../types/environment.types';
 
 /**
@@ -15,7 +16,7 @@ export async function checkEnvironmentLicense(
     if (!apiServiceUrl) {
       return {
         isValid: false,
-        error: 'API service URL is required'
+        error: trans('enterprise.environments.services.license.apiServiceUrlRequired')
       };
     }
 
@@ -30,7 +31,7 @@ export async function checkEnvironmentLicense(
       `${apiServiceUrl}/api/plugins/enterprise/license`,
       { 
         headers,
-        timeout: 500 // Very short timeout for immediate failure when endpoint doesn't exist
+        timeout: 1500 // Very short timeout for immediate failure when endpoint doesn't exist
       }
     );
 
@@ -65,17 +66,17 @@ export async function checkEnvironmentLicense(
 
   } catch (error) {
     // Determine the specific error type
-    let errorMessage = 'License information unavailable';
+    let errorMessage = trans('enterprise.environments.services.license.licenseInformationUnavailable');
     
     if (axios.isAxiosError(error)) {
       if (error.code === 'ECONNABORTED') {
-        errorMessage = 'License check took too long';
+        errorMessage = trans('enterprise.environments.services.license.licenseCheckTookTooLong');
       } else if (error.response?.status === 404) {
-        errorMessage = 'License service not available';
+        errorMessage = trans('enterprise.environments.services.license.licenseServiceNotAvailable');
       } else if (error.response?.status === 401) {
-        errorMessage = 'Authentication required - please check API key';
+        errorMessage = trans('enterprise.environments.services.license.authenticationRequired');
       } else if (error.response && error.response.status >= 500) {
-        errorMessage = 'License service temporarily unavailable';
+        errorMessage = trans('enterprise.environments.services.license.licenseServiceTemporarilyUnavailable');
       }
     }
 
@@ -96,7 +97,12 @@ export function formatAPICalls(remaining: number, total: number): string {
   const used = total - remaining;
   const percentage = total > 0 ? Math.round((used / total) * 100) : 0;
   
-  return `${remaining.toLocaleString()} remaining (${used.toLocaleString()}/${total.toLocaleString()} used, ${percentage}%)`;
+  return trans('enterprise.environments.services.license.remainingAPICalls', {
+    remaining: remaining.toLocaleString(),
+    used: used.toLocaleString(),
+    total: total.toLocaleString(),
+    percentage
+  });
 }
 
 /**

@@ -2829,6 +2829,22 @@ export const en = {
         "inputFieldPlaceholder": "Enter {label}"
       },
 
+      // Add contact lowcoder modal
+      "contactLowcoder": {
+        "title": "Contact Lowcoder Team",
+        "environmentLabel": "Environment:",
+        "environmentIdLabel": "Environment ID:",
+        "deploymentIdLabel": "Deployment ID:",
+        "loading": "Loading...",
+        "notAvailable": "Not available",
+        "unnamedEnvironment": "Unnamed Environment",
+        "fetchingDeploymentInfo": "Fetching deployment information...",
+        "unableToLoadContactForm": "Unable to Load Contact Form",
+        "apiConfigurationError": "Environment API service URL or API key not configured",
+        "failedToFetchDeploymentId": "Failed to fetch deployment ID",
+        "ensureProperConfiguration": "Please ensure the environment is properly configured to contact support."
+      },
+
       "credentialConfirmations": {
         "firstConfirmation": {
           "title": "Overwrite Credentials Warning",
@@ -2918,6 +2934,36 @@ export const en = {
         "apps": {
           "failedToFetchApps": "Failed to fetch apps",
           "failedToDeployApp": "Failed to deploy app"
+        },
+        "datasources": {
+          "workspaceIdRequired": "Workspace ID is required",
+          "apiKeyRequiredToFetchDataSources": "API key is required to fetch data sources",
+          "apiServiceUrlRequiredToFetchDataSources": "API service URL is required to fetch data sources",
+          "failedToFetchDataSources": "Failed to fetch data sources",
+          "failedToDeployDataSource": "Failed to deploy data source"
+        },
+        "workspace": {
+          "failedToFetchWorkspaces": "Failed to fetch workspaces",
+          "failedToDeployWorkspace": "Failed to deploy workspace"
+        },
+        "managedObjects": {
+          "missingRequiredParameters": "Missing required parameters",
+          "failedToCheckManagedStatus": "Failed to check managed status",
+          "failedToSetAsManaged": "Failed to set {{objType}} as managed",
+          "failedToRemoveFromManaged": "Failed to remove {{objType}} from managed",
+          "missingEnvironmentId": "Missing environment ID",
+          "failedToFetchManagedObjects": "Failed to fetch managed objects",
+          "failedToFetchManagedObject": "Failed to fetch managed object",
+          "managedObjectNotFound": "Managed object not found for objGid: {{objGid}}"
+        },
+        "license": {
+          "apiServiceUrlRequired": "API service URL is required",
+          "licenseInformationUnavailable": "License information unavailable",
+          "licenseCheckTookTooLong": "License check took too long",
+          "licenseServiceNotAvailable": "License service not available",
+          "authenticationRequired": "Authentication required - please check API key",
+          "licenseServiceTemporarilyUnavailable": "License service temporarily unavailable",
+          "remainingAPICalls": "{{remaining}} remaining ({{used}}/{{total}} used, {{percentage}}%)",
         }
       }
     }
