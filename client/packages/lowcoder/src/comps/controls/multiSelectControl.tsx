@@ -10,7 +10,8 @@ import _ from "lodash";
 
 const LabelWrapper = styled.div<{ $placement: ControlPlacement }>`
   flex-shrink: 0;
-  width: ${(props) => (props.$placement === "right" ? "96px" : "bottom" ? "112px" : "136px")};
+  width: ${(props) =>
+    props.$placement === "right" ? "96px" : props.$placement === "bottom" ? "112px" : "136px"};
 `;
 
 const DropDownItemLabel = styled.div`

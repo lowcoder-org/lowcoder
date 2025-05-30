@@ -2856,6 +2856,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jsonforms/core@npm:^3.5.1":
+  version: 3.5.1
+  resolution: "@jsonforms/core@npm:3.5.1"
+  dependencies:
+    "@types/json-schema": ^7.0.3
+    ajv: ^8.6.1
+    ajv-formats: ^2.1.0
+    lodash: ^4.17.21
+  checksum: d1fcc52ec34cc1f60bb8b53ea029f72b0951f9587f3f790f5f3f53f657cc3c5c52b136506c960b344dcced6ee0f7620c8ce444581385a5232fdd0926afaaaa77
+  languageName: node
+  linkType: hard
+
 "@jsonjoy.com/base64@npm:^1.1.1":
   version: 1.1.2
   resolution: "@jsonjoy.com/base64@npm:1.1.2"
@@ -4729,7 +4741,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/json-schema@npm:*, @types/json-schema@npm:^7.0.15, @types/json-schema@npm:^7.0.8, @types/json-schema@npm:^7.0.9":
+"@types/json-schema@npm:*, @types/json-schema@npm:^7.0.15, @types/json-schema@npm:^7.0.3, @types/json-schema@npm:^7.0.8, @types/json-schema@npm:^7.0.9":
   version: 7.0.15
   resolution: "@types/json-schema@npm:7.0.15"
   checksum: 97ed0cb44d4070aecea772b7b2e2ed971e10c81ec87dd4ecc160322ffa55ff330dace1793489540e3e318d90942064bb697cc0f8989391797792d919737b3b98
@@ -5823,7 +5835,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv-formats@npm:^2.1.1":
+"ajv-formats@npm:^2.1.0, ajv-formats@npm:^2.1.1":
   version: 2.1.1
   resolution: "ajv-formats@npm:2.1.1"
   dependencies:
@@ -5869,7 +5881,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:^8.0.0, ajv@npm:^8.12.0, ajv@npm:^8.9.0":
+"ajv@npm:^8.0.0, ajv@npm:^8.12.0, ajv@npm:^8.6.1, ajv@npm:^8.9.0":
   version: 8.17.1
   resolution: "ajv@npm:8.17.1"
   dependencies:
@@ -8567,7 +8579,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"dayjs@npm:1.x, dayjs@npm:^1.11.11, dayjs@npm:^1.11.7, dayjs@npm:^1.9.1":
+"dayjs@npm:1.x, dayjs@npm:^1.11.11, dayjs@npm:^1.11.13, dayjs@npm:^1.11.7, dayjs@npm:^1.9.1":
   version: 1.11.13
   resolution: "dayjs@npm:1.11.13"
   checksum: f388db88a6aa93956c1f6121644e783391c7b738b73dbc54485578736565c8931bdfba4bb94e9b1535c6e509c97d5deb918bbe1ae6b34358d994de735055cca9
@@ -14100,6 +14112,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     "@fortawesome/free-regular-svg-icons": ^6.5.1
     "@fortawesome/free-solid-svg-icons": ^6.5.1
     "@fortawesome/react-fontawesome": latest
+    "@jsonforms/core": ^3.5.1
     "@lottiefiles/dotlottie-react": ^0.13.0
     "@manaflair/redux-batch": ^1.0.0
     "@rjsf/antd": ^5.24.9
@@ -14130,6 +14143,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     coolshapes-react: lowcoder-org/coolshapes-react
     copy-to-clipboard: ^3.3.3
     core-js: ^3.25.2
+    dayjs: ^1.11.13
     dotenv: ^16.0.3
     echarts: ^5.4.3
     echarts-for-react: ^3.0.2
