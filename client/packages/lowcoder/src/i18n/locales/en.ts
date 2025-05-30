@@ -2806,6 +2806,58 @@ export const en = {
         "managedSuccess": "{name} is now Managed",
         "unmanagedSuccess": "{name} is now Unmanaged",
         "managedError": "Failed to change managed status for {name}"
+      },
+      
+      // Service error messages
+      "services": {
+        "environments": {
+          "missingEnvironmentId": "Missing environment ID",
+          "failedToUpdateEnvironment": "Failed to update environment",
+          "environmentCreatedSuccessfully": "Environment created successfully",
+          "failedToCreateEnvironment": "Failed to create environment",
+          "failedToFetchEnvironments": "Failed to fetch environments",
+          "failedToFetchEnvironment": "Failed to fetch environment",
+          "environmentIdRequired": "Environment ID is required",
+          "apiKeyRequiredForWorkspaces": "API key is required to fetch workspaces",
+          "apiServiceUrlRequiredForWorkspaces": "API service URL is required to fetch workspaces",
+          "failedToFetchWorkspaces": "Failed to fetch workspaces",
+          "apiKeyRequiredForUserGroups": "API key is required to fetch user groups",
+          "apiServiceUrlRequiredForUserGroups": "API service URL is required to fetch user groups",
+          "failedToFetchUserGroups": "Failed to fetch user groups",
+          "workspaceIdRequired": "Workspace ID is required",
+          "apiKeyRequiredForApps": "API key is required to fetch apps",
+          "apiServiceUrlRequiredForApps": "API service URL is required to fetch apps",
+          "failedToFetchWorkspaceApps": "Failed to fetch workspace apps",
+          "apiKeyRequiredForDataSources": "API key is required to fetch data sources",
+          "apiServiceUrlRequiredForDataSources": "API service URL is required to fetch data sources",
+          "failedToFetchWorkspaceDataSources": "Failed to fetch workspace data sources",
+          "apiKeyRequiredForQueries": "API key is required to fetch queries",
+          "apiServiceUrlRequiredForQueries": "API service URL is required to fetch queries",
+          "failedToFetchWorkspaceQueries": "Failed to fetch workspace queries",
+          "apiServiceUrlNotConfigured": "API service URL not configured",
+          "licenseCheckFailed": "License check failed",
+          "apiKeyRequiredForDeploymentId": "API key is required to fetch deployment ID",
+          "failedToFetchDeploymentId": "Failed to fetch deployment ID"
+        },
+        "enterprise": {
+          "missingEnvironmentId": "Missing environment ID",
+          "failedToFetchManagedWorkspaces": "Failed to fetch managed workspaces",
+          "missingRequiredParamsToConnectOrg": "Missing required params to connect workspace",
+          "failedToConnectOrg": "Failed to connect workspace",
+          "missingOrgGidToUnconnectWorkspace": "Missing workspace GID to unconnect workspace",
+          "failedToUnconnectOrg": "Failed to unconnect workspace",
+          "failedToConnectApp": "Failed to connect app",
+          "failedToUnconnectApp": "Failed to unconnect app",
+          "failedToFetchDataSources": "Failed to fetch data sources",
+          "failedToDeployDataSource": "Failed to deploy data source",
+          "failedToDisconnectManagedDataSource": "Failed to disconnect managed data source",
+          "environmentIdRequired": "Environment ID is required",
+          "failedToFetchQueries": "Failed to fetch queries",
+          "environmentIdAndQueryGidRequired": "Environment ID and Query GID are required",
+          "failedToDeployQuery": "Failed to deploy query",
+          "queryGidRequired": "Query GID is required",
+          "failedToDisconnectQuery": "Failed to disconnect query"
+        }
       }
     }
   },
