@@ -159,6 +159,10 @@ const WorkspaceDetail: React.FC = () => {
   return (
     <Level1SettingPageContent style={{ minWidth: "1000px" }}>
       {/* New Workspace Header */}
+
+      {/* Modern Breadcrumbs navigation */}
+      <ModernBreadcrumbs items={breadcrumbItems} />
+
       <WorkspaceHeader
         workspace={workspace}
         environment={environment}
@@ -203,8 +207,7 @@ const WorkspaceDetail: React.FC = () => {
         </Col>
       </Row>
 
-      {/* Modern Breadcrumbs navigation */}
-      <ModernBreadcrumbs items={breadcrumbItems} />
+      
 
       {/* Tabs for Apps, Data Sources, and Queries */}
       <Tabs 

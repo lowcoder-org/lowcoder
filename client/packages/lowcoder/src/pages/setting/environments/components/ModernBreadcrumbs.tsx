@@ -49,12 +49,11 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({ items = [], ...pr
 
   return (
     <div className="modern-breadcrumb" style={{
-      background: '#f5f5f5',
+      background: '#ffffff',
       padding: '12px 20px',
       borderRadius: '4px',
       marginBottom: '20px',
       border: '1px solid #e8e8e8',
-      boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
       display: 'flex',
       alignItems: 'center'
     }}>
