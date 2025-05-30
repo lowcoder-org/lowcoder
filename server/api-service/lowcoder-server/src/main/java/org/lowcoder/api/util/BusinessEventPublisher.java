@@ -126,9 +126,6 @@ public class BusinessEventPublisher {
     public Mono<Void> publishApplicationCommonEvent(ApplicationView originalApplicationView, ApplicationView applicationView, EventType eventType) {
         return sessionUserService.isAnonymousUser()
                 .flatMap(anonymous -> {
-                    if (anonymous) {
-                        return Mono.empty();
-                    }
                     return sessionUserService.getVisitorOrgMemberCache()
                             .zipWith(Mono.defer(() -> {
                                 String folderId = applicationView.getApplicationInfoView().getFolderId();
@@ -204,50 +201,45 @@ public class BusinessEventPublisher {
                             });
                 });
     }
-    
+
 
     public Mono<Void> publishApplicationPermissionEvent(String applicationId, Set<String> userIds, Set<String> groupIds, String permissionId, String role) {
         return sessionUserService.isAnonymousUser()
-                .flatMap(anonymous -> {
-                    if (anonymous) {
-                        return Mono.empty();
-                    }
-                    return sessionUserService.getVisitorOrgMemberCache()
-                            .zipWith(sessionUserService.getVisitorToken())
-                            .zipWith(applicationService.findById(applicationId)
-                                    .zipWhen(application -> application.getCategory(applicationRecordServiceImpl))
-                                    .zipWhen(application -> application.getT1().getDescription(applicationRecordServiceImpl)))
-                            .flatMap(tuple -> {
-                                OrgMember orgMember = tuple.getT1().getT1();
-                                String token = tuple.getT1().getT2();
-                                String category = tuple.getT2().getT1().getT2();
-                                String description = tuple.getT2().getT2();
-                                Application application = tuple.getT2().getT1().getT1();
-    
-                                ApplicationCommonEvent event = ApplicationCommonEvent.builder()
-                                        .orgId(orgMember.getOrgId())
-                                        .userId(orgMember.getUserId())
-                                        .applicationId(application.getId())
-                                        .applicationGid(application.getGid())
-                                        .applicationName(application.getName())
-                                        .applicationCategory(category)
-                                        .applicationDescription(description)
-                                        .type(EventType.APPLICATION_PERMISSION_CHANGE)
-                                        .permissionId(permissionId)
-                                        .role(role)
-                                        .userIds(userIds)
-                                        .groupIds(groupIds)
-                                        .isAnonymous(anonymous)
-                                        .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
-                                        .build();
-    
-                                return Mono.deferContextual(contextView -> {
-                                    event.populateDetails(contextView);
-                                    applicationEventPublisher.publishEvent(event);
-                                    return Mono.empty();
-                                }).then();  // **Fix: Ensures Mono<Void> is returned**
-                            });
-                })
+                .flatMap(anonymous -> sessionUserService.getVisitorOrgMemberCache()
+                        .zipWith(sessionUserService.getVisitorToken())
+                        .zipWith(applicationService.findById(applicationId)
+                                .zipWhen(application -> application.getCategory(applicationRecordServiceImpl))
+                                .zipWhen(application -> application.getT1().getDescription(applicationRecordServiceImpl)))
+                        .flatMap(tuple -> {
+                            OrgMember orgMember = tuple.getT1().getT1();
+                            String token = tuple.getT1().getT2();
+                            String category = tuple.getT2().getT1().getT2();
+                            String description = tuple.getT2().getT2();
+                            Application application = tuple.getT2().getT1().getT1();
+
+                            ApplicationCommonEvent event = ApplicationCommonEvent.builder()
+                                    .orgId(orgMember.getOrgId())
+                                    .userId(orgMember.getUserId())
+                                    .applicationId(application.getId())
+                                    .applicationGid(application.getGid())
+                                    .applicationName(application.getName())
+                                    .applicationCategory(category)
+                                    .applicationDescription(description)
+                                    .type(EventType.APPLICATION_PERMISSION_CHANGE)
+                                    .permissionId(permissionId)
+                                    .role(role)
+                                    .userIds(userIds)
+                                    .groupIds(groupIds)
+                                    .isAnonymous(anonymous)
+                                    .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
+                                    .build();
+
+                            return Mono.deferContextual(contextView -> {
+                                event.populateDetails(contextView);
+                                applicationEventPublisher.publishEvent(event);
+                                return Mono.empty();
+                            }).then();  // **Fix: Ensures Mono<Void> is returned**
+                        }))
                 .onErrorResume(throwable -> {
                     log.error("publishApplicationPermissionEvent error. {}, {}, {}", applicationId, permissionId, role, throwable);
                     return Mono.empty();
