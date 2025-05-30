@@ -12,7 +12,7 @@ import {
   useIcon,
   wrapperToControlItem,
 } from "lowcoder-design";
-import { memo, ReactNode, useCallback, useMemo, useRef, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import Popover from "antd/es/popover";
 import { CloseIcon, SearchIcon } from "icons";
@@ -225,62 +225,85 @@ export const IconPicker = (props: {
   IconType?: "OnlyAntd" | "All" | "default" | undefined;
 }) => {
   const draggableRef = useRef<HTMLDivElement>(null);
-  const [ visible, setVisible ] = useState(false)
-  const [ loading, setLoading ] = useState(false)
-  const [ downloading, setDownloading ] = useState(false)
-  const [ searchText, setSearchText ] = useState<string>('')
-  const [ searchResults, setSearchResults ] = useState<Array<any>>([]);
-  const { subscriptions } = useSimpleSubscriptionContext();
-
+  const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [searchText, setSearchText] = useState<string>('');
+  const [searchResults, setSearchResults] = useState<Array<any>>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const { subscriptions } = useSimpleSubscriptionContext();
 
-
-  const mediaPackSubscription = subscriptions.find(
-    sub => sub.product === SubscriptionProductsEnum.MEDIAPACKAGE && sub.status === 'active'
+  const mediaPackSubscription = useMemo(() => 
+    subscriptions.find(
+      sub => sub.product === SubscriptionProductsEnum.MEDIAPACKAGE && sub.status === 'active'
+    ),
+    [subscriptions]
   );
   
   const onChangeRef = useRef(props.onChange);
   onChangeRef.current = props.onChange;
 
+  // Cleanup function for async operations
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
   const onChangeIcon = useCallback(
     (key: string, value: string, url: string) => {
       onChangeRef.current(key, value, url);
       setVisible(false);
-    }, []
+    }, 
+    []
   );
 
-  const fetchResults = async (query: string, pageNum: number = 1) => {
-    setLoading(true);
-  
-    const freeResult = await searchAssets({
-      ...IconScoutSearchParams,
-      asset: props.assetType,
-      price: 'free',
-      query,
-      page: pageNum,
-    });
-  
-    const premiumResult = await searchAssets({
-      ...IconScoutSearchParams,
-      asset: props.assetType,
-      price: 'premium',
-      query,
-      page: pageNum,
-    });
-  
-    const combined = [...freeResult.data, ...premiumResult.data];
-    const isLastPage = combined.length < IconScoutSearchParams.per_page * 2;
-  
-    setSearchResults(prev =>
-      pageNum === 1 ? combined : [...prev, ...combined]
-    );
-    setHasMore(!isLastPage);
-    setLoading(false);
-  };
-  
+  const fetchResults = useCallback(async (query: string, pageNum: number = 1) => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
 
-  const downloadAsset = async (
+    setLoading(true);
+    try {
+      const [freeResult, premiumResult] = await Promise.all([
+        searchAssets({
+          ...IconScoutSearchParams,
+          asset: props.assetType,
+          price: 'free',
+          query,
+          page: pageNum,
+        }),
+        searchAssets({
+          ...IconScoutSearchParams,
+          asset: props.assetType,
+          price: 'premium',
+          query,
+          page: pageNum,
+        })
+      ]);
+  
+      const combined = [...freeResult.data, ...premiumResult.data];
+      const isLastPage = combined.length < IconScoutSearchParams.per_page * 2;
+    
+      setSearchResults(prev =>
+        pageNum === 1 ? combined : [...prev, ...combined]
+      );
+      setHasMore(!isLastPage);
+    } catch (error: any) {
+      if (error.name !== 'AbortError') {
+        console.error('Error fetching results:', error);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [props.assetType]);
+
+  const downloadAsset = useCallback(async (
     uuid: string,
     downloadUrl: string,
     callback: (assetUrl: string) => void,
@@ -293,29 +316,29 @@ export const IconPicker = (props: {
         });
       }
     } catch(error) {
-      console.error(error);
+      console.error('Error downloading asset:', error);
       setDownloading(false);
     }
-  }
+  }, []);
 
-  const fetchDownloadUrl = async (uuid: string, preview: string) => {
+  const fetchDownloadUrl = useCallback(async (uuid: string, preview: string) => {
     try {
       setDownloading(true);
       const result = await getAssetLinks(uuid, {
         format: props.assetType === AssetType.LOTTIE ? 'lottie' : 'svg',
       });
 
-      downloadAsset(uuid, result.download_url, (assetUrl: string) => {
+      await downloadAsset(uuid, result.download_url, (assetUrl: string) => {
         setDownloading(false);
         onChangeIcon(uuid, assetUrl, preview);
       });
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching download URL:', error);
       setDownloading(false);
     }
-  }
+  }, [props.assetType, downloadAsset, onChangeIcon]);
 
-  const handleChange = (e: { target: { value: any; }; }) => {
+  const handleChange = useCallback((e: { target: { value: any; }; }) => {
     const query = e.target.value;
     setSearchText(query); // Update search text immediately
   
@@ -324,9 +347,15 @@ export const IconPicker = (props: {
     } else {
       setSearchResults([]); // Clear results if input is too short
     }
-  };
+  }, []);
 
-  const debouncedFetchResults = useMemo(() => debounce(fetchResults, 700), []);
+  const debouncedFetchResults = useMemo(
+    () => debounce((query: string) => {
+      setPage(1);
+      fetchResults(query, 1);
+    }, 700),
+    [fetchResults]
+  );
 
   const rowRenderer = useCallback(
     ({ index, key, style }: ListRowProps) => {
@@ -408,9 +437,8 @@ export const IconPicker = (props: {
         </IconRow>
       );
     },
-    [columnNum, mediaPackSubscription, props.assetType, fetchDownloadUrl]
+    [columnNum, mediaPackSubscription, props.assetType, fetchDownloadUrl, searchResults]
   );
-  
 
   const popupTitle = useMemo(() => {
     if (props.assetType === AssetType.ILLUSTRATION) return trans("iconScout.searchImage");
@@ -418,29 +446,32 @@ export const IconPicker = (props: {
     return trans("iconScout.searchIcon");
   }, [props.assetType]);
 
-  const MemoizedIconList = memo(({
-    searchResults,
-    rowRenderer,
-    onScroll,
-    columnNum,
+  const handleScroll = useCallback(({
+    clientHeight,
+    scrollHeight,
+    scrollTop,
   }: {
-    searchResults: any[];
-    rowRenderer: (props: ListRowProps) => React.ReactNode;
-    onScroll: (params: { clientHeight: number; scrollHeight: number; scrollTop: number }) => void;
-    columnNum: number;
+    clientHeight: number;
+    scrollHeight: number;
+    scrollTop: number;
   }) => {
-    return (
-      <IconList
-        width={550}
-        height={400}
-        rowHeight={140}
-        rowCount={Math.ceil(searchResults.length / columnNum)}
-        rowRenderer={rowRenderer}
-        onScroll={onScroll}
-      />
-    );
-  });
-  
+    if (hasMore && !loading && scrollHeight - scrollTop <= clientHeight + 10) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchResults(searchText, nextPage);
+    }
+  }, [hasMore, loading, page, searchText, fetchResults]);
+
+  const memoizedIconListElement = useMemo(() => (
+    <IconList
+      width={550}
+      height={400}
+      rowHeight={140}
+      rowCount={Math.ceil(searchResults.length / columnNum)}
+      rowRenderer={rowRenderer}
+      onScroll={handleScroll}
+    />
+  ), [searchResults.length, rowRenderer, handleScroll, columnNum]);
 
   return (
     <Popover
@@ -471,11 +502,6 @@ export const IconPicker = (props: {
               />
               <StyledSearchIcon />
             </SearchDiv>
-            {loading && (
-              <Flex align="center" justify="center" style={{flex: 1}}>
-                <Spin indicator={<LoadingOutlined style={{ fontSize: 25 }} spin />} />
-              </Flex>
-            )}
             <Spin spinning={downloading} indicator={<LoadingOutlined style={{ fontSize: 25 }} />} >
               {!loading && Boolean(searchText) && !Boolean(searchResults?.length) && (
                 <Flex align="center" justify="center" style={{flex: 1}}>
@@ -484,32 +510,15 @@ export const IconPicker = (props: {
                   </Typography.Text>
                 </Flex>
               )}
-              {!loading && Boolean(searchText) && Boolean(searchResults?.length) && (
+              {Boolean(searchText) && Boolean(searchResults?.length) && (
                 <IconListWrapper>
-                  
-                  <IconList
-                    width={550}
-                    height={400}
-                    rowHeight={140}
-                    rowCount={Math.ceil(searchResults.length / columnNum)}
-                    rowRenderer={rowRenderer}
-                    onScroll={({
-                      clientHeight,
-                      scrollHeight,
-                      scrollTop,
-                    }: {
-                      clientHeight: number;
-                      scrollHeight: number;
-                      scrollTop: number;
-                    }) => {
-                      if (hasMore && !loading && scrollHeight - scrollTop <= clientHeight + 10) {
-                        const nextPage = page + 1;
-                        setPage(nextPage);
-                        fetchResults(searchText, nextPage);
-                      }
-                    }}
-                    />
+                  {memoizedIconListElement}
                 </IconListWrapper>
+              )}
+              {loading && (
+                <Flex align="center" justify="center" style={{flex: 1}}>
+                  <Spin indicator={<LoadingOutlined style={{ fontSize: 25 }} spin />} />
+                </Flex>
               )}
             </Spin>
           </PopupContainer>
@@ -557,11 +566,12 @@ export function IconscoutControl(
 ) {
   return class IconscoutControl extends SimpleComp<IconScoutAsset> {
     readonly IGNORABLE_DEFAULT_VALUE = false;
+
     protected getDefaultValue(): IconScoutAsset {
       return {
-        uuid: '',
-        value: '',
-        preview: '',
+        uuid: "",
+        value: "",
+        preview: "",
       };
     }
 
@@ -586,5 +596,5 @@ export function IconscoutControl(
         </ControlPropertyViewWrapper>
       );
     }
-  }
+  };
 }
