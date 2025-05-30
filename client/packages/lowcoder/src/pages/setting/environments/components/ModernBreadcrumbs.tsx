@@ -1,6 +1,8 @@
 import React, { ReactNode } from 'react';
-import { Breadcrumb } from 'antd';
+import { default as AntdBreadcrumb } from 'antd/es/breadcrumb';
 import { BreadcrumbProps } from 'antd/lib/breadcrumb';
+import styled from 'styled-components';
+import { ArrowIcon } from 'lowcoder-design';
 
 interface ModernBreadcrumbsProps extends Omit<BreadcrumbProps, 'items'> {
   /**
@@ -13,56 +15,52 @@ interface ModernBreadcrumbsProps extends Omit<BreadcrumbProps, 'items'> {
   }[];
 }
 
-/**
- * Modern styled breadcrumb component with consistent styling
- */
+const Breadcrumb = styled(AntdBreadcrumb)`
+  margin-bottom: 10px;
+  font-size: 20px;
+  li:not(:last-child) {
+    color: #8b8fa3;
+  }
+
+  li:last-child {
+    font-weight: 500;
+    color: #222222;
+  }
+
+  li.ant-breadcrumb-separator {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+`;
+
+const BreadcrumbItem = styled.div`
+  cursor: pointer;
+`;
+
+
 const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({ items = [], ...props }) => {
-  // Convert custom items format to Antd's expected format
+  // Convert custom items format to the standard format used throughout the application
   const breadcrumbItems = items.map(item => ({
     key: item.key,
-    title: item.onClick ? (
-      <span
-        style={{ 
-          cursor: "pointer", 
-          color: '#1890ff', 
-          fontWeight: '500',
-          transition: 'color 0.2s ease'
-        }}
-        onClick={item.onClick}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.color = '#096dd9';
-          e.currentTarget.style.textDecoration = 'underline';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.color = '#1890ff';
-          e.currentTarget.style.textDecoration = 'none';
-        }}
-      >
-        {item.title}
-      </span>
-    ) : (
-      <span style={{ color: '#222222', fontWeight: '500' }}>
-        {item.title}
-      </span>
-    )
+    title: item.title,
+    onClick: item.onClick
   }));
 
   return (
-    <div className="modern-breadcrumb" style={{
-      background: '#ffffff',
-      padding: '12px 20px',
-      borderRadius: '4px',
-      marginBottom: '20px',
-      border: '1px solid #e8e8e8',
-      display: 'flex',
-      alignItems: 'center'
-    }}>
-      <Breadcrumb 
-        {...props} 
-        separator={<span style={{ color: '#8b8fa3' }}>/</span>}
-        items={breadcrumbItems} 
-      />
-    </div>
+    <Breadcrumb
+      {...props}
+      separator={<ArrowIcon />}
+      items={breadcrumbItems}
+      itemRender={(item) => (
+        <BreadcrumbItem
+          key={item.key}
+          onClick={item.onClick}
+        >
+          {item.title}
+        </BreadcrumbItem>
+      )}
+    />
   );
 };
 
