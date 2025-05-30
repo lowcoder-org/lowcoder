@@ -4,12 +4,13 @@ import { DeployableItemConfig } from '../types/deployable-item.types';
 import { Environment } from '../types/environment.types';
 import { deployWorkspace } from '../services/workspace.service';
 import { Workspace } from '../types/workspace.types';
+import { trans } from "i18n";
 
 export const workspaceConfig: DeployableItemConfig = {
   
   // Deploy configuration
   deploy: {
-    singularLabel: 'Workspace',
+    singularLabel: trans("enterprise.environments.config.singularLabels.workspace"),
     fields: [
       // Removed deployCredential field as workspaces don't need credential overwrite
     ],

@@ -1,6 +1,6 @@
-
 import { Modal, Alert } from 'antd';
 import { ExclamationCircleOutlined, WarningOutlined } from '@ant-design/icons';
+import { trans } from "i18n";
 
 interface ConfirmHandlers {
   onOk: () => void;
@@ -15,21 +15,23 @@ export function showFirstCredentialOverwriteConfirm({ onOk, onCancel }: ConfirmH
     title: (
       <div style={{ display: 'flex', alignItems: 'center', color: '#ff7a00' }}>
         <WarningOutlined style={{ marginRight: 8, fontSize: 18 }} />
-        <span style={{ fontSize: 16, fontWeight: 600 }}>Overwrite Credentials Warning</span>
+        <span style={{ fontSize: 16, fontWeight: 600 }}>
+          {trans("enterprise.environments.credentialConfirmations.firstConfirmation.title")}
+        </span>
       </div>
     ),
     icon: null,
     content: (
       <div style={{ padding: '16px 0' }}>
         <Alert
-          message="This action will overwrite existing credentials in the target environment."
+          message={trans("enterprise.environments.credentialConfirmations.firstConfirmation.message")}
           description={
             <div style={{ marginTop: 8 }}>
               <p style={{ margin: 0, fontWeight: 500 }}>
-                This is a serious operation that may affect other applications and users.
+                {trans("enterprise.environments.credentialConfirmations.firstConfirmation.description")}
               </p>
               <p style={{ margin: '8px 0 0 0', color: '#8c8c8c' }}>
-                Are you sure you want to proceed?
+                {trans("enterprise.environments.credentialConfirmations.firstConfirmation.question")}
               </p>
             </div>
           }
@@ -39,8 +41,8 @@ export function showFirstCredentialOverwriteConfirm({ onOk, onCancel }: ConfirmH
         />
       </div>
     ),
-    okText: 'Continue',
-    cancelText: 'Cancel',
+    okText: trans("enterprise.environments.credentialConfirmations.firstConfirmation.continueButton"),
+    cancelText: trans("enterprise.environments.credentialConfirmations.firstConfirmation.cancelButton"),
     okButtonProps: {
       style: { backgroundColor: '#ff7a00', borderColor: '#ff7a00', fontWeight: 500 }
     },
@@ -62,21 +64,23 @@ export function showSecondCredentialOverwriteConfirm({ onOk, onCancel }: Confirm
     title: (
       <div style={{ display: 'flex', alignItems: 'center', color: '#ff4d4f' }}>
         <ExclamationCircleOutlined style={{ marginRight: 8, fontSize: 18 }} />
-        <span style={{ fontSize: 16, fontWeight: 600 }}>Final Confirmation Required</span>
+        <span style={{ fontSize: 16, fontWeight: 600 }}>
+          {trans("enterprise.environments.credentialConfirmations.secondConfirmation.title")}
+        </span>
       </div>
     ),
     icon: null,
     content: (
       <div style={{ padding: '16px 0' }}>
         <Alert
-          message="Final Warning: Credential Overwrite"
+          message={trans("enterprise.environments.credentialConfirmations.secondConfirmation.message")}
           description={
             <div style={{ marginTop: 8 }}>
               <p style={{ margin: 0, fontWeight: 500 }}>
-                You are about to overwrite credentials in the target environment. This action cannot be undone and may break existing integrations.
+                {trans("enterprise.environments.credentialConfirmations.secondConfirmation.description")}
               </p>
               <p style={{ margin: '8px 0 0 0', color: '#8c8c8c' }}>
-                Please confirm one more time.
+                {trans("enterprise.environments.credentialConfirmations.secondConfirmation.confirmOnceMore")}
               </p>
             </div>
           }
@@ -93,14 +97,14 @@ export function showSecondCredentialOverwriteConfirm({ onOk, onCancel }: Confirm
           }}
         >
           <p style={{ margin: 0, fontWeight: 600, color: '#cf1322', fontSize: 14 }}>
-            Are you absolutely certain you want to overwrite the credentials?
+            {trans("enterprise.environments.credentialConfirmations.secondConfirmation.finalQuestion")}
           </p>
         </div>
       </div>
     ),
-    okText: 'Yes, Overwrite Credentials',
+    okText: trans("enterprise.environments.credentialConfirmations.secondConfirmation.confirmButton"),
     okType: 'danger',
-    cancelText: 'Cancel',
+    cancelText: trans("enterprise.environments.credentialConfirmations.secondConfirmation.cancelButton"),
     okButtonProps: { style: { fontWeight: 500 } },
     cancelButtonProps: { style: { fontWeight: 500 } },
     width: 520,

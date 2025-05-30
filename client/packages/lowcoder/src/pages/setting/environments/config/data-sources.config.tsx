@@ -4,14 +4,15 @@ import { DeployableItemConfig } from '../types/deployable-item.types';
 import { DataSource} from '../types/datasource.types';
 import { Environment } from '../types/environment.types';
 import { deployDataSource, DataSourceStats } from '../services/datasources.service';
+import { trans } from "i18n";
 
 export const dataSourcesConfig: DeployableItemConfig = {
   deploy: {
-    singularLabel: 'Data Source',
+    singularLabel: trans("enterprise.environments.config.singularLabels.dataSource"),
     fields: [
       {
         name: 'deployCredential',
-        label: 'Overwrite Credentials',
+        label: trans("enterprise.environments.config.fields.overwriteCredentials"),
         type: 'checkbox',
         defaultValue: false
       }

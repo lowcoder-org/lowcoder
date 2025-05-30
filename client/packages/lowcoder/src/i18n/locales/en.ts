@@ -2808,6 +2808,63 @@ export const en = {
         "managedError": "Failed to change managed status for {name}"
       },
       
+      // Deploy Modal and Credential Confirmations
+      "deployModal": {
+        "deployTitle": "Deploy {singularLabel}: {name}",
+        "loadingEnvironments": "Loading environments...",
+        "sourceEnvironment": "Source Environment",
+        "targetEnvironment": "Target Environment",
+        "selectTargetEnvironment": "Select target environment",
+        "selectTargetEnvironmentValidation": "Please select a target environment",
+        "confirmed": "Confirmed",
+        "cancel": "Cancel", 
+        "deploy": "Deploy",
+        "targetEnvironmentNotFound": "Target environment not found",
+        "confirmCredentialOverwrite": "Please confirm credential overwrite before deploying",
+        "deploySuccess": "Successfully deployed {name} to target environment",
+        "deployFailed": "Failed to deploy {singularLabel}",
+        "selectFieldValidation": "Please select {label}",
+        "selectFieldPlaceholder": "Select {label}",
+        "inputFieldValidation": "Please input {label}",
+        "inputFieldPlaceholder": "Enter {label}"
+      },
+
+      "credentialConfirmations": {
+        "firstConfirmation": {
+          "title": "Overwrite Credentials Warning",
+          "message": "This action will overwrite existing credentials in the target environment.",
+          "description": "This is a serious operation that may affect other applications and users.",
+          "question": "Are you sure you want to proceed?",
+          "continueButton": "Continue",
+          "cancelButton": "Cancel"
+        },
+        "secondConfirmation": {
+          "title": "Final Confirmation Required",
+          "message": "Final Warning: Credential Overwrite",
+          "description": "You are about to overwrite credentials in the target environment. This action cannot be undone and may break existing integrations.",
+          "confirmOnceMore": "Please confirm one more time.",
+          "finalQuestion": "Are you absolutely certain you want to overwrite the credentials?",
+          "confirmButton": "Yes, Overwrite Credentials",
+          "cancelButton": "Cancel"
+        }
+      },
+
+      "config": {
+        "singularLabels": {
+          "app": "App",
+          "dataSource": "Data Source", 
+          "query": "Query",
+          "workspace": "Workspace"
+        },
+        "fields": {
+          "updateDependenciesIfNeeded": "Update Dependencies If Needed",
+          "publishOnTarget": "Publish On Target",
+          "publicToAll": "Public To All",
+          "publicToMarketplace": "Public To Marketplace",
+          "overwriteCredentials": "Overwrite Credentials"
+        }
+      },
+      
       // Service error messages
       "services": {
         "environments": {
