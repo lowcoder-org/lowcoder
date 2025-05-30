@@ -91,7 +91,7 @@ const WorkspaceDetail: React.FC = () => {
       key: 'environments',
       title: (
         <span>
-          <HomeOutlined /> Environments
+           Environments
         </span>
       ),
       onClick: () => history.push("/setting/environments")
@@ -100,7 +100,7 @@ const WorkspaceDetail: React.FC = () => {
       key: 'environment',
       title: (
         <span>
-          <TeamOutlined /> {environment.environmentName}
+          {environment.environmentName}
         </span>
       ),
       onClick: () => history.push(`/setting/environments/${environment.environmentId}`)
@@ -159,6 +159,10 @@ const WorkspaceDetail: React.FC = () => {
   return (
     <Level1SettingPageContent style={{ minWidth: "1000px" }}>
       {/* New Workspace Header */}
+
+      {/* Modern Breadcrumbs navigation */}
+      <ModernBreadcrumbs items={breadcrumbItems} />
+
       <WorkspaceHeader
         workspace={workspace}
         environment={environment}
@@ -203,8 +207,7 @@ const WorkspaceDetail: React.FC = () => {
         </Col>
       </Row>
 
-      {/* Modern Breadcrumbs navigation */}
-      <ModernBreadcrumbs items={breadcrumbItems} />
+      
 
       {/* Tabs for Apps, Data Sources, and Queries */}
       <Tabs 

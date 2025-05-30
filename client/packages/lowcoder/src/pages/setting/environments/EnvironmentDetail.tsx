@@ -188,6 +188,19 @@ const EnvironmentDetail: React.FC = () => {
     <Level1SettingPageContent style={{ minWidth: "1000px" }}>
       {/* Breadcrumbs */}
    
+      <ModernBreadcrumbs 
+        items={[
+          {
+            key: 'environments',
+            title: 'Environments',
+            onClick: () => history.push('/setting/environments')
+          },
+          {
+            key: 'current',
+            title: environment.environmentName || "Environment Detail"
+          }
+        ]}
+      />
 
       {/* Environment Header Component */}
       <EnvironmentHeader 
@@ -265,19 +278,7 @@ const EnvironmentDetail: React.FC = () => {
         </Descriptions>
       </Card>
 
-      <ModernBreadcrumbs 
-        items={[
-          {
-            key: 'environments',
-            title: 'Environments',
-            onClick: () => history.push('/setting/environments')
-          },
-          {
-            key: 'current',
-            title: environment.environmentName || "Environment Detail"
-          }
-        ]}
-      />
+      
       {/* Detailed License Information Card - only show for licensed environments with details */}
       {environment.isLicensed && environment.licenseDetails && (
         <Card

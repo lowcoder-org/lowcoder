@@ -66,7 +66,6 @@ const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
         padding: '20px 24px',
         borderRadius: '8px',
         border: '1px solid #f0f0f0',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
       }}
     >
       <Row justify="space-between" align="middle" gutter={[16, 16]}>

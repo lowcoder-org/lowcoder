@@ -16,9 +16,8 @@ interface ModernBreadcrumbsProps extends Omit<BreadcrumbProps, 'items'> {
 }
 
 const Breadcrumb = styled(AntdBreadcrumb)`
-  font-size: 16px;
   margin-bottom: 10px;
-
+  font-size: 20px;
   li:not(:last-child) {
     color: #8b8fa3;
   }
