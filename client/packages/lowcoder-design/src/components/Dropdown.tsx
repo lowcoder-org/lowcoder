@@ -124,9 +124,8 @@ const FlexDiv = styled.div`
 
 const LabelWrapper = styled.div<{ $placement: ControlPlacement }>`
   flex-shrink: 0;
-  width: ${(props) =>
-    props.$placement === "right" ? "96px" : props.$placement === "bottom" ? "112px" : "136px"};
-`;
+  width: ${(props) => props.$placement === "right" ? "96px" : props.$placement === "bottom" ? "112px" : "136px"};
+  `;
 
 export type OptionType = {
   readonly label: ReactNode;
