@@ -91,7 +91,7 @@ const WorkspaceDetail: React.FC = () => {
       key: 'environments',
       title: (
         <span>
-          <HomeOutlined /> Environments
+           Environments
         </span>
       ),
       onClick: () => history.push("/setting/environments")
@@ -100,7 +100,7 @@ const WorkspaceDetail: React.FC = () => {
       key: 'environment',
       title: (
         <span>
-          <TeamOutlined /> {environment.environmentName}
+          {environment.environmentName}
         </span>
       ),
       onClick: () => history.push(`/setting/environments/${environment.environmentId}`)
