@@ -2551,8 +2551,40 @@ export const en = {
     "EnvironmentsFeature2": "Deployment of applications, data sources, and configurations between environments, directly from the UI.",
     "EnvironmentsFeature3": "Environment-specific access controls and visibility rules.",
     "EnvironmentsFeature5": "Clear separation of concerns for staging, sandbox, and production operations.",
-  },
 
+    // Environments page translations
+    "environments": {
+      "title": "Environments",
+      "search": "Search",
+      "refresh": "Refresh",
+      "addEnvironment": "Add Environment",
+      "errorLoadingEnvironments": "Error loading environments",
+      "noEnvironmentsFoundMatching": "No environments found matching \"{searchText}\"",
+      "noEnvironmentsFound": "No environments found. Create your first environment to get started.",
+      "environmentsTypeLabel": "{type} Environments",
+      "showingAllEnvironments": "Showing all {count} environments",
+      "unnamedEnvironment": "Unnamed Environment",
+      "masterEnvironment": "Master Environment",
+      "viewAuditLogs": "View Audit Logs",
+      "id": "ID",
+      "domain": "Domain",
+      "master": "Master",
+      "license": "License",
+      "apiCalls": "API Calls",
+      "yes": "Yes",
+      "no": "No",
+      "copyId": "Copy ID",
+      "copied": "Copied!",
+      "percentUsed": "{percent}% used",
+      "licenseStatus": {
+        "checking": "Checking...",
+        "licensed": "Licensed",
+        "unlicensed": "License Required",
+        "error": "Setup Required",
+        "unknown": "Unknown"
+      }
+    }
+  },
   "subscription": {
     "details": "Subscription Details",
     "productDetails": "Product Details",
