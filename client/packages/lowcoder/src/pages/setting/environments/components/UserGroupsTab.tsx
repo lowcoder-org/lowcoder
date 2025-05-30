@@ -6,6 +6,7 @@ import { Environment } from '../types/environment.types';
 import { UserGroup, UserGroupsTabStats } from '../types/userGroup.types';
 import { getEnvironmentUserGroups } from '../services/environments.service';
 import { Spin, Empty } from 'antd';
+import { trans } from 'i18n';
 
 const { Search } = Input;
 
@@ -36,7 +37,7 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
     try {
       // Check for required environment properties
       if (!environment.environmentApikey || !environment.environmentApiServiceUrl) {
-        setError('Missing required configuration: API key or API service URL');
+        setError(trans("enterprise.environments.userGroups.missingConfiguration"));
         setLoading(false);
         return;
       }
@@ -65,7 +66,7 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
         custom
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch user groups");
+      setError(err instanceof Error ? err.message : trans("enterprise.environments.userGroups.errorLoadingUserGroups"));
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -134,7 +135,7 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
   // Table columns
   const columns = [
     {
-      title: 'User Group',
+      title: trans("enterprise.environments.userGroups.userGroup"),
       key: 'group',
       render: (group: UserGroup) => (
         <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -158,31 +159,31 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
       ),
     },
     {
-      title: 'Type',
+      title: trans("enterprise.environments.userGroups.type"),
       key: 'type',
       render: (_: any, group: UserGroup) => {
         if (group.allUsersGroup) return (
           <Tag color="blue" style={{ borderRadius: '4px' }}>
-            <UserOutlined style={{ marginRight: 4 }} /> All Users
+            <UserOutlined style={{ marginRight: 4 }} /> {trans("enterprise.environments.userGroups.allUsers")}
           </Tag>
         );
         if (group.devGroup) return (
           <Tag color="purple" style={{ borderRadius: '4px' }}>
-            <CodeOutlined style={{ marginRight: 4 }} /> Developers
+            <CodeOutlined style={{ marginRight: 4 }} /> {trans("enterprise.environments.userGroups.developers")}
           </Tag>
         );
         return (
           <Tag color="default" style={{ borderRadius: '4px' }}>
-            <SettingOutlined style={{ marginRight: 4 }} /> Custom
+            <SettingOutlined style={{ marginRight: 4 }} /> {trans("enterprise.environments.userGroups.custom")}
           </Tag>
         );
       },
     },
     {
-      title: 'Members',
+      title: trans("enterprise.environments.userGroups.members"),
       key: 'members',
       render: (_: any, group: UserGroup) => (
-        <Tooltip title="Total number of members in this group">
+        <Tooltip title={trans("enterprise.environments.userGroups.totalMembersTooltip")}>
           <Tag style={{ borderRadius: '4px', backgroundColor: '#f6f6f6', color: '#333' }}>
             <UserOutlined style={{ marginRight: 4 }} /> {group.stats?.userCount || 0}
           </Tag>
@@ -190,10 +191,10 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
       ),
     },
     {
-      title: 'Admin Members',
+      title: trans("enterprise.environments.userGroups.adminMembers"),
       key: 'adminMembers',
       render: (_: any, group: UserGroup) => (
-        <Tooltip title="Number of admin users in this group">
+        <Tooltip title={trans("enterprise.environments.userGroups.adminMembersTooltip")}>
           <Tag style={{ borderRadius: '4px', backgroundColor: '#fff1f0', color: '#cf1322' }}>
             <UserOutlined style={{ marginRight: 4 }} /> {group.stats?.adminUserCount || 0}
           </Tag>
@@ -201,7 +202,7 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
       ),
     },
     {
-      title: 'Created',
+      title: trans("enterprise.environments.userGroups.created"),
       dataIndex: 'createTime',
       key: 'createTime',
       render: (createTime: number) => (
@@ -223,10 +224,10 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
       }}>
         <div>
           <Title level={4} style={{ margin: 0, marginBottom: '4px' }}>
-            <UsergroupAddOutlined style={{ marginRight: 8 }} /> User Groups
+            <UsergroupAddOutlined style={{ marginRight: 8 }} /> {trans("enterprise.environments.userGroups.title")}
           </Title>
           <p style={{ marginBottom: 0, color: '#8c8c8c', fontSize: '14px' }}>
-            Manage user groups in this environment
+            {trans("enterprise.environments.userGroups.subtitle")}
           </p>
         </div>
         <Button 
@@ -234,14 +235,14 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
           onClick={handleRefresh}
           loading={loading}
         >
-          Refresh
+          {trans("enterprise.environments.userGroups.refresh")}
         </Button>
       </div>
 
       {/* Error display */}
       {error && (
         <Alert
-          message="Error loading user groups"
+          message={trans("enterprise.environments.userGroups.errorLoadingUserGroups")}
           description={error}
           type="error"
           showIcon
@@ -252,8 +253,8 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
       {/* Configuration warnings */}
       {(!environment.environmentApikey || !environment.environmentApiServiceUrl) && !error && (
         <Alert
-          message="Configuration Issue"
-          description="Missing required configuration: API key or API service URL"
+          message={trans("enterprise.environments.userGroups.configurationIssue")}
+          description={trans("enterprise.environments.userGroups.missingConfiguration")}
           type="warning"
           showIcon
           style={{ marginBottom: "16px" }}
@@ -264,28 +265,28 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
       <Row gutter={[16, 16]} style={{ marginBottom: '20px' }}>
         <Col xs={24} sm={12} md={6}>
           <StatCard 
-            title="Total Groups" 
+            title={trans("enterprise.environments.userGroups.totalGroups")} 
             value={stats.total} 
             icon={<TeamOutlined />} 
           />
         </Col>
         <Col xs={24} sm={12} md={6}>
           <StatCard 
-            title="All Users Groups" 
+            title={trans("enterprise.environments.userGroups.allUsersGroups")} 
             value={stats.allUsers} 
             icon={<UserOutlined />} 
           />
         </Col>
         <Col xs={24} sm={12} md={6}>
           <StatCard 
-            title="Developer Groups" 
+            title={trans("enterprise.environments.userGroups.developerGroups")} 
             value={stats.developers} 
             icon={<CodeOutlined />} 
           />
         </Col>
         <Col xs={24} sm={12} md={6}>
           <StatCard 
-            title="Custom Groups" 
+            title={trans("enterprise.environments.userGroups.customGroups")} 
             value={stats.custom} 
             icon={<SettingOutlined />} 
           />
@@ -305,7 +306,7 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
           </div>
         ) : userGroups.length === 0 ? (
           <Empty
-            description={error || "No user groups found in this environment"}
+            description={error || trans("enterprise.environments.userGroups.noUserGroupsFound")}
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           />
         ) : (
@@ -313,7 +314,7 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
             {/* Search Bar */}
             <div style={{ marginBottom: 16 }}>
               <Search
-                placeholder="Search user groups by name or ID"
+                placeholder={trans("enterprise.environments.userGroups.searchUserGroups")}
                 allowClear
                 onSearch={value => setSearchText(value)}
                 onChange={e => setSearchText(e.target.value)}
@@ -321,7 +322,7 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
               />
               {searchText && filteredUserGroups.length !== userGroups.length && (
                 <div style={{ marginTop: 8, color: '#8c8c8c', fontSize: '13px' }}>
-                  Showing {filteredUserGroups.length} of {userGroups.length} user groups
+                  {trans("enterprise.environments.userGroups.showingResults", { count: filteredUserGroups.length, total: userGroups.length })}
                 </div>
               )}
             </div>
@@ -332,7 +333,7 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
               rowKey="groupId"
               pagination={{ 
                 pageSize: 10,
-                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} user groups`,
+                showTotal: (total, range) => trans("enterprise.environments.userGroups.paginationTotal", { start: range[0], end: range[1], total }),
                 size: 'small'
               }}
               size="middle"
