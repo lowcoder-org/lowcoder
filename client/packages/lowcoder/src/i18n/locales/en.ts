@@ -3132,7 +3132,8 @@ export const en = {
     "whatsNewLinkHelp": "Provide a valid URL that users can visit for your news.",
     "deleteBranding": "Delete Branding",
     "deleteBrandingContent": "Are you sure you want to delete \"{orgName}\" branding?",
-    "fetchBrandingError": "Something went wrong while fetching branding details. Please try again."
+    "fetchBrandingError": "Something went wrong while fetching branding details. Please try again.",
+    "upload": "Upload"
   },
   "networkMessage": {
     "200": "Success",
