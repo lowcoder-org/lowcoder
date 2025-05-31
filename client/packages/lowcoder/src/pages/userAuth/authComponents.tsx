@@ -185,9 +185,9 @@ const BrandingWrapper = (props: {
   const brandingSettings = useSelector(getBrandingSetting);
   const brandingImage = useMemo(() => {
     const imageUrl = brandingSettings?.config_set?.signUpPageImage || '';
-    if (Boolean(brandingSettings?.orgId)) {
-      return buildMaterialPreviewURL(imageUrl);
-    }
+    // if (Boolean(brandingSettings?.orgId)) {
+    //   return buildMaterialPreviewURL(imageUrl);
+    // }
     return imageUrl;
   }, [brandingSettings?.orgId, brandingSettings?.config_set?.signUpPageImage]);
   const brandingText = brandingSettings?.config_set?.signUpPageText;

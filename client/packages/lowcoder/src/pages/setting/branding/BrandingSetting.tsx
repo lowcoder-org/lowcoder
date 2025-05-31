@@ -850,15 +850,15 @@ export function BrandingSetting() {
                   onChange={(e) => updateSettings(SettingsEnum.ERROR_PAGE_TEXT, e.target.value)}
                 />
 
-                {!Boolean(configOrgId) ? (
-                  <>
+                {/* {!Boolean(configOrgId) ? (
+                  <> */}
                     <StyledSectionTitle style={{marginTop : "20px"}}>{trans("branding.errorPageImageUrl")}</StyledSectionTitle>
                     <StyledInput
                       placeholder={trans("branding.errorPageImageUrlPlaceholder")}
                       value={brandingConfig?.config_set?.[SettingsEnum.ERROR_PAGE_IMAGE] || ""}
                       onChange={(e) => updateSettings(SettingsEnum.ERROR_PAGE_IMAGE, e.target.value)}
                     />
-                  </>
+                  {/* </>
                 ) : (
                   <>
                     <StyledSectionTitle style={{marginTop : "20px"}}>{trans("branding.errorPageImage")}</StyledSectionTitle>
@@ -879,7 +879,7 @@ export function BrandingSetting() {
                       </Upload>
                     </StyledRectUploadContainer>
                   </>
-                )}
+                )} */}
               </Col>
               <Col xs={24} md={8}>
                 <Paragraph type="secondary">
@@ -907,15 +907,15 @@ export function BrandingSetting() {
                   onChange={(e) => updateSettings(SettingsEnum.SIGNUP_PAGE_TEXT, e.target.value)}
                 />
 
-                {!Boolean(configOrgId) ? (
-                  <>
+                {/* {!Boolean(configOrgId) ? (
+                  <> */}
                     <StyledSectionTitle style={{marginTop : "20px"}}>{trans("branding.signUpPageImageUrl")}</StyledSectionTitle>
                     <StyledInput
                       placeholder={trans("branding.signUpPageImageUrlPlaceholder")}
                       value={brandingConfig?.config_set?.[SettingsEnum.SIGNUP_PAGE_IMAGE] || ""}
                       onChange={(e) => updateSettings(SettingsEnum.SIGNUP_PAGE_IMAGE, e.target.value)}
                     />
-                  </>
+                  {/* </>
                 ) : (
                   <>
                     <StyledSectionTitle style={{marginTop : "20px"}}>{trans("branding.signUpPageImage")}</StyledSectionTitle>
@@ -936,7 +936,7 @@ export function BrandingSetting() {
                       </Upload>
                     </StyledRectUploadContainer>
                   </>
-                )}
+                )} */}
               </Col>
               <Col xs={24} md={8}>
                 <Paragraph type="secondary">

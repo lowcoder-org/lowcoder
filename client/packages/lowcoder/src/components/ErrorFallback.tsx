@@ -47,9 +47,9 @@ const ErrorFallback = (props: {
   
   const errorImage = useMemo(() => {
     const imageUrl = brandingSettings?.config_set?.errorPageImage || '';
-    if (Boolean(brandingSettings?.orgId)) {
-      return buildMaterialPreviewURL(imageUrl);
-    }
+    // if (Boolean(brandingSettings?.orgId)) {
+    //   return buildMaterialPreviewURL(imageUrl);
+    // }
     return imageUrl;
   }, [brandingSettings?.orgId, brandingSettings?.config_set?.errorPageImage]);
 
