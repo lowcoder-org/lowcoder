@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { RecordConstructorToView } from "lowcoder-core";
 import { styleControl } from "comps/controls/styleControl";
@@ -34,8 +34,10 @@ import { AssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconsco
 import { dropdownControl } from "../controls/dropdownControl";
 
 const Container = styled.div<{
+  $sourceMode: string;
   $style: IconStyleType | undefined;
-  $animationStyle:AnimationStyleType}>`
+  $animationStyle:AnimationStyleType;
+}>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -59,6 +61,15 @@ const Container = styled.div<{
         pointer-events: auto;
       }
     `}
+  ${(props) => props.$sourceMode === 'asset-library' && `
+    img {
+      max-width: 100%;
+      max-height: 100%;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  `}
 `;
 
 const EventOptions = [clickEvent] as const;
@@ -101,17 +112,28 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
     onResize,
   });
 
-  return (
-    <Container
-      ref={conRef}
-      $style={props.style}
-      $animationStyle={props.animationStyle}
-      style={{
+  const style = useMemo(() => {
+    if (props.sourceMode === 'standard') {
+      return {
         fontSize: props.autoHeight
           ? `${height < width ? height : width}px`
           : props.iconSize,
         background: props.style.background,
-      }}
+      }
+    }
+    return {
+      width: props.autoHeight ? '' : props.iconSize,
+      background: props.style.background,
+    }
+  }, [width, height, props.autoHeight, props.iconSize, props.sourceMode, props.style.background]);
+
+  return (
+    <Container
+      ref={conRef}
+      $style={props.style}
+      $sourceMode={props.sourceMode}
+      $animationStyle={props.animationStyle}
+      style={style}
       onClick={() => props.onEvent("click")}
     >
       { props.sourceMode === 'standard'
