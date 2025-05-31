@@ -3738,8 +3738,7 @@ export const en = {
   "help": {
     "videoText": "Overview",
     "onBtnText": "OK",
-    // eslint-disable-next-line only-ascii/only-ascii
-    "permissionDenyTitle": "💡 Unable to Create a New Application or Data Source?",
+    "permissionDenyTitle": "Unable to Create a New Application or Data Source?",
     "permissionDenyContent": "You Don't Have Permission to Create the Application and Data Source. Please Contact the Administrator to Join the Developer Group.",
     "appName": "Tutorial Application",
     "chat": "Chat with Us",
@@ -4174,13 +4173,11 @@ export const en = {
     "pleaseSelectCity": "Please Select a City",
     "advanced": "Advanced",
     "showClearIcon": "Show Clear Icon",
-/* eslint-disable only-ascii/only-ascii */
-    appleOptionLabel: "🍎 Apple",
-    waterMelonOptionLabel: "🍉 Watermelon",
-    berryOptionLabel: "🍓 Strawberry",
-    lemonOptionLabel: "🍋 Lemon",
-    coconutOptionLabel: "🥥 Coconut",
-/* eslint-enable only-ascii/only-ascii */
+    "appleOptionLabel": "Apple",
+    "waterMelonOptionLabel": "Watermelon",
+    "berryOptionLabel": "Strawberry",
+    "lemonOptionLabel": "Lemon",
+    "coconutOptionLabel": "Coconut",
     "likedFruits": "Favorites",
     "option": "Option",
     "singleFileUpload": "Single File Upload",
