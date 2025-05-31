@@ -2,14 +2,19 @@ import { AUDIT_LOG_DASHBOARD, AUDIT_LOG_DETAIL } from "@lowcoder-ee/constants/ro
 import { Route, Switch } from "react-router-dom";
 import { AuditLogDashboard } from "./dashboard";
 import { AuditLogDetail } from "./detail";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import { Card, Divider, Typography, Row, Col, Image } from "antd";
 import { HelpText } from "components/HelpText";
 import { Level1SettingPageContent, Level1SettingPageTitle } from "../styled";
 import { trans } from "i18n";
 import { selectIsLicenseActive } from "redux/selectors/enterpriseSelectors";
-// import { getOrgApiUsage, getOrgLastMonthApiUsage } from "redux/selectors/orgSelectors";
+
+import { getUser } from "@lowcoder-ee/redux/selectors/usersSelectors";
+import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
+import { getOrgApiUsage, getOrgLastMonthApiUsage } from "redux/selectors/orgSelectors";
+import { fetchAPIUsageAction, fetchLastMonthAPIUsageAction } from "redux/reduxActions/orgActions";
+import { useEffect } from "react";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -45,14 +50,28 @@ const AuditLogRoutes = () => (
 );
 
 const Audit = () => {
+
+  const user = useSelector(getUser);
+  const deploymentId = useSelector(getDeploymentId);
+  const dispatch = useDispatch();
+    
+  const apiUsage = useSelector(getOrgApiUsage);
+    useEffect(() => {
+      dispatch(fetchAPIUsageAction(user.currentOrgId));
+    }, [user.currentOrgId])
+  
+    const lastMonthApiUsage = useSelector(getOrgLastMonthApiUsage);
+    useEffect(() => {
+      dispatch(fetchLastMonthAPIUsageAction(user.currentOrgId));
+    }, [user.currentOrgId])
+
   return (
     <Level1SettingPageContent>
       <Level1SettingPageTitle>{trans("enterprise.AuditLogsTitle")}</Level1SettingPageTitle>
 
       <StyledSection>
         <Card title={trans("enterprise.AuditLogsIntroTitle")}>
-          <Paragraph>{trans("enterprise.AuditLogsIntro1")}</Paragraph>
-          <Paragraph>{trans("enterprise.AuditLogsIntro2")}</Paragraph>
+          <Paragraph>{trans("enterprise.AuditLogsIntro1")} {trans("enterprise.AuditLogsIntro2")}</Paragraph>
           <Paragraph>{trans("enterprise.AuditLogsIntro3")}</Paragraph>
         </Card>
       </StyledSection>
@@ -104,21 +123,48 @@ const Audit = () => {
         <Card title={trans("enterprise.AuditLogsPreviewTitle")}>
           <Row gutter={[24, 24]}>
             <Col span={8}>
-              <div className="image-placeholder">
-                <Text type="secondary">{trans("enterprise.ScreenshotPlaceholder1")}</Text>
-              </div>
+              <Image
+                width="100%"
+                height={180}
+                src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Enterprise%20Edition%20%7C%20Audit%20Log%20Filters.png"
+                alt="Enterprise Edition | Audit Log Data Filters"
+                style={{ borderRadius: 8, objectFit: 'cover', border: "1px solid #d9d9d9" }}
+                preview={{
+                  mask: <Text>Enterprise Edition | Audit Log Data Filters</Text>,
+                }}
+              />
             </Col>
             <Col span={8}>
-              <div className="image-placeholder">
-                <Text type="secondary">{trans("enterprise.ScreenshotPlaceholder2")}</Text>
-              </div>
+              <Image
+                width="100%"
+                height={180}
+                src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Enterprise%20Edition%20%7C%20Audit%20Log%20Table.png"
+                alt="Enterprise Edition | Audit Log Table"
+                style={{ borderRadius: 8, objectFit: 'cover', border: "1px solid #d9d9d9" }}
+                preview={{
+                  mask: <Text>Enterprise Edition | Audit Log Table</Text>,
+                }}
+              />
             </Col>
             <Col span={8}>
-              <div className="image-placeholder">
-                <Text type="secondary">{trans("enterprise.ScreenshotPlaceholder3")}</Text>
-              </div>
+              <Image
+                width="100%"
+                height={180}
+                src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Enterprise%20Edition%20%7C%20Audit%20Log%20Details.png"
+                alt="Enterprise Edition | Audit Log Details"
+                style={{ borderRadius: 8, objectFit: 'cover', border: "1px solid #d9d9d9" }}
+                preview={{
+                  mask: <Text>Enterprise Edition | Audit Log Details</Text>,
+                }}
+              />
             </Col>
           </Row>
+        </Card>
+      </StyledSection>
+
+      <StyledSection>
+        <Card title={trans("enterprise.yourDeploymentID")}>
+          <Paragraph><h3>{deploymentId}</h3></Paragraph>
         </Card>
       </StyledSection>
 
@@ -151,6 +197,15 @@ const Audit = () => {
 
           <Paragraph>{trans("enterprise.UsageOverrunDesc")}</Paragraph>
           <Paragraph>{trans("enterprise.UsageTopUpInfo")}</Paragraph>
+
+          <Divider/>
+
+          <Text strong className="section-title">{trans("advanced.APIConsumption")}</Text>
+          <HelpText style={{ marginBottom: 12 }}>{trans("advanced.APIConsumptionDescription")}</HelpText>
+          <div className="section-content">
+            {trans("advanced.overallAPIConsumption")} : {apiUsage ? Intl.NumberFormat('en-GB', { maximumFractionDigits: 2 }).format(apiUsage) + " " + trans("enterprise.apiUsage") : trans("enterprise.loadingApiUsage")}<br/>
+            {trans("advanced.lastMonthAPIConsumption")} : {lastMonthApiUsage ? Intl.NumberFormat('en-GB', { maximumFractionDigits: 2 }).format(lastMonthApiUsage) + " " + trans("enterprise.apiUsage") : trans("enterprise.loadingApiUsage")}
+          </div>
         </Card>
       </StyledSection>
     </Level1SettingPageContent>
