@@ -30,7 +30,7 @@ const dataSourceConfig = {
     {
       type: "password",
       key: "bearerAuth.value",
-      label: "Authorization",
+      label: "API Key",
       "tooltip": "API Key Authentication with a Bearer token. Copy your API Key here. (e.g. 'Bearer eyJhbGciO...')",
       "placeholder": "API Key Authentication with a Bearer token. Copy your API Key here. (e.g. 'Bearer eyJhbGciO...')"
     },
@@ -72,6 +72,7 @@ const lowcoderPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
     };
   },
   run: function (actionData, dataSourceConfig): Promise<any> {
+    
     const { serverURL, specVersion, dynamicParamsConfig, ...otherDataSourceConfig } = dataSourceConfig;
 
     const runApiDsConfig = {
@@ -80,6 +81,8 @@ const lowcoderPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       dynamicParamsConfig: otherDataSourceConfig,
       specVersion: specVersion
     };
+
+    console.log("runApiDsConfig: ", runApiDsConfig)
 
     return runOpenApi(actionData, runApiDsConfig, version2spec(specs, dataSourceConfig.specVersion) as OpenAPIV3.Document);
   },

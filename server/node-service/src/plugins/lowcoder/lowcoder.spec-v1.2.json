@@ -38,7 +38,7 @@
     ],
     "security": [
         {
-            "LOWCODER_CE_SELFHOST_TOKEN": []
+            "bearerAuth": []
         }
     ],
     "tags": [
@@ -10629,13 +10629,11 @@
             }
         },
         "securitySchemes": {
-            "APIKey": {
-                "type": "apiKey",
-                "description": "API Key Authentication with a Bearer token. Copy your API Key and prefix it here with 'Bearer ' (e.g. 'Bearer eyJhbGciO...')",
-                "name": "Authorization",
-                "in": "header",
+            "bearerAuth": {
+                "type": "http",
                 "scheme": "bearer",
-                "bearerFormat": "JWT"
+                "bearerFormat": "JWT",
+                "description": "JWT Authorization header using the Bearer scheme. Example: 'Authorization: Bearer {token}'"
             }
         }
     }

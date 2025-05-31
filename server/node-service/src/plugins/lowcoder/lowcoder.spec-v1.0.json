@@ -8255,7 +8255,7 @@
         "type": "http",
         "scheme": "bearer",
         "bearerFormat": "JWT",
-        "description": "API Key Authentication with a Bearer token. Copy your API Key and prefix it here with 'Bearer ' (e.g. 'Bearer eyJhbGciO...'"
+        "description": "JWT Authorization header using the Bearer scheme. Example: 'Authorization: Bearer {token}'"
       }
     }
   },
