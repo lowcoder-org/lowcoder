@@ -363,7 +363,7 @@ export function AppUsageDashboard() {
     <DetailContainer>
       <Header>
         <Level1SettingPageTitle style={{marginBottom: 0}}>
-          <span>{"App Usage Logs"}</span>
+          <span>{trans("settings.appUsage")}</span>
         </Level1SettingPageTitle>
       </Header>
 
@@ -470,6 +470,7 @@ export function AppUsageDashboard() {
             ) : currentPageLogs.length > 0 ? (
               <div style={{ overflowX: "auto", width: "100%" }}>
                 <Table
+                  rowKey={"id"}
                   columns={columns}
                   dataSource={topApps}
                   size="small" // Compact Layout

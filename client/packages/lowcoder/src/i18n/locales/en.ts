@@ -2609,6 +2609,18 @@ export const en = {
     "fetchInvoices": "Error fetching invoices."
   },
 
+  "auditLog": {
+    "title": "Audit Log Detail",
+    "geoLocation": "Geo Location",
+    "browserData": "Browser / System Metadata",
+    "browser": "Browser",
+    "OS": "OS",
+    "device": "Device",
+    "deviceType": "Device Type",
+    "engine": "Engine",
+    "webview": "Webview",
+    "eventDetail": "Event Detail"
+  },
 
   // thirteenth part
 
