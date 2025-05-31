@@ -1,14 +1,18 @@
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { selectIsLicenseActive } from "redux/selectors/enterpriseSelectors";
 import EnvironmentsSettings from "@lowcoder-ee/pages/setting/environments/Environments";
 import { Level1SettingPageContent, Level1SettingPageTitle } from "../styled";
 import styled from "styled-components";
 import { Card, Typography, Row, Col, Divider, Button } from "antd";
 import { trans } from "i18n";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getUser } from "@lowcoder-ee/redux/selectors/usersSelectors";
 import { HubspotModal } from "../hubspotModal";
 import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
+import { Image } from 'antd';
+import { getOrgApiUsage, getOrgLastMonthApiUsage } from "redux/selectors/orgSelectors";
+import { fetchAPIUsageAction, fetchLastMonthAPIUsageAction } from "redux/reduxActions/orgActions";
+import { HelpText } from "components/HelpText";
 
 const { Paragraph, Text } = Typography;
 
@@ -41,6 +45,18 @@ const EnvironmentsPromo = () => {
   const user = useSelector(getUser);
   const deploymentId = useSelector(getDeploymentId);
 
+  const dispatch = useDispatch();
+
+  const apiUsage = useSelector(getOrgApiUsage);
+    useEffect(() => {
+      dispatch(fetchAPIUsageAction(user.currentOrgId));
+    }, [user.currentOrgId])
+  
+    const lastMonthApiUsage = useSelector(getOrgLastMonthApiUsage);
+    useEffect(() => {
+      dispatch(fetchLastMonthAPIUsageAction(user.currentOrgId));
+    }, [user.currentOrgId])
+
   return (
     <Level1SettingPageContent>
       <Level1SettingPageTitle>{trans("enterprise.EnvironmentsTitle")}</Level1SettingPageTitle>
@@ -48,16 +64,14 @@ const EnvironmentsPromo = () => {
       <StyledSection>
         <Card title={trans("enterprise.EnvironmentsIntroTitle")}>
           <Paragraph>{trans("enterprise.EnvironmentsIntro1")}</Paragraph>
-          <Paragraph>{trans("enterprise.EnvironmentsIntro2")}</Paragraph>
-          <Paragraph>{trans("enterprise.EnvironmentsIntro3")}</Paragraph>
+          <Paragraph>{trans("enterprise.EnvironmentsIntro2")} {trans("enterprise.EnvironmentsIntro3")}</Paragraph>
+          <Paragraph>{trans("enterprise.EnvironmentsIntro4")}</Paragraph>
         </Card>
       </StyledSection>
 
       <StyledSection>
         <Card title={trans("enterprise.EnvironmentsUseCasesTitle")}>
-          <Paragraph>{trans("enterprise.EnvironmentsUseCase1")}</Paragraph>
-          <Paragraph>{trans("enterprise.EnvironmentsUseCase2")}</Paragraph>
-          <Paragraph>{trans("enterprise.EnvironmentsUseCase3")}</Paragraph>
+          <Paragraph>{trans("enterprise.EnvironmentsUseCase1")} {trans("enterprise.EnvironmentsUseCase2")} {trans("enterprise.EnvironmentsUseCase3")}</Paragraph>
         </Card>
       </StyledSection>
 
@@ -73,30 +87,51 @@ const EnvironmentsPromo = () => {
       </StyledSection>
 
       <StyledSection>
-        <Card title={trans("enterprise.yourDeploymentID")}>
-          <Paragraph><h3>{deploymentId}</h3></Paragraph>
+        <Card title={trans("enterprise.EnvironmentsFeaturePreviewTitle")}>
+          <Row gutter={[24, 24]}>
+            <Col span={8}>
+              <Image
+                width="100%"
+                height={180}
+                src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Enterprise%20Edition%20%7C%C2%A0Environments%20Overview.png"
+                alt="Enterprise Edition | Staging Environments in Lowcoder"
+                style={{ borderRadius: 8, objectFit: 'cover', border: "1px solid #d9d9d9" }}
+                preview={{
+                  mask: <Text>Enterprise Edition | Staging Environments in Lowcoder</Text>,
+                }}
+              />
+            </Col>
+            <Col span={8}>
+              <Image
+                width="100%"
+                height={180}
+                src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Enterprise%20Edition%20%7C%C2%A0Environments%20Workspaces.png"
+                alt="Enterprise Edition | Environments Workspaces"
+                style={{ borderRadius: 8, objectFit: 'cover', border: "1px solid #d9d9d9" }}
+                preview={{
+                  mask: <Text>Enterprise Edition | Environments Workspaces</Text>,
+                }}
+              />
+            </Col>
+            <Col span={8}>
+              <Image
+                width="100%"
+                height={180}
+                src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Enterprise%20Edition%20%7C%C2%A0Environments%20Deploy%20App.png"
+                alt="Enterprise Edition | Environments Deploy App"
+                style={{ borderRadius: 8, objectFit: 'cover', border: "1px solid #d9d9d9" }}
+                preview={{
+                  mask: <Text>Enterprise Edition | Environments Deploy App</Text>,
+                }}
+              />
+            </Col>
+          </Row>
         </Card>
       </StyledSection>
 
       <StyledSection>
-        <Card title={trans("enterprise.EnvironmentsFeaturePreviewTitle")}>
-          <Row gutter={[24, 24]}>
-            <Col span={8}>
-              <div className="image-placeholder">
-                <Text type="secondary">{trans("enterprise.ScreenshotPlaceholder1")}</Text>
-              </div>
-            </Col>
-            <Col span={8}>
-              <div className="image-placeholder">
-                <Text type="secondary">{trans("enterprise.ScreenshotPlaceholder2")}</Text>
-              </div>
-            </Col>
-            <Col span={8}>
-              <div className="image-placeholder">
-                <Text type="secondary">{trans("enterprise.ScreenshotPlaceholder3")}</Text>
-              </div>
-            </Col>
-          </Row>
+        <Card title={trans("enterprise.yourDeploymentID")}>
+          <Paragraph><h3>{deploymentId}</h3></Paragraph>
         </Card>
       </StyledSection>
 
@@ -129,6 +164,17 @@ const EnvironmentsPromo = () => {
 
           <Paragraph>{trans("enterprise.UsageOverrunDesc")}</Paragraph>
           <Paragraph>{trans("enterprise.UsageTopUpInfo")}</Paragraph>
+
+
+          <Divider/>
+
+          <Text strong className="section-title">{trans("advanced.APIConsumption")}</Text>
+          <HelpText style={{ marginBottom: 12 }}>{trans("advanced.APIConsumptionDescription")}</HelpText>
+          <div className="section-content">
+          {trans("advanced.overallAPIConsumption")} : {apiUsage ? Intl.NumberFormat('en-GB', { maximumFractionDigits: 2 }).format(apiUsage) + " " + trans("enterprise.apiUsage") : trans("enterprise.loadingApiUsage")}<br/>
+          {trans("advanced.lastMonthAPIConsumption")} : {lastMonthApiUsage ? Intl.NumberFormat('en-GB', { maximumFractionDigits: 2 }).format(lastMonthApiUsage) + " " + trans("enterprise.apiUsage") : trans("enterprise.loadingApiUsage")}
+          </div>
+
         </Card>
       </StyledSection>
 

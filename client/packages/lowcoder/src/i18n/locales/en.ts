@@ -2484,7 +2484,7 @@ export const en = {
     "GrantUpdateDeletePermission": "Grant or update permissions",
     "LibraryQueryActions": "Create / Update / Delete library queries",
     "PublishLibraryQuery": "Publish library query",
-    "AuditLogsPreviewTitle": "Preview the Audit Log in action",
+    "AuditLogsPreviewTitle": "Preview the Audit Log in action (click to zoom)",
     "ScreenshotPlaceholder1": "[ Screenshot 1 Placeholder ]",
     "ScreenshotPlaceholder2": "[ Screenshot 2 Placeholder ]",
     "ScreenshotPlaceholder3": "[ Screenshot 3 Placeholder ]",
@@ -2514,7 +2514,7 @@ export const en = {
     "MetricDevices": "Access by device (desktop, tablet, mobile)",
     "MetricBrowsers": "Access by browser and OS",
     "MetricCountries": "Geographic origin of users",
-    "AppUsageScreenshotsTitle": "App Usage Analytics in action",
+    "AppUsageScreenshotsTitle": "App Usage Analytics in action (click to zoom)",
     "AppUsageScreenshot1": "[ App Usage Dashboard Screenshot ]",
     "AppUsageScreenshot2": "[ Per-App Views Chart ]",
     "AppUsageScreenshot3": "[ Geo Distribution Map ]",
@@ -2538,20 +2538,23 @@ export const en = {
     "EnvironmentsIntro1": "Lowcoder Environments allow you to separate your Dev, Test, and Prod stages cleanly and safely.",
     "EnvironmentsIntro2": "Enterprise teams benefit from structured release workflows, approval processes, and version stability across stages.",
     "EnvironmentsIntro3": "With the Environments feature, admins can control what gets deployed, when, and where — all from a single interface.",
+    "EnvironmentsIntro4" : "Lowcoder includes multiple object types like Workspaces, Data Sources, Data Queries, and Apps. Since many of these objects are interconnected (e.g. a Data Source can be shared across multiple Apps), a pure Git-based export would not capture all dependencies consistently. Instead, Lowcoder offers a selective, integrated deployment mechanism directly within the UI. Apps, data sources, and queries can be selectively managed and deployed across environments. Managed objects ensure safe, controlled staging and production releases.",
     "yourDeploymentID" : "Your Deployment ID",
-    "EnvironmentsFeaturePreviewTitle" : "Environments & Deployment in action",
+    "EnvironmentsFeaturePreviewTitle" : "Environments & Deployment in action (click to zoom)",
 
-    "EnvironmentsUseCasesTitle": "Why Use Environments?",
+    "EnvironmentsUseCasesTitle": "Why Use Environments? (Staging)",
     "EnvironmentsUseCase1": "Prevent unintended changes in production by testing apps in dedicated Dev or QA environments.",
     "EnvironmentsUseCase2": "Align with corporate IT governance by implementing staged deployments with audit-ready tracking.",
     "EnvironmentsUseCase3": "Empower teams to build confidently with environment-specific configurations, data, and integrations.",
 
     "EnvironmentsFeaturesTitle": "What You Get",
     "EnvironmentsFeature1": "Centralized dashboard to view and manage all Lowcoder environments.",
-    "EnvironmentsFeature2": "Deployment of applications, data sources, and configurations between environments, directly from the UI.",
+    "EnvironmentsFeature2": "Deployment of applications, data sources, and configurations between environments, directly from the UI without the need for Additional CI/CD tools.",
     "EnvironmentsFeature3": "Environment-specific access controls and visibility rules.",
     "EnvironmentsFeature5": "Clear separation of concerns for staging, sandbox, and production operations.",
-
+    "apiUsage" : "API Calls.",
+    "loadingApiUsage" : "Loading API usage data..."
+  },
     // Environments page translations
     "environments": {
       "title": "Environments",
@@ -3024,6 +3027,18 @@ export const en = {
     "fetchInvoices": "Error fetching invoices."
   },
 
+  "auditLog": {
+    "title": "Audit Log Detail",
+    "geoLocation": "Geo Location",
+    "browserData": "Browser / System Metadata",
+    "browser": "Browser",
+    "OS": "OS",
+    "device": "Device",
+    "deviceType": "Device Type",
+    "engine": "Engine",
+    "webview": "Webview",
+    "eventDetail": "Event Detail"
+  },
 
   // thirteenth part
 
@@ -3535,7 +3550,8 @@ export const en = {
     "whatsNewLinkHelp": "Provide a valid URL that users can visit for your news.",
     "deleteBranding": "Delete Branding",
     "deleteBrandingContent": "Are you sure you want to delete \"{orgName}\" branding?",
-    "fetchBrandingError": "Something went wrong while fetching branding details. Please try again."
+    "fetchBrandingError": "Something went wrong while fetching branding details. Please try again.",
+    "upload": "Upload"
   },
   "networkMessage": {
     "200": "Success",

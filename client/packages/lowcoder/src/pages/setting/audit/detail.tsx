@@ -274,14 +274,14 @@ export function AuditLogDetail() {
             {trans("enterprise.AuditLogTitle")}
           </span>
           <ArrowIcon />
-          <span>{"Audit Log Detail"}</span>
+          <span>{trans("auditLog.title")}</span>
         </HeaderBack>
       </Header>
 
       <DetailContent>
         {/* Geolocation */}
         <StyleThemeSettingsCover>
-          <h2 style={{ color: "#ffffff", marginTop: "8px" }}>Geo Location</h2>
+          <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("auditLog.geoLocation")}</h2>
         </StyleThemeSettingsCover>
         <Card size="small" style={{ marginBottom: "20px", borderTopLeftRadius: 0, borderTopRightRadius: 0 }}>
           <Map
@@ -298,22 +298,22 @@ export function AuditLogDetail() {
 
         {/* Browser/System Meta data */}
         <StyleThemeSettingsCover>
-          <h2 style={{ color: "#ffffff", marginTop: "8px" }}>Browser / System Metadata</h2>
+          <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("auditLog.browserData")}</h2>
         </StyleThemeSettingsCover>
         <Card size="small" style={{ marginBottom: "20px", borderTopLeftRadius: 0, borderTopRightRadius: 0 }}>
           <Descriptions bordered column={1} size="small">
-            <Descriptions.Item label={<span><ChromeOutlined className="text-lg mr-2" /> Browser</span>}>{event?.agentName}</Descriptions.Item>
-            <Descriptions.Item label={<span><AppleOutlined className="text-lg mr-2" /> OS</span>}>{event?.operatingSystemName} ({event?.operatingSystemVersion})</Descriptions.Item>
-            <Descriptions.Item label={<span><DesktopOutlined className="text-lg mr-2" /> Device</span>}>{event?.deviceName}</Descriptions.Item>
-            <Descriptions.Item label={<span><DesktopOutlined className="text-lg mr-2" /> Device Type</span>}>{event?.deviceClass}</Descriptions.Item>
-            <Descriptions.Item label={<span><AppstoreOutlined className="text-lg mr-2" /> Engine</span>}>{event?.layoutEngineName} (Version: {event?.layoutEngineVersion})</Descriptions.Item>
-            <Descriptions.Item label={<span><AppstoreOutlined className="text-lg mr-2" /> Webview</span>}>{event?.webviewAppName}</Descriptions.Item>
+            <Descriptions.Item label={<span><ChromeOutlined className="text-lg mr-2" /> {trans("auditLog.browser")}</span>}>{event?.agentName}</Descriptions.Item>
+            <Descriptions.Item label={<span><AppleOutlined className="text-lg mr-2" /> {trans("auditLog.OS")}</span>}>{event?.operatingSystemName} ({event?.operatingSystemVersion})</Descriptions.Item>
+            <Descriptions.Item label={<span><DesktopOutlined className="text-lg mr-2" /> {trans("auditLog.device")}</span>}>{event?.deviceName}</Descriptions.Item>
+            <Descriptions.Item label={<span><DesktopOutlined className="text-lg mr-2" /> {trans("auditLog.deviceType")}</span>}>{event?.deviceClass}</Descriptions.Item>
+            <Descriptions.Item label={<span><AppstoreOutlined className="text-lg mr-2" /> {trans("auditLog.engine")}</span>}>{event?.layoutEngineName} (Version: {event?.layoutEngineVersion})</Descriptions.Item>
+            <Descriptions.Item label={<span><AppstoreOutlined className="text-lg mr-2" /> {trans("auditLog.browserData")}</span>}>{event?.webviewAppName}</Descriptions.Item>
           </Descriptions>
         </Card>
 
         {/* Event Detail */}
         <StyleThemeSettingsCover>
-          <h2 style={{ color: "#ffffff", marginTop: "8px" }}>Event Detail</h2>
+          <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("auditLog.eventDetail")}</h2>
         </StyleThemeSettingsCover>
         <Card size="small" style={{ marginBottom: "20px", borderTopLeftRadius: 0, borderTopRightRadius: 0 }}>
           {Boolean(eventHierarchy.length) && (

@@ -299,7 +299,7 @@ export function BrandingSetting() {
       } catch(e) {
         setBrandingConfig(undefined);
         setDefaultBrandingConfig(undefined);
-        message.error(trans("branding.fetchBrandingError"));
+        // message.error(trans("branding.fetchBrandingError"));
       }
     }
 
