@@ -82,8 +82,6 @@ const lowcoderPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       specVersion: specVersion
     };
 
-    console.log("runApiDsConfig: ", runApiDsConfig)
-
     return runOpenApi(actionData, runApiDsConfig, version2spec(specs, dataSourceConfig.specVersion) as OpenAPIV3.Document);
   },
 };
