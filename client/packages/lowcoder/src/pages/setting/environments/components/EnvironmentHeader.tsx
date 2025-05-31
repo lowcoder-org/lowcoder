@@ -50,7 +50,7 @@ const EnvironmentHeader: React.FC<EnvironmentHeaderProps> = ({
             </div>
             <div>
               <Title level={3} style={{ margin: '0 0 8px 0', color: '#222222', fontWeight: '500' }}>
-                {environment.environmentName || trans("enterprise.environments.unnamedEnvironment")}
+                {environment.environmentName || trans("environments.unnamedEnvironment")}
               </Title>
               <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                 <Text style={{ 
@@ -58,7 +58,7 @@ const EnvironmentHeader: React.FC<EnvironmentHeaderProps> = ({
                   fontSize: '14px',
                   fontFamily: 'monospace'
                 }}>
-                  {trans("enterprise.environments.id")}: {environment.environmentId}
+                  {trans("environments.id")}: {environment.environmentId}
                 </Text>
                 <Tag 
                   color={getEnvironmentTagColor(environment.environmentType)}
@@ -72,12 +72,12 @@ const EnvironmentHeader: React.FC<EnvironmentHeaderProps> = ({
                 </Tag>
                 {environment.isMaster && (
                   <Tag color="green" style={{ marginLeft: 0, borderRadius: '4px', fontSize: '12px' }}>
-                    {trans("enterprise.environments.master")}
+                    {trans("environments.master")}
                   </Tag>
                 )}
                 {environment.isLicensed === false && (
                   <Tag color="orange" style={{ marginLeft: 0, borderRadius: '4px', fontSize: '12px' }}>
-                    {trans("enterprise.environments.detail.unlicensed")}
+                    {trans("environments.detail_unlicensed")}
                   </Tag>
                 )}
               </div>
@@ -94,7 +94,7 @@ const EnvironmentHeader: React.FC<EnvironmentHeaderProps> = ({
               borderRadius: '4px'
             }}
           >
-            {trans("enterprise.environments.unlicensed.editEnvironment")}
+            {trans("environments.unlicensed_editEnvironment")}
           </Button>
         </Col>
       </Row>

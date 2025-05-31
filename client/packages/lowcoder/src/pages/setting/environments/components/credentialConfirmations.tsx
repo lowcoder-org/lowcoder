@@ -16,7 +16,7 @@ export function showFirstCredentialOverwriteConfirm({ onOk, onCancel }: ConfirmH
       <div style={{ display: 'flex', alignItems: 'center', color: '#ff7a00' }}>
         <WarningOutlined style={{ marginRight: 8, fontSize: 18 }} />
         <span style={{ fontSize: 16, fontWeight: 600 }}>
-          {trans("enterprise.environments.credentialConfirmations.firstConfirmation.title")}
+          {trans("environments.credentialConfirmations_firstConfirmation_title")}
         </span>
       </div>
     ),
@@ -24,14 +24,14 @@ export function showFirstCredentialOverwriteConfirm({ onOk, onCancel }: ConfirmH
     content: (
       <div style={{ padding: '16px 0' }}>
         <Alert
-          message={trans("enterprise.environments.credentialConfirmations.firstConfirmation.message")}
+          message={trans("environments.credentialConfirmations_firstConfirmation_message")}
           description={
             <div style={{ marginTop: 8 }}>
               <p style={{ margin: 0, fontWeight: 500 }}>
-                {trans("enterprise.environments.credentialConfirmations.firstConfirmation.description")}
+                {trans("environments.credentialConfirmations_firstConfirmation_description")}
               </p>
               <p style={{ margin: '8px 0 0 0', color: '#8c8c8c' }}>
-                {trans("enterprise.environments.credentialConfirmations.firstConfirmation.question")}
+                {trans("environments.credentialConfirmations_firstConfirmation_question")}
               </p>
             </div>
           }
@@ -41,8 +41,8 @@ export function showFirstCredentialOverwriteConfirm({ onOk, onCancel }: ConfirmH
         />
       </div>
     ),
-    okText: trans("enterprise.environments.credentialConfirmations.firstConfirmation.continueButton"),
-    cancelText: trans("enterprise.environments.credentialConfirmations.firstConfirmation.cancelButton"),
+    okText: trans("environments.credentialConfirmations_firstConfirmation_continueButton"),
+    cancelText: trans("environments.credentialConfirmations_firstConfirmation_cancelButton"),
     okButtonProps: {
       style: { backgroundColor: '#ff7a00', borderColor: '#ff7a00', fontWeight: 500 }
     },
@@ -65,7 +65,7 @@ export function showSecondCredentialOverwriteConfirm({ onOk, onCancel }: Confirm
       <div style={{ display: 'flex', alignItems: 'center', color: '#ff4d4f' }}>
         <ExclamationCircleOutlined style={{ marginRight: 8, fontSize: 18 }} />
         <span style={{ fontSize: 16, fontWeight: 600 }}>
-          {trans("enterprise.environments.credentialConfirmations.secondConfirmation.title")}
+          {trans("environments.credentialConfirmations_secondConfirmation_title")}
         </span>
       </div>
     ),
@@ -73,14 +73,14 @@ export function showSecondCredentialOverwriteConfirm({ onOk, onCancel }: Confirm
     content: (
       <div style={{ padding: '16px 0' }}>
         <Alert
-          message={trans("enterprise.environments.credentialConfirmations.secondConfirmation.message")}
+          message={trans("environments.credentialConfirmations_secondConfirmation_message")}
           description={
             <div style={{ marginTop: 8 }}>
               <p style={{ margin: 0, fontWeight: 500 }}>
-                {trans("enterprise.environments.credentialConfirmations.secondConfirmation.description")}
+                {trans("environments.credentialConfirmations_secondConfirmation_description")}
               </p>
               <p style={{ margin: '8px 0 0 0', color: '#8c8c8c' }}>
-                {trans("enterprise.environments.credentialConfirmations.secondConfirmation.confirmOnceMore")}
+                {trans("environments.credentialConfirmations_secondConfirmation_confirmOnceMore")}
               </p>
             </div>
           }
@@ -97,14 +97,14 @@ export function showSecondCredentialOverwriteConfirm({ onOk, onCancel }: Confirm
           }}
         >
           <p style={{ margin: 0, fontWeight: 600, color: '#cf1322', fontSize: 14 }}>
-            {trans("enterprise.environments.credentialConfirmations.secondConfirmation.finalQuestion")}
+            {trans("environments.credentialConfirmations_secondConfirmation_finalQuestion")}
           </p>
         </div>
       </div>
     ),
-    okText: trans("enterprise.environments.credentialConfirmations.secondConfirmation.confirmButton"),
+    okText: trans("environments.credentialConfirmations_secondConfirmation_confirmButton"),
     okType: 'danger',
-    cancelText: trans("enterprise.environments.credentialConfirmations.secondConfirmation.cancelButton"),
+    cancelText: trans("environments.credentialConfirmations_secondConfirmation_cancelButton"),
     okButtonProps: { style: { fontWeight: 500 } },
     cancelButtonProps: { style: { fontWeight: 500 } },
     width: 520,

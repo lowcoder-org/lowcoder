@@ -158,9 +158,9 @@ const EnvironmentsList: React.FC = () => {
   return (
     <EnvironmentsWrapper>
       <HeaderWrapper>
-        <Title>{trans("enterprise.environments.title")}</Title>
+        <Title>{trans("environments.title")}</Title>
         <Search
-          placeholder={trans("enterprise.environments.search")}
+          placeholder={trans("environments.search")}
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           style={{ width: "192px", height: "32px", margin: "0 12px 0 0" }}
@@ -170,14 +170,14 @@ const EnvironmentsList: React.FC = () => {
           icon={<SyncOutlined spin={isLoading} />}
           onClick={handleRefresh}
         >
-          {trans("enterprise.environments.refresh")}
+          {trans("environments.refresh")}
         </RefreshBtn>
         <AddBtn 
           buttonType="primary" 
           icon={<AddIcon />}
           onClick={() => setIsCreateModalVisible(true)}
         >
-          {trans("enterprise.environments.addEnvironment")}
+          {trans("environments.addEnvironment")}
         </AddBtn>
       </HeaderWrapper>
 
@@ -188,7 +188,7 @@ const EnvironmentsList: React.FC = () => {
             {environmentStats.map(([type, count]) => (
               <Col xs={24} sm={12} md={8} lg={6} key={type}>
                 <StatsCard
-                  title={trans("enterprise.environments.environmentsTypeLabel", { type })}
+                  title={trans("environments.environmentsTypeLabel", { type })}
                   value={count}
                   icon={getEnvironmentIcon(type)}
                   color={getEnvironmentTagColor(type)}
@@ -200,7 +200,7 @@ const EnvironmentsList: React.FC = () => {
 
         {error && (
           <Alert
-            message={trans("enterprise.environments.errorLoadingEnvironments")}
+            message={trans("environments.errorLoadingEnvironments")}
             description={error}
             type="error"
             showIcon
@@ -210,14 +210,14 @@ const EnvironmentsList: React.FC = () => {
 
         {!isLoading && !error && filteredEnvironments.length === 0 && searchText && (
           <Empty 
-            description={trans("enterprise.environments.noEnvironmentsFoundMatching", { searchText })}
+            description={trans("environments.noEnvironmentsFoundMatching", { searchText })}
             style={{ margin: "60px 0" }}
           />
         )}
 
         {!isLoading && !error && environments.length === 0 && !searchText && (
           <Empty 
-            description={trans("enterprise.environments.noEnvironmentsFound")}
+            description={trans("environments.noEnvironmentsFound")}
             style={{ margin: "60px 0" }}
           />
         )}

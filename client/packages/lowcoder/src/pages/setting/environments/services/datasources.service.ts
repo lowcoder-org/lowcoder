@@ -33,15 +33,15 @@ export async function getWorkspaceDataSources(
   try {
     // Check if required parameters are provided
     if (!workspaceId) {
-      throw new Error(trans("enterprise.environments.services.datasources.workspaceIdRequired"));
+      throw new Error(trans("environments.services_datasources_workspaceIdRequired"));
     }
     
     if (!apiKey) {
-      throw new Error(trans("enterprise.environments.services.datasources.apiKeyRequiredToFetchDataSources"));
+      throw new Error(trans("environments.services_datasources_apiKeyRequiredToFetchDataSources"));
     }
     
     if (!apiServiceUrl) {
-      throw new Error(trans("enterprise.environments.services.datasources.apiServiceUrlRequiredToFetchDataSources"));
+      throw new Error(trans("environments.services_datasources_apiServiceUrlRequiredToFetchDataSources"));
     }
     
     // Set up headers with the Bearer token format
@@ -65,7 +65,7 @@ export async function getWorkspaceDataSources(
     return response.data.data;
   } catch (error) {
     // Handle and transform error
-    const errorMessage = error instanceof Error ? error.message : trans("enterprise.environments.services.datasources.failedToFetchDataSources");
+    const errorMessage = error instanceof Error ? error.message : trans("environments.services_datasources_failedToFetchDataSources");
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -144,7 +144,7 @@ export async function getMergedWorkspaceDataSources(
     };
   } catch (error) {
     const errorMessage = 
-      error instanceof Error ? error.message : trans("enterprise.environments.services.datasources.failedToFetchDataSources");
+      error instanceof Error ? error.message : trans("environments.services_datasources_failedToFetchDataSources");
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -171,7 +171,7 @@ export async function deployDataSource(params: DeployDataSourceParams): Promise<
     }
     return response.status === 200;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : trans("enterprise.environments.services.datasources.failedToDeployDataSource");
+    const errorMessage = error instanceof Error ? error.message : trans("environments.services_datasources_failedToDeployDataSource");
     messageInstance.error(errorMessage);
     throw error;
   }

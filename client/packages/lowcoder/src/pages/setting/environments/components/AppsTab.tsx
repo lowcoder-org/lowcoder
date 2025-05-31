@@ -118,10 +118,10 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
         unmanaged: prev.total - managed
       }));
       
-      messageInstance.success(trans(checked ? "enterprise.environments.apps.managedSuccess" : "enterprise.environments.apps.unmanagedSuccess", { name: app.name }));
+      messageInstance.success(trans(checked ? "environments.apps_managedSuccess" : "environments.apps_unmanagedSuccess", { name: app.name }));
       return true;
     } catch (error) {
-      messageInstance.error(trans("enterprise.environments.apps.managedError", { name: app.name }));
+      messageInstance.error(trans("environments.apps_managedError", { name: app.name }));
       return false;
     } finally {
       setRefreshing(false);
@@ -142,7 +142,7 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
   // Table columns
   const columns = [
     {
-      title: trans("enterprise.environments.apps.app"),
+      title: trans("environments.apps_app"),
       key: 'app',
       render: (app: App) => (
         <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -159,7 +159,7 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontWeight: 500 }}>{app.name}</span>
               {app.applicationStatus === 'RECYCLED' && (
-                <Tooltip title={trans("enterprise.environments.apps.appRecycled")}>
+                <Tooltip title={trans("environments.apps_appRecycled")}>
                   <DeleteOutlined 
                     style={{ 
                       color: '#faad14', 
@@ -177,24 +177,24 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
       ),
     },
     {
-      title: trans("enterprise.environments.apps.status"),
+      title: trans("environments.apps_status"),
       key: 'status',
       render: (app: App) => (
         <Space direction="vertical" size={0}>
           <Tag color={app.published ? 'success' : 'default'} style={{ borderRadius: '4px' }}>
-            {app.published ? <CheckCircleFilled /> : null} {app.published ? trans("enterprise.environments.apps.published") : trans("enterprise.environments.apps.draft")}
+            {app.published ? <CheckCircleFilled /> : null} {app.published ? trans("environments.apps_published") : trans("environments.apps_draft")}
           </Tag>
           <Tag 
             color={app.managed ? 'processing' : 'default'} 
             style={{ marginTop: 8, borderRadius: '4px' }}
           >
-            {app.managed ? <CloudServerOutlined /> : <DisconnectOutlined />} {app.managed ? trans("enterprise.environments.apps.managed") : trans("enterprise.environments.apps.unmanaged")}
+            {app.managed ? <CloudServerOutlined /> : <DisconnectOutlined />} {app.managed ? trans("environments.apps_managed") : trans("environments.apps_unmanaged")}
           </Tag>
         </Space>
       ),
     },
     {
-      title: trans("enterprise.environments.apps.managed"),
+      title: trans("environments.apps_managed"),
       key: 'managed',
       render: (_: any, app: App) => (
         <Switch
@@ -205,22 +205,22 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
       ),
     },
     {
-      title: trans("enterprise.environments.workspaces.actions"),
+      title: trans("environments.workspaces_actions"),
       key: 'actions',
       render: (_: any, app: App) => (
         <Space onClick={(e) => e.stopPropagation()}>
          
-          <Tooltip title={!app.managed ? trans("enterprise.environments.apps.appMustBeManagedToDeploy") : trans("enterprise.environments.apps.deployThisApp")}>
+          <Tooltip title={!app.managed ? trans("environments.apps_appMustBeManagedToDeploy") : trans("environments.apps_deployThisApp")}>
             <Button
               type="primary"
               icon={<CloudUploadOutlined />}
               onClick={() => openDeployModal(app, appsConfig, environment)}
               disabled={!app.managed}
             >
-              {trans("enterprise.environments.apps.deploy")}
+              {trans("environments.apps_deploy")}
             </Button>
           </Tooltip>
-          <Tooltip title={trans("enterprise.environments.apps.viewAuditLogs")}>
+          <Tooltip title={trans("environments.apps_viewAuditLogs")}>
             <Button
               icon={<AuditOutlined />}
               onClick={(e) => {
@@ -229,7 +229,7 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
                 window.open(auditUrl, '_blank');
               }}
             >
-              {trans("enterprise.environments.apps.audit")}
+              {trans("environments.apps_audit")}
             </Button>
           </Tooltip>
         </Space>
@@ -290,10 +290,10 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
       }}>
         <div>
           <Title level={4} style={{ margin: 0, marginBottom: '4px' }}>
-            <AppstoreOutlined style={{ marginRight: 8 }} /> {trans("enterprise.environments.apps.title")}
+            <AppstoreOutlined style={{ marginRight: 8 }} /> {trans("environments.apps_title")}
           </Title>
           <p style={{ marginBottom: 0, color: '#8c8c8c', fontSize: '14px' }}>
-            {trans("enterprise.environments.apps.subtitle")}
+            {trans("environments.apps_subtitle")}
           </p>
         </div>
         <Button 
@@ -301,14 +301,14 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
           onClick={handleRefresh}
           loading={loading}
         >
-          {trans("enterprise.environments.apps.refresh")}
+          {trans("environments.apps_refresh")}
         </Button>
       </div>
 
       {/* Error display */}
       {error && (
         <Alert
-          message={trans("enterprise.environments.apps.errorLoadingApps")}
+          message={trans("environments.apps_errorLoadingApps")}
           description={error}
           type="error"
           showIcon
@@ -319,8 +319,8 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
       {/* Configuration warnings */}
       {(!environment.environmentApikey || !environment.environmentApiServiceUrl) && !error && (
         <Alert
-          message={trans("enterprise.environments.apps.configurationIssue")}
-          description={trans("enterprise.environments.apps.missingConfiguration")}
+          message={trans("environments.apps_configurationIssue")}
+          description={trans("environments.apps_missingConfiguration")}
           type="warning"
           showIcon
           style={{ marginBottom: "16px" }}
@@ -331,28 +331,28 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
       <Row gutter={[16, 16]} style={{ marginBottom: '20px' }}>
         <Col xs={12} sm={12} md={6}>
           <StatCard 
-            title={trans("enterprise.environments.apps.totalApps")} 
+            title={trans("environments.apps_totalApps")} 
             value={stats.total} 
             icon={<AppstoreOutlined />} 
           />
         </Col>
         <Col xs={12} sm={12} md={6}>
           <StatCard 
-            title={trans("enterprise.environments.apps.publishedApps")} 
+            title={trans("environments.apps_publishedApps")} 
             value={stats.published} 
             icon={<CheckCircleFilled />} 
           />
         </Col>
         <Col xs={12} sm={12} md={6}>
           <StatCard 
-            title={trans("enterprise.environments.apps.managedApps")} 
+            title={trans("environments.apps_managedApps")} 
             value={stats.managed} 
             icon={<CloudServerOutlined />} 
           />
         </Col>
         <Col xs={12} sm={12} md={6}>
           <StatCard 
-            title={trans("enterprise.environments.apps.unmanagedApps")} 
+            title={trans("environments.apps_unmanagedApps")} 
             value={stats.unmanaged} 
             icon={<DisconnectOutlined />} 
           />
@@ -372,7 +372,7 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
           </div>
         ) : apps.length === 0 ? (
           <Empty
-            description={error || trans("enterprise.environments.apps.noAppsFound")}
+            description={error || trans("environments.apps_noAppsFound")}
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           />
         ) : (
@@ -380,7 +380,7 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
             {/* Search and Filter Bar */}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
               <Search
-                placeholder={trans("enterprise.environments.apps.searchApps")}
+                placeholder={trans("environments.apps_searchApps")}
                 allowClear
                 onSearch={value => setSearchText(value)}
                 onChange={e => setSearchText(e.target.value)}
@@ -392,13 +392,13 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
                 icon={<FilterOutlined />}
                 style={{ marginLeft: '8px' }}
               >
-                {showManagedOnly ? trans("enterprise.environments.apps.showAll") : trans("enterprise.environments.apps.managedOnly")}
+                {showManagedOnly ? trans("environments.apps_showAll") : trans("environments.apps_managedOnly")}
               </Button>
             </div>
             
             {searchText && displayedApps.length !== apps.length && (
               <div style={{ marginBottom: 16, color: '#8c8c8c', fontSize: '13px' }}>
-                {trans("enterprise.environments.apps.showingResults", { count: displayedApps.length, total: apps.length })}
+                {trans("environments.apps_showingResults", { count: displayedApps.length, total: apps.length })}
               </div>
             )}
             
@@ -408,7 +408,7 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
               rowKey="applicationId"
               pagination={{ 
                 pageSize: 10,
-                showTotal: (total, range) => trans("enterprise.environments.apps.paginationTotal", { start: range[0], end: range[1], total }),
+                showTotal: (total, range) => trans("environments.apps_paginationTotal", { start: range[0], end: range[1], total }),
                 size: 'small'
               }}
               size="middle"

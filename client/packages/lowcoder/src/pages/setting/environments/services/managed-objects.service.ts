@@ -33,7 +33,7 @@ export async function isManagedObject(
 ): Promise<boolean> {
   try {
     if (!objGid || !environmentId || !objType) {
-      throw new Error(trans("enterprise.environments.services.managedObjects.missingRequiredParameters"));
+      throw new Error(trans("environments.services_managedObjects_missingRequiredParameters"));
     }
 
     const response = await axios.get(`/api/plugins/enterprise/managed-obj`, {
@@ -51,7 +51,7 @@ export async function isManagedObject(
       return false;
     }
     
-    const errorMessage = error instanceof Error ? error.message : trans("enterprise.environments.services.managedObjects.failedToCheckManagedStatus");
+    const errorMessage = error instanceof Error ? error.message : trans("environments.services_managedObjects_failedToCheckManagedStatus");
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -74,7 +74,7 @@ export async function setManagedObject(
 ): Promise<boolean> {
   try {
     if (!objGid || !environmentId || !objType) {
-      throw new Error(trans("enterprise.environments.services.managedObjects.missingRequiredParameters"));
+      throw new Error(trans("environments.services_managedObjects_missingRequiredParameters"));
     }
 
     const requestBody = {
@@ -88,7 +88,7 @@ export async function setManagedObject(
 
     return response.status === 200;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : trans("enterprise.environments.services.managedObjects.failedToSetAsManaged", { objType });
+    const errorMessage = error instanceof Error ? error.message : trans("environments.services_managedObjects_failedToSetAsManaged", { objType });
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -109,7 +109,7 @@ export async function unsetManagedObject(
 ): Promise<boolean> {
   try {
     if (!objGid || !environmentId || !objType) {
-      throw new Error(trans("enterprise.environments.services.managedObjects.missingRequiredParameters"));
+      throw new Error(trans("environments.services_managedObjects_missingRequiredParameters"));
     }
 
     const response = await axios.delete(`/api/plugins/enterprise/managed-obj`, {
@@ -122,7 +122,7 @@ export async function unsetManagedObject(
 
     return response.status === 200;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : trans("enterprise.environments.services.managedObjects.failedToRemoveFromManaged", { objType });
+    const errorMessage = error instanceof Error ? error.message : trans("environments.services_managedObjects_failedToRemoveFromManaged", { objType });
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -135,7 +135,7 @@ export async function getManagedObjects(
 ): Promise<ManagedObject[]> {
   try {
     if (!environmentId) {
-      throw new Error(trans("enterprise.environments.services.managedObjects.missingEnvironmentId"));
+      throw new Error(trans("environments.services_managedObjects_missingEnvironmentId"));
     }
 
     const response = await axios.get(`/api/plugins/enterprise/managed-obj/list`, {
@@ -147,7 +147,7 @@ export async function getManagedObjects(
 
     return response.data.data;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : trans("enterprise.environments.services.managedObjects.failedToFetchManagedObjects");
+    const errorMessage = error instanceof Error ? error.message : trans("environments.services_managedObjects_failedToFetchManagedObjects");
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -167,7 +167,7 @@ export async function getSingleManagedObject(
 ): Promise<ManagedObject | null> {
   try {
     if (!objGid || !environmentId || !objType) {
-      throw new Error(trans("enterprise.environments.services.managedObjects.missingRequiredParameters"));
+      throw new Error(trans("environments.services_managedObjects_missingRequiredParameters"));
     }
 
     const response = await axios.get(`/api/plugins/enterprise/managed-obj`, {
@@ -185,7 +185,7 @@ export async function getSingleManagedObject(
       return null;
     }
     
-    const errorMessage = error instanceof Error ? error.message : trans("enterprise.environments.services.managedObjects.failedToFetchManagedObject");
+    const errorMessage = error instanceof Error ? error.message : trans("environments.services_managedObjects_failedToFetchManagedObject");
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -198,7 +198,7 @@ export async function transferManagedObject(objGid: string, sourceEnvId: string,
     if (managedObject) {
       await setManagedObject(managedObject.objGid, targetEnvId, objType, managedObject.managedId);
     } else {
-      throw new Error(trans("enterprise.environments.services.managedObjects.managedObjectNotFound", { objGid }));
+      throw new Error(trans("environments.services_managedObjects_managedObjectNotFound", { objGid }));
     }
   } catch (error) {
     console.error('Error transferring managed object:', error);

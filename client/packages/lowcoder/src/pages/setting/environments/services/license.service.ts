@@ -16,7 +16,7 @@ export async function checkEnvironmentLicense(
     if (!apiServiceUrl) {
       return {
         isValid: false,
-        error: trans('enterprise.environments.services.license.apiServiceUrlRequired')
+        error: trans('environments.services_license_apiServiceUrlRequired')
       };
     }
 
@@ -66,17 +66,17 @@ export async function checkEnvironmentLicense(
 
   } catch (error) {
     // Determine the specific error type
-    let errorMessage = trans('enterprise.environments.services.license.licenseInformationUnavailable');
+    let errorMessage = trans('environments.services_license_licenseInformationUnavailable');
     
     if (axios.isAxiosError(error)) {
       if (error.code === 'ECONNABORTED') {
-        errorMessage = trans('enterprise.environments.services.license.licenseCheckTookTooLong');
+        errorMessage = trans('environments.services_license_licenseCheckTookTooLong');
       } else if (error.response?.status === 404) {
-        errorMessage = trans('enterprise.environments.services.license.licenseServiceNotAvailable');
+        errorMessage = trans('environments.services_license_licenseServiceNotAvailable');
       } else if (error.response?.status === 401) {
-        errorMessage = trans('enterprise.environments.services.license.authenticationRequired');
+        errorMessage = trans('environments.services_license_authenticationRequired');
       } else if (error.response && error.response.status >= 500) {
-        errorMessage = trans('enterprise.environments.services.license.licenseServiceTemporarilyUnavailable');
+        errorMessage = trans('environments.services_license_licenseServiceTemporarilyUnavailable');
       }
     }
 
@@ -97,7 +97,7 @@ export function formatAPICalls(remaining: number, total: number): string {
   const used = total - remaining;
   const percentage = total > 0 ? Math.round((used / total) * 100) : 0;
   
-  return trans('enterprise.environments.services.license.remainingAPICalls', {
+  return trans('environments.services_license_remainingAPICalls', {
     remaining: remaining.toLocaleString(),
     used: used.toLocaleString(),
     total: total.toLocaleString(),

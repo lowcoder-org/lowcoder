@@ -12,35 +12,35 @@ export const appsConfig: DeployableItemConfig = {
  
 
   deploy: {
-    singularLabel: trans("enterprise.environments.config.singularLabels.app"),
+    singularLabel: trans("environments.config_singularLabels_app"),
     fields: [
       {
         name: 'updateDependenciesIfNeeded',
-        label: trans("enterprise.environments.config.fields.updateDependenciesIfNeeded"),
+        label: trans("environments.config_fields_updateDependenciesIfNeeded"),
         type: 'checkbox',
         defaultValue: false
       },
       {
         name: 'publishOnTarget',
-        label: trans("enterprise.environments.config.fields.publishOnTarget"),
+        label: trans("environments.config_fields_publishOnTarget"),
         type: 'checkbox',
         defaultValue: false
       },
       {
         name: 'publicToAll',
-        label: trans("enterprise.environments.config.fields.publicToAll"),
+        label: trans("environments.config_fields_publicToAll"),
         type: 'checkbox',
         defaultValue: false
       },
       {
         name: 'publicToMarketplace',
-        label: trans("enterprise.environments.config.fields.publicToMarketplace"),
+        label: trans("environments.config_fields_publicToMarketplace"),
         type: 'checkbox',
         defaultValue: false
       },
       {
         name: 'deployCredential',
-        label: trans("enterprise.environments.config.fields.overwriteCredentials"),
+        label: trans("environments.config_fields_overwriteCredentials"),
         type: 'checkbox',
         defaultValue: false
       }

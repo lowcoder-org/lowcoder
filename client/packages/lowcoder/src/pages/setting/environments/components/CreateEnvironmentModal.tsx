@@ -67,14 +67,14 @@ const CreateEnvironmentModal: React.FC<CreateEnvironmentModalProps> = ({
 
   return (
     <Modal
-      title={trans("enterprise.environments.modal.createNewEnvironment")}
+      title={trans("environments.modal_createNewEnvironment")}
       open={visible}
       onCancel={handleCancel}
       maskClosable={true}
       destroyOnHidden={true}
       footer={[
         <Button key="back" onClick={handleCancel}>
-          {trans("enterprise.environments.modal.cancel")}
+          {trans("environments.modal_cancel")}
         </Button>,
         <Button 
           key="submit" 
@@ -82,7 +82,7 @@ const CreateEnvironmentModal: React.FC<CreateEnvironmentModalProps> = ({
           loading={loading || submitLoading} 
           onClick={handleSubmit}
         >
-          {trans("enterprise.environments.modal.createEnvironment")}
+          {trans("environments.modal_createEnvironment")}
         </Button>
       ]}
     >
@@ -96,43 +96,43 @@ const CreateEnvironmentModal: React.FC<CreateEnvironmentModalProps> = ({
       >
         <Form.Item
           name="environmentName"
-          label={trans("enterprise.environments.modal.environmentName")}
+          label={trans("environments.modal_environmentName")}
           rules={[
-            { required: true, message: trans("enterprise.environments.modal.pleaseEnterName") },
-            { min: 2, message: trans("enterprise.environments.modal.nameMinLength") }
+            { required: true, message: trans("environments.modal_pleaseEnterName") },
+            { min: 2, message: trans("environments.modal_nameMinLength") }
           ]}
         >
-          <Input placeholder={trans("enterprise.environments.modal.enterEnvironmentName")} />
+          <Input placeholder={trans("environments.modal_enterEnvironmentName")} />
         </Form.Item>
 
         <Form.Item
           name="environmentDescription"
-          label={trans("enterprise.environments.modal.description")}
+          label={trans("environments.modal_description")}
         >
           <Input.TextArea 
-            placeholder={trans("enterprise.environments.modal.enterDescription")} 
+            placeholder={trans("environments.modal_enterDescription")} 
             rows={3}
           />
         </Form.Item>
 
         <Form.Item
           name="environmentType"
-          label={trans("enterprise.environments.modal.stage")}
-          rules={[{ required: true, message: trans("enterprise.environments.modal.pleaseSelectStage") }]}
+          label={trans("environments.modal_stage")}
+          rules={[{ required: true, message: trans("environments.modal_pleaseSelectStage") }]}
         >
-          <Select placeholder={trans("enterprise.environments.modal.selectStage")}>
-            <Option value="DEV">{trans("enterprise.environments.modal.development")}</Option>
-            <Option value="TEST">{trans("enterprise.environments.modal.testing")}</Option>
-            <Option value="PREPROD">{trans("enterprise.environments.modal.preProduction")}</Option>
-            <Option value="PROD">{trans("enterprise.environments.modal.production")}</Option>
+          <Select placeholder={trans("environments.modal_selectStage")}>
+            <Option value="DEV">{trans("environments.modal_development")}</Option>
+            <Option value="TEST">{trans("environments.modal_testing")}</Option>
+            <Option value="PREPROD">{trans("environments.modal_preProduction")}</Option>
+            <Option value="PROD">{trans("environments.modal_production")}</Option>
           </Select>
         </Form.Item>
 
         <Form.Item
           name="environmentFrontendUrl"
-          label={trans("enterprise.environments.modal.frontendUrl")}
+          label={trans("environments.modal_frontendUrl")}
           rules={[
-            { type: 'url', message: trans("enterprise.environments.modal.pleaseEnterValidUrl") }
+            { type: 'url', message: trans("environments.modal_pleaseEnterValidUrl") }
           ]}
         >
           <Input placeholder="https://example.com" />
@@ -140,9 +140,9 @@ const CreateEnvironmentModal: React.FC<CreateEnvironmentModalProps> = ({
 
         <Form.Item
           name="environmentApiServiceUrl"
-          label={trans("enterprise.environments.modal.apiServiceUrl")}
+          label={trans("environments.modal_apiServiceUrl")}
           rules={[
-            { type: 'url', message: trans("enterprise.environments.modal.pleaseEnterValidUrl") }
+            { type: 'url', message: trans("environments.modal_pleaseEnterValidUrl") }
           ]}
         >
           <Input placeholder="https://api.example.com" />
@@ -150,9 +150,9 @@ const CreateEnvironmentModal: React.FC<CreateEnvironmentModalProps> = ({
 
         <Form.Item
           name="environmentNodeServiceUrl"
-          label={trans("enterprise.environments.modal.nodeServiceUrl")}
+          label={trans("environments.modal_nodeServiceUrl")}
           rules={[
-            { type: 'url', message: trans("enterprise.environments.modal.pleaseEnterValidUrl") }
+            { type: 'url', message: trans("environments.modal_pleaseEnterValidUrl") }
           ]}
         >
           <Input placeholder="https://node.example.com" />
@@ -160,20 +160,20 @@ const CreateEnvironmentModal: React.FC<CreateEnvironmentModalProps> = ({
 
         <Form.Item
           name="environmentApikey"
-          label={trans("enterprise.environments.modal.apiKey")}
+          label={trans("environments.modal_apiKey")}
         >
           <Input.TextArea 
-            placeholder={trans("enterprise.environments.modal.enterApiKey")} 
+            placeholder={trans("environments.modal_enterApiKey")} 
             rows={2}
           />
         </Form.Item>
 
-        <Form.Item label={trans("enterprise.environments.modal.masterEnvironment")}>
+        <Form.Item label={trans("environments.modal_masterEnvironment")}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <Tooltip 
               title={
                 hasMasterEnvironment 
-                  ? trans("enterprise.environments.modal.alreadyMasterEnvironment", { name: masterEnvironment?.environmentName })
+                  ? trans("environments.modal_alreadyMasterEnvironment", { name: masterEnvironment?.environmentName })
                   : ''
               }
             >
@@ -186,15 +186,15 @@ const CreateEnvironmentModal: React.FC<CreateEnvironmentModalProps> = ({
             </Tooltip>
             {isMaster && (
               <span style={{ color: '#52c41a', fontSize: '12px' }}>
-                {trans("enterprise.environments.modal.willBeMaster")}
+                {trans("environments.modal_willBeMaster")}
               </span>
             )}
           </div>
         </Form.Item>
 
         <Alert
-          message={trans("enterprise.environments.modal.configurationRequirements")}
-          description={trans("enterprise.environments.modal.configurationRequirementsDesc")}
+          message={trans("environments.modal_configurationRequirements")}
+          description={trans("environments.modal_configurationRequirementsDesc")}
           type="warning"
           showIcon
           style={{ marginTop: '16px' }}

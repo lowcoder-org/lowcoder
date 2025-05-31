@@ -35,7 +35,7 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
     const fetchDeploymentId = async () => {
       if (!visible || !environment.environmentApiServiceUrl || !environment.environmentApikey) {
         if (visible) {
-          setError(trans('enterprise.environments.contactLowcoder.apiConfigurationError'));
+          setError(trans('environments.contactLowcoder_apiConfigurationError'));
         }
         return;
       }
@@ -52,7 +52,7 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
         setShowHubspotModal(true);
       } catch (err) {
         console.error('Failed to fetch deployment ID:', err);
-        setError(err instanceof Error ? err.message : trans('enterprise.environments.contactLowcoder.failedToFetchDeploymentId'));
+        setError(err instanceof Error ? err.message : trans('environments.contactLowcoder_failedToFetchDeploymentId'));
       } finally {
         setIsLoading(false);
       }
@@ -92,7 +92,7 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
       title={
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <CustomerServiceOutlined style={{ fontSize: '20px', color: '#1890ff' }} />
-          <span style={{ fontSize: '18px', fontWeight: 600 }}>{trans('enterprise.environments.contactLowcoder.title')}</span>
+          <span style={{ fontSize: '18px', fontWeight: 600 }}>{trans('environments.contactLowcoder_title')}</span>
         </div>
       }
       open={visible}
@@ -120,15 +120,15 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
           <Col flex={1}>
             <div>
               <Text strong style={{ fontSize: '16px', color: '#262626' }}>
-                {trans('enterprise.environments.contactLowcoder.environmentLabel')} {environment.environmentName || trans('enterprise.environments.contactLowcoder.unnamedEnvironment')}
+                {trans('environments.contactLowcoder_environmentLabel')} {environment.environmentName || trans('environments.contactLowcoder_unnamedEnvironment')}
               </Text>
               <br />
               <Text style={{ fontSize: '14px', color: '#8c8c8c', fontFamily: 'monospace' }}>
-                {trans('enterprise.environments.contactLowcoder.environmentIdLabel')} {environment.environmentId}
+                {trans('environments.contactLowcoder_environmentIdLabel')} {environment.environmentId}
               </Text>
               <br />
               <Text style={{ fontSize: '14px', color: '#8c8c8c', fontFamily: 'monospace' }}>
-                {trans('enterprise.environments.contactLowcoder.deploymentIdLabel')} {isLoading ? trans('enterprise.environments.contactLowcoder.loading') : deploymentId || trans('enterprise.environments.contactLowcoder.notAvailable')}
+                {trans('environments.contactLowcoder_deploymentIdLabel')} {isLoading ? trans('environments.contactLowcoder_loading') : deploymentId || trans('environments.contactLowcoder_notAvailable')}
               </Text>
             </div>
           </Col>
@@ -149,14 +149,14 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
           }}>
             <Spin size="large" />
             <Text style={{ marginTop: '16px', color: '#8c8c8c' }}>
-              {trans('enterprise.environments.contactLowcoder.fetchingDeploymentInfo')}
+              {trans('environments.contactLowcoder_fetchingDeploymentInfo')}
             </Text>
           </div>
         )}
 
         {error && (
           <Alert
-            message={trans('enterprise.environments.contactLowcoder.unableToLoadContactForm')}
+            message={trans('environments.contactLowcoder_unableToLoadContactForm')}
             description={error}
             type="error"
             showIcon
@@ -171,7 +171,7 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
             fontSize: '14px'
           }}>
             <CustomerServiceOutlined style={{ fontSize: '48px', marginBottom: '16px', color: '#d9d9d9' }} />
-            <div>{trans('enterprise.environments.contactLowcoder.ensureProperConfiguration')}</div>
+            <div>{trans('environments.contactLowcoder_ensureProperConfiguration')}</div>
           </div>
         )}
       </div>

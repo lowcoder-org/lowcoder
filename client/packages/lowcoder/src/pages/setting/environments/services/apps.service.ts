@@ -100,7 +100,7 @@ export async function getMergedWorkspaceApps(
     };
   } catch (error) {
     const errorMessage = 
-      error instanceof Error ? error.message : trans("enterprise.environments.services.apps.failedToFetchApps");
+      error instanceof Error ? error.message : trans("environments.services_apps_failedToFetchApps");
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -138,7 +138,7 @@ export const deployApp = async (params: DeployAppParams): Promise<boolean> => {
     
     return response.status === 200;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : trans("enterprise.environments.services.apps.failedToDeployApp");
+    const errorMessage = error instanceof Error ? error.message : trans("environments.services_apps_failedToDeployApp");
     // Don't show message directly, let the calling component handle it
     throw new Error(errorMessage);
   }

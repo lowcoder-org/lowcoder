@@ -70,7 +70,7 @@ export async function getMergedEnvironmentWorkspaces(
       }
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : trans("enterprise.environments.services.workspace.failedToFetchWorkspaces");
+    const errorMessage = error instanceof Error ? error.message : trans("environments.services_workspace_failedToFetchWorkspaces");
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -108,7 +108,7 @@ export async function deployWorkspace(params: {
 
     return response.status === 200;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : trans("enterprise.environments.services.workspace.failedToDeployWorkspace");
+    const errorMessage = error instanceof Error ? error.message : trans("environments.services_workspace_failedToDeployWorkspace");
     // Don't show message directly, let the calling component handle it
     throw new Error(errorMessage);
   }

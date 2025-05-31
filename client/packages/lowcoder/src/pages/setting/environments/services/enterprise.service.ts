@@ -18,7 +18,7 @@ export async function getManagedWorkspaces(
 
 ): Promise<ManagedOrg[]> {
   if (!environmentId) {
-    throw new Error(trans("enterprise.environments.services.enterprise.missingEnvironmentId"));
+    throw new Error(trans("environments.services_enterprise_missingEnvironmentId"));
   }
 
   try {
@@ -26,7 +26,7 @@ export async function getManagedWorkspaces(
     const all: ManagedOrg[] = res.data.data;
     return all.filter(org => org.environmentId === environmentId);
   } catch (err) {
-    const errorMsg = err instanceof Error ? err.message : trans("enterprise.environments.services.enterprise.failedToFetchManagedWorkspaces");
+    const errorMsg = err instanceof Error ? err.message : trans("environments.services_enterprise_failedToFetchManagedWorkspaces");
     messageInstance.error(errorMsg);
     throw err;
   }
@@ -49,7 +49,7 @@ export async function connectManagedWorkspace(
   orgTags: string[] = [],
 ) {
   if (!environmentId || !orgName || !org_gid) {
-    throw new Error(trans("enterprise.environments.services.enterprise.missingRequiredParamsToConnectOrg"));
+    throw new Error(trans("environments.services_enterprise_missingRequiredParamsToConnectOrg"));
   }
 
   try {
@@ -63,7 +63,7 @@ export async function connectManagedWorkspace(
     const res = await axios.post(`/api/plugins/enterprise/org`, payload);
     return res.data;
   } catch (err) {
-    const errorMsg = err instanceof Error ? err.message : trans("enterprise.environments.services.enterprise.failedToConnectOrg");
+    const errorMsg = err instanceof Error ? err.message : trans("environments.services_enterprise_failedToConnectOrg");
     messageInstance.error(errorMsg);
     throw err;
   }
@@ -79,7 +79,7 @@ export async function connectManagedWorkspace(
  */
 export async function unconnectManagedWorkspace(orgGid: string) {
   if (!orgGid) {
-    throw new Error(trans("enterprise.environments.services.enterprise.missingOrgGidToUnconnectWorkspace"));
+    throw new Error(trans("environments.services_enterprise_missingOrgGidToUnconnectWorkspace"));
   }
 
   try {
@@ -88,7 +88,7 @@ export async function unconnectManagedWorkspace(orgGid: string) {
     });
   } catch (err) {
     const errorMsg =
-      err instanceof Error ? err.message : trans("enterprise.environments.services.enterprise.failedToUnconnectOrg");
+      err instanceof Error ? err.message : trans("environments.services_enterprise_failedToUnconnectOrg");
     messageInstance.error(errorMsg);
     throw err;
   }
@@ -124,7 +124,7 @@ export async function connectManagedApp(
     return res.data;
   } catch (err) {
     const errorMsg =
-      err instanceof Error ? err.message : trans("enterprise.environments.services.enterprise.failedToConnectApp");
+      err instanceof Error ? err.message : trans("environments.services_enterprise_failedToConnectApp");
     messageInstance.error(errorMsg);
     throw err;
   }
@@ -137,7 +137,7 @@ export async function unconnectManagedApp(appGid: string) {
       params: { appGid },
     });
   } catch (err) {
-    const errorMsg = err instanceof Error ? err.message : trans("enterprise.environments.services.enterprise.failedToUnconnectApp");
+    const errorMsg = err instanceof Error ? err.message : trans("environments.services_enterprise_failedToUnconnectApp");
     messageInstance.error(errorMsg);
     throw err;
   }
@@ -152,7 +152,7 @@ export const getManagedDataSources = async (environmentId: string): Promise<any[
     );
     return response.data.data || [];
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : trans("enterprise.environments.services.enterprise.failedToFetchDataSources");
+    const errorMsg = error instanceof Error ? error.message : trans("environments.services_enterprise_failedToFetchDataSources");
     messageInstance.error(errorMsg);
     throw error;
   }
@@ -174,7 +174,7 @@ export const connectManagedDataSource = async (
 
     await axios.post(`/api/plugins/enterprise/datasource`, payload);
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : trans("enterprise.environments.services.enterprise.failedToDeployDataSource");
+    const errorMsg = error instanceof Error ? error.message : trans("environments.services_enterprise_failedToDeployDataSource");
     messageInstance.error(errorMsg);
     throw error;
   }
@@ -187,7 +187,7 @@ export const unconnectManagedDataSource = async (
   try {
     await axios.delete(`/api/plugins/enterprise/datasource?datasourceGid=${datasourceGid}`);
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : trans("enterprise.environments.services.enterprise.failedToDisconnectManagedDataSource");
+    const errorMsg = error instanceof Error ? error.message : trans("environments.services_enterprise_failedToDisconnectManagedDataSource");
     messageInstance.error(errorMsg);
     throw error;
   }
@@ -199,7 +199,7 @@ export const unconnectManagedDataSource = async (
 export async function getManagedQueries(environmentId: string): Promise<Query[]> {
   try {
     if (!environmentId) {
-      throw new Error(trans("enterprise.environments.services.enterprise.environmentIdRequired"));
+      throw new Error(trans("environments.services_enterprise_environmentIdRequired"));
     }
     
     // Get managed queries from the enterprise endpoint
@@ -227,7 +227,7 @@ export async function getManagedQueries(environmentId: string): Promise<Query[]>
     }));
     
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : trans("enterprise.environments.services.enterprise.failedToFetchQueries");
+    const errorMsg = error instanceof Error ? error.message : trans("environments.services_enterprise_failedToFetchQueries");
     messageInstance.error(errorMsg);
     throw error;
   }
@@ -241,7 +241,7 @@ export async function connectManagedQuery(
 ): Promise<boolean> {
   try {
     if (!environmentId || !queryGid) {
-      throw new Error(trans("enterprise.environments.services.enterprise.environmentIdAndQueryGidRequired"));
+      throw new Error(trans("environments.services_enterprise_environmentIdAndQueryGidRequired"));
     }
     
     const response = await axios.post('/api/plugins/enterprise/qlQuery', {
@@ -254,7 +254,7 @@ export async function connectManagedQuery(
     return response.status === 200;
     
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : trans("enterprise.environments.services.enterprise.failedToDeployQuery");
+    const errorMsg = error instanceof Error ? error.message : trans("environments.services_enterprise_failedToDeployQuery");
     messageInstance.error(errorMsg);
     throw error;
   }
@@ -264,7 +264,7 @@ export async function connectManagedQuery(
 export async function unconnectManagedQuery(queryGid: string): Promise<boolean> {
   try {
     if (!queryGid) {
-      throw new Error(trans("enterprise.environments.services.enterprise.queryGidRequired"));
+      throw new Error(trans("environments.services_enterprise_queryGidRequired"));
     }
     
     const response = await axios.delete(`/api/plugins/enterprise/qlQuery`, {
@@ -276,7 +276,7 @@ export async function unconnectManagedQuery(queryGid: string): Promise<boolean> 
     return response.status === 200;
     
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : trans("enterprise.environments.services.enterprise.failedToDisconnectQuery");
+    const errorMsg = error instanceof Error ? error.message : trans("environments.services_enterprise_failedToDisconnectQuery");
     messageInstance.error(errorMsg);
     throw error;
   }

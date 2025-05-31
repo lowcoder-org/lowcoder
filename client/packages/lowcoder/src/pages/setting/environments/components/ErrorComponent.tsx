@@ -21,7 +21,7 @@ const ErrorComponent: React.FC<ErrorComponentProps> = ({ errorMessage, returnPat
             {errorMessage}
           </Title>
           <Text type="secondary" style={{ display: 'block', margin: '16px 0' }}>
-            {trans("enterprise.environments.error.itemNotFound")}
+            {trans("environments.error_itemNotFound")}
           </Text>
           <Button 
             type="primary"

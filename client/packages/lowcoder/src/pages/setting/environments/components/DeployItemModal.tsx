@@ -88,13 +88,13 @@ function DeployItemModal({
       const targetEnv = licensedEnvironments.find(env => env.environmentId === values.targetEnvId);
       
       if (!targetEnv) {
-        messageInstance.error(trans("enterprise.environments.deployModal.targetEnvironmentNotFound"));
+        messageInstance.error(trans("environments.deployModal_targetEnvironmentNotFound"));
         return;
       }
 
       // Additional check for credential overwrite
       if (values.deployCredential && credentialConfirmationStep !== 2) {
-        messageInstance.error(trans("enterprise.environments.deployModal.confirmCredentialOverwrite"));
+        messageInstance.error(trans("environments.deployModal_confirmCredentialOverwrite"));
         return;
       }
       
@@ -106,12 +106,12 @@ function DeployItemModal({
       // Execute deployment
       await config.deploy.execute(params);
       
-      messageInstance.success(trans("enterprise.environments.deployModal.deploySuccess", { name: item.name }));
+      messageInstance.success(trans("environments.deployModal_deploySuccess", { name: item.name }));
       if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
       console.error('Deployment error:', error);
-      messageInstance.error(trans("enterprise.environments.deployModal.deployFailed", { singularLabel: config.deploy.singularLabel.toLowerCase() }));
+      messageInstance.error(trans("environments.deployModal_deployFailed", { singularLabel: config.deploy.singularLabel.toLowerCase() }));
     } finally {
       setDeploying(false);
     }
@@ -119,7 +119,7 @@ function DeployItemModal({
   
   return (
     <Modal
-      title={trans("enterprise.environments.deployModal.deployTitle", { 
+      title={trans("environments.deployModal_deployTitle", { 
         singularLabel: config.deploy.singularLabel, 
         name: item?.name || '' 
       })}
@@ -130,7 +130,7 @@ function DeployItemModal({
     >
       {isLoading ? (
         <div style={{ textAlign: 'center', padding: '20px' }}>
-          <Spin tip={trans("enterprise.environments.deployModal.loadingEnvironments")} />
+          <Spin tip={trans("environments.deployModal_loadingEnvironments")} />
         </div>
       ) : (
         <Form
@@ -138,7 +138,7 @@ function DeployItemModal({
           layout="vertical"
         >
           {/* Source environment display */}
-          <Form.Item label={trans("enterprise.environments.deployModal.sourceEnvironment")}>
+          <Form.Item label={trans("environments.deployModal_sourceEnvironment")}>
             <Space>
               <strong>{sourceEnvironment.environmentName}</strong>
               {sourceEnvironment.environmentType && (
@@ -151,10 +151,10 @@ function DeployItemModal({
 
           <Form.Item
             name="targetEnvId"
-            label={trans("enterprise.environments.deployModal.targetEnvironment")}
-            rules={[{ required: true, message: trans("enterprise.environments.deployModal.selectTargetEnvironmentValidation") }]}
+            label={trans("environments.deployModal_targetEnvironment")}
+            rules={[{ required: true, message: trans("environments.deployModal_selectTargetEnvironmentValidation") }]}
           >
-            <Select placeholder={trans("enterprise.environments.deployModal.selectTargetEnvironment")}>
+            <Select placeholder={trans("environments.deployModal_selectTargetEnvironment")}>
               {targetEnvironments.map((env) => (
                 <Select.Option key={env.environmentId} value={env.environmentId}>
                   <Space>
@@ -200,7 +200,7 @@ function DeployItemModal({
                           style={{ marginLeft: 8 }}
                           icon={<ExclamationCircleOutlined />}
                         >
-                          {trans("enterprise.environments.deployModal.confirmed")}
+                          {trans("environments.deployModal_confirmed")}
                         </Tag>
                       )}
                     </Checkbox>
@@ -213,9 +213,9 @@ function DeployItemModal({
                     name={field.name}
                     label={field.label}
                     initialValue={field.defaultValue}
-                    rules={field.required ? [{ required: true, message: trans("enterprise.environments.deployModal.selectFieldValidation", { label: field.label }) }] : undefined}
+                    rules={field.required ? [{ required: true, message: trans("environments.deployModal_selectFieldValidation", { label: field.label }) }] : undefined}
                   >
-                    <Select placeholder={trans("enterprise.environments.deployModal.selectFieldPlaceholder", { label: field.label })}>
+                    <Select placeholder={trans("environments.deployModal_selectFieldPlaceholder", { label: field.label })}>
                       {field.options?.map(option => (
                         <Select.Option key={option.value} value={option.value}>
                           {option.label}
@@ -231,9 +231,9 @@ function DeployItemModal({
                     name={field.name}
                     label={field.label}
                     initialValue={field.defaultValue}
-                    rules={field.required ? [{ required: true, message: trans("enterprise.environments.deployModal.inputFieldValidation", { label: field.label }) }] : undefined}
+                    rules={field.required ? [{ required: true, message: trans("environments.deployModal_inputFieldValidation", { label: field.label }) }] : undefined}
                   >
-                    <Input placeholder={trans("enterprise.environments.deployModal.inputFieldPlaceholder", { label: field.label })} />
+                    <Input placeholder={trans("environments.deployModal_inputFieldPlaceholder", { label: field.label })} />
                   </Form.Item>
                 );
               default:
@@ -243,10 +243,10 @@ function DeployItemModal({
            
           <Form.Item>
             <Button type="default" onClick={onClose} style={{ marginRight: 8 }}>
-              {trans("enterprise.environments.deployModal.cancel")}
+              {trans("environments.deployModal_cancel")}
             </Button>
             <Button type="primary" onClick={handleDeploy} loading={deploying}>
-              {trans("enterprise.environments.deployModal.deploy")}
+              {trans("environments.deployModal_deploy")}
             </Button>
           </Form.Item>
         </Form>

@@ -57,35 +57,35 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
         return {
           icon: <SyncOutlined spin />,
           color: '#40a9ff',
-          text: trans("enterprise.environments.licenseStatus.checking"),
+          text: trans("environments.licenseStatus_checking"),
           status: 'processing' as const
         };
       case 'licensed':
         return {
           icon: <CheckCircleOutlined />,
           color: '#73d13d',
-          text: trans("enterprise.environments.licenseStatus.licensed"),
+          text: trans("environments.licenseStatus_licensed"),
           status: 'success' as const
         };
       case 'unlicensed':
         return {
           icon: <CloseCircleOutlined />,
           color: '#ff7875',
-          text: trans("enterprise.environments.licenseStatus.unlicensed"),
+          text: trans("environments.licenseStatus_unlicensed"),
           status: 'warning' as const
         };
       case 'error':
         return {
           icon: <ExclamationCircleOutlined />,
           color: '#ffc53d',
-          text: trans("enterprise.environments.licenseStatus.error"),
+          text: trans("environments.licenseStatus_error"),
           status: 'warning' as const
         };
       default:
         return {
           icon: <ExclamationCircleOutlined />,
           color: '#d9d9d9',
-          text: trans("enterprise.environments.licenseStatus.unknown"),
+          text: trans("environments.licenseStatus_unknown"),
           status: 'default' as const
         };
     }
@@ -164,9 +164,9 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                     />
                     <div>
                       <Title level={5} style={{ margin: 0, marginBottom: '4px', fontSize: '14px' }}>
-                        {env.environmentName || trans("enterprise.environments.unnamedEnvironment")}
+                        {env.environmentName || trans("environments.unnamedEnvironment")}
                         {env.isMaster && (
-                          <Tooltip title={trans("enterprise.environments.masterEnvironment")}>
+                          <Tooltip title={trans("environments.masterEnvironment")}>
                             <StarFilled style={{ color: '#faad14', marginLeft: '6px', fontSize: '12px' }} />
                           </Tooltip>
                         )}
@@ -193,7 +193,7 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                   {/* Only show audit button for licensed environments */}
                   {isAccessible && (
                     <div>
-                      <Tooltip title={trans("enterprise.environments.viewAuditLogs")} placement="top">
+                      <Tooltip title={trans("environments.viewAuditLogs")} placement="top">
                         <Button
                           type="text"
                           icon={<AuditOutlined />}
@@ -215,9 +215,9 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                 <div style={{ padding: '8px 0', borderTop: '1px solid #f5f5f5' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Text type="secondary" style={{ fontSize: '12px' }}>{trans("enterprise.environments.id")}:</Text>
+                      <Text type="secondary" style={{ fontSize: '12px' }}>{trans("environments.id")}:</Text>
                       {isAccessible ? (
-                        <Text style={{ fontSize: '12px', fontFamily: 'monospace' }} copyable={{ tooltips: [trans("enterprise.environments.copyId"), trans("enterprise.environments.copied")] }}>
+                        <Text style={{ fontSize: '12px', fontFamily: 'monospace' }} copyable={{ tooltips: [trans("environments.copyId"), trans("environments.copied")] }}>
                           {env.environmentId}
                         </Text>
                       ) : (
@@ -228,7 +228,7 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                     </div>
                     
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Text type="secondary" style={{ fontSize: '12px' }}>{trans("enterprise.environments.domain")}:</Text>
+                      <Text type="secondary" style={{ fontSize: '12px' }}>{trans("environments.domain")}:</Text>
                       {env.environmentFrontendUrl ? (
                         isAccessible ? (
                           <a 
@@ -252,14 +252,14 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                     </div>
                     
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Text type="secondary" style={{ fontSize: '12px' }}>{trans("enterprise.environments.master")}:</Text>
+                      <Text type="secondary" style={{ fontSize: '12px' }}>{trans("environments.master")}:</Text>
                       <Text style={{ fontSize: '12px' }}>
-                        {env.isMaster ? trans("enterprise.environments.yes") : trans("enterprise.environments.no")}
+                        {env.isMaster ? trans("environments.yes") : trans("environments.no")}
                       </Text>
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Text type="secondary" style={{ fontSize: '12px' }}>{trans("enterprise.environments.license")}:</Text>
+                      <Text type="secondary" style={{ fontSize: '12px' }}>{trans("environments.license")}:</Text>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                         <span style={{ color: licenseDisplay.color, fontSize: '12px' }}>
                           {licenseDisplay.icon}
@@ -276,7 +276,7 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                           <Text type="secondary" style={{ fontSize: '11px' }}>
                             <ApiOutlined style={{ marginRight: '4px' }} />
-                            {trans("enterprise.environments.apiCalls")}
+                            {trans("environments.apiCalls")}
                           </Text>
                       
                         </div>
@@ -296,7 +296,7 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                           fontSize: '10px',
                           color: '#8c8c8c'
                         }}>
-                          <span>{trans("enterprise.environments.percentUsed", { percent: env.licenseDetails.apiCallsUsage || 0 })}</span>
+                          <span>{trans("environments.percentUsed", { percent: env.licenseDetails.apiCallsUsage || 0 })}</span>
                         </div>
                       </div>
                     )}
@@ -311,7 +311,7 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
       {environments.length > 10 && (
         <div style={{ textAlign: 'center', margin: '16px 0' }}>
           <Text type="secondary" style={{ fontSize: '13px' }}>
-            {trans("enterprise.environments.showingAllEnvironments", { count: environments.length })}
+            {trans("environments.showingAllEnvironments", { count: environments.length })}
           </Text>
         </div>
       )}

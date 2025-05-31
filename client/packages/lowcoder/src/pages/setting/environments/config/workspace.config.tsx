@@ -10,7 +10,7 @@ export const workspaceConfig: DeployableItemConfig = {
   
   // Deploy configuration
   deploy: {
-    singularLabel: trans("enterprise.environments.config.singularLabels.workspace"),
+    singularLabel: trans("environments.config_singularLabels_workspace"),
     fields: [
       // Removed deployCredential field as workspaces don't need credential overwrite
     ],

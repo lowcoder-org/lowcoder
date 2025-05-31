@@ -8,11 +8,11 @@ import { trans } from "i18n";
 
 export const dataSourcesConfig: DeployableItemConfig = {
   deploy: {
-    singularLabel: trans("enterprise.environments.config.singularLabels.dataSource"),
+    singularLabel: trans("environments.config_singularLabels_dataSource"),
     fields: [
       {
         name: 'deployCredential',
-        label: trans("enterprise.environments.config.fields.overwriteCredentials"),
+        label: trans("environments.config_fields_overwriteCredentials"),
         type: 'checkbox',
         defaultValue: false
       }
