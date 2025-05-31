@@ -1,5 +1,6 @@
 // services/appService.ts
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { trans } from "i18n";
 import { getWorkspaceApps } from "./environments.service";
 import { getManagedApps } from "./enterprise.service";
 import { App, AppStats } from "../types/app.types";
@@ -99,7 +100,7 @@ export async function getMergedWorkspaceApps(
     };
   } catch (error) {
     const errorMessage = 
-      error instanceof Error ? error.message : "Failed to fetch apps";
+      error instanceof Error ? error.message : trans("enterprise.environments.services.apps.failedToFetchApps");
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -137,7 +138,7 @@ export const deployApp = async (params: DeployAppParams): Promise<boolean> => {
     
     return response.status === 200;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to deploy app';
+    const errorMessage = error instanceof Error ? error.message : trans("enterprise.environments.services.apps.failedToDeployApp");
     // Don't show message directly, let the calling component handle it
     throw new Error(errorMessage);
   }

@@ -1,5 +1,6 @@
 // services/workspacesService.ts (or wherever makes sense in your structure)
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { trans } from "i18n";
 import { getEnvironmentWorkspaces } from "./environments.service";
 import { getManagedObjects, ManagedObject, ManagedObjectType, transferManagedObject } from "./managed-objects.service";
 import { Workspace } from "../types/workspace.types";
@@ -69,7 +70,7 @@ export async function getMergedEnvironmentWorkspaces(
       }
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Failed to fetch workspaces";
+    const errorMessage = error instanceof Error ? error.message : trans("enterprise.environments.services.workspace.failedToFetchWorkspaces");
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -107,7 +108,7 @@ export async function deployWorkspace(params: {
 
     return response.status === 200;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to deploy workspace';
+    const errorMessage = error instanceof Error ? error.message : trans("enterprise.environments.services.workspace.failedToDeployWorkspace");
     // Don't show message directly, let the calling component handle it
     throw new Error(errorMessage);
   }

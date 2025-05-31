@@ -11,6 +11,7 @@ import { useDeployModal } from '../context/DeployModalContext';
 import { appsConfig } from '../config/apps.config';
 import history from "@lowcoder-ee/util/history";
 import { messageInstance } from 'lowcoder-design/src/components/GlobalInstances';
+import { trans } from 'i18n';
 
 const { Search } = Input;
 
@@ -117,10 +118,10 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
         unmanaged: prev.total - managed
       }));
       
-      messageInstance.success(`${app.name} is now ${checked ? 'Managed' : 'Unmanaged'}`);
+      messageInstance.success(trans(checked ? "enterprise.environments.apps.managedSuccess" : "enterprise.environments.apps.unmanagedSuccess", { name: app.name }));
       return true;
     } catch (error) {
-      messageInstance.error(`Failed to change managed status for ${app.name}`);
+      messageInstance.error(trans("enterprise.environments.apps.managedError", { name: app.name }));
       return false;
     } finally {
       setRefreshing(false);
@@ -141,7 +142,7 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
   // Table columns
   const columns = [
     {
-      title: 'App',
+      title: trans("enterprise.environments.apps.app"),
       key: 'app',
       render: (app: App) => (
         <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -158,7 +159,7 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontWeight: 500 }}>{app.name}</span>
               {app.applicationStatus === 'RECYCLED' && (
-                <Tooltip title="This app has been moved to recycle bin">
+                <Tooltip title={trans("enterprise.environments.apps.appRecycled")}>
                   <DeleteOutlined 
                     style={{ 
                       color: '#faad14', 
@@ -176,24 +177,24 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
       ),
     },
     {
-      title: 'Status',
+      title: trans("enterprise.environments.apps.status"),
       key: 'status',
       render: (app: App) => (
         <Space direction="vertical" size={0}>
           <Tag color={app.published ? 'success' : 'default'} style={{ borderRadius: '4px' }}>
-            {app.published ? <CheckCircleFilled /> : null} {app.published ? 'Published' : 'Draft'}
+            {app.published ? <CheckCircleFilled /> : null} {app.published ? trans("enterprise.environments.apps.published") : trans("enterprise.environments.apps.draft")}
           </Tag>
           <Tag 
             color={app.managed ? 'processing' : 'default'} 
             style={{ marginTop: 8, borderRadius: '4px' }}
           >
-            {app.managed ? <CloudServerOutlined /> : <DisconnectOutlined />} {app.managed ? 'Managed' : 'Unmanaged'}
+            {app.managed ? <CloudServerOutlined /> : <DisconnectOutlined />} {app.managed ? trans("enterprise.environments.apps.managed") : trans("enterprise.environments.apps.unmanaged")}
           </Tag>
         </Space>
       ),
     },
     {
-      title: 'Managed',
+      title: trans("enterprise.environments.apps.managed"),
       key: 'managed',
       render: (_: any, app: App) => (
         <Switch
@@ -204,22 +205,22 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
       ),
     },
     {
-      title: 'Actions',
+      title: trans("enterprise.environments.workspaces.actions"),
       key: 'actions',
       render: (_: any, app: App) => (
         <Space onClick={(e) => e.stopPropagation()}>
          
-          <Tooltip title={!app.managed ? "App must be managed before it can be deployed" : "Deploy this app to another environment"}>
+          <Tooltip title={!app.managed ? trans("enterprise.environments.apps.appMustBeManagedToDeploy") : trans("enterprise.environments.apps.deployThisApp")}>
             <Button
               type="primary"
               icon={<CloudUploadOutlined />}
               onClick={() => openDeployModal(app, appsConfig, environment)}
               disabled={!app.managed}
             >
-              Deploy
+              {trans("enterprise.environments.apps.deploy")}
             </Button>
           </Tooltip>
-          <Tooltip title="View Audit Logs">
+          <Tooltip title={trans("enterprise.environments.apps.viewAuditLogs")}>
             <Button
               icon={<AuditOutlined />}
               onClick={(e) => {
@@ -228,7 +229,7 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
                 window.open(auditUrl, '_blank');
               }}
             >
-              Audit
+              {trans("enterprise.environments.apps.audit")}
             </Button>
           </Tooltip>
         </Space>
@@ -289,10 +290,10 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
       }}>
         <div>
           <Title level={4} style={{ margin: 0, marginBottom: '4px' }}>
-            <AppstoreOutlined style={{ marginRight: 8 }} /> Apps
+            <AppstoreOutlined style={{ marginRight: 8 }} /> {trans("enterprise.environments.apps.title")}
           </Title>
           <p style={{ marginBottom: 0, color: '#8c8c8c', fontSize: '14px' }}>
-            Manage workspace applications
+            {trans("enterprise.environments.apps.subtitle")}
           </p>
         </div>
         <Button 
@@ -300,14 +301,14 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
           onClick={handleRefresh}
           loading={loading}
         >
-          Refresh
+          {trans("enterprise.environments.apps.refresh")}
         </Button>
       </div>
 
       {/* Error display */}
       {error && (
         <Alert
-          message="Error loading apps"
+          message={trans("enterprise.environments.apps.errorLoadingApps")}
           description={error}
           type="error"
           showIcon
@@ -318,8 +319,8 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
       {/* Configuration warnings */}
       {(!environment.environmentApikey || !environment.environmentApiServiceUrl) && !error && (
         <Alert
-          message="Configuration Issue"
-          description="Missing required configuration: API key or API service URL"
+          message={trans("enterprise.environments.apps.configurationIssue")}
+          description={trans("enterprise.environments.apps.missingConfiguration")}
           type="warning"
           showIcon
           style={{ marginBottom: "16px" }}
@@ -330,28 +331,28 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
       <Row gutter={[16, 16]} style={{ marginBottom: '20px' }}>
         <Col xs={12} sm={12} md={6}>
           <StatCard 
-            title="Total Apps" 
+            title={trans("enterprise.environments.apps.totalApps")} 
             value={stats.total} 
             icon={<AppstoreOutlined />} 
           />
         </Col>
         <Col xs={12} sm={12} md={6}>
           <StatCard 
-            title="Published Apps" 
+            title={trans("enterprise.environments.apps.publishedApps")} 
             value={stats.published} 
             icon={<CheckCircleFilled />} 
           />
         </Col>
         <Col xs={12} sm={12} md={6}>
           <StatCard 
-            title="Managed Apps" 
+            title={trans("enterprise.environments.apps.managedApps")} 
             value={stats.managed} 
             icon={<CloudServerOutlined />} 
           />
         </Col>
         <Col xs={12} sm={12} md={6}>
           <StatCard 
-            title="Unmanaged Apps" 
+            title={trans("enterprise.environments.apps.unmanagedApps")} 
             value={stats.unmanaged} 
             icon={<DisconnectOutlined />} 
           />
@@ -371,7 +372,7 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
           </div>
         ) : apps.length === 0 ? (
           <Empty
-            description={error || "No apps found in this workspace"}
+            description={error || trans("enterprise.environments.apps.noAppsFound")}
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           />
         ) : (
@@ -379,7 +380,7 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
             {/* Search and Filter Bar */}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
               <Search
-                placeholder="Search apps by name or ID"
+                placeholder={trans("enterprise.environments.apps.searchApps")}
                 allowClear
                 onSearch={value => setSearchText(value)}
                 onChange={e => setSearchText(e.target.value)}
@@ -391,13 +392,13 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
                 icon={<FilterOutlined />}
                 style={{ marginLeft: '8px' }}
               >
-                {showManagedOnly ? 'Show All' : 'Managed Only'}
+                {showManagedOnly ? trans("enterprise.environments.apps.showAll") : trans("enterprise.environments.apps.managedOnly")}
               </Button>
             </div>
             
             {searchText && displayedApps.length !== apps.length && (
               <div style={{ marginBottom: 16, color: '#8c8c8c', fontSize: '13px' }}>
-                Showing {displayedApps.length} of {apps.length} apps
+                {trans("enterprise.environments.apps.showingResults", { count: displayedApps.length, total: apps.length })}
               </div>
             )}
             
@@ -407,7 +408,7 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
               rowKey="applicationId"
               pagination={{ 
                 pageSize: 10,
-                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} apps`,
+                showTotal: (total, range) => trans("enterprise.environments.apps.paginationTotal", { start: range[0], end: range[1], total }),
                 size: 'small'
               }}
               size="middle"

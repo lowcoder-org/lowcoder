@@ -46,6 +46,7 @@ import { getEnvironmentTagColor } from "./utils/environmentUtils";
 import { formatAPICalls, getAPICallsStatusColor } from "./services/license.service";
 import ErrorComponent from './components/ErrorComponent';
 import { Level1SettingPageContent } from "../styled";
+import { trans } from "i18n";
 
 /**
  * Environment Detail Page Component
@@ -105,9 +106,9 @@ const EnvironmentDetail: React.FC = () => {
   if (error || !environment) {
     return (
       <ErrorComponent 
-        errorMessage={"Environment Not Found"}
+        errorMessage={trans("enterprise.environments.detail.environmentNotFound")}
         returnPath="/setting/environments"
-        returnLabel="Return to Environments List"
+        returnLabel={trans("enterprise.environments.detail.returnToEnvironmentsList")}
       />
     );
   }
@@ -138,26 +139,26 @@ const EnvironmentDetail: React.FC = () => {
   // Stats data for the cards
   const statsData = [
     {
-      title: "Type",
-      value: environment.environmentType || "Unknown",
+      title: trans("enterprise.environments.detail.type"),
+      value: environment.environmentType || trans("enterprise.environments.detail.unknown"),
       icon: <CloudServerOutlined />,
       color: getEnvironmentTagColor(environment.environmentType)
     },
     {
-      title: "Status",
-      value: environment.isLicensed ? "Licensed" : "Unlicensed",
+      title: trans("enterprise.environments.detail.status"),
+      value: environment.isLicensed ? trans("enterprise.environments.detail.licensed") : trans("enterprise.environments.detail.unlicensed"),
       icon: environment.isLicensed ? <CheckCircleOutlined /> : <CloseCircleOutlined />,
       color: environment.isLicensed ? "#52c41a" : "#ff4d4f"
     },
     {
-      title: "API Key",
-      value: environment.environmentApikey ? "Configured" : "Not Set",
+      title: trans("enterprise.environments.detail.apiKey"),
+      value: environment.environmentApikey ? trans("enterprise.environments.detail.configured") : trans("enterprise.environments.detail.notSet"),
       icon: <SafetyOutlined />,
       color: environment.environmentApikey ? "#1890ff" : "#faad14"
     },
     {
-      title: "Master Env",
-      value: environment.isMaster ? "Yes" : "No",
+      title: trans("enterprise.environments.detail.masterEnv"),
+      value: environment.isMaster ? trans("enterprise.environments.yes") : trans("enterprise.environments.no"),
       icon: <UserOutlined />,
       color: environment.isMaster ? "#722ed1" : "#8c8c8c"
     }
@@ -168,7 +169,7 @@ const EnvironmentDetail: React.FC = () => {
       key: 'workspaces',
       label: (
         <span>
-          <AppstoreOutlined /> Workspaces
+          <AppstoreOutlined /> {trans("enterprise.environments.detail.workspaces")}
         </span>
       ),
       children: <WorkspacesTab environment={environment} />
@@ -177,7 +178,7 @@ const EnvironmentDetail: React.FC = () => {
       key: 'userGroups',
       label: (
         <span>
-          <UsergroupAddOutlined /> User Groups
+          <UsergroupAddOutlined /> {trans("enterprise.environments.detail.userGroups")}
         </span>
       ),
       children: <UserGroupsTab environment={environment} />
@@ -192,12 +193,12 @@ const EnvironmentDetail: React.FC = () => {
         items={[
           {
             key: 'environments',
-            title: 'Environments',
+            title: trans("enterprise.environments.title"),
             onClick: () => history.push('/setting/environments')
           },
           {
             key: 'current',
-            title: environment.environmentName || "Environment Detail"
+            title: environment.environmentName || trans("enterprise.environments.detail.environmentDetail")
           }
         ]}
       />
@@ -224,7 +225,7 @@ const EnvironmentDetail: React.FC = () => {
 
       {/* Basic Environment Information Card */}
       <Card
-        title="Environment Overview"
+        title={trans("enterprise.environments.detail.environmentOverview")}
         style={{ 
           marginBottom: "24px", 
           borderRadius: '4px', 
@@ -238,7 +239,7 @@ const EnvironmentDetail: React.FC = () => {
           column={{ xxl: 4, xl: 3, lg: 3, md: 2, sm: 1, xs: 1 }}
           size="small"
         >
-          <Descriptions.Item label="Domain">
+          <Descriptions.Item label={trans("enterprise.environments.domain")}>
             {environment.environmentFrontendUrl ? (
               <a
                 href={environment.environmentFrontendUrl}
@@ -248,32 +249,32 @@ const EnvironmentDetail: React.FC = () => {
                 {environment.environmentFrontendUrl} <LinkOutlined />
               </a>
             ) : (
-              "No domain set"
+              trans("enterprise.environments.detail.noDomainSet")
             )}
           </Descriptions.Item>
-          <Descriptions.Item label="Environment ID">
+          <Descriptions.Item label={trans("enterprise.environments.detail.environmentId")}>
             <code style={{ padding: '2px 6px', background: '#f5f5f5', borderRadius: '3px' }}>
               {environment.environmentId}
             </code>
           </Descriptions.Item>
-          <Descriptions.Item label="License Status">
+          <Descriptions.Item label={trans("enterprise.environments.detail.licenseStatus")}>
             {(() => {
               switch (environment.licenseStatus) {
                 case 'checking':
-                  return <Tag icon={<SyncOutlined spin />} color="blue" style={{ borderRadius: '4px' }}>Checking...</Tag>;
+                  return <Tag icon={<SyncOutlined spin />} color="blue" style={{ borderRadius: '4px' }}>{trans("enterprise.environments.licenseStatus.checking")}</Tag>;
                 case 'licensed':
-                  return <Tag icon={<CheckCircleOutlined />} color="green" style={{ borderRadius: '4px' }}>Licensed</Tag>;
+                  return <Tag icon={<CheckCircleOutlined />} color="green" style={{ borderRadius: '4px' }}>{trans("enterprise.environments.licenseStatus.licensed")}</Tag>;
                 case 'unlicensed':
-                  return <Tag icon={<CloseCircleOutlined />} color="orange" style={{ borderRadius: '4px' }}>License Needed</Tag>;
+                  return <Tag icon={<CloseCircleOutlined />} color="orange" style={{ borderRadius: '4px' }}>{trans("enterprise.environments.detail.licenseNeeded")}</Tag>;
                 case 'error':
-                  return <Tag icon={<ExclamationCircleOutlined />} color="orange" style={{ borderRadius: '4px' }}>Setup Required</Tag>;
+                  return <Tag icon={<ExclamationCircleOutlined />} color="orange" style={{ borderRadius: '4px' }}>{trans("enterprise.environments.detail.setupRequired")}</Tag>;
                 default:
-                  return <Tag color="default" style={{ borderRadius: '4px' }}>Unknown</Tag>;
+                  return <Tag color="default" style={{ borderRadius: '4px' }}>{trans("enterprise.environments.detail.unknown")}</Tag>;
               }
             })()}
           </Descriptions.Item>
-          <Descriptions.Item label="Created">
-            {environment.createdAt ? new Date(environment.createdAt).toLocaleDateString() : "Unknown"}
+          <Descriptions.Item label={trans("enterprise.environments.detail.created")}>
+            {environment.createdAt ? new Date(environment.createdAt).toLocaleDateString() : trans("enterprise.environments.detail.unknown")}
           </Descriptions.Item>
         </Descriptions>
       </Card>
@@ -285,7 +286,7 @@ const EnvironmentDetail: React.FC = () => {
           title={
             <span>
               <CrownOutlined style={{ color: '#52c41a', marginRight: '8px' }} />
-              License Details
+              {trans("enterprise.environments.detail.licenseDetails")}
             </span>
           }
           style={{ 
@@ -304,7 +305,7 @@ const EnvironmentDetail: React.FC = () => {
                 styles={{ body: { padding: '16px' } }}
               >
                 <Statistic
-                  title="API Calls Remaining"
+                  title={trans("enterprise.environments.detail.apiCallsRemaining")}
                   value={environment.licenseDetails.remainingAPICalls}
                   formatter={(value) => (
                     <span style={{ 
@@ -333,7 +334,7 @@ const EnvironmentDetail: React.FC = () => {
                     color: '#8c8c8c', 
                     marginTop: '4px' 
                   }}>
-                    {environment.licenseDetails.apiCallsUsage || 0}% used
+                    {trans("enterprise.environments.percentUsed", { percent: environment.licenseDetails.apiCallsUsage || 0 })}
                   </div>
                 </div>
               </Card>
@@ -347,7 +348,7 @@ const EnvironmentDetail: React.FC = () => {
                 styles={{ body: { padding: '16px' } }}
               >
                 <Statistic
-                  title="Total API Calls Limit"
+                  title={trans("enterprise.environments.detail.totalApiCallsLimit")}
                   value={environment.licenseDetails.totalAPICallsLimit}
                   formatter={(value) => value?.toLocaleString()}
                   prefix={<ApiOutlined />}
@@ -356,7 +357,7 @@ const EnvironmentDetail: React.FC = () => {
                   color="blue" 
                   style={{ marginTop: '12px' }}
                 >
-                  {environment.licenseDetails.eeLicenses.length} License{environment.licenseDetails.eeLicenses.length !== 1 ? 's' : ''}
+                  {environment.licenseDetails.eeLicenses.length} {environment.licenseDetails.eeLicenses.length !== 1 ? trans("enterprise.environments.detail.licenses") : trans("enterprise.environments.detail.license")}
                 </Tag>
               </Card>
             </Col>
@@ -369,8 +370,8 @@ const EnvironmentDetail: React.FC = () => {
                 styles={{ body: { padding: '16px' } }}
               >
                 <Statistic
-                  title="Enterprise Edition"
-                  value={environment.licenseDetails.eeActive ? "Active" : "Inactive"}
+                  title={trans("enterprise.environments.detail.enterpriseEdition")}
+                  value={environment.licenseDetails.eeActive ? trans("enterprise.environments.detail.active") : trans("enterprise.environments.detail.inactive")}
                   formatter={(value) => (
                     <Tag 
                       color={environment.licenseDetails?.eeActive ? "green" : "red"}
@@ -388,7 +389,7 @@ const EnvironmentDetail: React.FC = () => {
           <div style={{ marginTop: '24px' }}>
             <Typography.Title level={5} style={{ marginBottom: '16px' }}>
               <UserOutlined style={{ marginRight: '8px' }} />
-              License Information
+              {trans("enterprise.environments.detail.licenseInformation")}
             </Typography.Title>
             
             <Row gutter={[16, 16]}>
@@ -408,13 +409,13 @@ const EnvironmentDetail: React.FC = () => {
                       </strong>
                     </div>
                     <div style={{ fontSize: '12px', color: '#8c8c8c', marginBottom: '8px' }}>
-                      ID: {license.customerId}
+                      {trans("enterprise.environments.id")}: {license.customerId}
                     </div>
                     <div style={{ fontSize: '12px', color: '#8c8c8c', marginBottom: '8px' }}>
                       UUID: <span style={{ fontFamily: 'monospace' }}>{license.uuid.substring(0, 8)}...</span>
                     </div>
                     <Tag color="blue">
-                      {license.apiCallsLimit.toLocaleString()} calls
+                      {license.apiCallsLimit.toLocaleString()} {trans("enterprise.environments.detail.calls")}
                     </Tag>
                   </Card>
                 </Col>

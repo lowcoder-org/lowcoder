@@ -1,6 +1,7 @@
 // services/dataSources.service.ts
 import axios from 'axios';
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { trans } from "i18n";
 import { DataSource, DataSourceWithMeta } from "../types/datasource.types";
 import { getManagedObjects, ManagedObject, ManagedObjectType  , transferManagedObject } from "./managed-objects.service";
 
@@ -32,15 +33,15 @@ export async function getWorkspaceDataSources(
   try {
     // Check if required parameters are provided
     if (!workspaceId) {
-      throw new Error('Workspace ID is required');
+      throw new Error(trans("enterprise.environments.services.datasources.workspaceIdRequired"));
     }
     
     if (!apiKey) {
-      throw new Error('API key is required to fetch data sources');
+      throw new Error(trans("enterprise.environments.services.datasources.apiKeyRequiredToFetchDataSources"));
     }
     
     if (!apiServiceUrl) {
-      throw new Error('API service URL is required to fetch data sources');
+      throw new Error(trans("enterprise.environments.services.datasources.apiServiceUrlRequiredToFetchDataSources"));
     }
     
     // Set up headers with the Bearer token format
@@ -64,7 +65,7 @@ export async function getWorkspaceDataSources(
     return response.data.data;
   } catch (error) {
     // Handle and transform error
-    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch data sources';
+    const errorMessage = error instanceof Error ? error.message : trans("enterprise.environments.services.datasources.failedToFetchDataSources");
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -143,7 +144,7 @@ export async function getMergedWorkspaceDataSources(
     };
   } catch (error) {
     const errorMessage = 
-      error instanceof Error ? error.message : "Failed to fetch data sources";
+      error instanceof Error ? error.message : trans("enterprise.environments.services.datasources.failedToFetchDataSources");
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -170,7 +171,7 @@ export async function deployDataSource(params: DeployDataSourceParams): Promise<
     }
     return response.status === 200;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to deploy data source';
+    const errorMessage = error instanceof Error ? error.message : trans("enterprise.environments.services.datasources.failedToDeployDataSource");
     messageInstance.error(errorMessage);
     throw error;
   }

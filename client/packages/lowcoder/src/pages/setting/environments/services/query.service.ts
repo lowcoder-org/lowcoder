@@ -2,6 +2,7 @@
  * Get merged queries (both regular and managed) for a workspace
  */
 import axios from 'axios';
+import { trans } from 'i18n';
 import { getManagedObjects, ManagedObjectType, transferManagedObject } from './managed-objects.service';
 import { getWorkspaceQueries } from './environments.service';
 import { Query, QueryStats } from '../types/query.types';

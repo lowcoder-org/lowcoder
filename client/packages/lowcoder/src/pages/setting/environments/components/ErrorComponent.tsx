@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, Button, Typography } from 'antd';
 import { HomeOutlined } from '@ant-design/icons';
 import history from '@lowcoder-ee/util/history';
+import { trans } from 'i18n';
 
 const { Title, Text } = Typography;
 
@@ -20,7 +21,7 @@ const ErrorComponent: React.FC<ErrorComponentProps> = ({ errorMessage, returnPat
             {errorMessage}
           </Title>
           <Text type="secondary" style={{ display: 'block', margin: '16px 0' }}>
-            The item you're looking for doesn't exist or you don't have permission to view it.
+            {trans("enterprise.environments.error.itemNotFound")}
           </Text>
           <Button 
             type="primary"

@@ -6,6 +6,7 @@ import { Environment } from '../types/environment.types';
 import { Workspace } from '../types/workspace.types';
 import { getMergedEnvironmentWorkspaces } from '../services/workspace.service';
 import { Spin, Empty } from 'antd';
+import { trans } from 'i18n';
 
 import history from '@lowcoder-ee/util/history';
 
@@ -38,7 +39,7 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
     try {
       // Check for required environment properties
       if (!environment.environmentApikey || !environment.environmentApiServiceUrl) {
-        setError('Missing required configuration: API key or API service URL');
+        setError(trans("enterprise.environments.workspaces.missingConfiguration"));
         setLoading(false);
         return;
       }
@@ -52,7 +53,7 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
       setWorkspaces(result.workspaces);
       setStats(result.stats);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch workspaces");
+      setError(err instanceof Error ? err.message : trans("enterprise.environments.workspaces.errorLoadingWorkspaces"));
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -130,7 +131,7 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
   // Table columns
   const columns = [
     {
-      title: 'Workspace',
+      title: trans("enterprise.environments.workspaces.workspace"),
       key: 'workspace',
       render: (workspace: Workspace) => (
         <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -154,12 +155,12 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
       ),
     },
     {
-      title: 'Role',
+      title: trans("enterprise.environments.workspaces.role"),
       dataIndex: 'role',
       key: 'role',
     },
     {
-      title: 'Status',
+      title: trans("enterprise.environments.workspaces.status"),
       dataIndex: 'status',
       key: 'status',
       render: (status: string) => (
@@ -170,7 +171,7 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
       ),
     },
     {
-      title: 'Managed',
+      title: trans("enterprise.environments.workspaces.managed"),
       key: 'managed',
       render: (_: any, workspace: Workspace) => (
         <Tag 
@@ -181,16 +182,16 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
             ? <CloudServerOutlined style={{ marginRight: 4 }} /> 
             : <DisconnectOutlined style={{ marginRight: 4 }} />
           }
-          {workspace.managed ? 'Managed' : 'Unmanaged'}
+          {workspace.managed ? trans("enterprise.environments.workspaces.managed") : trans("enterprise.environments.workspaces.unmanaged")}
         </Tag>
       ),
     },
     {
-      title: 'Actions',
+      title: trans("enterprise.environments.workspaces.actions"),
       key: 'actions',
       render: (_: any, workspace: Workspace) => (
         <Space onClick={(e) => e.stopPropagation()}>
-          <Tooltip title="View Audit Logs">
+          <Tooltip title={trans("enterprise.environments.workspaces.viewAuditLogs")}>
             <Button
               icon={<AuditOutlined />}
               size="small"
@@ -200,7 +201,7 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
                 window.open(auditUrl, '_blank');
               }}
             >
-              Audit
+              {trans("enterprise.environments.workspaces.audit")}
             </Button>
           </Tooltip>
         </Space>
@@ -219,10 +220,10 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
       }}>
         <div>
           <Title level={4} style={{ margin: 0, marginBottom: '4px' }}>
-            <TeamOutlined style={{ marginRight: 8 }} /> Workspaces
+            <TeamOutlined style={{ marginRight: 8 }} /> {trans("enterprise.environments.workspaces.title")}
           </Title>
           <p style={{ marginBottom: 0, color: '#8c8c8c', fontSize: '14px' }}>
-            Manage workspaces in this environment
+            {trans("enterprise.environments.workspaces.subtitle")}
           </p>
         </div>
         <Button 
@@ -230,14 +231,14 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
           onClick={handleRefresh}
           loading={loading}
         >
-          Refresh
+          {trans("enterprise.environments.workspaces.refresh")}
         </Button>
       </div>
 
       {/* Error display */}
       {error && (
         <Alert
-          message="Error loading workspaces"
+          message={trans("enterprise.environments.workspaces.errorLoadingWorkspaces")}
           description={error}
           type="error"
           showIcon
@@ -248,8 +249,8 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
       {/* Configuration warnings */}
       {(!environment.environmentApikey || !environment.environmentApiServiceUrl) && !error && (
         <Alert
-          message="Configuration Issue"
-          description="Missing required configuration: API key or API service URL"
+          message={trans("enterprise.environments.workspaces.configurationIssue")}
+          description={trans("enterprise.environments.workspaces.missingConfiguration")}
           type="warning"
           showIcon
           style={{ marginBottom: "16px" }}
@@ -260,21 +261,21 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
       <Row gutter={[16, 16]} style={{ marginBottom: '20px' }}>
         <Col xs={24} sm={8}>
           <StatCard 
-            title="Total Workspaces" 
+            title={trans("enterprise.environments.workspaces.totalWorkspaces")} 
             value={stats.total} 
             icon={<TeamOutlined />} 
           />
         </Col>
         <Col xs={24} sm={8}>
           <StatCard 
-            title="Managed Workspaces" 
+            title={trans("enterprise.environments.workspaces.managedWorkspaces")} 
             value={stats.managed} 
             icon={<CloudServerOutlined />} 
           />
         </Col>
         <Col xs={24} sm={8}>
           <StatCard 
-            title="Unmanaged Workspaces" 
+            title={trans("enterprise.environments.workspaces.unmanagedWorkspaces")} 
             value={stats.unmanaged} 
             icon={<DisconnectOutlined />} 
           />
@@ -294,7 +295,7 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
           </div>
         ) : workspaces.length === 0 ? (
           <Empty
-            description={error || "No workspaces found in this environment"}
+            description={error || trans("enterprise.environments.workspaces.noWorkspacesFound")}
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           />
         ) : (
@@ -302,7 +303,7 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
             {/* Search and Filter Bar */}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
               <Search
-                placeholder="Search workspaces by name or ID"
+                placeholder={trans("enterprise.environments.workspaces.searchWorkspaces")}
                 allowClear
                 onSearch={value => setSearchText(value)}
                 onChange={e => setSearchText(e.target.value)}
@@ -314,13 +315,13 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
                 icon={<FilterOutlined />}
                 style={{ marginLeft: '8px' }}
               >
-                {showManagedOnly ? 'Show All' : 'Managed Only'}
+                {showManagedOnly ? trans("enterprise.environments.workspaces.showAll") : trans("enterprise.environments.workspaces.managedOnly")}
               </Button>
             </div>
             
             {searchText && displayedWorkspaces.length !== workspaces.length && (
               <div style={{ marginBottom: 16, color: '#8c8c8c', fontSize: '13px' }}>
-                Showing {displayedWorkspaces.length} of {workspaces.length} workspaces
+                {trans("enterprise.environments.workspaces.showingResults", { count: displayedWorkspaces.length, total: workspaces.length })}
               </div>
             )}
             
@@ -330,7 +331,7 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
               rowKey="id"
               pagination={{ 
                 pageSize: 10,
-                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} workspaces`,
+                showTotal: (total, range) => trans("enterprise.environments.workspaces.paginationTotal", { start: range[0], end: range[1], total }),
                 size: 'small'
               }}
               size="middle"

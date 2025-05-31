@@ -1,5 +1,6 @@
 import axios from "axios";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { trans } from "i18n";
 import { Environment } from "../types/environment.types";
 import { Workspace } from "../types/workspace.types";
 import { UserGroup } from "../types/userGroup.types";
@@ -7,14 +8,13 @@ import {App} from "../types/app.types";
 import { DataSourceWithMeta } from '../types/datasource.types';
 import { Query, QueryResponse } from "../types/query.types";
 import { checkEnvironmentLicense } from './license.service';
-import { trans } from "i18n";
 
 export async function updateEnvironment(
   environmentId: string, 
   environmentData: Partial<Environment>
 ): Promise<Environment> {
   if (!environmentId) {
-    throw new Error("Missing environmentId");
+    throw new Error(trans("enterprise.environments.services.environments.missingEnvironmentId"));
   }
 
   try {
@@ -37,7 +37,7 @@ export async function updateEnvironment(
     
     return res.data;
   } catch (err) {
-    const errorMsg = err instanceof Error ? err.message : "Failed to update environment";
+    const errorMsg = err instanceof Error ? err.message : trans("enterprise.environments.services.environments.failedToUpdateEnvironment");
     messageInstance.error(errorMsg);
     throw err;
   }
@@ -68,13 +68,13 @@ export async function createEnvironment(
     const res = await axios.post(`/api/plugins/enterprise/environments`, payload);
     
     if (res.data) {
-      messageInstance.success("Environment created successfully");
+      messageInstance.success(trans("enterprise.environments.services.environments.environmentCreatedSuccessfully"));
       return res.data;
     } else {
-      throw new Error("Failed to create environment");
+      throw new Error(trans("enterprise.environments.services.environments.failedToCreateEnvironment"));
     }
   } catch (err) {
-    const errorMsg = err instanceof Error ? err.message : "Failed to create environment";
+    const errorMsg = err instanceof Error ? err.message : trans("enterprise.environments.services.environments.failedToCreateEnvironment");
     messageInstance.error(errorMsg);
     throw err;
   }
@@ -95,7 +95,7 @@ export async function getEnvironments(): Promise<Environment[]> {
     return response.data.data || [];
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to fetch environments";
+      error instanceof Error ? error.message : trans("enterprise.environments.services.environments.failedToFetchEnvironments");
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -113,7 +113,7 @@ export async function getEnvironmentById(id: string): Promise<Environment> {
     );
 
     if (!response.data) {
-      throw new Error("Failed to fetch environment");
+      throw new Error(trans("enterprise.environments.services.environments.failedToFetchEnvironment"));
     }
 
     const environment = response.data.data;
@@ -138,18 +138,18 @@ export async function getEnvironmentById(id: string): Promise<Environment> {
       } else {
         envWithLicense.isLicensed = false;
         envWithLicense.licenseStatus = 'error';
-        envWithLicense.licenseError = 'API service URL not configured';
+        envWithLicense.licenseError = trans("enterprise.environments.services.environments.apiServiceUrlNotConfigured");
       }
     } catch (error) {
       envWithLicense.isLicensed = false;
       envWithLicense.licenseStatus = 'error';
-      envWithLicense.licenseError = error instanceof Error ? error.message : 'License check failed';
+      envWithLicense.licenseError = error instanceof Error ? error.message : trans("enterprise.environments.services.environments.licenseCheckFailed");
     }
 
     return envWithLicense;
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to fetch environment";
+      error instanceof Error ? error.message : trans("enterprise.environments.services.environments.failedToFetchEnvironment");
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -175,14 +175,14 @@ export async function getEnvironmentWorkspaces(
   try {
     // Check if required parameters are provided
     if (!environmentId) {
-      throw new Error("Environment ID is required");
+      throw new Error(trans("enterprise.environments.services.environments.environmentIdRequired"));
     }
 
     if (!apiKey) {
-      throw new Error("API key is required to fetch workspaces");
+      throw new Error(trans("enterprise.environments.services.environments.apiKeyRequiredForWorkspaces"));
     }
     if (!apiServiceUrl) {
-      throw new Error('API service URL is required to fetch workspaces');
+      throw new Error(trans("enterprise.environments.services.environments.apiServiceUrlRequiredForWorkspaces"));
     }
 
     // Set up headers with the API key
@@ -195,7 +195,7 @@ export async function getEnvironmentWorkspaces(
 
     // Check if response is valid
     if (!response.data || !response.data.success) {
-      throw new Error(response.data?.message || "Failed to fetch workspaces");
+      throw new Error(response.data?.message || trans("enterprise.environments.services.environments.failedToFetchWorkspaces"));
     }
 
     // Extract workspaces from the response
@@ -222,7 +222,7 @@ export async function getEnvironmentWorkspaces(
   } catch (error) {
     // Handle and transform error
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to fetch workspaces";
+      error instanceof Error ? error.message : trans("enterprise.environments.services.environments.failedToFetchWorkspaces");
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -242,15 +242,15 @@ export async function getEnvironmentUserGroups(
   try {
     // Check if required parameters are provided
     if (!environmentId) {
-      throw new Error('Environment ID is required');
+      throw new Error(trans("enterprise.environments.services.environments.environmentIdRequired"));
     }
     
     if (!apiKey) {
-      throw new Error('API key is required to fetch user groups');
+      throw new Error(trans("enterprise.environments.services.environments.apiKeyRequiredForUserGroups"));
     }
     
     if (!apiServiceUrl) {
-      throw new Error('API service URL is required to fetch user groups');
+      throw new Error(trans("enterprise.environments.services.environments.apiServiceUrlRequiredForUserGroups"));
     }
     
     // Set up headers with the Bearer token format
@@ -263,7 +263,7 @@ export async function getEnvironmentUserGroups(
     
     // Check if response is valid
     if (!response.data) {
-      throw new Error('Failed to fetch user groups');
+      throw new Error(trans("enterprise.environments.services.environments.failedToFetchUserGroups"));
     }
     
     // The response data is already an array of user groups
@@ -272,7 +272,7 @@ export async function getEnvironmentUserGroups(
     return userGroups;
   } catch (error) {
     // Handle and transform error
-    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch user groups';
+    const errorMessage = error instanceof Error ? error.message : trans("enterprise.environments.services.environments.failedToFetchUserGroups");
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -339,15 +339,15 @@ export async function getWorkspaceApps(
   try {
     // Check if required parameters are provided
     if (!workspaceId) {
-      throw new Error('Workspace ID is required');
+      throw new Error(trans("enterprise.environments.services.environments.workspaceIdRequired"));
     }
     
     if (!apiKey) {
-      throw new Error('API key is required to fetch apps');
+      throw new Error(trans("enterprise.environments.services.environments.apiKeyRequiredForApps"));
     }
     
     if (!apiServiceUrl) {
-      throw new Error('API service URL is required to fetch apps');
+      throw new Error(trans("enterprise.environments.services.environments.apiServiceUrlRequiredForApps"));
     }
     
     // Set up headers with the Bearer token format
@@ -382,7 +382,7 @@ export async function getWorkspaceApps(
   
   } catch (error) {
     // Handle and transform error
-    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch workspace apps';
+    const errorMessage = error instanceof Error ? error.message : trans("enterprise.environments.services.environments.failedToFetchWorkspaceApps");
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -408,15 +408,15 @@ export async function getWorkspaceDataSources(
   try {
     // Check if required parameters are provided
     if (!workspaceId) {
-      throw new Error('Workspace ID is required');
+      throw new Error(trans("enterprise.environments.services.environments.workspaceIdRequired"));
     }
     
     if (!apiKey) {
-      throw new Error('API key is required to fetch data sources');
+      throw new Error(trans("enterprise.environments.services.environments.apiKeyRequiredForDataSources"));
     }
     
     if (!apiServiceUrl) {
-      throw new Error('API service URL is required to fetch data sources');
+      throw new Error(trans("enterprise.environments.services.environments.apiServiceUrlRequiredForDataSources"));
     }
     
     // Set up headers with the Bearer token format
@@ -440,7 +440,7 @@ export async function getWorkspaceDataSources(
     return response.data.data ;
   } catch (error) {
     // Handle and transform error
-    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch workspace data sources';
+    const errorMessage = error instanceof Error ? error.message : trans("enterprise.environments.services.environments.failedToFetchWorkspaceDataSources");
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -469,15 +469,15 @@ export async function getWorkspaceQueries(
   try {
     // Check if required parameters are provided
     if (!workspaceId) {
-      throw new Error('Workspace ID is required');
+      throw new Error(trans("enterprise.environments.services.environments.workspaceIdRequired"));
     }
     
     if (!apiKey) {
-      throw new Error('API key is required to fetch queries');
+      throw new Error(trans("enterprise.environments.services.environments.apiKeyRequiredForQueries"));
     }
     
     if (!apiServiceUrl) {
-      throw new Error('API service URL is required to fetch queries');
+      throw new Error(trans("enterprise.environments.services.environments.apiServiceUrlRequiredForQueries"));
     }
     
     // Set up headers with the Bearer token format
@@ -522,7 +522,7 @@ export async function getWorkspaceQueries(
   
   } catch (error) {
     // Handle and transform error
-    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch workspace queries';
+    const errorMessage = error instanceof Error ? error.message : trans("enterprise.environments.services.environments.failedToFetchWorkspaceQueries");
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -559,12 +559,12 @@ export async function getEnvironmentsWithLicenseStatus(): Promise<Environment[]>
           } else {
             envWithLicense.isLicensed = false;
             envWithLicense.licenseStatus = 'error';
-            envWithLicense.licenseError = 'API service URL not configured';
+            envWithLicense.licenseError = trans("enterprise.environments.services.environments.apiServiceUrlNotConfigured");
           }
         } catch (error) {
           envWithLicense.isLicensed = false;
           envWithLicense.licenseStatus = 'error';
-          envWithLicense.licenseError = error instanceof Error ? error.message : 'License check failed';
+          envWithLicense.licenseError = error instanceof Error ? error.message : trans("enterprise.environments.services.environments.licenseCheckFailed");
         }
 
         return envWithLicense;
@@ -574,7 +574,7 @@ export async function getEnvironmentsWithLicenseStatus(): Promise<Environment[]>
     return environmentsWithLicense;
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Failed to fetch environments";
+      error instanceof Error ? error.message : trans("enterprise.environments.services.environments.failedToFetchEnvironments");
     messageInstance.error(errorMessage);
     throw error;
   }
@@ -593,11 +593,11 @@ export async function getEnvironmentDeploymentId(
   try {
     // Check if required parameters are provided
     if (!apiServiceUrl) {
-      throw new Error('API service URL is required');
+      throw new Error(trans("enterprise.environments.services.environments.apiServiceUrlRequiredForWorkspaces"));
     }
     
     if (!apiKey) {
-      throw new Error('API key is required to fetch deployment ID');
+      throw new Error(trans("enterprise.environments.services.environments.apiKeyRequiredForDeploymentId"));
     }
     
     // Set up headers with the Bearer token format
@@ -610,14 +610,14 @@ export async function getEnvironmentDeploymentId(
     
     // Check if response is valid
     if (!response.data) {
-      throw new Error('Failed to fetch deployment ID');
+      throw new Error(trans("enterprise.environments.services.environments.failedToFetchDeploymentId"));
     }
     
     // The response should return a string directly
     return response.data;
   } catch (error) {
     // Handle and transform error
-    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch deployment ID';
+    const errorMessage = error instanceof Error ? error.message : trans("enterprise.environments.services.environments.failedToFetchDeploymentId");
     messageInstance.error(errorMessage);
     throw error;
   }

@@ -2,10 +2,8 @@
 import { DeployableItemConfig } from '../types/deployable-item.types';
 import { Environment } from '../types/environment.types';
 import { deployApp } from '../services/apps.service';
-
+import { trans } from "i18n";
 import { App } from '../types/app.types';
-
-
 
 // Define AppStats interface if not already defined
 
@@ -14,35 +12,35 @@ export const appsConfig: DeployableItemConfig = {
  
 
   deploy: {
-    singularLabel: 'App',
+    singularLabel: trans("enterprise.environments.config.singularLabels.app"),
     fields: [
       {
         name: 'updateDependenciesIfNeeded',
-        label: 'Update Dependencies If Needed',
+        label: trans("enterprise.environments.config.fields.updateDependenciesIfNeeded"),
         type: 'checkbox',
         defaultValue: false
       },
       {
         name: 'publishOnTarget',
-        label: 'Publish On Target',
+        label: trans("enterprise.environments.config.fields.publishOnTarget"),
         type: 'checkbox',
         defaultValue: false
       },
       {
         name: 'publicToAll',
-        label: 'Public To All',
+        label: trans("enterprise.environments.config.fields.publicToAll"),
         type: 'checkbox',
         defaultValue: false
       },
       {
         name: 'publicToMarketplace',
-        label: 'Public To Marketplace',
+        label: trans("enterprise.environments.config.fields.publicToMarketplace"),
         type: 'checkbox',
         defaultValue: false
       },
       {
         name: 'deployCredential',
-        label: 'Overwrite Credentials',
+        label: trans("enterprise.environments.config.fields.overwriteCredentials"),
         type: 'checkbox',
         defaultValue: false
       }

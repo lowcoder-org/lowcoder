@@ -3,6 +3,7 @@ import { Button, Tag, Typography, Row, Col } from 'antd';
 import { EditOutlined, CloudServerOutlined } from '@ant-design/icons';
 import { Environment } from '../types/environment.types';
 import { getEnvironmentTagColor } from '../utils/environmentUtils';
+import { trans } from 'i18n';
 
 const { Title, Text } = Typography;
 
@@ -49,7 +50,7 @@ const EnvironmentHeader: React.FC<EnvironmentHeaderProps> = ({
             </div>
             <div>
               <Title level={3} style={{ margin: '0 0 8px 0', color: '#222222', fontWeight: '500' }}>
-                {environment.environmentName || "Unnamed Environment"}
+                {environment.environmentName || trans("enterprise.environments.unnamedEnvironment")}
               </Title>
               <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                 <Text style={{ 
@@ -57,7 +58,7 @@ const EnvironmentHeader: React.FC<EnvironmentHeaderProps> = ({
                   fontSize: '14px',
                   fontFamily: 'monospace'
                 }}>
-                  ID: {environment.environmentId}
+                  {trans("enterprise.environments.id")}: {environment.environmentId}
                 </Text>
                 <Tag 
                   color={getEnvironmentTagColor(environment.environmentType)}
@@ -71,12 +72,12 @@ const EnvironmentHeader: React.FC<EnvironmentHeaderProps> = ({
                 </Tag>
                 {environment.isMaster && (
                   <Tag color="green" style={{ marginLeft: 0, borderRadius: '4px', fontSize: '12px' }}>
-                    Master
+                    {trans("enterprise.environments.master")}
                   </Tag>
                 )}
                 {environment.isLicensed === false && (
                   <Tag color="orange" style={{ marginLeft: 0, borderRadius: '4px', fontSize: '12px' }}>
-                    Unlicensed
+                    {trans("enterprise.environments.detail.unlicensed")}
                   </Tag>
                 )}
               </div>
@@ -93,7 +94,7 @@ const EnvironmentHeader: React.FC<EnvironmentHeaderProps> = ({
               borderRadius: '4px'
             }}
           >
-            Edit Environment
+            {trans("enterprise.environments.unlicensed.editEnvironment")}
           </Button>
         </Col>
       </Row>

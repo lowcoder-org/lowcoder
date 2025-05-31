@@ -3,6 +3,7 @@ import { Modal, Form, Input, Select, Switch, Button, Alert, Tooltip } from 'antd
 import { useSelector } from 'react-redux';
 import { selectMasterEnvironment, selectHasMasterEnvironment } from 'redux/selectors/enterpriseSelectors';
 import { Environment } from '../types/environment.types';
+import { trans } from 'i18n';
 
 const { Option } = Select;
 
@@ -81,14 +82,14 @@ const EditEnvironmentModal: React.FC<EditEnvironmentModalProps> = ({
 
   return (
     <Modal
-      title="Edit Environment"
+      title={trans("enterprise.environments.modal.editEnvironment")}
       open={visible}
       onCancel={onClose}
       maskClosable={true}
       destroyOnHidden={true}
       footer={[
         <Button key="back" onClick={onClose}>
-          Cancel
+          {trans("enterprise.environments.modal.cancel")}
         </Button>,
         <Button 
           key="submit" 
@@ -96,7 +97,7 @@ const EditEnvironmentModal: React.FC<EditEnvironmentModalProps> = ({
           loading={loading || submitLoading} 
           onClick={handleSubmit}
         >
-          Save Changes
+          {trans("enterprise.environments.modal.saveChanges")}
         </Button>
       ]}
     >
@@ -107,72 +108,72 @@ const EditEnvironmentModal: React.FC<EditEnvironmentModalProps> = ({
       >
         <Form.Item
           name="environmentName"
-          label="Environment Name"
-          rules={[{ required: true, message: 'Please enter a name' }]}
+          label={trans("enterprise.environments.modal.environmentName")}
+          rules={[{ required: true, message: trans("enterprise.environments.modal.pleaseEnterName") }]}
         >
-          <Input placeholder="Enter environment name" />
+          <Input placeholder={trans("enterprise.environments.modal.enterEnvironmentName")} />
         </Form.Item>
 
         <Form.Item
           name="environmentDescription"
-          label="Description"
+          label={trans("enterprise.environments.modal.description")}
         >
           <Input.TextArea 
-            placeholder="Enter description" 
+            placeholder={trans("enterprise.environments.modal.enterDescription")} 
             rows={3}
           />
         </Form.Item>
 
         <Form.Item
           name="environmentType"
-          label="Stage"
-          rules={[{ required: true, message: 'Please select a stage' }]}
+          label={trans("enterprise.environments.modal.stage")}
+          rules={[{ required: true, message: trans("enterprise.environments.modal.pleaseSelectStage") }]}
         >
-          <Select placeholder="Select stage">
-            <Option value="DEV">Development (DEV)</Option>
-            <Option value="TEST">Testing (TEST)</Option>
-            <Option value="PREPROD">Pre-Production (PREPROD)</Option>
-            <Option value="PROD">Production (PROD)</Option>
+          <Select placeholder={trans("enterprise.environments.modal.selectStage")}>
+            <Option value="DEV">{trans("enterprise.environments.modal.development")}</Option>
+            <Option value="TEST">{trans("enterprise.environments.modal.testing")}</Option>
+            <Option value="PREPROD">{trans("enterprise.environments.modal.preProduction")}</Option>
+            <Option value="PROD">{trans("enterprise.environments.modal.production")}</Option>
           </Select>
         </Form.Item>
 
         <Form.Item
           name="environmentFrontendUrl"
-          label="Frontend URL"
+          label={trans("enterprise.environments.modal.frontendUrl")}
         >
           <Input placeholder="https://example.com" />
         </Form.Item>
 
         <Form.Item
           name="environmentApiServiceUrl"
-          label="API Service URL"
+          label={trans("enterprise.environments.modal.apiServiceUrl")}
         >
           <Input placeholder="https://api.example.com" />
         </Form.Item>
 
         <Form.Item
           name="environmentNodeServiceUrl"
-          label="Node Service URL"
+          label={trans("enterprise.environments.modal.nodeServiceUrl")}
         >
           <Input placeholder="https://node.example.com" />
         </Form.Item>
 
         <Form.Item
           name="environmentApikey"
-          label="API Key"
+          label={trans("enterprise.environments.modal.apiKey")}
         >
           <Input.TextArea 
-            placeholder="Enter API key" 
+            placeholder={trans("enterprise.environments.modal.enterApiKey")} 
             rows={2}
           />
         </Form.Item>
 
-        <Form.Item label="Master Environment">
+        <Form.Item label={trans("enterprise.environments.modal.masterEnvironment")}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <Tooltip 
               title={
                 hasOtherMaster && !isMaster 
-                  ? `${masterEnvironment?.environmentName} is already the Master environment` 
+                  ? trans("enterprise.environments.modal.alreadyMasterEnvironment", { name: masterEnvironment?.environmentName })
                   : ''
               }
             >
@@ -185,15 +186,15 @@ const EditEnvironmentModal: React.FC<EditEnvironmentModalProps> = ({
             </Tooltip>
             {isMaster && (
               <span style={{ color: '#faad14', fontSize: '12px' }}>
-                Currently Master
+                {trans("enterprise.environments.modal.currentlyMaster")}
               </span>
             )}
           </div>
         </Form.Item>
 
         <Alert
-          message="Configuration Requirements"
-          description="Ensure that the API Service URL is configured and correct, the API key is valid, and for license verification make sure you have both the license and plugin properly installed."
+          message={trans("enterprise.environments.modal.configurationRequirements")}
+          description={trans("enterprise.environments.modal.configurationRequirementsDesc")}
           type="warning"
           showIcon
           style={{ marginTop: '16px' }}

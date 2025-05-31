@@ -3,15 +3,16 @@ import { DeployableItemConfig } from '../types/deployable-item.types';
 import { Query } from '../types/query.types';
 import { deployQuery } from '../services/query.service';
 import { Environment } from '../types/environment.types';
+import { trans } from "i18n";
 
 export const queryConfig: DeployableItemConfig = {
   
   deploy: {
-    singularLabel: 'Query',
+    singularLabel: trans("enterprise.environments.config.singularLabels.query"),
     fields: [
       {
         name: 'deployCredential',
-        label: 'Overwrite Credentials',
+        label: trans("enterprise.environments.config.fields.overwriteCredentials"),
         type: 'checkbox',
         defaultValue: false
       }
