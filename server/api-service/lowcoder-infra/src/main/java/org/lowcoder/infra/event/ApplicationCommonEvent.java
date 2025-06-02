@@ -22,6 +22,7 @@ public class ApplicationCommonEvent extends AbstractEvent {
     private final String oldApplicationCategory;
     private final String oldApplicationDescription;
     private final String oldApplicationTitle;
+    private final String applicationAuthor;
     private final EventType type;
     @Nullable
     @JsonInclude(JsonInclude.Include.NON_NULL)
