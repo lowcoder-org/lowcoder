@@ -125,83 +125,82 @@ public class BusinessEventPublisher {
 
     public Mono<Void> publishApplicationCommonEvent(ApplicationView originalApplicationView, ApplicationView applicationView, EventType eventType) {
         return sessionUserService.isAnonymousUser()
-                .flatMap(anonymous -> {
-                    return sessionUserService.getVisitorOrgMemberCache()
-                            .onErrorReturn(new OrgMember(originalApplicationView.getApplicationInfoView().getOrgId(), null, null, null, 0))
-                            .zipWith(Mono.defer(() -> {
-                                String folderId = applicationView.getApplicationInfoView().getFolderId();
-                                if (StringUtils.isBlank(folderId)) {
-                                    return Mono.just(Optional.<Folder>empty());
-                                }
-                                return folderService.findById(folderId)
-                                        .map(Optional::of)
-                                        .onErrorReturn(Optional.empty());
-                            }))
-                            .zipWith(Mono.defer(() -> {
-                                String folderId = applicationView.getApplicationInfoView().getFolderIdFrom();
-                                if (StringUtils.isBlank(folderId)) {
-                                    return Mono.just(Optional.<Folder>empty());
-                                }
-                                return folderService.findById(folderId)
-                                        .map(Optional::of)
-                                        .onErrorReturn(Optional.empty());
-                            }), TupleUtils::merge)
-                            .zipWith(sessionUserService.getVisitorToken())
-                            .zipWith(Mono.defer(() -> {
-                                String appId = applicationView.getApplicationInfoView().getApplicationId();
-                                return applicationService.findById(appId)
-                                        .zipWhen(application -> application.getCategory(applicationRecordServiceImpl))
-                                        .zipWhen(application -> application.getT1().getDescription(applicationRecordServiceImpl))
-                                        .zipWhen(application -> application.getT1().getT1().getTitle(applicationRecordServiceImpl))
-                                        .map(tuple -> {
-                                            String category = tuple.getT1().getT1().getT2();
-                                            String description = tuple.getT1().getT2();
-                                            String title = tuple.getT2();
-                                            return new String[]{category, description, title};
-                                        });
-                            }), TupleUtils::merge)
-                            .flatMap(tuple -> Mono.deferContextual(contextView -> {
-                                OrgMember orgMember = tuple.getT1().getT1();
-                                Optional<Folder> optional = tuple.getT1().getT2();
-                                Optional<Folder> optionalFrom = tuple.getT1().getT3();
-                                String token = tuple.getT2();
-                                String category = tuple.getT3()[0];
-                                String description = tuple.getT3()[1];
-                                String title = tuple.getT3()[2];
-                                ApplicationInfoView applicationInfoView = applicationView.getApplicationInfoView();
-    
-                                ApplicationCommonEvent event = ApplicationCommonEvent.builder()
-                                        .orgId(orgMember.getOrgId())
-                                        .userId(orgMember.getUserId())
-                                        .applicationId(applicationInfoView.getApplicationId())
-                                        .applicationGid(applicationInfoView.getApplicationGid())
-                                        .applicationName(applicationInfoView.getName())
-                                        .applicationAuthor(applicationInfoView.getCreateBy())
-                                        .applicationCategory(category)
-                                        .applicationDescription(description)
-                                        .applicationTitle(title)
-                                        .oldApplicationName(originalApplicationView!=null ? originalApplicationView.getApplicationInfoView().getName() : null)
-                                        .oldApplicationCategory(originalApplicationView!=null ?originalApplicationView.getApplicationInfoView().getCategory() : null)
-                                        .oldApplicationDescription(originalApplicationView!=null ?originalApplicationView.getApplicationInfoView().getDescription() : null)
-                                        .oldApplicationTitle(originalApplicationView!=null ?originalApplicationView.getApplicationInfoView().getTitle() : null)
-                                        .type(eventType)
-                                        .folderId(optional.map(Folder::getId).orElse(null))
-                                        .folderName(optional.map(Folder::getName).orElse(null))
-                                        .oldFolderId(optionalFrom.map(Folder::getId).orElse(null))
-                                        .oldFolderName(optionalFrom.map(Folder::getName).orElse(null))
-                                        .isAnonymous(anonymous)
-                                        .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
-                                        .build();
-    
-                                event.populateDetails(contextView);
-                                applicationEventPublisher.publishEvent(event);
-                                return Mono.empty();
-                            })).then()  // **Ensures Mono<Void> return type**
-                            .onErrorResume(throwable -> {
-                                log.error("publishApplicationCommonEvent error. {}, {}", applicationView, eventType, throwable);
-                                return Mono.empty();
-                            });
-                });
+                .flatMap(anonymous -> sessionUserService.getVisitorOrgMemberCache()
+                        .onErrorReturn(new OrgMember(null, null, null, null, 0))
+                        .zipWith(Mono.defer(() -> {
+                            String folderId = applicationView.getApplicationInfoView().getFolderId();
+                            if (StringUtils.isBlank(folderId)) {
+                                return Mono.just(Optional.<Folder>empty());
+                            }
+                            return folderService.findById(folderId)
+                                    .map(Optional::of)
+                                    .onErrorReturn(Optional.empty());
+                        }))
+                        .zipWith(Mono.defer(() -> {
+                            String folderId = applicationView.getApplicationInfoView().getFolderIdFrom();
+                            if (StringUtils.isBlank(folderId)) {
+                                return Mono.just(Optional.<Folder>empty());
+                            }
+                            return folderService.findById(folderId)
+                                    .map(Optional::of)
+                                    .onErrorReturn(Optional.empty());
+                        }), TupleUtils::merge)
+                        .zipWith(sessionUserService.getVisitorToken())
+                        .zipWith(Mono.defer(() -> {
+                            String appId = applicationView.getApplicationInfoView().getApplicationId();
+                            return applicationService.findById(appId)
+                                    .zipWhen(application -> application.getCategory(applicationRecordServiceImpl))
+                                    .zipWhen(application -> application.getT1().getDescription(applicationRecordServiceImpl))
+                                    .zipWhen(application -> application.getT1().getT1().getTitle(applicationRecordServiceImpl))
+                                    .map(tuple -> {
+                                        String category = tuple.getT1().getT1().getT2();
+                                        String description = tuple.getT1().getT2();
+                                        String title = tuple.getT2();
+                                        return new String[]{category, description, title};
+                                    });
+                        }), TupleUtils::merge)
+                        .flatMap(tuple -> Mono.deferContextual(contextView -> {
+                            OrgMember orgMember = tuple.getT1().getT1();
+                            Optional<Folder> optional = tuple.getT1().getT2();
+                            Optional<Folder> optionalFrom = tuple.getT1().getT3();
+                            String token = tuple.getT2();
+                            String category = tuple.getT3()[0];
+                            String description = tuple.getT3()[1];
+                            String title = tuple.getT3()[2];
+                            ApplicationInfoView applicationInfoView = applicationView.getApplicationInfoView();
+
+                            ApplicationCommonEvent event = ApplicationCommonEvent.builder()
+                                    .orgId(orgMember.getOrgId())
+                                    .userId(orgMember.getUserId())
+                                    .applicationId(applicationInfoView.getApplicationId())
+                                    .applicationGid(applicationInfoView.getApplicationGid())
+                                    .applicationName(applicationInfoView.getName())
+                                    .applicationAuthor(applicationInfoView.getCreateBy())
+                                    .applicationAuthorOrgId(applicationInfoView.getOrgId())
+                                    .applicationCategory(category)
+                                    .applicationDescription(description)
+                                    .applicationTitle(title)
+                                    .oldApplicationName(originalApplicationView!=null ? originalApplicationView.getApplicationInfoView().getName() : null)
+                                    .oldApplicationCategory(originalApplicationView!=null ?originalApplicationView.getApplicationInfoView().getCategory() : null)
+                                    .oldApplicationDescription(originalApplicationView!=null ?originalApplicationView.getApplicationInfoView().getDescription() : null)
+                                    .oldApplicationTitle(originalApplicationView!=null ?originalApplicationView.getApplicationInfoView().getTitle() : null)
+                                    .type(eventType)
+                                    .folderId(optional.map(Folder::getId).orElse(null))
+                                    .folderName(optional.map(Folder::getName).orElse(null))
+                                    .oldFolderId(optionalFrom.map(Folder::getId).orElse(null))
+                                    .oldFolderName(optionalFrom.map(Folder::getName).orElse(null))
+                                    .isAnonymous(anonymous)
+                                    .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
+                                    .build();
+
+                            event.populateDetails(contextView);
+                            applicationEventPublisher.publishEvent(event);
+                            return Mono.empty();
+                        })).then()  // **Ensures Mono<Void> return type**
+                        .onErrorResume(throwable -> {
+                            log.error("publishApplicationCommonEvent error. {}, {}", applicationView, eventType, throwable);
+                            return Mono.empty();
+                        }));
     }
 
 
