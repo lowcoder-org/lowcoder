@@ -248,10 +248,18 @@ const tab={
 export default function TabbedContainerExample() {
     return (
       <>
+
         <ExampleGroup
           title="Basic Usage"
           description="The Following Examples Show the Basic Usage of the Tabbed Container Component."
         >
+          <Example
+            title="Default Tabbed Container Component"
+            hideSettings={true}
+            config={{
+            }}
+            compFactory={TabbedContainerComp}
+          />
           <Example
             title="Hiding the Tabbed Container Component"
             hideSettings={true}
@@ -364,6 +372,229 @@ export default function TabbedContainerExample() {
             }}
             compFactory={TabbedContainerComp}
           />
+        </ExampleGroup>
+
+        <ExampleGroup
+          title="Styling Properties"
+          description="The Following Examples Show the different Styling Properties of the Tabbed Container Component."
+        >
+          <Example
+            title="Overall Component Styling"
+            hideSettings={true}
+            config={{ 
+              containers: container,
+              tabs: tab,
+              style: {
+                "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+                "margin": "5px",
+                "padding": "15px",
+                "tabText": "#7F7F86",
+                "textTransform": "Uppercase",
+                "textDecoration": "underline",
+                "textSize": "20px",
+                "textWeight": "bold",
+                "fontFamily": "Courier New",
+                "fontStyle": "italic",
+                "border": "#5589F2",
+                "borderStyle": "solid",
+                "radius": "20px",
+                "borderWidth": "3px",
+                "accent": "#222222",
+              },
+            }}
+            compFactory={TabbedContainerComp}
+          />
+          <Example
+            title="Header Styling"
+            hideSettings={true}
+            config={{ 
+              containers: container,
+              tabs: tab,
+              style: {
+                "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+                "margin": "5px",
+                "padding": "15px",
+                "tabText": "#7F7F86",
+                "textTransform": "Uppercase",
+                "textDecoration": "underline",
+                "textSize": "20px",
+                "textWeight": "bold",
+                "fontFamily": "Courier New",
+                "fontStyle": "italic",
+                "border": "#5589F2",
+                "borderStyle": "solid",
+                "radius": "20px",
+                "borderWidth": "3px",
+                "accent": "#222222",
+              },
+              headerStyle:{
+                "containerHeaderPadding": "10px",
+                "headerBackground": "#FFE607"
+              },
+            }}
+            compFactory={TabbedContainerComp}
+          />
+          <Example
+            title="Body Styling"
+            hideSettings={true}
+            config={{ 
+              containers: container,
+              tabs: tab,
+              style: {
+                "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+                "margin": "5px",
+                "padding": "15px",
+                "tabText": "#7F7F86",
+                "textTransform": "Uppercase",
+                "textDecoration": "underline",
+                "textSize": "20px",
+                "textWeight": "bold",
+                "fontFamily": "Courier New",
+                "fontStyle": "italic",
+                "border": "#5589F2",
+                "borderStyle": "solid",
+                "radius": "20px",
+                "borderWidth": "3px",
+                "accent": "#222222",
+              },
+              headerStyle:{
+                "containerHeaderPadding": "10px",
+                "headerBackground": "#FFE607",
+              },
+              bodyStyle:{
+                "containerBodyPadding": "20px",
+                "background": "#E1825A",
+              },
+            }}
+            compFactory={TabbedContainerComp}
+          />
+        </ExampleGroup>
+
+        <ExampleGroup
+          title="Animation Style"
+          description="The Following Examples Show different Animation Styles on the Tabbed Container Component."
+          >
+          <Example
+              title="Bounce Animation"
+              hideSettings={true}
+              config={{
+                containers: container,
+                tabs: tab,
+                style: {
+                  "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+                  "margin": "5px",
+                  "padding": "15px",
+                  "tabText": "#7F7F86",
+                  "textTransform": "Uppercase",
+                  "textDecoration": "underline",
+                  "textSize": "20px",
+                  "textWeight": "bold",
+                  "fontFamily": "Courier New",
+                  "fontStyle": "italic",
+                  "border": "#5589F2",
+                  "borderStyle": "solid",
+                  "radius": "20px",
+                  "borderWidth": "3px",
+                  "accent": "#222222",
+                },
+                headerStyle:{
+                  "containerHeaderPadding": "10px",
+                  "headerBackground": "#FFE607",
+                },
+                bodyStyle:{
+                  "containerBodyPadding": "20px",
+                  "background": "#E1825A",
+                },
+                animationStyle: 
+                {
+                    "animation": "bounce",
+                    "animationDelay": "1s",
+                    "animationDuration": "3s",
+                    "animationIterationCount": "infinite",
+                },
+              }}
+              compFactory={TabbedContainerComp}
+          />
+          <Example
+              title="Swing Animation"
+              hideSettings={true}
+              config={{
+                containers: container,
+                tabs: tab,
+                style: {
+                  "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+                  "margin": "5px",
+                  "padding": "15px",
+                  "tabText": "#7F7F86",
+                  "textTransform": "Uppercase",
+                  "textDecoration": "underline",
+                  "textSize": "20px",
+                  "textWeight": "bold",
+                  "fontFamily": "Courier New",
+                  "fontStyle": "italic",
+                  "border": "#5589F2",
+                  "borderStyle": "solid",
+                  "radius": "20px",
+                  "borderWidth": "3px",
+                  "accent": "#222222",
+                },
+                headerStyle:{
+                  "containerHeaderPadding": "10px",
+                  "headerBackground": "#FFE607",
+                },
+                bodyStyle:{
+                  "containerBodyPadding": "20px",
+                  "background": "#E1825A",
+                },
+                animationStyle: {
+                    "animation": "swing",
+                    "animationDelay": "1s",
+                    "animationDuration": "3s",
+                    "animationIterationCount": "infinite"
+                },
+              }}
+              compFactory={TabbedContainerComp}
+          />
+          <Example
+              title="Tada Animation"
+              hideSettings={true}
+              config={{
+                containers: container,
+                tabs: tab,
+                style: {
+                  "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+                  "margin": "5px",
+                  "padding": "15px",
+                  "tabText": "#7F7F86",
+                  "textTransform": "Uppercase",
+                  "textDecoration": "underline",
+                  "textSize": "20px",
+                  "textWeight": "bold",
+                  "fontFamily": "Courier New",
+                  "fontStyle": "italic",
+                  "border": "#5589F2",
+                  "borderStyle": "solid",
+                  "radius": "20px",
+                  "borderWidth": "3px",
+                  "accent": "#222222",
+                },
+                headerStyle:{
+                  "containerHeaderPadding": "10px",
+                  "headerBackground": "#FFE607",
+                },
+                bodyStyle:{
+                  "containerBodyPadding": "20px",
+                  "background": "#E1825A",
+                },
+                animationStyle: {
+                    "animation": "tada",
+                    "animationDelay": "1s",
+                    "animationDuration": "3s",
+                    "animationIterationCount": "infinite"
+                },
+              }}
+              compFactory={TabbedContainerComp}
+        />
         </ExampleGroup>
       </>
     );

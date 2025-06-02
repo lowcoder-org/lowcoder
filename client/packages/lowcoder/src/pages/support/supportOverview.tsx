@@ -11,14 +11,16 @@ import { Avatar, Flex, Tooltip } from "antd";
 import { buildSupportTicketLink } from "constants/routesURL";
 import history from "util/history";
 import { Input } from "antd";
-import ReactQuill from "react-quill";
-import 'react-quill/dist/quill.snow.css';
+import 'react-quill-new/dist/quill.snow.css';
 import { Spin } from "antd";
 import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
 import { useSimpleSubscriptionContext } from "@lowcoder-ee/util/context/SimpleSubscriptionContext";
 import { SubscriptionProductsEnum } from '@lowcoder-ee/constants/subscriptionConstants';
 import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
 import { useSelector } from "react-redux";
+import React from "react";
+
+const ReactQuillEditor = React.lazy(() => import("react-quill-new"));
 
 const SupportWrapper = styled.div`
   display: flex;
@@ -243,7 +245,7 @@ export function SupportOverview() {
           open={isCreateFormShow}
           onCancel={() => showCreateForm(false)}
           activeStepKey={"type"}
-          destroyOnClose={true}
+          destroyOnHidden={true}
           width="888px"
           steps={[
             {
@@ -268,7 +270,7 @@ export function SupportOverview() {
                   <div>
                     <div style={{ marginBottom: '16px' }}>{trans("support.createTicketDescriptionTitle")}</div>
                   </div>
-                  <ReactQuill
+                  <ReactQuillEditor
                     style={{ height: '200px'}}
                     value={description}
                     onChange={setDescription}

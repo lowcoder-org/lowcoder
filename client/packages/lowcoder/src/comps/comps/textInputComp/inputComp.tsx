@@ -32,6 +32,8 @@ import { hasIcon } from "comps/utils";
 import { InputRef } from "antd/es/input";
 import { RefControl } from "comps/controls/refControl";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
+import { numberSimpleControl } from "comps/controls/numberSimpleControl";
+import { NumberControl } from "comps/controls/codeControl";
 
 import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
@@ -55,8 +57,9 @@ const childrenMap = {
   labelStyle:styleControl(LabelStyle, 'labelStyle'), 
   prefixIcon: IconControl,
   suffixIcon: IconControl,
-  inputFieldStyle: styleControl(InputLikeStyle, 'inputFieldStyle') ,
+  inputFieldStyle: styleControl(InputLikeStyle, 'inputFieldStyle'),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
+  tabIndex: NumberControl,
 };
 
 let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
@@ -72,6 +75,7 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
         $style={props.inputFieldStyle}
         prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
         suffix={hasIcon(props.suffixIcon) && props.suffixIcon}
+        tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
       />
     ),
     style: props.style,

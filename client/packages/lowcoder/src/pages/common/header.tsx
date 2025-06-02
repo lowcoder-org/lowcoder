@@ -65,6 +65,13 @@ import UserApi from "@lowcoder-ee/api/userApi";
 import { validateResponse } from "@lowcoder-ee/api/apiUtils";
 import ProfileImage from "./profileImage";
 
+import { buildMaterialPreviewURL } from "@lowcoder-ee/util/materialUtils";
+import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
+
+import GitHubButton from 'react-github-btn';
+import { Row, Col } from "antd";
+
+
 const { Countdown } = Statistic;
 const { Text } = Typography;
 
@@ -321,6 +328,10 @@ const DropdownMenuStyled = styled(DropdownMenu)`
   }
 `;
 
+const BrandLogo = styled.img`
+  height: 28px;
+`
+
 function HeaderProfile(props: { user: User }) {
   const { user } = props;
   const fetchingUser = useSelector(isFetchingUser);
@@ -374,6 +385,7 @@ export default function Header(props: HeaderProps) {
   const dispatch = useDispatch();
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
   const {selectedSnapshot, isArchivedSnapshot} = useSelector(getSelectedAppSnapshot);
+  const brandingSettings = useSelector(getBrandingSetting);
   const { appType } = useContext(ExternalEditorContext);
   const [editName, setEditName] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -424,12 +436,17 @@ export default function Header(props: HeaderProps) {
     editorState.setEditorModeStatus(value);
   };
 
-
   const headerStart = (
     <>
       <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
         {/* {REACT_APP_LOWCODER_SHOW_BRAND === 'true' ? REACT_APP_LOWCODER_CUSTOM_LOGO_SQUARE !== "" ? <img src={REACT_APP_LOWCODER_CUSTOM_LOGO_SQUARE } height={24} width={24} alt="logo" /> :<LogoIcon /> :  <LogoHome />} */}
-        <LogoHome />
+        { brandingSettings?.config_set?.logo
+          ? (
+            Boolean(brandingSettings?.orgId)
+            ? <BrandLogo src={buildMaterialPreviewURL(brandingSettings?.config_set?.logo)} />
+            : <BrandLogo src={brandingSettings?.config_set?.logo} />
+          ) : <LogoHome />
+        }
       </StyledLink>
       {editName ? (
         <Wrapper>
@@ -611,7 +628,7 @@ export default function Header(props: HeaderProps) {
           className="cypress-header-dropdown"
           placement="bottomRight"
           trigger={["click"]}
-          dropdownRender={() => (
+          popupRender={() => (
             <DropdownMenuStyled
               style={{ minWidth: "110px", borderRadius: "4px" }}
               onClick={(e) => {
@@ -674,6 +691,9 @@ export default function Header(props: HeaderProps) {
       headerStart={headerStart}
       headerMiddle={headerMiddle}
       headerEnd={headerEnd}
+      style={{
+        backgroundColor: brandingSettings?.config_set?.appHeaderColor
+      }}
     />
   );
 }
@@ -681,21 +701,47 @@ export default function Header(props: HeaderProps) {
 // header in manager page
 export function AppHeader() {
   const user = useSelector(getUser);
-  const brandingConfig = useSelector(getBrandingConfig);
+  const brandingSettings = useSelector(getBrandingSetting);
+
   const headerStart = (
     <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
       {/* {REACT_APP_LOWCODER_SHOW_BRAND === 'true' ?  REACT_APP_LOWCODER_CUSTOM_LOGO !== "" ? <img src={REACT_APP_LOWCODER_CUSTOM_LOGO}  height={28} alt="logo" /> :<LogoWithName branding={!user.orgDev} /> : <LogoHome />} */}
-      <LogoHome />
+      { brandingSettings?.config_set?.logo
+        ? (
+          Boolean(brandingSettings?.orgId)
+          ? <BrandLogo src={buildMaterialPreviewURL(brandingSettings?.config_set?.logo)} />
+          : <BrandLogo src={brandingSettings?.config_set?.logo} />
+        ) : <LogoHome />
+      }
     </StyledLink>
   );
-  const headerEnd = <HeaderProfile user={user} />;
+  const headerEnd = (
+    <Row align="middle" gutter={32}>
+      <Col style={{marginTop : "6px"}}>
+      {user.orgDev && ( 
+        <GitHubButton
+          href="https://github.com/lowcoder-org/lowcoder"
+          data-color-scheme="no-preference: light; light: light; dark: dark;"
+          data-size="small"
+          data-show-count="true"
+          aria-label="Star lowcoder-org/lowcoder on GitHub"
+        >
+          Star
+        </GitHubButton>
+      )}
+      </Col>
+      <Col>
+        <HeaderProfile user={user} />
+      </Col>
+    </Row>
+  );  
   return (
     <LayoutHeader
       headerStart={headerStart}
       headerEnd={headerEnd}
-      style={
-        user.orgDev ? {} : { backgroundColor: brandingConfig?.headerColor }
-      }
+      style={{
+        backgroundColor: brandingSettings?.config_set?.appHeaderColor
+      }}
     />
   );
 }

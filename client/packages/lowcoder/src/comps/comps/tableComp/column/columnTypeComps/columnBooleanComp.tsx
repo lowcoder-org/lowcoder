@@ -1,6 +1,7 @@
+import React, { useCallback, useRef, useEffect, useMemo } from "react";
 import { BoolCodeControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
-import { default as Checkbox } from "antd/es/checkbox";
+import { default as Checkbox, CheckboxChangeEvent } from "antd/es/checkbox";
 import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilder";
 import { ColumnValueTooltip } from "../simpleColumnTypeComps";
 import { getStyle } from "comps/comps/selectInputComp/checkboxComp";
@@ -65,44 +66,101 @@ type CheckBoxEditPropsType = {
   onChangeEnd: () => void;
 };
 
-const CheckBoxEdit = (props: CheckBoxEditPropsType) => {
+// Memoized checkbox edit component
+const CheckBoxEdit = React.memo((props: CheckBoxEditPropsType) => {
+  const mountedRef = useRef(true);
   const style = useStyle(CheckboxStyle);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const handleBlur = useCallback(() => {
+    if (!mountedRef.current) return;
+    props.onChangeEnd();
+  }, [props.onChangeEnd]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (!mountedRef.current) return;
+    if (e.key === "Enter") {
+      props.onChangeEnd();
+    }
+  }, [props.onChangeEnd]);
+
+  const handleChange = useCallback((e: CheckboxChangeEvent) => {
+    if (!mountedRef.current) return;
+    props.onChange(e.target.checked);
+  }, [props.onChange]);
+
   return (
     <Wrapper
-      onBlur={() => props.onChangeEnd()}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          props.onChangeEnd();
-        }
-      }}
+      onBlur={handleBlur}
+      onKeyDown={handleKeyDown}
     >
       <CheckboxStyled
         autoFocus
         $style={style}
         defaultChecked={props.value}
-        onChange={(e) => props.onChange(e.target.checked)}
+        onChange={handleChange}
       />
     </Wrapper>
   );
-};
+});
+
+CheckBoxEdit.displayName = 'CheckBoxEdit';
+
+// Memoized checkbox view component
+const CheckBoxView = React.memo(({ 
+  value, 
+  iconTrue, 
+  iconFalse, 
+  iconNull, 
+  falseValues 
+}: { 
+  value: boolean;
+  iconTrue: React.ReactNode;
+  iconFalse: React.ReactNode;
+  iconNull: React.ReactNode;
+  falseValues: string;
+}) => {
+  const style = useStyle(CheckboxStyle);
+
+  const content = useMemo(() => {
+    if (value === true) {
+      return hasIcon(iconTrue) ? iconTrue : <TableCheckedIcon />;
+    } else if (value === false) {
+      return hasIcon(iconFalse) ? iconFalse : (falseValues === "x" ? <TableUnCheckedIcon /> : falseValues);
+    } else {
+      return hasIcon(iconNull) ? iconNull : "No Value";
+    }
+  }, [value, iconTrue, iconFalse, iconNull, falseValues]);
+
+  return (
+    <IconWrapper $style={style} $ifChecked={value}>
+      {content}
+    </IconWrapper>
+  );
+});
+
+CheckBoxView.displayName = 'CheckBoxView';
 
 export const BooleanComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
-      const CheckBoxComp = () => {
-        const style = useStyle(CheckboxStyle);
-        return (
-          <IconWrapper $style={style} $ifChecked={value}>
-            {value === true ? ( hasIcon(props.iconTrue) ? props.iconTrue : <TableCheckedIcon /> ) 
-            : value === false ? ( hasIcon(props.iconFalse) ? props.iconFalse  : ( props.falseValues === "x" ? <TableUnCheckedIcon /> : props.falseValues )
-            ) : ( hasIcon(props.iconNull) ? props.iconNull : "No Value"
-            )}
-          </IconWrapper>
-        );
-      };
-      return <CheckBoxComp />;
+      return (
+        <CheckBoxView
+          value={value}
+          iconTrue={props.iconTrue}
+          iconFalse={props.iconFalse}
+          iconNull={props.iconNull}
+          falseValues={props.falseValues}
+        />
+      );
     },
     (nodeValue) => nodeValue.text.value,
     getBaseValue

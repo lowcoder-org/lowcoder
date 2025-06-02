@@ -95,12 +95,12 @@ export const SimpleSubscriptionContextProvider = (props: {
       }
     };
   
-    if (!productsLoaded && !subscriptionProductsLoading) {
-      console.log("Outer context: Fetching products...");
+    if (!productsLoaded && !subscriptionProductsLoading && !user.isAnonymous) {
+      // console.log("Outer context: Fetching products...");
       setSubscriptionProductsLoading(true);
       fetchProducts();
     }
-  }, [productsLoaded, subscriptionProductsLoading]);
+  }, [user.isAnonymous, productsLoaded, subscriptionProductsLoading]);
 
   useEffect(() => {
     const initializeCustomer = async () => {

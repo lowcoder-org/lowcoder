@@ -112,11 +112,11 @@
 				<artifactId>mysqlPlugin</artifactId>
 				<version>${revision}</version>
 			</dependency>
-			<dependency>
+			<!-- <dependency>
 				<groupId>org.lowcoder</groupId>
 				<artifactId>lowcoderApiPlugin</artifactId>
 				<version>${revision}</version>
-			</dependency>
+			</dependency> -->
 			<dependency>
 				<groupId>org.lowcoder</groupId>
 				<artifactId>elasticSearchPlugin</artifactId>
@@ -213,7 +213,6 @@
         <module>restApiPlugin</module>
         <module>mongoPlugin</module>
         <module>mysqlPlugin</module>
-        <module>lowcoderApiPlugin</module>
         <module>elasticSearchPlugin</module>
         <module>redisPlugin</module>
         <module>mssqlPlugin</module>

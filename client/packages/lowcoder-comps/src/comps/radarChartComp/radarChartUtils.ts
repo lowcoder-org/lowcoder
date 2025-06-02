@@ -177,7 +177,6 @@ export function getEchartsConfig(
           radius: `${props.radius}%`,
           shape: props?.areaFlag ? 'circle' : 'line',
           axisName: {
-            ...styleWrapper(props?.detailStyle, theme?.detailStyle, 13),
             show: props?.indicatorVisibility,
           },
           splitArea: {

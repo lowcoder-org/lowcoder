@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { hookToStateComp } from "../generators/hookToComp";
-import { CanvasContainerID } from "@lowcoder-ee/index.sdk";
+import { CanvasContainerID } from "@lowcoder-ee/constants/domLocators";
 
 enum ScreenTypes {
   Mobile = 'mobile',

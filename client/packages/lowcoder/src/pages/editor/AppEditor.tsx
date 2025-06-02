@@ -1,4 +1,5 @@
 import { AppPathParams, AppTypeEnum } from "constants/applicationConstants";
+import { ApplicationDSLType } from "constants/applicationConstants";
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
@@ -28,9 +29,6 @@ import { DatasourceApi } from "api/datasourceApi";
 import { useRootCompInstance } from "./useRootCompInstance";
 import EditorSkeletonView from "./editorSkeletonView";
 import {ErrorBoundary, FallbackProps} from 'react-error-boundary';
-import { ALL_APPLICATIONS_URL } from "@lowcoder-ee/constants/routesURL";
-import history from "util/history";
-import Flex from "antd/es/flex";
 import React from "react";
 import dayjs from "dayjs";
 import { currentApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
@@ -50,6 +48,8 @@ const AppEditorInternalView = lazy(
     .then(moduleExports => ({default: moduleExports.AppEditorInternalView}))
 );
 
+const ErrorFallback = lazy(() => import("components/ErrorFallback"));
+
 const AppEditor = React.memo(() => {
   const dispatch = useDispatch();
   const params = useParams<AppPathParams>();
@@ -61,27 +61,18 @@ const AppEditor = React.memo(() => {
   const application = useSelector(currentApplication);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [elements, setElements] = useState({ elements: [], total: 1 })
+  const [elements, setElements] = useState({ elements: [], total: 1 });
   const isLowcoderCompLoading = useSelector((state: AppState) => state.npmPlugin.loading.lowcoderComps);
 
-  const isUserViewMode = useMemo(
-    () => params.viewMode ? isUserViewModeCheck : true,
-    [params.viewMode, isUserViewModeCheck]
-  );
-  const applicationId = useMemo(
-    () => params.applicationId || window.location.pathname.split("/")[2],
-    [params.applicationId, window.location.pathname]
-  );
-  const paramViewMode = useMemo(
-    () => params.viewMode || window.location.pathname.split("/")[3],
-    [params.viewMode, window.location.pathname]
-  );
-  const viewMode = useMemo(
-    () => (paramViewMode === "view" || paramViewMode === "admin")
+  // Memoize selectors to prevent unnecessary re-renders
+  const selectors = useMemo(() => ({
+    isUserViewMode: params.viewMode ? isUserViewModeCheck : true,
+    applicationId: params.applicationId || window.location.pathname.split("/")[2],
+    paramViewMode: params.viewMode || window.location.pathname.split("/")[3],
+    viewMode: (params.viewMode === "view" || params.viewMode === "admin")
       ? "published"
-      : paramViewMode === "view_marketplace" ? "view_marketplace" : "editing",
-    [paramViewMode]
-  );
+      : params.viewMode === "view_marketplace" ? "view_marketplace" : "editing",
+  }), [params.viewMode, params.applicationId, window.location.pathname, isUserViewModeCheck]);
 
   const firstRendered = useRef(false);
   const orgId = useMemo(() => currentUser.currentOrgId, [currentUser.currentOrgId]);
@@ -90,7 +81,22 @@ const AppEditor = React.memo(() => {
   const [blockEditing, setBlockEditing] = useState<boolean>(false);
   const [fetchingAppDetails, setFetchingAppDetails] = useState<boolean>(false);
 
-  setGlobalSettings({ applicationId, isViewMode: paramViewMode === "view" });
+  // Cleanup function for state management
+  const cleanupState = useCallback(() => {
+    setElements({ elements: [], total: 1 });
+    setBlockEditing(false);
+    setFetchingAppDetails(false);
+    setAppError('');
+    setIsDataSourcePluginRegistered(false);
+  }, []);
+
+  // Set global settings with cleanup
+  useEffect(() => {
+    setGlobalSettings({ applicationId: selectors.applicationId, isViewMode: selectors.paramViewMode === "view" });
+    return () => {
+      clearGlobalSettings();
+    };
+  }, [selectors.applicationId, selectors.paramViewMode]);
 
   if (!firstRendered.current) {
     perfClear();
@@ -104,21 +110,31 @@ const AppEditor = React.memo(() => {
 
   useUnmount(() => {
     clearGlobalSettings();
+    cleanupState();
   });
 
-  // fetch dsl
+  // fetch dsl with cleanup
   const [appInfo, setAppInfo] = useState<AppSummaryInfo>({
     id: "",
     appType: AppTypeEnum.Application,
   });
 
-  const readOnly = isUserViewMode;
+  const readOnly = selectors.isUserViewMode;
   const compInstance = useRootCompInstance(
     appInfo,
     readOnly,
     isDataSourcePluginRegistered,
     blockEditing,
   );
+
+  // Cleanup for compInstance
+  useEffect(() => {
+    return () => {
+      if (compInstance?.comp) {
+        compInstance.comp = null;
+      }
+    };
+  }, [compInstance]);
 
   useEffect(() => {
     if (currentUser && application) {
@@ -129,41 +145,38 @@ const AppEditor = React.memo(() => {
     }
   }, [application, currentUser]);
 
-  // fetch dataSource and plugin
+  // fetch dataSource and plugin with cleanup
   useEffect(() => {
-    if (!orgId || paramViewMode !== "edit") {
+    if (!orgId || selectors.paramViewMode !== "edit") {
       return;
     }
     dispatch(fetchDataSourceTypes({ organizationId: orgId }));
     dispatch(fetchFolderElements({}));
-  }, [dispatch, orgId, paramViewMode]);
+  }, [dispatch, orgId, selectors.paramViewMode]);
 
   useEffect(() => {
-    if (applicationId && paramViewMode === "edit") {
-      dispatch(fetchDataSourceByApp({ applicationId: applicationId }));
+    if (selectors.applicationId && selectors.paramViewMode === "edit") {
+      dispatch(fetchDataSourceByApp({ applicationId: selectors.applicationId }));
       dispatch(fetchQueryLibraryDropdown());
     }
-  }, [dispatch, applicationId, paramViewMode]);
+  }, [dispatch, selectors.applicationId, selectors.paramViewMode]);
   
   const fetchJSDataSourceByApp = useCallback(() => {
     fetchJsDSPaginationByApp({
-      appId: applicationId,
+      appId: selectors.applicationId,
       pageNum: currentPage,
       pageSize: pageSize
     }).then((res) => {
-      setElements({elements: [], total: res.total || 1})
+      setElements({elements: [], total: res.total || 1});
       res.data!.forEach((i: any) => {
         registryDataSourcePlugin(i.type, i.id, i.pluginDefinition);
       });
       setIsDataSourcePluginRegistered(true);
+    }).catch((error) => {
+      setAppError(error.message || 'Failed to fetch JS data source');
     });
-    dispatch(setShowAppSnapshot(false));
   }, [
-    applicationId,
-    registryDataSourcePlugin,
-    setIsDataSourcePluginRegistered,
-    setShowAppSnapshot,
-    dispatch,
+    selectors.applicationId,
     currentPage,
     pageSize
   ]);
@@ -176,10 +189,11 @@ const AppEditor = React.memo(() => {
 
   const fetchApplication = useCallback(() => {
     setFetchingAppDetails(true);
+
     dispatch(
       fetchApplicationInfo({
-        type: viewMode,
-        applicationId: applicationId,
+        type: selectors.viewMode as ApplicationDSLType,
+        applicationId: selectors.applicationId,
         onSuccess: (info) => {
           perfMark(MarkAppDSLLoaded);
           const runJsInHost =
@@ -195,12 +209,12 @@ const AppEditor = React.memo(() => {
           setFetchingAppDetails(false);
         },
         onError: (errorMessage) => {
-          setAppError(errorMessage);
+          setAppError(errorMessage || 'Failed to fetch application info');
           setFetchingAppDetails(false);
         }
       })
     );
-  }, [viewMode, applicationId, dispatch, fetchJSDataSourceByApp]);
+  }, [dispatch, selectors.viewMode, selectors.applicationId, fetchJSDataSourceByApp]);
 
   useEffect(() => {
     if(!isLowcoderCompLoading) {
@@ -209,45 +223,18 @@ const AppEditor = React.memo(() => {
     }
   }, [isLowcoderCompLoading, fetchApplication]);
 
-  const fallbackUI = useMemo(() => (
-    <Flex align="center" justify="center" vertical style={{
-      height: '300px',
-      width: '400px',
-      margin: '0 auto',
-    }}>
-      <h4 style={{margin: 0}}>Something went wrong while displaying this webpage</h4>
-      <button onClick={() => history.push(ALL_APPLICATIONS_URL)} style={{background: '#4965f2',border: '1px solid #4965f2', color: '#ffffff',borderRadius:'6px'}}>Go to Apps</button>
-    </Flex>
-  ), []);
-
   if (Boolean(appError)) {
-    return (
-      <Flex align="center" justify="center" vertical style={{
-        height: '300px',
-        width: '400px',
-        margin: '0 auto',
-      }}>
-        <h4>{appError}</h4>
-        <button onClick={() => history.push(ALL_APPLICATIONS_URL)} style={{background: '#4965f2',border: '1px solid #4965f2', color: '#ffffff',borderRadius:'6px'}}>Back to Home</button>
-      </Flex>
-    )
+    return <ErrorFallback errorMessage={appError} />
   }
 
   return (
-    <ErrorBoundary fallback={fallbackUI}>
-      {/*<PaginationComp*/}
-      {/*    currentPage={currentPage}*/}
-      {/*    pageSize={pageSize}*/}
-      {/*    setPageSize={setPageSize}*/}
-      {/*    setCurrentPage={setCurrentPage}*/}
-      {/*    total={elements.total}*/}
-      {/*/>*/}
+    <ErrorBoundary fallback={<ErrorFallback />}>
       {showAppSnapshot ? (
         <Suspense fallback={<EditorSkeletonView />}>
           <AppSnapshot
             currentAppInfo={{
               ...appInfo,
-              dsl: compInstance.comp?.toJsonValue() || {},
+              dsl: compInstance?.comp?.toJsonValue() || {},
             }}
           />
         </Suspense>

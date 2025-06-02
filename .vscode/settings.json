@@ -5,5 +5,6 @@
         "titleBar.activeForeground": "#F9FAF2"
     },
     "java.debug.settings.onBuildFailureProceed": true,
-    "java.configuration.updateBuildConfiguration": "automatic"
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "terminal.integrated.scrollback": 100000000,
 }

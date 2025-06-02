@@ -36,9 +36,11 @@ import {
   widthCalculator,
 } from "comps/controls/styleControlConstants";
 import { useEffect, useRef, useState } from "react";
-import ReactResizeDetector from "react-resize-detector";
+import { useResizeDetector } from "react-resize-detector";
 
 import { useContext } from "react";
+import { Tooltip } from "antd";
+import { AssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
 
 const Container = styled.div<{ $style: any }>`
   height: 100%;
@@ -74,9 +76,15 @@ const IconWrapper = styled.div<{ $style: any }>`
   ${(props) => props.$style && getStyleIcon(props.$style)}
 `;
 
+const IconScoutWrapper = styled.div<{ $style: any }>`
+  display: flex;
+
+  ${(props) => props.$style && getStyleIcon(props.$style)}
+`;
+
 function getStyleIcon(style: any) {
   return css`
-    svg {
+    svg, img {
       width: ${style.size} !important;
       height: ${style.size} !important;
     }
@@ -163,6 +171,11 @@ const typeOptions = [
   },
 ] as const;
 
+const ModeOptions = [
+  { label: "Standard", value: "standard" },
+  { label: "Asset Library", value: "asset-library" },
+] as const;
+
 function isDefault(type?: string) {
   return !type;
 }
@@ -183,10 +196,13 @@ const childrenMap = {
   disabled: BoolCodeControl,
   loading: BoolCodeControl,
   form: SelectFormControl,
+  sourceMode: dropdownControl(ModeOptions, "standard"),
   prefixIcon: IconControl,
+  iconScoutAsset: IconscoutControl(AssetType.ICON),
   style: ButtonStyleControl,
   viewRef: RefControl<HTMLElement>,
-  restrictPaddingOnRotation:withDefault(StringControl, 'controlButton')
+  restrictPaddingOnRotation:withDefault(StringControl, 'controlButton'),
+  tooltip: StringControl
 };
 
 let ButtonTmpComp = (function () {
@@ -227,63 +243,70 @@ let ButtonTmpComp = (function () {
       setStyle(container?.clientHeight + "px", container?.clientWidth + "px");
     };
 
+    useResizeDetector({
+      targetRef: conRef,
+      onResize,
+    });
+
     return (
       <EditorContext.Consumer>
         {(editorState) => (
-          <ReactResizeDetector
-            onResize={onResize}
-            render={() => (
-              <Container ref={conRef} $style={props.style}>
-                <div
-                  ref={imgRef}
+          <Container ref={conRef} $style={props.style}>
+            <div
+              ref={imgRef}
+              style={
+                props.autoHeight
+                  ? { width: "100%", height: "100%" }
+                  : undefined
+              }
+            >
+              <Tooltip title={props.tooltip}>
+                <Button100
+                  ref={props.viewRef}
+                  $buttonStyle={props.style}
+                  loading={props.loading}
                   style={
                     props.autoHeight
-                      ? { width: "100%", height: "100%" }
-                      : undefined
+                      ? { 
+                        width: "100%", 
+                        height: "100%",
+                        aspectRatio: props.aspectRatio,
+                        borderRadius: props.style.radius,
+                      }
+                      : {
+                        aspectRatio: props.aspectRatio,
+                        borderRadius: props.style.radius,
+                      }
+                  }
+                  disabled={
+                    props.disabled ||
+                    (!isDefault(props.type) &&
+                      getForm(editorState, props.form)?.disableSubmit())
+                  }
+                  onClick={() =>
+                    isDefault(props.type)
+                      ? props.onEvent("click")
+                      : submitForm(editorState, props.form)
                   }
                 >
-                  <Button100
-                    ref={props.viewRef}
-                    $buttonStyle={props.style}
-                    loading={props.loading}
-                    style={
-                      props.autoHeight
-                        ? { 
-                          width: "100%", 
-                          height: "100%",
-                          aspectRatio: props.aspectRatio,
-                          borderRadius: props.style.radius,
-                        }
-                        : {
-                          aspectRatio: props.aspectRatio,
-                          borderRadius: props.style.radius,
-                        }
-                    }
-                    disabled={
-                      props.disabled ||
-                      (!isDefault(props.type) &&
-                        getForm(editorState, props.form)?.disableSubmit())
-                    }
-                    onClick={() =>
-                      isDefault(props.type)
-                        ? props.onEvent("click")
-                        : submitForm(editorState, props.form)
-                    }
-                  >
-                    {props.prefixIcon && (
-                      <IconWrapper
-                        $style={{ ...props.style, size: props.iconSize }}
-                      >
-                        {props.prefixIcon}
-                      </IconWrapper>
-                    )}
-                    
-                  </Button100>
-                </div>
-              </Container>
-            )}
-          >
-          </ReactResizeDetector>
+                  {props.sourceMode === 'standard' && props.prefixIcon && (
+                    <IconWrapper
+                      $style={{ ...props.style, size: props.iconSize }}
+                    >
+                      {props.prefixIcon}
+                    </IconWrapper>
+                  )}
+                  {props.sourceMode === 'asset-library' && props.iconScoutAsset && (
+                    <IconScoutWrapper
+                      $style={{ ...props.style, size: props.iconSize }}
+                    >
+                      {Boolean(props.iconScoutAsset.value) && <img src={props.iconScoutAsset.value} />}
+                    </IconScoutWrapper>
+                  )}
+                </Button100>
+              </Tooltip>
+            </div>
+          </Container>
         )}
       </EditorContext.Consumer>
     );
@@ -291,8 +314,18 @@ let ButtonTmpComp = (function () {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
-          {children.prefixIcon.propertyView({
+          { children.sourceMode.propertyView({
+            label: "",
+            radioButton: true
+          })}
+          {children.sourceMode.getView() === 'standard' && children.prefixIcon.propertyView({
             label: trans("button.icon"),
+          })}
+          {children.sourceMode.getView() === 'asset-library' &&children.iconScoutAsset.propertyView({
+            label: trans("button.icon"),
+          })}
+          {children.tooltip.propertyView({ 
+            label: trans("labelProp.tooltip"), 
           })}
         </Section>
 
@@ -314,12 +347,12 @@ let ButtonTmpComp = (function () {
               {children.iconSize.propertyView({
                 label: trans("button.iconSize"),
               })}
-            </Section>
-            <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
               {children.aspectRatio.propertyView({
                 label: trans("style.aspectRatio"),
               })}
+            </Section>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
             </Section>
           </>
         )}

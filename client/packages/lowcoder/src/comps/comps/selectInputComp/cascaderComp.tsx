@@ -58,7 +58,7 @@ let CascaderBasicComp = (function () {
           $childrenInputFieldStyle={props.childrenInputFieldStyle}
           onFocus={() => props.onEvent("focus")}
           onBlur={() => props.onEvent("blur")}
-          dropdownRender={(menus: React.ReactNode) => (
+          popupRender={(menus: React.ReactNode) => (
             <DropdownRenderStyle $childrenInputFieldStyle={props.childrenInputFieldStyle}>
               {menus}
             </DropdownRenderStyle>

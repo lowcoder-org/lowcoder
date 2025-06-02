@@ -192,6 +192,7 @@ import { TreeSelectComp } from "./comps/treeComp/treeSelectComp";
 import { DrawerComp } from "./hooks/drawerComp";
 import { ModalComp } from "./hooks/modalComp";
 import { defaultCollapsibleContainerData } from "./comps/containerComp/collapsibleContainerComp";
+import { ContainerComp as FloatTextContainerComp } from "./comps/containerComp/textContainerComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -605,7 +606,7 @@ export var uiCompMap: Registry = {
     categories: ["layout"],
     icon: FloatingTextCompIcon,
     keywords: trans("uiComp.floatTextContainerCompKeywords"),
-    comp: ContainerComp,
+    comp: FloatTextContainerComp,
     withoutLoading: true,
     layoutInfo: {
       w: 12,

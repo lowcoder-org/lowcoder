@@ -30,6 +30,7 @@ import {
 } from "./styledComponents";
 import history from "util/history";
 import { PERMISSION_SETTING } from "constants/routesURL";
+import Column from "antd/es/table/Column";
 
 const StyledAddIcon = styled(AddIcon)`
   g path {
@@ -45,11 +46,12 @@ type GroupPermissionProp = {
   currentUser: User;
   setModify?: any;
   modify?: boolean;
+  loading?: boolean;
 };
 
 function GroupUsersPermission(props: GroupPermissionProp) {
-  const { Column } = TableStyled;
-  const { group, orgId,  groupUsers, currentUserGroupRole, currentUser , setModify, modify} = props;
+  // const { Column } = TableStyled;
+  const { group, orgId, groupUsers, currentUserGroupRole, currentUser, setModify, modify, loading } = props;
   const adminCount = groupUsers.filter((user) => isGroupAdmin(user.role)).length;
   const sortedGroupUsers = useMemo(() => {
     return [...groupUsers].sort((a, b) => {
@@ -97,7 +99,7 @@ function GroupUsersPermission(props: GroupPermissionProp) {
         dataSource={sortedGroupUsers}
         rowKey="userId"
         pagination={false}
-        loading={groupUsers.length === 0}
+        loading={loading}
       >
         <Column
           title={trans("memberSettings.nameColumn")}
@@ -126,7 +128,7 @@ function GroupUsersPermission(props: GroupPermissionProp) {
           render={(value, record: GroupUser) => (
             <CustomSelect
               style={{ width: "140px", height: "32px" }}
-              dropdownStyle={{ width: "149px" }}
+              styles={{ popup: { root: { width: "149px" }}}}
               defaultValue={record.role}
               key={record.role}
               disabled={

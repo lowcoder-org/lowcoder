@@ -175,6 +175,15 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
+    public Mono<Organization> getByIdWithDeleted(String id) {
+        if(FieldName.isGID(id))
+            return repository.findByGid(id).next()
+                    .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
+        return repository.findBySlug(id).next().switchIfEmpty(repository.findById(id))
+                .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
+    }
+
+    @Override
     public Mono<OrganizationCommonSettings> getOrgCommonSettings(String orgId) {
         if(FieldName.isGID(orgId))
             return repository.findByGidAndState(orgId, ACTIVE)

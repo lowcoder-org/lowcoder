@@ -2,10 +2,11 @@
 export enum SubscriptionProductsEnum {
   // PROD
   SUPPORT = "QYGsTWZYyJYzMg",
+  MEDIAPACKAGE = 'SOz085DH7CmNHG', 
   
   // DEV
   // SUPPORT = "QW8L3WPMiNjQjI",
-  MEDIAPACKAGE = 'QW8MpIBHxieKXd',
+  // MEDIAPACKAGE = 'QW8MpIBHxieKXd',
   AZUREAPIS = 'QlQ7cdOh8Lv4dy',
   GOOGLEAPIS = 'enterprise',
   AWSAPIS = 'enterprise-global',
@@ -35,10 +36,10 @@ export const InitSubscriptionProducts = [
     type: "org",
     quantity_entity: "orgUser",
   },
-  /* {
+  {
     pricingType: "For you in this Workspace, monthly",
     activeSubscription: false,
-    accessLink: "1Pf65wDDlQgecLSf6OFlbsD5",
+    accessLink: "1RUB2XDDlQgecLSfRsBDx14y",
     product: SubscriptionProductsEnum.MEDIAPACKAGE,
     checkoutLink: "",
     checkoutLinkDataLoaded: false,
@@ -46,7 +47,7 @@ export const InitSubscriptionProducts = [
     type: "user",
     quantity_entity: "singleItem",
   },
-  {
+  /* {
     pricingType: "For all in this Workspace, monthly",
     activeSubscription: false,
     accessLink: "1PttHIDDlQgecLSf0XP27tXt",

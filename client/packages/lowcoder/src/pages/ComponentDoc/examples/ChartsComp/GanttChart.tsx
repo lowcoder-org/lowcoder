@@ -143,6 +143,77 @@ export default function GanttChartExample() {
           compFactory={ChartCompWithDefault}
         />
       </ExampleGroup>
+
+      <ExampleGroup
+        title="Styling Properties"
+        description="The Following Examples Show the different Styling properties of the Component."
+      >
+        <Example
+          title="Gantt Chart Styles"
+          width={1000}
+          config={{
+            ganttChartStyle: {
+              "textSize": "15px",
+              "fontFamily": "Courier New",
+              "textColor": "#DA0303",
+              "barBackgroundColor": "#8D8D8E",
+              "barProgressColor": "#06EA9B",
+              "arrowColor": "#FC6B01",
+              "radius": "10px",
+              "todayColor": "#F2AB2E",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+         <Example
+          title="Legend Header Styles"
+          width={1000}
+          config={{
+            headerHeight: "50",
+            legendWidth: "400px",
+            legendHeaderStyle: {
+              "textSize": "20px",
+              "fontFamily": "Verdana",
+              "textColor": "#FFFFFF",
+              "headerBackground": "#36B389",
+              "padding": "10px",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+
+        <Example
+          title="Legend Styles"
+          width={1000}
+          config={{
+            legendWidth: "500px",
+            legendStyle: {
+              "textSize": "20px",
+              "fontFamily": "Courier New",
+              "textColor": "#AE8D1C",
+              "headerBackground": "#00FFFF",
+              "padding": "20px"
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+         <Example
+          title="Tooltip Styles - Hover over individual Task to view the Tooltip"
+          width={1000}
+          config={{
+            tooltipStyle: {
+              "textSize": "20px",
+              "textColor": "#85878C",
+              "headerBackground": "#FFF6E6",
+              "padding": "20px",
+              "borderColor": "#707278",
+              "borderWidth": "3px",
+              "radius": "20px"
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+      </ExampleGroup>
     </>
   );
 }

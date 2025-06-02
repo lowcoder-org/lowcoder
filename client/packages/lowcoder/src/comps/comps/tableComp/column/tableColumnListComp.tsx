@@ -37,9 +37,10 @@ type ActionDataType = {
 };
 
 export function tableDataRowExample(data: Array<JSONObject>) {
-  if (data.length <= 0) {
+  if (!data?.length) {
     return undefined;
   }
+  
   if (typeof data[0] === "string") {
     // do not parse arrays in string format
     return undefined;

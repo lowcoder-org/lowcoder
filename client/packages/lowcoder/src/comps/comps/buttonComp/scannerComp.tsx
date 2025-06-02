@@ -1,6 +1,4 @@
 import { default as Button } from "antd/es/button";
-import { default as Dropdown } from "antd/es/dropdown";
-import { default as Menu } from "antd/es/menu";
 import { default as Skeleton } from "antd/es/skeleton";
 import {
   Button100,
@@ -14,16 +12,29 @@ import { DropdownStyle } from "comps/controls/styleControlConstants";
 import { withDefault } from "comps/generators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { CustomModal, Section, sectionNames } from "lowcoder-design";
-import styled from "styled-components";
-import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
-import { hiddenPropertyView, disabledPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
+import styled, { keyframes } from "styled-components";
+import {
+  CommonNameConfig,
+  NameConfig,
+  withExposingConfigs,
+} from "../../generators/withExposing";
+import {
+  hiddenPropertyView,
+  disabledPropertyView,
+  showDataLoadingIndicatorsPropertyView,
+} from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import React, { Suspense, useEffect, useRef, useState, useContext } from "react";
+import React, {
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  useContext,
+} from "react";
 import { arrayStringExposingStateControl } from "comps/controls/codeStateControl";
 import { BoolControl } from "comps/controls/boolControl";
-import type { ItemType } from "antd/es/menu/interface";
 import { RefControl } from "comps/controls/refControl";
-import { EditorContext } from "comps/editorState"; 
+import { EditorContext } from "comps/editorState";
 
 const Error = styled.div`
   color: #f5222d;
@@ -51,6 +62,50 @@ const Wrapper = styled.div`
   }
 `;
 
+const dropdownShow = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scaleY(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+`;
+
+const DropdownContainer = styled.div`
+  position: absolute;
+  top: 44px;
+  right: 0;
+  min-width: 150px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.12),
+    0 1.5px 3px rgba(0, 0, 0, 0.08);
+  z-index: 1000;
+  padding: 6px 0;
+  animation: ${dropdownShow} 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: box-shadow 0.2s;
+`;
+
+const DropdownItem = styled.div`
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #222;
+  background: transparent;
+  transition: background 0.15s;
+  &:hover {
+    background: #f0f5ff;
+    color: #1677ff;
+  }
+  &:active {
+    background: #e6f7ff;
+  }
+`;
+
 const CustomModalStyled = styled(CustomModal)`
   top: 10vh;
   .react-draggable {
@@ -59,7 +114,9 @@ const CustomModalStyled = styled(CustomModal)`
   }
 `;
 
-const BarcodeScannerComponent = React.lazy(() => import("react-qr-barcode-scanner"));
+const BarcodeScannerComponent = React.lazy(
+  () => import("react-qr-barcode-scanner")
+);
 
 const ScannerTmpComp = (function () {
   const childrenMap = {
@@ -70,17 +127,20 @@ const ScannerTmpComp = (function () {
     maskClosable: withDefault(BoolControl, true),
     onEvent: ScannerEventHandlerControl,
     disabled: BoolCodeControl,
-    style: styleControl(DropdownStyle, 'style'),
+    style: styleControl(DropdownStyle, "style"),
     viewRef: RefControl<HTMLElement>,
   };
   return new UICompBuilder(childrenMap, (props) => {
     const [showModal, setShowModal] = useState(false);
     const [errMessage, setErrMessage] = useState("");
-    const [videoConstraints, setVideoConstraints] = useState<MediaTrackConstraints>({
-      facingMode: "environment",
-    });
-    const [modeList, setModeList] = useState<ItemType[]>([]);
-    const [dropdownShow, setDropdownShow] = useState(false);
+    const [videoConstraints, setVideoConstraints] =
+      useState<MediaTrackConstraints>({
+        facingMode: "environment",
+      });
+    const [modeList, setModeList] = useState<{ label: string; key: string }[]>(
+      []
+    );
+    const [handleDropdown, setHandleDropdown] = useState(false);
     const [success, setSuccess] = useState(false);
 
     useEffect(() => {
@@ -92,7 +152,7 @@ const ScannerTmpComp = (function () {
     const continuousValue = useRef<string[]>([]);
 
     const handleUpdate = (err: any, result: any) => {
-      if (!!result) {
+      if (result) {
         if (props.continuous) {
           continuousValue.current = [...continuousValue.current, result.text];
           const val = props.uniqueData
@@ -109,15 +169,16 @@ const ScannerTmpComp = (function () {
         setSuccess(false);
       }
     };
+
     const handleErr = (err: any) => {
       if (typeof err === "string") {
         setErrMessage(err);
+      } else if (
+        err.message === "getUserMedia is not implemented in this browser"
+      ) {
+        setErrMessage(trans("scanner.errTip"));
       } else {
-        if (err.message === "getUserMedia is not implemented in this browser") {
-          setErrMessage(trans("scanner.errTip"));
-        } else {
-          setErrMessage(err.message);
-        }
+        setErrMessage(err.message);
       }
       setSuccess(false);
     };
@@ -153,10 +214,12 @@ const ScannerTmpComp = (function () {
           showCancelButton={false}
           open={showModal}
           maskClosable={props.maskClosable}
-          destroyOnClose
+          destroyOnHidden
           onCancel={() => {
             setShowModal(false);
             props.onEvent("close");
+            setVideoConstraints({ facingMode: "environment" });
+            setHandleDropdown(false);
           }}
         >
           {!!errMessage ? (
@@ -173,36 +236,33 @@ const ScannerTmpComp = (function () {
                     videoConstraints={videoConstraints}
                   />
                 </Suspense>
-                <div
-                  style={{ height: "42px" }}
-                  onClick={() => {
-                    setDropdownShow(false);
-                  }}
-                >
-                  <Dropdown
-                    placement="bottomRight"
-                    trigger={["click"]}
-                    open={dropdownShow}
-                    onOpenChange={(value) => setDropdownShow(value)}
-                    dropdownRender={() => (
-                      <Menu
-                        items={modeList}
-                        onClick={(value) =>
-                          setVideoConstraints({ ...videoConstraints, deviceId: value.key })
-                        }
-                      />
-                    )}
+
+                <div style={{ position: "relative", marginTop: 10 }}>
+                  <Button
+                    style={{ float: "right" }}
+                    onClick={() => {
+                      getModeList();
+                      setHandleDropdown(!handleDropdown);
+                    }}
                   >
-                    <Button
-                      style={{ float: "right", marginTop: "10px" }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        getModeList();
-                      }}
-                    >
-                      {trans("scanner.changeCamera")}
-                    </Button>
-                  </Dropdown>
+                    {trans("scanner.changeCamera")}
+                  </Button>
+
+                  {handleDropdown && (
+                    <DropdownContainer>
+                      {modeList.map(({ key, label }) => (
+                        <DropdownItem
+                          key={key}
+                          onClick={() => {
+                            setVideoConstraints({ deviceId: { exact: key } });
+                            setHandleDropdown(false);
+                          }}
+                        >
+                          {label}
+                        </DropdownItem>
+                      ))}
+                    </DropdownContainer>
+                  )}
                 </div>
               </Wrapper>
             )
@@ -211,35 +271,44 @@ const ScannerTmpComp = (function () {
       </ButtonCompWrapper>
     );
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.text.propertyView({ label: trans("text") })}
-          </Section>
+    .setPropertyViewFn((children) => (
+      <>
+        <Section name={sectionNames.basic}>
+          {children.text.propertyView({ label: trans("text") })}
+        </Section>
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-            <><Section name={sectionNames.interaction}>
-                {children.onEvent.getPropertyView()}
-                {disabledPropertyView(children)}
-                {hiddenPropertyView(children)}
-                {showDataLoadingIndicatorsPropertyView(children)}
-              </Section>
-              <Section name={sectionNames.advanced}>
-              {children.continuous.propertyView({ label: trans("scanner.continuous") })}
-              {children.continuous.getView() &&
-              children.uniqueData.propertyView({ label: trans("scanner.uniqueData") })}
-              {children.maskClosable.propertyView({ label: trans("scanner.maskClosable") })}
+        {(useContext(EditorContext).editorModeStatus === "logic" ||
+          useContext(EditorContext).editorModeStatus === "both") && (
+          <>
+            <Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {disabledPropertyView(children)}
+              {hiddenPropertyView(children)}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
-            </>
-          )}
+            <Section name={sectionNames.advanced}>
+              {children.continuous.propertyView({
+                label: trans("scanner.continuous"),
+              })}
+              {children.continuous.getView() &&
+                children.uniqueData.propertyView({
+                  label: trans("scanner.uniqueData"),
+                })}
+              {children.maskClosable.propertyView({
+                label: trans("scanner.maskClosable"),
+              })}
+            </Section>
+          </>
+        )}
 
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-            <><Section name={sectionNames.style}>{children.style.getPropertyView()}</Section></>
-          )}
-        </>
-      );
-    })
+        {(useContext(EditorContext).editorModeStatus === "layout" ||
+          useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
+        )}
+      </>
+    ))
     .setExposeMethodConfigs(buttonRefMethods)
     .build();
 })();

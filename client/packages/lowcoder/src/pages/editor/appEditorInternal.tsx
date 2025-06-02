@@ -1,7 +1,7 @@
 import { AppSummaryInfo, updateApplication } from "redux/reduxActions/applicationActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getExternalEditorState } from "redux/selectors/configSelectors";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ExternalEditorContext,
   ExternalEditorContextState,
@@ -46,9 +46,16 @@ function useSaveComp(
   const [prevComp, setPrevComp] = useState<Comp>();
   const [prevJsonStr, setPrevJsonStr] = useState<string>();
   const [prevAppId, setPrevAppId] = useState<string>();
+  const mountedRef = useRef(true);
 
   useEffect(() => {
-    if (readOnly || blockEditing) {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (readOnly || blockEditing || !mountedRef.current) {
       return;
     }
     if (!comp || comp === prevComp) {
@@ -73,7 +80,7 @@ function useSaveComp(
     }
 
     // the first time is a normal change, the latter is the manual update
-    if (prevComp) {
+    if (prevComp && mountedRef.current) {
       dispatch(
         updateApplication({
           applicationId: applicationId,
@@ -86,7 +93,13 @@ function useSaveComp(
     setPrevComp(comp);
     setPrevJsonStr(curJsonStr);
     setPrevAppId(applicationId);
-  }, [comp, applicationId, readOnly, dispatch]);
+  }, [comp, applicationId, readOnly, dispatch, blockEditing, prevComp, prevJsonStr, prevAppId]);
+
+  useUnmount(() => {
+    setPrevComp(undefined);
+    setPrevJsonStr(undefined);
+    setPrevAppId(undefined);
+  });
 }
 
 const exportAppToJson = (appDSL?: any) => {
@@ -94,10 +107,10 @@ const exportAppToJson = (appDSL?: any) => {
 
   const id = `t--export-app-link`;
   const existingLink = document.getElementById(id);
-  existingLink && existingLink.remove();
+  existingLink?.remove();
+  
   const link = document.createElement("a");
   const time = new Date().getTime();
-
   const applicationName = `test_app_${time}`;
   const exportObj = {
     applicationInfo: {
@@ -109,18 +122,22 @@ const exportAppToJson = (appDSL?: any) => {
     },
     applicationDSL: appDSL,
   };
+  
   const blob = new Blob([JSON.stringify(exportObj)], {
     type: "application/json",
   });
   const url = URL.createObjectURL(blob);
-  link.href = url;
-  link.download = applicationName + ".json";
-  link.id = id;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-  return;
+  
+  try {
+    link.href = url;
+    link.download = applicationName + ".json";
+    link.id = id;
+    document.body.appendChild(link);
+    link.click();
+  } finally {
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
 }
 
 interface AppEditorInternalViewProps {
@@ -138,21 +155,32 @@ export const AppEditorInternalView = React.memo((props: AppEditorInternalViewPro
   const isPublicApp = useSelector(isPublicApplication);
   const dispatch = useDispatch();
   const { readOnly, blockEditing, appInfo, compInstance, fetchApplication } = props;
+  const mountedRef = useRef(true);
 
   const [externalEditorState, setExternalEditorState] = useState<ExternalEditorContextState>({
     changeExternalState: (state: Partial<ExternalEditorContextState>) => {
-      dispatch(setEditorExternalStateAction(state));
+      if (mountedRef.current) {
+        dispatch(setEditorExternalStateAction(state));
+      }
     },
     applicationId: appInfo.id,
     appType: AppTypeEnum.Application,
   });
   
   const exportPublicAppToJson = useCallback(() => {
-    const appDsl = compInstance.comp?.toJsonValue();
+    const appDsl = compInstance?.comp?.toJsonValue();
     exportAppToJson(appDsl);
-  }, [compInstance.comp])
+  }, [compInstance?.comp]);
 
   useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!mountedRef.current) return;
+    
     setExternalEditorState((s) => ({
       ...s,
       history: compInstance?.history,
@@ -173,12 +201,19 @@ export const AppEditorInternalView = React.memo((props: AppEditorInternalViewPro
     appInfo.appType, appInfo.id,
     blockEditing,
     fetchApplication,
+    isPublicApp,
   ]);
 
   useEffect(() => {
+    if (!mountedRef.current) return;
+    
     message.config({
       top: isUserViewMode ? 0 : 48,
     });
+    
+    return () => {
+      message.destroy();
+    };
   }, [isUserViewMode]);
 
   useSaveComp(appInfo.id, readOnly, compInstance, blockEditing);
@@ -188,16 +223,33 @@ export const AppEditorInternalView = React.memo((props: AppEditorInternalViewPro
 
   const currentUser = useSelector(getCurrentUser);
 
+  useUnmount(() => {
+    setExternalEditorState({
+      changeExternalState: () => {},
+      applicationId: "",
+      appType: AppTypeEnum.Application,
+    });
+  });
+
   return loading ? (
     window.location.pathname.split("/")[3] === "admin" ? <div></div> : 
     <EditorSkeletonView />
   ) : (
-    <ConfigProvider locale={getAntdLocale(currentUser.uiLanguage)}>
+    <ConfigProvider
+      locale={getAntdLocale(currentUser.uiLanguage)}
+      theme={{
+        token: {
+          fontFamily: `-apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, "Segoe UI", "PingFang SC",
+            "Microsoft Yahei", "Hiragino Sans GB", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+            "Segoe UI Symbol", "Noto Color Emoji"`,
+        },
+      }}
+    >
       <ExternalEditorContext.Provider value={externalEditorState}>
         {compInstance?.comp?.getView()}
       </ExternalEditorContext.Provider>
     </ConfigProvider>
   );
 }, (prevProps, nextProps) => {
-  return isEqual(prevProps, nextProps)
+  return isEqual(prevProps, nextProps);
 });

@@ -2,6 +2,7 @@ import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
 import { default as Spin } from "antd/es/spin";
 import DataSourceIcon from "components/DataSourceIcon";
 import { ContextControlType, ContextJsonControl } from "comps/controls/contextCodeControl";
+import { FunctionControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import {
   CompAction,
@@ -10,6 +11,10 @@ import {
   isMyCustomAction,
   MultiBaseComp,
   wrapChildAction,
+  evalFunc,
+  changeValueAction,
+  multiChangeAction,
+  isDynamicSegment,
 } from "lowcoder-core";
 import {
   Dropdown,
@@ -34,6 +39,12 @@ import {
   ToInstanceType,
 } from "../generators/multi";
 import { toQueryView } from "./queryCompUtils";
+import { getGlobalSettings } from "comps/utils/globalSettings";
+import { QUERY_EXECUTION_ERROR, QUERY_EXECUTION_OK } from "../../constants/queryConstants";
+import type { SandBoxOption } from "lowcoder-core/src/eval/utils/evalScript";
+import { QueryLibraryApi } from "@lowcoder-ee/api/queryLibraryApi";
+import { validateResponse } from "@lowcoder-ee/api/apiUtils";
+import { JSONValue } from "@lowcoder-ee/util/jsonTypes";
 
 const NoInputsWrapper = styled.div`
   color: ${GreyTextColor};
@@ -121,6 +132,8 @@ type QueryLibraryUpdateAction = {
 const childrenMap = {
   libraryQueryId: valueComp<string>(""),
   libraryQueryRecordId: valueComp<string>("latest"),
+  libraryQueryType: valueComp<string>(""),
+  libraryQueryDSL: valueComp<JSONValue>(null),
   inputs: InputsComp,
   error: stateComp<string>(""),
 };
@@ -133,6 +146,7 @@ export const LibraryQuery = class extends LibraryQueryBase {
   readonly isReady: boolean = false;
 
   private value: DataType | undefined;
+  private queryInfo: any = null;
 
   constructor(params: CompParams<DataType>) {
     super(params);
@@ -140,6 +154,62 @@ export const LibraryQuery = class extends LibraryQueryBase {
   }
 
   override getView() {
+    // Check if this is a JS query
+    const queryInfo = this.children.libraryQueryDSL.getView() as any;
+    const queryType = this.children.libraryQueryType.getView() as any;
+    if (queryType === "js") {
+      return async (props: any) => {
+        try {
+          const { orgCommonSettings } = getGlobalSettings();
+          const runInHost = !!orgCommonSettings?.runJavaScriptInHost;
+          const timer = performance.now();
+          const script = queryInfo.query.comp.script || "";
+          const options: SandBoxOption = { disableLimit: runInHost };
+
+          // Get input values from the inputs component and resolve any variables
+          const inputValues = Object.entries(this.children.inputs.children).reduce((acc, [name, input]) => {
+            // Get the raw value from the input component's text property
+            let { unevaledValue } = input.children.text;
+            let value = input.children.text.getView();
+
+            // Resolve any variables in the value
+            if (typeof unevaledValue === 'string') {
+              unevaledValue = unevaledValue.replace(/\{\{([^}]+)\}\}/g, (match, path) => {
+                const parts = path.split('.');
+                let current = props.args || {};
+                for (const part of parts) {
+                  if (current && typeof current === 'object') {
+                    current = current[part];
+                  } else {
+                    return match; // Return original if path not found
+                  }
+                }
+                return current ?? match;
+              });
+            }
+            
+            acc[name] = isDynamicSegment(unevaledValue) ? value : unevaledValue;
+            return acc;
+          }, {} as Record<string, any>);
+
+          const data = await evalFunc(script, inputValues, undefined, options);
+          return {
+            data: data,
+            code: QUERY_EXECUTION_OK,
+            success: true,
+            runTime: Number((performance.now() - timer).toFixed()),
+          };
+        } catch (e) {
+          return {
+            success: false,
+            data: "",
+            code: QUERY_EXECUTION_ERROR,
+            message: (e as any).message || "",
+          };
+        }
+      };
+    }
+
     return toQueryView(
       Object.entries(this.children.inputs.children).map(([name, input]) => ({
         key: name,
@@ -161,9 +231,13 @@ export const LibraryQuery = class extends LibraryQueryBase {
 
   override reduce(action: CompAction): this {
     if (isMyCustomAction<QueryLibraryUpdateAction>(action, "queryLibraryUpdate")) {
+      const isJSQuery = this.children.libraryQueryType.getView() === 'js'
+      const queryDSL = isJSQuery ? action.value?.dsl : null;
+      const queryDSLValue  = this.children.libraryQueryDSL.reduce(this.children.libraryQueryDSL.changeValueAction(queryDSL))
+      
       const inputs = this.children.inputs.setInputs(action.value?.dsl?.["inputs"] ?? []);
       return setFieldsNoTypeCheck(this, {
-        children: { ...this.children, inputs: inputs },
+        children: { ...this.children, inputs: inputs, libraryQueryDSL: queryDSLValue },
         isReady: true,
       });
     }
@@ -252,13 +326,23 @@ const PropertyView = (props: { comp: InstanceType<typeof LibraryQuery> }) => {
               value: meta.libraryQueryMetaView.id,
             }))}
             value={queryId ?? queryLibraryMeta[0]?.libraryQueryMetaView.id}
-            onChange={(value) => dispatch(props.comp.changeChildAction("libraryQueryId", value))}
+            onChange={(value) => {
+              const queryDSL = queryLibraryMeta[value]?.libraryQueryMetaView || null;
+              const { datasourceType } = queryDSL as any;
+
+              props.comp.dispatch(
+                multiChangeAction({
+                  libraryQueryId: changeValueAction(value, false),
+                  libraryQueryType: changeValueAction(datasourceType, false),
+                })
+              )
+            }}
           />
         </div>
         <QueryTutorialButton
           label={trans("queryLibrary.viewQuery")}
           url={`/query-library?forwardQueryId=${queryId}`}
-          styleName={"dropdownRight"}
+          styleName="dropdownRight"
         />
       </QueryConfigWrapper>
 

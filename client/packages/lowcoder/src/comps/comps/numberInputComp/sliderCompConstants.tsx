@@ -12,8 +12,7 @@ import { darkenColor, fadeColor } from "lowcoder-design";
 import { disabledPropertyView, hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { IconControl } from "comps/controls/iconControl";
 import { trans } from "i18n";
-
-import { useContext } from "react";
+import { memo, useCallback, useContext } from "react";
 import { EditorContext } from "comps/editorState";
 
 const getStyle = (style: SliderStyleType, vertical: boolean) => {
@@ -92,42 +91,61 @@ export const SliderChildren = {
   animationStyle: styleControl(AnimationStyle, 'animationStyle')
 };
 
-export const SliderPropertyView = (
+const InteractionSection = memo(({ children }: { children: RecordConstructorToComp<typeof SliderChildren & { hidden: typeof BoolCodeControl }> }) => {
+  const editorModeStatus = useContext(EditorContext).editorModeStatus;
+  
+  if (!["logic", "both"].includes(editorModeStatus)) {
+    return null;
+  }
+
+  return (
+    <Section name={sectionNames.interaction}>
+      {children.onEvent.getPropertyView()}
+      {disabledPropertyView(children)}
+      {hiddenPropertyView(children)}
+      {showDataLoadingIndicatorsPropertyView(children as any)}
+      {(children as any).tabIndex?.propertyView({ label: trans("prop.tabIndex") })}
+    </Section>
+  );
+});
+
+const LayoutSection = memo(({ children }: { children: RecordConstructorToComp<typeof SliderChildren & { hidden: typeof BoolCodeControl }> }) => {
+  const editorModeStatus = useContext(EditorContext).editorModeStatus;
+  
+  if (!["layout", "both"].includes(editorModeStatus)) {
+    return null;
+  }
+
+  return (
+    <>
+      {children.label.getPropertyView()}
+      <Section name={sectionNames.layout}>
+        {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+        {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+      </Section>
+      <Section name={sectionNames.style}>
+        {children.style.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.labelStyle}>
+        {children.labelStyle.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.inputFieldStyle}>
+        {children.inputFieldStyle.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.animationStyle} hasTooltip={true}>
+        {children.animationStyle.getPropertyView()}
+      </Section>
+    </>
+  );
+});
+
+export const SliderPropertyView = memo((
   children: RecordConstructorToComp<typeof SliderChildren & { hidden: typeof BoolCodeControl }>
 ) => (
   <>
-
-    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-      <Section name={sectionNames.interaction}>
-        {children.onEvent.getPropertyView()}
-        {disabledPropertyView(children)}
-        {hiddenPropertyView(children)}
-        {showDataLoadingIndicatorsPropertyView(children as any)}
-      </Section>
-    )}
-
-    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-      children.label.getPropertyView()
-    )}
-
-    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-      <><Section name={sectionNames.layout}>
-          {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-          {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-        </Section>
-        <Section name={sectionNames.style}>
-          {children.style.getPropertyView()}
-        </Section>
-        <Section name={sectionNames.labelStyle}>
-          {children.labelStyle.getPropertyView()}
-        </Section>
-        <Section name={sectionNames.inputFieldStyle}>
-          {children.inputFieldStyle.getPropertyView()}
-        </Section>
-        <Section name={sectionNames.animationStyle} hasTooltip={true}>
-          {children.animationStyle.getPropertyView()}
-        </Section>
-      </>
-    )}
+    <InteractionSection children={children} />
+    <LayoutSection children={children} />
   </>
-);
+));
+
+SliderPropertyView.displayName = 'SliderPropertyView';

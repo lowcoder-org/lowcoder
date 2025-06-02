@@ -28,10 +28,10 @@ public class ServerSettingServiceImpl implements ServerSettingService {
     "LOWCODER_ADMIN_SMTP_PORT",
     "LOWCODER_ADMIN_SMTP_USERNAME",
     "LOWCODER_ADMIN_SMTP_PASSWORD",
-    "LOWCODER_SUPERADMIN_PASSWORD",
-    "LOWCODER_SUPERADMIN_USERNAME",
     "LOWCODER_SUPERUSER_PASSWORD",
-    "LOWCODER_SUPERUSER_USERNAME");
+    "LOWCODER_SUPERUSER_USERNAME",
+    "LOWCODER_NODE_SERVICE_SECRET",
+    "LOWCODER_NODE_SERVICE_SECRET_SALT");
 
     @Autowired
     public ServerSettingServiceImpl(ServerSettingRepository repository) {

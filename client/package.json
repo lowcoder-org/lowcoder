@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-frontend",
-  "version": "2.6.5",
+  "version": "2.7.0",
   "type": "module",
   "private": true,
   "workspaces": [
@@ -83,6 +83,7 @@
     "flag-icons": "^7.2.1",
     "number-precision": "^1.6.0",
     "react-countup": "^6.5.3",
+    "react-github-btn": "^1.4.0",
     "react-player": "^2.11.0",
     "resize-observer-polyfill": "^1.5.1",
     "rollup": "^4.22.5",

@@ -61,7 +61,7 @@ function CreateModal(props: CreateModalProp) {
       onCancel={handleCancel}
       showOkButton={false}
       showCancelButton={false}
-      destroyOnClose
+      destroyOnHidden
       afterClose={() => form.resetFields()}
     >
       <FormStyled

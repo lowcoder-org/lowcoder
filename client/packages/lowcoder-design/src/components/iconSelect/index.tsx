@@ -152,6 +152,7 @@ class Icon {
     else
       return (
         <FontAwesomeIcon
+          className=""
           icon={this.def}
           style={{ width: "1em", height: "1em"}}
         />
@@ -256,6 +257,7 @@ const IconPopup = (props: {
   searchKeywords?: Record<string, string>;
   IconType?: "OnlyAntd" | "All" | "default" | undefined;
 }) => {
+  const draggableRef = useRef<HTMLDivElement>(null);
   const [searchText, setSearchText] = useState("");
   const [allIcons, setAllIcons] = useState<Record<string, Icon>>({});
   const searchResults = useMemo(
@@ -289,7 +291,8 @@ const IconPopup = (props: {
               title={icon.title + ", Key: " + key}
               placement="bottom"
               align={{ offset: [0, -7, 0, 0] }}
-              destroyTooltipOnHide
+              getPopupContainer={(node: any) => node.parentNode}
+              destroyOnHidden
             >
               <IconItemContainer
                 tabIndex={0}
@@ -311,8 +314,8 @@ const IconPopup = (props: {
     [searchResults, allIcons, onChangeIcon]
   );
   return (
-    <Draggable handle=".dragHandle">
-      <PopupContainer>
+    <Draggable handle=".dragHandle" nodeRef={draggableRef}>
+      <PopupContainer ref={draggableRef}>
         <TitleDiv className="dragHandle">
           <TitleText>{trans("iconSelect.title")}</TitleText>
           <StyledCloseIcon onClick={props.onClose} />
@@ -371,7 +374,7 @@ export const IconSelectBase = (props: {
         }
       }}
       // when dragging is allowed, always re-location to avoid the popover exceeds the screen
-      destroyTooltipOnHide
+      destroyOnHidden
       content={
         <IconPopup
           onChange={props.onChange}

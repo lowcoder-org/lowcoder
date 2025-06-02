@@ -2,7 +2,6 @@ import { TreeComp } from "comps/comps/treeComp/treeComp";
 import { trans } from "i18n";
 import Example from "../../common/Example";
 import ExampleGroup from "../../common/ExampleGroup";
-import { InputFieldStyle } from "@lowcoder-ee/index.sdk";
 
 export default function TreeExample() {
   const blackListConfig: string[] = ["options.manual.manual"];

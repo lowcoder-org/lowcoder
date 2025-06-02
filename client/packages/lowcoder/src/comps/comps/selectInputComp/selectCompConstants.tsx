@@ -271,13 +271,15 @@ export const SelectUIView = (
     filterOption={(input, option) =>
       option?.label.toLowerCase().includes(input.toLowerCase())
     }
-    dropdownRender={(originNode: ReactNode) => (
+    popupRender={(originNode: ReactNode) => (
       <DropdownStyled $style={props.childrenInputFieldStyle as ChildrenMultiSelectStyleType}>
         {originNode}
       </DropdownStyled>
     )}
-    dropdownStyle={{
-      padding: 0,
+    styles={{
+      popup: {
+        root: { padding: 0 },
+      }
     }}
     menuItemSelectedIcon={props.mode ? <MultiselectTagIcon title="" /> : ""}
     onChange={props.onChange}

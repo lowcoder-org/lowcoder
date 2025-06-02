@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import SimpleBar from "simplebar-react";
 import styled from "styled-components";
 import { DebouncedFunc } from 'lodash'; // Assuming you're using lodash's DebouncedFunc type
@@ -57,7 +57,7 @@ interface IProps {
   children: React.ReactNode;
   className?: string;
   height?: string;
-  overflow?:string,
+  overflow?: string,
   style?: React.CSSProperties; // Add this line to include a style prop
   scrollableNodeProps?: {
     onScroll: DebouncedFunc<(e: any) => void>;
@@ -68,7 +68,7 @@ interface IProps {
   suffixNode?: React.ReactNode;
 }
 
-export const ScrollBar = ({
+export const ScrollBar = React.memo(({
   className,
   children,
   style,
@@ -80,31 +80,42 @@ export const ScrollBar = ({
   suffixNode,
   ...otherProps
 }: IProps) => {
-  const height = style?.height ?? '100%';
-  // You can now use the style prop directly or pass it to SimpleBar
-  const combinedStyle = { ...style, height }; // Example of combining height with passed style
+  // Memoize the combined style to prevent unnecessary re-renders
+  const combinedStyle = useMemo(() => {
+    const height = style?.height ?? '100%';
+    return { ...style, height };
+  }, [style]);
+
+  // Memoize the render function to prevent recreation on every render
+  const renderContent = useCallback(({ scrollableNodeProps, contentNodeProps }: any) => (
+    <div {...scrollableNodeProps}>
+      {prefixNode}
+      <div {...contentNodeProps}>
+        {children}
+      </div>
+      {suffixNode}
+    </div>
+  ), [prefixNode, children, suffixNode]);
 
   return hideScrollbar ? (
-    <ScrollBarWrapper className={className}>
+    <ScrollBarWrapper 
+      className={className}
+    >
       {prefixNode}
       {children}
       {suffixNode}
     </ScrollBarWrapper>
   ) : (
-    <ScrollBarWrapper className={className}>
-      <SimpleBar style={combinedStyle} scrollableNodeProps={scrollableNodeProps} {...otherProps}>
-        {({ scrollableNodeProps, contentNodeProps }) => {
-          return (
-            <div {...scrollableNodeProps as any}>
-              {prefixNode}
-              <div {...contentNodeProps as any}>
-                {children}
-              </div>
-              {suffixNode}
-            </div>
-          );
-        }}
+    <ScrollBarWrapper 
+      className={className}
+    >
+      <SimpleBar 
+        style={combinedStyle} 
+        scrollableNodeProps={scrollableNodeProps} 
+        {...otherProps}
+      >
+        {renderContent}
       </SimpleBar>
     </ScrollBarWrapper>
   );
-};
+});

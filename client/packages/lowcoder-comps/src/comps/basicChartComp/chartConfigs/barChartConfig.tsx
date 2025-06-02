@@ -33,10 +33,10 @@ const BarTypeOptions = [
 export const BarChartConfig = (function () {
   return new MultiCompBuilder(
     {
-      showLabel: BoolControl,
+      showLabel: withDefault(BoolControl, true),
       type: dropdownControl(BarTypeOptions, "basicBar"),
-      barWidth: withDefault(NumberControl, i18nObjs.defaultBarChartOption.barWidth),
-      showBackground: BoolControl,
+      barWidth: withDefault(NumberControl, 40),
+      showBackground: withDefault(BoolControl, false),
       backgroundColor: withDefault(ColorControl, i18nObjs.defaultBarChartOption.barBg),
       radiusAxisMax: NumberControl,
       polarRadiusStart: withDefault(StringControl, '30'),

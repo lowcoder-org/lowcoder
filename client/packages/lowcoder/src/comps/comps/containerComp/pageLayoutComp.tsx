@@ -141,10 +141,8 @@ export const PageLayoutComp = withMethodExposing(PageLayoutCompTmP, [
       params: [{ name: "collapsed", type: "boolean" }],
     },
     execute: (comp, values) => {
-      const page = values[0] as number;
-      if (page && page > 0) {
-        // comp.children.pagination.children.pageNo.dispatchChangeValueAction(page);
-      }
+      const collapsed = !!values[0]; // Ensure boolean value
+      comp.children.container.children.siderCollapsed.dispatchChangeValueAction(collapsed);
     },
   }
 ]);

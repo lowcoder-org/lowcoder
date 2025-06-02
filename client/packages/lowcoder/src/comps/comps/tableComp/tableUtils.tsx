@@ -385,7 +385,7 @@ export function columnsToAntdFormat(
           .getView()
           .view({
             editable: record[OB_ROW_ORI_INDEX].startsWith(EMPTY_ROW_KEY) || column.editable,
-            size,
+            tableSize: size,
             candidateTags: tags,
             candidateStatus: status,
             textOverflow: column.textOverflow,
@@ -396,6 +396,7 @@ export function columnsToAntdFormat(
             }),
             editMode,
             onTableEvent,
+            cellIndex: `${column.dataIndex}-${index}`,
           });
       },
       ...(column.sortable

@@ -1,5 +1,5 @@
 import { trans } from "i18n/design";
-import React, { ReactNode, useContext } from "react";
+import React, { ReactNode, useContext, useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { ReactComponent as Packup } from "icons/v1/icon-Pack-up.svg";
 import { labelCss } from "./Label";
@@ -14,6 +14,7 @@ const SectionItem = styled.div<{ $width?: number }>`
     border-bottom: none;
   }
 `;
+
 const SectionLabel = styled.div`
   ${labelCss};
   flex-grow: 1;
@@ -64,6 +65,10 @@ const SectionLabelDiv = styled.div`
   }
 `;
 
+const ButtonContainer = styled.div`
+  display: flex;
+`;
+
 const ShowChildren = styled.div<{ $show?: string; $noMargin?: boolean }>`
   display: ${(props) => props.$show || "none"};
   flex-direction: column;
@@ -80,6 +85,7 @@ const TooltipWrapper = styled.span`
   white-space: pre-wrap;
   color:#fff;
 `;
+
 interface ISectionConfig<T> {
   name?: string;
   open?: boolean;
@@ -109,47 +115,51 @@ export const PropertySectionContext = React.createContext<PropertySectionContext
   state: {},
 });
 
-export const BaseSection = (props: ISectionConfig<ReactNode>) => {
-  const { name,hasTooltip } = props;
+const TOOLTIP_CONTENT = (
+  <TooltipWrapper>
+    Here you can enter the animation type codes. Like bounce, swing or
+    tada. Read more about all possible codes at:{" "}
+    <a href="https://animate.style">https://animate.style</a>
+  </TooltipWrapper>
+);
+
+export const BaseSection = React.memo((props: ISectionConfig<ReactNode>) => {
+  const { name, hasTooltip } = props;
   const { compName, state, toggle } = useContext(PropertySectionContext);
   const open = props.open !== undefined ? props.open : name ? state[compName]?.[name] !== false : true;
 
-  // console.log("open", open, props.open);
-
-  const handleToggle = () => {
+  const handleToggle = useCallback(() => {
     if (!name) {
       return;
     }
     toggle(compName, name);
-  };
+  }, [name, compName, toggle]);
+
+  const tooltipContent = useMemo(() => hasTooltip ? TOOLTIP_CONTENT : null, [hasTooltip]);
+
+  const getPopupContainer = useCallback((node: HTMLElement) => {
+    return (node.closest('.react-grid-item') as HTMLElement) || document.body;
+  }, []);
 
   return (
     <SectionItem $width={props.width} style={props.style}>
       {props.name && (
         <SectionLabelDiv onClick={handleToggle} className={'section-header'}>
           <SectionLabel>{props.name}</SectionLabel>
-          <div style={{display: 'flex'}}>
+          <ButtonContainer>
             {open && props.additionalButton}
             <PackupIcon deg={open ? 'rotate(0deg)' : 'rotate(180deg)'} />
-          </div>
+          </ButtonContainer>
         </SectionLabelDiv>
       )}
       <Tooltip
-        title={
-          hasTooltip && (
-            <TooltipWrapper>
-              Here you can enter the animation type codes. Like bounce, swing or
-              tada. Read more about all possible codes at:{" "}
-              <a href="https://animate.style">https://animate.style</a>
-            </TooltipWrapper>
-          )
-        }
+        title={tooltipContent}
         arrow={{
           pointAtCenter: true,
         }}
         placement="top"
         color="#2c2c2c"
-        getPopupContainer={(node: any) => node.closest('.react-grid-item')}
+        getPopupContainer={getPopupContainer}
       >
         <ShowChildren $show={open ? 'flex' : 'none'} $noMargin={props.noMargin}>
           {props.children}
@@ -157,11 +167,15 @@ export const BaseSection = (props: ISectionConfig<ReactNode>) => {
       </Tooltip>
     </SectionItem>
   );
-};
+});
 
-export function Section(props: ISectionConfig<ControlNode>) {
+BaseSection.displayName = 'BaseSection';
+
+export const Section = React.memo((props: ISectionConfig<ControlNode>) => {
   return controlItem({ filterText: props.name, searchChild: true }, <BaseSection {...props} />);
-}
+});
+
+Section.displayName = 'Section';
 
 // common section names
 export const sectionNames = {

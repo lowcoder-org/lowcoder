@@ -1,5 +1,5 @@
 import { default as Switch } from "antd/es/switch";
-import { BoolCodeControl } from "comps/controls/codeControl";
+import { BoolCodeControl, NumberControl } from "comps/controls/codeControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { changeEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { LabelControl } from "comps/controls/labelControl";
@@ -18,7 +18,7 @@ import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUtils";
 import { fixOldInputCompData } from "./textInputComp/textInputConstants";
 
-import { useContext, useEffect } from "react";
+import { useCallback, useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 
 const EventOptions = [
@@ -104,6 +104,7 @@ let SwitchTmpComp = (function () {
     ),
     viewRef: RefControl<HTMLElement>,
     inputFieldStyle: migrateOldData(styleControl(SwitchStyle, 'inputFieldStyle'), fixOldData),
+    tabIndex: NumberControl,
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
@@ -113,6 +114,12 @@ let SwitchTmpComp = (function () {
     useEffect(() => {
       props.value.onChange(defaultValue);
     }, [defaultValue]);
+
+    const handleChange = useCallback((checked: boolean) => {
+      props.value.onChange(checked);
+      props.onEvent("change");
+      props.onEvent(checked ? "true" : "false");
+    }, [props.value, props.onEvent]);
 
     return props.label({
       style: props.style,
@@ -125,17 +132,18 @@ let SwitchTmpComp = (function () {
             checked={value}
             disabled={props.disabled}
             ref={props.viewRef}
-            onChange={(checked) => {
-              props.value.onChange(checked);
-              props.onEvent("change");
-              props.onEvent(checked ? "true" : "false");
-            }}
+            onChange={handleChange}
+            tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
           />
         </SwitchWrapper>
       ),
     });
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useContext(EditorContext).editorModeStatus;
+      const isLogicMode = ["logic", "both"].includes(editorModeStatus);
+      const isLayoutMode = ["layout", "both"].includes(editorModeStatus);
+
       return (
         <>
           <Section name={sectionNames.basic}>
@@ -144,20 +152,21 @@ let SwitchTmpComp = (function () {
 
           <FormDataPropertyView {...children} />
 
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {isLogicMode && (
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
+              {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
               {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {isLayoutMode && (
             children.label.getPropertyView()
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {isLayoutMode && (
             <>
               <Section name={sectionNames.style}>
                 {children.style.getPropertyView()}

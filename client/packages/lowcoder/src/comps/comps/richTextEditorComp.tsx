@@ -1,4 +1,4 @@
-import { StringControl } from "comps/controls/codeControl";
+import { StringControl, NumberControl } from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { BoolCodeControl } from "../controls/codeControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
@@ -7,8 +7,8 @@ import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { UICompBuilder, withDefault } from "comps/generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
-import React, { Suspense, useEffect, useRef, useState } from "react";
-import type ReactQuill from "react-quill";
+import React, { ChangeEvent, Suspense, useEffect, useRef, useState } from "react";
+import type ReactQuill from "react-quill-new";
 import { useDebounce } from "react-use";
 import styled, { css } from "styled-components";
 import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
@@ -19,7 +19,7 @@ import {
   readOnlyPropertyView,
   showDataLoadingIndicatorsPropertyView,
 } from "comps/utils/propertyUtils";
-import _ from "lodash";
+import _, { debounce } from "lodash";
 import { trans } from "i18n";
 import { default as Skeleton } from "antd/es/skeleton";
 import { styleControl } from "comps/controls/styleControl";
@@ -180,6 +180,7 @@ const childrenMap = {
   toolbar: withDefault(StringControl, JSON.stringify(toolbarOptions)),
   onEvent: ChangeEventHandlerControl,
   style: styleControl(RichTextEditorStyle , 'style'),
+  tabIndex: NumberControl,
 
   ...formDataChildren,
 };
@@ -196,9 +197,10 @@ interface IProps {
   onChange: (value: string) => void;
   $style: RichTextEditorStyleType;
   contentScrollBar: boolean;
+  tabIndex?: number;
 }
 
-const ReactQuillEditor = React.lazy(() => import("react-quill"));
+const ReactQuillEditor = React.lazy(() => import("react-quill-new"));
 
 function RichTextEditor(props: IProps) {
   const [key, setKey] = useState(0);
@@ -225,6 +227,15 @@ function RichTextEditor(props: IProps) {
     500,
     [props.placeholder]
   );
+
+  useEffect(() => {
+    if (editorRef.current && props.tabIndex !== undefined) {
+      const editor = editorRef.current.getEditor();
+      if (editor && editor.scroll && editor.scroll.domNode) {
+        (editor.scroll.domNode as HTMLElement).tabIndex = props.tabIndex;
+      }
+    }
+  }, [props.tabIndex, key]); // Also re-run when key changes due to placeholder update
 
   const contains = (parent: HTMLElement, descendant: HTMLElement) => {
     try {
@@ -294,9 +305,15 @@ function RichTextEditor(props: IProps) {
 }
 
 const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
-  const handleChange = (v: string) => {
-    props.value.onChange(v);
-    props.onEvent("change");
+  const debouncedOnChangeRef = useRef(
+    debounce((value: string) => {
+      props.value.onChange(value);
+      props.onEvent("change");
+    }, 1000)
+  );
+
+  const handleChange = (value: string) => {
+    debouncedOnChangeRef.current?.(value);
   };
 
   return (
@@ -310,6 +327,7 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
       onChange={handleChange}
       $style={props.style}
       contentScrollBar={props.contentScrollBar}
+      tabIndex={props.tabIndex}
     />
   );
 })
@@ -328,6 +346,7 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
             {children.onEvent.getPropertyView()}
             {hiddenPropertyView(children)}
             {readOnlyPropertyView(children)}
+            {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
             {showDataLoadingIndicatorsPropertyView(children)}
           </Section>
         )}

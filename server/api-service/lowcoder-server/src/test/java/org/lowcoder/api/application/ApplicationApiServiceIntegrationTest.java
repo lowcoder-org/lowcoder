@@ -116,7 +116,7 @@ public class ApplicationApiServiceIntegrationTest {
                             .editingApplicationDSL(applicationView.getApplicationDSL())
                             .name("app03")
                             .build();
-                    return applicationApiService.update(applicationView.getApplicationInfoView().getApplicationId(), application);
+                    return applicationApiService.update(applicationView.getApplicationInfoView().getApplicationId(), application, false);
                 });
 
         StepVerifier.create(applicationViewMono)
@@ -131,7 +131,7 @@ public class ApplicationApiServiceIntegrationTest {
     public void testUpdateEditingStateSuccess() {
         Mono<ApplicationView> applicationViewMono = applicationApiService.create(new CreateApplicationRequest("org01", null, "app1", ApplicationType.APPLICATION.getValue(), Map.of("comp", "list"), null, null, null));
         Mono<ApplicationView> updateEditStateMono = applicationViewMono.delayUntil(app -> applicationApiService.updateEditState(app.getApplicationInfoView().getApplicationId(), new ApplicationEndpoints.UpdateEditStateRequest(true)));
-        Mono<ApplicationView> app = updateEditStateMono.flatMap(applicationView -> applicationApiService.getEditingApplication(applicationView.getApplicationInfoView().getApplicationId()));
+        Mono<ApplicationView> app = updateEditStateMono.flatMap(applicationView -> applicationApiService.getEditingApplication(applicationView.getApplicationInfoView().getApplicationId(), false));
         StepVerifier.create(app)
                 .assertNext(application -> {
                     Assertions.assertEquals("user01", application.getApplicationInfoView().getEditingUserId());
