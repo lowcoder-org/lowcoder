@@ -99,9 +99,7 @@ export const ScrollBar = React.memo(({
 
   return hideScrollbar ? (
     <ScrollBarWrapper 
-      className={className} 
-      $hideplaceholder={$hideplaceholder}
-      $overflow={overflow}
+      className={className}
     >
       {prefixNode}
       {children}
@@ -110,8 +108,6 @@ export const ScrollBar = React.memo(({
   ) : (
     <ScrollBarWrapper 
       className={className}
-      $hideplaceholder={$hideplaceholder}
-      $overflow={overflow}
     >
       <SimpleBar 
         style={combinedStyle} 

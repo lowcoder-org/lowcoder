@@ -127,15 +127,6 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
   componentWillUnmount() {
     // Cleanup throttled debug function
     this.throttleDebug.cancel();
-    
-    // Clear any remaining dragging data
-    draggingUtils.clearData();
-    
-    // Remove any remaining event listeners
-    if (this.ref.current) {
-      // The event listener is added in the render method using onKeyDown prop
-      // No need to manually remove it as React handles cleanup
-    }
   }
 
   static getDerivedStateFromProps(

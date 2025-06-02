@@ -1044,7 +1044,13 @@ export const TableCompView = React.memo((props: {
   }
 
   if (antdColumns.length === 0) {
-    return <EmptyContent text={trans("table.emptyColumns")} />;
+    return (
+      <div>
+        {toolbar.position === "above" && !hideToolbar && toolbarView}
+        <EmptyContent text={trans("table.emptyColumns")} />
+        {toolbar.position === "below" && !hideToolbar && toolbarView}
+      </div>
+    );
   }
 
   const hideScrollbar = !showHorizontalScrollbar && !showVerticalScrollbar;
