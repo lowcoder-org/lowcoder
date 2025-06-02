@@ -59,6 +59,8 @@ export function AppUsageDashboard() {
     isAnonymous: boolean;
     details: Record<string, any>;
     geolocationDataJsonb?: Record<string, any>,
+    applicationAuthor?: string;
+    applicationAuthorOrgId?: string;
   };
 
   const currentUser = useSelector(getUser);
@@ -253,13 +255,17 @@ export function AppUsageDashboard() {
       const orgId = e.orgId;
       const appId = e.appId;
       const name = e.details?.applicationName ?? 'Unknown';
-      acc[appId] = acc[appId] || { appId, name, orgId, environmentId, count: 0 };
+      const applicationAuthor = e.applicationAuthor;
+      const applicationAuthorOrgId = e.applicationAuthorOrgId;
+      acc[appId] = acc[appId] || { appId, name, orgId, environmentId, applicationAuthor, applicationAuthorOrgId, count: 0 };
       acc[appId].count++;
       return acc;
     }, {} as Record<string, {
       appId: string, name: string,
       orgId: string,
       environmentId: string,
+      applicationAuthor?: string,
+      applicationAuthorOrgId?: string,
       count: number
     }>);
   }, [allLogs]);
@@ -353,6 +359,22 @@ export function AppUsageDashboard() {
       ),
     },
     {
+      title: "App Author",
+      dataIndex: "applicationAuthor",
+      key: "applicationAuthor",
+      render: (text: string) => (
+        text ? <a onClick={() => handleClickFilter("appAuthor", text)}>{text}</a> : '-'
+      ),
+    },
+    {
+      title: "App Author Org ID",
+      dataIndex: "applicationAuthorOrgId",
+      key: "applicationAuthorOrgId",
+      render: (text: string) => (
+        text ? <a onClick={() => handleClickFilter("appAuthorOrgId", text)}>{dataMap[text] ?? text}</a> : '-'
+      ),
+    },
+    {
       title: "Total Views",
       dataIndex: "count",
       key: "count",
@@ -380,7 +402,7 @@ export function AppUsageDashboard() {
                 const key = Object.keys(changedValue)[0];
                 if (key === "dateRange") {
                   handleDateChange(changedValue.dateRange);
-                } else if (["environmentId", "orgId", "userId", "appId"].includes(key)) {
+                } else if (["environmentId", "orgId", "userId", "appId", "appAuthor", "appAuthorOrgId"].includes(key)) {
                   handleInputChange(); // Debounced input change
                 } else {
                   // Avoid calling fetchLogs if `handleDateChange` already did
@@ -419,6 +441,15 @@ export function AppUsageDashboard() {
                   </Form.Item>
                   <Form.Item name="appId">
                     <Input placeholder="App ID" allowClear />
+                  </Form.Item>
+                </Flex>
+                
+                <Flex>
+                  <Form.Item name="appAuthor">
+                    <Input placeholder="App Author" allowClear />
+                  </Form.Item>
+                  <Form.Item name="appAuthorOrgId">
+                    <Input placeholder="App Author Org ID" allowClear />
                   </Form.Item>
                 </Flex>
               </Flex>
