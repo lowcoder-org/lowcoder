@@ -127,7 +127,7 @@ public class BusinessEventPublisher {
         return sessionUserService.isAnonymousUser()
                 .flatMap(anonymous -> {
                     return sessionUserService.getVisitorOrgMemberCache()
-                            .onErrorReturn(new OrgMember(originalApplicationView.getApplicationInfoView().getOrgId(), originalApplicationView.getApplicationInfoView().getCreateBy(), null, null, 0))
+                            .onErrorReturn(new OrgMember(originalApplicationView.getApplicationInfoView().getOrgId(), null, null, null, 0))
                             .zipWith(Mono.defer(() -> {
                                 String folderId = applicationView.getApplicationInfoView().getFolderId();
                                 if (StringUtils.isBlank(folderId)) {
