@@ -11,6 +11,7 @@ import { Col, Row, Typography } from "antd";
 import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
 import { useSelector } from "react-redux";
 import { buildMaterialPreviewURL } from "@lowcoder-ee/util/materialUtils";
+import { isEmpty } from "lodash";
 
 const StyledBrandingColumn = styled(Col)<{$bgImage?: string | null}>`
   background-color: rgb(234, 234, 234);
@@ -223,24 +224,30 @@ export const AuthContainer = (props: {
   isEE?: boolean;
   orgId?: string;
 }) => {
+  const brandingSettings = useSelector(getBrandingSetting);
+  
+  const showEEBranding = useMemo(() => {
+    return props.isEE && !isEmpty(brandingSettings);
+  }, [props.isEE, brandingSettings]);
+
   return (
-    <AuthCardContainer $isEE={props.isEE}>
-      {!props.isEE && (
+    <AuthCardContainer $isEE={showEEBranding}>
+      {!showEEBranding && (
         <AuthCardHeading
           $type={props.type}
-          $isEE={props.isEE}
+          $isEE={showEEBranding}
         >
           {props.heading || ""}
         </AuthCardHeading>
       )}
-      <AuthCard $isEE={props.isEE}>
+      <AuthCard $isEE={showEEBranding}>
         <BrandingWrapper
-          isEE={props.isEE}
+          isEE={showEEBranding}
         >
-          {props.isEE && (
+          {showEEBranding && (
             <AuthCardHeading
               $type={props.type}
-              $isEE={props.isEE}
+              $isEE={showEEBranding}
             >
               {props.heading || ""}
             </AuthCardHeading>
@@ -248,7 +255,7 @@ export const AuthContainer = (props: {
           {props.children}
         </BrandingWrapper>
       </AuthCard>
-      { props.subHeading && !props.isEE && (
+      { props.subHeading && !showEEBranding && (
         <AuthCardSubFooter>
           <img src={favicon} alt={"Lowcoder | " + trans("productDesc")} width="20px"/>
           <a href="https://lowcoder.cloud" target="_blank" rel="noreferrer">
