@@ -497,14 +497,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                <StyledImage
+                {/* <StyledImage
                   width={200}
                   height={100}
-                  src="https://placehold.co/200x100"
+                  src="https://placehold.co/24x24"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                />
+                /> */}
               </Col>
             </StyledRow>
           </Card>
@@ -534,14 +534,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                <StyledImage
+                {/* <StyledImage
                   width={200}
                   height={100}
                   src="https://placehold.co/200x100"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                />
+                /> */}
               </Col>
             </StyledRow>
 
@@ -563,14 +563,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                <StyledImage
+                {/* <StyledImage
                   width={200}
                   height={100}
                   src="https://placehold.co/200x100"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                />
+                /> */}
               </Col>
             </StyledRow>
 
@@ -592,14 +592,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                <StyledImage
+                {/* <StyledImage
                   width={200}
                   height={100}
                   src="https://placehold.co/200x100"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                />
+                /> */}
               </Col>
             </StyledRow>
 
@@ -621,14 +621,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                <StyledImage
+                {/* <StyledImage
                   width={200}
                   height={100}
                   src="https://placehold.co/200x100"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                />
+                /> */}
               </Col>
             </StyledRow>
 
@@ -650,14 +650,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                <StyledImage
+                {/* <StyledImage
                   width={200}
                   height={100}
                   src="https://placehold.co/200x100"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                />
+                /> */}
               </Col>
             </StyledRow>
 
@@ -679,14 +679,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                <StyledImage
+                {/* <StyledImage
                   width={200}
                   height={100}
                   src="https://placehold.co/200x100"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                />
+                /> */}
               </Col>
             </StyledRow>
 
@@ -708,14 +708,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                <StyledImage
+                {/* <StyledImage
                   width={200}
                   height={100}
                   src="https://placehold.co/200x100"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                />
+                /> */}
               </Col>
             </StyledRow>
 
@@ -737,14 +737,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                <StyledImage
+                {/* <StyledImage
                   width={200}
                   height={100}
                   src="https://placehold.co/200x100"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                />
+                /> */}
               </Col>
             </StyledRow>
 
@@ -766,14 +766,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                <StyledImage
+                {/* <StyledImage
                   width={200}
                   height={100}
                   src="https://placehold.co/200x100"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                />
+                /> */}
               </Col>
             </StyledRow>
 
@@ -795,14 +795,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                <StyledImage
+                {/* <StyledImage
                   width={200}
                   height={100}
                   src="https://placehold.co/200x100"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                />
+                /> */}
               </Col>
             </StyledRow>
 
@@ -822,14 +822,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                <StyledImage
+                {/* <StyledImage
                   width={200}
                   height={100}
                   src="https://placehold.co/200x100"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                />
+                /> */}
               </Col>
             </StyledRow>
           </Card>
@@ -887,14 +887,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                <StyledImage
+                {/* <StyledImage
                   width={200}
                   height={100}
                   src="https://placehold.co/200x100"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                />
+                /> */}
               </Col>
             </StyledRow>
             <StyledDivider />
@@ -944,14 +944,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                <StyledImage
+                {/* <StyledImage
                   width={200}
                   height={100}
                   src="https://placehold.co/200x100"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                />
+                /> */}
               </Col>
             </StyledRow>
             <StyledDivider />
@@ -980,14 +980,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                <StyledImage
+                {/* <StyledImage
                   width={200}
                   height={100}
                   src="https://placehold.co/200x100"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                />
+                /> */}
               </Col>
             </StyledRow>
           </Card>
@@ -1028,14 +1028,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                <StyledImage
+                {/* <StyledImage
                   width={200}
                   height={100}
                   src="https://placehold.co/200x100"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                />
+                /> */}
               </Col>
             </StyledRow>
 
@@ -1066,14 +1066,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                <StyledImage
+                {/* <StyledImage
                   width={200}
                   height={100}
                   src="https://placehold.co/200x100"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                />
+                /> */}
               </Col>
             </StyledRow>
 
@@ -1093,14 +1093,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                <StyledImage
+                {/* <StyledImage
                   width={200}
                   height={100}
                   src="https://placehold.co/200x100"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                />
+                /> */}
               </Col>
             </StyledRow>
           </Card>
