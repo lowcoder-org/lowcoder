@@ -176,6 +176,7 @@ public class BusinessEventPublisher {
                                         .applicationId(applicationInfoView.getApplicationId())
                                         .applicationGid(applicationInfoView.getApplicationGid())
                                         .applicationName(applicationInfoView.getName())
+                                        .applicationAuthor(applicationInfoView.getCreateBy())
                                         .applicationCategory(category)
                                         .applicationDescription(description)
                                         .applicationTitle(title)
