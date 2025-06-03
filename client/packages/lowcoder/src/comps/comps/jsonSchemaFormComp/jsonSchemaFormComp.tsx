@@ -483,13 +483,6 @@ let FormBasicComp = (function () {
                   tooltip: "Define custom error messages for form fields. Use __errors array for field-specific errors.",
                 })
               ) 
-              // : (
-              //   children.validationState.propertyView({
-              //     key: "validationState",
-              //     label: trans("jsonSchemaForm.validationState"),
-              //     tooltip: "Current validation state of the form fields. Shows errors and touched state for each field.",
-              //   })
-              // )
               }
             </Section>
           )}
