@@ -138,7 +138,7 @@ public class DatasourcePluginClient implements NodeServerClient {
                         String json = OBJECT_MAPPER.writeValueAsString(body);
 
                         boolean encryptionEnabled = !(commonConfig.getJsExecutor().getPassword().isEmpty() || commonConfig.getJsExecutor().getSalt().isEmpty());
-                        String payload;
+                        Object payload;
                         WebClient.RequestBodySpec requestSpec = WEB_CLIENT
                                 .post()
                                 .uri(nodeServerHelper.createUri(RUN_PLUGIN_QUERY))
@@ -148,7 +148,7 @@ public class DatasourcePluginClient implements NodeServerClient {
                             payload = encryptionService.encryptStringForNodeServer(json);
                             requestSpec = requestSpec.header("X-Encrypted", "true");
                         } else {
-                            payload = json;
+                            payload = body;
                         }
 
                         return requestSpec
