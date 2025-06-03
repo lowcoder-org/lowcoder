@@ -15,6 +15,7 @@ import { ButtonStyle } from "comps/controls/styleControlConstants";
 import { Button100 } from "comps/comps/buttonComp/buttonCompConstants";
 import styled from "styled-components";
 import { ButtonType } from "antd/es/button";
+import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 
 const StyledButton = styled(Button100)`
   display: flex;
@@ -28,18 +29,21 @@ const StyledIconWrapper = styled(IconWrapper)`
   margin: 0;
 `;
 
+const DropdownEventOptions = [clickEvent] as const;
+
 const childrenMap = {
   buttonType: dropdownControl(ButtonTypeOptions, "primary"),
   label: withDefault(StringControl, 'Menu'),
   prefixIcon: IconControl,
   suffixIcon: IconControl,
   options: DropdownOptionControl,
+  onEvent: eventHandlerControl(DropdownEventOptions),
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.label;
 
 // Memoized dropdown menu component
-const DropdownMenu = React.memo(({ items, options }: { items: any[]; options: any[] }) => {
+const DropdownMenu = React.memo(({ items, options, onEvent }: { items: any[]; options: any[]; onEvent?: (eventName: string) => void }) => {
   const mountedRef = useRef(true);
 
   // Cleanup on unmount
@@ -54,7 +58,9 @@ const DropdownMenu = React.memo(({ items, options }: { items: any[]; options: an
     const item = items.find((o) => o.key === key);
     const itemIndex = options.findIndex(option => option.label === item?.label);
     item && options[itemIndex]?.onEvent("click");
-  }, [items, options]);
+    // Also trigger the dropdown's main event handler
+    onEvent?.("click");
+  }, [items, options, onEvent]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -78,6 +84,7 @@ const DropdownView = React.memo((props: {
   prefixIcon: ReactNode;
   suffixIcon: ReactNode;
   options: any[];
+  onEvent?: (eventName: string) => void;
 }) => {
   const mountedRef = useRef(true);
 
@@ -120,8 +127,8 @@ const DropdownView = React.memo((props: {
   const buttonStyle = useStyle(ButtonStyle);
 
   const menu = useMemo(() => (
-    <DropdownMenu items={items} options={props.options} />
-  ), [items, props.options]);
+    <DropdownMenu items={items} options={props.options} onEvent={props.onEvent} />
+  ), [items, props.options, props.onEvent]);
 
   return (
     <Dropdown
@@ -183,6 +190,7 @@ export const ColumnDropdownComp = (function () {
           {children.options.propertyView({
             title: trans("optionsControl.optionList"),
           })}
+          {children.onEvent.propertyView()}
         </>
       );
     })
