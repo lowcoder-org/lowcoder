@@ -117,3 +117,72 @@ yarn build --publish
 ```
 
 You can check a code demo here:  [Code Demo on Github](https://github.com/lowcoder-org/lowcoder/tree/main/client/packages/lowcoder-plugin-demo)
+
+# Deployment of the Lowcoder Frontend to Netlify (Local Build Flow)
+
+## ⚙️ Prerequisites
+
+* Node.js & Yarn installed
+* Netlify CLI installed:
+
+```bash
+npm install -g netlify-cli
+```
+
+* Netlify CLI authenticated:
+
+```bash
+netlify login
+```
+
+* The project is linked to the correct Netlify site:
+
+```bash
+cd client
+netlify link
+```
+
+---
+
+## 🛠 Setup `netlify.toml` (only once)
+
+Inside the `client/` folder, create or update `netlify.toml`:
+
+```toml
+[build]
+  base = "client"
+  command = "yarn workspace lowcoder build"
+  publish = "client/packages/lowcoder/build"
+```
+
+This ensures Netlify uses the correct build and publish paths when building locally.
+
+---
+
+## 🚀 Deployment Steps
+
+1️⃣ Navigate into the `client` folder:
+
+```bash
+cd client
+```
+
+2️⃣ Run local build (with Netlify environment variables injected):
+
+```bash
+netlify build
+```
+
+3️⃣ Deploy to production:
+
+```bash
+netlify deploy --prod --dir=packages/lowcoder/build
+```
+
+---
+
+## 🔧 Notes
+
+* This local build flow fully honors the environment variables configured in Netlify.
+* No build happens on Netlify servers — only the deploy step runs on Netlify.
+* This approach avoids Netlify’s build memory limits.
