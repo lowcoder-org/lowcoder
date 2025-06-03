@@ -10,6 +10,7 @@ import { trans } from "i18n";
 import styled from "styled-components";
 import { ColumnLink } from "comps/comps/tableComp/column/columnTypeComps/columnLinkComp";
 import { LightActiveTextColor, PrimaryColor } from "constants/style";
+import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 
 const MenuLinkWrapper = styled.div`
   > a {
@@ -37,33 +38,16 @@ const MenuWrapper = styled.div`
   }  
 `;
 
-// Memoized menu item component
-const MenuItem = React.memo(({ option, index }: { option: any; index: number }) => {
-  const handleClick = useCallback(() => {
-    if (!option.disabled && option.onClick) {
-      option.onClick();
-    }
-  }, [option.disabled, option.onClick]);
+const LinksEventOptions = [clickEvent] as const;
 
-  return (
-    <MenuLinkWrapper>
-      <ColumnLink
-        disabled={option.disabled}
-        label={option.label}
-        onClick={handleClick}
-      />
-    </MenuLinkWrapper>
-  );
-});
-
-MenuItem.displayName = 'MenuItem';
-
+// Update OptionItem to include event handlers
 const OptionItem = new MultiCompBuilder(
   {
     label: StringControl,
     onClick: ActionSelectorControlInContext,
     hidden: BoolCodeControl,
     disabled: BoolCodeControl,
+    onEvent: eventHandlerControl(LinksEventOptions),
   },
   (props) => {
     return props;
@@ -79,10 +63,37 @@ const OptionItem = new MultiCompBuilder(
         })}
         {hiddenPropertyView(children)}
         {disabledPropertyView(children)}
+        {children.onEvent.propertyView()}
       </>
     );
   })
   .build();
+
+// Memoized menu item component
+const MenuItem = React.memo(({ option, index }: { option: any; index: number }) => {
+  const handleClick = useCallback(() => {
+    if (!option.disabled) {
+      if (option.onClick) {
+        option.onClick();
+      }
+      if (option.onEvent) {
+        option.onEvent("click");
+      }
+    }
+  }, [option.disabled, option.onClick, option.onEvent]);
+
+  return (
+    <MenuLinkWrapper>
+      <ColumnLink
+        disabled={option.disabled}
+        label={option.label}
+        onEvent={handleClick}
+      />
+    </MenuLinkWrapper>
+  );
+});
+
+MenuItem.displayName = 'MenuItem';
 
 // Memoized menu component
 const LinksMenu = React.memo(({ options }: { options: any[] }) => {

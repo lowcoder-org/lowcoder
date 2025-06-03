@@ -1,13 +1,17 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 
 import { SelectUIView } from "comps/comps/selectInputComp/selectCompConstants";
-import { SelectOptionControl } from "comps/controls/optionsControl";
-import { StringControl } from "comps/controls/codeControl";
+import { StringControl, BoolCodeControl } from "comps/controls/codeControl";
+import { IconControl } from "comps/controls/iconControl";
+import { MultiCompBuilder } from "comps/generators";
+import { optionsControl } from "comps/controls/optionsControl";
+import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 
 import { trans } from "i18n";
 import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilder";
 import { ColumnValueTooltip } from "../simpleColumnTypeComps";
 import { styled } from "styled-components";
+import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 
 const Wrapper = styled.div`
   display: inline-flex;
@@ -75,9 +79,43 @@ const Wrapper = styled.div`
   }
 `;
 
+const SelectOptionEventOptions = [clickEvent] as const;
+
+// Create a new option type with event handlers for each option
+const SelectOptionWithEvents = new MultiCompBuilder(
+  {
+    value: StringControl,
+    label: StringControl,
+    prefixIcon: IconControl,
+    disabled: BoolCodeControl,
+    hidden: BoolCodeControl,
+    onEvent: eventHandlerControl(SelectOptionEventOptions),
+  },
+  (props) => props
+)
+  .setPropertyViewFn((children) => (
+    <>
+      {children.label.propertyView({ label: trans("label") })}
+      {children.value.propertyView({ label: trans("value") })}
+      {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+      {disabledPropertyView(children)}
+      {hiddenPropertyView(children)}
+      {children.onEvent.propertyView()}
+    </>
+  ))
+  .build();
+
+const SelectOptionWithEventsControl = optionsControl(SelectOptionWithEvents, {
+  initOptions: [
+    { label: trans("optionsControl.optionI", { i: 1 }), value: "1" },
+    { label: trans("optionsControl.optionI", { i: 2 }), value: "2" },
+  ],
+  uniqField: "value",
+});
+
 const childrenMap = {
   text: StringControl,
-  options: SelectOptionControl,
+  options: SelectOptionWithEventsControl,
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.text;
@@ -106,7 +144,13 @@ const SelectEdit = React.memo((props: SelectEditProps) => {
     if (!mountedRef.current) return;
     props.onChange(val);
     setCurrentValue(val);
-  }, [props.onChange]);
+    
+    // Trigger the specific option's event handler
+    const selectedOption = props.options.find(option => option.value === val);
+    if (selectedOption && selectedOption.onEvent) {
+      selectedOption.onEvent("click");
+    }
+  }, [props.onChange, props.options]);
 
   const handleEvent = useCallback(async (eventName: string) => {
     if (!mountedRef.current) return [] as unknown[];
