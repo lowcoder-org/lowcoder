@@ -74,6 +74,12 @@ export const SelectionControl = (function () {
                   onEvent("rowSelectChange");
                 }
               },
+              onDoubleClick: () => {
+                onEvent("doubleClick");
+                if (getKey(record) !== props.selectedRowKey) {
+                  onEvent("rowSelectChange");
+                }
+              }
             };
           },
         };
@@ -101,6 +107,10 @@ export const SelectionControl = (function () {
               changeSelectedRowKey(record);
               onEvent("rowClick");
             },
+            onDoubleClick: () => {
+              changeSelectedRowKey(record);
+              onEvent("doubleClick");
+            }
           };
         },
       };
