@@ -15,13 +15,11 @@ import {
   Steps,
 } from "antd";
 import styled from "styled-components";
-import type { JsonSchema } from "@jsonforms/core";
 import type { JSONSchema7 } from "json-schema";
 import { debounce } from "lodash";
 import dayjs from "dayjs";
 import { trans } from "i18n";
 import type { 
-  JsonFormsUiSchema, 
   FieldUiSchema, 
   Layout, 
   Categorization,
@@ -30,10 +28,14 @@ import type {
   Category,
   Control
 } from "./types";
-import type { SwitchChangeEventHandler } from "antd/es/switch";
+import { useContainerWidth } from "./jsonSchemaFormComp";
+
 const { TextArea } = Input;
 
-const Container = styled.div`
+const Container = styled.div
+`
+  gap: 16px;
+  width: 100%;
   .ant-form-item {
     margin-bottom: 16px;
   }
@@ -62,11 +64,6 @@ const Container = styled.div`
   }
 `;
 
-interface HorizontalLayout {
-  type: "HorizontalLayout";
-  elements: Control[];
-}
-
 const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
   schema,
   data,
@@ -78,6 +75,7 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
   validationState: externalValidationState,
   onValidationChange,
 }) => {
+  const containerWidth = useContainerWidth();
   // Local state to handle immediate updates
   const [localData, setLocalData] = useState(data);
   // Track focused field
@@ -116,7 +114,7 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
     if (!uiSchema) return undefined;
     
     // For JSONForms UI schema, we need to find the Control element that matches the path
-    if (uiSchema.type === "HorizontalLayout" && Array.isArray(uiSchema.elements)) {
+    if (Array.isArray(uiSchema.elements)) {
       const control = uiSchema.elements.find((element: any) => {
         if (element.type === "Control") {
           // Convert the scope path to match our field path
@@ -666,24 +664,41 @@ const JsonFormsRenderer: React.FC<JsonFormsRendererProps> = ({
 
   // Fallback to default rendering if not a categorization
   return (
-    <Container style={style}>
-      <Form layout="vertical">
-        {Object.entries(schema.properties || {}).map(
-          ([key, fieldSchema]: [string, any]) =>
-            renderField(key, fieldSchema, localData?.[key])
-        )}
-        <Form.Item>
-          <Button
-            type="primary"
-            onClick={handleSubmit}
-            style={{ float: "right" }}
-          >
-            {trans("event.submit")}
-          </Button>
-        </Form.Item>
-      </Form>
-    </Container>
+      <Container>
+        <Form layout="vertical">
+          <Row gutter={16}>
+            {Object.entries(schema.properties || {}).map(([key, fieldSchema]) => {
+              const fieldUiSchema = uiSchema?.[key] || {};
+              const colSpan = calculateColSpan(fieldUiSchema, containerWidth);
+
+              return (
+                <Col key={key} {...colSpan}>
+                  {renderField(key, fieldSchema, localData?.[key])}
+                </Col>
+              );
+            })}
+          </Row>
+          <Form.Item>
+            <Button
+              type="primary"
+              onClick={handleSubmit}
+              style={{ float: "right" }}
+            >
+              {trans("event.submit")}
+            </Button>
+          </Form.Item>
+        </Form>
+      </Container>
   );
+};
+
+const calculateColSpan = (uiSchema: any, containerWidth: number) => {
+  const colSpan = uiSchema?.["ui:colSpan"] || { xs: 24, sm: 24, md: 12, lg: 12, xl: 8 };
+  if (containerWidth > 1200 && colSpan.xl) return { span: colSpan.xl };
+  if (containerWidth > 992 && colSpan.lg) return { span: colSpan.lg };
+  if (containerWidth > 768 && colSpan.md) return { span: colSpan.md };
+  if (containerWidth > 576 && colSpan.sm) return { span: colSpan.sm };
+  return { span: 24 }; 
 };
 
 export default React.memo(JsonFormsRenderer);
