@@ -14,7 +14,7 @@ import { Layers } from "constants/Layers";
 import { HintPlaceHolder, Modal, Section, sectionNames } from "lowcoder-design";
 import { trans } from "i18n";
 import { changeChildAction } from "lowcoder-core";
-import { CSSProperties, useCallback, useMemo, useRef } from "react";
+import { CSSProperties, useCallback, useEffect, useMemo, useRef } from "react";
 import { ResizeHandle } from "react-resizable";
 import styled, { css } from "styled-components";
 import { useUserViewMode } from "util/hooks";
@@ -118,6 +118,12 @@ let TmpModalComp = (function () {
       const appID = useApplicationId();
       const containerRef = useRef<HTMLElement | null>(null);
 
+      useEffect(() => {
+        return () => {
+          containerRef.current = null;
+        };
+      }, []);
+
       // Memoize body style
       const bodyStyle = useMemo<CSSProperties>(() => ({ 
         padding: 0,
@@ -171,11 +177,9 @@ let TmpModalComp = (function () {
 
       // Memoize container getter
       const getContainer = useCallback(() => {
-        if (!containerRef.current) {
-          containerRef.current = document.querySelector(`#${CanvasContainerID}`) || document.body;
-        }
+        containerRef.current = document.querySelector(`#${CanvasContainerID}`) || document.body;
         return containerRef.current;
-      }, []);
+      }, [CanvasContainerID]);
 
       // Memoize event handlers
       const handleCancel = useCallback((e: React.MouseEvent) => {
@@ -228,6 +232,7 @@ let TmpModalComp = (function () {
               mask={props.showMask}
               className={clsx(`app-${appID}`, props.className)}
               data-testid={props.dataTestId as string}
+              destroyOnHidden
             >
               <InnerGrid
                 {...props.container}
