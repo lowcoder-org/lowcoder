@@ -548,7 +548,8 @@ let TableTmpComp = withViewFn(TableImplComp, (comp) => {
 
 const withEditorModeStatus = (Component:any) => (props:any) => {
   const editorModeStatus = useContext(EditorContext).editorModeStatus;
-  return <Component {...props} editorModeStatus={editorModeStatus} />;
+  const {ref, ...otherProps} = props;
+  return <Component {...otherProps} editorModeStatus={editorModeStatus} />;
 };
 
 // Use this HOC when defining TableTmpComp
