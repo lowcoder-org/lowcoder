@@ -224,7 +224,7 @@ export default function ProfileDropdown(props: DropDownProps) {
     const switchOrgMenu = {
       key: 'switchOrg',
       label: trans("profile.switchOrg"),
-      popupOffset: [4, -12],
+      popupOffset: checkIsMobile(window.innerWidth) ? [-200, 36] : [4, -12],
       children: [
         {
           key: 'joinedOrg',
