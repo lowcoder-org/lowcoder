@@ -49,6 +49,20 @@ public interface UserEndpoints
     public Mono<ResponseView<?>> getUserProfile(ServerWebExchange exchange);
 
 	@Operation(
+			tags = {TAG_USER_MANAGEMENT},
+			operationId = "getUserOrgs",
+			summary = "Get User Organizations",
+			description = "Retrieve a paginated list of organizations for the current user, filtered by organization name if provided."
+	)
+	@GetMapping("/myorg")
+	public Mono<ResponseView<?>> getUserOrgs(
+			ServerWebExchange exchange,
+			@RequestParam(required = false) String orgName,
+			@RequestParam(required = false, defaultValue = "1") Integer pageNum,
+			@RequestParam(required = false, defaultValue = "10") Integer pageSize
+	);
+
+	@Operation(
 			tags = TAG_USER_MANAGEMENT,
 		    operationId = "newUserGuidanceShown",
 		    summary = "Mark current user with help shown status",
@@ -218,5 +232,4 @@ public interface UserEndpoints
 
 	public record CreateUserRequest(String email, String password) {
 	}
-
 }

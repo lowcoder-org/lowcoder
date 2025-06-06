@@ -4,13 +4,17 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.authentication.dto.OrganizationDomainCheckResult;
 import org.lowcoder.api.authentication.service.AuthenticationApiService;
+import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.home.UserHomeApiService;
+import org.lowcoder.api.usermanagement.view.OrgView;
 import org.lowcoder.api.usermanagement.view.UpdateUserRequest;
 import org.lowcoder.api.usermanagement.view.UserProfileView;
 import org.lowcoder.domain.organization.model.MemberRole;
+import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.service.OrgMemberService;
+import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.constant.UserStatusType;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.model.UserDetail;
@@ -23,6 +27,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static org.lowcoder.sdk.exception.BizError.INVALID_USER_STATUS;
@@ -41,6 +46,7 @@ public class UserController implements UserEndpoints
     private final CommonConfig commonConfig;
     private final AuthenticationApiService authenticationApiService;
     private final OrgMemberService orgMemberService;
+    private final OrganizationService organizationService;
 
     @Override
     public Mono<ResponseView<?>> createUserAndAddToOrg(@PathVariable String orgId, CreateUserRequest request) {
@@ -60,6 +66,36 @@ public class UserController implements UserEndpoints
                 .flatMap(view -> orgApiService.checkOrganizationDomain()
                         .flatMap(OrganizationDomainCheckResult::buildOrganizationDomainCheckView)
                         .switchIfEmpty(Mono.just(ResponseView.success(view))));
+    }
+
+    @Override
+    public Mono<ResponseView<?>> getUserOrgs(ServerWebExchange exchange,
+            @RequestParam(required = false) String orgName,
+            @RequestParam(required = false, defaultValue = "1") Integer pageNum,
+            @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
+        return sessionUserService.getVisitor()
+                .flatMap(user -> {
+                    // Get all active organizations for the user
+                    Flux<OrgMember> orgMemberFlux = orgMemberService.getAllActiveOrgs(user.getId());
+                    
+                    // If orgName filter is provided, filter organizations by name
+                    if (StringUtils.isNotBlank(orgName)) {
+                        return orgMemberFlux
+                                .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
+                                .filter(org -> StringUtils.containsIgnoreCase(org.getName(), orgName))
+                                .map(OrgView::new)
+                                .collectList()
+                                .map(orgs -> PageResponseView.success(orgs, pageNum, pageSize, orgs.size()));
+                    }
+                    
+                    // If no filter, return all organizations
+                    return orgMemberFlux
+                            .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
+                            .map(OrgView::new)
+                            .collectList()
+                            .map(orgs -> PageResponseView.success(orgs, pageNum, pageSize, orgs.size()));
+                })
+                .map(ResponseView::success);
     }
 
     @Override
