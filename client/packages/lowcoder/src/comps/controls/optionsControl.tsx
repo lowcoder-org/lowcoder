@@ -30,6 +30,7 @@ import {
   Option,
   WidthIcon,
   ImageCompIcon,
+  CloseEyeIcon,
 } from "lowcoder-design";
 import styled from "styled-components";
 import { lastValueIfEqual } from "util/objectUtils";
@@ -608,6 +609,7 @@ const ColumnOption = new MultiCompBuilder(
     radius: withDefault(RadiusControl, ""),
     margin: withDefault(StringControl, ""),
     padding: withDefault(StringControl, ""),
+    hidden: withDefault(BoolCodeControl, false),
   },
   (props) => props
 )
@@ -643,6 +645,10 @@ const ColumnOption = new MultiCompBuilder(
       label: trans('style.padding'),
       preInputNode: <StyledIcon as={CompressIcon} title="" />,	
       placeholder: '3px',
+    })}
+    {children.hidden.propertyView({
+      label: trans('style.hideColumn'),
+      preInputNode: <StyledIcon as={CloseEyeIcon} title="" />
     })}
   </StyledContent>
 ))
