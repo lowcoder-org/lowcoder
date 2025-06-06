@@ -41,6 +41,26 @@ import { ColorControl } from "./colorControl";
 import { StringStateControl } from "./codeStateControl";
 import { reduceInContext } from "../utils/reduceContext";
 
+// Tag preset color options
+const TAG_PRESET_COLORS = [
+  { label: "Magenta", value: "magenta" },
+  { label: "Red", value: "red" },
+  { label: "Volcano", value: "volcano" },
+  { label: "Orange", value: "orange" },
+  { label: "Gold", value: "gold" },
+  { label: "Lime", value: "lime" },
+  { label: "Green", value: "green" },
+  { label: "Cyan", value: "cyan" },
+  { label: "Blue", value: "blue" },
+  { label: "Geek Blue", value: "geekblue" },
+  { label: "Purple", value: "purple" },
+  { label: "Success", value: "success" },
+  { label: "Processing", value: "processing" },
+  { label: "Error", value: "error" },
+  { label: "Warning", value: "warning" },
+  { label: "Default", value: "default" },
+] as const;
+
 const OptionTypes = [
   {
     label: trans("prop.manual"),
@@ -729,24 +749,68 @@ let ColoredTagOption = new MultiCompBuilder(
   {
     label: StringControl,
     icon: IconControl,
-    color: withDefault(ColorControl, ""),
+    colorType: withDefault(dropdownControl([
+      { label: "Preset", value: "preset" },
+      { label: "Custom", value: "custom" },
+    ] as const, "preset"), "preset"),
+    presetColor: withDefault(dropdownControl(TAG_PRESET_COLORS, "blue"), "blue"),
+    color: withDefault(ColorControl, "#1890ff"),
+    textColor: withDefault(ColorControl, "#ffffff"),
+    border: withDefault(ColorControl, ""),
+    radius: withDefault(RadiusControl, ""),
+    margin: withDefault(StringControl, ""),
+    padding: withDefault(StringControl, ""),
   },
   (props) => props
 ).build();
 
 ColoredTagOption = class extends ColoredTagOption implements OptionCompProperty {
   propertyView(param: { autoMap?: boolean }) {
+    const colorType = this.children.colorType.getView();
     return (
       <>
         {this.children.label.propertyView({ label: trans("coloredTagOptionControl.tag") })}
         {this.children.icon.propertyView({ label: trans("coloredTagOptionControl.icon") })}
-        {this.children.color.propertyView({ label: trans("coloredTagOptionControl.color") })}
+        {this.children.colorType.propertyView({ 
+          label: "Color Type", 
+          radioButton: true 
+        })}
+        {colorType === "preset" && this.children.presetColor.propertyView({ 
+          label: "Preset Color" 
+        })}
+        {colorType === "custom" && (
+          <>
+            {this.children.color.propertyView({ label: trans("coloredTagOptionControl.color") })}
+            {this.children.textColor.propertyView({ label: "Text Color" })}
+          </>
+        )}
+        {this.children.border.propertyView({
+          label: trans('style.border')
+        })}
+        {this.children.radius.propertyView({
+          label: trans('style.borderRadius'),
+          preInputNode: <StyledIcon as={IconRadius} title="" />,	
+          placeholder: '3px',
+        })}
+        {this.children.margin.propertyView({
+          label: trans('style.margin'),
+          preInputNode: <StyledIcon as={ExpandIcon} title="" />,	
+          placeholder: '3px',
+        })}
+        {this.children.padding.propertyView({
+          label: trans('style.padding'),
+          preInputNode: <StyledIcon as={CompressIcon} title="" />,	
+          placeholder: '3px',
+        })}
       </>
     );
   }
 };
 
 export const ColoredTagOptionControl = optionsControl(ColoredTagOption, {
-  initOptions: [{ label: "Tag1", icon: "/icon:solid/tag", color: "#f50" }, { label: "Tag2", icon: "/icon:solid/tag", color: "#2db7f5" }],
+  initOptions: [
+    { label: "Tag1", icon: "/icon:solid/tag", colorType: "preset", presetColor: "blue" }, 
+    { label: "Tag2", icon: "/icon:solid/tag", colorType: "preset", presetColor: "green" }
+  ],
   uniqField: "label",
 });
