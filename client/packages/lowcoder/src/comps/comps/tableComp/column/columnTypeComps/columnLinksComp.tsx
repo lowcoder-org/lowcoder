@@ -70,7 +70,7 @@ const OptionItem = new MultiCompBuilder(
   .build();
 
 // Memoized menu item component
-const MenuItem = React.memo(({ option, index }: { option: any; index: number }) => {
+const MenuItem = React.memo(({ option, index, onMainEvent }: { option: any; index: number; onMainEvent?: (eventName: string) => void }) => {
   const handleClick = useCallback(() => {
     if (!option.disabled) {
       if (option.onClick) {
@@ -79,8 +79,12 @@ const MenuItem = React.memo(({ option, index }: { option: any; index: number }) 
       if (option.onEvent) {
         option.onEvent("click");
       }
+      // Trigger the main component's event handler
+      if (onMainEvent) {
+        onMainEvent("click");
+      }
     }
-  }, [option.disabled, option.onClick, option.onEvent]);
+  }, [option.disabled, option.onClick, option.onEvent, onMainEvent]);
 
   return (
     <MenuLinkWrapper>
@@ -96,7 +100,7 @@ const MenuItem = React.memo(({ option, index }: { option: any; index: number }) 
 MenuItem.displayName = 'MenuItem';
 
 // Memoized menu component
-const LinksMenu = React.memo(({ options }: { options: any[] }) => {
+const LinksMenu = React.memo(({ options, onEvent }: { options: any[]; onEvent?: (eventName: string) => void }) => {
   const mountedRef = useRef(true);
 
   // Cleanup on unmount
@@ -111,9 +115,9 @@ const LinksMenu = React.memo(({ options }: { options: any[] }) => {
       .filter((o) => !o.hidden)
       .map((option, index) => ({
         key: index,
-        label: <MenuItem option={option} index={index} />
+        label: <MenuItem option={option} index={index} onMainEvent={onEvent} />
       })),
-    [options]
+    [options, onEvent]
   );
 
   return (
@@ -130,11 +134,12 @@ export const ColumnLinksComp = (function () {
     options: manualOptionsControl(OptionItem, {
       initOptions: [{ label: trans("table.option1") }],
     }),
+    onEvent: eventHandlerControl(LinksEventOptions),
   };
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props) => {
-      return <LinksMenu options={props.options} />;
+      return <LinksMenu options={props.options} onEvent={props.onEvent} />;
     },
     () => ""
   )
@@ -144,6 +149,7 @@ export const ColumnLinksComp = (function () {
           newOptionLabel: trans("table.option"),
           title: trans("table.optionList"),
         })}
+        {children.onEvent.propertyView()}
       </>
     ))
     .build();

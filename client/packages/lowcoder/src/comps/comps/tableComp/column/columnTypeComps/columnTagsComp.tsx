@@ -16,6 +16,7 @@ import { hashToNum } from "util/stringUtils";
 import { CustomSelect, PackUpIcon } from "lowcoder-design";
 import { ScrollBar } from "lowcoder-design";
 import { ColoredTagOptionControl } from "comps/controls/optionsControl";
+import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 
 const colors = PresetStatusColorTypes;
 
@@ -120,6 +121,7 @@ function getTagIcon(tagText: any, tagOptions: any[]) {
 const childrenMap = {
   text: TagsControl,
   tagColors: ColoredTagOptionControl,
+  onEvent: eventHandlerControl([clickEvent]),
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string | string[], string | string[]> = (
@@ -229,6 +231,7 @@ export const DropdownStyled = styled.div`
 
 export const TagStyled = styled(Tag)`
   margin-right: 8px;
+  cursor: pointer;
   svg {
     margin-right: 4px;
   }
@@ -298,6 +301,14 @@ const TagEdit = React.memo((props: TagEditPropsType) => {
     setOpen(false);
   }, [props.onChangeEnd]);
 
+  const handleTagClick = useCallback((tagText: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const foundOption = memoizedTagOptions.find(option => option.label === tagText);
+    if (foundOption && foundOption.onEvent) {
+      foundOption.onEvent("click");
+    }
+  }, [memoizedTagOptions]);
+
   return (
     <Wrapper>
       <CustomSelect
@@ -346,8 +357,10 @@ const TagEdit = React.memo((props: TagEditPropsType) => {
                     key={i} 
                     style={{ 
                       marginRight: tagStyle.margin ? undefined : "8px", 
+                      cursor: "pointer",
                       ...tagStyle 
                     }}
+                    onClick={(e) => handleTagClick(item, e)}
                   >
                     {item}
                   </Tag>
@@ -358,7 +371,11 @@ const TagEdit = React.memo((props: TagEditPropsType) => {
                 color={getTagColor(value, memoizedTagOptions)} 
                 icon={getTagIcon(value, memoizedTagOptions)} 
                 key={index}
-                style={getTagStyle(value, memoizedTagOptions)}
+                style={{
+                  cursor: "pointer",
+                  ...getTagStyle(value, memoizedTagOptions)
+                }}
+                onClick={(e) => handleTagClick(value, e)}
               >
                 {value}
               </Tag>
@@ -380,6 +397,18 @@ export const ColumnTagsComp = (function () {
       let value = props.changeValue ?? getBaseValue(props, dispatch);
       value = typeof value === "string" && value.split(",")[1] ? value.split(",") : value;
       const tags = _.isArray(value) ? value : (value.length ? [value] : []);
+      
+      const handleTagClick = (tagText: string) => {
+        const foundOption = tagOptions.find(option => option.label === tagText);
+        if (foundOption && foundOption.onEvent) {
+          foundOption.onEvent("click");
+        }
+        // Also trigger the main component's event handler
+        if (props.onEvent) {
+          props.onEvent("click");
+        }
+      };
+      
       const view = tags.map((tag, index) => {
         // The actual eval value is of type number or boolean
         const tagText = String(tag);
@@ -394,6 +423,7 @@ export const ColumnTagsComp = (function () {
               icon={tagIcon} 
               key={index}
               style={tagStyle}
+              onClick={() => handleTagClick(tagText)}
             >
               {tagText}
             </TagStyled>
@@ -425,8 +455,9 @@ export const ColumnTagsComp = (function () {
           tooltip: ColumnValueTooltip,
         })}
         {children.tagColors.propertyView({
-          title: "test",
+          title: "Tag Options",
         })}
+        {children.onEvent.propertyView()}
       </>
     ))
     .build();

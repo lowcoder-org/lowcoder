@@ -9,6 +9,7 @@ import { withDefault } from "comps/generators";
 import styled from "styled-components";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
+import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 
 const InputNumberWrapper = styled.div`
   .ant-input-number  {
@@ -25,6 +26,15 @@ const InputNumberWrapper = styled.div`
   }
 `;
 
+const NumberViewWrapper = styled.div`
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const NumberEventOptions = [clickEvent] as const;
+
 const childrenMap = {
   text: NumberControl,
   step: withDefault(NumberControl, 1),
@@ -34,6 +44,7 @@ const childrenMap = {
   prefixIcon: IconControl,
   suffixIcon: IconControl,
   suffix: StringControl,
+  onEvent: eventHandlerControl(NumberEventOptions),
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, number, number> = (props) => props.text;
@@ -46,6 +57,7 @@ type NumberViewProps = {
   suffixIcon: ReactNode;
   float: boolean;
   precision: number;
+  onEvent?: (eventName: string) => void;
 };
 
 type NumberEditProps = {
@@ -66,8 +78,14 @@ const ColumnNumberView = React.memo((props: NumberViewProps) => {
     return result;
   }, [props.value, props.float, props.precision]);
 
+  const handleClick = useCallback(() => {
+    if (props.onEvent) {
+      props.onEvent("click");
+    }
+  }, [props.onEvent]);
+
   return (
-    <>
+    <NumberViewWrapper onClick={handleClick}>
       {hasIcon(props.prefixIcon) && (
         <span>{props.prefixIcon}</span>
       )}
@@ -75,7 +93,7 @@ const ColumnNumberView = React.memo((props: NumberViewProps) => {
       {hasIcon(props.suffixIcon) && (
         <span>{props.suffixIcon}</span>
       )}
-    </>
+    </NumberViewWrapper>
   );
 });
 
@@ -197,6 +215,7 @@ export const ColumnNumberComp = (function () {
               children.step.dispatchChangeValueAction(String(newValue));
             }
           })}
+          {children.onEvent.propertyView()}
         </>
       );
     })

@@ -10,20 +10,28 @@ import { withDefault } from "comps/generators";
 import { TacoImage } from "lowcoder-design";
 import styled from "styled-components";
 import { DEFAULT_IMG_URL } from "@lowcoder-ee/util/stringUtils";
+import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
 const childrenMap = {
   src: withDefault(StringControl, "{{currentCell}}"),
   size: withDefault(NumberControl, "50"),
+  onEvent: eventHandlerControl([clickEvent]),
 };
 
 const StyledTacoImage = styled(TacoImage)`
-  pointer-events: auto;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  
+  &:hover {
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+  }
 `;
 
 // Memoized image component
-const ImageView = React.memo(({ src, size }: { src: string; size: number }) => {
+const ImageView = React.memo(({ src, size, onEvent }: { src: string; size: number; onEvent?: (eventName: string) => void }) => {
   const mountedRef = useRef(true);
 
   // Cleanup on unmount
@@ -33,10 +41,19 @@ const ImageView = React.memo(({ src, size }: { src: string; size: number }) => {
     };
   }, []);
 
+  const handleClick = useCallback(() => {
+    console.log("Image clicked!", { src, onEvent: !!onEvent }); // Debug log
+    if (mountedRef.current && onEvent) {
+      onEvent("click");
+    }
+  }, [onEvent, src]);
+
   return (
     <StyledTacoImage 
       src={src || DEFAULT_IMG_URL} 
       width={size}
+      onClick={handleClick}
+      style={{ cursor: 'pointer' }} // Inline style as backup
     />
   );
 });
@@ -96,7 +113,7 @@ export const ImageComp = (function () {
     childrenMap,
     (props, dispatch) => {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
-      return <ImageView src={value} size={props.size} />;
+      return <ImageView src={value} size={props.size} onEvent={props.onEvent} />;
     },
     (nodeValue) => nodeValue.src.value,
     getBaseValue
@@ -118,6 +135,7 @@ export const ImageComp = (function () {
           {children.size.propertyView({
             label: trans("table.imageSize"),
           })}
+          {children.onEvent.propertyView()}
         </>
       );
     })
