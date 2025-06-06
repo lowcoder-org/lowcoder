@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState, useCallback } from "react";
 import { Input, Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
@@ -78,6 +78,7 @@ const childrenMap = {
   prefixIcon: IconControl,
   suffixIcon: IconControl,
   items: jsonControl(convertAutoCompleteData, autoCompleteDate),
+  filterOptionsByInput: BoolControl.DEFAULT_TRUE,
   ignoreCase: BoolControl.DEFAULT_TRUE,
   searchFirstPY: BoolControl.DEFAULT_TRUE,
   searchCompletePY: BoolControl,
@@ -118,10 +119,11 @@ let AutoCompleteCompBase = (function () {
       autoCompleteType,
       autocompleteIconColor,
       componentSize,
+      filterOptionsByInput,
     } = props;
     
 
-    const getTextInputValidate = () => {
+    const getTextInputValidate = useCallback(() => {
       return {
         value: { value: props.value.value },
         required: props.required,
@@ -131,7 +133,15 @@ let AutoCompleteCompBase = (function () {
         regex: props.regex,
         customRule: props.customRule,
       };
-    };
+    }, [
+      props.value.value,
+      props.required,
+      props.minLength,
+      props.maxLength,
+      props.validationType,
+      props.regex,
+      props.customRule,
+    ]);
 
     const [activationFlag, setActivationFlag] = useState(false);
     const [searchtext, setsearchtext] = useState<string>(props.value.value);
@@ -154,6 +164,113 @@ let AutoCompleteCompBase = (function () {
       props.customRule,
     ]);
 
+    const handleFilterOptions = useCallback((inputValue: string, option: any) => {
+      if (ignoreCase) {
+        if (
+          option?.label &&
+          option?.label
+            .toUpperCase()
+            .indexOf(inputValue.toUpperCase()) !== -1
+        )
+          return true;
+      } else {
+        if (option?.label && option?.label.indexOf(inputValue) !== -1)
+          return true;
+      }
+      if (
+        chineseEnv &&
+        searchFirstPY &&
+        option?.label &&
+        option.label
+          .spell("first")
+          .toString()
+          .toLowerCase()
+          .indexOf(inputValue.toLowerCase()) >= 0
+      )
+        return true;
+      if (
+        chineseEnv &&
+        searchCompletePY &&
+        option?.label &&
+        option.label
+          .spell()
+          .toString()
+          .toLowerCase()
+          .indexOf(inputValue.toLowerCase()) >= 0
+      )
+        return true;
+      if (!searchLabelOnly) {
+        if (ignoreCase) {
+          if (
+            option?.value &&
+            option?.value
+              .toUpperCase()
+              .indexOf(inputValue.toUpperCase()) !== -1
+          )
+            return true;
+        } else {
+          if (
+            option?.value &&
+            option?.value.indexOf(inputValue) !== -1
+          )
+            return true;
+        }
+        if (
+          chineseEnv &&
+          searchFirstPY &&
+          option?.value &&
+          option.value
+            .spell("first")
+            .toString()
+            .toLowerCase()
+            .indexOf(inputValue.toLowerCase()) >= 0
+        )
+          return true;
+        if (
+          chineseEnv &&
+          searchCompletePY &&
+          option?.value &&
+          option.value
+            .spell()
+            .toString()
+            .toLowerCase()
+            .indexOf(inputValue.toLowerCase()) >= 0
+        )
+          return true;
+      }
+      return false;
+    }, [filterOptionsByInput, ignoreCase, chineseEnv, searchFirstPY, searchCompletePY, searchLabelOnly]);
+
+    const handleChange = useCallback((value: string) => {
+      props.valueInItems.onChange(false);
+      setvalidateState(textInputValidate(getTextInputValidate()));
+      setsearchtext(value);
+      props.value.onChange(value);
+      props.onEvent("change");
+    }, [props.valueInItems, getTextInputValidate, props.value, props.onEvent]);
+
+    const handleSelect = useCallback((data: string, option: any) => {
+      setsearchtext(option[valueOrLabel]);
+      props.valueInItems.onChange(true);
+      props.value.onChange(option[valueOrLabel]);
+      props.onEvent("submit");
+    }, [valueOrLabel, props.valueInItems, props.value, props.onEvent]);
+
+    const handleFocus = useCallback(() => {
+      setActivationFlag(true);
+      props.onEvent("focus");
+    }, [props.onEvent]);
+
+    const handleBlur = useCallback(() => {
+      props.onEvent("blur");
+    }, [props.onEvent]);
+
+    const popupRender = useCallback((originNode: ReactNode) => (
+      <DropdownStyled $style={props.childrenInputFieldStyle as ChildrenMultiSelectStyleType}>
+        {originNode}
+      </DropdownStyled>
+    ), [props.childrenInputFieldStyle]);
+
     return props.label({
       required: props.required,
       children: (
@@ -163,117 +280,24 @@ let AutoCompleteCompBase = (function () {
             value={searchtext}
             options={items} 
             style={{ width: "100%" }}
-            onChange={(value: string, option) => {
-              props.valueInItems.onChange(false);
-              setvalidateState(textInputValidate(getTextInputValidate()));
-              setsearchtext(value);
-              props.value.onChange(value); 
-              props.onEvent("change")
-            }} 
-            onFocus={() => {
-              setActivationFlag(true) 
-              props.onEvent("focus")
-            }}
-            onBlur={() => props.onEvent("blur")}
-            onSelect={(data: string, option) => {
-              setsearchtext(option[valueOrLabel]);
-              props.valueInItems.onChange(true);
-              props.value.onChange(option[valueOrLabel]);
-              props.onEvent("submit");
-            }}
-            filterOption={(inputValue: string, option) => {
-              if (ignoreCase) {
-                if (
-                  option?.label &&
-                  option?.label
-                    .toUpperCase()
-                    .indexOf(inputValue.toUpperCase()) !== -1
-                )
-                  return true;
-              } else {
-                if (option?.label && option?.label.indexOf(inputValue) !== -1)
-                  return true;
-              }
-              if (
-                chineseEnv &&
-                searchFirstPY &&
-                option?.label &&
-                option.label
-                  .spell("first")
-                  .toString()
-                  .toLowerCase()
-                  .indexOf(inputValue.toLowerCase()) >= 0
-              )
-                return true;
-              if (
-                chineseEnv &&
-                searchCompletePY &&
-                option?.label &&
-                option.label
-                  .spell()
-                  .toString()
-                  .toLowerCase()
-                  .indexOf(inputValue.toLowerCase()) >= 0
-              )
-                return true;
-              if (!searchLabelOnly) {
-                if (ignoreCase) {
-                  if (
-                    option?.value &&
-                    option?.value
-                      .toUpperCase()
-                      .indexOf(inputValue.toUpperCase()) !== -1
-                  )
-                    return true;
-                } else {
-                  if (
-                    option?.value &&
-                    option?.value.indexOf(inputValue) !== -1
-                  )
-                    return true;
-                }
-                if (
-                  chineseEnv &&
-                  searchFirstPY &&
-                  option?.value &&
-                  option.value
-                    .spell("first")
-                    .toString()
-                    .toLowerCase()
-                    .indexOf(inputValue.toLowerCase()) >= 0
-                )
-                  return true;
-                if (
-                  chineseEnv &&
-                  searchCompletePY &&
-                  option?.value &&
-                  option.value
-                    .spell()
-                    .toString()
-                    .toLowerCase()
-                    .indexOf(inputValue.toLowerCase()) >= 0
-                )
-                  return true;
-              }
-              return false;
-            }}
-            popupRender={(originNode: ReactNode) => (
-              <DropdownStyled $style={props.childrenInputFieldStyle as ChildrenMultiSelectStyleType}>
-                {originNode}
-              </DropdownStyled>
-            )}
+            onChange={handleChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            onSelect={handleSelect}
+            filterOption={!filterOptionsByInput ? false : handleFilterOptions}
+            popupRender={popupRender}
           >
-              <InputStyle
-                ref={props.viewRef}
-                placeholder={placeholder}
-                allowClear={props.allowClear}
-                $style={props.inputFieldStyle}
-                prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
-                suffix={hasIcon(props.suffixIcon) && props.suffixIcon}
-                status={getValidate(validateState)}
-                onPressEnter={undefined}
-                tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
-              />
+            <InputStyle
+              ref={props.viewRef}
+              placeholder={placeholder}
+              allowClear={props.allowClear}
+              $style={props.inputFieldStyle}
+              prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
+              suffix={hasIcon(props.suffixIcon) && props.suffixIcon}
+              status={getValidate(validateState)}
+              onPressEnter={undefined}
+              tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
+            />
           </AutoComplete>
         </>
       ),
@@ -306,24 +330,33 @@ let AutoCompleteCompBase = (function () {
               tooltip: itemsDataTooltip,
               placeholder: '[]',
             })}
-            {getDayJSLocale() === 'zh-cn' &&
+            {children.filterOptionsByInput.propertyView({
+              label: trans('autoComplete.filterOptionsByInput'),
+            })}
+            {children.filterOptionsByInput.getView() && getDayJSLocale() === 'zh-cn' && (
               children.searchFirstPY.propertyView({
                 label: trans('autoComplete.searchFirstPY'),
-              })}
-            {getDayJSLocale() === 'zh-cn' &&
+              })
+            )}
+            {children.filterOptionsByInput.getView() && getDayJSLocale() === 'zh-cn' && (
               children.searchCompletePY.propertyView({
                 label: trans('autoComplete.searchCompletePY'),
-              })}
-            {children.searchLabelOnly.propertyView({
+              })
+            )}
+            {children.filterOptionsByInput.getView() && children.searchLabelOnly.propertyView({
               label: trans('autoComplete.searchLabelOnly'),
             })}
-            {children.ignoreCase.propertyView({
-              label: trans('autoComplete.ignoreCase'),
-            })}
-            {children.valueOrLabel.propertyView({
-              label: trans('autoComplete.checkedValueFrom'),
-              radioButton: true,
-            })}
+            {children.filterOptionsByInput.getView() && (
+              children.ignoreCase.propertyView({
+                label: trans('autoComplete.ignoreCase'),
+              })
+            )}
+            {children.filterOptionsByInput.getView() && (
+              children.valueOrLabel.propertyView({
+                label: trans('autoComplete.checkedValueFrom'),
+                radioButton: true,
+              })
+            )}
           </Section>
           <TextInputBasicSection {...children} />
 
