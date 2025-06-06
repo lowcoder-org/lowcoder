@@ -11,7 +11,7 @@ import { trans } from "i18n";
 import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilder";
 import { ColumnValueTooltip } from "../simpleColumnTypeComps";
 import { styled } from "styled-components";
-import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
+import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
 
 const Wrapper = styled.div`
   display: inline-flex;
@@ -79,7 +79,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const SelectOptionEventOptions = [clickEvent] as const;
+const SelectOptionEventOptions = [clickEvent, doubleClickEvent] as const;
 
 // Create a new option type with event handlers for each option
 const SelectOptionWithEvents = new MultiCompBuilder(
@@ -144,11 +144,14 @@ const SelectEdit = React.memo((props: SelectEditProps) => {
     if (!mountedRef.current) return;
     props.onChange(val);
     setCurrentValue(val);
-    
     // Trigger the specific option's event handler
     const selectedOption = props.options.find(option => option.value === val);
-    if (selectedOption && selectedOption.onEvent) {
-      selectedOption.onEvent("click");
+    if (selectedOption?.onEvent) {
+      if (selectedOption.onEvent.isBind("click")) {
+        selectedOption.onEvent("click");
+      } else if (selectedOption.onEvent.isBind("doubleClick")) {
+        selectedOption.onEvent("doubleClick");
+      }
     }
   }, [props.onChange, props.options]);
 

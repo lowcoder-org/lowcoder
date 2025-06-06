@@ -20,13 +20,13 @@ import { PaddingControl } from "../controls/paddingControl";
 
 import React, { useContext, useEffect, useRef, useMemo } from "react";
 import { EditorContext } from "comps/editorState";
-import { clickEvent, eventHandlerControl } from "../controls/eventHandlerControl";
+import { clickEvent, doubleClickEvent, eventHandlerControl } from "../controls/eventHandlerControl";
 import { NewChildren } from "../generators/uiCompBuilder";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { ToViewReturn } from "../generators/multi";
 import { BoolControl } from "../controls/boolControl";
 
-const EventOptions = [clickEvent] as const;
+const EventOptions = [clickEvent, doubleClickEvent] as const;
 
 const getStyle = (style: TextStyleType) => {
   return css`
@@ -227,7 +227,9 @@ const TextView = React.memo((props: ToViewReturn<ChildrenType>) => {
   const handleClick = React.useCallback(() => {
     props.onEvent("click");
   }, [props.onEvent]);
-
+  const handleDoubleClick = React.useCallback(() => {
+    props.onEvent("doubleClick");
+  }, [props.onEvent]);
   const containerStyle = useMemo(() => ({
     justifyContent: props.horizontalAlignment,
     alignItems: props.autoHeight ? "center" : props.verticalAlignment,
@@ -247,6 +249,7 @@ const TextView = React.memo((props: ToViewReturn<ChildrenType>) => {
       $styleConfig={props.style}
       style={containerStyle}
       onClick={handleClick}
+      onDoubleClick={handleDoubleClick}
     >
       <ScrollBar hideScrollbar={!props.contentScrollBar}>
         {content}

@@ -25,6 +25,7 @@ import {
   eventHandlerControl,
   deleteEvent,
   mentionEvent,
+  doubleClickEvent,
 } from "comps/controls/eventHandlerControl";
 
 import { EditorContext } from "comps/editorState";
@@ -80,6 +81,7 @@ dayjs.extend(relativeTime);
 
 const EventOptions = [
   clickEvent,
+  doubleClickEvent,
   submitEvent,
   deleteEvent,
   mentionEvent,
@@ -290,7 +292,10 @@ const CommentCompBase = (
                 <List.Item.Meta
                   avatar={generateCommentAvatar(item)}
                   title={
-                    <div onClick={() => props.onEvent("click")}>
+                    <div 
+                      onClick={() => props.onEvent("click")} 
+                      onDoubleClick={() => props.onEvent("doubleClick")}
+                    >
                       <a>{item?.user?.name}</a>
                       <Tooltip
                         title={

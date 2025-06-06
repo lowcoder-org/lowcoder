@@ -3,6 +3,7 @@ import { Section, sectionNames } from "lowcoder-design";
 import {
   clickEvent,
   eventHandlerControl,
+  doubleClickEvent,
 } from "../controls/eventHandlerControl";
 import { StringStateControl } from "../controls/codeStateControl";
 import { UICompBuilder, withDefault } from "../generators";
@@ -112,7 +113,7 @@ const getStyle = (style: ImageStyleType) => {
   `;
 };
 
-const EventOptions = [clickEvent] as const;
+const EventOptions = [clickEvent, doubleClickEvent] as const;
 const ModeOptions = [
   { label: "URL", value: "standard" },
   { label: "Asset Library", value: "asset-library" },
@@ -212,6 +213,7 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
           preview={props.supportPreview ? {src: props.previewSrc || props.src.value } : false}
           fallback={DEFAULT_IMG_URL}
           onClick={() => props.onEvent("click")}
+          onDoubleClick={() => props.onEvent("doubleClick")}
         />
       </div>
     </Container>

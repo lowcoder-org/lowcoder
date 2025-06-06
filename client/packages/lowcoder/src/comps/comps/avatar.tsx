@@ -25,6 +25,7 @@ import { IconControl } from "comps/controls/iconControl";
 import {
   clickEvent,
   eventHandlerControl,
+  doubleClickEvent,
 } from "../controls/eventHandlerControl";
 import { Avatar, AvatarProps, Badge, Dropdown, Menu } from "antd";
 import { LeftRightControl, dropdownControl } from "../controls/dropdownControl";
@@ -106,7 +107,7 @@ padding: ${props=>props.$style.padding};
 background: ${props=>props.$style.background};
 text-decoration: ${props => props.$style.textDecoration};
 `
-const EventOptions = [clickEvent] as const;
+const EventOptions = [clickEvent, doubleClickEvent] as const;
 const sharpOptions = [
   { label: trans("avatarComp.square"), value: "square" },
   { label: trans("avatarComp.circle"), value: "circle" },
@@ -183,6 +184,7 @@ const AvatarView = (props: RecordConstructorToView<typeof childrenMap>) => {
             src={src.value}
             // $cursorPointer={eventsCount > 0}
             onClick={() => props.onEvent("click")}
+            onDoubleClick={() => props.onEvent("doubleClick")}
           >
             {title.value}
           </AvatarWrapper>
