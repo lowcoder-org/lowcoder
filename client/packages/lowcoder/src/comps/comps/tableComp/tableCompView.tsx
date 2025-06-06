@@ -1039,6 +1039,8 @@ export const TableCompView = React.memo((props: {
         summaryRows={parseInt(summaryRows)}
         columns={columns}
         summaryRowStyle={summaryRowStyle}
+        dynamicColumn={dynamicColumn}
+        dynamicColumnConfig={dynamicColumnConfig}
       />
     );
   }
