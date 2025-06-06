@@ -4475,6 +4475,7 @@ export const en = {
   "autoComplete": {
     "value": "Auto Complete Value",
     "checkedValueFrom": "Checked Value From",
+    "filterOptionsByInput": "Filter Options By Input",
     "ignoreCase": "Search Ignore Case",
     "searchLabelOnly": "Search Label Only",
     "searchFirstPY": "Search First Pinyin",
