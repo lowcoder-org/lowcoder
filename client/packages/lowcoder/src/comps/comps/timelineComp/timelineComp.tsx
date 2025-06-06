@@ -30,6 +30,7 @@ import {
 import {
   clickEvent,
   eventHandlerControl,
+  doubleClickEvent,
 } from "comps/controls/eventHandlerControl";
 import {
   TimeLineStyle,
@@ -69,6 +70,7 @@ const TimelineWrapper = styled.div<{
 
 const EventOptions = [
   clickEvent,
+  doubleClickEvent,
 ] as const;
 
 const modeOptions = [
@@ -141,6 +143,12 @@ const TimelineComp = (
             dispatch(changeChildAction("clickedObject", value, false));
             dispatch(changeChildAction("clickedIndex", index, false));
             onEvent("click");
+          }}
+          onDoubleClick={(e) => {
+            e.preventDefault();
+            dispatch(changeChildAction("clickedObject", value, false));
+            dispatch(changeChildAction("clickedIndex", index, false));
+            onEvent("doubleClick");
           }}
           // for responsiveness
           style={{

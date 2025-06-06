@@ -8,7 +8,7 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { Avatar, Tooltip } from "antd";
-import { clickEvent, eventHandlerControl, refreshEvent } from "../controls/eventHandlerControl";
+import { clickEvent, doubleClickEvent, eventHandlerControl, refreshEvent } from "../controls/eventHandlerControl";
 import styled from "styled-components";
 import { useContext, ReactElement, useEffect } from "react";
 import { MultiCompBuilder, stateComp, withDefault } from "../generators";
@@ -77,7 +77,7 @@ const DropdownOption = new MultiCompBuilder(
   ))
   .build();
 
-const EventOptions = [clickEvent, refreshEvent] as const;
+const EventOptions = [clickEvent, refreshEvent, doubleClickEvent] as const;
 
 export const alignOptions = [
   { label: <AlignLeft />, value: "flex-start" },
@@ -127,6 +127,9 @@ const AvatarGroupView = (props: RecordConstructorToView<typeof childrenMap> & { 
                     onClick={() => {
                       props.onEvent("click")
                       props.dispatch(changeChildAction("currentAvatar", item as JSONObject, false));
+                    }}
+                    onDoubleClick={() => {
+                      props.onEvent("doubleClick")
                     }}
                   >
                     {item.label}

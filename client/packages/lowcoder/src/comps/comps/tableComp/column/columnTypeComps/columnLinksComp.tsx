@@ -10,7 +10,7 @@ import { trans } from "i18n";
 import styled from "styled-components";
 import { ColumnLink } from "comps/comps/tableComp/column/columnTypeComps/columnLinkComp";
 import { LightActiveTextColor, PrimaryColor } from "constants/style";
-import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
+import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
 
 const MenuLinkWrapper = styled.div`
   > a {
@@ -38,7 +38,7 @@ const MenuWrapper = styled.div`
   }  
 `;
 
-const LinksEventOptions = [clickEvent] as const;
+const LinksEventOptions = [clickEvent, doubleClickEvent] as const;
 
 // Update OptionItem to include event handlers
 const OptionItem = new MultiCompBuilder(
@@ -76,11 +76,15 @@ const MenuItem = React.memo(({ option, index }: { option: any; index: number }) 
       if (option.onClick) {
         option.onClick();
       }
+      if (option.onDoubleClick) {
+        option.onDoubleClick();
+      }
       if (option.onEvent) {
         option.onEvent("click");
       }
+
     }
-  }, [option.disabled, option.onClick, option.onEvent]);
+  }, [option.disabled, option.onClick, option.onEvent, option.onDoubleClick]);
 
   return (
     <MenuLinkWrapper>

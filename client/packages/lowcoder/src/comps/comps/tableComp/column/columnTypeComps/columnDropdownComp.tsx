@@ -15,7 +15,7 @@ import { ButtonStyle } from "comps/controls/styleControlConstants";
 import { Button100 } from "comps/comps/buttonComp/buttonCompConstants";
 import styled from "styled-components";
 import { ButtonType } from "antd/es/button";
-import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
+import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
 
 const StyledButton = styled(Button100)`
   display: flex;
@@ -29,7 +29,7 @@ const StyledIconWrapper = styled(IconWrapper)`
   margin: 0;
 `;
 
-const DropdownEventOptions = [clickEvent] as const;
+const DropdownEventOptions = [clickEvent, doubleClickEvent] as const;
 
 const childrenMap = {
   buttonType: dropdownControl(ButtonTypeOptions, "primary"),
@@ -67,10 +67,16 @@ const DropdownMenu = React.memo(({ items, options, onEvent }: { items: any[]; op
     e.preventDefault();
   }, []);
 
+  const handleDoubleClick = useCallback((e: React.MouseEvent) => {
+    if (!mountedRef.current) return;
+    onEvent?.("doubleClick");
+  }, [onEvent]);
+
   return (
     <Menu
       items={items}
       onClick={handleClick}
+      onDoubleClick={handleDoubleClick}
       onMouseDown={handleMouseDown}
     />
   );

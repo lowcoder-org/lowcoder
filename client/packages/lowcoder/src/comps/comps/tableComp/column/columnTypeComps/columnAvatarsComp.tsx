@@ -9,7 +9,7 @@ import { avatarGroupStyle, AvatarGroupStyleType } from "comps/controls/styleCont
 import { AlignCenter, AlignLeft, AlignRight } from "lowcoder-design";
 import { NumberControl } from "comps/controls/codeControl";
 import { Avatar, Tooltip } from "antd";
-import { clickEvent, eventHandlerControl, refreshEvent } from "comps/controls/eventHandlerControl";
+import { clickEvent, eventHandlerControl, refreshEvent, doubleClickEvent } from "comps/controls/eventHandlerControl";
 import React, { ReactElement, useCallback, useEffect, useRef } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { ColorControl } from "comps/controls/colorControl";
@@ -68,7 +68,7 @@ const DropdownOption = new MultiCompBuilder(
 })
 .build();
 
-const EventOptions = [clickEvent, refreshEvent] as const;
+const EventOptions = [clickEvent, refreshEvent, doubleClickEvent] as const;
 
 export const alignOptions = [
   { label: <AlignLeft />, value: "flex-start" },
@@ -106,6 +106,11 @@ const MemoizedAvatar = React.memo(({
     onEvent("click");
   }, [onEvent]);
 
+  const handleDoubleClick = useCallback(() => {
+    if (!mountedRef.current) return;
+    onEvent("doubleClick");
+  }, [onEvent]);
+
   return (
     <Tooltip title={item.Tooltip} key={index}>
       <Avatar
@@ -117,6 +122,7 @@ const MemoizedAvatar = React.memo(({
         }}
         size={avatarSize}
         onClick={handleClick}
+        onDoubleClick={handleDoubleClick}
       >
         {item.label}
       </Avatar>

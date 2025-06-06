@@ -11,11 +11,11 @@ import { disabledPropertyView } from "comps/utils/propertyUtils";
 import styled, { css } from "styled-components";
 import { styleControl } from "comps/controls/styleControl";
 import { TableColumnLinkStyle } from "comps/controls/styleControlConstants";
-import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
+import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
-const LinkEventOptions = [clickEvent] as const;
+const LinkEventOptions = [clickEvent, doubleClickEvent] as const;
 
 const childrenMap = {
   text: StringControl,
@@ -44,10 +44,17 @@ export const ColumnLink = React.memo(({ disabled, label, onEvent }: { disabled: 
     }
   }, [disabled, onEvent]);
 
+  const handleDoubleClick = useCallback(() => {
+    if (!disabled && onEvent) {
+      onEvent("doubleClick");
+    }
+  }, [disabled, onEvent]);
+
   return (
     <StyledLink
       $disabled={disabled}
       onClick={handleClick}
+      onDoubleClick={handleDoubleClick}
     >
       {label}
     </StyledLink>
