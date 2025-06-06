@@ -55,9 +55,10 @@ const SimpleTextEditView = React.memo(({ value, onChange, onChangeEnd }: SimpleT
       variant="borderless"
       onChange={handleChange}
       onBlur={onChangeEnd}
-    onPressEnter={onChangeEnd}
-  />
-)});
+      onPressEnter={onChangeEnd}
+    />
+  );
+});
 
 const SimpleTextPropertyView = React.memo(({ children }: { children: RecordConstructorToComp<typeof childrenMap> }) => {
   return useMemo(() => (
