@@ -18,12 +18,7 @@ if [ ! "$(id --group lowcoder)" -eq ${GROUP_ID} ]; then
 fi;
 
 # Update host on which mongo is supposed to listen
-# If LOWCODER_MONGODB_EXPOSED is true, it will listen on all interfaces
-if [ "${LOWCODER_MONGODB_EXPOSED}" = "true" ]; then
-    export MONGO_LISTEN_HOST="0.0.0.0"
-else
-    export MONGO_LISTEN_HOST="127.0.0.1"
-fi;
+export MONGO_LISTEN_HOST="127.0.0.1"
 
 # Set the default mongodb connection string if not set explicitly
 if [ -z "${LOWCODER_MONGODB_URL}" ]; then
@@ -36,6 +31,7 @@ CERT="/lowcoder-stacks/ssl"
 # Create folder for holding application logs and data
 mkdir -p ${LOGS}/redis \
   ${LOGS}/mongodb \
+  ${LOGS}/mongo-ui \
   ${LOGS}/api-service \
   ${LOGS}/node-service \
   ${LOGS}/frontend \
@@ -78,9 +74,17 @@ if [ "${LOWCODER_NODE_SERVICE_ENABLED:=true}" = "true" ]; then
     ln ${SUPERVISOR_AVAILABLE}/11-node-service.conf ${SUPERVISOR_ENABLED}/11-node-service.conf
 fi;
 
+# Enable mongo-express web UI for mongodb if configured to run
+if [ "${LOWCODER_MONGODB_EXPOSED:=false}" = "true" ]; then
+    ln ${SUPERVISOR_AVAILABLE}/15-mongo-express.conf ${SUPERVISOR_ENABLED}/15-mongo-express.conf
+fi;
+
 # Enable frontend if configured to run
 if [ "${LOWCODER_FRONTEND_ENABLED:=true}" = "true" ]; then
     ln ${SUPERVISOR_AVAILABLE}/20-frontend.conf ${SUPERVISOR_ENABLED}/20-frontend.conf
+    sed -i 's@# include mongo-ui.conf;@include mongo-ui.conf;@' /etc/nginx/server.conf
+else
+    sed -i 's@\(\s*\)\(include mongo-ui\.conf;\)@\1# \2@' /etc/nginx/server.conf
 fi;
 
 # disable user directive if image is running non-root (Openshift)

@@ -239,6 +239,7 @@ COPY deploy/docker/frontend/nginx-http.conf /etc/nginx/nginx-http.conf
 COPY deploy/docker/frontend/nginx-https.conf /etc/nginx/nginx-https.conf
 COPY deploy/docker/frontend/ssl-certificate.conf /etc/nginx/ssl-certificate.conf
 COPY deploy/docker/frontend/ssl-params.conf /etc/nginx/ssl-params.conf
+COPY deploy/docker/all-in-one/conf/nginx_mongo-ui.conf /etc/nginx/mongo-ui.conf
 
 
 # Add lowcoder frontend
@@ -259,6 +260,11 @@ RUN mkdir -p /lowcoder/plugins/ && chown lowcoder:lowcoder /lowcoder/plugins/
 # Add lowcoder node-service
 COPY --chown=lowcoder:lowcoder --from=lowcoder-ce-node-service /lowcoder/node-service /lowcoder/node-service
 
+# Add mongo-express for managing mongodb database
+RUN mkdir -p /lowcoder/mongo-express && chown lowcoder:lowcoder /lowcoder/mongo-express
+COPY --chown=lowcoder:lowcoder --from=mongo-express:1-20-alpine3.19 /app /lowcoder/mongo-express/app
+COPY --chown=lowcoder:lowcoder --chmod=0755 deploy/docker/all-in-one/scripts/mongo-ui-entrypoint.sh /lowcoder/mongo-express/mongo-ui-entrypoint.sh
+
 # Add services configuration
 COPY --chown=lowcoder:lowcoder deploy/docker/all-in-one/etc /lowcoder/etc
 
@@ -276,9 +282,9 @@ RUN echo  \
   && chown -R lowcoder:root /var/log \
   && chmod -R g+rw /run /etc/nginx /var/cache/nginx /var/log
 
-EXPOSE 27017
 EXPOSE 3000
 EXPOSE 3443
+EXPOSE 9999
 
 ENTRYPOINT [ "/bin/sh" , "/lowcoder/entrypoint.sh" ]
 CMD ["/usr/bin/supervisord", "-n" , "-c" , "/lowcoder/etc/supervisord.conf"]
