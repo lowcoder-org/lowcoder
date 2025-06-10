@@ -38,6 +38,8 @@ const Container = styled.div<{ $style: AvatarGroupStyleType | undefined, alignme
   cursor: pointer;
 `;
 
+const AvatarEventOptions = [clickEvent, refreshEvent] as const;
+
 const DropdownOption = new MultiCompBuilder(
   {
     src: StringControl,
@@ -46,6 +48,7 @@ const DropdownOption = new MultiCompBuilder(
     color: ColorControl,
     backgroundColor: ColorControl,
     Tooltip: StringControl,
+    onEvent: eventHandlerControl(AvatarEventOptions),
   },
   (props) => props
 )
@@ -63,6 +66,7 @@ const DropdownOption = new MultiCompBuilder(
       {children.color.propertyView({ label: trans("style.fill") })}
       {children.backgroundColor.propertyView({ label: trans("style.background") })}
       {children.Tooltip.propertyView({ label: trans("badge.tooltip") })}
+      {children.onEvent.propertyView()}
     </>
   );
 })
@@ -83,14 +87,16 @@ const MemoizedAvatar = React.memo(({
   style, 
   autoColor, 
   avatarSize, 
-  onEvent 
+  onEvent,
+  onItemEvent
 }: { 
   item: any; 
   index: number; 
   style: any; 
   autoColor: boolean; 
   avatarSize: number; 
-  onEvent: (event: string) => void; 
+  onEvent: (event: string) => void;
+  onItemEvent?: (event: string) => void;
 }) => {
   const mountedRef = useRef(true);
 
@@ -103,8 +109,15 @@ const MemoizedAvatar = React.memo(({
 
   const handleClick = useCallback(() => {
     if (!mountedRef.current) return;
+    
+    // Trigger individual avatar event first
+    if (onItemEvent) {
+      onItemEvent("click");
+    }
+    
+    // Then trigger main component event
     onEvent("click");
-  }, [onEvent]);
+  }, [onEvent, onItemEvent]);
 
   const handleDoubleClick = useCallback(() => {
     if (!mountedRef.current) return;
@@ -119,6 +132,7 @@ const MemoizedAvatar = React.memo(({
         style={{
           color: item.color ? item.color : (style.fill !== '#FFFFFF' ? style.fill : '#FFFFFF'),
           backgroundColor: item.backgroundColor ? item.backgroundColor : (autoColor ? MacaroneList[index % MacaroneList.length] : style.background),
+          cursor: 'pointer',
         }}
         size={avatarSize}
         onClick={handleClick}
@@ -168,6 +182,7 @@ const MemoizedAvatarGroup = React.memo(({
           autoColor={autoColor}
           avatarSize={avatarSize}
           onEvent={onEvent}
+          onItemEvent={item.onEvent}
         />
       ))}
     </Avatar.Group>

@@ -766,6 +766,7 @@ let ColoredTagOption = new MultiCompBuilder(
     radius: withDefault(RadiusControl, ""),
     margin: withDefault(StringControl, ""),
     padding: withDefault(StringControl, ""),
+    onEvent: ButtonEventHandlerControl,
   },
   (props) => props
 ).build();
@@ -808,6 +809,7 @@ ColoredTagOption = class extends ColoredTagOption implements OptionCompProperty 
           preInputNode: <StyledIcon as={CompressIcon} title="" />,	
           placeholder: '3px',
         })}
+        {this.children.onEvent.propertyView()}
       </>
     );
   }

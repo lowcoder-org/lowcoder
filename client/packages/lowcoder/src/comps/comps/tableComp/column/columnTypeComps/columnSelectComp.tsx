@@ -116,6 +116,7 @@ const SelectOptionWithEventsControl = optionsControl(SelectOptionWithEvents, {
 const childrenMap = {
   text: StringControl,
   options: SelectOptionWithEventsControl,
+  onEvent: eventHandlerControl(SelectOptionEventOptions),
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.text;
@@ -125,6 +126,7 @@ type SelectEditProps = {
   onChange: (value: string) => void;
   onChangeEnd: () => void;
   options: any[];
+  onMainEvent?: (eventName: string) => void;
 };
 
 const SelectEdit = React.memo((props: SelectEditProps) => {
@@ -153,7 +155,12 @@ const SelectEdit = React.memo((props: SelectEditProps) => {
         selectedOption.onEvent("doubleClick");
       }
     }
-  }, [props.onChange, props.options]);
+    
+    // Also trigger the main component's event handler
+    if (props.onMainEvent) {
+      props.onMainEvent("click");
+    }
+  }, [props.onChange, props.options, props.onMainEvent]);
 
   const handleEvent = useCallback(async (eventName: string) => {
     if (!mountedRef.current) return [] as unknown[];
@@ -206,6 +213,7 @@ export const ColumnSelectComp = (function () {
             options={props.otherProps?.options || []}
             onChange={props.onChange}
             onChangeEnd={props.onChangeEnd}
+            onMainEvent={props.otherProps?.onEvent}
           />
         </Wrapper>
       )
@@ -220,6 +228,7 @@ export const ColumnSelectComp = (function () {
           {children.options.propertyView({
             title: trans("optionsControl.optionList"),
           })}
+          {children.onEvent.propertyView()}
         </>
       );
     })
