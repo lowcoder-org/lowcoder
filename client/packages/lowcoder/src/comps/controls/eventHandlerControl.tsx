@@ -378,7 +378,7 @@ export const doubleClickEvent: EventConfigType = {
 };
 export const rightClickEvent: EventConfigType = {
   label: trans("event.rightClick"),
-  value: "rightClick",
+  value: "doubleClick",
   description: trans("event.rightClickDesc"),
 };
 
