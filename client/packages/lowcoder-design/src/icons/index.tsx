@@ -144,6 +144,7 @@ export { ReactComponent as MongoIcon } from "./v1/icon-query-MongoDB.svg";
 export { ReactComponent as PostgresIcon } from "./v1/icon-query-postgres.svg";
 export { ReactComponent as RedisIcon } from "./v1/icon-query-Redis.svg";
 export { ReactComponent as MSSQLIcon } from "./v1/icon-query-mssql.svg";
+export { ReactComponent as DatabricksIcon } from "./v1/icon-query-databricks.svg";
 export { ReactComponent as SMTPIcon } from "./v1/icon-query-SMTP.svg";
 export { ReactComponent as OracleIcon } from "./v1/icon-query-OracleDB.svg";
 export { ReactComponent as ClickHouseIcon } from "./v1/icon-query-ClickHouse.svg";

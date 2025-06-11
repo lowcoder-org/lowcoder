@@ -162,6 +162,11 @@
 				<artifactId>snowflakePlugin</artifactId>
 				<version>${revision}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>databricksPlugin</artifactId>
+				<version>${revision}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
     
@@ -223,5 +228,6 @@
         <module>graphqlPlugin</module>
         <module>sqlBasedPlugin</module>
         <module>snowflakePlugin</module>
+		<module>databricksPlugin</module>
     </modules>
 </project>

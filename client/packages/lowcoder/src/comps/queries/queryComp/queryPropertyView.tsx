@@ -444,7 +444,7 @@ export const QueryGeneralPropertyView = (props: {
 
           <br/>    
           
-          {["postgres", "mysql", "mssql", "oracle", "mariadb"].includes(datasourceType) && (
+          {["databricks", "postgres", "mysql", "mssql", "oracle", "mariadb"].includes(datasourceType) && (
             <SupaDemoDisplay
               url={trans("supademos.dataquery2table")}
               modalWidth="80%"

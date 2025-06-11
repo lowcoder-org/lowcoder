@@ -14,6 +14,7 @@ import {
   MariaDBIcon,
   MongoIcon,
   MSSQLIcon,
+  DatabricksIcon,
   MysqlIcon,
   OptionsApiIcon,
   OracleIcon,
@@ -124,6 +125,8 @@ export const getBottomResIcon = (
         return <EsIcon />;
       case "mssql":
         return <MSSQLIcon />;
+      case "databricks":
+        return <DatabricksIcon />;
       case "smtp":
         return <SMTPIcon />;
       case "oracle":

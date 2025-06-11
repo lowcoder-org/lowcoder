@@ -3,6 +3,7 @@ import { msSqlConfig } from "./mssql";
 import { mysqlConfig } from "./mysql";
 import { oracleSqlConfig } from "./oracle";
 import { postgreSqlConfig } from "./postgresql";
+import { databricksConfig } from "./databricks";
 import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 
 export function getDataSourceTypeConfig(
@@ -14,6 +15,8 @@ export function getDataSourceTypeConfig(
         return mysqlConfig;
       case "postgres":
         return postgreSqlConfig;
+      case "databricks":
+        return databricksConfig;
       case "mssql":
         return msSqlConfig;
       case "oracle":

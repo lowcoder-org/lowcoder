@@ -24,6 +24,7 @@ export type DatasourceType =
   | "redis"
   | "es"
   | "mssql"
+  | "databricks"
   | "smtp"
   | "oracle"
   | "clickHouse"
@@ -46,6 +47,7 @@ export const QueryMap = {
   redis: RedisQuery,
   es: EsQuery,
   mssql: SQLQuery,
+  databricks: SQLQuery,
   smtp: SMTPQuery,
   oracle: SQLQuery,
   clickHouse: SQLQuery,

@@ -9,6 +9,7 @@ import { GoogleSheetsDatasourceForm } from "./googleSheetsDatasourceForm";
 import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import { sqlDatasourceForm } from "./sqlDatasourceForm";
+import { DatabricksDatasourceForm } from "./databricksDatasourceForm";
 import { GraphqlDatasourceForm } from "./graphqlDatasourceForm";
 import { OracleDatasourceForm } from "./oracleDatasourceForm";
 import { DataSourceTypeInfo } from "api/datasourceApi";
@@ -55,4 +56,5 @@ export const DatasourceFormRegistry: Partial<Record<DatasourceType, DatasourceFo
     form: sqlDatasourceForm({ placeholder: "My MariaDB1", port: "3306" }),
     whitelist: true,
   },
+  databricks: { form: DatabricksDatasourceForm, whitelist: true }
 };
