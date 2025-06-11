@@ -186,6 +186,8 @@ export const TableSummary = memo(function TableSummary(props: {
   columns: ColumnComp[];
   summaryRowStyle: TableSummaryRowStyleType;
   istoolbarPositionBelow: boolean;
+  dynamicColumn: boolean;
+  dynamicColumnConfig: string[];
 }) {
   const {
     columns,
@@ -195,10 +197,18 @@ export const TableSummary = memo(function TableSummary(props: {
     expandableRows,
     multiSelectEnabled,
     istoolbarPositionBelow,
+    dynamicColumn,
+    dynamicColumnConfig,
   } = props;
 
   const visibleColumns = useMemo(() => {
     let cols = columns.filter(col => !col.getView().hide);
+    if (dynamicColumn) {
+      cols = cols.filter(col => {
+        const colView = col.getView();
+        return dynamicColumnConfig.includes(colView.isCustom ? colView.title : colView.dataIndex)
+      })
+    }
     if (expandableRows) {
       cols.unshift(new ColumnComp({}));
     }
@@ -206,7 +216,7 @@ export const TableSummary = memo(function TableSummary(props: {
       cols.unshift(new ColumnComp({}));
     }
     return cols;
-  }, [columns, expandableRows, multiSelectEnabled]);
+  }, [columns, expandableRows, multiSelectEnabled, dynamicColumn, dynamicColumnConfig]);
 
   const renderSummaryCell = useCallback((column: ColumnComp, rowIndex: number, index: number) => {
     const summaryColumn = column.children.summaryColumns.getView()[rowIndex].getView();

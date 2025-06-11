@@ -10,6 +10,7 @@ import { trans } from "i18n";
 import styled from "styled-components";
 import { ColumnLink } from "comps/comps/tableComp/column/columnTypeComps/columnLinkComp";
 import { LightActiveTextColor, PrimaryColor } from "constants/style";
+import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 
 const MenuLinkWrapper = styled.div`
   > a {
@@ -37,33 +38,16 @@ const MenuWrapper = styled.div`
   }  
 `;
 
-// Memoized menu item component
-const MenuItem = React.memo(({ option, index }: { option: any; index: number }) => {
-  const handleClick = useCallback(() => {
-    if (!option.disabled && option.onClick) {
-      option.onClick();
-    }
-  }, [option.disabled, option.onClick]);
+const LinksEventOptions = [clickEvent] as const;
 
-  return (
-    <MenuLinkWrapper>
-      <ColumnLink
-        disabled={option.disabled}
-        label={option.label}
-        onClick={handleClick}
-      />
-    </MenuLinkWrapper>
-  );
-});
-
-MenuItem.displayName = 'MenuItem';
-
+// Update OptionItem to include event handlers
 const OptionItem = new MultiCompBuilder(
   {
     label: StringControl,
     onClick: ActionSelectorControlInContext,
     hidden: BoolCodeControl,
     disabled: BoolCodeControl,
+    onEvent: eventHandlerControl(LinksEventOptions),
   },
   (props) => {
     return props;
@@ -79,13 +63,44 @@ const OptionItem = new MultiCompBuilder(
         })}
         {hiddenPropertyView(children)}
         {disabledPropertyView(children)}
+        {children.onEvent.propertyView()}
       </>
     );
   })
   .build();
 
+// Memoized menu item component
+const MenuItem = React.memo(({ option, index, onMainEvent }: { option: any; index: number; onMainEvent?: (eventName: string) => void }) => {
+  const handleClick = useCallback(() => {
+    if (!option.disabled) {
+      if (option.onClick) {
+        option.onClick();
+      }
+      if (option.onEvent) {
+        option.onEvent("click");
+      }
+      // Trigger the main component's event handler
+      if (onMainEvent) {
+        onMainEvent("click");
+      }
+    }
+  }, [option.disabled, option.onClick, option.onEvent, onMainEvent]);
+
+  return (
+    <MenuLinkWrapper>
+      <ColumnLink
+        disabled={option.disabled}
+        label={option.label}
+        onEvent={handleClick}
+      />
+    </MenuLinkWrapper>
+  );
+});
+
+MenuItem.displayName = 'MenuItem';
+
 // Memoized menu component
-const LinksMenu = React.memo(({ options }: { options: any[] }) => {
+const LinksMenu = React.memo(({ options, onEvent }: { options: any[]; onEvent?: (eventName: string) => void }) => {
   const mountedRef = useRef(true);
 
   // Cleanup on unmount
@@ -100,9 +115,9 @@ const LinksMenu = React.memo(({ options }: { options: any[] }) => {
       .filter((o) => !o.hidden)
       .map((option, index) => ({
         key: index,
-        label: <MenuItem option={option} index={index} />
+        label: <MenuItem option={option} index={index} onMainEvent={onEvent} />
       })),
-    [options]
+    [options, onEvent]
   );
 
   return (
@@ -119,11 +134,12 @@ export const ColumnLinksComp = (function () {
     options: manualOptionsControl(OptionItem, {
       initOptions: [{ label: trans("table.option1") }],
     }),
+    onEvent: eventHandlerControl(LinksEventOptions),
   };
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props) => {
-      return <LinksMenu options={props.options} />;
+      return <LinksMenu options={props.options} onEvent={props.onEvent} />;
     },
     () => ""
   )
@@ -133,6 +149,7 @@ export const ColumnLinksComp = (function () {
           newOptionLabel: trans("table.option"),
           title: trans("table.optionList"),
         })}
+        {children.onEvent.propertyView()}
       </>
     ))
     .build();

@@ -16,6 +16,7 @@ import { hashToNum } from "util/stringUtils";
 import { CustomSelect, PackUpIcon } from "lowcoder-design";
 import { ScrollBar } from "lowcoder-design";
 import { ColoredTagOptionControl } from "comps/controls/optionsControl";
+import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 
 const colors = PresetStatusColorTypes;
 
@@ -58,10 +59,58 @@ const TagsControl = codeControl<Array<string> | string>(
 
 function getTagColor(tagText : any, tagOptions: any[]) {
   const foundOption = tagOptions.find((option: { label: any; }) => option.label === tagText);
-  return foundOption ? foundOption.color : (function() {
-    const index = Math.abs(hashToNum(tagText)) % colors.length;
-    return colors[index];
-  })();
+  if (foundOption) {
+    if (foundOption.colorType === "preset") {
+      return foundOption.presetColor;
+    } else if (foundOption.colorType === "custom") {
+      return undefined; // For custom colors, we'll use style instead
+    }
+    // Backward compatibility - if no colorType specified, assume it's the old color field
+    return foundOption.color;
+  }
+  // Default fallback
+  const index = Math.abs(hashToNum(tagText)) % colors.length;
+  return colors[index];
+}
+
+function getTagStyle(tagText: any, tagOptions: any[]) {
+  const foundOption = tagOptions.find((option: { label: any; }) => option.label === tagText);
+  if (foundOption) {
+    const style: any = {};
+    
+    // Handle color styling
+    if (foundOption.colorType === "custom") {
+      style.backgroundColor = foundOption.color;
+      style.color = foundOption.textColor;
+      style.border = `1px solid ${foundOption.color}`;
+    }
+    
+    // Add border styling if specified
+    if (foundOption.border) {
+      style.borderColor = foundOption.border;
+      if (!foundOption.colorType || foundOption.colorType !== "custom") {
+        style.border = `1px solid ${foundOption.border}`;
+      }
+    }
+    
+    // Add border radius if specified
+    if (foundOption.radius) {
+      style.borderRadius = foundOption.radius;
+    }
+    
+    // Add margin if specified
+    if (foundOption.margin) {
+      style.margin = foundOption.margin;
+    }
+    
+    // Add padding if specified
+    if (foundOption.padding) {
+      style.padding = foundOption.padding;
+    }
+    
+    return style;
+  }
+  return {};
 }
 
 function getTagIcon(tagText: any, tagOptions: any[]) {
@@ -72,6 +121,7 @@ function getTagIcon(tagText: any, tagOptions: any[]) {
 const childrenMap = {
   text: TagsControl,
   tagColors: ColoredTagOptionControl,
+  onEvent: eventHandlerControl([clickEvent]),
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string | string[], string | string[]> = (
@@ -181,6 +231,7 @@ export const DropdownStyled = styled.div`
 
 export const TagStyled = styled(Tag)`
   margin-right: 8px;
+  cursor: pointer;
   svg {
     margin-right: 4px;
   }
@@ -250,6 +301,14 @@ const TagEdit = React.memo((props: TagEditPropsType) => {
     setOpen(false);
   }, [props.onChangeEnd]);
 
+  const handleTagClick = useCallback((tagText: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const foundOption = memoizedTagOptions.find(option => option.label === tagText);
+    if (foundOption && foundOption.onEvent) {
+      foundOption.onEvent("click");
+    }
+  }, [memoizedTagOptions]);
+
   return (
     <Wrapper>
       <CustomSelect
@@ -286,13 +345,38 @@ const TagEdit = React.memo((props: TagEditPropsType) => {
         {tags.map((value, index) => (
           <CustomSelect.Option value={value} key={index}>
             {value.split(",")[1] ? (
-              value.split(",").map((item, i) => (
-                <Tag color={getTagColor(item, memoizedTagOptions)} icon={getTagIcon(item, memoizedTagOptions)} key={i} style={{ marginRight: "8px" }}>
-                  {item}
-                </Tag>
-              ))
+              value.split(",").map((item, i) => {
+                const tagColor = getTagColor(item, memoizedTagOptions);
+                const tagIcon = getTagIcon(item, memoizedTagOptions);
+                const tagStyle = getTagStyle(item, memoizedTagOptions);
+                
+                return (
+                  <Tag 
+                    color={tagColor}
+                    icon={tagIcon} 
+                    key={i} 
+                    style={{ 
+                      marginRight: tagStyle.margin ? undefined : "8px", 
+                      cursor: "pointer",
+                      ...tagStyle 
+                    }}
+                    onClick={(e) => handleTagClick(item, e)}
+                  >
+                    {item}
+                  </Tag>
+                );
+              })
             ) : (
-              <Tag color={getTagColor(value, memoizedTagOptions)} icon={getTagIcon(value, memoizedTagOptions)} key={index}>
+              <Tag 
+                color={getTagColor(value, memoizedTagOptions)} 
+                icon={getTagIcon(value, memoizedTagOptions)} 
+                key={index}
+                style={{
+                  cursor: "pointer",
+                  ...getTagStyle(value, memoizedTagOptions)
+                }}
+                onClick={(e) => handleTagClick(value, e)}
+              >
                 {value}
               </Tag>
             )}
@@ -313,12 +397,34 @@ export const ColumnTagsComp = (function () {
       let value = props.changeValue ?? getBaseValue(props, dispatch);
       value = typeof value === "string" && value.split(",")[1] ? value.split(",") : value;
       const tags = _.isArray(value) ? value : (value.length ? [value] : []);
+      
+      const handleTagClick = (tagText: string) => {
+        const foundOption = tagOptions.find(option => option.label === tagText);
+        if (foundOption && foundOption.onEvent) {
+          foundOption.onEvent("click");
+        }
+        // Also trigger the main component's event handler
+        if (props.onEvent) {
+          props.onEvent("click");
+        }
+      };
+      
       const view = tags.map((tag, index) => {
         // The actual eval value is of type number or boolean
         const tagText = String(tag);
+        const tagColor = getTagColor(tagText, tagOptions);
+        const tagIcon = getTagIcon(tagText, tagOptions);
+        const tagStyle = getTagStyle(tagText, tagOptions);
+        
         return (
           <div key={`${tag.split(' ').join('_')}-${index}`}>
-            <TagStyled color={getTagColor(tagText, tagOptions)} icon={getTagIcon(tagText, tagOptions)} key={index} >
+            <TagStyled 
+              color={tagColor} 
+              icon={tagIcon} 
+              key={index}
+              style={tagStyle}
+              onClick={() => handleTagClick(tagText)}
+            >
               {tagText}
             </TagStyled>
           </div>
@@ -349,8 +455,9 @@ export const ColumnTagsComp = (function () {
           tooltip: ColumnValueTooltip,
         })}
         {children.tagColors.propertyView({
-          title: "test",
+          title: "Tag Options",
         })}
+        {children.onEvent.propertyView()}
       </>
     ))
     .build();

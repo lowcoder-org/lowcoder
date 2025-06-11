@@ -434,6 +434,8 @@ export class ColumnComp extends ColumnInitComp {
         )
       )
     );
+    // clear render comp cache when change set is cleared
+    this.children.render.dispatch(RenderComp.clearAction());
   }
 
   dispatchClearInsertSet() {

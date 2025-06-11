@@ -11,12 +11,15 @@ import { disabledPropertyView } from "comps/utils/propertyUtils";
 import styled, { css } from "styled-components";
 import { styleControl } from "comps/controls/styleControl";
 import { TableColumnLinkStyle } from "comps/controls/styleControlConstants";
+import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
+const LinkEventOptions = [clickEvent] as const;
+
 const childrenMap = {
   text: StringControl,
-  onClick: ActionSelectorControlInContext,
+  onEvent: eventHandlerControl(LinkEventOptions),
   disabled: BoolCodeControl,
   style: styleControl(TableColumnLinkStyle),
 };
@@ -34,12 +37,12 @@ const StyledLink = styled.a<{ $disabled: boolean }>`
 `;
 
 // Memoized link component
-export const ColumnLink = React.memo(({ disabled, label, onClick }: { disabled: boolean; label: string; onClick?: () => void }) => {
+export const ColumnLink = React.memo(({ disabled, label, onEvent }: { disabled: boolean; label: string; onEvent?: (eventName: string) => void }) => {
   const handleClick = useCallback(() => {
-    if (!disabled && onClick) {
-      onClick();
+    if (!disabled && onEvent) {
+      onEvent("click");
     }
-  }, [disabled, onClick]);
+  }, [disabled, onEvent]);
 
   return (
     <StyledLink
@@ -106,7 +109,7 @@ export const LinkComp = (function () {
     childrenMap,
     (props, dispatch) => {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
-      return <ColumnLink disabled={props.disabled} label={value} onClick={props.onClick} />;
+      return <ColumnLink disabled={props.disabled} label={value} onEvent={props.onEvent} />;
     },
     (nodeValue) => nodeValue.text.value,
     getBaseValue
@@ -125,10 +128,7 @@ export const LinkComp = (function () {
           tooltip: ColumnValueTooltip,
         })}
         {disabledPropertyView(children)}
-        {children.onClick.propertyView({
-          label: trans("table.action"),
-          placement: "table",
-        })}
+        {children.onEvent.propertyView()}
       </>
     ))
     .setStylePropertyViewFn((children) => (
