@@ -14,6 +14,7 @@ import { CSSProperties } from "react";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { ToViewReturn } from "@lowcoder-ee/comps/generators/multi";
 import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
+import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
@@ -52,11 +53,7 @@ const ButtonStyled = React.memo(({ props }: { props: ToViewReturn<RecordConstruc
   const iconOnly = !hasText && (hasPrefixIcon || hasSuffixIcon);
 
   const handleClick = useCallback((e: React.MouseEvent) => {
-    props.onEvent("click");
-  }, [props.onEvent]);
-
-  const handleDoubleClick = useCallback((e: React.MouseEvent) => {
-    props.onEvent("doubleClick");
+    ComponentClickHandler({onEvent: props.onEvent})
   }, [props.onEvent]);
 
   const buttonStyle = useMemo(() => ({
@@ -75,7 +72,6 @@ const ButtonStyled = React.memo(({ props }: { props: ToViewReturn<RecordConstruc
       $buttonStyle={props.buttonType === "primary" ? style : undefined}
       style={buttonStyle}
       icon={hasPrefixIcon ? props.prefixIcon : undefined}
-      onDoubleClick={handleDoubleClick}
     >
       {/* prevent the button from disappearing */}
       {hasText ? props.text : (iconOnly ? null : " ")}

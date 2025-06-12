@@ -17,6 +17,7 @@ import { optionsControl } from "comps/controls/optionsControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { JSONObject } from "util/jsonTypes";
+import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
 
 const MacaroneList = [
   '#fde68a',
@@ -116,13 +117,8 @@ const MemoizedAvatar = React.memo(({
     }
     
     // Then trigger main component event
-    onEvent("click");
+    ComponentClickHandler({onEvent})()
   }, [onEvent, onItemEvent]);
-
-  const handleDoubleClick = useCallback(() => {
-    if (!mountedRef.current) return;
-    onEvent("doubleClick");
-  }, [onEvent]);
 
   return (
     <Tooltip title={item.Tooltip} key={index}>
@@ -136,7 +132,6 @@ const MemoizedAvatar = React.memo(({
         }}
         size={avatarSize}
         onClick={handleClick}
-        onDoubleClick={handleDoubleClick}
       >
         {item.label}
       </Avatar>

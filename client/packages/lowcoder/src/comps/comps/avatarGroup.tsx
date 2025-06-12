@@ -19,6 +19,7 @@ import { optionsControl } from "../controls/optionsControl";
 import { BoolControl } from "../controls/boolControl";
 import { dropdownControl } from "../controls/dropdownControl";
 import { JSONObject } from "util/jsonTypes";
+import { ComponentClickHandler } from "../utils/componentClickHandler";
 
 const MacaroneList = [
   '#fde68a',
@@ -125,11 +126,8 @@ const AvatarGroupView = (props: RecordConstructorToView<typeof childrenMap> & { 
                     }}
                     size={props.avatarSize}
                     onClick={() => {
-                      props.onEvent("click")
+                      ComponentClickHandler({onEvent: props.onEvent})();
                       props.dispatch(changeChildAction("currentAvatar", item as JSONObject, false));
-                    }}
-                    onDoubleClick={() => {
-                      props.onEvent("doubleClick")
                     }}
                   >
                     {item.label}

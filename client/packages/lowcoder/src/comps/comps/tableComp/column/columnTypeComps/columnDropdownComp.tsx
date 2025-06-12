@@ -16,6 +16,7 @@ import { Button100 } from "comps/comps/buttonComp/buttonCompConstants";
 import styled from "styled-components";
 import { ButtonType } from "antd/es/button";
 import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
+import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
 
 const StyledButton = styled(Button100)`
   display: flex;
@@ -59,7 +60,7 @@ const DropdownMenu = React.memo(({ items, options, onEvent }: { items: any[]; op
     const itemIndex = options.findIndex(option => option.label === item?.label);
     item && options[itemIndex]?.onEvent("click");
     // Also trigger the dropdown's main event handler
-    onEvent?.("click");
+    onEvent && ComponentClickHandler({onEvent})();
   }, [items, options, onEvent]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -67,16 +68,10 @@ const DropdownMenu = React.memo(({ items, options, onEvent }: { items: any[]; op
     e.preventDefault();
   }, []);
 
-  const handleDoubleClick = useCallback((e: React.MouseEvent) => {
-    if (!mountedRef.current) return;
-    onEvent?.("doubleClick");
-  }, [onEvent]);
-
   return (
     <Menu
       items={items}
       onClick={handleClick}
-      onDoubleClick={handleDoubleClick}
       onMouseDown={handleMouseDown}
     />
   );

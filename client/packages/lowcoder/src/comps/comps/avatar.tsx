@@ -35,6 +35,8 @@ import { BadgeBasicSection, badgeChildren } from "./badgeComp/badgeConstants";
 import { DropdownOptionControl } from "../controls/optionsControl";
 import { ReactElement, useContext, useEffect } from "react";
 import { CompNameContext, EditorContext } from "../editorState";
+import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
+
 
 const AvatarWrapper = styled(Avatar) <AvatarProps & { $cursorPointer?: boolean, $style: AvatarStyleType }>`
   background: ${(props) => props.$style.background};
@@ -182,9 +184,7 @@ const AvatarView = (props: RecordConstructorToView<typeof childrenMap>) => {
             shape={shape}
             $style={props.avatarStyle}
             src={src.value}
-            // $cursorPointer={eventsCount > 0}
-            onClick={() => props.onEvent("click")}
-            onDoubleClick={() => props.onEvent("doubleClick")}
+            onClick={ComponentClickHandler({onEvent: props.onEvent})}
           >
             {title.value}
           </AvatarWrapper>

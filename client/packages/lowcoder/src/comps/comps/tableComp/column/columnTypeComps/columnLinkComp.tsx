@@ -12,6 +12,7 @@ import styled, { css } from "styled-components";
 import { styleControl } from "comps/controls/styleControl";
 import { TableColumnLinkStyle } from "comps/controls/styleControlConstants";
 import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
+import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
@@ -40,13 +41,7 @@ const StyledLink = styled.a<{ $disabled: boolean }>`
 export const ColumnLink = React.memo(({ disabled, label, onEvent }: { disabled: boolean; label: string; onEvent?: (eventName: string) => void }) => {
   const handleClick = useCallback(() => {
     if (!disabled && onEvent) {
-      onEvent("click");
-    }
-  }, [disabled, onEvent]);
-
-  const handleDoubleClick = useCallback(() => {
-    if (!disabled && onEvent) {
-      onEvent("doubleClick");
+      ComponentClickHandler({onEvent})();
     }
   }, [disabled, onEvent]);
 
@@ -54,7 +49,6 @@ export const ColumnLink = React.memo(({ disabled, label, onEvent }: { disabled: 
     <StyledLink
       $disabled={disabled}
       onClick={handleClick}
-      onDoubleClick={handleDoubleClick}
     >
       {label}
     </StyledLink>

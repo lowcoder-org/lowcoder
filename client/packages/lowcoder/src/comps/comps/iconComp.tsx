@@ -33,6 +33,7 @@ import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { AssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
 import { dropdownControl } from "../controls/dropdownControl";
+import { ComponentClickHandler } from "../utils/componentClickHandler";
 
 const Container = styled.div<{
   $sourceMode: string;
@@ -135,8 +136,7 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
       $sourceMode={props.sourceMode}
       $animationStyle={props.animationStyle}
       style={style}
-      onClick={() => props.onEvent("click")}
-      onDoubleClick={() => props.onEvent("doubleClick")}
+      onClick={ComponentClickHandler({onEvent: props.onEvent})}
     >
       { props.sourceMode === 'standard'
         ? (props.icon || '')

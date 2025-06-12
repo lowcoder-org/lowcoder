@@ -50,6 +50,7 @@ import { convertTimeLineData } from "./timelineUtils";
 import { default as Timeline } from "antd/es/timeline";
 import { EditorContext } from "comps/editorState";
 import { styled } from "styled-components";
+import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
 
 const TimelineWrapper = styled.div<{
   $style: TimeLineStyleType
@@ -142,13 +143,7 @@ const TimelineComp = (
             e.preventDefault();
             dispatch(changeChildAction("clickedObject", value, false));
             dispatch(changeChildAction("clickedIndex", index, false));
-            onEvent("click");
-          }}
-          onDoubleClick={(e) => {
-            e.preventDefault();
-            dispatch(changeChildAction("clickedObject", value, false));
-            dispatch(changeChildAction("clickedIndex", index, false));
-            onEvent("doubleClick");
+            ComponentClickHandler({onEvent})()
           }}
           // for responsiveness
           style={{

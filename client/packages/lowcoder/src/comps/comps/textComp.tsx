@@ -25,6 +25,7 @@ import { NewChildren } from "../generators/uiCompBuilder";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { ToViewReturn } from "../generators/multi";
 import { BoolControl } from "../controls/boolControl";
+import { ComponentClickHandler } from "../utils/componentClickHandler";
 
 const EventOptions = [clickEvent, doubleClickEvent] as const;
 
@@ -225,11 +226,9 @@ const TextPropertyView = React.memo((props: {
 const TextView = React.memo((props: ToViewReturn<ChildrenType>) => {
   const value = props.text.value;
   const handleClick = React.useCallback(() => {
-    props.onEvent("click");
+    props.onEvent && ComponentClickHandler({onEvent: props.onEvent})()
   }, [props.onEvent]);
-  const handleDoubleClick = React.useCallback(() => {
-    props.onEvent("doubleClick");
-  }, [props.onEvent]);
+
   const containerStyle = useMemo(() => ({
     justifyContent: props.horizontalAlignment,
     alignItems: props.autoHeight ? "center" : props.verticalAlignment,
@@ -249,7 +248,6 @@ const TextView = React.memo((props: ToViewReturn<ChildrenType>) => {
       $styleConfig={props.style}
       style={containerStyle}
       onClick={handleClick}
-      onDoubleClick={handleDoubleClick}
     >
       <ScrollBar hideScrollbar={!props.contentScrollBar}>
         {content}

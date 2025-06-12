@@ -17,6 +17,7 @@ import styled from "styled-components";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { manualOptionsControl } from "comps/controls/optionsControl";
 import { useContext, useEffect } from "react";
+import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
 
 const StyledFloatButton = styled(FloatButton)<{
   $animationStyle: AnimationStyleType;
@@ -105,7 +106,7 @@ const FloatButtonView = (props: RecordConstructorToView<typeof childrenMap>) => 
                 $animationStyle={props.animationStyle}
                 key={button?.id}
                 icon={button?.icon}
-                onClick={() => button.onEvent("click")}
+                onClick={ComponentClickHandler({onEvent: button.onEvent})}
                 tooltip={button?.label}
                 description={button?.description}
                 badge={{ count: button?.badge, color: props.badgeStyle.badgeColor, dot: props?.dot }}

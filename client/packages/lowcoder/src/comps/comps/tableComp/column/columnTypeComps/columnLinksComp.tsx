@@ -11,6 +11,7 @@ import styled from "styled-components";
 import { ColumnLink } from "comps/comps/tableComp/column/columnTypeComps/columnLinkComp";
 import { LightActiveTextColor, PrimaryColor } from "constants/style";
 import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
+import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
 
 const MenuLinkWrapper = styled.div`
   > a {
@@ -73,22 +74,14 @@ const OptionItem = new MultiCompBuilder(
 const MenuItem = React.memo(({ option, index, onMainEvent }: { option: any; index: number; onMainEvent?: (eventName: string) => void }) => {
   const handleClick = useCallback(() => {
     if (!option.disabled) {
-      if (option.onClick) {
-        option.onClick();
-      }
-      if (option.onDoubleClick) {
-        option.onDoubleClick();
-      }
-      if (option.onEvent) {
-        option.onEvent("click");
-      }
-
-      // Trigger the main component's event handler
-      if (onMainEvent) {
-        onMainEvent("click");
-      }
+      // Handle both option's event and main event through ComponentClickHandler
+      const combinedHandler = (event: "click" | "doubleClick") => {
+        option.onEvent?.(event);
+        onMainEvent?.(event);
+      };
+      ComponentClickHandler({onEvent: combinedHandler})();
     }
-  }, [option.disabled, option.onClick, option.onEvent, onMainEvent, option.onDoubleClick]);
+  }, [option.disabled, option.onEvent, onMainEvent]);
 
   return (
     <MenuLinkWrapper>

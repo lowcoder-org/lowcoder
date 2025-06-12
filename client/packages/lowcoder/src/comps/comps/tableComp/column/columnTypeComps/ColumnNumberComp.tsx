@@ -9,7 +9,8 @@ import { withDefault } from "comps/generators";
 import styled from "styled-components";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
-import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
+import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
+import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
 
 const InputNumberWrapper = styled.div`
   .ant-input-number  {
@@ -33,7 +34,7 @@ const NumberViewWrapper = styled.div`
   gap: 4px;
 `;
 
-const NumberEventOptions = [clickEvent] as const;
+const NumberEventOptions = [clickEvent, doubleClickEvent] as const;
 
 const childrenMap = {
   text: NumberControl,
@@ -79,9 +80,7 @@ const ColumnNumberView = React.memo((props: NumberViewProps) => {
   }, [props.value, props.float, props.precision]);
 
   const handleClick = useCallback(() => {
-    if (props.onEvent) {
-      props.onEvent("click");
-    }
+    props.onEvent && ComponentClickHandler({onEvent: props.onEvent})()
   }, [props.onEvent]);
 
   return (

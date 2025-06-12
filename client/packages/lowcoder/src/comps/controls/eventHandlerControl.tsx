@@ -819,4 +819,5 @@ export const CardEventHandlerControl = eventHandlerControl([
   clickExtraEvent,
   focusEvent,
   blurEvent,
+  doubleClickEvent
 ] as const);
