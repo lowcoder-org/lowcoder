@@ -25,8 +25,8 @@
     * [Environments](setup-and-run/lowcoder-enterprise-edition/enterprise-edition-features/environments/README.md)
       * [Setting up an Environment](setup-and-run/lowcoder-enterprise-edition/enterprise-edition-features/environments/setting-up-an-environment.md)
       * [Environment Details](setup-and-run/lowcoder-enterprise-edition/enterprise-edition-features/environments/environment-details.md)
-    * [Audit Logs Feature](setup-and-run/lowcoder-enterprise-edition/enterprise-edition-features/audit-logs-feature.md)
-    * [App Usage Logs Feature](setup-and-run/lowcoder-enterprise-edition/enterprise-edition-features/app-usage-logs-feature.md)
+    * [Audit Logs](setup-and-run/lowcoder-enterprise-edition/enterprise-edition-features/audit-logs.md)
+    * [App Usage Analytics](setup-and-run/lowcoder-enterprise-edition/enterprise-edition-features/app-usage-analytics.md)
     * [Branding & Whitelabel](setup-and-run/lowcoder-enterprise-edition/enterprise-edition-features/branding-and-whitelabel.md)
 
 ## 🏨 Workspaces & Teamwork
