@@ -1,40 +1,50 @@
 # App Usage Logs Feature
 
-App Usage Log feature provides the overview of the statistics about the App usage. How the End-Users are using your apps, their locations, what devices/OS they are on and your mostly used Apps.
+While **Audit Logs** help you track **what your teams and app editors do** _within_ the Lowcoder platform, the **App Usage Logs** feature shifts focus outward—capturing **how your published apps are consumed by real users**.
+
+Think of it as a lightweight, embedded **analytics suite**, similar to Google Analytics—but tailored for internal tools and enterprise apps built on Lowcoder.
+
+**App Usage Logs** deliver actionable insights into **how your applications are used by end-users**. Whether those users are employees, customers, or external partners, this feature gives you the visibility needed to understand:
+
+* Which apps are used most
+* Who is using them (anonymous or logged-in)
+* From where, and on what kind of devices
 
 <div><figure><img src="../../../.gitbook/assets/frame_generic_light (3) (4).png" alt=""><figcaption></figcaption></figure> <figure><img src="../../../.gitbook/assets/frame_generic_light (4) (5).png" alt=""><figcaption></figcaption></figure></div>
 
-### ❓ What Is It?
+### What Usage Data Is Tracked?
 
-Embedded analytics to track how apps are used—like mini Google Analytics for internal tools.
+Lowcoder automatically logs a variety of app usage events, categorized to help you quickly surface important patterns and metrics. All Metrics are collected **without** additional cookies or analytics tracking tools.
 
-### 🛠️ Why You Need It
+#### 🔍 Insights Tracked:
 
-* Understand user engagement
-* Improve UX based on behavior
-* Spot unused/inefficient components
+* **App Usage Over Time**\
+  Visual timeline of how often your apps are accessed
+* **User Engagement by Region**\
+  Geographical mapping of user activity
+* **Top 10 Most-Used Apps**\
+  Ranked list of most active apps in your environment
+* **Known vs Anonymous Users**\
+  Segregation of logged-in vs guest traffic
+* **Device & OS Breakdown**\
+  Analysis of device types and operating systems used
+* **Browser & Layout Engine Stats**\
+  Deep insight into client rendering environments
 
-**What Logs are Tracked :**&#x20;
+### Filter & Drill Down
 
-On App Usage Logs, we track the following logs of the App Users :&#x20;
+To make the logs truly useful, App Usage Logs include powerful filtering capabilities:
 
-1. User Engagement by Region
-2. App Usage over Time
-3. Top 10 Apps
-4. Anonymous/Known Users
-5. Device/OS Breakdown
-6. Browser/Layout Engine Breakdown
+#### 🔧 Available Filters:
 
-**Filter Options :**&#x20;
+* **Start Date / End Date**
+* **Environment ID** (e.g., Dev, Staging, Production)
+* **Organization ID**
+* **User ID**
+* **App ID**
+* **App Author**
+* **App Author Org ID**
 
-On App Usage Logs, we have different filters present to filter out Logs as per the Admin's requirements. Logs can be filtered out based on the following filter options :&#x20;
+These filters let admins zoom into specific events, teams, apps, or usage periods—perfect for audits, A/B testing, or pre-release validation.
 
 <figure><img src="../../../.gitbook/assets/frame_generic_light (12) (2).png" alt=""><figcaption></figcaption></figure>
-
-1. Start and End date
-2. Environment ID
-3. Organization ID
-4. User ID
-5. App ID
-6. App Author
-7. App Author Org ID
