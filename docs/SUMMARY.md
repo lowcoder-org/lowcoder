@@ -20,7 +20,7 @@
 * [Security](setup-and-run/security.md)
 * [Lowcoder Enterprise Edition](setup-and-run/lowcoder-enterprise-edition/README.md)
   * [Ordering the Enterprise Edition](setup-and-run/lowcoder-enterprise-edition/ordering-the-enterprise-edition.md)
-  * [Install Enterprise Edition](setup-and-run/lowcoder-enterprise-edition/install-enterprise-edition.md)
+  * [Installing Enterprise Edition](setup-and-run/lowcoder-enterprise-edition/installing-enterprise-edition.md)
   * [Enterprise Edition Features](setup-and-run/lowcoder-enterprise-edition/enterprise-edition-features/README.md)
     * [Environments](setup-and-run/lowcoder-enterprise-edition/enterprise-edition-features/environments/README.md)
       * [Setting up an Environment](setup-and-run/lowcoder-enterprise-edition/enterprise-edition-features/environments/setting-up-an-environment.md)
