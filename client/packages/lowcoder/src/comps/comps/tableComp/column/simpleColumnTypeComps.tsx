@@ -38,6 +38,7 @@ const childrenMap = {
   text: StringControl,
   buttonType: dropdownControl(ButtonTypeOptions, "primary"),
   onEvent: eventHandlerControl(ButtonEventOptions),
+  onClick: ActionSelectorControlInContext,
   loading: BoolCodeControl,
   disabled: BoolCodeControl,
   prefixIcon: IconControl,
@@ -52,8 +53,9 @@ const ButtonStyled = React.memo(({ props }: { props: ToViewReturn<RecordConstruc
   const iconOnly = !hasText && (hasPrefixIcon || hasSuffixIcon);
 
   const handleClick = useCallback((e: React.MouseEvent) => {
-    props.onEvent("click");
-  }, [props.onEvent]);
+    props.onClick?.();
+    // props.onEvent?.("click");
+  }, [props.onClick, props.onEvent]);
 
   const buttonStyle = useMemo(() => ({
     margin: 0,
@@ -103,7 +105,11 @@ export const ButtonComp = (function () {
         })}
         {loadingPropertyView(children)}
         {disabledPropertyView(children)}
-        {children.onEvent.propertyView()}
+        {/* {children.onEvent.propertyView()} */}
+        {children.onClick.propertyView({
+          label: trans("table.action"),
+          placement: "table",
+        })}
       </>
     ))
     .build();

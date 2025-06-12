@@ -17,6 +17,7 @@ import {
   ConstructorToView,
   deferAction,
   fromRecord,
+  isDynamicSegment,
   multiChangeAction,
   withFunction,
   wrapChildAction,
@@ -194,7 +195,6 @@ const ColumnPropertyView = React.memo(({
   summaryRowIndex: number; 
 }) => {
   const selectedColumn = comp.children.render.getSelectedComp();
-  
   const columnType = useMemo(() => 
     selectedColumn.getComp().children.compType.getView(),
     [selectedColumn]
@@ -205,7 +205,7 @@ const ColumnPropertyView = React.memo(({
     if (column.comp?.hasOwnProperty('src')) {
       return (column.comp as any).src;
     } else if (column.comp?.hasOwnProperty('text')) {
-      return (column.comp as any).text;
+      return isDynamicSegment((column.comp as any).text) ? '{{currentCell}}' : (column.comp as any).text;
     }
     return '{{currentCell}}';
   }, [selectedColumn]);
