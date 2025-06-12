@@ -19,7 +19,8 @@ export const ComponentClickHandler = (props: Props) => {
         clearTimeout(clickTimer)
 
         if((now - lastClickTime) < DOUBLE_CLICK_THRESHOLD){ 
-            return props.onEvent(ClickEventType.DOUBLE_CLICK)
+            clearTimeout(clickTimer)
+            props.onEvent(ClickEventType.DOUBLE_CLICK)
         } else {
             clickTimer = setTimeout(() => {
                 props.onEvent(ClickEventType.CLICK)

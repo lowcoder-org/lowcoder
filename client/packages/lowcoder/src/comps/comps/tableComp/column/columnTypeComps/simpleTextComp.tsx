@@ -51,7 +51,6 @@ interface SimpleTextEditViewProps {
 
 const SimpleTextContent = React.memo(({ value, prefixIcon, suffixIcon, onEvent }: SimpleTextContentProps) => {
   const handleClick = useCallback(() => {
-      console.log("This comp");
      onEvent && ComponentClickHandler({onEvent})()
   }, [onEvent]);
 
