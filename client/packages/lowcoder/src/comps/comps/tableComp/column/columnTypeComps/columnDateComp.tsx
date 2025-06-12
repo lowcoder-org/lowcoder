@@ -127,7 +127,7 @@ const Wrapper = styled.div`
 
 export function formatDate(date: string, format: string) {
   let mom = dayjs(date);
-  if (isNumber(Number(date)) && date !== "") {
+  if (isNumber(Number(date)) && !isNaN(Number(date)) && date !== "") {
     mom = dayjs(Number(date));
   }
   if (!mom.isValid()) {
