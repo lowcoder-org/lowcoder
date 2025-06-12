@@ -43,6 +43,7 @@ import { default as AutoComplete } from "antd/es/auto-complete";
 import { RefControl } from "comps/controls/refControl";
 import {
   booleanExposingStateControl,
+  jsonValueExposingStateControl,
 } from "comps/controls/codeStateControl";
 
 import { getDayJSLocale } from "i18n/dayjsLocale";
@@ -88,6 +89,7 @@ const childrenMap = {
   autocompleteIconColor: dropdownControl(autocompleteIconColor, "blue"),
   componentSize: dropdownControl(componentSize, "small"),
   valueInItems: booleanExposingStateControl("valueInItems"),
+  selectedOption: jsonValueExposingStateControl("selectedOption", {}),
   style: styleControl(InputFieldStyle , 'style'),
   labelStyle: styleControl(LabelStyle , 'labelStyle'),
   inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'),
@@ -247,14 +249,18 @@ let AutoCompleteCompBase = (function () {
       setsearchtext(value);
       props.value.onChange(value);
       props.onEvent("change");
-    }, [props.valueInItems, getTextInputValidate, props.value, props.onEvent]);
+      if(!Boolean(value)) {
+        props.selectedOption.onChange({});
+      }
+    }, [props.valueInItems, getTextInputValidate, props.value, props.onEvent, props.selectedOption]);
 
     const handleSelect = useCallback((data: string, option: any) => {
       setsearchtext(option[valueOrLabel]);
       props.valueInItems.onChange(true);
       props.value.onChange(option[valueOrLabel]);
+      props.selectedOption.onChange(option);
       props.onEvent("submit");
-    }, [valueOrLabel, props.valueInItems, props.value, props.onEvent]);
+    }, [valueOrLabel, props.valueInItems, props.value, props.onEvent, props.selectedOption]);
 
     const handleFocus = useCallback(() => {
       setActivationFlag(true);
@@ -313,17 +319,7 @@ let AutoCompleteCompBase = (function () {
     .setPropertyViewFn((children) => {
       return (
         <>
-          <Section>
-            {children.autoCompleteType.getView() === 'normal' &&
-              children.prefixIcon.propertyView({
-                label: trans('button.prefixIcon'),
-              })}
-            {children.autoCompleteType.getView() === 'normal' &&
-              children.suffixIcon.propertyView({
-                label: trans('button.suffixIcon'),
-              })}
-            {allowClearPropertyView(children)}
-          </Section>
+          <TextInputBasicSection {...children} />
           <Section name={trans('autoComplete.SectionDataName')}>
             {children.items.propertyView({
               label: trans('autoComplete.value'),
@@ -351,25 +347,35 @@ let AutoCompleteCompBase = (function () {
                 label: trans('autoComplete.ignoreCase'),
               })
             )}
-            {children.filterOptionsByInput.getView() && (
-              children.valueOrLabel.propertyView({
-                label: trans('autoComplete.checkedValueFrom'),
-                radioButton: true,
-              })
-            )}
+            {children.valueOrLabel.propertyView({
+              label: trans('autoComplete.checkedValueFrom'),
+              radioButton: true,
+            })}
           </Section>
-          <TextInputBasicSection {...children} />
 
           <FormDataPropertyView {...children} />
           {children.label.getPropertyView()}
 
           <TextInputInteractionSection {...children} />
 
-          {<TextInputValidationSection {...children} />}
 
           <Section name={sectionNames.layout}>
             {hiddenPropertyView(children)}
           </Section>
+          
+          <Section name={sectionNames.advanced}>
+            {children.autoCompleteType.getView() === 'normal' &&
+              children.prefixIcon.propertyView({
+                label: trans('button.prefixIcon'),
+              })}
+            {children.autoCompleteType.getView() === 'normal' &&
+              children.suffixIcon.propertyView({
+                label: trans('button.suffixIcon'),
+              })}
+            {allowClearPropertyView(children)}
+          </Section>
+
+          {<TextInputValidationSection {...children} />}
 
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
@@ -388,9 +394,6 @@ let AutoCompleteCompBase = (function () {
             hasTooltip={true}
           >
             {children.animationStyle.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.advanced}>
-            {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
           </Section>
         </>
       );
@@ -415,6 +418,7 @@ AutoCompleteCompBase = class extends AutoCompleteCompBase {
 export const AutoCompleteComp = withExposingConfigs(AutoCompleteCompBase, [
   new NameConfig("value", trans("export.inputValueDesc")),
   new NameConfig("valueInItems", trans("autoComplete.valueInItems")),
+  new NameConfig("selectedOption", trans("autoComplete.selectedOption")),
   NameConfigPlaceHolder,
   NameConfigRequired, 
   ...TextInputConfigs,
