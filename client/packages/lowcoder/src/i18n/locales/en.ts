@@ -591,6 +591,7 @@ export const en = {
     "chartBorderColor": "Border Color",
     "chartTextColor": "Text Color",
     "detailSize": "Detail Size",
+    "hideColumn": "Hide Column",
 
     "radiusTip": "Specifies the radius of the element's corners. Example: 5px, 50%, or 1em.",
     "gapTip": "Specifies the gap between rows and columns in a grid or flex container. Example: 10px, 1rem, or 5%.",
