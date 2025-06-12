@@ -2,6 +2,8 @@
 
 In Lowcoder, the **Navigation** component enables the creation of multi-screen applications with structured menus, enhancing user experience through organized access to various app screens.&#x20;
 
+<figure><img src="../../../../.gitbook/assets/image (1).png" alt=""><figcaption></figcaption></figure>
+
 **Key Features:**
 
 1. **Menu Creation:** Design hierarchical navigation menus for desktop applications and flat navigation structures for mobile apps, accommodating different user interface requirements.&#x20;

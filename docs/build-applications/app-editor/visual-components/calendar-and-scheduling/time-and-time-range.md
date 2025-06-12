@@ -8,6 +8,8 @@ Lowcoder offers intuitive and customisable components for time selection, enabli
 
 The **Time** component allows users to select a specific time value through an interactive interface.
 
+<figure><img src="../../../../.gitbook/assets/frame_generic_light (6) (2).png" alt=""><figcaption></figcaption></figure>
+
 #### 🔧 Key Features
 
 * **User-Friendly Interface** Provides a clock or dropdown interface for easy time selectio.
@@ -46,6 +48,8 @@ In the Auto-Docs of Time component, we have shown how to use different propertie
 ### 🕘🕒 Time Range Component
 
 The **Time Range** component enables users to select a start and end time, facilitating the selection of a time interval.
+
+<figure><img src="../../../../.gitbook/assets/frame_generic_light (7) (2).png" alt=""><figcaption></figcaption></figure>
 
 #### 🔧 Key Features
 

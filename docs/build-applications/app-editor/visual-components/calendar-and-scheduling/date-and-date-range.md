@@ -8,6 +8,8 @@ Lowcoder offers intuitive and customisable components for date selection, enabli
 
 The **Date** component allows users to select a single date from a calendar interface.
 
+<figure><img src="../../../../.gitbook/assets/frame_generic_light (4) (4).png" alt=""><figcaption></figcaption></figure>
+
 #### 🔧 Key Features
 
 * _**User-Friendly Interface**_**:** Provides a calendar pop-up for easy date selectin.
@@ -46,6 +48,8 @@ In the Auto-Docs of Date component, we have shown how to use different propertie
 ### 📅📅 Date Range Component
 
 The **Date Range** component enables users to select a start and end date, facilitating the selection of a date interval.
+
+<figure><img src="../../../../.gitbook/assets/frame_generic_light (5) (3).png" alt=""><figcaption></figcaption></figure>
 
 #### 🔧 Key Features
 

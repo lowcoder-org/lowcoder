@@ -2,6 +2,8 @@
 
 In Lowcoder, the **Page Layout** component serves as a foundational container designed to structure and organize the main sections of an application interface, including the header, sidebar (sider), footer, and main content areas. This component facilitates the creation of consistent and responsive layouts, ensuring a cohesive user experience across different devices.
 
+<figure><img src="../../../../.gitbook/assets/image (7).png" alt=""><figcaption></figcaption></figure>
+
 **Key Features:**
 
 1. **Structured Layout:** The Page Layout component provides predefined regions—header, sider, footer, and content—that can be customised and populated with various UI elements to establish a clear and organised interface.

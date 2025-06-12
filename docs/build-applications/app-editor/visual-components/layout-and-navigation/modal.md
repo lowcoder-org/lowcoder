@@ -2,6 +2,8 @@
 
 In Lowcoder, the **Modal** component is a versatile container designed to display content in an overlay, effectively capturing user attention for specific interactions or information. It functions similarly to other container components like Form or Drawer allowing you to embed various UI elements or modules within it.
 
+<figure><img src="../../../../.gitbook/assets/image.png" alt=""><figcaption></figcaption></figure>
+
 **Key Features:**
 
 1. **Content Display:** The Modal can house multiple components, enabling the creation of complex interfaces within the overlay. This is particularly useful for tasks such as form submissions, displaying detailed information, or presenting user prompts/alerts. User can drag/insert different components inside the Modal component.

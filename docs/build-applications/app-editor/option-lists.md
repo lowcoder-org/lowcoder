@@ -22,7 +22,7 @@ In Manual Mode, data is entered into a Component manually. Users have to add ent
 1. Select / Multi-Select
 2. Dropdown
 
-<figure><img src="../../.gitbook/assets/image.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (12).png" alt=""><figcaption></figcaption></figure>
 
 **Example :**
 
@@ -47,7 +47,7 @@ In Mapped mode, data is usually coming from a Data source ( like an API or DB ),
 1. Select / Multi-Select
 2. Dropdown
 
-<figure><img src="../../.gitbook/assets/image (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (1) (1).png" alt=""><figcaption></figcaption></figure>
 
 **Example :**
 

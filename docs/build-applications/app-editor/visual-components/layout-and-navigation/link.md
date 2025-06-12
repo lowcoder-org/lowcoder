@@ -2,6 +2,8 @@
 
 In Lowcoder, the **Link** component allows developers to create hyperlinks within their applications, enabling navigation to external URLs or different sections within the app.
 
+<figure><img src="../../../../.gitbook/assets/image (4).png" alt=""><figcaption></figcaption></figure>
+
 **Key Features:**
 
 1. **Customisable Text and URL:** Set the display text and destination URL for the link, allowing for clear and descriptive navigation elements.

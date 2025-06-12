@@ -2,6 +2,8 @@
 
 In Lowcoder, the **JSON Schema Form** component enables developers to generate dynamic, data-driven forms by leveraging JSON Schema definitions. This approach streamlines form creation and ensures consistency across applications.
 
+<figure><img src="../../../../.gitbook/assets/image (11).png" alt=""><figcaption></figcaption></figure>
+
 **Key Features:**
 
 1. **Dynamic Form Generation:** By inputting a JSON Schema, the component automatically constructs the corresponding form fields, reducing manual coding and potential errors.

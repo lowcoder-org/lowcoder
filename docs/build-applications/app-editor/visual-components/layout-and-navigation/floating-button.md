@@ -1,6 +1,8 @@
 # Floating Button
 
-In Lowcoder, the **Floating Button** component provides a customizable button that hovers over the application's interface, offering quick access to primary actions without obstructing content.
+In Lowcoder, the **Floating Button** component provides a customizable button that hovers over the application's interface, offering quick access to primary actions without obstructing content.
+
+<figure><img src="../../../../.gitbook/assets/image (5).png" alt=""><figcaption></figcaption></figure>
 
 **Key Features:**
 

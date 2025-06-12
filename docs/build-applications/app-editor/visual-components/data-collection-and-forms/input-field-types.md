@@ -7,6 +7,8 @@ In Lowcoder, **Input Type** components are essential for capturing user data, of
 3. **Password:** Similar to the standard Input component but masks the entered characters, enhancing security for sensitive information like passwords.
 4. **Text Area:** A multi-line text field suitable for longer text inputs, such as comments or descriptions, providing users with ample space for detailed information.
 
+<figure><img src="../../../../.gitbook/assets/image (10).png" alt=""><figcaption></figcaption></figure>
+
 **Common Features:**
 
 * **Customisation:** Each component offers properties for customisation, including placeholder text, default values, and styling options, allowing for a tailored user experience.

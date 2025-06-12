@@ -2,6 +2,8 @@
 
 In Lowcoder, the **Tabbed Container** component enables developers to organize content into multiple tabs within a single interface, enhancing user experience by allowing seamless navigation between different sections without leaving the current page.
 
+<figure><img src="../../../../.gitbook/assets/image (8).png" alt=""><figcaption></figcaption></figure>
+
 **Key Features:**
 
 1. **Multiple Tabs:** Create and manage multiple tabs, each capable of containing various components, facilitating the organization of related content within a compact space.

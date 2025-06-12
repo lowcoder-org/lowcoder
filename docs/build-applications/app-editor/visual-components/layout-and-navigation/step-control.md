@@ -2,6 +2,8 @@
 
 In Lowcoder, the **Step Control** component allows developers to create a sequence of steps, guiding users through multi-step processes or workflows within their applications.
 
+<figure><img src="../../../../.gitbook/assets/image (6).png" alt=""><figcaption></figcaption></figure>
+
 **Key Features:**
 
 1. **Sequential Navigation:** Organize content into distinct steps, enabling users to progress through a predefined sequence, which is ideal for forms, tutorials, or setup wizards.

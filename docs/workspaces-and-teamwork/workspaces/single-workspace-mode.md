@@ -7,11 +7,11 @@ In Single Workspace Mode, there is only One Workspace that gets created automati
 1.  In Local Setup, we have a Root Admin User, that we can configure in docker-compose-multi.yml file. This user will be created by default and it will Super Admin of the default Workspace.\
 
 
-    <figure><img src="../../.gitbook/assets/frame_generic_light (3) (1) (1).png" alt=""><figcaption></figcaption></figure>
+    <figure><img src="../../.gitbook/assets/frame_generic_light (3) (1) (1) (1).png" alt=""><figcaption></figcaption></figure>
 2.  Set LOWCODER\_WORKSPACE\_MODE to "ENTERPRISE" in docker-compose-multi.yml file. \
 
 
-    <figure><img src="../../.gitbook/assets/frame_generic_light (3) (1).png" alt=""><figcaption></figcaption></figure>
+    <figure><img src="../../.gitbook/assets/frame_generic_light (3) (1) (1).png" alt=""><figcaption></figcaption></figure>
 
 {% hint style="info" %}
 Workspace Mode Env variable can also have the value "SINGLEWORKSPACE" instead of "ENTERPRISE" .
@@ -27,11 +27,11 @@ In the above screenshot, you can see three configuration variables regarding Ema
    \
    LOWCODER\_EMAIL\_SIGNUP\_ENABLED = **true**\
    \
-   ![](<../../.gitbook/assets/frame_generic_light (1) (2).png>)\
+   ![](<../../.gitbook/assets/frame_generic_light (1) (2) (1).png>)\
    \
    LOWCODER\_EMAIL\_SIGNUP\_ENABLED = **false**\
    \
-   ![](<../../.gitbook/assets/frame_generic_light (2) (1).png>)\
+   ![](<../../.gitbook/assets/frame_generic_light (2) (1) (1).png>)\
 
 2. **LOWCODER\_CREATE\_WORKSPACE\_ON\_SIGNUP**\
    \

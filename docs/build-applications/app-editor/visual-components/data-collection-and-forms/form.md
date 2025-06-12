@@ -2,6 +2,8 @@
 
 In Lowcoder, the **Form** component serves as a container that organizes and manages input elements for user data collection. It streamlines the process of gathering and handling user inputs by grouping related fields together.
 
+<figure><img src="../../../../.gitbook/assets/image (9).png" alt=""><figcaption></figcaption></figure>
+
 #### Key Features : <a href="#properties-of-the-table" id="properties-of-the-table"></a>
 
 1. **Input Components:** Lowcoder's Form supports various input types, including text inputs, number inputs, option lists, radio buttons and other allowing for versatile data collection methods.

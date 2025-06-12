@@ -2,6 +2,8 @@
 
 Use the **Image** component to present information in your apps in a vivic way. Lowcoder supports you adding an image via URL and base64 encoded data.
 
+<figure><img src="../../../../.gitbook/assets/frame_generic_light (1) (3).png" alt=""><figcaption></figcaption></figure>
+
 ## URL
 
 Drag the **Image** component onto the canvas or into a **Container**. Click the **Image** component, and the **Properties** tab is displayed on the right. You can set the URL to display an image.

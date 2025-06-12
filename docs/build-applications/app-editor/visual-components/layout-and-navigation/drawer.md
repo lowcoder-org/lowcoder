@@ -2,6 +2,8 @@
 
 In Lowcoder, **Drawer** is an overlay sidebar to display information or perform operations, without interrupting the workflow on the main window.
 
+<figure><img src="../../../../.gitbook/assets/image (13).png" alt=""><figcaption></figcaption></figure>
+
 The following example builds a shopping cart using a drawer.
 
 ## Layout

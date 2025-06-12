@@ -29,7 +29,7 @@ The **Data** property of **Table** component is an array of objects. This GIF sh
 
 While developing, we often lose track the components where we have used the queries, and have to look for the components when we need to perform CRUD operations on queries. It is a time taking process and we can lose track of where our queries are utilised. To tackle this, we have introduced Query Usage Display, showing you exactly where each query is used across your app. You will find it at each Data Query in the "Advanced" tab :&#x20;
 
-<figure><img src="../../.gitbook/assets/frame_generic_light (1).png" alt=""><figcaption><p>Query Usage Display</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/frame_generic_light (1) (2).png" alt=""><figcaption><p>Query Usage Display</p></figcaption></figure>
 
 ## How to Use Query Variables
 

@@ -1,6 +1,8 @@
 # Tree / Tree Select
 
-In Lowcoder, the **Tree** and **Tree Select** components are designed to display and interact with hierarchical data structures, providing users with intuitive navigation and selection capabilities.
+In Lowcoder, the **Tree** and **Tree Select** components are designed to display and interact with hierarchical data structures, providing users with intuitive navigation and selection capabilities.
+
+<figure><img src="../../../../.gitbook/assets/image (3).png" alt=""><figcaption></figcaption></figure>
 
 **Tree Component:**
 

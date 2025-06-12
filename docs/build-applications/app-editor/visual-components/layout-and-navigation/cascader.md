@@ -2,6 +2,8 @@
 
 In Lowcoder, the **Cascader** component allows users to select options from a hierarchical, multi-level data structure through a dropdown menu. This component is particularly useful for presenting nested options in a streamlined and user-friendly manner.
 
+<figure><img src="../../../../.gitbook/assets/image (2).png" alt=""><figcaption></figcaption></figure>
+
 **Key Features:**
 
 1. **Hierarchical Data Representation:** The Cascader displays data in multiple interconnected levels, enabling users to navigate and select from nested categories efficiently.

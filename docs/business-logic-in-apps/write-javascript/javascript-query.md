@@ -177,7 +177,7 @@ You can find another demo for using passed-in paramter queries [here](https://cl
 
 Sometimes, we need to trigger a query in relation to an event, e.g. After Page/App loads or After some query has been executed or after some Timeout interval. In Lowcoder app, we provide these options to fulfil such requirements :&#x20;
 
-<figure><img src="../../.gitbook/assets/frame_generic_light.png" alt=""><figcaption><p>Options to Trigger a query</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/frame_generic_light (9).png" alt=""><figcaption><p>Options to Trigger a query</p></figcaption></figure>
 
 1. **When Inputs Change**
 2. **After Query Execution**
