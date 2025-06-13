@@ -51,8 +51,7 @@ const ButtonEventOptions = [clickEvent] as const;
 const childrenMap = {
   text: StringControl,
   buttonType: dropdownControl(ButtonTypeOptions, "primary"),
-  onEvent: eventHandlerControl(ButtonEventOptions),
-  onClick: eventHandlerControl(ButtonEventOptions), //ActionSelectorControlInContext,
+  onClick: eventHandlerControl(ButtonEventOptions),
   loading: BoolCodeControl,
   disabled: BoolCodeControl,
   prefixIcon: IconControl,
@@ -68,7 +67,7 @@ const ButtonStyled = React.memo(({ props }: { props: ToViewReturn<RecordConstruc
 
   const handleClick = useCallback((e: React.MouseEvent) => {
     props.onClick?.("click");
-  }, [props.onClick, props.onEvent]);
+  }, [props.onClick]);
 
   const buttonStyle = useMemo(() => ({
     margin: 0,
