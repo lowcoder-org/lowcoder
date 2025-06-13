@@ -14,35 +14,39 @@ const LocalStorageCompBase = withViewFn(
   simpleMultiComp({ values: stateComp<JSONObject>({}) }),
   (comp) => {
     const originStore = localStorage.getItem(APP_STORE_NAMESPACE) || "{}";
-    
-    const parseStore = useMemo(() => {
-      try {
-        return JSON.parse(originStore);
-      } catch (e) {
-        log.error("application local storage invalid");
-        return {};
-      }
-    }, [originStore]);
 
-    const handleStorageUpdate = useCallback(() => {
-      try {
-        comp.children.values.dispatchChangeValueAction(parseStore);
-      } catch (e) {
-        log.error("Failed to parse localStorage:", e);
-      }
-    }, [parseStore, comp.children.values]);
+    let parseStore = {};
+    try {
+      parseStore = JSON.parse(originStore);
+    } catch (e) {
+      log.error("application local storage invalid");
+    }
 
     useEffect(() => {
-      // Add listener on mount
-      window.addEventListener("lowcoder-localstorage-updated", handleStorageUpdate);
+      const value = comp.children.values.value;
+      if (!isEqual(value, parseStore)) {
+        comp.children.values.dispatchChangeValueAction(parseStore);
+      }
+    }, [parseStore]);
 
-      // Run once on mount to initialize
-      handleStorageUpdate();
+    useEffect(() => {
+      const handler = () => {
+        try {
+          const raw = localStorage.getItem(APP_STORE_NAMESPACE) || "{}";
+          const parsed = JSON.parse(raw);
+          comp.children.values.dispatchChangeValueAction(parsed);
+        } catch (e) {
+          log.error("Failed to parse localStorage:", e);
+        }
+      };
+
+      // Add listener on mount
+      window.addEventListener("lowcoder-localstorage-updated", handler);
 
       return () => {
-        window.removeEventListener("lowcoder-localstorage-updated", handleStorageUpdate);
+        window.removeEventListener("lowcoder-localstorage-updated", handler);
       };
-    }, [handleStorageUpdate]);
+    }, []);
 
     return null;
   }
