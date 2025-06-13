@@ -17,7 +17,6 @@ import {
   ConstructorToView,
   deferAction,
   fromRecord,
-  isDynamicSegment,
   multiChangeAction,
   withFunction,
   wrapChildAction,
@@ -199,21 +198,23 @@ const ColumnPropertyView = React.memo(({
     selectedColumn.getComp().children.compType.getView(),
     [selectedColumn]
   );
-  
-  const columnValue = useMemo(() => {
-    const column = selectedColumn.getComp().toJsonValue();
-    if (column.comp?.hasOwnProperty('src')) {
-      return (column.comp as any).src;
-    } else if (column.comp?.hasOwnProperty('text')) {
-      return isDynamicSegment((column.comp as any).text) ? '{{currentCell}}' : (column.comp as any).text;
-    }
-    return '{{currentCell}}';
-  }, [selectedColumn]);
 
   const initialColumns = useMemo(() => 
     selectedColumn.getParams()?.initialColumns as OptionType[] || [],
     [selectedColumn]
   );
+
+  const columnValue = useMemo(() => {
+    const column = selectedColumn.getComp().toJsonValue();
+    if (column.comp?.hasOwnProperty('src')) {
+      return (column.comp as any).src;
+    } else if (column.comp?.hasOwnProperty('text')) {
+      const value = (column.comp as any).text;
+      const isDynamicValue = initialColumns.find((column) => column.value === value);
+      return !isDynamicValue ? '{{currentCell}}' : value;
+    }
+    return '{{currentCell}}';
+  }, [selectedColumn, initialColumns]);
 
   const summaryColumns = comp.children.summaryColumns.getView();
 
