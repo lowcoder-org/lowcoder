@@ -3,7 +3,7 @@ import { isEmpty } from "lodash";
 import { simpleMultiComp, stateComp, withViewFn } from "../generators";
 import { NameConfig, withExposingConfigs } from "../generators/withExposing";
 import { JSONObject } from "../../util/jsonTypes";
-import { useEffect } from "react";
+import { useEffect, useMemo, useCallback } from "react";
 import isEqual from "fast-deep-equal";
 import { trans } from "i18n";
 import log from "loglevel";
@@ -13,28 +13,36 @@ const APP_STORE_NAMESPACE = "lowcoder_app_local_storage";
 const LocalStorageCompBase = withViewFn(
   simpleMultiComp({ values: stateComp<JSONObject>({}) }),
   (comp) => {
-    // add custom event listener to update values reactively
-    useEffect(() => {
-      const handler = () => {
-        try {
-          const raw = localStorage.getItem(APP_STORE_NAMESPACE) || "{}";
-          const parsed = JSON.parse(raw);
-          comp.children.values.dispatchChangeValueAction(parsed);
-        } catch (e) {
-          log.error("Failed to parse localStorage:", e);
-        }
-      };
+    const originStore = localStorage.getItem(APP_STORE_NAMESPACE) || "{}";
+    
+    const parseStore = useMemo(() => {
+      try {
+        return JSON.parse(originStore);
+      } catch (e) {
+        log.error("application local storage invalid");
+        return {};
+      }
+    }, [originStore]);
 
+    const handleStorageUpdate = useCallback(() => {
+      try {
+        comp.children.values.dispatchChangeValueAction(parseStore);
+      } catch (e) {
+        log.error("Failed to parse localStorage:", e);
+      }
+    }, [parseStore, comp.children.values]);
+
+    useEffect(() => {
       // Add listener on mount
-      window.addEventListener("lowcoder-localstorage-updated", handler);
+      window.addEventListener("lowcoder-localstorage-updated", handleStorageUpdate);
 
       // Run once on mount to initialize
-      handler();
+      handleStorageUpdate();
 
       return () => {
-        window.removeEventListener("lowcoder-localstorage-updated", handler);
+        window.removeEventListener("lowcoder-localstorage-updated", handleStorageUpdate);
       };
-    }, []);
+    }, [handleStorageUpdate]);
 
     return null;
   }
