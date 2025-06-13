@@ -13,7 +13,6 @@ import React, { useCallback, useEffect, useMemo } from "react";
 import { CSSProperties } from "react";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { ToViewReturn } from "@lowcoder-ee/comps/generators/multi";
-import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
@@ -32,12 +31,9 @@ export const ButtonTypeOptions = [
   },
 ] as const;
 
-const ButtonEventOptions = [clickEvent] as const;
-
 const childrenMap = {
   text: StringControl,
   buttonType: dropdownControl(ButtonTypeOptions, "primary"),
-  onEvent: eventHandlerControl(ButtonEventOptions),
   onClick: ActionSelectorControlInContext,
   loading: BoolCodeControl,
   disabled: BoolCodeControl,
@@ -54,8 +50,7 @@ const ButtonStyled = React.memo(({ props }: { props: ToViewReturn<RecordConstruc
 
   const handleClick = useCallback((e: React.MouseEvent) => {
     props.onClick?.();
-    // props.onEvent?.("click");
-  }, [props.onClick, props.onEvent]);
+  }, [props.onClick]);
 
   const buttonStyle = useMemo(() => ({
     margin: 0,
@@ -105,7 +100,6 @@ export const ButtonComp = (function () {
         })}
         {loadingPropertyView(children)}
         {disabledPropertyView(children)}
-        {/* {children.onEvent.propertyView()} */}
         {children.onClick.propertyView({
           label: trans("table.action"),
           placement: "table",
