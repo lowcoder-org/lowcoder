@@ -10,7 +10,6 @@ import { trans } from "i18n";
 import styled from "styled-components";
 import { ColumnLink } from "comps/comps/tableComp/column/columnTypeComps/columnLinkComp";
 import { LightActiveTextColor, PrimaryColor } from "constants/style";
-import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 
 const MenuLinkWrapper = styled.div`
   > a {
@@ -38,26 +37,13 @@ const MenuWrapper = styled.div`
   }  
 `;
 
-const LinksEventOptions = [clickEvent] as const;
-
 // Memoized menu item component
-const MenuItem = React.memo(({ option, index, onMainEvent }: { option: any; index: number; onMainEvent?: (eventName: string) => void }) => {
+const MenuItem = React.memo(({ option, index }: { option: any; index: number }) => {
   const handleClick = useCallback(() => {
-    if (!option.disabled) {
-      // Trigger legacy onClick action for backward compatibility
-      if (option.onClick) {
-        option.onClick();
-      }
-      // Trigger individual item event handlers
-      if (option.onEvent) {
-        option.onEvent("click");
-      }
-      // Trigger the main column's event handler
-      if (onMainEvent) {
-        onMainEvent("click");
-      }
+    if (!option.disabled && option.onClick) {
+      option.onClick();
     }
-  }, [option.disabled, option.onClick, option.onEvent, onMainEvent]);
+  }, [option.disabled, option.onClick]);
 
   return (
     <MenuLinkWrapper>
@@ -72,12 +58,10 @@ const MenuItem = React.memo(({ option, index, onMainEvent }: { option: any; inde
 
 MenuItem.displayName = 'MenuItem';
 
-// Update OptionItem to include event handlers
 const OptionItem = new MultiCompBuilder(
   {
     label: StringControl,
     onClick: ActionSelectorControlInContext,
-    onEvent: eventHandlerControl(LinksEventOptions),
     hidden: BoolCodeControl,
     disabled: BoolCodeControl,
   },
@@ -86,28 +70,22 @@ const OptionItem = new MultiCompBuilder(
   }
 )
   .setPropertyViewFn((children) => {
-    // Check if there's a legacy action configured for this individual item
-    const hasLegacyAction = children.onClick.getView() && 
-      typeof children.onClick.getView() === 'function' &&
-      children.onClick.displayName() !== trans("eventHandler.incomplete");
-
     return (
       <>
         {children.label.propertyView({ label: trans("label") })}
-        {hasLegacyAction && children.onClick.propertyView({
+        {children.onClick.propertyView({
           label: trans("table.action"),
           placement: "table",
         })}
         {hiddenPropertyView(children)}
         {disabledPropertyView(children)}
-        {children.onEvent.propertyView()}
       </>
     );
   })
   .build();
 
 // Memoized menu component
-const LinksMenu = React.memo(({ options, onEvent }: { options: any[]; onEvent?: (eventName: string) => void }) => {
+const LinksMenu = React.memo(({ options }: { options: any[] }) => {
   const mountedRef = useRef(true);
 
   // Cleanup on unmount
@@ -122,9 +100,9 @@ const LinksMenu = React.memo(({ options, onEvent }: { options: any[]; onEvent?: 
       .filter((o) => !o.hidden)
       .map((option, index) => ({
         key: index,
-        label: <MenuItem option={option} index={index} onMainEvent={onEvent} />
+        label: <MenuItem option={option} index={index} />
       })),
-    [options, onEvent]
+    [options]
   );
 
   return (
@@ -141,12 +119,11 @@ export const ColumnLinksComp = (function () {
     options: manualOptionsControl(OptionItem, {
       initOptions: [{ label: trans("table.option1") }],
     }),
-    onEvent: eventHandlerControl(LinksEventOptions), // Main column level event handlers
   };
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props) => {
-      return <LinksMenu options={props.options} onEvent={props.onEvent} />;
+      return <LinksMenu options={props.options} />;
     },
     () => ""
   )
@@ -156,7 +133,6 @@ export const ColumnLinksComp = (function () {
           newOptionLabel: trans("table.option"),
           title: trans("table.optionList"),
         })}
-        {children.onEvent.propertyView()}
       </>
     ))
     .build();
