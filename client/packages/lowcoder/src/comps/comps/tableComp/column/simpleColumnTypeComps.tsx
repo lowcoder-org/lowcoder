@@ -14,7 +14,21 @@ import { CSSProperties } from "react";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { ToViewReturn } from "@lowcoder-ee/comps/generators/multi";
 import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
+import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
 
+export const fixOldActionData = (oldData: any) => {
+  if (!oldData) return oldData;
+  if (Boolean(oldData.onClick)) {
+    return {
+      ...oldData,
+      onClick: [{
+        name: "click",
+        handler: oldData.onClick,
+      }],
+    };
+  }
+  return oldData;
+}
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
 export const ButtonTypeOptions = [
@@ -37,8 +51,7 @@ const ButtonEventOptions = [clickEvent] as const;
 const childrenMap = {
   text: StringControl,
   buttonType: dropdownControl(ButtonTypeOptions, "primary"),
-  onClick: ActionSelectorControlInContext,
-  onEvent: eventHandlerControl(ButtonEventOptions),
+  onClick: eventHandlerControl(ButtonEventOptions),
   loading: BoolCodeControl,
   disabled: BoolCodeControl,
   prefixIcon: IconControl,
@@ -53,11 +66,8 @@ const ButtonStyled = React.memo(({ props }: { props: ToViewReturn<RecordConstruc
   const iconOnly = !hasText && (hasPrefixIcon || hasSuffixIcon);
 
   const handleClick = useCallback((e: React.MouseEvent) => {
-    // Trigger legacy onClick action for backward compatibility
-    props.onClick?.();
-    // Trigger new event handlers
-    props.onEvent?.("click");
-  }, [props.onClick, props.onEvent]);
+    props.onClick?.("click");
+  }, [props.onClick]);
 
   const buttonStyle = useMemo(() => ({
     margin: 0,
@@ -83,43 +93,34 @@ const ButtonStyled = React.memo(({ props }: { props: ToViewReturn<RecordConstruc
   );
 });
 
-export const ButtonComp = (function () {
+const ButtonCompTmp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props) => <ButtonStyled props={props} />,
     (nodeValue) => nodeValue.text.value
   )
-    .setPropertyViewFn((children) => {
-      // Check if there's a legacy action configured
-      const hasLegacyAction = children.onClick.getView() && 
-        typeof children.onClick.getView() === 'function' &&
-        children.onClick.displayName() !== trans("eventHandler.incomplete");
-
-      return (
-        <>
-          {children.text.propertyView({
-            label: trans("table.columnValue"),
-            tooltip: ColumnValueTooltip,
-          })}
-          {children.prefixIcon.propertyView({
-            label: trans("button.prefixIcon"),
-          })}
-          {children.suffixIcon.propertyView({
-            label: trans("button.suffixIcon"),
-          })}
-          {children.buttonType.propertyView({
-            label: trans("table.type"),
-            radioButton: true,
-          })}
-          {loadingPropertyView(children)}
-          {disabledPropertyView(children)}
-          {children.onEvent.propertyView()}
-          {hasLegacyAction && children.onClick.propertyView({
-            label: trans("table.action"),
-            placement: "table",
-          })}
-        </>
-      );
-    })
+    .setPropertyViewFn((children) => (
+      <>
+        {children.text.propertyView({
+          label: trans("table.columnValue"),
+          tooltip: ColumnValueTooltip,
+        })}
+        {children.prefixIcon.propertyView({
+          label: trans("button.prefixIcon"),
+        })}
+        {children.suffixIcon.propertyView({
+          label: trans("button.suffixIcon"),
+        })}
+        {children.buttonType.propertyView({
+          label: trans("table.type"),
+          radioButton: true,
+        })}
+        {loadingPropertyView(children)}
+        {disabledPropertyView(children)}
+        {children.onClick.propertyView()}
+      </>
+    ))
     .build();
 })();
+
+export const ButtonComp = migrateOldData(ButtonCompTmp, fixOldActionData);
