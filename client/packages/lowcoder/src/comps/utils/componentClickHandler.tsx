@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useRef } from "react";
 
 export enum ClickEventType {
     CLICK = "click",
@@ -10,23 +10,38 @@ interface Props {
 }
 
 const DOUBLE_CLICK_THRESHOLD = 300; // ms
-let lastClickTime = 0;
-let clickTimer: ReturnType<typeof setTimeout>;
 
-export const ComponentClickHandler = (props: Props) => {
-    return () => {
-        const now = Date.now()
-        clearTimeout(clickTimer)
+export const useCompClickEventHandler = (props: Props) => {
+    const lastClickTimeRef = useRef(0);
+    const clickTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
-        if((now - lastClickTime) < DOUBLE_CLICK_THRESHOLD){ 
-            clearTimeout(clickTimer)
-            props.onEvent(ClickEventType.DOUBLE_CLICK)
+    const handleClick = useCallback(() => {
+        const now = Date.now();
+        
+        // Clear any existing timeout
+        if (clickTimerRef.current) {
+            clearTimeout(clickTimerRef.current);
+        }
+
+        if ((now - lastClickTimeRef.current) < DOUBLE_CLICK_THRESHOLD) {
+            props.onEvent(ClickEventType.DOUBLE_CLICK);
         } else {
-            clickTimer = setTimeout(() => {
-                props.onEvent(ClickEventType.CLICK)
-            }, DOUBLE_CLICK_THRESHOLD)
+            clickTimerRef.current = setTimeout(() => {
+                props.onEvent(ClickEventType.CLICK);
+            }, DOUBLE_CLICK_THRESHOLD);
         }
         
-        lastClickTime = now 
-    }
-}
+        lastClickTimeRef.current = now;
+    }, [props.onEvent]);
+
+    // Cleanup on unmount
+    React.useEffect(() => {
+        return () => {
+            if (clickTimerRef.current) {
+                clearTimeout(clickTimerRef.current);
+            }
+        };
+    }, []);
+
+    return handleClick;
+};

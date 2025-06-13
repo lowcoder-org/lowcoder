@@ -29,7 +29,7 @@ import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstant
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { ToViewReturn } from "@lowcoder-ee/comps/generators/multi";
-import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
 
 const FormLabel = styled(CommonBlueLabel)`
   font-size: 13px;
@@ -182,6 +182,7 @@ const ButtonPropertyView = React.memo((props: {
 const ButtonView = React.memo((props: ToViewReturn<ChildrenType>) => {
   const editorState = useContext(EditorContext);
   const mountedRef = useRef<boolean>(true);
+  const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent});
 
   useEffect(() => {
     return () => {
@@ -194,7 +195,8 @@ const ButtonView = React.memo((props: ToViewReturn<ChildrenType>) => {
     
     try {
       if (isDefault(props.type)) {
-        ComponentClickHandler({onEvent: props.onEvent})()
+        // ComponentClickHandler({onEvent: props.onEvent})()
+        handleClickEvent();
       } else {
         submitForm(editorState, props.form);
       }
