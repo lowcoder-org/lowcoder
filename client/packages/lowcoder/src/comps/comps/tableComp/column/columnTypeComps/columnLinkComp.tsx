@@ -11,16 +11,12 @@ import { disabledPropertyView } from "comps/utils/propertyUtils";
 import styled, { css } from "styled-components";
 import { styleControl } from "comps/controls/styleControl";
 import { TableColumnLinkStyle } from "comps/controls/styleControlConstants";
-import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
-
-const LinkEventOptions = [clickEvent] as const;
 
 const childrenMap = {
   text: StringControl,
   onClick: ActionSelectorControlInContext,
-  onEvent: eventHandlerControl(LinkEventOptions),
   disabled: BoolCodeControl,
   style: styleControl(TableColumnLinkStyle),
 };
@@ -37,16 +33,13 @@ const StyledLink = styled.a<{ $disabled: boolean }>`
   ${(props) => props.$disabled && disableCss};
 `;
 
-// Updated link component to handle both legacy and new event handlers
-export const ColumnLink = React.memo(({ disabled, label, onClick, onEvent }: { disabled: boolean; label: string; onClick?: () => void; onEvent?: (eventName: string) => void }) => {
+// Memoized link component
+export const ColumnLink = React.memo(({ disabled, label, onClick }: { disabled: boolean; label: string; onClick?: () => void }) => {
   const handleClick = useCallback(() => {
-    if (!disabled) {
-      // Trigger legacy onClick action for backward compatibility
-      onClick?.();
-      // Trigger new event handlers
-      onEvent?.("click");
+    if (!disabled && onClick) {
+      onClick();
     }
-  }, [disabled, onClick, onEvent]);
+  }, [disabled, onClick]);
 
   return (
     <StyledLink
@@ -113,7 +106,7 @@ export const LinkComp = (function () {
     childrenMap,
     (props, dispatch) => {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
-      return <ColumnLink disabled={props.disabled} label={value} onClick={props.onClick} onEvent={props.onEvent} />;
+      return <ColumnLink disabled={props.disabled} label={value} onClick={props.onClick} />;
     },
     (nodeValue) => nodeValue.text.value,
     getBaseValue
@@ -125,27 +118,19 @@ export const LinkComp = (function () {
         onChangeEnd={props.onChangeEnd}
       />
     ))
-    .setPropertyViewFn((children) => {
-      // Check if there's a legacy action configured
-      const hasLegacyAction = children.onClick.getView() && 
-        typeof children.onClick.getView() === 'function' &&
-        children.onClick.displayName() !== trans("eventHandler.incomplete");
-
-      return (
-        <>
-          {children.text.propertyView({
-            label: trans("table.columnValue"),
-            tooltip: ColumnValueTooltip,
-          })}
-          {disabledPropertyView(children)}
-          {children.onEvent.propertyView()}
-          {hasLegacyAction && children.onClick.propertyView({
-            label: trans("table.action"),
-            placement: "table",
-          })}
-        </>
-      );
-    })
+    .setPropertyViewFn((children) => (
+      <>
+        {children.text.propertyView({
+          label: trans("table.columnValue"),
+          tooltip: ColumnValueTooltip,
+        })}
+        {disabledPropertyView(children)}
+        {children.onClick.propertyView({
+          label: trans("table.action"),
+          placement: "table",
+        })}
+      </>
+    ))
     .setStylePropertyViewFn((children) => (
       <>
         {children.style.getPropertyView()}
