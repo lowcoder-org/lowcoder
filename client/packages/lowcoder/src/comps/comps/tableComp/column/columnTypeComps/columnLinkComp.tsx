@@ -20,6 +20,7 @@ const LinkEventOptions = [clickEvent, doubleClickEvent] as const;
 
 const childrenMap = {
   text: StringControl,
+  onClick: ActionSelectorControlInContext,
   onEvent: eventHandlerControl(LinkEventOptions),
   disabled: BoolCodeControl,
   style: styleControl(TableColumnLinkStyle),
@@ -38,12 +39,16 @@ const StyledLink = styled.a<{ $disabled: boolean }>`
 `;
 
 // Memoized link component
-export const ColumnLink = React.memo(({ disabled, label, onEvent }: { disabled: boolean; label: string; onEvent?: (eventName: string) => void }) => {
+export const ColumnLink = React.memo(({ disabled, label, onClick, onEvent }: { disabled: boolean; label: string; onClick?: () => void; onEvent?: (eventName: string) => void }) => {
   const handleClick = useCallback(() => {
     if (!disabled && onEvent) {
       ComponentClickHandler({onEvent})();
     }
   }, [disabled, onEvent]);
+  //   if (disabled) return;
+  //   onClick?.();
+  //   // onEvent?.("click");
+  // }, [disabled, onClick, onEvent]);
 
   return (
     <StyledLink
@@ -110,7 +115,7 @@ export const LinkComp = (function () {
     childrenMap,
     (props, dispatch) => {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
-      return <ColumnLink disabled={props.disabled} label={value} onEvent={props.onEvent} />;
+      return <ColumnLink disabled={props.disabled} label={value} onClick={props.onClick} />;
     },
     (nodeValue) => nodeValue.text.value,
     getBaseValue
@@ -129,7 +134,11 @@ export const LinkComp = (function () {
           tooltip: ColumnValueTooltip,
         })}
         {disabledPropertyView(children)}
-        {children.onEvent.propertyView()}
+        {/* {children.onEvent.propertyView()} */}
+        {children.onClick.propertyView({
+          label: trans("table.action"),
+          placement: "table",
+        })}
       </>
     ))
     .setStylePropertyViewFn((children) => (
