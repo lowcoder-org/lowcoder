@@ -40,46 +40,19 @@ const MenuWrapper = styled.div`
 
 const LinksEventOptions = [clickEvent] as const;
 
-// Update OptionItem to include event handlers
-const OptionItem = new MultiCompBuilder(
-  {
-    label: StringControl,
-    onClick: ActionSelectorControlInContext,
-    hidden: BoolCodeControl,
-    disabled: BoolCodeControl,
-    onEvent: eventHandlerControl(LinksEventOptions),
-  },
-  (props) => {
-    return props;
-  }
-)
-  .setPropertyViewFn((children) => {
-    return (
-      <>
-        {children.label.propertyView({ label: trans("label") })}
-        {children.onClick.propertyView({
-          label: trans("table.action"),
-          placement: "table",
-        })}
-        {hiddenPropertyView(children)}
-        {disabledPropertyView(children)}
-        {/* {children.onEvent.propertyView()} */}
-      </>
-    );
-  })
-  .build();
-
 // Memoized menu item component
 const MenuItem = React.memo(({ option, index, onMainEvent }: { option: any; index: number; onMainEvent?: (eventName: string) => void }) => {
   const handleClick = useCallback(() => {
     if (!option.disabled) {
+      // Trigger legacy onClick action for backward compatibility
       if (option.onClick) {
         option.onClick();
       }
-      // if (option.onEvent) {
-      //   option.onEvent("click");
-      // }
-      // Trigger the main component's event handler
+      // Trigger individual item event handlers
+      if (option.onEvent) {
+        option.onEvent("click");
+      }
+      // Trigger the main column's event handler
       if (onMainEvent) {
         onMainEvent("click");
       }
@@ -91,13 +64,47 @@ const MenuItem = React.memo(({ option, index, onMainEvent }: { option: any; inde
       <ColumnLink
         disabled={option.disabled}
         label={option.label}
-        onEvent={handleClick}
+        onClick={handleClick}
       />
     </MenuLinkWrapper>
   );
 });
 
 MenuItem.displayName = 'MenuItem';
+
+// Update OptionItem to include event handlers
+const OptionItem = new MultiCompBuilder(
+  {
+    label: StringControl,
+    onClick: ActionSelectorControlInContext,
+    onEvent: eventHandlerControl(LinksEventOptions),
+    hidden: BoolCodeControl,
+    disabled: BoolCodeControl,
+  },
+  (props) => {
+    return props;
+  }
+)
+  .setPropertyViewFn((children) => {
+    // Check if there's a legacy action configured for this individual item
+    const hasLegacyAction = children.onClick.getView() && 
+      typeof children.onClick.getView() === 'function' &&
+      children.onClick.displayName() !== trans("eventHandler.incomplete");
+
+    return (
+      <>
+        {children.label.propertyView({ label: trans("label") })}
+        {hasLegacyAction && children.onClick.propertyView({
+          label: trans("table.action"),
+          placement: "table",
+        })}
+        {hiddenPropertyView(children)}
+        {disabledPropertyView(children)}
+        {children.onEvent.propertyView()}
+      </>
+    );
+  })
+  .build();
 
 // Memoized menu component
 const LinksMenu = React.memo(({ options, onEvent }: { options: any[]; onEvent?: (eventName: string) => void }) => {
@@ -134,7 +141,7 @@ export const ColumnLinksComp = (function () {
     options: manualOptionsControl(OptionItem, {
       initOptions: [{ label: trans("table.option1") }],
     }),
-    onEvent: eventHandlerControl(LinksEventOptions),
+    onEvent: eventHandlerControl(LinksEventOptions), // Main column level event handlers
   };
   return new ColumnTypeCompBuilder(
     childrenMap,

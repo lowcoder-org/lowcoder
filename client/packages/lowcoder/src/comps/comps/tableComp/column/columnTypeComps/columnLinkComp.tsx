@@ -37,12 +37,15 @@ const StyledLink = styled.a<{ $disabled: boolean }>`
   ${(props) => props.$disabled && disableCss};
 `;
 
-// Memoized link component
+// Updated link component to handle both legacy and new event handlers
 export const ColumnLink = React.memo(({ disabled, label, onClick, onEvent }: { disabled: boolean; label: string; onClick?: () => void; onEvent?: (eventName: string) => void }) => {
   const handleClick = useCallback(() => {
-    if (disabled) return;
-    onClick?.();
-    // onEvent?.("click");
+    if (!disabled) {
+      // Trigger legacy onClick action for backward compatibility
+      onClick?.();
+      // Trigger new event handlers
+      onEvent?.("click");
+    }
   }, [disabled, onClick, onEvent]);
 
   return (
@@ -110,7 +113,7 @@ export const LinkComp = (function () {
     childrenMap,
     (props, dispatch) => {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
-      return <ColumnLink disabled={props.disabled} label={value} onClick={props.onClick} />;
+      return <ColumnLink disabled={props.disabled} label={value} onClick={props.onClick} onEvent={props.onEvent} />;
     },
     (nodeValue) => nodeValue.text.value,
     getBaseValue
@@ -122,20 +125,27 @@ export const LinkComp = (function () {
         onChangeEnd={props.onChangeEnd}
       />
     ))
-    .setPropertyViewFn((children) => (
-      <>
-        {children.text.propertyView({
-          label: trans("table.columnValue"),
-          tooltip: ColumnValueTooltip,
-        })}
-        {disabledPropertyView(children)}
-        {/* {children.onEvent.propertyView()} */}
-        {children.onClick.propertyView({
-          label: trans("table.action"),
-          placement: "table",
-        })}
-      </>
-    ))
+    .setPropertyViewFn((children) => {
+      // Check if there's a legacy action configured
+      const hasLegacyAction = children.onClick.getView() && 
+        typeof children.onClick.getView() === 'function' &&
+        children.onClick.displayName() !== trans("eventHandler.incomplete");
+
+      return (
+        <>
+          {children.text.propertyView({
+            label: trans("table.columnValue"),
+            tooltip: ColumnValueTooltip,
+          })}
+          {disabledPropertyView(children)}
+          {children.onEvent.propertyView()}
+          {hasLegacyAction && children.onClick.propertyView({
+            label: trans("table.action"),
+            placement: "table",
+          })}
+        </>
+      );
+    })
     .setStylePropertyViewFn((children) => (
       <>
         {children.style.getPropertyView()}
