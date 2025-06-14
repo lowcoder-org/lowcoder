@@ -8,6 +8,7 @@ export const databasePlugins: Partial<DatasourceType>[] = [
   "mysql",
   "mongodb",
   "postgres",
+  "databricks",
   "redis",
   "es",
   "mssql",
