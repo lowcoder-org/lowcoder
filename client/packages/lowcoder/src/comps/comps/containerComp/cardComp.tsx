@@ -21,6 +21,7 @@ import { optionsControl } from "comps/controls/optionsControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { styleControl } from "comps/controls/styleControl";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
+import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
 
 const { Meta } = Card;
 
@@ -196,7 +197,6 @@ export const ContainerBaseComp = (function () {
 
   return new ContainerCompBuilder(childrenMap, (props) => {    
     props.container.showHeader = false;
-    // 注入容器参数
     props.container.style = Object.assign(props.container.style, {
       CONTAINER_BODY_PADDING: props.style.containerBodyPadding,
       border: '#00000000',
@@ -233,7 +233,7 @@ export const ContainerBaseComp = (function () {
         $cardType={props.cardType}
         onMouseEnter={() => props.onEvent('focus')}
         onMouseLeave={() => props.onEvent('blur')}
-        onClick={() => props.onEvent('click')}
+        onClick={ComponentClickHandler({onEvent: props.onEvent})}
       >
         <Card
           style={{ width: width, height: '100%' }}
@@ -249,7 +249,7 @@ export const ContainerBaseComp = (function () {
             props.actionOptions.filter(item => !item.hidden).map(item => {
               return (
                 <IconWrapper
-                  onClick={() => item.onEvent('click')}
+                  onClick={ComponentClickHandler({onEvent: props.onEvent})}
                   disabled={item.disabled}
                   $style={props.style}
                 >

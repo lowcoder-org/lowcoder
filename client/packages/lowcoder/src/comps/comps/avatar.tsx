@@ -25,6 +25,7 @@ import { IconControl } from "comps/controls/iconControl";
 import {
   clickEvent,
   eventHandlerControl,
+  doubleClickEvent,
 } from "../controls/eventHandlerControl";
 import { Avatar, AvatarProps, Badge, Dropdown, Menu } from "antd";
 import { LeftRightControl, dropdownControl } from "../controls/dropdownControl";
@@ -34,6 +35,8 @@ import { BadgeBasicSection, badgeChildren } from "./badgeComp/badgeConstants";
 import { DropdownOptionControl } from "../controls/optionsControl";
 import { ReactElement, useContext, useEffect } from "react";
 import { CompNameContext, EditorContext } from "../editorState";
+import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
+
 
 const AvatarWrapper = styled(Avatar) <AvatarProps & { $cursorPointer?: boolean, $style: AvatarStyleType }>`
   background: ${(props) => props.$style.background};
@@ -106,7 +109,7 @@ padding: ${props=>props.$style.padding};
 background: ${props=>props.$style.background};
 text-decoration: ${props => props.$style.textDecoration};
 `
-const EventOptions = [clickEvent] as const;
+const EventOptions = [clickEvent, doubleClickEvent] as const;
 const sharpOptions = [
   { label: trans("avatarComp.square"), value: "square" },
   { label: trans("avatarComp.circle"), value: "circle" },
@@ -181,8 +184,7 @@ const AvatarView = (props: RecordConstructorToView<typeof childrenMap>) => {
             shape={shape}
             $style={props.avatarStyle}
             src={src.value}
-            // $cursorPointer={eventsCount > 0}
-            onClick={() => props.onEvent("click")}
+            onClick={ComponentClickHandler({onEvent: props.onEvent})}
           >
             {title.value}
           </AvatarWrapper>

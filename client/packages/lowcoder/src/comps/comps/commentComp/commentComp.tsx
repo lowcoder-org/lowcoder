@@ -25,9 +25,10 @@ import {
   eventHandlerControl,
   deleteEvent,
   mentionEvent,
-} from "comps/controls/eventHandlerControl";
-
+  doubleClickEvent,
+} from "comps/controls/eventHandlerControl"; 
 import { EditorContext } from "comps/editorState";
+
 
 // Introducing styles
 import {
@@ -66,6 +67,7 @@ import dayjs from "dayjs";
 // import "dayjs/locale/zh-cn";
 import { getInitialsAndColorCode } from "util/stringUtils";
 import { default as CloseOutlined } from "@ant-design/icons/CloseOutlined";
+import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
 
 dayjs.extend(relativeTime);
 // dayjs.locale("zh-cn");
@@ -80,6 +82,7 @@ dayjs.extend(relativeTime);
 
 const EventOptions = [
   clickEvent,
+  doubleClickEvent,
   submitEvent,
   deleteEvent,
   mentionEvent,
@@ -174,7 +177,7 @@ const CommentCompBase = (
   const generateCommentAvatar = (item: commentDataTYPE) => {
     return (
       <Avatar
-        onClick={() => props.onEvent("click")}
+        onClick={ComponentClickHandler({onEvent: props.onEvent})}
         // If there is an avatar, no background colour is set, and if displayName is not null, displayName is called using getInitialsAndColorCode
         style={{
           backgroundColor: item?.user?.avatar
@@ -290,7 +293,9 @@ const CommentCompBase = (
                 <List.Item.Meta
                   avatar={generateCommentAvatar(item)}
                   title={
-                    <div onClick={() => props.onEvent("click")}>
+                    <div 
+                      onClick={ComponentClickHandler({onEvent: props.onEvent})}
+                    >
                       <a>{item?.user?.name}</a>
                       <Tooltip
                         title={

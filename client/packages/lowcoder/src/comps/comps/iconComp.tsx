@@ -27,11 +27,13 @@ import { AutoHeightControl } from "../controls/autoHeightControl";
 import {
   clickEvent,
   eventHandlerControl,
+  doubleClickEvent,
 } from "../controls/eventHandlerControl";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { AssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
 import { dropdownControl } from "../controls/dropdownControl";
+import { ComponentClickHandler } from "../utils/componentClickHandler";
 
 const Container = styled.div<{
   $sourceMode: string;
@@ -72,7 +74,7 @@ const Container = styled.div<{
   `}
 `;
 
-const EventOptions = [clickEvent] as const;
+const EventOptions = [clickEvent, doubleClickEvent] as const;
 
 const ModeOptions = [
   { label: "Standard", value: "standard" },
@@ -134,7 +136,7 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
       $sourceMode={props.sourceMode}
       $animationStyle={props.animationStyle}
       style={style}
-      onClick={() => props.onEvent("click")}
+      onClick={ComponentClickHandler({onEvent: props.onEvent})}
     >
       { props.sourceMode === 'standard'
         ? (props.icon || '')

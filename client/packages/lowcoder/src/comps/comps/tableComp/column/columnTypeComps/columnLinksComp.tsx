@@ -9,7 +9,8 @@ import { trans } from "i18n";
 import styled from "styled-components";
 import { ColumnLink } from "comps/comps/tableComp/column/columnTypeComps/columnLinkComp";
 import { LightActiveTextColor, PrimaryColor } from "constants/style";
-import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
+import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
+import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
 import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
 import { fixOldActionData } from "comps/comps/tableComp/column/simpleColumnTypeComps";
 
@@ -39,7 +40,7 @@ const MenuWrapper = styled.div`
   }  
 `;
 
-const LinkEventOptions = [clickEvent] as const;
+const LinkEventOptions = [clickEvent, doubleClickEvent] as const;
 
 // Memoized menu item component
 const MenuItem = React.memo(({ option, index }: { option: any; index: number }) => {

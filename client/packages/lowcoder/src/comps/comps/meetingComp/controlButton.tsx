@@ -41,6 +41,7 @@ import { useResizeDetector } from "react-resize-detector";
 import { useContext } from "react";
 import { Tooltip } from "antd";
 import { AssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
+import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
 
 const Container = styled.div<{ $style: any }>`
   height: 100%;
@@ -285,7 +286,7 @@ let ButtonTmpComp = (function () {
                   }
                   onClick={() =>
                     isDefault(props.type)
-                      ? props.onEvent("click")
+                      ? ComponentClickHandler({onEvent: props.onEvent})()
                       : submitForm(editorState, props.form)
                   }
                 >

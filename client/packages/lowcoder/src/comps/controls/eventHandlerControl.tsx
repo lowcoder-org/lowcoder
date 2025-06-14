@@ -704,6 +704,7 @@ export const InputEventHandlerControl = eventHandlerControl([
 
 export const ButtonEventHandlerControl = eventHandlerControl([
   clickEvent,
+  doubleClickEvent,
 ] as const);
 
 export const ChangeEventHandlerControl = eventHandlerControl([
@@ -818,4 +819,5 @@ export const CardEventHandlerControl = eventHandlerControl([
   clickExtraEvent,
   focusEvent,
   blurEvent,
+  doubleClickEvent
 ] as const);

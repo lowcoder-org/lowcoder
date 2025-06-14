@@ -13,7 +13,8 @@ import React, { useCallback, useEffect, useMemo } from "react";
 import { CSSProperties } from "react";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { ToViewReturn } from "@lowcoder-ee/comps/generators/multi";
-import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
+import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
+import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
 import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
 
 export const fixOldActionData = (oldData: any) => {
@@ -46,7 +47,7 @@ export const ButtonTypeOptions = [
   },
 ] as const;
 
-const ButtonEventOptions = [clickEvent] as const;
+const ButtonEventOptions = [clickEvent, doubleClickEvent] as const;
 
 const childrenMap = {
   text: StringControl,
@@ -66,8 +67,13 @@ const ButtonStyled = React.memo(({ props }: { props: ToViewReturn<RecordConstruc
   const iconOnly = !hasText && (hasPrefixIcon || hasSuffixIcon);
 
   const handleClick = useCallback((e: React.MouseEvent) => {
-    props.onClick?.("click");
-  }, [props.onClick]);
+    ComponentClickHandler({onEvent: props.onEvent})
+  }, [props.onEvent]);
+  //   props.onClick?.();
+  //   // props.onEvent?.("click");
+  // }, [props.onClick, props.onEvent]);
+  //   props.onClick?.("click");
+  // }, [props.onClick]);
 
   const buttonStyle = useMemo(() => ({
     margin: 0,
