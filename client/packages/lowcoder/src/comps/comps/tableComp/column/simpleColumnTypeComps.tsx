@@ -14,7 +14,21 @@ import { CSSProperties } from "react";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { ToViewReturn } from "@lowcoder-ee/comps/generators/multi";
 import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
+import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
 
+export const fixOldActionData = (oldData: any) => {
+  if (!oldData) return oldData;
+  if (Boolean(oldData.onClick)) {
+    return {
+      ...oldData,
+      onClick: [{
+        name: "click",
+        handler: oldData.onClick,
+      }],
+    };
+  }
+  return oldData;
+}
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
 export const ButtonTypeOptions = [
@@ -37,7 +51,7 @@ const ButtonEventOptions = [clickEvent] as const;
 const childrenMap = {
   text: StringControl,
   buttonType: dropdownControl(ButtonTypeOptions, "primary"),
-  onEvent: eventHandlerControl(ButtonEventOptions),
+  onClick: eventHandlerControl(ButtonEventOptions),
   loading: BoolCodeControl,
   disabled: BoolCodeControl,
   prefixIcon: IconControl,
@@ -52,8 +66,8 @@ const ButtonStyled = React.memo(({ props }: { props: ToViewReturn<RecordConstruc
   const iconOnly = !hasText && (hasPrefixIcon || hasSuffixIcon);
 
   const handleClick = useCallback((e: React.MouseEvent) => {
-    props.onEvent("click");
-  }, [props.onEvent]);
+    props.onClick?.("click");
+  }, [props.onClick]);
 
   const buttonStyle = useMemo(() => ({
     margin: 0,
@@ -79,7 +93,7 @@ const ButtonStyled = React.memo(({ props }: { props: ToViewReturn<RecordConstruc
   );
 });
 
-export const ButtonComp = (function () {
+const ButtonCompTmp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props) => <ButtonStyled props={props} />,
@@ -103,8 +117,10 @@ export const ButtonComp = (function () {
         })}
         {loadingPropertyView(children)}
         {disabledPropertyView(children)}
-        {children.onEvent.propertyView()}
+        {children.onClick.propertyView()}
       </>
     ))
     .build();
 })();
+
+export const ButtonComp = migrateOldData(ButtonCompTmp, fixOldActionData);

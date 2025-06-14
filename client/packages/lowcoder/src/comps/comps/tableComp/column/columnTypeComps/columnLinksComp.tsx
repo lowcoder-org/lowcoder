@@ -63,7 +63,7 @@ const OptionItem = new MultiCompBuilder(
         })}
         {hiddenPropertyView(children)}
         {disabledPropertyView(children)}
-        {children.onEvent.propertyView()}
+        {/* {children.onEvent.propertyView()} */}
       </>
     );
   })
@@ -76,9 +76,9 @@ const MenuItem = React.memo(({ option, index, onMainEvent }: { option: any; inde
       if (option.onClick) {
         option.onClick();
       }
-      if (option.onEvent) {
-        option.onEvent("click");
-      }
+      // if (option.onEvent) {
+      //   option.onEvent("click");
+      // }
       // Trigger the main component's event handler
       if (onMainEvent) {
         onMainEvent("click");

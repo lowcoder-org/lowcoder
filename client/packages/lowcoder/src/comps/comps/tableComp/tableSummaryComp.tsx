@@ -203,7 +203,7 @@ export const TableSummary = memo(function TableSummary(props: {
 
   const visibleColumns = useMemo(() => {
     let cols = columns.filter(col => !col.getView().hide);
-    if (dynamicColumn) {
+    if (dynamicColumn && dynamicColumnConfig?.length) {
       cols = cols.filter(col => {
         const colView = col.getView();
         return dynamicColumnConfig.includes(colView.isCustom ? colView.title : colView.dataIndex)

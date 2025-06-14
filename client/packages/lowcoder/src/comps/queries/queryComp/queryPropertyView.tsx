@@ -239,6 +239,11 @@ export const QueryGeneralPropertyView = (props: {
     comp.children.datasourceId.dispatchChangeValueAction(QUICK_REST_API_ID);
   }
 
+  if (datasourceType === 'js' && datasourceId === '') {
+    datasourceId = JS_CODE_ID;
+    comp.children.datasourceId.dispatchChangeValueAction(JS_CODE_ID);
+  }
+
   const triggerOptions = useMemo(() => {
     if (datasourceType === "js" || datasourceType === "streamApi") {
       return JSTriggerTypeOptions;
