@@ -15,7 +15,21 @@ import { RecordConstructorToComp } from "lowcoder-core";
 import { ToViewReturn } from "@lowcoder-ee/comps/generators/multi";
 import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
 import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
+import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
 
+export const fixOldActionData = (oldData: any) => {
+  if (!oldData) return oldData;
+  if (Boolean(oldData.onClick)) {
+    return {
+      ...oldData,
+      onClick: [{
+        name: "click",
+        handler: oldData.onClick,
+      }],
+    };
+  }
+  return oldData;
+}
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
 export const ButtonTypeOptions = [
@@ -38,8 +52,7 @@ const ButtonEventOptions = [clickEvent, doubleClickEvent] as const;
 const childrenMap = {
   text: StringControl,
   buttonType: dropdownControl(ButtonTypeOptions, "primary"),
-  onEvent: eventHandlerControl(ButtonEventOptions),
-  onClick: ActionSelectorControlInContext,
+  onClick: eventHandlerControl(ButtonEventOptions),
   loading: BoolCodeControl,
   disabled: BoolCodeControl,
   prefixIcon: IconControl,
@@ -59,6 +72,8 @@ const ButtonStyled = React.memo(({ props }: { props: ToViewReturn<RecordConstruc
   //   props.onClick?.();
   //   // props.onEvent?.("click");
   // }, [props.onClick, props.onEvent]);
+  //   props.onClick?.("click");
+  // }, [props.onClick]);
 
   const buttonStyle = useMemo(() => ({
     margin: 0,
@@ -84,7 +99,7 @@ const ButtonStyled = React.memo(({ props }: { props: ToViewReturn<RecordConstruc
   );
 });
 
-export const ButtonComp = (function () {
+const ButtonCompTmp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props) => <ButtonStyled props={props} />,
@@ -108,12 +123,10 @@ export const ButtonComp = (function () {
         })}
         {loadingPropertyView(children)}
         {disabledPropertyView(children)}
-        {/* {children.onEvent.propertyView()} */}
-        {children.onClick.propertyView({
-          label: trans("table.action"),
-          placement: "table",
-        })}
+        {children.onClick.propertyView()}
       </>
     ))
     .build();
 })();
+
+export const ButtonComp = migrateOldData(ButtonCompTmp, fixOldActionData);

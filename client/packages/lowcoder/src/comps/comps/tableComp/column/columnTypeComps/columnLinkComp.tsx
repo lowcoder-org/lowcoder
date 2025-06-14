@@ -4,7 +4,6 @@ import {
   ColumnTypeCompBuilder,
   ColumnTypeViewFn,
 } from "comps/comps/tableComp/column/columnTypeCompBuilder";
-import { ActionSelectorControlInContext } from "comps/controls/actionSelector/actionSelectorControl";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import { disabledPropertyView } from "comps/utils/propertyUtils";
@@ -13,6 +12,8 @@ import { styleControl } from "comps/controls/styleControl";
 import { TableColumnLinkStyle } from "comps/controls/styleControlConstants";
 import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
 import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
+import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
+import { fixOldActionData } from "comps/comps/tableComp/column/simpleColumnTypeComps";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
@@ -20,8 +21,7 @@ const LinkEventOptions = [clickEvent, doubleClickEvent] as const;
 
 const childrenMap = {
   text: StringControl,
-  onClick: ActionSelectorControlInContext,
-  onEvent: eventHandlerControl(LinkEventOptions),
+  onClick: eventHandlerControl(LinkEventOptions),
   disabled: BoolCodeControl,
   style: styleControl(TableColumnLinkStyle),
 };
@@ -39,7 +39,7 @@ const StyledLink = styled.a<{ $disabled: boolean }>`
 `;
 
 // Memoized link component
-export const ColumnLink = React.memo(({ disabled, label, onClick, onEvent }: { disabled: boolean; label: string; onClick?: () => void; onEvent?: (eventName: string) => void }) => {
+export const ColumnLink = React.memo(({ disabled, label, onClick }: { disabled: boolean; label: string; onClick?: (eventName: string) => void }) => {
   const handleClick = useCallback(() => {
     if (!disabled && onEvent) {
       ComponentClickHandler({onEvent})();
@@ -49,6 +49,9 @@ export const ColumnLink = React.memo(({ disabled, label, onClick, onEvent }: { d
   //   onClick?.();
   //   // onEvent?.("click");
   // }, [disabled, onClick, onEvent]);
+  //   if (disabled) return;
+  //   onClick?.("click");
+  // }, [disabled, onClick]);
 
   return (
     <StyledLink
@@ -110,7 +113,7 @@ LinkEdit.displayName = 'LinkEdit';
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.text;
 
-export const LinkComp = (function () {
+const LinkCompTmp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
@@ -134,11 +137,7 @@ export const LinkComp = (function () {
           tooltip: ColumnValueTooltip,
         })}
         {disabledPropertyView(children)}
-        {/* {children.onEvent.propertyView()} */}
-        {children.onClick.propertyView({
-          label: trans("table.action"),
-          placement: "table",
-        })}
+        {children.onClick.propertyView()}
       </>
     ))
     .setStylePropertyViewFn((children) => (
@@ -148,3 +147,5 @@ export const LinkComp = (function () {
     ))
     .build();
 })();
+
+export const LinkComp = migrateOldData(LinkCompTmp, fixOldActionData);

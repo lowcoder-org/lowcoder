@@ -498,8 +498,6 @@ function EditorView(props: EditorViewProps) {
 
     return () => {
       window.removeEventListener(eventType, updateSize);
-      savePanelStatus(panelStatus);
-      saveEditorModeStatus(editorModeStatus);
     };
   }, [panelStatus, editorModeStatus]);
 
@@ -553,6 +551,8 @@ function EditorView(props: EditorViewProps) {
       setShowShortcutList(false);
       setMenuKey(SiderKey.State);
       setHeight(undefined);
+      savePanelStatus(panelStatus);
+      saveEditorModeStatus(editorModeStatus);
     };
   }, []);
 
