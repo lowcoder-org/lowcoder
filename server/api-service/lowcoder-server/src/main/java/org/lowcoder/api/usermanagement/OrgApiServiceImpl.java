@@ -40,6 +40,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
+import org.lowcoder.domain.group.service.GroupMemberService;
+import org.lowcoder.domain.group.model.GroupMember;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -49,6 +52,8 @@ import static org.lowcoder.sdk.exception.BizError.UNSUPPORTED_OPERATION;
 import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 import static org.lowcoder.sdk.util.StreamUtils.collectSet;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 @Slf4j
 @Service
@@ -72,9 +77,10 @@ public class OrgApiServiceImpl implements OrgApiService {
     private GroupService groupService;
     @Autowired
     private AuthenticationService authenticationService;
-
     @Autowired
     private ServerLogService serverLogService;
+    @Autowired
+    private GroupMemberService groupMemberService;
 
     @Override
     public Mono<OrgMemberListView> getOrganizationMembers(String orgId, int page, int count) {
@@ -82,6 +88,78 @@ public class OrgApiServiceImpl implements OrgApiService {
                 .flatMap(visitorId -> orgMemberService.getOrgMember(orgId, visitorId))
                 .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
                 .then(getOrgMemberListView(orgId, page, count));
+    }
+
+// Update getOrgMemberListViewForSearch to filter by group membership
+private Mono<OrgMemberListView> getOrgMemberListViewForSearch(String orgId, String searchMemberName, String searchGroupId, Integer page, Integer pageSize) {
+    return orgMemberService.getOrganizationMembers(orgId)
+            .collectList()
+            .flatMap(orgMembers -> {
+                List<String> userIds = orgMembers.stream()
+                        .map(OrgMember::getUserId)
+                        .collect(Collectors.toList());
+                Mono<Map<String, User>> users = userService.getByIds(userIds);
+
+                // If searchGroupId is provided, fetch group members
+                Mono<Set<String>> groupUserIdsMono = StringUtils.isBlank(searchGroupId)
+                        ? Mono.just(Collections.emptySet())
+                        : groupMemberService.getGroupMembers(searchGroupId)
+                        .map(list -> list.stream()
+                        .map(GroupMember::getUserId)
+                        .collect(Collectors.toSet()));
+
+                return Mono.zip(users, groupUserIdsMono)
+                        .map(tuple -> {
+                            Map<String, User> userMap = tuple.getT1();
+                            Set<String> groupUserIds = tuple.getT2();
+
+                            var list = orgMembers.stream()
+                                    .map(orgMember -> {
+                                        User user = userMap.get(orgMember.getUserId());
+                                        if (user == null) {
+                                            log.warn("user {} not exist and will be removed from the result.", orgMember.getUserId());
+                                            return null;
+                                        }
+                                        return buildOrgMemberView(user, orgMember);
+                                    })
+                                    .filter(Objects::nonNull)
+                                    .filter(orgMemberView -> {
+                                        // Filter by name
+                                        boolean matchesName = StringUtils.isBlank(searchMemberName) ||
+                                                StringUtils.containsIgnoreCase(orgMemberView.getName(), searchMemberName);
+
+                                        // Filter by group
+                                        boolean matchesGroup = StringUtils.isBlank(searchGroupId) ||
+                                                groupUserIds.contains(orgMemberView.getUserId());
+
+                                        return matchesName && matchesGroup;
+                                    })
+                                    .collect(Collectors.toList());
+                            var pageTotal = list.size();
+                            list = list.subList((page - 1) * pageSize, pageSize == 0 ? pageTotal : Math.min(page * pageSize, pageTotal));
+                            return Pair.of(list, pageTotal);
+                        });
+            })
+            .zipWith(sessionUserService.getVisitorOrgMemberCache())
+            .map(tuple -> {
+                List<OrgMemberView> memberViews = tuple.getT1().getLeft();
+                var pageTotal = tuple.getT1().getRight();
+                OrgMember orgMember = tuple.getT2();
+                return OrgMemberListView.builder()
+                        .members(memberViews)
+                        .total(pageTotal)
+                        .pageNum(page)
+                        .pageSize(pageSize)
+                        .visitorRole(orgMember.getRole().getValue())
+                        .build();
+            });
+    }
+    @Override
+    public  Mono<OrgMemberListView> getOrganizationMembersForSearch(String orgId, String searchMemberName, String searchGroupId, Integer page, Integer pageSize) {
+        return sessionUserService.getVisitorId()
+                .flatMap(visitorId -> orgMemberService.getOrgMember(orgId, visitorId))
+                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                .then(getOrgMemberListViewForSearch(orgId, searchMemberName, searchGroupId, page, pageSize));
     }
 
     private Mono<OrgMemberListView> getOrgMemberListView(String orgId, int page, int count) {
@@ -126,6 +204,17 @@ public class OrgApiServiceImpl implements OrgApiService {
     }
 
     protected OrgMemberView build(User user, OrgMember orgMember) {
+        String orgId = orgMember.getOrgId();
+        return OrgMemberView.builder()
+                .name(user.getName())
+                .userId(user.getId())
+                .role(orgMember.getRole().getValue())
+                .avatarUrl(user.getAvatarUrl())
+                .joinTime(orgMember.getJoinTime())
+                .rawUserInfos(findRawUserInfos(user, orgId))
+                .build();
+    }
+    protected OrgMemberView buildOrgMemberView(User user, OrgMember orgMember) {
         String orgId = orgMember.getOrgId();
         return OrgMemberView.builder()
                 .name(user.getName())
