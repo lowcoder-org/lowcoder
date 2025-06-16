@@ -4,6 +4,7 @@ import { Input } from "antd";
 import { Org, OrgRoleInfo } from "constants/orgConstants";
 import { ORGANIZATION_SETTING } from "constants/routesURL";
 import { User } from "constants/userConstants";
+import { getWorkspaces } from "redux/selectors/orgSelectors";
 import {
   AddIcon,
   CheckoutIcon,
@@ -17,9 +18,9 @@ import {
   SearchIcon,
 } from "lowcoder-design";
 import ProfileSettingModal from "pages/setting/profile";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { createOrgAction, switchOrg } from "redux/reduxActions/orgActions";
+import { createOrgAction, fetchWorkspacesAction, switchOrg } from "redux/reduxActions/orgActions";
 import styled from "styled-components";
 import history from "util/history";
 import ProfileImage from "pages/common/profileImage";
@@ -221,6 +222,8 @@ type DropDownProps = {
 export default function ProfileDropdown(props: DropDownProps) {
   const { avatarUrl, username, orgs, currentOrgId } = props.user;
   const currentOrgRoleId = props.user.orgRoleMap.get(currentOrgId);
+  const workspaces = useSelector(getWorkspaces);
+  console.log("workspaces", workspaces);
   const currentOrg = useMemo(
     () => props.user.orgs.find((o) => o.id === currentOrgId),
     [props.user, currentOrgId]
@@ -230,6 +233,14 @@ export default function ProfileDropdown(props: DropDownProps) {
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState("");
   const [dropdownVisible, setDropdownVisible] = useState(false);
+
+
+  // Load workspaces when dropdown opens for the first time
+  useEffect(() => {
+    if (dropdownVisible && workspaces.items.length === 0) {
+      dispatch(fetchWorkspacesAction(1));
+    }
+  }, [dropdownVisible, workspaces.items.length, dispatch]);
 
   const filteredOrgs = useMemo(() => {
     if (!searchTerm.trim()) return orgs;

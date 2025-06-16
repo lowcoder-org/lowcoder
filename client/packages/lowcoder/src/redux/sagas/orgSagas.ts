@@ -340,6 +340,17 @@ export function* fetchWorkspacesSaga(action: ReduxAction<{page: number, search?:
     );
     
     if (validateResponse(response)) {
+      const apiData = response.data.data;
+      console.log("apiData", apiData);
+      const hasMore = (apiData.pageNum * apiData.pageSize) < apiData.total;
+      
+      // Transform orgId/orgName to match Org interface
+      const transformedItems = apiData.data.map(item => ({
+        id: item.orgId,
+        name: item.orgName,
+        // Add other Org properties if needed (logoUrl, etc.)
+      }));
+      
       const actionType = isLoadMore 
         ? ReduxActionTypes.LOAD_MORE_WORKSPACES_SUCCESS
         : ReduxActionTypes.FETCH_WORKSPACES_SUCCESS;
@@ -347,11 +358,11 @@ export function* fetchWorkspacesSaga(action: ReduxAction<{page: number, search?:
       yield put({
         type: actionType,
         payload: {
-          items: response.data.data.items,
-          totalCount: response.data.data.totalCount,
-          currentPage: response.data.data.currentPage,
-          pageSize: response.data.data.pageSize,
-          hasMore: response.data.data.hasMore,
+          items: transformedItems,
+          totalCount: apiData.total,
+          currentPage: apiData.pageNum,
+          pageSize: apiData.pageSize,
+          hasMore: hasMore,
           searchQuery: search || ""
         }
       });
