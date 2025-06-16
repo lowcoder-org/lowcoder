@@ -12,6 +12,7 @@ import org.lowcoder.api.usermanagement.view.UpdateOrgRequest;
 import org.lowcoder.api.usermanagement.view.UpdateRoleRequest;
 import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.api.util.GidService;
+import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.model.Organization.OrganizationCommonSettings;
 import org.lowcoder.domain.organization.service.OrgMemberService;
@@ -115,6 +116,16 @@ public class OrganizationController implements OrganizationEndpoints
             @RequestParam(required = false, defaultValue = "1000") int pageSize) {
         return gidService.convertOrganizationIdToObjectId(orgId).flatMap(id ->
             orgApiService.getOrganizationMembers(id, pageNum, pageSize)
+                .map(ResponseView::success));
+    }
+    @Override
+    public Mono<ResponseView<OrgMemberListView>> getOrgMembersForSearch(@PathVariable String orgId,
+            @PathVariable String searchMemberName,
+            @PathVariable String searchGroupId,
+            @RequestParam(required = false, defaultValue = "1") int pageNum,
+            @RequestParam(required = false, defaultValue = "1000") int pageSize) {
+        return gidService.convertOrganizationIdToObjectId(orgId).flatMap(id ->
+            orgApiService.getOrganizationMembersForSearch(id, searchMemberName, searchGroupId, pageNum, pageSize)
                 .map(ResponseView::success));
     }
 
