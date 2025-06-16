@@ -67,7 +67,7 @@ import dayjs from "dayjs";
 // import "dayjs/locale/zh-cn";
 import { getInitialsAndColorCode } from "util/stringUtils";
 import { default as CloseOutlined } from "@ant-design/icons/CloseOutlined";
-import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 
 dayjs.extend(relativeTime);
 // dayjs.locale("zh-cn");
@@ -136,6 +136,8 @@ const CommentCompBase = (
   const [commentListData, setCommentListData] = useState<commentDataTYPE[]>([]);
   const [prefix, setPrefix] = useState<PrefixType>("@");
   const [context, setContext] = useState<string>("");
+  const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent})
+  
   // Integrate the comment list with the names in the original mention list
   const mergeAllMentionList = (mentionList: any) => {
     setMentionList(
@@ -177,7 +179,7 @@ const CommentCompBase = (
   const generateCommentAvatar = (item: commentDataTYPE) => {
     return (
       <Avatar
-        onClick={ComponentClickHandler({onEvent: props.onEvent})}
+        onClick={() => handleClickEvent()}
         // If there is an avatar, no background colour is set, and if displayName is not null, displayName is called using getInitialsAndColorCode
         style={{
           backgroundColor: item?.user?.avatar
@@ -294,7 +296,7 @@ const CommentCompBase = (
                   avatar={generateCommentAvatar(item)}
                   title={
                     <div 
-                      onClick={ComponentClickHandler({onEvent: props.onEvent})}
+                      onClick={() => handleClickEvent()}
                     >
                       <a>{item?.user?.name}</a>
                       <Tooltip

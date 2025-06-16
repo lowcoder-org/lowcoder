@@ -10,7 +10,7 @@ import styled from "styled-components";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
-import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 
 const InputNumberWrapper = styled.div`
   .ant-input-number  {
@@ -71,6 +71,8 @@ type NumberEditProps = {
 };
 
 const ColumnNumberView = React.memo((props: NumberViewProps) => {
+  const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent ?? (() => {})})
+  
   const formattedValue = useMemo(() => {
     let result = !props.float ? Math.floor(props.value) : props.value;
     if (props.float) {
@@ -80,7 +82,7 @@ const ColumnNumberView = React.memo((props: NumberViewProps) => {
   }, [props.value, props.float, props.precision]);
 
   const handleClick = useCallback(() => {
-    props.onEvent && ComponentClickHandler({onEvent: props.onEvent})()
+    handleClickEvent()
   }, [props.onEvent]);
 
   return (

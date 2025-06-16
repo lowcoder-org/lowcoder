@@ -17,7 +17,7 @@ import { optionsControl } from "comps/controls/optionsControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { JSONObject } from "util/jsonTypes";
-import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 
 const MacaroneList = [
   '#fde68a',
@@ -100,6 +100,8 @@ const MemoizedAvatar = React.memo(({
   onItemEvent?: (event: string) => void;
 }) => {
   const mountedRef = useRef(true);
+  const handleClickEvent = useCompClickEventHandler({onEvent})
+
 
   // Cleanup on unmount
   useEffect(() => {
@@ -117,7 +119,7 @@ const MemoizedAvatar = React.memo(({
     }
     
     // Then trigger main component event
-    ComponentClickHandler({onEvent})()
+    handleClickEvent()
   }, [onEvent, onItemEvent]);
 
   return (

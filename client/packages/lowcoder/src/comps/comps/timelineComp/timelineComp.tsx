@@ -50,7 +50,7 @@ import { convertTimeLineData } from "./timelineUtils";
 import { default as Timeline } from "antd/es/timeline";
 import { EditorContext } from "comps/editorState";
 import { styled } from "styled-components";
-import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 
 const TimelineWrapper = styled.div<{
   $style: TimeLineStyleType
@@ -113,6 +113,8 @@ const TimelineComp = (
 ) => {
   const { value, dispatch, style, mode, reverse, onEvent } = props;
   const [icons, setIcons] = useState<React.ReactNode[]>([]);
+  const handleClickEvent = useCompClickEventHandler({onEvent})
+
   useEffect(() => {
     const loadIcons = async () => {
       const iconComponents = await Promise.all(
@@ -143,7 +145,7 @@ const TimelineComp = (
             e.preventDefault();
             dispatch(changeChildAction("clickedObject", value, false));
             dispatch(changeChildAction("clickedIndex", index, false));
-            ComponentClickHandler({onEvent})()
+            handleClickEvent()
           }}
           // for responsiveness
           style={{

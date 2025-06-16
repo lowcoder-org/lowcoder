@@ -14,8 +14,8 @@ import { CSSProperties } from "react";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { ToViewReturn } from "@lowcoder-ee/comps/generators/multi";
 import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
-import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
 import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 
 export const fixOldActionData = (oldData: any) => {
   if (!oldData) return oldData;
@@ -65,15 +65,11 @@ const ButtonStyled = React.memo(({ props }: { props: ToViewReturn<RecordConstruc
   const hasPrefixIcon = hasIcon(props.prefixIcon);
   const hasSuffixIcon = hasIcon(props.suffixIcon);
   const iconOnly = !hasText && (hasPrefixIcon || hasSuffixIcon);
+  const handleClickEvent = useCompClickEventHandler({onEvent: props.onClick})
 
   const handleClick = useCallback((e: React.MouseEvent) => {
-    ComponentClickHandler({onEvent: props.onEvent})
-  }, [props.onEvent]);
-  //   props.onClick?.();
-  //   // props.onEvent?.("click");
-  // }, [props.onClick, props.onEvent]);
-  //   props.onClick?.("click");
-  // }, [props.onClick]);
+    handleClickEvent()
+  }, [handleClickEvent]);
 
   const buttonStyle = useMemo(() => ({
     margin: 0,

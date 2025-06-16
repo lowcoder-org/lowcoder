@@ -10,7 +10,7 @@ import styled from "styled-components";
 import { ColumnLink } from "comps/comps/tableComp/column/columnTypeComps/columnLinkComp";
 import { LightActiveTextColor, PrimaryColor } from "constants/style";
 import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
-import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
 import { fixOldActionData } from "comps/comps/tableComp/column/simpleColumnTypeComps";
 
@@ -44,18 +44,12 @@ const LinkEventOptions = [clickEvent, doubleClickEvent] as const;
 
 // Memoized menu item component
 const MenuItem = React.memo(({ option, index }: { option: any; index: number }) => {
-  const handleClick = useCallback(() => {
-    if (!option.disabled && option.onClick) {
-      option.onClick("click");
-    }
-  }, [option.disabled, option.onClick]);
-
   return (
     <MenuLinkWrapper>
       <ColumnLink
         disabled={option.disabled}
         label={option.label}
-        onClick={handleClick}
+        onClick={option.onClick}
       />
     </MenuLinkWrapper>
   );

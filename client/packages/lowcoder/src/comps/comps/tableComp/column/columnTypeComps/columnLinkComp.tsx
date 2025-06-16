@@ -11,7 +11,7 @@ import styled, { css } from "styled-components";
 import { styleControl } from "comps/controls/styleControl";
 import { TableColumnLinkStyle } from "comps/controls/styleControlConstants";
 import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
-import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
 import { fixOldActionData } from "comps/comps/tableComp/column/simpleColumnTypeComps";
 
@@ -39,19 +39,13 @@ const StyledLink = styled.a<{ $disabled: boolean }>`
 `;
 
 // Memoized link component
-export const ColumnLink = React.memo(({ disabled, label, onClick }: { disabled: boolean; label: string; onClick?: (eventName: string) => void }) => {
+export const ColumnLink = React.memo(({ disabled, label, onClick }: { disabled: boolean; label: string; onClick: (eventName: string) => void }) => {
+  const handleClickEvent = useCompClickEventHandler({onEvent: onClick})
   const handleClick = useCallback(() => {
-    if (!disabled && onEvent) {
-      ComponentClickHandler({onEvent})();
+    if (!disabled) {
+      handleClickEvent();
     }
-  }, [disabled, onEvent]);
-  //   if (disabled) return;
-  //   onClick?.();
-  //   // onEvent?.("click");
-  // }, [disabled, onClick, onEvent]);
-  //   if (disabled) return;
-  //   onClick?.("click");
-  // }, [disabled, onClick]);
+  }, [disabled, onClick]);
 
   return (
     <StyledLink

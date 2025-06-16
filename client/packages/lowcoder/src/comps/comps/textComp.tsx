@@ -25,7 +25,7 @@ import { NewChildren } from "../generators/uiCompBuilder";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { ToViewReturn } from "../generators/multi";
 import { BoolControl } from "../controls/boolControl";
-import { ComponentClickHandler } from "../utils/componentClickHandler";
+import { useCompClickEventHandler } from "../utils/useCompClickEventHandler";
 
 const EventOptions = [clickEvent, doubleClickEvent] as const;
 
@@ -225,8 +225,10 @@ const TextPropertyView = React.memo((props: {
 
 const TextView = React.memo((props: ToViewReturn<ChildrenType>) => {
   const value = props.text.value;
+  const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent})
+
   const handleClick = React.useCallback(() => {
-    props.onEvent && ComponentClickHandler({onEvent: props.onEvent})()
+    handleClickEvent()
   }, [props.onEvent]);
 
   const containerStyle = useMemo(() => ({

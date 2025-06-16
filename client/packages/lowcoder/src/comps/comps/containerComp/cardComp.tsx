@@ -21,7 +21,7 @@ import { optionsControl } from "comps/controls/optionsControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { styleControl } from "comps/controls/styleControl";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
-import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 
 const { Meta } = Card;
 
@@ -205,6 +205,12 @@ export const ContainerBaseComp = (function () {
     const conRef = useRef<HTMLDivElement>(null);
     const [width, setWidth] = useState(0);
     const [height, setHeight] = useState(0);
+    const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent})
+    const actionHandlers = props.actionOptions.map(item => ({
+      ...item,
+      clickHandler: useCompClickEventHandler({onEvent: item.onEvent})
+    }));
+
     useEffect(() => {
       if (height && width) {
         onResize();
@@ -233,7 +239,7 @@ export const ContainerBaseComp = (function () {
         $cardType={props.cardType}
         onMouseEnter={() => props.onEvent('focus')}
         onMouseLeave={() => props.onEvent('blur')}
-        onClick={ComponentClickHandler({onEvent: props.onEvent})}
+        onClick={() => handleClickEvent()}
       >
         <Card
           style={{ width: width, height: '100%' }}
@@ -246,10 +252,13 @@ export const ContainerBaseComp = (function () {
           // 内容
           cover={props.cardType == 'common' && props.CoverImg && <img src={props.imgSrc} height={props.imgHeight} />}
           actions={props.cardType == 'common' && props.showActionIcon ?
-            props.actionOptions.filter(item => !item.hidden).map(item => {
+            actionHandlers.filter(item => !item.hidden).map(item => {
               return (
                 <IconWrapper
-                  onClick={ComponentClickHandler({onEvent: props.onEvent})}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    item.clickHandler()
+                  }}
                   disabled={item.disabled}
                   $style={props.style}
                 >

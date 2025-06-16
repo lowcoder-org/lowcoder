@@ -33,7 +33,7 @@ import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { AssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
 import { dropdownControl } from "../controls/dropdownControl";
-import { ComponentClickHandler } from "../utils/componentClickHandler";
+import { useCompClickEventHandler } from "../utils/useCompClickEventHandler";
 
 const Container = styled.div<{
   $sourceMode: string;
@@ -96,6 +96,7 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
   const conRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
+  const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent})
 
   useEffect(() => {
     if (height && width) {
@@ -136,7 +137,7 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
       $sourceMode={props.sourceMode}
       $animationStyle={props.animationStyle}
       style={style}
-      onClick={ComponentClickHandler({onEvent: props.onEvent})}
+      onClick={() => handleClickEvent()}
     >
       { props.sourceMode === 'standard'
         ? (props.icon || '')

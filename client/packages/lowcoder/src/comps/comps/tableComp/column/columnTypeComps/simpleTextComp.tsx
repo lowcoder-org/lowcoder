@@ -9,7 +9,7 @@ import React, { useCallback, useMemo } from "react";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { clickEvent, doubleClickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import styled from "styled-components";
-import { ComponentClickHandler } from "@lowcoder-ee/comps/utils/componentClickHandler";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 
 const TextEventOptions = [clickEvent, doubleClickEvent] as const;
 
@@ -50,8 +50,10 @@ interface SimpleTextEditViewProps {
 }
 
 const SimpleTextContent = React.memo(({ value, prefixIcon, suffixIcon, onEvent }: SimpleTextContentProps) => {
+  const handleClickEvent = useCompClickEventHandler({onEvent: onEvent ?? (() => {})})
+  
   const handleClick = useCallback(() => {
-     onEvent && ComponentClickHandler({onEvent})()
+     handleClickEvent()
   }, [onEvent]);
 
   return (

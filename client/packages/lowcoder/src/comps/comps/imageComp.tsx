@@ -38,7 +38,7 @@ import { StringControl } from "../controls/codeControl";
 import { PositionControl } from "comps/controls/dropdownControl";
 import { dropdownControl } from "../controls/dropdownControl";
 import { AssetType, IconscoutControl } from "../controls/iconscoutControl";
-import { ComponentClickHandler } from "../utils/componentClickHandler";
+import { useCompClickEventHandler } from "../utils/useCompClickEventHandler";
 
 const Container = styled.div<{ 
   $style: ImageStyleType | undefined, 
@@ -125,6 +125,8 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
   const conRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
+  const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent})
+
 
   const imgOnload = (img: HTMLImageElement) => {
     img.onload = function () {
@@ -213,7 +215,7 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
           draggable={false}
           preview={props.supportPreview ? {src: props.previewSrc || props.src.value } : false}
           fallback={DEFAULT_IMG_URL}
-          onClick={ComponentClickHandler({onEvent: props.onEvent})}
+          onClick={() => handleClickEvent()}
         />
       </div>
     </Container>
