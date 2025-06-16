@@ -16,6 +16,7 @@ import { Button100 } from "comps/comps/buttonComp/buttonCompConstants";
 import styled from "styled-components";
 import { ButtonType } from "antd/es/button";
 import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 
 const StyledButton = styled(Button100)`
   display: flex;
@@ -43,8 +44,9 @@ const childrenMap = {
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.label;
 
 // Memoized dropdown menu component
-const DropdownMenu = React.memo(({ items, options, onEvent }: { items: any[]; options: any[]; onEvent?: (eventName: string) => void }) => {
+const DropdownMenu = React.memo(({ items, options, onEvent }: { items: any[]; options: any[]; onEvent: (eventName: string) => void }) => {
   const mountedRef = useRef(true);
+  const handleClickEvent = useCompClickEventHandler({onEvent})
 
   // Cleanup on unmount
   useEffect(() => {
@@ -59,8 +61,8 @@ const DropdownMenu = React.memo(({ items, options, onEvent }: { items: any[]; op
     const itemIndex = options.findIndex(option => option.label === item?.label);
     item && options[itemIndex]?.onEvent("click");
     // Also trigger the dropdown's main event handler
-    onEvent?.("click");
-  }, [items, options, onEvent]);
+    handleClickEvent();
+  }, [items, options, handleClickEvent]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -127,7 +129,7 @@ const DropdownView = React.memo((props: {
   const buttonStyle = useStyle(ButtonStyle);
 
   const menu = useMemo(() => (
-    <DropdownMenu items={items} options={props.options} onEvent={props.onEvent} />
+    <DropdownMenu items={items} options={props.options} onEvent={props.onEvent ?? (() => {})} />
   ), [items, props.options, props.onEvent]);
 
   return (

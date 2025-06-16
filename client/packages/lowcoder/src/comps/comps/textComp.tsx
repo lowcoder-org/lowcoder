@@ -20,13 +20,14 @@ import { PaddingControl } from "../controls/paddingControl";
 
 import React, { useContext, useEffect, useRef, useMemo } from "react";
 import { EditorContext } from "comps/editorState";
-import { clickEvent, eventHandlerControl } from "../controls/eventHandlerControl";
+import { clickEvent, doubleClickEvent, eventHandlerControl } from "../controls/eventHandlerControl";
 import { NewChildren } from "../generators/uiCompBuilder";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { ToViewReturn } from "../generators/multi";
 import { BoolControl } from "../controls/boolControl";
+import { useCompClickEventHandler } from "../utils/useCompClickEventHandler";
 
-const EventOptions = [clickEvent] as const;
+const EventOptions = [clickEvent, doubleClickEvent] as const;
 
 const getStyle = (style: TextStyleType) => {
   return css`
@@ -224,9 +225,11 @@ const TextPropertyView = React.memo((props: {
 
 const TextView = React.memo((props: ToViewReturn<ChildrenType>) => {
   const value = props.text.value;
+  const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent})
+
   const handleClick = React.useCallback(() => {
-    props.onEvent("click");
-  }, [props.onEvent]);
+    handleClickEvent()
+  }, [handleClickEvent]);
 
   const containerStyle = useMemo(() => ({
     justifyContent: props.horizontalAlignment,
