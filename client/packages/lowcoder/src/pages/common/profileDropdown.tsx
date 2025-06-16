@@ -198,6 +198,25 @@ const ActionItem = styled.div`
   }
 `;
 
+const CreateWorkspaceItem = styled(ActionItem)`
+  color: #4965f2;
+  font-weight: 500;
+  
+  
+  &:hover {
+    background-color: #f0f5ff;
+    color: #3651d4;
+  }
+  
+  svg {
+    color: #4965f2;
+  }
+  
+  &:hover svg {
+    color: #3651d4;
+  }
+`;
+
 const EmptyState = styled.div`
   padding: 20px 16px;
   text-align: center;
@@ -336,13 +355,10 @@ export default function ProfileDropdown(props: DropDownProps) {
               <EmptyState>No workspaces found</EmptyState>
             )}
           </WorkspaceList>
-
-          {!checkIsMobile(window.innerWidth) && (
-            <ActionItem onClick={handleCreateOrg}>
+            <CreateWorkspaceItem onClick={handleCreateOrg}>
               <AddIcon />
               {trans("profile.createOrg")}
-            </ActionItem>
-          )}
+            </CreateWorkspaceItem>
         </WorkspaceSection>
       )}
 
