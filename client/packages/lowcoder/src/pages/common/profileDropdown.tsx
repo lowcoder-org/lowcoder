@@ -17,9 +17,9 @@ import {
   SearchIcon,
 } from "lowcoder-design";
 import ProfileSettingModal from "pages/setting/profile";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { createOrgAction, switchOrg } from "redux/reduxActions/orgActions";
+import { createOrgAction, fetchWorkspacesAction, switchOrg } from "redux/reduxActions/orgActions";
 import styled from "styled-components";
 import history from "util/history";
 import ProfileImage from "pages/common/profileImage";
@@ -30,6 +30,7 @@ import { showSwitchOrg } from "@lowcoder-ee/pages/common/customerService";
 import { checkIsMobile } from "util/commonUtils";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 import type { ItemType } from "antd/es/menu/interface";
+import { getCurrentOrg, getWorkspaces } from "@lowcoder-ee/redux/selectors/orgSelectors";
 
 const { Item } = Menu;
 
@@ -219,24 +220,29 @@ type DropDownProps = {
 };
 
 export default function ProfileDropdown(props: DropDownProps) {
-  const { avatarUrl, username, orgs, currentOrgId } = props.user;
+  const { avatarUrl, username, currentOrgId } = props.user;
   const currentOrgRoleId = props.user.orgRoleMap.get(currentOrgId);
-  const currentOrg = useMemo(
-    () => props.user.orgs.find((o) => o.id === currentOrgId),
-    [props.user, currentOrgId]
-  );
+  const currentOrg = useSelector(getCurrentOrg);
+  const workspaces = useSelector(getWorkspaces);
   const settingModalVisible = useSelector(isProfileSettingModalVisible);
   const sysConfig = useSelector(selectSystemConfig);
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState("");
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
+  // Load workspaces when dropdown opens
+  useEffect(() => {
+    if (dropdownVisible && workspaces.items.length === 0) {
+      dispatch(fetchWorkspacesAction(1));
+    }
+  }, [dropdownVisible]);
+   // Use workspaces.items instead of props.user.orgs
   const filteredOrgs = useMemo(() => {
-    if (!searchTerm.trim()) return orgs;
-    return orgs.filter(org => 
+    if (!searchTerm.trim()) return workspaces.items;
+    return workspaces.items.filter(org => 
       org.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [orgs, searchTerm]);
+  }, [workspaces.items, searchTerm]);
 
   const handleProfileClick = () => {
     if (checkIsMobile(window.innerWidth)) {
@@ -266,7 +272,7 @@ export default function ProfileDropdown(props: DropDownProps) {
   };
 
   const handleCreateOrg = () => {
-    dispatch(createOrgAction(orgs));
+    dispatch(createOrgAction(workspaces.items));
     history.push(ORGANIZATION_SETTING);
     setDropdownVisible(false);
   };
@@ -293,11 +299,11 @@ export default function ProfileDropdown(props: DropDownProps) {
       </ProfileSection>
 
       {/* Workspaces Section */}
-      {orgs && orgs.length > 0 && showSwitchOrg(props.user, sysConfig) && (
+      {workspaces.items.length > 0 && showSwitchOrg(props.user, sysConfig) && (
         <WorkspaceSection>
           <SectionHeader>{trans("profile.switchOrg")}</SectionHeader>
           
-          {orgs.length > 3 && (
+          {workspaces.items.length > 3 && (
             <SearchContainer>
               <StyledSearchInput
                 placeholder="Search workspaces..."

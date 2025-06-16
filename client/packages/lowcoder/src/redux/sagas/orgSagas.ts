@@ -30,6 +30,8 @@ import { getUser } from "redux/selectors/usersSelectors";
 import { validateResponse } from "api/apiUtils";
 import { User } from "constants/userConstants";
 import { getUserSaga } from "redux/sagas/userSagas";
+import { GetMyOrgsResponse } from "@lowcoder-ee/api/userApi";
+import UserApi from "@lowcoder-ee/api/userApi";
 
 export function* updateGroupSaga(action: ReduxAction<UpdateGroupActionPayload>) {
   try {
@@ -324,6 +326,43 @@ export function* fetchLastMonthAPIUsageSaga(action: ReduxAction<{
   }
 }
 
+// fetch my orgs
+// In userSagas.ts
+export function* fetchWorkspacesSaga(action: ReduxAction<{page: number, search?: string, isLoadMore?: boolean}>) {
+  try {
+    const { page, search, isLoadMore } = action.payload;
+    
+    const response: AxiosResponse<GetMyOrgsResponse> = yield call(
+      UserApi.getMyOrgs, 
+      page, 
+      20, // pageSize
+      search
+    );
+    
+    if (validateResponse(response)) {
+      const actionType = isLoadMore 
+        ? ReduxActionTypes.LOAD_MORE_WORKSPACES_SUCCESS
+        : ReduxActionTypes.FETCH_WORKSPACES_SUCCESS;
+        
+      yield put({
+        type: actionType,
+        payload: {
+          items: response.data.data.items,
+          totalCount: response.data.data.totalCount,
+          currentPage: response.data.data.currentPage,
+          pageSize: response.data.data.pageSize,
+          hasMore: response.data.data.hasMore,
+          searchQuery: search || ""
+        }
+      });
+    }
+  } catch (error: any) {
+    yield put({
+      type: ReduxActionTypes.FETCH_WORKSPACES_ERROR,
+    });
+  }
+}
+
 export default function* orgSagas() {
   yield all([
     takeLatest(ReduxActionTypes.UPDATE_GROUP_INFO, updateGroupSaga),
@@ -343,5 +382,8 @@ export default function* orgSagas() {
     takeLatest(ReduxActionTypes.UPDATE_ORG, updateOrgSaga),
     takeLatest(ReduxActionTypes.FETCH_ORG_API_USAGE, fetchAPIUsageSaga),
     takeLatest(ReduxActionTypes.FETCH_ORG_LAST_MONTH_API_USAGE, fetchLastMonthAPIUsageSaga),
+    takeLatest(ReduxActionTypes.FETCH_WORKSPACES_INIT, fetchWorkspacesSaga),
+
+
   ]);
 }
