@@ -239,7 +239,7 @@ export const ContainerBaseComp = (function () {
         $cardType={props.cardType}
         onMouseEnter={() => props.onEvent('focus')}
         onMouseLeave={() => props.onEvent('blur')}
-        onClick={() => handleClickEvent()}
+        onClick={handleClickEvent}
       >
         <Card
           style={{ width: width, height: '100%' }}

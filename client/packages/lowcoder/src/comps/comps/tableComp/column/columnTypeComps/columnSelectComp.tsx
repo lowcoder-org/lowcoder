@@ -6,7 +6,6 @@ import { IconControl } from "comps/controls/iconControl";
 import { MultiCompBuilder } from "comps/generators";
 import { optionsControl } from "comps/controls/optionsControl";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
-
 import { trans } from "i18n";
 import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilder";
 import { ColumnValueTooltip } from "../simpleColumnTypeComps";
@@ -146,14 +145,11 @@ const SelectEdit = React.memo((props: SelectEditProps) => {
     if (!mountedRef.current) return;
     props.onChange(val);
     setCurrentValue(val);
+    
     // Trigger the specific option's event handler
     const selectedOption = props.options.find(option => option.value === val);
     if (selectedOption?.onEvent) {
-      if (selectedOption.onEvent.isBind("click")) {
-        selectedOption.onEvent("click");
-      } else if (selectedOption.onEvent.isBind("doubleClick")) {
-        selectedOption.onEvent("doubleClick");
-      }
+      selectedOption.onEvent("click");
     }
     
     // Also trigger the main component's event handler

@@ -229,7 +229,7 @@ const TextView = React.memo((props: ToViewReturn<ChildrenType>) => {
 
   const handleClick = React.useCallback(() => {
     handleClickEvent()
-  }, [props.onEvent]);
+  }, [handleClickEvent]);
 
   const containerStyle = useMemo(() => ({
     justifyContent: props.horizontalAlignment,

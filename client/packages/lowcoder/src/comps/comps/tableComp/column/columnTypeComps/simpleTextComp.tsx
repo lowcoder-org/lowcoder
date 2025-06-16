@@ -54,7 +54,7 @@ const SimpleTextContent = React.memo(({ value, prefixIcon, suffixIcon, onEvent }
   
   const handleClick = useCallback(() => {
      handleClickEvent()
-  }, [onEvent]);
+  }, [handleClickEvent]);
 
   return (
     <TextWrapper onClick={handleClick}>

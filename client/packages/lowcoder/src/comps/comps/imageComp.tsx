@@ -215,7 +215,7 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
           draggable={false}
           preview={props.supportPreview ? {src: props.previewSrc || props.src.value } : false}
           fallback={DEFAULT_IMG_URL}
-          onClick={() => handleClickEvent()}
+          onClick={handleClickEvent}
         />
       </div>
     </Container>

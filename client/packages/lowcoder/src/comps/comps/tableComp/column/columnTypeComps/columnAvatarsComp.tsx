@@ -120,7 +120,7 @@ const MemoizedAvatar = React.memo(({
     
     // Then trigger main component event
     handleClickEvent()
-  }, [onEvent, onItemEvent]);
+  }, [onItemEvent, handleClickEvent]);
 
   return (
     <Tooltip title={item.Tooltip} key={index}>

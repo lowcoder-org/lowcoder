@@ -179,7 +179,7 @@ const CommentCompBase = (
   const generateCommentAvatar = (item: commentDataTYPE) => {
     return (
       <Avatar
-        onClick={() => handleClickEvent()}
+        onClick={handleClickEvent}
         // If there is an avatar, no background colour is set, and if displayName is not null, displayName is called using getInitialsAndColorCode
         style={{
           backgroundColor: item?.user?.avatar
@@ -296,7 +296,7 @@ const CommentCompBase = (
                   avatar={generateCommentAvatar(item)}
                   title={
                     <div 
-                      onClick={() => handleClickEvent()}
+                      onClick={handleClickEvent}
                     >
                       <a>{item?.user?.name}</a>
                       <Tooltip

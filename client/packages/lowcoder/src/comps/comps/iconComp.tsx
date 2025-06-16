@@ -137,7 +137,7 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
       $sourceMode={props.sourceMode}
       $animationStyle={props.animationStyle}
       style={style}
-      onClick={() => handleClickEvent()}
+      onClick={handleClickEvent}
     >
       { props.sourceMode === 'standard'
         ? (props.icon || '')

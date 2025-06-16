@@ -62,7 +62,7 @@ const DropdownMenu = React.memo(({ items, options, onEvent }: { items: any[]; op
     item && options[itemIndex]?.onEvent("click");
     // Also trigger the dropdown's main event handler
     handleClickEvent();
-  }, [items, options, onEvent]);
+  }, [items, options, handleClickEvent]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();

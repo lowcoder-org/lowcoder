@@ -186,7 +186,7 @@ const AvatarView = (props: RecordConstructorToView<typeof childrenMap>) => {
             shape={shape}
             $style={props.avatarStyle}
             src={src.value}
-            onClick={() => handleClickEvent()}
+            onClick={handleClickEvent}
           >
             {title.value}
           </AvatarWrapper>
