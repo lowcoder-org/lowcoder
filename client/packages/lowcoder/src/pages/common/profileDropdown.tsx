@@ -250,13 +250,7 @@ export default function ProfileDropdown(props: DropDownProps) {
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
 
-  // Load workspaces when dropdown opens for the first time
-  useEffect(() => {
-    if (dropdownVisible && workspaces.items.length === 0) {
-      // fetch all workspaces for the dropdown
-      dispatch(fetchWorkspacesAction(1, 1000)); 
-    }
-  }, [dropdownVisible, workspaces.items.length, dispatch]);
+ 
 
   const filteredOrgs = useMemo(() => {
     if (!searchTerm.trim()) return workspaces.items;
