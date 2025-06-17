@@ -334,20 +334,21 @@ export function* fetchWorkspacesSaga(action: ReduxAction<{page: number, search?:
     
     const response: AxiosResponse<GetMyOrgsResponse> = yield call(
       UserApi.getMyOrgs, 
-      page, 
-      20, // pageSize
-      search
+      page,        // pageNum
+      5,           // pageSize (changed to 5 for testing)
+      search       // orgName
     );
     
     if (validateResponse(response)) {
       const apiData = response.data.data;
+      console.log("apiData", apiData);
       
       // Transform orgId/orgName to match Org interface
       const transformedItems = apiData.data.map(item => ({
         id: item.orgId,
         name: item.orgName,
       }));
-      
+        
       yield put({
         type: ReduxActionTypes.FETCH_WORKSPACES_SUCCESS,
         payload: {
@@ -358,7 +359,6 @@ export function* fetchWorkspacesSaga(action: ReduxAction<{page: number, search?:
       });
     }
   } catch (error: any) {
-    // Handle error in component instead of Redux
     console.error('Error fetching workspaces:', error);
   }
 }

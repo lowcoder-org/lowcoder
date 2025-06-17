@@ -141,14 +141,14 @@ class UserApi extends Api {
     return Api.get(UserApi.currentUserURL);
   }
   static getMyOrgs(
-    page: number = 1, 
+    pageNum: number = 1, 
     pageSize: number = 20, 
-    search?: string
+    orgName?: string
   ): AxiosPromise<GetMyOrgsResponse> {
     const params = new URLSearchParams({
-      page: page.toString(),
+      pageNum: pageNum.toString(),
       pageSize: pageSize.toString(),
-      ...(search && { search })
+      ...(orgName && { orgName })
     });
     
     return Api.get(`${UserApi.myOrgsURL}?${params}`);
