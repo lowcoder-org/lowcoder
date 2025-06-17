@@ -4,7 +4,7 @@ import { Input } from "antd";
 import { Org, OrgRoleInfo } from "constants/orgConstants";
 import { ORGANIZATION_SETTING } from "constants/routesURL";
 import { User } from "constants/userConstants";
-import { getWorkspaces } from "redux/selectors/orgSelectors";
+import { getWorkspaces, getCurrentOrg } from "redux/selectors/orgSelectors";
 import {
   AddIcon,
   CheckoutIcon,
@@ -242,11 +242,7 @@ export default function ProfileDropdown(props: DropDownProps) {
   const { avatarUrl, username, orgs, currentOrgId } = props.user;
   const currentOrgRoleId = props.user.orgRoleMap.get(currentOrgId);
   const workspaces = useSelector(getWorkspaces);
-  console.log("workspaces", workspaces);
-  const currentOrg = useMemo(
-    () => props.user.orgs.find((o) => o.id === currentOrgId),
-    [props.user, currentOrgId]
-  );
+  const currentOrg = useSelector(getCurrentOrg);
   const settingModalVisible = useSelector(isProfileSettingModalVisible);
   const sysConfig = useSelector(selectSystemConfig);
   const dispatch = useDispatch();
