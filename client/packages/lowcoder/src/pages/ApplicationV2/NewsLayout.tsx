@@ -98,8 +98,6 @@ export function NewsLayout() {
       .catch(err => console.error("Failed to load news:", err));
   }, []);
 
-  console.log(youTubeData);
-
   return (
     <Wrapper>
       <HeaderWrapper></HeaderWrapper>
@@ -110,6 +108,69 @@ export function NewsLayout() {
             <h1 style={{color: "#ffffff", marginTop : "12px"}}>Lowcoder {trans("home.news")}</h1>
           </StyleNewsCover>
           <Card style={{ marginBottom: "20px", minHeight : "800px" }}>
+
+          <SectionTitle level={2}>📝 Latest Blog Posts</SectionTitle>
+            <Row gutter={[16, 16]}>
+              {hubspotData?.map((item: { htmlTitle: any; publishDate: any; postSummary: any; url: any; featuredImage: any; metaDescription: any; }, idx: any) => {
+                const {
+                  htmlTitle,
+                  publishDate,
+                  postSummary,
+                  url,
+                  featuredImage,
+                  metaDescription,
+                } = item;
+
+                const summaryHtml = postSummary || metaDescription || "";
+                const coverImage = featuredImage || "https://placehold.co/600x400?text=Lowcoder+Blog";
+
+                // Strip HTML to plain text
+                const stripHtml = (html: string): string => {
+                  const div = document.createElement("div");
+                  div.innerHTML = html;
+                  return div.textContent || div.innerText || "";
+                };
+
+                const plainSummary = stripHtml(summaryHtml);
+
+                return (
+                  <Col xs={24} sm={12} md={12} lg={8} key={`blog-${idx}`}>
+                    <Card
+                      hoverable
+                      cover={
+                        <a href={url} target="_blank" rel="noreferrer">
+                          <CardImage src={coverImage} alt={htmlTitle} />
+                        </a>
+                      }
+                    >
+                      <Card.Meta
+                        title={
+                          <a href={url} target="_blank" rel="noreferrer">
+                            {htmlTitle}
+                          </a>
+                        }
+                        description={
+                          <>
+                            <Paragraph type="secondary" style={{ marginBottom: 4 }}>
+                              {new Date(publishDate).toLocaleDateString()}
+                            </Paragraph>
+                            <Paragraph
+                              ellipsis={{ rows: 4 }}
+                              type="secondary"
+                              style={{ fontSize: "13px" }}
+                            >
+                              {plainSummary}
+                            </Paragraph>
+                          </>
+                        }
+                      />
+                    </Card>
+                  </Col>
+                );
+              })}
+            </Row>
+          
+            <Divider />
           
             <SectionTitle level={2}>📺 Latest YouTube Videos
             <Paragraph type="secondary" style={{ marginBottom: 0, marginTop: 4 }}>
@@ -173,17 +234,7 @@ export function NewsLayout() {
 
             <Divider />
 
-            <SectionTitle level={2}>📝 Latest Blog Posts</SectionTitle>
-            <Row gutter={[16, 16]}>
-              {hubspotData.length === 0 && (
-                <Col span={24}>
-                  <Paragraph>No blog posts available at the moment.</Paragraph>
-                </Col>
-              )}
-              
-            </Row> 
           
-            <Divider />
 
           </Card>  
           

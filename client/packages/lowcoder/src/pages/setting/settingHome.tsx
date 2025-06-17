@@ -165,9 +165,31 @@ export function SettingHome() {
               <div style={{ marginBottom: 12 }}>
                 {trans("enterprise.premiumFeaturesNotice")}
               </div>
-              <Button type="primary" onClick={() => setHubspotVisible(true)}>
+              <Button
+                type="primary"
+                style={{ backgroundColor: "#ff6f3c", borderColor: "#ff6f3c" }}
+                onClick={() => setHubspotVisible(true)}
+              >
                 {trans("enterprise.requestLicensesBtton")}
               </Button>
+
+              <div style={{ margin: "12px 0" }}>
+                {trans("enterprise.readMoreNotice")}
+              </div>
+
+              <Button
+                type="default"
+                onClick={() =>
+                  window.open(
+                    "https://docs.lowcoder.cloud/lowcoder-documentation/setup-and-run/lowcoder-enterprise-edition",
+                    "_blank",
+                    "noopener"
+                  )
+                }
+              >
+                {trans("enterprise.readMoreButton")}
+              </Button>
+
             </Card>
           )}
         </SubSideBar>
