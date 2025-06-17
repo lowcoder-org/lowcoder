@@ -27,6 +27,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -77,20 +80,15 @@ public class UserController implements UserEndpoints
                                              @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
         return sessionUserService.getVisitor()
                 .flatMap(user -> {
-                    Flux<OrgMember> orgMemberFlux = orgMemberService.getAllActiveOrgs(user.getId());
-
-                    Flux<OrgView> orgViewFlux = orgMemberFlux
-                            .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
-                            .filter(org -> StringUtils.isBlank(orgName) || StringUtils.containsIgnoreCase(org.getName(), orgName))
-                            .map(OrgView::new);
-
-                    return orgViewFlux.collectList().map(orgs -> {
-                        int total = orgs.size();
-                        int fromIndex = Math.max((pageNum - 1) * pageSize, 0);
-                        int toIndex = Math.min(fromIndex + pageSize, total);
-                        List<OrgView> pagedOrgs = fromIndex < toIndex ? orgs.subList(fromIndex, toIndex) : List.of();
-                        return PageResponseView.success(pagedOrgs, pageNum, pageSize, total);
-                    });
+                    Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
+                    String filter = orgName == null ? "" : orgName;
+                    return organizationService.findUserOrgs(user.getId(), filter, pageable)
+                            .map(OrgView::new)
+                            .collectList()
+                            .zipWith(organizationService.countUserOrgs(user.getId(), filter))
+                            .map(tuple -> PageResponseView.success(
+                                    tuple.getT1(), pageNum, pageSize, tuple.getT2().intValue()
+                            ));
                 })
                 .map(ResponseView::success);
     }
