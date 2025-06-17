@@ -259,11 +259,11 @@ export default function ProfileDropdown(props: DropDownProps) {
   }, [dropdownVisible, workspaces.items.length, dispatch]);
 
   const filteredOrgs = useMemo(() => {
-    if (!searchTerm.trim()) return orgs;
-    return orgs.filter(org => 
+    if (!searchTerm.trim()) return workspaces.items;
+    return workspaces.items.filter(org => 
       org.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [orgs, searchTerm]);
+  }, [workspaces.items, searchTerm]);
 
   const handleProfileClick = () => {
     if (checkIsMobile(window.innerWidth)) {
@@ -320,11 +320,11 @@ export default function ProfileDropdown(props: DropDownProps) {
       </ProfileSection>
 
       {/* Workspaces Section */}
-      {orgs && orgs.length > 0 && showSwitchOrg(props.user, sysConfig) && (
+      {workspaces.items && workspaces.items.length > 0 && showSwitchOrg(props.user, sysConfig) && (
         <WorkspaceSection>
           <SectionHeader>{trans("profile.switchOrg")}</SectionHeader>
           
-          {orgs.length > 3 && (
+          {workspaces.items.length > 3 && (
             <SearchContainer>
               <StyledSearchInput
                 placeholder="Search workspaces..."
