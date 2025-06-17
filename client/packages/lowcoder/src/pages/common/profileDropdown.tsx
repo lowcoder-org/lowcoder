@@ -253,7 +253,8 @@ export default function ProfileDropdown(props: DropDownProps) {
   // Load workspaces when dropdown opens for the first time
   useEffect(() => {
     if (dropdownVisible && workspaces.items.length === 0) {
-      dispatch(fetchWorkspacesAction(1));
+      // fetch all workspaces for the dropdown
+      dispatch(fetchWorkspacesAction(1, 1000)); 
     }
   }, [dropdownVisible, workspaces.items.length, dispatch]);
 

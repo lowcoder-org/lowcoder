@@ -328,14 +328,14 @@ export function* fetchLastMonthAPIUsageSaga(action: ReduxAction<{
 
 // fetch my orgs
 // In userSagas.ts
-export function* fetchWorkspacesSaga(action: ReduxAction<{page: number, search?: string, isLoadMore?: boolean}>) {
+export function* fetchWorkspacesSaga(action: ReduxAction<{page: number, pageSize: number, search?: string, isLoadMore?: boolean}>) {
   try {
-    const { page, search, isLoadMore } = action.payload;
+    const { page, pageSize, search, isLoadMore } = action.payload;
     
     const response: AxiosResponse<GetMyOrgsResponse> = yield call(
       UserApi.getMyOrgs, 
       page,        // pageNum
-      5,           // pageSize (changed to 5 for testing)
+      pageSize,           // pageSize (changed to 5 for testing)
       search       // orgName
     );
     
