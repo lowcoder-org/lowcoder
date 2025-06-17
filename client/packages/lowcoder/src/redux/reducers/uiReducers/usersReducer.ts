@@ -24,12 +24,7 @@ const initialState: UsersReduxState = {
   apiKeys: [],
   workspaces: {
     items: [],
-    currentPage: 1,
-    pageSize: 20,
     totalCount: 0,
-    hasMore: false,
-    loading: false,
-    searchQuery: ""
   }
 };
 
@@ -202,51 +197,19 @@ const usersReducer = createReducer(initialState, {
   }),
 
   
-  [ReduxActionTypes.FETCH_WORKSPACES_INIT]: (state: UsersReduxState) => ({
-    ...state,
-    workspaces: {
-      ...state.workspaces,
-      loading: true
-    }
-  }),
-  
   [ReduxActionTypes.FETCH_WORKSPACES_SUCCESS]: (
     state: UsersReduxState,
-    action: ReduxAction<any>
+    action: ReduxAction<{ items: Org[], totalCount: number, isLoadMore?: boolean }>
   ) => ({
     ...state,
     workspaces: {
-      items: action.payload.items,
-      currentPage: action.payload.currentPage,
-      pageSize: action.payload.pageSize,
-      totalCount: action.payload.totalCount,
-      hasMore: action.payload.hasMore,
-      loading: false,
-      searchQuery: action.payload.searchQuery
+      items: action.payload.isLoadMore 
+        ? [...state.workspaces.items, ...action.payload.items] // Append for load more
+        : action.payload.items, // Replace for new search/initial load
+      totalCount: action.payload.totalCount
     }
   }),
   
-  [ReduxActionTypes.LOAD_MORE_WORKSPACES_SUCCESS]: (
-    state: UsersReduxState,
-    action: ReduxAction<any>
-  ) => ({
-    ...state,
-    workspaces: {
-      ...state.workspaces,
-      items: [...state.workspaces.items, ...action.payload.items], // Append new items
-      currentPage: action.payload.currentPage,
-      hasMore: action.payload.hasMore,
-      loading: false
-    }
-  }),
-  
-  [ReduxActionTypes.FETCH_WORKSPACES_ERROR]: (state: UsersReduxState) => ({
-    ...state,
-    workspaces: {
-      ...state.workspaces,
-      loading: false
-    }
-  }),
 });
 
 export interface UsersReduxState {
@@ -267,12 +230,7 @@ export interface UsersReduxState {
   // NEW: Separate workspace state
   workspaces: {
     items: Org[];           // Current page of workspaces
-    currentPage: number;    // Which page we're on
-    pageSize: number;       // Items per page (e.g., 20)
     totalCount: number;     // Total workspaces available
-    hasMore: boolean;       // Are there more pages?
-    loading: boolean;       // Loading state
-    searchQuery: string;    // Current search term
   };
 }
 

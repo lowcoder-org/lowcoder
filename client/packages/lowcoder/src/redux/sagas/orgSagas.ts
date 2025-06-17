@@ -341,36 +341,25 @@ export function* fetchWorkspacesSaga(action: ReduxAction<{page: number, search?:
     
     if (validateResponse(response)) {
       const apiData = response.data.data;
-      console.log("apiData", apiData);
-      const hasMore = (apiData.pageNum * apiData.pageSize) < apiData.total;
       
       // Transform orgId/orgName to match Org interface
       const transformedItems = apiData.data.map(item => ({
         id: item.orgId,
         name: item.orgName,
-        // Add other Org properties if needed (logoUrl, etc.)
       }));
       
-      const actionType = isLoadMore 
-        ? ReduxActionTypes.LOAD_MORE_WORKSPACES_SUCCESS
-        : ReduxActionTypes.FETCH_WORKSPACES_SUCCESS;
-        
       yield put({
-        type: actionType,
+        type: ReduxActionTypes.FETCH_WORKSPACES_SUCCESS,
         payload: {
           items: transformedItems,
           totalCount: apiData.total,
-          currentPage: apiData.pageNum,
-          pageSize: apiData.pageSize,
-          hasMore: hasMore,
-          searchQuery: search || ""
+          isLoadMore: isLoadMore || false
         }
       });
     }
   } catch (error: any) {
-    yield put({
-      type: ReduxActionTypes.FETCH_WORKSPACES_ERROR,
-    });
+    // Handle error in component instead of Redux
+    console.error('Error fetching workspaces:', error);
   }
 }
 

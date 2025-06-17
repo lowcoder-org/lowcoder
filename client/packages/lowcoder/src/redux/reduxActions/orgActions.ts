@@ -193,9 +193,9 @@ export const fetchLastMonthAPIUsageActionSuccess = (payload: OrgLastMonthAPIUsag
   };
 };
 
-export const fetchWorkspacesAction = (page: number = 1, search?: string) => ({
+export const fetchWorkspacesAction = (page: number = 1, search?: string, isLoadMore?: boolean) => ({
   type: ReduxActionTypes.FETCH_WORKSPACES_INIT,
-  payload: { page, search }
+  payload: { page, search, isLoadMore }
 });
 
 export const loadMoreWorkspacesAction = (page: number, search?: string) => ({
