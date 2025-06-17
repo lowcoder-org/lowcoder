@@ -41,6 +41,9 @@ interface Props {
 }
 
 export function HubspotModal({ open, onClose, orgId, deploymentIds }: Props) {
+
+  const isLowCoderDomain = typeof window !== "undefined" && window.location.hostname === "app.lowcoder.cloud";
+
   useEffect(() => {
     if (!open) return;
 
@@ -96,21 +99,25 @@ export function HubspotModal({ open, onClose, orgId, deploymentIds }: Props) {
             </Paragraph>
             <Paragraph copyable>{orgId}</Paragraph>
 
-            <Paragraph strong>
-              <Text>Deployment IDs:</Text>
-            </Paragraph>
+            
+            { !isLowCoderDomain && 
+            <>
+              <Paragraph strong>
+                <Text>Deployment IDs:</Text>
+              </Paragraph>
+              <Space direction="vertical" style={{ width: "100%" }}>
+                  {deploymentIds.length === 0 ? (
+                    <Text type="secondary">No deployments found.</Text>
+                  ) : (
+                    deploymentIds.map((id, idx) => (
+                      <Paragraph key={idx} copyable style={{ marginBottom: 4 }}>
+                        {id}
+                      </Paragraph>
+                    ))
+                  )}
+              </Space></>
+            }
 
-            <Space direction="vertical" style={{ width: "100%" }}>
-              {deploymentIds.length === 0 ? (
-                <Text type="secondary">No deployments found.</Text>
-              ) : (
-                deploymentIds.map((id, idx) => (
-                  <Paragraph key={idx} copyable style={{ marginBottom: 4 }}>
-                    {id}
-                  </Paragraph>
-                ))
-              )}
-            </Space>
           </Typography>
         </Card>
 

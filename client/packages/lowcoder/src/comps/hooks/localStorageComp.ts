@@ -3,7 +3,7 @@ import { isEmpty } from "lodash";
 import { simpleMultiComp, stateComp, withViewFn } from "../generators";
 import { NameConfig, withExposingConfigs } from "../generators/withExposing";
 import { JSONObject } from "../../util/jsonTypes";
-import { useEffect } from "react";
+import { useEffect, useMemo, useCallback } from "react";
 import isEqual from "fast-deep-equal";
 import { trans } from "i18n";
 import log from "loglevel";
@@ -13,7 +13,22 @@ const APP_STORE_NAMESPACE = "lowcoder_app_local_storage";
 const LocalStorageCompBase = withViewFn(
   simpleMultiComp({ values: stateComp<JSONObject>({}) }),
   (comp) => {
-    // add custom event listener to update values reactively
+    const originStore = localStorage.getItem(APP_STORE_NAMESPACE) || "{}";
+
+    let parseStore = {};
+    try {
+      parseStore = JSON.parse(originStore);
+    } catch (e) {
+      log.error("application local storage invalid");
+    }
+
+    useEffect(() => {
+      const value = comp.children.values.value;
+      if (!isEqual(value, parseStore)) {
+        comp.children.values.dispatchChangeValueAction(parseStore);
+      }
+    }, [parseStore]);
+
     useEffect(() => {
       const handler = () => {
         try {
@@ -27,9 +42,6 @@ const LocalStorageCompBase = withViewFn(
 
       // Add listener on mount
       window.addEventListener("lowcoder-localstorage-updated", handler);
-
-      // Run once on mount to initialize
-      handler();
 
       return () => {
         window.removeEventListener("lowcoder-localstorage-updated", handler);

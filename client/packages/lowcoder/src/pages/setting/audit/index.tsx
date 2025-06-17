@@ -54,7 +54,8 @@ const Audit = () => {
   const user = useSelector(getUser);
   const deploymentId = useSelector(getDeploymentId);
   const dispatch = useDispatch();
-    
+  const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
+
   const apiUsage = useSelector(getOrgApiUsage);
     useEffect(() => {
       dispatch(fetchAPIUsageAction(user.currentOrgId));
@@ -159,12 +160,6 @@ const Audit = () => {
               />
             </Col>
           </Row>
-        </Card>
-      </StyledSection>
-
-      <StyledSection>
-        <Card title={trans("enterprise.yourDeploymentID")}>
-          <Paragraph><h3>{deploymentId}</h3></Paragraph>
         </Card>
       </StyledSection>
 

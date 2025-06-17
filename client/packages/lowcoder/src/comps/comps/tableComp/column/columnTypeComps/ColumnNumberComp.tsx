@@ -9,6 +9,8 @@ import { withDefault } from "comps/generators";
 import styled from "styled-components";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
+import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 
 const InputNumberWrapper = styled.div`
   .ant-input-number  {
@@ -25,6 +27,15 @@ const InputNumberWrapper = styled.div`
   }
 `;
 
+const NumberViewWrapper = styled.div`
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const NumberEventOptions = [clickEvent, doubleClickEvent] as const;
+
 const childrenMap = {
   text: NumberControl,
   step: withDefault(NumberControl, 1),
@@ -34,6 +45,7 @@ const childrenMap = {
   prefixIcon: IconControl,
   suffixIcon: IconControl,
   suffix: StringControl,
+  onEvent: eventHandlerControl(NumberEventOptions),
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, number, number> = (props) => props.text;
@@ -46,6 +58,7 @@ type NumberViewProps = {
   suffixIcon: ReactNode;
   float: boolean;
   precision: number;
+  onEvent?: (eventName: string) => void;
 };
 
 type NumberEditProps = {
@@ -58,6 +71,8 @@ type NumberEditProps = {
 };
 
 const ColumnNumberView = React.memo((props: NumberViewProps) => {
+  const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent ?? (() => {})})
+  
   const formattedValue = useMemo(() => {
     let result = !props.float ? Math.floor(props.value) : props.value;
     if (props.float) {
@@ -66,8 +81,12 @@ const ColumnNumberView = React.memo((props: NumberViewProps) => {
     return result;
   }, [props.value, props.float, props.precision]);
 
+  const handleClick = useCallback(() => {
+    handleClickEvent()
+  }, [props.onEvent]);
+
   return (
-    <>
+    <NumberViewWrapper onClick={handleClick}>
       {hasIcon(props.prefixIcon) && (
         <span>{props.prefixIcon}</span>
       )}
@@ -75,7 +94,7 @@ const ColumnNumberView = React.memo((props: NumberViewProps) => {
       {hasIcon(props.suffixIcon) && (
         <span>{props.suffixIcon}</span>
       )}
-    </>
+    </NumberViewWrapper>
   );
 });
 
@@ -197,6 +216,7 @@ export const ColumnNumberComp = (function () {
               children.step.dispatchChangeValueAction(String(newValue));
             }
           })}
+          {children.onEvent.propertyView()}
         </>
       );
     })

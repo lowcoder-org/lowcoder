@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { default as Menu } from "antd/es/menu";
 import { ColumnTypeCompBuilder } from "comps/comps/tableComp/column/columnTypeCompBuilder";
-import { ActionSelectorControlInContext } from "comps/controls/actionSelector/actionSelectorControl";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { manualOptionsControl } from "comps/controls/optionsControl";
 import { MultiCompBuilder } from "comps/generators";
@@ -10,6 +9,10 @@ import { trans } from "i18n";
 import styled from "styled-components";
 import { ColumnLink } from "comps/comps/tableComp/column/columnTypeComps/columnLinkComp";
 import { LightActiveTextColor, PrimaryColor } from "constants/style";
+import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
+import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
+import { fixOldActionData } from "comps/comps/tableComp/column/simpleColumnTypeComps";
 
 const MenuLinkWrapper = styled.div`
   > a {
@@ -37,20 +40,16 @@ const MenuWrapper = styled.div`
   }  
 `;
 
+const LinkEventOptions = [clickEvent, doubleClickEvent] as const;
+
 // Memoized menu item component
 const MenuItem = React.memo(({ option, index }: { option: any; index: number }) => {
-  const handleClick = useCallback(() => {
-    if (!option.disabled && option.onClick) {
-      option.onClick();
-    }
-  }, [option.disabled, option.onClick]);
-
   return (
     <MenuLinkWrapper>
       <ColumnLink
         disabled={option.disabled}
         label={option.label}
-        onClick={handleClick}
+        onClick={option.onClick}
       />
     </MenuLinkWrapper>
   );
@@ -58,10 +57,10 @@ const MenuItem = React.memo(({ option, index }: { option: any; index: number }) 
 
 MenuItem.displayName = 'MenuItem';
 
-const OptionItem = new MultiCompBuilder(
+const OptionItemTmp = new MultiCompBuilder(
   {
     label: StringControl,
-    onClick: ActionSelectorControlInContext,
+    onClick: eventHandlerControl(LinkEventOptions),
     hidden: BoolCodeControl,
     disabled: BoolCodeControl,
   },
@@ -73,16 +72,15 @@ const OptionItem = new MultiCompBuilder(
     return (
       <>
         {children.label.propertyView({ label: trans("label") })}
-        {children.onClick.propertyView({
-          label: trans("table.action"),
-          placement: "table",
-        })}
         {hiddenPropertyView(children)}
         {disabledPropertyView(children)}
+        {children.onClick.propertyView()}
       </>
     );
   })
   .build();
+
+const OptionItem = migrateOldData(OptionItemTmp, fixOldActionData);
 
 // Memoized menu component
 const LinksMenu = React.memo(({ options }: { options: any[] }) => {
@@ -114,7 +112,7 @@ const LinksMenu = React.memo(({ options }: { options: any[] }) => {
 
 LinksMenu.displayName = 'LinksMenu';
 
-export const ColumnLinksComp = (function () {
+const ColumnLinksCompTmp = (function () {
   const childrenMap = {
     options: manualOptionsControl(OptionItem, {
       initOptions: [{ label: trans("table.option1") }],
@@ -137,3 +135,5 @@ export const ColumnLinksComp = (function () {
     ))
     .build();
 })();
+
+export const ColumnLinksComp = migrateOldData(ColumnLinksCompTmp, fixOldActionData);

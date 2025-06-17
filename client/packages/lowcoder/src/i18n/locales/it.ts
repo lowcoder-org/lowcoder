@@ -2458,6 +2458,8 @@ export const it = {
 "usageLogDevices": "Ripartizione dispositivi/OS",
 "usageLogBrowsers": "Browser/Motore di layout",
 "premiumFeaturesNotice": "Tutte le funzioni Premium sono disponibili nell'edizione Enterprise di Lowcoder.",
+"readMoreNotice" : "Scopri di più sulla versione Enterprise e su come installarla facilmente.",
+"readMoreButton": "Dettagli dell'edizione Enterprise",
 "requestLicense": "Richiesta di licenze Enterprise Edition",
 "requestLicensesBtton": "Richiesta di accesso aziendale",
 "AuditLogsTitle": "Registri di controllo",

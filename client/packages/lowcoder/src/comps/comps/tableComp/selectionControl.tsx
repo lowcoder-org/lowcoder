@@ -7,6 +7,11 @@ import { TableOnEventView } from "./tableTypes";
 import { OB_ROW_ORI_INDEX, RecordType } from "comps/comps/tableComp/tableUtils";
 import { ControlNodeCompBuilder } from "comps/generators/controlCompBuilder";
 
+// double-click detection constants
+const DOUBLE_CLICK_THRESHOLD = 300; // ms
+let lastClickTime = 0;
+let clickTimer: ReturnType<typeof setTimeout>;
+
 const modeOptions = [
   {
     label: trans("selectionControl.single"),
@@ -38,8 +43,9 @@ export function getSelectedRowKeys(
       return [selection.children.selectedRowKey.getView()];
     case "multiple":
       return selection.children.selectedRowKeys.getView();
+    default:
+      return [];
   }
-  return [];
 }
 
 export const SelectionControl = (function () {
@@ -50,34 +56,52 @@ export const SelectionControl = (function () {
   };
   return new ControlNodeCompBuilder(childrenMap, (props, dispatch) => {
     const changeSelectedRowKey = (record: RecordType) => {
-      if (getKey(record) !== props.selectedRowKey) {
-        dispatch(changeChildAction("selectedRowKey", getKey(record), false));
+      const key = getKey(record);
+      if (key !== props.selectedRowKey) {
+        dispatch(changeChildAction("selectedRowKey", key, false));
       }
     };
+
     return (onEvent: TableOnEventView) => {
+      const handleClick = (record: RecordType) => {
+        return () => {
+          const now = Date.now();
+          clearTimeout(clickTimer);
+          if (now - lastClickTime < DOUBLE_CLICK_THRESHOLD) {
+            
+            changeSelectedRowKey(record);
+            onEvent("doubleClick");
+            if (getKey(record) !== props.selectedRowKey) {
+              onEvent("rowSelectChange");
+            }
+          } else {
+            clickTimer = setTimeout(() => {
+              changeSelectedRowKey(record);
+              onEvent("rowClick");
+              if (getKey(record) !== props.selectedRowKey) {
+                onEvent("rowSelectChange");
+              }
+            }, DOUBLE_CLICK_THRESHOLD);
+          }
+          lastClickTime = now;
+        };
+      };
+
       if (props.mode === "single" || props.mode === "close") {
         return {
           rowKey: getKey,
           rowClassName: (record: RecordType, index: number, indent: number) => {
-            // Turn off row selection mode, only do visual shutdown, selectedRow still takes effect
             if (props.mode === "close") {
               return "";
             }
             return getKey(record) === props.selectedRowKey ? "ant-table-row-selected" : "";
           },
-          onRow: (record: RecordType, index: number | undefined) => {
-            return {
-              onClick: () => {
-                changeSelectedRowKey(record);
-                onEvent("rowClick");
-                if (getKey(record) !== props.selectedRowKey) {
-                  onEvent("rowSelectChange");
-                }
-              },
-            };
-          },
+          onRow: (record: RecordType, index: number | undefined) => ({
+            onClick: handleClick(record),
+          }),
         };
       }
+
       const result: TableRowSelection<any> = {
         type: "checkbox",
         selectedRowKeys: props.selectedRowKeys,
@@ -86,7 +110,6 @@ export const SelectionControl = (function () {
           dispatch(changeChildAction("selectedRowKeys", selectedRowKeys as string[], false));
           onEvent("rowSelectChange");
         },
-        // click checkbox also trigger row click event
         onSelect: (record: RecordType) => {
           changeSelectedRowKey(record);
           onEvent("rowClick");
@@ -95,14 +118,9 @@ export const SelectionControl = (function () {
       return {
         rowKey: getKey,
         rowSelection: result,
-        onRow: (record: RecordType) => {
-          return {
-            onClick: () => {
-              changeSelectedRowKey(record);
-              onEvent("rowClick");
-            },
-          };
-        },
+        onRow: (record: RecordType) => ({
+          onClick: handleClick(record),
+        }),
       };
     };
   })

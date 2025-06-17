@@ -4,19 +4,24 @@ import {
   ColumnTypeCompBuilder,
   ColumnTypeViewFn,
 } from "comps/comps/tableComp/column/columnTypeCompBuilder";
-import { ActionSelectorControlInContext } from "comps/controls/actionSelector/actionSelectorControl";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import { disabledPropertyView } from "comps/utils/propertyUtils";
 import styled, { css } from "styled-components";
 import { styleControl } from "comps/controls/styleControl";
 import { TableColumnLinkStyle } from "comps/controls/styleControlConstants";
+import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
+import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
+import { fixOldActionData } from "comps/comps/tableComp/column/simpleColumnTypeComps";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
+const LinkEventOptions = [clickEvent, doubleClickEvent] as const;
+
 const childrenMap = {
   text: StringControl,
-  onClick: ActionSelectorControlInContext,
+  onClick: eventHandlerControl(LinkEventOptions),
   disabled: BoolCodeControl,
   style: styleControl(TableColumnLinkStyle),
 };
@@ -34,10 +39,11 @@ const StyledLink = styled.a<{ $disabled: boolean }>`
 `;
 
 // Memoized link component
-export const ColumnLink = React.memo(({ disabled, label, onClick }: { disabled: boolean; label: string; onClick?: () => void }) => {
+export const ColumnLink = React.memo(({ disabled, label, onClick }: { disabled: boolean; label: string; onClick: (eventName: string) => void }) => {
+  const handleClickEvent = useCompClickEventHandler({onEvent: onClick})
   const handleClick = useCallback(() => {
-    if (!disabled && onClick) {
-      onClick();
+    if (!disabled) {
+      handleClickEvent();
     }
   }, [disabled, onClick]);
 
@@ -101,7 +107,7 @@ LinkEdit.displayName = 'LinkEdit';
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.text;
 
-export const LinkComp = (function () {
+const LinkCompTmp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
@@ -125,10 +131,7 @@ export const LinkComp = (function () {
           tooltip: ColumnValueTooltip,
         })}
         {disabledPropertyView(children)}
-        {children.onClick.propertyView({
-          label: trans("table.action"),
-          placement: "table",
-        })}
+        {children.onClick.propertyView()}
       </>
     ))
     .setStylePropertyViewFn((children) => (
@@ -138,3 +141,5 @@ export const LinkComp = (function () {
     ))
     .build();
 })();
+
+export const LinkComp = migrateOldData(LinkCompTmp, fixOldActionData);

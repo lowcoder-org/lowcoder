@@ -245,7 +245,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
       label,
       key: tab.key,                                                                            
       forceRender: !destroyInactiveTab,
-      destroyInactiveTabPane: destroyInactiveTab,
+      destroyInactiveTab: destroyInactiveTab,
       children: (
         <BackgroundColorContext.Provider value={bodyStyle.background}>
           <ScrollBar style={{ height: props.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!props.showVerticalScrollbar} overflow={props.autoHeight ? 'hidden':'scroll'}>

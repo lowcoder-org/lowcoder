@@ -144,6 +144,11 @@ export const TableEventOptions = [
     value: "refresh",
     description: trans("table.refresh"),
   },
+  {
+    label: trans("event.doubleClick"),
+    value: "doubleClick",
+    description: trans("event.doubleClickDesc"),
+  }
 ] as const;
 
 export type TableEventOptionValues = typeof TableEventOptions[number]['value'];

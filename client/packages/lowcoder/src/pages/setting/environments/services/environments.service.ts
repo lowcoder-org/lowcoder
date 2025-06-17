@@ -95,8 +95,8 @@ export async function getEnvironments(): Promise<Environment[]> {
     return response.data.data || [];
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : trans("environments.services_environments_failedToFetchEnvironments");
-    messageInstance.error(errorMessage);
+      error && error instanceof Error ? error.message : trans("environments.services_environments_failedToFetchEnvironments");
+    console.error(errorMessage);
     throw error;
   }
 }
@@ -150,7 +150,7 @@ export async function getEnvironmentById(id: string): Promise<Environment> {
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : trans("environments.services_environments_failedToFetchEnvironment");
-    messageInstance.error(errorMessage);
+    console.error(errorMessage);
     throw error;
   }
 }
@@ -223,7 +223,7 @@ export async function getEnvironmentWorkspaces(
     // Handle and transform error
     const errorMessage =
       error instanceof Error ? error.message : trans("environments.services_environments_failedToFetchWorkspaces");
-    messageInstance.error(errorMessage);
+    console.error(errorMessage);
     throw error;
   }
 }
@@ -273,7 +273,7 @@ export async function getEnvironmentUserGroups(
   } catch (error) {
     // Handle and transform error
     const errorMessage = error instanceof Error ? error.message : trans("environments.services_environments_failedToFetchUserGroups");
-    messageInstance.error(errorMessage);
+    console.error(errorMessage);
     throw error;
   }
 }
@@ -383,7 +383,7 @@ export async function getWorkspaceApps(
   } catch (error) {
     // Handle and transform error
     const errorMessage = error instanceof Error ? error.message : trans("environments.services_environments_failedToFetchWorkspaceApps");
-    messageInstance.error(errorMessage);
+    console.error(errorMessage);
     throw error;
   }
 }
@@ -441,7 +441,7 @@ export async function getWorkspaceDataSources(
   } catch (error) {
     // Handle and transform error
     const errorMessage = error instanceof Error ? error.message : trans("environments.services_environments_failedToFetchWorkspaceDataSources");
-    messageInstance.error(errorMessage);
+    console.error(errorMessage);
     throw error;
   }
 }
@@ -523,7 +523,7 @@ export async function getWorkspaceQueries(
   } catch (error) {
     // Handle and transform error
     const errorMessage = error instanceof Error ? error.message : trans("environments.services_environments_failedToFetchWorkspaceQueries");
-    messageInstance.error(errorMessage);
+    console.error(errorMessage);
     throw error;
   }
 }
@@ -575,7 +575,7 @@ export async function getEnvironmentsWithLicenseStatus(): Promise<Environment[]>
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : trans("environments.services_environments_failedToFetchEnvironments");
-    messageInstance.error(errorMessage);
+    console.error(errorMessage);
     throw error;
   }
 }
@@ -618,7 +618,7 @@ export async function getEnvironmentDeploymentId(
   } catch (error) {
     // Handle and transform error
     const errorMessage = error instanceof Error ? error.message : trans("environments.services_environments_failedToFetchDeploymentId");
-    messageInstance.error(errorMessage);
+    console.error(errorMessage);
     throw error;
   }
 }

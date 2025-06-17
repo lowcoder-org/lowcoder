@@ -591,6 +591,7 @@ export const en = {
     "chartBorderColor": "Border Color",
     "chartTextColor": "Text Color",
     "detailSize": "Detail Size",
+    "hideColumn": "Hide Column",
 
     "radiusTip": "Specifies the radius of the element's corners. Example: 5px, 50%, or 1em.",
     "gapTip": "Specifies the gap between rows and columns in a grid or flex container. Example: 10px, 1rem, or 5%.",
@@ -2448,8 +2449,10 @@ export const en = {
     "usageLogDevices" : "Device/OS Breakdown",
     "usageLogBrowsers" : "Browser/Layout Engine Breakdown",
     "premiumFeaturesNotice" : "All Premium Features are avilable in the Enterprise Edition of Lowcoder.",
+    "readMoreNotice" : "Learn more about the Enterprise Edition and how to install it easily.",
+    "readMoreButton" : "Enterprise Edition Details",
     "requestLicense" : "Request Enterprise Edition Licenses",
-    "requestLicensesBtton" : "Request Enterprise Access",
+    "requestLicensesBtton" : "Unlock Enterprise Features",
     "AuditLogsTitle": "Audit Logs",
     "AuditLogsIntroTitle": "Powerful visibility into your workspace activity",
     "AuditLogsIntro1": "Audit Logs enable administrators to track exactly what happens across the entire Lowcoder platform. From user sign-ins to app modifications, every relevant action is captured and stored.",
@@ -4475,6 +4478,7 @@ export const en = {
   "autoComplete": {
     "value": "Auto Complete Value",
     "checkedValueFrom": "Checked Value From",
+    "filterOptionsByInput": "Filter Options By Input",
     "ignoreCase": "Search Ignore Case",
     "searchLabelOnly": "Search Label Only",
     "searchFirstPY": "Search First Pinyin",

@@ -165,28 +165,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                             .zipWith(folderApiService.getElements(null, applicationType, null, null).collectList())
                             .map(tuple2 -> {
                                 Organization organization = tuple2.getT1();
-                                List<?> list = tuple2.getT2();
-                                List<ApplicationInfoView> applicationInfoViews = list.stream()
-                                        .map(o -> {
-                                            if (o instanceof ApplicationInfoView applicationInfoView) {
-                                                return applicationInfoView;
-                                            }
-                                            return null;
-                                        })
-                                        .filter(Objects::nonNull)
-                                        .toList();
-                                List<FolderInfoView> folderInfoViews = list.stream()
-                                        .map(o -> {
-                                            if (o instanceof FolderInfoView folderInfoView) {
-                                                return folderInfoView;
-                                            }
-                                            return null;
-                                        })
-                                        .filter(Objects::nonNull)
-                                        .toList();
                                 userHomepageVO.setOrganization(organization);
-                                userHomepageVO.setHomeApplicationViews(applicationInfoViews);
-                                userHomepageVO.setFolderInfoViews(folderInfoViews);
                                 return userHomepageVO;
                             });
                 });

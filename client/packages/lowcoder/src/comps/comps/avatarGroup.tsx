@@ -8,7 +8,7 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { Avatar, Tooltip } from "antd";
-import { clickEvent, eventHandlerControl, refreshEvent } from "../controls/eventHandlerControl";
+import { clickEvent, doubleClickEvent, eventHandlerControl, refreshEvent } from "../controls/eventHandlerControl";
 import styled from "styled-components";
 import { useContext, ReactElement, useEffect } from "react";
 import { MultiCompBuilder, stateComp, withDefault } from "../generators";
@@ -19,6 +19,7 @@ import { optionsControl } from "../controls/optionsControl";
 import { BoolControl } from "../controls/boolControl";
 import { dropdownControl } from "../controls/dropdownControl";
 import { JSONObject } from "util/jsonTypes";
+import { useCompClickEventHandler } from "../utils/useCompClickEventHandler";
 
 const MacaroneList = [
   '#fde68a',
@@ -77,7 +78,7 @@ const DropdownOption = new MultiCompBuilder(
   ))
   .build();
 
-const EventOptions = [clickEvent, refreshEvent] as const;
+const EventOptions = [clickEvent, refreshEvent, doubleClickEvent] as const;
 
 export const alignOptions = [
   { label: <AlignLeft />, value: "flex-start" },
@@ -105,6 +106,8 @@ const childrenMap = {
 };
 
 const AvatarGroupView = (props: RecordConstructorToView<typeof childrenMap> & { dispatch: (action: CompAction) => void; }) => {
+  const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent})
+  
   return (
     <Container
       $style={props.style}
@@ -125,7 +128,7 @@ const AvatarGroupView = (props: RecordConstructorToView<typeof childrenMap> & { 
                     }}
                     size={props.avatarSize}
                     onClick={() => {
-                      props.onEvent("click")
+                      handleClickEvent();
                       props.dispatch(changeChildAction("currentAvatar", item as JSONObject, false));
                     }}
                   >

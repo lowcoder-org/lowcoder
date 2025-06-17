@@ -1,3 +1,4 @@
+import React from "react";
 import { RecordConstructorToView } from "lowcoder-core";
 import { BoolControl } from "comps/controls/boolControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
@@ -16,7 +17,7 @@ import { IconControl } from "comps/controls/iconControl";
 import styled from "styled-components";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { manualOptionsControl } from "comps/controls/optionsControl";
-import { useContext, useEffect } from "react";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 
 const StyledFloatButton = styled(FloatButton)<{
   $animationStyle: AnimationStyleType;
@@ -98,21 +99,51 @@ const childrenMap = {
     dot: BoolControl,
 };
 
+const FloatButtonItem = React.memo(({ 
+    button, 
+    animationStyle, 
+    badgeStyle, 
+    buttonTheme, 
+    shape, 
+    dot 
+}: { 
+    button: any; 
+    animationStyle: AnimationStyleType; 
+    badgeStyle: BadgeStyleType; 
+    buttonTheme: 'primary' | 'default'; 
+    shape: 'circle' | 'square'; 
+    dot: boolean; 
+}) => {
+    const handleClickEvent = useCompClickEventHandler({ onEvent: button.onEvent });
+    
+    return (
+        <StyledFloatButton
+            $animationStyle={animationStyle}
+            key={button?.id}
+            icon={button?.icon}
+            onClick={handleClickEvent}
+            tooltip={button?.label}
+            description={button?.description}
+            badge={{ count: button?.badge, color: badgeStyle.badgeColor, dot: dot }}
+            type={buttonTheme}
+            shape={shape}
+        />
+    );
+});
+
 const FloatButtonView = (props: RecordConstructorToView<typeof childrenMap>) => {
     const renderButton = (button: any, onlyOne?: boolean) => {
         return !button?.hidden ? (
-            <StyledFloatButton
-                $animationStyle={props.animationStyle}
+            <FloatButtonItem
                 key={button?.id}
-                icon={button?.icon}
-                onClick={() => button.onEvent("click")}
-                tooltip={button?.label}
-                description={button?.description}
-                badge={{ count: button?.badge, color: props.badgeStyle.badgeColor, dot: props?.dot }}
-                type={onlyOne ? props.buttonTheme : 'default'}
+                button={button}
+                animationStyle={props.animationStyle}
+                badgeStyle={props.badgeStyle}
+                buttonTheme={onlyOne ? props.buttonTheme : 'default'}
                 shape={props.shape}
-            />)
-            : ''
+                dot={props.dot}
+            />
+        ) : '';
     }
     return (
         <Wrapper $badgeStyle={props.badgeStyle} $style={props.style}>

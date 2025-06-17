@@ -11,7 +11,7 @@ import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { InputLikeStyleType, LabelStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
-import _, { debounce } from "lodash";
+import { fromPairs } from "lodash";
 import { css } from "styled-components";
 import { EMAIL_PATTERN, URL_PATTERN } from "util/stringUtils";
 import { MultiBaseComp, RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
@@ -84,7 +84,7 @@ type ValidationParams = {
   customRule: string;
 };
 
-const valueInfoMap = _.fromPairs(
+const valueInfoMap = fromPairs(
   TextInputValidationOptions.map((option) => [option.value, option])
 );
 
@@ -216,18 +216,11 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
     );
   }, [props.customRule])
 
-  const debouncedOnChangeRef = useRef(
-    debounce((value: string) => {
+  const onChangeRef = useRef(
+    (value: string) => {
       props.value.onChange(value);
-    }, 1000)
+    }
   );
-
-  // Cleanup debounced function on unmount
-  useEffect(() => {
-    return () => {
-      debouncedOnChangeRef.current.cancel();
-    };
-  }, []);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -235,7 +228,7 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
 
     changeRef.current = true;
     touchRef.current = true;
-    debouncedOnChangeRef.current?.(value);
+    onChangeRef.current?.(value);
   };
 
   // Cleanup refs on unmount
@@ -244,6 +237,7 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
       changeRef.current = false;
       touchRef.current = false;
       propsRef.current = null as any;
+      onChangeRef.current = null as any;
     };
   }, []);
 

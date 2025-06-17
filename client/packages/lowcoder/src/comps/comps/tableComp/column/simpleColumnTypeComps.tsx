@@ -13,7 +13,23 @@ import React, { useCallback, useEffect, useMemo } from "react";
 import { CSSProperties } from "react";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { ToViewReturn } from "@lowcoder-ee/comps/generators/multi";
+import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
+import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 
+export const fixOldActionData = (oldData: any) => {
+  if (!oldData) return oldData;
+  if (Boolean(oldData.onClick)) {
+    return {
+      ...oldData,
+      onClick: [{
+        name: "click",
+        handler: oldData.onClick,
+      }],
+    };
+  }
+  return oldData;
+}
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
 export const ButtonTypeOptions = [
@@ -31,10 +47,12 @@ export const ButtonTypeOptions = [
   },
 ] as const;
 
+const ButtonEventOptions = [clickEvent, doubleClickEvent] as const;
+
 const childrenMap = {
   text: StringControl,
   buttonType: dropdownControl(ButtonTypeOptions, "primary"),
-  onClick: ActionSelectorControlInContext,
+  onClick: eventHandlerControl(ButtonEventOptions),
   loading: BoolCodeControl,
   disabled: BoolCodeControl,
   prefixIcon: IconControl,
@@ -47,10 +65,11 @@ const ButtonStyled = React.memo(({ props }: { props: ToViewReturn<RecordConstruc
   const hasPrefixIcon = hasIcon(props.prefixIcon);
   const hasSuffixIcon = hasIcon(props.suffixIcon);
   const iconOnly = !hasText && (hasPrefixIcon || hasSuffixIcon);
+  const handleClickEvent = useCompClickEventHandler({onEvent: props.onClick})
 
   const handleClick = useCallback((e: React.MouseEvent) => {
-    props.onClick?.();
-  }, [props.onClick]);
+    handleClickEvent()
+  }, [handleClickEvent]);
 
   const buttonStyle = useMemo(() => ({
     margin: 0,
@@ -76,7 +95,7 @@ const ButtonStyled = React.memo(({ props }: { props: ToViewReturn<RecordConstruc
   );
 });
 
-export const ButtonComp = (function () {
+const ButtonCompTmp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props) => <ButtonStyled props={props} />,
@@ -100,11 +119,10 @@ export const ButtonComp = (function () {
         })}
         {loadingPropertyView(children)}
         {disabledPropertyView(children)}
-        {children.onClick.propertyView({
-          label: trans("table.action"),
-          placement: "table",
-        })}
+        {children.onClick.propertyView()}
       </>
     ))
     .build();
 })();
+
+export const ButtonComp = migrateOldData(ButtonCompTmp, fixOldActionData);

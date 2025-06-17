@@ -234,7 +234,7 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
             {columns.map((column) => {
               const id = String(column.id);
               const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
-              if (!containers[id]) return null;
+              if (!containers[id] || column.hidden) return null;
               const containerProps = containers[id].children;
 
               // Use the actual minWidth from column configuration instead of calculated width
