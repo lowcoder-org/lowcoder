@@ -38,7 +38,8 @@ function workspaceReducer(state: WorkspaceState, action: WorkspaceAction): Works
       return { 
         ...state, 
         searchTerm: action.payload,
-        currentPage: 1 // Reset to page 1 when searching
+        currentPage: 1 , 
+        isLoading: Boolean(action.payload.trim())
       };
     case 'SET_PAGE':
       return { ...state, currentPage: action.payload };
