@@ -1,4 +1,4 @@
-import { useReducer, useEffect } from 'react';
+import { useReducer, useEffect, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { debounce } from 'lodash';
 import { Org } from 'constants/orgConstants';
@@ -88,47 +88,59 @@ export function useWorkspaceManager({
     }
   }, [isDropdownOpen, workspaces.totalCount]);
 
-  // API call to fetch workspaces
-  const fetchWorkspacesPage = async (page: number, search?: string) => {
-    dispatch({ type: 'SET_LOADING', payload: true });
-    
-    try {
-      const response = await UserApi.getMyOrgs(page, pageSize, search);
-      if (response.data.success) {
-        const apiData = response.data.data;
-        const transformedItems = apiData.data.map(item => ({
-          id: item.orgId,
-          name: item.orgName,
-        }));
-        
+  // API call to fetch workspaces (memoized for stable reference)
+  const fetchWorkspacesPage = useCallback(
+    async (page: number, search?: string) => {
+      dispatch({ type: 'SET_LOADING', payload: true });
+
+      try {
+        const response = await UserApi.getMyOrgs(page, pageSize, search);
+        if (response.data.success) {
+          const apiData = response.data.data;
+          const transformedItems = apiData.data.map(item => ({
+            id: item.orgId,
+            name: item.orgName,
+          }));
+
+          dispatch({
+            type: 'SET_WORKSPACES',
+            payload: {
+              workspaces: transformedItems as Org[],
+              total: apiData.total,
+            },
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching workspaces:', error);
+        dispatch({ type: 'SET_WORKSPACES', payload: { workspaces: [], total: 0 } });
+      }
+    },
+    [dispatch, pageSize]
+  );
+
+  // Debounced search function (memoized to keep a single instance across renders)
+  const debouncedSearch = useMemo(() =>
+    debounce(async (term: string) => {
+      if (!term.trim()) {
+        // Clear search - reset to Redux data
         dispatch({
           type: 'SET_WORKSPACES',
-          payload: {
-            workspaces: transformedItems as Org[],
-            total: apiData.total,
-          },
+          payload: { workspaces: [], total: workspaces.totalCount },
         });
+        return;
       }
-    } catch (error) {
-      console.error('Error fetching workspaces:', error);
-      dispatch({ type: 'SET_WORKSPACES', payload: { workspaces: [], total: 0 } });
-    }
-  };
 
-  // Debounced search function
-  const debouncedSearch = debounce(async (term: string) => {
-    if (!term.trim()) {
-      // Clear search - reset to Redux data
-      dispatch({ 
-        type: 'SET_WORKSPACES', 
-        payload: { workspaces: [], total: workspaces.totalCount } 
-      });
-      return;
-    }
+      // Perform search
+      await fetchWorkspacesPage(1, term);
+    }, 300)
+  , [dispatch, fetchWorkspacesPage, workspaces.totalCount]);
 
-    // Perform search
-    await fetchWorkspacesPage(1, term);
-  }, 300);
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
 
   // Handle search input change
   const handleSearchChange = (value: string) => {
