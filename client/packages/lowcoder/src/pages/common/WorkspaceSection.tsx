@@ -205,7 +205,6 @@ export default function WorkspaceSectionComponent({
 
   // Early returns for better performance
   if (!showSwitchOrg(user, sysConfig)) return null;
-  if (!displayWorkspaces?.length && !searchTerm.trim()) return null;
 
   // Event handlers
   const handleOrgSwitch = (orgId: string) => {
