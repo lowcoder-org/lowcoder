@@ -27,8 +27,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 import static org.lowcoder.sdk.exception.BizError.INVALID_USER_STATUS;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
@@ -70,30 +75,20 @@ public class UserController implements UserEndpoints
 
     @Override
     public Mono<ResponseView<?>> getUserOrgs(ServerWebExchange exchange,
-            @RequestParam(required = false) String orgName,
-            @RequestParam(required = false, defaultValue = "1") Integer pageNum,
-            @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
+                                             @RequestParam(required = false) String orgName,
+                                             @RequestParam(required = false, defaultValue = "1") Integer pageNum,
+                                             @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
         return sessionUserService.getVisitor()
                 .flatMap(user -> {
-                    // Get all active organizations for the user
-                    Flux<OrgMember> orgMemberFlux = orgMemberService.getAllActiveOrgs(user.getId());
-                    
-                    // If orgName filter is provided, filter organizations by name
-                    if (StringUtils.isNotBlank(orgName)) {
-                        return orgMemberFlux
-                                .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
-                                .filter(org -> StringUtils.containsIgnoreCase(org.getName(), orgName))
-                                .map(OrgView::new)
-                                .collectList()
-                                .map(orgs -> PageResponseView.success(orgs, pageNum, pageSize, orgs.size()));
-                    }
-                    
-                    // If no filter, return all organizations
-                    return orgMemberFlux
-                            .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
+                    Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
+                    String filter = orgName == null ? "" : orgName;
+                    return organizationService.findUserOrgs(user.getId(), filter, pageable)
                             .map(OrgView::new)
                             .collectList()
-                            .map(orgs -> PageResponseView.success(orgs, pageNum, pageSize, orgs.size()));
+                            .zipWith(organizationService.countUserOrgs(user.getId(), filter))
+                            .map(tuple -> PageResponseView.success(
+                                    tuple.getT1(), pageNum, pageSize, tuple.getT2().intValue()
+                            ));
                 })
                 .map(ResponseView::success);
     }

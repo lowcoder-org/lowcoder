@@ -6,6 +6,8 @@ import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.model.OrganizationState;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Pageable;
+import java.util.List;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -31,4 +33,7 @@ public interface OrganizationRepository extends ReactiveMongoRepository<Organiza
 
     Flux<Organization> findByOrganizationDomainIsNotNull();
     Mono<Boolean> existsBySlug(String slug);
+
+    Flux<Organization> findByIdInAndNameContainingIgnoreCase(List<String> ids, String name, Pageable pageable);
+    Mono<Long> countByIdInAndNameContainingIgnoreCase(List<String> ids, String name);
 }

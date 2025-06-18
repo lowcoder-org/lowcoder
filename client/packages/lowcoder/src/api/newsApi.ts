@@ -132,7 +132,7 @@ export const getHubspotContent = async () => {
   };
   try {
     const result = await NewsApi.secureRequest(apiBody);
-    return result?.data[0]?.hubspot?.length > 0 ? result.data[0].hubspot as any[] : [];
+    return result?.data[0]?.results?.length > 0 ? result.data[0].results as any[] : [];
   } catch (error) {
     console.error("Error getting news:", error);
     throw error;

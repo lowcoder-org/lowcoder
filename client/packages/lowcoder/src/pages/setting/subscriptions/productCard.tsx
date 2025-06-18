@@ -5,6 +5,7 @@ import { Card, Button } from 'antd';
 import { SettingOutlined, CheckCircleOutlined, LoadingOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { buildSubscriptionSettingsLink, buildSubscriptionInfoLink } from "constants/routesURL";
 import history from "util/history";
+import { trans } from "i18n";
 
 const ProductCardContainer = styled(Card)`
   width: 300px;
@@ -87,8 +88,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         ) : (
         !activeSubscription && (
           checkoutLinkDataLoaded ? (
-            <Button type="primary" block onClick={goToCheckout} style={{width:"90%", backgroundColor: "green"}}>
-              Subscribe Now
+            <Button type="primary" block onClick={goToCheckout} style={{width:"90%", backgroundColor: "#ff6f3c"}}>
+              {trans("iconScout.buySubscriptionButton")}
             </Button>
           ) : (
             <LoadingOutlined key="wait" />

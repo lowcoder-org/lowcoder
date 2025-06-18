@@ -11,6 +11,7 @@ import {
   NEWS_URL,
   ORG_HOME_URL,
   SUBSCRIPTION_SETTING,
+  ENVIRONMENT_SETTING,
 } from "constants/routesURL";
 import { getUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import { useDispatch, useSelector } from "react-redux";
@@ -228,6 +229,20 @@ export default function ApplicationHome() {
                     icon: ({ selected, ...otherProps }) => <SupportIcon {...otherProps} width={"24px"} />,
                     mobileVisible: true,
                     visible: ({ user }) => user.orgDev
+                  }
+                ]
+              },
+              {
+                items: [
+                  {
+                    text: <TabLabel>{trans("environments.detail_enterpriseEdition")}</TabLabel>,
+                    routePath: ENVIRONMENT_SETTING,
+                    routeComp: Setting,
+                    routePathExact: false,
+                    icon: ({ selected, ...otherProps }) => <EnterpriseIcon {...otherProps} width={"24px"} />,
+                    mobileVisible: true,
+                    visible: () => !isLicenseActive,
+                    style: { color: "#ff6f3c" },
                   }
                 ]
               },

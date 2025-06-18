@@ -44,6 +44,7 @@ const EnvironmentsPromo = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const user = useSelector(getUser);
   const deploymentId = useSelector(getDeploymentId);
+  const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
 
   const dispatch = useDispatch();
 
@@ -129,11 +130,11 @@ const EnvironmentsPromo = () => {
         </Card>
       </StyledSection>
 
-      <StyledSection>
+      {!isLowCoderDomain && <StyledSection>
         <Card title={trans("enterprise.yourDeploymentID")}>
           <Paragraph><h3>{deploymentId}</h3></Paragraph>
         </Card>
-      </StyledSection>
+      </StyledSection> }
 
       <StyledSection>
         <Card title={trans("enterprise.PricingTitle")}>

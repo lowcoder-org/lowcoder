@@ -3,6 +3,7 @@ import { Section, sectionNames } from "lowcoder-design";
 import {
   clickEvent,
   eventHandlerControl,
+  doubleClickEvent,
 } from "../controls/eventHandlerControl";
 import { StringStateControl } from "../controls/codeStateControl";
 import { UICompBuilder, withDefault } from "../generators";
@@ -37,6 +38,7 @@ import { StringControl } from "../controls/codeControl";
 import { PositionControl } from "comps/controls/dropdownControl";
 import { dropdownControl } from "../controls/dropdownControl";
 import { AssetType, IconscoutControl } from "../controls/iconscoutControl";
+import { useCompClickEventHandler } from "../utils/useCompClickEventHandler";
 
 const Container = styled.div<{ 
   $style: ImageStyleType | undefined, 
@@ -112,7 +114,7 @@ const getStyle = (style: ImageStyleType) => {
   `;
 };
 
-const EventOptions = [clickEvent] as const;
+const EventOptions = [clickEvent, doubleClickEvent] as const;
 const ModeOptions = [
   { label: "URL", value: "standard" },
   { label: "Asset Library", value: "asset-library" },
@@ -123,6 +125,8 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
   const conRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
+  const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent})
+
 
   const imgOnload = (img: HTMLImageElement) => {
     img.onload = function () {
@@ -211,7 +215,7 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
           draggable={false}
           preview={props.supportPreview ? {src: props.previewSrc || props.src.value } : false}
           fallback={DEFAULT_IMG_URL}
-          onClick={() => props.onEvent("click")}
+          onClick={handleClickEvent}
         />
       </div>
     </Container>

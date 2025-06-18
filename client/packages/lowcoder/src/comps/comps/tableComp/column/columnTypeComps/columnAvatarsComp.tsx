@@ -9,7 +9,7 @@ import { avatarGroupStyle, AvatarGroupStyleType } from "comps/controls/styleCont
 import { AlignCenter, AlignLeft, AlignRight } from "lowcoder-design";
 import { NumberControl } from "comps/controls/codeControl";
 import { Avatar, Tooltip } from "antd";
-import { clickEvent, eventHandlerControl, refreshEvent } from "comps/controls/eventHandlerControl";
+import { clickEvent, eventHandlerControl, refreshEvent, doubleClickEvent } from "comps/controls/eventHandlerControl";
 import React, { ReactElement, useCallback, useEffect, useRef } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { ColorControl } from "comps/controls/colorControl";
@@ -17,6 +17,7 @@ import { optionsControl } from "comps/controls/optionsControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { JSONObject } from "util/jsonTypes";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 
 const MacaroneList = [
   '#fde68a',
@@ -72,7 +73,7 @@ const DropdownOption = new MultiCompBuilder(
 })
 .build();
 
-const EventOptions = [clickEvent, refreshEvent] as const;
+const EventOptions = [clickEvent, refreshEvent, doubleClickEvent] as const;
 
 export const alignOptions = [
   { label: <AlignLeft />, value: "flex-start" },
@@ -99,6 +100,8 @@ const MemoizedAvatar = React.memo(({
   onItemEvent?: (event: string) => void;
 }) => {
   const mountedRef = useRef(true);
+  const handleClickEvent = useCompClickEventHandler({onEvent})
+
 
   // Cleanup on unmount
   useEffect(() => {
@@ -116,8 +119,8 @@ const MemoizedAvatar = React.memo(({
     }
     
     // Then trigger main component event
-    onEvent("click");
-  }, [onEvent, onItemEvent]);
+    handleClickEvent()
+  }, [onItemEvent, handleClickEvent]);
 
   return (
     <Tooltip title={item.Tooltip} key={index}>

@@ -7,10 +7,11 @@ import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import React, { useCallback, useMemo } from "react";
 import { RecordConstructorToComp } from "lowcoder-core";
-import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
+import { clickEvent, doubleClickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import styled from "styled-components";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 
-const TextEventOptions = [clickEvent] as const;
+const TextEventOptions = [clickEvent, doubleClickEvent] as const;
 
 const TextWrapper = styled.div`
   cursor: pointer;
@@ -49,11 +50,11 @@ interface SimpleTextEditViewProps {
 }
 
 const SimpleTextContent = React.memo(({ value, prefixIcon, suffixIcon, onEvent }: SimpleTextContentProps) => {
+  const handleClickEvent = useCompClickEventHandler({onEvent: onEvent ?? (() => {})})
+  
   const handleClick = useCallback(() => {
-    if (onEvent) {
-      onEvent("click");
-    }
-  }, [onEvent]);
+     handleClickEvent()
+  }, [handleClickEvent]);
 
   return (
     <TextWrapper onClick={handleClick}>

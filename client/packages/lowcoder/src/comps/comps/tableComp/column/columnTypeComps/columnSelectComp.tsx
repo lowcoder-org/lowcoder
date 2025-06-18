@@ -6,12 +6,11 @@ import { IconControl } from "comps/controls/iconControl";
 import { MultiCompBuilder } from "comps/generators";
 import { optionsControl } from "comps/controls/optionsControl";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
-
 import { trans } from "i18n";
 import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilder";
 import { ColumnValueTooltip } from "../simpleColumnTypeComps";
 import { styled } from "styled-components";
-import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
+import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
 
 const Wrapper = styled.div`
   display: inline-flex;
@@ -79,7 +78,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const SelectOptionEventOptions = [clickEvent] as const;
+const SelectOptionEventOptions = [clickEvent, doubleClickEvent] as const;
 
 // Create a new option type with event handlers for each option
 const SelectOptionWithEvents = new MultiCompBuilder(
@@ -149,7 +148,7 @@ const SelectEdit = React.memo((props: SelectEditProps) => {
     
     // Trigger the specific option's event handler
     const selectedOption = props.options.find(option => option.value === val);
-    if (selectedOption && selectedOption.onEvent) {
+    if (selectedOption?.onEvent) {
       selectedOption.onEvent("click");
     }
     

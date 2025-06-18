@@ -41,6 +41,7 @@ import { useResizeDetector } from "react-resize-detector";
 import { useContext } from "react";
 import { Tooltip } from "antd";
 import { AssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 
 const Container = styled.div<{ $style: any }>`
   height: 100%;
@@ -212,6 +213,9 @@ let ButtonTmpComp = (function () {
 
     const imgRef = useRef<HTMLDivElement>(null);
     const conRef = useRef<HTMLDivElement>(null);
+
+    const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent})
+
     useEffect(() => {
       if (height && width) {
         onResize();
@@ -285,7 +289,7 @@ let ButtonTmpComp = (function () {
                   }
                   onClick={() =>
                     isDefault(props.type)
-                      ? props.onEvent("click")
+                      ? handleClickEvent()
                       : submitForm(editorState, props.form)
                   }
                 >

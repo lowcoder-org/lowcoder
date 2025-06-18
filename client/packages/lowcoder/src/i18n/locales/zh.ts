@@ -2459,6 +2459,8 @@ export const zh = {
   "usageLogDevices": "设备/操作系统明细",
   "usageLogBrowsers": "浏览器/布局引擎细分",
   "premiumFeaturesNotice": "Lowcoder 企业版可提供所有高级功能。",
+  "readMoreNotice" : "了解有关企业版的更多信息，以及如何轻松安装它。",
+  "readMoreButton": "企业版详情",
   "requestLicense": "申请企业版许可证",
   "requestLicensesBtton": "申请企业访问权限",
   "AuditLogsTitle": "审计日志",

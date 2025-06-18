@@ -242,18 +242,8 @@ const ResizableChildren = React.memo((props: {
   children: JSX.Element | React.ReactNode;
 }) => {
   const { ref: innerRef } = useResizeDetector({
-    skipOnMount: (
-      props.compType === 'responsiveLayout'
-      || props.compType === 'columnLayout'
-      || props.compType === 'pageLayout'
-      || props.compType === 'splitLayout'
-      || props.compType === 'floatTextContainer'
-      || props.compType === 'tabbedContainer'
-      || props.compType === 'collapsibleContainer'
-      || props.compType === 'container'
-    ),
     refreshMode: "debounce",
-    refreshRate: 0,
+    refreshRate: 10,
     onResize: ({width, height}: ResizePayload) => props.onInnerResize(width ?? undefined, height ?? undefined),
     observerOptions: { box: "border-box" }
   });
