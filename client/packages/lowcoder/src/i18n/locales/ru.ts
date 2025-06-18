@@ -2458,6 +2458,8 @@ export const ru = {
 "usageLogDevices": "Разбивка по устройствам/ОС",
 "usageLogBrowsers": "Разбивка браузера/программного обеспечения",
 "premiumFeaturesNotice": "Все премиум-функции доступны в корпоративной версии Lowcoder.",
+"readMoreNotice" : "Узнайте больше о версии Enterprise и о том, как легко её установить.",
+"readMoreButton": "Подробности о версии Enterprise",
 "requestLicense": "Запрос лицензий Enterprise Edition",
 "requestLicensesBtton": "Запрос доступа к предприятию",
 "AuditLogsTitle": "Журналы аудита",

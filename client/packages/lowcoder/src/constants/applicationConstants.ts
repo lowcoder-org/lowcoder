@@ -81,6 +81,7 @@ export interface ApplicationMeta {
   title?: string;
   description?: string;
   image?: string;
+  icon?: string;
   category?: ApplicationCategoriesEnum;
   showheader?: boolean;
   orgId: string;

@@ -469,7 +469,7 @@ export function HomeLayout(props: HomeLayoutProps) {
               title: e.title,
               description: e.description,
               category: e.category,
-              icon: e.image,
+              icon: e.icon,
               type: HomeResTypeEnum[HomeResTypeEnum[e.applicationType] as HomeResKey],
               creator: e?.creatorEmail ?? e.createBy,
               lastModifyTime: e.lastModifyTime,
@@ -630,7 +630,7 @@ export function HomeLayout(props: HomeLayoutProps) {
 
             <Divider />
 
-            <ContentWrapper>
+            <ContentWrapper>     
 
               {isFetching && resList.length === 0 ? (
                 <SkeletonStyle active paragraph={{ rows: 8, width: 648 }} title={false} />

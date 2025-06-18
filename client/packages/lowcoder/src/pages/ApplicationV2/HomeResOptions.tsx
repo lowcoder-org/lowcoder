@@ -53,7 +53,7 @@ export const HomeResOptions = (props: {
     if (res.isEditable) {
       options = [
         ...options,
-        { text: trans("rename"), onClick: () => onRename(res) },
+        { text: trans("home.renameApp"), onClick: () => onRename(res) },
         {
           text: trans("header.duplicate", { type: HomeResInfo[res.type].name.toLowerCase() }),
           onClick: () => {
