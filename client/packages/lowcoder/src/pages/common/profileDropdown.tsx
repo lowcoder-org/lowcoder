@@ -31,7 +31,9 @@ import { showSwitchOrg } from "@lowcoder-ee/pages/common/customerService";
 import { checkIsMobile } from "util/commonUtils";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 import type { ItemType } from "antd/es/menu/interface";
-
+import { Pagination } from "antd";
+import { debounce } from "lodash";
+import UserApi from "api/userApi";
 const { Item } = Menu;
 
 const ProfileDropdownContainer = styled.div`
@@ -231,6 +233,46 @@ const StyledDropdown = styled(Dropdown)`
   align-items: end;
 `;
 
+
+const PaginationContainer = styled.div`
+  padding: 12px 16px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: center;
+  
+  .ant-pagination {
+    margin: 0;
+    
+    .ant-pagination-item {
+      min-width: 24px;
+      height: 24px;
+      line-height: 22px;
+      font-size: 12px;
+      margin-right: 4px;
+    }
+    
+    .ant-pagination-prev,
+    .ant-pagination-next {
+      min-width: 24px;
+      height: 24px;
+      line-height: 22px;
+      margin-right: 4px;
+    }
+    
+    .ant-pagination-item-link {
+      font-size: 11px;
+    }
+  }
+`;
+const LoadingSpinner = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  color: #8b8fa3;
+  font-size: 13px;
+`;
+
 type DropDownProps = {
   onClick?: (text: string) => void;
   user: User;
@@ -246,9 +288,107 @@ export default function ProfileDropdown(props: DropDownProps) {
   const settingModalVisible = useSelector(isProfileSettingModalVisible);
   const sysConfig = useSelector(selectSystemConfig);
   const dispatch = useDispatch();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [dropdownVisible, setDropdownVisible] = useState(false);
 
+   // Local state for pagination and search
+   const [searchTerm, setSearchTerm] = useState("");
+   const [dropdownVisible, setDropdownVisible] = useState(false);
+   const [currentPageWorkspaces, setCurrentPageWorkspaces] = useState<Org[]>([]);
+   const [currentPage, setCurrentPage] = useState(1);
+   const [totalCount, setTotalCount] = useState(0);
+   const [isLoading, setIsLoading] = useState(false);
+   const [isSearching, setIsSearching] = useState(false);
+ 
+   const pageSize = 10;
+
+     // Determine which workspaces to show
+  const displayWorkspaces = useMemo(() => {
+    if (searchTerm.trim()) {
+      return currentPageWorkspaces; // Search results
+    }
+    if (currentPage === 1) {
+      return workspaces.items; // First page from Redux
+    }
+    return currentPageWorkspaces; // Other pages from API
+  }, [searchTerm, currentPage, workspaces.items, currentPageWorkspaces]);
+
+  // Update total count based on context
+  useEffect(() => {
+    if (searchTerm.trim()) {
+      // Keep search result count
+      return;
+    }
+    if (currentPage === 1) {
+      setTotalCount(workspaces.totalCount);
+    }
+  }, [searchTerm, currentPage, workspaces.totalCount]);
+
+ // Fetch workspaces for specific page
+ const fetchWorkspacesPage = async (page: number, search?: string) => {
+  setIsLoading(true);
+  try {
+    const response = await UserApi.getMyOrgs(page, pageSize, search);
+    if (response.data.success) {
+      const apiData = response.data.data;
+      const transformedItems = apiData.data.map(item => ({
+        id: item.orgId,
+        name: item.orgName,
+      }));
+      
+      setCurrentPageWorkspaces(transformedItems as Org[]);
+      setTotalCount(apiData.total);
+    }
+  } catch (error) {
+    console.error('Error fetching workspaces:', error);
+    setCurrentPageWorkspaces([]);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    if (page === 1 && !searchTerm.trim()) {
+      // Use Redux data for first page when not searching
+      setCurrentPageWorkspaces([]);
+    } else {
+      // Fetch from API for other pages or when searching
+      fetchWorkspacesPage(page, searchTerm.trim() || undefined);
+    }
+  };
+
+  
+  // Debounced search function
+  const debouncedSearch = useMemo(
+    () => debounce(async (term: string) => {
+      if (!term.trim()) {
+        setCurrentPage(1);
+        setCurrentPageWorkspaces([]);
+        setTotalCount(workspaces.totalCount);
+        setIsSearching(false);
+        return;
+      }
+
+      setIsSearching(true);
+      setCurrentPage(1);
+      await fetchWorkspacesPage(1, term);
+      setIsSearching(false);
+    }, 300),
+    [workspaces.totalCount]
+  );
+
+
+
+  // Reset state when dropdown closes
+  useEffect(() => {
+    if (!dropdownVisible) {
+      setCurrentPageWorkspaces([]);
+      setCurrentPage(1);
+      setSearchTerm("");
+      setTotalCount(workspaces.totalCount);
+      setIsSearching(false);
+    }
+  }, [dropdownVisible, workspaces.totalCount]);
 
  
 
@@ -292,12 +432,15 @@ export default function ProfileDropdown(props: DropDownProps) {
     setDropdownVisible(false);
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-  };
+ // Handle search input change
+ const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const value = e.target.value;
+  setSearchTerm(value);
+  debouncedSearch(value);
+};
 
   const dropdownContent = (
-    <ProfileDropdownContainer onClick={e => e.stopPropagation()}>
+    <ProfileDropdownContainer onClick={(e) => e.stopPropagation()}>
       {/* Profile Section */}
       <ProfileSection onClick={handleProfileClick}>
         <ProfileImage source={avatarUrl} userName={username} side={40} />
@@ -310,48 +453,86 @@ export default function ProfileDropdown(props: DropDownProps) {
             <ProfileRole>{OrgRoleInfo[currentOrgRoleId].name}</ProfileRole>
           )}
         </ProfileInfo>
-        {!checkIsMobile(window.innerWidth) && <EditIcon style={{ color: '#8b8fa3' }} />}
+        {!checkIsMobile(window.innerWidth) && (
+          <EditIcon style={{ color: "#8b8fa3" }} />
+        )}
       </ProfileSection>
 
       {/* Workspaces Section */}
-      {workspaces.items && workspaces.items.length > 0 && showSwitchOrg(props.user, sysConfig) && (
-        <WorkspaceSection>
-          <SectionHeader>{trans("profile.switchOrg")}</SectionHeader>
-          
-          {workspaces.items.length > 3 && (
-            <SearchContainer>
-              <StyledSearchInput
-                placeholder="Search workspaces..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-                prefix={<SearchIcon style={{ color: '#8b8fa3' }} />}
-                size="small"
-              />
-            </SearchContainer>
-          )}
+      {workspaces.items &&
+        workspaces.items.length > 0 &&
+        showSwitchOrg(props.user, sysConfig) && (
+          <WorkspaceSection>
+            <SectionHeader>{trans("profile.switchOrg")}</SectionHeader>
 
-          <WorkspaceList>
-            {filteredOrgs.length > 0 ? (
-              filteredOrgs.map((org: Org) => (
-                <WorkspaceItem
-                  key={org.id}
-                  isActive={currentOrgId === org.id}
-                  onClick={() => handleOrgSwitch(org.id)}
-                >
-                  <WorkspaceName title={org.name}>{org.name}</WorkspaceName>
-                  {currentOrgId === org.id && <ActiveIcon />}
-                </WorkspaceItem>
-              ))
-            ) : (
-              <EmptyState>No workspaces found</EmptyState>
+            {workspaces.items.length > 3 && (
+              <SearchContainer>
+                <StyledSearchInput
+                  placeholder="Search workspaces..."
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  prefix={<SearchIcon style={{ color: "#8b8fa3" }} />}
+                  size="small"
+                />
+              </SearchContainer>
             )}
-          </WorkspaceList>
+
+            {/* Workspaces List */}
+            <WorkspaceList>
+              {isSearching || isLoading ? (
+                <LoadingSpinner>
+                  <PackUpIcon
+                    style={{
+                      animation: "spin 1s linear infinite",
+                      marginRight: "8px",
+                    }}
+                  />
+                  {isSearching ? "Searching..." : "Loading..."}
+                </LoadingSpinner>
+              ) : displayWorkspaces.length > 0 ? (
+                displayWorkspaces.map((org: Org) => (
+                  <WorkspaceItem
+                    key={org.id}
+                    isActive={currentOrgId === org.id}
+                    onClick={() => handleOrgSwitch(org.id)}
+                  >
+                    <WorkspaceName title={org.name}>{org.name}</WorkspaceName>
+                    {currentOrgId === org.id && <ActiveIcon />}
+                  </WorkspaceItem>
+                ))
+              ) : (
+                <EmptyState>
+                  {searchTerm.trim()
+                    ? "No workspaces found"
+                    : "No workspaces available"}
+                </EmptyState>
+              )}
+            </WorkspaceList>
+
+            {/* Pagination */}
+            {totalCount > pageSize && !isSearching && !isLoading && (
+              <PaginationContainer>
+                <Pagination
+                  current={currentPage}
+                  total={totalCount}
+                  pageSize={pageSize}
+                  size="small"
+                  showSizeChanger={false}
+                  showQuickJumper={false}
+                  showTotal={(total, range) =>
+                    `${range[0]}-${range[1]} of ${total}`
+                  }
+                  onChange={handlePageChange}
+                  simple={totalCount > 100}
+                />
+              </PaginationContainer>
+            )}
             <CreateWorkspaceItem onClick={handleCreateOrg}>
               <AddIcon />
               {trans("profile.createOrg")}
             </CreateWorkspaceItem>
-        </WorkspaceSection>
-      )}
+          </WorkspaceSection>
+        )}
 
       {/* Actions Section */}
       <ActionsSection>
