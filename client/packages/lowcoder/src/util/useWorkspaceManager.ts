@@ -133,7 +133,7 @@ export function useWorkspaceManager({
 
       // Perform search
       await fetchWorkspacesPage(1, term);
-    }, 300)
+    }, 500)
   , [dispatch, fetchWorkspacesPage, workspaces.totalCount]);
 
   // Cleanup debounce on unmount

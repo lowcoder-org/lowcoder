@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { Input, Pagination } from 'antd';
+import { Input, Pagination, Spin } from 'antd';
 import { User } from 'constants/userConstants';
 import { switchOrg, createOrgAction } from 'redux/reduxActions/orgActions';
 import { selectSystemConfig } from 'redux/selectors/configSelectors';
@@ -11,7 +11,6 @@ import { trans } from 'i18n';
 import {
   AddIcon,
   CheckoutIcon,
-  PackUpIcon,
   SearchIcon,
 } from 'lowcoder-design';
 import { ORGANIZATION_SETTING } from 'constants/routesURL';
@@ -166,13 +165,11 @@ const PaginationContainer = styled.div`
   }
 `;
 
-const LoadingSpinner = styled.div`
+const LoadingContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
-  color: #8b8fa3;
-  font-size: 13px;
+  padding: 24px 16px;
 `;
 
 // Component Props
@@ -238,15 +235,9 @@ export default function WorkspaceSectionComponent({
       {/* Workspace List */}
       <WorkspaceList>
         {isLoading ? (
-          <LoadingSpinner>
-            <PackUpIcon 
-              style={{ 
-                animation: "spin 1s linear infinite", 
-                marginRight: "8px" 
-              }} 
-            />
-            Loading...
-          </LoadingSpinner>
+          <LoadingContainer>
+            <Spin size="small" />
+          </LoadingContainer>
         ) : displayWorkspaces.length > 0 ? (
           displayWorkspaces.map((org: Org) => (
             <WorkspaceItem
