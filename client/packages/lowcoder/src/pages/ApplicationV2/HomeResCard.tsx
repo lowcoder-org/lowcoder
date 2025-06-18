@@ -332,7 +332,7 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
                   type="secondary" 
                   style={{ fontSize: 12, textWrap: "wrap"}}
                   >
-                {res?.description}
+                {res.description.length > 150 ? res.description.substring(0, 150) + '...' : res.description}
             </Typography.Text>}
 
             <AppTimeOwnerInfoLabel title={subTitle}>{subTitle}</AppTimeOwnerInfoLabel>
