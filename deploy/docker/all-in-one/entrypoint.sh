@@ -5,6 +5,18 @@ set -e
 export USER_ID=${LOWCODER_PUID:=9001}
 export GROUP_ID=${LOWCODER_PGID:=9001}
 
+# Set default variable values
+echo "Overriding default environment variables:"
+for line in `grep '^[ \t]*LOWCODER_.*$' /lowcoder/etc/default.env`; do
+    VARNAME=`echo ${line} | sed -e 's/^\([A-Z0-9_]\+\)\([ \t]*=[ \t]*\)\(.*\)$/\1/'`
+    if [ -z "$(eval echo \"\$$VARNAME\")" ]; then
+        export $(eval echo "${line}")
+    else
+        echo "    ${line}"
+    fi;
+done;
+echo "Done."
+
 # Update ID of lowcoder user if required
 if [ ! "$(id --user lowcoder)" -eq ${USER_ID} ]; then
     usermod --uid ${USER_ID} lowcoder
