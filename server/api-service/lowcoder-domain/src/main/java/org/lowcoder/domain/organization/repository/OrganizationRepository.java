@@ -34,6 +34,6 @@ public interface OrganizationRepository extends ReactiveMongoRepository<Organiza
     Flux<Organization> findByOrganizationDomainIsNotNull();
     Mono<Boolean> existsBySlug(String slug);
 
-    Flux<Organization> findByIdInAndNameContainingIgnoreCase(List<String> ids, String name, Pageable pageable);
-    Mono<Long> countByIdInAndNameContainingIgnoreCase(List<String> ids, String name);
+    Flux<Organization> findByIdInAndNameContainingIgnoreCaseAndState(List<String> ids, String name, OrganizationState state, Pageable pageable);
+    Mono<Long> countByIdInAndNameContainingIgnoreCaseAndState(List<String> ids, String name, OrganizationState state);
 }
