@@ -3934,7 +3934,7 @@ export const en = {
     "desc": "Description",
     "renameApp": "Rename app",
     "updateAppName": "Update Application Name",
-    "titleUpdateWarning": "Application name will not appear on the card",
+    "titleUpdateWarning": "The card displays the app title. Changing the app name will not update the card view.",
     "all": "All",
     "app": "App",
     "navigation": "Navigation",
