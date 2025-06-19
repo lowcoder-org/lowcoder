@@ -23,6 +23,7 @@ import org.lowcoder.domain.user.service.UserStatusService;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.constants.AuthSourceConstants;
 import org.lowcoder.sdk.exception.BizError;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.bind.annotation.*;
@@ -80,7 +81,7 @@ public class UserController implements UserEndpoints
                                              @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
         return sessionUserService.getVisitor()
                 .flatMap(user -> {
-                    Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
+                    Pageable pageable = PageRequest.of(pageNum - 1, pageSize, Sort.by(Sort.Direction.DESC, "updatedAt"));
                     String filter = orgName == null ? "" : orgName;
                     return organizationService.findUserOrgs(user.getId(), filter, pageable)
                             .map(OrgView::new)

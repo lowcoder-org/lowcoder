@@ -82,7 +82,7 @@ const RootView = React.memo((props: RootViewProps) => {
     localDefaultTheme;
   
   const themeId = selectedTheme ? selectedTheme.id : (
-    previewTheme ? "preview-theme" : 'default-theme-id'
+    previewTheme?.previewTheme ? "preview-theme" : 'default-theme-id'
   ); 
 
   useEffect(() => {

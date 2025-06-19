@@ -263,7 +263,10 @@ COPY --chown=lowcoder:lowcoder --from=lowcoder-ce-node-service /lowcoder/node-se
 COPY --chown=lowcoder:lowcoder deploy/docker/all-in-one/etc /lowcoder/etc
 
 # Add startup script
-COPY --chown=lowcoder:lowcoder deploy/docker/all-in-one/entrypoint.sh /lowcoder/entrypoint.sh
+COPY --chown=lowcoder:lowcoder --chmod=0755 deploy/docker/all-in-one/entrypoint.sh /lowcoder/entrypoint.sh
+
+# Copy default environment properties
+COPY --chown=lowcoder:lowcoder deploy/docker/default.env /lowcoder/etc/default.env
 
 # Fixes for OpenShift compatibility (after all files are copied)
 RUN echo  \

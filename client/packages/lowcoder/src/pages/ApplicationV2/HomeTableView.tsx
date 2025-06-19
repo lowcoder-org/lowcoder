@@ -23,6 +23,8 @@ import { trans } from "../../i18n";
 import { useParams } from "react-router-dom";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { BrandedIcon } from "@lowcoder-ee/components/BrandedIcon";
+import { MultiIconDisplay } from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import { UpdateAppModal } from "./HomeResCard";
 
 const OperationWrapper = styled.div`
   display: flex;
@@ -56,12 +58,13 @@ const TypographyText = styled(AntdTypographyText)`
 export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, modify?: boolean, mode?: string }) => {
   const {setModify, modify, resources, mode} = props
   const dispatch = useDispatch();
-
   const { folderId } = useParams<{ folderId: string }>();
 
   const [needRenameRes, setNeedRenameRes] = useState<HomeRes | undefined>(undefined);
   const [needDuplicateRes, setNeedDuplicateRes] = useState<HomeRes | undefined>(undefined);
   const [needMoveRes, setNeedMoveRes] = useState<HomeRes | undefined>(undefined);
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [currentRes, setCurrentRes] = useState<HomeRes | undefined>(undefined);
 
   const back: HomeRes = {
     key: "",
@@ -77,8 +80,35 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
     resources.unshift(back)
   }
 
+  const handleModalOk = (values: any) => {
+    if (currentRes) {
+      dispatch(
+        updateAppMetaAction({ applicationId: currentRes.id, name: values.appName || currentRes.name, folderId: folderId })
+      );
+      
+      setUpdateModalVisible(false);
+      setTimeout(() => {
+        setModify(!modify);
+      }, 200);
+    }
+  };
+
+  const handleRenameClick = (res: HomeRes) => {
+    setCurrentRes(res);
+    setUpdateModalVisible(true);
+  };
+
   return (
     <>
+      {currentRes && 
+        <UpdateAppModal
+        visible={updateModalVisible}
+        onCancel={() => setUpdateModalVisible(false)}
+        onOk={handleModalOk}
+        res={currentRes}
+        folderId={folderId}
+      />}
+
       <Table
         style={{ padding: "0 24px 60px", color: "#8B8FA3" }}
         tableLayout={"auto"}
@@ -119,7 +149,17 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
               const Icon = HomeResInfo[item.type].icon;
               return (
                 <NameWrapper>
-                  {Icon && (
+                  {item?.icon ? 
+                    <MultiIconDisplay 
+                    identifier={item.icon && typeof item.icon === 'string' ? item.icon : '/icon:antd/appstoreoutlined'} 
+                    width="30px" 
+                    height="30px" 
+                    style={{ 
+                      marginRight: "6px", 
+                      flexShrink: 0, 
+                      color: "#b766db" 
+                      }} 
+                    /> : Icon && (
                     <BrandedIcon>
                       <Icon
                         width={"24px"}
@@ -163,7 +203,7 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
                       },
                     }}
                   >
-                    {item.name}
+                    {item.title || item.name}
                   </TypographyText>
                 </NameWrapper>
               );
@@ -190,6 +230,19 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
             title: trans("home.creator"),
             dataIndex: "creator",
             ellipsis: true,
+            sorter: (a: any, b: any) => {
+              if (a.creator === b.creator) {
+                return 0;
+              }
+              return a.type > b.type ? 1 : -1;
+            },
+            render: (text) => <SubColumnCell>{text}</SubColumnCell>,
+          },
+          {
+            title: trans("home.desc"),
+            dataIndex: "description",
+            ellipsis: true,
+            width: "250px",
             sorter: (a: any, b: any) => {
               if (a.creator === b.creator) {
                 return 0;
@@ -251,7 +304,7 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
                   <HomeResOptions
                     res={item}
                     onDuplicate={(res) => setNeedDuplicateRes(res)}
-                    onRename={(res) => setNeedRenameRes(res)}
+                    onRename={(res) => handleRenameClick(res)}
                     onMove={(res) => setNeedMoveRes(res)}
                     setModify={setModify}
                     modify={modify!}

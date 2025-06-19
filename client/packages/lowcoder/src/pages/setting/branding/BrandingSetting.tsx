@@ -497,14 +497,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                {/* <StyledImage
+                <StyledImage
                   width={200}
                   height={100}
-                  src="https://placehold.co/24x24"
+                  src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Branding%20%7C%20Logo.png"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                /> */}
+                />
               </Col>
             </StyledRow>
           </Card>
@@ -534,14 +534,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                {/* <StyledImage
+                <StyledImage
                   width={200}
                   height={100}
-                  src="https://placehold.co/200x100"
+                  src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Branding%20%7C%20Main%20Branding%20Color.png"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                /> */}
+                />
               </Col>
             </StyledRow>
 
@@ -563,14 +563,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                {/* <StyledImage
+                <StyledImage
                   width={200}
                   height={100}
-                  src="https://placehold.co/200x100"
+                  src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Branding%20%7C%20App%20Header%20Color.png"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                /> */}
+                />
               </Col>
             </StyledRow>
 
@@ -592,14 +592,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                {/* <StyledImage
+                <StyledImage
                   width={200}
                   height={100}
-                  src="https://placehold.co/200x100"
+                  src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Branding%20%7C%20Admin%20Sidebar%20Color.png"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                /> */}
+                />
               </Col>
             </StyledRow>
 
@@ -621,14 +621,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                {/* <StyledImage
+                <StyledImage
                   width={200}
                   height={100}
-                  src="https://placehold.co/200x100"
+                  src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Branding%20%7C%20Admin%20Sidebar%20Font%20Color.png"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                /> */}
+                />
               </Col>
             </StyledRow>
 
@@ -650,14 +650,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                {/* <StyledImage
+                <StyledImage
                   width={200}
                   height={100}
-                  src="https://placehold.co/200x100"
+                  src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Branding%20%7C%20Admin%20Sidebar%20Selected%20Item%20Backround%20Color.png"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                /> */}
+                />
               </Col>
             </StyledRow>
 
@@ -679,14 +679,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                {/* <StyledImage
+                <StyledImage
                   width={200}
                   height={100}
-                  src="https://placehold.co/200x100"
+                  src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Branding%20%7C%20Admin%20Sidebar%20Selected%20Item%20Font%20Color.png"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                /> */}
+                />
               </Col>
             </StyledRow>
 
@@ -708,14 +708,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                {/* <StyledImage
+                <StyledImage
                   width={200}
                   height={100}
-                  src="https://placehold.co/200x100"
+                  src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Branding%20%7C%20Editor%20Sidebar%20Color.png"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                /> */}
+                />
               </Col>
             </StyledRow>
 
@@ -737,14 +737,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                {/* <StyledImage
+                <StyledImage
                   width={200}
                   height={100}
-                  src="https://placehold.co/200x100"
+                  src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Branding%20%7C%20Editor%20Sidebar%20Font%20Color.png"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                /> */}
+                />
               </Col>
             </StyledRow>
 
@@ -766,14 +766,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                {/* <StyledImage
+                <StyledImage
                   width={200}
                   height={100}
-                  src="https://placehold.co/200x100"
+                  src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Branding%20%7C%20Editor%20Sidebar%20Selected%20Item%20Background%20Color.png"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                /> */}
+                />
               </Col>
             </StyledRow>
 
@@ -795,14 +795,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                {/* <StyledImage
+                <StyledImage
                   width={200}
                   height={100}
-                  src="https://placehold.co/200x100"
+                  src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Branding%20%7C%20Editor%20Sidebar%20Selected%20Item%20Font%20Color.png"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                /> */}
+                />
               </Col>
             </StyledRow>
 
@@ -822,14 +822,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                {/* <StyledImage
+                <StyledImage
                   width={200}
                   height={100}
-                  src="https://placehold.co/200x100"
+                  src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Branding%20%7C%20Font.png"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                /> */}
+                />
               </Col>
             </StyledRow>
           </Card>
@@ -850,36 +850,12 @@ export function BrandingSetting() {
                   onChange={(e) => updateSettings(SettingsEnum.ERROR_PAGE_TEXT, e.target.value)}
                 />
 
-                {/* {!Boolean(configOrgId) ? (
-                  <> */}
-                    <StyledSectionTitle style={{marginTop : "20px"}}>{trans("branding.errorPageImageUrl")}</StyledSectionTitle>
-                    <StyledInput
-                      placeholder={trans("branding.errorPageImageUrlPlaceholder")}
-                      value={brandingConfig?.config_set?.[SettingsEnum.ERROR_PAGE_IMAGE] || ""}
-                      onChange={(e) => updateSettings(SettingsEnum.ERROR_PAGE_IMAGE, e.target.value)}
-                    />
-                  {/* </>
-                ) : (
-                  <>
-                    <StyledSectionTitle style={{marginTop : "20px"}}>{trans("branding.errorPageImage")}</StyledSectionTitle>
-                    <StyledRectUploadContainer>
-                      <Upload
-                        name="errorPageImage"
-                        className="avatar-uploader"
-                        listType="picture-card"
-                        showUploadList={false}
-                        beforeUpload={beforeUpload}
-                        maxCount={1}
-                        customRequest={(options) => handleUpload(options, SettingsEnum.ERROR_PAGE_IMAGE)}
-                      >
-                        {Boolean(brandingConfig?.config_set?.[SettingsEnum.ERROR_PAGE_IMAGE])
-                          ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.ERROR_PAGE_IMAGE]!)} alt="error_page_image" />
-                          : uploadButton(loading[SettingsEnum.ERROR_PAGE_IMAGE])
-                        }
-                      </Upload>
-                    </StyledRectUploadContainer>
-                  </>
-                )} */}
+                <StyledSectionTitle style={{marginTop : "20px"}}>{trans("branding.errorPageImageUrl")}</StyledSectionTitle>
+                <StyledInput
+                  placeholder={trans("branding.errorPageImageUrlPlaceholder")}
+                  value={brandingConfig?.config_set?.[SettingsEnum.ERROR_PAGE_IMAGE] || ""}
+                  onChange={(e) => updateSettings(SettingsEnum.ERROR_PAGE_IMAGE, e.target.value)}
+                />
               </Col>
               <Col xs={24} md={8}>
                 <Paragraph type="secondary">
@@ -887,14 +863,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                {/* <StyledImage
+                <StyledImage
                   width={200}
                   height={100}
-                  src="https://placehold.co/200x100"
+                  src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Branding%20%7C%20Error%20Page.png"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                /> */}
+                />
               </Col>
             </StyledRow>
             <StyledDivider />
@@ -906,52 +882,27 @@ export function BrandingSetting() {
                   value={brandingConfig?.config_set?.signUpPageText || ""}
                   onChange={(e) => updateSettings(SettingsEnum.SIGNUP_PAGE_TEXT, e.target.value)}
                 />
-
-                {/* {!Boolean(configOrgId) ? (
-                  <> */}
-                    <StyledSectionTitle style={{marginTop : "20px"}}>{trans("branding.signUpPageImageUrl")}</StyledSectionTitle>
-                    <StyledInput
-                      placeholder={trans("branding.signUpPageImageUrlPlaceholder")}
-                      value={brandingConfig?.config_set?.[SettingsEnum.SIGNUP_PAGE_IMAGE] || ""}
-                      onChange={(e) => updateSettings(SettingsEnum.SIGNUP_PAGE_IMAGE, e.target.value)}
-                    />
-                  {/* </>
-                ) : (
-                  <>
-                    <StyledSectionTitle style={{marginTop : "20px"}}>{trans("branding.signUpPageImage")}</StyledSectionTitle>
-                    <StyledRectUploadContainer>
-                      <Upload
-                        name="signUpPageImage"
-                        className="avatar-uploader"
-                        listType="picture-card"
-                        showUploadList={false}
-                        beforeUpload={beforeUpload}
-                        maxCount={1}
-                        customRequest={(options) => handleUpload(options, SettingsEnum.SIGNUP_PAGE_IMAGE)}
-                      >
-                        {Boolean(brandingConfig?.config_set?.[SettingsEnum.SIGNUP_PAGE_IMAGE])
-                          ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.SIGNUP_PAGE_IMAGE]!)} alt="signup_page_image" />
-                          : uploadButton(loading[SettingsEnum.SIGNUP_PAGE_IMAGE])
-                        }
-                      </Upload>
-                    </StyledRectUploadContainer>
-                  </>
-                )} */}
+                  <StyledSectionTitle style={{marginTop : "20px"}}>{trans("branding.signUpPageImageUrl")}</StyledSectionTitle>
+                  <StyledInput
+                    placeholder={trans("branding.signUpPageImageUrlPlaceholder")}
+                    value={brandingConfig?.config_set?.[SettingsEnum.SIGNUP_PAGE_IMAGE] || ""}
+                    onChange={(e) => updateSettings(SettingsEnum.SIGNUP_PAGE_IMAGE, e.target.value)}
+                  />
               </Col>
               <Col xs={24} md={8}>
                 <Paragraph type="secondary">
-                  {settingDescription[SettingsEnum.ERROR_PAGE_TEXT]}
+                  {settingDescription[SettingsEnum.SIGNUP_PAGE_TEXT]}
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                {/* <StyledImage
+                <StyledImage
                   width={200}
                   height={100}
-                  src="https://placehold.co/200x100"
+                  src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Enterprise%20Edition%20%7C%20Branding%20%7C%20Whitelabel.png"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                /> */}
+                />
               </Col>
             </StyledRow>
             <StyledDivider />
@@ -980,14 +931,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                {/* <StyledImage
+                <StyledImage
                   width={200}
                   height={100}
-                  src="https://placehold.co/200x100"
+                  src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Branding%20%7C%20SEO.png"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                /> */}
+                />
               </Col>
             </StyledRow>
           </Card>
@@ -1028,14 +979,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                {/* <StyledImage
+                <StyledImage
                   width={200}
                   height={100}
-                  src="https://placehold.co/200x100"
+                  src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Branding%20%7C%20Documentation%20Link.png"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                /> */}
+                />
               </Col>
             </StyledRow>
 
@@ -1066,14 +1017,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                {/* <StyledImage
+                <StyledImage
                   width={200}
                   height={100}
-                  src="https://placehold.co/200x100"
+                  src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Branding%20%7C%20Whats%20New.png"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                /> */}
+                />
               </Col>
             </StyledRow>
 
@@ -1093,14 +1044,14 @@ export function BrandingSetting() {
                 </Paragraph>
               </Col>
               <Col xs={24} md={8} style={{textAlign: 'right'}}>
-                {/* <StyledImage
+                <StyledImage
                   width={200}
                   height={100}
-                  src="https://placehold.co/200x100"
+                  src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Branding%20%7C%20Allow%20Submit%20Issue.png"
                   alt="Color Preview"
                   preview
                   loading="lazy"
-                /> */}
+                />
               </Col>
             </StyledRow>
           </Card>

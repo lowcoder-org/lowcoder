@@ -11,7 +11,7 @@ import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { InputLikeStyleType, LabelStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
-import { fromPairs } from "lodash";
+import { debounce, fromPairs } from "lodash";
 import { css } from "styled-components";
 import { EMAIL_PATTERN, URL_PATTERN } from "util/stringUtils";
 import { MultiBaseComp, RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
@@ -33,7 +33,7 @@ import {
   showDataLoadingIndicatorsPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { InputRef } from "antd/es/input";
 import {
@@ -199,7 +199,6 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
         },
       })
     );
-    propsRef.current.onEvent("change");
     changeRef.current = false;
   }, [localInputValue]);
 
@@ -216,11 +215,13 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
     );
   }, [props.customRule])
 
-  const onChangeRef = useRef(
-    (value: string) => {
-      props.value.onChange(value);
-    }
+  const debouncedOnChangeRef = useRef(
+    debounce(function (value: string, valueCtx: any) {
+      propsRef.current.value.onChange(value);
+      propsRef.current.onEvent("change");
+    }, 1000)
   );
+  
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -228,7 +229,7 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
 
     changeRef.current = true;
     touchRef.current = true;
-    onChangeRef.current?.(value);
+    debouncedOnChangeRef.current?.(value, propsRef.current.value);
   };
 
   // Cleanup refs on unmount
@@ -237,7 +238,7 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
       changeRef.current = false;
       touchRef.current = false;
       propsRef.current = null as any;
-      onChangeRef.current = null as any;
+      debouncedOnChangeRef.current.cancel();
     };
   }, []);
 

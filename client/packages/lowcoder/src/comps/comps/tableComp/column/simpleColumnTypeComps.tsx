@@ -16,10 +16,11 @@ import { ToViewReturn } from "@lowcoder-ee/comps/generators/multi";
 import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
 import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
 import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
+import { isArray } from "lodash";
 
 export const fixOldActionData = (oldData: any) => {
   if (!oldData) return oldData;
-  if (Boolean(oldData.onClick)) {
+  if (Boolean(oldData.onClick && !isArray(oldData.onClick))) {
     return {
       ...oldData,
       onClick: [{
