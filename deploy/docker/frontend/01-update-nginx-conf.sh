@@ -22,6 +22,7 @@ sed -i "s@__LOWCODER_MAX_REQUEST_SIZE__@${LOWCODER_MAX_REQUEST_SIZE:=20m}@" /etc
 sed -i "s@__LOWCODER_MAX_QUERY_TIMEOUT__@${LOWCODER_MAX_QUERY_TIMEOUT:=120}@" /etc/nginx/server.conf
 sed -i "s@__LOWCODER_API_SERVICE_URL__@${LOWCODER_API_SERVICE_URL:=http://localhost:8080}@" /etc/nginx/server.conf
 sed -i "s@__LOWCODER_NODE_SERVICE_URL__@${LOWCODER_NODE_SERVICE_URL:=http://localhost:6060}@" /etc/nginx/server.conf
+sed -i "s@__LOWCODER_BASE_PATH__@${LOWCODER_BASE_PATH}@" /etc/nginx/server.conf
 
 echo "nginx config updated with:"
 echo "    Lowcoder max upload size: ${LOWCODER_MAX_REQUEST_SIZE:=20m}"
