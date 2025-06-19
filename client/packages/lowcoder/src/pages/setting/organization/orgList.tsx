@@ -1,7 +1,7 @@
 import { ADMIN_ROLE, SUPER_ADMIN_ROLE } from "constants/orgConstants";
 import { AddIcon, CustomModal, DangerIcon, EditPopover, SearchIcon, CheckoutIcon } from "lowcoder-design";
 import { useDispatch, useSelector } from "react-redux";
-import { createOrgAction, deleteOrgAction } from "redux/reduxActions/orgActions";
+import { createOrgAction, deleteOrgAction, switchOrg } from "redux/reduxActions/orgActions";
 import styled from "styled-components";
 import { trans, transToNode } from "i18n";
 import { buildOrgId } from "constants/routesURL";
@@ -56,6 +56,12 @@ const ActiveOrgIcon = styled(CheckoutIcon)`
   height: 16px;
   color: #4965f2;
   margin-left: 6px;
+`;
+
+// Button to switch to this organization
+const SwitchBtn = styled(EditBtn)`
+  min-width: 64px;
+  margin-right: 8px;
 `;
 
 const TableStyled = styled(Table)`
@@ -264,6 +270,15 @@ function OrganizationSetting() {
                 key: i,
                 operation: (
                   <OperationWrapper>
+                    {item.id !== user.currentOrgId && (
+                      <SwitchBtn
+                        className={"home-datasource-edit-button"}
+                        buttonType={"blue"}
+                        onClick={() => dispatch(switchOrg(item.id))}
+                      >
+                        {trans("profile.switchOrg")}
+                      </SwitchBtn>
+                    )}
                     <EditBtn
                       className={"home-datasource-edit-button"}
                       buttonType={"primary"}
