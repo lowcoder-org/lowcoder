@@ -198,7 +198,7 @@ export default function WorkspaceSectionComponent({
     handleSearchChange,
     handlePageChange,
     pageSize,
-  } = useWorkspaceManager({ isDropdownOpen });
+  } = useWorkspaceManager({});
 
   // Early returns for better performance
   if (!showSwitchOrg(user, sysConfig)) return null;

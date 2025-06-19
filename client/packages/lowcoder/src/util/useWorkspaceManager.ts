@@ -64,13 +64,11 @@ function workspaceReducer(state: WorkspaceState, action: WorkspaceAction): Works
 
 // Hook interface
 interface UseWorkspaceManagerOptions {
-  isDropdownOpen: boolean;
   pageSize?: number;
 }
 
 // Main hook
 export function useWorkspaceManager({ 
-  isDropdownOpen, 
   pageSize = 10 
 }: UseWorkspaceManagerOptions) {
   // Get workspaces from Redux
@@ -82,12 +80,6 @@ export function useWorkspaceManager({
     totalCount: workspaces.totalCount,
   });
 
-  // Reset state when dropdown closes
-  useEffect(() => {
-    if (!isDropdownOpen) {
-      dispatch({ type: 'RESET', payload: { totalCount: workspaces.totalCount } });
-    }
-  }, [isDropdownOpen, workspaces.totalCount]);
 
   // API call to fetch workspaces (memoized for stable reference)
   const fetchWorkspacesPage = useCallback(
