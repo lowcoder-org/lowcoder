@@ -286,6 +286,8 @@ export function* updateOrgSaga(action: ReduxAction<UpdateOrgPayload>) {
     const isValidResponse: boolean = validateResponse(response);
     if (isValidResponse) {
       yield put(updateOrgSuccess(action.payload));
+      // Refetch workspaces to update the profile dropdown
+      yield put(fetchWorkspacesAction(1, 10));
     }
   } catch (error: any) {
     messageInstance.error(error.message);
