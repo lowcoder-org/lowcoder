@@ -274,7 +274,10 @@ function OrganizationSetting() {
                       <SwitchBtn
                         className={"home-datasource-edit-button"}
                         buttonType={"blue"}
-                        onClick={() => dispatch(switchOrg(item.id))}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          dispatch(switchOrg(item.id));
+                        }}
                       >
                         {trans("profile.switchOrg")}
                       </SwitchBtn>
