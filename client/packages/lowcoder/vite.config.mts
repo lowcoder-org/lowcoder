@@ -25,7 +25,8 @@ const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
 // the file was never created
 // const browserCheckFileName = `browser-check-${process.env.REACT_APP_COMMIT_ID}.js`;
 const browserCheckFileName = `browser-check.js`;
-const base = ensureLastSlash(process.env.PUBLIC_URL);
+const base  = ensureLastSlash("__LOWCODER_BASEPATH_PLACEHOLDER__");
+// const base = ensureLastSlash(process.env.PUBLIC_URL);
 
 if (!apiServiceUrl && isDev) {
   console.log();
