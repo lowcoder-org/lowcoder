@@ -1,6 +1,7 @@
 import { Org } from "@lowcoder-ee/constants/orgConstants";
 import { getUser } from "./usersSelectors";
 import { AppState } from "redux/reducers";
+import { getHomeOrg } from "./applicationSelector";
 
 export const getOrgUsers = (state: AppState) => {
   return state.ui.org.orgUsers;
@@ -33,8 +34,14 @@ export const getOrgLastMonthApiUsage = (state: AppState) => {
 // Add to usersSelectors.ts
 export const getWorkspaces = (state: AppState) => state.ui.users.workspaces;
 
-export const getCurrentOrg = (state: AppState): Org | undefined => {
-  const user = getUser(state);
-  const workspaces = getWorkspaces(state);
-  return workspaces.items.find(org => org.id === user.currentOrgId);
+export const getCurrentOrg = (state: AppState): Pick<Org, 'id' | 'name'> | undefined => {
+  const homeOrg = getHomeOrg(state);
+  if (!homeOrg) {
+    return undefined;
+  }
+  
+  return {
+    id: homeOrg.id,
+    name: homeOrg.name,
+  };
 };
