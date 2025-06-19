@@ -25,6 +25,7 @@ import {
   fetchLastMonthAPIUsageActionSuccess,
   UpdateUserGroupRolePayload,
   UpdateUserOrgRolePayload,
+  fetchWorkspacesAction,
 } from "redux/reduxActions/orgActions";
 import { getUser } from "redux/selectors/usersSelectors";
 import { validateResponse } from "api/apiUtils";
@@ -270,6 +271,8 @@ export function* deleteOrgSaga(action: ReduxAction<{ orgId: string }>) {
           orgId: action.payload.orgId,
         },
       });
+      // Refetch workspaces to update the profile dropdown
+      yield put(fetchWorkspacesAction(1, 10));
     }
   } catch (error: any) {
     messageInstance.error(error.message);
