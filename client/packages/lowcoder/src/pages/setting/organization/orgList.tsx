@@ -1,5 +1,5 @@
 import { ADMIN_ROLE, SUPER_ADMIN_ROLE } from "constants/orgConstants";
-import { AddIcon, CustomModal, DangerIcon, EditPopover, SearchIcon } from "lowcoder-design";
+import { AddIcon, CustomModal, DangerIcon, EditPopover, SearchIcon, CheckoutIcon } from "lowcoder-design";
 import { useDispatch, useSelector } from "react-redux";
 import { createOrgAction, deleteOrgAction } from "redux/reduxActions/orgActions";
 import styled from "styled-components";
@@ -48,6 +48,14 @@ const OrgName = styled.div`
     color: #333;
     font-weight: 500;
   }
+`;
+
+// Icon to indicate the currently active organization
+const ActiveOrgIcon = styled(CheckoutIcon)`
+  width: 16px;
+  height: 16px;
+  color: #4965f2;
+  margin-left: 6px;
 `;
 
 const TableStyled = styled(Table)`
@@ -239,10 +247,12 @@ function OrganizationSetting() {
                   dataIndex: "orgName",
                   ellipsis: true,
                   render: (_, record: any) => {
+                    const isActiveOrg = record.id === user.currentOrgId;
                     return (
                       <OrgName>
                         <StyledOrgLogo source={record.logoUrl} orgName={record.orgName} />
                         <span>{record.orgName}</span>
+                        {isActiveOrg && <ActiveOrgIcon />}
                       </OrgName>
                     );
                   },
