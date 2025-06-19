@@ -22,12 +22,12 @@ import history from "util/history";
 import { APPLICATION_VIEW_URL } from "constants/routesURL";
 import { TypographyText } from "../../components/TypographyText";
 import { useParams } from "react-router-dom";
-import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import {FolderIcon} from "icons";
 import { BrandedIcon } from "@lowcoder-ee/components/BrandedIcon";
 import { Typography } from "antd";
 import { default as Form } from "antd/es/form";
 import { default as Input } from "antd/es/input";
+import { default as AntdTypographyText } from "antd/es/typography/Text";
 import { MultiIconDisplay } from "@lowcoder-ee/comps/comps/multiIconDisplay";
 import { FormStyled } from "../setting/idSource/styledComponents";
 
@@ -107,12 +107,6 @@ const CardInfo = styled.div`
   cursor: pointer;
   padding-right: 12px;
 
-  &:hover {
-    .ant-typography {
-      color: #315efb;
-    }
-  }
-
   .ant-typography {
     padding: 2px 2px 8px 2px;
   }
@@ -135,6 +129,20 @@ const OperationWrapper = styled.div`
     > svg {
       display: none;
     }
+  }
+`;
+
+export const StyledTypographyText = styled(AntdTypographyText)`
+  font-size: 14px;
+  color: #333333;
+  line-height: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+
+  &:hover {
+  color: #315efb;
+  }
   }
 `;
 
@@ -207,7 +215,6 @@ export function UpdateAppModal({ visible, onCancel, onOk, res, folderId }: Updat
 
 export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => void; setModify:any; modify: boolean }) {
   const { res, onMove, setModify, modify } = props;
-  const [appNameEditing, setAppNameEditing] = useState(false);
   const [dialogVisible, setDialogVisible] = useState(false)
   const dispatch = useDispatch();
 
@@ -237,6 +244,8 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
   const Icon = resInfo.icon;
 
   const handleModalOk = (values: any) => {
+    res.type === HomeResTypeEnum.Folder &&
+      dispatch(updateFolder({ id: res.id, name: values.appName || res.name }))
     dispatch(
       updateAppMetaAction({ applicationId: res.id, name: values.appName || res.name, folderId: folderId })
     );
@@ -284,9 +293,6 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
           }
           <CardInfo
             onClick={(e) => {
-              if (appNameEditing) {
-                return;
-              }
               if (res.type === HomeResTypeEnum.Folder) {
                 handleFolderViewClick(res.id);
               } else {
@@ -302,30 +308,9 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
               }
             }}
           >
-            <TypographyText
-              value={res.title || res.name}
-              editing={false}
-              onChange={(value) => {
-                if (!value.trim()) {
-                  messageInstance.warning(trans("home.nameCheckMessage"));
-                  return;
-                }
-                if (res.type === HomeResTypeEnum.Folder) {
-                  dispatch(updateFolder({ id: res.id, name: value }));
-                  setTimeout(() => {
-                    setModify(!modify);
-                  }, 200);
-                } else {
-                  dispatch(
-                    updateAppMetaAction({ applicationId: res.id, name: value, folderId: folderId })
-                  );
-                  setTimeout(() => {
-                    setModify(!modify);
-                  }, 200);
-                }
-                setAppNameEditing(false);
-              }}
-            />
+            <StyledTypographyText> 
+              {res.title || res.name}
+            </StyledTypographyText>
 
             {res?.description 
               && <Typography.Text 
