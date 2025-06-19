@@ -25,6 +25,7 @@ import { getOrgCreateStatus } from "redux/selectors/orgSelectors";
 import { useWorkspaceManager } from "util/useWorkspaceManager";
 import { Org } from "constants/orgConstants";
 import { useState } from "react";
+import { SwapOutlined } from "@ant-design/icons";
 
 const OrgName = styled.div`
   display: flex;
@@ -60,7 +61,7 @@ const ActiveOrgIcon = styled(CheckoutIcon)`
 
 // Button to switch to this organization
 const SwitchBtn = styled(EditBtn)`
-  min-width: 64px;
+  min-width: auto;
   margin-right: 8px;
 `;
 
@@ -274,12 +275,13 @@ function OrganizationSetting() {
                       <SwitchBtn
                         className={"home-datasource-edit-button"}
                         buttonType={"blue"}
+                        icon={<SwapOutlined />}
                         onClick={(e) => {
                           e.stopPropagation();
                           dispatch(switchOrg(item.id));
                         }}
                       >
-                        {trans("profile.switchOrg")}
+                        {trans("profile.switchWorkspace")}
                       </SwitchBtn>
                     )}
                     <EditBtn
