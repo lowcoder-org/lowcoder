@@ -1,6 +1,7 @@
 package org.lowcoder.api.usermanagement;
 
 import org.lowcoder.api.usermanagement.view.*;
+import org.lowcoder.api.usermanagement.view.OrgMemberListView;
 import org.lowcoder.domain.group.model.Group;
 import reactor.core.publisher.Mono;
 
@@ -24,4 +25,6 @@ public interface GroupApiService {
     Mono<Boolean> update(String groupId, UpdateGroupRequest updateGroupRequest);
 
     Mono<Boolean> removeUser(String groupId, String userId);
+
+    Mono<OrgMemberListView> getPotentialGroupMembers(String groupId, String searchName, Integer pageNum, Integer pageSize);
 }

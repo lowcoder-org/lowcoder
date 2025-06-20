@@ -9,9 +9,8 @@ import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 import static org.lowcoder.sdk.util.StreamUtils.collectList;
 import static org.lowcoder.sdk.util.StreamUtils.collectMap;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.github.f4b6a3.uuid.UuidCreator;
@@ -19,24 +18,22 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lowcoder.api.bizthreshold.AbstractBizThresholdChecker;
 import org.lowcoder.api.home.SessionUserService;
-import org.lowcoder.api.usermanagement.view.CreateGroupRequest;
-import org.lowcoder.api.usermanagement.view.GroupMemberAggregateView;
-import org.lowcoder.api.usermanagement.view.GroupMemberView;
-import org.lowcoder.api.usermanagement.view.GroupView;
-import org.lowcoder.api.usermanagement.view.UpdateGroupRequest;
-import org.lowcoder.api.usermanagement.view.UpdateRoleRequest;
+import org.lowcoder.api.usermanagement.view.*;
 import org.lowcoder.domain.group.model.Group;
 import org.lowcoder.domain.group.model.GroupMember;
+import org.lowcoder.domain.user.model.UserState;
+import org.lowcoder.api.usermanagement.view.OrgMemberListView;
 import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.model.MemberRole;
 import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.service.OrgMemberService;
-import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.infra.util.TupleUtils;
 import org.lowcoder.sdk.exception.BizError;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import reactor.core.publisher.Flux;
@@ -53,7 +50,6 @@ public class GroupApiServiceImpl implements GroupApiService {
     private final UserService userService;
     private final GroupService groupService;
     private final AbstractBizThresholdChecker bizThresholdChecker;
-    private final OrganizationService organizationService;
     private final OrgMemberService orgMemberService;
 
     @Override
@@ -309,6 +305,65 @@ public class GroupApiServiceImpl implements GroupApiService {
                         return ofError(CANNOT_REMOVE_MYSELF, "CANNOT_REMOVE_MYSELF");
                     }
                     return groupMemberService.removeMember(groupId, userId);
+                });
+    }
+
+    @Override
+    public Mono<OrgMemberListView> getPotentialGroupMembers(String groupId, String searchName, Integer pageNum, Integer pageSize) {
+        return groupService.getById(groupId)
+                .flatMap(group -> {
+                    String orgId = group.getOrganizationId();
+                    Mono<List<OrgMember>> orgMemberUserIdsMono = orgMemberService.getOrganizationMembers(orgId).collectList();
+                    Mono<List<GroupMember>> groupMemberUserIdsMono = groupMemberService.getGroupMembers(groupId);
+
+                    return Mono.zip(orgMemberUserIdsMono, groupMemberUserIdsMono)
+                            .flatMap(tuple -> {
+                                List<OrgMember> orgMembers = tuple.getT1();
+                                List<GroupMember> groupMembers = tuple.getT2();
+
+                                Set<String> groupMemberUserIds = groupMembers.stream()
+                                        .map(GroupMember::getUserId)
+                                        .collect(Collectors.toSet());
+
+                                Collection<String> potentialUserIds = orgMembers.stream()
+                                        .map(OrgMember::getUserId)
+                                        .filter(uid -> !groupMemberUserIds.contains(uid))
+                                        .collect(Collectors.toList());
+
+                                if (potentialUserIds.isEmpty()) {
+                                    return Mono.just(OrgMemberListView.builder()
+                                            .members(List.of())
+                                            .total(0)
+                                            .pageNum(pageNum)
+                                            .pageSize(pageSize)
+                                            .build());
+                                }
+
+                                Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
+                                String searchRegex = searchName != null && !searchName.isBlank() ? ".*" + Pattern.quote(searchName) + ".*" : ".*";
+
+                                return userService.findUsersByIdsAndSearchNameForPagination(
+                                                potentialUserIds, String.valueOf(UserState.ACTIVATED), true, searchRegex, pageable)
+                                        .collectList()
+                                        .zipWith(userService.countUsersByIdsAndSearchName(
+                                                potentialUserIds, String.valueOf(UserState.ACTIVATED), true, searchRegex))
+                                        .map(tupleUser -> {
+                                            List<User> users = tupleUser.getT1();
+                                            long total = tupleUser.getT2();
+                                            List<OrgMemberListView.OrgMemberView> memberViews = users.stream()
+                                                    .map(u -> OrgMemberListView.OrgMemberView.builder()
+                                                            .userId(u.getId())
+                                                            .name(u.getName())
+                                                            .build())
+                                                    .collect(Collectors.toList());
+                                            return OrgMemberListView.builder()
+                                                    .members(memberViews)
+                                                    .total((int) total)
+                                                    .pageNum(pageNum)
+                                                    .pageSize(pageSize)
+                                                    .build();
+                                        });
+                            });
                 });
     }
 }

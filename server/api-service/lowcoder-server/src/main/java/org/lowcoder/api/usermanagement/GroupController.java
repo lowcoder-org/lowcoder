@@ -20,10 +20,8 @@ import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.sdk.exception.BizError;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.lowcoder.api.usermanagement.view.OrgMemberListView;
 
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -178,6 +176,17 @@ public class GroupController implements GroupEndpoints
                 .zipWhen(groupMember -> groupApiService.removeUser(objectId, userId))
                 .delayUntil(tuple -> businessEventPublisher.publishGroupMemberRemoveEvent(tuple.getT2(), tuple.getT1()))
                 .map(Tuple2::getT2)
+                .map(ResponseView::success));
+    }
+
+    @Override
+    public Mono<ResponseView<OrgMemberListView>> searchPotentialGroupMembers(
+            @PathVariable String groupId,
+            @RequestParam(required = false) String searchName,
+            @RequestParam(required = false, defaultValue = "1") Integer pageNum,
+            @RequestParam(required = false, defaultValue = "1000") Integer pageSize) {
+        return gidService.convertGroupIdToObjectId(groupId).flatMap(id ->
+                groupApiService.getPotentialGroupMembers(id, searchName, pageNum, pageSize)
                 .map(ResponseView::success));
     }
 }
