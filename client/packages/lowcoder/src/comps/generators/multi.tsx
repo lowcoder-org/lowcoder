@@ -51,9 +51,10 @@ export type ViewFnTypeForComp<ViewReturn, ChildrenCompMap> = ViewFnType<
   ViewReturn,
   ToViewReturn<ChildrenCompMap>
 >;
-export type PropertyViewFnTypeForComp<ChildrenCompMap> = (
+export type PropertyViewFnTypeForComp<ChildrenCompMap, ExtraProps = any> = (
   children: ChildrenCompMap,
-  dispatch: (action: CompAction) => void
+  dispatch: (action: CompAction) => void,
+  extraProps?: ExtraProps
 ) => ReactNode;
 
 export function parseChildrenFromValueAndChildrenMap<
@@ -83,10 +84,10 @@ export function parseChildrenFromValueAndChildrenMap<
  * Building comp this way can use typescript's type inference capabilities.
  * Using ChildrenCompMap as a generic is to retain the information of each class, such as not wanting StringControl to degenerate into Comp<string>
  */
-export class MultiCompBuilder<ViewReturn, ChildrenCompMap extends Record<string, Comp<unknown>>> {
+export class MultiCompBuilder<ViewReturn, ChildrenCompMap extends Record<string, Comp<unknown>>, ExtraProps = any> {
   private childrenMap: ToConstructor<ChildrenCompMap>;
   private viewFn: ViewFnTypeForComp<ViewReturn, ChildrenCompMap>;
-  private propertyViewFn?: PropertyViewFnTypeForComp<ChildrenCompMap>;
+  private propertyViewFn?: PropertyViewFnTypeForComp<ChildrenCompMap, ExtraProps>;
 
   /**
    * If viewFn is not placed in the constructor, the type of ViewReturn cannot be inferred
@@ -99,7 +100,7 @@ export class MultiCompBuilder<ViewReturn, ChildrenCompMap extends Record<string,
     this.viewFn = viewFn;
   }
 
-  setPropertyViewFn(propertyViewFn: PropertyViewFnTypeForComp<ChildrenCompMap>) {
+  setPropertyViewFn(propertyViewFn: PropertyViewFnTypeForComp<ChildrenCompMap, ExtraProps>) {
     this.propertyViewFn = propertyViewFn;
     return this;
   }
@@ -129,8 +130,8 @@ export class MultiCompBuilder<ViewReturn, ChildrenCompMap extends Record<string,
         );
       }
 
-      override getPropertyView(): ReactNode {
-        return <PropertyView comp={this} propertyViewFn={builder.propertyViewFn} />;
+      override getPropertyView(extraProps?: ExtraProps): ReactNode {
+        return <PropertyView comp={this} propertyViewFn={builder.propertyViewFn} extraProps={extraProps} />;
       }
     }
 
@@ -141,12 +142,12 @@ export class MultiCompBuilder<ViewReturn, ChildrenCompMap extends Record<string,
 /**
  * Guaranteed to be in a react component, so that react hooks can be used internally
  */
-export function PropertyView(props: { comp: any; propertyViewFn: any }) {
+export function PropertyView(props: { comp: any; propertyViewFn: any; extraProps?: any }) {
   const comp = props.comp;
   if (!props.propertyViewFn) {
     return null;
   }
-  return props.propertyViewFn(comp.children, comp.dispatch);
+  return props.propertyViewFn(comp.children, comp.dispatch, props.extraProps);
 }
 
 export function childrenToProps<ChildrenCompMap extends Record<string, Comp<unknown>>>(

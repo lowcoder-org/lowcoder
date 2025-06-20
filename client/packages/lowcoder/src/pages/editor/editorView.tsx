@@ -337,7 +337,11 @@ const aggregationSiderItems = [
   {
     key: SiderKey.Setting,
     icon: <LeftSettingIcon />,
-  }
+  },
+  {
+    key: SiderKey.JS,
+    icon: <LeftJSSettingIcon />,
+  },
 ];
 
 const DeviceWrapper = ({
@@ -706,11 +710,9 @@ function EditorView(props: EditorViewProps) {
                         <SettingsDiv>
                           <ScrollBar>
                             {application &&
-                              !isAggregationApp(
-                                AppUILayoutType[application.applicationType]
-                              ) && (
+                              (
                                 <>
-                                  {appSettingsComp.getPropertyView()}
+                                  {appSettingsComp.getPropertyView({ isAggregationApp: isAggregationApp(AppUILayoutType[application.applicationType]) })}
                                 </>
                               )}
                           </ScrollBar>
@@ -724,7 +726,7 @@ function EditorView(props: EditorViewProps) {
                                 AppUILayoutType[application.applicationType]
                               ) && (
                                 <>
-                                  {appSettingsComp.getPropertyView()}
+                                  {appSettingsComp.getPropertyView({ isAggregationApp: isAggregationApp(AppUILayoutType[application.applicationType]) })}
                                 </>
                               )}
                           </ScrollBar>

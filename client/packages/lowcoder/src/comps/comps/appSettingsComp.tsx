@@ -233,7 +233,11 @@ type ChildrenInstance = RecordConstructorToComp<typeof childrenMap> & {
   defaultTheme: string;
 };
 
-function AppGeneralSettingsModal(props: ChildrenInstance) {
+type AppSettingsExtraProps = { isAggregationApp?: boolean };
+type AppGeneralSettingsModalProps = ChildrenInstance & AppSettingsExtraProps;
+type AppCanvasSettingsModalProps = ChildrenInstance & AppSettingsExtraProps;
+
+function AppGeneralSettingsModal(props: AppGeneralSettingsModalProps) {
   const lowcoderCompsMeta = useSelector((state: AppState) => state.npmPlugin.packageMeta['lowcoder-comps']);
   const [lowcoderCompVersions, setLowcoderCompVersions] = useState(['latest']);
   const {
@@ -243,6 +247,7 @@ function AppGeneralSettingsModal(props: ChildrenInstance) {
     category,
     showHeaderInPublic,
     lowcoderCompVersion,
+    isAggregationApp
   } = props;
   
   useEffect(() => {
@@ -288,7 +293,8 @@ function AppGeneralSettingsModal(props: ChildrenInstance) {
           </div>
         </DivStyled>
       </BaseSection>
-      <BaseSection
+      {!isAggregationApp && 
+        <BaseSection
         name={"Lowcoder Comps"}
         width={288}
         noMargin
@@ -319,7 +325,7 @@ function AppGeneralSettingsModal(props: ChildrenInstance) {
             }}
           />
         </DivStyled>
-      </BaseSection>
+      </BaseSection>}
       <BaseSection
         name={"Shortcuts"}
         width={288}
@@ -337,7 +343,7 @@ function AppGeneralSettingsModal(props: ChildrenInstance) {
   );
 }
 
-function AppCanvasSettingsModal(props: ChildrenInstance) {
+function AppCanvasSettingsModal(props: AppCanvasSettingsModalProps) {
   const isPublicApp = useSelector(isPublicApplication);
   const {
     themeList,
@@ -516,13 +522,12 @@ export const AppSettingsComp = new MultiCompBuilder(childrenMap, (props) => {
     maxWidth: Number(props.maxWidth),
   };
 })
-  .setPropertyViewFn((children) => {
+  .setPropertyViewFn((children, extraProps) => {
     const { settingType } = useContext(AppSettingContext);
     const themeList = useSelector(getThemeList) || [];
     const defaultTheme = (useSelector(getDefaultTheme) || "").toString();
-
     return settingType === 'canvas'
-      ? <AppCanvasSettingsModal {...children} themeList={themeList} defaultTheme={defaultTheme} />
-      : <AppGeneralSettingsModal {...children} themeList={themeList} defaultTheme={defaultTheme} />;
+      ? <AppCanvasSettingsModal {...children} themeList={themeList} defaultTheme={defaultTheme} {...(extraProps || {})} />
+      : <AppGeneralSettingsModal {...children} themeList={themeList} defaultTheme={defaultTheme} {...(extraProps || {})} />;
   })
   .build();
