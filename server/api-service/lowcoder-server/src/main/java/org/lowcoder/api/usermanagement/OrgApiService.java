@@ -53,7 +53,5 @@ public interface OrgApiService {
     Mono<ConfigView> getOrganizationConfigs(String orgId);
 
     Mono<Long> getApiUsageCount(String orgId, Boolean lastMonthOnly);
-
-    Mono<OrgMemberListView> getOrganizationMembersForSearch(String orgId, String searchMemberName, String searchGroupId, Integer pageNum, Integer pageSize);
 }
 

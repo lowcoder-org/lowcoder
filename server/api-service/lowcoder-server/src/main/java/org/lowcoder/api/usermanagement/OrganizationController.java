@@ -118,16 +118,6 @@ public class OrganizationController implements OrganizationEndpoints
             orgApiService.getOrganizationMembers(id, pageNum, pageSize)
                 .map(ResponseView::success));
     }
-    @Override
-    public Mono<ResponseView<OrgMemberListView>> getOrgMembersForSearch(@PathVariable String orgId,
-            @PathVariable String searchMemberName,
-            @PathVariable String searchGroupId,
-            @RequestParam(required = false, defaultValue = "1") int pageNum,
-            @RequestParam(required = false, defaultValue = "1000") int pageSize) {
-        return gidService.convertOrganizationIdToObjectId(orgId).flatMap(id ->
-            orgApiService.getOrganizationMembersForSearch(id, searchMemberName, searchGroupId, pageNum, pageSize)
-                .map(ResponseView::success));
-    }
 
     @Override
     public Mono<ResponseView<Boolean>> updateRoleForMember(@RequestBody UpdateRoleRequest updateRoleRequest,
