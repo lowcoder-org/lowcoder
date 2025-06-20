@@ -192,7 +192,7 @@ export default function ProfileDropdown(props: DropDownProps) {
       <StyledDropdown
         open={dropdownVisible}
         onOpenChange={setDropdownVisible}
-        dropdownRender={() => dropdownContent}
+        popupRender={() => dropdownContent}
         trigger={["click"]}
         placement="bottomRight"
       >
