@@ -24,7 +24,7 @@ import { useParams } from "react-router-dom";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { BrandedIcon } from "@lowcoder-ee/components/BrandedIcon";
 import { MultiIconDisplay } from "@lowcoder-ee/comps/comps/multiIconDisplay";
-import { UpdateAppModal } from "./HomeResCard";
+import { StyledTypographyText, UpdateAppModal } from "./HomeResCard";
 
 const OperationWrapper = styled.div`
   display: flex;
@@ -47,12 +47,6 @@ const EditBtn = styled(TacoButton)`
   opacity: 0;
   width: 52px;
   height: 24px;
-`;
-
-const TypographyText = styled(AntdTypographyText)`
-  margin: 0 !important;
-  left: 0 !important;
-  width: 100%;
 `;
 
 export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, modify?: boolean, mode?: string }) => {
@@ -82,6 +76,8 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
 
   const handleModalOk = (values: any) => {
     if (currentRes) {
+      currentRes.type === HomeResTypeEnum.Folder &&
+        dispatch(updateFolder({ id: currentRes.id, name: values.appName || currentRes.name }))
       dispatch(
         updateAppMetaAction({ applicationId: currentRes.id, name: values.appName || currentRes.name, folderId: folderId })
       );
@@ -168,43 +164,9 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
                       />
                     </BrandedIcon>
                   )}
-                  <TypographyText
-                    ellipsis={true}
-                    title={item.name}
-                    editable={{
-                      enterIcon: null,
-                      tooltip: false,
-                      editing: item.id === needRenameRes?.id,
-                      icon: null,
-                      triggerType: ["text"],
-                      onChange: (value) => {
-                        if (!value.trim()) {
-                          messageInstance.warning(trans("home.nameCheckMessage"));
-                          return;
-                        }
-                        if (item.type === HomeResTypeEnum.Folder) {
-                          dispatch(updateFolder({ id: item.id, name: value }));
-                          setTimeout(() => {
-                            setModify(!modify);
-                          }, 200);
-                        } else {
-                          dispatch(
-                            updateAppMetaAction({
-                              applicationId: item.id,
-                              name: value,
-                              folderId: folderId,
-                            })
-                          );
-                          setTimeout(() => {
-                            setModify(!modify);
-                          }, 200);
-                        }
-                        setNeedRenameRes(undefined);
-                      },
-                    }}
-                  >
+                  <StyledTypographyText> 
                     {item.title || item.name}
-                  </TypographyText>
+                  </StyledTypographyText>
                 </NameWrapper>
               );
             },
