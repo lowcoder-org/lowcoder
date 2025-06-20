@@ -3821,7 +3821,10 @@ export const en = {
     "enterPassword": "Enter your password",
     "selectAuthProvider": "Select Authentication Provider",
     "selectWorkspace": "Select your workspace",
-    "userNotFound": "User not found. Please make sure you entered the correct email."
+    "userNotFound": "User not found. Please make sure you entered the correct email.",
+    "emailAlreadyExist": "Email is already registered",
+    "emailVerificationFailed": "Email Verification Failed",
+    "emailVerificationFailedText": "We couldn't verify your email address. A valid email is required to receive important notifications such as password resets and account updates. Please ensure you're using a valid email and try again."
   },
   "preLoad": {
     "jsLibraryHelpText": "Add JavaScript Libraries to Your Current Application via URL Addresses. lodash, day.js, uuid, numbro are Built into the System for Immediate Use. JavaScript Libraries are Loaded Before the Application is Initialized, Which Can Have an Impact on Application Performance.",

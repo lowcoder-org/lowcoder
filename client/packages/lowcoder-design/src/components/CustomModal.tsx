@@ -290,6 +290,7 @@ CustomModal.confirm = (props: {
   type?: "info" | "warn" | "error" | "success";
   width?: number | string;
   customStyles?:React.CSSProperties;
+  showCancelButton?: boolean;
 }): any => {
 
   const fixedWidth = typeof props.width === "object" ? undefined : props.width;
@@ -350,6 +351,7 @@ CustomModal.confirm = (props: {
         footer={props.footer}
         width={props.width}
         customStyles={props.customStyles}
+        showCancelButton={props.showCancelButton !== false}
       />
     ),
   });

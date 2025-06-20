@@ -7,7 +7,7 @@ import {
   StyledRouteLinkLogin,
   TermsAndPrivacyInfo,
 } from "pages/userAuth/authComponents";
-import { FormInput, messageInstance, PasswordInput } from "lowcoder-design";
+import { CustomModal, FormInput, messageInstance, PasswordInput } from "lowcoder-design";
 import { AUTH_LOGIN_URL, ORG_AUTH_LOGIN_URL } from "constants/routesURL";
 import UserApi from "api/userApi";
 import { useRedirectUrl } from "util/hooks";
@@ -31,6 +31,8 @@ import { getServerSettings } from "@lowcoder-ee/redux/selectors/applicationSelec
 import { useEnterpriseContext } from "@lowcoder-ee/util/context/EnterpriseContext";
 import { fetchConfigAction } from "@lowcoder-ee/redux/reduxActions/configActions";
 import { fetchOrgPaginationByEmail } from "@lowcoder-ee/util/pagination/axios";
+import { EmailVerifyApi } from "@lowcoder-ee/api/emailVerifyApi";
+import Typography from "antd/es/typography";
 
 const StyledFormInput = styled(FormInput)`
   margin-bottom: 16px;
@@ -57,6 +59,7 @@ function UserRegister() {
   const [password, setPassword] = useState("");
   const [orgLoading, setOrgLoading] = useState(false);
   const [lastEmailChecked, setLastEmailChecked] = useState("");
+  const [emailVerified, setEmailVerified] = useState(true);
   const [signupEnabled, setSignupEnabled] = useState<boolean>(true);
   const [signinEnabled, setSigninEnabled] = useState<boolean>(true);
   const [defaultOrgId, setDefaultOrgId] = useState<string|undefined>();
@@ -159,27 +162,62 @@ function UserRegister() {
     afterLoginSuccess,
   );
 
-  const checkEmailExist = () => {
+  const checkEmailExist = async () => {
     if (!Boolean(account.length) || lastEmailChecked === account || isEnterpriseMode) return;
-
     setOrgLoading(true);
-    OrgApi.fetchOrgsByEmail(account)
-      .then((resp) => {
-        if (validateResponse(resp)) {
-          const orgList = resp.data.data;
-          if (orgList.length) {
-            messageInstance.error('Email is already registered');
-            history.push(
-              AUTH_LOGIN_URL,
-              {...location.state || {}, email: account},
-            )
-          }
+    try {
+      const resp = await OrgApi.fetchOrgsByEmail(account);
+      if (validateResponse(resp)) {
+        const orgList = resp.data.data;
+        if (orgList.length) {
+          messageInstance.error(trans('userAuth.emailAlreadyExist'));
+          history.push(
+            AUTH_LOGIN_URL,
+            {...location.state || {}, email: account},
+          )
+          throw new Error(trans('userAuth.emailAlreadyExist'));
         }
-      })
-      .finally(() => {
-        setLastEmailChecked(account)
-        setOrgLoading(false);
+      }
+    } finally {
+      setLastEmailChecked(account)
+      setOrgLoading(false);
+    }
+  }
+
+  const verifyEmail = async () => {
+    if (!Boolean(account.length) || lastEmailChecked === account) return;
+    try {
+      const resp = await EmailVerifyApi.quickVerification(account);
+      if (resp?.data?.status === "valid") return;
+
+      setEmailVerified(false);
+      CustomModal.confirm({
+        title: trans("userAuth.emailVerificationFailed"),
+        content: trans("userAuth.emailVerificationFailedText"),
+        confirmBtnType: "normal",
+        okText: trans("componentDoc.close"),
+        showCancelButton: false,
       });
+      throw new Error(trans("userAuth.emailVerificationFailed"));
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  const handleEmailBlur = async () => {
+    try {
+      await checkEmailExist();
+    } catch(error) {
+      console.error(error);
+      return;
+    }
+  
+    try {
+      await verifyEmail();
+    } catch(error) {
+      console.error(error);
+      return;
+    }
   }
 
   const registerHeading = trans("userAuth.register")
@@ -201,7 +239,7 @@ function UserRegister() {
                 label={trans("userAuth.email")}
                 defaultValue={account}
                 onChange={(value, valid) => setAccount(valid ? value : "")}
-                onBlur={checkEmailExist}
+                onBlur={handleEmailBlur}
                 placeholder={trans("userAuth.inputEmail")}
                 checkRule={{
                   check: checkEmailValid,
@@ -217,7 +255,7 @@ function UserRegister() {
                 doubleCheck
               />
               <ConfirmButton
-                disabled={!account || !password || submitBtnDisable}
+                disabled={!account || !password || submitBtnDisable || !emailVerified}
                 onClick={onSubmit}
                 loading={loading}
               >
