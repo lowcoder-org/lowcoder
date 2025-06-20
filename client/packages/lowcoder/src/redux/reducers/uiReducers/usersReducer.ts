@@ -1,3 +1,4 @@
+import { Org } from "@lowcoder-ee/constants/orgConstants";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -21,6 +22,10 @@ const initialState: UsersReduxState = {
   rawCurrentUser: defaultCurrentUser,
   profileSettingModalVisible: false,
   apiKeys: [],
+  workspaces: {
+    items: [],
+    totalCount: 0,
+  }
 };
 
 const usersReducer = createReducer(initialState, {
@@ -190,6 +195,21 @@ const usersReducer = createReducer(initialState, {
     ...state,
     apiKeys: action.payload,
   }),
+
+  
+  [ReduxActionTypes.FETCH_WORKSPACES_SUCCESS]: (
+    state: UsersReduxState,
+    action: ReduxAction<{ items: Org[], totalCount: number, isLoadMore?: boolean }>
+  ) => ({
+    ...state,
+    workspaces: {
+      items: action.payload.isLoadMore 
+        ? [...state.workspaces.items, ...action.payload.items] // Append for load more
+        : action.payload.items, // Replace for new search/initial load
+      totalCount: action.payload.totalCount
+    }
+  }),
+  
 });
 
 export interface UsersReduxState {
@@ -205,6 +225,13 @@ export interface UsersReduxState {
   error: string;
   profileSettingModalVisible: boolean;
   apiKeys: Array<ApiKey>;
+
+  // NEW state for workspaces
+  // NEW: Separate workspace state
+  workspaces: {
+    items: Org[];           // Current page of workspaces
+    totalCount: number;     // Total workspaces available
+  };
 }
 
 export default usersReducer;

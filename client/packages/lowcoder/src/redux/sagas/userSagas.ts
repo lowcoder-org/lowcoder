@@ -25,6 +25,7 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { AuthSearchParams } from "constants/authConstants";
 import { saveAuthSearchParams } from "pages/userAuth/authUtils";
 import { initTranslator } from "i18n";
+import { fetchWorkspacesAction } from "../reduxActions/orgActions";
 
 function validResponseData(response: AxiosResponse<ApiResponse>) {
   return response && response.data && response.data.data;
@@ -71,10 +72,13 @@ export function* getUserSaga() {
         orgs: orgs,
         orgRoleMap: orgRoleMap,
       };
+
       yield put({
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
         payload: user,
       });
+      // fetch all workspaces and store in redux
+      yield put(fetchWorkspacesAction(1, 10));     
     }
   } catch (error: any) {
     yield put({

@@ -3639,6 +3639,7 @@ export const en = {
   "profile": {
     "orgSettings": "Workspace Settings",
     "switchOrg": "Switch Workspace",
+    "switchWorkspace": "Switch",
     "joinedOrg": "My Workspaces",
     "createOrg": "Create Workspace",
     "logout": "Log Out",
