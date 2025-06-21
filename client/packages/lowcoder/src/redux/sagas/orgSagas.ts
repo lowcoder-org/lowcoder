@@ -346,7 +346,6 @@ export function* fetchWorkspacesSaga(action: ReduxAction<{page: number, pageSize
     
     if (validateResponse(response)) {
       const apiData = response.data.data;
-      console.log("apiData", apiData);
       
       // Transform orgId/orgName to match Org interface
       const transformedItems = apiData.data.map(item => ({
