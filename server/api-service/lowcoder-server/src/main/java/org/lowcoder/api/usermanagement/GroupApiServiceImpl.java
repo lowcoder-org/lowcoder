@@ -111,6 +111,91 @@ public class GroupApiServiceImpl implements GroupApiService {
                 });
     }
 
+    @Override
+    public Mono<GroupMemberAggregateView> getGroupMembersForSearch(String groupId, String search, String role, String sort, String order, Integer pageNum, Integer pageSize) {
+        Mono<Tuple2<GroupMember, OrgMember>> groupAndOrgMemberInfo = getGroupAndOrgMemberInfo(groupId).cache();
+
+        Mono<MemberRole> visitorRoleMono = groupAndOrgMemberInfo.flatMap(tuple -> {
+            GroupMember groupMember = tuple.getT1();
+            OrgMember orgMember = tuple.getT2();
+            if (groupMember.isSuperAdmin() || orgMember.isSuperAdmin()) {
+                return Mono.just(MemberRole.SUPER_ADMIN);
+            }
+            if (groupMember.isAdmin() || orgMember.isAdmin()) {
+                return Mono.just(MemberRole.ADMIN);
+            }
+            if (groupMember.isValid()) {
+                return Mono.just(MemberRole.MEMBER);
+            }
+            return ofError(BizError.NOT_AUTHORIZED, NOT_AUTHORIZED);
+        });
+
+        return groupAndOrgMemberInfo
+                .filter(this::hasReadPermission)
+                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, NOT_AUTHORIZED))
+                .flatMap(groupMember -> groupMemberService.getGroupMembersByIdAndRole(groupId, role))
+                .<Pair<List<GroupMemberView>, Integer>> flatMap(members -> {
+                    if (members.isEmpty()) {
+                        return Mono.just(Pair.of(emptyList(), 0));
+                    }
+
+                    List<String> userIds = collectList(members, GroupMember::getUserId);
+                    Mono<Map<String, User>> userMapMono = userService.getByIds(userIds);
+                    return userMapMono.map(map -> {
+                        var list = members.stream()
+                                .map(orgMember -> {
+                                    User user = map.get(orgMember.getUserId());
+                                    if (user == null) {
+                                        return null;
+                                    }
+                                    return new GroupMemberView(orgMember, user);
+                                })
+                                .filter(Objects::nonNull)
+                                .filter(view -> {
+                                    if (search == null || search.isBlank()) return true;
+                                    return view.getUserName() != null &&
+                                            view.getUserName().toLowerCase().contains(search.toLowerCase());
+                                })
+                                .toList();
+                        List<GroupMemberView> mutableList = new ArrayList<>(list);
+                        if (sort != null && !sort.isBlank()) {
+                            Comparator<GroupMemberView> comparator = null;
+                            if ("userName".equalsIgnoreCase(sort)) {
+                                comparator = Comparator.comparing(GroupMemberView::getUserName, Comparator.nullsLast(String::compareToIgnoreCase));
+                            } else if ("role".equalsIgnoreCase(sort)) {
+                                comparator = Comparator.comparing(GroupMemberView::getRole, Comparator.nullsLast(String::compareToIgnoreCase));
+                            } else if ("joinTime".equalsIgnoreCase(sort)) {
+                                comparator = Comparator.comparing(GroupMemberView::getJoinTime, Comparator.nullsLast(Long::compareTo));
+                            }
+                            if (comparator != null && "desc".equalsIgnoreCase(order)) {
+                                comparator = comparator.reversed();
+                            }
+                            if (comparator != null) {
+                                mutableList.sort(comparator);
+                            }
+                        }
+
+                        int pageTotal = mutableList.size();
+                        int fromIndex = Math.max(0, (pageNum - 1) * pageSize);
+                        int toIndex = pageSize == 0 ? pageTotal : Math.min(pageNum * pageSize, pageTotal);
+                        List<GroupMemberView> pagedList = fromIndex < toIndex ? mutableList.subList(fromIndex, toIndex) : emptyList();
+
+                        return Pair.of(pagedList, pageTotal);
+                    });
+                })
+                .zipWith(visitorRoleMono)
+                .map(tuple -> {
+                    Pair<List<GroupMemberView>, Integer> t1 = tuple.getT1();
+                    return GroupMemberAggregateView.builder()
+                            .members(t1.getLeft())
+                            .total(t1.getRight())
+                            .pageNum(pageNum)
+                            .pageSize(pageSize)
+                            .visitorRole(tuple.getT2().getValue())
+                            .build();
+                });
+    }
+
     private boolean hasReadPermission(Tuple2<GroupMember, OrgMember> tuple) {
         GroupMember groupMember = tuple.getT1();
         OrgMember orgMember = tuple.getT2();
@@ -366,4 +451,5 @@ public class GroupApiServiceImpl implements GroupApiService {
                             });
                 });
     }
+
 }
