@@ -3008,6 +3008,7 @@ export const en = {
     "deleteModalTitle": "Delete This Group",
     "deleteModalContent": "The Deleted Group Cannot Be Restored. Are You Sure to Delete the Group?",
     "addMember": "Add Members",
+    "searchMember": "Search Members",
     "nameColumn": "User Name",
     "joinTimeColumn": "Joining Time",
     "actionColumn": "Operation",

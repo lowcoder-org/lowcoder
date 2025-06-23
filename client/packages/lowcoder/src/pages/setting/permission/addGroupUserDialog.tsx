@@ -1,11 +1,14 @@
 import Column from "antd/es/table/Column";
 import OrgApi from "api/orgApi";
 import { GroupUser, MEMBER_ROLE, OrgUser } from "constants/orgConstants";
-import { CheckBox, CustomModal } from "lowcoder-design";
-import { CSSProperties, ReactNode, useEffect, useRef, useState } from "react";
+import { CheckBox, CustomModal, Search } from "lowcoder-design";
+import { CSSProperties, ReactNode, useEffect, useRef, useState, useCallback } from "react";
 import { connect, useDispatch } from "react-redux";
 import { AppState } from "redux/reducers";
-import { fetchGroupUsersAction, fetchOrgUsersAction } from "redux/reduxActions/orgActions";
+import { fetchGroupUsersAction, 
+  fetchOrgUsersAction, 
+  fetchGroupPotentialMembersAction 
+} from "redux/reduxActions/orgActions";
 import styled from "styled-components";
 import { StyledTable, UserTableCellWrapper } from "./styledComponents";
 import { formatTimestamp } from "util/dateTimeUtils";
@@ -14,6 +17,7 @@ import { isGroupAdmin } from "util/permissionUtils";
 import { SuperUserIcon } from "lowcoder-design";
 import { EmptyContent } from "pages/common/styledComponent";
 import { trans } from "i18n";
+import { debounce } from "lodash";
 
 const TableWrapper = styled.div`
   margin-right: -16px;
@@ -40,7 +44,25 @@ function AddGroupUserDialog(props: {
   const addableUsers = orgUsers.filter((user) => !groupUserIdMap.has(user.userId));
   const toAddUserIdRecord = useRef<Record<string, boolean>>({});
   const [confirmLoading, setConfirmLoading] = useState(false);
+  const [searchValue, setSearchValue] = useState("")
   const dispatch = useDispatch();
+
+  const debouncedFetchPotentialMembers = useCallback(
+    debounce((searchVal: string) => {
+      dispatch(fetchGroupPotentialMembersAction(searchVal, groupId));
+    }, 500),
+    [dispatch, groupId]
+  );
+
+  useEffect(() => {
+    if (searchValue.length > 2 || searchValue === "") {
+      debouncedFetchPotentialMembers(searchValue);
+    }
+    return () => {
+      debouncedFetchPotentialMembers.cancel();
+    };
+  }, [searchValue, debouncedFetchPotentialMembers]);
+
   useEffect(() => {
     if (dialogVisible) {
       dispatch(fetchOrgUsersAction(orgId));
@@ -92,7 +114,18 @@ function AddGroupUserDialog(props: {
           setDialogVisible(false);
         }}
       >
-        {!addableUsers || addableUsers.length === 0 ? (
+        <Search
+          placeholder={trans("memberSettings.searchMember")}
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          style={{ 
+            width: "100%", 
+            height: "32px", 
+            paddingRight: "20px", 
+            marginBottom: "10px" 
+          }}
+        />
+        {(!addableUsers || addableUsers.length === 0) ? (
           <EmptyContent />
         ) : (
           <TableWrapper>
@@ -106,7 +139,7 @@ function AddGroupUserDialog(props: {
               scroll={{ y: 309 }}
             >
               <Column
-                width="170px"
+                width="200px"
                 title={trans("memberSettings.nameColumn")}
                 dataIndex="name"
                 key="name"
