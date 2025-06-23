@@ -743,18 +743,48 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
     const name = this.genNewName(editorState);
     const compType = extraInfo?.compType || "js";
     const dataSourceId = extraInfo?.dataSourceId;
+    const curlData = extraInfo?.curlData;
+    console.log("CURL DATA", curlData)
+
+
+
+    // Build the payload that will be pushed to the list
+    let payload: any = {
+      id: id,
+      name: name,
+      datasourceId: dataSourceId,
+      compType,
+      triggerType: manualTriggerResource.includes(compType) ? "manual" : "automatic",
+      isNewCreate: true,
+      order: Date.now(),
+    };
+
+    // If this is a REST API created from cURL, pre-populate the HTTP query fields
+    if (compType === "restApi" && curlData) {
+      const headersArr = curlData.header
+        ? Object.entries(curlData.header).map(([key, value]) => ({ key, value }))
+        : [{ key: "", value: "" }];
+      const paramsArr = curlData.params
+        ? Object.entries(curlData.params).map(([key, value]) => ({ key, value }))
+        : [{ key: "", value: "" }];
+
+      payload = {
+        ...payload,
+        comp: {
+          httpMethod: curlData.method || "GET",
+          path: curlData.url || "",
+          headers: headersArr,
+          params: paramsArr,
+          bodyType: curlData.body ? "application/json" : "none",
+          body: curlData.body ? JSON.stringify(curlData.body, null, 2) : "",
+          bodyFormData: [{ key: "", value: "", type: "text" }],
+        },
+      };
+    }
 
     this.dispatch(
       wrapActionExtraInfo(
-        this.pushAction({
-          id: id,
-          name: name,
-          datasourceId: dataSourceId,
-          compType,
-          triggerType: manualTriggerResource.includes(compType) ? "manual" : "automatic",
-          isNewCreate: true,
-          order: Date.now(),
-        }),
+        this.pushAction(payload),
         {
           compInfos: [
             {
