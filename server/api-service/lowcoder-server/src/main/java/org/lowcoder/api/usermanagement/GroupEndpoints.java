@@ -68,14 +68,20 @@ public interface GroupEndpoints
 
 	@Operation(
 			tags = TAG_GROUP_MEMBERS,
-		    operationId = "listGroupMembers",
-		    summary = "List User Group Members",
-		    description = "Retrieve a list of Users / Members within a specific User Group in Lowcoder, showing the group's composition."
+			operationId = "listGroupMembersWithSearchAndSort",
+			summary = "List User Group Members with Search and Sort",
+			description = "Retrieve a paginated, searchable, and sortable list of Users / Members within a specific User Group in Lowcoder."
 	)
-    @GetMapping("/{groupId}/members")
-    public Mono<ResponseView<GroupMemberAggregateView>> getGroupMembers(@PathVariable String groupId,
-            @RequestParam(required = false, defaultValue = "1") int pageNum,
-            @RequestParam(required = false, defaultValue = "100") int pageSize);
+	@GetMapping("/{groupId}/members")
+	public Mono<ResponseView<GroupMemberAggregateView>> getGroupMembers(
+			@PathVariable String groupId,
+			@RequestParam(required = false) String search,
+			@RequestParam(required = false) String role,
+			@RequestParam(required = false) String sort,
+			@RequestParam(required = false) String order,
+			@RequestParam(required = false, defaultValue = "1") Integer pageNum,
+			@RequestParam(required = false, defaultValue = "100") Integer pageSize
+	);
 
 	@Operation(
 			tags = TAG_GROUP_MEMBERS,

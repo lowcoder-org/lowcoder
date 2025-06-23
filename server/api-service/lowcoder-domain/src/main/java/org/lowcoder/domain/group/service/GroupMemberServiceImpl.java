@@ -36,6 +36,13 @@ public class GroupMemberServiceImpl implements GroupMemberService {
     }
 
     @Override
+    public Mono<List<GroupMember>> getGroupMembersByIdAndRole(String groupId, String role) {
+        return biRelationService.getBySourceIdAndRelation(GROUP_MEMBER, groupId, role)
+                .map(GroupMember::from)
+                .collectList();
+    }
+
+    @Override
     public Mono<Boolean> addMember(String orgId, String groupId, String userId, MemberRole memberRole) {
         return biRelationService.addBiRelation(GROUP_MEMBER, groupId,
                         userId, memberRole.getValue(), OrgMemberState.NORMAL.getValue(), orgId)

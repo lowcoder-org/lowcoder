@@ -10,6 +10,8 @@ import java.util.List;
 public interface GroupApiService {
     Mono<GroupMemberAggregateView> getGroupMembers(String groupId, int page, int count);
 
+    Mono<GroupMemberAggregateView> getGroupMembersForSearch(String groupId, String search, String role, String sort, String order, Integer pageNum, Integer pageSize);
+
     Mono<Boolean> addGroupMember(String groupId, String newUserId, String roleName);
 
     Mono<Boolean> updateRoleForMember(String groupId, UpdateRoleRequest updateRoleRequest);

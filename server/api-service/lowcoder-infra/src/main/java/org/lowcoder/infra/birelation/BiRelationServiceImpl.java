@@ -185,6 +185,9 @@ public class BiRelationServiceImpl implements BiRelationService {
 
     @Override
     public Flux<BiRelation> getBySourceIdAndRelation(BiRelationBizType bizType, String sourceId, String relation) {
+        if (relation == null || relation.isBlank()) {
+            return biRelationRepository.findByBizTypeAndSourceId(bizType, sourceId);
+        }
         Query query = new Query();
         query.addCriteria(where(BIZ_TYPE).is(bizType));
         query.addCriteria(where(SOURCE_ID).is(sourceId));
