@@ -761,22 +761,52 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
 
     // If this is a REST API created from cURL, pre-populate the HTTP query fields
     if (compType === "restApi" && curlData) {
-      const headersArr = curlData.header
-        ? Object.entries(curlData.header).map(([key, value]) => ({ key, value }))
+      // Normalize possible field names returned by different curl parsers
+      const rawHeaders: Record<string, any> | undefined =
+        curlData.header || curlData.headers;
+      const rawParams: Record<string, any> | undefined =
+        curlData.params || curlData.parameters || curlData.query;
+
+      // Convert headers & params objects to the key/value array expected by the UI controls
+      const headersArr = rawHeaders
+        ? Object.entries(rawHeaders).map(([key, value]) => ({ key, value }))
         : [{ key: "", value: "" }];
-      const paramsArr = curlData.params
-        ? Object.entries(curlData.params).map(([key, value]) => ({ key, value }))
+
+      const paramsArr = rawParams
+        ? Object.entries(rawParams).map(([key, value]) => ({ key, value }))
         : [{ key: "", value: "" }];
+
+      // Detect request body – different parsers may expose it under various keys
+      const bodyContent: any =
+        curlData.body ?? curlData.data ?? curlData.postData ?? undefined;
+
+      // Determine body type – prefer the Content-Type header if present
+      let bodyType: string = "none";
+      if (bodyContent !== undefined && bodyContent !== "") {
+        const contentTypeHeader =
+          (rawHeaders && (rawHeaders["Content-Type"] || rawHeaders["content-type"])) ||
+          "";
+        if (contentTypeHeader) {
+          bodyType = contentTypeHeader;
+        } else if (typeof bodyContent === "object") {
+          bodyType = "application/json";
+        } else {
+          bodyType = "text/plain";
+        }
+      }
 
       payload = {
         ...payload,
         comp: {
           httpMethod: curlData.method || "GET",
-          path: curlData.url || "",
+          path: curlData.url || curlData.path || "",
           headers: headersArr,
           params: paramsArr,
-          bodyType: curlData.body ? "application/json" : "none",
-          body: curlData.body ? JSON.stringify(curlData.body, null, 2) : "",
+          bodyType: bodyType,
+          body:
+            typeof bodyContent === "object"
+              ? JSON.stringify(bodyContent, null, 2)
+              : bodyContent || "",
           bodyFormData: [{ key: "", value: "", type: "text" }],
         },
       };
