@@ -107,11 +107,30 @@ export function* updateUserGroupRoleSaga(action: ReduxAction<UpdateUserGroupRole
   }
 }
 
+export function* fetchGroupPotentialMembersSaga(action: ReduxAction<{ searchName: string, groupId: string }>) {
+  try {
+    const response: AxiosResponse<OrgUsersResponse> = yield call(
+      OrgApi.fetchGroupPotentialMembers,
+      action.payload.searchName,
+      action.payload.groupId
+    );
+    const isValidResponse: boolean = validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_ORG_ALL_USERS_SUCCESS,
+        payload: response.data.data,
+      });
+    }
+  } catch (error) {
+    log.error(error);
+  }
+}
+
 export function* fetchOrgUsersSaga(action: ReduxAction<{ orgId: string }>) {
   try {
     const response: AxiosResponse<OrgUsersResponse> = yield call(
       OrgApi.fetchOrgUsers,
-      action.payload.orgId
+      action.payload.orgId,
     );
     const isValidResponse: boolean = validateResponse(response);
     if (isValidResponse) {
@@ -377,6 +396,7 @@ export default function* orgSagas() {
     takeLatest(ReduxActionTypes.UPDATE_USER_ORG_ROLE, updateUserOrgRoleSaga),
     takeLatest(ReduxActionTypes.UPDATE_USER_GROUP_ROLE, updateUserGroupRoleSaga),
     takeLatest(ReduxActionTypes.FETCH_ORG_ALL_USERS, fetchOrgUsersSaga),
+    takeLatest(ReduxActionTypes.FETCH_GROUP_POTENTIAL_MEMBERS, fetchGroupPotentialMembersSaga),
     takeLatest(ReduxActionTypes.DELETE_ORG_USER, deleteOrgUserSaga),
     takeLatest(ReduxActionTypes.QUIT_GROUP, quitGroupSaga),
     takeLatest(ReduxActionTypes.QUIT_ORG, quitOrgSaga),
