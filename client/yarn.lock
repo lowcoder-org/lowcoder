@@ -1682,6 +1682,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@bany/curl-to-json@npm:^1.2.8":
+  version: 1.2.8
+  resolution: "@bany/curl-to-json@npm:1.2.8"
+  dependencies:
+    minimist: ^1.2.8
+  checksum: 4f2c095c3e3194e9e3e717cf766a66c8ca320c2f10b118d52a8d8d2b842b6760af656a966ec3ce9e9cf774909b2507a2d1417c7f3d98b6773f5ae935be9191b6
+  languageName: node
+  linkType: hard
+
 "@bcoe/v8-coverage@npm:^0.2.3":
   version: 0.2.3
   resolution: "@bcoe/v8-coverage@npm:0.2.3"
@@ -14095,6 +14104,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   resolution: "lowcoder@workspace:packages/lowcoder"
   dependencies:
     "@ant-design/icons": ^5.3.0
+    "@bany/curl-to-json": ^1.2.8
     "@codemirror/autocomplete": ^6.11.1
     "@codemirror/commands": ^6.3.2
     "@codemirror/lang-css": ^6.2.1
@@ -15476,7 +15486,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"minimist@npm:^1.2.0, minimist@npm:^1.2.6":
+"minimist@npm:^1.2.0, minimist@npm:^1.2.6, minimist@npm:^1.2.8":
   version: 1.2.8
   resolution: "minimist@npm:1.2.8"
   checksum: 75a6d645fb122dad29c06a7597bddea977258957ed88d7a6df59b5cd3fe4a527e253e9bbf2e783e4b73657f9098b96a5fe96ab8a113655d4109108577ecf85b0

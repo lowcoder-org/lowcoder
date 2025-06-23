@@ -26,6 +26,7 @@ import { getUser } from "../redux/selectors/usersSelectors";
 import DataSourceIcon from "./DataSourceIcon";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
+import { CurlImportModal } from "./CurlImport";
 
 const Wrapper = styled.div<{ $placement: PageType }>`
   width: 100%;
@@ -230,6 +231,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
   const { onSelect, onClose, recentlyUsed, datasource, placement = "editor" } = props;
   const [isScrolling, setScrolling] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [curlModalVisible, setCurlModalVisible] = useState(false);
 
   const isPublicApp = useSelector(isPublicApplication);
   const user = useSelector(getUser);
@@ -243,6 +245,19 @@ export function ResCreatePanel(props: ResCreateModalProps) {
     const top = e.target.scrollTop;
     setScrolling(top > 0);
   }, 100);
+
+  const handleCurlImportSuccess = (parsedData: any) => {
+    // For now just log the result as requested
+    console.log("cURL import successful:", parsedData);
+    
+    // Create a new REST API query with the parsed data
+    // We'll pass the parsed data as extra info to be used when creating the query
+    onSelect(BottomResTypeEnum.Query, {
+      compType: "restApi", 
+      dataSourceId: QUICK_REST_API_ID,
+      curlData: parsedData
+    });
+  };
 
   return (
     <Wrapper $placement={placement}>
@@ -331,6 +346,10 @@ export function ResCreatePanel(props: ResCreateModalProps) {
                 <ResButton size={buttonSize} identifier={"streamApi"} onSelect={onSelect} />
                 <ResButton size={buttonSize} identifier={"alasql"} onSelect={onSelect} />
                 <ResButton size={buttonSize} identifier={"graphql"} onSelect={onSelect} />
+                <DataSourceButton size={buttonSize} onClick={() => setCurlModalVisible(true)}>
+                  <DataSourceIcon size="large" dataSourceType="restApi" />
+                  Import from cURL
+                </DataSourceButton>
               </DataSourceListWrapper>
             </div>
 
@@ -373,6 +392,11 @@ export function ResCreatePanel(props: ResCreateModalProps) {
         open={visible}
         onCancel={() => setVisible(false)}
         onCreated={() => setVisible(false)}
+      />
+      <CurlImportModal
+        open={curlModalVisible}
+        onCancel={() => setCurlModalVisible(false)}
+        onSuccess={handleCurlImportSuccess}
       />
     </Wrapper>
   );
