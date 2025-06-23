@@ -76,7 +76,8 @@ export const getStyle = (
       padding: ${style.padding};	
       height: auto;	
     }	
-    .ant-select-selection-search {	
+    .ant-select-selection-search {
+      min-width: 50px; 	
       padding: ${style.padding};
     }	
     .ant-select-selection-search-input,
@@ -268,9 +269,10 @@ export const SelectUIView = (
     placeholder={props.placeholder}
     value={props.value}
     showSearch={props.showSearch}
-    filterOption={(input, option) =>
-      option?.label.toLowerCase().includes(input.toLowerCase())
-    }
+    filterOption={(input, option) => {
+      if (!option) return false;
+      return String(option.label ?? option.value ?? "").toLowerCase().includes(input.toLowerCase());
+    }}
     popupRender={(originNode: ReactNode) => (
       <DropdownStyled $style={props.childrenInputFieldStyle as ChildrenMultiSelectStyleType}>
         {originNode}
