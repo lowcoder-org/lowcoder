@@ -24,7 +24,6 @@ export function CurlImportModal(props: CurlImportModalProps) {
     try {
       // Parse the cURL command using the correct import
       const parsedData = parseCurl(curlCommand);
-      console.log("CURL JSON", parsedData)
 
       
       
@@ -72,15 +71,23 @@ export function CurlImportModal(props: CurlImportModalProps) {
           Paste cURL Command Here
         </div>
         <div style={{ marginBottom: 12, color: "#666", fontSize: "12px" }}>
-          Hint: Try typing in the following curl command and then click on the 'Import' button: 
-          curl -X GET https://mock-api.appsmith.com/users
+          <div style={{ marginBottom: 4 }}>
+            <strong>Examples:</strong>
+          </div>
+          <div style={{ marginBottom: 2 }}>
+            GET: <code>curl -X GET https://jsonplaceholder.typicode.com/posts/1</code>
+          </div>
+          <div style={{ marginBottom: 2 }}>
+            POST: <code>curl -X POST https://jsonplaceholder.typicode.com/posts -H "Content-Type: application/json" -d '&#123;"title":"foo","body":"bar","userId":1&#125;'</code>
+          </div>
+          <div>
+            Users: <code>curl -X GET https://jsonplaceholder.typicode.com/users</code>
+          </div>
         </div>
         <TextArea
           value={curlCommand}
           onChange={(e) => setCurlCommand(e.target.value)}
-          placeholder="curl -X POST \
--H 'Content-Type: application/json' \
-'https://generativelanguage.googleapis.com/v1beta/models/{MODEL_ID}:{GENERATE_CONTENT_API}?key={GEMINI_API_KEY}' -d '@request.json'"
+          placeholder="curl -X GET https://jsonplaceholder.typicode.com/posts/1"
           rows={8}
           style={{ fontFamily: "monospace" }}
         />

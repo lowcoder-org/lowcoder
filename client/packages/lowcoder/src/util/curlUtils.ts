@@ -56,7 +56,6 @@ function parseUrlEncodedData(data: string | object): Array<{ key: string; value:
 export function processCurlData(curlData: any) {
   if (!curlData) return null;
 
-  console.log("Raw cURL data:", curlData); // Debug log
 
   // Convert headers object to key-value array format expected by UI
   const headers = curlData.header 
@@ -96,7 +95,6 @@ export function processCurlData(curlData: any) {
     if (bodyType === "application/x-www-form-urlencoded") {
       bodyFormData = parseUrlEncodedData(bodyContent);
       processedBody = ""; // Form data goes in bodyFormData, not body
-      console.log("Parsed form data:", bodyFormData); // Debug log
     } else if (typeof bodyContent === "object") {
       processedBody = JSON.stringify(bodyContent, null, 2);
     } else {

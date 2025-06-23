@@ -247,11 +247,6 @@ export function ResCreatePanel(props: ResCreateModalProps) {
   }, 100);
 
   const handleCurlImportSuccess = (parsedData: any) => {
-    // For now just log the result as requested
-    console.log("cURL import successful:", parsedData);
-    
-    // Create a new REST API query with the parsed data
-    // We'll pass the parsed data as extra info to be used when creating the query
     onSelect(BottomResTypeEnum.Query, {
       compType: "restApi", 
       dataSourceId: QUICK_REST_API_ID,
