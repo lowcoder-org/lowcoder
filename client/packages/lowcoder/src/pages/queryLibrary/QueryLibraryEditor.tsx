@@ -199,17 +199,70 @@ export const QueryLibraryEditor = () => {
   const newName = nameGenerator.genItemName(trans("queryLibrary.unnamed"));
 
   const handleAdd = (type: BottomResTypeEnum, extraInfo?: any) => {
+    // Build basic query DSL
+    let queryDSL: any = {
+      triggerType: "manual",
+      datasourceId: extraInfo?.dataSourceId,
+      compType: extraInfo?.compType,
+    };
+
+    // If it is a REST API created from cURL, pre-populate the HTTP query fields
+    if (extraInfo?.compType === "restApi" && extraInfo?.curlData) {
+      const curlData = extraInfo.curlData;
+
+      const rawHeaders: Record<string, any> | undefined =
+        curlData.header || curlData.headers;
+      const rawParams: Record<string, any> | undefined =
+        curlData.params || curlData.parameters || curlData.query;
+
+      const headersArr = rawHeaders
+        ? Object.entries(rawHeaders).map(([key, value]) => ({ key, value }))
+        : [{ key: "", value: "" }];
+
+      const paramsArr = rawParams
+        ? Object.entries(rawParams).map(([key, value]) => ({ key, value }))
+        : [{ key: "", value: "" }];
+
+      const bodyContent: any =
+        curlData.body ?? curlData.data ?? curlData.postData ?? undefined;
+
+      let bodyType: string = "none";
+      if (bodyContent !== undefined && bodyContent !== "") {
+        const contentTypeHeader =
+          (rawHeaders && (rawHeaders["Content-Type"] || rawHeaders["content-type"])) || "";
+        if (contentTypeHeader) {
+          bodyType = contentTypeHeader;
+        } else if (typeof bodyContent === "object") {
+          bodyType = "application/json";
+        } else {
+          bodyType = "text/plain";
+        }
+      }
+
+      queryDSL = {
+        ...queryDSL,
+        comp: {
+          httpMethod: curlData.method || "GET",
+          path: curlData.url || curlData.path || "",
+          headers: headersArr,
+          params: paramsArr,
+          bodyType: bodyType,
+          body:
+            typeof bodyContent === "object"
+              ? JSON.stringify(bodyContent, null, 2)
+              : bodyContent || "",
+          bodyFormData: [{ key: "", value: "", type: "text" }],
+        },
+      };
+    }
+
     dispatch(
       createQueryLibrary(
         {
           name: newName,
           organizationId: orgId,
           libraryQueryDSL: {
-            query: {
-              triggerType: "manual",
-              datasourceId: extraInfo?.dataSourceId,
-              compType: extraInfo?.compType,
-            },
+            query: queryDSL,
           },
         },
         (resp) => {
@@ -218,7 +271,6 @@ export const QueryLibraryEditor = () => {
             setModify(!modify);
           }, 200);
           setCurrentPage(Math.ceil(elements.total / pageSize));
-
         },
         () => {}
       )
