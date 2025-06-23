@@ -712,7 +712,7 @@ function EditorView(props: EditorViewProps) {
                             {application &&
                               (
                                 <>
-                                  {appSettingsComp.getPropertyView({ isAggregationApp: isAggregationApp(AppUILayoutType[application.applicationType]) })}
+                                  {appSettingsComp.getPropertyView()}
                                 </>
                               )}
                           </ScrollBar>
@@ -726,7 +726,7 @@ function EditorView(props: EditorViewProps) {
                                 AppUILayoutType[application.applicationType]
                               ) && (
                                 <>
-                                  {appSettingsComp.getPropertyView({ isAggregationApp: isAggregationApp(AppUILayoutType[application.applicationType]) })}
+                                  {appSettingsComp.getPropertyView()}
                                 </>
                               )}
                           </ScrollBar>

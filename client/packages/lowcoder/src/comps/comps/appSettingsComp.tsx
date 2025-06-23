@@ -17,15 +17,15 @@ import { DEFAULT_THEMEID } from "comps/utils/themeUtil";
 import { NumberControl, RangeControl, StringControl } from "comps/controls/codeControl";
 import { IconControl } from "comps/controls/iconControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
-import { ApplicationCategoriesEnum } from "constants/applicationConstants";
+import { ApplicationCategoriesEnum, AppUILayoutType } from "constants/applicationConstants";
 import { BoolControl } from "../controls/boolControl";
-import { getNpmPackageMeta } from "../utils/remote";
 import { getPromiseAfterDispatch } from "@lowcoder-ee/util/promiseUtils";
 import type { AppState } from "@lowcoder-ee/redux/reducers";
 import { ColorControl } from "../controls/colorControl";
 import { DEFAULT_ROW_COUNT } from "@lowcoder-ee/layout/calculateUtils";
 import { AppSettingContext } from "../utils/appSettingContext";
-import { isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
+import { currentApplication, isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
+import { isAggregationApp } from "util/appUtils";
 
 const TITLE = trans("appSetting.title");
 const USER_DEFINE = "__USER_DEFINE";
@@ -233,11 +233,8 @@ type ChildrenInstance = RecordConstructorToComp<typeof childrenMap> & {
   defaultTheme: string;
 };
 
-type AppSettingsExtraProps = { isAggregationApp?: boolean };
-type AppGeneralSettingsModalProps = ChildrenInstance & AppSettingsExtraProps;
-type AppCanvasSettingsModalProps = ChildrenInstance & AppSettingsExtraProps;
-
-function AppGeneralSettingsModal(props: AppGeneralSettingsModalProps) {
+function AppGeneralSettingsModal(props: ChildrenInstance) {
+  const application = useSelector(currentApplication);
   const lowcoderCompsMeta = useSelector((state: AppState) => state.npmPlugin.packageMeta['lowcoder-comps']);
   const [lowcoderCompVersions, setLowcoderCompVersions] = useState(['latest']);
   const {
@@ -247,7 +244,6 @@ function AppGeneralSettingsModal(props: AppGeneralSettingsModalProps) {
     category,
     showHeaderInPublic,
     lowcoderCompVersion,
-    isAggregationApp
   } = props;
   
   useEffect(() => {
@@ -293,7 +289,7 @@ function AppGeneralSettingsModal(props: AppGeneralSettingsModalProps) {
           </div>
         </DivStyled>
       </BaseSection>
-      {!isAggregationApp && 
+      {application && !isAggregationApp(AppUILayoutType[application.applicationType]) && 
         <BaseSection
         name={"Lowcoder Comps"}
         width={288}
@@ -325,7 +321,8 @@ function AppGeneralSettingsModal(props: AppGeneralSettingsModalProps) {
             }}
           />
         </DivStyled>
-      </BaseSection>}
+      </BaseSection>
+      }
       <BaseSection
         name={"Shortcuts"}
         width={288}
@@ -343,7 +340,7 @@ function AppGeneralSettingsModal(props: AppGeneralSettingsModalProps) {
   );
 }
 
-function AppCanvasSettingsModal(props: AppCanvasSettingsModalProps) {
+function AppCanvasSettingsModal(props: ChildrenInstance) {
   const isPublicApp = useSelector(isPublicApplication);
   const {
     themeList,
@@ -522,12 +519,12 @@ export const AppSettingsComp = new MultiCompBuilder(childrenMap, (props) => {
     maxWidth: Number(props.maxWidth),
   };
 })
-  .setPropertyViewFn((children, extraProps) => {
+  .setPropertyViewFn((children) => {
     const { settingType } = useContext(AppSettingContext);
     const themeList = useSelector(getThemeList) || [];
     const defaultTheme = (useSelector(getDefaultTheme) || "").toString();
     return settingType === 'canvas'
-      ? <AppCanvasSettingsModal {...children} themeList={themeList} defaultTheme={defaultTheme} {...(extraProps || {})} />
-      : <AppGeneralSettingsModal {...children} themeList={themeList} defaultTheme={defaultTheme} {...(extraProps || {})} />;
+      ? <AppCanvasSettingsModal {...children} themeList={themeList} defaultTheme={defaultTheme} />
+      : <AppGeneralSettingsModal {...children} themeList={themeList} defaultTheme={defaultTheme} />;
   })
   .build();
