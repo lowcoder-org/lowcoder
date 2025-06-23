@@ -2,7 +2,7 @@ import Column from "antd/es/table/Column";
 import OrgApi from "api/orgApi";
 import { GroupUser, MEMBER_ROLE, OrgUser } from "constants/orgConstants";
 import { CheckBox, CustomModal, Search } from "lowcoder-design";
-import { CSSProperties, ReactNode, useEffect, useRef, useState } from "react";
+import { CSSProperties, ReactNode, useEffect, useRef, useState, useCallback } from "react";
 import { connect, useDispatch } from "react-redux";
 import { AppState } from "redux/reducers";
 import { fetchGroupUsersAction, 
@@ -17,6 +17,7 @@ import { isGroupAdmin } from "util/permissionUtils";
 import { SuperUserIcon } from "lowcoder-design";
 import { EmptyContent } from "pages/common/styledComponent";
 import { trans } from "i18n";
+import { debounce } from "lodash";
 
 const TableWrapper = styled.div`
   margin-right: -16px;
@@ -46,14 +47,21 @@ function AddGroupUserDialog(props: {
   const [searchValue, setSearchValue] = useState("")
   const dispatch = useDispatch();
 
+  const debouncedFetchPotentialMembers = useCallback(
+    debounce((searchVal: string) => {
+      dispatch(fetchGroupPotentialMembersAction(searchVal, groupId));
+    }, 500),
+    [dispatch, groupId]
+  );
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (searchValue.length > 2 || searchValue === "")
-        dispatch(fetchGroupPotentialMembersAction(searchValue, groupId));
-      return
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchValue])
+    if (searchValue.length > 2 || searchValue === "") {
+      debouncedFetchPotentialMembers(searchValue);
+    }
+    return () => {
+      debouncedFetchPotentialMembers.cancel();
+    };
+  }, [searchValue, debouncedFetchPotentialMembers]);
 
   useEffect(() => {
     if (dialogVisible) {
