@@ -115,4 +115,19 @@ public interface GroupEndpoints
     @DeleteMapping("/{groupId}/remove")
     public Mono<ResponseView<Boolean>> removeUser(@PathVariable String groupId,
             @RequestParam String userId);
+
+	@Operation(
+			tags = TAG_GROUP_MEMBERS,
+			operationId = "searchPotentialGroupMembers",
+			summary = "Search Potential Group Members",
+			description = "Retrieve a list of users who are not currently members of the specified group within an organization."
+	)
+
+	@GetMapping("/{groupId}/potential-members")
+	public Mono<ResponseView<OrgMemberListView>> searchPotentialGroupMembers(
+			@PathVariable String groupId,
+			@RequestParam(required = false) String searchName,
+			@RequestParam(required = false, defaultValue = "1") Integer pageNum,
+			@RequestParam(required = false, defaultValue = "1000") Integer pageSize
+	);
 }

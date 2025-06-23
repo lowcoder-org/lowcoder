@@ -71,16 +71,16 @@ const WorkspaceList = styled.div`
   }
 `;
 
-const WorkspaceItem = styled.div<{ isActive?: boolean }>`
+const WorkspaceItem = styled.div<{ $isActive?: boolean }>`
   display: flex;
   align-items: center;
   padding: 10px 16px;
   cursor: pointer;
   transition: background-color 0.2s;
-  background-color: ${props => props.isActive ? '#f0f5ff' : 'transparent'};
+  background-color: ${props => props.$isActive ? '#f0f5ff' : 'transparent'};
   
   &:hover {
-    background-color: ${props => props.isActive ? '#f0f5ff' : '#f8f9fa'};
+    background-color: ${props => props.$isActive ? '#f0f5ff' : '#f8f9fa'};
   }
 `;
 
@@ -242,7 +242,7 @@ export default function WorkspaceSectionComponent({
           displayWorkspaces.map((org: Org) => (
             <WorkspaceItem
               key={org.id}
-              isActive={user.currentOrgId === org.id}
+              $isActive={user.currentOrgId === org.id}
               onClick={() => handleOrgSwitch(org.id)}
             >
               <WorkspaceName title={org.name}>{org.name}</WorkspaceName>

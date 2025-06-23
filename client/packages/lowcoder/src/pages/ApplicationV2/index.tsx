@@ -32,7 +32,7 @@ import {
   UserIcon,
 } from "lowcoder-design";
 import React, { useCallback, useEffect, useState, useMemo } from "react";
-import { fetchAllApplications, fetchHomeData } from "redux/reduxActions/applicationActions";
+import { fetchHomeData } from "redux/reduxActions/applicationActions";
 import { fetchSubscriptionsAction } from "redux/reduxActions/subscriptionActions";
 import { getHomeOrg, normalAppListSelector } from "redux/selectors/applicationSelector";
 import { DatasourceHome } from "../datasource";
@@ -125,18 +125,13 @@ export default function ApplicationHome() {
   }, [org, orgHomeId]);
 
   useEffect(() => {
-    if (allAppCount !== 0) {
+    // Check if we need to fetch data (either no folders or no applications)
+    if (allFoldersCount !== 0 && allAppCount !== 0) {
       return;
     }
-    user.currentOrgId && dispatch(fetchAllApplications({}));
-  }, [dispatch, allAppCount, user.currentOrgId]);
-
-  useEffect(() => {
-    if (allFoldersCount !== 0) {
-      return;
-    }
+    
     user.currentOrgId && dispatch(fetchFolderElements({}));
-  }, [dispatch, allFoldersCount, user.currentOrgId]);
+  }, [dispatch, allFoldersCount, allAppCount, user.currentOrgId]);
 
   if (fetchingUser || !isPreloadCompleted) {
     return <ProductLoading />;
