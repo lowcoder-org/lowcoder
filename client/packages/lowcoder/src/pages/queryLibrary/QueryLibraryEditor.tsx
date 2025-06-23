@@ -48,6 +48,7 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { Helmet } from "react-helmet";
 import {fetchQLPaginationByOrg} from "@lowcoder-ee/util/pagination/axios";
 import { isEmpty } from "lodash";
+import { processCurlData } from "../../util/curlUtils";
 
 const Wrapper = styled.div`
   display: flex;
@@ -208,52 +209,21 @@ export const QueryLibraryEditor = () => {
 
     // If it is a REST API created from cURL, pre-populate the HTTP query fields
     if (extraInfo?.compType === "restApi" && extraInfo?.curlData) {
-      const curlData = extraInfo.curlData;
-
-      const rawHeaders: Record<string, any> | undefined =
-        curlData.header || curlData.headers;
-      const rawParams: Record<string, any> | undefined =
-        curlData.params || curlData.parameters || curlData.query;
-
-      const headersArr = rawHeaders
-        ? Object.entries(rawHeaders).map(([key, value]) => ({ key, value }))
-        : [{ key: "", value: "" }];
-
-      const paramsArr = rawParams
-        ? Object.entries(rawParams).map(([key, value]) => ({ key, value }))
-        : [{ key: "", value: "" }];
-
-      const bodyContent: any =
-        curlData.body ?? curlData.data ?? curlData.postData ?? undefined;
-
-      let bodyType: string = "none";
-      if (bodyContent !== undefined && bodyContent !== "") {
-        const contentTypeHeader =
-          (rawHeaders && (rawHeaders["Content-Type"] || rawHeaders["content-type"])) || "";
-        if (contentTypeHeader) {
-          bodyType = contentTypeHeader;
-        } else if (typeof bodyContent === "object") {
-          bodyType = "application/json";
-        } else {
-          bodyType = "text/plain";
-        }
+      const curlConfig = processCurlData(extraInfo.curlData);
+      if (curlConfig) {
+        queryDSL = {
+          ...queryDSL,
+          comp: {
+            httpMethod: curlConfig.method,
+            path: curlConfig.url,
+            headers: curlConfig.headers,
+            params: curlConfig.params,
+            bodyType: curlConfig.bodyType,
+            body: curlConfig.body,
+            bodyFormData: curlConfig.bodyFormData,
+          },
+        };
       }
-
-      queryDSL = {
-        ...queryDSL,
-        comp: {
-          httpMethod: curlData.method || "GET",
-          path: curlData.url || curlData.path || "",
-          headers: headersArr,
-          params: paramsArr,
-          bodyType: bodyType,
-          body:
-            typeof bodyContent === "object"
-              ? JSON.stringify(bodyContent, null, 2)
-              : bodyContent || "",
-          bodyFormData: [{ key: "", value: "", type: "text" }],
-        },
-      };
     }
 
     dispatch(
