@@ -48,6 +48,7 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { Helmet } from "react-helmet";
 import {fetchQLPaginationByOrg} from "@lowcoder-ee/util/pagination/axios";
 import { isEmpty } from "lodash";
+import { processCurlData } from "../../util/curlUtils";
 
 const Wrapper = styled.div`
   display: flex;
@@ -199,17 +200,39 @@ export const QueryLibraryEditor = () => {
   const newName = nameGenerator.genItemName(trans("queryLibrary.unnamed"));
 
   const handleAdd = (type: BottomResTypeEnum, extraInfo?: any) => {
+    // Build basic query DSL
+    let queryDSL: any = {
+      triggerType: "manual",
+      datasourceId: extraInfo?.dataSourceId,
+      compType: extraInfo?.compType,
+    };
+
+    // If it is a REST API created from cURL, pre-populate the HTTP query fields
+    if (extraInfo?.compType === "restApi" && extraInfo?.curlData) {
+      const curlConfig = processCurlData(extraInfo.curlData);
+      if (curlConfig) {
+        queryDSL = {
+          ...queryDSL,
+          comp: {
+            httpMethod: curlConfig.method,
+            path: curlConfig.url,
+            headers: curlConfig.headers,
+            params: curlConfig.params,
+            bodyType: curlConfig.bodyType,
+            body: curlConfig.body,
+            bodyFormData: curlConfig.bodyFormData,
+          },
+        };
+      }
+    }
+
     dispatch(
       createQueryLibrary(
         {
           name: newName,
           organizationId: orgId,
           libraryQueryDSL: {
-            query: {
-              triggerType: "manual",
-              datasourceId: extraInfo?.dataSourceId,
-              compType: extraInfo?.compType,
-            },
+            query: queryDSL,
           },
         },
         (resp) => {
@@ -218,7 +241,6 @@ export const QueryLibraryEditor = () => {
             setModify(!modify);
           }, 200);
           setCurrentPage(Math.ceil(elements.total / pageSize));
-
         },
         () => {}
       )

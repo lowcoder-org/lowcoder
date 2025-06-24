@@ -7,6 +7,7 @@
   "types": "src/index.sdk.ts",
   "dependencies": {
     "@ant-design/icons": "^5.3.0",
+    "@bany/curl-to-json": "^1.2.8",
     "@codemirror/autocomplete": "^6.11.1",
     "@codemirror/commands": "^6.3.2",
     "@codemirror/lang-css": "^6.2.1",
