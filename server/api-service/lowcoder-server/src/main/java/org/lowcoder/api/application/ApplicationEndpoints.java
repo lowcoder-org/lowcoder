@@ -251,7 +251,7 @@ public interface ApplicationEndpoints
 			summary = "Get groups or members without permissions",
 			description = "Retrieve the groups or members of a specific Lowcoder Application identified by its ID that do not have permissions."
 	)
-	@GetMapping("/{applicationId}/get_groups_or_members_without_permissions")
+	@GetMapping("/{applicationId}/groups-members/available")
 	public Mono<ResponseView<List<Object>>> getGroupsOrMembersWithoutPermissions(
 			@PathVariable String applicationId,
 			@RequestParam(required = false) String search,
