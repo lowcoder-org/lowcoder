@@ -91,8 +91,12 @@ buildVars.forEach(({ name, defaultValue }) => {
   shell.env[name] = shell.env[name] ?? defaultValue;
 });
 
-shell.exec(`BUILD_TARGET=browserCheck yarn workspace lowcoder build`, { fatal: true });
-shell.exec(`yarn workspace lowcoder build`, { fatal: true });
+try {
+  shell.exec(`BUILD_TARGET=browserCheck yarn workspace lowcoder build`, { fatal: true });
+  shell.exec(`yarn workspace lowcoder build`, { fatal: true });
+} catch(e) {
+  console.error("Command failed: ", e.message);
+}
 
 if (process.env.REACT_APP_BUNDLE_BUILTIN_PLUGIN) {
   for (const pluginName of builtinPlugins) {

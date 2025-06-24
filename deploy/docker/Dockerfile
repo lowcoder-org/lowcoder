@@ -68,7 +68,7 @@ RUN apt-get update \
 # Copy and build the node-service app
 COPY server/node-service/ /lowcoder/node-service/app/
 WORKDIR /lowcoder/node-service/app/
-RUN yarn --immutable
+RUN yarn --immutable --inline-builds
 RUN yarn build
 
 # Copy startup script
@@ -118,7 +118,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certifi
 # Build client
 COPY ./client /lowcoder-client
 WORKDIR /lowcoder-client
-RUN yarn --immutable
+RUN yarn --immutable --inline-builds
 
 ARG REACT_APP_COMMIT_ID=test
 ARG REACT_APP_ENV=production
