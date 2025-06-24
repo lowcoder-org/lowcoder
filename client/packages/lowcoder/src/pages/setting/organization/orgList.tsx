@@ -19,7 +19,7 @@ import { isSaasMode } from "util/envUtils";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 import { default as Form } from "antd/es/form";
 import { default as Input } from "antd/es/input";
-import { Pagination, Spin } from "antd";
+import { Pagination, Spin, Tooltip } from "antd";
 import { getUser } from "redux/selectors/usersSelectors";
 import { getOrgCreateStatus } from "redux/selectors/orgSelectors";
 import { useWorkspaceManager } from "util/useWorkspaceManager";
@@ -279,7 +279,12 @@ function OrganizationSetting() {
                   width: "150px",
                   render: (createdAt: number) => {
                     if (!createdAt) return "-";
-                    return dayjs.unix(createdAt).fromNow();
+                    return (
+                      <Tooltip title={dayjs.unix(createdAt).format("YYYY/MM/DD HH:mm:ss")}
+                               placement="bottom">
+                        <span style={{ color: "#8b8fa3" }}>{dayjs.unix(createdAt).fromNow()}</span>
+                      </Tooltip>
+                    );
                   },
                 },
                 {
@@ -288,7 +293,12 @@ function OrganizationSetting() {
                   width: "150px",
                   render: (updatedAt: number) => {
                     if (!updatedAt) return "-";
-                    return dayjs.unix(updatedAt).fromNow();
+                    return (
+                      <Tooltip title={dayjs.unix(updatedAt).format("YYYY/MM/DD HH:mm:ss")}
+                               placement="bottom">
+                        <span style={{ color: "#8b8fa3" }}>{dayjs.unix(updatedAt).fromNow()}</span>
+                        </Tooltip>
+                    );
                   },
                 },
                 { title: " ", dataIndex: "operation", width: "208px" },
