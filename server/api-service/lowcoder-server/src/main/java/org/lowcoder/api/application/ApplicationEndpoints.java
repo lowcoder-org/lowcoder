@@ -246,6 +246,20 @@ public interface ApplicationEndpoints
     public Mono<ResponseView<ApplicationPermissionView>> getApplicationPermissions(@PathVariable String applicationId);
 
 	@Operation(
+			tags = ApplicationEndpoints.TAG_APPLICATION_PERMISSIONS,
+			operationId = "listGroupsOrMembersWithoutPermissions",
+			summary = "Get groups or members without permissions",
+			description = "Retrieve the groups or members of a specific Lowcoder Application identified by its ID that do not have permissions."
+	)
+	@GetMapping("/{applicationId}/get_groups_or_members_without_permissions")
+	public Mono<ResponseView<List<Object>>> getGroupsOrMembersWithoutPermissions(
+			@PathVariable String applicationId,
+			@RequestParam(required = false) String search,
+			@RequestParam(required = false, defaultValue = "1") Integer pageNum,
+			@RequestParam(required = false, defaultValue = "1000") Integer pageSize
+	);
+
+	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
 		    operationId = "setApplicationAsPublic",
 		    summary = "Set Application as publicly available",
