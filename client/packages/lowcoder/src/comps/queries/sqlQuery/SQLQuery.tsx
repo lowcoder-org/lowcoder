@@ -128,8 +128,13 @@ const CommandMap = {
     .setPropertyViewFn((children) => <>{children.records.getPropertyView()}</>)
     .build(),
   BULK_UPDATE: new MultiCompBuilder(
-    { table: TableNameComp, primaryKey: valueComp<string>(""), records: RecordsComp },
-    (props) => props.records
+    {
+      table: TableNameComp,
+      primaryKey: valueComp<string>(""),
+      records: RecordsComp,
+      filterBy: FilterComp,
+    },
+    (props) => ({ ...props.records, ...props.filterBy })
   )
     .setPropertyViewFn((children) => (
       <>
@@ -140,8 +145,15 @@ const CommandMap = {
           placement={"bottom"}
           label={trans("sqlQuery.primaryKeyColumn")}
         />
-        {children.records.getPropertyView()}
 
+        <QueryConfigWrapper>
+          <QueryConfigLabel>{trans("sqlQuery.filterRule")}</QueryConfigLabel>
+          <QueryConfigItemWrapper>
+            {children.filterBy.propertyView({ table: children.table.value, placement: "bottom" })}
+          </QueryConfigItemWrapper>
+        </QueryConfigWrapper>
+
+        {children.records.getPropertyView()}
       </>
     ))
     .build(),
