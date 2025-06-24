@@ -217,7 +217,7 @@ function OrganizationSetting() {
   console.log("dataSource", dataSource);
 
   return (
-    <Level1SettingPageContentWithList>
+    <Level1SettingPageContentWithList style={{ minWidth: "1000px" }}>
       <Level1SettingPageTitleWithBtn>
         {trans("settings.organization")}
         {isSaasMode(sysConfig) && (
