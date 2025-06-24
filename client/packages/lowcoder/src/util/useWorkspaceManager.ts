@@ -97,7 +97,6 @@ export function useWorkspaceManager({
             updatedAt: item.updatedAt,
           }));
 
-          console.log("transformedItems", transformedItems);
           dispatch({
             type: 'SET_WORKSPACES',
             payload: {

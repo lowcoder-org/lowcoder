@@ -196,7 +196,6 @@ function OrganizationSetting() {
     pageSize: 10 
   });
 
-  console.log("displayWorkspaces", displayWorkspaces);
 
 
   // Filter to only show orgs where user has admin permissions
@@ -214,7 +213,7 @@ function OrganizationSetting() {
     updatedAt: org.updatedAt,
   }));
 
-  console.log("dataSource", dataSource);
+
 
   return (
     <Level1SettingPageContentWithList style={{ minWidth: "1000px" }}>
