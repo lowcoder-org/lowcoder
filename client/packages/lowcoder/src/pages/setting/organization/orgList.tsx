@@ -26,6 +26,7 @@ import { useWorkspaceManager } from "util/useWorkspaceManager";
 import { Org } from "constants/orgConstants";
 import { useState } from "react";
 import { SwapOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 
 const OrgName = styled.div`
   display: flex;
@@ -257,7 +258,7 @@ function OrganizationSetting() {
                 onClick: () => history.push(buildOrgId((record as DataItemInfo).id)),
               })}
               columns={[
-                {
+                                {
                   title: trans("orgSettings.orgName"),
                   dataIndex: "orgName",
                   ellipsis: true,
@@ -278,7 +279,7 @@ function OrganizationSetting() {
                   width: "150px",
                   render: (createdAt: number) => {
                     if (!createdAt) return "-";
-                    return new Date(createdAt * 1000).toLocaleDateString();
+                    return dayjs.unix(createdAt).fromNow();
                   },
                 },
                 {
@@ -287,7 +288,7 @@ function OrganizationSetting() {
                   width: "150px",
                   render: (updatedAt: number) => {
                     if (!updatedAt) return "-";
-                    return new Date(updatedAt * 1000).toLocaleDateString();
+                    return dayjs.unix(updatedAt).fromNow();
                   },
                 },
                 { title: " ", dataIndex: "operation", width: "208px" },
