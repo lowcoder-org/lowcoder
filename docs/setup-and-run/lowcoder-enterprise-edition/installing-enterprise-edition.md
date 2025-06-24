@@ -4,6 +4,10 @@ description: Installation Guide
 
 # Installing Enterprise Edition
 
+### Easy to install.
+
+Just add the Enterprise Edition Plugin to your existing Lowcoder installation without any further changes. By adding the Plugin- and License-Files to your existing Lowcoder Environment, you can activate the additional functionality. You can try Lowcoder Enterprise Edition without risk. If you no longer want it, just remove the Plugin-File. All will work as before too. Lowcoder Enterprise Edition does not change the Configuration or Files on your regular installation.
+
 To enable the full suite of Enterprise features for the self-hosted Lowcoder instance(s), you’ll need to prepare your infrastructure and apply the provided plugin and licenses. The process is straightforward and allows seamless upgrade of your Lowcoder environment.
 
 ***

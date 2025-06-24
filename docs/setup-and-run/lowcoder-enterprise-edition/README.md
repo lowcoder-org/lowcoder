@@ -4,6 +4,10 @@ Lowcoder Enterprise Edition extends the power of Lowcoder with advanced capabili
 
 Unlike the public cloud version (Community Edition) hosted at [app.lowcoder.cloud](https://app.lowcoder.cloud), the Enterprise Edition can be deployed only on your private infrastructure (self-hosted) or hosted securely by Lowcoder.
 
+### Easy to install.
+
+Just add the Enterprise Edition Plugin to your existing Lowcoder installation without any further changes. By adding the Plugin- and License-Files to your existing Lowcoder Environment, you can activate the additional functionality. You can try Lowcoder Enterprise Edition without risk. If you no longer want it, just remove the Plugin-File. All will work as before too. Lowcoder Enterprise Edition does not change the Configuration or Files on your regular installation.
+
 <figure><img src="../../.gitbook/assets/frame_generic_light (2) (2).png" alt=""><figcaption><p>Environments Management</p></figcaption></figure>
 
 ***
