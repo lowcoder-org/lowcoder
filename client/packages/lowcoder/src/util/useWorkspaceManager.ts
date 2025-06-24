@@ -93,8 +93,11 @@ export function useWorkspaceManager({
           const transformedItems = apiData.data.map(item => ({
             id: item.orgId,
             name: item.orgName,
+            createdAt: item.createdAt,
+            updatedAt: item.updatedAt,
           }));
 
+          console.log("transformedItems", transformedItems);
           dispatch({
             type: 'SET_WORKSPACES',
             payload: {

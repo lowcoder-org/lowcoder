@@ -170,6 +170,8 @@ type DataItemInfo = {
   del: boolean;
   orgName: string;
   logoUrl: string;
+  createdAt?: number;
+  updatedAt?: number;
 };
 
 function OrganizationSetting() {
@@ -193,6 +195,8 @@ function OrganizationSetting() {
     pageSize: 10 
   });
 
+  console.log("displayWorkspaces", displayWorkspaces);
+
 
   // Filter to only show orgs where user has admin permissions
   const adminOrgs = displayWorkspaces.filter((org: Org) => {
@@ -205,7 +209,11 @@ function OrganizationSetting() {
     del: adminOrgs.length > 1,
     orgName: org.name,
     logoUrl: org.logoUrl || "",
+    createdAt: org.createdAt,
+    updatedAt: org.updatedAt,
   }));
+
+  console.log("dataSource", dataSource);
 
   return (
     <Level1SettingPageContentWithList>
@@ -262,6 +270,24 @@ function OrganizationSetting() {
                         {isActiveOrg && <ActiveOrgIcon />}
                       </OrgName>
                     );
+                  },
+                },
+                {
+                  title: trans("orgSettings.createdAt"),
+                  dataIndex: "createdAt",
+                  width: "150px",
+                  render: (createdAt: number) => {
+                    if (!createdAt) return "-";
+                    return new Date(createdAt * 1000).toLocaleDateString();
+                  },
+                },
+                {
+                  title: trans("orgSettings.updatedAt"),
+                  dataIndex: "updatedAt", 
+                  width: "150px",
+                  render: (updatedAt: number) => {
+                    if (!updatedAt) return "-";
+                    return new Date(updatedAt * 1000).toLocaleDateString();
                   },
                 },
                 { title: " ", dataIndex: "operation", width: "208px" },
