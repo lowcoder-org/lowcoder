@@ -43,7 +43,7 @@ export function SubscriptionCancel() {
   const session_id = query.get("session_id");
 
   useEffect(() => {
-    window.location.replace(SUBSCRIPTION_SETTING);
+    history.replace(SUBSCRIPTION_SETTING);
   }, []);
   
   return (

@@ -83,14 +83,14 @@ export function authRespValidate(
   if (doValidResponse(resp)) {
     onAuthSuccess?.();
     sessionStorage.setItem("_just_logged_in_", "true");
-    history.replace(replaceUrl.replace(baseUrl, ''));
+    window.location.replace(replaceUrl.replace(baseUrl, ''));
   } else if (
     resp.data.code === SERVER_ERROR_CODES.EXCEED_MAX_USER_ORG_COUNT ||
     resp.data.code === SERVER_ERROR_CODES.ALREADY_IN_ORGANIZATION
   ) {
     messageInstance.error(resp.data.message);
     // redirect after displaying the message for a second
-    setTimeout(() => window.location.replace(replaceUrl), 1500);
+    setTimeout(() => history.replace(replaceUrl), 1500);
   } else {
     throw Error(resp.data.message);
   }

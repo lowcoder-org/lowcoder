@@ -33,6 +33,7 @@ import { User } from "constants/userConstants";
 import { getUserSaga } from "redux/sagas/userSagas";
 import { GetMyOrgsResponse } from "@lowcoder-ee/api/userApi";
 import UserApi from "@lowcoder-ee/api/userApi";
+import history from "@lowcoder-ee/util/history";
 
 export function* updateGroupSaga(action: ReduxAction<UpdateGroupActionPayload>) {
   try {
@@ -248,7 +249,7 @@ export function* switchOrgSaga(action: ReduxAction<{ orgId: string }>) {
     const response: AxiosResponse<ApiResponse> = yield call(OrgApi.switchOrg, action.payload.orgId);
     const isValidResponse: boolean = validateResponse(response);
     if (isValidResponse) {
-      window.location.replace(BASE_URL);
+      history.replace(BASE_URL);
     }
   } catch (error: any) {
     messageInstance.error(error.message);
