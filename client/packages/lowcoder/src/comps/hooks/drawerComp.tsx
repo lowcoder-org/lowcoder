@@ -217,8 +217,9 @@ const DrawerView = React.memo((
     body: {
       padding: 0,
       background: props.style.background
-    }
-  }), [props.style.background]);
+    },
+    mask: props.showMask ? undefined : { background: "transparent" }
+  }), [props.style.background, props.showMask]);
 
   const rootStyle = useMemo(() => 
     props.visible.value ? { overflow: "auto", pointerEvents: "auto" } : {},
@@ -232,7 +233,7 @@ const DrawerView = React.memo((
           resizable={resizable}
           onResizeStop={onResizeStop}
           rootStyle={rootStyle as any}
-          styles={drawerStyles}
+          styles={drawerStyles as any}
           title={props.title}
           $titleAlign={props.titleAlign}
           $drawerScrollbar={props.drawerScrollbar}
@@ -248,7 +249,7 @@ const DrawerView = React.memo((
           afterOpenChange={afterOpenChange}
           zIndex={Layers.drawer}
           maskClosable={props.maskClosable}
-          mask={props.showMask}
+          mask={true}
           className={clsx(`app-${appID}`, props.className)}
           data-testid={props.dataTestId as string}
         >
