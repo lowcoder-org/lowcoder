@@ -26,6 +26,7 @@ import { AuthSearchParams } from "constants/authConstants";
 import { saveAuthSearchParams } from "pages/userAuth/authUtils";
 import { initTranslator } from "i18n";
 import { fetchWorkspacesAction } from "../reduxActions/orgActions";
+import history from "@lowcoder-ee/util/history";
 
 function validResponseData(response: AxiosResponse<ApiResponse>) {
   return response && response.data && response.data.data;
@@ -45,7 +46,7 @@ export function* getUserSaga() {
       const redirectUrl = new URL(redirectUri);
       redirectUrl.pathname = currentUrl.pathname;
       redirectUrl.search = currentUrl.search;
-      window.location.replace(redirectUrl);
+      history.replace(redirectUrl);
       return;
     }
     if (validateResponse(response)) {
@@ -163,7 +164,7 @@ export function* logoutSaga(action: LogoutActionType) {
     if (isValidResponse) {
       yield put(logoutSuccess());
       localStorage.clear();
-      window.location.replace(redirectURL);
+      history.replace(redirectURL);
     }
   } catch (error) {
     log.error(error);
