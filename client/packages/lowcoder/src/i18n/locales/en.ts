@@ -45,6 +45,7 @@ export const en = {
   "accessControl": "Access Control",
   "copySuccess": "Copied Successfully",
   "copyError": "Copy Error",
+  "tags": "Tags",
   
   "api": {
     "publishSuccess": "Published Successfully",

@@ -193,6 +193,7 @@ import { DrawerComp } from "./hooks/drawerComp";
 import { ModalComp } from "./hooks/modalComp";
 import { defaultCollapsibleContainerData } from "./comps/containerComp/collapsibleContainerComp";
 import { ContainerComp as FloatTextContainerComp } from "./comps/containerComp/textContainerComp";
+import { MultiTagsComp } from "./comps/tagsComp/tagsCompView";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -708,6 +709,19 @@ export var uiCompMap: Registry = {
       delayCollision: true,
     },
     defaultDataFn: defaultGridData,
+  },
+  multiTags: {
+    name: trans("tags"),
+    enName: "tags",
+    description: "Desc of Tags",
+    categories: ["layout"],
+    icon: FloatingButtonCompIcon,
+    keywords: trans("uiComp.floatButtonCompKeywords"),
+    comp: MultiTagsComp,
+    layoutInfo: {
+      w: 9,
+      h: 5,
+    },
   },
   modal: {
     name: trans("uiComp.modalCompName"),

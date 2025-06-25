@@ -557,6 +557,7 @@ const TabsOption = new MultiCompBuilder(
     </>
   ))
   .build();
+  
 
 export const TabsOptionControl = manualOptionsControl(TabsOption, {
   initOptions: [
@@ -564,6 +565,37 @@ export const TabsOptionControl = manualOptionsControl(TabsOption, {
     { id: 1, key: "Tab2", label: "Tab2" },
   ],
   uniqField: "key",
+  autoIncField: "id",
+});
+
+const TagsOption = new MultiCompBuilder(
+  {
+    id: valueComp<number>(-1),
+    label: StringControl,
+    icon: IconControl,
+    iconPosition: withDefault(LeftRightControl, "left"),
+    hidden: BoolCodeControl,
+  },
+  (props) => props
+)
+  .setPropertyViewFn((children) => (
+    <>
+      {children.label.propertyView({ label: trans("label") })}
+      {children.icon.propertyView({ label: trans("icon") })}
+      {children.iconPosition.propertyView({
+        label: trans("tabbedContainer.iconPosition"),
+        radioButton: true,
+      })}
+      {hiddenPropertyView(children)}
+    </>
+  ))
+  .build();
+
+export const TagsOptionControl = optionsControl(TagsOption, {
+  initOptions: [
+    { id: 0, label: "Option 1" },
+    { id: 1, label: "Option 2" },
+  ],
   autoIncField: "id",
 });
 
