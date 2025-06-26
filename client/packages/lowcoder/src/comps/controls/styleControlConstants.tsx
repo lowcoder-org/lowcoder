@@ -1013,6 +1013,7 @@ export const ToggleButtonStyle = [
       ...style,
     };
   }),
+  ...DISABLED_STYLE_FIELDS,
 ] as const;
 
 export const TextStyle = [
