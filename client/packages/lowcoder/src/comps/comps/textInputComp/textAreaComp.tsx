@@ -52,7 +52,6 @@ const TextAreaStyled = styled(TextArea)<{
   &.ant-input-disabled {
     color: ${(props) => props.$disabledStyle?.disabledText || props.$style.text} !important;
     background: ${(props) => props.$disabledStyle?.disabledBackground || props.$style.background} !important;
-    border-color: ${(props) => props.$disabledStyle?.disabledBorder || props.$style.border} !important;
     cursor: not-allowed;
   }
 `;

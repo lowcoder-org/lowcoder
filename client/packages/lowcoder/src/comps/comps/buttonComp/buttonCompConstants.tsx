@@ -54,9 +54,6 @@ export function getButtonStyle(buttonStyle: ButtonStyleType, disabledStyle?: any
       &.ant-btn-disabled {
         color: ${disabledStyle?.disabledText || buttonStyle.text};
         background: ${disabledStyle?.disabledBackground || buttonStyle.background};
-        border-color: ${
-          disabledStyle?.disabledBorder || buttonStyle.border
-        } !important;
         cursor: not-allowed;
       }
     }

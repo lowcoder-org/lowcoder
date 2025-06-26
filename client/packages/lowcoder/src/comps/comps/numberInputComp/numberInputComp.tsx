@@ -133,7 +133,6 @@ const InputNumber = styled(AntdInputNumber)<{
   &.ant-input-number-disabled {
     color: ${(props) => props.$disabledStyle?.disabledText || props.$style.text} !important;
     background: ${(props) => props.$disabledStyle?.disabledBackground || props.$style.background} !important;
-    border-color: ${(props) => props.$disabledStyle?.disabledBorder || props.$style.border} !important;
     cursor: not-allowed;
     
     .ant-input-number-input {
@@ -141,15 +140,6 @@ const InputNumber = styled(AntdInputNumber)<{
       background: ${(props) => props.$disabledStyle?.disabledBackground || props.$style.background} !important;
     }
     
-    .ant-input-number-handler-wrap {
-      background: ${(props) => props.$disabledStyle?.disabledBackground || props.$style.background} !important;
-      border-color: ${(props) => props.$disabledStyle?.disabledBorder || props.$style.border} !important;
-      
-      .ant-input-number-handler span {
-        color: ${(props) => props.$disabledStyle?.disabledText || props.$style.text} !important;
-        opacity: 0.3;
-      }
-    }
   }
 `;
 

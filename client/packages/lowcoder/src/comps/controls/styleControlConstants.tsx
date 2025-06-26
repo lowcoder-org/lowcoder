@@ -966,12 +966,7 @@ const DISABLED_BACKGROUND = {
   color: SECOND_SURFACE_COLOR,
 } as const;
 
-const DISABLED_BORDER = {
-  name: "disabledBorder",
-  label: trans("style.disabledBorder"),
-  depName: "disabledBackground",
-  transformer: backgroundToBorder,
-} as const;
+
 
 const DISABLED_TEXT = {
   name: "disabledText",
@@ -984,7 +979,6 @@ const DISABLED_TEXT = {
 // Re-export for reuse in other components if needed
 export const DISABLED_STYLE_FIELDS = [
   DISABLED_BACKGROUND,
-  DISABLED_BORDER,
   DISABLED_TEXT,
 ] as const;
 
@@ -995,12 +989,6 @@ const DISABLED_INPUT_BACKGROUND = {
   color: SECOND_SURFACE_COLOR,
 } as const;
 
-const DISABLED_INPUT_BORDER = {
-  name: "disabledBorder",
-  label: trans("style.disabledBorder"),
-  depName: "disabledInputBackground",
-  transformer: backgroundToBorder,
-} as const;
 
 const DISABLED_INPUT_TEXT = {
   name: "disabledText",
@@ -1013,7 +1001,6 @@ const DISABLED_INPUT_TEXT = {
 // Re-export for reuse in textInput components
 export const DISABLED_INPUT_STYLE_FIELDS = [
   DISABLED_INPUT_BACKGROUND,
-  DISABLED_INPUT_BORDER,
   DISABLED_INPUT_TEXT,
 ] as const;
 
