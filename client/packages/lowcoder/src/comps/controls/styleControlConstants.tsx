@@ -991,6 +991,10 @@ export const DISABLED_STYLE_FIELDS = [
 export const ButtonStyle = [
   getBackground('primary'),
   ...STYLING_FIELDS_SEQUENCE,
+] as const;
+
+// Create separate disabled style control
+export const DisabledButtonStyle = [
   ...DISABLED_STYLE_FIELDS,
 ] as const;
 
@@ -1013,7 +1017,6 @@ export const ToggleButtonStyle = [
       ...style,
     };
   }),
-  ...DISABLED_STYLE_FIELDS,
 ] as const;
 
 export const TextStyle = [
@@ -2321,6 +2324,7 @@ export type InputFieldStyleType = StyleConfigType<typeof InputFieldStyle>;
 export type SignatureContainerStyleType = StyleConfigType<typeof SignatureContainerStyle>;
 export type ColorPickerStyleType = StyleConfigType<typeof ColorPickerStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
+export type DisabledButtonStyleType = StyleConfigType<typeof DisabledButtonStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;
 export type TextStyleType = StyleConfigType<typeof TextStyle>;
 export type TextContainerStyleType = StyleConfigType<typeof TextContainerStyle>;

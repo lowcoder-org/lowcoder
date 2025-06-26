@@ -1,13 +1,13 @@
 import { default as Button } from "antd/es/button";
 import { styleControl } from "comps/controls/styleControl";
-import { ButtonStyleType, ButtonStyle } from "comps/controls/styleControlConstants";
+import { ButtonStyleType, ButtonStyle, DisabledButtonStyle } from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import styled, { css } from "styled-components";
 import { genActiveColor, genHoverColor } from "lowcoder-design";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUtils";
 
-export function getButtonStyle(buttonStyle: ButtonStyleType) {
+export function getButtonStyle(buttonStyle: ButtonStyleType, disabledStyle?: any) {
   const hoverColor = buttonStyle.background && genHoverColor(buttonStyle.background);
   const activeColor = buttonStyle.background && genActiveColor(buttonStyle.background);
   return css`
@@ -52,10 +52,10 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
       /* Disabled state styling */
       &:disabled,
       &.ant-btn-disabled {
-        color: ${buttonStyle.disabledText || buttonStyle.text};
-        background: ${buttonStyle.disabledBackground || buttonStyle.background};
+        color: ${disabledStyle?.disabledText || buttonStyle.text};
+        background: ${disabledStyle?.disabledBackground || buttonStyle.background};
         border-color: ${
-          buttonStyle.disabledBorder || buttonStyle.border
+          disabledStyle?.disabledBorder || buttonStyle.border
         } !important;
         cursor: not-allowed;
       }
@@ -63,8 +63,11 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
   `;
 }
 
-export const Button100 = styled(Button)<{ $buttonStyle?: ButtonStyleType }>`
-  ${(props) => props.$buttonStyle && getButtonStyle(props.$buttonStyle)}
+export const Button100 = styled(Button)<{ 
+  $buttonStyle?: ButtonStyleType; 
+  $disabledStyle?: any;
+}>`
+  ${(props) => props.$buttonStyle && getButtonStyle(props.$buttonStyle, props.$disabledStyle)}
   width: 100%;
   height: auto;
   display: inline-flex;
@@ -115,6 +118,10 @@ function fixOldData(oldData: any) {
 }
 const ButtonTmpStyleControl = styleControl(ButtonStyle, 'style');
 export const ButtonStyleControl = migrateOldData(ButtonTmpStyleControl, fixOldData);
+
+// Create disabled style control
+const DisabledButtonTmpStyleControl = styleControl(DisabledButtonStyle, 'disabledStyle');
+export const DisabledButtonStyleControl = migrateOldData(DisabledButtonTmpStyleControl, fixOldData);
 
 export const buttonRefMethods = refMethods<HTMLElement>([
   focusWithOptions,
