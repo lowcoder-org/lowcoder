@@ -31,6 +31,7 @@ import {DraggableTreeNode, DraggableTreeNodeItemRenderProps} from "@lowcoder-ee/
 import { EmptyContent } from "components/EmptyContent";
 import {deleteFolder, moveToFolder, updateFolder} from "@lowcoder-ee/redux/reduxActions/folderActions";
 import { isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
+import history from "@lowcoder-ee/util/history";
 const ItemWrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -736,7 +737,7 @@ export default function ModulePanel() {
                                     type={AppTypeEnum.Module}
                                     onSuccess={(app) => {
                                         const appId = app.applicationInfoView.applicationId;
-                                        const url = APPLICATION_VIEW_URL(appId, "edit");
+                                        const url = history.createHref({pathname: APPLICATION_VIEW_URL(appId, "edit")});
                                         window.open(url);
                                     }}
                                 />

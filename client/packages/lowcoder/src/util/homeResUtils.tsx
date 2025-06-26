@@ -59,12 +59,12 @@ export const handleAppEditClick = (e: any, id: string): void => {
   } else {
     history.push(APPLICATION_VIEW_URL(id, "edit"), '_blank');
   } */
-  window.open(APPLICATION_VIEW_URL(id, "edit"), '_blank');
+  window.open(history.createHref({pathname: APPLICATION_VIEW_URL(id, "edit")}), '_blank');
 };
 
-export const handleAppViewClick = (id: string) => window.open(APPLICATION_VIEW_URL(id, "view"), '_blank');
+export const handleAppViewClick = (id: string) => window.open(history.createHref({pathname: APPLICATION_VIEW_URL(id, "view")}), '_blank');
 
-export const handleMarketplaceAppViewClick = (id: string, isLocalMarketplace?: boolean) => isLocalMarketplace == true ? window.open(APPLICATION_VIEW_URL(id, "view_marketplace"), '_blank') : window.open(APPLICATION_MARKETPLACE_VIEW_URL(id, "view_marketplace"), '_blank');
+export const handleMarketplaceAppViewClick = (id: string, isLocalMarketplace?: boolean) => isLocalMarketplace == true ? window.open(history.createHref({pathname: APPLICATION_VIEW_URL(id, "view_marketplace")}), '_blank') : window.open(history.createHref({pathname: APPLICATION_MARKETPLACE_VIEW_URL(id, "view_marketplace")}), '_blank');
 
 export const handleFolderViewClick = (id: string) => history.push(buildFolderUrl(id));
 

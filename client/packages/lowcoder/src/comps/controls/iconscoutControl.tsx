@@ -32,6 +32,7 @@ import { CrownFilled } from "@ant-design/icons";
 import { SUBSCRIPTION_SETTING } from "@lowcoder-ee/constants/routesURL";
 import { useSimpleSubscriptionContext } from "@lowcoder-ee/util/context/SimpleSubscriptionContext";
 import { SubscriptionProductsEnum } from "@lowcoder-ee/constants/subscriptionConstants";
+import history from "@lowcoder-ee/util/history";
 
 const ButtonWrapper = styled.div`
   width: 100%;
@@ -397,7 +398,7 @@ export const IconPicker = (props: {
                       title: trans("iconScout.buySubscriptionTitle"),
                       content: trans("iconScout.buySubscriptionContent"),
                       onConfirm: () => {
-                        window.open(SUBSCRIPTION_SETTING, "_blank");
+                        window.open(history.createHref({pathname: SUBSCRIPTION_SETTING}), "_blank");
                       },
                       confirmBtnType: "primary",
                       okText: trans("iconScout.buySubscriptionButton"),
