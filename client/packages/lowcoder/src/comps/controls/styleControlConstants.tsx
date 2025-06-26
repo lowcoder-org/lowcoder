@@ -244,9 +244,14 @@ export type DepColorConfig = CommonColorConfig & {
   transformer: (color: string, ...rest: string[]) => string;
 };
 
+export type PlaceholderConfig = CommonColorConfig & {
+  readonly placeholder?: string;
+};
+
 export type SingleColorConfig =
   | SimpleColorConfig
   | DepColorConfig
+  | PlaceholderConfig
   | RadiusConfig
   | BorderWidthConfig
   | RotationConfig
@@ -1309,11 +1314,19 @@ export const DisabledSliderStyle = [
   ...DISABLED_SLIDER_STYLE_FIELDS,
 ] as const;
 
+const PLACEHOLDER = {
+  name: "placeholder",
+  label: "Placeholder",
+  depName: "text",
+  transformer: (color: string) => lightenColor(color, 0.4),
+} as const;
+
 export const InputLikeStyle = [
   getStaticBackground(SURFACE_COLOR),
   BOXSHADOW,
   BOXSHADOWCOLOR,
   ...STYLING_FIELDS_SEQUENCE.filter((style)=>style.name!=='rotation' && style.name!=='lineHeight'),
+  PLACEHOLDER,
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -2536,3 +2549,4 @@ export function marginCalculator(margin: string) {
 }
 
 export type {ThemeDetail};
+
