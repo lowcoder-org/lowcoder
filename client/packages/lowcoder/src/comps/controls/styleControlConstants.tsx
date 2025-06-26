@@ -1004,6 +1004,43 @@ export const DISABLED_INPUT_STYLE_FIELDS = [
   DISABLED_INPUT_TEXT,
 ] as const;
 
+// Add disabled style constants specifically for slider components
+const DISABLED_SLIDER_FILL = {
+  name: "disabledFill",
+  label: trans("style.disabledFill"),
+  depName: "fill",
+  transformer: (color: string) => lightenColor(color, 0.3),
+} as const;
+
+const DISABLED_SLIDER_TRACK = {
+  name: "disabledTrack",
+  label: trans("style.disabledTrack"),
+  depName: "track",
+  transformer: (color: string) => lightenColor(color, 0.2),
+} as const;
+
+const DISABLED_SLIDER_THUMB = {
+  name: "disabledThumb",
+  label: trans("style.disabledThumb"),
+  depName: "thumb",
+  transformer: (color: string) => lightenColor(color, 0.25),
+} as const;
+
+const DISABLED_SLIDER_THUMB_BORDER = {
+  name: "disabledThumbBorder",
+  label: trans("style.disabledThumbBorder"),
+  depName: "thumbBorder",
+  transformer: (color: string) => lightenColor(color, 0.25),
+} as const;
+
+// Re-export for reuse in slider components
+export const DISABLED_SLIDER_STYLE_FIELDS = [
+  DISABLED_SLIDER_FILL,
+  DISABLED_SLIDER_TRACK,
+  DISABLED_SLIDER_THUMB,
+  DISABLED_SLIDER_THUMB_BORDER,
+] as const;
+
 export const ButtonStyle = [
   getBackground('primary'),
   ...STYLING_FIELDS_SEQUENCE,
@@ -1265,6 +1302,11 @@ export const SliderStyle = [
   TRACK,
   MARGIN,
   PADDING,
+] as const;
+
+// Create separate disabled style control for sliders
+export const DisabledSliderStyle = [
+  ...DISABLED_SLIDER_STYLE_FIELDS,
 ] as const;
 
 export const InputLikeStyle = [
@@ -2362,6 +2404,7 @@ export type ContainerFooterStyleType = StyleConfigType<
   typeof ContainerFooterStyle
 >;
 export type SliderStyleType = StyleConfigType<typeof SliderStyle>;
+export type DisabledSliderStyleType = StyleConfigType<typeof DisabledSliderStyle>;
 export type RatingStyleType = StyleConfigType<typeof RatingStyle>;
 export type SwitchStyleType = StyleConfigType<typeof SwitchStyle>;
 export type SelectStyleType = StyleConfigType<typeof SelectStyle>;

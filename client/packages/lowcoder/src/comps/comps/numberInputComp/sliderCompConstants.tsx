@@ -5,7 +5,7 @@ import { ChangeEventHandlerControl } from "../../controls/eventHandlerControl";
 import { Section, lightenColor, sectionNames } from "lowcoder-design";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { styleControl } from "comps/controls/styleControl";
-import {  AnimationStyle, InputFieldStyle, LabelStyle, SliderStyle, SliderStyleType, heightCalculator, widthCalculator  } from "comps/controls/styleControlConstants";
+import {  AnimationStyle, InputFieldStyle, LabelStyle, SliderStyle, SliderStyleType, DisabledSliderStyle, DisabledSliderStyleType, heightCalculator, widthCalculator  } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { default as Slider } from "antd/es/slider";
 import { darkenColor, fadeColor } from "lowcoder-design";
@@ -15,7 +15,7 @@ import { trans } from "i18n";
 import { memo, useCallback, useContext } from "react";
 import { EditorContext } from "comps/editorState";
 
-const getStyle = (style: SliderStyleType, vertical: boolean) => {
+const getStyle = (style: SliderStyleType, vertical: boolean, disabledStyle?: DisabledSliderStyleType) => {
   return css`
     &.ant-slider:not(.ant-slider-disabled) {
       &,
@@ -56,11 +56,35 @@ const getStyle = (style: SliderStyleType, vertical: boolean) => {
         margin: ${style.margin} auto !important;
       `}
     }
+    
+    /* Disabled state styling */
+    &.ant-slider-disabled {
+      .ant-slider-rail {
+        background-color: ${disabledStyle?.disabledTrack || lightenColor(style.track, 0.2)} !important;
+      }
+      .ant-slider-track {
+        background-color: ${disabledStyle?.disabledFill || lightenColor(style.fill, 0.3)} !important;
+      }
+      .ant-slider-handle {
+        background-color: ${disabledStyle?.disabledThumb || lightenColor(style.thumb, 0.25)} !important;
+        border-color: ${disabledStyle?.disabledThumbBorder || lightenColor(style.thumbBorder, 0.25)} !important;
+        cursor: not-allowed !important;
+      }
+      ${vertical && css`
+        width: auto;	
+        min-height: calc(300px - ${style.margin});
+        margin: ${style.margin} auto !important;
+      `}
+    }
   `;
 };
 
-export const SliderStyled = styled(Slider)<{ $style: SliderStyleType, $vertical: boolean }>`
-  ${(props) => props.$style && getStyle(props.$style, props.$vertical)}
+export const SliderStyled = styled(Slider)<{ 
+  $style: SliderStyleType, 
+  $vertical: boolean,
+  $disabledStyle?: DisabledSliderStyleType 
+}>`
+  ${(props) => props.$style && getStyle(props.$style, props.$vertical, props.$disabledStyle)}
 `;
 
 export const SliderWrapper = styled.div<{ $vertical: boolean }>`
@@ -88,6 +112,7 @@ export const SliderChildren = {
   prefixIcon: IconControl,
   suffixIcon: IconControl,
   inputFieldStyle: styleControl(SliderStyle, 'inputFieldStyle'),
+  disabledSliderStyle: styleControl(DisabledSliderStyle, 'disabledSliderStyle'),
   animationStyle: styleControl(AnimationStyle, 'animationStyle')
 };
 
@@ -131,6 +156,9 @@ const LayoutSection = memo(({ children }: { children: RecordConstructorToComp<ty
       </Section>
       <Section name={sectionNames.inputFieldStyle}>
         {children.inputFieldStyle.getPropertyView()}
+      </Section>
+      <Section name={"Disabled Slider Style"}>
+        {children.disabledSliderStyle.getPropertyView()}
       </Section>
       <Section name={sectionNames.animationStyle} hasTooltip={true}>
         {children.animationStyle.getPropertyView()}
