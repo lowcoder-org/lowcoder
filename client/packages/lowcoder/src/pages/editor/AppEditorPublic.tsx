@@ -61,13 +61,13 @@ const AppEditorPublic = React.memo(() => {
   );
   const applicationId = useMemo(
     () => {
-      const appId = params.applicationId || window.location.pathname.split("/")[2];
+      const appId = params.applicationId || history.location.pathname.split("/")[2];
       return appId === 'public' ? PUBLIC_APP_ID : appId;
-    }, [params.applicationId, window.location.pathname]
+    }, [params.applicationId, history.location.pathname]
   );
   const paramViewMode = useMemo(
-    () => params.viewMode || window.location.pathname.split("/")[3],
-    [params.viewMode, window.location.pathname]
+    () => params.viewMode || history.location.pathname.split("/")[3],
+    [params.viewMode, history.location.pathname]
   );
   const viewMode = useMemo(
     () => (paramViewMode === "view" || paramViewMode === "admin")

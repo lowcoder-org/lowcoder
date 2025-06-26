@@ -28,6 +28,7 @@ import { pasteKey, undoKey } from "util/keyUtils";
 import { genRandomKey } from "./idGenerator";
 import { getLatestVersion, getRemoteCompType, parseCompType } from "./remote";
 import { APPLICATION_VIEW_URL } from "@lowcoder-ee/constants/routesURL";
+import history from "@lowcoder-ee/util/history";
 
 export type CopyCompType = {
   layout: LayoutItem;
@@ -195,7 +196,7 @@ export class GridCompOperator {
   static editComp(editorState: EditorState) {
     const selectedComp = Object.values(editorState.selectedComps())[0];
     const applicationId = selectedComp.children.comp.children.appId.value
-    window.open(APPLICATION_VIEW_URL(applicationId, "edit"))
+    window.open(history.createHref({pathname: APPLICATION_VIEW_URL(applicationId, "edit")}))
   }
 
   static cutComp(editorState: EditorState, compRecords: Record<string, Comp>) {

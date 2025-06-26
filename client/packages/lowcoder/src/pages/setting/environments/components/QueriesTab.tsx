@@ -233,7 +233,7 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
               icon={<AuditOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
-                const auditUrl = `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspaceId}&queryId=${query.id}&pageSize=100&pageNum=1`;
+                const auditUrl = history.createHref({pathname: `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspaceId}&queryId=${query.id}&pageSize=100&pageNum=1`});
                 window.open(auditUrl, '_blank');
               }}
             >

@@ -37,7 +37,7 @@ export function openApp(props: {
   if (!m || !props.applicationId) {
     return;
   }
-  let targetURL = APPLICATION_VIEW_URL(props.applicationId, m.params.viewMode);
+  let targetURL = history.createHref({pathname: APPLICATION_VIEW_URL(props.applicationId, m.params.viewMode)});
   // query
   if (props.queryParams && !isEmpty(props.queryParams)) {
     targetURL += `?${props.queryParams}`;

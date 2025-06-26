@@ -203,7 +203,7 @@ const PreviewHeaderComp = () => {
           onClick={() =>
             // redirection to app by JS will cause the problem that queries don't execute on initialization
             // so just open a new window.
-            window.open(APPLICATION_VIEW_URL(applicationId, "edit"))
+            window.open(history.createHref({pathname: APPLICATION_VIEW_URL(applicationId, "edit")}))
           }
         >
           <EditIcon />
@@ -215,7 +215,7 @@ const PreviewHeaderComp = () => {
           style={{ marginRight: !user.isAnonymous ? "24px" : "" }}
           buttonType="primary"
           onClick={() => {
-            window.open(trans("template.cloneUrl") + templateId);
+            window.open(history.createHref({pathname: trans("template.cloneUrl") + templateId}));
           }}
         >
           {trans("header.clone")}

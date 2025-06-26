@@ -1,2 +1,6 @@
 import { createBrowserHistory } from "history";
-export default createBrowserHistory({basename: "/__LOWCODER_BASEPATH_PLACEHOLDER__"});
+const nodeEnv = process.env.NODE_ENV ?? "development";
+const isDev = nodeEnv === "development";
+const basename = isDev ? "/" : "/__LOWCODER_BASEPATH_PLACEHOLDER__";
+
+export default createBrowserHistory({basename});

@@ -190,7 +190,7 @@ export function* publishApplicationSaga(action: ReduxAction<PublishApplicationPa
         payload: action.payload,
       });
       messageInstance.success(trans("api.publishSuccess"));
-      window.open(APPLICATION_VIEW_URL(action.payload.applicationId, "view"));
+      window.open(history.createHref({pathname: APPLICATION_VIEW_URL(action.payload.applicationId, "view")}));
     }
   } catch (error: any) {
     messageInstance.error(error.message);

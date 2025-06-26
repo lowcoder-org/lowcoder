@@ -197,7 +197,7 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
               size="small"
               onClick={(e) => {
                 e.stopPropagation();
-                const auditUrl = `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspace.id}&pageSize=100&pageNum=1`;
+                const auditUrl = history.createHref({pathname: `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspace.id}&pageSize=100&pageNum=1`});
                 window.open(auditUrl, '_blank');
               }}
             >

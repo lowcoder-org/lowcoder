@@ -10,6 +10,7 @@ import { foldersSelector } from "redux/selectors/folderSelector";
 import { AppTypeEnum } from "constants/applicationConstants";
 import { TypeName } from "./headerStartDropdown";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import history from "@lowcoder-ee/util/history";
 
 type CopyModalProps = {
   visible: boolean;
@@ -62,7 +63,7 @@ export function CopyModal(props: CopyModalProps) {
             .then(async (response) => {
               if (validateResponse(response) && response.data.data) {
                 window.open(
-                  APPLICATION_VIEW_URL(response.data.data.applicationInfoView.applicationId, "edit")
+                  history.createHref({pathname: APPLICATION_VIEW_URL(response.data.data.applicationInfoView.applicationId, "edit")})
                 );
                 window.location.reload();
                 return response.data.data;
