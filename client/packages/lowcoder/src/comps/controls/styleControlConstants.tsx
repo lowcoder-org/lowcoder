@@ -961,7 +961,7 @@ function replaceAndMergeMultipleStyles(
 
 export const ButtonStyle = [
   getBackground('primary'),
-  ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='lineHeight'),
+  ...STYLING_FIELDS_SEQUENCE,
 ] as const;
 
 export const DropdownStyle = [

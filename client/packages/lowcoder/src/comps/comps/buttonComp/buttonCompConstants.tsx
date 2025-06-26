@@ -73,13 +73,15 @@ export const ButtonCompWrapper = styled.div<{ $disabled: boolean }>`
 
   // The button component is disabled but can respond to drag & select events
   ${(props) =>
-    props.$disabled &&
-    `
-    cursor: not-allowed;
-    button:disabled {
-      pointer-events: none;
-    }
-  `};
+    props.$disabled
+      ? `
+        cursor: not-allowed;
+        button:disabled {
+          pointer-events: none;
+        }
+      `
+      : ""
+  }
 `;
 
 /**
