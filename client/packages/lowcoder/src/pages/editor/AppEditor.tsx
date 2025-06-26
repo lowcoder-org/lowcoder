@@ -37,6 +37,7 @@ import { AppState } from "@lowcoder-ee/redux/reducers";
 import { resetIconDictionary } from "@lowcoder-ee/constants/iconConstants";
 import {fetchJsDSPaginationByApp} from "@lowcoder-ee/util/pagination/axios";
 import PaginationComp from "@lowcoder-ee/util/pagination/Pagination";
+import history from "@lowcoder-ee/util/history";
 
 const AppSnapshot = lazy(() => {
   return import("pages/editor/appSnapshot")
@@ -67,12 +68,12 @@ const AppEditor = React.memo(() => {
   // Memoize selectors to prevent unnecessary re-renders
   const selectors = useMemo(() => ({
     isUserViewMode: params.viewMode ? isUserViewModeCheck : true,
-    applicationId: params.applicationId || window.location.pathname.split("/")[2],
-    paramViewMode: params.viewMode || window.location.pathname.split("/")[3],
+    applicationId: params.applicationId || history.location.pathname.split("/")[2],
+    paramViewMode: params.viewMode || history.location.pathname.split("/")[3],
     viewMode: (params.viewMode === "view" || params.viewMode === "admin")
       ? "published"
       : params.viewMode === "view_marketplace" ? "view_marketplace" : "editing",
-  }), [params.viewMode, params.applicationId, window.location.pathname, isUserViewModeCheck]);
+  }), [params.viewMode, params.applicationId, history.location.pathname, isUserViewModeCheck]);
 
   const firstRendered = useRef(false);
   const orgId = useMemo(() => currentUser.currentOrgId, [currentUser.currentOrgId]);
