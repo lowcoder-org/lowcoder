@@ -225,7 +225,7 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
               icon={<AuditOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
-                const auditUrl = `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspaceId}&appId=${app.applicationId}&pageSize=100&pageNum=1`;
+                const auditUrl = history.createHref({pathname: `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspaceId}&appId=${app.applicationId}&pageSize=100&pageNum=1`});
                 window.open(auditUrl, '_blank');
               }}
             >

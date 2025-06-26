@@ -5,6 +5,7 @@ import { Environment } from '../types/environment.types';
 import { getEnvironmentTagColor, formatEnvironmentType } from '../utils/environmentUtils';
 import { getAPICallsStatusColor } from '../services/license.service';
 import { trans } from 'i18n';
+import history from '@lowcoder-ee/util/history';
 
 const { Text, Title } = Typography;
 
@@ -25,7 +26,7 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
   // Open audit page in new tab
   const openAuditPage = (environmentId: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent row click from triggering
-    const auditUrl = `/setting/audit?environmentId=${environmentId}`;
+    const auditUrl = history.createHref({pathname: `/setting/audit?environmentId=${environmentId}`});
     window.open(auditUrl, '_blank');
   };
 

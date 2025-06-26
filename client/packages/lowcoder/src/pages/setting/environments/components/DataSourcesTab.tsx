@@ -215,7 +215,7 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
               icon={<AuditOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
-                const auditUrl = `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspaceId}&datasourceId=${dataSource.id}&pageSize=100&pageNum=1`;
+                const auditUrl = history.createHref({pathname: `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspaceId}&datasourceId=${dataSource.id}&pageSize=100&pageNum=1`});
                 window.open(auditUrl, '_blank');
               }}
             >

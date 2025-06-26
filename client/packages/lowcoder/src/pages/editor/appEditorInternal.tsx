@@ -27,6 +27,7 @@ import { getCurrentUser } from "redux/selectors/usersSelectors";
 import React from "react";
 import { isEqual } from "lodash";
 import { isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
+import history from "@lowcoder-ee/util/history";
 
 /**
  * FIXME: optimize the logic of saving comps
@@ -187,7 +188,7 @@ export const AppEditorInternalView = React.memo((props: AppEditorInternalViewPro
       readOnly,
       appType: appInfo.appType,
       applicationId: appInfo.id,
-      hideHeader: window.location.pathname.split("/")[3] === "admin",
+      hideHeader: history.location.pathname.split("/")[3] === "admin",
       blockEditing,
       fetchApplication: fetchApplication,
       exportPublicAppToJson: isPublicApp ? exportPublicAppToJson : undefined,
@@ -232,7 +233,7 @@ export const AppEditorInternalView = React.memo((props: AppEditorInternalViewPro
   });
 
   return loading ? (
-    window.location.pathname.split("/")[3] === "admin" ? <div></div> : 
+    history.location.pathname.split("/")[3] === "admin" ? <div></div> : 
     <EditorSkeletonView />
   ) : (
     <ConfigProvider

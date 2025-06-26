@@ -1,5 +1,6 @@
 import { PHONE_NUMBER_PATTERN } from "./stringUtils";
 import { SERVER_HOST } from "constants/apiConstants";
+import history from "./history";
 
 export const isSafeRedirectURL = (redirectURL: string) => {
   try {
@@ -32,7 +33,8 @@ export const genInviteLink = (inviteCode?: string) => {
   if (!inviteCode) {
     return "";
   }
-  return `${window.location.origin}/invite/${inviteCode}`;
+  const inviteUrl = history.createHref({pathname: `/invite/${inviteCode}`});
+  return `${window.location.origin}${inviteUrl}`;
 };
 
 export const hasQueryParam = (name: string) => {

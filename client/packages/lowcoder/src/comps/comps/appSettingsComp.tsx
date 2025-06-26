@@ -26,6 +26,7 @@ import { DEFAULT_ROW_COUNT } from "@lowcoder-ee/layout/calculateUtils";
 import { AppSettingContext } from "../utils/appSettingContext";
 import { currentApplication, isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
 import { isAggregationApp } from "util/appUtils";
+import history from "@lowcoder-ee/util/history";
 
 const TITLE = trans("appSetting.title");
 const USER_DEFINE = "__USER_DEFINE";
@@ -422,7 +423,7 @@ function AppCanvasSettingsModal(props: ChildrenInstance) {
             preNode={() => (
               isPublicApp ? <></> : (
                 <>
-                  <CreateDiv onClick={() => window.open(THEME_SETTING)}>
+                  <CreateDiv onClick={() => window.open(history.createHref({pathname: THEME_SETTING}))}>
                     <StyledAddIcon />
                     {trans("appSetting.themeCreate")}
                   </CreateDiv>
