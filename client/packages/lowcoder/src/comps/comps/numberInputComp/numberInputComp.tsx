@@ -30,7 +30,7 @@ import { formDataChildren, FormDataPropertyView } from "../formComp/formDataCons
 import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { RefControl } from "../../controls/refControl";
 import { styleControl } from "comps/controls/styleControl";
-import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, DisabledInputStyle, DisabledInputStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import {
   disabledPropertyView,
   hiddenPropertyView,
@@ -59,7 +59,6 @@ const getStyle = (style: InputLikeStyleType) => {
   return css`
     border-radius: ${style.radius};
     border-width:${style.borderWidth} !important;
-    // line-height: ${style.lineHeight} !important;
     // still use antd style when disabled
     &:not(.ant-input-number-disabled) {
       color: ${style.text};
@@ -122,11 +121,36 @@ const getStyle = (style: InputLikeStyleType) => {
 
 const InputNumber = styled(AntdInputNumber)<{
   $style: InputLikeStyleType;
+  $disabledStyle?: DisabledInputStyleType;
 }>`
   box-shadow: ${(props) =>
     `${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
   width: 100%;
   ${(props) => props.$style && getStyle(props.$style)}
+  
+  /* Disabled state styling */
+  &:disabled,
+  &.ant-input-number-disabled {
+    color: ${(props) => props.$disabledStyle?.disabledText || props.$style.text} !important;
+    background: ${(props) => props.$disabledStyle?.disabledBackground || props.$style.background} !important;
+    border-color: ${(props) => props.$disabledStyle?.disabledBorder || props.$style.border} !important;
+    cursor: not-allowed;
+    
+    .ant-input-number-input {
+      color: ${(props) => props.$disabledStyle?.disabledText || props.$style.text} !important;
+      background: ${(props) => props.$disabledStyle?.disabledBackground || props.$style.background} !important;
+    }
+    
+    .ant-input-number-handler-wrap {
+      background: ${(props) => props.$disabledStyle?.disabledBackground || props.$style.background} !important;
+      border-color: ${(props) => props.$disabledStyle?.disabledBorder || props.$style.border} !important;
+      
+      .ant-input-number-handler span {
+        color: ${(props) => props.$disabledStyle?.disabledText || props.$style.text} !important;
+        opacity: 0.3;
+      }
+    }
+  }
 `;
 
 const FormatterOptions = [
@@ -266,6 +290,7 @@ const childrenMap = {
   animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   prefixIcon: IconControl,
   inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'),
+  disabledInputStyle: styleControl(DisabledInputStyle, 'disabledInputStyle'),
   // validation
   required: BoolControl,
   showValidationWhenEmpty: BoolControl,
@@ -382,6 +407,7 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
       stringMode={true}
       precision={props.precision}
       $style={props.inputFieldStyle}
+      $disabledStyle={props.disabledInputStyle}
       prefix={hasIcon(props.prefixIcon) ? props.prefixIcon : props.prefixText.value}
       tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
       onPressEnter={() => {
@@ -472,6 +498,9 @@ let NumberInputTmpComp = (function () {
           </Section>
           <Section name={sectionNames.inputFieldStyle}>
             {children.inputFieldStyle.getPropertyView()}
+          </Section>
+          <Section name={"Disabled Input Style"}>
+            {children.disabledInputStyle.getPropertyView()}
           </Section>
           <Section name={sectionNames.animationStyle} hasTooltip={true}>
             {children.animationStyle.getPropertyView()}

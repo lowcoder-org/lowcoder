@@ -988,6 +988,35 @@ export const DISABLED_STYLE_FIELDS = [
   DISABLED_TEXT,
 ] as const;
 
+// Add disabled style constants specifically for text input components
+const DISABLED_INPUT_BACKGROUND = {
+  name: "disabledBackground",
+  label: trans("style.disabledBackground"),
+  color: SECOND_SURFACE_COLOR,
+} as const;
+
+const DISABLED_INPUT_BORDER = {
+  name: "disabledBorder",
+  label: trans("style.disabledBorder"),
+  depName: "disabledInputBackground",
+  transformer: backgroundToBorder,
+} as const;
+
+const DISABLED_INPUT_TEXT = {
+  name: "disabledText",
+  label: trans("style.disabledText"),
+  depName: "disabledInputBackground",
+  depType: DEP_TYPE.CONTRAST_TEXT,
+  transformer: contrastText,
+} as const;
+
+// Re-export for reuse in textInput components
+export const DISABLED_INPUT_STYLE_FIELDS = [
+  DISABLED_INPUT_BACKGROUND,
+  DISABLED_INPUT_BORDER,
+  DISABLED_INPUT_TEXT,
+] as const;
+
 export const ButtonStyle = [
   getBackground('primary'),
   ...STYLING_FIELDS_SEQUENCE,
@@ -1257,6 +1286,11 @@ export const InputLikeStyle = [
   BOXSHADOWCOLOR,
   ...STYLING_FIELDS_SEQUENCE.filter((style)=>style.name!=='rotation' && style.name!=='lineHeight'),
   ...ACCENT_VALIDATE,
+] as const;
+
+// Create separate disabled style control for text inputs
+export const DisabledInputStyle = [
+  ...DISABLED_INPUT_STYLE_FIELDS,
 ] as const;
 
 // added by Mousheng
@@ -2325,6 +2359,7 @@ export type SignatureContainerStyleType = StyleConfigType<typeof SignatureContai
 export type ColorPickerStyleType = StyleConfigType<typeof ColorPickerStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
 export type DisabledButtonStyleType = StyleConfigType<typeof DisabledButtonStyle>;
+export type DisabledInputStyleType = StyleConfigType<typeof DisabledInputStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;
 export type TextStyleType = StyleConfigType<typeof TextStyle>;
 export type TextContainerStyleType = StyleConfigType<typeof TextContainerStyle>;
