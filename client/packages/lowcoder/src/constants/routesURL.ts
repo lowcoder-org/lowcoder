@@ -2,6 +2,7 @@ import { AppViewMode, MarketplaceType } from "constants/applicationConstants";
 import { LocationDescriptor } from "history";
 import { UserGuideLocationState } from "pages/tutorials/tutorialsConstant";
 import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
+import history from "@lowcoder-ee/util/history";
 
 export const BASE_URL = "/";
 export const ADMIN_AUTH_URL = "/admin/login";
@@ -113,7 +114,7 @@ export const buildAppRouteWithState = (
 };
 
 export function preview(applicationId: string) {
-  window.open(APPLICATION_VIEW_URL(applicationId, "preview"));
+  window.open(history.createHref({pathname: APPLICATION_VIEW_URL(applicationId, "preview")}));
 }
 
 export const buildGroupId = (groupId: string) => `${PERMISSION_SETTING}/${groupId}`;
