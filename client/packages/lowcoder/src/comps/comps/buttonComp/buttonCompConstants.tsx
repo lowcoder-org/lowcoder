@@ -48,6 +48,17 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
             : buttonStyle.border} !important;
         }
       }
+
+      /* Disabled state styling */
+      &:disabled,
+      &.ant-btn-disabled {
+        color: ${buttonStyle.disabledText || buttonStyle.text};
+        background: ${buttonStyle.disabledBackground || buttonStyle.background};
+        border-color: ${
+          buttonStyle.disabledBorder || buttonStyle.border
+        } !important;
+        cursor: not-allowed;
+      }
     }
   `;
 }

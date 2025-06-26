@@ -959,9 +959,39 @@ function replaceAndMergeMultipleStyles(
   return temp;
 }
 
+// Add disabled style constants
+const DISABLED_BACKGROUND = {
+  name: "disabledBackground",
+  label: trans("style.disabledBackground"),
+  color: SECOND_SURFACE_COLOR,
+} as const;
+
+const DISABLED_BORDER = {
+  name: "disabledBorder",
+  label: trans("style.disabledBorder"),
+  depName: "disabledBackground",
+  transformer: backgroundToBorder,
+} as const;
+
+const DISABLED_TEXT = {
+  name: "disabledText",
+  label: trans("style.disabledText"),
+  depName: "disabledBackground",
+  depType: DEP_TYPE.CONTRAST_TEXT,
+  transformer: contrastText,
+} as const;
+
+// Re-export for reuse in other components if needed
+export const DISABLED_STYLE_FIELDS = [
+  DISABLED_BACKGROUND,
+  DISABLED_BORDER,
+  DISABLED_TEXT,
+] as const;
+
 export const ButtonStyle = [
   getBackground('primary'),
   ...STYLING_FIELDS_SEQUENCE,
+  ...DISABLED_STYLE_FIELDS,
 ] as const;
 
 export const DropdownStyle = [
