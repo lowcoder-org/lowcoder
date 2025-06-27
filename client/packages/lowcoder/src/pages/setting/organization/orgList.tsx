@@ -19,13 +19,14 @@ import { isSaasMode } from "util/envUtils";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 import { default as Form } from "antd/es/form";
 import { default as Input } from "antd/es/input";
-import { Pagination, Spin } from "antd";
+import { Pagination, Spin, Tooltip } from "antd";
 import { getUser } from "redux/selectors/usersSelectors";
 import { getOrgCreateStatus } from "redux/selectors/orgSelectors";
 import { useWorkspaceManager } from "util/useWorkspaceManager";
 import { Org } from "constants/orgConstants";
 import { useState } from "react";
 import { SwapOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 
 const OrgName = styled.div`
   display: flex;
@@ -170,6 +171,8 @@ type DataItemInfo = {
   del: boolean;
   orgName: string;
   logoUrl: string;
+  createdAt?: number;
+  updatedAt?: number;
 };
 
 function OrganizationSetting() {
@@ -194,6 +197,7 @@ function OrganizationSetting() {
   });
 
 
+
   // Filter to only show orgs where user has admin permissions
   const adminOrgs = displayWorkspaces.filter((org: Org) => {
     const role = user.orgRoleMap.get(org.id);
@@ -205,10 +209,14 @@ function OrganizationSetting() {
     del: adminOrgs.length > 1,
     orgName: org.name,
     logoUrl: org.logoUrl || "",
+    createdAt: org.createdAt,
+    updatedAt: org.updatedAt,
   }));
 
+
+
   return (
-    <Level1SettingPageContentWithList>
+    <Level1SettingPageContentWithList style={{ minWidth: "1000px" }}>
       <Level1SettingPageTitleWithBtn>
         {trans("settings.organization")}
         {isSaasMode(sysConfig) && (
@@ -249,7 +257,7 @@ function OrganizationSetting() {
                 onClick: () => history.push(buildOrgId((record as DataItemInfo).id)),
               })}
               columns={[
-                {
+                                {
                   title: trans("orgSettings.orgName"),
                   dataIndex: "orgName",
                   ellipsis: true,
@@ -261,6 +269,34 @@ function OrganizationSetting() {
                         <span>{record.orgName}</span>
                         {isActiveOrg && <ActiveOrgIcon />}
                       </OrgName>
+                    );
+                  },
+                },
+                {
+                  title: trans("orgSettings.createdAt"),
+                  dataIndex: "createdAt",
+                  width: "150px",
+                  render: (createdAt: number) => {
+                    if (!createdAt) return "-";
+                    return (
+                      <Tooltip title={dayjs.unix(createdAt).format("YYYY/MM/DD HH:mm:ss")}
+                               placement="bottom">
+                        <span style={{ color: "#8b8fa3" }}>{dayjs.unix(createdAt).fromNow()}</span>
+                      </Tooltip>
+                    );
+                  },
+                },
+                {
+                  title: trans("orgSettings.updatedAt"),
+                  dataIndex: "updatedAt", 
+                  width: "150px",
+                  render: (updatedAt: number) => {
+                    if (!updatedAt) return "-";
+                    return (
+                      <Tooltip title={dayjs.unix(updatedAt).format("YYYY/MM/DD HH:mm:ss")}
+                               placement="bottom">
+                        <span style={{ color: "#8b8fa3" }}>{dayjs.unix(updatedAt).fromNow()}</span>
+                        </Tooltip>
                     );
                   },
                 },
