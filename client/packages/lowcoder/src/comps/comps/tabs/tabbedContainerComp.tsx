@@ -407,7 +407,8 @@ class TabbedContainerImplComp extends TabbedContainerBaseComp implements IContai
           },
         } as CompAction;
       }
-      if (value.type === "delete" && this.children.tabs.getView().length <= 1) {
+      const { path } = action;
+      if (value.type === "delete" && path[0] === 'tabs' && this.children.tabs.getView().length <= 1) {
         messageInstance.warning(trans("tabbedContainer.atLeastOneTabError"));
         // at least one tab
         return this;
