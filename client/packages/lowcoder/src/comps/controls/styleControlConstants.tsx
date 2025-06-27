@@ -978,36 +978,28 @@ const DISABLED_TEXT = {
   label: trans("style.disabledText"),
   depName: "disabledBackground",
   depType: DEP_TYPE.CONTRAST_TEXT,
-  transformer: contrastText,
+  transformer: (color: string) => lightenColor(color, 0.8),
 } as const;
 
-// Re-export for reuse in other components if needed
-export const DISABLED_STYLE_FIELDS = [
-  DISABLED_BACKGROUND,
-  DISABLED_TEXT,
-] as const;
 
-// Add disabled style constants specifically for text input components
-const DISABLED_INPUT_BACKGROUND = {
-  name: "disabledBackground",
-  label: trans("style.disabledBackground"),
+export const DISABLED_BORDER = {
+  name: "disabledBorder",
+  label: trans("style.disabledBorder"),
   color: SECOND_SURFACE_COLOR,
 } as const;
 
-
-const DISABLED_INPUT_TEXT = {
-  name: "disabledText",
-  label: trans("style.disabledText"),
-  depName: "disabledInputBackground",
-  depType: DEP_TYPE.CONTRAST_TEXT,
-  transformer: contrastText,
-} as const;
-
-// Re-export for reuse in textInput components
-export const DISABLED_INPUT_STYLE_FIELDS = [
-  DISABLED_INPUT_BACKGROUND,
-  DISABLED_INPUT_TEXT,
+export const DISABLED_STYLE_FIELDS = [
+  DISABLED_BACKGROUND,
+  DISABLED_TEXT,
+  DISABLED_BORDER,
 ] as const;
+
+// Helper to quickly create a component-specific disabled style list by
+// extending the two generic disabled tokens above.
+export const withDisabled = <Extra extends readonly SingleColorConfig[] = []>(
+  extra: Extra = [] as unknown as Extra,
+) => [...DISABLED_STYLE_FIELDS, ...extra] as const;
+
 
 // Add disabled style constants specifically for slider components
 const DISABLED_SLIDER_FILL = {
@@ -1052,9 +1044,11 @@ export const ButtonStyle = [
 ] as const;
 
 // Create separate disabled style control
-export const DisabledButtonStyle = [
-  ...DISABLED_STYLE_FIELDS,
-] as const;
+export const DisabledButtonStyle = withDisabled();
+
+
+// For input components 
+export const DisabledInputStyle = withDisabled();
 
 export const DropdownStyle = [
   getBackground(),
@@ -1330,10 +1324,6 @@ export const InputLikeStyle = [
   ...ACCENT_VALIDATE,
 ] as const;
 
-// Create separate disabled style control for text inputs
-export const DisabledInputStyle = [
-  ...DISABLED_INPUT_STYLE_FIELDS,
-] as const;
 
 // added by Mousheng
 

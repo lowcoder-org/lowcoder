@@ -74,11 +74,7 @@ const getStyle = (style: InputLikeStyleType) => {
       &:hover {
         border-color: ${style.accent};
       }
-
-      &::-webkit-input-placeholder {
-        color: ${style.text};
-        opacity: 0.4;
-      }
+  
       .ant-input-number {	
         margin: 0;	
         
@@ -92,6 +88,26 @@ const getStyle = (style: InputLikeStyleType) => {
         font-weight:${style.textWeight} !important;
         font-size:${style.textSize} !important;
         font-style:${style.fontStyle} !important;
+
+        &::-webkit-input-placeholder {
+          color: ${style.placeholder};
+          opacity: 1;
+        }
+
+        &::-moz-placeholder {
+          color: ${style.placeholder};
+          opacity: 1;
+        }
+
+        &:-ms-input-placeholder {
+          color: ${style.placeholder};
+          opacity: 1;
+        }
+
+        &::placeholder {
+          color: ${style.placeholder};
+          opacity: 1;
+        }
       }
 
       .ant-input-number-handler-wrap {
@@ -131,13 +147,14 @@ const InputNumber = styled(AntdInputNumber)<{
   /* Disabled state styling */
   &:disabled,
   &.ant-input-number-disabled {
-    color: ${(props) => props.$disabledStyle?.disabledText || props.$style.text} !important;
-    background: ${(props) => props.$disabledStyle?.disabledBackground || props.$style.background} !important;
+    color: ${(props) => props.$disabledStyle?.disabledText};
+    background: ${(props) => props.$disabledStyle?.disabledBackground};
+    border-color: ${(props) => props.$disabledStyle?.disabledBorder};
     cursor: not-allowed;
     
     .ant-input-number-input {
-      color: ${(props) => props.$disabledStyle?.disabledText || props.$style.text} !important;
-      background: ${(props) => props.$disabledStyle?.disabledBackground || props.$style.background} !important;
+      color: ${(props) => props.$disabledStyle?.disabledText};
+      background: ${(props) => props.$disabledStyle?.disabledBackground};
     }
     
   }
@@ -280,7 +297,7 @@ const childrenMap = {
   animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   prefixIcon: IconControl,
   inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'),
-  disabledInputStyle: styleControl(DisabledInputStyle, 'disabledInputStyle'),
+  disabledStyle: styleControl(DisabledInputStyle, 'disabledStyle'),
   // validation
   required: BoolControl,
   showValidationWhenEmpty: BoolControl,
@@ -397,7 +414,7 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
       stringMode={true}
       precision={props.precision}
       $style={props.inputFieldStyle}
-      $disabledStyle={props.disabledInputStyle}
+      $disabledStyle={props.disabledStyle}
       prefix={hasIcon(props.prefixIcon) ? props.prefixIcon : props.prefixText.value}
       tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
       onPressEnter={() => {
@@ -489,8 +506,8 @@ let NumberInputTmpComp = (function () {
           <Section name={sectionNames.inputFieldStyle}>
             {children.inputFieldStyle.getPropertyView()}
           </Section>
-          <Section name={"Disabled Input Style"}>
-            {children.disabledInputStyle.getPropertyView()}
+          <Section name={"Disabled Style"}>
+            {children.disabledStyle.getPropertyView()}
           </Section>
           <Section name={sectionNames.animationStyle} hasTooltip={true}>
             {children.animationStyle.getPropertyView()}

@@ -1,13 +1,13 @@
 import { default as Button } from "antd/es/button";
 import { styleControl } from "comps/controls/styleControl";
-import { ButtonStyleType, ButtonStyle, DisabledButtonStyle } from "comps/controls/styleControlConstants";
+import { ButtonStyleType, ButtonStyle, DisabledButtonStyle, DisabledButtonStyleType } from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import styled, { css } from "styled-components";
 import { genActiveColor, genHoverColor } from "lowcoder-design";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUtils";
 
-export function getButtonStyle(buttonStyle: ButtonStyleType, disabledStyle?: any) {
+export function getButtonStyle(buttonStyle: ButtonStyleType, disabledStyle: DisabledButtonStyleType = {} as any) {
   const hoverColor = buttonStyle.background && genHoverColor(buttonStyle.background);
   const activeColor = buttonStyle.background && genActiveColor(buttonStyle.background);
   return css`
@@ -52,8 +52,8 @@ export function getButtonStyle(buttonStyle: ButtonStyleType, disabledStyle?: any
       /* Disabled state styling */
       &:disabled,
       &.ant-btn-disabled {
-        color: ${disabledStyle?.disabledText || buttonStyle.text};
-        background: ${disabledStyle?.disabledBackground || buttonStyle.background};
+        color: ${disabledStyle.disabledText};
+        background: ${disabledStyle.disabledBackground};
         cursor: not-allowed;
       }
     }
@@ -62,7 +62,7 @@ export function getButtonStyle(buttonStyle: ButtonStyleType, disabledStyle?: any
 
 export const Button100 = styled(Button)<{ 
   $buttonStyle?: ButtonStyleType; 
-  $disabledStyle?: any;
+  $disabledStyle?: DisabledButtonStyleType;
 }>`
   ${(props) => props.$buttonStyle && getButtonStyle(props.$buttonStyle, props.$disabledStyle)}
   width: 100%;

@@ -53,8 +53,9 @@ const InputStyle = styled(Input)<{
   /* Disabled state styling */
   &:disabled,
   &.ant-input-disabled {
-    color: ${(props) => props.$disabledStyle?.disabledText || props.$style.text} !important;
-    background: ${(props) => props.$disabledStyle?.disabledBackground || props.$style.background} !important;
+    color: ${(props) => props.$disabledStyle?.disabledText};
+    background: ${(props) => props.$disabledStyle?.disabledBackground};
+    border-color: ${(props) => props.$disabledStyle?.disabledBorder};
     cursor: not-allowed;
   }
 `;
@@ -70,7 +71,7 @@ const childrenMap = {
   suffixIcon: IconControl,
   inputFieldStyle: styleControl(InputLikeStyle, 'inputFieldStyle'),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
-  disabledInputStyle: styleControl(DisabledInputStyle, 'disabledInputStyle'),
+  disabledStyle: styleControl(DisabledInputStyle, 'disabledStyle'),
   tabIndex: NumberControl,
 };
 
@@ -85,7 +86,7 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
         showCount={props.showCount}
         allowClear={props.allowClear}
         $style={props.inputFieldStyle}
-        $disabledStyle={props.disabledInputStyle}
+        $disabledStyle={props.disabledStyle}
         prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
         suffix={hasIcon(props.suffixIcon) && props.suffixIcon}
         tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
@@ -127,7 +128,7 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
             <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
             <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
             <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
-            <Section name={"Disabled Input Style"}>{children.disabledInputStyle.getPropertyView()}</Section>
+            <Section name={"Disabled Input Style"}>{children.disabledStyle.getPropertyView()}</Section>
             <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
           </>
         )}
