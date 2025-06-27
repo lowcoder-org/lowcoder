@@ -994,6 +994,41 @@ export const DISABLED_STYLE_FIELDS = [
   DISABLED_BORDER,
 ] as const;
 
+// Add disabled style constants specifically for slider components
+const DISABLED_SLIDER_FILL = {
+  name: "disabledFill",
+  label: trans("style.disabledFill"),
+  depName: "fill",
+  transformer: (color: string) => lightenColor(color, 0.8),
+} as const;
+
+const DISABLED_SLIDER_TRACK = {
+  name: "disabledTrack",
+  label: trans("style.disabledTrack"),
+  depName: "track",
+  transformer: (color: string) => lightenColor(color, 0.8),
+} as const;
+
+const DISABLED_SLIDER_THUMB = {
+  name: "disabledThumb",
+  label: trans("style.disabledThumb"),
+  depName: "thumb",
+  transformer: (color: string) => lightenColor(color, 0.8),
+} as const;
+
+const DISABLED_SLIDER_THUMB_BORDER = {
+  name: "disabledThumbBorder",
+  label: trans("style.disabledThumbBorder"),
+  depName: "thumbBorder",
+  transformer: (color: string) => lightenColor(color, 0.8),
+} as const;
+
+// Re-export for reuse in slider components
+export const DISABLED_SLIDER_STYLE_FIELDS = [
+  DISABLED_SLIDER_FILL,
+  DISABLED_SLIDER_TRACK,
+] as const;
+
 // Helper to quickly create a component-specific disabled style list by
 // extending the two generic disabled tokens above.
 export const withDisabled = <Extra extends readonly SingleColorConfig[] = []>(
@@ -1001,42 +1036,12 @@ export const withDisabled = <Extra extends readonly SingleColorConfig[] = []>(
 ) => [...DISABLED_STYLE_FIELDS, ...extra] as const;
 
 
-// Add disabled style constants specifically for slider components
-const DISABLED_SLIDER_FILL = {
-  name: "disabledFill",
-  label: trans("style.disabledFill"),
-  depName: "fill",
-  transformer: (color: string) => lightenColor(color, 0.3),
-} as const;
+export const withDisabledSlider = <Extra extends readonly SingleColorConfig[] = []>(
+  extra: Extra = [] as unknown as Extra,
+) => [...DISABLED_SLIDER_STYLE_FIELDS, ...extra] as const;
 
-const DISABLED_SLIDER_TRACK = {
-  name: "disabledTrack",
-  label: trans("style.disabledTrack"),
-  depName: "track",
-  transformer: (color: string) => lightenColor(color, 0.2),
-} as const;
 
-const DISABLED_SLIDER_THUMB = {
-  name: "disabledThumb",
-  label: trans("style.disabledThumb"),
-  depName: "thumb",
-  transformer: (color: string) => lightenColor(color, 0.25),
-} as const;
-
-const DISABLED_SLIDER_THUMB_BORDER = {
-  name: "disabledThumbBorder",
-  label: trans("style.disabledThumbBorder"),
-  depName: "thumbBorder",
-  transformer: (color: string) => lightenColor(color, 0.25),
-} as const;
-
-// Re-export for reuse in slider components
-export const DISABLED_SLIDER_STYLE_FIELDS = [
-  DISABLED_SLIDER_FILL,
-  DISABLED_SLIDER_TRACK,
-  DISABLED_SLIDER_THUMB,
-  DISABLED_SLIDER_THUMB_BORDER,
-] as const;
+export const DisabledSliderStyle = withDisabledSlider();
 
 export const ButtonStyle = [
   getBackground('primary'),
@@ -1049,6 +1054,10 @@ export const DisabledButtonStyle = withDisabled();
 
 // For input components 
 export const DisabledInputStyle = withDisabled();
+
+// for step control
+export const DisabledStepStyle = withDisabled();
+
 
 export const DropdownStyle = [
   getBackground(),
@@ -1303,10 +1312,6 @@ export const SliderStyle = [
   PADDING,
 ] as const;
 
-// Create separate disabled style control for sliders
-export const DisabledSliderStyle = [
-  ...DISABLED_SLIDER_STYLE_FIELDS,
-] as const;
 
 const PLACEHOLDER = {
   name: "placeholder",
@@ -1886,6 +1891,7 @@ export const DateTimeStyle = [
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   getStaticBorder(SECOND_SURFACE_COLOR),
   TEXT,
+  PLACEHOLDER,
   MARGIN,
   PADDING,
   BORDER_STYLE,
@@ -2392,6 +2398,7 @@ export type ColorPickerStyleType = StyleConfigType<typeof ColorPickerStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
 export type DisabledButtonStyleType = StyleConfigType<typeof DisabledButtonStyle>;
 export type DisabledInputStyleType = StyleConfigType<typeof DisabledInputStyle>;
+export type DisabledStepStyleType = StyleConfigType<typeof DisabledStepStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;
 export type TextStyleType = StyleConfigType<typeof TextStyle>;
 export type TextContainerStyleType = StyleConfigType<typeof TextContainerStyle>;

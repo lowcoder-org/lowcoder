@@ -360,7 +360,7 @@ let ButtonTmpComp = (function () {
             <Section name={sectionNames.style}>
               {children.style.getPropertyView()}
             </Section>
-            <Section name="Disabled">
+            <Section name={trans("prop.disabledStyle")}>
               {children.disabledStyle.getPropertyView()}
             </Section>
           </>

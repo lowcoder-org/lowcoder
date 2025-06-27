@@ -175,7 +175,7 @@ const ButtonPropertyView = React.memo((props: {
             {props.children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
           </Section>
           <Section name={sectionNames.style}>{props.children.style.getPropertyView()}</Section>
-          <Section name="Disabled">{props.children.disabledStyle.getPropertyView()}</Section>
+          <Section name={trans("prop.disabledStyle")}>{props.children.disabledStyle.getPropertyView()}</Section>
         </>
       )}
     </>

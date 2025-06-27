@@ -65,11 +65,6 @@ const getStyle = (style: SliderStyleType, vertical: boolean, disabledStyle?: Dis
       .ant-slider-track {
         background-color: ${disabledStyle?.disabledFill || lightenColor(style.fill, 0.3)} !important;
       }
-      .ant-slider-handle {
-        background-color: ${disabledStyle?.disabledThumb || lightenColor(style.thumb, 0.25)} !important;
-        border-color: ${disabledStyle?.disabledThumbBorder || lightenColor(style.thumbBorder, 0.25)} !important;
-        cursor: not-allowed !important;
-      }
       ${vertical && css`
         width: auto;	
         min-height: calc(300px - ${style.margin});
@@ -157,7 +152,7 @@ const LayoutSection = memo(({ children }: { children: RecordConstructorToComp<ty
       <Section name={sectionNames.inputFieldStyle}>
         {children.inputFieldStyle.getPropertyView()}
       </Section>
-      <Section name={"Disabled Slider Style"}>
+      <Section name={trans("prop.disabledStyle")}>
         {children.disabledSliderStyle.getPropertyView()}
       </Section>
       <Section name={sectionNames.animationStyle} hasTooltip={true}>

@@ -155,7 +155,7 @@ const ToggleTmpComp = (function () {
           </>
           )}
         
-        <Section name="Disabled">{children.disabledStyle.getPropertyView()}</Section>
+        <Section name={trans("prop.disabledStyle")}>{children.disabledStyle.getPropertyView()}</Section>
       </>
     ))
     .setExposeMethodConfigs(buttonRefMethods)

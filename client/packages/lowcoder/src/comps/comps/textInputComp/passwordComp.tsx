@@ -135,7 +135,7 @@ let PasswordTmpComp = (function () {
               <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
               <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
               <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
-              <Section name={"Disabled Input Style"}>{children.disabledInputStyle.getPropertyView()}</Section>
+              <Section name={trans("prop.disabledStyle")}>{children.disabledInputStyle.getPropertyView()}</Section>
               <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
             </>
           )}
