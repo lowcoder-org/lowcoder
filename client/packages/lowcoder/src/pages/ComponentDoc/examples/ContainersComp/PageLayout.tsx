@@ -8271,58 +8271,6 @@ export default function PageLayoutExample() {
             compFactory={PageLayoutComp}
             />
         </ExampleGroup>
-
-        <ExampleGroup
-        title="Animation Style"
-        description="The Following Examples Show different Animation Styles on the Page Layout Component."
-        >
-        <Example
-            title="Bounce Animation"
-            width={1000}
-            hideSettings={true}
-            config={{
-                container: container,
-                animationStyle: 
-                {
-                    "animation": "bounce",
-                    "animationDelay": "1s",
-                    "animationDuration": "3s",
-                    "animationIterationCount": "infinite",
-                },
-            }}
-            compFactory={PageLayoutComp}
-        />
-        <Example
-            title="Swing Animation"
-            width={1000}
-            hideSettings={true}
-            config={{
-                container: container,
-                animationStyle: {
-                    "animation": "swing",
-                    "animationDelay": "1s",
-                    "animationDuration": "3s",
-                    "animationIterationCount": "infinite"
-                },
-            }}
-            compFactory={PageLayoutComp}
-        />
-        <Example
-            title="Tada Animation"
-            width={1000}
-            hideSettings={true}
-            config={{
-                container: container,
-                animationStyle: {
-                    "animation": "tada",
-                    "animationDelay": "1s",
-                    "animationDuration": "3s",
-                    "animationIterationCount": "infinite"
-                },
-            }}
-            compFactory={PageLayoutComp}
-        />
-        </ExampleGroup>
       </>
     );
   }

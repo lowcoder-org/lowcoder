@@ -12,20 +12,27 @@ export default function IFrameExample() {
       >
         <Example
           title="IFrame Component"
+          hideSettings={true}
+          width={1000}
+          height={600}
           config={{
-            url: "https://lowcoder.cloud/",
+            url: "https://www.wikipedia.org/",
           }}
           compFactory={IFrameComp}
         />
         <Example
           title="Hiding the IFrame Component"
+          hideSettings={true}
+          width={1000}
+          height={600}
           config={{
-            url: "https://lowcoder.cloud/",
+            url: "https://www.wikipedia.org/",
             hidden: true,
           }}
           compFactory={IFrameComp}
         />
       </ExampleGroup>
+
     </>
   );
 }
