@@ -4010,6 +4010,7 @@ export const en = {
     "orgName": "{orgName} admins",
     "addMember": "Add members",
     "addPermissionPlaceholder": "Please enter a name to search members",
+    "selectedUsersAndGroups":"Selected Users and Groups",
     "searchMemberOrGroup": "Search for members or groups: ",
     "addPermissionErrorMessage": "Failed to add permission, {message}",
     "copyModalTitle": 'Clone "{name}"',
