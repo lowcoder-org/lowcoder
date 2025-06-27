@@ -1296,7 +1296,7 @@ export default function ContainerExample() {
                 }}
                 compFactory={ContainerComp}
             />
-        </ExampleGroup>     
+        </ExampleGroup>   
       </>
     );
   }
