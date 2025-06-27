@@ -65,6 +65,7 @@ const RangeSliderBasicComp = (function () {
             range={true}
             value={[props.start.value, props.end.value]}
             $style={props.inputFieldStyle}
+            $disabledStyle={props.disabledSliderStyle}
             style={{ margin: 0 }}
             $vertical={Boolean(props.vertical) || false}
             tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}

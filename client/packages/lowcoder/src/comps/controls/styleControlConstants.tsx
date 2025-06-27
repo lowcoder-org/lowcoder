@@ -244,9 +244,14 @@ export type DepColorConfig = CommonColorConfig & {
   transformer: (color: string, ...rest: string[]) => string;
 };
 
+export type PlaceholderConfig = CommonColorConfig & {
+  readonly placeholder?: string;
+};
+
 export type SingleColorConfig =
   | SimpleColorConfig
   | DepColorConfig
+  | PlaceholderConfig
   | RadiusConfig
   | BorderWidthConfig
   | RotationConfig
@@ -959,10 +964,100 @@ function replaceAndMergeMultipleStyles(
   return temp;
 }
 
+// Add disabled style constants
+const DISABLED_BACKGROUND = {
+  name: "disabledBackground",
+  label: trans("style.disabledBackground"),
+  color: SECOND_SURFACE_COLOR,
+} as const;
+
+
+
+const DISABLED_TEXT = {
+  name: "disabledText",
+  label: trans("style.disabledText"),
+  depName: "disabledBackground",
+  depType: DEP_TYPE.CONTRAST_TEXT,
+  transformer: (color: string) => lightenColor(color, 0.8),
+} as const;
+
+
+export const DISABLED_BORDER = {
+  name: "disabledBorder",
+  label: trans("style.disabledBorder"),
+  color: SECOND_SURFACE_COLOR,
+} as const;
+
+export const DISABLED_STYLE_FIELDS = [
+  DISABLED_BACKGROUND,
+  DISABLED_TEXT,
+  DISABLED_BORDER,
+] as const;
+
+// Add disabled style constants specifically for slider components
+const DISABLED_SLIDER_FILL = {
+  name: "disabledFill",
+  label: trans("style.disabledFill"),
+  depName: "fill",
+  transformer: (color: string) => lightenColor(color, 0.8),
+} as const;
+
+const DISABLED_SLIDER_TRACK = {
+  name: "disabledTrack",
+  label: trans("style.disabledTrack"),
+  depName: "track",
+  transformer: (color: string) => lightenColor(color, 0.8),
+} as const;
+
+const DISABLED_SLIDER_THUMB = {
+  name: "disabledThumb",
+  label: trans("style.disabledThumb"),
+  depName: "thumb",
+  transformer: (color: string) => lightenColor(color, 0.8),
+} as const;
+
+const DISABLED_SLIDER_THUMB_BORDER = {
+  name: "disabledThumbBorder",
+  label: trans("style.disabledThumbBorder"),
+  depName: "thumbBorder",
+  transformer: (color: string) => lightenColor(color, 0.8),
+} as const;
+
+// Re-export for reuse in slider components
+export const DISABLED_SLIDER_STYLE_FIELDS = [
+  DISABLED_SLIDER_FILL,
+  DISABLED_SLIDER_TRACK,
+] as const;
+
+// Helper to quickly create a component-specific disabled style list by
+// extending the two generic disabled tokens above.
+export const withDisabled = <Extra extends readonly SingleColorConfig[] = []>(
+  extra: Extra = [] as unknown as Extra,
+) => [...DISABLED_STYLE_FIELDS, ...extra] as const;
+
+
+export const withDisabledSlider = <Extra extends readonly SingleColorConfig[] = []>(
+  extra: Extra = [] as unknown as Extra,
+) => [...DISABLED_SLIDER_STYLE_FIELDS, ...extra] as const;
+
+
+export const DisabledSliderStyle = withDisabledSlider();
+
 export const ButtonStyle = [
   getBackground('primary'),
-  ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='lineHeight'),
+  ...STYLING_FIELDS_SEQUENCE,
 ] as const;
+
+// Create separate disabled style control
+export const DisabledButtonStyle = withDisabled();
+
+
+// For input components 
+export const DisabledInputStyle = withDisabled();
+
+// for step control
+export const DisabledStepStyle = withDisabled();
+
 
 export const DropdownStyle = [
   getBackground(),
@@ -1217,13 +1312,23 @@ export const SliderStyle = [
   PADDING,
 ] as const;
 
+
+const PLACEHOLDER = {
+  name: "placeholder",
+  label: "Placeholder",
+  depName: "text",
+  transformer: (color: string) => lightenColor(color, 0.4),
+} as const;
+
 export const InputLikeStyle = [
   getStaticBackground(SURFACE_COLOR),
   BOXSHADOW,
   BOXSHADOWCOLOR,
   ...STYLING_FIELDS_SEQUENCE.filter((style)=>style.name!=='rotation' && style.name!=='lineHeight'),
+  PLACEHOLDER,
   ...ACCENT_VALIDATE,
 ] as const;
+
 
 // added by Mousheng
 
@@ -1786,6 +1891,7 @@ export const DateTimeStyle = [
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   getStaticBorder(SECOND_SURFACE_COLOR),
   TEXT,
+  PLACEHOLDER,
   MARGIN,
   PADDING,
   BORDER_STYLE,
@@ -2290,6 +2396,9 @@ export type InputFieldStyleType = StyleConfigType<typeof InputFieldStyle>;
 export type SignatureContainerStyleType = StyleConfigType<typeof SignatureContainerStyle>;
 export type ColorPickerStyleType = StyleConfigType<typeof ColorPickerStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
+export type DisabledButtonStyleType = StyleConfigType<typeof DisabledButtonStyle>;
+export type DisabledInputStyleType = StyleConfigType<typeof DisabledInputStyle>;
+export type DisabledStepStyleType = StyleConfigType<typeof DisabledStepStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;
 export type TextStyleType = StyleConfigType<typeof TextStyle>;
 export type TextContainerStyleType = StyleConfigType<typeof TextContainerStyle>;
@@ -2305,6 +2414,7 @@ export type ContainerFooterStyleType = StyleConfigType<
   typeof ContainerFooterStyle
 >;
 export type SliderStyleType = StyleConfigType<typeof SliderStyle>;
+export type DisabledSliderStyleType = StyleConfigType<typeof DisabledSliderStyle>;
 export type RatingStyleType = StyleConfigType<typeof RatingStyle>;
 export type SwitchStyleType = StyleConfigType<typeof SwitchStyle>;
 export type SelectStyleType = StyleConfigType<typeof SelectStyle>;
@@ -2436,3 +2546,4 @@ export function marginCalculator(margin: string) {
 }
 
 export type {ThemeDetail};
+

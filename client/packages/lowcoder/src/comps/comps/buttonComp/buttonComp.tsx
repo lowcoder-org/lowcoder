@@ -21,6 +21,7 @@ import {
   ButtonCompWrapper,
   buttonRefMethods,
   ButtonStyleControl,
+  DisabledButtonStyleControl,
 } from "./buttonCompConstants";
 import { RefControl } from "comps/controls/refControl";
 import { Tooltip } from "antd";
@@ -133,6 +134,7 @@ const childrenMap = {
   prefixIcon: IconControl,
   suffixIcon: IconControl,
   style: ButtonStyleControl,
+  disabledStyle: DisabledButtonStyleControl,
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   viewRef: RefControl<HTMLElement>,
   tooltip: StringControl
@@ -173,6 +175,7 @@ const ButtonPropertyView = React.memo((props: {
             {props.children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
           </Section>
           <Section name={sectionNames.style}>{props.children.style.getPropertyView()}</Section>
+          <Section name={trans("prop.disabledStyle")}>{props.children.disabledStyle.getPropertyView()}</Section>
         </>
       )}
     </>
@@ -212,6 +215,7 @@ const ButtonView = React.memo((props: ToViewReturn<ChildrenType>) => {
             <Button100
               ref={props.viewRef}
               $buttonStyle={props.style}
+              $disabledStyle={props.disabledStyle}
               loading={props.loading}
               disabled={
                 props.disabled ||
