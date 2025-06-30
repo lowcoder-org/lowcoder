@@ -306,4 +306,5 @@ export const CompStateIcon: {
   sunburstChart: <MemoizedIcon Icon={SunburstChartCompIconSmall} />,
   themeriverChart: <MemoizedIcon Icon={ThemeriverChartCompIconSmall} />,
   basicChart: <MemoizedIcon Icon={ChartCompIconSmall} />,
+  chat: <MemoizedIcon Icon={CommentCompIconSmall} />,
 } as const;

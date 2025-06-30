@@ -193,6 +193,7 @@ import { DrawerComp } from "./hooks/drawerComp";
 import { ModalComp } from "./hooks/modalComp";
 import { defaultCollapsibleContainerData } from "./comps/containerComp/collapsibleContainerComp";
 import { ContainerComp as FloatTextContainerComp } from "./comps/containerComp/textContainerComp";
+import { ChatComp } from "./comps/chatComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -1666,6 +1667,19 @@ export var uiCompMap: Registry = {
     compName: "lowcoder-comp-cf-turnstile",
     layoutInfo: {
       w: 8,
+      h: 20,
+    },
+  },
+  chat: {
+    name: "Chat",
+    enName: "Chat", 
+    description: "Chat Component",
+    categories: ["collaboration"],
+    icon: CommentCompIcon, // Use existing icon for now
+    keywords: "chat,conversation",
+    comp: ChatComp,
+    layoutInfo: {
+      w: 12,
       h: 20,
     },
   },
