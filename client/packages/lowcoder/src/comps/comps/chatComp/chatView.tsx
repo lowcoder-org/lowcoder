@@ -14,8 +14,13 @@ import "@assistant-ui/styles/markdown.css";
 export const ChatView = React.memo((props: ChatCompProps) => {
   // Create proper runtime using useChatRuntime
   const runtime = useChatRuntime({
-    api: "/api/chat", // We'll create this endpoint later
-  });
+    api: props.modelHost,
+    stream: props.streaming,
+    modelType: props.modelType as any,
+    systemPrompt: props.systemPrompt,
+    agent: props.agent,
+    maxTurns: props.maxInteractions,
+  } as any);
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
