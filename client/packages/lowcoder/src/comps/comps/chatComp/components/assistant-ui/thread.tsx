@@ -159,7 +159,7 @@ import {
         <UserActionBar />
   
         <div className="aui-user-message-content">
-          <MessagePrimitive.Parts />
+          <MessagePrimitive.Content />
         </div>
   
         <BranchPicker className="aui-user-branch-picker" />
@@ -204,7 +204,7 @@ import {
     return (
       <MessagePrimitive.Root className="aui-assistant-message-root">
         <div className="aui-assistant-message-content">
-          <MessagePrimitive.Parts components={{ Text: MarkdownText }} />
+          <MessagePrimitive.Content components={{ Text: MarkdownText }} />
         </div>
   
         <AssistantActionBar />
