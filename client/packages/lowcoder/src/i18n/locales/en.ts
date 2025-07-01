@@ -3068,7 +3068,9 @@ export const en = {
     "inviteSuccessMessage": "Join the Workspace Successfully",
     "inviteFailMessage": "Failed to Join Workspace",
     "uploadErrorMessage": "Upload Error",
-    "orgName": "Workspace Name"
+    "orgName": "Workspace Name",
+    "createdAt": "Created",
+    "updatedAt": "Updated"
   },
   "freeLimit": "Free Trial",
 

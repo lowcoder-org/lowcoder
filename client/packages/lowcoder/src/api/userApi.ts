@@ -65,6 +65,8 @@ export interface GetMyOrgsResponse extends ApiResponse {
     data: Array<{
       orgId: string;
       orgName: string;
+      createdAt?: number;
+      updatedAt?: number;
     }>;
     pageNum: number;
     pageSize: number;
