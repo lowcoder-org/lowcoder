@@ -315,8 +315,23 @@ export function getStyle(style: InputLikeStyleType, labelStyle?: LabelStyleType)
       }
 
       &::-webkit-input-placeholder {
-        color: ${style.text};
-        opacity: 0.4;
+        color: ${style.placeholder};
+        opacity: 1;
+      }
+
+      &::-moz-placeholder {
+        color: ${style.placeholder};
+        opacity: 1;
+      }
+
+      &:-ms-input-placeholder {
+        color: ${style.placeholder};
+        opacity: 1;
+      }
+
+      &::placeholder {
+        color: ${style.placeholder};
+        opacity: 1;
       }
 
       .ant-input-show-count-suffix,

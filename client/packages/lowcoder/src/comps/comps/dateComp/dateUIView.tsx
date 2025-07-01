@@ -5,7 +5,7 @@ import { useUIView } from "../../utils/useUIView";
 import { checkIsMobile } from "util/commonUtils";
 import React, { useContext } from "react";
 import styled from "styled-components";
-import type { ChildrenMultiSelectStyleType, DateTimeStyleType } from "../../controls/styleControlConstants";
+import type { ChildrenMultiSelectStyleType, DateTimeStyleType, DisabledInputStyleType } from "../../controls/styleControlConstants";
 import { EditorContext } from "../../editorState";
 import { default as DatePicker } from "antd/es/date-picker";
 import type { DatePickerProps } from "antd/es/date-picker";
@@ -15,10 +15,28 @@ import { timeZoneOptions } from "./timeZone";
 import { default as AntdSelect } from "antd/es/select";
 import { omit } from "lodash";
 
-const DatePickerStyled = styled(DatePicker<Dayjs>)<{ $style: DateTimeStyleType }>`
+const DatePickerStyled = styled(DatePicker<Dayjs>)<{ $style: DateTimeStyleType; $disabledStyle?: DisabledInputStyleType; }>`
   width: 100%;
   box-shadow: ${props=>`${props.$style.boxShadow} ${props.$style.boxShadowColor}`};
   ${(props) => props.$style && getStyle(props.$style)}
+
+  /* Disabled state styling */
+  &.ant-picker-disabled {
+    cursor: not-allowed;
+    color: ${(props) => props.$disabledStyle?.disabledText};
+    background: ${(props) => props.$disabledStyle?.disabledBackground};
+    border-color: ${(props) => props.$disabledStyle?.disabledBorder};
+
+    .ant-picker-input > input {
+      color: ${(props) => props.$disabledStyle?.disabledText};
+      background: ${(props) => props.$disabledStyle?.disabledBackground};
+    }
+    .ant-picker-suffix,
+    .ant-picker-clear,
+    .ant-picker-separator {
+      color: ${(props) => props.$disabledStyle?.disabledText};
+    }
+  }
 `;
 
 const StyledDiv = styled.div`
@@ -40,6 +58,7 @@ export interface DataUIViewProps extends DateCompViewProps {
   onPanelChange: () => void;
   onClickDateTimeZone:(value:any)=>void;
   tabIndex?: number;
+  $disabledStyle?: DisabledInputStyleType;
 }
 
 const DateMobileUIView = React.lazy(() =>
@@ -54,6 +73,7 @@ export const DateUIView = (props: DataUIViewProps) => {
     <DateMobileUIView {...props} />,
     <DatePickerStyled
       {...omit(props, "format", "inputFormat", "pickerMode", "$childrenInputFieldStyle")}
+      $disabledStyle={props.$disabledStyle}
       multiple={false}
       format={props.inputFormat}
       ref={props.viewRef as any}
