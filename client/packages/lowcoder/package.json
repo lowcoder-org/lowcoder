@@ -50,6 +50,7 @@
     "antd": "^5.25.2",
     "axios": "^1.7.7",
     "buffer": "^6.0.3",
+    "class-variance-authority": "^0.7.1",
     "clsx": "^2.0.0",
     "cnchar": "^3.2.4",
     "coolshapes-react": "lowcoder-org/coolshapes-react",
