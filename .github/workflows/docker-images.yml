@@ -156,7 +156,7 @@ jobs:
           NODE_ENV: production
         with:
           file: ./deploy/docker/Dockerfile
-          target: lowcoder-ee-frontend
+          target: lowcoder-enterprise-frontend
           build-args: |
             REACT_APP_ENV=production
             REACT_APP_EDITION=enterprise
