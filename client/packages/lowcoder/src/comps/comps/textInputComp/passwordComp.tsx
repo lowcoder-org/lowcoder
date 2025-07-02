@@ -26,7 +26,7 @@ import {
 import { withMethodExposing } from "../../generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
-import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
+import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, DisabledInputStyle, DisabledInputStyleType } from "comps/controls/styleControlConstants";
 import {
   hiddenPropertyView,
   minLengthPropertyView,
@@ -46,10 +46,19 @@ import { NumberControl } from "comps/controls/codeControl";
 
 const PasswordStyle = styled(InputPassword)<{
   $style: InputLikeStyleType;
+  $disabledStyle?: DisabledInputStyleType;
 }>`
   box-shadow: ${(props) =>
     `${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
   ${(props) => props.$style && getStyle(props.$style)}
+  
+  /* Disabled state styling */
+  &:disabled,
+  &.ant-input-disabled {
+    color: ${(props) => props.$disabledStyle?.disabledText || props.$style.text} !important;
+    background: ${(props) => props.$disabledStyle?.disabledBackground || props.$style.background} !important;
+    cursor: not-allowed;
+  }
 `;
 
 let PasswordTmpComp = (function () {
@@ -64,6 +73,7 @@ let PasswordTmpComp = (function () {
     labelStyle: styleControl(LabelStyle,'labelStyle'),
     inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'), 
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
+    disabledInputStyle: styleControl(DisabledInputStyle, 'disabledInputStyle'),
     tabIndex: NumberControl,
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
@@ -78,6 +88,7 @@ let PasswordTmpComp = (function () {
           ref={props.viewRef}
           visibilityToggle={props.visibilityToggle}
           $style={props.inputFieldStyle}
+          $disabledStyle={props.disabledInputStyle}
           tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
         />
       ),
@@ -124,6 +135,7 @@ let PasswordTmpComp = (function () {
               <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
               <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
               <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
+              <Section name={trans("prop.disabledStyle")}>{children.disabledInputStyle.getPropertyView()}</Section>
               <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
             </>
           )}

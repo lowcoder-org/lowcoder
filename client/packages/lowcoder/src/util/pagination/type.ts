@@ -87,6 +87,7 @@ export interface fetchGroupUserRequestType {
     groupId: string;
     pageNum?: number;
     pageSize?: number;
+    search?: string
 }
 
 export interface fetchQueryLibraryPaginationRequestType {

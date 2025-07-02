@@ -229,6 +229,7 @@ export const en = {
     "className": "CSS Class name",
     "dataTestId": "Individual ID",
     "preventOverwriting": "Prevent overwriting styles",
+    "disabledStyle": "Disabled Style",
     "color": "Color",
     "horizontalGridCells": "Horizontal Grid Cells",
     "verticalGridCells": "Vertical Grid Cells",
@@ -511,6 +512,11 @@ export const en = {
     "tabAccent": "Tab Accent",
     "checkedBackground": "Checked Background Color",
     "uncheckedBackground": "Unchecked Background Color",
+    "disabledBackground": "Background Color",
+    "disabledBorder": "Border Color",
+    "disabledText": "Text Color",
+    "disabledTrack": "Track Color",
+    "disabledFill": "Fill Color",
     "uncheckedBorder": "Unchecked Border Color",
     "indicatorBackground": "Indicator Background Color",
     "tableCellText": "Cell Text",
@@ -3062,7 +3068,9 @@ export const en = {
     "inviteSuccessMessage": "Join the Workspace Successfully",
     "inviteFailMessage": "Failed to Join Workspace",
     "uploadErrorMessage": "Upload Error",
-    "orgName": "Workspace Name"
+    "orgName": "Workspace Name",
+    "createdAt": "Created",
+    "updatedAt": "Updated"
   },
   "freeLimit": "Free Trial",
 
@@ -4010,6 +4018,7 @@ export const en = {
     "orgName": "{orgName} admins",
     "addMember": "Add members",
     "addPermissionPlaceholder": "Please enter a name to search members",
+    "selectedUsersAndGroups":"Selected Users and Groups",
     "searchMemberOrGroup": "Search for members or groups: ",
     "addPermissionErrorMessage": "Failed to add permission, {message}",
     "copyModalTitle": 'Clone "{name}"',

@@ -28,7 +28,7 @@ import {
 } from "../../generators/withExposing";
 import { IForm } from "../formComp/formDataConstants";
 import { SimpleNameComp } from "../simpleNameComp";
-import { Button100, ButtonStyleControl } from "./videobuttonCompConstants";
+import { Button100, ButtonStyleControl, DisabledButtonStyleControl } from "./videobuttonCompConstants";
 import { RefControl } from "comps/controls/refControl";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import {
@@ -195,6 +195,7 @@ const childrenMap = {
   aspectRatio: withDefault(StringControl, "1 / 1"),
   onEvent: ButtonEventHandlerControl,
   disabled: BoolCodeControl,
+  disabledStyle: DisabledButtonStyleControl,
   loading: BoolCodeControl,
   form: SelectFormControl,
   sourceMode: dropdownControl(ModeOptions, "standard"),
@@ -267,6 +268,7 @@ let ButtonTmpComp = (function () {
               <Tooltip title={props.tooltip}>
                 <Button100
                   ref={props.viewRef}
+                  $disabledStyle={props.disabledStyle}
                   $buttonStyle={props.style}
                   loading={props.loading}
                   style={
@@ -357,6 +359,9 @@ let ButtonTmpComp = (function () {
             </Section>
             <Section name={sectionNames.style}>
               {children.style.getPropertyView()}
+            </Section>
+            <Section name={trans("prop.disabledStyle")}>
+              {children.disabledStyle.getPropertyView()}
             </Section>
           </>
         )}

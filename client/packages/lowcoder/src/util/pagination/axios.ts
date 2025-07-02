@@ -102,6 +102,22 @@ export const fetchGroupUsrPagination = async (request: fetchGroupUserRequestType
     }
 }
 
+export const fetchAvailableGroupsMembers = async (applicationId: string, search: string) => {
+    try{
+        const response = await ApplicationApi.getAvailableGroupsMembers(applicationId, search)
+        return {
+            success: true,
+            data: response.data.data
+        }
+    } catch (error: any) {
+        console.error('Failed to fetch data: ', error)
+        return {
+            success: false,
+            error: error
+        }
+    }
+}
+
 export const fetchOrgUsrPagination = async (request: fetchOrgUserRequestType)=> {
     try {
         const response = await OrgApi.fetchOrgUsersPagination(request);
