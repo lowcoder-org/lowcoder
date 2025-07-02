@@ -200,7 +200,7 @@ RUN yarn --immutable
 
 ARG REACT_APP_COMMIT_ID=test
 ARG REACT_APP_ENV=production
-ARG REACT_APP_EDITION=community
+ARG REACT_APP_EDITION=enterprise
 ARG REACT_APP_DISABLE_JS_SANDBOX=true
 RUN yarn build:ee
 
