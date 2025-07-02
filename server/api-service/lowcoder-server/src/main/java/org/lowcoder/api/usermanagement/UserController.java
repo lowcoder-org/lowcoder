@@ -8,11 +8,13 @@ import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.home.UserHomeApiService;
+import org.lowcoder.api.home.UserHomepageView;
 import org.lowcoder.api.usermanagement.view.OrgView;
 import org.lowcoder.api.usermanagement.view.UpdateUserRequest;
 import org.lowcoder.api.usermanagement.view.UserProfileView;
 import org.lowcoder.domain.organization.model.MemberRole;
 import org.lowcoder.domain.organization.model.OrgMember;
+import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.constant.UserStatusType;
@@ -34,7 +36,10 @@ import org.springframework.data.domain.PageRequest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.lowcoder.sdk.exception.BizError.INVALID_USER_STATUS;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
@@ -83,13 +88,31 @@ public class UserController implements UserEndpoints
                 .flatMap(user -> {
                     Pageable pageable = PageRequest.of(pageNum - 1, pageSize, Sort.by(Sort.Direction.DESC, "updatedAt"));
                     String filter = orgName == null ? "" : orgName;
+                    Mono<String> currentOrgIdMono = sessionUserService.getVisitorOrgMemberCache()
+                            .map(OrgMember::getOrgId);
                     return organizationService.findUserOrgs(user.getId(), filter, pageable)
                             .map(OrgView::new)
                             .collectList()
                             .zipWith(organizationService.countUserOrgs(user.getId(), filter))
-                            .map(tuple -> PageResponseView.success(
-                                    tuple.getT1(), pageNum, pageSize, tuple.getT2().intValue()
-                            ));
+                            .zipWith(currentOrgIdMono)
+                            .map(tuple -> {
+                                List<OrgView> orgViews = tuple.getT1().getT1();
+                                long total = tuple.getT1().getT2();
+                                String currentOrgId = tuple.getT2();
+
+                                // Create a list of maps each containing orgView and isCurrentOrg
+                                List<Map<String, Object>> resultList = orgViews.stream()
+                                        .map(orgView -> {
+                                            Map<String, Object> map = new HashMap<>();
+                                            map.put("orgView", orgView);
+                                            map.put("isCurrentOrg", orgView.getOrgId().equals(currentOrgId));
+                                            return map;
+                                        })
+                                        .sorted((a, b) -> Boolean.compare((Boolean) b.get("isCurrentOrg"), (Boolean) a.get("isCurrentOrg")))
+                                        .collect(Collectors.toList());
+
+                                return PageResponseView.success(resultList, pageNum, pageSize, (int) total);
+                            });
                 })
                 .map(ResponseView::success);
     }
