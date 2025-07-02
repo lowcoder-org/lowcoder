@@ -4,6 +4,8 @@ import {
   ThreadMessageLike,
   AppendMessage,
   AssistantRuntimeProvider,
+  ExternalStoreThreadData,
+  ExternalStoreThreadListAdapter,
 } from "@assistant-ui/react";
 
 // Define your custom message type
