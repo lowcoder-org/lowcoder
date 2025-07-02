@@ -3,6 +3,7 @@ import { StringControl, NumberControl } from "comps/controls/codeControl";
 import { withDefault } from "comps/generators";
 import { BoolControl } from "comps/controls/boolControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
+import QuerySelectControl from "comps/controls/querySelectControl";
 
 // Model type dropdown options
 const ModelTypeOptions = [
@@ -12,7 +13,7 @@ const ModelTypeOptions = [
 
 export const chatChildrenMap = {
   text: withDefault(StringControl, "Chat Component Placeholder"),
-  modelHost: withDefault(StringControl, "http://localhost:11434"),
+  chatQuery: QuerySelectControl,
   modelType: dropdownControl(ModelTypeOptions, "direct-llm"),
   streaming: BoolControl.DEFAULT_TRUE,
   systemPrompt: withDefault(StringControl, "You are a helpful assistant."),
@@ -22,8 +23,8 @@ export const chatChildrenMap = {
 
 export type ChatCompProps = {
   text: string;
-  modelHost: string;
-  modelType: "direct-llm" | "n8n";
+  chatQuery: string;
+  modelType: string;
   streaming: boolean;
   systemPrompt: string;
   agent: boolean;

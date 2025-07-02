@@ -8,7 +8,7 @@ import { ChatPropertyView } from "./chatPropertyView";
 // Build the component
 const ChatTmpComp = new UICompBuilder(
   chatChildrenMap, 
-  (props) => <ChatView {...props} />
+  (props) => <ChatView {...props} chatQuery={props.chatQuery.value} />
 )
   .setPropertyViewFn((children) => <ChatPropertyView children={children} />)
   .build();
