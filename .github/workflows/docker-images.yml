@@ -146,6 +146,24 @@ jobs:
           push: true
           tags: ${{ env.FRONTEND_IMAGE_NAMES }}
 
+      - name: Build and push the enterprise edition frontend image
+        if: ${{ env.BUILD_FRONTEND == 'true' }}
+        uses: docker/build-push-action@v6
+        env:
+          NODE_ENV: production
+        with:
+          file: ./deploy/docker/Dockerfile
+          target: lowcoder-ce-frontend
+          build-args: |
+            REACT_APP_ENV=production
+            REACT_APP_EDITION=enterprise
+            REACT_APP_COMMIT_ID="dev #${{ env.SHORT_SHA }}"
+          platforms: |
+            linux/amd64
+            linux/arm64
+          push: true
+          tags: ${{ env.FRONTEND_IMAGE_NAMES }}
+
       - name: Build and push the node service image
         if: ${{ env.BUILD_NODESERVICE == 'true' }}
         uses: docker/build-push-action@v6
