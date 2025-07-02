@@ -1,7 +1,3 @@
-# PreLoadComp Module
-
-This module has been restructured for maximum manageability and reusability. The original monolithic `preLoadComp.tsx` file has been broken down into logical, focused components.
-
 ## File Structure
 
 ```

@@ -1,7 +1,3 @@
-# Scalable Action System
-
-The `ActionInputSection` component has been refactored to use a scalable, configuration-driven approach that makes it easy to add new actions without modifying the main component logic.
-
 ## Architecture
 
 ### Core Components
