@@ -80,18 +80,21 @@ jobs:
           # Image names
           ALLINONE_IMAGE_NAMES=lowcoderorg/lowcoder-ce:${IMAGE_TAG}
           FRONTEND_IMAGE_NAMES=lowcoderorg/lowcoder-ce-frontend:${IMAGE_TAG}
+          FRONTEND_EE_IMAGE_NAMES=lowcoderorg/lowcoder-ee-frontend:${IMAGE_TAG}
           APISERVICE_IMAGE_NAMES=lowcoderorg/lowcoder-ce-api-service:${IMAGE_TAG}
           NODESERVICE_IMAGE_NAMES=lowcoderorg/lowcoder-ce-node-service:${IMAGE_TAG}
 
           if [[ "${IS_LATEST}" == "true" ]]; then
                ALLINONE_IMAGE_NAMES="lowcoderorg/lowcoder-ce:latest,${ALLINONE_IMAGE_NAMES}"
                FRONTEND_IMAGE_NAMES="lowcoderorg/lowcoder-ce-frontend:latest,${FRONTEND_IMAGE_NAMES}"
+               FRONTEND_EE_IMAGE_NAMES="lowcoderorg/lowcoder-ee-frontend:latest,${FRONTEND_EE_IMAGE_NAMES}"
                APISERVICE_IMAGE_NAMES="lowcoderorg/lowcoder-ce-api-service:latest,${APISERVICE_IMAGE_NAMES}"
                NODESERVICE_IMAGE_NAMES="lowcoderorg/lowcoder-ce-node-service:latest,${NODESERVICE_IMAGE_NAMES}"
           fi;
 
           echo "ALLINONE_IMAGE_NAMES=${ALLINONE_IMAGE_NAMES}" >> "${GITHUB_ENV}"
           echo "FRONTEND_IMAGE_NAMES=${FRONTEND_IMAGE_NAMES}" >> "${GITHUB_ENV}"
+          echo "FRONTEND_EE_IMAGE_NAMES=${FRONTEND_EE_IMAGE_NAMES}" >> "${GITHUB_ENV}"
           echo "APISERVICE_IMAGE_NAMES=${APISERVICE_IMAGE_NAMES}" >> "${GITHUB_ENV}"
           echo "NODESERVICE_IMAGE_NAMES=${NODESERVICE_IMAGE_NAMES}" >> "${GITHUB_ENV}"
 
@@ -145,6 +148,24 @@ jobs:
             linux/arm64
           push: true
           tags: ${{ env.FRONTEND_IMAGE_NAMES }}
+
+      - name: Build and push the enterprise edition frontend image
+        if: ${{ env.BUILD_FRONTEND == 'true' }}
+        uses: docker/build-push-action@v6
+        env:
+          NODE_ENV: production
+        with:
+          file: ./deploy/docker/Dockerfile
+          target: lowcoder-ee-frontend
+          build-args: |
+            REACT_APP_ENV=production
+            REACT_APP_EDITION=enterprise
+            REACT_APP_COMMIT_ID="dev #${{ env.SHORT_SHA }}"
+          platforms: |
+            linux/amd64
+            linux/arm64
+          push: true
+          tags: ${{ env.FRONTEND_EE_IMAGE_NAMES }}
 
       - name: Build and push the node service image
         if: ${{ env.BUILD_NODESERVICE == 'true' }}
