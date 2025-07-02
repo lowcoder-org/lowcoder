@@ -16,14 +16,13 @@ interface MyMessage {
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
-const callYourAPI = async (message: AppendMessage) => {
+const callYourAPI = async (text: string) => {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     // Simple responses
     return {
-      content: "This is a mock response from your backend. You typed: " + 
-      (typeof message.content === 'string' ? message.content : 'something')
+      content: "This is a mock response from your backend. You typed: " + text
     };
 };
 
@@ -41,11 +40,16 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
       });
   
     const onNew = async (message: AppendMessage) => {
+      // Extract text from AppendMessage content array
+      if (message.content.length !== 1 || message.content[0]?.type !== "text") {
+        throw new Error("Only text content is supported");
+      }
+
       // Add user message in your custom format
       const userMessage: MyMessage = {
         id: generateId(),
         role: "user",
-        text: typeof message.content === 'string' ? message.content : JSON.stringify(message.content),
+        text: message.content[0].text,
         timestamp: Date.now(),
       };
       
@@ -54,7 +58,7 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
   
       try {
         // Call mock API
-        const response = await callYourAPI(message);
+        const response = await callYourAPI(userMessage.text);
         
         const assistantMessage: MyMessage = {
           id: generateId(),
@@ -81,6 +85,11 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 
     // Add onEdit functionality
     const onEdit = async (message: AppendMessage) => {
+      // Extract text from AppendMessage content array
+      if (message.content.length !== 1 || message.content[0]?.type !== "text") {
+        throw new Error("Only text content is supported");
+      }
+
       // Find the index where to insert the edited message
       const index = myMessages.findIndex((m) => m.id === message.parentId) + 1;
 
@@ -91,7 +100,7 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
       const editedMessage: MyMessage = {
         id: generateId(), // Always generate new ID for edited messages
         role: "user",
-        text: typeof message.content === 'string' ? message.content : JSON.stringify(message.content),
+        text: message.content[0].text,
         timestamp: Date.now(),
       };
       newMessages.push(editedMessage);
@@ -101,7 +110,7 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 
       try {
         // Generate new response
-        const response = await callYourAPI(message);
+        const response = await callYourAPI(editedMessage.text);
         
         const assistantMessage: MyMessage = {
           id: generateId(),
