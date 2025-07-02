@@ -186,6 +186,84 @@ EXPOSE 3443
 #############################################################################
 
 ##
+## Build lowcoder client (Enterprise) application
+##
+FROM node:20.2-slim AS build-client-ee
+
+# curl is required for yarn build to succeed, because it calls it while building client
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+
+# Build client
+COPY ./client /lowcoder-client-ee
+WORKDIR /lowcoder-client-ee
+RUN yarn --immutable
+
+ARG REACT_APP_COMMIT_ID=test
+ARG REACT_APP_ENV=production
+ARG REACT_APP_EDITION=community
+ARG REACT_APP_DISABLE_JS_SANDBOX=true
+RUN yarn build:ee
+
+# Build lowcoder-comps
+WORKDIR /lowcoder-client-ee/packages/lowcoder-comps
+RUN yarn install
+RUN yarn build
+RUN tar -zxf lowcoder-comps-*.tgz && mv package lowcoder-comps
+
+# Build lowcoder-sdk
+WORKDIR /lowcoder-client-ee/packages/lowcoder-sdk
+RUN yarn install
+RUN yarn build
+
+WORKDIR /lowcoder-client-ee/packages/lowcoder-sdk-webpack-bundle
+RUN yarn install
+RUN yarn build
+
+##
+## Intermediary Lowcoder client (Enterprise) image
+##
+## To create a separate image out of it, build it with:
+##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ee-frontend --target lowcoder-ee-frontend .
+##
+FROM nginx:1.27.1 AS lowcoder-ee-frontend
+LABEL maintainer="lowcoder"
+
+# Change default nginx user into lowcoder user and remove default nginx config
+RUN usermod --login lowcoder --uid 9001 nginx \
+  && groupmod --new-name lowcoder --gid 9001 nginx \
+  && rm -f /etc/nginx/nginx.conf \
+  && mkdir -p /lowcoder/assets
+
+# Copy lowcoder client
+COPY --chown=lowcoder:lowcoder --from=build-client-ee /lowcoder-client-ee/packages/lowcoder/build/ /lowcoder/client
+# Copy lowcoder components
+COPY --chown=lowcoder:lowcoder --from=build-client-ee /lowcoder-client-ee/packages/lowcoder-comps/lowcoder-comps /lowcoder/client-comps
+# Copy lowcoder SDK
+COPY --chown=lowcoder:lowcoder --from=build-client-ee /lowcoder-client-ee/packages/lowcoder-sdk /lowcoder/client-sdk
+# Copy lowcoder SDK webpack bundle
+COPY --chown=lowcoder:lowcoder --from=build-client-ee /lowcoder-client-ee/packages/lowcoder-sdk-webpack-bundle/dist /lowcoder/client-embed
+
+
+# Copy additional nginx init scripts
+COPY deploy/docker/frontend/00-change-nginx-user.sh /docker-entrypoint.d/00-change-nginx-user.sh
+COPY deploy/docker/frontend/01-update-nginx-conf.sh /docker-entrypoint.d/01-update-nginx-conf.sh
+
+RUN chmod +x /docker-entrypoint.d/00-change-nginx-user.sh && \
+    chmod +x /docker-entrypoint.d/01-update-nginx-conf.sh
+
+COPY deploy/docker/frontend/server.conf /etc/nginx/server.conf
+COPY deploy/docker/frontend/nginx-http.conf /etc/nginx/nginx-http.conf
+COPY deploy/docker/frontend/nginx-https.conf /etc/nginx/nginx-https.conf
+COPY deploy/docker/frontend/ssl-certificate.conf /etc/nginx/ssl-certificate.conf
+COPY deploy/docker/frontend/ssl-params.conf /etc/nginx/ssl-params.conf
+
+
+EXPOSE 3000
+EXPOSE 3444
+
+#############################################################################
+
+##
 ## Build Lowcoder all-in-one image
 ##
 FROM ubuntu:jammy
