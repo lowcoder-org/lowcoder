@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   useExternalStoreRuntime,
   ThreadMessageLike,
@@ -9,6 +9,7 @@ import {
 import { useThreadContext, MyMessage, ThreadProvider } from "./context/ThreadContext";
 import { Thread } from "./assistant-ui/thread";
 import { ThreadList } from "./assistant-ui/thread-list";
+import { chatStorage, ThreadData as StoredThreadData } from "../utils/chatStorage";
 
 // Define thread data interfaces to match ExternalStoreThreadData requirements
 interface RegularThreadData {
@@ -44,6 +45,108 @@ function ChatWithThreads() {
   const [threadList, setThreadList] = useState<ThreadData[]>([
     { threadId: "default", status: "regular", title: "New Chat" } as RegularThreadData,
   ]);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Load data from persistent storage on component mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        await chatStorage.initialize();
+        
+        // Load all threads from storage
+        const storedThreads = await chatStorage.getAllThreads();
+        if (storedThreads.length > 0) {
+          // Convert stored threads to UI format
+          const uiThreads: ThreadData[] = storedThreads.map(stored => ({
+            threadId: stored.threadId,
+            status: stored.status as "regular" | "archived",
+            title: stored.title,
+          }));
+          setThreadList(uiThreads);
+          
+          // Load messages for each thread
+          const threadMessages = new Map<string, MyMessage[]>();
+          for (const thread of storedThreads) {
+            const messages = await chatStorage.getMessages(thread.threadId);
+            threadMessages.set(thread.threadId, messages);
+          }
+          
+          // Ensure default thread exists
+          if (!threadMessages.has("default")) {
+            threadMessages.set("default", []);
+          }
+          
+          setThreads(threadMessages);
+          
+          // Set current thread to the most recently updated one
+          const latestThread = storedThreads.sort((a, b) => b.updatedAt - a.updatedAt)[0];
+          if (latestThread) {
+            setCurrentThreadId(latestThread.threadId);
+          }
+        } else {
+          // Initialize with default thread
+          const defaultThread: StoredThreadData = {
+            threadId: "default",
+            status: "regular",
+            title: "New Chat",
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+          };
+          await chatStorage.saveThread(defaultThread);
+        }
+        
+        setIsInitialized(true);
+      } catch (error) {
+        console.error("Failed to load chat data:", error);
+        setIsInitialized(true); // Continue with default state
+      }
+    };
+
+    loadData();
+  }, [setCurrentThreadId, setThreads]);
+
+  // Save thread data whenever threadList changes
+  useEffect(() => {
+    if (!isInitialized) return;
+    
+    const saveThreads = async () => {
+      try {
+        for (const thread of threadList) {
+          const storedThread: StoredThreadData = {
+            threadId: thread.threadId,
+            status: thread.status,
+            title: thread.title,
+            createdAt: Date.now(), // In real app, preserve original createdAt
+            updatedAt: Date.now(),
+          };
+          await chatStorage.saveThread(storedThread);
+        }
+      } catch (error) {
+        console.error("Failed to save threads:", error);
+      }
+    };
+
+    saveThreads();
+  }, [threadList, isInitialized]);
+
+  // Save messages whenever threads change
+  useEffect(() => {
+    if (!isInitialized) return;
+    
+    const saveMessages = async () => {
+      try {
+        for (const [threadId, messages] of threads.entries()) {
+          await chatStorage.saveMessages(messages, threadId);
+        }
+      } catch (error) {
+        console.error("Failed to save messages:", error);
+      }
+    };
+
+    saveMessages();
+  }, [threads, isInitialized]);
+
+  
 
   // Get messages for current thread
   const currentMessages = threads.get(currentThreadId) || [];
@@ -165,18 +268,31 @@ function ChatWithThreads() {
     threads: threadList.filter((t): t is RegularThreadData => t.status === "regular"),
     archivedThreads: threadList.filter((t): t is ArchivedThreadData => t.status === "archived"),
 
-    onSwitchToNewThread: () => {
+    onSwitchToNewThread: async () => {
       const newId = `thread-${Date.now()}`;
-      setThreadList((prev) => [
-        ...prev,
-        {
+      const newThread: RegularThreadData = {
+        threadId: newId,
+        status: "regular",
+        title: "New Chat",
+      };
+      
+      setThreadList((prev) => [...prev, newThread]);
+      setThreads((prev) => new Map(prev).set(newId, []));
+      setCurrentThreadId(newId);
+      
+      // Save new thread to storage
+      try {
+        const storedThread: StoredThreadData = {
           threadId: newId,
           status: "regular",
           title: "New Chat",
-        } as RegularThreadData,
-      ]);
-      setThreads((prev) => new Map(prev).set(newId, []));
-      setCurrentThreadId(newId);
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        };
+        await chatStorage.saveThread(storedThread);
+      } catch (error) {
+        console.error("Failed to save new thread:", error);
+      }
     },
 
     onSwitchToThread: (threadId) => {
@@ -199,7 +315,7 @@ function ChatWithThreads() {
       );
     },
 
-    onDelete: (threadId) => {
+    onDelete: async (threadId) => {
       setThreadList((prev) => prev.filter((t) => t.threadId !== threadId));
       setThreads((prev) => {
         const next = new Map(prev);
@@ -208,6 +324,13 @@ function ChatWithThreads() {
       });
       if (currentThreadId === threadId) {
         setCurrentThreadId("default");
+      }
+      
+      // Delete thread from storage
+      try {
+        await chatStorage.deleteThread(threadId);
+      } catch (error) {
+        console.error("Failed to delete thread from storage:", error);
       }
     },
   };
