@@ -6,6 +6,16 @@ import {
   AssistantRuntimeProvider,
 } from "@assistant-ui/react";
 
+// Define your custom message type
+interface MyMessage {
+  id: string;
+  role: "user" | "assistant";
+  text: string;
+  timestamp: number;
+}
+
+const generateId = () => Math.random().toString(36).substr(2, 9);
+
 const callYourAPI = async (message: AppendMessage) => {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1500));
@@ -15,51 +25,115 @@ const callYourAPI = async (message: AppendMessage) => {
       content: "This is a mock response from your backend. You typed: " + 
       (typeof message.content === 'string' ? message.content : 'something')
     };
-  };
+};
 
 export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
-    const [messages, setMessages] = useState<ThreadMessageLike[]>([]);
+    // Use your custom message type in state
+    const [myMessages, setMyMessages] = useState<MyMessage[]>([]);
     const [isRunning, setIsRunning] = useState(false);
+
+    // Convert your custom format to ThreadMessageLike
+    const convertMessage = (message: MyMessage): ThreadMessageLike => ({
+        role: message.role,
+        content: [{ type: "text", text: message.text }],
+        id: message.id,
+        createdAt: new Date(message.timestamp),
+      });
   
     const onNew = async (message: AppendMessage) => {
-      // Add user message
-      const userMessage: ThreadMessageLike = {
+      // Add user message in your custom format
+      const userMessage: MyMessage = {
+        id: generateId(),
         role: "user",
-        content: message.content,
+        text: typeof message.content === 'string' ? message.content : JSON.stringify(message.content),
+        timestamp: Date.now(),
       };
       
-      setMessages(prev => [...prev, userMessage]);
+      setMyMessages(prev => [...prev, userMessage]);
       setIsRunning(true);
   
       try {
         // Call mock API
         const response = await callYourAPI(message);
         
-        const assistantMessage: ThreadMessageLike = {
+        const assistantMessage: MyMessage = {
+          id: generateId(),
           role: "assistant",
-          content: response.content,
+          text: response.content,
+          timestamp: Date.now(),
         };
         
-        setMessages(prev => [...prev, assistantMessage]);
+        setMyMessages(prev => [...prev, assistantMessage]);
       } catch (error) {
         // Handle errors gracefully
-        const errorMessage: ThreadMessageLike = {
+        const errorMessage: MyMessage = {
+          id: generateId(),
           role: "assistant", 
-          content: `Sorry, I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. This is expected in mock mode for testing error handling.`,
+          text: `Sorry, I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. This is expected in mock mode for testing error handling.`,
+          timestamp: Date.now(),
         };
         
-        setMessages(prev => [...prev, errorMessage]);
+        setMyMessages(prev => [...prev, errorMessage]);
+      } finally {
+        setIsRunning(false);
+      }
+    };
+
+    // Add onEdit functionality
+    const onEdit = async (message: AppendMessage) => {
+      // Find the index where to insert the edited message
+      const index = myMessages.findIndex((m) => m.id === message.parentId) + 1;
+
+      // Keep messages up to the parent
+      const newMessages = [...myMessages.slice(0, index)];
+
+      // Add the edited message in your custom format
+      const editedMessage: MyMessage = {
+        id: generateId(), // Always generate new ID for edited messages
+        role: "user",
+        text: typeof message.content === 'string' ? message.content : JSON.stringify(message.content),
+        timestamp: Date.now(),
+      };
+      newMessages.push(editedMessage);
+
+      setMyMessages(newMessages);
+      setIsRunning(true);
+
+      try {
+        // Generate new response
+        const response = await callYourAPI(message);
+        
+        const assistantMessage: MyMessage = {
+          id: generateId(),
+          role: "assistant",
+          text: response.content,
+          timestamp: Date.now(),
+        };
+        
+        newMessages.push(assistantMessage);
+        setMyMessages(newMessages);
+      } catch (error) {
+        // Handle errors gracefully
+        const errorMessage: MyMessage = {
+          id: generateId(),
+          role: "assistant", 
+          text: `Sorry, I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          timestamp: Date.now(),
+        };
+        
+        newMessages.push(errorMessage);
+        setMyMessages(newMessages);
       } finally {
         setIsRunning(false);
       }
     };
   
-    const runtime = useExternalStoreRuntime<ThreadMessageLike>({
-      messages,
-      setMessages,
+    const runtime = useExternalStoreRuntime({
+      messages: myMessages,        // Your custom message array
+      convertMessage,              // Conversion function
       isRunning,
       onNew,
-      convertMessage: (message) => message,
+      onEdit,                     // Enable message editing
     });
   
     return (
@@ -67,4 +141,4 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
         {children}
       </AssistantRuntimeProvider>
     );
-  }
+}
