@@ -72,22 +72,22 @@ jobs:
           fi;
 
           # Control which images to build
-          echo "BUILD_ALLINONE=${{ inputs.build_allinone || true }}" >> "${GITHUB_ENV}"
-          echo "BUILD_FRONTEND=${{ inputs.build_frontend || true }}" >> "${GITHUB_ENV}"
-          echo "BUILD_NODESERVICE=${{ inputs.build_nodeservice || true }}" >> "${GITHUB_ENV}"
-          echo "BUILD_APISERVICE=${{ inputs.build_apiservice || true }}" >> "${GITHUB_ENV}"
+          echo "BUILD_ALLINONE=${{ inputs.build_allinone || false }}" >> "${GITHUB_ENV}"
+          echo "BUILD_FRONTEND=${{ inputs.build_frontend || false }}" >> "${GITHUB_ENV}"
+          echo "BUILD_NODESERVICE=${{ inputs.build_nodeservice || false }}" >> "${GITHUB_ENV}"
+          echo "BUILD_APISERVICE=${{ inputs.build_apiservice || false }}" >> "${GITHUB_ENV}"
 
           # Image names
           ALLINONE_IMAGE_NAMES=lowcoderorg/lowcoder-ce:${IMAGE_TAG}
           FRONTEND_IMAGE_NAMES=lowcoderorg/lowcoder-ce-frontend:${IMAGE_TAG}
-          FRONTEND_EE_IMAGE_NAMES=lowcoderorg/lowcoder-ee-frontend:${IMAGE_TAG}
+          FRONTEND_EE_IMAGE_NAMES=lowcoderorg/lowcoder-enterprise-frontend:${IMAGE_TAG}
           APISERVICE_IMAGE_NAMES=lowcoderorg/lowcoder-ce-api-service:${IMAGE_TAG}
           NODESERVICE_IMAGE_NAMES=lowcoderorg/lowcoder-ce-node-service:${IMAGE_TAG}
 
           if [[ "${IS_LATEST}" == "true" ]]; then
                ALLINONE_IMAGE_NAMES="lowcoderorg/lowcoder-ce:latest,${ALLINONE_IMAGE_NAMES}"
                FRONTEND_IMAGE_NAMES="lowcoderorg/lowcoder-ce-frontend:latest,${FRONTEND_IMAGE_NAMES}"
-               FRONTEND_EE_IMAGE_NAMES="lowcoderorg/lowcoder-ee-frontend:latest,${FRONTEND_EE_IMAGE_NAMES}"
+               FRONTEND_EE_IMAGE_NAMES="lowcoderorg/lowcoder-enterprise-frontend:latest,${FRONTEND_EE_IMAGE_NAMES}"
                APISERVICE_IMAGE_NAMES="lowcoderorg/lowcoder-ce-api-service:latest,${APISERVICE_IMAGE_NAMES}"
                NODESERVICE_IMAGE_NAMES="lowcoderorg/lowcoder-ce-node-service:latest,${NODESERVICE_IMAGE_NAMES}"
           fi;
