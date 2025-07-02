@@ -92,7 +92,7 @@ const AppEditor = React.memo(() => {
 
   // Set global settings with cleanup
   useEffect(() => {
-    setGlobalSettings({ applicationId: selectors.applicationId, isViewMode: selectors.paramViewMode === "view" });
+    setGlobalSettings({ applicationId: selectors.applicationId, isViewMode: selectors.paramViewMode === "view" || selectors.paramViewMode === "view_marketplace" });
     return () => {
       clearGlobalSettings();
     };

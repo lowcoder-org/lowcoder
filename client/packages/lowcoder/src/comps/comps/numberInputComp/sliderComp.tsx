@@ -46,6 +46,7 @@ const SliderBasicComp = (function () {
             {...props}
             value={props.value.value}
             $style={props.inputFieldStyle}
+            $disabledStyle={props.disabledSliderStyle}
             style={{margin: 0}}
             $vertical={Boolean(props.vertical) || false}
             tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}

@@ -370,6 +370,8 @@ export function* fetchWorkspacesSaga(action: ReduxAction<{page: number, pageSize
       const transformedItems = apiData.data.map(item => ({
         id: item.orgId,
         name: item.orgName,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
       }));
         
       yield put({

@@ -12,7 +12,7 @@ import { trans } from "i18n";
 import styled from "styled-components";
 import { ChangeEventHandlerControl } from "../../controls/eventHandlerControl";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
-import { Button100, ButtonCompWrapper, buttonRefMethods } from "./buttonCompConstants";
+import { Button100, ButtonCompWrapper, buttonRefMethods, DisabledButtonStyleControl } from "./buttonCompConstants";
 import { IconControl } from "comps/controls/iconControl";
 import { AlignWithStretchControl, LeftRightControl } from "comps/controls/dropdownControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
@@ -63,6 +63,7 @@ const ToggleTmpComp = (function () {
     iconPosition: LeftRightControl,
     alignment: AlignWithStretchControl,
     style: styleControl(ToggleButtonStyle , 'style'),
+    disabledStyle: DisabledButtonStyleControl,
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
     showBorder: withDefault(BoolControl, true),
     viewRef: RefControl<HTMLElement>,
@@ -84,6 +85,7 @@ const ToggleTmpComp = (function () {
           <Button100
             ref={props.viewRef}
             $buttonStyle={props.style}
+            $disabledStyle={props.disabledStyle}
             loading={props.loading}
             disabled={props.disabled}
             onClick={() => {
@@ -153,6 +155,7 @@ const ToggleTmpComp = (function () {
           </>
           )}
         
+        <Section name={trans("prop.disabledStyle")}>{children.disabledStyle.getPropertyView()}</Section>
       </>
     ))
     .setExposeMethodConfigs(buttonRefMethods)
