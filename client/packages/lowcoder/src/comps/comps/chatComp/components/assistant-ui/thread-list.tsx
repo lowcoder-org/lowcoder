@@ -3,10 +3,11 @@ import {
   ThreadListItemPrimitive,
   ThreadListPrimitive,
 } from "@assistant-ui/react";
-import { PlusIcon, Trash2Icon } from "lucide-react";
+import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 
 import { Button } from "../ui/button";
 import { TooltipIconButton } from "./tooltip-icon-button";
+import { useThreadListItemRuntime } from "@assistant-ui/react";
 
 export const ThreadList: FC = () => {
   return (
@@ -38,6 +39,7 @@ const ThreadListItem: FC = () => {
       <ThreadListItemPrimitive.Trigger className="aui-thread-list-item-trigger">
         <ThreadListItemTitle />
       </ThreadListItemPrimitive.Trigger>
+      <ThreadListItemRename />
       <ThreadListItemDelete />
     </ThreadListItemPrimitive.Root>
   );
@@ -62,5 +64,41 @@ const ThreadListItemDelete: FC = () => {
         <Trash2Icon />
       </TooltipIconButton>
     </ThreadListItemPrimitive.Delete>
+  );
+};
+
+
+const ThreadListItemRename: FC = () => {
+  const runtime = useThreadListItemRuntime();
+  
+  const handleClick = async () => {
+    // runtime doesn't expose a direct `title` prop; read it from its state
+    let current = "";
+    try {
+      // getState is part of the public runtime surface
+      current = (runtime.getState?.() as any)?.title ?? "";
+    } catch {
+      // fallback – generate a title if the runtime provides a helper
+      if (typeof (runtime as any).generateTitle === "function") {
+        // generateTitle(threadId) in older builds, generateTitle() in newer ones
+        current = (runtime as any).generateTitle((runtime as any).threadId ?? undefined);
+      }
+    }
+
+    const next = prompt("Rename thread", current)?.trim();
+    if (next && next !== current) {
+      await runtime.rename(next);
+    }
+  };
+
+  return (
+    <TooltipIconButton
+      tooltip="Rename thread"
+      variant="ghost"
+      onClick={handleClick}
+      className="aui-thread-list-item-rename"
+    >
+      <PencilIcon />
+    </TooltipIconButton>
   );
 };
