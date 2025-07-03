@@ -3,7 +3,7 @@ import {
   ThreadListItemPrimitive,
   ThreadListPrimitive,
 } from "@assistant-ui/react";
-import { ArchiveIcon, PlusIcon } from "lucide-react";
+import { PlusIcon, Trash2Icon } from "lucide-react";
 
 import { Button } from "../ui/button";
 import { TooltipIconButton } from "./tooltip-icon-button";
@@ -38,7 +38,7 @@ const ThreadListItem: FC = () => {
       <ThreadListItemPrimitive.Trigger className="aui-thread-list-item-trigger">
         <ThreadListItemTitle />
       </ThreadListItemPrimitive.Trigger>
-      <ThreadListItemArchive />
+      <ThreadListItemDelete />
     </ThreadListItemPrimitive.Root>
   );
 };
@@ -51,16 +51,16 @@ const ThreadListItemTitle: FC = () => {
   );
 };
 
-const ThreadListItemArchive: FC = () => {
+const ThreadListItemDelete: FC = () => {
   return (
-    <ThreadListItemPrimitive.Archive asChild>
+    <ThreadListItemPrimitive.Delete asChild>
       <TooltipIconButton
-        className="aui-thread-list-item-archive"
+        className="aui-thread-list-item-delete"
         variant="ghost"
-        tooltip="Archive thread"
+        tooltip="Delete thread"
       >
-        <ArchiveIcon />
+        <Trash2Icon />
       </TooltipIconButton>
-    </ThreadListItemPrimitive.Archive>
+    </ThreadListItemPrimitive.Delete>
   );
 };
