@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   useExternalStoreRuntime,
   ThreadMessageLike,
@@ -6,15 +6,16 @@ import {
   AssistantRuntimeProvider,
   ExternalStoreThreadListAdapter,
 } from "@assistant-ui/react";
-import { useThreadContext, MyMessage, ThreadProvider } from "./context/ThreadContext";
 import { Thread } from "./assistant-ui/thread";
 import { ThreadList } from "./assistant-ui/thread-list";
-import { chatStorage, ThreadData as StoredThreadData } from "../utils/chatStorage";
-import { useChatStorage } from "../hooks/useChatStorage";
+import { 
+  useChatContext, 
+  MyMessage, 
+  ThreadData, 
+  RegularThreadData, 
+  ArchivedThreadData 
+} from "./context/ChatContext";
 import styled from "styled-components";
-
-
-
 
 const ChatContainer = styled.div`
   display: flex;
@@ -22,30 +23,25 @@ const ChatContainer = styled.div`
 
   .aui-thread-list-root {
     width: 250px;
-    background-color: #333;
+    background-color: #fff;
+    padding: 10px;
   }
 
   .aui-thread-root {
     flex: 1;
-    background-color: #f0f0f0;
+    background-color: #f9fafb;
   }
 
+  .aui-thread-list-item {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &[data-active="true"] {
+      background-color: #dbeafe;
+      border: 1px solid #bfdbfe;
+    }
+  }
 `;
-
-// Define thread data interfaces to match ExternalStoreThreadData requirements
-interface RegularThreadData {
-  threadId: string;
-  status: "regular";
-  title: string;
-}
-
-interface ArchivedThreadData {
-  threadId: string;
-  status: "archived";
-  title: string;
-}
-
-type ThreadData = RegularThreadData | ArchivedThreadData;
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -59,22 +55,14 @@ const callYourAPI = async (text: string) => {
   };
 };
 
-function ChatWithThreads() {
-  const { currentThreadId, setCurrentThreadId, threads, setThreads } =
-    useThreadContext();
+export function ChatMain() {
+  const { state, actions } = useChatContext();
   const [isRunning, setIsRunning] = useState(false);
-  const [threadList, setThreadList] = useState<ThreadData[]>([
-    { threadId: "default", status: "regular", title: "New Chat" } as RegularThreadData,
-  ]);
-  const { isInitialized } = useChatStorage({
-    threadList,
-    threads,
-    setThreadList,
-    setThreads,
-    setCurrentThreadId,
-  });
+
+  console.log("STATE", state);
+
   // Get messages for current thread
-  const currentMessages = threads.get(currentThreadId) || [];
+  const currentMessages = actions.getCurrentMessages();
 
   // Convert custom format to ThreadMessageLike
   const convertMessage = (message: MyMessage): ThreadMessageLike => ({
@@ -99,8 +87,7 @@ function ChatWithThreads() {
     };
     
     // Update current thread with new user message
-    const updatedMessages = [...currentMessages, userMessage];
-    setThreads(prev => new Map(prev).set(currentThreadId, updatedMessages));
+    await actions.addMessage(state.currentThreadId, userMessage);
     setIsRunning(true);
 
     try {
@@ -115,8 +102,7 @@ function ChatWithThreads() {
       };
       
       // Update current thread with assistant response
-      const finalMessages = [...updatedMessages, assistantMessage];
-      setThreads(prev => new Map(prev).set(currentThreadId, finalMessages));
+      await actions.addMessage(state.currentThreadId, assistantMessage);
     } catch (error) {
       // Handle errors gracefully
       const errorMessage: MyMessage = {
@@ -126,8 +112,7 @@ function ChatWithThreads() {
         timestamp: Date.now(),
       };
       
-      const finalMessages = [...updatedMessages, errorMessage];
-      setThreads(prev => new Map(prev).set(currentThreadId, finalMessages));
+      await actions.addMessage(state.currentThreadId, errorMessage);
     } finally {
       setIsRunning(false);
     }
@@ -155,7 +140,8 @@ function ChatWithThreads() {
     };
     newMessages.push(editedMessage);
 
-    setThreads(prev => new Map(prev).set(currentThreadId, newMessages));
+    // Update messages using the new context action
+    await actions.updateMessages(state.currentThreadId, newMessages);
     setIsRunning(true);
 
     try {
@@ -170,7 +156,7 @@ function ChatWithThreads() {
       };
       
       newMessages.push(assistantMessage);
-      setThreads(prev => new Map(prev).set(currentThreadId, newMessages));
+      await actions.updateMessages(state.currentThreadId, newMessages);
     } catch (error) {
       // Handle errors gracefully
       const errorMessage: MyMessage = {
@@ -181,7 +167,7 @@ function ChatWithThreads() {
       };
       
       newMessages.push(errorMessage);
-      setThreads(prev => new Map(prev).set(currentThreadId, newMessages));
+      await actions.updateMessages(state.currentThreadId, newMessages);
     } finally {
       setIsRunning(false);
     }
@@ -189,81 +175,36 @@ function ChatWithThreads() {
 
   // Thread list adapter for managing multiple threads
   const threadListAdapter: ExternalStoreThreadListAdapter = {
-    threadId: currentThreadId,
-    threads: threadList.filter((t): t is RegularThreadData => t.status === "regular"),
-    archivedThreads: threadList.filter((t): t is ArchivedThreadData => t.status === "archived"),
+    threadId: state.currentThreadId,
+    threads: state.threadList.filter((t): t is RegularThreadData => t.status === "regular"),
+    archivedThreads: state.threadList.filter((t): t is ArchivedThreadData => t.status === "archived"),
 
     onSwitchToNewThread: async () => {
-      const newId = `thread-${Date.now()}`;
-      const newThread: RegularThreadData = {
-        threadId: newId,
-        status: "regular",
-        title: "New Chat",
-      };
-      
-      setThreadList((prev) => [...prev, newThread]);
-      setThreads((prev) => new Map(prev).set(newId, []));
-      setCurrentThreadId(newId);
-      
-      // Save new thread to storage
-      try {
-        const storedThread: StoredThreadData = {
-          threadId: newId,
-          status: "regular",
-          title: "New Chat",
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-        };
-        await chatStorage.saveThread(storedThread);
-      } catch (error) {
-        console.error("Failed to save new thread:", error);
-      }
+      const threadId = await actions.createThread("New Chat");
+      actions.setCurrentThread(threadId);
     },
 
     onSwitchToThread: (threadId) => {
-      setCurrentThreadId(threadId);
+      actions.setCurrentThread(threadId);
     },
 
-    onRename: (threadId, newTitle) => {
-      setThreadList((prev) =>
-        prev.map((t) =>
-          t.threadId === threadId ? { ...t, title: newTitle } : t,
-        ),
-      );
+    onRename: async (threadId, newTitle) => {
+      await actions.updateThread(threadId, { title: newTitle });
     },
 
-    onArchive: (threadId) => {
-      setThreadList((prev) =>
-        prev.map((t) =>
-          t.threadId === threadId ? { ...t, status: "archived" } : t,
-        ),
-      );
+    onArchive: async (threadId) => {
+      await actions.updateThread(threadId, { status: "archived" });
     },
 
     onDelete: async (threadId) => {
-      setThreadList((prev) => prev.filter((t) => t.threadId !== threadId));
-      setThreads((prev) => {
-        const next = new Map(prev);
-        next.delete(threadId);
-        return next;
-      });
-      if (currentThreadId === threadId) {
-        setCurrentThreadId("default");
-      }
-      
-      // Delete thread from storage
-      try {
-        await chatStorage.deleteThread(threadId);
-      } catch (error) {
-        console.error("Failed to delete thread from storage:", error);
-      }
+      await actions.deleteThread(threadId);
     },
   };
 
   const runtime = useExternalStoreRuntime({
     messages: currentMessages,
     setMessages: (messages) => {
-      setThreads((prev) => new Map(prev).set(currentThreadId, messages));
+      actions.updateMessages(state.currentThreadId, messages);
     },
     convertMessage,
     isRunning,
@@ -274,7 +215,7 @@ function ChatWithThreads() {
     },
   });
 
-  if (!isInitialized) {
+  if (!state.isInitialized) {
     return <div>Loading...</div>;
   }
 
@@ -288,13 +229,3 @@ function ChatWithThreads() {
   );
 }
 
-// Main App component with proper context wrapping
-export function ChatApp() {
-  return (
-    <ThreadProvider>
-      <ChatWithThreads />
-    </ThreadProvider>
-  );
-}
-
-export { ChatWithThreads }; 

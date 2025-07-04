@@ -1,5 +1,5 @@
 import alasql from "alasql";
-import { MyMessage } from "../components/context/ThreadContext";
+import { MyMessage } from "../components/context/ChatContext";
 
 // Database configuration
 const DB_NAME = "ChatDB";
