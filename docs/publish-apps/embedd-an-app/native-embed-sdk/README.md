@@ -212,6 +212,7 @@ Components cover a wide range of functionalities, from input and selection to di
 * **QRCodeComp** - Component for displaying QR codes.
 * **RadioComp** - Component for radio button functionality, allowing users to select a single option from a set.
 * **RatingComp** - Component for rating functionality, allowing users to provide a rating, typically represented by stars or similar indicators.
+* **CodeEditorComp** - Component for code editing, offering multi-language support, syntax highlighting, and built-in validation.
 * **RichTextEditorComp** - Component for rich text editing, providing a user interface for formatting text with options like bold, italic, lists, etc.
 * **SliderComp** - Component for slider functionality, allowing users to select a value from a range by sliding a handle.
 * **SwitchComp** - Component for switch functionality, allowing users to toggle between two states, such as on/off.
