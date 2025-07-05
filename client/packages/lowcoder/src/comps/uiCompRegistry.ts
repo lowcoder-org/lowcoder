@@ -169,6 +169,7 @@ export type UICompType =
   | "columnLayout"
   | "ganttChart"
   | "kanban"
+  | "chat" // Added by Faran
   ;
 
 
