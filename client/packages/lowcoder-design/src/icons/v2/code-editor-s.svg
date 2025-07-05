@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="24.000000000000004" height="24.000000000000004" fill="none" style="background-color:transparent;">
+  <g>
+    <title>Layer 1</title>
+    <rect stroke="null" x="-0.06251" y="-0.06251" id="svg_1" fill="none" height="18.37404" width="24"/>
+    <g id="svg_9">
+      <path id="svg_2" stroke-linecap="round" stroke-width="1.5" stroke="black" d="m19,14.5l0,-6.25736c0,-0.79565 -0.3161,-1.55871 -0.8787,-2.12132l-2.2426,-2.24264c-0.5626,-0.56261 -1.3257,-0.87868 -2.1213,-0.87868l-1.7574,0l-4,0c-1.65685,0 -3,1.34315 -3,3l0,8.5"/>
+      <g>
+        <path stroke-linejoin="round" stroke-linecap="round" stroke="black" d="m9,7.68685l-2,2.5l2,2.5"/>
+        <path stroke-linejoin="round" stroke-linecap="round" stroke="black" d="m15,7.68685l2,2.5l-2,2.5"/>
+        <path stroke-linecap="round" stroke="black" d="m13.5,6.68685l-3,7"/>
+      </g>
+    </g>
+  </g>
+</svg>

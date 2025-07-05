@@ -53,7 +53,70 @@ export const en = {
   },
   "codeEditor": {
     "notSupportAutoFormat": "The current code editor does not support auto-formatting.",
-    "fold": "Fold"
+    "fold": "Fold",
+    "properties": {
+      "value": "Default Value",
+      "language": "Language",
+      "theme": "Theme",
+      "lineNumbers": "Line Numbers",
+      "minimap": "Minimap",
+      "stickyScroll": "Sticky Scroll",
+      "lightbulb": "Lightbulb",
+      "hover": "Hover",
+      "folding": "Folding",
+      "readOnly": "Read Only",
+      "resizable": "Resizable"
+    },
+    "methods": {
+      "setValue": "Update the editor's content.",
+      "setLanguage": "Change the programming language.",
+      "setTheme": "Switch the editor theme.",
+      "setLineNumbers": "Control the display of line numbers.",
+      "enableMinimap": "Toggle the minimap display.",
+      "enableStickyScroll": "Toggle sticky scroll.",
+      "enableLightbulb": "Toggles lightbulb feature.",
+      "enableHover": "Enable or disable hover.",
+      "enableFolding": "Enable or disable folding.",
+      "setReadOnly": "Enable or disable read-only mode.",
+      "setResizable": "Enable or disable the ability to resize the editor.",
+    },
+    "theme": {
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "languages": {
+      "yaml": "YAML",
+      "json": "JSON",
+      "xml": "XML",
+      "html": "HTML",
+      "css": "CSS",
+      "ini": "INI",
+      "sql": "SQL",
+      "php": "PHP",
+      "shell": "Shell",
+      "powershell": "PowerShell",
+      "handlebars": "Handlebars",
+      "dockerfile": "Dockerfile",
+      "graphql": "GraphQL",
+      "markdown": "Markdown",
+      "plaintext": "Plaintext",
+      "python": "Python",
+      "ruby": "Ruby",
+      "rust": "Rust",
+      "java": "Java",
+      "c": "C",
+      "csharp": "C#",
+      "cpp": "C++",
+      "go": "Go",
+      "javascript": "JavaScript",
+      "typescript": "TypeScript"
+    },
+    "lineNumberOptions": {
+      "on": "On",
+      "off": "Off",
+      "relative": "Relative",
+      "interval": "Interval"
+    }
   },
   "exportMethod": {
     "setDesc": "Set Property: {property}",
@@ -1013,6 +1076,10 @@ export const en = {
     "passwordCompName": "Password",
     "passwordCompDesc": "A secure field for password input, masking the characters for privacy.",
     "passwordCompKeywords": "password, security, input, hidden",
+
+    "codeEditorCompName": "Code Editor",
+    "codeEditorCompDesc": "A feature-rich code editor component, offering multi-language support, syntax highlighting, and built-in validation.",
+    "codeEditorCompKeywords": "code, editor, programming, syntax highlighting, coding",
 
     "richTextEditorCompName": "Rich Text Editor",
     "richTextEditorCompDesc": "An advanced text editor supporting rich formatting options like bold, italics, and lists.",
