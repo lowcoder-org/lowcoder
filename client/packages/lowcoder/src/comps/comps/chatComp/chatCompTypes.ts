@@ -10,19 +10,20 @@ import QuerySelectControl from "comps/controls/querySelectControl";
 const ModelTypeOptions = [
   { label: "Direct LLM", value: "direct-llm" },
   { label: "n8n Workflow", value: "n8n" },
+  { label: "Query", value: "query" },
 ] as const;
 
 export const chatChildrenMap = {
   text: withDefault(StringControl, "Chat Component Placeholder"),
   chatQuery: QuerySelectControl,
   currentMessage: stringExposingStateControl("currentMessage", ""),
-  modelType: dropdownControl(ModelTypeOptions, "direct-llm"),
+  modelType: dropdownControl(ModelTypeOptions, "query"),
   modelHost: withDefault(StringControl, ""),
   streaming: BoolControl.DEFAULT_TRUE,
   systemPrompt: withDefault(StringControl, "You are a helpful assistant."),
   agent: BoolControl,
   maxInteractions: withDefault(NumberControl, 10),
-  tableName: withDefault(StringControl, ""),
+  tableName: withDefault(StringControl, "default"),
 };
 
 export type ChatCompProps = {
@@ -30,8 +31,10 @@ export type ChatCompProps = {
   chatQuery: string;
   currentMessage: string;
   modelType: string;
+  modelHost: string;
   streaming: boolean;
   systemPrompt: string;
   agent: boolean;
   maxInteractions: number;
+  tableName: string;
 };

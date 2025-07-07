@@ -121,11 +121,15 @@ function Bottom(props: any) {
               <ChatView
                 tableName="LC_AI"
                 modelType="n8n"
-                // streaming={true}
-                // systemPrompt="You are a helpful assistant."
-                // agent={true}
-                // maxInteractions={10}
+                streaming={true}
+                systemPrompt="You are a helpful assistant."
+                agent={true}
+                maxInteractions={10}
                 modelHost="http://localhost:5678/webhook-test/9a363e76-d3a5-46d1-98c3-4359f7106d33"
+                // Required props that were missing:
+                text="Lowcoder AI Assistant"
+                chatQuery=""
+                currentMessage=""
               />
             </Flex>
           )}
