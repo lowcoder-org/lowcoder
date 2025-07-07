@@ -9,6 +9,11 @@ export const ChatPropertyView = React.memo((props: any) => {
     <Section name={sectionNames.basic}>
       {children.text.propertyView({ label: "Text" })}
       {children.chatQuery.propertyView({ label: "Chat Query" })}
+      {children.currentMessage.propertyView({ 
+        label: "Current Message (Dynamic)", 
+        placeholder: "Shows the current user message",
+        disabled: true 
+      })}
       {children.modelType.propertyView({ label: "Model Type" })}
       {children.streaming.propertyView({ label: "Enable Streaming" })}
       {children.systemPrompt.propertyView({ 

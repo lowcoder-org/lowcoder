@@ -16,6 +16,8 @@ import {
   ArchivedThreadData 
 } from "./context/ChatContext";
 import styled from "styled-components";
+import { routeByNameAction, executeQueryAction, CompAction, changeChildAction } from "lowcoder-core";
+import { getPromiseAfterDispatch } from "util/promiseUtils";
 
 const ChatContainer = styled.div`
   display: flex;
@@ -45,17 +47,57 @@ const ChatContainer = styled.div`
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
-const callYourAPI = async (text: string) => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
-  
-  // Simple responses
-  return {
-    content: "This is a mock response from your backend. You typed: " + text
-  };
+// Helper to call the Lowcoder query system
+const callQuery = async (
+  queryName: string,
+  prompt: string,
+  dispatch?: (action: CompAction<any>) => void
+) => {
+  // If no query selected or dispatch unavailable, fallback with mock response
+  if (!queryName || !dispatch) {
+    await new Promise((res) => setTimeout(res, 500));
+    return { content: "(mock) You typed: " + prompt };
+  }
+
+  try {
+    const result: any = await getPromiseAfterDispatch(
+      dispatch,
+      routeByNameAction(
+        queryName,
+        executeQueryAction({
+          // Send the user prompt as variable named 'prompt' by default
+          args: { prompt: { value: prompt } },
+        })
+      )
+    );
+
+    // Extract reply text from the query result
+    let reply: string;
+    if (typeof result === "string") {
+      reply = result;
+    } else if (result && typeof result === "object") {
+      reply =
+        (result as any).response ??
+        (result as any).message ??
+        (result as any).content ??
+        JSON.stringify(result);
+    } else {
+      reply = String(result);
+    }
+
+    return { content: reply };
+  } catch (e: any) {
+    throw new Error(e?.message || "Query execution failed");
+  }
 };
 
-export function ChatMain() {
+interface ChatMainProps {
+  chatQuery: string;
+  currentMessage: string;
+  dispatch?: (action: CompAction<any>) => void;
+}
+
+export function ChatMain({ chatQuery, currentMessage, dispatch }: ChatMainProps) {
   const { state, actions } = useChatContext();
   const [isRunning, setIsRunning] = useState(false);
 
@@ -86,13 +128,18 @@ export function ChatMain() {
       timestamp: Date.now(),
     };
     
+    // Update currentMessage state to expose to queries
+    if (dispatch) {
+      dispatch(changeChildAction("currentMessage", userMessage.text, false));
+    }
+    
     // Update current thread with new user message
     await actions.addMessage(state.currentThreadId, userMessage);
     setIsRunning(true);
 
     try {
-      // Call mock API
-      const response = await callYourAPI(userMessage.text);
+      // Call selected query / fallback to mock
+      const response = await callQuery(chatQuery, userMessage.text, dispatch);
       
       const assistantMessage: MyMessage = {
         id: generateId(),
@@ -140,13 +187,17 @@ export function ChatMain() {
     };
     newMessages.push(editedMessage);
 
+    // Update currentMessage state to expose to queries
+    if (dispatch) {
+      dispatch(changeChildAction("currentMessage", editedMessage.text, false));
+    }
+
     // Update messages using the new context action
     await actions.updateMessages(state.currentThreadId, newMessages);
     setIsRunning(true);
 
     try {
-      // Generate new response
-      const response = await callYourAPI(editedMessage.text);
+      const response = await callQuery(chatQuery, editedMessage.text, dispatch);
       
       const assistantMessage: MyMessage = {
         id: generateId(),

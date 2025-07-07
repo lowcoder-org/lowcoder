@@ -7,13 +7,21 @@ import { ChatPropertyView } from "./chatPropertyView";
 
 // Build the component
 const ChatTmpComp = new UICompBuilder(
-  chatChildrenMap, 
-  (props) => <ChatView {...props} chatQuery={props.chatQuery.value} />
+  chatChildrenMap,
+  (props, dispatch) => (
+    <ChatView
+      {...props}
+      chatQuery={props.chatQuery.value}
+      currentMessage={props.currentMessage.value}
+      dispatch={dispatch}
+    />
+  )
 )
   .setPropertyViewFn((children) => <ChatPropertyView children={children} />)
   .build();
 
-// Export the component
+// Export the component with exposed variables
 export const ChatComp = withExposingConfigs(ChatTmpComp, [
   new NameConfig("text", "Chat component text"),
+  new NameConfig("currentMessage", "Current user message"),
 ]);
