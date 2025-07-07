@@ -1,16 +1,17 @@
 import { ChatProvider } from "./context/ChatContext";
 import { ChatMain } from "./ChatMain";
-import { ChatCompProps } from "../chatCompTypes";
-import { useEffect, useState } from "react";
+import { CompAction } from "lowcoder-core";
 
-export function ChatApp(props: ChatCompProps) {
-  if (!Boolean(props.tableName)) {
-    return null; // Don't render until we have a unique DB name
-  }
-  
+interface ChatAppProps {
+  chatQuery: string;
+  currentMessage: string;
+  dispatch?: (action: CompAction<any>) => void;
+}
+
+export function ChatApp({ chatQuery, currentMessage, dispatch }: ChatAppProps) {
   return (
     <ChatProvider>
-      <ChatMain {...props} />
+      <ChatMain chatQuery={chatQuery} currentMessage={currentMessage} dispatch={dispatch} />
     </ChatProvider>
   );
 }

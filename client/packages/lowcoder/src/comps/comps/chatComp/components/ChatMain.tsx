@@ -16,11 +16,8 @@ import {
   ArchivedThreadData 
 } from "./context/ChatContext";
 import styled from "styled-components";
-import { ChatCompProps } from "../chatCompTypes";
-import { message } from "antd";
-import { EditorContext } from "@lowcoder-ee/comps/editorState";
-import { addComponentAction, nestComponentAction } from "../../preLoadComp/actions/componentManagement";
-import { configureComponentAction } from "../../preLoadComp/actions/componentConfiguration";
+import { routeByNameAction, executeQueryAction, CompAction, changeChildAction } from "lowcoder-core";
+import { getPromiseAfterDispatch } from "util/promiseUtils";
 
 const ChatContainer = styled.div<{ $autoHeight?: boolean }>`
   display: flex;
@@ -54,38 +51,57 @@ const ChatContainer = styled.div<{ $autoHeight?: boolean }>`
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
-const callYourAPI = async (params: {
-  text: string,
-  modelHost: string,
-  modelType: string,
-  sessionId: string,
-}) => {
-  const { text, modelHost, modelType, sessionId } = params;
-
-  let url = modelHost;
-  if (modelType === "direct-llm") {
-    url = `${modelHost}/api/chat/completions`;
+// Helper to call the Lowcoder query system
+const callQuery = async (
+  queryName: string,
+  prompt: string,
+  dispatch?: (action: CompAction<any>) => void
+) => {
+  // If no query selected or dispatch unavailable, fallback with mock response
+  if (!queryName || !dispatch) {
+    await new Promise((res) => setTimeout(res, 500));
+    return { content: "(mock) You typed: " + prompt };
   }
 
-  const response = await fetch(`${url}`, {
-    method: "POST",
-    body: JSON.stringify({
-      text,
-      sessionId,
-    }),
-  });
+  try {
+    const result: any = await getPromiseAfterDispatch(
+      dispatch,
+      routeByNameAction(
+        queryName,
+        executeQueryAction({
+          // Send the user prompt as variable named 'prompt' by default
+          args: { prompt: { value: prompt } },
+        })
+      )
+    );
 
-  return response.json();
-  // Simulate API delay
-  // await new Promise(resolve => setTimeout(resolve, 1500));
-  
-  // Simple responses
-  // return {
-  //   content: "This is a mock response from your backend. You typed: " + text
-  // };
+    // Extract reply text from the query result
+    let reply: string;
+    if (typeof result === "string") {
+      reply = result;
+    } else if (result && typeof result === "object") {
+      reply =
+        (result as any).response ??
+        (result as any).message ??
+        (result as any).content ??
+        JSON.stringify(result);
+    } else {
+      reply = String(result);
+    }
+
+    return { content: reply };
+  } catch (e: any) {
+    throw new Error(e?.message || "Query execution failed");
+  }
 };
 
-export function ChatMain(props: ChatCompProps) {
+interface ChatMainProps {
+  chatQuery: string;
+  currentMessage: string;
+  dispatch?: (action: CompAction<any>) => void;
+}
+
+export function ChatMain({ chatQuery, currentMessage, dispatch }: ChatMainProps) {
   const { state, actions } = useChatContext();
   const [isRunning, setIsRunning] = useState(false);
   const editorState = useContext(EditorContext);
@@ -178,21 +194,19 @@ export function ChatMain(props: ChatCompProps) {
       timestamp: Date.now(),
     };
     
+    // Update currentMessage state to expose to queries
+    if (dispatch) {
+      dispatch(changeChildAction("currentMessage", userMessage.text, false));
+    }
+    
     // Update current thread with new user message
     await actions.addMessage(state.currentThreadId, userMessage);
     setIsRunning(true);
 
     try {
-      // Call mock API
-      const response = await callYourAPI({
-        text: userMessage.text,
-        modelHost: props.modelHost!,
-        modelType: props.modelType!,
-        sessionId: state.currentThreadId,
-      });
-      const {explanation: reply, actions: editorActions} = JSON.parse(response?.output);
-      performAction(editorActions);
-
+      // Call selected query / fallback to mock
+      const response = await callQuery(chatQuery, userMessage.text, dispatch);
+      
       const assistantMessage: MyMessage = {
         id: generateId(),
         role: "assistant",
@@ -239,22 +253,18 @@ export function ChatMain(props: ChatCompProps) {
     };
     newMessages.push(editedMessage);
 
+    // Update currentMessage state to expose to queries
+    if (dispatch) {
+      dispatch(changeChildAction("currentMessage", editedMessage.text, false));
+    }
+
     // Update messages using the new context action
     await actions.updateMessages(state.currentThreadId, newMessages);
     setIsRunning(true);
 
     try {
-      // Generate new response
-      const response = await callYourAPI({
-        text: editedMessage.text,
-        modelHost: props.modelHost!,
-        modelType: props.modelType!,
-        sessionId: state.currentThreadId,
-      });
-    
-      const {explanation: reply, actions: editorActions} = JSON.parse(response?.output);
-      performAction(editorActions);
-
+      const response = await callQuery(chatQuery, editedMessage.text, dispatch);
+      
       const assistantMessage: MyMessage = {
         id: generateId(),
         role: "assistant",
