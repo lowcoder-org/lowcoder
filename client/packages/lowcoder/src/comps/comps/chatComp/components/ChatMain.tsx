@@ -18,6 +18,9 @@ import {
 import styled from "styled-components";
 import { routeByNameAction, executeQueryAction, CompAction, changeChildAction } from "lowcoder-core";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
+// ADD THIS IMPORT:
+import { createResponseHandler } from '../utils/responseFactory';
+import { useMemo } from 'react'; // if not already imported
 
 const ChatContainer = styled.div<{ $autoHeight?: boolean }>`
   display: flex;
@@ -95,13 +98,28 @@ const callQuery = async (
   }
 };
 
+// AFTER:
 interface ChatMainProps {
   chatQuery: string;
   currentMessage: string;
   dispatch?: (action: CompAction<any>) => void;
+  // Add new props for response handling
+  modelType: string;
+  modelHost?: string;
+  systemPrompt?: string;
+  streaming?: boolean;
+  tableName: string;
 }
 
-export function ChatMain({ chatQuery, currentMessage, dispatch }: ChatMainProps) {
+export function ChatMain({ 
+  chatQuery, 
+  currentMessage, 
+  dispatch, 
+  modelType, 
+  modelHost, 
+  systemPrompt, 
+  streaming,
+  tableName  }: ChatMainProps) {
   const { state, actions } = useChatContext();
   const [isRunning, setIsRunning] = useState(false);
   const editorState = useContext(EditorContext);
@@ -112,6 +130,21 @@ export function ChatMain({ chatQuery, currentMessage, dispatch }: ChatMainProps)
     // console.log("EDITOR STATE CHANGE ---> ", editorState);
     editorStateRef.current = editorState;
   }, [editorState]);
+
+// Create response handler based on model type
+const responseHandler = useMemo(() => {
+  const responseType = modelType === "n8n" ? "direct-api" : "query";
+  
+  return createResponseHandler(responseType, {
+    // Query handler config
+    chatQuery,
+    dispatch,
+    // Direct API handler config  
+    modelHost,
+    systemPrompt,
+    streaming
+  });
+}, [modelType, chatQuery, dispatch, modelHost, systemPrompt, streaming]);
 
   console.log("STATE", state);
 
@@ -205,7 +238,7 @@ export function ChatMain({ chatQuery, currentMessage, dispatch }: ChatMainProps)
 
     try {
       // Call selected query / fallback to mock
-      const response = await callQuery(chatQuery, userMessage.text, dispatch);
+      const response = await responseHandler.sendMessage(userMessage.text);
       
       const assistantMessage: MyMessage = {
         id: generateId(),
@@ -263,7 +296,7 @@ export function ChatMain({ chatQuery, currentMessage, dispatch }: ChatMainProps)
     setIsRunning(true);
 
     try {
-      const response = await callQuery(chatQuery, editedMessage.text, dispatch);
+      const response = await responseHandler.sendMessage(editedMessage.text);
       
       const assistantMessage: MyMessage = {
         id: generateId(),

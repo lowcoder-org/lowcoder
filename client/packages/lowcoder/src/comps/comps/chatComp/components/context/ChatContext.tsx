@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from "react";
-import { chatStorage, ThreadData as StoredThreadData } from "../../utils/chatStorage";
-
+import {  ThreadData as StoredThreadData } from "../../utils/chatStorageFactory";
 // Define thread-specific message type
 export interface MyMessage {
   id: string;
@@ -176,7 +175,8 @@ interface ChatContextType {
 const ChatContext = createContext<ChatContextType | null>(null);
 
 // Chat provider component
-export function ChatProvider({ children }: { children: ReactNode }) {
+  export function ChatProvider({ children, storage }: { children: ReactNode,   storage: ReturnType<typeof import("../../utils/chatStorageFactory").createChatStorage>; 
+  }) {
   const [state, dispatch] = useReducer(chatReducer, initialState);
 
   // Initialize data from storage
@@ -184,10 +184,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "INITIALIZE_START" });
     
     try {
-      await chatStorage.initialize();
+      await storage.initialize();
       
       // Load all threads from storage
-      const storedThreads = await chatStorage.getAllThreads();
+      const storedThreads = await storage.getAllThreads();
       
       if (storedThreads.length > 0) {
         // Convert stored threads to UI format
@@ -200,7 +200,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         // Load messages for each thread
         const threadMessages = new Map<string, MyMessage[]>();
         for (const thread of storedThreads) {
-          const messages = await chatStorage.getMessages(thread.threadId);
+          const messages = await storage.getMessages(thread.threadId);
           threadMessages.set(thread.threadId, messages);
         }
         
@@ -228,7 +228,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           createdAt: Date.now(),
           updatedAt: Date.now(),
         };
-        await chatStorage.saveThread(defaultThread);
+        await storage.saveThread(defaultThread);
         
         dispatch({ 
           type: "INITIALIZE_SUCCESS", 
@@ -268,7 +268,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         createdAt: Date.now(),
         updatedAt: Date.now(),
       };
-      await chatStorage.saveThread(storedThread);
+      await storage.saveThread(storedThread);
       dispatch({ type: "MARK_SAVED" });
     } catch (error) {
       console.error("Failed to save new thread:", error);
@@ -283,14 +283,14 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     
     // Save to storage
     try {
-      const existingThread = await chatStorage.getThread(threadId);
+      const existingThread = await storage.getThread(threadId);
       if (existingThread) {
         const updatedThread: StoredThreadData = {
           ...existingThread,
           ...updates,
           updatedAt: Date.now(),
         };
-        await chatStorage.saveThread(updatedThread);
+        await storage.saveThread(updatedThread);
         dispatch({ type: "MARK_SAVED" });
       }
     } catch (error) {
@@ -304,7 +304,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     
     // Delete from storage
     try {
-      await chatStorage.deleteThread(threadId);
+      await storage.deleteThread(threadId);
       dispatch({ type: "MARK_SAVED" });
     } catch (error) {
       console.error("Failed to delete thread:", error);
@@ -318,7 +318,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     
     // Save to storage
     try {
-      await chatStorage.saveMessage(message, threadId);
+      await storage.saveMessage(message, threadId);
       dispatch({ type: "MARK_SAVED" });
     } catch (error) {
       console.error("Failed to save message:", error);
@@ -331,7 +331,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     
     // Save to storage
     try {
-      await chatStorage.saveMessages(messages, threadId);
+      await storage.saveMessages(messages, threadId);
       dispatch({ type: "MARK_SAVED" });
     } catch (error) {
       console.error("Failed to save messages:", error);
