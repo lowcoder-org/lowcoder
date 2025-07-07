@@ -1,5 +1,8 @@
 import React, { lazy, Suspense } from "react";
 
+export { ReactComponent as AIGenerate } from "./remix/ai-generate.svg";
+export { ReactComponent as AIGenerate2 } from "./remix/ai-generate-2.svg";
+export { ReactComponent as AIGenerateText } from "./remix/ai-generate-text.svg";
 export { ReactComponent as AppSnapshotIcon } from "./v1/app-snapshot.svg";
 export { ReactComponent as ArchiveIcon } from "./remix/archive-fill.svg";
 export { ReactComponent as HookCompDropIcon } from "./v1/hook-comp-drop.svg";

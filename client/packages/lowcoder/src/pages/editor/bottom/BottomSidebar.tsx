@@ -34,7 +34,7 @@ const Contain = styled.div`
   width: 100%;
   background-color: #ffffff;
 `;
-const Title = styled.div`
+export const Title = styled.div`
   flex-shrink: 0;
   height: 40px;
   width: 100%;
@@ -82,16 +82,17 @@ const AddIcon = styled(BluePlusIcon)`
   width: 12px;
   margin-right: 2px;
 `;
-const AddBtn = styled(TacoButton)`
+export const AddBtn = styled(TacoButton)`
   &&& {
     height: 24px;
     width: 64px;
-    padding: 4px 12px;
+    padding: 4px 10px;
     background-color: #fafbff;
     color: #4965f2;
     border-color: #c9d1fc;
     display: flex;
     align-items: center;
+    gap: 0;
     box-shadow: none;
   
     &:hover {
