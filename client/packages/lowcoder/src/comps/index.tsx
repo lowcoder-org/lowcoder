@@ -545,6 +545,7 @@ export var uiCompMap: Registry = {
     categories: ["layout"],
     icon: ResponsiveLayoutCompIcon,
     keywords: trans("uiComp.responsiveLayoutCompKeywords"),
+    isContainer: true,
     comp: ResponsiveLayoutComp,
     withoutLoading: true,
     layoutInfo: {
@@ -560,6 +561,7 @@ export var uiCompMap: Registry = {
     categories: ["layout"],
     icon: PageLayoutCompIcon,
     keywords: trans("uiComp.pageLayoutCompKeywords"),
+    isContainer: true,
     comp: PageLayoutComp,
     withoutLoading: true,
     layoutInfo: {
@@ -577,6 +579,7 @@ export var uiCompMap: Registry = {
     categories: ["layout"],
     icon: ColumnLayoutCompIcon,
     keywords: trans("uiComp.responsiveLayoutCompKeywords"),
+    isContainer: true,
     comp: ColumnLayoutComp,
     withoutLoading: true,
     layoutInfo: {
@@ -592,6 +595,7 @@ export var uiCompMap: Registry = {
     categories: ["layout"],
     icon: SplitLayoutCompIcon,
     keywords: trans("uiComp.splitLayoutCompKeywords"),
+    isContainer: true,
     comp: SplitLayoutComp,
     withoutLoading: true,
     layoutInfo: {
@@ -607,6 +611,7 @@ export var uiCompMap: Registry = {
     categories: ["layout"],
     icon: FloatingTextCompIcon,
     keywords: trans("uiComp.floatTextContainerCompKeywords"),
+    isContainer: true,
     comp: FloatTextContainerComp,
     withoutLoading: true,
     layoutInfo: {
@@ -637,6 +642,7 @@ export var uiCompMap: Registry = {
     categories: ["layout"],
     icon: TabbedContainerCompIcon,
     keywords: trans("uiComp.tabbedContainerCompKeywords"),
+    isContainer: true,
     comp: TabbedContainerComp,
     withoutLoading: true,
     layoutInfo: {
@@ -653,6 +659,7 @@ export var uiCompMap: Registry = {
     categories: ["layout"],
     icon: CollapsibleContainerCompIcon,
     keywords: trans("uiComp.collapsibleContainerCompKeywords"),
+    isContainer: true,
     comp: ContainerComp,
     withoutLoading: true,
     layoutInfo: {
@@ -670,6 +677,7 @@ export var uiCompMap: Registry = {
     categories: ["layout"],
     icon: ContainerCompIcon,
     keywords: trans("uiComp.containerCompKeywords"),
+    isContainer: true,
     comp: ContainerComp,
     withoutLoading: true,
     layoutInfo: {
@@ -687,6 +695,7 @@ export var uiCompMap: Registry = {
     description: trans("uiComp.listViewCompDesc"),
     categories: ["layout"],
     keywords: trans("uiComp.listViewCompKeywords"),
+    isContainer: true,
     comp: ListViewComp,
     layoutInfo: {
       w: 12,
@@ -702,6 +711,7 @@ export var uiCompMap: Registry = {
     description: trans("uiComp.gridCompDesc"),
     categories: ["layout"],
     keywords: trans("uiComp.gridCompKeywords"),
+    isContainer: true,
     comp: GridComp,
     layoutInfo: {
       w: 12,
@@ -719,6 +729,7 @@ export var uiCompMap: Registry = {
     keywords: trans("uiComp.modalCompKeywords"),
     comp: ModalComp,
     withoutLoading: true,
+    isContainer: true,
   },
   drawer: {
     name: trans("uiComp.drawerCompName"),
@@ -729,6 +740,7 @@ export var uiCompMap: Registry = {
     keywords: trans("uiComp.drawerCompKeywords"),
     comp: DrawerComp,
     withoutLoading: true,
+    isContainer: true,
   },
   divider: {
     name: trans("uiComp.dividerCompName"),
@@ -942,6 +954,7 @@ export var uiCompMap: Registry = {
     categories: ["forms"],
     icon: FormCompIcon,
     keywords: trans("uiComp.formCompKeywords"),
+    isContainer: true,
     comp: FormComp,
     withoutLoading: true,
     layoutInfo: {

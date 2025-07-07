@@ -22,7 +22,7 @@ export function generateComponentActionItems(categories: Record<string, [string,
   const componentItems: MenuProps['items'] = [];
   
   Object.entries(categories).forEach(([categoryKey, components]) => {
-    if (components.length > 0) {
+    if (components.length) {
       componentItems.push({
         label: uiCompCategoryNames[categoryKey as UICompCategory],
         key: `category-${categoryKey}`,

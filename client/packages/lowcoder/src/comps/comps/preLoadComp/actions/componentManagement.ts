@@ -108,6 +108,125 @@ export const addComponentAction: ActionConfig = {
   }
 };
 
+export const nestComponentAction: ActionConfig = {
+  key: 'nest-components',
+  label: 'Nest a component',
+  category: 'component-management',
+  requiresEditorComponentSelection: true,
+  requiresInput: false,
+  isNested: true,
+  execute: async (params: ActionExecuteParams) => {
+    const { selectedEditorComponent, selectedNestComponent, editorState } = params;
+    
+    if (!selectedEditorComponent || !selectedNestComponent || !editorState) {
+      message.error('Parent component, child component, and editor state are required');
+      return;
+    }
+
+    const parentComponentInfo = getEditorComponentInfo(editorState, selectedEditorComponent);
+    
+    if (!parentComponentInfo) {
+      message.error(`Parent component "${selectedEditorComponent}" not found`);
+      return;
+    }
+
+    const { componentKey: parentKey, items } = parentComponentInfo;
+    
+    if (!parentKey) {
+      message.error(`Parent component "${selectedEditorComponent}" not found in layout`);
+      return;
+    }
+
+    const parentItem = items[parentKey];
+    if (!parentItem) {
+      message.error(`Parent component "${selectedEditorComponent}" not found in items`);
+      return;
+    }
+
+    // Check if parent is a container
+    const parentCompType = parentItem.children.compType.getView();
+    const parentManifest = uiCompRegistry[parentCompType];
+    
+    if (!parentManifest?.isContainer) {
+      message.error(`Component "${selectedEditorComponent}" is not a container and cannot nest components`);
+      return;
+    }
+
+    try {
+
+      const nameGenerator = editorState.getNameGenerator();
+      const compInfo = parseCompType(selectedNestComponent);
+      const compName = nameGenerator.genItemName(compInfo.compName);
+      const key = genRandomKey();
+
+      const manifest = uiCompRegistry[selectedNestComponent];
+      let defaultDataFn = undefined;
+
+      if (manifest?.lazyLoad) {
+        const { defaultDataFnName, defaultDataFnPath } = manifest;
+        if (defaultDataFnName && defaultDataFnPath) {
+          const module = await import(`../../../${defaultDataFnPath}.tsx`);
+          defaultDataFn = module[defaultDataFnName];
+        }
+      } else if (!compInfo.isRemote) {
+        defaultDataFn = manifest?.defaultDataFn;
+      }
+
+      const widgetValue: GridItemDataType = {
+        compType: selectedNestComponent,
+        name: compName,
+        comp: defaultDataFn ? defaultDataFn(compName, nameGenerator, editorState) : undefined,
+      };
+
+      const parentContainer = parentItem.children.comp;
+      
+      const realContainer = parentContainer.realSimpleContainer();
+      if (!realContainer) {
+        message.error(`Container "${selectedEditorComponent}" cannot accept nested components`);
+        return;
+      }
+      
+      const currentLayout = realContainer.children.layout.getView();
+      const layoutInfo = manifest?.layoutInfo || defaultLayout(selectedNestComponent as UICompType);
+      
+      let itemPos = 0;
+      if (Object.keys(currentLayout).length > 0) {
+        itemPos = Math.max(...Object.values(currentLayout).map((l: any) => l.pos || 0)) + 1;
+      }
+
+      const layoutItem = {
+        i: key,
+        x: 0,
+        y: 0,
+        w: layoutInfo.w || 6,
+        h: layoutInfo.h || 5,
+        pos: itemPos,
+        isDragging: false,
+      };
+
+      realContainer.dispatch(
+        wrapActionExtraInfo(
+          multiChangeAction({
+            layout: changeValueAction({
+              ...currentLayout,
+              [key]: layoutItem,
+            }, true),
+            items: addMapChildAction(key, widgetValue),
+          }),
+          { compInfos: [{ compName: compName, compType: selectedNestComponent, type: "add" }] }
+        )
+      );
+
+      editorState.setSelectedCompNames(new Set([compName]), "nestComp");
+      
+      message.success(`Component "${manifest?.name || selectedNestComponent}" nested in "${selectedEditorComponent}" successfully!`);
+    } catch (error) {
+      console.error('Error nesting component:', error);
+      message.error('Failed to nest component. Please try again.');
+    }
+  }
+}
+
 export const deleteComponentAction: ActionConfig = {
   key: 'delete-components',
   label: 'Delete a component',

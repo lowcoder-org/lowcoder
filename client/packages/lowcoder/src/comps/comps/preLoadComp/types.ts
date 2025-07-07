@@ -33,6 +33,8 @@ export interface ActionConfig {
   requiresComponentSelection?: boolean;
   requiresEditorComponentSelection?: boolean;
   requiresInput?: boolean;
+  requiresStyle?: boolean;
+  isNested?: boolean;
   inputPlaceholder?: string;
   inputType?: 'text' | 'number' | 'textarea' | 'json';
   validation?: (value: string) => string | null; 
@@ -44,6 +46,7 @@ export interface ActionExecuteParams {
   actionValue: string;
   selectedComponent: string | null;
   selectedEditorComponent: string | null;
+  selectedNestComponent: string | null;
   editorState: any;
 }
 

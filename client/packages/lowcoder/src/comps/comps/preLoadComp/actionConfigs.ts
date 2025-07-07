@@ -8,7 +8,8 @@ import {
   configureComponentAction,
   changeLayoutAction,
   addEventHandlerAction,
-  applyStyleAction
+  applyStyleAction,
+  nestComponentAction
 } from "./actions";
 
 export const actionCategories: ActionCategory[] = [
@@ -20,7 +21,8 @@ export const actionCategories: ActionCategory[] = [
       moveComponentAction, 
       deleteComponentAction, 
       resizeComponentAction,
-      renameComponentAction
+      renameComponentAction,
+      nestComponentAction
     ]
   },
   {

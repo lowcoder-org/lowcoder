@@ -6,6 +6,9 @@ export const CustomDropdown = styled(Dropdown)`
     width: 14px !important;
     height: 14px !important; 
     max-width: 14px !important;
+    overflow: hidden !important;
+    white-space: nowrap;
+    text-overflow: hidden !important;
   }
 `;
 

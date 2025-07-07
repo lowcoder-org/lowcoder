@@ -51,6 +51,7 @@ export interface UICompManifest {
   lazyLoad?: boolean;
   compName?: string;
   compPath?: string;
+  isContainer?: boolean;
   defaultDataFn?: CompDefaultDataFunction;
   defaultDataFnName?: string;
   defaultDataFnPath?: string;
