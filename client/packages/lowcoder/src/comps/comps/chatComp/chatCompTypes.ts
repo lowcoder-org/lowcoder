@@ -17,10 +17,12 @@ export const chatChildrenMap = {
   chatQuery: QuerySelectControl,
   currentMessage: stringExposingStateControl("currentMessage", ""),
   modelType: dropdownControl(ModelTypeOptions, "direct-llm"),
+  modelHost: withDefault(StringControl, ""),
   streaming: BoolControl.DEFAULT_TRUE,
   systemPrompt: withDefault(StringControl, "You are a helpful assistant."),
   agent: BoolControl,
   maxInteractions: withDefault(NumberControl, 10),
+  tableName: withDefault(StringControl, ""),
 };
 
 export type ChatCompProps = {

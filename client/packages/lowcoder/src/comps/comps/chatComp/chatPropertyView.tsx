@@ -1,6 +1,7 @@
 // client/packages/lowcoder/src/comps/comps/chatComp/chatPropertyView.tsx
 import React from "react";
 import { Section, sectionNames } from "lowcoder-design";
+import { trans } from "i18n";
 
 export const ChatPropertyView = React.memo((props: any) => {
   const { children } = props;

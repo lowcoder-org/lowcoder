@@ -23,6 +23,10 @@ const ChatContainer = styled.div`
   display: flex;
   height: 500px;
 
+  p {
+    margin: 0;
+  }
+
   .aui-thread-list-root {
     width: 250px;
     background-color: #fff;
