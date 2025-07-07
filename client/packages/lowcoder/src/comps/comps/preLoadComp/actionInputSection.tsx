@@ -25,7 +25,10 @@ export function ActionInputSection() {
   const [placeholderText, setPlaceholderText] = useState<string>("");
   const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
   const [showComponentDropdown, setShowComponentDropdown] = useState<boolean>(false);
+  const [isNestedComponent, setIsNestedComponent] = useState<boolean>(false);
+  const [selectedNestComponent, setSelectedNestComponent] = useState<string | null>(null);
   const [showEditorComponentsDropdown, setShowEditorComponentsDropdown] = useState<boolean>(false);
+  const [showStylingInput, setShowStylingInput] = useState<boolean>(false);
   const [selectedEditorComponent, setSelectedEditorComponent] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const inputRef = useRef<InputRef>(null);
@@ -73,44 +76,55 @@ export function ActionInputSection() {
 
     setShowComponentDropdown(false);
     setShowEditorComponentsDropdown(false);
+    setShowStylingInput(false);
     setSelectedComponent(null);
     setSelectedEditorComponent(null);
+    setIsNestedComponent(false);
+    setSelectedNestComponent(null);
     setActionValue("");
 
     if (action.requiresComponentSelection) {
       setShowComponentDropdown(true);
       setPlaceholderText("Select a component to add");
-    } else if (action.requiresEditorComponentSelection) {
+    } 
+    if (action.requiresEditorComponentSelection) {
       setShowEditorComponentsDropdown(true);
       setPlaceholderText(`Select a component to ${action.label.toLowerCase()}`);
-    } else if (action.requiresInput) {
+    }  
+    if (action.requiresInput) {
       setPlaceholderText(action.inputPlaceholder || `Enter ${action.label.toLowerCase()} value`);
     } else {
       setPlaceholderText(`Execute ${action.label.toLowerCase()}`);
+    }
+    if (action.requiresStyle) {
+      setShowStylingInput(true);
+      setPlaceholderText(`Select a component to style`);
+    }
+    if (action.isNested) {
+      setIsNestedComponent(true);
     }
   }, []);
 
   const handleComponentSelection = useCallback((key: string) => {
     if (key.startsWith('comp-')) {
       const compName = key.replace('comp-', '');
-      setSelectedComponent(compName);
+      isNestedComponent ? setSelectedNestComponent(compName) : setSelectedComponent(compName);
       setPlaceholderText(`Configure ${compName} component`);
     }
-  }, []);
+  }, [isNestedComponent]);
 
   const handleEditorComponentSelection = useCallback((key: string) => {
     setSelectedEditorComponent(key);
-    if (currentAction) {
-      setPlaceholderText(`${currentAction.label}`);
-    }
+    setPlaceholderText(`${currentAction?.label}`);
   }, [currentAction]);
+
 
   const validateInput = useCallback((value: string): string | null => {
     if (!currentAction?.validation) return null;
     return currentAction.validation(value);
   }, [currentAction]);
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const value = e.target.value;
     setActionValue(value);
     
@@ -149,12 +163,18 @@ export function ActionInputSection() {
       return;
     }
 
+    if(currentAction.isNested && !selectedNestComponent) {
+      message.error('Please select a component to nest');
+      return;
+    }
+
     try {
       await currentAction.execute({
         actionKey: selectedActionKey,
         actionValue,
         selectedComponent,
         selectedEditorComponent,
+        selectedNestComponent,
         editorState
       });
 
@@ -167,6 +187,8 @@ export function ActionInputSection() {
       setSelectedEditorComponent(null);
       setPlaceholderText("");
       setValidationError(null);
+      setIsNestedComponent(false);
+      setSelectedNestComponent(null);
 
     } catch (error) {
       console.error('Error executing action:', error);
@@ -177,6 +199,7 @@ export function ActionInputSection() {
     actionValue, 
     selectedComponent, 
     selectedEditorComponent, 
+    selectedNestComponent,
     editorState, 
     currentAction, 
     validateInput
@@ -235,7 +258,7 @@ export function ActionInputSection() {
             </Button>
           </CustomDropdown>
           
-          {showComponentDropdown && (
+          {(showComponentDropdown || isNestedComponent) && (
             <CustomDropdown
               overlayStyle={{ 
                 maxHeight: '400px',
@@ -253,7 +276,13 @@ export function ActionInputSection() {
             >
               <Button size={"small"}>
                 <Space>
-                  {selectedComponent ? selectedComponent : 'Select Component'} 
+                  {
+                    selectedComponent 
+                    ? selectedComponent 
+                    : selectedNestComponent 
+                    ? selectedNestComponent 
+                    : 'New Component'
+                  }
                   <DownOutlined />
                 </Space>
               </Button>
@@ -278,23 +307,34 @@ export function ActionInputSection() {
             >
               <Button size={"small"}>
                 <Space>
-                  {selectedEditorComponent ? selectedEditorComponent : 'Select Component'} 
+                  {selectedEditorComponent ? selectedEditorComponent : 'Editor Component'} 
                   <DownOutlined />
                 </Space>
               </Button>
             </CustomDropdown>
           )}
-          
+
           {shouldShowInput && (
-            <Input
-              ref={inputRef}
-              value={actionValue}
-              onChange={handleInputChange}
-              placeholder={placeholderText}
-              status={validationError ? 'error' : undefined}
-            />
+            showStylingInput ? (
+              <Input.TextArea
+                ref={inputRef}
+                value={actionValue}
+                onChange={handleInputChange}
+                placeholder={placeholderText}
+                status={validationError ? 'error' : undefined}
+                autoSize={{ minRows: 1 }}
+              />
+            ) : (
+              <Input
+                ref={inputRef}
+                value={actionValue}
+                onChange={handleInputChange}
+                placeholder={placeholderText}
+                status={validationError ? 'error' : undefined}
+              />
+            )
           )}
-          
+
           {validationError && (
             <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '-8px' }}>
               {validationError}
