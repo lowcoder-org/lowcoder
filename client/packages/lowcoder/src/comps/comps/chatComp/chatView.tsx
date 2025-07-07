@@ -7,7 +7,7 @@ import "@assistant-ui/styles/index.css";
 import "@assistant-ui/styles/markdown.css";
 
 export const ChatView = React.memo((props: ChatCompProps) => {
-  return <ChatApp />;
+  return <ChatApp {...props} />;
 });
 
 ChatView.displayName = 'ChatView';

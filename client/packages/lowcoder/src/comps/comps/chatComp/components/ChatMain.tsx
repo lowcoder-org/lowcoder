@@ -16,10 +16,15 @@ import {
   ArchivedThreadData 
 } from "./context/ChatContext";
 import styled from "styled-components";
+import { ChatCompProps } from "../chatCompTypes";
 
-const ChatContainer = styled.div`
+const ChatContainer = styled.div<{ $autoHeight?: boolean }>`
   display: flex;
-  height: 500px;
+  height: ${props => props.$autoHeight ? '500px' : '100%'};
+
+  p {
+    margin: 0;
+  }
 
   .aui-thread-list-root {
     width: 250px;
@@ -45,7 +50,18 @@ const ChatContainer = styled.div`
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
-const callYourAPI = async (text: string) => {
+const callYourAPI = async (params: {
+  text: string,
+  modelHost: string,
+  modelType: string,
+}) => {
+  const { text, modelHost, modelType } = params;
+
+  let url = modelHost;
+  if (modelType === "direct-llm") {
+    url = `${modelHost}/api/chat/completions`;
+  }
+
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 1500));
   
@@ -55,7 +71,7 @@ const callYourAPI = async (text: string) => {
   };
 };
 
-export function ChatMain() {
+export function ChatMain(props: ChatCompProps) {
   const { state, actions } = useChatContext();
   const [isRunning, setIsRunning] = useState(false);
 
@@ -92,7 +108,11 @@ export function ChatMain() {
 
     try {
       // Call mock API
-      const response = await callYourAPI(userMessage.text);
+      const response = await callYourAPI({
+        text: userMessage.text,
+        modelHost: props.modelHost!,
+        modelType: props.modelType!,
+      });
       
       const assistantMessage: MyMessage = {
         id: generateId(),
@@ -146,7 +166,11 @@ export function ChatMain() {
 
     try {
       // Generate new response
-      const response = await callYourAPI(editedMessage.text);
+      const response = await callYourAPI({
+        text: editedMessage.text,
+        modelHost: props.modelHost!,
+        modelType: props.modelType!,
+      });
       
       const assistantMessage: MyMessage = {
         id: generateId(),
@@ -221,7 +245,7 @@ export function ChatMain() {
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
-      <ChatContainer>
+      <ChatContainer $autoHeight={props.autoHeight}>
         <ThreadList />
         <Thread />
       </ChatContainer>

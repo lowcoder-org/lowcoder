@@ -7,14 +7,14 @@ import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 
 import { TooltipIconButton } from "./tooltip-icon-button";
 import { useThreadListItemRuntime } from "@assistant-ui/react";
-import { Button } from "antd";
+import { Button, Flex } from "antd";
 
 import styled from "styled-components";
 import { useChatContext } from "../context/ChatContext";
 
 const StyledPrimaryButton = styled(Button)`
-  padding: 20px;
-  margin-bottom: 20px;
+  // padding: 20px;
+  // margin-bottom: 20px;
 `;
 
 
@@ -22,7 +22,9 @@ export const ThreadList: FC = () => {
   return (
     <ThreadListPrimitive.Root className="aui-root aui-thread-list-root">
       <ThreadListNew />
-      <ThreadListItems />
+      <Flex vertical style={{flex: 1, overflow: 'auto', gap: 4}}>
+        <ThreadListItems />
+      </Flex>
     </ThreadListPrimitive.Root>
   );
 };
@@ -30,7 +32,7 @@ export const ThreadList: FC = () => {
 const ThreadListNew: FC = () => {
   return (
     <ThreadListPrimitive.New asChild>
-      <StyledPrimaryButton size="large" type="primary" icon={<PlusIcon />}>
+      <StyledPrimaryButton size="middle" type="primary" icon={<PlusIcon size={16}/>}>
         New Thread
       </StyledPrimaryButton>
     </ThreadListPrimitive.New>
@@ -54,9 +56,8 @@ const ThreadListItem: FC = () => {
 };
 
 const ThreadListItemTitle: FC = () => {
-
   return (
-    <p className="aui-thread-list-item-title">
+    <p className="aui-thread-list-item-title" style={{margin: 0}}>
       <ThreadListItemPrimitive.Title fallback="New Chat" />
     </p>
   );
