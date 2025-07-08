@@ -8,9 +8,12 @@ import {
   eventHandlerControl,
   stringExposingStateControl,
   BoolControl,
+  LabelControl,
+  styleControl,
   dropdownControl,
   AutoHeightControl,
 } from "lowcoder-sdk";
+import {  CodeEditorContainerStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import { useResizeDetector } from "react-resize-detector";
 import Editor from "@monaco-editor/react";
 import { styled } from "styled-components";
@@ -18,6 +21,7 @@ import { trans } from "i18n";
 import { useRef, useCallback, useLayoutEffect } from "react";
 import debounce from "lodash/debounce";
 import * as monacoEditor from "monaco-editor";
+import { formDataChildren, FormDataPropertyView } from "../../comps/formComp/formDataConstants";
 
 const CodeEditorWrapper = styled.div`
   border: 1px solid #dddddd;
@@ -58,6 +62,7 @@ let CodeEditorTmpComp = (function () {
     language: "yaml",
     theme: "light",
     lineNumbers: "on",
+    wordWrap: "on",
     lightbulb: monacoEditor.editor.ShowLightbulbIconMode.OnCode,
     enabled: true,
     disabled: false,
@@ -76,11 +81,19 @@ let CodeEditorTmpComp = (function () {
     { label: trans("codeEditor.lineNumberOptions.relative"), value: "relative" },
   ].sort((a, b) => a.label.localeCompare(b.label))
 
+  const wordWrapOptions = [
+    { label: trans("codeEditor.wordWrapOptions.on"), value: "on" },
+    { label: trans("codeEditor.wordWrapOptions.off"), value: "off" },
+    { label: trans("codeEditor.wordWrapOptions.wordWrapColumn"), value: "wordWrapColumn" },
+    { label: trans("codeEditor.wordWrapOptions.bounded"), value: "bounded" },
+  ].sort((a, b) => a.label.localeCompare(b.label))
+
   const childrenMap = {
     autoHeight: withDefault(AutoHeightControl, "auto"),
     language: dropdownControl(languages, defaultValues.language),
     theme: dropdownControl(themes, defaultValues.theme),
     lineNumbers: dropdownControl(lineNumbersOptions, defaultValues.lineNumbers),
+    wordWrap: dropdownControl(wordWrapOptions, defaultValues.wordWrap),
     minimap: withDefault(BoolControl, defaultValues.enabled),
     stickyScroll: withDefault(BoolControl, defaultValues.enabled),
     lightbulb: withDefault(BoolControl, defaultValues.enabled),
@@ -88,6 +101,17 @@ let CodeEditorTmpComp = (function () {
     folding: withDefault(BoolControl, defaultValues.enabled),
     readOnly: withDefault(BoolControl, defaultValues.disabled),
     value: stringExposingStateControl("text", defaultValues.value),
+    required: withDefault(BoolControl, defaultValues.disabled),
+    label: withDefault(LabelControl, {
+      text: "Code Editor",
+      tooltip: "",
+      hidden: false,
+      widthUnit: "%",
+      position: "column",
+      align: "left"
+    }),
+    style: styleControl(CodeEditorContainerStyle , "style"),
+    labelStyle: styleControl(LabelStyle , 'labelStyle'),
     onEvent: eventHandlerControl([
       {
         label: "onChange",
@@ -95,6 +119,7 @@ let CodeEditorTmpComp = (function () {
         description: "Triggers when data changes",
       },
     ] as const),
+    ...formDataChildren,
   };
   
   return new UICompBuilder(childrenMap, (props) => {
@@ -174,7 +199,10 @@ let CodeEditorTmpComp = (function () {
     }
   }, [props.value.value]);
 
-  return (
+  return props.label({
+    required: props.required,
+    style: props.style,
+    children: (
     <CodeEditorWrapper
       ref={conRef}
       style={{
@@ -210,6 +238,7 @@ let CodeEditorTmpComp = (function () {
           hover: {
             enabled: props.hover,
           },
+            wordWrap: props.wordWrap as 'off' | 'on' | 'wordWrapColumn' | 'bounded',
           folding: props.folding,
           readOnly: props.readOnly,
           lineNumbers: props.lineNumbers as monacoEditor.editor.LineNumbersType,
@@ -219,7 +248,8 @@ let CodeEditorTmpComp = (function () {
         onChange={handleOnChange}
       />
     </CodeEditorWrapper>
-  );
+    )
+  })
 })
 .setPropertyViewFn((children: any) => {
   return (
@@ -229,19 +259,33 @@ let CodeEditorTmpComp = (function () {
         {children.language.propertyView({ label: trans("codeEditor.properties.language") })}
         {children.theme.propertyView({ label: trans("codeEditor.properties.theme") })}
         {children.lineNumbers.propertyView({ label: trans("codeEditor.properties.lineNumbers") })}
+        {children.wordWrap.propertyView({ label: trans("codeEditor.properties.wordWrap") })}
         {children.minimap.propertyView({ label: trans("codeEditor.properties.minimap") })}
         {children.stickyScroll.propertyView({ label: trans("codeEditor.properties.stickyScroll")})}
         {children.lightbulb.propertyView({ label: trans("codeEditor.properties.lightbulb") })}
         {children.hover.propertyView({ label: trans("codeEditor.properties.hover") })}
         {children.folding.propertyView({ label: trans("codeEditor.properties.folding") })}
-        {children.readOnly.propertyView({ label: trans("codeEditor.properties.readOnly") })}
       </Section>
+      {children.label.getPropertyView()}
       <Section name="Interaction">
         {children.onEvent.propertyView()}
       </Section>
-      <Section name="Styles">
+      <Section name="Layout">
         {children.autoHeight.getPropertyView()}
       </Section>
+      <Section name="Advanced">
+        {children.readOnly.propertyView({ label: trans("codeEditor.properties.readOnly") })}
+      </Section>
+      <Section name="Validation">
+        {children.required.propertyView({ label: trans("codeEditor.properties.required") })}
+      </Section>
+      <Section name="Style">
+        {children.style.getPropertyView()}
+      </Section>
+      <Section name="Label Style">
+        {children.labelStyle.getPropertyView()}
+      </Section>
+      <FormDataPropertyView {...children} />
     </>
   );
 })
@@ -429,6 +473,24 @@ CodeEditorTmpComp = withMethodExposing(CodeEditorTmpComp, [
   },
   {
     method: {
+      name: "enableWordWrap",
+      description: trans("codeEditor.methods.enableWordWrap"),
+      params: [{
+        name: "wordWrap",
+        type: "boolean",
+        description: "boolean"
+      }],
+    },
+    execute: (comp: any, values: any[]) => {
+      if(Array.isArray(values)) {
+        comp.children.wordWrap.dispatchChangeValueAction(values[0]);
+      } else {
+        comp.children.wordWrap.dispatchChangeValueAction(values);
+      }
+    }
+  },
+  {
+    method: {
       name: "setReadOnly",
       description: trans("codeEditor.methods.setReadOnly"),
       params: [{
@@ -445,6 +507,24 @@ CodeEditorTmpComp = withMethodExposing(CodeEditorTmpComp, [
       }
     }
   },
+  {
+    method: {
+      name: "markAsRequired",
+      description: trans("codeEditor.methods.markAsRequired"),
+      params: [{
+        name: "required",
+        type: "boolean",
+        description: "boolean"
+      }],
+    },
+    execute: (comp: any, values: any[]) => {
+      if(Array.isArray(values)) {
+        comp.children.required.dispatchChangeValueAction(values[0]);
+      } else {
+        comp.children.required.dispatchChangeValueAction(values);
+      }
+    }
+  },
 ]);
 
 export const CodeEditorComp = withExposingConfigs(CodeEditorTmpComp, [
@@ -452,10 +532,12 @@ export const CodeEditorComp = withExposingConfigs(CodeEditorTmpComp, [
   new NameConfig("language", trans("codeEditor.properties.language")),
   new NameConfig("theme", trans("codeEditor.properties.theme")),
   new NameConfig("lineNumbers", trans("codeEditor.properties.lineNumbers")),
+  new NameConfig("wordWrap", trans("codeEditor.properties.wordWrap")),
   new NameConfig("minimap", trans("codeEditor.properties.minimap")),
   new NameConfig("stickyScroll", trans("codeEditor.properties.stickyScroll")),
   new NameConfig("lightbulb", trans("codeEditor.properties.lightbulb")),
   new NameConfig("hover", trans("codeEditor.properties.hover")),
   new NameConfig("folding", trans("codeEditor.properties.folding")),
   new NameConfig("readOnly", trans("codeEditor.properties.readOnly")),
+  new NameConfig("required", trans("codeEditor.properties.required")),
 ]);

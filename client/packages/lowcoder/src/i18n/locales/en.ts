@@ -64,8 +64,9 @@ export const en = {
       "lightbulb": "Lightbulb",
       "hover": "Hover",
       "folding": "Folding",
+      "wordWrap": "Word Wrap",
       "readOnly": "Read Only",
-      "resizable": "Resizable"
+      "required": "Required",
     },
     "methods": {
       "setValue": "Update the editor's content.",
@@ -78,7 +79,7 @@ export const en = {
       "enableHover": "Enable or disable hover.",
       "enableFolding": "Enable or disable folding.",
       "setReadOnly": "Enable or disable read-only mode.",
-      "setResizable": "Enable or disable the ability to resize the editor.",
+      "markAsRequired": "Marks the field as required, preventing submission if left empty.",
     },
     "theme": {
       "light": "Light",
@@ -116,6 +117,12 @@ export const en = {
       "off": "Off",
       "relative": "Relative",
       "interval": "Interval"
+    },
+    "wordWrapOptions": {
+      "on": "On",
+      "off": "Off",
+      "wordWrapColumn": "Column",
+      "bounded": "Bounded"
     }
   },
   "exportMethod": {
