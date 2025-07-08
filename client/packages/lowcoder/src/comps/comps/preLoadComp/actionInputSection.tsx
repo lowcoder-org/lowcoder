@@ -12,11 +12,11 @@ import { default as Space } from "antd/es/space";
 import { default as Flex } from "antd/es/flex";
 import type { InputRef } from 'antd';
 import { default as DownOutlined } from "@ant-design/icons/DownOutlined";
-import { BaseSection } from "lowcoder-design";
+import { BaseSection, Dropdown } from "lowcoder-design";
 import { EditorContext } from "comps/editorState";
 import { message } from "antd";
 import { CustomDropdown } from "./styled";
-import { generateComponentActionItems, getComponentCategories } from "./utils";
+import { generateComponentActionItems, getComponentCategories, getEditorComponentInfo, getLayoutItemsOrder } from "./utils";
 import { actionRegistry, getAllActionItems } from "./actionConfigs";
 
 export function ActionInputSection() {
@@ -31,6 +31,8 @@ export function ActionInputSection() {
   const [showStylingInput, setShowStylingInput] = useState<boolean>(false);
   const [selectedEditorComponent, setSelectedEditorComponent] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [showDynamicLayoutDropdown, setShowDynamicLayoutDropdown] = useState<boolean>(false);
+  const [selectedDynamicLayoutIndex, setSelectedDynamicLayoutIndex] = useState<string | null>(null);
   const inputRef = useRef<InputRef>(null);
   const editorState = useContext(EditorContext);
 
@@ -54,6 +56,25 @@ export function ActionInputSection() {
       label: comp.name,
       key: comp.name
     }));
+  }, [editorState]);
+
+  const simpleLayoutItems = useMemo(() => {
+    if(!editorComponents) return [];
+
+    const editorComponentInfo = getEditorComponentInfo(editorState);
+    if(!editorComponentInfo) return [];
+  
+    const currentLayout = editorComponentInfo.currentLayout;
+    const items = editorComponentInfo.items;
+    
+    return Object.keys(currentLayout).map((key) => {
+      const item = items ? items[key] : null;
+      const componentName = item ? (item as any).children.name.getView() : key;
+      return {
+        label: componentName,
+        key: componentName
+      };
+    });
   }, [editorState]);
 
   const currentAction = useMemo(() => {
@@ -81,7 +102,9 @@ export function ActionInputSection() {
     setSelectedEditorComponent(null);
     setIsNestedComponent(false);
     setSelectedNestComponent(null);
+    setShowDynamicLayoutDropdown(false);
     setActionValue("");
+    setSelectedDynamicLayoutIndex(null);
 
     if (action.requiresComponentSelection) {
       setShowComponentDropdown(true);
@@ -102,6 +125,9 @@ export function ActionInputSection() {
     }
     if (action.isNested) {
       setIsNestedComponent(true);
+    }
+    if(action.dynamicLayout) {
+      setShowDynamicLayoutDropdown(true);
     }
   }, []);
 
@@ -175,6 +201,7 @@ export function ActionInputSection() {
         selectedComponent,
         selectedEditorComponent,
         selectedNestComponent,
+        selectedDynamicLayoutIndex,
         editorState
       });
 
@@ -189,6 +216,8 @@ export function ActionInputSection() {
       setValidationError(null);
       setIsNestedComponent(false);
       setSelectedNestComponent(null);
+      setShowDynamicLayoutDropdown(false);
+      setSelectedDynamicLayoutIndex(null);
 
     } catch (error) {
       console.error('Error executing action:', error);
@@ -200,6 +229,7 @@ export function ActionInputSection() {
     selectedComponent, 
     selectedEditorComponent, 
     selectedNestComponent,
+    selectedDynamicLayoutIndex,
     editorState, 
     currentAction, 
     validateInput
@@ -299,7 +329,7 @@ export function ActionInputSection() {
               popupRender={() => (
                 <Menu
                   items={editorComponents}
-                  onClick={({ key }) => {
+                  onClick={({key}) => {
                     handleEditorComponentSelection(key);
                   }}
                 />
@@ -312,6 +342,47 @@ export function ActionInputSection() {
                 </Space>
               </Button>
             </CustomDropdown>
+          )}
+
+          {showDynamicLayoutDropdown && (
+            <CustomDropdown
+              overlayStyle={{ 
+              maxHeight: '400px',
+              overflow: 'auto',
+              zIndex: 9999
+            }}
+            popupRender={() => (
+              <Menu
+                items={simpleLayoutItems}
+                onClick={({key}) => {
+                  handleEditorComponentSelection(key);
+                }}
+              />
+            )}
+          >
+            <Button size={"small"}>
+              <Space>
+                {selectedEditorComponent ? selectedEditorComponent : 'Layout'} 
+                <DownOutlined />
+              </Space>
+            </Button>
+          </CustomDropdown>
+          )}
+
+          {showDynamicLayoutDropdown && (
+            <Dropdown
+              options={getLayoutItemsOrder(simpleLayoutItems)}
+              onChange={(value) => {
+                setSelectedDynamicLayoutIndex(value);
+              }}
+            >
+              <Button size={"small"}>
+                <Space>
+                  {selectedEditorComponent ? selectedEditorComponent : 'Layout'} 
+                  <DownOutlined />
+                </Space>
+              </Button>
+            </Dropdown>
           )}
 
           {shouldShowInput && (

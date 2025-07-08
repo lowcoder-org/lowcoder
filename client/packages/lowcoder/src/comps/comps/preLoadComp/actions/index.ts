@@ -5,7 +5,7 @@ export * from './componentManagement';
 export { configureComponentAction } from './componentConfiguration';
 
 // Layout Actions
-export { changeLayoutAction } from './componentLayout';
+export { changeLayoutAction, updateDynamicLayoutAction } from './componentLayout';
 
 // Event Actions
 export { addEventHandlerAction } from './componentEvents';
