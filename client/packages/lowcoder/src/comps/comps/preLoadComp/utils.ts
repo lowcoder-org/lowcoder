@@ -54,7 +54,7 @@ export function getComponentCategories() {
   });
   return cats;
 } 
-export function getEditorComponentInfo(editorState: EditorState, componentName: string): {
+export function getEditorComponentInfo(editorState: EditorState, componentName?: string): {
   componentKey: string | null;
   currentLayout: any;
   simpleContainer: any;
@@ -63,7 +63,7 @@ export function getEditorComponentInfo(editorState: EditorState, componentName: 
 } | null {
   try {
     // Get the UI component container
-    if (!editorState || !componentName) {
+    if (!editorState) {
       return null;
     }
 
@@ -85,6 +85,16 @@ export function getEditorComponentInfo(editorState: EditorState, componentName: 
     const currentLayout = simpleContainer.children.layout.getView();
     const items = getCombinedItems(uiCompTree);
 
+    // If no componentName is provided, return all items
+    if (!componentName) {
+      return {
+        componentKey: null,
+        currentLayout,
+        simpleContainer,
+        items,
+      };
+    }
+
     // Find the component by name and get its key
     let componentKey: string | null = null;
     let componentType: string | null = null;
@@ -93,7 +103,7 @@ export function getEditorComponentInfo(editorState: EditorState, componentName: 
       if ((item as any).children.name.getView() === componentName) {
         componentKey = key;
         componentType = (item as any).children.compType.getView();
-        break
+        break;
       }
     }
 
@@ -136,4 +146,13 @@ function getCombinedItems(uiCompTree: any) {
   }
 
   return combined;
+}
+
+export function getLayoutItemsOrder(layoutItems: any[]){
+  const maxIndex = layoutItems.length;
+  return Array.from({ length: maxIndex }, (_, index) => ({
+    key: index,
+    label: `Position ${index}`,
+    value: index.toString()
+  }));
 }

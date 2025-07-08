@@ -9,7 +9,8 @@ import {
   changeLayoutAction,
   addEventHandlerAction,
   applyStyleAction,
-  nestComponentAction
+  nestComponentAction,
+  updateDynamicLayoutAction
 } from "./actions";
 
 export const actionCategories: ActionCategory[] = [
@@ -33,7 +34,7 @@ export const actionCategories: ActionCategory[] = [
   {
     key: 'layout',
     label: 'Layout',
-    actions: [changeLayoutAction]
+    actions: [changeLayoutAction, updateDynamicLayoutAction]
   },
   {
     key: 'events',
