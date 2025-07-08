@@ -13,6 +13,7 @@ import {
     deleteCompAction 
 } from "lowcoder-core";
 import { getEditorComponentInfo } from "../utils";
+import { getPromiseAfterDispatch } from "@lowcoder-ee/util/promiseUtils";
 
 export const addComponentAction: ActionConfig = {
   key: 'add-components',
@@ -21,8 +22,9 @@ export const addComponentAction: ActionConfig = {
   requiresComponentSelection: true,
   requiresInput: false,
   execute: async (params: ActionExecuteParams) => {
-    const { selectedComponent, editorState } = params;
-    
+    const { selectedComponent, editorState, actionPayload } = params;
+    const { name, layout, ...otherProps } = actionPayload;
+
     if (!selectedComponent || !editorState) {
       message.error('Component and editor state are required');
       return;
@@ -43,31 +45,33 @@ export const addComponentAction: ActionConfig = {
         return;
       }
 
+      let compName = name;
       const nameGenerator = editorState.getNameGenerator();
       const compInfo = parseCompType(selectedComponent);
-      const compName = nameGenerator.genItemName(compInfo.compName);
+      if (!compName) {
+        compName = nameGenerator.genItemName(compInfo.compName);
+      }
       const key = genRandomKey();
 
       const manifest = uiCompRegistry[selectedComponent];
       let defaultDataFn = undefined;
 
-      if (manifest?.lazyLoad) {
-        const { defaultDataFnName, defaultDataFnPath } = manifest;
-        if (defaultDataFnName && defaultDataFnPath) {
-          const module = await import(`../../../${defaultDataFnPath}.tsx`);
-          defaultDataFn = module[defaultDataFnName];
-        }
-      } else if (!compInfo.isRemote) {
+      if (!compInfo.isRemote) {
         defaultDataFn = manifest?.defaultDataFn;
       }
 
+      let compDefaultValue = defaultDataFn ? defaultDataFn(compName, nameGenerator, editorState) : undefined;
+      const compInitialValue = {
+        ...(compDefaultValue as any || {}),
+        ...otherProps,
+      }
       const widgetValue: GridItemDataType = {
         compType: selectedComponent,
         name: compName,
-        comp: defaultDataFn ? defaultDataFn(compName, nameGenerator, editorState) : undefined,
+        comp: compInitialValue,
       };
 
-      const currentLayout = simpleContainer.children.layout.getView();
+      const currentLayout = uiComp.children.comp.children.layout.getView();
       const layoutInfo = manifest?.layoutInfo || defaultLayout(selectedComponent as UICompType);
       
       let itemPos = 0;
@@ -83,9 +87,11 @@ export const addComponentAction: ActionConfig = {
         h: layoutInfo.h || 5,
         pos: itemPos,
         isDragging: false,
+        ...(layout || {}),
       };
 
-      simpleContainer.dispatch(
+      await getPromiseAfterDispatch(
+        uiComp.children.comp.dispatch,
         wrapActionExtraInfo(
           multiChangeAction({
             layout: changeValueAction({
@@ -95,8 +101,23 @@ export const addComponentAction: ActionConfig = {
             items: addMapChildAction(key, widgetValue),
           }),
           { compInfos: [{ compName: compName, compType: selectedComponent, type: "add" }] }
-        )
+        ),
+        {
+          autoHandleAfterReduce: true,
+        }
       );
+      // simpleContainer.dispatch(
+      //   wrapActionExtraInfo(
+      //     multiChangeAction({
+      //       layout: changeValueAction({
+      //         ...currentLayout,
+      //         [key]: layoutItem,
+      //       }, true),
+      //       items: addMapChildAction(key, widgetValue),
+      //     }),
+      //     { compInfos: [{ compName: compName, compType: selectedComponent, type: "add" }] }
+      //   )
+      // );
 
       editorState.setSelectedCompNames(new Set([compName]), "addComp");
       

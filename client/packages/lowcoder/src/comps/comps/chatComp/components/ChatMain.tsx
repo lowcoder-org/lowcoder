@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState, useRef, useEffect } from "react";
 import {
   useExternalStoreRuntime,
   ThreadMessageLike,
@@ -17,6 +17,9 @@ import {
 } from "./context/ChatContext";
 import styled from "styled-components";
 import { ChatCompProps } from "../chatCompTypes";
+import { message } from "antd";
+import { EditorContext } from "@lowcoder-ee/comps/editorState";
+import { addComponentAction } from "../../preLoadComp/actions/componentManagement";
 
 const ChatContainer = styled.div<{ $autoHeight?: boolean }>`
   display: flex;
@@ -54,26 +57,44 @@ const callYourAPI = async (params: {
   text: string,
   modelHost: string,
   modelType: string,
+  sessionId: string,
 }) => {
-  const { text, modelHost, modelType } = params;
+  const { text, modelHost, modelType, sessionId } = params;
 
   let url = modelHost;
   if (modelType === "direct-llm") {
     url = `${modelHost}/api/chat/completions`;
   }
 
+  const response = await fetch(`${url}`, {
+    method: "POST",
+    body: JSON.stringify({
+      text,
+      sessionId,
+    }),
+  });
+
+  return response.json();
   // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
+  // await new Promise(resolve => setTimeout(resolve, 1500));
   
   // Simple responses
-  return {
-    content: "This is a mock response from your backend. You typed: " + text
-  };
+  // return {
+  //   content: "This is a mock response from your backend. You typed: " + text
+  // };
 };
 
 export function ChatMain(props: ChatCompProps) {
   const { state, actions } = useChatContext();
   const [isRunning, setIsRunning] = useState(false);
+  const editorState = useContext(EditorContext);
+  const editorStateRef = useRef(editorState);
+
+  // Keep the ref updated with the latest editorState
+  useEffect(() => {
+    console.log("EDITOR STATE CHANGE ---> ", editorState);
+    editorStateRef.current = editorState;
+  }, [editorState]);
 
   console.log("STATE", state);
 
@@ -87,6 +108,36 @@ export function ChatMain(props: ChatCompProps) {
     id: message.id,
     createdAt: new Date(message.timestamp),
   });
+
+  const performAction = async (actions: any[]) => {
+    const comp = editorStateRef.current.getUIComp().children.comp;
+    if (!comp) {
+      console.error("No comp found");
+      return;
+    }
+    // const layout = comp.children.layout.getView();
+    // console.log("LAYOUT", layout);
+
+    for (const action of actions) {
+      const { action_name, action_parameters, action_payload } = action;
+
+      switch (action_name) {
+        case "place_component":
+          await addComponentAction.execute({
+            actionKey: action_name,
+            actionValue: "",
+            actionPayload: action_payload,
+            selectedComponent: action_parameters,
+            selectedEditorComponent: null,
+            editorState: editorStateRef.current
+          });
+          break;
+        default:
+          break;
+      }
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  };
 
   const onNew = async (message: AppendMessage) => {
     // Extract text from AppendMessage content array
@@ -112,12 +163,15 @@ export function ChatMain(props: ChatCompProps) {
         text: userMessage.text,
         modelHost: props.modelHost!,
         modelType: props.modelType!,
+        sessionId: state.currentThreadId,
       });
-      
+      const {reply, actions: editorActions} = JSON.parse(response?.output);
+      performAction(editorActions);
+
       const assistantMessage: MyMessage = {
         id: generateId(),
         role: "assistant",
-        text: response.content,
+        text: reply,
         timestamp: Date.now(),
       };
       
@@ -170,12 +224,16 @@ export function ChatMain(props: ChatCompProps) {
         text: editedMessage.text,
         modelHost: props.modelHost!,
         modelType: props.modelType!,
+        sessionId: state.currentThreadId,
       });
-      
+    
+      const {reply, actions: editorActions} = JSON.parse(response?.output);
+      performAction(editorActions);
+
       const assistantMessage: MyMessage = {
         id: generateId(),
         role: "assistant",
-        text: response.content,
+        text: reply,
         timestamp: Date.now(),
       };
       

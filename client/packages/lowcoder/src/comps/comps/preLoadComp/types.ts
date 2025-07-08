@@ -44,6 +44,7 @@ export interface ActionConfig {
 export interface ActionExecuteParams {
   actionKey: string;
   actionValue: string;
+  actionPayload?: any;
   selectedComponent: string | null;
   selectedEditorComponent: string | null;
   selectedNestComponent: string | null;
