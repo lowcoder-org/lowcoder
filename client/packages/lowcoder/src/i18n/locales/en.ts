@@ -744,6 +744,7 @@ export const en = {
     "transformer": "Transformer",
     "quickRestAPI": "REST Query",
     "quickStreamAPI": "Stream Query",
+    "quickSseHttpAPI": "SSE HTTP Stream Query",
     "quickGraphql": "GraphQL Query",
     "quickAlasql": "Local SQL Query",
     "databaseType": "Database Type",
