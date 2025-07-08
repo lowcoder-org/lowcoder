@@ -27,6 +27,13 @@ export interface SQLConfig extends PreparedStatementConfig {
   usingSsl: boolean;
 }
 
+export interface DatabricksConfig extends SQLConfig {
+  authMechanism: string; // 3: Personal Access Token, 11: OAuth
+  usingUri: boolean;
+  jdbcUri: string;
+  httpPath: string;
+  catalog: string;
+}
 export interface MongoConfig extends SQLConfig {
   uri: string;
   usingUri: boolean;
@@ -123,6 +130,7 @@ export type DatasourceConfigType =
   | SQLConfig
   | HttpConfig
   | MongoConfig
+  | DatabricksConfig
   | OAuthBasicConfig
   | EsConfig
   | OracleConfig
