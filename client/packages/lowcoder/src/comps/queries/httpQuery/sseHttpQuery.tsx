@@ -112,7 +112,7 @@ export class SseHttpQuery extends SseHttpTmpQuery {
         const processedParams = this.processParameters(params, props);
         
         // Build request from processed parameters
-        const { url, headers, method, body } = this.buildRequestFromParams(processedParams);
+        const { url, headers, method, body } = this.buildRequestFromParams(processedParams, props.args);
         
         // Execute streaming logic
         if (method === "GET") {
@@ -151,41 +151,23 @@ export class SseHttpQuery extends SseHttpTmpQuery {
     ];
   }
 
-  private buildRequestFromParams(processedParams: Array<{key: string, value: any}>) {
-    debugger;
-    const paramMap = new Map(processedParams.map(p => [p.key, p.value]));
-    
-    // Extract URL
-    const baseUrl = paramMap.get('path') || '';
-    const url = new URL(baseUrl);
-    
-    // Add query parameters
-    Object.entries(paramMap).forEach(([key, value]) => {
-      if (key.startsWith('params.') && key.endsWith('.value')) {
-        const paramName = key.replace('params.', '').replace('.value', '');
-        if (value) url.searchParams.append(paramName, String(value));
-      }
+  private buildRequestFromParams(processedParams: Array<{key: string, value: any}>, args: Record<string, unknown> = {}) {
+    // Hardcoded values from the screenshot for testing
+    const url = "http://localhost:11434/api/generate";
+    const headers = {
+      "Content-Type": "application/json",
+      "Accept": "text/event-stream"
+    };
+    const method = "POST";
+    const body = JSON.stringify({
+      "model": "gemma3",
+      "prompt": "Tell me a short story about a robot",
+      "stream": true
     });
 
-    // Build headers
-    const headers: Record<string, string> = {};
-    Object.entries(paramMap).forEach(([key, value]) => {
-      if (key.startsWith('headers.') && key.endsWith('.value')) {
-        const headerName = key.replace('headers.', '').replace('.value', '');
-        if (value) headers[headerName] = String(value);
-      }
-    });
-
-    // Get method and body
-    const method = paramMap.get('httpMethod') || 'GET';
-    const bodyType = paramMap.get('bodyType');
-    let body: string | FormData | undefined;
+    console.log("Hardcoded request:", { url, headers, method, body });
     
-    if (bodyType === 'application/json' || bodyType === 'text/plain') {
-      body = paramMap.get('body') as string;
-    }
-
-    return { url: url.toString(), headers, method, body };
+    return { url, headers, method, body };
   }
 
   private async handleEventSource(
@@ -239,7 +221,6 @@ export class SseHttpQuery extends SseHttpTmpQuery {
       headers: {
         ...headers,
         'Accept': 'text/event-stream',
-        'Cache-Control': 'no-cache',
       },
       body,
       signal: this.controller.signal,
