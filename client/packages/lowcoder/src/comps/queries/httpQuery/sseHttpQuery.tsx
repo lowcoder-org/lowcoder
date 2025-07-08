@@ -5,11 +5,12 @@ import { trans } from "i18n";
 import { includes } from "lodash";
 import { CompAction, MultiBaseComp } from "lowcoder-core";
 import { keyValueListControl } from "../../controls/keyValueListControl";
-import { ParamsJsonControl, ParamsStringControl } from "../../controls/paramsControl";
+import { ParamsJsonControl, ParamsStringControl, ParamsControlType } from "../../controls/paramsControl";
 import { withTypeAndChildrenAbstract } from "../../generators/withType";
 import { QueryResult } from "../queryComp";
 import { QUERY_EXECUTION_ERROR, QUERY_EXECUTION_OK } from "constants/queryConstants";
 import { JSONValue } from "util/jsonTypes";
+import { FunctionProperty } from "../queryCompUtils";
 import {
   HttpHeaderPropertyView,
   HttpParametersPropertyView,
@@ -81,32 +82,110 @@ export class SseHttpQuery extends SseHttpTmpQuery {
   }
 
   override getView() {
+    const children = this.children;
+    const params = [
+      ...children.headers.getQueryParams(),
+      ...children.params.getQueryParams(),
+      ...children.bodyFormData.getQueryParams(),
+      ...children.path.getQueryParams(),
+      ...children.body.getQueryParams(),
+    ];
+    
+    return this.createStreamingQueryView(params);
+  }
+
+  private createStreamingQueryView(params: FunctionProperty[]) {
     return async (props: {
+      queryId: string;
+      applicationId: string;
+      applicationPath: string[];
       args?: Record<string, unknown>;
+      variables?: any;
+      timeout: InstanceType<ParamsControlType>;
       callback?: (result: QueryResult) => void;
     }): Promise<QueryResult> => {
-      const children = this.children;
       
       try {
         const timer = performance.now();
         
-        // Build the complete URL with parameters
-        const baseUrl = this.buildUrl(props.args);
-        const headers = this.buildHeaders(props.args);
-        const method = children.httpMethod.getView();
+        // Process parameters like toQueryView does
+        const processedParams = this.processParameters(params, props);
         
-        // For GET requests, use EventSource API (standard SSE)
+        // Build request from processed parameters
+        const { url, headers, method, body } = this.buildRequestFromParams(processedParams);
+        
+        // Execute streaming logic
         if (method === "GET") {
-          return this.handleEventSource(baseUrl, headers, props, timer);
+          return this.handleEventSource(url, headers, props, timer);
         } else {
-          // For POST/PUT/etc, use fetch with streaming response
-          return this.handleStreamingFetch(baseUrl, headers, method, props, timer);
+          return this.handleStreamingFetch(url, headers, method, body, props, timer);
         }
         
       } catch (error) {
         return this.createErrorResponse((error as Error).message);
       }
     };
+  }
+
+  private processParameters(params: FunctionProperty[], props: any) {
+    let mappedVariables: Array<{key: string, value: string}> = [];
+    Object.keys(props.variables || {})
+      .filter(k => k !== "$queryName")
+      .forEach(key => {
+        const value = Object.hasOwn(props.variables[key], 'value') ? props.variables[key].value : props.variables[key];
+        mappedVariables.push({
+          key: `${key}.value`,
+          value: value || ""
+        });
+      });
+
+    return [
+      ...params.filter(param => {
+        return !mappedVariables.map(v => v.key).includes(param.key);
+      }).map(({ key, value }) => ({ key, value: value(props.args) })),
+      ...Object.entries(props.timeout.getView()).map(([key, value]) => ({
+        key,
+        value: (value as any)(props.args),
+      })),
+      ...mappedVariables,
+    ];
+  }
+
+  private buildRequestFromParams(processedParams: Array<{key: string, value: any}>) {
+    debugger;
+    const paramMap = new Map(processedParams.map(p => [p.key, p.value]));
+    
+    // Extract URL
+    const baseUrl = paramMap.get('path') || '';
+    const url = new URL(baseUrl);
+    
+    // Add query parameters
+    Object.entries(paramMap).forEach(([key, value]) => {
+      if (key.startsWith('params.') && key.endsWith('.value')) {
+        const paramName = key.replace('params.', '').replace('.value', '');
+        if (value) url.searchParams.append(paramName, String(value));
+      }
+    });
+
+    // Build headers
+    const headers: Record<string, string> = {};
+    Object.entries(paramMap).forEach(([key, value]) => {
+      if (key.startsWith('headers.') && key.endsWith('.value')) {
+        const headerName = key.replace('headers.', '').replace('.value', '');
+        if (value) headers[headerName] = String(value);
+      }
+    });
+
+    // Get method and body
+    const method = paramMap.get('httpMethod') || 'GET';
+    const bodyType = paramMap.get('bodyType');
+    let body: string | FormData | undefined;
+    
+    if (bodyType === 'application/json' || bodyType === 'text/plain') {
+      body = paramMap.get('body') as string;
+    }
+
+    return { url: url.toString(), headers, method, body };
   }
 
   private async handleEventSource(
@@ -146,6 +225,7 @@ export class SseHttpQuery extends SseHttpTmpQuery {
     url: string, 
     headers: Record<string, string>, 
     method: string, 
+    body: string | FormData | undefined,
     props: any, 
     timer: number
   ): Promise<QueryResult> {
@@ -161,7 +241,7 @@ export class SseHttpQuery extends SseHttpTmpQuery {
         'Accept': 'text/event-stream',
         'Cache-Control': 'no-cache',
       },
-      body: this.buildRequestBody(props.args),
+      body,
       signal: this.controller.signal,
     });
 
@@ -233,67 +313,6 @@ export class SseHttpQuery extends SseHttpTmpQuery {
       }
     } finally {
       reader.releaseLock();
-    }
-  }
-
-  private buildUrl(args?: Record<string, unknown>): string {
-    const children = this.children;
-    const basePath = children.path.children.text.getView();
-    const params = children.params.getView();
-    
-    // Build URL with parameters
-    const url = new URL(basePath);
-    params.forEach((param: any) => {
-      if (param.key && param.value) {
-        const value = typeof param.value === 'function' ? param.value(args) : param.value;
-        url.searchParams.append(param.key, String(value));
-      }
-    });
-    
-    return url.toString();
-  }
-
-  private buildHeaders(args?: Record<string, unknown>): Record<string, string> {
-    const headers: Record<string, string> = {};
-    
-    this.children.headers.getView().forEach((header: any) => {
-      if (header.key && header.value) {
-        const value = typeof header.value === 'function' ? header.value(args) : header.value;
-        headers[header.key] = String(value);
-      }
-    });
-    
-    return headers;
-  }
-
-  private buildRequestBody(args?: Record<string, unknown>): string | FormData | undefined {
-    const bodyType = this.children.bodyType.getView();
-    
-    switch (bodyType) {
-      case "application/json":
-        return this.children.body.children.text.getView() as string;
-      case "text/plain":
-        return this.children.body.children.text.getView() as string;
-      case "application/x-www-form-urlencoded":
-        const formData = new URLSearchParams();
-        this.children.bodyFormData.getView().forEach((item: any) => {
-          if (item.key && item.value) {
-            const value = typeof item.value === 'function' ? item.value(args) : item.value;
-            formData.append(item.key, String(value));
-          }
-        });
-        return formData.toString();
-      case "multipart/form-data":
-        const multipartData = new FormData();
-        this.children.bodyFormData.getView().forEach((item: any) => {
-          if (item.key && item.value) {
-            const value = typeof item.value === 'function' ? item.value(args) : item.value;
-            multipartData.append(item.key, String(value));
-          }
-        });
-        return multipartData;
-      default:
-        return undefined;
     }
   }
 
