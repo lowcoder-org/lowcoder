@@ -12,7 +12,7 @@ import {
     wrapChildAction, 
     deleteCompAction 
 } from "lowcoder-core";
-import { getEditorComponentInfo } from "../utils";
+import { getEditorComponentInfo, findTargetComponent } from "../utils";
 import { getPromiseAfterDispatch } from "@lowcoder-ee/util/promiseUtils";
 import { hookCompCategory, HookCompType } from "@lowcoder-ee/comps/hooks/hookCompTypes";
 
@@ -314,17 +314,22 @@ export const deleteComponentAction: ActionConfig = {
         return;
       }
 
-      const { componentKey, currentLayout, simpleContainer, componentType } = componentInfo;
-
-      if (!componentKey || !currentLayout[componentKey]) {
-        message.error(`Component "${selectedEditorComponent}" not found in layout`);
+      const { allAppComponents } = componentInfo;
+      const targetComponent = allAppComponents.find(comp => comp.name === selectedEditorComponent);
+      
+      if (!targetComponent) {
+        message.error(`Component "${selectedEditorComponent}" not found in application`);
         return;
       }
 
-      const newLayout = { ...currentLayout };
-      delete newLayout[componentKey];
+      const targetInfo = findTargetComponent(editorState, selectedEditorComponent);
 
-      simpleContainer.dispatch(
+      if (targetInfo) {
+        const { container, layout, componentKey } = targetInfo;
+        const newLayout = { ...layout };
+        delete newLayout[componentKey];
+
+        container.dispatch(
         wrapActionExtraInfo(
           multiChangeAction({
             layout: changeValueAction(newLayout, true),
@@ -333,7 +338,7 @@ export const deleteComponentAction: ActionConfig = {
           { 
             compInfos: [{ 
               compName: selectedEditorComponent, 
-              compType: componentType || 'unknown', 
+              compType: targetComponent.compType || 'unknown', 
               type: "delete" 
             }] 
           }
@@ -343,6 +348,9 @@ export const deleteComponentAction: ActionConfig = {
       editorState.setSelectedCompNames(new Set(), "deleteComp");
       
       message.success(`Component "${selectedEditorComponent}" deleted successfully`);
+      } else {
+        message.error(`Component "${selectedEditorComponent}" not found in any container`);
+      }
     } catch (error) {
       console.error('Error deleting component:', error);
       message.error('Failed to delete component. Please try again.');
@@ -401,6 +409,15 @@ export const moveComponentAction: ActionConfig = {
         return;
       }
 
+      const targetInfo = findTargetComponent(editorState, selectedEditorComponent);
+
+      if (!targetInfo) {
+        message.error(`Component "${selectedEditorComponent}" not found in any container`);
+        return;
+      }
+
+      const { container, layout, componentKey } = targetInfo;
+
       const componentInfo = getEditorComponentInfo(editorState, selectedEditorComponent);
       
       if (!componentInfo) {
@@ -408,15 +425,13 @@ export const moveComponentAction: ActionConfig = {
         return;
       }
 
-      const { componentKey, currentLayout, simpleContainer } = componentInfo;
-
-      if (!componentKey || !currentLayout[componentKey]) {
+      if (!componentKey || !layout[componentKey]) {
         message.error(`Component "${selectedEditorComponent}" not found in layout`);
         return;
       }
 
-      const currentLayoutItem = currentLayout[componentKey];
-      const items = simpleContainer.children.items.children;
+      const currentLayoutItem = layout[componentKey];
+      const items = container.children.items.children;
 
       const newLayoutItem = {
         ...currentLayoutItem,
@@ -425,11 +440,11 @@ export const moveComponentAction: ActionConfig = {
       };
 
       const newLayout = {
-        ...currentLayout,
+        ...layout,
         [componentKey]: newLayoutItem,
       };
 
-      simpleContainer.dispatch(
+      container.dispatch(
         wrapActionExtraInfo(
           multiChangeAction({
             layout: changeValueAction(newLayout, true),
@@ -568,21 +583,22 @@ export const resizeComponentAction: ActionConfig = {
         return;
       }
 
-      const componentInfo = getEditorComponentInfo(editorState, selectedEditorComponent);
-      
-      if (!componentInfo) {
-        message.error(`Component "${selectedEditorComponent}" not found`);
+      const targetInfo = findTargetComponent(editorState, selectedEditorComponent);
+
+      if (!targetInfo) {
+        message.error(`Component "${selectedEditorComponent}" not found in any container`);
         return;
       }
 
-      const { componentKey, currentLayout, simpleContainer, items } = componentInfo;
+      const { container, layout, componentKey } = targetInfo;
 
-      if (!componentKey || !currentLayout[componentKey]) {
+      if (!componentKey || !layout[componentKey]) {
         message.error(`Component "${selectedEditorComponent}" not found in layout`);
         return;
       }
 
-      const currentLayoutItem = currentLayout[componentKey];
+      const currentLayoutItem = layout[componentKey];
+      const items = container.children.items.children;
       
       const newLayoutItem = {
         ...currentLayoutItem,
@@ -591,11 +607,11 @@ export const resizeComponentAction: ActionConfig = {
       };
 
       const newLayout = {
-        ...currentLayout,
+        ...layout,
         [componentKey]: newLayoutItem,
       };
 
-      simpleContainer.dispatch(
+      container.dispatch(
         wrapActionExtraInfo(
           multiChangeAction({
             layout: changeValueAction(newLayout, true),
