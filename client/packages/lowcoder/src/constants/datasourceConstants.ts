@@ -45,4 +45,4 @@ export const QUICK_REST_API_ID = "#QUICK_REST_API";
 export const QUICK_GRAPHQL_ID = "#QUICK_GRAPHQL";
 export const JS_CODE_ID = "#JS_CODE";
 export const OLD_LOWCODER_DATASOURCE: Partial<DatasourceType>[] = [];
-export const QUICK_SSE_HTTP_API_ID = "#QUICK_SSE_HTTP_API";
+export const QUICK_SSE_HTTP_API_ID = "#QUICK_REST_API";
