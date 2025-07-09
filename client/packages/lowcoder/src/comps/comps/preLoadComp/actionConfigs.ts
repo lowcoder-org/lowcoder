@@ -34,7 +34,7 @@ export const actionCategories: ActionCategory[] = [
   {
     key: 'layout',
     label: 'Layout',
-    actions: [changeLayoutAction, updateDynamicLayoutAction]
+    actions: [updateDynamicLayoutAction]
   },
   {
     key: 'events',
