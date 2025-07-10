@@ -9,7 +9,12 @@ import {
   addEventHandlerAction,
   applyStyleAction,
   nestComponentAction,
-  updateDynamicLayoutAction
+  updateDynamicLayoutAction,
+  publishAppAction,
+  shareAppAction,
+  testAllDatasourcesAction,
+  applyGlobalJSAction,
+  applyGlobalCSSAction
 } from "./actions";
 
 export const actionCategories: ActionCategory[] = [
@@ -28,7 +33,14 @@ export const actionCategories: ActionCategory[] = [
   {
     key: 'app-configuration',
     label: 'App Configuration',
-    actions: [configureAppMetaAction]
+    actions: [
+      configureAppMetaAction, 
+      publishAppAction,
+      shareAppAction,
+      testAllDatasourcesAction,
+      applyGlobalJSAction,
+      applyGlobalCSSAction
+    ]
   },
   {
     key: 'layout',
