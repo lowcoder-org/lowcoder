@@ -110,6 +110,8 @@ export const getBottomResIcon = (
         return <MongoIcon />;
       case "streamApi":
         return <StreamApiIcon />;
+      case "sseHttpApi":
+        return <StreamApiIcon />;
       case "alasql":
         return <AlasqlIcon />;
       case "restApi":

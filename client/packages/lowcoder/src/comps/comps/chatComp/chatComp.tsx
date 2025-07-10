@@ -1,46 +1,117 @@
 // client/packages/lowcoder/src/comps/comps/chatComp/chatComp.tsx
+
 import { UICompBuilder } from "comps/generators";
 import { NameConfig, withExposingConfigs } from "comps/generators/withExposing";
-import { chatChildrenMap } from "./chatCompTypes";
-import { ChatView } from "./chatView";
+import { StringControl } from "comps/controls/codeControl";
+import { stringExposingStateControl } from "comps/controls/codeStateControl";
+import { withDefault } from "comps/generators";
+import { BoolControl } from "comps/controls/boolControl";
+import { dropdownControl } from "comps/controls/dropdownControl";
+import QuerySelectControl from "comps/controls/querySelectControl";
+import { ChatCore } from "./components/ChatCore";
 import { ChatPropertyView } from "./chatPropertyView";
-import { useEffect, useState } from "react";
+import { createChatStorage } from "./utils/storageFactory";
+import { QueryHandler, createMessageHandler } from "./handlers/messageHandlers";
+import { useMemo } from "react";
 import { changeChildAction } from "lowcoder-core";
 
-// Build the component
-let ChatTmpComp = new UICompBuilder(
-  chatChildrenMap, 
-  (props, dispatch) => {
-    useEffect(() => {
-      if (Boolean(props.tableName)) return;
+import "@assistant-ui/styles/index.css";
+import "@assistant-ui/styles/markdown.css";
 
-      // Generate a unique database name for this ChatApp instance
-      const generateUniqueTableName = () => {
-        const timestamp = Date.now();
-        const randomId = Math.random().toString(36).substring(2, 15);
-        return `TABLE_${timestamp}`;
-      };
-      
-      const tableName = generateUniqueTableName();
-      dispatch(changeChildAction('tableName', tableName, true));
-    }, [props.tableName]);
-    
-    if (!props.tableName) {
-      return null; // Don't render until we have a unique DB name
-    }
-    return <ChatView {...props} chatQuery={props.chatQuery.value} />;
-  }
-)
-  .setPropertyViewFn((children) => <ChatPropertyView children={children} />)
-  .build();
+// ============================================================================
+// SIMPLIFIED CHILDREN MAP - ONLY ESSENTIAL PROPS
+// ============================================================================
 
-ChatTmpComp = class extends ChatTmpComp {
-  override autoHeight(): boolean {
-    return this.children.autoHeight.getView();
-  }
+const ModelTypeOptions = [
+  { label: "Query", value: "query" },
+  { label: "N8N Workflow", value: "n8n" },
+] as const;
+
+export const chatChildrenMap = {
+  // Storage
+  tableName: withDefault(StringControl, "default"),
+  
+  // Message Handler Configuration
+  handlerType: dropdownControl(ModelTypeOptions, "query"),
+  chatQuery: QuerySelectControl,                    // Only used for "query" type
+  modelHost: withDefault(StringControl, ""),        // Only used for "n8n" type
+  systemPrompt: withDefault(StringControl, "You are a helpful assistant."),
+  streaming: BoolControl.DEFAULT_TRUE,
+  
+  // UI Configuration  
+  placeholder: withDefault(StringControl, "Chat Component"),
+  
+  // Exposed Variables (not shown in Property View)
+  currentMessage: stringExposingStateControl("currentMessage", ""),
 };
 
-// Export the component
+// ============================================================================
+// CLEAN CHATCOMP - USES NEW ARCHITECTURE
+// ============================================================================
+
+const ChatTmpComp = new UICompBuilder(
+  chatChildrenMap,
+  (props, dispatch) => {
+    // Create storage from tableName
+    const storage = useMemo(() => 
+      createChatStorage(props.tableName), 
+      [props.tableName]
+    );
+    
+    // Create message handler based on type
+    const messageHandler = useMemo(() => {
+      const handlerType = props.handlerType;
+      
+      if (handlerType === "query") {
+        return new QueryHandler({
+          chatQuery: props.chatQuery.value,
+          dispatch,
+          streaming: props.streaming
+        });
+      } else if (handlerType === "n8n") {
+        return createMessageHandler("n8n", {
+          modelHost: props.modelHost,
+          systemPrompt: props.systemPrompt,
+          streaming: props.streaming
+        });
+      } else {
+        // Fallback to mock handler
+        return createMessageHandler("mock", {
+          chatQuery: props.chatQuery.value,
+          dispatch,
+          streaming: props.streaming
+        });
+      }
+    }, [
+      props.handlerType,
+      props.chatQuery, 
+      props.modelHost,
+      props.systemPrompt,
+      props.streaming,
+      dispatch
+    ]);
+
+    // Handle message updates for exposed variable
+    const handleMessageUpdate = (message: string) => {
+      dispatch(changeChildAction("currentMessage", message, false));
+    };
+
+    return (
+      <ChatCore
+        storage={storage}
+        messageHandler={messageHandler}
+        onMessageUpdate={handleMessageUpdate}
+      />
+    );
+  }
+)
+.setPropertyViewFn((children) => <ChatPropertyView children={children} />)
+.build();
+
+// ============================================================================
+// EXPORT WITH EXPOSED VARIABLES
+// ============================================================================
+
 export const ChatComp = withExposingConfigs(ChatTmpComp, [
-  new NameConfig("text", "Chat component text"),
+  new NameConfig("currentMessage", "Current user message"),
 ]);
