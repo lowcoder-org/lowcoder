@@ -5,8 +5,7 @@ import {
   renameComponentAction,
   deleteComponentAction,
   resizeComponentAction,
-  configureComponentAction,
-  changeLayoutAction,
+  configureAppMetaAction,
   addEventHandlerAction,
   applyStyleAction,
   nestComponentAction,
@@ -27,9 +26,9 @@ export const actionCategories: ActionCategory[] = [
     ]
   },
   {
-    key: 'component-configuration',
-    label: 'Component Configuration',
-    actions: [configureComponentAction]
+    key: 'app-configuration',
+    label: 'App Configuration',
+    actions: [configureAppMetaAction]
   },
   {
     key: 'layout',

@@ -16,7 +16,12 @@ import { BaseSection, Dropdown } from "lowcoder-design";
 import { EditorContext } from "comps/editorState";
 import { message } from "antd";
 import { CustomDropdown } from "./styled";
-import { generateComponentActionItems, getComponentCategories, getEditorComponentInfo, getLayoutItemsOrder } from "./utils";
+import { 
+  generateComponentActionItems, 
+  getComponentCategories, 
+  getEditorComponentInfo, 
+  getLayoutItemsOrder 
+} from "./utils";
 import { actionRegistry, getAllActionItems } from "./actionConfigs";
 
 export function ActionInputSection() {
