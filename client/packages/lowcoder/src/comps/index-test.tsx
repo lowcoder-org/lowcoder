@@ -139,6 +139,7 @@ import {
   AutoCompleteCompIcon,
   ResponsiveLayoutCompIcon,
   MermaidCompIcon,
+  CodeEditorCompIcon
 } from "lowcoder-design";
 
 type Registry = {
@@ -581,6 +582,21 @@ var uiCompMap: Registry = {
       w: 12,
       h: 50,
     },
+  },
+  codeEditor: {
+    name: trans("uiComp.codeEditorCompName"),
+    enName: "Code Editor",
+    categories: ["forms"],
+    description: trans("uiComp.codeEditorCompDesc"),
+    icon: CodeEditorCompIcon,
+    keywords: trans("uiComp.codeEditorCompKeywords"),
+    lazyLoad: true,
+    compName: "CodeEditorComp",
+    compPath: "comps/codeEditorComp/codeEditorComp",
+    layoutInfo: {
+      w: 12,
+      h: 50,
+    }
   },
   richTextEditor: {
     name: trans("uiComp.richTextEditorCompName"),

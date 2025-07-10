@@ -1446,6 +1446,10 @@ export const SignatureContainerStyle = [
   // ...STYLING_FIELDS_CONTAINER_SEQUENCE,
 ] as const;
 
+export const CodeEditorContainerStyle = [
+  getStaticBorder(),
+] as const;
+
 export const RatingStyle = [
   {
     name: "checked",
