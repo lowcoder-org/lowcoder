@@ -1,11 +1,11 @@
 import { message } from "antd";
 import { ActionConfig, ActionExecuteParams } from "../types";
 import ApplicationApi from "api/applicationApi";
-import { getApplicationIdInReducer } from "comps/utils/reduceContext";
 import { executeQueryAction } from "lowcoder-core";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
 import { runScript } from "../utils";
-
+import { updateAppPermissionInfo } from "redux/reduxActions/applicationActions";
+import { reduxStore } from "redux/store/store";
 
 export const configureAppMetaAction: ActionConfig = {
   key: 'configure-app-meta',
@@ -56,10 +56,12 @@ export const publishAppAction: ActionConfig = {
   label: 'Publish app',
   category: 'app-configuration',
   requiresInput: false,
-  execute: async () => {
+  execute: async (params: ActionExecuteParams) => {
+    const { editorState } = params;
+    const applicationIdEditor = editorState.rootComp.preloadId;
+    const applicationId = applicationIdEditor.replace('app-', '');
+
     try {
-      const applicationId = getApplicationIdInReducer();
-      
       if (!applicationId) {
         message.error('Application ID not found');
         return;
@@ -86,9 +88,50 @@ export const shareAppAction: ActionConfig = {
   label: 'Share app',
   category: 'app-configuration',
   requiresInput: false,
-  execute: async () => {
-    // TODO: Implement share app
-    console.log('Share app');
+  execute: async (params: ActionExecuteParams) => {
+    // TODO: Get app sharing from the user
+    const appSharing = {
+      public: true,
+      publishMarketplace: false
+    }
+
+    const { editorState } = params;
+    const applicationIdEditor = editorState.rootComp.preloadId;
+    const applicationId = applicationIdEditor.replace('app-', '');
+
+    if (!applicationId) {
+      message.error('Application ID not found');
+      return;
+    }
+
+    try {
+      // Update Application Sharig Status
+      // Update Redux state to reflect the public change in UI
+      const publicResponse = await ApplicationApi.publicToAll(applicationId, appSharing.public);
+  
+      if (publicResponse.data.success) {
+        reduxStore.dispatch(updateAppPermissionInfo({ publicToAll: appSharing.public }));
+        message.success('Application is now public!');
+        
+        // Update Application Marketplace Sharing Status
+        try {
+          const marketplaceResponse = await ApplicationApi.publicToMarketplace(applicationId, appSharing.publishMarketplace);
+          if (marketplaceResponse.data.success) {
+            reduxStore.dispatch(updateAppPermissionInfo({ publicToMarketplace: appSharing.publishMarketplace }));
+            message.success(`Application ${appSharing.publishMarketplace ? 'published to' : 'unpublished from'} marketplace successfully!`);
+          } 
+        } catch (marketplaceError) {
+          console.error(`Error ${appSharing.publishMarketplace ? 'publishing to' : 'unpublishing from'} marketplace:`, marketplaceError);
+          message.warning(`Application is public but ${appSharing.publishMarketplace ? 'publishing to' : 'unpublishing from'} marketplace failed`);
+        }
+
+      } else {
+        message.error('Failed to make application public');
+      }
+    } catch (publicError) {
+      console.error('Error making application public:', publicError);
+      message.error('Failed to make application public');
+    }
   }
 };
 
