@@ -75,21 +75,7 @@ export class QueryHandler implements MessageHandler {
         )
       );
 
-      // Extract reply text from the query result (same logic as your current implementation)
-      let content: string;
-      if (typeof result === "string") {
-        content = result;
-      } else if (result && typeof result === "object") {
-        content =
-          (result as any).response ??
-          (result as any).message ??
-          (result as any).content ??
-          JSON.stringify(result);
-      } else {
-        content = String(result);
-      }
-
-      return { content };
+     return result.message
     } catch (e: any) {
       throw new Error(e?.message || "Query execution failed");
     }

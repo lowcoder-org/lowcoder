@@ -9,12 +9,13 @@ import { ChatCoreProps } from "../types/chatTypes";
 // CHAT CORE - THE SHARED FOUNDATION
 // ============================================================================
 
-export function ChatCore({ storage, messageHandler, onMessageUpdate }: ChatCoreProps) {
+export function ChatCore({ storage, messageHandler, onMessageUpdate, onConversationUpdate }: ChatCoreProps) {
   return (
     <ChatProvider storage={storage}>
       <ChatCoreMain 
         messageHandler={messageHandler}
         onMessageUpdate={onMessageUpdate}
+        onConversationUpdate={onConversationUpdate}
       />
     </ChatProvider>
   );

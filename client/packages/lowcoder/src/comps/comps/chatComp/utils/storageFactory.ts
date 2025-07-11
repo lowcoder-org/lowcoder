@@ -9,8 +9,8 @@ import { ChatMessage, ChatThread, ChatStorage } from "../types/chatTypes";
 
 export function createChatStorage(tableName: string): ChatStorage {
   const dbName = `ChatDB_${tableName}`;
-  const threadsTable = `${tableName}_threads`;
-  const messagesTable = `${tableName}_messages`;
+  const threadsTable = `${dbName}.${tableName}_threads`;
+  const messagesTable = `${dbName}.${tableName}_messages`;
   
   return {
     async initialize() {
@@ -18,7 +18,6 @@ export function createChatStorage(tableName: string): ChatStorage {
         // Create database with localStorage backend
         await alasql.promise(`CREATE LOCALSTORAGE DATABASE IF NOT EXISTS ${dbName}`);
         await alasql.promise(`ATTACH LOCALSTORAGE DATABASE ${dbName}`);
-        await alasql.promise(`USE ${dbName}`);
 
         // Create threads table
         await alasql.promise(`
@@ -174,6 +173,14 @@ export function createChatStorage(tableName: string): ChatStorage {
         console.log(`✅ Database reset and reinitialized: ${dbName}`);
       } catch (error) {
         console.error("Failed to reset database:", error);
+        throw error;
+      }
+    },
+    async cleanup() {
+      try {
+        await alasql.promise(`DROP LOCALSTORAGE DATABASE IF EXISTS ${dbName}`);
+      } catch (error) {
+        console.error("Failed to cleanup database:", error);
         throw error;
       }
     }

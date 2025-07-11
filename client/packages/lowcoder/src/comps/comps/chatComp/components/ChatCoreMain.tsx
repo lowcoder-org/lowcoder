@@ -60,11 +60,12 @@ const ChatContainer = styled.div`
 interface ChatCoreMainProps {
   messageHandler: MessageHandler;
   onMessageUpdate?: (message: string) => void;
+  onConversationUpdate?: (conversationHistory: ChatMessage[]) => void;
 }
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
-export function ChatCoreMain({ messageHandler, onMessageUpdate }: ChatCoreMainProps) {
+export function ChatCoreMain({ messageHandler, onMessageUpdate, onConversationUpdate }: ChatCoreMainProps) {
   const { state, actions } = useChatContext();
   const [isRunning, setIsRunning] = useState(false);
 
@@ -72,6 +73,14 @@ export function ChatCoreMain({ messageHandler, onMessageUpdate }: ChatCoreMainPr
 
   // Get messages for current thread
   const currentMessages = actions.getCurrentMessages();
+
+
+  console.log("CURRENT MESSAGES", currentMessages);
+
+  // Notify parent component of conversation changes
+  React.useEffect(() => {
+    onConversationUpdate?.(currentMessages);
+  }, [currentMessages]);
 
   // Convert custom format to ThreadMessageLike (same as your current implementation)
   const convertMessage = (message: ChatMessage): ThreadMessageLike => ({
@@ -106,6 +115,8 @@ export function ChatCoreMain({ messageHandler, onMessageUpdate }: ChatCoreMainPr
     try {
       // Use the message handler (no more complex logic here!)
       const response = await messageHandler.sendMessage(userMessage.text);
+
+      console.log("AI RESPONSE", response);
       
       const assistantMessage: ChatMessage = {
         id: generateId(),
