@@ -128,7 +128,8 @@ export const SelectInputValidationSection = (children: ValidationComp) => (
       label: trans("prop.showEmptyValidation"),
     })}
     {children.allowCustomTags.propertyView({
-      label: trans("prop.customTags") 
+      label: trans("prop.customTags"),
+      tooltip: trans("prop.customTagsTooltip")
     })}
     {children.customRule.propertyView({})}
   </Section>
