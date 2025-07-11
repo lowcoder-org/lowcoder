@@ -211,6 +211,7 @@ function OrganizationSetting() {
     logoUrl: org.logoUrl || "",
     createdAt: org.createdAt,
     updatedAt: org.updatedAt,
+    isCurrentOrg: org.isCurrentOrg,
   }));
 
 
@@ -262,7 +263,7 @@ function OrganizationSetting() {
                   dataIndex: "orgName",
                   ellipsis: true,
                   render: (_, record: any) => {
-                    const isActiveOrg = record.id === user.currentOrgId;
+                    const isActiveOrg = record.isCurrentOrg;
                     return (
                       <OrgName>
                         <StyledOrgLogo source={record.logoUrl} orgName={record.orgName} />
@@ -307,7 +308,7 @@ function OrganizationSetting() {
                 key: i,
                 operation: (
                   <OperationWrapper>
-                    {item.id !== user.currentOrgId && (
+                    {!item.isCurrentOrg && (
                       <SwitchBtn
                         className={"home-datasource-edit-button"}
                         buttonType={"blue"}

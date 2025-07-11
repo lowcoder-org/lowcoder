@@ -368,10 +368,11 @@ export function* fetchWorkspacesSaga(action: ReduxAction<{page: number, pageSize
       
       // Transform orgId/orgName to match Org interface
       const transformedItems = apiData.data.map(item => ({
-        id: item.orgId,
-        name: item.orgName,
-        createdAt: item.createdAt,
-        updatedAt: item.updatedAt,
+        id: item.orgView.orgId,
+        name: item.orgView.orgName,
+        createdAt: item.orgView.createdAt,
+        updatedAt: item.orgView.updatedAt,
+        isCurrentOrg: item.isCurrentOrg,
       }));
         
       yield put({
