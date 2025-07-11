@@ -262,7 +262,7 @@ function OrganizationSetting() {
                   dataIndex: "orgName",
                   ellipsis: true,
                   render: (_, record: any) => {
-                    const isActiveOrg = record.id === user.currentOrgId;
+                    const isActiveOrg = record.isCurrentOrg;
                     return (
                       <OrgName>
                         <StyledOrgLogo source={record.logoUrl} orgName={record.orgName} />
