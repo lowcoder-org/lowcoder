@@ -19,11 +19,13 @@ export const ChatPropertyView = React.memo((props: any) => {
           placeholder: "Enter placeholder text..."
         })}
         
-        {children.tableName.propertyView({ 
-          label: "Storage Table",
-          placeholder: "default",
-          tooltip: "Storage identifier - use same value to share conversations between components"
+        {children.databaseName.propertyView({ 
+          label: "Database Name",
+          placeholder: "Database will be auto-generated...",
+          tooltip: "Read-only: Auto-generated database name for data persistence. You can reference this in queries if needed.",
+          disabled: true
         })}
+        
       </Section>
 
       {/* Message Handler Configuration */}

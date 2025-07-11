@@ -35,6 +35,7 @@ export interface ChatMessage {
     deleteMessages(threadId: string): Promise<void>;
     clearAllData(): Promise<void>;
     resetDatabase(): Promise<void>;
+    cleanup(): Promise<void>;
   }
   
   // ============================================================================
@@ -75,6 +76,7 @@ export interface ChatMessage {
     storage: ChatStorage;
     messageHandler: MessageHandler;
     onMessageUpdate?: (message: string) => void;
+    onConversationUpdate?: (conversationHistory: ChatMessage[]) => void;
   }
   
   export interface ChatPanelProps {
