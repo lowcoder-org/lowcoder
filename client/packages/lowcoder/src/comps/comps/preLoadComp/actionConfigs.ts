@@ -5,11 +5,16 @@ import {
   renameComponentAction,
   deleteComponentAction,
   resizeComponentAction,
-  configureComponentAction,
-  changeLayoutAction,
+  configureAppMetaAction,
   addEventHandlerAction,
   applyStyleAction,
-  nestComponentAction
+  nestComponentAction,
+  updateDynamicLayoutAction,
+  publishAppAction,
+  shareAppAction,
+  testAllDatasourcesAction,
+  applyGlobalJSAction,
+  applyGlobalCSSAction
 } from "./actions";
 
 export const actionCategories: ActionCategory[] = [
@@ -26,14 +31,21 @@ export const actionCategories: ActionCategory[] = [
     ]
   },
   {
-    key: 'component-configuration',
-    label: 'Component Configuration',
-    actions: [configureComponentAction]
+    key: 'app-configuration',
+    label: 'App Configuration',
+    actions: [
+      configureAppMetaAction, 
+      publishAppAction,
+      shareAppAction,
+      testAllDatasourcesAction,
+      applyGlobalJSAction,
+      applyGlobalCSSAction
+    ]
   },
   {
     key: 'layout',
     label: 'Layout',
-    actions: [changeLayoutAction]
+    actions: [updateDynamicLayoutAction]
   },
   {
     key: 'events',

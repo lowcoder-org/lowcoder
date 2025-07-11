@@ -35,6 +35,7 @@ export interface ActionConfig {
   requiresInput?: boolean;
   requiresStyle?: boolean;
   isNested?: boolean;
+  dynamicLayout?: boolean;
   inputPlaceholder?: string;
   inputType?: 'text' | 'number' | 'textarea' | 'json';
   validation?: (value: string) => string | null; 
@@ -47,6 +48,7 @@ export interface ActionExecuteParams {
   selectedComponent: string | null;
   selectedEditorComponent: string | null;
   selectedNestComponent: string | null;
+  selectedDynamicLayoutIndex: string | null;
   editorState: any;
 }
 

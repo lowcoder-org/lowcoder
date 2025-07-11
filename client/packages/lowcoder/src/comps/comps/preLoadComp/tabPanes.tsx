@@ -3,10 +3,15 @@ import React, { useEffect } from "react";
 import { trans } from "i18n";
 import { ConstructorToComp } from "lowcoder-core";
 import { ScriptComp, CSSComp } from "./components";
+import { runScript } from "./utils";
 
 export function JavaScriptTabPane(props: { comp: ConstructorToComp<typeof ScriptComp> }) {
   useEffect(() => {
-    props.comp.runPreloadScript();
+    // Use the imported runScript function instead of the component's method to avoid require() issues
+    const code = props.comp.getView();
+    if (code) {
+      runScript(code, false);
+    }
   }, [props.comp]);
 
   const codePlaceholder = `window.name = 'Tom';\nwindow.greet = () => "hello world";`;
