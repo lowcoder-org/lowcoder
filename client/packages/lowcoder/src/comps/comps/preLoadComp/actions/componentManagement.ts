@@ -137,14 +137,17 @@ export const nestComponentAction: ActionConfig = {
   requiresInput: false,
   isNested: true,
   execute: async (params: ActionExecuteParams) => {
-    const { selectedEditorComponent, selectedNestComponent, editorState } = params;
-    
+    // const { selectedEditorComponent, selectedNestComponent, editorState, actionPayload } = params;
+    const { editorState, actionPayload, selectedComponent: selectedNestComponent } = params;
+    const { name, layout, target: selectedEditorComponent, ...otherProps } = actionPayload;
+
     if (!selectedEditorComponent || !selectedNestComponent || !editorState) {
       message.error('Parent component, child component, and editor state are required');
       return;
     }
 
-    const parentComponentInfo = getEditorComponentInfo(editorState, selectedEditorComponent);
+    const [editorComponent, ...childComponents] = selectedEditorComponent.split('.');
+    const parentComponentInfo = getEditorComponentInfo(editorState, editorComponent);
     
     if (!parentComponentInfo) {
       message.error(`Parent component "${selectedEditorComponent}" not found`);
@@ -174,10 +177,15 @@ export const nestComponentAction: ActionConfig = {
     }
 
     try {
-
+      let compName = name;
       const nameGenerator = editorState.getNameGenerator();
       const compInfo = parseCompType(selectedNestComponent);
-      const compName = nameGenerator.genItemName(compInfo.compName);
+      if (!compName) {
+        compName = nameGenerator.genItemName(compInfo.compName);
+      }
+      // const nameGenerator = editorState.getNameGenerator();
+      // const compInfo = parseCompType(selectedNestComponent);
+      // const compName = nameGenerator.genItemName(compInfo.compName);
       const key = genRandomKey();
 
       const manifest = uiCompRegistry[selectedNestComponent];
@@ -193,15 +201,33 @@ export const nestComponentAction: ActionConfig = {
         defaultDataFn = manifest?.defaultDataFn;
       }
 
+      let compDefaultValue = defaultDataFn ? defaultDataFn(compName, nameGenerator, editorState) : undefined;
+      const compInitialValue = {
+        ...(compDefaultValue as any || {}),
+        ...otherProps,
+      }
+
       const widgetValue: GridItemDataType = {
         compType: selectedNestComponent,
         name: compName,
-        comp: defaultDataFn ? defaultDataFn(compName, nameGenerator, editorState) : undefined,
+        comp: compInitialValue,
       };
 
       const parentContainer = parentItem.children.comp;
-      
-      const realContainer = parentContainer.realSimpleContainer();
+      let originalContainer = parentContainer;
+      for (const childComponent of childComponents) {
+        originalContainer = originalContainer.children[childComponent];
+      }
+      if (originalContainer?.children?.[0]?.children?.view) {
+        originalContainer = originalContainer?.children?.[0]?.children?.view;
+      }
+
+      if (!originalContainer) {
+        message.error(`Container "${selectedEditorComponent}" cannot accept nested components`);
+        return;
+      }
+
+      const realContainer = originalContainer.realSimpleContainer();
       if (!realContainer) {
         message.error(`Container "${selectedEditorComponent}" cannot accept nested components`);
         return;
@@ -223,6 +249,7 @@ export const nestComponentAction: ActionConfig = {
         h: layoutInfo.h || 5,
         pos: itemPos,
         isDragging: false,
+        ...(layout || {}),
       };
 
       realContainer.dispatch(

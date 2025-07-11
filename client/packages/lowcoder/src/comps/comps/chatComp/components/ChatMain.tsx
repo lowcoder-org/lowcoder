@@ -19,7 +19,8 @@ import styled from "styled-components";
 import { ChatCompProps } from "../chatCompTypes";
 import { message } from "antd";
 import { EditorContext } from "@lowcoder-ee/comps/editorState";
-import { addComponentAction } from "../../preLoadComp/actions/componentManagement";
+import { addComponentAction, nestComponentAction } from "../../preLoadComp/actions/componentManagement";
+import { configureComponentAction } from "../../preLoadComp/actions/componentConfiguration";
 
 const ChatContainer = styled.div<{ $autoHeight?: boolean }>`
   display: flex;
@@ -92,7 +93,7 @@ export function ChatMain(props: ChatCompProps) {
 
   // Keep the ref updated with the latest editorState
   useEffect(() => {
-    console.log("EDITOR STATE CHANGE ---> ", editorState);
+    // console.log("EDITOR STATE CHANGE ---> ", editorState);
     editorStateRef.current = editorState;
   }, [editorState]);
 
@@ -129,6 +130,30 @@ export function ChatMain(props: ChatCompProps) {
             actionPayload: action_payload,
             selectedComponent: action_parameters,
             selectedEditorComponent: null,
+            selectedNestComponent: null,
+            editorState: editorStateRef.current
+          });
+          break;
+        case "nest_component":
+          await nestComponentAction.execute({
+            actionKey: action_name,
+            actionValue: "",
+            actionPayload: action_payload,
+            selectedComponent: action_parameters,
+            selectedEditorComponent: null,
+            selectedNestComponent: null,
+            editorState: editorStateRef.current
+          });
+          break;
+        case "set_properties":
+          debugger;
+          await configureComponentAction.execute({
+            actionKey: action_name,
+            actionValue: action_parameters,
+            actionPayload: action_payload,
+            selectedEditorComponent: null,
+            selectedComponent: null,
+            selectedNestComponent: null,
             editorState: editorStateRef.current
           });
           break;

@@ -1,5 +1,6 @@
 import { message } from "antd";
 import { ActionConfig, ActionExecuteParams } from "../types";
+import { getEditorComponentInfo } from "../utils";
 
 export const configureComponentAction: ActionConfig = {
   key: 'configure-components',
@@ -19,10 +20,40 @@ export const configureComponentAction: ActionConfig = {
     }
   },
   execute: async (params: ActionExecuteParams) => {
-    const { selectedEditorComponent, actionValue } = params;
+    const { selectedEditorComponent, actionValue: name, actionValue, actionPayload, editorState } = params;
+    const otherProps = actionPayload;
+    // const { name, ...otherProps } = actionPayload;
     
     try {
-      const config = JSON.parse(actionValue);
+      const componentInfo = getEditorComponentInfo(editorState, name);
+      
+      if (!componentInfo) {
+        message.error(`Component "${selectedEditorComponent}" not found`);
+        return;
+      }
+
+      const { componentKey: parentKey, items } = componentInfo;
+    
+      if (!parentKey) {
+        message.error(`Parent component "${selectedEditorComponent}" not found in layout`);
+        return;
+      }
+
+      const parentItem = items[parentKey];
+      if (!parentItem) {
+        message.error(`Parent component "${selectedEditorComponent}" not found in items`);
+        return;
+      }
+
+      const itemComp = parentItem.children.comp;
+      const itemData = itemComp.toJsonValue();
+      const config = {
+        ...itemData,
+        ...otherProps
+      };
+      itemComp.dispatchChangeValueAction(config);
+
+      debugger;
       console.log('Configuring component:', selectedEditorComponent, 'with config:', config);
       message.info(`Configure action for component "${selectedEditorComponent}"`);
       
