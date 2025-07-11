@@ -274,7 +274,7 @@ function PermissionTagRender(props: CustomTagProps) {
       color={value}
       closable={closable}
       onClose={onClose}
-      style={{ marginRight: 3 }}
+      style={{ marginRight: 3, display: "flex", alignItems: "center" }}
     >
       {label}
     </StyledTag>
