@@ -21,6 +21,9 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.lowcoder.sdk.constants.GlobalContext.VISITOR_TOKEN;
+import org.lowcoder.api.application.view.ApplicationView;
+
 @SpringBootTest
 @ActiveProfiles("test") // Uses embedded MongoDB
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -41,34 +44,30 @@ public class ApplicationHistorySnapshotEndpointsIntegrationTest {
     }
 
     @Test
-    @WithMockUser(id = "test-user")
-    public void testCreateHistorySnapshotWithDatabase() {
-        // First create an application
-        ApplicationEndpoints.CreateApplicationRequest createRequest = new ApplicationEndpoints.CreateApplicationRequest(
-            "org01",
-            null,
-            "Test App for History",
-            1,
+    @WithMockUser(id = "user01")
+    public void testCreateHistorySnapshotWithExistingApplication() {
+        // Use an existing application from test data instead of creating a new one
+        String existingAppId = "app01"; // This exists in the test data
+        
+        // Create history snapshot request for existing application
+        ApplicationHistorySnapshotRequest snapshotRequest = new ApplicationHistorySnapshotRequest(
+            existingAppId,
             createTestDsl(),
-            null,
-            null,
-            null
+            createTestContext()
         );
-
-        // Create application and then create history snapshot
-        Mono<ResponseView<Boolean>> result = applicationController.create(createRequest)
-            .flatMap(appView -> {
-                String appId = appView.getData().getApplicationInfoView().getApplicationId();
-                
-                // Create history snapshot request
-                ApplicationHistorySnapshotRequest snapshotRequest = new ApplicationHistorySnapshotRequest(
-                    appId,
-                    createTestDsl(),
-                    createTestContext()
-                );
-                
-                return controller.create(snapshotRequest);
-            });
+        
+        System.out.println("Creating history snapshot for existing app: " + existingAppId);
+        
+        // Create history snapshot
+        Mono<ResponseView<Boolean>> result = controller.create(snapshotRequest)
+            .doOnNext(response -> {
+                System.out.println("History snapshot creation response: " + response);
+            })
+            .doOnError(error -> {
+                System.err.println("History snapshot creation error: " + error.getMessage());
+                error.printStackTrace();
+            })
+            .contextWrite(setupTestContext());
 
         // Verify the result
         StepVerifier.create(result)
@@ -81,44 +80,30 @@ public class ApplicationHistorySnapshotEndpointsIntegrationTest {
     }
 
     @Test
-    @WithMockUser(id = "test-user")
-    public void testListHistorySnapshotsWithDatabase() {
-        // First create an application and snapshot
-        ApplicationEndpoints.CreateApplicationRequest createRequest = new ApplicationEndpoints.CreateApplicationRequest(
-            "org01",
-            null,
-            "Test App for List",
-            1,
+    @WithMockUser(id = "user01")
+    public void testListHistorySnapshotsWithExistingApplication() {
+        // Use an existing application from test data
+        String existingAppId = "app01"; // This exists in the test data
+        
+        // First create a history snapshot for the existing application
+        ApplicationHistorySnapshotRequest snapshotRequest = new ApplicationHistorySnapshotRequest(
+            existingAppId,
             createTestDsl(),
-            null,
-            null,
-            null
+            createTestContext()
         );
-
-        // Create application, snapshot, and then list snapshots
-        Mono<ResponseView<Map<String, Object>>> result = applicationController.create(createRequest)
-            .flatMap(appView -> {
-                String appId = appView.getData().getApplicationInfoView().getApplicationId();
-                
-                // Create history snapshot
-                ApplicationHistorySnapshotRequest snapshotRequest = new ApplicationHistorySnapshotRequest(
-                    appId,
-                    createTestDsl(),
-                    createTestContext()
-                );
-                
-                return controller.create(snapshotRequest)
-                    .then(Mono.just(appId));
-            })
-            .flatMap(appId -> controller.listAllHistorySnapshotBriefInfo(
-                appId,
+        
+        // Create snapshot and then list snapshots
+        Mono<ResponseView<Map<String, Object>>> result = controller.create(snapshotRequest)
+            .then(controller.listAllHistorySnapshotBriefInfo(
+                existingAppId,
                 1,
                 10,
                 null,
                 null,
                 null,
                 null
-            ));
+            ))
+            .contextWrite(setupTestContext());
 
         // Verify the result
         StepVerifier.create(result)
@@ -133,37 +118,22 @@ public class ApplicationHistorySnapshotEndpointsIntegrationTest {
     }
 
     @Test
-    @WithMockUser(id = "test-user")
-    public void testGetHistorySnapshotDslWithDatabase() {
-        // First create an application and snapshot
-        ApplicationEndpoints.CreateApplicationRequest createRequest = new ApplicationEndpoints.CreateApplicationRequest(
-            "org01",
-            null,
-            "Test App for DSL",
-            1,
+    @WithMockUser(id = "user01")
+    public void testGetHistorySnapshotDslWithExistingApplication() {
+        // Use an existing application from test data
+        String existingAppId = "app01"; // This exists in the test data
+        
+        // First create a history snapshot for the existing application
+        ApplicationHistorySnapshotRequest snapshotRequest = new ApplicationHistorySnapshotRequest(
+            existingAppId,
             createTestDsl(),
-            null,
-            null,
-            null
+            createTestContext()
         );
-
-        // Create application, snapshot, and then get snapshot DSL
-        Mono<ResponseView<HistorySnapshotDslView>> result = applicationController.create(createRequest)
-            .flatMap(appView -> {
-                String appId = appView.getData().getApplicationInfoView().getApplicationId();
-                
-                // Create history snapshot
-                ApplicationHistorySnapshotRequest snapshotRequest = new ApplicationHistorySnapshotRequest(
-                    appId,
-                    createTestDsl(),
-                    createTestContext()
-                );
-                
-                return controller.create(snapshotRequest)
-                    .then(Mono.just(appId));
-            })
-            .flatMap(appId -> controller.listAllHistorySnapshotBriefInfo(
-                appId,
+        
+        // Create snapshot and then get snapshot DSL
+        Mono<ResponseView<HistorySnapshotDslView>> result = controller.create(snapshotRequest)
+            .then(controller.listAllHistorySnapshotBriefInfo(
+                existingAppId,
                 1,
                 10,
                 null,
@@ -178,12 +148,12 @@ public class ApplicationHistorySnapshotEndpointsIntegrationTest {
                 
                 if (!snapshots.isEmpty()) {
                     String snapshotId = snapshots.get(0).snapshotId();
-                    String appId = snapshots.get(0).userId(); // This is actually the appId in the test context
-                    return controller.getHistorySnapshotDsl(appId, snapshotId);
+                    return controller.getHistorySnapshotDsl(existingAppId, snapshotId);
                 } else {
                     return Mono.error(new RuntimeException("No snapshots found"));
                 }
-            });
+            })
+            .contextWrite(setupTestContext());
 
         // Verify the result
         StepVerifier.create(result)
@@ -197,44 +167,30 @@ public class ApplicationHistorySnapshotEndpointsIntegrationTest {
     }
 
     @Test
-    @WithMockUser(id = "test-user")
-    public void testListArchivedHistorySnapshotsWithDatabase() {
-        // First create an application and snapshot
-        ApplicationEndpoints.CreateApplicationRequest createRequest = new ApplicationEndpoints.CreateApplicationRequest(
-            "org01",
-            null,
-            "Test App for Archived",
-            1,
+    @WithMockUser(id = "user01")
+    public void testListArchivedHistorySnapshotsWithExistingApplication() {
+        // Use an existing application from test data
+        String existingAppId = "app01"; // This exists in the test data
+        
+        // First create a history snapshot for the existing application
+        ApplicationHistorySnapshotRequest snapshotRequest = new ApplicationHistorySnapshotRequest(
+            existingAppId,
             createTestDsl(),
-            null,
-            null,
-            null
+            createTestContext()
         );
-
-        // Create application, snapshot, and then list archived snapshots
-        Mono<ResponseView<Map<String, Object>>> result = applicationController.create(createRequest)
-            .flatMap(appView -> {
-                String appId = appView.getData().getApplicationInfoView().getApplicationId();
-                
-                // Create history snapshot
-                ApplicationHistorySnapshotRequest snapshotRequest = new ApplicationHistorySnapshotRequest(
-                    appId,
-                    createTestDsl(),
-                    createTestContext()
-                );
-                
-                return controller.create(snapshotRequest)
-                    .then(Mono.just(appId));
-            })
-            .flatMap(appId -> controller.listAllHistorySnapshotBriefInfoArchived(
-                appId,
+        
+        // Create snapshot and then list archived snapshots
+        Mono<ResponseView<Map<String, Object>>> result = controller.create(snapshotRequest)
+            .then(controller.listAllHistorySnapshotBriefInfoArchived(
+                existingAppId,
                 1,
                 10,
                 null,
                 null,
                 null,
                 null
-            ));
+            ))
+            .contextWrite(setupTestContext());
 
         // Verify the result
         StepVerifier.create(result)
@@ -250,51 +206,69 @@ public class ApplicationHistorySnapshotEndpointsIntegrationTest {
     }
 
     @Test
-    @WithMockUser(id = "test-user")
-    public void testCreateMultipleSnapshotsWithDatabase() {
-        // First create an application
-        ApplicationEndpoints.CreateApplicationRequest createRequest = new ApplicationEndpoints.CreateApplicationRequest(
-            "org01",
-            null,
-            "Test App for Multiple Snapshots",
+    @WithMockUser(id = "user01")
+    public void testListArchivedHistorySnapshotsEmptyList() {
+        // Use an existing application from test data
+        String existingAppId = "app01"; // This exists in the test data
+        
+        // Test the archived endpoint structure - in test environment, there are no archived snapshots
+        // so we test that the endpoint responds correctly with an empty list
+        Mono<ResponseView<Map<String, Object>>> listResult = controller.listAllHistorySnapshotBriefInfoArchived(
+            existingAppId,
             1,
-            createTestDsl(),
+            10,
+            null,
             null,
             null,
             null
-        );
+        )
+        .contextWrite(setupTestContext());
 
-        // Create application and multiple snapshots
-        Mono<ResponseView<Map<String, Object>>> result = applicationController.create(createRequest)
-            .flatMap(appView -> {
-                String appId = appView.getData().getApplicationInfoView().getApplicationId();
-                
-                // Create multiple history snapshots
-                ApplicationHistorySnapshotRequest snapshotRequest1 = new ApplicationHistorySnapshotRequest(
-                    appId,
-                    createTestDsl(),
-                    createTestContext("snapshot1")
-                );
-                
-                ApplicationHistorySnapshotRequest snapshotRequest2 = new ApplicationHistorySnapshotRequest(
-                    appId,
-                    createTestDsl(),
-                    createTestContext("snapshot2")
-                );
-                
-                return controller.create(snapshotRequest1)
-                    .then(controller.create(snapshotRequest2))
-                    .then(Mono.just(appId));
+        // Verify that the archived list endpoint works correctly
+        StepVerifier.create(listResult)
+            .assertNext(response -> {
+                Assertions.assertTrue(response.isSuccess());
+                Assertions.assertNotNull(response.getData());
+                Assertions.assertTrue(response.getData().containsKey("list"));
+                Assertions.assertTrue(response.getData().containsKey("count"));
+                // In test environment, count should be 0 since no snapshots are archived
+                Assertions.assertEquals(0L, response.getData().get("count"));
             })
-            .flatMap(appId -> controller.listAllHistorySnapshotBriefInfo(
-                appId,
+            .verifyComplete();
+    }
+
+    @Test
+    @WithMockUser(id = "user01")
+    public void testCreateMultipleSnapshotsWithExistingApplication() {
+        // Use an existing application from test data
+        String existingAppId = "app01"; // This exists in the test data
+        
+        // Create multiple history snapshots for the existing application
+        ApplicationHistorySnapshotRequest snapshotRequest1 = new ApplicationHistorySnapshotRequest(
+            existingAppId,
+            createTestDsl(),
+            createTestContext("snapshot1")
+        );
+        
+        ApplicationHistorySnapshotRequest snapshotRequest2 = new ApplicationHistorySnapshotRequest(
+            existingAppId,
+            createTestDsl(),
+            createTestContext("snapshot2")
+        );
+        
+        // Create multiple snapshots and then list them
+        Mono<ResponseView<Map<String, Object>>> result = controller.create(snapshotRequest1)
+            .then(controller.create(snapshotRequest2))
+            .then(controller.listAllHistorySnapshotBriefInfo(
+                existingAppId,
                 1,
                 10,
                 null,
                 null,
                 null,
                 null
-            ));
+            ))
+            .contextWrite(setupTestContext());
 
         // Verify the result
         StepVerifier.create(result)
@@ -309,34 +283,21 @@ public class ApplicationHistorySnapshotEndpointsIntegrationTest {
     }
 
     @Test
-    @WithMockUser(id = "test-user")
-    public void testCreateSnapshotWithEmptyDsl() {
-        // First create an application
-        ApplicationEndpoints.CreateApplicationRequest createRequest = new ApplicationEndpoints.CreateApplicationRequest(
-            "org01",
-            null,
-            "Test App for Empty DSL",
-            1,
-            createTestDsl(),
-            null,
-            null,
-            null
+    @WithMockUser(id = "user01")
+    public void testCreateSnapshotWithEmptyDslWithExistingApplication() {
+        // Use an existing application from test data
+        String existingAppId = "app01"; // This exists in the test data
+        
+        // Create history snapshot with empty DSL for the existing application
+        ApplicationHistorySnapshotRequest snapshotRequest = new ApplicationHistorySnapshotRequest(
+            existingAppId,
+            new HashMap<>(),
+            createTestContext()
         );
-
-        // Create application and snapshot with empty DSL
-        Mono<ResponseView<Boolean>> result = applicationController.create(createRequest)
-            .flatMap(appView -> {
-                String appId = appView.getData().getApplicationInfoView().getApplicationId();
-                
-                // Create history snapshot with empty DSL
-                ApplicationHistorySnapshotRequest snapshotRequest = new ApplicationHistorySnapshotRequest(
-                    appId,
-                    new HashMap<>(),
-                    createTestContext()
-                );
-                
-                return controller.create(snapshotRequest);
-            });
+        
+        // Create snapshot
+        Mono<ResponseView<Boolean>> result = controller.create(snapshotRequest)
+            .contextWrite(setupTestContext());
 
         // Verify the result
         StepVerifier.create(result)
@@ -349,37 +310,24 @@ public class ApplicationHistorySnapshotEndpointsIntegrationTest {
     }
 
     @Test
-    @WithMockUser(id = "test-user")
-    public void testCreateSnapshotWithComplexDsl() {
-        // First create an application
-        ApplicationEndpoints.CreateApplicationRequest createRequest = new ApplicationEndpoints.CreateApplicationRequest(
-            "org01",
-            null,
-            "Test App for Complex DSL",
-            1,
-            createTestDsl(),
-            null,
-            null,
-            null
+    @WithMockUser(id = "user01")
+    public void testCreateSnapshotWithComplexDslWithExistingApplication() {
+        // Use an existing application from test data
+        String existingAppId = "app01"; // This exists in the test data
+        
+        // Create complex DSL
+        Map<String, Object> complexDsl = createComplexTestDsl();
+        
+        // Create history snapshot with complex DSL for the existing application
+        ApplicationHistorySnapshotRequest snapshotRequest = new ApplicationHistorySnapshotRequest(
+            existingAppId,
+            complexDsl,
+            createTestContext("complex-snapshot")
         );
-
-        // Create application and snapshot with complex DSL
-        Mono<ResponseView<Boolean>> result = applicationController.create(createRequest)
-            .flatMap(appView -> {
-                String appId = appView.getData().getApplicationInfoView().getApplicationId();
-                
-                // Create complex DSL
-                Map<String, Object> complexDsl = createComplexTestDsl();
-                
-                // Create history snapshot with complex DSL
-                ApplicationHistorySnapshotRequest snapshotRequest = new ApplicationHistorySnapshotRequest(
-                    appId,
-                    complexDsl,
-                    createTestContext("complex-snapshot")
-                );
-                
-                return controller.create(snapshotRequest);
-            });
+        
+        // Create snapshot
+        Mono<ResponseView<Boolean>> result = controller.create(snapshotRequest)
+            .contextWrite(setupTestContext());
 
         // Verify the result
         StepVerifier.create(result)
@@ -389,6 +337,78 @@ public class ApplicationHistorySnapshotEndpointsIntegrationTest {
                 Assertions.assertTrue(response.getData());
             })
             .verifyComplete();
+    }
+
+    @Test
+    @WithMockUser(id = "user01")
+    public void testApplicationCreationWorks() {
+        // Test that application creation works independently
+        ApplicationEndpoints.CreateApplicationRequest createRequest = new ApplicationEndpoints.CreateApplicationRequest(
+            "org01",
+            null,
+            "Test App for Creation",
+            1,
+            createTestDsl(),
+            null,
+            null,
+            null
+        );
+
+        System.out.println("Creating application with request: " + createRequest);
+
+        Mono<ResponseView<ApplicationView>> result = applicationController.create(createRequest)
+            .doOnNext(response -> {
+                System.out.println("Application creation response: " + response);
+                if (response.isSuccess() && response.getData() != null) {
+                    System.out.println("Application created successfully with ID: " + response.getData().getApplicationInfoView().getApplicationId());
+                } else {
+                    System.out.println("Application creation failed: " + response.getMessage());
+                }
+            })
+            .doOnError(error -> {
+                System.err.println("Application creation error: " + error.getMessage());
+                error.printStackTrace();
+            })
+            .contextWrite(setupTestContext());
+
+        // Verify the result
+        StepVerifier.create(result)
+            .assertNext(response -> {
+                Assertions.assertTrue(response.isSuccess());
+                Assertions.assertNotNull(response.getData());
+                Assertions.assertNotNull(response.getData().getApplicationInfoView());
+                Assertions.assertNotNull(response.getData().getApplicationInfoView().getApplicationId());
+                System.out.println("Successfully created application with ID: " + response.getData().getApplicationInfoView().getApplicationId());
+            })
+            .verifyComplete();
+    }
+
+    @Test
+    @WithMockUser(id = "user01")
+    public void testGetHistorySnapshotDslArchivedWithNonExistentSnapshot() {
+        // Use an existing application from test data
+        String existingAppId = "app01"; // This exists in the test data
+        String nonExistentSnapshotId = "non-existent-snapshot-id";
+        
+        // Test that trying to get a non-existent archived snapshot returns an appropriate error
+        Mono<ResponseView<HistorySnapshotDslView>> result = controller.getHistorySnapshotDslArchived(
+            existingAppId,
+            nonExistentSnapshotId
+        )
+        .contextWrite(setupTestContext());
+
+        // Verify that the endpoint handles non-existent snapshots appropriately
+        StepVerifier.create(result)
+            .expectError()
+            .verify();
+    }
+
+    // Helper method to set up Reactor context for tests
+    private reactor.util.context.Context setupTestContext() {
+        return reactor.util.context.Context.of(
+            VISITOR_TOKEN, "test-token-" + System.currentTimeMillis(),
+            "headers", new HashMap<String, String>()
+        );
     }
 
     // Helper methods
