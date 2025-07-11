@@ -20,7 +20,8 @@ const SelectWrapper = styled.div<{ $border?: boolean }>`
     padding: ${(props) => (props.$border ? "0px" : "0 0 0 12px")};
     height: 100%;
     align-items: center;
-    margin-right: 8px;
+    margin-right: 10px;
+    padding-right: 5px;
     background-color: #fff;
 
     .ant-select-selection-item {
@@ -46,9 +47,9 @@ const SelectWrapper = styled.div<{ $border?: boolean }>`
   }
 
   .ant-select-arrow {
-    width: 20px;
-    height: 20px;
-    right: 8px;
+    width: 17px;
+    height: 17px;
+    right: 10px;
     top: 0;
     bottom: 0;
     margin: auto;
