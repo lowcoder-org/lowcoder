@@ -211,6 +211,7 @@ function OrganizationSetting() {
     logoUrl: org.logoUrl || "",
     createdAt: org.createdAt,
     updatedAt: org.updatedAt,
+    isCurrentOrg: org.isCurrentOrg,
   }));
 
 
@@ -307,7 +308,7 @@ function OrganizationSetting() {
                 key: i,
                 operation: (
                   <OperationWrapper>
-                    {item.id !== user.currentOrgId && (
+                    {!item.isCurrentOrg && (
                       <SwitchBtn
                         className={"home-datasource-edit-button"}
                         buttonType={"blue"}
