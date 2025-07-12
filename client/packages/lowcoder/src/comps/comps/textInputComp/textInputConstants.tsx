@@ -179,14 +179,9 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
   const inputValue = { ...props.value }.value;
 
   useEffect(() => {
+    setLocalInputValue(defaultValue);
     props.value.onChange(defaultValue)
   }, [defaultValue]);
-
-  useEffect(() => {
-    if (inputValue !== localInputValue) {
-      setLocalInputValue(inputValue);
-    }
-  }, [inputValue]);
 
   useEffect(() => {
     if (!changeRef.current) return;
@@ -220,8 +215,7 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
       propsRef.current.value.onChange(value);
       propsRef.current.onEvent("change");
     }, 1000)
-  );
-  
+  );  
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
