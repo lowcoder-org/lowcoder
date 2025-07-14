@@ -6,6 +6,7 @@ import { getPromiseAfterDispatch } from "util/promiseUtils";
 import { runScript } from "../utils";
 import { updateAppPermissionInfo } from "redux/reduxActions/applicationActions";
 import { reduxStore } from "redux/store/store";
+import { readableShortcut } from "util/keyUtils";
 
 export const configureAppMetaAction: ActionConfig = {
   key: 'configure-app-meta',
@@ -336,6 +337,201 @@ export const applyGlobalCSSAction: ActionConfig = {
     } catch (error) {
       console.error('Error applying global CSS:', error);
       message.error('Failed to apply global CSS. Check console for details.');
+    }
+  }
+};
+
+export const applyThemeAction: ActionConfig = {
+  key: 'apply-theme',
+  label: 'Apply theme',
+  category: 'app-configuration',
+  isTheme: true,
+  execute: async (params: ActionExecuteParams) => {
+    const { editorState, selectedTheme } = params;
+
+    try {
+      if (!selectedTheme) {
+        message.error('No theme selected');
+        return;
+      }
+
+      const appSettingsComp = editorState.getAppSettingsComp();
+      if (!appSettingsComp) {
+        message.error('App settings component not found');
+        return;
+      }
+
+      const themeIdComp = appSettingsComp.children.themeId;
+      if (!themeIdComp) {
+        message.error('Theme ID component not found');
+        return;
+      }
+
+      const DEFAULT_THEMEID = "default";
+      const themeToApply = selectedTheme === DEFAULT_THEMEID ? DEFAULT_THEMEID : selectedTheme;
+
+      themeIdComp.dispatchChangeValueAction(themeToApply);
+      
+      message.success(`Theme applied successfully: ${selectedTheme}`);
+      
+    } catch (error) {
+      console.error('Error applying theme:', error);
+      message.error('Failed to apply theme. Check console for details.');
+    }
+  }
+};
+
+export const setCanvasSettingsAction: ActionConfig = {
+  key: 'set-canvas-settings',
+  label: 'Set canvas settings',
+  category: 'app-configuration',
+  requiresInput: false,
+  execute: async (params: ActionExecuteParams) => {
+    const { editorState } = params;
+
+    // Default canvas settings
+    // TODO: Get canvas settings from the user
+    const defaultCanvasSettings = {
+      maxWidth: "450",
+      gridColumns: 12,
+      gridRowHeight: 8,
+      gridRowCount: Infinity,
+      gridPaddingX: 20,
+      gridPaddingY: 20,
+      gridBg: "",
+      gridBgImage: "",
+      gridBgImageRepeat: "no-repeat",
+      gridBgImageSize: "cover",
+      gridBgImagePosition: "center",
+      gridBgImageOrigin: "no-padding"
+    };
+
+    try {
+      const appSettingsComp = editorState.getAppSettingsComp();
+      if (!appSettingsComp) {
+        message.error('App settings component not found');
+        return;
+      }
+
+      const {
+        maxWidth,
+        gridColumns,
+        gridRowHeight,
+        gridRowCount,
+        gridPaddingX,
+        gridPaddingY,
+        gridBg,
+        gridBgImage,
+        gridBgImageRepeat,
+        gridBgImageSize,
+        gridBgImagePosition,
+        gridBgImageOrigin,
+      } = appSettingsComp.children;
+
+      if (maxWidth && defaultCanvasSettings.maxWidth) {
+        maxWidth.dispatchChangeValueAction(defaultCanvasSettings.maxWidth);
+      }
+
+      if (gridColumns && defaultCanvasSettings.gridColumns) {
+        gridColumns.dispatchChangeValueAction(defaultCanvasSettings.gridColumns);
+      }
+
+      if (gridRowHeight && defaultCanvasSettings.gridRowHeight) {
+        gridRowHeight.dispatchChangeValueAction(defaultCanvasSettings.gridRowHeight);
+      }
+
+      if (gridRowCount && defaultCanvasSettings.gridRowCount) {
+        gridRowCount.dispatchChangeValueAction(defaultCanvasSettings.gridRowCount);
+      }
+
+      if (gridPaddingX && defaultCanvasSettings.gridPaddingX) {
+        gridPaddingX.dispatchChangeValueAction(defaultCanvasSettings.gridPaddingX);
+      }
+
+      if (gridPaddingY && defaultCanvasSettings.gridPaddingY) {
+        gridPaddingY.dispatchChangeValueAction(defaultCanvasSettings.gridPaddingY);
+      }
+
+      if (gridBg && defaultCanvasSettings.gridBg) {
+        gridBg.dispatchChangeValueAction(defaultCanvasSettings.gridBg);
+      }
+
+      if (gridBgImage && defaultCanvasSettings.gridBgImage) {
+        gridBgImage.dispatchChangeValueAction(defaultCanvasSettings.gridBgImage);
+      }
+
+      if (gridBgImageRepeat && defaultCanvasSettings.gridBgImageRepeat) {
+        gridBgImageRepeat.dispatchChangeValueAction(defaultCanvasSettings.gridBgImageRepeat);
+      }
+
+      if (gridBgImageSize && defaultCanvasSettings.gridBgImageSize) {
+        gridBgImageSize.dispatchChangeValueAction(defaultCanvasSettings.gridBgImageSize);
+      }
+
+      if (gridBgImagePosition && defaultCanvasSettings.gridBgImagePosition) {
+        gridBgImagePosition.dispatchChangeValueAction(defaultCanvasSettings.gridBgImagePosition);
+      }
+
+      if (gridBgImageOrigin && defaultCanvasSettings.gridBgImageOrigin) {
+        gridBgImageOrigin.dispatchChangeValueAction(defaultCanvasSettings.gridBgImageOrigin);
+      }
+
+      message.success('Canvas settings applied successfully!');
+      
+    } catch (error) {
+      console.error('Error applying canvas settings:', error);
+      message.error('Failed to apply canvas settings. Check console for details.');
+    }
+  }
+};
+
+export const setCustomShortcutsAction: ActionConfig = {
+  key: 'set-custom-shortcuts',
+  label: 'Set custom shortcuts',
+  category: 'app-configuration',
+  isCustomShortcuts: true,
+  requiresInput: true,
+  inputPlaceholder: 'Press keys for shortcut',
+  inputType: 'text',
+  validation: (value: string) => {
+    if (!value.trim()) {
+      return 'Shortcut is required';
+    }
+    return null;
+  },
+  execute: async (params: ActionExecuteParams) => {
+    const { editorState, actionValue, selectedCustomShortcutAction } = params;
+    try {
+      if (!selectedCustomShortcutAction) {
+        message.error('No custom shortcut action selected');
+        return;
+      }
+
+      const appSettingsComp = editorState.getAppSettingsComp();
+      if (!appSettingsComp) {
+        message.error('App settings component not found');
+        return;
+      }
+      const customShortcutsComp = appSettingsComp.children.customShortcuts;
+      if (!customShortcutsComp) {
+        message.error('Custom shortcuts component not found');
+        return;
+      }
+      
+      const newShortcutItem = {
+        shortcut: actionValue.trim(),
+        action: {
+          compType: selectedCustomShortcutAction,
+          comp: {}
+        }
+      };
+      
+      customShortcutsComp.dispatch(customShortcutsComp.pushAction(newShortcutItem));
+      const readableShortcutText = readableShortcut(actionValue.trim());
+      message.success(`Custom shortcut added successfully: ${readableShortcutText} -> ${selectedCustomShortcutAction}`);
+    } catch (error) {
+      console.error('Error setting custom shortcut:', error);
+      message.error('Failed to set custom shortcut. Check console for details.');
     }
   }
 };

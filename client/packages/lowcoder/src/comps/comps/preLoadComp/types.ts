@@ -34,6 +34,8 @@ export interface ActionConfig {
   requiresEditorComponentSelection?: boolean;
   requiresInput?: boolean;
   requiresStyle?: boolean;
+  isTheme?: boolean;
+  isCustomShortcuts?: boolean;
   isNested?: boolean;
   dynamicLayout?: boolean;
   inputPlaceholder?: string;
@@ -50,6 +52,8 @@ export interface ActionExecuteParams {
   selectedEditorComponent: string | null;
   selectedNestComponent: string | null;
   selectedDynamicLayoutIndex: string | null;
+  selectedTheme: string | null;
+  selectedCustomShortcutAction: string | null;
   editorState: any;
 }
 

@@ -5,7 +5,7 @@ export * from './componentManagement';
 export * from './appConfiguration';
 
 // Layout Actions
-export { changeLayoutAction, updateDynamicLayoutAction } from './componentLayout';
+export { alignComponentAction, updateDynamicLayoutAction } from './componentLayout';
 
 // Event Actions
 export { addEventHandlerAction } from './componentEvents';
