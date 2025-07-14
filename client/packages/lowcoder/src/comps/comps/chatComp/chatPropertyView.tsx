@@ -1,7 +1,8 @@
 // client/packages/lowcoder/src/comps/comps/chatComp/chatPropertyView.tsx
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Section, sectionNames } from "lowcoder-design";
+import { placeholderPropertyView } from "../../utils/propertyUtils";
 
 // ============================================================================
 // CLEAN PROPERTY VIEW - FOCUSED ON ESSENTIAL CONFIGURATION
@@ -10,24 +11,8 @@ import { Section, sectionNames } from "lowcoder-design";
 export const ChatPropertyView = React.memo((props: any) => {
   const { children } = props;
 
-  return (
+  return useMemo(() => (
     <>
-      {/* Basic Configuration */}
-      <Section name={sectionNames.basic}>
-        {children.placeholder.propertyView({ 
-          label: "Placeholder Text",
-          placeholder: "Enter placeholder text..."
-        })}
-        
-        {children.databaseName.propertyView({ 
-          label: "Database Name",
-          placeholder: "Database will be auto-generated...",
-          tooltip: "Read-only: Auto-generated database name for data persistence. You can reference this in queries if needed.",
-          disabled: true
-        })}
-        
-      </Section>
-
       {/* Message Handler Configuration */}
       <Section name="Message Handler">
         {children.handlerType.propertyView({ 
@@ -64,8 +49,26 @@ export const ChatPropertyView = React.memo((props: any) => {
         })}
       </Section>
 
+      {/* UI Configuration */}
+      <Section name="UI Configuration">
+        {placeholderPropertyView(children)}
+      </Section>
+
+      {/* Database Information */}
+      <Section name="Database">
+        {children.databaseName.propertyView({ 
+          label: "Database Name",
+          tooltip: "Auto-generated database name for this chat component (read-only)"
+        })}
+      </Section>
+
+      {/* STANDARD EVENT HANDLERS SECTION */}
+      <Section name={sectionNames.interaction}>
+        {children.onEvent.getPropertyView()}
+      </Section>
+
     </>
-  );
+  ), [children]);
 });
 
 ChatPropertyView.displayName = 'ChatPropertyView';
