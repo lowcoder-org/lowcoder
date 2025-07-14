@@ -1,6 +1,6 @@
 // client/packages/lowcoder/src/comps/comps/chatComp/components/ChatCoreMain.tsx
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   useExternalStoreRuntime,
   ThreadMessageLike,
@@ -59,13 +59,22 @@ const ChatContainer = styled.div`
 
 interface ChatCoreMainProps {
   messageHandler: MessageHandler;
+  placeholder?: string;
   onMessageUpdate?: (message: string) => void;
   onConversationUpdate?: (conversationHistory: ChatMessage[]) => void;
+  // STANDARD LOWCODER EVENT PATTERN - SINGLE CALLBACK (OPTIONAL)
+  onEvent?: (eventName: string) => void;
 }
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
-export function ChatCoreMain({ messageHandler, onMessageUpdate, onConversationUpdate }: ChatCoreMainProps) {
+export function ChatCoreMain({ 
+  messageHandler, 
+  placeholder,
+  onMessageUpdate, 
+  onConversationUpdate,
+  onEvent
+}: ChatCoreMainProps) {
   const { state, actions } = useChatContext();
   const [isRunning, setIsRunning] = useState(false);
 
@@ -78,9 +87,14 @@ export function ChatCoreMain({ messageHandler, onMessageUpdate, onConversationUp
   console.log("CURRENT MESSAGES", currentMessages);
 
   // Notify parent component of conversation changes
-  React.useEffect(() => {
+  useEffect(() => {
     onConversationUpdate?.(currentMessages);
   }, [currentMessages]);
+
+  // Trigger component load event on mount
+  useEffect(() => {
+    onEvent?.("componentLoad");
+  }, [onEvent]);
 
   // Convert custom format to ThreadMessageLike (same as your current implementation)
   const convertMessage = (message: ChatMessage): ThreadMessageLike => ({
@@ -209,6 +223,7 @@ export function ChatCoreMain({ messageHandler, onMessageUpdate, onConversationUp
     onSwitchToNewThread: async () => {
       const threadId = await actions.createThread("New Chat");
       actions.setCurrentThread(threadId);
+      onEvent?.("threadCreated");
     },
 
     onSwitchToThread: (threadId) => {
@@ -217,14 +232,17 @@ export function ChatCoreMain({ messageHandler, onMessageUpdate, onConversationUp
 
     onRename: async (threadId, newTitle) => {
       await actions.updateThread(threadId, { title: newTitle });
+      onEvent?.("threadUpdated");
     },
 
     onArchive: async (threadId) => {
       await actions.updateThread(threadId, { status: "archived" });
+      onEvent?.("threadUpdated");
     },
 
     onDelete: async (threadId) => {
       await actions.deleteThread(threadId);
+      onEvent?.("threadDeleted");
     },
   };
 
@@ -250,7 +268,7 @@ export function ChatCoreMain({ messageHandler, onMessageUpdate, onConversationUp
     <AssistantRuntimeProvider runtime={runtime}>
       <ChatContainer>
         <ThreadList />
-        <Thread />
+        <Thread placeholder={placeholder} />
       </ChatContainer>
     </AssistantRuntimeProvider>
   );

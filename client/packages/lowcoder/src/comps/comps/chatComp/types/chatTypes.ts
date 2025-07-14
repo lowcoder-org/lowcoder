@@ -75,8 +75,11 @@ export interface ChatMessage {
   export interface ChatCoreProps {
     storage: ChatStorage;
     messageHandler: MessageHandler;
+    placeholder?: string;
     onMessageUpdate?: (message: string) => void;
     onConversationUpdate?: (conversationHistory: ChatMessage[]) => void;
+    // STANDARD LOWCODER EVENT PATTERN - SINGLE CALLBACK
+    onEvent?: (eventName: string) => void;
   }
   
   export interface ChatPanelProps {

@@ -8,6 +8,7 @@ import { withDefault } from "comps/generators";
 import { BoolControl } from "comps/controls/boolControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import QuerySelectControl from "comps/controls/querySelectControl";
+import { eventHandlerControl, EventConfigType } from "comps/controls/eventHandlerControl";
 import { ChatCore } from "./components/ChatCore";
 import { ChatPropertyView } from "./chatPropertyView";
 import { createChatStorage } from "./utils/storageFactory";
@@ -19,7 +20,58 @@ import "@assistant-ui/styles/index.css";
 import "@assistant-ui/styles/markdown.css";
 
 // ============================================================================
-// SIMPLIFIED CHILDREN MAP - ONLY ESSENTIAL PROPS
+// CHAT-SPECIFIC EVENTS
+// ============================================================================
+
+export const componentLoadEvent: EventConfigType = {
+  label: "Component Load",
+  value: "componentLoad",
+  description: "Triggered when the chat component finishes loading - Load existing data from backend",
+};
+
+export const messageSentEvent: EventConfigType = {
+  label: "Message Sent",
+  value: "messageSent",
+  description: "Triggered when a user sends a message - Auto-save user messages",
+};
+
+export const messageReceivedEvent: EventConfigType = {
+  label: "Message Received", 
+  value: "messageReceived",
+  description: "Triggered when a response is received from the AI - Auto-save AI responses",
+};
+
+export const threadCreatedEvent: EventConfigType = {
+  label: "Thread Created",
+  value: "threadCreated",
+  description: "Triggered when a new thread is created - Auto-save new threads",
+};
+
+export const threadUpdatedEvent: EventConfigType = {
+  label: "Thread Updated",
+  value: "threadUpdated",
+  description: "Triggered when a thread is updated - Auto-save thread changes",
+};
+
+export const threadDeletedEvent: EventConfigType = {
+  label: "Thread Deleted",
+  value: "threadDeleted",
+  description: "Triggered when a thread is deleted - Delete thread from backend",
+};
+
+const ChatEventOptions = [
+  componentLoadEvent,
+  messageSentEvent,
+  messageReceivedEvent,
+  threadCreatedEvent,
+  threadUpdatedEvent,
+  threadDeletedEvent,
+] as const;
+
+export const ChatEventHandlerControl = eventHandlerControl(ChatEventOptions);
+
+// ============================================================================
+// SIMPLIFIED CHILDREN MAP - WITH EVENT HANDLERS
 // ============================================================================
 
 function generateUniqueTableName(): string {
@@ -47,6 +99,9 @@ export const chatChildrenMap = {
   
   // Database Information (read-only)
   databaseName: withDefault(StringControl, ""),
+  
+  // Event Handlers
+  onEvent: ChatEventHandlerControl,
   
   // Exposed Variables (not shown in Property View)
   currentMessage: stringExposingStateControl("currentMessage", ""),
@@ -119,6 +174,8 @@ const ChatTmpComp = new UICompBuilder(
     // Handle message updates for exposed variable
     const handleMessageUpdate = (message: string) => {
       dispatch(changeChildAction("currentMessage", message, false));
+      // Trigger messageSent event
+      props.onEvent("messageSent");
     };
 
     // Handle conversation history updates for exposed variable
@@ -130,26 +187,32 @@ const ChatTmpComp = new UICompBuilder(
         timestamp: msg.timestamp
       }));
       dispatch(changeChildAction("conversationHistory", JSON.stringify(formattedHistory), false));
+      
+      // Trigger messageReceived event when bot responds
+      const lastMessage = conversationHistory[conversationHistory.length - 1];
+      if (lastMessage && lastMessage.role === 'assistant') {
+        props.onEvent("messageReceived");
+      }
     };
 
-       // Cleanup on unmount
-       useEffect(() => {
-        console.log("cleanup on unmount");
-        return () => {
-          console.log("cleanup on unmount");
-          const tableName = uniqueTableName.current;
-          if (tableName) {
-            storage.cleanup();
-          }
-        };
-      }, []);
+    // Cleanup on unmount
+    useEffect(() => {
+      return () => {
+        const tableName = uniqueTableName.current;
+        if (tableName) {
+          storage.cleanup();
+        }
+      };
+    }, []);
 
     return (
       <ChatCore
         storage={storage}
         messageHandler={messageHandler}
+        placeholder={props.placeholder}
         onMessageUpdate={handleMessageUpdate}
         onConversationUpdate={handleConversationUpdate}
+        onEvent={props.onEvent}
       />
     );
   }

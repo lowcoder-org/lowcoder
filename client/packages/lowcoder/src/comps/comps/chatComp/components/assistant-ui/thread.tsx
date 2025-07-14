@@ -22,7 +22,11 @@ import {
   import { MarkdownText } from "./markdown-text";
   import { TooltipIconButton } from "./tooltip-icon-button";
   
-  export const Thread: FC = () => {
+  interface ThreadProps {
+    placeholder?: string;
+  }
+  
+  export const Thread: FC<ThreadProps> = ({ placeholder = "Write a message..." }) => {
     return (
       <ThreadPrimitive.Root
         className="aui-root aui-thread-root"
@@ -47,7 +51,7 @@ import {
   
           <div className="aui-thread-viewport-footer">
             <ThreadScrollToBottom />
-            <Composer />
+            <Composer placeholder={placeholder} />
           </div>
         </ThreadPrimitive.Viewport>
       </ThreadPrimitive.Root>
@@ -110,13 +114,13 @@ import {
     );
   };
   
-  const Composer: FC = () => {
+  const Composer: FC<{ placeholder?: string }> = ({ placeholder = "Write a message..." }) => {
     return (
       <ComposerPrimitive.Root className="aui-composer-root">
         <ComposerPrimitive.Input
           rows={1}
           autoFocus
-          placeholder="Write a message..."
+          placeholder={placeholder}
           className="aui-composer-input"
         />
         <ComposerAction />
