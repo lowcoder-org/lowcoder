@@ -235,7 +235,8 @@ export const en = {
     "verticalGridCells": "Vertical Grid Cells",
     "timeZone": "TimeZone",
     "pickerMode": "Picker Mode",
-    "customTags": "Custom Tags"
+    "customTags": "Allow Custom Tags",
+    "customTagsTooltip": "Allow users to enter custom tags that are not in the options list."
   },
   "autoHeightProp": {
     "auto": "Auto",

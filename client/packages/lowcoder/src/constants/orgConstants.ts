@@ -56,6 +56,7 @@ export type Org = {
   createTime?: string;
   createdAt?: number;
   updatedAt?: number;
+  isCurrentOrg?: boolean;
 };
 
 export type OrgAndRole = {

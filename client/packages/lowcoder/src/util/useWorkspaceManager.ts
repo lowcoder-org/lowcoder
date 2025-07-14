@@ -91,10 +91,11 @@ export function useWorkspaceManager({
         if (response.data.success) {
           const apiData = response.data.data;
           const transformedItems = apiData.data.map(item => ({
-            id: item.orgId,
-            name: item.orgName,
-            createdAt: item.createdAt,
-            updatedAt: item.updatedAt,
+            id: item.orgView.orgId,
+            name: item.orgView.orgName,
+            createdAt: item.orgView.createdAt,
+            updatedAt: item.orgView.updatedAt,
+            isCurrentOrg: item.isCurrentOrg,
           }));
 
           dispatch({
