@@ -289,9 +289,6 @@ export function ActionInputSection() {
     if (currentAction.requiresComponentSelection && !selectedComponent) return true;
     if (currentAction.requiresEditorComponentSelection && !selectedEditorComponent) return true;
     if (currentAction.requiresInput && !actionValue.trim()) return true;
-    if (currentAction.requiresStyle && !selectedEditorComponent) return true;
-    if (currentAction.isTheme && !selectedTheme) return true;
-    if (currentAction.isCustomShortcuts && !selectedCustomShortcutAction) return true;
     
     return false;
   }, [
