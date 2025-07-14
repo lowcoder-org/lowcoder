@@ -14,7 +14,11 @@ import {
   shareAppAction,
   testAllDatasourcesAction,
   applyGlobalJSAction,
-  applyGlobalCSSAction
+  applyGlobalCSSAction,
+  applyThemeAction,
+  setCanvasSettingsAction,
+  setCustomShortcutsAction,
+  alignComponentAction
 } from "./actions";
 
 export const actionCategories: ActionCategory[] = [
@@ -39,13 +43,16 @@ export const actionCategories: ActionCategory[] = [
       shareAppAction,
       testAllDatasourcesAction,
       applyGlobalJSAction,
-      applyGlobalCSSAction
+      applyGlobalCSSAction,
+      applyThemeAction,
+      setCanvasSettingsAction,
+      setCustomShortcutsAction
     ]
   },
   {
     key: 'layout',
     label: 'Layout',
-    actions: [updateDynamicLayoutAction]
+    actions: [updateDynamicLayoutAction, alignComponentAction]
   },
   {
     key: 'events',
