@@ -277,7 +277,7 @@ export const applyGlobalJSAction: ActionConfig = {
       scriptComp.dispatchChangeValueAction(jsCode);
       runScript(jsCode, false);
       
-      message.success('Global JavaScript applied successfully!');
+      message.success('JavaScript applied successfully!');
       
     } catch (error) {
       console.error('Error applying global JavaScript:', error);
@@ -286,13 +286,13 @@ export const applyGlobalJSAction: ActionConfig = {
   }
 };
 
-export const applyGlobalCSSAction: ActionConfig = {
-  key: 'apply-global-css',
-  label: 'Apply global CSS',
+export const applyCSSAction: ActionConfig = {
+  key: 'apply-css',
+  label: 'Apply CSS',
   category: 'app-configuration',
   requiresInput: true,
   requiresStyle: true,
-  inputPlaceholder: 'Enter CSS code to apply globally...',
+  inputPlaceholder: 'Enter CSS code to apply...',
   inputType: 'textarea',
   validation: (value: string) => {
     if (!value.trim()) {
@@ -322,21 +322,21 @@ export const applyGlobalCSSAction: ActionConfig = {
         return;
       }
 
-      const globalCSSComp = preloadComp.children.globalCSS;
-      if (!globalCSSComp) {
-        message.error('Global CSS component not found');
+      const cssComp = preloadComp.children.css;
+      if (!cssComp) {
+        message.error('CSS component not found');
         return;
       }
 
-      globalCSSComp.dispatchChangeValueAction(cssCode);
+      cssComp.dispatchChangeValueAction(cssCode);
       
-      await globalCSSComp.run('global-css', cssCode);
+      await cssComp.run('css', cssCode);
       
-      message.success('Global CSS applied successfully!');
+      message.success('CSS applied successfully!');
       
     } catch (error) {
-      console.error('Error applying global CSS:', error);
-      message.error('Failed to apply global CSS. Check console for details.');
+      console.error('Error applying CSS:', error);
+      message.error('Failed to apply CSS. Check console for details.');
     }
   }
 };

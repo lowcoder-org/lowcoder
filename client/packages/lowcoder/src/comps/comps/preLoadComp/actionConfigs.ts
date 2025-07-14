@@ -14,7 +14,7 @@ import {
   shareAppAction,
   testAllDatasourcesAction,
   applyGlobalJSAction,
-  applyGlobalCSSAction,
+  applyCSSAction,
   applyThemeAction,
   setCanvasSettingsAction,
   setCustomShortcutsAction,
@@ -43,7 +43,7 @@ export const actionCategories: ActionCategory[] = [
       shareAppAction,
       testAllDatasourcesAction,
       applyGlobalJSAction,
-      applyGlobalCSSAction,
+      applyCSSAction,
       applyThemeAction,
       setCanvasSettingsAction,
       setCustomShortcutsAction
