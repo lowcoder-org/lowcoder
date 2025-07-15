@@ -25,6 +25,8 @@ const initialState: UsersReduxState = {
   workspaces: {
     items: [],
     totalCount: 0,
+    currentOrg: null
+    
   }
 };
 
@@ -231,6 +233,7 @@ export interface UsersReduxState {
   workspaces: {
     items: Org[];           // Current page of workspaces
     totalCount: number;     // Total workspaces available
+    currentOrg: Org | null;
   };
 }
 
