@@ -127,6 +127,7 @@ export function ChatCoreMain({
     setIsRunning(true);
 
     try {
+      
       // Use the message handler (no more complex logic here!)
       const response = await messageHandler.sendMessage(userMessage.text);
 
