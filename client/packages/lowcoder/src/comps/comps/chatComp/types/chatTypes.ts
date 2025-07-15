@@ -66,6 +66,7 @@ export interface ChatMessage {
     chatQuery: string;
     dispatch: any;
     streaming?: boolean;
+    systemPrompt?: string;
   }
   
   // ============================================================================

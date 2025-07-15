@@ -15,6 +15,7 @@ import { createChatStorage } from "./utils/storageFactory";
 import { QueryHandler, createMessageHandler } from "./handlers/messageHandlers";
 import { useMemo, useRef, useEffect } from "react";  
 import { changeChildAction } from "lowcoder-core";
+import { ChatMessage } from "./types/chatTypes";
 
 import "@assistant-ui/styles/index.css";
 import "@assistant-ui/styles/markdown.css";
@@ -74,6 +75,30 @@ export const ChatEventHandlerControl = eventHandlerControl(ChatEventOptions);
 // SIMPLIFIED CHILDREN MAP - WITH EVENT HANDLERS
 // ============================================================================
 
+
+export function addSystemPromptToHistory(
+  conversationHistory: ChatMessage[], 
+  systemPrompt: string
+): Array<{ role: string; content: string; timestamp: number }> {
+  // Format conversation history for use in queries
+  const formattedHistory = conversationHistory.map(msg => ({
+    role: msg.role,
+    content: msg.text,
+    timestamp: msg.timestamp
+  }));
+  
+  // Create system message (always exists since we have default)
+  const systemMessage = [{
+    role: "system" as const,
+    content: systemPrompt,
+    timestamp: Date.now() - 1000000 // Ensure it's always first chronologically
+  }];
+  
+  // Return complete history with system prompt prepended
+  return [...systemMessage, ...formattedHistory];
+}
+
+
 function generateUniqueTableName(): string {
   return `chat${Math.floor(1000 + Math.random() * 9000)}`;
  }
@@ -117,7 +142,6 @@ const ChatTmpComp = new UICompBuilder(
   (props, dispatch) => {
 
     const uniqueTableName = useRef<string>();
-
       // Generate unique table name once (with persistence)
     if (!uniqueTableName.current) {
       // Use persisted name if exists, otherwise generate new one
@@ -146,7 +170,7 @@ const ChatTmpComp = new UICompBuilder(
         return new QueryHandler({
           chatQuery: props.chatQuery.value,
           dispatch,
-          streaming: props.streaming
+          streaming: props.streaming,
         });
       } else if (handlerType === "n8n") {
         return createMessageHandler("n8n", {
@@ -168,7 +192,7 @@ const ChatTmpComp = new UICompBuilder(
       props.modelHost,
       props.systemPrompt,
       props.streaming,
-      dispatch
+      dispatch,
     ]);
 
     // Handle message updates for exposed variable
@@ -179,21 +203,23 @@ const ChatTmpComp = new UICompBuilder(
     };
 
     // Handle conversation history updates for exposed variable
-    const handleConversationUpdate = (conversationHistory: any[]) => {
-      // Format conversation history for use in queries
-      const formattedHistory = conversationHistory.map(msg => ({
-        role: msg.role,
-        content: msg.text,
-        timestamp: msg.timestamp
-      }));
-      dispatch(changeChildAction("conversationHistory", JSON.stringify(formattedHistory), false));
-      
-      // Trigger messageReceived event when bot responds
-      const lastMessage = conversationHistory[conversationHistory.length - 1];
-      if (lastMessage && lastMessage.role === 'assistant') {
-        props.onEvent("messageReceived");
-      }
-    };
+   // Handle conversation history updates for exposed variable
+const handleConversationUpdate = (conversationHistory: any[]) => {
+  // Use utility function to create complete history with system prompt
+  const historyWithSystemPrompt = addSystemPromptToHistory(
+    conversationHistory, 
+    props.systemPrompt
+  );
+  
+  // Expose the complete history (with system prompt) for use in queries
+  dispatch(changeChildAction("conversationHistory", JSON.stringify(historyWithSystemPrompt), false));
+  
+  // Trigger messageReceived event when bot responds
+  const lastMessage = conversationHistory[conversationHistory.length - 1];
+  if (lastMessage && lastMessage.role === 'assistant') {
+    props.onEvent("messageReceived");
+  }
+};
 
     // Cleanup on unmount
     useEffect(() => {
@@ -226,5 +252,5 @@ const ChatTmpComp = new UICompBuilder(
 
 export const ChatComp = withExposingConfigs(ChatTmpComp, [
   new NameConfig("currentMessage", "Current user message"),
-  new NameConfig("conversationHistory", "Full conversation history as JSON array"),
+  new NameConfig("conversationHistory", "Full conversation history as JSON array (includes system prompt for API calls)"),
 ]);

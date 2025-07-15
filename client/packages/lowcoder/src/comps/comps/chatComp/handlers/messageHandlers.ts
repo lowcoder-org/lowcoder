@@ -55,7 +55,7 @@ export class QueryHandler implements MessageHandler {
   constructor(private config: QueryHandlerConfig) {}
 
   async sendMessage(message: string): Promise<MessageResponse> {
-    const { chatQuery, dispatch } = this.config;
+    const { chatQuery, dispatch} = this.config;
     
     // If no query selected or dispatch unavailable, return mock response
     if (!chatQuery || !dispatch) {
@@ -64,16 +64,21 @@ export class QueryHandler implements MessageHandler {
     }
 
     try {
+
       const result: any = await getPromiseAfterDispatch(
         dispatch,
         routeByNameAction(
           chatQuery,
           executeQueryAction({
-            // Send the user prompt as variable named 'prompt' by default
-            args: { prompt: { value: message } },
+            // Send both individual prompt and full conversation history
+            args: { 
+              prompt: { value: message },
+            },
           })
         )
       );
+
+      console.log("QUERY RESULT", result);
 
      return result.message
     } catch (e: any) {
