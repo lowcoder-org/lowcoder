@@ -1,7 +1,7 @@
 // client/packages/lowcoder/src/comps/comps/chatComp/chatPropertyView.tsx
 
 import React, { useMemo } from "react";
-import { Section, sectionNames } from "lowcoder-design";
+import { Section, sectionNames, DocLink } from "lowcoder-design";
 import { placeholderPropertyView } from "../../utils/propertyUtils";
 
 // ============================================================================
@@ -13,6 +13,17 @@ export const ChatPropertyView = React.memo((props: any) => {
 
   return useMemo(() => (
     <>
+      {/* Help & Documentation - Outside of Section */}
+      <div style={{ padding: "8px 16px", marginBottom: "16px", borderBottom: "1px solid #f0f0f0" }}>
+        <DocLink 
+          style={{ marginTop: 8 }} 
+          href="https://docs.lowcoder.cloud/lowcoder-documentation" 
+          title="Open Lowcoder Documentation"
+        >
+          📖 View Documentation
+        </DocLink>
+      </div>
+
       {/* Message Handler Configuration */}
       <Section name="Message Handler">
         {children.handlerType.propertyView({ 
