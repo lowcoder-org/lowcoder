@@ -303,6 +303,9 @@ export function ChatProvider({ children, storage }: {
   };
 
   const deleteThread = async (threadId: string) => {
+    // Determine if this is the last remaining thread BEFORE we delete it
+    const isLastThread = state.threadList.length === 1;
+
     // Update local state first
     dispatch({ type: "DELETE_THREAD", threadId });
     
@@ -310,6 +313,13 @@ export function ChatProvider({ children, storage }: {
     try {
       await storage.deleteThread(threadId);
       dispatch({ type: "MARK_SAVED" });
+      // avoid deleting the last thread
+      // if there are no threads left, create a new one
+      // avoid infinite re-renders
+      if (isLastThread) {
+        const newThreadId = await createThread("New Chat");
+        setCurrentThread(newThreadId);
+      }
     } catch (error) {
       console.error("Failed to delete thread:", error);
     }
