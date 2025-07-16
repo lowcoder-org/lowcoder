@@ -208,13 +208,17 @@ const FormBaseComp = (function () {
     );
   })
     .setPropertyViewFn((children) => {
+      const editorContext = useContext(EditorContext);
+      const isLogicMode = editorContext.editorModeStatus === "logic" || editorContext.editorModeStatus === "both";
+      const isLayoutMode = editorContext.editorModeStatus === "layout" || editorContext.editorModeStatus === "both";
+      
       return (
         <>
           <Section name={sectionNames.basic}>
             {children.resetAfterSubmit.propertyView({ label: trans("formComp.resetAfterSubmit") })}
           </Section>
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {isLogicMode && (
             <><Section name={sectionNames.interaction}>
                 {children.onEvent.getPropertyView()}
                 {disabledPropertyView(children)}
@@ -225,7 +229,7 @@ const FormBaseComp = (function () {
             </>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          {isLayoutMode && (
             <>
               <Section name={sectionNames.layout}>
                 {children.container.getPropertyView()}
@@ -233,14 +237,14 @@ const FormBaseComp = (function () {
             </>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {isLogicMode && (
             <Section name={sectionNames.advanced}>
               {children.initialData.propertyView({ label: trans("formComp.initialData") })}
               {children.invalidFormMessage.propertyView({ label: trans("formComp.invalidFormMessage") })}
             </Section>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          {isLayoutMode && (
             <>
               <Section name={sectionNames.style}>
                 {children.container.stylePropertyView()}
@@ -383,9 +387,7 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
       case CompActionTypes.UPDATE_NODES_V2: {
         const ret = super.reduce(action);
         // When the initial value changes, update the form
-        if (ret.children.initialData !== this.children.initialData) {
-          // FIXME: kill setTimeout ?
-          setTimeout(() => {
+          requestAnimationFrame(() => {
             this.dispatch(
               customAction<SetDataAction>(
                 {
@@ -396,7 +398,6 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
               )
             );
           });
-        }
         return ret;
       }
       case CompActionTypes.CUSTOM:
