@@ -253,4 +253,5 @@ const handleConversationUpdate = (conversationHistory: any[]) => {
 export const ChatComp = withExposingConfigs(ChatTmpComp, [
   new NameConfig("currentMessage", "Current user message"),
   new NameConfig("conversationHistory", "Full conversation history as JSON array (includes system prompt for API calls)"),
+  new NameConfig("databaseName", "Database name for SQL queries (ChatDB_<componentName>)"),
 ]);
