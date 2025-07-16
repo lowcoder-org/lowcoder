@@ -21,6 +21,34 @@ import {
   import { Button } from "../ui/button";
   import { MarkdownText } from "./markdown-text";
   import { TooltipIconButton } from "./tooltip-icon-button";
+  import { Spin, Flex } from "antd";
+  import { LoadingOutlined } from "@ant-design/icons";
+  import styled from "styled-components";
+  const SimpleANTDLoader = () => {
+    const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
+    
+    return (
+      <div style={{ textAlign: 'left', width: '100%' }}>
+        <Flex align="center" gap={12} style={{ paddingLeft: '16px' }}>
+          <Spin indicator={antIcon} size="small" />
+          <span style={{ color: '#666', fontSize: '14px' }}>Working on it...</span>
+        </Flex>
+      </div>
+    );
+  };
+
+  const StyledThreadRoot = styled(ThreadPrimitive.Root)`
+  /* Hide entire assistant message container when it contains running status */
+  .aui-assistant-message-root:has([data-status="running"]) {
+    display: none;
+  }
+  
+  /* Fallback for older browsers that don't support :has() */
+  .aui-assistant-message-content [data-status="running"] {
+    display: none;
+  }
+`;
+
   
   interface ThreadProps {
     placeholder?: string;
@@ -28,7 +56,7 @@ import {
   
   export const Thread: FC<ThreadProps> = ({ placeholder = "Write a message..." }) => {
     return (
-      <ThreadPrimitive.Root
+      <StyledThreadRoot
         className="aui-root aui-thread-root"
         style={{
           ["--thread-max-width" as string]: "42rem",
@@ -44,6 +72,10 @@ import {
               AssistantMessage: AssistantMessage,
             }}
           />
+
+          <ThreadPrimitive.If running>
+            <SimpleANTDLoader />
+          </ThreadPrimitive.If>
   
           <ThreadPrimitive.If empty={false}>
             <div className="aui-thread-viewport-spacer" />
@@ -54,7 +86,7 @@ import {
             <Composer placeholder={placeholder} />
           </div>
         </ThreadPrimitive.Viewport>
-      </ThreadPrimitive.Root>
+      </StyledThreadRoot>
     );
   };
   
