@@ -1,6 +1,6 @@
-import { GroupRoleInfo, GroupUser, OrgGroup, TacoRoles } from "constants/orgConstants";
+import { GroupRoleInfo, GroupUser, OrgGroup, TacoRoles, RoleIdType } from "constants/orgConstants";
 import { User } from "constants/userConstants";
-import { AddIcon, ArrowIcon, CustomSelect, PackUpIcon, Search, SuperUserIcon } from "lowcoder-design";
+import { AddIcon, ArrowIcon, CustomSelect, Dropdown, PackUpIcon, Search, SuperUserIcon } from "lowcoder-design";
 import { trans } from "i18n";
 import ProfileImage from "pages/common/profileImage";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -84,6 +84,7 @@ const GroupUsersPermission: React.FC<GroupPermissionProp> = (props) => {
     setElements
   } = props;
   const [searchValue, setSearchValue] = useState("")
+  const [roleFilter, setRoleFilter] = useState<RoleIdType | "">("")
   const dispatch = useDispatch();
 
   const adminCount = groupUsers.filter((user) => isGroupAdmin(user.role)).length;
@@ -99,9 +100,23 @@ const GroupUsersPermission: React.FC<GroupPermissionProp> = (props) => {
     });
   }, [groupUsers]);
 
+ const roleFilterOptions = useCallback(() => {
+  const filterOptions = [
+    ...TacoRoles.map(role => ({
+      label: GroupRoleInfo[role].name,
+      value: role as RoleIdType | ""
+    })),
+    {
+      label: "All",
+      value: "" as RoleIdType | ""
+    }
+  ]
+  return filterOptions;
+ }, [])
+
   const debouncedFetchPotentialMembers = useCallback(
-    debounce((searchVal: string) => {
-      fetchGroupUsrPagination({groupId: group.groupId, search: searchVal})
+    debounce((searchVal: string, roleFilter: string) => {
+      fetchGroupUsrPagination({groupId: group.groupId, search: searchVal, role: roleFilter})
       .then(result => {  
         if (result.success) {
           setElements({
@@ -115,13 +130,13 @@ const GroupUsersPermission: React.FC<GroupPermissionProp> = (props) => {
   );
 
   useEffect(() => {
-    if (searchValue.length > 2 || searchValue === "") {
-      debouncedFetchPotentialMembers(searchValue);
+    if (searchValue.length > 2 || searchValue === "" || roleFilter) {
+      debouncedFetchPotentialMembers(searchValue, roleFilter);
     }
     return () => {
       debouncedFetchPotentialMembers.cancel();
     };
-  }, [searchValue, debouncedFetchPotentialMembers]);
+  }, [searchValue, roleFilter, debouncedFetchPotentialMembers]);
 
   return (
     <>
@@ -137,6 +152,17 @@ const GroupUsersPermission: React.FC<GroupPermissionProp> = (props) => {
         </HeaderBack>
         {isGroupAdmin(currentUserGroupRole) && !group.syncGroup && (
           <OptionsHeader>
+            <Dropdown
+              options={roleFilterOptions()}
+              value={roleFilter || ""}
+              onChange={(value) => {
+                setRoleFilter(value);
+              }}
+              style={{
+                minWidth: "100px"
+              }}
+              placeholder={trans("memberSettings.filterByRole")}
+            />
             <Search
               placeholder={trans("memberSettings.searchMember")}
               value={searchValue}
