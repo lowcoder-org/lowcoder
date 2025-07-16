@@ -9,8 +9,8 @@ import { ChatMessage, ChatThread, ChatStorage } from "../types/chatTypes";
 
 export function createChatStorage(tableName: string): ChatStorage {
   const dbName = `ChatDB_${tableName}`;
-  const threadsTable = `${dbName}.${tableName}_threads`;
-  const messagesTable = `${dbName}.${tableName}_messages`;
+  const threadsTable = `${dbName}.threads`;
+  const messagesTable = `${dbName}.messages`;
   
   return {
     async initialize() {
