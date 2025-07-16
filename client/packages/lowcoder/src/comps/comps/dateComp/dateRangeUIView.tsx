@@ -5,7 +5,7 @@ import { useUIView } from "../../utils/useUIView";
 import { checkIsMobile } from "util/commonUtils";
 import React, { useContext } from "react";
 import styled from "styled-components";
-import type { ChildrenMultiSelectStyleType, DateTimeStyleType } from "../../controls/styleControlConstants";
+import type { ChildrenMultiSelectStyleType, DateTimeStyleType, DisabledInputStyleType } from "../../controls/styleControlConstants";
 import { EditorContext } from "../../editorState";
 import { default as DatePicker } from "antd/es/date-picker";
 import { hasIcon } from "comps/utils";
@@ -16,11 +16,28 @@ import { timeZoneOptions } from "./timeZone";
 
 const { RangePicker } = DatePicker;
 
-const RangePickerStyled = styled(RangePicker)<{$style: DateTimeStyleType}>`
+const RangePickerStyled = styled(RangePicker)<{$style: DateTimeStyleType; $disabledStyle?: DisabledInputStyleType}>`
   width: 100%;
   box-shadow: ${(props) =>
     `${props.$style.boxShadow} ${props.$style.boxShadowColor}`};
   ${(props) => props.$style && getStyle(props.$style)}
+
+  &.ant-picker-disabled {
+    cursor: not-allowed;
+    color: ${(props) => props.$disabledStyle?.disabledText};
+    background: ${(props) => props.$disabledStyle?.disabledBackground};
+    border-color: ${(props) => props.$disabledStyle?.disabledBorder};
+
+    .ant-picker-input > input {
+      color: ${(props) => props.$disabledStyle?.disabledText};
+      background: ${(props) => props.$disabledStyle?.disabledBackground};
+    }
+    .ant-picker-suffix,
+    .ant-picker-clear,
+    .ant-picker-separator {
+      color: ${(props) => props.$disabledStyle?.disabledText};
+    }
+  }
 `;
 
 const StyledAntdSelect = styled(AntdSelect)`
@@ -46,6 +63,7 @@ export interface DateRangeUIViewProps extends DateCompViewProps {
   onPanelChange: (value: any, mode: [string, string]) => void;
   onClickDateRangeTimeZone:(value:any)=>void;
   tabIndex?: number;
+  $disabledStyle?: DisabledInputStyleType;
 }
 
 export const DateRangeUIView = (props: DateRangeUIViewProps) => {
@@ -98,6 +116,7 @@ export const DateRangeUIView = (props: DateRangeUIViewProps) => {
           </StyledDiv>
         )
       )}
+      $disabledStyle={props.$disabledStyle}
     />
   );
 };

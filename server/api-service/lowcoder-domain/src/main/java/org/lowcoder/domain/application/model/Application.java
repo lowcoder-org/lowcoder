@@ -128,11 +128,20 @@ public class Application extends HasIdAndAuditing {
     }
 
     public Mono<ApplicationQuery> getQueryByViewModeAndQueryId(boolean isViewMode, String queryId, ApplicationRecordService applicationRecordService) {
-        return getLiveQueries(applicationRecordService).map(liveQueries -> (isViewMode ? liveQueries : getEditingQueries())
-                .stream()
-                .filter(query -> queryId.equals(query.getId()) || queryId.equals(query.getGid()))
-                .findFirst()
-                .orElseThrow(() -> new BizException(BizError.QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND")));
+	return isViewMode ?
+		// Get Published Queries in View/View Marketplace Mode
+		getLiveQueries(applicationRecordService).map(liveQueries -> (liveQueries)
+		.stream()
+		.filter(query -> queryId.equals(query.getId()) || queryId.equals(query.getGid()))
+		.findFirst()
+		.orElseThrow(() -> new BizException(BizError.QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND")))
+		:
+		// Get Editing Queries in Edit/Preview Mode
+		Mono.just(getEditingQueries()
+		.stream()
+		.filter(query -> queryId.equals(query.getId()) || queryId.equals(query.getGid()))
+		.findFirst()
+		.orElseThrow(() -> new BizException(BizError.QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND")));
     }
 
     /**

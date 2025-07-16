@@ -242,11 +242,11 @@ export default function WorkspaceSectionComponent({
           displayWorkspaces.map((org: Org) => (
             <WorkspaceItem
               key={org.id}
-              $isActive={user.currentOrgId === org.id}
+              $isActive={org.isCurrentOrg}
               onClick={() => handleOrgSwitch(org.id)}
             >
               <WorkspaceName title={org.name}>{org.name}</WorkspaceName>
-              {user.currentOrgId === org.id && <ActiveIcon />}
+              {org.isCurrentOrg && <ActiveIcon />}
             </WorkspaceItem>
           ))
         ) : (

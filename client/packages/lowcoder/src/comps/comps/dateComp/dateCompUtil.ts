@@ -85,8 +85,23 @@ export const getStyle = (style: DateTimeStyleType) => {
         color: ${style.text};
 
         &::-webkit-input-placeholder {
-          color: ${style.text};
-          opacity: 0.25;
+          color: ${style.placeholder};
+          opacity: 1;
+        }
+
+        &::-moz-placeholder {
+          color: ${style.placeholder};
+          opacity: 1;
+        }
+
+        &:-ms-input-placeholder {
+          color: ${style.placeholder};
+          opacity: 1;
+        }
+
+        &::placeholder {
+          color: ${style.placeholder};
+          opacity: 1;
         }
       }
 
@@ -132,6 +147,26 @@ export const getMobileStyle = (style: DateTimeStyleType) =>
     background-color: ${style.background};
     border-radius: ${style.radius};
     border-color: ${style.border};
+
+    &::-webkit-input-placeholder {
+      color: ${style.placeholder};
+      opacity: 1;
+    }
+
+    &::-moz-placeholder {
+      color: ${style.placeholder};
+      opacity: 1;
+    }
+
+    &:-ms-input-placeholder {
+      color: ${style.placeholder};
+      opacity: 1;
+    }
+
+    &::placeholder {
+      color: ${style.placeholder};
+      opacity: 1;
+    }
   `;
 
 export const dateRefMethods = refMethods<CommonPickerMethods>([focusMethod, blurMethod]);

@@ -63,8 +63,13 @@ export type GetCurrentUserResponse = GenericApiResponse<CurrentUser>;
 export interface GetMyOrgsResponse extends ApiResponse {
   data: {
     data: Array<{
-      orgId: string;
-      orgName: string;
+      isCurrentOrg: boolean;
+      orgView: {
+        orgId: string;
+        orgName: string;
+        createdAt?: number;
+        updatedAt?: number;
+      };
     }>;
     pageNum: number;
     pageSize: number;
