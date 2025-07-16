@@ -117,7 +117,8 @@ import {
   PieChartCompIcon,
   BarChartCompIcon,
   LineChartCompIcon,
-  ScatterChartCompIcon
+  ScatterChartCompIcon,
+  CodeEditorCompIcon
 } from "lowcoder-design";
 import { ModuleComp } from "./comps/moduleComp/moduleComp";
 import { TableComp } from "./comps/tableComp/tableComp";
@@ -989,6 +990,21 @@ export var uiCompMap: Registry = {
       w: 12,
       h: 50,
     },
+  },
+  codeEditor: {
+    name: trans("uiComp.codeEditorCompName"),
+    enName: "Code Editor",
+    categories: ["forms"],
+    description: trans("uiComp.codeEditorCompDesc"),
+    icon: CodeEditorCompIcon,
+    keywords: trans("uiComp.codeEditorCompKeywords"),
+    lazyLoad: true,
+    compName: "CodeEditorComp",
+    compPath: "comps/codeEditorComp/codeEditorComp",
+    layoutInfo: {
+      w: 12,
+      h: 50,
+    }
   },
   richTextEditor: {
     name: trans("uiComp.richTextEditorCompName"),

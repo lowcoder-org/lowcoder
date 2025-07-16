@@ -104,6 +104,7 @@ import {
   TurnstileCaptchaCompIconSmall,
   PivotTableCompIconSmall,
   GraphChartCompIconSmall,
+  CodeEditorCompIconSmall,
 } from "lowcoder-design";
 
 // Memoize icon components to prevent unnecessary re-renders
@@ -229,6 +230,7 @@ export const CompStateIcon: {
   progressCircle: <MemoizedIcon Icon={ProcessCircleCompIconSmall} />,
   qrCode: <MemoizedIcon Icon={QRCodeCompIconSmall} />,
   rating: <MemoizedIcon Icon={RatingCompIconSmall} />,
+  codeEditor: <MemoizedIcon Icon={CodeEditorCompIconSmall} />,
   richTextEditor: <MemoizedIcon Icon={RichTextEditorCompIconSmall} />,
   scanner: <MemoizedIcon Icon={ScannerCompIconSmall} />,
   segmentedControl: <MemoizedIcon Icon={SegmentedCompIconSmall} />,
