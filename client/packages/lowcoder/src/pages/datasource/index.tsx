@@ -8,10 +8,10 @@ import {
 } from "../../constants/routesURL";
 import React, { useEffect } from "react";
 import { isEmpty } from "lodash";
-import { fetchDatasource, fetchDataSourceTypes } from "../../redux/reduxActions/datasourceActions";
+import { fetchDataSourceTypes } from "../../redux/reduxActions/datasourceActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getUser } from "../../redux/selectors/usersSelectors";
-import { getDataSource, getDataSourceTypes } from "../../redux/selectors/datasourceSelectors";
+import { getDataSourceTypes } from "../../redux/selectors/datasourceSelectors";
 
 export const DatasourceHome = () => {
   const dispatch = useDispatch();
