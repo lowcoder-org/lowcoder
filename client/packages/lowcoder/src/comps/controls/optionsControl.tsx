@@ -782,14 +782,83 @@ export const StepOptionControl = optionsControl(StepOption, {
   uniqField: "label",
 });
 
+let TagsCompOptions = new MultiCompBuilder(
+  {
+    label: StringControl,
+    icon: IconControl,
+    colorType: withDefault(dropdownControl([
+      { label: trans("style.preset"), value: "preset" },
+      { label: trans("style.custom"), value: "custom" },
+    ] as const, "preset"), "preset"),
+    presetColor: withDefault(dropdownControl(TAG_PRESET_COLORS, "blue"), "blue"),
+    color: withDefault(ColorControl, "#1890ff"),
+    textColor: withDefault(ColorControl, "#ffffff"),
+    border: withDefault(ColorControl, ""),
+    radius: withDefault(RadiusControl, ""),
+    margin: withDefault(StringControl, ""),
+    padding: withDefault(StringControl, ""),
+  },
+  (props) => props
+).build();
+
+TagsCompOptions = class extends TagsCompOptions implements OptionCompProperty {
+  propertyView(param: { autoMap?: boolean }) {
+    const colorType = this.children.colorType.getView();
+    return (
+      <>
+        {this.children.label.propertyView({ label: trans("coloredTagOptionControl.tag") })}
+        {this.children.icon.propertyView({ label: trans("coloredTagOptionControl.icon") })}
+        {this.children.colorType.propertyView({ 
+          label: trans("style.colorType"), 
+          radioButton: true 
+        })}
+        {colorType === "preset" && this.children.presetColor.propertyView({ 
+          label: trans("style.presetColor") 
+        })}
+        {colorType === "custom" && (
+          <>
+            {this.children.color.propertyView({ label: trans("coloredTagOptionControl.color") })}
+            {this.children.textColor.propertyView({ label: trans("style.textColor") })}
+          </>
+        )}
+        {this.children.border.propertyView({
+          label: trans('style.border')
+        })}
+        {this.children.radius.propertyView({
+          label: trans('style.borderRadius'),
+          preInputNode: <StyledIcon as={IconRadius} title="" />,	
+          placeholder: '3px',
+        })}
+        {this.children.margin.propertyView({
+          label: trans('style.margin'),
+          preInputNode: <StyledIcon as={ExpandIcon} title="" />,	
+          placeholder: '3px',
+        })}
+        {this.children.padding.propertyView({
+          label: trans('style.padding'),
+          preInputNode: <StyledIcon as={CompressIcon} title="" />,	
+          placeholder: '3px',
+        })}
+      </>
+    );
+  }
+};
+
+export const TagsCompOptionsControl = optionsControl(TagsCompOptions, {
+  initOptions: [
+    { label: "Option 1", colorType: "preset", presetColor: "blue" }, 
+    { label: "Option 2", colorType: "preset", presetColor: "green" }
+  ],
+  uniqField: "label",
+});
 
 let ColoredTagOption = new MultiCompBuilder(
   {
     label: StringControl,
     icon: IconControl,
     colorType: withDefault(dropdownControl([
-      { label: "Preset", value: "preset" },
-      { label: "Custom", value: "custom" },
+      { label: trans("style.preset"), value: "preset" },
+      { label: trans("style.custom"), value: "custom" },
     ] as const, "preset"), "preset"),
     presetColor: withDefault(dropdownControl(TAG_PRESET_COLORS, "blue"), "blue"),
     color: withDefault(ColorControl, "#1890ff"),
@@ -811,16 +880,16 @@ ColoredTagOption = class extends ColoredTagOption implements OptionCompProperty 
         {this.children.label.propertyView({ label: trans("coloredTagOptionControl.tag") })}
         {this.children.icon.propertyView({ label: trans("coloredTagOptionControl.icon") })}
         {this.children.colorType.propertyView({ 
-          label: "Color Type", 
+          label: trans("style.colorType"), 
           radioButton: true 
         })}
         {colorType === "preset" && this.children.presetColor.propertyView({ 
-          label: "Preset Color" 
+          label: trans("style.presetColor") 
         })}
         {colorType === "custom" && (
           <>
             {this.children.color.propertyView({ label: trans("coloredTagOptionControl.color") })}
-            {this.children.textColor.propertyView({ label: "Text Color" })}
+            {this.children.textColor.propertyView({ label: trans("style.textColor") })}
           </>
         )}
         {this.children.border.propertyView({

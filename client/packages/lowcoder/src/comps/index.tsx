@@ -94,7 +94,7 @@ import {
   TourCompIcon,
   StepCompIcon,
   ShapesCompIcon,
-
+  TagsCompIcon,
   CandlestickChartCompIcon,
   FunnelChartCompIcon,
   HeatmapChartCompIcon,
@@ -715,7 +715,7 @@ export var uiCompMap: Registry = {
     enName: "tags",
     description: "Desc of Tags",
     categories: ["layout"],
-    icon: FloatingButtonCompIcon,
+    icon: TagsCompIcon,
     keywords: trans("uiComp.floatButtonCompKeywords"),
     comp: MultiTagsComp,
     layoutInfo: {
