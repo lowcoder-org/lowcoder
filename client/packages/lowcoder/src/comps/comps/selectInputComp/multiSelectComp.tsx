@@ -30,7 +30,7 @@ let MultiSelectBasicComp = (function () {
     padding: PaddingControl,
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    const valueSet = new Set<any>(props.options.map((o) => o.value)); // Filter illegal default values entered by the user
+    const valueSet = new Set<any>((props.options as any[]).map((o: any) => o.value)); // Filter illegal default values entered by the user
     const [
       validateState,
       handleChange,

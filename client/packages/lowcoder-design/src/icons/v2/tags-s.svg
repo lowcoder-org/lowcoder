@@ -1,0 +1,10 @@
+<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main tag container - rounded rectangle -->
+  <rect x="3" y="6" width="11" height="5" rx="2" stroke="rgb(180, 128, 222)" stroke-width="1.5" fill="rgb(180, 128, 222)" fill-opacity="0.1"/>
+  
+  <!-- Second tag - overlapping -->
+  <rect x="8" y="10" width="10" height="4.5" rx="1.5" stroke="rgb(180, 128, 222)" stroke-width="1.5" fill="rgb(180, 128, 222)" fill-opacity="0.15"/>
+  
+  <!-- Third tag - smallest -->
+  <rect x="12" y="14" width="8" height="4" rx="1.5" stroke="rgb(180, 128, 222)" stroke-width="1.5" fill="rgb(180, 128, 222)" fill-opacity="0.2"/>
+</svg>

@@ -45,6 +45,7 @@ export const en = {
   "accessControl": "Access Control",
   "copySuccess": "Copied Successfully",
   "copyError": "Copy Error",
+  "tags": "Tags",
   
   "api": {
     "publishSuccess": "Published Successfully",
@@ -571,6 +572,10 @@ export const en = {
     "headerText": "Header Text Color",
     "labelColor": "Label Color",
     "label": "Label Color",
+    "colorType": "Color Type",
+    "presetColor": "Preset Color",
+    "preset": "Preset",
+    "custom": "Custom",
     "lineHeight":"Line Height",
     "subTitleColor": "SubTitle Color",
     "titleText": "Title Color",
@@ -600,6 +605,14 @@ export const en = {
     "chartTextColor": "Text Color",
     "detailSize": "Detail Size",
     "hideColumn": "Hide Column",
+    "height": "Height",
+    "gap": "Gap",
+    "flexWrap": "Flex Wrap",
+    "justifyContent": "Justify Content",
+    "alignItems": "Align Items",
+    "borderless": "Borderless",
+    "individualStyling": "Individual Styling",
+    "individualStylingTooltip": "When enabled, each tag can have its own colors, borders, and spacing. When disabled, all tags use the general style settings.",
 
     "radiusTip": "Specifies the radius of the element's corners. Example: 5px, 50%, or 1em.",
     "gapTip": "Specifies the gap between rows and columns in a grid or flex container. Example: 10px, 1rem, or 5%.",

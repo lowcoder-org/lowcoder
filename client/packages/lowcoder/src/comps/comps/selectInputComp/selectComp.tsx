@@ -39,7 +39,7 @@ let SelectBasicComp = (function () {
     const propsRef = useRef<RecordConstructorToView<typeof childrenMap>>(props);
     propsRef.current = props;
 
-    const valueSet = new Set<any>(props.options.map((o) => o.value)); // Filter illegal default values entered by the user
+    const valueSet = new Set<any>((props.options as any[]).map((o: any) => o.value)); // Filter illegal default values entered by the user
 
     return props.label({
       required: props.required,
