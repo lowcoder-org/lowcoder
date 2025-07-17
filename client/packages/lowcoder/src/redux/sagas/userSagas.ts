@@ -77,8 +77,7 @@ export function* getUserSaga() {
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
         payload: user,
       });
-      // fetch all workspaces and store in redux
-      yield put(fetchWorkspacesAction(1, 10));     
+       
     }
   } catch (error: any) {
     yield put({
