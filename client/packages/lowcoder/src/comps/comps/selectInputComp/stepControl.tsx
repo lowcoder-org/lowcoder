@@ -5,7 +5,7 @@ import { stringExposingStateControl, numberExposingStateControl } from "comps/co
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { StepOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
-import { StepsStyle, StepsStyleType, heightCalculator, widthCalculator, marginCalculator, AnimationStyle, AnimationStyleType } from "comps/controls/styleControlConstants";
+import { StepsStyle, StepsStyleType, heightCalculator, widthCalculator, marginCalculator, AnimationStyle, AnimationStyleType, DisabledStepStyle, DisabledStepStyleType } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
@@ -98,11 +98,12 @@ const StepsChildrenMap = {
   animationStyle: styleControl(AnimationStyle ,'animationStyle' ),
   showScrollBars: withDefault(BoolControl, false),
   minHorizontalWidth: withDefault(RadiusControl, ''),
+  disabledStyle: styleControl(DisabledStepStyle, 'disabledStyle'),
 };
 
 let StepControlBasicComp = (function () {
   return new UICompBuilder(StepsChildrenMap, (props) => {
-    const StyledWrapper = styled.div<{ style: StepsStyleType, $animationStyle: AnimationStyleType }>`
+    const StyledWrapper = styled.div<{ style: StepsStyleType, $animationStyle: AnimationStyleType, $disabledStyle: DisabledStepStyleType }>`
     ${props=>props.$animationStyle}
       height: 100%;
       overflow-y: scroll;
@@ -124,6 +125,30 @@ let StepControlBasicComp = (function () {
       border: ${props.style.borderWidth} solid ${props.style.border};
       border-radius: ${props.style.radius};
       ${getBackgroundStyle(props.style)}
+      /* Disabled step styles */
+      .ant-steps-item-disabled {
+        .ant-steps-item-icon {
+          background: ${(props) => props.$disabledStyle?.disabledBackground};
+          border-color: ${(props) => props.$disabledStyle?.disabledBorder};
+
+          /* When using icon as dot */
+          .ant-steps-icon-dot {
+            background: ${(props) => props.$disabledStyle?.disabledBackground};
+          }
+
+          /* Default icon or custom icon */
+          .ant-steps-icon,
+          > * {
+            color: ${(props) => props.$disabledStyle?.disabledText};
+          }
+        }
+
+        .ant-steps-item-title,
+        .ant-steps-item-subtitle,
+        .ant-steps-item-description {
+          color: ${(props) => props.$disabledStyle?.disabledText};
+        }
+      }
       .ant-steps-item { padding-top: 5px !important; }
       .ant-steps.ant-steps-label-vertical.ant-steps-small .ant-steps-item-icon { margin-top: 17px !important; }
       .ant-steps.ant-steps-label-vertical.ant-steps-default .ant-steps-item-icon { margin-top: 12px !important; }
@@ -151,6 +176,9 @@ let StepControlBasicComp = (function () {
     const onChange = (index: number) => {
       if (props.selectable == false) return;
       const newIndex = Math.max(0, index);
+      if (props.options[newIndex]?.disabled) {
+           return;
+      }
       setCurrent(newIndex);
       if (props.options[newIndex]?.value !== undefined) {
         props.value.onChange(newIndex + 1 + ""); // Convert back to 1-based index for display.
@@ -169,7 +197,7 @@ let StepControlBasicComp = (function () {
               }
             }}
           >
-          <StyledWrapper style={props.style} $animationStyle={props.animationStyle}>
+          <StyledWrapper style={props.style} $animationStyle={props.animationStyle} $disabledStyle={props.disabledStyle}>
           <ScrollBar
             style={{
               height: props.autoHeight ? "auto" : "100%",
@@ -198,6 +226,7 @@ let StepControlBasicComp = (function () {
                   title={option.label}
                   subTitle={option.subTitle}
                   description={option.description}
+                  disabled={option.disabled}
                   status={option.status as "error" | "finish" | "wait" | "process" | undefined}
                   icon={props.showIcons && hasIcon(option.icon) && option.icon || undefined}
                 />
@@ -276,6 +305,9 @@ let StepControlBasicComp = (function () {
           </Section>
           <Section name={sectionNames.animationStyle} hasTooltip={true}>
             {children.animationStyle.getPropertyView()}
+          </Section>
+          <Section name={trans("prop.disabledStyle")}>
+            {children.disabledStyle.getPropertyView()}
           </Section>
           </>
         )}

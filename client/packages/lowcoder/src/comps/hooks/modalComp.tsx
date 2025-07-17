@@ -13,8 +13,8 @@ import { CanvasContainerID } from "constants/domLocators";
 import { Layers } from "constants/Layers";
 import { HintPlaceHolder, Modal, Section, sectionNames } from "lowcoder-design";
 import { trans } from "i18n";
-import { changeChildAction } from "lowcoder-core";
-import { CSSProperties, useCallback } from "react";
+import { changeChildAction, DispatchType, RecordConstructorToComp } from "lowcoder-core";
+import { CSSProperties, useCallback, useEffect, useMemo, useRef } from "react";
 import { ResizeHandle } from "react-resizable";
 import styled, { css } from "styled-components";
 import { useUserViewMode } from "util/hooks";
@@ -26,6 +26,10 @@ import { SliderControl } from "../controls/sliderControl";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 import clsx from "clsx";
 import { useApplicationId } from "util/hooks";
+import React from "react";
+import { ToViewReturn } from "../generators/multi";
+import { NewChildren } from "../generators/uiCompBuilder";
+import { SimpleContainerComp } from "../comps/containerBase/simpleContainerComp";
 
 const EventOptions = [
   { label: trans("modalComp.open"), value: "open", description: trans("modalComp.openDesc") },
@@ -96,148 +100,215 @@ function transToPxSize(size: string | number) {
   return isNumeric(size) ? size + "px" : (size as string);
 }
 
-let TmpModalComp = (function () {
-  return new ContainerCompBuilder(
-    {
-      visible: booleanExposingStateControl("visible"),
-      onEvent: eventHandlerControl(EventOptions),
-      width: StringControl,
-      height: StringControl,
-      horizontalGridCells: SliderControl,
-      autoHeight: AutoHeightControl,
-      title: StringControl,
-      titleAlign: HorizontalAlignmentControl,
-      modalScrollbar: withDefault(BoolControl, false),
-      style: styleControl(ModalStyle),
-      maskClosable: withDefault(BoolControl, true),
-      showMask: withDefault(BoolControl, true),
-      toggleClose:withDefault(BoolControl,true)
-    },
-    (props, dispatch) => {
-      const userViewMode = useUserViewMode();
-      const appID = useApplicationId();
-      const bodyStyle: CSSProperties = { padding: 0 };
-      const width = transToPxSize(props.width || DEFAULT_WIDTH);
-      let height = undefined;
-      let resizeHandles: ResizeHandle[] = ["w", "e"];
-      if (!props.autoHeight) {
-        height = transToPxSize(props.height || DEFAULT_HEIGHT);
-        resizeHandles.push("s");
-        bodyStyle.overflow = "hidden auto";
-      }
-      if (userViewMode) {
-        resizeHandles = [];
-      }
-      const { items, ...otherContainerProps } = props.container;
-      const onResizeStop = useCallback(
-        (
-          e: React.SyntheticEvent,
-          node: HTMLElement,
-          size: { width: number; height: number },
-          handle: ResizeHandle
-        ) => {
-          if (["w", "e"].includes(handle)) {
-            dispatch(changeChildAction("width", size.width, true));
-          } else if (["n", "s"].includes(handle)) {
-            dispatch(changeChildAction("height", size.height, true));
-          }
-        },
-        [dispatch]
-      );
-      let paddingValues = [10, 10];
-      if (props.style.padding != undefined) {
-        const extractedValues = extractMarginValues(props.style);
-        if (extractedValues !== null) {
-          paddingValues = extractedValues;
-        } 
-      }
-      return (
-        <BackgroundColorContext.Provider value={props.style.background}>
-          <ModalWrapper>
-            <StyledModal
-              closable={props.toggleClose}
-              height={height}
-              resizeHandles={resizeHandles}
-              onResizeStop={onResizeStop}
-              open={props.visible.value}
-              maskClosable={props.maskClosable}
-              focusTriggerAfterClose={false}
-              getContainer={() => document.querySelector(`#${CanvasContainerID}`) || document.body}
-              footer={null}
-              styles={{body: bodyStyle}}
-              title={props.title}
-              $titleAlign={props.titleAlign}
-              width={width}
-              onCancel={(e) => {
-                props.toggleClose&&props.visible.onChange(false);
-              }}
-              afterClose={() => {
-                props.toggleClose&&props.onEvent("close");
-              }}
-              afterOpenChange={(open: boolean) => {
-                if (open) props.onEvent("open");
-              }}
-              zIndex={Layers.modal}
-              modalRender={(node) => <ModalStyled $style={props.style} $modalScrollbar={props.modalScrollbar}>{node}</ModalStyled>}
-              mask={props.showMask}
-              className={clsx(`app-${appID}`, props.className)}
-              data-testid={props.dataTestId as string}
-            >
-              <InnerGrid
-                {...otherContainerProps}
-                items={gridItemCompToGridItems(items)}
-                horizontalGridCells={props.horizontalGridCells}
-                autoHeight={props.autoHeight}
-                minHeight={paddingValues ? DEFAULT_HEIGHT - paddingValues[0] * 2 + "px" : ""}
-                containerPadding={paddingValues ? [paddingValues[0] ?? 0, paddingValues[1] ?? 0] : [24,24]}
-                hintPlaceholder={HintPlaceHolder}
-              />
-            </StyledModal>
-          </ModalWrapper>
-        </BackgroundColorContext.Provider>
-      );
+type ChildrenType = NewChildren<RecordConstructorToComp<typeof childrenMap>> & {
+  container: InstanceType<typeof SimpleContainerComp>
+};
+
+const childrenMap = {
+  visible: booleanExposingStateControl("visible"),
+  onEvent: eventHandlerControl(EventOptions),
+  width: StringControl,
+  height: StringControl,
+  horizontalGridCells: SliderControl,
+  autoHeight: AutoHeightControl,
+  title: StringControl,
+  titleAlign: HorizontalAlignmentControl,
+  modalScrollbar: withDefault(BoolControl, false),
+  style: styleControl(ModalStyle),
+  maskClosable: withDefault(BoolControl, true),
+  showMask: withDefault(BoolControl, true),
+  toggleClose:withDefault(BoolControl,true)
+};
+
+const ModalPropertyView = React.memo((props: {
+  children: ChildrenType
+}) => {
+  return (
+  <>
+    <Section name={sectionNames.basic}>
+      {props.children.title.propertyView({ label: trans("modalComp.title") })}
+      {props.children.title.getView() && props.children.titleAlign.propertyView({ label: trans("modalComp.titleAlign"), radioButton: true })}
+      {props.children.horizontalGridCells.propertyView({
+        label: trans('prop.horizontalGridCells'),
+      })}
+      {props.children.autoHeight.getPropertyView()}
+      {!props.children.autoHeight.getView() && 
+        props.children.modalScrollbar.propertyView({
+          label: trans("prop.modalScrollbar")
+        })}
+      {!props.children.autoHeight.getView() &&
+        props.children.height.propertyView({
+          label: trans("modalComp.modalHeight"),
+          tooltip: trans("modalComp.modalHeightTooltip"),
+          placeholder: DEFAULT_HEIGHT + "",
+        })}
+      {props.children.width.propertyView({
+        label: trans("modalComp.modalWidth"),
+        tooltip: trans("modalComp.modalWidthTooltip"),
+        placeholder: DEFAULT_WIDTH,
+      })}
+      {props.children.maskClosable.propertyView({
+        label: trans("prop.maskClosable"),
+      })}
+      {props.children.showMask.propertyView({
+        label: trans("prop.showMask"),
+      })}
+      {props.children.toggleClose.propertyView({
+        label: trans("prop.toggleClose"),
+      })}
+    </Section>
+    <Section name={sectionNames.interaction}>{props.children.onEvent.getPropertyView()}</Section>
+    <Section name={sectionNames.style}>{props.children.style.getPropertyView()}</Section>
+  </>
+)});
+
+const ModalView = React.memo((
+  props: ToViewReturn<ChildrenType> & { dispatch: DispatchType }
+) => {
+  const userViewMode = useUserViewMode();
+  const appID = useApplicationId();
+  const containerRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    return () => {
+      containerRef.current = null;
+    };
+  }, []);
+
+  // Memoize body style
+  const bodyStyle = useMemo<CSSProperties>(() => ({ 
+    padding: 0,
+    overflow: props.autoHeight ? undefined : "hidden auto"
+  }), [props.autoHeight]);
+
+  // Memoize width and height
+  const width = useMemo(() => 
+    transToPxSize(props.width || DEFAULT_WIDTH),
+    [props.width]
+  );
+
+  const height = useMemo(() => 
+    !props.autoHeight ? transToPxSize(props.height || DEFAULT_HEIGHT) : undefined,
+    [props.autoHeight, props.height]
+  );
+
+  // Memoize resize handles
+  const resizeHandles = useMemo<ResizeHandle[]>(() => {
+    if (userViewMode) return [];
+    const handles: ResizeHandle[] = ["w", "e"];
+    if (!props.autoHeight) {
+      handles.push("s");
     }
+    return handles;
+  }, [userViewMode, props.autoHeight]);
+
+  // Memoize resize handler
+  const onResizeStop = useCallback(
+    (
+      e: React.SyntheticEvent,
+      node: HTMLElement,
+      size: { width: number; height: number },
+      handle: ResizeHandle
+    ) => {
+      if (["w", "e"].includes(handle)) {
+        props.dispatch(changeChildAction("width", size.width, true));
+      } else if (["n", "s"].includes(handle)) {
+        props.dispatch(changeChildAction("height", size.height, true));
+      }
+    },
+    [props.dispatch]
+  );
+
+  // Memoize padding values
+  const paddingValues = useMemo(() => {
+    if (!props.style.padding) return [10, 10];
+    const extractedValues = extractMarginValues(props.style);
+    return extractedValues || [10, 10];
+  }, [props.style.padding]);
+
+  // Memoize container getter
+  const getContainer = useCallback(() => {
+    containerRef.current = document.querySelector(`#${CanvasContainerID}`) || document.body;
+    return containerRef.current;
+  }, [CanvasContainerID]);
+
+  // Memoize event handlers
+  const handleCancel = useCallback((e: React.MouseEvent) => {
+    if (props.toggleClose) {
+      props.visible.onChange(false);
+    }
+  }, [props.toggleClose, props.visible]);
+
+  const handleAfterClose = useCallback(() => {
+    if (props.toggleClose) {
+      props.onEvent("close");
+    }
+  }, [props.toggleClose, props.onEvent]);
+
+  const handleAfterOpenChange = useCallback((open: boolean) => {
+    if (open) {
+      props.onEvent("open");
+    }
+  }, [props.onEvent]);
+
+  // Memoize modal render function
+  const modalRender = useCallback((node: React.ReactNode) => (
+    <ModalStyled $style={props.style} $modalScrollbar={props.modalScrollbar}>
+      {node}
+    </ModalStyled>
+  ), [props.style, props.modalScrollbar]);
+
+  return (
+    <BackgroundColorContext.Provider value={props.style.background}>
+      <ModalWrapper>
+        <StyledModal
+          closable={props.toggleClose}
+          height={height}
+          resizeHandles={resizeHandles}
+          onResizeStop={onResizeStop}
+          open={props.visible.value}
+          maskClosable={props.maskClosable}
+          focusTriggerAfterClose={false}
+          getContainer={() => document.querySelector(`#${CanvasContainerID}`) || document.body}
+          footer={null}
+          styles={{body: bodyStyle}}
+          title={props.title}
+          $titleAlign={props.titleAlign}
+          width={width}
+          onCancel={handleCancel}
+          afterClose={handleAfterClose}
+          afterOpenChange={handleAfterOpenChange}
+          zIndex={Layers.modal}
+          modalRender={modalRender}
+          mask={props.showMask}
+          className={clsx(`app-${appID}`, props.className)}
+          data-testid={props.dataTestId as string}
+          destroyOnHidden
+        >
+          <InnerGrid
+            {...props.container}
+            items={gridItemCompToGridItems(props.container.items)}
+            horizontalGridCells={props.horizontalGridCells}
+            autoHeight={props.autoHeight}
+            minHeight={paddingValues ? DEFAULT_HEIGHT - paddingValues[0] * 2 + "px" : ""}
+            containerPadding={paddingValues ? [paddingValues[0] ?? 0, paddingValues[1] ?? 0] : [24,24]}
+            hintPlaceholder={HintPlaceHolder}
+          />
+        </StyledModal>
+      </ModalWrapper>
+    </BackgroundColorContext.Provider>
+  );
+});
+
+const modalViewFn = (props: ToViewReturn<ChildrenType>, dispatch: DispatchType) => <ModalView {...props} dispatch={dispatch} />
+const modalPropertyViewFn = (children: ChildrenType) => <ModalPropertyView children={children} />
+
+let TmpModalComp = new ContainerCompBuilder(
+    childrenMap,
+    modalViewFn,
   )
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.title.propertyView({ label: trans("modalComp.title") })}
-          {children.title.getView() && children.titleAlign.propertyView({ label: trans("modalComp.titleAlign"), radioButton: true })}
-          {children.horizontalGridCells.propertyView({
-            label: trans('prop.horizontalGridCells'),
-          })}
-          {children.autoHeight.getPropertyView()}
-          {!children.autoHeight.getView() && 
-            children.modalScrollbar.propertyView({
-              label: trans("prop.modalScrollbar")
-            })}
-          {!children.autoHeight.getView() &&
-            children.height.propertyView({
-              label: trans("modalComp.modalHeight"),
-              tooltip: trans("modalComp.modalHeightTooltip"),
-              placeholder: DEFAULT_HEIGHT + "",
-            })}
-          {children.width.propertyView({
-            label: trans("modalComp.modalWidth"),
-            tooltip: trans("modalComp.modalWidthTooltip"),
-            placeholder: DEFAULT_WIDTH,
-          })}
-          {children.maskClosable.propertyView({
-            label: trans("prop.maskClosable"),
-          })}
-          {children.showMask.propertyView({
-            label: trans("prop.showMask"),
-          })}
-          {children.toggleClose.propertyView({
-            label: trans("prop.toggleClose"),
-          })}
-        </Section>
-        <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
-      </>
-    ))
-    .build();
-})();
+  .setPropertyViewFn(modalPropertyViewFn)
+  .build();
 
 TmpModalComp = class extends TmpModalComp {
   override autoHeight(): boolean {

@@ -122,7 +122,14 @@ export const apiFailureResponseInterceptor = (error: any) => {
       if (!notAuthRequiredPath(error.config?.url)) {
         if (error.response.status === API_STATUS_CODES.REQUEST_NOT_AUTHORISED) {
           // get x-org-id from failed request
-          const organizationId = error.response.headers['x-org-id'] || undefined;
+          let organizationId;
+          if (error.response.headers['x-org-id']) {
+            organizationId = error.response.headers['x-org-id'];
+          }
+          if (localStorage.getItem('lowcoder_login_orgId')) {
+            organizationId = localStorage.getItem('lowcoder_login_orgId');
+            localStorage.removeItem('lowcoder_login_orgId');
+          }
           // Redirect to login and set a redirect url.
           StoreRegistry.getStore().dispatch(
             logoutAction({

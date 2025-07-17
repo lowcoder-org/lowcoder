@@ -548,7 +548,8 @@ let TableTmpComp = withViewFn(TableImplComp, (comp) => {
 
 const withEditorModeStatus = (Component:any) => (props:any) => {
   const editorModeStatus = useContext(EditorContext).editorModeStatus;
-  return <Component {...props} editorModeStatus={editorModeStatus} />;
+  const {ref, ...otherProps} = props;
+  return <Component {...otherProps} editorModeStatus={editorModeStatus} />;
 };
 
 // Use this HOC when defining TableTmpComp
@@ -690,6 +691,19 @@ TableTmpComp = withMethodExposing(TableTmpComp, [
       comp.children.selection.children.selectedRowKeys.dispatchChangeValueAction([]);
     },
   },
+  {
+    method: {
+      name: "selectAll",
+      description: "Select all rows in the current filtered view",
+      params: [],
+    },
+    execute: (comp) => {
+      const displayData = comp.filterData ?? [];
+      const allKeys = displayData.map((row) => row[OB_ROW_ORI_INDEX] + "");
+      comp.children.selection.children.selectedRowKey.dispatchChangeValueAction(allKeys[0] || "0");
+      comp.children.selection.children.selectedRowKeys.dispatchChangeValueAction(allKeys);
+    },
+  },  
   {
     method: {
       name: "cancelChanges",

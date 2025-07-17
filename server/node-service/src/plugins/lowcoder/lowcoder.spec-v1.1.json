@@ -9180,11 +9180,9 @@
         "securitySchemes": {
             "bearerAuth": {
                 "type": "http",
-                "description": "API Key Authentication with a Bearer token. Copy your API Key and prefix it here with 'Bearer ' (e.g. 'Bearer eyJhbGciO...'",
-                "name": "Authorization",
-                "in": "header",
                 "scheme": "bearer",
-                "bearerFormat": "JWT"
+                "bearerFormat": "JWT",
+                "description": "JWT Authorization header using the Bearer scheme. Example: 'Authorization: Bearer {token}'"
             }
         }
     },

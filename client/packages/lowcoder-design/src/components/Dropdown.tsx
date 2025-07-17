@@ -18,9 +18,9 @@ export const DropdownContainer = styled.div<{ $placement: ControlPlacement }>`
   width: ${(props) =>
     props.$placement === "right"
       ? "calc(100% - 96px)"
-      : "bottom"
-      ? "calc(100% - 112px)"
-      : "calc(100% - 136px"};
+      : props.$placement === "bottom"
+        ? "calc(100% - 112px)"
+        : "calc(100% - 136px)"};
   flex-grow: 1;
 
   .ant-select:not(.ant-select-customize-input) .ant-select-selector {
@@ -124,8 +124,8 @@ const FlexDiv = styled.div`
 
 const LabelWrapper = styled.div<{ $placement: ControlPlacement }>`
   flex-shrink: 0;
-  width: ${(props) => (props.$placement === "right" ? "96px" : "bottom" ? "112px" : "136px")};
-`;
+  width: ${(props) => props.$placement === "right" ? "96px" : props.$placement === "bottom" ? "112px" : "136px"};
+  `;
 
 export type OptionType = {
   readonly label: ReactNode;
@@ -184,7 +184,7 @@ export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
             <CustomSelect
               open={props.open}
               listHeight={props.lineHeight}
-              popupClassName="ob-dropdown-control-select"
+              classNames={{popup: { root: "ob-dropdown-control-select"}}}
               showSearch={props.showSearch}
               filterOption={(input, option) => {
                 if (props.optionFilterProp) {
@@ -216,7 +216,7 @@ export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
               allowClear={props.allowClear}
               placeholder={props.placeholder}
               optionLabelProp={props.optionLabelProp}
-              dropdownRender={(menu) =>
+              popupRender={(menu) =>
                 props.preNode ? (
                   <>
                     {props.preNode()}

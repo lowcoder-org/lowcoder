@@ -125,8 +125,10 @@ function PermissionLiItem(props: {
       ) : (
         <StyledRoleSelect
           style={{ marginRight: "4px" }}
-          dropdownStyle={{
-            width: "100px",
+          styles={{
+            popup: {
+              root: { width: "100px" }
+            },
           }}
           defaultValue={permissionItem.role}
           variant="borderless"

@@ -36,6 +36,7 @@ import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.HashUtils;
 import org.lowcoder.sdk.util.LocaleUtils;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
@@ -183,6 +184,11 @@ public class UserServiceImpl implements UserService {
         newUser.setConnections(connections);
         newUser.setActiveAuthId(connection.getAuthId());
         newUser.setIsNewUser(true);
+        if(isSuperAdmin) {
+            return repository.findBySuperAdminIsTrue()
+                    .flatMap(user -> update(user.getId(), newUser))
+                    .switchIfEmpty(create(newUser));
+        }
         return create(newUser);
     }
 
@@ -418,7 +424,7 @@ public class UserServiceImpl implements UserService {
         return Optional.ofNullable(user.getOrgTransformedUserInfo())
                 .map(orgTransformedUserInfo -> orgTransformedUserInfo.get(orgId))
                 .map(TransformedUserInfo::extra)
-                .orElse(convertConnections(user.getConnections()));
+                .orElse(convertConnections(user.getConnections().stream().filter(c -> c.getAuthId().equals(user.getActiveAuthId())).collect(Collectors.toSet())));
     }
 
     protected Mono<List<Map<String, String>>> buildUserDetailGroups(String userId, OrgMember orgMember, boolean withoutDynamicGroups,
@@ -443,7 +449,7 @@ public class UserServiceImpl implements UserService {
         return connections.stream()
                 .filter(connection -> !AuthSourceConstants.EMAIL.equals(connection.getSource()) &&
                         !AuthSourceConstants.PHONE.equals(connection.getSource()))
-                .collect(Collectors.toMap(Connection::getAuthId, Connection::getRawUserInfo));
+                .collect(Collectors.toMap(Connection::getSource, Connection::getRawUserInfo));
     }
 
     protected String convertEmail(Set<Connection> connections) {
@@ -468,4 +474,13 @@ public class UserServiceImpl implements UserService {
         return repository.findByConnections_SourceAndConnections_RawIdIn(connectionSource, connectionSourceUuids);
     }
 
+    @Override
+    public Flux<User> findUsersByIdsAndSearchNameForPagination(Collection<String> ids, String state, boolean isEnabled, String searchRegex, Pageable pageable) {
+        return repository.findUsersByIdsAndSearchNameForPagination(ids, state, isEnabled, searchRegex, pageable);
+    }
+
+    @Override
+    public Mono<Long> countUsersByIdsAndSearchName(Collection<String> ids, String state, boolean isEnabled, String searchRegex) {
+        return repository.countUsersByIdsAndSearchName(ids, state, isEnabled, searchRegex);
+    }
 }

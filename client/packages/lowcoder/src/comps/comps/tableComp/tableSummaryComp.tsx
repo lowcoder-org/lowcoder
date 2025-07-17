@@ -4,7 +4,7 @@ import { TableColumnLinkStyleType, TableColumnStyleType, TableSummaryRowStyleTyp
 import styled from "styled-components";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import Table from "antd/es/table";
-import { ReactNode } from "react";
+import { ReactNode, useMemo, memo, useCallback } from "react";
 import Tooltip from "antd/es/tooltip";
 
 const TableSummaryRow = styled(Table.Summary.Row)<{
@@ -102,7 +102,7 @@ const TableSummarCell = styled(Table.Summary.Cell)<{
   }
 `;
 
-const CellWrapper = ({
+const CellWrapper = memo(({
   children,
   tooltipTitle,
 }: {
@@ -119,9 +119,11 @@ const CellWrapper = ({
   return (
     <>{children}</>
   )
-};
+});
 
-function TableSummaryCellView(props: {
+CellWrapper.displayName = 'CellWrapper';
+
+const TableSummaryCellView = memo(function TableSummaryCellView(props: {
   index: number;
   key: string;
   children: any;
@@ -145,7 +147,7 @@ function TableSummaryCellView(props: {
     ...restProps
   } = props;
 
-  const style = {
+  const style = useMemo(() => ({
     background: cellColor || columnStyle.background,
     margin: columnStyle.margin || rowStyle.margin,
     text: columnStyle.text || rowStyle.text,
@@ -157,7 +159,7 @@ function TableSummaryCellView(props: {
     textWeight: rowStyle.textWeight || columnStyle.textWeight,
     fontFamily: rowStyle.fontFamily || columnStyle.fontFamily,
     fontStyle: rowStyle.fontStyle || columnStyle.fontStyle,
-  }
+  }), [cellColor, columnStyle, rowStyle]);
 
   return (
     <TableSummarCell
@@ -172,9 +174,11 @@ function TableSummaryCellView(props: {
       </CellWrapper>
     </TableSummarCell>
   );
-}
+});
 
-export function TableSummary(props: {
+TableSummaryCellView.displayName = 'TableSummaryCellView';
+
+export const TableSummary = memo(function TableSummary(props: {
   tableSize: string;
   expandableRows: boolean;
   multiSelectEnabled: boolean;
@@ -182,6 +186,8 @@ export function TableSummary(props: {
   columns: ColumnComp[];
   summaryRowStyle: TableSummaryRowStyleType;
   istoolbarPositionBelow: boolean;
+  dynamicColumn: boolean;
+  dynamicColumnConfig: string[];
 }) {
   const {
     columns,
@@ -191,15 +197,60 @@ export function TableSummary(props: {
     expandableRows,
     multiSelectEnabled,
     istoolbarPositionBelow,
+    dynamicColumn,
+    dynamicColumnConfig,
   } = props;
-  let visibleColumns = columns.filter(col => !col.getView().hide);
-  if (expandableRows) {
-    visibleColumns.unshift(new ColumnComp({}));
-  }
-  if (multiSelectEnabled) {
-    visibleColumns.unshift(new ColumnComp({}));
-  }
-  
+
+  const visibleColumns = useMemo(() => {
+    let cols = columns.filter(col => !col.getView().hide);
+    if (dynamicColumn && dynamicColumnConfig?.length) {
+      cols = cols.filter(col => {
+        const colView = col.getView();
+        return dynamicColumnConfig.includes(colView.isCustom ? colView.title : colView.dataIndex)
+      })
+    }
+    if (expandableRows) {
+      cols.unshift(new ColumnComp({}));
+    }
+    if (multiSelectEnabled) {
+      cols.unshift(new ColumnComp({}));
+    }
+    return cols;
+  }, [columns, expandableRows, multiSelectEnabled, dynamicColumn, dynamicColumnConfig]);
+
+  const renderSummaryCell = useCallback((column: ColumnComp, rowIndex: number, index: number) => {
+    const summaryColumn = column.children.summaryColumns.getView()[rowIndex].getView();
+    return (
+      <TableSummaryCellView
+        index={index}
+        key={`summary-${rowIndex}-${column.getView().dataIndex}-${index}`}
+        tableSize={tableSize}
+        rowStyle={summaryRowStyle}
+        align={summaryColumn.align}
+        cellColor={summaryColumn.cellColor}
+        cellTooltip={summaryColumn.cellTooltip}
+        columnStyle={{
+          background: summaryColumn.background,
+          margin: summaryColumn.margin,
+          text: summaryColumn.text,
+          border: summaryColumn.border,
+          radius: summaryColumn.radius,
+          textSize: summaryColumn.textSize,
+          textWeight: summaryColumn.textWeight,
+          fontStyle: summaryColumn.fontStyle,
+          fontFamily: summaryColumn.fontFamily,
+        }}
+        linkStyle={{
+          text: summaryColumn.linkColor,
+          hoverText: summaryColumn.linkHoverColor,
+          activeText: summaryColumn.linkActiveColor,
+        }}
+      >
+        {summaryColumn.render({}, '').getView().view({})}
+      </TableSummaryCellView>
+    );
+  }, [tableSize, summaryRowStyle]);
+
   if (!visibleColumns.length) return <></>;
 
   return (
@@ -210,40 +261,11 @@ export function TableSummary(props: {
           $istoolbarPositionBelow={istoolbarPositionBelow}
           $background={summaryRowStyle.background}
         >
-          {visibleColumns.map((column, index) => {
-            const summaryColumn = column.children.summaryColumns.getView()[rowIndex].getView();
-            return (
-              <TableSummaryCellView
-                index={index}
-                key={`summary-${rowIndex}-${column.getView().dataIndex}-${index}`}
-                tableSize={tableSize}
-                rowStyle={summaryRowStyle}
-                align={summaryColumn.align}
-                cellColor={summaryColumn.cellColor}
-                cellTooltip={summaryColumn.cellTooltip}
-                columnStyle={{
-                  background: summaryColumn.background,
-                  margin: summaryColumn.margin,
-                  text: summaryColumn.text,
-                  border: summaryColumn.border,
-                  radius: summaryColumn.radius,
-                  textSize: summaryColumn.textSize,
-                  textWeight: summaryColumn.textWeight,
-                  fontStyle:summaryColumn.fontStyle,
-                  fontFamily: summaryColumn.fontFamily,
-                }}
-                linkStyle={{
-                  text: summaryColumn.linkColor,
-                  hoverText: summaryColumn.linkHoverColor,
-                  activeText: summaryColumn.linkActiveColor,
-                }}
-              >
-                {summaryColumn.render({}, '').getView().view({})}
-              </TableSummaryCellView>
-            )
-          })}
+          {visibleColumns.map((column, index) => renderSummaryCell(column, rowIndex, index))}
         </TableSummaryRow>
       ))}
     </Table.Summary>
   );
-}
+});
+
+TableSummary.displayName = 'TableSummary';

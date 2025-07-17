@@ -1,8 +1,11 @@
 import styled from "styled-components";
 import { trans } from "../../i18n";
 import { default as Divider } from "antd/es/divider";
+import { getReleases, getYoutubeVideos, getHubspotContent } from "api/newsApi";
+import { Card, Col, Row, Typography } from "antd";
+import React, { useEffect, useState } from "react";
 
-import { Card } from "antd";
+const { Title, Paragraph } = Typography;
 
 const Wrapper = styled.div`
   display: flex;
@@ -12,7 +15,7 @@ const Wrapper = styled.div`
 `;
 
 const HeaderWrapper = styled.div`
-  height: 84px;
+  height: 40px;
   width: 100%;
   display: flex;
   padding: 0 36px;
@@ -48,40 +51,52 @@ const StyleNewsCover = styled.div`
     border-radius:10px 10px 0 0;
 `;
 
-const StyleNewsContent = styled.div` 
-    position: relative;
-    margin-top:-50px;
-    display: flex;
-    align-items: end;
-    gap: 20px;
-
-    .subtitle {
-        color: #8b8fa3;
-    }
-
-    .button-end {
-        margin-left: auto;
-    }
-    
-    svg {
-        margin-right: 5px;
-        vertical-align: middle;
-    }
+const SectionTitle = styled(Title)`
+  margin-top: 24px;
+  font-size: 0.9em;
 `;
 
-const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
-var newsLink = "https://app.lowcoder.cloud/apps/6637657e859baf650aebf1b1/view?template=1";
-const commitId = REACT_APP_COMMIT_ID;
-const buildId = REACT_APP_BUILD_ID;
+const CardImage = styled.img`
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 4px;
+`;
 
-if (buildId) {
-  newsLink += `&b=${buildId}`;
+const cardGridStyle = { padding: "8px" };
+
+type NewsEntry = any; // replace with actual types if available
+
+interface NewsGridProps {
+  entries: NewsEntry[];
 }
-if (isSelfHost) {  
-  newsLink +=  `&v=${commitId}`;
-}
+
 
 export function NewsLayout() {
+
+  const [releasesData, setReleasesData] = useState<any[]>([]);
+
+  useEffect(() => {
+    getReleases()
+      .then(data => setReleasesData(data))
+      .catch(err => console.error("Failed to load news:", err));
+  }, []);
+
+  const [youTubeData, setYouTubeData] = useState<any[]>([]);
+
+  useEffect(() => {
+    getYoutubeVideos()
+      .then(data => setYouTubeData(data))
+      .catch(err => console.error("Failed to load news:", err));
+  }, []);
+
+  const [hubspotData, setHubspotData] = useState<any[]>([]);
+
+  useEffect(() => {
+    getHubspotContent()
+      .then(data => setHubspotData(data))
+      .catch(err => console.error("Failed to load news:", err));
+  }, []);
 
   return (
     <Wrapper>
@@ -93,15 +108,133 @@ export function NewsLayout() {
             <h1 style={{color: "#ffffff", marginTop : "12px"}}>Lowcoder {trans("home.news")}</h1>
           </StyleNewsCover>
           <Card style={{ marginBottom: "20px", minHeight : "800px" }}>
-            <h4>{trans("home.newsLoading")}</h4>
-            <iframe
-              style={{ border: "none" }}
-              title="Lowcoder News"
-              width="100%"
-              height="800px"
-              src={newsLink}
-            />
+
+          <SectionTitle level={2}>📝 Latest Blog Posts</SectionTitle>
+            <Row gutter={[16, 16]}>
+              {hubspotData?.map((item: { htmlTitle: any; publishDate: any; postSummary: any; url: any; featuredImage: any; metaDescription: any; }, idx: any) => {
+                const {
+                  htmlTitle,
+                  publishDate,
+                  postSummary,
+                  url,
+                  featuredImage,
+                  metaDescription,
+                } = item;
+
+                const summaryHtml = postSummary || metaDescription || "";
+                const coverImage = featuredImage || "https://placehold.co/600x400?text=Lowcoder+Blog";
+
+                // Strip HTML to plain text
+                const stripHtml = (html: string): string => {
+                  const div = document.createElement("div");
+                  div.innerHTML = html;
+                  return div.textContent || div.innerText || "";
+                };
+
+                const plainSummary = stripHtml(summaryHtml);
+
+                return (
+                  <Col xs={24} sm={12} md={12} lg={8} key={`blog-${idx}`}>
+                    <Card
+                      hoverable
+                      cover={
+                        <a href={url} target="_blank" rel="noreferrer">
+                          <CardImage src={coverImage} alt={htmlTitle} />
+                        </a>
+                      }
+                    >
+                      <Card.Meta
+                        title={
+                          <a href={url} target="_blank" rel="noreferrer">
+                            {htmlTitle}
+                          </a>
+                        }
+                        description={
+                          <>
+                            <Paragraph type="secondary" style={{ marginBottom: 4 }}>
+                              {new Date(publishDate).toLocaleDateString()}
+                            </Paragraph>
+                            <Paragraph
+                              ellipsis={{ rows: 4 }}
+                              type="secondary"
+                              style={{ fontSize: "13px" }}
+                            >
+                              {plainSummary}
+                            </Paragraph>
+                          </>
+                        }
+                      />
+                    </Card>
+                  </Col>
+                );
+              })}
+            </Row>
+          
             <Divider />
+          
+            <SectionTitle level={2}>📺 Latest YouTube Videos
+            <Paragraph type="secondary" style={{ marginBottom: 0, marginTop: 4 }}>
+                <Typography.Link href="https://www.youtube.com/@Lowcoder_cloud" target="_blank" rel="noopener noreferrer">
+                  Visit YouTube Channel →
+                </Typography.Link>
+              </Paragraph>
+            </SectionTitle>
+
+            <Row gutter={[16, 16]}>
+              {youTubeData.map((item, idx) => {
+                const s = item.snippet;
+                return (
+                  <Col xs={24} sm={12} md={8} lg={6} key={`yt-${idx}`}>
+                    <Card
+                      hoverable
+                      cover={
+                        <a href={`https://www.youtube.com/watch?v=${item.id.videoId}`} target="_blank" rel="noreferrer">
+                          <CardImage src={s.thumbnails.high.url} alt={s.title} />
+                        </a>
+                      }
+                    >
+                      <Card.Meta
+                        title={s.title}
+                        description={<Paragraph ellipsis={{ rows: 2 }}>{s.description}</Paragraph>}
+                      />
+                    </Card>
+                  </Col>
+                );
+              })}
+            </Row>
+
+            <Divider />
+
+            <SectionTitle level={2}>🚀 Latest Releases
+              <Paragraph type="secondary" style={{ marginBottom: 0, marginTop: 4 }}>
+                <Typography.Link href="https://github.com/lowcoder-org/lowcoder/releases" target="_blank" rel="noopener noreferrer">
+                  View all GitHub Releases →
+                </Typography.Link>
+              </Paragraph>
+            </SectionTitle>
+            <Row gutter={[16, 16]}>
+              {releasesData.map((item, idx) => {
+                const c = item;
+                return (
+                  <Col xs={24} sm={12} md={12} lg={8} key={`gh-${idx}`}>
+                    <Card
+                      hoverable
+                      title={`${c.tag_name} (${c.name})`}
+                      extra={<a href={c.html_url} target="_blank" rel="noreferrer">View</a>}
+                    >
+                      <Paragraph type="secondary">{new Date(c.published_at).toLocaleDateString()}</Paragraph>
+                      <Paragraph ellipsis={{ rows: 5 }}>
+                        <span dangerouslySetInnerHTML={{ __html: c.body.replace(/\r\n/g, "<br />") }} />
+                      </Paragraph>
+                    </Card>
+                  </Col>
+                );
+              })}
+            </Row>
+
+            <Divider />
+
+          
 
           </Card>  
           

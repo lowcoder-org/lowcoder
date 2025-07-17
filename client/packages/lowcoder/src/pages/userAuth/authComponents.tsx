@@ -1,5 +1,5 @@
 import { CheckboxChangeEvent } from "antd/es/checkbox";
-import React, { CSSProperties, useRef } from "react";
+import React, { CSSProperties, ReactNode, useMemo, useRef } from "react";
 import { CheckBox, PackUpIcon, TacoButton } from "lowcoder-design";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
@@ -7,43 +7,86 @@ import ReactHotkeys from "util/hotkeys";
 import { StyledLink } from "pages/common/styledComponent";
 import { trans } from "i18n";
 import { favicon } from "assets/images";
+import { Col, Row, Typography } from "antd";
+import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
+import { useSelector } from "react-redux";
+import { buildMaterialPreviewURL } from "@lowcoder-ee/util/materialUtils";
+import { isEmpty } from "lodash";
 
-const AuthCardContainer = styled.div`
+const StyledBrandingColumn = styled(Col)<{$bgImage?: string | null}>`
+  background-color: rgb(234, 234, 234);
+  background-image: url(${props => props.$bgImage});
+  background-size: cover;
+  background-repeat: no-repeat;
+  padding: 28px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+`;
+
+const StyledBrandingText = styled(Typography.Title)`
+  font-size: 24px !important;
+  color: black !important;
+  padding: 20px;
+  background-color: rgb(234, 234, 234);
+  border-radius: 10px;
+  
+  text-align: center;
+
+  @media screen and (max-width: 640px) {
+    font-size: 34px !important;
+  }
+`;
+
+const StyledRightColumn = styled(Col)`
+  padding: 28px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+`;
+
+const AuthCardContainer = styled.div<{$isEE?: boolean}>`
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100vh;
+  // min-height: 100vh;
   height: 100%;
   background-size: 100% 100%;
 `;
 
-const AuthCard = styled.div`
+const AuthCard = styled.div<{$isEE?: boolean}>`
   display: flex;
   flex-direction: column;
-  width: 480px;
+  width: ${props => props.$isEE ? '850px' : '480px'};
+  max-width: 90%;
   background: #ffffff;
   box-shadow: 0 0 20px 20px rgba(246, 248, 250, 0.85);
   border-radius: 16px;
-  padding: 28px 36px;
-  margin-top: 40px;
+  padding: ${props => props.$isEE ? '0px' : '28px 36px'};
+  margin-top: ${props => props.$isEE ? '13vh': '40px'};
+  overflow: hidden;
   @media screen and (max-width: 640px) {
     margin: 32px 18px 18px 18px;
     width: calc(100vw - 36px);
-    padding: 32px 24px;
+    padding: ${props => props.$isEE ? '0px' : '32px 24px'};
   }
 `;
 
-const AuthCardHeading = styled.div<{ $type?: string }>`
+const AuthCardHeading = styled.div<{ $type?: string, $isEE?: boolean }>`
   font-weight: 600;
   font-size: 28px;
   color: #222222;
   line-height: 28px;
-  margin-top: 13vh;
+  text-align: center;
+  margin-bottom: ${props => props.$isEE ? '28px': '0'};
+  margin-top: ${props => props.$isEE ? '0': '13vh'};
   @media screen and (min-height: 700px) {
-    margin-top: 107px;
+    margin-top: ${props => props.$isEE ? '0': '107px'};
   }
   @media screen and (max-height: 700px) {
-    margin-top: 47px;
+    margin-top: ${props => props.$isEE ? '0': '47px'};
   }
   @media screen and (max-width: 640px) {
     font-size: 23px;
@@ -136,22 +179,83 @@ const StyledConfirmButton = styled(TacoButton)`
   transition: unset;
 `;
 
+const BrandingWrapper = (props: {
+  isEE?: boolean;
+  children: ReactNode;
+}) => {
+  const brandingSettings = useSelector(getBrandingSetting);
+  const brandingImage = useMemo(() => {
+    const imageUrl = brandingSettings?.config_set?.signUpPageImage || '';
+    // if (Boolean(brandingSettings?.orgId)) {
+    //   return buildMaterialPreviewURL(imageUrl);
+    // }
+    return imageUrl;
+  }, [brandingSettings?.orgId, brandingSettings?.config_set?.signUpPageImage]);
+  const brandingText = brandingSettings?.config_set?.signUpPageText;
+
+  if (!props.isEE) {
+    return <>{props.children}</>
+  }
+
+  return (
+    <>
+      
+      <Row style={{ minHeight: '500px' }}>
+        <StyledBrandingColumn md={12} sm={24} $bgImage={brandingImage}>
+          {brandingText && ( 
+            <StyledBrandingText>
+              {brandingText}
+            </StyledBrandingText>
+          )}
+        </StyledBrandingColumn>
+        <StyledRightColumn md={12} sm={24}>
+          {props.children}
+        </StyledRightColumn>
+      </Row>
+    </>
+  )
+}
+
 export const AuthContainer = (props: {
   children: any;
   heading?: string;
   subHeading?: string;
   type?: string
+  isEE?: boolean;
+  orgId?: string;
 }) => {
+  const brandingSettings = useSelector(getBrandingSetting);
+  
+  const showEEBranding = useMemo(() => {
+    return props.isEE && !isEmpty(brandingSettings);
+  }, [props.isEE, brandingSettings]);
+
   return (
-    <AuthCardContainer>
-      <AuthCardHeading
-        $type={props.type}
-      >
-        {props.heading || ""}
-      </AuthCardHeading>
-      
-      <AuthCard>{props.children}</AuthCard>
-      { props.subHeading && (
+    <AuthCardContainer $isEE={showEEBranding}>
+      {!showEEBranding && (
+        <AuthCardHeading
+          $type={props.type}
+          $isEE={showEEBranding}
+        >
+          {props.heading || ""}
+        </AuthCardHeading>
+      )}
+      <AuthCard $isEE={showEEBranding}>
+        <BrandingWrapper
+          isEE={showEEBranding}
+        >
+          {showEEBranding && (
+            <AuthCardHeading
+              $type={props.type}
+              $isEE={showEEBranding}
+            >
+              {props.heading || ""}
+            </AuthCardHeading>
+          )}
+          {props.children}
+        </BrandingWrapper>
+      </AuthCard>
+      { props.subHeading && !showEEBranding && (
         <AuthCardSubFooter>
           <img src={favicon} alt={"Lowcoder | " + trans("productDesc")} width="20px"/>
           <a href="https://lowcoder.cloud" target="_blank" rel="noreferrer">

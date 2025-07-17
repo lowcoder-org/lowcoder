@@ -18,6 +18,8 @@ import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.repository.UserRepository;
 import org.lowcoder.domain.util.SlugUtils;
 import org.lowcoder.infra.annotation.PossibleEmptyMono;
+import org.lowcoder.infra.birelation.BiRelationService;
+import org.lowcoder.infra.birelation.BiRelation;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.config.dynamic.Conf;
@@ -31,6 +33,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -41,6 +44,7 @@ import static org.lowcoder.domain.organization.model.OrganizationState.ACTIVE;
 import static org.lowcoder.domain.organization.model.OrganizationState.DELETED;
 import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
 import static org.lowcoder.sdk.exception.BizError.UNABLE_TO_FIND_VALID_ORG;
+import static org.lowcoder.infra.birelation.BiRelationBizType.ORG_MEMBER;
 import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 import static org.lowcoder.sdk.util.LocaleUtils.getLocale;
@@ -62,6 +66,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     private final ApplicationContext applicationContext;
     private final CommonConfig commonConfig;
     private final ConfigCenter configCenter;
+    private final BiRelationService biRelationService;
 
     @PostConstruct
     private void init()
@@ -171,6 +176,15 @@ public class OrganizationServiceImpl implements OrganizationService {
             return repository.findByGidAndState(id, ACTIVE)
                     .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
         return repository.findBySlugAndState(id, ACTIVE).switchIfEmpty(repository.findByIdAndState(id, ACTIVE))
+                .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
+    }
+
+    @Override
+    public Mono<Organization> getByIdWithDeleted(String id) {
+        if(FieldName.isGID(id))
+            return repository.findByGid(id).next()
+                    .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
+        return repository.findBySlug(id).next().switchIfEmpty(repository.findById(id))
                 .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
     }
 
@@ -305,5 +319,32 @@ public class OrganizationServiceImpl implements OrganizationService {
                         return repository.save(organization);
                     });
         });
+    }
+
+    @Override
+    public Flux<Organization> findUserOrgs(String userId, String orgName, Pageable pageable) {
+        return biRelationService.getByTargetId(ORG_MEMBER, userId)
+                .map(BiRelation::getSourceId)
+                .collectList()
+                .flatMapMany(orgIds -> {
+                    if (orgIds.isEmpty()) {
+                        return Flux.empty();
+                    }
+                    return repository.findByIdInAndNameContainingIgnoreCaseAndState(orgIds, orgName, ACTIVE, pageable);
+                });
+    }
+
+    @Override
+    public Mono<Long> countUserOrgs(String userId, String orgName) {
+        String filter = orgName == null ? "" : orgName;
+        return biRelationService.getByTargetId(ORG_MEMBER, userId)
+                .map(BiRelation::getSourceId)
+                .collectList()
+                .flatMap(orgIds -> {
+                    if (orgIds.isEmpty()) {
+                        return Mono.just(0L);
+                    }
+                    return repository.countByIdInAndNameContainingIgnoreCaseAndState(orgIds, filter, ACTIVE);
+                });
     }
 }

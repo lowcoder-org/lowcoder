@@ -328,6 +328,7 @@ const IconPopup = (props: {
   searchKeywords?: Record<string, string>;
   IconType?: "OnlyAntd" | "All" | "default" | undefined;
 }) => {
+  const draggableRef = useRef<HTMLDivElement>(null);
   const [allIcons, setAllIcons] = useState<Record<string, Icon>>({});
   const onChangeRef = useRef(props.onChange);
   onChangeRef.current = props.onChange;
@@ -374,8 +375,8 @@ const IconPopup = (props: {
   //   [searchResults, allIcons, onChangeIcon]
   // );
   return (
-    <Draggable handle=".dragHandle">
-      <PopupContainer>
+    <Draggable handle=".dragHandle" nodeRef={draggableRef}>
+      <PopupContainer ref={draggableRef}>
         <TitleDiv className="dragHandle">
           <TitleText>{trans("shapeSelect.title")}</TitleText>
           <StyledCloseIcon onClick={props.onClose} />
@@ -452,7 +453,7 @@ export const ShapeSelectBase = (props: {
         }
       }}
       // when dragging is allowed, always re-location to avoid the popover exceeds the screen
-      destroyTooltipOnHide
+      destroyOnHidden
       content={
         <IconPopup
           onChange={props.onChange}

@@ -21,7 +21,7 @@ import {
   withExposingConfigs,
 } from "comps/generators/withExposing";
 import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState, useCallback } from "react";
 import styled, { css } from "styled-components";
 import { RecordConstructorToView } from "lowcoder-core";
 import { InputEventHandlerControl } from "../../controls/eventHandlerControl";
@@ -30,7 +30,7 @@ import { formDataChildren, FormDataPropertyView } from "../formComp/formDataCons
 import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { RefControl } from "../../controls/refControl";
 import { styleControl } from "comps/controls/styleControl";
-import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, DisabledInputStyle, DisabledInputStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import {
   disabledPropertyView,
   hiddenPropertyView,
@@ -59,7 +59,6 @@ const getStyle = (style: InputLikeStyleType) => {
   return css`
     border-radius: ${style.radius};
     border-width:${style.borderWidth} !important;
-    // line-height: ${style.lineHeight} !important;
     // still use antd style when disabled
     &:not(.ant-input-number-disabled) {
       color: ${style.text};
@@ -75,11 +74,7 @@ const getStyle = (style: InputLikeStyleType) => {
       &:hover {
         border-color: ${style.accent};
       }
-
-      &::-webkit-input-placeholder {
-        color: ${style.text};
-        opacity: 0.4;
-      }
+  
       .ant-input-number {	
         margin: 0;	
         
@@ -93,6 +88,26 @@ const getStyle = (style: InputLikeStyleType) => {
         font-weight:${style.textWeight} !important;
         font-size:${style.textSize} !important;
         font-style:${style.fontStyle} !important;
+
+        &::-webkit-input-placeholder {
+          color: ${style.placeholder};
+          opacity: 1;
+        }
+
+        &::-moz-placeholder {
+          color: ${style.placeholder};
+          opacity: 1;
+        }
+
+        &:-ms-input-placeholder {
+          color: ${style.placeholder};
+          opacity: 1;
+        }
+
+        &::placeholder {
+          color: ${style.placeholder};
+          opacity: 1;
+        }
       }
 
       .ant-input-number-handler-wrap {
@@ -122,11 +137,27 @@ const getStyle = (style: InputLikeStyleType) => {
 
 const InputNumber = styled(AntdInputNumber)<{
   $style: InputLikeStyleType;
+  $disabledStyle?: DisabledInputStyleType;
 }>`
   box-shadow: ${(props) =>
     `${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
   width: 100%;
   ${(props) => props.$style && getStyle(props.$style)}
+  
+  /* Disabled state styling */
+  &:disabled,
+  &.ant-input-number-disabled {
+    color: ${(props) => props.$disabledStyle?.disabledText};
+    background: ${(props) => props.$disabledStyle?.disabledBackground};
+    border-color: ${(props) => props.$disabledStyle?.disabledBorder};
+    cursor: not-allowed;
+    
+    .ant-input-number-input {
+      color: ${(props) => props.$disabledStyle?.disabledText};
+      background: ${(props) => props.$disabledStyle?.disabledBackground};
+    }
+    
+  }
 `;
 
 const FormatterOptions = [
@@ -266,12 +297,14 @@ const childrenMap = {
   animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   prefixIcon: IconControl,
   inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'),
+  disabledStyle: styleControl(DisabledInputStyle, 'disabledStyle'),
   // validation
   required: BoolControl,
   showValidationWhenEmpty: BoolControl,
   min: UndefinedNumberControl,
   max: UndefinedNumberControl,
   customRule: CustomRuleControl,
+  tabIndex: NumberControl,
 
   ...formDataChildren,
 };
@@ -279,8 +312,18 @@ const childrenMap = {
 const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) => {
   const ref = useRef<HTMLInputElement | null>(null);
   const defaultValue = props.defaultValue.value;
+  const mountedRef = useRef(true);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      ref.current = null;
+    };
+  }, []);
 
   useEffect(() => {
+    if (!mountedRef.current) return;
     let value = 0;
     if (defaultValue === 'null' && props.allowNull) {
       value = NaN;
@@ -295,16 +338,18 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
 
   const [tmpValue, setTmpValue] = useState(formatFn(props.value.value));
 
-  const handleFinish = () => {
+  const handleFinish = useCallback(() => {
+    if (!mountedRef.current) return;
     const oldValue = props.value.value;
     const newValue = parseNumber(tmpValue, props.allowNull);
     props.value.onChange(newValue);
     if((oldValue !== newValue)) {
       props.onEvent("change");
     }
-  };
+  }, [tmpValue, props.allowNull, props.value, props.onEvent]);
 
   useEffect(() => {
+    if (!mountedRef.current) return;
     setTmpValue(formatFn(props.value.value));
   }, [
     props.value.value,
@@ -314,9 +359,49 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
     props.thousandsSeparator,
   ]);
 
+  const handleChangeCapture = useCallback((e: any) => {
+    if (!mountedRef.current) return;
+    setTmpValue((e.target.value?.toString() ?? "").replace("。", "."));
+  }, []);
+
+  const handleStep = useCallback((_: any, info: any) => {
+    if (!mountedRef.current) return;
+    const v = NP.plus(
+      parseNumber(tmpValue),
+      NP.times(info.type === "up" ? 1 : -1, Number(info.offset))
+    );
+    props.value.onChange(v);
+    props.onEvent("change");
+  }, [tmpValue, props.value, props.onEvent]);
+
+  const handleKeyPress = useCallback((event: React.KeyboardEvent) => {
+    if (!mountedRef.current) return;
+    const value = tmpValue;
+    const cursor = ref.current?.selectionStart;
+    if (/\d/.test(event.key)) {
+      return;
+    }
+    if (cursor === 0 && event.key === "-" && !/-/.test(value)) {
+      return;
+    }
+    if (cursor !== 0 && props.thousandsSeparator && event.key === ",") {
+      return;
+    }
+    if (
+      cursor !== 0 &&
+      props.precision > 0 &&
+      (event.key === "." || event.key === "。") &&
+      !/[.]/.test(value)
+    ) {
+      return;
+    }
+    event.preventDefault();
+  }, [tmpValue, props.thousandsSeparator, props.precision]);
+
   return (
     <InputNumber
       ref={(input) => {
+        if (!mountedRef.current) return;
         props.viewRef(input);
         ref.current = input;
       }}
@@ -329,54 +414,24 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
       stringMode={true}
       precision={props.precision}
       $style={props.inputFieldStyle}
+      $disabledStyle={props.disabledStyle}
       prefix={hasIcon(props.prefixIcon) ? props.prefixIcon : props.prefixText.value}
+      tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
       onPressEnter={() => {
         handleFinish();
         props.onEvent("submit");
       }}
-      onChangeCapture={(e: any) => {
-        // eslint-disable-next-line only-ascii/only-ascii
-        setTmpValue((e.target.value?.toString() ?? "").replace("。", "."));
-      }}
-      onStep={(_, info) => {
-        // since percentage mode needs to be handled manually
-        const v = NP.plus(
-          parseNumber(tmpValue),
-          NP.times(info.type === "up" ? 1 : -1, Number(info.offset))
-        );
-        props.value.onChange(v);
-        props.onEvent("change");
-      }}
+      onChangeCapture={handleChangeCapture}
+      onStep={handleStep}
       onFocus={() => {
+        if (!mountedRef.current) return;
         props.onEvent("focus");
       }}
       onBlur={() => {
         handleFinish();
         props.onEvent("blur");
       }}
-      onKeyPress={(event) => {
-        const value = tmpValue;
-        const cursor = ref.current?.selectionStart;
-        if (/\d/.test(event.key)) {
-          return;
-        }
-        if (cursor === 0 && event.key === "-" && !/-/.test(value)) {
-          return;
-        }
-        if (cursor !== 0 && props.thousandsSeparator && event.key === ",") {
-          return;
-        }
-        if (
-          cursor !== 0 &&
-          props.precision > 0 &&
-          // eslint-disable-next-line only-ascii/only-ascii
-          (event.key === "." || event.key === "。") &&
-          !/[.]/.test(value)
-        ) {
-          return;
-        }
-        event.preventDefault();
-      }}
+      onKeyPress={handleKeyPress}
     />
   );
 };
@@ -416,6 +471,7 @@ let NumberInputTmpComp = (function () {
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
+              {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
             </Section>
           </>
         )}
@@ -450,6 +506,9 @@ let NumberInputTmpComp = (function () {
           <Section name={sectionNames.inputFieldStyle}>
             {children.inputFieldStyle.getPropertyView()}
           </Section>
+                      <Section name={trans("prop.disabledStyle")}>
+              {children.disabledStyle.getPropertyView()}
+            </Section>
           <Section name={sectionNames.animationStyle} hasTooltip={true}>
             {children.animationStyle.getPropertyView()}
           </Section>

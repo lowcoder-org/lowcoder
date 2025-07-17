@@ -245,7 +245,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
       label,
       key: tab.key,                                                                            
       forceRender: !destroyInactiveTab,
-      destroyInactiveTabPane: destroyInactiveTab,
+      destroyInactiveTab: destroyInactiveTab,
       children: (
         <BackgroundColorContext.Provider value={bodyStyle.background}>
           <ScrollBar style={{ height: props.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!props.showVerticalScrollbar} overflow={props.autoHeight ? 'hidden':'scroll'}>
@@ -407,7 +407,8 @@ class TabbedContainerImplComp extends TabbedContainerBaseComp implements IContai
           },
         } as CompAction;
       }
-      if (value.type === "delete" && this.children.tabs.getView().length <= 1) {
+      const { path } = action;
+      if (value.type === "delete" && path[0] === 'tabs' && this.children.tabs.getView().length <= 1) {
         messageInstance.warning(trans("tabbedContainer.atLeastOneTabError"));
         // at least one tab
         return this;

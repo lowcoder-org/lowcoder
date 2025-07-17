@@ -1,4 +1,4 @@
-import ReactResizeDetector from "react-resize-detector";
+import { useResizeDetector } from "react-resize-detector";
 import { NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
 import { TriContainer } from "../triContainerComp/triContainer";
@@ -21,6 +21,7 @@ import { optionsControl } from "comps/controls/optionsControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { styleControl } from "comps/controls/styleControl";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 
 const { Meta } = Card;
 
@@ -196,7 +197,6 @@ export const ContainerBaseComp = (function () {
 
   return new ContainerCompBuilder(childrenMap, (props) => {    
     props.container.showHeader = false;
-    // 注入容器参数
     props.container.style = Object.assign(props.container.style, {
       CONTAINER_BODY_PADDING: props.style.containerBodyPadding,
       border: '#00000000',
@@ -205,6 +205,12 @@ export const ContainerBaseComp = (function () {
     const conRef = useRef<HTMLDivElement>(null);
     const [width, setWidth] = useState(0);
     const [height, setHeight] = useState(0);
+    const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent})
+    const actionHandlers = props.actionOptions.map(item => ({
+      ...item,
+      clickHandler: useCompClickEventHandler({onEvent: item.onEvent})
+    }));
+
     useEffect(() => {
       if (height && width) {
         onResize();
@@ -216,51 +222,57 @@ export const ContainerBaseComp = (function () {
       setWidth(container?.clientWidth ?? 0);
       setHeight(container?.clientHeight ?? 0);
     };
-    return (
-      <ReactResizeDetector onResize={onResize}>
-        <Wrapper
-          ref={conRef}
-          $style={props.style}
-          $animationStyle={props.animationStyle}
-          $headerStyle={props.headerStyle}
-          $bodyStyle={props.bodyStyle}
-          $showMate={props.showMeta || props.cardType == 'custom'}
-          $cardType={props.cardType}
-          onMouseEnter={() => props.onEvent('focus')}
-          onMouseLeave={() => props.onEvent('blur')}
-          onClick={() => props.onEvent('click')}
-        >
-          {<Card
-            style={{ width: width, height: '100%' }}
-            size={props.size}
-            hoverable={props.hoverable}
-            // 标题设置
-            title={props.showTitle && props.title}
-            extra={props.showTitle && <a href="#" onClick={() => props.onEvent('clickExtra')}>{props.extraTitle}</a>}
 
-            // 内容
-            cover={props.cardType == 'common' && props.CoverImg && <img src={props.imgSrc} height={props.imgHeight} />}
-            actions={props.cardType == 'common' && props.showActionIcon ?
-              props.actionOptions.filter(item => !item.hidden).map(item => {
-                return (
-                  <IconWrapper
-                    onClick={() => item.onEvent('click')}
-                    disabled={item.disabled}
-                    $style={props.style}
-                  >
-                    {item.icon}
-                  </IconWrapper>)
-              }
-              ) : []
+    useResizeDetector({
+      targetRef: conRef,
+      onResize,
+    });
+
+    return (
+      <Wrapper
+        ref={conRef}
+        $style={props.style}
+        $animationStyle={props.animationStyle}
+        $headerStyle={props.headerStyle}
+        $bodyStyle={props.bodyStyle}
+        $showMate={props.showMeta || props.cardType == 'custom'}
+        $cardType={props.cardType}
+        onMouseEnter={() => props.onEvent('focus')}
+        onMouseLeave={() => props.onEvent('blur')}
+        onClick={handleClickEvent}
+      >
+        <Card
+          style={{ width: width, height: '100%' }}
+          size={props.size}
+          hoverable={props.hoverable}
+          // 标题设置
+          title={props.showTitle && props.title}
+          extra={props.showTitle && <a href="#" onClick={() => props.onEvent('clickExtra')}>{props.extraTitle}</a>}
+
+          // 内容
+          cover={props.cardType == 'common' && props.CoverImg && <img src={props.imgSrc} height={props.imgHeight} />}
+          actions={props.cardType == 'common' && props.showActionIcon ?
+            actionHandlers.filter(item => !item.hidden).map(item => {
+              return (
+                <IconWrapper
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    item.clickHandler()
+                  }}
+                  disabled={item.disabled}
+                  $style={props.style}
+                >
+                  {item.icon}
+                </IconWrapper>)
             }
-          >
-            {props.cardType == 'common' && props.showMeta && <Meta title={props.metaTitle} description={props.metaDesc} />}
-            {props.cardType == 'custom' && <ContainWrapper>
-              <TriContainer {...props} /></ContainWrapper>}
-          </Card>
+            ) : []
           }
-        </Wrapper>
-      </ReactResizeDetector>
+        >
+          {props.cardType == 'common' && props.showMeta && <Meta title={props.metaTitle} description={props.metaDesc} />}
+          {props.cardType == 'custom' && <ContainWrapper>
+            <TriContainer {...props} /></ContainWrapper>}
+        </Card>
+      </Wrapper>
     );
   })
     .setPropertyViewFn((children) => {

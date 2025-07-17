@@ -1,11 +1,11 @@
 import { default as Pagination } from "antd/es/pagination";
 import { EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
-import _ from "lodash";
+import _, { findIndex } from "lodash";
 import { ConstructorToView, deferAction } from "lowcoder-core";
-import { HintPlaceHolder, ScrollBar, pageItemRender } from "lowcoder-design";
+import { DragIcon, HintPlaceHolder, ScrollBar, pageItemRender } from "lowcoder-design";
 import { RefObject, useContext, createContext, useMemo, useRef, useEffect } from "react";
-import ReactResizeDetector from "react-resize-detector";
+import { ResizePayload, useResizeDetector } from "react-resize-detector";
 import styled from "styled-components";
 import { checkIsMobile } from "util/commonUtils";
 import { useDelayState } from "util/hooks";
@@ -22,6 +22,10 @@ import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 import { AnimationStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
+import { DndContext } from "@dnd-kit/core";
+import { SortableContext, useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { JSONObject } from "@lowcoder-ee/util/jsonTypes";
 
 const ListViewWrapper = styled.div<{ $style: any; $paddingWidth: string,$animationStyle:AnimationStyleType }>`
   height: 100%;
@@ -63,6 +67,22 @@ const ListOrientationWrapper = styled.div<{
   flex-direction: ${(props) => (props.$isHorizontal ? "row" : "column")};
 `;
 
+const StyledDragIcon = styled(DragIcon)`
+  height: 16px;
+  width: 16px;
+  color: #8b8fa3;
+
+  &:hover {
+    cursor: grab;
+    outline: none;
+  }
+
+  &:focus {
+    cursor: grab;
+    outline: none;
+  }
+`;
+
 type MinHorizontalWidthContextType = {
   horizontalWidth: string,
   minHorizontalWidth?: string,
@@ -73,19 +93,48 @@ const MinHorizontalWidthContext = createContext<MinHorizontalWidthContextType>({
   minHorizontalWidth: '100px',
 });
 
-const ContainerInListView = (props: ContainerBaseProps ) => {
+const ContainerInListView = (props: ContainerBaseProps & {itemIdx: number, enableSorting?: boolean} ) => {
   const {
     horizontalWidth,
     minHorizontalWidth
   } = useContext(MinHorizontalWidthContext);
 
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id: String(props.itemIdx),
+  });
+
+  if (!props.enableSorting) {
+    return (
+      <div
+        style={{
+          width: horizontalWidth,
+          minWidth: minHorizontalWidth || '0px',
+        }}
+      >
+        <InnerGrid
+          {...props}
+          emptyRows={15}
+          containerPadding={[4, 4]}
+          hintPlaceholder={HintPlaceHolder}
+        />
+      </div>
+    )
+  }
+
   return (
     <div
+      ref={setNodeRef}
       style={{
         width: horizontalWidth,
         minWidth: minHorizontalWidth || '0px',
+        transform: CSS.Transform.toString(transform),
+        transition,
+        display: 'flex',
+        flexWrap: 'nowrap',
+        alignItems: 'center',
       }}
     >
+      {<StyledDragIcon {...attributes} {...listeners} />}
       <InnerGrid
         {...props}
         emptyRows={15}
@@ -107,6 +156,7 @@ type ListItemProps = {
   unMountFn?: () => void;
   minHorizontalWidth?: string;
   horizontalWidth: string;
+  enableSorting?: boolean;
 };
 
 function ListItem({
@@ -122,6 +172,7 @@ function ListItem({
     scrollContainerRef,
     minHeight,
     horizontalGridCells,
+    enableSorting,
   } = props;
 
   // disable the unmount function to save user's state with pagination
@@ -133,35 +184,37 @@ function ListItem({
   // }, []);
 
   return (
-      <MinHorizontalWidthContext.Provider
-        value={{
-          horizontalWidth,
-          minHorizontalWidth
+    <MinHorizontalWidthContext.Provider
+      value={{
+        horizontalWidth,
+        minHorizontalWidth
+      }}
+    >
+      <ContainerInListView
+        itemIdx={itemIdx}
+        layout={containerProps.layout}
+        items={gridItemCompToGridItems(containerProps.items)}
+        horizontalGridCells={horizontalGridCells}
+        positionParams={containerProps.positionParams}
+        // all layout changes should only reflect on the commonContainer
+        dispatch={itemIdx === offset ? containerProps.dispatch : _.noop}
+        style={{
+          height: "100%",
+          // in case of horizontal mode, minHorizontalWidth is 0px
+          width: minHorizontalWidth || '100%',
+          backgroundColor: "transparent",
+          // flex: "auto",
         }}
-      >
-        <ContainerInListView
-          layout={containerProps.layout}
-          items={gridItemCompToGridItems(containerProps.items)}
-          horizontalGridCells={horizontalGridCells}
-          positionParams={containerProps.positionParams}
-          // all layout changes should only reflect on the commonContainer
-          dispatch={itemIdx === offset ? containerProps.dispatch : _.noop}
-          style={{
-            height: "100%",
-            // in case of horizontal mode, minHorizontalWidth is 0px
-            width: minHorizontalWidth || '100%',
-            backgroundColor: "transparent",
-            // flex: "auto",
-          }}
-          autoHeight={autoHeight}
-          isDroppable={itemIdx === offset}
-          isDraggable={itemIdx === offset}
-          isResizable={itemIdx === offset}
-          isSelectable={itemIdx === offset}
-          scrollContainerRef={scrollContainerRef}
-          overflow={"hidden"}
-          minHeight={minHeight}
-          enableGridLines={true}
+        autoHeight={autoHeight}
+        isDroppable={itemIdx === offset}
+        isDraggable={itemIdx === offset}
+        isResizable={itemIdx === offset}
+        isSelectable={itemIdx === offset}
+        scrollContainerRef={scrollContainerRef}
+        overflow={"hidden"}
+        minHeight={minHeight}
+        enableGridLines={true}
+        enableSorting={enableSorting}
       />
     </MinHorizontalWidthContext.Provider>
   );
@@ -190,6 +243,7 @@ export function ListView(props: Props) {
     () => getData(children.noOfRows.getView()),
     [children.noOfRows]
   );
+  const listData = useMemo(() => children.listData.getView(), [children.listData]);
   const horizontalGridCells = useMemo(() => children.horizontalGridCells.getView(), [children.horizontalGridCells]);
   const autoHeight = useMemo(() => children.autoHeight.getView(), [children.autoHeight]);
   const showHorizontalScrollbar = useMemo(() => children.showHorizontalScrollbar.getView(), [children.showHorizontalScrollbar]);
@@ -213,6 +267,13 @@ export function ListView(props: Props) {
       total,
     };
   }, [children.pagination, totalCount]);
+
+  const enableSorting = useMemo(() => children.enableSorting.getView(), [children.enableSorting]);
+
+  useEffect(() => {
+    children.listData.dispatchChangeValueAction(data);
+  }, [JSON.stringify(data)]);
+
   const style = children.style.getView();
   const animationStyle = children.animationStyle.getView();
 
@@ -229,6 +290,7 @@ export function ListView(props: Props) {
   // log.log("List. listHeight: ", listHeight, " minHeight: ", minHeight);
   const renders = _.range(0, noOfRows).map((rowIdx) => {
     // log.log("renders. i: ", i, "containerProps: ", containerProps, " text: ", Object.values(containerProps.items as Record<string, any>)[0].children.comp.children.text);
+    const items = _.range(0, noOfColumns);
     const render = (
       <div
         key={rowIdx}
@@ -238,7 +300,7 @@ export function ListView(props: Props) {
         }}
       >
         <FlexWrapper>
-          {_.range(0, noOfColumns).map((colIdx) => {
+          {items.map((colIdx) => {
             const itemIdx = rowIdx * noOfColumns + colIdx + pageInfo.offset;
             if (
               itemIdx >= pageInfo.total ||
@@ -250,7 +312,7 @@ export function ListView(props: Props) {
             const containerProps = containerFn(
               {
                 [itemIndexName]: itemIdx,
-                [itemDataName]: getCurrentItemParams(data, itemIdx)
+                [itemDataName]: getCurrentItemParams(listData as JSONObject[], itemIdx)
               },
               String(itemIdx)
             ).getView();
@@ -259,6 +321,7 @@ export function ListView(props: Props) {
                 deferAction(ContextContainerComp.batchDeleteAction([String(itemIdx)]))
               );
             };
+
             return (
               <ListItem
                 key={itemIdx}
@@ -272,12 +335,14 @@ export function ListView(props: Props) {
                 unMountFn={unMountFn}
                 horizontalWidth={`${100 / noOfColumns}%`}
                 minHorizontalWidth={horizontal ? minHorizontalWidth : undefined}
+                enableSorting={enableSorting}
               />
             );
           })}
         </FlexWrapper>
       </div>
     );
+
     return render;
   });
 
@@ -289,28 +354,59 @@ export function ListView(props: Props) {
 
   useMergeCompStyles(childrenProps, comp.dispatch);
 
+  const handleDragEnd = (e: { active: { id: string }; over: { id: string } | null }) => {
+    if (!e.over) {
+      return;
+    }
+    const fromIndex = Number(e.active.id);
+    const toIndex = Number(e.over.id);
+    if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) {
+      return;
+    }
+    
+    const newData = [...listData];
+    const [movedItem] = newData.splice(fromIndex, 1);
+    newData.splice(toIndex, 0, movedItem);
+
+    children.listData.dispatchChangeValueAction(newData);
+    children.onEvent.getView()('sortChange');
+  };
+
+  useResizeDetector({
+    targetRef: ref,
+    onResize: ({width, height}: ResizePayload) => {
+      if (height) setListHeight(height);
+    },
+    observerOptions: { box: "border-box" },
+  });
+
   // log.debug("renders: ", renders);
+
   return (
     <BackgroundColorContext.Provider value={style.background}>
       <ListViewWrapper $style={style} $paddingWidth={paddingWidth} $animationStyle={animationStyle}>
         <BodyWrapper ref={ref} $autoHeight={autoHeight}>
           <ScrollBar style={{ height: autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={horizontal ? !showHorizontalScrollbar : !showVerticalScrollbar} overflow={autoHeight ? horizontal ? 'scroll' : 'hidden' : 'scroll'}>
-            <ReactResizeDetector
-              onResize={(width?: number, height?: number) => {
-                if (height) setListHeight(height);
-              }}
-              observerOptions={{ box: "border-box" }}
-              render={() => (
-                <ListOrientationWrapper
-                  $isHorizontal={horizontal}
-                  $isGrid={noOfColumns > 1}
-                  $autoHeight={autoHeight}
-                >
-                  {renders}
-                </ListOrientationWrapper>
-              )}
+            <ListOrientationWrapper
+              $isHorizontal={horizontal}
+              $isGrid={noOfColumns > 1}
+              $autoHeight={autoHeight}
             >
-            </ReactResizeDetector>
+              {!enableSorting
+                ? renders
+                : (
+                  <DndContext onDragEnd={handleDragEnd}>
+                    <SortableContext
+                      items={
+                        _.range(0, totalCount).map((colIdx) => String(colIdx))
+                      }
+                    >
+                      {renders}
+                    </SortableContext>
+                  </DndContext>
+                )
+              }
+            </ListOrientationWrapper>
           </ScrollBar>
         </BodyWrapper>
         <FooterWrapper>

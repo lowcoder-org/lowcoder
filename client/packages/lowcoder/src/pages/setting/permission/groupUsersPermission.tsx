@@ -1,9 +1,9 @@
 import { GroupRoleInfo, GroupUser, OrgGroup, TacoRoles } from "constants/orgConstants";
 import { User } from "constants/userConstants";
-import { AddIcon, ArrowIcon, CustomSelect, PackUpIcon, SuperUserIcon } from "lowcoder-design";
+import { AddIcon, ArrowIcon, CustomSelect, PackUpIcon, Search, SuperUserIcon } from "lowcoder-design";
 import { trans } from "i18n";
 import ProfileImage from "pages/common/profileImage";
-import React, { useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   deleteGroupUserAction,
@@ -20,7 +20,6 @@ import {
   GroupNameView,
   HeaderBack,
   LAST_ADMIN_QUIT,
-  PermissionHeaderWrapper,
   QuestionTooltip,
   RoleSelectSubTitle,
   RoleSelectTitle,
@@ -30,12 +29,35 @@ import {
 } from "./styledComponents";
 import history from "util/history";
 import { PERMISSION_SETTING } from "constants/routesURL";
+import Column from "antd/es/table/Column";
+import { debounce } from "lodash";
+import { fetchGroupUsrPagination } from "@lowcoder-ee/util/pagination/axios";
 
 const StyledAddIcon = styled(AddIcon)`
   g path {
     fill: #ffffff;
   }
 `;
+
+const PermissionHeaderWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 16px;
+`;
+
+const OptionsHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+type ElementsState = {
+  elements: any[];
+  total: number;
+  role: string;
+};
 
 type GroupPermissionProp = {
   group: OrgGroup;
@@ -45,11 +67,25 @@ type GroupPermissionProp = {
   currentUser: User;
   setModify?: any;
   modify?: boolean;
+  loading?: boolean;
+  setElements: React.Dispatch<React.SetStateAction<ElementsState>>;
 };
 
-function GroupUsersPermission(props: GroupPermissionProp) {
-  const { Column } = TableStyled;
-  const { group, orgId,  groupUsers, currentUserGroupRole, currentUser , setModify, modify} = props;
+const GroupUsersPermission: React.FC<GroupPermissionProp> = (props) => {
+  const { 
+    group, 
+    orgId, 
+    groupUsers, 
+    currentUserGroupRole, 
+    currentUser, 
+    setModify, 
+    modify, 
+    loading,
+    setElements
+  } = props;
+  const [searchValue, setSearchValue] = useState("")
+  const dispatch = useDispatch();
+
   const adminCount = groupUsers.filter((user) => isGroupAdmin(user.role)).length;
   const sortedGroupUsers = useMemo(() => {
     return [...groupUsers].sort((a, b) => {
@@ -62,7 +98,31 @@ function GroupUsersPermission(props: GroupPermissionProp) {
       }
     });
   }, [groupUsers]);
-  const dispatch = useDispatch();
+
+  const debouncedFetchPotentialMembers = useCallback(
+    debounce((searchVal: string) => {
+      fetchGroupUsrPagination({groupId: group.groupId, search: searchVal})
+      .then(result => {  
+        if (result.success) {
+          setElements({
+            elements: result.data || [], 
+            total: result.total || 0,
+            role: result.visitorRole || ""
+          });
+        }
+      })
+    }, 500), [dispatch]
+  );
+
+  useEffect(() => {
+    if (searchValue.length > 2 || searchValue === "") {
+      debouncedFetchPotentialMembers(searchValue);
+    }
+    return () => {
+      debouncedFetchPotentialMembers.cancel();
+    };
+  }, [searchValue, debouncedFetchPotentialMembers]);
+
   return (
     <>
       <PermissionHeaderWrapper>
@@ -76,19 +136,31 @@ function GroupUsersPermission(props: GroupPermissionProp) {
           )}
         </HeaderBack>
         {isGroupAdmin(currentUserGroupRole) && !group.syncGroup && (
-          <AddGroupUserDialog
-            groupUsers={groupUsers}
-            orgId={orgId}
-            groupId={group.groupId}
-            setModify={setModify}
-            modify={modify}
-            trigger={
-              <AddMemberButton buttonType="primary" icon={<StyledAddIcon />}>
-                {trans("memberSettings.addMember")}
-              </AddMemberButton>
-            }
-            style={{ marginLeft: "auto" }}
-          />
+          <OptionsHeader>
+            <Search
+              placeholder={trans("memberSettings.searchMember")}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              style={{ 
+                width: "20%", 
+                minWidth: "160px",
+                height: "32px", 
+                marginTop: 'auto'
+              }}
+            />
+            <AddGroupUserDialog
+              groupUsers={groupUsers}
+              orgId={orgId}
+              groupId={group.groupId}
+              setModify={setModify}
+              modify={modify}
+              trigger={
+                <AddMemberButton buttonType="primary" icon={<StyledAddIcon />}>
+                  {trans("memberSettings.addMember")}
+                </AddMemberButton>
+              }
+            />
+          </OptionsHeader>
         )}
       </PermissionHeaderWrapper>
       <TableStyled
@@ -97,7 +169,7 @@ function GroupUsersPermission(props: GroupPermissionProp) {
         dataSource={sortedGroupUsers}
         rowKey="userId"
         pagination={false}
-        loading={groupUsers.length === 0}
+        loading={loading}
       >
         <Column
           title={trans("memberSettings.nameColumn")}
@@ -126,7 +198,7 @@ function GroupUsersPermission(props: GroupPermissionProp) {
           render={(value, record: GroupUser) => (
             <CustomSelect
               style={{ width: "140px", height: "32px" }}
-              dropdownStyle={{ width: "149px" }}
+              styles={{ popup: { root: { width: "149px" }}}}
               defaultValue={record.role}
               key={record.role}
               disabled={

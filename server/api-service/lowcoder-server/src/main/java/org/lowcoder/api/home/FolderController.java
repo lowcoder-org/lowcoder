@@ -1,6 +1,7 @@
 package org.lowcoder.api.home;
 
 import lombok.RequiredArgsConstructor;
+import org.lowcoder.api.application.ApplicationApiService;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
@@ -35,12 +36,13 @@ public class FolderController implements FolderEndpoints
     private final BusinessEventPublisher businessEventPublisher;
     private final GidService gidService;
     private final FolderElementRelationService folderElementRelationService;
+    private final ApplicationApiService applicationApiService;
 
     @Override
     public Mono<ResponseView<FolderInfoView>> create(@RequestBody Folder folder) {
         return folderApiService.create(folder)
                 .delayUntil(folderInfoView -> folderApiService.upsertLastViewTime(folderInfoView.getFolderId()))
-                .delayUntil(f -> businessEventPublisher.publishFolderCommonEvent(f.getFolderId(), f.getName(), EventType.FOLDER_CREATE))
+                .delayUntil(f -> businessEventPublisher.publishFolderCommonEvent(f.getFolderId(), f.getName(), null, EventType.FOLDER_CREATE))
                 .map(ResponseView::success);
     }
 
@@ -48,7 +50,7 @@ public class FolderController implements FolderEndpoints
     public Mono<ResponseView<Void>> delete(@PathVariable("id") String folderId) {
         return gidService.convertFolderIdToObjectId(folderId).flatMap(objectId ->
             folderApiService.delete(objectId.orElse(null))
-                .delayUntil(f -> businessEventPublisher.publishFolderCommonEvent(f.getId(), f.getName(), EventType.FOLDER_DELETE))
+                .delayUntil(f -> businessEventPublisher.publishFolderCommonEvent(f.getId(), f.getName(), f.getName(), EventType.FOLDER_DELETE))
                 .then(Mono.fromSupplier(() -> ResponseView.success(null))));
     }
 
@@ -61,7 +63,7 @@ public class FolderController implements FolderEndpoints
                 .zipWhen(__ -> folderApiService.update(folder))
                 .delayUntil(tuple2 -> {
                     Folder old = tuple2.getT1();
-                    return businessEventPublisher.publishFolderCommonEvent(folder.getId(), old.getName() + " => " + folder.getName(),
+                    return businessEventPublisher.publishFolderCommonEvent(folder.getId(), folder.getName(), old.getName(),
                             EventType.FOLDER_UPDATE);
                 })
                 .map(tuple2 -> ResponseView.success(tuple2.getT2()));
@@ -95,9 +97,10 @@ public class FolderController implements FolderEndpoints
             @RequestParam(value = "targetFolderId", required = false) String targetFolderId) {
         return folderElementRelationService.getByElementIds(List.of(applicationLikeId)).next().defaultIfEmpty(new FolderElement(null, null)).flatMap(folderElement ->
                 gidService.convertFolderIdToObjectId(targetFolderId).flatMap(objectId ->
-                    folderApiService.move(applicationLikeId, objectId.orElse(null))
-                        .then(businessEventPublisher.publishApplicationCommonEvent(applicationLikeId, folderElement.folderId(), objectId.orElse(null), APPLICATION_MOVE))
-                        .then(Mono.fromSupplier(() -> ResponseView.success(null)))));
+                        applicationApiService.getEditingApplication(applicationLikeId, true).flatMap(originalApplicationView ->
+                        folderApiService.move(applicationLikeId, objectId.orElse(null))
+                            .then(businessEventPublisher.publishApplicationCommonEvent(originalApplicationView, applicationLikeId, folderElement.folderId(), objectId.orElse(null), APPLICATION_MOVE))
+                            .then(Mono.fromSupplier(() -> ResponseView.success(null))))));
     }
 
     @Override

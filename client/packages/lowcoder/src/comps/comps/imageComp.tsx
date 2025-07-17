@@ -3,6 +3,7 @@ import { Section, sectionNames } from "lowcoder-design";
 import {
   clickEvent,
   eventHandlerControl,
+  doubleClickEvent,
 } from "../controls/eventHandlerControl";
 import { StringStateControl } from "../controls/codeStateControl";
 import { UICompBuilder, withDefault } from "../generators";
@@ -12,9 +13,9 @@ import {
   withExposingConfigs,
 } from "../generators/withExposing";
 import { RecordConstructorToView } from "lowcoder-core";
-import { useEffect, useRef, useState } from "react";
+import { ReactElement, useEffect, useRef, useState } from "react";
 import _ from "lodash";
-import ReactResizeDetector from "react-resize-detector";
+import { useResizeDetector } from "react-resize-detector";
 import { styleControl } from "comps/controls/styleControl";
 import {
   AnimationStyle,
@@ -35,6 +36,9 @@ import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { StringControl } from "../controls/codeControl";
 import { PositionControl } from "comps/controls/dropdownControl";
+import { dropdownControl } from "../controls/dropdownControl";
+import { AssetType, IconscoutControl } from "../controls/iconscoutControl";
+import { useCompClickEventHandler } from "../utils/useCompClickEventHandler";
 
 const Container = styled.div<{ 
   $style: ImageStyleType | undefined, 
@@ -110,13 +114,19 @@ const getStyle = (style: ImageStyleType) => {
   `;
 };
 
-const EventOptions = [clickEvent] as const;
+const EventOptions = [clickEvent, doubleClickEvent] as const;
+const ModeOptions = [
+  { label: "URL", value: "standard" },
+  { label: "Asset Library", value: "asset-library" },
+] as const;
 
 const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
   const imgRef = useRef<HTMLDivElement>(null);
   const conRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
+  const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent})
+
 
   const imgOnload = (img: HTMLImageElement) => {
     img.onload = function () {
@@ -171,46 +181,51 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
     }
   };
 
+  useResizeDetector({
+    targetRef: conRef,
+    onResize,
+  });
+
   return (
-    <ReactResizeDetector
-      onResize={onResize}
-      render={() => (
-        <Container 
-          ref={conRef}
-          $style={props.style}
-          $animationStyle={props.animationStyle}
-          $clipPath={props.clipPath}
-          $overflow={props.enableOverflow ? props.overflow : "hidden"}
-          $positionX={props.positionX}
-          $positionY={props.positionY}
-          $enableOverflow={props.enableOverflow}
-          $aspectRatio={props.aspectRatio || "16 / 9"}
-          $placement={props.placement}
-        >
-          <div
-            ref={imgRef}
-            style={
-              props.autoHeight ? { width: "100%", height: "100%" } : undefined
-            }
-          >
-            <AntImage
-              src={props.src.value}
-              referrerPolicy="same-origin"
-              draggable={false}
-              preview={props.supportPreview ? {src: props.previewSrc || props.src.value } : false}
-              fallback={DEFAULT_IMG_URL}
-              onClick={() => props.onEvent("click")}
-            />
-          </div>
-        </Container>
-      )}
+    <Container 
+      ref={conRef}
+      $style={props.style}
+      $animationStyle={props.animationStyle}
+      $clipPath={props.clipPath}
+      $overflow={props.enableOverflow ? props.overflow : "hidden"}
+      $positionX={props.positionX}
+      $positionY={props.positionY}
+      $enableOverflow={props.enableOverflow}
+      $aspectRatio={props.aspectRatio || "16 / 9"}
+      $placement={props.placement}
     >
-    </ReactResizeDetector>
+      <div
+        ref={imgRef}
+        style={
+          props.autoHeight ? { width: "100%", height: "100%" } : undefined
+        }
+      >
+        <AntImage
+          src={
+            props.sourceMode === 'asset-library'
+            ? props.iconScoutAsset?.value
+            : props.src.value
+          }
+          referrerPolicy="same-origin"
+          draggable={false}
+          preview={props.supportPreview ? {src: props.previewSrc || props.src.value } : false}
+          fallback={DEFAULT_IMG_URL}
+          onClick={handleClickEvent}
+        />
+      </div>
+    </Container>
   );
 };
 
 const childrenMap = {
+  sourceMode: dropdownControl(ModeOptions, "standard"),
   src: withDefault(StringStateControl, "https://temp.im/350x400"),
+  iconScoutAsset: IconscoutControl(AssetType.ILLUSTRATION),
   onEvent: eventHandlerControl(EventOptions),
   style: styleControl(ImageStyle , 'style'),
   animationStyle: styleControl(AnimationStyle , 'animationStyle'),
@@ -234,9 +249,14 @@ let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
     return (
       <>
         <Section name={sectionNames.basic}>
-          {children.src.propertyView({
+          { children.sourceMode.propertyView({
+            label: "",
+            radioButton: true
+          })}
+          {children.sourceMode.getView() === 'standard' && children.src.propertyView({
             label: trans("image.src"),
           })}
+          {children.sourceMode.getView() === 'asset-library' && children.iconScoutAsset.propertyView({})}
         </Section>
 
         {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (

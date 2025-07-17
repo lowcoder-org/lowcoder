@@ -30,6 +30,8 @@ import { JSONObject } from "util/jsonTypes";
 import PreviewApp from "components/PreviewApp";
 import { parseCompType } from "comps/utils/remote";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
+import { useSelector } from "react-redux";
+import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
 
 const CompDiv = styled.div`
   display: flex;
@@ -79,8 +81,10 @@ const IconContain = (props: {
   isSelected: boolean,
 }) => {
   const { Icon, isSelected } = props;
+  const brandingSettings = useSelector(getBrandingSetting);
+
   return (
-    <CompIconDiv $w={64} $h={64} $isSelected={isSelected}>
+    <CompIconDiv $w={64} $h={64} $isSelected={isSelected} $color={brandingSettings?.config_set?.mainBrandingColor}>
       <Icon />
     </CompIconDiv>
   );

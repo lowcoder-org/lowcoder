@@ -3,9 +3,8 @@ import { useSelector } from "react-redux";
 import { getUser } from "redux/selectors/usersSelectors";
 import styled from "styled-components";
 import GroupPermission from "./groupUsersPermission";
-import UsersPermission from "./orgUsersPermission";
 import { useParams } from "react-router-dom";
-import {fetchGroupUsrPagination, fetchOrgGroups, fetchOrgUsrPagination} from "@lowcoder-ee/util/pagination/axios";
+import {fetchGroupUsrPagination, fetchOrgGroups } from "@lowcoder-ee/util/pagination/axios";
 import PaginationComp from "@lowcoder-ee/util/pagination/Pagination";
 import {OrgGroup} from "@lowcoder-ee/constants/orgConstants";
 
@@ -19,16 +18,22 @@ const PermissionContent = styled.div`
   width: 100%;
 `;
 
+export enum GroupUserKey {
+  USERS = "users",
+  ALL_USERS = "All Users"
+}
+
 export default function PermissionSetting(props: {currentPageProp: number, pageSizeProp: number}) {
 
   const {currentPageProp, pageSizeProp} = props;
   const user = useSelector(getUser);
-  const [elements, setElements] = useState<any>({ elements: [], total: 1, role: "" });
-  const [group, setGrouop] = useState<OrgGroup>();
-  const [orgMemberElements, setOrgMemberElements] = useState<any>({ elements: [], total: 1 })
+  const [elements, setElements] = useState<any>({ elements: [], total: 0, role: "" });
+  const [group, setGroup] = useState<OrgGroup>();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [modify, setModify] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const orgId = user.currentOrgId;
   const currentUser = useSelector(getUser);
@@ -42,7 +47,11 @@ export default function PermissionSetting(props: {currentPageProp: number, pageS
         }
       ).then(result => {
         if (result.success && !!result.data){
-          setGrouop(result.data.find(group => group.groupId === selectKey))
+          if(selectKey === GroupUserKey.USERS) {
+            setGroup(result.data.find(group => group.groupName == GroupUserKey.ALL_USERS))
+          } else {
+            setGroup(result.data.find(group => group.groupId === selectKey))
+          }
         }
         else
           console.error("ERROR: fetchFolderElements", result.error)
@@ -51,41 +60,34 @@ export default function PermissionSetting(props: {currentPageProp: number, pageS
   )
 
   useEffect( () => {
-    if (selectKey !== "users" && selectKey)
+    if (selectKey && group) {
+      setLoading(true);
+      setError(null);
+      
       fetchGroupUsrPagination(
         {
-          groupId:selectKey,
-          pageNum: currentPage,
-          pageSize: pageSize,
-        }
-        ).then(result => {
-          if (result.success){
-            setElements({elements: result.data || [], total: result.total || 1, role: result.visitorRole || ""})
-          }
-          else
-            console.error("ERROR: fetchFolderElements", result.error)
-        }
-        )
-    else
-    {
-      fetchOrgUsrPagination(
-        {
-          orgId: orgId,
+          groupId: selectKey === GroupUserKey.USERS ? group.groupId : selectKey,
           pageNum: currentPage,
           pageSize: pageSize,
         }
       ).then(result => {
-          if (result.success){
-            setOrgMemberElements({elements: result.data || [], total: result.total || 1})
-          }
-          else
-            console.error("ERROR: fetchFolderElements", result.error)
+        setLoading(false);
+        
+        if (result.success) {
+          setElements({
+            elements: result.data || [], 
+            total: result.total || 0,
+            role: result.visitorRole || ""
+          });
+        } else {
+          setError("Failed to load group users. Please try again.");
         }
-      )
-    }
-      },
-      [currentPage, pageSize, modify, selectKey]
-  )
+      }).catch(err => {
+        setLoading(false);
+        setError("Failed to load group users. Please try again.");
+      });
+    } 
+  }, [currentPage, pageSize, modify, selectKey, orgId, group]);
 
   if (!orgId) {
     return null;
@@ -93,35 +95,28 @@ export default function PermissionSetting(props: {currentPageProp: number, pageS
 
   return (
       <PermissionContent key={selectKey}>
-        {selectKey === "users" ? (
+        {error && (
+          <div style={{ color: 'red', margin: '20px 0', textAlign: 'center' }}>
+            {error}
+          </div>
+        )}
+        {elements && 
+            group && (
             <>
-              <UsersPermission
+              <GroupPermission
+                  group={group}
                   orgId={orgId}
-                  // orgUsers={!orgMemberElements.elements.members ? [] : orgMemberElements.elements.members}
-                  orgUsers={orgMemberElements.elements}
+                  groupUsers={elements.elements}
+                  currentUserGroupRole={elements.role}
                   currentUser={currentUser}
                   setModify={setModify}
                   modify={modify}
+                  loading={loading}
+                  setElements={setElements}
               />
-              <PaginationComp setCurrentPage={setCurrentPage} setPageSize={setPageSize} currentPage={currentPage} pageSize={pageSize} total={orgMemberElements.total} />
+              <PaginationComp setCurrentPage={setCurrentPage} setPageSize={setPageSize} currentPage={currentPage} pageSize={pageSize} total={elements.total} />
             </>
-        ) : (
-          group && (
-                <>
-                  <GroupPermission
-                      group={group}
-                      orgId={orgId}
-                      groupUsers={elements.elements}
-                      currentUserGroupRole={elements.role}
-                      currentUser={currentUser}
-                      setModify={setModify}
-                      modify={modify}
-                  />
-                  <PaginationComp setCurrentPage={setCurrentPage} setPageSize={setPageSize} currentPage={currentPage} pageSize={pageSize} total={elements.total} />
-                </>
-
-            )
-        )}
+          )}
       </PermissionContent>
   );
 }

@@ -25,6 +25,7 @@ import { IconControl } from "comps/controls/iconControl";
 import {
   clickEvent,
   eventHandlerControl,
+  doubleClickEvent,
 } from "../controls/eventHandlerControl";
 import { Avatar, AvatarProps, Badge, Dropdown, Menu } from "antd";
 import { LeftRightControl, dropdownControl } from "../controls/dropdownControl";
@@ -34,6 +35,8 @@ import { BadgeBasicSection, badgeChildren } from "./badgeComp/badgeConstants";
 import { DropdownOptionControl } from "../controls/optionsControl";
 import { ReactElement, useContext, useEffect } from "react";
 import { CompNameContext, EditorContext } from "../editorState";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
+
 
 const AvatarWrapper = styled(Avatar) <AvatarProps & { $cursorPointer?: boolean, $style: AvatarStyleType }>`
   background: ${(props) => props.$style.background};
@@ -106,7 +109,7 @@ padding: ${props=>props.$style.padding};
 background: ${props=>props.$style.background};
 text-decoration: ${props => props.$style.textDecoration};
 `
-const EventOptions = [clickEvent] as const;
+const EventOptions = [clickEvent, doubleClickEvent] as const;
 const sharpOptions = [
   { label: trans("avatarComp.square"), value: "square" },
   { label: trans("avatarComp.circle"), value: "circle" },
@@ -140,6 +143,8 @@ const childrenMap = {
 const AvatarView = (props: RecordConstructorToView<typeof childrenMap>) => {
   const { shape, title, src, iconSize } = props;
   const comp = useContext(EditorContext).getUICompByName(useContext(CompNameContext));
+  const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent})
+  
   // const eventsCount = comp ? Object.keys(comp?.children.comp.children.onEvent.children).length : 0;
   const hasIcon = props.options.findIndex((option) => (option.prefixIcon as ReactElement)?.props.value) > -1;
   const items = props.options
@@ -164,7 +169,7 @@ const AvatarView = (props: RecordConstructorToView<typeof childrenMap>) => {
       placement={props.labelPosition === 'left' ? "bottomLeft" : "bottomRight"}
       arrow
       disabled={!props.enableDropdownMenu}
-      dropdownRender={() => menu}
+      popupRender={() => menu}
     >
       <Wrapper $iconSize={props.iconSize} $labelPosition={props.labelPosition} $style={props.style}>
         <Badge
@@ -181,8 +186,7 @@ const AvatarView = (props: RecordConstructorToView<typeof childrenMap>) => {
             shape={shape}
             $style={props.avatarStyle}
             src={src.value}
-            // $cursorPointer={eventsCount > 0}
-            onClick={() => props.onEvent("click")}
+            onClick={handleClickEvent}
           >
             {title.value}
           </AvatarWrapper>

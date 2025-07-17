@@ -57,9 +57,12 @@ import {
 } from "util/localStorageUtil";
 import { isAggregationApp } from "util/appUtils";
 import EditorSkeletonView from "./editorSkeletonView";
-import { getCommonSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
+import {
+  getCommonSettings
+} from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
 import { isEqual, noop } from "lodash";
 import { AppSettingContext, AppSettingType } from "@lowcoder-ee/comps/utils/appSettingContext";
+import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
 import Flex from "antd/es/flex";
 // import { BottomSkeleton } from "./bottom/BottomContent";
 
@@ -148,9 +151,14 @@ const ViewBody = styled.div<{ $hideBodyHeader?: boolean; $height?: number }>`
   )`};
 `;
 
-const SiderWrapper = styled.div`
+const SiderWrapper = styled.div<{
+  $bgColor?: string;
+  $fontColor?: string;
+  $activeBgColor?: string;
+  $activeFontColor?: string;
+}>`
   .ant-menu {
-    background-color: #393b47;
+    background-color: ${props => props.$bgColor ? props.$bgColor : '#393b47'};
     height: calc(100vh - 48px);
 
     .ant-menu-item {
@@ -163,15 +171,16 @@ const SiderWrapper = styled.div`
         height: 26px;
         width: 26px;
         padding: 5px;
+        color: ${props => props.$fontColor ? props.$fontColor : '#ffffffa6'};
       }
 
       &.ant-menu-item-selected,
       &:hover,
       &:active {
-        background-color: #393b47;
-
+        background-color: ${props => props.$bgColor ? props.$bgColor : '#393b47'};
         svg {
-          background: #8b8fa37f;
+          background: ${props => props.$activeBgColor ? props.$activeBgColor : '#8b8fa37f'};
+          color: ${props => props.$activeFontColor ? props.$activeFontColor : '#ffffffa6'};
           border-radius: 4px;
         }
       }
@@ -328,7 +337,11 @@ const aggregationSiderItems = [
   {
     key: SiderKey.Setting,
     icon: <LeftSettingIcon />,
-  }
+  },
+  {
+    key: SiderKey.JS,
+    icon: <LeftJSSettingIcon />,
+  },
 ];
 
 const DeviceWrapper = ({
@@ -400,6 +413,7 @@ function EditorView(props: EditorViewProps) {
   const locationState = useLocation<UserGuideLocationState>().state;
   const showNewUserGuide = locationState?.showNewUserGuide;
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
+  const brandingSettings = useSelector(getBrandingSetting);
   const [showShortcutList, setShowShortcutList] = useState(false);
   const toggleShortcutList = useCallback(
     () => setShowShortcutList(!showShortcutList),
@@ -485,8 +499,11 @@ function EditorView(props: EditorViewProps) {
       "orientationchange" in window ? "orientationchange" : "resize";
     window.addEventListener(eventType, updateSize);
     updateSize();
-    return () => window.removeEventListener(eventType, updateSize);
-  }, []);
+
+    return () => {
+      window.removeEventListener(eventType, updateSize);
+    };
+  }, [panelStatus, editorModeStatus]);
 
   const hideBodyHeader = useTemplateViewMode() || (isViewMode && (!showHeaderInPublic || !commonSettings.showHeaderInPublicApps));
 
@@ -511,7 +528,7 @@ function EditorView(props: EditorViewProps) {
     if (isViewMode) return uiComp.getView();
 
     return (
-      editorState.deviceType === "mobile" || editorState.deviceType === "tablet" ? (
+      editorState.deviceType === "mobile" || editorState.deviceType === "tablet" ? (
         <DeviceWrapper
             deviceType={editorState.deviceType}
             deviceOrientation={editorState.deviceOrientation}
@@ -531,7 +548,18 @@ function EditorView(props: EditorViewProps) {
     editorState.deviceOrientation,
   ]);
 
-  // we check if we are on the public cloud
+  useEffect(() => {
+    return () => {
+      setPanelStatus(DefaultPanelStatus);
+      setEditorModeStatus("both");
+      setShowShortcutList(false);
+      setMenuKey(SiderKey.State);
+      setHeight(undefined);
+      savePanelStatus(panelStatus);
+      saveEditorModeStatus(editorModeStatus);
+    };
+  }, []);
+
   const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
   const isLocalhost = window.location.hostname === 'localhost';
   if (readOnly && hideHeader) {
@@ -562,7 +590,7 @@ function EditorView(props: EditorViewProps) {
             <link key="preconnect-gstatic" rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />,
             <link key="font-ubuntu" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet" />,
             // adding Hubspot Support for Analytics
-            <script async defer src="//js-eu1.hs-scripts.com/144574215.js" type="text/javascript" id="hs-script-loader"></script>
+            <script key="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/144574215.js" type="text/javascript" id="hs-script-loader"></script>
           ]}
         </Helmet>
         <Suspense fallback={<EditorSkeletonView />}>
@@ -611,7 +639,7 @@ function EditorView(props: EditorViewProps) {
         <link key="preconnect-gstatic" rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />,
         <link key="font-ubuntu" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet" />,
         // adding Clearbit Support for Analytics
-        <script async defer src="//js-eu1.hs-scripts.com/144574215.js" type="text/javascript" id="hs-script-loader"></script>
+        <script key="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/144574215.js" type="text/javascript" id="hs-script-loader"></script>
       ]}
     </Helmet>
     <Height100Div
@@ -641,7 +669,12 @@ function EditorView(props: EditorViewProps) {
           toggleShortcutList={toggleShortcutList}
         >
           <Body>
-            <SiderWrapper>
+            <SiderWrapper
+              $bgColor={brandingSettings?.config_set?.editorSidebarColor}
+              $fontColor={brandingSettings?.config_set?.editorSidebarFontColor}
+              $activeBgColor={brandingSettings?.config_set?.editorSidebarActiveBgColor}
+              $activeFontColor={brandingSettings?.config_set?.editorSidebarActiveFontColor}
+            >
               <Sider width={40}>
                 <Menu
                   theme="dark"
@@ -677,9 +710,7 @@ function EditorView(props: EditorViewProps) {
                         <SettingsDiv>
                           <ScrollBar>
                             {application &&
-                              !isAggregationApp(
-                                AppUILayoutType[application.applicationType]
-                              ) && (
+                              (
                                 <>
                                   {appSettingsComp.getPropertyView()}
                                 </>

@@ -299,6 +299,42 @@ let TimerCompBasic = (function () {
           comp.children.actionHandler.dispatch(comp.children.actionHandler.changeValueAction('reset'))
         },
       },
+      {
+        method: {
+          name: "start",
+          description: trans("timer.start"),
+          params: [],
+        },
+        execute: async (comp, params) => {
+          if (comp.children.timerState.value === 'stoped') {
+            comp.children.actionHandler.dispatch(comp.children.actionHandler.changeValueAction('start'))
+          }
+        },
+      },
+      {
+        method: {
+          name: "pause",
+          description: trans("timer.pause"),
+          params: [],
+        },
+        execute: async (comp, params) => {
+          if (comp.children.timerState.value === 'started') {
+            comp.children.actionHandler.dispatch(comp.children.actionHandler.changeValueAction('pause'))
+          }
+        },
+      },
+      {
+        method: {
+          name: "resume",
+          description: trans("timer.resume"),
+          params: [],
+        },
+        execute: async (comp, params) => {
+          if (comp.children.timerState.value === 'paused') {
+            comp.children.actionHandler.dispatch(comp.children.actionHandler.changeValueAction('resume'))
+          }
+        }
+      }
     ])
     .build();
 })();

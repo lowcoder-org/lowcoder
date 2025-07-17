@@ -8,6 +8,7 @@ import org.lowcoder.domain.user.model.User;
 import org.lowcoder.infra.annotation.NonEmptyMono;
 import org.lowcoder.infra.annotation.PossibleEmptyMono;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.data.domain.Pageable;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -26,6 +27,8 @@ public interface OrganizationService {
     Mono<Organization> createDefault(User user, boolean isSuperAdmin);
 
     Mono<Organization> getById(String id);
+
+    Mono<Organization> getByIdWithDeleted(String id);
 
     @NonEmptyMono
     Flux<Organization> getByIds(Collection<String> ids);
@@ -50,4 +53,7 @@ public interface OrganizationService {
     Mono<Boolean> updateCommonSettings(String orgId, String key, Object value);
 
     Mono<Organization> updateSlug(String organizationId, String newSlug);
+
+    Flux<Organization> findUserOrgs(String userId, String orgName, Pageable pageable);
+    Mono<Long> countUserOrgs(String userId, String orgName);
 }

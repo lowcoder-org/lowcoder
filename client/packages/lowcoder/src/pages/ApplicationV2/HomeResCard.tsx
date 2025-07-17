@@ -1,5 +1,5 @@
-import { TacoButton } from "lowcoder-design/src/components/button"
-import { useState } from "react";
+import { TacoButton, CustomModal, Alert } from "lowcoder-design"
+import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { updateAppMetaAction } from "redux/reduxActions/applicationActions";
 import styled from "styled-components";
@@ -22,8 +22,14 @@ import history from "util/history";
 import { APPLICATION_VIEW_URL } from "constants/routesURL";
 import { TypographyText } from "../../components/TypographyText";
 import { useParams } from "react-router-dom";
-import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import {FolderIcon} from "icons";
+import { BrandedIcon } from "@lowcoder-ee/components/BrandedIcon";
+import { Typography } from "antd";
+import { default as Form } from "antd/es/form";
+import { default as Input } from "antd/es/input";
+import { default as AntdTypographyText } from "antd/es/typography/Text";
+import { MultiIconDisplay } from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import { FormStyled } from "../setting/idSource/styledComponents";
 
 const ExecButton = styled(TacoButton)`
   width: 52px;
@@ -49,14 +55,16 @@ const ExecButton = styled(TacoButton)`
 `;
 
 const Wrapper = styled.div`
-  height: 67px;
   padding: 0 6px;
   border-radius: 8px;
-  margin-bottom: -1px;
-  margin-top: 1px;
-
+  margin-bottom: 2px;
+  margin-top: 2px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background-color: #fcfcfc;
+  min-height: 100px;
   &:hover {
-    background-color: #f5f7fa;
+     background-color: #f5f5f6
   }
 `;
 
@@ -97,14 +105,7 @@ const CardInfo = styled.div`
   height: 100%;
   flex-grow: 1;
   cursor: pointer;
-  overflow: hidden;
   padding-right: 12px;
-
-  &:hover {
-    .ant-typography {
-      color: #315efb;
-    }
-  }
 
   .ant-typography {
     padding: 2px 2px 8px 2px;
@@ -123,6 +124,7 @@ const AppTimeOwnerInfoLabel = styled.div`
 const OperationWrapper = styled.div`
   display: flex;
   align-items: center;
+  padding-right: 10px;
   @media screen and (max-width: 500px) {
     > svg {
       display: none;
@@ -130,11 +132,90 @@ const OperationWrapper = styled.div`
   }
 `;
 
+export const StyledTypographyText = styled(AntdTypographyText)`
+  font-size: 14px;
+  color: #333333;
+  line-height: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+
+  &:hover {
+  color: #315efb;
+  }
+  }
+`;
+
 const MONTH_MILLIS = 30 * 24 * 60 * 60 * 1000;
+
+interface UpdateAppModalProps {
+  visible: boolean;
+  onCancel: () => void;
+  onOk: (values: any) => void;
+  res: HomeRes;
+  folderId?: string;
+}
+
+export function UpdateAppModal({ visible, onCancel, onOk, res, folderId }: UpdateAppModalProps) {
+  const [detailsForm] = Form.useForm();
+
+  // Reset form values when res changes
+  useEffect(() => {
+    if (res && visible) {
+      detailsForm.setFieldsValue({
+        appName: res.name,
+        title: res.title
+      });
+    }
+  }, [res, visible, detailsForm]);
+
+  return (
+    <CustomModal
+      title={trans("home.updateAppName")}
+      open={visible}
+      destroyOnHidden
+      onCancel={onCancel}
+      showCancelButton={false}
+      showOkButton
+      width="440px"
+      okText={trans("finish")}
+      onOk={() => {
+        detailsForm.validateFields().then((values) => {
+          onOk(values);
+        }).catch((errorInfo) => {
+          console.error('Validation failed:', errorInfo);
+        });
+      }}
+    >
+      <FormStyled
+        form={detailsForm}
+        name="general"
+        layout="vertical"
+        style={{ maxWidth: '100%' }}
+        autoComplete="off"
+      >
+        {res.title && 
+          <Alert label={trans("home.titleUpdateWarning")} type="warning" />}
+        <br/>
+
+        <Form.Item label={trans("home.name")} name="appName">
+          <Input/>
+        </Form.Item>
+
+        {res.title && (
+          <Form.Item label={trans("title")} name="title">
+            <Input disabled />
+          </Form.Item>
+        )}
+
+      </FormStyled>
+    </CustomModal>
+  );
+}
 
 export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => void; setModify:any; modify: boolean }) {
   const { res, onMove, setModify, modify } = props;
-  const [appNameEditing, setAppNameEditing] = useState(false);
+  const [dialogVisible, setDialogVisible] = useState(false)
   const dispatch = useDispatch();
 
   const { folderId } = useParams<{ folderId: string }>();
@@ -160,94 +241,115 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
   else if (res.type === HomeResTypeEnum.NavLayout || res.type === HomeResTypeEnum.MobileTabLayout) {
     iconColor = "#af41ff";
   }
-
   const Icon = resInfo.icon;
 
+  const handleModalOk = (values: any) => {
+    res.type === HomeResTypeEnum.Folder &&
+      dispatch(updateFolder({ id: res.id, name: values.appName || res.name }))
+    dispatch(
+      updateAppMetaAction({ applicationId: res.id, name: values.appName || res.name, folderId: folderId })
+    );
+    
+    setDialogVisible(false);
+    setTimeout(() => {
+      setModify(!modify);
+    }, 200);
+  };
+
   return (
-    <Wrapper>
-      <Card>
-        {Icon && (
-          <Icon width={"42px"} height={"42px"} style={
-            { 
-              color: iconColor,
-              marginRight: "10px", 
-              flexShrink: 0 
-            }
-          } />
-        )}
-        <CardInfo
-          onClick={(e) => {
-            if (appNameEditing) {
-              return;
-            }
-            if (res.type === HomeResTypeEnum.Folder) {
-              handleFolderViewClick(res.id);
-            } else {
-              if (checkIsMobile(window.innerWidth)) {
-                history.push(APPLICATION_VIEW_URL(res.id, "view"));
-                return;
-              }
-              if(res.isMarketplace) {
-                handleMarketplaceAppViewClick(res.id);
-                return;
-              }
-              res.isEditable ? handleAppEditClick(e, res.id) : handleAppViewClick(res.id);
-            }
-          }}
-        >
-          <TypographyText
-            value={res.name}
-            editing={appNameEditing}
-            onChange={(value) => {
-              if (!value.trim()) {
-                messageInstance.warning(trans("home.nameCheckMessage"));
-                return;
-              }
+    <>
+      <UpdateAppModal
+        visible={dialogVisible}
+        onCancel={() => setDialogVisible(false)}
+        onOk={handleModalOk}
+        res={res}
+        folderId={folderId}
+      />
+
+      <Wrapper>
+        <Card>
+          {res.icon ? 
+            <MultiIconDisplay 
+            identifier={res.icon && typeof res.icon === 'string' ? res.icon : '/icon:antd/appstoreoutlined'} 
+            width="30px" 
+            height="30px" 
+            style={{ 
+              marginRight: "6px", 
+              flexShrink: 0, 
+              color: "#b766db" 
+              }} 
+            /> :
+            Icon && (
+              <BrandedIcon>
+                <Icon width={"42px"} height={"42px"} style={
+                  { 
+                    color: iconColor,
+                    marginRight: "10px", 
+                    flexShrink: 0 
+                  }
+                } />
+              </BrandedIcon>
+            )
+          }
+          <CardInfo
+            onClick={(e) => {
               if (res.type === HomeResTypeEnum.Folder) {
-                dispatch(updateFolder({ id: res.id, name: value }));
-                setTimeout(() => {
-                  setModify(!modify);
-                }, 200);
+                handleFolderViewClick(res.id);
               } else {
-                dispatch(
-                  updateAppMetaAction({ applicationId: res.id, name: value, folderId: folderId })
-                );
-                setTimeout(() => {
-                  setModify(!modify);
-                }, 200);
+                if (checkIsMobile(window.innerWidth)) {
+                  history.push(APPLICATION_VIEW_URL(res.id, "view"));
+                  return;
+                }
+                if(res.isMarketplace) {
+                  handleMarketplaceAppViewClick(res.id);
+                  return;
+                }
+                res.isEditable ? handleAppEditClick(e, res.id) : handleAppViewClick(res.id);
               }
-              setAppNameEditing(false);
             }}
-          />
-          <AppTimeOwnerInfoLabel title={subTitle}>{subTitle}</AppTimeOwnerInfoLabel>
-        </CardInfo>
-        <OperationWrapper>
-          {/* {res.isEditable && (
-            <EditButton onClick={(e) => handleAppEditClick(e, res.id)} buttonType="primary">
-              {trans("edit")}
-            </EditButton>
-          )} */}
-          <ExecButton
-            onClick={() =>
-              res.type === HomeResTypeEnum.Folder
-                ? handleFolderViewClick(res.id)
-                : res.isMarketplace
-                ? handleMarketplaceAppViewClick(res.id)
-                : handleAppViewClick(res.id)
-            }
           >
-            {trans("view")}
-          </ExecButton>
-          <HomeResOptions
-            res={res}
-            onRename={() => setAppNameEditing(true)}
-            onMove={(res) => onMove(res)}
-            setModify={setModify}
-            modify={modify}
-          />
-        </OperationWrapper>
-      </Card>
-    </Wrapper>
+            <StyledTypographyText> 
+              {res.title || res.name}
+            </StyledTypographyText>
+
+            {res?.description 
+              && <Typography.Text 
+                  type="secondary" 
+                  style={{ fontSize: 12, textWrap: "wrap"}}
+                  >
+                {res.description.length > 150 ? res.description.substring(0, 150) + '...' : res.description}
+            </Typography.Text>}
+
+            <AppTimeOwnerInfoLabel title={subTitle}>{subTitle}</AppTimeOwnerInfoLabel>
+          </CardInfo>
+          <OperationWrapper>
+            {/* {res.isEditable && (
+              <EditButton onClick={(e) => handleAppEditClick(e, res.id)} buttonType="primary">
+                {trans("edit")}
+              </EditButton>
+            )} */}
+            <ExecButton
+              onClick={() =>
+                res.type === HomeResTypeEnum.Folder
+                  ? handleFolderViewClick(res.id)
+                  : res.isMarketplace
+                  ? handleMarketplaceAppViewClick(res.id)
+                  : handleAppViewClick(res.id)
+              }
+            >
+              {trans("view")}
+            </ExecButton>
+            <HomeResOptions
+              res={res}
+              onRename={() => setDialogVisible(true)}
+              onMove={(res) => onMove(res)}
+              setModify={setModify}
+              modify={modify}
+            />
+          </OperationWrapper>
+        </Card>
+      </Wrapper>
+    </>
   );
 }
 

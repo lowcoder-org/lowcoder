@@ -12,13 +12,13 @@ import dynamicImport from 'vite-plugin-dynamic-import';
 import { ensureLastSlash } from "./src/dev-utils/util";
 import { buildVars } from "./src/dev-utils/buildVars";
 import { globalDepPlugin } from "./src/dev-utils/globalDepPlguin";
-import { terser } from 'rollup-plugin-terser';
+import { terser } from 'rollup-plugin-terser';
 // import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 dotenv.config();
 
-const apiProxyTarget = process.env.LOWCODER_API_SERVICE_URL;
-const nodeServiceApiProxyTarget = process.env.LOWCODER_NODE_SERVICE_URL;
+const apiServiceUrl = process.env.LOWCODER_API_SERVICE_URL;
+const nodeServiceUrl = process.env.LOWCODER_NODE_SERVICE_URL;
 const nodeEnv = process.env.NODE_ENV ?? "development";
 const isDev = nodeEnv === "development";
 const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
@@ -27,7 +27,7 @@ const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
 const browserCheckFileName = `browser-check.js`;
 const base = ensureLastSlash(process.env.PUBLIC_URL);
 
-if (!apiProxyTarget && isDev) {
+if (!apiServiceUrl && isDev) {
   console.log();
   console.log(chalk.red`LOWCODER_API_SERVICE_URL is required.\n`);
   console.log(chalk.cyan`Start with command: LOWCODER_API_SERVICE_URL=\{backend-api-addr\} yarn start`);
@@ -37,14 +37,14 @@ if (!apiProxyTarget && isDev) {
 
 const proxyConfig: ServerOptions["proxy"] = {
   "/api": {
-    target: apiProxyTarget,
+    target: apiServiceUrl,
     changeOrigin: false,
   },
 };
 
-if (nodeServiceApiProxyTarget) {
+if (nodeServiceUrl) {
   proxyConfig["/node-service"] = {
-    target: nodeServiceApiProxyTarget,
+    target: nodeServiceUrl,
   };
 }
 
@@ -87,6 +87,7 @@ export const viteConfig: UserConfig = {
         manualChunks: (id) => {
           if (id.includes("node_modules")) {
             // UI LIBRARIES
+            // if (id.includes("node_modules/@ant-design/v5-patch-for-react-19")) return "ant-design-v5-patch";
             if (id.includes("@ant-design/icons")) return "ant-design-icons";
             if (id.includes("node_modules/antd")) return "antd";
             if (id.includes("styled-components")) return "styled-components";

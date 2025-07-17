@@ -79,6 +79,7 @@ export const ExtendedPropertyView = React.memo(<
   const editorState = useContext(EditorContext);
   const selectedComp = values(editorState?.selectedComps())[0];
   const compType = selectedComp?.children?.compType?.getView() as UICompType;
+  const timeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     setCompName(uiCompRegistry[compType]?.compName || '');
@@ -95,6 +96,15 @@ export const ExtendedPropertyView = React.memo(<
       fetchCompsPackageMeta();
     }
   }, [compName]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <>
@@ -120,7 +130,7 @@ export const ExtendedPropertyView = React.memo(<
                     autoHandleAfterReduce: true,
                   }
                 )
-                setTimeout(() => {
+                timeoutRef.current = setTimeout(() => {
                   window.location.reload();
                 }, 1000);
               }}
@@ -296,27 +306,18 @@ const UIView = React.memo((props: {
     comp.dispatch
   );
 
-  const defaultChildren = useMemo(() => comp.children, [comp.children]);
-  const isNotContainer = useMemo(() => Boolean(defaultChildren.style), [defaultChildren.style]);
-  const restrictPaddingOnRotation = useMemo(() => Boolean(defaultChildren.restrictPaddingOnRotation), [defaultChildren.restrictPaddingOnRotation]);
-  const rotationVal = useMemo(() => {
-    if (isNotContainer) {
-      return defaultChildren.style?.children?.rotation?.valueAndMsg.value
-    }
-    return null;
-  }, [isNotContainer, defaultChildren.style?.children?.rotation?.valueAndMsg.value]);
-  const boxShadowVal = useMemo(() => {
-    if (isNotContainer) {
-      return defaultChildren.style?.children?.boxShadow?.valueAndMsg?.value;
-    }
-    return null;
-  }, [isNotContainer, defaultChildren.style?.children?.boxShadow?.valueAndMsg?.value]);
-  const restrictPaddingOnRotationVal = useMemo(() => {
-    if (isNotContainer) {
-      return defaultChildren?.restrictPaddingOnRotation?.valueAndMsg?.value
-    }
-    return null;
-  }, [isNotContainer, defaultChildren?.restrictPaddingOnRotation?.valueAndMsg?.value]);
+  // Optimize memoization by combining related values
+  const { defaultChildren, isNotContainer, restrictPaddingOnRotation } = useMemo(() => ({
+    defaultChildren: comp.children,
+    isNotContainer: Boolean(comp.children.style),
+    restrictPaddingOnRotation: Boolean(comp.children.restrictPaddingOnRotation)
+  }), [comp.children]);
+
+  const { rotationVal, boxShadowVal, restrictPaddingOnRotationVal } = useMemo(() => ({
+    rotationVal: isNotContainer ? defaultChildren.style?.children?.rotation?.valueAndMsg.value : null,
+    boxShadowVal: isNotContainer ? defaultChildren.style?.children?.boxShadow?.valueAndMsg?.value : null,
+    restrictPaddingOnRotationVal: isNotContainer ? defaultChildren?.restrictPaddingOnRotation?.valueAndMsg?.value : null
+  }), [isNotContainer, defaultChildren]);
 
   const getPadding = useCallback(() => {
     if (

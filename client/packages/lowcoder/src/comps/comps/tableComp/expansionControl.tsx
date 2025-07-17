@@ -11,7 +11,7 @@ import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { trans } from "i18n";
 import _ from "lodash";
 import { ConstructorToView, wrapChildAction } from "lowcoder-core";
-import { createContext, useContext } from "react";
+import { createContext, useContext, useCallback } from "react";
 import { tryToNumber } from "util/convertUtils";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 import { OB_ROW_ORI_INDEX, RecordType } from "./tableUtils";

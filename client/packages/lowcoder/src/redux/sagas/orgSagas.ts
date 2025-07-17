@@ -25,11 +25,14 @@ import {
   fetchLastMonthAPIUsageActionSuccess,
   UpdateUserGroupRolePayload,
   UpdateUserOrgRolePayload,
+  fetchWorkspacesAction,
 } from "redux/reduxActions/orgActions";
 import { getUser } from "redux/selectors/usersSelectors";
 import { validateResponse } from "api/apiUtils";
 import { User } from "constants/userConstants";
 import { getUserSaga } from "redux/sagas/userSagas";
+import { GetMyOrgsResponse } from "@lowcoder-ee/api/userApi";
+import UserApi from "@lowcoder-ee/api/userApi";
 
 export function* updateGroupSaga(action: ReduxAction<UpdateGroupActionPayload>) {
   try {
@@ -104,11 +107,30 @@ export function* updateUserGroupRoleSaga(action: ReduxAction<UpdateUserGroupRole
   }
 }
 
+export function* fetchGroupPotentialMembersSaga(action: ReduxAction<{ searchName: string, groupId: string }>) {
+  try {
+    const response: AxiosResponse<OrgUsersResponse> = yield call(
+      OrgApi.fetchGroupPotentialMembers,
+      action.payload.searchName,
+      action.payload.groupId
+    );
+    const isValidResponse: boolean = validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_ORG_ALL_USERS_SUCCESS,
+        payload: response.data.data,
+      });
+    }
+  } catch (error) {
+    log.error(error);
+  }
+}
+
 export function* fetchOrgUsersSaga(action: ReduxAction<{ orgId: string }>) {
   try {
     const response: AxiosResponse<OrgUsersResponse> = yield call(
       OrgApi.fetchOrgUsers,
-      action.payload.orgId
+      action.payload.orgId,
     );
     const isValidResponse: boolean = validateResponse(response);
     if (isValidResponse) {
@@ -268,6 +290,8 @@ export function* deleteOrgSaga(action: ReduxAction<{ orgId: string }>) {
           orgId: action.payload.orgId,
         },
       });
+      // Refetch workspaces to update the profile dropdown
+      yield put(fetchWorkspacesAction(1, 10));
     }
   } catch (error: any) {
     messageInstance.error(error.message);
@@ -281,6 +305,8 @@ export function* updateOrgSaga(action: ReduxAction<UpdateOrgPayload>) {
     const isValidResponse: boolean = validateResponse(response);
     if (isValidResponse) {
       yield put(updateOrgSuccess(action.payload));
+      // Refetch workspaces to update the profile dropdown
+      yield put(fetchWorkspacesAction(1, 10));
     }
   } catch (error: any) {
     messageInstance.error(error.message);
@@ -324,6 +350,47 @@ export function* fetchLastMonthAPIUsageSaga(action: ReduxAction<{
   }
 }
 
+// fetch my orgs
+// In userSagas.ts
+export function* fetchWorkspacesSaga(action: ReduxAction<{page: number, pageSize: number, search?: string, isLoadMore?: boolean}>) {
+  try {
+    const { page, pageSize, search, isLoadMore } = action.payload;
+    
+    const response: AxiosResponse<GetMyOrgsResponse> = yield call(
+      UserApi.getMyOrgs, 
+      page,        // pageNum
+      pageSize,           // pageSize (changed to 5 for testing)
+      search       // orgName
+    );
+    
+    if (validateResponse(response)) {
+      const apiData = response.data.data;
+      
+      // Transform orgId/orgName to match Org interface
+      const transformedItems = apiData.data
+        .filter(item => item.orgView && item.orgView.orgId) 
+        .map(item => ({
+          id: item.orgView.orgId,
+          name: item.orgView.orgName,
+          createdAt: item.orgView.createdAt,
+          updatedAt: item.orgView.updatedAt,
+          isCurrentOrg: item.isCurrentOrg,
+        }));
+        
+      yield put({
+        type: ReduxActionTypes.FETCH_WORKSPACES_SUCCESS,
+        payload: {
+          items: transformedItems,
+          totalCount: apiData.total,
+          isLoadMore: isLoadMore || false
+        }
+      });
+    }
+  } catch (error: any) {
+    console.error('Error fetching workspaces:', error);
+  }
+}
+
 export default function* orgSagas() {
   yield all([
     takeLatest(ReduxActionTypes.UPDATE_GROUP_INFO, updateGroupSaga),
@@ -334,6 +401,7 @@ export default function* orgSagas() {
     takeLatest(ReduxActionTypes.UPDATE_USER_ORG_ROLE, updateUserOrgRoleSaga),
     takeLatest(ReduxActionTypes.UPDATE_USER_GROUP_ROLE, updateUserGroupRoleSaga),
     takeLatest(ReduxActionTypes.FETCH_ORG_ALL_USERS, fetchOrgUsersSaga),
+    takeLatest(ReduxActionTypes.FETCH_GROUP_POTENTIAL_MEMBERS, fetchGroupPotentialMembersSaga),
     takeLatest(ReduxActionTypes.DELETE_ORG_USER, deleteOrgUserSaga),
     takeLatest(ReduxActionTypes.QUIT_GROUP, quitGroupSaga),
     takeLatest(ReduxActionTypes.QUIT_ORG, quitOrgSaga),
@@ -343,5 +411,8 @@ export default function* orgSagas() {
     takeLatest(ReduxActionTypes.UPDATE_ORG, updateOrgSaga),
     takeLatest(ReduxActionTypes.FETCH_ORG_API_USAGE, fetchAPIUsageSaga),
     takeLatest(ReduxActionTypes.FETCH_ORG_LAST_MONTH_API_USAGE, fetchLastMonthAPIUsageSaga),
+    takeLatest(ReduxActionTypes.FETCH_WORKSPACES_INIT, fetchWorkspacesSaga),
+
+
   ]);
 }

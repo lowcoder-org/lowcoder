@@ -31,13 +31,13 @@ import {
   ADMIN_AUTH_URL,
   PUBLIC_APP_EDITOR_URL,
 } from "constants/routesURL";
-import React from "react";
+import React, { useEffect, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import { Helmet } from "react-helmet";
-import { connect, Provider } from "react-redux";
-import { Redirect, Router, Switch } from "react-router-dom";
+import { connect, Provider, useDispatch, useSelector } from "react-redux";
+import { Redirect, Route, Router, Switch } from "react-router-dom";
 import type { AppState } from "redux/reducers";
-import { fetchConfigAction } from "redux/reduxActions/configActions";
+import { fetchConfigAction, fetchDeploymentIdAction } from "redux/reduxActions/configActions";
 import { fetchUserAction } from "redux/reduxActions/userActions";
 import { reduxStore } from "redux/store/store";
 import { developEnv } from "util/envUtils";
@@ -50,16 +50,20 @@ import { loadComps } from "comps";
 import { initApp } from "util/commonUtils";
 import { favicon } from "assets/images";
 import { hasQueryParam } from "util/urlUtils";
-import { isFetchUserFinished } from "redux/selectors/usersSelectors"; // getCurrentUser, 
+import { getUser, isFetchUserFinished } from "redux/selectors/usersSelectors"; // getCurrentUser, 
 import { getIsCommonSettingFetched } from "redux/selectors/commonSettingSelectors";
 import { SystemWarning } from "./components/SystemWarning";
-import { getBrandingConfig } from "./redux/selectors/configSelectors";
+import { getBrandingConfig, getDeploymentId } from "./redux/selectors/configSelectors";
 import { buildMaterialPreviewURL } from "./util/materialUtils";
 import GlobalInstances from 'components/GlobalInstances';
 // import posthog from 'posthog-js'
 import { fetchHomeData, fetchServerSettingsAction } from "./redux/reduxActions/applicationActions";
 import { getNpmPackageMeta } from "./comps/utils/remote";
 import { packageMetaReadyAction, setLowcoderCompsLoading } from "./redux/reduxActions/npmPluginActions";
+import { EnterpriseProvider } from "./util/context/EnterpriseContext";
+import { SimpleSubscriptionContextProvider } from "./util/context/SimpleSubscriptionContext";
+import { getBrandingSetting } from "./redux/selectors/enterpriseSelectors";
+import { fetchSubscriptionsAction } from "./redux/reduxActions/subscriptionActions";
 
 const LazyUserAuthComp = React.lazy(() => import("pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
@@ -72,17 +76,55 @@ const LazyApplicationHome = React.lazy(() => import("pages/ApplicationV2"));
 const LazyDebugComp = React.lazy(() => import("./debug"));
 const LazyDebugNewComp = React.lazy(() => import("./debugNew"));
 
-const Wrapper = (props: { children: React.ReactNode, language: string }) => (
-  <ConfigProvider
-    theme={{ hashed: false }}
-    locale={getAntdLocale(props.language)}
-  >
-    <App>
-      <GlobalInstances />
-      {props.children}
-    </App>
-  </ConfigProvider>
-);
+const Wrapper = React.memo((props: {
+  children: React.ReactNode,
+  language: string,
+  fontFamily?: string
+}) => {
+  const deploymentId = useSelector(getDeploymentId);
+  const user = useSelector(getUser);
+  const dispatch = useDispatch();
+  
+  useEffect(() => {
+    if (user.currentOrgId) {
+      dispatch(fetchDeploymentIdAction());
+    }
+  }, [user.currentOrgId]);
+
+  useEffect(() => {
+    if(Boolean(deploymentId)) {
+      dispatch(fetchSubscriptionsAction())
+    }
+  }, [deploymentId]);
+  
+  const theme = useMemo(() => {
+    return {
+      hashed: false,
+      token: {
+        fontFamily: `${
+          props.fontFamily
+          ? props.fontFamily.split('+').join(' ')
+          : `-apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, "Segoe UI", "PingFang SC",
+            "Microsoft Yahei", "Hiragino Sans GB", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+            "Segoe UI Symbol", "Noto Color Emoji"`
+        }, sans-serif`,
+      },
+    }
+  }, [props.fontFamily]);
+
+  return (
+    <ConfigProvider
+      theme={theme}
+      wave={{ disabled: true }}
+      locale={getAntdLocale(props.language)}
+    >
+      <App>
+        <GlobalInstances />
+        {props.children}
+      </App>
+    </ConfigProvider>
+  );
+});
 
 type AppIndexProps = {
   isFetchUserFinished: boolean;
@@ -100,7 +142,9 @@ type AppIndexProps = {
   fetchServerSettings: () => void;
   favicon: string;
   brandName: string;
+  brandDescription: string;
   uiLanguage: string;
+  brandingFontFamily?: string;
 };
 
 class AppIndex extends React.Component<AppIndexProps, any> {
@@ -150,11 +194,11 @@ class AppIndex extends React.Component<AppIndexProps, any> {
     localStorage.setItem('lowcoder_uiLanguage', this.props.uiLanguage);
 
     return (
-      <Wrapper language={this.props.uiLanguage}>
+      <Wrapper language={this.props.uiLanguage} fontFamily={this.props.brandingFontFamily}>
         <Helmet>
           {<title>{this.props.brandName}</title>}
           {<link rel="icon" href={this.props.favicon} />}
-          <meta name="description" content={trans('productDesc')} />
+          <meta name="description" content={this.props.brandDescription} />
           <meta
             name="keywords"
             content="Lowcoder, Applications, App Builder, Internal Applications, Websites, Dashboards, Data Visualization, Customer Applications, CRM, ERP, eCommerce, VideoMeeting, Rapid Development"
@@ -170,7 +214,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
           <meta
             key="og:description"
             property="og:description"
-            content={trans('productDesc')}
+            content={this.props.brandDescription}
           />
           <meta
             key="og:image"
@@ -193,7 +237,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
           <meta
             key="twitter:description"
             name="twitter:description"
-            content={trans('productDesc')}
+            content={this.props.brandDescription}
           />
           <meta
             key="twitter:image"
@@ -266,7 +310,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
             <meta
               key="iframely:description"
               property="iframely:description"
-              content={trans('productDesc')}
+              content={this.props.brandDescription}
             />,
             <link
               key="iframely"
@@ -275,7 +319,8 @@ class AppIndex extends React.Component<AppIndexProps, any> {
               href={window.location.href}
               media="(aspect-ratio: 1280/720)"
             />,
-
+          ]}
+          {((isLowCoderDomain || isLocalhost) && !Boolean(this.props.brandingFontFamily)) && [
             <link
               key="preconnect-googleapis"
               rel="preconnect"
@@ -290,6 +335,24 @@ class AppIndex extends React.Component<AppIndexProps, any> {
             <link
               key="font-ubuntu"
               href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap"
+              rel="stylesheet"
+            />
+          ]}
+          {Boolean(this.props.brandingFontFamily) && [
+            <link
+              key="preconnect-googleapis"
+              rel="preconnect"
+              href="https://fonts.googleapis.com"
+            />,
+            <link
+              key="preconnect-gstatic"
+              rel="preconnect"
+              href="https://fonts.gstatic.com"
+              crossOrigin="anonymous"
+            />,
+            <link
+              key={this.props.brandingFontFamily}
+              href={`https://fonts.googleapis.com/css2?family=${this.props.brandingFontFamily}&display=swap`}
               rel="stylesheet"
             />
           ]}
@@ -310,33 +373,60 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                 component={LazyPublicAppEditor}
               />
 
-              <LazyRoute
-                fallback="layout"
-                path={APP_EDITOR_URL}
-                component={LazyAppEditor}
-              />
-              <LazyRoute
-                fallback="layout"
-                path={[
-                  USER_PROFILE_URL,
-                  NEWS_URL,
-                  ORG_HOME_URL,
-                  ALL_APPLICATIONS_URL,
-                  DATASOURCE_CREATE_URL,
-                  DATASOURCE_EDIT_URL,
-                  DATASOURCE_URL,
-                  SUPPORT_URL,
-                  QUERY_LIBRARY_URL,
-                  FOLDERS_URL,
-                  FOLDER_URL,
-                  TRASH_URL,
-                  SETTING_URL,
-                  MARKETPLACE_URL,
-                  ADMIN_APP_URL
-                ]}
-                // component={ApplicationListPage}
-                component={LazyApplicationHome}
-              />
+              <Route
+                path={
+                  [
+                    APP_EDITOR_URL,
+                    USER_PROFILE_URL,
+                    NEWS_URL,
+                    ORG_HOME_URL,
+                    ALL_APPLICATIONS_URL,
+                    DATASOURCE_CREATE_URL,
+                    DATASOURCE_EDIT_URL,
+                    DATASOURCE_URL,
+                    SUPPORT_URL,
+                    QUERY_LIBRARY_URL,
+                    FOLDERS_URL,
+                    FOLDER_URL,
+                    TRASH_URL,
+                    SETTING_URL,
+                    MARKETPLACE_URL,
+                    ADMIN_APP_URL
+                  ]
+                }
+              >
+                <SimpleSubscriptionContextProvider>
+                  <Switch>
+                    <LazyRoute
+                      fallback="layout"
+                      path={APP_EDITOR_URL}
+                      component={LazyAppEditor}
+                    />
+                    <LazyRoute
+                      fallback="layout"
+                      path={[
+                        USER_PROFILE_URL,
+                        NEWS_URL,
+                        ORG_HOME_URL,
+                        ALL_APPLICATIONS_URL,
+                        DATASOURCE_CREATE_URL,
+                        DATASOURCE_EDIT_URL,
+                        DATASOURCE_URL,
+                        SUPPORT_URL,
+                        QUERY_LIBRARY_URL,
+                        FOLDERS_URL,
+                        FOLDER_URL,
+                        TRASH_URL,
+                        SETTING_URL,
+                        MARKETPLACE_URL,
+                        ADMIN_APP_URL
+                      ]}
+                      // component={ApplicationListPage}
+                      component={LazyApplicationHome}
+                    />
+                  </Switch>
+                </SimpleSubscriptionContextProvider>
+              </Route>
               <LazyRoute exact path={ADMIN_AUTH_URL} component={LazyUserAuthComp} />
               <LazyRoute path={USER_AUTH_URL} component={LazyUserAuthComp} />
               <LazyRoute
@@ -414,8 +504,10 @@ const mapStateToProps = (state: AppState) => ({
   favicon: getBrandingConfig(state)?.favicon
     ? buildMaterialPreviewURL(getBrandingConfig(state)?.favicon!)
     : favicon,
-  brandName: getBrandingConfig(state)?.brandName ?? trans("productName"),
+  brandName: getBrandingSetting(state)?.config_set?.standardTitle ?? trans("productName"),
+  brandDescription: getBrandingSetting(state)?.config_set?.standardDescription ?? trans('productDesc'),
   uiLanguage: state.ui.users.user.uiLanguage,
+  brandingFontFamily: getBrandingSetting(state)?.config_set?.font,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -453,7 +545,9 @@ export function bootstrap() {
   const root = createRoot(container!);
   root.render(
     <Provider store={reduxStore}>
+      <EnterpriseProvider>
         <AppIndexWithProps />
+      </EnterpriseProvider>
     </Provider>
   );
 }

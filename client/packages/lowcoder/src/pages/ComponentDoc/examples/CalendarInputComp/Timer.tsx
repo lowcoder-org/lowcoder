@@ -1,7 +1,6 @@
 import { TimerComp } from "comps/comps/timerComp";
 import Example from "../../common/Example";
 import ExampleGroup from "../../common/ExampleGroup";
-import { startButtonStyle } from "@lowcoder-ee/index.sdk";
 
 export default function TimerExample() {
     return (

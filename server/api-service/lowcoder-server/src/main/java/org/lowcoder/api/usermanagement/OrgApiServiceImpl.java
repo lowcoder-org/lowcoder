@@ -40,6 +40,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
+import org.lowcoder.domain.group.service.GroupMemberService;
+import org.lowcoder.domain.group.model.GroupMember;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -49,6 +52,8 @@ import static org.lowcoder.sdk.exception.BizError.UNSUPPORTED_OPERATION;
 import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 import static org.lowcoder.sdk.util.StreamUtils.collectSet;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 @Slf4j
 @Service
@@ -72,9 +77,10 @@ public class OrgApiServiceImpl implements OrgApiService {
     private GroupService groupService;
     @Autowired
     private AuthenticationService authenticationService;
-
     @Autowired
     private ServerLogService serverLogService;
+    @Autowired
+    private GroupMemberService groupMemberService;
 
     @Override
     public Mono<OrgMemberListView> getOrganizationMembers(String orgId, int page, int count) {
@@ -126,6 +132,17 @@ public class OrgApiServiceImpl implements OrgApiService {
     }
 
     protected OrgMemberView build(User user, OrgMember orgMember) {
+        String orgId = orgMember.getOrgId();
+        return OrgMemberView.builder()
+                .name(user.getName())
+                .userId(user.getId())
+                .role(orgMember.getRole().getValue())
+                .avatarUrl(user.getAvatarUrl())
+                .joinTime(orgMember.getJoinTime())
+                .rawUserInfos(findRawUserInfos(user, orgId))
+                .build();
+    }
+    protected OrgMemberView buildOrgMemberView(User user, OrgMember orgMember) {
         String orgId = orgMember.getOrgId();
         return OrgMemberView.builder()
                 .name(user.getName())
@@ -291,6 +308,7 @@ public class OrgApiServiceImpl implements OrgApiService {
                     updateOrg.setContactEmail(updateOrgRequest.getContactEmail());
                     updateOrg.setContactPhoneNumber(updateOrgRequest.getContactPhoneNumber());
                     updateOrg.setContactName(updateOrgRequest.getContactName());
+                    updateOrg.setState(updateOrgRequest.getState());
                     return organizationService.update(orgId, updateOrg);
                 });
     }

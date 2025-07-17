@@ -31,6 +31,13 @@ export default function FormLogin(props: FormLoginProps) {
   const [password, setPassword] = useState("");
   const { fetchUserAfterAuthSuccess } = useContext(AuthContext);
 
+  const afterLoginSuccess = () => {
+    if (props.organizationId) {
+      localStorage.setItem("lowcoder_login_orgId", props.organizationId);
+    }
+    fetchUserAfterAuthSuccess?.();
+  }
+
   const { onSubmit, loading } = useAuthSubmit(
     () =>
       UserApi.formLogin({
@@ -42,7 +49,7 @@ export default function FormLogin(props: FormLoginProps) {
       }),
     false,
     null,
-    fetchUserAfterAuthSuccess,
+    afterLoginSuccess,
   );
 
   return (

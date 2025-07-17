@@ -32,6 +32,8 @@ import { ColumnValueTooltip } from "./simpleColumnTypeComps";
 import { SummaryColumnComp } from "./tableSummaryColumnComp";
 import { list } from "@lowcoder-ee/comps/generators/list";
 import { EMPTY_ROW_KEY } from "../tableCompView";
+import React, { useCallback, useMemo } from "react";
+
 export type Render = ReturnType<ConstructorToComp<typeof RenderComp>["getOriginalComp"]>;
 export const RenderComp = withSelectedMultiContext(ColumnTypeComp);
 
@@ -144,7 +146,7 @@ export const columnChildrenMap = {
   fontFamily: withDefault(StringControl, "sans-serif"),
   fontStyle: withDefault(StringControl, 'normal'),
   cellColor: CellColorComp,
-  textOverflow: withDefault(TextOverflowControl, "ellipsis"),
+  textOverflow: withDefault(TextOverflowControl, "wrap"),
   linkColor: withDefault(ColorControl, "#3377ff"),
   linkHoverColor: withDefault(ColorControl, ""),
   linkActiveColor: withDefault(ColorControl, ""),
@@ -165,25 +167,198 @@ const StyledBackgroundImageIcon = styled(ImageCompIcon)` width: 24px; margin: 0 
  * Put it here temporarily to avoid circular dependencies
  */
 const ColumnInitComp = new MultiCompBuilder(columnChildrenMap, (props, dispatch) => {
+  const onWidthResize = (width: number) => {
+    dispatch(
+      multiChangeAction({
+        width: changeValueAction(width, true),
+        autoWidth: changeValueAction("fixed", true),
+      })
+    );
+  };
+
   return {
     ...props,
-    onWidthResize: (width: number) => {
-      dispatch(
-        multiChangeAction({
-          width: changeValueAction(width, true),
-          autoWidth: changeValueAction("fixed", true),
-        })
-      );
-    },
+    onWidthResize,
   };
 })
   .setPropertyViewFn(() => <></>)
   .build();
 
+const ColumnPropertyView = React.memo(({ 
+  comp, 
+  viewMode, 
+  summaryRowIndex 
+}: { 
+  comp: ColumnComp; 
+  viewMode: string; 
+  summaryRowIndex: number; 
+}) => {
+  const selectedColumn = comp.children.render.getSelectedComp();
+  const columnType = useMemo(() => 
+    selectedColumn.getComp().children.compType.getView(),
+    [selectedColumn]
+  );
+
+  const initialColumns = useMemo(() => 
+    selectedColumn.getParams()?.initialColumns as OptionType[] || [],
+    [selectedColumn]
+  );
+
+  const columnValue = useMemo(() => {
+    const column = selectedColumn.getComp().toJsonValue();
+    if (column.comp?.hasOwnProperty('src')) {
+      return (column.comp as any).src;
+    } else if (column.comp?.hasOwnProperty('text')) {
+      const value = (column.comp as any).text;
+      const isDynamicValue = initialColumns.find((column) => column.value === value);
+      return !isDynamicValue ? '{{currentCell}}' : value;
+    }
+    return '{{currentCell}}';
+  }, [selectedColumn, initialColumns]);
+
+  const summaryColumns = comp.children.summaryColumns.getView();
+
+  return (
+    <>
+      {viewMode === 'summary' && (
+        summaryColumns[summaryRowIndex].propertyView('')
+      )}
+      {viewMode === 'normal' && (
+        <>
+          {comp.children.title.propertyView({
+            label: trans("table.columnTitle"),
+            placeholder: comp.children.dataIndex.getView(),
+          })}
+          {comp.children.titleTooltip.propertyView({
+            label: trans("table.columnTitleTooltip"),
+          })}
+          {comp.children.cellTooltip.getPropertyView()}
+          <Dropdown
+            showSearch={true}
+            defaultValue={columnValue}
+            options={initialColumns}
+            label={trans("table.dataMapping")}
+            onChange={(value) => {
+              // Keep the previous text value, some components do not have text, the default value is currentCell
+              const compType = columnType;
+              let compValue: Record<string, string> = { text: value};
+              if(columnType === 'image') {
+                compValue = { src: value };
+              }
+              comp.children.render.dispatchChangeValueAction({
+                compType,
+                comp: compValue,
+              } as any);
+            }}
+          />
+          {/* FIXME: cast type currently, return type of withContext should be corrected later */}
+          {comp.children.render.getPropertyView()}
+          {comp.children.showTitle.propertyView({
+            label: trans("table.showTitle"),
+            tooltip: trans("table.showTitleTooltip"),
+          })}
+          {ColumnTypeCompMap[columnType].canBeEditable() &&
+            comp.children.editable.propertyView({ label: trans("table.editable") })}
+          {comp.children.sortable.propertyView({
+            label: trans("table.sortable"),
+          })}
+          {comp.children.hide.propertyView({
+            label: trans("prop.hide"),
+          })}
+          {comp.children.align.propertyView({
+            label: trans("table.align"),
+            radioButton: true,
+          })}
+          {comp.children.fixed.propertyView({
+            label: trans("table.fixedColumn"),
+            radioButton: true,
+          })}
+          {comp.children.autoWidth.propertyView({
+            label: trans("table.autoWidth"),
+            radioButton: true,
+          })}
+          {comp.children.autoWidth.getView() === "fixed" &&
+            comp.children.width.propertyView({ label: trans("prop.width") })}
+
+          {(columnType === 'link' || columnType === 'links') && (
+            <>
+              <Divider style={{ margin: '12px 0' }} />
+              {controlItem({}, (
+                <div>
+                  <b>{"Link Style"}</b>
+                </div>
+              ))}
+              {comp.children.linkColor.propertyView({
+                label: trans('text') // trans('style.background'),
+              })}
+              {comp.children.linkHoverColor.propertyView({
+                label: "Hover text", // trans('style.background'),
+              })}
+              {comp.children.linkActiveColor.propertyView({
+                label: "Active text", // trans('style.background'),
+              })}
+            </>
+          )}
+          <Divider style={{ margin: '12px 0' }} />
+          {controlItem({}, (
+            <div>
+              <b>{"Column Style"}</b>
+            </div>
+          ))}
+          {comp.children.background.propertyView({
+            label: trans('style.background'),
+          })}
+          {columnType !== 'link' && comp.children.text.propertyView({
+            label: trans('text'),
+          })}
+          {comp.children.border.propertyView({
+            label: trans('style.border')
+          })}
+          {comp.children.borderWidth.propertyView({
+            label: trans('style.borderWidth'),
+            preInputNode: <StyledBorderIcon as={BorderWidthIcon} title="" />,
+            placeholder: '1px',
+          })}
+          {comp.children.radius.propertyView({
+            label: trans('style.borderRadius'),
+            preInputNode: <StyledBorderRadiusIcon as={IconRadius} title="" />,
+            placeholder: '3px',
+          })}
+          {columnType !== 'markdown' && comp.children.textSize.propertyView({
+            label: trans('style.textSize'),
+            preInputNode: <StyledTextSizeIcon as={TextSizeIcon} title="" />,
+            placeholder: '14px',
+          })}
+          {comp.children.textWeight.propertyView({
+            label: trans('style.textWeight'),
+            preInputNode: <StyledTextWeightIcon as={TextWeightIcon} title="" />,
+            placeholder: 'normal',
+          })}
+          {comp.children.fontFamily.propertyView({
+            label: trans('style.fontFamily'),
+            preInputNode: <StyledFontFamilyIcon as={FontFamilyIcon} title="" />,
+            placeholder: 'sans-serif',
+          })}
+          {comp.children.fontStyle.propertyView({
+            label: trans('style.fontStyle'),
+            preInputNode: <StyledFontFamilyIcon as={FontFamilyIcon} title="" />,
+            placeholder: 'normal'
+          })}
+          {comp.children.textOverflow.getPropertyView()}
+          {comp.children.cellColor.getPropertyView()}
+        </>
+      )}
+    </>
+  );
+});
+
+ColumnPropertyView.displayName = 'ColumnPropertyView';
+
 export class ColumnComp extends ColumnInitComp {
   override reduce(action: CompAction) {
     let comp = super.reduce(action);
     if (action.type === CompActionTypes.UPDATE_NODES_V2) {
+      // Reset context data without cleanup since components are managed by React
       comp = comp.setChild(
         "cellColor",
         comp.children.cellColor.reduce(
@@ -238,150 +413,7 @@ export class ColumnComp extends ColumnInitComp {
   }
 
   propertyView(key: string, viewMode: string, summaryRowIndex: number) {
-    const columnType = this.children.render.getSelectedComp().getComp().children.compType.getView();
-    const initialColumns = this.children.render.getSelectedComp().getParams()?.initialColumns as OptionType[] || [];
-    const column = this.children.render.getSelectedComp().getComp().toJsonValue();
-    let columnValue = '{{currentCell}}';
-    if (column.comp?.hasOwnProperty('src')) {
-      columnValue = (column.comp as any).src;
-    } else if (column.comp?.hasOwnProperty('text')) {
-      columnValue = (column.comp as any).text;
-    }
-
-    const summaryColumns = this.children.summaryColumns.getView();
-  
-    return (
-      <>
-        {viewMode === 'summary' && (
-          summaryColumns[summaryRowIndex].propertyView('')
-        )}
-        {viewMode === 'normal' && (
-          <>
-            {this.children.title.propertyView({
-              label: trans("table.columnTitle"),
-              placeholder: this.children.dataIndex.getView(),
-            })}
-            {this.children.titleTooltip.propertyView({
-              label: trans("table.columnTitleTooltip"),
-            })}
-            {this.children.cellTooltip.getPropertyView()}
-            <Dropdown
-              showSearch={true}
-              defaultValue={columnValue}
-              options={initialColumns}
-              label={trans("table.dataMapping")}
-              onChange={(value) => {
-                // Keep the previous text value, some components do not have text, the default value is currentCell
-                const compType = columnType;
-                let comp: Record<string, string> = { text: value};
-                if(columnType === 'image') {
-                  comp = { src: value };
-                }
-                this.children.render.dispatchChangeValueAction({
-                  compType,
-                  comp,
-                } as any);
-              }}
-            />
-            {/* FIXME: cast type currently, return type of withContext should be corrected later */}
-            {this.children.render.getPropertyView()}
-            {this.children.showTitle.propertyView({
-              label: trans("table.showTitle"),
-              tooltip: trans("table.showTitleTooltip"),
-            })}
-            {ColumnTypeCompMap[columnType].canBeEditable() &&
-              this.children.editable.propertyView({ label: trans("table.editable") })}
-            {this.children.sortable.propertyView({
-              label: trans("table.sortable"),
-            })}
-            {this.children.hide.propertyView({
-              label: trans("prop.hide"),
-            })}
-            {this.children.align.propertyView({
-              label: trans("table.align"),
-              radioButton: true,
-            })}
-            {this.children.fixed.propertyView({
-              label: trans("table.fixedColumn"),
-              radioButton: true,
-            })}
-            {this.children.autoWidth.propertyView({
-              label: trans("table.autoWidth"),
-              radioButton: true,
-            })}
-            {this.children.autoWidth.getView() === "fixed" &&
-              this.children.width.propertyView({ label: trans("prop.width") })}
-
-            {(columnType === 'link' || columnType === 'links') && (
-              <>
-                <Divider style={{ margin: '12px 0' }} />
-                {controlItem({}, (
-                  <div>
-                    <b>{"Link Style"}</b>
-                  </div>
-                ))}
-                {this.children.linkColor.propertyView({
-                  label: trans('text') // trans('style.background'),
-                })}
-                {this.children.linkHoverColor.propertyView({
-                  label: "Hover text", // trans('style.background'),
-                })}
-                {this.children.linkActiveColor.propertyView({
-                  label: "Active text", // trans('style.background'),
-                })}
-              </>
-            )}
-            <Divider style={{ margin: '12px 0' }} />
-            {controlItem({}, (
-              <div>
-                <b>{"Column Style"}</b>
-              </div>
-            ))}
-            {this.children.background.propertyView({
-              label: trans('style.background'),
-            })}
-            {columnType !== 'link' && this.children.text.propertyView({
-              label: trans('text'),
-            })}
-            {this.children.border.propertyView({
-              label: trans('style.border')
-            })}
-            {this.children.borderWidth.propertyView({
-              label: trans('style.borderWidth'),
-              preInputNode: <StyledBorderIcon as={BorderWidthIcon} title="" />,
-              placeholder: '1px',
-            })}
-            {this.children.radius.propertyView({
-              label: trans('style.borderRadius'),
-              preInputNode: <StyledBorderRadiusIcon as={IconRadius} title="" />,
-              placeholder: '3px',
-            })}
-            {this.children.textSize.propertyView({
-              label: trans('style.textSize'),
-              preInputNode: <StyledTextSizeIcon as={TextSizeIcon} title="" />,
-              placeholder: '14px',
-            })}
-            {this.children.textWeight.propertyView({
-              label: trans('style.textWeight'),
-              preInputNode: <StyledTextWeightIcon as={TextWeightIcon} title="" />,
-              placeholder: 'normal',
-            })}
-            {this.children.fontFamily.propertyView({
-              label: trans('style.fontFamily'),
-              preInputNode: <StyledFontFamilyIcon as={FontFamilyIcon} title="" />,
-              placeholder: 'sans-serif',
-            })}
-            {this.children.fontStyle.propertyView({
-              label: trans('style.fontStyle'),
-              preInputNode: <StyledFontFamilyIcon as={FontFamilyIcon} title="" />,
-              placeholder: 'normal'
-            })}
-            {this.children.textOverflow.getPropertyView()}
-            {this.children.cellColor.getPropertyView()}
-          </>
-        )}
-      </>
-    );
+    return <ColumnPropertyView comp={this} viewMode={viewMode} summaryRowIndex={summaryRowIndex} />;
   }
 
   getChangeSet() {
@@ -403,6 +435,8 @@ export class ColumnComp extends ColumnInitComp {
         )
       )
     );
+    // clear render comp cache when change set is cleared
+    this.children.render.dispatch(RenderComp.clearAction());
   }
 
   dispatchClearInsertSet() {

@@ -1,7 +1,7 @@
 import { Input, Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
-import { AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, LabelStyleType } from "comps/controls/styleControlConstants";
+import { AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, LabelStyleType, DisabledInputStyle, DisabledInputStyleType } from "comps/controls/styleControlConstants";
 import {
   NameConfig,
   NameConfigPlaceHolder,
@@ -32,6 +32,8 @@ import { hasIcon } from "comps/utils";
 import { InputRef } from "antd/es/input";
 import { RefControl } from "comps/controls/refControl";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
+import { numberSimpleControl } from "comps/controls/numberSimpleControl";
+import { NumberControl } from "comps/controls/codeControl";
 
 import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
@@ -40,10 +42,22 @@ import { EditorContext } from "comps/editorState";
  * Input Comp
  */
 
-const InputStyle = styled(Input)<{$style: InputLikeStyleType}>`
+const InputStyle = styled(Input)<{
+  $style: InputLikeStyleType;
+  $disabledStyle?: DisabledInputStyleType;
+}>`
   box-shadow: ${(props) =>
     `${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
   ${(props) => props.$style && getStyle(props.$style)}
+  
+  /* Disabled state styling */
+  &:disabled,
+  &.ant-input-disabled {
+    color: ${(props) => props.$disabledStyle?.disabledText};
+    background: ${(props) => props.$disabledStyle?.disabledBackground};
+    border-color: ${(props) => props.$disabledStyle?.disabledBorder};
+    cursor: not-allowed;
+  }
 `;
 
 const childrenMap = {
@@ -55,8 +69,10 @@ const childrenMap = {
   labelStyle:styleControl(LabelStyle, 'labelStyle'), 
   prefixIcon: IconControl,
   suffixIcon: IconControl,
-  inputFieldStyle: styleControl(InputLikeStyle, 'inputFieldStyle') ,
+  inputFieldStyle: styleControl(InputLikeStyle, 'inputFieldStyle'),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
+  disabledStyle: styleControl(DisabledInputStyle, 'disabledStyle'),
+  tabIndex: NumberControl,
 };
 
 let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
@@ -70,8 +86,10 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
         showCount={props.showCount}
         allowClear={props.allowClear}
         $style={props.inputFieldStyle}
+        $disabledStyle={props.disabledStyle}
         prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
         suffix={hasIcon(props.suffixIcon) && props.suffixIcon}
+        tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
       />
     ),
     style: props.style,
@@ -110,6 +128,7 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
             <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
             <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
             <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
+            <Section name={trans("prop.disabledStyle")}>{children.disabledStyle.getPropertyView()}</Section>
             <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
           </>
         )}

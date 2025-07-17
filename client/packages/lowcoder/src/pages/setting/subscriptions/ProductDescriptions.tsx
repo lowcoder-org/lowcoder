@@ -250,19 +250,211 @@ SupportProduct : {
 
 MediaPackageProduct: {
 "en": `
-  # Media Package Subscription
-  
-  ## Overview
-  
-  ... (Add English description)
-      `,
+# Lowcoder Premium Media Package Subscription
+
+## Overview
+
+**The usage and access to Lowcoder remain free as always. The Media Package Subscription is an additional service and gives you access to an extensive professional media asset library directly inside the App Editor and all your Apps.**
+
+The **Media Package** is a "per User, per Month and inside of a single Workspace" subscription. This means every Admin or App-Editor (Developer) who wants to use the Premium Media Package inside a Workspace needs an active subscription. Normal App Viewers (Members) naturally do not require a subscription.
+
+## Unlock Professional Visuals
+
+With the Premium Media Package you gain full access to:
+
+- **9 Million Icons** in various modern and classic design styles
+- **630,000 Professional Animations** including Lottie and JSON formats
+- **580,000 High-Quality Illustrations** for any use case
+- **540,000 3D Illustrations** for next-generation app visuals
+
+All assets are already liencensed and can be used for **personal and commercial purposes** inside your Lowcoder Apps.
+
+## Direct Editor Integration
+
+The Media Package is seamlessly integrated into the App Editor:
+- Direct search & insert inside the properties panel for Icons, Images and Lottie Animations.
+- Dynamic previews of animations, icons, illustrations, and 3D assets.
+- Auto-adaptation to your layout and design.
+- Always updated and curated content.
+
+### Animation Example
+
+![image](https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Premium%20Media%20Package%20%7C%20Search%20Animation.png)
+
+### Illustration Example
+
+![image](https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Premium%20Media%20Package%20%7C%20Search%20Illustration.png)
+
+## Simplified Licensing
+
+- All assets are included under a commercial license.
+- No additional license management required.
+
+## Focus on Your Apps, Not on Asset Hunting
+
+No more wasting hours searching for icons, illustrations or animations externally. Build visually stunning apps directly inside Lowcoder — fast, legal, and professional.
+
+## Pricing Table
+
+| User Type | Monthly Price Per User |
+|--------------------|------------------------|
+| per User (Admin or App-Editor) per Month<br/>(bound to your selected Workspace) | €24.90 |
+`,
+"ru": `
+# Подписка на Lowcoder Premium Media Package
+
+## Обзор
+
+**Использование и доступ к Lowcoder остаются бесплатными, как и прежде. Подписка на Media Package является дополнительной услугой и предоставляет доступ к обширной профессиональной библиотеке медиа-активов прямо внутри редактора приложений и всех ваших приложений.**
+
+**Media Package** — это подписка "на пользователя, в месяц и внутри одного рабочего пространства". Это означает, что каждый Администратор или Редактор приложений (Разработчик), который хочет использовать Premium Media Package в рамках рабочего пространства, должен иметь активную подписку. Обычные зрители приложений (Members) естественно не требуют подписки.
+
+## Откройте доступ к профессиональным визуальным материалам
+
+С Premium Media Package вы получаете полный доступ к:
+
+- **9 миллионам иконок** в различных современных и классических стилях дизайна
+- **630 000 профессиональных анимаций**, включая Lottie и JSON форматы
+- **580 000 высококачественных иллюстраций** для любых задач
+- **540 000 3D иллюстраций** для создания современных визуалов
+
+Все активы являются **бесплатными от роялти** и могут использоваться **для личных и коммерческих целей** внутри ваших приложений Lowcoder.
+
+## Прямая интеграция в редактор
+
+Media Package полностью интегрирован в редактор приложений:
+- Поиск и вставка прямо в панели свойств для иконок, изображений и Lottie-анимаций.
+- Динамические предпросмотры анимаций, иконок, иллюстраций и 3D-активов.
+- Автоматическая адаптация к вашему макету и дизайну.
+- Постоянно обновляемый и курируемый контент.
+
+### Пример анимации
+
+![image](https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Premium%20Media%20Package%20%7C%20Search%20Animation.png)
+
+### Пример иллюстрации
+
+![image](https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Premium%20Media%20Package%20%7C%20Search%20Illustration.png)
+
+## Упрощённое лицензирование
+
+- Все активы включены в коммерческую лицензию.
+- Не требуется дополнительного управления лицензиями.
+
+## Сосредоточьтесь на приложениях, а не на поиске активов
+
+Больше не нужно тратить часы на поиск иконок, иллюстраций или анимаций извне. Создавайте визуально впечатляющие приложения прямо внутри Lowcoder — быстро, легально и профессионально.
+
+## Таблица цен
+
+| Тип пользователя | Ежемесячная цена за пользователя |
+|--------------------|------------------------|
+| за пользователя (Администратор или Редактор приложений) в месяц<br/>(привязано к выбранному рабочему пространству) | €24.90 |
+
+`,
+"es": `
+# Suscripción al Lowcoder Premium Media Package
+
+## Descripción general
+
+**El uso y acceso a Lowcoder sigue siendo gratuito como siempre. La suscripción a Media Package es un servicio adicional que le da acceso a una extensa biblioteca profesional de activos multimedia directamente dentro del editor de aplicaciones y en todas sus aplicaciones.**
+
+**Media Package** es una suscripción "por usuario, por mes y dentro de un único espacio de trabajo". Esto significa que cada Administrador o Editor de Aplicaciones (Desarrollador) que desee utilizar el Premium Media Package dentro de un espacio de trabajo necesita una suscripción activa. Los visualizadores de aplicaciones (Miembros) no requieren suscripción.
+
+## Desbloquee recursos visuales profesionales
+
+Con Premium Media Package obtiene acceso completo a:
+
+- **9 millones de iconos** en diversos estilos de diseño modernos y clásicos
+- **630 000 animaciones profesionales**, incluyendo formatos Lottie y JSON
+- **580 000 ilustraciones de alta calidad** para cualquier caso de uso
+- **540 000 ilustraciones 3D** para visuales de nueva generación
+
+Todos los activos están **libres de regalías** y pueden ser utilizados **para fines personales y comerciales** dentro de sus aplicaciones Lowcoder.
+
+## Integración directa en el editor
+
+Media Package está completamente integrado en el editor de aplicaciones:
+- Búsqueda e inserción directa dentro del panel de propiedades para iconos, imágenes y animaciones Lottie.
+- Vistas previas dinámicas de animaciones, iconos, ilustraciones y activos 3D.
+- Adaptación automática a su diseño y maquetación.
+- Contenido siempre actualizado y cuidadosamente seleccionado.
+
+### Ejemplo de animación
+
+![image](https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Premium%20Media%20Package%20%7C%20Search%20Animation.png)
+
+### Ejemplo de ilustración
+
+![image](https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Premium%20Media%20Package%20%7C%20Search%20Illustration.png)
+
+## Licenciamiento simplificado
+
+- Todos los activos están incluidos bajo licencia comercial.
+- No se requiere gestión adicional de licencias.
+
+## Concéntrese en sus apps, no en buscar recursos
+
+No pierda más horas buscando iconos, ilustraciones o animaciones externas. Cree aplicaciones visualmente impresionantes directamente en Lowcoder — rápido, legal y profesional.
+
+## Tabla de precios
+
+| Tipo de usuario | Precio mensual por usuario |
+|--------------------|------------------------|
+| por usuario (Administrador o Editor de Aplicaciones) al mes<br/>(vinculado al espacio de trabajo seleccionado) | €24.90 |
+`,
 "de": `
-  # Medienpaket-Abonnement
-  
-  ## Übersicht
-  
-  ... (Add German description)
-      `
+# Lowcoder Premium Media Package Abonnement
+
+## Übersicht
+
+**Die Nutzung und der Zugang zu Lowcoder bleiben wie immer kostenlos. Das Media Package Abonnement ist ein zusätzlicher Service und ermöglicht den Zugriff auf eine umfangreiche professionelle Medienbibliothek direkt im App-Editor und in all Ihren Apps.**
+
+**Media Package** ist ein "pro Benutzer, pro Monat und innerhalb eines einzelnen Workspaces" Abonnement. Das bedeutet, jeder Administrator oder App-Editor (Entwickler), der das Premium Media Package innerhalb eines Workspaces nutzen möchte, benötigt ein aktives Abonnement. Normale App-Viewer (Mitglieder) benötigen selbstverständlich kein Abonnement.
+
+## Professionelle Visuals freischalten
+
+Mit dem Premium Media Package erhalten Sie vollen Zugriff auf:
+
+- **9 Millionen Icons** in diversen modernen und klassischen Designstilen
+- **630.000 professionelle Animationen**, inklusive Lottie- und JSON-Formaten
+- **580.000 hochwertige Illustrationen** für jeden Anwendungsfall
+- **540.000 3D-Illustrationen** für visuelle Apps der nächsten Generation
+
+Alle Assets sind bereits lizensiert und dürfen **für private und kommerzielle Zwecke** innerhalb Ihrer Lowcoder Apps verwendet werden.
+
+## Direkte Editor-Integration
+
+Das Media Package ist nahtlos in den App-Editor integriert:
+- Direkte Suche & Einfügen innerhalb des Eigenschaften-Panels für Icons, Bilder und Lottie-Animationen.
+- Dynamische Vorschauen von Animationen, Icons, Illustrationen und 3D-Assets.
+- Automatische Anpassung an Layout und Design.
+- Ständig aktualisierter und kuratierter Inhalt.
+
+### Beispiel Animation
+
+![image](https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Premium%20Media%20Package%20%7C%20Search%20Animation.png)
+
+### Beispiel Illustration
+
+![image](https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Premium%20Media%20Package%20%7C%20Search%20Illustration.png)
+
+## Vereinfachte Lizenzierung
+
+- Alle Assets sind unter einer kommerziellen Lizenz enthalten.
+- Keine zusätzliche Lizenzverwaltung erforderlich.
+
+## Fokus auf Ihre Apps, nicht auf die Asset-Suche
+
+Keine Zeitverschwendung mehr beim Suchen von Icons, Illustrationen oder Animationen extern. Erstellen Sie visuell beeindruckende Apps direkt in Lowcoder — schnell, rechtssicher und professionell.
+
+## Preistabelle
+
+| Benutzertyp | Monatlicher Preis pro Benutzer |
+|--------------------|------------------------|
+| pro Benutzer (Administrator oder App-Editor) pro Monat<br/>(gebunden an den ausgewählten Workspace) | €24.90 |
+
+`
 }
   };
 

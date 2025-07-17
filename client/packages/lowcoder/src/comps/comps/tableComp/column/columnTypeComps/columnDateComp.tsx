@@ -9,10 +9,10 @@ import { withDefault } from "comps/generators";
 import { formatPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { isNumber } from "lodash";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { CalendarCompIconSmall, PrevIcon, SuperPrevIcon } from "lowcoder-design";
-import { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { DateParser, DATE_FORMAT } from "util/dateTimeUtils";
 
@@ -49,9 +49,7 @@ const DatePickerStyled = styled(DatePicker)<{ $open: boolean }>`
     top: 0.5px;
     display: flex;
     align-items: center;
-    // background: #fff;
     padding: 0 3px;
-    // border-left: 1px solid #d7d9e0;
   }
 `;
 
@@ -117,17 +115,22 @@ const StylePanel = styled.div`
   }
 `;
 
+const DatePickerPopup = styled.div`
+  border-radius: 8px;
+  box-shadow: 0 0 10px 0 rgba(0,0,0,0.10);
+  overflow: hidden;
+`;
+
 const Wrapper = styled.div`
   background: transparent !important;
 `;
 
 export function formatDate(date: string, format: string) {
   let mom = dayjs(date);
-  if (isNumber(Number(date)) && date !== "") {
+  if (isNumber(Number(date)) && !isNaN(Number(date)) && date !== "") {
     mom = dayjs(Number(date));
   }
   if (!mom.isValid()) {
-    // mom = dayjs.utc(date, DateParser).local();
     mom = dayjs.utc(date).local();
   }
 
@@ -140,8 +143,6 @@ const childrenMap = {
   inputFormat: withDefault(StringControl, DATE_FORMAT),
 };
 
-let inputFormat = DATE_FORMAT;
-
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.text;
 
 type DateEditProps = {
@@ -152,32 +153,72 @@ type DateEditProps = {
   inputFormat: string;
 };
 
-export const DateEdit = (props: DateEditProps) => {
+// Memoized DateEdit component
+export const DateEdit = React.memo((props: DateEditProps) => {
   const pickerRef = useRef<any>();
+  const mountedRef = useRef(true);
   const [panelOpen, setPanelOpen] = useState(true);
-  let value = dayjs(props.value, DateParser);
-  if (!value.isValid()) {
-    value = dayjs(0, DateParser);
-  }
+  
+  // Initialize tempValue with proper validation
+  const [tempValue, setTempValue] = useState<dayjs.Dayjs | null>(() => {
+    const initialValue = dayjs(props.value, DateParser);
+    return initialValue.isValid() ? initialValue : dayjs(0, DateParser);
+  });
 
-  const [tempValue, setTempValue] = useState<dayjs.Dayjs | null>(value);
+  // Memoize event handlers
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!mountedRef.current) return;
+    if (e.key === "Enter" && !panelOpen) {
+      props.onChangeEnd();
+    }
+  }, [panelOpen, props.onChangeEnd]);
 
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!mountedRef.current) return;
+    e.stopPropagation();
+    e.preventDefault();
+  }, []);
+
+  const handleOpenChange = useCallback((open: boolean) => {
+    if (!mountedRef.current) return;
+    setPanelOpen(open);
+  }, []);
+
+  const handleChange = useCallback((value: dayjs.Dayjs | null, dateString: string | string[]) => {
+    if (!mountedRef.current) return;
+    props.onChange(dateString as string);
+  }, [props.onChange]);
+
+  const handleBlur = useCallback(() => {
+    if (!mountedRef.current) return;
+    props.onChangeEnd();
+  }, [props.onChangeEnd]);
+
+  // Update tempValue when props.value changes
   useEffect(() => {
-    const value = props.value ? dayjs(props.value, DateParser) : null;
-    setTempValue(value);
-  }, [props.value])
+    if (!mountedRef.current) return;
+    
+    const newValue = props.value ? dayjs(props.value, DateParser) : null;
+    if (newValue?.isValid()) {
+      setTempValue(newValue);
+    }
+  }, [props.value]);
+
+  // Cleanup event listeners and state
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      setTempValue(null);
+      if (pickerRef.current) {
+        pickerRef.current = null;
+      }
+    };
+  }, []);
 
   return (
     <Wrapper
-      onKeyDown={(e) => {
-        if (e.key === "Enter" && !panelOpen) {
-          props.onChangeEnd();
-        }
-      }}
-      onMouseDown={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-      }}
+      onKeyDown={handleKeyDown}
+      onMouseDown={handleMouseDown}
     >
       <DatePickerStyled
         ref={pickerRef}
@@ -195,27 +236,25 @@ export const DateEdit = (props: DateEditProps) => {
         showTime={props.showTime}
         showNow={true}
         defaultOpen={true}
-        panelRender={(panelNode) => <StylePanel>{panelNode}</StylePanel>}
-        popupStyle={{
-          borderRadius: "8px",
-          boxShadow: "0 0 10px 0 rgba(0,0,0,0.10)",
-          overflow: "hidden",
-        }}
-        onOpenChange={(open) => setPanelOpen(open)}
-        onChange={(value, dateString) => {
-          props.onChange(dateString as string)
-        }}
-        onBlur={() => props.onChangeEnd()}
+        panelRender={(panelNode) => (
+          <DatePickerPopup>
+            <StylePanel>{panelNode}</StylePanel>
+          </DatePickerPopup>
+        )}
+        onOpenChange={handleOpenChange}
+        onChange={(date: unknown, dateString: string | string[]) => handleChange(date as Dayjs | null, dateString)}
+        onBlur={handleBlur}
       />
     </Wrapper>
   );
-};
+});
+
+DateEdit.displayName = 'DateEdit';
 
 export const DateComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
-      inputFormat = props.inputFormat;
       const value = props.changeValue ?? getBaseValue(props, dispatch);
       return formatDate(value, props.format);
     },
@@ -228,7 +267,7 @@ export const DateComp = (function () {
         onChange={props.onChange}
         onChangeEnd={props.onChangeEnd}
         showTime={false}
-        inputFormat={inputFormat}
+        inputFormat={props.otherProps?.inputFormat}
       />
     ))
     .setPropertyViewFn((children) => (

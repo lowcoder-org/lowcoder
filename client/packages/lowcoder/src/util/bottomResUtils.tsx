@@ -24,6 +24,8 @@ import {
   QueryLibraryIcon,
   RedisIcon,
   RestApiIcon,
+  AlasqlIcon,
+  StreamApiIcon,
   SMTPIcon,
   SnowflakeIcon,
   TempStateIcon,
@@ -106,6 +108,10 @@ export const getBottomResIcon = (
         return <MysqlIcon />;
       case "mongodb":
         return <MongoIcon />;
+      case "streamApi":
+        return <StreamApiIcon />;
+      case "alasql":
+        return <AlasqlIcon />;
       case "restApi":
         return httpMethod ? HttpMethodIcon[httpMethod] : <RestApiIcon />;
       case "postgres":

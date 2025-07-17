@@ -109,14 +109,11 @@ class ApplicationApi extends Api {
     permissionId: string
   ) => `/applications/${applicationId}/permissions/${permissionId}`;
   static createFromTemplateURL = `/applications/createFromTemplate`;
-  static publicToAllURL = (applicationId: string) =>
-    `/applications/${applicationId}/public-to-all`;
-  static publicToMarketplaceURL = (applicationId: string) =>
-    `/applications/${applicationId}/public-to-marketplace`;
-  static getMarketplaceAppURL = (applicationId: string) =>
-    `/applications/${applicationId}/view_marketplace`;
-  static setAppEditingStateURL = (applicationId: string) =>
-    `/applications/editState/${applicationId}`;
+  static publicToAllURL = (applicationId: string) => `/applications/${applicationId}/public-to-all`;
+  static publicToMarketplaceURL = (applicationId: string) => `/applications/${applicationId}/public-to-marketplace`;
+  static getMarketplaceAppURL = (applicationId: string) => `/applications/${applicationId}/view_marketplace`;
+  static setAppEditingStateURL = (applicationId: string) => `/applications/editState/${applicationId}`;
+  static getAvailableGroupsMembersURL = (applicationId: string) => `/applications/${applicationId}/groups-members/available`;
   static serverSettingsURL = () => `/serverSettings`;
 
   static fetchHomeData(
@@ -274,6 +271,10 @@ class ApplicationApi extends Api {
     return Api.post(ApplicationApi.createFromTemplateURL, null, {
       templateId: templateId,
     });
+  }
+
+  static getAvailableGroupsMembers(applicationId: string, search: string): AxiosPromise<any> {
+    return Api.get(ApplicationApi.getAvailableGroupsMembersURL(applicationId), {search})
   }
 
   /**

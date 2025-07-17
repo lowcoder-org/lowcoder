@@ -83,11 +83,19 @@ export const XAxisDirectionOptions = [
 
 export type XAxisDirectionType = ValueFromOption<typeof XAxisDirectionOptions>;
 
+export const defaultChartData = [
+  { date: "Jan", sales: 320, growth: 250 },
+  { date: "Feb", sales: 450, growth: 300 },
+  { date: "Mar", sales: 380, growth: 340 },
+  { date: "Apr", sales: 520, growth: 400 },
+  { date: "May", sales: 480, growth: 450 },
+  { date: "Jun", sales: 600, growth: 500 }
+];
 export const noDataAxisConfig = {
   animation: false,
   xAxis: {
     type: "category",
-    name: trans("chart.noData"),
+    name: "No Data Available",
     nameLocation: "middle",
     data: [],
     axisLine: {
@@ -243,8 +251,8 @@ const EchartsOptionComp = withType(EchartsOptionMap, "funnel");
 export type CharOptionCompType = keyof typeof ChartOptionMap;
 
 export const chartUiModeChildren = {
-  title: withDefault(StringControl, trans("echarts.defaultTitle")),
-  data: jsonControl(toJSONObjectArray, i18nObjs.defaultDataSource),
+  title: withDefault(StringControl, trans("lineChart.defaultTitle")),
+  data: jsonControl(toJSONObjectArray, defaultChartData),
   xAxisKey: valueComp<string>(""), // x-axis, key from data
   xAxisDirection: dropdownControl(XAxisDirectionOptions, "horizontal"),
   xAxisData: jsonControl(toArray, []),

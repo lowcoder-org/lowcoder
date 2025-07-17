@@ -30,6 +30,7 @@ import {
 import {
   clickEvent,
   eventHandlerControl,
+  doubleClickEvent,
 } from "comps/controls/eventHandlerControl";
 import {
   TimeLineStyle,
@@ -49,6 +50,7 @@ import { convertTimeLineData } from "./timelineUtils";
 import { default as Timeline } from "antd/es/timeline";
 import { EditorContext } from "comps/editorState";
 import { styled } from "styled-components";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 
 const TimelineWrapper = styled.div<{
   $style: TimeLineStyleType
@@ -69,6 +71,7 @@ const TimelineWrapper = styled.div<{
 
 const EventOptions = [
   clickEvent,
+  doubleClickEvent,
 ] as const;
 
 const modeOptions = [
@@ -110,6 +113,8 @@ const TimelineComp = (
 ) => {
   const { value, dispatch, style, mode, reverse, onEvent } = props;
   const [icons, setIcons] = useState<React.ReactNode[]>([]);
+  const handleClickEvent = useCompClickEventHandler({onEvent})
+
   useEffect(() => {
     const loadIcons = async () => {
       const iconComponents = await Promise.all(
@@ -140,11 +145,17 @@ const TimelineComp = (
             e.preventDefault();
             dispatch(changeChildAction("clickedObject", value, false));
             dispatch(changeChildAction("clickedIndex", index, false));
-            onEvent("click");
+            handleClickEvent()
           }}
+          // for responsiveness
           style={{
             cursor: "pointer",
             color: value?.titleColor || style?.titleColor,
+            whiteSpace: "normal",
+            wordWrap: "break-word",
+            textAlign: "left",
+            height: "auto",
+            padding: "0"
           }}
         >
           <b>{value?.title}</b>

@@ -41,4 +41,6 @@ public interface GroupMemberService {
 
     Mono<Boolean> bulkRemoveMember(String groupId, Collection<String> userIds);
 
+    Mono<List<GroupMember>> getGroupMembersByIdAndRole(String groupId, String role);
+
 }

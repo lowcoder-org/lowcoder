@@ -446,12 +446,19 @@ export const LeftContent = (props: LeftContentProps) => {
         </span>
         {info?.show && data && (
           <Modal
-            title={data.name}
+            title={
+              <div>
+                <div>{data.name}</div>
+                <div style={{ fontSize: '12px', color: '#666', fontWeight: 'normal', marginTop: '4px' }}>
+                  <strong>Type:</strong> {data.type}
+                </div>
+              </div>
+            }
             open={info.show}
             onOk={() => setShowData([])}
             cancelButtonProps={{ style: { display: 'none' } }}
             closable={false}
-            destroyOnClose={true}
+            destroyOnHidden={true}
             maskClosable={false}
             okText={trans("modalComp.close")}
           >

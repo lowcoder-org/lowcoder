@@ -12,7 +12,7 @@ import {
   TacoButton,
 } from "lowcoder-design";
 import _ from "lodash";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "redux/reducers";
 import { fetchDatasourceStructure } from "redux/reduxActions/datasourceActions";
@@ -23,12 +23,14 @@ import { getDataSourceTypeConfig } from "./generate";
 import { DataSourceTypeConfig, TableColumn } from "./generate/dataSourceCommon";
 import { CompConfig } from "./generate/comp";
 import { uiCompRegistry } from "comps/uiCompRegistry";
-import { arrayMove, SortableContainer, SortableElement, SortableHandle } from "react-sortable-hoc";
 import { trans } from "i18n";
 import log from "loglevel";
 import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import DataSourceIcon from "components/DataSourceIcon";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { DndContext } from "@dnd-kit/core";
+import { SortableContext, useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 const OpenDialogButton = styled.span`
   &:hover {
@@ -421,20 +423,26 @@ const CustomEditText = (props: {
   );
 };
 
-const DragHandle = SortableHandle(() => <StyledDragIcon />);
-
-const SortableItem = SortableElement<{
-  item: RowItem,
-  form: FormInstance,
-}>((props: { item: RowItem; form: FormInstance }) => {
+const SortableItem = (props: { item: RowItem; form: FormInstance; index: number }) => {
   const { item, form } = props;
   const { columnName, columnType, compItems } = item;
   const disabled = !Form.useWatch(["columns", columnName, "enabled"], form);
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id: String(props.index),
+  });
+
   return (
-    <DataRow disabled={disabled}>
+    <DataRow
+      ref={setNodeRef}
+      disabled={disabled}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
+    >
       <CellName>
         <LineWrapper>
-          <DragHandle />
+          <StyledDragIcon {...attributes} {...listeners} />
           <FormItem
             name={["columns", columnName, "enabled"]}
             valuePropName="checked"
@@ -477,12 +485,9 @@ const SortableItem = SortableElement<{
       </CellRequired>
     </DataRow>
   );
-});
+};
 
-const SortableBody = SortableContainer<{
-  items: RowItem[],
-  form: FormInstance,
-}>((props: { items: RowItem[]; form: FormInstance }) => {
+const SortableBody = (props: { items: RowItem[]; form: FormInstance }) => {
   return (
     <DataBody>
       {props.items.map((t, index) => {
@@ -498,7 +503,7 @@ const SortableBody = SortableContainer<{
       })}
     </DataBody>
   );
-});
+};
 
 function getEmptyText(dataSourceNum: number, tableNum: number, columnNum: number): string {
   if (dataSourceNum === 0) {
@@ -547,13 +552,22 @@ const CreateFormBody = (props: { onCreate: CreateHandler }) => {
   const dataSourceId: string | undefined = Form.useWatch("dataSourceId", form);
   const dataSourceItems = useDataSourceItems();
   const dataSourceItem = dataSourceItems.find((t) => t.dataSource.id === dataSourceId);
+  
+  // Cleanup form on unmount
+  useEffect(() => {
+    return () => {
+      form.resetFields();
+    };
+  }, [form]);
+
   // default to the first item
   useEffect(() => {
     if (!dataSourceItem) {
       const id = dataSourceItems.length > 0 ? dataSourceItems[0].dataSource.id : undefined;
       form.setFieldsValue({ dataSourceId: id });
     }
-  }, [dataSourceItems]);
+  }, [dataSourceItems, dataSourceItem, form]);
+
   // Refetch when changed
   const dispatch = useDispatch();
   useEffect(() => {
@@ -565,23 +579,45 @@ const CreateFormBody = (props: { onCreate: CreateHandler }) => {
   const tableName: string | undefined = Form.useWatch("tableName", form);
   const tableStructures = useTableStructures(dataSourceId);
   const tableStructure = tableStructures.find((t) => t.name === tableName);
+  
   // default to the first one
   useEffect(() => {
     if (!tableStructure) {
       const name = tableStructures.length > 0 ? tableStructures[0].name : undefined;
       form.setFieldsValue({ tableName: name });
     }
-  }, [tableStructures]);
+  }, [tableStructures, tableStructure, form]);
+
   // Columns of the data table, saved to support drag and drop
   const [items, setItems] = useState<RowItem[]>([]);
   const dataSourceTypeConfig = dataSourceItem?.typeConfig;
+  
   useEffect(() => {
     const { initItems, initColumns } = getInitItemsAndColumns(dataSourceTypeConfig, tableStructure);
     // Set the initial value by the method. Because if another table has the same column name, setting via initialValue is invalid.
     form.setFieldsValue({ columns: initColumns });
     setItems(initItems);
-  }, [dataSourceTypeConfig, tableStructure]);
+  }, [dataSourceTypeConfig, tableStructure, form]);
+  
+  const handleDragEnd = useCallback((e: { active: { id: string }; over: { id: string } | null }) => {
+    if (!e.over) {
+      return;
+    }
+    const fromIndex = Number(e.active.id);
+    const toIndex = Number(e.over.id);
+    if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) {
+      return;
+    }
+    
+    const newData = [...items];
+    const [movedItem] = newData.splice(fromIndex, 1);
+    newData.splice(toIndex, 0, movedItem);
+
+    setItems(newData);
+  }, [items]);
+  
   const emptyText = getEmptyText(dataSourceItems.length, tableStructures.length, items.length);
+  
   return (
     <>
       <Form form={form} preserve={false}>
@@ -633,16 +669,18 @@ const CreateFormBody = (props: { onCreate: CreateHandler }) => {
               <CellComp $head={true}>{trans("formComp.compType")}</CellComp>
               <CellRequired $head={true}>{trans("formComp.required")}</CellRequired>
             </HeaderRow>
-            <SortableBody
-              items={items}
-              form={form}
-              useDragHandle
-              onSortEnd={({ oldIndex, newIndex }) => {
-                if (oldIndex !== newIndex) {
-                  setItems(arrayMove(items, oldIndex, newIndex));
-                }
-              }}
-            />
+            <DndContext
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={items.map((_, itemIdx) => String(itemIdx))}
+              >
+                <SortableBody
+                  items={items}
+                  form={form}
+                />
+              </SortableContext>
+            </DndContext>
             <ModalFooterWrapper>
               <TacoButton
                 buttonType="primary"
@@ -661,27 +699,40 @@ const CreateFormBody = (props: { onCreate: CreateHandler }) => {
 
 export const CreateForm = (props: { onCreate: CreateHandler }) => {
   const [visible, setVisible] = useState(false);
+  
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    setVisible(true);
+    e.stopPropagation();
+  }, []);
+  
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    e.stopPropagation();
+  }, []);
+  
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
+  
+  const handleCancel = useCallback(() => {
+    setVisible(false);
+  }, []);
+
   return (
     <>
-      <OpenDialogButton
-        onMouseDown={(e) => {
-          setVisible(true);
-          e.stopPropagation();
-        }}
-      >
+      <OpenDialogButton onMouseDown={handleMouseDown}>
         {trans("formComp.openDialogButton")}
       </OpenDialogButton>
       <div
-        onKeyDown={(e) => e.stopPropagation()}
-        onMouseDown={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}
+        onKeyDown={handleKeyDown}
+        onMouseDown={handleMouseDown}
+        onClick={handleClick}
       >
         <CustomModal
           open={visible}
-          destroyOnClose={true}
+          destroyOnHidden={true}
           title={trans("formComp.generateForm")}
           footer={null}
-          onCancel={() => setVisible(false)}
+          onCancel={handleCancel}
           width="600px"
           children={<CreateFormBody {...props} />}
           styles={{ body: {padding: 0} }}

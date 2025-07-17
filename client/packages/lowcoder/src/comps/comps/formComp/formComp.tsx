@@ -60,6 +60,7 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { styled } from "styled-components";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import { StringControl } from "comps/controls/codeControl";
 
 const FormWrapper = styled.div`
   height: 100%;
@@ -80,7 +81,8 @@ const childrenMap = {
   disableSubmit: BoolCodeControl,
   loading: BoolCodeControl,
   onEvent: eventHandlerControl(eventOptions),
-  animationStyle: styleControl(AnimationStyle)
+  animationStyle: styleControl(AnimationStyle),
+  invalidFormMessage: StringControl
 };
 
 type FormProps = TriContainerViewProps &
@@ -167,14 +169,18 @@ function onCreate(
 const BodyPlaceholder = (props: FormProps) => {
   const editorState = useContext(EditorContext);
   const formName = useContext(CompNameContext);
+  
+  const handleCreate = (data: CreateData) => {
+    const result = onCreate(data, props, editorState, formName);
+    return Promise.resolve(result);
+  };
+  
   return (
     <ContainerPlaceholder>
       {trans("formComp.containerPlaceholder")}
       <br />
       <CreateForm
-        onCreate={(data: CreateData) =>
-          Promise.resolve(onCreate(data, props, editorState, formName))
-        }
+        onCreate={handleCreate}
       />
     </ContainerPlaceholder>
   );
@@ -202,13 +208,17 @@ const FormBaseComp = (function () {
     );
   })
     .setPropertyViewFn((children) => {
+      const editorContext = useContext(EditorContext);
+      const isLogicMode = editorContext.editorModeStatus === "logic" || editorContext.editorModeStatus === "both";
+      const isLayoutMode = editorContext.editorModeStatus === "layout" || editorContext.editorModeStatus === "both";
+      
       return (
         <>
           <Section name={sectionNames.basic}>
             {children.resetAfterSubmit.propertyView({ label: trans("formComp.resetAfterSubmit") })}
           </Section>
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {isLogicMode && (
             <><Section name={sectionNames.interaction}>
                 {children.onEvent.getPropertyView()}
                 {disabledPropertyView(children)}
@@ -219,7 +229,7 @@ const FormBaseComp = (function () {
             </>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          {isLayoutMode && (
             <>
               <Section name={sectionNames.layout}>
                 {children.container.getPropertyView()}
@@ -227,13 +237,14 @@ const FormBaseComp = (function () {
             </>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {isLogicMode && (
             <Section name={sectionNames.advanced}>
               {children.initialData.propertyView({ label: trans("formComp.initialData") })}
+              {children.invalidFormMessage.propertyView({ label: trans("formComp.invalidFormMessage") })}
             </Section>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          {isLayoutMode && (
             <>
               <Section name={sectionNames.style}>
                 {children.container.stylePropertyView()}
@@ -363,7 +374,8 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
         return Promise.resolve();
       });
     } else {
-      messageInstance.error(trans("formComp.notValidForm"));
+      const customMessage = this.children.invalidFormMessage.getView();
+      messageInstance.error(customMessage || trans("formComp.notValidForm"));
       return Promise.reject("formComp.notValidForm");
     }
   }
@@ -375,9 +387,7 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
       case CompActionTypes.UPDATE_NODES_V2: {
         const ret = super.reduce(action);
         // When the initial value changes, update the form
-        if (ret.children.initialData !== this.children.initialData) {
-          // FIXME: kill setTimeout ?
-          setTimeout(() => {
+          requestAnimationFrame(() => {
             this.dispatch(
               customAction<SetDataAction>(
                 {
@@ -388,7 +398,6 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
               )
             );
           });
-        }
         return ret;
       }
       case CompActionTypes.CUSTOM:

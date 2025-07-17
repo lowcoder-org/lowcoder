@@ -1,6 +1,6 @@
 import { EditorContext } from "comps/editorState";
 import { EditorContainer } from "pages/common/styledComponent";
-import React, { Profiler, useContext, useMemo, useRef, useState } from "react";
+import React, { Profiler, useContext, useMemo, useRef, useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { profilerCallback } from "util/cacheUtils";
 import {
@@ -97,10 +97,69 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
   const isDefaultTheme = useContext(ThemeContext)?.themeId === 'default-theme-id';
   const isPreviewTheme = useContext(ThemeContext)?.themeId === 'preview-theme';
   const editorState = useContext(EditorContext);
-  const [dragSelectedComps, setDragSelectedComp] = useState(EmptySet);
-  const scrollContainerRef = useRef(null);
+  const [dragSelectedComps, setDragSelectedComp] = useState<Set<string>>(new Set());
+  const currentSelectionRef = useRef<Set<string>>(new Set());
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const mountedRef = useRef(true);
   const appSettings = editorState.getAppSettings();
   const maxWidthFromHook = useMaxWidth();
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      setDragSelectedComp(new Set());
+      currentSelectionRef.current = new Set();
+    };
+  }, []);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    currentSelectionRef.current = dragSelectedComps;
+  }, [dragSelectedComps]);
+
+  // Memoized drag selection handler
+  const handleDragSelection = useCallback((checkSelectFunc?: CheckSelectFn) => {
+    if (!mountedRef.current) return new Set<string>();
+    
+    const selectedComps = new Set<string>();
+    if (checkSelectFunc) {
+      Object.values(props.layout).forEach((layoutItem) => {
+        const key = layoutItem.i;
+        if (props.items.hasOwnProperty(key)) {
+          const item = props.items[key];
+          const name = item.name;
+          const element = document.getElementById(key);
+          if (element) {
+            checkSelectFunc(
+              element as HTMLDivElement,
+              (result) => (result ? selectedComps.add(name) : selectedComps.delete(name))
+            );
+          }
+        }
+      });
+    }
+    return selectedComps;
+  }, [props.items, props.layout]);
+
+  const handleMouseMove = useCallback((checkSelectFunc: CheckSelectFn) => {
+    if (mountedRef.current) {
+      const selectedName = handleDragSelection(checkSelectFunc);
+      setDragSelectedComp(new Set(selectedName));
+    }
+  }, [handleDragSelection]);
+
+  const handleMouseUp = useCallback(() => {
+    if (mountedRef.current) {
+      const currentSelection = new Set(currentSelectionRef.current);
+      setDragSelectedComp(new Set());
+      editorState.setSelectedCompNames(currentSelection);
+    }
+  }, [editorState]);
+
+  const handleMouseDown = useCallback(() => {
+    setDragSelectedComp(new Set());
+  }, []);
 
   const maxWidth = useMemo(
     () => appSettings.maxWidth ?? maxWidthFromHook,
@@ -291,17 +350,9 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
           $bgImagePosition={bgImagePosition}
         >
           <DragSelector
-            onMouseDown={() => {
-              setDragSelectedComp(EmptySet);
-            }}
-            onMouseUp={() => {
-              editorState.setSelectedCompNames(dragSelectedComps);
-              setDragSelectedComp(EmptySet);
-            }}
-            onMouseMove={(checkSelectFunc) => {
-              const selectedName = getDragSelectedNames(props.items, props.layout, checkSelectFunc);
-              setDragSelectedComp(selectedName);
-            }}
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
+            onMouseMove={handleMouseMove}
           >
             <Profiler id="Panel" onRender={profilerCallback}>
               <InnerGrid
@@ -318,7 +369,7 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
                 positionParams={positionParams}
                 emptyRows={defaultRowCount}
                 minHeight={defaultMinHeight}
-                extraHeight={defaultRowCount === DEFAULT_ROW_COUNT ? rootContainerExtraHeight : undefined }
+                extraHeight={defaultRowCount === DEFAULT_ROW_COUNT ? rootContainerExtraHeight : undefined}
               />
             </Profiler>
           </DragSelector>

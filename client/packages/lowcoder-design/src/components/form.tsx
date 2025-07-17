@@ -1,5 +1,5 @@
 import { default as Form } from "antd/es/form";
-import { default as AntdFormItem, FormItemProps as AntdFormItemProps } from "antd/es/form/FormItem";
+import { default as AntdFormItem, FormItemProps as AntdFormItemProps} from "antd/es/form/FormItem";
 import { default as Input, InputProps } from "antd/es/input";
 import { default as TextArea, TextAreaProps } from "antd/es/input/TextArea";
 import { default as InputNumber, InputNumberProps } from "antd/es/input-number";
@@ -331,7 +331,7 @@ const FormSelect = (props: any) => {
         }}
         popupMatchSelectWidth={false}
         placeholder={props.placeholder}
-        dropdownRender={props.dropdownRender}
+        popupRender={props.dropdownRender}
       >
         {props.options?.map((item: any) => {
           return (

@@ -28,7 +28,6 @@ import { TacoButton } from "components/button";
 import copy from "copy-to-clipboard";
 import { StyledLoading } from "./commonComponents";
 import { PermissionRole } from "./Permission";
-import { SHARE_TITLE } from "../../constants/apiConstants";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { default as Divider } from "antd/es/divider";
 import { default as Form } from "antd/es/form";
@@ -37,6 +36,7 @@ import StepModal from "../StepModal";
 import { AddIcon } from "icons";
 import { GreyTextColor } from "constants/style";
 import { VersionDataForm } from "@lowcoder-ee/pages/common/versionDataForm";
+import { SocialShareButtons } from "components/SocialShareButtons";
 
 const BottomWrapper = styled.div`
   margin: 12px 16px 0 16px;
@@ -351,6 +351,7 @@ function AppShareView(props: {
   useEffect(() => {
     setPublicToMarketplace(permissionInfo.publicToMarketplace);
   }, [permissionInfo.publicToMarketplace]);
+  const inviteLink = window.location.origin + APPLICATION_VIEW_URL(props.applicationId, "view");
 
   return (
     <div style={{ marginBottom: "22px" }}>

@@ -22,7 +22,7 @@ import {
 import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
-import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
+import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, DisabledInputStyle, DisabledInputStyleType } from "comps/controls/styleControlConstants";
 import { TextArea } from "components/TextArea";
 import {
   allowClearPropertyView,
@@ -33,6 +33,7 @@ import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { TextAreaRef } from "antd/es/input/TextArea";
 import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
+import { NumberControl } from "comps/controls/codeControl";
 
 import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
@@ -40,10 +41,20 @@ import { migrateOldData } from "comps/generators/simpleGenerators";
 
 const TextAreaStyled = styled(TextArea)<{
   $style: InputLikeStyleType;
+  $disabledStyle?: DisabledInputStyleType;
 }>`
   box-shadow: ${(props) =>
     `${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
   ${(props) => props.$style && getStyle(props.$style)}
+  
+  /* Disabled state styling */
+  &:disabled,
+  &.ant-input-disabled {
+    color: ${(props) => props.$disabledStyle?.disabledText};
+    background: ${(props) => props.$disabledStyle?.disabledBackground};
+    border-color: ${(props) => props.$disabledStyle?.disabledBorder};
+    cursor: not-allowed;
+  }
 `;
 
 const Wrapper = styled.div<{
@@ -80,7 +91,9 @@ let TextAreaTmpComp = (function () {
     labelStyle: styleControl(LabelStyle ,'labelStyle' ),
     textAreaScrollBar: withDefault(BoolControl, false),
     inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'),
-    animationStyle: styleControl(AnimationStyle, 'animationStyle')
+    animationStyle: styleControl(AnimationStyle, 'animationStyle'),
+    disabledStyle: styleControl(DisabledInputStyle, 'disabledStyle'),
+    tabIndex: NumberControl
   };
   return new UICompBuilder(childrenMap, (props) => {
     const [inputProps, validateState] = useTextInputProps(props);
@@ -96,6 +109,8 @@ let TextAreaTmpComp = (function () {
             allowClear={props.allowClear}
             style={{ height: "100% !important", resize: "vertical" }}
             $style={props.inputFieldStyle}
+            $disabledStyle={props.disabledStyle}
+            tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
           />
         </Wrapper>
       ),
@@ -128,6 +143,7 @@ let TextAreaTmpComp = (function () {
             <Section name={sectionNames.advanced}>
               {allowClearPropertyView(children)}
               {readOnlyPropertyView(children)}
+              {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
             </Section>
             <TextInputValidationSection {...children} /></>
         )}
@@ -137,6 +153,7 @@ let TextAreaTmpComp = (function () {
             <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
             <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
             <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
+            <Section name={trans("prop.disabledStyle")}>{children.disabledStyle.getPropertyView()}</Section>
             <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
           </>
         )}

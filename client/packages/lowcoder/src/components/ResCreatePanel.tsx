@@ -17,6 +17,7 @@ import { Datasource } from "constants/datasourceConstants";
 import {
   QUICK_GRAPHQL_ID,
   QUICK_REST_API_ID,
+  JS_CODE_ID,
 } from "../constants/datasourceConstants";
 import { ResourceType } from "constants/queryConstants";
 import { default as Upload } from "antd/es/upload";
@@ -25,6 +26,7 @@ import { getUser } from "../redux/selectors/usersSelectors";
 import DataSourceIcon from "./DataSourceIcon";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
+import { CurlImportModal } from "./CurlImport";
 
 const Wrapper = styled.div<{ $placement: PageType }>`
   width: 100%;
@@ -145,6 +147,7 @@ const ResButton = (props: {
       type: BottomResTypeEnum.Query,
       extra: {
         compType: "js",
+        dataSourceId: JS_CODE_ID,
       },
     },
     libraryQuery: {
@@ -228,6 +231,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
   const { onSelect, onClose, recentlyUsed, datasource, placement = "editor" } = props;
   const [isScrolling, setScrolling] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [curlModalVisible, setCurlModalVisible] = useState(false);
 
   const isPublicApp = useSelector(isPublicApplication);
   const user = useSelector(getUser);
@@ -241,6 +245,14 @@ export function ResCreatePanel(props: ResCreateModalProps) {
     const top = e.target.scrollTop;
     setScrolling(top > 0);
   }, 100);
+
+  const handleCurlImportSuccess = (parsedData: any) => {
+    onSelect(BottomResTypeEnum.Query, {
+      compType: "restApi", 
+      dataSourceId: QUICK_REST_API_ID,
+      curlData: parsedData
+    });
+  };
 
   return (
     <Wrapper $placement={placement}>
@@ -263,6 +275,11 @@ export function ResCreatePanel(props: ResCreateModalProps) {
                   .map((id, idx) => (
                     <ResButton key={idx} size={buttonSize} identifier={id} onSelect={onSelect} />
                   ))}
+                <ResButton
+                  size={buttonSize}
+                  identifier={BottomResTypeEnum.Folder}
+                  onSelect={onSelect}
+                />
               </DataSourceListWrapper>
             </div>
 
@@ -271,28 +288,8 @@ export function ResCreatePanel(props: ResCreateModalProps) {
                 <div className="section-title">{trans("code")}</div>
                 <div className="section">
                   <DataSourceListWrapper $placement={placement}>
-                    <ResButton
-                      size={buttonSize}
-                      identifier={BottomResTypeEnum.TempState}
-                      onSelect={onSelect}
-                    />
-                    <ResButton
-                      size={buttonSize}
-                      identifier={BottomResTypeEnum.Transformer}
-                      onSelect={onSelect}
-                    />
-                    <ResButton
-                      size={buttonSize}
-                      identifier={BottomResTypeEnum.DateResponder}
-                      onSelect={onSelect}
-                    />
                     <ResButton size={buttonSize} identifier={"js"} onSelect={onSelect} />
-                    {!isPublicApp && <ResButton size={buttonSize} identifier={"libraryQuery"} onSelect={onSelect} /> }
-                    <ResButton
-                      size={buttonSize}
-                      identifier={BottomResTypeEnum.Folder}
-                      onSelect={onSelect}
-                    />
+                    <ResButton size={buttonSize} identifier={BottomResTypeEnum.TempState} onSelect={onSelect} />
                   </DataSourceListWrapper>
                 </div>
               </>
@@ -320,14 +317,55 @@ export function ResCreatePanel(props: ResCreateModalProps) {
                 </div>
               </>
             )}
+                      
+            {placement === "queryLibrary" && (
+              <>
+                <div className="section-title">{trans("code")}</div>
+                <div className="section">
+                  <DataSourceListWrapper $placement={placement}>
+                    <ResButton size={buttonSize} identifier={"js"} onSelect={onSelect} />
+                  </DataSourceListWrapper>
+                </div>
+              </>
+            )}
 
-            <div className="section-title">{trans("query.datasource")}</div>
+            <div className="section-title">{trans("query.preparedDataQueries")}</div>
+            <div className="section">
+              {!isPublicApp && <ResButton size={buttonSize} identifier={"libraryQuery"} onSelect={onSelect} /> }
+            </div>
+
+            <div className="section-title">{trans("query.adHocDataQueries")}</div>
             <div className="section">
               <DataSourceListWrapper $placement={placement}>
                 <ResButton size={buttonSize} identifier={"restApi"} onSelect={onSelect} />
                 <ResButton size={buttonSize} identifier={"streamApi"} onSelect={onSelect} />
                 <ResButton size={buttonSize} identifier={"alasql"} onSelect={onSelect} />
                 <ResButton size={buttonSize} identifier={"graphql"} onSelect={onSelect} />
+                <DataSourceButton size={buttonSize} onClick={() => setCurlModalVisible(true)}>
+                  <DataSourceIcon size="large" dataSourceType="restApi" />
+                  Import from cURL
+                </DataSourceButton>
+              </DataSourceListWrapper>
+            </div>
+
+            <div className="section-title">{trans("query.queryResultTransformer")}</div>
+            <div className="section">
+              <DataSourceListWrapper $placement={placement}>
+                <ResButton size={buttonSize} identifier={BottomResTypeEnum.Transformer} onSelect={onSelect} />
+              </DataSourceListWrapper>
+            </div>
+
+            <div className="section-title">{trans("query.queryResultReactor")}</div>
+            <div className="section">
+              <DataSourceListWrapper $placement={placement}>
+                <ResButton size={buttonSize} identifier={BottomResTypeEnum.DateResponder} onSelect={onSelect} />
+              </DataSourceListWrapper>
+            </div>
+
+            <div className="section-title">{trans("query.datasource")}</div>
+            <div className="section">
+              <DataSourceListWrapper $placement={placement}>
+                
                 {datasource.map((i) => (
                   <ResButton size={buttonSize} key={i.id} identifier={i} onSelect={onSelect} />
                 ))}
@@ -349,6 +387,11 @@ export function ResCreatePanel(props: ResCreateModalProps) {
         open={visible}
         onCancel={() => setVisible(false)}
         onCreated={() => setVisible(false)}
+      />
+      <CurlImportModal
+        open={curlModalVisible}
+        onCancel={() => setCurlModalVisible(false)}
+        onSuccess={handleCurlImportSuccess}
       />
     </Wrapper>
   );

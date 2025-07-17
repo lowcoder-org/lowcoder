@@ -62,12 +62,24 @@ export const AppUILayoutType: Record<AppTypeEnum, UiLayoutType> = {
 
 export type ApplicationDSLType = "editing" | "published" | "view_marketplace";
 export type ApplicationRoleType = "viewer" | "editor" | "owner";
-export type ApplicationPermissionType = "USER" | "GROUP" | "ORG_ADMIN";
+export type ApplicationPermissionType = "User" | "Group" | "ORG_ADMIN" | "USER" | "GROUP";
 
 export interface ApplicationExtra {
   moduleHeight?: number;
   moduleWidth?: number;
   layers?: boolean;
+}
+
+export type GroupsMembersPermission = {
+  type: string
+  data: {
+    groupGid?: string
+    groupId?: string
+    userId?: string
+    groupName?: string
+    name?: string
+    avatarUrl?: string
+  }
 }
 
 export interface ApplicationMeta {
@@ -81,6 +93,7 @@ export interface ApplicationMeta {
   title?: string;
   description?: string;
   image?: string;
+  icon?: string;
   category?: ApplicationCategoriesEnum;
   showheader?: boolean;
   orgId: string;

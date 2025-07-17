@@ -48,56 +48,13 @@ services:
     # Enabled ports to be able to access backend from host
     # ports:
     #   - "8080:8080"
-    environment:
-      LOWCODER_PUBLIC_URL: "http://localhost:3000/"
-      LOWCODER_PUID: "9001"
-      LOWCODER_PGID: "9001"
-      LOWCODER_MONGODB_URL: "mongodb://lowcoder:secret123@mongodb/lowcoder?authSource=admin"
-      LOWCODER_REDIS_URL: "redis://redis:6379"
-      LOWCODER_NODE_SERVICE_URL: "http://lowcoder-node-service:6060"
-      LOWCODER_MAX_QUERY_TIMEOUT: 120
-      LOWCODER_MAX_REQUEST_SIZE: 20m
-      LOWCODER_EMAIL_AUTH_ENABLED: "true"
-      LOWCODER_EMAIL_SIGNUP_ENABLED: "true"
-      LOWCODER_CREATE_WORKSPACE_ON_SIGNUP: "true"
-      #
-      # ! PLEASE CHANGE THESE TO SOMETHING UNIQUE !
-      # 
-      #    LOWCODER_DB_ENCRYPTION_PASSWORD and LOWCODER_DB_ENCRYPTION_SALT is used 
-      #    to encrypt sensitive data in database so it is important to change the defaults
-      #
-      LOWCODER_DB_ENCRYPTION_PASSWORD: "lowcoder.org"
-      LOWCODER_DB_ENCRYPTION_SALT: "lowcoder.org"
-      LOWCODER_CORS_DOMAINS: "*"
-      LOWCODER_MAX_ORGS_PER_USER: 100
-      LOWCODER_MAX_MEMBERS_PER_ORG: 1000
-      LOWCODER_MAX_GROUPS_PER_ORG: 100
-      LOWCODER_MAX_APPS_PER_ORG: 1000
-      LOWCODER_MAX_DEVELOPERS: 50
-      #
-      # API-KEY secret - should be a string of at least 32 random characters
-      #    - on linux/mac, generate one eg. with: head /dev/urandom | head -c 30 | shasum -a 256
-      #
-      LOWCODER_API_KEY_SECRET: "5a41b090758b39b226603177ef48d73ae9839dd458ccb7e66f7e7cc028d5a50b"
-      LOWCODER_PLUGINS_DIR: "../plugins"
-      LOWCODER_API_RATE_LIMIT: 50
-      LOWCODER_WORKSPACE_MODE: SAAS
-      LOWCODER_MARKETPLACE_PRIVATE_MODE: "true"
-      # Lowcoder notification emails setup
-      LOWCODER_ADMIN_SMTP_HOST: smtp.gmail.com
-      LOWCODER_ADMIN_SMTP_PORT: 587
-      LOWCODER_ADMIN_SMTP_USERNAME:
-      LOWCODER_ADMIN_SMTP_PASSWORD:
-      LOWCODER_ADMIN_SMTP_AUTH: "true"
-      LOWCODER_ADMIN_SMTP_SSL_ENABLED: "false"
-      LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED: "true"
-      LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED: "true"
-      # Email used as sender in lost password email
-      LOWCODER_EMAIL_NOTIFICATIONS_SENDER: info@localhost
-      # Lowcoder superuser details
-      LOWCODER_SUPERUSER_USERNAME: admin@localhost
-      # If left blank, a password will be generated and written into api-service log
-      LOWCODER_SUPERUSER_PASSWORD:
+    env_file:
+      - path: ./default.env
+        required: true
+      - path: ./default-multi.env
+        required: true
+      - path: ./override.env
+        required: false
     restart: unless-stopped
     depends_on:
       mongodb:
@@ -122,10 +79,13 @@ services:
     # Enabled ports to be able to access backend from host
     # ports:
     #   - "6060:6060"
-    environment:
-      LOWCODER_PUID: "9001"
-      LOWCODER_PGID: "9001"
-      LOWCODER_API_SERVICE_URL: "http://lowcoder-api-service:8080"
+    env_file:
+      - path: ./default.env
+        required: true
+      - path: ./default-multi.env
+        required: true
+      - path: ./override.env
+        required: false
     restart: unless-stopped
     depends_on:
       lowcoder-api-service:
@@ -145,13 +105,13 @@ services:
     container_name: lowcoder-frontend
     ports:
       - "3000:3000"
-    environment:
-      LOWCODER_PUID: "9001"
-      LOWCODER_PGID: "9001"
-      LOWCODER_MAX_REQUEST_SIZE: 20m
-      LOWCODER_MAX_QUERY_TIMEOUT: 120
-      LOWCODER_API_SERVICE_URL: "http://lowcoder-api-service:8080"
-      LOWCODER_NODE_SERVICE_URL: "http://lowcoder-node-service:6060"
+    env_file:
+      - path: ./default.env
+        required: true
+      - path: ./default-multi.env
+        required: true
+      - path: ./override.env
+        required: false
     restart: unless-stopped
     depends_on:
       lowcoder-node-service:
@@ -162,6 +122,7 @@ services:
         restart: true
     volumes:
       - ./lowcoder-stacks/assets:/lowcoder/assets
+      - ./lowcoder-stacks/ssl:/lowcoder-stacks/ssl
     healthcheck:
       test: curl --fail http://lowcoder-frontend:3000 || exit 1
       interval: 5s

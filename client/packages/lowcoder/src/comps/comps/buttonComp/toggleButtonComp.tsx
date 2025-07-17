@@ -12,7 +12,7 @@ import { trans } from "i18n";
 import styled from "styled-components";
 import { ChangeEventHandlerControl } from "../../controls/eventHandlerControl";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
-import { Button100, ButtonCompWrapper, buttonRefMethods } from "./buttonCompConstants";
+import { Button100, ButtonCompWrapper, buttonRefMethods, DisabledButtonStyleControl } from "./buttonCompConstants";
 import { IconControl } from "comps/controls/iconControl";
 import { AlignWithStretchControl, LeftRightControl } from "comps/controls/dropdownControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
@@ -26,6 +26,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import { RefControl } from "comps/controls/refControl";
 import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState"; 
+import { Tooltip } from "antd";
 
 const IconWrapper = styled.div`
   display: flex;
@@ -62,9 +63,11 @@ const ToggleTmpComp = (function () {
     iconPosition: LeftRightControl,
     alignment: AlignWithStretchControl,
     style: styleControl(ToggleButtonStyle , 'style'),
+    disabledStyle: DisabledButtonStyleControl,
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
     showBorder: withDefault(BoolControl, true),
     viewRef: RefControl<HTMLElement>,
+    tooltip: StringControl,
   };
   return new UICompBuilder(childrenMap, (props) => {
     const text = props.showText
@@ -78,20 +81,23 @@ const ToggleTmpComp = (function () {
         $showBorder={props.showBorder}
         $animationStyle={props.animationStyle}
       >
-        <Button100
-          ref={props.viewRef}
-          $buttonStyle={props.style}
-          loading={props.loading}
-          disabled={props.disabled}
-          onClick={() => {
-            props.onEvent("change");
-            props.value.onChange(!props.value.value);
-          }}
-        >
-          {props.iconPosition === "right" && text}
-          {<IconWrapper>{props.value.value ? props.trueIcon : props.falseIcon}</IconWrapper>}
-          {props.iconPosition === "left" && text}
-        </Button100>
+        <Tooltip title={props.tooltip}>
+          <Button100
+            ref={props.viewRef}
+            $buttonStyle={props.style}
+            $disabledStyle={props.disabledStyle}
+            loading={props.loading}
+            disabled={props.disabled}
+            onClick={() => {
+              props.onEvent("change");
+              props.value.onChange(!props.value.value);
+            }}
+          >
+            {props.iconPosition === "right" && text}
+            {<IconWrapper>{props.value.value ? props.trueIcon : props.falseIcon}</IconWrapper>}
+            {props.iconPosition === "left" && text}
+          </Button100>
+        </Tooltip>
       </ButtonCompWrapperStyled>
     );
   })
@@ -114,6 +120,7 @@ const ToggleTmpComp = (function () {
             </Section>
             <Section name={sectionNames.advanced}>
               {children.showText.propertyView({ label: trans("toggleButton.showText") })}
+              {children.tooltip.propertyView({label: trans("labelProp.tooltip")})}
               {children.showText.getView() && 
                 children.trueText.propertyView({ label: trans("toggleButton.trueLabel") })}
               {children.showText.getView() &&
@@ -148,6 +155,7 @@ const ToggleTmpComp = (function () {
           </>
           )}
         
+        <Section name={trans("prop.disabledStyle")}>{children.disabledStyle.getPropertyView()}</Section>
       </>
     ))
     .setExposeMethodConfigs(buttonRefMethods)

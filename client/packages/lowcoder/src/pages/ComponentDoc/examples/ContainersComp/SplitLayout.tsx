@@ -72,6 +72,17 @@ export default function SplitLayoutExample() {
             compFactory={SplitLayoutComp}
           />
           <Example
+            title="Hiding the Split Layout component"
+            hideSettings={true}
+            width={1000}
+            config={{
+                bodyStyle: bodyStyle,
+                columnStyle: columnStyle, 
+                hidden: true,
+            }}
+            compFactory={SplitLayoutComp}
+          />
+          <Example
             title="Multiple Split Layout containers ( Click on the icon at the center on right side ) "
             hideSettings={true}
             width={1000}
@@ -185,8 +196,11 @@ export default function SplitLayoutExample() {
                 bodyStyle: {
                     "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
                     "border": "#222222",
-                    "borderWidth": "2px",
+                    "borderWidth": "3px",
                     "padding": "10px",
+                    "borderRadius": "20px",
+                    "margin": "5px",
+                    "borderStyle": "dashed",                   
                 },
                 columnStyle: columnStyle,
             }}
@@ -201,13 +215,70 @@ export default function SplitLayoutExample() {
                 columnStyle: {
                     "background": "linear-gradient(0deg, #f43b47 0%, #453a94 100%)",
                     "border": "#222222",
-                    "borderWidth": "2px",
+                    "borderWidth": "3px",
                     "borderStyle": "solid",
                     "margin": "10px",
+                    "padding": "20px",
+                    "borderRadius": "20px",
                 },
             }}
             compFactory={SplitLayoutComp}
           />
+        </ExampleGroup>
+
+        <ExampleGroup
+        title="Animation Style"
+        description="The Following Examples Show different Animation Styles on the Split Layout Component."
+        >
+        <Example
+            title="Bounce Animation"
+            width={1000}
+            hideSettings={true}
+            config={{
+              bodyStyle: bodyStyle,
+              columnStyle: columnStyle,
+                animationStyle: 
+                {
+                    "animation": "bounce",
+                    "animationDelay": "1s",
+                    "animationDuration": "3s",
+                    "animationIterationCount": "infinite",
+                },
+            }}
+            compFactory={SplitLayoutComp}
+        />
+        <Example
+            title="Swing Animation"
+            width={1000}
+            hideSettings={true}
+            config={{
+              bodyStyle: bodyStyle,
+              columnStyle: columnStyle,
+                animationStyle: {
+                    "animation": "swing",
+                    "animationDelay": "1s",
+                    "animationDuration": "3s",
+                    "animationIterationCount": "infinite"
+                },
+            }}
+            compFactory={SplitLayoutComp}
+        />
+        <Example
+            title="Tada Animation"
+            width={1000}
+            hideSettings={true}
+            config={{
+              bodyStyle: bodyStyle,
+              columnStyle: columnStyle,
+                animationStyle: {
+                    "animation": "tada",
+                    "animationDelay": "1s",
+                    "animationDuration": "3s",
+                    "animationIterationCount": "infinite"
+                },
+            }}
+            compFactory={SplitLayoutComp}
+        />
         </ExampleGroup>
       </>
     );

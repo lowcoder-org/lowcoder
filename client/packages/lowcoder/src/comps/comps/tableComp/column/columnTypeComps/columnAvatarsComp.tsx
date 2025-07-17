@@ -9,24 +9,15 @@ import { avatarGroupStyle, AvatarGroupStyleType } from "comps/controls/styleCont
 import { AlignCenter, AlignLeft, AlignRight } from "lowcoder-design";
 import { NumberControl } from "comps/controls/codeControl";
 import { Avatar, Tooltip } from "antd";
-import { clickEvent, eventHandlerControl, refreshEvent } from "comps/controls/eventHandlerControl";
-import { ReactElement, useContext, useEffect } from "react";
+import { clickEvent, eventHandlerControl, refreshEvent, doubleClickEvent } from "comps/controls/eventHandlerControl";
+import React, { ReactElement, useCallback, useEffect, useRef } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { ColorControl } from "comps/controls/colorControl";
 import { optionsControl } from "comps/controls/optionsControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { JSONObject } from "util/jsonTypes";
-
-const MenuLinkWrapper = styled.div`
-  > a {
-    color: ${PrimaryColor} !important;
-
-    &:hover {
-      color: ${LightActiveTextColor} !important;
-    }
-  }
-`;
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 
 const MacaroneList = [
   '#fde68a',
@@ -48,6 +39,8 @@ const Container = styled.div<{ $style: AvatarGroupStyleType | undefined, alignme
   cursor: pointer;
 `;
 
+const AvatarEventOptions = [clickEvent, refreshEvent] as const;
+
 const DropdownOption = new MultiCompBuilder(
   {
     src: StringControl,
@@ -56,6 +49,7 @@ const DropdownOption = new MultiCompBuilder(
     color: ColorControl,
     backgroundColor: ColorControl,
     Tooltip: StringControl,
+    onEvent: eventHandlerControl(AvatarEventOptions),
   },
   (props) => props
 )
@@ -73,18 +67,126 @@ const DropdownOption = new MultiCompBuilder(
       {children.color.propertyView({ label: trans("style.fill") })}
       {children.backgroundColor.propertyView({ label: trans("style.background") })}
       {children.Tooltip.propertyView({ label: trans("badge.tooltip") })}
+      {children.onEvent.propertyView()}
     </>
   );
 })
 .build();
 
-const EventOptions = [clickEvent, refreshEvent] as const;
+const EventOptions = [clickEvent, refreshEvent, doubleClickEvent] as const;
 
 export const alignOptions = [
   { label: <AlignLeft />, value: "flex-start" },
   { label: <AlignCenter />, value: "center" },
   { label: <AlignRight />, value: "flex-end" },
 ] as const;
+
+// Memoized Avatar component
+const MemoizedAvatar = React.memo(({ 
+  item, 
+  index, 
+  style, 
+  autoColor, 
+  avatarSize, 
+  onEvent,
+  onItemEvent
+}: { 
+  item: any; 
+  index: number; 
+  style: any; 
+  autoColor: boolean; 
+  avatarSize: number; 
+  onEvent: (event: string) => void;
+  onItemEvent?: (event: string) => void;
+}) => {
+  const mountedRef = useRef(true);
+  const handleClickEvent = useCompClickEventHandler({onEvent})
+
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const handleClick = useCallback(() => {
+    if (!mountedRef.current) return;
+    
+    // Trigger individual avatar event first
+    if (onItemEvent) {
+      onItemEvent("click");
+    }
+    
+    // Then trigger main component event
+    handleClickEvent()
+  }, [onItemEvent, handleClickEvent]);
+
+  return (
+    <Tooltip title={item.Tooltip} key={index}>
+      <Avatar
+        src={item.src ?? undefined}
+        icon={(item.AvatarIcon as ReactElement)?.props.value === '' || item.label.trim() !== '' ? undefined : item.AvatarIcon}
+        style={{
+          color: item.color ? item.color : (style.fill !== '#FFFFFF' ? style.fill : '#FFFFFF'),
+          backgroundColor: item.backgroundColor ? item.backgroundColor : (autoColor ? MacaroneList[index % MacaroneList.length] : style.background),
+          cursor: 'pointer',
+        }}
+        size={avatarSize}
+        onClick={handleClick}
+      >
+        {item.label}
+      </Avatar>
+    </Tooltip>
+  );
+});
+
+MemoizedAvatar.displayName = 'MemoizedAvatar';
+
+// Memoized Avatar Group component
+const MemoizedAvatarGroup = React.memo(({ 
+  avatars, 
+  maxCount, 
+  avatarSize, 
+  style, 
+  autoColor, 
+  onEvent 
+}: { 
+  avatars: any[]; 
+  maxCount: number; 
+  avatarSize: number; 
+  style: any; 
+  autoColor: boolean; 
+  onEvent: (event: string) => void; 
+}) => {
+  const mountedRef = useRef(true);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  return (
+    <Avatar.Group maxCount={maxCount} size={avatarSize}>
+      {avatars.map((item, index) => (
+        <MemoizedAvatar
+          key={index}
+          item={item}
+          index={index}
+          style={style}
+          autoColor={autoColor}
+          avatarSize={avatarSize}
+          onEvent={onEvent}
+          onItemEvent={item.onEvent}
+        />
+      ))}
+    </Avatar.Group>
+  );
+});
+
+MemoizedAvatarGroup.displayName = 'MemoizedAvatarGroup';
 
 export const ColumnAvatarsComp = (function () {
   const childrenMap = {
@@ -107,42 +209,22 @@ export const ColumnAvatarsComp = (function () {
 
   return new ColumnTypeCompBuilder(
     childrenMap,
-    (props , dispatch) => {
+    (props, dispatch) => {
       return (
         <Container
           $style={props.style}
           alignment={props.alignment}
         >
-          {
-            <Avatar.Group maxCount={props.maxCount} size={props.avatarSize}>
-              {
-                props.avatars.map((item, index) => {
-                  return (
-                    <Tooltip title={item.Tooltip}>
-                      <Avatar
-                        src={item.src ?? undefined}
-                        icon={(item.AvatarIcon as ReactElement)?.props.value === '' || item.label.trim() !== '' ? undefined : item.AvatarIcon}
-                        style={{
-                          color: item.color ? item.color : (props.style.fill !== '#FFFFFF' ? props.style.fill : '#FFFFFF'),
-                          backgroundColor: item.backgroundColor ? item.backgroundColor : (props.autoColor ? MacaroneList[index % MacaroneList.length] : props.style.background),
-                        }}
-                        size={props.avatarSize}
-                        onClick={() => {
-                          props.onEvent("click")
-                          // Falk: TODO: Implement dispatch function to set the currentAvatar
-                          // dispatch(changeChildAction("currentAvatar", item as JSONObject, false));
-                        }}
-                      >
-                        {item.label}
-                      </Avatar>
-                    </Tooltip>
-                  )
-                })
-              }
-            </Avatar.Group>
-          }
+          <MemoizedAvatarGroup
+            avatars={props.avatars}
+            maxCount={props.maxCount}
+            avatarSize={props.avatarSize}
+            style={props.style}
+            autoColor={props.autoColor}
+            onEvent={props.onEvent}
+          />
         </Container>
-      )
+      );
     },
     () => ""
   )

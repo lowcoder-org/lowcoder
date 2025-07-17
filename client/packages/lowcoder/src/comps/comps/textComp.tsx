@@ -18,15 +18,16 @@ import { alignWithJustifyControl } from "comps/controls/alignControl";
 import { MarginControl } from "../controls/marginControl";
 import { PaddingControl } from "../controls/paddingControl";
 
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useRef, useMemo } from "react";
 import { EditorContext } from "comps/editorState";
-import { clickEvent, eventHandlerControl } from "../controls/eventHandlerControl";
+import { clickEvent, doubleClickEvent, eventHandlerControl } from "../controls/eventHandlerControl";
 import { NewChildren } from "../generators/uiCompBuilder";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { ToViewReturn } from "../generators/multi";
 import { BoolControl } from "../controls/boolControl";
+import { useCompClickEventHandler } from "../utils/useCompClickEventHandler";
 
-const EventOptions = [clickEvent] as const;
+const EventOptions = [clickEvent, doubleClickEvent] as const;
 
 const getStyle = (style: TextStyleType) => {
   return css`
@@ -80,7 +81,7 @@ const getStyle = (style: TextStyleType) => {
   `;
 };
 
-const TextContainer = styled.div<{
+const TextContainer = React.memo(styled.div<{
   $type: string;
   $styleConfig: TextStyleType;
   $animationStyle:AnimationStyleType;
@@ -107,7 +108,7 @@ const TextContainer = styled.div<{
   .markdown-body {
     overflow-wrap: anywhere;
   }
-`;
+`);
 const AlignTop = styled(AlignLeft)`
   transform: rotate(90deg);
 `;
@@ -156,77 +157,117 @@ type ChildrenType = NewChildren<RecordConstructorToComp<typeof childrenMap>>;
 const TextPropertyView = React.memo((props: {
   children: ChildrenType
 }) => {
-  return (
-    <>
-      <Section name={sectionNames.basic}>
-        {props.children.type.propertyView({
-          label: trans("value"),
-          tooltip: trans("textShow.valueTooltip"),
-          radioButton: true,
-        })}
-        {props.children.text.propertyView({})}
+  const editorContext = useContext(EditorContext);
+  const editorModeStatus = useMemo(() => editorContext.editorModeStatus, [editorContext.editorModeStatus]);
+
+  const basicSection = useMemo(() => (
+    <Section name={sectionNames.basic}>
+      {props.children.type.propertyView({
+        label: trans("value"),
+        tooltip: trans("textShow.valueTooltip"),
+        radioButton: true,
+      })}
+      {props.children.text.propertyView({})}
+    </Section>
+  ), [props.children.type, props.children.text]);
+
+  const interactionSection = useMemo(() => 
+    ["logic", "both"].includes(editorModeStatus) && (
+      <Section name={sectionNames.interaction}>
+        {hiddenPropertyView(props.children)}
+        {props.children.onEvent.getPropertyView()}
+        {showDataLoadingIndicatorsPropertyView(props.children)}
       </Section>
+    ), [editorModeStatus, props.children]);
 
-      {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-        <Section name={sectionNames.interaction}>
-          {hiddenPropertyView(props.children)}
-          {props.children.onEvent.getPropertyView()}
-          {showDataLoadingIndicatorsPropertyView(props.children)}
-        </Section>
-      )}
-
-      {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-        <>
-          <Section name={sectionNames.layout}>
-            {props.children.autoHeight.getPropertyView()}
-            {!props.children.autoHeight.getView() &&
-              props.children.contentScrollBar.propertyView({
-                label: trans("prop.contentScrollbar"),
-              })}
-            {!props.children.autoHeight.getView() &&
-              props.children.verticalAlignment.propertyView({
-                label: trans("textShow.verticalAlignment"),
-                radioButton: true,
-              })}
-            {props.children.horizontalAlignment.propertyView({
-              label: trans("textShow.horizontalAlignment"),
+  const layoutSection = useMemo(() => 
+    ["layout", "both"].includes(editorModeStatus) && (
+      <>
+        <Section name={sectionNames.layout}>
+          {props.children.autoHeight.getPropertyView()}
+          {!props.children.autoHeight.getView() &&
+            props.children.contentScrollBar.propertyView({
+              label: trans("prop.contentScrollbar"),
+            })}
+          {!props.children.autoHeight.getView() &&
+            props.children.verticalAlignment.propertyView({
+              label: trans("textShow.verticalAlignment"),
               radioButton: true,
             })}
-          </Section>
-          <Section name={sectionNames.style}>
-            {props.children.style.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.animationStyle} hasTooltip={true}>
-            {props.children.animationStyle.getPropertyView()}
-          </Section>
-        </>
-      )}
+          {props.children.horizontalAlignment.propertyView({
+            label: trans("textShow.horizontalAlignment"),
+            radioButton: true,
+          })}
+        </Section>
+        <Section name={sectionNames.style}>
+          {props.children.style.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.animationStyle} hasTooltip={true}>
+          {props.children.animationStyle.getPropertyView()}
+        </Section>
+      </>
+    ), [editorModeStatus, props.children]);
+
+  return (
+    <>
+      {basicSection}
+      {interactionSection}
+      {layoutSection}
     </>
   );
-})
+}, (prev, next) => {
+  return (
+    prev.children === next.children &&
+    prev.children.text.getView() === next.children.text.getView() &&
+    prev.children.type.getView() === next.children.type.getView()
+  );
+});
 
 const TextView = React.memo((props: ToViewReturn<ChildrenType>) => {
   const value = props.text.value;
+  const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent})
+
+  const handleClick = React.useCallback(() => {
+    handleClickEvent()
+  }, [handleClickEvent]);
+
+  const containerStyle = useMemo(() => ({
+    justifyContent: props.horizontalAlignment,
+    alignItems: props.autoHeight ? "center" : props.verticalAlignment,
+    textAlign: props.horizontalAlignment,
+    rotate: props.style.rotation
+  }), [props.horizontalAlignment, props.autoHeight, props.verticalAlignment, props.style.rotation]);
+
+  const content = useMemo(() => 
+    props.type === "markdown" ? <TacoMarkDown>{value}</TacoMarkDown> : value,
+    [props.type, value]
+  );
 
   return (
     <TextContainer
       $animationStyle={props.animationStyle}
       $type={props.type}
       $styleConfig={props.style}
-      style={{
-        justifyContent: props.horizontalAlignment,
-        alignItems: props.autoHeight ? "center" : props.verticalAlignment,
-        textAlign: props.horizontalAlignment,
-        rotate: props.style.rotation
-      }}
-      onClick={() => props.onEvent("click")}
+      style={containerStyle}
+      onClick={handleClick}
     >
       <ScrollBar hideScrollbar={!props.contentScrollBar}>
-        {props.type === "markdown" ? <TacoMarkDown>{value}</TacoMarkDown> : value}
+        {content}
       </ScrollBar>
     </TextContainer>
   );
-}, (prev, next) => JSON.stringify(prev) === JSON.stringify(next));
+}, (prev, next) => {
+  return (
+    prev.text.value === next.text.value &&
+    prev.type === next.type &&
+    prev.autoHeight === next.autoHeight &&
+    prev.contentScrollBar === next.contentScrollBar &&
+    prev.verticalAlignment === next.verticalAlignment &&
+    prev.horizontalAlignment === next.horizontalAlignment &&
+    prev.style === next.style &&
+    prev.animationStyle === next.animationStyle
+  );
+});
 
 let TextTmpComp = (function () {
   return new UICompBuilder(childrenMap, (props) => <TextView {...props} />)
