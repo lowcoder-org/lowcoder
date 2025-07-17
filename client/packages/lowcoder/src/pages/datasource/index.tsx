@@ -16,18 +16,11 @@ import { getDataSource, getDataSourceTypes } from "../../redux/selectors/datasou
 export const DatasourceHome = () => {
   const dispatch = useDispatch();
 
-  const datasourceList = useSelector(getDataSource);
   const datasourceTypes = useSelector(getDataSourceTypes);
 
   const currentUser = useSelector(getUser);
   const orgId = currentUser.currentOrgId;
 
-  useEffect(() => {
-    if (isEmpty(orgId) || datasourceList.length !== 0) {
-      return;
-    }
-    dispatch(fetchDatasource({ organizationId: orgId }));
-  }, [dispatch, datasourceList.length, orgId]);
 
   useEffect(() => {
     if (isEmpty(orgId) || datasourceTypes.length !== 0) {
