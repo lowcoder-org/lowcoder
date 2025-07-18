@@ -124,15 +124,6 @@ export default function ApplicationHome() {
     setIsPreloadCompleted(true);
   }, [org, orgHomeId]);
 
-  useEffect(() => {
-    // Check if we need to fetch data (either no folders or no applications)
-    if (allFoldersCount !== 0 && allAppCount !== 0) {
-      return;
-    }
-    
-    user.currentOrgId && dispatch(fetchFolderElements({}));
-  }, [dispatch, allFoldersCount, allAppCount, user.currentOrgId]);
-
   if (fetchingUser || !isPreloadCompleted) {
     return <ProductLoading />;
   }
