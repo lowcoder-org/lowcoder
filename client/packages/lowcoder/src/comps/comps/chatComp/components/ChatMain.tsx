@@ -119,16 +119,16 @@ export function ChatMain(props: ChatCompProps) {
     // const layout = comp.children.layout.getView();
     // console.log("LAYOUT", layout);
 
-    for (const action of actions) {
-      const { action_name, action_parameters, action_payload } = action;
+    for (const actionItem of actions) {
+      const { action, component, ...action_payload } = actionItem;
 
-      switch (action_name) {
+      switch (action) {
         case "place_component":
           await addComponentAction.execute({
-            actionKey: action_name,
+            actionKey: action,
             actionValue: "",
             actionPayload: action_payload,
-            selectedComponent: action_parameters,
+            selectedComponent: component,
             selectedEditorComponent: null,
             selectedNestComponent: null,
             editorState: editorStateRef.current
@@ -136,10 +136,10 @@ export function ChatMain(props: ChatCompProps) {
           break;
         case "nest_component":
           await nestComponentAction.execute({
-            actionKey: action_name,
+            actionKey: action,
             actionValue: "",
             actionPayload: action_payload,
-            selectedComponent: action_parameters,
+            selectedComponent: component,
             selectedEditorComponent: null,
             selectedNestComponent: null,
             editorState: editorStateRef.current
@@ -148,8 +148,8 @@ export function ChatMain(props: ChatCompProps) {
         case "set_properties":
           debugger;
           await configureComponentAction.execute({
-            actionKey: action_name,
-            actionValue: action_parameters,
+            actionKey: action,
+            actionValue: component,
             actionPayload: action_payload,
             selectedEditorComponent: null,
             selectedComponent: null,
@@ -190,7 +190,7 @@ export function ChatMain(props: ChatCompProps) {
         modelType: props.modelType!,
         sessionId: state.currentThreadId,
       });
-      const {reply, actions: editorActions} = JSON.parse(response?.output);
+      const {explanation: reply, actions: editorActions} = JSON.parse(response?.output);
       performAction(editorActions);
 
       const assistantMessage: MyMessage = {
@@ -252,7 +252,7 @@ export function ChatMain(props: ChatCompProps) {
         sessionId: state.currentThreadId,
       });
     
-      const {reply, actions: editorActions} = JSON.parse(response?.output);
+      const {explanation: reply, actions: editorActions} = JSON.parse(response?.output);
       performAction(editorActions);
 
       const assistantMessage: MyMessage = {

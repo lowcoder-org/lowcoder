@@ -14,6 +14,7 @@ import {
 } from "lowcoder-core";
 import { getEditorComponentInfo } from "../utils";
 import { getPromiseAfterDispatch } from "@lowcoder-ee/util/promiseUtils";
+import { hookCompCategory, HookCompType } from "@lowcoder-ee/comps/hooks/hookCompTypes";
 
 export const addComponentAction: ActionConfig = {
   key: 'add-components',
@@ -23,7 +24,7 @@ export const addComponentAction: ActionConfig = {
   requiresInput: false,
   execute: async (params: ActionExecuteParams) => {
     const { selectedComponent, editorState, actionPayload } = params;
-    const { name, layout, ...otherProps } = actionPayload;
+    const { component_name: name, layout, action_parameters } = actionPayload;
 
     if (!selectedComponent || !editorState) {
       message.error('Component and editor state are required');
@@ -31,6 +32,21 @@ export const addComponentAction: ActionConfig = {
     }
 
     try {
+      if (hookCompCategory(selectedComponent) === "ui") {
+        const compName = Boolean(name) ? name : editorState.getNameGenerator().genItemName(selectedComponent);
+        editorState
+          .getHooksComp()
+          .dispatch(
+            wrapActionExtraInfo(
+              editorState
+                .getHooksComp()
+                .pushAction({ name: compName, compType: selectedComponent as HookCompType }),
+              { compInfos: [{ compName: compName, compType: selectedComponent, type: "add" }] }
+            )
+          );
+        return;
+      }
+
       const uiComp = editorState.getUIComp();
       const container = uiComp.getComp();
       
@@ -63,7 +79,7 @@ export const addComponentAction: ActionConfig = {
       let compDefaultValue = defaultDataFn ? defaultDataFn(compName, nameGenerator, editorState) : undefined;
       const compInitialValue = {
         ...(compDefaultValue as any || {}),
-        ...otherProps,
+        ...action_parameters,
       }
       const widgetValue: GridItemDataType = {
         compType: selectedComponent,
@@ -139,7 +155,8 @@ export const nestComponentAction: ActionConfig = {
   execute: async (params: ActionExecuteParams) => {
     // const { selectedEditorComponent, selectedNestComponent, editorState, actionPayload } = params;
     const { editorState, actionPayload, selectedComponent: selectedNestComponent } = params;
-    const { name, layout, target: selectedEditorComponent, ...otherProps } = actionPayload;
+    const { component_name: name, layout, parent_component_name: selectedEditorComponent, action_parameters } = actionPayload;
+    // const { name, layout, target: selectedEditorComponent, ...otherProps } = actionPayload;
 
     if (!selectedEditorComponent || !selectedNestComponent || !editorState) {
       message.error('Parent component, child component, and editor state are required');
@@ -147,21 +164,21 @@ export const nestComponentAction: ActionConfig = {
     }
 
     const [editorComponent, ...childComponents] = selectedEditorComponent.split('.');
-    const parentComponentInfo = getEditorComponentInfo(editorState, editorComponent);
+    const parentItem = editorState.getUICompByName(editorComponent); //getEditorComponentInfo(editorState, editorComponent);
     
-    if (!parentComponentInfo) {
-      message.error(`Parent component "${selectedEditorComponent}" not found`);
-      return;
-    }
+    // if (!parentComponentInfo) {
+    //   message.error(`Parent component "${selectedEditorComponent}" not found`);
+    //   return;
+    // }
 
-    const { componentKey: parentKey, items } = parentComponentInfo;
+    // const { componentKey: parentKey, items } = parentComponentInfo;
     
-    if (!parentKey) {
-      message.error(`Parent component "${selectedEditorComponent}" not found in layout`);
-      return;
-    }
+    // if (!parentKey) {
+    //   message.error(`Parent component "${selectedEditorComponent}" not found in layout`);
+    //   return;
+    // }
 
-    const parentItem = items[parentKey];
+    // const parentItem = items[parentKey];
     if (!parentItem) {
       message.error(`Parent component "${selectedEditorComponent}" not found in items`);
       return;
@@ -204,7 +221,7 @@ export const nestComponentAction: ActionConfig = {
       let compDefaultValue = defaultDataFn ? defaultDataFn(compName, nameGenerator, editorState) : undefined;
       const compInitialValue = {
         ...(compDefaultValue as any || {}),
-        ...otherProps,
+        ...action_parameters,
       }
 
       const widgetValue: GridItemDataType = {

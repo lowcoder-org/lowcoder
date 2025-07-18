@@ -125,7 +125,7 @@ function Bottom(props: any) {
                 // systemPrompt="You are a helpful assistant."
                 // agent={true}
                 // maxInteractions={10}
-                modelHost="http://192.168.100.49:5678/webhook/9a363e76-d3a5-46d1-98c3-4359f7106d33"
+                modelHost="http://192.168.100.59:5678/webhook/9a363e76-d3a5-46d1-98c3-4359f7106d33"
               />
             </Flex>
           )}
