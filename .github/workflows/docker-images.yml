@@ -169,3 +169,4 @@ jobs:
             linux/arm64
           push: true
           tags: ${{ env.APISERVICE_IMAGE_NAMES }}
+          
