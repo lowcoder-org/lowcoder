@@ -5,11 +5,11 @@ import styled from "styled-components";
 import { useDispatch } from "react-redux";
 import { HomeResInfo } from "../../util/homeResUtils";
 import { HomeResTypeEnum } from "../../types/homeRes";
-import { deleteApplication, restoreApplication } from "../../redux/reduxActions/applicationActions";
 import { HomeRes } from "./HomeLayout";
 import { trans, transToNode } from "../../i18n";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { BrandedIcon } from "@lowcoder-ee/components/BrandedIcon";
+import ApplicationApi from "../../api/applicationApi";
 
 const OperationWrapper = styled.div`
   display: flex;
@@ -123,17 +123,18 @@ export const TrashTableView = (props: { resources: HomeRes[] , setModify: any, m
                     style={{ padding: "0 8px", width: "fit-content", minWidth: "52px" }}
                     buttonType={"blue"}
                     className={"home-datasource-edit-button"}
-                    onClick={() =>{
-                        dispatch(
-                            restoreApplication({ applicationId: item.id }, () => {
-                                messageInstance.success(trans("home.recoverSuccessMsg"));
-                            })
-                        )
+                    onClick={async () => {
+                      try {
+                        await ApplicationApi.restoreApplication({ applicationId: item.id });
+                        messageInstance.success(trans("home.recoverSuccessMsg"));
                         setTimeout(() => {
-                            setModify(!modify);
+                          setModify(!modify);
                         }, 200);
-                    }
-                  }
+                      } catch (error) {
+                        console.error("Failed to restore application:", error);
+                        messageInstance.error("Failed to restore application");
+                      }
+                    }}
                   >
                     {trans("recover")}
                   </EditBtn>
@@ -148,27 +149,21 @@ export const TrashTableView = (props: { resources: HomeRes[] , setModify: any, m
                         type: HomeResInfo[item.type].name.toLowerCase(),
                         name: <b>{item.name}</b>,
                       }),
-                      onConfirm: () =>{
-                        new Promise((resolve, reject) => {
-                          dispatch(
-                            deleteApplication(
-                              { applicationId: item.id },
-                              () => {
-                                messageInstance.success(trans("home.deleteSuccessMsg"));
-                                resolve(true);
-                              },
-                              () => reject()
-                            )
-                          );
-                        })
+                      onConfirm: async () => {
+                        try {
+                          await ApplicationApi.deleteApplication({ applicationId: item.id });
+                          messageInstance.success(trans("home.deleteSuccessMsg"));
                           setTimeout(() => {
-                              setModify(!modify);
+                            setModify(!modify);
                           }, 200);
+                        } catch (error) {
+                          console.error("Failed to delete application:", error);
+                          messageInstance.error("Failed to delete application permanently");
+                        }
                       },
                       confirmBtnType: "delete",
                       okText: trans("delete"),
                     })
-
                   }
                   style={{ marginLeft: "12px", width: "76px" }}
                 >

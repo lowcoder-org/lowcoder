@@ -9,6 +9,8 @@ import { Helmet } from "react-helmet";
 import { trans } from "i18n";
 import {ApplicationPaginationType} from "@lowcoder-ee/util/pagination/type";
 import {fetchFolderElements} from "@lowcoder-ee/util/pagination/axios";
+import { fetchFolderElements as fetchFolderElementsRedux } from "../../redux/reduxActions/folderActions";
+import { getUser } from "../../redux/selectors/usersSelectors";
 
 function getBreadcrumbs(
   folder: FolderMeta,
@@ -52,6 +54,7 @@ export function FolderView() {
 
   const element = useSelector(folderElementsSelector);
   const allFolders = useSelector(foldersSelector);
+  const user = useSelector(getUser);
 
   const folder = allFolders.filter((f) => f.folderId === folderId)[0] || {};
   const breadcrumbs = getBreadcrumbs(folder, allFolders, [
@@ -60,6 +63,13 @@ export function FolderView() {
       path: buildFolderUrl(folder.folderId),
     },
   ]);
+
+  // Fetch folder data for breadcrumbs if not available
+  useEffect(() => {
+    if (allFolders.length === 0 && user.currentOrgId) {
+      dispatch(fetchFolderElementsRedux({}));
+    }
+  }, [allFolders.length, user.currentOrgId, dispatch]);
 
   useEffect( () => {
         try{
