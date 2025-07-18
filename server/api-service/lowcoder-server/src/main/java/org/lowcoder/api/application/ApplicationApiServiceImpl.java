@@ -92,7 +92,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     private final OrgDevChecker orgDevChecker;
     private final TemplateSolutionService templateSolutionService;
     private final SuggestAppAdminSolutionService suggestAppAdminSolutionService;
-    
+
     private final FolderApiService folderApiService;
     private final UserHomeApiService userHomeApiService;
     private final UserApplicationInteractionService userApplicationInteractionService;
@@ -240,8 +240,8 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
         if (expected == ApplicationRequestType.PUBLIC_TO_MARKETPLACE && application.isPublicToMarketplace() && application.isPublicToAll()) {
             return Mono.empty();
         }
-        
-        // 
+
+        //
         // Falk: application.agencyProfile() & isPublicToAll must be both true
         if (expected == ApplicationRequestType.AGENCY_PROFILE && application.agencyProfile() && application.isPublicToAll()) {
             return Mono.empty();
@@ -560,9 +560,9 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                     return Mono.just(permissionStatus.getPermission());
                 });
     }
-    
-    
-    
+
+
+
     private Mono<ApplicationInfoView> buildView(Application application, String role) {
         return buildView(application, role, null).delayUntil(applicationInfoView -> {
             String applicationId = applicationInfoView.getApplicationId();
@@ -574,32 +574,47 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     }
 
     private Mono<ApplicationInfoView> buildView(Application application, String role, @Nullable String folderId) {
-        return application.getCategory(applicationRecordService)
-                .zipWith(application.getDescription(applicationRecordService))
-                .zipWith(application.getTitle(applicationRecordService), TupleUtils::merge)
-                        .map(tuple ->
-                            ApplicationInfoView.builder()
-                                    .applicationId(application.getId())
-                                    .applicationGid(application.getGid())
-                                    .orgId(application.getOrganizationId())
-                                    .name(application.getName())
-                                    .createBy(application.getCreatedBy())
-                                    .createAt(application.getCreatedAt().toEpochMilli())
-                                    .role(role)
-                                    .applicationType(application.getApplicationType())
-                                    .applicationStatus(application.getApplicationStatus())
-                                    .folderId(folderId)
-                                    .publicToAll(application.isPublicToAll())
-                                    .publicToMarketplace(application.isPublicToMarketplace())
-                                    .agencyProfile(application.agencyProfile())
-                                    .editingUserId(application.getEditingUserId())
-                                    .lastModifyTime(application.getUpdatedAt())
-                                    .lastEditedAt(application.getLastEditedAt())
-                                    .category(tuple.getT1())
-                                    .description(tuple.getT2())
-                                    .title(tuple.getT3())
-                                    .build()
-                        );
+        Mono<String> categoryMono = application.getCategory(applicationRecordService);
+        Mono<String> descriptionMono = application.getDescription(applicationRecordService);
+        Mono<ApplicationVersion> latestRecordMono = applicationRecordService
+                .getLatestRecordByApplicationId(application.getId())
+                .defaultIfEmpty(new ApplicationVersion() );
+        Mono<String> titleMono = application.getTitle(applicationRecordService);
+
+        return Mono.zip(categoryMono, descriptionMono, latestRecordMono, titleMono)
+                .map(tuple -> {
+                   String category = tuple.getT1();
+                   String description = tuple.getT2();
+                   ApplicationVersion latestRecord = tuple.getT3();
+                   String title = tuple.getT4();
+                   boolean hasPublished = latestRecord.getTag() != null && !latestRecord.getTag().isEmpty();
+                   return ApplicationInfoView.builder()
+                           .category(category)
+                           .description(description)
+                           .published(hasPublished)
+                           .publishedVersion(hasPublished ? latestRecord.getTag() : null)
+                           .lastPublishedTime(hasPublished && latestRecord.getCreateTime() != 0
+                                   ? Instant.ofEpochMilli(latestRecord.getCreateTime())
+                                   : null)
+                           .title(title)
+                           .applicationId(application.getId())
+                           .applicationGid(application.getGid())
+                           .orgId(application.getOrganizationId())
+                           .name(application.getName())
+                           .createBy(application.getCreatedBy())
+                           .createAt(application.getCreatedAt().toEpochMilli())
+                           .role(role)
+                           .applicationType(application.getApplicationType())
+                           .applicationStatus(application.getApplicationStatus())
+                           .folderId(folderId)
+                           .publicToAll(application.isPublicToAll())
+                           .publicToMarketplace(application.isPublicToMarketplace())
+                           .agencyProfile(application.agencyProfile())
+                           .editingUserId(application.getEditingUserId())
+                           .lastModifyTime(application.getUpdatedAt())
+                           .lastEditedAt(application.getLastEditedAt())
+                           .build();
+                });
     }
 
     private Mono<ApplicationInfoView> buildView(Application application) {
