@@ -6,6 +6,7 @@ import {
     ThreadPrimitive,
   } from "@assistant-ui/react";
   import type { FC } from "react";
+  import { trans } from "i18n";
   import {
     ArrowDownIcon,
     CheckIcon,
@@ -54,7 +55,7 @@ import {
     placeholder?: string;
   }
   
-  export const Thread: FC<ThreadProps> = ({ placeholder = "Write a message..." }) => {
+  export const Thread: FC<ThreadProps> = ({ placeholder = trans("chat.composerPlaceholder") }) => {
     return (
       <StyledThreadRoot
         className="aui-root aui-thread-root"
@@ -110,7 +111,7 @@ import {
         <div className="aui-thread-welcome-root">
           <div className="aui-thread-welcome-center">
             <p className="aui-thread-welcome-message">
-              How can I help you today?
+              {trans("chat.welcomeMessage")}
             </p>
           </div>
           <ThreadWelcomeSuggestions />
@@ -124,29 +125,29 @@ import {
       <div className="aui-thread-welcome-suggestions">
         <ThreadPrimitive.Suggestion
           className="aui-thread-welcome-suggestion"
-          prompt="What is the weather in Tokyo?"
+          prompt={trans("chat.suggestionWeather")}
           method="replace"
           autoSend
         >
           <span className="aui-thread-welcome-suggestion-text">
-            What is the weather in Tokyo?
+            {trans("chat.suggestionWeather")}
           </span>
         </ThreadPrimitive.Suggestion>
         <ThreadPrimitive.Suggestion
           className="aui-thread-welcome-suggestion"
-          prompt="What is assistant-ui?"
+          prompt={trans("chat.suggestionAssistant")}
           method="replace"
           autoSend
         >
           <span className="aui-thread-welcome-suggestion-text">
-            What is assistant-ui?
+            {trans("chat.suggestionAssistant")}
           </span>
         </ThreadPrimitive.Suggestion>
       </div>
     );
   };
   
-  const Composer: FC<{ placeholder?: string }> = ({ placeholder = "Write a message..." }) => {
+  const Composer: FC<{ placeholder?: string }> = ({ placeholder = trans("chat.composerPlaceholder") }) => {
     return (
       <ComposerPrimitive.Root className="aui-composer-root">
         <ComposerPrimitive.Input

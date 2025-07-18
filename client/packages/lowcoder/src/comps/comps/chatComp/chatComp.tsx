@@ -16,6 +16,7 @@ import { QueryHandler, createMessageHandler } from "./handlers/messageHandlers";
 import { useMemo, useRef, useEffect } from "react";  
 import { changeChildAction } from "lowcoder-core";
 import { ChatMessage } from "./types/chatTypes";
+import { trans } from "i18n";
 
 import "@assistant-ui/styles/index.css";
 import "@assistant-ui/styles/markdown.css";
@@ -25,39 +26,39 @@ import "@assistant-ui/styles/markdown.css";
 // ============================================================================
 
 export const componentLoadEvent: EventConfigType = {
-  label: "Component Load",
+  label: trans("chat.componentLoad"),
   value: "componentLoad",
-  description: "Triggered when the chat component finishes loading - Load existing data from backend",
+  description: trans("chat.componentLoadDesc"),
 };
 
 export const messageSentEvent: EventConfigType = {
-  label: "Message Sent",
+  label: trans("chat.messageSent"),
   value: "messageSent",
-  description: "Triggered when a user sends a message - Auto-save user messages",
+  description: trans("chat.messageSentDesc"),
 };
 
 export const messageReceivedEvent: EventConfigType = {
-  label: "Message Received", 
-  value: "messageReceived",
-  description: "Triggered when a response is received from the AI - Auto-save AI responses",
+  label: trans("chat.messageReceived"),
+  value: "messageReceived", 
+  description: trans("chat.messageReceivedDesc"),
 };
 
 export const threadCreatedEvent: EventConfigType = {
-  label: "Thread Created",
+  label: trans("chat.threadCreated"),
   value: "threadCreated",
-  description: "Triggered when a new thread is created - Auto-save new threads",
+  description: trans("chat.threadCreatedDesc"),
 };
 
 export const threadUpdatedEvent: EventConfigType = {
-  label: "Thread Updated",
+  label: trans("chat.threadUpdated"),
   value: "threadUpdated",
-  description: "Triggered when a thread is updated - Auto-save thread changes",
+  description: trans("chat.threadUpdatedDesc"),
 };
 
 export const threadDeletedEvent: EventConfigType = {
-  label: "Thread Deleted",
+  label: trans("chat.threadDeleted"),
   value: "threadDeleted",
-  description: "Triggered when a thread is deleted - Delete thread from backend",
+  description: trans("chat.threadDeletedDesc"),
 };
 
 const ChatEventOptions = [
@@ -104,8 +105,8 @@ function generateUniqueTableName(): string {
  }
 
 const ModelTypeOptions = [
-  { label: "Query", value: "query" },
-  { label: "N8N Workflow", value: "n8n" },
+  { label: trans("chat.handlerTypeQuery"), value: "query" },
+  { label: trans("chat.handlerTypeN8N"), value: "n8n" },
 ] as const;
 
 export const chatChildrenMap = {
@@ -116,11 +117,11 @@ export const chatChildrenMap = {
   handlerType: dropdownControl(ModelTypeOptions, "query"),
   chatQuery: QuerySelectControl,                    // Only used for "query" type
   modelHost: withDefault(StringControl, ""),        // Only used for "n8n" type
-  systemPrompt: withDefault(StringControl, "You are a helpful assistant."),
+  systemPrompt: withDefault(StringControl, trans("chat.defaultSystemPrompt")),
   streaming: BoolControl.DEFAULT_TRUE,
   
   // UI Configuration  
-  placeholder: withDefault(StringControl, "Chat Component"),
+  placeholder: withDefault(StringControl, trans("chat.defaultPlaceholder")),
   
   // Database Information (read-only)
   databaseName: withDefault(StringControl, ""),

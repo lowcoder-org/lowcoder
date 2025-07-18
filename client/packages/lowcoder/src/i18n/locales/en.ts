@@ -1413,11 +1413,76 @@ export const en = {
     "timerCompDesc": "A component that displays a countdown or elapsed time, useful for tracking durations and deadlines.",
     "timerCompKeywords": "timer, countdown, elapsed time, tracking, durations, deadlines",
 
+    "chatCompName": "AI Chat",
+    "chatCompDesc": "An interactive chat component for AI conversations with support for multiple message handlers and streaming responses.",
+    "chatCompKeywords": "chat, ai, conversation, assistant, messaging, streaming",
   },
 
-
+  
+  "chat": {
+    // Property View Labels & Tooltips
+    "handlerType": "Handler Type",
+    "handlerTypeTooltip": "How messages are processed",
+    "chatQuery": "Chat Query", 
+    "chatQueryPlaceholder": "Select a query to handle messages",
+    "modelHost": "N8N Webhook URL",
+    "modelHostPlaceholder": "http://localhost:5678/webhook/...",
+    "modelHostTooltip": "N8N webhook endpoint for processing messages",
+    "systemPrompt": "System Prompt",
+    "systemPromptPlaceholder": "You are a helpful assistant...",
+    "systemPromptTooltip": "Initial instructions for the AI",
+    "streaming": "Enable Streaming", 
+    "streamingTooltip": "Stream responses in real-time (when supported)",
+    "databaseName": "Database Name",
+    "databaseNameTooltip": "Auto-generated database name for this chat component (read-only)",
+    
+    // Default Values & Placeholders
+    "defaultSystemPrompt": "You are a helpful assistant.",
+    "defaultPlaceholder": "Type your message here...",
+    "composerPlaceholder": "Write a message...",
+    "defaultErrorMessage": "Sorry, I encountered an error. Please try again.",
+    "newChatTitle": "New Chat",
+    "placeholderLabel": "Placeholder",
+    "placeholderTooltip": "Placeholder text for the composer input",
+    "newThread": "New Thread",
+    "welcomeMessage": "How can I help you today?",
+    "suggestionWeather": "What's the weather in Tokyo?",
+    "suggestionAssistant": "What's the news today?",
+    
+    
+    
+    // Error Messages
+    "errorUnknown": "Sorry, I encountered an error. Please try again.",
+    
+    // Handler Types
+    "handlerTypeQuery": "Query",
+    "handlerTypeN8N": "N8N Workflow",
+    
+    // Section Names
+    "messageHandler": "Message Handler",
+    "uiConfiguration": "UI Configuration", 
+    "database": "Database",
+    
+    // Event Labels & Descriptions
+    "componentLoad": "Component Load",
+    "componentLoadDesc": "Triggered when the chat component finishes loading - Load existing data from backend",
+    "messageSent": "Message Sent",
+    "messageSentDesc": "Triggered when a user sends a message - Auto-save user messages", 
+    "messageReceived": "Message Received",
+    "messageReceivedDesc": "Triggered when a response is received from the AI - Auto-save AI responses",
+    "threadCreated": "Thread Created", 
+    "threadCreatedDesc": "Triggered when a new thread is created - Auto-save new threads",
+    "threadUpdated": "Thread Updated",
+    "threadUpdatedDesc": "Triggered when a thread is updated - Auto-save thread changes",
+    "threadDeleted": "Thread Deleted",
+    "threadDeletedDesc": "Triggered when a thread is deleted - Delete thread from backend",
+    
+    // Exposed Variables (for documentation)
+    "currentMessage": "Current user message",
+    "conversationHistory": "Full conversation history as JSON array",
+    "databaseNameExposed": "Database name for SQL queries (ChatDB_<componentName>)"
+  },
   // eighth part
-
 
   "comp": {
     "menuViewDocs": "View Documentation",

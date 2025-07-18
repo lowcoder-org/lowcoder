@@ -5,6 +5,7 @@ import { ChatCore } from "./ChatCore";
 import { createChatStorage } from "../utils/storageFactory";
 import { N8NHandler } from "../handlers/messageHandlers";
 import { ChatPanelProps } from "../types/chatTypes";
+import { trans } from "i18n";
 
 import "@assistant-ui/styles/index.css";
 import "@assistant-ui/styles/markdown.css";
@@ -16,7 +17,7 @@ import "@assistant-ui/styles/markdown.css";
 export function ChatPanel({
   tableName,
   modelHost,
-  systemPrompt = "You are a helpful assistant.",
+  systemPrompt = trans("chat.defaultSystemPrompt"),
   streaming = true,
   onMessageUpdate
 }: ChatPanelProps) {

@@ -3,6 +3,7 @@
 import React, { useMemo } from "react";
 import { Section, sectionNames, DocLink } from "lowcoder-design";
 import { placeholderPropertyView } from "../../utils/propertyUtils";
+import { trans } from "i18n";
 
 // ============================================================================
 // CLEAN PROPERTY VIEW - FOCUSED ON ESSENTIAL CONFIGURATION
@@ -25,51 +26,56 @@ export const ChatPropertyView = React.memo((props: any) => {
       </div>
 
       {/* Message Handler Configuration */}
-      <Section name="Message Handler">
+      <Section name={trans("chat.messageHandler")}>
         {children.handlerType.propertyView({ 
-          label: "Handler Type",
-          tooltip: "How messages are processed"
+          label: trans("chat.handlerType"),
+          tooltip: trans("chat.handlerTypeTooltip"),
         })}
-        
-        {/* Show chatQuery field only for "query" handler */}
-        {children.handlerType.value === "query" && (
+
+        {/* Conditional Query Selection */}
+        {children.handlerType.getView() === "query" && (
           children.chatQuery.propertyView({ 
-            label: "Chat Query",
-            placeholder: "Select a query to handle messages"
+            label: trans("chat.chatQuery"),
+            placeholder: trans("chat.chatQueryPlaceholder"),
           })
         )}
-        
-        {/* Show modelHost field only for "n8n" handler */}
-        {children.handlerType.value === "n8n" && (
+
+        {/* Conditional N8N Configuration */}
+        {children.handlerType.getView() === "n8n" && (
           children.modelHost.propertyView({ 
-            label: "N8N Webhook URL",
-            placeholder: "http://localhost:5678/webhook/...",
-            tooltip: "N8N webhook endpoint for processing messages"
+            label: trans("chat.modelHost"),
+            placeholder: trans("chat.modelHostPlaceholder"),
+            tooltip: trans("chat.modelHostTooltip"),
           })
         )}
-        
+
         {children.systemPrompt.propertyView({ 
-          label: "System Prompt",
-          placeholder: "You are a helpful assistant...",
-          tooltip: "Initial instructions for the AI"
+          label: trans("chat.systemPrompt"),
+          placeholder: trans("chat.systemPromptPlaceholder"),
+          tooltip: trans("chat.systemPromptTooltip"),
         })}
-        
-        {children.streaming.propertyView({ 
-          label: "Enable Streaming",
-          tooltip: "Stream responses in real-time (when supported)"
+
+          {children.streaming.propertyView({ 
+          label: trans("chat.streaming"),
+          tooltip: trans("chat.streamingTooltip"),
         })}
       </Section>
 
       {/* UI Configuration */}
-      <Section name="UI Configuration">
-        {placeholderPropertyView(children)}
+      <Section name={trans("chat.uiConfiguration")}>
+          {children.placeholder.propertyView({ 
+            label: trans("chat.placeholderLabel"),
+            placeholder: trans("chat.defaultPlaceholder"),
+            tooltip: trans("chat.placeholderTooltip"),
+          })}
       </Section>
 
-      {/* Database Information */}
-      <Section name="Database">
+      {/* Database Section */}
+      <Section name={trans("chat.database")}>
         {children.databaseName.propertyView({ 
-          label: "Database Name",
-          tooltip: "Auto-generated database name for this chat component (read-only)"
+          label: trans("chat.databaseName"),
+          tooltip: trans("chat.databaseNameTooltip"),
+          readonly: true
         })}
       </Section>
 
