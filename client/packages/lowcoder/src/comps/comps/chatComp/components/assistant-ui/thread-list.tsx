@@ -9,6 +9,7 @@ import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { TooltipIconButton } from "./tooltip-icon-button";
 import { useThreadListItemRuntime } from "@assistant-ui/react";
 import { Button, Flex, Input } from "antd";
+import { trans } from "i18n";
 
 import styled from "styled-components";
 
@@ -33,7 +34,7 @@ const ThreadListNew: FC = () => {
   return (
     <ThreadListPrimitive.New asChild>
       <StyledPrimaryButton size="middle" type="primary" icon={<PlusIcon size={16}/>}>
-        New Thread
+        {trans("chat.newThread")}
       </StyledPrimaryButton>
     </ThreadListPrimitive.New>
   );
@@ -69,7 +70,7 @@ const ThreadListItem: FC = () => {
 const ThreadListItemTitle: FC = () => {
   return (
     <p className="aui-thread-list-item-title" style={{margin: 0}}>
-      <ThreadListItemPrimitive.Title fallback="New Chat" />
+      <ThreadListItemPrimitive.Title fallback={trans("chat.newChatTitle")} />
     </p>
   );
 };
@@ -94,7 +95,7 @@ const ThreadListItemEditInput: FC<{ onFinish: () => void }> = ({ onFinish }) => 
   const threadItem = useThreadListItem();
   const threadRuntime = useThreadListItemRuntime();
   
-  const currentTitle = threadItem?.title || "New Chat";
+  const currentTitle = threadItem?.title || trans("chat.newChatTitle");
   
   const handleRename = async (newTitle: string) => {
     if (!newTitle.trim() || newTitle === currentTitle){

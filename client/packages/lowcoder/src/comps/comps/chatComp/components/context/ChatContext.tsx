@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from "react";
 import { ChatStorage, ChatMessage, ChatThread } from "../../types/chatTypes";
+import { trans } from "i18n";
 
 // ============================================================================
 // UPDATED CONTEXT WITH CLEAN TYPES
@@ -51,7 +52,7 @@ const initialState: ChatState = {
   isInitialized: false,
   isLoading: false,
   currentThreadId: "default",
-  threadList: [{ threadId: "default", status: "regular", title: "New Chat" }],
+  threadList: [{ threadId: "default", status: "regular", title: trans("chat.newChatTitle") }],
   threads: new Map([["default", []]]),
   lastSaved: 0,
 };
@@ -228,7 +229,7 @@ export function ChatProvider({ children, storage }: {
         const defaultThread: ChatThread = {
           threadId: "default",
           status: "regular",
-          title: "New Chat",
+          title: trans("chat.newChatTitle"),
           createdAt: Date.now(),
           updatedAt: Date.now(),
         };
@@ -252,7 +253,7 @@ export function ChatProvider({ children, storage }: {
     dispatch({ type: "SET_CURRENT_THREAD", threadId });
   };
 
-  const createThread = async (title: string = "New Chat"): Promise<string> => {
+  const createThread = async (title: string = trans("chat.newChatTitle")): Promise<string> => {
     const threadId = `thread-${Date.now()}`;
     const newThread: ThreadData = {
       threadId,
@@ -317,7 +318,7 @@ export function ChatProvider({ children, storage }: {
       // if there are no threads left, create a new one
       // avoid infinite re-renders
       if (isLastThread) {
-        const newThreadId = await createThread("New Chat");
+        const newThreadId = await createThread(trans("chat.newChatTitle"));
         setCurrentThread(newThreadId);
       }
     } catch (error) {

@@ -18,6 +18,7 @@ import {
 } from "./context/ChatContext";
 import { MessageHandler } from "../types/chatTypes";
 import styled from "styled-components";
+import { trans } from "i18n";
 
 // ============================================================================
 // STYLED COMPONENTS (same as your current ChatMain)
@@ -147,7 +148,7 @@ export function ChatCoreMain({
       const errorMessage: ChatMessage = {
         id: generateId(),
         role: "assistant", 
-        text: `Sorry, I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        text: trans("chat.errorUnknown"),
         timestamp: Date.now(),
       };
       
@@ -204,7 +205,7 @@ export function ChatCoreMain({
       const errorMessage: ChatMessage = {
         id: generateId(),
         role: "assistant", 
-        text: `Sorry, I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        text: trans("chat.errorUnknown"),
         timestamp: Date.now(),
       };
       
@@ -222,7 +223,7 @@ export function ChatCoreMain({
     archivedThreads: state.threadList.filter((t): t is ArchivedThreadData => t.status === "archived"),
 
     onSwitchToNewThread: async () => {
-      const threadId = await actions.createThread("New Chat");
+      const threadId = await actions.createThread(trans("chat.newChatTitle"));
       actions.setCurrentThread(threadId);
       onEvent?.("threadCreated");
     },
