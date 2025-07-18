@@ -285,3 +285,4 @@ EXPOSE 3443
 
 ENTRYPOINT [ "/bin/sh" , "/lowcoder/entrypoint.sh" ]
 CMD ["/usr/bin/supervisord", "-n" , "-c" , "/lowcoder/etc/supervisord.conf"]
+
