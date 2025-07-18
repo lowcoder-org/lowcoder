@@ -41,7 +41,6 @@ export function createChatStorage(tableName: string): ChatStorage {
           )
         `);
 
-        console.log(`✅ Chat database initialized: ${dbName}`);
       } catch (error) {
         console.error(`Failed to initialize chat database ${dbName}:`, error);
         throw error;
@@ -170,7 +169,6 @@ export function createChatStorage(tableName: string): ChatStorage {
         
         // Reinitialize fresh
         await this.initialize();
-        console.log(`✅ Database reset and reinitialized: ${dbName}`);
       } catch (error) {
         console.error("Failed to reset database:", error);
         throw error;
