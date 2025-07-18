@@ -79,13 +79,8 @@ export function ChatCoreMain({
   const { state, actions } = useChatContext();
   const [isRunning, setIsRunning] = useState(false);
 
-  console.log("CHAT CORE STATE", state);
-
   // Get messages for current thread
   const currentMessages = actions.getCurrentMessages();
-
-
-  console.log("CURRENT MESSAGES", currentMessages);
 
   // Notify parent component of conversation changes
   useEffect(() => {
@@ -132,8 +127,6 @@ export function ChatCoreMain({
       // Use the message handler (no more complex logic here!)
       const response = await messageHandler.sendMessage(userMessage.text);
 
-      console.log("AI RESPONSE", response);
-      
       const assistantMessage: ChatMessage = {
         id: generateId(),
         role: "assistant",

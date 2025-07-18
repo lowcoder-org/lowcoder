@@ -78,9 +78,7 @@ export class QueryHandler implements MessageHandler {
         )
       );
 
-      console.log("QUERY RESULT", result);
-
-     return result.message
+      return result.message
     } catch (e: any) {
       throw new Error(e?.message || "Query execution failed");
     }
