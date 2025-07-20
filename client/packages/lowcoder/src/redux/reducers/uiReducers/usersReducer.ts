@@ -25,7 +25,9 @@ const initialState: UsersReduxState = {
   workspaces: {
     items: [],
     totalCount: 0,
-    currentOrg: null
+    currentOrg: null,
+    loading: false,
+    isFetched: false,
     
   }
 };
@@ -198,6 +200,14 @@ const usersReducer = createReducer(initialState, {
     apiKeys: action.payload,
   }),
 
+  [ReduxActionTypes.FETCH_WORKSPACES_INIT]: (state: UsersReduxState) => ({
+      ...state,
+      workspaces: {
+        ...state.workspaces,
+        loading: true,
+      },
+  }),
+
   
   [ReduxActionTypes.FETCH_WORKSPACES_SUCCESS]: (
     state: UsersReduxState,
@@ -208,7 +218,9 @@ const usersReducer = createReducer(initialState, {
       items: action.payload.isLoadMore 
         ? [...state.workspaces.items, ...action.payload.items] // Append for load more
         : action.payload.items, // Replace for new search/initial load
-      totalCount: action.payload.totalCount
+      totalCount: action.payload.totalCount,
+      isFetched: true,
+      loading: false,
     }
   }),
   
@@ -234,6 +246,8 @@ export interface UsersReduxState {
     items: Org[];           // Current page of workspaces
     totalCount: number;     // Total workspaces available
     currentOrg: Org | null;
+    loading: boolean;
+    isFetched: boolean;
   };
 }
 

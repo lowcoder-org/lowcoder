@@ -26,13 +26,12 @@ export const EnterpriseProvider: React.FC<ProviderProps> = ({ children }) => {
         // Fetch the enterprise license only if we're in an EE environment
         dispatch(fetchEnterpriseLicense());
         dispatch(fetchEnvironments());
-        dispatch(fetchBrandingSetting({ orgId: user.currentOrgId, fallbackToGlobal: true }))
       } else {
         // Set the state to false for non-EE environments
         // setEEActiveState(false);
         setIsEnterpriseActive(false);
       }
-    }, [dispatch, user.currentOrgId]);
+    }, [dispatch]);
   
     useEffect(() => {
       if (isEEEnvironment()) {
@@ -41,6 +40,12 @@ export const EnterpriseProvider: React.FC<ProviderProps> = ({ children }) => {
         setIsEnterpriseActive(isEnterpriseActiveRedux);
       }
     }, [isEnterpriseActiveRedux]);
+
+    useEffect(() => {
+      if (isEEEnvironment()) {
+        dispatch(fetchBrandingSetting({ orgId: user.currentOrgId, fallbackToGlobal: true }))
+      }
+    }, [dispatch, user.currentOrgId]);
   
     return (
       <EnterpriseContext.Provider value={{ isEnterpriseActive }}>

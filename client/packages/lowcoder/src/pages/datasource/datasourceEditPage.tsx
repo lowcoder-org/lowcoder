@@ -1,20 +1,25 @@
 import styled from "styled-components";
 import history from "../../util/history";
 import { default as Button } from "antd/es/button";
-import { useCallback, useMemo, useState } from "react";
+import { Spin } from "antd";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { CopyTextButton, DocIcon, PackUpIcon, TacoButton } from "lowcoder-design";
 import { useDatasourceForm } from "./form/useDatasourceForm";
 import { useParams } from "react-router-dom";
 import { DATASOURCE_URL } from "../../constants/routesURL";
 import { useSelector } from "react-redux";
-import { getDataSource, getDataSourceTypes } from "../../redux/selectors/datasourceSelectors";
+import { getDataSourceTypes } from "../../redux/selectors/datasourceSelectors";
 import { trans } from "i18n";
 import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 import { getDatasourceTutorial } from "@lowcoder-ee/util/tutorialUtils";
 import { getDataSourceFormManifest } from "./getDataSourceFormManifest";
 import DataSourceIcon from "components/DataSourceIcon";
 import { Helmet } from "react-helmet";
-
+import { DatasourceApi } from "@lowcoder-ee/api/datasourceApi";
+import { DatasourceInfo } from "@lowcoder-ee/api/datasourceApi";
+import { GenericApiResponse } from "../../api/apiResponses";
+import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
+import { AxiosResponse } from "axios";
 const Wrapper = styled.div`
   display: flex;
   justify-content: center;
@@ -154,16 +159,44 @@ type DatasourcePathParams = {
 
 export const DatasourceEditPage = () => {
   const { datasourceId, datasourceType } = useParams<DatasourcePathParams>();
-  const datasourceList = useSelector(getDataSource);
   const datasourceTypes = useSelector(getDataSourceTypes);
   const [isReady, setIsReady] = useState(true);
 
-  const datasourceInfo = useMemo(() => {
+
+  const [datasourceInfo, setDatasourceInfo] = useState<DatasourceInfo | undefined>();
+  const [loading, setLoading] = useState(false);
+
+  // Fetch individual datasource when editing
+  useEffect(() => {
     if (!datasourceId) {
-      return undefined;
+      setDatasourceInfo(undefined);
+      return;
     }
-    return datasourceList.find((info) => info.datasource.id === datasourceId);
-  }, [datasourceId, datasourceList]);
+    
+    const fetchDatasource = async () => {
+      setLoading(true);
+      try {
+        const response: AxiosResponse<GenericApiResponse<Datasource>> = await DatasourceApi.getDatasourceById(datasourceId);
+        if (response.data.success) {
+          // Transform to DatasourceInfo format
+          setDatasourceInfo({
+            datasource: response.data.data,
+            edit: true, // Assume editable since user reached edit page
+          });
+        } else {
+          console.error('API returned error:', response.data);
+          setDatasourceInfo(undefined);
+        }
+      } catch (error: any) {
+        console.error('Failed to fetch datasource:', error);
+        setDatasourceInfo(undefined);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDatasource();
+  }, [datasourceId]);
 
   const dataSourceTypeInfo = useMemo(() => {
     if (datasourceId) {
@@ -180,6 +213,26 @@ export const DatasourceEditPage = () => {
   const handleFormReadyStatusChange = useCallback((isReady: boolean) => {
     setIsReady(isReady);
   }, []);
+
+  // Show loading state while fetching datasource
+  if (loading) {
+    return (
+      <Wrapper>
+        <ContentWrapper>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            height: '400px',
+            flexDirection: 'column',
+            gap: '16px'
+          }}>
+            <Spin size="large" />
+          </div>
+        </ContentWrapper>
+      </Wrapper>
+    );
+  }
 
   if (!finalDataSourceType) {
     return null;
