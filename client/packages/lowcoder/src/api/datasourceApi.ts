@@ -187,6 +187,10 @@ export class DatasourceApi extends Api {
     return Api.get(DatasourceApi.url + `/listByOrg?orgId=${orgId}`, {...res});
   }
 
+  static getDatasourceById(id: string): AxiosPromise<GenericApiResponse<Datasource>> {
+    return Api.get(`${DatasourceApi.url}/${id}`);
+  }
+
   static createDatasource(
     datasourceConfig: Partial<Datasource>
   ): AxiosPromise<GenericApiResponse<Datasource>> {
