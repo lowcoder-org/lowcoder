@@ -265,6 +265,7 @@ const tableChildrenMap = {
   selectedCell: stateComp<JSONObject>({}),
   inlineAddNewRow: BoolControl,
   editModeClicks: dropdownControl(editModeClickOptions, "single"),
+  currentExpandedRows: stateComp<string[]>([]),
 };
 
 export const TableInitComp = (function () {

@@ -28,7 +28,7 @@ import { CompNameContext, EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { PrimaryColor } from "constants/style";
 import { trans } from "i18n";
-import _ from "lodash";
+import _, { isEqual } from "lodash";
 import { darkenColor, isDarkColor, isValidColor, ScrollBar } from "lowcoder-design";
 import React, { Children, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Resizable } from "react-resizable";
@@ -48,6 +48,7 @@ import { TableSummary } from "./tableSummaryComp";
 import Skeleton from "antd/es/skeleton";
 import { SkeletonButtonProps } from "antd/es/skeleton/Button";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { useUpdateEffect } from "react-use";
 
 export const EMPTY_ROW_KEY = 'empty_row';
 
@@ -814,6 +815,7 @@ export const TableCompView = React.memo((props: {
   onRefresh: (allQueryNames: Array<string>, setLoading: (loading: boolean) => void) => void;
   onDownload: (fileName: string) => void;
 }) => {
+  const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
   const [emptyRowsMap, setEmptyRowsMap] = useState<Record<string, RecordType>>({});
   const editorState = useContext(EditorContext);
   const currentTheme = useContext(ThemeContext)?.theme;
@@ -856,6 +858,7 @@ export const TableCompView = React.memo((props: {
   const size = useMemo(() => compChildren.size.getView(), [compChildren.size]);
   const editModeClicks = useMemo(() => compChildren.editModeClicks.getView(), [compChildren.editModeClicks]);
   const onEvent = useMemo(() => compChildren.onEvent.getView(), [compChildren.onEvent]);
+  const currentExpandedRows = useMemo(() => compChildren.currentExpandedRows.getView(), [compChildren.currentExpandedRows]);
   const dynamicColumn = compChildren.dynamicColumn.getView();
   const dynamicColumnConfig = useMemo(
     () => compChildren.dynamicColumnConfig.getView(),
@@ -954,6 +957,18 @@ export const TableCompView = React.memo((props: {
   useEffect(() => {
     updateEmptyRows();
   }, [updateEmptyRows]);
+
+  useUpdateEffect(() => {
+    if (!isEqual(currentExpandedRows, expandedRowKeys)) {
+      compChildren.currentExpandedRows.dispatchChangeValueAction(expandedRowKeys);
+    }
+  }, [expandedRowKeys]);
+
+  useUpdateEffect(() => {
+    if (!isEqual(currentExpandedRows, expandedRowKeys)) {
+      setExpandedRowKeys(currentExpandedRows);
+    }
+  }, [currentExpandedRows]);
 
   const pageDataInfo = useMemo(() => {
     // Data pagination
@@ -1104,7 +1119,11 @@ export const TableCompView = React.memo((props: {
                   } else {
                     handleChangeEvent('rowShrink')
                   }
-                }
+                },
+                onExpandedRowsChange: (expandedRowKeys) => {
+                  setExpandedRowKeys(expandedRowKeys as unknown as string[]);
+                },
+                expandedRowKeys: expandedRowKeys,
               }}
               // rowKey={OB_ROW_ORI_INDEX}
               rowColorFn={compChildren.rowColor.getView() as any}
