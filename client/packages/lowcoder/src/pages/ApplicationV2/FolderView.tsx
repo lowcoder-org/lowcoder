@@ -1,7 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { HomeBreadcrumbType, HomeLayout } from "./HomeLayout";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
+import { useDebouncedValue } from "util/hooks";
 import {ApplicationCategoriesEnum, ApplicationMeta, FolderMeta} from "../../constants/applicationConstants";
 import { buildFolderUrl } from "../../constants/routesURL";
 import { folderElementsSelector, foldersSelector } from "../../redux/selectors/folderSelector";
@@ -100,13 +101,12 @@ export function FolderView() {
         }, [searchValues]
     );
 
-    useEffect(()=> {
-        const timer = setTimeout(() => {
-            if (searchValue.length > 2 || searchValue === "")
-                setSearchValues(searchValue)
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [searchValue])
+    const debouncedSearchValue = useDebouncedValue(searchValue, 500);
+
+    useEffect(() => {
+        if (debouncedSearchValue.trim().length > 0 || debouncedSearchValue === "")
+            setSearchValues(debouncedSearchValue);
+    }, [debouncedSearchValue]);
 
   return (
     <>

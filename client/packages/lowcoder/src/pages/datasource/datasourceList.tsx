@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { EditPopover, PointIcon, Search, TacoButton } from "lowcoder-design";
-import {useEffect, useState} from "react";
+import { useState, useEffect } from "react";
+import { useDebouncedValue } from "util/hooks";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataSourceTypesMap } from "../../redux/selectors/datasourceSelectors";
 import { deleteDatasource } from "../../redux/reduxActions/datasourceActions";
@@ -124,13 +125,13 @@ export const DatasourceList = () => {
   const [pageSize, setPageSize] = useState(10);
   const [paginationLoading, setPaginationLoading] = useState(false);
 
-  useEffect(()=> {
-    const timer = setTimeout(() => {
-      if (searchValue.length > 2 || searchValue === "")
-        setSearchValues(searchValue)
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchValue])
+  const debouncedSearchValue = useDebouncedValue(searchValue, 500);
+
+  useEffect(() => {
+    if (debouncedSearchValue.trim().length > 0 || debouncedSearchValue === "") {
+      setSearchValues(debouncedSearchValue);
+    }
+  }, [debouncedSearchValue]);
 
   useEffect( () => {
     setPaginationLoading(true);
