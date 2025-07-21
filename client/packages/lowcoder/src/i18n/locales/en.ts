@@ -3034,6 +3034,7 @@ export const en = {
     "joinTimeColumn": "Joining Time",
     "actionColumn": "Operation",
     "roleColumn": "Role",
+    "filterByRole": "Filter by role",
     "exitGroup": "Exit Group",
     "moveOutGroup": "Remove from Group",
     "inviteUser": "Invite Members",
