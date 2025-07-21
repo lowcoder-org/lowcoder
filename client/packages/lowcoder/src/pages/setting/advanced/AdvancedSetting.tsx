@@ -110,9 +110,7 @@ export function AdvancedSetting() {
     }
   }, [canLeave]);
 
-  useEffect(() => {
-    dispatch(fetchCommonSettings({ orgId: currentUser.currentOrgId }));
-  }, [currentUser.currentOrgId, dispatch]);
+
 
   const handleSave = (key: keyof typeof settings, onSuccess?: () => void) => {
     return (value?: any) => {
