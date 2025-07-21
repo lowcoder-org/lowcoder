@@ -184,7 +184,7 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
   }, [defaultValue]);
 
   useEffect(() => {
-    if (!changeRef.current) {
+    if (!touchRef.current) {
       setLocalInputValue(inputValue);
     }
   }, [inputValue]);
