@@ -100,8 +100,7 @@ const GroupUsersPermission: React.FC<GroupPermissionProp> = (props) => {
     });
   }, [groupUsers]);
 
- const roleFilterOptions = useCallback(() => {
-  const filterOptions = [
+  const roleFilterOptions = useMemo(() => [
     ...TacoRoles.map(role => ({
       label: GroupRoleInfo[role].name,
       value: role as RoleIdType | ""
@@ -110,9 +109,7 @@ const GroupUsersPermission: React.FC<GroupPermissionProp> = (props) => {
       label: "All",
       value: "" as RoleIdType | ""
     }
-  ]
-  return filterOptions;
- }, [])
+  ], []);
 
   const debouncedFetchPotentialMembers = useCallback(
     debounce((searchVal: string, roleFilter: string) => {
@@ -153,7 +150,7 @@ const GroupUsersPermission: React.FC<GroupPermissionProp> = (props) => {
         {isGroupAdmin(currentUserGroupRole) && !group.syncGroup && (
           <OptionsHeader>
             <Dropdown
-              options={roleFilterOptions()}
+              options={roleFilterOptions}
               value={roleFilter || ""}
               onChange={(value) => {
                 setRoleFilter(value);
