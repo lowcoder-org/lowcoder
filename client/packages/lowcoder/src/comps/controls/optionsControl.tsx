@@ -29,7 +29,6 @@ import {
   IconRadius,
   Option,
   WidthIcon,
-  ImageCompIcon,
   CloseEyeIcon,
 } from "lowcoder-design";
 import styled from "styled-components";
@@ -39,8 +38,8 @@ import { JSONObject, JSONValue } from "util/jsonTypes";
 import { ButtonEventHandlerControl } from "./eventHandlerControl";
 import { ControlItemCompBuilder } from "comps/generators/controlCompBuilder";
 import { ColorControl } from "./colorControl";
-import { StringStateControl } from "./codeStateControl";
 import { reduceInContext } from "../utils/reduceContext";
+import { BorderOuterOutlined } from "@ant-design/icons";
 
 // Tag preset color options
 const TAG_PRESET_COLORS = [
@@ -786,17 +785,26 @@ let TagsCompOptions = new MultiCompBuilder(
   {
     label: StringControl,
     icon: IconControl,
-    colorType: withDefault(dropdownControl([
+    colorType: dropdownControl([
+      { label: "Default", value: "default"},
       { label: trans("style.preset"), value: "preset" },
       { label: trans("style.custom"), value: "custom" },
-    ] as const, "preset"), "preset"),
-    presetColor: withDefault(dropdownControl(TAG_PRESET_COLORS, "blue"), "blue"),
+    ], "default"),
+    presetColor: dropdownControl(TAG_PRESET_COLORS, "default"),
     color: withDefault(ColorControl, "#1890ff"),
     textColor: withDefault(ColorControl, "#ffffff"),
     border: withDefault(ColorControl, ""),
+    borderWidth: withDefault(RadiusControl, ""),
+    borderStyle: withDefault(dropdownControl([
+      { label: "Solid", value: "solid" },
+      { label: "Dashed", value: "dashed" },
+      { label: "Dotted", value: "dotted" },
+      { label: "None", value: "none" },
+    ], "solid"), "solid"),
     radius: withDefault(RadiusControl, ""),
     margin: withDefault(StringControl, ""),
     padding: withDefault(StringControl, ""),
+    width: withDefault(StringControl, ""),
   },
   (props) => props
 ).build();
@@ -809,8 +817,7 @@ TagsCompOptions = class extends TagsCompOptions implements OptionCompProperty {
         {this.children.label.propertyView({ label: trans("coloredTagOptionControl.tag") })}
         {this.children.icon.propertyView({ label: trans("coloredTagOptionControl.icon") })}
         {this.children.colorType.propertyView({ 
-          label: trans("style.colorType"), 
-          radioButton: true 
+          label: trans("style.styleOptions")
         })}
         {colorType === "preset" && this.children.presetColor.propertyView({ 
           label: trans("style.presetColor") 
@@ -821,8 +828,16 @@ TagsCompOptions = class extends TagsCompOptions implements OptionCompProperty {
             {this.children.textColor.propertyView({ label: trans("style.textColor") })}
           </>
         )}
+        {this.children.borderStyle.propertyView({
+          label: trans('style.borderStyle'),
+          preInputNode: <StyledIcon as={BorderOuterOutlined} title="" />,
+        })}
         {this.children.border.propertyView({
           label: trans('style.border')
+        })}
+        {this.children.borderWidth.propertyView({
+          label: trans('style.borderWidth'),
+          preInputNode: <StyledIcon as={WidthIcon} title="" />,
         })}
         {this.children.radius.propertyView({
           label: trans('style.borderRadius'),
@@ -839,6 +854,11 @@ TagsCompOptions = class extends TagsCompOptions implements OptionCompProperty {
           preInputNode: <StyledIcon as={CompressIcon} title="" />,	
           placeholder: '3px',
         })}
+        {this.children.width.propertyView({
+          label: trans('splitLayout.width'),
+          preInputNode: <StyledIcon as={WidthIcon} title="" />,	
+          placeholder: '100px',
+        })}
       </>
     );
   }
@@ -846,8 +866,8 @@ TagsCompOptions = class extends TagsCompOptions implements OptionCompProperty {
 
 export const TagsCompOptionsControl = optionsControl(TagsCompOptions, {
   initOptions: [
-    { label: "Option 1", colorType: "preset", presetColor: "blue" }, 
-    { label: "Option 2", colorType: "preset", presetColor: "green" }
+    { label: "Option 1", colorType: "default"}, 
+    { label: "Option 2", colorType: "default"}
   ],
   uniqField: "label",
 });
