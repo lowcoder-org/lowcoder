@@ -48,6 +48,7 @@ export function getButtonStyle(buttonStyle: any, disabledStyle: any) {
       &.ant-btn-disabled {
         color: ${disabledStyle.disabledText};
         background: ${disabledStyle.disabledBackground};
+        border-color: ${disabledStyle.disabledBorder};
         cursor: not-allowed;
       }
     }
@@ -70,15 +71,15 @@ export const Button100 = styled(Button)<{ $buttonStyle?: any; $disabledStyle?: a
 `;
 
 export const ButtonCompWrapper = styled.div<{ disabled: boolean }>`
-  // The button component is disabled but can respond to drag & select events
-  ${(props) =>
-    props.disabled &&
-    `
-    cursor: not-allowed;
-    button:disabled {
-      pointer-events: none;
-    }
-  `};
+   ${(props) =>
+    props.disabled
+      ? css`
+          cursor: not-allowed;
+          button:disabled {
+            pointer-events: none;
+          }
+        `
+      : ''};
 `;
 
 /**

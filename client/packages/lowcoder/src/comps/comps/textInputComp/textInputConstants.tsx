@@ -184,6 +184,12 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
   }, [defaultValue]);
 
   useEffect(() => {
+    if (!touchRef.current) {
+      setLocalInputValue(inputValue);
+    }
+  }, [inputValue]);
+
+  useEffect(() => {
     if (!changeRef.current) return;
 
     setValidateState(
@@ -214,6 +220,7 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
     debounce(function (value: string, valueCtx: any) {
       propsRef.current.value.onChange(value);
       propsRef.current.onEvent("change");
+      changeRef.current = false;  // Reset after commit
     }, 1000)
   );  
 

@@ -1,8 +1,9 @@
 import { useReducer, useEffect, useCallback, useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { debounce } from 'lodash';
 import { Org } from 'constants/orgConstants';
 import { getWorkspaces } from 'redux/selectors/orgSelectors';
+import { fetchWorkspacesAction } from 'redux/reduxActions/orgActions';
 import UserApi from 'api/userApi';
 
 // State interface for the workspace manager
@@ -73,6 +74,7 @@ export function useWorkspaceManager({
 }: UseWorkspaceManagerOptions) {
   // Get workspaces from Redux
   const workspaces = useSelector(getWorkspaces);
+  const reduxDispatch = useDispatch();
   
   // Initialize reducer with Redux total count
   const [state, dispatch] = useReducer(workspaceReducer, {
@@ -80,6 +82,14 @@ export function useWorkspaceManager({
     totalCount: workspaces.totalCount,
   });
 
+
+ 
+  /* ----- first-time fetch ------------------------------------------------ */
+  useEffect(() => {
+    if (!workspaces.isFetched && !workspaces.loading) {
+      reduxDispatch(fetchWorkspacesAction(1, pageSize));
+    }
+  }, [workspaces.isFetched, workspaces.loading, pageSize, reduxDispatch]);
 
   // API call to fetch workspaces (memoized for stable reference)
   const fetchWorkspacesPage = useCallback(
@@ -177,7 +187,7 @@ export function useWorkspaceManager({
     // State
     searchTerm: state.searchTerm,
     currentPage: state.currentPage,
-    isLoading: state.isLoading,
+    isLoading: state.isLoading || workspaces.loading,
     displayWorkspaces,
     totalCount: currentTotalCount,
     
