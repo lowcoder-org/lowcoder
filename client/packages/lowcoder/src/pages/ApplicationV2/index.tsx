@@ -176,6 +176,7 @@ export default function ApplicationHome() {
                     routePath: ALL_APPLICATIONS_URL,
                     routeComp: HomeView,
                     icon: ({ selected, ...otherProps }) => selected ? <AppsIcon {...otherProps} width={"24px"}/> : <AppsIcon {...otherProps} width={"24px"}/>,
+                    onSelected: (_, currentPath) => currentPath === ALL_APPLICATIONS_URL || currentPath.startsWith("/folder"),
                   },
                 ],
               },
