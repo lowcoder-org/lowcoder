@@ -129,7 +129,7 @@ const multiTags = (function () {
               $customStyle={tagStyle}
               icon={tagIcon}
               color={tagColor}
-              onClick={() => handleClickEvent()}
+              onClick={handleClickEvent}
             >
               {tag.label}
             </StyledTag>
