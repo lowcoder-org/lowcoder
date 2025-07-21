@@ -1,16 +1,3 @@
-import { 
-  BoolCodeControl, 
-  ButtonEventHandlerControl, 
-  InputLikeStyle, 
-  NameConfig, 
-  Section, 
-  UICompBuilder, 
-  hiddenPropertyView, 
-  sectionNames, 
-  showDataLoadingIndicatorsPropertyView, 
-  styleControl, 
-  withExposingConfigs 
-} from "@lowcoder-ee/index.sdk";
 import styled from "styled-components";
 import React, { useContext } from "react";
 import { trans } from "i18n";
@@ -20,6 +7,15 @@ import { PresetStatusColorTypes } from "antd/es/_util/colors";
 import { hashToNum } from "util/stringUtils";
 import { TagsCompOptionsControl } from "comps/controls/optionsControl";
 import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
+import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
+import { ButtonEventHandlerControl } from "@lowcoder-ee/comps/controls/eventHandlerControl";
+import { InputLikeStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import { BoolCodeControl } from "@lowcoder-ee/comps/controls/codeControl";
+import { UICompBuilder } from "@lowcoder-ee/comps/generators/uiCompBuilder";
+import { Section, sectionNames } from "lowcoder-design";
+import { NameConfig } from "@lowcoder-ee/comps/generators/withExposing";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "@lowcoder-ee/comps/utils/propertyUtils";
+import { withExposingConfigs } from "@lowcoder-ee/comps/generators/withExposing";
 
 const colors = PresetStatusColorTypes;
 
@@ -145,7 +141,7 @@ const multiTags = (function () {
     .setPropertyViewFn((children: any) => {
       return (
         <>
-          <Section name="Basic">
+          <Section name={sectionNames.basic}>
             {children.options.propertyView({})} 
           </Section>
 
