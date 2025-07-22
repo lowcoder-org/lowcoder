@@ -281,7 +281,8 @@ function toRegExp(value: unknown): RegExp {
     return value as RegExp;
   } else if (valueType === "string") {
     const regexStr = trimStart(value as string, "^");
-    return new RegExp("^" + (regexStr ?? ".*") + "$");
+    const finalRegexStr = regexStr || ".*";
+    return new RegExp("^" + finalRegexStr + "$");
   }
   throw new TypeError(
     `must be a valid JavaScript regular expression without forward slashes around the pattern`
