@@ -25,6 +25,7 @@ import {
   import { Spin, Flex } from "antd";
   import { LoadingOutlined } from "@ant-design/icons";
   import styled from "styled-components";
+import { ComposerAddAttachment, ComposerAttachments } from "../ui/attachment";
   const SimpleANTDLoader = () => {
     const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
     
@@ -150,6 +151,8 @@ import {
   const Composer: FC<{ placeholder?: string }> = ({ placeholder = trans("chat.composerPlaceholder") }) => {
     return (
       <ComposerPrimitive.Root className="aui-composer-root">
+        <ComposerAttachments />
+        <ComposerAddAttachment />
         <ComposerPrimitive.Input
           rows={1}
           autoFocus
