@@ -625,6 +625,7 @@ export default function Header(props: HeaderProps) {
             onVisibleChange={(visible) =>
               !visible && setPermissionDialogVisible(false)
             }
+            publishedVersion={application?.publishedVersion}
           />
         )}
         {canManageApp(user, application) && (

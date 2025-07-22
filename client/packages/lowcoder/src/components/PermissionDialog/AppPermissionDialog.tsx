@@ -36,7 +36,6 @@ import StepModal from "../StepModal";
 import { AddIcon } from "icons";
 import { GreyTextColor } from "constants/style";
 import { VersionDataForm } from "@lowcoder-ee/pages/common/versionDataForm";
-import { SocialShareButtons } from "components/SocialShareButtons";
 
 const BottomWrapper = styled.div`
   margin: 12px 16px 0 16px;
@@ -77,11 +76,12 @@ export const AppPermissionDialog = React.memo(
     applicationId: string;
     visible: boolean;
     onVisibleChange: (visible: boolean) => void;
+    publishedVersion?: string | undefined;
   }) => {
     const [form] = Form.useForm();
     const { appType } = useContext(ExternalEditorContext);
     const isModule = appType === AppTypeEnum.Module;
-    const { applicationId } = props;
+    const { applicationId, publishedVersion } = props;
 
     const dispatch = useDispatch();
     const appPermissionInfo = useSelector(getAppPermissionInfo);
@@ -249,6 +249,7 @@ export const AppPermissionDialog = React.memo(
                 applicationId={applicationId}
                 permissionInfo={appPermissionInfo!}
                 form={form}
+                publishedVersion={publishedVersion}
               />
             ),
             footerRender: (modalProps) => (
@@ -338,8 +339,15 @@ function AppShareView(props: {
   permissionInfo: AppPermissionInfo;
   isModule: boolean;
   form: any;
+  publishedVersion?: string;
 }) {
-  const { applicationId, permissionInfo, isModule, form } = props;
+  const {
+    applicationId,
+    permissionInfo,
+    isModule,
+    form,
+    publishedVersion,
+  } = props;
   const [isPublic, setPublic] = useState(permissionInfo.publicToAll);
   const [isPublicToMarketplace, setPublicToMarketplace] = useState(
     permissionInfo.publicToMarketplace
@@ -351,7 +359,6 @@ function AppShareView(props: {
   useEffect(() => {
     setPublicToMarketplace(permissionInfo.publicToMarketplace);
   }, [permissionInfo.publicToMarketplace]);
-  const inviteLink = window.location.origin + APPLICATION_VIEW_URL(props.applicationId, "view");
 
   return (
     <div style={{ marginBottom: "22px" }}>
@@ -424,7 +431,7 @@ function AppShareView(props: {
       {isPublic && <AppInviteView appId={applicationId} />}
       <Divider />
 
-      <VersionDataForm form={form} preserve={false} />
+      <VersionDataForm form={form} preserve={false} latestVersion={publishedVersion} />
 
       <div>
         <Typography.Text type="secondary">
