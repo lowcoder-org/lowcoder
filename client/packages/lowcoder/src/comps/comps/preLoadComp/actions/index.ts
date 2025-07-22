@@ -2,10 +2,10 @@
 export * from './componentManagement';
 
 // Component Configuration Actions
-export { configureComponentAction } from './componentConfiguration';
+export * from './appConfiguration';
 
 // Layout Actions
-export { changeLayoutAction } from './componentLayout';
+export { alignComponentAction, updateDynamicLayoutAction } from './componentLayout';
 
 // Event Actions
 export { addEventHandlerAction } from './componentEvents';

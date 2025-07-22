@@ -12,12 +12,21 @@ import { default as Space } from "antd/es/space";
 import { default as Flex } from "antd/es/flex";
 import type { InputRef } from 'antd';
 import { default as DownOutlined } from "@ant-design/icons/DownOutlined";
-import { BaseSection } from "lowcoder-design";
+import { BaseSection, Dropdown } from "lowcoder-design";
 import { EditorContext } from "comps/editorState";
 import { message } from "antd";
 import { CustomDropdown } from "./styled";
-import { generateComponentActionItems, getComponentCategories } from "./utils";
+import { 
+  generateComponentActionItems, 
+  getComponentCategories, 
+  getEditorComponentInfo, 
+  getLayoutItemsOrder 
+} from "./utils";
 import { actionRegistry, getAllActionItems } from "./actionConfigs";
+import { getThemeList } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
+import { useSelector } from "react-redux";
+import { ActionOptions } from "comps/controls/actionSelector/actionSelectorControl";
+import { eventToShortcut, readableShortcut } from "util/keyUtils";
 
 export function ActionInputSection() {
   const [actionValue, setActionValue] = useState<string>("");
@@ -31,8 +40,22 @@ export function ActionInputSection() {
   const [showStylingInput, setShowStylingInput] = useState<boolean>(false);
   const [selectedEditorComponent, setSelectedEditorComponent] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [showDynamicLayoutDropdown, setShowDynamicLayoutDropdown] = useState<boolean>(false);
+  const [selectedDynamicLayoutIndex, setSelectedDynamicLayoutIndex] = useState<string | null>(null);
+  const [showThemeDropdown, setShowThemeDropdown] = useState<boolean>(false);
+  const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
+  const [showCustomShortcutsActionDropdown, setShowCustomShortcutsActionDropdown] = useState<boolean>(false);
+  const [selectedCustomShortcutAction, setSelectedCustomShortcutAction] = useState<string | null>(null);
   const inputRef = useRef<InputRef>(null);
   const editorState = useContext(EditorContext);
+  const themeList = useSelector(getThemeList) || [];
+
+  const THEME_OPTIONS = useMemo(() => {
+    return themeList.map((theme) => ({
+      label: theme.name,
+      value: theme.id + "",
+    }));
+  }, [themeList]);
 
   const categories = useMemo(() => {
     return getComponentCategories();
@@ -54,6 +77,25 @@ export function ActionInputSection() {
       label: comp.name,
       key: comp.name
     }));
+  }, [editorState]);
+
+  const simpleLayoutItems = useMemo(() => {
+    if(!editorComponents) return [];
+
+    const editorComponentInfo = getEditorComponentInfo(editorState);
+    if(!editorComponentInfo) return [];
+  
+    const currentLayout = editorComponentInfo.currentLayout;
+    const items = editorComponentInfo.items;
+    
+    return Object.keys(currentLayout).map((key) => {
+      const item = items ? items[key] : null;
+      const componentName = item ? (item as any).children.name.getView() : key;
+      return {
+        label: componentName,
+        key: componentName
+      };
+    });
   }, [editorState]);
 
   const currentAction = useMemo(() => {
@@ -81,8 +123,14 @@ export function ActionInputSection() {
     setSelectedEditorComponent(null);
     setIsNestedComponent(false);
     setSelectedNestComponent(null);
+    setShowDynamicLayoutDropdown(false);
     setActionValue("");
-
+    setSelectedDynamicLayoutIndex(null);
+    setShowThemeDropdown(false);
+    setSelectedTheme(null);
+    setShowCustomShortcutsActionDropdown(false);
+    setSelectedCustomShortcutAction(null);
+    
     if (action.requiresComponentSelection) {
       setShowComponentDropdown(true);
       setPlaceholderText("Select a component to add");
@@ -102,6 +150,15 @@ export function ActionInputSection() {
     }
     if (action.isNested) {
       setIsNestedComponent(true);
+    }
+    if(action.dynamicLayout) {
+      setShowDynamicLayoutDropdown(true);
+    }
+    if(action.isTheme) {
+      setShowThemeDropdown(true);
+    }
+    if(action.isCustomShortcuts) {
+      setShowCustomShortcutsActionDropdown(true);
     }
   }, []);
 
@@ -168,6 +225,16 @@ export function ActionInputSection() {
       return;
     }
 
+    if(currentAction.isTheme && !selectedTheme) {
+      message.error('Please select a theme');
+      return;
+    }
+
+    if(currentAction.isCustomShortcuts && !selectedCustomShortcutAction) {
+      message.error('Please select a custom shortcut action');
+      return;
+    }
+
     try {
       await currentAction.execute({
         actionKey: selectedActionKey,
@@ -175,6 +242,9 @@ export function ActionInputSection() {
         selectedComponent,
         selectedEditorComponent,
         selectedNestComponent,
+        selectedDynamicLayoutIndex,
+        selectedTheme,
+        selectedCustomShortcutAction,
         editorState
       });
 
@@ -189,7 +259,12 @@ export function ActionInputSection() {
       setValidationError(null);
       setIsNestedComponent(false);
       setSelectedNestComponent(null);
-
+      setShowDynamicLayoutDropdown(false);
+      setSelectedDynamicLayoutIndex(null);
+      setShowThemeDropdown(false);
+      setSelectedTheme(null);
+      setShowCustomShortcutsActionDropdown(false);
+      setSelectedCustomShortcutAction(null);
     } catch (error) {
       console.error('Error executing action:', error);
       message.error('Failed to execute action. Please try again.');
@@ -200,6 +275,9 @@ export function ActionInputSection() {
     selectedComponent, 
     selectedEditorComponent, 
     selectedNestComponent,
+    selectedDynamicLayoutIndex,
+    selectedTheme,
+    selectedCustomShortcutAction,
     editorState, 
     currentAction, 
     validateInput
@@ -213,7 +291,16 @@ export function ActionInputSection() {
     if (currentAction.requiresInput && !actionValue.trim()) return true;
     
     return false;
-  }, [selectedActionKey, currentAction, selectedComponent, selectedEditorComponent, actionValue]);
+  }, [
+    selectedActionKey, 
+    currentAction, 
+    selectedComponent, 
+    selectedEditorComponent, 
+    actionValue, 
+    selectedCustomShortcutAction, 
+    selectedTheme, 
+    selectedNestComponent
+  ]);
 
   const shouldShowInput = useMemo(() => {
     if (!currentAction) return false;
@@ -299,7 +386,7 @@ export function ActionInputSection() {
               popupRender={() => (
                 <Menu
                   items={editorComponents}
-                  onClick={({ key }) => {
+                  onClick={({key}) => {
                     handleEditorComponentSelection(key);
                   }}
                 />
@@ -314,24 +401,111 @@ export function ActionInputSection() {
             </CustomDropdown>
           )}
 
-          {shouldShowInput && (
-            showStylingInput ? (
-              <Input.TextArea
-                ref={inputRef}
-                value={actionValue}
-                onChange={handleInputChange}
-                placeholder={placeholderText}
-                status={validationError ? 'error' : undefined}
-                autoSize={{ minRows: 1 }}
+          {showDynamicLayoutDropdown && (
+            <CustomDropdown
+              overlayStyle={{ 
+              maxHeight: '400px',
+              overflow: 'auto',
+              zIndex: 9999
+            }}
+            popupRender={() => (
+              <Menu
+                items={simpleLayoutItems}
+                onClick={({key}) => {
+                  handleEditorComponentSelection(key);
+                }}
               />
-            ) : (
+            )}
+          >
+            <Button size={"small"}>
+              <Space>
+                {selectedEditorComponent ? selectedEditorComponent : 'Layout'} 
+                <DownOutlined />
+              </Space>
+            </Button>
+          </CustomDropdown>
+          )}
+
+          {showDynamicLayoutDropdown && (
+            <Dropdown
+              options={getLayoutItemsOrder(simpleLayoutItems)}
+              onChange={(value) => {
+                setSelectedDynamicLayoutIndex(value);
+              }}
+            >
+              <Button size={"small"}>
+                <Space>
+                  {selectedEditorComponent ? selectedEditorComponent : 'Layout'} 
+                  <DownOutlined />
+                </Space>
+              </Button>
+            </Dropdown>
+          )}
+
+          {showThemeDropdown && (
+            <Dropdown
+              options={THEME_OPTIONS}
+              onChange={(value) => {
+                setSelectedTheme(value);
+              }}
+            >
+              <Button size={"small"}>
+                <Space>
+                  {selectedTheme ? selectedTheme : 'Select Theme'} 
+                </Space>
+              </Button>
+            </Dropdown>
+          )}
+
+          {showCustomShortcutsActionDropdown && (
+            <Dropdown
+              options={ActionOptions}
+              onChange={(value) => {
+                setSelectedCustomShortcutAction(value);
+              }}
+            >
+              <Button size={"small"}>
+                <Space>
+                  {selectedCustomShortcutAction ? selectedCustomShortcutAction : 'Select Action'} 
+                </Space>
+              </Button>
+            </Dropdown>
+          )}
+
+          {shouldShowInput && (
+            currentAction?.isCustomShortcuts ? (
               <Input
                 ref={inputRef}
-                value={actionValue}
-                onChange={handleInputChange}
+                value={readableShortcut(actionValue)}
                 placeholder={placeholderText}
                 status={validationError ? 'error' : undefined}
+                onKeyDownCapture={(e) => {
+                  setActionValue(eventToShortcut(e));
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onChange={() => {}}
+                readOnly
               />
+            ) : (
+              showStylingInput ? (
+                <Input.TextArea
+                  ref={inputRef}
+                  value={actionValue}
+                  onChange={handleInputChange}
+                  placeholder={placeholderText}
+                  status={validationError ? 'error' : undefined}
+                  autoSize={{ minRows: 1 }}
+                />
+              ) : (
+                <Input
+                  ref={inputRef}
+                  value={actionValue}
+                  onChange={handleInputChange}
+                  placeholder={placeholderText}
+                  status={validationError ? 'error' : undefined}
+                />
+              )
             )
           )}
 

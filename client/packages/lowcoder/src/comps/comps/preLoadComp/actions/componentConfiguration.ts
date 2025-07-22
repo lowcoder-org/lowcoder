@@ -62,4 +62,4 @@ export const configureComponentAction: ActionConfig = {
       message.error('Invalid configuration format');
     }
   }
-}; 
+};

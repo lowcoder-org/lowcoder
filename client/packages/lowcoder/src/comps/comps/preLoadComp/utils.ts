@@ -5,6 +5,7 @@ import { UICompCategory, UICompManifest, uiCompCategoryNames, uiCompRegistry } f
 import { MenuProps } from "antd/es/menu";
 import React from "react";
 import { EditorState } from "@lowcoder-ee/comps/editorState";
+import { getAllCompItems } from "comps/comps/containerBase/utils";
 
 export function runScript(code: string, inHost?: boolean) {
   if (inHost) {
@@ -54,16 +55,17 @@ export function getComponentCategories() {
   });
   return cats;
 } 
-export function getEditorComponentInfo(editorState: EditorState, componentName: string): {
+export function getEditorComponentInfo(editorState: EditorState, componentName?: string): {
   componentKey: string | null;
   currentLayout: any;
   simpleContainer: any;
   componentType?: string | null;
   items: any;
+  allAppComponents: any[];
 } | null {
   try {
     // Get the UI component container
-    if (!editorState || !componentName) {
+    if (!editorState) {
       return null;
     }
 
@@ -83,7 +85,20 @@ export function getEditorComponentInfo(editorState: EditorState, componentName: 
 
     // Get current layout and items
     const currentLayout = simpleContainer.children.layout.getView();
+    
     const items = getCombinedItems(uiCompTree);
+    const allAppComponents = getAllLayoutComponentsFromTree(uiCompTree);
+
+    // If no componentName is provided, return all items
+    if (!componentName) {
+      return {
+        componentKey: null,
+        currentLayout,
+        simpleContainer,
+        items,
+        allAppComponents,
+      };
+    }
 
     // Find the component by name and get its key
     let componentKey: string | null = null;
@@ -93,7 +108,7 @@ export function getEditorComponentInfo(editorState: EditorState, componentName: 
       if ((item as any).children.name.getView() === componentName) {
         componentKey = key;
         componentType = (item as any).children.compType.getView();
-        break
+        break;
       }
     }
 
@@ -103,6 +118,7 @@ export function getEditorComponentInfo(editorState: EditorState, componentName: 
       simpleContainer,
       componentType,
       items,
+      allAppComponents,
     };  
   } catch(error) {
     console.error('Error getting editor component key:', error);
@@ -110,30 +126,110 @@ export function getEditorComponentInfo(editorState: EditorState, componentName: 
   }
 }
 
-interface Container {
-  items?: Record<string, any>; 
-}
-
-function getCombinedItems(uiCompTree: any) {
+function getCombinedItems(uiCompTree: any, parentPath: string[] = []): Record<string, any> {
   const combined: Record<string, any> = {};
 
-  if (uiCompTree.items) {
-    Object.entries(uiCompTree.items).forEach(([itemKey, itemValue]) => {
-      combined[itemKey] = itemValue;
-    });
+  function processContainer(container: any, currentPath: string[]) {
+    if (container.items) {
+      Object.entries(container.items).forEach(([itemKey, itemValue]) => {
+        (itemValue as any).parentPath = [...currentPath];
+        combined[itemKey] = itemValue;
+      });
+    }
+
+    if (container.children) {
+      Object.entries(container.children).forEach(([childKey, childContainer]) => {
+        const newPath = [...currentPath, childKey];
+        processContainer(childContainer, newPath);
+      });
+    }
   }
 
-  if (uiCompTree.children) {
-    Object.entries(uiCompTree.children).forEach(([parentKey, container]) => {
-      const typedContainer = container as Container; 
-      if (typedContainer.items) {
-        Object.entries(typedContainer.items).forEach(([itemKey, itemValue]) => {
-          itemValue.parentContainer = parentKey;
-          combined[itemKey] = itemValue;
-        });
-      }
-    });
-  }
+  processContainer(uiCompTree, parentPath);
 
   return combined;
+}
+
+export function getLayoutItemsOrder(layoutItems: any[]){
+  const maxIndex = layoutItems.length;
+  return Array.from({ length: maxIndex }, (_, index) => ({
+    key: index,
+    label: `Position ${index}`,
+    value: index.toString()
+  }));
+}
+
+function getAllLayoutComponentsFromTree(compTree: any): any[] {
+  try {
+    const allCompItems = getAllCompItems(compTree);
+    
+    return Object.entries(allCompItems).map(([itemKey, item]) => {
+      const compItem = item as any;
+      if (compItem && compItem.children) {
+        return {
+          id: itemKey,
+          compType: compItem.children.compType?.getView(),
+          name: compItem.children.name?.getView(),
+          key: itemKey,
+          comp: compItem.children.comp,
+          autoHeight: compItem.autoHeight?.(),
+          hidden: compItem.children.comp?.children?.hidden?.getView(),
+          parentPath: compItem.parentPath || []
+        };
+      }
+    });
+  } catch (error) {
+    console.error('Error getting all app components from tree:', error);
+    return [];
+  }
+}
+
+export function getAllContainers(editorState: any) {
+  const containers: Array<{container: any, path: string[]}> = [];
+  
+  function findContainers(comp: any, path: string[] = []) {
+    if (!comp) return;
+    
+    if (comp.realSimpleContainer && typeof comp.realSimpleContainer === 'function') {
+      const simpleContainer = comp.realSimpleContainer();
+      if (simpleContainer) {
+        containers.push({ container: simpleContainer, path });
+      }
+    }
+    
+    if (comp.children) {
+      Object.entries(comp.children).forEach(([key, child]) => {
+        findContainers(child, [...path, key]);
+      });
+    }
+  }
+  
+  const uiComp = editorState.getUIComp();
+  const container = uiComp.getComp();
+  if (container) {
+    findContainers(container);
+  }
+  
+  return containers;
+}
+
+export function findTargetComponent(editorState: any, selectedEditorComponent: string) {
+  const allContainers = getAllContainers(editorState);
+
+  for (const containerInfo of allContainers) {
+    const containerLayout = containerInfo.container.children.layout.getView();
+    const containerItems = containerInfo.container.children.items.children;
+
+    for (const [key, item] of Object.entries(containerItems)) {
+      if ((item as any).children.name.getView() === selectedEditorComponent) {
+        return {
+          container: containerInfo.container,
+          layout: containerLayout,
+          componentKey: key
+        };
+      }
+    }
+  }
+
+  return null;
 }
