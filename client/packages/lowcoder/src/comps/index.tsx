@@ -1684,12 +1684,12 @@ export var uiCompMap: Registry = {
     },
   },
   chat: {
-    name: "Chat",
-    enName: "Chat", 
-    description: "Chat Component",
+    name: trans("uiComp.chatCompName"),
+    enName: "AI Chat", 
+    description: trans("uiComp.chatCompDesc"),
     categories: ["collaboration"],
     icon: CommentCompIcon, // Use existing icon for now
-    keywords: "chat,conversation",
+    keywords: trans("uiComp.chatCompKeywords"),
     comp: ChatComp,
     layoutInfo: {
       w: 12,

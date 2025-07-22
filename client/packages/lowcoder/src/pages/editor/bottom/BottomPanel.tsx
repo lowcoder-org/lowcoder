@@ -13,8 +13,8 @@ import Flex from "antd/es/flex";
 import type { MenuProps } from 'antd/es/menu';
 import { BuildOutlined, DatabaseOutlined } from "@ant-design/icons";
 import Menu from "antd/es/menu/menu";
-import { ChatView } from "@lowcoder-ee/comps/comps/chatComp/chatView";
 import { AIGenerate } from "lowcoder-design";
+import { ChatPanel } from "@lowcoder-ee/comps/comps/chatComp/components/ChatPanel";
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -118,14 +118,18 @@ function Bottom(props: any) {
               <ChatHeader>
                 <ChatTitle>Lowcoder AI Assistant</ChatTitle>
               </ChatHeader>
-              <ChatView
+              {/* <ChatView
                 tableName="LC_AI"
-                modelType="n8n"
-                // streaming={true}
-                // systemPrompt="You are a helpful assistant."
-                // agent={true}
-                // maxInteractions={10}
-                modelHost="http://192.168.100.59:5678/webhook/9a363e76-d3a5-46d1-98c3-4359f7106d33"
+                handlerType="n8n"
+                streaming={true}
+                systemPrompt="You are a helpful assistant."
+                modelHost="http://localhost:5678/webhook-test/9a363e76-d3a5-46d1-98c3-4359f7106d33"
+              /> */}
+             <ChatPanel
+              tableName="LC_AI"
+              modelHost="http://localhost:5678/..."
+              systemPrompt="You are a helpful assistant."
+              streaming={true}
               />
             </Flex>
           )}

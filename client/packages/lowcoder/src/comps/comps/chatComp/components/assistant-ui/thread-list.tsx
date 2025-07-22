@@ -1,16 +1,17 @@
 import type { FC } from "react";
+import { useState } from "react";
 import {
   ThreadListItemPrimitive,
   ThreadListPrimitive,
+  useThreadListItem,
 } from "@assistant-ui/react";
 import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
-
 import { TooltipIconButton } from "./tooltip-icon-button";
 import { useThreadListItemRuntime } from "@assistant-ui/react";
-import { Button, Flex } from "antd";
+import { Button, Flex, Input } from "antd";
+import { trans } from "i18n";
 
 import styled from "styled-components";
-import { useChatContext } from "../context/ChatContext";
 
 const StyledPrimaryButton = styled(Button)`
   // padding: 20px;
@@ -33,7 +34,7 @@ const ThreadListNew: FC = () => {
   return (
     <ThreadListPrimitive.New asChild>
       <StyledPrimaryButton size="middle" type="primary" icon={<PlusIcon size={16}/>}>
-        New Thread
+        {trans("chat.newThread")}
       </StyledPrimaryButton>
     </ThreadListPrimitive.New>
   );
@@ -44,12 +45,23 @@ const ThreadListItems: FC = () => {
 };
 
 const ThreadListItem: FC = () => {
+  const [editing, setEditing] = useState(false);
+  
   return (
     <ThreadListItemPrimitive.Root className="aui-thread-list-item">
       <ThreadListItemPrimitive.Trigger className="aui-thread-list-item-trigger">
-        <ThreadListItemTitle />
+        {editing ? (
+          <ThreadListItemEditInput 
+            onFinish={() => setEditing(false)} 
+          />
+        ) : (
+          <ThreadListItemTitle />
+        )}
       </ThreadListItemPrimitive.Trigger>
-      <ThreadListItemRename />
+      <ThreadListItemRename 
+        onStartEdit={() => setEditing(true)} 
+        editing={editing}
+      />
       <ThreadListItemDelete />
     </ThreadListItemPrimitive.Root>
   );
@@ -58,7 +70,7 @@ const ThreadListItem: FC = () => {
 const ThreadListItemTitle: FC = () => {
   return (
     <p className="aui-thread-list-item-title" style={{margin: 0}}>
-      <ThreadListItemPrimitive.Title fallback="New Chat" />
+      <ThreadListItemPrimitive.Title fallback={trans("chat.newChatTitle")} />
     </p>
   );
 };
@@ -78,37 +90,57 @@ const ThreadListItemDelete: FC = () => {
 };
 
 
-const ThreadListItemRename: FC = () => {
-  const runtime = useThreadListItemRuntime();
-  
-  const handleClick = async () => {
-    // runtime doesn't expose a direct `title` prop; read it from its state
-    let current = "";
-    try {
-      // getState is part of the public runtime surface
-      current = (runtime.getState?.() as any)?.title ?? "";
-    } catch {
-      // fallback – generate a title if the runtime provides a helper
-      if (typeof (runtime as any).generateTitle === "function") {
-        // generateTitle(threadId) in older builds, generateTitle() in newer ones
-        current = (runtime as any).generateTitle((runtime as any).threadId ?? undefined);
-      }
-    }
 
-    const next = prompt("Rename thread", current)?.trim();
-    if (next && next !== current) {
-      await runtime.rename(next);
+const ThreadListItemEditInput: FC<{ onFinish: () => void }> = ({ onFinish }) => {
+  const threadItem = useThreadListItem();
+  const threadRuntime = useThreadListItemRuntime();
+  
+  const currentTitle = threadItem?.title || trans("chat.newChatTitle");
+  
+  const handleRename = async (newTitle: string) => {
+    if (!newTitle.trim() || newTitle === currentTitle){
+      onFinish();
+      return;
+    }
+    
+    try {
+      await threadRuntime.rename(newTitle);
+      onFinish();
+    } catch (error) {
+      console.error("Failed to rename thread:", error);
     }
   };
 
   return (
+    <Input
+      size="small"
+      defaultValue={currentTitle}
+      onBlur={(e) => handleRename(e.target.value)}
+      onPressEnter={(e) => handleRename((e.target as HTMLInputElement).value)}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') onFinish();
+      }}
+      autoFocus
+      style={{ fontSize: '14px', padding: '2px 8px' }}
+    />
+  );
+};
+
+
+const ThreadListItemRename: FC<{ onStartEdit: () => void; editing: boolean }> = ({ 
+  onStartEdit, 
+  editing 
+}) => {
+  if (editing) return null;
+
+  return (
     <TooltipIconButton
-      tooltip="Rename thread"
       variant="ghost"
-      onClick={handleClick}
-      className="aui-thread-list-item-rename"
+      tooltip="Rename thread"
+      onClick={onStartEdit}
     >
       <PencilIcon />
     </TooltipIconButton>
   );
 };
+  

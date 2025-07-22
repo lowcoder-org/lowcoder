@@ -1,15 +1,14 @@
+// client/packages/lowcoder/src/comps/comps/chatComp/context/ChatContext.tsx
+
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from "react";
-import { chatStorage, ThreadData as StoredThreadData } from "../../utils/chatStorage";
+import { ChatStorage, ChatMessage, ChatThread } from "../../types/chatTypes";
+import { trans } from "i18n";
 
-// Define thread-specific message type
-export interface MyMessage {
-  id: string;
-  role: "user" | "assistant";
-  text: string;
-  timestamp: number;
-}
+// ============================================================================
+// UPDATED CONTEXT WITH CLEAN TYPES
+// ============================================================================
 
-// Thread data interfaces
+// Thread data interfaces (using clean types)
 export interface RegularThreadData {
   threadId: string;
   status: "regular";
@@ -24,28 +23,28 @@ export interface ArchivedThreadData {
 
 export type ThreadData = RegularThreadData | ArchivedThreadData;
 
-// Chat state interface
+// Chat state interface (cleaned up)
 interface ChatState {
   isInitialized: boolean;
   isLoading: boolean;
   currentThreadId: string;
   threadList: ThreadData[];
-  threads: Map<string, MyMessage[]>;
-  lastSaved: number; // Timestamp for tracking when data was last saved
+  threads: Map<string, ChatMessage[]>;
+  lastSaved: number;
 }
 
-// Action types
+// Action types (same as before)
 type ChatAction =
   | { type: "INITIALIZE_START" }
-  | { type: "INITIALIZE_SUCCESS"; threadList: ThreadData[]; threads: Map<string, MyMessage[]>; currentThreadId: string }
+  | { type: "INITIALIZE_SUCCESS"; threadList: ThreadData[]; threads: Map<string, ChatMessage[]>; currentThreadId: string }
   | { type: "INITIALIZE_ERROR" }
   | { type: "SET_CURRENT_THREAD"; threadId: string }
   | { type: "ADD_THREAD"; thread: ThreadData }
   | { type: "UPDATE_THREAD"; threadId: string; updates: Partial<ThreadData> }
   | { type: "DELETE_THREAD"; threadId: string }
-  | { type: "SET_MESSAGES"; threadId: string; messages: MyMessage[] }
-  | { type: "ADD_MESSAGE"; threadId: string; message: MyMessage }
-  | { type: "UPDATE_MESSAGES"; threadId: string; messages: MyMessage[] }
+  | { type: "SET_MESSAGES"; threadId: string; messages: ChatMessage[] }
+  | { type: "ADD_MESSAGE"; threadId: string; message: ChatMessage }
+  | { type: "UPDATE_MESSAGES"; threadId: string; messages: ChatMessage[] }
   | { type: "MARK_SAVED" };
 
 // Initial state
@@ -53,12 +52,12 @@ const initialState: ChatState = {
   isInitialized: false,
   isLoading: false,
   currentThreadId: "default",
-  threadList: [{ threadId: "default", status: "regular", title: "New Chat" }],
+  threadList: [{ threadId: "default", status: "regular", title: trans("chat.newChatTitle") }],
   threads: new Map([["default", []]]),
   lastSaved: 0,
 };
 
-// Reducer function
+// Reducer function (same logic, updated types)
 function chatReducer(state: ChatState, action: ChatAction): ChatState {
   switch (action.type) {
     case "INITIALIZE_START":
@@ -150,7 +149,7 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
   }
 }
 
-// Context type
+// Context type (cleaned up)
 interface ChatContextType {
   state: ChatState;
   actions: {
@@ -164,19 +163,25 @@ interface ChatContextType {
     deleteThread: (threadId: string) => Promise<void>;
     
     // Message management  
-    addMessage: (threadId: string, message: MyMessage) => Promise<void>;
-    updateMessages: (threadId: string, messages: MyMessage[]) => Promise<void>;
+    addMessage: (threadId: string, message: ChatMessage) => Promise<void>;
+    updateMessages: (threadId: string, messages: ChatMessage[]) => Promise<void>;
     
     // Utility
-    getCurrentMessages: () => MyMessage[];
+    getCurrentMessages: () => ChatMessage[];
   };
 }
 
 // Create the context
 const ChatContext = createContext<ChatContextType | null>(null);
 
-// Chat provider component
-export function ChatProvider({ children }: { children: ReactNode }) {
+// ============================================================================
+// CHAT PROVIDER - UPDATED TO USE CLEAN STORAGE INTERFACE
+// ============================================================================
+
+export function ChatProvider({ children, storage }: { 
+  children: ReactNode; 
+  storage: ChatStorage; 
+}) {
   const [state, dispatch] = useReducer(chatReducer, initialState);
 
   // Initialize data from storage
@@ -184,10 +189,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "INITIALIZE_START" });
     
     try {
-      await chatStorage.initialize();
+      await storage.initialize();
       
       // Load all threads from storage
-      const storedThreads = await chatStorage.getAllThreads();
+      const storedThreads = await storage.getAllThreads();
       
       if (storedThreads.length > 0) {
         // Convert stored threads to UI format
@@ -198,9 +203,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         }));
         
         // Load messages for each thread
-        const threadMessages = new Map<string, MyMessage[]>();
+        const threadMessages = new Map<string, ChatMessage[]>();
         for (const thread of storedThreads) {
-          const messages = await chatStorage.getMessages(thread.threadId);
+          const messages = await storage.getMessages(thread.threadId);
           threadMessages.set(thread.threadId, messages);
         }
         
@@ -221,14 +226,14 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         });
       } else {
         // Initialize with default thread
-        const defaultThread: StoredThreadData = {
+        const defaultThread: ChatThread = {
           threadId: "default",
           status: "regular",
-          title: "New Chat",
+          title: trans("chat.newChatTitle"),
           createdAt: Date.now(),
           updatedAt: Date.now(),
         };
-        await chatStorage.saveThread(defaultThread);
+        await storage.saveThread(defaultThread);
         
         dispatch({ 
           type: "INITIALIZE_SUCCESS", 
@@ -243,12 +248,12 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Thread management actions
+  // Thread management actions (same logic, cleaner types)
   const setCurrentThread = (threadId: string) => {
     dispatch({ type: "SET_CURRENT_THREAD", threadId });
   };
 
-  const createThread = async (title: string = "New Chat"): Promise<string> => {
+  const createThread = async (title: string = trans("chat.newChatTitle")): Promise<string> => {
     const threadId = `thread-${Date.now()}`;
     const newThread: ThreadData = {
       threadId,
@@ -261,14 +266,14 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     
     // Save to storage
     try {
-      const storedThread: StoredThreadData = {
+      const storedThread: ChatThread = {
         threadId,
         status: "regular",
         title,
         createdAt: Date.now(),
         updatedAt: Date.now(),
       };
-      await chatStorage.saveThread(storedThread);
+      await storage.saveThread(storedThread);
       dispatch({ type: "MARK_SAVED" });
     } catch (error) {
       console.error("Failed to save new thread:", error);
@@ -283,14 +288,14 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     
     // Save to storage
     try {
-      const existingThread = await chatStorage.getThread(threadId);
+      const existingThread = await storage.getThread(threadId);
       if (existingThread) {
-        const updatedThread: StoredThreadData = {
+        const updatedThread: ChatThread = {
           ...existingThread,
           ...updates,
           updatedAt: Date.now(),
         };
-        await chatStorage.saveThread(updatedThread);
+        await storage.saveThread(updatedThread);
         dispatch({ type: "MARK_SAVED" });
       }
     } catch (error) {
@@ -299,39 +304,49 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   };
 
   const deleteThread = async (threadId: string) => {
+    // Determine if this is the last remaining thread BEFORE we delete it
+    const isLastThread = state.threadList.length === 1;
+
     // Update local state first
     dispatch({ type: "DELETE_THREAD", threadId });
     
     // Delete from storage
     try {
-      await chatStorage.deleteThread(threadId);
+      await storage.deleteThread(threadId);
       dispatch({ type: "MARK_SAVED" });
+      // avoid deleting the last thread
+      // if there are no threads left, create a new one
+      // avoid infinite re-renders
+      if (isLastThread) {
+        const newThreadId = await createThread(trans("chat.newChatTitle"));
+        setCurrentThread(newThreadId);
+      }
     } catch (error) {
       console.error("Failed to delete thread:", error);
     }
   };
 
-  // Message management actions
-  const addMessage = async (threadId: string, message: MyMessage) => {
+  // Message management actions (same logic)
+  const addMessage = async (threadId: string, message: ChatMessage) => {
     // Update local state first
     dispatch({ type: "ADD_MESSAGE", threadId, message });
     
     // Save to storage
     try {
-      await chatStorage.saveMessage(message, threadId);
+      await storage.saveMessage(message, threadId);
       dispatch({ type: "MARK_SAVED" });
     } catch (error) {
       console.error("Failed to save message:", error);
     }
   };
 
-  const updateMessages = async (threadId: string, messages: MyMessage[]) => {
+  const updateMessages = async (threadId: string, messages: ChatMessage[]) => {
     // Update local state first
     dispatch({ type: "UPDATE_MESSAGES", threadId, messages });
     
     // Save to storage
     try {
-      await chatStorage.saveMessages(messages, threadId);
+      await storage.saveMessages(messages, threadId);
       dispatch({ type: "MARK_SAVED" });
     } catch (error) {
       console.error("Failed to save messages:", error);
@@ -339,7 +354,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   };
 
   // Utility functions
-  const getCurrentMessages = (): MyMessage[] => {
+  const getCurrentMessages = (): ChatMessage[] => {
     return state.threads.get(state.currentThreadId) || [];
   };
 
@@ -375,4 +390,7 @@ export function useChatContext() {
     throw new Error("useChatContext must be used within ChatProvider");
   }
   return context;
-} 
+}
+
+// Re-export types for convenience
+export type { ChatMessage, ChatThread };

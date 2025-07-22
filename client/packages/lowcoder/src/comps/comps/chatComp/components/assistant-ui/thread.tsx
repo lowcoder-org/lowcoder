@@ -6,6 +6,7 @@ import {
     ThreadPrimitive,
   } from "@assistant-ui/react";
   import type { FC } from "react";
+  import { trans } from "i18n";
   import {
     ArrowDownIcon,
     CheckIcon,
@@ -21,10 +22,43 @@ import {
   import { Button } from "../ui/button";
   import { MarkdownText } from "./markdown-text";
   import { TooltipIconButton } from "./tooltip-icon-button";
-  
-  export const Thread: FC = () => {
+  import { Spin, Flex } from "antd";
+  import { LoadingOutlined } from "@ant-design/icons";
+  import styled from "styled-components";
+import { ComposerAddAttachment, ComposerAttachments } from "../ui/attachment";
+  const SimpleANTDLoader = () => {
+    const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
+    
     return (
-      <ThreadPrimitive.Root
+      <div style={{ textAlign: 'left', width: '100%' }}>
+        <Flex align="center" gap={12} style={{ paddingLeft: '16px' }}>
+          <Spin indicator={antIcon} size="small" />
+          <span style={{ color: '#666', fontSize: '14px' }}>Working on it...</span>
+        </Flex>
+      </div>
+    );
+  };
+
+  const StyledThreadRoot = styled(ThreadPrimitive.Root)`
+  /* Hide entire assistant message container when it contains running status */
+  .aui-assistant-message-root:has([data-status="running"]) {
+    display: none;
+  }
+  
+  /* Fallback for older browsers that don't support :has() */
+  .aui-assistant-message-content [data-status="running"] {
+    display: none;
+  }
+`;
+
+  
+  interface ThreadProps {
+    placeholder?: string;
+  }
+  
+  export const Thread: FC<ThreadProps> = ({ placeholder = trans("chat.composerPlaceholder") }) => {
+    return (
+      <StyledThreadRoot
         className="aui-root aui-thread-root"
         style={{
           ["--thread-max-width" as string]: "42rem",
@@ -40,6 +74,10 @@ import {
               AssistantMessage: AssistantMessage,
             }}
           />
+
+          <ThreadPrimitive.If running>
+            <SimpleANTDLoader />
+          </ThreadPrimitive.If>
   
           <ThreadPrimitive.If empty={false}>
             <div className="aui-thread-viewport-spacer" />
@@ -47,10 +85,10 @@ import {
   
           <div className="aui-thread-viewport-footer">
             <ThreadScrollToBottom />
-            <Composer />
+            <Composer placeholder={placeholder} />
           </div>
         </ThreadPrimitive.Viewport>
-      </ThreadPrimitive.Root>
+      </StyledThreadRoot>
     );
   };
   
@@ -74,7 +112,7 @@ import {
         <div className="aui-thread-welcome-root">
           <div className="aui-thread-welcome-center">
             <p className="aui-thread-welcome-message">
-              How can I help you today?
+              {trans("chat.welcomeMessage")}
             </p>
           </div>
           <ThreadWelcomeSuggestions />
@@ -88,35 +126,37 @@ import {
       <div className="aui-thread-welcome-suggestions">
         <ThreadPrimitive.Suggestion
           className="aui-thread-welcome-suggestion"
-          prompt="What is the weather in Tokyo?"
+          prompt={trans("chat.suggestionWeather")}
           method="replace"
           autoSend
         >
           <span className="aui-thread-welcome-suggestion-text">
-            What is the weather in Tokyo?
+            {trans("chat.suggestionWeather")}
           </span>
         </ThreadPrimitive.Suggestion>
         <ThreadPrimitive.Suggestion
           className="aui-thread-welcome-suggestion"
-          prompt="What is assistant-ui?"
+          prompt={trans("chat.suggestionAssistant")}
           method="replace"
           autoSend
         >
           <span className="aui-thread-welcome-suggestion-text">
-            What is assistant-ui?
+            {trans("chat.suggestionAssistant")}
           </span>
         </ThreadPrimitive.Suggestion>
       </div>
     );
   };
   
-  const Composer: FC = () => {
+  const Composer: FC<{ placeholder?: string }> = ({ placeholder = trans("chat.composerPlaceholder") }) => {
     return (
       <ComposerPrimitive.Root className="aui-composer-root">
+        <ComposerAttachments />
+        <ComposerAddAttachment />
         <ComposerPrimitive.Input
           rows={1}
           autoFocus
-          placeholder="Write a message..."
+          placeholder={placeholder}
           className="aui-composer-input"
         />
         <ComposerAction />
