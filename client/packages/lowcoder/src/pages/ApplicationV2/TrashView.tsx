@@ -1,6 +1,7 @@
 import { HomeLayout } from "./HomeLayout";
 import { TRASH_URL } from "../../constants/routesURL";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
+import { useDebouncedValue } from "util/hooks";
 import { trans } from "../../i18n";
 import { Helmet } from "react-helmet";
 import {fetchApplicationElements} from "@lowcoder-ee/util/pagination/axios";
@@ -46,14 +47,13 @@ export function TrashView() {
         }, [searchValues]
     );
 
-    //debouncing
-    useEffect(()=> {
-        const timer = setTimeout(() => {
-            if (searchValue.length > 2 || searchValue === "")
-                setSearchValues(searchValue)
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [searchValue])
+    const debouncedSearchValue = useDebouncedValue(searchValue, 500);
+
+    useEffect(() => {
+        if (debouncedSearchValue.trim().length > 0 || debouncedSearchValue === "") {
+            setSearchValues(debouncedSearchValue);
+        }
+    }, [debouncedSearchValue]);
 
   return (
     <>

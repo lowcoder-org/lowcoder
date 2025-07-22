@@ -3,7 +3,8 @@ import { HomeLayout } from "./HomeLayout";
 import { getUser } from "../../redux/selectors/usersSelectors";
 import { Helmet } from "react-helmet";
 import { trans } from "i18n";
-import {useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { useDebouncedValue } from "util/hooks";
 import {fetchFolderElements} from "@lowcoder-ee/util/pagination/axios";
 import {ApplicationCategoriesEnum, ApplicationMeta, FolderMeta} from "@lowcoder-ee/constants/applicationConstants";
 import {ApplicationPaginationType} from "@lowcoder-ee/util/pagination/type";
@@ -53,13 +54,13 @@ export function HomeView() {
         }, [searchValues]
     );
 
-    useEffect(()=> {
-        const timer = setTimeout(() => {
-            if (searchValue.length > 2 || searchValue === "")
-                setSearchValues(searchValue)
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [searchValue])
+    const debouncedSearchValue = useDebouncedValue(searchValue, 500);
+
+    useEffect(() => {
+        if (debouncedSearchValue.trim().length > 0 || debouncedSearchValue === "") {
+            setSearchValues(debouncedSearchValue);
+        }
+    }, [debouncedSearchValue]);
 
   const user = useSelector(getUser);
 

@@ -189,6 +189,7 @@ export function codeControl<
       const cardContent = params.disableCard
         ? ""
         : getCardContent(this.unevaledValue, this.valueAndMsg, codeControlParams);
+      const { key, ...restParams } = params;
       return (
         <EditorContext.Consumer>
           {(editorState) => (
@@ -197,7 +198,8 @@ export function codeControl<
                 <>
                   <Suspense fallback={null}>
                     <CodeEditor
-                      {...params}
+                      key={key}
+                      {...restParams}
                       bordered
                       value={this.unevaledValue}
                       codeType={codeType}
