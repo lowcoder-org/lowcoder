@@ -179,7 +179,7 @@ export function* updateApplicationMetaSaga(action: ReduxAction<UpdateAppMetaPayl
 
 export function* publishApplicationSaga(action: ReduxAction<PublishApplicationPayload>) {
   try {
-    const response: AxiosResponse<ApiResponse> = yield call(
+    const response: AxiosResponse<ApplicationResp> = yield call(
       ApplicationApi.publishApplication,
       action.payload
     );
@@ -189,6 +189,20 @@ export function* publishApplicationSaga(action: ReduxAction<PublishApplicationPa
         type: ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS,
         payload: action.payload,
       });
+      if (response.data.data && response.data.data.applicationInfoView) {
+        const appInfo = response.data.data.applicationInfoView;
+        yield put({
+          type: ReduxActionTypes.UPDATE_APPLICATION_META_SUCCESS,
+          payload: {
+            applicationId: appInfo.applicationId,
+            name: appInfo.name,
+            folderId: appInfo.folderId,
+            publishedVersion: appInfo.publishedVersion,
+            lastPublishedTime: appInfo.lastPublishedTime,
+          },
+        });
+      }
+      
       messageInstance.success(trans("api.publishSuccess"));
       window.open(APPLICATION_VIEW_URL(action.payload.applicationId, "view"));
     }

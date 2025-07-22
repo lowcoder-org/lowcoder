@@ -107,6 +107,8 @@ export interface ApplicationMeta {
   applicationStatus: "NORMAL" | "RECYCLED" | "DELETED";
   editingUserId: string | null;
   lastEditedAt: number;
+  publishedVersion?: string;
+  lastPublishedTime?: number;
 }
 
 export interface FolderMeta {
