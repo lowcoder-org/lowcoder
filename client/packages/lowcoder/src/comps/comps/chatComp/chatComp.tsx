@@ -80,13 +80,37 @@ export const ChatEventHandlerControl = eventHandlerControl(ChatEventOptions);
 export function addSystemPromptToHistory(
   conversationHistory: ChatMessage[], 
   systemPrompt: string
-): Array<{ role: string; content: string; timestamp: number }> {
+): Array<{ role: string; content: string; timestamp: number; attachments?: any[] }> {
   // Format conversation history for use in queries
-  const formattedHistory = conversationHistory.map(msg => ({
-    role: msg.role,
-    content: msg.text,
-    timestamp: msg.timestamp
-  }));
+  const formattedHistory = conversationHistory.map(msg => {
+    const baseMessage = {
+      role: msg.role,
+      content: msg.text,
+      timestamp: msg.timestamp
+    };
+
+    // Include attachment metadata if present (for API calls and external integrations)
+    if (msg.attachments && msg.attachments.length > 0) {
+      return {
+        ...baseMessage,
+        attachments: msg.attachments.map(att => ({
+          id: att.id,
+          type: att.type,
+          name: att.name,
+          contentType: att.contentType,
+          // Include content for images (base64 data URLs are useful for APIs)
+          ...(att.type === "image" && att.content && {
+            content: att.content.map(c => ({
+              type: c.type,
+              ...(c.type === "image" && { image: c.image })
+            }))
+          })
+        }))
+      };
+    }
+
+    return baseMessage;
+  });
   
   // Create system message (always exists since we have default)
   const systemMessage = [{
