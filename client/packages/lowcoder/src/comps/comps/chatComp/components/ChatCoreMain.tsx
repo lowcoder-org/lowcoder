@@ -1,28 +1,27 @@
 // client/packages/lowcoder/src/comps/comps/chatComp/components/ChatCoreMain.tsx
 
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import {
   useExternalStoreRuntime,
   ThreadMessageLike,
   AppendMessage,
   AssistantRuntimeProvider,
   ExternalStoreThreadListAdapter,
+  CompleteAttachment,
+  TextContentPart,
+  ThreadUserContentPart
 } from "@assistant-ui/react";
 import { Thread } from "./assistant-ui/thread";
 import { ThreadList } from "./assistant-ui/thread-list";
 import { 
   useChatContext, 
-  ChatMessage, 
   RegularThreadData, 
   ArchivedThreadData 
 } from "./context/ChatContext";
-import { MessageHandler } from "../types/chatTypes";
+import { MessageHandler, ChatMessage } from "../types/chatTypes";
 import styled from "styled-components";
 import { trans } from "i18n";
-import { EditorContext, EditorState } from "@lowcoder-ee/comps/editorState";
-import { configureComponentAction } from "../../preLoadComp/actions/componentConfiguration";
-import { addComponentAction, deleteComponentAction, moveComponentAction, nestComponentAction, resizeComponentAction } from "../../preLoadComp/actions/componentManagement";
-import { applyThemeAction, configureAppMetaAction, setCanvasSettingsAction } from "../../preLoadComp/actions/appConfiguration";
+import { universalAttachmentAdapter } from "../utils/attachmentAdapter";
 
 // ============================================================================
 // STYLED COMPONENTS (same as your current ChatMain)
@@ -82,14 +81,8 @@ export function ChatCoreMain({
 }: ChatCoreMainProps) {
   const { state, actions } = useChatContext();
   const [isRunning, setIsRunning] = useState(false);
-  const editorState = useContext(EditorContext);
-  const editorStateRef = useRef(editorState);
 
-  // Keep the ref updated with the latest editorState
-  useEffect(() => {
-    // console.log("EDITOR STATE CHANGE ---> ", editorState);
-    editorStateRef.current = editorState;
-  }, [editorState]);
+  console.log("RENDERING CHAT CORE MAIN");
 
   // Get messages for current thread
   const currentMessages = actions.getCurrentMessages();
@@ -104,280 +97,150 @@ export function ChatCoreMain({
     onEvent?.("componentLoad");
   }, [onEvent]);
 
-  const performAction = async (actions: any[]) => {
-    if (!editorStateRef.current) {
-      console.error("No editorStateRef found");
-      return;
-    }
-  
-    const comp = editorStateRef.current.getUIComp().children.comp;
-    if (!comp) {
-      console.error("No comp found");
-      return;
-    }
-    // const layout = comp.children.layout.getView();
-    // console.log("LAYOUT", layout);
-  
-    for (const actionItem of actions) {
-      const { action, component, ...action_payload } = actionItem;
-  
-      switch (action) {
-        case "place_component":
-          await addComponentAction.execute({
-            actionKey: action,
-            actionValue: "",
-            actionPayload: action_payload,
-            selectedComponent: component,
-            selectedEditorComponent: null,
-            selectedNestComponent: null,
-            editorState: editorStateRef.current,
-            selectedDynamicLayoutIndex: null,
-            selectedTheme: null,
-            selectedCustomShortcutAction: null
-          });
-          break;
-        case "nest_component":
-          await nestComponentAction.execute({
-            actionKey: action,
-            actionValue: "",
-            actionPayload: action_payload,
-            selectedComponent: component,
-            selectedEditorComponent: null,
-            selectedNestComponent: null,
-            editorState: editorStateRef.current,
-            selectedDynamicLayoutIndex: null,
-            selectedTheme: null,
-            selectedCustomShortcutAction: null
-          });
-          break;
-        case "move_component":
-          await moveComponentAction.execute({
-            actionKey: action,
-            actionValue: "",
-            actionPayload: action_payload,
-            selectedComponent: component,
-            selectedEditorComponent: null,
-            selectedNestComponent: null,
-            editorState: editorStateRef.current,
-            selectedDynamicLayoutIndex: null,
-            selectedTheme: null,
-            selectedCustomShortcutAction: null
-          });
-          break;
-        case "resize_component":
-          await resizeComponentAction.execute({
-            actionKey: action,
-            actionValue: "",
-            actionPayload: action_payload,
-            selectedComponent: component,
-            selectedEditorComponent: null,
-            selectedNestComponent: null,
-            editorState: editorStateRef.current,
-            selectedDynamicLayoutIndex: null,
-            selectedTheme: null,
-            selectedCustomShortcutAction: null
-          });
-          break;
-        case "set_properties":
-          await configureComponentAction.execute({
-            actionKey: action,
-            actionValue: component,
-            actionPayload: action_payload,
-            selectedEditorComponent: null,
-            selectedComponent: null,
-            selectedNestComponent: null,
-            editorState: editorStateRef.current,
-            selectedDynamicLayoutIndex: null,
-            selectedTheme: null,
-            selectedCustomShortcutAction: null
-          });
-          break;
-        case "delete_component":
-          await deleteComponentAction.execute({
-            actionKey: action,
-            actionValue: component,
-            actionPayload: action_payload,
-            selectedComponent: component,
-            selectedEditorComponent: null,
-            selectedNestComponent: null,
-            editorState: editorStateRef.current,
-            selectedDynamicLayoutIndex: null,
-            selectedTheme: null,
-            selectedCustomShortcutAction: null
-          });
-          break;
-        case "set_theme":
-          await applyThemeAction.execute({
-            actionKey: action,
-            actionValue: component,
-            actionPayload: action_payload,
-            selectedEditorComponent: null,
-            selectedComponent: null,
-            selectedNestComponent: null,
-            editorState: editorStateRef.current,
-            selectedDynamicLayoutIndex: null,
-            selectedTheme: null,
-            selectedCustomShortcutAction: null
-          });
-          break;
-        case "set_app_metadata":
-          await configureAppMetaAction.execute({
-            actionKey: action,
-            actionValue: component,
-            actionPayload: action_payload,
-            selectedEditorComponent: null,
-            selectedComponent: null,
-            selectedNestComponent: null,
-            editorState: editorStateRef.current,
-            selectedDynamicLayoutIndex: null,
-            selectedTheme: null,
-            selectedCustomShortcutAction: null
-          });
-          break;
-        case "set_canvas_setting":
-          await setCanvasSettingsAction.execute({
-            actionKey: action,
-            actionValue: component,
-            actionPayload: action_payload,
-            selectedEditorComponent: null,
-            selectedComponent: null,
-            selectedNestComponent: null,
-            editorState: editorStateRef.current,
-            selectedDynamicLayoutIndex: null,
-            selectedTheme: null,
-            selectedCustomShortcutAction: null
-          });
-          break;
-        default:
-          break;
-      }
-      await new Promise(resolve => setTimeout(resolve, 1500));
-    }
-  };
-
   // Convert custom format to ThreadMessageLike (same as your current implementation)
-  const convertMessage = (message: ChatMessage): ThreadMessageLike => ({
-    role: message.role,
-    content: [{ type: "text", text: message.text }],
-    id: message.id,
-    createdAt: new Date(message.timestamp),
-  });
+  const convertMessage = (message: ChatMessage): ThreadMessageLike => {
+    const content: ThreadUserContentPart[] = [{ type: "text", text: message.text }];
+    
+    // Add attachment content if attachments exist
+    if (message.attachments && message.attachments.length > 0) {
+      for (const attachment of message.attachments) {
+        if (attachment.content) {
+          content.push(...attachment.content);
+        }
+      }
+    }
+    
+    return {
+      role: message.role,
+      content,
+      id: message.id,
+      createdAt: new Date(message.timestamp),
+      ...(message.attachments && message.attachments.length > 0 && { attachments: message.attachments }),
+    };
+  };
 
   // Handle new message - MUCH CLEANER with messageHandler
   const onNew = async (message: AppendMessage) => {
-    // Extract text from AppendMessage content array
-    if (message.content.length !== 1 || message.content[0]?.type !== "text") {
-      throw new Error("Only text content is supported");
+    const textPart = (message.content as ThreadUserContentPart[]).find(
+      (part): part is TextContentPart => part.type === "text"
+    );
+  
+    const text = textPart?.text?.trim() ?? "";
+  
+    const completeAttachments = (message.attachments ?? []).filter(
+      (att): att is CompleteAttachment => att.status.type === "complete"
+    );
+  
+    const hasText = text.length > 0;
+    const hasAttachments = completeAttachments.length > 0;
+  
+    if (!hasText && !hasAttachments) {
+      throw new Error("Cannot send an empty message");
     }
-
-    // Add user message in custom format
+  
     const userMessage: ChatMessage = {
       id: generateId(),
       role: "user",
-      text: message.content[0].text,
+      text,
       timestamp: Date.now(),
+      attachments: completeAttachments,
     };
-    
-    // Update currentMessage state to expose to queries
-    onMessageUpdate?.(userMessage.text);
-    
-    // Update current thread with new user message
+  
+    onMessageUpdate?.(text);
     await actions.addMessage(state.currentThreadId, userMessage);
     setIsRunning(true);
-
+  
     try {
-      // Use the message handler (no more complex logic here!)
-      const response = await messageHandler.sendMessage(
-        userMessage.text,
-        state.currentThreadId,
-      );
-
-      if (response?.actions?.length) {
-        performAction(response.actions);
-      }
-
+      const response = await messageHandler.sendMessage(userMessage); // Send full message object with attachments
+  
       const assistantMessage: ChatMessage = {
         id: generateId(),
         role: "assistant",
         text: response.content,
         timestamp: Date.now(),
       };
-      
-      // Update current thread with assistant response
+  
       await actions.addMessage(state.currentThreadId, assistantMessage);
     } catch (error) {
-      // Handle errors gracefully
       const errorMessage: ChatMessage = {
         id: generateId(),
-        role: "assistant", 
+        role: "assistant",
         text: trans("chat.errorUnknown"),
         timestamp: Date.now(),
       };
-      
+  
       await actions.addMessage(state.currentThreadId, errorMessage);
     } finally {
       setIsRunning(false);
     }
   };
+  
 
   // Handle edit message - CLEANER with messageHandler
   const onEdit = async (message: AppendMessage) => {
-    // Extract text from AppendMessage content array
-    if (message.content.length !== 1 || message.content[0]?.type !== "text") {
-      throw new Error("Only text content is supported");
+    // Extract the first text content part (if any)
+    const textPart = (message.content as ThreadUserContentPart[]).find(
+      (part): part is TextContentPart => part.type === "text"
+    );
+  
+    const text = textPart?.text?.trim() ?? "";
+  
+    // Filter only complete attachments
+    const completeAttachments = (message.attachments ?? []).filter(
+      (att): att is CompleteAttachment => att.status.type === "complete"
+    );
+  
+    const hasText = text.length > 0;
+    const hasAttachments = completeAttachments.length > 0;
+  
+    if (!hasText && !hasAttachments) {
+      throw new Error("Cannot send an empty message");
     }
-
-    // Find the index where to insert the edited message
+  
+    // Find the index of the message being edited
     const index = currentMessages.findIndex((m) => m.id === message.parentId) + 1;
-
-    // Keep messages up to the parent
+  
+    // Build a new messages array: messages up to and including the one being edited
     const newMessages = [...currentMessages.slice(0, index)];
-
-    // Add the edited message in custom format
+  
+    // Build the edited user message
     const editedMessage: ChatMessage = {
       id: generateId(),
       role: "user",
-      text: message.content[0].text,
+      text,
       timestamp: Date.now(),
+      attachments: completeAttachments,
     };
+  
     newMessages.push(editedMessage);
-
-    // Update currentMessage state to expose to queries
+  
+    // Expose message update to parent
     onMessageUpdate?.(editedMessage.text);
-
-    // Update messages using the new context action
+  
+    // Update state with edited context
     await actions.updateMessages(state.currentThreadId, newMessages);
     setIsRunning(true);
-
+  
     try {
-      // Use the message handler (clean!)
-      const response = await messageHandler.sendMessage(
-        editedMessage.text,
-        state.currentThreadId,
-      );
-      
-      if (response?.actions?.length) {
-        performAction(response.actions);
-      }
-
+      const response = await messageHandler.sendMessage(editedMessage); // Send full message object with attachments
+  
       const assistantMessage: ChatMessage = {
         id: generateId(),
         role: "assistant",
         text: response.content,
         timestamp: Date.now(),
       };
-      
+  
       newMessages.push(assistantMessage);
       await actions.updateMessages(state.currentThreadId, newMessages);
     } catch (error) {
-      // Handle errors gracefully
       const errorMessage: ChatMessage = {
         id: generateId(),
-        role: "assistant", 
+        role: "assistant",
         text: trans("chat.errorUnknown"),
         timestamp: Date.now(),
       };
-      
+  
       newMessages.push(errorMessage);
       await actions.updateMessages(state.currentThreadId, newMessages);
     } finally {
@@ -428,6 +291,7 @@ export function ChatCoreMain({
     onEdit,
     adapters: {
       threadList: threadListAdapter,
+      attachments: universalAttachmentAdapter,
     },
   });
 
@@ -444,3 +308,4 @@ export function ChatCoreMain({
     </AssistantRuntimeProvider>
   );
 }
+

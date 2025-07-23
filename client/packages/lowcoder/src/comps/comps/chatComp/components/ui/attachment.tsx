@@ -1,6 +1,6 @@
 "use client";
 
-import { PropsWithChildren, useEffect, useState, type FC } from "react";
+import { PropsWithChildren, useCallback, useEffect, useRef, useState, type FC } from "react";
 import { CircleXIcon, FileIcon, PaperclipIcon } from "lucide-react";
 import {
   AttachmentPrimitive,
@@ -148,20 +148,17 @@ const ScreenReaderOnly = styled.span`
 // UTILITY HOOKS
 // ============================================================================
 
-// Simple replacement for useShallow (removes zustand dependency)
-const useShallow = <T,>(selector: (state: any) => T): ((state: any) => T) => selector;
 
 const useFileSrc = (file: File | undefined) => {
-  const [src, setSrc] = useState<string | undefined>(undefined);
+  const [src, setSrc] = useState<string | undefined>();
+  const lastFileRef = useRef<File>();
 
   useEffect(() => {
-    if (!file) {
-      setSrc(undefined);
-      return;
-    }
+    if (!file || file === lastFileRef.current) return;
 
     const objectUrl = URL.createObjectURL(file);
     setSrc(objectUrl);
+    lastFileRef.current = file;
 
     return () => {
       URL.revokeObjectURL(objectUrl);
@@ -171,18 +168,47 @@ const useFileSrc = (file: File | undefined) => {
   return src;
 };
 
+
+
 const useAttachmentSrc = () => {
-  const { file, src } = useAttachment(
-    useShallow((a): { file?: File; src?: string } => {
-      if (a.type !== "image") return {};
-      if (a.file) return { file: a.file };
-      const src = a.content?.filter((c: any) => c.type === "image")[0]?.image;
-      if (!src) return {};
-      return { src };
-    })
+  const attachment = useAttachment(
+    useCallback((a: any) => {
+      if (a.type !== "image") return undefined;
+      return a;
+    }, [])
   );
 
-  return useFileSrc(file) ?? src;
+  const [src, setSrc] = useState<string | undefined>();
+  const lastAttachmentRef = useRef<any>();
+
+  useEffect(() => {
+    if (!attachment || attachment === lastAttachmentRef.current) return;
+
+    // Handle new/pending attachments with File objects
+    if (attachment.file && attachment.file instanceof File) {
+      const objectUrl = URL.createObjectURL(attachment.file);
+      setSrc(objectUrl);
+      lastAttachmentRef.current = attachment;
+
+      return () => {
+        URL.revokeObjectURL(objectUrl);
+      };
+    }
+
+    // Handle saved attachments with base64 data
+    const imageContent = attachment.content?.find((c: any) => c.type === "image");
+    if (imageContent?.image) {
+      setSrc(imageContent.image);
+      lastAttachmentRef.current = attachment;
+      return;
+    }
+
+    // If no valid source found, clear the src
+    setSrc(undefined);
+    lastAttachmentRef.current = attachment;
+  }, [attachment]);
+
+  return src;
 };
 
 // ============================================================================

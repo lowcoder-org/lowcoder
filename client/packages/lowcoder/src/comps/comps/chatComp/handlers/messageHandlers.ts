@@ -1,7 +1,7 @@
 // client/packages/lowcoder/src/comps/comps/chatComp/handlers/messageHandlers.ts
 
-import { MessageHandler, MessageResponse, N8NHandlerConfig, QueryHandlerConfig } from "../types/chatTypes";
-import { routeByNameAction, executeQueryAction } from "lowcoder-core";
+import { MessageHandler, MessageResponse, N8NHandlerConfig, QueryHandlerConfig, ChatMessage } from "../types/chatTypes";
+import { CompAction, routeByNameAction, executeQueryAction } from "lowcoder-core";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
 
 // ============================================================================
@@ -11,7 +11,7 @@ import { getPromiseAfterDispatch } from "util/promiseUtils";
 export class N8NHandler implements MessageHandler {
   constructor(private config: N8NHandlerConfig) {}
 
-  async sendMessage(message: string, sessionId?: string): Promise<MessageResponse> {
+  async sendMessage(message: ChatMessage, sessionId?: string): Promise<MessageResponse> {
     const { modelHost, systemPrompt, streaming } = this.config;
     
     if (!modelHost) {
@@ -26,7 +26,7 @@ export class N8NHandler implements MessageHandler {
         },
         body: JSON.stringify({
           sessionId,
-          message,
+          message: message.text,
           systemPrompt: systemPrompt || "You are a helpful assistant.",
           streaming: streaming || false
         })
@@ -58,25 +58,25 @@ export class N8NHandler implements MessageHandler {
 export class QueryHandler implements MessageHandler {
   constructor(private config: QueryHandlerConfig) {}
 
-  async sendMessage(message: string, sessionId?: string): Promise<MessageResponse> {
+  async sendMessage(message: ChatMessage, sessionId?: string): Promise<MessageResponse> {
     const { chatQuery, dispatch} = this.config;
     
     // If no query selected or dispatch unavailable, return mock response
     if (!chatQuery || !dispatch) {
       await new Promise((res) => setTimeout(res, 500));
-      return { content: "(mock) You typed: " + message };
+      return { content: "(mock) You typed: " + message.text };
     }
 
     try {
-
       const result: any = await getPromiseAfterDispatch(
         dispatch,
         routeByNameAction(
           chatQuery,
           executeQueryAction({
-            // Send both individual prompt and full conversation history
+            // Pass the full message object so attachments are available in queries
             args: { 
-              prompt: { value: message },
+              message: { value: message }, // Full ChatMessage object with attachments
+              prompt: { value: message.text }, // Keep backward compatibility
             },
           })
         )
@@ -96,9 +96,9 @@ export class QueryHandler implements MessageHandler {
 export class MockHandler implements MessageHandler {
   constructor(private delay: number = 1000) {}
 
-  async sendMessage(message: string, sessionId?: string): Promise<MessageResponse> {
+  async sendMessage(message: ChatMessage): Promise<MessageResponse> {
     await new Promise(resolve => setTimeout(resolve, this.delay));
-    return { content: `Mock response: ${message}` };
+    return { content: `Mock response: ${message.text}` };
   }
 }
 

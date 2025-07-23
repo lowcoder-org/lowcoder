@@ -1,16 +1,11 @@
-// client/packages/lowcoder/src/comps/comps/chatComp/types/chatTypes.ts
-
-import { EditorState } from "@lowcoder-ee/comps/editorState";
-
-// ============================================================================
-// CORE MESSAGE AND THREAD TYPES (cleaned up from your existing types)
-// ============================================================================
+import { CompleteAttachment } from "@assistant-ui/react";
 
 export interface ChatMessage {
     id: string;
     role: "user" | "assistant";
     text: string;
     timestamp: number;
+    attachments?: CompleteAttachment[];
   }
   
   export interface ChatThread {
@@ -45,8 +40,8 @@ export interface ChatMessage {
   // ============================================================================
   
   export interface MessageHandler {
-    sendMessage(message: string, sessionId?: string): Promise<MessageResponse>;
-    // Future: sendMessageStream?(message: string): AsyncGenerator<MessageResponse>;
+    sendMessage(message: ChatMessage, sessionId?: string): Promise<MessageResponse>;
+    // Future: sendMessageStream?(message: ChatMessage): AsyncGenerator<MessageResponse>;
   }
   
   export interface MessageResponse {

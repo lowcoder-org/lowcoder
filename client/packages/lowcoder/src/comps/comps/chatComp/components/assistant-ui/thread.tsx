@@ -25,7 +25,7 @@ import {
   import { Spin, Flex } from "antd";
   import { LoadingOutlined } from "@ant-design/icons";
   import styled from "styled-components";
-import { ComposerAddAttachment, ComposerAttachments } from "../ui/attachment";
+import { ComposerAddAttachment, ComposerAttachments, UserMessageAttachments } from "../ui/attachment";
   const SimpleANTDLoader = () => {
     const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
     
@@ -197,6 +197,7 @@ import { ComposerAddAttachment, ComposerAttachments } from "../ui/attachment";
     return (
       <MessagePrimitive.Root className="aui-user-message-root">
         <UserActionBar />
+        <UserMessageAttachments />
   
         <div className="aui-user-message-content">
           <MessagePrimitive.Content />
