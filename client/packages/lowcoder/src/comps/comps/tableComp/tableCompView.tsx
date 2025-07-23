@@ -373,7 +373,7 @@ const TableTh = styled.th<{ width?: number }>`
   ${(props) => props.width && `width: ${props.width}px`};
 `;
 
-const TableTd = styled.td<{
+interface TableTdProps {
   $background: string;
   $style: TableColumnStyleType & { rowHeight?: string };
   $defaultThemeDetail: ThemeDetail;
@@ -381,7 +381,9 @@ const TableTd = styled.td<{
   $isEditing: boolean;
   $tableSize?: string;
   $autoHeight?: boolean;
-}>`
+  $customAlign?: 'left' | 'center' | 'right';
+}
+const TableTd = styled.td<TableTdProps>`
   .ant-table-row-expand-icon,
   .ant-table-row-indent {
     display: ${(props) => (props.$isEditing ? "none" : "initial")};
@@ -394,6 +396,7 @@ const TableTd = styled.td<{
   border-color: ${(props) => props.$style.border} !important;
   border-radius: ${(props) => props.$style.radius};
   padding: 0 !important;
+  text-align: ${(props) => props.$customAlign || 'left'} !important;
 
   > div:not(.editing-border, .editing-wrapper),
   .editing-wrapper .ant-input,
@@ -404,8 +407,13 @@ const TableTd = styled.td<{
     font-weight: ${(props) => props.$style.textWeight};
     font-family: ${(props) => props.$style.fontFamily};
     overflow: hidden; 
+    display: flex;
+    justify-content: ${(props) => props.$customAlign === 'center' ? 'center' : props.$customAlign === 'right' ? 'flex-end' : 'flex-start'};
+    align-items: center;
+    text-align: ${(props) => props.$customAlign || 'left'};
+    padding: 0 8px;
+    box-sizing: border-box;
     ${(props) => props.$tableSize === 'small' && `
-      padding: 1px 8px;
       font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '14px !important' : props.$style.textSize + ' !important'};
       font-style:${props.$style.fontStyle} !important;
       min-height: ${props.$style.rowHeight || '14px'};
@@ -416,7 +424,6 @@ const TableTd = styled.td<{
       `};
     `};
     ${(props) => props.$tableSize === 'middle' && `
-      padding: 8px 8px;
       font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '16px !important' : props.$style.textSize + ' !important'};
       font-style:${props.$style.fontStyle} !important;
       min-height: ${props.$style.rowHeight || '24px'};
@@ -427,7 +434,6 @@ const TableTd = styled.td<{
       `};
     `};
     ${(props) => props.$tableSize === 'large' && `
-      padding: 16px 16px;
       font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '18px !important' : props.$style.textSize + ' !important'};
       font-style:${props.$style.fontStyle} !important;
       min-height: ${props.$style.rowHeight || '48px'};
@@ -573,6 +579,7 @@ const TableCellView = React.memo((props: {
   tableSize?: string;
   autoHeight?: boolean;
   loading?: boolean;
+  customAlign?: 'left' | 'center' | 'right';
 }) => {
   const {
     record,
@@ -588,6 +595,7 @@ const TableCellView = React.memo((props: {
     tableSize,
     autoHeight,
     loading,
+    customAlign,
     ...restProps
   } = props;
 
@@ -648,6 +656,7 @@ const TableCellView = React.memo((props: {
         $isEditing={editing}
         $tableSize={tableSize}
         $autoHeight={autoHeight}
+        $customAlign={customAlign}
       >
         {loading
           ? <TableTdLoading block active $tableSize={tableSize} />
@@ -735,6 +744,7 @@ function ResizeableTableComp<RecordType extends object>(props: CustomTableProps<
       autoHeight: rowAutoHeight,
       onClick: () => onCellClick(col.titleText, String(col.dataIndex)),
       loading: customLoading,
+      customAlign: col.align,
     });
   }, [rowColorFn, rowHeightFn, columnsStyle, size, rowAutoHeight, onCellClick, customLoading]);
 
