@@ -98,13 +98,6 @@ public interface OrganizationEndpoints
             @RequestParam(required = false, defaultValue = "1") int pageNum,
             @RequestParam(required = false, defaultValue = "1000") int pageSize);
 
-	@GetMapping("/{orgId}/{searchMemberName}/{searchGroupId}/members")
-	public Mono<ResponseView<OrgMemberListView>> getOrgMembersForSearch(@PathVariable String orgId,
-		   @PathVariable String searchMemberName,
-		   @PathVariable String searchGroupId,
-		   @RequestParam(required = false, defaultValue = "1") int pageNum,
-		   @RequestParam(required = false, defaultValue = "1000") int pageSize);
-
 	@Operation(
 			tags = TAG_ORGANIZATION_MEMBERS,
 		    operationId = "updateOrganizationMemberRole",

@@ -79,4 +79,16 @@ test("textInputValidate", () => {
     validateStatus: "error",
     help: trans("validationDesc.maxLength", { length: 4, maxLength: 2 }),
   });
+
+  expect(
+    textInputValidate({
+      value: { value: "" },
+      required: false,
+      minLength: 0,
+      maxLength: 0,
+      validationType: "Regex",
+      regex: new RegExp("^.*$"),
+      customRule: "",
+    })
+  ).toMatchObject({ validateStatus: "" });
 });

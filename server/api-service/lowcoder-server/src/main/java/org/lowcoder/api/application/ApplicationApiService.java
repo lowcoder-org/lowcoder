@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Set;
 
 public interface ApplicationApiService {
@@ -66,4 +67,6 @@ public interface ApplicationApiService {
     Mono<Boolean> setApplicationAsAgencyProfile(String applicationId, boolean agencyProfile);
 
     Mono<Application> updateSlug(String applicationId, String slug);
+
+    Mono<List<Object>> getGroupsOrMembersWithoutPermissions(String appId);
 }

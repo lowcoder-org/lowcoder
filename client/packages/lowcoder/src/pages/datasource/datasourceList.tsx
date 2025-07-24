@@ -1,8 +1,9 @@
 import styled from "styled-components";
 import { EditPopover, PointIcon, Search, TacoButton } from "lowcoder-design";
-import React, {useEffect, useState} from "react";
+import { useState, useEffect } from "react";
+import { useDebouncedValue } from "util/hooks";
 import { useDispatch, useSelector } from "react-redux";
-import { getDataSource, getDataSourceLoading, getDataSourceTypesMap } from "../../redux/selectors/datasourceSelectors";
+import { getDataSourceTypesMap } from "../../redux/selectors/datasourceSelectors";
 import { deleteDatasource } from "../../redux/reduxActions/datasourceActions";
 import { isEmpty } from "lodash";
 import history from "../../util/history";
@@ -113,7 +114,6 @@ export const DatasourceList = () => {
   const [modify, setModify] = useState(false);
   const currentUser = useSelector(getUser);
   const orgId = currentUser.currentOrgId;
-  const datasourceLoading = useSelector(getDataSourceLoading);
   const plugins = useSelector(getDataSourceTypesMap);
   interface ElementsState {
     elements: DatasourceInfo[];
@@ -123,16 +123,18 @@ export const DatasourceList = () => {
   const [elements, setElements] = useState<ElementsState>({ elements: [], total: 0 });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [paginationLoading, setPaginationLoading] = useState(false);
 
-  useEffect(()=> {
-    const timer = setTimeout(() => {
-      if (searchValue.length > 2 || searchValue === "")
-        setSearchValues(searchValue)
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchValue])
+  const debouncedSearchValue = useDebouncedValue(searchValue, 500);
+
+  useEffect(() => {
+    if (debouncedSearchValue.trim().length > 0 || debouncedSearchValue === "") {
+      setSearchValues(debouncedSearchValue);
+    }
+  }, [debouncedSearchValue]);
 
   useEffect( () => {
+    setPaginationLoading(true);
     fetchDatasourcePagination(
       {
         orgId: orgId,
@@ -146,6 +148,8 @@ export const DatasourceList = () => {
       }
       else
         console.error("ERROR: fetchFolderElements", result.error)
+    }).finally(() => {
+      setPaginationLoading(false);
     })
   }, [currentPage, pageSize, searchValues, modify]
   )
@@ -195,7 +199,7 @@ export const DatasourceList = () => {
         <BodyWrapper>
           <StyledTable
             loading={{
-              spinning: datasourceLoading,
+              spinning: paginationLoading,
               indicator: <LoadingOutlined spin style={{ fontSize: 30 }} />
             }}
             rowClassName={(record: any) => (!record.edit ? "datasource-can-not-edit" : "")}

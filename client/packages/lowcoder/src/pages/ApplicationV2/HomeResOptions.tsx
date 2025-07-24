@@ -3,8 +3,6 @@ import { HomeResTypeEnum } from "../../types/homeRes";
 import { exportApplicationAsJSONFile } from "./components/AppImport";
 import { CustomModal, EditPopover, EditPopoverItemType, PointIcon } from "lowcoder-design";
 import { HomeResInfo } from "../../util/homeResUtils";
-import { recycleApplication } from "../../redux/reduxActions/applicationActions";
-import { deleteFolder } from "../../redux/reduxActions/folderActions";
 import { useDispatch } from "react-redux";
 import React, { useState } from "react";
 import styled from "styled-components";
@@ -13,6 +11,9 @@ import { useParams } from "react-router-dom";
 import { AppTypeEnum } from "constants/applicationConstants";
 import { CopyModal } from "pages/common/copyModal";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import ApplicationApi from "../../api/applicationApi";
+import { FolderApi } from "../../api/folderApi";
+import { ReduxActionTypes } from "constants/reduxActionConstants";
 
 const PopoverIcon = styled(PointIcon)`
   cursor: pointer;
@@ -53,7 +54,7 @@ export const HomeResOptions = (props: {
     if (res.isEditable) {
       options = [
         ...options,
-        { text: trans("rename"), onClick: () => onRename(res) },
+        { text: trans("home.renameApp"), onClick: () => onRename(res) },
         {
           text: trans("header.duplicate", { type: HomeResInfo[res.type].name.toLowerCase() }),
           onClick: () => {
@@ -80,23 +81,20 @@ export const HomeResOptions = (props: {
                 type: HomeResInfo[res.type].name,
                 name: <b>{res.name}</b>,
               }),
-              onConfirm: () =>{
-                new Promise((resolve, reject) => {
-                  dispatch(
-                      recycleApplication(
-                          { applicationId: res.id, folderId: folderId },
-                          () => {
-                            messageInstance.success(trans("success"));
-                            resolve(true);
-                          },
-                          () => reject()
-                      )
-                  );
+              onConfirm: async () => {
+                try {
+                  await ApplicationApi.recycleApplication({ 
+                    applicationId: res.id, 
+                    folderId: folderId || "" 
+                  });
+                  messageInstance.success(trans("success"));
                   setTimeout(() => {
                     setModify(!modify);
                   }, 200);
-                })
-
+                } catch (error) {
+                  console.error("Failed to recycle application:", error);
+                  messageInstance.error("Failed to delete application");
+                }
               },
               confirmBtnType: "delete",
               okText: trans("home.moveToTrash"),
@@ -122,22 +120,27 @@ export const HomeResOptions = (props: {
                 type: HomeResInfo[res.type].name.toLowerCase(),
                 name: <b>{res.name}</b>,
               }),
-              onConfirm: () =>{
-                new Promise((resolve, reject) => {
-                dispatch(
-                    deleteFolder(
-                        { folderId: res.id, parentFolderId: folderId },
-                        () => {
-                          messageInstance.success(trans("home.deleteSuccessMsg"));
-                          resolve(true);
-                        },
-                        () => reject()
-                    )
-                );
-              })
-                setTimeout(() => {
-                  setModify(!modify);
-                }, 200);
+              onConfirm: async () => {
+                try {
+                  await FolderApi.deleteFolder({ 
+                    folderId: res.id, 
+                    parentFolderId: folderId || "" 
+                  });
+                  
+                  // Update Redux state to remove deleted folder from dropdown
+                  dispatch({
+                    type: ReduxActionTypes.DELETE_FOLDER_SUCCESS,
+                    payload: { folderId: res.id, parentFolderId: folderId || "" }
+                  });
+                  
+                  messageInstance.success(trans("home.deleteSuccessMsg"));
+                  setTimeout(() => {
+                    setModify(!modify);
+                  }, 200);
+                } catch (error) {
+                  console.error("Failed to delete folder:", error);
+                  messageInstance.error("Failed to delete folder");
+                }
               },
               confirmBtnType: "delete",
               okText: trans("delete"),

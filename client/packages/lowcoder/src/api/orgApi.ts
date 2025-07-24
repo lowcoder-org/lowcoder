@@ -62,6 +62,7 @@ export class OrgApi extends Api {
   static updateOrgURL = (orgId: string) => `/organizations/${orgId}/update`;
   static fetchUsage = (orgId: string) => `/organizations/${orgId}/api-usage`;
   static fetchOrgsByEmailURL = (email: string) => `organizations/byuser/${email}`;
+  static fetchGroupPotentialMembersURL = (groupId: string) => `/groups/${groupId}/potential-members`;
 
   static createGroup(request: { name: string }): AxiosPromise<GenericApiResponse<OrgGroup>> {
     return Api.post(OrgApi.createGroupURL, request);
@@ -108,6 +109,10 @@ export class OrgApi extends Api {
 
   static fetchGroupUsers(groupId: string): AxiosPromise<GroupUsersResponse> {
     return Api.get(OrgApi.fetchGroupUsersURL(groupId));
+  }
+
+  static fetchGroupPotentialMembers(searchName: string, groupId: string): AxiosPromise<OrgUsersResponse> {
+    return Api.get(OrgApi.fetchGroupPotentialMembersURL(groupId), {searchName})
   }
 
   static fetchGroupUsersPagination(request: fetchGroupUserRequestType): AxiosPromise<GroupUsersPaginationResponse> {

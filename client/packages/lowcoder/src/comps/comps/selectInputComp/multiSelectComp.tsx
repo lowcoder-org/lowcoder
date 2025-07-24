@@ -14,7 +14,7 @@ import { SelectInputInvalidConfig, useSelectInputValidate } from "./selectInputC
 
 import { PaddingControl } from "../../controls/paddingControl";	
 import { MarginControl } from "../../controls/marginControl";
-import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
+import { migrateOldData } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
 let MultiSelectBasicComp = (function () {
@@ -30,11 +30,15 @@ let MultiSelectBasicComp = (function () {
     padding: PaddingControl,
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    const valueSet = new Set<any>(props.options.map((o) => o.value)); // Filter illegal default values entered by the user
+    const valueSet = new Set<any>((props.options as any[]).map((o: any) => o.value)); // Filter illegal default values entered by the user
     const [
       validateState,
       handleChange,
     ] = useSelectInputValidate(props);
+
+    const removeIllegalEntries = () => {
+      return props.value.value.filter?.((v) => valueSet.has(v))
+    }
     
     return props.label({
       required: props.required,
@@ -45,8 +49,8 @@ let MultiSelectBasicComp = (function () {
       children: (
         <SelectUIView
           {...props}
-          mode={"multiple"}
-          value={props.value.value.filter?.((v) => valueSet.has(v))}
+          mode={props.allowCustomTags ? "tags" : "multiple"}
+          value={props.allowCustomTags ? props.value.value : removeIllegalEntries()}
           onChange={handleChange}
           dispatch={dispatch}
         />

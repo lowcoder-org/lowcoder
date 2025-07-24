@@ -1,5 +1,5 @@
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
-import { ButtonStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import { ButtonStyle, DisabledButtonStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
 import { refMethods } from "@lowcoder-ee/comps/generators/withMethodExposing";
 import { blurMethod, clickMethod, focusWithOptions } from "@lowcoder-ee/comps/utils/methodUtils";
@@ -8,7 +8,7 @@ import { genActiveColor, genHoverColor } from "components/colorSelect/colorUtils
 import styled, { css } from "styled-components";
 // import { genActiveColor, genHoverColor } from "lowcoder-design";
 
-export function getButtonStyle(buttonStyle: any) {
+export function getButtonStyle(buttonStyle: any, disabledStyle: any) {
   const hoverColor = buttonStyle.background && genHoverColor(buttonStyle.background);
   const activeColor = buttonStyle.background && genActiveColor(buttonStyle.background);
   return css`
@@ -42,13 +42,21 @@ export function getButtonStyle(buttonStyle: any) {
             ? activeColor
             : buttonStyle.border};
         }
+      
+      }
+      &:disabled,
+      &.ant-btn-disabled {
+        color: ${disabledStyle.disabledText};
+        background: ${disabledStyle.disabledBackground};
+        border-color: ${disabledStyle.disabledBorder};
+        cursor: not-allowed;
       }
     }
   `;
 }
 
-export const Button100 = styled(Button)<{ $buttonStyle?: any }>`
-  ${(props) => props.$buttonStyle && getButtonStyle(props.$buttonStyle)}
+export const Button100 = styled(Button)<{ $buttonStyle?: any; $disabledStyle?: any }>`
+  ${(props) => props.$buttonStyle && getButtonStyle(props.$buttonStyle, props.$disabledStyle)}
   width: 100%;
   height: auto;
   display: inline-flex;
@@ -63,15 +71,15 @@ export const Button100 = styled(Button)<{ $buttonStyle?: any }>`
 `;
 
 export const ButtonCompWrapper = styled.div<{ disabled: boolean }>`
-  // The button component is disabled but can respond to drag & select events
-  ${(props) =>
-    props.disabled &&
-    `
-    cursor: not-allowed;
-    button:disabled {
-      pointer-events: none;
-    }
-  `};
+   ${(props) =>
+    props.disabled
+      ? css`
+          cursor: not-allowed;
+          button:disabled {
+            pointer-events: none;
+          }
+        `
+      : ''};
 `;
 
 /**
@@ -95,6 +103,12 @@ function fixOldData(oldData: any) {
 const ButtonTmpStyleControl = styleControl(ButtonStyle);
 export const ButtonStyleControl = migrateOldData(
   ButtonTmpStyleControl,
+  fixOldData
+);
+
+export const DisabledButtonTmpStyleControl = styleControl(DisabledButtonStyle);
+export const DisabledButtonStyleControl = migrateOldData(
+  DisabledButtonTmpStyleControl,
   fixOldData
 );
 

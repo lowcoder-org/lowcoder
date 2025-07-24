@@ -32,7 +32,7 @@ import {
   UserIcon,
 } from "lowcoder-design";
 import React, { useCallback, useEffect, useState, useMemo } from "react";
-import { fetchAllApplications, fetchHomeData } from "redux/reduxActions/applicationActions";
+import { fetchHomeData } from "redux/reduxActions/applicationActions";
 import { fetchSubscriptionsAction } from "redux/reduxActions/subscriptionActions";
 import { getHomeOrg, normalAppListSelector } from "redux/selectors/applicationSelector";
 import { DatasourceHome } from "../datasource";
@@ -124,20 +124,6 @@ export default function ApplicationHome() {
     setIsPreloadCompleted(true);
   }, [org, orgHomeId]);
 
-  useEffect(() => {
-    if (allAppCount !== 0) {
-      return;
-    }
-    user.currentOrgId && dispatch(fetchAllApplications({}));
-  }, [dispatch, allAppCount, user.currentOrgId]);
-
-  useEffect(() => {
-    if (allFoldersCount !== 0) {
-      return;
-    }
-    user.currentOrgId && dispatch(fetchFolderElements({}));
-  }, [dispatch, allFoldersCount, user.currentOrgId]);
-
   if (fetchingUser || !isPreloadCompleted) {
     return <ProductLoading />;
   }
@@ -190,6 +176,7 @@ export default function ApplicationHome() {
                     routePath: ALL_APPLICATIONS_URL,
                     routeComp: HomeView,
                     icon: ({ selected, ...otherProps }) => selected ? <AppsIcon {...otherProps} width={"24px"}/> : <AppsIcon {...otherProps} width={"24px"}/>,
+                    onSelected: (_, currentPath) => currentPath === ALL_APPLICATIONS_URL || currentPath.startsWith("/folder"),
                   },
                 ],
               },

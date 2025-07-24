@@ -1,6 +1,6 @@
 import Api from "api/api";
 import { AxiosPromise } from "axios";
-import { OrgAndRole } from "constants/orgConstants";
+import { Org, OrgAndRole } from "constants/orgConstants";
 import { BaseUserInfo, CurrentUser } from "constants/userConstants";
 import { MarkUserStatusPayload, UpdateUserPayload } from "redux/reduxActions/userActions";
 import { ApiResponse, GenericApiResponse } from "./apiResponses";
@@ -60,10 +60,28 @@ export interface FetchApiKeysResponse extends ApiResponse {
 
 export type GetCurrentUserResponse = GenericApiResponse<CurrentUser>;
 
+export interface GetMyOrgsResponse extends ApiResponse {
+  data: {
+    data: Array<{
+      isCurrentOrg: boolean;
+      orgView: {
+        orgId: string;
+        orgName: string;
+        createdAt?: number;
+        updatedAt?: number;
+      };
+    }>;
+    pageNum: number;
+    pageSize: number;
+    total: number;
+  };
+}
+
 class UserApi extends Api {
   static thirdPartyLoginURL = "/auth/tp/login";
   static thirdPartyBindURL = "/auth/tp/bind";
   static usersURL = "/users";
+  static myOrgsURL = "/users/myorg";
   static sendVerifyCodeURL = "/auth/otp/send";
   static logoutURL = "/auth/logout";
   static userURL = "/users/me";
@@ -126,6 +144,19 @@ class UserApi extends Api {
 
   static getCurrentUser(): AxiosPromise<GetCurrentUserResponse> {
     return Api.get(UserApi.currentUserURL);
+  }
+  static getMyOrgs(
+    pageNum: number = 1, 
+    pageSize: number = 20, 
+    orgName?: string
+  ): AxiosPromise<GetMyOrgsResponse> {
+    const params = new URLSearchParams({
+      pageNum: pageNum.toString(),
+      pageSize: pageSize.toString(),
+      ...(orgName && { orgName })
+    });
+    
+    return Api.get(`${UserApi.myOrgsURL}?${params}`);
   }
 
   static getRawCurrentUser(): AxiosPromise<GetCurrentUserResponse> {

@@ -724,6 +724,24 @@ TableTmpComp = withMethodExposing(TableTmpComp, [
       comp.children.columns.dispatchClearInsertSet();
     },
   },
+  {
+    method: {
+      name: "setExpandedRows",
+      description: "",
+      params: [
+        { name: "expandedRows", type: "arrayString"},
+      ],
+    },
+    execute: (comp, values) => {
+      const expandedRows = values[0];
+      if (!isArray(expandedRows)) {
+        return Promise.reject("setExpandedRows function only accepts array of string i.e. ['1', '2', '3']")
+      }
+      if (expandedRows && isArray(expandedRows)) {
+        comp.children.currentExpandedRows.dispatchChangeValueAction(expandedRows as string[]);
+      }
+    },
+  }
 ]);
 
 // exposing data
@@ -978,5 +996,24 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
     },
     trans("table.selectedCellDesc")
   ),
+  depsConfig({
+    name: "currentExpandedRow",
+    desc: trans("table.sortDesc"),
+    depKeys: ["currentExpandedRows"],
+    func: (input) => {
+      if (input.currentExpandedRows.length > 0) {
+        return input.currentExpandedRows[input.currentExpandedRows.length - 1];
+      }
+      return "";
+    },
+  }),
+  depsConfig({
+    name: "currentExpandedRows",
+    desc: trans("table.sortDesc"),
+    depKeys: ["currentExpandedRows"],
+    func: (input) => {
+      return input.currentExpandedRows;
+    },
+  }),
   new NameConfig("data", trans("table.dataDesc")),
 ]);

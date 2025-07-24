@@ -28,7 +28,7 @@ import { CompNameContext, EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { PrimaryColor } from "constants/style";
 import { trans } from "i18n";
-import _ from "lodash";
+import _, { isEqual } from "lodash";
 import { darkenColor, isDarkColor, isValidColor, ScrollBar } from "lowcoder-design";
 import React, { Children, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Resizable } from "react-resizable";
@@ -48,6 +48,7 @@ import { TableSummary } from "./tableSummaryComp";
 import Skeleton from "antd/es/skeleton";
 import { SkeletonButtonProps } from "antd/es/skeleton/Button";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { useUpdateEffect } from "react-use";
 
 export const EMPTY_ROW_KEY = 'empty_row';
 
@@ -372,7 +373,7 @@ const TableTh = styled.th<{ width?: number }>`
   ${(props) => props.width && `width: ${props.width}px`};
 `;
 
-const TableTd = styled.td<{
+interface TableTdProps {
   $background: string;
   $style: TableColumnStyleType & { rowHeight?: string };
   $defaultThemeDetail: ThemeDetail;
@@ -380,7 +381,9 @@ const TableTd = styled.td<{
   $isEditing: boolean;
   $tableSize?: string;
   $autoHeight?: boolean;
-}>`
+  $customAlign?: 'left' | 'center' | 'right';
+}
+const TableTd = styled.td<TableTdProps>`
   .ant-table-row-expand-icon,
   .ant-table-row-indent {
     display: ${(props) => (props.$isEditing ? "none" : "initial")};
@@ -393,6 +396,7 @@ const TableTd = styled.td<{
   border-color: ${(props) => props.$style.border} !important;
   border-radius: ${(props) => props.$style.radius};
   padding: 0 !important;
+  text-align: ${(props) => props.$customAlign || 'left'} !important;
 
   > div:not(.editing-border, .editing-wrapper),
   .editing-wrapper .ant-input,
@@ -403,8 +407,13 @@ const TableTd = styled.td<{
     font-weight: ${(props) => props.$style.textWeight};
     font-family: ${(props) => props.$style.fontFamily};
     overflow: hidden; 
+    display: flex;
+    justify-content: ${(props) => props.$customAlign === 'center' ? 'center' : props.$customAlign === 'right' ? 'flex-end' : 'flex-start'};
+    align-items: center;
+    text-align: ${(props) => props.$customAlign || 'left'};
+    padding: 0 8px;
+    box-sizing: border-box;
     ${(props) => props.$tableSize === 'small' && `
-      padding: 1px 8px;
       font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '14px !important' : props.$style.textSize + ' !important'};
       font-style:${props.$style.fontStyle} !important;
       min-height: ${props.$style.rowHeight || '14px'};
@@ -415,7 +424,6 @@ const TableTd = styled.td<{
       `};
     `};
     ${(props) => props.$tableSize === 'middle' && `
-      padding: 8px 8px;
       font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '16px !important' : props.$style.textSize + ' !important'};
       font-style:${props.$style.fontStyle} !important;
       min-height: ${props.$style.rowHeight || '24px'};
@@ -426,7 +434,6 @@ const TableTd = styled.td<{
       `};
     `};
     ${(props) => props.$tableSize === 'large' && `
-      padding: 16px 16px;
       font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '18px !important' : props.$style.textSize + ' !important'};
       font-style:${props.$style.fontStyle} !important;
       min-height: ${props.$style.rowHeight || '48px'};
@@ -572,6 +579,7 @@ const TableCellView = React.memo((props: {
   tableSize?: string;
   autoHeight?: boolean;
   loading?: boolean;
+  customAlign?: 'left' | 'center' | 'right';
 }) => {
   const {
     record,
@@ -587,6 +595,7 @@ const TableCellView = React.memo((props: {
     tableSize,
     autoHeight,
     loading,
+    customAlign,
     ...restProps
   } = props;
 
@@ -647,6 +656,7 @@ const TableCellView = React.memo((props: {
         $isEditing={editing}
         $tableSize={tableSize}
         $autoHeight={autoHeight}
+        $customAlign={customAlign}
       >
         {loading
           ? <TableTdLoading block active $tableSize={tableSize} />
@@ -734,6 +744,7 @@ function ResizeableTableComp<RecordType extends object>(props: CustomTableProps<
       autoHeight: rowAutoHeight,
       onClick: () => onCellClick(col.titleText, String(col.dataIndex)),
       loading: customLoading,
+      customAlign: col.align,
     });
   }, [rowColorFn, rowHeightFn, columnsStyle, size, rowAutoHeight, onCellClick, customLoading]);
 
@@ -814,6 +825,7 @@ export const TableCompView = React.memo((props: {
   onRefresh: (allQueryNames: Array<string>, setLoading: (loading: boolean) => void) => void;
   onDownload: (fileName: string) => void;
 }) => {
+  const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
   const [emptyRowsMap, setEmptyRowsMap] = useState<Record<string, RecordType>>({});
   const editorState = useContext(EditorContext);
   const currentTheme = useContext(ThemeContext)?.theme;
@@ -856,6 +868,7 @@ export const TableCompView = React.memo((props: {
   const size = useMemo(() => compChildren.size.getView(), [compChildren.size]);
   const editModeClicks = useMemo(() => compChildren.editModeClicks.getView(), [compChildren.editModeClicks]);
   const onEvent = useMemo(() => compChildren.onEvent.getView(), [compChildren.onEvent]);
+  const currentExpandedRows = useMemo(() => compChildren.currentExpandedRows.getView(), [compChildren.currentExpandedRows]);
   const dynamicColumn = compChildren.dynamicColumn.getView();
   const dynamicColumnConfig = useMemo(
     () => compChildren.dynamicColumnConfig.getView(),
@@ -954,6 +967,18 @@ export const TableCompView = React.memo((props: {
   useEffect(() => {
     updateEmptyRows();
   }, [updateEmptyRows]);
+
+  useUpdateEffect(() => {
+    if (!isEqual(currentExpandedRows, expandedRowKeys)) {
+      compChildren.currentExpandedRows.dispatchChangeValueAction(expandedRowKeys);
+    }
+  }, [expandedRowKeys]);
+
+  useUpdateEffect(() => {
+    if (!isEqual(currentExpandedRows, expandedRowKeys)) {
+      setExpandedRowKeys(currentExpandedRows);
+    }
+  }, [currentExpandedRows]);
 
   const pageDataInfo = useMemo(() => {
     // Data pagination
@@ -1104,7 +1129,11 @@ export const TableCompView = React.memo((props: {
                   } else {
                     handleChangeEvent('rowShrink')
                   }
-                }
+                },
+                onExpandedRowsChange: (expandedRowKeys) => {
+                  setExpandedRowKeys(expandedRowKeys as unknown as string[]);
+                },
+                expandedRowKeys: expandedRowKeys,
               }}
               // rowKey={OB_ROW_ORI_INDEX}
               rowColorFn={compChildren.rowColor.getView() as any}

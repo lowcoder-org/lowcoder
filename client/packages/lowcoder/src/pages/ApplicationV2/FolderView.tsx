@@ -1,7 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { HomeBreadcrumbType, HomeLayout } from "./HomeLayout";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
+import { useDebouncedValue } from "util/hooks";
 import {ApplicationCategoriesEnum, ApplicationMeta, FolderMeta} from "../../constants/applicationConstants";
 import { buildFolderUrl } from "../../constants/routesURL";
 import { folderElementsSelector, foldersSelector } from "../../redux/selectors/folderSelector";
@@ -9,6 +10,8 @@ import { Helmet } from "react-helmet";
 import { trans } from "i18n";
 import {ApplicationPaginationType} from "@lowcoder-ee/util/pagination/type";
 import {fetchFolderElements} from "@lowcoder-ee/util/pagination/axios";
+import { fetchFolderElements as fetchFolderElementsRedux } from "../../redux/reduxActions/folderActions";
+import { getUser } from "../../redux/selectors/usersSelectors";
 
 function getBreadcrumbs(
   folder: FolderMeta,
@@ -52,6 +55,7 @@ export function FolderView() {
 
   const element = useSelector(folderElementsSelector);
   const allFolders = useSelector(foldersSelector);
+  const user = useSelector(getUser);
 
   const folder = allFolders.filter((f) => f.folderId === folderId)[0] || {};
   const breadcrumbs = getBreadcrumbs(folder, allFolders, [
@@ -60,6 +64,13 @@ export function FolderView() {
       path: buildFolderUrl(folder.folderId),
     },
   ]);
+
+  // Fetch folder data for breadcrumbs if not available
+  useEffect(() => {
+    if (allFolders.length === 0 && user.currentOrgId) {
+      dispatch(fetchFolderElementsRedux({}));
+    }
+  }, [allFolders.length, user.currentOrgId, dispatch]);
 
   useEffect( () => {
         try{
@@ -90,13 +101,12 @@ export function FolderView() {
         }, [searchValues]
     );
 
-    useEffect(()=> {
-        const timer = setTimeout(() => {
-            if (searchValue.length > 2 || searchValue === "")
-                setSearchValues(searchValue)
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [searchValue])
+    const debouncedSearchValue = useDebouncedValue(searchValue, 500);
+
+    useEffect(() => {
+        if (debouncedSearchValue.trim().length > 0 || debouncedSearchValue === "")
+            setSearchValues(debouncedSearchValue);
+    }, [debouncedSearchValue]);
 
   return (
     <>

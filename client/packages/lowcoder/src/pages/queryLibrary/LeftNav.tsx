@@ -1,4 +1,5 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
+import { useDebouncedValue } from "util/hooks";
 import styled, { css } from "styled-components";
 import {
   BluePlusIcon,
@@ -174,14 +175,13 @@ export const LeftNav = (props: {
   const [searchValue, setSearchValue] = useState("");
   const datasourceTypes = useSelector(getDataSourceTypesMap);
 
-  useEffect(()=> {
-    const timer = setTimeout(() => {
-      if (searchValue.length > 2 || searchValue === "")
-        setSearchValues(searchValue)
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchValue])
+  const debouncedSearchValue = useDebouncedValue(searchValue, 500);
 
+  useEffect(() => {
+    if (debouncedSearchValue.trim().length > 0 || debouncedSearchValue === "") {
+      setSearchValues(debouncedSearchValue);
+    }
+  }, [debouncedSearchValue]);
 
 
   return (

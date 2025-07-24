@@ -285,7 +285,8 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
   }
   traverseFormItems(consumer: (item: GridItemComp) => boolean) {
     return traverseCompTree(this.getCompTree(), (item) => {
-      return item.children.comp.children.formDataKey ? consumer(item as GridItemComp) : true;
+      const hasFormDataKey = item.children.comp.children.hasOwnProperty("formDataKey");
+      return hasFormDataKey ? consumer(item as GridItemComp) : true;
     });
   }
   validateFormItems() {
@@ -329,12 +330,19 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
     // For the properties, first find in data, then initialData, subcomponent default value (resetValue), empty value (clearValue)
     const newData = { ...(initialData ?? this.children.initialData.getView()), ...data };
 
+    // Only proceed if we have data to set
+    if (!Object.keys(newData).length) {
+      return Promise.resolve();
+    }
+
     return this.runMethodOfItems(
       {
         name: "setValue",
         getParams: (t) => {
           // use component name when formDataKey is empty
-          const key = t.children.comp.children.formDataKey?.getView() || t.children.name.getView();
+          const formDataKey = t.children.comp.children.formDataKey?.getView();
+          const componentName = t.children.name.getView();
+          const key = formDataKey || componentName;
           const value = newData[key];
           return value !== undefined ? [value as EvalParamType] : undefined;
         },
@@ -343,7 +351,9 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
         name: "setRange",
         getParams: (t) => {
           // use component name when formDataKey is empty
-          const key = t.children.comp.children.formDataKey?.getView() || t.children.name.getView();
+          const formDataKey = t.children.comp.children.formDataKey?.getView();
+          const componentName = t.children.name.getView();
+          const key = formDataKey || componentName;
           const value = newData[key] ? newData[key] : undefined;
           return value !== undefined ? [value as EvalParamType] : undefined;
         },
@@ -383,9 +393,8 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
       case CompActionTypes.UPDATE_NODES_V2: {
         const ret = super.reduce(action);
         // When the initial value changes, update the form
-        if (ret.children.initialData !== this.children.initialData) {
-          // FIXME: kill setTimeout ?
-          setTimeout(() => {
+        if (action.value["initialData"] !== undefined) {
+          queueMicrotask(() => {
             this.dispatch(
               customAction<SetDataAction>(
                 {

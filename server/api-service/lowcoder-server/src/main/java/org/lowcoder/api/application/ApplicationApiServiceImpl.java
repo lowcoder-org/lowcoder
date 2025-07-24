@@ -22,7 +22,11 @@ import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.home.UserHomeApiService;
 import org.lowcoder.api.permission.PermissionHelper;
 import org.lowcoder.api.permission.view.PermissionItemView;
+import org.lowcoder.api.usermanagement.GroupApiService;
+import org.lowcoder.api.usermanagement.OrgApiService;
 import org.lowcoder.api.usermanagement.OrgDevChecker;
+import org.lowcoder.api.usermanagement.view.GroupView;
+import org.lowcoder.api.usermanagement.view.OrgMemberListView;
 import org.lowcoder.domain.application.model.*;
 import org.lowcoder.domain.application.service.ApplicationHistorySnapshotService;
 import org.lowcoder.domain.application.service.ApplicationRecordService;
@@ -30,7 +34,10 @@ import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.service.DatasourceService;
 import org.lowcoder.domain.folder.service.FolderElementRelationService;
+import org.lowcoder.domain.group.model.Group;
+import org.lowcoder.domain.group.model.GroupMember;
 import org.lowcoder.domain.interaction.UserApplicationInteractionService;
+import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.organization.service.OrganizationService;
@@ -54,13 +61,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import reactor.util.function.Tuple2;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.lowcoder.domain.application.model.ApplicationStatus.NORMAL;
@@ -87,7 +92,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     private final OrgDevChecker orgDevChecker;
     private final TemplateSolutionService templateSolutionService;
     private final SuggestAppAdminSolutionService suggestAppAdminSolutionService;
-    
+
     private final FolderApiService folderApiService;
     private final UserHomeApiService userHomeApiService;
     private final UserApplicationInteractionService userApplicationInteractionService;
@@ -99,6 +104,8 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     private final ApplicationHistorySnapshotService applicationHistorySnapshotService;
     private final ApplicationRecordService applicationRecordService;
     private final FolderElementRelationService folderElementRelationService;
+    private final GroupApiService groupApiService;
+    private final OrgApiService orgApiService;
 
     @Override
     public Mono<ApplicationView> create(CreateApplicationRequest createApplicationRequest) {
@@ -233,8 +240,8 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
         if (expected == ApplicationRequestType.PUBLIC_TO_MARKETPLACE && application.isPublicToMarketplace() && application.isPublicToAll()) {
             return Mono.empty();
         }
-        
-        // 
+
+        //
         // Falk: application.agencyProfile() & isPublicToAll must be both true
         if (expected == ApplicationRequestType.AGENCY_PROFILE && application.agencyProfile() && application.isPublicToAll()) {
             return Mono.empty();
@@ -553,9 +560,9 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                     return Mono.just(permissionStatus.getPermission());
                 });
     }
-    
-    
-    
+
+
+
     private Mono<ApplicationInfoView> buildView(Application application, String role) {
         return buildView(application, role, null).delayUntil(applicationInfoView -> {
             String applicationId = applicationInfoView.getApplicationId();
@@ -567,32 +574,47 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     }
 
     private Mono<ApplicationInfoView> buildView(Application application, String role, @Nullable String folderId) {
-        return application.getCategory(applicationRecordService)
-                .zipWith(application.getDescription(applicationRecordService))
-                .zipWith(application.getTitle(applicationRecordService), TupleUtils::merge)
-                        .map(tuple ->
-                            ApplicationInfoView.builder()
-                                    .applicationId(application.getId())
-                                    .applicationGid(application.getGid())
-                                    .orgId(application.getOrganizationId())
-                                    .name(application.getName())
-                                    .createBy(application.getCreatedBy())
-                                    .createAt(application.getCreatedAt().toEpochMilli())
-                                    .role(role)
-                                    .applicationType(application.getApplicationType())
-                                    .applicationStatus(application.getApplicationStatus())
-                                    .folderId(folderId)
-                                    .publicToAll(application.isPublicToAll())
-                                    .publicToMarketplace(application.isPublicToMarketplace())
-                                    .agencyProfile(application.agencyProfile())
-                                    .editingUserId(application.getEditingUserId())
-                                    .lastModifyTime(application.getUpdatedAt())
-                                    .lastEditedAt(application.getLastEditedAt())
-                                    .category(tuple.getT1())
-                                    .description(tuple.getT2())
-                                    .title(tuple.getT3())
-                                    .build()
-                        );
+        Mono<String> categoryMono = application.getCategory(applicationRecordService);
+        Mono<String> descriptionMono = application.getDescription(applicationRecordService);
+        Mono<ApplicationVersion> latestRecordMono = applicationRecordService
+                .getLatestRecordByApplicationId(application.getId())
+                .defaultIfEmpty(new ApplicationVersion() );
+        Mono<String> titleMono = application.getTitle(applicationRecordService);
+
+        return Mono.zip(categoryMono, descriptionMono, latestRecordMono, titleMono)
+                .map(tuple -> {
+                   String category = tuple.getT1();
+                   String description = tuple.getT2();
+                   ApplicationVersion latestRecord = tuple.getT3();
+                   String title = tuple.getT4();
+                   boolean hasPublished = latestRecord.getTag() != null && !latestRecord.getTag().isEmpty();
+                   return ApplicationInfoView.builder()
+                           .category(category)
+                           .description(description)
+                           .published(hasPublished)
+                           .publishedVersion(hasPublished ? latestRecord.getTag() : null)
+                           .lastPublishedTime(hasPublished && latestRecord.getCreateTime() != 0
+                                   ? Instant.ofEpochMilli(latestRecord.getCreateTime())
+                                   : null)
+                           .title(title)
+                           .applicationId(application.getId())
+                           .applicationGid(application.getGid())
+                           .orgId(application.getOrganizationId())
+                           .name(application.getName())
+                           .createBy(application.getCreatedBy())
+                           .createAt(application.getCreatedAt().toEpochMilli())
+                           .role(role)
+                           .applicationType(application.getApplicationType())
+                           .applicationStatus(application.getApplicationStatus())
+                           .folderId(folderId)
+                           .publicToAll(application.isPublicToAll())
+                           .publicToMarketplace(application.isPublicToMarketplace())
+                           .agencyProfile(application.agencyProfile())
+                           .editingUserId(application.getEditingUserId())
+                           .lastModifyTime(application.getUpdatedAt())
+                           .lastEditedAt(application.getLastEditedAt())
+                           .build();
+                });
     }
 
     private Mono<ApplicationInfoView> buildView(Application application) {
@@ -742,5 +764,63 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                         return ExceptionUtils.ofError(BizError.NOT_AUTHORIZED, "APPLICATION_EDIT_ERROR_LACK_OF_DATASOURCE_PERMISSIONS");
                     });
         });
+    }
+
+    @Override
+    public Mono<List<Object>> getGroupsOrMembersWithoutPermissions(String appId) {
+        return applicationService.findById(appId)
+                .flatMap(application -> {
+                    String orgId = application.getOrganizationId();
+                    Mono<List<ResourcePermission>> applicationPermissions = resourcePermissionService.getByApplicationId(application.getId()).cache();
+
+                    Mono<List<PermissionItemView>> groupPermissionPairsMono = applicationPermissions
+                            .flatMap(permissionHelper::getGroupPermissions);
+
+                    Mono<List<PermissionItemView>> userPermissionPairsMono = applicationPermissions
+                            .flatMap(permissionHelper::getUserPermissions);
+                    Mono<OrgMemberListView> orgMemberListViewMono = orgApiService.getOrganizationMembers(orgId, 1, 0);
+                    Mono<List<GroupView>> groupsViewMono = groupApiService.getGroups();
+
+                    return Mono.zip(groupPermissionPairsMono, userPermissionPairsMono, orgMemberListViewMono, groupsViewMono)
+                            .map(tuple -> {
+                                List<PermissionItemView> groupPermissionPairs = tuple.getT1();
+                                List<PermissionItemView> userPermissionPairs = tuple.getT2();
+                                OrgMemberListView orgMemberListViews = tuple.getT3();
+                                List<GroupView> groupListViews = tuple.getT4();
+
+                                Set<String> groupIdsWithPerm = groupPermissionPairs.stream()
+                                    .map(PermissionItemView::getId)
+                      .collect(Collectors.toSet());
+
+                               List<Map<String, Object>> filteredGroups = groupListViews.stream()
+                                    .filter(group -> !groupIdsWithPerm.contains(group.getGroupId()))
+                                    .map(group -> {
+                                        Map<String, Object> map = new HashMap<>();
+                                        map.put("type", "Group");
+                                        map.put("data", group);
+                                        return map;
+                                    })
+                                   .toList();
+
+                               Set<String> userIdsWithPerm = userPermissionPairs.stream()
+                                        .map(PermissionItemView::getId)
+                                        .collect(Collectors.toSet());
+
+                               List<Map<String, Object>> filteredMembers = orgMemberListViews.getMembers().stream()
+                                        .filter(member -> !userIdsWithPerm.contains(member.getUserId()))
+                                        .map(member -> {
+                                            Map<String, Object> map = new HashMap<>();
+                                            map.put("type", "User");
+                                            map.put("data", member);
+                                            return map;
+                                        })
+                                        .toList();
+
+                               List<Object> result = new ArrayList<>();
+                                result.addAll(filteredGroups);
+                                result.addAll(filteredMembers);
+                                return result;
+                            });
+                });
     }
 }

@@ -330,7 +330,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                     if (orgIds.isEmpty()) {
                         return Flux.empty();
                     }
-                    return repository.findByIdInAndNameContainingIgnoreCase(orgIds, orgName, pageable);
+                    return repository.findByIdInAndNameContainingIgnoreCaseAndState(orgIds, orgName, ACTIVE, pageable);
                 });
     }
 
@@ -344,7 +344,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                     if (orgIds.isEmpty()) {
                         return Mono.just(0L);
                     }
-                    return repository.countByIdInAndNameContainingIgnoreCase(orgIds, filter);
+                    return repository.countByIdInAndNameContainingIgnoreCaseAndState(orgIds, filter, ACTIVE);
                 });
     }
 }

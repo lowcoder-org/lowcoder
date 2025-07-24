@@ -36,6 +36,7 @@ import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.HashUtils;
 import org.lowcoder.sdk.util.LocaleUtils;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
@@ -473,4 +474,13 @@ public class UserServiceImpl implements UserService {
         return repository.findByConnections_SourceAndConnections_RawIdIn(connectionSource, connectionSourceUuids);
     }
 
+    @Override
+    public Flux<User> findUsersByIdsAndSearchNameForPagination(Collection<String> ids, String state, boolean isEnabled, String searchRegex, Pageable pageable) {
+        return repository.findUsersByIdsAndSearchNameForPagination(ids, state, isEnabled, searchRegex, pageable);
+    }
+
+    @Override
+    public Mono<Long> countUsersByIdsAndSearchName(Collection<String> ids, String state, boolean isEnabled, String searchRegex) {
+        return repository.countUsersByIdsAndSearchName(ids, state, isEnabled, searchRegex);
+    }
 }

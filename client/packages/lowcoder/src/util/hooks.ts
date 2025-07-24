@@ -29,6 +29,7 @@ import { constantColors } from "components/colorSelect/colorUtils";
 import { AppState } from "@lowcoder-ee/redux/reducers";
 import { getOrgUserStats } from "@lowcoder-ee/redux/selectors/orgSelectors";
 import { fetchGroupsAction } from "@lowcoder-ee/redux/reduxActions/orgActions";
+import debounce from "lodash/debounce";
 
 export const ForceViewModeContext = React.createContext<boolean>(false);
 
@@ -282,3 +283,21 @@ export const useOrgUserCount = (orgId: string) => {
 
   return userCount;
 };
+
+/**
+ * Returns a debounced version of the incoming value that only updates
+ */
+export function useDebouncedValue<T>(value: T, delay = 500): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  const updater = useMemo(() => debounce(setDebouncedValue, delay), [delay]);
+
+  useEffect(() => {
+    updater(value);
+    return () => {
+      updater.cancel();
+    };
+  }, [value, updater]);
+
+  return debouncedValue;
+}

@@ -65,11 +65,12 @@ function ModuleLayoutView(props: IProps) {
   const defaultGrid = useContext(ThemeContext)?.theme?.gridColumns || "24"; //Added By Aqib Mirza
   const { readOnly } = useContext(ExternalEditorContext);
 
-  if (readOnly) {
-    return (
-      <ModulePreviewWrapper className={CNRootContainer}>{props.containerView}</ModulePreviewWrapper>
-    );
-  }
+  // Removed this so that module load with canvas view and app settings will apply
+  // if (readOnly) {
+  //   return (
+  //     <ModulePreviewWrapper className={CNRootContainer}>{props.containerView}</ModulePreviewWrapper>
+  //   );
+  // }
 
   const layout = {
     [moduleContainerId]: {

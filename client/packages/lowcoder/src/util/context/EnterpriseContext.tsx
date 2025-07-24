@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { fetchEnterpriseLicense, fetchEnvironments } from 'redux/reduxActions/enterpriseActions';
+import { fetchBrandingSetting, fetchEnterpriseLicense, fetchEnvironments } from 'redux/reduxActions/enterpriseActions';
 import { selectEnterpriseEditionStatus } from '@lowcoder-ee/redux/selectors/enterpriseSelectors';
 import { useDispatch, useSelector } from 'react-redux';
 import { isEEEnvironment } from "util/envUtils";
+import { getUser } from '@lowcoder-ee/redux/selectors/usersSelectors';
 
 interface EnterpriseContextValue {
     isEnterpriseActive: boolean;
@@ -18,6 +19,7 @@ export const EnterpriseProvider: React.FC<ProviderProps> = ({ children }) => {
     const dispatch = useDispatch();
     const isEnterpriseActiveRedux = useSelector(selectEnterpriseEditionStatus); // From Redux store
     const [isEnterpriseActive, setIsEnterpriseActive] = useState(false);
+    const user = useSelector(getUser);
   
     useEffect(() => {
       if (isEEEnvironment()) {
@@ -38,6 +40,12 @@ export const EnterpriseProvider: React.FC<ProviderProps> = ({ children }) => {
         setIsEnterpriseActive(isEnterpriseActiveRedux);
       }
     }, [isEnterpriseActiveRedux]);
+
+    useEffect(() => {
+      if (isEEEnvironment()) {
+        dispatch(fetchBrandingSetting({ orgId: user.currentOrgId, fallbackToGlobal: true }))
+      }
+    }, [dispatch, user.currentOrgId]);
   
     return (
       <EnterpriseContext.Provider value={{ isEnterpriseActive }}>

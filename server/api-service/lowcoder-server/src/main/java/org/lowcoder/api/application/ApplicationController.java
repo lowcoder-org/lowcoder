@@ -27,6 +27,8 @@ import static org.apache.commons.collections4.SetUtils.emptyIfNull;
 import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.*;
 import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
+import reactor.core.publisher.Flux;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -298,5 +300,36 @@ public class ApplicationController implements ApplicationEndpoints {
                 .map(ResponseView::success));
     }
 
+    @Override
+    public Mono<ResponseView<List<Object>>> getGroupsOrMembersWithoutPermissions(
+            @PathVariable String applicationId,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "1") Integer pageNum,
+            @RequestParam(required = false, defaultValue = "1000") Integer pageSize) {
 
+        return gidService.convertLibraryQueryIdToObjectId(applicationId).flatMap(appId -> {
+            var flx = applicationApiService.getGroupsOrMembersWithoutPermissions(appId)
+                    .flatMapMany(Flux::fromIterable)
+                    .filter(item -> {
+                        if (search == null || search.isBlank()) return true;
+                        if (!(item instanceof Map map)) return false;
+                        Object type = map.get("type");
+                        Object data = map.get("data");
+                        if ("Group".equals(type) && data instanceof org.lowcoder.api.usermanagement.view.GroupView group) {
+                            return group.getGroupName() != null && group.getGroupName().toLowerCase().contains(search.toLowerCase());
+                        }
+                        if ("User".equals(type) && data instanceof org.lowcoder.api.usermanagement.view.OrgMemberListView.OrgMemberView user) {
+                            return user.getName() != null && user.getName().toLowerCase().contains(search.toLowerCase());
+                        }
+                        return false;
+                    })
+                    .cache();
+            var countMono = flx.count();
+            var flux1 = flx.skip((long) (pageNum - 1) * pageSize);
+            if (pageSize > 0) flux1 = flux1.take(pageSize);
+            return flux1.collectList()
+                    .zipWith(countMono)
+                    .map(tuple -> PageResponseView.success(tuple.getT1(), pageNum, pageSize, Math.toIntExact(tuple.getT2())));
+        });
+    }
 }
