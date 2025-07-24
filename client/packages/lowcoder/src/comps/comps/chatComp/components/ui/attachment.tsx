@@ -144,73 +144,76 @@ const ScreenReaderOnly = styled.span`
   overflow: hidden;
 `;
 
-// ============================================================================
-// UTILITY HOOKS
-// ============================================================================
-
-
-const useFileSrc = (file: File | undefined) => {
-  const [src, setSrc] = useState<string | undefined>();
-  const lastFileRef = useRef<File>();
-
-  useEffect(() => {
-    if (!file || file === lastFileRef.current) return;
-
-    const objectUrl = URL.createObjectURL(file);
-    setSrc(objectUrl);
-    lastFileRef.current = file;
-
-    return () => {
-      URL.revokeObjectURL(objectUrl);
-    };
-  }, [file]);
-
-  return src;
-};
-
-
 
 const useAttachmentSrc = () => {
+  // Listen only to image-type attachments
   const attachment = useAttachment(
-    useCallback((a: any) => {
-      if (a.type !== "image") return undefined;
-      return a;
-    }, [])
+    useCallback((a: any) => (a.type === "image" ? a : undefined), [])
   );
 
   const [src, setSrc] = useState<string | undefined>();
-  const lastAttachmentRef = useRef<any>();
+
+  // Keep track of the last generated object URL so that we can revoke it
+  const objectUrlRef = useRef<string | undefined>();
+  const lastAttachmentIdRef = useRef<string | undefined>();
 
   useEffect(() => {
-    if (!attachment || attachment === lastAttachmentRef.current) return;
+    // If the same attachment is rendered again, do nothing
+    if (!attachment || attachment.id === lastAttachmentIdRef.current) return;
 
-    // Handle new/pending attachments with File objects
-    if (attachment.file && attachment.file instanceof File) {
-      const objectUrl = URL.createObjectURL(attachment.file);
-      setSrc(objectUrl);
-      lastAttachmentRef.current = attachment;
-
-      return () => {
-        URL.revokeObjectURL(objectUrl);
-      };
+    // Clean up any previous object URL
+    if (objectUrlRef.current) {
+      try {
+        URL.revokeObjectURL(objectUrlRef.current);
+      } catch {
+        /* ignore */
+      }
+      objectUrlRef.current = undefined;
     }
 
-    // Handle saved attachments with base64 data
-    const imageContent = attachment.content?.find((c: any) => c.type === "image");
-    if (imageContent?.image) {
-      setSrc(imageContent.image);
-      lastAttachmentRef.current = attachment;
+    // ------------------------------------------------------------------
+    // 1. New (local) File object – generate a temporary ObjectURL
+    // ------------------------------------------------------------------
+    if (attachment.file instanceof File) {
+      const url = URL.createObjectURL(attachment.file);
+      objectUrlRef.current = url;
+      setSrc(url);
+      lastAttachmentIdRef.current = attachment.id;
       return;
     }
 
-    // If no valid source found, clear the src
+    // ------------------------------------------------------------------
+    // 2. Restored attachment coming from storage – use stored base64 image
+    // ------------------------------------------------------------------
+    const imgPart = attachment.content?.find((p: any) => p.type === "image");
+    if (imgPart?.image) {
+      setSrc(imgPart.image as string);
+      lastAttachmentIdRef.current = attachment.id;
+      return;
+    }
+
+    // ------------------------------------------------------------------
+    // 3. No usable preview – clear src
+    // ------------------------------------------------------------------
     setSrc(undefined);
-    lastAttachmentRef.current = attachment;
+    lastAttachmentIdRef.current = attachment.id;
   }, [attachment]);
+
+  /* Cleanup when the component using this hook unmounts */
+  useEffect(() => {
+    return () => {
+      if (objectUrlRef.current) {
+        try {
+          URL.revokeObjectURL(objectUrlRef.current);
+        } catch {
+          /* ignore */
+        }
+      }
+    };
+  }, []);
 
   return src;
 };
-
 // ============================================================================
 // ATTACHMENT COMPONENTS
 // ============================================================================
