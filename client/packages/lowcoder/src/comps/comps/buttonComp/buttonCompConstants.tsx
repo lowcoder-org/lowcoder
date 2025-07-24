@@ -11,27 +11,28 @@ export function getButtonStyle(buttonStyle: ButtonStyleType, disabledStyle: Disa
   const hoverColor = buttonStyle.background && genHoverColor(buttonStyle.background);
   const activeColor = buttonStyle.background && genActiveColor(buttonStyle.background);
   return css`
-    & {
+    &&& {
       border-radius: ${buttonStyle.radius};
       border-width:${buttonStyle.borderWidth};
       margin: ${buttonStyle.margin};
       padding: ${buttonStyle.padding};
       rotate: ${buttonStyle.rotation};
-      &:not(:disabled) {
-        --antd-wave-shadow-color: ${buttonStyle.border};
-        border-color: ${buttonStyle.border};
-        color: ${buttonStyle.text};
-        font-size: ${buttonStyle.textSize};
-        font-weight: ${buttonStyle.textWeight};
-        font-family: ${buttonStyle.fontFamily};
-        font-style: ${buttonStyle.fontStyle};
-        text-transform:${buttonStyle.textTransform};
-        text-decoration:${buttonStyle.textDecoration};
-        background: ${buttonStyle.background};
-        border-radius: ${buttonStyle.radius};
-        margin: ${buttonStyle.margin};
-        padding: ${buttonStyle.padding};
+      --antd-wave-shadow-color: ${buttonStyle.border};
+      border-color: ${buttonStyle.border};
+      color: ${buttonStyle.text};
+      font-size: ${buttonStyle.textSize};
+      font-weight: ${buttonStyle.textWeight};
+      font-family: ${buttonStyle.fontFamily};
+      font-style: ${buttonStyle.fontStyle};
+      text-transform:${buttonStyle.textTransform};
+      text-decoration:${buttonStyle.textDecoration};
+      border-radius: ${buttonStyle.radius};
+      margin: ${buttonStyle.margin};
+      padding: ${buttonStyle.padding};
 
+      &:not(:disabled) {
+        background: ${buttonStyle.background};
+        
         &:hover,
         &:focus {
           color: ${buttonStyle.text};
@@ -48,14 +49,13 @@ export function getButtonStyle(buttonStyle: ButtonStyleType, disabledStyle: Disa
             : buttonStyle.border} !important;
         }
       }
-
-      /* Disabled state styling */
       &:disabled,
-      &.ant-btn-disabled {
-        color: ${disabledStyle.disabledText};
-        background: ${disabledStyle.disabledBackground};
-        border-color: ${disabledStyle.disabledBorder};
-        cursor: not-allowed;
+      &.ant-btn-disabled,
+      &[disabled] {
+        background: ${disabledStyle.disabledBackground} !important;
+        cursor: not-allowed !important;
+        color: ${disabledStyle.disabledText || buttonStyle.text} !important;
+        border-color: ${disabledStyle.disabledBorder || buttonStyle.border} !important;
       }
     }
   `;
