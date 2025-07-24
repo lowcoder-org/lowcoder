@@ -146,13 +146,14 @@ export function ChatCoreMain({
       attachments: completeAttachments,
     };
   
-    onMessageUpdate?.(text);
     await actions.addMessage(state.currentThreadId, userMessage);
     setIsRunning(true);
   
     try {
       const response = await messageHandler.sendMessage(userMessage); // Send full message object with attachments
   
+      onMessageUpdate?.(userMessage.text);
+      
       const assistantMessage: ChatMessage = {
         id: generateId(),
         role: "assistant",
@@ -214,15 +215,14 @@ export function ChatCoreMain({
   
     newMessages.push(editedMessage);
   
-    // Expose message update to parent
-    onMessageUpdate?.(editedMessage.text);
-  
     // Update state with edited context
     await actions.updateMessages(state.currentThreadId, newMessages);
     setIsRunning(true);
   
     try {
       const response = await messageHandler.sendMessage(editedMessage); // Send full message object with attachments
+  
+      onMessageUpdate?.(editedMessage.text);
   
       const assistantMessage: ChatMessage = {
         id: generateId(),
