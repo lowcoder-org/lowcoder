@@ -87,10 +87,14 @@ export function ChatCoreMain({
   // Get messages for current thread
   const currentMessages = actions.getCurrentMessages();
 
-  // Notify parent component of conversation changes
+  // Notify parent component of conversation changes - OPTIMIZED TIMING
   useEffect(() => {
-    onConversationUpdate?.(currentMessages);
-  }, [currentMessages]);
+    // Only update conversationHistory when we have complete conversations
+    // Skip empty states and intermediate processing states
+    if (currentMessages.length > 0 && !isRunning) {
+      onConversationUpdate?.(currentMessages);
+    }
+  }, [currentMessages, isRunning]);
 
   // Trigger component load event on mount
   useEffect(() => {
