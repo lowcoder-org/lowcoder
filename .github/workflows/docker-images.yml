@@ -72,10 +72,10 @@ jobs:
           fi;
 
           # Control which images to build
-          echo "BUILD_ALLINONE=${{ inputs.build_allinone || false }}" >> "${GITHUB_ENV}"
-          echo "BUILD_FRONTEND=${{ inputs.build_frontend || false }}" >> "${GITHUB_ENV}"
-          echo "BUILD_NODESERVICE=${{ inputs.build_nodeservice || false }}" >> "${GITHUB_ENV}"
-          echo "BUILD_APISERVICE=${{ inputs.build_apiservice || false }}" >> "${GITHUB_ENV}"
+          echo "BUILD_ALLINONE=${{ inputs.build_allinone || true }}" >> "${GITHUB_ENV}"
+          echo "BUILD_FRONTEND=${{ inputs.build_frontend || true }}" >> "${GITHUB_ENV}"
+          echo "BUILD_NODESERVICE=${{ inputs.build_nodeservice || true }}" >> "${GITHUB_ENV}"
+          echo "BUILD_APISERVICE=${{ inputs.build_apiservice || true }}" >> "${GITHUB_ENV}"
 
           # Image names
           ALLINONE_IMAGE_NAMES=lowcoderorg/lowcoder-ce:${IMAGE_TAG}
