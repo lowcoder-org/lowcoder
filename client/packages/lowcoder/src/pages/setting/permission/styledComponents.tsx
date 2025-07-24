@@ -123,14 +123,20 @@ export const UserTableCellWrapper = styled.div`
 
   svg {
     margin-left: 8px;
+    flex-shrink: 0;
   }
 
   > span {
-    max-width: 120px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     word-break: keep-all;
+    flex-shrink: 1;
+  }
+
+  /* Prevent profile image from shrinking */
+  > div:first-child {
+    flex-shrink: 0;
   }
 `;
 
