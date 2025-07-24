@@ -7,6 +7,24 @@ import Table from "antd/es/table";
 import { ReactNode, useMemo, memo, useCallback } from "react";
 import Tooltip from "antd/es/tooltip";
 
+const CellContainer = styled.div<{
+  $textAlign?: 'left' | 'center' | 'right';
+}>`
+  display: flex;
+  justify-content: ${(props) => {
+    switch (props.$textAlign) {
+      case 'left':
+        return 'flex-start';
+      case 'center':
+        return 'center';
+      case 'right':
+        return 'flex-end';
+      default:
+        return 'flex-start';
+    }
+  }};
+`;
+
 const TableSummaryRow = styled(Table.Summary.Row)<{
   $istoolbarPositionBelow: boolean;
   $background: string;
@@ -170,7 +188,9 @@ const TableSummaryCellView = memo(function TableSummaryCellView(props: {
       $autoHeight={autoHeight}
     >
       <CellWrapper tooltipTitle={cellTooltip}>
-        <div>{children}</div>
+        <CellContainer $textAlign={restProps.align}>
+          {children}
+        </CellContainer>
       </CellWrapper>
     </TableSummarCell>
   );
