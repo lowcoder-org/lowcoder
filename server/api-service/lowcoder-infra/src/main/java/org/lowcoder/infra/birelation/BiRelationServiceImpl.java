@@ -36,7 +36,8 @@ public class BiRelationServiceImpl implements BiRelationService {
 
     @Override
     public Mono<List<BiRelation>> batchAddBiRelation(Collection<BiRelation> biRelations) {
-        return biRelationRepository.saveAll(biRelations)
+        return Flux.fromIterable(biRelations)
+                .flatMap(this::upsertAndReturn)
                 .collectList();
     }
 
@@ -231,5 +232,13 @@ public class BiRelationServiceImpl implements BiRelationService {
         return biRelationRepository.deleteById(id)
                 .thenReturn(true)
                 .onErrorReturn(false);
+    }
+
+    private Mono<BiRelation> upsertAndReturn(BiRelation biRelation) {
+        Criteria criteria = Criteria.where("bizType").is(biRelation.getBizType())
+                .and("sourceId").is(biRelation.getSourceId())
+                .and("targetId").is(biRelation.getTargetId());
+        return mongoUpsertHelper.upsertWithAuditingParams(biRelation, criteria)
+                .onErrorResume(ex -> Mono.empty());
     }
 }
