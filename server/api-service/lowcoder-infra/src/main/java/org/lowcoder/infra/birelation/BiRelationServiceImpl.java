@@ -1,21 +1,27 @@
 package org.lowcoder.infra.birelation;
 
-import com.google.common.base.Preconditions;
-import lombok.RequiredArgsConstructor;
+import static com.google.common.base.Strings.nullToEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+
+import com.google.common.base.Preconditions;
+
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.Collection;
-import java.util.List;
-
-import static com.google.common.base.Strings.nullToEmpty;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Service
 @RequiredArgsConstructor
@@ -36,9 +42,27 @@ public class BiRelationServiceImpl implements BiRelationService {
 
     @Override
     public Mono<List<BiRelation>> batchAddBiRelation(Collection<BiRelation> biRelations) {
-        return Flux.fromIterable(biRelations)
-                .flatMap(this::upsertAndReturn)
-                .collectList();
+        List<Mono<BiRelation>> tasks = new ArrayList<>();
+        List<BiRelation> alreadyGranted = new ArrayList<>();
+
+        for (BiRelation relation : biRelations) {
+            tasks.add(
+                biRelationRepository.insert(relation)
+                .onErrorResume(DuplicateKeyException.class, ex -> {
+                    alreadyGranted.add(relation);
+                    return Mono.empty();
+                })
+            );
+        }
+
+        return Flux.merge(tasks)
+            .collectList()
+            .map(inserted -> {
+                if (!alreadyGranted.isEmpty()) {
+                    throw new BizException(BizError.APPLICATION_GRANTED_PERMISSION_CONFLICT, "APPLICATION_GRANTED_PERMISSION_CONFLICT", alreadyGranted);
+                }
+                return inserted;
+            });
     }
 
     @Override
@@ -232,13 +256,5 @@ public class BiRelationServiceImpl implements BiRelationService {
         return biRelationRepository.deleteById(id)
                 .thenReturn(true)
                 .onErrorReturn(false);
-    }
-
-    private Mono<BiRelation> upsertAndReturn(BiRelation biRelation) {
-        Criteria criteria = Criteria.where("bizType").is(biRelation.getBizType())
-                .and("sourceId").is(biRelation.getSourceId())
-                .and("targetId").is(biRelation.getTargetId());
-        return mongoUpsertHelper.upsertWithAuditingParams(biRelation, criteria)
-                .onErrorResume(ex -> Mono.empty());
     }
 }

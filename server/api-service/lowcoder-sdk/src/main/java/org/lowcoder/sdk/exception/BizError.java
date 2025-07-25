@@ -1,10 +1,10 @@
 package org.lowcoder.sdk.exception;
 
-import lombok.Getter;
-
 import static org.lowcoder.sdk.exception.ErrorLogType.SIMPLE;
 import static org.lowcoder.sdk.exception.ErrorLogType.VERBOSE;
 import static org.lowcoder.sdk.util.EnumUtils.checkDuplicates;
+
+import lombok.Getter;
 
 @Getter
 public enum BizError {
@@ -64,6 +64,7 @@ public enum BizError {
 
     NO_PERMISSION_TO_REQUEST_APP(403, 5308),
     APPLICATION_AND_ORG_NOT_MATCH(400, 5309),
+    APPLICATION_GRANTED_PERMISSION_CONFLICT(409, 5310),
 
     // datasource related, code range 5500 - 5600
     DATASOURCE_NOT_FOUND(500, 5500),
