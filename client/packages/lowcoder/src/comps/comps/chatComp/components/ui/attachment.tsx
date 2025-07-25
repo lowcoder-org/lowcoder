@@ -9,19 +9,12 @@ import {
   useAttachment,
 } from "@assistant-ui/react";
 import styled from "styled-components";
+import { Modal } from "antd";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "./tooltip";
-import {
-  Dialog,
-  DialogTitle,
-  DialogTrigger,
-  DialogOverlay,
-  DialogPortal,
-  DialogContent,
-} from "./dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "./avatar";
 import { TooltipIconButton } from "../assistant-ui/tooltip-icon-button";
 
@@ -29,7 +22,7 @@ import { TooltipIconButton } from "../assistant-ui/tooltip-icon-button";
 // STYLED COMPONENTS
 // ============================================================================
 
-const StyledDialogTrigger = styled(DialogTrigger)`
+const StyledModalTrigger = styled.div`
   cursor: pointer;
   transition: background-color 0.2s;
   padding: 2px;
@@ -136,13 +129,7 @@ const StyledComposerButton = styled(TooltipIconButton)`
   transition: opacity 0.2s ease-in;
 `;
 
-const ScreenReaderOnly = styled.span`
-  position: absolute;
-  left: -10000px;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-`;
+// ScreenReaderOnly component removed as it's no longer needed with ANTD Modal
 
 
 const useAttachmentSrc = () => {
@@ -244,21 +231,37 @@ const AttachmentPreview: FC<AttachmentPreviewProps> = ({ src }) => {
 
 const AttachmentPreviewDialog: FC<PropsWithChildren> = ({ children }) => {
   const src = useAttachmentSrc();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (!src) return <>{children}</>;
 
   return (
-    <Dialog>
-      <StyledDialogTrigger asChild>
+    <>
+      <StyledModalTrigger onClick={() => setIsModalOpen(true)}>
         {children}
-      </StyledDialogTrigger>
-      <AttachmentDialogContent>
-        <DialogTitle>
-          <ScreenReaderOnly>Image Attachment Preview</ScreenReaderOnly>
-        </DialogTitle>
+      </StyledModalTrigger>
+      <Modal
+        title="Image Attachment Preview"
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        footer={null}
+        width="auto"
+        style={{ 
+          maxWidth: "80vw", 
+          top: 20,
+        }}
+        styles={{
+          body: {
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "20px",
+          }
+        }}
+      >
         <AttachmentPreview src={src} />
-      </AttachmentDialogContent>
-    </Dialog>
+      </Modal>
+    </>
   );
 };
 
@@ -364,12 +367,3 @@ export const ComposerAddAttachment: FC = () => {
     </ComposerPrimitive.AddAttachment>
   );
 };
-
-const AttachmentDialogContent: FC<PropsWithChildren> = ({ children }) => (
-  <DialogPortal>
-    <DialogOverlay />
-    <DialogContent className="aui-dialog-content">
-      {children}
-    </DialogContent>
-  </DialogPortal>
-);
