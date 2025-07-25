@@ -127,7 +127,7 @@ const GroupUsersPermission: React.FC<GroupPermissionProp> = (props) => {
   );
 
   useEffect(() => {
-    if (searchValue.length > 2 || searchValue === "" || roleFilter) {
+    if (searchValue.length > 0 || searchValue === "" || roleFilter) {
       debouncedFetchPotentialMembers(searchValue, roleFilter);
     }
     return () => {
