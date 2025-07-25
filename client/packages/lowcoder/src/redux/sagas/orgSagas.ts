@@ -266,9 +266,12 @@ export function* createOrgSaga(action: ReduxAction<{ orgName: string }>) {
     if (isValidResponse) {
       // update org list
       yield call(getUserSaga);
-      yield put({
-        type: ReduxActionTypes.CREATE_ORG_SUCCESS,
-      });
+      // Refetch workspaces to update the profile dropdown
+      yield put(fetchWorkspacesAction(1, 10));
+        yield put({
+          type: ReduxActionTypes.CREATE_ORG_SUCCESS,
+        });
+
     }
   } catch (error: any) {
     yield put({
