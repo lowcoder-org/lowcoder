@@ -1,7 +1,7 @@
 // client/packages/lowcoder/src/comps/comps/chatComp/handlers/messageHandlers.ts
 
 import { MessageHandler, MessageResponse, N8NHandlerConfig, QueryHandlerConfig } from "../types/chatTypes";
-import { CompAction, routeByNameAction, executeQueryAction } from "lowcoder-core";
+import { routeByNameAction, executeQueryAction } from "lowcoder-core";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
 
 // ============================================================================
@@ -11,7 +11,7 @@ import { getPromiseAfterDispatch } from "util/promiseUtils";
 export class N8NHandler implements MessageHandler {
   constructor(private config: N8NHandlerConfig) {}
 
-  async sendMessage(message: string): Promise<MessageResponse> {
+  async sendMessage(message: string, sessionId?: string): Promise<MessageResponse> {
     const { modelHost, systemPrompt, streaming } = this.config;
     
     if (!modelHost) {
@@ -25,6 +25,7 @@ export class N8NHandler implements MessageHandler {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          sessionId,
           message,
           systemPrompt: systemPrompt || "You are a helpful assistant.",
           streaming: streaming || false
@@ -36,7 +37,10 @@ export class N8NHandler implements MessageHandler {
       }
 
       const data = await response.json();
-      
+      if (data.output) {
+        const { explanation, actions } = JSON.parse(data.output);
+        return { content: explanation, actions };
+      }
       // Extract content from various possible response formats
       const content = data.response || data.message || data.content || data.text || String(data);
       
@@ -54,7 +58,7 @@ export class N8NHandler implements MessageHandler {
 export class QueryHandler implements MessageHandler {
   constructor(private config: QueryHandlerConfig) {}
 
-  async sendMessage(message: string): Promise<MessageResponse> {
+  async sendMessage(message: string, sessionId?: string): Promise<MessageResponse> {
     const { chatQuery, dispatch} = this.config;
     
     // If no query selected or dispatch unavailable, return mock response
@@ -92,7 +96,7 @@ export class QueryHandler implements MessageHandler {
 export class MockHandler implements MessageHandler {
   constructor(private delay: number = 1000) {}
 
-  async sendMessage(message: string): Promise<MessageResponse> {
+  async sendMessage(message: string, sessionId?: string): Promise<MessageResponse> {
     await new Promise(resolve => setTimeout(resolve, this.delay));
     return { content: `Mock response: ${message}` };
   }

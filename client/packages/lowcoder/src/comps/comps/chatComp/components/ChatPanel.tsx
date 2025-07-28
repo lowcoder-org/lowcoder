@@ -1,6 +1,6 @@
 // client/packages/lowcoder/src/comps/comps/chatComp/components/ChatPanel.tsx
 
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { ChatCore } from "./ChatCore";
 import { createChatStorage } from "../utils/storageFactory";
 import { N8NHandler } from "../handlers/messageHandlers";
@@ -21,7 +21,6 @@ export function ChatPanel({
   streaming = true,
   onMessageUpdate
 }: ChatPanelProps) {
-  
   // Create storage instance
   const storage = useMemo(() => 
     createChatStorage(tableName), 

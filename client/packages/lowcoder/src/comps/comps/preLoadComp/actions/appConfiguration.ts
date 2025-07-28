@@ -14,34 +14,35 @@ export const configureAppMetaAction: ActionConfig = {
   category: 'app-configuration',
   requiresInput: false,
   execute: async (params: ActionExecuteParams) => {
-    const { editorState } = params;
+    const { editorState, actionPayload } = params;
+    const { action_parameters: { title, description, category } } = actionPayload;
     const appSettingsComp = editorState.getAppSettingsComp();
-    
+
     try {
       // TODO: Get config data from the user
-      let configData = {
-        title: "Test Title",
-        description: "Test Description",
-        category: "Test Category"
-      };
+      // let configData = {
+      //   title: "Test Title",
+      //   description: "Test Description",
+      //   category: "Test Category"
+      // };
 
-      if (configData.title && appSettingsComp?.children?.title) {
-        appSettingsComp.children.title.dispatchChangeValueAction(configData.title);
+      if (title && appSettingsComp?.children?.title) {
+        appSettingsComp.children.title.dispatchChangeValueAction(title);
       }
 
-      if (configData.description && appSettingsComp?.children?.description) {
-          appSettingsComp.children.description.dispatchChangeValueAction(configData.description);
+      if (description && appSettingsComp?.children?.description) {
+          appSettingsComp.children.description.dispatchChangeValueAction(description);
       }
 
-      if (configData.category && appSettingsComp?.children?.category) {
-        appSettingsComp.children.category.dispatchChangeValueAction(configData.category);
+      if (category && appSettingsComp?.children?.category) {
+        appSettingsComp.children.category.dispatchChangeValueAction(category);
       }
 
       // Display error message if no valid configuration data is provided
       const updatedFields = [];
-      if (configData.title) updatedFields.push('title');
-      if (configData.description) updatedFields.push('description');
-      if (configData.category) updatedFields.push('category');
+      if (title) updatedFields.push('title');
+      if (description) updatedFields.push('description');
+      if (category) updatedFields.push('category');
 
       !updatedFields.length && message.info('No valid configuration data provided');
 
@@ -347,7 +348,8 @@ export const applyThemeAction: ActionConfig = {
   category: 'app-configuration',
   isTheme: true,
   execute: async (params: ActionExecuteParams) => {
-    const { editorState, selectedTheme } = params;
+    const { editorState, actionPayload } = params;
+    const { action_parameters: { theme: selectedTheme } } = actionPayload;
 
     try {
       if (!selectedTheme) {
@@ -387,24 +389,8 @@ export const setCanvasSettingsAction: ActionConfig = {
   category: 'app-configuration',
   requiresInput: false,
   execute: async (params: ActionExecuteParams) => {
-    const { editorState } = params;
-
-    // Default canvas settings
-    // TODO: Get canvas settings from the user
-    const defaultCanvasSettings = {
-      maxWidth: "450",
-      gridColumns: 12,
-      gridRowHeight: 8,
-      gridRowCount: Infinity,
-      gridPaddingX: 20,
-      gridPaddingY: 20,
-      gridBg: "",
-      gridBgImage: "",
-      gridBgImageRepeat: "no-repeat",
-      gridBgImageSize: "cover",
-      gridBgImagePosition: "center",
-      gridBgImageOrigin: "no-padding"
-    };
+    const { editorState, actionPayload } = params;
+    const { action_parameters: canvasSettings } = actionPayload;
 
     try {
       const appSettingsComp = editorState.getAppSettingsComp();
@@ -428,52 +414,52 @@ export const setCanvasSettingsAction: ActionConfig = {
         gridBgImageOrigin,
       } = appSettingsComp.children;
 
-      if (maxWidth && defaultCanvasSettings.maxWidth) {
-        maxWidth.dispatchChangeValueAction(defaultCanvasSettings.maxWidth);
+      if (maxWidth && canvasSettings.maxWidth) {
+        maxWidth?.children?.dropdown?.dispatchChangeValueAction(canvasSettings.maxWidth);
       }
 
-      if (gridColumns && defaultCanvasSettings.gridColumns) {
-        gridColumns.dispatchChangeValueAction(defaultCanvasSettings.gridColumns);
+      if (gridColumns && canvasSettings.gridColumns) {
+        gridColumns.dispatchChangeValueAction(canvasSettings.gridColumns);
       }
 
-      if (gridRowHeight && defaultCanvasSettings.gridRowHeight) {
-        gridRowHeight.dispatchChangeValueAction(defaultCanvasSettings.gridRowHeight);
+      if (gridRowHeight && canvasSettings.gridRowHeight) {
+        gridRowHeight.dispatchChangeValueAction(canvasSettings.gridRowHeight);
       }
 
-      if (gridRowCount && defaultCanvasSettings.gridRowCount) {
-        gridRowCount.dispatchChangeValueAction(defaultCanvasSettings.gridRowCount);
+      if (gridRowCount && canvasSettings.gridRowCount) {
+        gridRowCount.dispatchChangeValueAction(canvasSettings.gridRowCount);
       }
 
-      if (gridPaddingX && defaultCanvasSettings.gridPaddingX) {
-        gridPaddingX.dispatchChangeValueAction(defaultCanvasSettings.gridPaddingX);
+      if (gridPaddingX && canvasSettings.gridPaddingX) {
+        gridPaddingX.dispatchChangeValueAction(canvasSettings.gridPaddingX);
       }
 
-      if (gridPaddingY && defaultCanvasSettings.gridPaddingY) {
-        gridPaddingY.dispatchChangeValueAction(defaultCanvasSettings.gridPaddingY);
+      if (gridPaddingY && canvasSettings.gridPaddingY) {
+        gridPaddingY.dispatchChangeValueAction(canvasSettings.gridPaddingY);
       }
 
-      if (gridBg && defaultCanvasSettings.gridBg) {
-        gridBg.dispatchChangeValueAction(defaultCanvasSettings.gridBg);
+      if (gridBg && canvasSettings.gridBg) {
+        gridBg.dispatchChangeValueAction(canvasSettings.gridBg);
       }
 
-      if (gridBgImage && defaultCanvasSettings.gridBgImage) {
-        gridBgImage.dispatchChangeValueAction(defaultCanvasSettings.gridBgImage);
+      if (gridBgImage && canvasSettings.gridBgImage) {
+        gridBgImage.dispatchChangeValueAction(canvasSettings.gridBgImage);
       }
 
-      if (gridBgImageRepeat && defaultCanvasSettings.gridBgImageRepeat) {
-        gridBgImageRepeat.dispatchChangeValueAction(defaultCanvasSettings.gridBgImageRepeat);
+      if (gridBgImageRepeat && canvasSettings.gridBgImageRepeat) {
+        gridBgImageRepeat.dispatchChangeValueAction(canvasSettings.gridBgImageRepeat);
       }
 
-      if (gridBgImageSize && defaultCanvasSettings.gridBgImageSize) {
-        gridBgImageSize.dispatchChangeValueAction(defaultCanvasSettings.gridBgImageSize);
+      if (gridBgImageSize && canvasSettings.gridBgImageSize) {
+        gridBgImageSize.dispatchChangeValueAction(canvasSettings.gridBgImageSize);
       }
 
-      if (gridBgImagePosition && defaultCanvasSettings.gridBgImagePosition) {
-        gridBgImagePosition.dispatchChangeValueAction(defaultCanvasSettings.gridBgImagePosition);
+      if (gridBgImagePosition && canvasSettings.gridBgImagePosition) {
+        gridBgImagePosition.dispatchChangeValueAction(canvasSettings.gridBgImagePosition);
       }
 
-      if (gridBgImageOrigin && defaultCanvasSettings.gridBgImageOrigin) {
-        gridBgImageOrigin.dispatchChangeValueAction(defaultCanvasSettings.gridBgImageOrigin);
+      if (gridBgImageOrigin && canvasSettings.gridBgImageOrigin) {
+        gridBgImageOrigin.dispatchChangeValueAction(canvasSettings.gridBgImageOrigin);
       }
 
       message.success('Canvas settings applied successfully!');

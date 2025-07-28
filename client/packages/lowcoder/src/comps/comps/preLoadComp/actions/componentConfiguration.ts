@@ -20,26 +20,32 @@ export const configureComponentAction: ActionConfig = {
     }
   },
   execute: async (params: ActionExecuteParams) => {
-    const { selectedEditorComponent, actionValue: name, actionValue, actionPayload, editorState } = params;
-    const otherProps = actionPayload;
+    const { actionValue: name, actionValue, actionPayload, editorState } = params;
+    const { component_name: selectedEditorComponent, action_parameters } = actionPayload;
+    const { onEvent, ...compProperties } = action_parameters;
     // const { name, ...otherProps } = actionPayload;
     
     try {
-      const componentInfo = getEditorComponentInfo(editorState, name);
+      // const componentInfo = getEditorComponentInfo(editorState, name);
       
-      if (!componentInfo) {
-        message.error(`Component "${selectedEditorComponent}" not found`);
-        return;
-      }
+      // if (!componentInfo) {
+      //   message.error(`Component "${selectedEditorComponent}" not found`);
+      //   return;
+      // }
 
-      const { componentKey: parentKey, items } = componentInfo;
+      // const { componentKey: parentKey, items } = componentInfo;
     
-      if (!parentKey) {
-        message.error(`Parent component "${selectedEditorComponent}" not found in layout`);
-        return;
-      }
+      // if (!parentKey) {
+      //   message.error(`Parent component "${selectedEditorComponent}" not found in layout`);
+      //   return;
+      // }
 
-      const parentItem = items[parentKey];
+      // const parentItem = items[parentKey];
+      // if (!parentItem) {
+      //   message.error(`Parent component "${selectedEditorComponent}" not found in items`);
+      //   return;
+      // }
+      const parentItem = editorState.getUICompByName(selectedEditorComponent);
       if (!parentItem) {
         message.error(`Parent component "${selectedEditorComponent}" not found in items`);
         return;
@@ -49,11 +55,10 @@ export const configureComponentAction: ActionConfig = {
       const itemData = itemComp.toJsonValue();
       const config = {
         ...itemData,
-        ...otherProps
+        ...compProperties
       };
       itemComp.dispatchChangeValueAction(config);
 
-      debugger;
       console.log('Configuring component:', selectedEditorComponent, 'with config:', config);
       message.info(`Configure action for component "${selectedEditorComponent}"`);
       

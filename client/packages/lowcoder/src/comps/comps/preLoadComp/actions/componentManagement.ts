@@ -156,6 +156,7 @@ export const nestComponentAction: ActionConfig = {
     // const { selectedEditorComponent, selectedNestComponent, editorState, actionPayload } = params;
     const { editorState, actionPayload, selectedComponent: selectedNestComponent } = params;
     const { component_name: name, layout, parent_component_name: selectedEditorComponent, action_parameters } = actionPayload;
+    const { onEvent, ...compProperties } = action_parameters;
     // const { name, layout, target: selectedEditorComponent, ...otherProps } = actionPayload;
 
     if (!selectedEditorComponent || !selectedNestComponent || !editorState) {
@@ -221,7 +222,7 @@ export const nestComponentAction: ActionConfig = {
       let compDefaultValue = defaultDataFn ? defaultDataFn(compName, nameGenerator, editorState) : undefined;
       const compInitialValue = {
         ...(compDefaultValue as any || {}),
-        ...action_parameters,
+        ...compProperties,
       }
 
       const widgetValue: GridItemDataType = {
@@ -235,8 +236,13 @@ export const nestComponentAction: ActionConfig = {
       for (const childComponent of childComponents) {
         originalContainer = originalContainer.children[childComponent];
       }
+      // handle container layout components
       if (originalContainer?.children?.[0]?.children?.view) {
         originalContainer = originalContainer?.children?.[0]?.children?.view;
+      }
+      // handle list/grid components
+      if (originalContainer?.children?.__comp__?.children?.comp) {
+        originalContainer = originalContainer?.children?.__comp__?.children?.comp;
       }
 
       if (!originalContainer) {
@@ -386,7 +392,8 @@ export const moveComponentAction: ActionConfig = {
     return null;
   },
   execute: async (params: ActionExecuteParams) => {
-    const { selectedEditorComponent, actionValue, editorState } = params;
+    const { actionValue, editorState, actionPayload } = params;
+    const { layout: updatedLayout, component_name: selectedEditorComponent } = actionPayload;
 
     if (!selectedEditorComponent || !editorState) {
       message.error('Component and editor state are required');
@@ -394,18 +401,18 @@ export const moveComponentAction: ActionConfig = {
     }
 
     try {
-      const moveParams: { x?: number; y?: number } = {};
-      const params = actionValue.toLowerCase().split(',').map(p => p.trim());
+      const moveParams: { x?: number; y?: number } = {x: updatedLayout?.x, y: updatedLayout?.y};
+      // const params = actionValue.toLowerCase().split(',').map(p => p.trim());
       
-      for (const param of params) {
-        const [key, val] = param.split(':').map(s => s.trim());
-        if (['x', 'y'].includes(key)) {
-          moveParams[key as 'x' | 'y'] = parseInt(val);
-        }
-      }
+      // for (const param of params) {
+      //   const [key, val] = param.split(':').map(s => s.trim());
+      //   if (['x', 'y'].includes(key)) {
+      //     moveParams[key as 'x' | 'y'] = parseInt(val);
+      //   }
+      // }
 
-      if (!moveParams.x && !moveParams.y) {
-        message.error('No valid move parameters provided');
+      if (!updatedLayout) {
+        message.error('No valid layout paramters provided');
         return;
       }
 
@@ -560,7 +567,8 @@ export const resizeComponentAction: ActionConfig = {
     return null;
   },
   execute: async (params: ActionExecuteParams) => {
-    const { selectedEditorComponent, actionValue, editorState } = params;
+    const { actionValue, editorState, actionPayload } = params;
+    const { layout: updatedLayout, component_name: selectedEditorComponent } = actionPayload;
 
     if (!selectedEditorComponent || !editorState) {
       message.error('Component and editor state are required');
@@ -568,15 +576,15 @@ export const resizeComponentAction: ActionConfig = {
     }
 
     try {
-      const resizeParams: { w?: number; h?: number } = {};
-      const params = actionValue.toLowerCase().split(',').map(p => p.trim());
+      const resizeParams: { w?: number; h?: number } = {w: updatedLayout?.w, h: updatedLayout?.h};
+      // const params = actionValue.toLowerCase().split(',').map(p => p.trim());
       
-      for (const param of params) {
-        const [key, val] = param.split(':').map(s => s.trim());
-        if (['w', 'h'].includes(key)) {
-          resizeParams[key as 'w' | 'h'] = parseInt(val);
-        }
-      }
+      // for (const param of params) {
+      //   const [key, val] = param.split(':').map(s => s.trim());
+      //   if (['w', 'h'].includes(key)) {
+      //     resizeParams[key as 'w' | 'h'] = parseInt(val);
+      //   }
+      // }
 
       if (!resizeParams.w && !resizeParams.h) {
         message.error('No valid resize parameters provided');
