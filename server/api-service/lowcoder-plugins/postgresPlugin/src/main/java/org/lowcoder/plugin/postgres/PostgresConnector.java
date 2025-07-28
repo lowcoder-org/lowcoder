@@ -54,5 +54,19 @@ public class PostgresConnector extends SqlBasedConnector<PostgresDatasourceConfi
         } else {
             config.setReadOnly(false);
         }
+
+        // Fix for PostgreSQL prepared statement parameter binding issues
+        // Disable prepared statement caching to prevent S_1, S_2, S_11 errors
+        config.addDataSourceProperty("preparedStatementCacheQueries", "0");
+        config.addDataSourceProperty("preparedStatementCacheSizeMiB", "0");
+        
+        // Add connection validation to reset prepared statement state
+        config.addDataSourceProperty("testOnBorrow", "true");
+        config.addDataSourceProperty("validationQuery", "SELECT 1");
+        
+        // Additional PostgreSQL-specific optimizations
+        config.addDataSourceProperty("reWriteBatchedInserts", "true");
+        config.addDataSourceProperty("cachePrepStmts", "false");
+        config.addDataSourceProperty("useServerPrepStmts", "false");
     }
 }
