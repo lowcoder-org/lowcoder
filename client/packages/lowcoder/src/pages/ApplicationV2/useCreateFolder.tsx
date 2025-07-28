@@ -50,7 +50,12 @@ export function useCreateFolder(setModify: any, modify: boolean) {
               onPressEnter={() => {
                 form.validateFields().then(() => {
                   dispatchCreateFolder(
-                    () => modal?.destroy(),
+                    () => {
+                      modal?.destroy();
+                      setTimeout(() => {
+                        setModify(!modify);
+                      }, 200);
+                    },
                     () => {}
                   );
                 });
