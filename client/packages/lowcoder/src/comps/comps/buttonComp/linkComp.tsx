@@ -1,6 +1,6 @@
 import { default as Button } from "antd/es/button";
 import { ButtonCompWrapper, buttonRefMethods } from "comps/comps/buttonComp/buttonCompConstants";
-import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import { BoolCodeControl, StringControl, NumberControl } from "comps/controls/codeControl";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, LinkStyle, LinkStyleType } from "comps/controls/styleControlConstants";
@@ -91,6 +91,7 @@ const LinkTmpComp = (function () {
     prefixIcon: IconControl,
     suffixIcon: IconControl,
     viewRef: RefControl<HTMLElement>,
+    tabIndex: NumberControl,
   };
   return new UICompBuilder(childrenMap, (props) => {  
     // chrome86 bug: button children should not contain only empty span
@@ -105,6 +106,7 @@ const LinkTmpComp = (function () {
           disabled={props.disabled}
           onClick={() => props.onEvent("click")}
           type={"link"}
+          tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
         >
           {hasChildren && (
             <span>
@@ -131,6 +133,7 @@ const LinkTmpComp = (function () {
               {hiddenPropertyView(children)}
               {loadingPropertyView(children)}
               {showDataLoadingIndicatorsPropertyView(children)}
+              {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
             </Section>
               <Section name={sectionNames.advanced}>
                 {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}

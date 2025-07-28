@@ -1,4 +1,4 @@
-import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import { BoolCodeControl, StringControl, NumberControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { IconControl } from "comps/controls/iconControl";
@@ -204,7 +204,8 @@ const childrenMap = {
   style: ButtonStyleControl,
   viewRef: RefControl<HTMLElement>,
   restrictPaddingOnRotation:withDefault(StringControl, 'controlButton'),
-  tooltip: StringControl
+  tooltip: StringControl,
+  tabIndex: NumberControl
 };
 
 let ButtonTmpComp = (function () {
@@ -294,6 +295,7 @@ let ButtonTmpComp = (function () {
                       ? handleClickEvent()
                       : submitForm(editorState, props.form)
                   }
+                  tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
                 >
                   {props.sourceMode === 'standard' && props.prefixIcon && (
                     <IconWrapper
@@ -342,6 +344,7 @@ let ButtonTmpComp = (function () {
             {disabledPropertyView(children)}
             {hiddenPropertyView(children)}
             {loadingPropertyView(children)}
+            {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
           </Section>
         )}
 
