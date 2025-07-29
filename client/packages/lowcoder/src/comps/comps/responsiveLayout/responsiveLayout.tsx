@@ -62,8 +62,7 @@ const RowWrapper = styled(Row)<{
   padding: ${(props) => props.$style.padding};
   rotate: ${(props) => props.$style.rotation};
   overflow: ${(props) => (props.$showScrollbar ? 'auto' : 'hidden')};
-  display: flex;
-  flex-wrap: wrap; // Ensure columns wrap properly when rowBreak = true
+
   ::-webkit-scrollbar {
     display: ${(props) => (props.$showScrollbar ? 'block' : 'none')};
   }
