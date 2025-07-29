@@ -14,6 +14,7 @@ import { COMP_KEY, MAP_KEY, withMultiContext } from "./withMultiContext";
 import { paramsEqual } from "./withParams";
 import { LazyCompReadyAction } from "../comps/lazyLoadComp/lazyLoadComp";
 import { ModuleReadyAction } from "../comps/moduleComp/moduleComp";
+import { RemoteCompReadyAction } from "../comps/remoteComp/remoteComp";
 
 const SELECTED_KEY = "SELECTED";
 
@@ -75,6 +76,7 @@ export function withSelectedMultiContext<TCtor extends MultiCompConstructor>(
       } else if ((
         !action.editDSL
         && !isCustomAction<LazyCompReadyAction>(action, "LazyCompReady")
+        && !isCustomAction<RemoteCompReadyAction>(action, "RemoteCompReady")
         && !isCustomAction<ModuleReadyAction>(action, "moduleReady")
         ) || action.path[0] !== MAP_KEY || _.isNil(action.path[1])
       ) {
@@ -85,6 +87,7 @@ export function withSelectedMultiContext<TCtor extends MultiCompConstructor>(
       } else if ((
         action.editDSL
         || isCustomAction<LazyCompReadyAction>(action, "LazyCompReady")
+        || isCustomAction<RemoteCompReadyAction>(action, "RemoteCompReady")
         || isCustomAction<ModuleReadyAction>(action, "moduleReady")
       ) && (
         action.path[1] === SELECTED_KEY
@@ -104,6 +107,7 @@ export function withSelectedMultiContext<TCtor extends MultiCompConstructor>(
         && (
           isCustomAction<ModuleReadyAction>(action, "moduleReady")
           || isCustomAction<LazyCompReadyAction>(action, "LazyCompReady")
+          || isCustomAction<RemoteCompReadyAction>(action, "RemoteCompReady")
         ) && action.path[0] === MAP_KEY
       ) {
         comp = super.reduce(action);
