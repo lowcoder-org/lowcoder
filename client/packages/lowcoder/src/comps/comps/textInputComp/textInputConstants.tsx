@@ -233,6 +233,10 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
     debouncedOnChangeRef.current?.(value, propsRef.current.value);
   };
 
+  const handleBlur = () => {
+    touchRef.current = false;
+  };
+
   // Cleanup refs on unmount
   useEffect(() => {
     return () => {
@@ -252,6 +256,7 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
         } as any,
       }),
       onChange: handleChange,
+      onBlur: handleBlur,
     },
     validateState,
   ];
