@@ -55,7 +55,7 @@ function AddGroupUserDialog(props: {
   );
 
   useEffect(() => {
-    if (searchValue.length > 2 || searchValue === "") {
+    if (searchValue.length > 0 || searchValue === "") {
       debouncedFetchPotentialMembers(searchValue);
     }
     return () => {
