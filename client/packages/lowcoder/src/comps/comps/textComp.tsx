@@ -37,6 +37,9 @@ const getStyle = (style: TextStyleType) => {
     text-transform:${style.textTransform} !important;
     text-decoration:${style.textDecoration} !important;
     background: ${style.background};
+    line-height: ${style.lineHeight};
+    margin: ${style.margin} !important;	
+    padding: ${style.padding};	
     .markdown-body a {
       color: ${style.links};
     }
@@ -68,7 +71,7 @@ const getStyle = (style: TextStyleType) => {
       h6 {
         color: ${style.text};
         font-weight: ${style.textWeight} !important;
-        line-height:${style.lineHeight};
+        line-height: ${style.lineHeight} !important;
       }
       img,
       pre {
@@ -101,9 +104,9 @@ const TextContainer = React.memo(styled.div<{
     margin: ${props.$styleConfig.margin};
     padding: ${props.$styleConfig.padding};
   `};
-  ${(props) => props.$styleConfig && getStyle(props.$styleConfig)}
   display: flex;
   ${markdownCompCss};
+  ${(props) => props.$styleConfig && getStyle(props.$styleConfig)}
   overflow-wrap: anywhere;
   .markdown-body {
     overflow-wrap: anywhere;

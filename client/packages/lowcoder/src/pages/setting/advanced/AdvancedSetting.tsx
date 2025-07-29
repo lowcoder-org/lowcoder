@@ -96,9 +96,18 @@ export function AdvancedSetting() {
   }, [currentUser.currentOrgId])
 
   useEffect(() => {
-    dispatch(fetchCommonSettings({ orgId: currentUser.currentOrgId }));
-    dispatch(fetchAllApplications({}));
-  }, [currentUser.currentOrgId, dispatch]);
+    // Only fetch common settings if not already loaded
+    if (Object.keys(commonSettings).length === 0) {
+      dispatch(fetchCommonSettings({ orgId: currentUser.currentOrgId }));
+    }
+  }, [currentUser.currentOrgId, dispatch, commonSettings]);
+
+  // Lazy load applications only when dropdown is opened
+  const handleDropdownOpen = () => {
+    if (appList.length === 0) {
+      dispatch(fetchAllApplications({}));
+    }
+  };
 
   useEffect(() => {
     setSettings(commonSettings);
@@ -110,9 +119,7 @@ export function AdvancedSetting() {
     }
   }, [canLeave]);
 
-  useEffect(() => {
-    dispatch(fetchCommonSettings({ orgId: currentUser.currentOrgId }));
-  }, [currentUser.currentOrgId, dispatch]);
+
 
   const handleSave = (key: keyof typeof settings, onSuccess?: () => void) => {
     return (value?: any) => {
@@ -177,6 +184,9 @@ export function AdvancedSetting() {
             value={settings.defaultHomePage}
             onChange={(value: string) => {
               setSettings((v) => ({ ...v, defaultHomePage: value }));
+            }}
+            onDropdownVisibleChange={(open) => {
+              if (open) handleDropdownOpen();
             }}
             options={appListOptions}
             filterOption={(input, option) => (option?.label as string).includes(input)}

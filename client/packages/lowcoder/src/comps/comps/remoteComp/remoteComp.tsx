@@ -45,7 +45,7 @@ function ViewLoading(props: { padding?: number }) {
   );
 }
 
-interface RemoteCompReadyAction {
+export interface RemoteCompReadyAction {
   type: "RemoteCompReady";
   comp: Comp;
 }

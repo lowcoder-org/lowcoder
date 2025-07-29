@@ -1,4 +1,4 @@
-import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import { BoolCodeControl, StringControl, NumberControl } from "comps/controls/codeControl";
 import { withDefault } from "comps/generators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import {
@@ -68,6 +68,7 @@ const ToggleTmpComp = (function () {
     showBorder: withDefault(BoolControl, true),
     viewRef: RefControl<HTMLElement>,
     tooltip: StringControl,
+    tabIndex: NumberControl,
   };
   return new UICompBuilder(childrenMap, (props) => {
     const text = props.showText
@@ -92,6 +93,7 @@ const ToggleTmpComp = (function () {
               props.onEvent("change");
               props.value.onChange(!props.value.value);
             }}
+            tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
           >
             {props.iconPosition === "right" && text}
             {<IconWrapper>{props.value.value ? props.trueIcon : props.falseIcon}</IconWrapper>}
@@ -117,6 +119,7 @@ const ToggleTmpComp = (function () {
               {hiddenPropertyView(children)}
               {loadingPropertyView(children)}
               {showDataLoadingIndicatorsPropertyView(children)}
+              {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
             </Section>
             <Section name={sectionNames.advanced}>
               {children.showText.propertyView({ label: trans("toggleButton.showText") })}
