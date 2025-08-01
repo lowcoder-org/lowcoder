@@ -51,7 +51,6 @@ const RowWrapper = styled(Row)<{
   $style: ResponsiveLayoutRowStyleType;
   $animationStyle: AnimationStyleType;
   $showScrollbar: boolean;
-  $columnCount: number;
 }>`
   ${(props) => props.$animationStyle}
   height: 100%;
@@ -67,8 +66,6 @@ const RowWrapper = styled(Row)<{
     display: ${(props) => (props.$showScrollbar ? 'block' : 'none')};
   }
   ${props => getBackgroundStyle(props.$style)}
-
-  --columns: ${(props) => props.$columnCount || 3};
 `;
 
 const ColWrapper = styled(Col)<{
@@ -79,17 +76,31 @@ const ColWrapper = styled(Col)<{
 }>`
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  
+  /* When rowBreak is true: columns stretch evenly to fill available space */
+  /* When rowBreak is false: columns take available space but respect minWidth */
+  flex-grow: ${(props) => props.$rowBreak ? '1' : '1'};
+  flex-shrink: ${(props) => {
+    if (props.$rowBreak) {
+      return '1'; // Can shrink when rowBreak is true
+    } else {
+      // When rowBreak is false, only allow shrinking if no minWidth is set
+      return props.$minWidth ? '0' : '1';
+    }
+  }};
+  flex-basis: ${(props) => {
+    if (props.$rowBreak) {
+      // When rowBreak is true, distribute columns evenly
+      return '0%';
+    } else {
+      // When rowBreak is false, use minWidth if specified, otherwise auto
+      return props.$minWidth || 'auto';
+    }
+  }};
 
-  // When rowBreak is true, columns are stretched evenly based on configured number
-  // When rowBreak is false, they stay at minWidth but break only if necessary
-  flex-basis: ${(props) =>
-    props.$rowBreak
-      ? `calc(100% / var(--columns))` // Force exact column distribution
-      : `clamp(${props.$minWidth || "0px"}, calc(100% / var(--columns)), 100%)`}; // MinWidth respected
-
-  min-width: ${(props) => props.$minWidth}; // Ensure minWidth is respected
-  max-width: 100%; // Prevent more columns than allowed
+  /* Ensure minWidth is respected */
+  min-width: ${(props) => props.$minWidth || 'auto'};
+  max-width: 100%;
 
   > div {
     height: ${(props) => (props.$matchColumnsHeight ? "100%" : "auto")};
@@ -203,68 +214,70 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
   const effectiveWidth = useComponentWidth ? componentWidth ?? safeScreenInfo.width : safeScreenInfo.width;
   const effectiveDeviceType = useComponentWidth ? getDeviceType(effectiveWidth || 1000) : safeScreenInfo.deviceType;
 
-  // Get columns per row based on device type
-  let configuredColumnsPerRow = effectiveDeviceType === "mobile"
+  // Get current columns per row based on device type
+  const currentColumnsPerRow = effectiveDeviceType === "mobile"
     ? columnPerRowSM
     : effectiveDeviceType === "tablet"
     ? columnPerRowMD
     : columnPerRowLG;
 
-  // Calculate max columns that fit based on minWidth
-  let maxColumnsThatFit = componentWidth
-    ? Math.floor(componentWidth / Math.max(...columns.map((col) => parseFloat(col.minWidth || "0"))))
-    : configuredColumnsPerRow;
-
-  // Determine actual number of columns
-  let numberOfColumns = rowBreak ? configuredColumnsPerRow : Math.min(maxColumnsThatFit, totalColumns);
+  // Group columns into rows based on currentColumnsPerRow only when rowBreak is true
+  const columnRows = rowBreak ? (() => {
+    const rows = [];
+    for (let i = 0; i < columns.length; i += currentColumnsPerRow) {
+      rows.push(columns.slice(i, i + currentColumnsPerRow));
+    }
+    return rows;
+  })() : [columns]; // When rowBreak is false, put all columns in a single row
 
   return (
     <BackgroundColorContext.Provider value={props.style.background}>
       <DisabledContext.Provider value={props.disabled}>
         <div ref={containerRef} style={{ padding: style.margin, height: "100%" }}>  
-          <RowWrapper
-            $style={{ ...style }}
-            $animationStyle={animationStyle}
-            $showScrollbar={mainScrollbar}
-            $columnCount={numberOfColumns} 
-            wrap={rowBreak}
-            gutter={[horizontalSpacing, verticalSpacing]}
-          >
-            {columns.map((column) => {
-              const id = String(column.id);
-              const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
-              if (!containers[id] || column.hidden) return null;
-              const containerProps = containers[id].children;
+          {columnRows.map((row, rowIndex) => (
+            <RowWrapper
+              key={rowIndex}
+              $style={{ ...style }}
+              $animationStyle={animationStyle}
+              $showScrollbar={mainScrollbar}
+              wrap={rowBreak}
+              gutter={[horizontalSpacing, verticalSpacing]}
+            >
+              {row.map((column) => {
+                const id = String(column.id);
+                const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
+                if (!containers[id] || column.hidden) return null;
+                const containerProps = containers[id].children;
 
-              // Use the actual minWidth from column configuration instead of calculated width
-              const columnMinWidth = column.minWidth || `${100 / numberOfColumns}px`;
+                const columnMinWidth = column.minWidth;
 
-              return (
-                <ColWrapper
-                  key={id}
-                  lg={rowBreak ? 24 / numberOfColumns : undefined} 
-                  md={rowBreak ? 24 / numberOfColumns : undefined}
-                  sm={rowBreak ? 24 / numberOfColumns : undefined}
-                  xs={rowBreak ? 24 / numberOfColumns : undefined}
-                  $style={props.columnStyle}
-                  $minWidth={columnMinWidth}
-                  $matchColumnsHeight={matchColumnsHeight}
-                  $rowBreak={rowBreak}
-                >
-                  <ColumnContainer
-                    layout={containerProps.layout.getView()}
-                    items={gridItemCompToGridItems(containerProps.items.getView())}
-                    positionParams={containerProps.positionParams.getView()}
-                    dispatch={childDispatch}
-                    autoHeight={props.autoHeight}
-                    horizontalGridCells={horizontalGridCells}
-                    style={columnStyle}
-                    emptyRows={props.verticalGridCells}
-                  />
-                </ColWrapper>
-              );
-            })}
-          </RowWrapper>
+                return (
+                  <ColWrapper
+                    key={id}
+                    lg={rowBreak ? 24 / columnPerRowLG : undefined} 
+                    md={rowBreak ? 24 / columnPerRowMD : undefined}
+                    sm={rowBreak ? 24 / columnPerRowSM : undefined}
+                    xs={rowBreak ? 24 / columnPerRowSM : undefined}
+                    $style={props.columnStyle}
+                    $minWidth={columnMinWidth}
+                    $matchColumnsHeight={matchColumnsHeight}
+                    $rowBreak={rowBreak}
+                  >
+                    <ColumnContainer
+                      layout={containerProps.layout.getView()}
+                      items={gridItemCompToGridItems(containerProps.items.getView())}
+                      positionParams={containerProps.positionParams.getView()}
+                      dispatch={childDispatch}
+                      autoHeight={props.autoHeight}
+                      horizontalGridCells={horizontalGridCells}
+                      style={columnStyle}
+                      emptyRows={props.verticalGridCells}
+                    />
+                  </ColWrapper>
+                );
+              })}
+            </RowWrapper>
+          ))}
         </div>
       </DisabledContext.Provider>
     </BackgroundColorContext.Provider>
