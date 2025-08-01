@@ -1,7 +1,7 @@
 import { SelectEventHandlerControl } from "../../controls/eventHandlerControl";
 import { Section, sectionNames } from "lowcoder-design";
 import { RecordConstructorToComp } from "lowcoder-core";
-import { BoolCodeControl, JSONObjectArrayControl, StringControl } from "comps/controls/codeControl";
+import { BoolCodeControl, JSONObjectArrayControl, StringControl, NumberControl } from "comps/controls/codeControl";
 import { arrayStringExposingStateControl } from "comps/controls/codeStateControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { LabelControl } from "comps/controls/labelControl";
@@ -43,7 +43,8 @@ export const CascaderChildren = {
   padding: PaddingControl,
   inputFieldStyle:styleControl(CascaderStyle , 'inputFieldStyle'),
   childrenInputFieldStyle:styleControl(ChildrenMultiSelectStyle),
-  animationStyle:styleControl(AnimationStyle ,'animationStyle')
+  animationStyle:styleControl(AnimationStyle ,'animationStyle'),
+  tabIndex: NumberControl
 };
 
 export const CascaderPropertyView = (
@@ -62,6 +63,7 @@ export const CascaderPropertyView = (
         {disabledPropertyView(children)}
         {hiddenPropertyView(children)}
         {showDataLoadingIndicatorsPropertyView(children as any)}
+        {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
       </Section>
     )}
 

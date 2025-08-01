@@ -3,6 +3,7 @@ import { default as AntdUpload } from "antd/es/upload";
 import { default as Dropdown } from "antd/es/dropdown";
 import { UploadFile, UploadProps, UploadChangeParam, UploadFileStatus, RcFile } from "antd/es/upload/interface";
 import { Buffer } from "buffer";
+import { v4 as uuidv4 } from "uuid";
 import { darkenColor } from "components/colorSelect/colorUtils";
 import { Section, sectionNames } from "components/Section";
 import { IconControl } from "comps/controls/iconControl";
@@ -448,6 +449,7 @@ const Upload = (
     text: string;
     dispatch: (action: CompAction) => void;
     forceCapture: boolean;
+    tabIndex?: number;
   },
 ) => {
   const { dispatch, files, style } = props;
@@ -564,13 +566,17 @@ const Upload = (
         onChange={handleOnChange}
 
       >
-        <Button disabled={props.disabled} onClick={(e) => {
-          if (props.forceCapture && !isMobile) {
-            e.preventDefault();
-            e.stopPropagation();
-            setShowModal(true);
-          }
-        }}>
+        <Button 
+          disabled={props.disabled} 
+          tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
+          onClick={(e) => {
+            if (props.forceCapture && !isMobile) {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowModal(true);
+            }
+          }}
+        >
           {hasChildren && (
             <span>
               {hasIcon(props.prefixIcon) && <IconWrapper>{props.prefixIcon}</IconWrapper>}
@@ -589,7 +595,7 @@ const Upload = (
           const res: Response = await fetch(image);
           const blob: Blob = await res.blob();
           const file = new File([blob], "image.jpg", {type: 'image/jpeg'});
-          const fileUid = uuid.v4();
+          const fileUid = uuidv4();
           const uploadFile = {
             uid: fileUid,
             name: file.name,
@@ -616,6 +622,7 @@ const UploadTypeOptions = [
 const childrenMap = {
   text: withDefault(StringControl, trans("file.upload")),
   uploadType: dropdownControl(UploadTypeOptions, "single"),
+  tabIndex: NumberControl,
   ...commonChildren,
   ...formDataChildren,
 };
@@ -645,6 +652,7 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => {
             {disabledPropertyView(children)}
             {hiddenPropertyView(children)}
             {showDataLoadingIndicatorsPropertyView(children)}
+            {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
           </Section>
           <Section name={sectionNames.advanced}>
               {children.fileType.propertyView({
