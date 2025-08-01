@@ -52,12 +52,31 @@ const RatingBasicComp = (function () {
       'labelStyle',
     ),
     inputFieldStyle: migrateOldData(styleControl(RatingStyle, 'inputFieldStyle'), fixOldData),
+    tabIndex: NumberControl,
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
     const defaultValue = { ...props.defaultValue }.value;
     const value = { ...props.value }.value;
     const changeRef = useRef(false);
+    const mountedRef = useRef(true);
+    const rateRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+      if (!mountedRef.current) return;
+      if (rateRef.current && typeof props.tabIndex === 'number') {
+        const stars = rateRef.current.querySelectorAll('li');
+        stars.forEach((star, index) => {
+          (star as HTMLElement).setAttribute('tabindex', (props.tabIndex + index).toString());
+        });
+      }
+    }, [props.tabIndex, props.max]);
+
+    useEffect(() => {
+      return () => {
+        mountedRef.current = false;
+      };
+    }, []);
 
     useEffect(() => {
       props.value.onChange(defaultValue);
@@ -76,7 +95,8 @@ const RatingBasicComp = (function () {
       inputFieldStyle:props.inputFieldStyle,
       animationStyle:props.animationStyle,
       children: (
-        <RateStyled
+        <div ref={rateRef}>
+          <RateStyled
           count={props.max}
           value={value}
           onChange={(e) => {
@@ -86,7 +106,9 @@ const RatingBasicComp = (function () {
           allowHalf={props.allowHalf}
           disabled={props.disabled}
           $style={props.inputFieldStyle}
+          tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
         />
+        </div>
       ),
     });
   })
@@ -108,6 +130,7 @@ const RatingBasicComp = (function () {
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
               {showDataLoadingIndicatorsPropertyView(children)}
+              {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
             </Section>
               <Section name={sectionNames.advanced}>
                 {children.allowHalf.propertyView({

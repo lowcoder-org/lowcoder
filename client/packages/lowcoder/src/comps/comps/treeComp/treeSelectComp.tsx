@@ -21,7 +21,7 @@ import {
 } from "./treeUtils";
 import { baseSelectRefMethods, getStyle } from "../selectInputComp/selectCompConstants";
 import { useSelectInputValidate, SelectInputValidationSection } from "../selectInputComp/selectInputConstants";
-import { StringControl } from "comps/controls/codeControl";
+import { StringControl, NumberControl } from "comps/controls/codeControl";
 import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { selectInputValidate } from "../selectInputComp/selectInputConstants";
 import { BoolControl } from "comps/controls/boolControl";
@@ -70,6 +70,7 @@ const childrenMap = {
   labelStyle:styleControl(LabelStyle  , 'labelStyle'),
   inputFieldStyle: styleControl(TreeSelectStyle, 'inputFieldStyle'),
   viewRef: RefControl<BaseSelectRef>,
+  tabIndex: NumberControl,
 };
 
 function getCheckedStrategy(v: ValueFromOption<typeof checkedStrategyOptions>) {
@@ -123,6 +124,7 @@ const TreeCompView = (
         treeLine={props.showLine ? { showLeafIcon: props.showLeafIcon } : false}
         // fix expand issue when searching
         treeExpandedKeys={inputValue ? undefined : expanded.value}
+        tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
         onTreeExpand={(keys) => {
           expanded.onChange(keys as (string | number)[]);
         }}
@@ -172,6 +174,7 @@ let TreeBasicComp = (function () {
               {allowClearPropertyView(children)}
               {showSearchPropertyView(children)}
               {showDataLoadingIndicatorsPropertyView(children)}
+              {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
             </Section>
           </>
         )}
