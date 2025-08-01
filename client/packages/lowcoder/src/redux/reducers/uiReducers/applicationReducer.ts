@@ -129,7 +129,10 @@ const usersReducer = createReducer(initialState, {
     action: ReduxAction<ApplicationDetail>
   ): ApplicationReduxState => ({
     ...state,
-    applicationList: [action.payload.applicationInfoView, ...state.applicationList],
+    // Might be unnecessary to add the new application to the list
+    // TODO: Remove this after testing
+    // applicationList: [action.payload.applicationInfoView, ...state.applicationList],
+    applicationList:[],
     loadingStatus: {
       ...state.loadingStatus,
       isApplicationCreating: false,
