@@ -1,6 +1,6 @@
 import { HomeRes } from "./HomeLayout";
 import { default as Form } from "antd/es/form";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
@@ -11,10 +11,10 @@ import {
   FormSelectItem,
   TacoButton,
 } from "lowcoder-design";
-import { moveToFolder } from "../../redux/reduxActions/folderActions";
+import { moveToFolder, fetchFolderElements } from "../../redux/reduxActions/folderActions";
 import styled from "styled-components";
 import { trans } from "../../i18n";
-import { foldersSelector } from "../../redux/selectors/folderSelector";
+import { foldersSelector, isFetchingFolderElements } from "../../redux/selectors/folderSelector";
 
 const MoveLabel = styled.div`
   font-size: 13px;
@@ -47,10 +47,19 @@ export const MoveToFolderModal = (props: { source?: HomeRes; onClose: () => void
   const [loading, setLoading] = useState<boolean>(false);
 
   const folders = useSelector(foldersSelector);
+  const isFetching = useSelector(isFetchingFolderElements);
 
   const dispatch = useDispatch();
 
   const { folderId } = useParams<{ folderId: string }>();
+
+  // Fetch folders when modal opens to populate Redux state (only if not already loaded or fetching)
+  useEffect(() => {
+    if (props.source && folders.length === 0 && !isFetching) {
+      // Dispatch the Redux action to fetch folders (empty folderId fetches all folders)
+      dispatch(fetchFolderElements({}));
+    }
+  }, [props.source, dispatch, folders.length, isFetching]);
 
   return (
     <CustomModal
