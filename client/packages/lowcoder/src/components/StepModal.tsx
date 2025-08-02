@@ -25,7 +25,9 @@ export interface StepModalProps extends CustomModalProps {
 export default function StepModal(props: StepModalProps) {
   const { steps, activeStepKey, onStepChange, ...modalProps } = props;
   const [current, setCurrent] = useState(steps[0]?.key);
-  const currentStepIndex = steps.findIndex((i) => i.key === activeStepKey ?? current);
+  const currentStepIndex = steps.findIndex(
+    (i) => i.key === activeStepKey ?? current
+  );
   const currentStep = currentStepIndex >= 0 ? steps[currentStepIndex] : null;
 
   const handleChangeStep = (key: string) => {

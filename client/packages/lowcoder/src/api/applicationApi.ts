@@ -12,7 +12,7 @@ import {
   SetAppEditingStatePayload,
   UpdateAppPermissionPayload,
 } from "redux/reduxActions/applicationActions";
-import {ApiResponse, GenericApiResponse} from "./apiResponses";
+import { ApiResponse, GenericApiResponse } from "./apiResponses";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import {
   ApplicationDetail,
@@ -24,7 +24,10 @@ import {
 } from "constants/applicationConstants";
 import { CommonSettingResponseData } from "./commonSettingApi";
 import { ResourceType } from "@lowcoder-ee/constants/queryConstants";
-import {fetchAppRequestType, GenericApiPaginationResponse} from "@lowcoder-ee/util/pagination/type";
+import {
+  fetchAppRequestType,
+  GenericApiPaginationResponse,
+} from "@lowcoder-ee/util/pagination/type";
 
 export interface HomeOrgMeta {
   id: string;
@@ -70,6 +73,11 @@ export interface ApplicationResp extends ApiResponse {
   data: ApplicationDetail;
 }
 
+export interface ApplicationPublishRequest {
+  commitMessage?: string;
+  tag: string;
+}
+
 interface GrantAppPermissionReq {
   applicationId: string;
   role: ApplicationRoleType;
@@ -82,18 +90,24 @@ class ApplicationApi extends Api {
   static fetchHomeDataURL = "/applications/home";
   static createApplicationURL = "/applications";
   static fetchAllMarketplaceAppsURL = "/applications/marketplace-apps";
-  static deleteApplicationURL = (applicationId: string) => `/applications/${applicationId}`;
-  static getAppPublishInfoURL = (applicationId: string) => `/applications/${applicationId}/view`;
-  static getAppEditingInfoURL = (applicationId: string) => `/applications/${applicationId}`;
-  static updateApplicationURL = (applicationId: string) => `/applications/${applicationId}`;
+  static deleteApplicationURL = (applicationId: string) =>
+    `/applications/${applicationId}`;
+  static getAppPublishInfoURL = (applicationId: string) =>
+    `/applications/${applicationId}/view`;
+  static getAppEditingInfoURL = (applicationId: string) =>
+    `/applications/${applicationId}`;
+  static updateApplicationURL = (applicationId: string) =>
+    `/applications/${applicationId}`;
   static getApplicationPermissionURL = (applicationId: string) =>
     `/applications/${applicationId}/permissions`;
   static grantAppPermissionURL = (applicationId: string) =>
     `/applications/${applicationId}/permissions`;
   static publishApplicationURL = (applicationId: string) =>
     `/applications/${applicationId}/publish`;
-  static updateAppPermissionURL = (applicationId: string, permissionId: string) =>
-    `/applications/${applicationId}/permissions/${permissionId}`;
+  static updateAppPermissionURL = (
+    applicationId: string,
+    permissionId: string
+  ) => `/applications/${applicationId}/permissions/${permissionId}`;
   static createFromTemplateURL = `/applications/createFromTemplate`;
   static publicToAllURL = (applicationId: string) => `/applications/${applicationId}/public-to-all`;
   static publicToMarketplaceURL = (applicationId: string) => `/applications/${applicationId}/public-to-marketplace`;
@@ -102,19 +116,34 @@ class ApplicationApi extends Api {
   static getAvailableGroupsMembersURL = (applicationId: string) => `/applications/${applicationId}/groups-members/available`;
   static serverSettingsURL = () => `/serverSettings`;
 
-  static fetchHomeData(request: HomeDataPayload): AxiosPromise<HomeDataResponse> {
+  static fetchHomeData(
+    request: HomeDataPayload
+  ): AxiosPromise<HomeDataResponse> {
     return Api.get(ApplicationApi.fetchHomeDataURL, request);
   }
 
-  static fetchAllApplications(request: HomeDataPayload): AxiosPromise<ApplicationMeta[]> {
-    return Api.get(ApplicationApi.newURLPrefix + "/list", { ...request, withContainerSize: false });
+  static fetchAllApplications(
+    request: HomeDataPayload
+  ): AxiosPromise<ApplicationMeta[]> {
+    return Api.get(ApplicationApi.newURLPrefix + "/list", {
+      ...request,
+      withContainerSize: false,
+    });
   }
 
-  static fetchAllApplicationsPagination(request: fetchAppRequestType): AxiosPromise<GenericApiPaginationResponse<ApplicationMeta[]>> {
-    return Api.get(ApplicationApi.newURLPrefix + "/list", { ...request, withContainerSize: false, applicationStatus: "RECYCLED" });
+  static fetchAllApplicationsPagination(
+    request: fetchAppRequestType
+  ): AxiosPromise<GenericApiPaginationResponse<ApplicationMeta[]>> {
+    return Api.get(ApplicationApi.newURLPrefix + "/list", {
+      ...request,
+      withContainerSize: false,
+      applicationStatus: "RECYCLED",
+    });
   }
 
-  static fetchAllModules(request: HomeDataPayload): AxiosPromise<ApplicationMeta[]> {
+  static fetchAllModules(
+    request: HomeDataPayload
+  ): AxiosPromise<ApplicationMeta[]> {
     return Api.get(ApplicationApi.newURLPrefix + "/list", {
       applicationType: AppTypeEnum.Module,
       applicationStatus: "NORMAL",
@@ -123,11 +152,15 @@ class ApplicationApi extends Api {
     });
   }
 
-  static fetchRecycleList(): AxiosPromise<GenericApiResponse<ApplicationMeta[]>> {
+  static fetchRecycleList(): AxiosPromise<
+    GenericApiResponse<ApplicationMeta[]>
+  > {
     return Api.get(ApplicationApi.newURLPrefix + "/recycle/list");
   }
 
-  static createApplication(request: CreateApplicationPayload): AxiosPromise<ApplicationResp> {
+  static createApplication(
+    request: CreateApplicationPayload
+  ): AxiosPromise<ApplicationResp> {
     return Api.post(ApplicationApi.createApplicationURL, {
       orgId: request.orgId,
       name: request.applicationName,
@@ -146,19 +179,25 @@ class ApplicationApi extends Api {
   static recycleApplication(
     request: RecycleApplicationPayload
   ): AxiosPromise<GenericApiResponse<Boolean>> {
-    return Api.put(ApplicationApi.newURLPrefix + `/recycle/${request.applicationId}`);
+    return Api.put(
+      ApplicationApi.newURLPrefix + `/recycle/${request.applicationId}`
+    );
   }
 
   static restoreApplication(
     request: RestoreApplicationPayload
   ): AxiosPromise<GenericApiResponse<Boolean>> {
-    return Api.put(ApplicationApi.newURLPrefix + `/restore/${request.applicationId}`);
+    return Api.put(
+      ApplicationApi.newURLPrefix + `/restore/${request.applicationId}`
+    );
   }
 
   static deleteApplication(
     request: DeleteApplicationPayload
   ): AxiosPromise<GenericApiResponse<Boolean>> {
-    return Api.delete(ApplicationApi.deleteApplicationURL(request.applicationId));
+    return Api.delete(
+      ApplicationApi.deleteApplicationURL(request.applicationId)
+    );
   }
 
   static updateApplication(request: {
@@ -171,11 +210,18 @@ class ApplicationApi extends Api {
     return Api.put(ApplicationApi.updateApplicationURL(applicationId), rest);
   }
 
-  static publishApplication(request: PublishApplicationPayload): AxiosPromise<ApiResponse> {
-    return Api.post(ApplicationApi.publishApplicationURL(request.applicationId));
+  static publishApplication(
+    request: PublishApplicationPayload
+  ): AxiosPromise<ApiResponse> {
+    return Api.post(
+      ApplicationApi.publishApplicationURL(request.applicationId),
+      request?.request
+    );
   }
 
-  static getApplicationDetail(request: FetchAppInfoPayload): AxiosPromise<ApplicationResp> {
+  static getApplicationDetail(
+    request: FetchAppInfoPayload
+  ): AxiosPromise<ApplicationResp> {
     const { type, applicationId } = request;
     const url =
       type === "published"
@@ -186,13 +232,20 @@ class ApplicationApi extends Api {
     return Api.get(url);
   }
 
-  static getApplicationPermissions(applicationId: string): AxiosPromise<AppPermissionResponse> {
+  static getApplicationPermissions(
+    applicationId: string
+  ): AxiosPromise<AppPermissionResponse> {
     return Api.get(ApplicationApi.getApplicationPermissionURL(applicationId));
   }
 
-  static grantAppPermission(request: GrantAppPermissionReq): AxiosPromise<AppPermissionResponse> {
+  static grantAppPermission(
+    request: GrantAppPermissionReq
+  ): AxiosPromise<AppPermissionResponse> {
     const { applicationId, ...requestParam } = request;
-    return Api.put(ApplicationApi.grantAppPermissionURL(applicationId), requestParam);
+    return Api.put(
+      ApplicationApi.grantAppPermissionURL(applicationId),
+      requestParam
+    );
   }
 
   static updateAppPermission(
@@ -209,7 +262,9 @@ class ApplicationApi extends Api {
     request: DeleteAppPermissionPayload
   ): AxiosPromise<AppPermissionResponse> {
     const { applicationId, permissionId } = request;
-    return Api.delete(ApplicationApi.updateAppPermissionURL(applicationId, permissionId));
+    return Api.delete(
+      ApplicationApi.updateAppPermissionURL(applicationId, permissionId)
+    );
   }
 
   static createFromTemplate(templateId: string): AxiosPromise<ApplicationResp> {
@@ -245,7 +300,9 @@ class ApplicationApi extends Api {
     return Api.get(ApplicationApi.getMarketplaceAppURL(appId));
   }
 
-  static setAppEditingState(request: SetAppEditingStatePayload): AxiosPromise<ApplicationResp> {
+  static setAppEditingState(
+    request: SetAppEditingStatePayload
+  ): AxiosPromise<ApplicationResp> {
     const { applicationId, editingFinished } = request;
     return Api.put(ApplicationApi.setAppEditingStateURL(applicationId), {
       editingFinished,
