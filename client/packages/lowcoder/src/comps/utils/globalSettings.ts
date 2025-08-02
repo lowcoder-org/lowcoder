@@ -19,3 +19,9 @@ export function setGlobalSettings(patch: GlobalSettings) {
 export function getGlobalSettings() {
   return globalSettings;
 }
+
+
+export function isEditMode(): boolean {
+  // Edit mode is when we're not in view mode
+  return globalSettings.isViewMode !== true;
+}
