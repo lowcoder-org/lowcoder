@@ -201,6 +201,15 @@ export function getEchartsConfig(
       animationEasing: 'linear',
       animationEasingUpdate: 'linear',
     }
+  } else {
+    // Ensure proper animation settings when race is disabled
+    config = {
+      ...config,
+      animationDuration: 1000,
+      animationDurationUpdate: 1000,
+      animationEasing: 'cubicOut',
+      animationEasingUpdate: 'cubicOut',
+    }
   }
   if (props.data.length <= 0) {
     // no data
@@ -331,6 +340,21 @@ export function getEchartsConfig(
           ...config.yAxis,
           animationDuration: 300,
           animationDurationUpdate: 300
+        },
+      }
+    } else {
+      // Reset axis animations when race is disabled
+      config = {
+        ...config,
+        xAxis: {
+          ...config.xAxis,
+          animationDuration: undefined,
+          animationDurationUpdate: undefined
+        },
+        yAxis: {
+          ...config.yAxis,
+          animationDuration: undefined,
+          animationDurationUpdate: undefined
         },
       }
     }

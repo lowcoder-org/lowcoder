@@ -53,7 +53,7 @@ export const BarChartConfig = (function () {
         type: "bar",
         subtype: props.type,
         realtimeSort: props.race,
-        seriesLayoutBy: props.race?'column':undefined,
+        seriesLayoutBy: props.race?'column':'row',
         label: {
           show: props.showLabel,
           position: "top",
