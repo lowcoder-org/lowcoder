@@ -77,63 +77,6 @@ export default function FileViewerExample() {
           compFactory={FileViewerComp}
         />
       </ExampleGroup>
-
-      <ExampleGroup
-        title="Animation Style"
-        description="The Following Examples Show different animations on the Cascader Component."
-      >
-        <Example
-          title="Bounce Animation"
-          width={1000}
-          height={600}
-          blackListConfig={blackListConfig}
-          hideSettings={true}
-          config={{
-            src: "https://pdfa.org/wp-content/uploads/2021/06/The-Low-Code-Revolution-and-PDF.pdf",
-            animationStyle: {
-              "animation": "bounce",
-              "animationDelay": "1s",
-              "animationDuration": "3s",
-              "animationIterationCount": "infinite"
-            },
-          }}
-          compFactory={FileViewerComp}
-        />
-        <Example
-          title="Swing Animation"
-          width={1000}
-          height={600}
-          blackListConfig={blackListConfig}
-          hideSettings={true}
-          config={{
-            src: "https://pdfa.org/wp-content/uploads/2021/06/The-Low-Code-Revolution-and-PDF.pdf",
-             animationStyle: {
-              "animation": "swing",
-              "animationDelay": "1s",
-              "animationDuration": "3s",
-              "animationIterationCount": "infinite"
-            },
-          }}
-          compFactory={FileViewerComp}
-        />
-        <Example
-          title="Tada Animation"
-          width={1000}
-          height={600}
-          blackListConfig={blackListConfig}
-          hideSettings={true}
-          config={{
-            src: "https://pdfa.org/wp-content/uploads/2021/06/The-Low-Code-Revolution-and-PDF.pdf",
-            animationStyle: {
-              "animation": "tada",
-              "animationDelay": "1s",
-              "animationDuration": "3s",
-              "animationIterationCount": "infinite"
-            },
-          }}
-          compFactory={FileViewerComp}
-        />
-      </ExampleGroup>
     </>
   );
 }

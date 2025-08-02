@@ -13,6 +13,7 @@ export default function ContentCardExample() {
             title="Hiding the Card Component"
             config={{ 
                 hidden: true,
+                imgSrc: "https://framerusercontent.com/images/Ks478GmT2s9Ewl2BhCGGJWDqdKo.jpg?scale-down-to=4096",
             }}
             compFactory={CardComp}
           />
@@ -20,6 +21,7 @@ export default function ContentCardExample() {
             title="Hiding the Title"
             config={{ 
                 showTitle: false,
+                imgSrc: "https://framerusercontent.com/images/Ks478GmT2s9Ewl2BhCGGJWDqdKo.jpg?scale-down-to=4096",
             }}
             compFactory={CardComp}
           />
@@ -27,6 +29,7 @@ export default function ContentCardExample() {
             title="Hiding the Content Title & Description"
             config={{ 
                 showMeta: false,
+                imgSrc: "https://framerusercontent.com/images/Ks478GmT2s9Ewl2BhCGGJWDqdKo.jpg?scale-down-to=4096",
             }}
             compFactory={CardComp}
           />
@@ -34,12 +37,14 @@ export default function ContentCardExample() {
             title="Hiding the Action Items"
             config={{ 
                 showActionIcon: false,
+                imgSrc: "https://framerusercontent.com/images/Ks478GmT2s9Ewl2BhCGGJWDqdKo.jpg?scale-down-to=4096",
             }}
             compFactory={CardComp}
           />
           <Example
             title="Custom text on Title and Description"
             config={{ 
+                imgSrc: "https://framerusercontent.com/images/Ks478GmT2s9Ewl2BhCGGJWDqdKo.jpg?scale-down-to=4096",
                 title: "Jennifer Holmes",
                 metaTitle: "Head Cook",
                 metaDesc: "Responsible for the daily preparation of food for participants, including the cooking of meals, and maintaining high standards of food quality, food production and portion control using the standardized menu. ",
@@ -55,6 +60,7 @@ export default function ContentCardExample() {
           <Example
             title="Backround Color, Icon Color, Padding and Border properties"
             config={{
+              imgSrc: "https://framerusercontent.com/images/Ks478GmT2s9Ewl2BhCGGJWDqdKo.jpg?scale-down-to=4096",
               title: "Jennifer Holmes",
               metaTitle: "Head Cook",
               metaDesc: "Responsible for the daily preparation of food for participants, including the cooking of meals, and maintaining high standards of food quality, food production and portion control using the standardized menu. ",
@@ -75,6 +81,7 @@ export default function ContentCardExample() {
           <Example
             title="Box Shadow & Rotation"
             config={{
+              imgSrc: "https://framerusercontent.com/images/Ks478GmT2s9Ewl2BhCGGJWDqdKo.jpg?scale-down-to=4096",
               title: "Jennifer Holmes",
               metaTitle: "Head Cook",
               metaDesc: "Responsible for the daily preparation of food for participants, including the cooking of meals, and maintaining high standards of food quality, food production and portion control using the standardized menu. ",           
@@ -99,6 +106,7 @@ export default function ContentCardExample() {
             title="Header Styling"
             width={500}
             config={{
+              imgSrc: "https://framerusercontent.com/images/Ks478GmT2s9Ewl2BhCGGJWDqdKo.jpg?scale-down-to=4096",
               title: "Jennifer Holmes",
               metaTitle: "Head Cook",
               metaDesc: "Responsible for the daily preparation of food for participants, including the cooking of meals, and maintaining high standards of food quality, food production and portion control using the standardized menu. ",
@@ -138,6 +146,7 @@ export default function ContentCardExample() {
             title="Body Styling"
             width={500}
             config={{
+              imgSrc: "https://framerusercontent.com/images/Ks478GmT2s9Ewl2BhCGGJWDqdKo.jpg?scale-down-to=4096",
               title: "Jennifer Holmes",
               metaTitle: "Head Cook",
               metaDesc: "Responsible for the daily preparation of food for participants, including the cooking of meals, and maintaining high standards of food quality, food production and portion control using the standardized menu. ",
@@ -199,6 +208,7 @@ export default function ContentCardExample() {
             title="Bounce Animation"
             hideSettings={true}
             config={{
+                imgSrc: "https://framerusercontent.com/images/Ks478GmT2s9Ewl2BhCGGJWDqdKo.jpg?scale-down-to=4096",
                 animationStyle: 
                 {
                     "animation": "bounce",
@@ -259,6 +269,7 @@ export default function ContentCardExample() {
             title="Swing Animation"
             hideSettings={true}
             config={{
+              imgSrc: "https://framerusercontent.com/images/Ks478GmT2s9Ewl2BhCGGJWDqdKo.jpg?scale-down-to=4096",
               title: "Jennifer Holmes",
               metaTitle: "Head Cook",
               metaDesc: "Responsible for the daily preparation of food for participants, including the cooking of meals, and maintaining high standards of food quality, food production and portion control using the standardized menu. ",
@@ -318,6 +329,7 @@ export default function ContentCardExample() {
             title="Tada Animation"
             hideSettings={true}
             config={{
+              imgSrc: "https://framerusercontent.com/images/Ks478GmT2s9Ewl2BhCGGJWDqdKo.jpg?scale-down-to=4096",
               title: "Jennifer Holmes",
               metaTitle: "Head Cook",
               metaDesc: "Responsible for the daily preparation of food for participants, including the cooking of meals, and maintaining high standards of food quality, food production and portion control using the standardized menu. ",
