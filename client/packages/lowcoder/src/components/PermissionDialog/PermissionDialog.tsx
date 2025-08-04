@@ -57,8 +57,10 @@ export const PermissionDialog = (props: {
   ) => void;
   updatePermission: (permissionId: string, role: string) => void;
   deletePermission: (permissionId: string) => void;
+  contextType?: "application" | "organization";
+  organizationId?: string;
 }) => {
-  const { supportRoles, permissionItems, visible, onVisibleChange, addPermission, viewBodyRender } =
+  const { supportRoles, permissionItems, visible, onVisibleChange, addPermission, viewBodyRender, contextType, organizationId } =
     props;
   const [activeStepKey, setActiveStepKey] = useState("view");
 
@@ -117,6 +119,8 @@ export const PermissionDialog = (props: {
               addPermission={(userIds, groupIds, role) =>
                 addPermission(userIds, groupIds, role, props.back)
               }
+              contextType={contextType || "application"}
+              organizationId={organizationId}
             />
           ),
           footerRender: (props) => null,

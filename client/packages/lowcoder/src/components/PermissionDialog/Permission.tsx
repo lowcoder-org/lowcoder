@@ -27,7 +27,7 @@ import { EmptyContent } from "pages/common/styledComponent";
 import { trans } from "i18n";
 import { PermissionItem } from "./PermissionList";
 import { currentApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
-import { fetchAvailableGroupsMembers } from "@lowcoder-ee/util/pagination/axios";
+import { fetchAvailableGroupsMembers, fetchAvailableOrgGroupsMembers } from "@lowcoder-ee/util/pagination/axios";
 
 const AddAppUserContent = styled.div`
   display: flex;
@@ -186,6 +186,13 @@ const AddRoleSelect = styled(StyledRoleSelect)<{ $isVisible: boolean }>`
   display: ${(props) => (props.$isVisible ? "unset" : "none")};
 `;
 
+type PermissionContextType = "application" | "organization";
+
+type PermissionContextProps = {
+  contextType: PermissionContextType;
+  organizationId?: string;
+};
+
 type AddAppOptionView = {
   type: ApplicationPermissionType;
   id: string;
@@ -294,8 +301,10 @@ const PermissionSelector = (props: {
   user: User;
   filterItems: PermissionItem[];
   supportRoles: { label: string; value: PermissionRole }[];
+  contextType: PermissionContextType;
+  organizationId?: string;
 }) => {
-  const { selectedItems, setSelectRole, setSelectedItems, user } = props;
+  const { selectedItems, setSelectRole, setSelectedItems, user, contextType, organizationId } = props;
   const [roleSelectVisible, setRoleSelectVisible] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
   const [optionViews, setOptionViews] = useState<AddAppOptionView[]>()
@@ -305,42 +314,41 @@ const PermissionSelector = (props: {
 
   const debouncedUserSearch = useCallback(
     debounce((searchTerm: string) => {
-      if (!application) return;
-      
       setIsLoading(true);
-      fetchAvailableGroupsMembers(application.applicationId, searchTerm).then(res => {
-        if(res.success) {
-          setOptionViews(getPermissionOptionView(res.data, props.filterItems))
-        }
+      
+      if (contextType === "application" && application) {
+        fetchAvailableGroupsMembers(application.applicationId, searchTerm).then(res => {
+          if(res.success) {
+            setOptionViews(getPermissionOptionView(res.data, props.filterItems))
+          }
+          setIsLoading(false);
+        }).catch(() => {
+          setIsLoading(false);
+        });
+      } else if (contextType === "organization" && organizationId) {
+        fetchAvailableOrgGroupsMembers(organizationId, searchTerm).then(res => {
+          if(res.success) {
+            setOptionViews(getPermissionOptionView(res.data || [], props.filterItems))
+          }
+          setIsLoading(false);
+        }).catch(() => {
+          setIsLoading(false);
+        });
+      } else {
         setIsLoading(false);
-      }).catch(() => {
-        setIsLoading(false);
-      });
+      }
     }, 500),
-    [application, props.filterItems]
+    [application, props.filterItems, contextType, organizationId]
   );
 
   useEffect(() => {
     debouncedUserSearch(searchValue);
-
     return () => {
       debouncedUserSearch.cancel();
     };
   }, [searchValue, debouncedUserSearch]);
 
-  useEffect(() => {
-    if (!application) return;
-    
-    setIsLoading(true);
-    fetchAvailableGroupsMembers(application.applicationId, "").then(res => {
-      if(res.success) {
-        setOptionViews(getPermissionOptionView(res.data, props.filterItems))
-      }
-      setIsLoading(false);
-    }).catch(() => {
-      setIsLoading(false);
-    });
-  }, [application, props.filterItems]);
+
 
   useEffect(() => {
     setRoleSelectVisible(selectedItems.length > 0);
@@ -425,8 +433,8 @@ export const Permission = (props: {
   supportRoles: { label: string; value: PermissionRole }[];
   onCancel: () => void;
   addPermission: (userIds: string[], groupIds: string[], role: string) => void;
-}) => {
-  const { onCancel } = props;
+} & PermissionContextProps) => {
+  const { onCancel, contextType = "application", organizationId } = props;
   const user = useSelector(getUser);
   const [selectRole, setSelectRole] = useState<ApplicationRoleType>("viewer");
   const [selectedItems, setSelectedItems] = useState<PermissionAddEntity[]>([]);
@@ -443,6 +451,8 @@ export const Permission = (props: {
         user={user}
         filterItems={props.filterItems}
         supportRoles={props.supportRoles}
+        contextType={contextType}
+        organizationId={organizationId}
       />
       <BottomButton>
         <TacoButton style={{ marginRight: "8px" }} onClick={onCancel}>
