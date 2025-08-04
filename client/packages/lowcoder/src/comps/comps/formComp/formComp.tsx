@@ -330,11 +330,6 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
     // For the properties, first find in data, then initialData, subcomponent default value (resetValue), empty value (clearValue)
     const newData = { ...(initialData ?? this.children.initialData.getView()), ...data };
 
-    // Only proceed if we have data to set
-    if (!Object.keys(newData).length) {
-      return Promise.resolve();
-    }
-
     return this.runMethodOfItems(
       {
         name: "setValue",
