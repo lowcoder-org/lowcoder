@@ -237,6 +237,7 @@ export const CompStateIcon: {
   signature: <MemoizedIcon Icon={SignatureCompIconSmall} />,
   step: <MemoizedIcon Icon={StepCompIconSmall} />,
   table: <MemoizedIcon Icon={TableCompIconSmall} />,
+  tableLite: <MemoizedIcon Icon={TableCompIconSmall} />,
   text: <MemoizedIcon Icon={TextCompIconSmall} />,
   multiTags: <MemoizedIcon Icon={TagsCompIconSmall} />, 
   timeline: <MemoizedIcon Icon={TimeLineCompIconSmall} />,
