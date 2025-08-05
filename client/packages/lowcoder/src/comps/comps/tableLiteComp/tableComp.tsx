@@ -53,7 +53,7 @@ import {
 import { saveDataAsFile } from "util/fileUtils";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { lastValueIfEqual, shallowEqual } from "util/objectUtils";
-import { IContainer } from "../containerBase";
+
 import { getSelectedRowKeys } from "./selectionControl";
 import { compTablePropertyView } from "./tablePropertyView";
 import { RowColorComp, RowHeightComp, SortValue, TableChildrenView, TableInitComp } from "./tableTypes";
@@ -61,7 +61,7 @@ import { RowColorComp, RowHeightComp, SortValue, TableChildrenView, TableInitCom
 import { useContext, useState } from "react";
 import { EditorContext } from "comps/editorState";
 
-export class TableImplComp extends TableInitComp implements IContainer {
+export class TableImplComp extends TableInitComp {
   private prevUnevaledValue?: string;
   readonly filterData: RecordType[] = [];
   readonly columnAggrData: ColumnsAggrData = {};
@@ -72,29 +72,6 @@ export class TableImplComp extends TableInitComp implements IContainer {
 
   getTableAutoHeight() {
     return this.children.autoHeight.getView();
-  }
-  
-  private getSlotContainer() {
-    return this.children.expansion.children.slot.getSelectedComp().getComp().children.container;
-  }
-
-  findContainer(key: string) {
-    return this.getSlotContainer().findContainer(key);
-  }
-
-  getCompTree() {
-    return this.getSlotContainer().getCompTree();
-  }
-
-  getPasteValue(nameGenerator: NameGenerator) {
-    return {
-      ...this.toJsonValue(),
-      expansion: this.children.expansion.getPasteValue(nameGenerator),
-    };
-  }
-
-  realSimpleContainer(key?: string) {
-    return this.getSlotContainer().realSimpleContainer(key);
   }
 
   downloadData(fileName: string) {
@@ -253,21 +230,6 @@ export class TableImplComp extends TableInitComp implements IContainer {
       comp = comp.setChild(
         "columns",
         comp.children.columns.reduce(comp.children.columns.setSelectionAction(newSelection))
-      );
-      needMoreEval = true;
-    }
-
-    let params = comp.children.expansion.children.slot.getCachedParams(newSelection);
-    if (selectionChanged || _.isNil(params) || dataChanged) {
-      params =
-        _.isNil(params) || dataChanged
-          ? genSelectionParams(comp.filterData, newSelection)
-          : undefined;
-      comp = comp.setChild(
-        "expansion",
-        comp.children.expansion.reduce(
-          comp.children.expansion.setSelectionAction(newSelection, params)
-        )
       );
       needMoreEval = true;
     }
@@ -724,24 +686,6 @@ TableTmpComp = withMethodExposing(TableTmpComp, [
       comp.children.columns.dispatchClearInsertSet();
     },
   },
-  {
-    method: {
-      name: "setExpandedRows",
-      description: "",
-      params: [
-        { name: "expandedRows", type: "arrayString"},
-      ],
-    },
-    execute: (comp, values) => {
-      const expandedRows = values[0];
-      if (!isArray(expandedRows)) {
-        return Promise.reject("setExpandedRows function only accepts array of string i.e. ['1', '2', '3']")
-      }
-      if (expandedRows && isArray(expandedRows)) {
-        comp.children.currentExpandedRows.dispatchChangeValueAction(expandedRows as string[]);
-      }
-    },
-  }
 ]);
 
 // exposing data
@@ -996,24 +940,5 @@ export const TableLiteComp = withExposingConfigs(TableTmpComp, [
     },
     trans("table.selectedCellDesc")
   ),
-  depsConfig({
-    name: "currentExpandedRow",
-    desc: trans("table.sortDesc"),
-    depKeys: ["currentExpandedRows"],
-    func: (input) => {
-      if (input.currentExpandedRows.length > 0) {
-        return input.currentExpandedRows[input.currentExpandedRows.length - 1];
-      }
-      return "";
-    },
-  }),
-  depsConfig({
-    name: "currentExpandedRows",
-    desc: trans("table.sortDesc"),
-    depKeys: ["currentExpandedRows"],
-    func: (input) => {
-      return input.currentExpandedRows;
-    },
-  }),
   new NameConfig("data", trans("table.dataDesc")),
 ]);
