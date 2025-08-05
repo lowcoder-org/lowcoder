@@ -221,7 +221,7 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
       propsRef.current.value.onChange(value);
       propsRef.current.onEvent("change");
       changeRef.current = false;  // Reset after commit
-    }, 1000)
+    }, 100)
   );  
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
