@@ -1,7 +1,7 @@
-import { tableDataRowExample } from "comps/comps/tableComp/column/tableColumnListComp";
-import { getPageSize } from "comps/comps/tableComp/paginationControl";
-import { EMPTY_ROW_KEY, TableCompView } from "comps/comps/tableLiteComp/tableCompView";
-import { TableFilter } from "comps/comps/tableComp/tableToolbarComp";
+import { tableDataRowExample } from "./column/tableColumnListComp";
+import { getPageSize } from "./paginationControl";
+import { EMPTY_ROW_KEY, TableCompView } from "./tableCompView";
+import { TableFilter } from "./tableToolbarComp";
 import {
   columnHide,
   ColumnsAggrData,
@@ -15,7 +15,7 @@ import {
   sortData,
   transformDispalyData,
   tranToTableRecord,
-} from "comps/comps/tableComp/tableUtils";
+} from "./tableUtils";
 import { isTriggerAction } from "comps/controls/actionSelector/actionSelectorControl";
 import { withPropertyViewFn, withViewFn } from "comps/generators";
 import { childrenToProps } from "comps/generators/multi";

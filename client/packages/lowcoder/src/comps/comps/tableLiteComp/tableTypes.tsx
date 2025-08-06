@@ -1,5 +1,5 @@
-import { ColumnListComp } from "comps/comps/tableComp/column/tableColumnListComp";
-import { TableToolbarComp } from "comps/comps/tableComp/tableToolbarComp";
+import { ColumnListComp } from "./column/tableColumnListComp";
+import { TableToolbarComp } from "./tableToolbarComp";
 import { BoolControl, BoolPureControl } from "comps/controls/boolControl";
 import {
   ArrayStringControl,

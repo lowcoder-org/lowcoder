@@ -6,10 +6,10 @@ import {
   TablePaginationConfig,
 } from "antd/es/table/interface";
 import type { SortOrder } from "antd/es/table/interface";
-import { __COLUMN_DISPLAY_VALUE_FN } from "comps/comps/tableComp/column/columnTypeCompBuilder";
-import { CellColorViewType, RawColumnType, Render } from "comps/comps/tableComp/column/tableColumnComp";
-import { TableFilter, tableFilterOperatorMap } from "comps/comps/tableComp/tableToolbarComp";
-import { SortValue, TableOnEventView } from "comps/comps/tableComp/tableTypes";
+import { __COLUMN_DISPLAY_VALUE_FN } from "./column/columnTypeCompBuilder";
+import { CellColorViewType, RawColumnType, Render } from "./column/tableColumnComp";
+import { TableFilter, tableFilterOperatorMap } from "./tableToolbarComp";
+import { SortValue, TableOnEventView } from "./tableTypes";
 import _ from "lodash";
 import { changeChildAction, CompAction, NodeToValue } from "lowcoder-core";
 import { EditableIcon } from "lowcoder-design";

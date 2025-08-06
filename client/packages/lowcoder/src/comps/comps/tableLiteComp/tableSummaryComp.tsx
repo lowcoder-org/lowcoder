@@ -1,5 +1,5 @@
 import { ThemeDetail } from "api/commonSettingApi";
-import { ColumnComp } from "comps/comps/tableComp/column/tableColumnComp";
+import { ColumnComp } from "./column/tableColumnComp";
 import { TableColumnLinkStyleType, TableColumnStyleType, TableSummaryRowStyleType } from "comps/controls/styleControlConstants";
 import styled from "styled-components";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";

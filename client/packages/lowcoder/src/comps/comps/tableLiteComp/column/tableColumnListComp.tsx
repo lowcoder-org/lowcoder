@@ -1,9 +1,9 @@
-import { ColumnComp, newPrimaryColumn } from "comps/comps/tableComp/column/tableColumnComp";
+import { ColumnComp, newPrimaryColumn } from "./tableColumnComp";
 import {
   calcColumnWidth,
   COLUMN_CHILDREN_KEY,
   supportChildrenTree,
-} from "comps/comps/tableComp/tableUtils";
+} from "../tableUtils";
 import { list } from "comps/generators/list";
 import { getReduceContext } from "comps/utils/reduceContext";
 import _ from "lodash";

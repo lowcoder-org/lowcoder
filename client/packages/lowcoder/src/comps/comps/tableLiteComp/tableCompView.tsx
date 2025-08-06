@@ -1,7 +1,7 @@
 import { default as Table, TableProps, ColumnType } from "antd/es/table";
-import { TableCellContext, TableRowContext } from "comps/comps/tableLiteComp/tableContext";
-import { TableToolbar } from "comps/comps/tableLiteComp/tableToolbarComp";
-import { RowColorViewType, RowHeightViewType, TableEventOptionValues } from "comps/comps/tableLiteComp/tableTypes";
+import { TableCellContext, TableRowContext } from "./tableContext";
+import { TableToolbar } from "./tableToolbarComp";
+import { RowColorViewType, RowHeightViewType, TableEventOptionValues } from "./tableTypes";
 import {
   COL_MIN_WIDTH,
   COLUMN_CHILDREN_KEY,
@@ -12,7 +12,7 @@ import {
   onTableChange,
   RecordType,
   supportChildrenTree,
-} from "comps/comps/tableLiteComp/tableUtils";
+} from "./tableUtils";
 import {
   handleToHoverRow,
   handleToSelectedRow,
@@ -1020,7 +1020,7 @@ export const TableCompView = React.memo((props: {
         total: pageDataInfo.total,
         current: pageDataInfo.current,
       }}
-      columns={columns as any}
+      columns={columns}
       onRefresh={() =>
         onRefresh(
           editorState.queryCompInfoList().map((info) => info.name),
@@ -1106,12 +1106,12 @@ export const TableCompView = React.memo((props: {
             $showHRowGridBorder={showHRowGridBorder}
           >
             <ResizeableTable<RecordType>
-              rowColorFn={compChildren.rowColor.getView() as any}
-              rowHeightFn={compChildren.rowHeight.getView() as any}
+              rowColorFn={compChildren.rowColor.getView()}
+              rowHeightFn={compChildren.rowHeight.getView()}
               {...compChildren.selection.getView()(onEvent)}
               bordered={compChildren.showRowGridBorder.getView()}
               onChange={(pagination, filters, sorter, extra) => {
-                onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent as any);
+                onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
               }}
               showHeader={!compChildren.hideHeader.getView()}
               columns={antdColumns}

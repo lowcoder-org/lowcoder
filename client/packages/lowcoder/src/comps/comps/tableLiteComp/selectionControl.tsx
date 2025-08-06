@@ -4,7 +4,7 @@ import { stateComp } from "comps/generators";
 import { trans } from "i18n";
 import { changeChildAction, ConstructorToComp } from "lowcoder-core";
 import { TableOnEventView } from "./tableTypes";
-import { OB_ROW_ORI_INDEX, RecordType } from "comps/comps/tableComp/tableUtils";
+import { OB_ROW_ORI_INDEX, RecordType } from "./tableUtils";
 import { ControlNodeCompBuilder } from "comps/generators/controlCompBuilder";
 
 // double-click detection constants
