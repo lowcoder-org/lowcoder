@@ -1,7 +1,7 @@
 import { default as Table, TableProps, ColumnType } from "antd/es/table";
-import { TableCellContext, TableRowContext } from "comps/comps/tableComp/tableContext";
-import { TableToolbar } from "comps/comps/tableComp/tableToolbarComp";
-import { RowColorViewType, RowHeightViewType, TableEventOptionValues } from "comps/comps/tableComp/tableTypes";
+import { TableCellContext, TableRowContext } from "comps/comps/tableLiteComp/tableContext";
+import { TableToolbar } from "comps/comps/tableLiteComp/tableToolbarComp";
+import { RowColorViewType, RowHeightViewType, TableEventOptionValues } from "comps/comps/tableLiteComp/tableTypes";
 import {
   COL_MIN_WIDTH,
   COLUMN_CHILDREN_KEY,
@@ -12,7 +12,7 @@ import {
   onTableChange,
   RecordType,
   supportChildrenTree,
-} from "comps/comps/tableComp/tableUtils";
+} from "comps/comps/tableLiteComp/tableUtils";
 import {
   handleToHoverRow,
   handleToSelectedRow,
@@ -870,14 +870,12 @@ export const TableCompView = React.memo((props: {
   const size = useMemo(() => compChildren.size.getView(), [compChildren.size]);
   const editModeClicks = useMemo(() => compChildren.editModeClicks.getView(), [compChildren.editModeClicks]);
   const onEvent = useMemo(() => compChildren.onEvent.getView(), [compChildren.onEvent]);
-  const currentExpandedRows = useMemo(() => compChildren.currentExpandedRows.getView(), [compChildren.currentExpandedRows]);
   const dynamicColumn = compChildren.dynamicColumn.getView();
   const dynamicColumnConfig = useMemo(
     () => compChildren.dynamicColumnConfig.getView(),
     [compChildren.dynamicColumnConfig]
   );
   const columnsAggrData = comp.columnAggrData;
-  const expansion = useMemo(() => compChildren.expansion.getView(), [compChildren.expansion]);
   const antdColumns = useMemo(
     () =>
       columnsToAntdFormat(
@@ -970,17 +968,7 @@ export const TableCompView = React.memo((props: {
     updateEmptyRows();
   }, [updateEmptyRows]);
 
-  useUpdateEffect(() => {
-    if (!isEqual(currentExpandedRows, expandedRowKeys)) {
-      compChildren.currentExpandedRows.dispatchChangeValueAction(expandedRowKeys);
-    }
-  }, [expandedRowKeys]);
 
-  useUpdateEffect(() => {
-    if (!isEqual(currentExpandedRows, expandedRowKeys)) {
-      setExpandedRowKeys(currentExpandedRows);
-    }
-  }, [currentExpandedRows]);
 
   const pageDataInfo = useMemo(() => {
     // Data pagination
@@ -1032,7 +1020,7 @@ export const TableCompView = React.memo((props: {
         total: pageDataInfo.total,
         current: pageDataInfo.current,
       }}
-      columns={columns}
+      columns={columns as any}
       onRefresh={() =>
         onRefresh(
           editorState.queryCompInfoList().map((info) => info.name),
@@ -1062,7 +1050,6 @@ export const TableCompView = React.memo((props: {
         tableSize={size}
         istoolbarPositionBelow={toolbar.position === "below"}
         multiSelectEnabled={compChildren.selection.children.mode.value === 'multiple'}
-        expandableRows={Boolean(expansion.expandModalView)}
         summaryRows={parseInt(summaryRows)}
         columns={columns}
         summaryRowStyle={summaryRowStyle}
@@ -1119,31 +1106,12 @@ export const TableCompView = React.memo((props: {
             $showHRowGridBorder={showHRowGridBorder}
           >
             <ResizeableTable<RecordType>
-              expandable={{
-                ...expansion.expandableConfig,
-                childrenColumnName: supportChildren
-                  ? COLUMN_CHILDREN_KEY
-                  : "OB_CHILDREN_KEY_PLACEHOLDER",
-                fixed: "left",
-                onExpand: (expanded) => {
-                  if (expanded) {
-                    handleChangeEvent('rowExpand')
-                  } else {
-                    handleChangeEvent('rowShrink')
-                  }
-                },
-                onExpandedRowsChange: (expandedRowKeys) => {
-                  setExpandedRowKeys(expandedRowKeys as unknown as string[]);
-                },
-                expandedRowKeys: expandedRowKeys,
-              }}
-              // rowKey={OB_ROW_ORI_INDEX}
               rowColorFn={compChildren.rowColor.getView() as any}
               rowHeightFn={compChildren.rowHeight.getView() as any}
               {...compChildren.selection.getView()(onEvent)}
               bordered={compChildren.showRowGridBorder.getView()}
               onChange={(pagination, filters, sorter, extra) => {
-                onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
+                onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent as any);
               }}
               showHeader={!compChildren.hideHeader.getView()}
               columns={antdColumns}
@@ -1163,9 +1131,6 @@ export const TableCompView = React.memo((props: {
               }}
               summary={summaryView}
             />
-            <SlotConfigContext.Provider value={{ modalWidth: width && Math.max(width, 300) }}>
-              {expansion.expandModalView}
-            </SlotConfigContext.Provider>
           </TableWrapper>
         </ScrollBar>
         {toolbar.position === "below" && !hideToolbar && (toolbar.fixedToolbar || (tableAutoHeight && showHorizontalScrollbar)) && toolbarView}

@@ -32,7 +32,6 @@ import {
 } from "lowcoder-core";
 import { controlItem } from "lowcoder-design";
 import { JSONArray, JSONObject } from "util/jsonTypes";
-import { ExpansionControl } from "./expansionControl";
 import { PaginationControl } from "./paginationControl";
 import { SelectionControl } from "./selectionControl";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
@@ -98,16 +97,6 @@ export const TableEventOptions = [
     label: trans("table.rowClick"),
     value: "rowClick",
     description: trans("table.rowClick"),
-  },
-  {
-    label: trans("table.rowExpand"),
-    value: "rowExpand",
-    description: trans("table.rowExpand"),
-  },
-  {
-    label: trans("table.rowShrink"),
-    value: "rowShrink",
-    description: trans("table.rowShrink"),
   },
   {
     label: trans("table.columnEdited"),
@@ -261,11 +250,9 @@ const tableChildrenMap = {
   dynamicColumn: BoolPureControl,
   // todo: support object config
   dynamicColumnConfig: ArrayStringControl,
-  expansion: ExpansionControl,
   selectedCell: stateComp<JSONObject>({}),
   inlineAddNewRow: BoolControl,
   editModeClicks: dropdownControl(editModeClickOptions, "single"),
-  currentExpandedRows: stateComp<string[]>([]),
 };
 
 export const TableInitComp = (function () {

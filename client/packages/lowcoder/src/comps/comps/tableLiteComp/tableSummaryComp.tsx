@@ -200,7 +200,6 @@ TableSummaryCellView.displayName = 'TableSummaryCellView';
 
 export const TableSummary = memo(function TableSummary(props: {
   tableSize: string;
-  expandableRows: boolean;
   multiSelectEnabled: boolean;
   summaryRows: number;
   columns: ColumnComp[];
@@ -214,7 +213,6 @@ export const TableSummary = memo(function TableSummary(props: {
     summaryRows,
     summaryRowStyle,
     tableSize,
-    expandableRows,
     multiSelectEnabled,
     istoolbarPositionBelow,
     dynamicColumn,
@@ -229,14 +227,11 @@ export const TableSummary = memo(function TableSummary(props: {
         return dynamicColumnConfig.includes(colView.isCustom ? colView.title : colView.dataIndex)
       })
     }
-    if (expandableRows) {
-      cols.unshift(new ColumnComp({}));
-    }
     if (multiSelectEnabled) {
       cols.unshift(new ColumnComp({}));
     }
     return cols;
-  }, [columns, expandableRows, multiSelectEnabled, dynamicColumn, dynamicColumnConfig]);
+  }, [columns, multiSelectEnabled, dynamicColumn, dynamicColumnConfig]);
 
   const renderSummaryCell = useCallback((column: ColumnComp, rowIndex: number, index: number) => {
     const summaryColumn = column.children.summaryColumns.getView()[rowIndex].getView();

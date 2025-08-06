@@ -604,7 +604,6 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
       {["logic", "both"].includes(editorModeStatus) && (
         <>
           <Section name={sectionNames.advanced}>
-            {comp.children.expansion.getPropertyView()}
             {comp.children.dynamicColumn.propertyView({ label: trans("table.dynamicColumn") })}
             {comp.children.dynamicColumn.getView() &&
               comp.children.dynamicColumnConfig.propertyView({
