@@ -17,7 +17,6 @@ import {
 import { shallowEqual } from "react-redux";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { lastValueIfEqual } from "util/objectUtils";
-import { EMPTY_ROW_KEY } from "../tableCompView";
 
 /**
  * column list
@@ -79,10 +78,7 @@ export class ColumnListComp extends ColumnListTmpComp {
       const columnChangeSet = column.getChangeSet();
       Object.keys(columnChangeSet).forEach((dataIndex) => {
         Object.keys(columnChangeSet[dataIndex]).forEach((key) => {
-          const includeChange = filterNewRowsChange
-            ? key.startsWith(EMPTY_ROW_KEY)
-            : !key.startsWith(EMPTY_ROW_KEY);
-          if (!_.isNil(columnChangeSet[dataIndex][key]) && includeChange) {
+          if (!_.isNil(columnChangeSet[dataIndex][key])) {
             if (!changeSet[key]) changeSet[key] = {};
             changeSet[key][dataIndex] = columnChangeSet[dataIndex][key];
           }

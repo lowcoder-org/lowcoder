@@ -44,12 +44,6 @@ import type { CheckboxChangeEvent } from 'antd/es/checkbox';
 
 type ToolbarRowType = ConstructorToView<typeof TableToolbarComp>;
 
-const SaveChangeButtons = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
 const getStyle = (
   style: TableToolbarStyleType,
   filtered: boolean,
@@ -763,9 +757,6 @@ export const TableToolbar = memo(function TableToolbar(props: {
   columns: Array<ColumnCompType>;
   onRefresh: () => void;
   onDownload: () => void;
-  hasChange: boolean;
-  onSaveChanges: () => void;
-  onCancelChanges: () => void;
   onEvent: TableOnEventView;
 }) {
   const {
@@ -775,9 +766,6 @@ export const TableToolbar = memo(function TableToolbar(props: {
     columns,
     onRefresh,
     onDownload,
-    hasChange,
-    onSaveChanges,
-    onCancelChanges,
     onEvent,
   } = props;
 
@@ -797,15 +785,7 @@ export const TableToolbar = memo(function TableToolbar(props: {
     onEvent("download");
   }, [onDownload, onEvent]);
 
-  const handleSaveChanges = useCallback(() => {
-    onSaveChanges();
-    onEvent("saveChanges");
-  }, [onSaveChanges, onEvent]);
-
-  const handleCancelChanges = useCallback(() => {
-    onCancelChanges();
-    onEvent("cancelChanges");
-  }, [onCancelChanges, onEvent]);
+ 
 
   const handleColumnFilterChange = useCallback((filters: TableFilterDataType[], stackType: TableFilter["stackType"]) => {
     if (
@@ -877,14 +857,6 @@ export const TableToolbar = memo(function TableToolbar(props: {
             }
           }}
         />
-        {hasChange && toolbar.showUpdateButtons && (
-          <SaveChangeButtons>
-            <TacoButton onClick={handleCancelChanges}>{trans("cancel")}</TacoButton>
-            <TacoButton buttonType="primary" onClick={handleSaveChanges}>
-              {trans("table.saveChanges")}
-            </TacoButton>
-          </SaveChangeButtons>
-        )}
       </ToolbarWrapper2>
     </ToolbarWrapper>
   );
@@ -903,7 +875,6 @@ export const TableToolbarComp = (function () {
     filter: stateComp<TableFilter>({ stackType: "and", filters: [] }),
     position: dropdownControl(positionOptions, "below"),
     columnSeparator: withDefault(StringControl, ','),
-    showUpdateButtons: withDefault(BoolControl, true),
   };
 
   return new ControlNodeCompBuilder(childrenMap, (props, dispatch) => {
@@ -929,7 +900,6 @@ export const TableToolbarComp = (function () {
         label: trans("table.fixedToolbar"),
         tooltip: trans("table.fixedToolbarTooltip")
       }),
-      children.showUpdateButtons.propertyView({ label: trans("table.showUpdateButtons")}),
       children.showFilter.propertyView({ label: trans("table.showFilter") }),
       children.showRefresh.propertyView({ label: trans("table.showRefresh") }),
       children.showDownload.propertyView({ label: trans("table.showDownload") }),
@@ -938,11 +908,6 @@ export const TableToolbarComp = (function () {
         tooltip: trans("table.columnSeparatorTooltip"),
       }),
       children.columnSetting.propertyView({ label: trans("table.columnSetting") }),
-      /* children.searchText.propertyView({
-        label: trans("table.searchText"),
-        tooltip: trans("table.searchTextTooltip"),
-        placeholder: "{{input1.value}}",
-      }), */
     ])
     .build();
 })();

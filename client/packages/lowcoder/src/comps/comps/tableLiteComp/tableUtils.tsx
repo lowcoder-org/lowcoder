@@ -20,7 +20,6 @@ import { ColumnListComp, tableDataRowExample } from "./column/tableColumnListCom
 import { TableColumnLinkStyleType, TableColumnStyleType } from "comps/controls/styleControlConstants";
 import Tooltip from "antd/es/tooltip";
 import InfoCircleOutlined from "@ant-design/icons/InfoCircleOutlined";
-import { EMPTY_ROW_KEY } from "./tableCompView";
 import dayjs from "dayjs";
 
 export const COLUMN_CHILDREN_KEY = "children";
@@ -244,8 +243,8 @@ export function getColumnsAggr(
   });
 }
 
-function renderTitle(props: { title: string; tooltip: string; editable: boolean }) {
-  const { title, tooltip, editable } = props;
+function renderTitle(props: { title: string; tooltip: string }) {
+  const { title, tooltip } = props;
   return (
     <div>
       <Tooltip title={tooltip}>
@@ -253,7 +252,6 @@ function renderTitle(props: { title: string; tooltip: string; editable: boolean 
           {title}
         </span>
       </Tooltip>
-      {editable && <EditableIcon style={{ verticalAlign: "baseline", marginLeft: "4px" }} />}
     </div>
   );
 }
@@ -296,7 +294,6 @@ export function columnsToAntdFormat(
   dynamicColumn: boolean,
   dynamicColumnConfig: Array<string>,
   columnsAggrData: ColumnsAggrData,
-  editMode: string,
   onTableEvent: (eventName: any) => void,
 ): Array<CustomColumnType<RecordType>> {
   const customColumns = columns.filter(col => col.isCustom).map(col => col.dataIndex);
@@ -340,7 +337,7 @@ export function columnsToAntdFormat(
       text: string;
       status: StatusType;
     }[];
-    const title = renderTitle({ title: column.title, tooltip: column.titleTooltip, editable: column.editable });
+    const title = renderTitle({ title: column.title, tooltip: column.titleTooltip });
 
     return {
       key: `${column.dataIndex}-${mIndex}`,
@@ -384,7 +381,6 @@ export function columnsToAntdFormat(
           )
           .getView()
           .view({
-            editable: record[OB_ROW_ORI_INDEX].startsWith(EMPTY_ROW_KEY) || column.editable,
             tableSize: size,
             candidateTags: tags,
             candidateStatus: status,
@@ -394,7 +390,6 @@ export function columnsToAntdFormat(
               currentRow: row,
               currentIndex: index,
             }),
-            editMode,
             onTableEvent,
             cellIndex: `${column.dataIndex}-${index}`,
           });

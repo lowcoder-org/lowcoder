@@ -1,6 +1,6 @@
 import { tableDataRowExample } from "./column/tableColumnListComp";
 import { getPageSize } from "./paginationControl";
-import { EMPTY_ROW_KEY, TableCompView } from "./tableCompView";
+import { TableCompView } from "./tableCompView";
 import { TableFilter } from "./tableToolbarComp";
 import {
   columnHide,
@@ -396,8 +396,7 @@ export class TableImplComp extends TableInitComp {
       _.forEach(dataIndexRenderDict, (render, dataIndex) => {
         _.forEach(render[MAP_KEY], (value, key) => {
           const changeValue = (value.comp as any).comp.changeValue;
-          const includeRecord = (filterNewRows && key.startsWith(EMPTY_ROW_KEY)) || (!filterNewRows && !key.startsWith(EMPTY_ROW_KEY));
-          if (!_.isNil(changeValue) && includeRecord) {
+          if (!_.isNil(changeValue)) {
             if (!record[key]) record[key] = {};
             record[key][dataIndex] = changeValue;
           }

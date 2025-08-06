@@ -1,5 +1,5 @@
 import { default as Table, TableProps, ColumnType } from "antd/es/table";
-import { TableCellContext, TableRowContext } from "./tableContext";
+import {  TableRowContext } from "./tableContext";
 import { TableToolbar } from "./tableToolbarComp";
 import { RowColorViewType, RowHeightViewType, TableEventOptionValues } from "./tableTypes";
 import {
@@ -49,8 +49,6 @@ import Skeleton from "antd/es/skeleton";
 import { SkeletonButtonProps } from "antd/es/skeleton/Button";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 import { useUpdateEffect } from "react-use";
-
-export const EMPTY_ROW_KEY = 'empty_row';
 
 function genLinerGradient(color: string) {
   return isValidColor(color) ? `linear-gradient(${color}, ${color})` : color;
@@ -378,7 +376,6 @@ interface TableTdProps {
   $style: TableColumnStyleType & { rowHeight?: string };
   $defaultThemeDetail: ThemeDetail;
   $linkStyle?: TableColumnLinkStyleType;
-  $isEditing: boolean;
   $tableSize?: string;
   $autoHeight?: boolean;
   $customAlign?: 'left' | 'center' | 'right';
@@ -386,7 +383,7 @@ interface TableTdProps {
 const TableTd = styled.td<TableTdProps>`
   .ant-table-row-expand-icon,
   .ant-table-row-indent {
-    display: ${(props) => (props.$isEditing ? "none" : "initial")};
+    display: initial;
   }
   &.ant-table-row-expand-icon-cell {
     background: ${(props) => props.$background};
@@ -398,11 +395,8 @@ const TableTd = styled.td<TableTdProps>`
   padding: 0 !important;
   text-align: ${(props) => props.$customAlign || 'left'} !important;
 
-  > div:not(.editing-border, .editing-wrapper),
-  .editing-wrapper .ant-input,
-  .editing-wrapper .ant-input-number,
-  .editing-wrapper .ant-picker {
-    margin: ${(props) => props.$isEditing ? '0px' : props.$style.margin};
+  > div {
+    margin: ${(props) => props.$style.margin};
     color: ${(props) => props.$style.text};
     font-weight: ${(props) => props.$style.textWeight};
     font-family: ${(props) => props.$style.fontFamily};
@@ -601,7 +595,6 @@ const TableCellView = React.memo((props: {
     ...restProps
   } = props;
 
-  const [editing, setEditing] = useState(false);
   const rowContext = useContext(TableRowContext);
   
   // Memoize style calculations
@@ -655,7 +648,6 @@ const TableCellView = React.memo((props: {
         $style={style!}
         $defaultThemeDetail={defaultTheme}
         $linkStyle={linkStyle}
-        $isEditing={editing}
         $tableSize={tableSize}
         $autoHeight={autoHeight}
         $customAlign={customAlign}
@@ -668,11 +660,7 @@ const TableCellView = React.memo((props: {
     );
   }
 
-  return (
-    <TableCellContext.Provider value={{ isEditing: editing, setIsEditing: setEditing }}>
-      {tdView}
-    </TableCellContext.Provider>
-  );
+  return tdView;
 });
 
 const TableRowView = React.memo((props: any) => {
@@ -809,26 +797,13 @@ ResizeableTableComp.whyDidYouRender = true;
 const ResizeableTable = React.memo(ResizeableTableComp) as typeof ResizeableTableComp;
 
 
-const createNewEmptyRow = (
-  rowIndex: number,
-  columnsAggrData: ColumnsAggrData,
-) => {
-  const emptyRowData: RecordType = {
-    [OB_ROW_ORI_INDEX]: `${EMPTY_ROW_KEY}_${rowIndex}`,
-  };
-  Object.keys(columnsAggrData).forEach(columnKey => {
-    emptyRowData[columnKey] = '';
-  });
-  return emptyRowData;
-}
+
 
 export const TableCompView = React.memo((props: {
   comp: InstanceType<typeof TableImplComp>;
   onRefresh: (allQueryNames: Array<string>, setLoading: (loading: boolean) => void) => void;
   onDownload: (fileName: string) => void;
 }) => {
-  const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
-  const [emptyRowsMap, setEmptyRowsMap] = useState<Record<string, RecordType>>({});
   const editorState = useContext(EditorContext);
   const currentTheme = useContext(ThemeContext)?.theme;
   const showDataLoadingIndicators = currentTheme?.showDataLoadingIndicators;
@@ -865,10 +840,8 @@ export const TableCompView = React.memo((props: {
   const toolbar = useMemo(() => compChildren.toolbar.getView(), [compChildren.toolbar]);
   const showSummary = useMemo(() => compChildren.showSummary.getView(), [compChildren.showSummary]);
   const summaryRows = useMemo(() => compChildren.summaryRows.getView(), [compChildren.summaryRows]);
-  const inlineAddNewRow = useMemo(() => compChildren.inlineAddNewRow.getView(), [compChildren.inlineAddNewRow]);
   const pagination = useMemo(() => compChildren.pagination.getView(), [compChildren.pagination]);
   const size = useMemo(() => compChildren.size.getView(), [compChildren.size]);
-  const editModeClicks = useMemo(() => compChildren.editModeClicks.getView(), [compChildren.editModeClicks]);
   const onEvent = useMemo(() => compChildren.onEvent.getView(), [compChildren.onEvent]);
   const dynamicColumn = compChildren.dynamicColumn.getView();
   const dynamicColumnConfig = useMemo(
@@ -886,7 +859,6 @@ export const TableCompView = React.memo((props: {
         dynamicColumn,
         dynamicColumnConfig,
         columnsAggrData,
-        editModeClicks,
         onEvent,
       ),
     [
@@ -897,7 +869,6 @@ export const TableCompView = React.memo((props: {
       dynamicColumn,
       dynamicColumnConfig,
       columnsAggrData,
-      editModeClicks,
     ]
   );
 
@@ -905,69 +876,6 @@ export const TableCompView = React.memo((props: {
     () => supportChildrenTree(compChildren.data.getView()),
     [compChildren.data]
   );
-
-  const updateEmptyRows = useCallback(() => {
-    if (!inlineAddNewRow) {
-      setEmptyRowsMap({})
-      setTimeout(() => compChildren.columns.dispatchClearInsertSet());
-      return;
-    }
-
-    let emptyRows: Record<string, RecordType> = {...emptyRowsMap};
-    const existingRowsKeys = Object.keys(emptyRows);
-    const existingRowsCount = existingRowsKeys.length;
-    const updatedRowsKeys = Object.keys(insertSet).filter(
-      key => key.startsWith(EMPTY_ROW_KEY)
-    );
-    const updatedRowsCount = updatedRowsKeys.length;
-    const removedRowsKeys = existingRowsKeys.filter(
-      x => !updatedRowsKeys.includes(x)
-    );
-
-    if (removedRowsKeys.length === existingRowsCount) {
-      const newRowIndex = 0;
-      const newRowKey = `${EMPTY_ROW_KEY}_${newRowIndex}`;
-      setEmptyRowsMap({
-        [newRowKey]: createNewEmptyRow(newRowIndex, columnsAggrData)
-      });
-      const ele = document.querySelector<HTMLElement>(`[data-row-key=${newRowKey}]`);
-      if (ele) {
-        ele.style.display = '';
-      }
-      return;
-    }
-
-    removedRowsKeys.forEach(rowKey => {
-      if (
-        rowKey === existingRowsKeys[existingRowsCount - 1]
-        || rowKey === existingRowsKeys[existingRowsCount - 2]
-      ) {
-        delete emptyRows[rowKey];
-      } else {
-        const ele = document.querySelector<HTMLElement>(`[data-row-key=${rowKey}]`);
-        if (ele) {
-          ele.style.display = 'none';
-        }
-      }
-    })
-    const lastRowKey = updatedRowsCount ? updatedRowsKeys[updatedRowsCount - 1] : '';
-    const lastRowIndex = lastRowKey ? parseInt(lastRowKey.replace(`${EMPTY_ROW_KEY}_`, '')) : -1;
-
-    const newRowIndex = lastRowIndex + 1;
-    const newRowKey = `${EMPTY_ROW_KEY}_${newRowIndex}`;
-    emptyRows[newRowKey] = createNewEmptyRow(newRowIndex, columnsAggrData);
-    setEmptyRowsMap(emptyRows);
-  }, [
-    inlineAddNewRow,
-    JSON.stringify(insertSet),
-    setEmptyRowsMap,
-    createNewEmptyRow,
-  ]);
-
-  useEffect(() => {
-    updateEmptyRows();
-  }, [updateEmptyRows]);
-
 
 
   const pageDataInfo = useMemo(() => {
@@ -1001,10 +909,6 @@ export const TableCompView = React.memo((props: {
 
   const handleChangeEvent = useCallback(
     (eventName: TableEventOptionValues) => {
-      if (eventName === "saveChanges" && !compChildren.onEvent.isBind(eventName)) {
-        !viewMode && messageInstance.warning(trans("table.saveChangesNotBind"));
-        return;
-      }
       compChildren.onEvent.getView()(eventName);
       setTimeout(() => compChildren.columns.dispatchClearChangeSet());
     },
@@ -1030,14 +934,6 @@ export const TableCompView = React.memo((props: {
       onDownload={() => {
         handleChangeEvent("download");
         onDownload(`${compName}-data`)
-      }}
-      hasChange={hasChange}
-      onSaveChanges={() => handleChangeEvent("saveChanges")}
-      onCancelChanges={() => {
-        handleChangeEvent("cancelChanges");
-        if (inlineAddNewRow) {
-          setEmptyRowsMap({});
-        }
       }}
       onEvent={onEvent}
     />
@@ -1118,7 +1014,7 @@ export const TableCompView = React.memo((props: {
               columnsStyle={columnsStyle}
               viewModeResizable={compChildren.viewModeResizable.getView()}
               visibleResizables={compChildren.visibleResizables.getView()}
-              dataSource={pageDataInfo.data.concat(Object.values(emptyRowsMap))}
+              dataSource={pageDataInfo.data}
               size={compChildren.size.getView()}
               rowAutoHeight={rowAutoHeight}
               tableLayout="fixed"

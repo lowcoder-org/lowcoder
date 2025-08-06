@@ -31,7 +31,6 @@ import { default as Divider } from "antd/es/divider";
 import { ColumnValueTooltip } from "./simpleColumnTypeComps";
 import { SummaryColumnComp } from "./tableSummaryColumnComp";
 import { list } from "@lowcoder-ee/comps/generators/list";
-import { EMPTY_ROW_KEY } from "../tableCompView";
 import React, { useCallback, useMemo } from "react";
 
 export type Render = ReturnType<ConstructorToComp<typeof RenderComp>["getOriginalComp"]>;
@@ -441,11 +440,10 @@ export class ColumnComp extends ColumnInitComp {
 
   dispatchClearInsertSet() {
     const renderMap = this.children.render.getMap();
-    const insertMapKeys = Object.keys(renderMap).filter(key => key.startsWith(EMPTY_ROW_KEY));
-    insertMapKeys.forEach(key => {
+    Object.keys(renderMap).forEach(key => {
       const render = renderMap[key];
       render.getComp().children.comp.children.changeValue.dispatchChangeValueAction(null);
-    });
+    }); 
   }
 
   static setSelectionAction(key: string) {

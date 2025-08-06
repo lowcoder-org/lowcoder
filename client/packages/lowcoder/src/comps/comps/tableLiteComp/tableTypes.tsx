@@ -36,16 +36,7 @@ import { PaginationControl } from "./paginationControl";
 import { SelectionControl } from "./selectionControl";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 
-const editModeClickOptions = [
-  {
-    label: trans("table.singleClick"),
-    value: "single",
-  },
-  {
-    label: trans("table.doubleClick"),
-    value: "double",
-  },
-] as const;
+
 
 const summarRowsOptions = [
   {
@@ -79,16 +70,6 @@ const sizeOptions = [
 
 export const TableEventOptions = [
   {
-    label: trans("table.saveChanges"),
-    value: "saveChanges",
-    description: trans("table.saveChanges"),
-  },
-  {
-    label: trans("table.cancelChanges"),
-    value: "cancelChanges",
-    description: trans("table.cancelChanges"),
-  },
-  {
     label: trans("table.rowSelectChange"),
     value: "rowSelectChange",
     description: trans("table.rowSelectChange"),
@@ -98,11 +79,7 @@ export const TableEventOptions = [
     value: "rowClick",
     description: trans("table.rowClick"),
   },
-  {
-    label: trans("table.columnEdited"),
-    value: "columnEdited",
-    description: trans("table.columnEdited"),
-  },
+ 
   {
     label: trans("table.search"),
     value: "dataSearch",
@@ -210,7 +187,6 @@ export type RowHeightViewType = (param: {
 }) => string;
 
 const tableChildrenMap = {
-  // hideBordered: BoolControl,
   showHeaderGridBorder: BoolControl,
   showRowGridBorder: withDefault(BoolControl,true),
   showHRowGridBorder: withDefault(BoolControl,true),
@@ -251,8 +227,6 @@ const tableChildrenMap = {
   // todo: support object config
   dynamicColumnConfig: ArrayStringControl,
   selectedCell: stateComp<JSONObject>({}),
-  inlineAddNewRow: BoolControl,
-  editModeClicks: dropdownControl(editModeClickOptions, "single"),
 };
 
 export const TableInitComp = (function () {
