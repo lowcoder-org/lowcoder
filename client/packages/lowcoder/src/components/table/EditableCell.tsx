@@ -54,6 +54,7 @@ export type EditViewFn<T> = (props: {
   value: T;
   onChange: (value: T) => void;
   onChangeEnd: () => void;
+  onImmediateSave?: (value: T) => void;
   otherProps?: Record<string, any>;
 }) => ReactNode;
 
@@ -168,9 +169,26 @@ function EditableCellComp<T extends JSONValue>(props: EditableCellProps<T>) {
     }
   }, [dispatch, tmpValue, baseValue, value, onTableEvent, setIsEditing]);
 
+  const onImmediateSave = useCallback((newValue: T) => {
+    if (!mountedRef.current) return;
+    
+    setTmpValue(newValue);
+    const changeValue = _.isNil(newValue) || _.isEqual(newValue, baseValue) ? null : newValue;
+    dispatch(
+      changeChildAction(
+        "changeValue",
+        changeValue,
+        false
+      )
+    );
+    if(!_.isEqual(newValue, value)) {
+      onTableEvent?.('columnEdited');
+    }
+  }, [dispatch, baseValue, value, onTableEvent]);
+
   const editView = useMemo(
-    () => editViewFn?.({ value, onChange, onChangeEnd, otherProps }) ?? <></>,
-    [editViewFn, value, onChange, onChangeEnd, otherProps]
+    () => editViewFn?.({ value, onChange, onChangeEnd, onImmediateSave, otherProps }) ?? <></>,
+    [editViewFn, value, onChange, onChangeEnd, onImmediateSave, otherProps]
   );
 
   const enterEditFn = useCallback(() => {

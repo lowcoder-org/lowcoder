@@ -64,6 +64,7 @@ type CheckBoxEditPropsType = {
   value: boolean;
   onChange: (value: boolean) => void;
   onChangeEnd: () => void;
+  onImmediateSave?: (value: boolean) => void;
 };
 
 // Memoized checkbox edit component
@@ -92,8 +93,13 @@ const CheckBoxEdit = React.memo((props: CheckBoxEditPropsType) => {
 
   const handleChange = useCallback((e: CheckboxChangeEvent) => {
     if (!mountedRef.current) return;
-    props.onChange(e.target.checked);
-  }, [props.onChange]);
+    const newValue = e.target.checked;
+    props.onChange(newValue);
+    // Use immediate save to show Save Changes button without exiting edit mode
+    if (props.onImmediateSave) {
+      props.onImmediateSave(newValue);
+    }
+  }, [props.onChange, props.onImmediateSave]);
 
   return (
     <Wrapper
@@ -171,6 +177,7 @@ export const BooleanComp = (function () {
           value={props.value}
           onChange={props.onChange}
           onChangeEnd={props.onChangeEnd}
+          onImmediateSave={props.onImmediateSave}
         />
       );
     })
