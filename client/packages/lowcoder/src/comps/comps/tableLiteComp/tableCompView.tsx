@@ -804,6 +804,9 @@ export const TableCompView = React.memo((props: {
   onRefresh: (allQueryNames: Array<string>, setLoading: (loading: boolean) => void) => void;
   onDownload: (fileName: string) => void;
 }) => {
+
+  console.log("TableCompView");
+
   const editorState = useContext(EditorContext);
   const currentTheme = useContext(ThemeContext)?.theme;
   const showDataLoadingIndicators = currentTheme?.showDataLoadingIndicators;
@@ -918,7 +921,6 @@ export const TableCompView = React.memo((props: {
   const toolbarView = !hideToolbar && (
     <TableToolbar
       toolbar={toolbar}
-      $style={toolbarStyle}
       pagination={{
         ...pagination,
         total: pageDataInfo.total,

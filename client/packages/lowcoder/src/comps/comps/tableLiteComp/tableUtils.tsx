@@ -8,18 +8,15 @@ import {
 import type { SortOrder } from "antd/es/table/interface";
 import { __COLUMN_DISPLAY_VALUE_FN } from "./column/columnTypeCompBuilder";
 import { CellColorViewType, RawColumnType, Render } from "./column/tableColumnComp";
-import { TableFilter, tableFilterOperatorMap } from "./tableToolbarComp";
 import { SortValue, TableOnEventView } from "./tableTypes";
 import _ from "lodash";
 import { changeChildAction, CompAction, NodeToValue } from "lowcoder-core";
-import { EditableIcon } from "lowcoder-design";
 import { tryToNumber } from "util/convertUtils";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { StatusType } from "./column/columnTypeComps/columnStatusComp";
 import { ColumnListComp, tableDataRowExample } from "./column/tableColumnListComp";
 import { TableColumnLinkStyleType, TableColumnStyleType } from "comps/controls/styleControlConstants";
 import Tooltip from "antd/es/tooltip";
-import InfoCircleOutlined from "@ant-design/icons/InfoCircleOutlined";
 import dayjs from "dayjs";
 
 export const COLUMN_CHILDREN_KEY = "children";
@@ -37,7 +34,7 @@ export type RecordType = JSONObject & { [OB_ROW_ORI_INDEX]: string };
 export function filterData(
   data: Array<RecordType>,
   searchValue: string,
-  filter: TableFilter,
+  filter: { filters: any[], stackType: string },
   showFilter: boolean
 ) {
   let resultData = data;
@@ -56,7 +53,7 @@ export function filterData(
       // filter
       for (let f of filter.filters) {
         const columnValue = row[f.columnKey];
-        const result = tableFilterOperatorMap[f.operator].filter(f.filterValue, columnValue);
+        const result = f.operator.filter(f.filterValue, columnValue);
         if (filter.stackType === "or" && result) {
           // one condition is met
           return true;

@@ -1,7 +1,6 @@
 import { tableDataRowExample } from "./column/tableColumnListComp";
 import { getPageSize } from "./paginationControl";
 import { TableCompView } from "./tableCompView";
-import { TableFilter } from "./tableToolbarComp";
 import {
   columnHide,
   ColumnsAggrData,
@@ -313,27 +312,28 @@ export class TableImplComp extends TableInitComp {
     const nodes = {
       data: this.sortDataNode(),
       searchValue: this.children.searchText.node(),
-      filter: this.children.toolbar.children.filter.node(),
-      showFilter: this.children.toolbar.children.showFilter.node(),
     };
     let context = this;
+  
     const filteredDataNode = withFunction(fromRecord(nodes), (input) => {
-      const { data, searchValue, filter, showFilter } = input;
-      const filteredData = filterData(data, searchValue.value, filter, showFilter.value);
-      // console.info("filterNode. data: ", data, " filter: ", filter, " filteredData: ", filteredData);
-      // if data is changed on search then trigger event
-      if(Boolean(searchValue.value) && data.length !== filteredData.length) {
+      const { data, searchValue } = input;
+      const filteredData = filterData(data, searchValue.value, { filters: [], stackType: "and" }, false);
+  
+      if (Boolean(searchValue.value) && data.length !== filteredData.length) {
         const onEvent = context.children.onEvent.getView();
         setTimeout(() => {
           onEvent("dataSearch");
         });
       }
+  
       return filteredData.map((row) => tranToTableRecord(row, row[OB_ROW_ORI_INDEX]));
     });
+  
     return lastValueIfEqual(this, "filteredDataNode", [filteredDataNode, nodes] as const, (a, b) =>
       shallowEqual(a[1], b[1])
     )[0];
   }
+  
 
   oriDisplayDataNode() {
     const nodes = {
@@ -494,7 +494,6 @@ export class TableImplComp extends TableInitComp {
 }
 
 let TableTmpComp = withViewFn(TableImplComp, (comp) => {
-  const [emptyRows, setEmptyRows] = useState([]);
   return (
     <HidableView hidden={comp.children.hidden.getView()}>
       <TableCompView
@@ -580,13 +579,14 @@ TableTmpComp = withMethodExposing(TableTmpComp, [
       params: [{ name: "filter", type: "JSON" }],
     },
     execute: (comp, values) => {
+      //TODO: add filter maybe
       if (values[0]) {
-        const param = values[0] as TableFilter;
-        const currentVal = comp.children.toolbar.children.filter.getView();
-        comp.children.toolbar.children.filter.dispatchChangeValueAction({
-          ...currentVal,
-          ...param,
-        });
+        // const param = values[0] as TableFilter;
+        // const currentVal = comp.children.toolbar.children.filter.getView();
+        // comp.children.toolbar.children.filter.dispatchChangeValueAction({
+        //   ...currentVal,
+        //   ...param,
+        // });
       }
     },
   },
@@ -914,18 +914,6 @@ export const TableLiteComp = withExposingConfigs(TableTmpComp, [
       return transformDispalyData(input.oriDisplayData, dataIndexTitleDict);
     },
     trans("table.displayDataDesc")
-  ),
-  new DepsConfig(
-    "filter",
-    (children) => {
-      return {
-        filter: children.toolbar.children.filter.node(),
-      };
-    },
-    (input) => {
-      return input.filter;
-    },
-    trans("table.filterDesc")
   ),
   new DepsConfig(
     "selectedCell",
