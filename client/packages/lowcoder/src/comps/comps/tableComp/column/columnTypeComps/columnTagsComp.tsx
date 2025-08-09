@@ -142,6 +142,7 @@ export const Wrapper = styled.div`
   height: 100%;
   position: absolute;
   top: 0;
+  left: 0;
   background: transparent !important;
   padding: 8px;
 

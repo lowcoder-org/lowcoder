@@ -12,8 +12,7 @@ import { AppTypeEnum } from "constants/applicationConstants";
 import { CopyModal } from "pages/common/copyModal";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import ApplicationApi from "../../api/applicationApi";
-import { FolderApi } from "../../api/folderApi";
-import { ReduxActionTypes } from "constants/reduxActionConstants";
+import { deleteFolder } from "../../redux/reduxActions/folderActions";
 
 const PopoverIcon = styled(PointIcon)`
   cursor: pointer;
@@ -120,27 +119,24 @@ export const HomeResOptions = (props: {
                 type: HomeResInfo[res.type].name.toLowerCase(),
                 name: <b>{res.name}</b>,
               }),
-              onConfirm: async () => {
-                try {
-                  await FolderApi.deleteFolder({ 
+              onConfirm: () => {
+                dispatch(deleteFolder(
+                  { 
                     folderId: res.id, 
                     parentFolderId: folderId || "" 
-                  });
-                  
-                  // Update Redux state to remove deleted folder from dropdown
-                  dispatch({
-                    type: ReduxActionTypes.DELETE_FOLDER_SUCCESS,
-                    payload: { folderId: res.id, parentFolderId: folderId || "" }
-                  });
-                  
-                  messageInstance.success(trans("home.deleteSuccessMsg"));
-                  setTimeout(() => {
-                    setModify(!modify);
-                  }, 200);
-                } catch (error) {
-                  console.error("Failed to delete folder:", error);
-                  messageInstance.error("Failed to delete folder");
-                }
+                  },
+                  () => {
+                    // Success callback
+                    messageInstance.success(trans("home.deleteSuccessMsg"));
+                    setTimeout(() => {
+                      setModify(!modify);
+                    }, 200);
+                  },
+                  () => {
+                    // Error callback
+                    messageInstance.error("Failed to delete folder");
+                  }
+                ));
               },
               confirmBtnType: "delete",
               okText: trans("delete"),

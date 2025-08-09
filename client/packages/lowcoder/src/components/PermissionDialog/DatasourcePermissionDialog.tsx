@@ -13,6 +13,7 @@ import { DatasourceRole } from "../../api/datasourcePermissionApi";
 import { getDataSourcePermissionInfo } from "../../redux/selectors/datasourceSelectors";
 import { StyledLoading } from "./commonComponents";
 import { PermissionRole } from "./Permission";
+import { getUser } from "../../redux/selectors/usersSelectors";
 
 export const DatasourcePermissionDialog = (props: {
   datasourceId: string;
@@ -22,6 +23,7 @@ export const DatasourcePermissionDialog = (props: {
   const { datasourceId } = props;
   const dispatch = useDispatch();
   const permissionInfo = useSelector(getDataSourcePermissionInfo)[datasourceId];
+  const user = useSelector(getUser);
 
   useEffect(() => {
     dispatch(fetchDatasourcePermissions({ datasourceId: datasourceId }));
@@ -75,6 +77,8 @@ export const DatasourcePermissionDialog = (props: {
         { label: trans("share.datasourceOwner"), value: PermissionRole.Owner },
       ]}
       permissionItems={permissions}
+      contextType="organization"
+      organizationId={user.currentOrgId}
       viewBodyRender={(list) => {
         if (!permissionInfo) {
           return <StyledLoading size={18} />;

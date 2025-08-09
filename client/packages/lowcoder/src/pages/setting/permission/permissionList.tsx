@@ -187,7 +187,14 @@ export default function PermissionSetting(props: PermissionSettingProps) {
           scroll={{ x: "100%" }}
           pagination={false}
           onRow={(record) => ({
-            onClick: () => history.push(buildGroupId((record as DataItemInfo).key)),
+            onClick: (e) => {
+              // Don't navigate if this row is in rename mode
+              if ((record as DataItemInfo).key === needRenameId) {
+                e.stopPropagation();
+                return;
+              }
+              history.push(buildGroupId((record as DataItemInfo).key));
+            },
           })}
           columns={[
             {

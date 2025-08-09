@@ -1,4 +1,4 @@
-import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import { BoolCodeControl, StringControl, NumberControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { IconControl } from "comps/controls/iconControl";
@@ -137,7 +137,8 @@ const childrenMap = {
   disabledStyle: DisabledButtonStyleControl,
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   viewRef: RefControl<HTMLElement>,
-  tooltip: StringControl
+  tooltip: StringControl,
+  tabIndex: NumberControl
 };
 
 type ChildrenType = NewChildren<RecordConstructorToComp<typeof childrenMap>>;
@@ -162,8 +163,12 @@ const ButtonPropertyView = React.memo((props: {
               disabledPropertyView(props.children),
               hiddenPropertyView(props.children),
               loadingPropertyView(props.children),
+              props.children.tabIndex.propertyView({ label: trans("prop.tabIndex") }),
             ]
-            : props.children.form.getPropertyView()}
+            : [
+              props.children.form.getPropertyView(),
+              props.children.tabIndex.propertyView({ label: trans("prop.tabIndex") }),
+            ]}
           </Section>
         </>
       )}
@@ -222,6 +227,7 @@ const ButtonView = React.memo((props: ToViewReturn<ChildrenType>) => {
                 (!isDefault(props.type) && getForm(editorState, props.form)?.disableSubmit())
               }
               onClick={handleClick}
+              tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
             >
               {props.prefixIcon && <IconWrapper>{props.prefixIcon}</IconWrapper>}
               {

@@ -6,7 +6,7 @@ import {
 } from "lowcoder-core";
 import { BoolControl } from "../../controls/boolControl";
 import { LabelControl } from "../../controls/labelControl";
-import { BoolCodeControl, StringControl } from "../../controls/codeControl";
+import { BoolCodeControl, StringControl, NumberControl } from "../../controls/codeControl";
 import { PaddingControl } from "../../controls/paddingControl";
 import { MarginControl } from "../../controls/marginControl";
 import {
@@ -242,6 +242,7 @@ export const SelectChildrenMap = {
   margin: MarginControl,
   padding: PaddingControl,
   inputFieldStyle:styleControl(SelectStyle),
+  tabIndex: NumberControl,
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
@@ -269,6 +270,7 @@ export const SelectUIView = (
     placeholder={props.placeholder}
     value={props.value}
     showSearch={props.showSearch}
+    tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
     filterOption={(input, option) => {
       if (!option) return false;
       return String(option.label ?? option.value ?? "").toLowerCase().includes(input.toLowerCase());
@@ -348,6 +350,7 @@ export const SelectPropertyView = (
           {disabledPropertyView(children)}
           {hiddenPropertyView(children)}
           {showDataLoadingIndicatorsPropertyView(children as any)}
+          {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
         </Section>
       </>
     )}

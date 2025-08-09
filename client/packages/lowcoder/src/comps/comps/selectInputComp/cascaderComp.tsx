@@ -56,6 +56,7 @@ let CascaderBasicComp = (function () {
           showSearch={props.showSearch}
           $style={props.inputFieldStyle}
           $childrenInputFieldStyle={props.childrenInputFieldStyle}
+          tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
           onFocus={() => props.onEvent("focus")}
           onBlur={() => props.onEvent("blur")}
           popupRender={(menus: React.ReactNode) => (

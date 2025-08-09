@@ -327,7 +327,7 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
             bgColor={bgColor}
             radius="0px"
             emptyRows={defaultRowCount}
-            minHeight={defaultMinHeight}
+            minHeight={!isModule ? defaultMinHeight : undefined}
             extraHeight={defaultRowCount === DEFAULT_ROW_COUNT ? rootContainerExtraHeight : undefined }
           />
         </Profiler>
@@ -368,7 +368,7 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
                 bgColor={bgColor}
                 positionParams={positionParams}
                 emptyRows={defaultRowCount}
-                minHeight={defaultMinHeight}
+                minHeight={!isModule ? defaultMinHeight : undefined}
                 extraHeight={defaultRowCount === DEFAULT_ROW_COUNT ? rootContainerExtraHeight : undefined}
               />
             </Profiler>

@@ -118,6 +118,60 @@ export const fetchAvailableGroupsMembers = async (applicationId: string, search:
     }
 }
 
+export const fetchAvailableOrgGroupsMembers = async (orgId: string, search: string = "") => {
+    try {
+
+        
+        // Fetch org members and groups in parallel
+        const [orgMembersResponse, groupsResponse] = await Promise.all([
+            OrgApi.fetchOrgUsers(orgId),
+            OrgApi.fetchGroup()
+        ]);
+
+        const orgMembers = orgMembersResponse.data.data.members || [];
+        const groups = groupsResponse.data.data || [];
+
+        // Transform to the same format as application groups/members
+        const transformedData = [
+            // Add groups
+            ...groups.map((group: any) => ({
+                type: "Group",
+                data: {
+                    groupId: group.groupId,
+                    groupName: group.groupName,
+                }
+            })),
+            // Add users
+            ...orgMembers.map((member: any) => ({
+                type: "User", 
+                data: {
+                    userId: member.userId,
+                    name: member.name,
+                    avatarUrl: member.avatarUrl,
+                }
+            }))
+        ];
+
+        // Filter by search term if provided
+        const filteredData = search ? 
+            transformedData.filter((item: any) => {
+                const name = item.type === "Group" ? item.data.groupName : item.data.name;
+                return name.toLowerCase().includes(search.toLowerCase());
+            }) : transformedData;
+
+        return {
+            success: true,
+            data: filteredData
+        };
+    } catch (error: any) {
+        console.error('Failed to fetch org data: ', error);
+        return {
+            success: false,
+            error: error
+        };
+    }
+}
+
 export const fetchOrgUsrPagination = async (request: fetchOrgUserRequestType)=> {
     try {
         const response = await OrgApi.fetchOrgUsersPagination(request);
