@@ -214,7 +214,19 @@ let CheckboxBasicComp = (function () {
 
   return new UICompBuilder(childrenMap, (props) => {
     const mountedRef = useRef(true);
+    const checkboxRef = useRef<HTMLDivElement | null>(null);
     const [validateState, handleChange] = useSelectInputValidate(props);
+
+    useEffect(() => {
+      if (!mountedRef.current) return;
+      if (checkboxRef.current && typeof props.tabIndex === 'number') {
+        const checkboxInputs = checkboxRef.current.querySelectorAll('input[type="checkbox"]');
+        checkboxInputs.forEach((input, index) => {
+          // Set sequential tabindex for each checkbox
+          input.setAttribute('tabindex', (props.tabIndex + index).toString());
+        });
+      }
+    }, [props.tabIndex, props.options]);
 
     useEffect(() => {
       return () => {
@@ -251,7 +263,13 @@ let CheckboxBasicComp = (function () {
           layout={props.layout}
           options={filteredOptions()}
           onChange={handleValidateChange}
-          viewRef={props.viewRef}
+          viewRef={(el) => {
+            if (!mountedRef.current) return;
+            if (el) {
+              props.viewRef(el);
+              checkboxRef.current = el;
+            }
+          }}
           tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
         />
       ),

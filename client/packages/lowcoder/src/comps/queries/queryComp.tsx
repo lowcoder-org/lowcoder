@@ -335,7 +335,7 @@ function QueryView(props: QueryViewProps) {
     ) {
       setTimeout(() => {
         comp.dispatch(deferAction(executeQueryAction({})));
-      }, 300);
+      }, 600);
     }
 
     if(getTriggerType(comp) === "onTimeout") {

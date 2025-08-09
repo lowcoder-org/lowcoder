@@ -411,9 +411,9 @@ const TableTd = styled.td<TableTdProps>`
     justify-content: ${(props) => props.$customAlign === 'center' ? 'center' : props.$customAlign === 'right' ? 'flex-end' : 'flex-start'};
     align-items: center;
     text-align: ${(props) => props.$customAlign || 'left'};
-    padding: 0 8px;
     box-sizing: border-box;
     ${(props) => props.$tableSize === 'small' && `
+      padding: 1px 8px;
       font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '14px !important' : props.$style.textSize + ' !important'};
       font-style:${props.$style.fontStyle} !important;
       min-height: ${props.$style.rowHeight || '14px'};
@@ -424,6 +424,7 @@ const TableTd = styled.td<TableTdProps>`
       `};
     `};
     ${(props) => props.$tableSize === 'middle' && `
+      padding: 8px 8px;
       font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '16px !important' : props.$style.textSize + ' !important'};
       font-style:${props.$style.fontStyle} !important;
       min-height: ${props.$style.rowHeight || '24px'};
@@ -434,6 +435,7 @@ const TableTd = styled.td<TableTdProps>`
       `};
     `};
     ${(props) => props.$tableSize === 'large' && `
+      padding: 16px 16px;
       font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '18px !important' : props.$style.textSize + ' !important'};
       font-style:${props.$style.fontStyle} !important;
       min-height: ${props.$style.rowHeight || '48px'};

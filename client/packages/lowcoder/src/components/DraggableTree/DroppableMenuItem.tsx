@@ -67,6 +67,9 @@ export default function DraggableMenuItem(props: IDraggableMenuItemProps) {
   const canDropBefore = checkDroppableFlag(item.canDropBefore, activeNode?.data);
   const canDropAfter = checkDroppableFlag(item.canDropAfter, activeNode?.data);
 
+  const lastChildNode = items[items.length - 1];
+  const canDropAfterLastChild = checkDroppableFlag(lastChildNode?.canDropAfter, activeNode?.data);
+
   const dropData: IDropData = {
     targetListSize: items.length,
     targetPath: dropInAsSub ? [...path, 0] : [...path.slice(0, -1), path[path.length - 1] + 1],
@@ -136,6 +139,15 @@ export default function DraggableMenuItem(props: IDraggableMenuItemProps) {
               />
             </Fragment>
           ))}
+          {activeNode && canDropAfterLastChild && (
+            <div style={{ position: "relative" }}>
+              <DroppablePlaceholder
+                targetListSize={-1}
+                path={[...path, items.length]}
+                disabled={isDragging || disabled}
+              />
+            </div>
+          )}
         </div>
       )}
     </>
