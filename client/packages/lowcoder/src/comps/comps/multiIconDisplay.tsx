@@ -1,27 +1,33 @@
 
+import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { findIconDefinition, library } from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
 import * as AntdIcons from '@ant-design/icons';
 
-library.add(far,fas);
+library.add(far, fas);
 
-function parseIconIdentifier(identifier: string) {
+export function parseIconIdentifier(identifier: string) {
+  // Handle null, undefined, or non-string values
+  if (!identifier || typeof identifier !== 'string') {
+    return { type: 'unknown', name: "" };
+  }
+
   if (identifier.startsWith('/icon:antd/')) {
     let name = identifier.split('/')[2];
     return { type: 'antd', name };
-  } 
+  }
   else if (identifier.startsWith('/icon:solid/') || identifier.startsWith('/icon:regular/')) {
     const [style, name] = identifier.substring(6).split('/');
     return { type: 'fontAwesome', style, name };
-  } 
+  }
   else if (identifier.startsWith('data:image')) {
     return { type: 'base64', data: identifier, name: "" };
-  } 
+  }
   else if (identifier.startsWith('http')) {
     return { type: 'url', url: identifier, name: "" };
-  } 
+  }
   else {
     return { type: 'unknown', name: "" };
   }
@@ -52,7 +58,7 @@ const appendStyleSuffix = (name: string) => {
 // Multi icon Display Component
 
 const baseMultiIconDisplay: React.FC<IconProps> = ({ identifier, width = '24px', height = '24px', style }) => {
-  
+
   const iconData = parseIconIdentifier(identifier);
 
   if (iconData.type === 'fontAwesome') {
@@ -65,21 +71,21 @@ const baseMultiIconDisplay: React.FC<IconProps> = ({ identifier, width = '24px',
       return null;
     }
     return <FontAwesomeIcon icon={iconLookup} style={{ width, height, ...style }} />;
-  } 
+  }
   else if (iconData.type === 'antd') {
     let iconName = convertToCamelCase(iconData.name);
     iconName = appendStyleSuffix(iconName);
-    iconName = iconName.charAt(0).toUpperCase() + iconName.slice(1); 
+    iconName = iconName.charAt(0).toUpperCase() + iconName.slice(1);
     const AntdIcon = (AntdIcons as any)[iconName];
     if (!AntdIcon) {
       console.error(`ANTd Icon ${iconData.name} not found`);
       return null;
     }
     return <AntdIcon style={{ fontSize: width, ...style }} />;
-  } 
+  }
   else if (iconData.type === 'url' || iconData.type === 'base64') {
     return <img src={iconData.type === 'url' ? iconData.url : iconData.data} alt="icon" style={{ width, height, ...style }} />;
-  } 
+  }
   else {
     return null; // Unknown type
   }
