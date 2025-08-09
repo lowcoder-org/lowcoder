@@ -1,0 +1,8 @@
+spring:
+    data:
+        mongodb:
+            authentication-database: admin
+            auto-index-creation: false
+            uri: mongodb://localhost:27017/lowcoder?authSource=admin
+        redis:
+            url: redis://localhost:6379

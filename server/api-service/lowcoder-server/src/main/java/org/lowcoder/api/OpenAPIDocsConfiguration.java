@@ -12,7 +12,7 @@ import io.swagger.v3.oas.models.servers.ServerVariable;
 import io.swagger.v3.oas.models.servers.ServerVariables;
 import io.swagger.v3.oas.models.tags.Tag;
 import org.lowcoder.sdk.config.CommonConfig;
-import org.springdoc.core.customizers.OpenApiCustomiser;
+import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -135,7 +135,7 @@ public class OpenAPIDocsConfiguration {
      * Customizes the OpenAPI spec at runtime to sort tags and paths.
      */
     @Bean
-    public OpenApiCustomiser sortOpenApiSpec() {
+    public OpenApiCustomizer sortOpenApiSpec() {
         return openApi -> {
             // Sort tags alphabetically
             if (openApi.getTags() != null) {
