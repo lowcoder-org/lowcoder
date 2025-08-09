@@ -32,7 +32,10 @@ import {
   UserIcon,
 } from "lowcoder-design";
 import React, { useCallback, useEffect, useState, useMemo } from "react";
+import { Helmet } from "react-helmet";
 import { fetchHomeData } from "redux/reduxActions/applicationActions";
+import { getBrandingConfig } from "redux/selectors/configSelectors";
+import { buildMaterialPreviewURL } from "util/materialUtils";
 import { fetchSubscriptionsAction } from "redux/reduxActions/subscriptionActions";
 import { getHomeOrg, normalAppListSelector } from "redux/selectors/applicationSelector";
 import { DatasourceHome } from "../datasource";
@@ -61,11 +64,12 @@ import { SubscriptionProductsEnum } from '@lowcoder-ee/constants/subscriptionCon
 import { EnterpriseProvider } from "@lowcoder-ee/util/context/EnterpriseContext";
 import { SimpleSubscriptionContextProvider } from "@lowcoder-ee/util/context/SimpleSubscriptionContext";
 import { selectIsLicenseActive } from "redux/selectors/enterpriseSelectors";
+// (deduped imports removed)
 
 
 // adding App Editor, so we can show Apps inside the Admin Area
 import AppEditor from "../editor/AppEditor";
-import {LoadingBarHideTrigger} from "@lowcoder-ee/util/hideLoading";
+import { LoadingBarHideTrigger } from "@lowcoder-ee/util/hideLoading";
 
 const TabLabel = styled.div`
   font-weight: 500;
@@ -90,6 +94,7 @@ export default function ApplicationHome() {
   const allFolders = useSelector(foldersSelector);
   const user = useSelector(getUser);
   const org = useSelector(getHomeOrg);
+  const brandingConfig = useSelector(getBrandingConfig);
   const allAppCount = allApplications.length;
   const allFoldersCount = allFolders.length;
   const orgHomeId = "root";
@@ -130,151 +135,159 @@ export default function ApplicationHome() {
 
   return (
     <DivStyled>
+      <Helmet>
+        {/* Default favicon for admin/non-app routes */}
+        <link
+          key="default-favicon"
+          rel="icon"
+          href={brandingConfig?.favicon ? buildMaterialPreviewURL(brandingConfig.favicon) : "/src/assets/images/favicon.ico"}
+        />
+      </Helmet>
       <LoadingBarHideTrigger />
       {/* <EnterpriseProvider> */}
-        {/*  <SimpleSubscriptionContextProvider> */}
-          <Layout
-            sections={[
+      {/*  <SimpleSubscriptionContextProvider> */}
+      <Layout
+        sections={[
+          {
+            items: [
               {
-                items: [
-                  {
-                    text: <TabLabel>{trans("home.profile")}</TabLabel>,
-                    routePath: USER_PROFILE_URL,
-                    routeComp: UserProfileView,
-                    icon: ({ selected, ...otherProps }) => selected ? <UserIcon {...otherProps} width={"24px"}/> : <UserIcon {...otherProps} width={"24px"}/>,
-                  },
-                  {
-                    text: <TabLabel>{trans("home.news")}</TabLabel>,
-                    routePath: NEWS_URL,
-                    routeComp: NewsView,
-                    icon: ({ selected, ...otherProps }) => selected ? <NewsIcon {...otherProps} width={"24px"}/> : <NewsIcon {...otherProps} width={"24px"}/>,
-                    visible: ({ user }) => user.orgDev,
-                    style: { color: "red" },
-                  },
-                  {
-                    text: <TabLabel>{trans("home.orgHome")}</TabLabel>,
-                    routePath: ORG_HOME_URL,
-                    routePathExact: false,
-                    routeComp: OrgView,
-                    icon: ({ selected, ...otherProps }) => selected ? <WorkspacesIcon {...otherProps} width={"24px"}/> : <WorkspacesIcon {...otherProps} width={"24px"}/>,
-                    visible: ({ user }) => !user.orgDev,
-                  },
-                  {
-                    text: <TabLabel>{trans("home.marketplace")}</TabLabel>,
-                    routePath: MARKETPLACE_URL,
-                    routePathExact: false,
-                    routeComp: MarketplaceView,
-                    icon: ({ selected, ...otherProps }) => selected ? <MarketplaceIcon {...otherProps} width={"24px"}/> : <MarketplaceIcon {...otherProps} width={"24px"}/>,
-                  },
-                ]
+                text: <TabLabel>{trans("home.profile")}</TabLabel>,
+                routePath: USER_PROFILE_URL,
+                routeComp: UserProfileView,
+                icon: ({ selected, ...otherProps }) => selected ? <UserIcon {...otherProps} width={"24px"} /> : <UserIcon {...otherProps} width={"24px"} />,
               },
+              {
+                text: <TabLabel>{trans("home.news")}</TabLabel>,
+                routePath: NEWS_URL,
+                routeComp: NewsView,
+                icon: ({ selected, ...otherProps }) => selected ? <NewsIcon {...otherProps} width={"24px"} /> : <NewsIcon {...otherProps} width={"24px"} />,
+                visible: ({ user }) => user.orgDev,
+                style: { color: "red" },
+              },
+              {
+                text: <TabLabel>{trans("home.orgHome")}</TabLabel>,
+                routePath: ORG_HOME_URL,
+                routePathExact: false,
+                routeComp: OrgView,
+                icon: ({ selected, ...otherProps }) => selected ? <WorkspacesIcon {...otherProps} width={"24px"} /> : <WorkspacesIcon {...otherProps} width={"24px"} />,
+                visible: ({ user }) => !user.orgDev,
+              },
+              {
+                text: <TabLabel>{trans("home.marketplace")}</TabLabel>,
+                routePath: MARKETPLACE_URL,
+                routePathExact: false,
+                routeComp: MarketplaceView,
+                icon: ({ selected, ...otherProps }) => selected ? <MarketplaceIcon {...otherProps} width={"24px"} /> : <MarketplaceIcon {...otherProps} width={"24px"} />,
+              },
+            ]
+          },
 
+          {
+            items: [
               {
-                items: [
-                  {
-                    text: <TabLabel>{trans("home.allApplications")}</TabLabel>,
-                    routePath: ALL_APPLICATIONS_URL,
-                    routeComp: HomeView,
-                    icon: ({ selected, ...otherProps }) => selected ? <AppsIcon {...otherProps} width={"24px"}/> : <AppsIcon {...otherProps} width={"24px"}/>,
-                    onSelected: (_, currentPath) => currentPath === ALL_APPLICATIONS_URL || currentPath.startsWith("/folder"),
-                  },
-                ],
+                text: <TabLabel>{trans("home.allApplications")}</TabLabel>,
+                routePath: ALL_APPLICATIONS_URL,
+                routeComp: HomeView,
+                icon: ({ selected, ...otherProps }) => selected ? <AppsIcon {...otherProps} width={"24px"} /> : <AppsIcon {...otherProps} width={"24px"} />,
+                onSelected: (_, currentPath) => currentPath === ALL_APPLICATIONS_URL || currentPath.startsWith("/folder"),
               },
-      
-              {
-                items: [
-                  {
-                    text: <TabLabel>{trans("home.datasource")}</TabLabel>,
-                    routePath: DATASOURCE_URL,
-                    routePathExact: false,
-                    routeComp: DatasourceHome,
-                    icon: ({ selected, ...otherProps }) => selected ? <HomeDataSourceIcon {...otherProps} width={"24px"}/> : <HomeDataSourceIcon {...otherProps} width={"24px"}/>,
-                    visible: ({ user }) => user.orgDev,
-                    onSelected: (_, currentPath) => currentPath.split("/")[1] === "datasource",
-                    mobileVisible: false,
-                  },
-                  {
-                    text: <TabLabel>{trans("home.queryLibrary")}</TabLabel>,
-                    routePath: QUERY_LIBRARY_URL,
-                    routeComp: QueryLibraryEditor,
-                    icon: ({ selected, ...otherProps }) => selected ? <HomeQueryLibraryIcon {...otherProps} width={"24px"}/> : <HomeQueryLibraryIcon {...otherProps} width={"24px"}/>,
-                    visible: ({ user }) => user.orgDev,
-                    mobileVisible: false,
-                  }
-                ],
-              },
+            ],
+          },
 
-              // Show Subscription if not yet subscribed else Support Pages
-
+          {
+            items: [
               {
-                items: [
-                  {
-                    text: <TabLabel>{trans("home.support")}</TabLabel>,
-                    routePath: supportSubscription ? SUPPORT_URL : SUBSCRIPTION_SETTING,
-                    routeComp: supportSubscription ? Support : Setting,
-                    routePathExact: false,
-                    icon: ({ selected, ...otherProps }) => <SupportIcon {...otherProps} width={"24px"} />,
-                    mobileVisible: true,
-                    visible: ({ user }) => user.orgDev
-                  }
-                ]
+                text: <TabLabel>{trans("home.datasource")}</TabLabel>,
+                routePath: DATASOURCE_URL,
+                routePathExact: false,
+                routeComp: DatasourceHome,
+                icon: ({ selected, ...otherProps }) => selected ? <HomeDataSourceIcon {...otherProps} width={"24px"} /> : <HomeDataSourceIcon {...otherProps} width={"24px"} />,
+                visible: ({ user }) => user.orgDev,
+                onSelected: (_, currentPath) => currentPath.split("/")[1] === "datasource",
+                mobileVisible: false,
               },
               {
-                items: [
-                  {
-                    text: <TabLabel>{trans("environments.detail_enterpriseEdition")}</TabLabel>,
-                    routePath: ENVIRONMENT_SETTING,
-                    routeComp: Setting,
-                    routePathExact: false,
-                    icon: ({ selected, ...otherProps }) => <EnterpriseIcon {...otherProps} width={"24px"} />,
-                    mobileVisible: true,
-                    visible: () => !isLicenseActive,
-                    style: { color: "#ff6f3c" },
-                  }
-                ]
-              },
-
-              {
-                items: [
-                  {
-                    text: <TabLabel>{trans("settings.title")}</TabLabel>,
-                    routePath: SETTING_URL,
-                    routePathExact: false,
-                    routeComp: Setting,
-                    icon: ({ selected, ...otherProps }) => selected ? <HomeSettingIcon {...otherProps} width={"24px"}/> : <HomeSettingIcon {...otherProps} width={"24px"}/>,
-                    visible: ({ user }) => user.orgDev,
-                    onSelected: (_, currentPath) => currentPath.split("/")[1] === "setting",
-                  }
-                ]
-              },
-
-              {
-                items: [
-                  {
-                    text: <TabLabel>{trans("home.trash")}</TabLabel>,
-                    routePath: TRASH_URL,
-                    routeComp: TrashView,
-                    icon: ({ selected, ...otherProps }) => selected ? <RecyclerIcon {...otherProps} width={"24px"}/> : <RecyclerIcon {...otherProps} width={"24px"}/>,
-                    visible: ({ user }) => user.orgDev,
-                  },
-                ],
-              },
-
-              // this we need to show the Folders view in the Admin Area
-              {
-                items: [
-                  {
-                    text: "",
-                    routePath: FOLDER_URL,
-                    routeComp: FolderView,
-                    visible: () => false,
-                  }
-                ]
+                text: <TabLabel>{trans("home.queryLibrary")}</TabLabel>,
+                routePath: QUERY_LIBRARY_URL,
+                routeComp: QueryLibraryEditor,
+                icon: ({ selected, ...otherProps }) => selected ? <HomeQueryLibraryIcon {...otherProps} width={"24px"} /> : <HomeQueryLibraryIcon {...otherProps} width={"24px"} />,
+                visible: ({ user }) => user.orgDev,
+                mobileVisible: false,
               }
+            ],
+          },
 
-            ]}
-          />
-        {/* </SimpleSubscriptionContextProvider>  */}
+          // Show Subscription if not yet subscribed else Support Pages
+
+          {
+            items: [
+              {
+                text: <TabLabel>{trans("home.support")}</TabLabel>,
+                routePath: supportSubscription ? SUPPORT_URL : SUBSCRIPTION_SETTING,
+                routeComp: supportSubscription ? Support : Setting,
+                routePathExact: false,
+                icon: ({ selected, ...otherProps }) => <SupportIcon {...otherProps} width={"24px"} />,
+                mobileVisible: true,
+                visible: ({ user }) => user.orgDev
+              }
+            ]
+          },
+          {
+            items: [
+              {
+                text: <TabLabel>{trans("environments.detail_enterpriseEdition")}</TabLabel>,
+                routePath: ENVIRONMENT_SETTING,
+                routeComp: Setting,
+                routePathExact: false,
+                icon: ({ selected, ...otherProps }) => <EnterpriseIcon {...otherProps} width={"24px"} />,
+                mobileVisible: true,
+                visible: () => !isLicenseActive,
+                style: { color: "#ff6f3c" },
+              }
+            ]
+          },
+
+          {
+            items: [
+              {
+                text: <TabLabel>{trans("settings.title")}</TabLabel>,
+                routePath: SETTING_URL,
+                routePathExact: false,
+                routeComp: Setting,
+                icon: ({ selected, ...otherProps }) => selected ? <HomeSettingIcon {...otherProps} width={"24px"} /> : <HomeSettingIcon {...otherProps} width={"24px"} />,
+                visible: ({ user }) => user.orgDev,
+                onSelected: (_, currentPath) => currentPath.split("/")[1] === "setting",
+              }
+            ]
+          },
+
+          {
+            items: [
+              {
+                text: <TabLabel>{trans("home.trash")}</TabLabel>,
+                routePath: TRASH_URL,
+                routeComp: TrashView,
+                icon: ({ selected, ...otherProps }) => selected ? <RecyclerIcon {...otherProps} width={"24px"} /> : <RecyclerIcon {...otherProps} width={"24px"} />,
+                visible: ({ user }) => user.orgDev,
+              },
+            ],
+          },
+
+          // this we need to show the Folders view in the Admin Area
+          {
+            items: [
+              {
+                text: "",
+                routePath: FOLDER_URL,
+                routeComp: FolderView,
+                visible: () => false,
+              }
+            ]
+          }
+
+        ]}
+      />
+      {/* </SimpleSubscriptionContextProvider>  */}
       {/* </EnterpriseProvider> */}
 
     </DivStyled>
