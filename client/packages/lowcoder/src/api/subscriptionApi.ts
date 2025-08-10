@@ -92,196 +92,233 @@ class SubscriptionApi extends Api {
 
 // API Functions
 
-export const searchCustomer = async (subscriptionCustomer: LowcoderSearchCustomer) => {
-  const apiBody = {
-    path: "webhook/secure/search-customer",
-    data: subscriptionCustomer,
-    method: "post",
-    headers: lcHeaders
-  };
-  try {
-    const result = await SubscriptionApi.secureRequest(apiBody);
-    return result?.data?.data?.length === 1 ? result.data.data[0] as StripeCustomer : null;
-  } catch (error) {
-    console.error("Error searching customer:", error);
-    throw error;
-  }
-};
+export const searchCustomer = async (
+    subscriptionCustomer: LowcoderSearchCustomer
+) => {
+    const apiBody = {
+        path: 'webhook/secure/search-customer',
+        data: subscriptionCustomer,
+        method: 'post',
+        headers: lcHeaders,
+    }
+    try {
+        const result = await SubscriptionApi.secureRequest(apiBody)
+        if (
+            !result?.data?.data ||
+            !Array.isArray(result.data.data) ||
+            result.data.data.length !== 1
+        ) {
+            return null
+        }
+        return result.data.data[0] as StripeCustomer
+    } catch (error) {
+        console.error('Error searching customer:', error)
+        throw error
+    }
+}
 
 export const searchSubscriptions = async (customerId: string) => {
-  const apiBody = {
-    path: "webhook/secure/search-subscriptions",
-    data: { customerId },
-    method: "post",
-    headers: lcHeaders
-  };
-  try {
-    const result = await SubscriptionApi.secureRequest(apiBody);
-    return result?.data?.data ?? [];
-  } catch (error) {
-    console.error("Error searching subscriptions:", error);
-    throw error;
-  }
-};
+    const apiBody = {
+        path: 'webhook/secure/search-subscriptions',
+        data: { customerId },
+        method: 'post',
+        headers: lcHeaders,
+    }
+    try {
+        const result = await SubscriptionApi.secureRequest(apiBody)
+        if (!result?.data?.data || !Array.isArray(result.data.data)) {
+            return []
+        }
+        return result.data.data
+    } catch (error) {
+        console.error('Error searching subscriptions:', error)
+        throw error
+    }
+}
 
-export const searchCustomersSubscriptions = async (Customer: LowcoderSearchCustomer) => {
-  const apiBody = {
-    path: "webhook/secure/search-customersubscriptions",
-    data: Customer,
-    method: "post",
-    headers: lcHeaders
-  };
-
-  try {
-    const result = await SubscriptionApi.secureRequest(apiBody);
-
-    if (!result || !result.data) {
-      return [];
+export const searchCustomersSubscriptions = async (
+    Customer: LowcoderSearchCustomer
+) => {
+    const apiBody = {
+        path: 'webhook/secure/search-customersubscriptions',
+        data: Customer,
+        method: 'post',
+        headers: lcHeaders,
     }
 
-    // Filter out entries with `"success": "false"`
-    const validEntries = result.data?.filter((entry: any) => entry.success !== "false");
+    try {
+        const result = await SubscriptionApi.secureRequest(apiBody)
 
-    // Flatten the data arrays and filter out duplicates by `id`
-    const uniqueSubscriptions = Object.values(
-      validEntries.reduce((acc: Record<string, any>, entry: any) => {
-        entry.data.forEach((subscription: any) => {
-          if (!acc[subscription.id]) {
-            acc[subscription.id] = subscription;
-          }
-        });
-        return acc;
-      }, {})
-    );
+        if (!result || !result.data || !Array.isArray(result.data)) {
+            return []
+        }
 
-    return uniqueSubscriptions;
-  } catch (error) {
-    console.error("Error searching customer:", error);
-    throw error;
-  }
-};
+        // Filter out entries with `"success": "false"`
+        const validEntries = result.data.filter(
+            (entry: any) => entry.success !== 'false'
+        )
 
-export const createCustomer = async (subscriptionCustomer: LowcoderNewCustomer) => {
-  const apiBody = {
-    path: "webhook/secure/create-customer",
-    data: subscriptionCustomer,
-    method: "post",
-    headers: lcHeaders
-  };
-  try {
-    const result = await SubscriptionApi.secureRequest(apiBody, 15000);
-    return result?.data as StripeCustomer;
-  } catch (error) {
-    console.error("Error creating customer:", error);
-    throw error;
-  }
-};
+        // Flatten the data arrays and filter out duplicates by `id`
+        const uniqueSubscriptions = Object.values(
+            validEntries.reduce((acc: Record<string, any>, entry: any) => {
+                entry.data.forEach((subscription: any) => {
+                    if (!acc[subscription.id]) {
+                        acc[subscription.id] = subscription
+                    }
+                })
+                return acc
+            }, {})
+        )
 
-export const cleanupCustomer = async (subscriptionCustomer: LowcoderSearchCustomer) => {
-  const apiBody = {
-    path: "webhook/secure/cleanup-customer",
-    data: subscriptionCustomer,
-    method: "post",
-    headers: lcHeaders
-  };
-  try {
-    const result = await SubscriptionApi.secureRequest(apiBody, 15000);
-    return result?.data as any;
-  } catch (error) {
-    console.error("Error creating customer:", error);
-    throw error;
-  }
-};
+        return uniqueSubscriptions
+    } catch (error) {
+        console.error('Error searching customer:', error)
+        throw error
+    }
+}
 
-export const getProduct = async (productId : string) => {
-  const apiBody = {
-    path: "webhook/secure/get-product",
-    method: "post",
-    data: {"productId" : productId},
-    headers: lcHeaders
-  };
-  try {
-    const result = await SubscriptionApi.secureRequest(apiBody);
-    return result?.data as any;
-  } catch (error) {
-    console.error("Error fetching product:", error);
-    throw error;
-  }
-};
+export const createCustomer = async (
+    subscriptionCustomer: LowcoderNewCustomer
+) => {
+    const apiBody = {
+        path: 'webhook/secure/create-customer',
+        data: subscriptionCustomer,
+        method: 'post',
+        headers: lcHeaders,
+    }
+    try {
+        const result = await SubscriptionApi.secureRequest(apiBody, 15000)
+        return result?.data as StripeCustomer
+    } catch (error) {
+        console.error('Error creating customer:', error)
+        throw error
+    }
+}
+
+export const cleanupCustomer = async (
+    subscriptionCustomer: LowcoderSearchCustomer
+) => {
+    const apiBody = {
+        path: 'webhook/secure/cleanup-customer',
+        data: subscriptionCustomer,
+        method: 'post',
+        headers: lcHeaders,
+    }
+    try {
+        const result = await SubscriptionApi.secureRequest(apiBody, 15000)
+        return result?.data as any
+    } catch (error) {
+        console.error('Error creating customer:', error)
+        throw error
+    }
+}
+
+export const getProduct = async (productId: string) => {
+    const apiBody = {
+        path: 'webhook/secure/get-product',
+        method: 'post',
+        data: { productId: productId },
+        headers: lcHeaders,
+    }
+    try {
+        const result = await SubscriptionApi.secureRequest(apiBody)
+        return result?.data as any
+    } catch (error) {
+        console.error('Error fetching product:', error)
+        throw error
+    }
+}
 
 export const getProducts = async () => {
-  const apiBody = {
-    path: "webhook/secure/get-products",
-    method: "post",
-    data: {},
-    headers: lcHeaders
-  };
-  try {
-    const result = await SubscriptionApi.secureRequest(apiBody);
-    return result?.data?.data as any[];
-  } catch (error) {
-    console.error("Error fetching product:", error);
-    throw error;
-  }
-};
+    const apiBody = {
+        path: 'webhook/secure/get-products',
+        method: 'post',
+        data: {},
+        headers: lcHeaders,
+    }
+    try {
+        const result = await SubscriptionApi.secureRequest(apiBody)
+        if (!result?.data?.data || !Array.isArray(result.data.data)) {
+            return []
+        }
+        return result.data.data as any[]
+    } catch (error) {
+        console.error('Error fetching product:', error)
+        throw error
+    }
+}
 
-export const createCheckoutLink = async (customer: StripeCustomer, priceId: string, quantity: number, discount?: number) => {
-  const domain = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-  
-  const apiBody = {
-    path: "webhook/secure/create-checkout-link",
-    data: { 
-      "customerId": customer.id, 
-      "priceId": priceId, 
-      "quantity": quantity, 
-      "discount": discount, 
-      baseUrl: domain 
-    },
-    method: "post",
-    headers: lcHeaders
-  };
-  try {
-    const result = await SubscriptionApi.secureRequest(apiBody);
-    return result?.data ? { id: result.data.id, url: result.data.url } : null;
-  } catch (error) {
-    console.error("Error creating checkout link:", error);
-    throw error;
-  }
-};
+export const createCheckoutLink = async (
+    customer: StripeCustomer,
+    priceId: string,
+    quantity: number,
+    discount?: number
+) => {
+    const domain =
+        window.location.protocol +
+        '//' +
+        window.location.hostname +
+        (window.location.port ? ':' + window.location.port : '')
+
+    const apiBody = {
+        path: 'webhook/secure/create-checkout-link',
+        data: {
+            customerId: customer.id,
+            priceId: priceId,
+            quantity: quantity,
+            discount: discount,
+            baseUrl: domain,
+        },
+        method: 'post',
+        headers: lcHeaders,
+    }
+    try {
+        const result = await SubscriptionApi.secureRequest(apiBody)
+        return result?.data
+            ? { id: result.data.id, url: result.data.url }
+            : null
+    } catch (error) {
+        console.error('Error creating checkout link:', error)
+        throw error
+    }
+}
 
 // Function to get subscription details from Stripe
 export const getSubscriptionDetails = async (subscriptionId: string) => {
-  const apiBody = {
-    path: "webhook/secure/get-subscription-details",
-    method: "post",
-    data: { "subscriptionId": subscriptionId },
-    headers: lcHeaders,
-  };
-  try {
-    const result = await SubscriptionApi.secureRequest(apiBody);
-    return result?.data;
-  } catch (error) {
-    console.error("Error fetching subscription details:", error);
-    throw error;
-  }
-};
+    const apiBody = {
+        path: 'webhook/secure/get-subscription-details',
+        method: 'post',
+        data: { subscriptionId: subscriptionId },
+        headers: lcHeaders,
+    }
+    try {
+        const result = await SubscriptionApi.secureRequest(apiBody)
+        return result?.data
+    } catch (error) {
+        console.error('Error fetching subscription details:', error)
+        throw error
+    }
+}
 
 // Function to get invoice documents from Stripe
-export const getInvoices = async (subscriptionId: string) => { 
-  const apiBody = {
-    path: "webhook/secure/get-subscription-invoices",
-    method: "post",
-    data: { "subscriptionId": subscriptionId },
-    headers: lcHeaders,
-  };
-  try {
-    const result = await SubscriptionApi.secureRequest(apiBody);
-    return result?.data?.data ?? [];
-  } catch (error) {
-    console.error("Error fetching invoices:", error);
-    throw error;
-  }
-};
+export const getInvoices = async (subscriptionId: string) => {
+    const apiBody = {
+        path: 'webhook/secure/get-subscription-invoices',
+        method: 'post',
+        data: { subscriptionId: subscriptionId },
+        headers: lcHeaders,
+    }
+    try {
+        const result = await SubscriptionApi.secureRequest(apiBody)
+        if (!result?.data?.data || !Array.isArray(result.data.data)) {
+            return []
+        }
+        return result.data.data
+    } catch (error) {
+        console.error('Error fetching invoices:', error)
+        throw error
+    }
+}
 
 // Function to get a customer Portal Session from Stripe
 export const getCustomerPortalSession = async (customerId: string) => { 

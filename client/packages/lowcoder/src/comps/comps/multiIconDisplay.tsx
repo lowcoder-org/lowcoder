@@ -7,7 +7,7 @@ import * as AntdIcons from '@ant-design/icons';
 
 library.add(far,fas);
 
-function parseIconIdentifier(identifier: string) {
+export function parseIconIdentifier(identifier: string) {
   if (identifier.startsWith('/icon:antd/')) {
     let name = identifier.split('/')[2];
     return { type: 'antd', name };
