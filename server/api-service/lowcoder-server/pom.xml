@@ -78,11 +78,6 @@
 			<artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-webflux-ui</artifactId>
-			<version>1.8.0</version>
-		</dependency>
-		<dependency>
 			<groupId>io.projectreactor.tools</groupId>
 			<artifactId>blockhound</artifactId>
 		</dependency>
