@@ -15,6 +15,7 @@ import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.infra.constant.Url;
 import org.lowcoder.sdk.config.JsonViews;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -288,6 +289,15 @@ public interface ApplicationEndpoints
 	@PutMapping("/{applicationId}/agency-profile")
 	public Mono<ResponseView<Boolean>> setApplicationAsAgencyProfile(@PathVariable String applicationId,
 																	 @RequestBody ApplicationAsAgencyProfileRequest request);
+
+	@Operation(
+		tags = TAG_APPLICATION_MANAGEMENT,
+		operationId = "getApplicationManifest",
+		summary = "Get Application PWA manifest",
+		description = "Get the PWA manifest for a specific application with its icon and metadata."
+	)
+	@GetMapping("/{applicationId}/manifest.json")
+	public Mono<ResponseEntity<String>> getApplicationManifest(@PathVariable String applicationId);
 
 
 	public record BatchAddPermissionRequest(String role, Set<String> userIds, Set<String> groupIds) {
