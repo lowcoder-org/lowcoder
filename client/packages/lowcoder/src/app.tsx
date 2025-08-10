@@ -197,7 +197,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
       <Wrapper language={this.props.uiLanguage} fontFamily={this.props.brandingFontFamily}>
         <Helmet>
           {<title>{this.props.brandName}</title>}
-          {<link rel="icon" href={this.props.favicon} />}
+          {/* Favicon is set per-route (admin vs. app) */}
           <meta name="description" content={this.props.brandDescription} />
           <meta
             name="keywords"
@@ -272,16 +272,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
             name="apple-mobile-web-app-title"
             content={this.props.brandName}
           />
-          <link
-            key="apple-touch-icon"
-            rel="apple-touch-icon"
-            href="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/main/images/Lowcoder%20Logo%20512.png"
-          />
-          <link
-            key="apple-touch-startup-image"
-            rel="apple-touch-startup-image"
-            href="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/main/images/Lowcoder%20Logo%20512.png"
-          />
+          {/* Apple touch icons are set per-route (admin vs. app). Removed from global scope. */}
           <meta
             key="application-name"
             name="application-name"

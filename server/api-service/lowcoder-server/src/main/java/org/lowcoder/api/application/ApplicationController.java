@@ -14,6 +14,7 @@ import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.domain.application.service.ApplicationService;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,6 +30,14 @@ import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 import reactor.core.publisher.Flux;
 import java.util.Map;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 @RequiredArgsConstructor
 @RestController
@@ -39,6 +48,7 @@ public class ApplicationController implements ApplicationEndpoints {
     private final BusinessEventPublisher businessEventPublisher;
     private final GidService gidService;
     private final ApplicationRecordService applicationRecordService;
+    private final ApplicationService applicationService;
 
     @Override
     public Mono<ResponseView<ApplicationView>> create(@RequestBody CreateApplicationRequest createApplicationRequest) {
@@ -331,5 +341,101 @@ public class ApplicationController implements ApplicationEndpoints {
                     .zipWith(countMono)
                     .map(tuple -> PageResponseView.success(tuple.getT1(), pageNum, pageSize, Math.toIntExact(tuple.getT2())));
         });
+    }
+
+    @Override
+    @GetMapping("/{applicationId}/manifest.json")
+    public Mono<ResponseEntity<String>> getApplicationManifest(@PathVariable String applicationId) {
+        return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
+            // Prefer published DSL; if absent, fall back to current editing DSL directly from DB
+            applicationRecordService.getLatestRecordByApplicationId(appId)
+                .map(record -> record.getApplicationDSL())
+                .switchIfEmpty(
+                    applicationService.findById(appId)
+                        .map(app -> app.getEditingApplicationDSL())
+                )
+                .map(dsl -> {
+                    Map<String, Object> safeDsl = dsl == null ? new HashMap<>() : dsl;
+                    Map<String, Object> settings = (Map<String, Object>) safeDsl.get("settings");
+
+                    String defaultName = "Lowcoder";
+                    String appTitle = defaultName;
+                    if (settings != null) {
+                        Object titleObj = settings.get("title");
+                        if (titleObj instanceof String) {
+                            String t = (String) titleObj;
+                            if (!t.isBlank()) {
+                                appTitle = t;
+                            }
+                        }
+                    }
+                    String appDescription = settings != null && settings.get("description") instanceof String
+                            ? (String) settings.get("description")
+                            : "";
+                    if (appDescription == null) appDescription = "";
+                    String appIcon = settings != null ? (String) settings.get("icon") : "";
+
+                    // Generate manifest JSON
+                    Map<String, Object> manifest = new HashMap<>();
+                    manifest.put("name", appTitle);
+                    manifest.put("short_name", appTitle != null && appTitle.length() > 12 ? appTitle.substring(0, 12) : (appTitle == null ? "" : appTitle));
+                    manifest.put("description", appDescription);
+                    // PWA routing: open the installed app directly to the public view of this application
+                    String appBasePath = "/apps/" + applicationId;
+                    String appStartUrl = appBasePath + "/view";
+                    manifest.put("id", appBasePath);
+                    manifest.put("start_url", appStartUrl);
+                    manifest.put("scope", appBasePath + "/");
+                    manifest.put("display", "standalone");
+                    manifest.put("theme_color", "#b480de");
+                    manifest.put("background_color", "#ffffff");
+
+                    // Generate icons array (serve via icon endpoints that render PNGs)
+                    List<Map<String, Object>> icons = new ArrayList<>();
+                    int[] sizes = new int[] {48, 72, 96, 120, 128, 144, 152, 167, 180, 192, 256, 384, 512};
+                    for (int s : sizes) {
+                        Map<String, Object> icon = new HashMap<>();
+                        icon.put("src", "/api/applications/" + applicationId + "/icons/" + s + ".png");
+                        icon.put("sizes", s + "x" + s);
+                        icon.put("type", "image/png");
+                        icon.put("purpose", "any maskable");
+                        icons.add(icon);
+                    }
+                    manifest.put("icons", icons);
+
+                    // Optional categories for better store/system grouping
+                    List<String> categories = new ArrayList<>();
+                    categories.add("productivity");
+                    categories.add("business");
+                    manifest.put("categories", categories);
+
+                    // Add shortcuts for quick actions
+                    List<Map<String, Object>> shortcuts = new ArrayList<>();
+                    // View (start) shortcut
+                    Map<String, Object> viewShortcut = new HashMap<>();
+                    viewShortcut.put("name", appTitle);
+                    viewShortcut.put("short_name", appTitle != null && appTitle.length() > 12 ? appTitle.substring(0, 12) : (appTitle == null ? "" : appTitle));
+                    viewShortcut.put("description", appDescription);
+                    viewShortcut.put("url", appStartUrl);
+                    shortcuts.add(viewShortcut);
+                    // Edit shortcut (may require auth)
+                    Map<String, Object> editShortcut = new HashMap<>();
+                    editShortcut.put("name", "Edit application");
+                    editShortcut.put("short_name", "Edit");
+                    editShortcut.put("description", "Open the application editor");
+                    editShortcut.put("url", appBasePath);
+                    shortcuts.add(editShortcut);
+                    manifest.put("shortcuts", shortcuts);
+
+                    try {
+                        return ResponseEntity.ok()
+                            .contentType(MediaType.valueOf("application/manifest+json"))
+                            .body(new ObjectMapper().writeValueAsString(manifest));
+                    } catch (JsonProcessingException e) {
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{}");
+                    }
+                })
+                .onErrorReturn(ResponseEntity.status(HttpStatus.NOT_FOUND).body("{}"))
+        );
     }
 }
