@@ -5,8 +5,6 @@ import {
   columnHide,
   ColumnsAggrData,
   COLUMN_CHILDREN_KEY,
-  filterData,
-  genSelectionParams,
   getColumnsAggr,
   getOriDisplayData,
   OB_ROW_ORI_INDEX,
@@ -28,8 +26,6 @@ import {
   withExposingConfigs,
 } from "comps/generators/withExposing";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
-import { MAP_KEY } from "comps/generators/withMultiContext";
-import { NameGenerator } from "comps/utils";
 import { trans } from "i18n";
 import _, { isArray } from "lodash";
 import {
@@ -39,11 +35,9 @@ import {
   deferAction,
   executeQueryAction,
   fromRecord,
-  FunctionNode,
   Node,
   onlyEvalAction,
   RecordNode,
-  RecordNodeToValue,
   routeByNameAction,
   ValueAndMsg,
   withFunction,
@@ -353,111 +347,7 @@ export class TableImplComp extends TableInitComp {
       shallowEqual(a[1], b[1])
     )[0];
   }
-
-  displayDataIndexesNode() {
-    const nodes = {
-      oriDisplayData: this.oriDisplayDataNode(),
-    };
-    const resNode = withFunction(fromRecord(nodes), (input) => {
-      return _(input.oriDisplayData)
-        .map((row, idx) => [row[OB_ROW_ORI_INDEX], idx] as [string, number])
-        .fromPairs()
-        .value();
-    });
-    return lastValueIfEqual(this, "displayDataIndexesNode", [resNode, nodes] as const, (a, b) =>
-      shallowEqual(a[1], b[1])
-    )[0];
-  }
-
-  private getUpsertSetResNode(
-    nodes: Record<string, RecordNode<Record<string, Node<any>>>>,
-    filterNewRows?: boolean,
-  ) {
-    return withFunction(fromRecord(nodes), (input) => {
-      // merge input.dataIndexes and input.withParams into one structure
-      const dataIndexRenderDict = _(input.dataIndexes)
-        .mapValues((dataIndex, idx) => input.renders[idx])
-        .mapKeys((render, idx) => input.dataIndexes[idx])
-        .value();
-      const record: Record<string, Record<string, JSONValue>> = {};
-      _.forEach(dataIndexRenderDict, (render, dataIndex) => {
-        _.forEach(render[MAP_KEY], (value, key) => {
-          const changeValue = (value.comp as any).comp.changeValue;
-          if (!_.isNil(changeValue)) {
-            if (!record[key]) record[key] = {};
-            record[key][dataIndex] = changeValue;
-          }
-        });
-      });
-      return record;
-    });
-  }
-
-  changeSetNode() {
-    const nodes = {
-      dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
-      renders: this.children.columns.getColumnsNode("render"),
-    };
-
-    const resNode = this.getUpsertSetResNode(nodes);
-    return lastValueIfEqual(this, "changeSetNode", [resNode, nodes] as const, (a, b) =>
-      shallowEqual(a[1], b[1])
-    )[0];
-  }
-
-  insertSetNode() {
-    const nodes = {
-      dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
-      renders: this.children.columns.getColumnsNode("render"),
-    };
-
-    const resNode = this.getUpsertSetResNode(nodes, true);
-    return lastValueIfEqual(this, "insertSetNode", [resNode, nodes] as const, (a, b) =>
-      shallowEqual(a[1], b[1])
-    )[0];
-  }
-
-  private getToUpsertRowsResNodes(
-    nodes: Record<string, FunctionNode<any, any>>
-  ) {
-    return withFunction(fromRecord(nodes), (input) => {
-      const res = _(input.changeSet)
-        .map((changeValues, oriIndex) => {
-          const idx = input.indexes[oriIndex];
-          const oriRow = _.omit(input.oriDisplayData[idx], OB_ROW_ORI_INDEX);
-          return { ...oriRow, ...changeValues };
-        })
-        .value();
-      // console.info("toUpdateRowsNode. input: ", input, " res: ", res);
-      return res;
-    });
-  }
-
-  toUpdateRowsNode() {
-    const nodes = {
-      oriDisplayData: this.oriDisplayDataNode(),
-      indexes: this.displayDataIndexesNode(),
-      changeSet: this.changeSetNode(),
-    };
-
-    const resNode = this.getToUpsertRowsResNodes(nodes);
-    return lastValueIfEqual(this, "toUpdateRowsNode", [resNode, nodes] as const, (a, b) =>
-      shallowEqual(a[1], b[1])
-    )[0];
-  }
-
-  toInsertRowsNode() {
-    const nodes = {
-      oriDisplayData: this.oriDisplayDataNode(),
-      indexes: this.displayDataIndexesNode(),
-      changeSet: this.insertSetNode(),
-    };
-
-    const resNode = this.getToUpsertRowsResNodes(nodes);
-    return lastValueIfEqual(this, "toInsertRowsNode", [resNode, nodes] as const, (a, b) =>
-      shallowEqual(a[1], b[1])
-    )[0];
-  }
+ 
 
   columnAggrNode() {
     const nodes = {
@@ -652,26 +542,7 @@ TableTmpComp = withMethodExposing(TableTmpComp, [
       comp.children.selection.children.selectedRowKeys.dispatchChangeValueAction(allKeys);
     },
   },  
-  {
-    method: {
-      name: "cancelChanges",
-      description: "",
-      params: [],
-    },
-    execute: (comp, values) => {
-      comp.children.columns.dispatchClearChangeSet();
-    },
-  },
-  {
-    method: {
-      name: "cancelInsertChanges",
-      description: "",
-      params: [],
-    },
-    execute: (comp, values) => {
-      comp.children.columns.dispatchClearInsertSet();
-    },
-  },
+  
 ]);
 
 // exposing data
@@ -740,42 +611,7 @@ export const TableLiteComp = withExposingConfigs(TableTmpComp, [
     },
     trans("table.selectedIndexDesc")
   ),
-  new CompDepsConfig(
-    "changeSet",
-    (comp) => ({
-      changeSet: comp.changeSetNode(),
-    }),
-    (input) => input.changeSet,
-    trans("table.changeSetDesc")
-  ),
-  new CompDepsConfig(
-    "insertSet",
-    (comp) => ({
-      insertSet: comp.insertSetNode(),
-    }),
-    (input) => input.insertSet,
-    trans("table.changeSetDesc")
-  ),
-  new CompDepsConfig(
-    "toUpdateRows",
-    (comp) => ({
-      toUpdateRows: comp.toUpdateRowsNode(),
-    }),
-    (input) => {
-      return input.toUpdateRows;
-    },
-    trans("table.toUpdateRowsDesc")
-  ),
-  new CompDepsConfig(
-    "toInsertRows",
-    (comp) => ({
-      toInsertRows: comp.toInsertRowsNode(),
-    }),
-    (input) => {
-      return input.toInsertRows;
-    },
-    trans("table.toUpdateRowsDesc")
-  ),
+
   new DepsConfig(
     "pageNo",
     (children) => {

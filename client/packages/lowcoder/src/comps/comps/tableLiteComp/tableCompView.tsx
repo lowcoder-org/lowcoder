@@ -806,7 +806,7 @@ export const TableCompView = React.memo((props: {
 }) => {
 
   console.log("TableCompView");
-
+  
   const editorState = useContext(EditorContext);
   const currentTheme = useContext(ThemeContext)?.theme;
   const showDataLoadingIndicators = currentTheme?.showDataLoadingIndicators;
@@ -903,12 +903,7 @@ export const TableCompView = React.memo((props: {
     };
   }, [pagination, data]);
 
-  const childrenProps = childrenToProps(comp.children);
-
-  useMergeCompStyles(
-    childrenProps as Record<string, any>,
-    comp.dispatch
-  );
+  // Style merging is already handled in the generic UIView; avoid duplicating it here.
 
   const handleChangeEvent = useCallback(
     (eventName: TableEventOptionValues) => {
