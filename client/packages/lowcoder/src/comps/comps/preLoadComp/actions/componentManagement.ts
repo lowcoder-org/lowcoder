@@ -155,10 +155,10 @@ export const nestComponentAction: ActionConfig = {
   execute: async (params: ActionExecuteParams) => {
     // const { selectedEditorComponent, selectedNestComponent, editorState, actionPayload } = params;
     const { editorState, actionPayload, selectedComponent: selectedNestComponent } = params;
-    const { component_name: name, layout, parent_component_name: selectedEditorComponent, action_parameters } = actionPayload;
-    const { onEvent, ...compProperties } = action_parameters;
+    const { component_name: name, layout, parent_component_name: selectedEditorComponent, action_parameters: compProperties } = actionPayload;
+    // const { onEvent, ...compProperties } = action_parameters;
     // const { name, layout, target: selectedEditorComponent, ...otherProps } = actionPayload;
-
+    
     if (!selectedEditorComponent || !selectedNestComponent || !editorState) {
       message.error('Parent component, child component, and editor state are required');
       return;

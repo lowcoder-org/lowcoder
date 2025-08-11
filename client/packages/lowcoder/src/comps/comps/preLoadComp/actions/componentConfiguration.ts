@@ -21,8 +21,8 @@ export const configureComponentAction: ActionConfig = {
   },
   execute: async (params: ActionExecuteParams) => {
     const { actionValue: name, actionValue, actionPayload, editorState } = params;
-    const { component_name: selectedEditorComponent, action_parameters } = actionPayload;
-    const { onEvent, ...compProperties } = action_parameters;
+    const { component_name: selectedEditorComponent, action_parameters: compProperties } = actionPayload;
+    // const { onEvent, ...compProperties } = action_parameters;
     // const { name, ...otherProps } = actionPayload;
     
     try {

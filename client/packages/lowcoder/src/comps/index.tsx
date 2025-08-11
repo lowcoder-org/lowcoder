@@ -629,6 +629,7 @@ export var uiCompMap: Registry = {
     description: trans("uiComp.cardCompDesc"),
     categories: ["layout"],
     keywords: trans("uiComp.cardCompKeywords"),
+    isContainer: true,
     comp: CardComp,
     layoutInfo: {
       h: 44,
