@@ -219,6 +219,7 @@ export const defaultTheme: ThemeDetail = {
     dateRange: input,
     time: input,
     timeRange: input,
+    colorPicker: input,
     rangeSlider: slider,
     segmentedControl,
     select: select,
