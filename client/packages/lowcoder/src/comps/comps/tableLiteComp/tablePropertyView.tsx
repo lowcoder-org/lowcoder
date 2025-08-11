@@ -100,7 +100,7 @@ const ColumnDropdown = styled(Dropdown)`
 const ColumnBatchOptionWrapper = styled.div`
   display: flex;
   align-items: center;
-  color: ${GreyTextColor}
+  color: ${GreyTextColor};
   line-height: 16px;
   font-size: 13px;
 `;
@@ -517,11 +517,6 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
             {hiddenPropertyView(comp.children)}
             {loadingPropertyView(comp.children)}
             {comp.children.selection.getPropertyView()}
-            {comp.children.searchText.propertyView({
-              label: trans("table.searchText"),
-              tooltip: trans("table.searchTextTooltip"),
-              placeholder: "{{input1.value}}",
-            })}
           </Section>
 
           <Section name={"Summary"}>

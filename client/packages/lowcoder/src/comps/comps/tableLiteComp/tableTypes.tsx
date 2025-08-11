@@ -7,8 +7,6 @@ import {
   ColorOrBoolCodeControl,
   HeightOrBoolCodeControl,
   JSONObjectArrayControl,
-  RadiusControl,
-  StringControl,
 } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
@@ -78,12 +76,6 @@ export const TableEventOptions = [
     label: trans("table.rowClick"),
     value: "rowClick",
     description: trans("table.rowClick"),
-  },
- 
-  {
-    label: trans("table.search"),
-    value: "dataSearch",
-    description: trans("table.search"),
   },
   {
     label: trans("table.download"),
@@ -211,7 +203,6 @@ const tableChildrenMap = {
   toolbarStyle: styleControl(TableToolbarStyle, 'toolbarStyle'),
   hideToolbar: withDefault(BoolControl,false),
   headerStyle: styleControl(TableHeaderStyle, 'headerStyle'),
-  searchText: StringControl,
   columnsStyle: styleControl(TableColumnStyle, 'columnsStyle'),
   viewModeResizable: BoolControl,
   visibleResizables: BoolControl,

@@ -100,7 +100,7 @@ const ColumnDropdown = styled(Dropdown)`
 const ColumnBatchOptionWrapper = styled.div`
   display: flex;
   align-items: center;
-  color: ${GreyTextColor}
+  color: ${GreyTextColor};
   line-height: 16px;
   font-size: 13px;
 `;

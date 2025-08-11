@@ -307,32 +307,19 @@ export class TableImplComp extends TableInitComp {
     )[0];
   }
 
-  // handle hide/search/filter: sortedData->filteredData
+    // handle filter: sortedData -> filteredData (pass-through for now)
   filterNode() {
     const nodes = {
       data: this.sortDataNode(),
-      searchValue: this.children.searchText.node(),
     };
-    let context = this;
-  
-    const filteredDataNode = withFunction(fromRecord(nodes), (input) => {
-      const { data, searchValue } = input;
-      const filteredData = filterData(data, searchValue.value, { filters: [], stackType: "and" }, false);
-  
-      if (Boolean(searchValue.value) && data.length !== filteredData.length) {
-        const onEvent = context.children.onEvent.getView();
-        setTimeout(() => {
-          onEvent("dataSearch");
-        });
-      }
-  
-      return filteredData.map((row) => tranToTableRecord(row, row[OB_ROW_ORI_INDEX]));
+    const filteredDataNode = withFunction(fromRecord(nodes), ({ data }) => {
+      return data.map((row) => tranToTableRecord(row, row[OB_ROW_ORI_INDEX]));
     });
-  
     return lastValueIfEqual(this, "filteredDataNode", [filteredDataNode, nodes] as const, (a, b) =>
       shallowEqual(a[1], b[1])
     )[0];
   }
+
   
 
   oriDisplayDataNode() {
