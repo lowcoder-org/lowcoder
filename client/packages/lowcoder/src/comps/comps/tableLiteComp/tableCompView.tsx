@@ -1,5 +1,4 @@
 import { default as Table, TableProps, ColumnType } from "antd/es/table";
-import {  TableRowContext } from "./tableContext";
 import { TableToolbar } from "./tableToolbarComp";
 import { RowColorViewType, RowHeightViewType, TableEventOptionValues } from "./tableTypes";
 import {
@@ -595,7 +594,6 @@ const TableCellView = React.memo((props: {
     ...restProps
   } = props;
 
-  const rowContext = useContext(TableRowContext);
   
   // Memoize style calculations
   const style = useMemo(() => {
@@ -637,9 +635,6 @@ const TableCellView = React.memo((props: {
     tdView = <td {...restProps}>{children}</td>;
   } else {
     let { background } = style!;
-    if (rowContext.hover) {
-      background = 'transparent';
-    }
 
     tdView = (
       <TableTd
@@ -663,29 +658,6 @@ const TableCellView = React.memo((props: {
   return tdView;
 });
 
-const TableRowView = React.memo((props: any) => {
-  const [hover, setHover] = useState(false);
-  const [selected, setSelected] = useState(false);
-
-  // Memoize event handlers
-  const handleMouseEnter = useCallback(() => setHover(true), []);
-  const handleMouseLeave = useCallback(() => setHover(false), []);
-  const handleFocus = useCallback(() => setSelected(true), []);
-  const handleBlur = useCallback(() => setSelected(false), []);
-
-  return (
-    <TableRowContext.Provider value={{ hover, selected }}>
-      <tr
-        {...props}
-        tabIndex={-1}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-      />
-    </TableRowContext.Provider>
-  );
-});
 
 /**
  * A table with adjustable column width, width less than 0 means auto column width
@@ -780,7 +752,6 @@ function ResizeableTableComp<RecordType extends object>(props: CustomTableProps<
         },
         body: {
           cell: TableCellView,
-          row: TableRowView,
         },
       }}
       {...restProps}
