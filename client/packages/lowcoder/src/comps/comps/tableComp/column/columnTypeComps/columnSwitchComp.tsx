@@ -144,6 +144,10 @@ export const SwitchComp = (function () {
             disabled={false}
             onChange={(checked, e) => {
               props.onChange(checked);
+              // Use immediate save to show Save Changes button without exiting edit mode
+              if (props.onImmediateSave) {
+                props.onImmediateSave(checked);
+              }
               props.otherProps?.onEvent?.("change");
               props.otherProps?.onEvent?.(checked ? "true" : "false");
             }}
