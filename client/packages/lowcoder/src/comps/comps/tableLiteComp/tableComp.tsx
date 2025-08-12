@@ -27,7 +27,7 @@ import {
 } from "comps/generators/withExposing";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { trans } from "i18n";
-import _, { isArray } from "lodash";
+import _ from "lodash";
 import {
   changeChildAction,
   CompAction,
@@ -44,15 +44,16 @@ import {
   wrapChildAction,
 } from "lowcoder-core";
 import { saveDataAsFile } from "util/fileUtils";
-import { JSONObject, JSONValue } from "util/jsonTypes";
+import { JSONObject } from "util/jsonTypes";
 import { lastValueIfEqual, shallowEqual } from "util/objectUtils";
 
 import { getSelectedRowKeys } from "./selectionControl";
 import { compTablePropertyView } from "./tablePropertyView";
 import { RowColorComp, RowHeightComp, SortValue, TableChildrenView, TableInitComp } from "./tableTypes";
 
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { tableMethodExposings } from "./tableMethodExposings";
 
 export class TableImplComp extends TableInitComp {
   private prevUnevaledValue?: string;
@@ -80,7 +81,6 @@ export class TableImplComp extends TableInitComp {
     const deps: Array<string> = this.children.data.exposingNode().dependNames();
     const depsQueryNames = deps.map((d) => d.split(".")[0]);
     if (_.isEmpty(depsQueryNames)) {
-      // Independent query, using local data, giving a fake loading effect
       setLoading(true);
       setTimeout(() => setLoading(false), 200);
       return;
@@ -93,7 +93,6 @@ export class TableImplComp extends TableInitComp {
     });
   }
 
-  // only for test?
   getProps() {
     return childrenToProps(_.omit(this.children, "style")) as TableChildrenView;
   }
@@ -120,10 +119,8 @@ export class TableImplComp extends TableInitComp {
     const nextRowKeys = Object.keys(nextRowExample);
     const dynamicColumn = comp.children.dynamicColumn.getView();
     if (!prevUnevaledVal && columnKeys.length === 0) {
-      // the first time
       doGenColumn = true;
     } else if (prevUnevaledVal && nextUnevaledVal !== prevUnevaledVal) {
-      // modify later
       doGenColumn = true;
     } else if (dynamicColumn) {
       doGenColumn = true;
@@ -131,7 +128,6 @@ export class TableImplComp extends TableInitComp {
       columnKeys.length < nextRowKeys.length &&
       columnKeys.every((key) => nextRowKeys.includes(key))
     ) {
-      // new column is automatically generated
       doGenColumn = true;
     }
     if (!doGenColumn) {
@@ -139,7 +135,6 @@ export class TableImplComp extends TableInitComp {
       const columnKeyChanged =
         columnKeys.length !== nextRowKeys.length ||
         !_.isEqual(_.sortBy(columnKeys), _.sortBy(nextRowKeys));
-      // The data has changed, but can't judge the auto generation
       if (columnKeyChanged && !_.isEqual(toBeGenRow, nextRowExample)) {
         setTimeout(() => {
           comp.children.dataRowExample.dispatchChangeValueAction(nextRowExample);
@@ -163,7 +158,6 @@ export class TableImplComp extends TableInitComp {
         comp.children.data !== this.children.data &&
         !_.isEqual(this.children.data.getView(), comp.children.data.getView());
       if (dataChanged) {
-        // update rowColor context
         comp = comp.setChild(
           "rowColor",
           comp.children.rowColor.reduce(
@@ -229,7 +223,6 @@ export class TableImplComp extends TableInitComp {
     if (action.type === CompActionTypes.UPDATE_NODES_V2 && needMoreEval) {
       setTimeout(() => comp.dispatch(onlyEvalAction()));
     }
-    // console.info("exit tableComp reduce. action: ", action, "\nthis: ", this, "\ncomp: ", comp);
     return comp;
   }
 
@@ -249,7 +242,6 @@ export class TableImplComp extends TableInitComp {
     };
   }
 
-  // handle sort: data -> sortedData
   sortDataNode() {
     const nodes: {
       data: Node<JSONObject[]>;
@@ -287,7 +279,6 @@ export class TableImplComp extends TableInitComp {
       const originalData = getOriDisplayData(updatedData, 1000, Object.values(dataColumns))
       const sortedData = sortData(originalData, sortColumns, sort);
 
-      // console.info( "sortNode. data: ", data, " sort: ", sort, " columns: ", columns, " sortedData: ", sortedData);
       const newData = sortedData.map(row => {
         return {
           ...row,
@@ -301,7 +292,6 @@ export class TableImplComp extends TableInitComp {
     )[0];
   }
 
-    // handle filter: sortedData -> filteredData (pass-through for now)
   filterNode() {
     const nodes = {
       data: this.sortDataNode(),
@@ -314,17 +304,13 @@ export class TableImplComp extends TableInitComp {
     )[0];
   }
 
-  
-
   oriDisplayDataNode() {
     const nodes = {
       data: this.filterNode(),
-      // --> pageSize
       showSizeChanger: this.children.pagination.children.showSizeChanger.node(),
       pageSize: this.children.pagination.children.pageSize.node(),
       pageSizeOptions: this.children.pagination.children.pageSizeOptions.node(),
       changablePageSize: this.children.pagination.children.changeablePageSize.node(),
-      // <-- pageSize
       withParams: this.children.columns.withParamsNode(),
       dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
     };
@@ -347,7 +333,6 @@ export class TableImplComp extends TableInitComp {
       shallowEqual(a[1], b[1])
     )[0];
   }
- 
 
   columnAggrNode() {
     const nodes = {
@@ -361,7 +346,6 @@ export class TableImplComp extends TableInitComp {
         .mapKeys((withParams, idx) => input.dataIndexes[idx])
         .value();
       const res = getColumnsAggr(input.oriDisplayData, dataIndexWithParamsDict);
-      // console.info("columnAggrNode: ", res);
       return res;
     });
     return lastValueIfEqual(this, "columnAggrNode", [resNode, nodes] as const, (a, b) =>
@@ -382,25 +366,14 @@ let TableTmpComp = withViewFn(TableImplComp, (comp) => {
   );
 });
 
-
 const withEditorModeStatus = (Component:any) => (props:any) => {
   const editorModeStatus = useContext(EditorContext).editorModeStatus;
   const {ref, ...otherProps} = props;
   return <Component {...otherProps} editorModeStatus={editorModeStatus} />;
 };
 
-// Use this HOC when defining TableTmpComp
 TableTmpComp = withPropertyViewFn(TableTmpComp, (comp) => withEditorModeStatus(compTablePropertyView)(comp));
 
-// TableTmpComp = withPropertyViewFn(TableTmpComp, compTablePropertyView);
-
-
-
-
-
-/**
- * Hijack children's execution events and ensure that selectedRow is modified first (you can also add a triggeredRow field).
- */
 TableTmpComp = withDispatchHook(TableTmpComp, (dispatch) => (action) => {
   if (!dispatch) {
     return;
@@ -411,7 +384,6 @@ TableTmpComp = withDispatchHook(TableTmpComp, (dispatch) => (action) => {
       const key = context["currentOriginalIndex"] + "";
       dispatch(wrapChildAction("selection", changeChildAction("selectedRowKey", key, false)));
     }
-    // action.context;
   }
   return dispatch(action);
 });
@@ -448,104 +420,8 @@ function toDisplayIndex(displayData: JSONObject[], selectRowKey: string) {
   return displayIndex;
 }
 
-TableTmpComp = withMethodExposing(TableTmpComp, [
-  {
-    method: {
-      name: "setFilter",
-      description: "",
-      params: [{ name: "filter", type: "JSON" }],
-    },
-    execute: (comp, values) => {
-      //TODO: add filter maybe
-      if (values[0]) {
-        // const param = values[0] as TableFilter;
-        // const currentVal = comp.children.toolbar.children.filter.getView();
-        // comp.children.toolbar.children.filter.dispatchChangeValueAction({
-        //   ...currentVal,
-        //   ...param,
-        // });
-      }
-    },
-  },
-  {
-    method: {
-      name: "setPage",
-      description: "",
-      params: [{ name: "page", type: "number" }],
-    },
-    execute: (comp, values) => {
-      const page = values[0] as number;
-      if (page && page > 0) {
-        comp.children.pagination.children.pageNo.dispatchChangeValueAction(page);
-      }
-    },
-  },
-  {
-    method: {
-      name: "setSort",
-      description: "",
-      params: [
-        { name: "sortColumn", type: "string" },
-        { name: "sortDesc", type: "boolean" },
-      ],
-    },
-    execute: (comp, values) => {
-      if (values[0]) {
-        comp.children.sort.dispatchChangeValueAction([
-          {
-            column: values[0] as string,
-            desc: values[1] as boolean,
-          },
-        ]);
-      }
-    },
-  },
-  {
-    method: {
-      name: "setMultiSort",
-      description: "",
-      params: [
-        { name: "sortColumns", type: "arrayObject"},
-      ],
-    },
-    execute: (comp, values) => {
-      const sortColumns = values[0];
-      if (!isArray(sortColumns)) {
-        return Promise.reject("setMultiSort function only accepts array of sort objects i.e. [{column: column_name, desc: boolean}]")
-      }
-      if (sortColumns && isArray(sortColumns)) {
-        comp.children.sort.dispatchChangeValueAction(sortColumns as SortValue[]);
-      }
-    },
-  },
-  {
-    method: {
-      name: "resetSelections",
-      description: "",
-      params: [],
-    },
-    execute: (comp) => {
-      comp.children.selection.children.selectedRowKey.dispatchChangeValueAction("0");
-      comp.children.selection.children.selectedRowKeys.dispatchChangeValueAction([]);
-    },
-  },
-  {
-    method: {
-      name: "selectAll",
-      description: "Select all rows in the current filtered view",
-      params: [],
-    },
-    execute: (comp) => {
-      const displayData = comp.filterData ?? [];
-      const allKeys = displayData.map((row) => row[OB_ROW_ORI_INDEX] + "");
-      comp.children.selection.children.selectedRowKey.dispatchChangeValueAction(allKeys[0] || "0");
-      comp.children.selection.children.selectedRowKeys.dispatchChangeValueAction(allKeys);
-    },
-  },  
-  
-]);
+TableTmpComp = withMethodExposing(TableTmpComp, tableMethodExposings);
 
-// exposing data
 export const TableLiteComp = withExposingConfigs(TableTmpComp, [
   new DepsConfig(
     "selectedRow",
@@ -714,11 +590,9 @@ export const TableLiteComp = withExposingConfigs(TableTmpComp, [
         oriDisplayData: comp.oriDisplayDataNode(),
         dataIndexes: comp.children.columns.getColumnsNode("dataIndex"),
         titles: comp.children.columns.getColumnsNode("title"),
-        // --> hide
         hides: comp.children.columns.getColumnsNode("hide"),
         tempHides: comp.children.columns.getColumnsNode("tempHide"),
         columnSetting: comp.children.toolbar.children.columnSetting.node(),
-        // <-- hide
       };
     },
     (input) => {
