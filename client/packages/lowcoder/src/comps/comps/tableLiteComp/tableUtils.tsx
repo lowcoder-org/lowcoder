@@ -10,7 +10,7 @@ import { __COLUMN_DISPLAY_VALUE_FN } from "./column/columnTypeCompBuilder";
 import { CellColorViewType, RawColumnType, Render } from "./column/tableColumnComp";
 import { SortValue, TableOnEventView } from "./tableTypes";
 import _ from "lodash";
-import { changeChildAction, CompAction, NodeToValue } from "lowcoder-core";
+import { changeChildAction, CompAction, NodeToValue, wrapChildAction, customAction } from "lowcoder-core";
 import { tryToNumber } from "util/convertUtils";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { StatusType } from "./column/columnTypeComps/columnStatusComp";
@@ -236,6 +236,14 @@ export function getColumnsAggr(
         .uniqBy("text")
         .value();
     }
+    // Generic unique values fallback for filters (cap to 100)
+    const uniqueValues = _(oriDisplayData)
+      .map((row) => row[dataIndex])
+      .filter((v) => v !== undefined && v !== null)
+      .uniqWith(_.isEqual)
+      .slice(0, 100)
+      .value();
+    (res as any).uniqueValues = uniqueValues as any;
     return res;
   });
 }
@@ -334,7 +342,22 @@ export function columnsToAntdFormat(
       text: string;
       status: StatusType;
     }[];
+    const uniqueValues = (columnsAggrData[column.dataIndex] as any)?.uniqueValues as any[] ?? [];
     const title = renderTitle({ title: column.title, tooltip: column.titleTooltip });
+
+    const filterProps = column.filterable
+      ? {
+          filters: (Array.isArray(tags) && tags.length > 0
+            ? tags
+            : Array.isArray(uniqueValues) && uniqueValues.length > 0
+              ? uniqueValues
+              : [])
+            .slice(0, 100)
+            .map((v) => ({ text: String(v), value: v })),
+
+          onFilter: (value: any, record: any) => String(record[column.dataIndex] ?? "") === String(value ?? ""),
+        }
+      : {};
 
     return {
       key: `${column.dataIndex}-${mIndex}`,
@@ -396,7 +419,7 @@ export function columnsToAntdFormat(
             sorter: {
               multiple: (sortedColumns.length - mIndex) + 1,
               compare: column.columnType === 'date' || column.columnType === 'dateTime'
-                ? (a,b) => {
+                ? (a: any, b: any) => {
                   return dayjs(a[column.dataIndex] as string).unix() - dayjs(b[column.dataIndex] as string).unix();
                 }
               : undefined
@@ -405,7 +428,8 @@ export function columnsToAntdFormat(
             showSorterTooltip: false,
           }
         : {}),
-    };
+      ...filterProps,
+    } as any;
   });
 }
 
@@ -440,6 +464,9 @@ export function onTableChange(
     }
     dispatch(changeChildAction("sort", sortValues, true));
     onEvent("sortChange");
+  }
+  if (extra.action === "filter") {
+    onEvent("filterChange");
   }
 }
 

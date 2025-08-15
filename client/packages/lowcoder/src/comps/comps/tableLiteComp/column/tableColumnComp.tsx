@@ -127,6 +127,9 @@ export const columnChildrenMap = {
   dataIndex: valueComp<string>(""),
   hide: BoolControl,
   sortable: BoolControl,
+  // header filters
+  filterable: withDefault(BoolControl, false),
+  filteredValue: stateComp<string[]>([]),
   width: NumberControl,
   autoWidth: dropdownControl(columnWidthOptions, "auto"),
   render: RenderComp,
@@ -260,6 +263,9 @@ const ColumnPropertyView = React.memo(({
             comp.children.editable.propertyView({ label: trans("table.editable") })}
           {comp.children.sortable.propertyView({
             label: trans("table.sortable"),
+          })}
+          {comp.children.filterable.propertyView({
+            label: "Filterable",
           })}
           {comp.children.hide.propertyView({
             label: trans("prop.hide"),

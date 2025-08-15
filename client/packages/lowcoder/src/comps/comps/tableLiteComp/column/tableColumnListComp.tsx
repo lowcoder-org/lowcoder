@@ -13,6 +13,8 @@ import {
   fromRecord,
   isMyCustomAction,
   RecordNode,
+  wrapChildAction,
+  changeChildAction,
 } from "lowcoder-core";
 import { shallowEqual } from "react-redux";
 import { JSONObject, JSONValue } from "util/jsonTypes";
@@ -27,12 +29,18 @@ const ColumnListTmpComp = list(ColumnComp);
  * rowExample is used for code prompts
  */
 type RowExampleType = JSONObject | undefined;
-type ActionDataType = {
+
+type DataChangedActionType = {
   type: "dataChanged";
   rowExample: RowExampleType;
   doGeneColumn: boolean;
   dynamicColumn: boolean;
   data: Array<JSONObject>;
+};
+
+type SetFilteredValuesActionType = {
+  type: "setFilteredValues";
+  values: Record<string, string[]>; // dataIndex -> filtered values
 };
 
 export function tableDataRowExample(data: Array<JSONObject>) {
@@ -58,7 +66,7 @@ export function tableDataRowExample(data: Array<JSONObject>) {
 
 export class ColumnListComp extends ColumnListTmpComp {
   override reduce(action: CompAction): this {
-    if (isMyCustomAction<ActionDataType>(action, "dataChanged")) {
+    if (isMyCustomAction<DataChangedActionType>(action, "dataChanged")) {
       const rowExample = action.value.rowExample;
       const { readOnly } = getReduceContext();
       let comp = this;
@@ -68,7 +76,37 @@ export class ColumnListComp extends ColumnListTmpComp {
       }
       return comp;
     }
+    if (isMyCustomAction<SetFilteredValuesActionType>(action, "setFilteredValues")) {
+      const values = action.value.values;
+      const columnsView = this.getView();
+      const actions: Array<any> = [];
+      columnsView.forEach((column, index) => {
+        const dataIndex = column.getView().dataIndex;
+        if (values.hasOwnProperty(dataIndex)) {
+          actions.push(
+            wrapChildAction(
+              index + "",
+              changeChildAction("filteredValue", values[dataIndex] ?? [], false)
+            )
+          );
+        }
+      });
+      if (actions.length > 0) {
+        return this.reduce(this.multiAction(actions));
+      }
+      return this;
+    }
     return super.reduce(action);
+  }
+
+  setFilteredValuesAction(values: Record<string, string[]>) {
+    return customAction<SetFilteredValuesActionType>(
+      {
+        type: "setFilteredValues",
+        values,
+      },
+      false
+    );
   }
 
   getChangeSet(filterNewRowsChange?: boolean) {
@@ -107,7 +145,7 @@ export class ColumnListComp extends ColumnListTmpComp {
     dynamicColumn: boolean;
     data: Array<JSONObject>;
   }) {
-    return customAction<ActionDataType>(
+    return customAction<DataChangedActionType>(
       {
         type: "dataChanged",
         ...param,

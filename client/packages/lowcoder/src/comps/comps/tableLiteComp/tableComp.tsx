@@ -4,14 +4,8 @@ import { TableCompView } from "./tableCompView";
 import {
   columnHide,
   ColumnsAggrData,
-  COLUMN_CHILDREN_KEY,
-  getColumnsAggr,
-  getOriDisplayData,
-  OB_ROW_ORI_INDEX,
   RecordType,
-  sortData,
   transformDispalyData,
-  tranToTableRecord,
 } from "./tableUtils";
 import { isTriggerAction } from "comps/controls/actionSelector/actionSelectorControl";
 import { withPropertyViewFn, withViewFn } from "comps/generators";
@@ -34,26 +28,22 @@ import {
   CompActionTypes,
   deferAction,
   executeQueryAction,
-  fromRecord,
-  Node,
   onlyEvalAction,
-  RecordNode,
   routeByNameAction,
-  ValueAndMsg,
-  withFunction,
   wrapChildAction,
 } from "lowcoder-core";
 import { saveDataAsFile } from "util/fileUtils";
 import { JSONObject } from "util/jsonTypes";
-import { lastValueIfEqual, shallowEqual } from "util/objectUtils";
+import { indexKeyToRecord, toDisplayIndex } from "./utils/selectionUtils";
 
 import { getSelectedRowKeys } from "./selectionControl";
 import { compTablePropertyView } from "./tablePropertyView";
-import { RowColorComp, RowHeightComp, SortValue, TableChildrenView, TableInitComp } from "./tableTypes";
+import { RowColorComp, RowHeightComp, TableChildrenView, TableInitComp } from "./tableTypes";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { tableMethodExposings } from "./tableMethodExposings";
+import { tableMethodExposings } from "./methods/tableMethodExposings";
+import { buildSortedDataNode, buildFilteredDataNode, buildOriDisplayDataNode, buildColumnAggrNode } from "./nodes/dataNodes";
 
 export class TableImplComp extends TableInitComp {
   private prevUnevaledValue?: string;
@@ -61,10 +51,6 @@ export class TableImplComp extends TableInitComp {
   readonly columnAggrData: ColumnsAggrData = {};
 
   override autoHeight(): boolean {
-    return this.children.autoHeight.getView();
-  }
-
-  getTableAutoHeight() {
     return this.children.autoHeight.getView();
   }
 
@@ -228,10 +214,10 @@ export class TableImplComp extends TableInitComp {
 
   override extraNode() {
     const extra = {
-      sortedData: this.sortDataNode(),
-      filterData: this.filterNode(),
-      oriDisplayData: this.oriDisplayDataNode(),
-      columnAggrData: this.columnAggrNode(),
+      sortedData: buildSortedDataNode(this),
+      filterData: buildFilteredDataNode(this),
+      oriDisplayData: buildOriDisplayDataNode(this),
+      columnAggrData: buildColumnAggrNode(this),
     };
     return {
       node: extra,
@@ -240,117 +226,6 @@ export class TableImplComp extends TableInitComp {
         columnAggrData: value.columnAggrData,
       }),
     };
-  }
-
-  sortDataNode() {
-    const nodes: {
-      data: Node<JSONObject[]>;
-      sort: Node<SortValue[]>;
-      dataIndexes: RecordNode<Record<string, Node<string>>>;
-      sortables: RecordNode<Record<string, Node<ValueAndMsg<boolean>>>>;
-      withParams: RecordNode<_.Dictionary<any>>,
-  } = {
-      data: this.children.data.exposingNode(),
-      sort: this.children.sort.node(),
-      dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
-      sortables: this.children.columns.getColumnsNode("sortable"),
-      withParams: this.children.columns.withParamsNode(),
-    };
-    const sortedDataNode = withFunction(fromRecord(nodes), (input) => {
-      const { data, sort, dataIndexes, sortables } = input;
-      const sortColumns = _(dataIndexes)
-        .mapValues((dataIndex, idx) => ({ sortable: !!sortables[idx] }))
-        .mapKeys((sortable, idx) => dataIndexes[idx])
-        .value();
-      const dataColumns = _(dataIndexes)
-        .mapValues((dataIndex, idx) => ({
-          dataIndex,
-          render: input.withParams[idx] as any,
-        }))
-        .value();
-      const updatedData: Array<RecordType> = data.map((row, index) => ({
-        ...row,
-        [OB_ROW_ORI_INDEX]: index + "",
-      }));
-      const updatedDataMap: Record<string, RecordType> = {};
-      updatedData.forEach((row) => {
-        updatedDataMap[row[OB_ROW_ORI_INDEX]] = row;
-      })
-      const originalData = getOriDisplayData(updatedData, 1000, Object.values(dataColumns))
-      const sortedData = sortData(originalData, sortColumns, sort);
-
-      const newData = sortedData.map(row => {
-        return {
-          ...row,
-          ...updatedDataMap[row[OB_ROW_ORI_INDEX]],
-        }
-      });
-      return newData;
-    });
-    return lastValueIfEqual(this, "sortedDataNode", [sortedDataNode, nodes] as const, (a, b) =>
-      shallowEqual(a[1], b[1])
-    )[0];
-  }
-
-  filterNode() {
-    const nodes = {
-      data: this.sortDataNode(),
-    };
-    const filteredDataNode = withFunction(fromRecord(nodes), ({ data }) => {
-      return data.map((row) => tranToTableRecord(row, row[OB_ROW_ORI_INDEX]));
-    });
-    return lastValueIfEqual(this, "filteredDataNode", [filteredDataNode, nodes] as const, (a, b) =>
-      shallowEqual(a[1], b[1])
-    )[0];
-  }
-
-  oriDisplayDataNode() {
-    const nodes = {
-      data: this.filterNode(),
-      showSizeChanger: this.children.pagination.children.showSizeChanger.node(),
-      pageSize: this.children.pagination.children.pageSize.node(),
-      pageSizeOptions: this.children.pagination.children.pageSizeOptions.node(),
-      changablePageSize: this.children.pagination.children.changeablePageSize.node(),
-      withParams: this.children.columns.withParamsNode(),
-      dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
-    };
-    const resNode = withFunction(fromRecord(nodes), (input) => {
-      const columns = _(input.dataIndexes)
-        .mapValues((dataIndex, idx) => ({
-          dataIndex,
-          render: input.withParams[idx],
-        }))
-        .value();
-      const pageSize = getPageSize(
-        input.showSizeChanger.value,
-        input.pageSize.value,
-        input.pageSizeOptions.value,
-        input.changablePageSize
-      );
-      return getOriDisplayData(input.data, pageSize, Object.values(columns));
-    });
-    return lastValueIfEqual(this, "oriDisplayDataNode", [resNode, nodes] as const, (a, b) =>
-      shallowEqual(a[1], b[1])
-    )[0];
-  }
-
-  columnAggrNode() {
-    const nodes = {
-      oriDisplayData: this.oriDisplayDataNode(),
-      withParams: this.children.columns.withParamsNode(),
-      dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
-    };
-    const resNode = withFunction(fromRecord(nodes), (input) => {
-      const dataIndexWithParamsDict = _(input.dataIndexes)
-        .mapValues((dataIndex, idx) => input.withParams[idx])
-        .mapKeys((withParams, idx) => input.dataIndexes[idx])
-        .value();
-      const res = getColumnsAggr(input.oriDisplayData, dataIndexWithParamsDict);
-      return res;
-    });
-    return lastValueIfEqual(this, "columnAggrNode", [resNode, nodes] as const, (a, b) =>
-      shallowEqual(a[1], b[1])
-    )[0];
   }
 }
 
@@ -372,6 +247,7 @@ const withEditorModeStatus = (Component:any) => (props:any) => {
   return <Component {...otherProps} editorModeStatus={editorModeStatus} />;
 };
 
+
 TableTmpComp = withPropertyViewFn(TableTmpComp, (comp) => withEditorModeStatus(compTablePropertyView)(comp));
 
 TableTmpComp = withDispatchHook(TableTmpComp, (dispatch) => (action) => {
@@ -388,38 +264,6 @@ TableTmpComp = withDispatchHook(TableTmpComp, (dispatch) => (action) => {
   return dispatch(action);
 });
 
-function _indexKeyToRecord(data: JSONObject[], key: string) {
-  const keyPath = (key + "").split("-");
-  let currentData = data;
-  let res = undefined;
-  for (let k of keyPath) {
-    const index = Number(k);
-    if (index >= 0 && Array.isArray(currentData) && index < currentData.length) {
-      res = currentData[index];
-      currentData = res[COLUMN_CHILDREN_KEY] as JSONObject[];
-    }
-  }
-  return res;
-}
-
-function toDisplayIndex(displayData: JSONObject[], selectRowKey: string) {
-  const keyPath = selectRowKey.split("-");
-  const originSelectKey = keyPath[0];
-  if (!originSelectKey) {
-    return "";
-  }
-  let displayIndex;
-  displayData.forEach((data, index) => {
-    if (data[OB_ROW_ORI_INDEX] === originSelectKey) {
-      displayIndex = index;
-    }
-  });
-  if (displayIndex && keyPath.length > 1) {
-    return [displayIndex, ...keyPath.slice(1)].join("-");
-  }
-  return displayIndex;
-}
-
 TableTmpComp = withMethodExposing(TableTmpComp, tableMethodExposings);
 
 export const TableLiteComp = withExposingConfigs(TableTmpComp, [
@@ -435,7 +279,7 @@ export const TableLiteComp = withExposingConfigs(TableTmpComp, [
       if (!input.data) {
         return undefined;
       }
-      return _indexKeyToRecord(input.data, input.selectedRowKey);
+      return indexKeyToRecord(input.data, input.selectedRowKey);
     },
     trans("table.selectedRowDesc")
   ),
@@ -452,7 +296,7 @@ export const TableLiteComp = withExposingConfigs(TableTmpComp, [
         return undefined;
       }
       return input.selectedRowKeys.flatMap((key: string) => {
-        const result = _indexKeyToRecord(input.data, key);
+        const result = indexKeyToRecord(input.data, key);
         return result === undefined ? [] : [result];
       });
     },
@@ -462,7 +306,7 @@ export const TableLiteComp = withExposingConfigs(TableTmpComp, [
     "selectedIndex",
     (comp) => {
       return {
-        oriDisplayData: comp.oriDisplayDataNode(),
+        oriDisplayData: buildOriDisplayDataNode(comp),
         selectedRowKey: comp.children.selection.children.selectedRowKey.node(),
       };
     },
@@ -475,7 +319,7 @@ export const TableLiteComp = withExposingConfigs(TableTmpComp, [
     "selectedIndexes",
     (comp) => {
       return {
-        oriDisplayData: comp.oriDisplayDataNode(),
+        oriDisplayData: buildOriDisplayDataNode(comp),
         selectedRowKeys: comp.children.selection.children.selectedRowKeys.node(),
       };
     },
@@ -587,7 +431,7 @@ export const TableLiteComp = withExposingConfigs(TableTmpComp, [
     "displayData",
     (comp) => {
       return {
-        oriDisplayData: comp.oriDisplayDataNode(),
+        oriDisplayData: buildOriDisplayDataNode(comp),
         dataIndexes: comp.children.columns.getColumnsNode("dataIndex"),
         titles: comp.children.columns.getColumnsNode("title"),
         hides: comp.children.columns.getColumnsNode("hide"),

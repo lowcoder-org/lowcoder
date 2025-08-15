@@ -1,6 +1,6 @@
 import _ from "lodash";
-import { OB_ROW_ORI_INDEX } from "./tableUtils";
-import { SortValue } from "./tableTypes";
+import { OB_ROW_ORI_INDEX } from "../tableUtils";
+import { SortValue } from "../tableTypes";
 
 export const tableMethodExposings = [
   {
