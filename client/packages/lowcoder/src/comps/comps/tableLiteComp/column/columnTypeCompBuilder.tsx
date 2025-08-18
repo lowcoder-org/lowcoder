@@ -1,9 +1,4 @@
-import {
-  CellViewReturn,
-  EditableCell,
-  EditViewFn,
-  TABLE_EDITABLE_SWITCH_ON,
-} from "components/table/EditableCell";
+import { CellViewReturn } from "components/table/EditableCell";
 import { stateComp } from "comps/generators";
 import {
   MultiCompBuilder,
@@ -53,7 +48,6 @@ export class ColumnTypeCompBuilder<
   private stylePropertyViewFn?: PropertyViewFnTypeForComp<
     RecordConstructorToComp<NewChildrenCtorMap<ChildrenCtorMap, T>>
   >;
-  private editViewFn?: EditViewFn<T>;
   private cleanupFunctions: (() => void)[] = [];
 
   constructor(
@@ -65,10 +59,8 @@ export class ColumnTypeCompBuilder<
     this.childrenMap = { ...childrenMap, changeValue: stateComp<T | null>(null) };
   }
 
-  setEditViewFn(editViewFn: NonNullable<typeof this.editViewFn>) {
-    if (TABLE_EDITABLE_SWITCH_ON) {
-      this.editViewFn = editViewFn;
-    }
+  setEditViewFn(_: any) {
+    // Edit views are disabled in Table Lite; keep chainability without storing
     return this;
   }
 
@@ -101,14 +93,15 @@ export class ColumnTypeCompBuilder<
           const baseValue = this.baseValueFn?.(props, dispatch);
           const normalView = this.viewFn(props, dispatch);
           return (
-            <EditableCell<T>
-              {...props}
-              normalView={normalView}
-              dispatch={dispatch}
-              baseValue={baseValue}
-              changeValue={props.changeValue as any}
-              editViewFn={this.editViewFn}
-            />
+            // <EditableCell<T>
+            //   {...props}
+            //   normalView={normalView}
+            //   dispatch={dispatch}
+            //   baseValue={baseValue}
+            //   changeValue={props.changeValue as any}
+            //   editViewFn={this.editViewFn}
+            // />
+            normalView
           );
       },
       (props) => {
@@ -155,7 +148,6 @@ export class ColumnTypeCompBuilder<
       .build();
 
     const displayValueFn = this.displayValueFn;
-    const editViewFn = this.editViewFn;
 
     return class extends ColumnTypeCompTmp {
       // table cell data
@@ -193,7 +185,7 @@ export class ColumnTypeCompBuilder<
       }
 
       static canBeEditable() {
-        return !_.isNil(editViewFn);
+        return false;
       }
 
       componentWillUnmount() {

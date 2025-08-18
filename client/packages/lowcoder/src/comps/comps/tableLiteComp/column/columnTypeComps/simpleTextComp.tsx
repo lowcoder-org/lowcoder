@@ -116,6 +116,5 @@ export const SimpleTextComp = new ColumnTypeCompBuilder(
     (nodeValue) => nodeValue.text.value,
     getBaseValue
   )
-    .setEditViewFn((props) => <SimpleTextEditView {...props} />)
     .setPropertyViewFn((children) => <SimpleTextPropertyView children={children} />)
     .build();

@@ -131,26 +131,6 @@ export const SwitchComp = (function () {
     (nodeValue) => nodeValue.switchState.value,
     getBaseValue
   )
-    .setEditViewFn((props) => {
-      return (
-        <Wrapper
-          onBlur={() => {
-            props.onChangeEnd()
-          }}
-        >
-          <Switch
-            autoFocus
-            defaultChecked={props.value}
-            disabled={false}
-            onChange={(checked, e) => {
-              props.onChange(checked);
-              props.otherProps?.onEvent?.("change");
-              props.otherProps?.onEvent?.(checked ? "true" : "false");
-            }}
-          />
-        </Wrapper>
-      );
-    })
     .setPropertyViewFn((children) => {
       return (
         <>

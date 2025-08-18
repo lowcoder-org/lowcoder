@@ -140,15 +140,6 @@ export const ProgressComp = (function () {
     (nodeValue) => nodeValue.text.value,
     getBaseValue
   )
-    .setEditViewFn((props) => {
-      return (
-        <ProgressEdit
-          value={props.value}
-          onChange={props.onChange}
-          onChangeEnd={props.onChangeEnd}
-        />
-      );
-    })
     .setPropertyViewFn((children) => {
       return (
         <>

@@ -165,15 +165,6 @@ export const BooleanComp = (function () {
     (nodeValue) => nodeValue.text.value,
     getBaseValue
   )
-    .setEditViewFn((props) => {
-      return (
-        <CheckBoxEdit
-          value={props.value}
-          onChange={props.onChange}
-          onChangeEnd={props.onChangeEnd}
-        />
-      );
-    })
     .setPropertyViewFn((children) => {
       return (
         <>

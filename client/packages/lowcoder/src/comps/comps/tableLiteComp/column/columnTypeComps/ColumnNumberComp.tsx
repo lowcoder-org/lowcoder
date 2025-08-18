@@ -159,19 +159,6 @@ export const ColumnNumberComp = (function () {
     (nodeValue) => nodeValue.text.value,
     getBaseValue
   )
-    .setEditViewFn((props) => {
-      const { value, onChange, onChangeEnd, otherProps } = props;
-      return (
-        <ColumnNumberEdit
-          value={value}
-          onChange={onChange}
-          onChangeEnd={onChangeEnd}
-          step={otherProps?.step ?? 1}
-          precision={otherProps?.precision ?? 0}
-          float={otherProps?.float ?? false}
-        />
-      );
-    })
     .setPropertyViewFn((children) => {
       return (
         <>

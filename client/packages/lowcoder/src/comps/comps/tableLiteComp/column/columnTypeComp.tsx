@@ -1,4 +1,3 @@
-import { CellProps } from "components/table/EditableCell";
 import { DateTimeComp } from "comps/comps/tableComp/column/columnTypeComps/columnDateTimeComp";
 import { TimeComp } from "./columnTypeComps/columnTimeComp";
 import { ButtonComp } from "comps/comps/tableComp/column/simpleColumnTypeComps";
@@ -22,6 +21,18 @@ import { ColumnNumberComp } from "./columnTypeComps/ColumnNumberComp";
 
 import { ColumnAvatarsComp } from "./columnTypeComps/columnAvatarsComp";
 import { ColumnDropdownComp } from "./columnTypeComps/columnDropdownComp";
+
+export type CellProps = {
+	editable?: boolean;
+	tableSize?: string;
+	candidateTags?: string[];
+	candidateStatus?: { text: string; status: any }[];
+	textOverflow?: boolean;
+	cellTooltip?: string;
+	editMode?: string;
+	onTableEvent?: (eventName: any) => void;
+	cellIndex?: string;
+};
 
 const actionOptions = [
   {

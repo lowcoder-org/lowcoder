@@ -201,19 +201,6 @@ export const ColumnSelectComp = (function () {
     (nodeValue) => nodeValue.text.value,
     getBaseValue,
   )
-    .setEditViewFn((props) => {
-      return (
-        <Wrapper>
-          <SelectEdit
-            initialValue={props.value}
-            options={props.otherProps?.options || []}
-            onChange={props.onChange}
-            onChangeEnd={props.onChangeEnd}
-            onMainEvent={props.otherProps?.onEvent}
-          />
-        </Wrapper>
-      )
-    })
     .setPropertyViewFn((children) => {
       return (
         <>

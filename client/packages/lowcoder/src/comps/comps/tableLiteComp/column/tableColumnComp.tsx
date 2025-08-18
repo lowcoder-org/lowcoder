@@ -136,7 +136,6 @@ export const columnChildrenMap = {
   align: HorizontalAlignmentControl,
   tempHide: stateComp<boolean>(false),
   fixed: dropdownControl(columnFixOptions, "close"),
-  editable: BoolControl,
   background: withDefault(ColorControl, ""),
   margin: withDefault(RadiusControl, ""),
   text: withDefault(ColorControl, ""),
@@ -259,8 +258,6 @@ const ColumnPropertyView = React.memo(({
             label: trans("table.showTitle"),
             tooltip: trans("table.showTitleTooltip"),
           })}
-          {ColumnTypeCompMap[columnType].canBeEditable() &&
-            comp.children.editable.propertyView({ label: trans("table.editable") })}
           {comp.children.sortable.propertyView({
             label: trans("table.sortable"),
           })}
@@ -397,11 +394,10 @@ export class ColumnComp extends ColumnInitComp {
   override getView() {
     const superView = super.getView();
     const columnType = this.children.render.getSelectedComp().getComp().children.compType.getView();
-    return {
-      ...superView,
-      columnType,
-      editable: ColumnTypeCompMap[columnType].canBeEditable() && superView.editable,
-    };
+          return {
+        ...superView,
+        columnType,
+      };
   }
 
   exposingNode() {
