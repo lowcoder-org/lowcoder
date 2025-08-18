@@ -108,13 +108,6 @@ export const ColumnMarkdownComp = (function () {
     (nodeValue) => nodeValue.text.value,
     getBaseValue
   )
-    .setEditViewFn((props) => (
-      <MarkdownEdit
-        value={props.value}
-        onChange={props.onChange}
-        onChangeEnd={props.onChangeEnd}
-      />
-    ))
     .setPropertyViewFn((children) => (
       <>
         {children.text.propertyView({

@@ -166,14 +166,6 @@ export const TimeComp = (function () {
     (nodeValue) => formatTime(nodeValue.text.value, nodeValue.format.value),
     getBaseValue
   )
-    .setEditViewFn(({value, onChange, onChangeEnd, otherProps}) => (
-      <TimeEdit
-        value={value}
-        onChange={onChange}
-        onChangeEnd={onChangeEnd}
-        inputFormat={otherProps?.inputFormat}
-      />
-    ))
     .setPropertyViewFn((children) => (
       <>
         {children.text.propertyView({

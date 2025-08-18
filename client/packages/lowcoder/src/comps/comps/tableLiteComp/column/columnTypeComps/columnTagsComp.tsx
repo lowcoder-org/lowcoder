@@ -439,16 +439,6 @@ export const ColumnTagsComp = (function () {
     },
     getBaseValue
   )
-    .setEditViewFn((props) => {
-      const text = props.value;
-      const value = _.isArray(text) ? text.join(",") : text;
-      return <TagEdit 
-        value={value} 
-        onChange={props.onChange} 
-        onChangeEnd={props.onChangeEnd} 
-        tagOptions={props.otherProps?.tagColors || []} 
-      />;
-    })
     .setPropertyViewFn((children) => (
       <>
         {children.text.propertyView({

@@ -69,14 +69,6 @@ export const DateTimeComp = (function () {
     (nodeValue) => formatDate(nodeValue.text.value, nodeValue.format.value),
     getBaseValue
   )
-    .setEditViewFn((props) => (
-      <DateTimeEdit
-        value={props.value}
-        onChange={props.onChange}
-        onChangeEnd={props.onChangeEnd}
-        inputFormat={props.otherProps?.inputFormat}
-      />
-    ))
     .setPropertyViewFn((children) => (
       <>
         {children.text.propertyView({

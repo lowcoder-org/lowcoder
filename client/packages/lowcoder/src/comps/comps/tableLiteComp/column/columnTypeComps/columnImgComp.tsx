@@ -118,13 +118,6 @@ export const ImageComp = (function () {
     (nodeValue) => nodeValue.src.value,
     getBaseValue
   )
-    .setEditViewFn((props) => (
-      <ImageEdit
-        value={props.value}
-        onChange={props.onChange}
-        onChangeEnd={props.onChangeEnd}
-      />
-    ))
     .setPropertyViewFn((children) => {
       return (
         <>

@@ -117,13 +117,6 @@ const LinkCompTmp = (function () {
     (nodeValue) => nodeValue.text.value,
     getBaseValue
   )
-    .setEditViewFn((props) => (
-      <LinkEdit
-        value={props.value}
-        onChange={props.onChange}
-        onChangeEnd={props.onChangeEnd}
-      />
-    ))
     .setPropertyViewFn((children) => (
       <>
         {children.text.propertyView({

@@ -173,9 +173,6 @@ export const BadgeStatusComp = (function () {
     (nodeValue) => [nodeValue.status.value, nodeValue.text.value].filter((t) => t).join(" "),
     getBaseValue
   )
-    .setEditViewFn((props) => (
-      <StatusEdit value={props.value} onChange={props.onChange} onChangeEnd={props.onChangeEnd} />
-    ))
     .setPropertyViewFn((children) => (
       <>
         {children.text.propertyView({
