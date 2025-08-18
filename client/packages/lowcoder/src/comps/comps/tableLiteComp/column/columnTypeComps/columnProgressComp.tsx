@@ -128,7 +128,7 @@ export const ProgressComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
-      const value = props.changeValue ?? getBaseValue(props, dispatch);
+      const value = getBaseValue(props, dispatch);
       const Progress = () => {
         const style = useStyle(ProgressStyle);
         return (

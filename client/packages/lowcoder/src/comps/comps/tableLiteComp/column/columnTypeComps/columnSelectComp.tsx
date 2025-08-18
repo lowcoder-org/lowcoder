@@ -189,7 +189,7 @@ export const ColumnSelectComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
-      const value = props.changeValue ?? getBaseValue(props, dispatch);
+      const value = getBaseValue(props, dispatch);
       const option = props.options.find(x => x.value === value);
       return (
         <>

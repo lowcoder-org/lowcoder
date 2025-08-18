@@ -112,7 +112,7 @@ export const ImageComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
-      const value = props.changeValue ?? getBaseValue(props, dispatch);
+      const value = getBaseValue(props, dispatch);
       return <ImageView src={value} size={props.size} onEvent={props.onEvent} />;
     },
     (nodeValue) => nodeValue.src.value,

@@ -103,7 +103,7 @@ const SimpleTextPropertyView = React.memo(({ children }: { children: RecordConst
 export const SimpleTextComp = new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
-      const value = props.changeValue ?? getBaseValue(props, dispatch);
+      const value = getBaseValue(props, dispatch);
       return (
         <SimpleTextContent
           value={value}

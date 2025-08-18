@@ -418,34 +418,16 @@ export class ColumnComp extends ColumnInitComp {
   }
 
   getChangeSet() {
-    const dataIndex = this.children.dataIndex.getView();
-    const changeSet = _.mapValues(this.children.render.getMap(), (value) =>{
-     return value.getComp().children.comp.children.changeValue.getView()
-    });
-    return { [dataIndex]: changeSet };
+    // Editing disabled in Table Lite
+    return {} as any;
   }
 
   dispatchClearChangeSet() {
-    this.children.render.dispatch(
-      deferAction(
-        RenderComp.forEachAction(
-          wrapChildAction(
-            "comp",
-            wrapChildAction("comp", changeChildAction("changeValue", null, false))
-          )
-        )
-      )
-    );
-    // clear render comp cache when change set is cleared
-    this.children.render.dispatch(RenderComp.clearAction());
+    // No-op in Table Lite
   }
 
   dispatchClearInsertSet() {
-    const renderMap = this.children.render.getMap();
-    Object.keys(renderMap).forEach(key => {
-      const render = renderMap[key];
-      render.getComp().children.comp.children.changeValue.dispatchChangeValueAction(null);
-    }); 
+    // No-op in Table Lite
   }
 
   static setSelectionAction(key: string) {

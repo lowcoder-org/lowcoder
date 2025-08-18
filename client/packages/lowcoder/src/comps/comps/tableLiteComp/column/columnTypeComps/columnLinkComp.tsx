@@ -111,7 +111,7 @@ const LinkCompTmp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
-      const value = props.changeValue ?? getBaseValue(props, dispatch);
+      const value = getBaseValue(props, dispatch);
       return <ColumnLink disabled={props.disabled} label={value} onClick={props.onClick} />;
     },
     (nodeValue) => nodeValue.text.value,

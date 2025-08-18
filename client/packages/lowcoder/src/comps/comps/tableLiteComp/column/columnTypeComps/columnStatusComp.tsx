@@ -166,8 +166,8 @@ export const BadgeStatusComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
-      const text = props.changeValue?.value ?? getBaseValue(props, dispatch).value;
-      const status = props.changeValue?.status ?? getBaseValue(props, dispatch).status;
+      const text = getBaseValue(props, dispatch).value;
+      const status = getBaseValue(props, dispatch).status;
       return status === "none" ? text : <Badge status={status} text={text}/>;
     },
     (nodeValue) => [nodeValue.status.value, nodeValue.text.value].filter((t) => t).join(" "),

@@ -102,7 +102,7 @@ export const ColumnMarkdownComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
-      const value = props.changeValue ?? getBaseValue(props, dispatch);
+      const value = getBaseValue(props, dispatch);
       return <MarkdownView value={value} onEvent={props.onEvent} />;
     },
     (nodeValue) => nodeValue.text.value,

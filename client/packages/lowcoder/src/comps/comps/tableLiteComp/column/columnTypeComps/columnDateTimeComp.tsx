@@ -63,7 +63,7 @@ export const DateTimeComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
-      const value = props.changeValue ?? getBaseValue(props, dispatch);
+      const value = getBaseValue(props, dispatch);
       return formatDate(value, props.format);
     },
     (nodeValue) => formatDate(nodeValue.text.value, nodeValue.format.value),

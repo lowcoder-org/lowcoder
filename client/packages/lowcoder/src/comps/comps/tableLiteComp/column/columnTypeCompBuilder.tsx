@@ -28,25 +28,21 @@ type ViewValueFnType<ChildrenCtorMap extends Record<string, CompConstructor<unkn
   nodeValue: RecordConstructorToNodeValue<ChildrenCtorMap>
 ) => JSONValue;
 
-type NewChildrenCtorMap<ChildrenCtorMap, T extends JSONValue> = ChildrenCtorMap & {
-  changeValue: ReturnType<typeof stateComp<T | null>>;
-};
-
 export type ColumnTypeViewFn<ChildrenCtroMap, T extends JSONValue, ViewReturn> = ViewFnTypeForComp<
   ViewReturn,
-  RecordConstructorToComp<NewChildrenCtorMap<ChildrenCtroMap, T>>
+  RecordConstructorToComp<ChildrenCtroMap>
 >;
 
 export class ColumnTypeCompBuilder<
   ChildrenCtorMap extends Record<string, CompConstructor<unknown>>,
   T extends JSONValue = JSONValue
 > {
-  private childrenMap: NewChildrenCtorMap<ChildrenCtorMap, T>;
+  private childrenMap: ChildrenCtorMap;
   private propertyViewFn?: PropertyViewFnTypeForComp<
-    RecordConstructorToComp<NewChildrenCtorMap<ChildrenCtorMap, T>>
+    RecordConstructorToComp<ChildrenCtorMap>
   >;
   private stylePropertyViewFn?: PropertyViewFnTypeForComp<
-    RecordConstructorToComp<NewChildrenCtorMap<ChildrenCtorMap, T>>
+    RecordConstructorToComp<ChildrenCtorMap>
   >;
   private cleanupFunctions: (() => void)[] = [];
 
@@ -56,7 +52,7 @@ export class ColumnTypeCompBuilder<
     private displayValueFn: ViewValueFnType<ChildrenCtorMap>,
     private baseValueFn?: ColumnTypeViewFn<ChildrenCtorMap, T, T>
   ) {
-    this.childrenMap = { ...childrenMap, changeValue: stateComp<T | null>(null) };
+    this.childrenMap = { ...childrenMap } as ChildrenCtorMap;
   }
 
   setEditViewFn(_: any) {
@@ -66,7 +62,7 @@ export class ColumnTypeCompBuilder<
 
   setPropertyViewFn(
     propertyViewFn: PropertyViewFnTypeForComp<
-      RecordConstructorToComp<NewChildrenCtorMap<ChildrenCtorMap, T>>
+      RecordConstructorToComp<ChildrenCtorMap>
     >
   ) {
     this.propertyViewFn = propertyViewFn;
@@ -75,7 +71,7 @@ export class ColumnTypeCompBuilder<
 
   setStylePropertyViewFn(
     stylePropertyViewFn: PropertyViewFnTypeForComp<
-      RecordConstructorToComp<NewChildrenCtorMap<ChildrenCtorMap, T>>
+      RecordConstructorToComp<ChildrenCtorMap>
     >
   ) {
     this.stylePropertyViewFn = stylePropertyViewFn;
@@ -92,17 +88,7 @@ export class ColumnTypeCompBuilder<
       (props: any, dispatch: any) => {
           const baseValue = this.baseValueFn?.(props, dispatch);
           const normalView = this.viewFn(props, dispatch);
-          return (
-            // <EditableCell<T>
-            //   {...props}
-            //   normalView={normalView}
-            //   dispatch={dispatch}
-            //   baseValue={baseValue}
-            //   changeValue={props.changeValue as any}
-            //   editViewFn={this.editViewFn}
-            // />
-            normalView
-          );
+          return normalView;
       },
       (props) => {
         let safeOptions = [];
@@ -139,8 +125,8 @@ export class ColumnTypeCompBuilder<
       (cellProps) => memoizedViewFn({ ...props, ...cellProps } as any, dispatch);
 
     const ColumnTypeCompTmp = new MultiCompBuilder(
-      this.childrenMap as ToConstructor<
-        RecordConstructorToComp<NewChildrenCtorMap<ChildrenCtorMap, T>>
+      (this.childrenMap as unknown) as ToConstructor<
+        RecordConstructorToComp<ChildrenCtorMap>
       >,
       viewFn
     )

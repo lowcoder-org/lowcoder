@@ -179,24 +179,12 @@ export class SummaryColumnComp extends ColumnInitComp {
   }
 
   getChangeSet() {
-    const dataIndex = this.children.dataIndex.getView();
-    const changeSet = _.mapValues(this.children.render.getMap(), (value) =>
-      value.getComp().children.comp.children.changeValue.getView()
-    );
-    return { [dataIndex]: changeSet };
+    // Editing disabled in Table Lite
+    return {} as any;
   }
 
   dispatchClearChangeSet() {
-    this.children.render.dispatch(
-      deferAction(
-        RenderComp.forEachAction(
-          wrapChildAction(
-            "comp",
-            wrapChildAction("comp", changeChildAction("changeValue", null, false))
-          )
-        )
-      )
-    );
+    // No-op in Table Lite
   }
 
   static setSelectionAction(key: string) {

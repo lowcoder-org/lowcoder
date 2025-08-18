@@ -1,6 +1,6 @@
 import { DateTimeComp } from "comps/comps/tableComp/column/columnTypeComps/columnDateTimeComp";
 import { TimeComp } from "./columnTypeComps/columnTimeComp";
-import { ButtonComp } from "comps/comps/tableComp/column/simpleColumnTypeComps";
+import { ButtonComp } from "./simpleColumnTypeComps";
 import { withType } from "comps/generators";
 import { trans } from "i18n";
 import { Dropdown } from "lowcoder-design/src/components/Dropdown";

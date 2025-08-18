@@ -395,7 +395,7 @@ export const ColumnTagsComp = (function () {
     childrenMap,
     (props, dispatch) => {
       const tagOptions = props.tagColors;
-      let value = props.changeValue ?? getBaseValue(props, dispatch);
+      let value = getBaseValue(props, dispatch);
       value = typeof value === "string" && value.split(",")[1] ? value.split(",") : value;
       const tags = _.isArray(value) ? value : (value.length ? [value] : []);
       
