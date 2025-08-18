@@ -163,17 +163,13 @@ export class ColumnTypeCompBuilder<
         };
       }
 
-      /**
+            /**
        * Get the data actually displayed by the table cell
        */
       getDisplayValue() {
         return this._displayValue;
       }
-
-      static canBeEditable() {
-        return false;
-      }
-
+ 
       componentWillUnmount() {
         // Cleanup all registered cleanup functions
         this.cleanupFunctions.forEach(cleanup => cleanup());

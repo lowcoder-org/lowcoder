@@ -1,5 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { default as Input } from "antd/es/input";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   ColumnTypeCompBuilder,
   ColumnTypeViewFn,
@@ -59,52 +58,6 @@ const ImageView = React.memo(({ src, size, onEvent }: { src: string; size: numbe
 });
 
 ImageView.displayName = 'ImageView';
-
-// Memoized edit component
-const ImageEdit = React.memo(({ value, onChange, onChangeEnd }: { value: string; onChange: (value: string) => void; onChangeEnd: () => void }) => {
-  const mountedRef = useRef(true);
-  const [currentValue, setCurrentValue] = useState(value);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (mountedRef.current) {
-      const newValue = e.target.value;
-      setCurrentValue(newValue);
-      onChange(newValue);
-    }
-  }, [onChange]);
-
-  const handleBlur = useCallback(() => {
-    if (mountedRef.current) {
-      onChangeEnd();
-    }
-  }, [onChangeEnd]);
-
-  const handlePressEnter = useCallback(() => {
-    if (mountedRef.current) {
-      onChangeEnd();
-    }
-  }, [onChangeEnd]);
-
-  return (
-    <Input
-      value={currentValue}
-      autoFocus
-      variant="borderless"
-      onChange={handleChange}
-      onBlur={handleBlur}
-      onPressEnter={handlePressEnter}
-    />
-  );
-});
-
-ImageEdit.displayName = 'ImageEdit';
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.src;
 

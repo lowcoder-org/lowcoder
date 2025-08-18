@@ -1,7 +1,6 @@
-import React, { useCallback, useRef, useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { BoolCodeControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
-import { default as Checkbox, CheckboxChangeEvent } from "antd/es/checkbox";
 import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilder";
 import { ColumnValueTooltip } from "../simpleColumnTypeComps";
 import { getStyle } from "comps/comps/selectInputComp/checkboxComp";
@@ -12,10 +11,6 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { TableCheckedIcon, TableUnCheckedIcon } from "lowcoder-design";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
-
-const CheckboxStyled = styled(Checkbox)<{ $style: CheckboxStyleType }>`
-  ${(props) => props.$style && getStyle(props.$style)}
-`;
 
 const Wrapper = styled.div`
   background: transparent !important;
@@ -59,58 +54,6 @@ const childrenMap = {
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, boolean, boolean> = (props) => props.text;
-
-type CheckBoxEditPropsType = {
-  value: boolean;
-  onChange: (value: boolean) => void;
-  onChangeEnd: () => void;
-};
-
-// Memoized checkbox edit component
-const CheckBoxEdit = React.memo((props: CheckBoxEditPropsType) => {
-  const mountedRef = useRef(true);
-  const style = useStyle(CheckboxStyle);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-
-  const handleBlur = useCallback(() => {
-    if (!mountedRef.current) return;
-    props.onChangeEnd();
-  }, [props.onChangeEnd]);
-
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (!mountedRef.current) return;
-    if (e.key === "Enter") {
-      props.onChangeEnd();
-    }
-  }, [props.onChangeEnd]);
-
-  const handleChange = useCallback((e: CheckboxChangeEvent) => {
-    if (!mountedRef.current) return;
-    props.onChange(e.target.checked);
-  }, [props.onChange]);
-
-  return (
-    <Wrapper
-      onBlur={handleBlur}
-      onKeyDown={handleKeyDown}
-    >
-      <CheckboxStyled
-        autoFocus
-        $style={style}
-        defaultChecked={props.value}
-        onChange={handleChange}
-      />
-    </Wrapper>
-  );
-});
-
-CheckBoxEdit.displayName = 'CheckBoxEdit';
 
 // Memoized checkbox view component
 const CheckBoxView = React.memo(({ 

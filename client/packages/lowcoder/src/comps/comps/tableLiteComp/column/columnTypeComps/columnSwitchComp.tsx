@@ -6,7 +6,6 @@ import { InputFieldStyle } from "comps/controls/styleControlConstants";
 import styled from "styled-components";
 import { default as Switch } from "antd/es/switch";
 import { styleControl } from "comps/controls/styleControl";
-import { RefControl } from "comps/controls/refControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { changeEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { disabledPropertyView } from "comps/utils/propertyUtils";
@@ -26,18 +25,12 @@ const EventOptions = [
   },
 ] as const;
 
-const Wrapper = styled.div`
-  background: transparent !important;
-  padding: 0 8px;
-`
-
 const childrenMap = {
   value: booleanExposingStateControl("value"),
   switchState: BoolCodeControl,
   onEvent: eventHandlerControl(EventOptions),
   disabled: BoolCodeControl,
   style: styleControl(InputFieldStyle),
-  // viewRef: RefControl<HTMLButtonElement>,
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, boolean, boolean> = (props) => props.switchState;
@@ -45,7 +38,6 @@ const getBaseValue: ColumnTypeViewFn<typeof childrenMap, boolean, boolean> = (pr
 const SwitchView = React.memo(({ value, disabled, onEvent, valueControl }: {
   value: boolean;
   disabled: boolean;
-  // viewRef: (viewRef: HTMLButtonElement | null) => void;
   onEvent: (event: string) => void;
   valueControl: { onChange: (value: boolean) => void };
 }) => {
@@ -68,50 +60,12 @@ const SwitchView = React.memo(({ value, disabled, onEvent, valueControl }: {
     <Switch 
       checked={value}
       disabled={disabled || true}
-      // ref={viewRef}
       onChange={handleChange}
     />
   );
 });
 
 SwitchView.displayName = 'SwitchView';
-
-const SwitchEdit = React.memo(({ value, onChange, onChangeEnd }: {
-  value: boolean;
-  onChange: (value: boolean) => void;
-  onChangeEnd: () => void;
-}) => {
-  const mountedRef = useRef(true);
-
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-
-  const handleChange = useCallback((checked: boolean) => {
-    if (!mountedRef.current) return;
-    onChange(checked);
-  }, [onChange]);
-
-  const handleBlur = useCallback(() => {
-    if (!mountedRef.current) return;
-    onChangeEnd();
-  }, [onChangeEnd]);
-
-  return (
-    <Wrapper onBlur={handleBlur}>
-      <Switch
-        autoFocus
-        defaultChecked={value}
-        disabled={false}
-        onChange={handleChange}
-      />
-    </Wrapper>
-  );
-});
-
-SwitchEdit.displayName = 'SwitchEdit';
 
 export const SwitchComp = (function () {
   return new ColumnTypeCompBuilder(
@@ -122,7 +76,6 @@ export const SwitchComp = (function () {
         <SwitchView
           value={value}
           disabled={props.disabled}
-          // viewRef={props.viewRef}
           onEvent={props.onEvent}
           valueControl={props.value}
         />

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import React from "react";
 
 import { SelectUIView } from "comps/comps/selectInputComp/selectCompConstants";
 import { StringControl, BoolCodeControl } from "comps/controls/codeControl";
@@ -119,71 +119,6 @@ const childrenMap = {
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.text;
-
-type SelectEditProps = {
-  initialValue: string;
-  onChange: (value: string) => void;
-  onChangeEnd: () => void;
-  options: any[];
-  onMainEvent?: (eventName: string) => void;
-};
-
-const SelectEdit = React.memo((props: SelectEditProps) => {
-  const [currentValue, setCurrentValue] = useState(props.initialValue);
-  const mountedRef = useRef(true);
-  const defaultProps: any = {};
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-      setCurrentValue('');
-    };
-  }, []);
-
-  const handleChange = useCallback((val: string) => {
-    if (!mountedRef.current) return;
-    props.onChange(val);
-    setCurrentValue(val);
-    
-    // Trigger the specific option's event handler
-    const selectedOption = props.options.find(option => option.value === val);
-    if (selectedOption?.onEvent) {
-      selectedOption.onEvent("click");
-    }
-    
-    // Also trigger the main component's event handler
-    if (props.onMainEvent) {
-      props.onMainEvent("click");
-    }
-  }, [props.onChange, props.options, props.onMainEvent]);
-
-  const handleEvent = useCallback(async (eventName: string) => {
-    if (!mountedRef.current) return [] as unknown[];
-    if (eventName === "blur") {
-      props.onChangeEnd();
-    }
-    return [] as unknown[];
-  }, [props.onChangeEnd]);
-
-  const memoizedOptions = useMemo(() => props.options, [props.options]);
-
-  return (
-    <SelectUIView
-      autoFocus
-      allowClear
-      value={currentValue}
-      options={memoizedOptions}
-      onChange={handleChange}
-      onEvent={handleEvent}
-      // @ts-ignore
-      style={{}}
-      {...defaultProps}
-    />
-  );
-});
-
-SelectEdit.displayName = 'SelectEdit';
 
 export const ColumnSelectComp = (function () {
   return new ColumnTypeCompBuilder(

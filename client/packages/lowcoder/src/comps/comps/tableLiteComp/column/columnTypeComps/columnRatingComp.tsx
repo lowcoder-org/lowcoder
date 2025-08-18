@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import React from "react";
 import { NumberControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilder";
@@ -40,71 +40,11 @@ const RateStyled = styled(Rate)<{ isEdit?: boolean }>`
   }
 `;
 
-const Wrapper = styled.div`
-  background: transparent !important;
-  padding: 0 8px;
-`;
-
 const childrenMap = {
   text: NumberControl,
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, number, number> = (props) => props.text;
-
-type RatingEditProps = {
-  value: number;
-  onChange: (value: number) => void;
-  onChangeEnd: () => void;
-};
-
-const RatingEdit = React.memo((props: RatingEditProps) => {
-  const [currentValue, setCurrentValue] = useState(props.value);
-  const mountedRef = useRef(true);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-      setCurrentValue(0);
-    };
-  }, []);
-
-  const handleChange = useCallback((value: number) => {
-    if (!mountedRef.current) return;
-    props.onChange(value);
-    setCurrentValue(value);
-  }, [props.onChange]);
-
-  const handleBlur = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
-    if (!mountedRef.current) return;
-    if (!e.currentTarget?.contains(e.relatedTarget)) {
-      props.onChangeEnd();
-    }
-  }, [props.onChangeEnd]);
-
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLUListElement>) => {
-    if (!mountedRef.current) return;
-    if (e.key === "Enter") {
-      props.onChangeEnd();
-    }
-  }, [props.onChangeEnd]);
-
-  return (
-    <Wrapper
-      onBlur={handleBlur}
-    >
-      <RateStyled
-        autoFocus
-        isEdit={true}
-        value={currentValue}
-        onChange={handleChange}
-        onKeyDown={handleKeyDown}
-      />
-    </Wrapper>
-  );
-});
-
-RatingEdit.displayName = 'RatingEdit';
 
 export const RatingComp = (function () {
   return new ColumnTypeCompBuilder(

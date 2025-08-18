@@ -9,10 +9,10 @@ import { withDefault } from "comps/generators";
 import { formatPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { isNumber } from "lodash";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { CalendarCompIconSmall, PrevIcon, SuperPrevIcon } from "lowcoder-design";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { PrevIcon, SuperPrevIcon } from "lowcoder-design";
+import React from "react";
 import styled from "styled-components";
 import { DateParser, DATE_FORMAT } from "util/dateTimeUtils";
 
@@ -121,10 +121,6 @@ const DatePickerPopup = styled.div`
   overflow: hidden;
 `;
 
-const Wrapper = styled.div`
-  background: transparent !important;
-`;
-
 export function formatDate(date: string, format: string) {
   let mom = dayjs(date);
   if (isNumber(Number(date)) && !isNaN(Number(date)) && date !== "") {
@@ -144,112 +140,6 @@ const childrenMap = {
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.text;
-
-type DateEditProps = {
-  value: string;
-  onChange: (value: string) => void;
-  onChangeEnd: () => void;
-  showTime: boolean;
-  inputFormat: string;
-};
-
-// Memoized DateEdit component
-export const DateEdit = React.memo((props: DateEditProps) => {
-  const pickerRef = useRef<any>();
-  const mountedRef = useRef(true);
-  const [panelOpen, setPanelOpen] = useState(true);
-  
-  // Initialize tempValue with proper validation
-  const [tempValue, setTempValue] = useState<dayjs.Dayjs | null>(() => {
-    const initialValue = dayjs(props.value, DateParser);
-    return initialValue.isValid() ? initialValue : dayjs(0, DateParser);
-  });
-
-  // Memoize event handlers
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (!mountedRef.current) return;
-    if (e.key === "Enter" && !panelOpen) {
-      props.onChangeEnd();
-    }
-  }, [panelOpen, props.onChangeEnd]);
-
-  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!mountedRef.current) return;
-    e.stopPropagation();
-    e.preventDefault();
-  }, []);
-
-  const handleOpenChange = useCallback((open: boolean) => {
-    if (!mountedRef.current) return;
-    setPanelOpen(open);
-  }, []);
-
-  const handleChange = useCallback((value: dayjs.Dayjs | null, dateString: string | string[]) => {
-    if (!mountedRef.current) return;
-    props.onChange(dateString as string);
-  }, [props.onChange]);
-
-  const handleBlur = useCallback(() => {
-    if (!mountedRef.current) return;
-    props.onChangeEnd();
-  }, [props.onChangeEnd]);
-
-  // Update tempValue when props.value changes
-  useEffect(() => {
-    if (!mountedRef.current) return;
-    
-    const newValue = props.value ? dayjs(props.value, DateParser) : null;
-    if (newValue?.isValid()) {
-      setTempValue(newValue);
-    }
-  }, [props.value]);
-
-  // Cleanup event listeners and state
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-      setTempValue(null);
-      if (pickerRef.current) {
-        pickerRef.current = null;
-      }
-    };
-  }, []);
-
-  return (
-    <Wrapper
-      onKeyDown={handleKeyDown}
-      onMouseDown={handleMouseDown}
-    >
-      <DatePickerStyled
-        ref={pickerRef}
-        $open={panelOpen}
-        suffixIcon={<CalendarCompIconSmall />}
-        prevIcon={<PrevIcon />}
-        nextIcon={<IconNext />}
-        superNextIcon={<IconSuperNext />}
-        superPrevIcon={<SuperPrevIcon />}
-        format={props.inputFormat}
-        allowClear={true}
-        variant="borderless"
-        autoFocus
-        value={tempValue}
-        showTime={props.showTime}
-        showNow={true}
-        defaultOpen={true}
-        panelRender={(panelNode) => (
-          <DatePickerPopup>
-            <StylePanel>{panelNode}</StylePanel>
-          </DatePickerPopup>
-        )}
-        onOpenChange={handleOpenChange}
-        onChange={(date: unknown, dateString: string | string[]) => handleChange(date as Dayjs | null, dateString)}
-        onBlur={handleBlur}
-      />
-    </Wrapper>
-  );
-});
-
-DateEdit.displayName = 'DateEdit';
 
 export const DateComp = (function () {
   return new ColumnTypeCompBuilder(

@@ -1,5 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { default as Input } from "antd/es/input";
+import React, { useCallback, useMemo } from "react";
 import {
   ColumnTypeCompBuilder,
   ColumnTypeViewFn,
@@ -49,54 +48,6 @@ const MarkdownView = React.memo(({ value, onEvent }: { value: string; onEvent?: 
 });
 
 MarkdownView.displayName = 'MarkdownView';
-
-// Memoized edit component with proper cleanup
-const MarkdownEdit = React.memo((props: {
-  value: string;
-  onChange: (value: string) => void;
-  onChangeEnd: () => void;
-}) => {
-  const [currentValue, setCurrentValue] = useState(props.value);
-  const mountedRef = useRef(true);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-      setCurrentValue('');
-    };
-  }, []);
-
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!mountedRef.current) return;
-    const value = e.target.value;
-    props.onChange(value);
-    setCurrentValue(value);
-  }, [props.onChange]);
-
-  const handleBlur = useCallback(() => {
-    if (!mountedRef.current) return;
-    props.onChangeEnd();
-  }, [props.onChangeEnd]);
-
-  const handlePressEnter = useCallback(() => {
-    if (!mountedRef.current) return;
-    props.onChangeEnd();
-  }, [props.onChangeEnd]);
-
-  return (
-    <Input
-      value={currentValue}
-      autoFocus
-      variant="borderless"
-      onChange={handleChange}
-      onBlur={handleBlur}
-      onPressEnter={handlePressEnter}
-    />
-  );
-});
-
-MarkdownEdit.displayName = 'MarkdownEdit';
 
 export const ColumnMarkdownComp = (function () {
   return new ColumnTypeCompBuilder(

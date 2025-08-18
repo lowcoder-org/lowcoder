@@ -8,8 +8,8 @@ import { withDefault } from "comps/generators";
 import { formatPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { DATE_TIME_FORMAT } from "util/dateTimeUtils";
-import { DateEdit, formatDate } from "./columnDateComp";
-import React, { useCallback, useEffect, useRef } from "react";
+import { formatDate } from "./columnDateComp";
+import React from "react";
 
 const childrenMap = {
   text: StringControl,
@@ -18,46 +18,6 @@ const childrenMap = {
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.text;
-
-// Memoized DateTimeEdit component
-const DateTimeEdit = React.memo((props: {
-  value: string;
-  onChange: (value: string) => void;
-  onChangeEnd: () => void;
-  inputFormat: string;
-}) => {
-  const mountedRef = useRef(true);
-
-  // Memoize event handlers
-  const handleChange = useCallback((value: string) => {
-    if (!mountedRef.current) return;
-    props.onChange(value);
-  }, [props.onChange]);
-
-  const handleChangeEnd = useCallback(() => {
-    if (!mountedRef.current) return;
-    props.onChangeEnd();
-  }, [props.onChangeEnd]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-
-  return (
-    <DateEdit
-      value={props.value}
-      onChange={handleChange}
-      onChangeEnd={handleChangeEnd}
-      showTime={true}
-      inputFormat={props.inputFormat}
-    />
-  );
-});
-
-DateTimeEdit.displayName = 'DateTimeEdit';
 
 export const DateTimeComp = (function () {
   return new ColumnTypeCompBuilder(

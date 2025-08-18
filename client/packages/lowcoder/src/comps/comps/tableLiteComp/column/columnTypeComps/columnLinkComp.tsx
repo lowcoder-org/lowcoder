@@ -1,5 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { default as Input } from "antd/es/input";
+import React, { useCallback } from "react";
 import {
   ColumnTypeCompBuilder,
   ColumnTypeViewFn,
@@ -58,52 +57,6 @@ export const ColumnLink = React.memo(({ disabled, label, onClick }: { disabled: 
 });
 
 ColumnLink.displayName = 'ColumnLink';
-
-// Memoized edit component
-const LinkEdit = React.memo(({ value, onChange, onChangeEnd }: { value: string; onChange: (value: string) => void; onChangeEnd: () => void }) => {
-  const mountedRef = useRef(true);
-  const [currentValue, setCurrentValue] = useState(value);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (mountedRef.current) {
-      const newValue = e.target.value;
-      setCurrentValue(newValue);
-      onChange(newValue);
-    }
-  }, [onChange]);
-
-  const handleBlur = useCallback(() => {
-    if (mountedRef.current) {
-      onChangeEnd();
-    }
-  }, [onChangeEnd]);
-
-  const handlePressEnter = useCallback(() => {
-    if (mountedRef.current) {
-      onChangeEnd();
-    }
-  }, [onChangeEnd]);
-
-  return (
-    <Input
-      value={currentValue}
-      autoFocus
-      variant="borderless"
-      onChange={handleChange}
-      onBlur={handleBlur}
-      onPressEnter={handlePressEnter}
-    />
-  );
-});
-
-LinkEdit.displayName = 'LinkEdit';
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.text;
 

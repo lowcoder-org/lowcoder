@@ -1,4 +1,3 @@
-import { default as Input } from "antd/es/input";
 import { StringOrNumberControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilder";
@@ -43,12 +42,6 @@ interface SimpleTextContentProps {
   onEvent?: (eventName: string) => void;
 }
 
-interface SimpleTextEditViewProps {
-  value: string | number;
-  onChange: (value: string | number) => void;
-  onChangeEnd: () => void;
-}
-
 const SimpleTextContent = React.memo(({ value, prefixIcon, suffixIcon, onEvent }: SimpleTextContentProps) => {
   const handleClickEvent = useCompClickEventHandler({onEvent: onEvent ?? (() => {})})
   
@@ -62,23 +55,6 @@ const SimpleTextContent = React.memo(({ value, prefixIcon, suffixIcon, onEvent }
       <span>{value}</span>
       {hasIcon(suffixIcon) && <IconWrapper icon={suffixIcon} />}
     </TextWrapper>
-  );
-});
-
-const SimpleTextEditView = React.memo(({ value, onChange, onChangeEnd }: SimpleTextEditViewProps) => {
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.value);
-  }, [onChange]);
-
-  return (
-    <Input
-      defaultValue={value}
-      autoFocus
-      variant="borderless"
-      onChange={handleChange}
-      onBlur={onChangeEnd}
-      onPressEnter={onChangeEnd}
-    />
   );
 });
 

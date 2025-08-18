@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo, ReactNode } from "react";
+import React, { useCallback, useMemo, ReactNode } from "react";
 import { default as InputNumber } from "antd/es/input-number";
 import { NumberControl, RangeControl, StringControl } from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
@@ -11,21 +11,6 @@ import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
 import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
-
-const InputNumberWrapper = styled.div`
-  .ant-input-number  {
-    width: 100%;
-    border-radius: 0;
-    background: transparent !important;
-    // padding: 0 !important;
-    box-shadow: none;
-
-    input {
-      padding: 0;
-      border-radius: 0;
-    }
-  }
-`;
 
 const NumberViewWrapper = styled.div`
   cursor: pointer;
@@ -61,15 +46,6 @@ type NumberViewProps = {
   onEvent?: (eventName: string) => void;
 };
 
-type NumberEditProps = {
-  value: number;
-  onChange: (value: number) => void;
-  onChangeEnd: () => void;
-  step: number;
-  precision: number;
-  float: boolean;
-};
-
 const ColumnNumberView = React.memo((props: NumberViewProps) => {
   const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent ?? (() => {})})
   
@@ -99,55 +75,6 @@ const ColumnNumberView = React.memo((props: NumberViewProps) => {
 });
 
 ColumnNumberView.displayName = 'ColumnNumberView';
-
-
-const ColumnNumberEdit = React.memo((props: NumberEditProps) => {
-  const [currentValue, setCurrentValue] = useState(props.value);
-  const mountedRef = useRef(true);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-      setCurrentValue(0);
-    };
-  }, []);
-
-  const handleChange = useCallback((value: string | number | null) => {
-    if (!mountedRef.current) return;
-    const newValue = typeof value === 'number' ? value : 0;
-    const finalValue = !props.float ? Math.floor(newValue) : newValue;
-    props.onChange(finalValue);
-    setCurrentValue(finalValue);
-  }, [props.onChange, props.float]);
-
-  const handleBlur = useCallback(() => {
-    if (!mountedRef.current) return;
-    props.onChangeEnd();
-  }, [props.onChangeEnd]);
-
-  const handlePressEnter = useCallback(() => {
-    if (!mountedRef.current) return;
-    props.onChangeEnd();
-  }, [props.onChangeEnd]);
-
-  return (
-    <InputNumberWrapper>
-      <InputNumber
-        step={props.step}
-        value={currentValue}
-        autoFocus
-        variant="borderless"
-        onChange={handleChange}
-        precision={props.float ? props.precision : 0}
-        onBlur={handleBlur}
-        onPressEnter={handlePressEnter}
-      />
-    </InputNumberWrapper>
-  );
-});
-
-ColumnNumberEdit.displayName = 'NumberEdit';
 
 export const ColumnNumberComp = (function () {
   return new ColumnTypeCompBuilder(

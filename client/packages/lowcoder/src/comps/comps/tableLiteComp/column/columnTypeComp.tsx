@@ -23,13 +23,11 @@ import { ColumnAvatarsComp } from "./columnTypeComps/columnAvatarsComp";
 import { ColumnDropdownComp } from "./columnTypeComps/columnDropdownComp";
 
 export type CellProps = {
-	editable?: boolean;
 	tableSize?: string;
 	candidateTags?: string[];
 	candidateStatus?: { text: string; status: any }[];
 	textOverflow?: boolean;
 	cellTooltip?: string;
-	editMode?: string;
 	onTableEvent?: (eventName: any) => void;
 	cellIndex?: string;
 };

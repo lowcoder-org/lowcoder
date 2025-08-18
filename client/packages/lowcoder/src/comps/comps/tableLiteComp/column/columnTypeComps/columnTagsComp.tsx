@@ -1,6 +1,5 @@
 import { default as Tag } from "antd/es/tag";
 import { PresetStatusColorTypes } from "antd/es/_util/colors";
-import { TagsContext } from "components/table/EditableCell";
 import {
   ColumnTypeCompBuilder,
   ColumnTypeViewFn,
@@ -10,7 +9,7 @@ import { codeControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import styled from "styled-components";
 import _ from "lodash";
-import React, { ReactNode, useContext, useState, useRef, useEffect, useCallback, useMemo } from "react";
+import React, { ReactNode, useCallback, useMemo } from "react";
 import { toJson } from "really-relaxed-json";
 import { hashToNum } from "util/stringUtils";
 import { CustomSelect, PackUpIcon } from "lowcoder-design";
@@ -128,13 +127,6 @@ const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string | string[], stri
   props
 ) => props.text;
 
-type TagEditPropsType = {
-  value: string | string[];
-  onChange: (value: string | string[]) => void;
-  onChangeEnd: () => void;
-  tagOptions: any[];
-};
-
 export const Wrapper = styled.div`
   display: inline-flex;
   align-items: center;
@@ -237,158 +229,6 @@ export const TagStyled = styled(Tag)`
     margin-right: 4px;
   }
 `;
-
-const TagEdit = React.memo((props: TagEditPropsType) => {
-  const defaultTags = useContext(TagsContext);
-  const [tags, setTags] = useState(() => {
-    const result: string[] = [];
-    defaultTags.forEach((item) => {
-      if (item.split(",")[1]) {
-        item.split(",").forEach((tag) => result.push(tag));
-      }
-      result.push(item);
-    });
-    return result;
-  });
-  const [open, setOpen] = useState(false);
-  const mountedRef = useRef(true);
-
-  // Memoize tag options to prevent unnecessary re-renders
-  const memoizedTagOptions = useMemo(() => props.tagOptions || [], [props.tagOptions]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-      setTags([]);
-      setOpen(false);
-    };
-  }, []);
-
-  // Update tags when defaultTags changes
-  useEffect(() => {
-    if (!mountedRef.current) return;
-    
-    const result: string[] = [];
-    defaultTags.forEach((item) => {
-      if (item.split(",")[1]) {
-        item.split(",").forEach((tag) => result.push(tag));
-      }
-      result.push(item);
-    });
-    setTags(result);
-  }, [defaultTags]);
-
-  const handleSearch = useCallback((value: string) => {
-    if (!mountedRef.current) return;
-    
-    if (defaultTags.findIndex((item) => item.includes(value)) < 0) {
-      setTags([...defaultTags, value]);
-    } else {
-      setTags(defaultTags);
-    }
-    props.onChange(value);
-  }, [defaultTags, props.onChange]);
-
-  const handleChange = useCallback((value: string | string[]) => {
-    if (!mountedRef.current) return;
-    props.onChange(value);
-    setOpen(false);
-  }, [props.onChange]);
-
-  const handleBlur = useCallback(() => {
-    if (!mountedRef.current) return;
-    props.onChangeEnd();
-    setOpen(false);
-  }, [props.onChangeEnd]);
-
-  const handleTagClick = useCallback((tagText: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const foundOption = memoizedTagOptions.find(option => option.label === tagText);
-    if (foundOption && foundOption.onEvent) {
-      foundOption.onEvent("click");
-    }
-  }, [memoizedTagOptions]);
-
-  return (
-    <Wrapper>
-      <CustomSelect
-        autoFocus
-        defaultOpen
-        variant="borderless"
-        optionLabelProp="children"
-        showSearch
-        defaultValue={props.value}
-        style={{ width: "100%" }}
-        open={open}
-        allowClear={true}
-        suffixIcon={<PackUpIcon />}
-        onSearch={handleSearch}
-        onChange={handleChange}
-        popupRender={(originNode: ReactNode) => (
-          <DropdownStyled>
-            <ScrollBar style={{ maxHeight: "256px" }}>{originNode}</ScrollBar>
-          </DropdownStyled>
-        )}
-        styles={{ popup: { root: { marginTop: "7px", padding: "8px 0 6px 0" }}}}
-        onFocus={() => {
-          if (mountedRef.current) {
-            setOpen(true);
-          }
-        }}
-        onBlur={handleBlur}
-        onClick={() => {
-          if (mountedRef.current) {
-            setOpen(!open);
-          }
-        }}
-      >
-        {tags.map((value, index) => (
-          <CustomSelect.Option value={value} key={index}>
-            {value.split(",")[1] ? (
-              value.split(",").map((item, i) => {
-                const tagColor = getTagColor(item, memoizedTagOptions);
-                const tagIcon = getTagIcon(item, memoizedTagOptions);
-                const tagStyle = getTagStyle(item, memoizedTagOptions);
-                
-                return (
-                  <Tag 
-                    color={tagColor}
-                    icon={tagIcon} 
-                    key={i} 
-                    style={{ 
-                      marginRight: tagStyle.margin ? undefined : "8px", 
-                      cursor: "pointer",
-                      ...tagStyle 
-                    }}
-                    onClick={(e) => handleTagClick(item, e)}
-                  >
-                    {item}
-                  </Tag>
-                );
-              })
-            ) : (
-              <Tag 
-                color={getTagColor(value, memoizedTagOptions)} 
-                icon={getTagIcon(value, memoizedTagOptions)} 
-                key={index}
-                style={{
-                  cursor: "pointer",
-                  ...getTagStyle(value, memoizedTagOptions)
-                }}
-                onClick={(e) => handleTagClick(value, e)}
-              >
-                {value}
-              </Tag>
-            )}
-          </CustomSelect.Option>
-        ))}
-      </CustomSelect>
-    </Wrapper>
-  );
-});
-
-TagEdit.displayName = 'TagEdit';
 
 export const ColumnTagsComp = (function () {
   return new ColumnTypeCompBuilder(
