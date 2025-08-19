@@ -194,6 +194,8 @@ const tableChildrenMap = {
   selection: SelectionControl,
   pagination: PaginationControl,
   sort: valueComp<Array<SortValue>>([]),
+  // Header filters state for ANTD column header filters
+  headerFilters: stateComp<Record<string, any[]>>({}),
   toolbar: TableToolbarComp,
   showSummary: BoolControl,
   summaryRows: dropdownControl(summarRowsOptions, "1"),

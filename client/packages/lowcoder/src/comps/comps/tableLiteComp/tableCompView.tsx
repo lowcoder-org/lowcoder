@@ -42,6 +42,7 @@ export const TableCompView = React.memo((props: {
 		[compChildren.dynamicColumnConfig]
 	);
 	const columnsAggrData = comp.columnAggrData;
+	const headerFilters = useMemo(() => compChildren.headerFilters.getView(), [compChildren.headerFilters]);
 	const antdColumns = useMemo(
 		() =>
 			columnsToAntdFormat(
@@ -53,6 +54,7 @@ export const TableCompView = React.memo((props: {
 				dynamicColumnConfig,
 				columnsAggrData,
 				onEvent,
+				headerFilters,
 			),
 		[
 			columnViews,
@@ -62,6 +64,7 @@ export const TableCompView = React.memo((props: {
 			dynamicColumn,
 			dynamicColumnConfig,
 			columnsAggrData,
+			headerFilters,
 		]
 	);
 
@@ -146,11 +149,6 @@ export const TableCompView = React.memo((props: {
 		((showDataLoadingIndicators) && (compChildren.data as any).isLoading()) ||
 		compChildren.loading.getView();
 
-	// Virtualization: keep pagination, virtualize within the visible body
-	const virtualEnabled = true; // enable by default for lite table
-	// Estimate a sensible body height. If table auto-height is enabled, fallback to 480.
-	const virtualBodyHeight = 480;
-
 	return (
 		<>
 			{toolbar.position === "above" && !hideToolbar && toolbarView}
@@ -174,8 +172,6 @@ export const TableCompView = React.memo((props: {
 				columnsStyle={columnsStyle}
 				rowAutoHeight={compChildren.rowAutoHeight.getView()}
 				customLoading={showTableLoading}
-				virtualEnabled={virtualEnabled}
-				virtualBodyHeight={virtualBodyHeight}
 				onCellClick={(columnName: string, dataIndex: string) => {
 					comp.children.selectedCell.dispatchChangeValueAction({
 						name: columnName,

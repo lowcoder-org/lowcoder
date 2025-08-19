@@ -373,17 +373,33 @@ function buildFilterProps(
   filterable: boolean,
   candidateTags: any[],
   uniqueValues: any[],
+  headerFilters: Record<string, any[]> = {},
 ) {
   if (!filterable) return {};
+  
   const candidates = (Array.isArray(candidateTags) && candidateTags.length > 0
     ? candidateTags
     : Array.isArray(uniqueValues) && uniqueValues.length > 0
       ? uniqueValues
       : [])
     .slice(0, 100);
+    
+  if (candidates.length === 0) return {};
+  
   return {
-    filters: candidates.map((v) => ({ text: String(v), value: v })),
-    onFilter: (value: any, record: any) => String(record[dataIndex] ?? "") === String(value ?? ""),
+    filters: candidates.map((v) => ({ 
+      text: String(v ?? 'null'), 
+      value: v 
+    })),
+    filteredValue: headerFilters[dataIndex] || null,
+    // Enable search within the filter dropdown (AntD)
+    filterSearch: true,
+    // Use tree mode for better UX on long lists (AntD)
+    filterMode: 'tree',
+    // Allow selecting multiple values per column by default
+    filterMultiple: true,
+    // Remove onFilter as we handle filtering in buildFilteredDataNode
+    // ANTD will call onChange with filters parameter instead
   } as const;
 }
 
@@ -489,6 +505,7 @@ export function columnsToAntdFormat(
   dynamicColumnConfig: Array<string>,
   columnsAggrData: ColumnsAggrData,
   onTableEvent: (eventName: any) => void,
+  headerFilters: Record<string, any[]> = {},
 ): Array<CustomColumnType<RecordType>> {
   const customColumns = columns.filter(col => col.isCustom).map(col => col.dataIndex);
   const initialColumns = getInitialColumns(columnsAggrData, customColumns);
@@ -504,7 +521,7 @@ export function columnsToAntdFormat(
 
     const { candidateTags, candidateStatus, uniqueValues } = extractAggrForColumn(column.dataIndex, columnsAggrData);
     const title = renderTitle({ title: column.title, tooltip: column.titleTooltip });
-    const filterProps = buildFilterProps(column.dataIndex, column.filterable, candidateTags, uniqueValues);
+    const filterProps = buildFilterProps(column.dataIndex, column.filterable, candidateTags, uniqueValues, headerFilters);
     const { style, linkStyle } = buildStyleProps(column);
     const multiplePriority = (sortedColumns.length - mIndex) + 1;
     const sorterProps = buildSorterProps(column, sortMap.get(column.dataIndex), multiplePriority);
@@ -572,6 +589,16 @@ export function onTableChange(
     onEvent("sortChange");
   }
   if (extra.action === "filter") {
+    // Convert filters to a format suitable for our filter state
+    const headerFilters: Record<string, any[]> = {};
+    Object.entries(filters).forEach(([columnKey, filterValues]) => {
+      if (filterValues && Array.isArray(filterValues) && filterValues.length > 0) {
+        headerFilters[columnKey] = filterValues;
+      }
+    });
+    
+    // Dispatch action to update header filters state
+    dispatch(changeChildAction("headerFilters", headerFilters, true));
     onEvent("filterChange");
   }
 }

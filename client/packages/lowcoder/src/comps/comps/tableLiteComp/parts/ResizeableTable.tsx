@@ -16,8 +16,6 @@ export type ResizeableTableProps<RecordType> = Omit<TableProps<RecordType>, "com
 	rowAutoHeight?: boolean;
 	customLoading?: boolean;
 	onCellClick: (columnName: string, dataIndex: string) => void;
-	virtualEnabled?: boolean;
-	virtualBodyHeight?: number;
 };
 
 /**
@@ -34,8 +32,6 @@ function ResizeableTableComp<RecordType extends object>(props: ResizeableTablePr
 		rowAutoHeight,
 		customLoading,
 		onCellClick,
-		virtualEnabled,
-		virtualBodyHeight,
 		...restProps
 	} = props;
 	const [resizeData, setResizeData] = useState({ index: -1, width: -1 });
@@ -111,14 +107,6 @@ function ResizeableTableComp<RecordType extends object>(props: ResizeableTablePr
 		});
 	}, [columns, resizeData, createCellHandler, createHeaderCellHandler]);
 
-	// Ensure scroll.x is preserved and inject scroll.y when virtualization is enabled
-	const mergedScroll = useMemo(() => {
-		const xScroll = { x: COL_MIN_WIDTH * columns.length } as any;
-		const incoming = (restProps as any).scroll || {};
-		const y = virtualEnabled ? (virtualBodyHeight ?? incoming.y ?? 480) : incoming.y;
-		return { ...xScroll, ...incoming, ...(y ? { y } : {}) };
-	}, [columns.length, restProps, virtualEnabled, virtualBodyHeight]);
-
 	return (
 		<Table<RecordType>
 			components={{
@@ -130,11 +118,8 @@ function ResizeableTableComp<RecordType extends object>(props: ResizeableTablePr
 				},
 			}}
 			{...(restProps as any)}
-			// Enable AntD virtual rendering when requested (AntD will ignore if unsupported)
-			{...(virtualEnabled ? { virtual: true } : {})}
 			pagination={false}
 			columns={memoizedColumns}
-			scroll={mergedScroll}
 		/>
 	);
 }

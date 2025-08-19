@@ -70,10 +70,31 @@ export function buildSortedDataNode(comp: TableImplComp) {
 export function buildFilteredDataNode(comp: TableImplComp) {
   const nodes = {
     data: buildSortedDataNode(comp),
+    // Add filter state node
+    headerFilters: comp.children.headerFilters.node(),
   };
-  const filteredDataNode = withFunction(fromRecord(nodes), ({ data }) => {
-    // No pre-filtering here; AntD header filters are handled internally by Table
-    return data.map((row) => tranToTableRecord(row, (row as any)[OB_ROW_ORI_INDEX]));
+  const filteredDataNode = withFunction(fromRecord(nodes), ({ data, headerFilters }) => {
+    let filteredData = data;
+    
+    // Apply ANTD header filters if any exist
+    if (headerFilters && Object.keys(headerFilters).length > 0) {
+      filteredData = data.filter((record) => {
+        return Object.entries(headerFilters).every(([columnKey, filterValues]) => {
+          if (!filterValues || !Array.isArray(filterValues) || filterValues.length === 0) {
+            return true; // No filter applied for this column
+          }
+          
+          const cellValue = record[columnKey];
+          // Check if cell value matches any of the selected filter values
+          return filterValues.some(filterValue => {
+            if (cellValue == null) return filterValue == null;
+            return String(cellValue) === String(filterValue);
+          });
+        });
+      });
+    }
+    
+    return filteredData.map((row) => tranToTableRecord(row, (row as any)[OB_ROW_ORI_INDEX]));
   });
   return lastValueIfEqual(comp, "filteredDataNode", [filteredDataNode, nodes] as const, (a, b) =>
     shallowEqual(a[1], b[1])
