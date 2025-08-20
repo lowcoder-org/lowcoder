@@ -118,16 +118,9 @@ function Bottom(props: any) {
               <ChatHeader>
                 <ChatTitle>Lowcoder AI Assistant</ChatTitle>
               </ChatHeader>
-              {/* <ChatView
+              <ChatPanel
                 tableName="LC_AI"
-                handlerType="n8n"
-                streaming={true}
-                systemPrompt="You are a helpful assistant."
-                modelHost="http://localhost:5678/webhook-test/9a363e76-d3a5-46d1-98c3-4359f7106d33"
-              /> */}
-             <ChatPanel
-                tableName="LC_AI"
-                modelHost="http://localhost:5678/webhook/9a363e76-d3a5-46d1-98c3-4359f7106d33"
+                modelHost="https://primary-production-90088.up.railway.app/webhook/9a363e76-d3a5-46d1-98c3-4359f7106d33"
                 systemPrompt="You are a helpful assistant."
                 streaming={true}
               />
