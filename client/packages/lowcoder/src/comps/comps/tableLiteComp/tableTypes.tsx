@@ -221,9 +221,6 @@ const tableChildrenMap = {
   // todo: support object config
   dynamicColumnConfig: ArrayStringControl,
   selectedCell: stateComp<JSONObject>({}),
-  // Virtualization controls
-  enableVirtualization: withDefault(BoolControl, true),
-  virtualizationThreshold: withDefault(NumberControl, 50),
 };
 
 export const TableInitComp = (function () {

@@ -47,14 +47,12 @@ export const TableCompView = React.memo((props: {
 	const columnsAggrData = comp.columnAggrData;
 	const headerFilters = useMemo(() => compChildren.headerFilters.getView(), [compChildren.headerFilters]);
 	
-	// Virtualization logic
+	// Virtualization logic - simplified: enable for fixed height with 50+ rows
 	const isFixedHeight = !compChildren.autoHeight.getView(); // autoHeight: "fixed" when false
 	const rowAutoHeight = compChildren.rowAutoHeight.getView();
-	const enableVirtualizationControl = compChildren.enableVirtualization.getView();
-	const virtualizationThreshold = compChildren.virtualizationThreshold.getView();
 	
 	const enableVirtualization = useMemo(() => {
-		const shouldVirtualize = Boolean(enableVirtualizationControl) && isFixedHeight && data.length >= (Number(virtualizationThreshold) || 0);
+		const shouldVirtualize = isFixedHeight && data.length >= 50;
 		
 		// Debug logging
 		if (process.env.NODE_ENV === 'development') {
@@ -62,13 +60,12 @@ export const TableCompView = React.memo((props: {
 				shouldVirtualize,
 				isFixedHeight,
 				dataLength: data.length,
-				enableVirtualizationControl,
-				virtualizationThreshold,
+				threshold: 50,
 			});
 		}
 		
 		return shouldVirtualize;
-	}, [enableVirtualizationControl, isFixedHeight, data.length, virtualizationThreshold]);
+	}, [isFixedHeight, data.length]);
 
 	// Measure container height for virtualization
 	useEffect(() => {
@@ -224,7 +221,6 @@ export const TableCompView = React.memo((props: {
 							dataIndex: dataIndex,
 						});
 					}}
-					enableVirtualization={enableVirtualization}
 					containerHeight={containerHeight}
 					isFixedHeight={isFixedHeight}
 				/>

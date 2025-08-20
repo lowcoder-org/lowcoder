@@ -17,29 +17,9 @@ export type ResizeableTableProps<RecordType> = Omit<TableProps<RecordType>, "com
 	customLoading?: boolean;
 	onCellClick: (columnName: string, dataIndex: string) => void;
 	// Virtualization props
-	enableVirtualization?: boolean;
 	containerHeight?: number;
 	isFixedHeight?: boolean;
 };
-
-/**
- * Simplified row height estimate - only used when virtualization is actually enabled
- */
-function getRowHeightEstimate(size?: string, rowAutoHeight?: boolean): number {
-	if (rowAutoHeight) {
-		switch (size) {
-			case 'small': return 40;
-			case 'large': return 80;
-			default: return 60;
-		}
-	}
-	
-	switch (size) {
-		case 'small': return 32;
-		case 'large': return 68;
-		default: return 50;
-	}
-}
 
 /**
  * A table with adjustable column width, width less than 0 means auto column width
@@ -55,7 +35,6 @@ function ResizeableTableComp<RecordType extends object>(props: ResizeableTablePr
 		rowAutoHeight,
 		customLoading,
 		onCellClick,
-		enableVirtualization,
 		containerHeight,
 		isFixedHeight,
 		dataSource,
@@ -136,9 +115,9 @@ function ResizeableTableComp<RecordType extends object>(props: ResizeableTablePr
 		});
 	}, [columns, resizeData, createCellHandler, createHeaderCellHandler]);
 
-	// Only observe heights when virtualization is actually enabled
+	// Measure heights for fixed height mode with virtualization
 	useEffect(() => {
-		if (!enableVirtualization || !tableRef.current) return;
+		if (!isFixedHeight || !tableRef.current) return;
 		const tableEl = tableRef.current;
 
 		const measure = () => {
@@ -152,43 +131,31 @@ function ResizeableTableComp<RecordType extends object>(props: ResizeableTablePr
 		resizeObserver.observe(tableEl);
 
 		return () => resizeObserver.disconnect();
-	}, [enableVirtualization, dataSource?.length, columns.length]);
+	}, [isFixedHeight, dataSource?.length, columns.length]);
 
 	const scrollAndVirtualizationSettings = useMemo(() => {
-		// Calculate total width for horizontal scrolling
-		const totalWidth = columns.reduce((sum, col, index) => {
-			const resizeWidth = (resizeData.index === index ? resizeData.width : col.width) ?? 0;
-			const w = typeof resizeWidth === 'number' && resizeWidth > 0 ? resizeWidth : COL_MIN_WIDTH;
-			return sum + w;
-		}, 0);
-
-		// Base scroll settings - always provide scroll configuration
+		// Simple scrolling logic - ANTD handles most of this automatically
 		const scrollSettings: { x?: number; y?: number } = {};
 		
-		// Set horizontal scroll if we have columns
-		if (columns.length > 0) {
-			scrollSettings.x = totalWidth;
-		}
-
-		// For fixed height mode, add vertical scroll
+		// For fixed height mode, set vertical scroll height
 		if (isFixedHeight && containerHeight && containerHeight > 0) {
 			const availableHeight = Math.max(containerHeight - measuredHeights.header - measuredHeights.summary, 200);
 			scrollSettings.y = availableHeight;
 		}
 
-		// Determine if virtualization should be enabled
+		// Enable virtualization for fixed height mode with 50+ rows
 		const shouldUseVirtualization = Boolean(
-			enableVirtualization && 
+			isFixedHeight && 
 			containerHeight && 
 			dataSource?.length && 
-			dataSource.length > 0
+			dataSource.length >= 50
 		);
 		
 		return {
 			virtual: shouldUseVirtualization,
 			scroll: scrollSettings
 		};
-	}, [enableVirtualization, containerHeight, dataSource?.length, columns, resizeData, measuredHeights, isFixedHeight]);
+	}, [isFixedHeight, containerHeight, dataSource?.length, measuredHeights]);
 
 	return (
 		<div ref={tableRef}>
