@@ -11,6 +11,27 @@ import TableCellView from "./TableCellView";
 import { COL_MIN_WIDTH, CustomColumnType } from "../tableUtils";
 import { TableColumnStyleType } from "comps/controls/styleControlConstants";
 import { RowColorViewType, RowHeightViewType } from "../tableTypes";
+import styled from "styled-components";
+
+
+const StyledTableWrapper = styled.div`
+  /* Hide AntD's virtual horizontal scrollbar overlay */
+  .ant-table-tbody-virtual-scrollbar-horizontal {
+    display: none !important;
+    height: 0 !important;
+  }
+  /* Make the virtual scrollbar container inert (avoids dead click zone) */
+  .ant-table-tbody-virtual-scrollbar {
+    pointer-events: none !important;
+  }
+
+  /* (Optional) Some builds also render a sticky helper track – hide it too */
+  .ant-table-sticky-scroll,
+  .ant-table-sticky-scroll-bar {
+    display: none !important;
+    height: 0 !important;
+  }
+`;
 
 export type ResizeableTableProps<RecordType> = Omit<
   TableProps<RecordType>,
@@ -230,7 +251,7 @@ function ResizeableTableComp<RecordType extends object>(
   ]);
 
   return (
-    <div ref={tableRef}>
+    <StyledTableWrapper ref={tableRef}>
       <Table<RecordType>
         components={{
           header: {
@@ -247,7 +268,7 @@ function ResizeableTableComp<RecordType extends object>(
         virtual={scrollAndVirtualizationSettings.virtual}
         scroll={scrollAndVirtualizationSettings.scroll}
       />
-    </div>
+    </StyledTableWrapper>
   );
 }
 
