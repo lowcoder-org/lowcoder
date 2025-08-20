@@ -134,8 +134,9 @@ function ResizeableTableComp<RecordType extends object>(props: ResizeableTablePr
 	}, [isFixedHeight, dataSource?.length, columns.length]);
 
 	const scrollAndVirtualizationSettings = useMemo(() => {
-		// Simple scrolling logic - ANTD handles most of this automatically
-		const scrollSettings: { x?: number; y?: number } = {};
+		const scrollSettings: { x?: number; y?: number } = {
+			x: COL_MIN_WIDTH * columns.length,  
+		};
 		
 		// For fixed height mode, set vertical scroll height
 		if (isFixedHeight && containerHeight && containerHeight > 0) {
@@ -155,7 +156,7 @@ function ResizeableTableComp<RecordType extends object>(props: ResizeableTablePr
 			virtual: shouldUseVirtualization,
 			scroll: scrollSettings
 		};
-	}, [isFixedHeight, containerHeight, dataSource?.length, measuredHeights]);
+	}, [isFixedHeight, containerHeight, dataSource?.length, measuredHeights, columns.length]);
 
 	return (
 		<div ref={tableRef}>
