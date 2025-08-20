@@ -78,7 +78,8 @@ function ResizeableTableComp<RecordType extends object>(
   const [measuredHeights, setMeasuredHeights] = useState<{
     header: number;
     summary: number;
-  }>({ header: 0, summary: 0 });
+    bodyContent: number;
+  }>({ header: 0, summary: 0, bodyContent: 0 });
 
   const handleResize = useCallback((width: number, index: number) => {
     setResizeData({ index, width });
@@ -177,7 +178,7 @@ function ResizeableTableComp<RecordType extends object>(
     });
   }, [columns, resizeData, createCellHandler, createHeaderCellHandler]);
 
-  // Measure header & summary heights so we can derive the body viewport height for vertical scrolling
+  // Measure header, summary & body content heights so we can derive the body viewport height for vertical scrolling
   useEffect(() => {
     if (!isFixedHeight || !tableRef.current) return;
     const tableEl = tableRef.current;
@@ -189,7 +190,10 @@ function ResizeableTableComp<RecordType extends object>(
       const summaryH =
         (tableEl.querySelector(".ant-table-summary") as HTMLElement)
           ?.clientHeight ?? 0;
-      setMeasuredHeights({ header: headerH, summary: summaryH });
+      const bodyContentH =
+        (tableEl.querySelector(".ant-table-tbody") as HTMLElement)
+          ?.scrollHeight ?? 0;
+      setMeasuredHeights({ header: headerH, summary: summaryH, bodyContent: bodyContentH });
     };
 
     measure();
@@ -226,19 +230,29 @@ function ResizeableTableComp<RecordType extends object>(
         containerHeight - measuredHeights.header - measuredHeights.summary,
         200
       );
-      scrollSettings.y = availableHeight;
+
+      // Enable virtualization for fixed height mode with 50+ rows
+      const shouldUseVirtualization = Boolean(
+        isFixedHeight &&
+          containerHeight &&
+          dataSource?.length &&
+          dataSource.length >= 50
+      );
+
+      // Only set scroll.y if virtualization is on OR content actually overflows
+      const contentOverflows = measuredHeights.bodyContent > availableHeight;
+      if (shouldUseVirtualization || contentOverflows) {
+        scrollSettings.y = availableHeight;
+      }
+
+      return {
+        virtual: shouldUseVirtualization,
+        scroll: scrollSettings,
+      };
     }
 
-    // Enable virtualization for fixed height mode with 50+ rows
-    const shouldUseVirtualization = Boolean(
-      isFixedHeight &&
-        containerHeight &&
-        dataSource?.length &&
-        dataSource.length >= 50
-    );
-
     return {
-      virtual: shouldUseVirtualization,
+      virtual: false,
       scroll: scrollSettings,
     };
   }, [
