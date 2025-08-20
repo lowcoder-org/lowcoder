@@ -22,6 +22,8 @@ export const TableCompView = React.memo((props: {
 	const compName = useContext(CompNameContext);
 	const [loading, setLoading] = useState(false);
 	const tableContainerRef = useRef<HTMLDivElement>(null);
+	const tableViewportRef = useRef<HTMLDivElement>(null);
+
 	const [containerHeight, setContainerHeight] = useState<number>(0);
 	
 	const { comp, onDownload, onRefresh } = props;
@@ -69,10 +71,10 @@ export const TableCompView = React.memo((props: {
 
 	// Measure container height for virtualization
 	useEffect(() => {
-		if (!isFixedHeight || !tableContainerRef.current) return;
+		if (!isFixedHeight || !tableViewportRef.current) return;
 
 		const measureHeight = () => {
-			const el = tableContainerRef.current;
+			const el = tableViewportRef.current;
 			if (el) {
             // clientHeight = inner height available to the scrollable body
 				setContainerHeight(el.clientHeight);
@@ -80,7 +82,7 @@ export const TableCompView = React.memo((props: {
 		};
 		measureHeight();
 		const resizeObserver = new ResizeObserver(measureHeight);
-		resizeObserver.observe(tableContainerRef.current);
+		resizeObserver.observe(tableViewportRef.current);
 
 		return () => resizeObserver.disconnect();
 	}, [isFixedHeight]);
@@ -194,7 +196,7 @@ export const TableCompView = React.memo((props: {
 	return (
 		<div ref={tableContainerRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
 			{toolbar.position === "above" && !hideToolbar && toolbarView}
-			<div style={{ flex: 1, minHeight: 0 }}>
+			<div ref={tableViewportRef} style={{ flex: 1, minHeight: 0 }}>
 				<ResizeableTable<any>
 					{...compChildren.selection.getView()(onEvent)}
 					bordered={compChildren.showRowGridBorder.getView()}
