@@ -305,7 +305,7 @@ export const deleteComponentAction: ActionConfig = {
   requiresEditorComponentSelection: true,
   requiresInput: false,
   execute: async (params: ActionExecuteParams) => {
-    const { selectedEditorComponent, editorState } = params;
+    const { actionPayload: { component_name: selectedEditorComponent }, editorState } = params; 
     
     if (!selectedEditorComponent || !editorState) {
       message.error('Component and editor state are required');
@@ -322,11 +322,6 @@ export const deleteComponentAction: ActionConfig = {
 
       const { allAppComponents } = componentInfo;
       const targetComponent = allAppComponents.find(comp => comp.name === selectedEditorComponent);
-      
-      if (!targetComponent) {
-        message.error(`Component "${selectedEditorComponent}" not found in application`);
-        return;
-      }
 
       const targetInfo = findTargetComponent(editorState, selectedEditorComponent);
 

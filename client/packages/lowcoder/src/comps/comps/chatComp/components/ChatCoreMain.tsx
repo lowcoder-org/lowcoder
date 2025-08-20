@@ -21,7 +21,7 @@ import styled from "styled-components";
 import { trans } from "i18n";
 import { EditorContext, EditorState } from "@lowcoder-ee/comps/editorState";
 import { configureComponentAction } from "../../preLoadComp/actions/componentConfiguration";
-import { addComponentAction, moveComponentAction, nestComponentAction, resizeComponentAction } from "../../preLoadComp/actions/componentManagement";
+import { addComponentAction, deleteComponentAction, moveComponentAction, nestComponentAction, resizeComponentAction } from "../../preLoadComp/actions/componentManagement";
 import { applyThemeAction, configureAppMetaAction, setCanvasSettingsAction } from "../../preLoadComp/actions/appConfiguration";
 
 // ============================================================================
@@ -192,6 +192,20 @@ export function ChatCoreMain({
             selectedCustomShortcutAction: null
           });
           break;
+        case "delete_component":
+          await deleteComponentAction.execute({
+            actionKey: action,
+            actionValue: component,
+            actionPayload: action_payload,
+            selectedComponent: component,
+            selectedEditorComponent: null,
+            selectedNestComponent: null,
+            editorState: editorStateRef.current,
+            selectedDynamicLayoutIndex: null,
+            selectedTheme: null,
+            selectedCustomShortcutAction: null
+          });
+          break;
         case "set_theme":
           await applyThemeAction.execute({
             actionKey: action,
@@ -237,7 +251,7 @@ export function ChatCoreMain({
         default:
           break;
       }
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
     }
   };
 
