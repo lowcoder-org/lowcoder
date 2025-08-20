@@ -526,13 +526,16 @@ export function columnsToAntdFormat(
     const multiplePriority = (sortedColumns.length - mIndex) + 1;
     const sorterProps = buildSorterProps(column, sortMap.get(column.dataIndex), multiplePriority);
 
+    // 🔥 FIX: Handle auto-width columns properly
+    const columnWidth = column.autoWidth === "auto" ? undefined : column.width;
+
     const antdColumn: CustomColumnType<RecordType> = {
       key: `${column.dataIndex}`,
       title: column.showTitle ? title : '',
       titleText: column.title,
       dataIndex: column.dataIndex,
       align: column.align,
-      width: column.autoWidth === "auto" ? 0 : column.width,
+      width: columnWidth, // Don't set width: 0 for auto columns
       fixed: column.fixed === "close" ? false : column.fixed,
       style,
       linkStyle,

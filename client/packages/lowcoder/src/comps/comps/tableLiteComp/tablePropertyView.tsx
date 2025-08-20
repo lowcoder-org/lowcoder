@@ -568,7 +568,7 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
             {comp.children.visibleResizables.propertyView({
               label: trans("table.visibleResizables"),
               tooltip: trans("table.visibleResizablesTooltip"),
-            })}
+            })} 
           </Section>
           <Section name={trans("prop.pagination")}>
             {comp.children.pagination.getPropertyView()}
@@ -585,6 +585,15 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
                 label: trans("table.dynamicColumnConfig"),
                 tooltip: trans("table.dynamicColumnConfigDesc"),
             })}
+            {comp.children.enableVirtualization.propertyView({
+              label: "Enable Virtualization",
+              tooltip: "Render only visible rows to improve performance on large datasets.",
+            })}
+            {comp.children.enableVirtualization.getView() &&
+              comp.children.virtualizationThreshold.propertyView({
+                label: "Virtualization Threshold",
+                tooltip: "Virtualize only when row count is greater than or equal to this number.",
+              })}
           </Section>
         </>
       )}

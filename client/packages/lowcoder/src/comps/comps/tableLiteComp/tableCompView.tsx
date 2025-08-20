@@ -3,7 +3,7 @@ import { TableEventOptionValues } from "./tableTypes";
 import { COL_MIN_WIDTH, columnsToAntdFormat, onTableChange } from "./tableUtils";
 import { CompNameContext, EditorContext } from "comps/editorState";
 import { trans } from "i18n";
-import React, { useCallback, useContext, useMemo, useState } from "react";
+import React, { useCallback, useContext, useMemo, useState, useRef, useEffect } from "react";
 import { TableImplComp } from "./tableComp";
 import { EmptyContent } from "pages/common/styledComponent";
 import { TableSummary } from "./tableSummaryComp";
@@ -21,6 +21,9 @@ export const TableCompView = React.memo((props: {
 
 	const compName = useContext(CompNameContext);
 	const [loading, setLoading] = useState(false);
+	const tableContainerRef = useRef<HTMLDivElement>(null);
+	const [containerHeight, setContainerHeight] = useState<number>(0);
+	
 	const { comp, onDownload, onRefresh } = props;
 	const compChildren = comp.children;
 	const hideToolbar = compChildren.hideToolbar.getView();
@@ -43,6 +46,49 @@ export const TableCompView = React.memo((props: {
 	);
 	const columnsAggrData = comp.columnAggrData;
 	const headerFilters = useMemo(() => compChildren.headerFilters.getView(), [compChildren.headerFilters]);
+	
+	// Virtualization logic
+	const isFixedHeight = !compChildren.autoHeight.getView(); // autoHeight: "fixed" when false
+	const rowAutoHeight = compChildren.rowAutoHeight.getView();
+	const enableVirtualizationControl = compChildren.enableVirtualization.getView();
+	const virtualizationThreshold = compChildren.virtualizationThreshold.getView();
+	
+	const enableVirtualization = useMemo(() => {
+		const shouldVirtualize = Boolean(enableVirtualizationControl) && isFixedHeight && data.length >= (Number(virtualizationThreshold) || 0);
+		
+		// Debug logging
+		if (process.env.NODE_ENV === 'development') {
+			console.log('Table Virtualization Status:', {
+				shouldVirtualize,
+				isFixedHeight,
+				dataLength: data.length,
+				enableVirtualizationControl,
+				virtualizationThreshold,
+			});
+		}
+		
+		return shouldVirtualize;
+	}, [enableVirtualizationControl, isFixedHeight, data.length, virtualizationThreshold]);
+
+	// Measure container height for virtualization
+	useEffect(() => {
+		if (!enableVirtualization || !tableContainerRef.current) return;
+
+		const measureHeight = () => {
+			const el = tableContainerRef.current;
+			if (el) {
+				// Use clientHeight to get the actual inner height excluding borders/scrollbars
+				setContainerHeight(el.clientHeight);
+			}
+		};
+
+		measureHeight();
+		const resizeObserver = new ResizeObserver(measureHeight);
+		resizeObserver.observe(tableContainerRef.current);
+
+		return () => resizeObserver.disconnect();
+	}, [enableVirtualization]);
+
 	const antdColumns = useMemo(
 		() =>
 			columnsToAntdFormat(
@@ -150,36 +196,40 @@ export const TableCompView = React.memo((props: {
 		compChildren.loading.getView();
 
 	return (
-		<>
+		<div ref={tableContainerRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
 			{toolbar.position === "above" && !hideToolbar && toolbarView}
-			<ResizeableTable<any>
-				{...compChildren.selection.getView()(onEvent)}
-				bordered={compChildren.showRowGridBorder.getView()}
-				onChange={(pagination: any, filters: any, sorter: any, extra: any) => {
-					onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
-				}}
-				showHeader={!compChildren.hideHeader.getView()}
-				columns={antdColumns}
-				dataSource={pageDataInfo.data}
-				size={compChildren.size.getView()}
-				tableLayout="fixed"
-				pagination={false}
-				scroll={{ x: COL_MIN_WIDTH * columns.length }}
-				summary={summaryView}
-				viewModeResizable={compChildren.viewModeResizable.getView()}
-				rowColorFn={compChildren.rowColor.getView() as any}
-				rowHeightFn={compChildren.rowHeight.getView() as any}
-				columnsStyle={columnsStyle}
-				rowAutoHeight={compChildren.rowAutoHeight.getView()}
-				customLoading={showTableLoading}
-				onCellClick={(columnName: string, dataIndex: string) => {
-					comp.children.selectedCell.dispatchChangeValueAction({
-						name: columnName,
-						dataIndex: dataIndex,
-					});
-				}}
-			/>
+			<div style={{ flex: 1, minHeight: 0 }}>
+				<ResizeableTable<any>
+					{...compChildren.selection.getView()(onEvent)}
+					bordered={compChildren.showRowGridBorder.getView()}
+					onChange={(pagination: any, filters: any, sorter: any, extra: any) => {
+						onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
+					}}
+					showHeader={!compChildren.hideHeader.getView()}
+					columns={antdColumns}
+					dataSource={pageDataInfo.data}
+					size={compChildren.size.getView()}
+					tableLayout="auto"
+					pagination={false}
+					summary={summaryView}
+					viewModeResizable={compChildren.viewModeResizable.getView()}
+					rowColorFn={compChildren.rowColor.getView() as any}
+					rowHeightFn={compChildren.rowHeight.getView() as any}
+					columnsStyle={columnsStyle}
+					rowAutoHeight={rowAutoHeight}
+					customLoading={showTableLoading}
+					onCellClick={(columnName: string, dataIndex: string) => {
+						comp.children.selectedCell.dispatchChangeValueAction({
+							name: columnName,
+							dataIndex: dataIndex,
+						});
+					}}
+					enableVirtualization={enableVirtualization}
+					containerHeight={containerHeight}
+					isFixedHeight={isFixedHeight}
+				/>
+			</div>
 			{toolbar.position === "below" && !hideToolbar && toolbarView}
-		</>
+		</div>
 	);
 });

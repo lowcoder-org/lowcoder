@@ -7,6 +7,7 @@ import {
   ColorOrBoolCodeControl,
   HeightOrBoolCodeControl,
   JSONObjectArrayControl,
+  NumberControl,
 } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
@@ -220,6 +221,9 @@ const tableChildrenMap = {
   // todo: support object config
   dynamicColumnConfig: ArrayStringControl,
   selectedCell: stateComp<JSONObject>({}),
+  // Virtualization controls
+  enableVirtualization: withDefault(BoolControl, true),
+  virtualizationThreshold: withDefault(NumberControl, 50),
 };
 
 export const TableInitComp = (function () {
