@@ -69,22 +69,21 @@ export const TableCompView = React.memo((props: {
 
 	// Measure container height for virtualization
 	useEffect(() => {
-		if (!enableVirtualization || !tableContainerRef.current) return;
+		if (!isFixedHeight || !tableContainerRef.current) return;
 
 		const measureHeight = () => {
 			const el = tableContainerRef.current;
 			if (el) {
-				// Use clientHeight to get the actual inner height excluding borders/scrollbars
+            // clientHeight = inner height available to the scrollable body
 				setContainerHeight(el.clientHeight);
 			}
 		};
-
 		measureHeight();
 		const resizeObserver = new ResizeObserver(measureHeight);
 		resizeObserver.observe(tableContainerRef.current);
 
 		return () => resizeObserver.disconnect();
-	}, [enableVirtualization]);
+	}, [isFixedHeight]);
 
 	const antdColumns = useMemo(
 		() =>
