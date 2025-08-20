@@ -14179,7 +14179,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     pigeon-maps: ^0.22.1
     qrcode.react: ^3.1.0
     rc-trigger: ^5.3.1
-    rc-virtual-list: ^3.19.1
     react: 18.3.0
     react-best-gradient-color-picker: ^3.0.10
     react-colorful: ^5.5.1
@@ -17662,21 +17661,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 4f95486a0791b98e121b246303f62bbf0a4e05d549af9aae32a193275d8f958d37f1376323cdceffe7a92ea0270d6a9f974cd435cd2cbfb40f1c8bcc8eefcf5f
-  languageName: node
-  linkType: hard
-
-"rc-virtual-list@npm:^3.19.1":
-  version: 3.19.1
-  resolution: "rc-virtual-list@npm:3.19.1"
-  dependencies:
-    "@babel/runtime": ^7.20.0
-    classnames: ^2.2.6
-    rc-resize-observer: ^1.0.0
-    rc-util: ^5.36.0
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 156c7ace7cff488b5d31c30ba1d4a3236335fb95e62fcbe3abf6777cac070675f3ea730edaa2c9ab3b6d5b7facd859314cf8e4cebcd95a895aca2850d8d714e2
   languageName: node
   linkType: hard
 
