@@ -75,11 +75,7 @@ function ResizeableTableComp<RecordType extends object>(
 
   const [resizeData, setResizeData] = useState({ index: -1, width: -1 });
   const tableRef = useRef<HTMLDivElement>(null);
-  const [measuredHeights, setMeasuredHeights] = useState<{
-    header: number;
-    summary: number;
-    bodyContent: number;
-  }>({ header: 0, summary: 0, bodyContent: 0 });
+
 
   const handleResize = useCallback((width: number, index: number) => {
     setResizeData({ index, width });
@@ -178,30 +174,7 @@ function ResizeableTableComp<RecordType extends object>(
     });
   }, [columns, resizeData, createCellHandler, createHeaderCellHandler]);
 
-  // Measure header, summary & body content heights so we can derive the body viewport height for vertical scrolling
-  useEffect(() => {
-    if (!isFixedHeight || !tableRef.current) return;
-    const tableEl = tableRef.current;
-
-    const measure = () => {
-      const headerH =
-        (tableEl.querySelector(".ant-table-header") as HTMLElement)
-          ?.clientHeight ?? 0;
-      const summaryH =
-        (tableEl.querySelector(".ant-table-summary") as HTMLElement)
-          ?.clientHeight ?? 0;
-      const bodyContentH =
-        (tableEl.querySelector(".ant-table-tbody") as HTMLElement)
-          ?.scrollHeight ?? 0;
-      setMeasuredHeights({ header: headerH, summary: summaryH, bodyContent: bodyContentH });
-    };
-
-    measure();
-    const resizeObserver = new ResizeObserver(measure);
-    resizeObserver.observe(tableEl);
-
-    return () => resizeObserver.disconnect();
-  }, [isFixedHeight, dataSource?.length, columns.length]);
+ 
 
   // Sum widths (including resized values) to keep horizontal scroll baseline accurate
   function getTotalTableWidth(
@@ -222,47 +195,17 @@ function ResizeableTableComp<RecordType extends object>(
 
   const scrollAndVirtualizationSettings = useMemo(() => {
     const totalWidth = getTotalTableWidth(memoizedColumns as any, resizeData);
-    const scrollSettings: { x?: number; y?: number } = { x: totalWidth };
-
-    // For fixed height mode, set vertical scroll height (body viewport height)
-    if (isFixedHeight && containerHeight && containerHeight > 0) {
-      const availableHeight = Math.max(
-        containerHeight - measuredHeights.header - measuredHeights.summary,
-        200
-      );
-
-      // Enable virtualization for fixed height mode with 50+ rows
-      const shouldUseVirtualization = Boolean(
-        isFixedHeight &&
-          containerHeight &&
-          dataSource?.length &&
-          dataSource.length >= 50
-      );
-
-      // Only set scroll.y if virtualization is on OR content actually overflows
-      const contentOverflows = measuredHeights.bodyContent > availableHeight;
-      if (shouldUseVirtualization || contentOverflows) {
-        scrollSettings.y = availableHeight;
-      }
-
-      return {
-        virtual: shouldUseVirtualization,
-        scroll: scrollSettings,
-      };
-    }
-
+    const shouldVirtualize = isFixedHeight && (dataSource?.length ?? 0) >= 50;
+    
     return {
-      virtual: false,
-      scroll: scrollSettings,
+      virtual: shouldVirtualize,
+      scroll: {
+        x: totalWidth,
+        // FIX: Set y for ANY fixed height mode, not just virtualization
+        y: isFixedHeight && containerHeight ? containerHeight : undefined
+      }
     };
-  }, [
-    isFixedHeight,
-    containerHeight,
-    dataSource?.length,
-    measuredHeights,
-    memoizedColumns,
-    resizeData,
-  ]);
+  }, [isFixedHeight, containerHeight, dataSource?.length, memoizedColumns, resizeData]);
 
   return (
     <StyledTableWrapper ref={tableRef}>

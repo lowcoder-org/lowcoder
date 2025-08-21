@@ -21,7 +21,6 @@ export const TableCompView = React.memo((props: {
 
 	const compName = useContext(CompNameContext);
 	const [loading, setLoading] = useState(false);
-	const tableContainerRef = useRef<HTMLDivElement>(null);
 	const tableViewportRef = useRef<HTMLDivElement>(null);
 
 	const [containerHeight, setContainerHeight] = useState<number>(0);
@@ -53,22 +52,6 @@ export const TableCompView = React.memo((props: {
 	const isFixedHeight = !compChildren.autoHeight.getView(); // autoHeight: "fixed" when false
 	const rowAutoHeight = compChildren.rowAutoHeight.getView();
 	
-	const enableVirtualization = useMemo(() => {
-		const shouldVirtualize = isFixedHeight && data.length >= 50;
-		
-		// Debug logging
-		if (process.env.NODE_ENV === 'development') {
-			console.log('Table Virtualization Status:', {
-				shouldVirtualize,
-				isFixedHeight,
-				dataLength: data.length,
-				threshold: 50,
-			});
-		}
-		
-		return shouldVirtualize;
-	}, [isFixedHeight, data.length]);
-
 	// Measure container height for virtualization
 	useEffect(() => {
 		if (!isFixedHeight || !tableViewportRef.current) return;
@@ -194,7 +177,7 @@ export const TableCompView = React.memo((props: {
 		compChildren.loading.getView();
 
 	return (
-		<div ref={tableContainerRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+		<div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
 			{toolbar.position === "above" && !hideToolbar && toolbarView}
 			<div ref={tableViewportRef} style={{ flex: 1, minHeight: 0 }}>
 				<ResizeableTable<any>
