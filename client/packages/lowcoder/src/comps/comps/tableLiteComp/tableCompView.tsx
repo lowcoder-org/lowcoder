@@ -9,6 +9,7 @@ import { EmptyContent } from "pages/common/styledComponent";
 import { TableSummary } from "./tableSummaryComp";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 import ResizeableTable from "./parts/ResizeableTable";
+import { TableWrapper } from "./styles/TableWrapper";
 
 export const TableCompView = React.memo((props: {
 	comp: InstanceType<typeof TableImplComp>;
@@ -30,6 +31,12 @@ export const TableCompView = React.memo((props: {
 	const hideToolbar = compChildren.hideToolbar.getView();
 	const columnsStyle = compChildren.columnsStyle.getView();
 	const summaryRowStyle = compChildren.summaryRowStyle.getView();
+	const style = compChildren.style.getView();
+	const rowStyle = compChildren.rowStyle.getView();
+	const headerStyle = compChildren.headerStyle.getView();
+	const toolbarStyle = compChildren.toolbarStyle.getView();
+	const visibleResizables = compChildren.visibleResizables.getView();
+	const showHRowGridBorder = compChildren.showHRowGridBorder.getView();
 	const columns = useMemo(() => compChildren.columns.getView(), [compChildren.columns]);
 	const columnViews = useMemo(() => columns.map((c) => c.getView()), [columns]);
 	const data = comp.filterData;
@@ -180,34 +187,43 @@ export const TableCompView = React.memo((props: {
 		<div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
 			{toolbar.position === "above" && !hideToolbar && toolbarView}
 			<div ref={tableViewportRef} style={{ flex: 1, minHeight: 0 }}>
-				<ResizeableTable<any>
-					{...compChildren.selection.getView()(onEvent)}
-					bordered={compChildren.showRowGridBorder.getView()}
-					onChange={(pagination: any, filters: any, sorter: any, extra: any) => {
-						onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
-					}}
-					showHeader={!compChildren.hideHeader.getView()}
-					columns={antdColumns}
-					dataSource={pageDataInfo.data}
-					size={compChildren.size.getView()}
-					tableLayout="fixed"
-					pagination={false}
-					summary={summaryView}
-					viewModeResizable={compChildren.viewModeResizable.getView()}
-					rowColorFn={compChildren.rowColor.getView() as any}
-					rowHeightFn={compChildren.rowHeight.getView() as any}
-					columnsStyle={columnsStyle}
-					rowAutoHeight={rowAutoHeight}
-					customLoading={showTableLoading}
-					onCellClick={(columnName: string, dataIndex: string) => {
-						comp.children.selectedCell.dispatchChangeValueAction({
-							name: columnName,
-							dataIndex: dataIndex,
-						});
-					}}
-					containerHeight={containerHeight}
-					isFixedHeight={isFixedHeight}
-				/>
+				<TableWrapper
+					$style={style}
+					$headerStyle={headerStyle}
+					$rowStyle={rowStyle}
+					$toolbarStyle={toolbarStyle}
+					$visibleResizables={visibleResizables}
+					$showHRowGridBorder={showHRowGridBorder}
+				>
+					<ResizeableTable<any>
+						{...compChildren.selection.getView()(onEvent)}
+						bordered={compChildren.showRowGridBorder.getView()}
+						onChange={(pagination: any, filters: any, sorter: any, extra: any) => {
+							onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
+						}}
+						showHeader={!compChildren.hideHeader.getView()}
+						columns={antdColumns}
+						dataSource={pageDataInfo.data}
+						size={compChildren.size.getView()}
+						tableLayout="fixed"
+						pagination={false}
+						summary={summaryView}
+						viewModeResizable={compChildren.viewModeResizable.getView()}
+						rowColorFn={compChildren.rowColor.getView() as any}
+						rowHeightFn={compChildren.rowHeight.getView() as any}
+						columnsStyle={columnsStyle}
+						rowAutoHeight={rowAutoHeight}
+						customLoading={showTableLoading}
+						onCellClick={(columnName: string, dataIndex: string) => {
+							comp.children.selectedCell.dispatchChangeValueAction({
+								name: columnName,
+								dataIndex: dataIndex,
+							});
+						}}
+						containerHeight={containerHeight}
+						isFixedHeight={isFixedHeight}
+					/>
+				</TableWrapper>
 			</div>
 			{toolbar.position === "below" && !hideToolbar && toolbarView}
 		</div>
