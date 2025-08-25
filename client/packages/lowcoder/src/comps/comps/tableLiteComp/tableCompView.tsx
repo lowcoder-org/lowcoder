@@ -8,7 +8,7 @@ import { TableImplComp } from "./tableComp";
 import { EmptyContent } from "pages/common/styledComponent";
 import { TableSummary } from "./tableSummaryComp";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
-import ResizeableTable from "./parts/ResizeableTable";
+import BaseTable from "./parts/BaseTable";
 import { TableWrapper } from "./styles/TableWrapper";
 import { useContainerHeight, useTableMode, useTableHeights, useVirtualization } from "./hooks/useTableConfiguration";
 
@@ -193,7 +193,7 @@ export const TableCompView = React.memo((props: {
 					$visibleResizables={visibleResizables}
 					$showHRowGridBorder={showHRowGridBorder}
 				>
-					<ResizeableTable<any>
+					<BaseTable<any>
 						{...compChildren.selection.getView()(onEvent)}
 						bordered={compChildren.showRowGridBorder.getView()}
 						onChange={(pagination: any, filters: any, sorter: any, extra: any) => {
