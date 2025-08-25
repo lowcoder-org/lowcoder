@@ -10,6 +10,7 @@ import { TableSummary } from "./tableSummaryComp";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 import ResizeableTable from "./parts/ResizeableTable";
 import { TableWrapper } from "./styles/TableWrapper";
+import { useContainerHeight, useTableMode, useTableHeights, useVirtualization } from "./hooks/useTableConfiguration";
 
 export const TableCompView = React.memo((props: {
 	comp: InstanceType<typeof TableImplComp>;
@@ -21,10 +22,6 @@ export const TableCompView = React.memo((props: {
 	const showDataLoadingIndicators = currentTheme?.showDataLoadingIndicators;
 
 	const compName = useContext(CompNameContext);
-	const [loading, setLoading] = useState(false);
-	const tableViewportRef = useRef<HTMLDivElement>(null);
-
-	const [containerHeight, setContainerHeight] = useState<number>(0);
 	
 	const { comp, onDownload, onRefresh } = props;
 	const compChildren = comp.children;
@@ -48,6 +45,27 @@ export const TableCompView = React.memo((props: {
 	const size = useMemo(() => compChildren.size.getView(), [compChildren.size]);
 	const onEvent = useMemo(() => compChildren.onEvent.getView(), [compChildren.onEvent]);
 	const dynamicColumn = compChildren.dynamicColumn.getView();
+	const [loading, setLoading] = useState(false);
+	const autoHeight = compChildren.autoHeight.getView();
+	const rowAutoHeight = compChildren.rowAutoHeight.getView();
+	const showHeader = !compChildren.hideHeader.getView();
+
+	// NEW: Use hooks for clean logic
+	const { mode, isFixedMode } = useTableMode(autoHeight);
+	const { containerHeight, containerRef } = useContainerHeight(isFixedMode);
+	const heights = useTableHeights(mode as 'AUTO' | 'FIXED', containerHeight, {
+		showToolbar: !hideToolbar,
+		showHeader: showHeader,
+		toolbarHeight: 48,
+		headerHeight: 40
+	});
+	const virtualization = useVirtualization(
+		heights.canVirtualize,
+		data?.length ?? 0,
+		50
+	);
+
+
 	const dynamicColumnConfig = useMemo(
 		() => compChildren.dynamicColumnConfig.getView(),
 		[compChildren.dynamicColumnConfig]
@@ -55,27 +73,7 @@ export const TableCompView = React.memo((props: {
 	const columnsAggrData = comp.columnAggrData;
 	const headerFilters = useMemo(() => compChildren.headerFilters.getView(), [compChildren.headerFilters]);
 	
-	// Virtualization logic - simplified: enable for fixed height with 50+ rows
-	const isFixedHeight = !compChildren.autoHeight.getView(); // autoHeight: "fixed" when false
-	const rowAutoHeight = compChildren.rowAutoHeight.getView();
 	
-	// Measure container height for virtualization
-	useEffect(() => {
-		if (!isFixedHeight || !tableViewportRef.current) return;
-
-		const measureHeight = () => {
-			const el = tableViewportRef.current;
-			if (el) {
-            // clientHeight = inner height available to the scrollable body
-				setContainerHeight(el.clientHeight);
-			}
-		};
-		measureHeight();
-		const resizeObserver = new ResizeObserver(measureHeight);
-		resizeObserver.observe(tableViewportRef.current);
-
-		return () => resizeObserver.disconnect();
-	}, [isFixedHeight]);
 
 	const antdColumns = useMemo(
 		() =>
@@ -186,7 +184,7 @@ export const TableCompView = React.memo((props: {
 	return (
 		<div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
 			{toolbar.position === "above" && !hideToolbar && toolbarView}
-			<div ref={tableViewportRef} style={{ flex: 1, minHeight: 0 }}>
+			<div ref={containerRef} style={{ flex: 1, minHeight: 0 }}>
 				<TableWrapper
 					$style={style}
 					$headerStyle={headerStyle}
@@ -201,7 +199,7 @@ export const TableCompView = React.memo((props: {
 						onChange={(pagination: any, filters: any, sorter: any, extra: any) => {
 							onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
 						}}
-						showHeader={!compChildren.hideHeader.getView()}
+						showHeader={showHeader}
 						columns={antdColumns}
 						dataSource={pageDataInfo.data}
 						size={compChildren.size.getView()}
@@ -221,7 +219,7 @@ export const TableCompView = React.memo((props: {
 							});
 						}}
 						containerHeight={containerHeight}
-						isFixedHeight={isFixedHeight}
+						isFixedHeight={isFixedMode}
 					/>
 				</TableWrapper>
 			</div>
