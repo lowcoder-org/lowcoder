@@ -38,7 +38,7 @@ import { AuditLog } from "@lowcoder-ee/pages/setting/audit";
 import { IdSourceHome } from "@lowcoder-ee/pages/setting/idSource";
 import { Subscription } from "./subscriptions";
 import history from "util/history";
-import { HubspotModal } from "./hubspotModal";
+import { LicenseRequestModal } from "./licenseRequestModal";
 
 enum SettingPageEnum {
   Organization = "organization",
@@ -170,7 +170,7 @@ export function SettingHome() {
                 style={{ backgroundColor: "#ff6f3c", borderColor: "#ff6f3c" }}
                 onClick={() => setHubspotVisible(true)}
               >
-                {trans("enterprise.requestLicensesBtton")}
+                Request Enterprise Licenses
               </Button>
 
               <div style={{ margin: "12px 0" }}>
@@ -206,7 +206,7 @@ export function SettingHome() {
         {selectKey === SettingPageEnum.Subscription && <Subscription />}
       </TwoColumnSettingPageContent>
 
-      <HubspotModal
+      <LicenseRequestModal
         open={hubspotVisible}
         onClose={() => setHubspotVisible(false)}
         orgId={user.currentOrgId}
