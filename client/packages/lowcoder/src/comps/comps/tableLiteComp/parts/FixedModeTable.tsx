@@ -1,3 +1,4 @@
+// FixedModeTable.tsx  
 import React from "react";
 import BaseTable, { BaseTableProps } from "./BaseTable";
 
@@ -6,16 +7,7 @@ export interface FixedModeTableProps<RecordType> extends BaseTableProps<RecordTy
 }
 
 function FixedModeTableComp<RecordType extends object>(props: FixedModeTableProps<RecordType>) {
-  const { bodyHeight, ...baseProps } = props;
-
-  // Fixed mode configuration: height constraints and internal scrolling
-  return (
-    <BaseTable<RecordType>
-      {...baseProps}
-      containerHeight={bodyHeight}
-      isFixedHeight={true}
-    />
-  );
+  return <BaseTable<RecordType> {...props} />;
 }
 
 const FixedModeTable = React.memo(FixedModeTableComp) as typeof FixedModeTableComp;

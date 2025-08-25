@@ -3,7 +3,6 @@ import React, {
     useMemo,
     useState,
     useRef,
-    useEffect,
   } from "react";
   import { default as Table, TableProps, ColumnType } from "antd/es/table";
   import ResizeableTitle from "./ResizeableTitle";
@@ -32,7 +31,6 @@ import React, {
       height: 0 !important;
     }
   `;
-  
   export interface BaseTableProps<RecordType> extends Omit<TableProps<RecordType>, "components" | "columns"> {
     columns: CustomColumnType<RecordType>[];
     viewModeResizable: boolean;
@@ -43,9 +41,9 @@ import React, {
     customLoading?: boolean;
     onCellClick: (columnName: string, dataIndex: string) => void;
     
-    // Simplified props (remove the old virtualization logic for now)
-    containerHeight?: number;
-    isFixedHeight?: boolean;
+    // NEW: Accept explicit configuration from parent
+    scroll?: { x?: number | string; y?: number };
+    virtual?: boolean;
   }
   
   /**
@@ -63,8 +61,8 @@ import React, {
       rowAutoHeight,
       customLoading,
       onCellClick,
-      containerHeight,
-      isFixedHeight,
+      scroll,
+      virtual,
       dataSource,
       ...restProps
     } = props;
@@ -168,38 +166,6 @@ import React, {
       });
     }, [columns, resizeData, createCellHandler, createHeaderCellHandler]);
   
-   
-  
-    // Sum widths (including resized values) to keep horizontal scroll baseline accurate
-    function getTotalTableWidth(
-      cols: CustomColumnType<RecordType>[],
-      rData: { index: number; width: number }
-    ) {
-      return cols.reduce((sum, col, i) => {
-        const liveWidth =
-          (rData.index === i ? rData.width : (col.width as number | undefined)) ??
-          undefined;
-        const w =
-          typeof liveWidth === "number" && liveWidth > 0
-            ? liveWidth
-            : COL_MIN_WIDTH;
-        return sum + w;
-      }, 0);
-    }
-  
-    const scrollAndVirtualizationSettings = useMemo(() => {
-      const totalWidth = getTotalTableWidth(memoizedColumns as any, resizeData);
-      const shouldVirtualize = isFixedHeight && (dataSource?.length ?? 0) >= 50;
-      
-      return {
-        virtual: shouldVirtualize,
-        scroll: {
-          x: totalWidth,
-          // FIX: Set y for ANY fixed height mode, not just virtualization
-          y: isFixedHeight && containerHeight ? containerHeight : undefined
-        }
-      };
-    }, [isFixedHeight, containerHeight, dataSource?.length, memoizedColumns, resizeData]);
   
     return (
       <StyledTableWrapper ref={tableRef}>
@@ -216,8 +182,8 @@ import React, {
           dataSource={dataSource}
           pagination={false}
           columns={memoizedColumns}
-          virtual={scrollAndVirtualizationSettings.virtual}
-          scroll={scrollAndVirtualizationSettings.scroll}
+          virtual={virtual || false}
+          scroll={scroll || { x: 'max-content' }}
         />
       </StyledTableWrapper>
     );
