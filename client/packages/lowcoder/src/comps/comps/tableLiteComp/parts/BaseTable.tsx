@@ -11,26 +11,15 @@ import React, {
   import { TableColumnStyleType } from "comps/controls/styleControlConstants";
   import { RowColorViewType, RowHeightViewType } from "../tableTypes";
   import styled from "styled-components";
+  // Add this import at the top
+import {
+  TableContainer,
+  HeaderStyleProvider,
+  CellStyleProvider,
+  ScrollbarStyleProvider,
+  RowStyleProvider
+} from "../styles";
   
-  
-  const StyledTableWrapper = styled.div`
-    /* Hide AntD's virtual horizontal scrollbar overlay */
-    .ant-table-tbody-virtual-scrollbar-horizontal {
-      display: none !important;
-      height: 0 !important;
-    }
-    /* Make the virtual scrollbar container inert (avoids dead click zone) */
-    .ant-table-tbody-virtual-scrollbar {
-      pointer-events: none !important;
-    }
-  
-    /* (Optional) Some builds also render a sticky helper track – hide it too */
-    .ant-table-sticky-scroll,
-    .ant-table-sticky-scroll-bar {
-      display: none !important;
-      height: 0 !important;
-    }
-  `;
   export interface BaseTableProps<RecordType> extends Omit<TableProps<RecordType>, "components" | "columns"> {
     columns: CustomColumnType<RecordType>[];
     viewModeResizable: boolean;
@@ -40,10 +29,18 @@ import React, {
     rowAutoHeight?: boolean;
     customLoading?: boolean;
     onCellClick: (columnName: string, dataIndex: string) => void;
-    
-    // NEW: Accept explicit configuration from parent
     scroll?: { x?: number | string; y?: number };
     virtual?: boolean;
+
+      // NEW: Add these style props
+    style?: any;
+    headerStyle?: any;
+    rowStyle?: any;
+    showHeader?: boolean;
+    fixedHeader?: boolean;
+    showHRowGridBorder?: boolean;
+    showVerticalScrollbar?: boolean;
+    showHorizontalScrollbar?: boolean;
   }
   
   /**
@@ -64,11 +61,19 @@ import React, {
       scroll,
       virtual,
       dataSource,
+      //  the style props
+      style,
+      headerStyle,
+      rowStyle,
+      showHeader = true,
+      fixedHeader = false,
+      showHRowGridBorder = false,
+      showVerticalScrollbar = true,
+      showHorizontalScrollbar = true,
       ...restProps
     } = props;
   
     const [resizeData, setResizeData] = useState({ index: -1, width: -1 });
-    const tableRef = useRef<HTMLDivElement>(null);
   
   
     const handleResize = useCallback((width: number, index: number) => {
@@ -168,24 +173,45 @@ import React, {
   
   
     return (
-      <StyledTableWrapper ref={tableRef}>
-        <Table<RecordType>
-          components={{
-            header: {
-              cell: ResizeableTitle,
-            },
-            body: {
-              cell: TableCellView,
-            },
-          }}
-          {...(restProps as any)}
-          dataSource={dataSource}
-          pagination={false}
-          columns={memoizedColumns}
-          virtual={virtual || false}
-          scroll={scroll || { x: 'max-content' }}
-        />
-      </StyledTableWrapper>
+    
+      <TableContainer $style={style}>
+      <HeaderStyleProvider
+        $headerStyle={headerStyle}
+        $isSticky={fixedHeader}
+        $isHidden={!showHeader}
+      >
+        <RowStyleProvider
+          $rowStyle={rowStyle}
+          $showHRowGridBorder={showHRowGridBorder}
+        >
+          <ScrollbarStyleProvider
+            $showVerticalScrollbar={showVerticalScrollbar}
+            $showHorizontalScrollbar={showHorizontalScrollbar}
+          >
+            <CellStyleProvider $rowStyle={rowStyle} $columnsStyle={columnsStyle}>
+              <Table<RecordType>
+                components={{
+                  header: {
+                    cell: ResizeableTitle,
+                  },
+                  body: {
+                    cell: TableCellView,
+                  },
+                }}
+                {...(restProps as any)}
+                dataSource={dataSource}
+                pagination={false}
+                columns={memoizedColumns}
+                virtual={virtual || false}
+                scroll={scroll || { x: 'max-content' }}
+                showHeader={showHeader}
+                sticky={fixedHeader ? { offsetHeader: 0 } : false}
+              />
+            </CellStyleProvider>
+          </ScrollbarStyleProvider>
+        </RowStyleProvider>
+      </HeaderStyleProvider>
+    </TableContainer>
     );
   }
   

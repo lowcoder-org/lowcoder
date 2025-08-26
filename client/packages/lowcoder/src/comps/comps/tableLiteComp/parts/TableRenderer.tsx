@@ -18,6 +18,14 @@ export interface TableRendererProps<RecordType> extends BaseTableProps<RecordTyp
     threshold: number;
     reason?: string;
   };
+  style?: any;
+  headerStyle?: any;
+  rowStyle?: any;
+  showHeader?: boolean;
+  fixedHeader?: boolean;
+  showHRowGridBorder?: boolean;
+  showVerticalScrollbar?: boolean;
+  showHorizontalScrollbar?: boolean;
 }
 
 function TableRendererComp<RecordType extends object>(props: TableRendererProps<RecordType>) {
@@ -46,6 +54,14 @@ function TableRendererComp<RecordType extends object>(props: TableRendererProps<
         columns={columns}
         scroll={{ x: totalWidth }}
         virtual={false}
+        style={props.style}
+        headerStyle={props.headerStyle}
+        rowStyle={props.rowStyle}
+        showHeader={props.showHeader}
+        fixedHeader={props.fixedHeader}
+        showHRowGridBorder={props.showHRowGridBorder}
+        showVerticalScrollbar={props.showVerticalScrollbar}
+        showHorizontalScrollbar={props.showHorizontalScrollbar}
       />
     );
   }
@@ -63,6 +79,14 @@ function TableRendererComp<RecordType extends object>(props: TableRendererProps<
           columns={columns}
           scroll={{ x: totalWidth }}
           virtual={false}
+          style={props.style}
+          headerStyle={props.headerStyle}
+          rowStyle={props.rowStyle}
+          showHeader={props.showHeader}
+          fixedHeader={props.fixedHeader}
+          showHRowGridBorder={props.showHRowGridBorder}
+          showVerticalScrollbar={props.showVerticalScrollbar}
+          showHorizontalScrollbar={props.showHorizontalScrollbar}
         />
       );
     }
@@ -80,6 +104,14 @@ function TableRendererComp<RecordType extends object>(props: TableRendererProps<
           virtualizationConfig={virtualizationConfig}
           scroll={scrollConfig}
           virtual={true}
+          style={props.style}
+          headerStyle={props.headerStyle}
+          rowStyle={props.rowStyle}
+          showHeader={props.showHeader}
+          fixedHeader={props.fixedHeader}
+          showHRowGridBorder={props.showHRowGridBorder}
+          showVerticalScrollbar={props.showVerticalScrollbar}
+          showHorizontalScrollbar={props.showHorizontalScrollbar}
         />
       );
     }
@@ -92,6 +124,14 @@ function TableRendererComp<RecordType extends object>(props: TableRendererProps<
         bodyHeight={bodyHeight}
         scroll={scrollConfig}
         virtual={false}
+        style={props.style}
+        headerStyle={props.headerStyle}
+        rowStyle={props.rowStyle}
+        showHeader={props.showHeader}
+        fixedHeader={props.fixedHeader}
+        showHRowGridBorder={props.showHRowGridBorder}
+        showVerticalScrollbar={props.showVerticalScrollbar}
+        showHorizontalScrollbar={props.showHorizontalScrollbar}
       />
     );
   }
@@ -103,6 +143,14 @@ function TableRendererComp<RecordType extends object>(props: TableRendererProps<
       columns={columns}
       scroll={{ x: totalWidth }}
       virtual={false}
+      style={props.style}
+      headerStyle={props.headerStyle}
+      rowStyle={props.rowStyle}
+      showHeader={props.showHeader}
+      fixedHeader={props.fixedHeader}
+      showHRowGridBorder={props.showHRowGridBorder}
+      showVerticalScrollbar={props.showVerticalScrollbar}
+      showHorizontalScrollbar={props.showHorizontalScrollbar}
     />
   );
 }

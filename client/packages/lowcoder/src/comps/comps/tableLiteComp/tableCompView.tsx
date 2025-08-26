@@ -9,7 +9,6 @@ import { EmptyContent } from "pages/common/styledComponent";
 import { TableSummary } from "./tableSummaryComp";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 import TableRenderer from "./parts/TableRenderer";
-import { TableWrapper } from "./styles/TableWrapper";
 import { useContainerHeight, useTableMode, useTableHeights, useVirtualization } from "./hooks/useTableConfiguration";
 
 export const TableCompView = React.memo((props: {
@@ -31,8 +30,6 @@ export const TableCompView = React.memo((props: {
 	const style = compChildren.style.getView();
 	const rowStyle = compChildren.rowStyle.getView();
 	const headerStyle = compChildren.headerStyle.getView();
-	const toolbarStyle = compChildren.toolbarStyle.getView();
-	const visibleResizables = compChildren.visibleResizables.getView();
 	const showHRowGridBorder = compChildren.showHRowGridBorder.getView();
 	const columns = useMemo(() => compChildren.columns.getView(), [compChildren.columns]);
 	const columnViews = useMemo(() => columns.map((c) => c.getView()), [columns]);
@@ -185,14 +182,7 @@ export const TableCompView = React.memo((props: {
 		<div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
 			{toolbar.position === "above" && !hideToolbar && toolbarView}
 			<div ref={containerRef} style={{ flex: 1, minHeight: 0 }}>
-				<TableWrapper
-					$style={style}
-					$headerStyle={headerStyle}
-					$rowStyle={rowStyle}
-					$toolbarStyle={toolbarStyle}
-					$visibleResizables={visibleResizables}
-					$showHRowGridBorder={showHRowGridBorder}
-				>
+				
 					<TableRenderer<any>
 						{...compChildren.selection.getView()(onEvent)}
 						bordered={compChildren.showRowGridBorder.getView()}
@@ -221,8 +211,16 @@ export const TableCompView = React.memo((props: {
 						mode={mode as 'AUTO' | 'FIXED'}
 						heights={heights}
 						virtualizationConfig={virtualization}
+						 // ADD: Style props
+						style={style}
+						headerStyle={headerStyle}
+						rowStyle={rowStyle}
+						fixedHeader={compChildren.fixedHeader.getView()}
+						showHRowGridBorder={showHRowGridBorder}
+						showVerticalScrollbar={compChildren.showVerticalScrollbar.getView()}
+						showHorizontalScrollbar={compChildren.showHorizontalScrollbar.getView()}
 					/>
-				</TableWrapper>
+				
 			</div>
 			{toolbar.position === "below" && !hideToolbar && toolbarView}
 		</div>
