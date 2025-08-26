@@ -11,7 +11,6 @@ export interface LicenseRequestData {
     taxId?: string;
     vatId?: string;
     organizationId: string;
-    deploymentIds: string[];
   };
   licenseType: 'per-api-calls' | 'per-instance';
   licenseData: {
@@ -22,8 +21,6 @@ export interface LicenseRequestData {
   };
   organizationId: string;
   deploymentIds: string[];
-  submittedAt: string;
-  submittedBy: string;
 }
 
 export interface LicenseRequestResponse {

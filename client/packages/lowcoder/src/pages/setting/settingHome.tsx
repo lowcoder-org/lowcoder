@@ -210,7 +210,6 @@ export function SettingHome() {
         open={hubspotVisible}
         onClose={() => setHubspotVisible(false)}
         orgId={user.currentOrgId}
-        deploymentIds={[deploymentId]} // Pass current single ID as array
       />
     </>
   );

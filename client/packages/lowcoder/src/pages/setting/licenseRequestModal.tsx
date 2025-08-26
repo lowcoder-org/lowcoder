@@ -7,7 +7,6 @@ import { useSelector } from "react-redux";
 import { getUser } from "redux/selectors/usersSelectors";
 import { getCurrentOrg } from "redux/selectors/orgSelectors";
 import { getOrgApiUsage, getOrgLastMonthApiUsage } from "redux/selectors/orgSelectors";
-import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
 import { submitLicenseRequest, LicenseRequestData } from "api/licenseRequestApi";
 
 const { Paragraph, Text } = Typography;
@@ -67,7 +66,6 @@ interface Props {
   open: boolean;
   onClose: () => void;
   orgId: string;
-  deploymentIds: string[];
 }
 
 interface CompanyDetails {
@@ -82,15 +80,16 @@ interface CompanyDetails {
 }
 
 interface LicenseSelection {
-  licenseType: 'per-api-calls' | 'per-instance';
+  licenseType?: 'per-api-calls' | 'per-instance';
   apiCallLimit?: number;
+  apiCallLimits?: number[];
   instanceCount?: number;
+  deploymentIds?: string[];
 }
 
 interface FormData {
   companyDetails: CompanyDetails;
   licenseSelection: LicenseSelection;
-  additionalNotes: string;
 }
 
 enum ModalStep {
@@ -100,7 +99,7 @@ enum ModalStep {
   ThankYou = 3,
 }
 
-export function LicenseRequestModal({ open, onClose, orgId, deploymentIds }: Props) {
+export function LicenseRequestModal({ open, onClose, orgId }: Props) {
   const [form] = Form.useForm();
   const [currentStep, setCurrentStep] = useState<ModalStep>(ModalStep.CompanyDetails);
   const [loading, setLoading] = useState(false);
@@ -116,21 +115,18 @@ export function LicenseRequestModal({ open, onClose, orgId, deploymentIds }: Pro
       vatId: '',
     },
     licenseSelection: {
-      licenseType: 'per-api-calls',
-      apiCallLimit: 1000000,
+      licenseType: undefined,
     },
-    additionalNotes: '',
   });
 
   const user = useSelector(getUser);
   const currentOrg = useSelector(getCurrentOrg);
   const apiUsage = useSelector(getOrgApiUsage);
   const lastMonthApiUsage = useSelector(getOrgLastMonthApiUsage);
-  const deploymentId = useSelector(getDeploymentId);
 
   // Pre-fill company name if available
   useEffect(() => {
-    if (currentOrg?.name && open) {
+    if (currentOrg?.name && open && currentStep === ModalStep.CompanyDetails) {
       form.setFieldsValue({
         'companyDetails.companyName': currentOrg.name,
       });
@@ -142,7 +138,117 @@ export function LicenseRequestModal({ open, onClose, orgId, deploymentIds }: Pro
         }
       }));
     }
-  }, [currentOrg, open, form]);
+  }, [currentOrg, open, currentStep, form]);
+
+  // Reset modal state when modal is closed
+  useEffect(() => {
+    if (!open) {
+      setCurrentStep(ModalStep.CompanyDetails);
+      setFormData({
+        companyDetails: {
+          companyName: '',
+          address: '',
+          registerNumber: '',
+          contactName: '',
+          contactEmail: '',
+          contactPhone: '',
+          taxId: '',
+          vatId: '',
+        },
+        licenseSelection: {
+          licenseType: undefined,
+        },
+      });
+      form.resetFields();
+    }
+  }, [open, form]);
+
+  const handleLicenseTypeChange = (value: 'per-api-calls' | 'per-instance') => {
+    setFormData(prev => ({
+      ...prev,
+      licenseSelection: {
+        ...prev.licenseSelection,
+        licenseType: value,
+        // Reset deployment IDs and API call limits when switching license types
+        deploymentIds: undefined,
+        apiCallLimits: undefined,
+      }
+    }));
+  };
+
+  const handleInstanceCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const count = parseInt(e.target.value) || 0;
+    
+    // Update form data state
+    setFormData(prev => ({
+      ...prev,
+      licenseSelection: {
+        ...prev.licenseSelection,
+        instanceCount: count,
+        // For per-instance: create empty deployment IDs array
+        // For per-api-calls: create deployment IDs array with current deployment ID repeated and empty API call limits array
+        deploymentIds: count > 0 
+          ? (prev.licenseSelection.licenseType === 'per-api-calls' 
+              ? Array(count).fill('')
+              : Array(count).fill('')
+            )
+          : undefined,
+        apiCallLimits: count > 0 && prev.licenseSelection.licenseType === 'per-api-calls'
+          ? Array(count).fill(undefined)
+          : undefined,
+      }
+    }));
+    
+    // Also update the form field values
+    if (count > 0) {
+      const formValues: any = {};
+      for (let i = 0; i < count; i++) {
+        if (formData.licenseSelection.licenseType === 'per-api-calls') {
+          formValues[`deploymentId_${i}`] = '';
+          formValues[`apiCallLimit_${i}`] = undefined;
+        } else {
+          formValues[`deploymentId_${i}`] = '';
+        }
+      }
+      form.setFieldsValue(formValues);
+    }
+  };
+
+  const handleDeploymentIdChange = (index: number, value: string) => {
+    // Update form data state
+    setFormData(prev => ({
+      ...prev,
+      licenseSelection: {
+        ...prev.licenseSelection,
+        deploymentIds: prev.licenseSelection.deploymentIds?.map((id, i) => 
+          i === index ? value : id
+        ) || [],
+      }
+    }));
+    
+    // Also update the form field value
+    form.setFieldsValue({
+      [`deploymentId_${index}`]: value
+    });
+  };
+
+  const handleApiCallLimitChange = (index: number, value: number) => {
+    // Update form data state
+    setFormData(prev => ({
+      ...prev,
+      licenseSelection: {
+        ...prev.licenseSelection,
+        apiCallLimits: prev.licenseSelection.apiCallLimits?.map((limit, i) => 
+          i === index ? value : limit
+        ) || [],
+      }
+    }));
+    
+    // Also update the form field value
+    form.setFieldsValue({
+      [`apiCallLimit_${index}`]: value
+    });
+  };
 
   const handleCompanyDetailsSubmit = async (values: any) => {
     setFormData(prev => ({
@@ -153,15 +259,127 @@ export function LicenseRequestModal({ open, onClose, orgId, deploymentIds }: Pro
   };
 
   const handleLicenseSelectionSubmit = async (values: any) => {
-    setFormData(prev => ({
-      ...prev,
-      licenseSelection: values.licenseSelection,
-      additionalNotes: values.additionalNotes || '',
-    }));
+    if (!values.licenseSelection.licenseType) {
+      message.error('Please select a license type');
+      return;
+    }
+    
+    // For per-instance licenses, capture deployment IDs from individual fields
+    if (values.licenseSelection.licenseType === 'per-instance') {
+      const deploymentIds: string[] = [];
+      const instanceCount = values.licenseSelection.instanceCount || 0;
+
+      // Collect deployment IDs from individual form fields
+      for (let i = 0; i < instanceCount; i++) {
+        const deploymentId = values[`deploymentId_${i}`];
+        if (deploymentId) {
+          deploymentIds.push(deploymentId);
+        }
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        licenseSelection: {
+          ...values.licenseSelection,
+          deploymentIds: deploymentIds,
+        },
+      }));
+    } else {
+      // For per-api-calls licenses, create deployment IDs and API call limits for each instance
+      const instanceCount = values.licenseSelection.instanceCount || 0;
+      const apiCallLimits: number[] = [];
+      const deploymentIds: string[] = [];
+
+      // Collect API call limits and deployment IDs from individual form fields
+      for (let i = 0; i < instanceCount; i++) {
+        const apiCallLimit = values[`apiCallLimit_${i}`];
+        const deploymentId = values[`deploymentId_${i}`];
+
+        if (apiCallLimit) {
+          apiCallLimits.push(apiCallLimit);
+        }
+        if (deploymentId) {
+          deploymentIds.push(deploymentId);
+        }
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        licenseSelection: {
+          ...values.licenseSelection,
+          deploymentIds: deploymentIds,
+          apiCallLimits: apiCallLimits,
+        },
+      }));
+    }
+    
     setCurrentStep(ModalStep.Review);
   };
 
   const handleSubmit = async () => {
+    if (!formData.licenseSelection.licenseType) {
+      message.error('Please select a license type before submitting');
+      return;
+    }
+
+    // Validate instance count for both license types
+    if (!formData.licenseSelection.instanceCount || formData.licenseSelection.instanceCount <= 0) {
+      message.error('Please enter a valid number of instances');
+      return;
+    }
+
+    // Additional validation for per-instance licenses
+    if (formData.licenseSelection.licenseType === 'per-instance') {
+
+      if (!formData.licenseSelection.deploymentIds) {
+        message.error('Deployment IDs are missing');
+        return;
+      }
+      
+      if (formData.licenseSelection.deploymentIds.length !== Number(formData.licenseSelection.instanceCount)) {
+        message.error(`Expected ${formData.licenseSelection.instanceCount} deployment IDs, but got ${formData.licenseSelection.deploymentIds.length}`);
+        return;
+      }
+      
+      if (formData.licenseSelection.deploymentIds.some(id => !id || !id.trim())) {
+        message.error('Please fill out all deployment IDs for each instance');
+        return;
+      }
+    }
+
+    // Additional validation for per-api-calls licenses
+    if (formData.licenseSelection.licenseType === 'per-api-calls') {
+      if (!formData.licenseSelection.apiCallLimits || formData.licenseSelection.apiCallLimits.length === 0) {
+        message.error('Please select API call limits for all instances');
+        return;
+      }
+      
+      if (formData.licenseSelection.apiCallLimits.length !== Number(formData.licenseSelection.instanceCount)) {
+        message.error(`Expected ${formData.licenseSelection.instanceCount} API call limits, but got ${formData.licenseSelection.apiCallLimits.length}`);
+        return;
+      }
+      
+      if (formData.licenseSelection.apiCallLimits.some(limit => !limit || limit <= 0)) {
+        message.error('Please enter a valid API call limit for each instance');
+        return;
+      }
+      
+      if (!formData.licenseSelection.deploymentIds || formData.licenseSelection.deploymentIds.length === 0) {
+        message.error('Please enter deployment IDs for all instances');
+        return;
+      }
+      
+      if (formData.licenseSelection.deploymentIds.length !== Number(formData.licenseSelection.instanceCount)) {
+        message.error(`Expected ${formData.licenseSelection.instanceCount} deployment IDs, but got ${formData.licenseSelection.deploymentIds.length}`);
+        return;
+      }
+      
+      if (formData.licenseSelection.deploymentIds.some(id => !id || !id.trim())) {
+        message.error('Please enter deployment IDs for all instances');
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       // Prepare data object for API
@@ -169,7 +387,6 @@ export function LicenseRequestModal({ open, onClose, orgId, deploymentIds }: Pro
         contactData: {
           ...formData.companyDetails,
           organizationId: orgId,
-          deploymentIds: deploymentIds,
         },
         licenseType: formData.licenseSelection.licenseType,
         licenseData: {
@@ -178,20 +395,19 @@ export function LicenseRequestModal({ open, onClose, orgId, deploymentIds }: Pro
           lastMonthApiUsage: lastMonthApiUsage,
         },
         organizationId: orgId,
-        deploymentIds: deploymentIds,
-        submittedAt: new Date().toISOString(),
-        submittedBy: user.username,
+        deploymentIds: formData.licenseSelection.deploymentIds || [],
       };
 
+      setCurrentStep(ModalStep.ThankYou);
       // Submit to flow.lowcoder.cloud
-      const response = await submitLicenseRequest(requestData);
+      // const response = await submitLicenseRequest(requestData);
       
-      if (response.success) {
-        message.success(response.message || 'License request submitted successfully!');
-        setCurrentStep(ModalStep.ThankYou);
-      } else {
-        message.error(response.message || 'Failed to submit license request');
-      }
+      // if (response.success) {
+      //   message.success(response.message || 'License request submitted successfully!');
+      //   setCurrentStep(ModalStep.ThankYou);
+      // } else {
+      //   message.error(response.message || 'Failed to submit license request');
+      // }
     } catch (error) {
       message.error('Failed to submit license request. Please try again.');
       console.error('License request error:', error);
@@ -208,6 +424,21 @@ export function LicenseRequestModal({ open, onClose, orgId, deploymentIds }: Pro
 
   const handleClose = () => {
     setCurrentStep(ModalStep.CompanyDetails);
+    setFormData({
+      companyDetails: {
+        companyName: '',
+        address: '',
+        registerNumber: '',
+        contactName: '',
+        contactEmail: '',
+        contactPhone: '',
+        taxId: '',
+        vatId: '',
+      },
+      licenseSelection: {
+        licenseType: undefined,
+      },
+    });
     form.resetFields();
     onClose();
   };
@@ -228,7 +459,7 @@ export function LicenseRequestModal({ open, onClose, orgId, deploymentIds }: Pro
         label={trans("enterprise.licenseRequest.address")}
         rules={[{ required: true, message: 'Please enter company address' }]}
       >
-        <TextArea rows={3} placeholder="Enter company address" />
+        <TextArea rows={2} placeholder="Enter company address" />
       </Form.Item>
       
       <Form.Item
@@ -289,39 +520,30 @@ export function LicenseRequestModal({ open, onClose, orgId, deploymentIds }: Pro
       <Form.Item
         name={['licenseSelection', 'licenseType']}
         label={trans("enterprise.licenseRequest.licenseType")}
-        rules={[{ required: true, message: 'Please select license type' }]}
+        rules={[{ required: true, message: 'Please select a license type' }]}
       >
-        <Radio.Group>
-          <Space direction="vertical">
+        <Radio.Group onChange={e => handleLicenseTypeChange(e.target.value)}>
+          <Space direction="horizontal" size="large" style={{ width: '100%' }}>
             <LicenseCard 
               className={formData.licenseSelection.licenseType === 'per-api-calls' ? 'selected' : ''}
-              onClick={() => form.setFieldsValue({ 'licenseSelection.licenseType': 'per-api-calls' })}
+              style={{ flex: 1 }}
             >
               <Radio value="per-api-calls">
                 <strong>{trans("enterprise.licenseRequest.perApiCalls")}</strong>
                 <div style={{ marginTop: 8 }}>
-                  <Text type="secondary">{trans("enterprise.licenseRequest.payBasedOnUsage")}</Text>
-                  <UsageDisplay>
-                    <Text strong>{trans("enterprise.licenseRequest.currentUsage")}:</Text><br />
-                    Overall: {apiUsage ? `${Intl.NumberFormat('en-GB').format(apiUsage)} API calls` : 'Loading...'}<br />
-                    {trans("enterprise.licenseRequest.lastMonthUsage")}: {lastMonthApiUsage ? `${Intl.NumberFormat('en-GB').format(lastMonthApiUsage)} API calls` : 'Loading...'}
-                  </UsageDisplay>
+                  <Text type="secondary">Usage-based pricing — $0.001 per API Call</Text>
                 </div>
               </Radio>
             </LicenseCard>
             
             <LicenseCard 
               className={formData.licenseSelection.licenseType === 'per-instance' ? 'selected' : ''}
-              onClick={() => form.setFieldsValue({ 'licenseSelection.licenseType': 'per-instance' })}
+              style={{ flex: 1 }}
             >
               <Radio value="per-instance">
                 <strong>{trans("enterprise.licenseRequest.perInstance")}</strong>
                 <div style={{ marginTop: 8 }}>
-                  <Text type="secondary">{trans("enterprise.licenseRequest.payPerInstance")}</Text>
-                  <UsageDisplay>
-                    <Text strong>{trans("enterprise.licenseRequest.currentDeployments")}:</Text><br />
-                    {deploymentIds.length} deployment{deploymentIds.length !== 1 ? 's' : ''}
-                  </UsageDisplay>
+                  <Text type="secondary">Flat-rate per instance — $169 / month</Text>
                 </div>
               </Radio>
             </LicenseCard>
@@ -330,38 +552,108 @@ export function LicenseRequestModal({ open, onClose, orgId, deploymentIds }: Pro
       </Form.Item>
       
       {formData.licenseSelection.licenseType === 'per-api-calls' && (
-        <Form.Item
-          name={['licenseSelection', 'apiCallLimit']}
-          label={trans("enterprise.licenseRequest.apiCallLimit")}
-          rules={[{ required: true, message: 'Please enter API call limit' }]}
-        >
-          <Select placeholder="Select API call limit">
-            <Option value={100000}>100,000 calls/month</Option>
-            <Option value={500000}>500,000 calls/month</Option>
-            <Option value={1000000}>1,000,000 calls/month</Option>
-            <Option value={5000000}>5,000,000 calls/month</Option>
-            <Option value={10000000}>10,000,000 calls/month</Option>
-            <Option value="custom">Custom limit</Option>
-          </Select>
-        </Form.Item>
+        <>
+          <Form.Item
+            name={['licenseSelection', 'instanceCount']}
+            label={trans("enterprise.licenseRequest.instanceCount")}
+            rules={[{ required: true, message: 'Please enter number of instances' }]}
+          >
+            <Input type="number" min={1} placeholder="Enter number of instances" onChange={handleInstanceCountChange} />
+          </Form.Item>
+
+          {formData.licenseSelection.instanceCount && formData.licenseSelection.instanceCount > 0 && (
+            <Form.Item
+              label="Instance Configuration"
+              required
+              style={{ marginTop: 16 }}
+            >
+              {Array.from({ length: formData.licenseSelection.instanceCount }, (_, index) => (
+                <Card 
+                  key={index} 
+                  size="small" 
+                  title={`Instance ${index + 1}`}
+                  style={{ marginBottom: 16 }}
+                >
+                  <Form.Item
+                    name={`deploymentId_${index}`}
+                    label="Deployment ID"
+                    rules={[{ required: true, message: `Please enter deployment ID for instance ${index + 1}` }]}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <Input 
+                      placeholder={`Deployment ID for Instance ${index + 1}`}
+                      defaultValue={''}
+                    />
+                  </Form.Item>
+                  
+                  <Form.Item
+                    name={`apiCallLimit_${index}`}
+                    label="Monthly API Call Limit"
+                    rules={[{ required: true, message: `Please select API call limit for instance ${index + 1}` }]}
+                  >
+                    <Select placeholder="Select API call limit" onChange={(value) => handleApiCallLimitChange(index, value)}>
+                      <Option value={100000}>100,000 calls/month — $100</Option>
+                      <Option value={1000000}>1,000,000 calls/month — $1,000</Option>
+                      <Option value={10000000}>10,000,000 calls/month — $10,000</Option>
+                    </Select>
+                  </Form.Item>
+                </Card>
+              ))}
+            </Form.Item>
+          )}
+          
+          <UsageDisplay>
+            <Text strong>{trans("enterprise.licenseRequest.currentUsage")}:</Text><br />
+            Overall: {apiUsage ? `${Intl.NumberFormat('en-GB').format(apiUsage)} API calls` : 'Loading...'}<br />
+            {trans("enterprise.licenseRequest.lastMonthUsage")}: {lastMonthApiUsage ? `${Intl.NumberFormat('en-GB').format(lastMonthApiUsage)} API calls` : 'Loading...'}
+          </UsageDisplay>
+        </>
       )}
       
       {formData.licenseSelection.licenseType === 'per-instance' && (
-        <Form.Item
-          name={['licenseSelection', 'instanceCount']}
-          label={trans("enterprise.licenseRequest.instanceCount")}
-          rules={[{ required: true, message: 'Please enter number of instances' }]}
-        >
-          <Input type="number" min={1} placeholder="Enter number of instances" />
-        </Form.Item>
+        <div>
+          <Form.Item
+            name={['licenseSelection', 'instanceCount']}
+            label={trans("enterprise.licenseRequest.instanceCount")}
+            rules={[{ required: true, message: 'Please enter number of instances' }]}
+            style={{ marginTop: 16 }}
+          >
+            <Input type="number" min={1} placeholder="Enter number of instances" onChange={handleInstanceCountChange} />
+          </Form.Item>
+
+          {formData.licenseSelection.instanceCount && formData.licenseSelection.instanceCount > 0 && (
+            <Form.Item
+              label="Deployment IDs"
+              required
+              style={{ marginTop: 16 }}
+            >
+              {Array.from({ length: formData.licenseSelection.instanceCount }, (_, index) => (
+                <Form.Item
+                  key={index}
+                  name={`deploymentId_${index}`}
+                  rules={[{ required: true, message: `Please enter deployment ID for instance ${index + 1}` }]}
+                  style={{ marginBottom: 8 }}
+                >
+                  <Input 
+                    placeholder={`Deployment ID for Instance ${index + 1}`}
+                    addonBefore={`Instance ${index + 1}`}
+                    onChange={(e) => handleDeploymentIdChange(index, e.target.value)}
+                  />
+                </Form.Item>
+              ))}
+            </Form.Item>
+          )}
+
+          <Text strong>Per Instance Details:</Text>
+          <div style={{ marginTop: 8, padding: 12, background: '#f5f5f5', borderRadius: 6 }}>
+            <Text>An instance is a full Lowcoder environment (metadata database + runtime) that can be independently deployed. This includes:</Text>
+            <ul style={{ marginTop: 8, marginBottom: 0 }}>
+              <li>A dedicated MongoDB metadata store</li>
+              <li>One or more app runtimes ("Api-Service" and / or "Node-Service" containers)</li>
+            </ul>
+          </div>
+        </div>
       )}
-      
-      <Form.Item
-        name="additionalNotes"
-        label={trans("enterprise.licenseRequest.additionalNotes")}
-      >
-        <TextArea rows={4} placeholder="Any additional requirements or questions..." />
-      </Form.Item>
     </FormSection>
   );
 
@@ -382,18 +674,16 @@ export function LicenseRequestModal({ open, onClose, orgId, deploymentIds }: Pro
       
       <Card title={trans("enterprise.licenseRequest.licenseSelection")} style={{ marginBottom: 16 }}>
         <Paragraph><strong>Type:</strong> {formData.licenseSelection.licenseType === 'per-api-calls' ? trans("enterprise.licenseRequest.perApiCalls") : trans("enterprise.licenseRequest.perInstance")}</Paragraph>
+        <Paragraph><strong>{trans("enterprise.licenseRequest.instanceCount")}:</strong> {formData.licenseSelection.instanceCount}</Paragraph>
+        <Paragraph><strong>Instance Deployment IDs:</strong> {formData.licenseSelection.deploymentIds?.join(', ')}</Paragraph>
         {formData.licenseSelection.licenseType === 'per-api-calls' && (
-          <Paragraph><strong>{trans("enterprise.licenseRequest.apiCallLimit")}:</strong> {formData.licenseSelection.apiCallLimit?.toLocaleString()} calls/month</Paragraph>
+          <Paragraph><strong>Instance API Call Limits:</strong> {formData.licenseSelection.apiCallLimits?.map(limit => `${Intl.NumberFormat('en-GB').format(limit)} calls/month`).join(', ')}</Paragraph>
         )}
-        {formData.licenseSelection.licenseType === 'per-instance' && (
-          <Paragraph><strong>{trans("enterprise.licenseRequest.instanceCount")}:</strong> {formData.licenseSelection.instanceCount}</Paragraph>
-        )}
-        {formData.additionalNotes && <Paragraph><strong>{trans("enterprise.licenseRequest.additionalNotes")}:</strong> {formData.additionalNotes}</Paragraph>}
       </Card>
       
       <Card title="System Information">
         <Paragraph><strong>Organization ID:</strong> {orgId}</Paragraph>
-        <Paragraph><strong>Deployment IDs:</strong> {deploymentIds.join(', ')}</Paragraph>
+        <Paragraph><strong>Instance Deployment IDs:</strong> {formData.licenseSelection.deploymentIds?.join(', ')}</Paragraph>
         <Paragraph><strong>Current API Usage:</strong> {apiUsage ? `${Intl.NumberFormat('en-GB').format(apiUsage)} calls` : 'Loading...'}</Paragraph>
         <Paragraph><strong>Last Month API Usage:</strong> {lastMonthApiUsage ? `${Intl.NumberFormat('en-GB').format(lastMonthApiUsage)} calls` : 'Loading...'}</Paragraph>
       </Card>
@@ -462,10 +752,10 @@ export function LicenseRequestModal({ open, onClose, orgId, deploymentIds }: Pro
       onCancel={handleClose}
       footer={null}
       width={800}
-      destroyOnClose
+      destroyOnHidden
       title={
         <div>
-          <Title level={3} style={{ margin: 0 }}>{getStepTitle()}</Title>
+          <Title level={3} style={{ margin: 0 }}>Enterprise License Request</Title>
           {currentStep < ModalStep.ThankYou && (
             <Progress 
               percent={((currentStep + 1) / 4) * 100} 
