@@ -12,16 +12,19 @@ export const HeaderStyleProvider = styled.div<{
   `}
   
   .ant-table-thead > tr > th {
-    background: ${props => props.$headerStyle?.background || '#fafafa'};
-    color: ${props => props.$headerStyle?.color || 'rgba(0, 0, 0, 0.85)'};
-    border-color: ${props => props.$headerStyle?.borderColor || '#f0f0f0'};
-    padding: ${props => props.$headerStyle?.padding || '16px'};
-    font-weight: ${props => props.$headerStyle?.fontWeight || '600'};
+    background: ${props => props.$headerStyle?.headerBackground};
+    color: ${props => props.$headerStyle?.headerText};
+    border-color: ${props => props.$headerStyle?.border};
+    border-width: ${props => props.$headerStyle?.borderWidth};
+    padding: ${props => props.$headerStyle?.padding};
+    margin: ${props => props.$headerStyle?.margin};
+    font-size: ${props => props.$headerStyle?.textSize};
+    
     ${props => props.$headerStyle?.customCSS || ''}
   }
   
   ${props => props.$isSticky && `
-    .ant-table-thead > tr > th {
+    &&& .ant-table-thead > tr > th {
       position: sticky;
       top: 0;
       z-index: 3;
