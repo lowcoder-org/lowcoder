@@ -5,6 +5,11 @@ export const HeaderStyleProvider = styled.div<{
   $isSticky: boolean;
   $isHidden: boolean;
 }>`
+  ${props => {
+    console.log("HeaderStyleProvider props:", props);
+    return "";
+  }}
+
   ${props => props.$isHidden && `
     .ant-table-thead {
       display: none;
@@ -17,10 +22,13 @@ export const HeaderStyleProvider = styled.div<{
     border-color: ${props => props.$headerStyle?.border};
     border-width: ${props => props.$headerStyle?.borderWidth};
     padding: ${props => props.$headerStyle?.padding};
-    margin: ${props => props.$headerStyle?.margin};
     font-size: ${props => props.$headerStyle?.textSize};
     
     ${props => props.$headerStyle?.customCSS || ''}
+  }
+
+  .ant-table-thead > tr > th > div {
+    margin: ${props => props.$headerStyle?.margin};
   }
   
   ${props => props.$isSticky && `

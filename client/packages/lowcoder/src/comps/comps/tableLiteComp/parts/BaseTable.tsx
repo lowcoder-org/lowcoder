@@ -2,7 +2,6 @@ import React, {
     useCallback,
     useMemo,
     useState,
-    useRef,
   } from "react";
   import { default as Table, TableProps, ColumnType } from "antd/es/table";
   import ResizeableTitle from "./ResizeableTitle";
@@ -10,15 +9,13 @@ import React, {
   import { COL_MIN_WIDTH, CustomColumnType } from "../tableUtils";
   import { TableColumnStyleType } from "comps/controls/styleControlConstants";
   import { RowColorViewType, RowHeightViewType } from "../tableTypes";
-  import styled from "styled-components";
-  // Add this import at the top
-import {
-  TableContainer,
-  HeaderStyleProvider,
-  CellStyleProvider,
-  ScrollbarStyleProvider,
-  RowStyleProvider
-} from "../styles";
+  import {
+    TableContainer,
+    HeaderStyleProvider,
+    CellStyleProvider,
+    ScrollbarStyleProvider,
+    RowStyleProvider
+  } from "../styles";
   
   export interface BaseTableProps<RecordType> extends Omit<TableProps<RecordType>, "components" | "columns"> {
     columns: CustomColumnType<RecordType>[];
@@ -36,6 +33,7 @@ import {
     style?: any;
     headerStyle?: any;
     rowStyle?: any;
+    toolbarStyle?: any;
     showHeader?: boolean;
     fixedHeader?: boolean;
     showHRowGridBorder?: boolean;
@@ -61,18 +59,20 @@ import {
       scroll,
       virtual,
       dataSource,
+      size = "large",
       //  the style props
       style,
       headerStyle,
       rowStyle,
+      toolbarStyle,
       showHeader = true,
       fixedHeader = false,
       showHRowGridBorder = false,
-      showVerticalScrollbar = true,
-      showHorizontalScrollbar = true,
+      showVerticalScrollbar = false,
+      showHorizontalScrollbar = false,
       ...restProps
     } = props;
-  
+    
     const [resizeData, setResizeData] = useState({ index: -1, width: -1 });
   
   
@@ -206,6 +206,7 @@ import {
                 scroll={scroll || { x: 'max-content' }}
                 showHeader={showHeader}
                 sticky={fixedHeader ? { offsetHeader: 0 } : false}
+                size={size}
               />
             </CellStyleProvider>
           </ScrollbarStyleProvider>

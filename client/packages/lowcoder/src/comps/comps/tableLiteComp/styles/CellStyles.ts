@@ -8,7 +8,7 @@ export const CellStyleProvider = styled.div<{
     background: ${props => props.$rowStyle?.background || '#ffffff'};
     color: ${props => props.$rowStyle?.color || 'rgba(0, 0, 0, 0.85)'};
     border-color: ${props => props.$rowStyle?.borderColor || '#f0f0f0'};
-    padding: ${props => props.$rowStyle?.padding || '12px 16px'};
+    /* padding: ${props => props.$rowStyle?.padding || '12px 16px'}; */
     ${props => props.$rowStyle?.customCSS || ''}
   }
   

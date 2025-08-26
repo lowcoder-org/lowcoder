@@ -10,6 +10,7 @@ import { TableSummary } from "./tableSummaryComp";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 import TableRenderer from "./parts/TableRenderer";
 import { useContainerHeight, useTableMode, useTableHeights, useVirtualization } from "./hooks/useTableConfiguration";
+import { ToolbarStyleProvider } from "./styles/ToolbarStyles";
 
 export const TableCompView = React.memo((props: {
 	comp: InstanceType<typeof TableImplComp>;
@@ -30,6 +31,7 @@ export const TableCompView = React.memo((props: {
 	const style = compChildren.style.getView();
 	const rowStyle = compChildren.rowStyle.getView();
 	const headerStyle = compChildren.headerStyle.getView();
+	const toolbarStyle = compChildren.toolbarStyle.getView();
 	const showHRowGridBorder = compChildren.showHRowGridBorder.getView();
 	const columns = useMemo(() => compChildren.columns.getView(), [compChildren.columns]);
 	const columnViews = useMemo(() => columns.map((c) => c.getView()), [columns]);
@@ -124,27 +126,31 @@ export const TableCompView = React.memo((props: {
 		[compChildren.onEvent]
 	);
 
+
+
 	const toolbarView = !hideToolbar && (
+		<ToolbarStyleProvider $toolbarStyle={toolbarStyle}>
 		<TableToolbar
 			toolbar={toolbar}
 			pagination={{
-				...pagination,
-				total: pageDataInfo.total,
-				current: pageDataInfo.current,
+			...pagination,
+			total: pageDataInfo.total,
+			current: pageDataInfo.current,
 			}}
 			columns={columns}
 			onRefresh={() =>
-				onRefresh(
-					editorState.queryCompInfoList().map((info) => info.name),
-					setLoading
-				)
+			onRefresh(
+				editorState.queryCompInfoList().map((info) => info.name),
+				setLoading
+			)
 			}
 			onDownload={() => {
-				handleChangeEvent("download");
-				onDownload(`${compName}-data`)
+			handleChangeEvent("download");
+			onDownload(`${compName}-data`)
 			}}
 			onEvent={onEvent}
 		/>
+		</ToolbarStyleProvider>
 	);
 
 	const summaryView = () => {
@@ -192,7 +198,7 @@ export const TableCompView = React.memo((props: {
 						showHeader={showHeader}
 						columns={antdColumns}
 						dataSource={pageDataInfo.data}
-						size={compChildren.size.getView()}
+						size={size}
 						tableLayout="fixed"
 						pagination={false}
 						summary={summaryView}
@@ -213,6 +219,7 @@ export const TableCompView = React.memo((props: {
 						virtualizationConfig={virtualization}
 						 // ADD: Style props
 						style={style}
+						toolbarStyle={toolbarStyle}
 						headerStyle={headerStyle}
 						rowStyle={rowStyle}
 						fixedHeader={compChildren.fixedHeader.getView()}
