@@ -8,7 +8,7 @@ const MainContainer = styled.div<{
 }>`
   display: flex;
   flex-direction: column;
-  height: ${props => props.$mode === 'FIXED' && props.$height ? `${props.$height}px` : '100%'};
+  height: 100%;
   overflow: hidden;
   position: relative;
 `;

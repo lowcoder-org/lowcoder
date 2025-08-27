@@ -83,6 +83,10 @@ export function useTableHeights(
     
     // Calculate available height for table body
     const bodyHeight = Math.max(0, containerHeight - totalUsedSpace);
+
+    console.log('Container height:', containerHeight);
+    console.log('Body height calculated:', bodyHeight);
+  
     
     return {
       containerStyle: { 
