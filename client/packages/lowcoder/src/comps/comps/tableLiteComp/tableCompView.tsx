@@ -11,6 +11,7 @@ import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 import TableRenderer from "./parts/TableRenderer";
 import { useContainerHeight, useTableMode, useTableHeights, useVirtualization } from "./hooks/useTableConfiguration";
 import { ToolbarStyleProvider } from "./styles/ToolbarStyles";
+import { TableContainer } from "./parts/TableContainer";
 
 export const TableCompView = React.memo((props: {
 	comp: InstanceType<typeof TableImplComp>;
@@ -48,6 +49,8 @@ export const TableCompView = React.memo((props: {
 	const autoHeight = compChildren.autoHeight.getView();
 	const rowAutoHeight = compChildren.rowAutoHeight.getView();
 	const showHeader = !compChildren.hideHeader.getView();
+	const stickyToolbar = false; // TODO: Add this as a prop later
+
 
 	// NEW: Use hooks for clean logic
 	const { mode, isFixedMode } = useTableMode(autoHeight);
@@ -171,65 +174,72 @@ export const TableCompView = React.memo((props: {
 
 	if (antdColumns.length === 0) {
 		return (
-			<div>
-				{toolbar.position === "above" && !hideToolbar && toolbarView}
-				<EmptyContent text={trans("table.emptyColumns")} />
-				{toolbar.position === "below" && !hideToolbar && toolbarView}
-			</div>
+		  <TableContainer
+			mode={mode as 'AUTO' | 'FIXED'}
+			containerHeight={mode === 'FIXED' ? containerHeight : undefined}
+			toolbarPosition={toolbar.position}
+			stickyToolbar={stickyToolbar}
+			showToolbar={!hideToolbar}
+			toolbar={toolbarView}
+		  >
+			<EmptyContent text={trans("table.emptyColumns")} />
+		  </TableContainer>
 		);
-	}
-
+	  }
 	const showTableLoading =
 		loading ||
 		((showDataLoadingIndicators) && (compChildren.data as any).isLoading()) ||
 		compChildren.loading.getView();
 
-	return (
-		<div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-			{toolbar.position === "above" && !hideToolbar && toolbarView}
-			<div ref={containerRef} style={{ flex: 1, minHeight: 0 }}>
-				
-					<TableRenderer<any>
-						{...compChildren.selection.getView()(onEvent)}
-						bordered={compChildren.showRowGridBorder.getView()}
-						onChange={(pagination: any, filters: any, sorter: any, extra: any) => {
-							onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
-						}}
-						showHeader={showHeader}
-						columns={antdColumns}
-						dataSource={pageDataInfo.data}
-						size={size}
-						tableLayout="fixed"
-						pagination={false}
-						summary={summaryView}
-						viewModeResizable={compChildren.viewModeResizable.getView()}
-						rowColorFn={compChildren.rowColor.getView() as any}
-						rowHeightFn={compChildren.rowHeight.getView() as any}
-						columnsStyle={columnsStyle}
-						rowAutoHeight={rowAutoHeight}
-						customLoading={showTableLoading}
-						onCellClick={(columnName: string, dataIndex: string) => {
-							comp.children.selectedCell.dispatchChangeValueAction({
-								name: columnName,
-								dataIndex: dataIndex,
-							});
-						}}
-						mode={mode as 'AUTO' | 'FIXED'}
-						heights={heights}
-						virtualizationConfig={virtualization}
-						 // ADD: Style props
-						style={style}
-						toolbarStyle={toolbarStyle}
-						headerStyle={headerStyle}
-						rowStyle={rowStyle}
-						fixedHeader={compChildren.fixedHeader.getView()}
-						showHRowGridBorder={showHRowGridBorder}
-						showVerticalScrollbar={compChildren.showVerticalScrollbar.getView()}
-						showHorizontalScrollbar={compChildren.showHorizontalScrollbar.getView()}
-					/>
-				
-			</div>
-			{toolbar.position === "below" && !hideToolbar && toolbarView}
-		</div>
-	);
+		return (
+			<TableContainer
+			  mode={mode as 'AUTO' | 'FIXED'}
+			  containerHeight={mode === 'FIXED' ? containerHeight : undefined}
+			  toolbarPosition={toolbar.position}
+			  stickyToolbar={stickyToolbar}
+			  showToolbar={!hideToolbar}
+			  toolbar={toolbarView}
+			  containerRef={containerRef}
+			>
+			
+				<TableRenderer<any>
+				  {...compChildren.selection.getView()(onEvent)}
+				  bordered={compChildren.showRowGridBorder.getView()}
+				  onChange={(pagination: any, filters: any, sorter: any, extra: any) => {
+					onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
+				  }}
+				  showHeader={showHeader}
+				  columns={antdColumns}
+				  dataSource={pageDataInfo.data}
+				  size={size}
+				  tableLayout="fixed"
+				  pagination={false}
+				  summary={summaryView}
+				  viewModeResizable={compChildren.viewModeResizable.getView()}
+				  rowColorFn={compChildren.rowColor.getView() as any}
+				  rowHeightFn={compChildren.rowHeight.getView() as any}
+				  columnsStyle={columnsStyle}
+				  rowAutoHeight={rowAutoHeight}
+				  customLoading={showTableLoading}
+				  onCellClick={(columnName: string, dataIndex: string) => {
+					comp.children.selectedCell.dispatchChangeValueAction({
+					  name: columnName,
+					  dataIndex: dataIndex,
+					});
+				  }}
+				  mode={mode as 'AUTO' | 'FIXED'}
+				  heights={heights}
+				  virtualizationConfig={virtualization}
+				  style={style}
+				  toolbarStyle={toolbarStyle}
+				  headerStyle={headerStyle}
+				  rowStyle={rowStyle}
+				  fixedHeader={compChildren.fixedHeader.getView()}
+				  showHRowGridBorder={showHRowGridBorder}
+				  showVerticalScrollbar={compChildren.showVerticalScrollbar.getView()}
+				  showHorizontalScrollbar={compChildren.showHorizontalScrollbar.getView()}
+				/>
+			 
+			</TableContainer>
+		  );
 });
