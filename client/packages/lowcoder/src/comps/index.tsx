@@ -194,6 +194,7 @@ import { ModalComp } from "./hooks/modalComp";
 import { defaultCollapsibleContainerData } from "./comps/containerComp/collapsibleContainerComp";
 import { ContainerComp as FloatTextContainerComp } from "./comps/containerComp/textContainerComp";
 import { ChatComp } from "./comps/chatComp";
+import { ChatBoxComp } from "./comps/chatBoxComponent";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -946,6 +947,19 @@ export var uiCompMap: Registry = {
     comp: MentionComp,
   },
 
+  chatBox: {
+    name: "Chat Box",
+    enName: "Chat Box", 
+    description: "Advanced Chat Box Component with Rooms and People",
+    categories: ["collaboration"],
+    icon: CommentCompIcon,
+    keywords: "chatbox,chat,conversation,rooms,messaging",
+    comp: ChatBoxComp,
+    layoutInfo: {
+      w: 12,
+      h: 24,
+    },
+  },
   // Forms
 
   form: {
