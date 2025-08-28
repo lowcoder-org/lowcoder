@@ -61,22 +61,37 @@ export const TableContainer: React.FC<TableContainerProps> = ({
 }) => {
   const ToolbarComponent = stickyToolbar ? StickyToolbar : DefaultToolbar;
   
+  const renderToolbarOutside = stickyToolbar && showToolbar;
+  const renderToolbarInside = !stickyToolbar && showToolbar;
+
   return (
     <MainContainer $mode={mode} $height={containerHeight} ref={containerRef}>
-      {/* Above toolbar */}
-      {showToolbar && toolbarPosition === 'above' && (
+      {/* Above toolbar (sticky) */}
+      {renderToolbarOutside && toolbarPosition === 'above' && (
         <ToolbarComponent $position="above">
           {toolbar}
         </ToolbarComponent>
       )}
       
-      {/* Table content */}
+      {/* Table content + optional non-sticky toolbar inside scrollable area */}
       <TableSection $mode={mode}>
+        {/* Non-sticky toolbar ABOVE inside scrollable area */}
+        {renderToolbarInside && toolbarPosition === 'above' && (
+          <DefaultToolbar>
+            {toolbar}
+          </DefaultToolbar>
+        )}
         {children}
+        {/* Non-sticky toolbar BELOW inside scrollable area */}
+        {renderToolbarInside && toolbarPosition === 'below' && (
+          <DefaultToolbar>
+            {toolbar}
+          </DefaultToolbar>
+        )}
       </TableSection>
       
-      {/* Below toolbar */}
-      {showToolbar && toolbarPosition === 'below' && (
+      {/* Below toolbar (sticky) */}
+      {renderToolbarOutside && toolbarPosition === 'below' && (
         <ToolbarComponent $position="below">
           {toolbar}
         </ToolbarComponent>

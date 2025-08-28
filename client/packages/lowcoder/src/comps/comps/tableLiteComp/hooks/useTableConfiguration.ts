@@ -46,6 +46,7 @@ interface HeightConfig {
   toolbarHeight?: number;
   headerHeight?: number;
   containerPadding?: number;
+  stickyToolbar?: boolean; // when true, toolbar is outside scroll and should be reserved
 }
 
 export function useTableHeights(
@@ -74,20 +75,18 @@ export function useTableHeights(
       showHeader = true,
       toolbarHeight = 48,
       headerHeight = 40,
-      containerPadding = 0
+      containerPadding = 0,
+      stickyToolbar = false,
     } = config;
 
-    const toolbarSpace = showToolbar ? toolbarHeight : 0;
+    // Reserve space for toolbar ONLY if it's sticky (outside the scroll area)
+    const toolbarSpace = showToolbar && stickyToolbar ? toolbarHeight : 0;
     const headerSpace = showHeader ? headerHeight : 0;
     const totalUsedSpace = toolbarSpace + headerSpace + containerPadding;
     
     // Calculate available height for table body
     const bodyHeight = Math.max(0, containerHeight - totalUsedSpace);
 
-    console.log('Container height:', containerHeight);
-    console.log('Body height calculated:', bodyHeight);
-  
-    
     return {
       containerStyle: { 
         height: '100%', 

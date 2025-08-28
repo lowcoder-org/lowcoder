@@ -49,7 +49,7 @@ export const TableCompView = React.memo((props: {
 	const autoHeight = compChildren.autoHeight.getView();
 	const rowAutoHeight = compChildren.rowAutoHeight.getView();
 	const showHeader = !compChildren.hideHeader.getView();
-	const stickyToolbar = false; // TODO: Add this as a prop later
+	const stickyToolbar = !!toolbar.fixedToolbar; // use toolbar setting
 
 
 	// NEW: Use hooks for clean logic
@@ -59,7 +59,8 @@ export const TableCompView = React.memo((props: {
 		showToolbar: !hideToolbar,
 		showHeader: showHeader,
 		toolbarHeight: 48,
-		headerHeight: 40
+		headerHeight: 40,
+		stickyToolbar,
 	});
 	const virtualization = useVirtualization(
 		heights.canVirtualize,
@@ -74,8 +75,8 @@ export const TableCompView = React.memo((props: {
 	);
 	const columnsAggrData = comp.columnAggrData;
 	const headerFilters = useMemo(() => compChildren.headerFilters.getView(), [compChildren.headerFilters]);
-	
-	
+		
+		
 
 	const antdColumns = useMemo(
 		() =>
