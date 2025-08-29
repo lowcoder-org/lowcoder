@@ -4,13 +4,13 @@ import styled from 'styled-components';
 
 const MainContainer = styled.div<{
   $mode: 'AUTO' | 'FIXED';
-  $height?: number;
 }>`
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
   position: relative;
+  border: 4px solid red;
 `;
 
 const StickyToolbar = styled.div<{
@@ -33,14 +33,12 @@ const DefaultToolbar = styled.div`
 const TableSection = styled.div<{
   $mode: 'AUTO' | 'FIXED';
 }>`
-  flex: 1;
-  min-height: 0;
   overflow: ${props => props.$mode === 'FIXED' ? 'auto' : 'visible'};
+  border: 4px solid blue;
 `;
 
 interface TableContainerProps {
   mode: 'AUTO' | 'FIXED';
-  containerHeight?: number;
   toolbarPosition: 'above' | 'below' | 'close';
   stickyToolbar: boolean;
   showToolbar: boolean;
@@ -51,7 +49,6 @@ interface TableContainerProps {
 
 export const TableContainer: React.FC<TableContainerProps> = ({
   mode,
-  containerHeight,
   toolbarPosition,
   stickyToolbar,
   showToolbar,
@@ -59,43 +56,23 @@ export const TableContainer: React.FC<TableContainerProps> = ({
   children,
   containerRef
 }) => {
-  const ToolbarComponent = stickyToolbar ? StickyToolbar : DefaultToolbar;
-  
-  const renderToolbarOutside = stickyToolbar && showToolbar;
-  const renderToolbarInside = !stickyToolbar && showToolbar;
+ 
 
   return (
-    <MainContainer $mode={mode} $height={containerHeight} ref={containerRef}>
-      {/* Above toolbar (sticky) */}
-      {renderToolbarOutside && toolbarPosition === 'above' && (
-        <ToolbarComponent $position="above">
-          {toolbar}
-        </ToolbarComponent>
+    <MainContainer $mode={mode} ref={containerRef}>
+    <TableSection $mode={mode}>
+      {showToolbar && toolbarPosition === 'above' && (
+        stickyToolbar
+          ? <StickyToolbar $position="above">{toolbar}</StickyToolbar>
+          : <DefaultToolbar>{toolbar}</DefaultToolbar>
       )}
-      
-      {/* Table content + optional non-sticky toolbar inside scrollable area */}
-      <TableSection $mode={mode}>
-        {/* Non-sticky toolbar ABOVE inside scrollable area */}
-        {renderToolbarInside && toolbarPosition === 'above' && (
-          <DefaultToolbar>
-            {toolbar}
-          </DefaultToolbar>
-        )}
-        {children}
-        {/* Non-sticky toolbar BELOW inside scrollable area */}
-        {renderToolbarInside && toolbarPosition === 'below' && (
-          <DefaultToolbar>
-            {toolbar}
-          </DefaultToolbar>
-        )}
-      </TableSection>
-      
-      {/* Below toolbar (sticky) */}
-      {renderToolbarOutside && toolbarPosition === 'below' && (
-        <ToolbarComponent $position="below">
-          {toolbar}
-        </ToolbarComponent>
+      {children}
+      {showToolbar && toolbarPosition === 'below' && (
+        stickyToolbar
+          ? <StickyToolbar $position="below">{toolbar}</StickyToolbar>
+          : <DefaultToolbar>{toolbar}</DefaultToolbar>
       )}
-    </MainContainer>
+    </TableSection>
+  </MainContainer>
   );
 };

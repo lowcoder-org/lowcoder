@@ -177,7 +177,6 @@ export const TableCompView = React.memo((props: {
 		return (
 		  <TableContainer
 			mode={mode as 'AUTO' | 'FIXED'}
-			containerHeight={mode === 'FIXED' ? containerHeight : undefined}
 			toolbarPosition={toolbar.position}
 			stickyToolbar={stickyToolbar}
 			showToolbar={!hideToolbar}
@@ -195,7 +194,6 @@ export const TableCompView = React.memo((props: {
 		return (
 			<TableContainer
 			  mode={mode as 'AUTO' | 'FIXED'}
-			  containerHeight={mode === 'FIXED' ? containerHeight : undefined}
 			  toolbarPosition={toolbar.position}
 			  stickyToolbar={stickyToolbar}
 			  showToolbar={!hideToolbar}

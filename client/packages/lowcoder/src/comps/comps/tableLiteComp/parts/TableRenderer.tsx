@@ -94,6 +94,7 @@ function TableRendererComp<RecordType extends object>(props: TableRendererProps<
     // VIRTUALIZED: High performance for large datasets
     if (virtualizationConfig.enabled && heights.canVirtualize) {
       console.log('VirtualizedTable');
+      console.log('VirtualizedTable scrollConfig', { x: totalWidth, y: bodyHeight });
       const scrollConfig = { x: totalWidth, y: bodyHeight };
       return (
         <VirtualizedTable
@@ -117,6 +118,7 @@ function TableRendererComp<RecordType extends object>(props: TableRendererProps<
 
     // FIXED: Regular height-constrained mode without internal vertical scroll
     // Let the outer container handle vertical scrolling so the footer appears right after the table
+    console.log('FixedModeTable', 'scrollConfig', { x: totalWidth, y: bodyHeight });
     return (
       <FixedModeTable
         {...baseTableProps}
