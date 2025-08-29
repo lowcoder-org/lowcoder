@@ -737,6 +737,7 @@ export const DragEventHandlerControl = eventHandlerControl([
 
 export const CalendarEventHandlerControl = eventHandlerControl([
   changeEvent,
+  clickEvent,
   doubleClickEvent,
 ] as const);
 
