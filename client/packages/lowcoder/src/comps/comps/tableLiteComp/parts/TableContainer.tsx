@@ -47,20 +47,23 @@ const SimpleBarWrapper = styled(SimpleBar)<{
 }>`
   height: 100%;
   border: 4px solid red;
+
+  .ant-table-content, .ant-table-body {
+    overflow: unset !important;
+  }
   
   ${props => !props.$showVertical && `
-    .simplebar-scrollbar[data-direction="vertical"] {
-      opacity: 0 !important;
-      pointer-events: none;
+    .simplebar-track.simplebar-vertical {
+      visibility: hidden !important;
     }
   `}
   
   ${props => !props.$showHorizontal && `
-    .simplebar-scrollbar[data-direction="horizontal"] {
-      opacity: 0 !important;
-      pointer-events: none;
+    .simplebar-track.simplebar-horizontal {
+      visibility: hidden !important;
     }
   `}
+  
 `;
 
 interface TableContainerProps {
