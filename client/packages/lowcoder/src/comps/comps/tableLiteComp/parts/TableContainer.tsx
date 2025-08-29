@@ -1,6 +1,8 @@
 // parts/TableContainer.tsx
 import React from 'react';
 import styled from 'styled-components';
+import SimpleBar from 'simplebar-react';
+import 'simplebar-react/dist/simplebar.min.css';
 
 const MainContainer = styled.div<{
   $mode: 'AUTO' | 'FIXED';
@@ -8,9 +10,7 @@ const MainContainer = styled.div<{
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow: hidden;
   position: relative;
-  border: 4px solid red;
 `;
 
 const StickyToolbar = styled.div<{
@@ -33,8 +33,34 @@ const DefaultToolbar = styled.div`
 const TableSection = styled.div<{
   $mode: 'AUTO' | 'FIXED';
 }>`
-  overflow: ${props => props.$mode === 'FIXED' ? 'auto' : 'visible'};
+
+  flex: 1 1 auto;
+  min-height: 0;
   border: 4px solid blue;
+  overflow: hidden;
+`;
+
+
+const SimpleBarWrapper = styled(SimpleBar)<{
+  $showVertical: boolean;
+  $showHorizontal: boolean;
+}>`
+  height: 100%;
+  border: 4px solid red;
+  
+  ${props => !props.$showVertical && `
+    .simplebar-scrollbar[data-direction="vertical"] {
+      opacity: 0 !important;
+      pointer-events: none;
+    }
+  `}
+  
+  ${props => !props.$showHorizontal && `
+    .simplebar-scrollbar[data-direction="horizontal"] {
+      opacity: 0 !important;
+      pointer-events: none;
+    }
+  `}
 `;
 
 interface TableContainerProps {
@@ -45,6 +71,8 @@ interface TableContainerProps {
   toolbar: React.ReactNode;
   children: React.ReactNode;
   containerRef?: React.RefObject<HTMLDivElement>;
+  showVerticalScrollbar: boolean;
+  showHorizontalScrollbar: boolean;
 }
 
 export const TableContainer: React.FC<TableContainerProps> = ({
@@ -54,25 +82,36 @@ export const TableContainer: React.FC<TableContainerProps> = ({
   showToolbar,
   toolbar,
   children,
-  containerRef
+  containerRef,
+  showVerticalScrollbar,
+  showHorizontalScrollbar
 }) => {
  
 
   return (
     <MainContainer $mode={mode} ref={containerRef}>
+      {stickyToolbar && toolbarPosition === 'above' && (
+        <StickyToolbar $position="above">{toolbar}</StickyToolbar>
+      )}
     <TableSection $mode={mode}>
-      {showToolbar && toolbarPosition === 'above' && (
-        stickyToolbar
-          ? <StickyToolbar $position="above">{toolbar}</StickyToolbar>
-          : <DefaultToolbar>{toolbar}</DefaultToolbar>
+      
+      <SimpleBarWrapper
+        $showVertical={showVerticalScrollbar}
+        $showHorizontal={showHorizontalScrollbar}
+      >
+        {!stickyToolbar && toolbarPosition === 'above' && (
+        <DefaultToolbar>{toolbar}</DefaultToolbar>
       )}
-      {children}
-      {showToolbar && toolbarPosition === 'below' && (
-        stickyToolbar
-          ? <StickyToolbar $position="below">{toolbar}</StickyToolbar>
-          : <DefaultToolbar>{toolbar}</DefaultToolbar>
+        {children}
+        {!stickyToolbar && toolbarPosition === 'below' && (
+        <DefaultToolbar>{toolbar}</DefaultToolbar>
       )}
+      </SimpleBarWrapper>
+      
     </TableSection>
+    {stickyToolbar && toolbarPosition === 'below' && (
+      <StickyToolbar $position="below">{toolbar}</StickyToolbar>
+    )}
   </MainContainer>
   );
 };
