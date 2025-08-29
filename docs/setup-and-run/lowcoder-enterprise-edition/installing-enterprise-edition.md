@@ -61,7 +61,7 @@ PLUGIN_ENTERPRISE_DATABASE_USER=lowcoder
 PLUGIN_ENTERPRISE_DATABASE_PASSWORD=yourSecurePassword
 
 # License File Path
-PLUGIN_ENTERPRISE_LICENSE_LOCATION=./lowcoder-stacks/license
+PLUGIN_ENTERPRISE_LICENSE_LOCATION=./lowcoder-stacks/licenses
 
 # Redis
 PLUGIN_ENTERPRISE_REDIS_URL=redis://yourhost:6379
