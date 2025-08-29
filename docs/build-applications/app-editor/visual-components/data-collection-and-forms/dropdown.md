@@ -4,7 +4,7 @@
 
 The **Dropdown** component in Lowcoder enables users to select a single option from a predefined list, enhancing form inputs and user interactions with a clean and intuitive interface.
 
-<figure><img src="../../../../.gitbook/assets/frame_generic_light (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../../../.gitbook/assets/frame_generic_light (1) (1).png" alt=""><figcaption></figcaption></figure>
 
 ### 🔧 Key Features
 

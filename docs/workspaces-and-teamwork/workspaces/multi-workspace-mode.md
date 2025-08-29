@@ -26,7 +26,7 @@ You can see in the following screenshot that in "Multi-Workspace" mode, each Use
        LOWCODE\_EMAIL\_SIGNUP\_ENABLED = **true**\
 
 
-       <figure><img src="../../.gitbook/assets/frame_generic_light (1) (1) (1) (1).png" alt=""><figcaption></figcaption></figure>
+       <figure><img src="../../.gitbook/assets/frame_generic_light (1) (1) (1) (1) (1).png" alt=""><figcaption></figcaption></figure>
 
        LOWCODE\_EMAIL\_SIGNUP\_ENABLED = **false**\
 
@@ -39,7 +39,7 @@ You can see in the following screenshot that in "Multi-Workspace" mode, each Use
        LOWCODER\_CREATE\_WORKSPACE\_ON\_SIGNUP = **true**\
 
 
-       <figure><img src="../../.gitbook/assets/frame_generic_light (6) (1).png" alt=""><figcaption></figcaption></figure>
+       <figure><img src="../../.gitbook/assets/frame_generic_light (6) (1) (1).png" alt=""><figcaption></figcaption></figure>
 
        LOWCODER\_CREATE\_WORKSPACE\_ON\_SIGNUP = **false**\
 
@@ -89,7 +89,7 @@ Let's explain the above scenarios with different settings of the Environment Var
 This Env variable controls the Sign up feature whether New Users can Sign Pp or not. If set to False, Sign up button is not shown up and if a new User tries to enter an email and go forward, User is not shown the Sign up page.
 
 \
-![](<../../.gitbook/assets/frame_generic_light (7) (1).png>)
+![](<../../.gitbook/assets/frame_generic_light (7) (1) (1).png>)
 
 **LOWCODER\_CREATE\_WORKSPACE\_ON\_SIGNUP**
 

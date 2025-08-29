@@ -8,7 +8,7 @@ Lowcoder offers versatile selection components—**Select** and **Multi-Select**
 
 The **Select** component enables users to choose a single option from a dropdown list. It's ideal for scenarios where only one selection is permitted.
 
-<figure><img src="../../../../.gitbook/assets/frame_generic_light (2).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../../../.gitbook/assets/frame_generic_light (2) (1).png" alt=""><figcaption></figcaption></figure>
 
 #### 🔧 Key Features
 
@@ -41,7 +41,7 @@ In the Auto-Docs of Dropdown component, we have shown how to use different prope
 
 The **Multi-Select** component allows users to select multiple options from a list, suitable for scenarios requiring multiple selections.
 
-<figure><img src="../../../../.gitbook/assets/frame_generic_light (4).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../../../.gitbook/assets/frame_generic_light (4) (1).png" alt=""><figcaption></figcaption></figure>
 
 #### 🔧 Key Features
 

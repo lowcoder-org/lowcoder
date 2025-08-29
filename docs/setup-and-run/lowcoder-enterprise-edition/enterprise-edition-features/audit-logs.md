@@ -1,4 +1,4 @@
-# Audit Logs Feature
+# Audit Logs
 
 Audit-Logs are essential for teams that require **security visibility**, **compliance readiness**, and **operational accountability** — especially when managing multiple environments (e.g., Development, Staging, Production).
 
@@ -124,10 +124,10 @@ Lowcoder Enterprise offers a **dedicated Audit Log UI**, where administrators ca
 
 This gives you a **high-resolution view** of every interaction.
 
-<figure><img src="../../../.gitbook/assets/frame_generic_light (5) (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../../.gitbook/assets/frame_generic_light (5) (1) (1).png" alt=""><figcaption></figcaption></figure>
 
 **Event Details Page :**&#x20;
 
 Each Event has an Event details page, which include all the information about the Event, User's location and device/OS/Browser information.&#x20;
 
-<figure><img src="../../../.gitbook/assets/frame_generic_light (6).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../../.gitbook/assets/frame_generic_light (6) (1).png" alt=""><figcaption></figcaption></figure>

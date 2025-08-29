@@ -33,19 +33,30 @@ While developing, we often lose track the components where we have used the quer
 
 ## How to Use Query Variables
 
-Query Variables are unique variables and can be created in a Query or inside an Event Handler as shown in the following screenshots : \
-\
-![](<../../.gitbook/assets/Screenshot 2025-03-05 at 4.54.48 AM.png>)![](<../../.gitbook/assets/Screenshot 2025-03-05 at 4.53.55 AM.png>)
+Query Variables are unique variables and can be created in a Query as shown in the following screenshots : \
+
+
+![](<../../.gitbook/assets/Screenshot 2025-03-05 at 4.53.55 AM.png>)
 
 You can access the Query Variables as follow :&#x20;
 
-1. Inside a JS Query, Query variables should be accessible by their names without the Handlebars as shown below : \
+1. Inside a JS Query, Query variables should be accessible by their \<variable\_name>.value without the Handlebars as shown below : \
    \
-   ![](<../../.gitbook/assets/Screenshot 2025-03-05 at 5.09.28 AM.png>)![](<../../.gitbook/assets/Screenshot 2025-03-05 at 5.07.52 AM.png>)\
+   ![](<../../.gitbook/assets/frame_generic_light (1).png>)![](<../../.gitbook/assets/frame_generic_light (3).png>)![](<../../.gitbook/assets/frame_generic_light (2).png>)\
 
-2. In any other Query type or anywhere in the App, Query variables should be accessible by their names within the Handlebars as shown below : \
+2. In any other Query type or anywhere in the App, Query variables should be accessible by their \<variable\_name>.value within the Handlebars as shown below : \
    \
-   ![](<../../.gitbook/assets/Screenshot 2025-03-05 at 5.16.11 AM.png>)![](<../../.gitbook/assets/Screenshot 2025-03-05 at 5.13.03 AM.png>)![](<../../.gitbook/assets/Screenshot 2025-03-05 at 5.12.50 AM.png>)
+   ![](<../../.gitbook/assets/frame_generic_light (4).png>)
+
+**Query Variable's Value :**&#x20;
+
+The default value of the Query Variables will always be the one that User set in the "Variables" section of a Query. Lowcoder will always use that value when User tries to access the value by \<variable\_name>.value .&#x20;
+
+![](<../../.gitbook/assets/frame_generic_light (1).png>)![](<../../.gitbook/assets/frame_generic_light (7).png>)
+
+If User needs to access the dynamic value of a Query Variable, the User must pass the value as shown below :&#x20;
+
+![](<../../.gitbook/assets/frame_generic_light (1).png>)![](<../../.gitbook/assets/frame_generic_light (5).png>)![](<../../.gitbook/assets/frame_generic_light (6).png>)
 
 ## Transform data
 

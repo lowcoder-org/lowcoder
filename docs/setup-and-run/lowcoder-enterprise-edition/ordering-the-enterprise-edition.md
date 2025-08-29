@@ -17,7 +17,7 @@ You also could write us an eMail to service@lowcoder.org. What we need is the Co
 
 * Fill up all the necessary details in the Form and submit.
 
-<figure><img src="../../.gitbook/assets/frame_generic_light (1) (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/frame_generic_light (1) (1) (1).png" alt=""><figcaption></figcaption></figure>
 
 #### 3. Quote & Contracts from us.
 
