@@ -85,8 +85,10 @@ public class SmtpPlugin extends Plugin {
             prop.put("mail.smtp.host", connectionConfig.getHost());
             prop.put("mail.smtp.port", connectionConfig.getPort() <= 0 ? DEFAULT_PORT : connectionConfig.getPort());
             prop.put("mail.smtp.auth", true);
+            prop.put("mail.smtp.username", connectionConfig.getUsername());
             prop.put("mail.smtp.starttls.enable", "true");
             prop.put("mail.smtp.ssl.protocols", "TLSv1.2");
+            prop.put("mail.smtp.ssl.checkserveridentity", false);
 
             return Mono.fromSupplier(() ->
                             // blocked call
@@ -119,9 +121,15 @@ public class SmtpPlugin extends Plugin {
             return sessionMono
                     .map(session -> {
                         try {
-                            session.getTransport().connect();
+                            if (connectionConfig.getUsername() != null) {
+                                session.getTransport().connect(connectionConfig.getUsername(), connectionConfig.getPassword());
+                            }
+                            else {
+                                session.getTransport().connect();
+                            }
                             return DatasourceTestResult.testSuccess();
                         } catch (MessagingException e) {
+                            log.debug("SmtpPlugin.testConnection() failed!", e);
                             return DatasourceTestResult.testFail(e);
                         }
                     })
