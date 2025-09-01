@@ -8,6 +8,7 @@ const MainContainer = styled.div<{
   $mode: 'AUTO' | 'FIXED';
   $showHorizontalScrollbar: boolean;
   $showVerticalScrollbar: boolean;
+  virtual: boolean;
 }>`
   display: flex;
   flex-direction: column;
@@ -17,13 +18,13 @@ const MainContainer = styled.div<{
   /* Critical CSS controls for SimpleBar */
  
 
-    ${props => !props.$showHorizontalScrollbar && `
+    ${props => (!props.$showHorizontalScrollbar || props.virtual) && `
       div.simplebar-horizontal {
         visibility: hidden !important;
       }  
     `}
     
-    ${props => !props.$showVerticalScrollbar && `
+    ${props => (!props.$showVerticalScrollbar || props.virtual) && `
       div.simplebar-vertical {
         visibility: hidden !important;
       }  
@@ -60,6 +61,13 @@ const TableSection = styled.div<{
 }>`
   min-height: 0;
   min-width: 0;
+
+  /* Ant Table virtualization scrollbar - match SimpleBar colors */
+  .ant-table-tbody-virtual-scrollbar-thumb {
+    background: rgba(0,0,0,0.35) !important;
+    border-radius: 6px;
+    transition: background .2s ease;
+  }
 `;
 
 const SimpleBarWrapper = styled(SimpleBar)`
@@ -97,6 +105,7 @@ interface TableContainerProps {
   containerRef?: React.RefObject<HTMLDivElement>;
   showVerticalScrollbar: boolean;
   showHorizontalScrollbar: boolean;
+  virtual: boolean;
 }
 
 export const TableContainer: React.FC<TableContainerProps> = ({
@@ -108,9 +117,15 @@ export const TableContainer: React.FC<TableContainerProps> = ({
   children,
   containerRef,
   showVerticalScrollbar,
-  showHorizontalScrollbar
+  showHorizontalScrollbar,
+  virtual
 }) => {
   const hideScrollbar = !showHorizontalScrollbar && !showVerticalScrollbar;
+
+  React.useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log('TableContainer virtual:', virtual);
+  }, [virtual]);
 
   return (
     <MainContainer 
@@ -118,6 +133,7 @@ export const TableContainer: React.FC<TableContainerProps> = ({
       ref={containerRef}
       $showHorizontalScrollbar={showHorizontalScrollbar}
       $showVerticalScrollbar={showVerticalScrollbar}
+      virtual={virtual}
     >
       {/* Sticky above toolbar - always visible */}
       {stickyToolbar && toolbarPosition === 'above' && showToolbar && (

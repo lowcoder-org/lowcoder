@@ -183,6 +183,8 @@ export const TableCompView = React.memo((props: {
 			toolbar={toolbarView}
 			showVerticalScrollbar={compChildren.showVerticalScrollbar.getView()}
 			showHorizontalScrollbar={compChildren.showHorizontalScrollbar.getView()}
+			virtual={virtualization.enabled}
+			containerRef={containerRef}
 		  >
 			<EmptyContent text={trans("table.emptyColumns")} />
 		  </TableContainer>
@@ -203,6 +205,7 @@ export const TableCompView = React.memo((props: {
 			  containerRef={containerRef}
 			  showVerticalScrollbar={compChildren.showVerticalScrollbar.getView()}
 			  showHorizontalScrollbar={compChildren.showHorizontalScrollbar.getView()}
+			  virtual={virtualization.enabled}
 			>
 			
 				<TableRenderer<any>
