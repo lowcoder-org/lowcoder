@@ -6,11 +6,29 @@ import 'simplebar-react/dist/simplebar.min.css';
 
 const MainContainer = styled.div<{
   $mode: 'AUTO' | 'FIXED';
+  $showHorizontalScrollbar: boolean;
+  $showVerticalScrollbar: boolean;
 }>`
   display: flex;
   flex-direction: column;
   height: 100%;
   position: relative;
+
+  /* Critical CSS controls for SimpleBar */
+ 
+
+    ${props => !props.$showHorizontalScrollbar && `
+      div.simplebar-horizontal {
+        visibility: hidden !important;
+      }  
+    `}
+    
+    ${props => !props.$showVerticalScrollbar && `
+      div.simplebar-vertical {
+        visibility: hidden !important;
+      }  
+    `}
+  
 `;
 
 const StickyToolbar = styled.div<{
@@ -24,46 +42,33 @@ const StickyToolbar = styled.div<{
     ? '0 2px 8px rgba(0,0,0,0.1)' 
     : '0 -2px 8px rgba(0,0,0,0.1)'
   };
+  flex-shrink: 0;
 `;
 
 const DefaultToolbar = styled.div`
   flex-shrink: 0;
+  /* Prevent horizontal scrolling while allowing vertical flow */
+  position: sticky;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  background: inherit;
 `;
 
 const TableSection = styled.div<{
   $mode: 'AUTO' | 'FIXED';
 }>`
-
   flex: 1 1 auto;
   min-height: 0;
-  border: 4px solid blue;
-  overflow: hidden;
+  min-width: 0;
 `;
 
-
-const SimpleBarWrapper = styled(SimpleBar)<{
-  $showVertical: boolean;
-  $showHorizontal: boolean;
-}>`
+const SimpleBarWrapper = styled(SimpleBar)`
   height: 100%;
-  border: 4px solid red;
+  overflow: auto !important;
 
-  .ant-table-content, .ant-table-body {
-    overflow: unset !important;
-  }
-  
-  ${props => !props.$showVertical && `
-    .simplebar-track.simplebar-vertical {
-      visibility: hidden !important;
-    }
-  `}
-  
-  ${props => !props.$showHorizontal && `
-    .simplebar-track.simplebar-horizontal {
-      visibility: hidden !important;
-    }
-  `}
-  
+
+  /* CRITICAL: Transfer scroll control from Ant Design to SimpleBar */
 `;
 
 interface TableContainerProps {
@@ -89,32 +94,50 @@ export const TableContainer: React.FC<TableContainerProps> = ({
   showVerticalScrollbar,
   showHorizontalScrollbar
 }) => {
- 
+  const hideScrollbar = !showHorizontalScrollbar && !showVerticalScrollbar;
 
   return (
-    <MainContainer $mode={mode} ref={containerRef}>
-      {stickyToolbar && toolbarPosition === 'above' && (
+    <MainContainer 
+      $mode={mode} 
+      ref={containerRef}
+      $showHorizontalScrollbar={showHorizontalScrollbar}
+      $showVerticalScrollbar={showVerticalScrollbar}
+    >
+      {/* Sticky above toolbar - always visible */}
+      {stickyToolbar && toolbarPosition === 'above' && showToolbar && (
         <StickyToolbar $position="above">{toolbar}</StickyToolbar>
       )}
-    <TableSection $mode={mode}>
-      
-      <SimpleBarWrapper
-        $showVertical={showVerticalScrollbar}
-        $showHorizontal={showHorizontalScrollbar}
-      >
-        {!stickyToolbar && toolbarPosition === 'above' && (
-        <DefaultToolbar>{toolbar}</DefaultToolbar>
+
+      <TableSection $mode={mode}>
+        {hideScrollbar ? (
+          /* No scrollbars - render without SimpleBar */
+          <>
+            {!stickyToolbar && toolbarPosition === 'above' && showToolbar && (
+              <DefaultToolbar>{toolbar}</DefaultToolbar>
+            )}
+            {children}
+            {!stickyToolbar && toolbarPosition === 'below' && showToolbar && (
+              <DefaultToolbar>{toolbar}</DefaultToolbar>
+            )}
+          </>
+        ) : (
+          /* Scrollbars enabled - use SimpleBar */
+          <SimpleBarWrapper className="simplebar-wrapper">
+            {!stickyToolbar && toolbarPosition === 'above' && showToolbar && (
+              <DefaultToolbar>{toolbar}</DefaultToolbar>
+            )}
+            {children}
+            {!stickyToolbar && toolbarPosition === 'below' && showToolbar && (
+              <DefaultToolbar>{toolbar}</DefaultToolbar>
+            )}
+          </SimpleBarWrapper>
+        )}
+      </TableSection>
+
+      {/* Sticky below toolbar - always visible */}
+      {stickyToolbar && toolbarPosition === 'below' && showToolbar && (
+        <StickyToolbar $position="below">{toolbar}</StickyToolbar>
       )}
-        {children}
-        {!stickyToolbar && toolbarPosition === 'below' && (
-        <DefaultToolbar>{toolbar}</DefaultToolbar>
-      )}
-      </SimpleBarWrapper>
-      
-    </TableSection>
-    {stickyToolbar && toolbarPosition === 'below' && (
-      <StickyToolbar $position="below">{toolbar}</StickyToolbar>
-    )}
-  </MainContainer>
+    </MainContainer>
   );
 };
