@@ -8,7 +8,7 @@ const MainContainer = styled.div<{
   $mode: 'AUTO' | 'FIXED';
   $showHorizontalScrollbar: boolean;
   $showVerticalScrollbar: boolean;
-  virtual: boolean;
+  $virtual: boolean;
 }>`
   display: flex;
   flex-direction: column;
@@ -18,13 +18,13 @@ const MainContainer = styled.div<{
   /* Critical CSS controls for SimpleBar */
  
 
-    ${props => (!props.$showHorizontalScrollbar || props.virtual) && `
+    ${props => (!props.$showHorizontalScrollbar || props.$virtual) && `
       div.simplebar-horizontal {
         visibility: hidden !important;
       }  
     `}
     
-    ${props => (!props.$showVerticalScrollbar || props.virtual) && `
+    ${props => (!props.$showVerticalScrollbar || props.$virtual) && `
       div.simplebar-vertical {
         visibility: hidden !important;
       }  
@@ -133,7 +133,7 @@ export const TableContainer: React.FC<TableContainerProps> = ({
       ref={containerRef}
       $showHorizontalScrollbar={showHorizontalScrollbar}
       $showVerticalScrollbar={showVerticalScrollbar}
-      virtual={virtual}
+      $virtual={virtual}
     >
       {/* Sticky above toolbar - always visible */}
       {stickyToolbar && toolbarPosition === 'above' && showToolbar && (
