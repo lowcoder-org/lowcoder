@@ -69,6 +69,23 @@ const SimpleBarWrapper = styled(SimpleBar)`
 
 
   /* CRITICAL: Transfer scroll control from Ant Design to SimpleBar */
+  .simplebar-track { background: transparent; }
+
+  .simplebar-track.simplebar-vertical { width: 10px; }
+  .simplebar-track.simplebar-horizontal { height: 10px; }
+
+  .simplebar-scrollbar:before {
+    background: rgba(0,0,0,0.35);
+    border-radius: 6px;
+    transition: background .2s ease, inset .2s ease;
+  }
+
+  .simplebar-track.simplebar-vertical .simplebar-scrollbar:before { left: 2px; right: 2px; }
+  .simplebar-track.simplebar-horizontal .simplebar-scrollbar:before { top: 2px; bottom: 2px; }
+
+  .simplebar-track:hover .simplebar-scrollbar:before { background: rgba(0,0,0,0.55); }
+  .simplebar-track.simplebar-vertical:hover .simplebar-scrollbar:before { left: 1px; right: 1px; }
+  .simplebar-track.simplebar-horizontal:hover .simplebar-scrollbar:before { top: 1px; bottom: 1px; }
 `;
 
 interface TableContainerProps {
@@ -122,7 +139,7 @@ export const TableContainer: React.FC<TableContainerProps> = ({
           </>
         ) : (
           /* Scrollbars enabled - use SimpleBar */
-          <SimpleBarWrapper className="simplebar-wrapper">
+          <SimpleBarWrapper className="simplebar-wrapper" autoHide={false}>
             {!stickyToolbar && toolbarPosition === 'above' && showToolbar && (
               <DefaultToolbar>{toolbar}</DefaultToolbar>
             )}
