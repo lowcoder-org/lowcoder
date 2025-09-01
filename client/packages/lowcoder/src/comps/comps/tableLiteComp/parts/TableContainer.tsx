@@ -58,7 +58,6 @@ const DefaultToolbar = styled.div`
 const TableSection = styled.div<{
   $mode: 'AUTO' | 'FIXED';
 }>`
-  flex: 1 1 auto;
   min-height: 0;
   min-width: 0;
 `;
@@ -139,7 +138,7 @@ export const TableContainer: React.FC<TableContainerProps> = ({
           </>
         ) : (
           /* Scrollbars enabled - use SimpleBar */
-          <SimpleBarWrapper className="simplebar-wrapper" autoHide={false}>
+          <SimpleBarWrapper className="simplebar-wrapper" autoHide={true}>
             {!stickyToolbar && toolbarPosition === 'above' && showToolbar && (
               <DefaultToolbar>{toolbar}</DefaultToolbar>
             )}
