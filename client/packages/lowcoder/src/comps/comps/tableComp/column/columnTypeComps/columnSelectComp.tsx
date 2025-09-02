@@ -124,6 +124,7 @@ type SelectEditProps = {
   initialValue: string;
   onChange: (value: string) => void;
   onChangeEnd: () => void;
+  onImmediateSave?: (value: string) => void;
   options: any[];
   onMainEvent?: (eventName: string) => void;
 };
@@ -146,6 +147,11 @@ const SelectEdit = React.memo((props: SelectEditProps) => {
     props.onChange(val);
     setCurrentValue(val);
     
+    // Use immediate save to show Save Changes button without exiting edit mode
+    if (props.onImmediateSave) {
+      props.onImmediateSave(val);
+    }
+    
     // Trigger the specific option's event handler
     const selectedOption = props.options.find(option => option.value === val);
     if (selectedOption?.onEvent) {
@@ -156,7 +162,7 @@ const SelectEdit = React.memo((props: SelectEditProps) => {
     if (props.onMainEvent) {
       props.onMainEvent("click");
     }
-  }, [props.onChange, props.options, props.onMainEvent]);
+  }, [props.onChange, props.onImmediateSave, props.options, props.onMainEvent]);
 
   const handleEvent = useCallback(async (eventName: string) => {
     if (!mountedRef.current) return [] as unknown[];
@@ -209,6 +215,7 @@ export const ColumnSelectComp = (function () {
             options={props.otherProps?.options || []}
             onChange={props.onChange}
             onChangeEnd={props.onChangeEnd}
+            onImmediateSave={props.onImmediateSave}
             onMainEvent={props.otherProps?.onEvent}
           />
         </Wrapper>

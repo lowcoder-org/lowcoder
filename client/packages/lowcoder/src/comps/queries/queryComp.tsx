@@ -301,7 +301,7 @@ QueryCompTmp = class extends QueryCompTmp {
 
       // If the dsl has not changed, but the dependent node value has changed, then trigger the query execution
       // FIXME, this should be changed to a reference judgement, but for unknown reasons if the reference is modified once, it will change twice.
-      if (dependsChanged) {
+      if (dependsChanged && !isJsQuery) {
         if (dslNotChanged) {
           this.execute(next);
         }
@@ -335,7 +335,7 @@ function QueryView(props: QueryViewProps) {
     ) {
       setTimeout(() => {
         comp.dispatch(deferAction(executeQueryAction({})));
-      }, 300);
+      }, 600);
     }
 
     if(getTriggerType(comp) === "onTimeout") {

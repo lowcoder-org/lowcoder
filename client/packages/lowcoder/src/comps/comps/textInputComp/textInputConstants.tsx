@@ -221,7 +221,7 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
       propsRef.current.value.onChange(value);
       propsRef.current.onEvent("change");
       changeRef.current = false;  // Reset after commit
-    }, 1000)
+    }, 100)
   );  
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -231,6 +231,10 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
     changeRef.current = true;
     touchRef.current = true;
     debouncedOnChangeRef.current?.(value, propsRef.current.value);
+  };
+
+  const handleBlur = () => {
+    touchRef.current = false;
   };
 
   // Cleanup refs on unmount
@@ -252,6 +256,7 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
         } as any,
       }),
       onChange: handleChange,
+      onBlur: handleBlur,
     },
     validateState,
   ];

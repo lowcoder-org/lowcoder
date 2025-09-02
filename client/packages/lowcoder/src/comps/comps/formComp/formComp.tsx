@@ -330,11 +330,6 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
     // For the properties, first find in data, then initialData, subcomponent default value (resetValue), empty value (clearValue)
     const newData = { ...(initialData ?? this.children.initialData.getView()), ...data };
 
-    // Only proceed if we have data to set
-    if (!Object.keys(newData).length) {
-      return Promise.resolve();
-    }
-
     return this.runMethodOfItems(
       {
         name: "setValue",
@@ -392,9 +387,9 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
     switch (action.type) {
       case CompActionTypes.UPDATE_NODES_V2: {
         const ret = super.reduce(action);
-        // When the initial value changes, update the form
-        if (action.value["initialData"] !== undefined) {
-          queueMicrotask(() => {
+        if (ret.children.initialData !== this.children.initialData) {
+          // FIXME: kill setTimeout ?
+          setTimeout(() => {
             this.dispatch(
               customAction<SetDataAction>(
                 {
@@ -404,7 +399,7 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
                 false
               )
             );
-          });
+          }, 1000);
         }
         return ret;
       }

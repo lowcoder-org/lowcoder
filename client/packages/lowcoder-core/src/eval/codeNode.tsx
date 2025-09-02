@@ -176,11 +176,12 @@ export class CodeNode extends AbstractNode<ValueAndMsg<unknown>> {
         // if query is dependent on itself, mark as ready
         if (pathsArr?.[0] === options?.queryName) return;
 
+        // TODO: check if this is needed after removing lazy load
         // wait for lazy loaded comps to load before executing query on page load
-        if (value && !Object.keys(value).length && paths.size) {
-          isFetching = true;
-          ready = false;
-        }
+        // if (value && !Object.keys(value).length && paths.size) {
+        //   isFetching = true;
+        //   ready = false;
+        // }
         if (_.has(value, IS_FETCHING_FIELD)) {
           isFetching = isFetching || value.isFetching === true;
         }

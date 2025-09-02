@@ -143,7 +143,6 @@ export const StyledTypographyText = styled(AntdTypographyText)`
   &:hover {
   color: #315efb;
   }
-  }
 `;
 
 const MONTH_MILLIS = 30 * 24 * 60 * 60 * 1000;
@@ -244,11 +243,15 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
   const Icon = resInfo.icon;
 
   const handleModalOk = (values: any) => {
-    res.type === HomeResTypeEnum.Folder &&
-      dispatch(updateFolder({ id: res.id, name: values.appName || res.name }))
-    dispatch(
-      updateAppMetaAction({ applicationId: res.id, name: values.appName || res.name, folderId: folderId })
-    );
+    if (res.type === HomeResTypeEnum.Folder) {
+      // Update folder
+      dispatch(updateFolder({ id: res.id, name: values.appName || res.name }));
+    } else {
+      // Update application
+      dispatch(
+        updateAppMetaAction({ applicationId: res.id, name: values.appName || res.name, folderId: folderId })
+      );
+    }
     
     setDialogVisible(false);
     setTimeout(() => {
