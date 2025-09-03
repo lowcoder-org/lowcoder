@@ -48,9 +48,16 @@ import { TableSummary } from "./tableSummaryComp";
 import Skeleton from "antd/es/skeleton";
 import { SkeletonButtonProps } from "antd/es/skeleton/Button";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
-import { useUpdateEffect } from "react-use";
+import { useUpdateEffect } from "react-use";import {
+  useTableMode,
+  useContainerHeight,
+  useVirtualization,
+  useScrollConfiguration
+} from './hooks/useTableConfiguration';
 
 export const EMPTY_ROW_KEY = 'empty_row';
+
+
 
 function genLinerGradient(color: string) {
   return isValidColor(color) ? `linear-gradient(${color}, ${color})` : color;
@@ -565,6 +572,11 @@ type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | 
   rowAutoHeight?: boolean;
   customLoading?: boolean;
   onCellClick: (columnName: string, dataIndex: string) => void;
+  virtual?: boolean;           
+  scroll?: {                   
+    x?: number | string;
+    y?: number | string;
+  };
 };
 
 const TableCellView = React.memo((props: {
@@ -798,9 +810,6 @@ function ResizeableTableComp<RecordType extends object>(props: CustomTableProps<
       {...restProps}
       pagination={false}
       columns={memoizedColumns}
-      scroll={{
-        x: COL_MIN_WIDTH * columns.length,
-      }}
     />
   );
 }
@@ -848,7 +857,6 @@ export const TableCompView = React.memo((props: {
   const toolbarStyle = compChildren.toolbarStyle.getView();
   const hideToolbar = compChildren.hideToolbar.getView()
   const rowAutoHeight = compChildren.rowAutoHeight.getView();
-  const tableAutoHeight = comp.getTableAutoHeight();
   const showHorizontalScrollbar = compChildren.showHorizontalScrollbar.getView();
   const showVerticalScrollbar = compChildren.showVerticalScrollbar.getView();
   const visibleResizables = compChildren.visibleResizables.getView();
@@ -872,6 +880,7 @@ export const TableCompView = React.memo((props: {
   const onEvent = useMemo(() => compChildren.onEvent.getView(), [compChildren.onEvent]);
   const currentExpandedRows = useMemo(() => compChildren.currentExpandedRows.getView(), [compChildren.currentExpandedRows]);
   const dynamicColumn = compChildren.dynamicColumn.getView();
+
   const dynamicColumnConfig = useMemo(
     () => compChildren.dynamicColumnConfig.getView(),
     [compChildren.dynamicColumnConfig]
@@ -1006,6 +1015,31 @@ export const TableCompView = React.memo((props: {
 
   const childrenProps = childrenToProps(comp.children);
 
+// Table mode and height configuration
+  const tableMode = useTableMode(comp.getTableAutoHeight());
+  const { containerHeight, containerRef } = useContainerHeight(tableMode.isFixedMode);
+
+  const virtualizationConfig = useVirtualization(
+    containerHeight,
+    pageDataInfo.data.length,
+    size as 'small' | 'middle' | 'large',
+    {
+      showToolbar: !hideToolbar,
+      showHeader: !compChildren.hideHeader.getView(),
+      stickyToolbar: toolbar.fixedToolbar && toolbar.position === 'above',
+      isFixedMode: tableMode.isFixedMode
+    }
+  );
+  const totalColumnsWidth = COL_MIN_WIDTH * antdColumns.length;
+  const scrollConfig = useScrollConfiguration(
+    virtualizationConfig.enabled,
+    virtualizationConfig.scrollY,
+    totalColumnsWidth
+  );
+  
+
+
+
   useMergeCompStyles(
     childrenProps as Record<string, any>,
     comp.dispatch
@@ -1092,20 +1126,20 @@ export const TableCompView = React.memo((props: {
   return (
     <BackgroundColorContext.Provider value={style.background} >
       <BackgroundWrapper
-        ref={ref}
+        ref={containerRef}
         $style={style}
-        $tableAutoHeight={tableAutoHeight}
+        $tableAutoHeight={tableMode.isAutoMode}
         $showHorizontalScrollbar={showHorizontalScrollbar}
         $showVerticalScrollbar={showVerticalScrollbar}
         $fixedToolbar={toolbar.fixedToolbar}
       >
-        {toolbar.position === "above" && !hideToolbar && (toolbar.fixedToolbar || (tableAutoHeight && showHorizontalScrollbar)) && toolbarView}
+        {toolbar.position === "above" && !hideToolbar && (toolbar.fixedToolbar || (tableMode.isAutoMode && showHorizontalScrollbar)) && toolbarView}
         <ScrollBar
           className="table-scrollbar-wrapper"
           style={{ height: "100%", margin: "0px", padding: "0px" }}
           hideScrollbar={hideScrollbar}
-          prefixNode={toolbar.position === "above" && !toolbar.fixedToolbar && !(tableAutoHeight && showHorizontalScrollbar) && toolbarView}
-          suffixNode={toolbar.position === "below" && !toolbar.fixedToolbar && !(tableAutoHeight && showHorizontalScrollbar) && toolbarView}
+          prefixNode={toolbar.position === "above" && !toolbar.fixedToolbar && !(tableMode.isAutoMode && showHorizontalScrollbar) && toolbarView}
+          suffixNode={toolbar.position === "below" && !toolbar.fixedToolbar && !(tableMode.isAutoMode && showHorizontalScrollbar) && toolbarView}
         >
           <TableWrapper
             $style={style}
@@ -1162,13 +1196,15 @@ export const TableCompView = React.memo((props: {
                 });
               }}
               summary={summaryView}
+              scroll={scrollConfig.scroll}
+              virtual={scrollConfig.virtual}
             />
             <SlotConfigContext.Provider value={{ modalWidth: width && Math.max(width, 300) }}>
               {expansion.expandModalView}
             </SlotConfigContext.Provider>
           </TableWrapper>
         </ScrollBar>
-        {toolbar.position === "below" && !hideToolbar && (toolbar.fixedToolbar || (tableAutoHeight && showHorizontalScrollbar)) && toolbarView}
+        {toolbar.position === "below" && !hideToolbar && (toolbar.fixedToolbar || (tableMode.isAutoMode && showHorizontalScrollbar)) && toolbarView}
       </BackgroundWrapper>
 
     </BackgroundColorContext.Provider>

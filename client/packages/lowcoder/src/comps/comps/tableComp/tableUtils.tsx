@@ -30,6 +30,26 @@ export const OB_ROW_RECORD = "__ob_origin_record";
 export const COL_MIN_WIDTH = 55;
 export const COL_MAX_WIDTH = 500;
 
+/*
+
+======================== Virtualization constants =========================
+
+*/
+export const VIRTUAL_ROW_HEIGHTS = {
+  small: 32,
+  middle: 48,
+  large: 80
+} as const;
+
+
+export const VIRTUAL_THRESHOLD = 50;
+export const MIN_VIRTUAL_HEIGHT = 200; // Minimum container height needed for virtualization
+export const TOOLBAR_HEIGHT = 48;      // Standard toolbar height
+export const HEADER_HEIGHT = 40;       // Standard header height
+
+ /* ========================== End of Virtualization constants ==========================  */
+
+
 /**
  * Add __originIndex__, mainly for the logic of the default key
  */
