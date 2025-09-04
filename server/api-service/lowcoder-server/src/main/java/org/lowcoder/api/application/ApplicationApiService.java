@@ -1,6 +1,9 @@
 package org.lowcoder.api.application;
 
-import jakarta.annotation.Nonnull;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.application.view.ApplicationPublishRequest;
@@ -10,13 +13,10 @@ import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.permission.model.ResourceAction;
 import org.lowcoder.domain.permission.model.ResourcePermission;
 import org.lowcoder.domain.permission.model.ResourceRole;
-import org.springframework.web.bind.annotation.PathVariable;
 
+import jakarta.annotation.Nonnull;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
-import java.util.Set;
 
 public interface ApplicationApiService {
     Mono<ApplicationView> create(ApplicationEndpoints.CreateApplicationRequest createApplicationRequest);
@@ -38,6 +38,8 @@ public interface ApplicationApiService {
     Mono<ApplicationView> update(String applicationId, Application application, Boolean updateStatus);
 
     Mono<ApplicationView> publish(String applicationId, ApplicationPublishRequest applicationPublishRequest);
+
+    Mono<ApplicationView> publishWithRollback(String applicationId, ApplicationPublishRequest applicationPublishRequest, Map<String, Object> rollbackDsl);
 
     Mono<Boolean> updateEditState(String applicationId, ApplicationEndpoints.UpdateEditStateRequest updateEditStateRequest);
 
