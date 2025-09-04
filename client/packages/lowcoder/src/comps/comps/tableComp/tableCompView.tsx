@@ -30,7 +30,7 @@ import { PrimaryColor } from "constants/style";
 import { trans } from "i18n";
 import _, { isEqual } from "lodash";
 import { darkenColor, isDarkColor, isValidColor, ScrollBar } from "lowcoder-design";
-import React, { Children, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { Children, useCallback, useContext, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { Resizable } from "react-resizable";
 import styled, { css } from "styled-components";
 import { useMergeCompStyles, useUserViewMode } from "util/hooks";
@@ -498,10 +498,10 @@ const TableTdLoading = styled(Skeleton.Button)<SkeletonButtonProps & {
   }
 `;
 
-const ResizeableTitle = (props: any) => {
+const ResizeableTitle = React.forwardRef<HTMLTableHeaderCellElement, any>((props, ref) => {
   const { onResize, onResizeStop, width, viewModeResizable, ...restProps } = props;
   const [childWidth, setChildWidth] = useState(0);
-  const resizeRef = useRef<HTMLDivElement>(null);
+  const resizeRef = useRef<HTMLTableHeaderCellElement>(null);
   const isUserViewMode = useUserViewMode();
 
   const updateChildWidth = useCallback(() => {
@@ -525,6 +525,8 @@ const ResizeableTitle = (props: any) => {
       resizeObserver.disconnect();
     };
   }, [updateChildWidth]);
+
+  useImperativeHandle(ref, () => resizeRef.current!, []);
 
   const isNotDataColumn = _.isNil(restProps.title);
   if ((isUserViewMode && !restProps.viewModeResizable) || isNotDataColumn) {
@@ -559,7 +561,7 @@ const ResizeableTitle = (props: any) => {
       <TableTh ref={resizeRef} {...restProps} title="" />
     </Resizable>
   );
-};
+});
 
 type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | "columns"> & {
   columns: CustomColumnType<RecordType>[];
@@ -579,7 +581,7 @@ type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | 
   };
 };
 
-const TableCellView = React.memo((props: {
+const TableCellView = React.forwardRef<HTMLTableCellElement, {
   record: RecordType;
   title: string;
   rowColorFn: RowColorViewType;
@@ -594,7 +596,7 @@ const TableCellView = React.memo((props: {
   autoHeight?: boolean;
   loading?: boolean;
   customAlign?: 'left' | 'center' | 'right';
-}) => {
+}>((props, ref) => {
   const {
     record,
     title,
@@ -651,17 +653,23 @@ const TableCellView = React.memo((props: {
     };
   }, [record, rowIndex, title, rowColorFn, rowHeightFn, cellColorFn, columnStyle, columnsStyle]);
 
-  let tdView;
   if (!record) {
-    tdView = <td {...restProps}>{children}</td>;
-  } else {
-    let { background } = style!;
-    if (rowContext.hover) {
-      background = 'transparent';
-    }
+    return (
+      <TableCellContext.Provider value={{ isEditing: editing, setIsEditing: setEditing }}>
+        <td ref={ref} {...restProps}>{children}</td>
+      </TableCellContext.Provider>
+    );
+  }
 
-    tdView = (
+  let { background } = style!;
+  if (rowContext.hover) {
+    background = 'transparent';
+  }
+
+  return (
+    <TableCellContext.Provider value={{ isEditing: editing, setIsEditing: setEditing }}>
       <TableTd
+        ref={ref}
         {...restProps}
         $background={background}
         $style={style!}
@@ -677,17 +685,11 @@ const TableCellView = React.memo((props: {
           : children
         }
       </TableTd>
-    );
-  }
-
-  return (
-    <TableCellContext.Provider value={{ isEditing: editing, setIsEditing: setEditing }}>
-      {tdView}
     </TableCellContext.Provider>
   );
 });
 
-const TableRowView = React.memo((props: any) => {
+const TableRowView = React.forwardRef<HTMLTableRowElement, any>((props, ref) => {
   const [hover, setHover] = useState(false);
   const [selected, setSelected] = useState(false);
 
@@ -700,6 +702,7 @@ const TableRowView = React.memo((props: any) => {
   return (
     <TableRowContext.Provider value={{ hover, selected }}>
       <tr
+        ref={ref}
         {...props}
         tabIndex={-1}
         onMouseEnter={handleMouseEnter}
