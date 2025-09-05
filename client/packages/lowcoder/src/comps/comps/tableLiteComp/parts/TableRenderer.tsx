@@ -47,7 +47,6 @@ function TableRendererComp<RecordType extends object>(props: TableRendererProps<
 
   // AUTO MODE: Natural growth
   if (mode === 'AUTO') {
-    console.log('AutoModeTable');
     return (
       <AutoModeTable
         {...baseTableProps}
@@ -68,11 +67,9 @@ function TableRendererComp<RecordType extends object>(props: TableRendererProps<
 
   // FIXED MODE: Height-constrained with optional virtualization
   if (mode === 'FIXED') {
-    console.log('FixedModeTable');
     const bodyHeight = heights.bodyHeight ?? 0;
     
     if (bodyHeight <= 0) {
-      console.warn('TableRenderer: Invalid bodyHeight, falling back to auto mode');
       return (
         <AutoModeTable
           {...baseTableProps}
@@ -93,8 +90,6 @@ function TableRendererComp<RecordType extends object>(props: TableRendererProps<
 
     // VIRTUALIZED: High performance for large datasets
     if (virtualizationConfig.enabled && heights.canVirtualize) {
-      console.log('VirtualizedTable');
-      console.log('VirtualizedTable scrollConfig', { x: totalWidth, y: bodyHeight });
       const scrollConfig = { x: totalWidth, y: bodyHeight };
       return (
         <VirtualizedTable
@@ -118,7 +113,6 @@ function TableRendererComp<RecordType extends object>(props: TableRendererProps<
 
     // FIXED: Regular height-constrained mode without internal vertical scroll
     // Let the outer container handle vertical scrolling so the footer appears right after the table
-    console.log('FixedModeTable', 'scrollConfig', { x: totalWidth, y: bodyHeight });
     return (
       <FixedModeTable
         {...baseTableProps}

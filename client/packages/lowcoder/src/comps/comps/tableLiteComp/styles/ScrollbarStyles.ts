@@ -4,16 +4,6 @@ export const ScrollbarStyleProvider = styled.div<{
   $showVerticalScrollbar: boolean;
   $showHorizontalScrollbar: boolean;
 }>`
-  /* Debug console logs */
-  ${props => {
-    console.log('ScrollbarStyleProvider received:', {
-      showVerticalScrollbar: props.$showVerticalScrollbar,
-      showHorizontalScrollbar: props.$showHorizontalScrollbar
-    });
-    return '';
-  }}
-
-  
   ${props => !props.$showHorizontalScrollbar && `
     /* Target horizontal scrollbars - focus on .ant-table-body since it's common to all modes */
     .ant-table-body::-webkit-scrollbar:horizontal,

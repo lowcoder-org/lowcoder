@@ -5,11 +5,7 @@ export const HeaderStyleProvider = styled.div<{
   $isSticky: boolean;
   $isHidden: boolean;
 }>`
-  ${props => {
-    console.log("HeaderStyleProvider props:", props);
-    return "";
-  }}
-
+ 
   ${props => props.$isHidden && `
     .ant-table-thead {
       display: none;

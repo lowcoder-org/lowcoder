@@ -128,12 +128,6 @@ export const TableContainer: React.FC<TableContainerProps> = ({
   showHorizontalScrollbar,
   virtual
 }) => {
-
-  React.useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log('TableContainer virtual:', virtual);
-  }, [virtual]);
-
   return (
     <MainContainer 
       $mode={mode} 
