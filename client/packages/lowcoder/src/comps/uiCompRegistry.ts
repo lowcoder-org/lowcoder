@@ -93,6 +93,7 @@ export type UICompType =
   | "dropdown"
   | "text"
   | "table"
+  | "tableLite"
   | "image"
   | "progress"
   | "progressCircle"
