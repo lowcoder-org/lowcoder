@@ -29,6 +29,21 @@ const MainContainer = styled.div<{
         visibility: hidden !important;
       }  
     `}
+
+     /* Ant Table virtualization scrollbar - match SimpleBar colors */
+    .ant-table-tbody-virtual-scrollbar-thumb {
+      background: rgba(0,0,0,0.35) !important;
+      border-radius: 6px;
+      transition: background .2s ease;
+    }
+
+    .ant-table-tbody-virtual-scrollbar-horizontal {
+      display: ${(props) => (props.$showHorizontalScrollbar) ? 'block' : 'none'} !important;
+    }
+
+    .ant-table-tbody-virtual-scrollbar-vertical {
+      display: ${(props) => (props.$showVerticalScrollbar) ? 'block' : 'none'} !important;
+    }
   
 `;
 
@@ -61,13 +76,6 @@ const TableSection = styled.div<{
 }>`
   min-height: 0;
   min-width: 0;
-
-  /* Ant Table virtualization scrollbar - match SimpleBar colors */
-  .ant-table-tbody-virtual-scrollbar-thumb {
-    background: rgba(0,0,0,0.35) !important;
-    border-radius: 6px;
-    transition: background .2s ease;
-  }
 `;
 
 const SimpleBarWrapper = styled(SimpleBar)`
@@ -120,7 +128,6 @@ export const TableContainer: React.FC<TableContainerProps> = ({
   showHorizontalScrollbar,
   virtual
 }) => {
-  const hideScrollbar = !showHorizontalScrollbar && !showVerticalScrollbar;
 
   React.useEffect(() => {
     // eslint-disable-next-line no-console
@@ -141,19 +148,6 @@ export const TableContainer: React.FC<TableContainerProps> = ({
       )}
 
       <TableSection $mode={mode}>
-        {hideScrollbar ? (
-          /* No scrollbars - render without SimpleBar */
-          <>
-            {!stickyToolbar && toolbarPosition === 'above' && showToolbar && (
-              <DefaultToolbar>{toolbar}</DefaultToolbar>
-            )}
-            {children}
-            {!stickyToolbar && toolbarPosition === 'below' && showToolbar && (
-              <DefaultToolbar>{toolbar}</DefaultToolbar>
-            )}
-          </>
-        ) : (
-          /* Scrollbars enabled - use SimpleBar */
           <SimpleBarWrapper className="simplebar-wrapper" autoHide={true}>
             {!stickyToolbar && toolbarPosition === 'above' && showToolbar && (
               <DefaultToolbar>{toolbar}</DefaultToolbar>
@@ -163,7 +157,6 @@ export const TableContainer: React.FC<TableContainerProps> = ({
               <DefaultToolbar>{toolbar}</DefaultToolbar>
             )}
           </SimpleBarWrapper>
-        )}
       </TableSection>
 
       {/* Sticky below toolbar - always visible */}
