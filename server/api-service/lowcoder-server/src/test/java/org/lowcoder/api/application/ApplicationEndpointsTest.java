@@ -13,6 +13,7 @@ import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.service.ApplicationRecordService;
+import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
@@ -33,6 +34,7 @@ class ApplicationEndpointsTest {
     private BusinessEventPublisher businessEventPublisher;
     private GidService gidService;
     private ApplicationRecordService applicationRecordService;
+    private ApplicationService applicationService;
     private ApplicationController controller;
 
     private static final String TEST_APPLICATION_ID = "test-app-id";
@@ -47,6 +49,7 @@ class ApplicationEndpointsTest {
         businessEventPublisher = Mockito.mock(BusinessEventPublisher.class);
         gidService = Mockito.mock(GidService.class);
         applicationRecordService = Mockito.mock(ApplicationRecordService.class);
+        applicationService = Mockito.mock(ApplicationService.class);
 
         // Setup common mocks
         when(businessEventPublisher.publishApplicationCommonEvent(any(), any(), any())).thenReturn(Mono.empty());
@@ -88,7 +91,8 @@ class ApplicationEndpointsTest {
                 applicationApiService,
                 businessEventPublisher,
                 gidService,
-                applicationRecordService
+                applicationRecordService,
+                applicationService
         );
     }
 

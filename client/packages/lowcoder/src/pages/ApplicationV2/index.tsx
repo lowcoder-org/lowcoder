@@ -32,7 +32,11 @@ import {
   UserIcon,
 } from "lowcoder-design";
 import React, { useCallback, useEffect, useState, useMemo } from "react";
+import { Helmet } from "react-helmet";
+import { favicon } from "assets/images";
 import { fetchHomeData } from "redux/reduxActions/applicationActions";
+import { getBrandingConfig } from "redux/selectors/configSelectors";
+import { buildMaterialPreviewURL } from "util/materialUtils";
 import { fetchSubscriptionsAction } from "redux/reduxActions/subscriptionActions";
 import { getHomeOrg, normalAppListSelector } from "redux/selectors/applicationSelector";
 import { DatasourceHome } from "../datasource";
@@ -90,6 +94,7 @@ export default function ApplicationHome() {
   const allFolders = useSelector(foldersSelector);
   const user = useSelector(getUser);
   const org = useSelector(getHomeOrg);
+  const branding = useSelector(getBrandingConfig);
   const allAppCount = allApplications.length;
   const allFoldersCount = allFolders.length;
   const orgHomeId = "root";
@@ -131,6 +136,12 @@ export default function ApplicationHome() {
   return (
     <DivStyled>
       <LoadingBarHideTrigger />
+      <Helmet>
+        {/* Admin area default favicon; app routes will set their own */}
+        <link key='default-favicon' rel='icon' href={
+          branding?.favicon ? buildMaterialPreviewURL(branding.favicon) : favicon
+        } />
+      </Helmet>
       {/* <EnterpriseProvider> */}
         {/*  <SimpleSubscriptionContextProvider> */}
           <Layout
