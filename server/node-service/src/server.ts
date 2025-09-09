@@ -10,6 +10,10 @@ import apiRouter from "./routes/apiRouter";
 import systemRouter from "./routes/systemRouter";
 import cors, { CorsOptions } from "cors";
 import bodyParser from "body-parser";
+const bytes = require("bytes");
+const requestSizeLimitStr = process.env.LOWCODER_NODE_REQUEST_SIZE_LIMIT || "50mb";
+const requestSizeLimitBytes = bytes(requestSizeLimitStr);
+
 collectDefaultMetrics();
 
 const prefix = "/node-service";
@@ -35,17 +39,18 @@ router.use(express.urlencoded({ extended: false }));
 
 /** Custom middleware: use raw body for encrypted requests */
 router.use((req, res, next) => {
-  if (req.headers["x-encrypted"]) {
-    bodyParser.text({ type: "*/*" })(req, res, next);
-  } else {
-    bodyParser.json()(req, res, next);
-  }
+    if (req.headers["x-encrypted"]) {
+        body_parser_1.default.text({ type: "*/*", requestSizeLimitStr })(req, res, next);
+    }
+    else {
+        body_parser_1.default.json({ requestSizeLimitStr })(req, res, next);
+    }
 });
 
 /** Takes care of JSON data */
 router.use(
   express.json({
-    limit: 1024 * 1024 * 50, // 50 MB
+    limit: requestSizeLimitBytes
   })
 );
 
