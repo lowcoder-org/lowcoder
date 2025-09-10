@@ -15,7 +15,7 @@ import { NameGenerator } from "comps/utils";
 import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
 import _ from "lodash";
-import React, {useContext, useEffect,useState } from "react";
+import React, {useContext, useMemo } from "react";
 import styled, { css } from "styled-components";
 import { IContainer } from "../containerBase/iContainer";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
@@ -47,10 +47,9 @@ const EVENT_OPTIONS = [
 ] as const;
 
 const TAB_BEHAVIOR_OPTIONS = [
-  { label: "Lazy Loading", value: "lazy" },
-  { label: "Remember State", value: "remember" },
-  { label: "Destroy Inactive", value: "destroy" },
-  { label: "Keep Alive (render all)", value: "keep-alive" },
+  { label: trans("tabbedContainer.tabBehaviorLazy"), value: "lazy" },
+  { label: trans("tabbedContainer.tabBehaviorKeepAlive"), value: "keep-alive" },
+  { label: trans("tabbedContainer.tabBehaviorDestroy"), value: "destroy" },
 ] as const;
 
 const TabBehaviorControl = dropdownControl(TAB_BEHAVIOR_OPTIONS, "lazy");
@@ -153,7 +152,8 @@ const StyledTabs = styled(Tabs)<{
   $bodyStyle: TabBodyStyleType;
   $isMobile?: boolean;
   $showHeader?: boolean;
-  $animationStyle:AnimationStyleType
+  $animationStyle:AnimationStyleType;
+  $isDestroyPane?: boolean;
 }>`
   &.ant-tabs {
     height: 100%;
@@ -166,7 +166,6 @@ const StyledTabs = styled(Tabs)<{
 
   .ant-tabs-content {
     height: 100%;
-
   }
 
   .ant-tabs-nav {
@@ -183,16 +182,71 @@ const StyledTabs = styled(Tabs)<{
     margin-right: -24px;
   }
 
-  ${(props) => props.$style && getStyle(
-    props.$style,
-    props.$headerStyle,
-    props.$bodyStyle,
-  )}
+  ${(props) =>
+    props.$style && getStyle(props.$style, props.$headerStyle, props.$bodyStyle)}
+
+  /* Conditional styling for all modes except Destroy Inactive Pane */
+  ${(props) => !props.$isDestroyPane && `
+    .ant-tabs-content-holder { position: relative; }
+ 
+    .ant-tabs-tabpane[aria-hidden="true"],
+    .ant-tabs-tabpane-hidden {
+      display: block !important;
+      visibility: hidden !important;
+      position: absolute !important;
+      inset: 0;
+      pointer-events: none;
+    }
+  `}
 `;
 
 const ContainerInTab = (props: ContainerBaseProps) => {
+  return <InnerGrid {...props} emptyRows={15} hintPlaceholder={HintPlaceHolder} />;
+};
+
+type TabPaneContentProps = {
+  autoHeight: boolean;
+  showVerticalScrollbar: boolean;
+  paddingWidth: number;
+  horizontalGridCells: number;
+  bodyBackground: string;
+  layoutView: any;
+  itemsView: any;
+  positionParamsView: any;
+  dispatch: DispatchType;
+};
+
+const TabPaneContent: React.FC<TabPaneContentProps> = ({
+  autoHeight,
+  showVerticalScrollbar,
+  paddingWidth,
+  horizontalGridCells,
+  bodyBackground,
+  layoutView,
+  itemsView,
+  positionParamsView,
+  dispatch,
+}) => {
+  const gridItems = useMemo(() => gridItemCompToGridItems(itemsView), [itemsView]);
+
   return (
-    <InnerGrid {...props} emptyRows={15} hintPlaceholder={HintPlaceHolder} />
+    <BackgroundColorContext.Provider value={bodyBackground}>
+      <ScrollBar
+        style={{ height: autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }}
+        hideScrollbar={!showVerticalScrollbar}
+        overflow={autoHeight ? "hidden" : "scroll"}
+      >
+        <ContainerInTab
+          layout={layoutView}
+          items={gridItems}
+          horizontalGridCells={horizontalGridCells}
+          positionParams={positionParamsView}
+          dispatch={dispatch}
+          autoHeight={autoHeight}
+          containerPadding={[paddingWidth, 20]}
+        />
+      </ScrollBar>
+    </BackgroundColorContext.Provider>
   );
 };
 
@@ -212,13 +266,6 @@ const TabbedContainer = (props: TabbedContainerProps) => {
   const selectedTab = visibleTabs.find((tab) => tab.key === props.selectedTabKey.value);
   const activeKey = selectedTab? selectedTab.key: visibleTabs.length > 0 ? visibleTabs[0].key : undefined;
 
-  // Placeholder-based lazy loading — only for "lazy" mode
-  const [loadedTabs, setLoadedTabs] = useState<Set<string>>(new Set());
-  useEffect(() => {
-    if (tabBehavior === "lazy" && activeKey) {
-      setLoadedTabs((prev: Set<string>) => new Set([...prev, activeKey]));
-    }
-  }, [tabBehavior, activeKey]);
 
   const editorState = useContext(EditorContext);
   const maxWidth = editorState.getAppSettings().maxWidth;
@@ -229,7 +276,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
   const tabItems = visibleTabs.map((tab) => {
     const id = String(tab.id);
     const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
-    const containerProps = containers[id].children;
+    const containerChildren = containers[id].children;
     const hasIcon = tab.icon.props.value;
 
     const label = (
@@ -240,50 +287,25 @@ const TabbedContainer = (props: TabbedContainerProps) => {
       </>
     );
 
-    // Item-level forceRender mapping
-    const forceRender: boolean = tabBehavior === "keep-alive";
-
-    // Render content (placeholder only for "lazy" & not yet opened)
-    const renderTabContent = () => {
-      if (tabBehavior === "lazy" && !loadedTabs.has(tab.key)) {
-        return (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "200px",
-              color: "#999",
-              fontSize: "14px",
-            }}
-          >
-            Click to load tab content
-          </div>
-        );
-      }
-
-      return (
-        <BackgroundColorContext.Provider value={bodyStyle.background}>
-          <ScrollBar style={{ height: props.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!props.showVerticalScrollbar} overflow={props.autoHeight ? 'hidden':'scroll'}>
-            <ContainerInTab
-              layout={containerProps.layout.getView()}
-              items={gridItemCompToGridItems(containerProps.items.getView())}
-              horizontalGridCells={horizontalGridCells}
-              positionParams={containerProps.positionParams.getView()}
-              dispatch={childDispatch}
-              autoHeight={props.autoHeight}
-              containerPadding={[paddingWidth, 20]}
-            />
-          </ScrollBar>
-        </BackgroundColorContext.Provider>
-      );
-    };
+    const forceRender = tabBehavior === "keep-alive";
 
     return {
       label,
       key: tab.key,
-      forceRender, // true only for keep-alive
-      children: renderTabContent(),
+      forceRender,
+      children: (
+        <TabPaneContent
+          autoHeight={props.autoHeight}
+          showVerticalScrollbar={props.showVerticalScrollbar}
+          paddingWidth={paddingWidth}
+          horizontalGridCells={horizontalGridCells}
+          bodyBackground={bodyStyle.background}
+          layoutView={containerChildren.layout.getView()}
+          itemsView={containerChildren.items.getView()}
+          positionParamsView={containerChildren.positionParams.getView()}
+          dispatch={childDispatch}
+        />
+      ),
     };
   });
 
@@ -299,13 +321,11 @@ const TabbedContainer = (props: TabbedContainerProps) => {
           $headerStyle={headerStyle}
           $bodyStyle={bodyStyle}
           $showHeader={showHeader}
+          $isDestroyPane={tabBehavior === "destroy"}
           onChange={(key) => {
             if (key !== props.selectedTabKey.value) {
               props.selectedTabKey.onChange(key);
               props.onEvent("change");
-              if (tabBehavior === "lazy") {
-                setLoadedTabs((prev: Set<string>) => new Set([...prev, key]));
-              }
             }
           }}
           animated
@@ -344,7 +364,25 @@ export const TabbedContainerBaseComp = (function () {
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
               {children.showHeader.propertyView({ label: trans("tabbedContainer.showTabs") })}
-              {children.tabBehavior.propertyView({ label: "Tab Behavior" })}
+              {children.tabBehavior.propertyView({
+                label: trans("tabbedContainer.tabBehavior"),
+                tooltip: (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div>
+                      <b>{trans("tabbedContainer.tabBehaviorLazy")}:</b>
+                      &nbsp;{trans("tabbedContainer.tabBehaviorLazyTooltip")}
+                    </div>
+                    <div>
+                      <b>{trans("tabbedContainer.tabBehaviorKeepAlive")}:</b>
+                      &nbsp;{trans("tabbedContainer.tabBehaviorKeepAliveTooltip")}
+                    </div>
+                    <div>
+                      <b>{trans("tabbedContainer.tabBehaviorDestroy")}:</b>
+                      &nbsp;{trans("tabbedContainer.tabBehaviorDestroyTooltip")}
+                    </div>
+                  </div>
+                ),
+              })}
             </Section>
           )}
 
@@ -435,6 +473,7 @@ class TabbedContainerImplComp extends TabbedContainerBaseComp implements IContai
         return this;
       }
     }
+
     let newInstance = super.reduce(action);
     if (action.type === CompActionTypes.UPDATE_NODES_V2) {
       // Need eval to get the value in StringControl
@@ -489,4 +528,3 @@ export const TabbedContainerComp = withExposingConfigs(TabbedContainerImplComp, 
   new NameConfig("selectedTabKey", trans("tabbedContainer.selectedTabKeyDesc")),
   NameConfigHidden,
 ]);
-
