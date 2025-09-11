@@ -42,6 +42,7 @@ import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generat
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { CustomModal } from "lowcoder-design";
+import { DraggerUpload } from "./draggerUpload";
 
 import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
@@ -50,6 +51,7 @@ import Skeleton from "antd/es/skeleton";
 import Menu from "antd/es/menu";
 import Flex from "antd/es/flex";
 import { checkIsMobile } from "@lowcoder-ee/util/commonUtils";
+import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
 
 const FileSizeControl = codeControl((value) => {
   if (typeof value === "number") {
@@ -131,7 +133,7 @@ const commonValidationFields = (children: RecordConstructorToComp<typeof validat
   }),
 ];
 
-const commonProps = (
+export const commonProps = (
   props: RecordConstructorToView<typeof commonChildren> & {
     uploadType: "single" | "multiple" | "directory";
   }
@@ -619,25 +621,43 @@ const UploadTypeOptions = [
   { label: trans("file.directory"), value: "directory" },
 ] as const;
 
+const UploadModeOptions = [
+  { label: trans("file.button"), value: "button" },
+  { label: trans("file.dragArea"), value: "dragArea" },
+] as const;
+
 const childrenMap = {
   text: withDefault(StringControl, trans("file.upload")),
   uploadType: dropdownControl(UploadTypeOptions, "single"),
+  uploadMode: dropdownControl(UploadModeOptions, "button"),
+  autoHeight: withDefault(AutoHeightControl, "fixed"),
   tabIndex: NumberControl,
   ...commonChildren,
   ...formDataChildren,
 };
 
 let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => {
-  return(
-    <Upload {...props} dispatch={dispatch} />
-  )})
+  const uploadMode = props.uploadMode;
+  const autoHeight = props.autoHeight;
+  
+  if (uploadMode === "dragArea") {
+    return <DraggerUpload {...props} dispatch={dispatch} autoHeight={autoHeight} />;
+  }
+  
+  return <Upload {...props} dispatch={dispatch} />;
+})
   .setPropertyViewFn((children) => (
     <>
       <Section name={sectionNames.basic}>
         {children.text.propertyView({
           label: trans("text"),
         })}
+        {children.uploadMode.propertyView({ 
+          label: trans("file.uploadMode"),
+          radioButton: true,
+        })}
         {children.uploadType.propertyView({ label: trans("file.uploadType") })}
+        {children.uploadMode.getView() === "dragArea" && children.autoHeight.getPropertyView()}
       </Section>
 
       <FormDataPropertyView {...children} />
