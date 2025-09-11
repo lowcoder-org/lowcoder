@@ -17,7 +17,7 @@ const showNotification = (
   level: "open" | "info" | "success" | "warning" | "error"
 ) => {
   const text = params?.[0] as string;
-  const options = params?.[1] as JSONObject;
+  const options = (params?.[1] as JSONObject) || {};
 
   const { message , duration, id, placement, dismissible } = options;
 
