@@ -3102,7 +3102,14 @@ export const en = {
     "gutter" : "Gap",
     "gutterTooltip" : "The distance between tabs in px",
     "tabsCentered" : "Centered Tabs",
-    "destroyInactiveTab": "Destroy Inactive TabPane"
+    "destroyInactiveTab": "Destroy Inactive TabPane",
+    "tabBehavior": "Tab Behavior",
+    "tabBehaviorLazy": "Lazy",
+    "tabBehaviorKeepAlive": "Keep Alive",
+    "tabBehaviorDestroy": "Destroy Inactive",
+    "tabBehaviorLazyTooltip": "Render tabs only when they are first activated. Hidden tabs are not rendered until selected.",
+    "tabBehaviorKeepAliveTooltip": "Keep all tab contents mounted and initialized. Hidden tabs remain mounted but are visually hidden.",
+    "tabBehaviorDestroyTooltip": "Unmount contents of inactive tabs to free resources. Hidden tabs are destroyed until selected again."
   },
   "formComp": {
     "containerPlaceholder": "Drag Components from the Right Pane or",
