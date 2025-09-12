@@ -394,6 +394,64 @@ export class HybridChatManager {
     console.log('[HybridChatManager] 🔐 Checking if user can join room:', { roomId, userId });
     return this.getActiveProvider().canUserJoinRoom(roomId, userId);
   }
+
+  async getRoomParticipants(roomId: string): Promise<OperationResult<Array<{ id: string; name: string }>>> {
+    console.log('[HybridChatManager] 👥 Getting room participants:', { roomId });
+    
+    try {
+      // First get the room to access participants
+      const roomResult = await this.getRoom(roomId);
+      if (!roomResult.success || !roomResult.data) {
+        return {
+          success: false,
+          error: roomResult.error || 'Room not found',
+          timestamp: Date.now()
+        };
+      }
+
+      const room = roomResult.data;
+      const participants = room.participants || [];
+
+      // Get participant details by looking at recent messages to extract user names
+      const messagesResult = await this.getMessages(roomId, 100); // Get recent messages
+      if (!messagesResult.success) {
+        // If we can't get messages, return participants with just IDs
+        return {
+          success: true,
+          data: participants.map(id => ({ id, name: id })), // Fallback to ID as name
+          timestamp: Date.now()
+        };
+      }
+
+      // Create a map of userId -> userName from messages
+      const userMap = new Map<string, string>();
+      messagesResult.data?.forEach(message => {
+        if (message.authorId && message.authorName) {
+          userMap.set(message.authorId, message.authorName);
+        }
+      });
+
+      // Build participant list with names
+      const participantsWithNames = participants.map(participantId => ({
+        id: participantId,
+        name: userMap.get(participantId) || participantId // Fallback to ID if name not found
+      }));
+
+      return {
+        success: true,
+        data: participantsWithNames,
+        timestamp: Date.now()
+      };
+
+    } catch (error) {
+      console.error('[HybridChatManager] Error getting room participants:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to get room participants',
+        timestamp: Date.now()
+      };
+    }
+  }
   
   // Message operations (delegated to active provider)
   async sendMessage(message: Omit<UnifiedMessage, 'id' | 'timestamp' | 'status'>): Promise<OperationResult<UnifiedMessage>> {

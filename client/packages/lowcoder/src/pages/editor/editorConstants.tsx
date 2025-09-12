@@ -308,4 +308,5 @@ export const CompStateIcon: {
   basicChart: <MemoizedIcon Icon={ChartCompIconSmall} />,
   chat: <MemoizedIcon Icon={CommentCompIconSmall} />,
   chatBox: <MemoizedIcon Icon={CommentCompIconSmall} />,
+  chatController: <MemoizedIcon Icon={CommentCompIconSmall} />,
 } as const;

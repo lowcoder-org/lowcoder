@@ -18,7 +18,8 @@ const AllHookComp = [
   "screenInfo",
   "urlParams",
   "theme",
-  "meeting"
+  "meeting",
+  "chatController"
 ] as const;
 
 export type HookCompType = (typeof AllHookComp)[number];
@@ -46,6 +47,10 @@ const HookCompConfig: Record<
     singleton: false,
   },
   meeting: {
+    category: "ui",
+    singleton: false,
+  },
+  chatController: {
     category: "ui",
     singleton: false,
   },

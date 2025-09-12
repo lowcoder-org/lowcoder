@@ -195,6 +195,7 @@ import { defaultCollapsibleContainerData } from "./comps/containerComp/collapsib
 import { ContainerComp as FloatTextContainerComp } from "./comps/containerComp/textContainerComp";
 import { ChatComp } from "./comps/chatComp";
 import { ChatBoxComp } from "./comps/chatBoxComponent";
+import { ChatControllerComp } from "./comps/chatBoxComponent/chatControllerComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -960,6 +961,18 @@ export var uiCompMap: Registry = {
       h: 24,
     },
   },
+
+  chatController: {
+    name: "Chat Controller",
+    enName: "Chat Controller", 
+    description: "Advanced Chat Controller Component with Rooms and People",
+    categories: ["collaboration"],
+    icon: CommentCompIcon,
+    keywords: "chatbox,chat,conversation,rooms,messaging",
+    comp: ChatControllerComp,
+    isContainer: true,
+  },
+
   // Forms
 
   form: {

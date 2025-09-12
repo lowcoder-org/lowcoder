@@ -58,7 +58,7 @@ export class YjsPluvProvider extends BaseChatDataProvider implements ChatDataPro
         ydoc = new Y.Doc();
         YjsPluvProvider.globalDocs.set(docId, ydoc);
         YjsPluvProvider.docRefCounts.set(docId, 1);
-        const wsUrl = config.realtime.serverUrl || 'ws://localhost:3001';
+        const wsUrl = config.realtime.serverUrl || 'ws://localhost:3005';
         wsProvider = new WebsocketProvider(wsUrl, docId, ydoc, {
           connect: true,
           params: { room: docId }
@@ -80,28 +80,29 @@ export class YjsPluvProvider extends BaseChatDataProvider implements ChatDataPro
       this.messagesMap.observe(this.messagesObserver);
       this.roomsMap.observe(this.roomsObserver);
       this.typingMap.observe(this.typingObserver);
+      
+      // Set connection state immediately to allow local operations
+      this.setConnectionState('connected');
+      
       if (this.wsProvider) {
         this.wsProvider.off('status', this.handleWSStatus);
         this.wsProvider.off('sync', this.handleWSSync);
         this.wsProvider.on('status', this.handleWSStatus.bind(this));
         this.wsProvider.on('sync', this.handleWSSync.bind(this));
-        const currentStatus = this.wsProvider.wsconnected ? 'connected' : 
-                            this.wsProvider.wsconnecting ? 'connecting' : 'disconnected';
-        this.setConnectionState(currentStatus as ConnectionState);
+        
+        // Update connection state based on WebSocket status
         if (this.wsProvider.wsconnected) {
           this.setConnectionState('connected');
         } else if (this.wsProvider.wsconnecting) {
           this.setConnectionState('connecting');
-        } else {
-          this.setConnectionState('connecting');
         }
       }
-      if (this.connectionState !== 'connected') {
-        this.setConnectionState('connected');
-      }
+      
+      console.log('[YjsPluvProvider] ✅ Connected successfully with docId:', docId);
       return this.createSuccessResult(undefined);
     } catch (error) {
       this.setConnectionState('failed');
+      console.error('[YjsPluvProvider] ❌ Connection failed:', error);
       return this.handleError(error, 'connect');
     }
   }
@@ -347,8 +348,15 @@ export class YjsPluvProvider extends BaseChatDataProvider implements ChatDataPro
 
   async getAvailableRooms(userId: string, filter?: RoomListFilter): Promise<OperationResult<UnifiedRoom[]>> {
     try {
+      console.log('[YjsPluvProvider] 🔍 Getting available rooms for user:', userId);
+      console.log('[YjsPluvProvider] 📊 Connection state:', this.connectionState);
+      console.log('[YjsPluvProvider] 📄 Yjs doc available:', !!this.ydoc);
+      console.log('[YjsPluvProvider] 🗺️ Rooms map available:', !!this.roomsMap);
+      
       await this.ensureConnected();
       const allRooms = Array.from(this.roomsMap!.values());
+      
+      console.log('[YjsPluvProvider] 📋 Total rooms found:', allRooms.length);
       
       let filteredRooms = allRooms.filter(room => {
         if (!room.isActive) return false;
@@ -361,8 +369,10 @@ export class YjsPluvProvider extends BaseChatDataProvider implements ChatDataPro
         return true;
       });
 
+      console.log('[YjsPluvProvider] ✅ Filtered rooms:', filteredRooms.length);
       return this.createSuccessResult(filteredRooms);
     } catch (error) {
+      console.error('[YjsPluvProvider] ❌ Error in getAvailableRooms:', error);
       return this.handleError(error, 'getAvailableRooms');
     }
   }
@@ -881,8 +891,13 @@ export class YjsPluvProvider extends BaseChatDataProvider implements ChatDataPro
   }
 
   private async ensureConnected(): Promise<void> {
-    if (!this.ydoc || this.connectionState !== 'connected') {
-      throw new Error('YjsPluvProvider is not connected');
+    if (!this.ydoc) {
+      throw new Error('YjsPluvProvider is not connected - no Yjs document available');
+    }
+    
+    // Allow operations even if WebSocket is still connecting, as Yjs works locally
+    if (this.connectionState === 'failed' || this.connectionState === 'disconnected') {
+      throw new Error('YjsPluvProvider is not connected - connection state: ' + this.connectionState);
     }
   }
-} 
+}

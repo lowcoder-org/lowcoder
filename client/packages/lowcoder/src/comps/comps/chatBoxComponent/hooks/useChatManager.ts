@@ -48,6 +48,7 @@ export interface UseChatManagerReturn {
   joinRoom: (roomId: string) => Promise<boolean>;
   leaveRoom: (roomId: string) => Promise<boolean>;
   canUserJoinRoom: (roomId: string) => Promise<boolean>;
+  getRoomParticipants: (roomId: string) => Promise<Array<{ id: string; name: string }>>;
   
   // Manager access (for advanced use)
   manager: HybridChatManager | null;
@@ -95,7 +96,7 @@ export function useChatManager(config: UseChatManagerConfig): UseChatManagerRetu
         // 🧪 TEST: Add collaborative config to enable YjsPluvProvider for testing
         // This enables testing of the Yjs document structure (Step 1)
         collaborative: {
-          serverUrl: 'ws://localhost:3001', // Placeholder - not used in Step 1
+          serverUrl: 'ws://localhost:3005', // Placeholder - not used in Step 1
           roomId: config.roomId,
           authToken: undefined,
           autoConnect: true,
@@ -353,7 +354,7 @@ export function useChatManager(config: UseChatManagerConfig): UseChatManagerRetu
     }
     
     try {
-                          const result = await manager.createRoom({
+      const result = await manager.createRoom({
         name,
         type,
         participants: [config.userId],
@@ -558,6 +559,23 @@ export function useChatManager(config: UseChatManagerConfig): UseChatManagerRetu
       return false;
     }
   }, [config.userId]);
+
+  const getRoomParticipants = useCallback(async (roomId: string): Promise<Array<{ id: string; name: string }>> => {
+    const manager = managerRef.current;
+    if (!manager) return [];
+    
+    try {
+      const result = await manager.getRoomParticipants(roomId);
+      if (result.success) {
+        return result.data!;
+      }
+      setError(result.error || 'Failed to get room participants');
+      return [];
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to get room participants');
+      return [];
+    }
+  }, []);
   
   return {
     // Connection state
@@ -588,6 +606,7 @@ export function useChatManager(config: UseChatManagerConfig): UseChatManagerRetu
     joinRoom,
     leaveRoom,
     canUserJoinRoom,
+    getRoomParticipants,
     
     // Manager access
     manager: managerRef.current,

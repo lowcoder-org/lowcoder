@@ -1,32 +1,21 @@
-import { dropdownControl } from "comps/controls/dropdownControl";
-import { stringExposingStateControl } from "comps/controls/codeStateControl";
-import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import styled, { css } from "styled-components";
-import { UICompBuilder, withDefault } from "../../generators";
+import { UICompBuilder } from "../../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../../generators/withExposing";
-import { styleControl } from "comps/controls/styleControl";
 import { TextStyle, TextStyleType, AnimationStyle, AnimationStyleType } from "comps/controls/styleControlConstants";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
-import { trans } from "i18n";
-import { MarginControl } from "../../controls/marginControl";
-import { PaddingControl } from "../../controls/paddingControl";
 import React, { useContext, useEffect, useRef, useMemo, useState } from "react";
 import { EditorContext } from "comps/editorState";
-import { clickEvent, doubleClickEvent, eventHandlerControl } from "../../controls/eventHandlerControl";
-import { NewChildren } from "../../generators/uiCompBuilder";
-import { RecordConstructorToComp } from "lowcoder-core";
 import { ToViewReturn } from "../../generators/multi";
-import { BoolControl } from "../../controls/boolControl";
 import { useCompClickEventHandler } from "../../utils/useCompClickEventHandler";
-import { StringControl } from "comps/controls/codeControl";
 import { Button, Input, Modal, Form, Radio, Space, Typography, Divider, Badge, Tooltip, Popconfirm } from "antd";
 import { PlusOutlined, SearchOutlined, GlobalOutlined, LockOutlined, UserOutlined, CheckCircleOutlined, LogoutOutlined } from "@ant-design/icons";
 import { useChatManager } from "./hooks/useChatManager";
-import { UnifiedMessage, TypingState } from "./types/chatDataTypes";
+import { UnifiedMessage } from "./types/chatDataTypes";
+import { chatCompChildrenMap, ChatCompChildrenType } from "./chatUtils";
 
-// Event options for the chat component
-const EventOptions = [clickEvent, doubleClickEvent] as const;
+// // Event options for the chat component
+// const EventOptions = [clickEvent, doubleClickEvent] as const;
 
 // Chat component styling
 const ChatContainer = styled.div<{
@@ -240,46 +229,9 @@ const TypingIndicator = styled.div<{ $styleConfig: TextStyleType }>`
   }
 `;
 
-// Define the component's children map
-const childrenMap = {
-  chatName: stringExposingStateControl("chatName", "Chat Room"),
-  userId: stringExposingStateControl("userId", "user_1"),
-  userName: stringExposingStateControl("userName", "User"),
-  applicationId: stringExposingStateControl("applicationId", "lowcoder_app"),
-  roomId: stringExposingStateControl("roomId", "general"),
-  mode: dropdownControl([
-    { label: "🌐 Collaborative (Real-time)", value: "collaborative" },
-    { label: "🔀 Hybrid (Local + Real-time)", value: "hybrid" },
-    { label: "📱 Local Only", value: "local" }
-  ], "collaborative"),
-  
-  // Room Management Configuration
-  allowRoomCreation: withDefault(BoolControl, true),
-  allowRoomJoining: withDefault(BoolControl, true),
-  roomPermissionMode: dropdownControl([
-    { label: "🌐 Open (Anyone can join public rooms)", value: "open" },
-    { label: "🔐 Invite Only (Admin invitation required)", value: "invite" },
-    { label: "👤 Admin Only (Only admins can manage)", value: "admin" }
-  ], "open"),
-  showAvailableRooms: withDefault(BoolControl, true),
-  maxRoomsDisplay: withDefault(StringControl, "10"),
-  
-  // UI Configuration  
-  leftPanelWidth: withDefault(StringControl, "200px"),
-  showRooms: withDefault(BoolControl, true),
-  autoHeight: AutoHeightControl,
-  onEvent: eventHandlerControl(EventOptions),
-  style: styleControl(TextStyle, 'style'),
-  animationStyle: styleControl(AnimationStyle, 'animationStyle'),
-  margin: MarginControl,
-  padding: PaddingControl,
-};
-
-type ChildrenType = NewChildren<RecordConstructorToComp<typeof childrenMap>>;
-
 // Property view component
 const ChatPropertyView = React.memo((props: {
-  children: ChildrenType
+  children: ChatCompChildrenType
 }) => {
   const editorContext = useContext(EditorContext);
   const editorModeStatus = useMemo(() => editorContext.editorModeStatus, [editorContext.editorModeStatus]);
@@ -379,7 +331,7 @@ const ChatPropertyView = React.memo((props: {
 });
 
 // Main view component
-const ChatBoxView = React.memo((props: ToViewReturn<ChildrenType>) => {
+const ChatBoxView = React.memo((props: ToViewReturn<ChatCompChildrenType>) => {
   const [currentMessage, setCurrentMessage] = useState<string>("");
   const [joinedRooms, setJoinedRooms] = useState<any[]>([]);
   const [searchableRooms, setSearchableRooms] = useState<any[]>([]);
@@ -831,302 +783,301 @@ const ChatBoxView = React.memo((props: ToViewReturn<ChildrenType>) => {
               }}>
                 Chat Rooms
               </div>
-                                <div style={{ marginBottom: '16px' }}>
-                    {/* Modern Create Room Modal */}
-                    {/* Create Room Button - Modern Design */}
-                    {props.allowRoomCreation && (
-                      <Button 
-                        type="primary" 
-                        icon={<PlusOutlined />}
-                        block
-                        size="small"
-                        onClick={() => setIsCreateModalOpen(true)}
-                        style={{ 
-                          borderRadius: '6px',
-                          height: '32px',
-                          fontSize: '12px',
-                          fontWeight: '500'
-                        }}
-                      >
-                        Create Room
-                      </Button>
-                    )}
-                  </div>
+              <div style={{ marginBottom: '16px' }}>
+                {/* Modern Create Room Modal */}
+                {/* Create Room Button - Modern Design */}
+                {props.allowRoomCreation && (
+                  <Button 
+                    type="primary" 
+                    icon={<PlusOutlined />}
+                    block
+                    size="small"
+                    onClick={() => setIsCreateModalOpen(true)}
+                    style={{ 
+                      borderRadius: '6px',
+                      height: '32px',
+                      fontSize: '12px',
+                      fontWeight: '500'
+                    }}
+                  >
+                    Create Room
+                  </Button>
+                )}
+              </div>
 
-                  <RoomsSection>
-
-                    {/* Modern Search UI */}
-                    <div style={{ marginBottom: '16px' }}>
-                      <Input.Search
-                        placeholder="Search rooms..."
-                        prefix={<SearchOutlined style={{ color: '#8c8c8c' }} />}
-                        value={searchQuery}
-                        onChange={handleSearchInputChange}
-                        loading={isSearching}
-                        style={{ 
-                          borderRadius: '6px',
-                          marginBottom: '8px'
-                        }}
-                        size="middle"
-                        allowClear
-                        onClear={() => {
-                          setSearchQuery("");
-                          setShowSearchResults(false);
-                          setSearchResults([]);
-                        }}
-                      />
-                      {showSearchResults && (
-                        <div style={{ 
-                          fontSize: '13px', 
-                          color: '#262626', 
-                          marginBottom: '12px',
-                          padding: '12px 16px',
-                          background: '#f8f9fa',
-                          borderRadius: '6px',
-                          border: '1px solid #e1e4e8'
-                        }}>
-                          <div style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: '8px',
-                            marginBottom: searchResults.length > 0 ? '4px' : '0'
-                          }}>
-                            <SearchOutlined style={{ color: '#666', fontSize: '14px' }} />
-                            <span style={{ fontWeight: '600', color: '#262626' }}>
-                              Search Results
-                            </span>
-                          </div>
-                          {searchResults.length === 0 ? (
-                            <div style={{ color: '#8c8c8c', fontSize: '12px' }}>
-                              No rooms match "{searchQuery}"
-                            </div>
-                          ) : (
-                            <div style={{ color: '#595959', fontSize: '12px' }}>
-                              Found {searchResults.length} room{searchResults.length === 1 ? '' : 's'} matching "{searchQuery}"
-                            </div>
-                          )}
+              <RoomsSection>
+                {/* Modern Search UI */}
+                <div style={{ marginBottom: '16px' }}>
+                  <Input.Search
+                    placeholder="Search rooms..."
+                    prefix={<SearchOutlined style={{ color: '#8c8c8c' }} />}
+                    value={searchQuery}
+                    onChange={handleSearchInputChange}
+                    loading={isSearching}
+                    style={{ 
+                      borderRadius: '6px',
+                      marginBottom: '8px'
+                    }}
+                    size="middle"
+                    allowClear
+                    onClear={() => {
+                      setSearchQuery("");
+                      setShowSearchResults(false);
+                      setSearchResults([]);
+                    }}
+                  />
+                  {showSearchResults && (
+                    <div style={{ 
+                      fontSize: '13px', 
+                      color: '#262626', 
+                      marginBottom: '12px',
+                      padding: '12px 16px',
+                      background: '#f8f9fa',
+                      borderRadius: '6px',
+                      border: '1px solid #e1e4e8'
+                    }}>
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px',
+                        marginBottom: searchResults.length > 0 ? '4px' : '0'
+                      }}>
+                        <SearchOutlined style={{ color: '#666', fontSize: '14px' }} />
+                        <span style={{ fontWeight: '600', color: '#262626' }}>
+                          Search Results
+                        </span>
+                      </div>
+                      {searchResults.length === 0 ? (
+                        <div style={{ color: '#8c8c8c', fontSize: '12px' }}>
+                          No rooms match "{searchQuery}"
+                        </div>
+                      ) : (
+                        <div style={{ color: '#595959', fontSize: '12px' }}>
+                          Found {searchResults.length} room{searchResults.length === 1 ? '' : 's'} matching "{searchQuery}"
                         </div>
                       )}
                     </div>
+                  )}
+                </div>
 
-                    {/* Clear Search Button - Modern */}
-                    {showSearchResults && (
-                      <div style={{ marginBottom: '12px' }}>
-                        <Button 
-                          type="text" 
-                          onClick={() => {
-                            setSearchQuery("");
-                            setShowSearchResults(false);
-                            setSearchResults([]);
-                          }}
-                          style={{ 
-                            padding: '6px 12px',
-                            fontSize: '12px',
-                            color: '#1890ff',
-                            fontWeight: '500',
-                            border: '1px solid #e1e4e8',
-                            borderRadius: '6px',
-                            background: '#ffffff',
-                            width: '100%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '6px'
-                          }}
-                        >
-                          ← Back to My Rooms
-                        </Button>
-                      </div>
-                    )}
+                {/* Clear Search Button - Modern */}
+                {showSearchResults && (
+                  <div style={{ marginBottom: '12px' }}>
+                    <Button 
+                      type="text" 
+                      onClick={() => {
+                        setSearchQuery("");
+                        setShowSearchResults(false);
+                        setSearchResults([]);
+                      }}
+                      style={{ 
+                        padding: '6px 12px',
+                        fontSize: '12px',
+                        color: '#1890ff',
+                        fontWeight: '500',
+                        border: '1px solid #e1e4e8',
+                        borderRadius: '6px',
+                        background: '#ffffff',
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      ← Back to My Rooms
+                    </Button>
+                  </div>
+                )}
 
-                    {/* Room List */}
-                    {displayRooms.length === 0 && isConnected && (
-                      <div style={{ 
-                        textAlign: 'center', 
-                        color: '#666', 
-                        fontSize: '12px', 
-                        padding: '16px 8px',
-                        fontStyle: 'italic'
-                      }}>
-                        {showSearchResults ? (
-                          searchQuery ? `No rooms found for "${searchQuery}"` : 'Enter a search term to find rooms'
-                        ) : (
-                          <>
-                            <div style={{ marginBottom: '8px' }}>
-                              🏠 You haven't joined any rooms yet
-                            </div>
-                            <div style={{ fontSize: '11px', opacity: 0.8 }}>
-                              {props.allowRoomCreation 
-                                ? 'Create a new room or search to join existing ones' 
-                                : 'Search to find and join existing rooms'
-                              }
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    )}
-                    {displayRooms.map((room: any) => (
-                      <RoomItem
-                        key={room.id}
-                        $isActive={room.active}
-                        $styleConfig={props.style}
-                        onClick={() => {
-                          if (!room.active) {
-                            if (room.canJoin && props.allowRoomJoining) {
-                              // Join a new room from search results
-                              handleJoinRoom(room.id);
-                            } else if (!room.canJoin) {
-                              // Switch to an already joined room
-                              chatManager.setCurrentRoom(room.id);
-                            }
-                          }
-                        }}
-                        style={{ 
-                          cursor: (!room.active) ? 'pointer' : 'default',
-                          opacity: room.active ? 1 : 0.8,
-                          transition: 'all 0.2s',
-                          border: room.active 
-                            ? '1px solid #52c41a' 
-                            : room.isSearchResult 
-                              ? '1px solid #d1ecf1'
-                              : '1px solid transparent',
-                          boxShadow: room.isSearchResult 
-                            ? '0 2px 4px rgba(0, 0, 0, 0.08)'
-                            : undefined
-                        }}
-                        title={
-                          room.active 
-                            ? 'Current room' 
-                            : room.canJoin 
-                              ? `Click to join "${room.name}"` 
-                              : `Click to switch to "${room.name}"`
-                        }
-                      >
-                        {/* Room Icon and Name */}
-                        <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '4px' }}>
-                          {room.type === 'public' ? (
-                            <GlobalOutlined style={{ fontSize: '12px', color: room.active ? '#ffffff' : '#52c41a', flexShrink: 0, marginTop: '3px', marginRight: '6px' }} />
-                          ) : (
-                            <LockOutlined style={{ fontSize: '12px', color: room.active ? '#ffffff' : '#ff7a45', flexShrink: 0, marginTop: '3px', marginRight: '6px' }} />
-                          )}
-                          <div style={{ flex: '1 1 auto', minWidth: 0 }}>
-                            <Typography.Text 
-                              strong 
-                              style={{ 
-                                color: room.active ? 'inherit' : '#262626',
-                                fontSize: room.isSearchResult ? '15px' : '14px',
-                                fontWeight: room.isSearchResult ? '700' : '600',
-                                margin: 0,
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                                textShadow: room.active ? 'none' : '0 1px 1px rgba(255, 255, 255, 0.8)',
-                                maxWidth: '100%',
-                                display: 'block'
-                              }}
-                              title={room.name}
-                            >
-                              {room.name}
-                            </Typography.Text>
-                            
-                            {/* Room Metadata */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
-                              <Space size={3}>
-                                <UserOutlined style={{ fontSize: '11px', opacity: 0.7 }} />
-                                <Typography.Text 
-                                  style={{ 
-                                    fontSize: '11px', 
-                                    color: 'inherit',
-                                    opacity: 0.8,
-                                    margin: 0
-                                  }}
-                                >
-                                  {room.participantCount}
-                                </Typography.Text>
-                              </Space>
-                              
-                              {room.active && (
-                                <CheckCircleOutlined 
-                                  style={{ 
-                                    fontSize: '12px', 
-                                    color: '#52c41a', 
-                                    marginTop: '2px'
-                                  }} 
-                                />
-                              )}
-                              
-                              {room.isSearchResult && !room.active && (
-                                <div style={{
-                                  background: '#f0f0f0',
-                                  color: '#666',
-                                  fontSize: '10px',
-                                  fontWeight: '600',
-                                  height: '18px',
-                                  lineHeight: '18px',
-                                  padding: '0 6px',
-                                  borderRadius: '9px',
-                                  border: '1px solid #d9d9d9'
-                                }}>
-                                  NEW
-                                </div>
-                              )}
-                            </div>
-                          </div>
+                {/* Room List */}
+                {displayRooms.length === 0 && isConnected && (
+                  <div style={{ 
+                    textAlign: 'center', 
+                    color: '#666', 
+                    fontSize: '12px', 
+                    padding: '16px 8px',
+                    fontStyle: 'italic'
+                  }}>
+                    {showSearchResults ? (
+                      searchQuery ? `No rooms found for "${searchQuery}"` : 'Enter a search term to find rooms'
+                    ) : (
+                      <>
+                        <div style={{ marginBottom: '8px' }}>
+                          🏠 You haven't joined any rooms yet
                         </div>
+                        <div style={{ fontSize: '11px', opacity: 0.8 }}>
+                          {props.allowRoomCreation 
+                            ? 'Create a new room or search to join existing ones' 
+                            : 'Search to find and join existing rooms'
+                          }
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+                {displayRooms.map((room: any) => (
+                  <RoomItem
+                    key={room.id}
+                    $isActive={room.active}
+                    $styleConfig={props.style}
+                    onClick={() => {
+                      if (!room.active) {
+                        if (room.canJoin && props.allowRoomJoining) {
+                          // Join a new room from search results
+                          handleJoinRoom(room.id);
+                        } else if (!room.canJoin) {
+                          // Switch to an already joined room
+                          chatManager.setCurrentRoom(room.id);
+                        }
+                      }
+                    }}
+                    style={{ 
+                      cursor: (!room.active) ? 'pointer' : 'default',
+                      opacity: room.active ? 1 : 0.8,
+                      transition: 'all 0.2s',
+                      border: room.active 
+                        ? '1px solid #52c41a' 
+                        : room.isSearchResult 
+                          ? '1px solid #d1ecf1'
+                          : '1px solid transparent',
+                      boxShadow: room.isSearchResult 
+                        ? '0 2px 4px rgba(0, 0, 0, 0.08)'
+                        : undefined
+                    }}
+                    title={
+                      room.active 
+                        ? 'Current room' 
+                        : room.canJoin 
+                          ? `Click to join "${room.name}"` 
+                          : `Click to switch to "${room.name}"`
+                    }
+                  >
+                    {/* Room Icon and Name */}
+                    <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '4px' }}>
+                      {room.type === 'public' ? (
+                        <GlobalOutlined style={{ fontSize: '12px', color: room.active ? '#ffffff' : '#52c41a', flexShrink: 0, marginTop: '3px', marginRight: '6px' }} />
+                      ) : (
+                        <LockOutlined style={{ fontSize: '12px', color: room.active ? '#ffffff' : '#ff7a45', flexShrink: 0, marginTop: '3px', marginRight: '6px' }} />
+                      )}
+                      <div style={{ flex: '1 1 auto', minWidth: 0 }}>
+                        <Typography.Text 
+                          strong 
+                          style={{ 
+                            color: room.active ? 'inherit' : '#262626',
+                            fontSize: room.isSearchResult ? '15px' : '14px',
+                            fontWeight: room.isSearchResult ? '700' : '600',
+                            margin: 0,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            textShadow: room.active ? 'none' : '0 1px 1px rgba(255, 255, 255, 0.8)',
+                            maxWidth: '100%',
+                            display: 'block'
+                          }}
+                          title={room.name}
+                        >
+                          {room.name}
+                        </Typography.Text>
                         
-                        {/* Action Buttons */}
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
-                          {room.canJoin && props.allowRoomJoining && (
-                            <Tooltip title={`Join "${room.name}"`}>
-                              <Button
-                                type="primary"
-                                size="small"
-                                icon={<PlusOutlined />}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleJoinRoom(room.id);
-                                }}
-                                style={{
-                                  borderRadius: '6px',
-                                  minWidth: room.isSearchResult ? '80px' : '60px',
-                                  height: room.isSearchResult ? '30px' : '28px',
-                                  fontSize: '12px',
-                                  fontWeight: '500'
-                                }}
-                              >
-                                {room.isSearchResult ? 'Join Room' : 'Join'}
-                              </Button>
-                            </Tooltip>
-                          )}
+                        {/* Room Metadata */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
+                          <Space size={3}>
+                            <UserOutlined style={{ fontSize: '11px', opacity: 0.7 }} />
+                            <Typography.Text 
+                              style={{ 
+                                fontSize: '11px', 
+                                color: 'inherit',
+                                opacity: 0.8,
+                                margin: 0
+                              }}
+                            >
+                              {room.participantCount}
+                            </Typography.Text>
+                          </Space>
                           
                           {room.active && (
-                            <Tooltip title="Leave this room">
-                              <Popconfirm
-                                title="Leave Room"
-                                description={`Are you sure you want to leave ${room.name || 'this room'}?`}
-                                onConfirm={() => handleLeaveRoom(room.id)}
-                                onCancel={() => {/* setRoomToLeave(null); */}}
-                                okText="Leave"
-                                cancelText="Cancel"
-                                placement="bottomRight"
-                                okButtonProps={{ danger: true }}
-                              >
-                                <Button
-                                  type="text"
-                                  size="small"
-                                  icon={<LogoutOutlined style={{ color: room.active ? '#ffffff' : '#ff4d4f', fontSize: '12px' }} />}
-                                  style={{ padding: '0', minWidth: 'auto', height: 'auto' }}
-                                />
-                              </Popconfirm>
-                            </Tooltip>
+                            <CheckCircleOutlined 
+                              style={{ 
+                                fontSize: '12px', 
+                                color: '#52c41a', 
+                                marginTop: '2px'
+                              }} 
+                            />
+                          )}
+                          
+                          {room.isSearchResult && !room.active && (
+                            <div style={{
+                              background: '#f0f0f0',
+                              color: '#666',
+                              fontSize: '10px',
+                              fontWeight: '600',
+                              height: '18px',
+                              lineHeight: '18px',
+                              padding: '0 6px',
+                              borderRadius: '9px',
+                              border: '1px solid #d9d9d9'
+                            }}>
+                              NEW
+                            </div>
                           )}
                         </div>
-                      </RoomItem>
-                    ))}
-                  </RoomsSection>
-                </div>
-              )}
+                      </div>
+                    </div>
+                    
+                    {/* Action Buttons */}
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
+                      {room.canJoin && props.allowRoomJoining && (
+                        <Tooltip title={`Join "${room.name}"`}>
+                          <Button
+                            type="primary"
+                            size="small"
+                            icon={<PlusOutlined />}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleJoinRoom(room.id);
+                            }}
+                            style={{
+                              borderRadius: '6px',
+                              minWidth: room.isSearchResult ? '80px' : '60px',
+                              height: room.isSearchResult ? '30px' : '28px',
+                              fontSize: '12px',
+                              fontWeight: '500'
+                            }}
+                          >
+                            {room.isSearchResult ? 'Join Room' : 'Join'}
+                          </Button>
+                        </Tooltip>
+                      )}
+                      
+                      {room.active && (
+                        <Tooltip title="Leave this room">
+                          <Popconfirm
+                            title="Leave Room"
+                            description={`Are you sure you want to leave ${room.name || 'this room'}?`}
+                            onConfirm={() => handleLeaveRoom(room.id)}
+                            onCancel={() => {/* setRoomToLeave(null); */}}
+                            okText="Leave"
+                            cancelText="Cancel"
+                            placement="bottomRight"
+                            okButtonProps={{ danger: true }}
+                          >
+                            <Button
+                              type="text"
+                              size="small"
+                              icon={<LogoutOutlined style={{ color: room.active ? '#ffffff' : '#ff4d4f', fontSize: '12px' }} />}
+                              style={{ padding: '0', minWidth: 'auto', height: 'auto' }}
+                            />
+                          </Popconfirm>
+                        </Tooltip>
+                      )}
+                    </div>
+                  </RoomItem>
+                ))}
+              </RoomsSection>
             </div>
+          )}
+        </div>
       </LeftPanel>
 
       {/* Right Panel - Chat Area */}
@@ -1250,7 +1201,7 @@ const ChatBoxView = React.memo((props: ToViewReturn<ChildrenType>) => {
         footer={null}
         width={480}
         centered
-        destroyOnClose
+        destroyOnHidden
       >
         <Form
           form={createRoomForm}
@@ -1370,7 +1321,7 @@ const ChatBoxView = React.memo((props: ToViewReturn<ChildrenType>) => {
 
 // Build the component
 let ChatBoxTmpComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => <ChatBoxView {...props} />)
+  return new UICompBuilder(chatCompChildrenMap, (props) => <ChatBoxView {...props} />)
     .setPropertyViewFn((children) => <ChatPropertyView children={children} />)
     .build();
 })();
