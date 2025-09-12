@@ -713,7 +713,19 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => {
   ))
   .build();
 
-FileTmpComp = withMethodExposing(FileTmpComp, [
+  class FileImplComp extends FileTmpComp {
+    override autoHeight(): boolean {
+      // Button mode is always fixed (grid should show resize handles)
+      const mode = this.children.uploadMode.getView(); // "button" | "dragArea"
+      if (mode !== "dragArea") return false;
+  
+      // "auto" | "fixed" -> boolean
+      const h = this.children.autoHeight.getView();
+      return h;
+    }
+  }
+
+const FileWithMethods = withMethodExposing(FileImplComp, [
   {
     method: {
       name: "clearValue",
@@ -731,7 +743,7 @@ FileTmpComp = withMethodExposing(FileTmpComp, [
   },
 ]);
 
-export const FileComp = withExposingConfigs(FileTmpComp, [
+export const FileComp = withExposingConfigs(FileWithMethods, [
   new NameConfig("value", trans("file.filesValueDesc")),
   new NameConfig(
     "files",
