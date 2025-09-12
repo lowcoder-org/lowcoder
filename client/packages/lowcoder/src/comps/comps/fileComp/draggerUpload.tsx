@@ -19,11 +19,13 @@ const IconWrapper = styled.span`
   display: flex;
 `;
 
-const DraggerShell = styled.div<{ $auto: boolean }>`
+const DraggerShell = styled(AntdUpload.Dragger)<{ $auto: boolean 
+  $style: FileStyleType
+}>`
   height: ${(p) => (p.$auto ? "auto" : "100%")};
 
   /* AntD wraps dragger + list in this */
-  .ant-upload-wrapper {
+  &.ant-upload-wrapper {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -39,6 +41,12 @@ const DraggerShell = styled.div<{ $auto: boolean }>`
       min-height: 120px;
       min-width: 0;
     `}
+    .ant-upload-drag-container {
+      .ant-upload-drag-icon {
+        display: flex;
+        justify-content: center;
+      }
+    }
   }
 
   /* The list sits below the dragger */
@@ -50,50 +58,6 @@ const DraggerShell = styled.div<{ $auto: boolean }>`
     `}
   }
 `;
-
-
-const StyledDragger = styled(AntdUpload.Dragger)<{
-  $style: FileStyleType;
-  $auto: boolean;
-}>`
-  &.ant-upload-drag {
-    border-color: ${(p) => p.$style.border};
-    border-width: ${(p) => p.$style.borderWidth};
-    border-style: ${(p) => p.$style.borderStyle};
-    border-radius: ${(p) => p.$style.radius};
-    background: ${(p) => p.$style.background};
-
-    ${(p) =>
-      !p.$auto &&
-      `
-      display: flex;
-      align-items: center;
-    `}
-
-    ${(p) =>
-      p.$auto &&
-      `
-      min-height: 200px;
-    `}
-
-    .ant-upload-drag-container {
-      ${(p) =>
-        !p.$auto &&
-        `
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        height: 100%;
-      `}
-    }
-
-    &:hover {
-      border-color: ${(p) => p.$style.accent};
-    }
-  }
-`;
-
-
 interface DraggerUploadProps {
   value: Array<string | null>;
   files: any[];
@@ -202,8 +166,7 @@ export const DraggerUpload = (props: DraggerUploadProps) => {
   };
 
   return (
-    <DraggerShell $auto={autoHeight}>
-      <StyledDragger
+      <DraggerShell
         {...commonProps(props)}
         fileList={fileList}
         $style={style}
@@ -240,7 +203,7 @@ export const DraggerUpload = (props: DraggerUploadProps) => {
         <p className="ant-upload-hint">
           {props.dragHintText}
         </p>
-      </StyledDragger>
-    </DraggerShell>
+      </DraggerShell>
+    
   );
 };
