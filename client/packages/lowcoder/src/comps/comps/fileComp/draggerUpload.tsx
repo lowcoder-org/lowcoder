@@ -9,7 +9,6 @@ import {
   changeValueAction,
   CompAction,
   multiChangeAction,
-  RecordConstructorToView,
 } from "lowcoder-core";
 import { hasIcon } from "comps/utils";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
@@ -20,50 +19,80 @@ const IconWrapper = styled.span`
   display: flex;
 `;
 
+const DraggerShell = styled.div<{ $auto: boolean }>`
+  height: ${(p) => (p.$auto ? "auto" : "100%")};
+
+  /* AntD wraps dragger + list in this */
+  .ant-upload-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: auto; /* allows list to be visible if it grows */
+  }
+
+  /* The drag area itself */
+  .ant-upload-drag {
+    ${(p) =>
+      !p.$auto &&
+      `
+      flex: 1 1 auto;
+      min-height: 120px;
+      min-width: 0;
+    `}
+  }
+
+  /* The list sits below the dragger */
+  .ant-upload-list {
+    ${(p) =>
+      !p.$auto &&
+      `
+      flex: 0 0 auto;
+    `}
+  }
+`;
+
+
 const StyledDragger = styled(AntdUpload.Dragger)<{
   $style: FileStyleType;
-  $autoHeight: boolean;
+  $auto: boolean;
 }>`
   &.ant-upload-drag {
-    border-color: ${(props) => props.$style.border};
-    border-width: ${(props) => props.$style.borderWidth};
-    border-style: ${(props) => props.$style.borderStyle};
-    border-radius: ${(props) => props.$style.radius};
-    background: ${(props) => props.$style.background};
-    ${(props) => !props.$autoHeight && `height: 200px; display: flex; align-items: center;`}
-    
+    border-color: ${(p) => p.$style.border};
+    border-width: ${(p) => p.$style.borderWidth};
+    border-style: ${(p) => p.$style.borderStyle};
+    border-radius: ${(p) => p.$style.radius};
+    background: ${(p) => p.$style.background};
+
+    ${(p) =>
+      !p.$auto &&
+      `
+      display: flex;
+      align-items: center;
+    `}
+
+    ${(p) =>
+      p.$auto &&
+      `
+      min-height: 200px;
+    `}
+
     .ant-upload-drag-container {
-      ${(props) => !props.$autoHeight && `display: flex; flex-direction: column; justify-content: center; height: 100%;`}
+      ${(p) =>
+        !p.$auto &&
+        `
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+      `}
     }
-    
+
     &:hover {
-      border-color: ${(props) => props.$style.accent};
-      background: ${(props) => props.$style.background};
-    }
-    
-    .ant-upload-text {
-      color: ${(props) => props.$style.text};
-      font-size: ${(props) => props.$style.textSize};
-      font-weight: ${(props) => props.$style.textWeight};
-      font-family: ${(props) => props.$style.fontFamily};
-      font-style: ${(props) => props.$style.fontStyle};
-    }
-    
-    .ant-upload-hint {
-      color: ${(props) => props.$style.text};
-      opacity: 0.7;
-    }
-    
-    .ant-upload-drag-icon {
-      margin-bottom: 16px;
-      
-      .anticon {
-        color: ${(props) => props.$style.accent};
-        font-size: 48px;
-      }
+      border-color: ${(p) => p.$style.accent};
     }
   }
 `;
+
 
 interface DraggerUploadProps {
   value: Array<string | null>;
@@ -172,43 +201,45 @@ export const DraggerUpload = (props: DraggerUploadProps) => {
   };
 
   return (
-    <StyledDragger
-      {...commonProps(props)}
-      fileList={fileList}
-      $style={style}
-      $autoHeight={autoHeight}
-      beforeUpload={(file) => {
-        if (!file.size || file.size <= 0) {
-          messageInstance.error(`${file.name} ` + trans("file.fileEmptyErrorMsg"));
-          return AntdUpload.LIST_IGNORE;
-        }
+    <DraggerShell $auto={autoHeight}>
+      <StyledDragger
+        {...commonProps(props)}
+        fileList={fileList}
+        $style={style}
+        $auto={autoHeight}
+        beforeUpload={(file) => {
+          if (!file.size || file.size <= 0) {
+            messageInstance.error(`${file.name} ` + trans("file.fileEmptyErrorMsg"));
+            return AntdUpload.LIST_IGNORE;
+          }
 
-        if (
-          (!!props.minSize && file.size < props.minSize) ||
-          (!!props.maxSize && file.size > props.maxSize)
-        ) {
-          messageInstance.error(`${file.name} ` + trans("file.fileSizeExceedErrorMsg"));
-          return AntdUpload.LIST_IGNORE;
-        }
-        return true;
-      }}
-      onChange={handleOnChange}
-    >
-      <p className="ant-upload-drag-icon">
-        {hasIcon(props.prefixIcon) ? (
-          <IconWrapper>{props.prefixIcon}</IconWrapper>
-        ) : (
-          <Button type="text" style={{ fontSize: '48px', color: style.accent, border: 'none' }}>
-            📁
-          </Button>
-        )}
-      </p>
-      <p className="ant-upload-text">
-        {props.text || trans("file.dragAreaText")}
-      </p>
-      <p className="ant-upload-hint">
-        {trans("file.dragAreaHint")}
-      </p>
-    </StyledDragger>
+          if (
+            (!!props.minSize && file.size < props.minSize) ||
+            (!!props.maxSize && file.size > props.maxSize)
+          ) {
+            messageInstance.error(`${file.name} ` + trans("file.fileSizeExceedErrorMsg"));
+            return AntdUpload.LIST_IGNORE;
+          }
+          return true;
+        }}
+        onChange={handleOnChange}
+      >
+        <p className="ant-upload-drag-icon">
+          {hasIcon(props.prefixIcon) ? (
+            <IconWrapper>{props.prefixIcon}</IconWrapper>
+          ) : (
+            <Button type="text" style={{ fontSize: '48px', color: style.accent, border: 'none' }}>
+              📁
+            </Button>
+          )}
+        </p>
+        <p className="ant-upload-text">
+          {props.text || trans("file.dragAreaText")}
+        </p>
+        <p className="ant-upload-hint">
+          {trans("file.dragAreaHint")}
+        </p>
+      </StyledDragger>
+    </DraggerShell>
   );
 };
