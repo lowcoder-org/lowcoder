@@ -7,7 +7,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { PositionControl, LeftRightControl, HorizontalAlignmentControl } from "comps/controls/dropdownControl";
-import { closeEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
+import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
 import { DrawerStyle } from "comps/controls/styleControlConstants";
 import { withDefault } from "comps/generators";
@@ -34,7 +34,10 @@ import { ToViewReturn } from "../generators/multi";
 import { SimpleContainerComp } from "../comps/containerBase/simpleContainerComp";
 import { JSX } from "react/jsx-runtime";
 
-const EventOptions = [closeEvent] as const;
+const EventOptions = [
+  { label: trans("drawer.open"), value: "open", description: trans("drawer.openDesc") },
+  { label: trans("drawer.close"), value: "close", description: trans("drawer.closeDesc") },
+] as const;
 
 const DEFAULT_SIZE = 378;
 const DEFAULT_PADDING = 16;
@@ -201,12 +204,13 @@ const DrawerView = React.memo((
 
   const onClose = useCallback((e?: React.MouseEvent | React.KeyboardEvent) => {
     props.visible.onChange(false);
-  }, [props.visible]);
+    props.onEvent("close");
+  }, [props.visible, props.onEvent]);
 
   const afterOpenChange = useCallback((visible: boolean) => {
-    if (!visible) {
-      props.onEvent("close");
-    }
+    if (visible) {
+      props.onEvent("open");
+    } 
   }, [props.onEvent]);
 
   const drawerStyles = useMemo(() => ({
