@@ -113,6 +113,7 @@ interface DraggerUploadProps {
   maxFiles: number;
   uploadType: "single" | "multiple" | "directory";
   text: string;
+  dragHintText?: string;
   dispatch: (action: CompAction) => void;
   autoHeight: boolean;
   tabIndex?: number;
@@ -237,7 +238,7 @@ export const DraggerUpload = (props: DraggerUploadProps) => {
           {props.text || trans("file.dragAreaText")}
         </p>
         <p className="ant-upload-hint">
-          {trans("file.dragAreaHint")}
+          {props.dragHintText}
         </p>
       </StyledDragger>
     </DraggerShell>

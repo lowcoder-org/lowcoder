@@ -449,6 +449,7 @@ const Upload = (
   props: RecordConstructorToView<typeof commonChildren> & {
     uploadType: "single" | "multiple" | "directory";
     text: string;
+    dragHintText?: string;
     dispatch: (action: CompAction) => void;
     forceCapture: boolean;
     tabIndex?: number;
@@ -628,6 +629,7 @@ const UploadModeOptions = [
 
 const childrenMap = {
   text: withDefault(StringControl, trans("file.upload")),
+  dragHintText: withDefault(StringControl, trans("file.dragAreaHint")),
   uploadType: dropdownControl(UploadTypeOptions, "single"),
   uploadMode: dropdownControl(UploadModeOptions, "button"),
   autoHeight: withDefault(AutoHeightControl, "fixed"),
@@ -656,6 +658,10 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => {
           label: trans("file.uploadMode"),
           radioButton: true,
         })}
+        {children.uploadMode.getView() === "dragArea" &&
+          children.dragHintText.propertyView({
+            label: trans("file.dragHintText"),
+          })}
         {children.uploadType.propertyView({ label: trans("file.uploadType") })}
         {children.uploadMode.getView() === "dragArea" && children.autoHeight.getPropertyView()}
       </Section>
