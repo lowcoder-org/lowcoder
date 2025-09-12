@@ -14,7 +14,7 @@ import {
 import { hasIcon } from "comps/utils";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { resolveValue, resolveParsedValue, commonProps } from "./fileComp";
-import { FileStyleType } from "comps/controls/styleControlConstants";
+import { FileStyleType, AnimationStyleType } from "comps/controls/styleControlConstants";
 
 const IconWrapper = styled.span`
   display: flex;
@@ -71,8 +71,9 @@ interface DraggerUploadProps {
   fileType: string[];
   showUploadList: boolean;
   disabled: boolean;
-  onEvent: (eventName: string) => void;
+  onEvent: (eventName: string) => Promise<unknown[]>;
   style: FileStyleType;
+  animationStyle: AnimationStyleType;
   parseFiles: boolean;
   parsedValue: Array<any>;
   prefixIcon: any;
