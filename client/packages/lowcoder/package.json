@@ -46,6 +46,7 @@
     "@types/react-signature-canvas": "^1.0.2",
     "@types/react-test-renderer": "^18.0.0",
     "@types/react-virtualized": "^9.21.21",
+    "@y/websocket-server": "^0.1.1",
     "ai": "^4.3.16",
     "alasql": "^4.6.6",
     "animate.css": "^4.1.1",
@@ -122,7 +123,11 @@
     "ua-parser-js": "^1.0.33",
     "uuid": "^9.0.0",
     "web-vitals": "^2.1.0",
-    "xlsx": "^0.18.5"
+    "ws": "^8.18.3",
+    "xlsx": "^0.18.5",
+    "y-protocols": "^1.0.6",
+    "y-websocket": "^3.0.0",
+    "yjs": "^13.6.27"
   },
   "scripts": {
     "supportedBrowsers": "yarn dlx browserslist-useragent-regexp --allowHigherVersions '>0.2%,not dead,not op_mini all,chrome >=69'",

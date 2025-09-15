@@ -142,6 +142,9 @@ export type UICompType =
   | "timeline" //Added By Mousheng
   | "comment" //Added By Mousheng
   | "mention" //Added By Mousheng
+  | "chat" //Added By Kamal Qureshi
+  | "chatBox" //Added By Kamal Qureshi
+  | "chatController"
   | "autocomplete" //Added By Mousheng
   | "colorPicker" //Added By Mousheng
   | "floatingButton" //Added By Mousheng

@@ -5,8 +5,11 @@
     "typescript": "^5.6.2"
   },
   "dependencies": {
+    "@pluv/client": "^3.2.2",
+    "@pluv/react": "^3.2.2",
     "axios": "^1.7.7",
     "fs": "^0.0.1-security",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "yjs": "^13.6.27"
   }
 }

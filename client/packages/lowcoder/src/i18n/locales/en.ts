@@ -1482,6 +1482,32 @@ export const en = {
     "conversationHistory": "Full conversation history as JSON array",
     "databaseNameExposed": "Database name for SQL queries (ChatDB_<componentName>)"
   },
+
+  "chatBox": {
+    // Event Labels & Descriptions
+    "connected": "Connected",
+    "connectedDesc": "Triggered when the chat connects to the server",
+    "disconnected": "Disconnected", 
+    "disconnectedDesc": "Triggered when the chat disconnects from the server",
+    "messageReceived": "Message Received",
+    "messageReceivedDesc": "Triggered when a new message is received from another user",
+    "messageSent": "Message Sent",
+    "messageSentDesc": "Triggered when the current user sends a message",
+    "userJoined": "User Joined",
+    "userJoinedDesc": "Triggered when a new user joins the current room",
+    "userLeft": "User Left",
+    "userLeftDesc": "Triggered when a user leaves the current room",
+    "typingStarted": "Typing Started",
+    "typingStartedDesc": "Triggered when someone starts typing in the current room",
+    "typingStopped": "Typing Stopped",
+    "typingStoppedDesc": "Triggered when someone stops typing in the current room",
+    "roomJoined": "Room Joined",
+    "roomJoinedDesc": "Triggered when the current user joins a room",
+    "roomLeft": "Room Left",
+    "roomLeftDesc": "Triggered when the current user leaves a room",
+    "error": "Error",
+    "errorDesc": "Triggered when an error occurs in the chat system"
+  },
   // eighth part
 
   "comp": {
