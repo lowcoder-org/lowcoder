@@ -69,6 +69,8 @@ export const ImageCaptureModal = (props: {
     if (props.showModal) {
       setImgSrc("");
       setErrMessage("");
+      setVideoConstraints({ facingMode: "environment" });
+      setDropdownShow(false);
     }
   }, [props.showModal]);
 
@@ -119,9 +121,11 @@ export const ImageCaptureModal = (props: {
             ) : (
               <Suspense fallback={<Skeleton />}>
                 <ReactWebcam
+                  key={JSON.stringify(videoConstraints)}
                   ref={webcamRef}
                   onUserMediaError={handleMediaErr}
                   screenshotFormat="image/jpeg"
+                  videoConstraints={videoConstraints}
                 />
               </Suspense>
             )}
@@ -167,9 +171,10 @@ export const ImageCaptureModal = (props: {
                   popupRender={() => (
                     <Menu
                       items={modeList}
-                      onClick={(value) =>
-                        setVideoConstraints({ ...videoConstraints, deviceId: value.key })
-                      }
+                      onClick={(value) => {
+                        setVideoConstraints({ deviceId: { exact: value.key } });
+                        setDropdownShow(false);
+                      }}
                     />
                   )}
                 >
