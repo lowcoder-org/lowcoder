@@ -42,14 +42,12 @@ import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generat
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { CustomModal } from "lowcoder-design";
-
-import React, { useContext } from "react";
+import { DraggerUpload } from "./draggerUpload";
+import { ImageCaptureModal } from "./ImageCaptureModal";
+import  { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import type { ItemType } from "antd/es/menu/interface";
-import Skeleton from "antd/es/skeleton";
-import Menu from "antd/es/menu";
-import Flex from "antd/es/flex";
 import { checkIsMobile } from "@lowcoder-ee/util/commonUtils";
+import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
 
 const FileSizeControl = codeControl((value) => {
   if (typeof value === "number") {
@@ -131,7 +129,7 @@ const commonValidationFields = (children: RecordConstructorToComp<typeof validat
   }),
 ];
 
-const commonProps = (
+export const commonProps = (
   props: RecordConstructorToView<typeof commonChildren> & {
     uploadType: "single" | "multiple" | "directory";
   }
@@ -211,45 +209,9 @@ const IconWrapper = styled.span`
   display: flex;
 `;
 
-const CustomModalStyled = styled(CustomModal)`
-  top: 10vh;
-  .react-draggable {
-    max-width: 100%;
-    width: 500px;
-
-    video {
-      width: 100%;
-    }
-  }
-`;
-
-const Error = styled.div`
-  color: #f5222d;
-  height: 100px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const Wrapper = styled.div`
-  img,
-  video,
-  .ant-skeleton {
-    width: 100%;
-    height: 400px;
-    max-height: 70vh;
-    position: relative;
-    object-fit: cover;
-    background-color: #000;
-  }
-  .ant-skeleton {
-    h3,
-    li {
-      background-color: transparent;
-    }
-  }
-`;
+const CustomModalStyled = styled(CustomModal)``;
+const Error = styled.div``;
+const Wrapper = styled.div``;
 
 export function resolveValue(files: UploadFile[]) {
   return Promise.all(
@@ -290,163 +252,13 @@ export function resolveParsedValue(files: UploadFile[]) {
   );
 }
 
-const ReactWebcam = React.lazy(() => import("react-webcam"));
-
-const ImageCaptureModal = (props: {
-  showModal: boolean,
-  onModalClose: () => void;
-  onImageCapture: (image: string) => void;
-}) => {
-  const [errMessage, setErrMessage] = useState("");
-  const [videoConstraints, setVideoConstraints] = useState<MediaTrackConstraints>({
-    facingMode: "environment",
-  });
-  const [modeList, setModeList] = useState<ItemType[]>([]);
-  const [dropdownShow, setDropdownShow] = useState(false);
-  const [imgSrc, setImgSrc] = useState<string>();
-  const webcamRef = useRef<any>(null);
-
-  useEffect(() => {
-    if (props.showModal) {
-      setImgSrc('');
-      setErrMessage('');
-    }
-  }, [props.showModal]);
-
-  const handleMediaErr = (err: any) => {
-    if (typeof err === "string") {
-      setErrMessage(err);
-    } else {
-      if (err.message === "getUserMedia is not implemented in this browser") {
-        setErrMessage(trans("scanner.errTip"));
-      } else {
-        setErrMessage(err.message);
-      }
-    }
-  };
-
-  const handleCapture = useCallback(() => {
-    const imageSrc = webcamRef.current?.getScreenshot?.();
-    setImgSrc(imageSrc);
-  }, [webcamRef]);
-
-  const getModeList = () => {
-    navigator.mediaDevices.enumerateDevices().then((data) => {
-      const videoData = data.filter((item) => item.kind === "videoinput");
-      const faceModeList = videoData.map((item, index) => ({
-        label: item.label || trans("scanner.camera", { index: index + 1 }),
-        key: item.deviceId,
-      }));
-      setModeList(faceModeList);
-    });
-  };
-
-  return (
-    <CustomModalStyled
-      showOkButton={false}
-      showCancelButton={false}
-      open={props.showModal}
-      maskClosable={true}
-      destroyOnHidden
-      onCancel={props.onModalClose}
-    >
-      {!!errMessage ? (
-        <Error>{errMessage}</Error>
-      ) : (
-        props.showModal && (
-          <Wrapper>
-            {imgSrc
-              ? <img src={imgSrc} alt="webcam" />
-              : (
-                <Suspense fallback={<Skeleton />}>
-                  <ReactWebcam
-                    ref={webcamRef}
-                    onUserMediaError={handleMediaErr}
-                    screenshotFormat="image/jpeg"
-                  />
-                </Suspense>
-              )
-            }
-            {imgSrc
-              ? (
-                <Flex
-                  justify="center"
-                  gap={10}
-                >
-                  <Button
-                    type="primary"
-                    style={{ float: "right", marginTop: "10px" }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      props.onImageCapture(imgSrc);
-                    }}
-                  >
-                    {trans("file.usePhoto")}
-                  </Button>
-                  <Button
-                    style={{ float: "right", marginTop: "10px" }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setImgSrc('');
-                    }}
-                  >
-                    {trans("file.retakePhoto")}
-                  </Button>
-                </Flex>
-              )
-              : (
-                <Flex
-                  justify="center"
-                  gap={10}
-                >
-                  <Button
-                    type="primary"
-                    style={{ float: "right", marginTop: "10px" }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCapture();
-                    }}
-                  >
-                    {trans("file.capture")}
-                  </Button>
-                  <Dropdown
-                    placement="bottomRight"
-                    trigger={["click"]}
-                    open={dropdownShow}
-                    onOpenChange={(value) => setDropdownShow(value)}
-                    popupRender={() => (
-                      <Menu
-                        items={modeList}
-                        onClick={(value) =>
-                          setVideoConstraints({ ...videoConstraints, deviceId: value.key })
-                        }
-                      />
-                    )}
-                  >
-                    <Button
-                      style={{ float: "right", marginTop: "10px" }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        getModeList();
-                      }}
-                    >
-                      {trans("scanner.changeCamera")}
-                    </Button>
-                  </Dropdown>
-                </Flex>
-              )
-            }
-          </Wrapper>
-        )
-      )}
-    </CustomModalStyled>
-  )
-}
+// ImageCaptureModal moved to its own file for reuse
 
 const Upload = (
   props: RecordConstructorToView<typeof commonChildren> & {
     uploadType: "single" | "multiple" | "directory";
     text: string;
+    dragHintText?: string;
     dispatch: (action: CompAction) => void;
     forceCapture: boolean;
     tabIndex?: number;
@@ -619,25 +431,48 @@ const UploadTypeOptions = [
   { label: trans("file.directory"), value: "directory" },
 ] as const;
 
+const UploadModeOptions = [
+  { label: trans("file.button"), value: "button" },
+  { label: trans("file.dragArea"), value: "dragArea" },
+] as const;
+
 const childrenMap = {
   text: withDefault(StringControl, trans("file.upload")),
+  dragHintText: withDefault(StringControl, trans("file.dragAreaHint")),
   uploadType: dropdownControl(UploadTypeOptions, "single"),
+  uploadMode: dropdownControl(UploadModeOptions, "button"),
+  autoHeight: withDefault(AutoHeightControl, "auto"),
   tabIndex: NumberControl,
   ...commonChildren,
   ...formDataChildren,
 };
 
 let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => {
-  return(
-    <Upload {...props} dispatch={dispatch} />
-  )})
+  const uploadMode = props.uploadMode;
+  const autoHeight = props.autoHeight;
+  
+  if (uploadMode === "dragArea") {
+    return <DraggerUpload {...props} dispatch={dispatch} autoHeight={autoHeight} />;
+  }
+  
+  return <Upload {...props} dispatch={dispatch} />;
+})
   .setPropertyViewFn((children) => (
     <>
       <Section name={sectionNames.basic}>
         {children.text.propertyView({
           label: trans("text"),
         })}
+        {children.uploadMode.propertyView({ 
+          label: trans("file.uploadMode"),
+          radioButton: true,
+        })}
+        {children.uploadMode.getView() === "dragArea" &&
+          children.dragHintText.propertyView({
+            label: trans("file.dragHintText"),
+          })}
         {children.uploadType.propertyView({ label: trans("file.uploadType") })}
+        {children.autoHeight.getPropertyView()}
       </Section>
 
       <FormDataPropertyView {...children} />
@@ -693,7 +528,15 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => {
   ))
   .build();
 
-FileTmpComp = withMethodExposing(FileTmpComp, [
+  class FileImplComp extends FileTmpComp {
+    override autoHeight(): boolean {
+      // Both button and dragArea modes should respect the autoHeight setting
+      const h = this.children.autoHeight.getView();
+      return h;
+    }
+  }
+
+const FileWithMethods = withMethodExposing(FileImplComp, [
   {
     method: {
       name: "clearValue",
@@ -711,7 +554,7 @@ FileTmpComp = withMethodExposing(FileTmpComp, [
   },
 ]);
 
-export const FileComp = withExposingConfigs(FileTmpComp, [
+export const FileComp = withExposingConfigs(FileWithMethods, [
   new NameConfig("value", trans("file.filesValueDesc")),
   new NameConfig(
     "files",

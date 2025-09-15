@@ -1925,6 +1925,12 @@ export const en = {
     "usePhoto": "Use Photo",
     "retakePhoto": "Retake Photo",
     "capture": "Capture",
+    "button": "Button",
+    "dragArea": "Drag Area",
+    "uploadMode": "Upload Mode",
+    "dragAreaText": "Click or drag file to this area to upload",
+    "dragAreaHint": "Support for a single or bulk upload. Strictly prohibited from uploading company data or other band files.",
+    "dragHintText": "Hint Text",
   },
   "date": {
     "format": "Format",
