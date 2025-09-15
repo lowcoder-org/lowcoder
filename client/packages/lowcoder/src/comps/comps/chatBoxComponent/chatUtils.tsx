@@ -16,7 +16,21 @@ import React, { useContext, useMemo } from "react";
 import { trans } from "i18n";
 
 // Event options for the chat component
-const EventOptions = [clickEvent, doubleClickEvent] as const;
+const EventOptions = [
+  clickEvent, 
+  doubleClickEvent,
+  { label: trans("chatBox.connected"), value: "connected", description: trans("chatBox.connectedDesc") },
+  { label: trans("chatBox.disconnected"), value: "disconnected", description: trans("chatBox.disconnectedDesc") },
+  { label: trans("chatBox.messageReceived"), value: "messageReceived", description: trans("chatBox.messageReceivedDesc") },
+  { label: trans("chatBox.messageSent"), value: "messageSent", description: trans("chatBox.messageSentDesc") },
+  { label: trans("chatBox.userJoined"), value: "userJoined", description: trans("chatBox.userJoinedDesc") },
+  { label: trans("chatBox.userLeft"), value: "userLeft", description: trans("chatBox.userLeftDesc") },
+  { label: trans("chatBox.typingStarted"), value: "typingStarted", description: trans("chatBox.typingStartedDesc") },
+  { label: trans("chatBox.typingStopped"), value: "typingStopped", description: trans("chatBox.typingStoppedDesc") },
+  { label: trans("chatBox.roomJoined"), value: "roomJoined", description: trans("chatBox.roomJoinedDesc") },
+  { label: trans("chatBox.roomLeft"), value: "roomLeft", description: trans("chatBox.roomLeftDesc") },
+  { label: trans("chatBox.error"), value: "error", description: trans("chatBox.errorDesc") },
+] as const;
 
 // Define the component's children map
 export const chatCompChildrenMap = {

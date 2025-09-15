@@ -69,7 +69,10 @@ const handleJoinRoom = async (
   const chatManager = comp.children.chatManager.getView() as unknown as UseChatManagerReturn;
   try {
     const success = await chatManager.joinRoom(roomId);
-    if (!success) {
+    if (success) {
+      // Note: Event will be triggered by the component's useEffect hooks
+      console.log('[ChatController] ✅ Successfully joined room:', roomId);
+    } else {
       console.error('[ChatBox] ❌ Failed to join room:', roomId);
     }
   } catch (error) {
@@ -87,6 +90,10 @@ const handleLeaveRoom = async (
     console.log('[ChatBox] 🚪 Attempting to leave room:', roomId);
 
     const success = await chatManager.leaveRoom(roomId);
+    if (success) {
+      // Note: Event will be triggered by the component's useEffect hooks
+      console.log('[ChatController] ✅ Successfully left room:', roomId);
+    }
     return success;
   } catch (error) {
     console.error('[ChatBox] 💥 Error leaving room:', error);
@@ -113,6 +120,10 @@ const handleSendMessage = async (
     const chatManager = comp.children.chatManager.getView() as unknown as UseChatManagerReturn;
     if (currentMessage.trim()) {
       const success = await chatManager.sendMessage(currentMessage.trim());
+      if (success) {
+        // Note: Event will be triggered by the component's useEffect hooks
+        console.log('[ChatController] ✅ Message sent successfully');
+      }
       return success;
     }
   } catch (error) {
@@ -194,6 +205,13 @@ const ChatBoxView = React.memo((
   const [currentRoomParticipants, setCurrentRoomParticipants] = useState<Array<{ id: string; name: string }>>([]);
   const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent});
 
+  // Helper function to trigger custom events
+  const triggerEvent = (eventName: string) => {
+    if (props.onEvent) {
+      props.onEvent(eventName);
+    }
+  };
+
   // Initialize chat manager  
   const modeValue = props.mode as 'local' | 'collaborative' | 'hybrid';
   
@@ -258,6 +276,15 @@ const ChatBoxView = React.memo((
       }
     }
   }, [props.userId.value, props.userName.value]);
+
+  // Chat event handlers
+  useEffect(() => {
+    if (chatManager.isConnected) {
+      triggerEvent("connected");
+    } else if (chatManager.error) {
+      triggerEvent("error");
+    }
+  }, [chatManager.isConnected, chatManager.error]);
 
   // Refresh joined rooms periodically
   useEffect(() => {
@@ -324,6 +351,11 @@ const ChatBoxView = React.memo((
     dispatch(
       changeChildAction("currentRoom", currentRoom as any, false)
     );
+
+    // Trigger room joined event when currentRoom changes to a new room
+    if (currentRoom) {
+      triggerEvent("roomJoined");
+    }
   }, [currentRoom]);
 
   // Update typingUsers state
@@ -333,6 +365,31 @@ const ChatBoxView = React.memo((
     dispatch(
       changeChildAction("typingUsers", typingUsers as any, false)
     );
+  }, [typingUsers]);
+
+  // Message events
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage) {
+        if (lastMessage.authorId === props.userId.value) {
+          // Message sent by current user
+          triggerEvent("messageSent");
+        } else {
+          // Message received from another user
+          triggerEvent("messageReceived");
+        }
+      }
+    }
+  }, [messages, props.userId.value]);
+
+  // Typing events
+  useEffect(() => {
+    if (typingUsers && typingUsers.length > 0) {
+      triggerEvent("typingStarted");
+    } else {
+      triggerEvent("typingStopped");
+    }
   }, [typingUsers]);
 
   return (
@@ -508,6 +565,25 @@ ChatControllerComp = withMethodExposing(ChatControllerComp, [
     },
     execute: async (comp: ConstructorToComp<typeof ChatControllerComp>, values: any) => {
       handleSendMessage(comp, values?.[0]);
+    },
+  },
+  {
+    method: {
+      name: "getRoomParticipants",
+      description: "Get participants of a room with their ID and name",
+      params: [
+        {
+          name: "roomId",
+          type: "string",
+        },
+      ],
+    },
+    execute: async (comp: ConstructorToComp<typeof ChatControllerComp>, values: any) => {
+      const chatManager = comp.children.chatManager.getView() as any;
+      if (chatManager && chatManager.getRoomParticipants) {
+        return await chatManager.getRoomParticipants(values?.[0]);
+      }
+      return [];
     },
   },
   {

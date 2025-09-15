@@ -2,6 +2,7 @@ import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import styled, { css } from "styled-components";
 import { UICompBuilder } from "../../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../../generators/withExposing";
+import { withMethodExposing } from "../../generators/withMethodExposing";
 import { TextStyle, TextStyleType, AnimationStyle, AnimationStyleType } from "comps/controls/styleControlConstants";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import React, { useContext, useEffect, useRef, useMemo, useState } from "react";
@@ -330,6 +331,28 @@ const ChatPropertyView = React.memo((props: {
   );
 });
 
+// Handler for joinUser method
+const handleJoinUser = async (
+  comp: any,
+  userId: string,
+  userName: string,
+) => {
+  try {
+    // Update the component's internal state with user credentials
+    comp.children.userId.getView().onChange(userId);
+    comp.children.userName.getView().onChange(userName);
+    
+    console.log('[ChatBox] 👤 User joined as:', { userId, userName });
+    
+    // The chat manager will automatically reconnect with new credentials
+    // due to the useEffect that watches for userId/userName changes
+    return true;
+  } catch (error) {
+    console.error('[ChatBox] 💥 Error joining as user:', error);
+    return false;
+  }
+};
+
 // Main view component
 const ChatBoxView = React.memo((props: ToViewReturn<ChatCompChildrenType>) => {
   const [currentMessage, setCurrentMessage] = useState<string>("");
@@ -345,18 +368,52 @@ const ChatBoxView = React.memo((props: ToViewReturn<ChatCompChildrenType>) => {
   const chatAreaRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Helper function to trigger custom events
+  const triggerEvent = (eventName: string) => {
+    if (props.onEvent) {
+      props.onEvent(eventName);
+    }
+  };
+
   // Initialize chat manager  
   const modeValue = props.mode as 'local' | 'collaborative' | 'hybrid';
   
+  // Only auto-connect if userId and userName are provided in configuration
+  const shouldAutoConnect = !!(props.userId.value && props.userName.value);
+  
   const chatManager = useChatManager({
-    userId: props.userId.value || "user_1",
-    userName: props.userName.value || "User",
+    userId: props.userId.value,
+    userName: props.userName.value,
     applicationId: props.applicationId.value || "lowcoder_app", 
     roomId: props.roomId.value || "general",
     mode: modeValue, // Use mode from props
-    autoConnect: true,
+    autoConnect: shouldAutoConnect, // Only auto-connect if credentials are provided
   });
   
+  // Handle reconnection when userId or userName changes (for public users)
+  useEffect(() => {
+    if (props.userId.value && props.userName.value) {
+      if (chatManager.isConnected) {
+        // Disconnect and let the chat manager reconnect with new credentials
+        chatManager.disconnect().then(() => {
+          console.log('[ChatBox] 🔄 Reconnecting with new user credentials');
+        });
+      } else {
+        // If not connected and we have credentials, trigger connection
+        console.log('[ChatBox] 🔌 Connecting with user credentials');
+      }
+    }
+  }, [props.userId.value, props.userName.value]);
+
+  // Chat event handlers
+  useEffect(() => {
+    if (chatManager.isConnected) {
+      triggerEvent("connected");
+    } else if (chatManager.error) {
+      triggerEvent("error");
+    }
+  }, [chatManager.isConnected, chatManager.error]);
+
   // Load joined rooms when connected
   useEffect(() => {
     const loadRooms = async () => {
@@ -515,6 +572,9 @@ const ChatBoxView = React.memo((props: ToViewReturn<ChatCompChildrenType>) => {
         setSearchQuery("");
         setShowSearchResults(false);
         
+        // Trigger room joined event
+        triggerEvent("roomJoined");
+        
         console.log('[ChatBox] 📋 Room join completed successfully');
       } else {
         console.log('[ChatBox] ❌ Failed to join room:', roomId);
@@ -534,6 +594,9 @@ const ChatBoxView = React.memo((props: ToViewReturn<ChatCompChildrenType>) => {
         // Remove the room from joined rooms immediately
         const updatedJoinedRooms = joinedRooms.filter((room: any) => room.id !== roomId);
         setJoinedRooms(updatedJoinedRooms);
+        
+        // Trigger room left event
+        triggerEvent("roomLeft");
         
         // If user left the current room, switch to another joined room or clear chat
         if (currentRoom?.id === roomId) {
@@ -652,6 +715,26 @@ const ChatBoxView = React.memo((props: ToViewReturn<ChatCompChildrenType>) => {
     stopTyping 
   } = chatManager;
 
+  // Message received event
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage && lastMessage.authorId !== props.userId.value) {
+        triggerEvent("messageReceived");
+      }
+    }
+  }, [messages]);
+
+  // Typing events
+  useEffect(() => {
+    if (typingUsers && typingUsers.length > 0) {
+      triggerEvent("typingStarted");
+    } else {
+      triggerEvent("typingStopped");
+    }
+  }, [typingUsers]);
+
+
   useEffect(() => {
     if (chatAreaRef.current) {
       chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
@@ -716,7 +799,8 @@ const ChatBoxView = React.memo((props: ToViewReturn<ChatCompChildrenType>) => {
       
       if (success) {
         setCurrentMessage("");
-        handleClickEvent(); 
+        handleClickEvent();
+        triggerEvent("messageSent");
       }
     }
   };
@@ -1331,6 +1415,29 @@ ChatBoxTmpComp = class extends ChatBoxTmpComp {
     return this.children.autoHeight.getView();
   }
 };
+
+// Add method exposing
+ChatBoxTmpComp = withMethodExposing(ChatBoxTmpComp, [
+  {
+    method: {
+      name: "joinUser",
+      description: "Allow users to join the chat server with their own credentials",
+      params: [
+        {
+          name: "userId",
+          type: "string",
+        },
+        {
+          name: "userName",
+          type: "string",
+        },
+      ],
+    },
+    execute: async (comp: any, values: any) => {
+      return await handleJoinUser(comp, values?.[0], values?.[1]);
+    },
+  },
+]);
 
 export const ChatBoxComp = withExposingConfigs(ChatBoxTmpComp, [
   new NameConfig("chatName", "Chat name displayed in header"),
