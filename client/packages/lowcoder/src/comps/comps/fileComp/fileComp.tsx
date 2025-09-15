@@ -472,7 +472,7 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => {
             label: trans("file.dragHintText"),
           })}
         {children.uploadType.propertyView({ label: trans("file.uploadType") })}
-        {children.uploadMode.getView() === "dragArea" && children.autoHeight.getPropertyView()}
+        {children.autoHeight.getPropertyView()}
       </Section>
 
       <FormDataPropertyView {...children} />
@@ -530,11 +530,7 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => {
 
   class FileImplComp extends FileTmpComp {
     override autoHeight(): boolean {
-      // Button mode is always fixed (grid should show resize handles)
-      const mode = this.children.uploadMode.getView(); // "button" | "dragArea"
-      if (mode !== "dragArea") return false;
-  
-      // "auto" | "fixed" -> boolean
+      // Both button and dragArea modes should respect the autoHeight setting
       const h = this.children.autoHeight.getView();
       return h;
     }
