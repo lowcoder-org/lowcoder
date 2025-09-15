@@ -37,7 +37,8 @@ export function createChatStorage(tableName: string): ChatStorage {
             threadId STRING,
             role STRING,
             text STRING,
-            timestamp NUMBER
+            timestamp NUMBER,
+            attachments STRING
           )
         `);
 
@@ -104,8 +105,8 @@ export function createChatStorage(tableName: string): ChatStorage {
         await alasql.promise(`DELETE FROM ${messagesTable} WHERE id = ?`, [message.id]);
         
         await alasql.promise(`
-          INSERT INTO ${messagesTable} VALUES (?, ?, ?, ?, ?)
-        `, [message.id, threadId, message.role, message.text, message.timestamp]);
+          INSERT INTO ${messagesTable} VALUES (?, ?, ?, ?, ?, ?)
+        `, [message.id, threadId, message.role, message.text, message.timestamp, JSON.stringify(message.attachments || [])]);
       } catch (error) {
         console.error("Failed to save message:", error);
         throw error;
@@ -120,8 +121,8 @@ export function createChatStorage(tableName: string): ChatStorage {
         // Insert all messages
         for (const message of messages) {
           await alasql.promise(`
-            INSERT INTO ${messagesTable} VALUES (?, ?, ?, ?, ?)
-          `, [message.id, threadId, message.role, message.text, message.timestamp]);
+            INSERT INTO ${messagesTable} VALUES (?, ?, ?, ?, ?, ?)
+          `, [message.id, threadId, message.role, message.text, message.timestamp, JSON.stringify(message.attachments || [])]);
         }
       } catch (error) {
         console.error("Failed to save messages:", error);
@@ -132,11 +133,17 @@ export function createChatStorage(tableName: string): ChatStorage {
     async getMessages(threadId: string) {
       try {
         const result = await alasql.promise(`
-          SELECT id, role, text, timestamp FROM ${messagesTable} 
+          SELECT id, role, text, timestamp, attachments FROM ${messagesTable} 
           WHERE threadId = ? ORDER BY timestamp ASC
-        `, [threadId]) as ChatMessage[];
+        `, [threadId]) as any[];
         
-        return Array.isArray(result) ? result : [];
+        return result.map(row => ({
+          id: row.id,
+          role: row.role,
+          text: row.text,
+          timestamp: row.timestamp,
+          attachments: JSON.parse(row.attachments || '[]')
+        })) as ChatMessage[];
       } catch (error) {
         console.error("Failed to get messages:", error);
         return [];

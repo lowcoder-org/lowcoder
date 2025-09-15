@@ -4,6 +4,7 @@ import React from "react";
 import { ChatProvider } from "./context/ChatContext";
 import { ChatCoreMain } from "./ChatCoreMain";
 import { ChatCoreProps } from "../types/chatTypes";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
 
 // ============================================================================
 // CHAT CORE - THE SHARED FOUNDATION
@@ -18,14 +19,16 @@ export function ChatCore({
   onEvent
 }: ChatCoreProps) {
   return (
-    <ChatProvider storage={storage}>
-      <ChatCoreMain 
-        messageHandler={messageHandler}
+    <TooltipProvider>
+      <ChatProvider storage={storage}>
+        <ChatCoreMain 
+          messageHandler={messageHandler}
         placeholder={placeholder}
         onMessageUpdate={onMessageUpdate}
         onConversationUpdate={onConversationUpdate}
-        onEvent={onEvent}
-      />
-    </ChatProvider>
+          onEvent={onEvent}
+        />
+      </ChatProvider>
+    </TooltipProvider>
   );
 }

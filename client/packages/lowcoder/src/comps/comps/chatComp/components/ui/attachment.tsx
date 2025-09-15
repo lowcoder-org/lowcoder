@@ -1,6 +1,6 @@
 "use client";
 
-import { PropsWithChildren, useEffect, useState, type FC } from "react";
+import { PropsWithChildren, useCallback, useEffect, useRef, useState, type FC } from "react";
 import { CircleXIcon, FileIcon, PaperclipIcon } from "lucide-react";
 import {
   AttachmentPrimitive,
@@ -9,19 +9,12 @@ import {
   useAttachment,
 } from "@assistant-ui/react";
 import styled from "styled-components";
+import { Modal } from "antd";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "./tooltip";
-import {
-  Dialog,
-  DialogTitle,
-  DialogTrigger,
-  DialogOverlay,
-  DialogPortal,
-  DialogContent,
-} from "./dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "./avatar";
 import { TooltipIconButton } from "../assistant-ui/tooltip-icon-button";
 
@@ -29,7 +22,7 @@ import { TooltipIconButton } from "../assistant-ui/tooltip-icon-button";
 // STYLED COMPONENTS
 // ============================================================================
 
-const StyledDialogTrigger = styled(DialogTrigger)`
+const StyledModalTrigger = styled.div`
   cursor: pointer;
   transition: background-color 0.2s;
   padding: 2px;
@@ -136,55 +129,78 @@ const StyledComposerButton = styled(TooltipIconButton)`
   transition: opacity 0.2s ease-in;
 `;
 
-const ScreenReaderOnly = styled.span`
-  position: absolute;
-  left: -10000px;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-`;
+// ScreenReaderOnly component removed as it's no longer needed with ANTD Modal
 
-// ============================================================================
-// UTILITY HOOKS
-// ============================================================================
 
-// Simple replacement for useShallow (removes zustand dependency)
-const useShallow = <T,>(selector: (state: any) => T): ((state: any) => T) => selector;
+const useAttachmentSrc = () => {
+  // Listen only to image-type attachments
+  const attachment = useAttachment(
+    useCallback((a: any) => (a.type === "image" ? a : undefined), [])
+  );
 
-const useFileSrc = (file: File | undefined) => {
-  const [src, setSrc] = useState<string | undefined>(undefined);
+  const [src, setSrc] = useState<string | undefined>();
+
+  // Keep track of the last generated object URL so that we can revoke it
+  const objectUrlRef = useRef<string | undefined>();
+  const lastAttachmentIdRef = useRef<string | undefined>();
 
   useEffect(() => {
-    if (!file) {
-      setSrc(undefined);
+    // If the same attachment is rendered again, do nothing
+    if (!attachment || attachment.id === lastAttachmentIdRef.current) return;
+
+    // Clean up any previous object URL
+    if (objectUrlRef.current) {
+      try {
+        URL.revokeObjectURL(objectUrlRef.current);
+      } catch {
+        /* ignore */
+      }
+      objectUrlRef.current = undefined;
+    }
+
+    // ------------------------------------------------------------------
+    // 1. New (local) File object – generate a temporary ObjectURL
+    // ------------------------------------------------------------------
+    if (attachment.file instanceof File) {
+      const url = URL.createObjectURL(attachment.file);
+      objectUrlRef.current = url;
+      setSrc(url);
+      lastAttachmentIdRef.current = attachment.id;
       return;
     }
 
-    const objectUrl = URL.createObjectURL(file);
-    setSrc(objectUrl);
+    // ------------------------------------------------------------------
+    // 2. Restored attachment coming from storage – use stored base64 image
+    // ------------------------------------------------------------------
+    const imgPart = attachment.content?.find((p: any) => p.type === "image");
+    if (imgPart?.image) {
+      setSrc(imgPart.image as string);
+      lastAttachmentIdRef.current = attachment.id;
+      return;
+    }
 
+    // ------------------------------------------------------------------
+    // 3. No usable preview – clear src
+    // ------------------------------------------------------------------
+    setSrc(undefined);
+    lastAttachmentIdRef.current = attachment.id;
+  }, [attachment]);
+
+  /* Cleanup when the component using this hook unmounts */
+  useEffect(() => {
     return () => {
-      URL.revokeObjectURL(objectUrl);
+      if (objectUrlRef.current) {
+        try {
+          URL.revokeObjectURL(objectUrlRef.current);
+        } catch {
+          /* ignore */
+        }
+      }
     };
-  }, [file]);
+  }, []);
 
   return src;
 };
-
-const useAttachmentSrc = () => {
-  const { file, src } = useAttachment(
-    useShallow((a): { file?: File; src?: string } => {
-      if (a.type !== "image") return {};
-      if (a.file) return { file: a.file };
-      const src = a.content?.filter((c: any) => c.type === "image")[0]?.image;
-      if (!src) return {};
-      return { src };
-    })
-  );
-
-  return useFileSrc(file) ?? src;
-};
-
 // ============================================================================
 // ATTACHMENT COMPONENTS
 // ============================================================================
@@ -215,21 +231,37 @@ const AttachmentPreview: FC<AttachmentPreviewProps> = ({ src }) => {
 
 const AttachmentPreviewDialog: FC<PropsWithChildren> = ({ children }) => {
   const src = useAttachmentSrc();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (!src) return <>{children}</>;
 
   return (
-    <Dialog>
-      <StyledDialogTrigger asChild>
+    <>
+      <StyledModalTrigger onClick={() => setIsModalOpen(true)}>
         {children}
-      </StyledDialogTrigger>
-      <AttachmentDialogContent>
-        <DialogTitle>
-          <ScreenReaderOnly>Image Attachment Preview</ScreenReaderOnly>
-        </DialogTitle>
+      </StyledModalTrigger>
+      <Modal
+        title="Image Attachment Preview"
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        footer={null}
+        width="auto"
+        style={{ 
+          maxWidth: "80vw", 
+          top: 20,
+        }}
+        styles={{
+          body: {
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "20px",
+          }
+        }}
+      >
         <AttachmentPreview src={src} />
-      </AttachmentDialogContent>
-    </Dialog>
+      </Modal>
+    </>
   );
 };
 
@@ -335,12 +367,3 @@ export const ComposerAddAttachment: FC = () => {
     </ComposerPrimitive.AddAttachment>
   );
 };
-
-const AttachmentDialogContent: FC<PropsWithChildren> = ({ children }) => (
-  <DialogPortal>
-    <DialogOverlay />
-    <DialogContent className="aui-dialog-content">
-      {children}
-    </DialogContent>
-  </DialogPortal>
-);
