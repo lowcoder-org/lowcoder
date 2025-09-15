@@ -142,6 +142,27 @@ const handleStopTyping = (
   }
 };
 
+const handleJoinUser = async (
+  comp: ConstructorToComp<typeof ChatControllerComp>,
+  userId: string,
+  userName: string,
+) => {
+  try {
+    // Update the component's internal state with public user credentials
+    comp.children.userId.getView().onChange(userId);
+    comp.children.userName.getView().onChange(userName);
+    
+    console.log('[ChatController] 👤 Public user joined as:', { userId, userName });
+    
+    // The chat manager will automatically reconnect with new credentials
+    // due to the useEffect that watches for userId/userName changes
+    return true;
+  } catch (error) {
+    console.error('[ChatBox] 💥 Error joining as public user:', error);
+    return false;
+  }
+};
+
 const childrenMap = {
   ...chatCompChildrenMap,
   visible: withDefault(BooleanStateControl, "false"),
@@ -176,13 +197,16 @@ const ChatBoxView = React.memo((
   // Initialize chat manager  
   const modeValue = props.mode as 'local' | 'collaborative' | 'hybrid';
   
+  // Only initialize chat manager if userId and userName are provided
+  const shouldInitialize = !!(props.userId.value && props.userName.value);
+  
   const chatManager = useChatManager({
     userId: props.userId.value,
     userName: props.userName.value,
     applicationId: props.applicationId.value, 
     roomId: props.roomId.value,
     mode: modeValue, // Use mode from props
-    autoConnect: true,
+    autoConnect: shouldInitialize, // Only auto-connect if credentials are provided
   });
 
   useEffect(() => {
@@ -219,6 +243,21 @@ const ChatBoxView = React.memo((
       loadRooms();
     }
   }, [chatManager.isConnected, props.userId.value, loadRooms]);
+
+  // Handle reconnection when userId or userName changes
+  useEffect(() => {
+    if (props.userId.value && props.userName.value) {
+      if (chatManager.isConnected) {
+        // Disconnect and let the chat manager reconnect with new credentials
+        chatManager.disconnect().then(() => {
+          console.log('[ChatController] 🔄 Reconnecting with new user credentials');
+        });
+      } else {
+        // If not connected and we have credentials, trigger connection
+        console.log('[ChatController] 🔌 Connecting with user credentials');
+      }
+    }
+  }, [props.userId.value, props.userName.value]);
 
   // Refresh joined rooms periodically
   useEffect(() => {
@@ -471,6 +510,25 @@ ChatControllerComp = withMethodExposing(ChatControllerComp, [
       handleSendMessage(comp, values?.[0]);
     },
   },
+  {
+    method: {
+      name: "joinUser",
+      description: "Allow users to join the chat server with their own credentials",
+      params: [
+        {
+          name: "userId",
+          type: "string",
+        },
+        {
+          name: "userName",
+          type: "string",
+        },
+      ],
+    },
+    execute: async (comp: ConstructorToComp<typeof ChatControllerComp>, values: any) => {
+      return await handleJoinUser(comp, values?.[0], values?.[1]);
+    },
+  },
 ]);
 
 ChatControllerComp = withExposingConfigs(ChatControllerComp, [
@@ -480,6 +538,9 @@ ChatControllerComp = withExposingConfigs(ChatControllerComp, [
   new NameConfig("participants", trans("chatBox.participants")),
   new NameConfig("currentRoom", trans("chatBox.currentRoom")),
   new NameConfig("typingUsers", trans("chatBox.typingUsers")),
+  new NameConfig("allowRoomCreation", trans("chatBox.allowRoomCreation")),
+  new NameConfig("allowRoomJoining", trans("chatBox.allowRoomJoining")),
+  new NameConfig("roomPermissionMode", trans("chatBox.roomPermissionMode")),
   new NameConfig("userId", trans("chatBox.userId")),
   new NameConfig("userName", trans("chatBox.userName")),
 ]);
