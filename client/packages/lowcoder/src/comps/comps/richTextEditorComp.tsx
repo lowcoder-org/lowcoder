@@ -171,7 +171,8 @@ const toolbarOptions = [
 ];
 
 const childrenMap = {
-  value: stringExposingStateControl("value"),
+  value: stringExposingStateControl("value"),    
+  delta: stringExposingStateControl("delta"),     
   hideToolbar: BoolControl,
   readOnly: BoolControl,
   autoHeight: withDefault(AutoHeightControl, "fixed"),
@@ -194,7 +195,7 @@ interface IProps {
   hideToolbar: boolean;
   readOnly: boolean;
   autoHeight: boolean;
-  onChange: (value: string) => void;
+  onChange: (html: string, deltaJSON: string, text: string) => void;
   $style: RichTextEditorStyleType;
   contentScrollBar: boolean;
   tabIndex?: number;
@@ -207,6 +208,21 @@ function RichTextEditor(props: IProps) {
   const [content, setContent] = useState("");
   const wrapperRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<ReactQuill>(null);
+
+  const getQuill = () => (editorRef.current as any)?.getEditor?.();
+
+  const tryParseDelta = (v: unknown) => {
+    if (!v) return null;
+    if (typeof v === "string") {
+      try {
+        const d = JSON.parse(v);
+        return Array.isArray(d?.ops) ? d : null;
+      } catch { return null; }
+    }
+    if (typeof v === "object" && Array.isArray((v as any).ops)) return v as any;
+    return null;
+  };
+
   const isTypingRef = useRef(0);
 
   const debounce = INPUT_DEFAULT_ONCHANGE_DEBOUNCE;
@@ -214,8 +230,8 @@ function RichTextEditor(props: IProps) {
   const originOnChangeRef = useRef(props.onChange);
   originOnChangeRef.current = props.onChange;
 
-  const onChangeRef = useRef(
-    (v: string) => originOnChangeRef.current?.(v)
+  const onChangeRef = useRef((html: string, deltaJSON: string, text: string) =>
+    originOnChangeRef.current?.(html, deltaJSON, text)
   );
 
   // react-quill will not take effect after the placeholder is updated
@@ -235,7 +251,7 @@ function RichTextEditor(props: IProps) {
         (editor.scroll.domNode as HTMLElement).tabIndex = props.tabIndex;
       }
     }
-  }, [props.tabIndex, key]); // Also re-run when key changes due to placeholder update
+  }, [props.tabIndex, key]);  
 
   const contains = (parent: HTMLElement, descendant: HTMLElement) => {
     try {
@@ -248,19 +264,31 @@ function RichTextEditor(props: IProps) {
     return parent.contains(descendant);
   };
 
-  const handleChange = (value: string) => {
-    setContent(value);
-    // props.onChange(value);
-    onChangeRef.current(value);
-  };
 
   useEffect(() => {
-    let finalValue = props.value;
-    if (!/^<\w+>.+<\/\w+>$/.test(props.value)) {
-      finalValue = `<p class="">${props.value}</p>`;
+    const q = getQuill();
+    
+    if (!q) {
+      const v = props.value ?? "";
+      const looksHtml = /<\/?[a-z][\s\S]*>/i.test(v);
+      setContent(looksHtml ? v : `<p class="">${v}</p>`);
+      return;
     }
-    setContent(finalValue);
+  
+    const asDelta = tryParseDelta(props.value);
+    if (asDelta) {
+      q.setContents(asDelta, "api");
+      const html = q.root?.innerHTML ?? "";
+      setContent(html);
+      return;
+    }
+  
+    const v = props.value ?? "";
+    const looksHtml = /<\/?[a-z][\s\S]*>/i.test(v);
+    const html = looksHtml ? v : `<p class="">${v}</p>`;
+    setContent(html);
   }, [props.value]);
+  
 
   const handleClickWrapper = (e: React.MouseEvent<HTMLDivElement>) => {
     // grid item prevents bubbling, quill can't listen to events on document.body, so it can't close the toolbar drop-down box
@@ -297,7 +325,13 @@ function RichTextEditor(props: IProps) {
           value={content}
           placeholder={props.placeholder}
           readOnly={props.readOnly}
-          onChange={handleChange}
+          onChange={(html, _delta, source, editor) => {
+            setContent(html);
+            const quill = editorRef.current?.getEditor?.();
+            const fullDelta = quill?.getContents?.() ?? { ops: [] };
+            const text = quill?.getText?.() ?? "";
+            onChangeRef.current(html, JSON.stringify(fullDelta), text);
+            }}
         />
       </Suspense>
     </Wrapper>
@@ -306,15 +340,16 @@ function RichTextEditor(props: IProps) {
 
 const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
   const debouncedOnChangeRef = useRef(
-    debounce((value: string) => {
-      props.value.onChange(value);
+    debounce((html: string, deltaJSON: string, text: string) => {
+      props.value.onChange(html);        
+      props.delta.onChange(deltaJSON);   
       props.onEvent("change");
     }, 1000)
   );
 
-  const handleChange = (value: string) => {
-    debouncedOnChangeRef.current?.(value);
-  };
+    const handleChange = (html: string, deltaJSON: string, text: string) => {
+      debouncedOnChangeRef.current?.(html, deltaJSON, text);
+    };
 
   return (
     <RichTextEditor
@@ -379,6 +414,7 @@ class RichTextEditorCompAutoHeight extends RichTextEditorCompBase {
 
 export const RichTextEditorComp = withExposingConfigs(RichTextEditorCompAutoHeight, [
   new NameConfig("value", trans("export.richTextEditorValueDesc")),
+  new NameConfig("delta", trans("export.richTextEditorDeltaDesc")), 
   new NameConfig("readOnly", trans("export.richTextEditorReadOnlyDesc")),
   new NameConfig("hideToolbar", trans("export.richTextEditorHideToolBarDesc")),
   NameConfigHidden,
