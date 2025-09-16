@@ -122,6 +122,8 @@ import {
 import { ModuleComp } from "./comps/moduleComp/moduleComp";
 import { TableComp } from "./comps/tableComp/tableComp";
 import { defaultTableData } from "./comps/tableComp/mockTableComp";
+import { TableLiteComp } from "./comps/tableLiteComp/tableComp";
+import { defaultTableData as defaultTableLiteData } from "./comps/tableLiteComp/mockTableComp";
 import { ContainerComp, defaultContainerData } from "./comps/containerComp/containerComp";
 import { ColumnLayoutComp } from "./comps/columnLayout/columnLayout";
 import { TabbedContainerComp } from "./comps/tabs/tabbedContainerComp";
@@ -487,6 +489,22 @@ export var uiCompMap: Registry = {
     },
     withoutLoading: true,
     defaultDataFn: defaultTableData,
+  },
+
+  tableLite: {
+    name: trans("uiComp.tableLiteCompName"),
+    enName: "Table Lite",
+    description: trans("uiComp.tableLiteCompDesc"),
+    categories: ["dashboards", "projectmanagement"],
+    icon: TableCompIcon,
+    keywords: trans("uiComp.tableLiteCompKeywords"),
+    comp: TableLiteComp,
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
+    withoutLoading: true,
+    defaultDataFn: defaultTableLiteData,
   },
 
   pivotTable: {

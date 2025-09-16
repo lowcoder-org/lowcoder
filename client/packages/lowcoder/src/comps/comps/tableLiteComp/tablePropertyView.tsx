@@ -2,7 +2,7 @@ import {
   ColumnCompType,
   newCustomColumn,
   RawColumnType,
-} from "comps/comps/tableComp/column/tableColumnComp";
+} from "./column/tableColumnComp";
 import { hiddenPropertyView, loadingPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { changeValueAction, deferAction, MultiBaseComp, wrapChildAction } from "lowcoder-core";
@@ -32,7 +32,7 @@ import { TableChildrenType } from "./tableTypes";
 import React, { useMemo, useState, useCallback } from "react";
 import { GreyTextColor } from "constants/style";
 import { alignOptions } from "comps/controls/dropdownControl";
-import { ColumnTypeCompMap } from "comps/comps/tableComp/column/columnTypeComp";
+import { ColumnTypeCompMap } from "./column/columnTypeComp";
 import Segmented from "antd/es/segmented";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
 
@@ -145,10 +145,6 @@ const columnBatchOptions = [
     value: "hide",
   },
   {
-    label: trans("table.editable"),
-    value: "editable",
-  },
-  {
     label: trans("table.autoWidth"),
     value: "autoWidth",
   },
@@ -202,15 +198,9 @@ function ColumnBatchCheckBox<T extends keyof ColumnCompType["children"]>({
 
   const isBatch = Array.isArray(column);
   const columns = isBatch ? column : [column];
-  
+    
   const disabledStatus = useMemo(() => columns.map((c) => {
-    if (childrenKey !== "editable") {
-      return false;
-    }
-    const columnType = c.children.render
-      .getOriginalComp()
-      .children.comp.children.compType.getView();
-    return !ColumnTypeCompMap[columnType].canBeEditable();
+    return false;
   }), [columns, childrenKey]);
 
   const { allChecked, allNotChecked } = useMemo(() => {
@@ -265,7 +255,6 @@ const ColumnBatchView: Record<
   (column: ColumnCompType | Array<ColumnCompType>) => JSX.Element
 > = {
   hide: (column) => <ColumnBatchCheckBox childrenKey="hide" column={column} />,
-  editable: (column) => <ColumnBatchCheckBox childrenKey="editable" column={column} />,
   sortable: (column) => <ColumnBatchCheckBox childrenKey="sortable" column={column} />,
   autoWidth: (column) => (
     <ColumnBatchCheckBox
@@ -528,15 +517,6 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
             {hiddenPropertyView(comp.children)}
             {loadingPropertyView(comp.children)}
             {comp.children.selection.getPropertyView()}
-            {comp.children.editModeClicks.propertyView({
-              label: trans("table.editMode"),
-              radioButton: true,
-            })}
-            {comp.children.searchText.propertyView({
-              label: trans("table.searchText"),
-              tooltip: trans("table.searchTextTooltip"),
-              placeholder: "{{input1.value}}",
-            })}
           </Section>
 
           <Section name={"Summary"}>
@@ -550,11 +530,6 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
             })}
           </Section>
 
-          <Section name={"Insert Rows"}>
-            {comp.children.inlineAddNewRow.propertyView({
-              label: trans("table.inlineAddNewRow")
-            })}
-          </Section>
 
           <Section name={trans("prop.toolbar")}>
             {comp.children.toolbar.getPropertyView()}
@@ -593,7 +568,7 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
             {comp.children.visibleResizables.propertyView({
               label: trans("table.visibleResizables"),
               tooltip: trans("table.visibleResizablesTooltip"),
-            })}
+            })} 
           </Section>
           <Section name={trans("prop.pagination")}>
             {comp.children.pagination.getPropertyView()}
@@ -604,7 +579,6 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
       {["logic", "both"].includes(editorModeStatus) && (
         <>
           <Section name={sectionNames.advanced}>
-            {comp.children.expansion.getPropertyView()}
             {comp.children.dynamicColumn.propertyView({ label: trans("table.dynamicColumn") })}
             {comp.children.dynamicColumn.getView() &&
               comp.children.dynamicColumnConfig.propertyView({
