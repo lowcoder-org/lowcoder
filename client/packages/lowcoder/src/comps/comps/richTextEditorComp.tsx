@@ -171,7 +171,7 @@ const toolbarOptions = [
 ];
 
 const childrenMap = {
-  value: stringExposingStateControl("value"),    
+  value: stringExposingStateControl("value"),     
   delta: stringExposingStateControl("delta"),     
   hideToolbar: BoolControl,
   readOnly: BoolControl,
@@ -195,7 +195,7 @@ interface IProps {
   hideToolbar: boolean;
   readOnly: boolean;
   autoHeight: boolean;
-  onChange: (html: string, deltaJSON: string, text: string) => void;
+  onChange: (html: string, deltaJSON: string, text: string) => void; 
   $style: RichTextEditorStyleType;
   contentScrollBar: boolean;
   tabIndex?: number;
@@ -208,6 +208,13 @@ function RichTextEditor(props: IProps) {
   const [content, setContent] = useState("");
   const wrapperRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<ReactQuill>(null);
+
+   // know exactly when the editor mounts
+   const [editorReady, setEditorReady] = useState(false);
+   const setEditorRef = (node: ReactQuill | null) => {
+     (editorRef as any).current = node as any;
+     setEditorReady(!!node);
+   };
 
   const getQuill = () => (editorRef.current as any)?.getEditor?.();
 
@@ -251,7 +258,7 @@ function RichTextEditor(props: IProps) {
         (editor.scroll.domNode as HTMLElement).tabIndex = props.tabIndex;
       }
     }
-  }, [props.tabIndex, key]);  
+  }, [props.tabIndex, key]); 
 
   const contains = (parent: HTMLElement, descendant: HTMLElement) => {
     try {
@@ -267,11 +274,7 @@ function RichTextEditor(props: IProps) {
 
   useEffect(() => {
     const q = getQuill();
-    
     if (!q) {
-      const v = props.value ?? "";
-      const looksHtml = /<\/?[a-z][\s\S]*>/i.test(v);
-      setContent(looksHtml ? v : `<p class="">${v}</p>`);
       return;
     }
   
@@ -282,12 +285,11 @@ function RichTextEditor(props: IProps) {
       setContent(html);
       return;
     }
-  
     const v = props.value ?? "";
     const looksHtml = /<\/?[a-z][\s\S]*>/i.test(v);
     const html = looksHtml ? v : `<p class="">${v}</p>`;
     setContent(html);
-  }, [props.value]);
+  }, [props.value, editorReady]);
   
 
   const handleClickWrapper = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -316,7 +318,7 @@ function RichTextEditor(props: IProps) {
       <Suspense fallback={<Skeleton />}>
         <ReactQuillEditor
           key={key}
-          ref={editorRef}
+          ref={setEditorRef}
           bounds={`#${id}`}
           modules={{
             toolbar: JSON.parse(props.toolbar),
@@ -339,17 +341,26 @@ function RichTextEditor(props: IProps) {
 }
 
 const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
+  const propsRef = useRef(props);
+  propsRef.current = props;
+
   const debouncedOnChangeRef = useRef(
     debounce((html: string, deltaJSON: string, text: string) => {
-      props.value.onChange(html);        
-      props.delta.onChange(deltaJSON);   
-      props.onEvent("change");
-    }, 1000)
+      propsRef.current.value.onChange(html);        
+      propsRef.current.delta.onChange(deltaJSON);   
+      propsRef.current.onEvent("change");
+    }, 500)
   );
 
-    const handleChange = (html: string, deltaJSON: string, text: string) => {
-      debouncedOnChangeRef.current?.(html, deltaJSON, text);
+  useEffect(() => {
+    return () => {
+      debouncedOnChangeRef.current?.cancel();
     };
+  }, []);
+
+  const handleChange = (html: string, deltaJSON: string, text: string) => {
+    debouncedOnChangeRef.current?.(html, deltaJSON, text);
+  };
 
   return (
     <RichTextEditor
