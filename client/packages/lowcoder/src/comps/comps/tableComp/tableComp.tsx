@@ -26,6 +26,7 @@ import {
   depsConfig,
   DepsConfig,
   NameConfig,
+  NameConfigHidden,
   withExposingConfigs,
 } from "comps/generators/withExposing";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
@@ -1016,4 +1017,5 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
     },
   }),
   new NameConfig("data", trans("table.dataDesc")),
+  NameConfigHidden,
 ]);
