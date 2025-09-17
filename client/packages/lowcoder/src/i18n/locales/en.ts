@@ -1933,7 +1933,7 @@ export const en = {
     "dragArea": "Drag Area",
     "uploadMode": "Upload Mode",
     "dragAreaText": "Click or drag file to this area to upload",
-    "dragAreaHint": "Support for a single or bulk upload. Strictly prohibited from uploading company data or other band files.",
+    "dragAreaHint": "Support for a single or bulk upload. Strictly prohibited from uploading company data or other banned files.",
     "dragHintText": "Hint Text",
   },
   "date": {
