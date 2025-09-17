@@ -1,13 +1,14 @@
 import React, { useContext, useMemo, useState } from "react";
 import styled, { css } from "styled-components";
 import { TableCellContext, TableRowContext } from "./tableContext";
-import { TableColumnStyleType, TableColumnLinkStyleType, ThemeDetail } from "comps/controls/styleControlConstants";
+import { TableColumnStyleType, TableColumnLinkStyleType, ThemeDetail, TableRowStyleType } from "comps/controls/styleControlConstants";
 import { RowColorViewType, RowHeightViewType } from "./tableTypes";
 import { CellColorViewType } from "./column/tableColumnComp";
 import { RecordType, OB_ROW_ORI_INDEX } from "./tableUtils";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import Skeleton from "antd/es/skeleton";
 import { SkeletonButtonProps } from "antd/es/skeleton/Button";
+import { isTransparentColor } from "lowcoder-design";
 
 interface TableTdProps {
   $background: string;
@@ -138,6 +139,7 @@ export const TableCellView = React.forwardRef<HTMLTableCellElement, {
   children: any;
   columnsStyle: TableColumnStyleType;
   columnStyle: TableColumnStyleType;
+  rowStyle: TableRowStyleType;
   linkStyle: TableColumnLinkStyleType;
   tableSize?: string;
   autoHeight?: boolean;
@@ -154,6 +156,7 @@ export const TableCellView = React.forwardRef<HTMLTableCellElement, {
     children,
     columnsStyle,
     columnStyle,
+    rowStyle,
     linkStyle,
     tableSize,
     autoHeight,
@@ -209,7 +212,7 @@ export const TableCellView = React.forwardRef<HTMLTableCellElement, {
   }
 
   let { background } = style!;
-  if (rowContext.hover) {
+  if (rowContext.hover && !isTransparentColor(rowStyle.hoverRowBackground)) {
     background = 'transparent';
   }
 

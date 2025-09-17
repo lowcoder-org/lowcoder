@@ -75,6 +75,26 @@ const isValidColor = (str?: string) => {
   return colord(str).isValid();
 };
 
+const isTransparentColor = (color?: string) => {
+  if (!color) return true;
+  
+  // Check for common transparent values
+  if (color === 'transparent' || color === '') return true;
+  
+  // Check if it's a valid color with alpha = 0
+  try {
+    const colorObj = colord(color);
+    if (colorObj.isValid()) {
+      return colorObj.alpha() === 0;
+    }
+  } catch (e) {
+    // If colord can't parse it, consider it transparent
+    return true;
+  }
+  
+  return false;
+};
+
 export const isDarkColor = (colorStr: string) => {
   return brightnessCompare(colorStr, 0.75);
 };
@@ -122,4 +142,4 @@ export const darkenColor = (colorStr: string, intensity: number) => {
   return color.darken(intensity).toHex().toUpperCase();
 };
 
-export { toRGBA, toHex, alphaOfRgba, isValidColor, isValidGradient };
+export { toRGBA, toHex, alphaOfRgba, isValidColor, isValidGradient, isTransparentColor };

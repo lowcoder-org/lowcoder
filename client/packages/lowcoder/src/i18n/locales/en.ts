@@ -1133,7 +1133,7 @@ export const en = {
     "tableCompDesc": "A rich table component for displaying data in a structured table format, with options for sorting and filtering, tree Data display and extensible Rows.",
     "tableCompKeywords": "table, data, sorting, filtering",
 
-    "tableLiteCompName": "Table Lite",
+    "tableLiteCompName": "Table (Lite)",
     "tableLiteCompDesc": "A lightweight, high-performance table component optimized for displaying many rows fast, with essential sorting and filtering capabilities.",
     "tableLiteCompKeywords": "table, data, sorting, filtering, performance, lite",
 

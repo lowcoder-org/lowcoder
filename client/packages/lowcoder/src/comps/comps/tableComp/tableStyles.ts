@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import { isValidColor, darkenColor } from "lowcoder-design";
+import { isValidColor, darkenColor, isTransparentColor } from "lowcoder-design";
 import { PrimaryColor } from "constants/style";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import { TableStyleType, TableRowStyleType, TableHeaderStyleType, TableToolbarStyleType } from "comps/controls/styleControlConstants";
@@ -17,7 +17,7 @@ export const getStyle = (
 ) => {
   const background = genLinerGradient(style.background);
   const selectedRowBackground = genLinerGradient(rowStyle.selectedRowBackground);
-  const hoverRowBackground = genLinerGradient(rowStyle.hoverRowBackground);
+  const hoverRowBackground = isTransparentColor(rowStyle.hoverRowBackground) ? null : genLinerGradient(rowStyle.hoverRowBackground);
   const alternateBackground = genLinerGradient(rowStyle.alternateBackground);
 
   return css`
@@ -35,38 +35,38 @@ export const getStyle = (
 
       // selected row
       > tr:nth-of-type(2n + 1).ant-table-row-selected {
-        background: ${selectedRowBackground}, ${rowStyle.background} !important;
+        background: ${selectedRowBackground || rowStyle.background} !important;
         > td.ant-table-cell {
           background: transparent !important;
         }
 
         // > td.ant-table-cell-row-hover,
         &:hover {
-          background: ${hoverRowBackground}, ${selectedRowBackground}, ${rowStyle.background} !important;
+          background: ${hoverRowBackground || selectedRowBackground || rowStyle.background} !important;
         }
       }
 
       > tr:nth-of-type(2n).ant-table-row-selected {
-        background: ${selectedRowBackground}, ${alternateBackground} !important;
+        background: ${selectedRowBackground || alternateBackground} !important;
         > td.ant-table-cell {
           background: transparent !important;
         }
 
         // > td.ant-table-cell-row-hover,
         &:hover {
-          background: ${hoverRowBackground}, ${selectedRowBackground}, ${alternateBackground} !important;
+          background: ${hoverRowBackground || selectedRowBackground || alternateBackground} !important;
         }
       }
 
       // hover row
       > tr:nth-of-type(2n + 1):hover {
-        background: ${hoverRowBackground}, ${rowStyle.background} !important;
+        background: ${hoverRowBackground || rowStyle.background} !important;
         > td.ant-table-cell-row-hover {
           background: transparent;
         }
       }
       > tr:nth-of-type(2n):hover {
-        background: ${hoverRowBackground}, ${alternateBackground} !important;
+        background: ${hoverRowBackground || alternateBackground} !important;
         > td.ant-table-cell-row-hover {
           background: transparent;
         }

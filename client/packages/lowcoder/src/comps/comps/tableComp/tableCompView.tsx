@@ -11,23 +11,12 @@ import {
   RecordType,
   supportChildrenTree,
 } from "comps/comps/tableComp/tableUtils";
-import {
-  handleToHoverRow,
-  handleToSelectedRow,
-  TableColumnLinkStyleType,
-  TableColumnStyleType,
-  TableHeaderStyleType,
-  TableRowStyleType,
-  TableStyleType,
-  ThemeDetail,
-  TableToolbarStyleType,
-} from "comps/controls/styleControlConstants";
 import { CompNameContext, EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { trans } from "i18n";
 import _, { isEqual } from "lodash";
 import { ScrollBar } from "lowcoder-design";
-import React, { Children, useCallback, useContext, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useMergeCompStyles, useUserViewMode } from "util/hooks";
 import { TableImplComp } from "./tableComp";
 import { useResizeDetector } from "react-resize-detector";
@@ -38,7 +27,7 @@ import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 import { TableSummary } from "./tableSummaryComp";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 import { useUpdateEffect } from "react-use";
-import { ResizeableTable, CustomTableProps } from "./ResizeableTable";
+import { ResizeableTable } from "./ResizeableTable";
 import { BackgroundWrapper, TableWrapper } from "./tableStyles";
 import {
   useTableMode,
@@ -48,16 +37,6 @@ import {
 } from './hooks/useTableConfiguration';
 
 export const EMPTY_ROW_KEY = 'empty_row';
-
-
-
-
-
-
-
-
-
-
 
 const createNewEmptyRow = (
   rowIndex: number,
@@ -278,9 +257,6 @@ export const TableCompView = React.memo((props: {
     totalColumnsWidth
   );
   
-
-
-
   useMergeCompStyles(
     childrenProps as Record<string, any>,
     comp.dispatch
@@ -427,6 +403,7 @@ export const TableCompView = React.memo((props: {
               showHeader={!compChildren.hideHeader.getView()}
               columns={antdColumns}
               columnsStyle={columnsStyle}
+              rowStyle={rowStyle}
               viewModeResizable={compChildren.viewModeResizable.getView()}
               visibleResizables={compChildren.visibleResizables.getView()}
               dataSource={pageDataInfo.data.concat(Object.values(emptyRowsMap))}
