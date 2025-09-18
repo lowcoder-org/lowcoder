@@ -57,7 +57,7 @@
     "express": "^4.21.0",
     "express-async-errors": "^3.1.1",
     "firebase-admin": "^12.6.0",
-    "formdata-node": "4",
+    "formdata-node": "6",
     "graphql": "^16.9.0",
     "graphql-request": "^6.1.0",
     "jsonpath": "^1.1.1",
