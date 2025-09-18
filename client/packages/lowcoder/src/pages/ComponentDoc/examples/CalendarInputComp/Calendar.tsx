@@ -296,54 +296,6 @@ export default function CalendarExample() {
           compFactory={ChartCompWithDefault}
         />
       </ExampleGroup>
-
-      <ExampleGroup
-        title="Animation Style"
-        description="The Following Examples Show different Animation Styles on the Calendar Component."
-      >
-        <Example
-          title="Bounce Animation"
-          width={700}
-          height={600}
-          config={{
-            animationStyle: {
-              "animation": "bounce",
-              "animationDelay": "1s",
-              "animationDuration": "3s",
-              "animationIterationCount": "infinite"
-            },
-          }}
-          compFactory={ChartCompWithDefault}
-        />
-        <Example
-          title="Swing Animation"
-          width={700}
-          height={600}
-          config={{
-            animationStyle: {
-              "animation": "swing",
-              "animationDelay": "1s",
-              "animationDuration": "3s",
-              "animationIterationCount": "infinite"
-            },
-          }}
-          compFactory={ChartCompWithDefault}
-        />
-        <Example
-          title="Tada Animation"
-          width={700}
-          height={600}
-          config={{
-            animationStyle: {
-              "animation": "tada",
-              "animationDelay": "1s",
-              "animationDuration": "3s",
-              "animationIterationCount": "infinite"
-            },
-          }}
-          compFactory={ChartCompWithDefault}
-        />
-      </ExampleGroup>
     </>
   );
 }
