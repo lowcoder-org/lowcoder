@@ -249,11 +249,10 @@ function actionSelectorControl(needContext: boolean) {
         const condition = this.children.condition.getView();
         const ignored = getReduceContext().disableUpdateState || (isConditionSet && !condition);
         const ignorePromise = Promise.resolve();
-        const realNeedContext = needContext || getReduceContext().inEventContext;
         const actionPromise = () => {
-          // return realNeedContext ? action.value.func() : this.children.comp.getView()();
-          // commenting because it's using old context for event handlers inside list/grid
-          return this.children.comp.getView()();
+          return action.value.context && action.value.func
+            ? action.value.func()
+            : this.children.comp.getView()();
         };
         handlePromiseAfterResult(action, ignored ? ignorePromise : actionPromise());
         return this;
