@@ -704,7 +704,76 @@ TableTmpComp = withMethodExposing(TableTmpComp, [
       comp.children.selection.children.selectedRowKey.dispatchChangeValueAction(allKeys[0] || "0");
       comp.children.selection.children.selectedRowKeys.dispatchChangeValueAction(allKeys);
     },
-  },  
+  },
+  {
+    method: {
+      name: "selectRowsByIndex",
+      description: "Select rows by index",
+      params: [
+        { name: "rowIndexes", type: "arrayNumberString"},
+      ]
+    },
+    execute: (comp, values) => {
+      const rowIndexes = values[0];
+      if (!isArray(rowIndexes)) {
+        return Promise.reject("selectRowsByIndex function only accepts array of string or number i.e. ['1', '2', '3'] or [1, 2, 3]")
+      }
+      const displayData = comp.filterData ?? [];
+      const selectedKeys: string[] = rowIndexes
+        .map((index) => {
+          const numIndex = Number(index);
+          if (isNaN(numIndex) || numIndex < 0 || numIndex >= displayData.length) {
+            return null;
+          }
+          return displayData[numIndex][OB_ROW_ORI_INDEX];
+        })
+        .filter((key): key is string => key !== null);
+      
+      comp.children.selection.children.selectedRowKey.dispatchChangeValueAction(selectedKeys[0] || "0");
+      comp.children.selection.children.selectedRowKeys.dispatchChangeValueAction(selectedKeys);
+    },
+  },
+  {
+    method: {
+      name: "selectRowsByIds",
+      description: "Select rows by ids",
+      params: [
+        { name: "rowIds", type: "arrayNumberString"},
+      ]
+    },
+    execute: (comp, values) => {
+      const rowIds = values[0];
+      if (!isArray(rowIds)) {
+        return Promise.reject("selectRowsByIds function only accepts array of string or number i.e. ['1', '2', '3'] or [1, 2, 3]")
+      }
+      const displayData = comp.filterData ?? [];
+      
+      // Common ID field names to check
+      const idFields = ['id', 'ID', 'Id', 'key', 'Key', 'KEY'];
+      
+      const selectedKeys: string[] = rowIds
+        .map((id) => {
+          // First try to find by common ID fields
+          for (const field of idFields) {
+            const foundRow = displayData.find((row) => {
+              const fieldValue = row[field];
+              return fieldValue !== undefined && String(fieldValue) === String(id);
+            });
+            if (foundRow) {
+              return foundRow[OB_ROW_ORI_INDEX];
+            }
+          }
+          
+          // If no ID field found, fall back to comparing with OB_ROW_ORI_INDEX
+          const foundRow = displayData.find((row) => row[OB_ROW_ORI_INDEX] === String(id));
+          return foundRow ? foundRow[OB_ROW_ORI_INDEX] : null;
+        })
+        .filter((key): key is string => key !== null);
+      
+      comp.children.selection.children.selectedRowKey.dispatchChangeValueAction(selectedKeys[0] || "0");
+      comp.children.selection.children.selectedRowKeys.dispatchChangeValueAction(selectedKeys);
+    },
+  },
   {
     method: {
       name: "cancelChanges",
