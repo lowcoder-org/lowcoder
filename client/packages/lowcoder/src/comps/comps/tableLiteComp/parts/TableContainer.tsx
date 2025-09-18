@@ -2,7 +2,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import SimpleBar from 'simplebar-react';
-import 'simplebar-react/dist/simplebar.min.css';
+// import 'simplebar-react/dist/simplebar.min.css';
 
 const MainContainer = styled.div<{
   $mode: 'AUTO' | 'FIXED';
