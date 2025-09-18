@@ -399,12 +399,20 @@ export const ColumnTagsComp = (function () {
       value = typeof value === "string" && value.split(",")[1] ? value.split(",") : value;
       const tags = _.isArray(value) ? value : (value.length ? [value] : []);
       
-      const handleTagClick = (tagText: string) => {
+      const handleTagClick = (e: React.MouseEvent, tagText: string) => {
+        e.stopPropagation();
         const foundOption = tagOptions.find(option => option.label === tagText);
         if (foundOption && foundOption.onEvent) {
           foundOption.onEvent("click");
         }
         // Also trigger the main component's event handler
+        if (props.onEvent) {
+          props.onEvent("click");
+        }
+      };
+
+      const handleTagWrapperClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
         if (props.onEvent) {
           props.onEvent("click");
         }
@@ -418,20 +426,27 @@ export const ColumnTagsComp = (function () {
         const tagStyle = getTagStyle(tagText, tagOptions);
         
         return (
-          <div key={`${tag.split(' ').join('_')}-${index}`}>
+          <React.Fragment key={`${tag.split(' ').join('_')}-${index}`}>
             <TagStyled 
               color={tagColor} 
               icon={tagIcon} 
               key={index}
               style={tagStyle}
-              onClick={() => handleTagClick(tagText)}
+              onClick={(e) => handleTagClick(e, tagText)}
             >
               {tagText}
             </TagStyled>
-          </div>
+          </React.Fragment>
         );
       });
-      return view;
+      return (
+        <div
+          style={{ width: '100%', height: '100%', minHeight: '22px'}}
+          onClick={handleTagWrapperClick}
+        >
+          {view}
+        </div>
+      );
     },
     (nodeValue) => {
       const text = nodeValue.text.value;
