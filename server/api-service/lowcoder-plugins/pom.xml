@@ -22,6 +22,7 @@
 	</repositories>
 
 	<properties>
+		<java.version>${jdk.version}</java.version>
 		<testcontainers.version>1.21.0</testcontainers.version>
 	</properties>
 

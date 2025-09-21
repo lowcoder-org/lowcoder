@@ -12,7 +12,8 @@
 
 	<properties>
 		<revision>2.7.4</revision>
-		<java.version>21</java.version>
+		<jdk.version>24</jdk.version>
+		<java.version>${jdk.version}</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<javadoc.disabled>true</javadoc.disabled>

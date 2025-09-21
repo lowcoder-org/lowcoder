@@ -1,7 +1,7 @@
 ##
 ## Build Lowcoder api-service application
 ##
-FROM maven:3-eclipse-temurin-21 AS build-api-service
+FROM maven:3-eclipse-temurin-24 AS build-api-service
 
 # Build lowcoder-api
 COPY ./server/api-service /lowcoder-server
@@ -26,7 +26,7 @@ RUN chmod +x /lowcoder/api-service/*.sh
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-api-service --target lowcoder-ce-api-service .
 ##
-FROM eclipse-temurin:21-jammy AS lowcoder-ce-api-service
+FROM eclipse-temurin:24-noble AS lowcoder-ce-api-service
 LABEL maintainer="lowcoder"
 
 RUN apt-get update && apt-get install -y --no-install-recommends gosu \
@@ -51,14 +51,12 @@ CMD [ "/bin/bash" , "/lowcoder/api-service/entrypoint.sh" ]
 ##
 ## Build lowcoder node service
 ##
-FROM ubuntu:jammy AS build-node-service
+FROM ubuntu:noble AS build-node-service
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates build-essential gnupg
 
 # Add nodejs repo and keys
-RUN mkdir -p /etc/apt/keyrings \
-  && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_23.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
 
 # Download nodejs and install yarn
 RUN apt-get update \
@@ -82,15 +80,13 @@ RUN chmod +x /lowcoder/node-service/*.sh
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-node-service --target lowcoder-ce-node-service .
 ##
-FROM ubuntu:jammy AS lowcoder-ce-node-service
+FROM ubuntu:noble AS lowcoder-ce-node-service
 LABEL maintainer="lowcoder"
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg
 
 # Add nodejs repo and keys
-RUN mkdir -p /etc/apt/keyrings \
-  && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_23.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
 
 # Download nodejs and install yarn
 RUN apt-get update \
@@ -147,7 +143,7 @@ RUN yarn build
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-frontend --target lowcoder-ce-frontend .
 ##
-FROM nginx:1.27.4 AS lowcoder-ce-frontend
+FROM nginx:1.29.1 AS lowcoder-ce-frontend
 LABEL maintainer="lowcoder"
 
 # Change default nginx user into lowcoder user and remove default nginx config
@@ -188,7 +184,7 @@ EXPOSE 3443
 ##
 ## Build Lowcoder all-in-one image
 ##
-FROM ubuntu:jammy
+FROM ubuntu:noble
 LABEL maintainer="lowcoder"
 
 # Install essential tools
@@ -197,26 +193,30 @@ RUN apt-get update \
   && rm -rf /var/cache/apt/lists /var/lib/apt/lists/* /var/log/dpkg.log \
   && apt-get clean
 
+# Install nodejs apt repo
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
+
 # Add required apt repositories and signing keys
-RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource-keyring.gpg \
-  && echo "deb [signed-by=/usr/share/keyrings/nodesource-keyring.gpg] https://deb.nodesource.com/node_23.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
+RUN mkdir -p /usr/share/keyrings \
   && curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg \
   && echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb `lsb_release -cs` main" | tee /etc/apt/sources.list.d/redis.list \
-  && curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-archive-keyring.gpg \
-  && echo "deb [signed-by=/usr/share/keyrings/mongodb-archive-keyring.gpg] https://repo.mongodb.org/apt/ubuntu `lsb_release -cs`/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list \
+  && curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-archive-keyring.gpg \
+  && echo "deb [signed-by=/usr/share/keyrings/mongodb-archive-keyring.gpg] https://repo.mongodb.org/apt/ubuntu `lsb_release -cs`/mongodb-org/8.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-8.0.list \
   && curl -fsSL https://nginx.org/keys/nginx_signing.key | gpg --dearmor -o /usr/share/keyrings/nginx-archive-keyring.gpg \
-  && echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] http://nginx.org/packages/mainline/ubuntu `lsb_release -cs` nginx" | tee /etc/apt/sources.list.d/nginx.list
+  && echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] http://nginx.org/packages/mainline/ubuntu `lsb_release -cs` nginx" | tee /etc/apt/sources.list.d/nginx.list \
+  && curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor -o /usr/share/keyrings/adoptium-keyring.gpg \
+  && echo "deb [signed-by=/usr/share/keyrings/adoptium-keyring.gpg] https://packages.adoptium.net/artifactory/deb `lsb_release -cs` main" | tee /etc/apt/sources.list.d/adoptium.list
 
 
 # Install required packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends -y \
-      nginx=1.27.4-1~jammy \
+      nginx=1.29.1-1~noble \
       mongodb-org \
       redis \
       supervisor \
       gosu \
       nodejs \
-      openjdk-21-jdk-headless \
+      temurin-24-jdk \
   && npm install -g yarn \
   && rm -rf /var/cache/apt/lists /var/lib/apt/lists/* /var/log/dpkg.log \
   && apt-get clean \
@@ -224,8 +224,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-ins
 
 # Use configuration setup from official nginx image
 RUN rm -rf /etc/nginx/nginx.conf
-COPY --from=nginx:1.27.4 /docker-entrypoint.d /docker-entrypoint.d
-COPY --from=nginx:1.27.4 /docker-entrypoint.sh /docker-entrypoint.sh
+COPY --from=nginx:1.29.1 /docker-entrypoint.d /docker-entrypoint.d
+COPY --from=nginx:1.29.1 /docker-entrypoint.sh /docker-entrypoint.sh
 
 # Add lowcoder user
 RUN usermod --login lowcoder --uid 9001 nginx \
