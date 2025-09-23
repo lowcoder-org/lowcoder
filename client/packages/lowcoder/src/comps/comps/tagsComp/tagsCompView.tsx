@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import React, { useContext, useMemo, useRef, useState } from "react";
-import { Tag, Input, Button, Space, Tooltip, Typography, App } from "antd";
+import React, { useContext, useState, useRef, useEffect } from "react";
+import { Tag, App } from "antd";
 import { EditorContext } from "comps/editorState";
 import { PresetStatusColorTypes } from "antd/es/_util/colors";
 import { hashToNum } from "util/stringUtils";
@@ -10,18 +10,20 @@ import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import { ButtonEventHandlerControl } from "@lowcoder-ee/comps/controls/eventHandlerControl";
 import { InputLikeStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { BoolCodeControl } from "@lowcoder-ee/comps/controls/codeControl";
+import { BoolControl } from "comps/controls/boolControl";
 import { UICompBuilder } from "@lowcoder-ee/comps/generators/uiCompBuilder";
 import { Section, sectionNames } from "lowcoder-design";
 import { NameConfig } from "@lowcoder-ee/comps/generators/withExposing";
 import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "@lowcoder-ee/comps/utils/propertyUtils";
-import { withExposingConfigs } from "@lowcoder-ee/comps/generators/withExposing";
-import { PlusOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
-
-const { Text } = Typography;
+import { withExposingConfigs, depsConfig } from "@lowcoder-ee/comps/generators/withExposing";
+import { stateComp } from "@lowcoder-ee/comps/generators";
+import { changeChildAction } from "lowcoder-core";
+import { JSONValue } from "util/jsonTypes";
+import { JSONObject } from "util/jsonTypes";
 
 type TagOption = {
   label: string;
-  colorType?: "default" | "preset" | "custom";
+  colorType?: string; // "default" | "preset" | "custom" from control
   presetColor?: any;
   color?: string;
   textColor?: string;
@@ -32,7 +34,7 @@ type TagOption = {
   margin?: string;
   padding?: string;
   width?: string;
-  icon?: React.ReactNode | string;
+  icon?: React.ReactNode | string; // ignored at runtime to keep tags clean
 };
 
 const colors = PresetStatusColorTypes;
@@ -93,9 +95,17 @@ const getTagStyle = (tagText: string, tagOptions: TagOption[], baseStyle: any = 
 
 /** ---------- Component ---------- */
 const multiTags = (function () {
-  const StyledTag = styled(Tag)<{ $style: any; $customStyle: any }>`
+  const StyledWrap = styled.div`
     display: flex;
-    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px;
+    outline: none;
+    cursor: text; /* indicates you can type here */
+  `;
+
+  const StyledTag = styled(Tag)<{ $style: any; $customStyle: any }>`
+    display: inline-flex;
     align-items: center;
     min-width: fit-content;
     width: ${(props) => props.$customStyle?.width || "auto"};
@@ -108,106 +118,87 @@ const multiTags = (function () {
     margin: ${(props) => props.$customStyle?.margin || props.$style?.margin};
     font-size: ${(props) => props.$style?.textSize || "12px"};
     font-weight: ${(props) => props.$style?.fontWeight};
-    cursor: pointer;
     user-select: none;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   `;
 
-  const StyledTagWrap = styled.div`
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 6px;
+  const DraftTag = styled(StyledTag)`
+    border-style: dashed !important;
+    opacity: 0.9;
   `;
 
-  const TopBar = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 6px 0;
+  const EditableSpan = styled.span`
+    outline: none;
+    white-space: nowrap;
   `;
 
   const childrenMap = {
     options: TagsCompOptionsControl, // initial tags (PropertyView)
     style: styleControl(InputLikeStyle, "style"),
     onEvent: ButtonEventHandlerControl,
-    allowEdit: BoolCodeControl, // enable runtime CRUD controls
-    // extra toggles to fine-tune runtime behavior
-    preventDuplicates: BoolCodeControl,
-    allowEmptyEdits: BoolCodeControl,
-    // local constraints
-    maxTags: BoolCodeControl, // you can wire a numeric control if available in your control set; BoolCodeControl is used to keep code simple here (treat truthy as number below)
+    editable: BoolControl,               // editable switch field
+    allowEdit: BoolCodeControl,          // enable runtime CRUD
+    preventDuplicates: BoolCodeControl,  // runtime de-dupe
+    allowEmptyEdits: BoolCodeControl,    // allow blank labels on edit
+    maxTags: BoolCodeControl,            // truthy => 50 (or provide number if your control supports)
+    selectedTagIndex: stateComp<number>(-1), // tracks which tag was clicked (-1 = none)
+    runtimeOptions: stateComp<JSONValue>([]), // runtime tags array for CRUD and saving
   };
 
-  // Helper to normalize an optional "maxTags" BoolCodeControl into a number (false => unlimited)
   const toMax = (val: any): number | undefined => {
     if (val === false || val === undefined || val === null) return undefined;
     if (typeof val === "number" && !Number.isNaN(val) && val > 0) return val;
-    // if BoolCodeControl returns true, you can set a sensible default cap
     if (val === true) return 50;
     return undefined;
   };
 
-  return new UICompBuilder(childrenMap, (props) => {
-    const { message } = App.useApp?.() || { message: { success: () => {}, error: () => {}, warning: () => {} } as any };
-
-    // This hook returns a callable we can also use to fire *custom* events with payloads.
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    const { message } = App.useApp?.() || { message: { warning: () => {} } as any };
     const handleClickEvent = useCompClickEventHandler({ onEvent: props.onEvent });
 
-    // ---- Local Runtime State ----
-    const [runtimeOptions, setRuntimeOptions] = useState<TagOption[]>(() => [...props.options]);
-    const [dirty, setDirty] = useState(false);
-
-    // inline editing state
+    // State
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
-    const [editingValue, setEditingValue] = useState<string>("");
-
-    // adding state
-    const [isAdding, setIsAdding] = useState(false);
-    const [addingValue, setAddingValue] = useState("");
+    const [draft, setDraft] = useState<string>(""); // typing buffer for creating a new tag
+    const containerRef = useRef<HTMLDivElement>(null);
+    const editableRef = useRef<HTMLSpanElement>(null);
+    const initRef = useRef<boolean>(false);
 
     const preventDuplicates = !!props.preventDuplicates;
     const allowEmptyEdits = !!props.allowEmptyEdits;
     const maxTags = toMax(props.maxTags);
+    // Seed runtimeOptions from design-time options once
+    const toJsonSafe = (opts: TagOption[]) => opts.map(({ icon, ...rest }) => ({ ...rest }));
+    useEffect(() => {
+      if (!initRef.current) {
+        dispatch(changeChildAction("runtimeOptions", toJsonSafe(props.options), false));
+        initRef.current = true;
+      }
+    }, [dispatch, props.options]);
 
+    const displayOptions = (props as any).runtimeOptions?.length
+      ? ((props as any).runtimeOptions as TagOption[])
+      : props.options;
 
-    // what we display: if allowEdit => runtimeOptions, else static props.options
-    const displayOptions = props.allowEdit ? runtimeOptions : props.options;
-
-    // ---------- Event firing helper (so platform users can persist if they want) ----------
-    // We’ll try to fire both a specific event (add/edit/delete) and a generic "change".
+    // Events helper
     const fireEvent = (type: "add" | "edit" | "delete" | "change" | "click", payload: any) => {
-      try {
-        // specific event
-        if (props.onEvent) {
-          (props.onEvent as any)(type, payload);
-        }
-      } catch {}
-      try {
-        // generic change event (except when it's a click)
-        if (type !== "click" && props.onEvent) {
-          (props.onEvent as any)("change", { value: payload?.value, meta: payload });
-        }
-      } catch {}
+      try { if (props.onEvent) (props.onEvent as any)(type, payload); } catch {}
+      try { if (type !== "click" && props.onEvent) (props.onEvent as any)("change", { value: payload?.value, meta: payload }); } catch {}
     };
 
-    // ---------- Validation ----------
+    // Utils
     const normalize = (s: string) => s.trim();
     const exists = (label: string, omitIndex?: number) => {
       const L = normalize(label);
-      return runtimeOptions.some((t, i) => (omitIndex !== undefined ? i !== omitIndex : true) && normalize(t.label) === L);
+      return displayOptions.some((t, i) => (omitIndex !== undefined ? i !== omitIndex : true) && normalize(t.label) === L);
     };
 
-    // ---------- CRUD Handlers ----------
+    // CRUD
     const addTag = (raw: string) => {
       const label = normalize(raw);
-      if (!label) {
-        message?.warning?.("Please enter a tag name.");
-        return;
-      }
-      if (maxTags && runtimeOptions.length >= maxTags) {
+      if (!label) return;
+      if (maxTags && displayOptions.length >= maxTags) {
         message?.warning?.(`Maximum ${maxTags} tags allowed.`);
         return;
       }
@@ -218,7 +209,6 @@ const multiTags = (function () {
       const newTag: TagOption = {
         label,
         colorType: "default",
-        icon: "/icon:solid/tag",
         presetColor: "blue",
         color: "#1890ff",
         textColor: "#ffffff",
@@ -230,174 +220,163 @@ const multiTags = (function () {
         padding: "",
         width: "",
       };
-      const next = [...runtimeOptions, newTag];
-      setRuntimeOptions(next);
-      setAddingValue("");
-      setIsAdding(false);
-      setDirty(true);
+      const next = [...displayOptions, newTag];
+      dispatch(changeChildAction("runtimeOptions", toJsonSafe(next), false));
+      setDraft("");
       fireEvent("add", { label, value: next });
     };
 
-    const startEdit = (index: number, current: string) => {
+    const startEdit = (index: number) => {
       setEditingIndex(index);
-      setEditingValue(current);
+      // set content when span mounts via effect-less ref trick below
+      // we'll fill it in render via default textContent
+      requestAnimationFrame(() => {
+        editableRef.current?.focus();
+        // place caret at end
+        const range = document.createRange();
+        const node = editableRef.current;
+        if (node && node.firstChild) {
+          range.setStart(node.firstChild, node.firstChild.textContent?.length || 0);
+          range.collapse(true);
+          const sel = window.getSelection();
+          sel?.removeAllRanges();
+          sel?.addRange(range);
+        }
+      });
     };
 
-    const confirmEdit = () => {
-      if (editingIndex === null) return;
-      const val = normalize(editingValue);
+    const confirmEdit = (index: number) => {
+      const raw = editableRef.current?.textContent ?? "";
+      const val = normalize(raw);
       if (!val && !allowEmptyEdits) {
-        // cancel instead of clearing to empty
-        setEditingIndex(null);
-        setEditingValue("");
+        cancelEdit();
         return;
       }
-      if (preventDuplicates && exists(val, editingIndex)) {
+      if (preventDuplicates && exists(val, index)) {
         message?.warning?.("Duplicate tag.");
         return;
       }
-      const prev = runtimeOptions[editingIndex]?.label ?? "";
-      const next = [...runtimeOptions];
-      next[editingIndex] = { ...next[editingIndex], label: val };
-      setRuntimeOptions(next);
+      const prev = displayOptions[index]?.label ?? "";
+      const next = displayOptions.map((t, i) => (i === index ? { ...t, label: val } : t));
+      dispatch(changeChildAction("runtimeOptions", toJsonSafe(next), false));
       setEditingIndex(null);
-      setEditingValue("");
-      setDirty(true);
-      fireEvent("edit", { from: prev, to: val, index: editingIndex, value: next });
+      fireEvent("edit", { from: prev, to: val, index, value: next });
     };
 
     const cancelEdit = () => {
       setEditingIndex(null);
-      setEditingValue("");
     };
 
     const deleteTag = (index: number) => {
-      const removed = runtimeOptions[index]?.label;
-      const next = runtimeOptions.filter((_, i) => i !== index);
-      setRuntimeOptions(next);
-      setDirty(true);
+      const removed = displayOptions[index]?.label;
+      const next = displayOptions.filter((_, i) => i !== index);
+      dispatch(changeChildAction("runtimeOptions", toJsonSafe(next), false));
       fireEvent("delete", { removed, index, value: next });
     };
 
+    // Container keyboard handling for *adding* without inputs
+    const onContainerKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
+      if (!props.allowEdit) return;
 
+      const { key, ctrlKey, metaKey, altKey } = e;
 
-    // When users click a tag (not the edit/delete button), still bubble a "click" event with payload
+      // Commit draft
+      if (key === "Enter") {
+        if (draft) {
+          e.preventDefault();
+          addTag(draft);
+        }
+        return;
+      }
+
+      // Cancel draft
+      if (key === "Escape") {
+        if (draft) {
+          e.preventDefault();
+          setDraft("");
+        }
+        return;
+      }
+
+      // Handle typing into draft (ignore modifiers)
+      if (!ctrlKey && !metaKey && !altKey) {
+        if (key.length === 1) {
+          setDraft((d) => d + key);
+          e.preventDefault();
+        } else if (key === "Backspace") {
+          if (draft) {
+            setDraft((d) => d.slice(0, -1));
+            e.preventDefault();
+          }
+        } else if (key === "Spacebar" || key === " ") {
+          setDraft((d) => d + " ");
+          e.preventDefault();
+        }
+      }
+    };
+
+    // Tag click passthrough
     const onTagClick = (tag: TagOption, idx: number) => {
+      // Update selected tag index state
+      dispatch(changeChildAction("selectedTagIndex", idx, false));
+      
+      // Fire events
       fireEvent("click", { tag, index: idx, value: displayOptions });
-      // also preserve your previous click wiring (if someone configured onClick in property view)
-      handleClickEvent?.({ tag, index: idx, value: displayOptions });
+      handleClickEvent?.();
     };
 
     return (
-      <>
-        {props.allowEdit && (
-          <TopBar>
-            {!isAdding ? (
-              <Space size={6}>
-                <Tooltip title="Add new tag">
-                  <Button
-                    type="dashed"
-                    size="small"
-                    icon={<PlusOutlined />}
-                    onClick={() => setIsAdding(true)}
-                    style={{ padding: "2px", minWidth: "auto" }}
-                  >
-                    Add Tag
-                  </Button>
-                </Tooltip>
-              </Space>
-            ) : (
-              <Space size={6}>
-                <Input
-                  size="small"
-                  placeholder="New tag"
-                  value={addingValue}
-                  onChange={(e) => setAddingValue(e.target.value)}
-                  onPressEnter={() => addTag(addingValue)}
-                  autoFocus
-                  style={{ minWidth: 120 }}
-                />
-                <Button
-                  type="primary"
-                  size="small"
-                  onClick={() => addTag(addingValue)}
-                  disabled={!normalize(addingValue)}
+      <StyledWrap
+        ref={containerRef}
+        tabIndex={0}
+        onKeyDown={onContainerKeyDown}
+        onMouseDown={() => containerRef.current?.focus()}
+      >
+        {displayOptions.map((tag, index) => {
+          const tagColor = getTagColor(tag.label, displayOptions);
+          const tagStyle = getTagStyle(tag.label, displayOptions, props.style);
+          const isEditing = props.allowEdit && editingIndex === index;
+
+          return (
+            <StyledTag
+              key={`tag-${index}`}
+              $style={props.style}
+              $customStyle={tagStyle}
+              color={tagColor}
+              closable={props.allowEdit}
+              onClose={(e) => { e.preventDefault(); deleteTag(index); }}
+              onDoubleClick={() => startEdit(index)}      // double-click to edit
+              onClick={() => onTagClick(tag, index)}      // normal click event
+            >
+              {isEditing ? (
+                <EditableSpan
+                  ref={editableRef}
+                  contentEditable
+                  suppressContentEditableWarning
+                  onBlur={() => confirmEdit(index)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") { e.preventDefault(); confirmEdit(index); }
+                    if (e.key === "Escape") { e.preventDefault(); cancelEdit(); }
+                    // stop container from also capturing these keystrokes
+                    e.stopPropagation();
+                  }}
                 >
-                  Add
-                </Button>
-                <Button size="small" onClick={() => { setIsAdding(false); setAddingValue(""); }}>
-                  Cancel
-                </Button>
-                {maxTags && (
-                  <Text type="secondary" style={{ marginLeft: 6 }}>
-                    {runtimeOptions.length}/{maxTags}
-                  </Text>
-                )}
-              </Space>
-            )}
-          </TopBar>
+                  {tag.label}
+                </EditableSpan>
+              ) : (
+                tag.label
+              )}
+            </StyledTag>
+          );
+        })}
+
+        {/* Draft chip appears only while typing; press Enter to commit, Esc to cancel */}
+        {props.allowEdit && draft && (
+          <DraftTag $style={props.style} $customStyle={{}} color="default">
+            {draft}
+          </DraftTag>
         )}
-
-        <StyledTagWrap>
-          {displayOptions.map((tag, index) => {
-            const tagColor = getTagColor(tag.label, displayOptions);
-            const tagStyle = getTagStyle(tag.label, displayOptions, props.style);
-            const isEditing = props.allowEdit && editingIndex === index;
-
-            return (
-              <Space key={`tag-${index}`} size={4} align="center">
-                {isEditing ? (
-                  <Input
-                    size="small"
-                    value={editingValue}
-                    onChange={(e) => setEditingValue(e.target.value)}
-                    onPressEnter={confirmEdit}
-                    onBlur={confirmEdit}
-                    style={{ minWidth: 80 }}
-                    autoFocus
-                  />
-                ) : (
-                  <StyledTag
-                    $style={props.style}
-                    $customStyle={tagStyle}
-                    icon={tag.icon as any}
-                    color={tagColor}
-                    onClick={() => onTagClick(tag, index)}
-                  >
-                    {tag.label}
-                  </StyledTag>
-                )}
-
-                {props.allowEdit && (
-                  <Space size={2}>
-                    {!isEditing && (
-                      <Tooltip title="Edit tag">
-                        <Button
-                          type="text"
-                          size="small"
-                          icon={<EditOutlined />}
-                          onClick={() => startEdit(index, tag.label)}
-                          style={{ padding: "2px", minWidth: "auto" }}
-                        />
-                      </Tooltip>
-                    )}
-                    <Tooltip title="Delete tag">
-                      <Button
-                        type="text"
-                        size="small"
-                        icon={<DeleteOutlined />}
-                        onClick={() => deleteTag(index)}
-                        style={{ padding: "2px", minWidth: "auto" }}
-                        danger
-                      />
-                    </Tooltip>
-                  </Space>
-                )}
-              </Space>
-            );
-          })}
-        </StyledTagWrap>
-      </>
+      </StyledWrap>
     );
   })
     .setPropertyViewFn((children: any) => {
@@ -405,6 +384,7 @@ const multiTags = (function () {
         <>
           <Section name={sectionNames.basic}>
             {children.options.propertyView({ label: "Initial Tags (PropertyView)" })}
+            {children.editable.propertyView({ label: "Editable" })}
             {children.allowEdit.propertyView({ label: "Allow Runtime Editing" })}
             {children.preventDuplicates.propertyView({ label: "Prevent Duplicates (Runtime)" })}
             {children.allowEmptyEdits.propertyView({ label: "Allow Empty Edit (Runtime)" })}
@@ -413,9 +393,8 @@ const multiTags = (function () {
 
           {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
             <Section name={sectionNames.interaction}>
-              {/* Expose onEvent so users can persist however they want */}
               {children.onEvent.getPropertyView({
-                // Documented event names that we fire:
+                // Events:
                 // "change" (payload.value = TagOption[]),
                 // "add"    (label, value),
                 // "edit"   (from, to, index, value),
@@ -438,8 +417,40 @@ const multiTags = (function () {
 
 export const MultiTagsComp = withExposingConfigs(
   multiTags,
-  // Expose both the design-time options (PropertyView) and the live value (runtime)
   [
-    new NameConfig("options", ""), // original
+    new NameConfig("options", "Current tags array"),
+    new NameConfig("runtimeOptions", "Runtime tags array"),
+    depsConfig({
+      name: "selectedTag", 
+      desc: "Currently selected tag data",
+      depKeys: ["selectedTagIndex", "runtimeOptions"],
+      func: (input) => {
+        const index = input.selectedTagIndex;
+        const options = Array.isArray(input.runtimeOptions) ? (input.runtimeOptions as any[]) : [];
+        if (index >= 0 && index < options.length) {
+          return options[index];
+        }
+        return null;
+      }
+    }),
+    depsConfig({
+      name: "selectedTagIndex", 
+      desc: "Index of currently selected tag (-1 if none)",
+      depKeys: ["selectedTagIndex"],
+      func: (input) => input.selectedTagIndex
+    }),
+    depsConfig({
+      name: "selectedTagLabel", 
+      desc: "Label of currently selected tag",
+      depKeys: ["selectedTagIndex", "runtimeOptions"],
+      func: (input) => {
+        const index = input.selectedTagIndex;
+        const options = Array.isArray(input.runtimeOptions) ? (input.runtimeOptions as any[]) : [];
+        if (index >= 0 && index < options.length) {
+          return options[index]?.label || "";
+        }
+        return "";
+      }
+    })
   ]
 );
