@@ -34,7 +34,7 @@ type TagOption = {
   margin?: string;
   padding?: string;
   width?: string;
-  icon?: React.ReactNode | string; // ignored at runtime to keep tags clean
+  icon?: any;
 };
 
 const colors = PresetStatusColorTypes;
@@ -108,8 +108,7 @@ const multiTags = (function () {
     display: inline-flex;
     align-items: center;
     min-width: fit-content;
-    width: ${(props) => props.$customStyle?.width || "auto"};
-    max-width: 100%;
+    
     background: ${(props) => props.$customStyle?.backgroundColor || props.$style?.background};
     color: ${(props) => props.$customStyle?.color || props.$style?.text};
     border-radius: ${(props) => props.$customStyle?.borderRadius || props.$style?.borderRadius};
@@ -129,17 +128,38 @@ const multiTags = (function () {
     opacity: 0.9;
   `;
 
-  const EditableSpan = styled.span`
+  const EditInput = styled.input`
+    border: none;
     outline: none;
-    white-space: nowrap;
+    background: transparent;
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
   `;
+
+  const TagIcon = styled.span`
+    display: inline-flex;
+    align-items: center;
+    margin-right: 4px;
+    
+    &.icon-right {
+      margin-right: 0;
+      margin-left: 4px;
+    }
+  `;
+
+  const TagContent = styled.span`
+    display: inline-flex;
+    align-items: center;
+  `;
+
+
 
   const childrenMap = {
     options: TagsCompOptionsControl, // initial tags (PropertyView)
     style: styleControl(InputLikeStyle, "style"),
     onEvent: ButtonEventHandlerControl,
     editable: BoolControl,               // editable switch field
-    allowEdit: BoolCodeControl,          // enable runtime CRUD
     preventDuplicates: BoolCodeControl,  // runtime de-dupe
     allowEmptyEdits: BoolCodeControl,    // allow blank labels on edit
     maxTags: BoolCodeControl,            // truthy => 50 (or provide number if your control supports)
@@ -160,26 +180,23 @@ const multiTags = (function () {
 
     // State
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
+    const [editValue, setEditValue] = useState<string>("");
     const [draft, setDraft] = useState<string>(""); // typing buffer for creating a new tag
     const containerRef = useRef<HTMLDivElement>(null);
-    const editableRef = useRef<HTMLSpanElement>(null);
-    const initRef = useRef<boolean>(false);
 
     const preventDuplicates = !!props.preventDuplicates;
     const allowEmptyEdits = !!props.allowEmptyEdits;
     const maxTags = toMax(props.maxTags);
-    // Seed runtimeOptions from design-time options once
-    const toJsonSafe = (opts: TagOption[]) => opts.map(({ icon, ...rest }) => ({ ...rest }));
-    useEffect(() => {
-      if (!initRef.current) {
-        dispatch(changeChildAction("runtimeOptions", toJsonSafe(props.options), false));
-        initRef.current = true;
-      }
-    }, [dispatch, props.options]);
-
-    const displayOptions = (props as any).runtimeOptions?.length
+    
+    
+    const displayOptions = (props as any).runtimeOptions?.length && props.editable
       ? ((props as any).runtimeOptions as TagOption[])
       : props.options;
+
+      useEffect(() => {
+        // every time the editable prop changes, we need to update the runtimeOptions
+        dispatch(changeChildAction("runtimeOptions", [...props.options] as TagOption[], false));
+      }, [props.editable]);
 
     // Events helper
     const fireEvent = (type: "add" | "edit" | "delete" | "change" | "click", payload: any) => {
@@ -221,33 +238,18 @@ const multiTags = (function () {
         width: "",
       };
       const next = [...displayOptions, newTag];
-      dispatch(changeChildAction("runtimeOptions", toJsonSafe(next), false));
+      dispatch(changeChildAction("runtimeOptions", next, false));
       setDraft("");
       fireEvent("add", { label, value: next });
     };
 
     const startEdit = (index: number) => {
       setEditingIndex(index);
-      // set content when span mounts via effect-less ref trick below
-      // we'll fill it in render via default textContent
-      requestAnimationFrame(() => {
-        editableRef.current?.focus();
-        // place caret at end
-        const range = document.createRange();
-        const node = editableRef.current;
-        if (node && node.firstChild) {
-          range.setStart(node.firstChild, node.firstChild.textContent?.length || 0);
-          range.collapse(true);
-          const sel = window.getSelection();
-          sel?.removeAllRanges();
-          sel?.addRange(range);
-        }
-      });
+      setEditValue(displayOptions[index]?.label || "");
     };
 
     const confirmEdit = (index: number) => {
-      const raw = editableRef.current?.textContent ?? "";
-      const val = normalize(raw);
+      const val = normalize(editValue);
       if (!val && !allowEmptyEdits) {
         cancelEdit();
         return;
@@ -258,25 +260,27 @@ const multiTags = (function () {
       }
       const prev = displayOptions[index]?.label ?? "";
       const next = displayOptions.map((t, i) => (i === index ? { ...t, label: val } : t));
-      dispatch(changeChildAction("runtimeOptions", toJsonSafe(next), false));
+      dispatch(changeChildAction("runtimeOptions", next, false));
       setEditingIndex(null);
+      setEditValue("");
       fireEvent("edit", { from: prev, to: val, index, value: next });
     };
 
     const cancelEdit = () => {
       setEditingIndex(null);
+      setEditValue("");
     };
 
     const deleteTag = (index: number) => {
       const removed = displayOptions[index]?.label;
       const next = displayOptions.filter((_, i) => i !== index);
-      dispatch(changeChildAction("runtimeOptions", toJsonSafe(next), false));
+      dispatch(changeChildAction("runtimeOptions", next, false));
       fireEvent("delete", { removed, index, value: next });
     };
 
     // Container keyboard handling for *adding* without inputs
     const onContainerKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
-      if (!props.allowEdit) return;
+      if (!props.editable) return;
 
       const { key, ctrlKey, metaKey, altKey } = e;
 
@@ -335,34 +339,32 @@ const multiTags = (function () {
         {displayOptions.map((tag, index) => {
           const tagColor = getTagColor(tag.label, displayOptions);
           const tagStyle = getTagStyle(tag.label, displayOptions, props.style);
-          const isEditing = props.allowEdit && editingIndex === index;
+          const isEditing = props.editable && editingIndex === index;
 
           return (
             <StyledTag
               key={`tag-${index}`}
               $style={props.style}
               $customStyle={tagStyle}
+              icon={tag.icon}
               color={tagColor}
-              closable={props.allowEdit}
+              closable={props.editable}
               onClose={(e) => { e.preventDefault(); deleteTag(index); }}
               onDoubleClick={() => startEdit(index)}      // double-click to edit
               onClick={() => onTagClick(tag, index)}      // normal click event
             >
               {isEditing ? (
-                <EditableSpan
-                  ref={editableRef}
-                  contentEditable
-                  suppressContentEditableWarning
+                <EditInput
+                  autoFocus
+                  value={editValue}
+                  onChange={(e) => setEditValue(e.target.value)}
                   onBlur={() => confirmEdit(index)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") { e.preventDefault(); confirmEdit(index); }
                     if (e.key === "Escape") { e.preventDefault(); cancelEdit(); }
-                    // stop container from also capturing these keystrokes
                     e.stopPropagation();
                   }}
-                >
-                  {tag.label}
-                </EditableSpan>
+                />
               ) : (
                 tag.label
               )}
@@ -371,7 +373,7 @@ const multiTags = (function () {
         })}
 
         {/* Draft chip appears only while typing; press Enter to commit, Esc to cancel */}
-        {props.allowEdit && draft && (
+        {props.editable && draft && (
           <DraftTag $style={props.style} $customStyle={{}} color="default">
             {draft}
           </DraftTag>
@@ -385,7 +387,6 @@ const multiTags = (function () {
           <Section name={sectionNames.basic}>
             {children.options.propertyView({ label: "Initial Tags (PropertyView)" })}
             {children.editable.propertyView({ label: "Editable" })}
-            {children.allowEdit.propertyView({ label: "Allow Runtime Editing" })}
             {children.preventDuplicates.propertyView({ label: "Prevent Duplicates (Runtime)" })}
             {children.allowEmptyEdits.propertyView({ label: "Allow Empty Edit (Runtime)" })}
             {children.maxTags.propertyView({ label: "Set Max Tags (Runtime) — true=50" })}
