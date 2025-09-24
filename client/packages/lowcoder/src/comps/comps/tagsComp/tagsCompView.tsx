@@ -137,42 +137,15 @@ const multiTags = (function () {
     color: inherit;
   `;
 
-  const TagIcon = styled.span`
-    display: inline-flex;
-    align-items: center;
-    margin-right: 4px;
-    
-    &.icon-right {
-      margin-right: 0;
-      margin-left: 4px;
-    }
-  `;
-
-  const TagContent = styled.span`
-    display: inline-flex;
-    align-items: center;
-  `;
-
-
-
   const childrenMap = {
-    options: TagsCompOptionsControl, // initial tags (PropertyView)
+    options: TagsCompOptionsControl, 
     style: styleControl(InputLikeStyle, "style"),
     onEvent: ButtonEventHandlerControl,
-    editable: BoolControl,               // editable switch field
-    preventDuplicates: BoolCodeControl,  // runtime de-dupe
-    allowEmptyEdits: BoolCodeControl,    // allow blank labels on edit
-    maxTags: BoolCodeControl,            // truthy => 50 (or provide number if your control supports)
-    selectedTagIndex: stateComp<number>(-1), // tracks which tag was clicked (-1 = none)
-    runtimeOptions: stateComp<JSONValue>([]), // runtime tags array for CRUD and saving
+    editable: BoolControl,                            
+    selectedTagIndex: stateComp<number>(-1), 
+    runtimeOptions: stateComp<JSONValue>([]), 
   };
 
-  const toMax = (val: any): number | undefined => {
-    if (val === false || val === undefined || val === null) return undefined;
-    if (typeof val === "number" && !Number.isNaN(val) && val > 0) return val;
-    if (val === true) return 50;
-    return undefined;
-  };
 
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const { message } = App.useApp?.() || { message: { warning: () => {} } as any };
@@ -183,10 +156,7 @@ const multiTags = (function () {
     const [editValue, setEditValue] = useState<string>("");
     const [draft, setDraft] = useState<string>(""); // typing buffer for creating a new tag
     const containerRef = useRef<HTMLDivElement>(null);
-
-    const preventDuplicates = !!props.preventDuplicates;
-    const allowEmptyEdits = !!props.allowEmptyEdits;
-    const maxTags = toMax(props.maxTags);
+  
     
     
     const displayOptions = (props as any).runtimeOptions?.length && props.editable
@@ -215,14 +185,6 @@ const multiTags = (function () {
     const addTag = (raw: string) => {
       const label = normalize(raw);
       if (!label) return;
-      if (maxTags && displayOptions.length >= maxTags) {
-        message?.warning?.(`Maximum ${maxTags} tags allowed.`);
-        return;
-      }
-      if (preventDuplicates && exists(label)) {
-        message?.warning?.("Duplicate tag.");
-        return;
-      }
       const newTag: TagOption = {
         label,
         colorType: "default",
@@ -250,14 +212,6 @@ const multiTags = (function () {
 
     const confirmEdit = (index: number) => {
       const val = normalize(editValue);
-      if (!val && !allowEmptyEdits) {
-        cancelEdit();
-        return;
-      }
-      if (preventDuplicates && exists(val, index)) {
-        message?.warning?.("Duplicate tag.");
-        return;
-      }
       const prev = displayOptions[index]?.label ?? "";
       const next = displayOptions.map((t, i) => (i === index ? { ...t, label: val } : t));
       dispatch(changeChildAction("runtimeOptions", next, false));
@@ -386,22 +340,12 @@ const multiTags = (function () {
         <>
           <Section name={sectionNames.basic}>
             {children.options.propertyView({ label: "Initial Tags (PropertyView)" })}
-            {children.editable.propertyView({ label: "Editable" })}
-            {children.preventDuplicates.propertyView({ label: "Prevent Duplicates (Runtime)" })}
-            {children.allowEmptyEdits.propertyView({ label: "Allow Empty Edit (Runtime)" })}
-            {children.maxTags.propertyView({ label: "Set Max Tags (Runtime) — true=50" })}
+            {children.editable.propertyView({ label: "Editable" })}           
           </Section>
 
           {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
             <Section name={sectionNames.interaction}>
-              {children.onEvent.getPropertyView({
-                // Events:
-                // "change" (payload.value = TagOption[]),
-                // "add"    (label, value),
-                // "edit"   (from, to, index, value),
-                // "delete" (removed, index, value),
-                // "click"  (tag, index, value)
-              })}
+              {children.onEvent.getPropertyView()}
               {hiddenPropertyView(children)}
               {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
@@ -430,25 +374,6 @@ export const MultiTagsComp = withExposingConfigs(
           return options[index];
         }
         return null;
-      }
-    }),
-    depsConfig({
-      name: "selectedTagIndex", 
-      desc: "Index of currently selected tag (-1 if none)",
-      depKeys: ["selectedTagIndex"],
-      func: (input) => input.selectedTagIndex
-    }),
-    depsConfig({
-      name: "selectedTagLabel",
-      desc: "Label of currently selected tag",
-      depKeys: ["selectedTagIndex", "runtimeOptions"],
-      func: (input) => {
-        const index = input.selectedTagIndex;
-        const options = Array.isArray(input.runtimeOptions) ? (input.runtimeOptions as any[]) : [];
-        if (index >= 0 && index < options.length) {
-          return options[index]?.label || "";
-        }
-        return "";
       }
     }),
     depsConfig({
