@@ -419,8 +419,6 @@ const multiTags = (function () {
 export const MultiTagsComp = withExposingConfigs(
   multiTags,
   [
-    new NameConfig("options", "Current tags array"),
-    new NameConfig("runtimeOptions", "Runtime tags array"),
     depsConfig({
       name: "selectedTag", 
       desc: "Currently selected tag data",
@@ -441,7 +439,7 @@ export const MultiTagsComp = withExposingConfigs(
       func: (input) => input.selectedTagIndex
     }),
     depsConfig({
-      name: "selectedTagLabel", 
+      name: "selectedTagLabel",
       desc: "Label of currently selected tag",
       depKeys: ["selectedTagIndex", "runtimeOptions"],
       func: (input) => {
@@ -451,6 +449,22 @@ export const MultiTagsComp = withExposingConfigs(
           return options[index]?.label || "";
         }
         return "";
+      }
+    }),
+    depsConfig({
+      name: "options",
+      desc: "Current tags array (updates based on editable prop)",
+      depKeys: ["options", "runtimeOptions", "editable"],
+      func: (input) => {
+        const { editable, options, runtimeOptions } = input;
+
+        // If not editable, always use the original props.options
+        if (!editable) {
+          return Array.isArray(options) ? options : [];
+        }
+
+        // If editable, use runtimeOptions (user modifications)
+        return Array.isArray(runtimeOptions) ? runtimeOptions : [];
       }
     })
   ]
