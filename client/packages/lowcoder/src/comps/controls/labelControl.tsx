@@ -254,7 +254,7 @@ export const LabelControl = (function () {
 
         {args.help && (
           args.showValidationWhenEmpty
-          || (!args.showValidationWhenEmpty && Boolean(inputValue))
+          || (!args.showValidationWhenEmpty && (inputValue !== null && inputValue !== undefined && inputValue !== ""))
         ) && (
           <HelpWrapper
             $marginLeft={
