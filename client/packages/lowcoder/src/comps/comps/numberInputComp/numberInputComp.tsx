@@ -388,7 +388,6 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
       return;
     }
     if (
-      cursor !== 0 &&
       props.precision > 0 &&
       (event.key === "." || event.key === "。") &&
       !/[.]/.test(value)
