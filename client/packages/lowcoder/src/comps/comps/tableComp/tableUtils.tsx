@@ -230,17 +230,47 @@ export function getColumnsAggr(
   oriDisplayData: JSONObject[],
   dataIndexWithParamsDict: NodeToValue<
     ReturnType<InstanceType<typeof ColumnListComp>["withParamsNode"]>
-  >
+  >,
+  columnChangeSets?: Record<string, Record<string, any>>
 ): ColumnsAggrData {
   return _.mapValues(dataIndexWithParamsDict, (withParams, dataIndex) => {
     const compType = (withParams.wrap() as any).compType;
     const res: Record<string, JSONValue> & { compType: string } = { compType };
+    
     if (compType === "tag") {
-      res.uniqueTags = _(oriDisplayData)
+      const originalTags = _(oriDisplayData)
         .map((row) => row[dataIndex]!)
         .filter((tag) => !!tag)
+        .value();
+      
+      const pendingChanges = columnChangeSets?.[dataIndex] || {};
+      const pendingTags = _(pendingChanges)
+        .values()
+        .filter((value) => !!value)
+        .value();
+      
+      const extractTags = (value: any): string[] => {
+        if (!value) return [];
+        if (_.isArray(value)) return value.map(String);
+        if (typeof value === "string") {
+          // Handle comma-separated tags
+          if (value.includes(",")) {
+            return value.split(",").map(tag => tag.trim()).filter(tag => tag);
+          }
+          return [value];
+        }
+        return [String(value)];
+      };
+      
+      const allTags = [
+        ...originalTags.flatMap(extractTags),
+        ...pendingTags.flatMap(extractTags)
+      ];
+      
+      res.uniqueTags = _(allTags)
         .uniq()
         .value();
+        
     } else if (compType === "badgeStatus") {
       res.uniqueStatus = _(oriDisplayData)
         .map((row) => {
