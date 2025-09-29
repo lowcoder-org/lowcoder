@@ -293,7 +293,7 @@ const childrenMap = {
   viewRef: RefControl<HTMLInputElement>,
   style: styleControl(InputFieldStyle , 'style') , 
   labelStyle: styleControl(LabelStyle , 'labelStyle'),
-  prefixText : stringExposingStateControl("defaultValue"),
+  prefixText: StringControl,
   animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   prefixIcon: IconControl,
   inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'),
@@ -414,7 +414,7 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
       precision={props.precision}
       $style={props.inputFieldStyle}
       $disabledStyle={props.disabledStyle}
-      prefix={hasIcon(props.prefixIcon) ? props.prefixIcon : props.prefixText.value}
+      prefix={hasIcon(props.prefixIcon) ? props.prefixIcon : props.prefixText}
       tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
       onPressEnter={() => {
         handleFinish();
