@@ -349,7 +349,7 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
       propsRef.current.value.onChange(html);        
       propsRef.current.delta.onChange(deltaJSON);   
       propsRef.current.onEvent("change");
-    }, 500)
+    }, 1000)
   );
 
   useEffect(() => {
