@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import React, { useContext } from "react";
-import { Tag } from "antd";
+import React, { useContext, useState, useRef, useEffect } from "react";
+import { Tag, App } from "antd";
 import { EditorContext } from "comps/editorState";
 import { PresetStatusColorTypes } from "antd/es/_util/colors";
 import { hashToNum } from "util/stringUtils";
@@ -10,151 +10,337 @@ import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import { ButtonEventHandlerControl } from "@lowcoder-ee/comps/controls/eventHandlerControl";
 import { InputLikeStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { BoolCodeControl } from "@lowcoder-ee/comps/controls/codeControl";
+import { BoolControl } from "comps/controls/boolControl";
 import { UICompBuilder } from "@lowcoder-ee/comps/generators/uiCompBuilder";
 import { Section, sectionNames } from "lowcoder-design";
 import { NameConfig } from "@lowcoder-ee/comps/generators/withExposing";
 import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "@lowcoder-ee/comps/utils/propertyUtils";
-import { withExposingConfigs } from "@lowcoder-ee/comps/generators/withExposing";
+import { withExposingConfigs, depsConfig } from "@lowcoder-ee/comps/generators/withExposing";
+import { stateComp } from "@lowcoder-ee/comps/generators";
+import { changeChildAction } from "lowcoder-core";
+import { JSONValue } from "util/jsonTypes";
+import { JSONObject } from "util/jsonTypes";
+
+type TagOption = {
+  label: string;
+  colorType?: string; // "default" | "preset" | "custom" from control
+  presetColor?: any;
+  color?: string;
+  textColor?: string;
+  border?: string;
+  borderWidth?: string;
+  borderStyle?: string;
+  radius?: string;
+  margin?: string;
+  padding?: string;
+  width?: string;
+  icon?: any;
+};
 
 const colors = PresetStatusColorTypes;
 
-// These functions are used for individual tag styling
-function getTagColor(tagText : any, tagOptions: any[]) {
-  const foundOption = tagOptions.find((option: { label: any; }) => option.label === tagText);
+/** ---------- Styling Helpers ---------- */
+function getTagColor(tagText: string, tagOptions: TagOption[]) {
+  const foundOption = tagOptions.find((option) => option.label === tagText);
   if (foundOption) {
-    if (foundOption.colorType === "default") {
-      return undefined; 
-    } else if (foundOption.colorType === "preset") {
-      return foundOption.presetColor;
-    } else if (foundOption.colorType === "custom") {
-      return undefined;
-    }
+    if (foundOption.colorType === "default") return undefined;
+    if (foundOption.colorType === "preset") return foundOption.presetColor;
+    if (foundOption.colorType === "custom") return undefined;
     return foundOption.color;
   }
   const index = Math.abs(hashToNum(tagText)) % colors.length;
   return colors[index];
 }
 
-const getTagStyle = (tagText: any, tagOptions: any[], baseStyle: any = {}) => {
-  const foundOption = tagOptions.find((option: { label: any; }) => option.label === tagText);
-  
+const getTagStyle = (tagText: string, tagOptions: TagOption[], baseStyle: any = {}) => {
+  const foundOption = tagOptions.find((option) => option.label === tagText);
+
+  const applyBorderFromBase = (style: any) => {
+    if (baseStyle.borderWidth && baseStyle.border && baseStyle.borderStyle) {
+      style.border = `${baseStyle.borderWidth} ${baseStyle.borderStyle} ${baseStyle.border}`;
+    }
+  };
+
   if (foundOption) {
-    // If colorType is "default", use ONLY component styles
     if (foundOption.colorType === "default") {
       const style: any = { ...baseStyle };
-      if (baseStyle.borderWidth && baseStyle.border && baseStyle.borderStyle) {
-        style.border = `${baseStyle.borderWidth} ${baseStyle.borderStyle} ${baseStyle.border}`;
-      }
+      applyBorderFromBase(style);
       return style;
     }
-    
+
     const style: any = { ...baseStyle };
-    
+
     if (foundOption.colorType === "custom") {
       style.backgroundColor = foundOption.color;
       style.color = foundOption.textColor;
     }
-    
-    let borderStyle = foundOption.borderStyle || "none";
-    let borderWidth = foundOption.borderWidth || "0px";
-    let borderColor = foundOption.border || "none";
-    
-    if (borderStyle !== "none") {
-      style.border = `${borderWidth} ${borderStyle} ${borderColor}`;
-    } else {
-      style.border = "none";
-    }
-    
-    if (foundOption.radius) {
-      style.borderRadius = foundOption.radius;
-    }
-    
-    if (foundOption.margin) {
-      style.margin = foundOption.margin;
-    }
-    
-    if (foundOption.padding) {
-      style.padding = foundOption.padding;
-    }
-    
-    if (foundOption.width) {
-      style.width = foundOption.width;
-    }
-    
+
+    const borderStyle = foundOption.borderStyle || "none";
+    const borderWidth = foundOption.borderWidth || "0px";
+    const borderColor = foundOption.border || "none";
+    style.border = borderStyle !== "none" ? `${borderWidth} ${borderStyle} ${borderColor}` : "none";
+
+    if (foundOption.radius) style.borderRadius = foundOption.radius;
+    if (foundOption.margin) style.margin = foundOption.margin;
+    if (foundOption.padding) style.padding = foundOption.padding;
+    if (foundOption.width) style.width = foundOption.width;
+
     return style;
   }
 
   const style: any = { ...baseStyle };
-  if (baseStyle.borderWidth && baseStyle.border && baseStyle.borderStyle) {
-    style.border = `${baseStyle.borderWidth} ${baseStyle.borderStyle} ${baseStyle.border}`;
-  }
+  applyBorderFromBase(style);
   return style;
 };
 
+/** ---------- Component ---------- */
 const multiTags = (function () {
-
-  const StyledTag = styled(Tag)<{ $style: any, $customStyle: any }>`
+  const StyledWrap = styled.div`
     display: flex;
-    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px;
+    outline: none;
+    cursor: text; /* indicates you can type here */
+  `;
+
+  const StyledTag = styled(Tag)<{ $style: any; $customStyle: any }>`
+    display: inline-flex;
     align-items: center;
     min-width: fit-content;
-    width: ${(props) => props.$customStyle?.width || 'auto'};
-    max-width: 100px;
+    
     background: ${(props) => props.$customStyle?.backgroundColor || props.$style?.background};
     color: ${(props) => props.$customStyle?.color || props.$style?.text};
     border-radius: ${(props) => props.$customStyle?.borderRadius || props.$style?.borderRadius};
-    border: ${(props) => props.$customStyle?.border || props.$style?.border || '1px solid #d9d9d9'};
+    border: ${(props) => props.$customStyle?.border || props.$style?.border || "1px solid #d9d9d9"};
     padding: ${(props) => props.$customStyle?.padding || props.$style?.padding};
     margin: ${(props) => props.$customStyle?.margin || props.$style?.margin};
-    font-size: ${(props) => props.$style?.textSize || '8px'};
+    font-size: ${(props) => props.$style?.textSize || "12px"};
     font-weight: ${(props) => props.$style?.fontWeight};
-    cursor: pointer;
+    user-select: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   `;
 
-  const StyledTagContainer = styled.div`
-    display: flex;
-    gap: 5px;
-    padding: 5px;
+  const DraftTag = styled(StyledTag)`
+    border-style: dashed !important;
+    opacity: 0.9;
+  `;
+
+  const EditInput = styled.input`
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
   `;
 
   const childrenMap = {
-    options: TagsCompOptionsControl,
-    style: styleControl(InputLikeStyle, 'style'),
+    options: TagsCompOptionsControl, 
+    style: styleControl(InputLikeStyle, "style"),
     onEvent: ButtonEventHandlerControl,
+    editable: BoolControl,                            
+    selectedTagIndex: stateComp<number>(-1), 
+    runtimeOptions: stateComp<JSONValue>([]), 
   };
 
-  return new UICompBuilder(childrenMap, (props) => {
-    const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent});
+
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    const { message } = App.useApp?.() || { message: { warning: () => {} } as any };
+    const handleClickEvent = useCompClickEventHandler({ onEvent: props.onEvent });
+
+    // State
+    const [editingIndex, setEditingIndex] = useState<number | null>(null);
+    const [editValue, setEditValue] = useState<string>("");
+    const [draft, setDraft] = useState<string>(""); // typing buffer for creating a new tag
+    const containerRef = useRef<HTMLDivElement>(null);
+  
+    
+    
+    const displayOptions = (props as any).runtimeOptions?.length && props.editable
+      ? ((props as any).runtimeOptions as TagOption[])
+      : props.options;
+
+      useEffect(() => {
+        // every time the editable prop changes, we need to update the runtimeOptions
+        dispatch(changeChildAction("runtimeOptions", [...props.options] as TagOption[], false));
+      }, [props.editable]);
+
+    // Events helper
+    const fireEvent = (type: "add" | "edit" | "delete" | "change" | "click", payload: any) => {
+      try { if (props.onEvent) (props.onEvent as any)(type, payload); } catch {}
+      try { if (type !== "click" && props.onEvent) (props.onEvent as any)("change", { value: payload?.value, meta: payload }); } catch {}
+    };
+
+    // Utils
+    const normalize = (s: string) => s.trim();
+    const exists = (label: string, omitIndex?: number) => {
+      const L = normalize(label);
+      return displayOptions.some((t, i) => (omitIndex !== undefined ? i !== omitIndex : true) && normalize(t.label) === L);
+    };
+
+    // CRUD
+    const addTag = (raw: string) => {
+      const label = normalize(raw);
+      if (!label) return;
+      const newTag: TagOption = {
+        label,
+        colorType: "default",
+        presetColor: "blue",
+        color: "#1890ff",
+        textColor: "#ffffff",
+        border: "",
+        borderWidth: "",
+        borderStyle: "solid",
+        radius: "",
+        margin: "",
+        padding: "",
+        width: "",
+      };
+      const next = [...displayOptions, newTag];
+      dispatch(changeChildAction("runtimeOptions", next, false));
+      setDraft("");
+      fireEvent("add", { label, value: next });
+    };
+
+    const startEdit = (index: number) => {
+      setEditingIndex(index);
+      setEditValue(displayOptions[index]?.label || "");
+    };
+
+    const confirmEdit = (index: number) => {
+      const val = normalize(editValue);
+      const prev = displayOptions[index]?.label ?? "";
+      const next = displayOptions.map((t, i) => (i === index ? { ...t, label: val } : t));
+      dispatch(changeChildAction("runtimeOptions", next, false));
+      setEditingIndex(null);
+      setEditValue("");
+      fireEvent("edit", { from: prev, to: val, index, value: next });
+    };
+
+    const cancelEdit = () => {
+      setEditingIndex(null);
+      setEditValue("");
+    };
+
+    const deleteTag = (index: number) => {
+      const removed = displayOptions[index]?.label;
+      const next = displayOptions.filter((_, i) => i !== index);
+      dispatch(changeChildAction("runtimeOptions", next, false));
+      fireEvent("delete", { removed, index, value: next });
+    };
+
+    // Container keyboard handling for *adding* without inputs
+    const onContainerKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
+      if (!props.editable) return;
+
+      const { key, ctrlKey, metaKey, altKey } = e;
+
+      // Commit draft
+      if (key === "Enter") {
+        if (draft) {
+          e.preventDefault();
+          addTag(draft);
+        }
+        return;
+      }
+
+      // Cancel draft
+      if (key === "Escape") {
+        if (draft) {
+          e.preventDefault();
+          setDraft("");
+        }
+        return;
+      }
+
+      // Handle typing into draft (ignore modifiers)
+      if (!ctrlKey && !metaKey && !altKey) {
+        if (key.length === 1) {
+          setDraft((d) => d + key);
+          e.preventDefault();
+        } else if (key === "Backspace") {
+          if (draft) {
+            setDraft((d) => d.slice(0, -1));
+            e.preventDefault();
+          }
+        } else if (key === "Spacebar" || key === " ") {
+          setDraft((d) => d + " ");
+          e.preventDefault();
+        }
+      }
+    };
+
+    // Tag click passthrough
+    const onTagClick = (tag: TagOption, idx: number) => {
+      // Update selected tag index state
+      dispatch(changeChildAction("selectedTagIndex", idx, false));
+      
+      // Fire events
+      fireEvent("click", { tag, index: idx, value: displayOptions });
+      handleClickEvent?.();
+    };
 
     return (
-      <StyledTagContainer>
-        {props.options.map((tag, index) => {
+      <StyledWrap
+        ref={containerRef}
+        tabIndex={0}
+        onKeyDown={onContainerKeyDown}
+        onMouseDown={() => containerRef.current?.focus()}
+      >
+        {displayOptions.map((tag, index) => {
+          const tagColor = getTagColor(tag.label, displayOptions);
+          const tagStyle = getTagStyle(tag.label, displayOptions, props.style);
+          const isEditing = props.editable && editingIndex === index;
 
-          const tagColor = getTagColor(tag.label, props.options);
-          const tagIcon = tag.icon;
-          const tagStyle = getTagStyle(tag.label, props.options, props.style);
-          
           return (
-            <StyledTag 
+            <StyledTag
               key={`tag-${index}`}
               $style={props.style}
               $customStyle={tagStyle}
-              icon={tagIcon}
+              icon={tag.icon}
               color={tagColor}
-              onClick={handleClickEvent}
+              closable={props.editable}
+              onClose={(e) => { e.preventDefault(); deleteTag(index); }}
+              onDoubleClick={() => startEdit(index)}      // double-click to edit
+              onClick={() => onTagClick(tag, index)}      // normal click event
             >
-              {tag.label}
+              {isEditing ? (
+                <EditInput
+                  autoFocus
+                  value={editValue}
+                  onChange={(e) => setEditValue(e.target.value)}
+                  onBlur={() => confirmEdit(index)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") { e.preventDefault(); confirmEdit(index); }
+                    if (e.key === "Escape") { e.preventDefault(); cancelEdit(); }
+                    e.stopPropagation();
+                  }}
+                />
+              ) : (
+                tag.label
+              )}
             </StyledTag>
           );
         })}
-      </StyledTagContainer>
-    ); 
+
+        {/* Draft chip appears only while typing; press Enter to commit, Esc to cancel */}
+        {props.editable && draft && (
+          <DraftTag $style={props.style} $customStyle={{}} color="default">
+            {draft}
+          </DraftTag>
+        )}
+      </StyledWrap>
+    );
   })
     .setPropertyViewFn((children: any) => {
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.options.propertyView({})} 
+            {children.options.propertyView({ label: "Initial Tags (PropertyView)" })}
+            {children.editable.propertyView({ label: "Editable" })}           
           </Section>
 
           {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
@@ -165,18 +351,46 @@ const multiTags = (function () {
             </Section>
           )}
 
-          {["layout", "both"].includes(
-            useContext(EditorContext).editorModeStatus
-          ) && (
-              <Section name={sectionNames.style}>
-                {children.style.getPropertyView()}
-              </Section>
-            )}
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          )}
         </>
-      )
+      );
     })
     .build();
-})()
+})();
 
-export const MultiTagsComp = withExposingConfigs(multiTags, [new NameConfig("options", "")]);
+export const MultiTagsComp = withExposingConfigs(
+  multiTags,
+  [
+    depsConfig({
+      name: "selectedTag", 
+      desc: "Currently selected tag data",
+      depKeys: ["selectedTagIndex", "runtimeOptions"],
+      func: (input) => {
+        const index = input.selectedTagIndex;
+        const options = Array.isArray(input.runtimeOptions) ? (input.runtimeOptions as any[]) : [];
+        if (index >= 0 && index < options.length) {
+          return options[index];
+        }
+        return null;
+      }
+    }),
+    depsConfig({
+      name: "options",
+      desc: "Current tags array (updates based on editable prop)",
+      depKeys: ["options", "runtimeOptions", "editable"],
+      func: (input) => {
+        const { editable, options, runtimeOptions } = input;
 
+        // If not editable, always use the original props.options
+        if (!editable) {
+          return Array.isArray(options) ? options : [];
+        }
+
+        // If editable, use runtimeOptions (user modifications)
+        return Array.isArray(runtimeOptions) ? runtimeOptions : [];
+      }
+    })
+  ]
+);
