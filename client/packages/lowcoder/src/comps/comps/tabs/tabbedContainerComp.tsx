@@ -15,7 +15,7 @@ import { NameGenerator } from "comps/utils";
 import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
 import _ from "lodash";
-import React, {useContext, useMemo } from "react";
+import React, {useContext, useMemo, useEffect } from "react";
 import styled, { css } from "styled-components";
 import { IContainer } from "../containerBase/iContainer";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
@@ -266,6 +266,11 @@ const TabbedContainer = (props: TabbedContainerProps) => {
   const selectedTab = visibleTabs.find((tab) => tab.key === props.selectedTabKey.value);
   const activeKey = selectedTab? selectedTab.key: visibleTabs.length > 0 ? visibleTabs[0].key : undefined;
 
+  useEffect(() => {
+    if (activeKey && activeKey !== props.selectedTabKey.value) {
+      props.selectedTabKey.onChange(activeKey);
+    }
+  }, [activeKey, props.selectedTabKey.value]);
 
   const editorState = useContext(EditorContext);
   const maxWidth = editorState.getAppSettings().maxWidth;
