@@ -57,8 +57,8 @@ const TagsControl = codeControl<Array<string> | string>(
   { expectedType: "string | Array<string>", codeType: "JSON" }
 );
 
-function getTagColor(tagText : any, tagOptions: any[]) {
-  const foundOption = tagOptions.find((option: { label: any; }) => option.label === tagText);
+function getTagColor(tagText: string, tagOptions: TagOption[]): string | undefined {
+  const foundOption = tagOptions.find(option => option.label === tagText);
   if (foundOption) {
     if (foundOption.colorType === "preset") {
       return foundOption.presetColor;
@@ -73,10 +73,10 @@ function getTagColor(tagText : any, tagOptions: any[]) {
   return colors[index];
 }
 
-function getTagStyle(tagText: any, tagOptions: any[]) {
-  const foundOption = tagOptions.find((option: { label: any; }) => option.label === tagText);
+function getTagStyle(tagText: string, tagOptions: TagOption[]): React.CSSProperties {
+  const foundOption = tagOptions.find(option => option.label === tagText);
   if (foundOption) {
-    const style: any = {};
+    const style: React.CSSProperties = {};
     
     // Handle color styling
     if (foundOption.colorType === "custom") {
@@ -113,9 +113,21 @@ function getTagStyle(tagText: any, tagOptions: any[]) {
   return {};
 }
 
-function getTagIcon(tagText: any, tagOptions: any[]) {
+function getTagIcon(tagText: string, tagOptions: TagOption[]): React.ReactNode | undefined {
   const foundOption = tagOptions.find(option => option.label === tagText);
   return foundOption ? foundOption.icon : undefined;
+}
+
+// Utility function to process comma-separated tags into individual tags
+function processTagItems(tagItems: string[]): string[] {
+  const result: string[] = [];
+  tagItems.forEach((item) => {
+    if (item.split(",")[1]) {
+      item.split(",").forEach((tag) => result.push(tag));
+    }
+    result.push(item);
+  });
+  return result;
 }
 
 const childrenMap = {
@@ -128,11 +140,25 @@ const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string | string[], stri
   props
 ) => props.text;
 
+interface TagOption {
+  label: string;
+  colorType?: "preset" | "custom";
+  presetColor?: string;
+  color?: string;
+  textColor?: string;
+  border?: string;
+  radius?: string;
+  margin?: string;
+  padding?: string;
+  icon?: React.ReactNode;
+  onEvent?: (eventType: string) => void;
+}
+
 type TagEditPropsType = {
   value: string | string[];
   onChange: (value: string | string[]) => void;
   onChangeEnd: () => void;
-  tagOptions: any[];
+  tagOptions: TagOption[];
 };
 
 export const Wrapper = styled.div`
@@ -240,16 +266,7 @@ export const TagStyled = styled(Tag)`
 
 const TagEdit = React.memo((props: TagEditPropsType) => {
   const defaultTags = useContext(TagsContext);
-  const [tags, setTags] = useState(() => {
-    const result: string[] = [];
-    defaultTags.forEach((item) => {
-      if (item.split(",")[1]) {
-        item.split(",").forEach((tag) => result.push(tag));
-      }
-      result.push(item);
-    });
-    return result;
-  });
+  const [tags, setTags] = useState(() => processTagItems(defaultTags));
   const [open, setOpen] = useState(false);
   const mountedRef = useRef(true);
 
@@ -268,24 +285,16 @@ const TagEdit = React.memo((props: TagEditPropsType) => {
   // Update tags when defaultTags changes
   useEffect(() => {
     if (!mountedRef.current) return;
-    
-    const result: string[] = [];
-    defaultTags.forEach((item) => {
-      if (item.split(",")[1]) {
-        item.split(",").forEach((tag) => result.push(tag));
-      }
-      result.push(item);
-    });
-    setTags(result);
+    setTags(processTagItems(defaultTags));
   }, [defaultTags]);
 
   const handleSearch = useCallback((value: string) => {
     if (!mountedRef.current) return;
     
     if (defaultTags.findIndex((item) => item.includes(value)) < 0) {
-      setTags([...defaultTags, value]);
+      setTags([...processTagItems(defaultTags), value]);
     } else {
-      setTags(defaultTags);
+      setTags(processTagItems(defaultTags));
     }
     props.onChange(value);
   }, [defaultTags, props.onChange]);
@@ -426,17 +435,15 @@ export const ColumnTagsComp = (function () {
         const tagStyle = getTagStyle(tagText, tagOptions);
         
         return (
-          <React.Fragment key={`${tag.split(' ').join('_')}-${index}`}>
-            <TagStyled 
-              color={tagColor} 
-              icon={tagIcon} 
-              key={index}
-              style={tagStyle}
-              onClick={(e) => handleTagClick(e, tagText)}
-            >
-              {tagText}
-            </TagStyled>
-          </React.Fragment>
+          <TagStyled 
+            key={`${tagText.split(' ').join('_')}-${index}`}
+            color={tagColor} 
+            icon={tagIcon} 
+            style={tagStyle}
+            onClick={(e) => handleTagClick(e, tagText)}
+          >
+            {tagText}
+          </TagStyled>
         );
       });
       return (

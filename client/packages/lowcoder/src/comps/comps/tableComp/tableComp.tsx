@@ -481,7 +481,6 @@ export class TableImplComp extends TableInitComp implements IContainer {
           return { ...oriRow, ...changeValues };
         })
         .value();
-      // console.info("toUpdateRowsNode. input: ", input, " res: ", res);
       return res;
     });
   }
@@ -517,14 +516,25 @@ export class TableImplComp extends TableInitComp implements IContainer {
       oriDisplayData: this.oriDisplayDataNode(),
       withParams: this.children.columns.withParamsNode(),
       dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
+      changeSet: this.changeSetNode(),
     };
     const resNode = withFunction(fromRecord(nodes), (input) => {
       const dataIndexWithParamsDict = _(input.dataIndexes)
         .mapValues((dataIndex, idx) => input.withParams[idx])
         .mapKeys((withParams, idx) => input.dataIndexes[idx])
         .value();
-      const res = getColumnsAggr(input.oriDisplayData, dataIndexWithParamsDict);
-      // console.info("columnAggrNode: ", res);
+      
+      const columnChangeSets: Record<string, Record<string, any>> = {};
+      _.forEach(input.changeSet, (rowData, rowId) => {
+        _.forEach(rowData, (value, dataIndex) => {
+          if (!columnChangeSets[dataIndex]) {
+            columnChangeSets[dataIndex] = {};
+          }
+          columnChangeSets[dataIndex][rowId] = value;
+        });
+      });
+      
+      const res = getColumnsAggr(input.oriDisplayData, dataIndexWithParamsDict, columnChangeSets);
       return res;
     });
     return lastValueIfEqual(this, "columnAggrNode", [resNode, nodes] as const, (a, b) =>
