@@ -10,7 +10,6 @@
 	<name>lowcoder-root</name>
 	<version>${revision}</version>
 
-
 	<properties>
 		<revision>2.7.4</revision>
 		<java.version>17</java.version>
@@ -21,14 +20,6 @@
 		<source.disabled>true</source.disabled>
 		<skipDockerBuild>true</skipDockerBuild>
 	</properties>
-
-	<repositories>
-		<repository>
-			<id>sonatype</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</repository>
-	</repositories>
-
 
 	<profiles>
 		<profile>
