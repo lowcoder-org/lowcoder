@@ -344,10 +344,23 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
   const propsRef = useRef(props);
   propsRef.current = props;
 
+  // Local state to manage editor content
+  const [localValue, setLocalValue] = useState(props.value.value);
+  const isUserTyping = useRef(false);
+
+  // Sync local state with props when they change externally (not from user typing)
+  useEffect(() => {
+    if (!isUserTyping.current) {
+      setLocalValue(props.value.value);
+    }
+  }, [props.value.value]);
+
   const debouncedOnChangeRef = useRef(
     debounce((html: string, deltaJSON: string, text: string) => {
-      propsRef.current.value.onChange(html);        
+      // Update delta first as it's the primary source of truth
       propsRef.current.delta.onChange(deltaJSON);   
+      // Update value with the HTML representation
+      propsRef.current.value.onChange(html);        
       propsRef.current.onEvent("change");
     }, 1000)
   );
@@ -359,7 +372,16 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
   }, []);
 
   const handleChange = (html: string, deltaJSON: string, text: string) => {
+    // Mark that user is typing
+    isUserTyping.current = true;
+    // Update local state immediately for responsive UI
+    setLocalValue(html);
+    // Debounce the prop updates
     debouncedOnChangeRef.current?.(html, deltaJSON, text);
+    // Reset the flag after a brief delay
+    setTimeout(() => {
+      isUserTyping.current = false;
+    }, 100);
   };
 
   return (
@@ -368,7 +390,7 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
       hideToolbar={props.hideToolbar}
       toolbar={props.toolbar}
       readOnly={props.readOnly}
-      value={props.value.value}
+      value={localValue}
       placeholder={props.placeholder}
       onChange={handleChange}
       $style={props.style}
