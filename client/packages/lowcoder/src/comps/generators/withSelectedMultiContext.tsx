@@ -74,42 +74,34 @@ export function withSelectedMultiContext<TCtor extends MultiCompConstructor>(
           );
         }
       } else if ((
-        action.editDSL
-        || isCustomAction<LazyCompReadyAction>(action, "LazyCompReady")
-        || isCustomAction<RemoteCompReadyAction>(action, "RemoteCompReady")
-        || isCustomAction<ModuleReadyAction>(action, "moduleReady")
-      ) && (
-        action.path[1] === SELECTED_KEY
-        || (
-          isCustomAction<ModuleReadyAction>(action, "moduleReady")
-          && action.path[1] === this.selection)
-      )) {
-        // broadcast edits from the selected design-time view to all instances and template
-        const newAction = {
-          ...action,
-          path: action.path.slice(2),
-        };
-        comp = comp.reduce(WithMultiContextComp.forEachAction(newAction));
-        comp = comp.reduce(wrapChildAction(COMP_KEY, newAction));
-      } else if (
-        // ensure edits made in the expanded view configurator (SELECTED key)
-        // also update the template
-        action.path[0] === MAP_KEY && action.path[1] === SELECTED_KEY
-      ) {
-        const newAction = {
-          ...action,
-          path: action.path.slice(2),
-        };
-        comp = comp.reduce(WithMultiContextComp.forEachAction(newAction));
-        comp = comp.reduce(wrapChildAction(COMP_KEY, newAction));
-      } else if ((
         !action.editDSL
         && !isCustomAction<LazyCompReadyAction>(action, "LazyCompReady")
         && !isCustomAction<RemoteCompReadyAction>(action, "RemoteCompReady")
         && !isCustomAction<ModuleReadyAction>(action, "moduleReady")
         ) || action.path[0] !== MAP_KEY || _.isNil(action.path[1])
       ) {
+        if (action.path[0] === MAP_KEY && action.path[1] === SELECTED_KEY) {
+          action.path[1] = this.selection;
+        }
         comp = super.reduce(action);
+      } else if ((
+        action.editDSL
+        || isCustomAction<LazyCompReadyAction>(action, "LazyCompReady")
+        || isCustomAction<RemoteCompReadyAction>(action, "RemoteCompReady")
+        || isCustomAction<ModuleReadyAction>(action, "moduleReady")
+      ) && (
+        action.path[1] === SELECTED_KEY
+        || ( // special check added for modules inside list view
+          isCustomAction<ModuleReadyAction>(action, "moduleReady")
+          && action.path[1] === this.selection)
+      )) {
+        // broadcast
+        const newAction = {
+          ...action,
+          path: action.path.slice(2),
+        };
+        comp = comp.reduce(WithMultiContextComp.forEachAction(newAction));
+        comp = comp.reduce(wrapChildAction(COMP_KEY, newAction));
       } else if (
         !action.editDSL
         && (
@@ -120,6 +112,8 @@ export function withSelectedMultiContext<TCtor extends MultiCompConstructor>(
       ) {
         comp = super.reduce(action);
       }
+
+      // console.info("exit withSelectedMultiContext reduce. action: ", action, "\nthis:", this, "\ncomp:", comp);
       return comp;
     }
 
