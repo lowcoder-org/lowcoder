@@ -2146,6 +2146,7 @@ export const en = {
     "filterChange": "Filter Change",
     "sortChange": "Sort Change",
     "pageChange": "Page Change",
+    "pageSizeChange": "Page Size Change",
     "refresh": "Refresh",
     "rowColor": "Conditional row color",
     "rowColorDesc": "Conditionally Set the Row Color Based on the Optional Variables: CurrentRow, CurrentOriginalIndex, CurrentIndex, ColumnTitle. For Example: '{{ currentRow.id > 3 ? \"green\" : \"red\" }}'",
