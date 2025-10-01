@@ -153,11 +153,13 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
         if (hidden) {
           return null;
         }
-        const visibleSubItems = items.filter((item) => !item.children.hidden.getView());
         const subMenuItems: Array<{ key: string; label: string }> = [];
         const subMenuSelectedKeys: Array<string> = [];
-        visibleSubItems.forEach((subItem, index) => {
-          const key = index + "";
+        items.forEach((subItem, originalIndex) => {
+          if (subItem.children.hidden.getView()) {
+            return;
+          }
+          const key = originalIndex + "";
           subItem.children.active.getView() && subMenuSelectedKeys.push(key);
           subMenuItems.push({
             key: key,
@@ -184,7 +186,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             {items.length > 0 && <DownOutlined />}
           </Item>
         );
-        if (visibleSubItems.length > 0) {
+        if (subMenuItems.length > 0) {
           const subMenu = (
             <StyledMenu
               onClick={(e) => {
