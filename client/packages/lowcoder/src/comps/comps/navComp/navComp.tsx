@@ -1,9 +1,10 @@
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
+import { MultiCompBuilder } from "comps/generators/multi";
 import { UICompBuilder, withDefault } from "comps/generators";
 import { Section, sectionNames } from "lowcoder-design";
 import styled from "styled-components";
 import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
-import { StringControl } from "comps/controls/codeControl";
+import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
 import { navListComp } from "./navItemComp";
 import { menuPropertyView } from "./components/MenuItemList";
@@ -22,6 +23,9 @@ import { trans } from "i18n";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { dropdownControl } from "comps/controls/dropdownControl";
+import { controlItem } from "lowcoder-design";
+import { mapOptionsControl } from "comps/controls/optionsControl";
 
 type IProps = {
   $justify: boolean;
@@ -137,35 +141,50 @@ const childrenMap = {
   horizontalAlignment: alignWithJustifyControl(),
   style: migrateOldData(styleControl(NavigationStyle, 'style'), fixOldStyleData),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
-  items: withDefault(navListComp(), [
-    {
-      label: trans("menuItem") + " 1",
-    },
-  ]),
+  items: withDefault(createNavItemsControl(), {
+    optionType: "manual",
+    manual: [
+      {
+        label: trans("menuItem") + " 1",
+      },
+    ],
+  }),
 };
 
 const NavCompBase = new UICompBuilder(childrenMap, (props) => {
   const data = props.items;
   const items = (
     <>
-      {data.map((menuItem, idx) => {
-        const { hidden, label, items, active, onEvent } = menuItem.getView();
+      {data.map((menuItem: any, idx: number) => {
+        const isCompItem = typeof menuItem?.getView === "function";
+        const view = isCompItem ? menuItem.getView() : menuItem;
+        const hidden = !!view?.hidden;
         if (hidden) {
           return null;
         }
+
+        const label = view?.label;
+        const active = !!view?.active;
+        const onEvent = view?.onEvent;
+        const subItems = isCompItem ? view?.items : [];
+
         const subMenuItems: Array<{ key: string; label: string }> = [];
         const subMenuSelectedKeys: Array<string> = [];
-        items.forEach((subItem, originalIndex) => {
-          if (subItem.children.hidden.getView()) {
-            return;
-          }
-          const key = originalIndex + "";
-          subItem.children.active.getView() && subMenuSelectedKeys.push(key);
-          subMenuItems.push({
-            key: key,
-            label: subItem.children.label.getView(),
+
+        if (Array.isArray(subItems)) {
+          subItems.forEach((subItem: any, originalIndex: number) => {
+            if (subItem.children.hidden.getView()) {
+              return;
+            }
+            const key = originalIndex + "";
+            subItem.children.active.getView() && subMenuSelectedKeys.push(key);
+            subMenuItems.push({
+              key: key,
+              label: subItem.children.label.getView(),
+            });
           });
-        });
+        }
+
         const item = (
           <Item
             key={idx}
@@ -180,18 +199,19 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             $textTransform={props.style.textTransform}
             $textDecoration={props.style.textDecoration}
             $margin={props.style.margin}
-            onClick={() => onEvent("click")}
+            onClick={() => onEvent && onEvent("click")}
           >
             {label}
-            {items.length > 0 && <DownOutlined />}
+            {Array.isArray(subItems) && subItems.length > 0 && <DownOutlined />}
           </Item>
         );
         if (subMenuItems.length > 0) {
           const subMenu = (
             <StyledMenu
               onClick={(e) => {
-                const { onEvent: onSubEvent } = items[Number(e.key)]?.getView();
-                onSubEvent("click");
+                const subItem = subItems[Number(e.key)];
+                const onSubEvent = subItem?.getView()?.onEvent;
+                onSubEvent && onSubEvent("click");
               }}
               selectedKeys={subMenuSelectedKeys}
               items={subMenuItems}
@@ -237,7 +257,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
     return (
       <>
         <Section name={sectionNames.basic}>
-          {menuPropertyView(children.items)}
+          {children.items.propertyView()}
         </Section>
 
         {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
@@ -285,3 +305,71 @@ export const NavComp = withExposingConfigs(NavCompBase, [
   NameConfigHidden,
   new NameConfig("items", trans("navigation.itemsDesc")),
 ]);
+
+// ----------------------------------------
+// Nav Items Control (Manual / Map modes)
+// ----------------------------------------
+function createNavItemsControl() {
+  const OptionTypes = [
+    { label: trans("prop.manual"), value: "manual" },
+    { label: trans("prop.map"), value: "map" },
+  ] as const;
+
+  // Variant used in Map mode
+  const NavMapOption = new MultiCompBuilder(
+    {
+      label: StringControl,
+      hidden: BoolCodeControl,
+      active: BoolCodeControl,
+      onEvent: eventHandlerControl([clickEvent]),
+    },
+    (props) => props
+  )
+    .setPropertyViewFn((children) => (
+      <>
+        {children.label.propertyView({ label: trans("label"), placeholder: "{{item}}" })}
+        {children.active.propertyView({ label: trans("navItemComp.active") })}
+        {children.hidden.propertyView({ label: trans("hidden") })}
+        {children.onEvent.propertyView({ inline: true })}
+      </>
+    ))
+    .build();
+
+  const TmpNavItemsControl = new MultiCompBuilder(
+    {
+      optionType: dropdownControl(OptionTypes, "manual"),
+      manual: navListComp(),
+      mapData: mapOptionsControl(NavMapOption),
+    },
+    (props) => {
+      return props.optionType === "manual" ? props.manual : props.mapData;
+    }
+  )
+    .setPropertyViewFn(() => {
+      throw new Error("Method not implemented.");
+    })
+    .build();
+
+  return class NavItemsControl extends TmpNavItemsControl {
+    exposingNode() {
+      return this.children.optionType.getView() === "manual"
+        ? (this.children.manual as any).exposingNode()
+        : (this.children.mapData as any).exposingNode();
+    }
+
+    propertyView() {
+      const isManual = this.children.optionType.getView() === "manual";
+      const content = isManual
+        ? menuPropertyView(this.children.manual as any)
+        : this.children.mapData.getPropertyView();
+
+      return controlItem(
+        { searchChild: true },
+        <>
+          {this.children.optionType.propertyView({ radioButton: true, type: "oneline" })}
+          {content}
+        </>
+      );
+    }
+  };
+}
