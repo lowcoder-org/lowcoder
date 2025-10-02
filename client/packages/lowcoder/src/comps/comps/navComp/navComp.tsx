@@ -67,11 +67,12 @@ const Item = styled.div<{
   $padding: string;
   $textTransform:string;
   $textDecoration:string;
+  $disabled?: boolean;
 }>`
   height: 30px;
   line-height: 30px;
   padding: ${(props) => props.$padding ? props.$padding : '0 16px'};
-  color: ${(props) => (props.$active ? props.$activeColor : props.$color)};
+  color: ${(props) => props.$disabled ? `${props.$color}80` : (props.$active ? props.$activeColor : props.$color)};
   font-weight: ${(props) => (props.$textWeight ? props.$textWeight : 500)};
   font-family:${(props) => (props.$fontFamily ? props.$fontFamily : 'sans-serif')};
   font-style:${(props) => (props.$fontStyle ? props.$fontStyle : 'normal')};
@@ -81,8 +82,8 @@ const Item = styled.div<{
   margin:${(props) => props.$margin ? props.$margin : '0px'};
   
   &:hover {
-    color: ${(props) => props.$activeColor};
-    cursor: pointer;
+    color: ${(props) => props.$disabled ? (props.$active ? props.$activeColor : props.$color) : props.$activeColor};
+    cursor: ${(props) => props.$disabled ? 'not-allowed' : 'pointer'};
   }
 
   .anticon {
@@ -166,6 +167,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
         const label = view?.label;
         const active = !!view?.active;
         const onEvent = view?.onEvent;
+        const disabled = !!view?.disabled;
         const subItems = isCompItem ? view?.items : [];
 
         const subMenuItems: Array<{ key: string; label: string }> = [];
@@ -199,7 +201,8 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             $textTransform={props.style.textTransform}
             $textDecoration={props.style.textDecoration}
             $margin={props.style.margin}
-            onClick={() => onEvent && onEvent("click")}
+            $disabled={disabled}
+            onClick={() => { if (!disabled && onEvent) onEvent("click"); }}
           >
             {label}
             {Array.isArray(subItems) && subItems.length > 0 && <DownOutlined />}
@@ -209,6 +212,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
           const subMenu = (
             <StyledMenu
               onClick={(e) => {
+                if (disabled) return;
                 const subItem = subItems[Number(e.key)];
                 const onSubEvent = subItem?.getView()?.onEvent;
                 onSubEvent && onSubEvent("click");
@@ -221,6 +225,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             <Dropdown
               key={idx}
               popupRender={() => subMenu}
+              disabled={disabled}
             >
               {item}
             </Dropdown>
@@ -320,6 +325,7 @@ function createNavItemsControl() {
     {
       label: StringControl,
       hidden: BoolCodeControl,
+      disabled: BoolCodeControl,
       active: BoolCodeControl,
       onEvent: eventHandlerControl([clickEvent]),
     },
@@ -330,7 +336,8 @@ function createNavItemsControl() {
         {children.label.propertyView({ label: trans("label"), placeholder: "{{item}}" })}
         {children.active.propertyView({ label: trans("navItemComp.active") })}
         {children.hidden.propertyView({ label: trans("hidden") })}
-        {children.onEvent.propertyView({ inline: true })}
+        {children.disabled.propertyView({ label: trans("disabled") })}
+        {children.onEvent.getPropertyView()}
       </>
     ))
     .build();
