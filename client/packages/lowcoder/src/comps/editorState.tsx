@@ -70,13 +70,17 @@ export class EditorState {
     rootComp: RootComp,
     setEditorState: (fn: (editorState: EditorState) => EditorState) => void,
     initialEditorModeStatus: string = getEditorModeStatus(),
+    isModuleRoot: boolean = false,
   ) {
     this.rootComp = rootComp;
     this.setEditorState = setEditorState;
     this.editorModeStatus = initialEditorModeStatus;
 
     // save collision status from app dsl to localstorage
-    saveCollisionStatus(this.getCollisionStatus());
+    // but only for apps, not for modules (to prevent modules from overwriting the app's setting)
+    if (!isModuleRoot) {
+      saveCollisionStatus(this.getCollisionStatus());
+    }
   }
 
   /**

@@ -100,7 +100,7 @@ const RootView = React.memo((props: RootViewProps) => {
           return (oldState ? changeEditorStateFn(oldState) : undefined)
         });
       }
-    });
+    }, undefined, isModuleRoot);
     editorStateRef.current = newEditorState;
     setEditorState(newEditorState);
 
@@ -109,7 +109,7 @@ const RootView = React.memo((props: RootViewProps) => {
         editorStateRef.current = undefined;
       }
     };
-  }, []);
+  }, [isModuleRoot]);
 
   useEffect(() => {
     if (!mountedRef.current || !editorState) return;
