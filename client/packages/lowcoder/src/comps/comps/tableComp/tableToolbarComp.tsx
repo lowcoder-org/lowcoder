@@ -871,6 +871,9 @@ export const TableToolbar = memo(function TableToolbar(props: {
             if (page !== pagination.current) {
               onEvent("pageChange");
             }
+            if (pageSize !== pagination.pageSize) {
+              onEvent("pageSizeChange");
+            }
           }}
         />
         {hasChange && toolbar.showUpdateButtons && (

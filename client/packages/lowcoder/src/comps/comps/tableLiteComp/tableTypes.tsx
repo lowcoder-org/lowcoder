@@ -99,6 +99,11 @@ export const TableEventOptions = [
     description: trans("table.pageChange"),
   },
   {
+    label: trans("table.pageSizeChange"),
+    value: "pageSizeChange",
+    description: trans("table.pageSizeChange"),
+  },
+  {
     label: trans("table.refresh"),
     value: "refresh",
     description: trans("table.refresh"),
