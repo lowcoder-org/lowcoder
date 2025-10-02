@@ -30,24 +30,22 @@ router.use(prefix, express.static(path.join(__dirname, "static")));
 /** Logging */
 router.use(morgan("dev"));
 
+const MAX_REQUEST_SIZE = process.env.LOWCODER_MAX_REQUEST_SIZE || "50mb";
+
 /** Parse the request */
-router.use(express.urlencoded({ extended: false }));
+router.use(express.urlencoded({ extended: false, limit: MAX_REQUEST_SIZE }));
 
 /** Custom middleware: use raw body for encrypted requests */
 router.use((req, res, next) => {
   if (req.headers["x-encrypted"]) {
-    bodyParser.text({ type: "*/*" })(req, res, next);
+    bodyParser.text({ type: "*/*", limit: MAX_REQUEST_SIZE })(req, res, next);
   } else {
-    bodyParser.json()(req, res, next);
+    bodyParser.json({ limit: MAX_REQUEST_SIZE })(req, res, next);
   }
 });
 
 /** Takes care of JSON data */
-router.use(
-  express.json({
-    limit: 1024 * 1024 * 50, // 50 MB
-  })
-);
+router.use(express.json({ limit: MAX_REQUEST_SIZE }));
 
 /** RULES OF OUR API */
 

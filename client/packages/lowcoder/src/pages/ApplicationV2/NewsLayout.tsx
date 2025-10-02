@@ -63,6 +63,16 @@ const CardImage = styled.img`
   border-radius: 4px;
 `;
 
+const StyledParagraph = styled(Paragraph)`
+  img {
+    max-width: 100%;   /* or whatever you want */
+    height: auto;         /* keep aspect ratio */
+    object-fit: contain; /* prevent distortion */
+    display: block;      /* optional: avoid inline weirdness */
+    margin: 8px 0;       /* optional spacing */
+  }
+`;
+
 const cardGridStyle = { padding: "8px" };
 
 type NewsEntry = any; // replace with actual types if available
@@ -139,7 +149,7 @@ export function NewsLayout() {
                       hoverable
                       cover={
                         <a href={url} target="_blank" rel="noreferrer">
-                          <CardImage src={coverImage} alt={htmlTitle} />
+                          <CardImage src={coverImage} alt={htmlTitle} style={{minHeight : "500px"}}/>
                         </a>
                       }
                     >
@@ -223,9 +233,9 @@ export function NewsLayout() {
                       extra={<a href={c.html_url} target="_blank" rel="noreferrer">View</a>}
                     >
                       <Paragraph type="secondary">{new Date(c.published_at).toLocaleDateString()}</Paragraph>
-                      <Paragraph ellipsis={{ rows: 5 }}>
+                      <StyledParagraph ellipsis={{ rows: 10 }}>
                         <span dangerouslySetInnerHTML={{ __html: c.body.replace(/\r\n/g, "<br />") }} />
-                      </Paragraph>
+                      </StyledParagraph>
                     </Card>
                   </Col>
                 );
@@ -233,8 +243,6 @@ export function NewsLayout() {
             </Row>
 
             <Divider />
-
-          
 
           </Card>  
           
