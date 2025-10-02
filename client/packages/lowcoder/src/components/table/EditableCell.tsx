@@ -225,6 +225,7 @@ function EditableCellComp<T extends JSONValue>(props: EditableCellProps<T>) {
           key={`normal-view-${cellIndex}`}
           tabIndex={editable ? 0 : -1 }
           onFocus={enterEditFn}
+          style={{ width: '100%', height: '100%'}}
         >
           {normalView}
         </div>

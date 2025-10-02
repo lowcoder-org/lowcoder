@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState, useCallback } from "react";
+import { ReactNode, useEffect, useState, useCallback, useRef } from "react";
 import { Input, Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
@@ -148,12 +148,19 @@ let AutoCompleteCompBase = (function () {
     const [activationFlag, setActivationFlag] = useState(false);
     const [searchtext, setsearchtext] = useState<string>(props.value.value);
     const [validateState, setvalidateState] = useState({});
+    
+    // Use simple refs like text input components
+    const changeRef = useRef(false);
+    const touchRef = useRef(false);
 
     //   是否中文环境
     const [chineseEnv, setChineseEnv] = useState(getDayJSLocale() === "zh-cn");
 
     useEffect(() => {
-      setsearchtext(props.value.value);
+      // Only update local state from props if user hasn't touched the input
+      if (!touchRef.current) {
+        setsearchtext(props.value.value);
+      }
       activationFlag &&
         setvalidateState(textInputValidate(getTextInputValidate()));
     }, [
@@ -247,19 +254,27 @@ let AutoCompleteCompBase = (function () {
       props.valueInItems.onChange(false);
       setvalidateState(textInputValidate(getTextInputValidate()));
       setsearchtext(value);
+      changeRef.current = true;
+      touchRef.current = true;
+      
+      // Update parent value immediately to prevent sync issues
       props.value.onChange(value);
       props.onEvent("change");
+      
       if(!Boolean(value)) {
         props.selectedOption.onChange({});
       }
     }, [props.valueInItems, getTextInputValidate, props.value, props.onEvent, props.selectedOption]);
 
     const handleSelect = useCallback((data: string, option: any) => {
-      setsearchtext(option[valueOrLabel]);
+      const selectedValue = option[valueOrLabel];
+      setsearchtext(selectedValue);
       props.valueInItems.onChange(true);
-      props.value.onChange(option[valueOrLabel]);
+      props.value.onChange(selectedValue);
       props.selectedOption.onChange(option);
       props.onEvent("submit");
+      changeRef.current = true;
+      touchRef.current = true;
     }, [valueOrLabel, props.valueInItems, props.value, props.onEvent, props.selectedOption]);
 
     const handleFocus = useCallback(() => {
@@ -268,6 +283,7 @@ let AutoCompleteCompBase = (function () {
     }, [props.onEvent]);
 
     const handleBlur = useCallback(() => {
+      touchRef.current = false;
       props.onEvent("blur");
     }, [props.onEvent]);
 

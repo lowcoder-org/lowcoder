@@ -1804,7 +1804,6 @@ export const TableRowStyle = [
   BORDER_WIDTH,
   BORDER_STYLE,
   ...BG_STATIC_BORDER_RADIUS,
-  getBackground(),
   {
     name: "selectedRowBackground",
     label: trans("style.selectedRowBackground"),

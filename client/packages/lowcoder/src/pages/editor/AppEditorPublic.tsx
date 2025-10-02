@@ -83,7 +83,7 @@ const AppEditorPublic = React.memo(() => {
   const [blockEditing, setBlockEditing] = useState<boolean>(true);
   const [fetchingAppDetails, setFetchingAppDetails] = useState<boolean>(false);
 
-  setGlobalSettings({ applicationId, isViewMode: paramViewMode === "view" });
+  setGlobalSettings({ applicationId, isViewMode: paramViewMode !== "edit" });
 
   if (!firstRendered.current) {
     perfClear();

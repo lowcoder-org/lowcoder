@@ -1133,6 +1133,10 @@ export const en = {
     "tableCompDesc": "A rich table component for displaying data in a structured table format, with options for sorting and filtering, tree Data display and extensible Rows.",
     "tableCompKeywords": "table, data, sorting, filtering",
 
+    "tableLiteCompName": "Table (Lite)",
+    "tableLiteCompDesc": "A lightweight, high-performance table component optimized for displaying many rows fast, with essential sorting and filtering capabilities.",
+    "tableLiteCompKeywords": "table, data, sorting, filtering, performance, lite",
+
     "imageCompName": "Image",
     "imageCompDesc": "A component for displaying images, supporting various formats based on URI or Base64 Data.",
     "imageCompKeywords": "image, display, media, Base64",
@@ -1925,6 +1929,12 @@ export const en = {
     "usePhoto": "Use Photo",
     "retakePhoto": "Retake Photo",
     "capture": "Capture",
+    "button": "Button",
+    "dragArea": "Drag Area",
+    "uploadMode": "Upload Mode",
+    "dragAreaText": "Click or drag file to this area to upload",
+    "dragAreaHint": "Support for a single or bulk upload. Strictly prohibited from uploading company data or other banned files.",
+    "dragHintText": "Hint Text",
   },
   "date": {
     "format": "Format",
@@ -2136,6 +2146,7 @@ export const en = {
     "filterChange": "Filter Change",
     "sortChange": "Sort Change",
     "pageChange": "Page Change",
+    "pageSizeChange": "Page Size Change",
     "refresh": "Refresh",
     "rowColor": "Conditional row color",
     "rowColorDesc": "Conditionally Set the Row Color Based on the Optional Variables: CurrentRow, CurrentOriginalIndex, CurrentIndex, ColumnTitle. For Example: '{{ currentRow.id > 3 ? \"green\" : \"red\" }}'",
@@ -2345,6 +2356,10 @@ export const en = {
     "titleAlign": "Title Alignment",
     "widthTooltip": "Pixel or Percentage, e.g. 520, 60%",
     "heightTooltip": "Pixel, e.g. 378",
+    "open": "Open",
+    "openDesc": "Triggered When the Drawer is Opened",
+    "close": "Close",
+    "closeDesc": "Triggered When the Drawer is Closed",
     "openDrawerDesc": "Open Drawer",
     "closeDrawerDesc": "Close Drawer",
     "width": "Drawer Width",
@@ -3102,7 +3117,14 @@ export const en = {
     "gutter" : "Gap",
     "gutterTooltip" : "The distance between tabs in px",
     "tabsCentered" : "Centered Tabs",
-    "destroyInactiveTab": "Destroy Inactive TabPane"
+    "destroyInactiveTab": "Destroy Inactive TabPane",
+    "tabBehavior": "Tab Behavior",
+    "tabBehaviorLazy": "Lazy",
+    "tabBehaviorKeepAlive": "Keep Alive",
+    "tabBehaviorDestroy": "Destroy Inactive",
+    "tabBehaviorLazyTooltip": "Render tabs only when they are first activated. Hidden tabs are not rendered until selected.",
+    "tabBehaviorKeepAliveTooltip": "Keep all tab contents mounted and initialized. Hidden tabs remain mounted but are visually hidden.",
+    "tabBehaviorDestroyTooltip": "Unmount contents of inactive tabs to free resources. Hidden tabs are destroyed until selected again."
   },
   "formComp": {
     "containerPlaceholder": "Drag Components from the Right Pane or",

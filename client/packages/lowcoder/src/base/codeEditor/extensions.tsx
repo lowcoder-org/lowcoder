@@ -27,7 +27,7 @@ import {
   foldKeymap,
   indentOnInput,
 } from "@codemirror/language";
-import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
+import { defaultKeymap, history, historyKeymap, insertTab, indentLess, indentMore } from "@codemirror/commands";
 import { highlightSelectionMatches, searchKeymap } from "@codemirror/search";
 import { Diagnostic, linter, lintKeymap } from "@codemirror/lint";
 import { type EditorState, Prec } from "@codemirror/state";
@@ -282,7 +282,20 @@ export function useFocusExtension(onFocus?: (focused: boolean) => void): [Extens
 }
 
 function indentWithTabExtension(open?: boolean) {
-  return open ?? true ? keymap.of([indentWithTab]) : [];
+  if (!(open ?? true)) return [];
+  return keymap.of([
+    {
+      key: "Tab",
+      run: (view: EditorView) => {
+        const { main } = view.state.selection;
+        if (!main.empty && main.from !== main.to) {
+          return indentMore(view);
+        }
+        return insertTab(view);
+      },
+    },
+    { key: "Shift-Tab", run: indentLess },
+  ]);
 }
 
 export function lineNoExtension(showLineNumber?: boolean) {
@@ -493,26 +506,26 @@ export function useExtensions(props: CodeEditorProps) {
       basicSetup,
       defaultTheme,
       highlightJsExt,
-      autocompletionExtension,
       focusExtension,
       lineNoExt,
       languageExt,
       onChangeExt,
       placeholderExt,
       indentWithTabExt,
+      autocompletionExtension,
       tooltipExt,
       lintExt,
       iconExt,
     ],
     [
       highlightJsExt,
-      autocompletionExtension,
       focusExtension,
       lineNoExt,
       languageExt,
       onChangeExt,
       placeholderExt,
       indentWithTabExt,
+      autocompletionExtension,
       tooltipExt,
       lintExt,
       iconExt,

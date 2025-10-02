@@ -32,6 +32,7 @@ spring:
           auth: ${LOWCODER_ADMIN_SMTP_AUTH:true}
           ssl:
             enable: ${LOWCODER_ADMIN_SMTP_SSL_ENABLED:false}
+            checkserveridentity: false
           starttls:
             enable: ${LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED:true}
             required: ${LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED:true}
@@ -64,7 +65,7 @@ common:
   domain:
     default-value: lowcoder.org
   cloud: false
-  version: 2.7.3
+  version: 2.7.5
   apiVersion: 1.2
   block-hound-enable: false
   encrypt:

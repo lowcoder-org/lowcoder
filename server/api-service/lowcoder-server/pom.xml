@@ -32,6 +32,14 @@
 		<keystore.key.password>${keystore.password}</keystore.key.password>
 	</properties>
 
+	<repositories>
+		<repository>
+			<id>local_libs</id>
+			<name>Temporary local libraries</name>
+			<url>file://${maven.multiModuleProjectDirectory}/local-repo</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 
 		<dependency>
@@ -295,7 +303,7 @@
 								<artifactItem>
 									<groupId>tv.twelvetone.rjson</groupId>
 									<artifactId>rjson</artifactId>
-									<version>LATEST</version>
+									<version>1.3.1-SNAPSHOT</version>
 									<overWrite>true</overWrite>
 									<outputDirectory>${assembly.lib.directory}</outputDirectory>
 								</artifactItem>

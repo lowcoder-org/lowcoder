@@ -123,7 +123,7 @@ export function isThemeColorKey(key: string) {
     case "padding":
     case "gridColumns":
     case "textSize":
-      case "lineHeight":
+    case "lineHeight":
       return true;
   }
   return false;

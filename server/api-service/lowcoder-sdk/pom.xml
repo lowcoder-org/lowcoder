@@ -13,6 +13,15 @@
 
     <name>lowcoder-sdk</name>
 
+
+    <repositories>
+        <repository>
+            <id>local_libs</id>
+            <name>Temporary local libraries</name>
+            <url>file://${maven.multiModuleProjectDirectory}/local-repo</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -124,6 +133,7 @@
         <dependency>
             <groupId>tv.twelvetone.rjson</groupId>
             <artifactId>rjson</artifactId>
+            <version>1.3.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>

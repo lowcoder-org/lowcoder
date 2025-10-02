@@ -38,7 +38,7 @@ import { JSONObject, JSONValue } from "util/jsonTypes";
 import { ButtonEventHandlerControl } from "./eventHandlerControl";
 import { ControlItemCompBuilder } from "comps/generators/controlCompBuilder";
 import { ColorControl } from "./colorControl";
-import { reduceInContext } from "../utils/reduceContext";
+
 import { BorderOuterOutlined } from "@ant-design/icons";
 
 // Tag preset color options
@@ -334,14 +334,6 @@ export function mapOptionsControl<T extends OptionsControlType>(
     }
 
     override reduce(action: CompAction) {
-      // TODO: temporary solution condition to fix context issue in dropdown option's events
-      if (
-        action.type === CompActionTypes.CUSTOM
-        && (action.value as JSONObject).type === 'actionTriggered'
-      ) {
-        const comp = reduceInContext({ inEventContext: true }, () => super.reduce(action));
-        return comp;
-      } else
       if (action.type === CompActionTypes.UPDATE_NODES_V2) {
         const comp = super.reduce(action)
         if (comp.children.data !== this.children.data) {
