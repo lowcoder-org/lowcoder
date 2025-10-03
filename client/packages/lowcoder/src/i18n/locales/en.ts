@@ -26,6 +26,8 @@ export const en = {
   "text": "Text",
   "basic": "Basic",
   "label": "Label",
+  "hidden": "Hidden",
+  "disabled": "Disabled",
   "layout": "Layout",
   "color": "Color",
   "form": "Form",

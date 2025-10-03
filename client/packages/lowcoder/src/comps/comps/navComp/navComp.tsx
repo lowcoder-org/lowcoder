@@ -136,13 +136,29 @@ function fixOldStyleData(oldData: any) {
   return oldData;
 }
 
+function fixOldItemsData(oldData: any) {
+  if (Array.isArray(oldData)) {
+    return {
+      optionType: "manual",
+      manual: oldData,
+    };
+  }
+  if (oldData && !oldData.optionType && Array.isArray(oldData.manual)) {
+    return {
+      optionType: "manual",
+      manual: oldData.manual,
+    };
+  }
+  return oldData;
+}
+
 const childrenMap = {
   logoUrl: StringControl,
   logoEvent: withDefault(eventHandlerControl(logoEventHandlers), [{ name: "click" }]),
   horizontalAlignment: alignWithJustifyControl(),
   style: migrateOldData(styleControl(NavigationStyle, 'style'), fixOldStyleData),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
-  items: withDefault(createNavItemsControl(), {
+  items: withDefault(migrateOldData(createNavItemsControl(), fixOldItemsData), {
     optionType: "manual",
     manual: [
       {
@@ -320,7 +336,6 @@ function createNavItemsControl() {
     { label: trans("prop.map"), value: "map" },
   ] as const;
 
-  // Variant used in Map mode
   const NavMapOption = new MultiCompBuilder(
     {
       label: StringControl,
