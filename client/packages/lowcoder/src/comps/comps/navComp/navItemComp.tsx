@@ -45,9 +45,9 @@ export class NavItemComp extends MultiBaseComp<ChildrenType> {
     return (
       <>
         {this.children.label.propertyView({ label: trans("label") })}
-        {disabledPropertyView(this.children)}
         {hiddenPropertyView(this.children)}
         {this.children.active.propertyView({ label: trans("navItemComp.active") })}
+        {disabledPropertyView(this.children)}
         {this.children.onEvent.propertyView({ inline: true })}
       </>
     );
