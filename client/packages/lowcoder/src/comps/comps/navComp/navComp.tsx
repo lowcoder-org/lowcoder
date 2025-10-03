@@ -186,7 +186,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
         const disabled = !!view?.disabled;
         const subItems = isCompItem ? view?.items : [];
 
-        const subMenuItems: Array<{ key: string; label: string }> = [];
+        const subMenuItems: Array<{ key: string; label: any; disabled?: boolean }> = [];
         const subMenuSelectedKeys: Array<string> = [];
 
         if (Array.isArray(subItems)) {
@@ -199,6 +199,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             subMenuItems.push({
               key: key,
               label: subItem.children.label.getView(),
+              disabled: !!subItem.children.disabled.getView(),
             });
           });
         }
@@ -230,6 +231,8 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
               onClick={(e) => {
                 if (disabled) return;
                 const subItem = subItems[Number(e.key)];
+                const isSubDisabled = !!subItem?.children?.disabled?.getView?.();
+                if (isSubDisabled) return;
                 const onSubEvent = subItem?.getView()?.onEvent;
                 onSubEvent && onSubEvent("click");
               }}
