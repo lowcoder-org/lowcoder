@@ -150,11 +150,19 @@ const ScannerTmpComp = (function () {
     }, [success, showModal]);
 
     const continuousValue = useRef<string[]>([]);
+    const seenSetRef = useRef<Set<string>>(new Set());
 
     const handleUpdate = (err: any, result: any) => {
       if (result) {
         if (props.continuous) {
-          continuousValue.current = [...continuousValue.current, result.text];
+          const scannedText: string = result.text;
+          if (props.uniqueData && seenSetRef.current.has(scannedText)) {
+            return;
+          }
+          continuousValue.current = [...continuousValue.current, scannedText];
+          if (props.uniqueData) {
+            seenSetRef.current.add(scannedText);
+          }
           const val = props.uniqueData
             ? [...new Set(continuousValue.current)]
             : continuousValue.current;
@@ -205,6 +213,7 @@ const ScannerTmpComp = (function () {
             props.onEvent("click");
             setShowModal(true);
             continuousValue.current = [];
+            seenSetRef.current = new Set();
           }}
         >
           <span>{props.text}</span>
