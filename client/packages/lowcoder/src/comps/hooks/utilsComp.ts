@@ -87,12 +87,12 @@ UtilsComp = withMethodExposing(UtilsComp, [
     method: {
       name: "copyToClipboard",
       description: trans("utilsComp.copyToClipboard"),
-      params: [{ name: "url", type: "string" }],
+      params: [{ name: "text", type: "string" }],
     },
     execute: (comp, params) => {
       const text = params?.[0];
       if (typeof text === "string" && !isEmpty(text)) {
-        copy(text);
+        copy(text, { format: "text/plain" });
       }
     },
   },
