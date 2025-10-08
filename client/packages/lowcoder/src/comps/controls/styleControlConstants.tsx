@@ -2371,6 +2371,18 @@ export const RichTextEditorStyle = [
   BORDER_WIDTH,
 ] as const;
 
+export const TableColumnButtonStyle = [
+  getBackground('primary'),
+  {
+    name: "text",
+    label: trans("style.text"),
+    color: "#000000",
+  },
+  PADDING,  
+  BORDER,
+] as const;
+
+
 export type QRCodeStyleType = StyleConfigType<typeof QRCodeStyle>;
 export type TimeLineStyleType = StyleConfigType<typeof TimeLineStyle>;
 export type AvatarStyleType = StyleConfigType<typeof AvatarStyle>;
@@ -2437,6 +2449,7 @@ export type TableColumnStyleType = StyleConfigType<typeof TableColumnStyle>;
 export type TableColumnLinkStyleType = StyleConfigType<
   typeof TableColumnLinkStyle
 >;
+export type TableColumnButtonStyleType = StyleConfigType<typeof TableColumnButtonStyle>;
 export type TableSummaryRowStyleType = StyleConfigType<typeof TableSummaryRowStyle>;
 export type FileStyleType = StyleConfigType<typeof FileStyle>;
 export type FileViewerStyleType = StyleConfigType<typeof FileViewerStyle>;
