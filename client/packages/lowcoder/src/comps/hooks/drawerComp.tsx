@@ -4,7 +4,7 @@ import { ContainerCompBuilder } from "comps/comps/containerBase/containerCompBui
 import { gridItemCompToGridItems, InnerGrid } from "comps/comps/containerComp/containerView";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { BoolControl } from "comps/controls/boolControl";
-import { StringControl } from "comps/controls/codeControl";
+import { StringControl, NumberControl } from "comps/controls/codeControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { PositionControl, LeftRightControl, HorizontalAlignmentControl } from "comps/controls/dropdownControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
@@ -122,6 +122,7 @@ const childrenMap = {
   showMask: withDefault(BoolControl, true),
   toggleClose:withDefault(BoolControl,true),
   escapeClosable: withDefault(BoolControl, true),
+  zIndex: withDefault(NumberControl, Layers.drawer),
 };
 
 type ChildrenType = NewChildren<RecordConstructorToComp<typeof childrenMap>> & {
@@ -167,6 +168,9 @@ const DrawerPropertyView = React.memo((props: {
       })}
       {props.children.escapeClosable.propertyView({
         label: trans("prop.escapeClose"),
+      })}
+      {props.children.zIndex.propertyView({
+        label: trans("prop.zIndex"),
       })}
     </Section>
     <Section name={sectionNames.interaction}>{props.children.onEvent.getPropertyView()}</Section>
@@ -251,7 +255,7 @@ const DrawerView = React.memo((
           height={!props.autoHeight ? transToPxSize(props.height || DEFAULT_SIZE) : ""}
           onClose={onClose}
           afterOpenChange={afterOpenChange}
-          zIndex={Layers.drawer}
+          zIndex={props.zIndex}
           maskClosable={props.maskClosable}
           mask={true}
           className={clsx(`app-${appID}`, props.className)}
