@@ -2363,7 +2363,9 @@ export const en = {
     "openDrawerDesc": "Open Drawer",
     "closeDrawerDesc": "Close Drawer",
     "width": "Drawer Width",
-    "height": "Drawer Height"
+    "height": "Drawer Height",
+    "closeIcon": "Close Icon",
+
   },
   "meeting": {
     "logLevel": "Agora SDK Log Level",
