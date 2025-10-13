@@ -331,7 +331,7 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
       value = Number(defaultValue);
     }
     props.value.onChange(value);
-  }, [defaultValue]);
+  }, [defaultValue, props.allowNull]);
 
   const formatFn = (value: number) =>
     format(value, props.allowNull, props.formatter, props.precision, props.thousandsSeparator);
