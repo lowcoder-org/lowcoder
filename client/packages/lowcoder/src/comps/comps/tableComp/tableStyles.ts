@@ -138,6 +138,7 @@ export const TableWrapper = styled.div.attrs<{
   $fixedToolbar: boolean;
   $visibleResizables: boolean;
   $showHRowGridBorder?: boolean;
+  $showRowGridBorder?: boolean;
   $isVirtual?: boolean;
   $showHorizontalScrollbar?: boolean;
   $showVerticalScrollbar?: boolean;
@@ -207,7 +208,10 @@ export const TableWrapper = styled.div.attrs<{
             border-color: ${(props) => props.$headerStyle.border};
             border-width: ${(props) => props.$headerStyle.borderWidth};
             color: ${(props) => props.$headerStyle.headerText};
-            // border-inline-end: ${(props) => `${props.$headerStyle.borderWidth} solid ${props.$headerStyle.border}`} !important;
+            ${(props) => props.$showRowGridBorder
+              ? `border-inline-end: ${props.$headerStyle.borderWidth} solid ${props.$headerStyle.border} !important;`
+              : `border-inline-end: none !important;`
+            }
 
             /* Proper styling for fixed header cells */
             &.ant-table-cell-fix-left, &.ant-table-cell-fix-right {
