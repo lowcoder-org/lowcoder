@@ -61,7 +61,7 @@ const getStyle = (
     // Implement horizontal scrollbar and vertical page number selection is not blocked
     padding: 13px 12px;
     position: sticky;
-    postion: -webkit-sticky;
+    position: -webkit-sticky;
     left: 0px !important;
     margin: ${style.margin} !important;
     z-index: 999;
@@ -116,7 +116,7 @@ const getStyle = (
     .ant-pagination-prev,
     .ant-pagination-next {
       path {
-        ${style.toolbarText !== defaultTheme.textDark ? `fill: ${style.toolbarText}` : null};
+        ${style.paginationText || style.toolbarText !== defaultTheme.textDark ? `fill: ${style.paginationText || style.toolbarText}` : null};
       }
 
       svg:hover {
@@ -127,22 +127,50 @@ const getStyle = (
     }
 
     .ant-pagination {
-      color: ${style.toolbarText};
+      color: ${style.paginationText || style.toolbarText};
+    }
+
+    // number items
+    .ant-pagination-item {
+      background: ${style.paginationBackground || 'transparent'};
+      border-color: ${style.border || 'transparent'};
+      a {
+        color: ${style.paginationText || style.toolbarText};
+      }
+      &:hover a {
+        color: ${theme?.primary};
+      }
     }
 
     .ant-pagination-item-active {
+      background: ${style.paginationActiveBackground || style.paginationBackground || 'transparent'};
       border-color: ${style.border || theme?.primary};
 
       a {
-        color: ${theme?.textDark};
+        color: ${style.paginationActiveText || theme?.textDark};
       }
     }
 
     .ant-pagination-item:not(.ant-pagination-item-active) a {
-      color: ${style.toolbarText};
+      color: ${style.paginationText || style.toolbarText};
 
       &:hover {
         color: ${theme?.primary};
+      }
+    }
+
+    // size changer select
+    .ant-pagination-options {
+      .ant-select-selector {
+        background: ${style.paginationBackground || 'transparent'};
+        color: ${style.paginationText || style.toolbarText};
+        border-color: ${style.border || theme?.primary};
+      }
+      .ant-select-selection-item {
+        color: ${style.paginationText || style.toolbarText};
+      }
+      .ant-select-arrow {
+        color: ${style.paginationText || style.toolbarText};
       }
     }
 
@@ -152,6 +180,11 @@ const getStyle = (
     .ant-pagination-options-quick-jumper input:hover,
     .ant-pagination-options-quick-jumper input:focus {
       border-color: ${style.border || theme?.primary};
+    }
+
+    .ant-pagination-options-quick-jumper input {
+      background: ${style.paginationBackground || 'transparent'};
+      color: ${style.paginationText || style.toolbarText};
     }
   `;
 };

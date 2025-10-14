@@ -669,7 +669,15 @@ export const en = {
     "headerBackgroundImageOriginTip": "Specifies the positioning area of the header's background image. Example: padding-box, border-box, content-box.",
     "footerBackgroundImageOriginTip": "Specifies the positioning area of the footer's background image. Example: padding-box, border-box, content-box.",
     "rotationTip": "Specifies the rotation angle of the element. Example: 45deg, 90deg, -180deg.",
-    "lineHeightTip": "Sets the height of a line of text. Example: 1.5, 2, 120%."
+    "lineHeightTip": "Sets the height of a line of text. Example: 1.5, 2, 120%.",
+    "paginationBackground": "Pagination Background",
+    "paginationBackgroundTooltip": "Background color for pagination controls",
+    "paginationText": "Pagination Text",
+    "paginationTextTooltip": "Text color for pagination numbers and controls",
+    "paginationActiveBackground": "Pagination Active Background",
+    "paginationActiveBackgroundTooltip": "Background color for the active/selected page number",
+    "paginationActiveText": "Pagination Active Text",
+    "paginationActiveTextTooltip": "Text color for the active/selected page number",
   },
   "export": {
     "hiddenDesc": "If true, the component is hidden",
