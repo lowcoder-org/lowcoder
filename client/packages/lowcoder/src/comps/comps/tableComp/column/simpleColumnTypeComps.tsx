@@ -4,8 +4,8 @@ import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { disabledPropertyView, loadingPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { useStyle } from "comps/controls/styleControl";
-import { ButtonStyle } from "comps/controls/styleControlConstants";
+import { styleControl, useStyle } from "comps/controls/styleControl";
+import { ButtonStyle, TableColumnButtonStyle } from "comps/controls/styleControlConstants";
 import { Button100 } from "comps/comps/buttonComp/buttonCompConstants";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
@@ -58,10 +58,11 @@ const childrenMap = {
   disabled: BoolCodeControl,
   prefixIcon: IconControl,
   suffixIcon: IconControl,
+  style: styleControl(TableColumnButtonStyle, 'style', { boldTitle: true }),
 };
 
 const ButtonStyled = React.memo(({ props }: { props: ToViewReturn<RecordConstructorToComp<typeof childrenMap>>}) => {
-  const style = useStyle(ButtonStyle);
+  const themeButtonStyle = useStyle(ButtonStyle);
   const hasText = !!props.text;
   const hasPrefixIcon = hasIcon(props.prefixIcon);
   const hasSuffixIcon = hasIcon(props.suffixIcon);
@@ -85,7 +86,10 @@ const ButtonStyled = React.memo(({ props }: { props: ToViewReturn<RecordConstruc
       onClick={handleClick}
       loading={props.loading}
       disabled={props.disabled}
-      $buttonStyle={props.buttonType === "primary" ? style : undefined}
+      $buttonStyle={props.buttonType === "primary" ? ({
+        ...themeButtonStyle,
+        ...(props.style as any),
+      } as any) : undefined}
       style={buttonStyle}
       icon={hasPrefixIcon ? props.prefixIcon : undefined}
     >
@@ -120,6 +124,7 @@ const ButtonCompTmp = (function () {
         })}
         {loadingPropertyView(children)}
         {disabledPropertyView(children)}
+        {children.style.getPropertyView()}
         {children.onClick.propertyView()}
       </>
     ))
