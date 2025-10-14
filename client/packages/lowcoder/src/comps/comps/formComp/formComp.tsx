@@ -390,15 +390,24 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
         if (ret.children.initialData !== this.children.initialData) {
           // FIXME: kill setTimeout ?
           setTimeout(() => {
-            this.dispatch(
-              customAction<SetDataAction>(
-                {
-                  type: "setData",
-                  initialData: (action.value["initialData"] as ValueAndMsg<JSONObject>).value || {},
-                },
-                false
-              )
-            );
+            const newInitialData = (action.value["initialData"] as ValueAndMsg<JSONObject>)
+              .value;
+            // only setData when initialData has explicit keys.
+            if (
+              newInitialData &&
+              typeof newInitialData === "object" &&
+              Object.keys(newInitialData).length > 0
+            ) {
+              this.dispatch(
+                customAction<SetDataAction>(
+                  {
+                    type: "setData",
+                    initialData: newInitialData,
+                  },
+                  false
+                )
+              );
+            }
           }, 1000);
         }
         return ret;
