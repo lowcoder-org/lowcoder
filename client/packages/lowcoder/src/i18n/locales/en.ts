@@ -26,6 +26,8 @@ export const en = {
   "text": "Text",
   "basic": "Basic",
   "label": "Label",
+  "hidden": "Hidden",
+  "disabled": "Disabled",
   "layout": "Layout",
   "color": "Color",
   "form": "Form",
@@ -3204,7 +3206,7 @@ export const en = {
     "logoURL": "Navigation Logo URL",
     "horizontalAlignment": "Horizontal Alignment",
     "logoURLDesc": "You can display a Logo on the left side by entering URI Value or Base64 String like data:image/png;base64,AAA... CCC",
-    "itemsDesc": "Hierarchical Navigation Menu Items"
+    "itemsDesc": "Menu Items"
   },
   "droppadbleMenuItem": {
     "subMenu": "Submenu {number}"

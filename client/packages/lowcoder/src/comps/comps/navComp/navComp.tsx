@@ -1,9 +1,10 @@
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
+import { MultiCompBuilder } from "comps/generators/multi";
 import { UICompBuilder, withDefault } from "comps/generators";
 import { Section, sectionNames } from "lowcoder-design";
 import styled from "styled-components";
 import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
-import { StringControl } from "comps/controls/codeControl";
+import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
 import { navListComp } from "./navItemComp";
 import { menuPropertyView } from "./components/MenuItemList";
@@ -22,6 +23,8 @@ import { trans } from "i18n";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { controlItem } from "lowcoder-design";
+import { createNavItemsControl } from "./components/NavItemsControl";
 
 type IProps = {
   $justify: boolean;
@@ -63,11 +66,12 @@ const Item = styled.div<{
   $padding: string;
   $textTransform:string;
   $textDecoration:string;
+  $disabled?: boolean;
 }>`
   height: 30px;
   line-height: 30px;
   padding: ${(props) => props.$padding ? props.$padding : '0 16px'};
-  color: ${(props) => (props.$active ? props.$activeColor : props.$color)};
+  color: ${(props) => props.$disabled ? `${props.$color}80` : (props.$active ? props.$activeColor : props.$color)};
   font-weight: ${(props) => (props.$textWeight ? props.$textWeight : 500)};
   font-family:${(props) => (props.$fontFamily ? props.$fontFamily : 'sans-serif')};
   font-style:${(props) => (props.$fontStyle ? props.$fontStyle : 'normal')};
@@ -77,8 +81,8 @@ const Item = styled.div<{
   margin:${(props) => props.$margin ? props.$margin : '0px'};
   
   &:hover {
-    color: ${(props) => props.$activeColor};
-    cursor: pointer;
+    color: ${(props) => props.$disabled ? (props.$active ? props.$activeColor : props.$color) : props.$activeColor};
+    cursor: ${(props) => props.$disabled ? 'not-allowed' : 'pointer'};
   }
 
   .anticon {
@@ -131,41 +135,74 @@ function fixOldStyleData(oldData: any) {
   return oldData;
 }
 
+function fixOldItemsData(oldData: any) {
+  if (Array.isArray(oldData)) {
+    return {
+      optionType: "manual",
+      manual: oldData,
+    };
+  }
+  if (oldData && !oldData.optionType && Array.isArray(oldData.manual)) {
+    return {
+      optionType: "manual",
+      manual: oldData.manual,
+    };
+  }
+  return oldData;
+}
+
 const childrenMap = {
   logoUrl: StringControl,
   logoEvent: withDefault(eventHandlerControl(logoEventHandlers), [{ name: "click" }]),
   horizontalAlignment: alignWithJustifyControl(),
   style: migrateOldData(styleControl(NavigationStyle, 'style'), fixOldStyleData),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
-  items: withDefault(navListComp(), [
-    {
-      label: trans("menuItem") + " 1",
-    },
-  ]),
+  items: withDefault(migrateOldData(createNavItemsControl(), fixOldItemsData), {
+    optionType: "manual",
+    manual: [
+      {
+        label: trans("menuItem") + " 1",
+      },
+    ],
+  }),
 };
 
 const NavCompBase = new UICompBuilder(childrenMap, (props) => {
   const data = props.items;
   const items = (
     <>
-      {data.map((menuItem, idx) => {
-        const { hidden, label, items, active, onEvent } = menuItem.getView();
+      {data.map((menuItem: any, idx: number) => {
+        const isCompItem = typeof menuItem?.getView === "function";
+        const view = isCompItem ? menuItem.getView() : menuItem;
+        const hidden = !!view?.hidden;
         if (hidden) {
           return null;
         }
-        const subMenuItems: Array<{ key: string; label: string }> = [];
+
+        const label = view?.label;
+        const active = !!view?.active;
+        const onEvent = view?.onEvent;
+        const disabled = !!view?.disabled;
+        const subItems = isCompItem ? view?.items : [];
+
+        const subMenuItems: Array<{ key: string; label: any; disabled?: boolean }> = [];
         const subMenuSelectedKeys: Array<string> = [];
-        items.forEach((subItem, originalIndex) => {
-          if (subItem.children.hidden.getView()) {
-            return;
-          }
-          const key = originalIndex + "";
-          subItem.children.active.getView() && subMenuSelectedKeys.push(key);
-          subMenuItems.push({
-            key: key,
-            label: subItem.children.label.getView(),
+
+        if (Array.isArray(subItems)) {
+          subItems.forEach((subItem: any, originalIndex: number) => {
+            if (subItem.children.hidden.getView()) {
+              return;
+            }
+            const key = originalIndex + "";
+            subItem.children.active.getView() && subMenuSelectedKeys.push(key);
+            subMenuItems.push({
+              key: key,
+              label: subItem.children.label.getView(),
+              disabled: !!subItem.children.disabled.getView(),
+            });
           });
-        });
+        }
+
         const item = (
           <Item
             key={idx}
@@ -180,18 +217,23 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             $textTransform={props.style.textTransform}
             $textDecoration={props.style.textDecoration}
             $margin={props.style.margin}
-            onClick={() => onEvent("click")}
+            $disabled={disabled}
+            onClick={() => { if (!disabled && onEvent) onEvent("click"); }}
           >
             {label}
-            {items.length > 0 && <DownOutlined />}
+            {Array.isArray(subItems) && subItems.length > 0 && <DownOutlined />}
           </Item>
         );
         if (subMenuItems.length > 0) {
           const subMenu = (
             <StyledMenu
               onClick={(e) => {
-                const { onEvent: onSubEvent } = items[Number(e.key)]?.getView();
-                onSubEvent("click");
+                if (disabled) return;
+                const subItem = subItems[Number(e.key)];
+                const isSubDisabled = !!subItem?.children?.disabled?.getView?.();
+                if (isSubDisabled) return;
+                const onSubEvent = subItem?.getView()?.onEvent;
+                onSubEvent && onSubEvent("click");
               }}
               selectedKeys={subMenuSelectedKeys}
               items={subMenuItems}
@@ -201,6 +243,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             <Dropdown
               key={idx}
               popupRender={() => subMenu}
+              disabled={disabled}
             >
               {item}
             </Dropdown>
@@ -237,7 +280,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
     return (
       <>
         <Section name={sectionNames.basic}>
-          {menuPropertyView(children.items)}
+          {children.items.propertyView()}
         </Section>
 
         {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
