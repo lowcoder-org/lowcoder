@@ -165,6 +165,8 @@ function ResizeableTableComp<RecordType extends object>(props: CustomTableProps<
       onClick: () => onCellClick(col.titleText, String(col.dataIndex)),
       loading: customLoading,
       customAlign: col.align,
+      className: col.columnClassName,
+      'data-testid': col.columnDataTestId,
     });
   }, [rowColorFn, rowHeightFn, columnsStyle, size, rowAutoHeight, onCellClick, customLoading]);
 
@@ -182,6 +184,8 @@ function ResizeableTableComp<RecordType extends object>(props: CustomTableProps<
       onResizeStop: (e: React.SyntheticEvent, { size }: { size: { width: number } }) => {
         handleResizeStop(size.width, index, col.onWidthResize);
       },
+      className: col.columnClassName,
+      'data-testid': col.columnDataTestId,
     });
   }, [viewModeResizable, handleResize, handleResizeStop]);
 

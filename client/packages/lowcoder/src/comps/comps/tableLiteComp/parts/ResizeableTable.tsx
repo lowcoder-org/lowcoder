@@ -108,6 +108,8 @@ function ResizeableTableComp<RecordType extends object>(
         onClick: () => onCellClick(col.titleText, String(col.dataIndex)),
         loading: customLoading,
         customAlign: col.align,
+        className: col.columnClassName,
+        'data-testid': col.columnDataTestId,
       });
     },
     [
@@ -138,6 +140,8 @@ function ResizeableTableComp<RecordType extends object>(
         ) => {
           handleResizeStop(size.width, index, col.onWidthResize);
         },
+        className: col.columnClassName,
+        'data-testid': col.columnDataTestId,
       });
     },
     [viewModeResizable, handleResize, handleResizeStop]

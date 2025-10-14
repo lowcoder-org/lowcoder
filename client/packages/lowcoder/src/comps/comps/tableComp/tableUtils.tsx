@@ -333,6 +333,8 @@ export type CustomColumnType<RecordType> = ColumnType<RecordType> & {
   style: TableColumnStyleType;
   linkStyle: TableColumnLinkStyleType;
   cellColorFn: CellColorViewType;
+  columnClassName?: string;
+  columnDataTestId?: string;
 };
 
 /**
@@ -400,6 +402,8 @@ export function columnsToAntdFormat(
       align: column.align,
       width: column.autoWidth === "auto" ? 0 : column.width,
       fixed: column.fixed === "close" ? false : column.fixed,
+      columnClassName: column.className,
+      columnDataTestId: column.dataTestId,
       style: {
         background: column.background,
         margin: column.margin,
