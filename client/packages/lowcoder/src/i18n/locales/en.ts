@@ -239,7 +239,8 @@ export const en = {
     "timeZone": "TimeZone",
     "pickerMode": "Picker Mode",
     "customTags": "Allow Custom Tags",
-    "customTagsTooltip": "Allow users to enter custom tags that are not in the options list."
+    "customTagsTooltip": "Allow users to enter custom tags that are not in the options list.",
+    "zIndex": "z-Index"
   },
   "autoHeightProp": {
     "auto": "Auto",
