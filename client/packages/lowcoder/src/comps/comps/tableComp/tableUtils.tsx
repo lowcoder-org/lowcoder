@@ -209,7 +209,8 @@ export function transformDispalyData(
   return oriDisplayData.map((row) => {
     const transData = _(row)
       .omit(OB_ROW_ORI_INDEX)
-      .mapKeys((value, key) => dataIndexTitleDict[key] || key)
+      .pickBy((value, key) => key in dataIndexTitleDict) // Only include columns in the dictionary
+      .mapKeys((value, key) => dataIndexTitleDict[key])
       .value();
     if (Array.isArray(row[COLUMN_CHILDREN_KEY])) {
       return {
