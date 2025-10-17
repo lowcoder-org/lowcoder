@@ -612,6 +612,11 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
                 tooltip: trans("table.dynamicColumnConfigDesc"),
             })}
           </Section>
+
+          <Section name={trans("prop.component")}>
+            {comp.children.className.propertyView({ label: trans("prop.className") })}
+            {comp.children.dataTestId.propertyView({ label: trans("prop.dataTestId") })}
+          </Section>
         </>
       )}
 

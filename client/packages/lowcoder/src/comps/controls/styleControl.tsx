@@ -937,11 +937,12 @@ function calcColors<ColorMap extends Record<string, string>>(
   return res as ColorMap;
 }
 
-const TitleDiv = styled.div`
+const TitleDiv = styled.div<{ $boldTitle?: boolean }>`
   display: flex;
   justify-content: space-between;
   font-size: 13px;
   line-height: 1;
+  font-weight: ${(props) => (props.$boldTitle ? 600 : 400)};
 
   span:nth-of-type(2) {
     cursor: pointer;
@@ -1149,6 +1150,7 @@ const useThemeStyles = (
 export function styleControl<T extends readonly SingleColorConfig[]>(
   colorConfigs: T,
   styleKey: string = '',
+  options?: { boldTitle?: boolean },
 ) {
   type ColorMap = { [K in Names<T>]: string };
   const childrenMap: any = {};
@@ -1268,7 +1270,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
 
       return (
         <>
-          <TitleDiv>
+          <TitleDiv $boldTitle={options?.boldTitle}>
             <span>{label}</span>
             {showReset && (
               <span

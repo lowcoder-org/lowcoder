@@ -4,7 +4,13 @@ import styled from 'styled-components';
 import SimpleBar from 'simplebar-react';
 // import 'simplebar-react/dist/simplebar.min.css';
 
-const MainContainer = styled.div<{
+const MainContainer = styled.div.attrs<{
+  className?: string;
+  "data-testid"?: string;
+}>((props) => ({
+  className: props.className,
+  "data-testid": props["data-testid"],
+}))<{
   $mode: 'AUTO' | 'FIXED';
   $showHorizontalScrollbar: boolean;
   $showVerticalScrollbar: boolean;
@@ -114,6 +120,8 @@ interface TableContainerProps {
   showVerticalScrollbar: boolean;
   showHorizontalScrollbar: boolean;
   virtual: boolean;
+  className?: string;
+  dataTestId?: string;
 }
 
 export const TableContainer: React.FC<TableContainerProps> = ({
@@ -126,7 +134,9 @@ export const TableContainer: React.FC<TableContainerProps> = ({
   containerRef,
   showVerticalScrollbar,
   showHorizontalScrollbar,
-  virtual
+  virtual,
+  className,
+  dataTestId
 }) => {
   return (
     <MainContainer 
@@ -135,6 +145,8 @@ export const TableContainer: React.FC<TableContainerProps> = ({
       $showHorizontalScrollbar={showHorizontalScrollbar}
       $showVerticalScrollbar={showVerticalScrollbar}
       $virtual={virtual}
+      className={className}
+      data-testid={dataTestId}
     >
       {/* Sticky above toolbar - always visible */}
       {stickyToolbar && toolbarPosition === 'above' && showToolbar && (

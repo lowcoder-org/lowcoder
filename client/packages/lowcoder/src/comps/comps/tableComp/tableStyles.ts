@@ -122,7 +122,13 @@ export const BackgroundWrapper = styled.div<{
 `;
 
 // TODO: find a way to limit the calc function for max-height only to first Margin value
-export const TableWrapper = styled.div<{
+export const TableWrapper = styled.div.attrs<{
+  className?: string;
+  "data-testid"?: string;
+}>((props) => ({
+  className: props.className,
+  "data-testid": props["data-testid"],
+}))<{
   $style: TableStyleType;
   $headerStyle: TableHeaderStyleType;
   $toolbarStyle: TableToolbarStyleType;

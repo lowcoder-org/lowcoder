@@ -100,6 +100,8 @@ export const TableCompView = React.memo((props: {
   const onEvent = useMemo(() => compChildren.onEvent.getView(), [compChildren.onEvent]);
   const currentExpandedRows = useMemo(() => compChildren.currentExpandedRows.getView(), [compChildren.currentExpandedRows]);
   const dynamicColumn = compChildren.dynamicColumn.getView();
+  const className = compChildren.className.getView();
+  const dataTestId = compChildren.dataTestId.getView();
 
   const dynamicColumnConfig = useMemo(
     () => compChildren.dynamicColumnConfig.getView(),
@@ -360,6 +362,8 @@ export const TableCompView = React.memo((props: {
           suffixNode={toolbar.position === "below" && !toolbar.fixedToolbar && !(tableMode.isAutoMode && showHorizontalScrollbar) && toolbarView}
         >
           <TableWrapper
+            className={className}
+            data-testid={dataTestId}
             $style={style}
             $rowStyle={rowStyle}
             $headerStyle={headerStyle}

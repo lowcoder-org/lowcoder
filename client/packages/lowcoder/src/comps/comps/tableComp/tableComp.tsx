@@ -822,6 +822,55 @@ TableTmpComp = withMethodExposing(TableTmpComp, [
       }
     },
   }
+  ,
+  {
+    method: {
+      name: "hideColumns",
+      description: "Hide specified columns by dataIndex or title",
+      params: [
+        { name: "columns", type: "arrayString" },
+      ],
+    },
+    execute: (comp, values) => {
+      const columns = values[0];
+      if (!isArray(columns)) {
+        return Promise.reject("hideColumns expects an array of strings, e.g. ['id','name']");
+      }
+      const targets = new Set((columns as any[]).map((c) => String(c)));
+      comp.children.columns.getView().forEach((c) => {
+        const view = c.getView();
+        if (targets.has(view.dataIndex) || targets.has(view.title)) {
+          // Ensure both persistent and temporary flags are updated
+          c.children.hide.dispatchChangeValueAction(true);
+          c.children.tempHide.dispatchChangeValueAction(true);
+        }
+      });
+    },
+  }
+  ,
+  {
+    method: {
+      name: "showColumns",
+      description: "Show specified columns by dataIndex or title",
+      params: [
+        { name: "columns", type: "arrayString" },
+      ],
+    },
+    execute: (comp, values) => {
+      const columns = values[0];
+      if (!isArray(columns)) {
+        return Promise.reject("showColumns expects an array of strings, e.g. ['id','name']");
+      }
+      const targets = new Set((columns as any[]).map((c) => String(c)));
+      comp.children.columns.getView().forEach((c) => {
+        const view = c.getView();
+        if (targets.has(view.dataIndex) || targets.has(view.title)) {
+          c.children.hide.dispatchChangeValueAction(false);
+          c.children.tempHide.dispatchChangeValueAction(false);
+        }
+      });
+    },
+  }
 ]);
 
 // exposing data
@@ -1049,6 +1098,30 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
         .mapKeys((_title, idx) => input.dataIndexes[idx])
         .value();
       return transformDispalyData(input.oriDisplayData, dataIndexTitleDict);
+    },
+    trans("table.displayDataDesc")
+  ),
+  new CompDepsConfig(
+    "hiddenColumns",
+    (comp) => {
+      return {
+        dataIndexes: comp.children.columns.getColumnsNode("dataIndex"),
+        hides: comp.children.columns.getColumnsNode("hide"),
+        tempHides: comp.children.columns.getColumnsNode("tempHide"),
+        columnSetting: comp.children.toolbar.children.columnSetting.node(),
+      };
+    },
+    (input) => {
+      const hidden: string[] = [];
+      _.forEach(input.dataIndexes, (dataIndex, idx) => {
+        const isHidden = columnHide({
+          hide: input.hides[idx].value,
+          tempHide: input.tempHides[idx],
+          enableColumnSetting: input.columnSetting.value,
+        });
+        if (isHidden) hidden.push(dataIndex);
+      });
+      return hidden;
     },
     trans("table.displayDataDesc")
   ),
