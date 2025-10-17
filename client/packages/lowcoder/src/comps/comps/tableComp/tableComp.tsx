@@ -99,12 +99,65 @@ export class TableImplComp extends TableInitComp implements IContainer {
   }
 
   downloadData(fileName: string) {
-    saveDataAsFile({
-      data: (this as any).exposingValues["displayData"],
-      filename: fileName,
-      fileType: "csv",
-      delimiter: this.children.toolbar.children.columnSeparator.getView(),
-    });
+    const allDisplayData = (this as any).exposingValues["displayData"];
+    const delimiter = this.children.toolbar.children.columnSeparator.getView();
+
+    try {
+      // Build the set of visible column keys as shown to the user (title or dataIndex)
+      const enableColumnSetting = this.children.toolbar.children.columnSetting.getView();
+      const visibleColumnKeys = new Set<string>();
+      this.children.columns.getView().forEach((col) => {
+        const colView = col.getView();
+        const isHidden = columnHide({
+          hide: colView.hide,
+          tempHide: colView.tempHide,
+          enableColumnSetting,
+        });
+        if (!isHidden) {
+          const headerKey = (colView.title as any) || colView.dataIndex;
+          if (headerKey) {
+            visibleColumnKeys.add(String(headerKey));
+          }
+        }
+      });
+
+      const pickVisible = (row: any): any => {
+        const result: any = {};
+        // copy only allowed keys
+        Object.keys(row || {}).forEach((key) => {
+          if (key !== COLUMN_CHILDREN_KEY && visibleColumnKeys.has(key)) {
+            result[key] = row[key];
+          }
+        });
+        // retain children recursively if present
+        if (Array.isArray(row?.[COLUMN_CHILDREN_KEY])) {
+          const children = row[COLUMN_CHILDREN_KEY].map((r: any) => pickVisible(r));
+          if (children.length) {
+            result[COLUMN_CHILDREN_KEY] = children;
+          }
+        }
+        return result;
+      };
+
+      const dataToSave = Array.isArray(allDisplayData)
+        ? allDisplayData.map((r: any) => pickVisible(r))
+        : allDisplayData;
+
+      saveDataAsFile({
+        data: dataToSave,
+        filename: fileName,
+        fileType: "csv",
+        delimiter,
+      });
+    } catch (_e) {
+      // Fallback to previous behavior if anything goes wrong
+      saveDataAsFile({
+        data: allDisplayData,
+        filename: fileName,
+        fileType: "csv",
+        delimiter,
+      });
+    }
   }
 
   refreshData(allQueryNames: Array<string>, setLoading: (loading: boolean) => void) {
