@@ -24,6 +24,8 @@ import styled from "styled-components";
 import { useUserViewMode } from "util/hooks";
 import { isNumeric } from "util/stringUtils";
 import { NameConfig, withExposingConfigs } from "../generators/withExposing";
+import { IconControl } from "comps/controls/iconControl";
+import { hasIcon } from "comps/utils";
 import { title } from "process";
 import { SliderControl } from "../controls/sliderControl";
 import clsx from "clsx";
@@ -122,6 +124,7 @@ const childrenMap = {
   showMask: withDefault(BoolControl, true),
   toggleClose:withDefault(BoolControl,true),
   escapeClosable: withDefault(BoolControl, true),
+  closeIcon: withDefault(IconControl, ""),
   zIndex: withDefault(NumberControl, Layers.drawer),
 };
 
@@ -139,6 +142,9 @@ const DrawerPropertyView = React.memo((props: {
       {props.children.title.getView() && props.children.titleAlign.propertyView({ label: trans("drawer.titleAlign"), radioButton: true })}
       {props.children.closePosition.propertyView({ label: trans("drawer.closePosition"), radioButton: true })}
       {props.children.placement.propertyView({ label: trans("drawer.placement"), radioButton: true })}
+      {props.children.toggleClose.getView() && props.children.closeIcon.propertyView({
+        label: trans("drawer.closeIcon"),
+      })}
       {["top", "bottom"].includes(props.children.placement.getView())
         ? props.children.autoHeight.getPropertyView()
         : props.children.width.propertyView({
@@ -266,7 +272,7 @@ const DrawerView = React.memo((
               $closePosition={props.closePosition}
               onClick={onClose}
             >
-              <CloseOutlined />
+              {hasIcon(props.closeIcon) ? props.closeIcon : <CloseOutlined />}
             </ButtonStyle>
           )}
           <InnerGrid
