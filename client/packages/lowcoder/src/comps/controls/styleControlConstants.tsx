@@ -1771,7 +1771,6 @@ export const TableToolbarStyle = [
 
 export const TableHeaderStyle = [
   MARGIN,
-  PADDING,
   FONT_FAMILY,
   FONT_STYLE,
   TEXT,

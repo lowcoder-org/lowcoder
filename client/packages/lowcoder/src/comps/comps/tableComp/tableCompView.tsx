@@ -376,6 +376,7 @@ export const TableCompView = React.memo((props: {
             $isVirtual={scrollConfig.virtual}
             $showHorizontalScrollbar={showHorizontalScrollbar}
             $showVerticalScrollbar={showVerticalScrollbar}
+            $tableSize={size as 'small' | 'middle' | 'large'}
           >
             <ResizeableTable<RecordType>
               expandable={{
