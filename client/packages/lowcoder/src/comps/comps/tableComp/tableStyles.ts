@@ -269,6 +269,15 @@ export const TableWrapper = styled.div.attrs<{
             transition: background-color 0.3s;
           }
 
+          /* Ensure sorted column cells respect theme/row background instead of AntD default */
+          &.ant-table-column-sort {
+            background: transparent;
+          }
+          &.ant-table-cell-fix-left.ant-table-column-sort,
+          &.ant-table-cell-fix-right.ant-table-column-sort {
+            background: transparent;
+          }
+
         }
 
         /* Fix for selected and hovered rows */
