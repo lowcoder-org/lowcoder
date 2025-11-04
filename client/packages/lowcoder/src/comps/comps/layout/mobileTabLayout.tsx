@@ -404,6 +404,7 @@ function renderHamburgerLayoutSection(children: any): any {
   const drawerPlacement = children.drawerPlacement.getView();
   return (
     <>
+      {children.hamburgerIcon.propertyView({ label: "Icon" })}
       {children.hamburgerPosition.propertyView({ label: "Hamburger Position" })}
       {children.hamburgerSize.propertyView({ label: "Hamburger Size" })}
       {children.drawerPlacement.propertyView({ label: "Drawer Placement" })}
@@ -465,6 +466,7 @@ let MobileTabLayoutTmp = (function () {
     }),
     // Mode & hamburger/drawer config
     menuMode: dropdownControl(MobileModeOptions, MobileMode.Vertical),
+    hamburgerIcon: IconControl,
     hamburgerPosition: dropdownControl(HamburgerPositionOptions, "bottom-right"),
     hamburgerSize: withDefault(StringControl, "56px"),
     drawerPlacement: dropdownControl(DrawerPlacementOptions, "bottom"),
@@ -536,6 +538,7 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
   const menuMode = comp.children.menuMode.getView();
   const hamburgerPosition = comp.children.hamburgerPosition.getView();
   const hamburgerSize = comp.children.hamburgerSize.getView();
+  const hamburgerIconComp = comp.children.hamburgerIcon;
   const drawerPlacement = comp.children.drawerPlacement.getView();
   const drawerHeight = comp.children.drawerHeight.getView();
   const drawerWidth = comp.children.drawerWidth.getView();
@@ -657,7 +660,9 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
       $zIndex={Layers.tabBar + 1}
       onClick={() => setDrawerVisible(true)}
     >
-      <BurgerIcon $lineColor={navStyle.text} />
+      {hamburgerIconComp.toJsonValue()
+        ? hamburgerIconComp.getView()
+        : <BurgerIcon $lineColor={navStyle.text} />}
     </HamburgerButton>
   );
 
