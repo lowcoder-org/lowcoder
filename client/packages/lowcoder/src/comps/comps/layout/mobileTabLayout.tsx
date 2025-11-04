@@ -34,6 +34,8 @@ import { LayoutActionComp } from "./layoutActionComp";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import { clickEvent, eventHandlerControl } from "@lowcoder-ee/comps/controls/eventHandlerControl";
 import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
+import { useAppPathParam } from "util/hooks";
+import { ALL_APPLICATIONS_URL } from "constants/routesURL";
 
 const TabBar = React.lazy(() => import("antd-mobile/es/components/tab-bar"));
 const TabBarItem = React.lazy(() =>
@@ -389,6 +391,7 @@ let MobileTabLayoutTmp = (function () {
 MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
   const [tabIndex, setTabIndex] = useState(0);
   const { readOnly } = useContext(ExternalEditorContext);
+  const pathParam = useAppPathParam();
   const navStyle = comp.children.navStyle.getView();
   const navItemStyle = comp.children.navItemStyle.getView();
   const navItemHoverStyle = comp.children.navItemHoverStyle.getView();
@@ -466,7 +469,23 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
           : undefined,
       }))}
       selectedKey={tabIndex + ""}
-      onChange={(key) => setTabIndex(Number(key))}
+      onChange={(key) => {
+        const nextIndex = Number(key);
+        setTabIndex(nextIndex);
+        // push URL with query/hash params like desktop nav
+        if (dataOptionType === DataOption.Manual) {
+          const selectedTab = tabViews[nextIndex];
+          if (selectedTab) {
+            const url = [
+              ALL_APPLICATIONS_URL,
+              pathParam.applicationId,
+              pathParam.viewMode,
+              nextIndex,
+            ].join("/");
+            selectedTab.children.action.act(url);
+          }
+        }
+      }}
       readOnly={!!readOnly}
       canvasBg={bgColor}
       tabStyle={{
