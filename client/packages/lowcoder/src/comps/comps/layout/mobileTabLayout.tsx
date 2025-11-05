@@ -120,6 +120,27 @@ const DrawerContent = styled.div<{
   box-sizing: border-box;
 `;
 
+const DrawerHeader = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+`;
+
+const DrawerCloseButton = styled.button<{
+  $color: string;
+}>`
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: ${(p) => p.$color};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+`;
+
 const DrawerList = styled.div<{
   $itemStyle: NavLayoutItemStyleType;
   $hoverStyle: NavLayoutItemHoverStyleType;
@@ -404,7 +425,8 @@ function renderHamburgerLayoutSection(children: any): any {
   const drawerPlacement = children.drawerPlacement.getView();
   return (
     <>
-      {children.hamburgerIcon.propertyView({ label: "Icon" })}
+      {children.hamburgerIcon.propertyView({ label: "MenuIcon" })}
+      {children.drawerCloseIcon.propertyView({ label: "Close Icon" })}
       {children.hamburgerPosition.propertyView({ label: "Hamburger Position" })}
       {children.hamburgerSize.propertyView({ label: "Hamburger Size" })}
       {children.drawerPlacement.propertyView({ label: "Drawer Placement" })}
@@ -467,6 +489,7 @@ let MobileTabLayoutTmp = (function () {
     // Mode & hamburger/drawer config
     menuMode: dropdownControl(MobileModeOptions, MobileMode.Vertical),
     hamburgerIcon: IconControl,
+    drawerCloseIcon: IconControl,
     hamburgerPosition: dropdownControl(HamburgerPositionOptions, "bottom-right"),
     hamburgerSize: withDefault(StringControl, "56px"),
     drawerPlacement: dropdownControl(DrawerPlacementOptions, "bottom"),
@@ -539,6 +562,7 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
   const hamburgerPosition = comp.children.hamburgerPosition.getView();
   const hamburgerSize = comp.children.hamburgerSize.getView();
   const hamburgerIconComp = comp.children.hamburgerIcon;
+  const drawerCloseIconComp = comp.children.drawerCloseIcon;
   const drawerPlacement = comp.children.drawerPlacement.getView();
   const drawerHeight = comp.children.drawerHeight.getView();
   const drawerWidth = comp.children.drawerWidth.getView();
@@ -684,6 +708,17 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
         bodyStyle={drawerBodyStyle}
       >
         <DrawerContent $background={backgroundStyle}>
+          <DrawerHeader>
+            <DrawerCloseButton
+              aria-label="Close"
+              $color={navStyle.text}
+              onClick={() => setDrawerVisible(false)}
+            >
+              {drawerCloseIconComp.toJsonValue()
+                ? drawerCloseIconComp.getView()
+                : <span style={{ fontSize: 20 }}>×</span>}
+            </DrawerCloseButton>
+          </DrawerHeader>
           <DrawerList
             $itemStyle={navItemStyle}
             $hoverStyle={navItemHoverStyle}
