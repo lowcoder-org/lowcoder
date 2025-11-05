@@ -20,7 +20,7 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { dropdownControl } from "@lowcoder-ee/comps/controls/dropdownControl";
 import { DataOption, DataOptionType, menuItemStyleOptions, mobileNavJsonMenuItems, MobileModeOptions, MobileMode, HamburgerPositionOptions, DrawerPlacementOptions } from "./navLayoutConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
-import { NavLayoutItemActiveStyle, NavLayoutItemActiveStyleType, NavLayoutItemHoverStyle, NavLayoutItemHoverStyleType, NavLayoutItemStyle, NavLayoutItemStyleType, NavLayoutStyle, NavLayoutStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import { HamburgerButtonStyle, DrawerContainerStyle, NavLayoutItemActiveStyle, NavLayoutItemActiveStyleType, NavLayoutItemHoverStyle, NavLayoutItemHoverStyleType, NavLayoutItemStyle, NavLayoutItemStyleType, NavLayoutStyle, NavLayoutStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import Segmented from "antd/es/segmented";
 import { controlItem } from "components/control";
 import { check } from "@lowcoder-ee/util/convertUtils";
@@ -72,15 +72,23 @@ const HamburgerButton = styled.button<{
   $size: string;
   $position: string; // bottom-right | bottom-left | top-right | top-left
   $zIndex: number;
+  $background?: string;
+  $borderColor?: string;
+  $radius?: string;
+  $margin?: string;
+  $padding?: string;
+  $borderWidth?: string;
 }>`
   position: fixed;
   ${(props) => (props.$position.includes('bottom') ? 'bottom: 16px;' : 'top: 16px;')}
   ${(props) => (props.$position.includes('right') ? 'right: 16px;' : 'left: 16px;')}
   width: ${(props) => props.$size};
   height: ${(props) => props.$size};
-  border-radius: 50%;
-  border: 1px solid rgba(0,0,0,0.1);
-  background: white;
+  border-radius: ${(props) => props.$radius || '50%'};
+  border: ${(props) => props.$borderWidth || '1px'} solid ${(props) => props.$borderColor || 'rgba(0,0,0,0.1)'};
+  background: ${(props) => props.$background || 'white'};
+  margin: ${(props) => props.$margin || '0px'};
+  padding: ${(props) => props.$padding || '0px'};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -108,16 +116,34 @@ const BurgerIcon = styled.div<{
   &::after { top: 6px; }
 `;
 
+const IconWrapper = styled.div<{
+  $iconColor?: string;
+}>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  svg {
+    color: ${(p) => p.$iconColor || 'inherit'};
+    fill: ${(p) => p.$iconColor || 'currentColor'};
+  }
+`;
+
 const DrawerContent = styled.div<{
   $background: string;
+  $padding?: string;
+  $borderColor?: string;
+  $borderWidth?: string;
+  $margin?: string;
 }>`
   background: ${(p) => p.$background};
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 12px;
+  padding: ${(p) => p.$padding || '12px'};
+  margin: ${(p) => p.$margin || '0px'};
   box-sizing: border-box;
+  border: ${(p) => p.$borderWidth || '1px'} solid ${(p) => p.$borderColor || 'transparent'};
 `;
 
 const DrawerHeader = styled.div`
@@ -425,7 +451,7 @@ function renderHamburgerLayoutSection(children: any): any {
   const drawerPlacement = children.drawerPlacement.getView();
   return (
     <>
-      {children.hamburgerIcon.propertyView({ label: "MenuIcon" })}
+      {children.hamburgerIcon.propertyView({ label: "Menu Icon" })}
       {children.drawerCloseIcon.propertyView({ label: "Close Icon" })}
       {children.hamburgerPosition.propertyView({ label: "Hamburger Position" })}
       {children.hamburgerSize.propertyView({ label: "Hamburger Size" })}
@@ -462,6 +488,8 @@ function renderVerticalLayoutSection(children: any): any {
   );
 }
 
+
+
 let MobileTabLayoutTmp = (function () {
   const childrenMap = {
     onEvent: eventHandlerControl(EventOptions),
@@ -492,7 +520,7 @@ let MobileTabLayoutTmp = (function () {
     drawerCloseIcon: IconControl,
     hamburgerPosition: dropdownControl(HamburgerPositionOptions, "bottom-right"),
     hamburgerSize: withDefault(StringControl, "56px"),
-    drawerPlacement: dropdownControl(DrawerPlacementOptions, "bottom"),
+    drawerPlacement: dropdownControl(DrawerPlacementOptions, "right"),
     drawerHeight: withDefault(StringControl, "60%"),
     drawerWidth: withDefault(StringControl, "250px"),
     shadowOverlay: withDefault(BoolCodeControl, true),
@@ -506,6 +534,8 @@ let MobileTabLayoutTmp = (function () {
     navItemStyle: styleControl(NavLayoutItemStyle, 'navItemStyle'),
     navItemHoverStyle: styleControl(NavLayoutItemHoverStyle, 'navItemHoverStyle'),
     navItemActiveStyle: styleControl(NavLayoutItemActiveStyle, 'navItemActiveStyle'),
+    hamburgerButtonStyle: styleControl(HamburgerButtonStyle, 'hamburgerButtonStyle'),
+    drawerContainerStyle: styleControl(DrawerContainerStyle, 'drawerContainerStyle'),
   };
   return new MultiCompBuilder(childrenMap, (props, dispatch) => {
     return null;
@@ -524,10 +554,18 @@ let MobileTabLayoutTmp = (function () {
               ? renderHamburgerLayoutSection(children)
               : renderVerticalLayoutSection(children)}
           </Section>
-          <Section name={trans("navLayout.navStyle")}>
-            {children.navStyle.getPropertyView()}
-          </Section>
-          <Section name={trans("navLayout.navItemStyle")}>
+          {!isHamburgerMode && (
+            <Section name={trans("navLayout.navStyle")}>
+              {children.navStyle.getPropertyView()}
+            </Section>
+          )}
+
+          {isHamburgerMode && (
+            <Section name={"Hamburger Button Style"}>
+              {children.hamburgerButtonStyle.getPropertyView()}
+            </Section>
+          )}
+          <Section name={isHamburgerMode ? "Drawer Item Style" : trans("navLayout.navItemStyle")}>
             {controlItem({}, (
               <Segmented
                 block
@@ -540,6 +578,11 @@ let MobileTabLayoutTmp = (function () {
             {styleSegment === 'hover' && children.navItemHoverStyle.getPropertyView()}
             {styleSegment === 'active' && children.navItemActiveStyle.getPropertyView()}
           </Section>
+          {isHamburgerMode && (
+            <Section name={"Drawer Container Style"}>
+              {children.drawerContainerStyle.getPropertyView()}
+            </Section>
+          )}
         </>
       );
     })
@@ -563,6 +606,7 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
   const hamburgerSize = comp.children.hamburgerSize.getView();
   const hamburgerIconComp = comp.children.hamburgerIcon;
   const drawerCloseIconComp = comp.children.drawerCloseIcon;
+  const hamburgerButtonStyle = comp.children.hamburgerButtonStyle.getView();
   const drawerPlacement = comp.children.drawerPlacement.getView();
   const drawerHeight = comp.children.drawerHeight.getView();
   const drawerWidth = comp.children.drawerWidth.getView();
@@ -572,6 +616,7 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
   const maxWidth = comp.children.maxWidth.getView();
   const verticalAlignment = comp.children.verticalAlignment.getView();
   const showSeparator = comp.children.showSeparator.getView();
+  const drawerContainerStyle = comp.children.drawerContainerStyle.getView();
   const bgColor = (useContext(ThemeContext)?.theme || defaultTheme).canvas;
   const onEvent = comp.children.onEvent.getView();
 
@@ -626,6 +671,21 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
     backgroundStyle = `center / cover url('${backgroundImage}') no-repeat, ${backgroundStyle}`;
   }
 
+  const navigateToApp = (nextIndex: number) => {
+    if (dataOptionType === DataOption.Manual) {
+      const selectedTab = tabViews[nextIndex];
+      if (selectedTab) {
+        const url = [
+          ALL_APPLICATIONS_URL,
+          pathParam.applicationId,
+          pathParam.viewMode,
+          nextIndex,
+        ].join("/");
+        selectedTab.children.action.act(url);
+      }
+    }
+  };
+
   const tabBarView = (
     <TabBarView
       onEvent={onEvent}
@@ -641,18 +701,7 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
         const nextIndex = Number(key);
         setTabIndex(nextIndex);
         // push URL with query/hash params
-        if (dataOptionType === DataOption.Manual) {
-          const selectedTab = tabViews[nextIndex];
-          if (selectedTab) {
-            const url = [
-              ALL_APPLICATIONS_URL,
-              pathParam.applicationId,
-              pathParam.viewMode,
-              nextIndex,
-            ].join("/");
-            selectedTab.children.action.act(url);
-          }
-        }
+        navigateToApp(nextIndex);
       }}
       readOnly={!!readOnly}
       canvasBg={bgColor}
@@ -682,11 +731,21 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
       $size={hamburgerSize}
       $position={hamburgerPosition}
       $zIndex={Layers.tabBar + 1}
+      $background={hamburgerButtonStyle?.background}
+      $borderColor={hamburgerButtonStyle?.border}
+      $radius={hamburgerButtonStyle?.radius}
+      $margin={hamburgerButtonStyle?.margin}
+      $padding={hamburgerButtonStyle?.padding}
+      $borderWidth={hamburgerButtonStyle?.borderWidth}
       onClick={() => setDrawerVisible(true)}
     >
-      {hamburgerIconComp.toJsonValue()
-        ? hamburgerIconComp.getView()
-        : <BurgerIcon $lineColor={navStyle.text} />}
+      {hamburgerIconComp.toJsonValue() ? (
+        <IconWrapper $iconColor={hamburgerButtonStyle?.iconFill}>
+          {hamburgerIconComp.getView()}
+        </IconWrapper>
+      ) : (
+        <BurgerIcon $lineColor={hamburgerButtonStyle?.iconFill || navStyle.text} />
+      )}
     </HamburgerButton>
   );
 
@@ -707,7 +766,13 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
         mask={shadowOverlay}
         bodyStyle={drawerBodyStyle}
       >
-        <DrawerContent $background={backgroundStyle}>
+        <DrawerContent 
+          $background={drawerContainerStyle?.background || '#FFFFFF'}
+          $padding={drawerContainerStyle?.padding}
+          $borderColor={drawerContainerStyle?.border}
+          $borderWidth={drawerContainerStyle?.borderWidth}
+          $margin={drawerContainerStyle?.margin}
+        >
           <DrawerHeader>
             <DrawerCloseButton
               aria-label="Close"
@@ -732,6 +797,7 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
                   setTabIndex(index);
                   setDrawerVisible(false);
                   onEvent('click');
+                  navigateToApp(index);
                 }}
               >
                 {tab.children.icon.toJsonValue() ? (

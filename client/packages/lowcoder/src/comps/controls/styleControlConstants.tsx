@@ -1382,6 +1382,30 @@ export const FloatButtonStyle = [
   BORDER_WIDTH,
 ] as const;
 
+export const HamburgerButtonStyle = [
+  getBackground(),
+  {
+    name: "iconFill",
+    label: trans("style.fill"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  MARGIN,
+  PADDING,
+  BORDER,
+  RADIUS,
+  BORDER_WIDTH,
+] as const;
+
+export const DrawerContainerStyle = [
+  getBackground(),
+  MARGIN,
+  PADDING,
+  BORDER,
+  BORDER_WIDTH,
+] as const;
+
 export const TransferStyle = [
   getStaticBackground(SURFACE_COLOR),
   ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(style=>style.name!=='rotation'),
