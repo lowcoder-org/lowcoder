@@ -5,13 +5,14 @@ import { manualOptionsControl } from "comps/controls/optionsControl";
 import { BoolCodeControl, StringControl, jsonControl, NumberControl } from "comps/controls/codeControl";
 import { IconControl } from "comps/controls/iconControl";
 import styled from "styled-components";
-import React, { Suspense, useContext, useEffect, useMemo, useState } from "react";  
+import React, { Suspense, useContext, useEffect, useMemo, useState, useCallback } from "react";  
 import { registerLayoutMap } from "comps/comps/uiComp";
 import { AppSelectComp } from "comps/comps/layout/appSelectComp";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
 import { ConstructorToComp, ConstructorToDataType } from "lowcoder-core";
 import { CanvasContainer } from "comps/comps/gridLayoutComp/canvasView";
 import { CanvasContainerID } from "constants/domLocators";
+import { PreviewContainerID } from "constants/domLocators";
 import { EditorContainer, EmptyContent } from "pages/common/styledComponent";
 import { Layers } from "constants/Layers";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
@@ -30,6 +31,7 @@ import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 import { AlignCenter } from "lowcoder-design";
 import { AlignLeft } from "lowcoder-design";
 import { AlignRight } from "lowcoder-design";
+import { Drawer } from "lowcoder-design";
 import { LayoutActionComp } from "./layoutActionComp";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import { clickEvent, eventHandlerControl } from "@lowcoder-ee/comps/controls/eventHandlerControl";
@@ -43,7 +45,6 @@ const TabBarItem = React.lazy(() =>
     default: module.TabBarItem,
   }))
 );
-const Popup = React.lazy(() => import("antd-mobile/es/components/popup"));
 const EventOptions = [clickEvent] as const;
 
 const AppViewContainer = styled.div`
@@ -620,6 +621,13 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
   const bgColor = (useContext(ThemeContext)?.theme || defaultTheme).canvas;
   const onEvent = comp.children.onEvent.getView();
 
+  const getContainer = useCallback(() =>
+    document.querySelector(`#${PreviewContainerID}`) ||
+    document.querySelector(`#${CanvasContainerID}`) ||
+    document.body,
+    []
+  );
+
   useEffect(() => {
     comp.children.jsonTabs.dispatchChangeValueAction({
       manual: jsonItems as unknown as Array<ConstructorToDataType<typeof TabOptionComp>>
@@ -749,22 +757,27 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
     </HamburgerButton>
   );
 
-  const drawerBodyStyle = useMemo(() => {
-    if (drawerPlacement === 'left' || drawerPlacement === 'right') {
-      return { width: drawerWidth } as React.CSSProperties;
-    }
-    return { height: drawerHeight } as React.CSSProperties;
-  }, [drawerPlacement, drawerHeight, drawerWidth]);
-
   const drawerView = (
     <Suspense fallback={<Skeleton />}>
-      <Popup
-        visible={drawerVisible}
-        onMaskClick={() => setDrawerVisible(false)}
+      <Drawer
+        open={drawerVisible}
         onClose={() => setDrawerVisible(false)}
-        position={drawerPlacement as any}
+        placement={drawerPlacement as any}
         mask={shadowOverlay}
-        bodyStyle={drawerBodyStyle}
+        maskClosable={true}
+        closable={false}
+        styles={{ body: { padding: 0 } } as any}
+        getContainer={getContainer}
+        width={
+          (drawerPlacement === 'left' || drawerPlacement === 'right')
+            ? (drawerWidth as any)
+            : undefined
+        }
+        height={
+          (drawerPlacement === 'top' || drawerPlacement === 'bottom')
+            ? (drawerHeight as any)
+            : undefined
+        }
       >
         <DrawerContent 
           $background={drawerContainerStyle?.background || '#FFFFFF'}
@@ -808,7 +821,7 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
             ))}
           </DrawerList>
         </DrawerContent>
-      </Popup>
+      </Drawer>
     </Suspense>
   );
 

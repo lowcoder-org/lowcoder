@@ -64,6 +64,7 @@ import { isEqual, noop } from "lodash";
 import { AppSettingContext, AppSettingType } from "@lowcoder-ee/comps/utils/appSettingContext";
 import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
 import Flex from "antd/es/flex";
+import { PreviewContainerID } from "constants/domLocators";
 // import { BottomSkeleton } from "./bottom/BottomContent";
 
 const Header = lazy(
@@ -534,10 +535,12 @@ function EditorView(props: EditorViewProps) {
             deviceType={editorState.deviceType}
             deviceOrientation={editorState.deviceOrientation}
           >
-            {uiComp.getView()}
+            <div id={PreviewContainerID}>
+              {uiComp.getView()}
+            </div>
         </DeviceWrapper>
       ) : (
-        <div>
+        <div id={PreviewContainerID}>
           {uiComp.getView()}
         </div>
       )
