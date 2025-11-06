@@ -270,6 +270,7 @@ const DeviceWrapperInner = styled(Flex)`
       > div:first-child {
         > div:first-child {
           > div:nth-child(2) {
+            contain: paint;
             display: block !important;
             overflow: hidden auto !important;
           } 
