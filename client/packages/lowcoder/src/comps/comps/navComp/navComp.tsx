@@ -5,26 +5,34 @@ import { Section, sectionNames } from "lowcoder-design";
 import styled from "styled-components";
 import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import { dropdownControl } from "comps/controls/dropdownControl";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
 import { navListComp } from "./navItemComp";
 import { menuPropertyView } from "./components/MenuItemList";
 import { default as DownOutlined } from "@ant-design/icons/DownOutlined";
+import { default as MenuOutlined } from "@ant-design/icons/MenuOutlined";
 import { default as Dropdown } from "antd/es/dropdown";
 import { default as Menu, MenuProps } from "antd/es/menu";
+import { default as Drawer } from "antd/es/drawer";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { styleControl } from "comps/controls/styleControl";
 import {
   AnimationStyle,
   AnimationStyleType,
   NavigationStyle,
+  HamburgerButtonStyle,
+  DrawerContainerStyle,
+  NavLayoutItemStyle,
+  NavLayoutItemHoverStyle,
+  NavLayoutItemActiveStyle,
 } from "comps/controls/styleControlConstants";
 import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { EditorContext } from "comps/editorState";
-import { controlItem } from "lowcoder-design";
 import { createNavItemsControl } from "./components/NavItemsControl";
+import { Layers } from "constants/Layers";
 
 type IProps = {
   $justify: boolean;
@@ -34,6 +42,7 @@ type IProps = {
   $borderRadius: string;
   $borderStyle: string;
   $animationStyle: AnimationStyleType;
+  $orientation: "horizontal" | "vertical";
 };
 
 const Wrapper = styled("div")<
@@ -45,18 +54,21 @@ ${props=>props.$animationStyle}
   box-sizing: border-box;
   border: ${(props) => props.$borderWidth ? `${props.$borderWidth}` : '1px'} ${props=>props.$borderStyle} ${(props) => props.$borderColor};
   background: ${(props) => props.$bgColor};
+  position: relative;
 `;
 
-const NavInner = styled("div") <Pick<IProps, "$justify">>`
+const NavInner = styled("div") <Pick<IProps, "$justify" | "$orientation">>`
   // margin: 0 -16px;
   height: 100%;
   display: flex;
-  justify-content: ${(props) => (props.$justify ? "space-between" : "left")};
+  flex-direction: ${(props) => (props.$orientation === "vertical" ? "column" : "row")};
+  justify-content: ${(props) => (props.$orientation === "vertical" ? "flex-start" : (props.$justify ? "space-between" : "left"))};
 `;
 
 const Item = styled.div<{
   $active: boolean;
   $activeColor: string;
+  $hoverColor: string;
   $color: string;
   $fontFamily: string;
   $fontStyle: string;
@@ -66,12 +78,22 @@ const Item = styled.div<{
   $padding: string;
   $textTransform:string;
   $textDecoration:string;
+  $bg?: string;
+  $hoverBg?: string;
+  $activeBg?: string;
+  $border?: string;
+  $hoverBorder?: string;
+  $activeBorder?: string;
+  $radius?: string;
   $disabled?: boolean;
 }>`
   height: 30px;
   line-height: 30px;
   padding: ${(props) => props.$padding ? props.$padding : '0 16px'};
   color: ${(props) => props.$disabled ? `${props.$color}80` : (props.$active ? props.$activeColor : props.$color)};
+  background-color: ${(props) => (props.$active ? (props.$activeBg || 'transparent') : (props.$bg || 'transparent'))};
+  border: ${(props) => props.$border ? `1px solid ${props.$border}` : '1px solid transparent'};
+  border-radius: ${(props) => props.$radius ? props.$radius : '0px'};
   font-weight: ${(props) => (props.$textWeight ? props.$textWeight : 500)};
   font-family:${(props) => (props.$fontFamily ? props.$fontFamily : 'sans-serif')};
   font-style:${(props) => (props.$fontStyle ? props.$fontStyle : 'normal')};
@@ -81,7 +103,9 @@ const Item = styled.div<{
   margin:${(props) => props.$margin ? props.$margin : '0px'};
   
   &:hover {
-    color: ${(props) => props.$disabled ? (props.$active ? props.$activeColor : props.$color) : props.$activeColor};
+    color: ${(props) => props.$disabled ? (props.$active ? props.$activeColor : props.$color) : (props.$hoverColor || props.$activeColor)};
+    background-color: ${(props) => props.$disabled ? (props.$active ? (props.$activeBg || 'transparent') : (props.$bg || 'transparent')) : (props.$hoverBg || props.$activeBg || props.$bg || 'transparent')};
+    border: ${(props) => props.$hoverBorder ? `1px solid ${props.$hoverBorder}` : (props.$activeBorder ? `1px solid ${props.$activeBorder}` : (props.$border ? `1px solid ${props.$border}` : '1px solid transparent'))};
     cursor: ${(props) => props.$disabled ? 'not-allowed' : 'pointer'};
   }
 
@@ -101,10 +125,10 @@ const LogoWrapper = styled.div`
   }
 `;
 
-const ItemList = styled.div<{ $align: string }>`
+const ItemList = styled.div<{ $align: string, $orientation?: string }>`
   flex: 1;
   display: flex;
-  flex-direction: row;
+  flex-direction: ${(props) => (props.$orientation === "vertical" ? "column" : "row")};
   justify-content: ${(props) => props.$align};
 `;
 
@@ -112,6 +136,37 @@ const StyledMenu = styled(Menu) <MenuProps>`
   &.ant-dropdown-menu {
     min-width: 160px;
   }
+`;
+
+const FloatingHamburgerButton = styled.button<{
+  $size: string;
+  $position: string; // top-right | top-left | bottom-right | bottom-left
+  $zIndex: number;
+  $background?: string;
+  $borderColor?: string;
+  $radius?: string;
+  $margin?: string;
+  $padding?: string;
+  $borderWidth?: string;
+  $iconColor?: string;
+}>`
+  position: fixed;
+  ${(props) => (props.$position.includes('bottom') ? 'bottom: 16px;' : 'top: 16px;')}
+  ${(props) => (props.$position.includes('right') ? 'right: 16px;' : 'left: 16px;')}
+  width: ${(props) => props.$size};
+  height: ${(props) => props.$size};
+  border-radius: ${(props) => props.$radius || '50%'};
+  border: ${(props) => props.$borderWidth || '1px'} solid ${(props) => props.$borderColor || 'rgba(0,0,0,0.1)'};
+  background: ${(props) => props.$background || 'white'};
+  margin: ${(props) => props.$margin || '0px'};
+  padding: ${(props) => props.$padding || '0px'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: ${(props) => props.$zIndex};
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  color: ${(props) => props.$iconColor || 'inherit'};
 `;
 
 const logoEventHandlers = [clickEvent];
@@ -154,8 +209,33 @@ function fixOldItemsData(oldData: any) {
 const childrenMap = {
   logoUrl: StringControl,
   logoEvent: withDefault(eventHandlerControl(logoEventHandlers), [{ name: "click" }]),
+  orientation: dropdownControl([
+    { label: "Horizontal", value: "horizontal" },
+    { label: "Vertical", value: "vertical" },
+  ], "horizontal"),
+  displayMode: dropdownControl([
+    { label: "Bar", value: "bar" },
+    { label: "Hamburger", value: "hamburger" },
+  ], "bar"),
+  hamburgerPosition: dropdownControl([
+    { label: "Top Right", value: "top-right" },
+    { label: "Top Left", value: "top-left" },
+    { label: "Bottom Right", value: "bottom-right" },
+    { label: "Bottom Left", value: "bottom-left" },
+  ], "top-right"),
+  hamburgerSize: withDefault(StringControl, "56px"),
+  drawerPlacement: dropdownControl([
+    { label: "Left", value: "left" },
+    { label: "Right", value: "right" },
+  ], "right"),
+  shadowOverlay: withDefault(BoolCodeControl, true),
   horizontalAlignment: alignWithJustifyControl(),
   style: migrateOldData(styleControl(NavigationStyle, 'style'), fixOldStyleData),
+  navItemStyle: styleControl(NavLayoutItemStyle, 'navItemStyle'),
+  navItemHoverStyle: styleControl(NavLayoutItemHoverStyle, 'navItemHoverStyle'),
+  navItemActiveStyle: styleControl(NavLayoutItemActiveStyle, 'navItemActiveStyle'),
+  hamburgerButtonStyle: styleControl(HamburgerButtonStyle, 'hamburgerButtonStyle'),
+  drawerContainerStyle: styleControl(DrawerContainerStyle, 'drawerContainerStyle'),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   items: withDefault(migrateOldData(createNavItemsControl(), fixOldItemsData), {
     optionType: "manual",
@@ -168,6 +248,7 @@ const childrenMap = {
 };
 
 const NavCompBase = new UICompBuilder(childrenMap, (props) => {
+  const [drawerVisible, setDrawerVisible] = useState(false);
   const data = props.items;
   const items = (
     <>
@@ -207,16 +288,24 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
           <Item
             key={idx}
             $active={active || subMenuSelectedKeys.length > 0}
-            $color={props.style.text}
-            $activeColor={props.style.accent}
+            $color={(props.navItemStyle && props.navItemStyle.text) || props.style.text}
+            $hoverColor={(props.navItemHoverStyle && props.navItemHoverStyle.text) || props.style.accent}
+            $activeColor={(props.navItemActiveStyle && props.navItemActiveStyle.text) || props.style.accent}
             $fontFamily={props.style.fontFamily}
             $fontStyle={props.style.fontStyle}
             $textWeight={props.style.textWeight}
             $textSize={props.style.textSize}
-            $padding={props.style.padding}
+            $padding={(props.navItemStyle && props.navItemStyle.padding) || props.style.padding}
             $textTransform={props.style.textTransform}
             $textDecoration={props.style.textDecoration}
-            $margin={props.style.margin}
+            $margin={(props.navItemStyle && props.navItemStyle.margin) || props.style.margin}
+            $bg={(props.navItemStyle && props.navItemStyle.background) || undefined}
+            $hoverBg={(props.navItemHoverStyle && props.navItemHoverStyle.background) || undefined}
+            $activeBg={(props.navItemActiveStyle && props.navItemActiveStyle.background) || undefined}
+            $border={(props.navItemStyle && props.navItemStyle.border) || undefined}
+            $hoverBorder={(props.navItemHoverStyle && props.navItemHoverStyle.border) || undefined}
+            $activeBorder={(props.navItemActiveStyle && props.navItemActiveStyle.border) || undefined}
+            $radius={(props.navItemStyle && props.navItemStyle.radius) || undefined}
             $disabled={disabled}
             onClick={() => { if (!disabled && onEvent) onEvent("click"); }}
           >
@@ -255,6 +344,8 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
   );
 
   const justify = props.horizontalAlignment === "justify";
+  const isVertical = props.orientation === "vertical";
+  const isHamburger = props.displayMode === "hamburger";
 
   return (
     <Wrapper
@@ -265,14 +356,46 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
       $borderWidth={props.style.borderWidth}
       $borderRadius={props.style.radius}
     >
-      <NavInner $justify={justify}>
-        {props.logoUrl && (
-          <LogoWrapper onClick={() => props.logoEvent("click")}>
-            <img src={props.logoUrl} alt="LOGO" />
-          </LogoWrapper>
-        )}
-        {!justify ? <ItemList $align={props.horizontalAlignment}>{items}</ItemList> : items}
-      </NavInner>
+      {!isHamburger && (
+        <NavInner $justify={justify} $orientation={isVertical ? "vertical" : "horizontal"}>
+          {props.logoUrl && (
+            <LogoWrapper onClick={() => props.logoEvent("click")}>
+              <img src={props.logoUrl} alt="LOGO" />
+            </LogoWrapper>
+          )}
+          {!justify ? <ItemList $align={props.horizontalAlignment} $orientation={isVertical ? "vertical" : "horizontal"}>{items}</ItemList> : items}
+        </NavInner>
+      )}
+      {isHamburger && (
+        <>
+          <FloatingHamburgerButton
+            $size={props.hamburgerSize || "56px"}
+            $position={props.hamburgerPosition || "top-right"}
+            $zIndex={Layers.tabBar + 1}
+            $background={props.hamburgerButtonStyle?.background}
+            $borderColor={props.hamburgerButtonStyle?.border}
+            $radius={props.hamburgerButtonStyle?.radius}
+            $margin={props.hamburgerButtonStyle?.margin}
+            $padding={props.hamburgerButtonStyle?.padding}
+            $borderWidth={props.hamburgerButtonStyle?.borderWidth}
+            $iconColor={props.hamburgerButtonStyle?.iconFill}
+            onClick={() => setDrawerVisible(true)}
+          >
+            <MenuOutlined />
+          </FloatingHamburgerButton>
+          <Drawer
+            placement={(props.drawerPlacement as any) || "right"}
+            closable={true}
+            onClose={() => setDrawerVisible(false)}
+            open={drawerVisible}
+            mask={props.shadowOverlay}
+            styles={{ body: { padding: "8px", background: props.drawerContainerStyle?.background } }}
+            destroyOnClose
+          >
+            <ItemList $align={"flex-start"} $orientation={"vertical"}>{items}</ItemList>
+          </Drawer>
+        </>
+      )}
     </Wrapper>
   );
 })
@@ -292,10 +415,21 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
 
         {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
           <Section name={sectionNames.layout}>
-            {children.horizontalAlignment.propertyView({
-              label: trans("navigation.horizontalAlignment"),
-              radioButton: true,
-            })}
+            {children.orientation.propertyView({ label: "Orientation", radioButton: true })}
+            {children.displayMode.propertyView({ label: "Display Mode", radioButton: true })}
+            {children.displayMode.getView() === 'hamburger' ? (
+              [
+                children.hamburgerPosition.propertyView({ label: "Hamburger Position" }),
+                children.hamburgerSize.propertyView({ label: "Hamburger Size" }),
+                children.drawerPlacement.propertyView({ label: "Drawer Placement", radioButton: true }),
+                children.shadowOverlay.propertyView({ label: "Shadow Overlay" }),
+              ]
+            ) : (
+              children.horizontalAlignment.propertyView({
+                label: trans("navigation.horizontalAlignment"),
+                radioButton: true,
+              })
+            )}
             {hiddenPropertyView(children)}
           </Section>
         )}
@@ -313,6 +447,25 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             <Section name={sectionNames.style}>
               {children.style.getPropertyView()}
             </Section>
+            <Section name={"Item Style"}>
+              {children.navItemStyle.getPropertyView()}
+            </Section>
+            <Section name={"Item Hover Style"}>
+              {children.navItemHoverStyle.getPropertyView()}
+            </Section>
+            <Section name={"Item Active Style"}>
+              {children.navItemActiveStyle.getPropertyView()}
+            </Section>
+            {children.displayMode.getView() === 'hamburger' && (
+              <>
+                <Section name={"Hamburger Button Style"}>
+                  {children.hamburgerButtonStyle.getPropertyView()}
+                </Section>
+                <Section name={"Drawer Container Style"}>
+                  {children.drawerContainerStyle.getPropertyView()}
+                </Section>
+              </>
+            )}
             <Section name={sectionNames.animationStyle} hasTooltip={true}>
               {children.animationStyle.getPropertyView()}
             </Section>
