@@ -206,6 +206,93 @@ function fixOldItemsData(oldData: any) {
   return oldData;
 }
 
+// Property View Helpers
+function renderBasicSection(children: any) {
+  return (
+    <Section name={sectionNames.basic}>
+      {children.items.propertyView()}
+    </Section>
+  );
+}
+
+function renderInteractionSection(children: any) {
+  return (
+    <Section name={sectionNames.interaction}>
+      {hiddenPropertyView(children)}
+      {showDataLoadingIndicatorsPropertyView(children)}
+    </Section>
+  );
+}
+
+function renderLayoutSection(children: any) {
+  const isHamburger = children.displayMode.getView() === 'hamburger';
+  const common = [
+    children.orientation.propertyView({ label: "Orientation", radioButton: true }),
+    children.displayMode.propertyView({ label: "Display Mode", radioButton: true }),
+  ];
+  const hamburger = [
+    ...common,
+    children.hamburgerPosition.propertyView({ label: "Hamburger Position" }),
+    children.hamburgerSize.propertyView({ label: "Hamburger Size" }),
+    children.drawerPlacement.propertyView({ label: "Drawer Placement", radioButton: true }),
+    children.shadowOverlay.propertyView({ label: "Shadow Overlay" }),
+  ];
+  const bar = [
+    ...common,
+    children.horizontalAlignment.propertyView({
+      label: trans("navigation.horizontalAlignment"),
+      radioButton: true,
+    }),
+  ];
+
+  return (
+    <Section name={sectionNames.layout}>
+      {isHamburger ? hamburger : bar}
+    </Section>
+  );
+}
+
+function renderAdvancedSection(children: any) {
+  return (
+    <Section name={sectionNames.advanced}>
+      {children.logoUrl.propertyView({ label: trans("navigation.logoURL"), tooltip: trans("navigation.logoURLDesc") })}
+      {children.logoUrl.getView() && children.logoEvent.propertyView({ inline: true })}
+    </Section>
+  );
+}
+
+function renderStyleSections(children: any) {
+  return (
+    <>
+      <Section name={sectionNames.style}>
+        {children.style.getPropertyView()}
+      </Section>
+      <Section name={"Item Style"}>
+        {children.navItemStyle.getPropertyView()}
+      </Section>
+      <Section name={"Item Hover Style"}>
+        {children.navItemHoverStyle.getPropertyView()}
+      </Section>
+      <Section name={"Item Active Style"}>
+        {children.navItemActiveStyle.getPropertyView()}
+      </Section>
+      {children.displayMode.getView() === 'hamburger' && (
+        <>
+          <Section name={"Hamburger Button Style"}>
+            {children.hamburgerButtonStyle.getPropertyView()}
+          </Section>
+          <Section name={"Drawer Container Style"}>
+            {children.drawerContainerStyle.getPropertyView()}
+          </Section>
+        </>
+      )}
+      <Section name={sectionNames.animationStyle} hasTooltip={true}>
+        {children.animationStyle.getPropertyView()}
+      </Section>
+    </>
+  );
+}
+
 const childrenMap = {
   logoUrl: StringControl,
   logoEvent: withDefault(eventHandlerControl(logoEventHandlers), [{ name: "click" }]),
@@ -400,77 +487,17 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
   );
 })
   .setPropertyViewFn((children) => {
+    const mode = useContext(EditorContext).editorModeStatus;
+    const showLogic = mode === "logic" || mode === "both";
+    const showLayout = mode === "layout" || mode === "both";
+
     return (
       <>
-        <Section name={sectionNames.basic}>
-          {children.items.propertyView()}
-        </Section>
-
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-          <Section name={sectionNames.interaction}>
-            {hiddenPropertyView(children)}
-            {showDataLoadingIndicatorsPropertyView(children)}
-          </Section>
-        )}
-
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <Section name={sectionNames.layout}>
-            {children.orientation.propertyView({ label: "Orientation", radioButton: true })}
-            {children.displayMode.propertyView({ label: "Display Mode", radioButton: true })}
-            {children.displayMode.getView() === 'hamburger' ? (
-              [
-                children.hamburgerPosition.propertyView({ label: "Hamburger Position" }),
-                children.hamburgerSize.propertyView({ label: "Hamburger Size" }),
-                children.drawerPlacement.propertyView({ label: "Drawer Placement", radioButton: true }),
-                children.shadowOverlay.propertyView({ label: "Shadow Overlay" }),
-              ]
-            ) : (
-              children.horizontalAlignment.propertyView({
-                label: trans("navigation.horizontalAlignment"),
-                radioButton: true,
-              })
-            )}
-            {hiddenPropertyView(children)}
-          </Section>
-        )}
-
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-          <Section name={sectionNames.advanced}>
-            {children.logoUrl.propertyView({ label: trans("navigation.logoURL"), tooltip: trans("navigation.logoURLDesc") })}
-            {children.logoUrl.getView() && children.logoEvent.propertyView({ inline: true })}
-          </Section>
-        )}
-
-        {(useContext(EditorContext).editorModeStatus === "layout" ||
-          useContext(EditorContext).editorModeStatus === "both") && (
-          <>
-            <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
-            </Section>
-            <Section name={"Item Style"}>
-              {children.navItemStyle.getPropertyView()}
-            </Section>
-            <Section name={"Item Hover Style"}>
-              {children.navItemHoverStyle.getPropertyView()}
-            </Section>
-            <Section name={"Item Active Style"}>
-              {children.navItemActiveStyle.getPropertyView()}
-            </Section>
-            {children.displayMode.getView() === 'hamburger' && (
-              <>
-                <Section name={"Hamburger Button Style"}>
-                  {children.hamburgerButtonStyle.getPropertyView()}
-                </Section>
-                <Section name={"Drawer Container Style"}>
-                  {children.drawerContainerStyle.getPropertyView()}
-                </Section>
-              </>
-            )}
-            <Section name={sectionNames.animationStyle} hasTooltip={true}>
-              {children.animationStyle.getPropertyView()}
-            </Section>
-          </>
-        )}
+        {renderBasicSection(children)}
+        {showLogic && renderInteractionSection(children)}
+        {showLayout && renderLayoutSection(children)}
+        {showLogic && renderAdvancedSection(children)}
+        {showLayout && renderStyleSections(children)}
       </>
     );
   })
