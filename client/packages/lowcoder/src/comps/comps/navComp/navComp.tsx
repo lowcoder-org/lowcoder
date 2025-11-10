@@ -16,6 +16,7 @@ import { default as Menu, MenuProps } from "antd/es/menu";
 import { default as Drawer } from "antd/es/drawer";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { styleControl } from "comps/controls/styleControl";
+import { IconControl } from "comps/controls/iconControl";
 import {
   AnimationStyle,
   AnimationStyleType,
@@ -34,6 +35,8 @@ import { EditorContext } from "comps/editorState";
 import { createNavItemsControl } from "./components/NavItemsControl";
 import { Layers } from "constants/Layers";
 import { CanvasContainerID } from "constants/domLocators";
+import { isNumeric } from "util/stringUtils";
+import { hasIcon } from "comps/utils";
 
 type IProps = {
   $justify: boolean;
@@ -57,6 +60,13 @@ ${props=>props.$animationStyle}
   background: ${(props) => props.$bgColor};
   position: relative;
 `;
+
+const DEFAULT_SIZE = 378;
+
+// If it is a number, use the px unit by default
+function transToPxSize(size: string | number) {
+  return isNumeric(size) ? size + "px" : (size as string);
+}
 
 const NavInner = styled("div") <Pick<IProps, "$justify" | "$orientation">>`
   // margin: 0 -16px;
@@ -228,7 +238,6 @@ function renderInteractionSection(children: any) {
 function renderLayoutSection(children: any) {
   const isHamburger = children.displayMode.getView() === 'hamburger';
   const common = [
-    children.orientation.propertyView({ label: "Orientation", radioButton: true }),
     children.displayMode.propertyView({ label: "Display Mode", radioButton: true }),
   ];
   const hamburger = [
@@ -236,10 +245,24 @@ function renderLayoutSection(children: any) {
     children.hamburgerPosition.propertyView({ label: "Hamburger Position", radioButton: true }),
     children.hamburgerSize.propertyView({ label: "Hamburger Size" }),
     children.placement.propertyView({ label: trans("drawer.placement"), radioButton: true }),
+    ...(["top", "bottom"].includes(children.placement.getView())
+      ? [children.drawerHeight.propertyView({
+          label: trans("drawer.height"),
+          tooltip: trans("drawer.heightTooltip"),
+          placeholder: DEFAULT_SIZE + "",
+        })]
+      : [children.drawerWidth.propertyView({
+          label: trans("drawer.width"),
+          tooltip: trans("drawer.widthTooltip"),
+          placeholder: DEFAULT_SIZE + "",
+        })]),
+    children.hamburgerIcon.propertyView({ label: "Menu Icon" }),
+    children.drawerCloseIcon.propertyView({ label: "Close Icon" }),
     children.shadowOverlay.propertyView({ label: "Shadow Overlay" }),
   ];
   const bar = [
     ...common,
+    children.orientation.propertyView({ label: "Orientation", radioButton: true }),
     children.horizontalAlignment.propertyView({
       label: trans("navigation.horizontalAlignment"),
       radioButton: true,
@@ -263,21 +286,26 @@ function renderAdvancedSection(children: any) {
 }
 
 function renderStyleSections(children: any) {
+  const isHamburger = children.displayMode.getView() === 'hamburger';
   return (
     <>
-      <Section name={sectionNames.style}>
-        {children.style.getPropertyView()}
-      </Section>
-      <Section name={"Item Style"}>
-        {children.navItemStyle.getPropertyView()}
-      </Section>
-      <Section name={"Item Hover Style"}>
-        {children.navItemHoverStyle.getPropertyView()}
-      </Section>
-      <Section name={"Item Active Style"}>
-        {children.navItemActiveStyle.getPropertyView()}
-      </Section>
-      {children.displayMode.getView() === 'hamburger' && (
+      {!isHamburger && (
+        <>
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
+          <Section name={"Item Style"}>
+            {children.navItemStyle.getPropertyView()}
+          </Section>
+          <Section name={"Item Hover Style"}>
+            {children.navItemHoverStyle.getPropertyView()}
+          </Section>
+          <Section name={"Item Active Style"}>
+            {children.navItemActiveStyle.getPropertyView()}
+          </Section>
+        </>
+      )}
+      {isHamburger && (
         <>
           <Section name={"Hamburger Button Style"}>
             {children.hamburgerButtonStyle.getPropertyView()}
@@ -311,6 +339,10 @@ const childrenMap = {
   ], "right"),
   hamburgerSize: withDefault(StringControl, "56px"),
   placement: PositionControl,
+  drawerWidth: StringControl,
+  drawerHeight: StringControl,
+  hamburgerIcon: withDefault(IconControl, ""),
+  drawerCloseIcon: withDefault(IconControl, ""),
   shadowOverlay: withDefault(BoolCodeControl, true),
   horizontalAlignment: alignWithJustifyControl(),
   style: migrateOldData(styleControl(NavigationStyle, 'style'), fixOldStyleData),
@@ -468,15 +500,18 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             $iconColor={props.hamburgerButtonStyle?.iconFill}
             onClick={() => setDrawerVisible(true)}
           >
-            <MenuOutlined />
+            {hasIcon(props.hamburgerIcon) ? props.hamburgerIcon : <MenuOutlined />}
           </FloatingHamburgerButton>
           <Drawer
             placement={props.placement || "right"}
             closable={true}
+            closeIcon={hasIcon(props.drawerCloseIcon) ? props.drawerCloseIcon : undefined}
             onClose={() => setDrawerVisible(false)}
             open={drawerVisible}
             mask={props.shadowOverlay}
             getContainer={getContainer}
+            width={["left", "right"].includes(props.placement as any) ? transToPxSize(props.drawerWidth || DEFAULT_SIZE) : undefined as any}
+            height={["top", "bottom"].includes(props.placement as any) ? transToPxSize(props.drawerHeight || DEFAULT_SIZE) : undefined as any}
             styles={{ body: { padding: "8px", background: props.drawerContainerStyle?.background } }}
             destroyOnClose
           >
