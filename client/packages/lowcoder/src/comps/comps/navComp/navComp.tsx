@@ -5,7 +5,7 @@ import { Section, sectionNames } from "lowcoder-design";
 import styled from "styled-components";
 import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
-import { dropdownControl } from "comps/controls/dropdownControl";
+import { dropdownControl, PositionControl } from "comps/controls/dropdownControl";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
 import { navListComp } from "./navItemComp";
 import { menuPropertyView } from "./components/MenuItemList";
@@ -29,10 +29,11 @@ import {
 import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
-import { useContext, useState } from "react";
+import { useContext, useState, useCallback } from "react";
 import { EditorContext } from "comps/editorState";
 import { createNavItemsControl } from "./components/NavItemsControl";
 import { Layers } from "constants/Layers";
+import { CanvasContainerID } from "constants/domLocators";
 
 type IProps = {
   $justify: boolean;
@@ -234,7 +235,7 @@ function renderLayoutSection(children: any) {
     ...common,
     children.hamburgerPosition.propertyView({ label: "Hamburger Position" }),
     children.hamburgerSize.propertyView({ label: "Hamburger Size" }),
-    children.drawerPlacement.propertyView({ label: "Drawer Placement", radioButton: true }),
+    children.placement.propertyView({ label: trans("drawer.placement"), radioButton: true }),
     children.shadowOverlay.propertyView({ label: "Shadow Overlay" }),
   ];
   const bar = [
@@ -311,10 +312,7 @@ const childrenMap = {
     { label: "Bottom Left", value: "bottom-left" },
   ], "top-right"),
   hamburgerSize: withDefault(StringControl, "56px"),
-  drawerPlacement: dropdownControl([
-    { label: "Left", value: "left" },
-    { label: "Right", value: "right" },
-  ], "right"),
+  placement: PositionControl,
   shadowOverlay: withDefault(BoolCodeControl, true),
   horizontalAlignment: alignWithJustifyControl(),
   style: migrateOldData(styleControl(NavigationStyle, 'style'), fixOldStyleData),
@@ -336,6 +334,10 @@ const childrenMap = {
 
 const NavCompBase = new UICompBuilder(childrenMap, (props) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const getContainer = useCallback(() =>
+    document.querySelector(`#${CanvasContainerID}`) || document.body,
+    []
+  );
   const data = props.items;
   const items = (
     <>
@@ -471,11 +473,12 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             <MenuOutlined />
           </FloatingHamburgerButton>
           <Drawer
-            placement={(props.drawerPlacement as any) || "right"}
+            placement={props.placement || "right"}
             closable={true}
             onClose={() => setDrawerVisible(false)}
             open={drawerVisible}
             mask={props.shadowOverlay}
+            getContainer={getContainer}
             styles={{ body: { padding: "8px", background: props.drawerContainerStyle?.background } }}
             destroyOnClose
           >
