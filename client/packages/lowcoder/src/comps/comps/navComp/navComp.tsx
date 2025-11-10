@@ -141,7 +141,7 @@ const StyledMenu = styled(Menu) <MenuProps>`
 
 const FloatingHamburgerButton = styled.button<{
   $size: string;
-  $position: string; // top-right | top-left | bottom-right | bottom-left
+  $position: string; // left | right
   $zIndex: number;
   $background?: string;
   $borderColor?: string;
@@ -152,8 +152,8 @@ const FloatingHamburgerButton = styled.button<{
   $iconColor?: string;
 }>`
   position: fixed;
-  ${(props) => (props.$position.includes('bottom') ? 'bottom: 16px;' : 'top: 16px;')}
-  ${(props) => (props.$position.includes('right') ? 'right: 16px;' : 'left: 16px;')}
+  top: 16px;
+  ${(props) => (props.$position === 'right' ? 'right: 16px;' : 'left: 16px;')}
   width: ${(props) => props.$size};
   height: ${(props) => props.$size};
   border-radius: ${(props) => props.$radius || '50%'};
@@ -233,7 +233,7 @@ function renderLayoutSection(children: any) {
   ];
   const hamburger = [
     ...common,
-    children.hamburgerPosition.propertyView({ label: "Hamburger Position" }),
+    children.hamburgerPosition.propertyView({ label: "Hamburger Position", radioButton: true }),
     children.hamburgerSize.propertyView({ label: "Hamburger Size" }),
     children.placement.propertyView({ label: trans("drawer.placement"), radioButton: true }),
     children.shadowOverlay.propertyView({ label: "Shadow Overlay" }),
@@ -306,11 +306,9 @@ const childrenMap = {
     { label: "Hamburger", value: "hamburger" },
   ], "bar"),
   hamburgerPosition: dropdownControl([
-    { label: "Top Right", value: "top-right" },
-    { label: "Top Left", value: "top-left" },
-    { label: "Bottom Right", value: "bottom-right" },
-    { label: "Bottom Left", value: "bottom-left" },
-  ], "top-right"),
+    { label: "Left", value: "left" },
+    { label: "Right", value: "right" },
+  ], "right"),
   hamburgerSize: withDefault(StringControl, "56px"),
   placement: PositionControl,
   shadowOverlay: withDefault(BoolCodeControl, true),
@@ -459,7 +457,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
         <>
           <FloatingHamburgerButton
             $size={props.hamburgerSize || "56px"}
-            $position={props.hamburgerPosition || "top-right"}
+            $position={props.hamburgerPosition || "right"}
             $zIndex={Layers.tabBar + 1}
             $background={props.hamburgerButtonStyle?.background}
             $borderColor={props.hamburgerButtonStyle?.border}
