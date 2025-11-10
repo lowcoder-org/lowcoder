@@ -13,10 +13,12 @@ import { default as DownOutlined } from "@ant-design/icons/DownOutlined";
 import { default as MenuOutlined } from "@ant-design/icons/MenuOutlined";
 import { default as Dropdown } from "antd/es/dropdown";
 import { default as Menu, MenuProps } from "antd/es/menu";
+import Segmented from "antd/es/segmented";
 import { default as Drawer } from "antd/es/drawer";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { styleControl } from "comps/controls/styleControl";
 import { IconControl } from "comps/controls/iconControl";
+import { controlItem } from "components/control";
 import {
   AnimationStyle,
   AnimationStyleType,
@@ -67,6 +69,13 @@ const DEFAULT_SIZE = 378;
 function transToPxSize(size: string | number) {
   return isNumeric(size) ? size + "px" : (size as string);
 }
+
+type MenuItemStyleOptionValue = "normal" | "hover" | "active";
+const menuItemStyleOptions = [
+  { label: "Normal", value: "normal" },
+  { label: "Hover", value: "hover" },
+  { label: "Active", value: "active" },
+] as const;
 
 const NavInner = styled("div") <Pick<IProps, "$justify" | "$orientation">>`
   // margin: 0 -16px;
@@ -285,26 +294,28 @@ function renderAdvancedSection(children: any) {
   );
 }
 
-function renderStyleSections(children: any) {
+function renderStyleSections(children: any, styleSegment: MenuItemStyleOptionValue, setStyleSegment: (k: MenuItemStyleOptionValue) => void) {
   const isHamburger = children.displayMode.getView() === 'hamburger';
   return (
     <>
       {!isHamburger && (
-        <>
-          <Section name={sectionNames.style}>
-            {children.style.getPropertyView()}
-          </Section>
-          <Section name={"Item Style"}>
-            {children.navItemStyle.getPropertyView()}
-          </Section>
-          <Section name={"Item Hover Style"}>
-            {children.navItemHoverStyle.getPropertyView()}
-          </Section>
-          <Section name={"Item Active Style"}>
-            {children.navItemActiveStyle.getPropertyView()}
-          </Section>
-        </>
+        <Section name={sectionNames.style}>
+          {children.style.getPropertyView()}
+        </Section>
       )}
+      <Section name={isHamburger ? "Drawer Item Style" : trans("navLayout.navItemStyle")}>
+        {controlItem({}, (
+          <Segmented
+            block
+            options={menuItemStyleOptions as any}
+            value={styleSegment}
+            onChange={(k) => setStyleSegment(k as MenuItemStyleOptionValue)}
+          />
+        ))}
+        {styleSegment === "normal" && children.navItemStyle.getPropertyView()}
+        {styleSegment === "hover" && children.navItemHoverStyle.getPropertyView()}
+        {styleSegment === "active" && children.navItemActiveStyle.getPropertyView()}
+      </Section>
       {isHamburger && (
         <>
           <Section name={"Hamburger Button Style"}>
@@ -526,6 +537,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
     const mode = useContext(EditorContext).editorModeStatus;
     const showLogic = mode === "logic" || mode === "both";
     const showLayout = mode === "layout" || mode === "both";
+    const [styleSegment, setStyleSegment] = useState<MenuItemStyleOptionValue>("normal");
 
     return (
       <>
@@ -533,7 +545,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
         {showLogic && renderInteractionSection(children)}
         {showLayout && renderLayoutSection(children)}
         {showLogic && renderAdvancedSection(children)}
-        {showLayout && renderStyleSections(children)}
+        {showLayout && renderStyleSections(children, styleSegment, setStyleSegment)}
       </>
     );
   })
