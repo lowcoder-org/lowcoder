@@ -14,11 +14,12 @@ import { default as MenuOutlined } from "@ant-design/icons/MenuOutlined";
 import { default as Dropdown } from "antd/es/dropdown";
 import { default as Menu, MenuProps } from "antd/es/menu";
 import Segmented from "antd/es/segmented";
-import { default as Drawer } from "antd/es/drawer";
+import { Drawer } from "lowcoder-design";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { styleControl } from "comps/controls/styleControl";
 import { IconControl } from "comps/controls/iconControl";
 import { controlItem } from "components/control";
+import { PreviewContainerID } from "constants/domLocators";
 import {
   AnimationStyle,
   AnimationStyleType,
@@ -186,6 +187,45 @@ const FloatingHamburgerButton = styled.button<{
   cursor: pointer;
   box-shadow: 0 6px 16px rgba(0,0,0,0.15);
   color: ${(props) => props.$iconColor || 'inherit'};
+`;
+
+const DrawerContent = styled.div<{
+  $background: string;
+  $padding?: string;
+  $borderColor?: string;
+  $borderWidth?: string;
+  $margin?: string;
+}>`
+  background: ${(p) => p.$background};
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: ${(p) => p.$padding || '12px'};
+  margin: ${(p) => p.$margin || '0px'};
+  box-sizing: border-box;
+  border: ${(p) => p.$borderWidth || '1px'} solid ${(p) => p.$borderColor || 'transparent'};
+`;
+
+const DrawerHeader = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+`;
+
+const DrawerCloseButton = styled.button<{
+  $color: string;
+}>`
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: ${(p) => p.$color};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
 `;
 
 const logoEventHandlers = [clickEvent];
@@ -375,7 +415,7 @@ const childrenMap = {
 const NavCompBase = new UICompBuilder(childrenMap, (props) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const getContainer = useCallback(() =>
-    document.querySelector(`#${CanvasContainerID}`) || document.body,
+    document.querySelector(`#${CanvasContainerID}`) || document.querySelector(`#${PreviewContainerID}`) || document.body,
     []
   );
   const data = props.items;
@@ -521,18 +561,37 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
           </FloatingHamburgerButton>
           <Drawer
             placement={props.placement || "right"}
-            closable={true}
-            closeIcon={hasIcon(props.drawerCloseIcon) ? props.drawerCloseIcon : undefined}
             onClose={() => setDrawerVisible(false)}
             open={drawerVisible}
             mask={props.shadowOverlay}
+            maskClosable={true}
+            closable={false}
             getContainer={getContainer}
             width={["left", "right"].includes(props.placement as any) ? transToPxSize(props.drawerWidth || DEFAULT_SIZE) : undefined as any}
             height={["top", "bottom"].includes(props.placement as any) ? transToPxSize(props.drawerHeight || DEFAULT_SIZE) : undefined as any}
-            styles={{ body: { padding: "8px", background: props.drawerContainerStyle?.background } }}
+            styles={{ body: { padding: 0 } }}
             destroyOnClose
           >
-            <ItemList $align={"flex-start"} $orientation={"vertical"}>{items}</ItemList>
+            <DrawerContent 
+              $background={props.drawerContainerStyle?.background || '#FFFFFF'}
+              $padding={props.drawerContainerStyle?.padding}
+              $borderColor={props.drawerContainerStyle?.border}
+              $borderWidth={props.drawerContainerStyle?.borderWidth}
+              $margin={props.drawerContainerStyle?.margin}
+            >
+              <DrawerHeader>
+                <DrawerCloseButton
+                  aria-label="Close"
+                  $color={props.style.text}
+                  onClick={() => setDrawerVisible(false)}
+                >
+                  {hasIcon(props.drawerCloseIcon)
+                    ? props.drawerCloseIcon
+                    : <span style={{ fontSize: 20 }}>×</span>}
+                </DrawerCloseButton>
+              </DrawerHeader>
+              <ItemList $align={"flex-start"} $orientation={"vertical"}>{items}</ItemList>
+            </DrawerContent>
           </Drawer>
         </>
       )}
