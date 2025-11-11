@@ -107,7 +107,6 @@ const Item = styled.div<{
   $radius?: string;
   $disabled?: boolean;
 }>`
-  height: 30px;
   line-height: 30px;
   padding: ${(props) => props.$padding ? props.$padding : '0 16px'};
   color: ${(props) => props.$disabled ? `${props.$color}80` : (props.$active ? props.$activeColor : props.$color)};
@@ -303,7 +302,7 @@ function renderStyleSections(children: any, styleSegment: MenuItemStyleOptionVal
           {children.style.getPropertyView()}
         </Section>
       )}
-      <Section name={isHamburger ? "Drawer Item Style" : trans("navLayout.navItemStyle")}>
+      <Section name={trans("navLayout.navItemStyle")}>
         {controlItem({}, (
           <Segmented
             block
@@ -391,12 +390,13 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
         }
 
         const label = view?.label;
+        const icon = hasIcon(view?.icon) ? view.icon : undefined;
         const active = !!view?.active;
         const onEvent = view?.onEvent;
         const disabled = !!view?.disabled;
         const subItems = isCompItem ? view?.items : [];
 
-        const subMenuItems: Array<{ key: string; label: any; disabled?: boolean }> = [];
+        const subMenuItems: Array<{ key: string; label: any; icon?: any; disabled?: boolean }> = [];
         const subMenuSelectedKeys: Array<string> = [];
 
         if (Array.isArray(subItems)) {
@@ -406,9 +406,11 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             }
             const key = originalIndex + "";
             subItem.children.active.getView() && subMenuSelectedKeys.push(key);
+            const subIcon = hasIcon(subItem.children.icon?.getView?.()) ? subItem.children.icon.getView() : undefined;
             subMenuItems.push({
               key: key,
               label: subItem.children.label.getView(),
+              icon: subIcon,
               disabled: !!subItem.children.disabled.getView(),
             });
           });
@@ -439,6 +441,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             $disabled={disabled}
             onClick={() => { if (!disabled && onEvent) onEvent("click"); }}
           >
+            {icon && <span style={{ display: 'inline-flex', marginRight: '8px' }}>{icon}</span>}
             {label}
             {Array.isArray(subItems) && subItems.length > 0 && <DownOutlined />}
           </Item>
@@ -455,7 +458,10 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
                 onSubEvent && onSubEvent("click");
               }}
               selectedKeys={subMenuSelectedKeys}
-              items={subMenuItems}
+              items={subMenuItems.map(item => ({
+                ...item,
+                icon: item.icon || undefined,
+              }))}
             />
           );
           return (

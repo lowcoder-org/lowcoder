@@ -5,6 +5,7 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { mapOptionsControl } from "comps/controls/optionsControl";
 import { trans } from "i18n";
 import { navListComp } from "../navItemComp";
+import { IconControl } from "comps/controls/iconControl";
 import { controlItem } from "lowcoder-design";
 import { menuPropertyView } from "./MenuItemList";
 
@@ -17,6 +18,7 @@ export function createNavItemsControl() {
   const NavMapOption = new MultiCompBuilder(
     {
       label: StringControl,
+      icon: IconControl,
       hidden: BoolCodeControl,
       disabled: BoolCodeControl,
       active: BoolCodeControl,
@@ -27,6 +29,7 @@ export function createNavItemsControl() {
     .setPropertyViewFn((children) => (
       <>
         {children.label.propertyView({ label: trans("label"), placeholder: "{{item}}" })}
+        {children.icon.propertyView({ label: trans("icon") })}
         {children.active.propertyView({ label: trans("navItemComp.active") })}
         {children.hidden.propertyView({ label: trans("hidden") })}
         {children.disabled.propertyView({ label: trans("disabled") })}
