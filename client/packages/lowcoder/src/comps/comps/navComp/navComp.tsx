@@ -29,6 +29,9 @@ import {
   NavLayoutItemStyle,
   NavLayoutItemHoverStyle,
   NavLayoutItemActiveStyle,
+  NavSubMenuItemStyle,
+  NavSubMenuItemHoverStyle,
+  NavSubMenuItemActiveStyle,
 } from "comps/controls/styleControlConstants";
 import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
@@ -152,9 +155,61 @@ const ItemList = styled.div<{ $align: string, $orientation?: string }>`
   justify-content: ${(props) => props.$align};
 `;
 
-const StyledMenu = styled(Menu) <MenuProps>`
-  &.ant-dropdown-menu {
-    min-width: 160px;
+const StyledMenu = styled(Menu) <
+  MenuProps & {
+    $color: string;
+    $hoverColor: string;
+    $activeColor: string;
+    $bg?: string;
+    $hoverBg?: string;
+    $activeBg?: string;
+    $border?: string;
+    $hoverBorder?: string;
+    $activeBorder?: string;
+    $radius?: string;
+    $fontFamily?: string;
+    $fontStyle?: string;
+    $textWeight?: string;
+    $textSize?: string;
+    $padding?: string;
+    $margin?: string;
+    $textTransform?: string;
+    $textDecoration?: string;
+  }
+>`
+  /* Base submenu item styles */
+  .ant-dropdown-menu-item{
+    color: ${(p) => p.$color};
+    background-color: ${(p) => p.$bg || "transparent"};
+    border-radius: ${(p) => p.$radius || "0px"};
+    font-weight: ${(p) => p.$textWeight || 500};
+    font-family: ${(p) => p.$fontFamily || "sans-serif"};
+    font-style: ${(p) => p.$fontStyle || "normal"};
+    font-size: ${(p) => p.$textSize || "14px"};
+    text-transform: ${(p) => p.$textTransform || "none"};
+    text-decoration: ${(p) => p.$textDecoration || "none"};
+    padding: ${(p) => p.$padding || "0 16px"};
+    margin: ${(p) => p.$margin || "0px"};
+    line-height: 30px;
+  }
+  /* Hover state */
+  .ant-dropdown-menu-item:hover{
+    color: ${(p) => p.$hoverColor || p.$activeColor};
+    background-color: ${(p) => p.$hoverBg || "transparent"};
+    cursor: pointer;
+  }
+  /* Selected/active state */
+  .ant-dropdown-menu-item-selected,
+  .ant-menu-item-selected {
+    color: ${(p) => p.$activeColor};
+    background-color: ${(p) => p.$activeBg || p.$bg || "transparent"};
+    border: ${(p) => (p.$activeBorder ? `1px solid ${p.$activeBorder}` : "1px solid transparent")};
+  }
+  /* Disabled state */
+  .ant-dropdown-menu-item-disabled,
+  .ant-menu-item-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 
@@ -333,7 +388,13 @@ function renderAdvancedSection(children: any) {
   );
 }
 
-function renderStyleSections(children: any, styleSegment: MenuItemStyleOptionValue, setStyleSegment: (k: MenuItemStyleOptionValue) => void) {
+function renderStyleSections(
+  children: any,
+  styleSegment: MenuItemStyleOptionValue,
+  setStyleSegment: (k: MenuItemStyleOptionValue) => void,
+  subStyleSegment: MenuItemStyleOptionValue,
+  setSubStyleSegment: (k: MenuItemStyleOptionValue) => void
+) {
   const isHamburger = children.displayMode.getView() === 'hamburger';
   return (
     <>
@@ -354,6 +415,19 @@ function renderStyleSections(children: any, styleSegment: MenuItemStyleOptionVal
         {styleSegment === "normal" && children.navItemStyle.getPropertyView()}
         {styleSegment === "hover" && children.navItemHoverStyle.getPropertyView()}
         {styleSegment === "active" && children.navItemActiveStyle.getPropertyView()}
+      </Section>
+      <Section name={"Submenu Item Style"}>
+        {controlItem({}, (
+          <Segmented
+            block
+            options={menuItemStyleOptions as any}
+            value={subStyleSegment}
+            onChange={(k) => setSubStyleSegment(k as MenuItemStyleOptionValue)}
+          />
+        ))}
+        {subStyleSegment === "normal" && children.subNavItemStyle.getPropertyView()}
+        {subStyleSegment === "hover" && children.subNavItemHoverStyle.getPropertyView()}
+        {subStyleSegment === "active" && children.subNavItemActiveStyle.getPropertyView()}
       </Section>
       {isHamburger && (
         <>
@@ -402,6 +476,9 @@ const childrenMap = {
   hamburgerButtonStyle: styleControl(HamburgerButtonStyle, 'hamburgerButtonStyle'),
   drawerContainerStyle: styleControl(DrawerContainerStyle, 'drawerContainerStyle'),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
+  subNavItemStyle: styleControl(NavSubMenuItemStyle, 'subNavItemStyle'),
+  subNavItemHoverStyle: styleControl(NavSubMenuItemHoverStyle, 'subNavItemHoverStyle'),
+  subNavItemActiveStyle: styleControl(NavSubMenuItemActiveStyle, 'subNavItemActiveStyle'),
   items: withDefault(migrateOldData(createNavItemsControl(), fixOldItemsData), {
     optionType: "manual",
     manual: [
@@ -502,6 +579,24 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
                 ...item,
                 icon: item.icon || undefined,
               }))}
+              $color={(props.subNavItemStyle && props.subNavItemStyle.text) || props.style.text}
+              $hoverColor={(props.subNavItemHoverStyle && props.subNavItemHoverStyle.text) || props.style.accent}
+              $activeColor={(props.subNavItemActiveStyle && props.subNavItemActiveStyle.text) || props.style.accent}
+              $bg={(props.subNavItemStyle && props.subNavItemStyle.background) || undefined}
+              $hoverBg={(props.subNavItemHoverStyle && props.subNavItemHoverStyle.background) || undefined}
+              $activeBg={(props.subNavItemActiveStyle && props.subNavItemActiveStyle.background) || undefined}
+              $border={(props.subNavItemStyle && props.subNavItemStyle.border) || undefined}
+              $hoverBorder={(props.subNavItemHoverStyle && props.subNavItemHoverStyle.border) || undefined}
+              $activeBorder={(props.subNavItemActiveStyle && props.subNavItemActiveStyle.border) || undefined}
+              $radius={(props.subNavItemStyle && props.subNavItemStyle.radius) || undefined}
+              $fontFamily={props.style.fontFamily}
+              $fontStyle={props.style.fontStyle}
+              $textWeight={props.style.textWeight}
+              $textSize={props.style.textSize}
+              $padding={(props.subNavItemStyle && props.subNavItemStyle.padding) || props.style.padding}
+              $margin={(props.subNavItemStyle && props.subNavItemStyle.margin) || props.style.margin}
+              $textTransform={props.style.textTransform}
+              $textDecoration={props.style.textDecoration}
             />
           );
           return (
@@ -509,6 +604,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
               key={idx}
               popupRender={() => subMenu}
               disabled={disabled}
+              trigger={["click"]}
             >
               {item}
             </Dropdown>
@@ -603,6 +699,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
     const showLogic = mode === "logic" || mode === "both";
     const showLayout = mode === "layout" || mode === "both";
     const [styleSegment, setStyleSegment] = useState<MenuItemStyleOptionValue>("normal");
+    const [subStyleSegment, setSubStyleSegment] = useState<MenuItemStyleOptionValue>("normal");
 
     return (
       <>
@@ -610,7 +707,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
         {showLogic && renderInteractionSection(children)}
         {showLayout && renderLayoutSection(children)}
         {showLogic && renderAdvancedSection(children)}
-        {showLayout && renderStyleSections(children, styleSegment, setStyleSegment)}
+        {showLayout && renderStyleSections(children, styleSegment, setStyleSegment, subStyleSegment, setSubStyleSegment)}
       </>
     );
   })
