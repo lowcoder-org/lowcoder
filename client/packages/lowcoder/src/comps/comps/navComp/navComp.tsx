@@ -14,7 +14,7 @@ import { default as MenuOutlined } from "@ant-design/icons/MenuOutlined";
 import { default as Dropdown } from "antd/es/dropdown";
 import { default as Menu, MenuProps } from "antd/es/menu";
 import Segmented from "antd/es/segmented";
-import { Drawer } from "lowcoder-design";
+import { Drawer, ScrollBar } from "lowcoder-design";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { styleControl } from "comps/controls/styleControl";
 import { IconControl } from "comps/controls/iconControl";
@@ -195,7 +195,7 @@ const StyledMenu = styled(Menu) <
   /* Hover state */
   .ant-dropdown-menu-item:hover{
     color: ${(p) => p.$hoverColor || p.$activeColor};
-    background-color: ${(p) => p.$hoverBg || "transparent"};
+    background-color: ${(p) => p.$hoverBg || "transparent"} !important;
     cursor: pointer;
   }
   /* Selected/active state */
@@ -565,39 +565,41 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
         );
         if (subMenuItems.length > 0) {
           const subMenu = (
-            <StyledMenu
-              onClick={(e) => {
-                if (disabled) return;
-                const subItem = subItems[Number(e.key)];
-                const isSubDisabled = !!subItem?.children?.disabled?.getView?.();
-                if (isSubDisabled) return;
-                const onSubEvent = subItem?.getView()?.onEvent;
-                onSubEvent && onSubEvent("click");
-              }}
-              selectedKeys={subMenuSelectedKeys}
-              items={subMenuItems.map(item => ({
-                ...item,
-                icon: item.icon || undefined,
-              }))}
-              $color={(props.subNavItemStyle && props.subNavItemStyle.text) || props.style.text}
-              $hoverColor={(props.subNavItemHoverStyle && props.subNavItemHoverStyle.text) || props.style.accent}
-              $activeColor={(props.subNavItemActiveStyle && props.subNavItemActiveStyle.text) || props.style.accent}
-              $bg={(props.subNavItemStyle && props.subNavItemStyle.background) || undefined}
-              $hoverBg={(props.subNavItemHoverStyle && props.subNavItemHoverStyle.background) || undefined}
-              $activeBg={(props.subNavItemActiveStyle && props.subNavItemActiveStyle.background) || undefined}
-              $border={(props.subNavItemStyle && props.subNavItemStyle.border) || undefined}
-              $hoverBorder={(props.subNavItemHoverStyle && props.subNavItemHoverStyle.border) || undefined}
-              $activeBorder={(props.subNavItemActiveStyle && props.subNavItemActiveStyle.border) || undefined}
-              $radius={(props.subNavItemStyle && props.subNavItemStyle.radius) || undefined}
-              $fontFamily={props.style.fontFamily}
-              $fontStyle={props.style.fontStyle}
-              $textWeight={props.style.textWeight}
-              $textSize={props.style.textSize}
-              $padding={(props.subNavItemStyle && props.subNavItemStyle.padding) || props.style.padding}
-              $margin={(props.subNavItemStyle && props.subNavItemStyle.margin) || props.style.margin}
-              $textTransform={props.style.textTransform}
-              $textDecoration={props.style.textDecoration}
-            />
+            <ScrollBar style={{ height: "250px" }}>
+              <StyledMenu
+                onClick={(e) => {
+                  if (disabled) return;
+                  const subItem = subItems[Number(e.key)];
+                  const isSubDisabled = !!subItem?.children?.disabled?.getView?.();
+                  if (isSubDisabled) return;
+                  const onSubEvent = subItem?.getView()?.onEvent;
+                  onSubEvent && onSubEvent("click");
+                }}
+                selectedKeys={subMenuSelectedKeys}
+                items={subMenuItems.map(item => ({
+                  ...item,
+                  icon: item.icon || undefined,
+                }))}
+                $color={(props.subNavItemStyle && props.subNavItemStyle.text) || props.style.text}
+                $hoverColor={(props.subNavItemHoverStyle && props.subNavItemHoverStyle.text) || props.style.accent}
+                $activeColor={(props.subNavItemActiveStyle && props.subNavItemActiveStyle.text) || props.style.accent}
+                $bg={(props.subNavItemStyle && props.subNavItemStyle.background) || undefined}
+                $hoverBg={(props.subNavItemHoverStyle && props.subNavItemHoverStyle.background) || undefined}
+                $activeBg={(props.subNavItemActiveStyle && props.subNavItemActiveStyle.background) || undefined}
+                $border={(props.subNavItemStyle && props.subNavItemStyle.border) || undefined}
+                $hoverBorder={(props.subNavItemHoverStyle && props.subNavItemHoverStyle.border) || undefined}
+                $activeBorder={(props.subNavItemActiveStyle && props.subNavItemActiveStyle.border) || undefined}
+                $radius={(props.subNavItemStyle && props.subNavItemStyle.radius) || undefined}
+                $fontFamily={props.style.fontFamily}
+                $fontStyle={props.style.fontStyle}
+                $textWeight={props.style.textWeight}
+                $textSize={props.style.textSize}
+                $padding={(props.subNavItemStyle && props.subNavItemStyle.padding) || props.style.padding}
+                $margin={(props.subNavItemStyle && props.subNavItemStyle.margin) || props.style.margin}
+                $textTransform={props.style.textTransform}
+                $textDecoration={props.style.textDecoration}
+              />
+            </ScrollBar>
           );
           return (
             <Dropdown
