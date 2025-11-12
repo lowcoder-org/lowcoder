@@ -565,7 +565,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
         );
         if (subMenuItems.length > 0) {
           const subMenu = (
-            <ScrollBar style={{ height: "250px" }}>
+            <ScrollBar style={{ height: "200px" }}>
               <StyledMenu
                 onClick={(e) => {
                   if (disabled) return;
@@ -606,7 +606,6 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
               key={idx}
               popupRender={() => subMenu}
               disabled={disabled}
-              trigger={["click"]}
             >
               {item}
             </Dropdown>
