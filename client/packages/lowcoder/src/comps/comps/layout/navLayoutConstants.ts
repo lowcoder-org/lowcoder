@@ -6,6 +6,21 @@ export const ModeOptions = [
   { label: trans("navLayout.modeHorizontal"), value: "horizontal" },
 ] as const;
 
+// Desktop navigation position
+export const NavPosition = {
+  Top: "top",
+  Left: "left",
+  Bottom: "bottom",
+  Right: "right",
+} as const;
+
+export const NavPositionOptions = [
+  { label: "Top", value: NavPosition.Top },
+  { label: "Left", value: NavPosition.Left },
+  { label: "Bottom", value: NavPosition.Bottom },
+  { label: "Right", value: NavPosition.Right },
+] as const;
+
 // Mobile navigation specific modes and options
 export const MobileMode = {
   Vertical: "vertical",

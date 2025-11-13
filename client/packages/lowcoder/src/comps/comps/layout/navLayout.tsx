@@ -36,14 +36,14 @@ import history from "util/history";
 import {
   DataOption,
   DataOptionType,
-  ModeOptions,
   jsonMenuItems,
   menuItemStyleOptions
 } from "./navLayoutConstants";
 import { clickEvent, eventHandlerControl } from "@lowcoder-ee/comps/controls/eventHandlerControl";
 import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
+import { NavPosition, NavPositionOptions } from "./navLayoutConstants";
 
-const { Header } = Layout;
+const { Header, Footer } = Layout;
 
 const DEFAULT_WIDTH = 240;
 type MenuItemStyleOptionValue = "normal" | "hover" | "active";
@@ -197,7 +197,7 @@ let NavTmpLayout = (function () {
     jsonItems: jsonControl(convertTreeData, jsonMenuItems),
     width: withDefault(StringControl, DEFAULT_WIDTH),
     backgroundImage: withDefault(StringControl, ""),
-    mode: dropdownControl(ModeOptions, "inline"),
+    position: dropdownControl(NavPositionOptions, NavPosition.Left),
     collapse: BoolCodeControl,
     navStyle: styleControl(NavLayoutStyle, 'navStyle'),
     navItemStyle: styleControl(NavLayoutItemStyle, 'navItemStyle'),
@@ -234,7 +234,7 @@ let NavTmpLayout = (function () {
                 tooltip: trans("navLayout.widthTooltip"),
                 placeholder: DEFAULT_WIDTH + "",
             })}
-            { children.mode.propertyView({
+            { children.position.propertyView({
               label: trans("labelProp.position"),
               radioButton: true
             })}
@@ -280,7 +280,7 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
   const [selectedKey, setSelectedKey] = useState("");
   const items = comp.children.items.getView();
   const navWidth = comp.children.width.getView();
-  const navMode = comp.children.mode.getView();
+  const navPosition = comp.children.position.getView();
   const navCollapse = comp.children.collapse.getView();
   const navStyle = comp.children.navStyle.getView();
   const navItemStyle = comp.children.navItemStyle.getView();
@@ -568,12 +568,14 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
   let navMenu = (
     <StyledMenu
       items={menuItems}
-      mode={navMode}
+      mode={(navPosition === 'top' || navPosition === 'bottom') ? 'horizontal' : 'inline'}
       style={{
         height: `calc(100% - ${getVerticalMargin(navStyle.margin.split(' '))})`,
         width: `calc(100% - ${getHorizontalMargin(navStyle.margin.split(' '))})`,
-        borderRight: navMode !== 'horizontal' ? `1px solid ${navStyle.border}` : 'none',
-        borderBottom: navMode === 'horizontal' ? `1px solid ${navStyle.border}` : 'none',
+        borderRight: navPosition === 'left' ? `1px solid ${navStyle.border}` : 'none',
+        borderLeft: navPosition === 'right' ? `1px solid ${navStyle.border}` : 'none',
+        borderBottom: navPosition === 'top' ? `1px solid ${navStyle.border}` : 'none',
+        borderTop: navPosition === 'bottom' ? `1px solid ${navStyle.border}` : 'none',
         borderRadius: navStyle.radius,
         color: navStyle.text,
         margin: navStyle.margin,
@@ -585,7 +587,7 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
       defaultOpenKeys={defaultOpenKeys}
       selectedKeys={[selectedKey]}
       $navItemStyle={{
-        width: navMode === 'horizontal' ? 'auto' : `calc(100% - ${getHorizontalMargin(navItemStyle.margin.split(' '))})`,
+        width: (navPosition === 'top' || navPosition === 'bottom') ? 'auto' : `calc(100% - ${getHorizontalMargin(navItemStyle.margin.split(' '))})`,
         ...navItemStyle,
       }}
       $navItemHoverStyle={navItemHoverStyle}
@@ -595,16 +597,27 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
 
   let content = (
     <Layout>
-      {navMode === 'horizontal' ? (
+      {(navPosition === 'top') && (
         <Header style={{ display: 'flex', alignItems: 'center', padding: 0 }}>
           { navMenu }
         </Header>
-      ) : (
+      )}
+      {(navPosition === 'left') && (
         <StyledSide theme="light" width={navWidth} collapsed={navCollapse}>
           {navMenu}
         </StyledSide>
       )}
       <MainContent>{pageView}</MainContent>
+      {(navPosition === 'bottom') && (
+        <Footer style={{ display: 'flex', alignItems: 'center', padding: 0 }}>
+          { navMenu }
+        </Footer>
+      )}
+      {(navPosition === 'right') && (
+        <StyledSide theme="light" width={navWidth} collapsed={navCollapse}>
+          {navMenu}
+        </StyledSide>
+      )}
     </Layout>
   );
   return isViewMode ? (
