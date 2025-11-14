@@ -17,7 +17,8 @@ import { EditorContainer, EmptyContent } from "pages/common/styledComponent";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { isUserViewMode, useAppPathParam } from "util/hooks";
-import { BoolCodeControl, StringControl, jsonControl } from "comps/controls/codeControl";
+import { StringControl, jsonControl } from "comps/controls/codeControl";
+import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
 import {
   NavLayoutStyle,
@@ -40,7 +41,6 @@ import {
   menuItemStyleOptions
 } from "./navLayoutConstants";
 import { clickEvent, eventHandlerControl } from "@lowcoder-ee/comps/controls/eventHandlerControl";
-import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 import { NavPosition, NavPositionOptions } from "./navLayoutConstants";
 
 const { Header, Footer } = Layout;
@@ -141,6 +141,24 @@ const StyledMenu = styled(AntdMenu)<{
     }
   }
 
+  /* Collapse mode: hide label text and center icons */
+  &.ant-menu-inline-collapsed {
+    .ant-menu-title-content {
+      display: none !important;
+    }
+
+    > .ant-menu-item,
+    > .ant-menu-submenu > .ant-menu-submenu-title {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .anticon {
+      line-height: 1 !important;
+    }
+  }
+
 `;
 
 const StyledImage = styled.img`
@@ -192,7 +210,7 @@ let NavTmpLayout = (function () {
     width: withDefault(StringControl, DEFAULT_WIDTH),
     backgroundImage: withDefault(StringControl, ""),
     position: dropdownControl(NavPositionOptions, NavPosition.Left),
-    collapse: BoolCodeControl,
+    collapse: BoolControl,
     navStyle: styleControl(NavLayoutStyle, 'navStyle'),
     navItemStyle: styleControl(NavLayoutItemStyle, 'navItemStyle'),
     navItemHoverStyle: styleControl(NavLayoutItemHoverStyle, 'navItemHoverStyle'),
@@ -672,7 +690,7 @@ NavTmpLayout = withDispatchHook(NavTmpLayout, (dispatch) => (action) => {
   });
 });
 
-export const NavLayout = class extends NavTmpLayout {
+export class NavLayout extends NavTmpLayout {
   getAllCompItems() {
     return {};
   }
@@ -680,5 +698,5 @@ export const NavLayout = class extends NavTmpLayout {
   nameAndExposingInfo(): NameAndExposingInfo {
     return {};
   }
-};
+}
 registerLayoutMap({ compType: navLayoutCompType, comp: NavLayout });
