@@ -148,12 +148,6 @@ const StyledImage = styled.img`
   color: currentColor;
 `;
 
-const defaultStyle = {
-  radius: '0px',
-  margin: '0px',
-  padding: '0px',
-}
-
 type UrlActionType = {
   url?: string;
   newTab?: boolean;
@@ -163,7 +157,7 @@ export type MenuItemNode = {
   label: string;
   key: string;
   hidden?: boolean;
-  icon?: any;
+  icon?: string;
   action?: UrlActionType,
   children?: MenuItemNode[];
 }
@@ -208,66 +202,94 @@ let NavTmpLayout = (function () {
     return null;
   })
     .setPropertyViewFn((children) => {
-      const [styleSegment, setStyleSegment] = useState('normal')
+      const [styleSegment, setStyleSegment] = useState<MenuItemStyleOptionValue>("normal");
+
+      const {
+        dataOptionType,
+        items,
+        jsonItems,
+        onEvent,
+        width,
+        position,
+        collapse,
+        backgroundImage,
+        navStyle,
+        navItemStyle,
+        navItemHoverStyle,
+        navItemActiveStyle,
+      } = children;
+
+      const renderMenuSection = () => (
+        <Section name={trans("menu")}>
+          {dataOptionType.propertyView({
+            radioButton: true,
+            type: "oneline",
+          })}
+          {dataOptionType.getView() === DataOption.Manual
+            ? menuPropertyView(items)
+            : jsonItems.propertyView({
+                label: "Json Data",
+              })}
+        </Section>
+      );
+
+      const renderEventHandlerSection = () => (
+        <Section name={trans("eventHandler.eventHandlers")}>
+          {onEvent.getPropertyView()}
+        </Section>
+      );
+
+      const renderLayoutSection = () => (
+        <Section name={sectionNames.layout}>
+          {width.propertyView({
+            label: trans("navLayout.width"),
+            tooltip: trans("navLayout.widthTooltip"),
+            placeholder: `${DEFAULT_WIDTH}`,
+          })}
+          {position.propertyView({
+            label: trans("labelProp.position"),
+            radioButton: true,
+          })}
+          {collapse.propertyView({
+            label: trans("labelProp.collapse"),
+          })}
+          {backgroundImage.propertyView({
+            label: "Background Image",
+            placeholder: "https://temp.im/350x400",
+          })}
+        </Section>
+      );
+
+      const renderNavStyleSection = () => (
+        <Section name={trans("navLayout.navStyle")}>
+          {navStyle.getPropertyView()}
+        </Section>
+      );
+
+      const renderNavItemStyleSection = () => (
+        <Section name={trans("navLayout.navItemStyle")}>
+          {controlItem(
+            {},
+            <Segmented
+              block
+              options={menuItemStyleOptions}
+              value={styleSegment}
+              onChange={(k) => setStyleSegment(k as MenuItemStyleOptionValue)}
+            />
+          )}
+          {styleSegment === "normal" && navItemStyle.getPropertyView()}
+          {styleSegment === "hover" && navItemHoverStyle.getPropertyView()}
+          {styleSegment === "active" && navItemActiveStyle.getPropertyView()}
+        </Section>
+      );
 
       return (
-        <div style={{overflowY: 'auto'}}>
-          <Section name={trans("menu")}>
-            {children.dataOptionType.propertyView({
-              radioButton: true,
-              type: "oneline",
-            })}
-            {
-              children.dataOptionType.getView() === DataOption.Manual
-                ? menuPropertyView(children.items)
-                : children.jsonItems.propertyView({
-                  label: "Json Data",
-                })
-            }
-          </Section>
-          <Section name={trans("eventHandler.eventHandlers")}>
-            { children.onEvent.getPropertyView() }
-          </Section>
-          <Section name={sectionNames.layout}>
-            { children.width.propertyView({
-                label: trans("navLayout.width"),
-                tooltip: trans("navLayout.widthTooltip"),
-                placeholder: DEFAULT_WIDTH + "",
-            })}
-            { children.position.propertyView({
-              label: trans("labelProp.position"),
-              radioButton: true
-            })}
-            { children.collapse.propertyView({
-              label: trans("labelProp.collapse"),
-            })}
-            {children.backgroundImage.propertyView({
-              label: `Background Image`,
-              placeholder: 'https://temp.im/350x400',
-            })}
-          </Section>
-          <Section name={trans("navLayout.navStyle")}>
-            { children.navStyle.getPropertyView() }
-          </Section>
-          <Section name={trans("navLayout.navItemStyle")}>
-            {controlItem({}, (
-              <Segmented
-                block
-                options={menuItemStyleOptions}
-                value={styleSegment}
-                onChange={(k) => setStyleSegment(k as MenuItemStyleOptionValue)}
-              />
-            ))}
-            {styleSegment === 'normal' && (
-              children.navItemStyle.getPropertyView()
-            )}
-            {styleSegment === 'hover' && (
-              children.navItemHoverStyle.getPropertyView()
-            )}
-            {styleSegment === 'active' && (
-              children.navItemActiveStyle.getPropertyView()
-            )}
-          </Section>
+        <div style={{ overflowY: "auto" }}>
+          {renderMenuSection()}
+          {renderEventHandlerSection()}
+          {renderLayoutSection()}
+          {renderNavStyleSection()}
+          {renderNavItemStyleSection()}
         </div>
       );
     })
