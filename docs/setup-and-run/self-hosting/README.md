@@ -360,6 +360,6 @@ In response, you will get a 200 Status code if the service is up and running and
             "status": "UP"
         }
     }
-}
+} 
 ```
 
