@@ -194,6 +194,7 @@ PieChartTmpComp = withViewFn(PieChartTmpComp, (comp) => {
         notMerge
         lazyUpdate
         opts={{ locale: getEchartsLocale() }}
+        theme={themeConfig}
         option={option}
         mode={mode}
       />
@@ -302,7 +303,7 @@ let PieChartComp = withExposingConfigs(PieChartTmpComp, [
 
 
 export const PieChartCompWithDefault = withDefault(PieChartComp, {
-  xAxisKey: "date",
+  xAxisKey: "name",
   series: [
     {
       dataIndex: genRandomKey(),

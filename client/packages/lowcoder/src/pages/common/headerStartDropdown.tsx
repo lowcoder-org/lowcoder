@@ -167,7 +167,9 @@ export function HeaderStartDropdown(props: { setEdit: () => void, isViewMarketpl
                 });
               }
             }}
-            items={menuItems.filter(item => item.visible)}
+            items={menuItems
+              .filter((item) => item.visible)
+              .map(({ visible, ...rest }) => rest)}
           />
         )}
       >

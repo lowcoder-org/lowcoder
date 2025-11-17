@@ -36,9 +36,6 @@ export const getStyle = (
       // selected row
       > tr:nth-of-type(2n + 1).ant-table-row-selected {
         background: ${selectedRowBackground || rowStyle.background} !important;
-        > td.ant-table-cell {
-          background: transparent !important;
-        }
 
         // > td.ant-table-cell-row-hover,
         &:hover {
@@ -48,9 +45,6 @@ export const getStyle = (
 
       > tr:nth-of-type(2n).ant-table-row-selected {
         background: ${selectedRowBackground || alternateBackground} !important;
-        > td.ant-table-cell {
-          background: transparent !important;
-        }
 
         // > td.ant-table-cell-row-hover,
         &:hover {
@@ -138,6 +132,7 @@ export const TableWrapper = styled.div.attrs<{
   $fixedToolbar: boolean;
   $visibleResizables: boolean;
   $showHRowGridBorder?: boolean;
+  $showRowGridBorder?: boolean;
   $isVirtual?: boolean;
   $showHorizontalScrollbar?: boolean;
   $showVerticalScrollbar?: boolean;
@@ -210,6 +205,10 @@ export const TableWrapper = styled.div.attrs<{
             color: ${(props) => props.$headerStyle.headerText};
             padding: 0 !important; /* Override Ant Design's default padding */
             // border-inline-end: ${(props) => `${props.$headerStyle.borderWidth} solid ${props.$headerStyle.border}`} !important;
+            ${(props) => props.$showRowGridBorder
+              ? `border-inline-end: ${props.$headerStyle.borderWidth} solid ${props.$headerStyle.border} !important;`
+              : `border-inline-end: none !important;`
+            }
 
             /* Proper styling for fixed header cells */
             &.ant-table-cell-fix-left, &.ant-table-cell-fix-right {
@@ -288,18 +287,20 @@ export const TableWrapper = styled.div.attrs<{
             transition: background-color 0.3s;
           }
 
+          /* Ensure sorted column cells respect theme/row background instead of AntD default */
+          &.ant-table-column-sort {
+            background: transparent;
+          }
+          &.ant-table-cell-fix-left.ant-table-column-sort,
+          &.ant-table-cell-fix-right.ant-table-column-sort {
+            background: transparent;
+          }
+
         }
 
         /* Fix for selected and hovered rows */
-        tr.ant-table-row-selected td.ant-table-cell-fix-left,
-        tr.ant-table-row-selected td.ant-table-cell-fix-right {
-          background-color: ${(props) => props.$rowStyle?.selectedRowBackground || '#e6f7ff'} !important;
-        }
 
-        tr.ant-table-row:hover td.ant-table-cell-fix-left,
-        tr.ant-table-row:hover td.ant-table-cell-fix-right {
-          background-color: ${(props) => props.$rowStyle?.hoverRowBackground || '#f5f5f5'} !important;
-        }
+        
 
         thead > tr:first-child {
           th:last-child {
