@@ -10,7 +10,7 @@ import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, LottieStyle } from "comps/controls/styleControlConstants";
 import { trans } from "i18n";
 import { Section, sectionNames } from "lowcoder-design";
-import { useContext, lazy, useEffect, useState } from "react";  
+import { useContext, lazy, useEffect, useState, useCallback } from "react";  
 import { stateComp, UICompBuilder, withDefault } from "../../generators";
 import {
   NameConfig,
@@ -23,9 +23,10 @@ import { AssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconsco
 import { DotLottie } from "@lottiefiles/dotlottie-react";
 import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
 import { useResizeDetector } from "react-resize-detector";
-import { eventHandlerControl } from "@lowcoder-ee/comps/controls/eventHandlerControl";
+import { eventHandlerControl, clickEvent, doubleClickEvent } from "@lowcoder-ee/comps/controls/eventHandlerControl";
 import { withMethodExposing } from "@lowcoder-ee/comps/generators/withMethodExposing";
 import { changeChildAction } from "lowcoder-core";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 
 // const Player = lazy(
 //   () => import('@lottiefiles/react-lottie-player')
@@ -128,6 +129,8 @@ const ModeOptions = [
 ] as const;
 
 const EventOptions = [
+  clickEvent,
+  doubleClickEvent,
   { label: trans("jsonLottie.load"), value: "load", description: trans("jsonLottie.load") },
   { label: trans("jsonLottie.play"), value: "play", description: trans("jsonLottie.play") },
   { label: trans("jsonLottie.pause"), value: "pause", description: trans("jsonLottie.pause") },
@@ -160,6 +163,10 @@ let JsonLottieTmpComp = (function () {
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const [dotLottie, setDotLottie] = useState<DotLottie | null>(null);
+    const handleClickEvent = useCompClickEventHandler({ onEvent: props.onEvent });
+    const handleClick = useCallback(() => {
+      handleClickEvent();
+    }, [handleClickEvent]);
 
     const setLayoutAndResize = () => {
       const align = props.align.split(',');
@@ -244,6 +251,7 @@ let JsonLottieTmpComp = (function () {
             padding: `${props.container.padding}`,
             rotate: props.container.rotation,
           }}
+          onClick={handleClick}
         >
           <DotLottiePlayer
             key={
