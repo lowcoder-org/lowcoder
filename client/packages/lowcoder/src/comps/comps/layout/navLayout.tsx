@@ -17,7 +17,8 @@ import { EditorContainer, EmptyContent } from "pages/common/styledComponent";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { isUserViewMode, useAppPathParam } from "util/hooks";
-import { BoolCodeControl, StringControl, jsonControl } from "comps/controls/codeControl";
+import { StringControl, jsonControl } from "comps/controls/codeControl";
+import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
 import {
   NavLayoutStyle,
@@ -36,14 +37,13 @@ import history from "util/history";
 import {
   DataOption,
   DataOptionType,
-  ModeOptions,
   jsonMenuItems,
   menuItemStyleOptions
 } from "./navLayoutConstants";
 import { clickEvent, eventHandlerControl } from "@lowcoder-ee/comps/controls/eventHandlerControl";
-import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
+import { NavPosition, NavPositionOptions } from "./navLayoutConstants";
 
-const { Header } = Layout;
+const { Header, Footer } = Layout;
 
 const DEFAULT_WIDTH = 240;
 type MenuItemStyleOptionValue = "normal" | "hover" | "active";
@@ -141,18 +141,30 @@ const StyledMenu = styled(AntdMenu)<{
     }
   }
 
+  /* Collapse mode: hide label text and center icons */
+  &.ant-menu-inline-collapsed {
+    .ant-menu-title-content {
+      display: none !important;
+    }
+
+    > .ant-menu-item,
+    > .ant-menu-submenu > .ant-menu-submenu-title {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .anticon {
+      line-height: 1 !important;
+    }
+  }
+
 `;
 
 const StyledImage = styled.img`
   height: 1em;
   color: currentColor;
 `;
-
-const defaultStyle = {
-  radius: '0px',
-  margin: '0px',
-  padding: '0px',
-}
 
 type UrlActionType = {
   url?: string;
@@ -163,7 +175,7 @@ export type MenuItemNode = {
   label: string;
   key: string;
   hidden?: boolean;
-  icon?: any;
+  icon?: string;
   action?: UrlActionType,
   children?: MenuItemNode[];
 }
@@ -197,8 +209,8 @@ let NavTmpLayout = (function () {
     jsonItems: jsonControl(convertTreeData, jsonMenuItems),
     width: withDefault(StringControl, DEFAULT_WIDTH),
     backgroundImage: withDefault(StringControl, ""),
-    mode: dropdownControl(ModeOptions, "inline"),
-    collapse: BoolCodeControl,
+    position: dropdownControl(NavPositionOptions, NavPosition.Left),
+    collapse: BoolControl,
     navStyle: styleControl(NavLayoutStyle, 'navStyle'),
     navItemStyle: styleControl(NavLayoutItemStyle, 'navItemStyle'),
     navItemHoverStyle: styleControl(NavLayoutItemHoverStyle, 'navItemHoverStyle'),
@@ -208,66 +220,94 @@ let NavTmpLayout = (function () {
     return null;
   })
     .setPropertyViewFn((children) => {
-      const [styleSegment, setStyleSegment] = useState('normal')
+      const [styleSegment, setStyleSegment] = useState<MenuItemStyleOptionValue>("normal");
+
+      const {
+        dataOptionType,
+        items,
+        jsonItems,
+        onEvent,
+        width,
+        position,
+        collapse,
+        backgroundImage,
+        navStyle,
+        navItemStyle,
+        navItemHoverStyle,
+        navItemActiveStyle,
+      } = children;
+
+      const renderMenuSection = () => (
+        <Section name={trans("menu")}>
+          {dataOptionType.propertyView({
+            radioButton: true,
+            type: "oneline",
+          })}
+          {dataOptionType.getView() === DataOption.Manual
+            ? menuPropertyView(items)
+            : jsonItems.propertyView({
+                label: "Json Data",
+              })}
+        </Section>
+      );
+
+      const renderEventHandlerSection = () => (
+        <Section name={trans("eventHandler.eventHandlers")}>
+          {onEvent.getPropertyView()}
+        </Section>
+      );
+
+      const renderLayoutSection = () => (
+        <Section name={sectionNames.layout}>
+          {width.propertyView({
+            label: trans("navLayout.width"),
+            tooltip: trans("navLayout.widthTooltip"),
+            placeholder: `${DEFAULT_WIDTH}`,
+          })}
+          {position.propertyView({
+            label: trans("labelProp.position"),
+            radioButton: true,
+          })}
+          {collapse.propertyView({
+            label: trans("labelProp.collapse"),
+          })}
+          {backgroundImage.propertyView({
+            label: "Background Image",
+            placeholder: "https://temp.im/350x400",
+          })}
+        </Section>
+      );
+
+      const renderNavStyleSection = () => (
+        <Section name={trans("navLayout.navStyle")}>
+          {navStyle.getPropertyView()}
+        </Section>
+      );
+
+      const renderNavItemStyleSection = () => (
+        <Section name={trans("navLayout.navItemStyle")}>
+          {controlItem(
+            {},
+            <Segmented
+              block
+              options={menuItemStyleOptions}
+              value={styleSegment}
+              onChange={(k) => setStyleSegment(k as MenuItemStyleOptionValue)}
+            />
+          )}
+          {styleSegment === "normal" && navItemStyle.getPropertyView()}
+          {styleSegment === "hover" && navItemHoverStyle.getPropertyView()}
+          {styleSegment === "active" && navItemActiveStyle.getPropertyView()}
+        </Section>
+      );
 
       return (
-        <div style={{overflowY: 'auto'}}>
-          <Section name={trans("menu")}>
-            {children.dataOptionType.propertyView({
-              radioButton: true,
-              type: "oneline",
-            })}
-            {
-              children.dataOptionType.getView() === DataOption.Manual
-                ? menuPropertyView(children.items)
-                : children.jsonItems.propertyView({
-                  label: "Json Data",
-                })
-            }
-          </Section>
-          <Section name={trans("eventHandler.eventHandlers")}>
-            { children.onEvent.getPropertyView() }
-          </Section>
-          <Section name={sectionNames.layout}>
-            { children.width.propertyView({
-                label: trans("navLayout.width"),
-                tooltip: trans("navLayout.widthTooltip"),
-                placeholder: DEFAULT_WIDTH + "",
-            })}
-            { children.mode.propertyView({
-              label: trans("labelProp.position"),
-              radioButton: true
-            })}
-            { children.collapse.propertyView({
-              label: trans("labelProp.collapse"),
-            })}
-            {children.backgroundImage.propertyView({
-              label: `Background Image`,
-              placeholder: 'https://temp.im/350x400',
-            })}
-          </Section>
-          <Section name={trans("navLayout.navStyle")}>
-            { children.navStyle.getPropertyView() }
-          </Section>
-          <Section name={trans("navLayout.navItemStyle")}>
-            {controlItem({}, (
-              <Segmented
-                block
-                options={menuItemStyleOptions}
-                value={styleSegment}
-                onChange={(k) => setStyleSegment(k as MenuItemStyleOptionValue)}
-              />
-            ))}
-            {styleSegment === 'normal' && (
-              children.navItemStyle.getPropertyView()
-            )}
-            {styleSegment === 'hover' && (
-              children.navItemHoverStyle.getPropertyView()
-            )}
-            {styleSegment === 'active' && (
-              children.navItemActiveStyle.getPropertyView()
-            )}
-          </Section>
+        <div style={{ overflowY: "auto" }}>
+          {renderMenuSection()}
+          {renderEventHandlerSection()}
+          {renderLayoutSection()}
+          {renderNavStyleSection()}
+          {renderNavItemStyleSection()}
         </div>
       );
     })
@@ -280,7 +320,7 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
   const [selectedKey, setSelectedKey] = useState("");
   const items = comp.children.items.getView();
   const navWidth = comp.children.width.getView();
-  const navMode = comp.children.mode.getView();
+  const navPosition = comp.children.position.getView();
   const navCollapse = comp.children.collapse.getView();
   const navStyle = comp.children.navStyle.getView();
   const navItemStyle = comp.children.navItemStyle.getView();
@@ -568,12 +608,14 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
   let navMenu = (
     <StyledMenu
       items={menuItems}
-      mode={navMode}
+      mode={(navPosition === 'top' || navPosition === 'bottom') ? 'horizontal' : 'inline'}
       style={{
         height: `calc(100% - ${getVerticalMargin(navStyle.margin.split(' '))})`,
         width: `calc(100% - ${getHorizontalMargin(navStyle.margin.split(' '))})`,
-        borderRight: navMode !== 'horizontal' ? `1px solid ${navStyle.border}` : 'none',
-        borderBottom: navMode === 'horizontal' ? `1px solid ${navStyle.border}` : 'none',
+        borderRight: navPosition === 'left' ? `1px solid ${navStyle.border}` : 'none',
+        borderLeft: navPosition === 'right' ? `1px solid ${navStyle.border}` : 'none',
+        borderBottom: navPosition === 'top' ? `1px solid ${navStyle.border}` : 'none',
+        borderTop: navPosition === 'bottom' ? `1px solid ${navStyle.border}` : 'none',
         borderRadius: navStyle.radius,
         color: navStyle.text,
         margin: navStyle.margin,
@@ -585,7 +627,7 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
       defaultOpenKeys={defaultOpenKeys}
       selectedKeys={[selectedKey]}
       $navItemStyle={{
-        width: navMode === 'horizontal' ? 'auto' : `calc(100% - ${getHorizontalMargin(navItemStyle.margin.split(' '))})`,
+        width: (navPosition === 'top' || navPosition === 'bottom') ? 'auto' : `calc(100% - ${getHorizontalMargin(navItemStyle.margin.split(' '))})`,
         ...navItemStyle,
       }}
       $navItemHoverStyle={navItemHoverStyle}
@@ -595,16 +637,27 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
 
   let content = (
     <Layout>
-      {navMode === 'horizontal' ? (
+      {(navPosition === 'top') && (
         <Header style={{ display: 'flex', alignItems: 'center', padding: 0 }}>
           { navMenu }
         </Header>
-      ) : (
+      )}
+      {(navPosition === 'left') && (
         <StyledSide theme="light" width={navWidth} collapsed={navCollapse}>
           {navMenu}
         </StyledSide>
       )}
       <MainContent>{pageView}</MainContent>
+      {(navPosition === 'bottom') && (
+        <Footer style={{ display: 'flex', alignItems: 'center', padding: 0 }}>
+          { navMenu }
+        </Footer>
+      )}
+      {(navPosition === 'right') && (
+        <StyledSide theme="light" width={navWidth} collapsed={navCollapse}>
+          {navMenu}
+        </StyledSide>
+      )}
     </Layout>
   );
   return isViewMode ? (
@@ -637,7 +690,7 @@ NavTmpLayout = withDispatchHook(NavTmpLayout, (dispatch) => (action) => {
   });
 });
 
-export const NavLayout = class extends NavTmpLayout {
+export class NavLayout extends NavTmpLayout {
   getAllCompItems() {
     return {};
   }
@@ -645,5 +698,5 @@ export const NavLayout = class extends NavTmpLayout {
   nameAndExposingInfo(): NameAndExposingInfo {
     return {};
   }
-};
+}
 registerLayoutMap({ compType: navLayoutCompType, comp: NavLayout });

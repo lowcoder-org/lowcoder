@@ -1383,6 +1383,30 @@ export const FloatButtonStyle = [
   BORDER_WIDTH,
 ] as const;
 
+export const HamburgerButtonStyle = [
+  getBackground(),
+  {
+    name: "iconFill",
+    label: trans("style.fill"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  MARGIN,
+  PADDING,
+  BORDER,
+  RADIUS,
+  BORDER_WIDTH,
+] as const;
+
+export const DrawerContainerStyle = [
+  getBackground(),
+  MARGIN,
+  PADDING,
+  BORDER,
+  BORDER_WIDTH,
+] as const;
+
 export const TransferStyle = [
   getStaticBackground(SURFACE_COLOR),
   ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(style=>style.name!=='rotation'),
@@ -2394,6 +2418,46 @@ export const NavLayoutItemActiveStyle = [
   },
 ] as const;
 
+// Submenu item styles (normal/hover/active), similar to top-level menu items
+export const NavSubMenuItemStyle = [
+  getBackground("primarySurface"),
+  getStaticBorder("transparent"),
+  RADIUS,
+  {
+    name: "text",
+    label: trans("text"),
+    depName: "background",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  MARGIN,
+  PADDING,
+] as const;
+
+export const NavSubMenuItemHoverStyle = [
+  getBackground("canvas"),
+  getStaticBorder("transparent"),
+  {
+    name: "text",
+    label: trans("text"),
+    depName: "background",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+] as const;
+
+export const NavSubMenuItemActiveStyle = [
+  getBackground("primary"),
+  getStaticBorder("transparent"),
+  {
+    name: "text",
+    label: trans("text"),
+    depName: "background",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+] as const;
+
 export const CarouselStyle = [getBackground("canvas")] as const;
 
 export const RichTextEditorStyle = [
@@ -2533,6 +2597,9 @@ export type NavLayoutItemHoverStyleType = StyleConfigType<
 export type NavLayoutItemActiveStyleType = StyleConfigType<
   typeof NavLayoutItemActiveStyle
 >;
+export type NavSubMenuItemStyleType = StyleConfigType<typeof NavSubMenuItemStyle>;
+export type NavSubMenuItemHoverStyleType = StyleConfigType<typeof NavSubMenuItemHoverStyle>;
+export type NavSubMenuItemActiveStyleType = StyleConfigType<typeof NavSubMenuItemActiveStyle>;
 
 export function widthCalculator(margin: string) {
   const marginArr = margin?.trim().replace(/\s+/g, " ").split(" ") || "";
