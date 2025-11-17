@@ -1903,6 +1903,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                                                             depMsg:
                                                                                                               depMsg,
                                                                                                             allowGradient: config.name.includes('background'),
+                                                                                                            tooltip: config.tooltip || getTooltip(name),
                                                                                                           })}
                   </div>
                 );
