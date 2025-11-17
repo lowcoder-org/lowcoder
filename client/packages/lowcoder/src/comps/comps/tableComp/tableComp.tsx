@@ -99,11 +99,15 @@ export class TableImplComp extends TableInitComp implements IContainer {
   }
 
   downloadData(fileName: string) {
+    // displayData already contains only visible columns (filtered in transformDispalyData)
+    const displayData = (this as any).exposingValues["displayData"];
+    const delimiter = this.children.toolbar.children.columnSeparator.getView();
+
     saveDataAsFile({
-      data: (this as any).exposingValues["displayData"],
+      data: displayData,
       filename: fileName,
       fileType: "csv",
-      delimiter: this.children.toolbar.children.columnSeparator.getView(),
+      delimiter,
     });
   }
 
