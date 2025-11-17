@@ -36,9 +36,6 @@ export const getStyle = (
       // selected row
       > tr:nth-of-type(2n + 1).ant-table-row-selected {
         background: ${selectedRowBackground || rowStyle.background} !important;
-        > td.ant-table-cell {
-          background: transparent !important;
-        }
 
         // > td.ant-table-cell-row-hover,
         &:hover {
@@ -48,9 +45,6 @@ export const getStyle = (
 
       > tr:nth-of-type(2n).ant-table-row-selected {
         background: ${selectedRowBackground || alternateBackground} !important;
-        > td.ant-table-cell {
-          background: transparent !important;
-        }
 
         // > td.ant-table-cell-row-hover,
         &:hover {
@@ -276,15 +270,8 @@ export const TableWrapper = styled.div.attrs<{
         }
 
         /* Fix for selected and hovered rows */
-        tr.ant-table-row-selected td.ant-table-cell-fix-left,
-        tr.ant-table-row-selected td.ant-table-cell-fix-right {
-          background-color: ${(props) => props.$rowStyle?.selectedRowBackground || '#e6f7ff'} !important;
-        }
 
-        tr.ant-table-row:hover td.ant-table-cell-fix-left,
-        tr.ant-table-row:hover td.ant-table-cell-fix-right {
-          background-color: ${(props) => props.$rowStyle?.hoverRowBackground || '#f5f5f5'} !important;
-        }
+        
 
         thead > tr:first-child {
           th:last-child {
