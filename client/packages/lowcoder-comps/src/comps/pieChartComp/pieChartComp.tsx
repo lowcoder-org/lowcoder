@@ -302,7 +302,7 @@ let PieChartComp = withExposingConfigs(PieChartTmpComp, [
 
 
 export const PieChartCompWithDefault = withDefault(PieChartComp, {
-  xAxisKey: "date",
+  xAxisKey: "name",
   series: [
     {
       dataIndex: genRandomKey(),
