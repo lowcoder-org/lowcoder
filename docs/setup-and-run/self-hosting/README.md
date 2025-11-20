@@ -112,10 +112,6 @@ docker run -d --name Lowcoder -p 3000:3000 -v "$PWD/stacks:/Lowcoder-stacks" low
 
 For bigger expected loads that need scaling in a cluster environment, we provide [separate images of backend and frontend services](https://hub.docker.com/u/lowcoderorg) with a customizable Dockerfile.
 
-{% embed url="https://lowcoder.cloud/images/Screenshot-2023-08-27-at-21.56.51.png" %}
-Multi-Image Installation to scale. API-Service & Node-Service can get scaled independently.
-{% endembed %}
-
 ### Separate images: services in stateless containers <a href="#multi" id="multi"></a>
 
 For bigger expected loads that need scaling in a cluster environment, we offer separate images for stateless containers of the backend and frontend service with a customizable Dockerfile. A well-functioning Lowcoder deployment consists of below services:
