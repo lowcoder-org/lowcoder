@@ -29,9 +29,6 @@ import {
   NavLayoutItemStyle,
   NavLayoutItemHoverStyle,
   NavLayoutItemActiveStyle,
-  NavSubMenuItemStyle,
-  NavSubMenuItemHoverStyle,
-  NavSubMenuItemActiveStyle,
 } from "comps/controls/styleControlConstants";
 import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
@@ -98,10 +95,19 @@ const Item = styled.div<{
   $fontStyle: string;
   $textWeight: string;
   $textSize: string;
+  $textDecoration: string;
+  $hoverFontFamily?: string;
+  $hoverFontStyle?: string;
+  $hoverTextWeight?: string;
+  $hoverTextSize?: string;
+  $hoverTextDecoration?: string;
+  $activeFontFamily?: string;
+  $activeFontStyle?: string;
+  $activeTextWeight?: string;
+  $activeTextSize?: string;
+  $activeTextDecoration?: string;
   $margin: string;
   $padding: string;
-  $textTransform:string;
-  $textDecoration:string;
   $bg?: string;
   $hoverBg?: string;
   $activeBg?: string;
@@ -112,24 +118,40 @@ const Item = styled.div<{
   $disabled?: boolean;
 }>`
   line-height: 30px;
-  padding: ${(props) => props.$padding ? props.$padding : '0 16px'};
+  padding: ${(props) => props.$padding || '0 16px'};
   color: ${(props) => props.$disabled ? `${props.$color}80` : (props.$active ? props.$activeColor : props.$color)};
   background-color: ${(props) => (props.$active ? (props.$activeBg || 'transparent') : (props.$bg || 'transparent'))};
-  border: ${(props) => props.$border ? `1px solid ${props.$border}` : '1px solid transparent'};
-  border-radius: ${(props) => props.$radius ? props.$radius : '0px'};
-  font-weight: ${(props) => (props.$textWeight ? props.$textWeight : 500)};
-  font-family:${(props) => (props.$fontFamily ? props.$fontFamily : 'sans-serif')};
-  font-style:${(props) => (props.$fontStyle ? props.$fontStyle : 'normal')};
-  font-size:${(props) => (props.$textSize ? props.$textSize : '14px')};
-  text-transform:${(props) => (props.$textTransform ? props.$textTransform : '')};
-  text-decoration:${(props) => (props.$textDecoration ? props.$textDecoration : '')};
-  margin:${(props) => props.$margin ? props.$margin : '0px'};
+  border: ${(props) => props.$active 
+    ? (props.$activeBorder ? `1px solid ${props.$activeBorder}` : (props.$border ? `1px solid ${props.$border}` : '1px solid transparent'))
+    : (props.$border ? `1px solid ${props.$border}` : '1px solid transparent')};
+  border-radius: ${(props) => props.$radius || '0px'};
+  font-weight: ${(props) => props.$active 
+    ? (props.$activeTextWeight || props.$textWeight || 500) 
+    : (props.$textWeight || 500)};
+  font-family: ${(props) => props.$active 
+    ? (props.$activeFontFamily || props.$fontFamily || 'sans-serif') 
+    : (props.$fontFamily || 'sans-serif')};
+  font-style: ${(props) => props.$active 
+    ? (props.$activeFontStyle || props.$fontStyle || 'normal') 
+    : (props.$fontStyle || 'normal')};
+  font-size: ${(props) => props.$active 
+    ? (props.$activeTextSize || props.$textSize || '14px') 
+    : (props.$textSize || '14px')};
+  text-decoration: ${(props) => props.$active 
+    ? (props.$activeTextDecoration || props.$textDecoration || 'none') 
+    : (props.$textDecoration || 'none')};
+  margin: ${(props) => props.$margin || '0px'};
   
   &:hover {
     color: ${(props) => props.$disabled ? (props.$active ? props.$activeColor : props.$color) : (props.$hoverColor || props.$activeColor)};
     background-color: ${(props) => props.$disabled ? (props.$active ? (props.$activeBg || 'transparent') : (props.$bg || 'transparent')) : (props.$hoverBg || props.$activeBg || props.$bg || 'transparent')};
     border: ${(props) => props.$hoverBorder ? `1px solid ${props.$hoverBorder}` : (props.$activeBorder ? `1px solid ${props.$activeBorder}` : (props.$border ? `1px solid ${props.$border}` : '1px solid transparent'))};
     cursor: ${(props) => props.$disabled ? 'not-allowed' : 'pointer'};
+    font-weight: ${(props) => props.$disabled ? undefined : (props.$hoverTextWeight || props.$textWeight || 500)};
+    font-family: ${(props) => props.$disabled ? undefined : (props.$hoverFontFamily || props.$fontFamily || 'sans-serif')};
+    font-style: ${(props) => props.$disabled ? undefined : (props.$hoverFontStyle || props.$fontStyle || 'normal')};
+    font-size: ${(props) => props.$disabled ? undefined : (props.$hoverTextSize || props.$textSize || '14px')};
+    text-decoration: ${(props) => props.$disabled ? undefined : (props.$hoverTextDecoration || props.$textDecoration || 'none')};
   }
 
   .anticon {
@@ -171,31 +193,46 @@ const StyledMenu = styled(Menu) <
     $fontStyle?: string;
     $textWeight?: string;
     $textSize?: string;
+    $textDecoration?: string;
+    $hoverFontFamily?: string;
+    $hoverFontStyle?: string;
+    $hoverTextWeight?: string;
+    $hoverTextSize?: string;
+    $hoverTextDecoration?: string;
+    $activeFontFamily?: string;
+    $activeFontStyle?: string;
+    $activeTextWeight?: string;
+    $activeTextSize?: string;
+    $activeTextDecoration?: string;
     $padding?: string;
     $margin?: string;
-    $textTransform?: string;
-    $textDecoration?: string;
   }
 >`
   /* Base submenu item styles */
-  .ant-dropdown-menu-item{
+  .ant-dropdown-menu-item {
     color: ${(p) => p.$color};
     background-color: ${(p) => p.$bg || "transparent"};
     border-radius: ${(p) => p.$radius || "0px"};
+    border: ${(p) => p.$border ? `1px solid ${p.$border}` : "1px solid transparent"};
     font-weight: ${(p) => p.$textWeight || 500};
     font-family: ${(p) => p.$fontFamily || "sans-serif"};
     font-style: ${(p) => p.$fontStyle || "normal"};
     font-size: ${(p) => p.$textSize || "14px"};
-    text-transform: ${(p) => p.$textTransform || "none"};
     text-decoration: ${(p) => p.$textDecoration || "none"};
     padding: ${(p) => p.$padding || "0 16px"};
     margin: ${(p) => p.$margin || "0px"};
     line-height: 30px;
   }
   /* Hover state */
-  .ant-dropdown-menu-item:hover{
-    color: ${(p) => p.$hoverColor || p.$activeColor};
-    background-color: ${(p) => p.$hoverBg || "transparent"} !important;
+  .ant-dropdown-menu-item:hover {
+    color: ${(p) => p.$hoverColor || p.$color};
+    background-color: ${(p) => p.$hoverBg || p.$bg || "transparent"} !important;
+    border: ${(p) => p.$hoverBorder ? `1px solid ${p.$hoverBorder}` : (p.$border ? `1px solid ${p.$border}` : "1px solid transparent")};
+    font-weight: ${(p) => p.$hoverTextWeight || p.$textWeight || 500};
+    font-family: ${(p) => p.$hoverFontFamily || p.$fontFamily || "sans-serif"};
+    font-style: ${(p) => p.$hoverFontStyle || p.$fontStyle || "normal"};
+    font-size: ${(p) => p.$hoverTextSize || p.$textSize || "14px"};
+    text-decoration: ${(p) => p.$hoverTextDecoration || p.$textDecoration || "none"};
     cursor: pointer;
   }
   /* Selected/active state */
@@ -203,7 +240,12 @@ const StyledMenu = styled(Menu) <
   .ant-menu-item-selected {
     color: ${(p) => p.$activeColor};
     background-color: ${(p) => p.$activeBg || p.$bg || "transparent"};
-    border: ${(p) => (p.$activeBorder ? `1px solid ${p.$activeBorder}` : "1px solid transparent")};
+    border: ${(p) => p.$activeBorder ? `1px solid ${p.$activeBorder}` : (p.$border ? `1px solid ${p.$border}` : "1px solid transparent")};
+    font-weight: ${(p) => p.$activeTextWeight || p.$textWeight || 500};
+    font-family: ${(p) => p.$activeFontFamily || p.$fontFamily || "sans-serif"};
+    font-style: ${(p) => p.$activeFontStyle || p.$fontStyle || "normal"};
+    font-size: ${(p) => p.$activeTextSize || p.$textSize || "14px"};
+    text-decoration: ${(p) => p.$activeTextDecoration || p.$textDecoration || "none"};
   }
   /* Disabled state */
   .ant-dropdown-menu-item-disabled,
@@ -391,9 +433,7 @@ function renderAdvancedSection(children: any) {
 function renderStyleSections(
   children: any,
   styleSegment: MenuItemStyleOptionValue,
-  setStyleSegment: (k: MenuItemStyleOptionValue) => void,
-  subStyleSegment: MenuItemStyleOptionValue,
-  setSubStyleSegment: (k: MenuItemStyleOptionValue) => void
+  setStyleSegment: (k: MenuItemStyleOptionValue) => void
 ) {
   const isHamburger = children.displayMode.getView() === 'hamburger';
   return (
@@ -415,19 +455,6 @@ function renderStyleSections(
         {styleSegment === "normal" && children.navItemStyle.getPropertyView()}
         {styleSegment === "hover" && children.navItemHoverStyle.getPropertyView()}
         {styleSegment === "active" && children.navItemActiveStyle.getPropertyView()}
-      </Section>
-      <Section name={"Submenu Item Style"}>
-        {controlItem({}, (
-          <Segmented
-            block
-            options={menuItemStyleOptions as any}
-            value={subStyleSegment}
-            onChange={(k) => setSubStyleSegment(k as MenuItemStyleOptionValue)}
-          />
-        ))}
-        {subStyleSegment === "normal" && children.subNavItemStyle.getPropertyView()}
-        {subStyleSegment === "hover" && children.subNavItemHoverStyle.getPropertyView()}
-        {subStyleSegment === "active" && children.subNavItemActiveStyle.getPropertyView()}
       </Section>
       {isHamburger && (
         <>
@@ -476,9 +503,6 @@ const childrenMap = {
   hamburgerButtonStyle: styleControl(HamburgerButtonStyle, 'hamburgerButtonStyle'),
   drawerContainerStyle: styleControl(DrawerContainerStyle, 'drawerContainerStyle'),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
-  subNavItemStyle: styleControl(NavSubMenuItemStyle, 'subNavItemStyle'),
-  subNavItemHoverStyle: styleControl(NavSubMenuItemHoverStyle, 'subNavItemHoverStyle'),
-  subNavItemActiveStyle: styleControl(NavSubMenuItemActiveStyle, 'subNavItemActiveStyle'),
   items: withDefault(migrateOldData(createNavItemsControl(), fixOldItemsData), {
     optionType: "manual",
     manual: [
@@ -537,24 +561,33 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
           <Item
             key={idx}
             $active={active || subMenuSelectedKeys.length > 0}
-            $color={(props.navItemStyle && props.navItemStyle.text) || props.style.text}
-            $hoverColor={(props.navItemHoverStyle && props.navItemHoverStyle.text) || props.style.accent}
-            $activeColor={(props.navItemActiveStyle && props.navItemActiveStyle.text) || props.style.accent}
-            $fontFamily={props.style.fontFamily}
-            $fontStyle={props.style.fontStyle}
-            $textWeight={props.style.textWeight}
-            $textSize={props.style.textSize}
-            $padding={(props.navItemStyle && props.navItemStyle.padding) || props.style.padding}
-            $textTransform={props.style.textTransform}
-            $textDecoration={props.style.textDecoration}
-            $margin={(props.navItemStyle && props.navItemStyle.margin) || props.style.margin}
-            $bg={(props.navItemStyle && props.navItemStyle.background) || undefined}
-            $hoverBg={(props.navItemHoverStyle && props.navItemHoverStyle.background) || undefined}
-            $activeBg={(props.navItemActiveStyle && props.navItemActiveStyle.background) || undefined}
-            $border={(props.navItemStyle && props.navItemStyle.border) || undefined}
-            $hoverBorder={(props.navItemHoverStyle && props.navItemHoverStyle.border) || undefined}
-            $activeBorder={(props.navItemActiveStyle && props.navItemActiveStyle.border) || undefined}
-            $radius={(props.navItemStyle && props.navItemStyle.radius) || undefined}
+            $color={props.navItemStyle?.text || props.style.accent}
+            $hoverColor={props.navItemHoverStyle?.text || props.navItemStyle?.text || props.style.accent}
+            $activeColor={props.navItemActiveStyle?.text || props.navItemStyle?.text || props.style.accent}
+            $fontFamily={props.navItemStyle?.fontFamily || 'sans-serif'}
+            $fontStyle={props.navItemStyle?.fontStyle || 'normal'}
+            $textWeight={props.navItemStyle?.textWeight || '500'}
+            $textSize={props.navItemStyle?.textSize || '14px'}
+            $textDecoration={props.navItemStyle?.textDecoration || 'none'}
+            $hoverFontFamily={props.navItemHoverStyle?.fontFamily}
+            $hoverFontStyle={props.navItemHoverStyle?.fontStyle}
+            $hoverTextWeight={props.navItemHoverStyle?.textWeight}
+            $hoverTextSize={props.navItemHoverStyle?.textSize}
+            $hoverTextDecoration={props.navItemHoverStyle?.textDecoration}
+            $activeFontFamily={props.navItemActiveStyle?.fontFamily}
+            $activeFontStyle={props.navItemActiveStyle?.fontStyle}
+            $activeTextWeight={props.navItemActiveStyle?.textWeight}
+            $activeTextSize={props.navItemActiveStyle?.textSize}
+            $activeTextDecoration={props.navItemActiveStyle?.textDecoration}
+            $padding={props.navItemStyle?.padding || '0 16px'}
+            $margin={props.navItemStyle?.margin || '0px'}
+            $bg={props.navItemStyle?.background}
+            $hoverBg={props.navItemHoverStyle?.background}
+            $activeBg={props.navItemActiveStyle?.background}
+            $border={props.navItemStyle?.border}
+            $hoverBorder={props.navItemHoverStyle?.border}
+            $activeBorder={props.navItemActiveStyle?.border}
+            $radius={props.navItemStyle?.radius}
             $disabled={disabled}
             onClick={() => { if (!disabled && onEvent) onEvent("click"); }}
           >
@@ -565,7 +598,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
         );
         if (subMenuItems.length > 0) {
           const subMenu = (
-            <ScrollBar style={{ height: "200px" }}>
+            <ScrollBar style={{ height: "200px", minWidth: "150px" }}>
               <StyledMenu
                 onClick={(e) => {
                   if (disabled) return;
@@ -580,24 +613,33 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
                   ...item,
                   icon: item.icon || undefined,
                 }))}
-                $color={(props.subNavItemStyle && props.subNavItemStyle.text) || props.style.text}
-                $hoverColor={(props.subNavItemHoverStyle && props.subNavItemHoverStyle.text) || props.style.accent}
-                $activeColor={(props.subNavItemActiveStyle && props.subNavItemActiveStyle.text) || props.style.accent}
-                $bg={(props.subNavItemStyle && props.subNavItemStyle.background) || undefined}
-                $hoverBg={(props.subNavItemHoverStyle && props.subNavItemHoverStyle.background) || undefined}
-                $activeBg={(props.subNavItemActiveStyle && props.subNavItemActiveStyle.background) || undefined}
-                $border={(props.subNavItemStyle && props.subNavItemStyle.border) || undefined}
-                $hoverBorder={(props.subNavItemHoverStyle && props.subNavItemHoverStyle.border) || undefined}
-                $activeBorder={(props.subNavItemActiveStyle && props.subNavItemActiveStyle.border) || undefined}
-                $radius={(props.subNavItemStyle && props.subNavItemStyle.radius) || undefined}
-                $fontFamily={props.style.fontFamily}
-                $fontStyle={props.style.fontStyle}
-                $textWeight={props.style.textWeight}
-                $textSize={props.style.textSize}
-                $padding={(props.subNavItemStyle && props.subNavItemStyle.padding) || props.style.padding}
-                $margin={(props.subNavItemStyle && props.subNavItemStyle.margin) || props.style.margin}
-                $textTransform={props.style.textTransform}
-                $textDecoration={props.style.textDecoration}
+                $color={props.navItemStyle?.text || props.style.accent}
+                $hoverColor={props.navItemHoverStyle?.text || props.navItemStyle?.text || props.style.accent}
+                $activeColor={props.navItemActiveStyle?.text || props.navItemStyle?.text || props.style.accent}
+                $bg={props.navItemStyle?.background}
+                $hoverBg={props.navItemHoverStyle?.background}
+                $activeBg={props.navItemActiveStyle?.background}
+                $border={props.navItemStyle?.border}
+                $hoverBorder={props.navItemHoverStyle?.border}
+                $activeBorder={props.navItemActiveStyle?.border}
+                $radius={props.navItemStyle?.radius}
+                $fontFamily={props.navItemStyle?.fontFamily || 'sans-serif'}
+                $fontStyle={props.navItemStyle?.fontStyle || 'normal'}
+                $textWeight={props.navItemStyle?.textWeight || '500'}
+                $textSize={props.navItemStyle?.textSize || '14px'}
+                $textDecoration={props.navItemStyle?.textDecoration || 'none'}
+                $hoverFontFamily={props.navItemHoverStyle?.fontFamily}
+                $hoverFontStyle={props.navItemHoverStyle?.fontStyle}
+                $hoverTextWeight={props.navItemHoverStyle?.textWeight}
+                $hoverTextSize={props.navItemHoverStyle?.textSize}
+                $hoverTextDecoration={props.navItemHoverStyle?.textDecoration}
+                $activeFontFamily={props.navItemActiveStyle?.fontFamily}
+                $activeFontStyle={props.navItemActiveStyle?.fontStyle}
+                $activeTextWeight={props.navItemActiveStyle?.textWeight}
+                $activeTextSize={props.navItemActiveStyle?.textSize}
+                $activeTextDecoration={props.navItemActiveStyle?.textDecoration}
+                $padding={props.navItemStyle?.padding || '0 16px'}
+                $margin={props.navItemStyle?.margin || '0px'}
               />
             </ScrollBar>
           );
@@ -679,7 +721,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
               <DrawerHeader>
                 <DrawerCloseButton
                   aria-label="Close"
-                  $color={props.style.text}
+                  $color={props.navItemStyle?.text || '#333333'}
                   onClick={() => setDrawerVisible(false)}
                 >
                   {hasIcon(props.drawerCloseIcon)
@@ -700,7 +742,6 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
     const showLogic = mode === "logic" || mode === "both";
     const showLayout = mode === "layout" || mode === "both";
     const [styleSegment, setStyleSegment] = useState<MenuItemStyleOptionValue>("normal");
-    const [subStyleSegment, setSubStyleSegment] = useState<MenuItemStyleOptionValue>("normal");
 
     return (
       <>
@@ -708,7 +749,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
         {showLogic && renderInteractionSection(children)}
         {showLayout && renderLayoutSection(children)}
         {showLogic && renderAdvancedSection(children)}
-        {showLayout && renderStyleSections(children, styleSegment, setStyleSegment, subStyleSegment, setSubStyleSegment)}
+        {showLayout && renderStyleSections(children, styleSegment, setStyleSegment)}
       </>
     );
   })

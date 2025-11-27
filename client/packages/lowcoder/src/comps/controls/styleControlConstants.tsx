@@ -2017,34 +2017,14 @@ export const CircleProgressStyle = [
 ];
 
 export const NavigationStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "text", [
-    {
-      name: "text",
-      label: trans("text"),
-      depName: "background",
-      depType: DEP_TYPE.CONTRAST_TEXT,
-      transformer: contrastText,
-    },
-    ACCENT,
-    getStaticBackground("#FFFFFF00"),
-  ]),
-  // {
-  //   name: "text",
-  //   label: trans("text"),
-  //   depName: "background",
-  //   depType: DEP_TYPE.CONTRAST_TEXT,
-  //   transformer: contrastText,
-  // },
-  // ACCENT,
-  // getStaticBackground("#FFFFFF00"),
-  // getStaticBorder("#FFFFFF00"),
-  // MARGIN,
-  // PADDING,
-  // FONT_FAMILY,
-  // FONT_STYLE,
-  // TEXT_WEIGHT,
-  // TEXT_SIZE,
-  // BORDER_WIDTH
+  getStaticBackground("#FFFFFF00"),
+  getStaticBorder("#FFFFFF00"),
+  BORDER_STYLE,
+  BORDER_WIDTH,
+  RADIUS,
+  MARGIN,
+  PADDING,
+  ACCENT,
 ] as const;
 
 export const ImageStyle = [
@@ -2390,6 +2370,11 @@ export const NavLayoutItemStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
+  FONT_STYLE,
+  TEXT_DECORATION,
   MARGIN,
   PADDING,
 ] as const;
@@ -2404,6 +2389,11 @@ export const NavLayoutItemHoverStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
+  FONT_STYLE,
+  TEXT_DECORATION,
 ] as const;
 
 export const NavLayoutItemActiveStyle = [
@@ -2416,6 +2406,11 @@ export const NavLayoutItemActiveStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
+  FONT_STYLE,
+  TEXT_DECORATION,
 ] as const;
 
 // Submenu item styles (normal/hover/active), similar to top-level menu items
@@ -2430,6 +2425,11 @@ export const NavSubMenuItemStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
+  FONT_STYLE,
+  TEXT_DECORATION,
   MARGIN,
   PADDING,
 ] as const;
@@ -2444,6 +2444,11 @@ export const NavSubMenuItemHoverStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
+  FONT_STYLE,
+  TEXT_DECORATION,
 ] as const;
 
 export const NavSubMenuItemActiveStyle = [
@@ -2456,6 +2461,11 @@ export const NavSubMenuItemActiveStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
+  FONT_STYLE,
+  TEXT_DECORATION,
 ] as const;
 
 export const CarouselStyle = [getBackground("canvas")] as const;

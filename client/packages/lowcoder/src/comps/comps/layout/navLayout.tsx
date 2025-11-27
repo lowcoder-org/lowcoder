@@ -87,18 +87,42 @@ const StyledMenu = styled(AntdMenu)<{
     border: ${(props) => `1px solid ${props.$navItemStyle?.border}`};
     margin: ${(props) => props.$navItemStyle?.margin};
     padding: ${(props) => props.$navItemStyle?.padding};
-
   }
+
+  .ant-menu-title-content {
+    font-size: ${(props) => props.$navItemStyle?.textSize};
+    font-family: ${(props) => props.$navItemStyle?.fontFamily};
+    font-style: ${(props) => props.$navItemStyle?.fontStyle};
+    font-weight: ${(props) => props.$navItemStyle?.textWeight};
+    text-decoration: ${(props) => props.$navItemStyle?.textDecoration};
+  }
+
   .ant-menu-item-active {
     background-color: ${(props) => props.$navItemHoverStyle?.background} !important;
     color: ${(props) => props.$navItemHoverStyle?.text} !important;
     border: ${(props) => `1px solid ${props.$navItemHoverStyle?.border}`};
+
+    .ant-menu-title-content {
+      font-size: ${(props) => props.$navItemHoverStyle?.textSize || props.$navItemStyle?.textSize};
+      font-family: ${(props) => props.$navItemHoverStyle?.fontFamily || props.$navItemStyle?.fontFamily};
+      font-style: ${(props) => props.$navItemHoverStyle?.fontStyle || props.$navItemStyle?.fontStyle};
+      font-weight: ${(props) => props.$navItemHoverStyle?.textWeight || props.$navItemStyle?.textWeight};
+      text-decoration: ${(props) => props.$navItemHoverStyle?.textDecoration || props.$navItemStyle?.textDecoration};
+    }
   }
 
   .ant-menu-item-selected {
     background-color: ${(props) => props.$navItemActiveStyle?.background} !important;
     color: ${(props) => props.$navItemActiveStyle?.text} !important;
     border: ${(props) => `1px solid ${props.$navItemActiveStyle?.border}`};
+
+    .ant-menu-title-content {
+      font-size: ${(props) => props.$navItemActiveStyle?.textSize || props.$navItemStyle?.textSize};
+      font-family: ${(props) => props.$navItemActiveStyle?.fontFamily || props.$navItemStyle?.fontFamily};
+      font-style: ${(props) => props.$navItemActiveStyle?.fontStyle || props.$navItemStyle?.fontStyle};
+      font-weight: ${(props) => props.$navItemActiveStyle?.textWeight || props.$navItemStyle?.textWeight};
+      text-decoration: ${(props) => props.$navItemActiveStyle?.textDecoration || props.$navItemStyle?.textDecoration};
+    }
   }
 
   .ant-menu-submenu {
@@ -112,11 +136,15 @@ const StyledMenu = styled(AntdMenu)<{
       max-height: 100%;
       background-color: ${(props) => props.$navItemStyle?.background};
       color: ${(props) => props.$navItemStyle?.text};
+      font-size: ${(props) => props.$navItemStyle?.textSize};
+      font-family: ${(props) => props.$navItemStyle?.fontFamily};
+      font-style: ${(props) => props.$navItemStyle?.fontStyle};
+      font-weight: ${(props) => props.$navItemStyle?.textWeight};
+      text-decoration: ${(props) => props.$navItemStyle?.textDecoration};
       border-radius: ${(props) => props.$navItemStyle?.radius} !important;
       border: ${(props) => `1px solid ${props.$navItemStyle?.border}`};
       margin: 0;
       padding: ${(props) => props.$navItemStyle?.padding};
-
     }
 
     .ant-menu-item {
@@ -129,6 +157,11 @@ const StyledMenu = styled(AntdMenu)<{
         background-color: ${(props) => props.$navItemHoverStyle?.background} !important;
         color: ${(props) => props.$navItemHoverStyle?.text} !important;
         border: ${(props) => `1px solid ${props.$navItemHoverStyle?.border}`};
+        font-size: ${(props) => props.$navItemHoverStyle?.textSize || props.$navItemStyle?.textSize};
+        font-family: ${(props) => props.$navItemHoverStyle?.fontFamily || props.$navItemStyle?.fontFamily};
+        font-style: ${(props) => props.$navItemHoverStyle?.fontStyle || props.$navItemStyle?.fontStyle};
+        font-weight: ${(props) => props.$navItemHoverStyle?.textWeight || props.$navItemStyle?.textWeight};
+        text-decoration: ${(props) => props.$navItemHoverStyle?.textDecoration || props.$navItemStyle?.textDecoration};
       }
     }
     &.ant-menu-submenu-selected {
@@ -137,6 +170,11 @@ const StyledMenu = styled(AntdMenu)<{
         background-color: ${(props) => props.$navItemActiveStyle?.background} !important;
         color: ${(props) => props.$navItemActiveStyle?.text} !important;
         border: ${(props) => `1px solid ${props.$navItemActiveStyle?.border}`};
+        font-size: ${(props) => props.$navItemActiveStyle?.textSize || props.$navItemStyle?.textSize};
+        font-family: ${(props) => props.$navItemActiveStyle?.fontFamily || props.$navItemStyle?.fontFamily};
+        font-style: ${(props) => props.$navItemActiveStyle?.fontStyle || props.$navItemStyle?.fontStyle};
+        font-weight: ${(props) => props.$navItemActiveStyle?.textWeight || props.$navItemStyle?.textWeight};
+        text-decoration: ${(props) => props.$navItemActiveStyle?.textDecoration || props.$navItemStyle?.textDecoration};
       }
     }
   }
