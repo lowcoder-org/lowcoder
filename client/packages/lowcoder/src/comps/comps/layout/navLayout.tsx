@@ -49,8 +49,8 @@ const DEFAULT_WIDTH = 240;
 type MenuItemStyleOptionValue = "normal" | "hover" | "active";
 const EventOptions = [clickEvent] as const;
 
-const StyledSide = styled(LayoutSider)`
-  max-height: calc(100vh - ${TopHeaderHeight});
+const StyledSide = styled(LayoutSider)<{ $isPreview: boolean }>`
+  max-height: ${(props) => (props.$isPreview ? `calc(100vh - ${TopHeaderHeight})` : "100vh")};
   overflow: auto;
 
   .ant-menu-item:first-child {
@@ -197,6 +197,11 @@ const StyledMenu = styled(AntdMenu)<{
     }
   }
 
+`;
+
+
+const ViewerMainContent = styled(MainContent)<{ $isPreview: boolean }>`
+  height: ${(props) => (props.$isPreview ? `calc(100vh - ${TopHeaderHeight})` : "100vh")};
 `;
 
 const StyledImage = styled.img`
@@ -355,6 +360,7 @@ let NavTmpLayout = (function () {
 NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
   const pathParam = useAppPathParam();
   const isViewMode = isUserViewMode(pathParam);
+  const isPreview = pathParam.viewMode === "preview";
   const [selectedKey, setSelectedKey] = useState("");
   const items = comp.children.items.getView();
   const navWidth = comp.children.width.getView();
@@ -674,25 +680,25 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
   );
 
   let content = (
-    <Layout>
+    <Layout style={{ height: isPreview ? undefined : "100vh" }}>
       {(navPosition === 'top') && (
         <Header style={{ display: 'flex', alignItems: 'center', padding: 0 }}>
           { navMenu }
         </Header>
       )}
       {(navPosition === 'left') && (
-        <StyledSide theme="light" width={navWidth} collapsed={navCollapse}>
+        <StyledSide $isPreview={isPreview} theme="light" width={navWidth} collapsed={navCollapse}>
           {navMenu}
         </StyledSide>
       )}
-      <MainContent>{pageView}</MainContent>
+      <ViewerMainContent $isPreview={isPreview}>{pageView}</ViewerMainContent>
       {(navPosition === 'bottom') && (
         <Footer style={{ display: 'flex', alignItems: 'center', padding: 0 }}>
           { navMenu }
         </Footer>
       )}
       {(navPosition === 'right') && (
-        <StyledSide theme="light" width={navWidth} collapsed={navCollapse}>
+        <StyledSide $isPreview={isPreview} theme="light" width={navWidth} collapsed={navCollapse}>
           {navMenu}
         </StyledSide>
       )}
