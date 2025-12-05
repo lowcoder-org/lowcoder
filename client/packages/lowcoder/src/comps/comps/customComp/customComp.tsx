@@ -45,7 +45,7 @@ const defaultCode = `
         <Space>
           <Button
             type="primary"
-            onClick={() => runQuery(model.query)}
+            onClick={() => runQuery({ queryName: model.query })}
          >
             ${trans("customComp.triggerQuery")}
           </Button>
@@ -104,10 +104,11 @@ function InnerCustomComponent(props: IProps) {
 
   const methodsRef = useRef({
     runQuery: async (data: any) => {
-      const { queryName } = data;
+      
+      const { queryName, params } = data.queryName;
       return getPromiseAfterDispatch(
         dispatch,
-        routeByNameAction(queryName, executeQueryAction({}))
+        routeByNameAction(queryName, executeQueryAction({ args: params }))
       ).catch((error) => Promise.resolve({}));
     },
 
