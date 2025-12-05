@@ -81,6 +81,7 @@ export const TableCompView = React.memo((props: {
   const showVerticalScrollbar = compChildren.showVerticalScrollbar.getView();
   const visibleResizables = compChildren.visibleResizables.getView();
   const showHRowGridBorder = compChildren.showHRowGridBorder.getView();
+  const showRowGridBorder = compChildren.showRowGridBorder.getView();
   const columnsStyle = compChildren.columnsStyle.getView();
   const summaryRowStyle = compChildren.summaryRowStyle.getView();
   const changeSet = useMemo(() => compChildren.columns.getChangeSet(), [compChildren.columns]);
@@ -100,6 +101,8 @@ export const TableCompView = React.memo((props: {
   const onEvent = useMemo(() => compChildren.onEvent.getView(), [compChildren.onEvent]);
   const currentExpandedRows = useMemo(() => compChildren.currentExpandedRows.getView(), [compChildren.currentExpandedRows]);
   const dynamicColumn = compChildren.dynamicColumn.getView();
+  const className = compChildren.className.getView();
+  const dataTestId = compChildren.dataTestId.getView();
 
   const dynamicColumnConfig = useMemo(
     () => compChildren.dynamicColumnConfig.getView(),
@@ -360,6 +363,8 @@ export const TableCompView = React.memo((props: {
           suffixNode={toolbar.position === "below" && !toolbar.fixedToolbar && !(tableMode.isAutoMode && showHorizontalScrollbar) && toolbarView}
         >
           <TableWrapper
+            className={className}
+            data-testid={dataTestId}
             $style={style}
             $rowStyle={rowStyle}
             $headerStyle={headerStyle}
@@ -369,6 +374,7 @@ export const TableCompView = React.memo((props: {
             $fixedToolbar={toolbar.fixedToolbar && toolbar.position === 'above'}
             $visibleResizables={visibleResizables}
             $showHRowGridBorder={showHRowGridBorder}
+            $showRowGridBorder={showRowGridBorder}
             $isVirtual={scrollConfig.virtual}
             $showHorizontalScrollbar={showHorizontalScrollbar}
             $showVerticalScrollbar={showVerticalScrollbar}

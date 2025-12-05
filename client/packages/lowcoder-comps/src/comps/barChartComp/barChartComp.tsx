@@ -75,6 +75,7 @@ BarChartTmpComp = withViewFn(BarChartTmpComp, (comp) => {
     log.error('theme chart error: ', error);
   }
 
+
   // Detect race mode changes and force chart recreation
   const currentRaceMode = comp.children.chartConfig?.children?.comp?.children?.race?.getView();
   useEffect(() => {
@@ -172,7 +173,6 @@ BarChartTmpComp = withViewFn(BarChartTmpComp, (comp) => {
   useResizeDetector({
     targetRef: containerRef,
     onResize: ({width, height}) => {
-      console.log('barChart - resize');
       if (width && height) {
         setChartSize({ w: width, h: height });
       }
@@ -194,6 +194,7 @@ BarChartTmpComp = withViewFn(BarChartTmpComp, (comp) => {
         notMerge={!currentRaceMode}
         lazyUpdate={!currentRaceMode}
         opts={{ locale: getEchartsLocale() }}
+        theme={themeConfig}
         option={option}
         mode={mode}
       />

@@ -209,7 +209,8 @@ export function transformDispalyData(
   return oriDisplayData.map((row) => {
     const transData = _(row)
       .omit(OB_ROW_ORI_INDEX)
-      .mapKeys((value, key) => dataIndexTitleDict[key] || key)
+      .pickBy((value, key) => key in dataIndexTitleDict) // Only include columns in the dictionary
+      .mapKeys((value, key) => dataIndexTitleDict[key])
       .value();
     if (Array.isArray(row[COLUMN_CHILDREN_KEY])) {
       return {
@@ -333,6 +334,8 @@ export type CustomColumnType<RecordType> = ColumnType<RecordType> & {
   style: TableColumnStyleType;
   linkStyle: TableColumnLinkStyleType;
   cellColorFn: CellColorViewType;
+  columnClassName?: string;
+  columnDataTestId?: string;
 };
 
 /**
@@ -400,6 +403,8 @@ export function columnsToAntdFormat(
       align: column.align,
       width: column.autoWidth === "auto" ? 0 : column.width,
       fixed: column.fixed === "close" ? false : column.fixed,
+      columnClassName: column.className,
+      columnDataTestId: column.dataTestId,
       style: {
         background: column.background,
         margin: column.margin,

@@ -30,7 +30,7 @@ import React, {
   useState,
   useContext,
 } from "react";
-import { arrayStringExposingStateControl } from "comps/controls/codeStateControl";
+import { arrayStringExposingStateControl, stringExposingStateControl } from "comps/controls/codeStateControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { RefControl } from "comps/controls/refControl";
 import { EditorContext } from "comps/editorState";
@@ -120,6 +120,7 @@ const BarcodeScannerComponent = React.lazy(
 const ScannerTmpComp = (function () {
   const childrenMap = {
     data: arrayStringExposingStateControl("data"),
+    value: stringExposingStateControl("value"),
     text: withDefault(StringControl, trans("scanner.text")),
     continuous: BoolControl,
     uniqueData: withDefault(BoolControl, true),
@@ -150,17 +151,27 @@ const ScannerTmpComp = (function () {
     }, [success, showModal]);
 
     const continuousValue = useRef<string[]>([]);
+    const seenSetRef = useRef<Set<string>>(new Set());
 
     const handleUpdate = (err: any, result: any) => {
       if (result) {
         if (props.continuous) {
-          continuousValue.current = [...continuousValue.current, result.text];
+          const scannedText: string = result.text;
+          if (props.uniqueData && seenSetRef.current.has(scannedText)) {
+            return;
+          }
+          continuousValue.current = [...continuousValue.current, scannedText];
+          if (props.uniqueData) {
+            seenSetRef.current.add(scannedText);
+          }
           const val = props.uniqueData
             ? [...new Set(continuousValue.current)]
             : continuousValue.current;
+          props.value.onChange(scannedText);
           props.data.onChange(val);
           props.onEvent("success");
         } else {
+          props.value.onChange(result.text);
           props.data.onChange([result.text]);
           setShowModal(false);
           setSuccess(true);
@@ -205,6 +216,7 @@ const ScannerTmpComp = (function () {
             props.onEvent("click");
             setShowModal(true);
             continuousValue.current = [];
+            seenSetRef.current = new Set();
           }}
         >
           <span>{props.text}</span>
@@ -317,6 +329,7 @@ const ScannerTmpComp = (function () {
 
 export const ScannerComp = withExposingConfigs(ScannerTmpComp, [
   new NameConfig("data", trans("data")),
+  new NameConfig("value", trans("value")),
   new NameConfig("text", trans("button.textDesc")),
   ...CommonNameConfig,
 ]);

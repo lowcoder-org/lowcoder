@@ -174,6 +174,7 @@ LineChartTmpComp = withViewFn(LineChartTmpComp, (comp) => {
         notMerge
         lazyUpdate
         opts={{ locale: getEchartsLocale() }}
+        theme={themeConfig}
         option={option}
         mode={mode}
       />

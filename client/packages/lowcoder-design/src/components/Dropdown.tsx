@@ -159,16 +159,6 @@ export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
   const { placement = "right" } = props;
   const valueInfoMap = _.fromPairs(props.options.map((option) => [option.value, option]));
 
-  useEffect(() => {
-    const dropdownElems = document.querySelectorAll<HTMLElement>("div.ant-dropdown ul.ant-dropdown-menu");
-    for (let index = 0; index < dropdownElems.length; index++) {
-      const element = dropdownElems[index];
-      element.style.maxHeight = "300px";
-      element.style.overflowY = "scroll";
-      element.style.minWidth = "150px";
-      element.style.paddingRight = "10px";
-    }
-  }, []);
 
   return (
     <FlexDiv style={props.style} className={props.className}>

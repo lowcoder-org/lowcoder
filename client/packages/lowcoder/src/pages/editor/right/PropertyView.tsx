@@ -26,7 +26,7 @@ export default function PropertyView(props: PropertyViewProps) {
 
   let propertyView;
   if (selectedComp) {
-    return <>{selectedComp.getPropertyView()}</>;
+    propertyView = selectedComp.getPropertyView();
   } else if (selectedCompNames.size > 1) {
     propertyView = (
       <SelectedComps

@@ -14,6 +14,7 @@ import {
   EventContent,
   EventDiv,
   EventTitle,
+  Tooltip,
   InlineEventFormWrapper,
   LinkButton,
   OptionType,
@@ -123,7 +124,11 @@ class SingleEventHandlerControl<
           defaultVisible={props.popup}
         >
           <EventContent>
-            {!_.isEmpty(eventName) && <EventTitle>{eventName}</EventTitle>}
+            {!_.isEmpty(eventName) && (
+              <Tooltip title={eventName} placement="top">
+                <EventTitle>{eventName}</EventTitle>
+              </Tooltip>
+            )}
             <EventAction>{eventAction}</EventAction>
           </EventContent>
         </CustomPopover>

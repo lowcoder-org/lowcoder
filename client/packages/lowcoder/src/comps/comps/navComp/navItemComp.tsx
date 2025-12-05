@@ -3,17 +3,20 @@ import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerCont
 import { list } from "comps/generators/list";
 import { parseChildrenFromValueAndChildrenMap, ToViewReturn } from "comps/generators/multi";
 import { withDefault } from "comps/generators/simpleGenerators";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import _ from "lodash";
 import { fromRecord, MultiBaseComp, Node, RecordNode, RecordNodeToValue } from "lowcoder-core";
 import { ReactNode } from "react";
+import { IconControl } from "comps/controls/iconControl";
 
 const events = [clickEvent];
 
 const childrenMap = {
   label: StringControl,
+  icon: IconControl,
   hidden: BoolCodeControl,
+  disabled: BoolCodeControl,
   active: BoolCodeControl,
   onEvent: withDefault(eventHandlerControl(events), [
     {
@@ -28,7 +31,9 @@ const childrenMap = {
 
 type ChildrenType = {
   label: InstanceType<typeof StringControl>;
+  icon: InstanceType<typeof IconControl>;
   hidden: InstanceType<typeof BoolCodeControl>;
+  disabled: InstanceType<typeof BoolCodeControl>;
   active: InstanceType<typeof BoolCodeControl>;
   onEvent: InstanceType<ReturnType<typeof eventHandlerControl>>;
   items: InstanceType<ReturnType<typeof navListComp>>;
@@ -43,8 +48,10 @@ export class NavItemComp extends MultiBaseComp<ChildrenType> {
     return (
       <>
         {this.children.label.propertyView({ label: trans("label") })}
+        {this.children.icon.propertyView({ label: trans("icon") })}
         {hiddenPropertyView(this.children)}
         {this.children.active.propertyView({ label: trans("navItemComp.active") })}
+        {disabledPropertyView(this.children)}
         {this.children.onEvent.propertyView({ inline: true })}
       </>
     );
@@ -68,7 +75,9 @@ export class NavItemComp extends MultiBaseComp<ChildrenType> {
   exposingNode(): RecordNode<NavItemExposing> {
     return fromRecord({
       label: this.children.label.exposingNode(),
+      icon: this.children.icon.exposingNode(),
       hidden: this.children.hidden.exposingNode(),
+      disabled: this.children.disabled.exposingNode(),
       active: this.children.active.exposingNode(),
       items: this.children.items.exposingNode(),
     });
@@ -77,7 +86,9 @@ export class NavItemComp extends MultiBaseComp<ChildrenType> {
 
 type NavItemExposing = {
   label: Node<string>;
+  icon: Node<any>;
   hidden: Node<boolean>;
+  disabled: Node<boolean>;
   active: Node<boolean>;
   items: Node<RecordNodeToValue<NavItemExposing>[]>;
 };
