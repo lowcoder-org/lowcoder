@@ -8,6 +8,7 @@ import {
 } from "constants/applicationConstants";
 import { JSONValue } from "util/jsonTypes";
 import { CommonSettingResponseData } from "api/commonSettingApi";
+import { ApplicationPublishRequest } from "@lowcoder-ee/api/applicationApi";
 
 export interface HomeDataPayload {
   applicationType?: AppTypeEnum;
@@ -114,6 +115,7 @@ export const updateAppMetaAction = (payload: UpdateAppMetaPayload) => ({
 
 export type PublishApplicationPayload = {
   applicationId: string;
+  request: ApplicationPublishRequest;
 };
 export const publishApplication = (payload: PublishApplicationPayload) => ({
   type: ReduxActionTypes.PUBLISH_APPLICATION,

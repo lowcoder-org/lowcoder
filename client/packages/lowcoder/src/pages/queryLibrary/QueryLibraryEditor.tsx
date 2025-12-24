@@ -48,6 +48,8 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { Helmet } from "react-helmet";
 import {fetchQLPaginationByOrg} from "@lowcoder-ee/util/pagination/axios";
 import { isEmpty } from "lodash";
+import { getVersionOptions } from "@lowcoder-ee/util/versionOptions";
+import { VersionDataForm } from "../common/versionDataForm";
 import { processCurlData } from "../../util/curlUtils";
 
 const Wrapper = styled.div`
@@ -69,7 +71,7 @@ interface ElementsState {
 
 function transformData(input: LibraryQuery[]) {
   const output: any = {};
-  input.forEach(item => {
+  input.forEach((item) => {
     output[item.id] = item;
   });
   return output;
@@ -369,44 +371,10 @@ const PublishModal = (props: {
         </div>
       }
     >
-      <DatasourceForm form={form} preserve={false} style={{ gap: "12px" }}>
-        <FormSection>
-          <FormRadioItem
-            name={"tag"}
-            label={trans("queryLibrary.version")}
-            options={versionOptions}
-            initialValue={versionOptions[1].value}
-          />
-          <FormInputItem name={"commitMessage"} label={trans("queryLibrary.desc")} />
-        </FormSection>
-      </DatasourceForm>
+      <VersionDataForm form={form} preserve={false} latestVersion={props?.latestVersion} />
     </CustomModal>
   );
 };
-
-function getVersionOptions(version?: string): Array<CheckboxOptionType> {
-  if (!version) {
-    return [
-      { label: "v1.0.0", value: "v1.0.0" },
-      { label: "v0.1.0", value: "v0.1.0" },
-    ];
-  }
-  const [major, minor, patch] = version.slice(1).split(".");
-  return [
-    {
-      label: ["v" + (Number(major) + 1), 0, 0].join("."),
-      value: ["v" + (Number(major) + 1), 0, 0].join("."),
-    },
-    {
-      label: ["v" + major, Number(minor) + 1, 0].join("."),
-      value: ["v" + major, Number(minor) + 1, 0].join("."),
-    },
-    {
-      label: ["v" + major, minor, Number(patch) + 1].join("."),
-      value: ["v" + major, minor, Number(patch) + 1].join("."),
-    },
-  ];
-}
 
 function useSaveQueryLibrary(
   query: LibraryQuery,
