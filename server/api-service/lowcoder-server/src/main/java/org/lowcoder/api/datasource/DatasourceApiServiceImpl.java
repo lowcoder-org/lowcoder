@@ -1,8 +1,19 @@
 package org.lowcoder.api.datasource;
 
-import com.github.f4b6a3.uuid.UuidCreator;
-import jakarta.annotation.Nullable;
-import lombok.RequiredArgsConstructor;
+import static org.lowcoder.domain.permission.model.ResourceAction.MANAGE_DATASOURCES;
+import static org.lowcoder.domain.permission.model.ResourceAction.READ_APPLICATIONS;
+import static org.lowcoder.domain.permission.model.ResourceAction.USE_DATASOURCES;
+import static org.lowcoder.sdk.exception.BizError.NOT_AUTHORIZED;
+import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.application.ApplicationApiService;
@@ -10,7 +21,11 @@ import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.permission.PermissionHelper;
 import org.lowcoder.api.permission.view.CommonPermissionView;
 import org.lowcoder.api.permission.view.PermissionItemView;
+import org.lowcoder.api.usermanagement.GroupApiService;
+import org.lowcoder.api.usermanagement.OrgApiService;
 import org.lowcoder.api.usermanagement.OrgDevChecker;
+import org.lowcoder.api.usermanagement.view.GroupView;
+import org.lowcoder.api.usermanagement.view.OrgMemberListView;
 import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.model.DatasourceStatus;
@@ -38,18 +53,13 @@ import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
 import org.springframework.stereotype.Service;
+
+import com.github.f4b6a3.uuid.UuidCreator;
+
+import jakarta.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.lowcoder.domain.permission.model.ResourceAction.*;
-import static org.lowcoder.sdk.exception.BizError.NOT_AUTHORIZED;
-import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 
 @RequiredArgsConstructor
 @Service
@@ -71,6 +81,8 @@ public class DatasourceApiServiceImpl implements DatasourceApiService {
     private final DatasourcePluginClient datasourcePluginClient;
     private final DatasourceRepository datasourceRepository;
     private final ApplicationApiService applicationApiService;
+    private final OrgApiService orgApiService;
+    private final GroupApiService groupApiService;
 
     @Override
     public Mono<Datasource> create(Datasource datasource) {
@@ -266,6 +278,66 @@ public class DatasourceApiServiceImpl implements DatasourceApiService {
                 .then(resourcePermissionService.insertBatchPermission(ResourceType.DATASOURCE, datasourceId, userIds, groupIds, role))
                 .thenReturn(true);
     }
+
+    @Override
+    public Mono<List<Object>> getGroupsOrMembersWithoutPermissions(String datasourceId) {
+        return datasourceService.getById(datasourceId)
+                .switchIfEmpty(Mono.error(new ServerException("data source not exist. {}", datasourceId)))
+                .flatMap(datasource -> {
+                    String orgId = datasource.getOrganizationId();
+                    Mono<List<ResourcePermission>> datasourcePermissions = resourcePermissionService.getByDataSourceId(datasource.getId()).cache();
+
+                    Mono<List<PermissionItemView>> groupPermissionPairsMono = datasourcePermissions
+                            .flatMap(permissionHelper::getGroupPermissions);
+
+                    Mono<List<PermissionItemView>> userPermissionPairsMono = datasourcePermissions
+                            .flatMap(permissionHelper::getUserPermissions);
+                    Mono<OrgMemberListView> orgMemberListViewMono = orgApiService.getOrganizationMembers(orgId, 1, 0);
+                    Mono<List<GroupView>> groupsViewMono = groupApiService.getGroups();
+
+                    return Mono.zip(groupPermissionPairsMono, userPermissionPairsMono, orgMemberListViewMono, groupsViewMono)
+                            .map(tuple -> {
+                                List<PermissionItemView> groupPermissionPairs = tuple.getT1();
+                                List<PermissionItemView> userPermissionPairs = tuple.getT2();
+                                OrgMemberListView orgMemberListViews = tuple.getT3();
+                                List<GroupView> groupListViews = tuple.getT4();
+
+                                Set<String> groupIdsWithPerm = groupPermissionPairs.stream()
+                                        .map(PermissionItemView::getId)
+                                        .collect(java.util.stream.Collectors.toSet());
+
+                                List<java.util.Map<String, Object>> filteredGroups = groupListViews.stream()
+                                        .filter(group -> !groupIdsWithPerm.contains(group.getGroupId()))
+                                        .map(group -> {
+                                            java.util.Map<String, Object> map = new java.util.HashMap<>();
+                                            map.put("type", "Group");
+                                            map.put("data", group);
+                                            return map;
+                                        })
+                                        .toList();
+
+                                Set<String> userIdsWithPerm = userPermissionPairs.stream()
+                                        .map(PermissionItemView::getId)
+                                        .collect(java.util.stream.Collectors.toSet());
+
+                                List<Map<String, Object>> filteredMembers = orgMemberListViews.getMembers().stream()
+                                        .filter(member -> !userIdsWithPerm.contains(member.getUserId()))
+                                        .map(member -> {
+                                            Map<String, Object> map = new HashMap<>();
+                                            map.put("type", "User");
+                                            map.put("data", member);
+                                            return map;
+                                        })
+                                        .toList();
+
+                                List<Object> result = new ArrayList<>();
+                                result.addAll(filteredGroups);
+                                result.addAll(filteredMembers);
+                                return result;
+                            });
+                });
+    }
+
 
     @Override
     public Mono<Boolean> updatePermission(String permissionId, ResourceRole role) {
