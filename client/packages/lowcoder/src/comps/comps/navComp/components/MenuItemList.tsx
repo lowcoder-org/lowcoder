@@ -78,7 +78,7 @@ const NavTreeItemComponent = React.forwardRef<
       depth={depth}
       collapsed={collapsed}
     >
-      <TreeItemContent>
+      <TreeItemContent onClick={(e) => e.stopPropagation()}>
         <MenuItem
           item={comp}
           onDelete={handleDelete}
