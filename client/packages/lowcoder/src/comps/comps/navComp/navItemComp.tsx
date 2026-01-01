@@ -1,9 +1,11 @@
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
+import { valueComp } from "comps/generators";
 import { list } from "comps/generators/list";
 import { parseChildrenFromValueAndChildrenMap, ToViewReturn } from "comps/generators/multi";
-import { withDefault } from "comps/generators/simpleGenerators";
+import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
+import { genRandomKey } from "comps/utils/idGenerator";
 import { trans } from "i18n";
 import _ from "lodash";
 import { fromRecord, MultiBaseComp, Node, RecordNode, RecordNodeToValue } from "lowcoder-core";
@@ -18,6 +20,7 @@ const childrenMap = {
   hidden: BoolCodeControl,
   disabled: BoolCodeControl,
   active: BoolCodeControl,
+  itemKey: valueComp<string>(""),
   onEvent: withDefault(eventHandlerControl(events), [
     {
       // name: "click",
@@ -35,6 +38,7 @@ type ChildrenType = {
   hidden: InstanceType<typeof BoolCodeControl>;
   disabled: InstanceType<typeof BoolCodeControl>;
   active: InstanceType<typeof BoolCodeControl>;
+  itemKey: InstanceType<ReturnType<typeof valueComp<string>>>;
   onEvent: InstanceType<ReturnType<typeof eventHandlerControl>>;
   items: InstanceType<ReturnType<typeof navListComp>>;
 };
@@ -72,6 +76,10 @@ export class NavItemComp extends MultiBaseComp<ChildrenType> {
     this.children.items.addItem(value);
   }
 
+  getItemKey(): string {
+    return this.children.itemKey.getView();
+  }
+
   exposingNode(): RecordNode<NavItemExposing> {
     return fromRecord({
       label: this.children.label.exposingNode(),
@@ -93,17 +101,42 @@ type NavItemExposing = {
   items: Node<RecordNodeToValue<NavItemExposing>[]>;
 };
 
+// Migrate old nav items to ensure they have a stable itemKey
+function migrateNavItemData(oldData: any): any {
+  if (!oldData) return oldData;
+  
+  const migrated = {
+    ...oldData,
+    itemKey: oldData.itemKey || genRandomKey(),
+  };
+  
+  // Also migrate nested items recursively
+  if (Array.isArray(oldData.items)) {
+    migrated.items = oldData.items.map((item: any) => migrateNavItemData(item));
+  }
+  
+  return migrated;
+}
+
+const NavItemCompMigrate = migrateOldData(NavItemComp, migrateNavItemData);
+
 export function navListComp() {
-  const NavItemListCompBase = list(NavItemComp);
+  const NavItemListCompBase = list(NavItemCompMigrate);
 
   return class NavItemListComp extends NavItemListCompBase {
     addItem(value?: any) {
       const data = this.getView();
       this.dispatch(
         this.pushAction(
-          value || {
-            label: trans("menuItem") + " " + (data.length + 1),
-          }
+          value
+            ? {
+                ...value,
+                itemKey: value.itemKey || genRandomKey(),
+              }
+            : {
+                label: trans("menuItem") + " " + (data.length + 1),
+                itemKey: genRandomKey(),
+              }
         )
       );
     }

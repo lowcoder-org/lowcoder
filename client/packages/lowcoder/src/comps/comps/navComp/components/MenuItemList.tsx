@@ -54,7 +54,6 @@ const NavTreeItemComponent = React.forwardRef<
   const { item, depth, collapsed, ...rest } = props;
   const { comp, path } = item;
 
-  console.log("NavTreeItemComponent", "collapsed", collapsed);
   const handlers = useContext(MenuItemHandlersContext);
 
   const hasChildren = item.children && item.children.length > 0;
@@ -114,7 +113,9 @@ function convertToTreeItems(
 ): TreeItems<NavTreeItemData> {
   return items.map((item, index) => {
     const path = [...basePath, index];
-    const id = path.join("_");
+    // Use stable itemKey if available, fallback to path-based ID for backwards compatibility
+    const itemKey = item.getItemKey?.() || "";
+    const id = itemKey || path.join("_");
     const subItems = item.getView().items || [];
     
     return {
