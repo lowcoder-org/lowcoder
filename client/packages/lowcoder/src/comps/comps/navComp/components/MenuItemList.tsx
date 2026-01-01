@@ -2,7 +2,7 @@ import { SortableTree, TreeItems, TreeItemComponentProps, SimpleTreeItemWrapper 
 import LinkPlusButton from "components/LinkPlusButton";
 import { BluePlusIcon, controlItem, ScrollBar } from "lowcoder-design";
 import { trans } from "i18n";
-import React, { useMemo, useCallback, createContext, useContext, useState } from "react";
+import React, { useMemo, useCallback, createContext, useContext } from "react";
 import styled from "styled-components";
 import { NavCompType, NavListCompType, NavTreeItemData } from "./types";
 import MenuItem from "./MenuItem";
@@ -105,13 +105,10 @@ interface IMenuItemListProps {
 
 const menuItemLabel = trans("navigation.itemsDesc");
 
-type TreeChangeReason = { type: string };
-
 // Convert NavCompType[] to TreeItems format for dnd-kit-sortable-tree
 function convertToTreeItems(
   items: NavCompType[],
-  basePath: number[] = [],
-  collapsedIds: Set<string> = new Set()
+  basePath: number[] = []
 ): TreeItems<NavTreeItemData> {
   return items.map((item, index) => {
     const path = [...basePath, index];
@@ -119,54 +116,31 @@ function convertToTreeItems(
     const itemKey = item.getItemKey?.() || "";
     const id = itemKey || path.join("_");
     const subItems = item.getView().items || [];
+    // Read collapsed state from the item itself
+    const collapsed = item.getCollapsed?.() ?? false;
     
     return {
       id,
-      collapsed: collapsedIds.has(id),
+      collapsed,
       comp: item,
       path: path,
       children: subItems.length > 0 
-        ? convertToTreeItems(subItems, path, collapsedIds) 
+        ? convertToTreeItems(subItems, path) 
         : [],
     };
   });
 }
 
-function extractCollapsedIds(treeItems: TreeItems<NavTreeItemData>): Set<string> {
-  const ids = new Set<string>();
-  const walk = (items: TreeItems<NavTreeItemData>) => {
-    items.forEach((item) => {
-      if (item.collapsed) {
-        ids.add(String(item.id));
-      }
-      if (item.children?.length) {
-        walk(item.children);
-      }
-    });
-  };
-  walk(treeItems);
-  return ids;
-}
-
 function MenuItemList(props: IMenuItemListProps) {
   const { items, onAddItem, onDeleteItem, onAddSubItem, onReorderItems } = props;
 
-  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(() => new Set());
-
   // Convert items to tree format
-  const treeItems = useMemo(() => convertToTreeItems(items, [], collapsedIds), [items, collapsedIds]);
+  const treeItems = useMemo(() => convertToTreeItems(items), [items]);
 
-  // Handle tree changes from drag and drop
+  // Handle all tree changes (drag/drop, collapse/expand)
   const handleItemsChanged = useCallback(
-    (newItems: TreeItems<NavTreeItemData>, reason: TreeChangeReason) => {
-      // Persist collapsed/expanded state locally (SortableTree is controlled by `items` prop)
-      setCollapsedIds(extractCollapsedIds(newItems));
-
-      // Only rewrite the underlying nav structure when the tree structure actually changed.
-      // (If we rebuild on collapsed/expanded, it immediately resets the UI and looks like "toggle does nothing".)
-      if (reason.type === "dropped" || reason.type === "removed") {
-        onReorderItems(newItems);
-      }
+    (newItems: TreeItems<NavTreeItemData>) => {
+      onReorderItems(newItems);
     },
     [onReorderItems]
   );
@@ -227,14 +201,14 @@ export function menuPropertyView(itemsComp: NavListCompType) {
     return getItemListByPath(path.slice(1), root.getView()[path[0]].children.items);
   };
 
-  // Convert flat tree structure back to nested comp structure
+  // Convert tree structure back to nested comp structure
   const handleReorderItems = (newItems: TreeItems<NavTreeItemData>) => {
-    // Build the new order from tree items
     const buildJsonFromTree = (treeItems: TreeItems<NavTreeItemData>): any[] => {
       return treeItems.map((item) => {
         const jsonValue = item.comp.toJsonValue() as Record<string, any>;
         return {
           ...jsonValue,
+          collapsed: item.collapsed ?? false, // sync collapsed from tree item
           items: item.children && item.children.length > 0
             ? buildJsonFromTree(item.children)
             : [],
@@ -243,9 +217,6 @@ export function menuPropertyView(itemsComp: NavListCompType) {
     };
 
     const newJson = buildJsonFromTree(newItems);
-    
-    // Use setChildrensAction for atomic update instead of delete-all/add-all
-    // This is more efficient and prevents UI glitches from multiple re-renders
     itemsComp.dispatch(itemsComp.setChildrensAction(newJson));
   };
 

@@ -1,6 +1,7 @@
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import { BoolControl } from "comps/controls/boolControl";
 import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
-import { valueComp } from "comps/generators";
+import { valueComp, withPropertyViewFn } from "comps/generators";
 import { list } from "comps/generators/list";
 import { parseChildrenFromValueAndChildrenMap, ToViewReturn } from "comps/generators/multi";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
@@ -14,12 +15,16 @@ import { IconControl } from "comps/controls/iconControl";
 
 const events = [clickEvent];
 
+// BoolControl without property view (internal state only)
+const CollapsedControl = withPropertyViewFn(BoolControl, () => null);
+
 const childrenMap = {
   label: StringControl,
   icon: IconControl,
   hidden: BoolCodeControl,
   disabled: BoolCodeControl,
   active: BoolCodeControl,
+  collapsed: CollapsedControl, // tree editor collapsed state
   itemKey: valueComp<string>(""),
   onEvent: withDefault(eventHandlerControl(events), [
     {
@@ -38,6 +43,7 @@ type ChildrenType = {
   hidden: InstanceType<typeof BoolCodeControl>;
   disabled: InstanceType<typeof BoolCodeControl>;
   active: InstanceType<typeof BoolCodeControl>;
+  collapsed: InstanceType<typeof CollapsedControl>;
   itemKey: InstanceType<ReturnType<typeof valueComp<string>>>;
   onEvent: InstanceType<ReturnType<typeof eventHandlerControl>>;
   items: InstanceType<ReturnType<typeof navListComp>>;
@@ -78,6 +84,14 @@ export class NavItemComp extends MultiBaseComp<ChildrenType> {
 
   getItemKey(): string {
     return this.children.itemKey.getView();
+  }
+
+  getCollapsed(): boolean {
+    return this.children.collapsed.getView();
+  }
+
+  setCollapsed(collapsed: boolean) {
+    this.children.collapsed.dispatchChangeValueAction(collapsed);
   }
 
   exposingNode(): RecordNode<NavItemExposing> {
