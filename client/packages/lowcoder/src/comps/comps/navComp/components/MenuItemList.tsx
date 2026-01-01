@@ -6,7 +6,7 @@ import React, { useMemo, useCallback, createContext, useContext, useState } from
 import styled from "styled-components";
 import { NavCompType, NavListCompType, NavTreeItemData } from "./types";
 import MenuItem from "./MenuItem";
-
+const MAX_DEPTH = 3;
 const Wrapper = styled.div`
   .menu-title {
     display: flex;
@@ -59,6 +59,8 @@ const NavTreeItemComponent = React.forwardRef<
   const handlers = useContext(MenuItemHandlersContext);
 
   const hasChildren = item.children && item.children.length > 0;
+  // allow adding sub-menu only if we are above the max depth (depth is 0-indexed)
+  const canAddSubMenu = depth < MAX_DEPTH - 1;
 
   const handleDelete = () => {
     handlers?.onDeleteItem(path);
@@ -77,7 +79,7 @@ const NavTreeItemComponent = React.forwardRef<
           item={comp}
           onDelete={handleDelete}
           onAddSubMenu={handleAddSubMenu}
-          showAddSubMenu={!hasChildren || depth === 0}
+          showAddSubMenu={(!hasChildren || depth === 0) && canAddSubMenu}
         />
       </TreeItemContent>
     </SimpleTreeItemWrapper>
