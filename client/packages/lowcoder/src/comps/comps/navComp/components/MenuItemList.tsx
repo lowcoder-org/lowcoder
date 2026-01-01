@@ -244,18 +244,9 @@ export function menuPropertyView(itemsComp: NavListCompType) {
 
     const newJson = buildJsonFromTree(newItems);
     
-    // Clear all existing items and re-add in new order
-    const currentLength = itemsComp.getView().length;
-    
-    // Delete all items from end to start
-    for (let i = currentLength - 1; i >= 0; i--) {
-      itemsComp.deleteItem(i);
-    }
-    
-    // Add items back in new order
-    newJson.forEach((itemJson) => {
-      itemsComp.addItem(itemJson);
-    });
+    // Use setChildrensAction for atomic update instead of delete-all/add-all
+    // This is more efficient and prevents UI glitches from multiple re-renders
+    itemsComp.dispatch(itemsComp.setChildrensAction(newJson));
   };
 
   return controlItem(
