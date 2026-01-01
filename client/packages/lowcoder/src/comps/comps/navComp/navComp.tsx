@@ -512,25 +512,27 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
         const disabled = !!view?.disabled;
         const subItems = isCompItem ? view?.items : [];
 
-        const subMenuItems: Array<{ key: string; label: any; icon?: any; disabled?: boolean }> = [];
         const subMenuSelectedKeys: Array<string> = [];
-
-        if (Array.isArray(subItems)) {
-          subItems.forEach((subItem: any, originalIndex: number) => {
-            if (subItem.children.hidden.getView()) {
-              return;
-            }
-            const key = originalIndex + "";
-            subItem.children.active.getView() && subMenuSelectedKeys.push(key);
-            const subIcon = hasIcon(subItem.children.icon?.getView?.()) ? subItem.children.icon.getView() : undefined;
-            subMenuItems.push({
-              key: key,
-              label: subItem.children.label.getView(),
-              icon: subIcon,
-              disabled: !!subItem.children.disabled.getView(),
-            });
-          });
-        }
+        const buildSubMenuItems = (list: any[], prefix = ""): Array<any> => {
+          if (!Array.isArray(list)) return [];
+          return list
+            .map((subItem: any, originalIndex: number) => {
+              if (subItem.children.hidden.getView()) return null;
+              const key = prefix ? `${prefix}-${originalIndex}` : `${originalIndex}`;
+              subItem.children.active.getView() && subMenuSelectedKeys.push(key);
+              const subIcon = hasIcon(subItem.children.icon?.getView?.()) ? subItem.children.icon.getView() : undefined;
+              const children = buildSubMenuItems(subItem.getView()?.items, key);
+              return {
+                key,
+                label: subItem.children.label.getView(),
+                icon: subIcon,
+                disabled: !!subItem.children.disabled.getView(),
+                ...(children.length > 0 ? { children } : {}),
+              };
+            })
+            .filter(Boolean);
+        };
+        const subMenuItems: Array<any> = buildSubMenuItems(subItems);
 
         const item = (
           <Item
@@ -568,10 +570,17 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
               <StyledMenu
                 onClick={(e) => {
                   if (disabled) return;
-                  const subItem = subItems[Number(e.key)];
-                  const isSubDisabled = !!subItem?.children?.disabled?.getView?.();
+                  const parts = String(e.key).split("-").filter(Boolean);
+                  let currentList: any[] = subItems;
+                  let current: any = null;
+                  for (const part of parts) {
+                    current = currentList?.[Number(part)];
+                    if (!current) return;
+                    currentList = current.getView()?.items || [];
+                  }
+                  const isSubDisabled = !!current?.children?.disabled?.getView?.();
                   if (isSubDisabled) return;
-                  const onSubEvent = subItem?.getView()?.onEvent;
+                  const onSubEvent = current?.getView?.()?.onEvent;
                   onSubEvent && onSubEvent("click");
                 }}
                 selectedKeys={subMenuSelectedKeys}
