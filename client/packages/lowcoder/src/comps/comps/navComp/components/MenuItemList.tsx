@@ -1,6 +1,6 @@
 import { SortableTree, TreeItems, TreeItemComponentProps, SimpleTreeItemWrapper } from "dnd-kit-sortable-tree";
 import LinkPlusButton from "components/LinkPlusButton";
-import { BluePlusIcon, controlItem } from "lowcoder-design";
+import { BluePlusIcon, controlItem, ScrollBar } from "lowcoder-design";
 import { trans } from "i18n";
 import React, { useMemo, useCallback, createContext, useContext, useState } from "react";
 import styled from "styled-components";
@@ -187,15 +187,16 @@ function MenuItemList(props: IMenuItemListProps) {
         </LinkPlusButton>
       </div>
       <div className="menu-list">
-        <MenuItemHandlersContext.Provider value={handlers}>
-          <SortableTree
-            items={treeItems}
-            onItemsChanged={handleItemsChanged}
-            TreeItemComponent={NavTreeItemComponent}
-            indentationWidth={20}
-            
-          />
-        </MenuItemHandlersContext.Provider>
+        <ScrollBar style={{ maxHeight: "200px" }}>
+          <MenuItemHandlersContext.Provider value={handlers}>
+            <SortableTree
+              items={treeItems}
+              onItemsChanged={handleItemsChanged}
+              TreeItemComponent={NavTreeItemComponent}
+              indentationWidth={20}
+            />
+          </MenuItemHandlersContext.Provider>
+        </ScrollBar>
       </div>
     </Wrapper>
   );
