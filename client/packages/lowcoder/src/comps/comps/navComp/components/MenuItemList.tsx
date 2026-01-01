@@ -21,21 +21,21 @@ const Wrapper = styled.div`
   }
 `;
 
+const StyledTreeItem = styled.div`
+  .dnd-sortable-tree_simple_tree-item {
+    padding: 5px;
+    border-radius: 4px;
+    &:hover { 
+      background-color: #f5f5f6;
+    }
+  }
+`;
+
 const TreeItemContent = styled.div`
   display: flex;
   align-items: center;
   width: 100%;
-  height: 30px;
-  background-color: #ffffff;
-  border: 1px solid #d7d9e0;
-  border-radius: 4px;
-  padding: 0 8px;
   box-sizing: border-box;
-  gap: 8px;
-
-  &:hover {
-    border-color: #315efb;
-  }
 `;
 
 // Context for passing handlers to tree items
@@ -71,6 +71,7 @@ const NavTreeItemComponent = React.forwardRef<
   };
 
   return (
+    <StyledTreeItem>
     <SimpleTreeItemWrapper
       {...rest}
       ref={ref}
@@ -87,6 +88,7 @@ const NavTreeItemComponent = React.forwardRef<
         />
       </TreeItemContent>
     </SimpleTreeItemWrapper>
+    </StyledTreeItem>
   );
 });
 
@@ -187,7 +189,7 @@ function MenuItemList(props: IMenuItemListProps) {
         </LinkPlusButton>
       </div>
       <div className="menu-list">
-        <ScrollBar style={{ maxHeight: "200px" }}>
+        <ScrollBar style={{ maxHeight: "300px" }}>
           <MenuItemHandlersContext.Provider value={handlers}>
             <SortableTree
               items={treeItems}
