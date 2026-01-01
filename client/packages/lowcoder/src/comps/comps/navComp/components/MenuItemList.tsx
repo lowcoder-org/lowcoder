@@ -42,8 +42,6 @@ const TreeItemContent = styled.div`
 interface MenuItemHandlers {
   onDeleteItem: (path: number[]) => void;
   onAddSubItem: (path: number[], value?: any) => void;
-  collapsedItems: Set<string>;
-  onToggleCollapse: (id: string) => void;
 }
 
 const MenuItemHandlersContext = createContext<MenuItemHandlers | null>(null);
@@ -53,9 +51,10 @@ const NavTreeItemComponent = React.forwardRef<
   HTMLDivElement,
   TreeItemComponentProps<NavTreeItemData>
 >((props, ref) => {
-  console.log("NavTreeItemComponent", props);
-  const { item, depth, ...rest } = props;
+  const { item, depth, collapsed, ...rest } = props;
   const { comp, path } = item;
+
+  console.log("NavTreeItemComponent", "collapsed", collapsed);
   const handlers = useContext(MenuItemHandlersContext);
 
   const hasChildren = item.children && item.children.length > 0;
@@ -73,7 +72,13 @@ const NavTreeItemComponent = React.forwardRef<
   };
 
   return (
-    <SimpleTreeItemWrapper {...rest} ref={ref} item={item} depth={depth}>
+    <SimpleTreeItemWrapper
+      {...rest}
+      ref={ref}
+      item={item}
+      depth={depth}
+      collapsed={collapsed}
+    >
       <TreeItemContent>
         <MenuItem
           item={comp}
@@ -99,11 +104,13 @@ interface IMenuItemListProps {
 
 const menuItemLabel = trans("navigation.itemsDesc");
 
+type TreeChangeReason = { type: string };
+
 // Convert NavCompType[] to TreeItems format for dnd-kit-sortable-tree
 function convertToTreeItems(
   items: NavCompType[],
   basePath: number[] = [],
-  collapsedItems: Set<string> = new Set()
+  collapsedIds: Set<string> = new Set()
 ): TreeItems<NavTreeItemData> {
   return items.map((item, index) => {
     const path = [...basePath, index];
@@ -112,62 +119,51 @@ function convertToTreeItems(
     
     return {
       id,
+      collapsed: collapsedIds.has(id),
       comp: item,
       path: path,
-      collapsed: collapsedItems.has(id),
       children: subItems.length > 0 
-        ? convertToTreeItems(subItems, path, collapsedItems) 
+        ? convertToTreeItems(subItems, path, collapsedIds) 
         : [],
     };
   });
 }
 
+function extractCollapsedIds(treeItems: TreeItems<NavTreeItemData>): Set<string> {
+  const ids = new Set<string>();
+  const walk = (items: TreeItems<NavTreeItemData>) => {
+    items.forEach((item) => {
+      if (item.collapsed) {
+        ids.add(String(item.id));
+      }
+      if (item.children?.length) {
+        walk(item.children);
+      }
+    });
+  };
+  walk(treeItems);
+  return ids;
+}
+
 function MenuItemList(props: IMenuItemListProps) {
   const { items, onAddItem, onDeleteItem, onAddSubItem, onReorderItems } = props;
 
-  // State for tracking collapsed items
-  const [collapsedItems, setCollapsedItems] = useState<Set<string>>(new Set());
-
-  // Toggle collapse state for an item
-  const handleToggleCollapse = useCallback((id: string) => {
-    setCollapsedItems(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
-    });
-  }, []);
+  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(() => new Set());
 
   // Convert items to tree format
-  const treeItems = useMemo(() => convertToTreeItems(items, [], collapsedItems), [items, collapsedItems]);
+  const treeItems = useMemo(() => convertToTreeItems(items, [], collapsedIds), [items, collapsedIds]);
 
   // Handle tree changes from drag and drop
   const handleItemsChanged = useCallback(
-    (newItems: TreeItems<NavTreeItemData>) => {
-      // Update collapsed state from the new items
-      const updateCollapsedState = (treeItems: TreeItems<NavTreeItemData>) => {
-        treeItems.forEach(item => {
-          if (item.collapsed !== undefined) {
-            setCollapsedItems(prev => {
-              const newSet = new Set(prev);
-              if (item.collapsed) {
-                newSet.add(item.id as string);
-              } else {
-                newSet.delete(item.id as string);
-              }
-              return newSet;
-            });
-          }
-          if (item.children && item.children.length > 0) {
-            updateCollapsedState(item.children);
-          }
-        });
-      };
-      updateCollapsedState(newItems);
-      onReorderItems(newItems);
+    (newItems: TreeItems<NavTreeItemData>, reason: TreeChangeReason) => {
+      // Persist collapsed/expanded state locally (SortableTree is controlled by `items` prop)
+      setCollapsedIds(extractCollapsedIds(newItems));
+
+      // Only rewrite the underlying nav structure when the tree structure actually changed.
+      // (If we rebuild on collapsed/expanded, it immediately resets the UI and looks like "toggle does nothing".)
+      if (reason.type === "dropped" || reason.type === "removed") {
+        onReorderItems(newItems);
+      }
     },
     [onReorderItems]
   );
@@ -177,10 +173,8 @@ function MenuItemList(props: IMenuItemListProps) {
     () => ({
       onDeleteItem,
       onAddSubItem,
-      collapsedItems,
-      onToggleCollapse: handleToggleCollapse,
     }),
-    [onDeleteItem, onAddSubItem, collapsedItems, handleToggleCollapse]
+    [onDeleteItem, onAddSubItem]
   );
 
   return (
