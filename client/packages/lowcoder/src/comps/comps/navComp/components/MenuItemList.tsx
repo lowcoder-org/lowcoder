@@ -189,7 +189,7 @@ function MenuItemList(props: IMenuItemListProps) {
         </LinkPlusButton>
       </div>
       <div className="menu-list">
-        <ScrollBar style={{ maxHeight: "300px" }}>
+        <ScrollBar style={{ maxHeight: "400px" }}>
           <MenuItemHandlersContext.Provider value={handlers}>
             <SortableTree
               items={treeItems}
