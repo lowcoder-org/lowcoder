@@ -20,6 +20,7 @@ export interface NavCompItemType {
 export interface NavTreeItemData {
   comp: NavCompType;
   path: number[];
+  collapsed?: boolean;
 }
 
 // Full tree item type for the sortable tree

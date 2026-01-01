@@ -2,7 +2,7 @@ import { SortableTree, TreeItems, TreeItemComponentProps, SimpleTreeItemWrapper 
 import LinkPlusButton from "components/LinkPlusButton";
 import { BluePlusIcon, controlItem } from "lowcoder-design";
 import { trans } from "i18n";
-import React, { useMemo, useCallback, createContext, useContext } from "react";
+import React, { useMemo, useCallback, createContext, useContext, useState } from "react";
 import styled from "styled-components";
 import { NavCompType, NavListCompType, NavTreeItemData } from "./types";
 import MenuItem from "./MenuItem";
@@ -42,6 +42,8 @@ const TreeItemContent = styled.div`
 interface MenuItemHandlers {
   onDeleteItem: (path: number[]) => void;
   onAddSubItem: (path: number[], value?: any) => void;
+  collapsedItems: Set<string>;
+  onToggleCollapse: (id: string) => void;
 }
 
 const MenuItemHandlersContext = createContext<MenuItemHandlers | null>(null);
@@ -51,6 +53,7 @@ const NavTreeItemComponent = React.forwardRef<
   HTMLDivElement,
   TreeItemComponentProps<NavTreeItemData>
 >((props, ref) => {
+  console.log("NavTreeItemComponent", props);
   const { item, depth, ...rest } = props;
   const { comp, path } = item;
   const handlers = useContext(MenuItemHandlersContext);
@@ -97,18 +100,21 @@ const menuItemLabel = trans("navigation.itemsDesc");
 // Convert NavCompType[] to TreeItems format for dnd-kit-sortable-tree
 function convertToTreeItems(
   items: NavCompType[],
-  basePath: number[] = []
+  basePath: number[] = [],
+  collapsedItems: Set<string> = new Set()
 ): TreeItems<NavTreeItemData> {
   return items.map((item, index) => {
     const path = [...basePath, index];
+    const id = path.join("_");
     const subItems = item.getView().items || [];
     
     return {
-      id: path.join("_"),
+      id,
       comp: item,
       path: path,
+      collapsed: collapsedItems.has(id),
       children: subItems.length > 0 
-        ? convertToTreeItems(subItems, path) 
+        ? convertToTreeItems(subItems, path, collapsedItems) 
         : [],
     };
   });
@@ -117,12 +123,48 @@ function convertToTreeItems(
 function MenuItemList(props: IMenuItemListProps) {
   const { items, onAddItem, onDeleteItem, onAddSubItem, onReorderItems } = props;
 
+  // State for tracking collapsed items
+  const [collapsedItems, setCollapsedItems] = useState<Set<string>>(new Set());
+
+  // Toggle collapse state for an item
+  const handleToggleCollapse = useCallback((id: string) => {
+    setCollapsedItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  }, []);
+
   // Convert items to tree format
-  const treeItems = useMemo(() => convertToTreeItems(items), [items]);
+  const treeItems = useMemo(() => convertToTreeItems(items, [], collapsedItems), [items, collapsedItems]);
 
   // Handle tree changes from drag and drop
   const handleItemsChanged = useCallback(
     (newItems: TreeItems<NavTreeItemData>) => {
+      // Update collapsed state from the new items
+      const updateCollapsedState = (treeItems: TreeItems<NavTreeItemData>) => {
+        treeItems.forEach(item => {
+          if (item.collapsed !== undefined) {
+            setCollapsedItems(prev => {
+              const newSet = new Set(prev);
+              if (item.collapsed) {
+                newSet.add(item.id as string);
+              } else {
+                newSet.delete(item.id as string);
+              }
+              return newSet;
+            });
+          }
+          if (item.children && item.children.length > 0) {
+            updateCollapsedState(item.children);
+          }
+        });
+      };
+      updateCollapsedState(newItems);
       onReorderItems(newItems);
     },
     [onReorderItems]
@@ -133,8 +175,10 @@ function MenuItemList(props: IMenuItemListProps) {
     () => ({
       onDeleteItem,
       onAddSubItem,
+      collapsedItems,
+      onToggleCollapse: handleToggleCollapse,
     }),
-    [onDeleteItem, onAddSubItem]
+    [onDeleteItem, onAddSubItem, collapsedItems, handleToggleCollapse]
   );
 
   return (
@@ -152,6 +196,7 @@ function MenuItemList(props: IMenuItemListProps) {
             onItemsChanged={handleItemsChanged}
             TreeItemComponent={NavTreeItemComponent}
             indentationWidth={20}
+            
           />
         </MenuItemHandlersContext.Provider>
       </div>
