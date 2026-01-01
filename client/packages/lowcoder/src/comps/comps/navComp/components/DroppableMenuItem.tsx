@@ -66,8 +66,6 @@ export default function DraggableMenuItem(props: IDraggableMenuItemProps) {
     data: dropData,
   });
 
-  // TODO: Remove this later.
-  // Set ItemKey for previously added sub-menus
   useEffect(() => {
     if(!items.length) return;
     if(!(items[0] instanceof LayoutMenuItemComp)) return;

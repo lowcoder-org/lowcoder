@@ -60,7 +60,6 @@ function MenuItemList(props: IMenuItemListProps) {
         sourcePath.length === targetPath.length &&
         _.isEqual(sourcePath.slice(0, -1), targetPath.slice(0, -1))
       ) {
-        // same level move
         const from = sourcePath[sourcePath.length - 1];
         let to = targetPath[targetPath.length - 1];
         if (from < to) {
@@ -68,7 +67,6 @@ function MenuItemList(props: IMenuItemListProps) {
         }
         onMoveItem(targetPath, from, to);
       } else {
-        // cross level move
         let targetIndex = targetPath[targetPath.length - 1];
         let targetListPath = targetPath;
         let size = 0;

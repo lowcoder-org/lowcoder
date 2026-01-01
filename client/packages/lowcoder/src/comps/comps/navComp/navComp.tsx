@@ -69,7 +69,6 @@ ${props=>props.$animationStyle}
 
 const DEFAULT_SIZE = 378;
 
-// If it is a number, use the px unit by default
 function transToPxSize(size: string | number) {
   return isNumeric(size) ? size + "px" : (size as string);
 }
