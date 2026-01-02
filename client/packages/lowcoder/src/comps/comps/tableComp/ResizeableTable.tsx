@@ -65,7 +65,7 @@ const ResizeableTitle = React.forwardRef<HTMLTableHeaderCellElement, any>((props
   React.useImperativeHandle(ref, () => resizeRef.current!, []);
 
   const isNotDataColumn = _.isNil(restProps.title);
-  if ((isUserViewMode && !restProps.viewModeResizable) || isNotDataColumn) {
+  if ((isUserViewMode && !viewModeResizable) || isNotDataColumn) {
     return <TableTh ref={resizeRef} {...restProps} width={width} />;
   }
 
