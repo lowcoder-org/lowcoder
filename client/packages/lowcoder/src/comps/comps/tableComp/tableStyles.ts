@@ -136,6 +136,7 @@ export const TableWrapper = styled.div.attrs<{
   $isVirtual?: boolean;
   $showHorizontalScrollbar?: boolean;
   $showVerticalScrollbar?: boolean;
+  $tableSize?: "small" | "middle" | "large";
 }>`
   .ant-table-wrapper {
     border-top: unset;
@@ -202,6 +203,8 @@ export const TableWrapper = styled.div.attrs<{
             border-color: ${(props) => props.$headerStyle.border};
             border-width: ${(props) => props.$headerStyle.borderWidth};
             color: ${(props) => props.$headerStyle.headerText};
+            padding: 0 !important; /* Override Ant Design's default padding */
+            // border-inline-end: ${(props) => `${props.$headerStyle.borderWidth} solid ${props.$headerStyle.border}`} !important;
             ${(props) => props.$showRowGridBorder
               ? `border-inline-end: ${props.$headerStyle.borderWidth} solid ${props.$headerStyle.border} !important;`
               : `border-inline-end: none !important;`
@@ -221,6 +224,9 @@ export const TableWrapper = styled.div.attrs<{
 
             > div {
               margin: ${(props) => props.$headerStyle.margin};
+              /* Default padding for middle size (Ant Design default) */
+              padding: 8px 8px;
+              min-height: 24px;
 
               &, .ant-table-column-title > div {
                 font-size: ${(props) => props.$headerStyle.textSize};
@@ -229,6 +235,20 @@ export const TableWrapper = styled.div.attrs<{
                 font-style: ${(props) => props.$headerStyle.fontStyle};
                 color:${(props) => props.$headerStyle.headerText}
               }
+
+              /* Adjust header size based on table size */
+              ${(props) => props.$tableSize === 'small' && `
+                padding: 1px 8px;
+                min-height: 14px;
+              `}
+              ${(props) => props.$tableSize === 'middle' && `
+                padding: 8px 8px;
+                min-height: 24px;
+              `}
+              ${(props) => props.$tableSize === 'large' && `
+                padding: 16px 16px;
+                min-height: 48px;
+              `}
             }
 
             &:last-child {
