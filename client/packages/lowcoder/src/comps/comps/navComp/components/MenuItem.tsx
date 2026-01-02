@@ -10,7 +10,6 @@ export interface IMenuItemProps {
   item: NavCompType;
   onDelete?: () => void;
   onAddSubMenu?: () => void;
-  showAddSubMenu?: boolean;
 }
 
 const MenuItemWrapper = styled.div`
@@ -43,7 +42,6 @@ const MenuItem: React.FC<IMenuItemProps> = (props) => {
     item,
     onDelete,
     onAddSubMenu,
-    showAddSubMenu = true,
   } = props;
 
   const [isConfigPopShow, showConfigPop] = useState(false);
@@ -76,7 +74,7 @@ const MenuItem: React.FC<IMenuItemProps> = (props) => {
       </SimplePopover>
       <EditPopover
         del={handleDel}
-        add={showAddSubMenu && onAddSubMenu ? handleAddSubMenu : undefined}
+        add={onAddSubMenu ? handleAddSubMenu : undefined}
         addText={trans("navigation.addText")}
       >
         <StyledPointIcon />
