@@ -490,7 +490,7 @@ function buildRenderFn(
           currentIndex: index,
         }),
         onTableEvent,
-        cellIndex: `${column.dataIndex}-${index}`,
+        cellIndex: `${column.dataIndex}-${record?.[OB_ROW_ORI_INDEX] ?? index}`,
       });
   };
 }
