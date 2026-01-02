@@ -81,6 +81,7 @@
     "@types/styled-components": "^5.1.34",
     "antd-mobile": "^5.34.0",
     "chalk": "4",
+    "dompurify": "^3.3.1",
     "flag-icons": "^7.2.1",
     "number-precision": "^1.6.0",
     "react-countup": "^6.5.3",

@@ -4050,6 +4050,7 @@ export const en = {
     "fileUploadError": "File upload error",
     "fileFormatError": "File format error",
     "groupWithSquareBrackets": "[Group] ",
+    "managePermissions": "Manage permissions",
     "allPermissions": "Owner",
     "appSharingDialogueTitle" : "App Sharing and Permissions",
     "appSocialSharing" : "Share Your App and Experience on:",
@@ -4060,6 +4061,8 @@ export const en = {
     "appPublicMessage": "Make the app public. Anyone can view.",
     "modulePublicMessage": "Make the module public. Anyone can view.",
     "marketplaceURL": "https://api-service.lowcoder.cloud",
+    "appMemberMessage": "All shared members can view this app.",
+    "moduleMemberMessage": "All shared members can view this module.",
     "appMarketplaceMessage": "Publish your App on the Public Marketplace. Anyone can view and copy it from there.",
     "moduleMarketplaceMessage": "Publish your Module on the Public Marketplace. Anyone can view and copy it from there.",
     "marketplaceGoodPublishing": "Please make sure your app is well-named and easy to use. Remove any sensitive information before publishing. Also, remove local datasources and replace by static built-in temporary data.",
@@ -4082,6 +4085,8 @@ export const en = {
     "createNavigation": "Create Navigation",
     "howToUseAPI": "How to use the Open Rest API",
     "support": "Support",
+    "versions": "Versions",
+    "publishVersionDescription": "By publishing, your users will see the current state of your app. Further editing will not be visible until you publish again",
   },
   
   "support" : {

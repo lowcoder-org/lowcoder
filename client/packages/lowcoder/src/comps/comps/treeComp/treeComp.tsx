@@ -24,7 +24,7 @@ import {
   SelectInputValidationSection,
 } from "../selectInputComp/selectInputConstants";
 import { selectInputValidate } from "../selectInputComp/selectInputConstants";
-import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
+import { TreeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { trans } from "i18n";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
@@ -63,8 +63,7 @@ const childrenMap = {
   label: withDefault(LabelControl, { position: "column" }),
   autoHeight: AutoHeightControl,
   verticalScrollbar: withDefault(BoolControl, false),
-  // TODO: more event
-  onEvent: SelectEventHandlerControl,
+  onEvent: TreeEventHandlerControl,
   style: styleControl(InputFieldStyle , 'style'),
   labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false), 'labelStyle'),
   inputFieldStyle:styleControl(TreeStyle, 'inputFieldStyle')
@@ -127,6 +126,7 @@ const TreeCompView = (props: RecordConstructorToView<typeof childrenMap>) => {
             }}
             onFocus={() => props.onEvent("focus")}
             onBlur={() => props.onEvent("blur")}
+            onDoubleClick={() => props.onEvent("doubleClick")}
           />
         </ScrollBar>
       </Container>

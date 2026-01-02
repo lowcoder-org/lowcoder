@@ -234,7 +234,9 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
   };
 
   const handleBlur = () => {
+    debouncedOnChangeRef.current.flush?.();
     touchRef.current = false;
+    propsRef.current.onEvent("blur");
   };
 
   // Cleanup refs on unmount

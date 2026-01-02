@@ -451,7 +451,7 @@ export function columnsToAntdFormat(
             }),
             editMode,
             onTableEvent,
-            cellIndex: `${column.dataIndex}-${index}`,
+            cellIndex: `${column.dataIndex}-${record?.[OB_ROW_ORI_INDEX] ?? index}`,
           });
       },
       ...(column.sortable
