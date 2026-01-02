@@ -210,6 +210,7 @@ export const TutorialsTooltip = ({
   step,
   backProps,
   skipProps,
+  closeProps,
   primaryProps,
   tooltipProps,
   isLastStep,
@@ -219,7 +220,7 @@ export const TutorialsTooltip = ({
     <ToolTipDiv {...tooltipProps} style={{ width: step.styles?.options?.width }}>
       <TooltipHeader>
         {step.title && <Title>{step.title}</Title>}
-        <CloseDiv {...skipProps}>
+        <CloseDiv {...closeProps}>
           <CloseIcon />
         </CloseDiv>
       </TooltipHeader>
