@@ -778,6 +778,13 @@ export const SelectEventHandlerControl = eventHandlerControl([
   blurEvent,
 ] as const);
 
+export const TreeEventHandlerControl = eventHandlerControl([
+  changeEvent,
+  focusEvent,
+  blurEvent,
+  doubleClickEvent,
+] as const);
+
 export const ScannerEventHandlerControl = eventHandlerControl([
   clickEvent,
   // scannerSuccessEvent,
