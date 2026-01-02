@@ -7,7 +7,7 @@ type: application
 version: 2.7.0
 
 # Lowcoder version
-appVersion: "2.7.5"
+appVersion: "2.7.6"
 
 # Dependencies needed for Lowcoder deployment
 dependencies:
