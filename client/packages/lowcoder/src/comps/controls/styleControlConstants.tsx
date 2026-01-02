@@ -2362,6 +2362,7 @@ export const NavLayoutItemStyle = [
   getBackground("primarySurface"),
   getStaticBorder("transparent"),
   RADIUS,
+  BORDER_WIDTH,
   {
     name: "text",
     label: trans("text"),

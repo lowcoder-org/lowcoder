@@ -113,6 +113,7 @@ const Item = styled.div<{
   $border?: string;
   $hoverBorder?: string;
   $activeBorder?: string;
+  $borderWidth?: string;
   $radius?: string;
   $disabled?: boolean;
 }>`
@@ -120,9 +121,13 @@ const Item = styled.div<{
   padding: ${(props) => props.$padding || '0 16px'};
   color: ${(props) => props.$disabled ? `${props.$color}80` : (props.$active ? props.$activeColor : props.$color)};
   background-color: ${(props) => (props.$active ? (props.$activeBg || 'transparent') : (props.$bg || 'transparent'))};
-  border: ${(props) => props.$active 
-    ? (props.$activeBorder ? `1px solid ${props.$activeBorder}` : (props.$border ? `1px solid ${props.$border}` : '1px solid transparent'))
-    : (props.$border ? `1px solid ${props.$border}` : '1px solid transparent')};
+  border: ${(props) => {
+    const width = props.$borderWidth || '1px';
+    if (props.$active) {
+      return props.$activeBorder ? `${width} solid ${props.$activeBorder}` : (props.$border ? `${width} solid ${props.$border}` : `${width} solid transparent`);
+    }
+    return props.$border ? `${width} solid ${props.$border}` : `${width} solid transparent`;
+  }};
   border-radius: ${(props) => props.$radius || '0px'};
   font-weight: ${(props) => props.$active 
     ? (props.$activeTextWeight || props.$textWeight || 500) 
@@ -144,7 +149,13 @@ const Item = styled.div<{
   &:hover {
     color: ${(props) => props.$disabled ? (props.$active ? props.$activeColor : props.$color) : (props.$hoverColor || props.$activeColor)};
     background-color: ${(props) => props.$disabled ? (props.$active ? (props.$activeBg || 'transparent') : (props.$bg || 'transparent')) : (props.$hoverBg || props.$activeBg || props.$bg || 'transparent')};
-    border: ${(props) => props.$hoverBorder ? `1px solid ${props.$hoverBorder}` : (props.$activeBorder ? `1px solid ${props.$activeBorder}` : (props.$border ? `1px solid ${props.$border}` : '1px solid transparent'))};
+    border: ${(props) => {
+      const width = props.$borderWidth || '1px';
+      if (props.$hoverBorder) return `${width} solid ${props.$hoverBorder}`;
+      if (props.$activeBorder) return `${width} solid ${props.$activeBorder}`;
+      if (props.$border) return `${width} solid ${props.$border}`;
+      return `${width} solid transparent`;
+    }};
     cursor: ${(props) => props.$disabled ? 'not-allowed' : 'pointer'};
     font-weight: ${(props) => props.$disabled ? undefined : (props.$hoverTextWeight || props.$textWeight || 500)};
     font-family: ${(props) => props.$disabled ? undefined : (props.$hoverFontFamily || props.$fontFamily || 'sans-serif')};
@@ -212,7 +223,6 @@ const StyledMenu = styled(Menu) <
     color: ${(p) => p.$color};
     background-color: ${(p) => p.$bg || "transparent"};
     border-radius: ${(p) => p.$radius || "0px"};
-    border: ${(p) => p.$border ? `1px solid ${p.$border}` : "1px solid transparent"};
     font-weight: ${(p) => p.$textWeight || 500};
     font-family: ${(p) => p.$fontFamily || "sans-serif"};
     font-style: ${(p) => p.$fontStyle || "normal"};
@@ -226,7 +236,6 @@ const StyledMenu = styled(Menu) <
   .ant-dropdown-menu-item:hover {
     color: ${(p) => p.$hoverColor || p.$color};
     background-color: ${(p) => p.$hoverBg || p.$bg || "transparent"} !important;
-    border: ${(p) => p.$hoverBorder ? `1px solid ${p.$hoverBorder}` : (p.$border ? `1px solid ${p.$border}` : "1px solid transparent")};
     font-weight: ${(p) => p.$hoverTextWeight || p.$textWeight || 500};
     font-family: ${(p) => p.$hoverFontFamily || p.$fontFamily || "sans-serif"};
     font-style: ${(p) => p.$hoverFontStyle || p.$fontStyle || "normal"};
@@ -239,7 +248,6 @@ const StyledMenu = styled(Menu) <
   .ant-menu-item-selected {
     color: ${(p) => p.$activeColor};
     background-color: ${(p) => p.$activeBg || p.$bg || "transparent"};
-    border: ${(p) => p.$activeBorder ? `1px solid ${p.$activeBorder}` : (p.$border ? `1px solid ${p.$border}` : "1px solid transparent")};
     font-weight: ${(p) => p.$activeTextWeight || p.$textWeight || 500};
     font-family: ${(p) => p.$activeFontFamily || p.$fontFamily || "sans-serif"};
     font-style: ${(p) => p.$activeFontStyle || p.$fontStyle || "normal"};
@@ -608,6 +616,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             $hoverBorder={props.navItemHoverStyle?.border}
             $activeBorder={props.navItemActiveStyle?.border}
             $radius={props.navItemStyle?.radius}
+            $borderWidth={props.navItemStyle?.borderWidth}
             $disabled={disabled}
             onClick={() => { if (!disabled && onEvent) onEvent("click"); }}
           >
