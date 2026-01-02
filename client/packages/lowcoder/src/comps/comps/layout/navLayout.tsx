@@ -204,6 +204,12 @@ let NavTmpLayout = (function () {
       {
         label: trans("menuItem") + " 1",
         itemKey: genRandomKey(),
+        items: [
+          {
+            label: trans("subMenuItem") + " 1",
+            itemKey: genRandomKey(),
+          },
+        ],
       },
     ]),
     jsonItems: jsonControl(convertTreeData, jsonMenuItems),

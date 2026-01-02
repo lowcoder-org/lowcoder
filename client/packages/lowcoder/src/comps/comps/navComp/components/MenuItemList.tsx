@@ -6,7 +6,7 @@ import React, { useMemo, useCallback, createContext, useContext } from "react";
 import styled from "styled-components";
 import { NavCompType, NavListCompType, NavTreeItemData } from "./types";
 import MenuItem from "./MenuItem";
-const MAX_DEPTH = 3;
+const MAX_DEPTH = 10;
 const Wrapper = styled.div`
   .menu-title {
     display: flex;
@@ -56,9 +56,8 @@ const NavTreeItemComponent = React.forwardRef<
 
   const handlers = useContext(MenuItemHandlersContext);
 
-  const hasChildren = item.children && item.children.length > 0;
   // allow adding sub-menu only if we are above the max depth (depth is 0-indexed)
-  const canAddSubMenu = depth < MAX_DEPTH - 1;
+  const canAddSubMenu = depth < MAX_DEPTH - 1 ;
 
   const handleDelete = () => {
     handlers?.onDeleteItem(path);
@@ -78,13 +77,19 @@ const NavTreeItemComponent = React.forwardRef<
       item={item}
       depth={depth}
       collapsed={collapsed}
+
+      
     >
-      <TreeItemContent onClick={(e) => e.stopPropagation()}>
+      <TreeItemContent 
+        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
+      >
         <MenuItem
           item={comp}
           onDelete={handleDelete}
           onAddSubMenu={handleAddSubMenu}
-          showAddSubMenu={(!hasChildren || depth === 0) && canAddSubMenu}
+          showAddSubMenu={canAddSubMenu}
         />
       </TreeItemContent>
     </SimpleTreeItemWrapper>
@@ -99,7 +104,6 @@ interface IMenuItemListProps {
   onAddItem: (path: number[], value?: any) => number;
   onDeleteItem: (path: number[]) => void;
   onAddSubItem: (path: number[], value: any, unshift?: boolean) => number;
-  onMoveItem: (path: number[], from: number, to: number) => void;
   onReorderItems: (newOrder: TreeItems<NavTreeItemData>) => void;
 }
 
@@ -112,15 +116,12 @@ function convertToTreeItems(
 ): TreeItems<NavTreeItemData> {
   return items.map((item, index) => {
     const path = [...basePath, index];
-    // Use stable itemKey if available, fallback to path-based ID for backwards compatibility
-    const itemKey = item.getItemKey?.() || "";
-    const id = itemKey || path.join("_");
     const subItems = item.getView().items || [];
     // Read collapsed state from the item itself
     const collapsed = item.getCollapsed?.() ?? false;
     
     return {
-      id,
+      id: path.join("_"),
       collapsed,
       comp: item,
       path: path,
@@ -170,6 +171,7 @@ function MenuItemList(props: IMenuItemListProps) {
               onItemsChanged={handleItemsChanged}
               TreeItemComponent={NavTreeItemComponent}
               indentationWidth={20}
+              sortableProps={{ animateLayoutChanges: () => false }}
             />
           </MenuItemHandlersContext.Provider>
         </ScrollBar>
@@ -236,9 +238,6 @@ export function menuPropertyView(itemsComp: NavListCompType) {
         const item = getItemByPath(path);
         item.addSubItem(value);
         return item.children.items.getView().length;
-      }}
-      onMoveItem={(path: number[], from: number, to: number) => {
-        getItemListByPath(path).moveItem(from, to);
       }}
       onReorderItems={handleReorderItems}
     />

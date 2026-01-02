@@ -66,8 +66,12 @@ const MenuItem: React.FC<IMenuItemProps> = (props) => {
         visible={isConfigPopShow}
         setVisible={showConfigPop}
       >
-        <MenuItemContent onClick={(e) => e.stopPropagation()}>
-          {item.children.label.getView()}
+        <MenuItemContent 
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          {item.children.label.getView() || trans("untitled")}
         </MenuItemContent>
       </SimplePopover>
       <EditPopover

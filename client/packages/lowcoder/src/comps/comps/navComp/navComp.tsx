@@ -29,9 +29,6 @@ import {
   NavLayoutItemStyle,
   NavLayoutItemHoverStyle,
   NavLayoutItemActiveStyle,
-  NavSubMenuItemStyle,
-  NavSubMenuItemHoverStyle,
-  NavSubMenuItemActiveStyle,
 } from "comps/controls/styleControlConstants";
 import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
@@ -390,9 +387,7 @@ function renderAdvancedSection(children: any) {
 function renderStyleSections(
   children: any,
   styleSegment: MenuItemStyleOptionValue,
-  setStyleSegment: (k: MenuItemStyleOptionValue) => void,
-  subStyleSegment: MenuItemStyleOptionValue,
-  setSubStyleSegment: (k: MenuItemStyleOptionValue) => void
+  setStyleSegment: (k: MenuItemStyleOptionValue) => void
 ) {
   const isHamburger = children.displayMode.getView() === 'hamburger';
   return (
@@ -414,19 +409,6 @@ function renderStyleSections(
         {styleSegment === "normal" && children.navItemStyle.getPropertyView()}
         {styleSegment === "hover" && children.navItemHoverStyle.getPropertyView()}
         {styleSegment === "active" && children.navItemActiveStyle.getPropertyView()}
-      </Section>
-      <Section name={"Submenu Item Style"}>
-        {controlItem({}, (
-          <Segmented
-            block
-            options={menuItemStyleOptions as any}
-            value={subStyleSegment}
-            onChange={(k) => setSubStyleSegment(k as MenuItemStyleOptionValue)}
-          />
-        ))}
-        {subStyleSegment === "normal" && children.subNavItemStyle.getPropertyView()}
-        {subStyleSegment === "hover" && children.subNavItemHoverStyle.getPropertyView()}
-        {subStyleSegment === "active" && children.subNavItemActiveStyle.getPropertyView()}
       </Section>
       {isHamburger && (
         <>
@@ -475,14 +457,30 @@ const childrenMap = {
   hamburgerButtonStyle: styleControl(HamburgerButtonStyle, 'hamburgerButtonStyle'),
   drawerContainerStyle: styleControl(DrawerContainerStyle, 'drawerContainerStyle'),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
-  subNavItemStyle: styleControl(NavSubMenuItemStyle, 'subNavItemStyle'),
-  subNavItemHoverStyle: styleControl(NavSubMenuItemHoverStyle, 'subNavItemHoverStyle'),
-  subNavItemActiveStyle: styleControl(NavSubMenuItemActiveStyle, 'subNavItemActiveStyle'),
   items: withDefault(migrateOldData(createNavItemsControl(), fixOldItemsData), {
     optionType: "manual",
     manual: [
       {
         label: trans("menuItem") + " 1",
+        items: [  
+          {
+            label: trans("subMenuItem") + " 1",
+            items: [
+              {
+                label: trans("subMenuItem") + " 1-1",
+              },
+              {
+                label: trans("subMenuItem") + " 1-2",
+              },
+            ],
+          },
+          {
+            label: trans("subMenuItem") + " 2",
+          },
+          {
+            label: trans("subMenuItem") + " 3",
+          }, 
+        ],
       },
     ],
   }),
@@ -505,7 +503,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
           return null;
         }
 
-        const label = view?.label;
+        const label = view?.label || trans("untitled");
         const icon = hasIcon(view?.icon) ? view.icon : undefined;
         const active = !!view?.active;
         const onEvent = view?.onEvent;
@@ -524,7 +522,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
               const children = buildSubMenuItems(subItem.getView()?.items, key);
               return {
                 key,
-                label: subItem.children.label.getView(),
+                label: subItem.children.label.getView() || trans("untitled"),
                 icon: subIcon,
                 disabled: !!subItem.children.disabled.getView(),
                 ...(children.length > 0 ? { children } : {}),
@@ -566,7 +564,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
         );
         if (subMenuItems.length > 0) {
           const subMenu = (
-            <ScrollBar style={{ height: "200px" }}>
+            <ScrollBar style={{ height: "200px", minWidth: "200px" }}>
               <StyledMenu
                 onClick={(e) => {
                   if (disabled) return;
@@ -588,22 +586,22 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
                   ...item,
                   icon: item.icon || undefined,
                 }))}
-                $color={(props.subNavItemStyle && props.subNavItemStyle.text) || props.style.text}
-                $hoverColor={(props.subNavItemHoverStyle && props.subNavItemHoverStyle.text) || props.style.accent}
-                $activeColor={(props.subNavItemActiveStyle && props.subNavItemActiveStyle.text) || props.style.accent}
-                $bg={(props.subNavItemStyle && props.subNavItemStyle.background) || undefined}
-                $hoverBg={(props.subNavItemHoverStyle && props.subNavItemHoverStyle.background) || undefined}
-                $activeBg={(props.subNavItemActiveStyle && props.subNavItemActiveStyle.background) || undefined}
-                $border={(props.subNavItemStyle && props.subNavItemStyle.border) || undefined}
-                $hoverBorder={(props.subNavItemHoverStyle && props.subNavItemHoverStyle.border) || undefined}
-                $activeBorder={(props.subNavItemActiveStyle && props.subNavItemActiveStyle.border) || undefined}
-                $radius={(props.subNavItemStyle && props.subNavItemStyle.radius) || undefined}
+                $color={props.style.text}
+                $hoverColor={props.style.accent}
+                $activeColor={props.style.accent}
+                $bg={undefined}
+                $hoverBg={undefined}
+                $activeBg={undefined}
+                $border={undefined}
+                $hoverBorder={undefined}
+                $activeBorder={undefined}
+                $radius={undefined}
                 $fontFamily={props.style.fontFamily}
                 $fontStyle={props.style.fontStyle}
                 $textWeight={props.style.textWeight}
                 $textSize={props.style.textSize}
-                $padding={(props.subNavItemStyle && props.subNavItemStyle.padding) || props.style.padding}
-                $margin={(props.subNavItemStyle && props.subNavItemStyle.margin) || props.style.margin}
+                $padding={props.style.padding}
+                $margin={props.style.margin}
                 $textTransform={props.style.textTransform}
                 $textDecoration={props.style.textDecoration}
               />
@@ -708,7 +706,6 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
     const showLogic = mode === "logic" || mode === "both";
     const showLayout = mode === "layout" || mode === "both";
     const [styleSegment, setStyleSegment] = useState<MenuItemStyleOptionValue>("normal");
-    const [subStyleSegment, setSubStyleSegment] = useState<MenuItemStyleOptionValue>("normal");
 
     return (
       <>
@@ -716,7 +713,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
         {showLogic && renderInteractionSection(children)}
         {showLayout && renderLayoutSection(children)}
         {showLogic && renderAdvancedSection(children)}
-        {showLayout && renderStyleSections(children, styleSegment, setStyleSegment, subStyleSegment, setSubStyleSegment)}
+        {showLayout && renderStyleSections(children, styleSegment, setStyleSegment)}
       </>
     );
   })
