@@ -183,6 +183,11 @@ const DrawerList = styled.div<{
     gap: 8px;
     background-color: ${(p) => p.$itemStyle.background};
     color: ${(p) => p.$itemStyle.text};
+    font-size: ${(p) => p.$itemStyle.textSize};
+    font-family: ${(p) => p.$itemStyle.fontFamily};
+    font-style: ${(p) => p.$itemStyle.fontStyle};
+    font-weight: ${(p) => p.$itemStyle.textWeight};
+    text-decoration: ${(p) => p.$itemStyle.textDecoration};
     border-radius: ${(p) => p.$itemStyle.radius};
     border: 1px solid ${(p) => p.$itemStyle.border};
     margin: ${(p) => p.$itemStyle.margin};
@@ -194,11 +199,21 @@ const DrawerList = styled.div<{
     background-color: ${(p) => p.$hoverStyle.background};
     color: ${(p) => p.$hoverStyle.text};
     border: 1px solid ${(p) => p.$hoverStyle.border};
+    font-size: ${(p) => p.$hoverStyle.textSize || p.$itemStyle.textSize};
+    font-family: ${(p) => p.$hoverStyle.fontFamily || p.$itemStyle.fontFamily};
+    font-style: ${(p) => p.$hoverStyle.fontStyle || p.$itemStyle.fontStyle};
+    font-weight: ${(p) => p.$hoverStyle.textWeight || p.$itemStyle.textWeight};
+    text-decoration: ${(p) => p.$hoverStyle.textDecoration || p.$itemStyle.textDecoration};
   }
   .drawer-item.active {
     background-color: ${(p) => p.$activeStyle.background};
     color: ${(p) => p.$activeStyle.text};
     border: 1px solid ${(p) => p.$activeStyle.border};
+    font-size: ${(p) => p.$activeStyle.textSize || p.$itemStyle.textSize};
+    font-family: ${(p) => p.$activeStyle.fontFamily || p.$itemStyle.fontFamily};
+    font-style: ${(p) => p.$activeStyle.fontStyle || p.$itemStyle.fontStyle};
+    font-weight: ${(p) => p.$activeStyle.textWeight || p.$itemStyle.textWeight};
+    text-decoration: ${(p) => p.$activeStyle.textDecoration || p.$itemStyle.textDecoration};
   }
 `;
 
@@ -260,16 +275,37 @@ const StyledTabBar = styled(TabBar)<{
   .adm-tab-bar-item {
     background-color: ${(props) => props.$tabItemStyle?.background};
     color: ${(props) => props.$tabItemStyle?.text};
+    font-size: ${(props) => props.$tabItemStyle?.textSize};
+    font-family: ${(props) => props.$tabItemStyle?.fontFamily};
+    font-style: ${(props) => props.$tabItemStyle?.fontStyle};
+    font-weight: ${(props) => props.$tabItemStyle?.textWeight};
+    text-decoration: ${(props) => props.$tabItemStyle?.textDecoration};
     border-radius: ${(props) => props.$tabItemStyle?.radius} !important;
     border: ${(props) => `1px solid ${props.$tabItemStyle?.border}`};
     margin: ${(props) => props.$tabItemStyle?.margin};
     padding: ${(props) => props.$tabItemStyle?.padding};
+
+    .adm-tab-bar-item-title {
+      font-size: ${(props) => props.$tabItemStyle?.textSize};
+      font-family: ${(props) => props.$tabItemStyle?.fontFamily};
+      font-style: ${(props) => props.$tabItemStyle?.fontStyle};
+      font-weight: ${(props) => props.$tabItemStyle?.textWeight};
+      text-decoration: ${(props) => props.$tabItemStyle?.textDecoration};
+    }
   }
 
   .adm-tab-bar-item:hover {
     background-color: ${(props) => props.$tabItemHoverStyle?.background} !important;
     color: ${(props) => props.$tabItemHoverStyle?.text} !important;
     border: ${(props) => `1px solid ${props.$tabItemHoverStyle?.border}`};
+
+    .adm-tab-bar-item-title {
+      font-size: ${(props) => props.$tabItemHoverStyle?.textSize || props.$tabItemStyle?.textSize};
+      font-family: ${(props) => props.$tabItemHoverStyle?.fontFamily || props.$tabItemStyle?.fontFamily};
+      font-style: ${(props) => props.$tabItemHoverStyle?.fontStyle || props.$tabItemStyle?.fontStyle};
+      font-weight: ${(props) => props.$tabItemHoverStyle?.textWeight || props.$tabItemStyle?.textWeight};
+      text-decoration: ${(props) => props.$tabItemHoverStyle?.textDecoration || props.$tabItemStyle?.textDecoration};
+    }
   }
 
   .adm-tab-bar-item.adm-tab-bar-item-active {
@@ -277,6 +313,13 @@ const StyledTabBar = styled(TabBar)<{
     // border: ${(props) => `1px solid ${props.$tabItemActiveStyle.border}`};
     .adm-tab-bar-item-icon, .adm-tab-bar-item-title {
       color: ${(props) => props.$tabItemActiveStyle.text};
+    }
+    .adm-tab-bar-item-title {
+      font-size: ${(props) => props.$tabItemActiveStyle?.textSize || props.$tabItemStyle?.textSize};
+      font-family: ${(props) => props.$tabItemActiveStyle?.fontFamily || props.$tabItemStyle?.fontFamily};
+      font-style: ${(props) => props.$tabItemActiveStyle?.fontStyle || props.$tabItemStyle?.fontStyle};
+      font-weight: ${(props) => props.$tabItemActiveStyle?.textWeight || props.$tabItemStyle?.textWeight};
+      text-decoration: ${(props) => props.$tabItemActiveStyle?.textDecoration || props.$tabItemStyle?.textDecoration};
     }
   }
 `;
