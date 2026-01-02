@@ -1,6 +1,11 @@
-import nodeFetch, { RequestInit, RequestInfo } from "node-fetch";
-import proxyAgent from "proxy-agent";
+import { ProxyAgent } from "proxy-agent";
+import nodeFetch, { RequestInit } from "node-fetch";
 
-export function fetch(url: RequestInfo, init?: RequestInit) {
-  return nodeFetch(url, { agent: proxyAgent(), ...init });
+const proxyAgent = new ProxyAgent();
+
+export function fetch(url: string, init: RequestInit = {}) {
+  return nodeFetch(url, {
+    ...init,
+    agent: proxyAgent,
+  });
 }
