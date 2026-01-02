@@ -60,7 +60,6 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { EditorContext } from "../../comps/editorState";
 import Tooltip from "antd/es/tooltip";
 import { LockOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import Avatar from 'antd/es/avatar';
 import UserApi from "@lowcoder-ee/api/userApi";
 import { validateResponse } from "@lowcoder-ee/api/apiUtils";
 import ProfileImage from "./profileImage";
@@ -612,18 +611,22 @@ export default function Header(props: HeaderProps) {
             onVisibleChange={(visible) =>
               !visible && setPermissionDialogVisible(false)
             }
+            publishedVersion={application?.publishedVersion}
           />
         )}
         {canManageApp(user, application) && (
-          <GrayBtn onClick={() => setPermissionDialogVisible(true)} disabled={blockEditing}>
-            {SHARE_TITLE}
+          <GrayBtn
+            onClick={() => setPermissionDialogVisible(true)}
+            disabled={blockEditing}
+          >
+            {trans("header.deploy")}
           </GrayBtn>
         )}
-  
+
         <PreviewBtn buttonType="primary" onClick={() => preview(applicationId)}>
           {trans("header.preview")}
         </PreviewBtn>
-  
+
         <Dropdown
           className="cypress-header-dropdown"
           placement="bottomRight"
@@ -633,31 +636,21 @@ export default function Header(props: HeaderProps) {
               style={{ minWidth: "110px", borderRadius: "4px" }}
               onClick={(e) => {
                 if (blockEditing) return; // Prevent clicks if the app is being edited by someone else
-                if (e.key === "deploy") {
-                  dispatch(publishApplication({ applicationId }));
-                } else if (e.key === "snapshot") {
+                if (e.key === "snapshot") {
                   dispatch(setShowAppSnapshot(true));
                 }
               }}
               items={[
                 {
-                  key: "deploy",
-                  label: (
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      {blockEditing && <LockOutlined style={{ marginRight: '8px' }} />}
-                      <CommonTextLabel style= {{color: blockEditing ? "#ccc" : "#222"}}>
-                        {trans("header.deploy")}
-                      </CommonTextLabel>
-                    </div>
-                  ),
-                  disabled: blockEditing,
-                },
-                {
                   key: "snapshot",
                   label: (
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      {blockEditing && <LockOutlined style={{ marginRight: '8px' }} />}
-                      <CommonTextLabel style= {{color: blockEditing ? "#ccc" : "#222"}}>
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      {blockEditing && (
+                        <LockOutlined style={{ marginRight: "8px" }} />
+                      )}
+                      <CommonTextLabel
+                        style={{ color: blockEditing ? "#ccc" : "#222" }}
+                      >
                         {trans("header.snapshot")}
                       </CommonTextLabel>
                     </div>
@@ -672,7 +665,7 @@ export default function Header(props: HeaderProps) {
             <PackUpIcon />
           </PackUpBtn>
         </Dropdown>
-  
+
         <HeaderProfile user={user} />
       </>
     );

@@ -9,8 +9,10 @@ export const StyledRoleSelect = styled(CustomSelect)`
     right: 0;
   }
 
-  .ant-select-selector {
-    border: none !important;
+  .ant-select .ant-select-selector {
+    margin-right: 0 !important;
+    padding: 0 !important;
+    padding: 12px !important;
   }
 
   .ant-select:hover {
