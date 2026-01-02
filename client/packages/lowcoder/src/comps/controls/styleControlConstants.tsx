@@ -2362,6 +2362,7 @@ export const NavLayoutItemStyle = [
   getBackground("primarySurface"),
   getStaticBorder("transparent"),
   RADIUS,
+  BORDER_WIDTH,
   {
     name: "text",
     label: trans("text"),
@@ -2412,60 +2413,6 @@ export const NavLayoutItemActiveStyle = [
   TEXT_DECORATION,
 ] as const;
 
-// Submenu item styles (normal/hover/active), similar to top-level menu items
-export const NavSubMenuItemStyle = [
-  getBackground("primarySurface"),
-  getStaticBorder("transparent"),
-  RADIUS,
-  {
-    name: "text",
-    label: trans("text"),
-    depName: "background",
-    depType: DEP_TYPE.CONTRAST_TEXT,
-    transformer: contrastText,
-  },
-  TEXT_SIZE,
-  TEXT_WEIGHT,
-  FONT_FAMILY,
-  FONT_STYLE,
-  TEXT_DECORATION,
-  MARGIN,
-  PADDING,
-] as const;
-
-export const NavSubMenuItemHoverStyle = [
-  getBackground("canvas"),
-  getStaticBorder("transparent"),
-  {
-    name: "text",
-    label: trans("text"),
-    depName: "background",
-    depType: DEP_TYPE.CONTRAST_TEXT,
-    transformer: contrastText,
-  },
-  TEXT_SIZE,
-  TEXT_WEIGHT,
-  FONT_FAMILY,
-  FONT_STYLE,
-  TEXT_DECORATION,
-] as const;
-
-export const NavSubMenuItemActiveStyle = [
-  getBackground("primary"),
-  getStaticBorder("transparent"),
-  {
-    name: "text",
-    label: trans("text"),
-    depName: "background",
-    depType: DEP_TYPE.CONTRAST_TEXT,
-    transformer: contrastText,
-  },
-  TEXT_SIZE,
-  TEXT_WEIGHT,
-  FONT_FAMILY,
-  FONT_STYLE,
-  TEXT_DECORATION,
-] as const;
 
 export const CarouselStyle = [getBackground("canvas")] as const;
 
@@ -2606,9 +2553,6 @@ export type NavLayoutItemHoverStyleType = StyleConfigType<
 export type NavLayoutItemActiveStyleType = StyleConfigType<
   typeof NavLayoutItemActiveStyle
 >;
-export type NavSubMenuItemStyleType = StyleConfigType<typeof NavSubMenuItemStyle>;
-export type NavSubMenuItemHoverStyleType = StyleConfigType<typeof NavSubMenuItemHoverStyle>;
-export type NavSubMenuItemActiveStyleType = StyleConfigType<typeof NavSubMenuItemActiveStyle>;
 
 export function widthCalculator(margin: string) {
   const marginArr = margin?.trim().replace(/\s+/g, " ").split(" ") || "";

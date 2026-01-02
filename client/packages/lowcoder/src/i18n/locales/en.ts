@@ -33,6 +33,8 @@ export const en = {
   "form": "Form",
   "menu": "Menu",
   "menuItem": "Menu Item",
+  "subMenuItem": "Sub Menu",
+  "untitled": "Untitled",
   "ok": "OK",
   "cancel": "Cancel",
   "finish": "Finish",

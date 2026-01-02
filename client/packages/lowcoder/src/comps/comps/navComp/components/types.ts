@@ -1,5 +1,6 @@
 import { NavItemComp, navListComp } from "../navItemComp";
 import { LayoutMenuItemComp, LayoutMenuItemListComp } from "comps/comps/layout/layoutMenuItemComp";
+import { TreeItem } from "dnd-kit-sortable-tree";
 
 export type NavCompType = NavItemComp | LayoutMenuItemComp;
 
@@ -15,13 +16,12 @@ export interface NavCompItemType {
   onEvent: (name: string) => void;
 }
 
-export interface IDropData {
-  targetListSize: number;
-  targetPath: number[];
-  dropInAsSub: boolean;
+// Tree item data for dnd-kit-sortable-tree
+export interface NavTreeItemData {
+  comp: NavCompType;
+  path: number[];
+  collapsed?: boolean;
 }
 
-export interface IDragData {
-  item: NavCompType;
-  path: number[];
-}
+// Full tree item type for the sortable tree
+export type NavTreeItem = TreeItem<NavTreeItemData>;

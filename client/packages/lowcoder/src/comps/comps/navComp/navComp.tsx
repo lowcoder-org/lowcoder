@@ -66,7 +66,6 @@ ${props=>props.$animationStyle}
 
 const DEFAULT_SIZE = 378;
 
-// If it is a number, use the px unit by default
 function transToPxSize(size: string | number) {
   return isNumeric(size) ? size + "px" : (size as string);
 }
@@ -114,6 +113,7 @@ const Item = styled.div<{
   $border?: string;
   $hoverBorder?: string;
   $activeBorder?: string;
+  $borderWidth?: string;
   $radius?: string;
   $disabled?: boolean;
 }>`
@@ -121,9 +121,13 @@ const Item = styled.div<{
   padding: ${(props) => props.$padding || '0 16px'};
   color: ${(props) => props.$disabled ? `${props.$color}80` : (props.$active ? props.$activeColor : props.$color)};
   background-color: ${(props) => (props.$active ? (props.$activeBg || 'transparent') : (props.$bg || 'transparent'))};
-  border: ${(props) => props.$active 
-    ? (props.$activeBorder ? `1px solid ${props.$activeBorder}` : (props.$border ? `1px solid ${props.$border}` : '1px solid transparent'))
-    : (props.$border ? `1px solid ${props.$border}` : '1px solid transparent')};
+  border: ${(props) => {
+    const width = props.$borderWidth || '1px';
+    if (props.$active) {
+      return props.$activeBorder ? `${width} solid ${props.$activeBorder}` : (props.$border ? `${width} solid ${props.$border}` : `${width} solid transparent`);
+    }
+    return props.$border ? `${width} solid ${props.$border}` : `${width} solid transparent`;
+  }};
   border-radius: ${(props) => props.$radius || '0px'};
   font-weight: ${(props) => props.$active 
     ? (props.$activeTextWeight || props.$textWeight || 500) 
@@ -145,7 +149,13 @@ const Item = styled.div<{
   &:hover {
     color: ${(props) => props.$disabled ? (props.$active ? props.$activeColor : props.$color) : (props.$hoverColor || props.$activeColor)};
     background-color: ${(props) => props.$disabled ? (props.$active ? (props.$activeBg || 'transparent') : (props.$bg || 'transparent')) : (props.$hoverBg || props.$activeBg || props.$bg || 'transparent')};
-    border: ${(props) => props.$hoverBorder ? `1px solid ${props.$hoverBorder}` : (props.$activeBorder ? `1px solid ${props.$activeBorder}` : (props.$border ? `1px solid ${props.$border}` : '1px solid transparent'))};
+    border: ${(props) => {
+      const width = props.$borderWidth || '1px';
+      if (props.$hoverBorder) return `${width} solid ${props.$hoverBorder}`;
+      if (props.$activeBorder) return `${width} solid ${props.$activeBorder}`;
+      if (props.$border) return `${width} solid ${props.$border}`;
+      return `${width} solid transparent`;
+    }};
     cursor: ${(props) => props.$disabled ? 'not-allowed' : 'pointer'};
     font-weight: ${(props) => props.$disabled ? undefined : (props.$hoverTextWeight || props.$textWeight || 500)};
     font-family: ${(props) => props.$disabled ? undefined : (props.$hoverFontFamily || props.$fontFamily || 'sans-serif')};
@@ -213,7 +223,6 @@ const StyledMenu = styled(Menu) <
     color: ${(p) => p.$color};
     background-color: ${(p) => p.$bg || "transparent"};
     border-radius: ${(p) => p.$radius || "0px"};
-    border: ${(p) => p.$border ? `1px solid ${p.$border}` : "1px solid transparent"};
     font-weight: ${(p) => p.$textWeight || 500};
     font-family: ${(p) => p.$fontFamily || "sans-serif"};
     font-style: ${(p) => p.$fontStyle || "normal"};
@@ -227,7 +236,6 @@ const StyledMenu = styled(Menu) <
   .ant-dropdown-menu-item:hover {
     color: ${(p) => p.$hoverColor || p.$color};
     background-color: ${(p) => p.$hoverBg || p.$bg || "transparent"} !important;
-    border: ${(p) => p.$hoverBorder ? `1px solid ${p.$hoverBorder}` : (p.$border ? `1px solid ${p.$border}` : "1px solid transparent")};
     font-weight: ${(p) => p.$hoverTextWeight || p.$textWeight || 500};
     font-family: ${(p) => p.$hoverFontFamily || p.$fontFamily || "sans-serif"};
     font-style: ${(p) => p.$hoverFontStyle || p.$fontStyle || "normal"};
@@ -240,7 +248,6 @@ const StyledMenu = styled(Menu) <
   .ant-menu-item-selected {
     color: ${(p) => p.$activeColor};
     background-color: ${(p) => p.$activeBg || p.$bg || "transparent"};
-    border: ${(p) => p.$activeBorder ? `1px solid ${p.$activeBorder}` : (p.$border ? `1px solid ${p.$border}` : "1px solid transparent")};
     font-weight: ${(p) => p.$activeTextWeight || p.$textWeight || 500};
     font-family: ${(p) => p.$activeFontFamily || p.$fontFamily || "sans-serif"};
     font-style: ${(p) => p.$activeFontStyle || p.$fontStyle || "normal"};
@@ -508,6 +515,25 @@ const childrenMap = {
     manual: [
       {
         label: trans("menuItem") + " 1",
+        items: [  
+          {
+            label: trans("subMenuItem") + " 1",
+            items: [
+              {
+                label: trans("subMenuItem") + " 1-1",
+              },
+              {
+                label: trans("subMenuItem") + " 1-2",
+              },
+            ],
+          },
+          {
+            label: trans("subMenuItem") + " 2",
+          },
+          {
+            label: trans("subMenuItem") + " 3",
+          }, 
+        ],
       },
     ],
   }),
@@ -530,32 +556,34 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
           return null;
         }
 
-        const label = view?.label;
+        const label = view?.label || trans("untitled");
         const icon = hasIcon(view?.icon) ? view.icon : undefined;
         const active = !!view?.active;
         const onEvent = view?.onEvent;
         const disabled = !!view?.disabled;
         const subItems = isCompItem ? view?.items : [];
 
-        const subMenuItems: Array<{ key: string; label: any; icon?: any; disabled?: boolean }> = [];
         const subMenuSelectedKeys: Array<string> = [];
-
-        if (Array.isArray(subItems)) {
-          subItems.forEach((subItem: any, originalIndex: number) => {
-            if (subItem.children.hidden.getView()) {
-              return;
-            }
-            const key = originalIndex + "";
-            subItem.children.active.getView() && subMenuSelectedKeys.push(key);
-            const subIcon = hasIcon(subItem.children.icon?.getView?.()) ? subItem.children.icon.getView() : undefined;
-            subMenuItems.push({
-              key: key,
-              label: subItem.children.label.getView(),
-              icon: subIcon,
-              disabled: !!subItem.children.disabled.getView(),
-            });
-          });
-        }
+        const buildSubMenuItems = (list: any[], prefix = ""): Array<any> => {
+          if (!Array.isArray(list)) return [];
+          return list
+            .map((subItem: any, originalIndex: number) => {
+              if (subItem.children.hidden.getView()) return null;
+              const key = prefix ? `${prefix}-${originalIndex}` : `${originalIndex}`;
+              subItem.children.active.getView() && subMenuSelectedKeys.push(key);
+              const subIcon = hasIcon(subItem.children.icon?.getView?.()) ? subItem.children.icon.getView() : undefined;
+              const children = buildSubMenuItems(subItem.getView()?.items, key);
+              return {
+                key,
+                label: subItem.children.label.getView() || trans("untitled"),
+                icon: subIcon,
+                disabled: !!subItem.children.disabled.getView(),
+                ...(children.length > 0 ? { children } : {}),
+              };
+            })
+            .filter(Boolean);
+        };
+        const subMenuItems: Array<any> = buildSubMenuItems(subItems);
 
         const item = (
           <Item
@@ -588,6 +616,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             $hoverBorder={props.navItemHoverStyle?.border}
             $activeBorder={props.navItemActiveStyle?.border}
             $radius={props.navItemStyle?.radius}
+            $borderWidth={props.navItemStyle?.borderWidth}
             $disabled={disabled}
             onClick={() => { if (!disabled && onEvent) onEvent("click"); }}
           >
@@ -598,14 +627,21 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
         );
         if (subMenuItems.length > 0) {
           const subMenu = (
-            <ScrollBar style={{ height: "200px", minWidth: "150px" }}>
+            <ScrollBar style={{ height: "200px", minWidth: "200px" }}>
               <StyledMenu
                 onClick={(e) => {
                   if (disabled) return;
-                  const subItem = subItems[Number(e.key)];
-                  const isSubDisabled = !!subItem?.children?.disabled?.getView?.();
+                  const parts = String(e.key).split("-").filter(Boolean);
+                  let currentList: any[] = subItems;
+                  let current: any = null;
+                  for (const part of parts) {
+                    current = currentList?.[Number(part)];
+                    if (!current) return;
+                    currentList = current.getView()?.items || [];
+                  }
+                  const isSubDisabled = !!current?.children?.disabled?.getView?.();
                   if (isSubDisabled) return;
-                  const onSubEvent = subItem?.getView()?.onEvent;
+                  const onSubEvent = current?.getView?.()?.onEvent;
                   onSubEvent && onSubEvent("click");
                 }}
                 selectedKeys={subMenuSelectedKeys}
