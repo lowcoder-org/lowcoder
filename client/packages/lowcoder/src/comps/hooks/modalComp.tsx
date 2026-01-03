@@ -1,7 +1,7 @@
 import { ContainerCompBuilder } from "comps/comps/containerBase/containerCompBuilder";
 import { gridItemCompToGridItems, InnerGrid } from "comps/comps/containerComp/containerView";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import { StringControl } from "comps/controls/codeControl";
+import { StringControl, NumberControl } from "comps/controls/codeControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
@@ -117,7 +117,8 @@ const childrenMap = {
   style: styleControl(ModalStyle),
   maskClosable: withDefault(BoolControl, true),
   showMask: withDefault(BoolControl, true),
-  toggleClose:withDefault(BoolControl,true)
+  toggleClose:withDefault(BoolControl,true),
+  zIndex: withDefault(NumberControl, Layers.modal)
 };
 
 const ModalPropertyView = React.memo((props: {
@@ -155,6 +156,9 @@ const ModalPropertyView = React.memo((props: {
       })}
       {props.children.toggleClose.propertyView({
         label: trans("prop.toggleClose"),
+      })}
+      {props.children.zIndex.propertyView({
+        label: trans("prop.zIndex"),
       })}
     </Section>
     <Section name={sectionNames.interaction}>{props.children.onEvent.getPropertyView()}</Section>
@@ -278,7 +282,7 @@ const ModalView = React.memo((
           onCancel={handleCancel}
           afterClose={handleAfterClose}
           afterOpenChange={handleAfterOpenChange}
-          zIndex={Layers.modal}
+          zIndex={props.zIndex}
           modalRender={modalRender}
           mask={props.showMask}
           className={clsx(`app-${appID}`, props.className)}

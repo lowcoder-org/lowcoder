@@ -1,27 +1,45 @@
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
+import { MultiCompBuilder } from "comps/generators/multi";
 import { UICompBuilder, withDefault } from "comps/generators";
 import { Section, sectionNames } from "lowcoder-design";
 import styled from "styled-components";
 import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
-import { StringControl } from "comps/controls/codeControl";
+import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import { dropdownControl, PositionControl } from "comps/controls/dropdownControl";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
 import { navListComp } from "./navItemComp";
 import { menuPropertyView } from "./components/MenuItemList";
 import { default as DownOutlined } from "@ant-design/icons/DownOutlined";
+import { default as MenuOutlined } from "@ant-design/icons/MenuOutlined";
 import { default as Dropdown } from "antd/es/dropdown";
 import { default as Menu, MenuProps } from "antd/es/menu";
+import Segmented from "antd/es/segmented";
+import { Drawer, ScrollBar } from "lowcoder-design";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { styleControl } from "comps/controls/styleControl";
+import { IconControl } from "comps/controls/iconControl";
+import { controlItem } from "components/control";
+import { PreviewContainerID } from "constants/domLocators";
 import {
   AnimationStyle,
   AnimationStyleType,
   NavigationStyle,
+  HamburgerButtonStyle,
+  DrawerContainerStyle,
+  NavLayoutItemStyle,
+  NavLayoutItemHoverStyle,
+  NavLayoutItemActiveStyle,
 } from "comps/controls/styleControlConstants";
 import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
-import { useContext } from "react";
+import { useContext, useState, useCallback } from "react";
 import { EditorContext } from "comps/editorState";
+import { createNavItemsControl } from "./components/NavItemsControl";
+import { Layers } from "constants/Layers";
+import { CanvasContainerID } from "constants/domLocators";
+import { isNumeric } from "util/stringUtils";
+import { hasIcon } from "comps/utils";
 
 type IProps = {
   $justify: boolean;
@@ -31,6 +49,7 @@ type IProps = {
   $borderRadius: string;
   $borderStyle: string;
   $animationStyle: AnimationStyleType;
+  $orientation: "horizontal" | "vertical";
 };
 
 const Wrapper = styled("div")<
@@ -42,43 +61,107 @@ ${props=>props.$animationStyle}
   box-sizing: border-box;
   border: ${(props) => props.$borderWidth ? `${props.$borderWidth}` : '1px'} ${props=>props.$borderStyle} ${(props) => props.$borderColor};
   background: ${(props) => props.$bgColor};
+  position: relative;
 `;
 
-const NavInner = styled("div") <Pick<IProps, "$justify">>`
+const DEFAULT_SIZE = 378;
+
+function transToPxSize(size: string | number) {
+  return isNumeric(size) ? size + "px" : (size as string);
+}
+
+type MenuItemStyleOptionValue = "normal" | "hover" | "active";
+const menuItemStyleOptions = [
+  { label: "Normal", value: "normal" },
+  { label: "Hover", value: "hover" },
+  { label: "Active", value: "active" },
+] as const;
+
+const NavInner = styled("div") <Pick<IProps, "$justify" | "$orientation">>`
   // margin: 0 -16px;
   height: 100%;
   display: flex;
-  justify-content: ${(props) => (props.$justify ? "space-between" : "left")};
+  flex-direction: ${(props) => (props.$orientation === "vertical" ? "column" : "row")};
+  justify-content: ${(props) => (props.$orientation === "vertical" ? "flex-start" : (props.$justify ? "space-between" : "left"))};
 `;
 
 const Item = styled.div<{
   $active: boolean;
   $activeColor: string;
+  $hoverColor: string;
   $color: string;
   $fontFamily: string;
   $fontStyle: string;
   $textWeight: string;
   $textSize: string;
+  $textDecoration: string;
+  $hoverFontFamily?: string;
+  $hoverFontStyle?: string;
+  $hoverTextWeight?: string;
+  $hoverTextSize?: string;
+  $hoverTextDecoration?: string;
+  $activeFontFamily?: string;
+  $activeFontStyle?: string;
+  $activeTextWeight?: string;
+  $activeTextSize?: string;
+  $activeTextDecoration?: string;
   $margin: string;
   $padding: string;
-  $textTransform:string;
-  $textDecoration:string;
+  $bg?: string;
+  $hoverBg?: string;
+  $activeBg?: string;
+  $border?: string;
+  $hoverBorder?: string;
+  $activeBorder?: string;
+  $borderWidth?: string;
+  $radius?: string;
+  $disabled?: boolean;
 }>`
-  height: 30px;
   line-height: 30px;
-  padding: ${(props) => props.$padding ? props.$padding : '0 16px'};
-  color: ${(props) => (props.$active ? props.$activeColor : props.$color)};
-  font-weight: ${(props) => (props.$textWeight ? props.$textWeight : 500)};
-  font-family:${(props) => (props.$fontFamily ? props.$fontFamily : 'sans-serif')};
-  font-style:${(props) => (props.$fontStyle ? props.$fontStyle : 'normal')};
-  font-size:${(props) => (props.$textSize ? props.$textSize : '14px')};
-  text-transform:${(props) => (props.$textTransform ? props.$textTransform : '')};
-  text-decoration:${(props) => (props.$textDecoration ? props.$textDecoration : '')};
-  margin:${(props) => props.$margin ? props.$margin : '0px'};
+  padding: ${(props) => props.$padding || '0 16px'};
+  color: ${(props) => props.$disabled ? `${props.$color}80` : (props.$active ? props.$activeColor : props.$color)};
+  background-color: ${(props) => (props.$active ? (props.$activeBg || 'transparent') : (props.$bg || 'transparent'))};
+  border: ${(props) => {
+    const width = props.$borderWidth || '1px';
+    if (props.$active) {
+      return props.$activeBorder ? `${width} solid ${props.$activeBorder}` : (props.$border ? `${width} solid ${props.$border}` : `${width} solid transparent`);
+    }
+    return props.$border ? `${width} solid ${props.$border}` : `${width} solid transparent`;
+  }};
+  border-radius: ${(props) => props.$radius || '0px'};
+  font-weight: ${(props) => props.$active 
+    ? (props.$activeTextWeight || props.$textWeight || 500) 
+    : (props.$textWeight || 500)};
+  font-family: ${(props) => props.$active 
+    ? (props.$activeFontFamily || props.$fontFamily || 'sans-serif') 
+    : (props.$fontFamily || 'sans-serif')};
+  font-style: ${(props) => props.$active 
+    ? (props.$activeFontStyle || props.$fontStyle || 'normal') 
+    : (props.$fontStyle || 'normal')};
+  font-size: ${(props) => props.$active 
+    ? (props.$activeTextSize || props.$textSize || '14px') 
+    : (props.$textSize || '14px')};
+  text-decoration: ${(props) => props.$active 
+    ? (props.$activeTextDecoration || props.$textDecoration || 'none') 
+    : (props.$textDecoration || 'none')};
+  margin: ${(props) => props.$margin || '0px'};
   
   &:hover {
-    color: ${(props) => props.$activeColor};
-    cursor: pointer;
+    color: ${(props) => props.$disabled ? (props.$active ? props.$activeColor : props.$color) : (props.$hoverColor || props.$activeColor)};
+    background-color: ${(props) => props.$disabled ? (props.$active ? (props.$activeBg || 'transparent') : (props.$bg || 'transparent')) : (props.$hoverBg || props.$activeBg || props.$bg || 'transparent')};
+    border: ${(props) => {
+      const width = props.$borderWidth || '1px';
+      if (props.$hoverBorder) return `${width} solid ${props.$hoverBorder}`;
+      if (props.$activeBorder) return `${width} solid ${props.$activeBorder}`;
+      if (props.$border) return `${width} solid ${props.$border}`;
+      return `${width} solid transparent`;
+    }};
+    cursor: ${(props) => props.$disabled ? 'not-allowed' : 'pointer'};
+    font-weight: ${(props) => props.$disabled ? undefined : (props.$hoverTextWeight || props.$textWeight || 500)};
+    font-family: ${(props) => props.$disabled ? undefined : (props.$hoverFontFamily || props.$fontFamily || 'sans-serif')};
+    font-style: ${(props) => props.$disabled ? undefined : (props.$hoverFontStyle || props.$fontStyle || 'normal')};
+    font-size: ${(props) => props.$disabled ? undefined : (props.$hoverTextSize || props.$textSize || '14px')};
+    text-decoration: ${(props) => props.$disabled ? undefined : (props.$hoverTextDecoration || props.$textDecoration || 'none')};
   }
 
   .anticon {
@@ -97,17 +180,156 @@ const LogoWrapper = styled.div`
   }
 `;
 
-const ItemList = styled.div<{ $align: string }>`
+const ItemList = styled.div<{ $align: string, $orientation?: string }>`
   flex: 1;
   display: flex;
-  flex-direction: row;
+  flex-direction: ${(props) => (props.$orientation === "vertical" ? "column" : "row")};
   justify-content: ${(props) => props.$align};
 `;
 
-const StyledMenu = styled(Menu) <MenuProps>`
-  &.ant-dropdown-menu {
-    min-width: 160px;
+const StyledMenu = styled(Menu) <
+  MenuProps & {
+    $color: string;
+    $hoverColor: string;
+    $activeColor: string;
+    $bg?: string;
+    $hoverBg?: string;
+    $activeBg?: string;
+    $border?: string;
+    $hoverBorder?: string;
+    $activeBorder?: string;
+    $radius?: string;
+    $fontFamily?: string;
+    $fontStyle?: string;
+    $textWeight?: string;
+    $textSize?: string;
+    $textDecoration?: string;
+    $hoverFontFamily?: string;
+    $hoverFontStyle?: string;
+    $hoverTextWeight?: string;
+    $hoverTextSize?: string;
+    $hoverTextDecoration?: string;
+    $activeFontFamily?: string;
+    $activeFontStyle?: string;
+    $activeTextWeight?: string;
+    $activeTextSize?: string;
+    $activeTextDecoration?: string;
+    $padding?: string;
+    $margin?: string;
   }
+>`
+  /* Base submenu item styles */
+  .ant-dropdown-menu-item {
+    color: ${(p) => p.$color};
+    background-color: ${(p) => p.$bg || "transparent"};
+    border-radius: ${(p) => p.$radius || "0px"};
+    font-weight: ${(p) => p.$textWeight || 500};
+    font-family: ${(p) => p.$fontFamily || "sans-serif"};
+    font-style: ${(p) => p.$fontStyle || "normal"};
+    font-size: ${(p) => p.$textSize || "14px"};
+    text-decoration: ${(p) => p.$textDecoration || "none"};
+    padding: ${(p) => p.$padding || "0 16px"};
+    margin: ${(p) => p.$margin || "0px"};
+    line-height: 30px;
+  }
+  /* Hover state */
+  .ant-dropdown-menu-item:hover {
+    color: ${(p) => p.$hoverColor || p.$color};
+    background-color: ${(p) => p.$hoverBg || p.$bg || "transparent"} !important;
+    font-weight: ${(p) => p.$hoverTextWeight || p.$textWeight || 500};
+    font-family: ${(p) => p.$hoverFontFamily || p.$fontFamily || "sans-serif"};
+    font-style: ${(p) => p.$hoverFontStyle || p.$fontStyle || "normal"};
+    font-size: ${(p) => p.$hoverTextSize || p.$textSize || "14px"};
+    text-decoration: ${(p) => p.$hoverTextDecoration || p.$textDecoration || "none"};
+    cursor: pointer;
+  }
+  /* Selected/active state */
+  .ant-dropdown-menu-item-selected,
+  .ant-menu-item-selected {
+    color: ${(p) => p.$activeColor};
+    background-color: ${(p) => p.$activeBg || p.$bg || "transparent"};
+    font-weight: ${(p) => p.$activeTextWeight || p.$textWeight || 500};
+    font-family: ${(p) => p.$activeFontFamily || p.$fontFamily || "sans-serif"};
+    font-style: ${(p) => p.$activeFontStyle || p.$fontStyle || "normal"};
+    font-size: ${(p) => p.$activeTextSize || p.$textSize || "14px"};
+    text-decoration: ${(p) => p.$activeTextDecoration || p.$textDecoration || "none"};
+  }
+  /* Disabled state */
+  .ant-dropdown-menu-item-disabled,
+  .ant-menu-item-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const FloatingHamburgerButton = styled.button<{
+  $size: string;
+  $position: string; // left | right
+  $zIndex: number;
+  $background?: string;
+  $borderColor?: string;
+  $radius?: string;
+  $margin?: string;
+  $padding?: string;
+  $borderWidth?: string;
+  $iconColor?: string;
+}>`
+  position: fixed;
+  top: 16px;
+  ${(props) => (props.$position === 'right' ? 'right: 16px;' : 'left: 16px;')}
+  width: ${(props) => props.$size};
+  height: ${(props) => props.$size};
+  border-radius: ${(props) => props.$radius || '50%'};
+  border: ${(props) => props.$borderWidth || '1px'} solid ${(props) => props.$borderColor || 'rgba(0,0,0,0.1)'};
+  background: ${(props) => props.$background || 'white'};
+  margin: ${(props) => props.$margin || '0px'};
+  padding: ${(props) => props.$padding || '0px'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: ${(props) => props.$zIndex};
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  color: ${(props) => props.$iconColor || 'inherit'};
+`;
+
+const DrawerContent = styled.div<{
+  $background: string;
+  $padding?: string;
+  $borderColor?: string;
+  $borderWidth?: string;
+  $margin?: string;
+}>`
+  background: ${(p) => p.$background};
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: ${(p) => p.$padding || '12px'};
+  margin: ${(p) => p.$margin || '0px'};
+  box-sizing: border-box;
+  border: ${(p) => p.$borderWidth || '1px'} solid ${(p) => p.$borderColor || 'transparent'};
+`;
+
+const DrawerHeader = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+`;
+
+const DrawerCloseButton = styled.button<{
+  $color: string;
+}>`
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: ${(p) => p.$color};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
 `;
 
 const logoEventHandlers = [clickEvent];
@@ -131,76 +353,337 @@ function fixOldStyleData(oldData: any) {
   return oldData;
 }
 
+function fixOldItemsData(oldData: any) {
+  if (Array.isArray(oldData)) {
+    return {
+      optionType: "manual",
+      manual: oldData,
+    };
+  }
+  if (oldData && !oldData.optionType && Array.isArray(oldData.manual)) {
+    return {
+      optionType: "manual",
+      manual: oldData.manual,
+    };
+  }
+  return oldData;
+}
+
+// Property View Helpers
+function renderBasicSection(children: any) {
+  return (
+    <Section name={sectionNames.basic}>
+      {children.items.propertyView()}
+    </Section>
+  );
+}
+
+function renderInteractionSection(children: any) {
+  return (
+    <Section name={sectionNames.interaction}>
+      {hiddenPropertyView(children)}
+      {showDataLoadingIndicatorsPropertyView(children)}
+    </Section>
+  );
+}
+
+function renderLayoutSection(children: any) {
+  const isHamburger = children.displayMode.getView() === 'hamburger';
+  const common = [
+    children.displayMode.propertyView({ label: "Display Mode", radioButton: true }),
+  ];
+  const hamburger = [
+    ...common,
+    children.hamburgerPosition.propertyView({ label: "Hamburger Position", radioButton: true }),
+    children.hamburgerSize.propertyView({ label: "Hamburger Size" }),
+    children.placement.propertyView({ label: trans("drawer.placement"), radioButton: true }),
+    ...(["top", "bottom"].includes(children.placement.getView())
+      ? [children.drawerHeight.propertyView({
+          label: trans("drawer.height"),
+          tooltip: trans("drawer.heightTooltip"),
+          placeholder: DEFAULT_SIZE + "",
+        })]
+      : [children.drawerWidth.propertyView({
+          label: trans("drawer.width"),
+          tooltip: trans("drawer.widthTooltip"),
+          placeholder: DEFAULT_SIZE + "",
+        })]),
+    children.hamburgerIcon.propertyView({ label: "Menu Icon" }),
+    children.drawerCloseIcon.propertyView({ label: "Close Icon" }),
+    children.shadowOverlay.propertyView({ label: "Shadow Overlay" }),
+  ];
+  const bar = [
+    ...common,
+    children.orientation.propertyView({ label: "Orientation", radioButton: true }),
+    children.horizontalAlignment.propertyView({
+      label: trans("navigation.horizontalAlignment"),
+      radioButton: true,
+    }),
+  ];
+
+  return (
+    <Section name={sectionNames.layout}>
+      {isHamburger ? hamburger : bar}
+    </Section>
+  );
+}
+
+function renderAdvancedSection(children: any) {
+  return (
+    <Section name={sectionNames.advanced}>
+      {children.logoUrl.propertyView({ label: trans("navigation.logoURL"), tooltip: trans("navigation.logoURLDesc") })}
+      {children.logoUrl.getView() && children.logoEvent.propertyView({ inline: true })}
+    </Section>
+  );
+}
+
+function renderStyleSections(
+  children: any,
+  styleSegment: MenuItemStyleOptionValue,
+  setStyleSegment: (k: MenuItemStyleOptionValue) => void
+) {
+  const isHamburger = children.displayMode.getView() === 'hamburger';
+  return (
+    <>
+      {!isHamburger && (
+        <Section name={sectionNames.style}>
+          {children.style.getPropertyView()}
+        </Section>
+      )}
+      <Section name={trans("navLayout.navItemStyle")}>
+        {controlItem({}, (
+          <Segmented
+            block
+            options={menuItemStyleOptions as any}
+            value={styleSegment}
+            onChange={(k) => setStyleSegment(k as MenuItemStyleOptionValue)}
+          />
+        ))}
+        {styleSegment === "normal" && children.navItemStyle.getPropertyView()}
+        {styleSegment === "hover" && children.navItemHoverStyle.getPropertyView()}
+        {styleSegment === "active" && children.navItemActiveStyle.getPropertyView()}
+      </Section>
+      {isHamburger && (
+        <>
+          <Section name={"Hamburger Button Style"}>
+            {children.hamburgerButtonStyle.getPropertyView()}
+          </Section>
+          <Section name={"Drawer Container Style"}>
+            {children.drawerContainerStyle.getPropertyView()}
+          </Section>
+        </>
+      )}
+      <Section name={sectionNames.animationStyle} hasTooltip={true}>
+        {children.animationStyle.getPropertyView()}
+      </Section>
+    </>
+  );
+}
+
 const childrenMap = {
   logoUrl: StringControl,
   logoEvent: withDefault(eventHandlerControl(logoEventHandlers), [{ name: "click" }]),
+  orientation: dropdownControl([
+    { label: "Horizontal", value: "horizontal" },
+    { label: "Vertical", value: "vertical" },
+  ], "horizontal"),
+  displayMode: dropdownControl([
+    { label: "Bar", value: "bar" },
+    { label: "Hamburger", value: "hamburger" },
+  ], "bar"),
+  hamburgerPosition: dropdownControl([
+    { label: "Left", value: "left" },
+    { label: "Right", value: "right" },
+  ], "right"),
+  hamburgerSize: withDefault(StringControl, "56px"),
+  placement: PositionControl,
+  drawerWidth: StringControl,
+  drawerHeight: StringControl,
+  hamburgerIcon: withDefault(IconControl, ""),
+  drawerCloseIcon: withDefault(IconControl, ""),
+  shadowOverlay: withDefault(BoolCodeControl, true),
   horizontalAlignment: alignWithJustifyControl(),
   style: migrateOldData(styleControl(NavigationStyle, 'style'), fixOldStyleData),
+  navItemStyle: styleControl(NavLayoutItemStyle, 'navItemStyle'),
+  navItemHoverStyle: styleControl(NavLayoutItemHoverStyle, 'navItemHoverStyle'),
+  navItemActiveStyle: styleControl(NavLayoutItemActiveStyle, 'navItemActiveStyle'),
+  hamburgerButtonStyle: styleControl(HamburgerButtonStyle, 'hamburgerButtonStyle'),
+  drawerContainerStyle: styleControl(DrawerContainerStyle, 'drawerContainerStyle'),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
-  items: withDefault(navListComp(), [
-    {
-      label: trans("menuItem") + " 1",
-    },
-  ]),
+  items: withDefault(migrateOldData(createNavItemsControl(), fixOldItemsData), {
+    optionType: "manual",
+    manual: [
+      {
+        label: trans("menuItem") + " 1",
+        items: [  
+          {
+            label: trans("subMenuItem") + " 1",
+            items: [
+              {
+                label: trans("subMenuItem") + " 1-1",
+              },
+              {
+                label: trans("subMenuItem") + " 1-2",
+              },
+            ],
+          },
+          {
+            label: trans("subMenuItem") + " 2",
+          },
+          {
+            label: trans("subMenuItem") + " 3",
+          }, 
+        ],
+      },
+    ],
+  }),
 };
 
 const NavCompBase = new UICompBuilder(childrenMap, (props) => {
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const getContainer = useCallback(() =>
+    document.querySelector(`#${CanvasContainerID}`) || document.querySelector(`#${PreviewContainerID}`) || document.body,
+    []
+  );
   const data = props.items;
   const items = (
     <>
-      {data.map((menuItem, idx) => {
-        const { hidden, label, items, active, onEvent } = menuItem.getView();
+      {data.map((menuItem: any, idx: number) => {
+        const isCompItem = typeof menuItem?.getView === "function";
+        const view = isCompItem ? menuItem.getView() : menuItem;
+        const hidden = !!view?.hidden;
         if (hidden) {
           return null;
         }
-        const subMenuItems: Array<{ key: string; label: string }> = [];
+
+        const label = view?.label || trans("untitled");
+        const icon = hasIcon(view?.icon) ? view.icon : undefined;
+        const active = !!view?.active;
+        const onEvent = view?.onEvent;
+        const disabled = !!view?.disabled;
+        const subItems = isCompItem ? view?.items : [];
+
         const subMenuSelectedKeys: Array<string> = [];
-        items.forEach((subItem, originalIndex) => {
-          if (subItem.children.hidden.getView()) {
-            return;
-          }
-          const key = originalIndex + "";
-          subItem.children.active.getView() && subMenuSelectedKeys.push(key);
-          subMenuItems.push({
-            key: key,
-            label: subItem.children.label.getView(),
-          });
-        });
+        const buildSubMenuItems = (list: any[], prefix = ""): Array<any> => {
+          if (!Array.isArray(list)) return [];
+          return list
+            .map((subItem: any, originalIndex: number) => {
+              if (subItem.children.hidden.getView()) return null;
+              const key = prefix ? `${prefix}-${originalIndex}` : `${originalIndex}`;
+              subItem.children.active.getView() && subMenuSelectedKeys.push(key);
+              const subIcon = hasIcon(subItem.children.icon?.getView?.()) ? subItem.children.icon.getView() : undefined;
+              const children = buildSubMenuItems(subItem.getView()?.items, key);
+              return {
+                key,
+                label: subItem.children.label.getView() || trans("untitled"),
+                icon: subIcon,
+                disabled: !!subItem.children.disabled.getView(),
+                ...(children.length > 0 ? { children } : {}),
+              };
+            })
+            .filter(Boolean);
+        };
+        const subMenuItems: Array<any> = buildSubMenuItems(subItems);
+
         const item = (
           <Item
             key={idx}
             $active={active || subMenuSelectedKeys.length > 0}
-            $color={props.style.text}
-            $activeColor={props.style.accent}
-            $fontFamily={props.style.fontFamily}
-            $fontStyle={props.style.fontStyle}
-            $textWeight={props.style.textWeight}
-            $textSize={props.style.textSize}
-            $padding={props.style.padding}
-            $textTransform={props.style.textTransform}
-            $textDecoration={props.style.textDecoration}
-            $margin={props.style.margin}
-            onClick={() => onEvent("click")}
+            $color={props.navItemStyle?.text || props.style.accent}
+            $hoverColor={props.navItemHoverStyle?.text || props.navItemStyle?.text || props.style.accent}
+            $activeColor={props.navItemActiveStyle?.text || props.navItemStyle?.text || props.style.accent}
+            $fontFamily={props.navItemStyle?.fontFamily || 'sans-serif'}
+            $fontStyle={props.navItemStyle?.fontStyle || 'normal'}
+            $textWeight={props.navItemStyle?.textWeight || '500'}
+            $textSize={props.navItemStyle?.textSize || '14px'}
+            $textDecoration={props.navItemStyle?.textDecoration || 'none'}
+            $hoverFontFamily={props.navItemHoverStyle?.fontFamily}
+            $hoverFontStyle={props.navItemHoverStyle?.fontStyle}
+            $hoverTextWeight={props.navItemHoverStyle?.textWeight}
+            $hoverTextSize={props.navItemHoverStyle?.textSize}
+            $hoverTextDecoration={props.navItemHoverStyle?.textDecoration}
+            $activeFontFamily={props.navItemActiveStyle?.fontFamily}
+            $activeFontStyle={props.navItemActiveStyle?.fontStyle}
+            $activeTextWeight={props.navItemActiveStyle?.textWeight}
+            $activeTextSize={props.navItemActiveStyle?.textSize}
+            $activeTextDecoration={props.navItemActiveStyle?.textDecoration}
+            $padding={props.navItemStyle?.padding || '0 16px'}
+            $margin={props.navItemStyle?.margin || '0px'}
+            $bg={props.navItemStyle?.background}
+            $hoverBg={props.navItemHoverStyle?.background}
+            $activeBg={props.navItemActiveStyle?.background}
+            $border={props.navItemStyle?.border}
+            $hoverBorder={props.navItemHoverStyle?.border}
+            $activeBorder={props.navItemActiveStyle?.border}
+            $radius={props.navItemStyle?.radius}
+            $borderWidth={props.navItemStyle?.borderWidth}
+            $disabled={disabled}
+            onClick={() => { if (!disabled && onEvent) onEvent("click"); }}
           >
+            {icon && <span style={{ display: 'inline-flex', marginRight: '8px' }}>{icon}</span>}
             {label}
-            {items.length > 0 && <DownOutlined />}
+            {Array.isArray(subItems) && subItems.length > 0 && <DownOutlined />}
           </Item>
         );
         if (subMenuItems.length > 0) {
           const subMenu = (
-            <StyledMenu
-              onClick={(e) => {
-                const { onEvent: onSubEvent } = items[Number(e.key)]?.getView();
-                onSubEvent("click");
-              }}
-              selectedKeys={subMenuSelectedKeys}
-              items={subMenuItems}
-            />
+            <ScrollBar style={{ height: "200px", minWidth: "200px" }}>
+              <StyledMenu
+                onClick={(e) => {
+                  if (disabled) return;
+                  const parts = String(e.key).split("-").filter(Boolean);
+                  let currentList: any[] = subItems;
+                  let current: any = null;
+                  for (const part of parts) {
+                    current = currentList?.[Number(part)];
+                    if (!current) return;
+                    currentList = current.getView()?.items || [];
+                  }
+                  const isSubDisabled = !!current?.children?.disabled?.getView?.();
+                  if (isSubDisabled) return;
+                  const onSubEvent = current?.getView?.()?.onEvent;
+                  onSubEvent && onSubEvent("click");
+                }}
+                selectedKeys={subMenuSelectedKeys}
+                items={subMenuItems.map(item => ({
+                  ...item,
+                  icon: item.icon || undefined,
+                }))}
+                $color={props.navItemStyle?.text || props.style.accent}
+                $hoverColor={props.navItemHoverStyle?.text || props.navItemStyle?.text || props.style.accent}
+                $activeColor={props.navItemActiveStyle?.text || props.navItemStyle?.text || props.style.accent}
+                $bg={props.navItemStyle?.background}
+                $hoverBg={props.navItemHoverStyle?.background}
+                $activeBg={props.navItemActiveStyle?.background}
+                $border={props.navItemStyle?.border}
+                $hoverBorder={props.navItemHoverStyle?.border}
+                $activeBorder={props.navItemActiveStyle?.border}
+                $radius={props.navItemStyle?.radius}
+                $fontFamily={props.navItemStyle?.fontFamily || 'sans-serif'}
+                $fontStyle={props.navItemStyle?.fontStyle || 'normal'}
+                $textWeight={props.navItemStyle?.textWeight || '500'}
+                $textSize={props.navItemStyle?.textSize || '14px'}
+                $textDecoration={props.navItemStyle?.textDecoration || 'none'}
+                $hoverFontFamily={props.navItemHoverStyle?.fontFamily}
+                $hoverFontStyle={props.navItemHoverStyle?.fontStyle}
+                $hoverTextWeight={props.navItemHoverStyle?.textWeight}
+                $hoverTextSize={props.navItemHoverStyle?.textSize}
+                $hoverTextDecoration={props.navItemHoverStyle?.textDecoration}
+                $activeFontFamily={props.navItemActiveStyle?.fontFamily}
+                $activeFontStyle={props.navItemActiveStyle?.fontStyle}
+                $activeTextWeight={props.navItemActiveStyle?.textWeight}
+                $activeTextSize={props.navItemActiveStyle?.textSize}
+                $activeTextDecoration={props.navItemActiveStyle?.textDecoration}
+                $padding={props.navItemStyle?.padding || '0 16px'}
+                $margin={props.navItemStyle?.margin || '0px'}
+              />
+            </ScrollBar>
           );
           return (
             <Dropdown
               key={idx}
               popupRender={() => subMenu}
+              disabled={disabled}
             >
               {item}
             </Dropdown>
@@ -212,6 +695,8 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
   );
 
   const justify = props.horizontalAlignment === "justify";
+  const isVertical = props.orientation === "vertical";
+  const isHamburger = props.displayMode === "hamburger";
 
   return (
     <Wrapper
@@ -222,59 +707,85 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
       $borderWidth={props.style.borderWidth}
       $borderRadius={props.style.radius}
     >
-      <NavInner $justify={justify}>
-        {props.logoUrl && (
-          <LogoWrapper onClick={() => props.logoEvent("click")}>
-            <img src={props.logoUrl} alt="LOGO" />
-          </LogoWrapper>
-        )}
-        {!justify ? <ItemList $align={props.horizontalAlignment}>{items}</ItemList> : items}
-      </NavInner>
+      {!isHamburger && (
+        <NavInner $justify={justify} $orientation={isVertical ? "vertical" : "horizontal"}>
+          {props.logoUrl && (
+            <LogoWrapper onClick={() => props.logoEvent("click")}>
+              <img src={props.logoUrl} alt="LOGO" />
+            </LogoWrapper>
+          )}
+          {!justify ? <ItemList $align={props.horizontalAlignment} $orientation={isVertical ? "vertical" : "horizontal"}>{items}</ItemList> : items}
+        </NavInner>
+      )}
+      {isHamburger && (
+        <>
+          <FloatingHamburgerButton
+            $size={props.hamburgerSize || "56px"}
+            $position={props.hamburgerPosition || "right"}
+            $zIndex={Layers.tabBar + 1}
+            $background={props.hamburgerButtonStyle?.background}
+            $borderColor={props.hamburgerButtonStyle?.border}
+            $radius={props.hamburgerButtonStyle?.radius}
+            $margin={props.hamburgerButtonStyle?.margin}
+            $padding={props.hamburgerButtonStyle?.padding}
+            $borderWidth={props.hamburgerButtonStyle?.borderWidth}
+            $iconColor={props.hamburgerButtonStyle?.iconFill}
+            onClick={() => setDrawerVisible(true)}
+          >
+            {hasIcon(props.hamburgerIcon) ? props.hamburgerIcon : <MenuOutlined />}
+          </FloatingHamburgerButton>
+          <Drawer
+            placement={props.placement || "right"}
+            onClose={() => setDrawerVisible(false)}
+            open={drawerVisible}
+            mask={props.shadowOverlay}
+            maskClosable={true}
+            closable={false}
+            getContainer={getContainer}
+            width={["left", "right"].includes(props.placement as any) ? transToPxSize(props.drawerWidth || DEFAULT_SIZE) : undefined as any}
+            height={["top", "bottom"].includes(props.placement as any) ? transToPxSize(props.drawerHeight || DEFAULT_SIZE) : undefined as any}
+            styles={{ body: { padding: 0 } }}
+            destroyOnClose
+          >
+            <DrawerContent 
+              $background={props.drawerContainerStyle?.background || '#FFFFFF'}
+              $padding={props.drawerContainerStyle?.padding}
+              $borderColor={props.drawerContainerStyle?.border}
+              $borderWidth={props.drawerContainerStyle?.borderWidth}
+              $margin={props.drawerContainerStyle?.margin}
+            >
+              <DrawerHeader>
+                <DrawerCloseButton
+                  aria-label="Close"
+                  $color={props.navItemStyle?.text || '#333333'}
+                  onClick={() => setDrawerVisible(false)}
+                >
+                  {hasIcon(props.drawerCloseIcon)
+                    ? props.drawerCloseIcon
+                    : <span style={{ fontSize: 20 }}>×</span>}
+                </DrawerCloseButton>
+              </DrawerHeader>
+              <ItemList $align={"flex-start"} $orientation={"vertical"}>{items}</ItemList>
+            </DrawerContent>
+          </Drawer>
+        </>
+      )}
     </Wrapper>
   );
 })
   .setPropertyViewFn((children) => {
+    const mode = useContext(EditorContext).editorModeStatus;
+    const showLogic = mode === "logic" || mode === "both";
+    const showLayout = mode === "layout" || mode === "both";
+    const [styleSegment, setStyleSegment] = useState<MenuItemStyleOptionValue>("normal");
+
     return (
       <>
-        <Section name={sectionNames.basic}>
-          {menuPropertyView(children.items)}
-        </Section>
-
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-          <Section name={sectionNames.interaction}>
-            {hiddenPropertyView(children)}
-            {showDataLoadingIndicatorsPropertyView(children)}
-          </Section>
-        )}
-
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <Section name={sectionNames.layout}>
-            {children.horizontalAlignment.propertyView({
-              label: trans("navigation.horizontalAlignment"),
-              radioButton: true,
-            })}
-            {hiddenPropertyView(children)}
-          </Section>
-        )}
-
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-          <Section name={sectionNames.advanced}>
-            {children.logoUrl.propertyView({ label: trans("navigation.logoURL"), tooltip: trans("navigation.logoURLDesc") })}
-            {children.logoUrl.getView() && children.logoEvent.propertyView({ inline: true })}
-          </Section>
-        )}
-
-        {(useContext(EditorContext).editorModeStatus === "layout" ||
-          useContext(EditorContext).editorModeStatus === "both") && (
-          <>
-            <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
-            </Section>
-            <Section name={sectionNames.animationStyle} hasTooltip={true}>
-              {children.animationStyle.getPropertyView()}
-            </Section>
-          </>
-        )}
+        {renderBasicSection(children)}
+        {showLogic && renderInteractionSection(children)}
+        {showLayout && renderLayoutSection(children)}
+        {showLogic && renderAdvancedSection(children)}
+        {showLayout && renderStyleSections(children, styleSegment, setStyleSegment)}
       </>
     );
   })

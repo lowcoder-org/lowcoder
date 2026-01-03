@@ -344,7 +344,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
 
 
                     return applicationFlux
-                            .flatMap(application -> Mono.zip(Mono.just(application), userMapMono, orgMapMono))
+                            .flatMap(application -> Mono.zip(Mono.justOrEmpty(application), userMapMono, orgMapMono))
                             .flatMap(tuple2 -> {
                                 // build view
                                 Application application = tuple2.getT1();
@@ -356,24 +356,33 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                         .applicationType(application.getApplicationType())
                                         .applicationStatus(application.getApplicationStatus())
                                         .orgId(application.getOrganizationId())
-                                        .orgName(orgMap.get(application.getOrganizationId()).getName())
+                                        .orgName(Optional.ofNullable(orgMap.get(application.getOrganizationId()))
+                                                .map(Organization::getName)
+                                                .orElse(""))
                                         .creatorEmail(Optional.ofNullable(userMap.get(application.getCreatedBy()))
                                                 .map(User::getName)
                                                 .orElse(""))
-                                        .createAt(application.getCreatedAt().toEpochMilli())
+                                        .createAt(Optional.ofNullable(application.getCreatedAt())
+                                                .map(Instant::toEpochMilli)
+                                                .orElse(0L))
                                         .createBy(application.getCreatedBy())
                                         .build();
 
                                 // marketplace specific fields
                                 return application.getPublishedApplicationDSL(applicationRecordService)
-                                        .map(pubishedApplicationDSL ->
-                                                (Map<String, Object>) new HashMap<String, Object>((Map<String, Object>) pubishedApplicationDSL.getOrDefault("settings", new HashMap<>())))
-                                        .switchIfEmpty(Mono.just(new HashMap<>()))
+                                        .map(dsl -> {
+                                            Object settingsObj = dsl.getOrDefault("settings", new HashMap<>());
+                                            if (!(settingsObj instanceof Map)) {
+                                                return new HashMap<String, Object>(); // fallback if not a map
+                                            }
+                                            return (Map<String, Object>) settingsObj;
+                                        })
+                                        .defaultIfEmpty(new HashMap<>())
                                         .map(settings -> {
-                                            marketplaceApplicationInfoView.setTitle((String)settings.getOrDefault("title", application.getName()));
-                                            marketplaceApplicationInfoView.setCategory((String)settings.get("category"));
-                                            marketplaceApplicationInfoView.setDescription((String)settings.get("description"));
-                                            marketplaceApplicationInfoView.setImage((String)settings.get("icon"));
+                                            marketplaceApplicationInfoView.setTitle((String) settings.getOrDefault("title", application.getName()));
+                                            marketplaceApplicationInfoView.setCategory((String) settings.get("category"));
+                                            marketplaceApplicationInfoView.setDescription((String) settings.get("description"));
+                                            marketplaceApplicationInfoView.setImage((String) settings.get("icon"));
                                             return marketplaceApplicationInfoView;
                                         });
                             });

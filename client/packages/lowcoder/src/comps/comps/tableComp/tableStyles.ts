@@ -36,9 +36,6 @@ export const getStyle = (
       // selected row
       > tr:nth-of-type(2n + 1).ant-table-row-selected {
         background: ${selectedRowBackground || rowStyle.background} !important;
-        > td.ant-table-cell {
-          background: transparent !important;
-        }
 
         // > td.ant-table-cell-row-hover,
         &:hover {
@@ -48,9 +45,6 @@ export const getStyle = (
 
       > tr:nth-of-type(2n).ant-table-row-selected {
         background: ${selectedRowBackground || alternateBackground} !important;
-        > td.ant-table-cell {
-          background: transparent !important;
-        }
 
         // > td.ant-table-cell-row-hover,
         &:hover {
@@ -122,7 +116,13 @@ export const BackgroundWrapper = styled.div<{
 `;
 
 // TODO: find a way to limit the calc function for max-height only to first Margin value
-export const TableWrapper = styled.div<{
+export const TableWrapper = styled.div.attrs<{
+  className?: string;
+  "data-testid"?: string;
+}>((props) => ({
+  className: props.className,
+  "data-testid": props["data-testid"],
+}))<{
   $style: TableStyleType;
   $headerStyle: TableHeaderStyleType;
   $toolbarStyle: TableToolbarStyleType;
@@ -132,9 +132,11 @@ export const TableWrapper = styled.div<{
   $fixedToolbar: boolean;
   $visibleResizables: boolean;
   $showHRowGridBorder?: boolean;
+  $showRowGridBorder?: boolean;
   $isVirtual?: boolean;
   $showHorizontalScrollbar?: boolean;
   $showVerticalScrollbar?: boolean;
+  $tableSize?: "small" | "middle" | "large";
 }>`
   .ant-table-wrapper {
     border-top: unset;
@@ -201,7 +203,12 @@ export const TableWrapper = styled.div<{
             border-color: ${(props) => props.$headerStyle.border};
             border-width: ${(props) => props.$headerStyle.borderWidth};
             color: ${(props) => props.$headerStyle.headerText};
+            padding: 0 !important; /* Override Ant Design's default padding */
             // border-inline-end: ${(props) => `${props.$headerStyle.borderWidth} solid ${props.$headerStyle.border}`} !important;
+            ${(props) => props.$showRowGridBorder
+              ? `border-inline-end: ${props.$headerStyle.borderWidth} solid ${props.$headerStyle.border} !important;`
+              : `border-inline-end: none !important;`
+            }
 
             /* Proper styling for fixed header cells */
             &.ant-table-cell-fix-left, &.ant-table-cell-fix-right {
@@ -217,6 +224,9 @@ export const TableWrapper = styled.div<{
 
             > div {
               margin: ${(props) => props.$headerStyle.margin};
+              /* Default padding for middle size (Ant Design default) */
+              padding: 8px 8px;
+              min-height: 24px;
 
               &, .ant-table-column-title > div {
                 font-size: ${(props) => props.$headerStyle.textSize};
@@ -225,6 +235,20 @@ export const TableWrapper = styled.div<{
                 font-style: ${(props) => props.$headerStyle.fontStyle};
                 color:${(props) => props.$headerStyle.headerText}
               }
+
+              /* Adjust header size based on table size */
+              ${(props) => props.$tableSize === 'small' && `
+                padding: 1px 8px;
+                min-height: 14px;
+              `}
+              ${(props) => props.$tableSize === 'middle' && `
+                padding: 8px 8px;
+                min-height: 24px;
+              `}
+              ${(props) => props.$tableSize === 'large' && `
+                padding: 16px 16px;
+                min-height: 48px;
+              `}
             }
 
             &:last-child {
@@ -263,18 +287,20 @@ export const TableWrapper = styled.div<{
             transition: background-color 0.3s;
           }
 
+          /* Ensure sorted column cells respect theme/row background instead of AntD default */
+          &.ant-table-column-sort {
+            background: transparent;
+          }
+          &.ant-table-cell-fix-left.ant-table-column-sort,
+          &.ant-table-cell-fix-right.ant-table-column-sort {
+            background: transparent;
+          }
+
         }
 
         /* Fix for selected and hovered rows */
-        tr.ant-table-row-selected td.ant-table-cell-fix-left,
-        tr.ant-table-row-selected td.ant-table-cell-fix-right {
-          background-color: ${(props) => props.$rowStyle?.selectedRowBackground || '#e6f7ff'} !important;
-        }
 
-        tr.ant-table-row:hover td.ant-table-cell-fix-left,
-        tr.ant-table-row:hover td.ant-table-cell-fix-right {
-          background-color: ${(props) => props.$rowStyle?.hoverRowBackground || '#f5f5f5'} !important;
-        }
+        
 
         thead > tr:first-child {
           th:last-child {

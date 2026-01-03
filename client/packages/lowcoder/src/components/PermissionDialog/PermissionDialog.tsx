@@ -2,44 +2,7 @@ import React, { ReactNode, useState } from "react";
 import { PermissionItemsType, PermissionList } from "./PermissionList";
 import StepModal from "../StepModal";
 import { trans } from "../../i18n";
-import { TacoButton } from "components/button";
-import { AddIcon } from "icons";
-import { GreyTextColor } from "constants/style";
 import { Permission, PermissionRole } from "./Permission";
-import styled from "styled-components";
-
-const BottomWrapper = styled.div`
-  margin: 12px 16px 0 16px;
-  display: flex;
-`;
-
-const AddPermissionButton = styled(TacoButton)`
-  &,
-  &:hover,
-  &:focus {
-    border: none;
-    box-shadow: none;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    line-height: 14px;
-    background: #ffffff;
-    transition: unset;
-  }
-
-  svg {
-    margin-right: 4px;
-  }
-
-  &:hover {
-    color: #315efb;
-
-    svg g path {
-      fill: #315efb;
-    }
-  }
-`;
 
 export const PermissionDialog = (props: {
   title: string;
@@ -47,6 +10,7 @@ export const PermissionDialog = (props: {
   visible: boolean;
   onVisibleChange: (visible: boolean) => void;
   viewBodyRender?: (list: ReactNode) => ReactNode;
+  viewFooterRender?: (primaryModelProps: any, props: any) => ReactNode;
   permissionItems: PermissionItemsType;
   supportRoles: { label: string; value: PermissionRole }[];
   addPermission: (
@@ -57,11 +21,22 @@ export const PermissionDialog = (props: {
   ) => void;
   updatePermission: (permissionId: string, role: string) => void;
   deletePermission: (permissionId: string) => void;
+  primaryModelProps?: {};
   contextType?: "application" | "organization";
   organizationId?: string;
 }) => {
-  const { supportRoles, permissionItems, visible, onVisibleChange, addPermission, viewBodyRender, contextType, organizationId } =
-    props;
+  const {
+    supportRoles,
+    permissionItems,
+    visible,
+    onVisibleChange,
+    addPermission,
+    viewBodyRender,
+    viewFooterRender,
+    primaryModelProps,
+    contextType,
+    organizationId,
+  } = props;
   const [activeStepKey, setActiveStepKey] = useState("view");
 
   return (
@@ -87,26 +62,10 @@ export const PermissionDialog = (props: {
             ) : (
               <PermissionList {...props} />
             ),
-          footerRender: (props) => (
-            <BottomWrapper>
-              <AddPermissionButton
-                style={{ height: 28 }}
-                icon={<AddIcon style={{ color: GreyTextColor }} />}
-                onClick={() => {
-                  props.next();
-                }}
-              >
-                {trans("home.addMember")}
-              </AddPermissionButton>
-              <TacoButton
-                buttonType="primary"
-                onClick={() => onVisibleChange(false)}
-                style={{ marginLeft: "auto", width: "76px", height: "28px" }}
-              >
-                {trans("finish") + " "}
-              </TacoButton>
-            </BottomWrapper>
-          ),
+          footerRender: (props) =>
+            viewFooterRender
+              ? viewFooterRender(primaryModelProps, props)
+              : null,
         },
         {
           key: "add",
@@ -123,7 +82,7 @@ export const PermissionDialog = (props: {
               organizationId={organizationId}
             />
           ),
-          footerRender: (props) => null,
+          footerRender: () => null,
         },
       ]}
     />

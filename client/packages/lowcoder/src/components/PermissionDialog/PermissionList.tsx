@@ -165,7 +165,7 @@ export const PermissionList = (props: {
 }) => (
   <>
     <CommonTextLabel style={{ marginBottom: "4px" }}>
-      {trans("home.memberPermissionList")}
+      {`${trans("memberSettings.title")}:`}
     </CommonTextLabel>
     <UserPermissionUl $height={201}>
       {props.permissionItems.map((item, index) => (

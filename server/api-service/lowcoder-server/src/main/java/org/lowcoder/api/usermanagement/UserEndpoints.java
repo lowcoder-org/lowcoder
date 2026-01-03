@@ -39,6 +39,15 @@ public interface UserEndpoints
 	@PostMapping("/new/{orgId}")
 	public Mono<ResponseView<?>> createUserAndAddToOrg(@PathVariable String orgId, @RequestBody CreateUserRequest request);
 
+
+@Operation(
+			tags = TAG_USER_MANAGEMENT,
+			operationId = "createSCIMUserAndAddToOrg",
+			summary = "Create SCIM user and add to the org",
+			description = "Create a new user from Entra/Auth0 through SCIM add to the Organization."
+	)
+	@PostMapping("/newscim/{orgId}")
+	public Mono<ResponseView<?>> createSCIMUserAndAddToOrg(@PathVariable String orgId, @RequestBody CreateUserRequest request);
 	@Operation(
 			tags = TAG_USER_MANAGEMENT,
 		    operationId = "getUserProfile",

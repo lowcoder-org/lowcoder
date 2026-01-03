@@ -242,7 +242,7 @@ public class Application extends HasIdAndAuditing {
             if (ApplicationType.APPLICATION.getValue() == getApplicationType()) {
                 return Mono.empty();
             }
-            return Mono.just(getContainerSizeFromDSL(dsl));
+            return Mono.justOrEmpty(getContainerSizeFromDSL(dsl));
         });
     }
 

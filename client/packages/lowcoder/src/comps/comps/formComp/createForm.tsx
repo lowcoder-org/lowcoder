@@ -28,7 +28,7 @@ import log from "loglevel";
 import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import DataSourceIcon from "components/DataSourceIcon";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
-import { DndContext } from "@dnd-kit/core";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
@@ -599,7 +599,7 @@ const CreateFormBody = (props: { onCreate: CreateHandler }) => {
     setItems(initItems);
   }, [dataSourceTypeConfig, tableStructure, form]);
   
-  const handleDragEnd = useCallback((e: { active: { id: string }; over: { id: string } | null }) => {
+  const handleDragEnd = useCallback((e: DragEndEvent) => {
     if (!e.over) {
       return;
     }

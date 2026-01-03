@@ -9,7 +9,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { ConstructorToComp, MultiCompConstructor } from "lowcoder-core";
 import { ReactComponent as WarnIcon } from "icons/v1/icon-warning-white.svg";
-import { DndContext } from "@dnd-kit/core";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { ActiveTextColor, GreyTextColor } from "constants/style";
 import { trans } from "i18n/design";
@@ -225,12 +225,12 @@ function Option<T extends ConstructorToComp<MultiCompConstructor>>(props: {
     }
     return -1;
   };
-  const handleDragEnd = (e: { active: { id: string }; over: { id: string } | null }) => {
+  const handleDragEnd = (e: DragEndEvent) => {
     if (!e.over) {
       return;
     }
-    const fromIndex = findIndex(e.active.id);
-    const toIndex = findIndex(e.over.id);
+    const fromIndex = findIndex(String(e.active.id));
+    const toIndex = findIndex(String(e.over.id));
     if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) {
       return;
     }

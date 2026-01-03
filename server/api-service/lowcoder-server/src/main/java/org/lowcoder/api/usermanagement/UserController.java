@@ -18,6 +18,7 @@ import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.constant.UserStatusType;
+import org.lowcoder.domain.user.model.AuthUser;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.model.UserDetail;
 import org.lowcoder.domain.user.service.UserService;
@@ -25,6 +26,7 @@ import org.lowcoder.domain.user.service.UserStatusService;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.constants.AuthSourceConstants;
 import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.Part;
@@ -39,6 +41,7 @@ import reactor.core.publisher.Mono;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 import static org.lowcoder.sdk.exception.BizError.INVALID_USER_STATUS;
@@ -66,6 +69,41 @@ public class UserController implements UserEndpoints
                                 AuthSourceConstants.EMAIL, true, null, orgId))
                 .flatMap(authUser -> userService.createNewUserByAuthUser(authUser, false))
                 .delayUntil(user -> orgMemberService.tryAddOrgMember(orgId, user.getId(), MemberRole.MEMBER))
+                .delayUntil(user -> orgApiService.switchCurrentOrganizationTo(user.getId(), orgId))
+                .map(ResponseView::success);
+    }
+
+    @Override
+    public Mono<ResponseView<?>> createSCIMUserAndAddToOrg(@PathVariable String orgId, CreateUserRequest request) {
+        return orgApiService.checkVisitorAdminRole(orgId)
+                .flatMap(__ -> {
+                    // For SCIM provisioning: Create a minimal user without auth connection
+                    // The auth connection will be added on first SSO login via JIT provisioning
+                    // This allows SCIM to pre-provision users while SSO handles authentication
+                    
+                    // Check if user already exists by email
+                    return userService.findByEmailDeep(request.email())
+                            .flatMap(existingUser -> {
+                                // User already exists, just add to org if not already a member
+                                return orgMemberService.tryAddOrgMember(orgId, existingUser.getId(), MemberRole.MEMBER)
+                                        .thenReturn(existingUser);
+                            })
+                            .switchIfEmpty(
+                                    // Create new user without auth connection (placeholder for SSO)
+                                    Mono.defer(() -> {
+                                        User newUser = User.builder()
+                                                .name(request.email())
+                                                .email(request.email())
+                                                .isEnabled(true)
+                                                .build();
+                                        newUser.setConnections(new HashSet<>());
+                                        newUser.setIsNewUser(true);
+                                        
+                                        return userService.saveUser(newUser)
+                                                .delayUntil(user -> orgMemberService.tryAddOrgMember(orgId, user.getId(), MemberRole.MEMBER));
+                                    })
+                            );
+                })
                 .delayUntil(user -> orgApiService.switchCurrentOrganizationTo(user.getId(), orgId))
                 .map(ResponseView::success);
     }

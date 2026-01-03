@@ -22,7 +22,7 @@ import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 import { AnimationStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
-import { DndContext } from "@dnd-kit/core";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { JSONObject } from "@lowcoder-ee/util/jsonTypes";
@@ -354,7 +354,7 @@ export function ListView(props: Props) {
 
   useMergeCompStyles(childrenProps, comp.dispatch);
 
-  const handleDragEnd = (e: { active: { id: string }; over: { id: string } | null }) => {
+  const handleDragEnd = (e: DragEndEvent) => {
     if (!e.over) {
       return;
     }

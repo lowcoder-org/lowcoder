@@ -10,6 +10,7 @@ type CommonColorConfig = {
   readonly name: string;
   readonly label: string;
   readonly platform?: SupportPlatform; // support all if undefined
+  readonly tooltip?: string; // Tooltip text to show on hover
 };
 
 export type SimpleColorConfig = CommonColorConfig & {
@@ -1382,6 +1383,30 @@ export const FloatButtonStyle = [
   BORDER_WIDTH,
 ] as const;
 
+export const HamburgerButtonStyle = [
+  getBackground(),
+  {
+    name: "iconFill",
+    label: trans("style.fill"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  MARGIN,
+  PADDING,
+  BORDER,
+  RADIUS,
+  BORDER_WIDTH,
+] as const;
+
+export const DrawerContainerStyle = [
+  getBackground(),
+  MARGIN,
+  PADDING,
+  BORDER,
+  BORDER_WIDTH,
+] as const;
+
 export const TransferStyle = [
   getStaticBackground(SURFACE_COLOR),
   ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(style=>style.name!=='rotation'),
@@ -1767,14 +1792,44 @@ export const TableToolbarStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: toSelf,
   },
+  // Pagination specific styling
+  {
+    name: "paginationBackground",
+    label: trans("style.paginationBackground"),
+    tooltip: trans("style.paginationBackgroundTooltip"),
+    depName: "background",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  {
+    name: "paginationText",
+    label: trans("style.paginationText"),
+    tooltip: trans("style.paginationTextTooltip"),
+    depName: "paginationBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  {
+    name: "paginationActiveBackground",
+    label: trans("style.paginationActiveBackground"),
+    tooltip: trans("style.paginationActiveBackgroundTooltip"),
+    depName: "paginationBackground",
+    transformer: contrastBackground,
+  },
+  {
+    name: "paginationActiveText",
+    label: trans("style.paginationActiveText"),
+    tooltip: trans("style.paginationActiveTextTooltip"),
+    depName: "paginationActiveBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
 ] as const;
 
 export const TableHeaderStyle = [
   MARGIN,
-  PADDING,
   FONT_FAMILY,
   FONT_STYLE,
-  TEXT,
   // getStaticBackground(SURFACE_COLOR),
   // getBackground("primarySurface"),
   {
@@ -1961,34 +2016,14 @@ export const CircleProgressStyle = [
 ];
 
 export const NavigationStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "text", [
-    {
-      name: "text",
-      label: trans("text"),
-      depName: "background",
-      depType: DEP_TYPE.CONTRAST_TEXT,
-      transformer: contrastText,
-    },
-    ACCENT,
-    getStaticBackground("#FFFFFF00"),
-  ]),
-  // {
-  //   name: "text",
-  //   label: trans("text"),
-  //   depName: "background",
-  //   depType: DEP_TYPE.CONTRAST_TEXT,
-  //   transformer: contrastText,
-  // },
-  // ACCENT,
-  // getStaticBackground("#FFFFFF00"),
-  // getStaticBorder("#FFFFFF00"),
-  // MARGIN,
-  // PADDING,
-  // FONT_FAMILY,
-  // FONT_STYLE,
-  // TEXT_WEIGHT,
-  // TEXT_SIZE,
-  // BORDER_WIDTH
+  getStaticBackground("#FFFFFF00"),
+  getStaticBorder("#FFFFFF00"),
+  BORDER_STYLE,
+  BORDER_WIDTH,
+  RADIUS,
+  MARGIN,
+  PADDING,
+  ACCENT,
 ] as const;
 
 export const ImageStyle = [
@@ -2327,6 +2362,7 @@ export const NavLayoutItemStyle = [
   getBackground("primarySurface"),
   getStaticBorder("transparent"),
   RADIUS,
+  BORDER_WIDTH,
   {
     name: "text",
     label: trans("text"),
@@ -2334,6 +2370,11 @@ export const NavLayoutItemStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
+  FONT_STYLE,
+  TEXT_DECORATION,
   MARGIN,
   PADDING,
 ] as const;
@@ -2348,6 +2389,11 @@ export const NavLayoutItemHoverStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
+  FONT_STYLE,
+  TEXT_DECORATION,
 ] as const;
 
 export const NavLayoutItemActiveStyle = [
@@ -2360,7 +2406,13 @@ export const NavLayoutItemActiveStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
+  FONT_STYLE,
+  TEXT_DECORATION,
 ] as const;
+
 
 export const CarouselStyle = [getBackground("canvas")] as const;
 
@@ -2370,6 +2422,18 @@ export const RichTextEditorStyle = [
   RADIUS,
   BORDER_WIDTH,
 ] as const;
+
+export const TableColumnButtonStyle = [
+  getBackground('primary'),
+  {
+    name: "text",
+    label: trans("style.text"),
+    color: "#000000",
+  },
+  PADDING,  
+  BORDER,
+] as const;
+
 
 export type QRCodeStyleType = StyleConfigType<typeof QRCodeStyle>;
 export type TimeLineStyleType = StyleConfigType<typeof TimeLineStyle>;
@@ -2437,6 +2501,7 @@ export type TableColumnStyleType = StyleConfigType<typeof TableColumnStyle>;
 export type TableColumnLinkStyleType = StyleConfigType<
   typeof TableColumnLinkStyle
 >;
+export type TableColumnButtonStyleType = StyleConfigType<typeof TableColumnButtonStyle>;
 export type TableSummaryRowStyleType = StyleConfigType<typeof TableSummaryRowStyle>;
 export type FileStyleType = StyleConfigType<typeof FileStyle>;
 export type FileViewerStyleType = StyleConfigType<typeof FileViewerStyle>;

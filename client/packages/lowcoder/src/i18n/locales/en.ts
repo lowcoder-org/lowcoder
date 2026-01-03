@@ -26,11 +26,15 @@ export const en = {
   "text": "Text",
   "basic": "Basic",
   "label": "Label",
+  "hidden": "Hidden",
+  "disabled": "Disabled",
   "layout": "Layout",
   "color": "Color",
   "form": "Form",
   "menu": "Menu",
   "menuItem": "Menu Item",
+  "subMenuItem": "Sub Menu",
+  "untitled": "Untitled",
   "ok": "OK",
   "cancel": "Cancel",
   "finish": "Finish",
@@ -237,7 +241,8 @@ export const en = {
     "timeZone": "TimeZone",
     "pickerMode": "Picker Mode",
     "customTags": "Allow Custom Tags",
-    "customTagsTooltip": "Allow users to enter custom tags that are not in the options list."
+    "customTagsTooltip": "Allow users to enter custom tags that are not in the options list.",
+    "zIndex": "z-Index"
   },
   "autoHeightProp": {
     "auto": "Auto",
@@ -666,7 +671,15 @@ export const en = {
     "headerBackgroundImageOriginTip": "Specifies the positioning area of the header's background image. Example: padding-box, border-box, content-box.",
     "footerBackgroundImageOriginTip": "Specifies the positioning area of the footer's background image. Example: padding-box, border-box, content-box.",
     "rotationTip": "Specifies the rotation angle of the element. Example: 45deg, 90deg, -180deg.",
-    "lineHeightTip": "Sets the height of a line of text. Example: 1.5, 2, 120%."
+    "lineHeightTip": "Sets the height of a line of text. Example: 1.5, 2, 120%.",
+    "paginationBackground": "Pagination Background",
+    "paginationBackgroundTooltip": "Background color for pagination controls",
+    "paginationText": "Pagination Text",
+    "paginationTextTooltip": "Text color for pagination numbers and controls",
+    "paginationActiveBackground": "Pagination Active Background",
+    "paginationActiveBackgroundTooltip": "Background color for the active/selected page number",
+    "paginationActiveText": "Pagination Active Text",
+    "paginationActiveTextTooltip": "Text color for the active/selected page number",
   },
   "export": {
     "hiddenDesc": "If true, the component is hidden",
@@ -2363,7 +2376,9 @@ export const en = {
     "openDrawerDesc": "Open Drawer",
     "closeDrawerDesc": "Close Drawer",
     "width": "Drawer Width",
-    "height": "Drawer Height"
+    "height": "Drawer Height",
+    "closeIcon": "Close Icon",
+
   },
   "meeting": {
     "logLevel": "Agora SDK Log Level",
@@ -3204,7 +3219,7 @@ export const en = {
     "logoURL": "Navigation Logo URL",
     "horizontalAlignment": "Horizontal Alignment",
     "logoURLDesc": "You can display a Logo on the left side by entering URI Value or Base64 String like data:image/png;base64,AAA... CCC",
-    "itemsDesc": "Hierarchical Navigation Menu Items"
+    "itemsDesc": "Menu Items"
   },
   "droppadbleMenuItem": {
     "subMenu": "Submenu {number}"
@@ -4035,6 +4050,7 @@ export const en = {
     "fileUploadError": "File upload error",
     "fileFormatError": "File format error",
     "groupWithSquareBrackets": "[Group] ",
+    "managePermissions": "Manage permissions",
     "allPermissions": "Owner",
     "appSharingDialogueTitle" : "App Sharing and Permissions",
     "appSocialSharing" : "Share Your App and Experience on:",
@@ -4045,6 +4061,8 @@ export const en = {
     "appPublicMessage": "Make the app public. Anyone can view.",
     "modulePublicMessage": "Make the module public. Anyone can view.",
     "marketplaceURL": "https://api-service.lowcoder.cloud",
+    "appMemberMessage": "All shared members can view this app.",
+    "moduleMemberMessage": "All shared members can view this module.",
     "appMarketplaceMessage": "Publish your App on the Public Marketplace. Anyone can view and copy it from there.",
     "moduleMarketplaceMessage": "Publish your Module on the Public Marketplace. Anyone can view and copy it from there.",
     "marketplaceGoodPublishing": "Please make sure your app is well-named and easy to use. Remove any sensitive information before publishing. Also, remove local datasources and replace by static built-in temporary data.",
@@ -4067,6 +4085,8 @@ export const en = {
     "createNavigation": "Create Navigation",
     "howToUseAPI": "How to use the Open Rest API",
     "support": "Support",
+    "versions": "Versions",
+    "publishVersionDescription": "By publishing, your users will see the current state of your app. Further editing will not be visible until you publish again",
   },
   
   "support" : {

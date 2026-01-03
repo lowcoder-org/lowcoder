@@ -12,6 +12,7 @@ import {
   fetchApplicationPermissions,
   updateAppPermission,
   updateAppPermissionInfo,
+  publishApplication,
 } from "../../redux/reduxActions/applicationActions";
 import { PermissionItemsType } from "./PermissionList";
 import { trans } from "../../i18n";
@@ -29,19 +30,62 @@ import { StyledLoading } from "./commonComponents";
 import { PermissionRole } from "./Permission";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { default as Divider } from "antd/es/divider";
-import { SocialShareButtons } from "components/SocialShareButtons";
+import { default as Form } from "antd/es/form";
+import { Typography } from "antd";
+import StepModal from "../StepModal";
+import { AddIcon } from "icons";
+import { GreyTextColor } from "constants/style";
+import { VersionDataForm } from "@lowcoder-ee/pages/common/versionDataForm";
 
-export const AppPermissionDialog = React.memo((props: {
-  applicationId: string;
-  visible: boolean;
-  onVisibleChange: (visible: boolean) => void;
-}) => {
-  const { applicationId } = props;
-  const dispatch = useDispatch();
-  const appPermissionInfo = useSelector(getAppPermissionInfo);
+const BottomWrapper = styled.div`
+  margin: 12px 16px 0 16px;
+  display: flex;
+  justify-content: space-between;
+`;
 
-  const { appType } = useContext(ExternalEditorContext);
-  const isModule = appType === AppTypeEnum.Module;
+const AddPermissionButton = styled(TacoButton)`
+  &,
+  &:hover,
+  &:focus {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    line-height: 14px;
+    background: #ffffff;
+    transition: unset;
+  }
+
+  svg {
+    margin-right: 4px;
+  }
+
+  &:hover {
+    color: #315efb;
+
+    svg g path {
+      fill: #315efb;
+    }
+  }
+`;
+
+export const AppPermissionDialog = React.memo(
+  (props: {
+    applicationId: string;
+    visible: boolean;
+    onVisibleChange: (visible: boolean) => void;
+    publishedVersion?: string | undefined;
+  }) => {
+    const [form] = Form.useForm();
+    const { appType } = useContext(ExternalEditorContext);
+    const isModule = appType === AppTypeEnum.Module;
+    const { applicationId, publishedVersion } = props;
+
+    const dispatch = useDispatch();
+    const appPermissionInfo = useSelector(getAppPermissionInfo);
+    const [activeStepKey, setActiveStepKey] = useState("permission");
 
   useEffect(() => {
     dispatch(fetchApplicationPermissions({ applicationId: applicationId }));
@@ -80,76 +124,169 @@ export const AppPermissionDialog = React.memo((props: {
     }
   }
 
-  return (
-    <PermissionDialog
-      {...props}
-      title={trans("home.appSharingDialogueTitle")}
-      ownerLabel={trans("home.allPermissions")}
-      viewBodyRender={(list) => {
-        if (!appPermissionInfo) {
-          return <StyledLoading size={18} />;
-        }
-        return (
-          <>
-            <AppShareView
-              isModule={isModule}
-              applicationId={applicationId}
-              permissionInfo={appPermissionInfo!}
-            />
-            <Divider/>
-            {list}
-          </>
-        );
-      }}
-      supportRoles={[
-        { label: trans("share.viewer"), value: PermissionRole.Viewer },
-        {
-          label: trans("share.editor"),
-          value: PermissionRole.Editor,
-        },
-        {
-          label: trans("share.owner"),
-          value: PermissionRole.Owner,
-        },
-      ]}
-      permissionItems={permissions}
-      addPermission={(userIds, groupIds, role, onSuccess) =>
-        ApplicationApi.grantAppPermission({
-          applicationId: applicationId,
-          userIds: userIds,
-          groupIds: groupIds,
-          role: role as any,
-        })
-          .then((resp) => {
-            if (validateResponse(resp)) {
-              dispatch(fetchApplicationPermissions({ applicationId: applicationId }));
-              onSuccess();
-            }
-          })
-          .catch((e) => {
-            messageInstance.error(trans("home.addPermissionErrorMessage", { message: e.message }));
-          })
-      }
-      updatePermission={(permissionId, role) =>
-        dispatch(
-          updateAppPermission({
-            applicationId: applicationId,
-            role: role as ApplicationRoleType,
-            permissionId: permissionId,
-          })
-        )
-      }
-      deletePermission={(permissionId) =>
-        dispatch(
-          deleteAppPermission({
-            applicationId: applicationId,
-            permissionId: permissionId,
-          })
-        )
-      }
-    />
-  );
-});
+    return (
+      <StepModal
+        open={props.visible}
+        destroyOnClose
+        onCancel={() => {
+          setActiveStepKey("permission");
+          props.onVisibleChange(false);
+        }}
+        showOkButton={true}
+        showBackLink={true}
+        showCancelButton={true}
+        width="440px"
+        onStepChange={setActiveStepKey}
+        activeStepKey={activeStepKey}
+        steps={[
+          {
+            key: "permission",
+            titleRender: () => null,
+            bodyRender: (modalProps) => (
+              <PermissionDialog
+                {...props}
+                title={trans("home.managePermissions")}
+                ownerLabel={trans("home.allPermissions")}
+                viewBodyRender={(list) => {
+                  if (!appPermissionInfo) {
+                    return <StyledLoading size={18} />;
+                  }
+                  return <>{list}</>;
+                }}
+                supportRoles={[
+                  {
+                    label: trans("share.viewer"),
+                    value: PermissionRole.Viewer,
+                  },
+                  {
+                    label: trans("share.editor"),
+                    value: PermissionRole.Editor,
+                  },
+                  {
+                    label: trans("share.owner"),
+                    value: PermissionRole.Owner,
+                  },
+                ]}
+                permissionItems={permissions}
+                addPermission={(userIds, groupIds, role, onSuccess) =>
+                  ApplicationApi.grantAppPermission({
+                    applicationId: applicationId,
+                    userIds: userIds,
+                    groupIds: groupIds,
+                    role: role as any,
+                  })
+                    .then((resp) => {
+                      if (validateResponse(resp)) {
+                        dispatch(
+                          fetchApplicationPermissions({
+                            applicationId: applicationId,
+                          })
+                        );
+                        onSuccess();
+                      }
+                    })
+                    .catch((e) => {
+                      messageInstance.error(
+                        trans("home.addPermissionErrorMessage", {
+                          message: e.message,
+                        })
+                      );
+                    })
+                }
+                updatePermission={(permissionId, role) =>
+                  dispatch(
+                    updateAppPermission({
+                      applicationId: applicationId,
+                      role: role as ApplicationRoleType,
+                      permissionId: permissionId,
+                    })
+                  )
+                }
+                deletePermission={(permissionId) =>
+                  dispatch(
+                    deleteAppPermission({
+                      applicationId: applicationId,
+                      permissionId: permissionId,
+                    })
+                  )
+                }
+                viewFooterRender={(primaryModelProps, props) => (
+                  <BottomWrapper>
+                    <AddPermissionButton
+                      style={{ height: 28 }}
+                      icon={<AddIcon style={{ color: GreyTextColor }} />}
+                      onClick={() => {
+                        props.next();
+                      }}
+                    >
+                      {trans("home.addMember")}
+                    </AddPermissionButton>
+
+                    <TacoButton
+                      buttonType="primary"
+                      style={{ height: 28 }}
+                      onClick={() => {
+                        primaryModelProps.next();
+                      }}
+                    >
+                      {trans("event.next") + " "}
+                    </TacoButton>
+                  </BottomWrapper>
+                )}
+                primaryModelProps={modalProps}
+              />
+            ),
+            footerRender: () => null,
+          },
+          {
+            key: "versions",
+            titleRender: () => trans("home.versions"),
+            bodyRender: () => (
+              <AppShareView
+                isModule={isModule}
+                applicationId={applicationId}
+                permissionInfo={appPermissionInfo!}
+                form={form}
+                publishedVersion={publishedVersion}
+              />
+            ),
+            footerRender: (modalProps) => (
+              <BottomWrapper>
+                <TacoButton
+                  buttonType="normal"
+                  style={{ height: 28 }}
+                  onClick={() => {
+                    modalProps.back();
+                  }}
+                >
+                  {trans("back")}
+                </TacoButton>
+                <TacoButton
+                  buttonType="primary"
+                  style={{ height: 28 }}
+                  onClick={() => {
+                    form.validateFields().then(() => {
+                      dispatch(
+                        publishApplication({
+                          applicationId: applicationId,
+                          request: form.getFieldsValue(),
+                        })
+                      );
+                      modalProps.back();
+                      props.onVisibleChange(false);
+                    });
+                  }}
+                >
+                  {trans("queryLibrary.publish")}
+                </TacoButton>
+              </BottomWrapper>
+            ),
+          },
+        ]}
+      />
+    );
+  }
+);
 
 const InviteInputBtn = styled.div`
   display: flex;
@@ -196,8 +333,16 @@ function AppShareView(props: {
   applicationId: string;
   permissionInfo: AppPermissionInfo;
   isModule: boolean;
+  form: any;
+  publishedVersion?: string;
 }) {
-  const { applicationId, permissionInfo, isModule } = props;
+  const {
+    applicationId,
+    permissionInfo,
+    isModule,
+    form,
+    publishedVersion,
+  } = props;
   const [isPublic, setPublic] = useState(permissionInfo.publicToAll);
   const [isPublicToMarketplace, setPublicToMarketplace] = useState(permissionInfo.publicToMarketplace);
   const dispatch = useDispatch();
@@ -207,11 +352,20 @@ function AppShareView(props: {
   useEffect(() => {
     setPublicToMarketplace(permissionInfo.publicToMarketplace);
   }, [permissionInfo.publicToMarketplace]);
-  const inviteLink = window.location.origin + APPLICATION_VIEW_URL(props.applicationId, "view");
 
   return (
     <div style={{ marginBottom: "22px" }}>
-      
+      <PermissionSwitchWrapper>
+        <TacoSwitch
+          checked={true}
+          disabled={true}
+          label={
+            isModule
+              ? trans("home.appMemberMessage")
+              : trans("home.moduleMemberMessage")
+          }
+        />
+      </PermissionSwitchWrapper>
       <PermissionSwitchWrapper>
         <TacoSwitch
           checked={isPublic}
@@ -229,7 +383,7 @@ function AppShareView(props: {
           label={isModule ? trans("home.modulePublicMessage") : trans("home.appPublicMessage")}
         />
       </PermissionSwitchWrapper>
-      {isPublic &&
+      {isPublic && (
         <PermissionSwitchWrapper>
           <TacoSwitch
             checked={isPublicToMarketplace}
@@ -243,26 +397,34 @@ function AppShareView(props: {
                 .catch((e) => {
                   messageInstance.error(e.message);
                 });
-            } }
-            label={isModule ? trans("home.moduleMarketplaceMessage") : trans("home.appMarketplaceMessage")} />
-        </PermissionSwitchWrapper> }
-        { isPublicToMarketplace && <><div style={{ margin: "10px 22px 22px 22px" }}>
-          {trans("home.marketplaceGoodPublishing")}
-        </div><Divider/></>}
+            }}
+            label={
+              isModule
+                ? trans("home.moduleMarketplaceMessage")
+                : trans("home.appMarketplaceMessage")
+            }
+          />
+        </PermissionSwitchWrapper>
+      )}
+      {isPublicToMarketplace && isPublic && (
+        <div style={{ marginTop: "16px" }}>
+          <Typography.Text type="secondary">
+            {trans("home.marketplaceGoodPublishing")}
+          </Typography.Text>
+          <Divider />
+        </div>
+      )}
 
-        {isPublic && <AppInviteView appId={applicationId} />}
+      {isPublic && <AppInviteView appId={applicationId} />}
+      <Divider />
 
-        {isPublic && 
-          <>
-            <Divider />
-            <SocialShareButtons
-              url={inviteLink}
-              text={trans("home.appSocialSharingMessage")}
-            />
-          </>
-        }
+      <VersionDataForm form={form} preserve={false} latestVersion={publishedVersion} />
 
-        
+      <div>
+        <Typography.Text type="secondary">
+          {trans("home.publishVersionDescription")}
+        </Typography.Text>
+      </div>
     </div>
   );
 }

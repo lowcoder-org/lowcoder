@@ -34,6 +34,8 @@ export const TableCompView = React.memo((props: {
 	const headerStyle = compChildren.headerStyle.getView();
 	const toolbarStyle = compChildren.toolbarStyle.getView();
 	const showHRowGridBorder = compChildren.showHRowGridBorder.getView();
+	const className = compChildren.className.getView();
+	const dataTestId = compChildren.dataTestId.getView();
 	const columns = useMemo(() => compChildren.columns.getView(), [compChildren.columns]);
 	const columnViews = useMemo(() => columns.map((c) => c.getView()), [columns]);
 	const data = comp.filterData;
@@ -185,6 +187,8 @@ export const TableCompView = React.memo((props: {
 			showHorizontalScrollbar={compChildren.showHorizontalScrollbar.getView()}
 			virtual={virtualization.enabled}
 			containerRef={containerRef}
+			className={className}
+			dataTestId={dataTestId}
 		  >
 			<EmptyContent text={trans("table.emptyColumns")} />
 		  </TableContainer>
@@ -206,6 +210,8 @@ export const TableCompView = React.memo((props: {
 			  showVerticalScrollbar={compChildren.showVerticalScrollbar.getView()}
 			  showHorizontalScrollbar={compChildren.showHorizontalScrollbar.getView()}
 			  virtual={virtualization.enabled}
+			  className={className}
+			  dataTestId={dataTestId}
 			>
 			
 				<TableRenderer<any>

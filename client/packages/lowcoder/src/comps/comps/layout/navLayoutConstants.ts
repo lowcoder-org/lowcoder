@@ -6,6 +6,60 @@ export const ModeOptions = [
   { label: trans("navLayout.modeHorizontal"), value: "horizontal" },
 ] as const;
 
+// Desktop navigation position
+export const NavPosition = {
+  Top: "top",
+  Left: "left",
+  Bottom: "bottom",
+  Right: "right",
+} as const;
+
+export const NavPositionOptions = [
+  { label: "Top", value: NavPosition.Top },
+  { label: "Left", value: NavPosition.Left },
+  { label: "Bottom", value: NavPosition.Bottom },
+  { label: "Right", value: NavPosition.Right },
+] as const;
+
+// Mobile navigation specific modes and options
+export const MobileMode = {
+  Vertical: "vertical",
+  Hamburger: "hamburger",
+} as const;
+
+export const MobileModeOptions = [
+  { label: "Normal", value: MobileMode.Vertical },
+  { label: "Hamburger", value: MobileMode.Hamburger },
+];
+
+export const HamburgerPosition = {
+  BottomRight: "bottom-right",
+  BottomLeft: "bottom-left",
+  TopRight: "top-right",
+  TopLeft: "top-left",
+} as const;
+
+export const HamburgerPositionOptions = [
+  { label: "Bottom Right", value: HamburgerPosition.BottomRight },
+  { label: "Bottom Left", value: HamburgerPosition.BottomLeft },
+  { label: "Top Right", value: HamburgerPosition.TopRight },
+  { label: "Top Left", value: HamburgerPosition.TopLeft },
+] as const;
+
+export const DrawerPlacement = {
+  Bottom: "bottom",
+  Top: "top",
+  Left: "left",
+  Right: "right",
+} as const;
+
+export const DrawerPlacementOptions = [
+  { label: "Bottom", value: DrawerPlacement.Bottom },
+  { label: "Top", value: DrawerPlacement.Top },
+  { label: "Left", value: DrawerPlacement.Left },
+  { label: "Right", value: DrawerPlacement.Right },
+];
+
 export const DataOption = {
   Manual: 'manual',
   Json: 'json',

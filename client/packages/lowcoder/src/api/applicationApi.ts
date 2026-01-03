@@ -70,6 +70,11 @@ export interface ApplicationResp extends ApiResponse {
   data: ApplicationDetail;
 }
 
+export interface ApplicationPublishRequest {
+  commitMessage?: string;
+  tag: string;
+}
+
 interface GrantAppPermissionReq {
   applicationId: string;
   role: ApplicationRoleType;
@@ -171,8 +176,13 @@ class ApplicationApi extends Api {
     return Api.put(ApplicationApi.updateApplicationURL(applicationId), rest);
   }
 
-  static publishApplication(request: PublishApplicationPayload): AxiosPromise<ApiResponse> {
-    return Api.post(ApplicationApi.publishApplicationURL(request.applicationId));
+  static publishApplication(
+    request: PublishApplicationPayload
+  ): AxiosPromise<ApiResponse> {
+    return Api.post(
+      ApplicationApi.publishApplicationURL(request.applicationId),
+      request?.request
+    );
   }
 
   static getApplicationDetail(request: FetchAppInfoPayload): AxiosPromise<ApplicationResp> {

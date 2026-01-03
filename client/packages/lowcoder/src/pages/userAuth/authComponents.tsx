@@ -10,12 +10,182 @@ import { favicon } from "assets/images";
 import { Col, Row, Typography } from "antd";
 import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
 import { useSelector } from "react-redux";
-import { buildMaterialPreviewURL } from "@lowcoder-ee/util/materialUtils";
 import { isEmpty } from "lodash";
 
-const StyledBrandingColumn = styled(Col)<{$bgImage?: string | null}>`
+// Safe rendering dependencies
+import DOMPurify from "dompurify";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
+type BrandingFormat = "text" | "markdown" | "html";
+
+/**
+ * Prefer an explicit config field (recommended):
+ * brandingSettings?.config_set?.signUpPageTextFormat in {"text","markdown","html"}
+ *
+ * If absent, we fall back to a heuristic.
+ */
+function detectFormat(value: string): BrandingFormat {
+  const v = (value ?? "").trim();
+  if (!v) return "text";
+
+  // Heuristic: if it looks like HTML, treat as HTML
+  if (v.startsWith("<") && v.includes(">")) return "html";
+
+  // Heuristic: if it looks like markdown, treat as markdown
+  // (Keep this light; explicit format is better.)
+  const looksLikeMarkdown =
+    /(^|\n)\s{0,3}#{1,6}\s+/.test(v) || // headings
+    /(\*{1,2}.+\*{1,2})/.test(v) || // emphasis
+    /(\[.+\]\(.+\))/.test(v) || // links
+    /(^|\n)\s{0,3}[-*+]\s+/.test(v) || // lists
+    /(^|\n)\s{0,3}\d+\.\s+/.test(v) || // ordered lists
+    /`{1,3}[^`]+`{1,3}/.test(v); // code
+
+  if (looksLikeMarkdown) return "markdown";
+  return "text";
+}
+
+/**
+ * HTML sanitizer:
+ * - Forbids scripts, iframes, embeds, and <style> tags.
+ * - Forbids inline style and event handler attributes.
+ * - Allows a limited set of safe attributes (href, target, rel, class).
+ *
+ * If you want to be stricter: remove "class" from ALLOWED_ATTR.
+ */
+function sanitizeHtml(html: string) {
+  return DOMPurify.sanitize(html, {
+    USE_PROFILES: { html: true },
+    FORBID_TAGS: ["style", "script", "iframe", "object", "embed"],
+    FORBID_ATTR: [
+      "style",
+      "onerror",
+      "onclick",
+      "onload",
+      "onmouseover",
+      "onmouseenter",
+      "onmouseleave",
+      "onfocus",
+      "onblur",
+    ],
+    ALLOWED_ATTR: ["href", "target", "rel", "class"],
+  });
+}
+
+/**
+ * Rich-text container used for Markdown and sanitized HTML.
+ * Provides a baseline typography + optional safe class hooks.
+ */
+const BrandingRichText = styled.div`
+  font-size: 16px;
+  color: #111;
+  line-height: 1.45;
+
+  padding: 20px;
   background-color: rgb(234, 234, 234);
-  background-image: url(${props => props.$bgImage});
+  border-radius: 10px;
+  text-align: left;
+
+  overflow-wrap: anywhere;
+
+  h1,
+  h2,
+  h3 {
+    margin: 0 0 12px 0;
+    line-height: 1.2;
+  }
+
+  p {
+    margin: 0 0 10px 0;
+  }
+
+  a {
+    color: #4965f2;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+
+  ul,
+  ol {
+    margin: 0 0 10px 20px;
+  }
+
+  li {
+    margin: 0 0 6px 0;
+  }
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+      "Liberation Mono", "Courier New", monospace;
+    font-size: 0.95em;
+  }
+
+  blockquote {
+    margin: 0 0 10px 0;
+    padding-left: 12px;
+    border-left: 3px solid rgba(0, 0, 0, 0.2);
+  }
+
+  /* Optional: allow controlled “custom styling” via classes.
+     Keep this list short and intentional. */
+  .accent {
+    color: #4965f2;
+    font-weight: 600;
+  }
+  .muted {
+    color: #555;
+  }
+  .big {
+    font-size: 20px;
+  }
+  .cta {
+    display: inline-block;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  @media screen and (max-width: 640px) {
+    font-size: 17px;
+    line-height: 1.35;
+  }
+`;
+
+/**
+ * This retains your old "big centered" look for plain text,
+ * but allows Markdown and HTML with controlled styling.
+ */
+export function BrandingTextRenderer(props: {
+  value: string;
+}) {
+  const raw = props.value ?? "";
+  const format = detectFormat(raw);
+
+  if (!raw.trim()) return null;
+
+  if (format === "text") {
+    return <StyledBrandingText>{raw}</StyledBrandingText>;
+  }
+
+  if (format === "markdown") {
+    return (
+      <BrandingRichText>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{raw}</ReactMarkdown>
+      </BrandingRichText>
+    );
+  }
+
+  const safe = sanitizeHtml(raw);
+  return <BrandingRichText dangerouslySetInnerHTML={{ __html: safe }} />;
+}
+
+const StyledBrandingColumn = styled(Col)<{ $bgImage?: string | null }>`
+  background-color: rgb(234, 234, 234);
+  background-image: url(${(props) => props.$bgImage});
   background-size: cover;
   background-repeat: no-repeat;
   padding: 28px 36px;
@@ -31,7 +201,7 @@ const StyledBrandingText = styled(Typography.Title)`
   padding: 20px;
   background-color: rgb(234, 234, 234);
   border-radius: 10px;
-  
+
   text-align: center;
 
   @media screen and (max-width: 640px) {
@@ -47,7 +217,7 @@ const StyledRightColumn = styled(Col)`
   width: 100%;
 `;
 
-const AuthCardContainer = styled.div<{$isEE?: boolean}>`
+const AuthCardContainer = styled.div<{ $isEE?: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -56,37 +226,37 @@ const AuthCardContainer = styled.div<{$isEE?: boolean}>`
   background-size: 100% 100%;
 `;
 
-const AuthCard = styled.div<{$isEE?: boolean}>`
+const AuthCard = styled.div<{ $isEE?: boolean }>`
   display: flex;
   flex-direction: column;
-  width: ${props => props.$isEE ? '850px' : '480px'};
+  width: ${(props) => (props.$isEE ? "850px" : "480px")};
   max-width: 90%;
   background: #ffffff;
   box-shadow: 0 0 20px 20px rgba(246, 248, 250, 0.85);
   border-radius: 16px;
-  padding: ${props => props.$isEE ? '0px' : '28px 36px'};
-  margin-top: ${props => props.$isEE ? '13vh': '40px'};
+  padding: ${(props) => (props.$isEE ? "0px" : "28px 36px")};
+  margin-top: ${(props) => (props.$isEE ? "13vh" : "40px")};
   overflow: hidden;
   @media screen and (max-width: 640px) {
     margin: 32px 18px 18px 18px;
     width: calc(100vw - 36px);
-    padding: ${props => props.$isEE ? '0px' : '32px 24px'};
+    padding: ${(props) => (props.$isEE ? "0px" : "32px 24px")};
   }
 `;
 
-const AuthCardHeading = styled.div<{ $type?: string, $isEE?: boolean }>`
+const AuthCardHeading = styled.div<{ $type?: string; $isEE?: boolean }>`
   font-weight: 600;
   font-size: 28px;
   color: #222222;
   line-height: 28px;
   text-align: center;
-  margin-bottom: ${props => props.$isEE ? '28px': '0'};
-  margin-top: ${props => props.$isEE ? '0': '13vh'};
+  margin-bottom: ${(props) => (props.$isEE ? "28px" : "0")};
+  margin-top: ${(props) => (props.$isEE ? "0" : "13vh")};
   @media screen and (min-height: 700px) {
-    margin-top: ${props => props.$isEE ? '0': '107px'};
+    margin-top: ${(props) => (props.$isEE ? "0" : "107px")};
   }
   @media screen and (max-height: 700px) {
-    margin-top: ${props => props.$isEE ? '0': '47px'};
+    margin-top: ${(props) => (props.$isEE ? "0" : "47px")};
   }
   @media screen and (max-width: 640px) {
     font-size: 23px;
@@ -105,7 +275,7 @@ const AuthCardSubFooter = styled.div`
     color: #dddddd;
     text-decoration: none;
   }
-`
+`;
 
 const AuthBottom = styled.div`
   display: flex;
@@ -179,33 +349,28 @@ const StyledConfirmButton = styled(TacoButton)`
   transition: unset;
 `;
 
-const BrandingWrapper = (props: {
-  isEE?: boolean;
-  children: ReactNode;
-}) => {
+const BrandingWrapper = (props: { isEE?: boolean; children: ReactNode }) => {
   const brandingSettings = useSelector(getBrandingSetting);
+
   const brandingImage = useMemo(() => {
-    const imageUrl = brandingSettings?.config_set?.signUpPageImage || '';
-    // if (Boolean(brandingSettings?.orgId)) {
-    //   return buildMaterialPreviewURL(imageUrl);
-    // }
+    const imageUrl = brandingSettings?.config_set?.signUpPageImage || "";
     return imageUrl;
   }, [brandingSettings?.orgId, brandingSettings?.config_set?.signUpPageImage]);
+
   const brandingText = brandingSettings?.config_set?.signUpPageText;
 
   if (!props.isEE) {
-    return <>{props.children}</>
+    return <>{props.children}</>;
   }
 
   return (
     <>
-      
-      <Row style={{ minHeight: '500px' }}>
+      <Row style={{ minHeight: "500px" }}>
         <StyledBrandingColumn md={12} sm={24} $bgImage={brandingImage}>
-          {brandingText && ( 
-            <StyledBrandingText>
-              {brandingText}
-            </StyledBrandingText>
+          {brandingText && (
+            <BrandingTextRenderer
+              value={brandingText}
+            />
           )}
         </StyledBrandingColumn>
         <StyledRightColumn md={12} sm={24}>
@@ -213,19 +378,19 @@ const BrandingWrapper = (props: {
         </StyledRightColumn>
       </Row>
     </>
-  )
-}
+  );
+};
 
 export const AuthContainer = (props: {
   children: any;
   heading?: string;
   subHeading?: string;
-  type?: string
+  type?: string;
   isEE?: boolean;
   orgId?: string;
 }) => {
   const brandingSettings = useSelector(getBrandingSetting);
-  
+
   const showEEBranding = useMemo(() => {
     return props.isEE && !isEmpty(brandingSettings);
   }, [props.isEE, brandingSettings]);
@@ -233,31 +398,27 @@ export const AuthContainer = (props: {
   return (
     <AuthCardContainer $isEE={showEEBranding}>
       {!showEEBranding && (
-        <AuthCardHeading
-          $type={props.type}
-          $isEE={showEEBranding}
-        >
+        <AuthCardHeading $type={props.type} $isEE={showEEBranding}>
           {props.heading || ""}
         </AuthCardHeading>
       )}
       <AuthCard $isEE={showEEBranding}>
-        <BrandingWrapper
-          isEE={showEEBranding}
-        >
+        <BrandingWrapper isEE={showEEBranding}>
           {showEEBranding && (
-            <AuthCardHeading
-              $type={props.type}
-              $isEE={showEEBranding}
-            >
+            <AuthCardHeading $type={props.type} $isEE={showEEBranding}>
               {props.heading || ""}
             </AuthCardHeading>
           )}
           {props.children}
         </BrandingWrapper>
       </AuthCard>
-      { props.subHeading && !showEEBranding && (
+      {props.subHeading && !showEEBranding && (
         <AuthCardSubFooter>
-          <img src={favicon} alt={"Lowcoder | " + trans("productDesc")} width="20px"/>
+          <img
+            src={favicon}
+            alt={"Lowcoder | " + trans("productDesc")}
+            width="20px"
+          />
           <a href="https://lowcoder.cloud" target="_blank" rel="noreferrer">
             {props.subHeading}
           </a>
@@ -315,7 +476,9 @@ const TermsAndPrivacyLabel = styled.span`
   margin-left: 8px;
 `;
 
-export const TermsAndPrivacyInfo = (props: { onCheckChange: (e: CheckboxChangeEvent) => void }) => {
+export const TermsAndPrivacyInfo = (props: {
+  onCheckChange: (e: CheckboxChangeEvent) => void;
+}) => {
   const termsUrl = trans("docUrls.terms");
   const privacyUrl = trans("docUrls.privacy");
   if (!termsUrl || !privacyUrl) {
@@ -323,9 +486,14 @@ export const TermsAndPrivacyInfo = (props: { onCheckChange: (e: CheckboxChangeEv
   }
   return (
     <TermsAndPrivacyContent>
-      <CheckBox data-testid="agree-terms-checkbox" defaultChecked onChange={(e) => props.onCheckChange(e)} />
+      <CheckBox
+        data-testid="agree-terms-checkbox"
+        defaultChecked
+        onChange={(e) => props.onCheckChange(e)}
+      />
       <TermsAndPrivacyLabel>
-        {trans("userAuth.registerHint")}{`: `}
+        {trans("userAuth.registerHint")}
+        {`: `}
         <StyledLink href={termsUrl} target="_blank">
           {trans("userAuth.terms")}
         </StyledLink>
@@ -482,7 +650,10 @@ const StyledPackUpIcon = styled(PackUpIcon)`
   height: 24px;
 `;
 
-export function AuthNavBack(props: { onBack: () => void; style?: CSSProperties }) {
+export function AuthNavBack(props: {
+  onBack: () => void;
+  style?: CSSProperties;
+}) {
   return (
     <BackNavLink type="button" onClick={props.onBack} style={props.style}>
       <StyledPackUpIcon />
