@@ -1743,14 +1743,15 @@ export const en = {
     "targetTitle": "Target Data",
     "content": "Content {i}",
     "items": "Items",
-    "targetKeys": "Selected Keys",
+    "targetKeys": "Target Keys",
     "oneWay": "One Way",
     "pagination": "Pagination",
     "pageSize": "Page Size",
     "allowSearch": "Allow Search",
     "selectedKeys": "Selected Keys",
     "searchInfo": "Search Info",
-    "targerObject": "Targer Object"
+    "targetObject": "Target Object",
+    "caseSensitive": "Case Sensitive"
   },
 
   "avatarGroup": {
