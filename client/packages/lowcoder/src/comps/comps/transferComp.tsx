@@ -14,7 +14,7 @@ import type { TransferKey } from "antd/es/transfer/interface";
 import { useResizeDetector } from "react-resize-detector";
 import { changeEvent, eventHandlerControl, searchEvent, selectedChangeEvent } from "../controls/eventHandlerControl";
 import styled, { css } from "styled-components";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState, useCallback } from "react";
 import { valueComp, withDefault } from "../generators";
 import type { TransferDirection } from 'antd/es/transfer';
 import React from "react";
@@ -64,11 +64,12 @@ const childrenMap = {
   oneWay: BoolControl,
   pagination: BoolControl,
   showSearch: BoolControl.DEFAULT_TRUE,
+  caseSensitive: BoolControl,
   pageSize: withDefault(NumberControl, 10),
   items: arrayObjectExposingStateControl('items', defaultItems as any),
   targetKeys: arrayStringExposingStateControl('targetKeys', []),
-  selectedKeys: valueComp<any>([[], []]),
-  targerObject: valueComp<any>([]),
+  selectedKeys: arrayStringExposingStateControl('selectedKeys', []),
+  targetObject: arrayObjectExposingStateControl('targetObject', []),
   searchInfo: valueComp<string[]>(['', '']),
 };
 
@@ -80,7 +81,6 @@ const TransferView = React.memo((props: RecordConstructorToView<typeof childrenM
   const conRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
   useEffect(() => {
     if (height && width) {
@@ -90,13 +90,16 @@ const TransferView = React.memo((props: RecordConstructorToView<typeof childrenM
 
   const handleChange = (newTargetKeys: TransferKey[]) => {
     props.targetKeys.onChange(newTargetKeys as string[]);
-    props.dispatch(changeChildAction("targerObject", Array.isArray(props.items.value) ? props.items.value.filter(item => newTargetKeys.includes(item.key as string)) : [], false));
+    const targetObjects = Array.isArray(props.items.value) 
+      ? props.items.value.filter(item => newTargetKeys.includes(item.key as string)) 
+      : [];
+    props.targetObject.onChange(targetObjects);
     props.onEvent('change')
   };
 
   const onSelectChange = (sourceSelectedKeys: TransferKey[], targetSelectedKeys: TransferKey[]) => {
-    setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys] as string[]);
-    props.dispatch(changeChildAction("selectedKeys", [sourceSelectedKeys as string[], targetSelectedKeys as string[]], false));
+    const allSelectedKeys = [...sourceSelectedKeys, ...targetSelectedKeys] as string[];
+    props.selectedKeys.onChange(allSelectedKeys);
     props.onEvent('selectedChange')
   };
 
@@ -104,6 +107,13 @@ const TransferView = React.memo((props: RecordConstructorToView<typeof childrenM
     props.dispatch(changeChildAction("searchInfo", [dir, value], false));
     props.onEvent('search')
   };
+
+  const filterOption = useCallback((inputValue: string, item: RecordType) => {
+    if (props.caseSensitive) {
+      return item.title?.includes(inputValue) ?? false;
+    }
+    return item.title?.toLowerCase().includes(inputValue.toLowerCase()) ?? false;
+  }, [props.caseSensitive]);
 
   const onResize = () => {
     const container = conRef.current;
@@ -130,10 +140,11 @@ const TransferView = React.memo((props: RecordConstructorToView<typeof childrenM
         dataSource={props.items.value as any}
         titles={[props.targetTitle, props.sourceTitle]}
         targetKeys={props.targetKeys.value}
-        selectedKeys={selectedKeys}
+        selectedKeys={props.selectedKeys.value}
         onChange={handleChange}
         onSelectChange={onSelectChange}
         render={(item: RecordType) => item.title}
+        filterOption={filterOption}
         oneWay={props.oneWay}
         onSearch={handleSearch}
         pagination={props.pagination ? {
@@ -153,8 +164,8 @@ const TransferCompPropertyView = React.memo((props: {
         {props.children.items.propertyView({
           label: trans("transfer.items"),
         })}
-        {props.children.targetKeys.propertyView({
-          label: trans("transfer.targetKeys"),
+        {props.children.selectedKeys.propertyView({
+          label: trans("transfer.selectedKeys"),
         })}
         {props.children.sourceTitle.propertyView({
           label: trans("transfer.sourceTitle"),
@@ -164,6 +175,9 @@ const TransferCompPropertyView = React.memo((props: {
         })}
         {props.children.showSearch.propertyView({
           label: trans("transfer.allowSearch"),
+        })}
+        {props.children.showSearch.getView() && props.children.caseSensitive.propertyView({
+          label: trans("transfer.caseSensitive"),
         })}
         {props.children.oneWay.propertyView({
           label: trans("transfer.oneWay"),
@@ -202,7 +216,7 @@ TransferBasicComp = class extends TransferBasicComp {
 export const transferComp = withExposingConfigs(TransferBasicComp, [
   new NameConfig("items", trans("transfer.items")),
   new NameConfig("targetKeys", trans("transfer.targetKeys")),
-  new NameConfig("targerObject", trans("transfer.targerObject")),
+  new NameConfig("targetObject", trans("transfer.targetObject")),
   new NameConfig("selectedKeys", trans("transfer.selectedKeys")),
   new NameConfig("searchInfo", trans("transfer.searchInfo")),
   NameConfigHidden,
