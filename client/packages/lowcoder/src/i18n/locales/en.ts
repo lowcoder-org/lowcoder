@@ -592,6 +592,7 @@ export const en = {
     "siderBackgroundImagePosition": "Sider Background Image Position",
     "siderBackgroundImageOrigin": "Sider Background Image Origin",
     "activeBackground": "Active Background Color",
+    "selectBackground": "Selected Background Color",
     "labelBackground": "Label Background Color",
     "gradientBackground": "Gradient Background Color",
     "direction": "Direction",
