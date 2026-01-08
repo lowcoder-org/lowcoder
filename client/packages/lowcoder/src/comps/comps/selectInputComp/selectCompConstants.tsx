@@ -217,6 +217,12 @@ export const DropdownStyled = styled.div<{ $style: ChildrenMultiSelectStyleType 
     min-width: 14px;
     margin-right: 0;
   }
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    background-color: ${props => props.$style?.selectBackground ? `${props.$style.selectBackground}` : 'transparent'};
+  }
+  .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+    background-color: ${props => props.$style?.activeBackground ? `${props.$style.activeBackground}` : 'transparent'};
+  }
 `;
 
 const Wrapper = styled.span`

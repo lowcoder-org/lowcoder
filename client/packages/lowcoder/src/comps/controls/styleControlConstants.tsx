@@ -1555,7 +1555,21 @@ export const MultiSelectStyle = [
 
 export const ChildrenMultiSelectStyle = [
   ...STYLING_FIELDS_SEQUENCE,
-  getBackground()
+  getBackground(),
+  {
+    name: "activeBackground",
+    label: trans("style.activeBackground"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: handleLightenColor,
+  },
+  {
+    name: "selectBackground",
+    label: trans("style.selectBackground"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  }
 ] as const;
 
 export const TabContainerStyle = [

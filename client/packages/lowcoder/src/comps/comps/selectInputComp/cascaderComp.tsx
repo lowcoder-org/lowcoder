@@ -32,6 +32,9 @@ const DropdownRenderStyle = styled.div<{ $childrenInputFieldStyle: ChildrenMulti
     text-decoration: ${props => props.$childrenInputFieldStyle?.textDecoration};
     color: ${props => props.$childrenInputFieldStyle?.text};
     }
+    .ant-cascader-menu-item-active:not(.ant-cascader-menu-item-disabled) {
+      background-color: ${props => props.$childrenInputFieldStyle?.activeBackground ? `${props.$childrenInputFieldStyle.activeBackground}22` : 'rgb(242, 247, 252)'};
+    }
 `
 
 let CascaderBasicComp = (function () {
