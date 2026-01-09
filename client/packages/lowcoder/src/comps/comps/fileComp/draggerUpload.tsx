@@ -1,7 +1,7 @@
 import { default as AntdUpload } from "antd/es/upload";
 import { default as Button } from "antd/es/button";
 import { UploadFile, UploadChangeParam, UploadFileStatus, RcFile } from "antd/es/upload/interface";
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import styled, { css } from "styled-components";
 import { trans } from "i18n";
 import _ from "lodash";
@@ -162,24 +162,26 @@ interface DraggerUploadProps {
 
 export const DraggerUpload = (props: DraggerUploadProps) => {
   const { dispatch, files, style, autoHeight, animationStyle } = props;
-  const [fileList, setFileList] = useState<UploadFile[]>(
-    files.map((f) => ({ ...f, status: "done" })) as UploadFile[]
-  );
+  // Track only files currently being uploaded (not yet in props.files)
+  const [uploadingFiles, setUploadingFiles] = useState<UploadFile[]>([]);
   const [showModal, setShowModal] = useState(false);
   const isMobile = checkIsMobile(window.innerWidth);
 
-  useEffect(() => {
-    if (files.length === 0 && fileList.length !== 0) {
-      setFileList([]);
-    }
-  }, [files]);
+  // Derive fileList from props.files (source of truth) + currently uploading files
+  const fileList = useMemo<UploadFile[]>(() => [
+    ...(files.map((f) => ({ ...f, status: "done" as const })) as UploadFile[]),
+    ...uploadingFiles,
+  ], [files, uploadingFiles]);
 
   const handleOnChange = (param: UploadChangeParam) => {
-    const uploadingFiles = param.fileList.filter((f) => f.status === "uploading");
-    if (uploadingFiles.length !== 0) {
-      setFileList(param.fileList);
+    const currentlyUploading = param.fileList.filter((f) => f.status === "uploading");
+    if (currentlyUploading.length !== 0) {
+      setUploadingFiles(currentlyUploading);
       return;
     }
+
+    // Clear uploading state when all uploads complete
+    setUploadingFiles([]);
 
     let maxFiles = props.maxFiles;
     if (props.uploadType === "single") {
@@ -240,8 +242,6 @@ export const DraggerUpload = (props: DraggerUploadProps) => {
         props.onEvent("parse");
       });
     }
-
-    setFileList(uploadedFiles.slice(-maxFiles));
   };
 
   return (

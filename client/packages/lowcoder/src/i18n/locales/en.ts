@@ -1934,6 +1934,7 @@ export const en = {
     "filesValueDesc": "The Contents of the Currently Uploaded File Are Base64 Encoded",
     "filesDesc": "List of the Current Uploaded Files. For Details, Refer to",
     "clearValueDesc": "Clear All Files",
+    "clearValueAtDesc": "Clear File at Index",
     "parseFiles": "Parse Files",
     "parsedValueTooltip1": "If parseFiles Is True, Upload Files Will Parse to Object, Array, or String. Parsed Data Can Be Accessed via the parsedValue Array.",
     "parsedValueTooltip2": "Supports Excel, JSON, CSV, and Text Files. Other Formats Will Return Null.",
