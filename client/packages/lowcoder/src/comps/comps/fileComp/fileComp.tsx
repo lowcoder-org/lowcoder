@@ -24,7 +24,7 @@ import {
   RecordConstructorToView,
 } from "lowcoder-core";
 import { UploadRequestOption } from "rc-upload/lib/interface";
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { JSONObject, JSONValue } from "../../../util/jsonTypes";
 import { BoolControl, BoolPureControl } from "../../controls/boolControl";
@@ -265,28 +265,31 @@ const Upload = (
   },
 ) => {
   const { dispatch, files, style } = props;
-  const [fileList, setFileList] = useState<UploadFile[]>(
-    files.map((f) => ({ ...f, status: "done" })) as UploadFile[]
-  );
+  // Track only files currently being uploaded (not yet in props.files)
+  const [uploadingFiles, setUploadingFiles] = useState<UploadFile[]>([]);
   const [showModal, setShowModal] = useState(false);
   const isMobile = checkIsMobile(window.innerWidth);
 
-  useEffect(() => {
-    if (files.length === 0 && fileList.length !== 0) {
-      setFileList([]);
-    }
-  }, [files]);
+  // Derive fileList from props.files (source of truth) + currently uploading files
+  const fileList = useMemo<UploadFile[]>(() => [
+    ...(files.map((f) => ({ ...f, status: "done" as const })) as UploadFile[]),
+    ...uploadingFiles,
+  ], [files, uploadingFiles]);
+
   // chrome86 bug: button children should not contain only empty span
   const hasChildren = hasIcon(props.prefixIcon) || !!props.text || hasIcon(props.suffixIcon);
   
   const handleOnChange = (param: UploadChangeParam) => {
-    const uploadingFiles = param.fileList.filter((f) => f.status === "uploading");
+    const currentlyUploading = param.fileList.filter((f) => f.status === "uploading");
     // the onChange callback will be executed when the state of the antd upload file changes.
     // so make a trick logic: the file list with loading will not be processed
-    if (uploadingFiles.length !== 0) {
-      setFileList(param.fileList);
+    if (currentlyUploading.length !== 0) {
+      setUploadingFiles(currentlyUploading);
       return;
     }
+
+    // Clear uploading state when all uploads complete
+    setUploadingFiles([]);
 
     let maxFiles = props.maxFiles;
     if (props.uploadType === "single") {
@@ -348,8 +351,6 @@ const Upload = (
         props.onEvent("parse");
       });
     }
-
-    setFileList(uploadedFiles.slice(-maxFiles));
   };
 
   return (
@@ -551,6 +552,40 @@ const FileWithMethods = withMethodExposing(FileImplComp, [
           parsedValue: changeValueAction([], false),
         })
       ),
+  },
+  {
+    method: {
+      name: "clearValueAt",
+      description: trans("file.clearValueAtDesc"),
+      params: [{ name: "index", type: "number" }],
+    },
+    execute: (comp, params) => {
+      const index = params[0] as number;
+      const value = comp.children.value.getView();
+      const files = comp.children.files.getView();
+      const parsedValue = comp.children.parsedValue.getView();
+
+      if (index < 0 || index >= files.length) {
+        return;
+      }
+
+      comp.dispatch(
+        multiChangeAction({
+          value: changeValueAction(
+            [...value.slice(0, index), ...value.slice(index + 1)],
+            false
+          ),
+          files: changeValueAction(
+            [...files.slice(0, index), ...files.slice(index + 1)],
+            false
+          ),
+          parsedValue: changeValueAction(
+            [...parsedValue.slice(0, index), ...parsedValue.slice(index + 1)],
+            false
+          ),
+        })
+      );
+    },
   },
 ]);
 
