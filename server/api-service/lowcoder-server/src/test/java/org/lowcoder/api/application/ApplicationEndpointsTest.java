@@ -1,9 +1,28 @@
 package org.lowcoder.api.application;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.lowcoder.api.application.ApplicationEndpoints.*;
-import org.lowcoder.api.application.view.*;
+import org.lowcoder.api.application.ApplicationEndpoints.ApplicationAsAgencyProfileRequest;
+import org.lowcoder.api.application.ApplicationEndpoints.ApplicationPublicToAllRequest;
+import org.lowcoder.api.application.ApplicationEndpoints.ApplicationPublicToMarketplaceRequest;
+import org.lowcoder.api.application.ApplicationEndpoints.BatchAddPermissionRequest;
+import org.lowcoder.api.application.ApplicationEndpoints.CreateApplicationRequest;
+import org.lowcoder.api.application.ApplicationEndpoints.UpdateEditStateRequest;
+import org.lowcoder.api.application.ApplicationEndpoints.UpdatePermissionRequest;
+import org.lowcoder.api.application.view.ApplicationInfoView;
+import org.lowcoder.api.application.view.ApplicationPermissionView;
+import org.lowcoder.api.application.view.ApplicationPublishRequest;
+import org.lowcoder.api.application.view.ApplicationView;
+import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.UserHomeApiService;
 import org.lowcoder.api.home.UserHomepageView;
@@ -15,16 +34,10 @@ import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.mockito.Mockito;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import reactor.core.publisher.Flux;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
 
 class ApplicationEndpointsTest {
 
@@ -1141,7 +1154,7 @@ class ApplicationEndpointsTest {
     void testPublish_withPublishRequest() {
         // Mock the service responses with publish request
         ApplicationView mockApplicationView = createMockApplicationView();
-        ApplicationPublishRequest publishRequest = new ApplicationPublishRequest("test-tag", "1.0.0");
+        ApplicationPublishRequest publishRequest = new ApplicationPublishRequest("test-tag", "1.0.0", null);
         when(applicationRecordService.getLatestRecordByApplicationId(TEST_APPLICATION_ID))
                 .thenReturn(Mono.empty());
         when(applicationApiService.publish(TEST_APPLICATION_ID, publishRequest))
