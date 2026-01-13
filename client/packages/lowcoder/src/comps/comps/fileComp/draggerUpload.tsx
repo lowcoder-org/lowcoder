@@ -1,7 +1,7 @@
 import { default as AntdUpload } from "antd/es/upload";
 import { default as Button } from "antd/es/button";
 import { UploadFile, UploadChangeParam, UploadFileStatus, RcFile } from "antd/es/upload/interface";
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import styled, { css } from "styled-components";
 import { trans } from "i18n";
 import _ from "lodash";
@@ -11,8 +11,7 @@ import {
   multiChangeAction,
 } from "lowcoder-core";
 import { hasIcon } from "comps/utils";
-import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
-import { resolveValue, resolveParsedValue, commonProps } from "./fileComp";
+import { resolveValue, resolveParsedValue, commonProps, validateFile } from "./fileComp";
 import { FileStyleType, AnimationStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { ImageCaptureModal } from "./ImageCaptureModal";
 import { v4 as uuidv4 } from "uuid";
@@ -152,6 +151,7 @@ interface DraggerUploadProps {
   minSize: number;
   maxSize: number;
   maxFiles: number;
+  fileNamePattern: string;
   uploadType: "single" | "multiple" | "directory";
   text: string;
   dragHintText?: string;
@@ -162,24 +162,26 @@ interface DraggerUploadProps {
 
 export const DraggerUpload = (props: DraggerUploadProps) => {
   const { dispatch, files, style, autoHeight, animationStyle } = props;
-  const [fileList, setFileList] = useState<UploadFile[]>(
-    files.map((f) => ({ ...f, status: "done" })) as UploadFile[]
-  );
+  // Track only files currently being uploaded (not yet in props.files)
+  const [uploadingFiles, setUploadingFiles] = useState<UploadFile[]>([]);
   const [showModal, setShowModal] = useState(false);
   const isMobile = checkIsMobile(window.innerWidth);
 
-  useEffect(() => {
-    if (files.length === 0 && fileList.length !== 0) {
-      setFileList([]);
-    }
-  }, [files]);
+  // Derive fileList from props.files (source of truth) + currently uploading files
+  const fileList = useMemo<UploadFile[]>(() => [
+    ...(files.map((f) => ({ ...f, status: "done" as const })) as UploadFile[]),
+    ...uploadingFiles,
+  ], [files, uploadingFiles]);
 
   const handleOnChange = (param: UploadChangeParam) => {
-    const uploadingFiles = param.fileList.filter((f) => f.status === "uploading");
-    if (uploadingFiles.length !== 0) {
-      setFileList(param.fileList);
+    const currentlyUploading = param.fileList.filter((f) => f.status === "uploading");
+    if (currentlyUploading.length !== 0) {
+      setUploadingFiles(currentlyUploading);
       return;
     }
+
+    // Clear uploading state when all uploads complete
+    setUploadingFiles([]);
 
     let maxFiles = props.maxFiles;
     if (props.uploadType === "single") {
@@ -240,8 +242,6 @@ export const DraggerUpload = (props: DraggerUploadProps) => {
         props.onEvent("parse");
       });
     }
-
-    setFileList(uploadedFiles.slice(-maxFiles));
   };
 
   return (
@@ -254,21 +254,11 @@ export const DraggerUpload = (props: DraggerUploadProps) => {
         $auto={autoHeight}
         capture={props.forceCapture}
         openFileDialogOnClick={!(props.forceCapture && !isMobile)}
-        beforeUpload={(file) => {
-          if (!file.size || file.size <= 0) {
-            messageInstance.error(`${file.name} ` + trans("file.fileEmptyErrorMsg"));
-            return AntdUpload.LIST_IGNORE;
-          }
-
-          if (
-            (!!props.minSize && file.size < props.minSize) ||
-            (!!props.maxSize && file.size > props.maxSize)
-          ) {
-            messageInstance.error(`${file.name} ` + trans("file.fileSizeExceedErrorMsg"));
-            return AntdUpload.LIST_IGNORE;
-          }
-          return true;
-        }}
+        beforeUpload={(file) => validateFile(file, {
+          minSize: props.minSize,
+          maxSize: props.maxSize,
+          fileNamePattern: props.fileNamePattern,
+        })}
         onChange={handleOnChange}
       >
           <p className="ant-upload-drag-icon">
