@@ -11,8 +11,7 @@ import {
   multiChangeAction,
 } from "lowcoder-core";
 import { hasIcon } from "comps/utils";
-import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
-import { resolveValue, resolveParsedValue, commonProps } from "./fileComp";
+import { resolveValue, resolveParsedValue, commonProps, validateFile } from "./fileComp";
 import { FileStyleType, AnimationStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { ImageCaptureModal } from "./ImageCaptureModal";
 import { v4 as uuidv4 } from "uuid";
@@ -152,6 +151,7 @@ interface DraggerUploadProps {
   minSize: number;
   maxSize: number;
   maxFiles: number;
+  fileNamePattern: string;
   uploadType: "single" | "multiple" | "directory";
   text: string;
   dragHintText?: string;
@@ -254,21 +254,11 @@ export const DraggerUpload = (props: DraggerUploadProps) => {
         $auto={autoHeight}
         capture={props.forceCapture}
         openFileDialogOnClick={!(props.forceCapture && !isMobile)}
-        beforeUpload={(file) => {
-          if (!file.size || file.size <= 0) {
-            messageInstance.error(`${file.name} ` + trans("file.fileEmptyErrorMsg"));
-            return AntdUpload.LIST_IGNORE;
-          }
-
-          if (
-            (!!props.minSize && file.size < props.minSize) ||
-            (!!props.maxSize && file.size > props.maxSize)
-          ) {
-            messageInstance.error(`${file.name} ` + trans("file.fileSizeExceedErrorMsg"));
-            return AntdUpload.LIST_IGNORE;
-          }
-          return true;
-        }}
+        beforeUpload={(file) => validateFile(file, {
+          minSize: props.minSize,
+          maxSize: props.maxSize,
+          fileNamePattern: props.fileNamePattern,
+        })}
         onChange={handleOnChange}
       >
           <p className="ant-upload-drag-icon">

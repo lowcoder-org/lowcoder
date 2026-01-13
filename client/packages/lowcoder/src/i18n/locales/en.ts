@@ -1949,6 +1949,11 @@ export const en = {
     "dragAreaText": "Click or drag file to this area to upload",
     "dragAreaHint": "Support for a single or bulk upload. Strictly prohibited from uploading company data or other banned files.",
     "dragHintText": "Hint Text",
+    "fileNamePattern": "File Name Pattern",
+    "fileNamePatternTooltip": "A regular expression pattern to validate file names (e.g., '^[a-zA-Z0-9_-]+\\.[a-z]+$' for alphanumeric names). Leave empty to allow all file names.",
+    "fileNamePatternPlaceholder": "^[a-zA-Z0-9_-]+\\.[a-z]+$",
+    "fileNamePatternErrorMsg": "Upload Failed. The File Name Does Not Match the Required Pattern.",
+    "invalidFileNamePatternMsg": "Invalid File Name Pattern: {error}",
   },
   "date": {
     "format": "Format",

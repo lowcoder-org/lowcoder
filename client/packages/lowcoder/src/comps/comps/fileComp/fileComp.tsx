@@ -97,6 +97,7 @@ const validationChildren = {
   minSize: FileSizeControl,
   maxSize: FileSizeControl,
   maxFiles: NumberControl,
+  fileNamePattern: StringControl,
 };
 
 const commonChildren = {
@@ -127,6 +128,11 @@ const commonValidationFields = (children: RecordConstructorToComp<typeof validat
     placeholder: "10kb",
     tooltip: trans("file.maxSizeTooltip"),
   }),
+  children.fileNamePattern.propertyView({
+    label: trans("file.fileNamePattern"),
+    placeholder: trans("file.fileNamePatternPlaceholder"),
+    tooltip: trans("file.fileNamePatternTooltip"),
+  }),
 ];
 
 export const commonProps = (
@@ -140,6 +146,49 @@ export const commonProps = (
   showUploadList: props.showUploadList,
   customRequest: (options: UploadRequestOption) => options.onSuccess && options.onSuccess({}), // Override the default upload logic and do not upload to the specified server
 });
+
+export interface FileValidationOptions {
+  minSize?: number;
+  maxSize?: number;
+  fileNamePattern?: string;
+}
+
+
+export const validateFile = (
+  file: { name: string; size?: number },
+  options: FileValidationOptions
+): boolean | typeof AntdUpload.LIST_IGNORE => {
+  // Empty file validation
+  if (!file.size || file.size <= 0) {
+    messageInstance.error(`${file.name} ` + trans("file.fileEmptyErrorMsg"));
+    return AntdUpload.LIST_IGNORE;
+  }
+
+  // File size validation
+  if (
+    (!!options.minSize && file.size < options.minSize) ||
+    (!!options.maxSize && file.size > options.maxSize)
+  ) {
+    messageInstance.error(`${file.name} ` + trans("file.fileSizeExceedErrorMsg"));
+    return AntdUpload.LIST_IGNORE;
+  }
+
+  // File name pattern validation
+  if (options.fileNamePattern) {
+    try {
+      const pattern = new RegExp(options.fileNamePattern);
+      if (!pattern.test(file.name)) {
+        messageInstance.error(`${file.name} ` + trans("file.fileNamePatternErrorMsg"));
+        return AntdUpload.LIST_IGNORE;
+      }
+    } catch (e) {
+      messageInstance.error(trans("file.invalidFileNamePatternMsg", { error: String(e) }));
+      return AntdUpload.LIST_IGNORE;
+    }
+  }
+
+  return true;
+};
 
 const getStyle = (style: FileStyleType) => {
   return css`
@@ -361,21 +410,11 @@ const Upload = (
         {...commonProps(props)}
         $style={style}
         fileList={fileList}
-        beforeUpload={(file) => {
-          if (!file.size || file.size <= 0) {
-            messageInstance.error(`${file.name} ` + trans("file.fileEmptyErrorMsg"));
-            return AntdUpload.LIST_IGNORE;
-          }
-
-          if (
-            (!!props.minSize && file.size < props.minSize) ||
-            (!!props.maxSize && file.size > props.maxSize)
-          ) {
-            messageInstance.error(`${file.name} ` + trans("file.fileSizeExceedErrorMsg"));
-            return AntdUpload.LIST_IGNORE;
-          }
-          return true;
-        }}
+        beforeUpload={(file) => validateFile(file, {
+          minSize: props.minSize,
+          maxSize: props.maxSize,
+          fileNamePattern: props.fileNamePattern,
+        })}
         onChange={handleOnChange}
 
       >
