@@ -239,6 +239,7 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
       'elasticsearch': '#005571',
       'oracle': '#F80000',
       'mssql': '#CC2927',
+      'databricks': '#F55322',
       'snowflake': '#29B5E8'
     };
     

@@ -93,6 +93,14 @@ public class DatasourceMetaInfoServiceImpl implements DatasourceMetaInfoService 
             .connectionPool(ClientBasedConnectionPool.class)
             .build();
 
+    private static final DatasourceMetaInfo DATABRICKS = DatasourceMetaInfo.builder()
+            .type("databricks")
+            .displayName("Databricks")
+            .pluginExecutorKey("databricks-plugin")
+            .hasStructureInfo(true)
+            .connectionPool(ClientBasedConnectionPool.class)
+            .build();
+
     private static final DatasourceMetaInfo ORACLE = DatasourceMetaInfo.builder()
             .type("oracle")
             .displayName("Oracle")
