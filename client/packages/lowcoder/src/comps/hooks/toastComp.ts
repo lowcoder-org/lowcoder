@@ -6,6 +6,8 @@ import { JSONObject } from "../../util/jsonTypes";
 import { trans } from "i18n";
 import { notificationInstance } from "lowcoder-design";
 import type { ArgsProps, NotificationPlacement } from "antd/es/notification/interface";
+import { executeQueryAction, routeByNameAction } from "lowcoder-core";
+import type { DispatchType } from "lowcoder-core";
 
 const params: ParamsConfig = [
   { name: "text", type: "string" },
@@ -14,16 +16,23 @@ const params: ParamsConfig = [
 
 const showNotification = (
   params: EvalParamType[], 
-  level: "open" | "info" | "success" | "warning" | "error"
+  level: "open" | "info" | "success" | "warning" | "error",
+  dispatch?: DispatchType
 ) => {
   const text = params?.[0] as string;
   const options = (params?.[1] as JSONObject) || {};
 
-  const { message , duration, id, placement, dismissible } = options;
+  const { message, duration, id, placement, dismissible, onClose } = options;
 
   const closeIcon: boolean | undefined = dismissible === true ? undefined : (dismissible === false ? false : undefined);
 
   const durationNumberOrNull: number | null = typeof duration === 'number' ? duration : null;
+
+  const onCloseCallback = (): void => {
+    if (onClose && typeof onClose === 'string' && dispatch) {
+      dispatch(routeByNameAction(onClose, executeQueryAction({})));
+    }
+  };
 
   const notificationArgs: ArgsProps = {
     message: text,
@@ -32,6 +41,7 @@ const showNotification = (
     key: id as React.Key,
     placement: placement as NotificationPlacement ?? "bottomRight",
     closeIcon: closeIcon as boolean,
+    onClose: onCloseCallback,
   };
 
   // Use notificationArgs to trigger the notification
@@ -63,31 +73,31 @@ ToastComp = withMethodExposing(ToastComp, [
   {
     method: { name: "open", description: trans("toastComp.info"), params: params },
     execute: (comp, params) => {
-      showNotification(params, "open");
+      showNotification(params, "open", comp.dispatch);
     },
   },
   {
     method: { name: "info", description: trans("toastComp.info"), params: params },
     execute: (comp, params) => {
-      showNotification(params, "info");
+      showNotification(params, "info", comp.dispatch);
     },
   },
   {
     method: { name: "success", description: trans("toastComp.success"), params: params },
     execute: (comp, params) => {
-      showNotification(params, "success");
+      showNotification(params, "success", comp.dispatch);
     },
   },
   {
     method: { name: "warn", description: trans("toastComp.warn"), params: params },
     execute: (comp, params) => {
-      showNotification(params, "warning");
+      showNotification(params, "warning", comp.dispatch);
     },
   },
   {
     method: { name: "error", description: trans("toastComp.error"), params: params },
     execute: (comp, params) => {
-      showNotification(params, "error");
+      showNotification(params, "error", comp.dispatch);
     },
   },
 ]);
