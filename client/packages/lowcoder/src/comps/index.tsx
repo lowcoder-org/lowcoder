@@ -193,6 +193,7 @@ import { TreeComp } from "./comps/treeComp/treeComp";
 import { TreeSelectComp } from "./comps/treeComp/treeSelectComp";
 import { DrawerComp } from "./hooks/drawerComp";
 import { ModalComp } from "./hooks/modalComp";
+import { ToastComp } from "./hooks/toastComp";
 import { defaultCollapsibleContainerData } from "./comps/containerComp/collapsibleContainerComp";
 import { ContainerComp as FloatTextContainerComp } from "./comps/containerComp/textContainerComp";
 import { MultiTagsComp } from "./comps/tagsComp/tagsCompView";
@@ -759,6 +760,16 @@ export var uiCompMap: Registry = {
     icon: DrawerCompIcon,
     keywords: trans("uiComp.drawerCompKeywords"),
     comp: DrawerComp,
+    withoutLoading: true,
+  },
+  toast: {
+    name: trans("uiComp.toastCompName"),
+    enName: "Toast",
+    description: trans("uiComp.toastCompDesc"),
+    categories: ["layout"],
+    icon: ModalCompIcon,
+    keywords: trans("uiComp.toastCompKeywords"),
+    comp: ToastComp,
     withoutLoading: true,
   },
   divider: {

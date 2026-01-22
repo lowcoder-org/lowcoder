@@ -110,6 +110,7 @@ export type UICompType =
   | "multiTags" // Added by Kamal Qureshi
   | "tabbedContainer"
   | "modal"
+  | "toast"
   | "listView"
   | "grid"
   | "navigation"
