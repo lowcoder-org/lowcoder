@@ -767,7 +767,7 @@ export var uiCompMap: Registry = {
     enName: "Toast",
     description: trans("uiComp.toastCompDesc"),
     categories: ["layout"],
-    icon: ModalCompIcon,
+    icon: CommentCompIcon,
     keywords: trans("uiComp.toastCompKeywords"),
     comp: ToastComp,
     withoutLoading: true,

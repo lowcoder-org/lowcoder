@@ -222,7 +222,7 @@ export const CompStateIcon: {
   mention: <MemoizedIcon Icon={MentionCompIconSmall} />,
   mermaid: <MemoizedIcon Icon={MermaidCompIconSmall} />,
   modal: <MemoizedIcon Icon={ModalCompIconSmall} />,
-  toast: <MemoizedIcon Icon={ModalCompIconSmall} />,
+  toast: <MemoizedIcon Icon={CommentCompIconSmall} />,
   module: <MemoizedIcon Icon={ModuleIconSmall} />,
   moduleContainer: <MemoizedIcon Icon={ModuleIconSmall} />,
   navigation: <MemoizedIcon Icon={NavComIconSmall} />,

@@ -83,6 +83,7 @@ const showNotificationWithEvents = (
     showProgress: boolean;
     pauseOnHover: boolean;
     key?: string;
+    style?: React.CSSProperties;
   },
   onEvent: (eventName: "click" | "close") => Promise<unknown[]>,
   setVisible: (visible: boolean) => void
@@ -98,6 +99,7 @@ const showNotificationWithEvents = (
     closeIcon: config.dismissible ? undefined : false,
     showProgress: config.showProgress,
     pauseOnHover: config.pauseOnHover,
+    style: config.style,
     onClick: () => {
       onEvent("click");
     },
@@ -133,6 +135,7 @@ const showNotificationProgrammatic = (
     dismissible,
     showProgress,
     pauseOnHover,
+    style,
   } = options;
 
   // Use component config as defaults, override with params
@@ -146,6 +149,7 @@ const showNotificationProgrammatic = (
     showProgress: typeof showProgress === "boolean" ? showProgress : comp.children.showProgress.getView(),
     pauseOnHover: typeof pauseOnHover === "boolean" ? pauseOnHover : comp.children.pauseOnHover.getView(),
     key: key as string | undefined,
+    style: style as React.CSSProperties | undefined,
   };
 
   const onEvent = comp.children.onEvent.getView();
