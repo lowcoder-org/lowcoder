@@ -1598,6 +1598,19 @@ export const ModalStyle = [
   BACKGROUND_IMAGE_ORIGIN,
 ] as const;
 
+
+export const NotificationStyle = [
+  getBackground("primarySurface"),
+  {
+    name: "color",
+    label: trans("color"),
+    depName: "background",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  getStaticBorder("transparent"),
+] as const;
+
 export const CascaderStyle = [
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   TEXT,
@@ -2488,6 +2501,7 @@ export type ChildrenMultiSelectStyleType = StyleConfigType<
 export type TabContainerStyleType = StyleConfigType<typeof TabContainerStyle>;
 export type TabBodyStyleType = StyleConfigType<typeof TabBodyStyle>;
 export type ModalStyleType = StyleConfigType<typeof ModalStyle>;
+export type NotificationStyleType = StyleConfigType<typeof NotificationStyle>;
 export type CascaderStyleType = StyleConfigType<typeof CascaderStyle>;
 export type CheckboxStyleType = StyleConfigType<typeof CheckboxStyle>;
 export type RadioStyleType = StyleConfigType<typeof RadioStyle>;

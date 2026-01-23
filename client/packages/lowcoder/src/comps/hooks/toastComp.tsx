@@ -2,7 +2,9 @@ import { BoolControl } from "comps/controls/boolControl";
 import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
-import { withDefault, simpleMultiComp, withPropertyViewFn } from "comps/generators";
+import { styleControl } from "comps/controls/styleControl";
+import { NotificationStyle, NotificationStyleType } from "comps/controls/styleControlConstants";
+import { withDefault, simpleMultiComp, withPropertyViewFn, withViewFn } from "comps/generators";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { NameConfig, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
@@ -11,8 +13,9 @@ import { notificationInstance } from "lowcoder-design";
 import type { ArgsProps, NotificationPlacement } from "antd/es/notification/interface";
 import { EvalParamType, ParamsConfig } from "comps/controls/actionSelector/executeCompTypes";
 import { JSONObject } from "util/jsonTypes";
-import React from "react";
+import React, { useEffect } from "react";
 import { stateComp } from "comps/generators/simpleGenerators";
+import { isEqual } from "lodash";
 
 // Toast type options
 const toastTypeOptions = [
@@ -64,6 +67,14 @@ const childrenMap = {
   
   // Event handlers
   onEvent: eventHandlerControl(ToastEventOptions),
+
+  // Style
+  style: styleControl(NotificationStyle),
+  resolvedStyle: stateComp<NotificationStyleType>({
+    background: "",
+    color: "",
+    border: "",
+  }),
   
   // Internal state for tracking visibility
   visible: stateComp<boolean>(false),
@@ -83,23 +94,38 @@ const showNotificationWithEvents = (
     showProgress: boolean;
     pauseOnHover: boolean;
     key?: string;
+    styleConfig?: NotificationStyleType;
     style?: React.CSSProperties;
   },
   onEvent: (eventName: "click" | "close") => Promise<unknown[]>,
   setVisible: (visible: boolean) => void
 ) => {
   const notificationKey = config.key || `toast-${Date.now()}`;
+
+  const borderColor = config.styleConfig?.border;
+  const computedStyle: React.CSSProperties = {
+    background: config.styleConfig?.background,
+    color: config.styleConfig?.color,
+    border:
+      borderColor && borderColor !== "transparent" ? `1px solid ${borderColor}` : undefined,
+  };
+  const mergedStyle: React.CSSProperties = { ...computedStyle, ...(config.style || {}) };
+  const textColor = typeof mergedStyle.color === "string" ? mergedStyle.color : undefined;
   
   const notificationArgs: ArgsProps = {
-    message: config.title,
-    description: config.description || undefined,
+    message: textColor ? <span style={{ color: textColor }}>{config.title}</span> : config.title,
+    description: config.description
+      ? textColor
+        ? <span style={{ color: textColor }}>{config.description}</span>
+        : config.description
+      : undefined,
     duration: config.duration === 0 ? null : config.duration,
     key: notificationKey,
     placement: config.placement,
     closeIcon: config.dismissible ? undefined : false,
     showProgress: config.showProgress,
     pauseOnHover: config.pauseOnHover,
-    style: config.style,
+    style: mergedStyle,
     onClick: () => {
       onEvent("click");
     },
@@ -149,6 +175,7 @@ const showNotificationProgrammatic = (
     showProgress: typeof showProgress === "boolean" ? showProgress : comp.children.showProgress.getView(),
     pauseOnHover: typeof pauseOnHover === "boolean" ? pauseOnHover : comp.children.pauseOnHover.getView(),
     key: key as string | undefined,
+    styleConfig: comp.children.resolvedStyle.getView() as NotificationStyleType,
     style: style as React.CSSProperties | undefined,
   };
 
@@ -204,14 +231,42 @@ const ToastPropertyView = React.memo((props: { comp: any }) => {
       <Section name={sectionNames.interaction}>
         {comp.children.onEvent.getPropertyView()}
       </Section>
+
+      <Section name={sectionNames.style}>
+        {comp.children.style.getPropertyView()}
+      </Section>
     </>
   );
 });
 
 ToastPropertyView.displayName = "ToastPropertyView";
 
+/**
+ * Toast has no visible view, but we still need a runtime view to:
+ * - avoid executing styleControl.getView() inside EditorView's useMemo (hooks warning)
+ * - resolve theme-dependent styleControl values inside React render, then persist them
+ *   into a plain state field (`resolvedStyle`) that can be safely used by methods.
+ */
+const ToastRuntimeView = React.memo((props: { comp: any }) => {
+  const { comp } = props;
+  const style = comp.children.style.getView() as NotificationStyleType;
+
+  useEffect(() => {
+    const current = comp.children.resolvedStyle.getView() as NotificationStyleType;
+    if (!isEqual(style, current)) {
+      comp.children.resolvedStyle.dispatchChangeValueAction(style);
+    }
+  }, [comp, style]);
+
+  return null;
+});
+
+ToastRuntimeView.displayName = "ToastRuntimeView";
+
 // Build the component
 let ToastCompBase = simpleMultiComp(childrenMap);
+
+ToastCompBase = withViewFn(ToastCompBase, (comp) => <ToastRuntimeView comp={comp} />);
 
 ToastCompBase = withPropertyViewFn(ToastCompBase, (comp) => (
   <ToastPropertyView comp={comp} />
@@ -245,6 +300,7 @@ export let ToastComp = withMethodExposing(ToastCompWithExposing, [
         dismissible: comp.children.dismissible.getView(),
         showProgress: comp.children.showProgress.getView(),
         pauseOnHover: comp.children.pauseOnHover.getView(),
+        styleConfig: comp.children.resolvedStyle.getView() as NotificationStyleType,
       };
       
       const onEvent = comp.children.onEvent.getView();
