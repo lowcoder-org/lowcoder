@@ -13,9 +13,31 @@ import { notificationInstance } from "lowcoder-design";
 import type { ArgsProps, NotificationPlacement } from "antd/es/notification/interface";
 import { EvalParamType, ParamsConfig } from "comps/controls/actionSelector/executeCompTypes";
 import { JSONObject } from "util/jsonTypes";
-import React, { useEffect } from "react";
+import React, { useEffect, useId } from "react";
 import { stateComp } from "comps/generators/simpleGenerators";
 import { isEqual } from "lodash";
+import { createGlobalStyle } from "styled-components";
+
+// Dynamic global styles for toast notifications - scoped by unique instance ID
+// Using high specificity selectors to override Ant Design's default styles
+const ToastGlobalStyle = createGlobalStyle<{
+  $instanceId: string;
+  $background?: string;
+  $textColor?: string;
+  $border?: string;
+}>`
+  .ant-notification .ant-notification-notice-wrapper .ant-notification-notice.lowcoder-toast-${props => props.$instanceId} {
+    background: ${props => props.$background || 'inherit'};
+    border: ${props => props.$border && props.$border !== 'transparent' 
+      ? `1px solid ${props.$border}` 
+      : 'none'};
+
+    .ant-notification-notice-message,
+    .ant-notification-notice-description {
+      color: ${props => props.$textColor || 'inherit'};
+    }
+  }
+`;
 
 // Toast type options
 const toastTypeOptions = [
@@ -78,6 +100,9 @@ const childrenMap = {
   
   // Internal state for tracking visibility
   visible: stateComp<boolean>(false),
+  
+  // Unique instance ID for scoped styling (set by ToastRuntimeView)
+  instanceId: stateComp<string>(""),
 };
 
 type ToastType = "info" | "success" | "warning" | "error";
@@ -96,36 +121,24 @@ const showNotificationWithEvents = (
     key?: string;
     styleConfig?: NotificationStyleType;
     style?: React.CSSProperties;
+    instanceId: string;
   },
   onEvent: (eventName: "click" | "close") => Promise<unknown[]>,
   setVisible: (visible: boolean) => void
 ) => {
   const notificationKey = config.key || `toast-${Date.now()}`;
 
-  const borderColor = config.styleConfig?.border;
-  const computedStyle: React.CSSProperties = {
-    background: config.styleConfig?.background,
-    color: config.styleConfig?.color,
-    border:
-      borderColor && borderColor !== "transparent" ? `1px solid ${borderColor}` : undefined,
-  };
-  const mergedStyle: React.CSSProperties = { ...computedStyle, ...(config.style || {}) };
-  const textColor = typeof mergedStyle.color === "string" ? mergedStyle.color : undefined;
-  
   const notificationArgs: ArgsProps = {
-    message: textColor ? <span style={{ color: textColor }}>{config.title}</span> : config.title,
-    description: config.description
-      ? textColor
-        ? <span style={{ color: textColor }}>{config.description}</span>
-        : config.description
-      : undefined,
+    message: config.title,
+    description: config.description || undefined,
     duration: config.duration === 0 ? null : config.duration,
     key: notificationKey,
     placement: config.placement,
     closeIcon: config.dismissible ? undefined : false,
     showProgress: config.showProgress,
     pauseOnHover: config.pauseOnHover,
-    style: mergedStyle,
+    className: `lowcoder-toast-${config.instanceId}`,
+    style: config.style,
     onClick: () => {
       onEvent("click");
     },
@@ -177,6 +190,7 @@ const showNotificationProgrammatic = (
     key: key as string | undefined,
     styleConfig: comp.children.resolvedStyle.getView() as NotificationStyleType,
     style: style as React.CSSProperties | undefined,
+    instanceId: comp.children.instanceId.getView() as string,
   };
 
   const onEvent = comp.children.onEvent.getView();
@@ -242,14 +256,20 @@ const ToastPropertyView = React.memo((props: { comp: any }) => {
 ToastPropertyView.displayName = "ToastPropertyView";
 
 /**
- * Toast has no visible view, but we still need a runtime view to:
- * - avoid executing styleControl.getView() inside EditorView's useMemo (hooks warning)
- * - resolve theme-dependent styleControl values inside React render, then persist them
- *   into a plain state field (`resolvedStyle`) that can be safely used by methods.
+ * Toast runtime view:
+ * - Resolves theme-dependent style values and stores them in `resolvedStyle`
+ * - Generates unique instance ID for scoped styling
+ * - Injects global styles scoped to this toast instance
  */
 const ToastRuntimeView = React.memo((props: { comp: any }) => {
   const { comp } = props;
   const style = comp.children.style.getView() as NotificationStyleType;
+  const instanceId = useId().replace(/:/g, '-');
+  
+  // Store instance ID and resolved styles
+  useEffect(() => {
+    comp.children.instanceId.dispatchChangeValueAction(instanceId);
+  }, [comp, instanceId]);
 
   useEffect(() => {
     const current = comp.children.resolvedStyle.getView() as NotificationStyleType;
@@ -258,7 +278,14 @@ const ToastRuntimeView = React.memo((props: { comp: any }) => {
     }
   }, [comp, style]);
 
-  return null;
+  return (
+    <ToastGlobalStyle
+      $instanceId={instanceId}
+      $background={style.background}
+      $textColor={style.color}
+      $border={style.border}
+    />
+  );
 });
 
 ToastRuntimeView.displayName = "ToastRuntimeView";
@@ -301,6 +328,7 @@ export let ToastComp = withMethodExposing(ToastCompWithExposing, [
         showProgress: comp.children.showProgress.getView(),
         pauseOnHover: comp.children.pauseOnHover.getView(),
         styleConfig: comp.children.resolvedStyle.getView() as NotificationStyleType,
+        instanceId: comp.children.instanceId.getView() as string,
       };
       
       const onEvent = comp.children.onEvent.getView();
