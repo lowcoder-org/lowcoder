@@ -1609,6 +1609,11 @@ export const NotificationStyle = [
     transformer: contrastText,
   },
   getStaticBorder("transparent"),
+  RADIUS,
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const CascaderStyle = [

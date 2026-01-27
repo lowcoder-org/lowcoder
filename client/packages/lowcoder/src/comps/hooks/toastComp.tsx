@@ -18,19 +18,32 @@ import { stateComp } from "comps/generators/simpleGenerators";
 import { isEqual } from "lodash";
 import { createGlobalStyle } from "styled-components";
 
-// Dynamic global styles for toast notifications - scoped by unique instance ID
-// Using high specificity selectors to override Ant Design's default styles
+
 const ToastGlobalStyle = createGlobalStyle<{
   $instanceId: string;
   $background?: string;
   $textColor?: string;
   $border?: string;
+  $borderWidth?: string;
+  $borderStyle?: string;
+  $radius?: string;
+  $margin?: string;
+  $padding?: string;
+  $width?: string;
 }>`
-  .ant-notification .ant-notification-notice-wrapper .ant-notification-notice.lowcoder-toast-${props => props.$instanceId} {
+  .ant-notification .ant-notification-notice-wrapper:has(.lowcoder-toast-${props => props.$instanceId}) {
     background: ${props => props.$background || 'inherit'};
-    border: ${props => props.$border && props.$border !== 'transparent' 
-      ? `1px solid ${props.$border}` 
-      : 'none'};
+    border-color: ${props => props.$border || 'transparent'};
+    border-width: ${props => props.$borderWidth || '0'};
+    border-style: ${props => props.$borderStyle || 'solid'};
+    border-radius: ${props => props.$radius || '8px'};
+    ${props => props.$margin ? `margin: ${props.$margin};` : ''}
+    ${props => props.$width ? `width: ${props.$width};` : ''}
+    ${props => props.$padding ? `padding: ${props.$padding};` : ''}
+
+    .ant-notification-notice {
+      background: transparent;
+    }
 
     .ant-notification-notice-message,
     .ant-notification-notice-description {
@@ -47,7 +60,6 @@ const toastTypeOptions = [
   { label: trans("toastComp.typeError"), value: "error" },
 ] as const;
 
-// Placement options for notification position
 const placementOptions = [
   { label: trans("toastComp.placementTopLeft"), value: "topLeft" },
   { label: trans("toastComp.placementTopRight"), value: "topRight" },
@@ -55,13 +67,11 @@ const placementOptions = [
   { label: trans("toastComp.placementBottomRight"), value: "bottomRight" },
 ] as const;
 
-// Event options for toast
 const ToastEventOptions = [
   { label: trans("toastComp.click"), value: "click", description: trans("toastComp.clickDesc") },
   { label: trans("toastComp.close"), value: "close", description: trans("toastComp.closeDesc") },
 ] as const;
 
-// Method parameters for programmatic API
 const showParams: ParamsConfig = [
   { name: "text", type: "string" },
   { name: "options", type: "JSON" },
@@ -87,6 +97,9 @@ const childrenMap = {
   showProgress: withDefault(BoolControl, false),
   pauseOnHover: withDefault(BoolControl, true),
   
+  // Layout
+  width: withDefault(StringControl, ""),
+  
   // Event handlers
   onEvent: eventHandlerControl(ToastEventOptions),
 
@@ -96,6 +109,11 @@ const childrenMap = {
     background: "",
     color: "",
     border: "",
+    radius: "",
+    borderWidth: "",
+    borderStyle: "",
+    margin: "",
+    padding: "",
   }),
   
   // Internal state for tracking visibility
@@ -242,6 +260,14 @@ const ToastPropertyView = React.memo((props: { comp: any }) => {
         })}
       </Section>
       
+      <Section name={sectionNames.layout}>
+        {comp.children.width.propertyView({
+          label: trans("toastComp.width"),
+          tooltip: trans("toastComp.widthTooltip"),
+          placeholder: "384",
+        })}
+      </Section>
+      
       <Section name={sectionNames.interaction}>
         {comp.children.onEvent.getPropertyView()}
       </Section>
@@ -256,14 +282,12 @@ const ToastPropertyView = React.memo((props: { comp: any }) => {
 ToastPropertyView.displayName = "ToastPropertyView";
 
 /**
- * Toast runtime view:
- * - Resolves theme-dependent style values and stores them in `resolvedStyle`
- * - Generates unique instance ID for scoped styling
- * - Injects global styles scoped to this toast instance
+ * Toast runtime view
  */
 const ToastRuntimeView = React.memo((props: { comp: any }) => {
   const { comp } = props;
   const style = comp.children.style.getView() as NotificationStyleType;
+  const width = comp.children.width.getView() as string;
   const instanceId = useId().replace(/:/g, '-');
   
   // Store instance ID and resolved styles
@@ -284,6 +308,12 @@ const ToastRuntimeView = React.memo((props: { comp: any }) => {
       $background={style.background}
       $textColor={style.color}
       $border={style.border}
+      $borderWidth={style.borderWidth}
+      $borderStyle={style.borderStyle}
+      $radius={style.radius}
+      $margin={style.margin}
+      $padding={style.padding || '20px'}
+      $width={width ? `${width}px` : undefined}
     />
   );
 });
@@ -307,6 +337,7 @@ let ToastCompWithExposing = withExposingConfigs(ToastCompBase, [
   new NameConfig("type", trans("toastComp.typeDesc")),
   new NameConfig("duration", trans("toastComp.durationDesc")),
   new NameConfig("placement", trans("toastComp.placementDesc")),
+  new NameConfig("width", trans("toastComp.widthDesc")),
 ]);
 
 // Add method exposing

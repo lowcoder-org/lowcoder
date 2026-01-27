@@ -3299,6 +3299,8 @@ export const en = {
     "showProgressTooltip": "Display a progress bar indicating time until auto-close",
     "pauseOnHover": "Pause on Hover",
     "behavior": "Behavior",
+    "width": "Width",
+    "widthTooltip": "Width of the notification in pixels. Example: 384",
     
     // Type options
     "typeInfo": "Info",
@@ -3324,7 +3326,8 @@ export const en = {
     "descriptionDesc": "The configured description of the notification",
     "typeDesc": "The configured type (info, success, warning, error)",
     "durationDesc": "The configured duration in seconds",
-    "placementDesc": "The configured placement position"
+    "placementDesc": "The configured placement position",
+    "widthDesc": "The configured width of the notification"
   },
   "themeComp": {
     "switchTo": "Switch Theme"
