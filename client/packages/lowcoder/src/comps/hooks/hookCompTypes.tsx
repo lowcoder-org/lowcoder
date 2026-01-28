@@ -60,7 +60,10 @@ const HookCompConfig: Record<
   },
   utils: { category: "hide" },
   message: { category: "hide" },
-  toast: { category: "hide" },
+  toast: { 
+    category: "ui",
+    singleton: false,
+  },
 };
 
 // Get hook component category

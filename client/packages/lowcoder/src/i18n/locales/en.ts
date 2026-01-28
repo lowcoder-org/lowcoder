@@ -1258,6 +1258,10 @@ export const en = {
     "drawerCompDesc": "A sliding panel component that can be used for additional navigation or content display, typically emerging from the edge of the screen.",
     "drawerCompKeywords": "drawer, sliding, panel, navigation",
 
+    "toastCompName": "Toast",
+    "toastCompDesc": "A notification component for displaying brief messages, alerts, or feedback to users. Supports click and close event handlers.",
+    "toastCompKeywords": "toast, notification, alert, message, snackbar",
+
     "chartCompName": "Chart (deprecated)",
     "chartCompDesc": "A versatile component for visualizing data through various types of charts and graphs.",
     "chartCompKeywords": "chart, graph, data, visualization",
@@ -3271,12 +3275,64 @@ export const en = {
     "error": "Send an Error Notification"
   },
   "toastComp": {
-    "destroy": "close a Notification",
-    "info": "Send a Notification",
-    "loading": "Send a Loading Notification",
-    "success": "Send a Success Notification",
-    "warn": "Send a Warning Notification",
-    "error": "Send an Error Notification"
+    // Method descriptions
+    "destroy": "Close a notification by key",
+    "info": "Show an info notification",
+    "success": "Show a success notification",
+    "warn": "Show a warning notification",
+    "error": "Show an error notification",
+    "showMethod": "Show notification with configured settings",
+    "closeMethod": "Close the notification",
+    "openMethod": "Show an info notification (alias for info)",
+    
+    // Property labels
+    "title": "Title",
+    "titlePlaceholder": "Notification title",
+    "description": "Description",
+    "descriptionPlaceholder": "Notification description",
+    "type": "Type",
+    "duration": "Duration (seconds)",
+    "durationTooltip": "Time in seconds before auto-close. Set to 0 to disable auto-close.",
+    "placement": "Placement",
+    "dismissible": "Show Close Button",
+    "showProgress": "Show Progress Bar",
+    "showProgressTooltip": "Display a progress bar indicating time until auto-close",
+    "pauseOnHover": "Pause on Hover",
+    "behavior": "Behavior",
+    "width": "Width",
+    "widthTooltip": "Width of the notification in pixels, percentages, or other CSS units. if you want to adjust it according to the screen size, you can use viewport units. Example: 100vw",
+    "closeIconColor": "Close Icon Color",
+    "infoIconColor": "Info Icon Color",
+    "successIconColor": "Success Icon Color",
+    "warningIconColor": "Warning Icon Color",
+    "errorIconColor": "Error Icon Color",
+    
+    // Type options
+    "typeInfo": "Info",
+    "typeSuccess": "Success",
+    "typeWarning": "Warning",
+    "typeError": "Error",
+    
+    // Placement options
+    "placementTopLeft": "Top Left",
+    "placementTopRight": "Top Right",
+    "placementBottomLeft": "Bottom Left",
+    "placementBottomRight": "Bottom Right",
+    
+    // Event labels
+    "click": "Click",
+    "clickDesc": "Triggered when the notification is clicked",
+    "close": "Close",
+    "closeDesc": "Triggered when the notification is closed or dismissed",
+    
+    // Exposed state descriptions
+    "visibleDesc": "Whether the notification is currently visible",
+    "titleDesc": "The configured title of the notification",
+    "descriptionDesc": "The configured description of the notification",
+    "typeDesc": "The configured type (info, success, warning, error)",
+    "durationDesc": "The configured duration in seconds",
+    "placementDesc": "The configured placement position",
+    "widthDesc": "The configured width of the notification"
   },
   "themeComp": {
     "switchTo": "Switch Theme"
