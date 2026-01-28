@@ -1608,6 +1608,33 @@ export const NotificationStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
+  {
+    name: "closeIconColor",
+    label: trans("toastComp.closeIconColor"),
+    depName: "background",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  {
+    name: "infoIconColor",
+    label: trans("toastComp.infoIconColor"),
+    color: "#1890ff",
+  },
+  {
+    name: "successIconColor",
+    label: trans("toastComp.successIconColor"),
+    color: "#52c41a",
+  },
+  {
+    name: "warningIconColor",
+    label: trans("toastComp.warningIconColor"),
+    color: "#faad14",
+  },
+  {
+    name: "errorIconColor",
+    label: trans("toastComp.errorIconColor"),
+    color: "#ff4d4f",
+  },
   getStaticBorder("transparent"),
   RADIUS,
   BORDER_WIDTH,

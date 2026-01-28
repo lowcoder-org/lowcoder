@@ -23,6 +23,11 @@ const ToastGlobalStyle = createGlobalStyle<{
   $instanceId: string;
   $background?: string;
   $textColor?: string;
+  $closeIconColor?: string;
+  $infoIconColor?: string;
+  $successIconColor?: string;
+  $warningIconColor?: string;
+  $errorIconColor?: string;
   $border?: string;
   $borderWidth?: string;
   $borderStyle?: string;
@@ -38,16 +43,36 @@ const ToastGlobalStyle = createGlobalStyle<{
     border-style: ${props => props.$borderStyle || 'solid'};
     border-radius: ${props => props.$radius || '8px'};
     ${props => props.$margin ? `margin: ${props.$margin};` : ''}
-    ${props => props.$width ? `width: ${props.$width};` : ''}
     ${props => props.$padding ? `padding: ${props.$padding};` : ''}
 
     .ant-notification-notice {
       background: transparent;
+      ${props => props.$width ? `width: ${props.$width};` : ''}
     }
 
     .ant-notification-notice-message,
     .ant-notification-notice-description {
       color: ${props => props.$textColor || 'inherit'};
+    }
+
+    .ant-notification-notice-close {
+      color: ${props => props.$closeIconColor || 'inherit'};
+    }
+
+    .ant-notification-notice-icon-info.anticon {
+      color: ${props => props.$infoIconColor || '#1890ff'};
+    }
+
+    .ant-notification-notice-icon-success.anticon {
+      color: ${props => props.$successIconColor || '#52c41a'};
+    }
+
+    .ant-notification-notice-icon-warning.anticon {
+      color: ${props => props.$warningIconColor || '#faad14'};
+    }
+
+    .ant-notification-notice-icon-error.anticon {
+      color: ${props => props.$errorIconColor || '#ff4d4f'};
     }
   }
 `;
@@ -108,6 +133,11 @@ const childrenMap = {
   resolvedStyle: stateComp<NotificationStyleType>({
     background: "",
     color: "",
+    closeIconColor: "",
+    infoIconColor: "",
+    successIconColor: "",
+    warningIconColor: "",
+    errorIconColor: "",
     border: "",
     radius: "",
     borderWidth: "",
@@ -264,7 +294,7 @@ const ToastPropertyView = React.memo((props: { comp: any }) => {
         {comp.children.width.propertyView({
           label: trans("toastComp.width"),
           tooltip: trans("toastComp.widthTooltip"),
-          placeholder: "384",
+          placeholder: "384px or 100vw",
         })}
       </Section>
       
@@ -307,13 +337,18 @@ const ToastRuntimeView = React.memo((props: { comp: any }) => {
       $instanceId={instanceId}
       $background={style.background}
       $textColor={style.color}
+      $closeIconColor={style.closeIconColor}
+      $infoIconColor={style.infoIconColor}
+      $successIconColor={style.successIconColor}
+      $warningIconColor={style.warningIconColor}
+      $errorIconColor={style.errorIconColor}
       $border={style.border}
       $borderWidth={style.borderWidth}
       $borderStyle={style.borderStyle}
       $radius={style.radius}
       $margin={style.margin}
       $padding={style.padding || '20px'}
-      $width={width ? `${width}px` : undefined}
+      $width={width || undefined}
     />
   );
 });

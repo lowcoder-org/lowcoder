@@ -3300,7 +3300,12 @@ export const en = {
     "pauseOnHover": "Pause on Hover",
     "behavior": "Behavior",
     "width": "Width",
-    "widthTooltip": "Width of the notification in pixels. Example: 384",
+    "widthTooltip": "Width of the notification in pixels, percentages, or other CSS units. if you want to adjust it according to the screen size, you can use viewport units. Example: 100vw",
+    "closeIconColor": "Close Icon Color",
+    "infoIconColor": "Info Icon Color",
+    "successIconColor": "Success Icon Color",
+    "warningIconColor": "Warning Icon Color",
+    "errorIconColor": "Error Icon Color",
     
     // Type options
     "typeInfo": "Info",
