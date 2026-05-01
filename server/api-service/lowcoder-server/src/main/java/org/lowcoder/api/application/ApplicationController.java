@@ -1,7 +1,24 @@
 package org.lowcoder.api.application;
 
-import lombok.RequiredArgsConstructor;
-import org.lowcoder.api.application.view.*;
+import static org.apache.commons.collections4.SetUtils.emptyIfNull;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_CREATE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_DELETE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_RECYCLED;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_RESTORE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_UPDATE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_VIEW;
+import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import org.lowcoder.api.application.view.ApplicationInfoView;
+import org.lowcoder.api.application.view.ApplicationPermissionView;
+import org.lowcoder.api.application.view.ApplicationPublishRequest;
+import org.lowcoder.api.application.view.ApplicationView;
+import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
 import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.UserHomeApiService;
@@ -18,17 +35,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Objects;
-
-import static org.apache.commons.collections4.SetUtils.emptyIfNull;
-import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.*;
-import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
-import java.util.Map;
+import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
 @RestController
@@ -157,14 +167,32 @@ public class ApplicationController implements ApplicationEndpoints {
                         })
                         .switchIfEmpty(Mono.just("1.0.0"))
                         .delayUntil(newtag -> {
-                            ApplicationPublishRequest req = Objects.requireNonNullElse(applicationPublishRequest, new ApplicationPublishRequest("", newtag));
+                            ApplicationPublishRequest req = Objects.requireNonNullElse(applicationPublishRequest, new ApplicationPublishRequest("", newtag, null));
                             return businessEventPublisher.publishApplicationPublishEvent(appId, req).then(Mono.defer(() -> {
                                 if(newtag.equals(req.tag())) {
                                     return businessEventPublisher.publishApplicationVersionChangeEvent(appId, newtag);
                                 } else return Mono.empty();
                             }));
                         })
-                        .flatMap(newtag -> applicationApiService.publish(appId, Objects.requireNonNullElse(applicationPublishRequest, new ApplicationPublishRequest("", newtag))))
+                        .flatMap(newtag -> {
+                            ApplicationPublishRequest req = Objects.requireNonNullElse(applicationPublishRequest, new ApplicationPublishRequest("", newtag, null));
+                            
+                            // If rollback is requested, get the DSL from the specified version
+                            if (req.rollbackToVersionId() != null && !req.rollbackToVersionId().isEmpty()) {
+                                return applicationRecordService.getById(req.rollbackToVersionId())
+                                    .flatMap(rollbackVersion -> {
+                                        // Create a new request with the rollback DSL
+                                        ApplicationPublishRequest rollbackRequest = new ApplicationPublishRequest(
+                                            req.commitMessage(), 
+                                            req.tag(), 
+                                            req.rollbackToVersionId()
+                                        );
+                                        return applicationApiService.publishWithRollback(appId, rollbackRequest, rollbackVersion.getApplicationDSL());
+                                    });
+                            } else {
+                                return applicationApiService.publish(appId, req);
+                            }
+                        })
                 .map(ResponseView::success));
     }
 

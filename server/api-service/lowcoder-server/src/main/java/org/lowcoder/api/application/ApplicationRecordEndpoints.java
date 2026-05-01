@@ -1,15 +1,21 @@
 package org.lowcoder.api.application;
 
-import io.swagger.v3.oas.annotations.Operation;
-import org.lowcoder.api.framework.view.ResponseView;
-import org.lowcoder.api.application.view.ApplicationRecordMetaView;
-import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
+import static org.lowcoder.infra.constant.NewUrl.APPLICATION_RECORD_URL;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.lowcoder.infra.constant.NewUrl.APPLICATION_RECORD_URL;
+import org.lowcoder.api.application.view.ApplicationRecordMetaView;
+import org.lowcoder.api.framework.view.ResponseView;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.Operation;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(value = APPLICATION_RECORD_URL)
@@ -44,5 +50,14 @@ public interface ApplicationRecordEndpoints
     @GetMapping
     public Mono<ResponseView<Map<String, Object>>> dslById(@RequestParam(name = "applicationId") String applicationId,
             @RequestParam(name = "applicationRecordId") String applicationRecordId);
+
+	@Operation(
+			tags = TAG_APPLICATION_RECORDS,
+		    operationId = "getVersionDsl",
+		    summary = "Get DSL from specific version",
+		    description = "Retrieve the DSL data from a specific application version for rollback preview"
+	)
+    @GetMapping("/{applicationRecordId}/dsl")
+    public Mono<ResponseView<Map<String, Object>>> getVersionDsl(@PathVariable String applicationRecordId);
 
 }

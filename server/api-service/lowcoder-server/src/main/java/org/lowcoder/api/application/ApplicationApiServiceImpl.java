@@ -1,12 +1,30 @@
 package org.lowcoder.api.application;
 
-import com.github.f4b6a3.uuid.UuidCreator;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static org.lowcoder.domain.application.model.ApplicationStatus.NORMAL;
+import static org.lowcoder.domain.permission.model.ResourceAction.EDIT_APPLICATIONS;
+import static org.lowcoder.domain.permission.model.ResourceAction.MANAGE_APPLICATIONS;
+import static org.lowcoder.domain.permission.model.ResourceAction.PUBLISH_APPLICATIONS;
+import static org.lowcoder.domain.permission.model.ResourceAction.READ_APPLICATIONS;
+import static org.lowcoder.domain.permission.model.ResourceAction.USE_DATASOURCES;
+import static org.lowcoder.sdk.exception.BizError.ILLEGAL_APPLICATION_PERMISSION_ID;
+import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
+import static org.lowcoder.sdk.exception.BizError.NOT_AUTHORIZED;
+import static org.lowcoder.sdk.exception.BizError.NO_PERMISSION_TO_REQUEST_APP;
+import static org.lowcoder.sdk.exception.BizError.USER_NOT_SIGNED_IN;
+import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofErrorWithHeaders;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -27,21 +45,26 @@ import org.lowcoder.api.usermanagement.OrgApiService;
 import org.lowcoder.api.usermanagement.OrgDevChecker;
 import org.lowcoder.api.usermanagement.view.GroupView;
 import org.lowcoder.api.usermanagement.view.OrgMemberListView;
-import org.lowcoder.domain.application.model.*;
+import org.lowcoder.domain.application.model.Application;
+import org.lowcoder.domain.application.model.ApplicationRequestType;
+import org.lowcoder.domain.application.model.ApplicationStatus;
+import org.lowcoder.domain.application.model.ApplicationType;
+import org.lowcoder.domain.application.model.ApplicationVersion;
 import org.lowcoder.domain.application.service.ApplicationHistorySnapshotService;
 import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.service.DatasourceService;
 import org.lowcoder.domain.folder.service.FolderElementRelationService;
-import org.lowcoder.domain.group.model.Group;
-import org.lowcoder.domain.group.model.GroupMember;
 import org.lowcoder.domain.interaction.UserApplicationInteractionService;
-import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.organization.service.OrganizationService;
-import org.lowcoder.domain.permission.model.*;
+import org.lowcoder.domain.permission.model.ResourceAction;
+import org.lowcoder.domain.permission.model.ResourceHolder;
+import org.lowcoder.domain.permission.model.ResourcePermission;
+import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.domain.permission.model.ResourceType;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.permission.solution.SuggestAppAdminSolutionService;
 import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
@@ -56,22 +79,18 @@ import org.lowcoder.sdk.plugin.common.QueryExecutor;
 import org.lowcoder.sdk.util.ExceptionUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
+import com.github.f4b6a3.uuid.UuidCreator;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import reactor.util.function.Tuple2;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.lowcoder.domain.application.model.ApplicationStatus.NORMAL;
-import static org.lowcoder.domain.permission.model.ResourceAction.*;
-import static org.lowcoder.sdk.exception.BizError.*;
-import static org.lowcoder.sdk.util.ExceptionUtils.*;
 
 @RequiredArgsConstructor
 @Service
@@ -395,6 +414,27 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                         .flatMap(applicationUpdated -> buildView(applicationUpdated, permission.getResourceRole().getValue()).map(appInfoView -> ApplicationView.builder()
                                 .applicationInfoView(appInfoView)
                                 .applicationDSL(applicationUpdated.getEditingApplicationDSL())
+                                .build())));
+    }
+
+    @Override
+    public Mono<ApplicationView> publishWithRollback(String applicationId, ApplicationPublishRequest applicationPublishRequest, Map<String, Object> rollbackDsl) {
+        return checkApplicationStatus(applicationId, NORMAL)
+                .then(sessionUserService.getVisitorId())
+                .flatMap(userId -> resourcePermissionService.checkAndReturnMaxPermission(userId,
+                        applicationId, PUBLISH_APPLICATIONS))
+                .delayUntil(__ -> applicationService.findById(applicationId)
+                        .map(application -> ApplicationVersion.builder()
+                                .tag(applicationPublishRequest.tag())
+                                .commitMessage(applicationPublishRequest.commitMessage())
+                                .applicationId(application.getId())
+                                .applicationDSL(rollbackDsl) // Use the rollback DSL instead of current editing DSL
+                                .build())
+                        .flatMap(applicationRecordService::insert))
+                .flatMap(permission -> applicationService.findById(applicationId)
+                        .flatMap(applicationUpdated -> buildView(applicationUpdated, permission.getResourceRole().getValue()).map(appInfoView -> ApplicationView.builder()
+                                .applicationInfoView(appInfoView)
+                                .applicationDSL(rollbackDsl) // Return the rollback DSL in the response
                                 .build())));
     }
 

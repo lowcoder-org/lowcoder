@@ -1,25 +1,26 @@
 package org.lowcoder.api.application;
 
-import lombok.RequiredArgsConstructor;
-import org.lowcoder.api.home.SessionUserService;
-import org.lowcoder.api.application.view.ApplicationRecordMetaView;
-import org.lowcoder.api.usermanagement.OrgDevChecker;
-import org.lowcoder.domain.application.model.ApplicationVersion;
-import org.lowcoder.domain.organization.model.OrgMember;
-import org.lowcoder.domain.application.model.Application;
-import org.lowcoder.domain.application.model.ApplicationCombineId;
-import org.lowcoder.domain.application.service.ApplicationRecordService;
-import org.lowcoder.domain.application.service.ApplicationService;
-import org.lowcoder.domain.user.service.UserService;
-import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
+import static org.lowcoder.api.util.ViewBuilder.multiBuild;
+import static org.lowcoder.sdk.exception.BizError.APPLICATION_AND_ORG_NOT_MATCH;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.lowcoder.api.util.ViewBuilder.multiBuild;
-import static org.lowcoder.sdk.exception.BizError.APPLICATION_AND_ORG_NOT_MATCH;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
+import org.lowcoder.api.application.view.ApplicationRecordMetaView;
+import org.lowcoder.api.home.SessionUserService;
+import org.lowcoder.api.usermanagement.OrgDevChecker;
+import org.lowcoder.domain.application.model.Application;
+import org.lowcoder.domain.application.model.ApplicationCombineId;
+import org.lowcoder.domain.application.model.ApplicationVersion;
+import org.lowcoder.domain.application.service.ApplicationRecordService;
+import org.lowcoder.domain.application.service.ApplicationService;
+import org.lowcoder.domain.organization.model.OrgMember;
+import org.lowcoder.domain.user.service.UserService;
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
 @Service
@@ -58,6 +59,13 @@ public class ApplicationRecordApiServiceImpl implements ApplicationRecordApiServ
                         userService::getByIds,
                         ApplicationRecordMetaView::from
                 ));
+    }
+
+    @Override
+    public Mono<Map<String, Object>> getVersionDsl(String applicationRecordId) {
+        return checkApplicationRecordViewPermission(new ApplicationCombineId(null, applicationRecordId))
+                .then(applicationRecordService.getById(applicationRecordId))
+                .map(ApplicationVersion::getApplicationDSL);
     }
 
 
