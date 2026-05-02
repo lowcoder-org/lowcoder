@@ -10,6 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.permission.view.CommonPermissionView;
+import org.lowcoder.api.usermanagement.view.GroupView;
+import org.lowcoder.api.usermanagement.view.OrgMemberListView;
 import org.lowcoder.api.usermanagement.view.UpdateGroupRequest;
 import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.api.util.GidService;
@@ -26,17 +28,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static org.lowcoder.api.util.Pagination.fluxToPageResponseView;
 import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.*;
 import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 import static org.lowcoder.sdk.util.LocaleUtils.getLocale;
+import static reactor.core.publisher.Flux.fromIterable;
 
 @RequiredArgsConstructor
 @RestController
@@ -226,5 +228,39 @@ public class DatasourceController implements DatasourceEndpoints
         return gidService.convertDatasourceIdToObjectId(datasourceId).flatMap(objectId ->
             Mono.just(ResponseView.success(datasourceApiService.info(objectId))));
     }
+
+    @Override
+    public Mono<PageResponseView<?>> getGroupsOrMembersWithoutPermissions(
+            @PathVariable String datasourceId,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "1") Integer pageNum,
+            @RequestParam(required = false, defaultValue = "1000") Integer pageSize) {
+
+        return gidService.convertDatasourceIdToObjectId(datasourceId).flatMap(dsId -> {
+            var flx = datasourceApiService.getGroupsOrMembersWithoutPermissions(dsId)
+                    .flatMapMany(Flux::fromIterable)
+                    .filter(item -> {
+                        if (search == null || search.isBlank()) return true;
+                        if (!(item instanceof Map map)) return false;
+                        Object type = map.get("type");
+                        Object data = map.get("data");
+                        if ("Group".equals(type) && data instanceof GroupView group) {
+                            return group.getGroupName() != null && group.getGroupName().toLowerCase().contains(search.toLowerCase());
+                        }
+                        if ("User".equals(type) && data instanceof OrgMemberListView.OrgMemberView user) {
+                            return user.getName() != null && user.getName().toLowerCase().contains(search.toLowerCase());
+                        }
+                        return false;
+                    })
+                    .cache();
+            var countMono = flx.count();
+            var flux1 = flx.skip((long) (pageNum - 1) * pageSize);
+            if (pageSize > 0) flux1 = flux1.take(pageSize);
+            return flux1.collectList()
+                    .zipWith(countMono)
+                    .map(tuple -> PageResponseView.success(tuple.getT1(), pageNum, pageSize, Math.toIntExact(tuple.getT2())));
+        });
+    }
+
 
 }
