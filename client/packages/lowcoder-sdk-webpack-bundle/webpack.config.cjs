@@ -8,6 +8,7 @@ const JSEntryWebpackPlugin = require('./plugins/JSEntryWebpackPlugin.cjs');
 
 const { buildVars } = require("./src/dev-utils/buildVars.cjs");
 const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
+const sdkPublicPath = process.env.SDK_PUBLIC_PATH || "https://sdk.lowcoder.cloud/";
 
 const define = {};
 buildVars.forEach(({ name, defaultValue }) => {
@@ -95,7 +96,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    publicPath: "https://sdk.lowcoder.cloud/",
+    publicPath: sdkPublicPath,
     filename: '[name].bundle.js',
     clean: true,
   },
