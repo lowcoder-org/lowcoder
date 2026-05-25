@@ -1,0 +1,67 @@
+{
+  "type": "databricks",
+  "name": "Databricks",
+  "icon": "databricks-icon.svg",
+  "category": "Database",
+  "properties": [
+    {
+      "name": "host",
+      "label": "Server Hostname",
+      "type": "text",
+      "required": true,
+      "placeholder": "adb-xxxxxxxxxxxxxxxx.xx.azuredatabricks.net"
+    },
+    {
+      "name": "port",
+      "label": "Port",
+      "type": "number",
+      "required": true,
+      "defaultValue": 443
+    },
+    {
+      "name": "httpPath",
+      "label": "HTTP Path",
+      "type": "text",
+      "required": true,
+      "placeholder": "/sql/1.0/warehouses/xxxxxxxxxxxxxxxx"
+    },
+    {
+      "name": "catalog",
+      "label": "Catalog",
+      "type": "text",
+      "required": true,
+      "placeholder": "hive_metastore"
+    },
+    {
+      "name": "schema",
+      "label": "Schema",
+      "type": "text",
+      "placeholder": "default"
+    },
+    {
+      "name": "authentication",
+      "label": "Authentication",
+      "type": "select",
+      "required": true,
+      "options": [
+        { "label": "Personal Access Token", "value": "pat" }
+      ],
+      "defaultValue": "pat"
+    },
+    {
+      "name": "token",
+      "label": "Personal Access Token",
+      "type": "password",
+      "required": true,
+      "placeholder": "dapi_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    }
+  ],
+  "features": {
+    "query": true,
+    "insert": true,
+    "update": true,
+    "delete": true,
+    "listTables": true,
+    "getTable": true
+  }
+}
