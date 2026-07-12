@@ -27,6 +27,7 @@ import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 const UICompContainer = styled.div<{
   $maxWidth?: number;
   $rowCount?: number;
+  $fillHeight?: boolean;
   readOnly?: boolean;
   $bgColor: string;
   $bgImage?: string;
@@ -35,8 +36,8 @@ const UICompContainer = styled.div<{
   $bgImageOrigin?: string;
   $bgImagePosition?: string;
 }>`
-  height: auto;
-  min-height: ${props => props.$rowCount === Infinity ? '100%' : 'auto'};
+  height: ${props => props.$fillHeight ? '100%' : 'auto'};
+  min-height: ${props => props.$fillHeight ? '0' : props.$rowCount === Infinity ? '100%' : 'auto'};
   margin: 0 auto;
   max-width: ${(props) => props.$maxWidth || 1600}px;
   
@@ -67,6 +68,18 @@ const gridLayoutCanvasProps = {
   autoHeight: true,
   isCanvas: true,
 };
+
+export function shouldShowStretchCanvasHeight(rowCount: number) {
+  return rowCount !== DEFAULT_ROW_COUNT;
+}
+
+export function shouldStretchCanvasHeight(
+  rowCount: number,
+  readOnly: boolean,
+  gridStretchHeight?: boolean
+) {
+  return readOnly && Boolean(gridStretchHeight) && rowCount !== DEFAULT_ROW_COUNT;
+}
 
 function getDragSelectedNames(
   items: GridItemsType,
@@ -176,7 +189,7 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
 
   const externalState = useContext(ExternalEditorContext);
   const {
-    readOnly,
+    readOnly = false,
     appType,
     rootContainerExtraHeight = DEFAULT_EXTRA_HEIGHT,
     rootContainerPadding,
@@ -271,6 +284,10 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
       || defaultTheme?.gridRowCount
       || DEFAULT_ROW_COUNT;
   }, [preventStylesOverwriting, appSettings, currentTheme, defaultTheme]);
+  const isStretchCanvasHeight = useMemo(
+    () => shouldStretchCanvasHeight(defaultRowCount ?? DEFAULT_ROW_COUNT, readOnly, (appSettings as any).gridStretchHeight),
+    [appSettings, defaultRowCount, readOnly]
+  );
 
   const defaultContainerPadding: [number, number] = useMemo(() => {
     const DEFAULT_PADDING = isMobile ? DEFAULT_MOBILE_PADDING : DEFAULT_CONTAINER_PADDING;
@@ -305,10 +322,11 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
 
   if (readOnly) {
     return (
-      <UICompContainer
-        $maxWidth={maxWidth}
-        $rowCount={defaultRowCount}
-        readOnly={true}
+        <UICompContainer
+          $maxWidth={maxWidth}
+          $rowCount={defaultRowCount}
+          $fillHeight={isStretchCanvasHeight}
+          readOnly={true}
         className={CNRootContainer}
         $bgColor={bgColor}
         $bgImage={bgImage}
@@ -324,6 +342,9 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
             {...props}
             positionParams={positionParams}
             {...gridLayoutCanvasProps}
+            autoHeight={!isStretchCanvasHeight}
+            rowCount={defaultRowCount}
+            isRowCountLocked={isStretchCanvasHeight}
             bgColor={bgColor}
             radius="0px"
             emptyRows={defaultRowCount}
@@ -341,6 +362,7 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
         <UICompContainer
           $maxWidth={maxWidth}
           $rowCount={defaultRowCount}
+          $fillHeight={isStretchCanvasHeight}
           className={CNRootContainer}
           $bgColor={bgColor}
           $bgImage={bgImage}
@@ -360,6 +382,9 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
                 overflow={rootContainerOverflow}
                 {...props}
                 {...gridLayoutCanvasProps}
+                autoHeight={!isStretchCanvasHeight}
+                rowCount={defaultRowCount}
+                isRowCountLocked={isStretchCanvasHeight}
                 dragSelectedComps={dragSelectedComps}
                 scrollContainerRef={scrollContainerRef}
                 isDroppable={!isModule}
