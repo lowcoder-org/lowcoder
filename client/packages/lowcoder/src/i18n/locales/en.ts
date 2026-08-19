@@ -1823,6 +1823,7 @@ export const en = {
 
   "comp": {
     "menuViewDocs": "View Documentation",
+    "menuViewDocsTooltip": "Open documentation on GitHub",
     "menuViewPlayground": "View interactive Playground",
     "menuUpgradeToLatest": "Upgrade to Latest Version",
     "nameNotEmpty": "Cannot Be Empty",
@@ -5302,6 +5303,11 @@ export const en = {
     eventHandlerSlowdown: "https://docs.lowcoder.cloud/build-applications/app-interaction/event-handlers",
     thirdLib: "https://docs.lowcoder.cloud/lowcoder-extension/use-third-party-libraries-in-apps",
     thirdLibUrlText: "Use third-party libraries",
+    githubAiChat: "https://github.com/lowcoder-org/lowcoder/blob/dev-temp/docs/build-applications/app-editor/visual-components/ai-chat.md",
+    githubChatBox: "https://github.com/lowcoder-org/lowcoder/blob/dev-temp/docs/build-applications/app-editor/visual-components/chat-box.md",
+    githubAutomator: "https://github.com/lowcoder-org/lowcoder/blob/dev-temp/docs/build-applications/app-editor/automator.md",
+    githubAiHelp: "https://github.com/lowcoder-org/lowcoder/blob/dev-temp/docs/build-applications/app-editor/ai-help.md",
+    githubChatController: "https://github.com/lowcoder-org/lowcoder/blob/dev-temp/docs/build-applications/app-editor/visual-components/chat-controller.md",
   },
   datasourceTutorial: {
     mysql: "",

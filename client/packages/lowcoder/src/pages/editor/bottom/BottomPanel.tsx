@@ -18,9 +18,10 @@ import type { MenuProps } from 'antd/es/menu';
 import { DatabaseOutlined } from "@ant-design/icons";
 import Menu from "antd/es/menu/menu";
 import Select from "antd/es/select";
-import { AIGenerate } from "lowcoder-design";
+import { AIGenerate, DocLink } from "lowcoder-design";
 import { ChatPanel } from "@lowcoder-ee/comps/comps/chatComp/components/ChatPanel";
 import { EditorContext } from "comps/editorState";
+import { trans } from "i18n";
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -62,6 +63,9 @@ const ChatHeader = styled.div`
 `;
 const ChatTitle = styled.h3`
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   font-size: 14px;
   font-weight: 500;
   color: #222222;
@@ -165,7 +169,15 @@ function Bottom(props: any) {
             ) : (
               <Flex style={{height: '100%'}} vertical>
                 <ChatHeader>
-                  <ChatTitle>Lowcoder Automator</ChatTitle>
+                  <ChatTitle>
+                    Lowcoder Automator
+                    <DocLink
+                      href={trans("docUrls.githubAutomator")}
+                      title={trans("comp.menuViewDocsTooltip")}
+                    >
+                      {trans("comp.menuViewDocs")}
+                    </DocLink>
+                  </ChatTitle>
                   <QuerySelectorWrapper>
                     <QueryLabel>Query:</QueryLabel>
                     <Select
