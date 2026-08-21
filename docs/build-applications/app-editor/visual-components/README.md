@@ -26,9 +26,11 @@ These components share a number of [common settings and configurations](common-c
 
 ### Chat Components
 
-- [Chat Box](chat-box.md)
-- [AI Chat](ai-chat.md)
-- [Chat Controller](chat-controller.md)
+- [Chat Box](chat-box.md) — room-based chat UI for several people
+- [AI Chat](ai-chat.md) — thread-based assistant chat for a single user
+- [Chat Controller](chat-controller.md) — presence, typing, and shared live state
+
+Chat Box and Chat Controller need a running realtime server; see [Realtime Collaboration](../../realtime-collaboration.md).
 
 ### Extensible Components
 

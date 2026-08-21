@@ -69,6 +69,7 @@
   * [Customize Styles](build-applications/themes-and-styling/customize-styles.md)
   * [Component Styling Possibilities](build-applications/themes-and-styling/component-styling-possibilities.md)
 * [Video Calls in Lowcoder](build-applications/video-calls-in-lowcoder.md)
+* [Realtime Collaboration](build-applications/realtime-collaboration.md)
 
 ## 🚀 Connect your Data
 

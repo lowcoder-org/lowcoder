@@ -145,6 +145,7 @@ The following settings are mandatory:
 * Agora Application ID (copied from the Agora Project Console. Must be identical to the one used at the Agora Token Server)
 * Meeting Name: This is the Meeting Room Name. Everyone who knows this name can attend the Meeting. It should be a dynamic value, and you need to manage in your own Backend / Database the management of the Meeting Room Names
 * Host User ID: This is the Unique Identifier for a User in Agora Meetings. It _could_ be the UserID of Lowcoder Users - if your scenario offers Meetings only for Lowcoder Users. It should be a dynamic value, and you need to manage it in your own Backend / Database the management of the User IDs.
+* Host User Name: the display name shown to the other attendees. Unlike the Host User ID it does not have to be unique - it is purely for display. It is broadcast to every attendee, so it also arrives in their `participants` array as `userName`.
 * RTM and RTC Token are used when an Agore App Certificate and a Token Server is used. For each meeting instance, you need a fresh Token Pair.
 
 {% hint style="warning" %}
@@ -163,26 +164,63 @@ Meeting Name (Meeting Room) & Host User ID have to be managed in your own Backen
 
 #### Main Data Objects
 
-1. **localUser**: An object representing the local user, including properties like `user`, `audiostatus`, `streamingVideo`, `speaking`, etc.
-2. **participants**: An array of objects representing the "remote" participants in the meeting, each with properties like `user`, `audiostatus`, `streamingVideo`, etc.
+1. **localUser**: An object representing the local user.
+2. **participants**: An array of objects representing the "remote" participants in the meeting.
 3. **messages**: An array of messages exchanged in the RTM channel.
 4. **meetingActive**: A boolean indicating whether the meeting is currently active.
 5. **meetingName**: The name of the meeting.
+6. **localUserID** / **localUserName**: the id and display name of the local user.
+7. **appId**, **rtcToken**, **rtmToken**: the current Agora credentials.
+
+**localUser** and each entry of **participants** share the same shape:
+
+```json
+{
+  "user": "8f3c...",
+  "userName": "Alice",
+  "audiostatus": true,
+  "streamingVideo": true,
+  "streamingSharing": false,
+  "speaking": false
+}
+```
+
+- `user` is the Agora user id — this is what you bind to a Camera Stream component
+- `userName` is the display name, set through `setUserName()` or the Host User Name property
+- `audiostatus` is `true` when the microphone is on
+- `streamingVideo` is `true` when the camera is publishing
+- `streamingSharing` is `true` while that attendee is sharing their screen
+- `speaking` is `true` while that attendee is detected as talking - useful for an "active speaker" highlight
+
+### Joining Without A Camera
+
+Starting a meeting no longer fails when the camera is unavailable. If the browser denies camera permission, or the device has no camera, `startMeeting()` still joins the RTC and RTM channels and simply publishes no video. `videoControl` and `localUser.streamingVideo` come back `false`, and the Camera Stream component shows the profile image instead.
+
+The user can turn the camera on later with `videoControl()`, which acquires and publishes the track at that point - so a "join without video, enable it later" flow works without any extra wiring.
+
+This matters for kiosk screens, listen-only participants, and any browser where permission is granted late.
 
 #### Functions
 
 1. **openDrawer()**: Opens the meeting drawer (UI component).
-2. **startSharing()**: Toggles screen sharing on and off.
-3. **audioControl()**: Toggles the microphone on and off.
-4. **videoControl()**: Toggles the local camera on and off.
-5. **startMeeting()**: Initiates the meeting, joins the RTC and RTM channels, and sets up the local user.
-6. **startSharing()**: Initiates the Screen Sharing at the local User
-7. **broadCast()**: Sends a message to the RTM channel or to specific peers.
-8. **setMeetingName()**: Sets the name of the meeting.
-9. **setUserName()**: Sets the name of the local user.
-10. **setRTCToken()**: Sets the RTC token for the session.
-11. **setRTMToken()**: Sets the RTM token for the session.
-12. **endMeeting()**: Ends the meeting, leaves the RTC and RTM channels, and updates the local user's state.
+2. **startMeeting()**: Initiates the meeting, joins the RTC and RTM channels, and sets up the local user. If no camera is available it joins without video rather than failing.
+3. **endMeeting()**: Ends the meeting, leaves the RTC and RTM channels, and updates the local user's state.
+4. **audioControl()**: Toggles the microphone on and off.
+5. **videoControl()**: Toggles the local camera on and off. If the camera was never acquired - for example because the meeting started without video - this acquires and publishes it.
+6. **startSharing()**: Toggles screen sharing at the local user on and off.
+7. **broadCast(message, toUsers?)**: Sends a message to the RTM channel, or to specific peers when the second argument is an array of user ids.
+8. **setMeetingName(name)**: Sets the name of the meeting.
+9. **setUserName(name)**: Sets the display name of the local user, and broadcasts it to the other attendees.
+10. **setRTCToken(token)**: Sets the RTC token for the session.
+11. **setRTMToken(token)**: Sets the RTM token for the session.
+
+{% hint style="info" %}
+Every function except `openDrawer()`, `setMeetingName()`, `setUserName()`, `setRTCToken()` and `setRTMToken()` is a no-op while no meeting is active. Call `startMeeting()` first.
+{% endhint %}
+
+#### Events
+
+The Meeting Controller emits `audioMuted`, `audioUnmuted`, `showCamera`, `hideCamera`, `videoClicked`, `shareScreen`, `shareScreenEnd`, `shareControl`, and `shareControlEnd`, plus a `close` event for the underlying Drawer. The Camera Stream and Screen Share Stream components emit the same meeting event set.
 
 ### Camera Stream
 
@@ -190,29 +228,42 @@ The Camera Stream allows you to show your own Camera Stream or the Video Stream 
 
 <figure><img src="../.gitbook/assets/Agora Meetings  Camera Stream Component.png" alt="" width="563"><figcaption></figcaption></figure>
 
-The Camera Stream Component has 2 special features to enable good styling options.
+The Camera Stream Component has these settings to enable good styling options.
 
-* Vide Aspect Ratio - a CSS property that, in combination with Auto-Height, makes sure that you have perfect squares/circles of the Camera Streams.
-* Profile Image URL - Here you can set an actual user Profile Image - or a Profile Image Generator like in our Example [https://www.dicebear.com/playground](https://www.dicebear.com/playground/). The Profile image is displayed as long as the Camera Video Stream is not active.&#x20;
+* Video Aspect Ratio - a CSS property that, in combination with Auto-Height, makes sure that you have perfect squares/circles of the Camera Streams.
+* Profile Image URL - Here you can set an actual user Profile Image - or a Profile Image Generator like in our Example [https://www.dicebear.com/playground](https://www.dicebear.com/playground/). The Profile image is displayed as long as the Camera Video Stream is not active.
+* Profile Padding and Profile Border Radius - control the placeholder shown while there is no video.
+* No Video Text - the caption shown next to the placeholder.
 
 The Video Stream ID is the Meeting User ID.
 
 * To set the video Stream of the local user (you), you can bind the value of **localUser.** `{{meetingController.localUser}}`
-* To set the video Stream of the Attendee user, you can make use of the **participants** Array. You would need a repeater component like the List Component for example to keep the meeting attendee display dynamic. In the listItem (**currentItem**) you would set then for example: `{{meetingController.participants[currentItem]}}`
+* To set the video Stream of the Attendee user, you can make use of the **participants** Array. You would need a repeater component like the List Component for example to keep the meeting attendee display dynamic. In the listItem (**currentItem**) you would set then for example: `{{currentItem}}`
+
+The component accepts either the whole participant object or a plain user id string, so both `{{currentItem}}` and `{{currentItem.user}}` resolve to the same stream.
 
 {% hint style="info" %}
 The Video Stream get's automatic visible, as soon as the respective Camera is ready and active.
 {% endhint %}
 
-{% hint style="danger" %}
-The incoming Sharing Screen Stream, unfortunately, is currently in Agora Meeting tight connected to the Camera Stream (in fact, there is only a single stream per attendee). That means, that the control of the displayed Stream (Camera or Screen Sharing) has to be managed by the App Creator
-{% endhint %}
-
 ### Screen Share Stream
 
-The Screen Share Stream Component is almost identical to the Camera Stream component. It is meant to enable you to choose a place where to display Shareing Stream. Often this will be in a bigger content area.&#x20;
+The Screen Share Stream Component is almost identical to the Camera Stream component. It is meant to enable you to choose a place where to display the Sharing Stream. Often this will be in a bigger content area.
 
-To set (display) the Sharing Stream of the local user (you), you can bind the value of **localUser.** `{{meetingController.localUser}}.`
+Bind its Video Stream ID to whoever is sharing:
+
+* your own share: `{{meetingController.localUser}}`
+* an attendee's share: the participant whose `streamingSharing` is `true`
+
+```js
+{{ (meetingController.participants || []).find(p => p.streamingSharing) }}
+```
+
+Each attendee's screen share is tracked as its own stream, so several attendees sharing at once each render into their own Screen Share Stream component, and the camera stream keeps working independently while someone shares.
+
+{% hint style="info" %}
+Deciding **who** gets the big screen-share area is still your app's job. The `streamingSharing` flag on `localUser` and on every entry of `participants` is what you drive that decision from.
+{% endhint %}
 
 ## Realtime Messages
 
@@ -223,16 +274,55 @@ You can send messages as soon as the meeting has started. To do so, you can use 
 ```javascript
 const message = {
   text: "Hello everyone!",
-  sender: userId // you can send this to understand the Sender.
-  data: {...} // // you also can send a complex nested JSON Object. 
+  sender: userId, // you can send this to understand the Sender.
+  data: {...} // you also can send a complex nested JSON Object.
 };
 meetingController.broadCast(message);
 ```
 
-Messages sent in the Meeting Room (Channel) are collected for each Meeting Attendee at the local Data Object **messages** (`meetingController.messages`f.e.) as an Array.
+To send to specific attendees instead of the whole channel, pass an array of user ids as the second argument:
+
+```javascript
+meetingController.broadCast(message, ["user_2", "user_7"]);
+```
+
+Messages sent in the Meeting Room (Channel) are collected for each Meeting Attendee at the local Data Object **messages** (`meetingController.messages` f.e.) as an Array.
+
+### The Shape Of `messages`
+
+Each entry records where the message came from. Channel broadcasts and direct peer messages use different keys:
+
+```json
+[
+  {
+    "channelmessage": { "time": 1710000000000, "message": { "text": "Hello everyone!" } },
+    "from": "user_2"
+  },
+  {
+    "peermessage": { "time": 1710000000000, "message": { "text": "Just for you" }, "to": "user_1" },
+    "from": "user_3"
+  }
+]
+```
+
+Your own payload is nested under `message`; the controller adds `time` around it.
+
+{% hint style="warning" %}
+The Meeting Controller uses the same RTM channel to sync attendee state, so **`messages` also contains internal presence messages**. Those carry `type: "meetingUserState"`. Filter them out before rendering a chat:
+
+```js
+{{ (meetingController.messages || []).filter(
+     m => m.channelmessage?.type !== "meetingUserState"
+   ) }}
+```
+{% endhint %}
 
 {% hint style="danger" %}
-the Data Object **messages** will contain only the latest 100 Messages. As App Creator you are responsible for any further storage of these Messages.
+The Data Object **messages** keeps only the latest 500 entries, and it is cleared when the page reloads. As App Creator you are responsible for any further storage of these Messages.
+{% endhint %}
+
+{% hint style="info" %}
+Agora RTM is scoped to an active meeting. If you want chat that persists, works outside a call, or spans rooms, use the [Chat Box](app-editor/visual-components/chat-box.md) and [Chat Controller](app-editor/visual-components/chat-controller.md) components instead - they can run alongside a meeting in the same app.
 {% endhint %}
 
 

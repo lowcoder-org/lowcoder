@@ -69,7 +69,20 @@ This controls the composer placeholder text.
 
 ### `leftPanelWidth`
 
-This controls the width of the thread sidebar.
+This controls the width of the thread sidebar. Defaults to `250px`. Any CSS width value works.
+
+### Layout And Style
+
+Under **Layout** you also get the standard auto-height / fixed-height switch.
+
+The style panel is split per region, so each part of the chat can be themed separately:
+
+- **Style** — the outer container
+- **Sidebar Style** — the thread list column
+- **Messages Style** — the message area
+- **Input Style** — the composer
+- **Send Button Style**, **New Thread Button Style**, **Thread Item Style**
+- **Animation Style**
 
 ## Exposed Variables
 
@@ -106,11 +119,27 @@ This is the most useful exposed value when:
 - saving session snapshots
 - reconstructing prompt context externally
 
+Messages that carried attachments also include an `attachments` array with the attachment metadata (and, for images, the base64 content), so a single `conversationHistory` value is enough to rebuild a multimodal request.
+
+Because it is a real array rather than a JSON string, you can use it directly — no `JSON.parse` needed — and it comes with the standard array-state helpers:
+
+```js
+chat1.setConversationHistory(newArray)
+chat1.clearConversationHistory()
+chat1.resetConversationHistory()
+```
+
 ### `databaseName`
 
-This exposes the internal local storage database name used by the component.
+This exposes the name of the browser-local database the component uses for its threads and messages, in the form `ChatDB_<generated-name>`. The same name is shown read-only in the **Database** section of the property panel.
 
-It is mainly for inspection and debugging.
+It holds two tables, `threads` and `messages`, which you can read with an AlaSQL query:
+
+```sql
+SELECT * FROM ChatDB_chat1234.messages WHERE threadId = 'thread_1'
+```
+
+> **Warning:** This storage is the browser's own `localStorage`, not the Lowcoder server. Threads are per-browser and per-device: they are not shared between users, and they do not survive clearing site data. If you need durable or shared transcripts, persist them yourself from the `messageSent` / `messageReceived` events using `conversationHistory`.
 
 ## Query Contract
 
@@ -137,28 +166,54 @@ Useful values available to the query or surrounding app logic:
 
 ## Expected Query Response
 
-The selected query should return a result where:
+The query must return **the assistant message itself** — not a wrapper around it.
 
-```js
-result.message
-```
-
-contains the assistant response object.
-
-Recommended response shape:
+The minimum valid response is:
 
 ```json
 {
-  "message": {
-    "content": "Assistant reply text"
-  }
+  "role": "assistant",
+  "content": "Assistant reply text"
 }
 ```
 
-That is the safest shape because the component expects the assistant reply text at:
+`content` may also be an array of content parts, which is what you need for anything richer than plain text:
+
+```json
+{
+  "role": "assistant",
+  "content": [
+    { "type": "text", "text": "Here is what I found." }
+  ]
+}
+```
+
+Rules the component enforces:
+
+* `role` **must** be `"assistant"`. Anything else raises `Query must return an assistant message`.
+* `content` is required — a string is converted to a single text part.
+* `id` and `createdAt` are optional; the component generates them when they are missing.
+
+> **Warning:** Earlier versions of this component read the reply from `result.message`. That is no longer the case. A query still returning `{ "message": { "content": "..." } }` will fail, because the top-level object has no `role`. Return the assistant message at the top level instead.
+
+### Shaping The Response In The Query
+
+Most AI providers do not return this shape directly. Add a JS transformer to your query so the last step produces the assistant message. For an OpenAI-style response:
 
 ```js
-message.content
+return {
+  role: "assistant",
+  content: data.choices[0].message.content
+};
+```
+
+For an Anthropic-style response:
+
+```js
+return {
+  role: "assistant",
+  content: data.content[0].text
+};
 ```
 
 ## Minimal Working Setup
@@ -172,13 +227,18 @@ The smallest working setup is:
 
 ```json
 {
-  "message": {
-    "content": "assistant reply"
-  }
+  "role": "assistant",
+  "content": "assistant reply"
 }
 ```
 
 That is enough for the component to function.
+
+## Error Handling
+
+If the selected query throws, or returns something the component cannot read as an assistant message, the component appends a fallback assistant message describing the failure instead of leaving the thread hanging. The thrown message is surfaced there, so a malformed response shape is visible directly in the chat during development.
+
+If no query is selected at all, sending a message fails with `Select a query before sending a message`.
 
 ## Typical Query Patterns
 
@@ -383,5 +443,5 @@ Think of **AI Chat** like this:
 - the selected query is responsible for generating assistant replies
 - the component exposes `currentMessage` and `conversationHistory`
 - the query receives `args.message.value` and `args.prompt.value`
-- the query should return `message.content`
+- the query must return an assistant message (`{ role: "assistant", content: ... }`)
 - attachments and thread events make it suitable for more advanced assistant flows
