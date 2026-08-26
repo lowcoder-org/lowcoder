@@ -20,6 +20,7 @@ import {
 } from "../reduxActions/folderActions";
 import { FolderApi } from "../../api/folderApi";
 import { ApplicationMeta, FolderMeta } from "../../constants/applicationConstants";
+import { flattenFolderTree } from "../../util/folderUtils";
 
 export function* createFolderSaga(action: ReduxActionWithCallbacks<CreateFolderPayload, any, any>) {
   try {
@@ -116,7 +117,9 @@ export function* fetchFolderElementsSaga(action: ReduxAction<FetchFolderElements
         // todo use new get all folders api
         yield put({
           type: ReduxActionTypes.FETCH_ALL_FOLDERS_SUCCESS,
-          payload: response.data.data.filter((m) => m.folder),
+          payload: flattenFolderTree(
+            response.data.data.filter((m) => m.folder),
+          ),
         });
       }
       

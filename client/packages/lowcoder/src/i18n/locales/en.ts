@@ -4551,6 +4551,7 @@ export const en = {
     "moveToFolder": "Move to folder",
     "moveToTrash": "Move to trash",
     "moveToFolderSubTitle": 'Move "{name}" to:',
+    "selectFolderDestination": "Select a destination folder",
     "folderName": "Folder name:",
     "resCardSubTitle": "{time} by {creator}",
     "trashEmpty": "Trash is empty.",
