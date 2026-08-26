@@ -110,6 +110,34 @@ services:
       test: curl -sS http://lowcoder-node-service:6060  | grep -c "Lowcoder Node Service is up and running" > /dev/null
       interval: 3s
       timeout: 5s
+      retries: 15
+      start_period: 40s
+
+  lowcoder-proxy-service:
+    build:
+      context: ../../server/proxy-service
+      dockerfile: Dockerfile
+    container_name: lowcoder-proxy-service
+    ports:
+      - "6070:6070"
+    environment:
+      PROXY_SERVICE_PORT: "6070"
+    env_file:
+      - path: ./default.env
+        required: true
+      - path: ./default-multi.env
+        required: true
+      - path: ./override.env
+        required: false
+    restart: unless-stopped
+    depends_on:
+      lowcoder-api-service:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test: curl -sS http://lowcoder-proxy-service:6070 | grep -c "Lowcoder Proxy Service is up and running" > /dev/null
+      interval: 3s
+      timeout: 5s
       retries: 10
 
   ##
@@ -133,6 +161,9 @@ services:
         condition: service_healthy
         restart: true
       lowcoder-api-service:
+        condition: service_healthy
+        restart: true
+      lowcoder-proxy-service:
         condition: service_healthy
         restart: true
     volumes:
