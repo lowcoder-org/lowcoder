@@ -35,10 +35,16 @@ if (!apiServiceUrl && isDev) {
   process.exit(1);
 }
 
+const proxyServiceUrl = process.env.LOWCODER_PROXY_SERVICE_URL || "http://localhost:6070";
+
 const proxyConfig: ServerOptions["proxy"] = {
   "/api": {
     target: apiServiceUrl,
     changeOrigin: false,
+  },
+  "/proxy": {
+    target: proxyServiceUrl,
+    changeOrigin: true,
   },
 };
 
