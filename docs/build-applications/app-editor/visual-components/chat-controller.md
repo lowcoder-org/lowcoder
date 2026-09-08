@@ -9,7 +9,7 @@ It is designed to work with:
 
 > **Before you start:** this component needs a Hocuspocus server running and reachable from the browser. Without it, `ready` stays `false` and every shared value stays empty.
 >
-> See [Realtime Collaboration](../../realtime-collaboration.md) for setup, deployment, and troubleshooting.
+> See [Realtime Shared State and Presence](../../realtime-collaboration.md) for setup, deployment, and troubleshooting.
 
 ## What Chat Controller Does
 
@@ -65,7 +65,7 @@ node client/packages/lowcoder/hocuspocus-server.js
 
 and make sure the frontend was built with `REACT_APP_HOCUSPOCUS_URL` pointing at it (it defaults to `ws://localhost:3006`).
 
-Full setup, deployment, and troubleshooting instructions are in [Realtime Collaboration](../../realtime-collaboration.md).
+Full setup, deployment, and troubleshooting instructions are in [Realtime Shared State and Presence](../../realtime-collaboration.md).
 
 ## How It Works Under The Hood
 
@@ -618,7 +618,7 @@ Those are usually better handled by your own queries and datastore.
 ## Summary
 
 - **Chat Controller** is the realtime collaboration component — for chat features and for any other live shared state
-- it needs a running Hocuspocus server; see [Realtime Collaboration](../../realtime-collaboration.md)
+- it needs a running Hocuspocus server; see [Realtime Shared State and Presence](../../realtime-collaboration.md)
 - it scopes collaboration by `applicationId`
 - it exposes presence, room state, app-wide shared state, and room-scoped shared state
 - use `sharedState` for app-level data

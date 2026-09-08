@@ -16,7 +16,7 @@ It is designed to work best together with **Chat Controller**, while your own qu
 
 > **Before you start:** the realtime features — typing indicators, online users, live room switching — come from **Chat Controller**, which needs a Hocuspocus server running and reachable from the browser. Without it the component still renders, but nothing syncs between users.
 >
-> See [Realtime Collaboration](../../realtime-collaboration.md) for setup, deployment, and troubleshooting.
+> See [Realtime Shared State and Presence](../../realtime-collaboration.md) for setup, deployment, and troubleshooting.
 
 ## What Chat Box Does
 
@@ -836,7 +836,7 @@ That means:
 - `chatController1.sharedState` is app-wide shared data
 - `chatController1.roomData` is room-scoped shared data
 
-For a full controller reference, see [Chat Controller](chat-controller.md). For the server it needs, see [Realtime Collaboration](../../realtime-collaboration.md).
+For a full controller reference, see [Chat Controller](chat-controller.md). For the server it needs, see [Realtime Shared State and Presence](../../realtime-collaboration.md).
 
 ## Building A Custom Chat With Standard Components
 
@@ -870,5 +870,5 @@ This gives you the same realtime collaboration layer even if you do not use the 
 - it exposes the key user interactions as variables and events
 - `@`-mentions gate the AI: `lastSentMessageTagsLlm` tells you when to run the LLM query
 - attachments are picked up by the composer, but hosting and linking them is your app's job
-- it works best together with **Chat Controller**, which needs a running realtime server — see [Realtime Collaboration](../../realtime-collaboration.md)
+- it works best together with **Chat Controller**, which needs a running realtime server — see [Realtime Shared State and Presence](../../realtime-collaboration.md)
 - your own queries remain responsible for loading and saving rooms, messages, and invites

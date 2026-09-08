@@ -1,4 +1,4 @@
-# Realtime Collaboration
+# Realtime Shared State and Presence
 
 Lowcoder ships a realtime collaboration layer that lets several people using the **same app** see each other and share live state.
 
@@ -10,7 +10,7 @@ It powers:
 
 This page explains what the layer actually does, what it does **not** do, and how to run it in development and in production.
 
-> **Note:** This is a different feature from [Video Calls in Lowcoder](video-calls-in-lowcoder.md). Video calls use the Agora SDK for audio/video/screen share. Realtime collaboration uses a WebSocket server for presence and shared data. They can be used together in one app, but they are independent.
+> **Note:** This is different from [collaborative video apps](app-editor/collaborative-video-apps.md). Agora provides audio, video, screen share, meeting participants, and temporary meeting signals. This page covers the Hocuspocus WebSocket service used by Chat Controller for chat presence and shared data. Explore Together modules can also use Hocuspocus through a provider-specific proxy bridge.
 
 ## What The Layer Provides
 
@@ -25,9 +25,9 @@ Everyone connected to the same collaboration space shares:
 | App-wide shared key/value data | `chatController1.sharedState` |
 | Room-scoped shared key/value data | `chatController1.roomData` |
 
-That is the full set. In particular:
+That is the full set provided by **Chat Controller itself**. In particular:
 
-* There are **no live cursors** and no shared-text co-editing. The layer synchronizes structured key/value data and presence, not caret positions or rich-text documents.
+* Chat Controller does not expose live cursors or shared-text editing. It synchronizes structured key/value data and chat presence. An [Explore Together](app-editor/collaborative-video-apps.md#6-add-explore-together) proxy bridge can add provider-specific pointers, carets, form values, or navigation to a supported external page.
 * Presence carries a **fixed** set of fields — `userId`, `userName`, `currentRoomId`, `typing`. You cannot add your own presence fields from the property panel.
 * It is **not a message store**. Chat messages, rooms, and invites are loaded and saved by your own queries. The realtime layer only tells other clients that something changed.
 
@@ -87,12 +87,13 @@ hocuspocus:
   container_name: hocuspocus
   restart: unless-stopped
   environment:
-    HOCUSPOCUS_SECRET: "s3cr3t! - CHANGE THIS!"
+    # Empty is convenient for local development only.
+    HOCUSPOCUS_SECRET: ""
 ```
 
 See [`deploy/docker/docker-compose-multi.yaml`](https://github.com/lowcoder-org/lowcoder/blob/main/deploy/docker/docker-compose-multi.yaml).
 
-> **Important:** Change `HOCUSPOCUS_SECRET` before exposing the service. With an empty secret the server accepts every connection and every document name, so anyone who can reach the port can read and write the shared state of any app.
+> **Important:** The multi-container compose file leaves `HOCUSPOCUS_SECRET` empty for local development. Set a matching server and frontend value before exposing the service. With an empty secret the server accepts every connection and every document name, so anyone who can reach the port can read and write the shared state of any app.
 
 ## Pointing The Client At The Server
 
@@ -130,4 +131,5 @@ If `ready` stays `false`:
 
 * [Chat Controller](app-editor/visual-components/chat-controller.md) — full reference for presence, shared state, methods, and events
 * [Chat Box](app-editor/visual-components/chat-box.md) — the ready-made room chat UI
+* [Build Collaborative Video Apps](app-editor/collaborative-video-apps.md) — combine Agora meetings with chat, AI, documents, forms, or shared websites
 * [AI Chat](app-editor/visual-components/ai-chat.md) — single-user assistant chat, which needs none of this infrastructure
