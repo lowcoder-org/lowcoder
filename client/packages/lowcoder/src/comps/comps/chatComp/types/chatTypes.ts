@@ -43,9 +43,12 @@ export type ChatMessage = Omit<
   // ============================================================================
   // MESSAGE HANDLER INTERFACE (new clean abstraction)
   // ============================================================================
-  
+
   export interface MessageHandler {
-    sendMessage(message: ChatMessage, sessionId?: string): Promise<ChatMessage>;
+    sendMessage(
+      message: ChatMessage,
+      conversationHistory: ChatMessage[]
+    ): Promise<ChatMessage>;
     // Future: sendMessageStream?(message: ChatMessage): AsyncGenerator<ChatMessage>;
   }
 
@@ -60,6 +63,7 @@ export type ChatMessage = Omit<
   export interface QueryHandlerConfig {
     chatQuery: string;
     dispatch: any;
+    systemPrompt?: string;
     /**
      * Snapshot accessor for the live editor state. The handler calls this
      * lazily on every send so it always has the *current* canvas state.

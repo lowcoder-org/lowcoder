@@ -27,7 +27,7 @@ Examples of possible providers include:
 At runtime, Automator builds an AI payload from the current editor state and conversation. It passes this payload to the selected query as:
 
 ```js
-{{ ai.value }}
+ai.value
 ```
 
 The payload contains:
@@ -40,6 +40,8 @@ The payload contains:
 }
 ```
 
+Inside the selected JavaScript query, read this request directly as `ai.value`, not `args.ai.value`.
+
 The query should send `messages` and `tools` to your model. If the model returns a normal assistant reply, the query returns that text to Automator. If the model calls an Automator tool, the query returns the tool call so Lowcoder can apply the generated actions in the editor.
 
 Automator does not call the model directly. The selected query is the integration layer between Lowcoder and your AI provider.
@@ -51,7 +53,15 @@ A common setup is to create two queries:
 1. an HTTP query that calls your model provider
 2. a JavaScript query that acts as the bridge between Automator and the HTTP query
 
-The JavaScript query is the one you select in the Automator panel.
+The same pair can serve both Automator and AI Help. Both features call the selected JavaScript query with `ai.value`; `ai.value.mode` identifies the caller as `"automator"` or `"helper"`.
+
+```text
+Automator --\
+             > shared JavaScript bridge -> provider HTTP query
+AI Help ----/
+```
+
+The JavaScript bridge is the query you select in the Automator and AI Helper panels. The provider-specific request and response conversion belongs in this bridge, not in either feature.
 
 This pattern is useful because the Automator UI does not need to know which model provider you use. The HTTP query handles the provider call. The JavaScript bridge normalizes the provider response for Lowcoder.
 
@@ -60,30 +70,49 @@ Before you start, prepare:
 - a model endpoint
 - any required API key or authentication headers
 - a model name
-- a Lowcoder HTTP query, for example `llmHttp`
-- a Lowcoder JavaScript query, for example `aiBridge`
+- a Lowcoder HTTP query, for example `openAIResponses` or `llmHttp`
+- a Lowcoder JavaScript query, for example `unifiedAIQuery`
 
-In the example below, the HTTP query is named `llmHttp` and the JavaScript bridge query is named `unifiedQuery`.
+The OpenAI Responses example below uses `openAIResponses` and `unifiedAIQuery`. Other providers can use the same Lowcoder payload contract with a provider-specific HTTP query and bridge conversion.
 
 ## HTTP Query
 
-Create an HTTP query, for example `llmHttp`, that points to your model provider endpoint.
+Create an HTTP query that points to your model provider endpoint. Its URL, authentication, and body are provider-specific; the JavaScript bridge supplies the converted request values when it runs the HTTP query.
 
-For an OpenAI-compatible chat completions API, the request body can look like this:
+### OpenAI Responses API
+
+This is a tested provider example, not a requirement to use OpenAI.
+
+Create a REST query named `openAIResponses`:
+
+- **Triggered when:** manually
+- **Method:** `POST`
+- **URL:** `https://api.openai.com/v1/responses`
+- **Parameters:** none
+- **Variables:** empty
+- **Body type:** JSON
+
+Headers:
+
+| Key | Value |
+|---|---|
+| `Authorization` | `Bearer YOUR_OPENAI_API_KEY` |
+| `Content-Type` | `application/json` |
+
+Body:
 
 ```json
 {
-  "model": "gpt-4.1",
-  "stream": false,
-  "parallel_tool_calls": false,
-  "messages": {{ messages.value }},
-  "tools": {{ tools.value }}
+  "model": "gpt-4.1-mini",
+  "instructions": {{ instructions.value }},
+  "input": {{ input.value }},
+  "tools": {{ tools.value }},
+  "tool_choice": "auto",
+  "parallel_tool_calls": false
 }
 ```
 
-Change the model name, URL, headers, authentication, and request fields to match the provider you use.
-
-<figure><img src="../../.gitbook/assets/automator-ai-help-httpquery.png" alt=""><figcaption><p>HTTP query calling an OpenAI-compatible model endpoint.</p></figcaption></figure>
+The bridge must flatten Lowcoder's `tool.function` objects for the Responses API and convert returned `function_call` items back into Lowcoder `tool-call` message parts. See the [OpenAI Responses API reference](https://developers.openai.com/api/reference/cli/resources/responses/methods/create).
 
 ## Provider Starting Points
 
@@ -103,10 +132,10 @@ Use this style for OpenAI and other providers that expose a compatible `/chat/co
 }
 ```
 
-The JavaScript bridge above can usually stay the same because the response is expected at:
+Use the OpenAI-compatible Chat Completions bridge shown later on this page. It reads the response from:
 
 ```js
-payload.choices?.[0]?.message
+response.choices?.[0]?.message
 ```
 
 ### Grok
@@ -175,8 +204,7 @@ const tools = a.tools.map((tool) => ({
 return claudeHttp
   .run({ system, messages, tools })
   .then((response) => {
-    const payload = response?.data || response;
-    const blocks = payload.content || [];
+    const blocks = response.content || [];
     const text = blocks
       .filter((block) => block.type === "text")
       .map((block) => block.text)
@@ -212,7 +240,85 @@ The exact HTTP query body depends on the Claude API version and the model you se
 
 ## JavaScript Bridge Query
 
-Create a JavaScript query, for example `aiBridge`, that receives Automator's payload, calls the HTTP query, and returns an assistant message.
+Create a JavaScript query that receives `ai.value`, calls the provider HTTP query, and returns a Lowcoder assistant message. Select the same bridge for Automator and AI Help when they use the same provider.
+
+### OpenAI Responses bridge
+
+Create a JavaScript query named `unifiedAIQuery`:
+
+```js
+const request = ai.value;
+
+const systemMessage = request.messages.find(
+  (message) => message.role === "system"
+);
+
+const input = request.messages
+  .filter((message) => message.role !== "system")
+  .map((message) => ({
+    role: message.role,
+    content: message.content
+  }));
+
+const tools = request.tools.map((tool) => ({
+  type: "function",
+  name: tool.function.name,
+  description: tool.function.description,
+  parameters: tool.function.parameters
+}));
+
+return openAIResponses
+  .run({
+    instructions: systemMessage?.content || "",
+    input,
+    tools
+  })
+  .then((response) => {
+    const output = response.output || [];
+    const assistantText = output
+      .filter(
+        (item) =>
+          item.type === "message" &&
+          item.role === "assistant"
+      )
+      .flatMap((item) => item.content || [])
+      .filter((part) => part.type === "output_text")
+      .map((part) => part.text)
+      .join("\n");
+
+    const content = assistantText
+      ? [{ type: "text", text: assistantText }]
+      : [];
+
+    output
+      .filter((item) => item.type === "function_call")
+      .forEach((functionCall) => {
+        const argsText = functionCall.arguments || "{}";
+        content.push({
+          type: "tool-call",
+          toolCallId: functionCall.call_id,
+          toolName: functionCall.name,
+          args: JSON.parse(argsText),
+          argsText
+        });
+      });
+
+    if (content.length === 0) {
+      throw new Error("OpenAI returned no text or function call");
+    }
+
+    return {
+      role: "assistant",
+      content
+    };
+  });
+```
+
+This single bridge handles both tool names because they arrive through `request.tools`: Automator supplies `execute_automator_actions`, while AI Help supplies `apply_ai_helper_result`.
+
+### OpenAI-compatible Chat Completions bridge
+
+For OpenAI-compatible Chat Completions providers, including compatible Grok and Ollama endpoints, use a bridge that preserves the nested tool definitions and reads `choices[0].message`:
 
 ```js
 const a = ai.value;
@@ -223,8 +329,7 @@ return llmHttp
     tools: a.tools,
   })
   .then((response) => {
-    const payload = response?.data || response;
-    const msg = payload.choices?.[0]?.message || {};
+    const msg = response.choices?.[0]?.message || {};
     const content = msg.content || "";
     const toolCall = msg.tool_calls?.[0];
 
@@ -254,7 +359,7 @@ return llmHttp
   });
 ```
 
-This bridge keeps Automator independent from a specific provider. If your provider returns a different response shape, update only this JavaScript query.
+Both bridge examples keep Automator independent from a specific provider. If your provider returns a different response shape, update only the JavaScript bridge.
 
 <figure><img src="../../.gitbook/assets/automator-ai-help-jsquery.png" alt=""><figcaption><p>JavaScript bridge query that forwards Automator payloads to the HTTP query and normalizes the response.</p></figcaption></figure>
 
@@ -263,8 +368,10 @@ This bridge keeps Automator independent from a specific provider. If your provid
 In the App Editor:
 
 1. open the Automator panel
-2. choose the JavaScript bridge query in the query selector
+2. choose the JavaScript bridge query, such as `unifiedAIQuery`, in the query selector
 3. send an instruction, such as creating components, adjusting layout, or modifying supported properties
+
+Automator and AI Help use the same saved AI-query preference. Selecting the shared bridge in either panel makes it the default when the other panel is opened.
 
 Automator will run the selected query and apply supported tool calls returned by the model.
 
@@ -307,9 +414,10 @@ When the model calls an Automator tool, include the tool call part:
       toolCallId: "call_123",
       toolName: "execute_automator_actions",
       args: {
+        explanation: "No canvas changes are required.",
         actions: []
       },
-      argsText: "{\"actions\":[]}"
+      argsText: "{\"explanation\":\"No canvas changes are required.\",\"actions\":[]}"
     }
   ]
 }

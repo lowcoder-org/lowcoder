@@ -4,6 +4,8 @@ import React, { createContext, useContext, useReducer, useEffect, ReactNode } fr
 import { ChatStorage, ChatMessage, ChatThread } from "../../types/chatTypes";
 import { trans } from "i18n";
 
+const EMPTY_MESSAGES: ChatMessage[] = [];
+
 // ============================================================================
 // UPDATED CONTEXT WITH CLEAN TYPES
 // ============================================================================
@@ -355,7 +357,7 @@ export function ChatProvider({ children, storage }: {
 
   // Utility functions
   const getCurrentMessages = (): ChatMessage[] => {
-    return state.threads.get(state.currentThreadId) || [];
+    return state.threads.get(state.currentThreadId) || EMPTY_MESSAGES;
   };
 
   // Auto-initialize on mount

@@ -5,6 +5,7 @@ import { routeByNameAction, executeQueryAction } from "lowcoder-core";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
 import { buildAutomatorPayload } from "../../preLoadComp/actions/automator";
 import {
+  buildChatQueryArgs,
   getTextFromThreadContent,
   toAssistantMessage,
 } from "../utils/assistantMessages";
@@ -32,8 +33,11 @@ function buildAutomatorQueryArgs(
 export class QueryHandler implements MessageHandler {
   constructor(private config: QueryHandlerConfig) {}
 
-  async sendMessage(message: ChatMessage): Promise<ChatMessage> {
-    const { chatQuery, dispatch} = this.config;
+  async sendMessage(
+    message: ChatMessage,
+    conversationHistory: ChatMessage[]
+  ): Promise<ChatMessage> {
+    const { chatQuery, dispatch, systemPrompt = "" } = this.config;
 
     if (!chatQuery) {
       throw new Error("Select a query before sending a message");
@@ -50,11 +54,11 @@ export class QueryHandler implements MessageHandler {
         routeByNameAction(
           chatQuery,
           executeQueryAction({
-            // Pass the full message object so attachments are available in queries
-            args: { 
-              message: { value: message },
-              prompt: { value: getTextFromThreadContent(message.content) },
-            },
+            args: buildChatQueryArgs(
+              message,
+              conversationHistory,
+              systemPrompt
+            ),
           })
         )
       );
@@ -147,7 +151,7 @@ export function createMessageHandler(
 ): MessageHandler {
   switch (type) {
     case "query":
-      return new QueryHandler(config);
+        return new QueryHandler(config);
 
     default:
       throw new Error(`Unknown message handler type: ${type}`);

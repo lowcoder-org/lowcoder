@@ -49,10 +49,8 @@ function ChatContainerView(props: ChatCoreProps) {
   const currentMessages = actions.getCurrentMessages();
 
   useEffect(() => {
-    if (currentMessages.length > 0) {
-      onConversationUpdateRef.current?.(currentMessages);
-    }
-  }, [currentMessages]);
+    onConversationUpdateRef.current?.(currentMessages);
+  }, [state.currentThreadId, currentMessages]);
 
   useEffect(() => {
     onEventRef.current?.("componentLoad");
@@ -82,13 +80,17 @@ function ChatContainerView(props: ChatCoreProps) {
     }
   
     const userMessage = createUserMessage(text, completeAttachments);
+    const conversationHistory = [...currentMessages, userMessage];
   
     await actions.addMessage(state.currentThreadId, userMessage);
     await updateInitialThreadTitle(userMessage);
     setIsRunning(true);
   
     try {
-      const assistantMessage = await props.messageHandler.sendMessage(userMessage);
+      const assistantMessage = await props.messageHandler.sendMessage(
+        userMessage,
+        conversationHistory
+      );
       props.onMessageUpdate?.(getTextFromThreadContent(userMessage.content));
   
       await actions.addMessage(state.currentThreadId, assistantMessage);
@@ -122,7 +124,10 @@ function ChatContainerView(props: ChatCoreProps) {
     setIsRunning(true);
   
     try {
-      const assistantMessage = await props.messageHandler.sendMessage(editedMessage);
+      const assistantMessage = await props.messageHandler.sendMessage(
+        editedMessage,
+        newMessages
+      );
       props.onMessageUpdate?.(getTextFromThreadContent(editedMessage.content));
   
       newMessages.push(assistantMessage);
