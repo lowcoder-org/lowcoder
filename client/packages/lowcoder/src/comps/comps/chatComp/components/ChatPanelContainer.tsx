@@ -359,7 +359,11 @@ function ChatPanelView({ messageHandler, placeholder, onMessageUpdate }: Omit<Ch
     <AssistantRuntimeProvider runtime={runtime}>
       <StyledChatContainer>
         <ThreadList />
-        <Thread placeholder={placeholder} showAttachments={false} />
+        <Thread
+          placeholder={placeholder}
+          showAttachments={false}
+          suggestionMode="automator"
+        />
       </StyledChatContainer>
     </AssistantRuntimeProvider>
   );

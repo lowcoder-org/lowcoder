@@ -1551,8 +1551,16 @@ export const en = {
     "placeholderTooltip": "Placeholder text for the composer input",
     "newThread": "New Thread",
     "welcomeMessage": "How can I help you today?",
-    "suggestionWeather": "What's the weather in Tokyo?",
-    "suggestionAssistant": "What's the news today?",
+    "suggestionChatCapabilities": "What can you help me with?",
+    "suggestionChatIdeas": "Give me a few ideas to get started",
+    "suggestionTimeTracking": "Build a small time-tracking app",
+    "suggestionCrm": "Build a small CRM app",
+    "suggestionTodo": "Build a small todo app",
+    "suggestionInventory": "Build a small inventory app",
+    "suggestionExpenseTracker": "Build a small expense tracker app",
+    "suggestionProjectManagement": "Build a small project management app",
+    "suggestionCustomerSupport": "Build a small customer support app",
+    "suggestionEmployeeDirectory": "Build a small employee directory app",
     
     
     
