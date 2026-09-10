@@ -85,7 +85,10 @@ public class AuthenticationController implements AuthenticationEndpoints
     @Override
     public Mono<ResponseView<Boolean>> logout(ServerWebExchange exchange) {
         String cookieToken = cookieHelper.getCookieToken(exchange);
-        return sessionUserService.removeUserSession(cookieToken)
+        // expire the browser cookie first, so a failure to drop the server side session cannot leave the user
+        // holding a cookie that still looks live
+        return Mono.<Void> fromRunnable(() -> cookieHelper.clearCookie(exchange))
+                .then(sessionUserService.removeUserSession(cookieToken))
                 .then(businessEventPublisher.publishUserLogoutEvent())
                 .thenReturn(ResponseView.success(true));
     }

@@ -8,6 +8,7 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RequestPredicates.PUT;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
+import static reactor.core.scheduler.Schedulers.newBoundedElastic;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
@@ -55,18 +56,52 @@ import org.springframework.web.reactive.function.server.ServerResponse.BodyBuild
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 
 @Slf4j
 @RequiredArgsConstructor
 @Component
 public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 {
+	/**
+	 * Worker count of {@link #PLUGIN_ENDPOINT_SCHEDULER}. Plugin endpoint methods must return a plain
+	 * {@link EndpointResponse} (enforced by {@link #checkHandlerMethod(Method)}), so their implementations
+	 * have no way to stay reactive and block internally instead. Invoking them on the caller's thread parks
+	 * whichever reactive or driver I/O thread the request pipeline happened to complete on, which starves
+	 * everything else bound to that thread for the duration of the call. Sized to match the existing
+	 * {@code AuthenticationUtils.JUST_AUTH_THREAD_POOL_SIZE} precedent.
+	 */
+	public static final int PLUGIN_ENDPOINT_THREAD_POOL_SIZE = 50;
+
+	/** Queued-task capacity of {@link #PLUGIN_ENDPOINT_SCHEDULER}, mirroring the auth worker pool. */
+	public static final int PLUGIN_ENDPOINT_QUEUE_CAPACITY = 5000;
+
+	/**
+	 * Thread-name prefix for {@link #PLUGIN_ENDPOINT_SCHEDULER}. Deliberately distinctive: it is the
+	 * signal in logs and thread dumps that a plugin endpoint is no longer running on a borrowed
+	 * pipeline thread.
+	 */
+	public static final String PLUGIN_ENDPOINT_THREAD_NAME_PREFIX = "plugin-endpoint";
+
+	/**
+	 * Dedicated pool for blocking plugin endpoint invocations. Intentionally NOT
+	 * {@code Schedulers.boundedElastic()}: that pool is shared with other blocking work in the process
+	 * (including plugin event listeners doing synchronous outbound calls), and a single long-running
+	 * plugin endpoint must not be able to starve it. Process-lifetime singleton, matching
+	 * {@code AuthenticationUtils.AUTH_REQUEST_THREAD_POOL}; saturation is observable through the
+	 * Micrometer instrumentation enabled by {@code Schedulers.enableMetrics()} in {@code ServerApplication}.
+	 */
+	private static final Scheduler PLUGIN_ENDPOINT_SCHEDULER = newBoundedElastic(
+			PLUGIN_ENDPOINT_THREAD_POOL_SIZE,
+			PLUGIN_ENDPOINT_QUEUE_CAPACITY,
+			PLUGIN_ENDPOINT_THREAD_NAME_PREFIX);
+
 	private List<RouterFunction<ServerResponse>> routes = new ArrayList<>();
-	
+
 	private final ApplicationContext applicationContext;
 	private final DefaultListableBeanFactory beanFactory;
 	private final PluginAuthorizationManager pluginAuthorizationManager;
-	
+
 	@Override
 	public void registerEndpoints(String pluginUrlPrefix, List<PluginEndpoint> endpoints) 
 	{
@@ -131,17 +166,45 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 			return pluginAuthorizationManager.check(monoAuthentication, methodInvocation);
 		});
 
-		return decisionMono.<EndpointResponse>handle((authorizationDecision, sink) -> {
+		return decisionMono.flatMap(authorizationDecision -> {
 			if(!authorizationDecision.isGranted()) {
-				sink.error(new BizException(NOT_AUTHORIZED, "NOT_AUTHORIZED"));
-				return;
+				return Mono.<EndpointResponse>error(new BizException(NOT_AUTHORIZED, "NOT_AUTHORIZED"));
 			}
-			try {
-				sink.next((EndpointResponse) handler.invoke(endpoint, PluginServerRequest.fromServerRequest(request)));
-			} catch (IllegalAccessException | InvocationTargetException e) {
-				sink.error(new RuntimeException(e));
-			}
+			/** Offload the blocking handler onto the dedicated pool: everything below this point,
+			 *  including request adaptation, must stay off the caller's thread. **/
+			return Mono.fromCallable(() -> invokePluginEndpointHandler(endpoint, handler, request))
+					.subscribeOn(PLUGIN_ENDPOINT_SCHEDULER);
 		}).flatMap(this::createServerResponse);
+	}
+
+	/**
+	 * Reflectively invokes the plugin handler. Runs on {@link #PLUGIN_ENDPOINT_SCHEDULER}, never on the
+	 * caller's thread, so a handler that blocks (or that blocks on {@code EndpointRequest.body()}) parks a
+	 * worker built for it rather than a pipeline thread.
+	 * <p>
+	 * Two behaviours are preserved deliberately rather than incidentally:
+	 * <ul>
+	 *   <li>Reflection failures are wrapped in a {@link RuntimeException} carrying the original as its
+	 *       cause, exactly as the previous {@code handle()}/{@code sink.error} form did.</li>
+	 *   <li>A {@code null} handler result throws. Returning null from a {@link Mono#fromCallable} callable
+	 *       completes the Mono EMPTY, which would skip {@code createServerResponse} entirely and leave the
+	 *       request without any response at all. The previous form raised an NPE on {@code sink.next(null)};
+	 *       failing loudly here keeps a misbehaving plugin an error rather than a hang.</li>
+	 * </ul>
+	 */
+	private EndpointResponse invokePluginEndpointHandler(PluginEndpoint endpoint, Method handler, ServerRequest request)
+	{
+		EndpointResponse response;
+		try {
+			response = (EndpointResponse) handler.invoke(endpoint, PluginServerRequest.fromServerRequest(request));
+		} catch (IllegalAccessException | InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
+
+		if (response == null) {
+			throw new IllegalStateException("Plugin endpoint method " + handler.getName() + " returned no response");
+		}
+		return response;
 	}
 
 	private static @NotNull MethodInvocation getMethodInvocation(EndpointExtension endpointMeta, Authentication authentication) throws NoSuchMethodException {

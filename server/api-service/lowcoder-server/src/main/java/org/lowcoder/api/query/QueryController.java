@@ -50,7 +50,9 @@ public class QueryController implements QueryEndpoints
                     .onErrorResume(throwable -> {
                         if (throwable instanceof BizException bizException && bizException.getError() == BizError.LOGIN_EXPIRED) {
                             String cookieToken = cookieHelper.getCookieToken(exchange);
-                            return sessionUserService.removeUserSession(cookieToken)
+                            // must stay upstream of the error signal, which skips every downstream then()
+                            return Mono.<Void> fromRunnable(() -> cookieHelper.clearCookie(exchange))
+                                    .then(sessionUserService.removeUserSession(cookieToken))
                                     .then(businessEventPublisher.publishUserLogoutEvent())
                                     .then(Mono.error(throwable));
                         }
