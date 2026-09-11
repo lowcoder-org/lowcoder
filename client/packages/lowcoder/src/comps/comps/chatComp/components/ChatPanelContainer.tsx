@@ -16,6 +16,7 @@ import {
   ChatProvider,
   useChatContext, 
   RegularThreadData,
+  NEW_THREAD_ID,
 } from "./context/ChatContext";
 import { AIAssistantMessageHandler, ChatMessage } from "../types/chatTypes";
 import styled from "styled-components";
@@ -220,11 +221,11 @@ function ChatPanelView({ messageHandler, placeholder, onMessageUpdate }: Omit<Ch
 
   const convertMessage = (message: ChatMessage): ThreadMessageLike => message;
 
-  const updateInitialThreadTitle = async (userMessage: ChatMessage) => {
+  const updateInitialThreadTitle = async (userMessage: ChatMessage, threadId: string) => {
     await maybeUpdateInitialThreadTitle(
       userMessage,
       state.threadList,
-      state.currentThreadId,
+      threadId,
       currentMessages.length,
       actions.updateThread
     );
@@ -238,17 +239,22 @@ function ChatPanelView({ messageHandler, placeholder, onMessageUpdate }: Omit<Ch
     }
   
     const userMessage = createUserMessage(text);
-  
     const conversationHistory = [...currentMessages, userMessage];
-  
-    await actions.addMessage(state.currentThreadId, userMessage);
-    await updateInitialThreadTitle(userMessage);
+
+    let threadId = state.currentThreadId;
+    if (threadId === NEW_THREAD_ID) {
+      threadId = await actions.createThread(trans("chat.newChatTitle"));
+      actions.setCurrentThread(threadId);
+    }
+
+    await actions.addMessage(threadId, userMessage);
+    await updateInitialThreadTitle(userMessage, threadId);
     setIsRunning(true);
   
     try {
       const assistantMessage = await messageHandler.sendMessage(
         userMessage,
-        state.currentThreadId,
+        threadId,
         conversationHistory
       );
       onMessageUpdate?.(getTextFromThreadContent(userMessage.content));
@@ -259,12 +265,12 @@ function ChatPanelView({ messageHandler, placeholder, onMessageUpdate }: Omit<Ch
       }
 
       await actions.addMessage(
-        state.currentThreadId,
+        threadId,
         assistantMessage
       );
     } catch (error) {
       await actions.addMessage(
-        state.currentThreadId,
+        threadId,
         createAssistantErrorMessage(trans("chat.errorUnknown"))
       );
     } finally {
@@ -316,9 +322,8 @@ function ChatPanelView({ messageHandler, placeholder, onMessageUpdate }: Omit<Ch
       .filter((t): t is RegularThreadData => t.status === "regular")
       .map(toExternalThreadData),
 
-    onSwitchToNewThread: async () => {
-      const threadId = await actions.createThread(trans("chat.newChatTitle"));
-      actions.setCurrentThread(threadId);
+    onSwitchToNewThread: () => {
+      actions.setCurrentThread(NEW_THREAD_ID);
     },
 
     onSwitchToThread: (threadId) => {

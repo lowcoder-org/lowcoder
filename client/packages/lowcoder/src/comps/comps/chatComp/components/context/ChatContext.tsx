@@ -5,6 +5,7 @@ import { ChatStorage, ChatMessage, ChatThread } from "../../types/chatTypes";
 import { trans } from "i18n";
 
 const EMPTY_MESSAGES: ChatMessage[] = [];
+export const NEW_THREAD_ID = "__new_thread__";
 
 // ============================================================================
 // UPDATED CONTEXT WITH CLEAN TYPES
@@ -53,9 +54,9 @@ type ChatAction =
 const initialState: ChatState = {
   isInitialized: false,
   isLoading: false,
-  currentThreadId: "default",
-  threadList: [{ threadId: "default", status: "regular", title: trans("chat.newChatTitle") }],
-  threads: new Map([["default", []]]),
+  currentThreadId: NEW_THREAD_ID,
+  threadList: [],
+  threads: new Map(),
   lastSaved: 0,
 };
 
@@ -116,8 +117,8 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
         ...state,
         threadList: state.threadList.filter(t => t.threadId !== action.threadId),
         threads: newThreads,
-        currentThreadId: state.currentThreadId === action.threadId 
-          ? "default" 
+        currentThreadId: state.currentThreadId === action.threadId
+          ? NEW_THREAD_ID
           : state.currentThreadId,
       };
 
@@ -211,14 +212,9 @@ export function ChatProvider({ children, storage }: {
           threadMessages.set(thread.threadId, messages);
         }
         
-        // Ensure default thread exists
-        if (!threadMessages.has("default")) {
-          threadMessages.set("default", []);
-        }
-        
         // Find the most recently updated thread
         const latestThread = storedThreads.sort((a, b) => b.updatedAt - a.updatedAt)[0];
-        const currentThreadId = latestThread ? latestThread.threadId : "default";
+        const currentThreadId = latestThread.threadId;
         
         dispatch({ 
           type: "INITIALIZE_SUCCESS", 
@@ -227,21 +223,11 @@ export function ChatProvider({ children, storage }: {
           currentThreadId 
         });
       } else {
-        // Initialize with default thread
-        const defaultThread: ChatThread = {
-          threadId: "default",
-          status: "regular",
-          title: trans("chat.newChatTitle"),
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-        };
-        await storage.saveThread(defaultThread);
-        
-        dispatch({ 
-          type: "INITIALIZE_SUCCESS", 
-          threadList: initialState.threadList, 
-          threads: initialState.threads, 
-          currentThreadId: "default" 
+        dispatch({
+          type: "INITIALIZE_SUCCESS",
+          threadList: initialState.threadList,
+          threads: initialState.threads,
+          currentThreadId: NEW_THREAD_ID
         });
       }
     } catch (error) {
@@ -306,9 +292,6 @@ export function ChatProvider({ children, storage }: {
   };
 
   const deleteThread = async (threadId: string) => {
-    // Determine if this is the last remaining thread BEFORE we delete it
-    const isLastThread = state.threadList.length === 1;
-
     // Update local state first
     dispatch({ type: "DELETE_THREAD", threadId });
     
@@ -316,13 +299,6 @@ export function ChatProvider({ children, storage }: {
     try {
       await storage.deleteThread(threadId);
       dispatch({ type: "MARK_SAVED" });
-      // avoid deleting the last thread
-      // if there are no threads left, create a new one
-      // avoid infinite re-renders
-      if (isLastThread) {
-        const newThreadId = await createThread(trans("chat.newChatTitle"));
-        setCurrentThread(newThreadId);
-      }
     } catch (error) {
       console.error("Failed to delete thread:", error);
     }
