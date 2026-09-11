@@ -4,15 +4,19 @@ The component **Chat Box** provides a ready-made chat interface for room-based c
 
 It includes:
 
-- a message list
-- a message composer
-- a rooms sidebar
+- a message list with per-role styling for your own, other people's, and AI messages
+- a message composer with `@`-mentions and file attachments
+- a rooms sidebar with public, private, and AI rooms
 - typing indicators
 - online user indicators
 - room creation and leave actions
 - invite actions for private rooms
 
 It is designed to work best together with **Chat Controller**, while your own queries handle the actual room and message records.
+
+> **Before you start:** the realtime features — typing indicators, online users, live room switching — come from **Chat Controller**, which needs a Hocuspocus server running and reachable from the browser. Without it the component still renders, but nothing syncs between users.
+>
+> See [Realtime Shared State and Presence](../../realtime-collaboration.md) for setup, deployment, and troubleshooting.
 
 ## What Chat Box Does
 
@@ -122,6 +126,14 @@ Bind the component like this.
 true
 ```
 
+### Optional Bindings
+
+`Mention Candidates` — the `@`-mention list, when you want it to include people who are not currently online:
+
+```js
+{{ loadTeamMembers.data.map(u => ({ id: u.id, label: u.fullName })) }}
+```
+
 ## Room Types
 
 The component supports these room types:
@@ -202,6 +214,46 @@ For assistant responses, `authorType` can be:
 }
 ```
 
+A message renders as an AI message when `authorType` is `"assistant"` **or** when `authorId` is `"__llm_bot__"`. Otherwise it renders as your own message when `authorId` matches `Current User ID`, and as someone else's message in every other case.
+
+#### Field Aliases
+
+You rarely need to reshape your query result, because the renderer accepts common alternative field names. The first one present wins:
+
+| Purpose | Accepted keys |
+| --- | --- |
+| Message id | `id`, `_id` |
+| Message body | `text`, `message`, `content` |
+| Author id | `authorId`, `userId`, `author_id`, `sender` |
+| Author name | `authorName`, `userName`, `author_name`, `senderName` |
+| Role | `authorType`, `role` |
+| Attachments | `files`, `attachments` |
+
+A message with no id falls back to its index, and a message with neither text nor attachments renders a placeholder rather than an empty bubble.
+
+#### Attachments On A Message
+
+To show files on a stored message, add a `files` (or `attachments`) array. Each entry needs a URL and a name:
+
+```json
+{
+  "id": "msg_124",
+  "text": "Here is the report",
+  "authorId": "user_1",
+  "authorName": "Alice",
+  "timestamp": 1710000000000,
+  "files": [
+    { "name": "q3-report.pdf", "url": "https://files.example.com/q3.pdf", "type": "application/pdf" }
+  ]
+}
+```
+
+- `url` is required — entries without one are skipped. `href`, `link`, and `src` are accepted as aliases.
+- `name` defaults to `file`; `title` and `fileName` are accepted as aliases.
+- Entries that look like images — by `type` or by file extension — render as inline thumbnails. Everything else renders as a file chip.
+
+These are **links**, so you need somewhere to host the file. Uploading it is your app's job; see [Sending Attachments](#sending-attachments) below.
+
 ### Rooms
 
 Each room should look like:
@@ -247,9 +299,17 @@ Each invite should look like:
 
 Use `lastSentMessageText` when saving a message after `messageSent`.
 
-Use `lastSentMessageTagsLlm` when deciding whether to run the room’s LLM query: it is `true` only if the user inserted an **@-mention of the AI** (serialized as `@[…](u:__llm_bot__)` inside `lastSentMessageText`).
+Use `lastSentMessageTagsLlm` when deciding whether to run the room's LLM query — see [Mentions](#mentions).
 
-Use `messageText` when you want the current draft value.
+Use `messageText` when you want the current draft value. It updates on every keystroke, so it is the live draft, not the sent message.
+
+### Title And Attachment State
+
+- `{{ chatBox1.chatTitle }}`
+- `{{ chatBox1.files }}`
+- `{{ chatBox1.value }}`
+
+`files` and `value` are the composer's pending attachments; see [Attachments](#attachments).
 
 ### Room Action State
 
@@ -268,6 +328,103 @@ These are populated when the user interacts with the rooms UI.
 
 These are populated when the user sends or handles invites.
 
+## Mentions
+
+The composer has an `@`-mention picker. Typing `@` opens a list; picking an entry inserts the display name as plain text, so a sent message reads naturally:
+
+```
+@Alice can you check this? @AI summarize the thread
+```
+
+### Where The Candidate List Comes From
+
+By default the picker is assembled automatically:
+
+1. **AI** — always offered, so any room can tag the assistant
+2. members of the current room, resolved to their display name when they are online
+3. other online users in the same room
+
+Set the **Mention Candidates** property to override that list with your own. Each entry is an object; `id` (or `userId`) and `label` (or `userName` / `name`) are read, and AI is appended to whatever you supply:
+
+```js
+{{ loadTeamMembers.data.map(u => ({ id: u.id, label: u.fullName })) }}
+```
+
+This is the property to use when you want to `@`-mention people who are not currently connected.
+
+### Detecting An AI Mention
+
+`{{ chatBox1.lastSentMessageTagsLlm }}` is `true` when the message that was just sent tagged the assistant. It recognizes both forms:
+
+- the plain display name inserted by the picker, e.g. `@AI`
+- the serialized token `@[AI](u:__llm_bot__)`, kept for messages written before the plain form
+
+This flag is the gate for LLM rooms: a message in an AI room stays human-to-human until someone tags the assistant. See [LLM Room Flow](#llm-room-flow).
+
+## Attachments
+
+The composer can carry file attachments, using the same model as the [File Upload](file-upload.md) component.
+
+### Properties
+
+| Property | Purpose |
+| --- | --- |
+| **Allow File Upload** | Shows the paperclip button in the composer. On by default. |
+| **Max Files** | Cap on pending attachments. Older ones drop off once the cap is passed. Defaults to `10`. |
+| **File Type** | Accepted types, as an array, e.g. `[".png", ".pdf"]`. Empty means anything. |
+
+### Exposed Variables
+
+- `{{ chatBox1.files }}` — metadata per pending attachment: `uid`, `name`, `type`, `size`, `lastModified`
+- `{{ chatBox1.value }}` — the base64 contents, aligned index-for-index with `files`
+
+Both arrays hold the composer's **pending** attachments and are cleared automatically once the message is sent.
+
+### Method
+
+```js
+chatBox1.openMessageFilePicker()
+```
+
+Opens the same native file picker as the paperclip button — useful for a drag-and-drop zone or a custom "Attach" button elsewhere in your app.
+
+### Event
+
+`fileUpload` fires after files finish being read into `files` / `value`. Use it to upload them somewhere and keep the resulting URLs.
+
+### Sending Attachments
+
+Chat Box does not host files. The flow is yours to wire:
+
+1. the user picks files — `fileUpload` fires, and `chatBox1.files` / `chatBox1.value` fill in
+2. on `fileUpload`, upload them to your storage and **store the returned URLs in a temporary state**, for example a temporary state named `pendingAttachments`
+3. on `messageSent`, save the message with a `files` array built from `pendingAttachments`
+4. clear `pendingAttachments`, then re-run `loadMessages` — the message renders with its attachments
+
+> **Warning:** Do not read `chatBox1.files` inside the `messageSent` handler. The composer clears its pending attachments as part of sending, so that value is being emptied at the same moment your handler runs. Capture what you need during `fileUpload` instead.
+
+> **Note:** A message with attachments but no text is valid — the send button accepts it, and `messageSent` fires with `lastSentMessageText` empty. If your save query requires text, check your captured attachment state rather than rejecting every empty-text send.
+
+## Appearance
+
+### Layout Properties
+
+| Property | Purpose |
+| --- | --- |
+| **Chat Title** | Header title. Overridden by the room name whenever a room is active. |
+| **Show Header** | Hides the header bar entirely. |
+| **Show Rooms Panel** | Hides the sidebar — use this when your app drives room selection with its own UI. |
+| **Panel Width** | Sidebar width, e.g. `240px`. |
+| **Allow Room Creation** | Shows the `+` button and the create-room modal. |
+| **Allow Room Search** | Shows the search field above the room list. |
+| **Auto Height** | Standard auto / fixed height switch. |
+
+### Style Sections
+
+Each region of the component is themed separately: **Style** (container), **Sidebar**, **Header**, **Message Area**, **Input Area**, **Input Field**, **Send Button**, **Attach Button**, and **Animation**.
+
+**Message Style** and **Avatar Style** each have a three-way switch for **Own**, **Other**, and **AI**, so the three kinds of message bubbles and avatars can be styled independently.
+
 ## Events
 
 The component emits:
@@ -281,6 +438,7 @@ The component emits:
 - `inviteSend`
 - `inviteAccept`
 - `inviteDecline`
+- `fileUpload`
 
 These events are the main integration points for your queries and Chat Controller methods.
 
@@ -678,7 +836,7 @@ That means:
 - `chatController1.sharedState` is app-wide shared data
 - `chatController1.roomData` is room-scoped shared data
 
-For a full controller reference, see [Chat Controller](chat-controller.md).
+For a full controller reference, see [Chat Controller](chat-controller.md). For the server it needs, see [Realtime Shared State and Presence](../../realtime-collaboration.md).
 
 ## Building A Custom Chat With Standard Components
 
@@ -710,5 +868,7 @@ This gives you the same realtime collaboration layer even if you do not use the 
 - **Chat Box** is the room-based chat UI component
 - it supports `public`, `private`, and `llm` rooms
 - it exposes the key user interactions as variables and events
-- it works best together with **Chat Controller**
+- `@`-mentions gate the AI: `lastSentMessageTagsLlm` tells you when to run the LLM query
+- attachments are picked up by the composer, but hosting and linking them is your app's job
+- it works best together with **Chat Controller**, which needs a running realtime server — see [Realtime Shared State and Presence](../../realtime-collaboration.md)
 - your own queries remain responsible for loading and saving rooms, messages, and invites

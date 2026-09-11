@@ -16,6 +16,7 @@ import { ThreadList } from "components/assistant-ui/thread-list";
 import { 
   useChatContext, 
   RegularThreadData,
+  NEW_THREAD_ID,
 } from "./context/ChatContext";
 import { MessageHandler, ChatMessage, ChatCoreProps } from "../types/chatTypes";
 import { trans } from "i18n";
@@ -49,10 +50,8 @@ function ChatContainerView(props: ChatCoreProps) {
   const currentMessages = actions.getCurrentMessages();
 
   useEffect(() => {
-    if (currentMessages.length > 0) {
-      onConversationUpdateRef.current?.(currentMessages);
-    }
-  }, [currentMessages]);
+    onConversationUpdateRef.current?.(currentMessages);
+  }, [state.currentThreadId, currentMessages]);
 
   useEffect(() => {
     onEventRef.current?.("componentLoad");
@@ -60,11 +59,11 @@ function ChatContainerView(props: ChatCoreProps) {
 
   const convertMessage = (message: ChatMessage): ThreadMessageLike => message;
 
-  const updateInitialThreadTitle = async (userMessage: ChatMessage) => {
+  const updateInitialThreadTitle = async (userMessage: ChatMessage, threadId: string) => {
     const updated = await maybeUpdateInitialThreadTitle(
       userMessage,
       state.threadList,
-      state.currentThreadId,
+      threadId,
       currentMessages.length,
       actions.updateThread
     );
@@ -82,19 +81,30 @@ function ChatContainerView(props: ChatCoreProps) {
     }
   
     const userMessage = createUserMessage(text, completeAttachments);
-  
-    await actions.addMessage(state.currentThreadId, userMessage);
-    await updateInitialThreadTitle(userMessage);
+    const conversationHistory = [...currentMessages, userMessage];
+
+    let threadId = state.currentThreadId;
+    if (threadId === NEW_THREAD_ID) {
+      threadId = await actions.createThread(trans("chat.newChatTitle"));
+      actions.setCurrentThread(threadId);
+      props.onEvent?.("threadCreated");
+    }
+
+    await actions.addMessage(threadId, userMessage);
+    await updateInitialThreadTitle(userMessage, threadId);
     setIsRunning(true);
   
     try {
-      const assistantMessage = await props.messageHandler.sendMessage(userMessage);
+      const assistantMessage = await props.messageHandler.sendMessage(
+        userMessage,
+        conversationHistory
+      );
       props.onMessageUpdate?.(getTextFromThreadContent(userMessage.content));
   
-      await actions.addMessage(state.currentThreadId, assistantMessage);
+      await actions.addMessage(threadId, assistantMessage);
     } catch (error) {
       await actions.addMessage(
-        state.currentThreadId,
+        threadId,
         createAssistantErrorMessage(trans("chat.errorUnknown"))
       );
     } finally {
@@ -122,7 +132,10 @@ function ChatContainerView(props: ChatCoreProps) {
     setIsRunning(true);
   
     try {
-      const assistantMessage = await props.messageHandler.sendMessage(editedMessage);
+      const assistantMessage = await props.messageHandler.sendMessage(
+        editedMessage,
+        newMessages
+      );
       props.onMessageUpdate?.(getTextFromThreadContent(editedMessage.content));
   
       newMessages.push(assistantMessage);
@@ -141,10 +154,8 @@ function ChatContainerView(props: ChatCoreProps) {
       .filter((t): t is RegularThreadData => t.status === "regular")
       .map(toExternalThreadData),
 
-    onSwitchToNewThread: async () => {
-      const threadId = await actions.createThread(trans("chat.newChatTitle"));
-      actions.setCurrentThread(threadId);
-      props.onEvent?.("threadCreated");
+    onSwitchToNewThread: () => {
+      actions.setCurrentThread(NEW_THREAD_ID);
     },
 
     onSwitchToThread: (threadId) => {

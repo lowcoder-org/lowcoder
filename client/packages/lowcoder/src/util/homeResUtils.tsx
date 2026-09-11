@@ -68,4 +68,4 @@ export const handleMarketplaceAppViewClick = (id: string, isLocalMarketplace?: b
 
 export const handleFolderViewClick = (id: string) => history.push(buildFolderUrl(id));
 
-export const backFolderViewClick = () => history.push(ALL_APPLICATIONS_URL);
+export const backFolderViewClick = (parentPath = ALL_APPLICATIONS_URL) => history.push(parentPath);

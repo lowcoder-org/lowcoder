@@ -7,6 +7,10 @@ It is designed to work with:
 - **Chat Box**
 - a custom room-based chat UI built from standard components such as `List View`, `Container`, `Input`, and `Button`
 
+> **Before you start:** this component needs a Hocuspocus server running and reachable from the browser. Without it, `ready` stays `false` and every shared value stays empty.
+>
+> See [Realtime Shared State and Presence](../../realtime-collaboration.md) for setup, deployment, and troubleshooting.
+
 ## What Chat Controller Does
 
 `Chat Controller` manages the realtime collaboration layer of a chat application.
@@ -49,19 +53,35 @@ This makes it a good fit for:
 - typing indicators
 - lightweight notifications like “room changed, reload messages”
 
+## Before You Start: The Realtime Server
+
+The controller talks to a **Hocuspocus** WebSocket server. Without that server running and reachable from the browser, the component loads but never connects: `ready` stays `false` and every shared value stays empty.
+
+In a default Docker install the service is already there. For local development, start it with:
+
+```bash
+node client/packages/lowcoder/hocuspocus-server.js
+```
+
+and make sure the frontend was built with `REACT_APP_HOCUSPOCUS_URL` pointing at it (it defaults to `ws://localhost:3006`).
+
+Full setup, deployment, and troubleshooting instructions are in [Realtime Shared State and Presence](../../realtime-collaboration.md).
+
 ## How It Works Under The Hood
 
 Internally, the controller uses **Hocuspocus** and **Yjs** for synchronization.
 
 In practice, that means:
 
-- presence is shared through realtime awareness
-- app-wide shared objects are synchronized through a shared map
-- room-scoped shared objects are synchronized through another shared map
+- presence — online users and typing flags — is shared through Yjs **awareness**, which is ephemeral and vanishes when a client disconnects
+- app-wide shared objects are synchronized through a shared Yjs map
+- room-scoped shared objects are synchronized through another shared Yjs map
 
-The server-side transport for that synchronization is implemented in [hocuspocus-server.js](/Users/faran/Documents/lowcoder-main/lowcoder/client/packages/lowcoder/hocuspocus-server.js).
+Each app gets its own Yjs document, named `signal_<applicationId>`. Apps with different `applicationId` values never see each other's state.
 
-You do not need to understand the server implementation to use the component, but it is helpful to know that this is the realtime layer behind the scenes.
+The server-side transport is implemented in [`hocuspocus-server.js`](https://github.com/lowcoder-org/lowcoder/blob/main/client/packages/lowcoder/hocuspocus-server.js).
+
+> **Warning:** The bundled server holds documents **in memory only**. On a server restart, `sharedState` and `roomData` are lost. Use them for live signalling, and keep anything that must survive a restart in your own database.
 
 ## Main Properties
 
@@ -73,17 +93,31 @@ Configure:
 
 ### `applicationId`
 
-This scopes the shared collaboration space.
+This scopes the shared collaboration space. Users with the same `applicationId` participate in the same realtime channel. Defaults to `lowcoder_app`.
 
-Users with the same `applicationId` participate in the same realtime channel.
+> **Warning:** Leaving the default means every app that also left the default shares one collaboration space on the same server. Set a value that is unique to your app.
 
 ### `userId`
 
-This identifies the current user.
+This identifies the current user. It must be **unique per person** — two browsers using the same `userId` are indistinguishable to the presence layer. Binding it to the logged-in user is the usual choice:
+
+```js
+{{ currentUser.id }}
+```
 
 ### `userName`
 
 This is the display name used in presence and typing indicators.
+
+```js
+{{ currentUser.name }}
+```
+
+Both can also be changed at runtime with `setUser(userId, userName)`.
+
+### Identity Is Not Verified
+
+The controller trusts whatever `userId` and `userName` the client sends. Anyone who can open the app can present themselves as any user to the realtime layer. Keep authorization decisions in your queries and backend — never rely on `onlineUsers` as proof of who someone is.
 
 ## Exposed State
 
@@ -101,6 +135,14 @@ Use these when you want to:
 - display connection status
 - surface authentication or transport errors
 
+`ready` is a boolean — `true` only while the WebSocket is open. `connectionStatus` is the human-readable label `Connecting...`, `Online`, or `Offline`. `error` is `null` while healthy, and carries the failure reason after a failed authentication (which also fires the `error` event).
+
+Gate anything that writes shared state on `ready`, otherwise the write silently does nothing:
+
+```js
+{{ chatController1.ready }}
+```
+
 ### Presence State
 
 - `{{ chatController1.onlineUsers }}`
@@ -116,11 +158,19 @@ Use these when you want to:
 - `{{ chatController1.sharedState }}`
 - `{{ chatController1.roomData }}`
 
+### Identity State
+
+The controller also re-exposes its own identity settings, which is convenient when other components need them without duplicating the bindings:
+
+- `{{ chatController1.userId }}`
+- `{{ chatController1.userName }}`
+- `{{ chatController1.applicationId }}`
+
 ## State Shapes
 
 ### `onlineUsers`
 
-`onlineUsers` is an array of currently connected peers.
+`onlineUsers` is an array of currently connected peers. It lists **other** users only — the current user is not included, so add yourself when rendering a presence list.
 
 Shape:
 
@@ -292,7 +342,9 @@ Updates the active room and moves the current user's presence to that room.
 
 `setAiThinking(roomId, isThinking)`
 
-Marks whether an AI is currently thinking in the given room.
+Marks whether an AI is currently thinking in the given room, for every connected user.
+
+`isThinking` is read as true only for the boolean `true` or the string `"true"`; anything else counts as false.
 
 ### App-Level Shared State Methods
 
@@ -493,6 +545,57 @@ chatController1.switchRoom(currentItem.id)
 5. show online users from `chatController1.onlineUsers`
 6. use `roomData` to signal room refreshes or store room-scoped metadata
 
+## Beyond Chat: General Realtime Features
+
+Nothing in `sharedState` and `roomData` is chat-specific. Once a Chat Controller is on the canvas, any component in the app can use it as a live channel between users.
+
+### Live Presence On Any Screen
+
+Show who else has the app open, whether or not you use rooms at all:
+
+```js
+{{ (chatController1.onlineUsers || []).map(u => u.userName).join(", ") }}
+```
+
+### "Who Is Looking At What"
+
+Presence carries a fixed set of fields, so anything custom belongs in `sharedState` rather than presence. Write the current user's focus on selection:
+
+```js
+chatController1.setSharedState("viewing_" + chatController1.userId, {
+  userName: chatController1.userName,
+  recordId: table1.selectedRow.id,
+  ts: Date.now()
+})
+```
+
+Then read every peer's entry back out of `sharedState`, and clear your own key when the user leaves the screen:
+
+```js
+chatController1.deleteSharedState("viewing_" + chatController1.userId)
+```
+
+> **Warning:** Unlike presence, `sharedState` is **not** cleaned up when a user disconnects. A key written by someone who then closed the tab stays until something deletes it. Store a timestamp alongside the value and ignore stale entries when you read them.
+
+### Broadcast A Refresh
+
+The cheapest way to keep several users' tables in sync is a ping rather than the data itself:
+
+```js
+chatController1.setSharedState("dataPing", { ts: Date.now(), by: chatController1.userId })
+```
+
+On `sharedStateChanged`, re-run the query that loads the table. Every connected client reloads from your real data source, so there is one source of truth and the realtime layer only carries the signal.
+
+## Limits To Know About
+
+- **No live cursors, no shared text editing.** The controller synchronizes structured key/value data and presence. It does not share caret positions or merge concurrent edits to a document.
+- **Presence fields are fixed** — `userId`, `userName`, `currentRoomId`, `typing`. Custom per-user data goes in `sharedState`.
+- **Shared maps are last-write-wins per key.** Two users writing the same key at the same moment do not merge; one value survives. Give each user their own key when they each own a piece of the state.
+- **Nothing is persisted.** A server restart empties `sharedState` and `roomData`.
+- **Writes before `ready` are dropped** silently.
+- **`typingUsers` is filtered to the current room** and excludes the current user; `onlineUsers` spans the whole app and also excludes the current user.
+
 ## When To Use Shared Objects
 
 Use the controller's shared objects when you need realtime collaboration data that should not itself be the canonical persisted chat record.
@@ -514,7 +617,8 @@ Those are usually better handled by your own queries and datastore.
 
 ## Summary
 
-- **Chat Controller** is the realtime collaboration component for chat features
+- **Chat Controller** is the realtime collaboration component — for chat features and for any other live shared state
+- it needs a running Hocuspocus server; see [Realtime Shared State and Presence](../../realtime-collaboration.md)
 - it scopes collaboration by `applicationId`
 - it exposes presence, room state, app-wide shared state, and room-scoped shared state
 - use `sharedState` for app-level data

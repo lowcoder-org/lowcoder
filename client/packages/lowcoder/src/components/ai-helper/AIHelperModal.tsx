@@ -7,7 +7,9 @@ import { SparklesIcon, XIcon } from "lucide-react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 
+import { DocLink } from "lowcoder-design";
 import { EditorContext } from "comps/editorState";
+import { trans } from "i18n";
 import { getDataSourceStructures } from "redux/selectors/datasourceSelectors";
 import { getSelectedAIQueryName } from "util/localStorageUtil";
 
@@ -175,6 +177,13 @@ export function AIHelperModal() {
             <TitleLine>
               <SparklesIcon size={16} color="#4965f2" />
               <span>AI Helper</span>
+              <DocLink
+                href={trans("docUrls.githubAiHelp")}
+                title={trans("comp.menuViewDocsTooltip")}
+                tooltipZIndex={2147483001}
+              >
+                {trans("comp.menuViewDocs")}
+              </DocLink>
             </TitleLine>
             {target?.label && (
               <TargetLabel title={target.label}>{target.label}</TargetLabel>

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { Section, sectionNames } from "lowcoder-design";
+import { PropertyViewDocLink } from "comps/utils/propertyViewDocLink";
 import {
   simpleMultiComp,
   stateComp,
@@ -486,6 +487,7 @@ const ChatControllerWithProps = withPropertyViewFn(
   ChatControllerBase,
   (comp) => (
     <>
+      <PropertyViewDocLink href={trans("docUrls.githubChatController")} />
       <Section name={sectionNames.basic}>
         {comp.children.applicationId.propertyView({
           label: trans("chatController.applicationIdLabel"),

@@ -1,0 +1,9 @@
+{
+  "name": "lowcoder-agora-token-service",
+  "private": true,
+  "version": "0.1.0",
+  "main": "server.js",
+  "dependencies": {
+    "agora-token": "^2.0.4"
+  }
+}

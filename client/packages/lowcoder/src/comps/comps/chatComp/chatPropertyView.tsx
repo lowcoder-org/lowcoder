@@ -1,10 +1,9 @@
 // client/packages/lowcoder/src/comps/comps/chatComp/chatPropertyView.tsx
 
 import React, { useMemo } from "react";
-import { Section, sectionNames, DocLink } from "lowcoder-design";
+import { Section, sectionNames, controlItem } from "lowcoder-design";
 import { trans } from "i18n";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
-import { controlItem } from "lowcoder-design";
+import { PropertyViewDocLink } from "comps/utils/propertyViewDocLink";
 
 // ============================================================================
 //   PROPERTY VIEW 
@@ -15,16 +14,7 @@ export const ChatPropertyView = React.memo((props: any) => {
 
   return useMemo(() => (
     <>
-      {/* Help & Documentation - Outside of Section */}
-      <div style={{ padding: "8px 16px", marginBottom: "16px", borderBottom: "1px solid #f0f0f0" }}>
-        <DocLink 
-          style={{ marginTop: 8 }} 
-          href="https://docs.lowcoder.cloud/lowcoder-documentation" 
-          title="Open Lowcoder Documentation"
-        >
-          📖 View Documentation
-        </DocLink>
-      </div>
+      <PropertyViewDocLink href={trans("docUrls.githubAiChat")} />
 
       {/* Message Handler Configuration */}
       <Section name={trans("chat.messageHandler")}>
