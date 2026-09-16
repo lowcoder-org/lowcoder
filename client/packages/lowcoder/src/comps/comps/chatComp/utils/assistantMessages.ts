@@ -25,6 +25,61 @@ export const getTextFromThreadContent = (
     .trim();
 };
 
+export const addSystemPromptToHistory = (
+  conversationHistory: ChatMessage[],
+  systemPrompt: string
+) => {
+  const messages = conversationHistory.map((message) => {
+    const baseMessage = {
+      role: message.role,
+      content: getTextFromThreadContent(message.content),
+      timestamp: message.createdAt.getTime(),
+    };
+
+    if (!message.attachments?.length) {
+      return baseMessage;
+    }
+
+    return {
+      ...baseMessage,
+      attachments: message.attachments.map((attachment) => ({
+        id: attachment.id,
+        type: attachment.type,
+        name: attachment.name,
+        contentType: attachment.contentType,
+        ...(attachment.type === "image" &&
+          attachment.content && {
+            content: attachment.content.map((part) => ({
+              type: part.type,
+              ...(part.type === "image" && { image: part.image }),
+            })),
+          }),
+      })),
+    };
+  });
+
+  return [
+    {
+      role: "system" as const,
+      content: systemPrompt,
+      timestamp: Date.now() - 1_000_000,
+    },
+    ...messages,
+  ];
+};
+
+export const buildChatQueryArgs = (
+  message: ChatMessage,
+  conversationHistory: ChatMessage[],
+  systemPrompt: string
+) => ({
+  message: { value: message },
+  prompt: { value: getTextFromThreadContent(message.content) },
+  conversationHistory: {
+    value: addSystemPromptToHistory(conversationHistory, systemPrompt),
+  },
+});
+
 export const generateThreadTitle = (message: ChatMessage) => {
   const text = getTextFromThreadContent(message.content)
     .replace(/\s+/g, " ")

@@ -42,16 +42,32 @@ services:
     image: lowcoderorg/lowcoder-hocuspocus:latest
     container_name: hocuspocus
     restart: unless-stopped
+    ports:
+      - "3006:3006"
     environment:
-      HOCUSPOCUS_SECRET: "s3cr3t! - CHANGE THIS!"
+      # Empty so the Vite frontend (built with no Hocuspocus secret) can sync locally.
+      HOCUSPOCUS_SECRET: ""
 
   agora-token-service:
-    image: agoracn/token:0.1.2023053011
+    # agoracn/token only exposes POST /token/generate. Meeting Controller needs
+    # GET /rte/... returning { rtcToken, rtmToken }.
+    build:
+      context: ./agora-token-service
+      dockerfile: Dockerfile
     container_name: agora-token-service
     restart: unless-stopped
+    ports:
+      - "8081:8080"
     environment:
-      APP_ID: lowcoder
-      APP_CERTIFICATE: "your agora token certificate"
+      APP_ID: "YOUR_APP_ID"
+      APP_CERTIFICATE: "YOUR_APP_CERTIFICATE"
+      SERVER_PORT: "8080"
+      CORS_ALLOW_ORIGIN: "*"
+    healthcheck:
+      test: curl -sS http://127.0.0.1:8080/ping | grep -c pong > /dev/null
+      interval: 3s
+      timeout: 5s
+      retries: 10
 
 
   ##

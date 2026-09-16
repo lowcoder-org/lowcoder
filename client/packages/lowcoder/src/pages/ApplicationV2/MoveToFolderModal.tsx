@@ -1,6 +1,7 @@
 import { HomeRes } from "./HomeLayout";
 import { default as Form } from "antd/es/form";
-import React, { useState, useEffect } from "react";
+import { default as TreeSelect } from "antd/es/tree-select";
+import React, { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
@@ -8,13 +9,20 @@ import {
   DatasourceForm,
   FolderIcon,
   FormSection,
-  FormSelectItem,
   TacoButton,
 } from "lowcoder-design";
 import { moveToFolder, fetchFolderElements } from "../../redux/reduxActions/folderActions";
 import styled from "styled-components";
 import { trans } from "../../i18n";
-import { foldersSelector, isFetchingFolderElements } from "../../redux/selectors/folderSelector";
+import { foldersSelector } from "../../redux/selectors/folderSelector";
+import {
+  buildFolderHierarchy,
+  flattenFolderTree,
+  getFolderDisplayPath,
+  getFolderPath,
+} from "../../util/folderUtils";
+
+const ROOT_NODE_KEY = "__root_folder__";
 
 const MoveLabel = styled.div`
   font-size: 13px;
@@ -28,9 +36,49 @@ const MoveButton = styled(TacoButton)`
   height: 28px;
 `;
 
-const FolderSelectLabel = styled.div`
+const FolderTreeLabel = styled.div<{ $current?: boolean }>`
   display: flex;
   align-items: center;
+  min-width: 0;
+  opacity: ${(props) => (props.$current ? 0.5 : 1)};
+
+  > span {
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+`;
+
+const FolderTreeFormItem = styled(Form.Item)`
+  margin-bottom: 0;
+`;
+
+const FolderTreeSelect = styled(TreeSelect)`
+  width: 100%;
+
+  .ant-select-selector {
+    min-height: 32px;
+    padding: 0 8px !important;
+  }
+
+  .ant-select-selection-item {
+    display: flex;
+    align-items: center;
+  }
+
+  .ant-select-selection-search-input {
+    height: 30px !important;
+  }
+
+  .ant-select-selection-placeholder {
+    display: flex;
+    align-items: center;
+  }
+`;
+
+const FolderTreeDropdownClass = styled.div`
+  overflow: hidden;
 `;
 
 const MoveModalFooter = styled.div`
@@ -41,32 +89,117 @@ const MoveModalFooter = styled.div`
 `;
 
 export const MoveToFolderModal = (props: { source?: HomeRes; onClose: () => void, setModify: any, modify: boolean }) => {
-  const {setModify, modify} = props;
+  const {setModify} = props;
   const [form] = Form.useForm();
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [expandedFolderIds, setExpandedFolderIds] = useState<
+    (string | number)[]
+  >([ROOT_NODE_KEY]);
+  const [folderSearch, setFolderSearch] = useState("");
 
   const folders = useSelector(foldersSelector);
-  const isFetching = useSelector(isFetchingFolderElements);
 
   const dispatch = useDispatch();
 
   const { folderId } = useParams<{ folderId: string }>();
 
-  // Fetch folders when modal opens to populate Redux state (only if not already loaded or fetching)
+  const availableFolders = useMemo(
+    () =>
+      flattenFolderTree(folders).filter(
+        (folder) => folder.folderId !== folderId,
+      ),
+    [folders, folderId],
+  );
+
+  const defaultDestination = folderId ? "" : availableFolders[0]?.folderId;
+
+  const folderTreeData = useMemo(() => {
+    const rootFolderName = trans("home.rootFolder");
+    const renderFolderLabel = (name: string, isCurrent = false) => (
+      <FolderTreeLabel $current={isCurrent}>
+        <FolderIcon
+          style={{ marginRight: "8px", width: "20px", flexShrink: 0 }}
+        />
+        <span>{name}</span>
+      </FolderTreeLabel>
+    );
+
+    const toTreeSelectNode = (
+      node: ReturnType<typeof buildFolderHierarchy>[number],
+    ): any => {
+      const isCurrent = node.folder.folderId === folderId;
+      const selectedPath = `${rootFolderName} / ${getFolderDisplayPath(
+        node.folder.folderId,
+        folders,
+      )}`;
+
+      return {
+        key: node.folder.folderId,
+        value: node.folder.folderId,
+        searchLabel: node.folder.name,
+        selectable: !isCurrent,
+        label: renderFolderLabel(node.folder.name, isCurrent),
+        selectedLabel: renderFolderLabel(selectedPath),
+        children: node.children.map(toTreeSelectNode),
+      };
+    };
+
+    return [
+      {
+        key: ROOT_NODE_KEY,
+        value: "",
+        searchLabel: rootFolderName,
+        selectable: Boolean(folderId),
+        label: renderFolderLabel(rootFolderName, !folderId),
+        selectedLabel: renderFolderLabel(rootFolderName),
+        children: buildFolderHierarchy(folders).map(toTreeSelectNode),
+      },
+    ];
+  }, [folders, folderId]);
+
+  // Refresh the complete hierarchy whenever a different resource is selected.
   useEffect(() => {
-    if (props.source && folders.length === 0 && !isFetching) {
-      // Dispatch the Redux action to fetch folders (empty folderId fetches all folders)
+    if (props.source?.id) {
       dispatch(fetchFolderElements({}));
     }
-  }, [props.source, dispatch, folders.length, isFetching]);
+  }, [props.source?.id, dispatch]);
+
+  useEffect(() => {
+    form.resetFields();
+    setFolderSearch("");
+  }, [props.source?.id, form]);
+
+  useEffect(() => {
+    setExpandedFolderIds([
+      ROOT_NODE_KEY,
+      ...getFolderPath(folderId, folders).map((folder) => folder.folderId),
+    ]);
+  }, [props.source?.id, folderId, folders]);
+
+  useEffect(() => {
+    const selectedDestination = form.getFieldValue("folder");
+    const hasValidDestination =
+      (selectedDestination === "" && Boolean(folderId)) ||
+      availableFolders.some(
+        (folder) => folder.folderId === selectedDestination,
+      );
+
+    if (
+      props.source &&
+      !hasValidDestination &&
+      defaultDestination !== undefined
+    ) {
+      form.setFieldValue("folder", defaultDestination);
+    }
+  }, [props.source, defaultDestination, folderId, availableFolders, form]);
 
   return (
     <CustomModal
       open={!!props.source}
       onCancel={props.onClose}
       destroyOnHidden={true}
-      width="408px"
+      width="440px"
       centered={true}
       title={trans("home.moveToFolder")}
       footer={
@@ -82,20 +215,18 @@ export const MoveToFolderModal = (props: { source?: HomeRes; onClose: () => void
                 dispatch(
                   moveToFolder(
                     {
-                      sourceFolderId: folderId,
+                      sourceFolderId: folderId || "",
                       sourceId: props.source?.id!,
                       folderId: form.getFieldValue("folder"),
                     },
                     () => {
                       props.onClose();
                       setLoading(false);
+                      setModify((value: boolean) => !value);
                     },
                     () => setLoading(false)
                   )
                 );
-                  setTimeout(() => {
-                      setModify(!modify);
-                  }, 200);
               });
             }}
           >
@@ -109,38 +240,49 @@ export const MoveToFolderModal = (props: { source?: HomeRes; onClose: () => void
           <MoveLabel>
             {trans("home.moveToFolderSubTitle", { name: props.source?.name ?? "" })}
           </MoveLabel>
-          <FormSelectItem
-            name={"folder"}
-            initialValue={
-              folderId ? "" : folders.filter((f) => f.folderId !== folderId)[0]?.folderId
-            }
-            options={[
-              ...(folderId
-                ? [
-                    {
-                      label: (
-                        <FolderSelectLabel>
-                          <FolderIcon style={{ marginRight: "8px", width: "24px", flexShrink: 0 }} />
-                          {trans("home.rootFolder")} 
-                        </FolderSelectLabel>
-                      ),
-                      value: "",
-                    },
-                  ]
-                : []),
-              ...folders
-                .filter((f) => f.folderId !== folderId)
-                .map((f) => ({
-                  label: (
-                    <FolderSelectLabel>
-                      <FolderIcon style={{ marginRight: "8px", width: "24px", flexShrink: 0 }} />
-                      {f.name}
-                    </FolderSelectLabel>
-                  ),
-                  value: f.folderId,
-                })),
+          <FolderTreeFormItem
+            name="folder"
+            initialValue={defaultDestination}
+            rules={[
+              {
+                validator: (_, value) =>
+                  value === undefined
+                    ? Promise.reject(
+                        new Error(trans("home.selectFolderDestination")),
+                      )
+                    : Promise.resolve(),
+              },
             ]}
-          />
+          >
+            <FolderTreeSelect
+              treeData={folderTreeData}
+              fieldNames={{
+                label: "label",
+                value: "value",
+                children: "children",
+              }}
+              treeNodeLabelProp="selectedLabel"
+              treeLine={{ showLeafIcon: false }}
+              treeExpandedKeys={folderSearch ? undefined : expandedFolderIds}
+              onTreeExpand={(keys) =>
+                setExpandedFolderIds(keys as (string | number)[])
+              }
+              showSearch
+              searchValue={folderSearch}
+              onSearch={setFolderSearch}
+              filterTreeNode={(input, node: any) =>
+                node.searchLabel
+                  ?.toLocaleLowerCase()
+                  .includes(input.toLocaleLowerCase())
+              }
+              placeholder={trans("home.selectFolderDestination")}
+              listHeight={280}
+              popupMatchSelectWidth
+              popupRender={(menu) => (
+                <FolderTreeDropdownClass>{menu}</FolderTreeDropdownClass>
+              )}
+            />
+          </FolderTreeFormItem>
         </FormSection>
       </DatasourceForm>
     </CustomModal>

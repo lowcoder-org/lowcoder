@@ -14,10 +14,10 @@ import { ChatProvider } from "./components/context/ChatContext";
 import { ChatPropertyView } from "./chatPropertyView";
 import { createChatStorage } from "./utils/storageFactory";
 import { QueryHandler } from "./handlers/messageHandlers";
-import { useMemo, useRef } from "react";  
+import { useMemo, useRef } from "react";
 import { changeChildAction } from "lowcoder-core";
 import { ChatMessage } from "./types/chatTypes";
-import { getTextFromThreadContent } from "./utils/assistantMessages";
+import { addSystemPromptToHistory } from "./utils/assistantMessages";
 import { trans } from "i18n";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { styleControl } from "comps/controls/styleControl";
@@ -85,58 +85,6 @@ const ChatEventOptions = [
 ] as const;
 
 export const ChatEventHandlerControl = eventHandlerControl(ChatEventOptions);
-
-// ============================================================================
-// SIMPLIFIED CHILDREN MAP - WITH EVENT HANDLERS
-// ============================================================================
-
-
-export function addSystemPromptToHistory(
-  conversationHistory: ChatMessage[], 
-  systemPrompt: string
-): Array<{ role: string; content: string; timestamp: number; attachments?: any[] }> {
-  // Format conversation history for use in queries
-  const formattedHistory = conversationHistory.map(msg => {
-    const baseMessage = {
-      role: msg.role,
-      content: getTextFromThreadContent(msg.content),
-      timestamp: msg.createdAt.getTime()
-    };
-
-    // Include attachment metadata if present (for API calls and external integrations)
-    if (msg.attachments && msg.attachments.length > 0) {
-      return {
-        ...baseMessage,
-        attachments: msg.attachments.map(att => ({
-          id: att.id,
-          type: att.type,
-          name: att.name,
-          contentType: att.contentType,
-          // Include content for images (base64 data URLs are useful for APIs)
-          ...(att.type === "image" && att.content && {
-            content: att.content.map(c => ({
-              type: c.type,
-              ...(c.type === "image" && { image: c.image })
-            }))
-          })
-        }))
-      };
-    }
-
-    return baseMessage;
-  });
-  
-  // Create system message (always exists since we have default)
-  const systemMessage = [{
-    role: "system" as const,
-    content: systemPrompt,
-    timestamp: Date.now() - 1000000 // Ensure it's always first chronologically
-  }];
-  
-  // Return complete history with system prompt prepended
-  return [...systemMessage, ...formattedHistory];
-}
-
 
 function generateUniqueTableName(): string {
   return `chat${Math.floor(1000 + Math.random() * 9000)}`;
@@ -216,9 +164,11 @@ const ChatTmpComp = new UICompBuilder(
       return new QueryHandler({
         chatQuery: props.chatQuery.value,
         dispatch,
+        systemPrompt: props.systemPrompt,
       });
     }, [
-      props.chatQuery, 
+      props.chatQuery,
+      props.systemPrompt,
       dispatch,
     ]);
 
@@ -297,6 +247,6 @@ const ChatCompWithAutoHeight = class extends ChatTmpComp {
 export const ChatComp = withExposingConfigs(ChatCompWithAutoHeight, [
   new NameConfig("currentMessage", "Current user message"),
   // conversationHistory is now a proper array (not JSON string) - supports setConversationHistory(), clearConversationHistory(), resetConversationHistory()
-  new NameConfig("conversationHistory", "Full conversation history array with system prompt (use directly in API calls, no JSON.parse needed)"),
+  new NameConfig("conversationHistory", "Reactive conversation history array with system prompt (no JSON.parse needed)"),
   new NameConfig("databaseName", "Database name for SQL queries (ChatDB_<componentName>)"),
 ]);

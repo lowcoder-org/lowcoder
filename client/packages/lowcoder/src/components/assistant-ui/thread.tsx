@@ -13,12 +13,14 @@ interface ThreadProps {
   placeholder?: string;
   showAttachments?: boolean;
   autoHeight?: boolean;
+  suggestionMode?: "chat" | "automator";
 }
 
 export const Thread: FC<ThreadProps> = ({
   placeholder = trans("chat.composerPlaceholder"),
   showAttachments = true,
   autoHeight = false,
+  suggestionMode = "chat",
 }) => {
   return (
     <StyledThreadRoot
@@ -36,7 +38,7 @@ export const Thread: FC<ThreadProps> = ({
       >
         <div className="aui-thread-layout">
           <AuiIf condition={(s) => s.thread.isEmpty}>
-            <ThreadWelcome />
+            <ThreadWelcome suggestionMode={suggestionMode} />
           </AuiIf>
 
           <div data-slot="aui_message-group" className="aui-message-group">

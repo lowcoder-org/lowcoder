@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Section, sectionNames, controlItem } from "lowcoder-design";
+import { PropertyViewDocLink } from "comps/utils/propertyViewDocLink";
 import { default as Segmented } from "antd/es/segmented";
 import { UICompBuilder, withDefault, stateComp } from "../../generators";
 import { changeValueAction, multiChangeAction } from "lowcoder-core";
@@ -193,6 +194,7 @@ const ChatBoxPropertyView = React.memo((props: { children: any }) => {
 
   return (
     <>
+      <PropertyViewDocLink href={trans("docUrls.githubChatBox")} />
       <Section name={sectionNames.basic}>
         {children.chatTitle.propertyView({
           label: trans("chatBox.chatTitleLabel"),

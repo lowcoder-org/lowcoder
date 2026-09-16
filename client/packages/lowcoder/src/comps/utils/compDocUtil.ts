@@ -8,6 +8,12 @@ export function getComponentDocUrl(compType: UICompType) {
   switch (compType) {
     case "module":
       return trans("docUrls.module");
+    case "chat":
+      return trans("docUrls.githubAiChat");
+    case "chatBox":
+      return trans("docUrls.githubChatBox");
+    case "chatController":
+      return trans("docUrls.githubChatController");
     default:
       return trans("docUrls.components", { compType });
   }

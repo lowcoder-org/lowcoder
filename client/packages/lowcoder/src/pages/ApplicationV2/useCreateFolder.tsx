@@ -9,6 +9,8 @@ import { getUser } from "../../redux/selectors/usersSelectors";
 import { trans } from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
 import { ModalFunc } from "antd/es/modal/confirm";
+import { useParams } from "react-router-dom";
+import { flattenFolderTree } from "../../util/folderUtils";
 
 const CreateFolderLabel = styled.div`
   font-size: 13px;
@@ -21,7 +23,14 @@ export function useCreateFolder(setModify: any, modify: boolean) {
   const dispatch = useDispatch();
   const user = useSelector(getUser);
   const allFolders = useSelector(foldersSelector);
-  const folderNames = useMemo(() => allFolders.map((f) => f.name), [allFolders]);
+  const { folderId } = useParams<{ folderId: string }>();
+  const folderNames = useMemo(
+    () =>
+      flattenFolderTree(allFolders)
+        .filter((folder) => (folder.parentFolderId || "") === (folderId || ""))
+        .map((folder) => folder.name),
+    [allFolders, folderId],
+  );
 
   const [form] = Form.useForm();
 
@@ -33,6 +42,7 @@ export function useCreateFolder(setModify: any, modify: boolean) {
         {
           name: form.getFieldValue("name"),
           orgId: user.currentOrgId,
+          parentFolderId: folderId,
         },
         onSuccess,
         onFail
@@ -52,9 +62,7 @@ export function useCreateFolder(setModify: any, modify: boolean) {
                   dispatchCreateFolder(
                     () => {
                       modal?.destroy();
-                      setTimeout(() => {
-                        setModify(!modify);
-                      }, 200);
+                      setModify((value: boolean) => !value);
                     },
                     () => {}
                   );
@@ -83,16 +91,16 @@ export function useCreateFolder(setModify: any, modify: boolean) {
           () =>
             new Promise((resolve, reject) => {
               dispatchCreateFolder(
-                () => resolve(true),
+                () => {
+                  setModify((value: boolean) => !value);
+                  resolve(true);
+                },
                 () => reject(false)
               );
             })
         )
-          setTimeout(() => {
-              setModify(!modify);
-          }, 200);
       },
       okText: trans("create"),
     });
-  }, [user, allFolders, form, dispatch]);
+  }, [user, folderNames, folderId, form, dispatch, setModify, modify]);
 }

@@ -1551,8 +1551,16 @@ export const en = {
     "placeholderTooltip": "Placeholder text for the composer input",
     "newThread": "New Thread",
     "welcomeMessage": "How can I help you today?",
-    "suggestionWeather": "What's the weather in Tokyo?",
-    "suggestionAssistant": "What's the news today?",
+    "suggestionChatCapabilities": "What can you help me with?",
+    "suggestionChatIdeas": "Give me a few ideas to get started",
+    "suggestionTimeTracking": "Build a small time-tracking app",
+    "suggestionCrm": "Build a small CRM app",
+    "suggestionTodo": "Build a small todo app",
+    "suggestionInventory": "Build a small inventory app",
+    "suggestionExpenseTracker": "Build a small expense tracker app",
+    "suggestionProjectManagement": "Build a small project management app",
+    "suggestionCustomerSupport": "Build a small customer support app",
+    "suggestionEmployeeDirectory": "Build a small employee directory app",
     
     
     
@@ -1823,6 +1831,7 @@ export const en = {
 
   "comp": {
     "menuViewDocs": "View Documentation",
+    "menuViewDocsTooltip": "Open documentation on GitHub",
     "menuViewPlayground": "View interactive Playground",
     "menuUpgradeToLatest": "Upgrade to Latest Version",
     "nameNotEmpty": "Cannot Be Empty",
@@ -4550,6 +4559,7 @@ export const en = {
     "moveToFolder": "Move to folder",
     "moveToTrash": "Move to trash",
     "moveToFolderSubTitle": 'Move "{name}" to:',
+    "selectFolderDestination": "Select a destination folder",
     "folderName": "Folder name:",
     "resCardSubTitle": "{time} by {creator}",
     "trashEmpty": "Trash is empty.",
@@ -5302,6 +5312,11 @@ export const en = {
     eventHandlerSlowdown: "https://docs.lowcoder.cloud/build-applications/app-interaction/event-handlers",
     thirdLib: "https://docs.lowcoder.cloud/lowcoder-extension/use-third-party-libraries-in-apps",
     thirdLibUrlText: "Use third-party libraries",
+    githubAiChat: "https://github.com/lowcoder-org/lowcoder/blob/main/docs/build-applications/app-editor/visual-components/ai-chat.md",
+    githubChatBox: "https://github.com/lowcoder-org/lowcoder/blob/main/docs/build-applications/app-editor/visual-components/chat-box.md",
+    githubAutomator: "https://github.com/lowcoder-org/lowcoder/blob/main/docs/build-applications/app-editor/automator.md",
+    githubAiHelp: "https://github.com/lowcoder-org/lowcoder/blob/main/docs/build-applications/app-editor/ai-help.md",
+    githubChatController: "https://github.com/lowcoder-org/lowcoder/blob/main/docs/build-applications/app-editor/visual-components/chat-controller.md",
   },
   datasourceTutorial: {
     mysql: "",

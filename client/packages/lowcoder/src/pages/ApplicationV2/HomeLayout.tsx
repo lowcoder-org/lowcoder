@@ -78,6 +78,9 @@ const ContentWrapper = styled.div`
 
 const Breadcrumb = styled(AntdBreadcrumb)`
   font-size: 20px;
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
 
   li:not(:last-child) {
     color: #8b8fa3;
@@ -155,8 +158,8 @@ const FilterMenuItem = styled.div`
   width: 100%;
 `;
 
-const BreadcrumbItem = styled.div`
-  cursor: pointer;
+const BreadcrumbItem = styled.div<{ $clickable: boolean }>`
+  cursor: ${(props) => (props.$clickable ? "pointer" : "default")};
 `;
 
 const SkeletonStyle = styled(Skeleton)`
@@ -289,6 +292,7 @@ export type HomeLayoutMode = "view" | "trash" | "module" | "folder" | "folders" 
 
 export interface HomeLayoutProps {
   breadcrumb?: HomeBreadcrumbType[];
+  title?: string;
   elements: Array<ApplicationMeta | FolderMeta>;
   localMarketplaceApps?: Array<ApplicationMeta>;
   globalMarketplaceApps?: Array<ApplicationMeta>;
@@ -311,6 +315,7 @@ export interface HomeLayoutProps {
 export function HomeLayout(props: HomeLayoutProps) {
   const mounted = useRef(true);
   const { breadcrumb = [],
+    title,
     elements = [],
     localMarketplaceApps = [],
     globalMarketplaceApps = [],
@@ -400,7 +405,7 @@ export function HomeLayout(props: HomeLayoutProps) {
   const currentPath = useLocation().pathname;
 
   const displayElements = useMemo(() => {
-    const sorted = elements.sort((a, b) => {
+    const sorted = [...elements].sort((a, b) => {
       if (a.folder && !b.folder) {
         return -1;
       } else if (!a.folder && b.folder) {
@@ -509,6 +514,12 @@ export function HomeLayout(props: HomeLayoutProps) {
     }))
   ], [breadcrumb, currentPath]);
 
+  const parentBreadcrumb = breadcrumb[breadcrumb.length - 2];
+  const parentPath = parentBreadcrumb?.path || ALL_APPLICATIONS_URL;
+  const parentLabel = parentBreadcrumb?.text || trans("home.home");
+  const createRefreshSetter = mode === "folder" ? setModify : setIsCreated;
+  const createRefreshValue = mode === "folder" ? modify : isCreated;
+
   const filterMenuItems = useMemo(() => [
     getFilterMenuItem(HomeResTypeEnum.All),
     getFilterMenuItem(HomeResTypeEnum.Application),
@@ -548,14 +559,19 @@ export function HomeLayout(props: HomeLayoutProps) {
         <Breadcrumb
           separator={<ArrowIcon />}
           items={breadcrumbItems}
-          itemRender={(item) => (
-            <BreadcrumbItem
-              key={item.key}
-              onClick={item.onClick}
-            >
-              {item.title}
-            </BreadcrumbItem>
-          )}
+          itemRender={(item) => {
+            const isCurrent = item.key === breadcrumbItems[breadcrumbItems.length - 1]?.key;
+            return (
+              <BreadcrumbItem
+                key={item.key}
+                $clickable={!isCurrent}
+                onClick={item.onClick}
+                aria-current={isCurrent ? "page" : undefined}
+              >
+                {item.title}
+              </BreadcrumbItem>
+            );
+          }}
         >
         </Breadcrumb>
       </HeaderWrapper>
@@ -567,7 +583,7 @@ export function HomeLayout(props: HomeLayoutProps) {
             <h1 style={{color: "#ffffff", marginTop : "12px"}}>
               {mode === "marketplace" && trans("home.appMarketplace")}
               {mode === "folders" && trans("home.allFolders")}
-              {mode === "folder" && trans("home.folder")}
+              {mode === "folder" && (title || trans("home.folder"))}
               {mode === "module" && trans("home.modules")}
               {mode === "trash" && trans("home.trash")}
               {mode === "view" && trans("home.allApplications")}
@@ -621,8 +637,8 @@ export function HomeLayout(props: HomeLayoutProps) {
                 <CreateDropdown 
                   defaultVisible={showNewUserGuide(user)} 
                   mode={mode} 
-                  setModify={setIsCreated} 
-                  modify={isCreated!} />
+                  setModify={createRefreshSetter}
+                  modify={createRefreshValue!} />
               )}
               </SearchWrapper>
 
@@ -691,9 +707,9 @@ export function HomeLayout(props: HomeLayoutProps) {
                           {mode !== "marketplace" && (
                             <>
                               {layout === "list" ? (
-                                <HomeTableView resources={resList} setModify={setModify} modify={modify!} mode={mode}/>
+                                <HomeTableView resources={resList} setModify={setModify} modify={modify!} mode={mode} parentPath={parentPath} parentLabel={parentLabel}/>
                               ) : (
-                                <HomeCardView resources={resList} setModify={setModify} modify={modify!} mode={mode} />
+                                <HomeCardView resources={resList} setModify={setModify} modify={modify!} mode={mode} parentPath={parentPath} parentLabel={parentLabel} />
                               )}
                             </>
                           )}
@@ -713,7 +729,7 @@ export function HomeLayout(props: HomeLayoutProps) {
                           ? trans("home.projectEmptyCanAdd")
                           : trans("home.projectEmpty")}
                       </div>
-                      {mode !== "trash" && mode !== "marketplace" && user.orgDev && <CreateDropdown mode={mode} setModify={setIsCreated} modify={isCreated!}/>}
+                      {mode !== "trash" && mode !== "marketplace" && user.orgDev && <CreateDropdown mode={mode} setModify={createRefreshSetter} modify={createRefreshValue!}/>}
                     </EmptyView>
                   )}
                 </>

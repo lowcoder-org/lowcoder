@@ -356,8 +356,8 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
   );
 }
 
-export function Back(props: { mode: string }) {
-  const { mode } = props;
+export function Back(props: { mode: string; parentPath?: string; parentLabel?: string }) {
+  const { mode, parentPath, parentLabel } = props;
   return mode === "folder" ?
       <Wrapper style={{cursor: "pointer"}}>
         <Card>
@@ -368,14 +368,12 @@ export function Back(props: { mode: string }) {
             }
           } />
           <CardInfo
-              onClick={(e) => {
-                backFolderViewClick();
+              onClick={() => {
+                backFolderViewClick(parentPath);
               }}
           >
-            <TypographyText
-            />
-            <h1 style={{fontSize:"x-large"}}>...</h1>
-            <AppTimeOwnerInfoLabel title={""}></AppTimeOwnerInfoLabel>
+            <StyledTypographyText>{parentLabel}</StyledTypographyText>
+            <AppTimeOwnerInfoLabel title="">..</AppTimeOwnerInfoLabel>
           </CardInfo>
         </Card>
       </Wrapper>
