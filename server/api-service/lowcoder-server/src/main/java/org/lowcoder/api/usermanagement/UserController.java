@@ -27,6 +27,7 @@ import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.constants.AuthSourceConstants;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
+import org.lowcoder.sdk.util.EmailUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.Part;
@@ -75,12 +76,28 @@ public class UserController implements UserEndpoints
 
     @Override
     public Mono<ResponseView<?>> createSCIMUserAndAddToOrg(@PathVariable String orgId, CreateUserRequest request) {
+        // The third writer of an address, and the only one that validated nothing. A blank value creates a
+        // row whose email is "" -- which findByEmailDeep can never resolve, since it short-circuits on
+        // empty. The lookup below is fed the value AS SUPPLIED rather than the normalized one, so the
+        // two-probe lookup gets both chances: the typed casing byte-exact, then the canonical form. It
+        // does NOT find a row stored in some third casing -- e.g. stored "Stored@Example.COM" is not
+        // reachable from "stored@example.com". Changeset 032 converges such rows, so what is left is one
+        // the backfill deliberately froze as part of a reported conflict, or an install where 032 has not
+        // run yet. Only what gets written is normalized.
+        //
+        // Authorize first, validate second: a caller who is not an org admin must be turned away by
+        // checkVisitorAdminRole regardless of what they sent, and must not be able to tell a malformed
+        // payload from a well-formed one by the error they get back.
+        String normalizedEmail = EmailUtils.normalize(request.email());
         return orgApiService.checkVisitorAdminRole(orgId)
                 .flatMap(__ -> {
+                    if (!EmailUtils.looksLikeEmail(normalizedEmail)) {
+                        return ofError(BizError.INVALID_EMAIL_FORMAT, "INVALID_EMAIL_FORMAT");
+                    }
                     // For SCIM provisioning: Create a minimal user without auth connection
                     // The auth connection will be added on first SSO login via JIT provisioning
                     // This allows SCIM to pre-provision users while SSO handles authentication
-                    
+
                     // Check if user already exists by email
                     return userService.findByEmailDeep(request.email())
                             .flatMap(existingUser -> {
@@ -92,8 +109,8 @@ public class UserController implements UserEndpoints
                                     // Create new user without auth connection (placeholder for SSO)
                                     Mono.defer(() -> {
                                         User newUser = User.builder()
-                                                .name(request.email())
-                                                .email(request.email())
+                                                .name(normalizedEmail)
+                                                .email(normalizedEmail)
                                                 .isEnabled(true)
                                                 .build();
                                         newUser.setConnections(new HashSet<>());
