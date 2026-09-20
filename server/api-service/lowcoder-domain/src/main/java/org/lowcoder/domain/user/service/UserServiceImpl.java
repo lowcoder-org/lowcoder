@@ -33,6 +33,7 @@ import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.constants.WorkspaceMode;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
+import org.lowcoder.sdk.util.EmailUtils;
 import org.lowcoder.sdk.util.HashUtils;
 import org.lowcoder.sdk.util.LocaleUtils;
 import org.springframework.dao.DuplicateKeyException;
@@ -45,6 +46,7 @@ import reactor.core.publisher.Mono;
 
 import java.security.SecureRandom;
 import java.time.Instant;
+import java.util.Comparator;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
@@ -105,19 +107,93 @@ public class UserServiceImpl implements UserService {
                 );
     }
 
+    /**
+     * Resolves a connection by source and subject, tolerating the case in which it was stored.
+     *
+     * <p>Two byte-exact probes rather than one normalized probe. Both are served by the existing
+     * {@code (connections.source, connections.rawId)} index, and between them they cover the two shapes that
+     * coexist while data is being cleaned up: rows written before normalization, which hold whatever casing
+     * the user typed, and rows written after it, which hold the normalized form.
+     *
+     * <p>A single normalized probe would be simpler and is what a fully migrated database wants -- but on an
+     * un-migrated one it silently stops finding every account whose stored {@code rawId} contains an
+     * uppercase letter, i.e. it locks those users out. This form has no such failure mode and needs no
+     * migration.
+     *
+     * <p><b>Known limitation.</b> The second probe only helps when the STORED value is normalized. An account
+     * stored as {@code JoHn@DoE.com} is still not found by the input {@code john@doe.com}, because finding it
+     * would need a case-insensitive query, which MongoDB cannot serve from this index. So this closes
+     * duplicate creation going forward, and does not retroactively unify addresses that already differ in
+     * case. Converging those requires the backfill migration.
+     */
     @Override
     public Mono<User> findBySourceAndId(String source, String sourceUuid) {
-        return repository.findByConnections_SourceAndConnections_RawId(source, sourceUuid);
+        // normalizeIfEmailSource, never normalize: for a non-EMAIL source this value is the opaque IdP
+        // subject and must be matched byte-for-byte.
+        String normalized = EmailUtils.normalizeIfEmailSource(source, sourceUuid);
+        Mono<User> asStored = repository.findByConnections_SourceAndConnections_RawId(source, sourceUuid);
+        if (StringUtils.equals(normalized, sourceUuid)) {
+            return asStored;
+        }
+        return asStored.switchIfEmpty(
+                repository.findByConnections_SourceAndConnections_RawId(source, normalized));
     }
 
     public Mono<User> findByName(String rawUuid) {
         return repository.findByName(rawUuid);
     }
 
+    /** Same two-probe reasoning as {@link #findBySourceAndId}, including the same known limitation. */
     @Override
     public Mono<User> findByEmailDeep(String email) {
         if(StringUtils.isEmpty(email)) return Mono.empty();
-        return repository.findByEmailOrConnections_Email(email, email).next();
+        String normalized = EmailUtils.normalize(email);
+        Mono<User> asStored = probeByEmail(email);
+        if (StringUtils.equals(normalized, email)) {
+            return asStored;
+        }
+        return asStored.switchIfEmpty(probeByEmail(normalized));
+    }
+
+    /**
+     * Whether password recovery may act on this account.
+     *
+     * <p>Resolving by address rather than by {@code user.name} reaches strictly more rows: any casing, and
+     * anything matched through {@code connections[].email}. Soft-deleted accounts keep their {@code email}
+     * -- {@code markAsDeleted} only changes the state, the enabled flag and the connection sources -- so
+     * without this they become reachable targets for a reset. They cannot log in afterwards, so this is
+     * tidiness rather than a hole, but widening what an unauthenticated endpoint can mutate is not
+     * something to do by accident.
+     */
+    private static boolean canRecoverPassword(User user) {
+        return user.getState() != UserState.DELETED;
+    }
+
+    /**
+     * One probe of the email keyspace, resolved deterministically.
+     *
+     * <p>This used to be {@code .next()} on the repository's {@link Flux}, which returns whichever document
+     * storage happened to yield first. That was tolerable while only SSO linking and SCIM used this lookup,
+     * and is not now that password recovery does: the backfill deliberately leaves conflicting accounts in
+     * place, so two accounts matching one address is a state the system is designed to keep, and picking
+     * between them at random would make the reset target a coin flip.
+     */
+    private Mono<User> probeByEmail(String value) {
+        return repository.findByEmailOrConnections_Email(value, value)
+                .collectList()
+                .flatMap(candidates -> Mono.justOrEmpty(pickDeterministically(candidates, value)));
+    }
+
+    /**
+     * An account whose own {@code email} matches wins over one reached only through a connection -- that is
+     * the account a human means by the address -- and identity breaks any remaining tie.
+     */
+    static User pickDeterministically(List<User> candidates, String value) {
+        return candidates.stream()
+                .min(Comparator
+                        .comparingInt((User user) -> StringUtils.equals(user.getEmail(), value) ? 0 : 1)
+                        .thenComparing(user -> StringUtils.defaultString(user.getId())))
+                .orElse(null);
     }
 
     @Override
@@ -166,7 +242,10 @@ public class UserServiceImpl implements UserService {
     public Mono<User> createNewUserByAuthUser(AuthUser authUser, boolean isSuperAdmin) {
          User.UserBuilder userBuilder = User.builder()
                 .name(authUser.getUsername())
-                .email(authUser.getEmail())
+                // Normalized on write, null-preserving: an SSO provider that returns no email claim must
+                // leave this null rather than "". user.name is left alone -- it is a display name, and for
+                // SSO users it is a handle rather than an address.
+                .email(authUser.getEmail() == null ? null : EmailUtils.normalize(authUser.getEmail()))
                 .state(UserState.ACTIVATED)
                 .superAdmin(isSuperAdmin)
                 .isEnabled(true)
@@ -198,21 +277,70 @@ public class UserServiceImpl implements UserService {
                 .flatMap(user -> assetService.makeImageResponse(exchange, user.getAvatar()));
     }
 
+    /**
+     * Attaches an email address to an account that authenticated some other way.
+     *
+     * <p>Two guards, both of which the original had no equivalent for.
+     *
+     * <p><b>Shape.</b> The endpoint takes a bare {@code @RequestParam} and validated nothing, so without
+     * this an empty string or a display name is stored as an address -- in {@code user.email} AND as a
+     * connection {@code rawId} the form login then resolves against. Registration validates shape; binding
+     * must too.
+     *
+     * <p><b>Ownership.</b> The unique index on {@code (connections.source, connections.rawId)} used to be
+     * what stopped two accounts holding one address: a second bind of the same value collided and surfaced
+     * as {@link BizError#ALREADY_BIND}. Normalizing the value is exactly what stops that index from
+     * catching it -- binding {@code Legacy@Example.COM} now writes {@code legacy@example.com}, a different
+     * key, so an account already stored under the typed casing no longer collides. Without the probe
+     * below, adding normalization would therefore have <i>removed</i> a guarantee that existed before it.
+     * The probe restores it: fed the RAW value, the two-probe lookup reaches both the pre-normalization
+     * casing and the canonical one.
+     *
+     * <p>What it does <b>not</b> cover, for the same reason no lookup on this branch does: an address
+     * stored in mixed case is not reachable from lowercase input, so binding {@code legacy@example.com}
+     * while another account holds {@code Legacy@Example.COM} still writes a second row. That hole is
+     * unchanged from before this commit -- the byte-exact index never caught that pairing either. Changeset
+     * {@code 032} converges such rows, so what is left is the owner the backfill deliberately froze as part
+     * of a reported conflict, or an install where it has not run yet. It is pinned by
+     * {@code EmailSanitizationEndpointsTest#bindEmailStillMissesALegacyMixedCaseOwnerFromLowercaseInput}.
+     */
     @Override
     public Mono<Boolean> bindEmail(User user, String email) {
+        String normalized = EmailUtils.normalize(email);
+        if (!EmailUtils.looksLikeEmail(normalized)) {
+            return Mono.error(new BizException(BizError.INVALID_EMAIL_FORMAT, "INVALID_EMAIL_FORMAT"));
+        }
+        return findBySourceAndId(AuthSourceConstants.EMAIL, email)
+                .flatMap(owner -> {
+                    if (StringUtils.equals(owner.getId(), user.getId())) {
+                        // Already this user's address. Writing again would append a second EMAIL connection
+                        // differing from the first only in case, which is the very state this change exists
+                        // to prevent, so the bind is idempotent instead.
+                        return Mono.just(true);
+                    }
+                    return Mono.<Boolean>error(
+                            new BizException(BizError.ALREADY_BIND, "ALREADY_BIND", normalized, ""));
+                })
+                .switchIfEmpty(Mono.defer(() -> doBindEmail(user, normalized)));
+    }
+
+    /** The write half of {@link #bindEmail}, deferred so it does not run while the ownership probe is still pending. */
+    private Mono<Boolean> doBindEmail(User user, String normalized) {
         Connection connection = Connection.builder()
                 .source(AuthSourceConstants.EMAIL)
-                .name(email)
-                .rawId(email)
-                .email(email)
+                .name(normalized)
+                .rawId(normalized)
+                .email(normalized)
                 .build();
         user.getConnections().add(connection);
-        user.setEmail(email);
+        user.setEmail(normalized);
         return repository.save(user)
                 .then(Mono.just(true))
+                // Still needed: the probe above is not atomic with the save, so a concurrent bind of the
+                // same address can still land between the two and be caught only by the index.
                 .onErrorResume(throwable -> {
                     if (throwable instanceof DuplicateKeyException) {
-                        return Mono.error(new BizException(BizError.ALREADY_BIND, "ALREADY_BIND", email, ""));
+                        return Mono.error(new BizException(BizError.ALREADY_BIND, "ALREADY_BIND", normalized, ""));
                     }
                     return Mono.error(throwable);
                 });
@@ -287,7 +415,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Mono<Boolean> lostPassword(String userEmail) {
-        return findByName(userEmail)
+        return findByEmailDeep(userEmail)
+                .switchIfEmpty(Mono.defer(() -> findByName(userEmail)))
+                .filter(UserServiceImpl::canRecoverPassword)
                 .zipWhen(user -> orgMemberService.getCurrentOrgMember(user.getId())
                 .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
                 .map(organization -> organization.getCommonSettings().getOrDefault(PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT, PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT)))
@@ -308,9 +438,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Mono<Boolean> resetLostPassword(String userEmail, String token, String newPassword) {
-        return findByName(userEmail)
+        return findByEmailDeep(userEmail)
+                .switchIfEmpty(Mono.defer(() -> findByName(userEmail)))
+                .filter(UserServiceImpl::canRecoverPassword)
                 .flatMap(user -> {
-                    if (Instant.now().until(user.getPasswordResetTokenExpiry(), ChronoUnit.MINUTES) <= 0) {
+                    // Null when this account never requested a reset. Previously an NPE -- and a 500 on an
+                    // unauthenticated endpoint -- reachable for any account resolvable by name; resolving by
+                    // address reaches strictly more accounts, so guard it rather than widen the hole.
+                    if (user.getPasswordResetTokenExpiry() == null
+                            || Instant.now().until(user.getPasswordResetTokenExpiry(), ChronoUnit.MINUTES) <= 0) {
                         return ofError(BizError.INVALID_PARAMETER, "TOKEN_EXPIRED");
                     }
 
