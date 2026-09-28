@@ -6,6 +6,12 @@ For examples on running the all-in-one image or the multi image deployment see *
 
 Environment variables used to configure various aspects of the services are stored in **default.env**, **default-multi.env** and **override.env**. Look into the **default** files to see which variables can be set and what are the default values. To change the defaults, use **override.env**. You don't have to use **--env-file** parameter with **doker compose** because the files are loaded from within `docker-compose.yaml` and `docker-compose-multi.yaml`.
 
+## Easypanel
+
+[Easypanel](https://easypanel.io) is a self-hosted Docker deployment platform, and it maintains a one-click deployment template for Lowcoder that provisions the api-service, node-service, frontend, MongoDB, and Redis together:
+
+[![Deploy on Easypanel](https://easypanel.io/img/deploy-on-easypanel-40.svg)](https://easypanel.io/templates/lowcoder)
+
 ## all-in-one image
 
 This image contains all services needed to run Lowcoder platform in one container.
