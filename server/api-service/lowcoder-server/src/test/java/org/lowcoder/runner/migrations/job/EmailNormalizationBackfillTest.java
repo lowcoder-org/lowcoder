@@ -182,6 +182,65 @@ public class EmailNormalizationBackfillTest {
         assertEquals("john@doe.com", conn("u1", 0).getString("rawId"));
     }
 
+    /**
+     * A connection carries more than the three fields the migration rewrites — {@code orgIds},
+     * {@code authId}, {@code rawUserInfo}, {@code tokens}. Dotted {@code $set} paths are used precisely so
+     * those survive; a {@code ReplaceOneModel} built from the projected document would silently drop every
+     * one of them, and an emptied {@code orgIds} would detach the connection from its workspaces.
+     */
+    @Test
+    public void preservesEveryConnectionFieldItDoesNotRewrite() {
+        Document connection = connection(EMAIL, "JoHn@DoE.COM", "JoHn@DoE.COM", "John Doe")
+                .append("authId", "auth-1")
+                .append("orgIds", List.of("org01", "org02"))
+                .append("rawUserInfo", new Document("email", "JoHn@DoE.COM").append("sub", "XyZ"))
+                .append("tokens", List.of("tok-1"));
+        users.insertOne(new Document("_id", "u1").append("email", "JoHn@DoE.COM")
+                .append("connections", List.of(connection)));
+
+        run();
+        logDoc("after rewrite", "u1");
+
+        Document after = conn("u1", 0);
+        assertEquals("john@doe.com", after.getString("rawId"), "precondition: it really was rewritten");
+        assertEquals("auth-1", after.getString("authId"));
+        assertEquals(List.of("org01", "org02"), after.get("orgIds"),
+                "orgIds must survive -- losing it would detach the connection from its workspaces");
+        assertEquals(List.of("tok-1"), after.get("tokens"));
+        assertEquals("JoHn@DoE.COM", ((Document) after.get("rawUserInfo")).getString("email"),
+                "rawUserInfo is the verbatim IdP payload and is never rewritten");
+        assertEquals("John Doe", after.getString("name"));
+    }
+
+    /** A connection with no orgIds at all, which is what an account outside every workspace looks like. */
+    @Test
+    public void convergesAnAccountThatBelongsToNoOrg() {
+        users.insertOne(new Document("_id", "u1").append("email", "Orgless@Example.COM")
+                .append("connections", List.of(
+                        connection(EMAIL, "Orgless@Example.COM", "Orgless@Example.COM", "n")
+                                .append("orgIds", List.of()))));
+
+        run();
+
+        assertEquals("orgless@example.com", reload("u1").getString("email"));
+        assertEquals("orgless@example.com", conn("u1", 0).getString("rawId"),
+                "org membership is irrelevant to normalization -- nothing in the migration reads it");
+        assertEquals(List.of(), conn("u1", 0).get("orgIds"));
+    }
+
+    /** And a document with no {@code connections} key whatsoever. */
+    @Test
+    public void handlesADocumentWithNoConnectionsAtAll() {
+        users.insertOne(new Document("_id", "u1").append("email", "Bare@Example.COM"));
+
+        Summary summary = run();
+
+        assertEquals("bare@example.com", reload("u1").getString("email"));
+        assertEquals(1, summary.modified());
+        assertTrue(!reload("u1").containsKey("connections"),
+                "the migration must not invent a connections array");
+    }
+
     // ----------------------------------------------------------------------------------- freezing
 
     @Test

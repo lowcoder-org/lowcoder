@@ -203,6 +203,65 @@ public class EmailBackfillEndToEndTest {
     }
 
     /**
+     * An account that belongs to no workspace. It is a reachable state: {@code loginOrRegister} only
+     * creates a default org when {@code authProperties.getWorkspaceCreation()} is on, so with workspace
+     * creation disabled every new form registration lands here, as does anyone whose last org was
+     * deleted or who was removed from it.
+     *
+     * <p>The backfill itself does not care — it never reads org membership. This pins that, and pins what
+     * {@code lostPassword} does for such an account.
+     */
+    @Test
+    public void anAccountInNoOrgIsStillConvergedByTheBackfill() {
+        String stored = "Orgless.Legacy@Example.COM";
+        String typed = "orgless.legacy@example.com";
+        User seeded = seedLegacy(stored);
+
+        runBackfill();
+
+        User found = userService.findBySourceAndId(SOURCE, typed).block();
+        assertNotNull(found, "org membership is irrelevant to the backfill");
+        assertEquals(seeded.getId(), found.getId());
+        assertEquals(typed, found.getEmail());
+
+        // And recovery still resolves it, regardless of case: resetLostPassword does not consult orgs.
+        User reloaded = userRepository.findById(seeded.getId()).block();
+        assertNotNull(reloaded);
+        String token = "orgless-token";
+        reloaded.setPasswordResetToken(HashUtils.hash(token.getBytes()));
+        reloaded.setPasswordResetTokenExpiry(Instant.now().plus(1, ChronoUnit.HOURS));
+        userRepository.save(reloaded).block();
+
+        assertEquals(Boolean.TRUE, userService.resetLostPassword(typed, token, "new-password").block(),
+                "resetting must work for an account that belongs to no workspace");
+    }
+
+    /**
+     * ...but <b>requesting</b> the token does not, and fails silently.
+     *
+     * <p>{@code lostPassword} zips the user with their current organization to pick an email template, and
+     * {@code getCurrentOrgMember} completes empty for an account in no workspace. {@code zipWhen} with an
+     * empty inner publisher yields empty, so the method stores no token, sends no mail, and reports
+     * nothing — the caller cannot distinguish it from success.
+     *
+     * <p>Pre-existing and not caused by the email work, but it means password recovery is unusable for
+     * this class of account regardless of casing, so it is pinned here rather than left as folklore.
+     */
+    @Test
+    public void requestingAPasswordResetSilentlyDoesNothingForAnAccountInNoOrg() {
+        String address = "orgless.request@example.com";
+        User seeded = seedLegacy(address);
+
+        Boolean requested = userService.lostPassword(address).block();
+        log.info("lostPassword for an org-less account returned {}", requested);
+
+        User after = userRepository.findById(seeded.getId()).block();
+        assertNotNull(after);
+        assertNull(after.getPasswordResetToken(),
+                "no token is stored, and the caller is told nothing -- this is the gap");
+    }
+
+    /**
      * The honest counterpart: a genuine conflict is left in place by design, so the lowercase form still
      * does not reach it. This is what the collision policy costs, pinned so it stays visible.
      */
