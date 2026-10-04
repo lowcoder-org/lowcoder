@@ -1,0 +1,13 @@
+{
+  "full": {
+    "connectionString": "https://es.example.com:9200",
+    "username": "elastic",
+    "password": "pw",
+    "usingSsl": true
+  },
+  "scalarsAsStrings": {
+    "connectionString": "http://es:9200",
+    "usingSsl": "false"
+  },
+  "empty": {}
+}

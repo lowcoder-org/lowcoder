@@ -1,0 +1,192 @@
+{
+  "/json" : {
+    "queryCode" : "OK",
+    "headers" : {
+      "X-multi" : [ "first", "second, with comma" ],
+      "Content-type" : [ "application/json" ],
+      "X-utf8-bytes" : [ "Å¾luÅ¥" ],
+      "X-latin1" : [ "café" ],
+      "Content-length" : [ "964" ],
+      "X-LOWCODER-RESPONSE-DATA-TYPE" : [ "JSON" ]
+    },
+    "dataShape" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/data" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/data/zeta" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/data/int" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/data/negativeInt" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/data/intMax" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/data/intMaxPlusOne" : "com.fasterxml.jackson.databind.node.LongNode",
+        "/data/intMinMinusOne" : "com.fasterxml.jackson.databind.node.LongNode",
+        "/data/longMax" : "com.fasterxml.jackson.databind.node.LongNode",
+        "/data/longMaxPlusOne" : "com.fasterxml.jackson.databind.node.BigIntegerNode",
+        "/data/longMinMinusOne" : "com.fasterxml.jackson.databind.node.BigIntegerNode",
+        "/data/decimal" : "com.fasterxml.jackson.databind.node.DoubleNode",
+        "/data/trailingZeroDecimal" : "com.fasterxml.jackson.databind.node.DoubleNode",
+        "/data/zeroPointZero" : "com.fasterxml.jackson.databind.node.DoubleNode",
+        "/data/negativeZero" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/data/exponent" : "com.fasterxml.jackson.databind.node.DoubleNode",
+        "/data/exponentUpperCase" : "com.fasterxml.jackson.databind.node.DoubleNode",
+        "/data/negativeExponent" : "com.fasterxml.jackson.databind.node.DoubleNode",
+        "/data/longDecimal" : "com.fasterxml.jackson.databind.node.DoubleNode",
+        "/data/true" : "com.fasterxml.jackson.databind.node.BooleanNode",
+        "/data/false" : "com.fasterxml.jackson.databind.node.BooleanNode",
+        "/data/null" : "com.fasterxml.jackson.databind.node.NullNode",
+        "/data/emptyObject" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/data/emptyArray" : "com.fasterxml.jackson.databind.node.ArrayNode",
+        "/data/nested" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/data/nested/array" : "com.fasterxml.jackson.databind.node.ArrayNode",
+        "/data/nested/array/0" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/data/nested/array/1" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/data/nested/array/2" : "com.fasterxml.jackson.databind.node.ArrayNode",
+        "/data/nested/array/2/0" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/data/nested/array/2/1" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/data/nested/array/2/1/four" : "com.fasterxml.jackson.databind.node.DoubleNode",
+        "/data/nested/array/3" : "com.fasterxml.jackson.databind.node.NullNode",
+        "/data/nested/array/4" : "com.fasterxml.jackson.databind.node.BooleanNode",
+        "/data/nested/array/5" : "com.fasterxml.jackson.databind.node.LongNode",
+        "/data/nested/object" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/data/nested/object/z" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/data/nested/object/a" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/data/nested/object/a/deeper" : "com.fasterxml.jackson.databind.node.ArrayNode",
+        "/data/nested/object/a/deeper/0" : "com.fasterxml.jackson.databind.node.ArrayNode",
+        "/data/nested/object/a/deeper/1" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/data/unicode" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/data/escapes" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/data/key with escaped name" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/data/alpha" : "com.fasterxml.jackson.databind.node.TextNode"
+      },
+      "keyOrder" : {
+        "/data/emptyObject" : [ ],
+        "/data/nested/array/2/1" : [ "four" ],
+        "/data/nested/object/a/deeper/1" : [ ],
+        "/data/nested/object/a" : [ "deeper" ],
+        "/data/nested/object" : [ "z", "a" ],
+        "/data/nested" : [ "array", "object" ],
+        "/data" : [ "zeta", "int", "negativeInt", "intMax", "intMaxPlusOne", "intMinMinusOne", "longMax", "longMaxPlusOne", "longMinMinusOne", "decimal", "trailingZeroDecimal", "zeroPointZero", "negativeZero", "exponent", "exponentUpperCase", "negativeExponent", "longDecimal", "true", "false", "null", "emptyObject", "emptyArray", "nested", "unicode", "escapes", "key with escaped name", "alpha" ],
+        "" : [ "data" ]
+      }
+    },
+    "written" : {"queryCode":"OK","headers":{"X-multi":["first","second, with comma"],"Content-type":["application/json"],"X-utf8-bytes":["Å¾luÅ¥"],"X-latin1":["café"],"Content-length":["964"],"X-LOWCODER-RESPONSE-DATA-TYPE":["JSON"]},"data":{"data":{"zeta":"first key, so that sorted output would differ from input order","int":1,"negativeInt":-40003,"intMax":2147483647,"intMaxPlusOne":2147483648,"intMinMinusOne":-2147483649,"longMax":9223372036854775807,"longMaxPlusOne":9223372036854775808,"longMinMinusOne":-9223372036854775809,"decimal":1.5,"trailingZeroDecimal":1.5,"zeroPointZero":0.0,"negativeZero":0,"exponent":100.0,"exponentUpperCase":100.0,"negativeExponent":0.0025,"longDecimal":0.1,"true":true,"false":false,"null":null,"emptyObject":{},"emptyArray":[],"nested":{"array":[1,"two",[3,{"four":4.0}],null,true,3000000001],"object":{"z":1,"a":{"deeper":[[],{}]}}},"unicode":"žluťoučký kůň 🐎 中文","escapes":"é \u0000 \n \t \" \\ / 😀","key with escaped name":"escaped key","alpha":"last key"}},"success":true}
+  },
+  "/json-charset" : {
+    "queryCode" : "OK",
+    "headers" : {
+      "Content-type" : [ "application/json;charset=UTF-8" ],
+      "Content-length" : [ "100" ],
+      "X-LOWCODER-RESPONSE-DATA-TYPE" : [ "JSON" ]
+    },
+    "dataShape" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/data" : "com.fasterxml.jackson.databind.node.NullNode",
+        "/errors" : "com.fasterxml.jackson.databind.node.ArrayNode",
+        "/errors/0" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/errors/0/message" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/errors/0/locations" : "com.fasterxml.jackson.databind.node.ArrayNode",
+        "/errors/0/locations/0" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/errors/0/locations/0/line" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/errors/0/locations/0/column" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/errors/0/path" : "com.fasterxml.jackson.databind.node.ArrayNode",
+        "/errors/0/path/0" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/errors/0/path/1" : "com.fasterxml.jackson.databind.node.IntNode"
+      },
+      "keyOrder" : {
+        "/errors/0/locations/0" : [ "line", "column" ],
+        "/errors/0" : [ "message", "locations", "path" ],
+        "" : [ "data", "errors" ]
+      }
+    },
+    "written" : {"queryCode":"OK","headers":{"Content-type":["application/json;charset=UTF-8"],"Content-length":["100"],"X-LOWCODER-RESPONSE-DATA-TYPE":["JSON"]},"data":{"data":null,"errors":[{"message":"žluť","locations":[{"line":1,"column":9}],"path":["items",0]}]},"success":true}
+  },
+  "/problem-json" : {
+    "queryCode" : "HTTPUNPROCESSABLE_ENTITY",
+    "headers" : {
+      "Content-type" : [ "application/problem+json" ],
+      "Content-length" : [ "80" ],
+      "X-LOWCODER-RESPONSE-DATA-TYPE" : [ "TEXT" ]
+    },
+    "dataShape" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"HTTPUNPROCESSABLE_ENTITY","headers":{"Content-type":["application/problem+json"],"Content-length":["80"],"X-LOWCODER-RESPONSE-DATA-TYPE":["TEXT"]},"data":"{\"title\":\"Unprocessable\",\"status\":422,\"errors\":[{\"field\":\"name\",\"limit\":10.50}]}","success":false}
+  },
+  "/ndjson" : {
+    "queryCode" : "OK",
+    "headers" : {
+      "Content-type" : [ "application/x-ndjson" ],
+      "Content-length" : [ "22" ],
+      "X-LOWCODER-RESPONSE-DATA-TYPE" : [ "TEXT" ]
+    },
+    "dataShape" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"OK","headers":{"Content-type":["application/x-ndjson"],"Content-length":["22"],"X-LOWCODER-RESPONSE-DATA-TYPE":["TEXT"]},"data":"{\"line\":1}\n{\"line\":2}","success":true}
+  },
+  "/image" : {
+    "queryCode" : "OK",
+    "headers" : {
+      "Content-type" : [ "image/png" ],
+      "Content-length" : [ "7" ],
+      "X-LOWCODER-RESPONSE-DATA-TYPE" : [ "IMAGE" ]
+    },
+    "dataShape" : {
+      "classes" : {
+        "" : "[B"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"OK","headers":{"Content-type":["image/png"],"Content-length":["7"],"X-LOWCODER-RESPONSE-DATA-TYPE":["IMAGE"]},"data":"aVZCT1J3QUIvdz09","success":true}
+  },
+  "/binary" : {
+    "queryCode" : "OK",
+    "headers" : {
+      "Content-type" : [ "application/octet-stream" ],
+      "Content-length" : [ "7" ],
+      "X-LOWCODER-RESPONSE-DATA-TYPE" : [ "BINARY" ]
+    },
+    "dataShape" : {
+      "classes" : {
+        "" : "[B"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"OK","headers":{"Content-type":["application/octet-stream"],"Content-length":["7"],"X-LOWCODER-RESPONSE-DATA-TYPE":["BINARY"]},"data":"aVZCT1J3QUIvdz09","success":true}
+  },
+  "/text" : {
+    "queryCode" : "OK",
+    "headers" : {
+      "Content-type" : [ "text/plain;charset=UTF-8" ],
+      "Content-length" : [ "26" ],
+      "X-LOWCODER-RESPONSE-DATA-TYPE" : [ "TEXT" ]
+    },
+    "dataShape" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"OK","headers":{"Content-type":["text/plain;charset=UTF-8"],"Content-length":["26"],"X-LOWCODER-RESPONSE-DATA-TYPE":["TEXT"]},"data":"plain žluť text 1.50","success":true}
+  },
+  "/no-content" : {
+    "queryCode" : "OK",
+    "headers" : { },
+    "dataShape" : {
+      "classes" : {
+        "" : "null"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"OK","headers":{},"success":true}
+  },
+  "/invalid-json" : {
+    "error" : "org.lowcoder.sdk.exception.PluginException: GRAPHQL_EXECUTION_ERROR INVALID_JSON_FROM_RESPONSE"
+  }
+}

@@ -1,0 +1,10 @@
+int	select * from items where name like ?	[generateKey_0]	[%1%]
+long	select * from items where name like ?	[generateKey_0]	[%3000000001%]
+decimal	select * from items where name like ?	[generateKey_0]	[%1.5%]
+exponent	select * from items where name like ?	[generateKey_0]	[%1.0E20%]
+bool	select * from items where name like ?	[generateKey_0]	[%true%]
+null	select * from items where name like ?	[generateKey_0]	[%%]
+string	select * from items where name like ?	[generateKey_0]	[%it's "q"  žluť%]
+dollar	ERROR java.lang.IndexOutOfBoundsException: No group 1
+list	select * from items where name like ?	[generateKey_0]	[%[1,"it's "q"",2.5,null,[true],{"k":1.50}]%]
+map	select * from items where name like ?	[generateKey_0]	[%{"zeta":"it's","decimal":1.50,"nested":[1,null]}%]

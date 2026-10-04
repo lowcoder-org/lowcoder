@@ -1,0 +1,21 @@
+{
+  "iss": "https://idp.example.com/realms/lowcoder",
+  "sub": "f3b1c2d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+  "aud": ["lowcoder", "account"],
+  "iat": 1767225650,
+  "exp": 4102444800,
+  "nbf": 1767225650.5,
+  "auth_time": 0,
+  "email_verified": true,
+  "preferred_username": "tech.ninja",
+  "name": "J\u00e1n \"Tech\" Ninja\\",
+  "email": "tech.ninja@example.com",
+  "picture": "https://cdn.example.com/a/tech.png?s=96&v=2",
+  "groups": ["/admins", "/devs"],
+  "realm_access": {"roles": ["offline_access", "uma_authorization"], "level": 2},
+  "quota": 12.50,
+  "ratio": 1e-3,
+  "serial": 18446744073709551616,
+  "mixed": [1, "two", false, null, 2.0, {"deep": [[]]}],
+  "acr": null
+}

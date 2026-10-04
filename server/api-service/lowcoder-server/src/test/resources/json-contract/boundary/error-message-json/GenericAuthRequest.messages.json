@@ -1,0 +1,6 @@
+{
+  "GenericAuthRequest.getAuthToken" : "{\"error\":\"invalid_grant\",\"error_description\":\"Code \\\"c0de\\\" expired – réessayez\",\"error_uri\":\"https://idp.example.com/errors?code=invalid_grant&lang=fr\",\"status\":400,\"retry_after\":1.5,\"details\":{\"attempts\":[1,2],\"trace\":null}}",
+  "GenericAuthRequest.refreshAuthToken" : "{\"error\":\"invalid_grant\",\"error_description\":\"Code \\\"c0de\\\" expired – réessayez\",\"error_uri\":\"https://idp.example.com/errors?code=invalid_grant&lang=fr\",\"status\":400,\"retry_after\":1.5,\"details\":{\"attempts\":[1,2],\"trace\":null}}",
+  "GenericAuthRequest.getAuthUser" : "{\"error\":\"invalid_grant\",\"error_description\":\"Code \\\"c0de\\\" expired – réessayez\",\"error_uri\":\"https://idp.example.com/errors?code=invalid_grant&lang=fr\",\"status\":400,\"retry_after\":1.5,\"details\":{\"attempts\":[1,2],\"trace\":null}}",
+  "GenericAuthRequest.getAuthToken (HTTP 400)" : "org.springframework.web.reactive.function.client.WebClientResponseException$BadRequest 400 BAD_REQUEST"
+}

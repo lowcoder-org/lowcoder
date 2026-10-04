@@ -95,7 +95,7 @@ public class FolderApiServiceImpl implements FolderApiService {
                     return checkFolderExist(folder.getParentFolderId())
                             .flatMap(parent -> checkFolderCurrentOrg(parent, orgMember.getOrgId()));
                 })
-                .delayUntil(orgMember -> checkFolderNameUnique(folder.getParentFolderId(), folder.getName(), orgMember.getOrgId()))
+                .delayUntil(orgMember -> checkFolderNameUnique(folder.getParentFolderId(), folder.getName(), orgMember.getOrgId(), null))
                 .flatMap(orgMember -> {
                     folder.setOrganizationId(orgMember.getOrgId());
                     folder.setCreatedBy(orgMember.getUserId());
@@ -118,9 +118,13 @@ public class FolderApiServiceImpl implements FolderApiService {
         return Mono.error(new BizException(FOLDER_NOT_EXIST, "FOLDER_NOT_EXIST", folder.getId()));
     }
 
-    private Mono<Void> checkFolderNameUnique(@Nullable String parentFolderId, String name, String orgId) {
+    /**
+     * @param excludedFolderId the folder being renamed, so that keeping its current name is not a conflict; null when creating
+     */
+    private Mono<Void> checkFolderNameUnique(@Nullable String parentFolderId, String name, String orgId, @Nullable String excludedFolderId) {
         return folderService.findByOrganizationId(orgId)
                 .filter(folder -> StringUtils.equals(parentFolderId, folder.getParentFolderId()))
+                .filter(folder -> !StringUtils.equals(excludedFolderId, folder.getId()))
                 .map(Folder::getName)
                 .collectList()
                 .flatMap(list -> {
@@ -173,7 +177,9 @@ public class FolderApiServiceImpl implements FolderApiService {
         newFolder.setDescription(folder.getDescription());
         newFolder.setImage(folder.getImage());
         return checkManagePermission(folder.getId())
-                .flatMap(orgMember -> checkFolderNameUnique(newFolder.getId(), folder.getName(), orgMember.getOrgId()))
+                .flatMap(orgMember -> checkFolderExist(folder.getId())
+                        .flatMap(existing -> checkFolderNameUnique(existing.getParentFolderId(), folder.getName(),
+                                orgMember.getOrgId(), existing.getId())))
                 .then(folderService.updateById(folder.getId(), newFolder))
                 .then(folderService.findById(folder.getId()))
                 .flatMap(f -> buildFolderInfoView(f, true, true));

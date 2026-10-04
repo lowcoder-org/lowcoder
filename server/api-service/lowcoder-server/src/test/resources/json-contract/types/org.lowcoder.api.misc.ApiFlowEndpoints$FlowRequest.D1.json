@@ -1,0 +1,21 @@
+{
+  "path" : "FlowRequest.path",
+  "method" : "post",
+  "data" : {
+    "text" : "FlowRequest.data.text",
+    "count" : 40093,
+    "total" : 3000000001,
+    "ratio" : 1.5,
+    "items" : [ "FlowRequest.data.items[0]", "FlowRequest.data.items[1]" ],
+    "nested" : {
+      "first" : "FlowRequest.data.nested.first",
+      "second" : "FlowRequest.data.nested.second"
+    }
+  },
+  "headers" : {
+    "X-Flow-First" : "FlowRequest.headers.X-Flow-First",
+    "X-Flow-Second" : "FlowRequest.headers.X-Flow-Second"
+  },
+  "timeout" : 40091,
+  "retries" : 40092
+}

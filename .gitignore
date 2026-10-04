@@ -24,3 +24,6 @@ node_modules
 
 # Local Netlify folder
 .netlify
+
+# Local API payload test plan, evidence and reports (not needed by the build or tests)
+server/api-service/docs/

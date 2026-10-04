@@ -1,0 +1,402 @@
+{
+  "param:int" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.lang.Integer"
+      },
+      "written" : 1
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.Integer"
+      },
+      "written" : 1
+    },
+    "concat" : "1"
+  },
+  "param:long" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.lang.Long"
+      },
+      "written" : 3000000001
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.Long"
+      },
+      "written" : 3000000001
+    },
+    "concat" : "3000000001"
+  },
+  "param:double" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.lang.Double"
+      },
+      "written" : 1.5
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.Double"
+      },
+      "written" : 1.5
+    },
+    "concat" : "1.5"
+  },
+  "param:bigDecimal" : {
+    "error" : "org.lowcoder.sdk.exception.PluginException: JSON_PARSE_ERROR JSON_PARSE_ERROR"
+  },
+  "param:bigInteger" : {
+    "error" : "org.lowcoder.sdk.exception.PluginException: JSON_PARSE_ERROR JSON_PARSE_ERROR"
+  },
+  "param:bool" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.lang.Boolean"
+      },
+      "written" : true
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.Boolean"
+      },
+      "written" : true
+    },
+    "concat" : "true"
+  },
+  "param:nothing" : {
+    "raw" : {
+      "classes" : {
+        "" : "null"
+      },
+      "written" : null
+    },
+    "value" : {
+      "classes" : {
+        "" : "null"
+      },
+      "written" : null
+    },
+    "concat" : "null"
+  },
+  "param:str" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "žluť \"quoted\""
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "žluť \"quoted\""
+    },
+    "concat" : "'žluť \"quoted\"'"
+  },
+  "param:map" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/zeta" : "java.lang.Integer",
+        "/alpha" : "java.util.ArrayList",
+        "/alpha/0" : "java.lang.Long",
+        "/alpha/1" : "java.lang.Double",
+        "/alpha/2" : "null",
+        "/alpha/3" : "java.math.BigDecimal"
+      },
+      "written" : {"zeta":1,"alpha":[3000000001,1.5,null,2.5]}
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "{\"zeta\":1,\"alpha\":[3000000001,1.5,null,2.5]}"
+    },
+    "concat" : "'{\"zeta\":1,\"alpha\":[3000000001,1.5,null,2.5]}'"
+  },
+  "param:list" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Integer",
+        "/1" : "java.lang.String",
+        "/2" : "null",
+        "/3" : "java.util.ArrayList",
+        "/3/0" : "java.lang.Boolean"
+      },
+      "written" : [1,"two",null,[true]]
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "[1,\"two\",null,[true]]"
+    },
+    "concat" : "'[1,\"two\",null,[true]]'"
+  },
+  "missingParam" : {
+    "raw" : {
+      "classes" : {
+        "" : "null"
+      },
+      "written" : null
+    },
+    "value" : {
+      "classes" : {
+        "" : "null"
+      },
+      "written" : null
+    },
+    "concat" : "null"
+  },
+  "int" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.lang.Integer"
+      },
+      "written" : 1
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.Integer"
+      },
+      "written" : 1
+    },
+    "concat" : "1"
+  },
+  "intMaxPlusOne" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.lang.Long"
+      },
+      "written" : 2147483648
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.Long"
+      },
+      "written" : 2147483648
+    },
+    "concat" : "2147483648"
+  },
+  "longMaxPlusOne" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "9223372036854775808"
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "9223372036854775808"
+    },
+    "concat" : "'9223372036854775808'"
+  },
+  "decimal" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.lang.Float"
+      },
+      "written" : 1.5
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.Float"
+      },
+      "written" : 1.5
+    },
+    "concat" : "1.5"
+  },
+  "decimalPastFloat" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.lang.Double"
+      },
+      "written" : 123456.789
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.Double"
+      },
+      "written" : 123456.789
+    },
+    "concat" : "123456.789"
+  },
+  "longDecimal" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.lang.Float"
+      },
+      "written" : 0.1
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.Float"
+      },
+      "written" : 0.1
+    },
+    "concat" : "0.1"
+  },
+  "exponent" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.lang.Float"
+      },
+      "written" : 1000.0
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.Float"
+      },
+      "written" : 1000.0
+    },
+    "concat" : "1000.0"
+  },
+  "true" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.lang.Boolean"
+      },
+      "written" : true
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.Boolean"
+      },
+      "written" : true
+    },
+    "concat" : "true"
+  },
+  "null" : {
+    "raw" : {
+      "classes" : {
+        "" : "null"
+      },
+      "written" : null
+    },
+    "value" : {
+      "classes" : {
+        "" : "null"
+      },
+      "written" : null
+    },
+    "concat" : "null"
+  },
+  "quoted" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "quoted"
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "quoted"
+    },
+    "concat" : "'quoted'"
+  },
+  "text" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "plain žluť text"
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "plain žluť text"
+    },
+    "concat" : "'plain žluť text'"
+  },
+  "dateTime" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "2022-05-05 11:12:13"
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "2022-05-05 11:12:13"
+    },
+    "concat" : "'2022-05-05 11:12:13'"
+  },
+  "textWithParam" : {
+    "error" : "org.lowcoder.sdk.exception.PluginException: JSON_PARSE_ERROR JSON_PARSE_ERROR"
+  },
+  "array" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Integer",
+        "/1" : "java.lang.Integer",
+        "/2" : "java.lang.String",
+        "/3" : "java.lang.Float",
+        "/4" : "java.util.LinkedHashMap",
+        "/4/zeta" : "java.lang.Integer",
+        "/4/alpha" : "java.util.ArrayList",
+        "/4/alpha/0" : "java.lang.Long",
+        "/4/alpha/1" : "java.lang.Double",
+        "/4/alpha/2" : "null",
+        "/4/alpha/3" : "java.math.BigDecimal"
+      },
+      "written" : [1,1,"žluť \"quoted\"",1.5,{"zeta":1,"alpha":[3000000001,1.5,null,2.5]}]
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "[1,1,\"žluť \\\"quoted\\\"\",1.5,{\"zeta\":1,\"alpha\":[3000000001,1.5,null,2.5]}]"
+    },
+    "concat" : "'[1,1,\"žluť \\\"quoted\\\"\",1.5,{\"zeta\":1,\"alpha\":[3000000001,1.5,null,2.5]}]'"
+  },
+  "object" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/a" : "java.util.LinkedHashMap",
+        "/a/zeta" : "java.lang.Integer",
+        "/a/alpha" : "java.util.ArrayList",
+        "/a/alpha/0" : "java.lang.Long",
+        "/a/alpha/1" : "java.lang.Double",
+        "/a/alpha/2" : "null",
+        "/a/alpha/3" : "java.math.BigDecimal",
+        "/b" : "java.lang.Float",
+        "/žluť \"quoted\"" : "java.lang.Long"
+      },
+      "written" : {"a":{"zeta":1,"alpha":[3000000001,1.5,null,2.5]},"b":1.5,"žluť \"quoted\"":3000000001}
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "{\"a\":{\"zeta\":1,\"alpha\":[3000000001,1.5,null,2.5]},\"b\":1.5,\"žluť \\\"quoted\\\"\":3000000001}"
+    },
+    "concat" : "'{\"a\":{\"zeta\":1,\"alpha\":[3000000001,1.5,null,2.5]},\"b\":1.5,\"žluť \\\"quoted\\\"\":3000000001}'"
+  },
+  "escapedMustache" : {
+    "raw" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "\\\\{\\\\{int\\\\}\\\\}"
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "\\\\{\\\\{int\\\\}\\\\}"
+    },
+    "concat" : "'\\\\{\\\\{int\\\\}\\\\}'"
+  }
+}

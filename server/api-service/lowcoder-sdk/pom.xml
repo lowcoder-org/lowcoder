@@ -185,6 +185,35 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <!-- Publishes the shared JSON-contract test helpers (org.lowcoder.sdk.contract) as a test-jar, so the other
+                 modules' payload tests use one copy of them (docs/API_PAYLOAD_TEST_PLAN.md §3.2, owner-approved). -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Helpers only: this module's own tests, their inner classes and fixtures stay out. -->
+                            <includes>
+                                <include>org/lowcoder/sdk/contract/**</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/*Test.class</exclude>
+                                <exclude>**/*Test$*.class</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

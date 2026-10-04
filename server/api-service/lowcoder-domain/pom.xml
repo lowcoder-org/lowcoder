@@ -46,6 +46,14 @@
             <groupId>org.lowcoder</groupId>
             <artifactId>lowcoder-sdk</artifactId>
         </dependency>
+        <!-- Shared JSON-contract test helpers from the lowcoder-sdk test-jar (docs/API_PAYLOAD_TEST_PLAN.md §3.2). -->
+        <dependency>
+            <groupId>org.lowcoder</groupId>
+            <artifactId>lowcoder-sdk</artifactId>
+            <version>${revision}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.lowcoder</groupId>
             <artifactId>lowcoder-infra</artifactId>

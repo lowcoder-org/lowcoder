@@ -1,0 +1,14 @@
+{
+  "queryResult" : {
+    "data" : "java.lang.NullPointerException",
+    "headers" : "java.lang.NullPointerException",
+    "hintMessages" : "java.lang.NullPointerException",
+    "message" : "java.lang.NullPointerException",
+    "queryCode" : "java.lang.NullPointerException",
+    "success" : "java.lang.NullPointerException"
+  },
+  "locale" : {
+    "hintMessages" : "java.lang.NullPointerException",
+    "message" : "java.lang.NullPointerException"
+  }
+}

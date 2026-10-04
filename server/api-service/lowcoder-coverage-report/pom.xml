@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.lowcoder</groupId>
+        <artifactId>lowcoder-root</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <!-- The aggregate code coverage of every module (docs/API_PAYLOAD_TEST_TASKS.md, T11.1). It holds no code: it
+         depends on every module with code, so the reactor builds it last, and its report-aggregate reads their
+         classes, sources and execution data (target/jacoco.exec and target/jacoco-it.exec) into
+         target/site/jacoco-aggregate (HTML, XML, CSV). -->
+    <artifactId>lowcoder-coverage-report</artifactId>
+    <packaging>pom</packaging>
+    <name>lowcoder-coverage-report</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.lowcoder</groupId>
+            <artifactId>lowcoder-sdk</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.lowcoder</groupId>
+            <artifactId>lowcoder-infra</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.lowcoder</groupId>
+            <artifactId>lowcoder-domain</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.lowcoder</groupId>
+            <artifactId>lowcoder-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.lowcoder.plugins</groupId>
+            <artifactId>postgresPlugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lowcoder.plugins</groupId>
+            <artifactId>restApiPlugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lowcoder.plugins</groupId>
+            <artifactId>mongoPlugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lowcoder.plugins</groupId>
+            <artifactId>mysqlPlugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lowcoder.plugins</groupId>
+            <artifactId>elasticSearchPlugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lowcoder.plugins</groupId>
+            <artifactId>redisPlugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lowcoder.plugins</groupId>
+            <artifactId>mssqlPlugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lowcoder.plugins</groupId>
+            <artifactId>smtpPlugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lowcoder.plugins</groupId>
+            <artifactId>clickHousePlugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lowcoder.plugins</groupId>
+            <artifactId>googleSheetsPlugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lowcoder.plugins</groupId>
+            <artifactId>oraclePlugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lowcoder.plugins</groupId>
+            <artifactId>graphqlPlugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lowcoder</groupId>
+            <artifactId>sqlBasedPlugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lowcoder.plugins</groupId>
+            <artifactId>snowflakePlugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>report-aggregate</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

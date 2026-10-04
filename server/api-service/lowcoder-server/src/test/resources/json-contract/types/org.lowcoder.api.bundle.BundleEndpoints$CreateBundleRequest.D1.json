@@ -1,0 +1,10 @@
+{
+  "orgId" : "CreateBundleRequest.organizationId",
+  "gid" : "CreateBundleRequest.gid",
+  "name" : "CreateBundleRequest.name",
+  "title" : "CreateBundleRequest.title",
+  "description" : "CreateBundleRequest.description",
+  "category" : "CreateBundleRequest.category",
+  "image" : "CreateBundleRequest.image",
+  "folderId" : "CreateBundleRequest.folderId"
+}

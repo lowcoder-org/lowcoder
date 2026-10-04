@@ -1,0 +1,193 @@
+{
+  "columns" : {
+    "string" : {
+      "typeName" : "OTHER",
+      "class" : "java.lang.String",
+      "written" : "žluťoučký kůň 🐎"
+    },
+    "bigDecimal" : {
+      "typeName" : "OTHER",
+      "class" : "java.math.BigDecimal",
+      "written" : 1.50
+    },
+    "bigDecimalExponent" : {
+      "typeName" : "OTHER",
+      "class" : "java.math.BigDecimal",
+      "written" : 1E+3
+    },
+    "boolean" : {
+      "typeName" : "OTHER",
+      "class" : "java.lang.Boolean",
+      "written" : true
+    },
+    "integer" : {
+      "typeName" : "OTHER",
+      "class" : "java.lang.Integer",
+      "written" : 2147483647
+    },
+    "long" : {
+      "typeName" : "OTHER",
+      "class" : "java.lang.Long",
+      "written" : 9223372036854775807
+    },
+    "float" : {
+      "typeName" : "OTHER",
+      "class" : "java.lang.Float",
+      "written" : 1.1
+    },
+    "double" : {
+      "typeName" : "OTHER",
+      "class" : "java.lang.Double",
+      "written" : 0.1
+    },
+    "bytes" : {
+      "typeName" : "OTHER",
+      "class" : "[B",
+      "written" : "AAH/YQ=="
+    },
+    "sqlDate" : {
+      "typeName" : "OTHER",
+      "class" : "java.sql.Date",
+      "written" : 1709212455123
+    },
+    "time" : {
+      "typeName" : "TIME",
+      "class" : "java.sql.Time",
+      "written" : "13:14:15"
+    },
+    "sqlTimestamp" : {
+      "typeName" : "OTHER",
+      "class" : "java.sql.Timestamp",
+      "written" : 1709212455123
+    },
+    "clob" : {
+      "typeName" : "OTHER",
+      "class" : "javax.sql.rowset.serial.SerialClob",
+      "written" : {
+        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Unsupported operation. SerialClob cannot return a the CLOB value as an ascii stream, unless instantiated with a fully implemented Clob object. (through reference chain: javax.sql.rowset.serial.SerialClob[\"asciiStream\"])"
+      }
+    },
+    "nclob" : {
+      "typeName" : "OTHER",
+      "class" : "org.lowcoder.sdk.plugin.common.sql.ResultSetParserContractTest$TestNClob",
+      "written" : {
+        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Unsupported operation. SerialClob cannot return a the CLOB value as an ascii stream, unless instantiated with a fully implemented Clob object. (through reference chain: org.lowcoder.sdk.plugin.common.sql.ResultSetParserContractTest$TestNClob[\"asciiStream\"])"
+      }
+    },
+    "blobLeaf" : {
+      "typeName" : "OTHER",
+      "class" : "javax.sql.rowset.serial.SerialBlob",
+      "written" : "AAH/YQ=="
+    },
+    "array" : {
+      "typeName" : "OTHER",
+      "class" : "javax.sql.rowset.serial.SerialArray",
+      "written" : {
+        "error" : "com.fasterxml.jackson.databind.JsonMappingException: (was javax.sql.rowset.serial.SerialException) (through reference chain: javax.sql.rowset.serial.SerialArray[\"resultSet\"])"
+      }
+    },
+    "struct" : {
+      "typeName" : "OTHER",
+      "class" : "javax.sql.rowset.serial.SerialStruct",
+      "written" : {"attributes":[1,"two"],"sqltypeName":"point"}
+    },
+    "ref" : {
+      "typeName" : "OTHER",
+      "class" : "javax.sql.rowset.serial.SerialRef",
+      "written" : {"baseTypeName":"point","object":"referenced"}
+    },
+    "rowId" : {
+      "typeName" : "OTHER",
+      "class" : "org.lowcoder.sdk.plugin.common.sql.ResultSetParserContractTest$TestRowId",
+      "written" : {"bytes":"AAH/YQ=="}
+    },
+    "sqlxml" : {
+      "typeName" : "OTHER",
+      "class" : "org.lowcoder.sdk.plugin.common.sql.ResultSetParserContractTest$TestSqlXml",
+      "written" : {"xml":"<a>žluťoučký kůň 🐎</a>","string":"<a>žluťoučký kůň 🐎</a>","binaryStream":{},"characterStream":{}}
+    },
+    "uuid" : {
+      "typeName" : "OTHER",
+      "class" : "java.util.UUID",
+      "written" : "123e4567-e89b-12d3-a456-426614174000"
+    },
+    "null" : {
+      "typeName" : "OTHER",
+      "class" : "null",
+      "written" : null
+    },
+    "date" : {
+      "typeName" : "date",
+      "class" : "java.lang.String",
+      "written" : "2024-02-29"
+    },
+    "datetime" : {
+      "typeName" : "datetime",
+      "class" : "java.lang.String",
+      "written" : "2024-02-29 13:14:15"
+    },
+    "timestamp" : {
+      "typeName" : "timestamp",
+      "class" : "java.lang.String",
+      "written" : "2024-02-29 13:14:15"
+    },
+    "year" : {
+      "typeName" : "year",
+      "class" : "java.lang.Integer",
+      "written" : 2024
+    },
+    "blob" : {
+      "typeName" : "blob",
+      "class" : "java.lang.String",
+      "written" : "AAH/YQ=="
+    },
+    "timeDuration" : {
+      "typeName" : "TIME",
+      "class" : "java.lang.String",
+      "written" : "30:00:00"
+    }
+  },
+  "row" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.util.LinkedHashMap",
+        "/0/string" : "java.lang.String",
+        "/0/bigDecimal" : "java.math.BigDecimal",
+        "/0/bigDecimalExponent" : "java.math.BigDecimal",
+        "/0/boolean" : "java.lang.Boolean",
+        "/0/integer" : "java.lang.Integer",
+        "/0/long" : "java.lang.Long",
+        "/0/float" : "java.lang.Float",
+        "/0/double" : "java.lang.Double",
+        "/0/bytes" : "[B",
+        "/0/sqlDate" : "java.sql.Date",
+        "/0/time" : "java.sql.Time",
+        "/0/sqlTimestamp" : "java.sql.Timestamp",
+        "/0/clob" : "javax.sql.rowset.serial.SerialClob",
+        "/0/nclob" : "org.lowcoder.sdk.plugin.common.sql.ResultSetParserContractTest$TestNClob",
+        "/0/blobLeaf" : "javax.sql.rowset.serial.SerialBlob",
+        "/0/array" : "javax.sql.rowset.serial.SerialArray",
+        "/0/struct" : "javax.sql.rowset.serial.SerialStruct",
+        "/0/ref" : "javax.sql.rowset.serial.SerialRef",
+        "/0/rowId" : "org.lowcoder.sdk.plugin.common.sql.ResultSetParserContractTest$TestRowId",
+        "/0/sqlxml" : "org.lowcoder.sdk.plugin.common.sql.ResultSetParserContractTest$TestSqlXml",
+        "/0/uuid" : "java.util.UUID",
+        "/0/null" : "null",
+        "/0/date" : "java.lang.String",
+        "/0/datetime" : "java.lang.String",
+        "/0/timestamp" : "java.lang.String",
+        "/0/year" : "java.lang.Integer",
+        "/0/blob" : "java.lang.String",
+        "/0/timeDuration" : "java.lang.String"
+      },
+      "keyOrder" : {
+        "/0" : [ "string", "bigDecimal", "bigDecimalExponent", "boolean", "integer", "long", "float", "double", "bytes", "sqlDate", "time", "sqlTimestamp", "clob", "nclob", "blobLeaf", "array", "struct", "ref", "rowId", "sqlxml", "uuid", "null", "date", "datetime", "timestamp", "year", "blob", "timeDuration" ]
+      }
+    },
+    "written" : {
+      "error" : "com.fasterxml.jackson.databind.JsonMappingException: Unsupported operation. SerialClob cannot return a the CLOB value as an ascii stream, unless instantiated with a fully implemented Clob object. (through reference chain: org.lowcoder.sdk.models.QueryExecutionResult[\"data\"]->java.util.ArrayList[0]->java.util.LinkedHashMap[\"clob\"]->javax.sql.rowset.serial.SerialClob[\"asciiStream\"])"
+    }
+  }
+}

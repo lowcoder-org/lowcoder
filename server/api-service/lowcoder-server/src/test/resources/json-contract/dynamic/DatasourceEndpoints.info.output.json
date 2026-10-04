@@ -1,0 +1,16 @@
+[ {
+  "connections" : {
+    "total" : 40601,
+    "idle" : 40602,
+    "active" : 40603,
+    "waiting" : 40604
+  },
+  "datasource" : {
+    "jdbcUrl" : "DatasourceEndpointsContractTest.jdbcUrl",
+    "maximumPoolSize" : "40605"
+  },
+  "healthCheck" : {
+    "connectivityCheckTimeoutMs" : "40606",
+    "expected99thPercentileMs" : "DatasourceEndpointsContractTest.expected99thPercentileMs"
+  }
+} ]

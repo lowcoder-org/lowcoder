@@ -1,0 +1,8 @@
+{
+  "FORM" : "org.lowcoder.sdk.auth.EmailAuthConfig",
+  "GENERIC" : "org.lowcoder.sdk.auth.Oauth2GenericAuthConfig",
+  "GITHUB" : "org.lowcoder.sdk.auth.Oauth2SimpleAuthConfig",
+  "GOOGLE" : "org.lowcoder.sdk.auth.Oauth2SimpleAuthConfig",
+  "KEYCLOAK" : "org.lowcoder.sdk.auth.Oauth2KeycloakAuthConfig",
+  "ORY" : "org.lowcoder.sdk.auth.Oauth2OryAuthConfig"
+}

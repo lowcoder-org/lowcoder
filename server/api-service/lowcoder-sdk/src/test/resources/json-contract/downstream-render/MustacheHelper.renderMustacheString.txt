@@ -1,0 +1,10 @@
+int	v = 1
+long	v = 3000000001
+decimal	v = 1.5
+exponent	v = 1.0E20
+bool	v = true
+null	v = 
+string	v = it's "q" \ žluť
+dollar	v = cost $1
+list	v = [1,"it's \"q\"",2.5,null,[true],{"k":1.50}]
+map	v = {"zeta":"it's","decimal":1.50,"nested":[1,null]}

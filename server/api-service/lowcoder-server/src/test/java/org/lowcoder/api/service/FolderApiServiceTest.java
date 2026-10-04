@@ -9,11 +9,14 @@ import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.common.InitData;
 import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.api.home.FolderApiService;
+import org.lowcoder.api.home.FolderInfoView;
 import org.lowcoder.api.permission.view.PermissionItemView;
 import org.lowcoder.domain.folder.model.Folder;
 import org.lowcoder.domain.folder.service.FolderService;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.sdk.constants.FieldName;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -118,18 +121,84 @@ public class FolderApiServiceTest {
     @Test
     @WithMockUser
     public void updateByGid() {
-        String id = "019053a3-f968-7a57-91fd-36f50d43713c";
+        // gid of folder04; update() renames folder02, so the two tests must not share a folder
+        String id = "01905d61-5c7e-788a-b650-82c983f04968";
 
         Folder newFolder = new Folder();
         newFolder.setId(id);
-        newFolder.setName("test_update");
+        newFolder.setName("test_update_by_gid");
         StepVerifier.create(folderApiService.update(newFolder))
                 .assertNext(Assertions::assertNotNull)
                 .verifyComplete();
 
         StepVerifier.create(folderService.findById(id))
-                .assertNext(folder -> Assertions.assertEquals("test_update", folder.getName()))
+                .assertNext(folder -> Assertions.assertEquals("test_update_by_gid", folder.getName()))
                 .verifyComplete();
+    }
+
+    @Test
+    @WithMockUser
+    public void updateWithUnchangedNameSucceeds() {
+        String folderId = createFolder("unchanged_name_folder", null).getFolderId();
+
+        Folder newFolder = new Folder();
+        newFolder.setId(folderId);
+        newFolder.setName("unchanged_name_folder");
+        newFolder.setTitle("new title");
+        StepVerifier.create(folderApiService.update(newFolder))
+                .assertNext(view -> Assertions.assertEquals("unchanged_name_folder", view.getName()))
+                .verifyComplete();
+
+        StepVerifier.create(folderService.findById(folderId))
+                .assertNext(folder -> Assertions.assertEquals("new title", folder.getTitle()))
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockUser
+    public void updateRejectsNameOfSiblingInSameParent() {
+        String parentId = createFolder("sibling_conflict_parent", null).getFolderId();
+        createFolder("sibling_a", parentId);
+        String siblingBId = createFolder("sibling_b", parentId).getFolderId();
+
+        Folder newFolder = new Folder();
+        newFolder.setId(siblingBId);
+        newFolder.setName("sibling_a");
+        StepVerifier.create(folderApiService.update(newFolder))
+                .expectErrorMatches(throwable -> throwable instanceof BizException bizException
+                        && bizException.getError() == BizError.FOLDER_NAME_CONFLICT)
+                .verify();
+
+        StepVerifier.create(folderService.findById(siblingBId))
+                .assertNext(folder -> Assertions.assertEquals("sibling_b", folder.getName()))
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockUser
+    public void updateAllowsNameUsedOnlyInAnotherParent() {
+        createFolder("name_used_at_root", null);
+        String parentId = createFolder("other_parent", null).getFolderId();
+        String childId = createFolder("child_to_rename", parentId).getFolderId();
+
+        Folder newFolder = new Folder();
+        newFolder.setId(childId);
+        newFolder.setName("name_used_at_root");
+        StepVerifier.create(folderApiService.update(newFolder))
+                .assertNext(view -> {
+                    Assertions.assertEquals("name_used_at_root", view.getName());
+                    Assertions.assertEquals(parentId, view.getParentFolderId());
+                })
+                .verifyComplete();
+    }
+
+    private FolderInfoView createFolder(String name, String parentFolderId) {
+        Folder folder = new Folder();
+        folder.setName(name);
+        folder.setParentFolderId(parentFolderId);
+        FolderInfoView created = folderApiService.create(folder).block();
+        assertNotNull(created);
+        return created;
     }
 
     @Test

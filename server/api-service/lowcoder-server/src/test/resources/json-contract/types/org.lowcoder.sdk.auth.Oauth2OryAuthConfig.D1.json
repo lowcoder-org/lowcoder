@@ -1,0 +1,12 @@
+{
+  "id" : "Oauth2OryAuthConfig.id",
+  "source" : "Oauth2OryAuthConfig.source",
+  "sourceName" : "Oauth2OryAuthConfig.sourceName",
+  "enable" : true,
+  "enableRegister" : false,
+  "authType" : "ORY",
+  "clientId" : "Oauth2OryAuthConfig.clientId",
+  "clientSecret" : "SECRET-Oauth2OryAuthConfig.clientSecret",
+  "baseUrl" : "Oauth2OryAuthConfig.baseUrl",
+  "scope" : "Oauth2OryAuthConfig.scope"
+}

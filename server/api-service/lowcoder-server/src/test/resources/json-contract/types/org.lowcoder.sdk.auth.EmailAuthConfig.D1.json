@@ -1,0 +1,8 @@
+{
+  "id" : "EmailAuthConfig.id",
+  "source" : "EmailAuthConfig.source",
+  "sourceName" : "EmailAuthConfig.sourceName",
+  "enable" : true,
+  "enableRegister" : false,
+  "authType" : "FORM"
+}

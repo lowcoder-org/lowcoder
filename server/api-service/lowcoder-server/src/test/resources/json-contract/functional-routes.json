@@ -1,0 +1,23 @@
+{
+  "comment": "Rule 7 of docs/API_PAYLOAD_TEST_PLAN.md §6.1: every main-source call that produces a RouterFunction, by the stable key of ContractSources.routeSites. body is 'json' (a test class must cover it) or 'bytes' (§1.4, with the reason in note).",
+  "routes": [
+    {
+      "key": "lowcoder-server/src/main/java/org/lowcoder/api/framework/configuration/PluginConfiguration.java#PluginConfiguration.pluginEndpoints#route#1",
+      "body": "json",
+      "test": "org.lowcoder.api.contract.endpoint.PluginRouteContractTest",
+      "note": "GET /api/plugins/ writes the loaded plugin infos as JSON: golden routes/plugins.json (T7.4); first shown by E10 (ContractTestClientTest#e10PluginRouteListsLoadedPlugins)"
+    },
+    {
+      "key": "lowcoder-server/src/main/java/org/lowcoder/api/framework/exception/CustomErrorWebExceptionHandler.java#CustomErrorWebExceptionHandler.getRoutingFunction#route#1",
+      "body": "json",
+      "test": "org.lowcoder.api.contract.error.ErrorCasesContractTest",
+      "note": "the error handler's ResponseView JSON: X6 (5xx branch) and X7 (4xx branch) goldens under errors/ (T1.2); X5 is written by GlobalExceptionHandler, not this route"
+    },
+    {
+      "key": "lowcoder-server/src/main/java/org/lowcoder/api/framework/plugin/endpoint/PluginEndpointHandlerImpl.java#PluginEndpointHandlerImpl.registerEndpointHandler#route#1",
+      "body": "bytes",
+      "test": "",
+      "note": "plugin endpoints pass the plugin's response bytes through (§1.4)"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "full": {
+    "body": "query { user(id: {{id}}) { name } }",
+    "path": "/graphql",
+    "params": [
+      {
+        "key": "page",
+        "value": "1"
+      },
+      {
+        "key": "q",
+        "value": "{{input.text}}",
+        "type": "text"
+      }
+    ],
+    "headers": [
+      {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+      }
+    ],
+    "bodyFormData": [],
+    "variables": [
+      {
+        "key": "id",
+        "value": "{{id}}"
+      }
+    ],
+    "httpMethod": "GET",
+    "disableEncodingParams": true
+  },
+  "empty": {}
+}

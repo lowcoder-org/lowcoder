@@ -1,0 +1,112 @@
+{
+  "basicAuth": {
+    "url": " https://api.example.com/v1 ",
+    "params": [
+      {
+        "key": "page",
+        "value": "1"
+      },
+      {
+        "key": "q",
+        "value": "{{input.text}}"
+      }
+    ],
+    "headers": [
+      {
+        "key": "X-Trace",
+        "value": "éè"
+      }
+    ],
+    "bodyFormData": [
+      {
+        "key": "file",
+        "value": "{{file.value}}",
+        "type": "file"
+      },
+      {
+        "key": "name",
+        "value": "n",
+        "type": "text"
+      }
+    ],
+    "body": "{\"a\": 1}",
+    "forwardCookies": [
+      "session",
+      "auth",
+      "a"
+    ],
+    "forwardAllCookies": true,
+    "authConfig": {
+      "type": "BASIC_AUTH",
+      "username": "user",
+      "password": "pass"
+    },
+    "sslConfig": {
+      "sslCertVerificationType": "VERIFY_SELF_SIGNED_CERT",
+      "selfSignedCert": "-----BEGIN CERTIFICATE-----\nMII\n-----END CERTIFICATE-----"
+    }
+  },
+  "digestAuth": {
+    "url": "https://api.example.com",
+    "authConfig": {
+      "type": "DIGEST_AUTH",
+      "username": "user",
+      "password": "pass"
+    }
+  },
+  "noAuth": {
+    "url": "https://api.example.com",
+    "authConfig": {
+      "type": "NO_AUTH"
+    },
+    "sslConfig": {
+      "sslCertVerificationType": "DISABLED"
+    }
+  },
+  "oauthInherit": {
+    "url": "https://api.example.com",
+    "authConfig": {
+      "type": "OAUTH2_INHERIT_FROM_LOGIN",
+      "authId": "auth-1"
+    }
+  },
+  "bearerToken": {
+    "url": "https://api.example.com",
+    "authConfig": {
+      "type": "BEARER_TOKEN_AUTH",
+      "token": "t"
+    }
+  },
+  "authWithoutType": {
+    "url": "https://api.example.com",
+    "authConfig": {
+      "username": "user"
+    },
+    "sslConfig": {}
+  },
+  "unknownAuthType": {
+    "url": "https://api.example.com",
+    "authConfig": {
+      "type": "KERBEROS"
+    }
+  },
+  "unknownSslType": {
+    "url": "https://api.example.com",
+    "sslConfig": {
+      "sslCertVerificationType": "PINNED_CERT"
+    }
+  },
+  "propertyWithExtraKey": {
+    "url": "https://api.example.com",
+    "params": [
+      {
+        "key": "k",
+        "value": "v",
+        "type": "text",
+        "extra": 1
+      }
+    ],
+    "forwardAllCookies": "true"
+  },
+  "empty": {}
+}

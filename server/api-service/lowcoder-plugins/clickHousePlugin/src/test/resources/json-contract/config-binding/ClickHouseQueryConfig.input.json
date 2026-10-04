@@ -1,0 +1,20 @@
+{
+  "full": {
+    "sql": "  select number from system.numbers limit {{n}}  ",
+    "disablePreparedStatement": true,
+    "timeout": 30
+  },
+  "scalarsAsStrings": {
+    "sql": "select 1",
+    "disablePreparedStatement": "false",
+    "timeout": "15"
+  },
+  "decimalTimeout": {
+    "sql": "select 1",
+    "timeout": 2.5
+  },
+  "sqlMissing": {
+    "timeout": 1
+  },
+  "empty": {}
+}

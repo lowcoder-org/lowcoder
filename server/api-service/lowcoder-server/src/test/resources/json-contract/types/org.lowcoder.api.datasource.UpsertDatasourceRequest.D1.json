@@ -1,0 +1,23 @@
+{
+  "id" : "UpsertDatasourceRequest.id",
+  "gid" : "UpsertDatasourceRequest.gid",
+  "name" : "UpsertDatasourceRequest.name",
+  "type" : "UpsertDatasourceRequest.type",
+  "organizationId" : "UpsertDatasourceRequest.organizationId",
+  "status" : "DELETED",
+  "datasourceConfig" : {
+    "host" : "UpsertDatasourceRequest.datasourceConfig.host",
+    "port" : 40503,
+    "timeoutMillis" : 3000000502,
+    "ratio" : 2.5,
+    "ssl" : true,
+    "databases" : [
+      "UpsertDatasourceRequest.datasourceConfig.databases[0]",
+      "UpsertDatasourceRequest.datasourceConfig.databases[1]"
+    ],
+    "extra" : {
+      "region" : "UpsertDatasourceRequest.datasourceConfig.extra.region",
+      "retries" : 40503
+    }
+  }
+}

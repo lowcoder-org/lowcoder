@@ -1,0 +1,27 @@
+# The test groups of docs/API_PAYLOAD_TEST_PLAN.md §4.10: group, owning WP(s), and the test source roots its tests live in
+# (the "Test module(s)" column of §4.10). Columns are tab-separated; lists are comma-separated. Read by JsonBoundaryGateTest (§6.2):
+# a group is enforced once every WP it lists is in lowcoder-server/src/test/resources/json-contract/wp-status.json.
+config-binding	WP8	lowcoder-plugins/clickHousePlugin/src/test/java,lowcoder-plugins/elasticSearchPlugin/src/test/java,lowcoder-plugins/googleSheetsPlugin/src/test/java,lowcoder-plugins/graphqlPlugin/src/test/java,lowcoder-plugins/mongoPlugin/src/test/java,lowcoder-plugins/mssqlPlugin/src/test/java,lowcoder-plugins/mysqlPlugin/src/test/java,lowcoder-plugins/postgresPlugin/src/test/java,lowcoder-plugins/redisPlugin/src/test/java,lowcoder-plugins/restApiPlugin/src/test/java,lowcoder-plugins/smtpPlugin/src/test/java,lowcoder-plugins/sqlBasedPlugin/src/test/java,lowcoder-plugins/oraclePlugin/src/test/java,lowcoder-plugins/snowflakePlugin/src/test/java,lowcoder-sdk/src/test/java
+external-json	WP8	lowcoder-plugins/elasticSearchPlugin/src/test/java,lowcoder-plugins/googleSheetsPlugin/src/test/java,lowcoder-plugins/graphqlPlugin/src/test/java,lowcoder-plugins/mongoPlugin/src/test/java,lowcoder-plugins/postgresPlugin/src/test/java,lowcoder-plugins/restApiPlugin/src/test/java,lowcoder-sdk/src/test/java
+header-json	WP8	lowcoder-plugins/restApiPlugin/src/test/java,lowcoder-plugins/graphqlPlugin/src/test/java
+smtp-lists	WP8	lowcoder-plugins/smtpPlugin/src/test/java
+node-conversion	WP8	lowcoder-sdk/src/test/java
+tree-text	WP8	lowcoder-sdk/src/test/java,lowcoder-plugins/restApiPlugin/src/test/java,lowcoder-plugins/mongoPlugin/src/test/java,lowcoder-plugins/elasticSearchPlugin/src/test/java,lowcoder-plugins/smtpPlugin/src/test/java
+downstream-render	WP8	lowcoder-sdk/src/test/java,lowcoder-plugins/sqlBasedPlugin/src/test/java,lowcoder-plugins/clickHousePlugin/src/test/java,lowcoder-plugins/mongoPlugin/src/test/java
+downstream-encode	WP8	lowcoder-plugins/restApiPlugin/src/test/java,lowcoder-plugins/graphqlPlugin/src/test/java,lowcoder-sdk/src/test/java
+error-message-json	WP9,WP8	lowcoder-server/src/test/java,lowcoder-sdk/src/test/java
+oauth	WP9	lowcoder-server/src/test/java
+node-service	WP9	lowcoder-domain/src/test/java
+client-codec-guard	WP0	lowcoder-server/src/test/java,lowcoder-plugins/graphqlPlugin/src/test/java,lowcoder-plugins/restApiPlugin/src/test/java
+error-handler	WP1	lowcoder-server/src/test/java
+api-flow	WP7	lowcoder-server/src/test/java
+js-library	WP7	lowcoder-server/src/test/java
+npm-outbound	WP7	lowcoder-server/src/test/java
+payload-getters	WP2,WP4,WP6	lowcoder-server/src/test/java
+upsert-datasource	WP5	lowcoder-server/src/test/java
+dynamic-roundtrip	WP9	lowcoder-domain/src/test/java
+server-codec-guard	WP0	lowcoder-server/src/test/java
+jwt-claims	WP9	lowcoder-server/src/test/java
+session-cache	WP9	lowcoder-server/src/test/java
+persistence-roundtrip	WP9	lowcoder-domain/src/test/java
+config-center	WP9	lowcoder-infra/src/test/java

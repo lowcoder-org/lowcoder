@@ -1,0 +1,122 @@
+{
+  "mysql": {
+    "database": " lowcoder ",
+    "username": " root ",
+    "password": "s3crét \"quoted\"",
+    "host": " db.example.com ",
+    "port": 3306,
+    "usingSsl": true,
+    "serverTimezone": "Europe/Bratislava",
+    "isReadonly": true,
+    "enableTurnOffPreparedStatement": true,
+    "extParams": {
+      "connectTimeout": 5000,
+      "allowPublicKeyRetrieval": "true",
+      "useCursorFetch": false,
+      "nested": {
+        "list": [
+          1,
+          2.5,
+          null
+        ]
+      }
+    }
+  },
+  "restApiBasicAuth": {
+    "url": " https://api.example.com/v1 ",
+    "params": [
+      {
+        "key": "page",
+        "value": "1"
+      },
+      {
+        "key": "q",
+        "value": "{{input.text}}"
+      }
+    ],
+    "headers": [
+      {
+        "key": "X-Trace",
+        "value": "éè"
+      }
+    ],
+    "bodyFormData": [
+      {
+        "key": "file",
+        "value": "{{file.value}}",
+        "type": "file"
+      },
+      {
+        "key": "name",
+        "value": "n",
+        "type": "text"
+      }
+    ],
+    "body": "{\"a\": 1}",
+    "forwardCookies": [
+      "session",
+      "auth",
+      "a"
+    ],
+    "forwardAllCookies": true,
+    "authConfig": {
+      "type": "BASIC_AUTH",
+      "username": "user",
+      "password": "pass"
+    },
+    "sslConfig": {
+      "sslCertVerificationType": "VERIFY_SELF_SIGNED_CERT",
+      "selfSignedCert": "-----BEGIN CERTIFICATE-----\nMII\n-----END CERTIFICATE-----"
+    }
+  },
+  "restApiBearerToken": {
+    "url": "https://api.example.com",
+    "authConfig": {
+      "type": "BEARER_TOKEN_AUTH",
+      "token": "t"
+    }
+  },
+  "graphQLBasicAuth": {
+    "url": " https://api.example.com/v1 ",
+    "params": [
+      {
+        "key": "page",
+        "value": "1"
+      },
+      {
+        "key": "q",
+        "value": "{{input.text}}"
+      }
+    ],
+    "headers": [
+      {
+        "key": "X-Trace",
+        "value": "éè"
+      }
+    ],
+    "bodyFormData": [
+      {
+        "key": "file",
+        "value": "{{file.value}}",
+        "type": "file"
+      },
+      {
+        "key": "name",
+        "value": "n",
+        "type": "text"
+      }
+    ],
+    "body": "{\"a\": 1}",
+    "forwardCookies": [
+      "session",
+      "auth",
+      "a"
+    ],
+    "forwardAllCookies": true,
+    "authConfig": {
+      "type": "BASIC_AUTH",
+      "username": "user",
+      "password": "pass"
+    }
+  }
+}

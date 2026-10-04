@@ -20,7 +20,6 @@ import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.CookieHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseCookie;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
@@ -60,18 +59,7 @@ class AuthenticationEndpointsIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        try {
-            initData.init();
-        } catch (RuntimeException e) {
-            // Handle duplicate key errors gracefully - this happens when test data already exists
-            if (e.getCause() instanceof DuplicateKeyException) {
-                // Data already exists, continue with test
-                System.out.println("Test data already exists, continuing with test...");
-            } else {
-                // Re-throw other exceptions
-                throw e;
-            }
-        }
+        initData.init();
         MockServerHttpRequest request = MockServerHttpRequest.post("").build();
         mockExchange = MockServerWebExchange.builder(request).build();
     }

@@ -1,0 +1,29 @@
+{
+  "fromJsonQuietly" : {
+    "legacyUserJson" : {
+      "class" : "org.lowcoder.domain.user.model.User",
+      "id" : "user01",
+      "name" : "Iron Man",
+      "email" : "iron@avengers.com",
+      "state" : "ACTIVATED",
+      "isEnabled" : true,
+      "superAdmin" : false,
+      "connectionRawIds" : [ "iron@avengers.com" ]
+    },
+    "plainUserId" : null,
+    "numericUserId" : null,
+    "quotedUserId" : null
+  },
+  "throughRedis" : {
+    "legacyUserJson" : {
+      "storedBytesAreTheValueInUtf8" : true,
+      "resolvedUserId" : "user01",
+      "resolvedUserName" : "Iron Man"
+    },
+    "plainUserId" : {
+      "storedBytesAreTheValueInUtf8" : true,
+      "resolvedUserId" : "user01",
+      "resolvedUserName" : "Iron Man"
+    }
+  }
+}
