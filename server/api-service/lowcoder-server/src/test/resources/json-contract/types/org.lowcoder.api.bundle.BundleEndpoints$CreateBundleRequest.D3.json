@@ -1,0 +1,82 @@
+{
+  "orgId" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "gid" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "name" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "title" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "description" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "category" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "image" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "folderId" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  }
+}

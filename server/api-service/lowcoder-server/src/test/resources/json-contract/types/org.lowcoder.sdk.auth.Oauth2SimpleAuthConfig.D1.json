@@ -1,0 +1,10 @@
+{
+  "id" : "Oauth2SimpleAuthConfig.id",
+  "source" : "Oauth2SimpleAuthConfig.source",
+  "sourceName" : "Oauth2SimpleAuthConfig.sourceName",
+  "enable" : true,
+  "enableRegister" : false,
+  "authType" : "GOOGLE",
+  "clientId" : "Oauth2SimpleAuthConfig.clientId",
+  "clientSecret" : "SECRET-Oauth2SimpleAuthConfig.clientSecret"
+}

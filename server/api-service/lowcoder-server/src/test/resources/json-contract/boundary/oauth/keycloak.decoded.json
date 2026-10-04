@@ -1,0 +1,102 @@
+{
+  "token" : {
+    "request" : "POST /realms/lowcoder/protocol/openid-connect/token",
+    "decoded" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/access_token" : "java.lang.String",
+        "/expires_in" : "java.lang.Integer",
+        "/refresh_expires_in" : "java.lang.Integer",
+        "/refresh_token" : "java.lang.String",
+        "/token_type" : "java.lang.String",
+        "/id_token" : "java.lang.String",
+        "/not-before-policy" : "java.lang.Integer",
+        "/session_state" : "java.lang.String",
+        "/scope" : "java.lang.String"
+      },
+      "keyOrder" : {
+        "" : [ "access_token", "expires_in", "refresh_expires_in", "refresh_token", "token_type", "id_token", "not-before-policy", "session_state", "scope" ]
+      }
+    },
+    "authToken" : {
+      "accessToken" : "eyJhbGciOiJSUzI1NiJ9.keycloak.0001",
+      "expireIn" : 300,
+      "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.keycloak.refresh.0001",
+      "refreshTokenExpireIn" : 0,
+      "jwt" : null
+    }
+  },
+  "refresh" : {
+    "request" : "POST /realms/lowcoder/protocol/openid-connect/token",
+    "decoded" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/access_token" : "java.lang.String",
+        "/expires_in" : "java.lang.Integer",
+        "/refresh_expires_in" : "java.lang.Integer",
+        "/refresh_token" : "java.lang.String",
+        "/token_type" : "java.lang.String",
+        "/not-before-policy" : "java.lang.Integer",
+        "/session_state" : "java.lang.String",
+        "/scope" : "java.lang.String"
+      },
+      "keyOrder" : {
+        "" : [ "access_token", "expires_in", "refresh_expires_in", "refresh_token", "token_type", "not-before-policy", "session_state", "scope" ]
+      }
+    },
+    "authToken" : {
+      "accessToken" : "eyJhbGciOiJSUzI1NiJ9.keycloak.0002",
+      "expireIn" : 300,
+      "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.keycloak.refresh.0002",
+      "refreshTokenExpireIn" : 1799,
+      "jwt" : null
+    }
+  },
+  "user" : {
+    "request" : "POST /realms/lowcoder/protocol/openid-connect/userinfo",
+    "decoded" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/sub" : "java.lang.String",
+        "/email_verified" : "java.lang.Boolean",
+        "/name" : "java.lang.String",
+        "/preferred_username" : "java.lang.String",
+        "/given_name" : "java.lang.String",
+        "/family_name" : "java.lang.String",
+        "/email" : "java.lang.String",
+        "/groups" : "java.util.ArrayList",
+        "/groups/0" : "java.lang.String",
+        "/realm_access" : "java.util.LinkedHashMap",
+        "/realm_access/roles" : "java.util.ArrayList",
+        "/realm_access/roles/0" : "java.lang.String",
+        "/realm_access/roles/1" : "java.lang.String",
+        "/login_count" : "java.lang.Long"
+      },
+      "keyOrder" : {
+        "/realm_access" : [ "roles" ],
+        "" : [ "sub", "email_verified", "name", "preferred_username", "given_name", "family_name", "email", "groups", "realm_access", "login_count" ]
+      }
+    },
+    "authUser" : {
+      "uid" : "0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
+      "username" : "kay@example.com",
+      "email" : null,
+      "avatar" : null,
+      "groupId" : null,
+      "rawUserInfo" : {
+        "sub" : "0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
+        "email_verified" : false,
+        "name" : "Kay Cloak",
+        "preferred_username" : "kay",
+        "given_name" : "Kay",
+        "family_name" : "Cloak",
+        "email" : "kay@example.com",
+        "groups" : [ "/admins" ],
+        "realm_access" : {
+          "roles" : [ "offline_access", "uma_authorization" ]
+        },
+        "login_count" : 4294967296
+      }
+    }
+  }
+}

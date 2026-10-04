@@ -1,0 +1,1 @@
+{"error":"invalid_grant","error_description":"Code \"c0de\" expired – réessayez","error_uri":"https://idp.example.com/errors?code=invalid_grant&lang=fr","status":400,"retry_after":1.50,"details":{"attempts":[1,2],"trace":null}}

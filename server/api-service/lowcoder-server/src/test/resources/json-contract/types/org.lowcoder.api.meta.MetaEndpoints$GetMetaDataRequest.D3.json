@@ -1,0 +1,82 @@
+{
+  "appIds" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "orgIds" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "userIds" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "groupIds" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "bundleIds" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "datasourceIds" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "folderIds" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "libraryQueryIds" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  }
+}

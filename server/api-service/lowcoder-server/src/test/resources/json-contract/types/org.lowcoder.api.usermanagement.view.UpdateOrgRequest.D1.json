@@ -1,0 +1,7 @@
+{
+  "orgName" : "UpdateOrgRequest.orgName",
+  "contactName" : "UpdateOrgRequest.contactName",
+  "contactEmail" : "UpdateOrgRequest.contactEmail",
+  "contactPhoneNumber" : "UpdateOrgRequest.contactPhoneNumber",
+  "state" : "DELETED"
+}

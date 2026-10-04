@@ -1,0 +1,34 @@
+{
+  "appIds" : [
+    "MetaView.apps[0].id",
+    "MetaView.apps[1].id"
+  ],
+  "orgIds" : [
+    "MetaView.orgs[0].id",
+    "MetaView.orgs[1].id"
+  ],
+  "userIds" : [
+    "MetaView.users[0].id",
+    "MetaView.users[1].id"
+  ],
+  "groupIds" : [
+    "MetaView.groups[0].id",
+    "MetaView.groups[1].id"
+  ],
+  "bundleIds" : [
+    "MetaView.bundles[0].id",
+    "MetaView.bundles[1].id"
+  ],
+  "datasourceIds" : [
+    "MetaView.datasources[0].id",
+    "MetaView.datasources[1].id"
+  ],
+  "folderIds" : [
+    "MetaView.folders[0].id",
+    "MetaView.folders[1].id"
+  ],
+  "libraryQueryIds" : [
+    "MetaView.queries[0].id",
+    "MetaView.queries[1].id"
+  ]
+}

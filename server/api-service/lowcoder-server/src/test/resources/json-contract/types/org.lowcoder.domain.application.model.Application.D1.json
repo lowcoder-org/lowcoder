@@ -1,0 +1,72 @@
+{
+  "id" : "Application.id",
+  "createdBy" : "Application.createdBy",
+  "gid" : "Application.gid",
+  "slug" : "Application.slug",
+  "organizationId" : "Application.organizationId",
+  "name" : "Application.name",
+  "applicationType" : 40050,
+  "applicationStatus" : "DELETED",
+  "editingApplicationDSL" : {
+    "ui" : {
+      "compType" : "normal",
+      "comp" : {
+        "title" : "Application.editingApplicationDSL.ui.comp.title",
+        "width" : 1.50
+      },
+      "items" : [ {
+        "compType" : "module",
+        "comp" : {
+          "appId" : "Application.editingApplicationDSL.ui.items[0].comp.appId",
+          "height" : 40060
+        }
+      }, {
+        "compType" : "module",
+        "comp" : {
+          "appId" : "Application.editingApplicationDSL.ui.items[1].comp.appId",
+          "height" : 40061
+        }
+      }, {
+        "compType" : "text",
+        "comp" : {
+          "text" : "Application.editingApplicationDSL.ui.items[2].comp.text",
+          "hidden" : false
+        }
+      } ]
+    },
+    "queries" : [ {
+      "id" : "Application.editingApplicationDSL.queries[0].id",
+      "gid" : "Application.editingApplicationDSL.queries[0].gid",
+      "name" : "Application.editingApplicationDSL.queries[0].name",
+      "datasourceId" : "Application.editingApplicationDSL.queries[0].datasourceId",
+      "comp" : {
+        "method" : "Application.editingApplicationDSL.queries[0].comp.method",
+        "path" : "Application.editingApplicationDSL.queries[0].comp.path"
+      },
+      "triggerType" : "Application.editingApplicationDSL.queries[0].triggerType",
+      "timeout" : "Application.editingApplicationDSL.queries[0].timeout",
+      "compType" : "restApi"
+    }, {
+      "id" : "Application.editingApplicationDSL.queries[1].id",
+      "gid" : "Application.editingApplicationDSL.queries[1].gid",
+      "name" : "Application.editingApplicationDSL.queries[1].name",
+      "datasourceId" : "Application.editingApplicationDSL.queries[1].datasourceId",
+      "comp" : {
+        "libraryQueryId" : "Application.editingApplicationDSL.queries[1].comp.libraryQueryId",
+        "libraryQueryRecordId" : "Application.editingApplicationDSL.queries[1].comp.libraryQueryRecordId"
+      },
+      "triggerType" : "Application.editingApplicationDSL.queries[1].triggerType",
+      "timeout" : "Application.editingApplicationDSL.queries[1].timeout",
+      "compType" : "libraryQuery"
+    } ],
+    "settings" : {
+      "title" : "Application.editingApplicationDSL.settings.title",
+      "maxWidth" : 40062
+    }
+  },
+  "publicToAll" : true,
+  "publicToMarketplace" : false,
+  "agencyProfile" : true,
+  "editingUserId" : "Application.editingUserId",
+  "lastEditedAt" : 1767225650.123456789
+}

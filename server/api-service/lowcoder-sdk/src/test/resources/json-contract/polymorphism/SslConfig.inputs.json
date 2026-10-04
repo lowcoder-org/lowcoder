@@ -1,0 +1,7 @@
+{
+  "DISABLED" : { "sslCertVerificationType" : "DISABLED" },
+  "VERIFY_SELF_SIGNED_CERT" : { "sslCertVerificationType" : "VERIFY_SELF_SIGNED_CERT", "selfSignedCert" : "SECRET-SslConfig.VERIFY_SELF_SIGNED_CERT.selfSignedCert" },
+  "unregisteredConstant" : { "sslCertVerificationType" : "VERIFY_CA_CERT" },
+  "unknownId" : { "sslCertVerificationType" : "SslConfig.unknownId" },
+  "missingId" : { "selfSignedCert" : "SECRET-SslConfig.missingId.selfSignedCert" }
+}

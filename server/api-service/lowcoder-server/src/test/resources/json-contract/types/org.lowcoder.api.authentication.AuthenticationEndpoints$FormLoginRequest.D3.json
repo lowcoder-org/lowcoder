@@ -1,0 +1,52 @@
+{
+  "loginId" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "password" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "register" : {
+    "absent" : {
+      "class" : "java.lang.Boolean",
+      "value" : "false"
+    },
+    "null" : {
+      "class" : "java.lang.Boolean",
+      "value" : "false"
+    }
+  },
+  "source" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "authId" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  }
+}

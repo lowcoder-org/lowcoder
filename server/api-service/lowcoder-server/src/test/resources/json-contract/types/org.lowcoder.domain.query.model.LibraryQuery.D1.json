@@ -1,0 +1,25 @@
+{
+  "id": "LibraryQuery.id",
+  "createdBy": "LibraryQuery.createdBy",
+  "gid": "LibraryQuery.gid",
+  "organizationId": "LibraryQuery.organizationId",
+  "name": "LibraryQuery.name",
+  "libraryQueryDSL": {
+    "query": {
+      "id": "LibraryQuery.libraryQueryDSL.query.id",
+      "name": "LibraryQuery.libraryQueryDSL.query.name",
+      "datasourceId": "LibraryQuery.libraryQueryDSL.query.datasourceId",
+      "compType": "restApi",
+      "comp": {
+        "method": "LibraryQuery.libraryQueryDSL.query.comp.method",
+        "path": "LibraryQuery.libraryQueryDSL.query.comp.path",
+        "bodyLimit": 40100,
+        "maxBytes": 3000000001,
+        "ratio": 1.50
+      },
+      "triggerType": "LibraryQuery.libraryQueryDSL.query.triggerType",
+      "timeout": "LibraryQuery.libraryQueryDSL.query.timeout"
+    },
+    "version": 40101
+  }
+}

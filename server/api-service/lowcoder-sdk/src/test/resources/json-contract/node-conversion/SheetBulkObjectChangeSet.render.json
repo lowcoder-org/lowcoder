@@ -1,0 +1,216 @@
+{
+  "array" : [ {
+    "param:int" : {
+      "classes" : {
+        "" : "java.lang.Integer"
+      },
+      "written" : 1
+    },
+    "param:long" : {
+      "classes" : {
+        "" : "java.lang.Long"
+      },
+      "written" : 3000000001
+    },
+    "param:double" : {
+      "classes" : {
+        "" : "java.lang.Double"
+      },
+      "written" : 1.5
+    },
+    "param:bool" : {
+      "classes" : {
+        "" : "java.lang.Boolean"
+      },
+      "written" : true
+    },
+    "param:nothing" : {
+      "classes" : {
+        "" : "null"
+      },
+      "written" : null
+    },
+    "param:str" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "žluť \"quoted\""
+    },
+    "param:map" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/zeta" : "java.lang.Integer",
+        "/alpha" : "java.util.ArrayList",
+        "/alpha/0" : "java.lang.Long",
+        "/alpha/1" : "java.lang.Double",
+        "/alpha/2" : "null",
+        "/alpha/3" : "java.math.BigDecimal"
+      },
+      "written" : {"zeta":1,"alpha":[3000000001,1.5,null,2.5]}
+    },
+    "param:list" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Integer",
+        "/1" : "java.lang.String",
+        "/2" : "null",
+        "/3" : "java.util.ArrayList",
+        "/3/0" : "java.lang.Boolean"
+      },
+      "written" : [1,"two",null,[true]]
+    },
+    "missingParam" : {
+      "classes" : {
+        "" : "null"
+      },
+      "written" : null
+    },
+    "int" : {
+      "classes" : {
+        "" : "java.lang.Integer"
+      },
+      "written" : 1
+    },
+    "intMaxPlusOne" : {
+      "classes" : {
+        "" : "java.lang.Long"
+      },
+      "written" : 2147483648
+    },
+    "decimal" : {
+      "classes" : {
+        "" : "java.lang.Float"
+      },
+      "written" : 1.5
+    },
+    "decimalPastFloat" : {
+      "classes" : {
+        "" : "java.lang.Double"
+      },
+      "written" : 123456.789
+    },
+    "longDecimal" : {
+      "classes" : {
+        "" : "java.lang.Float"
+      },
+      "written" : 0.1
+    },
+    "exponent" : {
+      "classes" : {
+        "" : "java.lang.Float"
+      },
+      "written" : 1000.0
+    },
+    "true" : {
+      "classes" : {
+        "" : "java.lang.Boolean"
+      },
+      "written" : true
+    },
+    "null" : {
+      "classes" : {
+        "" : "null"
+      },
+      "written" : null
+    },
+    "quoted" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "quoted"
+    },
+    "text" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "plain žluť text"
+    },
+    "dateTime" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "2022-05-05 11:12:13"
+    },
+    "textWithParam" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "prefix žluť \"quoted\" suffix"
+    },
+    "array" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Integer",
+        "/1" : "java.lang.Integer",
+        "/2" : "java.lang.String",
+        "/3" : "java.lang.Float",
+        "/4" : "java.util.LinkedHashMap",
+        "/4/zeta" : "java.lang.Integer",
+        "/4/alpha" : "java.util.ArrayList",
+        "/4/alpha/0" : "java.lang.Long",
+        "/4/alpha/1" : "java.lang.Double",
+        "/4/alpha/2" : "null",
+        "/4/alpha/3" : "java.math.BigDecimal"
+      },
+      "written" : [1,1,"žluť \"quoted\"",1.5,{"zeta":1,"alpha":[3000000001,1.5,null,2.5]}]
+    },
+    "object" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/a" : "java.util.LinkedHashMap",
+        "/a/zeta" : "java.lang.Integer",
+        "/a/alpha" : "java.util.ArrayList",
+        "/a/alpha/0" : "java.lang.Long",
+        "/a/alpha/1" : "java.lang.Double",
+        "/a/alpha/2" : "null",
+        "/a/alpha/3" : "java.math.BigDecimal",
+        "/b" : "java.lang.Float",
+        "/žluť \"quoted\"" : "java.lang.Long"
+      },
+      "written" : {"a":{"zeta":1,"alpha":[3000000001,1.5,null,2.5]},"b":1.5,"žluť \"quoted\"":3000000001}
+    },
+    "escapedMustache" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "\\\\{\\\\{int\\\\}\\\\}"
+    }
+  }, {
+    "id" : {
+      "classes" : {
+        "" : "java.lang.Long"
+      },
+      "written" : 3000000001
+    }
+  } ],
+  "listParameter" : [ {
+    "id" : {
+      "classes" : {
+        "" : "java.lang.Integer"
+      },
+      "written" : 1
+    }
+  }, {
+    "id" : {
+      "classes" : {
+        "" : "java.lang.Integer"
+      },
+      "written" : 2
+    }
+  } ],
+  "object" : {
+    "error" : "org.lowcoder.sdk.exception.PluginException: INVALID_GUI_SETTINGS GUI_INVALID_JSON_ARRAY_FORMAT"
+  },
+  "arrayOfScalars" : {
+    "error" : "org.lowcoder.sdk.exception.PluginException: INVALID_GUI_SETTINGS GUI_INVALID_JSON_MAP_TYPE"
+  },
+  "failing:param:bigDecimal" : {
+    "error" : "org.lowcoder.sdk.exception.PluginException: INVALID_GUI_SETTINGS GUI_INVALID_JSON_ARRAY_FORMAT"
+  },
+  "failing:param:bigInteger" : {
+    "error" : "org.lowcoder.sdk.exception.PluginException: INVALID_GUI_SETTINGS GUI_INVALID_JSON_ARRAY_FORMAT"
+  },
+  "failing:longMaxPlusOne" : {
+    "error" : "org.lowcoder.sdk.exception.PluginException: INVALID_GUI_SETTINGS GUI_INVALID_JSON_ARRAY_FORMAT"
+  }
+}

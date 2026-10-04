@@ -1,0 +1,756 @@
+{
+  "getValue" : {
+    "int" : "999",
+    "long" : "3000000001",
+    "wholeDouble" : "1.0",
+    "double" : "1.5",
+    "intText" : "\"999\"",
+    "decimalText" : "\"1.0\"",
+    "bool" : "true",
+    "boolText" : "\"true\"",
+    "text" : "\"žluť \\\"q\\\"\"",
+    "list" : "[1,2.0,\"3\",null]",
+    "map" : "{\"name\":\"n\",\"limit\":1.0,\"extra\":3000000001}",
+    "intMap" : "{\"a\":1,\"b\":1.0,\"c\":\"2\"}"
+  },
+  "ofInteger" : {
+    "int" : {
+      "classes" : {
+        "" : "java.lang.Integer"
+      },
+      "written" : 999
+    },
+    "long" : {
+      "classes" : {
+        "" : "java.lang.Integer"
+      },
+      "written" : -1
+    },
+    "wholeDouble" : {
+      "classes" : {
+        "" : "java.lang.Integer"
+      },
+      "written" : 1
+    },
+    "double" : {
+      "classes" : {
+        "" : "java.lang.Integer"
+      },
+      "written" : 1
+    },
+    "intText" : {
+      "classes" : {
+        "" : "java.lang.Integer"
+      },
+      "written" : 999
+    },
+    "decimalText" : {
+      "classes" : {
+        "" : "java.lang.Integer"
+      },
+      "written" : -1
+    },
+    "bool" : {
+      "classes" : {
+        "" : "java.lang.Integer"
+      },
+      "written" : -1
+    },
+    "boolText" : {
+      "classes" : {
+        "" : "java.lang.Integer"
+      },
+      "written" : -1
+    },
+    "text" : {
+      "classes" : {
+        "" : "java.lang.Integer"
+      },
+      "written" : -1
+    },
+    "list" : {
+      "classes" : {
+        "" : "java.lang.Integer"
+      },
+      "written" : -1
+    },
+    "map" : {
+      "classes" : {
+        "" : "java.lang.Integer"
+      },
+      "written" : -1
+    },
+    "intMap" : {
+      "classes" : {
+        "" : "java.lang.Integer"
+      },
+      "written" : -1
+    }
+  },
+  "ofString" : {
+    "int" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "999"
+    },
+    "long" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "3000000001"
+    },
+    "wholeDouble" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "1.0"
+    },
+    "double" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "1.5"
+    },
+    "intText" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "999"
+    },
+    "decimalText" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "1.0"
+    },
+    "bool" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "true"
+    },
+    "boolText" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "true"
+    },
+    "text" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "žluť \"q\""
+    },
+    "list" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "<default>"
+    },
+    "map" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "<default>"
+    },
+    "intMap" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "written" : "<default>"
+    }
+  },
+  "ofBoolean" : {
+    "int" : {
+      "classes" : {
+        "" : "java.lang.Boolean"
+      },
+      "written" : true
+    },
+    "long" : {
+      "classes" : {
+        "" : "java.lang.Boolean"
+      },
+      "written" : true
+    },
+    "wholeDouble" : {
+      "classes" : {
+        "" : "java.lang.Boolean"
+      },
+      "written" : false
+    },
+    "double" : {
+      "classes" : {
+        "" : "java.lang.Boolean"
+      },
+      "written" : false
+    },
+    "intText" : {
+      "classes" : {
+        "" : "java.lang.Boolean"
+      },
+      "written" : false
+    },
+    "decimalText" : {
+      "classes" : {
+        "" : "java.lang.Boolean"
+      },
+      "written" : false
+    },
+    "bool" : {
+      "classes" : {
+        "" : "java.lang.Boolean"
+      },
+      "written" : true
+    },
+    "boolText" : {
+      "classes" : {
+        "" : "java.lang.Boolean"
+      },
+      "written" : true
+    },
+    "text" : {
+      "classes" : {
+        "" : "java.lang.Boolean"
+      },
+      "written" : false
+    },
+    "list" : {
+      "classes" : {
+        "" : "java.lang.Boolean"
+      },
+      "written" : false
+    },
+    "map" : {
+      "classes" : {
+        "" : "java.lang.Boolean"
+      },
+      "written" : false
+    },
+    "intMap" : {
+      "classes" : {
+        "" : "java.lang.Boolean"
+      },
+      "written" : false
+    }
+  },
+  "ofJson" : {
+    "int" : {
+      "classes" : {
+        "" : "org.lowcoder.infra.config.ConfigCenterContractTest$Setting"
+      },
+      "written" : {"name":"<default>","limit":-1}
+    },
+    "long" : {
+      "classes" : {
+        "" : "org.lowcoder.infra.config.ConfigCenterContractTest$Setting"
+      },
+      "written" : {"name":"<default>","limit":-1}
+    },
+    "wholeDouble" : {
+      "classes" : {
+        "" : "org.lowcoder.infra.config.ConfigCenterContractTest$Setting"
+      },
+      "written" : {"name":"<default>","limit":-1}
+    },
+    "double" : {
+      "classes" : {
+        "" : "org.lowcoder.infra.config.ConfigCenterContractTest$Setting"
+      },
+      "written" : {"name":"<default>","limit":-1}
+    },
+    "intText" : {
+      "classes" : {
+        "" : "org.lowcoder.infra.config.ConfigCenterContractTest$Setting"
+      },
+      "written" : {"name":"<default>","limit":-1}
+    },
+    "decimalText" : {
+      "classes" : {
+        "" : "org.lowcoder.infra.config.ConfigCenterContractTest$Setting"
+      },
+      "written" : {"name":"<default>","limit":-1}
+    },
+    "bool" : {
+      "classes" : {
+        "" : "org.lowcoder.infra.config.ConfigCenterContractTest$Setting"
+      },
+      "written" : {"name":"<default>","limit":-1}
+    },
+    "boolText" : {
+      "classes" : {
+        "" : "org.lowcoder.infra.config.ConfigCenterContractTest$Setting"
+      },
+      "written" : {"name":"<default>","limit":-1}
+    },
+    "text" : {
+      "classes" : {
+        "" : "org.lowcoder.infra.config.ConfigCenterContractTest$Setting"
+      },
+      "written" : {"name":"<default>","limit":-1}
+    },
+    "list" : {
+      "classes" : {
+        "" : "org.lowcoder.infra.config.ConfigCenterContractTest$Setting"
+      },
+      "written" : {"name":"<default>","limit":-1}
+    },
+    "map" : {
+      "classes" : {
+        "" : "org.lowcoder.infra.config.ConfigCenterContractTest$Setting"
+      },
+      "written" : {"name":"n","limit":1}
+    },
+    "intMap" : {
+      "classes" : {
+        "" : "org.lowcoder.infra.config.ConfigCenterContractTest$Setting"
+      },
+      "written" : {"name":null,"limit":null}
+    }
+  },
+  "ofList" : {
+    "int" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    },
+    "long" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    },
+    "wholeDouble" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    },
+    "double" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    },
+    "intText" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    },
+    "decimalText" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    },
+    "bool" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    },
+    "boolText" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    },
+    "text" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    },
+    "list" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Integer",
+        "/1" : "java.lang.Double",
+        "/2" : "java.lang.String",
+        "/3" : "null"
+      },
+      "written" : [1,2.0,"3",null]
+    },
+    "map" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    },
+    "intMap" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    }
+  },
+  "ofStringList" : {
+    "int" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    },
+    "long" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    },
+    "wholeDouble" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    },
+    "double" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    },
+    "intText" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    },
+    "decimalText" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    },
+    "bool" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    },
+    "boolText" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    },
+    "text" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    },
+    "list" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String",
+        "/1" : "java.lang.String",
+        "/2" : "java.lang.String",
+        "/3" : "null"
+      },
+      "written" : ["1","2.0","3",null]
+    },
+    "map" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    },
+    "intMap" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String"
+      },
+      "written" : ["<default>"]
+    }
+  },
+  "ofIntList" : {
+    "int" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Integer"
+      },
+      "written" : [-1]
+    },
+    "long" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Integer"
+      },
+      "written" : [-1]
+    },
+    "wholeDouble" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Integer"
+      },
+      "written" : [-1]
+    },
+    "double" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Integer"
+      },
+      "written" : [-1]
+    },
+    "intText" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Integer"
+      },
+      "written" : [-1]
+    },
+    "decimalText" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Integer"
+      },
+      "written" : [-1]
+    },
+    "bool" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Integer"
+      },
+      "written" : [-1]
+    },
+    "boolText" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Integer"
+      },
+      "written" : [-1]
+    },
+    "text" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Integer"
+      },
+      "written" : [-1]
+    },
+    "list" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Integer",
+        "/1" : "java.lang.Integer",
+        "/2" : "java.lang.Integer",
+        "/3" : "null"
+      },
+      "written" : [1,2,3,null]
+    },
+    "map" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Integer"
+      },
+      "written" : [-1]
+    },
+    "intMap" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Integer"
+      },
+      "written" : [-1]
+    }
+  },
+  "ofLongList" : {
+    "int" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Long"
+      },
+      "written" : [-1]
+    },
+    "long" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Long"
+      },
+      "written" : [-1]
+    },
+    "wholeDouble" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Long"
+      },
+      "written" : [-1]
+    },
+    "double" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Long"
+      },
+      "written" : [-1]
+    },
+    "intText" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Long"
+      },
+      "written" : [-1]
+    },
+    "decimalText" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Long"
+      },
+      "written" : [-1]
+    },
+    "bool" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Long"
+      },
+      "written" : [-1]
+    },
+    "boolText" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Long"
+      },
+      "written" : [-1]
+    },
+    "text" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Long"
+      },
+      "written" : [-1]
+    },
+    "list" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Long",
+        "/1" : "java.lang.Long",
+        "/2" : "java.lang.Long",
+        "/3" : "null"
+      },
+      "written" : [1,2,3,null]
+    },
+    "map" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Long"
+      },
+      "written" : [-1]
+    },
+    "intMap" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.Long"
+      },
+      "written" : [-1]
+    }
+  },
+  "ofMap" : {
+    "int" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/<default>" : "java.lang.Integer"
+      },
+      "written" : {"<default>":-1}
+    },
+    "long" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/<default>" : "java.lang.Integer"
+      },
+      "written" : {"<default>":-1}
+    },
+    "wholeDouble" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/<default>" : "java.lang.Integer"
+      },
+      "written" : {"<default>":-1}
+    },
+    "double" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/<default>" : "java.lang.Integer"
+      },
+      "written" : {"<default>":-1}
+    },
+    "intText" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/<default>" : "java.lang.Integer"
+      },
+      "written" : {"<default>":-1}
+    },
+    "decimalText" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/<default>" : "java.lang.Integer"
+      },
+      "written" : {"<default>":-1}
+    },
+    "bool" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/<default>" : "java.lang.Integer"
+      },
+      "written" : {"<default>":-1}
+    },
+    "boolText" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/<default>" : "java.lang.Integer"
+      },
+      "written" : {"<default>":-1}
+    },
+    "text" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/<default>" : "java.lang.Integer"
+      },
+      "written" : {"<default>":-1}
+    },
+    "list" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/<default>" : "java.lang.Integer"
+      },
+      "written" : {"<default>":-1}
+    },
+    "map" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/<default>" : "java.lang.Integer"
+      },
+      "written" : {"<default>":-1}
+    },
+    "intMap" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/a" : "java.lang.Integer",
+        "/b" : "java.lang.Integer",
+        "/c" : "java.lang.Integer"
+      },
+      "written" : {"a":1,"b":1,"c":2}
+    }
+  }
+}

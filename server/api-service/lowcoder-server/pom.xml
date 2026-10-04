@@ -50,6 +50,14 @@
 			<groupId>org.lowcoder</groupId>
 			<artifactId>lowcoder-infra</artifactId>
 		</dependency>
+		<!-- Shared JSON-contract test helpers from the lowcoder-sdk test-jar (docs/API_PAYLOAD_TEST_PLAN.md §3.2). -->
+		<dependency>
+			<groupId>org.lowcoder</groupId>
+			<artifactId>lowcoder-sdk</artifactId>
+			<version>${revision}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.lowcoder</groupId>
 			<artifactId>lowcoder-domain</artifactId>
@@ -373,11 +381,15 @@
 				<version>3.2.5</version>
 				<configuration>
 					<skipTests>${skipIntegrationTests}</skipTests>
+					<!-- Test the unsigned classes, not the jar signed by maven-jarsigner-plugin in the package phase:
+					     unsigned test classes sharing a package with signed classes fail discovery with a SecurityException -->
+					<classesDirectory>${project.build.outputDirectory}</classesDirectory>
 					<includes>
 						<include>**/*IntegrationTest.java</include>
 					</includes>
+					<!-- @{argLine} keeps the JaCoCo agent that prepare-agent-integration puts there (T11.1) -->
 					<argLine>
-						-Dpf4j.pluginsDir=../lowcoder-plugins/plugins
+						@{argLine} -Dpf4j.pluginsDir=../lowcoder-plugins/plugins
 					</argLine>
 				</configuration>
 				<executions>

@@ -1,0 +1,65 @@
+{
+  "raw": {
+    "sql": "  select * from users where id = {{id}}  ",
+    "disablePreparedStatement": true,
+    "mode": "SQL"
+  },
+  "gui": {
+    "mode": "GUI",
+    "commandType": "INSERT",
+    "command": {
+      "table": "users",
+      "changeSet": [
+        {
+          "key": "id",
+          "value": "{{1}}"
+        },
+        {
+          "key": "name",
+          "value": "{{input.value}}"
+        }
+      ],
+      "allowMultiModify": true,
+      "filterBy": [
+        {
+          "key": "id",
+          "operator": "=",
+          "value": "7"
+        }
+      ]
+    }
+  },
+  "guiJavaNames": {
+    "mode": "GUI",
+    "guiStatementType": "UPDATE",
+    "guiStatementDetail": {
+      "table": "users",
+      "changeSet": [
+        {
+          "key": "id",
+          "value": "{{1}}"
+        },
+        {
+          "key": "name",
+          "value": "{{input.value}}"
+        }
+      ],
+      "allowMultiModify": true,
+      "filterBy": [
+        {
+          "key": "id",
+          "operator": "=",
+          "value": "7"
+        }
+      ]
+    }
+  },
+  "scalarsAsStrings": {
+    "sql": "select 1",
+    "disablePreparedStatement": "true"
+  },
+  "sqlMissing": {
+    "mode": "SQL"
+  },
+  "empty": {}
+}

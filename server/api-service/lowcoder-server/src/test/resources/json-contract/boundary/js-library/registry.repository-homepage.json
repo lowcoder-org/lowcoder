@@ -1,0 +1,7 @@
+{
+  "name" : "repository-homepage",
+  "description" : "A library without a homepage: JsLibraryController falls back to its git repository",
+  "homepage" : "  ",
+  "dist-tags" : { "latest" : "1.0.0" },
+  "repository" : { "type" : "git", "url" : "git+https://github.com/example/repository-homepage.git" }
+}

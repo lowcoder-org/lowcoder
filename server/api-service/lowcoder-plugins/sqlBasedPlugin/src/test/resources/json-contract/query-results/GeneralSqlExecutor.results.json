@@ -1,0 +1,270 @@
+{
+  "select" : {
+    "prepared" : {
+      "queryCode" : "OK",
+      "dataShape" : {
+        "classes" : {
+          "" : "java.util.ArrayList",
+          "/0" : "java.util.LinkedHashMap",
+          "/0/zeta" : "java.lang.String",
+          "/0/id" : "java.lang.Long",
+          "/0/price" : "java.math.BigDecimal",
+          "/0/ratio" : "java.lang.Double",
+          "/0/active" : "java.lang.Boolean",
+          "/0/created" : "java.lang.String",
+          "/0/note" : "java.lang.String",
+          "/1" : "java.util.LinkedHashMap",
+          "/1/zeta" : "java.lang.String",
+          "/1/id" : "java.lang.Long",
+          "/1/price" : "java.math.BigDecimal",
+          "/1/ratio" : "java.lang.Double",
+          "/1/active" : "java.lang.Boolean",
+          "/1/created" : "null",
+          "/1/note" : "null"
+        },
+        "keyOrder" : {
+          "/0" : [ "zeta", "id", "price", "ratio", "active", "created", "note" ],
+          "/1" : [ "zeta", "id", "price", "ratio", "active", "created", "note" ]
+        }
+      },
+      "written" : {"queryCode":"OK","data":[{"zeta":"first","id":3000000001,"price":10.50,"ratio":0.1,"active":true,"created":"2024-02-29 13:14:15","note":"žluť"},{"zeta":"second","id":2,"price":1E+3,"ratio":1.0E20,"active":false,"created":null,"note":null}],"success":true}
+    },
+    "plain" : {
+      "queryCode" : "OK",
+      "dataShape" : {
+        "classes" : {
+          "" : "java.util.ArrayList",
+          "/0" : "java.util.LinkedHashMap",
+          "/0/zeta" : "java.lang.String",
+          "/0/id" : "java.lang.Long",
+          "/0/price" : "java.math.BigDecimal",
+          "/0/ratio" : "java.lang.Double",
+          "/0/active" : "java.lang.Boolean",
+          "/0/created" : "java.lang.String",
+          "/0/note" : "java.lang.String",
+          "/1" : "java.util.LinkedHashMap",
+          "/1/zeta" : "java.lang.String",
+          "/1/id" : "java.lang.Long",
+          "/1/price" : "java.math.BigDecimal",
+          "/1/ratio" : "java.lang.Double",
+          "/1/active" : "java.lang.Boolean",
+          "/1/created" : "null",
+          "/1/note" : "null"
+        },
+        "keyOrder" : {
+          "/0" : [ "zeta", "id", "price", "ratio", "active", "created", "note" ],
+          "/1" : [ "zeta", "id", "price", "ratio", "active", "created", "note" ]
+        }
+      },
+      "written" : {"queryCode":"OK","data":[{"zeta":"first","id":3000000001,"price":10.50,"ratio":0.1,"active":true,"created":"2024-02-29 13:14:15","note":"žluť"},{"zeta":"second","id":2,"price":1E+3,"ratio":1.0E20,"active":false,"created":null,"note":null}],"success":true}
+    }
+  },
+  "selectEmpty" : {
+    "prepared" : {
+      "queryCode" : "OK",
+      "dataShape" : {
+        "classes" : {
+          "" : "java.util.ArrayList"
+        },
+        "keyOrder" : { }
+      },
+      "written" : {"queryCode":"OK","data":[],"success":true}
+    },
+    "plain" : {
+      "queryCode" : "OK",
+      "dataShape" : {
+        "classes" : {
+          "" : "java.util.ArrayList"
+        },
+        "keyOrder" : { }
+      },
+      "written" : {"queryCode":"OK","data":[],"success":true}
+    }
+  },
+  "insertWithKeys" : {
+    "prepared" : {
+      "queryCode" : "OK",
+      "dataShape" : {
+        "classes" : {
+          "" : "java.util.HashMap",
+          "/affectedRows" : "java.lang.Integer",
+          "/generatedKeys" : "java.util.ArrayList",
+          "/generatedKeys/0" : "java.lang.Long",
+          "/generatedKeys/1" : "java.math.BigInteger"
+        },
+        "keyOrder" : {
+          "" : [ "affectedRows", "generatedKeys" ]
+        }
+      },
+      "written" : {"queryCode":"OK","data":{"affectedRows":2,"generatedKeys":[7,9223372036854775808]},"success":true}
+    },
+    "plain" : {
+      "queryCode" : "OK",
+      "dataShape" : {
+        "classes" : {
+          "" : "java.util.HashMap",
+          "/affectedRows" : "java.lang.Integer",
+          "/generatedKeys" : "java.util.ArrayList",
+          "/generatedKeys/0" : "java.lang.Long",
+          "/generatedKeys/1" : "java.math.BigInteger"
+        },
+        "keyOrder" : {
+          "" : [ "affectedRows", "generatedKeys" ]
+        }
+      },
+      "written" : {"queryCode":"OK","data":{"affectedRows":2,"generatedKeys":[7,9223372036854775808]},"success":true}
+    }
+  },
+  "updateWithoutKeys" : {
+    "prepared" : {
+      "queryCode" : "OK",
+      "dataShape" : {
+        "classes" : {
+          "" : "java.util.HashMap",
+          "/affectedRows" : "java.lang.Integer"
+        },
+        "keyOrder" : {
+          "" : [ "affectedRows" ]
+        }
+      },
+      "written" : {"queryCode":"OK","data":{"affectedRows":1},"success":true}
+    },
+    "plain" : {
+      "queryCode" : "OK",
+      "dataShape" : {
+        "classes" : {
+          "" : "java.util.HashMap",
+          "/affectedRows" : "java.lang.Integer"
+        },
+        "keyOrder" : {
+          "" : [ "affectedRows" ]
+        }
+      },
+      "written" : {"queryCode":"OK","data":{"affectedRows":1},"success":true}
+    }
+  },
+  "updateNoKeySet" : {
+    "prepared" : {
+      "queryCode" : "OK",
+      "dataShape" : {
+        "classes" : {
+          "" : "java.util.HashMap",
+          "/affectedRows" : "java.lang.Integer"
+        },
+        "keyOrder" : {
+          "" : [ "affectedRows" ]
+        }
+      },
+      "written" : {"queryCode":"OK","data":{"affectedRows":0},"success":true}
+    },
+    "plain" : {
+      "queryCode" : "OK",
+      "dataShape" : {
+        "classes" : {
+          "" : "java.util.HashMap",
+          "/affectedRows" : "java.lang.Integer"
+        },
+        "keyOrder" : {
+          "" : [ "affectedRows" ]
+        }
+      },
+      "written" : {"queryCode":"OK","data":{"affectedRows":0},"success":true}
+    }
+  },
+  "selectThenUpdate" : {
+    "prepared" : {
+      "queryCode" : "OK",
+      "dataShape" : {
+        "classes" : {
+          "" : "java.util.ArrayList",
+          "/0" : "java.util.ArrayList",
+          "/0/0" : "java.util.LinkedHashMap",
+          "/0/0/zeta" : "java.lang.String",
+          "/0/0/id" : "java.lang.Long",
+          "/0/0/price" : "java.math.BigDecimal",
+          "/0/0/ratio" : "java.lang.Double",
+          "/0/0/active" : "java.lang.Boolean",
+          "/0/0/created" : "java.lang.String",
+          "/0/0/note" : "java.lang.String",
+          "/0/1" : "java.util.LinkedHashMap",
+          "/0/1/zeta" : "java.lang.String",
+          "/0/1/id" : "java.lang.Long",
+          "/0/1/price" : "java.math.BigDecimal",
+          "/0/1/ratio" : "java.lang.Double",
+          "/0/1/active" : "java.lang.Boolean",
+          "/0/1/created" : "null",
+          "/0/1/note" : "null",
+          "/1" : "java.util.HashMap",
+          "/1/affectedRows" : "java.lang.Integer"
+        },
+        "keyOrder" : {
+          "/0/0" : [ "zeta", "id", "price", "ratio", "active", "created", "note" ],
+          "/0/1" : [ "zeta", "id", "price", "ratio", "active", "created", "note" ],
+          "/1" : [ "affectedRows" ]
+        }
+      },
+      "written" : {"queryCode":"OK","data":[[{"zeta":"first","id":3000000001,"price":10.50,"ratio":0.1,"active":true,"created":"2024-02-29 13:14:15","note":"žluť"},{"zeta":"second","id":2,"price":1E+3,"ratio":1.0E20,"active":false,"created":null,"note":null}],{"affectedRows":1}],"success":true}
+    },
+    "plain" : {
+      "queryCode" : "OK",
+      "dataShape" : {
+        "classes" : {
+          "" : "java.util.ArrayList",
+          "/0" : "java.util.ArrayList",
+          "/0/0" : "java.util.LinkedHashMap",
+          "/0/0/zeta" : "java.lang.String",
+          "/0/0/id" : "java.lang.Long",
+          "/0/0/price" : "java.math.BigDecimal",
+          "/0/0/ratio" : "java.lang.Double",
+          "/0/0/active" : "java.lang.Boolean",
+          "/0/0/created" : "java.lang.String",
+          "/0/0/note" : "java.lang.String",
+          "/0/1" : "java.util.LinkedHashMap",
+          "/0/1/zeta" : "java.lang.String",
+          "/0/1/id" : "java.lang.Long",
+          "/0/1/price" : "java.math.BigDecimal",
+          "/0/1/ratio" : "java.lang.Double",
+          "/0/1/active" : "java.lang.Boolean",
+          "/0/1/created" : "null",
+          "/0/1/note" : "null",
+          "/1" : "java.util.HashMap",
+          "/1/affectedRows" : "java.lang.Integer"
+        },
+        "keyOrder" : {
+          "/0/0" : [ "zeta", "id", "price", "ratio", "active", "created", "note" ],
+          "/0/1" : [ "zeta", "id", "price", "ratio", "active", "created", "note" ],
+          "/1" : [ "affectedRows" ]
+        }
+      },
+      "written" : {"queryCode":"OK","data":[[{"zeta":"first","id":3000000001,"price":10.50,"ratio":0.1,"active":true,"created":"2024-02-29 13:14:15","note":"žluť"},{"zeta":"second","id":2,"price":1E+3,"ratio":1.0E20,"active":false,"created":null,"note":null}],{"affectedRows":1}],"success":true}
+    }
+  },
+  "nullGeneratedKeyRowDropped" : {
+    "prepared" : {
+      "queryCode" : "OK",
+      "dataShape" : {
+        "classes" : {
+          "" : "java.util.HashMap",
+          "/affectedRows" : "java.lang.Integer"
+        },
+        "keyOrder" : {
+          "" : [ "affectedRows" ]
+        }
+      },
+      "written" : {"queryCode":"OK","data":{"affectedRows":1},"success":true}
+    },
+    "plain" : {
+      "queryCode" : "OK",
+      "dataShape" : {
+        "classes" : {
+          "" : "java.util.HashMap",
+          "/affectedRows" : "java.lang.Integer"
+        },
+        "keyOrder" : {
+          "" : [ "affectedRows" ]
+        }
+      },
+      "written" : {"queryCode":"OK","data":{"affectedRows":1},"success":true}
+    }
+  }
+}

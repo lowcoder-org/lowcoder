@@ -1,0 +1,5 @@
+{
+  "name" : "no-homepage",
+  "description" : "A library without homepage or dist-tags, whose repository is not git",
+  "repository" : { "type" : "svn", "url" : "svn://svn.example.com/no-homepage" }
+}

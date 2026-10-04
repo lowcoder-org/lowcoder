@@ -1,0 +1,24 @@
+{
+  "id": "AuthConfigRequest.id",
+  "authType": "GENERIC",
+  "source": "AuthConfigRequest.source",
+  "sourceName": "AuthConfigRequest.sourceName",
+  "sourceDescription": "AuthConfigRequest.sourceDescription",
+  "sourceIcon": "AuthConfigRequest.sourceIcon",
+  "sourceCategory": "AuthConfigRequest.sourceCategory",
+  "clientId": "AuthConfigRequest.clientId",
+  "clientSecret": "AuthConfigRequest.clientSecret",
+  "issuerUri": "AuthConfigRequest.issuerUri",
+  "authorizationEndpoint": "AuthConfigRequest.authorizationEndpoint",
+  "tokenEndpoint": "AuthConfigRequest.tokenEndpoint",
+  "userInfoEndpoint": "AuthConfigRequest.userInfoEndpoint",
+  "scope": "AuthConfigRequest.scope",
+  "enableRegister": false,
+  "userInfoIntrospection": true,
+  "userCanSelectAccounts": false,
+  "postForUserEndpoint": true,
+  "sourceMappings": {
+    "uid": "AuthConfigRequest.sourceMappings.uid",
+    "email": "AuthConfigRequest.sourceMappings.email"
+  }
+}
