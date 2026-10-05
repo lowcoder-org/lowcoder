@@ -18,6 +18,7 @@ import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.contract.RecordingHttpServer;
 import org.lowcoder.sdk.contract.RecordingHttpServer.Response;
 import org.lowcoder.sdk.exception.PluginException;
+import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.AuthConfig;
@@ -35,12 +36,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 /**
- * Redirect and digest-challenge handling of {@link RestApiExecutor#executeQuery}. The redirect target comes from the
- * {@code Location} header as given.
+ * Redirect and digest-challenge handling of {@link RestApiExecutor#executeQuery}. The redirect target is the
+ * {@code Location} header resolved against the URI that answered.
  *
- * <p>Pins the two halves of defect D14 (analysis-plugins section 0.6; plan section 9, row "D1-D20 of analysis-plugins
- * 0.6"; fixes deferred under D-6): a relative {@code Location} is not resolved against the request, and a redirect to
- * another origin re-sends the datasource's credentials and the forwarded cookies.
+ * <p>Covers the two halves of defect D14 (BF-009, BF-010): a relative {@code Location} goes to the server that
+ * redirected, and a redirect to another origin is sent without the datasource's credentials and forwarded cookies.
  */
 class RestApiRedirectTest {
 
@@ -49,6 +49,9 @@ class RestApiRedirectTest {
     private static final String HOST = "Host";
     private static final String USER = "user";
     private static final String PASSWORD = "secret";
+    private static final String API_KEY_HEADER = "X-Api-Key";
+    private static final String API_KEY = "datasource-key";
+    private static final String JSON = "application/json";
 
     private final RestApiCallSupport support = new RestApiCallSupport();
 
@@ -93,22 +96,17 @@ class RestApiRedirectTest {
     }
 
     /**
-     * DEFECT D14, first half, pinned (analysis-plugins section 0.6; plan section 9 "D1-D20" row; D-6, fix deferred): a
-     * relative {@code Location: /next} is turned into a URI without a host ({@code new URI(redirectUrl)}, RestApiExecutor
-     * .java:278-283) and the next call is made with that URI as given, so it is not sent to the server that redirected.
-     * The client's default for a host-less URI is {@code localhost}, port 80: an uncontrolled port (a run of an earlier
-     * version of this test reached whatever listens there, and a disallowed-hosts entry for {@code localhost} did not stop
-     * it), and the request carries the datasource's headers and cookies. This test therefore never lets the second
-     * request leave the JVM: it calls the private {@code httpCall} through reflection with a WebClient whose exchange
-     * function is a stub (no connector), answers the first call 302 with {@code Location: /next} and records the URL of
-     * the second call. The pin: that URL is {@code /next}, not absolute, with no host. The obvious fix,
-     * {@code uri.resolve(redirectUrl)}, makes the second URL absolute on the original host and turns this test red.
+     * BF-009 (D14, first half): a relative {@code Location: /next} is resolved against the URI that answered, so the next
+     * call goes to the server that redirected and not to a host-less URI (which the client sends to {@code localhost}
+     * port 80, past the disallowed-hosts check). The second request never leaves the JVM: the private {@code httpCall} is
+     * called through reflection with a WebClient whose exchange function is a stub (no connector), which answers the
+     * first call 302 with {@code Location: /next} and records the URL of the second call.
      *
-     * <p>Limits: it pins the redirect decision of {@code httpCall} (a private method, signature read in the source) and
-     * not what a real network does with the host-less URI; it breaks, on purpose, if {@code httpCall}'s signature changes.
+     * <p>Limits: it covers the redirect decision of {@code httpCall} (a private method, signature read in the source) and
+     * not a real network; it breaks, on purpose, if {@code httpCall}'s signature changes.
      */
     @Test
-    void aRelativeLocationIsFollowedAsAHostlessUriTodayD14() throws ReflectiveOperationException {
+    void aRelativeLocationIsResolvedAgainstTheServerThatRedirected() throws ReflectiveOperationException {
         List<URI> called = new CopyOnWriteArrayList<>();
         ExchangeFunction stub = request -> {
             called.add(request.url());
@@ -131,36 +129,65 @@ class RestApiRedirectTest {
         System.out.println("[RestApiRedirectTest] URLs called for a relative Location: " + called);
         assertThat(called).hasSize(2);
         assertThat(called.get(0)).isEqualTo(origin);
-        assertThat(called.get(1)).hasToString("/next");
-        assertThat(called.get(1).isAbsolute()).isFalse();
-        assertThat(called.get(1).getHost()).isNull();
+        assertThat(called.get(1)).isEqualTo(URI.create("http://origin.invalid:8080/next"));
     }
 
     /**
-     * DEFECT D14, second half, pinned (analysis-plugins section 0.6; plan section 9 "D1-D20" row; D-6, fix deferred): the
-     * redirect is sent with the same WebClient, whose default headers and cookies are those of the datasource, so a
-     * redirect to another origin (here another port) carries the datasource's Authorization header and the forwarded
-     * cookie. The intended behaviour, dropping credentials when the host or port changes, would turn this test red.
+     * BF-010 (D14, second half): a redirect to another origin (here another port) is sent without the datasource's
+     * Authorization header, its custom {@code X-Api-Key} header and the forwarded cookie, and with its {@code Accept}
+     * header; the origin itself received all of them.
      */
     @Test
-    void aRedirectToAnotherOriginResendsTheAuthorizationHeaderAndTheForwardedCookiesD14() {
+    void aRedirectToAnotherOriginDropsTheAuthorizationHeaderAndTheForwardedCookies() {
         try (RecordingHttpServer other = RecordingHttpServer.serve(Map.of("/landing", request -> json(200, "{}")))) {
             try (RecordingHttpServer origin = RecordingHttpServer.serve(Map.of(
                     "/start", request -> redirect(302, other.baseUrl() + "/landing")))) {
                 RestApiDatasourceConfig datasource = RestApiDatasourceConfig.builder().url(origin.baseUrl() + "/start")
                         .authConfig(BasicAuthConfig.builder().type(RestApiAuthType.BASIC_AUTH).username(USER).password(PASSWORD).build())
+                        .headers(List.of(new Property(API_KEY_HEADER, API_KEY), new Property(HttpHeaders.ACCEPT, JSON)))
                         .forwardCookies(Set.of("a")).build();
 
                 support.run(datasource, Map.of("httpMethod", "GET"),
                         RestApiCallSupport.visitor(RestApiCallSupport.cookies("a", "1"), null));
 
+                RecordingHttpServer.Request atOrigin = requestsTo(origin, "/start").get(0);
                 RecordingHttpServer.Request atOther = requestsTo(other, "/landing").get(0);
-                System.out.println("[RestApiRedirectTest] other origin received Authorization " + atOther.header("Authorization")
-                        + " Cookie " + atOther.header("Cookie"));
+                System.out.println("[RestApiRedirectTest] origin received Authorization " + atOrigin.header("Authorization")
+                        + " Cookie " + atOrigin.header("Cookie") + "; other origin received Authorization "
+                        + atOther.header("Authorization") + " Cookie " + atOther.header("Cookie"));
                 assertThat(origin.port()).isNotEqualTo(other.port());
-                assertThat(atOther.header("Authorization")).hasSize(1).allSatisfy(value -> assertThat(value).startsWith("Basic "));
-                assertThat(atOther.header("Cookie")).containsExactly("a=1");
+                assertThat(atOrigin.header("Authorization")).hasSize(1).allSatisfy(value -> assertThat(value).startsWith("Basic "));
+                assertThat(atOrigin.header("Cookie")).containsExactly("a=1");
+                assertThat(atOrigin.header(API_KEY_HEADER)).containsExactly(API_KEY);
+                assertThat(atOther.header("Authorization")).isEmpty();
+                assertThat(atOther.header("Cookie")).isEmpty();
+                assertThat(atOther.header(API_KEY_HEADER)).as("a custom datasource header can be a credential").isEmpty();
+                assertThat(atOther.header(HttpHeaders.ACCEPT)).as("a content header is kept").containsExactly(JSON);
             }
+        }
+    }
+
+    /** A redirect inside the same origin keeps the datasource's Authorization header, its custom headers and the forwarded cookie. */
+    @Test
+    void aRedirectInsideTheSameOriginKeepsTheAuthorizationHeaderTheCustomHeadersAndTheForwardedCookies() {
+        try (RecordingHttpServer origin = RecordingHttpServer.serve(Map.of(
+                "/start", request -> redirect(302, "/landing"),
+                "/landing", request -> json(200, "{}")))) {
+            RestApiDatasourceConfig datasource = RestApiDatasourceConfig.builder().url(origin.baseUrl() + "/start")
+                    .authConfig(BasicAuthConfig.builder().type(RestApiAuthType.BASIC_AUTH).username(USER).password(PASSWORD).build())
+                    .headers(List.of(new Property(API_KEY_HEADER, API_KEY)))
+                    .forwardCookies(Set.of("a")).build();
+
+            QueryExecutionResult result = support.run(datasource, Map.of("httpMethod", "GET"),
+                    RestApiCallSupport.visitor(RestApiCallSupport.cookies("a", "1"), null));
+
+            RecordingHttpServer.Request landing = requestsTo(origin, "/landing").get(0);
+            System.out.println("[RestApiRedirectTest] same-origin relative redirect received Authorization "
+                    + landing.header("Authorization") + " Cookie " + landing.header("Cookie"));
+            assertThat(result.isSuccess()).isTrue();
+            assertThat(landing.header("Authorization")).hasSize(1).allSatisfy(value -> assertThat(value).startsWith("Basic "));
+            assertThat(landing.header(API_KEY_HEADER)).containsExactly(API_KEY);
+            assertThat(landing.header("Cookie")).containsExactly("a=1");
         }
     }
 
