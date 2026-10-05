@@ -24,7 +24,7 @@ import reactor.test.StepVerifier;
 /**
  * {@link BizThresholdChecker} over a mocked {@link ConfigCenter}: {@code init()} reads each {@code threshold.*} key with its
  * own default and each getter returns its own value. Every key answers a distinct value, so a swapped key or getter is noticed.
- * The keys are the server configuration any signed-in user can write (plan section 9 server-config row, not re-pinned here).
+ * The keys are server configuration that only the deployment's super admin may write since BF-001 (not tested here).
  */
 class BizThresholdCheckerTest {
 

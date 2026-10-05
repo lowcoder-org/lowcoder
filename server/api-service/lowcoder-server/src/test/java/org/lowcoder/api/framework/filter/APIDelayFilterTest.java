@@ -25,9 +25,9 @@ import reactor.core.scheduler.Schedulers;
  * Tests of {@link APIDelayFilter}. The delay is a {@code Mono.delay(5s).block()} inside a reactive {@code map}, so it
  * cannot run on virtual time: exactly one test waits the real 5 seconds.
  *
- * <p>Pinned under D-6, plan §9 row "APIDelayFilter blocks inside a reactive map": the flag is writable by any signed-in
- * user through {@code POST /api/configs/isRateLimited} (ConfigController:44-48, ConfigEndpoints:44), nothing else
- * writes it. On a Reactor non-blocking thread {@code block()} fails with IllegalStateException
+ * <p>Pinned under D-6, plan §9 row "APIDelayFilter blocks inside a reactive map": the flag is written through
+ * {@code POST /api/configs/isRateLimited} (ConfigController:61-68, ConfigEndpoints:44), since BF-001 by the deployment's
+ * super admin only; nothing else writes it. On a Reactor non-blocking thread {@code block()} fails with IllegalStateException
  * ({@link #flagTrue_whenTheAnswerArrivesOnANonBlockingThread_failsWithIllegalState_pinsTheSection9Row}).
  */
 class APIDelayFilterTest {
