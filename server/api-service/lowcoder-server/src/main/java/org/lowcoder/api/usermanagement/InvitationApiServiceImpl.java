@@ -44,7 +44,7 @@ public class InvitationApiServiceImpl implements InvitationApiService {
                     Invitation invitation = tuple.getT2();
                     String orgId = invitation.getInvitedOrganizationId();
 
-                    return tryJoinOrg(visitorId, orgId)
+                    return tryJoinOrg(visitorId, invitation)
                             .handle((joinOrgResult, sink) -> {
                                 if (joinOrgResult.alreadyInOrg()) {
                                     sink.error(ofException(BizError.ALREADY_IN_ORGANIZATION, "ALREADY_IN_ORGANIZATION"));
@@ -56,9 +56,19 @@ public class InvitationApiServiceImpl implements InvitationApiService {
                 });
     }
 
-    private Mono<JoinOrgResult> tryJoinOrg(String visitorId, String orgId) {
+    /**
+     * Joins the invited organization. An invitation counts only while its creator is a member of that organization
+     * (INVALID_INVITATION_CODE otherwise), so an invitation minted by someone outside the organization before
+     * {@link #create} checked membership, or by a member who has since left, no longer lets anyone join. Sign-up and login
+     * with an invitation id (AuthenticationApiServiceImpl.loginOrRegister) join through here too, and get this error as
+     * they get one for an unknown invitation code.
+     */
+    private Mono<JoinOrgResult> tryJoinOrg(String visitorId, Invitation invitation) {
+        String orgId = invitation.getInvitedOrganizationId();
         return organizationService.getById(orgId)
                 .switchIfEmpty(deferredError(INVITED_ORG_DELETED, "INVITED_ORG_DELETED"))
+                .then(orgMemberService.getOrgMember(orgId, invitation.getCreateUserId())
+                        .switchIfEmpty(deferredError(BizError.INVALID_INVITATION_CODE, "INVALID_INVITATION_CODE", invitation.getId())))
                 .then(orgMemberService.getOrgMember(orgId, visitorId)
                         .hasElement()
                         .flatMap(inOrg -> {
@@ -93,6 +103,13 @@ public class InvitationApiServiceImpl implements InvitationApiService {
                 .switchIfEmpty(deferredError(INVITER_NOT_FOUND, "INVITED_ORG_DELETED"));
     }
 
+    /**
+     * An invitation to an organization the visitor is a member of; a visitor outside it gets NOT_AUTHORIZED and nothing is
+     * saved.
+     * <p>Limits: any member may invite, not only admins: the client also shows "Invite user" to the organization's developers
+     * (the all-members page, client pages/setting/permission/orgUsersPermission.tsx, inside settings that admins and
+     * developers reach), so an admin-only rule needs a client change first.
+     */
     @Override
     public Mono<InvitationVO> create(String orgId) {
         return sessionUserService.getVisitor()
@@ -106,7 +123,9 @@ public class InvitationApiServiceImpl implements InvitationApiService {
                             .createUserId(user.getId())
                             .invitedOrganizationId(orgId)
                             .build();
-                    return invitationService.create(invitation)
+                    return orgMemberService.getOrgMember(orgId, user.getId())
+                            .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                            .then(Mono.defer(() -> invitationService.create(invitation)))
                             .flatMap(i -> Mono.just(InvitationVO.from(i, user, org)));
                 });
     }
