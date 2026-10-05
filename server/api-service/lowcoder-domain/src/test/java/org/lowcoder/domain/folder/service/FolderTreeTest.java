@@ -108,7 +108,7 @@ class FolderTreeTest {
         assertThat(tree.get("missing")).isNull();
     }
 
-    /** Catches: the delete cascade (FolderApiServiceImpl:152) missing descendants, listing the null root or elements. */
+    /** Catches: the delete cascade (FolderApiServiceImpl:157) missing descendants, listing the null root or elements. */
     @Test
     void allFolderChildrenAreTheNestedFoldersChildrenFirstWithoutElementsOrTheRoot() {
         Fo f1 = new Fo("f1", null);
@@ -163,7 +163,7 @@ class FolderTreeTest {
      * Pins plan section 9 row "folder listings in heap order, FolderNode:29". With a comparator the children are a
      * PriorityQueue and every accessor streams its heap array, so only the first child is guaranteed to be the
      * comparator minimum. FolderApiServiceImpl.DEFAULT_COMPARATOR (last view time reversed, then name; used for the
-     * home listing at :349) is private in lowcoder-server and works on server view classes, so it is UNREACHABLE from the
+     * home listing at :354) is private in lowcoder-server and works on server view classes, so it is UNREACHABLE from the
      * domain module; VIEW_TIME_DESC_THEN_NAME above, the same ordering on the test records, is used instead.
      * Today 8 elements with view times 1..8 come back as e8, e7, e6, e4, e3, e2, e5, e1 instead of e8 ... e1. A fix
      * (drain the queue in comparator order) changes this test on purpose.

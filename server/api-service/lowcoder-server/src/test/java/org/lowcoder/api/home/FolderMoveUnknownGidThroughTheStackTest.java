@@ -48,7 +48,7 @@ import static org.mockito.Mockito.verify;
  * <p>Plan section 9 row "folder move to an unknown gid": {@code GidService.convertFolderIdToObjectId} answers
  * {@code Optional.empty()} for an unknown gid ({@code GidService.java:83-88}); the controller turns it into {@code null}
  * ({@code FolderController.java:99-102}), which {@code FolderApiServiceImpl.move} reads as the root folder
- * ({@code FolderApiServiceImpl.java:192-205}). The application is taken out of its folder, nothing is created, the audit event records
+ * ({@code FolderApiServiceImpl.java:197-210}). The application is taken out of its folder, nothing is created, the audit event records
  * a move to nothing, and the client gets a success. The pin asserts today's behaviour; the fix (an error with a not-found code)
  * makes it fail. The L1-13 converter pin in {@code ApiUtilGidServiceTest} fails with the same fix; that is expected.
  *

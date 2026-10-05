@@ -80,12 +80,17 @@ public class FolderApiServiceImpl implements FolderApiService {
     private final OrganizationService organizationService;
     private final UserFolderInteractionService userFolderInteractionService;
 
+    /**
+     * Creates a new folder in the visitor's organization. Its id and gid are always the server's: an id in the request body
+     * is ignored, since saving an entity that carries an id replaces the folder with that id, whichever organization owns it.
+     */
     @Override
     public Mono<FolderInfoView> create(Folder folder) {
         if (StringUtils.isBlank(folder.getName())) {
             return Mono.error(new BizException(BizError.INVALID_PARAMETER, "FOLDER_NAME_EMPTY"));
         }
-        if(StringUtils.isEmpty(folder.getId())) folder.setGid(UuidCreator.getTimeOrderedEpoch().toString());
+        folder.setId(null);
+        folder.setGid(UuidCreator.getTimeOrderedEpoch().toString());
         return orgDevChecker.checkCurrentOrgDev()
                 .then(sessionUserService.getVisitorOrgMemberCache())
                 .delayUntil(orgMember -> {
