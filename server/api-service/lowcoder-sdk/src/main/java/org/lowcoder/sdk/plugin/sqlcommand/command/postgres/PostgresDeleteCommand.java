@@ -35,7 +35,7 @@ public class PostgresDeleteCommand extends DeleteCommand {
         deleteSql.append("delete from ").append(renderedTable);
         if (filterSet.isEmpty()) {
             if (!allowMultiModify) {
-                return new UpdateOrDeleteSingleCommandRenderResult("select count(1) as count from " + table, emptyList(),
+                return new UpdateOrDeleteSingleCommandRenderResult("select count(1) as count from " + renderedTable, emptyList(),
                         deleteSql.toString(), emptyList());
             }
             return new GuiSqlCommandRenderResult(deleteSql.toString(), emptyList());

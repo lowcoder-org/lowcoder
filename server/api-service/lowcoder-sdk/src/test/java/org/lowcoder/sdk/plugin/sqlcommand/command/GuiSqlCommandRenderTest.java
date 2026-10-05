@@ -158,17 +158,16 @@ class GuiSqlCommandRenderTest {
     }
 
     /**
-     * Pins the plan section 9 row "PostgresDeleteCommand.render without filters and without multi-modify builds the
-     * guard's count query from the unrendered table" (D-6, fix deferred, source: lane L4, L4-3 plan): the delete is
-     * rendered ({@code users}) but the count query keeps the mustache ({@code {{tbl}}}). A fix changes this test on purpose.
+     * BF-070: a PostgreSQL delete without filters and without multi-modify builds the single-row guard's count query from
+     * the rendered table ({@code users}), the same table the delete uses, not from the mustache template ({@code {{tbl}}}).
      */
     @Test
-    void postgresDeleteWithoutFilterBuildsTheCountQueryFromTheUnrenderedTable() {
+    void postgresDeleteWithoutFilterBuildsTheCountQueryFromTheRenderedTable() {
         UpdateOrDeleteSingleCommandRenderResult result = (UpdateOrDeleteSingleCommandRenderResult) print("pg delete, mustache table, no filter",
                 PostgresDeleteCommand.from(detail(TEMPLATE_TABLE, false, List.of(), null)).render(TABLE_PARAM));
 
         assertThat(result.sql()).isEqualTo("delete from users");
-        assertThat(result.getSelectQuery()).as("today's behaviour: the table is not rendered").isEqualTo("select count(1) as count from {{tbl}}");
+        assertThat(result.getSelectQuery()).isEqualTo("select count(1) as count from users");
     }
 
     @Test
