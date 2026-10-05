@@ -1,8 +1,8 @@
 package org.lowcoder.sdk.plugin.common.sql;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.contract.ConfigBinding;
 import org.lowcoder.sdk.contract.FakeJdbc;
 import org.lowcoder.sdk.contract.FakeJdbc.Column;
@@ -74,13 +74,13 @@ public class ResultSetParserContractTest {
     private static final GoldenJson GOLDEN = GoldenJson.forModule();
     private static TimeZone defaultZone;
 
-    @BeforeClass
+    @BeforeAll
     public static void useUtc() {
         defaultZone = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
 
-    @AfterClass
+    @AfterAll
     public static void restoreZone() {
         TimeZone.setDefault(defaultZone);
     }

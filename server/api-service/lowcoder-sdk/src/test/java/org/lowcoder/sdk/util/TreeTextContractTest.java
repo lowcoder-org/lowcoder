@@ -3,7 +3,7 @@ package org.lowcoder.sdk.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.contract.BoundarySites;
 import org.lowcoder.sdk.contract.ConfigBinding;
 import org.lowcoder.sdk.contract.GoldenJson;

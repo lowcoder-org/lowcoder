@@ -1,6 +1,6 @@
 package org.lowcoder.infra.config;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.infra.localcache.ReloadableCache;
 import org.lowcoder.sdk.config.dynamic.Conf;
 import org.lowcoder.sdk.contract.BoundarySites;

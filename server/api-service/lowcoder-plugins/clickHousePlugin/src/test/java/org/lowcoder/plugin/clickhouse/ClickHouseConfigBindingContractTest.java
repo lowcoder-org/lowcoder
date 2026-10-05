@@ -1,6 +1,6 @@
 package org.lowcoder.plugin.clickhouse;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.clickhouse.model.ClickHouseDatasourceConfig;
 import org.lowcoder.plugin.clickhouse.model.ClickHouseQueryConfig;
 import org.lowcoder.sdk.contract.BoundarySites;

@@ -35,29 +35,19 @@
             <scope>provided</scope>
         </dependency>
 
-        <!--        vertx os async but not mature, used in test -->
-        <!--         https://mvnrepository.com/artifact/io.vertx/vertx-mail-client -->
+        <!-- an in-process SMTP server for the plugin's tests; 2.0.x is the line built on jakarta.mail 2.0. JUnit 4 is
+             excluded: greenmail needs it only for its JUnit 4 rule, and every module tests with JUnit 5 only -->
         <dependency>
-            <groupId>io.vertx</groupId>
-            <artifactId>vertx-mail-client</artifactId>
-            <version>4.3.3</version>
+            <groupId>com.icegreen</groupId>
+            <artifactId>greenmail</artifactId>
+            <version>2.0.1</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec-http</artifactId>
-            <version>4.1.77.Final</version>
-            <scope>test</scope>
-        </dependency>
-
-
-        <!-- Test Dependencies -->
-
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers</artifactId>
-            <version>1.18.0</version>
-            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

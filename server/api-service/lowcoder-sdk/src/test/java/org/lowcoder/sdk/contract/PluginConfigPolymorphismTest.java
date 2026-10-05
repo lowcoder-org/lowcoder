@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.config.JsonViews;
 import org.lowcoder.sdk.plugin.common.ssl.SslConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.AuthConfig;

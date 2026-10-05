@@ -48,8 +48,8 @@ import lombok.extern.slf4j.Slf4j;
  * regression guard, and {@link #legacyMixedCaseAccountIsNotReachableByItsLowercaseForm} pins the lookup
  * limitation that remains for any row the backfill leaves in place.
  *
- * <p>Every test uses its own address: this class shares an application context, and therefore one embedded
- * MongoDB, with the other {@code @ActiveProfiles("test")} test classes.
+ * <p>Every test uses its own address: this class shares an application context, and therefore one database,
+ * with the other {@code @ActiveProfiles("test")} test classes.
  */
 @SpringBootTest
 @ActiveProfiles("test")

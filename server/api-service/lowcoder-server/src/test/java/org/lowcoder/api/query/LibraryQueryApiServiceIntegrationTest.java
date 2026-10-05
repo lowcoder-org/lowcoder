@@ -2,7 +2,6 @@ package org.lowcoder.api.query;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.api.common.InitData;
 import org.lowcoder.api.common.mockuser.WithMockUser;
@@ -26,7 +25,6 @@ import static org.lowcoder.api.common.mockuser.WithMockUser.DEFAULT_CURRENT_ORG_
 @SuppressWarnings("SameParameterValue")
 @SpringBootTest
 @ActiveProfiles("test")
-@Disabled("Enable after all plugins are loaded in test mode")
 //@RunWith(SpringRunner.class)
 public class LibraryQueryApiServiceIntegrationTest {
 
@@ -47,7 +45,8 @@ public class LibraryQueryApiServiceIntegrationTest {
     public void testListLibraryQueries() {
         Mono<List<LibraryQueryView>> listMono = datasourceApiService.create(DatasourceApiServiceIntegrationTest.buildMysqlDatasource("mysql06"))
                 .flatMap(datasource -> libraryQueryApiService.create(buildLibraryQuery("query01", datasource.getId())))
-                .then(libraryQueryApiService.listLibraryQueries(null));
+                // "" is what LibraryQueryController passes when the request names no filter
+                .then(libraryQueryApiService.listLibraryQueries(""));
 
         StepVerifier.create(listMono)
                 .assertNext(libraryQueryViews -> {

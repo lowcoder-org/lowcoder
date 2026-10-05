@@ -46,7 +46,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.*;
-import java.util.function.Function;
 
 import static org.lowcoder.domain.bundle.model.BundleStatus.NORMAL;
 import static org.lowcoder.domain.permission.model.ResourceAction.*;
@@ -263,13 +262,6 @@ public class BundleApiServiceImpl implements BundleApiService {
     private Mono<Void> checkCurrentUserBundlePermission(String bundleId, ResourceAction action) {
         return sessionUserService.getVisitorId()
                 .flatMap(userId -> resourcePermissionService.checkResourcePermissionWithError(userId, bundleId, action));
-    }
-
-    private Mono<Void> removePermissions(String bundleId) {
-        return resourcePermissionService.getByResourceTypeAndResourceId(ResourceType.BUNDLE, bundleId)
-                .flatMapIterable(Function.identity())
-                .flatMap(resourcePermission -> resourcePermissionService.removeById(resourcePermission.getId()))
-                .then();
     }
 
     @Override
@@ -582,18 +574,6 @@ public class BundleApiServiceImpl implements BundleApiService {
                 .filter(permission -> StringUtils.equals(permission.getResourceId(), bundleId))
                 .switchIfEmpty(deferredError(ILLEGAL_BUNDLE_PERMISSION_ID, "ILLEGAL_BUNDLE_PERMISSION_ID"))
                 .then(resourcePermissionService.removeById(permissionId));
-    }
-
-    private Mono<Void> checkPermissionResource(String permissionId, String bundleId) {
-        return resourcePermissionService.getById(permissionId)
-                .switchIfEmpty(Mono.defer(() -> Mono.error(new BizException(ILLEGAL_BUNDLE_PERMISSION_ID, "PERMISSION_NOT_EXIST"))))
-                .flatMap(resourcePermission -> {
-                    if (!bundleId.equals(resourcePermission.getResourceId())) {
-                        return Mono.error(new BizException(ILLEGAL_BUNDLE_PERMISSION_ID, "NO_PERMISSION_TO_OPERATE_BUNDLE"));
-                    }
-                    return Mono.empty();
-                })
-                .then();
     }
 
     @Override

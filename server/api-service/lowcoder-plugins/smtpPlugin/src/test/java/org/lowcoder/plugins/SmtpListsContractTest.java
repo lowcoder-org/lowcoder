@@ -1,6 +1,6 @@
 package org.lowcoder.plugins;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.plugins.SmtpPlugin.SmtpEngine;
 import org.lowcoder.sdk.contract.BoundarySites;
 import org.lowcoder.sdk.contract.ConfigBinding;

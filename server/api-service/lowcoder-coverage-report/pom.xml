@@ -18,6 +18,53 @@
     <packaging>pom</packaging>
     <name>lowcoder-coverage-report</name>
 
+    <!-- The coverage gate (coverage-gate.xml, docs/COVERAGE_GATE_PLAN.md §2): one floor per module and counter, the
+         module's covered ratio in the aggregate report, truncated to two decimals. Floors never go down. Enforced since
+         stages 1 and 2 (tasks G1 and G2, every floor >= 0.80): a ratio below its floor fails `verify` and names the
+         module and counter. Limits: it runs only in a local `mvn verify` (no CI, owner decision D-7); it does not run
+         with -Djacoco.skip=true, without execution data (e.g. `clean verify -DskipTests`), or in a build that stops
+         before `verify` (the Docker build's `package`); without `clean` it judges whatever execution data target/
+         holds. For a report-only run, pass -Dgate.failonviolation=false: it prints "GATE VIOLATIONS: ..." instead. -->
+    <properties>
+        <gate.failonviolation>true</gate.failonviolation>
+        <gate.floor.lowcoder-sdk.line>0.93</gate.floor.lowcoder-sdk.line>
+        <gate.floor.lowcoder-sdk.branch>0.93</gate.floor.lowcoder-sdk.branch>
+        <gate.floor.lowcoder-infra.line>0.92</gate.floor.lowcoder-infra.line>
+        <gate.floor.lowcoder-infra.branch>0.91</gate.floor.lowcoder-infra.branch>
+        <gate.floor.lowcoder-domain.line>0.83</gate.floor.lowcoder-domain.line>
+        <gate.floor.lowcoder-domain.branch>0.90</gate.floor.lowcoder-domain.branch>
+        <gate.floor.lowcoder-server.line>0.98</gate.floor.lowcoder-server.line>
+        <gate.floor.lowcoder-server.branch>0.93</gate.floor.lowcoder-server.branch>
+        <gate.floor.clickHousePlugin.line>0.87</gate.floor.clickHousePlugin.line>
+        <gate.floor.clickHousePlugin.branch>0.82</gate.floor.clickHousePlugin.branch>
+        <gate.floor.elasticSearchPlugin.line>0.86</gate.floor.elasticSearchPlugin.line>
+        <gate.floor.elasticSearchPlugin.branch>0.85</gate.floor.elasticSearchPlugin.branch>
+        <gate.floor.googleSheetsPlugin.line>0.98</gate.floor.googleSheetsPlugin.line>
+        <gate.floor.googleSheetsPlugin.branch>0.95</gate.floor.googleSheetsPlugin.branch>
+        <gate.floor.graphqlPlugin.line>0.97</gate.floor.graphqlPlugin.line>
+        <gate.floor.graphqlPlugin.branch>0.90</gate.floor.graphqlPlugin.branch>
+        <gate.floor.mongoPlugin.line>0.95</gate.floor.mongoPlugin.line>
+        <gate.floor.mongoPlugin.branch>0.90</gate.floor.mongoPlugin.branch>
+        <gate.floor.mssqlPlugin.line>0.81</gate.floor.mssqlPlugin.line>
+        <gate.floor.mssqlPlugin.branch>0.86</gate.floor.mssqlPlugin.branch>
+        <gate.floor.mysqlPlugin.line>0.92</gate.floor.mysqlPlugin.line>
+        <gate.floor.mysqlPlugin.branch>0.92</gate.floor.mysqlPlugin.branch>
+        <gate.floor.oraclePlugin.line>0.91</gate.floor.oraclePlugin.line>
+        <gate.floor.oraclePlugin.branch>0.80</gate.floor.oraclePlugin.branch>
+        <gate.floor.postgresPlugin.line>0.97</gate.floor.postgresPlugin.line>
+        <gate.floor.postgresPlugin.branch>0.97</gate.floor.postgresPlugin.branch>
+        <gate.floor.redisPlugin.line>0.97</gate.floor.redisPlugin.line>
+        <gate.floor.redisPlugin.branch>0.95</gate.floor.redisPlugin.branch>
+        <gate.floor.restApiPlugin.line>0.97</gate.floor.restApiPlugin.line>
+        <gate.floor.restApiPlugin.branch>0.95</gate.floor.restApiPlugin.branch>
+        <gate.floor.smtpPlugin.line>0.96</gate.floor.smtpPlugin.line>
+        <gate.floor.smtpPlugin.branch>0.90</gate.floor.smtpPlugin.branch>
+        <gate.floor.snowflakePlugin.line>1.00</gate.floor.snowflakePlugin.line>
+        <gate.floor.snowflakePlugin.branch>1.00</gate.floor.snowflakePlugin.branch>
+        <gate.floor.sqlBasedPlugin.line>0.96</gate.floor.sqlBasedPlugin.line>
+        <gate.floor.sqlBasedPlugin.branch>0.96</gate.floor.sqlBasedPlugin.branch>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.lowcoder</groupId>
@@ -119,6 +166,35 @@
                         <goals>
                             <goal>report-aggregate</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- declared after jacoco-maven-plugin: Maven runs the verify-phase executions in declaration order, so the
+                 gate runs after report-aggregate -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>org.jacoco.ant</artifactId>
+                        <version>${jacoco.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>coverage-gate</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${jacoco.skip}</skip>
+                            <target>
+                                <ant antfile="${basedir}/coverage-gate.xml" target="gate" inheritRefs="true"/>
+                            </target>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

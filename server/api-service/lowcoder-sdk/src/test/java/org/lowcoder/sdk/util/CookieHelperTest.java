@@ -1,6 +1,6 @@
 package org.lowcoder.sdk.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -10,11 +10,11 @@ import org.springframework.web.server.ServerWebExchange;
 
 import java.time.Duration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Guards the contract that {@link CookieHelper#clearCookie(ServerWebExchange)} really deletes the cookie that
@@ -49,7 +49,7 @@ public class CookieHelperTest {
 
     private ResponseCookie onlyCookie(ServerWebExchange exchange) {
         ResponseCookie cookie = exchange.getResponse().getCookies().getFirst(COOKIE_NAME);
-        assertNotNull("expected a Set-Cookie for " + COOKIE_NAME, cookie);
+        assertNotNull(cookie, "expected a Set-Cookie for " + COOKIE_NAME);
         return cookie;
     }
 
@@ -116,13 +116,13 @@ public class CookieHelperTest {
         ResponseCookie cleared = onlyCookie(clearExchange);
 
         String context = "referer=" + referer;
-        assertEquals(context, saved.getName(), cleared.getName());
-        assertEquals(context, saved.getPath(), cleared.getPath());
-        assertEquals(context, saved.getDomain(), cleared.getDomain());
-        assertEquals(context, saved.isHttpOnly(), cleared.isHttpOnly());
-        assertEquals(context, saved.isSecure(), cleared.isSecure());
-        assertEquals(context, saved.getSameSite(), cleared.getSameSite());
-        assertEquals(context, Duration.ZERO, cleared.getMaxAge());
+        assertEquals(saved.getName(), cleared.getName(), context);
+        assertEquals(saved.getPath(), cleared.getPath(), context);
+        assertEquals(saved.getDomain(), cleared.getDomain(), context);
+        assertEquals(saved.isHttpOnly(), cleared.isHttpOnly(), context);
+        assertEquals(saved.isSecure(), cleared.isSecure(), context);
+        assertEquals(saved.getSameSite(), cleared.getSameSite(), context);
+        assertEquals(Duration.ZERO, cleared.getMaxAge(), context);
     }
 
     /**
@@ -165,8 +165,8 @@ public class CookieHelperTest {
         cookieHelper(false).clearCookie(exchange);
 
         String serialised = onlyCookie(exchange).toString();
-        assertTrue(serialised, serialised.contains("Max-Age=0"));
-        assertTrue(serialised, serialised.contains("Expires="));
+        assertTrue(serialised.contains("Max-Age=0"), serialised);
+        assertTrue(serialised.contains("Expires="), serialised);
     }
 
     @Test

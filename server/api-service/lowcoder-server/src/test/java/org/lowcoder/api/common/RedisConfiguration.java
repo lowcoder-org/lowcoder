@@ -10,12 +10,10 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 @EnableRedisRepositories
 public class RedisConfiguration {
 
-    public static final int REDIS_PORT = 6370;
-    public static final String REDIS_HOST = "localhost";
-
+    /** The Redis test container (see {@link TestContainers}). */
     @Bean
     public LettuceConnectionFactory lettuceConnectionFactory() {
-        return new LettuceConnectionFactory(REDIS_HOST, REDIS_PORT);
+        return new LettuceConnectionFactory(TestContainers.redisHost(), TestContainers.redisPort());
     }
 
     @Bean

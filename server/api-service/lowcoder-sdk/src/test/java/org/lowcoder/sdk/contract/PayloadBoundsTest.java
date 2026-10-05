@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.util.JsonUtils;
 
 import java.io.IOException;
@@ -16,8 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * The read limits of the production mapper (docs/API_PAYLOAD_TEST_PLAN.md §4.8, R11, E3), on a DSL
@@ -63,7 +63,7 @@ public class PayloadBoundsTest {
             arrays++;
         }
         System.out.println("[PayloadBoundsTest] depth " + MAX_NESTING_DEPTH + ": read, " + arrays + " nested arrays inside the DSL object");
-        assertEquals("the DSL object is level 1, the arrays the rest", MAX_NESTING_DEPTH - 1, arrays);
+        assertEquals(MAX_NESTING_DEPTH - 1, arrays, "the DSL object is level 1, the arrays the rest");
     }
 
     @Test

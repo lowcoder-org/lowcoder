@@ -63,8 +63,7 @@ public final class JsonBoundaryScanner {
             "server", List.of("lowcoder-server/src/main/java", "lowcoder-domain/src/main/java", "lowcoder-infra/src/main/java"));
     public static final List<String> SCOPE_ORDER = List.of("layer-c", "server");
     public static final Map<String, String> EXCLUDED = Map.of(
-            "lowcoder-sdk/src/main/java/org/lowcoder/sdk/util/JsonUtils.java", "implementation of the JsonUtils helpers",
-            "lowcoder-sdk/src/main/java/org/lowcoder/sdk/test/JsonFileReader.java", "fixture reader used only by test sources");
+            "lowcoder-sdk/src/main/java/org/lowcoder/sdk/util/JsonUtils.java", "implementation of the JsonUtils helpers");
     public static final Set<String> WRAPPER_RETURN_TYPES = Set.of("String", "JsonNode", "ObjectNode", "ArrayNode");
     public static final Set<String> WRAPPER_SOURCE_KINDS = Set.of("read", "write", "convert", "reader-writer", WRAPPER_KIND);
     public static final Set<String> WRAPPER_EXEMPT = Set.of(

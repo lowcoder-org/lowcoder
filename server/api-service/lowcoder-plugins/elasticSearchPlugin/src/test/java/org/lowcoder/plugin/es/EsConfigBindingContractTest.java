@@ -1,6 +1,6 @@
 package org.lowcoder.plugin.es;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.config.dynamic.ConfigCenterForTest;
 import org.lowcoder.sdk.contract.BoundarySites;

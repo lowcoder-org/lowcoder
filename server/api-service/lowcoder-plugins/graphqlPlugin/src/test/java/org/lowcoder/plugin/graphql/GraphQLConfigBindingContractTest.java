@@ -1,6 +1,6 @@
 package org.lowcoder.plugin.graphql;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.graphql.model.GraphQLQueryConfig;
 import org.lowcoder.sdk.contract.BoundarySites;
 import org.lowcoder.sdk.contract.ConfigBinding;

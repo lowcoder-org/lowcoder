@@ -6,7 +6,6 @@ import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @Repository
 public interface MaterialMateRepository extends ReactiveMongoRepository<MaterialMeta, String> {
@@ -16,6 +15,4 @@ public interface MaterialMateRepository extends ReactiveMongoRepository<Material
     Flux<MaterialMeta> findByOrgIdAndType(String orgId, MaterialType type);
 
     Flux<MaterialMeta> findByOrgIdAndFilenameAndType(String orgId, String filename, MaterialType type);
-
-    Mono<Boolean> existsByOrgIdAndFilename(String orgId, String filename);
 }

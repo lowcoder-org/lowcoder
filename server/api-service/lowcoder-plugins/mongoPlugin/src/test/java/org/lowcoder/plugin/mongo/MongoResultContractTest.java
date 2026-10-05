@@ -5,7 +5,7 @@ import com.mongodb.reactivestreams.client.MongoDatabase;
 import org.bson.Document;
 import org.bson.types.Decimal128;
 import org.bson.types.ObjectId;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.mongo.model.MongoConnection;
 import org.lowcoder.plugin.mongo.model.MongoQueryExecutionContext;
 import org.lowcoder.sdk.config.dynamic.ConfigCenterForTest;
@@ -27,7 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Group {@code external-json} of the Mongo plugin and its row of the §4.6 producer table (docs/API_PAYLOAD_TEST_PLAN.md
@@ -100,7 +100,7 @@ public class MongoResultContractTest {
     static String pinnedDates(String text) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_PATTERN).withZone(ZoneId.systemDefault());
         String formatted = formatter.format(DATE);
-        assertTrue("the report has the date formatted in the JVM zone: " + formatted, text.contains(formatted));
+        assertTrue(text.contains(formatted), "the report has the date formatted in the JVM zone: " + formatted);
         return text.replace(formatted, DATE_TOKEN_PREFIX + DATE + DATE_TOKEN_SUFFIX)
                 .replace(formatter.format(PRE_EPOCH_DATE), DATE_TOKEN_PREFIX + PRE_EPOCH_DATE + DATE_TOKEN_SUFFIX);
     }

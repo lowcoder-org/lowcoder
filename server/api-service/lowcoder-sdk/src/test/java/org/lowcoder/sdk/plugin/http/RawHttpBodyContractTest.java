@@ -1,8 +1,8 @@
 package org.lowcoder.sdk.plugin.http;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.contract.BoundarySites;
 import org.lowcoder.sdk.contract.ConfigBinding;
 import org.lowcoder.sdk.contract.GoldenJson;
@@ -45,13 +45,13 @@ public class RawHttpBodyContractTest {
     private static final GoldenJson GOLDEN = GoldenJson.forModule();
     private static RecordingHttpServer server;
 
-    @BeforeClass
+    @BeforeAll
     public static void startServer() {
         server = RecordingHttpServer.start(Map.of(PATH, new Response(OK, Map.of(RecordingHttpServer.CONTENT_TYPE, List.of("text/plain")),
                 "ok".getBytes(StandardCharsets.UTF_8))));
     }
 
-    @AfterClass
+    @AfterAll
     public static void stopServer() {
         server.close();
     }

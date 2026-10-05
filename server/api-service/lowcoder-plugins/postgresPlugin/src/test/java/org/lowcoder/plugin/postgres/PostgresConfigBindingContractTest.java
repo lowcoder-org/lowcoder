@@ -1,6 +1,6 @@
 package org.lowcoder.plugin.postgres;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig;
 import org.lowcoder.plugin.postgres.model.PostgresQueryConfig;
 import org.lowcoder.sdk.contract.BoundarySites;

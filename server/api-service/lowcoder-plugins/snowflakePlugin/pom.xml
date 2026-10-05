@@ -38,10 +38,10 @@
 			<scope>compile</scope>
         </dependency>
 
+        <!-- an in-memory JDBC database for the JDBC path of the executor tests (no Snowflake container exists) (the version comes from spring-boot-dependencies) -->
         <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers</artifactId>
-            <version>1.18.0</version>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

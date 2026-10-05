@@ -1,7 +1,7 @@
 package org.lowcoder.plugin.googlesheets;
 
 import org.apache.commons.collections4.MapUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.googlesheets.GoogleSheetsPlugin.GoogleSheetsEngine;
 import org.lowcoder.sdk.contract.BoundarySites;
 import org.lowcoder.sdk.contract.ConfigBinding;

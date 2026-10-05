@@ -2,7 +2,7 @@ package org.lowcoder.plugin.postgres;
 
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.contract.BoundarySites;
 import org.lowcoder.sdk.contract.ConfigBinding;
 import org.lowcoder.sdk.contract.FakeJdbc;

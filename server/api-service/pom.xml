@@ -20,6 +20,9 @@
 		<source.disabled>true</source.disabled>
 		<skipDockerBuild>true</skipDockerBuild>
 		<jacoco.version>0.8.14</jacoco.version>
+		<!-- declared so that the coverage gate's <skip>${jacoco.skip}</skip> (lowcoder-coverage-report) reads false by
+		     default; -Djacoco.skip=true still skips both JaCoCo and the gate -->
+		<jacoco.skip>false</jacoco.skip>
 		<!-- Empty default for the test JVM arguments: JaCoCo's prepare-agent goals append their agent to it, and the
 		     failsafe configuration of lowcoder-server refers to it as @{argLine}, which needs it defined even with
 		     -Djacoco.skip=true -->

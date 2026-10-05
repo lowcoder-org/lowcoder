@@ -1,6 +1,6 @@
 package org.lowcoder.sdk.plugin.sqlcommand.changeset;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.contract.BoundarySites;
 import org.lowcoder.sdk.contract.GoldenJson;
 import org.lowcoder.sdk.exception.PluginException;
@@ -11,7 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * The {@code lowcoder-sdk} row of group {@code error-message-json} (docs/API_PAYLOAD_TEST_PLAN.md §4.10, task T8.5):

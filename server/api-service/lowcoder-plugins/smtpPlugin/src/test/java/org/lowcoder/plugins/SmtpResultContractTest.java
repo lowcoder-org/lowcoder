@@ -1,6 +1,6 @@
 package org.lowcoder.plugins;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.contract.ConfigBinding;
 import org.lowcoder.sdk.contract.GoldenJson;
 import org.lowcoder.sdk.contract.QueryResults;

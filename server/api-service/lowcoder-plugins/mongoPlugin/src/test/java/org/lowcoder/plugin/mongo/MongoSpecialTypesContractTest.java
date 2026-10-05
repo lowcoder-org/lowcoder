@@ -1,6 +1,6 @@
 package org.lowcoder.plugin.mongo;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.mongo.model.MongoDatasourceConfig;
 import org.lowcoder.sdk.config.dynamic.ConfigCenterForTest;
 import org.lowcoder.sdk.contract.BoundarySites;
