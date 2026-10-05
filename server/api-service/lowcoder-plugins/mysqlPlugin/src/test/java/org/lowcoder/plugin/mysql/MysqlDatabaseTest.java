@@ -2,6 +2,7 @@ package org.lowcoder.plugin.mysql;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.Test;
+import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.DatasourceStructure;
 import org.lowcoder.sdk.models.DatasourceStructure.Column;
 import org.lowcoder.sdk.models.DatasourceStructure.ForeignKey;
@@ -361,6 +362,61 @@ public class MysqlDatabaseTest {
             System.out.println("[MysqlDatabaseTest] delete by the column odd`col: " + byOddColumn);
             assertEquals(1, ((Map<?, ?>) byOddColumn).get("affectedRows"));
             assertEquals(0, rows(app, "select id from t_gui_in").size());
+        }
+    }
+
+    /**
+     * BF-008: the table names {@code getStructure} returns (the names the client's table dropdown offers) and the GUI
+     * table check. A plain name is accepted as returned. A name with a space is refused unquoted: written into the SQL as
+     * returned, it never addressed that table (the statement the commands built before the check reads {@code spaced}
+     * as the table and {@code items} as its alias, and fails here because there is no table {@code spaced}), and it works when
+     * quoted with backticks. A name that is not an identifier is refused before any statement runs. The refusals are
+     * asserted through {@link EmptyLocaleBundle} (the module's empty locale bundle turns the PluginException with key
+     * GUI_INVALID_TABLE_NAME into a MissingResourceException, BF-127); the key itself is asserted in the sdk's
+     * SqlGuiUtilsTest and PostgresDatabaseTest.
+     */
+    @Test
+    public void guiTableCheckAcceptsStructureNamesThatAreIdentifiersAndRefusesTheRestBeforeRunning() throws Exception {
+        String schema = "struct_gui_tables";
+        MysqlContainerSupport.newSchema(schema);
+        try (Connection root = MysqlContainerSupport.root()) {
+            execute(root, "use " + schema, "create table plain_items (id int primary key)", "create table `spaced items` (id int primary key)",
+                    "insert into plain_items values (1), (2)", "insert into `spaced items` values (1), (2)");
+        }
+        List<String> names = structureOf(schema).getTables().stream().map(Table::getName).sorted().toList();
+        System.out.println("[MysqlDatabaseTest] table names from getStructure: " + names);
+        assertEquals(List.of("plain_items", "spaced items"), names);
+
+        MysqlDatasourceConfig config = config(schema, MysqlContainerSupport.PASSWORD, false, false, false);
+        HikariPerfWrapper wrapper = connect(config);
+        try (Connection root = MysqlContainerSupport.root()) {
+            execute(root, "use " + schema);
+            Map<String, Object> idFilter = Map.of("column", "id", "condition", "=", "value", "{{id}}");
+            Object plain = run(wrapper, config, guiConfig("DELETE", Map.of("table", "plain_items", "filterBy", List.of(idFilter),
+                    "allowMultiModify", true)), Map.of("id", 1));
+            System.out.println("[MysqlDatabaseTest] delete from the structure name plain_items: " + plain);
+            assertEquals(1, ((Map<?, ?>) plain).get("affectedRows"));
+
+            RuntimeException unquoted = EmptyLocaleBundle.assertThrown(() -> run(wrapper, config, guiConfig("DELETE",
+                    Map.of("table", "spaced items", "filterBy", List.of(idFilter), "allowMultiModify", true)), Map.of("id", 1)));
+            IllegalStateException before = assertThrows(IllegalStateException.class,
+                    () -> execute(root, "delete from spaced items where `id` = 1"));
+            System.out.println("[MysqlDatabaseTest] unquoted 'spaced items' refused: " + unquoted
+                    + "; the statement built before the check fails on the server too: " + before.getCause());
+            assertInstanceOf(java.sql.SQLSyntaxErrorException.class, before.getCause());
+
+            Object quoted = run(wrapper, config, guiConfig("DELETE", Map.of("table", "`spaced items`", "filterBy", List.of(idFilter),
+                    "allowMultiModify", true)), Map.of("id", 1));
+            assertEquals(1, ((Map<?, ?>) quoted).get("affectedRows"));
+
+            RuntimeException injected = EmptyLocaleBundle.assertThrown(() -> run(wrapper, config, guiConfig("DELETE",
+                    Map.of("table", "plain_items; delete from plain_items", "filterBy", List.of(idFilter), "allowMultiModify", true)),
+                    Map.of("id", 99)));
+            System.out.println("[MysqlDatabaseTest] table that is not an identifier refused: " + injected);
+            assertEquals(1, rows(root, "select id from plain_items").size(), "nothing ran");
+            assertEquals(1, rows(root, "select id from `spaced items`").size());
+        } finally {
+            destroy(wrapper);
         }
     }
 

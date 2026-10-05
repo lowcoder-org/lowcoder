@@ -57,7 +57,10 @@ public final class SqlGuiUtils {
      * <p>
      * Limits: it checks the form only, not that the table exists or that the user may use it; a quoted part may hold
      * any text, which the database reads as one identifier. Quotes of another dialect are refused (for SQL Server only
-     * {@code [ ]} is accepted, not {@code " "}).
+     * {@code [ ]} is accepted, not {@code " "}). A table name the structure lists as it is stored ({@code spaced items})
+     * must be quoted by the user: unquoted it is refused here; before this check it was put into the SQL as written,
+     * which never addressed that table (a syntax error, or in MySQL the table {@code spaced} with the alias
+     * {@code items}).
      */
     public static String checkTableName(String table, String frontDelimiter, String backDelimiter) {
         String stripped = table == null ? "" : table.strip();
