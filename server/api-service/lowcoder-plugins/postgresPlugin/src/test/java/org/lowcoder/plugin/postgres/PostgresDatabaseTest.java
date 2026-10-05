@@ -289,6 +289,44 @@ public class PostgresDatabaseTest {
         }
     }
 
+    /**
+     * BF-007 and BF-008 end to end for the raw-SQL dialect: every element of a GUI {@code IN} filter is dollar-quoted, so
+     * an element written to break out of a quoted string ({@code x' or '1'='1}) is compared as text and deletes nothing
+     * else; a column name with a {@code "} stays one identifier, and a table name that is not an identifier is refused.
+     */
+    @Test
+    public void guiDeleteWithAnInListEscapesEveryElementAndRefusesATableThatIsNotAnIdentifier() throws Exception {
+        try (Connection jdbc = jdbc()) {
+            execute(jdbc, "drop table if exists t_gui_in", "create table t_gui_in (id int primary key, name text, \"odd\"\"col\" int)",
+                    "insert into t_gui_in values (1, 'ann', 10), (2, 'bob', 20), (3, 'x'' or ''1''=''1', 30)");
+            Map<String, Object> inFilter = Map.of("column", "name", "condition", "IN", "value", "{{names}}");
+
+            Object none = gui("DELETE", Map.of("table", "t_gui_in", "filterBy", List.of(inFilter), "allowMultiModify", true),
+                    Map.of("names", List.of("nobody' or '1'='1")));
+            System.out.println("[PostgresDatabaseTest] IN delete with an injection element: " + none);
+            assertEquals(0, ((Map<?, ?>) none).get("affectedRows"), "the element is a value, not SQL");
+            assertEquals(3, rows(jdbc, "select id from t_gui_in").size());
+
+            Object two = gui("DELETE", Map.of("table", "t_gui_in", "filterBy", List.of(inFilter), "allowMultiModify", true),
+                    Map.of("names", List.of("ann", "x' or '1'='1")));
+            System.out.println("[PostgresDatabaseTest] IN delete of ann and the literal text: " + two);
+            assertEquals(2, ((Map<?, ?>) two).get("affectedRows"));
+            assertEquals(List.of(2), rows(jdbc, "select id from t_gui_in").stream().map(r -> r.get("id")).toList());
+
+            Object byOddColumn = gui("DELETE", Map.of("table", "t_gui_in", "allowMultiModify", true,
+                    "filterBy", List.of(Map.of("column", "odd\"col", "condition", "=", "value", "{{v}}"))), Map.of("v", 20));
+            System.out.println("[PostgresDatabaseTest] delete by the column odd\"col: " + byOddColumn);
+            assertEquals(1, ((Map<?, ?>) byOddColumn).get("affectedRows"));
+
+            execute(jdbc, "insert into t_gui_in values (4, 'dan', 40)");
+            PluginException refused = assertThrows(PluginException.class, () -> gui("DELETE", Map.of("table", "t_gui_in; delete from t_gui_in",
+                    "filterBy", List.of(inFilter), "allowMultiModify", true), Map.of("names", List.of("nobody"))));
+            System.out.println("[PostgresDatabaseTest] table that is not an identifier: " + refused.getMessageKey());
+            assertEquals("GUI_INVALID_TABLE_NAME", refused.getMessageKey());
+            assertEquals(1, rows(jdbc, "select id from t_gui_in").size(), "nothing ran");
+        }
+    }
+
     @Test
     public void singleRowGuardOnARealServer() throws Exception {
         try (Connection jdbc = jdbc()) {

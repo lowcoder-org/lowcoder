@@ -64,7 +64,7 @@ public class MysqlGuiCommandTest {
 
         Assertions.assertEquals(
                 "update user set `id`=?,`name`=?,`email`=?,`info`=? "
-                        + "where `name` = ?  and `status` > ?  and `id` IN (1,2,5) and `phone` IS null  limit 1",
+                        + "where `name` = ?  and `status` > ?  and `id` IN (?,?,?) and `phone` IS null  limit 1",
                 render.sql());
 
         List<Object> expectedParams = new ArrayList<>();
@@ -74,6 +74,7 @@ public class MysqlGuiCommandTest {
         expectedParams.add(toJson(infoMap));
         expectedParams.add("jack");
         expectedParams.add(1);
+        expectedParams.addAll(List.of(1, 2, 5));
         assertThat(render.bindParams()).isEqualTo(expectedParams);
         assertThat(command.extractMustacheKeys()).isEqualTo(Set.of("{{ email }}", "{{ info }}", "{{ name }}", "{{ids}}"));
     }
@@ -141,12 +142,13 @@ public class MysqlGuiCommandTest {
         var render = command.render(Map.of("email", email, "info", infoMap, "name", name, "ids", List.of(1, 2, 5)));
 
         Assertions.assertEquals(
-                "delete from user where `name` = ?  and `status` > ?  and `id` IN (1,2,5) and `phone` IS null  limit 1",
+                "delete from user where `name` = ?  and `status` > ?  and `id` IN (?,?,?) and `phone` IS null  limit 1",
                 render.sql());
 
         List<Object> expectedParams = new ArrayList<>();
         expectedParams.add("jack");
         expectedParams.add(1);
+        expectedParams.addAll(List.of(1, 2, 5));
         assertThat(render.bindParams()).isEqualTo(expectedParams);
         assertThat(command.extractMustacheKeys()).isEqualTo(Set.of("{{ name }}", "{{ids}}"));
     }

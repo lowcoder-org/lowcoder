@@ -12,6 +12,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
 import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_INSERT_COMMAND;
 import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_UPDATE_COMMAND;
 
@@ -21,8 +22,9 @@ import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_UPDATE_COMMAN
  * update that does not allow multi modify adds the raw condition {@code rownum=1} to its where clause (and there is no
  * limit clause), double-quoted column delimiters, values bound and never inlined (also an injection-looking value).
  *
- * <p>Limits: the table name is rendered as given (never quoted) and a {@code "} inside a column name is not doubled
- * ({@link #identifiersAreRenderedUnescaped_pinsTheSection9Row}); the command classes keep one filter set, which D15
+ * <p>The table name is rendered as given when it is an identifier (never quoted by the command) and refused otherwise,
+ * and a {@code "} inside a column name is doubled ({@link #aTableThatIsNotAnIdentifierIsRefusedAndAQuoteInAColumnIsDoubled},
+ * BF-008). Limits: the command classes keep one filter set, which D15
  * ({@link #renderingTheSameCommandTwiceAddsRownumTwice_pinsD15}) shows.
  */
 public class OracleGuiCommandRenderTest {
@@ -123,22 +125,31 @@ public class OracleGuiCommandRenderTest {
     }
 
     /**
-     * Pins the plan section 9 row "GUI SQL commands render identifiers unescaped" (SQL injection; D-6: fix deferred; the
-     * render is in the shared sdk classes) for Oracle: the table name is put into the SQL as given (never quoted), and a
-     * {@code "} inside a column name is not doubled, so a column name can close its quote and continue with SQL of its own.
-     * A fix (quote and escape the identifiers) changes these assertions on purpose.
+     * BF-008 (SQL injection through GUI identifiers) for Oracle: a table name that is not an identifier is refused before
+     * any SQL is built, and a {@code "} inside a column name is doubled, so the column name stays one quoted identifier.
      */
     @Test
-    public void identifiersAreRenderedUnescaped_pinsTheSection9Row() {
+    public void aTableThatIsNotAnIdentifierIsRefusedAndAQuoteInAColumnIsDoubled() {
+        Map<String, Object> breakoutTable = detail(KEY_FILTER, List.of(ID_FILTER), KEY_MULTI, true);
+        breakoutTable.put(KEY_TABLE, "t; drop table x; --");
+        PluginException refused = assertThrows(PluginException.class, () -> OracleDeleteCommand.from(breakoutTable).render(Map.of("id", 1)));
+        System.out.println("[OracleGuiCommandRenderTest] table breakout -> " + refused.getMessageKey() + " " + List.of(refused.getArgs()));
+        assertEquals(INVALID_GUI_SETTINGS, refused.getError());
+        assertEquals("GUI_INVALID_TABLE_NAME", refused.getMessageKey());
+
         Map<String, Object> deleteDetail = detail(KEY_FILTER, List.of(Map.of("column", "a\"=1 or \"b", "condition", "=", "value", "1")), KEY_MULTI, true);
-        deleteDetail.put(KEY_TABLE, "t; drop table x; --");
-        GuiSqlCommandRenderResult delete = print("delete raw table and column breakout", OracleDeleteCommand.from(deleteDetail).render(Map.of()));
-        assertEquals("delete from t; drop table x; -- where \"a\"=1 or \"b\" = ? ", delete.sql(), "the table is raw and the column closes its quote");
+        GuiSqlCommandRenderResult delete = print("delete column breakout", OracleDeleteCommand.from(deleteDetail).render(Map.of()));
+        assertEquals("delete from ITEMS where \"a\"\"=1 or \"\"b\" = ? ", delete.sql(), "the column's quote is doubled");
         assertEquals(List.of(1), delete.bindParams());
         GuiSqlCommandRenderResult insert = print("insert column with a quote", OracleInsertCommand.from(detail(KEY_CHANGE_SET, Map.of("compType", "KEY_VALUE_PAIRS",
                 "comp", List.of(Map.of("column", "a\"b", "value", "1"))))).render(Map.of()));
-        assertEquals("insert into ITEMS (\"a\"b\") values (?)", insert.sql(), "the quote of the column name is not doubled");
+        assertEquals("insert into ITEMS (\"a\"\"b\") values (?)", insert.sql(), "the quote of the column name is doubled");
         assertEquals(List.of(1), insert.bindParams());
+
+        Map<String, Object> quotedTable = detail(KEY_CHANGE_SET, NAME_SET);
+        quotedTable.put(KEY_TABLE, "\"SCOTT\".\"My Items\"");
+        GuiSqlCommandRenderResult quoted = print("quoted table", OracleInsertCommand.from(quotedTable).render(Map.of("name", "n")));
+        assertEquals("insert into \"SCOTT\".\"My Items\" (\"name\",\"qty\") values (?,?)", quoted.sql(), "a quoted table name is kept as written");
     }
 
     @Test

@@ -15,7 +15,7 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_UPDATE_COMMAND;
 import static org.lowcoder.sdk.plugin.sqlcommand.command.GuiConstants.POSTGRES_COLUMN_DELIMITER;
-import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheString;
+import static org.lowcoder.sdk.util.SqlGuiUtils.renderTableName;
 import static org.lowcoder.sdk.util.SqlGuiUtils.POSTGRES_SQL_STR_ESCAPE;
 
 public class PostgresUpdateCommand extends UpdateCommand {
@@ -39,7 +39,7 @@ public class PostgresUpdateCommand extends UpdateCommand {
             return super.render(requestMap);
         }
 
-        String renderedTable = renderMustacheString(table, requestMap);
+        String renderedTable = renderTableName(table, requestMap, columnFrontDelimiter, columnBackDelimiter);
         ChangeSetRow updateRow = changeSet.render(requestMap);
         if (updateRow.isEmpty()) {
             throw new PluginException(INVALID_UPDATE_COMMAND, "UPDATE_DATA_EMPTY");

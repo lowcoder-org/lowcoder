@@ -7,7 +7,7 @@ import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.BulkObjectChangeSet;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSetRows;
-import org.lowcoder.sdk.util.MustacheHelper;
+import org.lowcoder.sdk.util.SqlGuiUtils;
 import org.lowcoder.sdk.util.SqlGuiUtils.GuiSqlValue;
 
 import java.util.Collections;
@@ -44,7 +44,7 @@ public class BulkUpdateCommand implements GuiSqlCommand {
     @Override
     public GuiSqlCommandRenderResult render(Map<String, Object> requestMap) {
 
-        String renderedTable = MustacheHelper.renderMustacheString(table, requestMap);
+        String renderedTable = SqlGuiUtils.renderTableName(table, requestMap, columnFrontDelimiter, columnBackDelimiter);
 
         ChangeSetRows updateRows = bulkObjectChangeSet.render(requestMap);
         if (updateRows.isEmpty()) {
@@ -104,7 +104,8 @@ public class BulkUpdateCommand implements GuiSqlCommand {
                 }
         );
         columnToIdAndValue.asMap().forEach((column, pkAndValues) -> {
-                    String columnWithDelimiter = columnFrontDelimiter + column + columnBackDelimiter;
+                    String columnWithDelimiter = SqlGuiUtils.quoteIdentifier(column, columnFrontDelimiter, columnBackDelimiter);
+                    String primaryKeyWithDelimiter = SqlGuiUtils.quoteIdentifier(primaryKey, columnFrontDelimiter, columnBackDelimiter);
                     sb.append(columnWithDelimiter)
                             .append(" = CASE ");
                     pkAndValues.forEach(pkAndValue -> {
@@ -113,9 +114,7 @@ public class BulkUpdateCommand implements GuiSqlCommand {
 
                         if (isRenderWithRawSql()) {
                             sb.append("WHEN ")
-                                    .append(columnFrontDelimiter)
-                                    .append(primaryKey)
-                                    .append(columnBackDelimiter)
+                                    .append(primaryKeyWithDelimiter)
                                     .append(" = ")
                                     .append(GuiSqlValue.from(pkValue).getConcatSqlStr(escapeStrFunc()))
                                     .append(" THEN ")
@@ -123,9 +122,7 @@ public class BulkUpdateCommand implements GuiSqlCommand {
                                     .append(" ");
                         } else {
                             sb.append("WHEN ")
-                                    .append(columnFrontDelimiter)
-                                    .append(primaryKey)
-                                    .append(columnBackDelimiter)
+                                    .append(primaryKeyWithDelimiter)
                                     .append(" = ? THEN ? ");
                             bindParams.add(pkValue);
                             bindParams.add(updateValue);

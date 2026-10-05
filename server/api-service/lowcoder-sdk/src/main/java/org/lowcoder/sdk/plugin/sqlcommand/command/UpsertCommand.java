@@ -6,6 +6,7 @@ import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSet;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSetItem;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSetRow;
 import org.lowcoder.sdk.plugin.sqlcommand.filter.FilterSet;
+import org.lowcoder.sdk.util.SqlGuiUtils;
 
 import java.util.List;
 import java.util.Set;
@@ -35,9 +36,7 @@ public abstract class UpsertCommand implements GuiSqlCommand {
     protected void appendUpdateValues(ChangeSetRow updateRow, StringBuilder sb, List<Object> bindParams) {
         for (ChangeSetItem item : updateRow) {
             String column = item.column();
-            sb.append(columnFrontDelimiter)
-                    .append(column)
-                    .append(columnBackDelimiter)
+            sb.append(SqlGuiUtils.quoteIdentifier(column, columnFrontDelimiter, columnBackDelimiter))
                     .append("=?,");
             bindParams.add(item.guiSqlValue().getValue());
         }
@@ -51,9 +50,7 @@ public abstract class UpsertCommand implements GuiSqlCommand {
     protected void appendInsertValues(ChangeSetRow insertRow, StringBuilder sb, List<Object> bindParams) {
         sb.append(" (");
         for (String column : insertRow.getColumns()) {
-            sb.append(columnFrontDelimiter)
-                    .append(column)
-                    .append(columnBackDelimiter)
+            sb.append(SqlGuiUtils.quoteIdentifier(column, columnFrontDelimiter, columnBackDelimiter))
                     .append(",");
         }
         sb.deleteCharAt(sb.length() - 1).append(") values (");
