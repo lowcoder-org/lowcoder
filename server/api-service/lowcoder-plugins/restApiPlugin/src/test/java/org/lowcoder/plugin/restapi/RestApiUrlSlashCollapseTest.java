@@ -13,7 +13,7 @@ import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
 
 /**
  * DEFECT pinned, through the REST executor (plan section 9 row "REST url: // inside a query value collapsed to /"; the
- * builder is pinned in the sdk by RestApiUriBuilderCollapseTest; D-6, fix deferred). {@code RestApiExecutor.java:161} hands the
+ * builder is pinned in the sdk by RestApiUriBuilderCollapseTest; D-6, fix deferred). {@code RestApiExecutor.java:162} hands the
  * datasource url and the path field to {@code RestApiUriBuilder.buildUri}, whose {@code replaceAll} (RestApiUriBuilder.java:41)
  * collapses every run of slashes except after {@code http:} / {@code https:}. The request line the local server (port 0,
  * loopback) receives therefore differs from the text typed into the path field, and from the value a {@code {{ }}} expression

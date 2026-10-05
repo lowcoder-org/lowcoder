@@ -10,10 +10,10 @@ import java.lang.reflect.Field;
 
 /**
  * Guard of the client codecs of {@link RestApiExecutor} (docs/API_PAYLOAD_TEST_PLAN.md §5.4, group
- * {@code client-codec-guard}, site {@code RestApiExecutor.java:102}). It reads the real private instance field of an
+ * {@code client-codec-guard}, site {@code RestApiExecutor.java:103}). It reads the real private instance field of an
  * executor built as {@code RestApiEngineTest} builds it.
  *
- * <p>Requests run with the {@code WebClientBuildHelper} limit, not the one declared at {@code RestApiExecutor.java:100-103}
+ * <p>Requests run with the {@code WebClientBuildHelper} limit, not the one declared at {@code RestApiExecutor.java:101-104}
  * (plan §9, O11; evidence E14), so the guard pins the strategies a request really gets.
  *
  * <p>Limit: it runs on this module's test classpath. The modules Spring adds to the codec mapper depend on the
