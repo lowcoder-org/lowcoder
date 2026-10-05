@@ -7,7 +7,7 @@ import org.lowcoder.sdk.plugin.sqlcommand.changeset.BulkObjectChangeSet;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSetItem;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSetRow;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSetRows;
-import org.lowcoder.sdk.util.MustacheHelper;
+import org.lowcoder.sdk.util.SqlGuiUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -39,7 +39,7 @@ public class BulkInsertCommand implements GuiSqlCommand {
 
     @SuppressWarnings("DuplicatedCode")
     public GuiSqlCommandRenderResult render(Map<String, Object> requestMap) {
-        String renderedTable = MustacheHelper.renderMustacheString(table, requestMap);
+        String renderedTable = SqlGuiUtils.renderTableName(table, requestMap, columnFrontDelimiter, columnBackDelimiter);
         ChangeSetRows insertRows = bulkObjectChangeSet.render(requestMap);
         if (insertRows.isEmpty()) {
             throw new PluginException(INVALID_INSERT_COMMAND, "INSERT_DATA_EMPTY");
@@ -57,7 +57,7 @@ public class BulkInsertCommand implements GuiSqlCommand {
 
         Set<String> columns = insertRows.getColumns();
         columns.forEach(column ->
-                sb.append(columnFrontDelimiter).append(column).append(columnBackDelimiter).append(",")
+                sb.append(SqlGuiUtils.quoteIdentifier(column, columnFrontDelimiter, columnBackDelimiter)).append(",")
         );
 
         sb.deleteCharAt(sb.length() - 1).append(") values ");

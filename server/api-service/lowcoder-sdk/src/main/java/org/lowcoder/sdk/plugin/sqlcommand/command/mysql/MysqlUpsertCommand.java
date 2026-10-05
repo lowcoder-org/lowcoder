@@ -7,7 +7,7 @@ import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSet;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSetRow;
 import org.lowcoder.sdk.plugin.sqlcommand.command.UpsertCommand;
 import org.lowcoder.sdk.plugin.sqlcommand.filter.FilterSet;
-import org.lowcoder.sdk.util.MustacheHelper;
+import org.lowcoder.sdk.util.SqlGuiUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -41,7 +41,7 @@ public class MysqlUpsertCommand extends UpsertCommand {
 
     @Override
     public GuiSqlCommandRenderResult render(Map<String, Object> requestMap) {
-        String renderedTable = MustacheHelper.renderMustacheString(table, requestMap);
+        String renderedTable = SqlGuiUtils.renderTableName(table, requestMap, columnFrontDelimiter, columnBackDelimiter);
         ChangeSetRow insertRow = insertChangeSet.render(requestMap);
         if (insertRow.isEmpty()) {
             throw new PluginException(INVALID_UPSERT_COMMAND, "UPSERT_DATA_EMPTY");

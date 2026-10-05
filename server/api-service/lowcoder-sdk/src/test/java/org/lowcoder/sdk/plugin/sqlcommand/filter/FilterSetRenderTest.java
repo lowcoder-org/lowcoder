@@ -100,12 +100,24 @@ class FilterSetRenderTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"IN", "NOT IN"})
-    void inAndNotInRenderListsWithQuotedStringsAndJsonForNestedValues(String operator) {
+    void inAndNotInBindEveryElementAndSendNestedValuesAsJson(String operator) {
         List<Object> list = List.of(1, "a", true, List.of(2), Map.of("k", "v"));
 
         GuiSqlCommandRenderResult result = render(filterSet("id", operator, "{{list}}"), Map.of("list", list), false);
 
-        assertThat(result.sql()).isEqualTo(" where `id` " + operator + " (1,'a',true,[2],{\"k\":\"v\"})");
+        assertThat(result.sql()).isEqualTo(" where `id` " + operator + " (?,?,?,?,?)");
+        assertThat(result.bindParams()).containsExactly(1, "a", true, "[2]", "{\"k\":\"v\"}");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"IN", "NOT IN"})
+    void inAndNotInInRawModeEscapeEveryStringElementWithTheDialectEscaper(String operator) {
+        List<Object> list = new ArrayList<>(List.of(1, "a", true, List.of(2)));
+        list.add(null);
+
+        GuiSqlCommandRenderResult result = render(filterSet("id", operator, "{{list}}"), Map.of("list", list), true);
+
+        assertThat(result.sql()).isEqualTo(" where `id` " + operator + " (1,'a',true,'[2]',null)");
         assertThat(result.bindParams()).isEmpty();
     }
 
@@ -127,28 +139,28 @@ class FilterSetRenderTest {
     }
 
     /**
-     * Pins the plan section 9 row "FilterSet IN / NOT IN renders the list as raw SQL in every dialect, prepared or not,
-     * String elements quoted without the escapeSql the other operators use" (SQL injection, D-6, fix deferred): an
-     * element {@code x' OR '1'='1} ends up verbatim inside the rendered SQL and is not a bind parameter, for a MySQL
-     * command (prepared statements) and a PostgreSQL command (raw SQL). A fix changes this test on purpose.
+     * BF-007 (SQL injection through GUI {@code IN} / {@code NOT IN} filters): an element {@code x' OR '1'='1} is a bind
+     * parameter of the MySQL command (prepared statements) and is dollar-quoted by the PostgreSQL command (raw SQL), the
+     * same treatment the {@code =} operator gives the value; it is never part of the SQL text as written.
      */
     @Test
-    void inListStringElementsAreWrittenUnescapedIntoTheSqlForMysqlAndPostgres() {
+    void inListStringElementsAreBoundForMysqlAndDollarQuotedForPostgres() {
         String injection = "x' OR '1'='1";
-        Map<String, Object> request = Map.of("value", List.of(injection));
+        Map<String, Object> request = Map.of("value", List.of(injection, "plain"));
 
         GuiSqlCommandRenderResult mysql = MysqlDeleteCommand.from(deleteDetail("IN")).render(request);
         GuiSqlCommandRenderResult postgres = PostgresDeleteCommand.from(deleteDetail("IN")).render(request);
 
         System.out.println("[FilterSetRenderTest] mysql IN: " + mysql.sql() + " " + mysql.bindParams());
         System.out.println("[FilterSetRenderTest] postgres IN: " + postgres.sql() + " " + postgres.bindParams());
-        assertThat(mysql.sql()).as("today's behaviour: the element is part of the SQL text").isEqualTo("delete from users where `id` IN ('x' OR '1'='1')");
-        assertThat(mysql.bindParams()).as("and not a bind parameter").isEmpty();
-        assertThat(postgres.sql()).isEqualTo("delete from users where \"id\" IN ('x' OR '1'='1')");
+        assertThat(mysql.sql()).isEqualTo("delete from users where `id` IN (?,?)");
+        assertThat(mysql.bindParams()).containsExactly(injection, "plain");
+        assertThat(postgres.sql()).matches("delete from users where \"id\" IN \\(\\$([A-Za-z]{7})\\$x' OR '1'='1\\$\\1\\$,"
+                + "\\$([A-Za-z]{7})\\$plain\\$\\2\\$\\)");
         assertThat(postgres.bindParams()).isEmpty();
     }
 
-    /** The contrast to the pin above: the {@code =} operator with the same value is bound (MySQL) or dollar-quoted (PostgreSQL). */
+    /** The {@code =} operator with the same value is bound (MySQL) or dollar-quoted (PostgreSQL), as the IN elements above. */
     @Test
     void equalsOperatorWithTheSameValueIsBoundOrEscaped() {
         String injection = "x' OR '1'='1";
@@ -187,6 +199,18 @@ class FilterSetRenderTest {
 
         assertThat(result.sql()).isEqualTo(" where `a` = ?  and id > 5 or 1=1");
         assertThat(result.bindParams()).containsExactly(1);
+    }
+
+    /** BF-008: a closing delimiter inside a column name is doubled, so the name cannot end the quoted identifier. */
+    @Test
+    void aClosingDelimiterInsideAColumnNameIsDoubled() {
+        GuiSqlCommandRenderResult backtick = render(filterSet("a` = 1 or `b", "=", 1), NO_PARAMS, false);
+        GuiSqlCommandRenderResult bracket = filterSet("a] = 1 or [b", "IN", List.of(1)).render(NO_PARAMS, "[", "]", false, QUOTE);
+        System.out.println("[FilterSetRenderTest] bracket -> [" + bracket.sql() + "] " + bracket.bindParams());
+
+        assertThat(backtick.sql()).isEqualTo(" where `a`` = 1 or ``b` = ? ");
+        assertThat(bracket.sql()).isEqualTo(" where [a]] = 1 or [b] IN (?)");
+        assertThat(bracket.bindParams()).containsExactly(1);
     }
 
     @Test
