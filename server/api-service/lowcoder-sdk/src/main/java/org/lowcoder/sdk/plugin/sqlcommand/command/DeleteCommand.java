@@ -2,7 +2,7 @@ package org.lowcoder.sdk.plugin.sqlcommand.command;
 
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.lowcoder.sdk.plugin.sqlcommand.filter.FilterSet;
-import org.lowcoder.sdk.util.MustacheHelper;
+import org.lowcoder.sdk.util.SqlGuiUtils;
 
 import java.util.Collections;
 import java.util.Map;
@@ -33,7 +33,7 @@ public class DeleteCommand implements GuiSqlCommand {
     @Override
     public GuiSqlCommandRenderResult render(Map<String, Object> requestMap) {
 
-        String renderedTable = MustacheHelper.renderMustacheString(table, requestMap);
+        String renderedTable = SqlGuiUtils.renderTableName(table, requestMap, columnFrontDelimiter, columnBackDelimiter);
 
         StringBuilder sb = new StringBuilder();
         renderTable(renderedTable, sb);

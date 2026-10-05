@@ -21,10 +21,9 @@ import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_UPDATE_COMMAN
  * delete or update that does not allow multi modify (and no limit clause), square-bracket column delimiters, values
  * bound and never inlined (also for a value that looks like an injection).
  *
- * <p>Limits: the table name is rendered as given (never bracketed) and no escaping of a {@code ]} inside a column name
- * is asserted: the analysis expected one, the render does none (see the L5-5a log, findings). The update render with
- * {@code top (1)} has two spaces after {@code update} today; that is asserted as the current rendering, no defect is
- * claimed.
+ * <p>The table name is rendered as given when it is an identifier (never bracketed by the command) and refused
+ * otherwise; a {@code ]} inside a column name is doubled (BF-008). The update render with {@code top (1)} has two spaces
+ * after {@code update} today; that is asserted as the current rendering, no defect is claimed.
  */
 public class MssqlGuiCommandRenderTest {
 
@@ -91,8 +90,8 @@ public class MssqlGuiCommandRenderTest {
                 Map.of("column", "b", "condition", "is", "value", "null"),
                 Map.of("column", "c", "condition", "in", "value", "{{ids}}")), KEY_MULTI, true))
                 .render(Map.of("a", 1, "ids", List.of(1, 2))));
-        assertEquals("delete from dbo.items where [a] != ?  and [b] IS null  and [c] IN (1,2)", result.sql());
-        assertEquals(List.of(1), result.bindParams());
+        assertEquals("delete from dbo.items where [a] != ?  and [b] IS null  and [c] IN (?,?)", result.sql());
+        assertEquals(List.of(1, 1, 2), result.bindParams());
         PluginException invalid = assertThrows(PluginException.class, () -> MssqlDeleteCommand.from(detail(KEY_FILTER, List.of(
                 Map.of("column", "a", "condition", "like", "value", "x")))).render(Map.of()));
         assertEquals(INVALID_GUI_SETTINGS, invalid.getError());
@@ -179,25 +178,33 @@ public class MssqlGuiCommandRenderTest {
     }
 
     /**
-     * Pins the plan section 9 row "GUI SQL commands render identifiers unescaped" (SQL injection; D-6: fix deferred; the
-     * render is in the shared sdk classes). The table name is put into the SQL as given (never bracketed), a {@code ]} inside
-     * a column name is not doubled, so a column name can close the bracket and continue with SQL of its own. A fix (bracket
-     * and escape the identifiers) changes these assertions on purpose.
+     * BF-008 (SQL injection through GUI identifiers): a table name that is not an identifier is refused before any SQL is
+     * built, and a {@code ]} inside a column name is doubled, so the column name stays one bracketed identifier.
      */
     @Test
-    public void identifiersAreRenderedUnescaped_pinsTheSection9Row() {
-        String table = "t]; drop table x; --";
+    public void aTableThatIsNotAnIdentifierIsRefusedAndAClosingBracketInAColumnIsDoubled() {
+        Map<String, Object> breakoutTable = detail(KEY_FILTER, List.of(ID_FILTER), KEY_MULTI, true);
+        breakoutTable.put(KEY_TABLE, "t]; drop table x; --");
+        PluginException refused = assertThrows(PluginException.class, () -> MssqlDeleteCommand.from(breakoutTable).render(Map.of("id", 1)));
+        System.out.println("[MssqlGuiCommandRenderTest] table breakout -> " + refused.getMessageKey() + " " + List.of(refused.getArgs()));
+        assertEquals(INVALID_GUI_SETTINGS, refused.getError());
+        assertEquals("GUI_INVALID_TABLE_NAME", refused.getMessageKey());
+
         Map<String, Object> deleteDetail = detail(KEY_FILTER, List.of(
                 Map.of("column", "a]=1 or [b", "condition", "=", "value", "1")), KEY_MULTI, true);
-        deleteDetail.put(KEY_TABLE, table);
-        GuiSqlCommandRenderResult delete = print("delete raw table and column breakout", MssqlDeleteCommand.from(deleteDetail).render(Map.of()));
-        assertEquals("delete from t]; drop table x; -- where [a]=1 or [b] = ? ", delete.sql(), "the table is raw and the column closes its bracket");
+        GuiSqlCommandRenderResult delete = print("delete column breakout", MssqlDeleteCommand.from(deleteDetail).render(Map.of()));
+        assertEquals("delete from dbo.items where [a]]=1 or [b] = ? ", delete.sql(), "the column's closing bracket is doubled");
         assertEquals(List.of(1), delete.bindParams());
 
         Map<String, Object> insertDetail = detail(KEY_CHANGE_SET, Map.of("compType", "KEY_VALUE_PAIRS",
                 "comp", List.of(Map.of("column", "a]b", "value", "1"))));
         GuiSqlCommandRenderResult insert = print("insert column with a closing bracket", MssqlInsertCommand.from(insertDetail).render(Map.of()));
-        assertEquals("insert into dbo.items ([a]b]) values (?)", insert.sql(), "the closing bracket of the column name is not doubled");
+        assertEquals("insert into dbo.items ([a]]b]) values (?)", insert.sql(), "the closing bracket of the column name is doubled");
         assertEquals(List.of(1), insert.bindParams());
+
+        Map<String, Object> bracketedTable = detail(KEY_FILTER, List.of(ID_FILTER), KEY_MULTI, true);
+        bracketedTable.put(KEY_TABLE, "[dbo].[My Items]");
+        GuiSqlCommandRenderResult quoted = print("bracketed table", MssqlDeleteCommand.from(bracketedTable).render(Map.of("id", 1)));
+        assertEquals("delete from [dbo].[My Items] where [id] = ? ", quoted.sql(), "a bracketed table name is kept as written");
     }
 }
