@@ -33,9 +33,10 @@ import java.util.regex.Pattern;
  *   <li>{@code MustacheHelper}: a value rendered into a template, a list rendered into {@code in (...)}, and values
  *       combined inside a quoted SQL string, the three {@code toJson} sites of prepared-statement rendering;</li>
  *   <li>{@code GuiSqlValue.getValue} (the bind value) and {@code getConcatSqlStr} (the SQL text);</li>
- *   <li>the seven callers of {@code getConcatSqlStr}, each run through its Postgres GUI command (the dialect that
+ *   <li>the callers of {@code getConcatSqlStr}, each run through its Postgres GUI command (the dialect that
  *       renders raw SQL): insert, update, bulk insert, bulk update (where and both case-when values), and the filter
- *       set (a comparison and an {@code in} list, whose collection text is the {@code getCollectionStr} site).</li>
+ *       set (a comparison and an {@code in} list, whose elements are each written by {@code getConcatSqlStr} in
+ *       {@code getEscapedCollectionStr}).</li>
  * </ul>
  *
  * <p>Limits: the Postgres string escape wraps text in a random dollar-quote tag
@@ -98,7 +99,7 @@ public class DownstreamRenderContractTest {
     @BoundarySites({
             "lowcoder-sdk/src/main/java/org/lowcoder/sdk/plugin/sqlcommand/command/UpdateCommand.java#UpdateCommand.appendSet#getConcatSqlStr#1",
             "lowcoder-sdk/src/main/java/org/lowcoder/sdk/plugin/sqlcommand/filter/FilterSet.java#FilterSet.renderCondition#getConcatSqlStr#1",
-            "lowcoder-sdk/src/main/java/org/lowcoder/sdk/plugin/sqlcommand/filter/FilterSet.java#FilterSet.getCollectionStr#toJson#1"})
+            "lowcoder-sdk/src/main/java/org/lowcoder/sdk/plugin/sqlcommand/filter/FilterSet.java#FilterSet.getEscapedCollectionStr#getConcatSqlStr#1"})
     @Test
     public void updateCommandWithFilters() {
         assertLines("UpdateCommand.txt", value -> {

@@ -15,7 +15,7 @@ import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
  * query config without the {@code variables} key fails in {@code buildQueryExecutionContext} with a raw
  * {@code NullPointerException}, because {@code GraphQLQueryConfig.getVariables()} returns null for a missing key
  * (GraphQLQueryConfig has no default and no {@code emptyIfNull} like its other lists) and
- * {@code queryConfig.getVariables().forEach} is called (GraphQLExecutor.java:140).
+ * {@code queryConfig.getVariables().forEach} is called (GraphQLExecutor.java:141).
  *
  * <p>Reachability, read in the client: the GraphQL query form defines {@code variables: withDefault(VariablesControl,
  * [{ key: "", value: "" }])} (client/packages/lowcoder/src/comps/queries/httpQuery/graphqlQuery.tsx:80), so a query made

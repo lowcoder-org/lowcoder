@@ -19,7 +19,7 @@ import org.springframework.http.MediaType;
 /**
  * Observation (probe P1, ruled "behaviour" because nothing differs on the wire for a request-derived empty body).
  * {@code DataUtils.parseJsonBody} tests {@code "" == body} (DataUtils.java:95), which is reference equality, and
- * {@code RestApiExecutor} (RestApiExecutor.java:128) passes {@code trimToEmpty(queryConfig.getBody())} to
+ * {@code RestApiExecutor} (RestApiExecutor.java:129) passes {@code trimToEmpty(queryConfig.getBody())} to
  * {@code RawHttpHandlerHelper.buildBodyInserter}. An empty body that Jackson read from the saved query is the interned
  * {@code ""} (Jackson returns the literal for an empty string), so it goes out as an empty body exactly like an absent one.
  * Only an empty String that is another object (here {@code new String("")}) is rendered as JSON and goes out as {@code {}}:
