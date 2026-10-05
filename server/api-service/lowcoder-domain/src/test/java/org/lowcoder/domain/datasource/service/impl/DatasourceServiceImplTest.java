@@ -183,7 +183,7 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] JS plugin datasource saved without connector validation");
     }
 
-    /** Catches unvalidated configs being saved, and the localised messages not being joined (:171-173). */
+    /** Catches unvalidated configs being saved, and the localised messages not being joined (:172-174). */
     @Test
     void create_javaPlugin_connectorValidationErrorsAreJoinedAndNothingIsSaved() {
         DatasourceConnectionConfig config = mock(DatasourceConnectionConfig.class);
@@ -201,6 +201,29 @@ class DatasourceServiceImplTest {
                 .verify();
         verify(repository, never()).save(any(Datasource.class));
         System.out.println("[DatasourceServiceImplTest] connector validation errors joined with newline, nothing saved");
+    }
+
+    /**
+     * Catches a plugin check running on the request thread: a connector's validation may block (the Mongo loopback check
+     * resolves host names, BF-023), so it runs on the shared plugin scheduler ({@code plugin-executor} threads), never on
+     * the thread that subscribed.
+     */
+    @Test
+    void create_javaPlugin_connectorValidationRunsOnThePluginScheduler() {
+        DatasourceConnectionConfig config = mock(DatasourceConnectionConfig.class);
+        List<String> validatingThreads = new ArrayList<>();
+        when(connector.doValidateConfig(config)).thenAnswer(invocation -> {
+            validatingThreads.add(Thread.currentThread().getName());
+            return Set.of("INTERNAL_SERVER_ERROR");
+        });
+        String subscribingThread = Thread.currentThread().getName();
+
+        StepVerifier.create(service.create(datasource(null, "pg", JAVA_TYPE, config), CREATOR_ID))
+                .expectError(BizException.class)
+                .verify(Duration.ofSeconds(10));
+
+        System.out.println("[DatasourceServiceImplTest] validation ran on " + validatingThreads + ", subscribed on " + subscribingThread);
+        assertThat(validatingThreads).singleElement().asString().startsWith("plugin-executor").isNotEqualTo(subscribingThread);
     }
 
     /** Catches a datasource nobody can manage: the creator gets OWNER after the save (:68), and the saved row is returned. */
@@ -231,7 +254,7 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] create: save, then OWNER grant, saved row emitted; failed grant fails create");
     }
 
-    /** Catches a 500 on a duplicate name (:185) and swallowed or rewritten other errors, for create and update. */
+    /** Catches a 500 on a duplicate name (:186) and swallowed or rewritten other errors, for create and update. */
     @Test
     void save_duplicateKeyBecomesDuplicateDatabaseName_otherErrorsPassThrough() {
         when(repository.save(any(Datasource.class))).thenReturn(Mono.error(new DuplicateKeyException("index")));

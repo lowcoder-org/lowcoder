@@ -17,6 +17,7 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.lowcoder.plugin.es.model.EsConnection;
 import org.lowcoder.plugin.es.model.EsDatasourceConfig;
+import org.lowcoder.sdk.util.HostGuards;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.config.dynamic.Conf;
 import org.lowcoder.sdk.config.dynamic.ConfigCenter;
@@ -94,7 +95,8 @@ public class EsConnector implements DatasourceConnector<EsConnection, EsDatasour
      */
     private RestClient buildRestClient(EsDatasourceConfig esDatasourceConfig) {
         ConnectionStringParseResult parseResult = parseConnectionString(esDatasourceConfig.getConnectionString());
-        if (commonConfig.getDisallowedHosts().contains(parseResult.getHost())) {
+        // compared by address too, so another spelling of a disallowed host (localhost, 127.1) is refused as well
+        if (HostGuards.isDisallowed(parseResult.getHost(), commonConfig.getDisallowedHosts())) {
             throw new BizException(BizError.INVALID_DATASOURCE_CONFIG_TYPE, "INVALID_CONNECTION_STRING");
         }
         HttpHost httpHost = new HttpHost(parseResult.getHost(), parseResult.getPort(), parseResult.getSchema());

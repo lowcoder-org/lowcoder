@@ -152,8 +152,8 @@ public class MongoDatasourceConfigTest {
     /**
      * A URI-mode config with no URI cannot be created through the client: the URI field is required unless an existing
      * URI-mode datasource is being edited (mongoDatasourceForm.tsx:45-50), an edit that sends no URI keeps the stored one (the
-     * merge above), and the server checks for a blank URI before it reads the database (MongoPlugin.java:318-321 and
-     * 395-397). So the NullPointerException of {@code getParsedDatabase} for a missing URI is reachable only through the
+     * merge above), and the server checks for a blank URI before it reads the database (MongoPlugin.java:323-326 and
+     * 425-427). So the NullPointerException of {@code getParsedDatabase} for a missing URI is reachable only through the
      * class API or a hand-made API call; asserted as observed.
      */
     @Test
