@@ -65,7 +65,7 @@ class ServerConfigWriteAuthorisationTest {
             "asset.thumbNailPhotoDimension (AssetServiceImpl:43)",
             "asset.avatarMaxSizeInKb (UserServiceImpl:83)",
             "deployment.js-executor.host (CommonConfigHelper:19; the base URL of every JS executor call: NodeServerHelper:25, DatasourcePluginClient:101)",
-            "deployment.id (ConfigController:30, AppEventListener:33)",
+            "deployment.id (ConfigController:37, AppEventListener:33)",
             "threshold.urlRateLimiter (ThrottlingFilter:47)",
             "threshold.maxRequestSize, threshold.maxResponseSize (QueryExecuteHttpBodySizeFilter:61,63)",
             "threshold.maxOrgPerUser, userOrgCountWhiteList, maxOrgMemberCount, orgMemberCountWhiteList, maxOrgGroupCount, maxOrgAppCount, orgAppCountWhiteList, maxDeveloperCount (BizThresholdChecker:50-57)",
