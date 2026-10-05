@@ -19,6 +19,7 @@ import org.lowcoder.api.common.InitData;
 import org.lowcoder.domain.organization.model.MemberRole;
 import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.user.model.User;
+import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.infra.config.model.ServerConfig;
 import org.lowcoder.infra.config.repository.ServerConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,15 +36,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 /**
- * Pins the authorisation of the server-configuration write through the production request stack (real
- * {@code SecurityConfig}, filters, codecs and {@code ConfigController}) on a MongoDB container.
+ * The authorisation of the server-configuration write through the production request stack (real {@code SecurityConfig},
+ * filters, codecs and {@code ConfigController}) on a MongoDB container.
  *
- * <p>Pinned under D-6, plan §9 row "any signed-in user can write any server configuration key (POST /api/configs/{key},
- * no role check)": {@code ConfigController.updateServerConfig} (ConfigController:44-48, ConfigEndpoints:44) upserts the key
- * for every authenticated caller; {@code SecurityConfig} permits only the GET of that path without a login and lets every
- * other request through once authenticated (anyExchange().authenticated()); there is no role, admin or super-admin check.
- * The caller here is {@code user02}, a plain MEMBER of {@code org01} in the seed data. A fix (an admin or super-admin
- * check) makes the pin fail on purpose.
+ * <p>BF-001: {@code POST /api/configs/{key}} writes a deployment-wide key, so only the deployment's super admin (the
+ * {@code superAdmin} flag of the stored user) may call it. A plain org member ({@code user02}) and an org admin
+ * ({@code user01}; in SAAS mode any user can create an org and become its admin) are refused with NOT_AUTHORIZED and
+ * nothing is stored; {@code user03}, marked super admin in this test's own database, writes the key.
  *
  * <p>What a user can change: the keys read through {@code AutoReloadConfigFactory} (a 3 s reload cache over every
  * {@code server_config} row, key = {@code <group>.<key>}): see {@link #CONFIG_KEYS_READ_BY_THE_SERVER}.
@@ -94,6 +93,9 @@ class ServerConfigWriteAuthorisationTest {
     }
 
     private static final String MEMBER_USER_ID = "user02";
+    private static final String ORG_ADMIN_USER_ID = "user01";
+    private static final String SUPER_ADMIN_USER_ID = "user03";
+    private static final int NOT_AUTHORIZED_CODE = 5001;
     private static final String ORG_ID = "org01";
     private static final Duration WAIT = Duration.ofSeconds(30);
 
@@ -105,6 +107,8 @@ class ServerConfigWriteAuthorisationTest {
     private OrgMemberService orgMemberService;
     @Autowired
     private InitData initData;
+    @Autowired
+    private UserService userService;
 
     private WebTestClient web;
     private final List<String> writtenKeys = new ArrayList<>();
@@ -112,6 +116,7 @@ class ServerConfigWriteAuthorisationTest {
     @BeforeAll
     void beforeAll() {
         initData.init();
+        assertThat(userService.markAsSuperAdmin(SUPER_ADMIN_USER_ID).block(WAIT)).isTrue();
     }
 
     @BeforeEach
@@ -145,43 +150,57 @@ class ServerConfigWriteAuthorisationTest {
         return new UsernamePasswordAuthenticationToken(user, "n/a", Collections.emptyList());
     }
 
-    /**
-     * Pins plan §9 row "any signed-in user can write any server configuration key": a plain org MEMBER writes a key
-     * with POST /api/configs/{key}; the value is stored and read back through GET.
-     */
+    /** BF-001: a plain org MEMBER is refused with NOT_AUTHORIZED, and the key is not stored. */
     @Test
-    void aSignedInNonAdminUser_canWriteAnyServerConfigKey_pinsTheSection9Row() {
+    void aSignedInMember_isRefused_andNothingIsStored() {
         assertThat(orgMemberService.getOrgMember(ORG_ID, MEMBER_USER_ID).block(WAIT).getRole())
                 .as("the caller is a plain member of the org, not an admin").isEqualTo(MemberRole.MEMBER);
         String key = ownKey();
-        String value = "written-by-a-member-" + UUID.randomUUID();
 
         web.mutateWith(mockAuthentication(signedIn(MEMBER_USER_ID))).post().uri("/api/configs/" + key)
-                .bodyValue(new ConfigEndpoints.UpdateConfigRequest(value)).exchange()
-                .expectStatus().isOk()
-                .expectBody().jsonPath("$.data.key").isEqualTo(key).jsonPath("$.data.value").isEqualTo(value);
+                .bodyValue(new ConfigEndpoints.UpdateConfigRequest("written-by-a-member")).exchange()
+                .expectStatus().isUnauthorized()
+                .expectBody().jsonPath("$.code").isEqualTo(NOT_AUTHORIZED_CODE).jsonPath("$.success").isEqualTo(false);
 
-        assertThat(serverConfigRepository.findByKey(key).block(WAIT).getValue()).isEqualTo(value);
-        web.mutateWith(mockAuthentication(signedIn(MEMBER_USER_ID))).get().uri("/api/configs/" + key).exchange()
-                .expectStatus().isOk()
-                .expectBody().jsonPath("$.data.value").isEqualTo(value);
-        System.out.println("[ServerConfigWriteAuthorisationTest] member " + MEMBER_USER_ID + " wrote and read back " + key);
+        assertThat(serverConfigRepository.findByKey(key).block(WAIT)).isNull();
+        System.out.println("[ServerConfigWriteAuthorisationTest] member " + MEMBER_USER_ID + " refused, " + key + " not stored");
     }
 
-    /** A second write replaces the value (an upsert), again by the member. */
+    /** BF-001: an org ADMIN is not the deployment's super admin either: refused, nothing stored. */
     @Test
-    void aSignedInNonAdminUser_canOverwriteTheValue_pinsTheSection9Row() {
+    void anOrgAdminWhoIsNotTheSuperAdmin_isRefused_andNothingIsStored() {
+        assertThat(orgMemberService.getOrgMember(ORG_ID, ORG_ADMIN_USER_ID).block(WAIT).getRole()).isEqualTo(MemberRole.ADMIN);
+        String key = ownKey();
+
+        web.mutateWith(mockAuthentication(signedIn(ORG_ADMIN_USER_ID))).post().uri("/api/configs/" + key)
+                .bodyValue(new ConfigEndpoints.UpdateConfigRequest("written-by-an-org-admin")).exchange()
+                .expectStatus().isUnauthorized()
+                .expectBody().jsonPath("$.code").isEqualTo(NOT_AUTHORIZED_CODE);
+
+        assertThat(serverConfigRepository.findByKey(key).block(WAIT)).isNull();
+        System.out.println("[ServerConfigWriteAuthorisationTest] org admin " + ORG_ADMIN_USER_ID + " refused, " + key + " not stored");
+    }
+
+    /** The super admin writes a key, overwrites it (an upsert, one row), and reads it back through GET. */
+    @Test
+    void theSuperAdmin_writesAndOverwritesAKey() {
         String key = ownKey();
         for (String value : List.of("first", "second")) {
-            web.mutateWith(mockAuthentication(signedIn(MEMBER_USER_ID))).post().uri("/api/configs/" + key)
-                    .bodyValue(new ConfigEndpoints.UpdateConfigRequest(value)).exchange().expectStatus().isOk();
+            web.mutateWith(mockAuthentication(signedIn(SUPER_ADMIN_USER_ID))).post().uri("/api/configs/" + key)
+                    .bodyValue(new ConfigEndpoints.UpdateConfigRequest(value)).exchange()
+                    .expectStatus().isOk()
+                    .expectBody().jsonPath("$.data.key").isEqualTo(key).jsonPath("$.data.value").isEqualTo(value);
         }
 
         assertThat(serverConfigRepository.findByKey(key).block(WAIT).getValue()).isEqualTo("second");
         assertThat(serverConfigRepository.findAll().filter(config -> key.equals(config.getKey())).count().block(WAIT)).isEqualTo(1L);
+        web.mutateWith(mockAuthentication(signedIn(MEMBER_USER_ID))).get().uri("/api/configs/" + key).exchange()
+                .expectStatus().isOk()
+                .expectBody().jsonPath("$.data.value").isEqualTo("second");
+        System.out.println("[ServerConfigWriteAuthorisationTest] super admin " + SUPER_ADMIN_USER_ID + " wrote " + key);
     }
 
-    /** The only barrier is the login: without authentication the write is refused and nothing is stored. */
+    /** Without authentication the write is refused and nothing is stored. */
     @Test
     void withoutALogin_theWriteIsRefused_andNothingIsStored() {
         String key = ownKey();
