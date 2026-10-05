@@ -48,6 +48,7 @@ import java.util.*;
 import static org.apache.commons.lang3.StringUtils.firstNonBlank;
 import static org.lowcoder.domain.organization.model.OrgMember.NOT_EXIST;
 import static org.lowcoder.sdk.exception.BizError.LIBRARY_QUERY_AND_ORG_NOT_MATCH;
+import static org.lowcoder.sdk.exception.BizError.LIBRARY_QUERY_NOT_FOUND;
 import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
@@ -113,9 +114,11 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
                         set -> set.contains(libraryQuery.getQuery().getDatasourceId())));
     }
 
+    /** A library query of the visitor's organization; another organization's is LIBRARY_QUERY_AND_ORG_NOT_MATCH. */
     @Override
     public Mono<LibraryQueryView> get(String libraryQueryId) {
-        return libraryQueryService.getById(libraryQueryId)
+        return checkLibraryQueryViewPermission(libraryQueryId)
+                .then(libraryQueryService.getById(libraryQueryId))
                 .zipWhen(lb -> userService.findById(lb.getCreatedBy()))
                 .map(tuple -> LibraryQueryView.from(tuple.getT1(), tuple.getT2()));
     }
@@ -233,17 +236,24 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
                 });
     }
 
+    /**
+     * Runs the library query of the given name in the visitor's organization. A visitor without an organization, a name
+     * that only another organization uses, and a record id of another library query are all LIBRARY_QUERY_NOT_FOUND.
+     */
     @Override
     public Mono<QueryExecutionResult> executeLibraryQueryFromJs(ServerWebExchange exchange, LibraryQueryRequestFromJs request) {
 
-        Mono<BaseQuery> baseQueryMono = getQueryBaseFromQueryName(request.getLibraryQueryName(), request.getLibraryQueryRecordId()).cache();
+        Mono<OrgMember> visitorOrgMemberCache = sessionUserService.getVisitorOrgMemberCache()
+                .onErrorReturn(NOT_EXIST)
+                .cache();
+
+        Mono<BaseQuery> baseQueryMono = visitorOrgMemberCache
+                .flatMap(orgMember -> getQueryBaseFromQueryName(orgMember, request.getLibraryQueryName(), request.getLibraryQueryRecordId()))
+                .cache();
 
         Mono<Datasource> datasourceMono = baseQueryMono.flatMap(query -> datasourceService.getById(query.getDatasourceId())
                         .switchIfEmpty(deferredError(BizError.DATASOURCE_NOT_FOUND, "DATASOURCE_NOT_FOUND", query.getDatasourceId())))
                 .cache();
-
-        Mono<OrgMember> visitorOrgMemberCache = sessionUserService.getVisitorOrgMemberCache()
-                .onErrorReturn(NOT_EXIST);
 
         Mono<User> userMono = sessionUserService.getVisitor();
 
@@ -273,24 +283,28 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
                 });
     }
 
-    private Mono<BaseQuery> getQueryBaseFromQueryName(String libraryQueryName, String libraryQueryRecordId) {
-        return libraryQueryService.getByName(libraryQueryName)
+    private Mono<BaseQuery> getQueryBaseFromQueryName(OrgMember orgMember, String libraryQueryName, String libraryQueryRecordId) {
+        if (orgMember.isInvalid()) {
+            return ofError(LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND");
+        }
+        return libraryQueryService.getByOrganizationIdAndName(orgMember.getOrgId(), libraryQueryName)
                 .map(libraryQuery -> new LibraryQueryCombineId(libraryQuery.getId(), libraryQueryRecordId))
                 .flatMap(this::getBaseQuery);
     }
 
+    /** Runs the editing version of a library query of the visitor's organization, for a developer of that organization. */
     @Override
     public Mono<QueryExecutionResult> executeLibraryQuery(ServerWebExchange exchange, QueryExecutionRequest queryExecutionRequest) {
 
         MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
-        Mono<BaseQuery> baseQueryMono = libraryQueryService.getEditingBaseQueryByLibraryQueryId(
-                queryExecutionRequest.getLibraryQueryCombineId().libraryQueryId()).cache();
+        String libraryQueryId = queryExecutionRequest.getLibraryQueryCombineId().libraryQueryId();
+        Mono<BaseQuery> baseQueryMono = libraryQueryService.getEditingBaseQueryByLibraryQueryId(libraryQueryId).cache();
         Mono<Datasource> datasourceMono = baseQueryMono.flatMap(query -> datasourceService.getById(query.getDatasourceId())
                 .switchIfEmpty(deferredError(BizError.DATASOURCE_NOT_FOUND, "DATASOURCE_NOT_FOUND", query.getDatasourceId()))).cache();
 
         Mono<User> userMono = sessionUserService.getVisitor();
 
-        return orgDevChecker.checkCurrentOrgDev()
+        return checkLibraryQueryManagementPermission(libraryQueryId)
                 .then(Mono.zip(sessionUserService.getVisitorOrgMemberCache(),
                         baseQueryMono, datasourceMono, userMono))
                 .flatMap(tuple -> {
@@ -345,6 +359,8 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
             return libraryQueryService.getLiveBaseQueryByLibraryQueryId(libraryQueryCombineId.libraryQueryId());
         }
         return libraryQueryRecordService.getById(libraryQueryCombineId.libraryQueryRecordId())
+                .filter(libraryQueryRecord -> libraryQueryCombineId.libraryQueryId().equals(libraryQueryRecord.getLibraryQueryId()))
+                .switchIfEmpty(deferredError(LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"))
                 .map(LibraryQueryRecord::getQuery);
     }
 
