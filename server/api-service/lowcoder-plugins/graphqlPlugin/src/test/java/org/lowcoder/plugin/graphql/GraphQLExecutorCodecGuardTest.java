@@ -10,10 +10,10 @@ import java.lang.reflect.Field;
 
 /**
  * Guard of the client codecs of {@link GraphQLExecutor} (docs/API_PAYLOAD_TEST_PLAN.md §5.4, group
- * {@code client-codec-guard}, site {@code GraphQLExecutor.java:89}). It reads the real private instance field of an
+ * {@code client-codec-guard}, site {@code GraphQLExecutor.java:90}). It reads the real private instance field of an
  * executor built as the plugin builds it.
  *
- * <p>Requests run with the {@code WebClientBuildHelper} limit, not the one declared at {@code GraphQLExecutor.java:87-90}
+ * <p>Requests run with the {@code WebClientBuildHelper} limit, not the one declared at {@code GraphQLExecutor.java:88-91}
  * (plan §9, O11; evidence E14), so the guard pins the strategies a request really gets.
  *
  * <p>Limit: it runs on this module's test classpath. The modules Spring adds to the codec mapper depend on the
