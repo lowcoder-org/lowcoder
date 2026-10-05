@@ -84,17 +84,20 @@ class LibraryQueryServiceImplMongoTest extends LibraryQueryMongoTestBase {
     }
 
     /**
-     * Catches: the name lookup failing for a unique name, an unknown name not failing with LIBRARY_QUERY_NOT_FOUND. The lookup
-     * has no org parameter (section 9 tenant-isolation row, L1-7): the query of another org is answered too. Two orgs with the
-     * same name is the next class's pin.
+     * Catches: the name lookup failing for a unique name, answering another organization's query (BF-003: the lookup is
+     * scoped to the organization), an unknown name not failing with LIBRARY_QUERY_NOT_FOUND. Two orgs with the same name is
+     * LibraryQueryServiceImplGetByNamePinMongoTest.
      */
     @Test
-    void getByNameAnswersTheQueryWithThatNameWhicheverOrgOwnsItAndFailsForAnUnknownName() {
+    void getByOrganizationIdAndNameAnswersOnlyThatOrganizationsQueryAndFailsForAnUnknownName() {
+        String orgId = newId();
         String name = "lq-" + newId();
-        LibraryQuery saved = insertQuery(newId(), name, COMP_TYPE);
+        LibraryQuery saved = insertQuery(orgId, name, COMP_TYPE);
 
-        assertThat(libraryQueryService.getByName(name).block(TIMEOUT).getId()).isEqualTo(saved.getId());
-        assertThat(failure(() -> libraryQueryService.getByName("lq-" + newId()).block(TIMEOUT)).getError())
+        assertThat(libraryQueryService.getByOrganizationIdAndName(orgId, name).block(TIMEOUT).getId()).isEqualTo(saved.getId());
+        assertThat(failure(() -> libraryQueryService.getByOrganizationIdAndName(newId(), name).block(TIMEOUT)).getError())
+                .as("another organization does not see it").isEqualTo(BizError.LIBRARY_QUERY_NOT_FOUND);
+        assertThat(failure(() -> libraryQueryService.getByOrganizationIdAndName(orgId, "lq-" + newId()).block(TIMEOUT)).getError())
                 .isEqualTo(BizError.LIBRARY_QUERY_NOT_FOUND);
     }
 
@@ -115,7 +118,7 @@ class LibraryQueryServiceImplMongoTest extends LibraryQueryMongoTestBase {
         assertThat(libraryQueryService.update(newId(), LibraryQuery.builder().name("x").build()).block(TIMEOUT)).isFalse();
     }
 
-    /** Catches: delete by id or by gid removing the neighbours, or nothing. Observed: the query's records stay (the API layer removes them, LibraryQueryApiServiceImpl:144-145). */
+    /** Catches: delete by id or by gid removing the neighbours, or nothing. Observed: the query's records stay (the API layer removes them, LibraryQueryApiServiceImpl:147-148). */
     @Test
     void deleteByIdAndByGidRemoveOnlyThatQueryAndLeaveItsRecords() {
         String orgId = newId();

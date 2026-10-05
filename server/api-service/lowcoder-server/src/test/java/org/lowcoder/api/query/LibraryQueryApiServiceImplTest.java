@@ -90,15 +90,14 @@ import reactor.test.StepVerifier;
  * queries, the management and view permission checks, the mutations, and the two execution flows (editing version by
  * id, and from JS by name), plus {@link LibraryQueryRequestFromJs#paramMap()}.
  *
- * <p>Pinned production defect (owner decision D-6: fixes are deferred, a fix changes these tests on purpose): the plan
- * section 9 row (tenant isolation) "LibraryQueryApiServiceImpl does not compare the library query's org with the
- * visitor's on read or run", at three sites:
+ * <p>Tenant isolation (BF-003, fixed): read and run compare the library query's organization with the visitor's, at
+ * three sites:
  * <ul>
- * <li>{@link #get_libraryQueryOfAnotherOrganization_isReturnedWithItsDsl_pinsSection9Row}</li>
- * <li>{@link #executeLibraryQuery_libraryQueryOfAnotherOrganization_runsOnThatOrganizationsDatasource_pinsSection9Row}</li>
- * <li>{@link #executeFromJs_libraryQueryOfAnotherOrganization_runsOnThatOrganizationsDatasource_pinsSection9Row}</li>
+ * <li>{@link #get_libraryQueryOfAnotherOrganization_isRefused}</li>
+ * <li>{@link #executeLibraryQuery_libraryQueryOfAnotherOrganization_isRefused_andNothingRuns}</li>
+ * <li>{@link #executeFromJs_nameOnlyAnotherOrganizationUses_isNotFound_andNothingRuns}</li>
  * </ul>
- * Also pinned under the existing section 9 row "connection.getAuthId().equals(...) NPE for a connection with a null
+ * Pinned production defect (owner decision D-6: fixes are deferred, a fix changes these tests on purpose): under the existing section 9 row "connection.getAuthId().equals(...) NPE for a connection with a null
  * authId": {@link #oauthInherit_connectionWithNullAuthIdBeforeTheMatch_isANullPointerException_pinsSection9Row}.
  */
 @ExtendWith(MockitoExtension.class)
@@ -183,6 +182,7 @@ class LibraryQueryApiServiceImplTest {
         lenient().when(queryExecutionService.executeQuery(any(), any(), any(), any(), any()))
                 .thenAnswer(invocation -> logged("execute", result));
         lenient().when(userService.findById(CREATOR_ID)).thenReturn(Mono.just(creator));
+        lenient().when(libraryQueryService.getById(LQ_ID)).thenReturn(Mono.just(libraryQuery(LQ_ID, ORG, "stored", DS_ID, CREATOR_ID)));
     }
 
     // ------------------------------------------------------------------ fixtures
@@ -391,26 +391,23 @@ class LibraryQueryApiServiceImplTest {
     }
 
     /**
-     * Pins the plan section 9 row (tenant isolation) "LibraryQueryApiServiceImpl does not compare the library query's org
-     * with the visitor's on read or run": a library query of another organization is returned to the visitor with its
-     * DSL (datasource id and query text), and neither the developer check nor the visitor's organization is consulted.
-     * {@code checkLibraryQueryViewPermission} exists but only the record service uses it. A fix changes this test on
-     * purpose.
+     * BF-003 (was pinned as the plan section 9 tenant-isolation row): a library query of another organization is refused
+     * with LIBRARY_QUERY_AND_ORG_NOT_MATCH, so neither its DSL nor its creator is returned. It is a view check: the visitor's
+     * organization is compared, no developer check.
      */
     @Test
-    void get_libraryQueryOfAnotherOrganization_isReturnedWithItsDsl_pinsSection9Row() {
+    void get_libraryQueryOfAnotherOrganization_isRefused() {
         LibraryQuery foreign = libraryQuery("lq-foreign", OTHER_ORG, "secret-query", DS_FOREIGN, CREATOR_ID);
         when(libraryQueryService.getById("lq-foreign")).thenReturn(Mono.just(foreign));
 
         StepVerifier.create(service.get("lq-foreign"))
-                .assertNext(view -> {
-                    assertThat(view.organizationId()).isEqualTo(OTHER_ORG);
-                    assertThat(view.libraryQueryDSL()).isSameAs(foreign.getLibraryQueryDSL());
-                })
-                .verifyComplete();
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.LIBRARY_QUERY_AND_ORG_NOT_MATCH, "LIBRARY_QUERY_AND_ORG_NOT_MATCH"))
+                .verify();
 
-        verifyNoInteractions(orgDevChecker, sessionUserService);
-        say("get: another org's library query returned, no org check (section 9 row pinned)");
+        verify(sessionUserService).getVisitorOrgMemberCache();
+        verify(userService, never()).findById(anyString());
+        verifyNoInteractions(orgDevChecker);
+        say("get: another org's library query refused (BF-003)");
     }
 
     // ------------------------------------------------------------------ management permission and mutations
@@ -660,25 +657,26 @@ class LibraryQueryApiServiceImplTest {
     }
 
     /**
-     * Pins the plan section 9 row (tenant isolation) "LibraryQueryApiServiceImpl does not compare the library query's org
-     * with the visitor's on read or run": a developer of one organization runs, by id, the library query of another
-     * organization on that organization's datasource; the executor receives it, and the stored query's organization is
-     * never read ({@code libraryQueryService.getById}, which the permission checks use, is not called). A fix changes this
-     * test on purpose.
+     * BF-003 (was pinned as the plan section 9 tenant-isolation row): a developer of one organization asks to run, by id,
+     * the library query of another organization. The stored query's organization is compared with the visitor's after
+     * the developer check, the mismatch is LIBRARY_QUERY_AND_ORG_NOT_MATCH, and neither the other organization's datasource
+     * is loaded nor the query executed.
      */
     @Test
-    void executeLibraryQuery_libraryQueryOfAnotherOrganization_runsOnThatOrganizationsDatasource_pinsSection9Row() {
+    void executeLibraryQuery_libraryQueryOfAnotherOrganization_isRefused_andNothingRuns() {
         datasource.setOrganizationId(OTHER_ORG);
+        when(libraryQueryService.getById("lq-foreign")).thenReturn(Mono.just(libraryQuery("lq-foreign", OTHER_ORG, "theirs", DS_ID, CREATOR_ID)));
         when(libraryQueryService.getEditingBaseQueryByLibraryQueryId("lq-foreign"))
                 .thenReturn(Mono.just(baseQuery(Map.of("sql", "select * from their_secrets"), null)));
 
-        StepVerifier.create(service.executeLibraryQuery(exchange, editingRequest("lq-foreign"))).expectNext(result).verifyComplete();
+        StepVerifier.create(service.executeLibraryQuery(exchange, editingRequest("lq-foreign")))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.LIBRARY_QUERY_AND_ORG_NOT_MATCH, "LIBRARY_QUERY_AND_ORG_NOT_MATCH"))
+                .verify();
 
-        ArgumentCaptor<Datasource> executed = ArgumentCaptor.forClass(Datasource.class);
-        verify(queryExecutionService).executeQuery(executed.capture(), any(), any(), any(), any());
-        assertThat(executed.getValue().getOrganizationId()).isEqualTo(OTHER_ORG);
-        verify(libraryQueryService, never()).getById(anyString());
-        say("executeLibraryQuery: another org's query ran on org %s datasource (section 9 row pinned)", OTHER_ORG);
+        assertThat(events).containsExactly("dev");
+        verify(datasourceService, never()).getById(anyString());
+        verify(queryExecutionService, never()).executeQuery(any(), any(), any(), any(), any());
+        say("executeLibraryQuery: another org's query refused, nothing ran (BF-003)");
     }
 
     // ------------------------------------------------------------------ OAuth inherited from login (editing flow)
@@ -855,10 +853,11 @@ class LibraryQueryApiServiceImplTest {
     @MethodSource("recordIdRows")
     void executeFromJs_picksTheVersionByRecordId(String recordId, String version) {
         LibraryQuery named = libraryQuery(LQ_ID, ORG, "editing", DS_ID, CREATOR_ID);
-        when(libraryQueryService.getByName("name-1")).thenReturn(Mono.just(named));
+        when(libraryQueryService.getByOrganizationIdAndName(ORG, "name-1")).thenReturn(Mono.just(named));
         Map<String, Object> liveConfig = Map.of("sql", "live");
         Map<String, Object> recordedConfig = Map.of("sql", "recorded");
         LibraryQueryRecord recorded = mock(LibraryQueryRecord.class);
+        lenient().when(recorded.getLibraryQueryId()).thenReturn(LQ_ID);
         lenient().when(recorded.getQuery()).thenReturn(baseQuery(recordedConfig, null));
         lenient().when(libraryQueryService.getById(LQ_ID)).thenReturn(Mono.just(named));
         lenient().when(libraryQueryService.getLiveBaseQueryByLibraryQueryId(LQ_ID)).thenReturn(Mono.just(baseQuery(liveConfig, null)));
@@ -892,7 +891,7 @@ class LibraryQueryApiServiceImplTest {
 
     private void stubJsQuery(String timeout) {
         LibraryQuery named = libraryQuery(LQ_ID, ORG, "editing", DS_ID, CREATOR_ID);
-        lenient().when(libraryQueryService.getByName("name-1")).thenReturn(Mono.just(named));
+        lenient().when(libraryQueryService.getByOrganizationIdAndName(ORG, "name-1")).thenReturn(Mono.just(named));
         lenient().when(libraryQueryService.getLiveBaseQueryByLibraryQueryId(LQ_ID))
                 .thenReturn(Mono.just(baseQuery(Map.of("sql", "live"), timeout)));
     }
@@ -914,7 +913,7 @@ class LibraryQueryApiServiceImplTest {
     @Test
     void executeFromJs_unknownNameAndMissingDatasource_areErrors() {
         BizException notFound = new BizException(BizError.LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND");
-        when(libraryQueryService.getByName("name-1")).thenReturn(Mono.error(notFound));
+        when(libraryQueryService.getByOrganizationIdAndName(ORG, "name-1")).thenReturn(Mono.error(notFound));
         StepVerifier.create(service.executeLibraryQueryFromJs(exchange, jsRequest("latest")))
                 .expectErrorSatisfies(error -> assertThat(error).isSameAs(notFound)).verify();
 
@@ -952,17 +951,12 @@ class LibraryQueryApiServiceImplTest {
 
     /**
      * Catches the wrong identity in the context: a visitor with an organization member gets that member's user id and org
-     * id, port, cookies and disallowed hosts; a visitor whose organization member lookup fails is mapped to
-     * {@code OrgMember.NOT_EXIST} (empty user and org ids) and still runs, with no inherited headers (pinned as behaviour).
+     * id, port, cookies and disallowed hosts, with no inherited headers.
      */
-    @ParameterizedTest(name = "member lookup fails: {0}")
-    @ValueSource(booleans = {false, true})
-    void executeFromJs_contextCarriesTheMembersIds_orEmptyIdsWhenTheLookupFails(boolean lookupFails) {
+    @Test
+    void executeFromJs_contextCarriesTheMembersIds() {
         stubJsQuery(null);
         cookies.add("SESSION", new HttpCookie("SESSION", "abc"));
-        if (lookupFails) {
-            when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.error(new IllegalStateException("no member")));
-        }
         LibraryQueryRequestFromJs request = jsRequest("latest");
         request.setParams(List.of(Param.of(" a ", 1), Param.of("", 2), Param.of("a", 4)));
 
@@ -973,13 +967,55 @@ class LibraryQueryApiServiceImplTest {
         verify(queryExecutionService).executeQuery(any(), any(), params.capture(), any(), contextCaptor.capture());
         assertThat(params.getValue()).isEqualTo(Map.of("a", 4));
         QueryVisitorContext context = contextCaptor.getValue();
-        assertThat(context.getVisitorId()).isEqualTo(lookupFails ? "" : MEMBER_USER_ID);
-        assertThat(context.getApplicationOrgId()).isEqualTo(lookupFails ? "" : ORG);
+        assertThat(context.getVisitorId()).isEqualTo(MEMBER_USER_ID);
+        assertThat(context.getApplicationOrgId()).isEqualTo(ORG);
         assertThat(context.getSystemPort()).isEqualTo(PORT);
         assertThat(context.getCookies()).isSameAs(cookies);
         assertThat(context.getDisallowedHosts()).isSameAs(disallowedHosts);
         assertThat(context.getAuthTokenMono().block()).isNull();
-        say("fromJs context for lookupFails=%s: user [%s] org [%s]", lookupFails, context.getVisitorId(), context.getApplicationOrgId());
+        say("fromJs context: user [%s] org [%s]", context.getVisitorId(), context.getApplicationOrgId());
+    }
+
+    /**
+     * BF-003: a visitor without an organization (the member lookup fails and is mapped to {@code OrgMember.NOT_EXIST}, or
+     * the member has no org id) has no organization to look the name up in, so the result is LIBRARY_QUERY_NOT_FOUND, no
+     * lookup by name is made and nothing runs. Before the fix such a visitor ran the query of that name of any organization.
+     */
+    @ParameterizedTest(name = "member lookup fails: {0}")
+    @ValueSource(booleans = {true, false})
+    void executeFromJs_visitorWithoutAnOrganization_isNotFound_andNothingRuns(boolean lookupFails) {
+        when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(lookupFails
+                ? Mono.error(new IllegalStateException("no member"))
+                : Mono.just(member("")));
+
+        StepVerifier.create(service.executeLibraryQueryFromJs(exchange, jsRequest("latest")))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"))
+                .verify();
+
+        verify(libraryQueryService, never()).getByOrganizationIdAndName(any(), any());
+        verify(queryExecutionService, never()).executeQuery(any(), any(), any(), any(), any());
+        say("fromJs: visitor without an organization (lookup fails: %s) -> LIBRARY_QUERY_NOT_FOUND", lookupFails);
+    }
+
+    /**
+     * BF-003: a record id names the version to run, and it must be a record of the library query found by name; a record
+     * of another library query (any organization's) is LIBRARY_QUERY_NOT_FOUND and nothing runs.
+     */
+    @Test
+    void executeFromJs_recordOfAnotherLibraryQuery_isNotFound_andNothingRuns() {
+        when(libraryQueryService.getByOrganizationIdAndName(ORG, "name-1"))
+                .thenReturn(Mono.just(libraryQuery(LQ_ID, ORG, "name-1", DS_ID, CREATOR_ID)));
+        LibraryQueryRecord foreignRecord = mock(LibraryQueryRecord.class);
+        when(foreignRecord.getLibraryQueryId()).thenReturn("lq-foreign");
+        when(libraryQueryRecordService.getById("rec-foreign")).thenReturn(Mono.just(foreignRecord));
+
+        StepVerifier.create(service.executeLibraryQueryFromJs(exchange, jsRequest("rec-foreign")))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"))
+                .verify();
+
+        verify(foreignRecord, never()).getQuery();
+        verify(queryExecutionService, never()).executeQuery(any(), any(), any(), any(), any());
+        say("fromJs: record of another library query -> LIBRARY_QUERY_NOT_FOUND");
     }
 
     /**
@@ -1001,29 +1037,30 @@ class LibraryQueryApiServiceImplTest {
     }
 
     /**
-     * Pins the plan section 9 row (tenant isolation) "LibraryQueryApiServiceImpl does not compare the library query's org
-     * with the visitor's on read or run": a visitor runs, by name, a library query of another organization on that
-     * organization's datasource. The name is looked up with {@code libraryQueryService.getByName} (not scoped to an
-     * organization), no organization is compared, and the executor receives the other organization's datasource.
-     * Reachability: {@code POST /api/query/execute-from-node} (also under {@code /api/v1}) is not in the permit-all list of
-     * {@code SecurityConfig} (only {@code POST .../query/execute} is), so it falls under {@code /api/**} which requires a
-     * signed-in user; any signed-in user suffices, there is no organization check. A fix changes this test on purpose.
+     * BF-003 (was pinned as the plan section 9 tenant-isolation row): a visitor of one organization asks, by name, for a
+     * library query only another organization has. The name is looked up in the visitor's organization only (the service
+     * here answers like the repository: the query for its own organization, not found for any other), so the result is
+     * LIBRARY_QUERY_NOT_FOUND and the other organization's datasource is neither loaded nor run.
+     * Reachability: {@code POST /api/query/execute-from-node} (also under {@code /api/v1}) requires a signed-in user and a
+     * loopback client IP ({@code QueryController#checkIp}).
      */
     @Test
-    void executeFromJs_libraryQueryOfAnotherOrganization_runsOnThatOrganizationsDatasource_pinsSection9Row() {
+    void executeFromJs_nameOnlyAnotherOrganizationUses_isNotFound_andNothingRuns() {
         datasource.setOrganizationId(OTHER_ORG);
         LibraryQuery foreign = libraryQuery(LQ_ID, OTHER_ORG, "name-1", DS_ID, CREATOR_ID);
-        when(libraryQueryService.getByName("name-1")).thenReturn(Mono.just(foreign));
-        when(libraryQueryService.getLiveBaseQueryByLibraryQueryId(LQ_ID))
-                .thenReturn(Mono.just(baseQuery(Map.of("sql", "select * from their_secrets"), null)));
+        BizException notFound = new BizException(BizError.LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND");
+        when(libraryQueryService.getByOrganizationIdAndName(anyString(), eq("name-1")))
+                .thenAnswer(invocation -> OTHER_ORG.equals(invocation.getArgument(0)) ? Mono.just(foreign) : Mono.error(notFound));
 
-        StepVerifier.create(service.executeLibraryQueryFromJs(exchange, jsRequest("latest"))).expectNext(result).verifyComplete();
+        StepVerifier.create(service.executeLibraryQueryFromJs(exchange, jsRequest("latest")))
+                .expectErrorSatisfies(error -> assertThat(error).isSameAs(notFound))
+                .verify();
 
-        ArgumentCaptor<Datasource> executed = ArgumentCaptor.forClass(Datasource.class);
-        verify(queryExecutionService).executeQuery(executed.capture(), any(), any(), any(), any());
-        assertThat(executed.getValue().getOrganizationId()).isEqualTo(OTHER_ORG);
-        assertThat(capturedContext().getApplicationOrgId()).isEqualTo(ORG);
-        say("fromJs: another org's query ran on org %s datasource (section 9 row pinned)", OTHER_ORG);
+        verify(libraryQueryService).getByOrganizationIdAndName(ORG, "name-1");
+        verify(libraryQueryService, never()).getByOrganizationIdAndName(eq(OTHER_ORG), anyString());
+        verify(datasourceService, never()).getById(anyString());
+        verify(queryExecutionService, never()).executeQuery(any(), any(), any(), any(), any());
+        say("fromJs: name only org %s uses -> LIBRARY_QUERY_NOT_FOUND for a visitor of %s (BF-003, BF-068)", OTHER_ORG, ORG);
     }
 
     // ------------------------------------------------------------------ LibraryQueryRequestFromJs.paramMap

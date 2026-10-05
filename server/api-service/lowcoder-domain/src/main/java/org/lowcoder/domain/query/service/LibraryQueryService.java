@@ -12,7 +12,13 @@ public interface LibraryQueryService {
     Mono<LibraryQuery> getById(String libraryQueryId);
     Flux<LibraryQuery> getByIds(Collection<String> libraryQueryIds);
 
-    Mono<LibraryQuery> getByName(String libraryQueryName);
+    /**
+     * The library query of that name in that organization; LIBRARY_QUERY_NOT_FOUND when the organization has none. A query of
+     * the same name in another organization is never answered.
+     * <p>Limits: names are not unique within an organization (create and update do not check), and the lookup expects one
+     * result, so two queries of the same name in one organization fail it (IncorrectResultSizeDataAccessException).
+     */
+    Mono<LibraryQuery> getByOrganizationIdAndName(String organizationId, String libraryQueryName);
 
     Flux<LibraryQuery> getByOrganizationId(String organizationId);
 
