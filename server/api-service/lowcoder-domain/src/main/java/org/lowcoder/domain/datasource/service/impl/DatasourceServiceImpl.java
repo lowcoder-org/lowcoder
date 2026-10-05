@@ -16,10 +16,10 @@ import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.plugin.client.DatasourcePluginClient;
 import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
+import org.lowcoder.sdk.plugin.common.QueryExecutionUtils;
 import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
-import org.lowcoder.sdk.models.DatasourceConnectionConfig;
 import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
 import org.lowcoder.sdk.util.LocaleUtils;
@@ -162,9 +162,10 @@ public class DatasourceServiceImpl implements DatasourceService {
         return Mono.deferContextual(ctx -> {
             Locale locale = getLocale(ctx);
             return Mono.just(datasourceMetaInfoService.getDatasourceConnector(datasource.getType()))
-                    .flatMap(datasourceConnector -> {
-                        DatasourceConnectionConfig detailConfig = datasource.getDetailConfig();
-                        Set<String> errorMsgKeySet = datasourceConnector.doValidateConfig(detailConfig);
+                    // a plugin's check may block (the Mongo loopback check resolves host names), so it runs off the request thread
+                    .flatMap(datasourceConnector -> Mono.fromCallable(() -> datasourceConnector.doValidateConfig(datasource.getDetailConfig()))
+                            .subscribeOn(QueryExecutionUtils.querySharedScheduler()))
+                    .flatMap(errorMsgKeySet -> {
                         Set<String> errorMsgSet = errorMsgKeySet.stream()
                                 .map(key -> LocaleUtils.getMessage(locale, key))
                                 .collect(Collectors.toSet());

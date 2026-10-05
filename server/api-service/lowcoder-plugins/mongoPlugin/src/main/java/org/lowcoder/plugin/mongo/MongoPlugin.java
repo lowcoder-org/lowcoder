@@ -19,9 +19,12 @@ package org.lowcoder.plugin.mongo;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
+import com.mongodb.ConnectionString;
 import com.mongodb.MongoCommandException;
+import com.mongodb.MongoException;
 import com.mongodb.MongoSocketWriteException;
 import com.mongodb.MongoTimeoutException;
+import com.mongodb.ServerAddress;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import jakarta.annotation.Nonnull;
@@ -36,6 +39,7 @@ import org.lowcoder.plugin.mongo.model.MongoConnectionUriParser;
 import org.lowcoder.plugin.mongo.model.MongoDatasourceConfig;
 import org.lowcoder.plugin.mongo.model.MongoQueryExecutionContext;
 import org.lowcoder.plugin.mongo.utils.MongoQueryUtils;
+import org.lowcoder.sdk.util.HostGuards;
 import org.lowcoder.sdk.config.dynamic.Conf;
 import org.lowcoder.sdk.config.dynamic.ConfigCenter;
 import org.lowcoder.sdk.exception.PluginException;
@@ -59,6 +63,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static org.lowcoder.plugin.mongo.MongoPluginError.MONGO_COMMAND_ERROR;
@@ -383,6 +388,31 @@ public class MongoPlugin extends Plugin {
             return mongoConnection.close();
         }
 
+        /**
+         * The loopback restriction, in host and URI mode alike: a host is refused when any address it resolves to is a
+         * loopback or the wildcard address, whatever its spelling.
+         * <p>Limits: it runs when a datasource is validated (create, update and test of a datasource), not when a connection
+         * is made, so a datasource stored before this check is not re-checked until it is saved again; and the limits of
+         * {@link HostGuards} apply (a name that resolves to loopback later, and the targets of an SRV record, are not checked).
+         */
+        private static boolean anyLoopbackOrWildcard(List<String> hosts) {
+            return hosts.stream().anyMatch(HostGuards::isLoopbackOrWildcard);
+        }
+
+        /**
+         * The hosts the driver connects to for a connection string, as {@link ConnectionString} parses it, without ports;
+         * none when the driver cannot parse it, since no connection can be made from it either.
+         */
+        private static List<String> driverHosts(String connectionString) {
+            try {
+                return new ConnectionString(connectionString).getHosts().stream()
+                        .map(hostAndPort -> new ServerAddress(hostAndPort).getHost())
+                        .toList();
+            } catch (IllegalArgumentException | MongoException e) {
+                return List.of();
+            }
+        }
+
         private boolean hostStringHasConnectionURIHead(String host) {
             return StringUtils.isNotBlank(host) && (host.contains("mongodb://") || host.contains("mongodb+srv"));
         }
@@ -406,6 +436,9 @@ public class MongoPlugin extends Plugin {
                     return ImmutableSet.of("INVALID_MONGODB_URL_PLZ_CHECK");
                 }
 
+                if (anyLoopbackOrWildcard(driverHosts(mongoUri))) {
+                    invalids.add("INVALID_HOST");
+                }
                 return invalids;
             }
 
@@ -419,7 +452,10 @@ public class MongoPlugin extends Plugin {
                 invalids.add("HOST_EMPTY_PLZ_CHECK");
             }
 
-            if (StringUtils.equalsIgnoreCase(host, "localhost") || StringUtils.equals(host, "127.0.0.1")) {
+            // the host field goes into the connection string as is, so the hosts the driver reads from that string are checked
+            // as well as the field itself (the driver cannot parse every spelling, such as a bare IPv6 address)
+            if (StringUtils.isNotBlank(host) && !hostStringHasConnectionURIHead(host)
+                    && anyLoopbackOrWildcard(Stream.concat(Stream.of(host), driverHosts(buildClientUri(connectionConfig)).stream()).toList())) {
                 invalids.add("INVALID_HOST");
             }
 

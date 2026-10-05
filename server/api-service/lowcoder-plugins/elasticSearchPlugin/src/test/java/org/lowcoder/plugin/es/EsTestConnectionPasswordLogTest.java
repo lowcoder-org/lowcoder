@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
 /**
  * DEFECT pinned (probe EP4; plan section 9 row "secret in log: failed ES testConnection logs toJson(config) with the
  * plaintext password (:162, :166)", D8-adjacent; D-6, fix deferred). {@code EsConnector.testConnection} logs
- * {@code JsonUtils.toJson(connectionConfig)} at ERROR when the answer is not 200 (EsConnector.java:162, "test es
- * fail.") and when the call fails (:166, "test es error."). The JSON contains the plaintext password because no Jackson
+ * {@code JsonUtils.toJson(connectionConfig)} at ERROR when the answer is not 200 (EsConnector.java:164, "test es
+ * fail.") and when the call fails (:168, "test es error."). The JSON contains the plaintext password because no Jackson
  * view is active. The fix (log without the config, or with the password masked) makes the contains-password assertions
  * red. Only my own loopback server on port 0 (and a port I opened and closed) is contacted.
  */
