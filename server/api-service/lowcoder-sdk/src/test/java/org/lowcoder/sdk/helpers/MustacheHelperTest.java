@@ -2,8 +2,8 @@ package org.lowcoder.sdk.helpers;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.lowcoder.sdk.util.MustacheHelper;
 
@@ -37,8 +37,8 @@ public class MustacheHelperTest {
 
     @Test
     public void testParse() {
-        Assert.assertArrayEquals(new String[] {"{{token1}}"}, tokenize("    {{token1}}      \n".trim()).toArray());
-        Assert.assertArrayEquals(new String[] {"token1"}, tokenize("    token1      \n".trim()).toArray());
+        Assertions.assertArrayEquals(new String[] {"{{token1}}"}, tokenize("    {{token1}}      \n".trim()).toArray());
+        Assertions.assertArrayEquals(new String[] {"token1"}, tokenize("    token1      \n".trim()).toArray());
     }
 
     @Test
@@ -317,9 +317,9 @@ public class MustacheHelperTest {
         param2 = new HashMap<>(param);
 
         sql = MustacheHelper.replaceMustacheWithQuestionMarkMore(sql, keys, param);
-        Assert.assertEquals("select * from user where name like ?", sql);
-        Assert.assertEquals(Lists.newArrayList("name"), keys);
-        Assert.assertEquals(buildMap(param2), param);
+        Assertions.assertEquals("select * from user where name like ?", sql);
+        Assertions.assertEquals(Lists.newArrayList("name"), keys);
+        Assertions.assertEquals(buildMap(param2), param);
 
         //
         sql = "select * from user where name like '{{name}}'";
@@ -329,9 +329,9 @@ public class MustacheHelperTest {
         param2 = new HashMap<>(param);
 
         sql = MustacheHelper.replaceMustacheWithQuestionMarkMore(sql, keys, param);
-        Assert.assertEquals("select * from user where name like ?", sql);
-        Assert.assertEquals(Lists.newArrayList("generateKey_0"), keys);
-        Assert.assertEquals(buildMap(param2, "generateKey_0", "lv"), param);
+        Assertions.assertEquals("select * from user where name like ?", sql);
+        Assertions.assertEquals(Lists.newArrayList("generateKey_0"), keys);
+        Assertions.assertEquals(buildMap(param2, "generateKey_0", "lv"), param);
 
         //
         sql = "select * from user where name like '{{name}}%'";
@@ -341,9 +341,9 @@ public class MustacheHelperTest {
         param2 = new HashMap<>(param);
 
         sql = MustacheHelper.replaceMustacheWithQuestionMarkMore(sql, keys, param);
-        Assert.assertEquals("select * from user where name like ?", sql);
-        Assert.assertEquals(Lists.newArrayList("generateKey_0"), keys);
-        Assert.assertEquals(buildMap(param2, "generateKey_0", "lv%"), param);
+        Assertions.assertEquals("select * from user where name like ?", sql);
+        Assertions.assertEquals(Lists.newArrayList("generateKey_0"), keys);
+        Assertions.assertEquals(buildMap(param2, "generateKey_0", "lv%"), param);
 
         //
         sql = """
@@ -355,10 +355,10 @@ public class MustacheHelperTest {
         param2 = new HashMap<>(param);
 
         sql = MustacheHelper.replaceMustacheWithQuestionMarkMore(sql, keys, param);
-        Assert.assertEquals("""
+        Assertions.assertEquals("""
                 select * from user where name like "123" and name like ?""", sql);
-        Assert.assertEquals(Lists.newArrayList("generateKey_0"), keys);
-        Assert.assertEquals(buildMap(param2, "generateKey_0", "%lv%huichao%"), param);
+        Assertions.assertEquals(Lists.newArrayList("generateKey_0"), keys);
+        Assertions.assertEquals(buildMap(param2, "generateKey_0", "%lv%huichao%"), param);
 
         //
         sql = """
@@ -370,10 +370,10 @@ public class MustacheHelperTest {
         param2 = new HashMap<>(param);
 
         sql = MustacheHelper.replaceMustacheWithQuestionMarkMore(sql, keys, param);
-        Assert.assertEquals("""
+        Assertions.assertEquals("""
                 select * from user where name like "123" and name like ?""", sql);
-        Assert.assertEquals(Lists.newArrayList("generateKey_0"), keys);
-        Assert.assertEquals(buildMap(param2, "generateKey_0", """
+        Assertions.assertEquals(Lists.newArrayList("generateKey_0"), keys);
+        Assertions.assertEquals(buildMap(param2, "generateKey_0", """
                 a"%lv"%huichao%\""""), param);
 
         //
@@ -387,9 +387,9 @@ public class MustacheHelperTest {
         param2 = new HashMap<>(param);
 
         sql = MustacheHelper.replaceMustacheWithQuestionMarkMore(sql, keys, param);
-        Assert.assertEquals("select * from user where name like ? and name like ?", sql);
-        Assert.assertEquals(Lists.newArrayList("name", "generateKey_0"), keys);
-        Assert.assertEquals(buildMap(param2, "generateKey_0", """
+        Assertions.assertEquals("select * from user where name like ? and name like ?", sql);
+        Assertions.assertEquals(Lists.newArrayList("name", "generateKey_0"), keys);
+        Assertions.assertEquals(buildMap(param2, "generateKey_0", """
                 a"%lv"%huichao%\""""), param);
 
         //
@@ -402,9 +402,9 @@ public class MustacheHelperTest {
         param2 = new HashMap<>(param);
 
         sql = MustacheHelper.replaceMustacheWithQuestionMarkMore(sql, keys, param);
-        Assert.assertEquals("select * from user where name like ? and name like ?", sql);
-        Assert.assertEquals(Lists.newArrayList("first", "generateKey_0"), keys);
-        Assert.assertEquals(buildMap(param2, "generateKey_0", """
+        Assertions.assertEquals("select * from user where name like ? and name like ?", sql);
+        Assertions.assertEquals(Lists.newArrayList("first", "generateKey_0"), keys);
+        Assertions.assertEquals(buildMap(param2, "generateKey_0", """
                 a"%lv"%huichao%\""""), param);
     }
 
@@ -437,28 +437,28 @@ public class MustacheHelperTest {
     @Test
     public void typeJudgment() {
         Object nullObj = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("null", Map.of()));
-        Assert.assertNull(nullObj);
+        Assertions.assertNull(nullObj);
         Object number = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("1", Map.of()));
-        Assert.assertTrue(number instanceof Integer);
+        Assertions.assertTrue(number instanceof Integer);
         Object b = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("true", Map.of()));
-        Assert.assertTrue(b instanceof Boolean);
+        Assertions.assertTrue(b instanceof Boolean);
         Object array = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("['abc', 1]", Map.of()));
-        Assert.assertTrue(array instanceof Collection<?>);
+        Assertions.assertTrue(array instanceof Collection<?>);
         Object array2 = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("[abc, cde]", Map.of()));
-        Assert.assertTrue(array2 instanceof Collection<?>);
+        Assertions.assertTrue(array2 instanceof Collection<?>);
         Object o = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("{'a': 1, 'b': 'xx'}", Map.of()));
-        Assert.assertTrue(o instanceof Map<?, ?>);
+        Assertions.assertTrue(o instanceof Map<?, ?>);
         Object o2 = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("{a:1, b:2}", Map.of()));
-        Assert.assertTrue(o2 instanceof Map<?, ?>);
+        Assertions.assertTrue(o2 instanceof Map<?, ?>);
         Object o3 = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("{{3}}3", Map.of("3", 3)));
-        Assert.assertEquals("33", o3);
+        Assertions.assertEquals("33", o3);
         Object o4 = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("{{3}}3", Map.of("3", "3")));
-        Assert.assertEquals("33", o4);
+        Assertions.assertEquals("33", o4);
         Object o5 = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("{{t}}rue", Map.of("t", "t")));
-        Assert.assertEquals("true", o5);
+        Assertions.assertEquals("true", o5);
         Object o6 = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("[1, {{3}}3]", Map.of("3", 3)));
         Object[] objects = ((Collection<?>) o6).toArray();
-        Assert.assertEquals(1, objects[0]);
-        Assert.assertEquals("33", objects[1]);
+        Assertions.assertEquals(1, objects[0]);
+        Assertions.assertEquals("33", objects[1]);
     }
 }

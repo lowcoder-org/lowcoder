@@ -2,9 +2,8 @@ package org.lowcoder.sdk.contract;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.util.RawValue;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.lowcoder.sdk.config.JsonViews;
 import org.lowcoder.sdk.exception.PluginCommonError;
 import org.lowcoder.sdk.exception.PluginException;
@@ -39,8 +38,8 @@ public class ConfigBindingTest {
         public String secret;
     }
 
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    Path folder;
 
     static final Function<Map<String, Object>, ?> FROM_JSON = map -> {
         if (map.isEmpty()) {
@@ -84,7 +83,7 @@ public class ConfigBindingTest {
     /** The golden of one binding no longer matches when the binding changes the Java class of a value. */
     @Test
     public void bindingChangeFailsTheGolden() throws IOException {
-        Path root = folder.newFolder("fixtures").toPath();
+        Path root = Files.createDirectory(folder.resolve("fixtures"));
         write(root.resolve(INPUT), FORMS);
         GoldenJson golden = new GoldenJson(root, null, false);
         String pinned = ConfigBinding.write(ConfigBinding.report(ConfigBinding.forms(FORMS), Map.of(ENTRY, FROM_JSON)));

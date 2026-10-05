@@ -1,6 +1,6 @@
 package org.lowcoder.plugin.es;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.es.model.EsQueryExecutionContext;
 import org.lowcoder.sdk.contract.BoundarySites;
 import org.lowcoder.sdk.contract.ConfigBinding;

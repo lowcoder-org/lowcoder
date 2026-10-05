@@ -24,9 +24,6 @@ public interface BundleService {
 
     Flux<Bundle> findByUserId(String bundleId);
 
-    Mono<Void> deleteAllById(Collection<String> ids);
-
-    Mono<Boolean> exist(String id);
     Mono<Bundle> publish(String bundleId);
     Mono<Boolean> updatePublishedBundleDSL(String bundleId, Map<String, Object> bundleDSL);
 

@@ -13,8 +13,24 @@
 	<artifactId>lowcoder-dependencies</artifactId>
 	<packaging>pom</packaging>
 
+	<properties>
+		<testcontainers.version>2.0.5</testcontainers.version>
+	</properties>
+
 	<dependencyManagement>
 		<dependencies>
+			<!-- One Testcontainers version for every module's tests, imported before spring-boot-dependencies so it wins
+			     over the version Spring Boot manages. Testcontainers 1.18.0 and older send Docker API version 1.32, which
+			     Docker Engine 29 refuses ("client version 1.32 is too old. Minimum supported API version is 1.40"); the
+			     2.x line also drops 1.x's compile dependency on JUnit 4 (junit:junit), so no JUnit 4 is on any test
+			     classpath. Its modules are named testcontainers-<module>. -->
+			<dependency>
+				<groupId>org.testcontainers</groupId>
+				<artifactId>testcontainers-bom</artifactId>
+				<version>${testcontainers.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
@@ -226,11 +242,6 @@
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>
 				<version>4.5.14</version>
-			</dependency>
-			<dependency>
-				<groupId>de.flapdoodle.embed</groupId>
-				<artifactId>de.flapdoodle.embed.mongo.spring30x</artifactId>
-				<version>4.11.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mockito</groupId>

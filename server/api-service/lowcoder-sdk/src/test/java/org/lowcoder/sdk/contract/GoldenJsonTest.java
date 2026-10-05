@@ -1,8 +1,7 @@
 package org.lowcoder.sdk.contract;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -26,11 +25,11 @@ public class GoldenJsonTest {
     private static final String TYPE_FIXTURE = "types/example.S1.json";
     private static final String TEXT_FIXTURE = "boundary/example/render.txt";
 
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    Path folder;
 
     private Path fixtures() throws IOException {
-        return folder.newFolder("fixtures").toPath();
+        return Files.createDirectory(folder.resolve("fixtures"));
     }
 
     private static void write(Path file, String content) throws IOException {
@@ -58,7 +57,7 @@ public class GoldenJsonTest {
     @Test
     public void overlayFixtureWinsOverModuleFixture() throws IOException {
         Path root = fixtures();
-        Path overlay = folder.newFolder("overlay").toPath();
+        Path overlay = Files.createDirectory(folder.resolve("overlay"));
         write(root.resolve(TYPE_FIXTURE), "{\"a\":1}");
         write(overlay.resolve(TYPE_FIXTURE), "{\"b\":1}");
         GoldenJson golden = new GoldenJson(root, overlay, false);
@@ -125,7 +124,7 @@ public class GoldenJsonTest {
     @Test
     public void fixturePathsCannotLeaveTheFixtureRootThroughASymlink() throws IOException {
         Path root = fixtures();
-        Path outside = folder.newFolder("outside").toPath();
+        Path outside = Files.createDirectory(folder.resolve("outside"));
         Files.createSymbolicLink(root.resolve("link"), outside);
         GoldenJson golden = new GoldenJson(root, null, true);
         assertThatThrownBy(() -> golden.assertJson("link/created.json", "{}"))
@@ -136,7 +135,7 @@ public class GoldenJsonTest {
     @Test
     public void readReturnsInputFixturesFromTheOverlay() throws IOException {
         Path root = fixtures();
-        Path overlay = folder.newFolder("overlay").toPath();
+        Path overlay = Files.createDirectory(folder.resolve("overlay"));
         write(root.resolve(TYPE_FIXTURE), "module");
         write(overlay.resolve(TYPE_FIXTURE), "overlay");
         assertThat(new GoldenJson(root, overlay, false).read(TYPE_FIXTURE)).isEqualTo("overlay");

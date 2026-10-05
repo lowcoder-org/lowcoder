@@ -1,7 +1,7 @@
 package org.lowcoder.plugin.clickhouse;
 
 import com.zaxxer.hikari.HikariDataSource;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.config.dynamic.ConfigCenterForTest;
 import org.lowcoder.sdk.contract.ConfigBinding;
 import org.lowcoder.sdk.contract.FakeJdbc;

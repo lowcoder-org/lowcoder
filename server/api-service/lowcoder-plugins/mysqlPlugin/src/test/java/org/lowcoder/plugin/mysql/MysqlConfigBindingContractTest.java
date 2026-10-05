@@ -1,6 +1,6 @@
 package org.lowcoder.plugin.mysql;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.mysql.model.MysqlQueryConfig;
 import org.lowcoder.sdk.contract.BoundarySites;
 import org.lowcoder.sdk.contract.ConfigBinding;

@@ -15,7 +15,6 @@ import org.lowcoder.domain.group.repository.GroupRepository;
 import org.lowcoder.domain.group.util.SystemGroups;
 import org.lowcoder.domain.organization.model.MemberRole;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
-import org.lowcoder.infra.mongo.MongoUpsertHelper.PartialResourceWithId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -112,20 +111,5 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Mono<Group> createAllUserGroup(String orgId) {
         return createSystemGroup(orgId, ALL_USER);
-    }
-
-    @Override
-    public Mono<Boolean> bulkCreateSyncGroup(Collection<Group> groups) {
-        return repository.saveAll(groups).hasElements();
-    }
-
-    @Override
-    public Flux<Group> getAllGroupsBySource(String orgId, String source) {
-        return repository.findBySourceAndOrganizationId(source, orgId);
-    }
-
-    @Override
-    public Mono<Boolean> bulkUpdateGroup(Collection<PartialResourceWithId<Group>> groups) {
-        return mongoUpsertHelper.bulkUpdate(groups);
     }
 }

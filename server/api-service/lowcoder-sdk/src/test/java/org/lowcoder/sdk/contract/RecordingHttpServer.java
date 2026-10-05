@@ -16,9 +16,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A local HTTP server that answers fixed responses by path and records every request, so a plugin's real HTTP client
- * code (WebClient, Elasticsearch's REST client) runs end to end without network access (docs/API_PAYLOAD_TEST_PLAN.md
- * §4.6, §4.10; the same technique as the {@code npm-outbound} tests of §4.9).
+ * A local HTTP server that answers by path and records every request, so a plugin's real HTTP client code (WebClient,
+ * Elasticsearch's REST client) runs end to end without network access (docs/API_PAYLOAD_TEST_PLAN.md §4.6, §4.10; the
+ * same technique as the {@code npm-outbound} tests of §4.9). The answer to a path is either fixed ({@link #start}) or
+ * computed from the request ({@link #serve}), e.g. an echo of what the client sent.
  *
  * <p>Limits: it binds {@code 127.0.0.1} on a free port; the JDK server adds a {@code Date} header to every answer (the
  * tests drop it as volatile) and writes header values one byte per character, so a header value is sent as the
@@ -39,6 +40,12 @@ public final class RecordingHttpServer implements AutoCloseable {
 
     /** A fixed answer: status, headers (each name with its values in order) and body ({@code null}: none). */
     public record Response(int status, Map<String, List<String>> headers, byte[] body) {
+    }
+
+    /** Computes the answer to a request; the request is recorded before the handler runs. */
+    @FunctionalInterface
+    public interface Handler {
+        Response answer(Request request);
     }
 
     /** A recorded request: method, path with query, headers as the server received them, and body bytes. */
@@ -71,16 +78,23 @@ public final class RecordingHttpServer implements AutoCloseable {
     private final HttpServer server;
     private final List<Request> requests = Collections.synchronizedList(new ArrayList<>());
 
-    private RecordingHttpServer(Map<String, Response> responses) throws IOException {
+    private RecordingHttpServer(Map<String, Handler> handlers) throws IOException {
         server = HttpServer.create(new InetSocketAddress(InetAddress.getByName(LOOPBACK), ANY_PORT), BACKLOG);
-        server.createContext("/", exchange -> answer(exchange, responses));
+        server.createContext("/", exchange -> answer(exchange, handlers));
         server.start();
     }
 
     /** Starts a server answering {@code responses} by exact path (without query). */
     public static RecordingHttpServer start(Map<String, Response> responses) {
+        Map<String, Handler> handlers = new LinkedHashMap<>();
+        responses.forEach((path, response) -> handlers.put(path, request -> response));
+        return serve(handlers);
+    }
+
+    /** Starts a server answering each request with the handler of its exact path (without query). */
+    public static RecordingHttpServer serve(Map<String, Handler> handlers) {
         try {
-            return new RecordingHttpServer(responses);
+            return new RecordingHttpServer(handlers);
         } catch (IOException e) {
             throw new UncheckedIOException("cannot start the local HTTP server", e);
         }
@@ -107,19 +121,21 @@ public final class RecordingHttpServer implements AutoCloseable {
         server.stop(STOP_DELAY_SECONDS);
     }
 
-    private void answer(HttpExchange exchange, Map<String, Response> responses) throws IOException {
+    private void answer(HttpExchange exchange, Map<String, Handler> handlers) throws IOException {
         try (exchange) {
             byte[] body = exchange.getRequestBody().readAllBytes();
             Map<String, List<String>> headers = new LinkedHashMap<>();
             exchange.getRequestHeaders().forEach((name, values) -> headers.put(name, List.copyOf(values)));
             String query = exchange.getRequestURI().getRawQuery();
-            requests.add(new Request(exchange.getRequestMethod(),
-                    exchange.getRequestURI().getRawPath() + (query == null ? "" : "?" + query), headers, body));
-            Response response = responses.get(exchange.getRequestURI().getPath());
-            if (response == null) {
+            Request request = new Request(exchange.getRequestMethod(),
+                    exchange.getRequestURI().getRawPath() + (query == null ? "" : "?" + query), headers, body);
+            requests.add(request);
+            Handler handler = handlers.get(exchange.getRequestURI().getPath());
+            if (handler == null) {
                 exchange.sendResponseHeaders(NOT_FOUND, NO_BODY);
                 return;
             }
+            Response response = handler.answer(request);
             response.headers().forEach((name, values) -> values.forEach(value -> exchange.getResponseHeaders().add(name, value)));
             exchange.sendResponseHeaders(response.status(), response.body() == null ? NO_BODY : response.body().length);
             if (response.body() != null) {

@@ -30,7 +30,7 @@ import com.mongodb.client.model.IndexOptions;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Drives {@link EmailNormalizationBackfill} directly against the embedded mongod.
+ * Drives {@link EmailNormalizationBackfill} directly against the MongoDB test container.
  *
  * <p>The changeset itself is never driven through Mongock here. Under {@code @ActiveProfiles("test")},
  * {@code DatabaseChangelog} is {@code @Profile("!test")} and Mongock skips it — which also means the real
@@ -39,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
  * duplicate-key path testable in isolation, which it would not be against the shared {@code user}
  * collection.
  *
- * <p>Throwaway collections per test, because one embedded mongod is shared across every {@code test}-profile
+ * <p>Throwaway collections per test, because one database is shared across every {@code test}-profile
  * class and the real {@code user} collection holds other suites' fixtures.
  *
  * <p>{@code classes = ServerApplication.class} is required: {@code @SpringBootTest} only searches upwards

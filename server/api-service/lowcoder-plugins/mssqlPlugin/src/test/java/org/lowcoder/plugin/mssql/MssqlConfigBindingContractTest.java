@@ -1,6 +1,6 @@
 package org.lowcoder.plugin.mssql;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.mssql.model.MssqlDatasourceConfig;
 import org.lowcoder.plugin.mssql.model.MssqlQueryConfig;
 import org.lowcoder.sdk.contract.BoundarySites;

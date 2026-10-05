@@ -2,7 +2,6 @@ package org.lowcoder.infra.mongo;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.mongodb.client.model.DeleteOneModel;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.UpdateOptions;
 import org.apache.commons.collections4.CollectionUtils;
@@ -159,16 +158,6 @@ public class MongoUpsertHelper {
         return reactiveMongoTemplate.getCollection(reactiveMongoTemplate.getCollectionName(partialResourceWithIds.iterator().next().partialResource.getClass()))
                 .flatMap(collection -> Mono.from(collection.bulkWrite(operations)))
                 .map(bulkWriteResult -> bulkWriteResult.getModifiedCount() > 0);
-    }
-
-    public <T extends HasIdAndAuditing> Mono<Boolean> bulkRemove(Collection<Document> filters, Class<T> tClass) {
-        if (CollectionUtils.isEmpty(filters)) {
-            return Mono.empty();
-        }
-        var operations = filters.stream().map(filter -> new DeleteOneModel<Document>(filter)).toList();
-        return reactiveMongoTemplate.getCollection(reactiveMongoTemplate.getCollectionName(tClass))
-                .flatMap(collection -> Mono.from(collection.bulkWrite(operations)))
-                .map(bulkWriteResult -> bulkWriteResult.getDeletedCount() > 0);
     }
 
     public record PartialResourceWithId<T>(T partialResource, String id) {

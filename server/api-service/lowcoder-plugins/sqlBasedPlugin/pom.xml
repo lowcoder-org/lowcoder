@@ -36,6 +36,12 @@
             <version>${revision}</version>
             <scope>compile</scope>
         </dependency>
+        <!-- an in-memory JDBC database for the executor tests (the version comes from spring-boot-dependencies) -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

@@ -3,8 +3,6 @@ package org.lowcoder.domain.organization.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.bson.Document;
-import org.lowcoder.domain.group.model.GroupMember;
 import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.model.*;
@@ -12,7 +10,6 @@ import org.lowcoder.domain.user.model.User;
 import org.lowcoder.infra.annotation.PossibleEmptyMono;
 import org.lowcoder.infra.birelation.BiRelation;
 import org.lowcoder.infra.birelation.BiRelationService;
-import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.lowcoder.infra.util.FluxHelper;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.config.CommonConfig.Workspace;
@@ -43,7 +40,6 @@ public class OrgMemberServiceImpl implements OrgMemberService {
     @Lazy
     private final OrganizationService organizationService;
     private final CommonConfig commonConfig;
-    private final MongoUpsertHelper mongoUpsertHelper;
 
     @Override
     public Flux<OrgMember> getOrganizationMembers(String orgId) {
@@ -232,21 +228,6 @@ public class OrgMemberServiceImpl implements OrgMemberService {
     }
 
     @Override
-    public Mono<Void> bulkAddMember(String orgId, Collection<String> userIds, MemberRole memberRole) {
-        List<BiRelation> biRelations = (List<BiRelation>)userIds.stream()
-                .map(userId -> BiRelation.builder()
-                        .bizType(ORG_MEMBER)
-                        .sourceId(orgId)
-                        .targetId(userId)
-                        .relation(memberRole.getValue())
-                        .state(OrgMemberState.NORMAL.getValue())
-                        .build())
-                .toList();
-        return biRelationService.batchAddBiRelation(biRelations)
-                .then(bulkAddToAllUserGroup(orgId, userIds));
-    }
-
-    @Override
     public Mono<Void> bulkAddToOrgs(Collection<String> orgIds, String userId, MemberRole memberRole) {
         List<BiRelation> biRelations = (List<BiRelation>)orgIds.stream()
                 .map(orgId -> BiRelation.builder()
@@ -269,25 +250,8 @@ public class OrgMemberServiceImpl implements OrgMemberService {
         return newOrgIdsMono.collectList().flatMapMany(newOrgIds -> bulkAddToOrgs(newOrgIds, userId, MemberRole.SUPER_ADMIN)).then();
     }
 
-    private Mono<Void> bulkAddToAllUserGroup(String orgId, Collection<String> userIds) {
-        return groupService.getAllUsersGroup(orgId)
-                .map(group -> userIds.stream()
-                        .map(userId -> new GroupMember(group.getId(), userId, MemberRole.MEMBER, orgId, System.currentTimeMillis()))
-                        .toList())
-                .flatMap(groupMemberService::bulkAddMember)
-                .then();
-    }
-
     private Mono<Void> bulkAddToAllUserGroup(Collection<String> orgIds, String userId, MemberRole memberRole) {
         return Flux.fromIterable(orgIds).flatMap(orgId -> groupService.getAllUsersGroup(orgId)
                 .flatMap(group -> groupMemberService.addMember(orgId, group.getId(), userId, memberRole))).then();
-    }
-
-    @Override
-    public Mono<Boolean> bulkRemoveMember(String orgId, Collection<String> userIds) {
-        List<Document> filters = userIds.stream()
-                .map(userId -> new Document(Map.of("bizType", ORG_MEMBER.name(), "sourceId", orgId, "targetId", userId)))
-                .toList();
-        return mongoUpsertHelper.bulkRemove(filters, BiRelation.class);
     }
 }

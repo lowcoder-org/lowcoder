@@ -1,15 +1,15 @@
 package org.lowcoder.sdk.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Locale;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.constants.AuthSourceConstants;
 
 /**
@@ -30,7 +30,7 @@ public class EmailUtilsTest {
     /** Restores whatever locale the JVM started with, so the Turkish test cannot leak into the others. */
     private final Locale originalDefault = Locale.getDefault();
 
-    @After
+    @AfterEach
     public void restoreDefaultLocale() {
         Locale.setDefault(originalDefault);
     }
@@ -39,13 +39,13 @@ public class EmailUtilsTest {
         String actual = EmailUtils.normalize(input);
         System.out.printf("normalize(%s) -> %s (expected %s)%n",
                 quote(input), quote(actual), quote(expected));
-        assertEquals("normalize(" + quote(input) + ")", expected, actual);
+        assertEquals(expected, actual, "normalize(" + quote(input) + ")");
     }
 
     private void checkLooksLikeEmail(String input, boolean expected) {
         boolean actual = EmailUtils.looksLikeEmail(input);
         System.out.printf("looksLikeEmail(%s) -> %s (expected %s)%n", quote(input), actual, expected);
-        assertEquals("looksLikeEmail(" + quote(input) + ")", expected, actual);
+        assertEquals(expected, actual, "looksLikeEmail(" + quote(input) + ")");
     }
 
     private static String quote(String value) {
@@ -90,8 +90,8 @@ public class EmailUtilsTest {
     @Test
     public void normalizeDoesNotStripInteriorWhitespace() {
         checkNormalize(" John Doe@Example.com ", "john doe@example.com");
-        assertFalse("a value with interior whitespace must still fail the shape check",
-                EmailUtils.looksLikeEmail(EmailUtils.normalize(" John Doe@Example.com ")));
+        assertFalse(EmailUtils.looksLikeEmail(EmailUtils.normalize(" John Doe@Example.com ")),
+                "a value with interior whitespace must still fail the shape check");
     }
 
     /**
@@ -109,10 +109,10 @@ public class EmailUtilsTest {
         System.out.printf("under tr-TR: toLowerCase() -> %s, EmailUtils.normalize() -> %s%n",
                 quote(localeSensitive), quote(normalized));
 
-        assertEquals("normalize must use Locale.ROOT", "info@example.com", normalized);
-        assertFalse("sanity: the default-locale lower-case really does differ under tr-TR, "
-                        + "so this test is actually exercising the difference",
-                localeSensitive.equals(normalized));
+        assertEquals("info@example.com", normalized, "normalize must use Locale.ROOT");
+        assertFalse(localeSensitive.equals(normalized),
+                "sanity: the default-locale lower-case really does differ under tr-TR, "
+                        + "so this test is actually exercising the difference");
     }
 
     // -------------------------------------------------- normalizeIfEmailSource
@@ -141,8 +141,8 @@ public class EmailUtilsTest {
             String actual = EmailUtils.normalizeIfEmailSource(source, GITHUB_SUBJECT);
             System.out.printf("normalizeIfEmailSource(%s, %s) -> %s%n",
                     quote(source), quote(GITHUB_SUBJECT), quote(actual));
-            assertSame("source " + quote(source) + " must pass the subject through untouched",
-                    GITHUB_SUBJECT, actual);
+            assertSame(GITHUB_SUBJECT, actual,
+                    "source " + quote(source) + " must pass the subject through untouched");
         }
     }
 
@@ -156,7 +156,7 @@ public class EmailUtilsTest {
         for (String source : new String[] { AuthSourceConstants.EMAIL, AuthSourceConstants.GOOGLE, null }) {
             String actual = EmailUtils.normalizeIfEmailSource(source, null);
             System.out.printf("normalizeIfEmailSource(%s, null) -> %s%n", quote(source), quote(actual));
-            assertNull("null must survive for source " + quote(source), actual);
+            assertNull(actual, "null must survive for source " + quote(source));
         }
     }
 
@@ -210,8 +210,8 @@ public class EmailUtilsTest {
         checkLooksLikeEmail("user\t@example.com", false);
         checkLooksLikeEmail(" " + CANONICAL + " ", false);
 
-        assertTrue("normalize() first is what makes a padded address acceptable",
-                EmailUtils.looksLikeEmail(EmailUtils.normalize(" " + CANONICAL + " ")));
+        assertTrue(EmailUtils.looksLikeEmail(EmailUtils.normalize(" " + CANONICAL + " ")),
+                "normalize() first is what makes a padded address acceptable");
     }
 
     /**

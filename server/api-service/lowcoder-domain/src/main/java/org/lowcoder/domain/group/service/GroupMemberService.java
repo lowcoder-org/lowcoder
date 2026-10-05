@@ -1,6 +1,5 @@
 package org.lowcoder.domain.group.service;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.lowcoder.domain.group.model.Group;
@@ -36,10 +35,6 @@ public interface GroupMemberService {
     Mono<Boolean> deleteGroupMembers(String groupId);
 
     Mono<Boolean> isMember(Group group, String userId);
-
-    Mono<List<GroupMember>> bulkAddMember(Collection<GroupMember> groupMembers);
-
-    Mono<Boolean> bulkRemoveMember(String groupId, Collection<String> userIds);
 
     Mono<List<GroupMember>> getGroupMembersByIdAndRole(String groupId, String role);
 

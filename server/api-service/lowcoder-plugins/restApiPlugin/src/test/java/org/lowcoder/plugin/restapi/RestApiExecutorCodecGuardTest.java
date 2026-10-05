@@ -1,6 +1,6 @@
 package org.lowcoder.plugin.restapi;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.contract.BoundarySites;
 import org.lowcoder.sdk.contract.ClientCodecs;

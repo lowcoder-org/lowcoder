@@ -142,17 +142,6 @@ public class OrgApiServiceImpl implements OrgApiService {
                 .rawUserInfos(findRawUserInfos(user, orgId))
                 .build();
     }
-    protected OrgMemberView buildOrgMemberView(User user, OrgMember orgMember) {
-        String orgId = orgMember.getOrgId();
-        return OrgMemberView.builder()
-                .name(user.getName())
-                .userId(user.getId())
-                .role(orgMember.getRole().getValue())
-                .avatarUrl(user.getAvatarUrl())
-                .joinTime(orgMember.getJoinTime())
-                .rawUserInfos(findRawUserInfos(user, orgId))
-                .build();
-    }
 
     protected Map<String, Map<String, Object>> findRawUserInfos(User user, String orgId) {
         return SetUtils.emptyIfNull(user.getConnections())

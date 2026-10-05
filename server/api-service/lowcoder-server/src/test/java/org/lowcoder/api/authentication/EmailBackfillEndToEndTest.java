@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
  * Proves the backfill actually closes the holes the sanitization branch documented, exercised through the
  * real services rather than against the migration's own collections.
  *
- * <p>Its own profile, so it gets its own application context and its own embedded mongod. It must not use
+ * <p>Its own profile, so it gets its own application context and its own database (TestContainersInitializer). It must not use
  * the {@code test} profile: that shares one {@code user} collection with every other {@code test}-profile
  * class, and running a real backfill across it would rewrite their fixtures.
  *

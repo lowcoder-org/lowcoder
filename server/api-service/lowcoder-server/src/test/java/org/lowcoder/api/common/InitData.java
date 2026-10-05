@@ -27,7 +27,7 @@ import reactor.core.publisher.Flux;
  * Loads the seed documents from {@code org/lowcoder/api/common/json} into the test database.
  * <p>
  * Safe to call more than once against the same database: test classes share one cached Spring context
- * and one embedded MongoDB, so every class may call {@link #init()} in its setup. A seed document is
+ * and one database (TestContainersInitializer: one per context), so every class may call {@link #init()} in its setup. A seed document is
  * inserted only when no document with its id exists yet.
  * <p>
  * Does not cover: a seed document that already exists is left as it is, so changes an earlier test

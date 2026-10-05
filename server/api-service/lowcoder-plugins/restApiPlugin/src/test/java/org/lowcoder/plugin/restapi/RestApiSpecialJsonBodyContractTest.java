@@ -1,8 +1,8 @@
 package org.lowcoder.plugin.restapi;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.contract.BoundarySites;
 import org.lowcoder.sdk.contract.ConfigBinding;
@@ -52,12 +52,12 @@ public class RestApiSpecialJsonBodyContractTest {
     private final RestApiExecutor executor = new RestApiExecutor(new CommonConfig());
     private final QueryVisitorContext visitorContext = new QueryVisitorContext("userId1", "workspace1", 8080, null, null, null);
 
-    @BeforeClass
+    @BeforeAll
     public static void startServer() {
         server = RecordingHttpServer.start(Map.of(PATH, new Response(OK, Map.of(CONTENT_TYPE, List.of("text/plain")), "ok".getBytes(StandardCharsets.UTF_8))));
     }
 
-    @AfterClass
+    @AfterAll
     public static void stopServer() {
         server.close();
     }

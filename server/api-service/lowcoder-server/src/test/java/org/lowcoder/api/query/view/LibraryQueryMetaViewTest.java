@@ -17,8 +17,8 @@ import org.lowcoder.domain.user.model.User;
  * instead of NPEing. This is the crash that 500'd {@code GET /api/library-queries/dropDownList} for a
  * cross-environment-deployed library query whose {@code createdBy} has no matching {@code User} on the
  * target -- one such row would take down the whole list. The integration test
- * {@link org.lowcoder.api.query.LibraryQueryApiServiceIntegrationTest} is {@code @Disabled}, so these guard
- * the leaf factories directly.
+ * {@link org.lowcoder.api.query.LibraryQueryApiServiceIntegrationTest} lists queries whose creator exists, so
+ * these guard the leaf factories directly for the unresolved case.
  */
 class LibraryQueryMetaViewTest {
 

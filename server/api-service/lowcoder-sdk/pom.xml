@@ -33,12 +33,12 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- MockServerWebExchange for CookieHelperTest. Deliberately NOT spring-boot-starter-test: that would add
-             junit-jupiter without the vintage engine and silently stop this module's JUnit 4 tests from running. -->
+        <!-- MockServerWebExchange for CookieHelperTest; spring-test alone, not spring-boot-starter-test, which would
+             pull in Spring Boot's test stack this module does not use -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
@@ -188,7 +188,9 @@
     <build>
         <plugins>
             <!-- Publishes the shared JSON-contract test helpers (org.lowcoder.sdk.contract) as a test-jar, so the other
-                 modules' payload tests use one copy of them (docs/API_PAYLOAD_TEST_PLAN.md §3.2, owner-approved). -->
+                 modules' payload tests use one copy of them (docs/API_PAYLOAD_TEST_PLAN.md §3.2, owner-approved), and
+                 the two test helpers other modules' tests import, JsonFileReader and ConfigCenterForTest (moved here
+                 from src/main, docs/COVERAGE_GATE_PLAN.md D-3). -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -202,10 +204,13 @@
                             <!-- Helpers only: this module's own tests, their inner classes and fixtures stay out. -->
                             <includes>
                                 <include>org/lowcoder/sdk/contract/**</include>
+                                <include>org/lowcoder/sdk/test/JsonFileReader*.class</include>
+                                <include>org/lowcoder/sdk/config/dynamic/ConfigCenterForTest*.class</include>
                             </includes>
+                            <!-- only the contract package's own tests: ConfigCenterForTest also ends in "Test" -->
                             <excludes>
-                                <exclude>**/*Test.class</exclude>
-                                <exclude>**/*Test$*.class</exclude>
+                                <exclude>org/lowcoder/sdk/contract/**/*Test.class</exclude>
+                                <exclude>org/lowcoder/sdk/contract/**/*Test$*.class</exclude>
                             </excludes>
                         </configuration>
                     </execution>

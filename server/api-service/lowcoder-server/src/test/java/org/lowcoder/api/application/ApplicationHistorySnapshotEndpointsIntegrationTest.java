@@ -25,7 +25,7 @@ import static org.lowcoder.sdk.constants.GlobalContext.VISITOR_TOKEN;
 import org.lowcoder.api.application.view.ApplicationView;
 
 @SpringBootTest
-@ActiveProfiles("test") // Uses embedded MongoDB
+@ActiveProfiles("test") // MongoDB test container (TestContainers)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ApplicationHistorySnapshotEndpointsIntegrationTest {
 

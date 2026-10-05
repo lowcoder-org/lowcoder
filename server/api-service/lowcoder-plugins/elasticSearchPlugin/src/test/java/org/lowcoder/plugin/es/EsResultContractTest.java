@@ -1,8 +1,8 @@
 package org.lowcoder.plugin.es;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.es.model.EsConnection;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.config.dynamic.ConfigCenterForTest;
@@ -50,12 +50,12 @@ public class EsResultContractTest {
 
     private final EsQueryExecutor executor = new EsQueryExecutor();
 
-    @BeforeClass
+    @BeforeAll
     public static void startServer() {
         server = RecordingHttpServer.start(RESPONSES);
     }
 
-    @AfterClass
+    @AfterAll
     public static void stopServer() {
         server.close();
     }

@@ -11,8 +11,6 @@ public interface MaterialMetaService {
 
     Mono<MaterialMeta> findById(String id);
 
-    Mono<Boolean> existsByOrgIdAndFilename(String orgId, String filename);
-
     Mono<Long> totalSize(String orgId);
 
     Flux<MaterialMeta> getByOrgId(String orgId);

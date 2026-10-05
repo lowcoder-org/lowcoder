@@ -1,6 +1,6 @@
 package org.lowcoder.plugin.redis;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.redis.model.RedisQueryExecutionContext;
 import org.lowcoder.sdk.contract.ConfigBinding;
 import org.lowcoder.sdk.contract.GoldenJson;

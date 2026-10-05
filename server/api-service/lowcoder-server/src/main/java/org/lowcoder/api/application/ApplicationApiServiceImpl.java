@@ -359,7 +359,9 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 .then(sessionUserService.getVisitorId())
                 .flatMap(userId -> resourcePermissionService.checkAndReturnMaxPermission(userId,
                         applicationId, EDIT_APPLICATIONS))
-                .delayUntil(__ -> checkDatasourcePermissions(application))
+                // the organization of the stored application, not of the request body, which the client may leave out
+                .delayUntil(__ -> applicationService.findById(applicationId)
+                        .flatMap(stored -> checkDatasourcePermissions(application, stored.getOrganizationId())))
                 .flatMap(permission -> doUpdateApplication(applicationId, application, updateStatus)
                         .flatMap(applicationUpdated -> buildView(applicationUpdated, permission.getResourceRole().getValue()).map(appInfoView -> ApplicationView.builder()
                                 .applicationInfoView(appInfoView)
@@ -738,7 +740,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
         return queryConfig.size() == 1 && queryConfig.containsKey("fields");
     }
 
-    private Mono<Void> checkDatasourcePermissions(Application application) {
+    private Mono<Void> checkDatasourcePermissions(Application application, String organizationId) {
         return Mono.defer(() -> {
             Set<String> datasourceIds = SetUtils.emptyIfNull(application.getEditingQueries())
                     .stream()
@@ -750,7 +752,6 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 return Mono.empty();
             }
 
-            String organizationId = application.getOrganizationId();
             return sessionUserService.getVisitorId()
                     .flatMap(userId -> resourcePermissionService.getMaxMatchingPermission(userId, datasourceIds, USE_DATASOURCES))
                     .zipWith(datasourceService.retainNoneExistAndNonCurrentOrgDatasourceIds(datasourceIds, organizationId).collectList())

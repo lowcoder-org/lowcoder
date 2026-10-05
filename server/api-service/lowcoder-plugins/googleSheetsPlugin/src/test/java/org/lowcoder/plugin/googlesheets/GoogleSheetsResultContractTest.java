@@ -8,7 +8,7 @@ import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetResponse;
 import com.google.api.services.sheets.v4.model.ClearValuesResponse;
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.googlesheets.model.ServiceAccountJsonUtils;
 import org.lowcoder.plugin.googlesheets.queryhandler.GoogleSheetsReadDataHandler;
 import org.lowcoder.sdk.contract.BoundarySites;

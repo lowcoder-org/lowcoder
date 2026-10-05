@@ -8,7 +8,7 @@ import org.bson.json.JsonWriterSettings;
 import org.bson.types.Decimal128;
 import org.bson.types.ObjectId;
 import org.json.JSONObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.mongo.model.MongoDatasourceConfig;
 import org.lowcoder.plugin.mongo.utils.MongoQueryUtils;
 import org.lowcoder.sdk.config.dynamic.ConfigCenterForTest;

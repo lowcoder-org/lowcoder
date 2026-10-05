@@ -10,9 +10,6 @@ demo:
 spring:
   redis:
     url: redis://localhost:6369
-  mongodb:
-    embedded:
-      version: 4.0.2
   main:
     allow-circular-references: true
 
