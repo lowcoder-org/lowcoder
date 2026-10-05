@@ -332,6 +332,38 @@ public class MysqlDatabaseTest {
         }
     }
 
+    /**
+     * BF-007 and BF-008 end to end: the elements of a GUI {@code IN} filter are bind parameters, so an element written to
+     * break out of a quoted string ({@code x' or '1'='1}) matches only a row holding exactly that text and deletes nothing
+     * else; a column name with a backtick is one identifier.
+     */
+    @Test
+    public void guiDeleteWithAnInListBindsEveryElementAndAQuotedColumnNameStaysOneIdentifier() throws Exception {
+        try (Connection app = app()) {
+            execute(app, "drop table if exists t_gui_in", "create table t_gui_in (id int primary key, name varchar(30), `odd``col` int)",
+                    "insert into t_gui_in values (1, 'ann', 10), (2, 'bob', 20), (3, 'x'' or ''1''=''1', 30)");
+            Map<String, Object> inFilter = Map.of("column", "name", "condition", "IN", "value", "{{names}}");
+
+            Object none = gui("DELETE", Map.of("table", "t_gui_in", "filterBy", List.of(inFilter), "allowMultiModify", true),
+                    Map.of("names", List.of("nobody' or '1'='1")));
+            System.out.println("[MysqlDatabaseTest] IN delete with an injection element: " + none);
+            assertEquals(0, ((Map<?, ?>) none).get("affectedRows"), "the element is a value, not SQL");
+            assertEquals(3, rows(app, "select id from t_gui_in").size());
+
+            Object two = gui("DELETE", Map.of("table", "t_gui_in", "filterBy", List.of(inFilter), "allowMultiModify", true),
+                    Map.of("names", List.of("ann", "x' or '1'='1")));
+            System.out.println("[MysqlDatabaseTest] IN delete of ann and the literal text: " + two);
+            assertEquals(2, ((Map<?, ?>) two).get("affectedRows"));
+            assertEquals(List.of(2), rows(app, "select id from t_gui_in").stream().map(r -> r.get("id")).toList());
+
+            Object byOddColumn = gui("DELETE", Map.of("table", "t_gui_in", "allowMultiModify", true,
+                    "filterBy", List.of(Map.of("column", "odd`col", "condition", "=", "value", "{{v}}"))), Map.of("v", 20));
+            System.out.println("[MysqlDatabaseTest] delete by the column odd`col: " + byOddColumn);
+            assertEquals(1, ((Map<?, ?>) byOddColumn).get("affectedRows"));
+            assertEquals(0, rows(app, "select id from t_gui_in").size());
+        }
+    }
+
     @Test
     public void guiUpsertInsertsThenUpdatesTheSameKey() throws Exception {
         try (Connection app = app()) {

@@ -7,7 +7,7 @@ import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSet;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSetItem;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSetRow;
-import org.lowcoder.sdk.util.MustacheHelper;
+import org.lowcoder.sdk.util.SqlGuiUtils;
 import org.lowcoder.sdk.util.SqlGuiUtils.GuiSqlValue;
 
 import java.util.Collections;
@@ -41,7 +41,7 @@ public abstract class InsertCommand implements GuiSqlCommand {
     }
 
     public GuiSqlCommandRenderResult render(Map<String, Object> requestParamMap) {
-        String renderedTable = MustacheHelper.renderMustacheString(table, requestParamMap);
+        String renderedTable = SqlGuiUtils.renderTableName(table, requestParamMap, columnFrontDelimiter, columnBackDelimiter);
         ChangeSetRow insertRow = changeSet.render(requestParamMap);
         if (insertRow.isEmpty()) {
             throw new PluginException(INVALID_INSERT_COMMAND, "INSERT_DATA_EMPTY");
@@ -65,7 +65,7 @@ public abstract class InsertCommand implements GuiSqlCommand {
                 .append(" (");
         for (ChangeSetItem item : insertRow) {
             String column = item.column();
-            sb.append(columnFrontDelimiter).append(column).append(columnBackDelimiter).append(",");
+            sb.append(SqlGuiUtils.quoteIdentifier(column, columnFrontDelimiter, columnBackDelimiter)).append(",");
         }
         sb.deleteCharAt(sb.length() - 1).append(") values (");
 
@@ -94,7 +94,7 @@ public abstract class InsertCommand implements GuiSqlCommand {
                 .append(" (");
         for (ChangeSetItem item : insertRow) {
             String column = item.column();
-            sb.append(columnFrontDelimiter).append(column).append(columnBackDelimiter).append(",");
+            sb.append(SqlGuiUtils.quoteIdentifier(column, columnFrontDelimiter, columnBackDelimiter)).append(",");
         }
         sb.deleteCharAt(sb.length() - 1).append(") values (");
         String repeatedQuestionMarks = StringUtils.repeat("?,", insertRow.size());

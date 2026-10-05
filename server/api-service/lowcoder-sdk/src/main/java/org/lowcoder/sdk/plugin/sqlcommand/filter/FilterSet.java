@@ -19,7 +19,6 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
 import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
 import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_IN_OPERATOR_SETTINGS;
-import static org.lowcoder.sdk.util.JsonUtils.toJson;
 
 public class FilterSet extends ForwardingList<FilterCondition> {
 
@@ -61,9 +60,7 @@ public class FilterSet extends ForwardingList<FilterCondition> {
                         columnFrontDelimiter, columnBackDelimiter, renderWithRawSql, escapeSql);
             }
             sb.append(renderItem.conditionSql());
-            if (renderItem.needBind()) {
-                bindParams.add(renderItem.bindValue());
-            }
+            bindParams.addAll(renderItem.bindValues());
             if (i != filters.size() - 1) {
                 sb.append(" and ");
             }
@@ -74,7 +71,7 @@ public class FilterSet extends ForwardingList<FilterCondition> {
 
     private RenderItem renderCondition(String condition, Object value, Map<String, Object> requestMap, String column,
             String columnFrontDelimiter, String columnBackDelimiter, boolean renderWithRawSql, EscapeSql escapeSql) {
-        String columnWithDelimiter = columnFrontDelimiter + column + columnBackDelimiter;
+        String columnWithDelimiter = SqlGuiUtils.quoteIdentifier(column, columnFrontDelimiter, columnBackDelimiter);
 
         switch (condition) {
             case "=", "!=", ">", "<", "<=", ">=" -> {
@@ -100,35 +97,43 @@ public class FilterSet extends ForwardingList<FilterCondition> {
                     return RenderItem.withRawSql("false");
                 }
 
-                return RenderItem.withRawSql(columnWithDelimiter + " " + condition + getCollectionStr(list));
+                if (renderWithRawSql) {
+                    return RenderItem.withRawSql(columnWithDelimiter + " " + condition + getEscapedCollectionStr(list, escapeSql));
+                }
+                return RenderItem.withPsValues(columnWithDelimiter + " " + condition + getPlaceholderCollectionStr(list.size()),
+                        list.stream().map(element -> GuiSqlValue.from(element).getValue()).toList());
             }
             default -> throw new PluginException(INVALID_GUI_SETTINGS, "GUI_INVALID_FILTER_FIELD", condition);
         }
     }
 
-    private static String getCollectionStr(List<?> list) {
+    /**
+     * The elements of an IN list for raw SQL: each one written as the other operators write a value, a string (and a
+     * nested list or object, as JSON) through the dialect's escaper.
+     */
+    private static String getEscapedCollectionStr(List<?> list, EscapeSql escapeSql) {
         String result = list.stream()
-                .map(obj -> {
-                    if (obj instanceof String) {
-                        return "'" + obj + "'";
-                    }
-                    if (obj instanceof Collection<?> || obj instanceof Map<?, ?>) {
-                        return toJson(obj);
-                    }
-                    return String.valueOf(obj);
-                })
+                .map(element -> GuiSqlValue.from(element).getConcatSqlStr(escapeSql))
                 .collect(Collectors.joining(","));
         return " (" + result + ")";
     }
 
-    private record RenderItem(String conditionSql, Object bindValue, boolean needBind) {
+    private static String getPlaceholderCollectionStr(int size) {
+        return " (" + String.join(",", Collections.nCopies(size, "?")) + ")";
+    }
+
+    private record RenderItem(String conditionSql, List<Object> bindValues) {
 
         public static RenderItem withPs(String conditionSql, Object bindValue) {
-            return new RenderItem(conditionSql, bindValue, true);
+            return new RenderItem(conditionSql, Collections.singletonList(bindValue));
+        }
+
+        public static RenderItem withPsValues(String conditionSql, List<Object> bindValues) {
+            return new RenderItem(conditionSql, bindValues);
         }
 
         public static RenderItem withRawSql(String conditionSql) {
-            return new RenderItem(conditionSql, null, false);
+            return new RenderItem(conditionSql, emptyList());
         }
     }
 

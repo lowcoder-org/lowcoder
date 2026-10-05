@@ -1,10 +1,15 @@
 package org.lowcoder.sdk.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.lowcoder.sdk.exception.PluginCommonError;
+import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.util.SqlGuiUtils.GuiSqlValue;
 import org.lowcoder.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
 
@@ -16,6 +21,7 @@ import org.lowcoder.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
 class SqlGuiUtilsTest {
 
     private static final EscapeSql QUOTE = s -> "'" + s + "'";
+    private static final String INVALID_TABLE_NAME_KEY = "GUI_INVALID_TABLE_NAME";
 
     @Test
     void renderPsBindValueKeepsNullBlankAndNonStringInputsWithoutTemplating() {
@@ -55,5 +61,58 @@ class SqlGuiUtilsTest {
         assertThat(GuiSqlValue.from(null).getConcatSqlStr(QUOTE)).isEqualTo("null");
         // any other type is written with String.valueOf and no escaping
         assertThat(GuiSqlValue.from(new StringBuilder("raw")).getConcatSqlStr(QUOTE)).isEqualTo("raw");
+    }
+
+    @Test
+    void quoteIdentifierDoublesTheClosingDelimiterOfEachDialect() {
+        assertThat(SqlGuiUtils.quoteIdentifier("name", "`", "`")).isEqualTo("`name`");
+        assertThat(SqlGuiUtils.quoteIdentifier("a` = 1 or `b", "`", "`")).isEqualTo("`a`` = 1 or ``b`");
+        assertThat(SqlGuiUtils.quoteIdentifier("a\" or \"b", "\"", "\"")).isEqualTo("\"a\"\" or \"\"b\"");
+        assertThat(SqlGuiUtils.quoteIdentifier("a]=1 or [b", "[", "]")).isEqualTo("[a]]=1 or [b]");
+        System.out.println("[SqlGuiUtilsTest] quoteIdentifier doubles the closing delimiter: " + SqlGuiUtils.quoteIdentifier("a]b", "[", "]"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"users", "dbo.items", "public.users", "[dbo].[My Table]", "[a]]b]", "db.[t]", "#tmp", "Tabulka_č1",
+            "  users  "})
+    void checkTableNameAcceptsIdentifiersAndBracketQuotedPartsForSqlServer(String table) {
+        String checked = SqlGuiUtils.checkTableName(table, "[", "]");
+
+        System.out.println("[SqlGuiUtilsTest] accepted [" + table + "] -> [" + checked + "]");
+        assertThat(checked).isEqualTo(table.strip());
+    }
+
+    @Test
+    void checkTableNameAcceptsTheQuotesOfTheDialect() {
+        assertThat(SqlGuiUtils.checkTableName("\"public\".\"My \"\"T\"\"\"", "\"", "\"")).isEqualTo("\"public\".\"My \"\"T\"\"\"");
+        assertThat(SqlGuiUtils.checkTableName("`db`.`a``b`", "`", "`")).isEqualTo("`db`.`a``b`");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"t]; drop table x; --", "users where 1=1", "users;", "users --", "a.b.", ".a", "", "   ", "[a]b]", "[]",
+            "\"users\"", "users/**/", "a-b", "users u"})
+    void checkTableNameRejectsAnythingThatIsNotAnIdentifier(String table) {
+        assertThatThrownBy(() -> SqlGuiUtils.checkTableName(table, "[", "]"))
+                .isInstanceOfSatisfying(PluginException.class, e -> {
+                    System.out.println("[SqlGuiUtilsTest] rejected [" + table + "] -> " + e.getMessageKey() + " " + List.of(e.getArgs()));
+                    assertThat(e.getError()).isEqualTo(PluginCommonError.INVALID_GUI_SETTINGS);
+                    assertThat(e.getMessageKey()).isEqualTo(INVALID_TABLE_NAME_KEY);
+                    assertThat(e.getArgs()).containsExactly(table);
+                });
+    }
+
+    @Test
+    void checkTableNameRejectsNullAndBacktickQuotesThatDoNotCloseForMysql() {
+        assertThatThrownBy(() -> SqlGuiUtils.checkTableName(null, "`", "`")).isInstanceOf(PluginException.class);
+        assertThatThrownBy(() -> SqlGuiUtils.checkTableName("`a` ; drop table x; -- `", "`", "`")).isInstanceOf(PluginException.class);
+        assertThatThrownBy(() -> SqlGuiUtils.checkTableName("\"a\\\"\" or 1=1 -- \"", "`", "`"))
+                .as("double quotes are not MySQL identifier quotes").isInstanceOf(PluginException.class);
+    }
+
+    @Test
+    void renderTableNameRendersTheTemplateBeforeTheCheck() {
+        assertThat(SqlGuiUtils.renderTableName("{{schema}}.items", Map.of("schema", "dbo"), "[", "]")).isEqualTo("dbo.items");
+        assertThatThrownBy(() -> SqlGuiUtils.renderTableName("{{t}}", Map.of("t", "items; drop table x"), "[", "]"))
+                .isInstanceOf(PluginException.class);
     }
 }
