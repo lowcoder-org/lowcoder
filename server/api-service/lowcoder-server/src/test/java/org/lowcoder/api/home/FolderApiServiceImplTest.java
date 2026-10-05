@@ -61,15 +61,15 @@ import reactor.test.StepVerifier;
 /**
  * Mockito unit tests of {@link FolderApiServiceImpl}: every collaborator is a mock, so the tests show which checks run
  * and what the service hands to {@link FolderService}. The Spring + Mongo twin of the create pins is
- * {@code FolderCreateKeepsClientIdPersistenceTest}.
+ * {@code FolderCreateIgnoresClientIdPersistenceTest}.
  *
  * <p>Several operations are written as {@code a.then(b(...))}: {@code b(...)} is CALLED while the chain is assembled
  * even when {@code a} fails, and only subscribed when {@code a} succeeds. "Nothing was mutated" is therefore asserted
  * with a flag set when the mutation Mono is subscribed, never with {@code verify(..., never())}.
  *
- * <p>Pinned under D-6: plan §9 row "FolderApiServiceImpl.create keeps a client-supplied id ... overwrites that folder
- * (with the caller's org id)", tests {@code create_withAClientSuppliedId*}, {@code create_withAnotherOrgsFolderId*},
- * {@code create_withIdEqualToParentFolderId*}. A fix (reject or ignore a client id) makes those tests fail on purpose.
+ * <p>BF-004 (fixed; was pinned as plan §9 row "FolderApiServiceImpl.create keeps a client-supplied id ... overwrites that
+ * folder (with the caller's org id)"): create ignores a client-supplied id and always generates the gid, tests
+ * {@code create_withAClientSuppliedId*}, {@code create_withAnotherOrgsFolderId*}, {@code create_withIdEqualToParentFolderId*}.
  */
 class FolderApiServiceImplTest {
 
@@ -262,30 +262,30 @@ class FolderApiServiceImplTest {
     }
 
     /**
-     * Pins plan §9 row "FolderApiServiceImpl.create keeps a client-supplied id ..." for (a), an id of a folder of the
-     * caller's own org: the entity handed to {@code folderService.create} (repository save, a replace by id) keeps the
-     * client's id, has no gid, and carries the caller's org and creator. No lookup of that id ever happens.
+     * BF-004 (was pinned as plan §9 row "FolderApiServiceImpl.create keeps a client-supplied id ..."), (a) an id of a
+     * folder of the caller's own org: the entity handed to {@code folderService.create} (repository save) has no id, so it
+     * is inserted as a new folder, gets a generated gid, and carries the caller's org and creator.
      */
     @Test
-    void create_withAClientSuppliedId_handsTheIdToTheRepository_withoutLookingItUp_pinsClientIdRow() {
+    void create_withAClientSuppliedId_ignoresIt_andSavesANewFolderWithAGeneratedGid() {
         StepVerifier.create(service.create(request("existing-id", null, "new name"))).expectNextCount(1).verifyComplete();
 
         Folder saved = capturedCreate();
-        assertThat(saved.getId()).isEqualTo("existing-id");
-        assertThat(saved.getGid()).as("a client id suppresses the gid generation").isNull();
+        assertThat(saved.getId()).as("the client id is dropped").isNull();
+        assertThat(saved.getGid()).as("a gid is generated").isNotBlank();
+        assertThat(FieldName.isGID(saved.getGid())).isTrue();
         assertThat(saved.getOrganizationId()).isEqualTo(ORG);
         assertThat(saved.getCreatedBy()).isEqualTo(VISITOR);
         verify(folderService, never()).findById(any());
-        verify(folderService, never()).exist(any());
-        System.out.println("[FolderApiServiceImplTest] (a) saved with the client id " + saved.getId() + ", gid " + saved.getGid());
+        System.out.println("[FolderApiServiceImplTest] (a) client id ignored: saved id " + saved.getId() + ", gid " + saved.getGid());
     }
 
     /**
-     * Pins the same row, (a) with the same name and parent: the unique-name check lists the existing folder as a
-     * sibling and rejects it. Accidental protection, only when name and parent are unchanged.
+     * Same name and parent as an existing folder, with that folder's id: the unique-name check lists the existing folder
+     * as a sibling and rejects the create, as it does without the id.
      */
     @Test
-    void create_withTheIdNameAndParentOfAnExistingFolder_isRejectedByTheNameCheck_pinsClientIdRow() {
+    void create_withTheIdNameAndParentOfAnExistingFolder_isRejectedByTheNameCheck() {
         when(folderService.findByOrganizationId(ORG)).thenReturn(Flux.just(folder("existing-id", ORG, null, "same", OTHER_USER)));
 
         expectBizError(service.create(request("existing-id", null, "same")), BizError.FOLDER_NAME_CONFLICT);
@@ -294,39 +294,39 @@ class FolderApiServiceImplTest {
     }
 
     /**
-     * Pins the same row for (b), an id of ANOTHER org's folder: only the caller's org is listed for the name check, the
-     * foreign folder is never looked up, and the entity saved over it is stamped with the caller's org and creator.
+     * BF-004 (b), an id of ANOTHER org's folder: the saved entity has no id, so it is a new folder of the caller's org and
+     * the other org's folder is not replaced; that folder is never looked up nor its org listed.
      */
     @Test
-    void create_withAnotherOrgsFolderId_overwritesItWithTheCallersOrg_pinsClientIdRow() {
+    void create_withAnotherOrgsFolderId_ignoresIt_andSavesANewFolderOfTheCallersOrg() {
         when(folderService.findByOrganizationId(ORG)).thenReturn(Flux.just(folder("mine", ORG, null, "mine", VISITOR)));
 
         StepVerifier.create(service.create(request("foreign-folder-id", null, "taken over"))).expectNextCount(1).verifyComplete();
 
         Folder saved = capturedCreate();
-        assertThat(saved.getId()).isEqualTo("foreign-folder-id");
+        assertThat(saved.getId()).as("the foreign id is dropped, nothing is replaced").isNull();
         assertThat(saved.getOrganizationId()).isEqualTo(ORG);
         assertThat(saved.getCreatedBy()).isEqualTo(VISITOR);
         verify(folderService, never()).findByOrganizationId(OTHER_ORG);
         verify(folderService, never()).findById("foreign-folder-id");
-        System.out.println("[FolderApiServiceImplTest] (b) foreign id saved with org " + saved.getOrganizationId());
+        System.out.println("[FolderApiServiceImplTest] (b) foreign id ignored: saved id " + saved.getId() + " org " + saved.getOrganizationId());
     }
 
     /**
-     * Pins the same row for (c), id equal to parentFolderId: the parent check finds the folder (it exists in the
-     * caller's org) and the saved entity is its own parent. Only the creation of such data is shown here.
+     * BF-004 (c), id equal to parentFolderId: the parent check finds the folder in the caller's org, and the saved entity
+     * is a new folder (no id) under that parent, not a folder that is its own parent.
      */
     @Test
-    void create_withIdEqualToParentFolderId_storesASelfParentedFolder_pinsClientIdRow() {
+    void create_withIdEqualToParentFolderId_savesANewChildOfThatFolder_notASelfParentedOne() {
         when(folderService.findById("self-id")).thenReturn(Mono.just(folder("self-id", ORG, null, "old", VISITOR)));
 
         StepVerifier.create(service.create(request("self-id", "self-id", "loop"))).expectNextCount(1).verifyComplete();
 
         Folder saved = capturedCreate();
-        assertThat(saved.getId()).isEqualTo("self-id");
-        assertThat(saved.getParentFolderId()).isEqualTo(saved.getId());
+        assertThat(saved.getId()).isNull();
+        assertThat(saved.getParentFolderId()).isEqualTo("self-id");
         verify(folderService, times(1)).findById("self-id");
-        System.out.println("[FolderApiServiceImplTest] (c) saved folder " + saved.getId() + " with parent " + saved.getParentFolderId());
+        System.out.println("[FolderApiServiceImplTest] (c) saved a new folder under parent " + saved.getParentFolderId());
     }
 
     // ------------------------------------------------------------ existence/org

@@ -52,7 +52,7 @@ import static org.mockito.ArgumentMatchers.anyString;
  * <p>These are observations, not pins of a defect: nothing here is named a plan row. Real: controller, {@code GidService},
  * {@code FolderApiServiceImpl}, {@code FolderServiceImpl} (whose {@code findById(null)} is a parameter error,
  * {@code FolderServiceImpl.java:38-41}). Mocks: the repositories, the permission, session and event services. The admin differs
- * from the member in {@code checkManagePermission} ({@code FolderApiServiceImpl.java:361-372}): the member goes through
+ * from the member in {@code checkManagePermission} ({@code FolderApiServiceImpl.java:366-377}): the member goes through
  * {@code isCreator(null)}, whose {@code findById(null)} answers the parameter error before any permission lookup runs.
  *
  * <p>Limits: a real Mongo repository is not used, so what Spring Data does with a null id is not exercised; here the null never
@@ -205,7 +205,7 @@ public class FolderUnknownGidOperationsProbeTest {
 
     /**
      * Delete, admin: {@code Tree.get(null)} returns the tree itself for a blank id ({@code Tree.java:73-78}), so the lookup at
-     * {@code FolderApiServiceImpl.java:147} finds a node and does not answer FOLDER_NOT_EXIST. The root has no folder of its own, so
+     * {@code FolderApiServiceImpl.java:152} finds a node and does not answer FOLDER_NOT_EXIST. The root has no folder of its own, so
      * {@code thenReturn(folderNode.getSelf())} (line 159) is {@code Mono.just(null)}, which throws an NPE while the lambda
      * runs; the deletion Monos assembled just before it are never subscribed. The client sees the generic 500. Nothing is deleted.
      */
@@ -260,7 +260,7 @@ public class FolderUnknownGidOperationsProbeTest {
     }
 
     /**
-     * Grant without any user or group, either role: {@code FolderApiServiceImpl.java:380-382} returns before any check, so the
+     * Grant without any user or group, either role: {@code FolderApiServiceImpl.java:385-387} returns before any check, so the
      * answer is a success even though the folder does not exist and the member is no creator. Nothing is written.
      */
     @Test
@@ -289,7 +289,7 @@ public class FolderUnknownGidOperationsProbeTest {
     /**
      * Update and remove permission, admin, permission found: {@code checkPermissionResource} evaluates
      * {@code folderId.equals(resourcePermission.getResourceId())} with {@code folderId == null}
-     * ({@code FolderApiServiceImpl.java:409}); the client sees the generic 500 (code 5000). The permission is neither changed nor removed.
+     * ({@code FolderApiServiceImpl.java:414}); the client sees the generic 500 (code 5000). The permission is neither changed nor removed.
      * The NPE is checked on the service itself by its type only: a JVM that has run the code hot throws a preallocated NPE without
      * message or stack trace (OmitStackTraceInFastThrow), so neither is asserted; the location is shown by the fix mutation
      * ({@code Objects.equals}) in evidence/L1-13b.mutations.py, which changes the outcome.
