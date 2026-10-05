@@ -46,8 +46,8 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
     }
 
     @Override
-    public Mono<LibraryQuery> getByName(String libraryQueryName) {
-        return libraryQueryRepository.findByName(libraryQueryName)
+    public Mono<LibraryQuery> getByOrganizationIdAndName(String organizationId, String libraryQueryName) {
+        return libraryQueryRepository.findByOrganizationIdAndName(organizationId, libraryQueryName)
                 .switchIfEmpty(deferredError(LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"));
     }
 

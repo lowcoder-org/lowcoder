@@ -221,7 +221,7 @@ class DatasourceRepositoryMongoTest {
      * id, so every gid stays in the result, whatever exists in the current org. Effect on the callers: they treat the result
      * as "needs no permission": ApplicationApiServiceImpl:757-768 passes the application edit check when
      * hasPermission-union-retained covers all ids (so gid-referenced datasources never need the USE_DATASOURCES permission),
-     * and LibraryQueryApiServiceImpl:104-106 lists library queries whose datasource is in that set. A fix (remove by the
+     * and LibraryQueryApiServiceImpl:105-107 lists library queries whose datasource is in that set. A fix (remove by the
      * key kind that was queried) changes this test on purpose.
      */
     @Test

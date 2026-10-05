@@ -13,7 +13,7 @@ public interface LibraryQueryRepository extends ReactiveMongoRepository<LibraryQ
 
     Flux<LibraryQuery> findByOrganizationId(String organizationId);
 
-    Mono<LibraryQuery> findByName(String name);
+    Mono<LibraryQuery> findByOrganizationIdAndName(String organizationId, String name);
     Mono<Void> deleteByGid(String gid);
     Flux<LibraryQuery> findByGid(String gid);
     Flux<LibraryQuery> findByGidIn(Collection<String> gids);
