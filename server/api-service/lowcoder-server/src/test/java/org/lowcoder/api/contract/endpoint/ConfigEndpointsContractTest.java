@@ -12,6 +12,11 @@ import org.lowcoder.api.contract.support.ContractTestClient;
 import org.lowcoder.api.contract.support.EndpointContract;
 import org.lowcoder.api.contract.support.PayloadSamples;
 import org.lowcoder.api.usermanagement.OrgApiService;
+import org.lowcoder.domain.organization.model.MemberRole;
+import org.lowcoder.domain.organization.model.OrgMember;
+import org.lowcoder.domain.user.model.User;
+import org.lowcoder.domain.user.service.UserService;
+import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.infra.config.model.ServerConfig;
 import org.lowcoder.infra.config.repository.ServerConfigRepository;
 import org.lowcoder.sdk.config.JsonViews;
@@ -36,7 +41,8 @@ import java.util.Map;
  *   <li>{@code getServerConfig} answers the stored {@link ServerConfig} (S1, whose {@code Object} value is the §4.6
  *       representative input), or for a key without one the {@code new ServerConfig(key, null)} of the
  *       {@code defaultIfEmpty} branch, pinned in {@value #NOT_STORED_FIXTURE}.</li>
- *   <li>{@code updateServerConfig}'s D1 body gives the repository its {@code value}.</li>
+ *   <li>{@code updateServerConfig}'s D1 body gives the repository its {@code value}; the visitor is the deployment's super
+ *       admin; any other visitor gets {@code NOT_AUTHORIZED} from the {@code switchIfEmpty} branch (BF-001).</li>
  *   <li>{@code getConfig} is {@code @JsonView(Public)} (§4.5): the {@link ConfigView} is its {@code S1Public} golden, whose
  *       auth configs have no {@code SECRET-} client secret.</li>
  * </ul>
@@ -49,6 +55,7 @@ class ConfigEndpointsContractTest {
     static final String KEY = "ConfigEndpointsContractTest.key";
     static final String ORG_ID = "ConfigEndpointsContractTest.orgId";
     static final String DEPLOYMENT_ID = "ConfigEndpointsContractTest.deploymentId";
+    static final String SUPER_ADMIN_ID = "ConfigEndpointsContractTest.superAdmin";
     /** The {@code ConfigCenter#deployment()} key {@code ConfigController#init} reads. */
     static final String DEPLOYMENT_ID_KEY = "id";
     static final String NOT_STORED_FIXTURE = "types/org.lowcoder.infra.config.model.ServerConfig.NotStored.json";
@@ -105,11 +112,23 @@ class ConfigEndpointsContractTest {
     @Test
     void updateServerConfig() {
         UpdateConfigRequest sample = (UpdateConfigRequest) PayloadSamples.of(UpdateConfigRequest.class).value();
+        visitorWithSuperAdminFlag(true);
         Mockito.when(repository.upsert(KEY, sample.value())).thenReturn(Mono.just(ConfigSamples.serverConfig()));
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "updateServerConfig", Map.of(), EndpointContract.d1(UpdateConfigRequest.class), KEY);
             EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.success(EndpointContract.s1(ServerConfig.class)));
             Mockito.verify(repository).upsert(KEY, sample.value());
+        }
+    }
+
+    /** The {@code switchIfEmpty} branch (BF-001): a visitor who is not the super admin is refused and nothing is stored. */
+    @Test
+    void updateServerConfigNotSuperAdmin() {
+        visitorWithSuperAdminFlag(false);
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "updateServerConfig", Map.of(), EndpointContract.d1(UpdateConfigRequest.class), KEY);
+            EndpointContract.assertBizError(result, BizError.NOT_AUTHORIZED, BizError.NOT_AUTHORIZED.name());
+            Mockito.verifyNoInteractions(repository);
         }
     }
 
@@ -122,6 +141,15 @@ class ConfigEndpointsContractTest {
             EndpointContract.assertResponse(result, HttpStatus.OK,
                     EndpointContract.success(EndpointContract.s1(ConfigView.class, JsonViews.Public.class)));
         }
+    }
+
+    /** The visitor {@value #SUPER_ADMIN_ID}, a member of the org, whose stored user has the given super-admin flag. */
+    private void visitorWithSuperAdminFlag(boolean superAdmin) {
+        User visitor = new User();
+        visitor.setId(SUPER_ADMIN_ID);
+        visitor.setSuperAdmin(superAdmin);
+        builder.visitor(SUPER_ADMIN_ID, new OrgMember(ORG_ID, SUPER_ADMIN_ID, MemberRole.MEMBER, ORG_ID + ".state", 3_000_000_220L));
+        Mockito.when(builder.mock(UserService.class).findById(SUPER_ADMIN_ID)).thenReturn(Mono.just(visitor));
     }
 
     private ContractTestClient client() {

@@ -1,14 +1,19 @@
 package org.lowcoder.api.config;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.lowcoder.api.common.InitData;
 import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.api.framework.view.ResponseView;
+import org.lowcoder.domain.user.model.User;
+import org.lowcoder.domain.user.repository.UserRepository;
 import org.lowcoder.infra.config.model.ServerConfig;
 import org.lowcoder.infra.config.repository.ServerConfigRepository;
 import org.lowcoder.sdk.config.dynamic.ConfigCenter;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -38,13 +43,34 @@ class ConfigEndpointsIntegrationTest {
     @Autowired
     private InitData initData;
 
+    @Autowired
+    private UserRepository userRepository;
+
     private ServerWebExchange mockExchange;
+
+    /**
+     * BF-001: only the deployment's super admin may write a server config. This user exists only while a test of this
+     * class runs (created before each test, deleted after it): a super admin in the shared test database would change
+     * other tests, for example every new organization gets the super admin as a member.
+     */
+    private static final String SUPER_ADMIN_USER_ID = "config-it-super-admin";
+    private static final String ORG_ADMIN_USER_ID = "user01";
 
     @BeforeEach
     void setUp() {
         initData.init();
+        User superAdmin = new User();
+        superAdmin.setId(SUPER_ADMIN_USER_ID);
+        superAdmin.setName(SUPER_ADMIN_USER_ID);
+        superAdmin.setSuperAdmin(true);
+        userRepository.save(superAdmin).block();
         MockServerHttpRequest request = MockServerHttpRequest.get("").build();
         mockExchange = MockServerWebExchange.builder(request).build();
+    }
+
+    @AfterEach
+    void removeSuperAdmin() {
+        userRepository.deleteById(SUPER_ADMIN_USER_ID).block();
     }
 
     @Test
@@ -134,8 +160,25 @@ class ConfigEndpointsIntegrationTest {
                 .verifyComplete();
     }
 
+    /** BF-001: an org admin who is not the deployment's super admin is refused with NOT_AUTHORIZED; nothing is stored. */
     @Test
-    @WithMockUser(id = "user01")
+    @WithMockUser(id = ORG_ADMIN_USER_ID)
+    void testUpdateServerConfig_Integration_OrgAdminIsRefused() {
+        String key = "refused-test-key";
+
+        StepVerifier.create(configController.updateServerConfig(key, new ConfigEndpoints.UpdateConfigRequest("refused")))
+                .expectErrorSatisfies(error -> {
+                    System.out.println("[ConfigEndpointsIntegrationTest] org admin " + ORG_ADMIN_USER_ID + " -> " + error);
+                    assertTrue(error instanceof BizException);
+                    assertEquals(BizError.NOT_AUTHORIZED, ((BizException) error).getError());
+                })
+                .verify();
+
+        StepVerifier.create(serverConfigRepository.findByKey(key)).verifyComplete();
+    }
+
+    @Test
+    @WithMockUser(id = SUPER_ADMIN_USER_ID)
     void testUpdateServerConfig_Integration_Success() {
         // Arrange
         String key = "update-test-key";
@@ -171,7 +214,7 @@ class ConfigEndpointsIntegrationTest {
     }
 
     @Test
-    @WithMockUser(id = "user01")
+    @WithMockUser(id = SUPER_ADMIN_USER_ID)
     void testUpdateServerConfig_Integration_UpdateExistingConfig() {
         // Arrange - Create a config first
         String key = "update-existing-test-key";
@@ -217,7 +260,7 @@ class ConfigEndpointsIntegrationTest {
     }
 
     @Test
-    @WithMockUser(id = "user01")
+    @WithMockUser(id = SUPER_ADMIN_USER_ID)
     void testUpdateServerConfig_Integration_NullValue() {
         // Arrange
         String key = "null-value-test-key";
@@ -252,7 +295,7 @@ class ConfigEndpointsIntegrationTest {
     }
 
     @Test
-    @WithMockUser(id = "user01")
+    @WithMockUser(id = SUPER_ADMIN_USER_ID)
     void testUpdateServerConfig_Integration_EmptyValue() {
         // Arrange
         String key = "empty-value-test-key";
@@ -288,7 +331,7 @@ class ConfigEndpointsIntegrationTest {
     }
 
     @Test
-    @WithMockUser(id = "user01")
+    @WithMockUser(id = SUPER_ADMIN_USER_ID)
     void testUpdateServerConfig_Integration_SpecialCharacters() {
         // Arrange
         String key = "special-chars-test-key";

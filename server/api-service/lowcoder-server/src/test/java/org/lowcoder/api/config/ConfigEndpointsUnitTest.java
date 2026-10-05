@@ -3,13 +3,21 @@ package org.lowcoder.api.config;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.api.framework.view.ResponseView;
+import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.usermanagement.OrgApiService;
+import org.lowcoder.domain.user.model.User;
+import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.infra.config.model.ServerConfig;
 import org.lowcoder.infra.config.repository.ServerConfigRepository;
 import org.lowcoder.sdk.config.dynamic.Conf;
 import org.lowcoder.sdk.config.dynamic.ConfigCenter;
 import org.lowcoder.sdk.config.dynamic.ConfigInstance;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -41,10 +49,27 @@ class ConfigEndpointsUnitTest {
     @Mock
     private Conf<String> deploymentIdConf;
 
+    @Mock
+    private SessionUserService sessionUserService;
+
+    @Mock
+    private UserService userService;
+
     @InjectMocks
     private ConfigController configController;
 
     private ServerWebExchange mockExchange;
+
+    private static final String VISITOR_ID = "visitor";
+
+    /** The visitor of a config write, stored with the given {@code superAdmin} flag (BF-001). */
+    private void visitorWithSuperAdminFlag(Boolean superAdmin) {
+        User visitor = new User();
+        visitor.setId(VISITOR_ID);
+        visitor.setSuperAdmin(superAdmin);
+        when(sessionUserService.getVisitorId()).thenReturn(Mono.just(VISITOR_ID));
+        when(userService.findById(VISITOR_ID)).thenReturn(Mono.just(visitor));
+    }
 
     @BeforeEach
     void setUp() {
@@ -160,6 +185,7 @@ class ConfigEndpointsUnitTest {
     @Test
     void testUpdateServerConfig_Success() {
         // Arrange
+        visitorWithSuperAdminFlag(true);
         String key = "test-key";
         String value = "new-value";
         ConfigEndpoints.UpdateConfigRequest request = new ConfigEndpoints.UpdateConfigRequest(value);
@@ -190,6 +216,7 @@ class ConfigEndpointsUnitTest {
     @Test
     void testUpdateServerConfig_NullValue() {
         // Arrange
+        visitorWithSuperAdminFlag(true);
         String key = "test-key";
         ConfigEndpoints.UpdateConfigRequest request = new ConfigEndpoints.UpdateConfigRequest(null);
         
@@ -219,6 +246,7 @@ class ConfigEndpointsUnitTest {
     @Test
     void testUpdateServerConfig_EmptyValue() {
         // Arrange
+        visitorWithSuperAdminFlag(true);
         String key = "test-key";
         String value = "";
         ConfigEndpoints.UpdateConfigRequest request = new ConfigEndpoints.UpdateConfigRequest(value);
@@ -244,6 +272,36 @@ class ConfigEndpointsUnitTest {
                 .verifyComplete();
         
         verify(serverConfigRepository).upsert(key, value);
+    }
+
+    /** BF-001: a visitor whose stored user is not the super admin (flag false or absent) cannot write; nothing is upserted. */
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(booleans = false)
+    void testUpdateServerConfig_NotSuperAdmin_IsRefused(Boolean superAdmin) {
+        visitorWithSuperAdminFlag(superAdmin);
+
+        Mono<ResponseView<ServerConfig>> result = configController.updateServerConfig("test-key", new ConfigEndpoints.UpdateConfigRequest("v"));
+
+        StepVerifier.create(result)
+                .expectErrorSatisfies(error -> {
+                    System.out.println("[ConfigEndpointsUnitTest] superAdmin=" + superAdmin + " -> " + error);
+                    assertTrue(error instanceof BizException);
+                    assertEquals(BizError.NOT_AUTHORIZED, ((BizException) error).getError());
+                })
+                .verify();
+        verify(serverConfigRepository, never()).upsert(anyString(), any());
+    }
+
+    /** BF-001: without a visitor (no session user) the write is refused. */
+    @Test
+    void testUpdateServerConfig_NoVisitor_IsRefused() {
+        when(sessionUserService.getVisitorId()).thenReturn(Mono.empty());
+
+        StepVerifier.create(configController.updateServerConfig("test-key", new ConfigEndpoints.UpdateConfigRequest("v")))
+                .expectErrorSatisfies(error -> assertEquals(BizError.NOT_AUTHORIZED, ((BizException) error).getError()))
+                .verify();
+        verify(serverConfigRepository, never()).upsert(anyString(), any());
     }
 
     @Test

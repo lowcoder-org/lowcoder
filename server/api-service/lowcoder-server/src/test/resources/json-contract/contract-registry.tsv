@@ -71,10 +71,10 @@ BundleEndpoints#setBundlePublicToAll(String, BundlePublicToAllRequest)	codec	WP3
 BundleEndpoints#setBundlePublicToMarketplace(String, BundlePublicToMarketplaceRequest)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		255 return=setBundlePublicToMarketplace	
 BundleEndpoints#update(Bundle)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		78 return=update; 82 return=update	
 BundleEndpoints#updatePermission(String, String, UpdatePermissionRequest)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		162 return=updatePermissionWithUnknownRole; 165 return=updatePermission	
-ConfigEndpoints#getConfig(ServerWebExchange, String)	codec	WP7	org.lowcoder.api.contract.endpoint.ConfigEndpointsContractTest	pass-through		53 return=getConfig	
-ConfigEndpoints#getDeploymentId()	codec	WP7	org.lowcoder.api.contract.endpoint.ConfigEndpointsContractTest	pass-through		35 return=getDeploymentId	
-ConfigEndpoints#getServerConfig(String)	codec	WP7	org.lowcoder.api.contract.endpoint.ConfigEndpointsContractTest	pass-through		40 return=getServerConfig; 41 defaultIfEmpty=getServerConfigNotStored	
-ConfigEndpoints#updateServerConfig(String, UpdateConfigRequest)	codec	WP7	org.lowcoder.api.contract.endpoint.ConfigEndpointsContractTest	pass-through		47 return=updateServerConfig	
+ConfigEndpoints#getConfig(ServerWebExchange, String)	codec	WP7	org.lowcoder.api.contract.endpoint.ConfigEndpointsContractTest	pass-through		72 return=getConfig	
+ConfigEndpoints#getDeploymentId()	codec	WP7	org.lowcoder.api.contract.endpoint.ConfigEndpointsContractTest	pass-through		42 return=getDeploymentId	
+ConfigEndpoints#getServerConfig(String)	codec	WP7	org.lowcoder.api.contract.endpoint.ConfigEndpointsContractTest	pass-through		47 return=getServerConfig; 48 defaultIfEmpty=getServerConfigNotStored	
+ConfigEndpoints#updateServerConfig(String, UpdateConfigRequest)	codec	WP7	org.lowcoder.api.contract.endpoint.ConfigEndpointsContractTest	pass-through		62 return=updateServerConfig; 65 switchIfEmpty=updateServerConfigNotSuperAdmin	
 ServerSettingEndpoints#getServerSettings()	codec	WP7	org.lowcoder.api.contract.endpoint.ServerSettingEndpointsContractTest	pass-through		18 return=getServerSettings	
 DatasourceEndpoints#create(UpsertDatasourceRequest)	codec	WP5	org.lowcoder.api.contract.endpoint.DatasourceEndpointsContractTest	pass-through		56 return=create	
 DatasourceEndpoints#delete(String)	codec	WP5	org.lowcoder.api.contract.endpoint.DatasourceEndpointsContractTest	pass-through		84 return=delete; 89 return=delete; 91 return=delete	
