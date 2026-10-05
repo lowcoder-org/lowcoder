@@ -51,6 +51,7 @@ import org.lowcoder.sdk.plugin.restapi.auth.BasicAuthConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType;
 import org.lowcoder.sdk.query.QueryVisitorContext;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
+import org.lowcoder.sdk.webclient.WebClientRedirects;
 import org.pf4j.Extension;
 import org.springframework.http.*;
 import org.springframework.http.client.reactive.ClientHttpRequest;
@@ -276,11 +277,16 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
                         String redirectUrl = response.headers().header("Location").get(0);
                         URI redirectUri;
                         try {
-                            redirectUri = new URI(redirectUrl);
+                            redirectUri = WebClientRedirects.resolveLocation(uri, redirectUrl);
                         } catch (URISyntaxException e) {
                             return propagateError(REST_API_EXECUTION_ERROR, DEFAULT_REST_ERROR_CODE, e);
                         }
-                        return httpCall(webClient, httpMethod, redirectUri, requestBody, iteration + 1, authConfig, headersConsumer);
+                        if (WebClientRedirects.isSameOrigin(uri, redirectUri)) {
+                            return httpCall(webClient, httpMethod, redirectUri, requestBody, iteration + 1, authConfig, headersConsumer);
+                        }
+                        // another origin: only content headers, no forwarded cookies, no digest answer
+                        return httpCall(WebClientRedirects.forAnotherOrigin(webClient), httpMethod, redirectUri, requestBody,
+                                iteration + 1, null, DEFAULT_HEADERS_CONSUMER);
                     }
                     //digest auth
                     if (authConfig != null && authConfig.getType() == DIGEST_AUTH && AuthHelper.shouldDigestAuth(response)) {
