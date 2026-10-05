@@ -16,8 +16,8 @@ import reactor.core.publisher.Mono;
 /**
  * DEFECT pinned (plan section 9 row "reproduced, to pin (L4-9 follow-up)", probe P4; D-6, fix deferred): the token
  * properties of type "param" that OAuth "inherit from login" adds never reach the URL. authByOauth2InheritFromLogin
- * merges them into the context's urlParams (RestApiExecutor.java:309-315), but the request URI was built earlier in
- * buildQueryExecutionContext (:161) and nothing reads urlParams afterwards. With a datasource param {@code tok=ds} and
+ * merges them into the context's urlParams (RestApiExecutor.java:315-321), but the request URI was built earlier in
+ * buildQueryExecutionContext (:162) and nothing reads urlParams afterwards. With a datasource param {@code tok=ds} and
  * a token param {@code tok=T}, the request carries {@code tok=ds}, and a token param with a new key is not sent at
  * all. (The token HEADERS do arrive: RestApiOauthInheritTest.) The obvious fix is to rebuild the URI after the token
  * step; it turns this test red, and with it in place removing the {@code setUrlParams} call changes the result too.

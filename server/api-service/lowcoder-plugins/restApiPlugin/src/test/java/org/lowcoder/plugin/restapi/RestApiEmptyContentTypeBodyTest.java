@@ -11,7 +11,7 @@ import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
 /**
  * DEFECT pinned (plan section 9 row "reproduced, to pin (L4-9 follow-up)", probe P3; D-6, fix deferred): a POST whose
  * datasource and query set no content type drops the query body. buildBodyInserter returns an empty body for a blank
- * content type (RestApiExecutor.java:478-479), so {@code body: "payload"} is never sent, and no Content-Type header is
+ * content type (RestApiExecutor.java:484-485), so {@code body: "payload"} is never sent, and no Content-Type header is
  * sent either. The user gets no error. The obvious fix is to send the body (or to default the content type), which
  * turns this test red.
  */

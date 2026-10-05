@@ -19,7 +19,7 @@ import org.lowcoder.sdk.webclient.WebClientBuildHelper;
  * it also rewrites a double slash inside a query string that the user typed into the URL or path field or that a
  * {@code {{ }}} value brought in, so the server receives another value than the one entered. The entries of the form's
  * Parameters table are added after the collapse (RestApiUriBuilder.java:51-56) and are not changed. Callers:
- * RestApiExecutor.java:161 and GraphQLExecutor.java:245. A fix that collapses only the part before the first {@code ?}
+ * RestApiExecutor.java:162 and GraphQLExecutor.java:246. A fix that collapses only the part before the first {@code ?}
  * turns the received-value assertions red. Requests go to a local server (port 0, loopback) only.
  */
 public class RestApiUriBuilderCollapseTest {
