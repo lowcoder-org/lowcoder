@@ -12,7 +12,7 @@ import {
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
-import { TableColumnStyle, TableRowStyle, TableStyle, TableToolbarStyle, TableHeaderStyle, TableSummaryRowStyle } from "comps/controls/styleControlConstants";
+import { TableColumnStyle, TableGlobalColumnStyle, TableRowStyle, TableStyle, TableToolbarStyle, TableHeaderStyle, TableSummaryRowStyle } from "comps/controls/styleControlConstants";
 import {
   MultiCompBuilder,
   stateComp,
@@ -211,7 +211,7 @@ const tableChildrenMap = {
   toolbarStyle: styleControl(TableToolbarStyle, 'toolbarStyle'),
   hideToolbar: withDefault(BoolControl,false),
   headerStyle: styleControl(TableHeaderStyle, 'headerStyle'),
-  columnsStyle: styleControl(TableColumnStyle, 'columnsStyle'),
+  columnsStyle: styleControl(TableGlobalColumnStyle, 'columnsStyle'),
   viewModeResizable: BoolControl,
   visibleResizables: BoolControl,
   // sample data for regenerating columns

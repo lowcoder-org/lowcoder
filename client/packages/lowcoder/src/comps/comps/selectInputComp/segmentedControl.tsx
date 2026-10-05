@@ -23,9 +23,10 @@ import { trans } from "i18n";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
 
-import { useContext, useEffect } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEffect } from "react";
+import { useEditorStore } from "comps/editorStore";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
+import { withLinkedDefaultValue } from "comps/controls/codeStateControl";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
 const getStyle = (style: SegmentStyleType) => {
@@ -119,14 +120,16 @@ let SegmentedControlBasicComp = (function () {
       ...validateState,
     });
   })
-    .setPropertyViewFn((children) => (
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
         <Section name={sectionNames.basic}>
           {children.options.propertyView({})}
           {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
         </Section>
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["logic", "both"].includes(editorModeStatus) && (
           <><SelectInputValidationSection {...children} />
           <FormDataPropertyView {...children} />
           <Section name={sectionNames.interaction}>
@@ -136,11 +139,11 @@ let SegmentedControlBasicComp = (function () {
           </Section></>
         )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           children.label.getPropertyView()
         )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           <>
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
@@ -154,12 +157,16 @@ let SegmentedControlBasicComp = (function () {
             </>
         )}
       </>
-    ))
+    );
+    })
     .setExposeMethodConfigs(selectDivRefMethods)
     .build();
 })();
 
-SegmentedControlBasicComp = migrateOldData(SegmentedControlBasicComp, fixOldInputCompData);
+SegmentedControlBasicComp = migrateOldData(
+  withLinkedDefaultValue(SegmentedControlBasicComp, "defaultValue", "value"),
+  fixOldInputCompData
+);
 
 export const SegmentedControlComp = withExposingConfigs(SegmentedControlBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),

@@ -208,6 +208,7 @@ export const viteConfig: UserConfig = {
     react({
       babel: {
         parserOpts: {
+          // v4 merges typescript/jsx for .ts/.tsx; only list extras (see plugin-react changelog).
           plugins: ["decorators-legacy"],
         },
       },

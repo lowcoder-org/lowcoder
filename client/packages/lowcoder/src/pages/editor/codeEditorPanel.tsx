@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { ReactNode, useContext, useMemo, useRef, useState, useCallback, useEffect } from "react";
+import { ReactNode, useContext, useRef, useState, useCallback, useEffect } from "react";
 import { Layers } from "../../constants/Layers";
 import { CodeEditorOpenIcon, CodeEditorPinnedIcon, CodeEditorUnPinnedIcon } from "lowcoder-design";
 import { CodeEditorCloseIcon } from "lowcoder-design";
@@ -8,7 +8,7 @@ import Trigger from "rc-trigger";
 import { Resizable } from "react-resizable";
 import Handle from "../../layout/handler";
 import Draggable from "react-draggable";
-import { getPanelStyle, savePanelStyle } from "../../util/localStorageUtil";
+import { useEditorLayoutStore } from "./editorLayoutStore";
 import { CompNameContext } from "../../comps/editorState";
 import { isEmpty } from "lodash";
 import { trans } from "i18n";
@@ -146,8 +146,10 @@ export const CodeEditorPanel = (props: {
     right: 0,
   });
 
-  const panelStyle = useMemo(() => getPanelStyle(), []);
-  const [size, setSize] = useState({ w: panelStyle.codeEditor.w, h: panelStyle.codeEditor.h });
+  const savedSize = useEditorLayoutStore((state) => state.panelStyle.codeEditor);
+  const setCodeEditorSize = useEditorLayoutStore((state) => state.setCodeEditorSize);
+  // local state drives the live drag; only the committed size goes to the store
+  const [size, setSize] = useState({ w: savedSize.w, h: savedSize.h });
 
   const [visible, setVisible] = useState(false);
 
@@ -189,9 +191,9 @@ export const CodeEditorPanel = (props: {
 
   const handleResizeStop = useCallback(() => {
     if (mountedRef.current) {
-      savePanelStyle({ ...panelStyle, codeEditor: { w: size.w, h: size.h } });
+      setCodeEditorSize({ w: size.w, h: size.h });
     }
-  }, [panelStyle, size.w, size.h]);
+  }, [setCodeEditorSize, size.w, size.h]);
 
   const handleVisibleChange = useCallback((visible: boolean) => {
     if (mountedRef.current) {

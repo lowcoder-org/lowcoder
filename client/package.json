@@ -57,7 +57,7 @@
     "shelljs": "^0.8.5",
     "svgo": "^3.0.0",
     "ts-node": "^10.4.0",
-    "typescript": "^4.8.4",
+    "typescript": "^5.6.2",
     "whatwg-fetch": "^3.6.2"
   },
   "lint-staged": {
@@ -73,6 +73,7 @@
     "eslint-plugin-only-ascii@^0.0.0": "patch:eslint-plugin-only-ascii@npm%3A0.0.0#./.yarn/patches/eslint-plugin-only-ascii-npm-0.0.0-29e3417685.patch"
   },
   "dependencies": {
+    "@kinde-oss/kinde-auth-pkce-js": "^4.3.0",
     "@lottiefiles/react-lottie-player": "^3.5.3",
     "@remixicon/react": "^4.1.1",
     "@supabase/supabase-js": "^2.45.4",

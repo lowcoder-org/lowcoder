@@ -125,6 +125,14 @@ export function pieChartPropertyView(
       <Section name={sectionNames.advanced}>
         {children.data.propertyView({
           label: trans("chart.data"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Pie Chart data",
+            fieldName: "data",
+            fieldDescription:
+              "JSON array of objects representing pie chart data. Each object should have a name/category key and a numeric value key for each slice.",
+          },
         })}
       </Section>
     </>

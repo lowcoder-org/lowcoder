@@ -11,8 +11,7 @@ import { trans } from "i18n";
 import { BoolControl } from "../controls/boolControl";
 import { dropdownControl } from "../controls/dropdownControl";
 import { NumberControl } from "../controls/codeControl";
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { 
   ProgressTypeOptions, 
   StrokeLinecapOptions, 
@@ -118,6 +117,7 @@ let ProgressCircleTmpComp = (function () {
     );
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       const progressType = children.progressType.getView();
       const stepsEnabled = children.stepsEnabled.getView();
       
@@ -184,13 +184,13 @@ let ProgressCircleTmpComp = (function () {
             </Section>
           )}
 
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["logic", "both"].includes(editorModeStatus) && (
             <Section name={sectionNames.interaction}>
               {hiddenPropertyView(children)}
             </Section>
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             <>
               <Section name={sectionNames.style}>
                 {children.style.getPropertyView()}

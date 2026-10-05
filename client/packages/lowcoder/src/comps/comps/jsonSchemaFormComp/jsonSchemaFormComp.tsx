@@ -23,7 +23,7 @@ import { Theme } from "@rjsf/antd";
 import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { AutoHeightControl } from "../../controls/autoHeightControl";
 import { useContext, useEffect, useRef, useState, createContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import ObjectFieldTemplate from './ObjectFieldTemplate';
 import ArrayFieldTemplate from './ArrayFieldTemplate';
 import { Select } from 'antd';
@@ -373,11 +373,16 @@ let FormBasicComp = (function () {
     );
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       const formType = children.formType.getView();
+      const uiSchemaFieldDescription =
+        formType === "rjsf"
+          ? "RJSF UI schema object for configuring widgets, placeholders, field order, submit button options, and other react-jsonschema-form UI behavior. It should match the JSON Schema fields."
+          : "JSONForms UI schema object for configuring controls, scopes, layouts, categories, rules, and renderer options. It should match the JSON Schema fields.";
       return (
         <>
-          {(useContext(EditorContext).editorModeStatus === "logic" ||
-            useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "logic" ||
+            editorModeStatus === "both") && (
             <Section name={sectionNames.basic}>
               {children.formType.propertyView({
                 radioButton: true,
@@ -431,6 +436,14 @@ let FormBasicComp = (function () {
                     </a>
                   </>
                 ),
+                enableAIHelp: true,
+                aiHelp: {
+                  targetKind: "json",
+                  label: "JSON Schema Form schema",
+                  fieldName: "schema",
+                  fieldDescription:
+                    "JSON Schema object that defines the form fields, field types, required fields, validation constraints, enum options, titles, and descriptions.",
+                },
               })}
               {children.uiSchema.propertyView({
                 key: trans("jsonSchemaForm.uiSchema"),
@@ -471,10 +484,25 @@ let FormBasicComp = (function () {
                     </a>
                   </>
                 ),
+                enableAIHelp: true,
+                aiHelp: {
+                  targetKind: "json",
+                  label: `${formType === "rjsf" ? "RJSF" : "JSONForms"} UI schema`,
+                  fieldName: "uiSchema",
+                  fieldDescription: uiSchemaFieldDescription,
+                },
               })}
               {children.data.propertyView({
                 key: trans("jsonSchemaForm.defaultData"),
                 label: trans("jsonSchemaForm.defaultData"),
+                enableAIHelp: true,
+                aiHelp: {
+                  targetKind: "json",
+                  label: "JSON Schema Form default data",
+                  fieldName: "data",
+                  fieldDescription:
+                    "Default form data object. Generate sample initial values that match the current JSON Schema shape, field names, and value types.",
+                },
               })}
               {children.formType.getView() === "rjsf" && (
                 children.errorSchema.propertyView({
@@ -487,7 +515,7 @@ let FormBasicComp = (function () {
             </Section>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "logic" || editorModeStatus === "both") && (
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {hiddenPropertyView(children)}
@@ -497,7 +525,7 @@ let FormBasicComp = (function () {
               {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           )}
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "layout" || editorModeStatus === "both") && (
             <>
               <Section name={sectionNames.layout}>
                 {children.autoHeight.getPropertyView()}

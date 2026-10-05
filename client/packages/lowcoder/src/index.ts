@@ -4,6 +4,7 @@ import ResizeObserver from "resize-observer-polyfill";
 import numbro from "numbro";
 import Papa from "papaparse";
 import * as supabase from "@supabase/supabase-js";
+import * as kinde from "@kinde-oss/kinde-auth-pkce-js";
 import * as alasql from "alasql";
 
 import * as uuid from "uuid";
@@ -20,6 +21,7 @@ window.numbro = numbro;
 window.Papa = Papa;
 window.uuid = uuid;
 window.supabase = supabase;
+window.kinde = kinde;
 window.alasql = alasql;
 
 // for chrome 63

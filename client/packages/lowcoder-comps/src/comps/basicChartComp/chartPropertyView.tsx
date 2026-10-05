@@ -152,6 +152,14 @@ export function chartPropertyView(
       <Section name={sectionNames.advanced}>
         {children.data.propertyView({
           label: trans("chart.data"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Chart data",
+            fieldName: "data",
+            fieldDescription:
+              "JSON array of objects representing chart data. Each object should include keys for categories and numeric values for each series.",
+          },
         })}
       </Section>
     </>

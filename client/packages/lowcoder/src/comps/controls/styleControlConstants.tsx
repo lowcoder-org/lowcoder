@@ -1775,22 +1775,57 @@ export const SegmentStyle = [
 
 export const StepsStyle = [
   {
-    name: "activeBackground",
+    name: "stepActiveColor",
     label: trans("style.accent"),
-    depName: "activeBackground",
-    transformer: handleToSegmentBackground,
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
   },
   {
-    name: "titleText",
+    name: "stepErrorColor",
+    label: trans("style.validate"),
+    color: ERROR_COLOR,
+  },
+  {
+    name: "stepTitleColor",
     label: trans("title"),
-    depName: "text",
-    depType: DEP_TYPE.SELF,
+    color: "rgba(0,0,0,0.88)",
+  },
+  {
+    name: "stepDescriptionColor",
+    label: trans("stepOptionsControl.description"),
+    color: "rgba(0,0,0,0.45)",
+  },
+  {
+    name: "stepDisabledColor",
+    label: trans("disabled"),
+    color: "rgba(0,0,0,0.25)",
+  },
+  {
+    name: "stepIconTextColor",
+    label: trans("text"),
+    depName: "stepActiveColor",
+    depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
-  ...STYLING_FIELDS_SEQUENCE.filter(
-    (style) =>
-      ["background", "textSize", "textDecoration"].includes(style.name) ===
-      false
+  {
+    name: "stepLineColor",
+    label: trans("style.border"),
+    color: "rgba(5,5,5,0.06)",
+  },
+  {
+    name: "stepIconBackground",
+    label: trans("style.background"),
+    color: "rgba(0,0,0,0.04)",
+  },
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
+  FONT_STYLE,
+  TEXT_TRANSFORM,
+  TEXT_DECORATION,
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(
+    (style) => style.name !== "lineHeight",
   ),
   getBackground(),
   {
@@ -1952,6 +1987,17 @@ export const TableRowStyle = [
 
 export const TableColumnStyle = [
   getStaticBackground("#00000000"),
+  getStaticBorder(),
+  MARGIN,
+  RADIUS,
+  TEXT,
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
+  FONT_STYLE,
+] as const;
+
+export const TableGlobalColumnStyle = [
   getStaticBorder(),
   MARGIN,
   RADIUS,
@@ -2440,6 +2486,7 @@ export const NavLayoutItemStyle = [
     transformer: contrastText,
   },
   TEXT_SIZE,
+  LINE_HEIGHT,
   TEXT_WEIGHT,
   FONT_FAMILY,
   FONT_STYLE,
@@ -2492,6 +2539,140 @@ export const RichTextEditorStyle = [
   BORDER_WIDTH,
 ] as const;
 
+// Chat Component Styles
+export const ChatStyle = [
+  getBackground(),
+  MARGIN,
+  PADDING,
+  BORDER,
+  BORDER_STYLE,
+  RADIUS,
+  BORDER_WIDTH,
+] as const;
+
+export const ChatSidebarStyle = [
+  {
+    name: "sidebarBackground",
+    label: trans("style.sidebarBackground"),
+    depTheme: "primarySurface",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  {
+    name: "threadText",
+    label: trans("style.threadText"),
+    depName: "sidebarBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+] as const;
+
+export const ChatMessagesStyle = [
+  {
+    name: "messagesBackground",
+    label: trans("style.messagesBackground"),
+    color: "#f9fafb",
+  },
+  {
+    name: "userMessageBackground",
+    label: trans("style.userMessageBackground"),
+    color: "#e5e7eb",
+  },
+  {
+    name: "userMessageText",
+    label: trans("style.userMessageText"),
+    depName: "userMessageBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  {
+    name: "assistantMessageBackground",
+    label: trans("style.assistantMessageBackground"),
+    color: "#ffffff",
+  },
+  {
+    name: "assistantMessageText",
+    label: trans("style.assistantMessageText"),
+    depName: "assistantMessageBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+] as const;
+
+export const ChatInputStyle = [
+  {
+    name: "inputText",
+    label: trans("style.inputText"),
+    color: "#1f2937",
+  },
+] as const;
+
+export const ChatSendButtonStyle = [
+  {
+    name: "sendButtonBackground",
+    label: trans("style.sendButtonBackground"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  {
+    name: "sendButtonIcon",
+    label: trans("style.sendButtonIcon"),
+    depName: "sendButtonBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+] as const;
+
+export const ChatNewThreadButtonStyle = [
+  {
+    name: "newThreadBackground",
+    label: trans("style.newThreadBackground"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  {
+    name: "newThreadText",
+    label: trans("style.newThreadText"),
+    depName: "newThreadBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+] as const;
+
+export const ChatThreadItemStyle = [
+  {
+    name: "threadItemBackground",
+    label: trans("style.threadItemBackground"),
+    color: "transparent",
+  },
+  {
+    name: "threadItemText",
+    label: trans("style.threadItemText"),
+    color: "inherit",
+  },
+  {
+    name: "threadItemBorder",
+    label: trans("style.threadItemBorder"),
+    color: "transparent",
+  },
+  {
+    name: "activeThreadBackground",
+    label: trans("style.activeThreadBackground"),
+    color: "#dbeafe",
+  },
+  {
+    name: "activeThreadText",
+    label: trans("style.activeThreadText"),
+    color: "inherit",
+  },
+  {
+    name: "activeThreadBorder",
+    label: trans("style.activeThreadBorder"),
+    color: "#bfdbfe",
+  },
+] as const;
 export const TableColumnButtonStyle = [
   getBackground('primary'),
   {
@@ -2568,6 +2749,7 @@ export type TableHeaderStyleType = StyleConfigType<typeof TableHeaderStyle>;
 export type TableToolbarStyleType = StyleConfigType<typeof TableToolbarStyle>;
 export type TableRowStyleType = StyleConfigType<typeof TableRowStyle>;
 export type TableColumnStyleType = StyleConfigType<typeof TableColumnStyle>;
+export type TableGlobalColumnStyleType = StyleConfigType<typeof TableGlobalColumnStyle>;
 export type TableColumnLinkStyleType = StyleConfigType<
   typeof TableColumnLinkStyle
 >;
@@ -2623,6 +2805,453 @@ export type NavLayoutItemHoverStyleType = StyleConfigType<
 export type NavLayoutItemActiveStyleType = StyleConfigType<
   typeof NavLayoutItemActiveStyle
 >;
+
+export type ChatStyleType = StyleConfigType<typeof ChatStyle>;
+export type ChatSidebarStyleType = StyleConfigType<typeof ChatSidebarStyle>;
+export type ChatMessagesStyleType = StyleConfigType<typeof ChatMessagesStyle>;
+export type ChatInputStyleType = StyleConfigType<typeof ChatInputStyle>;
+export type ChatSendButtonStyleType = StyleConfigType<typeof ChatSendButtonStyle>;
+export type ChatNewThreadButtonStyleType = StyleConfigType<typeof ChatNewThreadButtonStyle>;
+export type ChatThreadItemStyleType = StyleConfigType<typeof ChatThreadItemStyle>;
+
+// ─── Chat Box Styles ─────────────────────────────────────────────────────────
+
+export const ChatBoxContainerStyle = [
+  getBackground(),
+  BORDER,
+  BORDER_STYLE,
+  RADIUS,
+  BORDER_WIDTH,
+  MARGIN,
+  PADDING,
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
+] as const;
+
+export const ChatBoxSidebarStyle = [
+  {
+    name: "sidebarBackground",
+    label: trans("style.chatSidebarBackground"),
+    color: "#fafbfc",
+  },
+  {
+    name: "sidebarText",
+    label: trans("style.chatSidebarText"),
+    depName: "sidebarBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  {
+    name: "sidebarBorder",
+    label: trans("style.chatSidebarBorder"),
+    color: "#eeeeee",
+  },
+  {
+    name: "sidebarHeaderBackground",
+    label: trans("style.chatSidebarHeaderBackground"),
+    depName: "sidebarBackground",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  {
+    name: "sidebarActiveItemBackground",
+    label: trans("style.chatActiveItemBackground"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  {
+    name: "sidebarActiveItemText",
+    label: trans("style.chatActiveItemText"),
+    depName: "sidebarActiveItemBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  {
+    name: "padding",
+    label: trans("style.chatSidebarItemPadding"),
+    padding: "padding",
+  },
+  {
+    name: "radius",
+    label: trans("style.chatSidebarRadius"),
+    radius: "radius",
+  },
+] as const;
+
+export const ChatBoxHeaderStyle = [
+  {
+    name: "headerBackground",
+    label: trans("style.chatHeaderBackground"),
+    color: "#ffffff",
+  },
+  {
+    name: "headerText",
+    label: trans("style.chatHeaderText"),
+    depName: "headerBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  {
+    name: "headerBorder",
+    label: trans("style.chatHeaderBorder"),
+    color: "#eeeeee",
+  },
+  {
+    name: "padding",
+    label: trans("style.chatHeaderPadding"),
+    padding: "padding",
+  },
+] as const;
+
+export const ChatBoxMessageAreaStyle = [
+  {
+    name: "messageAreaBackground",
+    label: trans("style.chatMessageAreaBackground"),
+    color: "#ffffff",
+  },
+  {
+    name: "padding",
+    label: trans("style.chatMessageAreaPadding"),
+    padding: "padding",
+  },
+] as const;
+
+const CHAT_MESSAGE_BUBBLE_LAYOUT = [
+  TEXT_SIZE,
+  {
+    name: "padding",
+    label: trans("style.chatMessageBubblePadding"),
+    padding: "padding",
+  },
+  {
+    name: "radius",
+    label: trans("style.chatMessageBubbleRadius"),
+    radius: "radius",
+  },
+  {
+    name: "messageMetaText",
+    label: trans("style.chatMessageMetaText"),
+    color: "#999999",
+  },
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
+] as const;
+
+export const ChatBoxOwnMessageStyle = [
+  {
+    name: "background",
+    label: trans("style.chatOwnMessageBackground"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  {
+    name: "text",
+    label: trans("style.chatOwnMessageText"),
+    depName: "background",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  getStaticBorder("transparent"),
+  ...CHAT_MESSAGE_BUBBLE_LAYOUT,
+] as const;
+
+export const ChatBoxOtherMessageStyle = [
+  {
+    name: "background",
+    label: trans("style.chatOtherMessageBackground"),
+    color: "#f0f0f0",
+  },
+  {
+    name: "text",
+    label: trans("style.chatOtherMessageText"),
+    depName: "background",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  getStaticBorder("transparent"),
+  ...CHAT_MESSAGE_BUBBLE_LAYOUT,
+] as const;
+
+export const ChatBoxAiMessageStyle = [
+  {
+    name: "background",
+    label: trans("style.chatAiMessageBackground"),
+    color: "#faf5ff",
+  },
+  {
+    name: "text",
+    label: trans("style.chatAiMessageText"),
+    color: "#1f1f1f",
+  },
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  {
+    name: "border",
+    label: trans("style.chatAiMessageBorder"),
+    color: "#e9d5ff",
+  },
+  ...CHAT_MESSAGE_BUBBLE_LAYOUT,
+] as const;
+
+export const ChatBoxOwnAvatarStyle = [
+  {
+    name: "background",
+    label: trans("style.chatAvatarBackground"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  {
+    name: "text",
+    label: trans("style.chatAvatarText"),
+    depName: "background",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  getStaticBorder("transparent"),
+] as const;
+
+export const ChatBoxOtherAvatarStyle = [
+  {
+    name: "background",
+    label: trans("style.chatAvatarBackground"),
+    color: "#f0f0f0",
+  },
+  {
+    name: "text",
+    label: trans("style.chatAvatarText"),
+    depName: "background",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  getStaticBorder("transparent"),
+] as const;
+
+export const ChatBoxAiAvatarStyle = [
+  {
+    name: "background",
+    label: trans("style.chatAvatarBackground"),
+    color: "#f3e8ff",
+  },
+  {
+    name: "text",
+    label: trans("style.chatAvatarText"),
+    color: "#7c3aed",
+  },
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  {
+    name: "border",
+    label: trans("style.chatAvatarBorder"),
+    color: "#e9d5ff",
+  },
+] as const;
+
+export const ChatBoxInputAreaStyle = [
+  {
+    name: "inputAreaBackground",
+    label: trans("style.chatInputAreaBackground"),
+    color: "#ffffff",
+  },
+  {
+    name: "margin",
+    label: trans("style.margin"),
+    margin: "margin",
+  },
+  {
+    name: "padding",
+    label: trans("style.chatInputAreaPadding"),
+    padding: "padding",
+  },
+  {
+    name: "borderWidth",
+    label: trans("style.borderWidth"),
+    borderWidth: "borderWidth",
+  },
+  {
+    name: "borderStyle",
+    label: trans("style.borderStyle"),
+    borderStyle: "borderStyle",
+  },
+  {
+    name: "border",
+    label: trans("style.chatInputAreaBorder"),
+    color: "#eeeeee",
+  },
+] as const;
+
+export const ChatBoxInputFieldStyle = [
+  {
+    name: "inputBackground",
+    label: trans("style.chatInputFieldBackground"),
+    color: "#ffffff",
+  },
+  {
+    name: "margin",
+    label: trans("style.margin"),
+    margin: "margin",
+  },
+  {
+    name: "padding",
+    label: trans("style.chatInputFieldPadding"),
+    padding: "padding",
+  },
+  {
+    name: "radius",
+    label: trans("style.chatInputFieldRadius"),
+    radius: "radius",
+  },
+  {
+    name: "borderWidth",
+    label: trans("style.borderWidth"),
+    borderWidth: "borderWidth",
+  },
+  {
+    name: "borderStyle",
+    label: trans("style.borderStyle"),
+    borderStyle: "borderStyle",
+  },
+  {
+    name: "border",
+    label: trans("style.chatInputFieldBorder"),
+    color: "#e5e7eb",
+  },
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
+  {
+    name: "text",
+    label: trans("style.chatInputText"),
+    depName: "inputBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  {
+    name: "inputPlaceholder",
+    label: trans("style.chatInputPlaceholder"),
+    color: "#9ca3af",
+  },
+] as const;
+
+export const ChatBoxInputSendButtonStyle = [
+  {
+    name: "sendButtonBackground",
+    label: trans("style.chatSendButtonBackground"),
+    color: "#93c5fd",
+  },
+  {
+    name: "sendButtonIcon",
+    label: trans("style.chatSendButtonIcon"),
+    depName: "sendButtonBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  {
+    name: "radius",
+    label: trans("style.chatSendButtonRadius"),
+    radius: "radius",
+  },
+  {
+    name: "margin",
+    label: trans("style.margin"),
+    margin: "margin",
+  },
+  {
+    name: "padding",
+    label: trans("style.padding"),
+    padding: "padding",
+  },
+  {
+    name: "borderWidth",
+    label: trans("style.borderWidth"),
+    borderWidth: "borderWidth",
+  },
+  {
+    name: "borderStyle",
+    label: trans("style.borderStyle"),
+    borderStyle: "borderStyle",
+  },
+  {
+    name: "borderColor",
+    label: trans("style.border"),
+    color: "#93c5fd",
+  },
+] as const;
+
+export const ChatBoxInputAttachButtonStyle = [
+  {
+    name: "attachButtonIcon",
+    label: trans("style.chatAttachButtonIcon"),
+    color: "#1f2937",
+  },
+  {
+    name: "attachButtonHoverBackground",
+    label: trans("style.chatAttachButtonHoverBackground"),
+    color: "#f3f4f6",
+  },
+  {
+    name: "radius",
+    label: trans("style.chatAttachButtonRadius"),
+    radius: "radius",
+  },
+  {
+    name: "margin",
+    label: trans("style.margin"),
+    margin: "margin",
+  },
+  {
+    name: "padding",
+    label: trans("style.padding"),
+    padding: "padding",
+  },
+  {
+    name: "borderWidth",
+    label: trans("style.borderWidth"),
+    borderWidth: "borderWidth",
+  },
+  {
+    name: "borderStyle",
+    label: trans("style.borderStyle"),
+    borderStyle: "borderStyle",
+  },
+  {
+    name: "borderColor",
+    label: trans("style.border"),
+    color: "transparent",
+  },
+] as const;
+
+export type ChatBoxContainerStyleType = StyleConfigType<typeof ChatBoxContainerStyle>;
+export type ChatBoxSidebarStyleType = StyleConfigType<typeof ChatBoxSidebarStyle>;
+export type ChatBoxHeaderStyleType = StyleConfigType<typeof ChatBoxHeaderStyle>;
+export type ChatBoxMessageAreaStyleType = StyleConfigType<typeof ChatBoxMessageAreaStyle>;
+export type ChatBoxOwnMessageStyleType = StyleConfigType<typeof ChatBoxOwnMessageStyle>;
+export type ChatBoxOtherMessageStyleType = StyleConfigType<typeof ChatBoxOtherMessageStyle>;
+export type ChatBoxAiMessageStyleType = StyleConfigType<typeof ChatBoxAiMessageStyle>;
+export type ChatBoxOwnAvatarStyleType = StyleConfigType<typeof ChatBoxOwnAvatarStyle>;
+export type ChatBoxOtherAvatarStyleType = StyleConfigType<typeof ChatBoxOtherAvatarStyle>;
+export type ChatBoxAiAvatarStyleType = StyleConfigType<typeof ChatBoxAiAvatarStyle>;
+export type ChatBoxMessageRoleStyleType =
+  | ChatBoxOwnMessageStyleType
+  | ChatBoxOtherMessageStyleType
+  | ChatBoxAiMessageStyleType;
+export type ChatBoxAvatarRoleStyleType =
+  | ChatBoxOwnAvatarStyleType
+  | ChatBoxOtherAvatarStyleType
+  | ChatBoxAiAvatarStyleType;
+export type ChatBoxInputAreaStyleType = StyleConfigType<typeof ChatBoxInputAreaStyle>;
+export type ChatBoxInputFieldStyleType = StyleConfigType<typeof ChatBoxInputFieldStyle>;
+export type ChatBoxInputSendButtonStyleType = StyleConfigType<typeof ChatBoxInputSendButtonStyle>;
+export type ChatBoxInputAttachButtonStyleType = StyleConfigType<typeof ChatBoxInputAttachButtonStyle>;
 
 export function widthCalculator(margin: string) {
   const marginArr = margin?.trim().replace(/\s+/g, " ").split(" ") || "";
@@ -2680,4 +3309,3 @@ export function marginCalculator(margin: string) {
 }
 
 export type {ThemeDetail};
-

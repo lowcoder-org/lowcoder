@@ -26,8 +26,7 @@ import {
 import { selectInputValidate } from "../selectInputComp/selectInputConstants";
 import { TreeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { trans } from "i18n";
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
 import { showDataLoadingIndicatorsPropertyView } from "@lowcoder-ee/comps/utils/propertyUtils";
 
@@ -139,13 +138,15 @@ let TreeBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props) => {
     return(<TreeCompView {...props} />)}
 )
-    .setPropertyViewFn((children) => (
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
         <Section name={sectionNames.basic}>
           {treeDataPropertyView(children)}
         </Section>
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["logic", "both"].includes(editorModeStatus) && (
           <><SelectInputValidationSection {...children} />
             {formSection(children)}
             <Section name={sectionNames.interaction}>
@@ -164,7 +165,7 @@ let TreeBasicComp = (function () {
           </>
         )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           <Section name={sectionNames.layout}>
             {children.autoHeight.getPropertyView()}
             {!children.autoHeight.getView() && 
@@ -178,9 +179,9 @@ let TreeBasicComp = (function () {
           </Section>
         )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (children.label.getPropertyView())}
+        {["layout", "both"].includes(editorModeStatus) && (children.label.getPropertyView())}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           <>
             <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
             <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
@@ -188,7 +189,8 @@ let TreeBasicComp = (function () {
           </>
         )}
       </>
-    ))
+    );
+    })
     .build();
 })();
 

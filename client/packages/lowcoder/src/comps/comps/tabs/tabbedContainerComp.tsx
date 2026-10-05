@@ -15,7 +15,7 @@ import { NameGenerator } from "comps/utils";
 import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
 import _ from "lodash";
-import React, {useContext, useMemo, useEffect } from "react";
+import React, {useMemo, useEffect } from "react";
 import styled, { css } from "styled-components";
 import { IContainer } from "../containerBase/iContainer";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
@@ -30,7 +30,7 @@ import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUt
 import { trans } from "i18n";
 import { BoolCodeControl, NumberControl } from "comps/controls/codeControl";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { BoolControl } from "comps/controls/boolControl";
 import { PositionControl,dropdownControl } from "comps/controls/dropdownControl";
@@ -152,7 +152,6 @@ const StyledTabs = styled(Tabs)<{
   $showHeader?: boolean;
   $animationStyle: AnimationStyleType;
   $isDestroyPane?: boolean;
-  $placement?: string;
 }>`
   &.ant-tabs {
     height: 100%;
@@ -167,15 +166,15 @@ const StyledTabs = styled(Tabs)<{
     height: 100%;
   }
 
+  /* Keep AntD flex nav so overflow "..." stays on the right. */
   .ant-tabs-nav {
-    display: ${(props) => (props.$showHeader ? "block" : "none")};
+    ${(props) => !props.$showHeader && `display: none;`}
     margin: 0px;
   }
 
-  .ant-tabs-tab + .ant-tabs-tab {
-    ${(props) => (props.$placement === "left" || props.$placement === "right") 
-      ? `margin: 20px 0 0 0;` 
-      : `margin: 0 0 0 20px;`}
+  /* tabBarGutter also margins the more button; keep "..." flush like AntD default. */
+  .ant-tabs-nav-more {
+    margin-inline-start: 0 !important;
   }
 
   ${(props) => props.$style && getStyle(props.$style, props.$headerStyle, props.$bodyStyle)}
@@ -315,7 +314,6 @@ const TabbedContainer = (props: TabbedContainerProps) => {
           $bodyStyle={bodyStyle}
           $showHeader={showHeader}
           $isDestroyPane={tabBehavior === "destroy"}
-          $placement={props.placement}
           onChange={(key) => {
             if (key !== props.selectedTabKey.value) {
               props.selectedTabKey.onChange(key);
@@ -341,6 +339,7 @@ export const TabbedContainerBaseComp = (function () {
     );
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
@@ -351,7 +350,7 @@ export const TabbedContainerBaseComp = (function () {
             {children.selectedTabKey.propertyView({ label: trans("prop.defaultValue") })}
           </Section>
 
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["logic", "both"].includes(editorModeStatus) && (
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
@@ -379,12 +378,15 @@ export const TabbedContainerBaseComp = (function () {
             </Section>
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             <>
               <Section name={sectionNames.layout}>
                 {children.placement.propertyView({ label: trans("tabbedContainer.placement"), radioButton: true })}
                 {children.tabsCentered.propertyView({ label: trans("tabbedContainer.tabsCentered")})}
-                { children.tabsGutter.propertyView({ label: trans("tabbedContainer.gutter"), tooltip : trans("tabbedContainer.gutterTooltip") })}
+                {children.tabsGutter.propertyView({
+                  label: trans("tabbedContainer.gutter"),
+                  tooltip: trans("tabbedContainer.gutterTooltip"),
+                })}
                 {children.horizontalGridCells.propertyView({
                   label: trans('prop.horizontalGridCells'),
                 })}

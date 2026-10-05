@@ -50,9 +50,9 @@ import {
   setSelectionRangeMethod,
 } from "comps/utils/methodUtils";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { migrateOldData } from "comps/generators/simpleGenerators";
+import { withLinkedDefaultValue } from "comps/controls/codeStateControl";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
 const getStyle = (style: InputLikeStyleType) => {
@@ -311,7 +311,6 @@ const childrenMap = {
 
 const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) => {
   const ref = useRef<HTMLInputElement | null>(null);
-  const defaultValue = props.defaultValue.value;
   const mountedRef = useRef(true);
 
   // Cleanup on unmount
@@ -321,17 +320,6 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
       ref.current = null;
     };
   }, []);
-
-  useEffect(() => {
-    if (!mountedRef.current) return;
-    let value = 0;
-    if (defaultValue === 'null' && props.allowNull) {
-      value = NaN;
-    } else if (!isNaN(Number(defaultValue))) {
-      value = Number(defaultValue);
-    }
-    props.value.onChange(value);
-  }, [defaultValue, props.allowNull]);
 
   const formatFn = (value: number) =>
     format(value, props.allowNull, props.formatter, props.precision, props.thousandsSeparator);
@@ -448,7 +436,9 @@ let NumberInputTmpComp = (function () {
       ...validate(props),
     });
   })
-    .setPropertyViewFn((children) => (
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
         <Section name={sectionNames.basic}>
           {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
@@ -458,7 +448,7 @@ let NumberInputTmpComp = (function () {
 
         <FormDataPropertyView {...children} />
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "logic" || editorModeStatus === "both") && (
           <><Section name={sectionNames.validation}>
             {requiredPropertyView(children)}
             {children.showValidationWhenEmpty.propertyView({label: trans("prop.showEmptyValidation")})}
@@ -475,11 +465,11 @@ let NumberInputTmpComp = (function () {
           </>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "layout" || editorModeStatus === "both") && (
           children.label.getPropertyView()
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "logic" || editorModeStatus === "both") && (
           <Section name={sectionNames.advanced}>
             {children.step.propertyView({ label: trans("numberInput.step") })}
             {children.precision.propertyView({ label: trans("numberInput.precision") })}
@@ -494,7 +484,7 @@ let NumberInputTmpComp = (function () {
           </Section>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "layout" || editorModeStatus === "both") && (
           <>
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
@@ -514,11 +504,24 @@ let NumberInputTmpComp = (function () {
           </>
         )}
       </>
-    ))
+    );
+    })
     .build();
 })();
 
-NumberInputTmpComp = migrateOldData(NumberInputTmpComp, fixOldInputCompData);
+NumberInputTmpComp = migrateOldData(
+  withLinkedDefaultValue(NumberInputTmpComp, "defaultValue", "value", (defaultValue: any, comp: any) => {
+    const allowNull = comp.children.allowNull?.getView?.();
+    if (defaultValue === "null" && allowNull) {
+      return NaN;
+    }
+    if (!isNaN(Number(defaultValue))) {
+      return Number(defaultValue);
+    }
+    return 0;
+  }),
+  fixOldInputCompData
+);
 
 const NumberInputTmp2Comp = withMethodExposing(
   NumberInputTmpComp,

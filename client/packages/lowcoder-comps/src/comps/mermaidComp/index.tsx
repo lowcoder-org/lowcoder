@@ -119,7 +119,21 @@ const CompBase = new UICompBuilder(childrenMap, (props: any) => {
   .setPropertyViewFn((children: any) => {
     return (
       <>
-        <Section name="Basic">{children.code.propertyView({ label: "code" })}</Section>
+        <Section name="Basic">
+          {children.code.propertyView({
+            label: "code",
+            styleName: "medium",
+            enableAIHelp: true,
+            aiHelp: {
+              targetKind: "component-field",
+              label: "Mermaid diagram",
+              fieldName: "code",
+              fieldDescription:
+                "Mermaid diagram definition (flowchart, sequence, class, gantt, ER, journey, etc.). Generate valid Mermaid syntax, not JSON or ECharts.",
+              targetId: "mermaid.code",
+            },
+          })}
+        </Section>
         <Section name="Interaction">{children.onEvent.propertyView()}</Section>
       </>
     );

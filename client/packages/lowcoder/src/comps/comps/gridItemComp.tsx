@@ -135,6 +135,10 @@ export class GridItemComp extends TmpComp {
     // Or add a node specifically for providing exposingData data
   }
 
+  override getRef() {
+    return this.children.comp.getRef?.();
+  }
+
   exposingInfo(): ExposingInfo {
     return this.children.comp.exposingInfo();
   }

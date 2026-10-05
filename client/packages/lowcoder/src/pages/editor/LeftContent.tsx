@@ -17,6 +17,7 @@ import {
 } from "lowcoder-design";
 import React, { ReactNode, useCallback, useContext, useMemo, useState } from "react";
 import { hookCompCategory } from "comps/hooks/hookCompTypes";
+import { selectCompsFromLeftPanel } from "comps/hooks/hookSelection";
 import _ from "lodash";
 import styled from "styled-components";
 import { leftCompListClassName } from "pages/tutorials/tutorialsConstant";
@@ -32,6 +33,7 @@ import type { UICompType } from "comps/uiCompRegistry";
 import { CollapseWrapper, DirectoryTreeStyle, Node } from "./styledComponents";
 import { DataNode, EventDataNode } from "antd/es/tree";
 import { isAggregationApp } from "util/appUtils";
+import { useEditorStore } from "comps/editorStore";
 import Modal from "antd/es/modal/Modal";
 
 const CollapseTitleWrapper = styled.div`
@@ -282,6 +284,8 @@ const LeftContentWrapper = styled.div`
 export const LeftContent = (props: LeftContentProps) => {
   const { uiComp } = props;
   const editorState = useContext(EditorContext);
+  const selectedCompNames = useEditorStore((state) => state.selectedCompNames);
+  const selectedBottomResName = useEditorStore((state) => state.selectedBottomResName);
   const [expandedKeys, setExpandedKeys] = useState<Array<React.Key>>([]);
   const [showData, setShowData] = useState<NodeInfo[]>([]);
 
@@ -351,7 +355,7 @@ export const LeftContent = (props: LeftContentProps) => {
 
   const uiCollapseClick = useCallback(
     (compName: string) => {
-      editorState.setSelectedCompNames(new Set([compName]), "leftPanel");
+      selectCompsFromLeftPanel(editorState, new Set([compName]));
     },
     [editorState]
   );
@@ -483,8 +487,8 @@ export const LeftContent = (props: LeftContentProps) => {
         : editorState.getHooksComp().getUITree();
     const explorerData: NodeItem[] = getTree(tree, []);
     let selectedKeys = [];
-    if (editorState.selectedCompNames.size === 1) {
-      const key = Object.keys(editorState.selectedComps())[0];
+    if (selectedCompNames.size === 1) {
+      const key = Object.keys(editorState.selectedComps(selectedCompNames))[0];
       const parentKeys = getParentNodeKeysByKey(explorerData, key);
       if (parentKeys && parentKeys.length) {
         let needSet = false;
@@ -543,11 +547,11 @@ export const LeftContent = (props: LeftContentProps) => {
           name={item.name}
           desc={item.dataDesc}
           data={item.data}
-          isSelected={editorState.selectedBottomResName === item.name}
+          isSelected={selectedBottomResName === item.name}
           onClick={() => handleBottomResItemClick(item.type as BottomResTypeEnum, item.name)}
         />
       ));
-  }, [editorState, handleBottomResItemClick]);
+  }, [editorState, selectedBottomResName, handleBottomResItemClick]);
 
   const hookCompsCollapse = useMemo(() => {
     return _.sortBy(

@@ -7,7 +7,6 @@ import {
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 import { examplesUrl,optionUrl } from "../chartComp/chartConfigs/chartUrls";
-
 export function treeChartPropertyView(
   children: ChartCompChildrenType,
   dispatch: (action: CompAction) => void
@@ -16,7 +15,17 @@ export function treeChartPropertyView(
   const jsonModePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsData.propertyView({ label: trans("chart.data") })}
+        {children.echartsData.propertyView({
+          label: trans("chart.data"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Treemap data",
+            fieldName: "echartsData",
+            fieldDescription:
+              "JSON treemap hierarchy (nested children with name and value), not full ECharts option JSON.",
+          },
+        })}
 
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitleVerticalConfig.getPropertyView()}
@@ -48,6 +57,14 @@ export function treeChartPropertyView(
         {children.echartsOption.propertyView({
         label: trans("chart.echartsOptionLabel"),
         styleName: "higher",
+        language: "json",
+        enableAIHelp: true,
+        aiHelp: {
+          targetKind: "echarts-option",
+          label: "Treemap option",
+          fieldName: "echartsOption",
+          fieldDescription: "Apache ECharts option JSON for this chart component.",
+        },
         tooltip: (
           <div>
             <a href={optionUrl} target="_blank" rel="noopener noreferrer">

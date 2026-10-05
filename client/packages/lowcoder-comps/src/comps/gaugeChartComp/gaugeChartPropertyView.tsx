@@ -64,6 +64,13 @@ export function gaugeChartPropertyView(
         {children.echartsOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "echarts-option",
+            label: "Gauge option",
+            fieldName: "echartsOption",
+            fieldDescription: "Apache ECharts option JSON for this gauge chart component.",
+          },
           tooltip: (
             <div>
               <a href={optionUrl} target="_blank" rel="noopener noreferrer">
@@ -131,6 +138,13 @@ export function gaugeChartPropertyView(
         {children.stageGaugeOption.propertyView({
         label: trans("chart.echartsOptionLabel"),
         styleName: "higher",
+        enableAIHelp: true,
+        aiHelp: {
+          targetKind: "echarts-option",
+          label: "Stage gauge option",
+          fieldName: "stageGaugeOption",
+          fieldDescription: "Apache ECharts option JSON for this stage gauge chart component.",
+        },
         tooltip: (
           <div>
             <a href={optionUrl} target="_blank" rel="noopener noreferrer">
@@ -198,6 +212,13 @@ export function gaugeChartPropertyView(
         {children.gradeGaugeOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "echarts-option",
+            label: "Grade gauge option",
+            fieldName: "gradeGaugeOption",
+            fieldDescription: "Apache ECharts option JSON for this grade gauge chart component.",
+          },
           tooltip: (
             <div>
               <a href={optionUrl} target="_blank" rel="noopener noreferrer">
@@ -265,6 +286,13 @@ export function gaugeChartPropertyView(
         {children.temperatureGaugeOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "echarts-option",
+            label: "Temperature gauge option",
+            fieldName: "temperatureGaugeOption",
+            fieldDescription: "Apache ECharts option JSON for this temperature gauge chart component.",
+          },
           tooltip: (
             <div>
               <a href={optionUrl} target="_blank" rel="noopener noreferrer">
@@ -331,6 +359,13 @@ export function gaugeChartPropertyView(
         {children.multiTitleGaugeOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "echarts-option",
+            label: "Multi-title gauge option",
+            fieldName: "multiTitleGaugeOption",
+            fieldDescription: "Apache ECharts option JSON for this multi-title gauge chart component.",
+          },
           tooltip: (
             <div>
               <a href={optionUrl} target="_blank" rel="noopener noreferrer">
@@ -386,6 +421,13 @@ export function gaugeChartPropertyView(
         {children.ringGaugeOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "echarts-option",
+            label: "Ring gauge option",
+            fieldName: "ringGaugeOption",
+            fieldDescription: "Apache ECharts option JSON for this ring gauge chart component.",
+          },
           tooltip: (
             <div>
               <a href={optionUrl} target="_blank" rel="noopener noreferrer">
@@ -445,6 +487,13 @@ export function gaugeChartPropertyView(
         {children.barometerGaugeOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "echarts-option",
+            label: "Barometer gauge option",
+            fieldName: "barometerGaugeOption",
+            fieldDescription: "Apache ECharts option JSON for this barometer gauge chart component.",
+          },
           tooltip: (
             <div>
               <a href={optionUrl} target="_blank" rel="noopener noreferrer">
@@ -499,6 +548,13 @@ export function gaugeChartPropertyView(
         {children.clockGaugeOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "echarts-option",
+            label: "Clock gauge option",
+            fieldName: "clockGaugeOption",
+            fieldDescription: "Apache ECharts option JSON for this clock gauge chart component.",
+          },
           tooltip: (
             <div>
               <a href={optionUrl} target="_blank" rel="noopener noreferrer">

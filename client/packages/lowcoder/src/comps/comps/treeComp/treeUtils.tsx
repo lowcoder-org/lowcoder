@@ -93,7 +93,18 @@ export function useTree(props: RecordConstructorToView<typeof treeCommonChildren
 type TreeCommonComp = NewChildren<RecordConstructorToComp<typeof treeCommonChildren>>;
 
 export const treeDataPropertyView = (children: TreeCommonComp) =>
-  children.treeData.propertyView({ label: trans("tree.treeData"), tooltip: treeDataTooltip });
+  children.treeData.propertyView({
+    label: trans("tree.treeData"),
+    tooltip: treeDataTooltip,
+    enableAIHelp: true,
+    aiHelp: {
+      targetKind: "json",
+      label: "Tree data",
+      fieldName: "treeData",
+      fieldDescription:
+        "JSON array of tree nodes. Each node must include label and value, and can include children, disabled, selectable, checkable, disableCheckbox, and isLeaf.",
+    },
+  });
 
 export const valuePropertyView = (children: TreeCommonComp) => {
   return children.defaultValue.propertyView({ label: trans("tree.value") });

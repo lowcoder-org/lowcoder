@@ -3,6 +3,7 @@ import Draggable from "react-draggable";
 import * as React from "react";
 import { useContext, useRef, useState } from "react";
 import { EditorContext } from "../../comps/editorState";
+import { useEditorStore } from "../../comps/editorStore";
 import { Layers } from "constants/Layers";
 import { HeaderWrapper, useResultPanel } from "./index";
 
@@ -31,7 +32,8 @@ interface BottomResultPanelProps {
 export const BottomResultPanel = (props: BottomResultPanelProps) => {
   const { bottom } = props;
   const editorState = useContext(EditorContext);
-  const showResultComp = editorState.showResultComp();
+  const showResultCompName = useEditorStore((state) => state.showResultCompName);
+  const showResultComp = editorState.showResultComp(showResultCompName);
   const result = showResultComp?.result();
 
   const draggableRef = useRef<HTMLDivElement>(null);

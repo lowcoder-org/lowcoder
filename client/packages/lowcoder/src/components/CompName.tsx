@@ -15,6 +15,7 @@ import { trans } from "i18n";
 import { getComponentDocUrl } from "comps/utils/compDocUtil";
 import { getComponentPlaygroundUrl } from "comps/utils/compDocUtil";
 import { parseCompType } from "comps/utils/remote";
+import { useEditorStore } from "comps/editorStore";
 
 const CompDiv = styled.div<{ $width?: number; $hasSearch?: boolean; $showSearch?: boolean }>`
   width: ${(props) => (props.$width ? props.$width : 312)}px;
@@ -79,7 +80,11 @@ export const CompName = React.memo((props: Iprops) => {
   const [showSearch, setShowSearch] = useState<boolean>(false);
   
   const editorState = useContext(EditorContext);
-  const selectedComp = useMemo(() => values(editorState.selectedComps())[0], [editorState]);
+  const selectedCompNames = useEditorStore((state) => state.selectedCompNames);
+  const selectedComp = useMemo(
+    () => values(editorState.selectedComps(selectedCompNames))[0],
+    [editorState, selectedCompNames]
+  );
   const compType = useMemo(() => selectedComp.children.compType.getView() as UICompType, [selectedComp]);
   const compInfo = useMemo(() => parseCompType(compType), [compType]);
   const docUrl = useMemo(() => getComponentDocUrl(compType), [compType]);

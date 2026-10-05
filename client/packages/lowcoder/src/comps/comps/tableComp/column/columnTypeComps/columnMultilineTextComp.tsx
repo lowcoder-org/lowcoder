@@ -61,7 +61,7 @@ const MultilineEditModal = React.memo((props: {
       cancelText={trans("table.multilineEditorCancel")}
       width={560}
       maskClosable={false}
-      destroyOnClose
+      destroyOnHidden
     >
       <TextArea
         ref={textAreaRef}

@@ -11,7 +11,6 @@ import {
   controlItem,
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
-
 export function boxplotChartPropertyView(
   children: ChartCompChildrenType,
   dispatch: (action: CompAction) => void
@@ -76,6 +75,14 @@ export function boxplotChartPropertyView(
       <Section name={sectionNames.advanced}>
         {children.data.propertyView({
           label: trans("chart.data"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Box plot chart data",
+            fieldName: "data",
+            fieldDescription:
+              "JSON array of objects for the box plot. Include keys for category (x) and numeric columns used for box plot statistics.",
+          },
         })}
       </Section>
     </>

@@ -15,10 +15,12 @@ import type { CodeEditorProps, StyleName } from "./codeEditorTypes";
 import { useClickCompNameEffect } from "./clickCompName";
 import { Layers } from "../../constants/Layers";
 import { debounce } from "lodash";
+import { CodeEditorAIHelpButton } from "components/ai-helper";
 
 type StyleConfig = {
   minHeight: string;
   maxHeight: string;
+  height?: string;
   showLineNum?: boolean;
 };
 
@@ -35,6 +37,14 @@ const styles: Record<StyleName, StyleConfig> = {
   window: {
     minHeight: "320px",
     maxHeight: "320px",
+    showLineNum: true,
+  },
+  // follows the height of whatever container the editor is placed in - the height
+  // has to be set for codemirror's own % heights (scroller, gutters) to resolve
+  fill: {
+    minHeight: "100%",
+    maxHeight: "100%",
+    height: "100%",
     showLineNum: true,
   },
 };
@@ -204,7 +214,7 @@ export const CodeEditorTooltipContainer = styled.div`
   }
 `;
 
-function getStyle(styleName?: StyleName) {
+function getStyle(styleName?: StyleName): StyleConfig {
   return styleName ? styles[styleName] : { minHeight: "auto", maxHeight: "180px" };
 }
 
@@ -214,6 +224,7 @@ function useCodeMirror(
 ) {
   const { value, onChange } = props;
   const viewRef = useRef<EditorView>();
+  const [viewVersion, setViewVersion] = useState(0);
 
   // will not trigger view.setState when typing inputs, to avoid focus chaos
   const isTypingRef = useRef(0);
@@ -250,6 +261,7 @@ function useCodeMirror(
         view.setState(state);
       } else {
         viewRef.current = new EditorView({ state, parent: container.current });
+        setViewVersion((version) => version + 1);
       }
     }
   }, [container, value, extensions]);
@@ -262,7 +274,7 @@ function useCodeMirror(
     };
   }, []);
 
-  return { view: viewRef.current, isFocus };
+  return { view: viewRef.current, isFocus, viewVersion };
 }
 
 function clickCompNameCss(enableClickCompName?: boolean) {
@@ -338,6 +350,20 @@ const CodeEditorPanelContainer = styled.div<{
 
 const CodeEditorWrapper = styled.div`
   height: 100%;
+  position: relative;
+
+  .code-editor-ai-help-button {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 120ms ease;
+  }
+
+  &:hover {
+    .code-editor-ai-help-button {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
 `;
 
 function canShowCard(props: CodeEditorProps) {
@@ -358,6 +384,21 @@ function CodeEditorCommon(
     <CodeEditorWrapper onClick={onClick ? (e) => view && onClick(e, view) : undefined}>
       {!disabled && view && props.widgetPopup?.(view)}
       {children}
+      {!disabled && props.enableAIHelp && view && (
+        <CodeEditorAIHelpButton
+          view={view}
+          label={props.aiHelp?.label ?? (typeof props.label === "string" ? props.label : undefined)}
+          language={props.language}
+          targetKind={props.aiHelp?.targetKind}
+          datasourceId={props.aiHelp?.datasourceId}
+          queryType={props.aiHelp?.queryType}
+          queryName={props.aiHelp?.queryName}
+          componentName={props.aiHelp?.componentName}
+          fieldName={props.aiHelp?.fieldName}
+          fieldDescription={props.aiHelp?.fieldDescription}
+          targetId={props.aiHelp?.targetId}
+        />
+      )}
       <PopupCard
         cardStyle={cardStyle}
         editorFocus={!disabled && isFocus && canShowCard(props)}
@@ -462,6 +503,7 @@ const Container = styled.div<{
   .cm-editor {
     overflow: hidden;
     max-height: ${(props) => getStyle(props.$styleName).maxHeight};
+    height: ${(props) => getStyle(props.$styleName).height ?? "auto"};
   }
 
   ${(props) => {

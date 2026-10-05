@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Input, Pagination, Spin } from 'antd';
@@ -198,7 +198,18 @@ export default function WorkspaceSectionComponent({
     handleSearchChange,
     handlePageChange,
     pageSize,
+    refetch,
   } = useWorkspaceManager({});
+
+  // Refetch list when orgs change (create/delete)
+  const orgsCount = user.orgs.length;
+  const prevOrgsCount = useRef(orgsCount);
+  useEffect(() => {
+    if (prevOrgsCount.current !== orgsCount) {
+      prevOrgsCount.current = orgsCount;
+      refetch();
+    }
+  }, [orgsCount, refetch]);
 
   // Early returns for better performance
   if (!showSwitchOrg(user, sysConfig)) return null;

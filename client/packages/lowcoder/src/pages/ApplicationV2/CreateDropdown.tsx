@@ -206,7 +206,7 @@ export const CreateDropdown = (props: { defaultVisible?: boolean; mode: HomeLayo
 
     if (
       type === HomeResTypeEnum.Folder &&
-      !(mode === "view" || mode === "module" || mode === "folders")
+      !(mode === "view" || mode === "module" || mode === "folder" || mode === "folders")
     ) {
       return null;
     }

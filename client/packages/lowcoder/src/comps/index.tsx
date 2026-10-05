@@ -196,6 +196,9 @@ import { ModalComp } from "./hooks/modalComp";
 import { ToastComp } from "./hooks/toastComp";
 import { defaultCollapsibleContainerData } from "./comps/containerComp/collapsibleContainerComp";
 import { ContainerComp as FloatTextContainerComp } from "./comps/containerComp/textContainerComp";
+import { ChatComp } from "./comps/chatComp";
+import { ChatControllerComp } from "./hooks/chatControllerComp";
+import { ChatBoxComp } from "./comps/chatBoxComponent";
 import { MultiTagsComp } from "./comps/tagsComp/tagsCompView";
 
 type Registry = {
@@ -564,6 +567,7 @@ export var uiCompMap: Registry = {
     categories: ["layout"],
     icon: ResponsiveLayoutCompIcon,
     keywords: trans("uiComp.responsiveLayoutCompKeywords"),
+    isContainer: true,
     comp: ResponsiveLayoutComp,
     withoutLoading: true,
     layoutInfo: {
@@ -579,6 +583,7 @@ export var uiCompMap: Registry = {
     categories: ["layout"],
     icon: PageLayoutCompIcon,
     keywords: trans("uiComp.pageLayoutCompKeywords"),
+    isContainer: true,
     comp: PageLayoutComp,
     withoutLoading: true,
     layoutInfo: {
@@ -596,6 +601,7 @@ export var uiCompMap: Registry = {
     categories: ["layout"],
     icon: ColumnLayoutCompIcon,
     keywords: trans("uiComp.responsiveLayoutCompKeywords"),
+    isContainer: true,
     comp: ColumnLayoutComp,
     withoutLoading: true,
     layoutInfo: {
@@ -611,6 +617,7 @@ export var uiCompMap: Registry = {
     categories: ["layout"],
     icon: SplitLayoutCompIcon,
     keywords: trans("uiComp.splitLayoutCompKeywords"),
+    isContainer: true,
     comp: SplitLayoutComp,
     withoutLoading: true,
     layoutInfo: {
@@ -626,6 +633,7 @@ export var uiCompMap: Registry = {
     categories: ["layout"],
     icon: FloatingTextCompIcon,
     keywords: trans("uiComp.floatTextContainerCompKeywords"),
+    isContainer: true,
     comp: FloatTextContainerComp,
     withoutLoading: true,
     layoutInfo: {
@@ -643,6 +651,7 @@ export var uiCompMap: Registry = {
     description: trans("uiComp.cardCompDesc"),
     categories: ["layout"],
     keywords: trans("uiComp.cardCompKeywords"),
+    isContainer: true,
     comp: CardComp,
     layoutInfo: {
       h: 44,
@@ -656,6 +665,7 @@ export var uiCompMap: Registry = {
     categories: ["layout"],
     icon: TabbedContainerCompIcon,
     keywords: trans("uiComp.tabbedContainerCompKeywords"),
+    isContainer: true,
     comp: TabbedContainerComp,
     withoutLoading: true,
     layoutInfo: {
@@ -672,6 +682,7 @@ export var uiCompMap: Registry = {
     categories: ["layout"],
     icon: CollapsibleContainerCompIcon,
     keywords: trans("uiComp.collapsibleContainerCompKeywords"),
+    isContainer: true,
     comp: ContainerComp,
     withoutLoading: true,
     layoutInfo: {
@@ -689,6 +700,7 @@ export var uiCompMap: Registry = {
     categories: ["layout"],
     icon: ContainerCompIcon,
     keywords: trans("uiComp.containerCompKeywords"),
+    isContainer: true,
     comp: ContainerComp,
     withoutLoading: true,
     layoutInfo: {
@@ -706,6 +718,7 @@ export var uiCompMap: Registry = {
     description: trans("uiComp.listViewCompDesc"),
     categories: ["layout"],
     keywords: trans("uiComp.listViewCompKeywords"),
+    isContainer: true,
     comp: ListViewComp,
     layoutInfo: {
       w: 12,
@@ -721,6 +734,7 @@ export var uiCompMap: Registry = {
     description: trans("uiComp.gridCompDesc"),
     categories: ["layout"],
     keywords: trans("uiComp.gridCompKeywords"),
+    isContainer: true,
     comp: GridComp,
     layoutInfo: {
       w: 12,
@@ -751,6 +765,7 @@ export var uiCompMap: Registry = {
     keywords: trans("uiComp.modalCompKeywords"),
     comp: ModalComp,
     withoutLoading: true,
+    isContainer: true,
   },
   drawer: {
     name: trans("uiComp.drawerCompName"),
@@ -761,6 +776,7 @@ export var uiCompMap: Registry = {
     keywords: trans("uiComp.drawerCompKeywords"),
     comp: DrawerComp,
     withoutLoading: true,
+    isContainer: true,
   },
   toast: {
     name: trans("uiComp.toastCompName"),
@@ -975,6 +991,30 @@ export var uiCompMap: Registry = {
     comp: MentionComp,
   },
 
+  chatController: {
+    name: "Chat Controller",
+    enName: "Chat Controller",
+    description: "Real-time chat controller for presence, typing indicators, and shared room state via Hocuspocus/Yjs. Pair with Chat Box and your own data queries.",
+    categories: ["collaboration"],
+    icon: CommentCompIcon,
+    keywords: "chatbox,chat,controller,signal,realtime,presence,typing,hocuspocus,yjs",
+    comp: ChatControllerComp,
+  },
+
+  chatBox: {
+    name: "Chat Box",
+    enName: "Chat Box",
+    description: "Chat UI component that displays messages from any data source, fires send events, and shows typing indicators from Chat Controller",
+    categories: ["collaboration"],
+    icon: CommentCompIcon,
+    keywords: "chatbox,chat,conversation,messaging",
+    comp: ChatBoxComp,
+    layoutInfo: {
+      w: 12,
+      h: 24,
+    },
+  },
+
   // Forms
 
   form: {
@@ -984,6 +1024,7 @@ export var uiCompMap: Registry = {
     categories: ["forms"],
     icon: FormCompIcon,
     keywords: trans("uiComp.formCompKeywords"),
+    isContainer: true,
     comp: FormComp,
     withoutLoading: true,
     layoutInfo: {
@@ -1709,6 +1750,19 @@ export var uiCompMap: Registry = {
     compName: "lowcoder-comp-cf-turnstile",
     layoutInfo: {
       w: 8,
+      h: 20,
+    },
+  },
+  chat: {
+    name: trans("uiComp.chatCompName"),
+    enName: "AI Chat", 
+    description: trans("uiComp.chatCompDesc"),
+    categories: ["collaboration"],
+    icon: CommentCompIcon, // Use existing icon for now
+    keywords: trans("uiComp.chatCompKeywords"),
+    comp: ChatComp,
+    layoutInfo: {
+      w: 12,
       h: 20,
     },
   },

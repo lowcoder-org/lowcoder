@@ -7,7 +7,6 @@ import {
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 import { examplesUrl,optionUrl } from "../chartComp/chartConfigs/chartUrls";
-
 export function heatmapChartPropertyView(
   children: ChartCompChildrenType,
   dispatch: (action: CompAction) => void
@@ -16,9 +15,37 @@ export function heatmapChartPropertyView(
   const jsonModePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsData.propertyView({ label: trans("chart.data") })}
-        {children.echartsDataX.propertyView({ label: trans("heatmapChart.xAxisData") })}
-        {children.echartsDataY.propertyView({ label: trans("heatmapChart.yAxisData") })}
+        {children.echartsData.propertyView({
+          label: trans("chart.data"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Heatmap values",
+            fieldName: "echartsData",
+            fieldDescription:
+              "JSON array of heatmap cells as [xIndex, yIndex, value] (indices match x/y axis label arrays).",
+          },
+        })}
+        {children.echartsDataX.propertyView({
+          label: trans("heatmapChart.xAxisData"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Heatmap x-axis labels",
+            fieldName: "echartsDataX",
+            fieldDescription: "JSON array of x-axis category labels.",
+          },
+        })}
+        {children.echartsDataY.propertyView({
+          label: trans("heatmapChart.yAxisData"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Heatmap y-axis labels",
+            fieldName: "echartsDataY",
+            fieldDescription: "JSON array of y-axis category labels.",
+          },
+        })}
         {children.echartsColor.propertyView({ label: trans("heatmapChart.color") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitleVerticalConfig.getPropertyView()}
@@ -64,6 +91,14 @@ export function heatmapChartPropertyView(
         {children.echartsOption.propertyView({
         label: trans("chart.echartsOptionLabel"),
         styleName: "higher",
+        language: "json",
+        enableAIHelp: true,
+        aiHelp: {
+          targetKind: "echarts-option",
+          label: "Heatmap option",
+          fieldName: "echartsOption",
+          fieldDescription: "Apache ECharts option JSON for this chart component.",
+        },
         tooltip: (
           <div>
             <a href={optionUrl} target="_blank" rel="noopener noreferrer">

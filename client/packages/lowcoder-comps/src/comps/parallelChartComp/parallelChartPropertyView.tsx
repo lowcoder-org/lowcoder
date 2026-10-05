@@ -11,7 +11,6 @@ import {
   controlItem,
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
-
 export function parallelChartPropertyView(
   children: ChartCompChildrenType,
   dispatch: (action: CompAction) => void
@@ -51,6 +50,14 @@ export function parallelChartPropertyView(
       <Section name={sectionNames.advanced}>
         {children.data.propertyView({
           label: trans("chart.data"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Parallel coordinates chart data",
+            fieldName: "data",
+            fieldDescription:
+              "JSON array of objects; each object is one line across parallel axes (one numeric field per dimension).",
+          },
         })}
       </Section>
     </>

@@ -21,8 +21,7 @@ import { Video } from "lowcoder-design";
 import type ReactPlayer from "react-player";
 import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import styled, { css } from "styled-components";
 
 const EventOptions = [
@@ -132,6 +131,7 @@ let VideoBasicComp = (function () {
     return <ContainerVideo {...props} />;
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
@@ -141,7 +141,7 @@ let VideoBasicComp = (function () {
             })}
           </Section>
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "logic" || editorModeStatus === "both") && (
 
             <><Section name={sectionNames.interaction}>
                 {children.onEvent.getPropertyView()}

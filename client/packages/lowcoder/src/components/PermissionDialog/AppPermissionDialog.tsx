@@ -127,7 +127,7 @@ export const AppPermissionDialog = React.memo(
     return (
       <StepModal
         open={props.visible}
-        destroyOnClose
+        destroyOnHidden
         onCancel={() => {
           setActiveStepKey("permission");
           props.onVisibleChange(false);

@@ -2,6 +2,7 @@ import { EditorContext, EditorState } from "comps/editorState";
 import { sameTypeMap, stateComp, valueComp } from "comps/generators";
 import { addMapChildAction, addMapCompChildAction } from "comps/generators/sameTypeMap";
 import { hookCompCategory, HookCompType } from "comps/hooks/hookCompTypes";
+import { shouldOpenOverlayOnCreate } from "comps/hooks/hookSelection";
 import { UICompLayoutInfo, uiCompRegistry, UICompType } from "comps/uiCompRegistry";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { parseCompType } from "comps/utils/remote";
@@ -54,6 +55,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { useEditorStore } from "comps/editorStore";
 import { ResizePayload, useResizeDetector } from "react-resize-detector";
 import styled from "styled-components";
 import { checkIsMobile } from "util/commonUtils";
@@ -125,6 +127,11 @@ type ExtraProps = {
   enableGridLines?: boolean;
   horizontalGridCells?: number;
   onRowCountChange?: (rowHeight: number) => void;
+  /**
+   * When a module (CanvasView) is used inside a ListView/Grid, each instance
+   * must not reuse the app-wide canvas id or portals / queries collide.
+   */
+  canvasContainerId?: string;
 };
 
 type DispatchProps = { dispatch: DispatchType };
@@ -210,13 +217,16 @@ const onDrop = async (
   // log.debug("layout: onDrop start. layout: ", layout, " items: ", items, " compType: ", compType);
   if (hookCompCategory(compType) === "ui") {
     const compName = editorState.getNameGenerator().genItemName(compType);
+    const hookValue = {
+      name: compName,
+      compType: compType as HookCompType,
+      ...(shouldOpenOverlayOnCreate(compType) && { comp: { visible: true } }),
+    };
     editorState
       .getHooksComp()
       .dispatch(
         wrapActionExtraInfo(
-          editorState
-            .getHooksComp()
-            .pushAction({ name: compName, compType: compType as HookCompType }),
+          editorState.getHooksComp().pushAction(hookValue),
           { compInfos: [{ compName: compName, compType: compType, type: "add" }] }
         )
       );
@@ -323,10 +333,10 @@ const GridItemWrapper = React.memo(React.forwardRef(
     props: React.PropsWithChildren<HTMLAttributes<HTMLDivElement>>,
     ref: React.ForwardedRef<HTMLDivElement>
   ) => {
-    const editorState = useContext(EditorContext);
+    const disableInteract = useEditorStore((state) => state.disableInteract);
     const { children, ...divProps } = props;
     return (
-      <ItemWrapper ref={ref} $disableInteract={editorState?.disableInteract} {...divProps}>
+      <ItemWrapper ref={ref} $disableInteract={disableInteract} {...divProps}>
         {props.children}
       </ItemWrapper>
     );
@@ -349,6 +359,9 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
   const [currentRowCount, setRowCount] = useState(rowCount || Infinity);
   const [currentRowHeight, setRowHeight] = useState(positionParams.rowHeight || DEFAULT_ROW_HEIGHT);
   const editorState = useContext(EditorContext);
+  const selectedCompNames = useEditorStore((state) => state.selectedCompNames);
+  const isDragging = useEditorStore((state) => state.isDragging);
+  const showGridLines = useEditorStore((state) => state.isDragging || state.forceShowGrid);
   const { readOnly } = useContext(ExternalEditorContext);
   const appSettingsComp = editorState?.getAppSettingsComp().getView();
 
@@ -372,10 +385,10 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
       getExtraLayout(
         props.items,
         props.layout,
-        editorState?.selectedCompNames,
+        selectedCompNames,
         props.dragSelectedComps
       ),
-    [props.items, props.layout, editorState?.selectedCompNames, props.dragSelectedComps]
+    [props.items, props.layout, selectedCompNames, props.dragSelectedComps]
   );
 
   const [containerSelectNames, setContainerSelectNames] = useState<Set<string>>(new Set([]));
@@ -392,8 +405,8 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
   }, [extraLayout, containerSelectNames]);
 
   const canAddSelect = useMemo(
-    () => _.size(containerSelectNames) === _.size(editorState?.selectedCompNames),
-    [containerSelectNames, editorState?.selectedCompNames]
+    () => _.size(containerSelectNames) === _.size(selectedCompNames),
+    [containerSelectNames, selectedCompNames]
   );
 
   const dispatchPositionParamsTimerRef = useRef(0);
@@ -527,7 +540,7 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
       style={props.style}
       scrollContainerRef={props.scrollContainerRef}
       width={width ?? 0}
-      showGridLines={editorState?.showGridLines() && (isDroppable || enableGridLines)}
+      showGridLines={showGridLines && (isDroppable || enableGridLines)}
       isRowCountLocked={isRowCountLocked}
       isDraggable={isDraggable}
       isResizable={isResizable}
@@ -585,12 +598,12 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
       minHeight={props.minHeight}
       bgColor={props.bgColor}
       radius={props.radius}
-      hintPlaceholder={!editorState?.isDragging && !readOnly && props.hintPlaceholder}
+      hintPlaceholder={!isDragging && !readOnly && props.hintPlaceholder}
       selectedSize={_.size(containerSelectNames)}
       clickItem={clickItem}
       isCanvas={props.isCanvas}
       showName={props.showName}
-      disableDirectionKey={editorState?.isDragging || readOnly}
+      disableDirectionKey={isDragging || readOnly}
     >
       {itemViews}
     </ReactGridLayout>

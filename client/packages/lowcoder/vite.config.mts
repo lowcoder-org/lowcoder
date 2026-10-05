@@ -35,10 +35,16 @@ if (!apiServiceUrl && isDev) {
   process.exit(1);
 }
 
+const proxyServiceUrl = process.env.LOWCODER_PROXY_SERVICE_URL || "http://localhost:6070";
+
 const proxyConfig: ServerOptions["proxy"] = {
   "/api": {
     target: apiServiceUrl,
     changeOrigin: false,
+  },
+  "/proxy": {
+    target: proxyServiceUrl,
+    changeOrigin: true,
   },
 };
 
@@ -170,6 +176,7 @@ export const viteConfig: UserConfig = {
             if (id.includes("react-colorful")) return "react-colorful";
             if (id.includes("react-best-gradient-color-picker")) return "react-best-gradient-color-picker";
             if (id.includes("@supabase/supabase-js")) return "supabase";
+            if (id.includes("@kinde-oss/kinde-auth-pkce-js")) return "kinde";
             return null;
           }
           return null;
@@ -247,7 +254,8 @@ export const viteConfig: UserConfig = {
     react({
       babel: {
         parserOpts: {
-          plugins: ["decorators-legacy"],
+          // Custom plugins replace Babel defaults; typescript/jsx are required for .ts/.tsx.
+          plugins: ["decorators-legacy", "typescript", "jsx"],
         },
       },
     }),

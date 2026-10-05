@@ -41,6 +41,7 @@ import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.lowcoder.sdk.util.CookieHelper;
+import org.lowcoder.sdk.util.EmailUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
@@ -244,13 +245,38 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
         user.setActiveAuthId(oldConnection.getAuthId());
     }
 
+    /**
+     * The connection this authenticated identity corresponds to.
+     *
+     * <p>The subject comparison has to agree with how {@code findBySourceAndId} resolved the user, or the
+     * lookup finds an account and this then fails to find its connection. That is not hypothetical: the
+     * lookup now also matches a stored {@code john@doe.com} against the input {@code JoHn@DoE.com}, and a
+     * byte-exact comparison here would throw on exactly those logins.
+     *
+     * <p>{@code normalizeIfEmailSource} on both sides, so this is case-insensitive for EMAIL connections and
+     * byte-exact for every other source -- where {@code rawId} is an opaque IdP subject.
+     *
+     * <p>Exact match first, case-insensitive only as a fallback. {@code User.connections} is a
+     * {@code HashSet}, so its iteration order is not a contract; a single case-insensitive pass would pick
+     * an arbitrary one of two connections that differ only in case -- a state legacy data can be in. Trying
+     * the byte-exact match first makes the choice deterministic and gives the connection the caller
+     * actually authenticated with.
+     */
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     protected Connection getAuthConnection(AuthUser authUser, User user) {
-        return user.getConnections()
+        String subject = EmailUtils.normalizeIfEmailSource(authUser.getSource(), authUser.getUid());
+        List<Connection> sameSource = user.getConnections()
                 .stream()
-                .filter(connection -> authUser.getSource().equals(connection.getSource())
-                        && Objects.equals(connection.getRawId(), authUser.getUid()))
+                .filter(connection -> authUser.getSource().equals(connection.getSource()))
+                .toList();
+        return sameSource.stream()
+                .filter(connection -> Objects.equals(connection.getRawId(), authUser.getUid()))
                 .findFirst()
+                .or(() -> sameSource.stream()
+                        .filter(connection -> Objects.equals(
+                                EmailUtils.normalizeIfEmailSource(connection.getSource(), connection.getRawId()),
+                                subject))
+                        .findFirst())
                 .get();
     }
 

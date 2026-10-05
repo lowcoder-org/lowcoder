@@ -53,7 +53,7 @@ import {
   updateInCanvasCount,
 } from "./utils";
 import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { CompContext } from "@lowcoder-ee/comps/utils/compContext";
+import { CompContext, CompContextCompInfo, CompContextInnerFields } from "@lowcoder-ee/comps/utils/compContext";
 
 type GridLayoutState = {
   layout: Layout;
@@ -122,9 +122,46 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
   ref = this.props.innerRef ?? this.innerRef;
   innerHeight = 0;
 
+  // Preserve context value identity across drag-driven renders.
+  compContextCache = new Map<
+    string,
+    { compType: UICompType | ""; widgetComp: any; value: { compType: UICompType | ""; comp?: CompContextCompInfo } }
+  >();
+
+  // Coalesces drag-tick layout commits to one per animation frame.
+  latestDragOps?: LayoutOps;
+  opsCommitRafId?: number;
+
+  scheduleOpsCommit = (ops: LayoutOps) => {
+    this.latestDragOps = ops;
+    if (this.opsCommitRafId !== undefined) return;
+    this.opsCommitRafId = requestAnimationFrame(() => {
+      this.opsCommitRafId = undefined;
+      if (this.latestDragOps !== undefined) {
+        this.setState({ ops: this.latestDragOps, nextLayout: undefined });
+      }
+    });
+  };
+
+  cancelPendingOpsCommit() {
+    if (this.opsCommitRafId !== undefined) {
+      cancelAnimationFrame(this.opsCommitRafId);
+      this.opsCommitRafId = undefined;
+    }
+    this.latestDragOps = undefined;
+  }
+
+  takeLatestOps() {
+    const latestOps = this.latestDragOps ?? this.state.ops;
+    this.cancelPendingOpsCommit();
+    return latestOps;
+  }
+
   throttleDebug = _.throttle(log.debug, 200);
 
   componentWillUnmount() {
+    this.cancelPendingOpsCommit();
+    this.compContextCache.clear();
     // Cleanup throttled debug function
     this.throttleDebug.cancel();
   }
@@ -209,6 +246,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
       // log.debug( "layout: didUpdate. oldLayout: ", oldLayout, " newLayout: ", newLayout, " prevProps: ", prevProps.layout, "thisProps: ", this.props.layout);
       this.onLayoutMaybeChanged(newLayout, oldLayout);
     }
+    this.pruneCompContextCache(Object.keys(this.getUILayout()));
   }
 
   isValidMounted(): boolean {
@@ -249,6 +287,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
       e.preventDefault();
       return;
     }
+    this.cancelPendingOpsCommit();
 
     let keys = this.getSelectedKeys();
     if (!keys.includes(i)) {
@@ -286,7 +325,8 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     let { offsetX, offsetY } = calcOffsetXY(e, this.ref.current as HTMLDivElement, transformScale);
 
     const recoverDragStartFn = () => {
-      this.setState({ ops: undefined });
+      this.cancelPendingOpsCommit();
+      this.setState({ ops: undefined, nextLayout: undefined });
       // Ensure dragging data is cleared
       draggingUtils.clearData();
     };
@@ -424,6 +464,42 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     }
   };
 
+  // Avoid serializing the entire component tree for context consumers.
+  getWidgetCompInfo(widgetComp: any): CompContextInnerFields | undefined {
+    if (!widgetComp?.children) return undefined;
+    return {
+      appliedThemeId: widgetComp.children.appliedThemeId?.getView?.(),
+      preventStyleOverwriting: widgetComp.children.preventStyleOverwriting?.getView?.(),
+      showDataLoadingIndicators: widgetComp.children.showDataLoadingIndicators?.getView?.(),
+      version: widgetComp.children.version?.getView?.(),
+    };
+  }
+
+  getCompContextValue(itemId: string, extraItem?: ExtraItem) {
+    const compType: UICompType | "" = extraItem?.compType ?? "";
+    const widgetComp = extraItem?.comp?.children?.comp;
+    const cached = this.compContextCache.get(itemId);
+    if (cached && cached.compType === compType && cached.widgetComp === widgetComp) {
+      return cached.value;
+    }
+    const value: { compType: UICompType | ""; comp?: CompContextCompInfo } = {
+      compType,
+      comp: widgetComp ? { comp: this.getWidgetCompInfo(widgetComp) } : undefined,
+    };
+    this.compContextCache.set(itemId, { compType, widgetComp, value });
+    return value;
+  }
+
+  pruneCompContextCache(currentKeys: Iterable<string>) {
+    if (this.compContextCache.size === 0) return;
+    const keep = new Set(currentKeys);
+    for (const key of this.compContextCache.keys()) {
+      if (!keep.has(key)) {
+        this.compContextCache.delete(key);
+      }
+    }
+  }
+
   processGridItem(
     zIndex: number,
     item: LayoutItem,
@@ -456,10 +532,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     return (
       <CompContext.Provider
         key={item.i}
-        value={{
-          compType: extraItem?.compType,
-          comp: extraItem?.comp?.toJsonValue(),
-        }}
+        value={this.getCompContextValue(item.i, extraItem)}
       >
         <CompTypeContext.Provider value={extraItem?.compType}>
           <GridItem
@@ -641,7 +714,8 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
       // log.debug("flyOverRecoverFn: ", startOps, " layout: ", getUILayout(this.state.layout, startOps));
       const isSameRef = flyOverInfo?.layoutRef === this.ref;
       if (!isSameRef) {
-        this.setState({ ops: startOps });
+        this.cancelPendingOpsCommit();
+        this.setState({ ops: startOps, nextLayout: undefined });
       }
       if (flyOverInfo) {
         const newFlyOverInfo = isSameRef
@@ -705,7 +779,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
       } else {
         flyOverInfo.switchFn(newFlyOverInfo);
       }
-      this.setState({ ops, nextLayout: undefined });
+      this.scheduleOpsCommit(ops);
       // log.debug("setStateFn. ops: ", ops);
     };
 
@@ -830,8 +904,8 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     const flyStartInfo = draggingUtils.getData<FlyStartInfo>(FLY_START_INFO);
     if (!flyStartInfo) {
       const { droppingItem } = this.props as Required<GridLayoutProps>;
-      const ops = layoutOpUtils.push(this.state.ops, deleteItemOp(droppingItem.i as string));
-      this.setState({ ops });
+      const ops = layoutOpUtils.push(this.takeLatestOps(), deleteItemOp(droppingItem.i as string));
+      this.setState({ ops, nextLayout: undefined });
     }
   }
 
@@ -874,14 +948,14 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     const i = dragStartInfo.flyItemI;
 
     const ops = layoutOpUtils.batchPush(
-      this.state.ops,
+      this.takeLatestOps(),
       _.flattenDeep<LayoutOp>([
         keys.map((key) => changeItemOp(key, { placeholder: undefined })),
         renameItemOp(droppingKey, i),
       ])
     );
     this.dragEnterCounter = 0;
-    this.setState({ ops });
+    this.setState({ ops, nextLayout: undefined });
 
     const layout = getUILayout(
       this.state.layout,
@@ -906,21 +980,25 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
       // move the logic to onDragEnd function when dragging from the canvas
       return;
     }
-    let layout = this.getUILayout();
-    const ops = layoutOpUtils.push(this.state.ops, deleteItemOp(droppingKey));
+    const latestOps = this.takeLatestOps();
+    let layout = this.getUILayout(latestOps);
+    const ops = layoutOpUtils.push(latestOps, deleteItemOp(droppingKey));
     const items = _.pick(layout, droppingKey);
     layout = _.omit(layout, droppingKey);
     // log.debug("layout: onDrop gridLayout. items: ", items);
     // reset dragEnter counter on drop
     this.dragEnterCounter = 0;
-    this.setState({ ops });
+    this.setState({ ops, nextLayout: undefined });
 
     onDrop?.(layout, items, e);
     draggingUtils.clearData();
   };
 
   onDragEnd = (i: string, e: DragEvent<HTMLDivElement>, node: HTMLDivElement) => {
-    if (!draggingUtils.isDragging()) return;
+    if (!draggingUtils.isDragging()) {
+      this.cancelPendingOpsCommit();
+      return;
+    }
 
     let flyStartInfo = draggingUtils.getData<FlyStartInfo>(FLY_START_INFO);
     let flyOverInfo = draggingUtils.getData<FlyOverInfo>(FLY_OVER_INFO);
@@ -1104,7 +1182,7 @@ const LayoutContainer = styled.div<{
   overflow: ${(props) =>
     props.$maxRows !== DEFAULT_ROW_COUNT
     ? 'hidden'
-    : props.$overflow ?? "overlay"
+    : props.$overflow ?? (props.$autoHeight ? 'hidden' : 'overlay')
   };
   ${(props) =>
     props.$autoHeight &&
@@ -1118,7 +1196,7 @@ const ResizeWrapper = (props: {
   children: JSX.Element | React.ReactNode;
   onResize: (width?: number, height?: number) => void;
 }) => {
-  const { width, height } = useResizeDetector({
+  useResizeDetector({
     targetRef: props.targetRef,
     onResize: ({ width, height }: ResizePayload) => {
       props.onResize(width ?? undefined, height ?? undefined);
@@ -1126,6 +1204,9 @@ const ResizeWrapper = (props: {
     handleHeight: true,
     refreshMode: 'debounce',
     refreshRate: 100,
+    // This wrapper only uses the callback, so the hook does not need its own
+    // render cycle to track and expose width/height.
+    disableRerender: true,
   });
 
   return <>{props.children}</>;

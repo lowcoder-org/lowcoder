@@ -24,7 +24,7 @@ import { getUser } from "redux/selectors/usersSelectors";
 import { getOrgCreateStatus } from "redux/selectors/orgSelectors";
 import { useWorkspaceManager } from "util/useWorkspaceManager";
 import { Org } from "constants/orgConstants";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { SwapOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
@@ -195,9 +195,20 @@ function OrganizationSetting() {
     handleSearchChange,
     handlePageChange,
     pageSize,
+    refetch,
   } = useWorkspaceManager({ 
     pageSize: 10 
   });
+
+  // Refetch list when orgs change (create/delete)
+  const orgsCount = user.orgs.length;
+  const prevOrgsCount = useRef(orgsCount);
+  useEffect(() => {
+    if (prevOrgsCount.current !== orgsCount) {
+      prevOrgsCount.current = orgsCount;
+      refetch();
+    }
+  }, [orgsCount, refetch]);
 
 
 

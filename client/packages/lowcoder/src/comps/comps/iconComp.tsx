@@ -29,8 +29,7 @@ import {
   eventHandlerControl,
   doubleClickEvent,
 } from "../controls/eventHandlerControl";
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { AssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
 import { dropdownControl } from "../controls/dropdownControl";
 import { useCompClickEventHandler } from "../utils/useCompClickEventHandler";
@@ -150,7 +149,9 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
 let IconBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props) => {
     return(<IconView {...props} />)})
-    .setPropertyViewFn((children) => (
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
         <Section name={sectionNames.basic}>
           { children.sourceMode.propertyView({
@@ -166,7 +167,7 @@ let IconBasicComp = (function () {
           })}
         </Section> 
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["logic", "both"].includes(editorModeStatus) && (
           <Section name={sectionNames.interaction}>
             {children.onEvent.getPropertyView()}
             {hiddenPropertyView(children)}
@@ -174,7 +175,7 @@ let IconBasicComp = (function () {
           </Section>
         )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           <><Section name={sectionNames.layout}>
             {children.autoHeight.propertyView({
             label: trans("iconComp.autoSize"),
@@ -193,7 +194,8 @@ let IconBasicComp = (function () {
           </>
         )}
       </>
-    ))
+    );
+    })
     .build();
 })();
 
@@ -206,4 +208,3 @@ IconBasicComp = class extends IconBasicComp {
 export const IconComp = withExposingConfigs(IconBasicComp, [
   NameConfigHidden,
 ]);
-

@@ -44,8 +44,7 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { CustomModal } from "lowcoder-design";
 import { DraggerUpload } from "./draggerUpload";
 import { ImageCaptureModal } from "./ImageCaptureModal";
-import  { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { checkIsMobile } from "@lowcoder-ee/util/commonUtils";
 import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
 
@@ -515,7 +514,9 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => {
   
   return <Upload {...props} dispatch={dispatch} />;
 })
-  .setPropertyViewFn((children) => (
+  .setPropertyViewFn((children) => {
+    const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+    return (
     <>
       <Section name={sectionNames.basic}>
         {children.text.propertyView({
@@ -535,7 +536,7 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => {
 
       <FormDataPropertyView {...children} />
 
-      {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+      {(editorModeStatus === "logic" || editorModeStatus === "both") && (
         <><Section name={sectionNames.validation}>
           {children.uploadType.getView() !== "single" && children.maxFiles.propertyView({ label: trans("file.maxFiles") })}
           {commonValidationFields(children)}
@@ -580,14 +581,15 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => {
         </>
       )}
 
-      {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+      {(editorModeStatus === "layout" || editorModeStatus === "both") && (
         <>
           <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
           <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
         </>
       )}
     </>
-  ))
+  );
+  })
   .build();
 
   class FileImplComp extends FileTmpComp {

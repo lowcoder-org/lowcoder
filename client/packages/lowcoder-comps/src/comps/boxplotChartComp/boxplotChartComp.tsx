@@ -175,6 +175,7 @@ BoxplotChartTmpComp = withViewFn(BoxplotChartTmpComp, (comp) => {
         notMerge
         lazyUpdate
         opts={{ locale: getEchartsLocale() }}
+        theme={themeConfig}
         option={option}
         mode={mode}
       />

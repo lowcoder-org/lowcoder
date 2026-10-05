@@ -239,6 +239,7 @@ export const pt: typeof en = {
     appid: "ID de Aplicação Agora",
     meetingName: "Nome da Reunião",
     localUserID: "ID de Usuário do Anfitrião",
+    localUserName: "Nome de Usuário do Anfitrião",
     userName: "Nome de Usuário do Anfitrião",
     rtmToken: "Agora RTM Token",
     rtcToken: "Agora RTC Token",

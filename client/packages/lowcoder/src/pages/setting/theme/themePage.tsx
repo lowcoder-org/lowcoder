@@ -19,6 +19,20 @@ import { genQueryId } from "comps/utils/idGenerator";
 import { trans } from "i18n";
 import { Level1SettingPageTitleWithBtn } from "../styled";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { ThemeImport } from "./ThemeImport";
+import {
+  exportThemeAsJSONFile,
+  prepareImportedTheme,
+  readThemeFile,
+} from "./themeImportExport";
+import { default as Button } from "antd/es/button";
+import styled from "styled-components";
+
+const HeaderActions = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+`;
 
 type ThemeProps = {
   setCommonSettings: (params: SetCommonSettingPayload) => void;
@@ -142,6 +156,13 @@ class ThemePage extends React.Component<ThemeProps, ThemeState> {
       case MENU_TYPE.EDIT:
         history.push(`${THEME_DETAIL}/${info.themeId}`)
         break;
+      case MENU_TYPE.EXPORT: {
+        const theme = this.props.themeList?.find((item) => item.id === info.themeId);
+        if (theme) {
+          exportThemeAsJSONFile(theme);
+        }
+        break;
+      }
       case MENU_TYPE.RENAME:
         this.setCommonSettings(
           "themeList",
@@ -160,6 +181,31 @@ class ThemePage extends React.Component<ThemeProps, ThemeState> {
     }
   }
 
+  importTheme = async (file: File) => {
+    try {
+      const parsed = await readThemeFile(file);
+      const fallbackName = file.name?.split(".").slice(0, -1).join(".");
+      this.props.fetchCommonSettings(this.props.orgId, ({ themeList }) => {
+        const imported = prepareImportedTheme(parsed, themeList || [], fallbackName);
+        const list = [...(themeList || []), imported];
+        this.props.setCommonSettings({
+          orgId: this.props.orgId,
+          data: {
+            key: "themeList",
+            value: list,
+          },
+          onSuccess: () => {
+            messageInstance.success(trans("theme.importSuccessMsg"));
+            this.props.fetchCommonSettings(this.props.orgId);
+          },
+        });
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      messageInstance.error(trans("theme.importError", { message }));
+    }
+  };
+
   render() {
     const { defaultTheme, isAdmin, themeList } = this.props;
 
@@ -167,18 +213,23 @@ class ThemePage extends React.Component<ThemeProps, ThemeState> {
       <ThemeContent>
         <Level1SettingPageTitleWithBtn>
           <span>{trans("theme.title")}</span>
-          <CreateButton
-            type="primary"
-            disabled={!isAdmin}
-            icon={<AddIcon />}
-            onClick={() =>
-              this.setState({
-                modalVisible: true,
-              })
-            }
-          >
-            {trans("theme.createTheme")}
-          </CreateButton>
+          <HeaderActions>
+            <ThemeImport disabled={!isAdmin} onImport={this.importTheme}>
+              <Button disabled={!isAdmin}>{trans("theme.importTheme")}</Button>
+            </ThemeImport>
+            <CreateButton
+              type="primary"
+              disabled={!isAdmin}
+              icon={<AddIcon />}
+              onClick={() =>
+                this.setState({
+                  modalVisible: true,
+                })
+              }
+            >
+              {trans("theme.createTheme")}
+            </CreateButton>
+          </HeaderActions>
         </Level1SettingPageTitleWithBtn>
         <ThemeList
           themeList={themeList}

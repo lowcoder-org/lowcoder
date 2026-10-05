@@ -729,6 +729,7 @@ export const en = {
     appid: "Agora Application ID",
     meetingName: "Meeting Name",
     localUserID: "Host User ID",
+    localUserName: "Host User Name",
     userName: "Host User Name",
     rtmToken: "Agora RTM Token",
     rtcToken: "Agora RTC Token",

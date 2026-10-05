@@ -8,6 +8,7 @@ import { EditorContext } from "comps/editorState";
 import { ThemeContext } from "comps/utils/themeContext";
 import styled from "styled-components";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
+import { useEditorStore } from "comps/editorStore";
 
 const FlowContainerWrapper = styled.div<{ $bgColor: string; $maxWidth?: number; $minHeight: string }>`
   background-color: ${(props) => props.$bgColor};
@@ -37,6 +38,7 @@ export function FlowContainerView(
   const layouts = props.layout;
   const { selectable, minHeight, maxWidth } = props;
   const editorState = useContext(EditorContext);
+  const selectedCompNames = useEditorStore((state) => state.selectedCompNames);
   const bgColor = (useContext(ThemeContext)?.theme || defaultTheme).canvas;
 
   return (
@@ -63,7 +65,7 @@ export function FlowContainerView(
               }}
               autoHeight={false}
               resizeHandles={[]}
-              isSelected={editorState.selectedCompNames.has(comp.name)}
+              isSelected={selectedCompNames.has(comp.name)}
               onClick={() => {
                 editorState.setSelectedCompNames(new Set([comp.name]));
               }}

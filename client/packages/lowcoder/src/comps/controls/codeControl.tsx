@@ -2,6 +2,7 @@ import type { EditorState } from "@codemirror/state";
 import { isThemeColorKey } from "api/commonSettingApi";
 import type { Language } from "base/codeEditor/codeEditorTypes";
 import { EditorContext } from "comps/editorState";
+import { EditorStoreSelector } from "comps/editorStore";
 import { withDefault } from "comps/generators/simpleGenerators";
 import { CompExposingContext } from "comps/generators/withContext";
 import { exposingDataForAutoComplete } from "comps/utils/exposingTypes";
@@ -195,31 +196,33 @@ export function codeControl<
           {(editorState) => (
             <CompExposingContext.Consumer>
               {(exposingData) => (
-                <>
-                  <Suspense fallback={null}>
-                    <CodeEditor
-                      key={key}
-                      {...restParams}
-                      bordered
-                      value={this.unevaledValue}
-                      codeType={codeType}
-                      cardTitle={toCardTitle(codeControlParams?.expectedType, this.valueAndMsg.value)}
-                      cardContent={cardContent}
-                      onChange={this.handleChange}
-                      hasError={this.valueAndMsg?.hasError()}
-                      segments={this.valueAndMsg?.extra?.segments}
-                      exposingData={{
-                        ...exposingDataForAutoComplete(
-                          editorState?.nameAndExposingInfo(),
-                          evalWithMethods
-                        ),
-                        ...exposingData,
-                      }}
-                      boostExposingData={exposingData}
-                      enableClickCompName={editorState?.forceShowGrid}
-                    />
-                  </Suspense>
-                </>
+                <EditorStoreSelector selector={(state) => state.forceShowGrid}>
+                  {(forceShowGrid) => (
+                    <Suspense fallback={null}>
+                      <CodeEditor
+                        key={key}
+                        {...restParams}
+                        bordered
+                        value={this.unevaledValue}
+                        codeType={codeType}
+                        cardTitle={toCardTitle(codeControlParams?.expectedType, this.valueAndMsg.value)}
+                        cardContent={cardContent}
+                        onChange={this.handleChange}
+                        hasError={this.valueAndMsg?.hasError()}
+                        segments={this.valueAndMsg?.extra?.segments}
+                        exposingData={{
+                          ...exposingDataForAutoComplete(
+                            editorState?.nameAndExposingInfo(),
+                            evalWithMethods
+                          ),
+                          ...exposingData,
+                        }}
+                        boostExposingData={exposingData}
+                        enableClickCompName={forceShowGrid}
+                      />
+                    </Suspense>
+                  )}
+                </EditorStoreSelector>
               )}
             </CompExposingContext.Consumer>
           )}

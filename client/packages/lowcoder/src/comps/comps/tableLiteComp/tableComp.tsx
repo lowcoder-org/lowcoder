@@ -40,8 +40,6 @@ import { getSelectedRowKeys } from "./selectionControl";
 import { compTablePropertyView } from "./tablePropertyView";
 import { RowColorComp, RowHeightComp, TableChildrenView, TableInitComp } from "./tableTypes";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
 import { tableMethodExposings } from "./methods/tableMethodExposings";
 import { buildSortedDataNode, buildFilteredDataNode, buildOriDisplayDataNode, buildColumnAggrNode } from "./nodes/dataNodes";
 
@@ -241,14 +239,7 @@ let TableTmpComp = withViewFn(TableImplComp, (comp) => {
   );
 });
 
-const withEditorModeStatus = (Component:any) => (props:any) => {
-  const editorModeStatus = useContext(EditorContext).editorModeStatus;
-  const {ref, ...otherProps} = props;
-  return <Component {...otherProps} editorModeStatus={editorModeStatus} />;
-};
-
-
-TableTmpComp = withPropertyViewFn(TableTmpComp, (comp) => withEditorModeStatus(compTablePropertyView)(comp));
+TableTmpComp = withPropertyViewFn(TableTmpComp, compTablePropertyView);
 
 TableTmpComp = withDispatchHook(TableTmpComp, (dispatch) => (action) => {
   if (!dispatch) {

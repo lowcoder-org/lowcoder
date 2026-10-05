@@ -12,7 +12,6 @@ import {
   controlItem,
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
-
 export function scatterChartPropertyView(
   children: ChartCompChildrenType,
   dispatch: (action: CompAction) => void
@@ -121,6 +120,14 @@ export function scatterChartPropertyView(
       <Section name={sectionNames.advanced}>
         {children.data.propertyView({
           label: trans("chart.data"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Scatter chart data",
+            fieldName: "data",
+            fieldDescription:
+              "JSON array of objects for the Scatter chart. Each row is one category; include keys for the x-axis and numeric values for each series.",
+          },
         })}
       </Section>
     </>

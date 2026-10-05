@@ -35,6 +35,14 @@ const TemporaryStateItemCompBase = new MultiCompBuilder(
                 label: trans("temporaryState.value"),
                 tooltip: trans("temporaryState.valueTooltip"),
                 placement: "bottom",
+                enableAIHelp: true,
+                aiHelp: {
+                  targetKind: "json",
+                  label: `${children.name.getView()}.value`,
+                  fieldName: "value",
+                  fieldDescription:
+                    "Initial JSON value for this temporary state. Supports any JSON type (object, array, string, number, boolean, null).",
+                },
                 extraChildren: QueryTutorials.tempState && (
                   <><br/><TacoMarkDown>{trans("temporaryState.documentationText")}</TacoMarkDown><br/><DocLink style={{ marginTop: 8 }} href={QueryTutorials.tempState} title={trans("temporaryState.documentationText")}>
                     {trans("temporaryState.docLink")}

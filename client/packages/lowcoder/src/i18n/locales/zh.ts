@@ -1948,6 +1948,9 @@ export const zh = {
     ...en.dropdown,
 
   "onlyMenu": "仅菜单",
+  "onlyIcon": "仅触发图标",
+  "triggerIcon": "触发区图标",
+  "triggerIconSize": "触发图标尺寸 (px)",
   "textDesc": "当前显示在按钮上的文本",
   "triggerMode": "触发方式",
   },

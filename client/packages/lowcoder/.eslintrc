@@ -1,6 +1,9 @@
 {
   "extends": ["react-app"],
   "plugins": ["only-ascii"],
+  "parserOptions": {
+    "warnOnUnsupportedTypeScriptVersion": false
+  },
   "rules": {
     // "react-hooks/exhaustive-deps": "off"
     //"only-ascii/only-ascii": "error"

@@ -51,6 +51,7 @@ export interface UICompManifest {
   lazyLoad?: boolean;
   compName?: string;
   compPath?: string;
+  isContainer?: boolean;
   defaultDataFn?: CompDefaultDataFunction;
   defaultDataFnName?: string;
   defaultDataFnPath?: string;
@@ -144,6 +145,9 @@ export type UICompType =
   | "timeline" //Added By Mousheng
   | "comment" //Added By Mousheng
   | "mention" //Added By Mousheng
+  | "chat" //Added By Kamal Qureshi
+  | "chatController"
+  | "chatBox"
   | "autocomplete" //Added By Mousheng
   | "colorPicker" //Added By Mousheng
   | "floatingButton" //Added By Mousheng
@@ -172,6 +176,7 @@ export type UICompType =
   | "columnLayout"
   | "ganttChart"
   | "kanban"
+  | "chat" // Added by Faran
   ;
 
 

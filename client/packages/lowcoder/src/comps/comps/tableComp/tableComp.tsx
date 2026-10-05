@@ -60,8 +60,7 @@ import { getSelectedRowKeys } from "./selectionControl";
 import { compTablePropertyView } from "./tablePropertyView";
 import { RowColorComp, RowHeightComp, SortValue, TableChildrenView, TableInitComp } from "./tableTypes";
 
-import { useContext, useState } from "react";
-import { EditorContext } from "comps/editorState";
+import { useState } from "react";
 
 export class TableImplComp extends TableInitComp implements IContainer {
   private prevUnevaledValue?: string;
@@ -564,16 +563,7 @@ let TableTmpComp = withViewFn(TableImplComp, (comp) => {
 });
 
 
-const withEditorModeStatus = (Component:any) => (props:any) => {
-  const editorModeStatus = useContext(EditorContext).editorModeStatus;
-  const {ref, ...otherProps} = props;
-  return <Component {...otherProps} editorModeStatus={editorModeStatus} />;
-};
-
-// Use this HOC when defining TableTmpComp
-TableTmpComp = withPropertyViewFn(TableTmpComp, (comp) => withEditorModeStatus(compTablePropertyView)(comp));
-
-// TableTmpComp = withPropertyViewFn(TableTmpComp, compTablePropertyView);
+TableTmpComp = withPropertyViewFn(TableTmpComp, compTablePropertyView);
 
 
 
@@ -720,6 +710,33 @@ TableTmpComp = withMethodExposing(TableTmpComp, [
       const allKeys = displayData.map((row) => row[OB_ROW_ORI_INDEX] + "");
       comp.children.selection.children.selectedRowKey.dispatchChangeValueAction(allKeys[0] || "0");
       comp.children.selection.children.selectedRowKeys.dispatchChangeValueAction(allKeys);
+    },
+  },
+  {
+    method: {
+      name: "rowClick",
+      description:
+        "Programmatically click a table row by index and trigger rowClick event handlers",
+      params: [{ name: "rowIndex", type: "number" }],
+    },
+    execute: (comp, values) => {
+      const rowIndex = Number(values[0]);
+      const displayData = comp.filterData ?? [];
+      if (Number.isNaN(rowIndex) || rowIndex < 0 || rowIndex >= displayData.length) {
+        return Promise.reject(
+          "rowClick expects a valid row index within the current filtered data"
+        );
+      }
+      const key = displayData[rowIndex][OB_ROW_ORI_INDEX] + "";
+      const prevKey = comp.children.selection.children.selectedRowKey.getView();
+      if (key !== prevKey) {
+        comp.children.selection.children.selectedRowKey.dispatchChangeValueAction(key);
+      }
+      const onEvent = comp.children.onEvent.getView();
+      onEvent("rowClick");
+      if (key !== prevKey) {
+        onEvent("rowSelectChange");
+      }
     },
   },
   {

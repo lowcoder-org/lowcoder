@@ -300,15 +300,37 @@ export function mapOptionsControl<T extends OptionsControlType>(
     }
   )
     .setControlItemData({ filterText: label })
-    .setPropertyViewFn((children) => (
-      <>
-        {children.data.propertyView({ label })}
-        <AutoArea>
-          {children.mapData.getPropertyView()}
-          {OptionTip}
-        </AutoArea>
-      </>
-    ))
+    .setPropertyViewFn((children) => {
+      const mapSchema = (() => {
+        try {
+          const json = children.mapData.toJsonValue();
+          const keys = Object.keys(json as Record<string, unknown>);
+          return keys.length > 0 ? keys.join(", ") : "label, value";
+        } catch {
+          return "label, value";
+        }
+      })();
+
+      return (
+        <>
+          {children.data.propertyView({
+            label,
+            enableAIHelp: true,
+            aiHelp: {
+              targetKind: "json",
+              label: "Map mode data",
+              fieldName: "data",
+              fieldDescription:
+                `JSON array of objects. Each object is mapped to a component option via {{item}}. The mapped fields are: ${mapSchema}. Generate rows with keys matching those fields.`,
+            },
+          })}
+          <AutoArea>
+            {children.mapData.getPropertyView()}
+            {OptionTip}
+          </AutoArea>
+        </>
+      );
+    })
     .build();
 
   return class extends TmpOptionControl {
@@ -743,6 +765,7 @@ let StepOption = new MultiCompBuilder(
     icon: IconControl,
     status: StringControl,
     disabled: BoolCodeControl,
+    hidden: BoolCodeControl,
   },
   (props) => props
 ).build();
@@ -758,6 +781,7 @@ StepOption = class extends StepOption implements OptionCompProperty {
         {this.children.icon.propertyView({ label: trans("stepOptionsControl.icon") })}
         {this.children.status.propertyView({ label: trans("stepOptionsControl.status") })}
         {disabledPropertyView(this.children)}
+        {hiddenPropertyView(this.children)}
       </>
     );
   }

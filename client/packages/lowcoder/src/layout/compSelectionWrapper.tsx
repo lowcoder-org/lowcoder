@@ -1,4 +1,4 @@
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { UICompType } from "comps/uiCompRegistry";
 import { Layers } from "constants/Layers";
 import { ModulePrimaryColor, PrimaryColor } from "constants/style";
@@ -10,11 +10,9 @@ import React, {
   MouseEvent,
   MouseEventHandler,
   useCallback,
-  useContext,
   useMemo,
   useRef,
   useState,
-  useEffect,
 } from "react";
 import { ResizePayload, useResizeDetector } from "react-resize-detector";
 import styled, { css } from "styled-components";
@@ -244,6 +242,9 @@ const ResizableChildren = React.memo((props: {
   const { ref: innerRef } = useResizeDetector({
     refreshMode: "debounce",
     refreshRate: 10,
+    // The callback updates the parent grid layout. Avoid invoking it from the
+    // resize detector's internal React state updater.
+    disableRerender: true,
     onResize: ({width, height}: ResizePayload) => props.onInnerResize(width ?? undefined, height ?? undefined),
     observerOptions: { box: "border-box" }
   });
@@ -280,16 +281,8 @@ export const CompSelectionWrapper = React.memo((props: {
   resizeIconSize: "small" | "normal";
 }) => {
   const nameDivRef = useRef<HTMLDivElement>(null);
-  const editorState = useContext(EditorContext);
+  const showGridLines = useEditorStore((state) => state.isDragging || state.forceShowGrid);
   const [hover, setHover] = useState(false);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      // Reset state
-      setHover(false);
-    };
-  }, []);
 
   const onMouseOver = useCallback(
     (e: MouseEvent<HTMLDivElement>) => {
@@ -329,7 +322,7 @@ export const CompSelectionWrapper = React.memo((props: {
           onMouseOut,
           onClick: props.onClick,
           $hover: hover || undefined,
-          $showDashLine: editorState.showGridLines() || props.hidden,
+          $showDashLine: showGridLines || props.hidden,
           $isSelected: props.isSelected,
           $isHidden: props.hidden,
         }

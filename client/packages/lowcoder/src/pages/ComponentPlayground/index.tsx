@@ -9,6 +9,7 @@ import { RootComp } from "comps/comps/rootComp";
 import { useMemo } from "react";
 import { lazyLoadComp } from "@lowcoder-ee/comps/comps/lazyLoadComp/lazyLoadComp";
 import { LoadingBarHideTrigger } from "@lowcoder-ee/util/hideLoading";
+import { createEditorStore, EditorStoreProvider } from "comps/editorStore";
 
 type CompInfo = UICompManifest & { key: string };
 const groups: Partial<Record<UICompCategory, CompInfo[]>> = {};
@@ -50,7 +51,8 @@ const Wrapper = styled.div`
   }
 `;
 
-const editorState = new EditorState(new RootComp({ value: {} }), () => {});
+const editorStore = createEditorStore();
+const editorState = new EditorState(new RootComp({ value: {} }), () => {}, false, editorStore);
 
 export default function ComponentPlayground() {
   window.__LOWCODER_ORG__ = {};
@@ -75,13 +77,15 @@ export default function ComponentPlayground() {
     <Wrapper>
       <LoadingBarHideTrigger />
       <div className="content">
-        <EditorContext.Provider value={editorState}>
-          <CompPlayground
-            initialValue={dsl}
-            compFactory={comp as unknown as Comp<any>}
-            layoutInfo={compManifest.layoutInfo || { h: 5, w: 5 }}
-          />
-        </EditorContext.Provider>
+        <EditorStoreProvider store={editorStore}>
+          <EditorContext.Provider value={editorState}>
+            <CompPlayground
+              initialValue={dsl}
+              compFactory={comp as unknown as Comp<any>}
+              layoutInfo={compManifest.layoutInfo || { h: 5, w: 5 }}
+            />
+          </EditorContext.Provider>
+        </EditorStoreProvider>
       </div>
     </Wrapper>
   );

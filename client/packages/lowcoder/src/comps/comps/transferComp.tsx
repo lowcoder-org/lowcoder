@@ -14,7 +14,7 @@ import type { TransferKey } from "antd/es/transfer/interface";
 import { useResizeDetector } from "react-resize-detector";
 import { changeEvent, eventHandlerControl, searchEvent, selectedChangeEvent } from "../controls/eventHandlerControl";
 import styled, { css } from "styled-components";
-import { useContext, useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { valueComp, withDefault } from "../generators";
 import type { TransferDirection } from 'antd/es/transfer';
 import React from "react";

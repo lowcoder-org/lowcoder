@@ -57,8 +57,7 @@ import { RefControl } from "comps/controls/refControl";
 import { BaseSelectRef } from "rc-select";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, focusMethod } from "comps/utils/methodUtils";
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { styleControl } from "comps/controls/styleControl";
 import SupaDemoDisplay from "comps/utils/supademoDisplay";
 
@@ -335,7 +334,9 @@ export const SelectPropertyView = (
     inputFieldStyle: { getPropertyView: () => ControlNode };
     childrenInputFieldStyle: { getPropertyView: () => ControlNode };
   }
-) => (
+) => {
+  const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+  return (
   <>
     <Section name={sectionNames.basic}>
       {children.options.propertyView({})}
@@ -345,7 +346,7 @@ export const SelectPropertyView = (
       {placeholderPropertyView(children)}
     </Section>
 
-    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+    {["logic", "both"].includes(editorModeStatus) && (
       <>
         <>
           <SelectInputValidationSection {...children} />
@@ -361,10 +362,10 @@ export const SelectPropertyView = (
       </>
     )}
 
-    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) &&
+    {["layout", "both"].includes(editorModeStatus) &&
       children.label.getPropertyView()}
 
-    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+    {["logic", "both"].includes(editorModeStatus) && (
       <Section name={sectionNames.advanced}>
         {allowClearPropertyView(children)}
         {showSearchPropertyView(children)}
@@ -372,7 +373,7 @@ export const SelectPropertyView = (
     )}
 
     {["layout", "both"].includes(
-      useContext(EditorContext).editorModeStatus
+      editorModeStatus
     ) && (
         <>
           <Section name={sectionNames.style}>
@@ -391,6 +392,7 @@ export const SelectPropertyView = (
       )}
   </>
 );
+};
 
 export const baseSelectRefMethods = refMethods<BaseSelectRef>([
   focusMethod,

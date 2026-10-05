@@ -13,6 +13,7 @@ import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
 import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
 import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
+import { mergeCartesianAxis } from "../../util/echartsThemeUtils";
 import parseBackground from "../../util/gradientBackgroundColor";
 
 export function transformData(
@@ -169,26 +170,36 @@ export function getEchartsConfig(
           ...styleWrapper(props?.visualMapStyle, theme?.visualMapStyle, 13),
         }
       },
-      xAxis: {
-        type: "category",
-        data: props?.echartsData?.xAxis || props?.echartsOption && props?.echartsOption.xAxis,
-        axisLabel: {
-          ...styleWrapper(props?.xAxisStyle, theme?.xAxisStyle, 13),
+      xAxis: mergeCartesianAxis(
+        theme,
+        "category",
+        {
+          type: "category",
+          data: props?.echartsData?.xAxis || props?.echartsOption && props?.echartsOption.xAxis,
         },
-        splitArea: {
-          show: props?.xAxisVisibility
+        props?.xAxisStyle,
+        13,
+        {
+          splitArea: {
+            show: props?.xAxisVisibility
+          }
         }
-      },
-      yAxis: {
-        type: "category",
-        data: props?.echartsData?.yAxis || props?.echartsOption && props?.echartsOption.yAxis,
-        axisLabel: {
-          ...styleWrapper(props?.yAxisStyle, theme?.yAxisStyle, 13),
+      ),
+      yAxis: mergeCartesianAxis(
+        theme,
+        "category",
+        {
+          type: "category",
+          data: props?.echartsData?.yAxis || props?.echartsOption && props?.echartsOption.yAxis,
         },
-        splitArea: {
-          show: props?.yAxisVisibility
+        props?.yAxisStyle,
+        13,
+        {
+          splitArea: {
+            show: props?.yAxisVisibility
+          }
         }
-      },
+      ),
       series: [
         {
           name: 'Heatmap',

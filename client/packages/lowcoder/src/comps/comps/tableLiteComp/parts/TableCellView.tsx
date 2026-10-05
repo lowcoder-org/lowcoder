@@ -4,7 +4,7 @@ import Skeleton from "antd/es/skeleton";
 import { SkeletonButtonProps } from "antd/es/skeleton/Button";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import { OB_ROW_ORI_INDEX } from "../tableUtils";
-import { TableColumnLinkStyleType, TableColumnStyleType, ThemeDetail } from "comps/controls/styleControlConstants";
+import { TableColumnLinkStyleType, TableColumnStyleType, TableGlobalColumnStyleType, ThemeDetail } from "comps/controls/styleControlConstants";
 import { RowColorViewType, RowHeightViewType } from "../tableTypes";
 import { CellColorViewType } from "../column/tableColumnComp";
 
@@ -128,7 +128,7 @@ const TableCellView = React.memo((props: {
   cellColorFn: CellColorViewType;
   rowIndex: number;
   children: any;
-  columnsStyle: TableColumnStyleType;
+  columnsStyle: TableGlobalColumnStyleType;
   columnStyle: TableColumnStyleType;
   linkStyle: TableColumnLinkStyleType;
   tableSize?: string;
@@ -173,8 +173,10 @@ const TableCellView = React.memo((props: {
       currentRow: record,
     });
 
+    const explicitBackground = cellColor || rowColor || columnStyle.background;
+
     return {
-      background: cellColor || rowColor || columnStyle.background || columnsStyle.background,
+      background: explicitBackground || 'inherit',
       margin: columnStyle.margin || columnsStyle.margin,
       text: columnStyle.text || columnsStyle.text,
       border: columnStyle.border || columnsStyle.border,

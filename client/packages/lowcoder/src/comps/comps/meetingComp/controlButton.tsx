@@ -3,6 +3,7 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { IconControl } from "comps/controls/iconControl";
 import { CompNameContext, EditorContext, EditorState } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { withDefault } from "comps/generators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import _ from "lodash";
@@ -38,7 +39,6 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useResizeDetector } from "react-resize-detector";
 
-import { useContext } from "react";
 import { Tooltip } from "antd";
 import { AssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
 import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
@@ -319,7 +319,9 @@ let ButtonTmpComp = (function () {
       </EditorContext.Consumer>
     );
   })
-    .setPropertyViewFn((children) => (
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
         <Section name={sectionNames.basic}>
           { children.sourceMode.propertyView({
@@ -337,8 +339,8 @@ let ButtonTmpComp = (function () {
           })}
         </Section>
 
-        {(useContext(EditorContext).editorModeStatus === "logic" ||
-          useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "logic" ||
+          editorModeStatus === "both") && (
           <Section name={sectionNames.interaction}>
             {children.onEvent.getPropertyView()}
             {disabledPropertyView(children)}
@@ -348,8 +350,8 @@ let ButtonTmpComp = (function () {
           </Section>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" ||
-          useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "layout" ||
+          editorModeStatus === "both") && (
           <>
             <Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
@@ -369,7 +371,8 @@ let ButtonTmpComp = (function () {
           </>
         )}
       </>
-    ))
+    );
+    })
     .build();
 })();
 ButtonTmpComp = class extends ButtonTmpComp {

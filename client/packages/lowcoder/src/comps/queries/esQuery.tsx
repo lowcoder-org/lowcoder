@@ -278,6 +278,15 @@ const EsQueryPropertyView = (props: {
         label: "Body",
         placement: "bottom",
         styleName: "medium",
+        enableAIHelp: true,
+        aiHelp: {
+          targetKind: "json",
+          label: "Elasticsearch request body",
+          queryType: "Elasticsearch",
+          fieldName: "dsl",
+          fieldDescription:
+            "Elasticsearch Query DSL as JSON. Use query, aggs, sort, size, _source, and other Elasticsearch request body parameters.",
+        },
       })}
     </>
   );

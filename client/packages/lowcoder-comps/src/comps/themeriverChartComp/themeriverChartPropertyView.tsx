@@ -7,7 +7,6 @@ import {
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 import { examplesUrl,optionUrl } from "../chartComp/chartConfigs/chartUrls";
-
 export function themeriverChartPropertyView(
   children: ChartCompChildrenType,
   dispatch: (action: CompAction) => void
@@ -16,7 +15,17 @@ export function themeriverChartPropertyView(
   const jsonModePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsData.propertyView({ label: trans("chart.data") })}
+        {children.echartsData.propertyView({
+          label: trans("chart.data"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Theme river data",
+            fieldName: "echartsData",
+            fieldDescription:
+              "JSON array of theme river rows: [date/time, value, seriesName] per ECharts themeRiver format.",
+          },
+        })}
         {children.echartsColors.propertyView({ label: trans("themeriverChart.colors") })}
 
         {children.echartsTitleConfig.getPropertyView()}
@@ -60,6 +69,14 @@ export function themeriverChartPropertyView(
         {children.echartsOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
+          language: "json",
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "echarts-option",
+            label: "Theme river option",
+            fieldName: "echartsOption",
+            fieldDescription: "Apache ECharts option JSON for this chart component.",
+          },
           tooltip: (
             <div>
               <a href={optionUrl} target="_blank" rel="noopener noreferrer">

@@ -12,7 +12,8 @@ import {
   selectCompModifierKeyPressed,
   ShortcutsWrapper,
 } from "util/keyUtils";
-import { PanelStatus, TogglePanel } from "pages/common/header";
+import type { TogglePanel } from "pages/common/header";
+import { useEditorLayoutStore } from "pages/editor/editorLayoutStore";
 import { clickCompNameClass } from "base/codeEditor/clickCompName";
 import { getShortcutAction } from "pages/common/shortcutConfigs";
 import { preview } from "constants/routesURL";
@@ -49,8 +50,6 @@ type Props = {
 };
 
 type GlobalProps = Props & {
-  togglePanel: TogglePanel;
-  panelStatus: PanelStatus;
   toggleShortcutList: () => void;
 };
 
@@ -163,7 +162,9 @@ function handleMouseDown(e: MouseEvent, editorState: EditorState, showLeftPanel:
 export const EditorGlobalHotKeys = React.memo((props: GlobalProps) => {
   const editorState = useContext(EditorContext);
   const { history: editorHistory } = useContext(ExternalEditorContext);
-  const { togglePanel, panelStatus, toggleShortcutList } = props;
+  const { toggleShortcutList } = props;
+  const togglePanel = useEditorLayoutStore((state) => state.togglePanel);
+  const panelStatus = useEditorLayoutStore((state) => state.panelStatus);
   const applicationId = useApplicationId();
   const mountedRef = useRef(true);
 

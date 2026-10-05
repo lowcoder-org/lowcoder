@@ -10,6 +10,7 @@ import {
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { EditorContext } from "../../../comps/editorState";
+import { useEditorStore } from "../../../comps/editorStore";
 import _ from "lodash";
 import { ReadOnlyMask } from "pages/common/styledComponent";
 import { useSelector } from "react-redux";
@@ -222,10 +223,11 @@ export function BottomTabs<T extends TabsConfigType>(props: {
   const [editing, setEditing] = useState(false);
   const editorState = useContext(EditorContext);
   const readOnly = useSelector(showAppSnapshotSelector);
+  const selectedBottomResName = useEditorStore((state) => state.selectedBottomResName);
 
   const valueInfoMap = _.fromPairs(tabsConfig.map((c) => [c.key, c]));
 
-  useEffect(() => setKey("general"), [editorState.selectedBottomResName]);
+  useEffect(() => setKey("general"), [selectedBottomResName]);
 
   const RunButtonWrapper = () => (
     <RunButton

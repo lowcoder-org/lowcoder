@@ -15,10 +15,11 @@ import {
   SelectInputInvalidConfig,
   useSelectInputValidate,
 } from "./selectInputConstants";
-import { useContext, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { RecordConstructorToView } from "lowcoder-core";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
+import { withLinkedDefaultValue } from "comps/controls/codeStateControl";
 
 let SelectBasicComp = (function () {
   const childrenMap = {
@@ -64,7 +65,10 @@ let SelectBasicComp = (function () {
     .build();
 })();
 
-SelectBasicComp = migrateOldData(SelectBasicComp, fixOldInputCompData);
+SelectBasicComp = migrateOldData(
+  withLinkedDefaultValue(SelectBasicComp, "defaultValue", "value"),
+  fixOldInputCompData
+);
 
 export const SelectComp = withExposingConfigs(SelectBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),

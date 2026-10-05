@@ -7,7 +7,7 @@ import React, {
   import ResizeableTitle from "./ResizeableTitle";
   import TableCellView from "./TableCellView";
   import { COL_MIN_WIDTH, CustomColumnType } from "../tableUtils";
-  import { TableColumnStyleType } from "comps/controls/styleControlConstants";
+  import { TableColumnStyleType, TableGlobalColumnStyleType } from "comps/controls/styleControlConstants";
   import { RowColorViewType, RowHeightViewType } from "../tableTypes";
   import {
     TableContainer,
@@ -22,7 +22,7 @@ import React, {
     viewModeResizable: boolean;
     rowColorFn: RowColorViewType;
     rowHeightFn: RowHeightViewType;
-    columnsStyle: TableColumnStyleType;
+    columnsStyle: TableGlobalColumnStyleType;
     rowAutoHeight?: boolean;
     customLoading?: boolean;
     onCellClick: (columnName: string, dataIndex: string) => void;

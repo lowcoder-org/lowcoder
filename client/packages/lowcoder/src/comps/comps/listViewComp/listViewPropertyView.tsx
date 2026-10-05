@@ -2,8 +2,7 @@ import { trans, transToNode } from "i18n";
 import { Section, sectionNames } from "lowcoder-design";
 import { ListViewImplComp } from "./listViewComp";
 import { ListCompType } from "./listViewUtils";
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { disabledPropertyView, hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 
 type Props = {
@@ -12,6 +11,7 @@ type Props = {
 
 export function listPropertyView(compType: ListCompType) {
   return (props: Props) => {
+    const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
     const { comp } = props;
     const children = comp.children;
     return (
@@ -47,13 +47,13 @@ export function listPropertyView(compType: ListCompType) {
           })}
         </Section>
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "logic" || editorModeStatus === "both") && (
           <Section name={trans("prop.pagination")}>
             {comp.children.pagination.getPropertyView()}
           </Section>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "logic" || editorModeStatus === "both") && (
           <Section name={sectionNames.interaction}>
             {children.onEvent.getPropertyView()}
             {hiddenPropertyView(children)}
@@ -64,7 +64,7 @@ export function listPropertyView(compType: ListCompType) {
           </Section>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "layout" || editorModeStatus === "both") && (
           <><Section name={sectionNames.layout}>
               {children.horizontalGridCells.propertyView({
                 label: trans('prop.horizontalGridCells'),

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useContext } from "react";
+import React, { useEffect, useState, useRef } from "react";
 // Render the component to the editor
 import {
   changeChildAction,
@@ -27,7 +27,7 @@ import {
   mentionEvent,
   doubleClickEvent,
 } from "comps/controls/eventHandlerControl"; 
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 
 
 // Introducing styles
@@ -379,7 +379,9 @@ let CommentBasicComp = (function () {
     return (
     <CommentCompBase {...props} dispatch={dispatch} />
   )})
-    .setPropertyViewFn((children) => (
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
         <Section name={sectionNames.basic}>
           {children.title.propertyView({
@@ -387,7 +389,7 @@ let CommentBasicComp = (function () {
           })}
         </Section>
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "logic" || editorModeStatus === "both") && (
           <>
           <Section name={sectionNames.data}>
             {children.value.propertyView({
@@ -418,7 +420,7 @@ let CommentBasicComp = (function () {
           </>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "layout" || editorModeStatus === "both") && (
           <><Section name={sectionNames.layout}>
             {children.sendCommentAble.getView() &&
               children.buttonText.propertyView({
@@ -437,7 +439,8 @@ let CommentBasicComp = (function () {
         )}
 
       </>
-    ))
+    );
+    })
     .build();
 })();
 

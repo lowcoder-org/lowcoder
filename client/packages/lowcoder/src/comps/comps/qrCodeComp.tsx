@@ -12,8 +12,8 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { StringControl } from "comps/controls/codeControl";
 
-import { useContext, useEffect } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEffect } from "react";
+import { useEditorStore } from "comps/editorStore";
 import { withDefault } from "../generators";
 
 // TODO: add styling for image (size)
@@ -80,7 +80,9 @@ const QRCodeView = (props: RecordConstructorToView<typeof childrenMap>) => {
 let QRCodeBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props) => {
     return( <QRCodeView {...props} />)})
-    .setPropertyViewFn((children) => (
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
         <Section name={sectionNames.basic}>
           {children.value.propertyView({
@@ -90,7 +92,7 @@ let QRCodeBasicComp = (function () {
           })}
         </Section>
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["logic", "both"].includes(editorModeStatus) && (
           <><Section name={sectionNames.interaction}>
               {hiddenPropertyView(children)}
             </Section>
@@ -107,7 +109,7 @@ let QRCodeBasicComp = (function () {
           </>
         )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           <>
             <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
@@ -119,7 +121,8 @@ let QRCodeBasicComp = (function () {
           </>
         )}
       </>
-    ))
+    );
+    })
     .build();
 })();
 

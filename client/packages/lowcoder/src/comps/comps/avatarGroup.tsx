@@ -10,9 +10,9 @@ import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { Avatar, Tooltip } from "antd";
 import { clickEvent, doubleClickEvent, eventHandlerControl, refreshEvent } from "../controls/eventHandlerControl";
 import styled from "styled-components";
-import { useContext, ReactElement, useEffect } from "react";
+import { ReactElement, useEffect } from "react";
 import { MultiCompBuilder, stateComp, withDefault } from "../generators";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { IconControl } from "../controls/iconControl";
 import { ColorControl } from "../controls/colorControl";
 import { optionsControl } from "../controls/optionsControl";
@@ -148,9 +148,11 @@ let AvatarGroupBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     return( <AvatarGroupView {...props} dispatch={dispatch} />
 )}) 
-    .setPropertyViewFn((children) => (
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["logic", "both"].includes(editorModeStatus) && (
           <>
             <Section name={sectionNames.basic}>
               {children.avatars.propertyView({})}
@@ -175,7 +177,7 @@ let AvatarGroupBasicComp = (function () {
           </>
         )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           <>
           <Section name={sectionNames.avatarStyle}>
             {children.avatar.getPropertyView()}
@@ -186,7 +188,8 @@ let AvatarGroupBasicComp = (function () {
           </>
         )}
       </>
-    ))
+    );
+    })
     .build();
 })();
 

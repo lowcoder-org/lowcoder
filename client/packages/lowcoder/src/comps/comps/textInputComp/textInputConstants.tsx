@@ -175,13 +175,7 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
   const propsRef = useRef<RecordConstructorToView<typeof textInputChildren>>(props);
   propsRef.current = props;
 
-  const defaultValue = { ...props.defaultValue }.value;
   const inputValue = { ...props.value }.value;
-
-  useEffect(() => {
-    setLocalInputValue(defaultValue);
-    props.value.onChange(defaultValue)
-  }, [defaultValue]);
 
   useEffect(() => {
     if (!touchRef.current) {

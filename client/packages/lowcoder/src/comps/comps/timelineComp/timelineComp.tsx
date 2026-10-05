@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { default as Button } from "antd/es/button";
 import {
   changeChildAction,
@@ -48,7 +48,7 @@ import {
 import { timelineDate, timelineNode, TimelineDataTooltip } from "./timelineConstants";
 import { convertTimeLineData } from "./timelineUtils";
 import { default as Timeline } from "antd/es/timeline";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { styled } from "styled-components";
 import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
 
@@ -191,7 +191,9 @@ let TimeLineBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => (
     <TimelineComp {...props} dispatch={dispatch} />
   ))
-    .setPropertyViewFn((children) => (
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
         <Section name={sectionNames.basic}>
           {children.value.propertyView({
@@ -201,7 +203,7 @@ let TimeLineBasicComp = (function () {
           })}
         </Section>
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["logic", "both"].includes(editorModeStatus) && (
           <Section name={sectionNames.interaction}>
             {children.onEvent.getPropertyView()}
             {hiddenPropertyView(children)}
@@ -209,7 +211,7 @@ let TimeLineBasicComp = (function () {
           </Section>
         )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           <><Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
               {!children.autoHeight.getView() && 
@@ -234,7 +236,8 @@ let TimeLineBasicComp = (function () {
           </>
         )}
       </>
-    ))
+    );
+    })
     .build();
 })();
 

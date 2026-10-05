@@ -38,6 +38,37 @@ services:
       timeout: 3s
       retries: 10
 
+  hocuspocus:
+    image: lowcoderorg/lowcoder-hocuspocus:latest
+    container_name: hocuspocus
+    restart: unless-stopped
+    ports:
+      - "3006:3006"
+    environment:
+      # Empty so the Vite frontend (built with no Hocuspocus secret) can sync locally.
+      HOCUSPOCUS_SECRET: ""
+
+  agora-token-service:
+    # agoracn/token only exposes POST /token/generate. Meeting Controller needs
+    # GET /rte/... returning { rtcToken, rtmToken }.
+    build:
+      context: ./agora-token-service
+      dockerfile: Dockerfile
+    container_name: agora-token-service
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    environment:
+      APP_ID: "YOUR_APP_ID"
+      APP_CERTIFICATE: "YOUR_APP_CERTIFICATE"
+      SERVER_PORT: "8080"
+      CORS_ALLOW_ORIGIN: "*"
+    healthcheck:
+      test: curl -sS http://127.0.0.1:8080/ping | grep -c pong > /dev/null
+      interval: 3s
+      timeout: 5s
+      retries: 10
+
 
   ##
   ## Start Lowcoder backend services (api-service and node-service)
@@ -95,6 +126,34 @@ services:
       test: curl -sS http://lowcoder-node-service:6060  | grep -c "Lowcoder Node Service is up and running" > /dev/null
       interval: 3s
       timeout: 5s
+      retries: 15
+      start_period: 40s
+
+  lowcoder-proxy-service:
+    build:
+      context: ../../server/proxy-service
+      dockerfile: Dockerfile
+    container_name: lowcoder-proxy-service
+    ports:
+      - "6070:6070"
+    environment:
+      PROXY_SERVICE_PORT: "6070"
+    env_file:
+      - path: ./default.env
+        required: true
+      - path: ./default-multi.env
+        required: true
+      - path: ./override.env
+        required: false
+    restart: unless-stopped
+    depends_on:
+      lowcoder-api-service:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test: curl -sS http://lowcoder-proxy-service:6070 | grep -c "Lowcoder Proxy Service is up and running" > /dev/null
+      interval: 3s
+      timeout: 5s
       retries: 10
 
   ##
@@ -118,6 +177,9 @@ services:
         condition: service_healthy
         restart: true
       lowcoder-api-service:
+        condition: service_healthy
+        restart: true
+      lowcoder-proxy-service:
         condition: service_healthy
         restart: true
     volumes:

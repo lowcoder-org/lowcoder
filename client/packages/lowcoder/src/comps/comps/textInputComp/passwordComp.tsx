@@ -39,9 +39,10 @@ import { trans } from "i18n";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
-import React, { useContext, useEffect } from "react";
-import { EditorContext } from "comps/editorState";
+import React, { useEffect } from "react";
+import { useEditorStore } from "comps/editorStore";
 import { migrateOldData } from "comps/generators/simpleGenerators";
+import { withLinkedDefaultValue } from "comps/controls/codeStateControl";
 import { NumberControl } from "comps/controls/codeControl";
 
 const PasswordStyle = styled(InputPassword)<{
@@ -101,16 +102,17 @@ let PasswordTmpComp = (function () {
     });
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <TextInputBasicSection {...children} />
           <FormDataPropertyView {...children} />
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             children.label.getPropertyView()
           )}
 
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["logic", "both"].includes(editorModeStatus) && (
             <><TextInputInteractionSection {...children} />
               <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
               <Section name={sectionNames.advanced}>
@@ -130,7 +132,7 @@ let PasswordTmpComp = (function () {
               </Section></>
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             <>
               <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
               <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
@@ -145,7 +147,10 @@ let PasswordTmpComp = (function () {
     .build();
 })();
 
-PasswordTmpComp = migrateOldData(PasswordTmpComp, fixOldInputCompData);
+PasswordTmpComp = migrateOldData(
+  withLinkedDefaultValue(PasswordTmpComp, "defaultValue", "value"),
+  fixOldInputCompData
+);
 
 const PasswordTmp2Comp = withMethodExposing(PasswordTmpComp, inputRefMethods);
 

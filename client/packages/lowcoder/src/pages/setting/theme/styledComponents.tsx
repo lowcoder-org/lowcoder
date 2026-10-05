@@ -124,7 +124,7 @@ export const Footer = styled.div`
   padding: 24px;
   position: fixed;
   bottom: 0;
-  width: calc(100vw - 492px);
+  width: calc(100% - 520px);
   background-color: #fff;
   z-index: 1000;
   margin-right: 10px;
@@ -659,44 +659,43 @@ export const CustomModalStyled = styled(CustomModal)`
   }
 `;
 
-export const Margin = styled.div<{ $margin: string }>`	
-> div {	
-  margin: 3px;	
-  overflow: hidden;	
-    > svg {	
-      fill: currentColor;	
-    }	
-  }	
-}	
-`;	
-export const Padding = styled.div<{ $padding: string }>`	
-> div {	
-  margin: 3px;	
-  overflow: hidden;	
-    > svg {	
-      fill: currentColor;	
-    }	
-  }	
-}`
-// Added By Aqib Mirza
-export const GridColumns = styled.div<{ $gridColumns: string }>` 
+export const Margin = styled.div<{ $margin: string }>`
   > div {
     margin: 3px;
     overflow: hidden;
-      > svg {
-        fill: currentColor;
-      }
+    > svg {
+      fill: currentColor;
     }
   }
 `;
 
-export const BorderStyle = styled.div<{ $borderStyle: string }>` 
+export const Padding = styled.div<{ $padding: string }>`
   > div {
     margin: 3px;
     overflow: hidden;
-      > svg {
-        fill: currentColor;
-      }
+    > svg {
+      fill: currentColor;
+    }
+  }
+`;
+
+// Added By Aqib Mirza
+export const GridColumns = styled.div<{ $gridColumns: string }>`
+  > div {
+    margin: 3px;
+    overflow: hidden;
+    > svg {
+      fill: currentColor;
+    }
+  }
+`;
+
+export const BorderStyle = styled.div<{ $borderStyle: string }>`
+  > div {
+    margin: 3px;
+    overflow: hidden;
+    > svg {
+      fill: currentColor;
     }
   }
 `;
@@ -705,9 +704,8 @@ export const BorderWidth = styled.div<{ $borderWidth: string }>`
   > div {
     margin: 3px;
     overflow: hidden;
-      > svg {
-        fill: currentColor;
-      }
+    > svg {
+      fill: currentColor;
     }
   }
 `;

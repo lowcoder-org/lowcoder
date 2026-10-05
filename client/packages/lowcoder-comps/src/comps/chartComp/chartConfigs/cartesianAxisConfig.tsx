@@ -1,6 +1,5 @@
 import { XAXisComponentOption, YAXisComponentOption } from "echarts";
 import { ChartSize, XAxisDirectionType } from "../chartConstants";
-import { i18n } from "lowcoder-core";
 import {
   MultiCompBuilder,
   withContext,
@@ -11,8 +10,26 @@ import {
   isNumeric,
 } from "lowcoder-sdk";
 import { i18nObjs, trans } from "i18n/comps";
-import _, { isNil } from "lodash";
+import _ from "lodash";
 import { xAxisTypeUrl } from "./chartUrls";
+
+/** Y-axis format from Properties; undefined when the format field is left empty. */
+function buildUserAxisLabelFormatter(formatEvaluator: unknown) {
+  if (typeof formatEvaluator !== "function") {
+    return undefined;
+  }
+  const evaluate = formatEvaluator as (ctx: { value: unknown }) => string;
+  const sample = evaluate({ value: 0 });
+  if (sample == null || String(sample).trim() === "") {
+    return undefined;
+  }
+  return {
+    formatter: (value: string | number) => {
+      const formatted = evaluate({ value });
+      return formatted != null && formatted !== "" ? formatted : String(value);
+    },
+  };
+}
 
 const XAxisTypeOptions = [
   {
@@ -137,24 +154,10 @@ export const YAxisConfig = (function () {
           align: "left",
         },
       };
-      const numberFormat = new Intl.NumberFormat(i18n.locales, {
-        notation: "compact",
-      });
-      (config.axisLabel as any) = {
-        formatter: (value: string | number) => {
-          const res = (props.formatter as any)({ value: value });
-          if (!isNil(res) && res !== "") {
-            return res;
-          }
-          if (
-            (props.yAxisType === "value" || props.yAxisType === "log") &&
-            typeof value === "number"
-          ) {
-            return numberFormat.format(value);
-          }
-          return value + "";
-        },
-      };
+      const userAxisLabel = buildUserAxisLabelFormatter(props.formatter);
+      if (userAxisLabel) {
+        (config.axisLabel as any) = userAxisLabel;
+      }
       if (props.yAxisType === "log") {
         (config as any).logBase = props.logBase || 10;
       }

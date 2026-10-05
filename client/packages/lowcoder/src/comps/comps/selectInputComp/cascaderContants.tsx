@@ -22,8 +22,7 @@ import { CascaderRef } from "antd/es/cascader";
 import { MarginControl } from "../../controls/marginControl";
 import { PaddingControl } from "../../controls/paddingControl";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 
 export const defaultDataSource = JSON.stringify(i18nObjs.cascader, null, " ");
 
@@ -49,7 +48,9 @@ export const CascaderChildren = {
 
 export const CascaderPropertyView = (
   children: RecordConstructorToComp<typeof CascaderChildren & { hidden: typeof BoolCodeControl }>
-) => (
+) => {
+  const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+  return (
   <>
     <Section name={sectionNames.basic}>
       {children.options.propertyView({ label: trans("cascader.options") })}
@@ -57,7 +58,7 @@ export const CascaderPropertyView = (
       {placeholderPropertyView(children)}
     </Section>
 
-    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+    {["logic", "both"].includes(editorModeStatus) && (
       <Section name={sectionNames.interaction}>
         {children.onEvent.getPropertyView()}
         {disabledPropertyView(children)}
@@ -67,18 +68,18 @@ export const CascaderPropertyView = (
       </Section>
     )}
 
-    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+    {["layout", "both"].includes(editorModeStatus) && (
       children.label.getPropertyView()
     )}
 
-    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+    {["logic", "both"].includes(editorModeStatus) && (
       <Section name={sectionNames.advanced}>
         {allowClearPropertyView(children)}
         {showSearchPropertyView(children)}
       </Section>
     )}
 
-    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+    {["layout", "both"].includes(editorModeStatus) && (
       <>
         <Section name={sectionNames.style}>
           {children.style.getPropertyView()}
@@ -99,3 +100,4 @@ export const CascaderPropertyView = (
     )}
   </>
 );
+};

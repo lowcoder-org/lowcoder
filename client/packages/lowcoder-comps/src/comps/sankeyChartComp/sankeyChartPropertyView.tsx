@@ -7,7 +7,6 @@ import {
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 import { examplesUrl,optionUrl } from "../chartComp/chartConfigs/chartUrls";
-
 export function sankeyChartPropertyView(
   children: ChartCompChildrenType,
   dispatch: (action: CompAction) => void
@@ -16,8 +15,27 @@ export function sankeyChartPropertyView(
   const jsonModePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsData.propertyView({ label: trans("chart.data") })}
-        {children.echartsLinks.propertyView({ label: trans("chart.links") })}
+        {children.echartsData.propertyView({
+          label: trans("chart.data"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Sankey nodes",
+            fieldName: "echartsData",
+            fieldDescription: "JSON array of Sankey nodes (each with at least a name).",
+          },
+        })}
+        {children.echartsLinks.propertyView({
+          label: trans("chart.links"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Sankey links",
+            fieldName: "echartsLinks",
+            fieldDescription:
+              "JSON array of links between nodes: source, target, and value (names must match nodes).",
+          },
+        })}
 
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitleVerticalConfig.getPropertyView()}
@@ -64,6 +82,14 @@ export function sankeyChartPropertyView(
         {children.echartsOption.propertyView({
         label: trans("chart.echartsOptionLabel"),
         styleName: "higher",
+        language: "json",
+        enableAIHelp: true,
+        aiHelp: {
+          targetKind: "echarts-option",
+          label: "Sankey option",
+          fieldName: "echartsOption",
+          fieldDescription: "Apache ECharts option JSON for this chart component.",
+        },
         tooltip: (
           <div>
             <a href={optionUrl} target="_blank" rel="noopener noreferrer">

@@ -8,6 +8,7 @@ import _ from "lodash";
 import { googleMapsApiUrl } from "../basicChartComp/chartConfigs/chartUrls";
 import parseBackground from "../../util/gradientBackgroundColor";
 import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
+import { mergeCartesianAxis } from "../../util/echartsThemeUtils";
 // Define the configuration interface to match the original transform
 
 interface AggregateConfig {
@@ -155,21 +156,25 @@ export function getEchartsConfig(
       ...gridPos,
       containLabel: true,
     },
-    xAxis: {
-      name: props.xAxisKey,
-      nameLocation: 'middle',
-      nameGap: 30,
-      scale: true,
-      axisLabel: {
-        ...styleWrapper(props?.xAxisStyle, theme?.xAxisStyle, 11)
-      }
-    },
-    yAxis: {
-      type: "category",
-      axisLabel: {
-        ...styleWrapper(props?.yAxisStyle, theme?.yAxisStyle, 11)
-      }
-    },
+    xAxis: mergeCartesianAxis(
+      theme,
+      "value",
+      {
+        name: props.xAxisKey,
+        nameLocation: 'middle',
+        nameGap: 30,
+        scale: true,
+      },
+      props?.xAxisStyle
+    ),
+    yAxis: mergeCartesianAxis(
+      theme,
+      "category",
+      {
+        type: "category",
+      },
+      props?.yAxisStyle
+    ),
     dataset: [
       {
         id: 'raw',

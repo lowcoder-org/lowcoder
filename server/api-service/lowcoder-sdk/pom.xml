@@ -37,6 +37,13 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- MockServerWebExchange for CookieHelperTest. Deliberately NOT spring-boot-starter-test: that would add
+             junit-jupiter without the vintage engine and silently stop this module's JUnit 4 tests from running. -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>

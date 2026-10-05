@@ -10,7 +10,7 @@ import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, LottieStyle } from "comps/controls/styleControlConstants";
 import { trans } from "i18n";
 import { Section, sectionNames } from "lowcoder-design";
-import { useContext, lazy, useEffect, useState, useCallback } from "react";  
+import { lazy, useEffect, useState, useCallback } from "react";
 import { stateComp, UICompBuilder, withDefault } from "../../generators";
 import {
   NameConfig,
@@ -18,7 +18,7 @@ import {
   withExposingConfigs,
 } from "../../generators/withExposing";
 import { defaultLottie } from "./jsonConstants";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { AssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
 import { DotLottie } from "@lottiefiles/dotlottie-react";
 import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
@@ -279,6 +279,7 @@ let JsonLottieTmpComp = (function () {
     );
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
@@ -292,7 +293,7 @@ let JsonLottieTmpComp = (function () {
             {children.sourceMode.getView() === 'asset-library' && children.iconScoutAsset.propertyView({})}
           </Section>
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "logic" || editorModeStatus === "both") && (
             <><Section name={sectionNames.interaction}>
                 {children.onEvent.getPropertyView()}
                 {children.speed.propertyView({ label: trans("jsonLottie.speed")})}
@@ -305,7 +306,7 @@ let JsonLottieTmpComp = (function () {
             </>
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             <Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
               {children.aspectRatio.propertyView({
@@ -316,7 +317,7 @@ let JsonLottieTmpComp = (function () {
             </Section>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "layout" || editorModeStatus === "both") && (
             <>
               <Section name={sectionNames.style}>
                 {children.container.getPropertyView()}

@@ -78,4 +78,31 @@ export const tableMethodExposings = [
       comp.children.selection.children.selectedRowKeys.dispatchChangeValueAction(allKeys);
     },
   },
+  {
+    method: {
+      name: "rowClick",
+      description:
+        "Programmatically click a table row by index and trigger rowClick event handlers",
+      params: [{ name: "rowIndex", type: "number" as const }],
+    },
+    execute: (comp: any, values: any[]) => {
+      const rowIndex = Number(values[0]);
+      const displayData = comp.filterData ?? [];
+      if (Number.isNaN(rowIndex) || rowIndex < 0 || rowIndex >= displayData.length) {
+        return Promise.reject(
+          "rowClick expects a valid row index within the current filtered data"
+        );
+      }
+      const key = displayData[rowIndex][OB_ROW_ORI_INDEX] + "";
+      const prevKey = comp.children.selection.children.selectedRowKey.getView();
+      if (key !== prevKey) {
+        comp.children.selection.children.selectedRowKey.dispatchChangeValueAction(key);
+      }
+      const onEvent = comp.children.onEvent.getView();
+      onEvent("rowClick");
+      if (key !== prevKey) {
+        onEvent("rowSelectChange");
+      }
+    },
+  },
 ]; 

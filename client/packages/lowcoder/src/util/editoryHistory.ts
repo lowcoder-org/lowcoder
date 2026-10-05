@@ -4,7 +4,7 @@ import { Comp } from "lowcoder-core";
 import { CompContainer } from "comps/utils/useCompInstance";
 import { AppSnapshotContext } from "constants/applicationConstants";
 import _ from "lodash";
-import { Dispatch, useMemo } from "react";
+import { Dispatch, useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { createSnapshotAction } from "redux/reduxActions/appSnapshotActions";
 import { HistoryManager } from "util/historyManager";
@@ -20,33 +20,45 @@ export function useAppHistory(
 ) {
   const reduxDispatch = useDispatch();
 
-  return useMemo(() => {
+  // only reset the undo stack when the container itself changes, not on readOnly/blockEditing flips
+  const history = useMemo(() => {
     if (!compContainer) {
       return undefined;
     }
-    const history = new EditorHistory((x: any) => compContainer.setComp(x));
-    const addHistory = (actions: Array<CompAction>) => {
-      const comp = compContainer.comp;
-      if (!history.dslChanged(comp)) {
-        return;
-      }
-      // record editing history
-      history.debounceAdd(comp);
-      // svae dsl snapshot
-      history.saveSnapshot(comp, actions, reduxDispatch, appId);
-    };
+    return new EditorHistory((x: any) => compContainer.setComp(x));
+  }, [compContainer]);
 
-    compContainer.addChangeListener((actions) => {
+  // registered in an effect (with cleanup) so listeners don't pile up on compContainer across re-renders
+  useEffect(() => {
+    if (!compContainer || !history) {
+      return;
+    }
+
+    const handler = (actions?: Array<CompAction>) => {
       if (readOnly || !actions || blockEditing) {
         return;
       }
-      // maybe slow: comparing dsl by `toJson`
       // debounce may cause action missed when dispatching two actions continuously (such as add table, delete)
-      // tried with 100 comps in 1.5ms, resolve this if further slower
-      showCost("addHistory", () => addHistory(actions));
-    });
-    return history;
-  }, [appId, compContainer, reduxDispatch, readOnly, blockEditing]);
+      showCost("addHistory", () => {
+        const comp = compContainer.comp;
+        const jsonValue = history.dslChanged(comp);
+        if (jsonValue === false) {
+          return;
+        }
+        // record editing history
+        history.debounceAdd(comp);
+        // save dsl snapshot
+        history.saveSnapshot(comp, jsonValue, actions, reduxDispatch, appId);
+      });
+    };
+
+    compContainer.addChangeListener(handler);
+    return () => {
+      compContainer.removeChangeListener(handler);
+    };
+  }, [compContainer, history, readOnly, blockEditing, reduxDispatch, appId]);
+
+  return history;
 }
 
 /**
@@ -117,8 +129,10 @@ export class EditorHistory {
     this.setComp = setComp;
   }
 
-  dslChanged(curComp: Comp) {
-    const curJson = JSON.stringify(curComp.toJsonValue());
+  // returns the new JSON value if the DSL changed, or false otherwise -- reuse it instead of re-serializing
+  dslChanged(curComp: Comp): JSONValue | false {
+    const curJsonValue = curComp.toJsonValue();
+    const curJson = JSON.stringify(curJsonValue);
     let dslChanged = false;
     if (this.prevDslStr && this.prevDslStr !== curJson) {
       dslChanged = true;
@@ -129,7 +143,7 @@ export class EditorHistory {
     }
     this.prevComp = curComp;
     this.prevDslStr = curJson;
-    return dslChanged;
+    return dslChanged ? curJsonValue : false;
   }
 
   debounceAdd = _.debounce((comp: Comp) => {
@@ -188,12 +202,13 @@ export class EditorHistory {
 
   saveSnapshot(
     comp: Comp,
+    jsonValue: JSONValue,
     actions: CompAction[],
     reduxDispatch: Dispatch<any>,
     applicationId: string
   ) {
     const operations = actions.flatMap((a) => getSnapshotOperations(comp, a));
     operations.forEach((o) => this.operationQueue.push(o));
-    this.doSaveSnapshot(comp.toJsonValue(), reduxDispatch, applicationId);
+    this.doSaveSnapshot(jsonValue, reduxDispatch, applicationId);
   }
 }

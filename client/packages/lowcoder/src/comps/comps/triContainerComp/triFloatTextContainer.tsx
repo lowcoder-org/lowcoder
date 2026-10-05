@@ -256,13 +256,12 @@ export function TriContainer(props: TriContainerProps) {
                 $style={props.style}
                 $horizontalAlignment={props.horizontalAlignment}
               >
-                <p>
-                  {props.type === "markdown" ? (
-                    <TacoMarkDown>{text.value}</TacoMarkDown>
-                  ) : (
-                    text.value
-                  )}
-                </p>
+                {/* markdown renders block elements, so it can't live inside a <p> */}
+                {props.type === "markdown" ? (
+                  <TacoMarkDown>{text.value}</TacoMarkDown>
+                ) : (
+                  <p>{text.value}</p>
+                )}
               </FloatTextWrapper>
             </div>
           </ScrollBar>

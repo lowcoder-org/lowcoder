@@ -20,8 +20,7 @@ import { hiddenPropertyView, disabledPropertyView, showDataLoadingIndicatorsProp
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { withDefault } from "@lowcoder-ee/comps/generators";
 
 export const RadioLayoutOptions = [
@@ -59,14 +58,16 @@ export const RadioPropertyView = (
         | ReturnType<typeof arrayStringExposingStateControl>;
     }
   >
-) => (
+) => {
+  const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+  return (
   <>
     <Section name={sectionNames.basic}>
       {children.options.propertyView({})}
       {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
     </Section>
 
-    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+    {["logic", "both"].includes(editorModeStatus) && (
       <><SelectInputValidationSection {...children} />
       <FormDataPropertyView {...children} />
       <Section name={sectionNames.interaction}>
@@ -79,7 +80,7 @@ export const RadioPropertyView = (
       </>
     )}
 
-    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+    {["layout", "both"].includes(editorModeStatus) && (
       <Section name={sectionNames.layout}>
         {children.layout.propertyView({
           label: trans("radio.options"),
@@ -94,11 +95,11 @@ export const RadioPropertyView = (
       </Section>
     )}
 
-    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && ( 
+    {["layout", "both"].includes(editorModeStatus) && (
       children.label.getPropertyView() 
     )}
 
-    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+    {["layout", "both"].includes(editorModeStatus) && (
       <>
       <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
       <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
@@ -108,3 +109,4 @@ export const RadioPropertyView = (
     )}
   </>
 );
+};

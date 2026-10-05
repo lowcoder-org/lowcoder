@@ -8,10 +8,9 @@ import { ResizeHandleAxis } from "layout/gridLayoutPropTypes";
 import { Layout } from "layout/utils";
 import _ from "lodash";
 import { CompAction, CompActionTypes } from "lowcoder-core";
-import { ReactElement, useContext } from "react";
-import { ExternalEditorContext } from "util/context/ExternalEditorContext";
+import { ReactElement, useId, useMemo } from "react";
 import { JSONValue } from "util/jsonTypes";
-import { ScrollBar, Section, sectionNames } from "lowcoder-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { getAllCompItems, IContainer } from "../containerBase";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 import { GridItemsType } from "../containerComp/containerView";
@@ -21,15 +20,8 @@ import { ModuleContainerComp } from "./moduleContainerComp";
 import { ModuleEventComp } from "./moduleEventListComp";
 import ModuleMethodListComp from "./moduleMethodListComp";
 import { ConfigViewWrapper } from "./styled";
-import { CNRootContainer } from "constants/styleSelectors";
-import styled from "styled-components";
-import { ThemeContext } from "comps/utils/themeContext";
 
 export const MODULE_LAYOUT_COMP = "@moduleLayoutComp";
-
-const ModulePreviewWrapper = styled.div`
-  height: 100%;
-`;
 
 const defaultHeight = 57;
 const defaultWidth = 24;
@@ -61,48 +53,50 @@ const moduleContainerId = "moduleContainer";
 function ModuleLayoutView(props: IProps) {
   const { containerSize, containerView, positionParams, onPositionParamsChange, onLayoutChange } =
     props;
+  const reactId = useId();
+  const canvasContainerId = useMemo(
+    () => `module-canvas-${reactId.replace(/:/g, "")}`,
+    [reactId]
+  );
 
-  const defaultGrid = useContext(ThemeContext)?.theme?.gridColumns || "24"; //Added By Aqib Mirza
-  const { readOnly } = useContext(ExternalEditorContext);
+  const layout = useMemo(
+    () => ({
+      [moduleContainerId]: {
+        i: moduleContainerId,
+        h: containerSize.height,
+        w: containerSize.width,
+        x: 0,
+        y: 0,
+        resizeHandles: ["se"] as ResizeHandleAxis[],
+        delayCollision: true,
+      },
+    }),
+    [containerSize.height, containerSize.width]
+  );
 
-  // Removed this so that module load with canvas view and app settings will apply
-  // if (readOnly) {
-  //   return (
-  //     <ModulePreviewWrapper className={CNRootContainer}>{props.containerView}</ModulePreviewWrapper>
-  //   );
-  // }
-
-  const layout = {
-    [moduleContainerId]: {
-      i: moduleContainerId,
-      h: containerSize.height,
-      w: containerSize.width,
-      x: 0,
-      y: 0,
-      resizeHandles: ["se"] as ResizeHandleAxis[],
-      delayCollision: true,
-    },
-  };
-
-  const items: GridItemsType = {
-    [moduleContainerId]: {
-      name: moduleContainerId,
-      compType: "moduleContainer",
-      view: containerView,
-      autoHeight: false,
-      hidden: false,
-    },
-  };
+  const items: GridItemsType = useMemo(
+    () => ({
+      [moduleContainerId]: {
+        name: moduleContainerId,
+        compType: "moduleContainer",
+        view: containerView,
+        autoHeight: false,
+        hidden: false,
+      },
+    }),
+    [containerView]
+  );
 
   return (
     <CanvasView
       layout={layout}
       items={items}
-      positionParams={{ ...positionParams, cols: parseInt(defaultGrid) }}
+      positionParams={positionParams}
       onPositionParamsChange={onPositionParamsChange}
       dispatch={_.noop}
       onLayoutChange={onLayoutChange}
       extraHeight="0px"
+      canvasContainerId={canvasContainerId}
     />
   );
 }
@@ -110,6 +104,21 @@ function ModuleLayoutView(props: IProps) {
 export const ModuleLayoutCompBase = new UICompBuilder(childrenMap, () => null).build();
 
 export class ModuleLayoutComp extends ModuleLayoutCompBase implements IContainer {
+  private readonly handleContainerRowCountChange = (rowCount: number) => {
+    this.children.containerRowCount.dispatchChangeValueAction(rowCount);
+  };
+
+  private readonly handlePositionParamsChange = (params: PositionParams) => {
+    setTimeout(() => this.children.positionParams.dispatchChangeValueAction(params));
+  };
+
+  private readonly handleModuleLayoutChange = (layout: Layout) => {
+    this.children.containerSize.dispatchChangeValueAction({
+      height: layout[moduleContainerId].h,
+      width: layout[moduleContainerId].w,
+    });
+  };
+
   getView(): JSX.Element {
     const isRowCountLocked = this.children.autoScaleCompHeight.getView();
     const rowCount = this.children.containerRowCount.getView();
@@ -120,19 +129,10 @@ export class ModuleLayoutComp extends ModuleLayoutCompBase implements IContainer
         containerView={this.children.container.containerView({
           rowCount,
           isRowCountLocked,
-          onRowCountChange: (rowCount) => {
-            this.children.containerRowCount.dispatchChangeValueAction(rowCount);
-          },
+          onRowCountChange: this.handleContainerRowCountChange,
         })}
-        onPositionParamsChange={(params) => {
-          setTimeout(() => this.children.positionParams.dispatchChangeValueAction(params));
-        }}
-        onLayoutChange={(layout) => {
-          this.children.containerSize.dispatchChangeValueAction({
-            height: layout[moduleContainerId].h,
-            width: layout[moduleContainerId].w,
-          });
-        }}
+        onPositionParamsChange={this.handlePositionParamsChange}
+        onLayoutChange={this.handleModuleLayoutChange}
       />
     );
   }

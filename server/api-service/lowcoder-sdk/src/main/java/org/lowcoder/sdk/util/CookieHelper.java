@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 
+import java.time.Duration;
 import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
@@ -25,6 +26,27 @@ public class CookieHelper {
     private final CommonConfig commonConfig;
 
     public void saveCookie(String token, ServerWebExchange exchange) {
+        ResponseCookieBuilder builder = newCookieBuilder(token, exchange);
+        // set cookie max-age
+        Cookie cookie = commonConfig.getCookie();
+        if (cookie.getMaxAgeInSeconds() >= 0) {
+            builder.maxAge(cookie.getMaxAgeInSeconds());
+        }
+        exchange.getResponse().addCookie(builder.build());
+    }
+
+    /**
+     * Expires the auth cookie in the browser. A browser only replaces a stored cookie when name, domain and path all
+     * match, so the attributes must be built by the very same path that {@link #saveCookie(String, ServerWebExchange)}
+     * uses, otherwise the cookie is left behind.
+     */
+    public void clearCookie(ServerWebExchange exchange) {
+        exchange.getResponse().addCookie(newCookieBuilder("", exchange)
+                .maxAge(Duration.ZERO)
+                .build());
+    }
+
+    private ResponseCookieBuilder newCookieBuilder(String token, ServerWebExchange exchange) {
         boolean isUsingHttps = Optional.ofNullable(getRefererURI(exchange.getRequest()))
                 .map(a -> "https".equalsIgnoreCase(a.getScheme()))
                 .orElse(false);
@@ -33,17 +55,12 @@ public class CookieHelper {
                 .httpOnly(true)
                 .secure(isUsingHttps)
                 .sameSite(isUsingHttps ? "None" : "Lax");
-        // set cookie max-age
-        Cookie cookie = commonConfig.getCookie();
-        if (cookie.getMaxAgeInSeconds() >= 0) {
-            builder.maxAge(cookie.getMaxAgeInSeconds());
-        }
 
         if (commonConfig.isCloud()) {
             String topPrivateDomain = UriUtils.getTopPrivateDomain(exchange);
             builder.domain(topPrivateDomain);
         }
-        exchange.getResponse().addCookie(builder.build());
+        return builder;
     }
 
     public String getCookieToken(ServerWebExchange exchange) {

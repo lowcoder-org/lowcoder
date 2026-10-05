@@ -11,7 +11,6 @@ import {
   controlItem,
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
-
 export function line3dChartPropertyView(
   children: ChartCompChildrenType,
   dispatch: (action: CompAction) => void
@@ -43,6 +42,14 @@ export function line3dChartPropertyView(
       <Section name={sectionNames.advanced}>
         {children.data.propertyView({
           label: trans("chart.data"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "3D line chart data",
+            fieldName: "data",
+            fieldDescription:
+              "JSON array of coordinate points for the 3D line (lng/lat/alt or x/y/z style fields per row).",
+          },
         })}
       </Section>
     </>

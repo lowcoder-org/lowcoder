@@ -32,8 +32,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import { default as AntImage } from "antd/es/image";
 import { DEFAULT_IMG_URL } from "util/stringUtils";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { StringControl } from "../controls/codeControl";
 import { PositionControl } from "comps/controls/dropdownControl";
 import { dropdownControl } from "../controls/dropdownControl";
@@ -246,6 +245,7 @@ let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
   return <ContainerImg {...props} />;
 })
   .setPropertyViewFn((children) => {
+    const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
     return (
       <>
         <Section name={sectionNames.basic}>
@@ -259,7 +259,7 @@ let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
           {children.sourceMode.getView() === 'asset-library' && children.iconScoutAsset.propertyView({})}
         </Section>
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["logic", "both"].includes(editorModeStatus) && (
           <Section name={sectionNames.interaction}>
             {children.onEvent.getPropertyView()}
             {hiddenPropertyView(children)}
@@ -274,7 +274,7 @@ let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
           </Section>
         )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           <>
             <Section name={sectionNames.layout}>
 

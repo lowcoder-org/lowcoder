@@ -24,8 +24,8 @@ import {
 import { styleControl } from "comps/controls/styleControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { RefControl } from "comps/controls/refControl";
-import React, { useContext, useEffect } from "react";
-import { EditorContext } from "comps/editorState"; 
+import React, { useEffect } from "react";
+import { useEditorStore } from "comps/editorStore";
 import { Tooltip } from "antd";
 
 const IconWrapper = styled.div`
@@ -103,7 +103,9 @@ const ToggleTmpComp = (function () {
       </ButtonCompWrapperStyled>
     );
   })
-    .setPropertyViewFn((children) => (
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
         <Section name={sectionNames.basic}>
           {children.value.propertyView({
@@ -112,7 +114,7 @@ const ToggleTmpComp = (function () {
           })}
         </Section>
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "logic" || editorModeStatus === "both") && (
           <><Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
@@ -143,8 +145,8 @@ const ToggleTmpComp = (function () {
           </>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" ||
-          useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "layout" ||
+          editorModeStatus === "both") && (
           <>
             <Section name={sectionNames.style}>
               {children.showBorder.propertyView({
@@ -160,7 +162,8 @@ const ToggleTmpComp = (function () {
         
         <Section name={trans("prop.disabledStyle")}>{children.disabledStyle.getPropertyView()}</Section>
       </>
-    ))
+    );
+    })
     .setExposeMethodConfigs(buttonRefMethods)
     .build();
 })();

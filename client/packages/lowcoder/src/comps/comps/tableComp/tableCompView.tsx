@@ -403,7 +403,8 @@ export const TableCompView = React.memo((props: {
                   }
                 },
                 onExpandedRowsChange: (expandedRowKeys) => {
-                  setExpandedRowKeys(expandedRowKeys as unknown as string[]);
+                  const keys = expandedRowKeys as unknown as string[];
+                  setExpandedRowKeys(expansion.singleRowExpand ? keys.slice(-1) : keys);
                 },
                 expandedRowKeys: expandedRowKeys,
               }}

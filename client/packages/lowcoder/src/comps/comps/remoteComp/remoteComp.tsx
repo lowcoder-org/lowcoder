@@ -18,6 +18,9 @@ import type { AppState } from "@lowcoder-ee/redux/reducers";
 import { useSelector } from "react-redux";
 import { ExternalEditorContext } from "@lowcoder-ee/util/context/ExternalEditorContext";
 
+/** Unique `key` per `RemoteCompView` so list/grid rows do not all share the same key (remounts + useMount re-runs on unrelated updates). */
+let globalRemoteViewInstanceId = 0;
+
 const ViewError = styled.div`
   display: flex;
   justify-content: center;
@@ -115,12 +118,24 @@ export function remoteComp<T extends RemoteCompInfo = RemoteCompInfo>(
   class RemoteComp extends simpleMultiComp({}) {
     compValue: any;
     remoteInfo = remoteInfo;
+    private readonly _remoteViewKey: string;
+    private _loadInFlight: Promise<void> | null = null;
+    /** Stable reference for React.memo (avoid new closure every getView in list/grid re-renders). */
+    private readonly _loadForView: (
+      packageVersion?: string,
+      appId?: string
+    ) => Promise<void>;
     constructor(params: CompParams<any>) {
       super(params);
       this.compValue = params.value;
+      this._remoteViewKey = `rvc${++globalRemoteViewInstanceId}`;
+      this._loadForView = (packageVersion, appId) => this.load(packageVersion, appId);
     }
 
     private async load(packageVersion = 'latest', appId = 'none') {
+      if (this._loadInFlight) {
+        return this._loadInFlight;
+      }
       if (!remoteInfo) {
         return;
       }
@@ -132,37 +147,45 @@ export function remoteComp<T extends RemoteCompInfo = RemoteCompInfo>(
         log.error("loader not found, remote info:", remoteInfo);
         return;
       }
-      const RemoteExportedComp = await finalLoader({...remoteInfo, packageVersion, appId});
-      if (!RemoteExportedComp) {
-        return;
-      }
+      this._loadInFlight = (async () => {
+        const RemoteExportedComp = await finalLoader({ ...remoteInfo, packageVersion, appId });
+        if (!RemoteExportedComp) {
+          return;
+        }
 
-      const params: CompParams<any> = {
-        dispatch: this.dispatch,
-      };
+        const compParams: CompParams<any> = {
+          dispatch: this.dispatch,
+        };
 
-      if (this.compValue) {
-        params.value = this.compValue;
+        if (this.compValue) {
+          compParams.value = this.compValue;
+        }
+        const RemoteCompWithErrorBound = withErrorBoundary(RemoteExportedComp);
+        this.dispatch(
+          customAction<RemoteCompReadyAction>(
+            {
+              type: "RemoteCompReady",
+              comp: new RemoteCompWithErrorBound(compParams),
+            },
+            false
+          )
+        );
+      })();
+      try {
+        await this._loadInFlight;
+      } catch {
+        /* error surfaced in RemoteCompView */
+      } finally {
+        this._loadInFlight = null;
       }
-      const RemoteCompWithErrorBound = withErrorBoundary(RemoteExportedComp);
-      this.dispatch(
-        customAction<RemoteCompReadyAction>(
-          {
-            type: "RemoteCompReady",
-            comp: new RemoteCompWithErrorBound(params),
-          },
-          false
-        )
-      );
     }
 
     getView() {
-      const key = `${remoteInfo?.packageName}-${remoteInfo?.packageVersion}-${remoteInfo?.compName}`;
       return (
         <RemoteCompView
-          key={key}
+          key={this._remoteViewKey}
           isLowcoderComp={remoteInfo?.packageName === 'lowcoder-comps'}
-          loadComp={(packageVersion?: string, appId?: string) => this.load(packageVersion, appId)}
+          loadComp={this._loadForView}
           loadingElement={loadingElement}
           source={remoteInfo?.source}
         />

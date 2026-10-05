@@ -1,9 +1,11 @@
 import { Dropdown, ValueFromOption } from "components/Dropdown";
 import { QueryConfigItemWrapper, QueryConfigLabel, QueryConfigWrapper } from "components/query";
+import { CompNameContext } from "comps/editorState";
 import { valueComp, withDefault } from "comps/generators";
 import { trans } from "i18n";
 import { includes } from "lodash";
 import { CompAction, MultiBaseComp } from "lowcoder-core";
+import { useContext } from "react";
 import { keyValueListControl } from "../../controls/keyValueListControl";
 import { ParamsJsonControl, ParamsStringControl } from "../../controls/paramsControl";
 import { withTypeAndChildrenAbstract } from "../../generators/withType";
@@ -114,8 +116,11 @@ type ChildrenType = InstanceType<typeof HttpQuery> extends MultiBaseComp<infer X
 
 const ContentTypeKey = "Content-Type";
 
-const showBodyConfig = (children: ChildrenType) => {
-  switch (children.bodyType.getView() as BodyTypeValue) {
+const showBodyConfig = (children: ChildrenType, queryName?: string) => {
+  const bodyType = children.bodyType.getView() as BodyTypeValue;
+  const method = children.httpMethod.getView();
+
+  switch (bodyType) {
     case "application/x-www-form-urlencoded":
       return children.bodyFormData.propertyView({});
     case "multipart/form-data":
@@ -129,7 +134,21 @@ const showBodyConfig = (children: ChildrenType) => {
       });
     case "application/json":
     case "text/plain":
-      return children.body.propertyView({ styleName: "medium", width: "100%" });
+      return children.body.propertyView({
+        styleName: "medium",
+        width: "100%",
+        language: bodyType === "application/json" ? "json" : undefined,
+        enableAIHelp: true,
+        aiHelp: {
+          targetKind: bodyType === "application/json" ? "json" : "component-field",
+          label: queryName ? `${queryName}.body` : "HTTP request body",
+          queryType: "HTTP",
+          queryName,
+          fieldName: "body",
+          fieldDescription: `HTTP ${method} request body (${bodyType}). Help generate, explain, or improve the request payload.`,
+          targetId: queryName ? `${queryName}.body` : undefined,
+        },
+      });
     default:
       return <></>;
   }
@@ -144,6 +163,7 @@ const HttpQueryPropertyView = (props: {
 }) => {
   const { comp, supportHttpMethods, supportBodyTypes } = props;
   const { children, dispatch } = comp;
+  const queryName = useContext(CompNameContext);
 
   return (
     <>
@@ -201,7 +221,7 @@ const HttpQueryPropertyView = (props: {
 
       <QueryConfigWrapper>
         <QueryConfigLabel />
-        <QueryConfigItemWrapper>{showBodyConfig(children)}</QueryConfigItemWrapper>
+        <QueryConfigItemWrapper>{showBodyConfig(children, queryName)}</QueryConfigItemWrapper>
       </QueryConfigWrapper>
     </>
   );

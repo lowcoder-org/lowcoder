@@ -13,6 +13,7 @@ import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
 import { googleMapsApiUrl } from "./chartConfigs/chartUrls";
 import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
+import { mergeCartesianAxis } from "../../util/echartsThemeUtils";
 import parseBackground from "../../util/gradientBackgroundColor";
 
 export function transformData(
@@ -260,20 +261,19 @@ export function getEchartsConfig(
     );
     config = {
       ...config,
+      xAxis: mergeCartesianAxis(
+        theme,
+        finalXyConfig.xConfig.type,
+        finalXyConfig.xConfig,
+        props?.xAxisStyle
+      ),
       // @ts-ignore
-      xAxis: {
-        ...finalXyConfig.xConfig,
-        axisLabel: {
-          ...styleWrapper(props?.xAxisStyle, theme?.xAxisStyle, 11)
-        }
-      },
-      // @ts-ignore
-      yAxis: {
-        ...finalXyConfig.yConfig,
-        axisLabel: {
-          ...styleWrapper(props?.yAxisStyle, theme?.yAxisStyle, 11)
-        }
-      },
+      yAxis: mergeCartesianAxis(
+        theme,
+        finalXyConfig.yConfig.type,
+        finalXyConfig.yConfig,
+        props?.yAxisStyle
+      ),
     };
   }
   // console.log("Echarts transformedData and config", transformedData, config);

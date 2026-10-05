@@ -201,6 +201,13 @@ const StyledMenu = styled(AntdMenu)<{
 `;
 
 
+const StyledLayout = styled(Layout)<{ $maxWidth?: number }>`
+  ${(props) =>
+    props.$maxWidth != null && Number.isFinite(props.$maxWidth)
+      ? `max-width: ${props.$maxWidth}px; margin: 0 auto; width: 100%;`
+      : ""}
+`;
+
 const ViewerMainContent = styled(MainContent)<{ $isPreview: boolean }>`
   height: ${(props) => (props.$isPreview ? `calc(100vh - ${TopHeaderHeight})` : "100vh")};
 `;
@@ -385,9 +392,10 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
   // Pull app-level Theme / Canvas Settings (managed via the left-sidebar
   // "Canvas" pane and shared with normal apps + modules). For aggregation
   // apps the grid sizing fields are intentionally hidden in the settings UI;
-  // we only consume the background + padding subset here.
+  // we consume max width, background, and padding here.
   const editorState = useContext(EditorContext);
   const appSettings = editorState?.getAppSettings();
+  const canvasMaxWidth = appSettings?.maxWidth;
   const canvasBg = appSettings?.gridBg;
   const canvasBgImage = appSettings?.gridBgImage;
   const canvasBgImageRepeat = appSettings?.gridBgImageRepeat || "no-repeat";
@@ -454,7 +462,7 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
       return window.open((itemComp as MenuItemNode).action?.url, '_blank')
     }
     history.push(url);
-  }, [pathParam.applicationId, pathParam.viewMode, dataOptionType, itemKeyRecord])
+  }, [pathParam.applicationId, pathParam.viewMode, dataOptionType, itemKeyRecord, onEvent])
 
   const getJsonMenuItem = useCallback(
     (items: MenuItemNode[]): MenuProps["items"] => {
@@ -716,10 +724,13 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
   }
 
   let content = (
-    <Layout style={{
-      height: isPreview ? undefined : "100vh",
-      ...canvasBackgroundStyle,
-    }}>
+    <StyledLayout
+      $maxWidth={canvasMaxWidth}
+      style={{
+        height: isPreview ? undefined : "100vh",
+        ...canvasBackgroundStyle,
+      }}
+    >
       {(navPosition === 'top') && (
         <Header style={{ display: 'flex', alignItems: 'center', padding: 0 }}>
           { navMenu }
@@ -749,7 +760,7 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
           {navMenu}
         </StyledSide>
       )}
-    </Layout>
+    </StyledLayout>
   );
   return isViewMode ? (
     content

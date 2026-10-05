@@ -20,8 +20,6 @@ import {
 } from "lowcoder-design";
 import { useTemplateViewMode } from "util/hooks";
 import {
-  type PanelStatus,
-  type TogglePanel,
   type EditorModeStatus,
   type ToggleEditorModeStatus
 } from "pages/common/header";
@@ -48,13 +46,6 @@ import { currentApplication, isPublicApplication } from "redux/selectors/applica
 import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
 import styled from "styled-components";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
-import {
-  DefaultPanelStatus,
-  getPanelStatus,
-  savePanelStatus,
-  getEditorModeStatus,
-  saveEditorModeStatus,
-} from "util/localStorageUtil";
 import { isAggregationApp } from "util/appUtils";
 import EditorSkeletonView from "./editorSkeletonView";
 import {
@@ -65,6 +56,8 @@ import { AppSettingContext, AppSettingType } from "@lowcoder-ee/comps/utils/appS
 import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
 import Flex from "antd/es/flex";
 import { PreviewContainerID } from "constants/domLocators";
+import { useEditorStore } from "comps/editorStore";
+import { useEditorLayoutStore } from "./editorLayoutStore";
 // import { BottomSkeleton } from "./bottom/BottomContent";
 
 const Header = lazy(
@@ -259,7 +252,7 @@ const PreloadDiv = styled.div`
 `;
 
 export const EditorWrapper = styled.div`
-  overflow: auto;
+  overflow: hidden;
   position: relative;
   flex: 1 1 0;
 `;
@@ -412,6 +405,13 @@ function EditorView(props: EditorViewProps) {
   const { uiComp } = props;
   const params = useParams<AppPathParams>();
   const editorState = useContext(EditorContext);
+  const showPropertyPane = useEditorStore((state) => state.showPropertyPane);
+  const editorModeStatus = useEditorStore(
+    (state) => state.editorModeStatus as EditorModeStatus
+  );
+  const setEditorModeStatus = useEditorStore((state) => state.setEditorModeStatus);
+  const deviceType = useEditorStore((state) => state.deviceType);
+  const deviceOrientation = useEditorStore((state) => state.deviceOrientation);
   const { readOnly, hideHeader } = useContext(ExternalEditorContext);
   const application = useSelector(currentApplication);
   const isPublicApp = useSelector(isPublicApplication);
@@ -429,49 +429,25 @@ function EditorView(props: EditorViewProps) {
   const [height, setHeight] = useState<number>();
   const dispatch = useDispatch();
 
-  const [panelStatus, setPanelStatus] = useState(() => {
-    return showNewUserGuide ? DefaultPanelStatus : getPanelStatus();
-  });
+  const panelStatus = useEditorLayoutStore((state) => state.panelStatus);
+  const setPanel = useEditorLayoutStore((state) => state.setPanel);
+  const resetPanelStatus = useEditorLayoutStore((state) => state.resetPanelStatus);
 
-  const [prePanelStatus, setPrePanelStatus] =
-    useState<PanelStatus>(DefaultPanelStatus);
+  // the guide starts from the default layout; layout effect so it lands before paint
+  useLayoutEffect(() => {
+    if (showNewUserGuide) {
+      resetPanelStatus();
+    }
+  }, [showNewUserGuide, resetPanelStatus]);
 
   const isViewMode = params.viewMode === 'view';
 
   const appSettingsComp = editorState.getAppSettingsComp();
   const { showHeaderInPublic } = appSettingsComp.getView();
 
-  const togglePanel: TogglePanel = useCallback(
-    (key) => {
-      let newPanelStatus;
-      if (key) {
-        newPanelStatus = Object.assign({}, panelStatus);
-        newPanelStatus[key] = !panelStatus[key];
-      } else {
-        if (Object.values(panelStatus).some((value) => value)) {
-          setPrePanelStatus(panelStatus);
-          newPanelStatus = { left: false, bottom: false, right: false };
-        } else {
-          newPanelStatus = prePanelStatus;
-        }
-      }
-      setPanelStatus(newPanelStatus);
-      savePanelStatus(newPanelStatus);
-    },
-    [panelStatus, prePanelStatus]
-  );
-
-  // added by Falk Wolsky to support a Layout and Logic Mode in Lowcoder
-  const [editorModeStatus, setEditorModeStatus] = useState(() => {
-    return getEditorModeStatus();
-  });
-
   const toggleEditorModeStatus: ToggleEditorModeStatus = useCallback(
-    (value) => {
-      setEditorModeStatus(value ? value : ("both" as EditorModeStatus));
-      saveEditorModeStatus(value ? value : ("both" as EditorModeStatus));
-    },
-    [editorModeStatus]
+    (value) => setEditorModeStatus(value ?? "both"),
+    [setEditorModeStatus]
   );
 
   const onCompDrag = useCallback(
@@ -509,7 +485,7 @@ function EditorView(props: EditorViewProps) {
     return () => {
       window.removeEventListener(eventType, updateSize);
     };
-  }, [panelStatus, editorModeStatus]);
+  }, []);
 
   const hideBodyHeader = useTemplateViewMode() || (isViewMode && (!showHeaderInPublic || !commonSettings.showHeaderInPublicApps));
 
@@ -534,10 +510,10 @@ function EditorView(props: EditorViewProps) {
     if (isViewMode) return uiComp.getView();
 
     return (
-      editorState.deviceType === "mobile" || editorState.deviceType === "tablet" ? (
+      deviceType === "mobile" || deviceType === "tablet" ? (
         <DeviceWrapper
-            deviceType={editorState.deviceType}
-            deviceOrientation={editorState.deviceOrientation}
+            deviceType={deviceType}
+            deviceOrientation={deviceOrientation}
           >
             <div id={PreviewContainerID}>
               {uiComp.getView()}
@@ -552,21 +528,9 @@ function EditorView(props: EditorViewProps) {
   }, [
     uiComp,
     isViewMode,
-    editorState.deviceType,
-    editorState.deviceOrientation,
+    deviceType,
+    deviceOrientation,
   ]);
-
-  useEffect(() => {
-    return () => {
-      setPanelStatus(DefaultPanelStatus);
-      setEditorModeStatus("both");
-      setShowShortcutList(false);
-      setMenuKey(SiderKey.State);
-      setHeight(undefined);
-      savePanelStatus(panelStatus);
-      saveEditorModeStatus(editorModeStatus);
-    };
-  }, []);
 
   const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
   const isLocalhost = window.location.hostname === 'localhost';
@@ -620,12 +584,8 @@ function EditorView(props: EditorViewProps) {
   const showRight = panelStatus.right || showAppSnapshot;
 
   const clickMenu = (params: { key: string }) => {
-    let left = true;
-    if (panelStatus.left && params.key === menuKey) {
-      left = false;
-    }
-    setPanelStatus({ ...panelStatus, left });
-    savePanelStatus({ ...panelStatus, left });
+    // clicking the active menu entry collapses the left panel, otherwise open it
+    setPanel("left", !(panelStatus.left && params.key === menuKey));
     setMenuKey(params.key);
   };
 
@@ -661,8 +621,6 @@ function EditorView(props: EditorViewProps) {
           ? <PreviewHeader />
           : (
             <Header
-              togglePanel={togglePanel}
-              panelStatus={panelStatus}
               toggleEditorModeStatus={toggleEditorModeStatus}
               editorModeStatus={editorModeStatus}
             />
@@ -672,8 +630,6 @@ function EditorView(props: EditorViewProps) {
         {showNewUserGuide && <EditorTutorials />}
         <EditorGlobalHotKeys
           disabled={readOnly}
-          togglePanel={togglePanel}
-          panelStatus={panelStatus}
           toggleShortcutList={toggleShortcutList}
         >
           <Body>
@@ -781,7 +737,7 @@ function EditorView(props: EditorViewProps) {
                 <RightPanel
                   uiComp={uiComp}
                   onCompDrag={onCompDrag}
-                  showPropertyPane={editorState.showPropertyPane}
+                  showPropertyPane={showPropertyPane}
                   onTabChange={setShowPropertyPane} />
               )}
             </Suspense>
@@ -794,4 +750,3 @@ function EditorView(props: EditorViewProps) {
 export default React.memo(EditorView, (prevProps, newProps) => {
   return isEqual(prevProps, newProps);
 });
-

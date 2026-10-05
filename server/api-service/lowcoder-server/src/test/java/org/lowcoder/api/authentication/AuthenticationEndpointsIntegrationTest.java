@@ -17,6 +17,7 @@ import org.lowcoder.sdk.auth.AbstractAuthConfig;
 import org.lowcoder.sdk.auth.EmailAuthConfig;
 import org.lowcoder.sdk.constants.AuthSourceConstants;
 import org.lowcoder.sdk.exception.BizException;
+import org.lowcoder.sdk.util.CookieHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
@@ -28,6 +29,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Duration;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -50,6 +52,9 @@ class AuthenticationEndpointsIntegrationTest {
     
     @Autowired
     private InitData initData;
+
+    @Autowired
+    private CookieHelper cookieHelper;
 
     private ServerWebExchange mockExchange;
 
@@ -175,9 +180,11 @@ class AuthenticationEndpointsIntegrationTest {
     @Test
     @WithMockUser(id = "user01")
     void testLogout_Integration_Success() {
-        // Arrange - Set up a mock session token
+        // Arrange - the cookie name must be the configured one, otherwise getCookieToken returns "" and this
+        // exercises nothing
+        String cookieName = cookieHelper.getCookieName();
         MockServerHttpRequest request = MockServerHttpRequest.post("")
-                .cookie(ResponseCookie.from("token", "test-session-token").build())
+                .cookie(ResponseCookie.from(cookieName, "test-session-token").build())
                 .build();
         ServerWebExchange exchangeWithCookie = MockServerWebExchange.builder(request).build();
 
@@ -191,6 +198,11 @@ class AuthenticationEndpointsIntegrationTest {
                     assertTrue(response.getData());
                 })
                 .verifyComplete();
+
+        ResponseCookie clearedCookie = exchangeWithCookie.getResponse().getCookies().getFirst(cookieName);
+        assertNotNull(clearedCookie);
+        assertEquals("", clearedCookie.getValue());
+        assertEquals(Duration.ZERO, clearedCookie.getMaxAge());
     }
 
     @Test

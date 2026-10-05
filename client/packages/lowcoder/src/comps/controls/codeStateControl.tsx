@@ -22,6 +22,7 @@ import _ from "lodash";
 import {
   AbstractComp,
   AbstractNode,
+  changeChildAction,
   CompAction,
   CompActionTypes,
   ConstructorToView,
@@ -157,6 +158,38 @@ function withTmpState<T extends CodeControlJSONType>(
       };
     }
   );
+}
+
+// Links a value child to a sibling defaultValue child: value starts at defaultValue and keeps whatever it's explicitly set to once defaultValue stops changing.
+export function withLinkedDefaultValue<
+  TCtor extends new (...args: any[]) => AbstractComp<any, any> & {
+    children: Record<string, any>;
+  }
+>(
+  Base: TCtor,
+  defaultValueKey: string,
+  valueKey: string,
+  transformDefaultValue?: (defaultValue: any, comp: any) => any
+): TCtor {
+  class LinkedDefaultValueComp extends (Base as any) {
+    reduce(action: CompAction): this {
+      const ret = super.reduce(action) as this;
+      if (
+        action.type === CompActionTypes.UPDATE_NODES_V2 &&
+        (ret.children as any)[defaultValueKey] !== (this.children as any)[defaultValueKey]
+      ) {
+        const defaultValue = (ret.children as any)[defaultValueKey].getView().value;
+        const valueChild = (ret.children as any)[valueKey];
+        const newValue = transformDefaultValue ? transformDefaultValue(defaultValue, ret) : defaultValue;
+        if (!_.isEqual(newValue, valueChild.getView().value)) {
+          return (ret as any).setChild(valueKey, valueChild.reduce(changeChildAction("value", newValue, false)));
+        }
+      }
+      return ret;
+    }
+  }
+
+  return LinkedDefaultValueComp as unknown as TCtor;
 }
 
 function convertValue(value: EvalParamType, type: ParamType) {

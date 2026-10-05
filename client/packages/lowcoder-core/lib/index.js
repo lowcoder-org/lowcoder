@@ -3529,6 +3529,9 @@ class AbstractComp {
     changeValueAction(value) {
         return changeValueAction(value, true);
     }
+    getRef() {
+        return undefined;
+    }
     /**
      * don't override the function, override nodeWithout function instead
      * FIXME: node reference mustn't be changed if this object is changed
