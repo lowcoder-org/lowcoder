@@ -54,11 +54,13 @@ import reactor.test.StepVerifier;
  *
  * <p>Pinned production defects (owner decision D-6: fixes are deferred, a fix changes these tests on purpose):
  * <ul>
- * <li>plan section 9 row "no role check on invitation creation": see
- * {@link #create_visitorWhoIsNotAMemberOfTheOrganization_getsAnInvitation_pinsSection9Row}.</li>
- * <li>plan section 9 row "InvitationApiServiceImpl (:93) raises INVITER_NOT_FOUND with the message key
+ * <li>plan section 9 row "InvitationApiServiceImpl (:103) raises INVITER_NOT_FOUND with the message key
  * INVITED_ORG_DELETED": see {@link #getInvitationView_inviterMissing_isInviterNotFoundWithTheOrgDeletedKey_pinsSection9Row}.</li>
  * </ul>
+ * Fixed (BF-006, was the plan section 9 row "no role check on invitation creation"): creating an invitation needs
+ * membership of the organization ({@link #create_visitorWhoIsNotAMemberOfTheOrganization_isRefused_andNothingIsSaved}), and
+ * an invitation lets someone join only while its creator is a member
+ * ({@link #inviteUser_invitationWhoseCreatorIsNotAMember_isInvalid_andNobodyJoins}).
  */
 @ExtendWith(MockitoExtension.class)
 class InvitationAndUserApiServiceTest {
@@ -173,6 +175,15 @@ class InvitationAndUserApiServiceTest {
         lenient().when(invitationService.getById(INVITATION_ID)).thenReturn(Mono.just(invitation()));
         lenient().when(organizationService.getById(ORG_ID)).thenReturn(Mono.just(organization()));
         lenient().when(orgApiService.switchCurrentOrganizationTo(ORG_ID)).thenReturn(logged("switch", true));
+        stubCreatorMembership(true);
+    }
+
+    /** The invitation's creator is (or is not) a member of the invited organization; the lookup is logged as "inviter". */
+    private void stubCreatorMembership(boolean member) {
+        lenient().when(orgMemberService.getOrgMember(ORG_ID, CREATOR_ID)).thenReturn(Mono.defer(() -> {
+            events.add("inviter");
+            return member ? Mono.just(new OrgMember(ORG_ID, CREATOR_ID, MemberRole.ADMIN, "normal", 0L)) : Mono.empty();
+        }));
     }
 
     private void stubMembership(boolean member) {
@@ -215,8 +226,32 @@ class InvitationAndUserApiServiceTest {
         StepVerifier.create(invitationApiService.inviteUser(INVITATION_ID))
                 .expectErrorSatisfies(error -> assertBizError(error, BizError.ALREADY_IN_ORGANIZATION, "ALREADY_IN_ORGANIZATION"))
                 .verify();
-        assertThat(events).containsExactly("lookup");
+        assertThat(events).containsExactly("inviter", "lookup");
         say("inviteUser: already a member -> ALREADY_IN_ORGANIZATION, events %s", events);
+    }
+
+    /**
+     * BF-006: an invitation counts only while its creator is a member of the organization, so one minted by an outsider
+     * before creation checked membership (or by a member who has left) is INVALID_INVITATION_CODE with the invitation id;
+     * the creator check runs after the organization check, and the visitor's membership lookup, the quota checks, the join
+     * and the switch are never subscribed.
+     */
+    @Test
+    void inviteUser_invitationWhoseCreatorIsNotAMember_isInvalid_andNobodyJoins() {
+        stubJoin();
+        stubCreatorMembership(false);
+        stubMembership(false);
+        lenient().when(bizThresholdChecker.checkMaxOrgCount(VISITOR_ID)).thenReturn(loggedVoid("orgCount", null));
+        lenient().when(invitationService.inviteToOrg(VISITOR_ID, ORG_ID)).thenReturn(logged("invite", true));
+
+        StepVerifier.create(invitationApiService.inviteUser(INVITATION_ID))
+                .expectErrorSatisfies(error -> {
+                    assertBizError(error, BizError.INVALID_INVITATION_CODE, "INVALID_INVITATION_CODE");
+                    assertThat(((BizException) error).getArgs()).containsExactly(INVITATION_ID);
+                })
+                .verify();
+        assertThat(events).containsExactly("inviter");
+        say("inviteUser: creator not a member -> INVALID_INVITATION_CODE, events %s", events);
     }
 
     private enum Join {
@@ -248,15 +283,15 @@ class InvitationAndUserApiServiceTest {
         switch (scenario) {
             case ORG_COUNT_FAILS -> {
                 StepVerifier.create(result).expectErrorSatisfies(error -> assertThat(error).isSameAs(orgCountFailure)).verify();
-                assertThat(events).containsExactly("lookup", "orgCount");
+                assertThat(events).containsExactly("inviter", "lookup", "orgCount");
             }
             case MEMBER_COUNT_FAILS -> {
                 StepVerifier.create(result).expectErrorSatisfies(error -> assertThat(error).isSameAs(memberCountFailure)).verify();
-                assertThat(events).containsExactly("lookup", "orgCount", "memberCount");
+                assertThat(events).containsExactly("inviter", "lookup", "orgCount", "memberCount");
             }
             default -> {
                 StepVerifier.create(result).expectNext(true).verifyComplete();
-                assertThat(events).containsExactly("lookup", "orgCount", "memberCount", "invite", "switch");
+                assertThat(events).containsExactly("inviter", "lookup", "orgCount", "memberCount", "invite", "switch");
             }
         }
         say("inviteUser %s -> %s", scenario, events);
@@ -292,7 +327,7 @@ class InvitationAndUserApiServiceTest {
     }
 
     /**
-     * Pins the plan section 9 row "InvitationApiServiceImpl (:93) raises INVITER_NOT_FOUND with the message key
+     * Pins the plan section 9 row "InvitationApiServiceImpl (:103) raises INVITER_NOT_FOUND with the message key
      * INVITED_ORG_DELETED": an invitation whose creator no longer exists gives the error code INVITER_NOT_FOUND but the
      * message key of the deleted organization, so the user is told the wrong thing. A fix changes this test on purpose.
      */
@@ -352,6 +387,8 @@ class InvitationAndUserApiServiceTest {
     void create_savesTheInvitationForTheVisitorAndTheOrganization() {
         when(sessionUserService.getVisitor()).thenReturn(Mono.just(user(CREATOR_ID, "Creator")));
         when(organizationService.getById(ORG_ID)).thenReturn(Mono.just(organization()));
+        when(orgMemberService.getOrgMember(ORG_ID, CREATOR_ID))
+                .thenReturn(Mono.just(new OrgMember(ORG_ID, CREATOR_ID, MemberRole.MEMBER, "normal", 0L)));
         ArgumentCaptor<Invitation> saved = ArgumentCaptor.forClass(Invitation.class);
         when(invitationService.create(saved.capture())).thenReturn(Mono.just(invitation()));
 
@@ -363,22 +400,23 @@ class InvitationAndUserApiServiceTest {
     }
 
     /**
-     * Pins the plan section 9 row "no role check on invitation creation": a signed-in visitor who is not a member of the
-     * organization (no membership, role or org-admin lookup is made at all) gets an invitation for it, and anyone with
-     * that code joins as a member through {@code inviteUser}. A fix changes this test on purpose.
+     * BF-006 (was pinned as the plan section 9 row "no role check on invitation creation"): a signed-in visitor who is not
+     * a member of the organization is refused with NOT_AUTHORIZED, the membership is looked up for the visitor and that
+     * organization, and no invitation is saved. Any member may invite (an admin-only rule needs a client change first).
      */
     @Test
-    void create_visitorWhoIsNotAMemberOfTheOrganization_getsAnInvitation_pinsSection9Row() {
+    void create_visitorWhoIsNotAMemberOfTheOrganization_isRefused_andNothingIsSaved() {
         when(sessionUserService.getVisitor()).thenReturn(Mono.just(user(VISITOR_ID, "Outsider")));
         when(organizationService.getById(ORG_ID)).thenReturn(Mono.just(organization()));
-        when(invitationService.create(any(Invitation.class))).thenReturn(Mono.just(invitation()));
+        when(orgMemberService.getOrgMember(ORG_ID, VISITOR_ID)).thenReturn(Mono.empty());
 
         StepVerifier.create(invitationApiService.create(ORG_ID))
-                .assertNext(view -> assertThat(view.getInvitedOrganizationId()).isEqualTo(ORG_ID))
-                .verifyComplete();
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                .verify();
 
-        verifyNoInteractions(orgMemberService, orgApiService, bizThresholdChecker);
-        say("create: a visitor with no membership in %s got an invitation (section 9 row pinned)", ORG_ID);
+        verify(orgMemberService).getOrgMember(ORG_ID, VISITOR_ID);
+        verifyNoInteractions(invitationService, orgApiService, bizThresholdChecker);
+        say("create: a visitor with no membership in %s is refused, nothing saved (BF-006)", ORG_ID);
     }
 
     // ------------------------------------------------------------------ UserApiServiceImpl: the admin gate
