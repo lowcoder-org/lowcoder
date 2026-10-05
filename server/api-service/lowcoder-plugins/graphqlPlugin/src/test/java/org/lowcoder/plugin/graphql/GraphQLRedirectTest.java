@@ -18,6 +18,7 @@ import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.contract.RecordingHttpServer;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.QueryExecutionResult;
+import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.AuthConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.BasicAuthConfig;
@@ -34,18 +35,23 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 /**
- * Redirect handling of {@link GraphQLExecutor#executeQuery}. The redirect target comes from the {@code Location} header
- * as given.
+ * Redirect handling of {@link GraphQLExecutor#executeQuery}. The redirect target is the {@code Location} header
+ * resolved against the URI that answered.
  *
- * <p>Pins the two halves of defect D14 for the GraphQL executor (analysis-plugins section 0.6; plan section 9, row
- * "D1-D20 of analysis-plugins 0.6", and the row for a relative Location that the disallowed-hosts resolver does not
- * stop; fixes deferred under D-6): a relative {@code Location} is not resolved against the request, and a redirect to
- * another origin re-sends the datasource's credentials and the forwarded cookies. Same code as RestApiExecutor.
+ * <p>Covers the two halves of defect D14 for the GraphQL executor (BF-009, BF-010): a relative {@code Location} goes to
+ * the server that redirected, and a redirect to another origin is sent with only the content headers ({@code Accept},
+ * {@code Accept-Language}, {@code Content-Type}, {@code User-Agent}), without the datasource's credentials, custom
+ * headers and the forwarded cookies. Same code as RestApiExecutor.
  */
 class GraphQLRedirectTest {
 
     /** {@code GraphQLExecutor.MAX_REDIRECTS}: calls 0 to 4 send a request, call 5 fails before sending one. */
     private static final int REQUEST_LIMIT = 5;
+    private static final String USER = "user";
+    private static final String PASSWORD = "secret";
+    private static final String API_KEY_HEADER = "X-Api-Key";
+    private static final String API_KEY = "datasource-key";
+    private static final String JSON = "application/json";
 
     private final GraphQLCallSupport support = new GraphQLCallSupport();
 
@@ -85,20 +91,17 @@ class GraphQLRedirectTest {
     }
 
     /**
-     * DEFECT D14, first half, pinned for GraphQL (see the class comment; D-6, fix deferred): a relative
-     * {@code Location: /next} is turned into a URI without a host ({@code new URI(redirectUrl)},
-     * GraphQLExecutor.java:343-347) and the next call is made with that URI as given. The client's default for a host-less
-     * URI is {@code localhost}, port 80, an uncontrolled port, so this test never lets the second request leave the JVM:
-     * it calls the private {@code httpCall} through reflection with a WebClient whose exchange function is a stub,
-     * answers the first call 302 with {@code Location: /next} and records the URL of the second call. The pin: that URL
-     * is {@code /next}, not absolute, with no host. The obvious fix, {@code uri.resolve(redirectUrl)}, makes the second
-     * URL absolute on the original host and turns this test red.
+     * BF-009 (D14, first half) for GraphQL: a relative {@code Location: /next} is resolved against the URI that answered,
+     * so the next call goes to the server that redirected and not to a host-less URI (which the client sends to
+     * {@code localhost} port 80, past the disallowed-hosts check). The second request never leaves the JVM: the private
+     * {@code httpCall} is called through reflection with a WebClient whose exchange function is a stub, which answers the
+     * first call 302 with {@code Location: /next} and records the URL of the second call.
      *
-     * <p>Limits: it pins the redirect decision of {@code httpCall} (a private method, signature read in the source) and not
-     * what a real network does with the host-less URI; it breaks, on purpose, if the signature changes.
+     * <p>Limits: it covers the redirect decision of {@code httpCall} (a private method, signature read in the source) and
+     * not a real network; it breaks, on purpose, if the signature changes.
      */
     @Test
-    void aRelativeLocationIsFollowedAsAHostlessUriTodayD14() throws ReflectiveOperationException {
+    void aRelativeLocationIsResolvedAgainstTheServerThatRedirected() throws ReflectiveOperationException {
         List<URI> called = new CopyOnWriteArrayList<>();
         ExchangeFunction stub = request -> {
             called.add(request.url());
@@ -121,35 +124,63 @@ class GraphQLRedirectTest {
         System.out.println("[GraphQLRedirectTest] URLs called for a relative Location: " + called);
         assertThat(called).hasSize(2);
         assertThat(called.get(0)).isEqualTo(origin);
-        assertThat(called.get(1)).hasToString("/next");
-        assertThat(called.get(1).isAbsolute()).isFalse();
-        assertThat(called.get(1).getHost()).isNull();
+        assertThat(called.get(1)).isEqualTo(URI.create("http://origin.invalid:8080/next"));
     }
 
     /**
-     * DEFECT D14, second half, pinned for GraphQL (see the class comment; D-6, fix deferred): the redirect is sent with
-     * the same WebClient, whose default headers and cookies are the datasource's, so a redirect to another origin (here
-     * another port) carries the datasource's Authorization header and the forwarded cookie. The intended behaviour,
-     * dropping credentials when the host or port changes, would turn this test red.
+     * BF-010 (D14, second half) for GraphQL: a redirect to another origin (here another port) is sent without the
+     * datasource's Authorization header, its custom {@code X-Api-Key} header and the forwarded cookie, and with its
+     * {@code Accept} header; the origin itself received all of them.
      */
     @Test
-    void aRedirectToAnotherOriginResendsTheAuthorizationHeaderAndTheForwardedCookiesD14() {
+    void aRedirectToAnotherOriginDropsTheAuthorizationHeaderAndTheForwardedCookies() {
         try (RecordingHttpServer other = RecordingHttpServer.serve(Map.of("/landing", request -> json(200, "{}")))) {
             try (RecordingHttpServer origin = RecordingHttpServer.serve(Map.of("/start", request -> redirect(302, other.baseUrl() + "/landing")))) {
                 GraphQLDatasourceConfig datasource = GraphQLDatasourceConfig.builder().url(origin.baseUrl() + "/start")
-                        .authConfig(BasicAuthConfig.builder().type(RestApiAuthType.BASIC_AUTH).username("user").password("secret").build())
+                        .authConfig(BasicAuthConfig.builder().type(RestApiAuthType.BASIC_AUTH).username(USER).password(PASSWORD).build())
+                        .headers(List.of(new Property(API_KEY_HEADER, API_KEY), new Property(HttpHeaders.ACCEPT, JSON)))
                         .forwardCookies(Set.of("a")).build();
 
                 support.run(datasource, GraphQLCallSupport.query(), GraphQLCallSupport.visitor(GraphQLCallSupport.cookies("a", "1"), null));
 
+                RecordingHttpServer.Request atOrigin = requestsTo(origin, "/start").get(0);
                 RecordingHttpServer.Request atOther = requestsTo(other, "/landing").get(0);
-                System.out.println("[GraphQLRedirectTest] other origin received Authorization " + atOther.header("Authorization")
-                        + " Cookie " + atOther.header("Cookie"));
+                System.out.println("[GraphQLRedirectTest] origin received Authorization " + atOrigin.header("Authorization")
+                        + " Cookie " + atOrigin.header("Cookie") + "; other origin received Authorization "
+                        + atOther.header("Authorization") + " Cookie " + atOther.header("Cookie"));
                 assertThat(origin.port()).isNotEqualTo(other.port());
-                assertThat(atOther.header("Authorization")).hasSize(1);
-                assertThat(atOther.header("Authorization").get(0)).startsWith("Basic ");
-                assertThat(atOther.header("Cookie")).containsExactly("a=1");
+                assertThat(atOrigin.header("Authorization")).hasSize(1);
+                assertThat(atOrigin.header("Authorization").get(0)).startsWith("Basic ");
+                assertThat(atOrigin.header("Cookie")).containsExactly("a=1");
+                assertThat(atOrigin.header(API_KEY_HEADER)).containsExactly(API_KEY);
+                assertThat(atOther.header("Authorization")).isEmpty();
+                assertThat(atOther.header("Cookie")).isEmpty();
+                assertThat(atOther.header(API_KEY_HEADER)).as("a custom datasource header can be a credential").isEmpty();
+                assertThat(atOther.header(HttpHeaders.ACCEPT)).as("a content header is kept").containsExactly(JSON);
             }
+        }
+    }
+
+    /** A redirect inside the same origin keeps the datasource's Authorization header, its custom headers and the forwarded cookie. */
+    @Test
+    void aRedirectInsideTheSameOriginKeepsTheAuthorizationHeaderTheCustomHeadersAndTheForwardedCookies() {
+        try (RecordingHttpServer origin = RecordingHttpServer.serve(Map.of(
+                "/start", request -> redirect(302, "/landing"),
+                "/landing", request -> json(200, "{}")))) {
+            GraphQLDatasourceConfig datasource = GraphQLDatasourceConfig.builder().url(origin.baseUrl() + "/start")
+                    .authConfig(BasicAuthConfig.builder().type(RestApiAuthType.BASIC_AUTH).username(USER).password(PASSWORD).build())
+                    .headers(List.of(new Property(API_KEY_HEADER, API_KEY)))
+                    .forwardCookies(Set.of("a")).build();
+
+            support.run(datasource, GraphQLCallSupport.query(), GraphQLCallSupport.visitor(GraphQLCallSupport.cookies("a", "1"), null));
+
+            RecordingHttpServer.Request landing = requestsTo(origin, "/landing").get(0);
+            System.out.println("[GraphQLRedirectTest] same-origin relative redirect received Authorization "
+                    + landing.header("Authorization") + " X-Api-Key " + landing.header(API_KEY_HEADER) + " Cookie " + landing.header("Cookie"));
+            assertThat(landing.header("Authorization")).hasSize(1);
+            assertThat(landing.header("Authorization").get(0)).startsWith("Basic ");
+            assertThat(landing.header(API_KEY_HEADER)).containsExactly(API_KEY);
+            assertThat(landing.header("Cookie")).containsExactly("a=1");
         }
     }
 
