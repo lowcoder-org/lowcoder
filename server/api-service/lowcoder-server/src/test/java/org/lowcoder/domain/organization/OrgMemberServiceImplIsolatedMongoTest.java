@@ -91,26 +91,25 @@ class OrgMemberServiceImplIsolatedMongoTest extends OrganizationMongoTestBase {
     }
 
     /**
-     * Pins plan section 9 row "registration forced open when the only admins are SUPER_ADMIN: doesAtleastOneAdminExist
-     * counts relation `admin` only (OrgMemberServiceImpl:116), and AuthenticationServiceImpl:55-62 then sets
-     * enableRegister TRUE despite configuration". Reachable on a fresh deployment: AddSuperAdminUserImpl:42-50 creates the
-     * configured super admin through createDefault(user, true), whose first org membership is SUPER_ADMIN
-     * (OrganizationServiceImpl:165-167), while a normal first sign-up gets ADMIN (AuthenticationApiServiceImpl:159,
-     * :283-285). A fix (count ADMIN or SUPER_ADMIN) changes this test on purpose.
+     * BF-013 (was the pin of plan section 9 row "registration forced open when the only admins are SUPER_ADMIN:
+     * doesAtleastOneAdminExist counts relation `admin` only, and AuthenticationServiceImpl then sets enableRegister TRUE
+     * despite configuration"): a SUPER_ADMIN row counts as an admin, so the configured registration setting (disabled)
+     * applies. Reachable on a fresh deployment: AddSuperAdminUserImpl:42-50 creates the configured super admin through
+     * createDefault(user, true), whose first org membership is SUPER_ADMIN (OrganizationServiceImpl:165-167), while a
+     * normal first sign-up gets ADMIN (AuthenticationApiServiceImpl:159, :283-285).
      */
     @Test
-    void onlySuperAdminsCountAsNoAdminAndOpenRegistration_pinsTheSection9Row() {
+    void aSuperAdminCountsAsAnAdmin_soTheConfiguredRegistrationSettingApplies() {
+        assertThat(emailRegistrationEnabled()).as("no admin at all: registration is forced open").isTrue();
+
         orgMemberService.addMember(createActiveOrg(), newId(), MemberRole.SUPER_ADMIN).block(TIMEOUT);
 
         boolean adminExists = orgMemberService.doesAtleastOneAdminExist().block(TIMEOUT);
         boolean registrationEnabled = emailRegistrationEnabled();
-        System.out.println("[OrgMemberServiceImplIsolatedMongoTest] PINNED only SUPER_ADMIN rows: adminExists=" + adminExists
+        System.out.println("[OrgMemberServiceImplIsolatedMongoTest] only SUPER_ADMIN rows: adminExists=" + adminExists
                 + " email registration enabled=" + registrationEnabled + " (configured: disabled)");
-        assertThat(adminExists).isFalse();
-        assertThat(registrationEnabled).isTrue();
-
-        orgMemberService.addMember(createActiveOrg(), newId(), MemberRole.ADMIN).block(TIMEOUT);
-        assertThat(emailRegistrationEnabled()).as("with an ADMIN row the configuration (disabled) applies").isFalse();
+        assertThat(adminExists).isTrue();
+        assertThat(registrationEnabled).isFalse();
     }
 
     // ------------------------------------------------------------------ addToAllOrgAsAdminIfNot

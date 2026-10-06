@@ -34,6 +34,9 @@ import static org.lowcoder.infra.birelation.BiRelationBizType.ORG_MEMBER;
 @RequiredArgsConstructor
 public class OrgMemberServiceImpl implements OrgMemberService {
 
+    /** The org roles whose holders count as administrators in {@link #doesAtleastOneAdminExist()}. */
+    private static final List<MemberRole> ADMIN_ROLES = List.of(MemberRole.ADMIN, MemberRole.SUPER_ADMIN);
+
     private final BiRelationService biRelationService;
     private final GroupMemberService groupMemberService;
     private final GroupService groupService;
@@ -111,11 +114,16 @@ public class OrgMemberServiceImpl implements OrgMemberService {
         return biRelationService.countBySourceId(ORG_MEMBER, orgId);
     }
 
+    /**
+     * Whether any organization has an administrator, a member with the ADMIN or the SUPER_ADMIN role (BF-013): the super
+     * admin a deployment configures is created as SUPER_ADMIN of its first organization, so it counts as that
+     * deployment's admin.
+     */
     @Override
     public Mono<Boolean> doesAtleastOneAdminExist() {
-        return biRelationService.countByRelation(ORG_MEMBER, MemberRole.ADMIN.getValue())
-                .single()
-                .map(count -> count != 0);
+        return Flux.fromIterable(ADMIN_ROLES)
+                .concatMap(role -> biRelationService.countByRelation(ORG_MEMBER, role.getValue()))
+                .any(count -> count != 0);
     }
 
     @Override
