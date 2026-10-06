@@ -25,12 +25,12 @@ import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.slf4j.LoggerFactory;
 
 /**
- * DEFECT pinned (probe EP4; plan section 9 row "secret in log: failed ES testConnection logs toJson(config) with the
- * plaintext password (:162, :166)", D8-adjacent; D-6, fix deferred). {@code EsConnector.testConnection} logs
- * {@code JsonUtils.toJson(connectionConfig)} at ERROR when the answer is not 200 (EsConnector.java:164, "test es
- * fail.") and when the call fails (:168, "test es error."). The JSON contains the plaintext password because no Jackson
- * view is active. The fix (log without the config, or with the password masked) makes the contains-password assertions
- * red. Only my own loopback server on port 0 (and a port I opened and closed) is contacted.
+ * BF-026 b (probe EP4; plan section 9 row "secret in log: failed ES testConnection logs toJson(config) with the plaintext
+ * password"): {@code EsConnector.testConnection} logs the config at ERROR when the answer is not 200 (EsConnector.java:165,
+ * "test es fail.") and when the call fails (:169, "test es error."), now in the {@code JsonViews.Public} view, which leaves
+ * out the {@code JsonViews.Internal} password; connection string and user name are still logged. Limit: credentials
+ * written into the connection string itself ({@code http://user:pass@host}) are logged with it. Only my own loopback
+ * server on port 0 (and a port I opened and closed) is contacted.
  */
 public class EsTestConnectionPasswordLogTest {
 
@@ -54,29 +54,37 @@ public class EsTestConnectionPasswordLogTest {
         logs.stop();
     }
 
-    private List<ILoggingEvent> errorsWithPassword() {
+    private List<ILoggingEvent> errors() {
         logs.list.forEach(event -> System.out.println("[EsTestConnectionPasswordLogTest] " + event.getLevel() + " "
                 + event.getFormattedMessage().replace(PASSWORD, "<<PASSWORD>>") + (event.getFormattedMessage().contains(PASSWORD) ? "  [contains the password]" : "")));
-        return logs.list.stream().filter(event -> event.getLevel() == Level.ERROR && event.getFormattedMessage().contains(PASSWORD)).collect(Collectors.toList());
+        return logs.list.stream().filter(event -> event.getLevel() == Level.ERROR).collect(Collectors.toList());
+    }
+
+    private static void assertNoPasswordButTheConnection(ILoggingEvent event, String prefix) {
+        String message = event.getFormattedMessage();
+        assertTrue(message.startsWith(prefix), message);
+        assertFalse(message.contains(PASSWORD), "no password in the log: " + message);
+        assertFalse(message.contains("\"password\""), "no password field in the logged config: " + message);
+        assertTrue(message.contains("\"username\":\"" + USER + "\""), "the user name is still logged: " + message);
     }
 
     @Test
-    public void aNon200AnswerLogsTheWholeConfigIncludingThePasswordAtErrorD8() throws Exception {
+    public void aNon200AnswerLogsTheConfigWithoutThePasswordBF026() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.start(Map.of("/", new Response(204, Map.of(), null)))) {
 
             DatasourceTestResult result = connector.testConnection(
                     connector.resolveConfig(Map.of("connectionString", server.baseUrl(), "username", USER, "password", PASSWORD))).block(TIMEOUT);
 
             assertFalse(result.isSuccess());
-            List<ILoggingEvent> leaking = errorsWithPassword();
-            assertEquals(1, leaking.size(), "one ERROR event carries the password");
-            assertTrue(leaking.get(0).getFormattedMessage().startsWith("test es fail."), leaking.get(0).getFormattedMessage());
-            assertTrue(leaking.get(0).getFormattedMessage().contains(server.baseUrl()));
+            List<ILoggingEvent> errors = errors();
+            assertEquals(1, errors.size(), "one ERROR event");
+            assertNoPasswordButTheConnection(errors.get(0), "test es fail.");
+            assertTrue(errors.get(0).getFormattedMessage().contains(server.baseUrl()));
         }
     }
 
     @Test
-    public void aFailedCallLogsTheWholeConfigIncludingThePasswordAtErrorD8() throws Exception {
+    public void aFailedCallLogsTheConfigWithoutThePasswordBF026() throws Exception {
         int closedPort;
         try (ServerSocket socket = new ServerSocket(0)) {
             closedPort = socket.getLocalPort();
@@ -86,9 +94,8 @@ public class EsTestConnectionPasswordLogTest {
                 connector.resolveConfig(Map.of("connectionString", "127.0.0.1:" + closedPort, "username", USER, "password", PASSWORD))).block(TIMEOUT);
 
         assertFalse(result.isSuccess());
-        List<ILoggingEvent> leaking = errorsWithPassword();
-        assertEquals(1, leaking.size(), "exactly one ERROR event carries the password");
-        assertTrue(leaking.get(0).getFormattedMessage().startsWith("test es error."), leaking.get(0).getFormattedMessage());
-        assertTrue(leaking.get(0).getFormattedMessage().contains("\"username\":\"" + USER + "\""));
+        List<ILoggingEvent> errors = errors();
+        assertEquals(1, errors.size(), "exactly one ERROR event");
+        assertNoPasswordButTheConnection(errors.get(0), "test es error.");
     }
 }

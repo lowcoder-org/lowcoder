@@ -10,6 +10,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ServiceAccountJsonUtils {
+
+    /** Printed by {@code toString} in place of a secret that is set (BF-026 D9); a missing secret prints {@code null}. */
+    static final String HIDDEN_SECRET = "<hidden>";
+
     private String clientId;
     private String clientEmail;
     private String privateKeyPkcs8;
@@ -28,8 +32,13 @@ public class ServiceAccountJsonUtils {
         return "ServiceAccountJsonUtils{" +
                 "clientId='" + clientId + '\'' +
                 ", clientEmail='" + clientEmail + '\'' +
-                ", privateKeyPkcs8='" + privateKeyPkcs8 + '\'' +
+                ", privateKeyPkcs8=" + hidden(privateKeyPkcs8) +
                 ", privateKeyId='" + privateKeyId + '\'' +
                 '}';
+    }
+
+    /** {@link #HIDDEN_SECRET} for a secret that is set, {@code null} for none, so a log still shows whether it was present. */
+    static String hidden(String secret) {
+        return secret == null ? null : HIDDEN_SECRET;
     }
 }
