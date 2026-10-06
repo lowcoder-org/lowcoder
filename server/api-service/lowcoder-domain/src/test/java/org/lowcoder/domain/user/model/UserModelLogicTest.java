@@ -138,6 +138,25 @@ class UserModelLogicTest {
         assertThat(connection.matchThirdPartyLoginSourceInSelfHost(asked)).isEqualTo(selfHost);
     }
 
+    /**
+     * Catches (BF-040): a connection stored without an auth id throwing, or a null id (a user without an active auth id)
+     * matching such a connection. Columns: the connection's auth id, the id asked for, whether it matches.
+     */
+    @ParameterizedTest(name = "connection={0} asked={1} -> {2}")
+    @CsvSource(value = {
+            "auth-A,auth-A,true",
+            "auth-A,auth-B,false",
+            "auth-A,NULL,false",
+            "NULL,auth-A,false",
+            "NULL,NULL,false"
+    }, nullValues = "NULL")
+    void hasAuthIdMatchesOnlyTheSameNonNullIdBF040(String connectionAuthId, String asked, boolean matches) {
+        Connection connection = Connection.builder().authId(connectionAuthId).source(GITHUB).rawId(RAW_ID).build();
+        System.out.println("[UserModelLogicTest] connection authId=" + connectionAuthId + " asked=" + asked + " -> "
+                + connection.hasAuthId(asked));
+        assertThat(connection.hasAuthId(asked)).isEqualTo(matches);
+    }
+
     /** Catches: the email source exposing the stored info, or other sources losing it; null info must not leak. */
     @Test
     void rawUserInfoIsDerivedFromTheRawIdForEmailAndStoredOtherwise() {

@@ -114,6 +114,17 @@ public class Connection implements Serializable {
         return orgIds.contains(orgId);
     }
 
+    /**
+     * Whether this connection belongs to the given auth config. A null id matches no connection, and a connection stored
+     * without an auth id matches no id (BF-040: such a connection made every {@code getAuthId().equals(...)} lookup of
+     * its user throw). Unlike {@code Objects.equals}, null does not match null, so this is for picking the connection of
+     * an auth config, not for looking up connections stored without an auth id. Does not cover a connection without a stored token: callers still check
+     * {@link #getAuthConnectionAuthToken()}.
+     */
+    public boolean hasAuthId(@Nullable String authId) {
+        return authId != null && authId.equals(this.authId);
+    }
+
     public boolean matchThirdPartyLoginSourceInCloud(String sourceType, String orgId) {
         return StringUtils.equals(sourceType, source) && containOrg(orgId);
     }
