@@ -80,9 +80,10 @@ public class PostgresExecutor extends SqlBasedQueryExecutor {
                     }
 
                     Object value = requestParams.get(key);
-                    DataType targetType = explicitCastDataTypes.get(i);
+                    // fewer driver parameters than placeholders (one inside a $$ string): bound as is, the driver reports it
+                    DataType targetType = i < explicitCastDataTypes.size() ? explicitCastDataTypes.get(i) : null;
                     if (targetType != null) {
-                        finalValues.add(castValueWithTargetType(value, explicitCastDataTypes.get(i)));
+                        finalValues.add(castValueWithTargetType(value, targetType));
                     } else {
                         finalValues.add(value);
                     }

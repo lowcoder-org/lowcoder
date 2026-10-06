@@ -186,6 +186,28 @@ public class PostgresDatabaseTest {
         }
     }
 
+    /**
+     * BF-045 fixed, through the server: a {@code ?::bool} in a string literal took the cast of the first parameter (5 was
+     * bound as false and came back as 0), and {@code ?::int8} was read as {@code int} (a number above the int range failed
+     * before reaching the server). The literal stays text, and each parameter is cast as written.
+     */
+    @Test
+    public void aCastInALiteralNoLongerShiftsTheParameterCastsBF045() {
+        PostgresDatasourceConfig config = config();
+        HikariPerfWrapper pool = connect(config);
+        try {
+            Object data = sql(pool, config, "select '?::bool' as lit, {{b}}::int4 as b, {{big}}::int8 as big, {{f}}::float8 as f",
+                    Map.of("b", "5", "big", "3000000001", "f", "0.1"));
+            System.out.println("[PostgresDatabaseTest] literal and casts through the server: " + data);
+            assertEquals("?::bool", cell(data, "lit"));
+            assertEquals(5, cell(data, "b"));
+            assertEquals(3000000001L, ((Number) cell(data, "big")).longValue());
+            assertEquals(0.1d, ((Number) cell(data, "f")).doubleValue());
+        } finally {
+            destroy(pool);
+        }
+    }
+
     @Test
     public void realDriverReturnsWhatTheResultContractCellsAssume() {
         PostgresDatasourceConfig config = config();
