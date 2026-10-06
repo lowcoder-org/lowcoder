@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
 import org.lowcoder.sdk.plugin.sqlcommand.command.postgres.PostgresUpdateCommand;
 
+import java.sql.Connection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,8 @@ public class SqlBasedQueryExecutorContextTest {
 
     static final String EMPTY_CONFIG_KEY = "EMPTY_SQL_QUERY_CONFIG";
     static final Map<String, Object> PARAMS = Map.of("x", 1);
+    /** A comment with an apostrophe and hyphens between two columns, the second a literal containing "--". */
+    static final String COMMENTED_SQL = "select 7 as one-- don't-a-b\n, 'x--y' as two";
 
     private final H2SqlTestSupport.H2Executor executor = new H2SqlTestSupport.H2Executor(new GeneralSqlExecutor());
 
@@ -51,6 +54,23 @@ public class SqlBasedQueryExecutorContextTest {
         assertTrue(context.getQuery().contains("select 1"));
         assertEquals(PARAMS, context.getRequestParams());
         assertNull(context.getGuiSqlCommand());
+    }
+
+    /**
+     * BF-046 through the executor and a database: an apostrophe in a {@code --} comment no longer cuts the query at the
+     * {@code --} of a later literal, and hyphens in the comment no longer delete the value before it; H2 answers both
+     * columns as written.
+     */
+    @Test
+    public void aQuoteAndHyphensInACommentKeepTheQueryThatRunsBF046() throws Exception {
+        SqlBasedQueryExecutionContext context = build(false, H2SqlTestSupport.sqlConfig(COMMENTED_SQL));
+        System.out.println("[SqlBasedQueryExecutorContextTest] [" + COMMENTED_SQL.replace("\n", "\\n") + "] -> [" + context.getQuery().replace("\n", "\\n") + "]");
+        assertEquals("select 7 as one\n, 'x--y' as two", context.getQuery());
+        try (Connection connection = H2SqlTestSupport.open(H2SqlTestSupport.newUrl("comments"))) {
+            Object data = new GeneralSqlExecutor().execute(connection, context).getData();
+            System.out.println("[SqlBasedQueryExecutorContextTest] H2 answers " + data);
+            assertEquals(List.of(Map.of("one", 7, "two", "x--y")), data);
+        }
     }
 
     @Test
