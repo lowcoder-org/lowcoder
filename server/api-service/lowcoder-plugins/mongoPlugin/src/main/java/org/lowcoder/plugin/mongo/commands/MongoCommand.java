@@ -47,6 +47,12 @@ public abstract class MongoCommand {
 
     private static final int DEFAULT_VALUE = 8000;
 
+    /**
+     * The batch size of a find or aggregate whose limit field is absent or blank: no limit (BF-031). Only the first batch of
+     * the cursor is read ({@code MongoQueryUtils}), so the server's own cap on a first batch (16 MB) still applies.
+     */
+    protected static final int UNLIMITED = Integer.MAX_VALUE;
+
     private String collection;
     private int timeoutMs;
     private String type;

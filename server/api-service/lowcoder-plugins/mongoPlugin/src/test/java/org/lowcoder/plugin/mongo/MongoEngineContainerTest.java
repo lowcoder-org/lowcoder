@@ -208,13 +208,12 @@ public class MongoEngineContainerTest {
     }
 
     /**
-     * Pins the plan section 9 row "data missing: a mongo aggregate with no limit field sends cursor {batchSize: 0} and MongoDB 7.0 returns zero rows" as observed: a form without the aggregate's limit field builds the cursor
-     * {@code {batchSize: 0}} (document pin: MongoCommandDocumentsTest.aggregateBatchSizeFollowsTheLimitField_pinsTheSection9Row)
-     * and the server returns no rows, while a limit or a blank limit returns all of them. A fix (a default limit when the field
-     * is absent) changes this test on purpose.
+     * BF-031 fixed: a form without the aggregate's limit field was sent as cursor {@code {batchSize: 0}} and the server
+     * returned no rows. It is now unlimited, like a blank limit (document side:
+     * MongoCommandDocumentsTest.aggregateWithoutALimitIsUnlimitedLikeABlankLimitBF031), so all three forms return every row.
      */
     @Test
-    public void aggregateWithoutALimitFieldAgainstTheServer_pinsTheSection9Row() {
+    public void aggregateWithoutALimitFieldReturnsEveryRowBF031() {
         String c = collection("nolimit");
         seed(c, new Document("n", 1), new Document("n", 2), new Document("n", 3));
         String pipeline = "[{\"$match\": {}}, {\"$sort\": {\"n\": 1}}]";
@@ -224,10 +223,8 @@ public class MongoEngineContainerTest {
         System.out.println(TAG + "rows without limit: " + withoutLimit.size() + ", with limit 100: " + withLimit.size() + ", blank limit: " + blankLimit.size());
         assertEquals(3, withLimit.size());
         assertEquals(3, blankLimit.size());
-        assertEquals(OBSERVED_ROWS_WITHOUT_LIMIT, withoutLimit.size());
+        assertEquals(3, withoutLimit.size(), "no limit field returns every row");
     }
-
-    static final int OBSERVED_ROWS_WITHOUT_LIMIT = 0;
 
     /**
      * Pins defect D12 (analysis-plugins section 0.6; plan section 9 D1-D20 row) against a real server: the form's
