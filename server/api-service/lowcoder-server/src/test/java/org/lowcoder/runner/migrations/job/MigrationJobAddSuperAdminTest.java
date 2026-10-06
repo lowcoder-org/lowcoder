@@ -8,6 +8,8 @@ import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.user.model.AuthUser;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
+import org.lowcoder.runner.init.AddSuperAdminRunner;
+import org.lowcoder.runner.migrations.DatabaseChangelog;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
@@ -22,6 +24,10 @@ import reactor.core.publisher.Sinks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,7 +35,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -41,7 +49,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Unit K3 (task L2-12, lane L5): {@code AddSuperAdminUserImpl}, the job behind changeset 020 ({@code add-super-admin-user},
- * {@code DatabaseChangelog.java:216-218}): it builds the super admin's login from the server config (a default name, a configured
+ * {@code DatabaseChangelog.java:221-224}): it builds the super admin's login from the server config (a default name, a configured
  * or generated password), creates or updates the user, registers a new one, sets the password, marks the user as super admin and
  * adds it to every organization as admin. Mockito only.
  *
@@ -55,6 +63,10 @@ public class MigrationJobAddSuperAdminTest {
     static final String DEFAULT_NAME = "admin@lowcoder.org";
     static final String CONFIGURED_NAME = "root@corp.example.com";
     static final String CONFIGURED_PASSWORD = "Configured-Pass-1";
+    static final String MARKING_FAILED = "marking failed";
+    static final String PASSWORD_FAILED = "password failed";
+    static final Duration WAIT = Duration.ofSeconds(10);
+    static final long POLL_MS = 10;
 
     @Mock
     private AuthenticationApiServiceImpl authenticationApiService;
@@ -112,7 +124,7 @@ public class MigrationJobAddSuperAdminTest {
         superAdmin(CONFIGURED_NAME, CONFIGURED_PASSWORD);
         everythingSucceeds(true);
 
-        job.addOrUpdateSuperAdmin();
+        job.addOrUpdateSuperAdmin().block();
 
         AuthUser authUser = capturedAuthUser();
         assertEquals(CONFIGURED_NAME, authUser.getUid());
@@ -134,7 +146,7 @@ public class MigrationJobAddSuperAdminTest {
     public void anExistingUserIsNotRegisteredAgainButTheOtherStepsStillRun() {
         superAdmin(CONFIGURED_NAME, CONFIGURED_PASSWORD);
         everythingSucceeds(false);
-        job.addOrUpdateSuperAdmin();
+        job.addOrUpdateSuperAdmin().block();
         verify(authenticationApiService, never()).onUserRegister(any(User.class), anyBoolean());
         verify(userService).setPassword(USER_ID, CONFIGURED_PASSWORD);
         verify(userService).markAsSuperAdmin(USER_ID);
@@ -147,7 +159,7 @@ public class MigrationJobAddSuperAdminTest {
             Mockito.reset(authenticationApiService, userService, orgMemberService, commonConfig);
             superAdmin(blank, CONFIGURED_PASSWORD);
             everythingSucceeds(false);
-            job.addOrUpdateSuperAdmin();
+            job.addOrUpdateSuperAdmin().block();
             AuthUser authUser = capturedAuthUser();
             assertEquals(DEFAULT_NAME, authUser.getUsername(), "name [" + blank + "]");
             assertEquals(DEFAULT_NAME, authUser.getEmail());
@@ -161,7 +173,7 @@ public class MigrationJobAddSuperAdminTest {
             Mockito.reset(authenticationApiService, userService, orgMemberService, commonConfig);
             superAdmin(CONFIGURED_NAME, blank);
             everythingSucceeds(false);
-            job.addOrUpdateSuperAdmin();
+            job.addOrUpdateSuperAdmin().block();
             String fromContext = ((FormAuthRequestContext) capturedAuthUser().getAuthContext()).getPassword();
             ArgumentCaptor<String> sent = ArgumentCaptor.forClass(String.class);
             verify(userService).setPassword(eq(USER_ID), sent.capture());
@@ -174,57 +186,108 @@ public class MigrationJobAddSuperAdminTest {
         assertNotEquals(passwords.get(0), passwords.get(1));
     }
 
-    /**
-     * Pins the plan section 9 row "super-admin migration (changeset 020) runs fire-and-forget via subscribe(): a failure is lost and
-     * the changeset is recorded as done". The job ends its pipeline with {@code .subscribe()}
-     * ({@code AddSuperAdminUserImpl.java:51}) and the changeset ({@code DatabaseChangelog.java:216-218}) returns as soon as the job
-     * does, so Mongock records the changeset as executed while the later steps may still be pending, and an error in a step never
-     * reaches the caller. Two assertions: a step that is still pending when the job returns (the later steps have not run yet), and
-     * a step that fails (the job returns normally, the later steps never run, the error goes to Reactor's dropped-error hook).
-     * A fix (returning or blocking on the pipeline) changes both on purpose.
-     */
-    @Test
-    public void theJobReturnsWhileAStepIsPendingAndAFailureNeverReachesTheCaller_pinsTheSection9Row() {
+    /** The marking step answers through {@code marking}; every other step succeeds at once. */
+    private void markingAnswersThrough(Sinks.One<Boolean> marking) {
         superAdmin(CONFIGURED_NAME, CONFIGURED_PASSWORD);
         when(authenticationApiService.updateOrCreateUser(any(AuthUser.class), anyBoolean(), anyBoolean())).thenReturn(Mono.just(user(false)));
         when(userService.setPassword(anyString(), anyString())).thenReturn(Mono.just(true));
-        Sinks.One<Boolean> pending = Sinks.one();
-        when(userService.markAsSuperAdmin(USER_ID)).thenReturn(pending.asMono());
-        Mockito.lenient().when(orgMemberService.addToAllOrgAsAdminIfNot(USER_ID)).thenReturn(Mono.empty()); // never reached today
+        when(userService.markAsSuperAdmin(USER_ID)).thenReturn(marking.asMono());
+        Mockito.lenient().when(orgMemberService.addToAllOrgAsAdminIfNot(USER_ID)).thenReturn(Mono.empty());
+    }
 
-        job.addOrUpdateSuperAdmin();
+    /**
+     * Runs changeset 020 with the job on another thread, because the changeset waits for the job; returns when the marking
+     * step has been subscribed, that is, while the changeset is waiting for it.
+     */
+    private CompletableFuture<Void> runChangesetWhileMarkingIsPending(Sinks.One<Boolean> marking) throws InterruptedException {
+        markingAnswersThrough(marking);
+        CompletableFuture<Void> run = CompletableFuture.runAsync(() -> new DatabaseChangelog().addSuperAdminUser(job));
+        awaitSubscribed(marking);
+        return run;
+    }
 
-        System.out.println(TAG + "the job has returned; the marking step is still pending");
-        verify(userService).markAsSuperAdmin(USER_ID);
+    private static void awaitSubscribed(Sinks.One<Boolean> marking) throws InterruptedException {
+        long deadline = System.nanoTime() + WAIT.toNanos();
+        while (marking.currentSubscriberCount() == 0) {
+            assertTrue(System.nanoTime() < deadline, "the marking step was never subscribed");
+            Thread.sleep(POLL_MS);
+        }
+    }
+
+    /**
+     * BF-037 fixed (part 1): the job ended its pipeline with {@code subscribe()}, so changeset 020
+     * ({@code DatabaseChangelog.addSuperAdminUser}) returned while a step was still pending and was recorded as applied.
+     * Now the changeset returns only after the last step has run.
+     */
+    @Test
+    public void theChangesetReturnsOnlyAfterThePendingStepAndTheLaterStepsBF037() throws Exception {
+        Sinks.One<Boolean> marking = Sinks.one();
+        CompletableFuture<Void> run = runChangesetWhileMarkingIsPending(marking);
+
+        System.out.println(TAG + "marking pending: changeset returned " + run.isDone());
+        assertFalse(run.isDone(), "the changeset waits for the pending step");
         verify(orgMemberService, never()).addToAllOrgAsAdminIfNot(anyString());
+
+        marking.tryEmitValue(true);
+        run.get(WAIT.toMillis(), TimeUnit.MILLISECONDS);
+        verify(orgMemberService).addToAllOrgAsAdminIfNot(USER_ID);
+    }
+
+    /**
+     * BF-037 fixed (part 2): a step that failed after the changeset had returned went to Reactor's dropped-error hook and the
+     * later steps never ran. Now the changeset fails with it, so Mongock does not record it; nothing is dropped.
+     */
+    @Test
+    public void aStepThatFailsWhilePendingFailsTheChangesetAndStopsTheLaterStepsBF037() throws Exception {
         AtomicReference<Throwable> dropped = new AtomicReference<>();
         Hooks.onErrorDropped(dropped::set);
         try {
-            pending.tryEmitError(new IllegalStateException("marking failed"));
-            System.out.println(TAG + "the step failed after the job returned: dropped error " + dropped.get());
-            assertNotNull(dropped.get(), "the error went to Reactor's dropped-error hook, not to the caller");
-            assertEquals("marking failed", dropped.get().getCause() == null ? dropped.get().getMessage() : dropped.get().getCause().getMessage());
+            Sinks.One<Boolean> marking = Sinks.one();
+            CompletableFuture<Void> run = runChangesetWhileMarkingIsPending(marking);
+
+            marking.tryEmitError(new IllegalStateException(MARKING_FAILED));
+
+            ExecutionException failure = assertThrows(ExecutionException.class, () -> run.get(WAIT.toMillis(), TimeUnit.MILLISECONDS));
+            System.out.println(TAG + "pending step failed: the changeset threw " + failure.getCause() + ", dropped " + dropped.get());
+            assertInstanceOf(IllegalStateException.class, failure.getCause());
+            assertEquals(MARKING_FAILED, failure.getCause().getMessage());
+            assertNull(dropped.get(), "the error reached the caller, nothing was dropped");
             verify(orgMemberService, never()).addToAllOrgAsAdminIfNot(anyString());
         } finally {
             Hooks.resetOnErrorDropped();
         }
     }
 
+    /** BF-037 fixed: a step that fails at once makes the changeset throw, and the later steps do not run. */
     @Test
-    public void aStepThatFailsAtOnceDoesNotMakeTheJobThrow() {
+    public void aStepThatFailsAtOnceMakesTheChangesetThrowBF037() {
         superAdmin(CONFIGURED_NAME, CONFIGURED_PASSWORD);
         when(authenticationApiService.updateOrCreateUser(any(AuthUser.class), anyBoolean(), anyBoolean())).thenReturn(Mono.just(user(false)));
-        when(userService.setPassword(anyString(), anyString())).thenReturn(Mono.error(new IllegalStateException("password failed")));
-        AtomicReference<Throwable> dropped = new AtomicReference<>();
-        Hooks.onErrorDropped(dropped::set);
-        try {
-            job.addOrUpdateSuperAdmin();
-            System.out.println(TAG + "failing step, the job returned normally; dropped error " + dropped.get());
-            assertNotNull(dropped.get());
-        } finally {
-            Hooks.resetOnErrorDropped();
-        }
+        when(userService.setPassword(anyString(), anyString())).thenReturn(Mono.error(new IllegalStateException(PASSWORD_FAILED)));
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> new DatabaseChangelog().addSuperAdminUser(job));
+
+        System.out.println(TAG + "failing step at once: the changeset threw " + thrown);
+        assertEquals(PASSWORD_FAILED, thrown.getMessage());
         verify(userService, never()).markAsSuperAdmin(anyString());
         verify(orgMemberService, never()).addToAllOrgAsAdminIfNot(anyString());
+    }
+
+    /**
+     * {@code AddSuperAdminRunner} keeps its behaviour (BF-037 concerns changeset 020): it starts the job at every start and
+     * returns without waiting for it; the job's steps go on and complete after it has returned.
+     */
+    @Test
+    public void theStartupRunnerStartsTheJobWithoutWaitingForIt() throws Exception {
+        Sinks.One<Boolean> marking = Sinks.one();
+        markingAnswersThrough(marking);
+
+        new AddSuperAdminRunner(job).addSuperAdmin();
+
+        awaitSubscribed(marking);
+        System.out.println(TAG + "runner returned while the marking step is pending");
+        verify(orgMemberService, never()).addToAllOrgAsAdminIfNot(anyString());
+        marking.tryEmitValue(true);
+        verify(orgMemberService, Mockito.timeout(WAIT.toMillis())).addToAllOrgAsAdminIfNot(USER_ID);
     }
 }
