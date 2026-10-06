@@ -63,11 +63,10 @@ public class UpdateCommand implements GuiSqlCommand {
         appendTable(renderedTable, sb);
         appendSet(updateRow, sb, bindParams);
 
-        if (filterSet.isEmpty()) {
-            return new GuiSqlCommandRenderResult(sb.toString(), bindParams);
+        // without a filter too: with multi-modify off an update changes at most one row, as a delete does (BF-030)
+        if (!filterSet.isEmpty()) {
+            appendFilter(requestMap, sb, bindParams);
         }
-
-        appendFilter(requestMap, sb, bindParams);
         appendLimit(sb);
 
         return new GuiSqlCommandRenderResult(sb.toString(), bindParams);
