@@ -63,22 +63,19 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 /**
- * Pins, at the {@code ApplicationApiServiceImpl.update} level, the section 9 row "retainNoneExistAndNonCurrentOrgDatasourceIds
- * (DatasourceRepository :118-137) with gids reports existing current-org datasources as missing; the application edit check
- * treats missing as allowed (permission bypass, reopens the 'Fixed' row)".
+ * The application edit check for datasources referenced by GID, at the {@code ApplicationApiServiceImpl.update} level (BF-002,
+ * formerly the section 9 row "retainNoneExistAndNonCurrentOrgDatasourceIds with gids reports existing current-org datasources
+ * as missing; the application edit check treats missing as allowed").
  *
- * <p>What runs for real: {@code ApplicationApiServiceImpl.checkDatasourcePermissions} (:743-768), the real
- * {@code DatasourceServiceImpl} and the real {@code DatasourceRepository.retainNoneExistAndNonCurrentOrgDatasourceIds}. What is
- * a stub: the Mongo repository {@code DatasourceDORepository}, whose {@code findAllById} / {@code findAllByGidIn} answer by the
- * key kind exactly as the Mongo queries do (an id matches only the document's id, a gid only its gid); the L3 pin
- * {@code DatasourceRepositoryMongoTest.retainOfGidsReportsExistingCurrentOrgDatasourcesAsMissing_pinsTheSection9Row} measured the
- * same behaviour against a real Mongo, so this class takes the repository result as measured there and does not repeat it.
- * The permission service is a mock: the visitor holds no USE_DATASOURCES permission on anything.
+ * <p>What runs for real: {@code ApplicationApiServiceImpl.checkDatasourcePermissions} (:748-781), the real
+ * {@code DatasourceServiceImpl} and the real {@code DatasourceRepository} methods {@code findObjectIdsByIdOrGid} and
+ * {@code retainNoneExistAndNonCurrentOrgDatasourceIds}. What is a stub: the Mongo repository {@code DatasourceDORepository},
+ * whose {@code findAllById} / {@code findAllByGidIn} answer by the key kind exactly as the Mongo queries do (an id matches only
+ * the document's id, a gid only its gid); {@code DatasourceRepositoryMongoTest} measures the same repository methods against a
+ * real Mongo. The permission service is a mock: the visitor holds the USE_DATASOURCES permission on the given keys only.
  *
- * <p>These tests pin today's behaviour (D-6): a fix (retain removes by the queried key kind, or the ids are normalised to
- * object ids before the check) changes {@link #gidReference_ofADatasourceTheUserMayNotUse_passesTheCheck_pinsTheSection9Row} on
- * purpose. They cannot show the effect on a stored application beyond {@code updateById} being called with the edit, nor that
- * the editor UI ever writes a gid into a query (the row assumes an API client can).
+ * <p>Limits: they cannot show the effect on a stored application beyond {@code updateById} being called with the edit, nor
+ * that the editor UI ever writes a gid into a query (an API client can).
  */
 @ExtendWith(MockitoExtension.class)
 class ApplicationApiServiceImplDatasourceGidTest {
@@ -221,20 +218,37 @@ class ApplicationApiServiceImplDatasourceGidTest {
     }
 
     /**
-     * Pins the section 9 row "retainNoneExistAndNonCurrentOrgDatasourceIds ... gids ... permission bypass, reopens the Fixed
-     * row": the same existing datasource of the same org, referenced by its GID instead of its object id, passes the edit check
-     * for a user without the use-datasource permission, because the repository reports the gid as "missing" and the check
-     * treats missing as allowed. The edit is written. A fix changes this test on purpose.
+     * BF-002 (was the pin of the section 9 row "retainNoneExistAndNonCurrentOrgDatasourceIds ... gids ... permission
+     * bypass"): the same existing datasource of the same org, referenced by its GID instead of its object id, is refused for a
+     * user without the use-datasource permission, as the object id is. Nothing is written.
      */
     @Test
-    void gidReference_ofADatasourceTheUserMayNotUse_passesTheCheck_pinsTheSection9Row() {
+    void gidReference_ofADatasourceTheUserMayNotUse_isRefused() {
         stubMongo(ORG_ID);
         stubUpdate(Set.of());
 
+        StepVerifier.create(service.update(APP_ID, requestUsing(DATASOURCE_GID), false))
+                .expectErrorSatisfies(ApplicationApiServiceImplDatasourceGidTest::assertLackOfDatasourcePermission)
+                .verify();
+
+        verify(applicationService, never()).updateById(any(), any());
+        System.out.println("[ApplicationApiServiceImplDatasourceGidTest] by gid, no USE permission -> NOT_AUTHORIZED, nothing written");
+    }
+
+    /**
+     * BF-002: the use permission is stored under the datasource's object id, so a gid reference is checked under that id: a
+     * user who may use the datasource passes by gid as by object id, and the permission service is asked about the object id.
+     */
+    @Test
+    void gidReference_ofADatasourceTheUserMayUse_passes_checkedUnderTheObjectId() {
+        stubMongo(ORG_ID);
+        stubUpdate(Set.of(DATASOURCE_ID));
+
         StepVerifier.create(service.update(APP_ID, requestUsing(DATASOURCE_GID), false)).expectNextCount(1).verifyComplete();
 
+        verify(resourcePermissionService).getMaxMatchingPermission(VISITOR_ID, Set.of(DATASOURCE_ID), ResourceAction.USE_DATASOURCES);
         verify(applicationService).updateById(eq(APP_ID), any(Application.class));
-        System.out.println("[ApplicationApiServiceImplDatasourceGidTest] PINNED: by gid, no USE permission -> edit written");
+        System.out.println("[ApplicationApiServiceImplDatasourceGidTest] by gid, USE permission on the object id -> edit written");
     }
 
     /** Behaviour (the intended exemption): a gid that exists only in another organization also passes, as an object id would. */

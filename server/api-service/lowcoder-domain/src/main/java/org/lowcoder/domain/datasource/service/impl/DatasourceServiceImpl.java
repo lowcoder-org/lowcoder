@@ -32,6 +32,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -254,6 +255,11 @@ public class DatasourceServiceImpl implements DatasourceService {
             return Flux.empty();
         }
         return repository.retainNoneExistAndNonCurrentOrgDatasourceIds(datasourceIds, orgId);
+    }
+
+    @Override
+    public Mono<Map<String, String>> getObjectIdsByIdOrGid(Collection<String> datasourceIds) {
+        return repository.findObjectIdsByIdOrGid(datasourceIds);
     }
 
     @Override

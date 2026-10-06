@@ -981,6 +981,7 @@ class ApplicationApiServiceImplBranchesTest {
             usableIds.forEach(id -> permitted.put(id, permission(ResourceRole.VIEWER)));
             when(resourcePermissionService.getMaxMatchingPermission(VISITOR_ID, checkedIds, ResourceAction.USE_DATASOURCES))
                     .thenReturn(Mono.just(permitted));
+            when(datasourceService.getObjectIdsByIdOrGid(checkedIds)).thenReturn(Mono.just(Map.of()));
             when(datasourceService.retainNoneExistAndNonCurrentOrgDatasourceIds(checkedIds, ORG_ID))
                     .thenReturn(Flux.fromIterable(noneExistIds));
         }
