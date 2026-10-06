@@ -53,16 +53,17 @@ import org.lowcoder.plugin.postgres.model.DataType;
 
 public class PostgresDataTypeUtils {
 
-    /**
-     * questionWithCast will match the following sample strings in a query
-     * - "?"
-     * - "?::text"
-     * <p>
-     * Capturing only the words post "::" so that the explict data type to which the parameter must be cast can be read
-     * and ignoring the group "::" from getting captured by using regex "?:" which ignores the subsequent string
-     */
-    private static final String questionWithCast = "\\?(?:::)*([a-zA-Z]+)*";
-    private static final Pattern questionWithCastPattern = Pattern.compile(questionWithCast);
+    private static final char PARAMETER = '?';
+    private static final char SINGLE_QUOTE = '\'';
+    private static final char DOUBLE_QUOTE = '"';
+    private static final char DOLLAR = '$';
+    private static final char BACKSLASH = '\\';
+    private static final String CAST = "::";
+    private static final String LINE_COMMENT = "--";
+    private static final String BLOCK_COMMENT_START = "/*";
+    private static final String BLOCK_COMMENT_END = "*/";
+    /** The name of a cast type: letters, digits and underscores, so {@code int8} and {@code float8} are read whole. */
+    private static final Pattern CAST_TYPE = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_]*");
 
     public static PostgresDataType dataType = new PostgresDataType();
 
@@ -134,27 +135,139 @@ public class PostgresDataTypeUtils {
         return dataTypeMapper;
     }
 
+    /**
+     * The explicit cast of each JDBC parameter of the prepared SQL, in order; an entry is null when the parameter has no
+     * cast of a supported type. Only a {@code ?} that the PostgreSQL JDBC driver binds is a parameter (BF-045: every
+     * {@code ?} of the text was counted, so a {@code ?::bool} inside a string literal, or the jsonb {@code ??} operator,
+     * shifted the casts onto the wrong parameters): a {@code ?} inside a string literal ({@code '...'}, {@code E'...'}
+     * with backslash escapes, {@code $tag$...$tag$}), a quoted identifier ({@code "..."}) or a comment ({@code --} to the
+     * end of the line, nested {@code /* *}{@code /}) is not one, and {@code ??} is the driver's escape for the {@code ?}
+     * operator. A type name may contain digits ({@code ?::int8} is LONG, {@code ?::float8} is DOUBLE; before they were
+     * read as {@code int} and {@code float}).
+     * <p>
+     * Limits: the cast must follow the {@code ?} directly ({@code ? :: int4} is not read), an array cast
+     * ({@code ?::int8[]}) is read as its element type, and string literals are read with standard conforming strings
+     * (a backslash escapes only in {@code E'...'}), the server's default since PostgreSQL 9.1.
+     */
     public static List<DataType> extractExplicitCasting(String query) {
-        Matcher matcher = questionWithCastPattern.matcher(query);
         List<DataType> inputDataTypes = new ArrayList<>();
+        int length = query.length();
+        int i = 0;
+        while (i < length) {
+            char c = query.charAt(i);
+            if (c == SINGLE_QUOTE) {
+                i = endOfQuoted(query, i, SINGLE_QUOTE, isEscapeStringPrefix(query, i));
+            } else if (c == DOUBLE_QUOTE) {
+                i = endOfQuoted(query, i, DOUBLE_QUOTE, false);
+            } else if (c == DOLLAR && dollarQuoteTag(query, i) != null) {
+                String tag = dollarQuoteTag(query, i);
+                int close = query.indexOf(tag, i + tag.length());
+                i = close < 0 ? length : close + tag.length();
+            } else if (query.startsWith(LINE_COMMENT, i)) {
+                i = endOfLineComment(query, i);
+            } else if (query.startsWith(BLOCK_COMMENT_START, i)) {
+                i = endOfBlockComment(query, i);
+            } else if (c == PARAMETER && i + 1 < length && query.charAt(i + 1) == PARAMETER) {
+                i += 2;
+            } else if (c == PARAMETER) {
+                i = readCast(query, i + 1, inputDataTypes);
+            } else {
+                i++;
+            }
+        }
+        return inputDataTypes;
+    }
 
-        while (matcher.find()) {
-            String prospectiveDataType = matcher.group(1);
+    /** Adds the cast that follows a parameter (null for none or an unsupported type) and answers the index after it. */
+    private static int readCast(String query, int afterParameter, List<DataType> inputDataTypes) {
+        if (query.startsWith(CAST, afterParameter)) {
+            Matcher type = CAST_TYPE.matcher(query).region(afterParameter + CAST.length(), query.length());
+            if (type.lookingAt()) {
+                String dataTypeFromInput = type.group().toLowerCase();
+                // Either a supported type, or no explicit casting: implicit type casting (the default) is used for null
+                inputDataTypes.add(dataType.getDataTypes().contains(dataTypeFromInput) ? getDataTypeMapper().get(dataTypeFromInput) : null);
+                return type.end();
+            }
+        }
+        inputDataTypes.add(null);
+        return afterParameter;
+    }
 
-            if (prospectiveDataType != null) {
-                String dataTypeFromInput = prospectiveDataType.trim().toLowerCase();
-                if (dataType.getDataTypes().contains(dataTypeFromInput)) {
-                    DataType commonDataType = getDataTypeMapper().get(dataTypeFromInput);
-                    inputDataTypes.add(commonDataType);
-                    continue;
+    /** {@code E'...'}: an {@code E} that is not the end of a longer word comes right before the quote. */
+    private static boolean isEscapeStringPrefix(String query, int quote) {
+        return quote > 0 && Character.toUpperCase(query.charAt(quote - 1)) == 'E'
+                && (quote < 2 || !isIdentifierPart(query.charAt(quote - 2)));
+    }
+
+    /** The index after the closing quote; a doubled quote is part of the text, and so is an escaped one in E strings. */
+    private static int endOfQuoted(String query, int open, char quote, boolean backslashEscapes) {
+        for (int i = open + 1; i < query.length(); i++) {
+            char c = query.charAt(i);
+            if (backslashEscapes && c == BACKSLASH) {
+                i++;
+            } else if (c == quote) {
+                if (i + 1 < query.length() && query.charAt(i + 1) == quote) {
+                    i++;
+                } else {
+                    return i + 1;
                 }
             }
-            // Either no external casting exists or unsupported data type is being used. Do not use external casting for this
-            // and instead default to implicit type casting (default behaviour) by setting the entry to null.
-            inputDataTypes.add(null);
         }
+        return query.length();
+    }
 
-        return inputDataTypes;
+    /**
+     * The opening tag ({@code $$} or {@code $name$}) of a dollar-quoted string starting at {@code dollar}, or null: not
+     * after a word character, and the name does not start with a digit, so a positional {@code $1} is not one.
+     */
+    private static String dollarQuoteTag(String query, int dollar) {
+        if (dollar > 0 && isIdentifierPart(query.charAt(dollar - 1))) {
+            return null;
+        }
+        int i = dollar + 1;
+        if (i < query.length() && Character.isDigit(query.charAt(i))) {
+            return null;
+        }
+        while (i < query.length() && query.charAt(i) != DOLLAR) {
+            if (!isIdentifierPart(query.charAt(i))) {
+                return null;
+            }
+            i++;
+        }
+        return i < query.length() ? query.substring(dollar, i + 1) : null;
+    }
+
+    private static int endOfLineComment(String query, int start) {
+        int i = start + LINE_COMMENT.length();
+        while (i < query.length() && query.charAt(i) != '\n' && query.charAt(i) != '\r') {
+            i++;
+        }
+        return i;
+    }
+
+    /** The index after the comment's end; block comments nest, as in PostgreSQL. */
+    private static int endOfBlockComment(String query, int start) {
+        int depth = 0;
+        int i = start;
+        while (i < query.length()) {
+            if (query.startsWith(BLOCK_COMMENT_START, i)) {
+                depth++;
+                i += BLOCK_COMMENT_START.length();
+            } else if (query.startsWith(BLOCK_COMMENT_END, i)) {
+                depth--;
+                i += BLOCK_COMMENT_END.length();
+                if (depth == 0) {
+                    return i;
+                }
+            } else {
+                i++;
+            }
+        }
+        return query.length();
+    }
+
+    private static boolean isIdentifierPart(char c) {
+        return Character.isLetterOrDigit(c) || c == '_' || c == DOLLAR;
     }
 
     public static Object castValueWithTargetType(Object value, DataType targetType) {
