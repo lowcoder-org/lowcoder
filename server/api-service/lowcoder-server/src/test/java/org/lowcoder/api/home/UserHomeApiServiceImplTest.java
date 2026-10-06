@@ -77,10 +77,9 @@ import reactor.test.StepVerifier;
  * listings and the four marketplace / agency listings. Every collaborator is a mock; applications and bundles are real
  * model objects whose live DSL comes from a mocked {@link ApplicationRecordService}.
  *
- * <p>Pinned under D-6, plan §9 rows: "marketplace and agency listings fail" (ClassCastException on a non-String DSL
- * title, NullPointerException on a missing organization; getAllMarketplaceApplications falls back to blank) and
- * "buildUserProfileView never sets hasShownNewUserGuidance or isEnabled". The tests carrying them are named
- * {@code *_pinsTheSection9Row}.
+ * <p>Pinned under D-6, plan §9 row "buildUserProfileView never sets hasShownNewUserGuidance or isEnabled" (test named
+ * {@code *_pinsTheSection9Row}). The row "marketplace and agency listings fail" is fixed (BF-034): a DSL setting that is
+ * not text and a missing organization fall back instead of failing the listing (tests named {@code *BF034}).
  */
 class UserHomeApiServiceImplTest {
 
@@ -88,6 +87,8 @@ class UserHomeApiServiceImplTest {
     private static final String VISITOR = "visitor-1";
     private static final Instant CREATED = Instant.parse("2024-02-03T04:05:06Z");
     private static final Duration WAIT = Duration.ofSeconds(10);
+    /** An organization id with no organization row (a deleted organization). */
+    private static final String DELETED_ORG = "org-gone";
 
     private SessionUserService sessionUserService;
     private OrganizationService organizationService;
@@ -559,22 +560,32 @@ class UserHomeApiServiceImplTest {
     }
 
     /**
-     * Pins plan §9 row "marketplace and agency listings fail" (part 1): a published DSL whose {@code settings.title} is not a
-     * String makes the listing fail with a ClassCastException instead of falling back to the application name.
+     * BF-034 fixed (part 1): a published DSL whose settings are not text (a number title, a number category, a map
+     * description, a list icon) failed the whole listing with a ClassCastException. Now the title falls back to the
+     * application name, the other fields are null, and the other applications are still listed.
      */
     @Test
-    void getAllMarketplaceApplications_nonStringDslTitle_failsWithClassCast_pinsTheSection9Row() {
+    void getAllMarketplaceApplications_settingsThatAreNotText_fallBackAndTheListingContinuesBF034() {
         signedIn(false, true);
-        when(applicationService.findAllMarketplaceApps()).thenReturn(Flux.just(marketplaceApp("m-bad", "Bad", ApplicationType.APPLICATION, "u1", ORG, CREATED)));
-        stubDsl("m-bad", Map.of("settings", Map.of("title", 42)));
+        when(applicationService.findAllMarketplaceApps()).thenReturn(Flux.just(
+                marketplaceApp("m-bad", "Bad", ApplicationType.APPLICATION, "u1", ORG, CREATED),
+                marketplaceApp("m-good", "Good", ApplicationType.APPLICATION, "u1", ORG, CREATED)));
+        stubDsl("m-bad", Map.of("settings", Map.of("title", 42, "category", 7, "description", Map.of("text", "x"), "icon", List.of("a.png"))));
+        stubDsl("m-good", Map.of("settings", Map.of("title", "Shown title")));
         when(organizationService.getByIds(anyCollection())).thenReturn(Flux.just(org(ORG, "Acme", null)));
 
-        StepVerifier.create(service.getAllMarketplaceApplications(null))
-                .expectErrorSatisfies(error -> {
-                    assertThat(error).isInstanceOf(ClassCastException.class);
-                    System.out.println("[UserHomeApiServiceImplTest] non-String title -> " + error);
-                })
-                .verify(WAIT);
+        Map<String, MarketplaceApplicationInfoView> byId = new HashMap<>();
+        collect(service.getAllMarketplaceApplications(null)).forEach(v -> byId.put(v.getApplicationId(), v));
+
+        MarketplaceApplicationInfoView bad = byId.get("m-bad");
+        System.out.println("[UserHomeApiServiceImplTest] settings that are not text -> title '" + bad.getTitle() + "', category "
+                + bad.getCategory() + ", description " + bad.getDescription() + ", image " + bad.getImage());
+        assertThat(byId).containsOnlyKeys("m-bad", "m-good");
+        assertThat(bad.getTitle()).as("a title that is not text falls back to the name").isEqualTo("Bad");
+        assertThat(bad.getCategory()).isNull();
+        assertThat(bad.getDescription()).isNull();
+        assertThat(bad.getImage()).isNull();
+        assertThat(byId.get("m-good").getTitle()).isEqualTo("Shown title");
     }
 
     // ------------------------------------------------------- agency / bundles
@@ -601,19 +612,25 @@ class UserHomeApiServiceImplTest {
     }
 
     /**
-     * Pins plan §9 row "marketplace and agency listings fail" (part 2): an agency application whose organization row is
-     * missing makes the listing fail with a NullPointerException (getAllMarketplaceApplications falls back to "").
+     * BF-034 fixed (part 2): an agency application whose organization row is missing failed the whole listing with a
+     * NullPointerException. Now its organization name is blank, as getAllMarketplaceApplications does, and the application
+     * of an existing organization is listed too.
      */
     @Test
-    void getAllAgencyProfileApplications_missingOrganization_failsWithNullPointer_pinsTheSection9Row() {
-        when(applicationService.findAllAgencyProfileApps()).thenReturn(Flux.just(marketplaceApp("g1", "One", ApplicationType.APPLICATION, "u1", "org-gone", CREATED)));
+    void getAllAgencyProfileApplications_missingOrganization_hasABlankOrgNameAndTheListingContinuesBF034() {
+        when(applicationService.findAllAgencyProfileApps()).thenReturn(Flux.just(
+                marketplaceApp("g1", "One", ApplicationType.APPLICATION, "u1", DELETED_ORG, CREATED),
+                marketplaceApp("g2", "Two", ApplicationType.APPLICATION, "u1", ORG, CREATED)));
+        when(organizationService.getByIds(anyCollection())).thenReturn(Flux.just(org(ORG, "Acme", null)));
 
-        StepVerifier.create(service.getAllAgencyProfileApplications(null))
-                .expectErrorSatisfies(error -> {
-                    assertThat(error).isInstanceOf(NullPointerException.class);
-                    System.out.println("[UserHomeApiServiceImplTest] agency application, missing org -> " + error.getClass().getSimpleName());
-                })
-                .verify(WAIT);
+        Map<String, MarketplaceApplicationInfoView> byId = new HashMap<>();
+        collect(service.getAllAgencyProfileApplications(null)).forEach(v -> byId.put(v.getApplicationId(), v));
+
+        System.out.println("[UserHomeApiServiceImplTest] agency application, missing org -> org name '" + byId.get("g1").getOrgName() + "'");
+        assertThat(byId).containsOnlyKeys("g1", "g2");
+        assertThat(byId.get("g1").getOrgName()).isEmpty();
+        assertThat(byId.get("g1").getOrgId()).isEqualTo(DELETED_ORG);
+        assertThat(byId.get("g2").getOrgName()).isEqualTo("Acme");
     }
 
     private void stubBundleCollaborators(Bundle... bundles) {
@@ -663,19 +680,23 @@ class UserHomeApiServiceImplTest {
         assertThat(collect(service.getAllMarketplaceBundles())).hasSize(1);
     }
 
-    /** Pins plan §9 row "marketplace and agency listings fail" (part 2) for both bundle listings: a missing organization row fails with a NullPointerException. */
+    /**
+     * BF-034 fixed (part 2) for both bundle listings: a bundle whose organization row is missing failed the whole listing
+     * with a NullPointerException. Now its organization name is blank and the bundle of an existing organization is listed too.
+     */
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
-    void bundleListings_missingOrganization_failWithNullPointer_pinsTheSection9Row(boolean agency) {
+    void bundleListings_missingOrganization_haveABlankOrgNameAndTheListingContinuesBF034(boolean agency) {
         signedIn(false, true);
-        when(bundleService.findAllMarketplaceBundles()).thenReturn(Flux.just(bundle("b1", "Bundle", BundleStatus.NORMAL, "u1", "org-gone")));
-        when(bundleService.findAllAgencyProfileBundles()).thenReturn(Flux.just(bundle("b1", "Bundle", BundleStatus.NORMAL, "u1", "org-gone")));
+        stubBundleCollaborators(bundle("b1", "Bundle", BundleStatus.NORMAL, "u1", DELETED_ORG), bundle("b2", "Other", BundleStatus.NORMAL, "u1", ORG));
 
-        StepVerifier.create(agency ? service.getAllAgencyProfileBundles() : service.getAllMarketplaceBundles())
-                .expectErrorSatisfies(error -> {
-                    assertThat(error).isInstanceOf(NullPointerException.class);
-                    System.out.println("[UserHomeApiServiceImplTest] " + (agency ? "agency" : "marketplace") + " bundle, missing org -> " + error.getClass().getSimpleName());
-                })
-                .verify(WAIT);
+        Map<String, MarketplaceBundleInfoView> byId = new HashMap<>();
+        collect(agency ? service.getAllAgencyProfileBundles() : service.getAllMarketplaceBundles()).forEach(v -> byId.put(v.getBundleId(), v));
+
+        System.out.println("[UserHomeApiServiceImplTest] " + (agency ? "agency" : "marketplace") + " bundle, missing org -> org name '"
+                + byId.get("b1").getOrgName() + "'");
+        assertThat(byId).containsOnlyKeys("b1", "b2");
+        assertThat(byId.get("b1").getOrgName()).isEmpty();
+        assertThat(byId.get("b2").getOrgName()).isEqualTo("Acme");
     }
 }
