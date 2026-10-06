@@ -3,12 +3,18 @@ package org.lowcoder.plugin.postgres;
 import com.zaxxer.hikari.HikariConfig;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig;
+import org.lowcoder.sdk.exception.PluginCommonError;
+import org.lowcoder.sdk.exception.PluginException;
+import org.postgresql.Driver;
 
+import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Unit PG-3 (task L5-4), no server: what {@link PostgresConnector#setUpConfigs} puts on the Hikari config. */
@@ -64,16 +70,36 @@ public class PostgresConnectorConfigTest {
     }
 
     /**
-     * Pins the plan section 9 row "PostgresConnector builds the JDBC URL ... without encoding" (connection-property
-     * injection, the same class as D4; D-6: fix deferred): a database name carries driver properties into the URL verbatim.
-     * A fix (URL-encoding the name) changes this test on purpose.
+     * BF-027 (plan section 9 row "PostgresConnector builds the JDBC URL ... without encoding"): the database name is
+     * URL-encoded, and pgjdbc's own parser ({@code Driver.parseURL}) reads it back as the whole name, with no URL parameter.
      */
     @Test
-    public void databaseNameIsPutIntoTheUrlUnencoded() {
-        String sslOff = configured("app?ssl=false", USER, PASSWORD, PORT, true, false).getJdbcUrl();
-        String second = configured("app?ApplicationName=injected&options=-c%20search_path=evil", USER, PASSWORD, PORT, false, false).getJdbcUrl();
-        System.out.println("[PostgresConnectorConfigTest] urls: " + sslOff + " ; " + second);
-        assertEquals("jdbc:postgresql://" + HOST + ":" + PORT + "/app?ssl=false", sslOff);
-        assertEquals("jdbc:postgresql://" + HOST + ":" + PORT + "/app?ApplicationName=injected&options=-c%20search_path=evil", second);
+    public void databaseNameIsEncodedAndReadBackWithoutParametersBF027() {
+        for (String database : List.of("app?ssl=false", "app?ApplicationName=injected&options=-c%20search_path=evil", "my db+\u00fc/%")) {
+            String url = configured(database, USER, PASSWORD, PORT, true, false).getJdbcUrl();
+            Properties parsed = Driver.parseURL(url, new Properties());
+            System.out.println("[PostgresConnectorConfigTest] database '" + database + "' -> " + url + " -> " + parsed);
+            assertEquals(database, parsed.getProperty("PGDBNAME"));
+            assertEquals(Set.of("PGHOST", "PGPORT", "PGDBNAME"), parsed.stringPropertyNames(), "no property from the name");
+        }
+    }
+
+    /**
+     * BF-027: a host list ({@code a,b}) would make pgjdbc connect to a second host; it is refused at connect time with
+     * {@code INVALID_HOST}, and on save by {@code validateConfig}.
+     */
+    @Test
+    public void aHostListIsRefusedOnConnectAndOnSaveBF027() {
+        String hosts = HOST + ",evil.example.org";
+        PostgresDatasourceConfig datasource = PostgresDatasourceConfig.builder().database(DATABASE).host(hosts).port(PORT).build();
+        System.out.println("[PostgresConnectorConfigTest] pgjdbc reads '" + hosts + "' as " + Driver.parseURL("jdbc:postgresql://" + hosts + ":" + PORT + "/" + DATABASE, new Properties()));
+
+        PluginException thrown = assertThrows(PluginException.class, () -> connector.setUpConfigs(datasource, new HikariConfig()));
+
+        assertEquals(PluginCommonError.DATASOURCE_ARGUMENT_ERROR, thrown.getError());
+        assertEquals(PostgresConnector.INVALID_HOST, thrown.getMessageKey());
+        assertTrue(connector.validateConfig(datasource).contains(PostgresConnector.INVALID_HOST));
+        assertFalse(connector.validateConfig(PostgresDatasourceConfig.builder().database(DATABASE).host(HOST).port(PORT).build())
+                .contains(PostgresConnector.INVALID_HOST), "one host is valid");
     }
 }

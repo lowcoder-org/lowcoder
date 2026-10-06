@@ -28,6 +28,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.lowcoder.plugin.postgres.PostgresContainerSupport.CONNECTOR;
 import static org.lowcoder.plugin.postgres.PostgresContainerSupport.EXECUTOR;
 import static org.lowcoder.plugin.postgres.PostgresContainerSupport.PASSWORD;
+import static org.lowcoder.plugin.postgres.PostgresContainerSupport.port;
+import static org.lowcoder.plugin.postgres.PostgresContainerSupport.host;
+import static org.lowcoder.plugin.postgres.PostgresContainerSupport.USER;
 import static org.lowcoder.plugin.postgres.PostgresContainerSupport.config;
 import static org.lowcoder.plugin.postgres.PostgresContainerSupport.connect;
 import static org.lowcoder.plugin.postgres.PostgresContainerSupport.destroy;
@@ -134,6 +137,28 @@ public class PostgresDatabaseTest {
         System.out.println("[PostgresDatabaseTest] ssl against the non-TLS image: " + thrown.getMessage());
         assertTrue(thrown.getMessage().contains("does not support SSL"), thrown.getMessage());
         destroy(connect(config(PASSWORD, false, false, false)));
+    }
+
+    /**
+     * BF-027 through the server: a database whose name looks like URL parameters ({@code app?ssl=true}, against this
+     * non-TLS image) is reached by that exact name; the name no longer turns SSL on.
+     */
+    @Test
+    public void aDatabaseNamedLikeUrlParametersIsReachedByItsNameBF027() throws Exception {
+        String database = "app?ssl=true";
+        try (Connection jdbc = jdbc()) {
+            execute(jdbc, "drop database if exists \"" + database + "\"", "create database \"" + database + "\"");
+        }
+        PostgresDatasourceConfig config = PostgresDatasourceConfig.builder().database(database).username(USER).password(PASSWORD)
+                .host(host()).port((long) port()).usingSsl(false).build();
+        HikariPerfWrapper pool = connect(config);
+        try {
+            Object answer = sql(pool, config, "select current_database() as name", Map.of());
+            System.out.println("[PostgresDatabaseTest] database '" + database + "' answers " + answer);
+            assertEquals(List.of(Map.of("name", database)), answer);
+        } finally {
+            destroy(pool);
+        }
     }
 
     /**
