@@ -34,11 +34,20 @@ public class AddSuperAdminUserImpl implements AddSuperAdminUser {
     private final UserService userService;
     private final OrgMemberService orgMemberService;
 
+    /**
+     * The steps as one pipeline, returned instead of subscribed here (BF-037: the pipeline ended in {@code subscribe()}, so
+     * changeset 020 was recorded as applied while steps were pending, and a failing step was dropped with the later steps
+     * never run).
+     * <p>
+     * Limits: the steps that ran before a failing one are not undone. When the pipeline runs again, the password, the
+     * super-admin mark and the organization memberships are written again, but a user created by the failed run is found as
+     * existing, so its default organization ({@code onUserRegister}) is not created if that was the step that failed.
+     */
     @Override
-    public void addOrUpdateSuperAdmin() {
+    public Mono<Void> addOrUpdateSuperAdmin() {
 
         AuthUser authUser = formulateAuthUser();
-        authenticationApiService.updateOrCreateUser(authUser, false, true)
+        return authenticationApiService.updateOrCreateUser(authUser, false, true)
                 .delayUntil(user -> {
                     if (user.getIsNewUser()) {
                         return authenticationApiService.onUserRegister(user, true);
@@ -48,7 +57,7 @@ public class AddSuperAdminUserImpl implements AddSuperAdminUser {
                 .delayUntil(user -> userService.setPassword(user.getId(), ((FormAuthRequestContext)authUser.getAuthContext()).getPassword()))
                 .delayUntil(user -> userService.markAsSuperAdmin(user.getId()))
                 .delayUntil(user -> orgMemberService.addToAllOrgAsAdminIfNot(user.getId()))
-                .subscribe();
+                .then();
     }
 
     private AuthUser formulateAuthUser() {

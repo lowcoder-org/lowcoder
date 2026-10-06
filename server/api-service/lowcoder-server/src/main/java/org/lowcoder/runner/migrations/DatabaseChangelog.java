@@ -213,9 +213,14 @@ public class DatabaseChangelog {
         );
     }
 
+    /**
+     * Waits for every step of the super-admin job (BF-037), as the other job changesets do with {@code block()}: a failing
+     * step fails the changeset, which Mongock (an ApplicationRunner) then does not record, so it runs again at the next start.
+     * No timeout of its own: a step that never completes holds the startup.
+     */
     @ChangeSet(order = "020", id = "add-super-admin-user", author = "")
     public void addSuperAdminUser(AddSuperAdminUser addSuperAdminUser) {
-        addSuperAdminUser.addOrUpdateSuperAdmin();
+        addSuperAdminUser.addOrUpdateSuperAdmin().block();
     }
 
     @ChangeSet(order = "021", id = "add-ptm-fields-to-applications", author = "")
