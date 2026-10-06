@@ -28,6 +28,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.bundle.BundleEndpoints.BundlePublicToMarketplaceRequest;
 import org.lowcoder.api.bundle.BundleEndpoints.CreateBundleRequest;
@@ -95,11 +96,12 @@ import reactor.test.StepVerifier;
  * <ul>
  * <li>"getPermissions looks up the org by the creator's user id; no permission check":
  * {@link #getPermissions_looksUpTheOrganizationByTheCreatorsUserId_andChecksNoPermission_pinsTheSection9Row}</li>
- * <li>"moveApp/addApp check only MANAGE_APPLICATIONS on the app, never the bundle":
- * {@link #moveAndAddApp_checkNoBundlePermission_pinsTheSection9Row}</li>
  * <li>"getElements has no permission/status/org check":
  * {@link #getElements_hasNoPermissionStatusOrOrgCheck_pinsTheSection9Row}</li>
  * </ul>
+ * Fixed since: "moveApp/addApp check only MANAGE_APPLICATIONS on the app, never the bundle" (BF-011), now asserted by
+ * {@link #moveAndAddApp_withoutTheBundlePermission_areRefused_andChangeNothing} and
+ * {@link #moveAndAddApp_withABundleOfAnotherOrganization_areRefused_andChangeNothing}.
  * Pinned as behaviour (no row): the null-flag NullPointerException of the view request (reachable only with documents
  * lacking the flag fields) and the application-copied EDIT action comparison of the readable error message.
  */
@@ -940,6 +942,7 @@ class BundleApiServiceImplPermissionsTest {
     private Application app() {
         Application application = mock(Application.class);
         lenient().when(application.getId()).thenReturn(APP_ID);
+        lenient().when(application.getOrganizationId()).thenReturn(ORG);
         return application;
     }
 
@@ -970,10 +973,11 @@ class BundleApiServiceImplPermissionsTest {
     }
 
     /**
-     * Catches an application moved or added without the permission on the application, or a wrong move: the application
-     * permission (MANAGE_APPLICATIONS) is asked first, a denial stops everything (nothing deleted or written); a blank target
-     * only removes the old relation; otherwise the application leaves the old bundle's editing DSL, enters the new one's, both
-     * are saved and the new relation is created.
+     * Catches an application moved or added without the permissions, or a wrong move: the application permission
+     * (MANAGE_APPLICATIONS) is asked first, then MANAGE_BUNDLES on each bundle that is written, then each of those bundles is
+     * read to compare its organization (BF-011); a blank bundle id is not checked; a blank target only removes the old relation
+     * (for addApp, the removal of a relation of the blank id, which matches nothing); otherwise the application leaves the old
+     * bundle's editing DSL, enters the new one's, both are saved and the new relation is created.
      */
     @Test
     void moveApp_andAddApp_changeTheBundlesAfterTheApplicationPermission() {
@@ -984,8 +988,9 @@ class BundleApiServiceImplPermissionsTest {
 
         StepVerifier.create(service.moveApp(APP_ID, "from-bundle", "to-bundle")).verifyComplete();
 
-        assertThat(events).containsExactly("perm:" + ResourceAction.MANAGE_APPLICATIONS, "deleteRelation:from-bundle", "findFrom", "save:from-bundle",
-                "repoFindTo", "save:to-bundle", "createRelation:to-bundle");
+        assertThat(events).containsExactly("perm:" + ResourceAction.MANAGE_APPLICATIONS, "perm:" + ResourceAction.MANAGE_BUNDLES + "@from-bundle",
+                "perm:" + ResourceAction.MANAGE_BUNDLES + "@to-bundle", "findFrom", "findTo",
+                "deleteRelation:from-bundle", "findFrom", "save:from-bundle", "repoFindTo", "save:to-bundle", "createRelation:to-bundle");
         assertThat(applicationsOf(from)).isEmpty();
         assertThat(applicationsOf(to)).containsExactly(application);
 
@@ -993,13 +998,14 @@ class BundleApiServiceImplPermissionsTest {
         Bundle target = bundleWithApps("to-bundle", List.of());
         stubRelations(from, target, application);
         StepVerifier.create(service.addApp(APP_ID, "to-bundle")).verifyComplete();
-        assertThat(events).containsExactly("perm:" + ResourceAction.MANAGE_APPLICATIONS, "deleteRelation:to-bundle", "findTo", "save:to-bundle",
-                "createRelation:to-bundle");
+        assertThat(events).containsExactly("perm:" + ResourceAction.MANAGE_APPLICATIONS, "perm:" + ResourceAction.MANAGE_BUNDLES + "@to-bundle",
+                "findTo", "deleteRelation:to-bundle", "findTo", "save:to-bundle", "createRelation:to-bundle");
         assertThat(applicationsOf(target)).containsExactly(application);
 
         events.clear();
         StepVerifier.create(service.moveApp(APP_ID, "from-bundle", "")).verifyComplete();
-        assertThat(events).containsExactly("perm:" + ResourceAction.MANAGE_APPLICATIONS, "deleteRelation:from-bundle");
+        assertThat(events).containsExactly("perm:" + ResourceAction.MANAGE_APPLICATIONS, "perm:" + ResourceAction.MANAGE_BUNDLES + "@from-bundle",
+                "findFrom", "deleteRelation:from-bundle");
         events.clear();
         StepVerifier.create(service.addApp(APP_ID, " ")).verifyComplete();
         assertThat(events).containsExactly("perm:" + ResourceAction.MANAGE_APPLICATIONS, "deleteRelation: ");
@@ -1039,32 +1045,89 @@ class BundleApiServiceImplPermissionsTest {
     }
 
     /**
-     * Pins the plan section 9 row "moveApp/addApp check only MANAGE_APPLICATIONS on the app, never the bundle": a visitor who
-     * manages the application but has NO permission on either bundle (every bundle permission check would be denied here, and
-     * none is ever asked) moves or adds the application into any bundle: the target bundle's editing DSL and relations are
-     * written. A fix changes this test on purpose. What this test cannot show: the organization of the bundles is not compared
-     * either, and no real permission service is involved.
+     * No relation was deleted or created and no bundle saved. The relation calls are asserted on the logged events, which are
+     * added on subscription: moveApp and addApp build those calls eagerly as arguments of {@code then}, so an invocation alone
+     * does not mean the relation was changed.
      */
-    @Test
-    void moveAndAddApp_checkNoBundlePermission_pinsTheSection9Row() {
+    private void assertNothingWritten() {
+        assertThat(events).noneMatch(event -> event.startsWith("deleteRelation:") || event.startsWith("createRelation:"));
+        verify(bundleRepository, never()).save(any());
+    }
+
+    /**
+     * BF-011 (was the pin of the plan section 9 row "moveApp/addApp check only MANAGE_APPLICATIONS on the app, never the
+     * bundle"): a visitor who manages the application but may not manage the bundle is refused with NOT_AUTHORIZED, for the
+     * source bundle of a move as for the target of a move or add; no relation is deleted or created and no bundle is saved.
+     */
+    @ParameterizedTest(name = "denied bundle {0}")
+    @ValueSource(strings = {"from-bundle", "to-bundle"})
+    void moveAndAddApp_withoutTheBundlePermission_areRefused_andChangeNothing(String deniedBundleId) {
+        Application application = app();
+        stubRelations(bundleWithApps("from-bundle", List.of(application)), bundleWithApps("to-bundle", List.of()), application);
+        BizException denial = new BizException(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED");
+        when(resourcePermissionService.checkResourcePermissionWithError(VISITOR, deniedBundleId, ResourceAction.MANAGE_BUNDLES))
+                .thenReturn(Mono.error(denial));
+
+        StepVerifier.create(service.moveApp(APP_ID, "from-bundle", "to-bundle"))
+                .expectErrorSatisfies(error -> assertThat(error).isSameAs(denial)).verify();
+        if ("to-bundle".equals(deniedBundleId)) {
+            StepVerifier.create(service.addApp(APP_ID, "to-bundle"))
+                    .expectErrorSatisfies(error -> assertThat(error).isSameAs(denial)).verify();
+        }
+
+        assertNothingWritten();
+        say("move/add without MANAGE_BUNDLES on %s -> NOT_AUTHORIZED, nothing changed; events %s", deniedBundleId, events);
+    }
+
+    /**
+     * BF-011: a bundle of another organization is refused with APPLICATION_AND_ORG_NOT_MATCH even when the visitor may manage
+     * it (as a member of both organizations can), whether it is the source or the target; nothing is changed.
+     */
+    @ParameterizedTest(name = "foreign bundle {0}")
+    @ValueSource(strings = {"from-bundle", "to-bundle"})
+    void moveAndAddApp_withABundleOfAnotherOrganization_areRefused_andChangeNothing(String foreignBundleId) {
         Application application = app();
         Bundle from = bundleWithApps("from-bundle", List.of(application));
-        Bundle foreignTarget = bundleWithApps("to-bundle", List.of());
-        foreignTarget.setOrganizationId("someone-elses-org");
-        stubRelations(from, foreignTarget, application);
-        lenient().when(resourcePermissionService.checkResourcePermissionWithError(eq(VISITOR), eq("from-bundle"), any(ResourceAction.class)))
-                .thenReturn(Mono.error(new BizException(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")));
-        lenient().when(resourcePermissionService.checkResourcePermissionWithError(eq(VISITOR), eq("to-bundle"), any(ResourceAction.class)))
-                .thenReturn(Mono.error(new BizException(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")));
+        Bundle to = bundleWithApps("to-bundle", List.of());
+        ("from-bundle".equals(foreignBundleId) ? from : to).setOrganizationId("someone-elses-org");
+        stubRelations(from, to, application);
 
-        StepVerifier.create(service.moveApp(APP_ID, "from-bundle", "to-bundle")).verifyComplete();
-        StepVerifier.create(service.addApp(APP_ID, "to-bundle")).verifyComplete();
+        StepVerifier.create(service.moveApp(APP_ID, "from-bundle", "to-bundle"))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.APPLICATION_AND_ORG_NOT_MATCH, "APPLICATION_AND_ORG_NOT_MATCH"))
+                .verify();
+        if ("to-bundle".equals(foreignBundleId)) {
+            StepVerifier.create(service.addApp(APP_ID, "to-bundle"))
+                    .expectErrorSatisfies(error -> assertBizError(error, BizError.APPLICATION_AND_ORG_NOT_MATCH, "APPLICATION_AND_ORG_NOT_MATCH"))
+                    .verify();
+        }
 
-        assertThat(applicationsOf(foreignTarget)).contains(application);
-        verify(resourcePermissionService, never()).checkResourcePermissionWithError(eq(VISITOR), eq("from-bundle"), any(ResourceAction.class));
-        verify(resourcePermissionService, never()).checkResourcePermissionWithError(eq(VISITOR), eq("to-bundle"), any(ResourceAction.class));
-        verify(resourcePermissionService, never()).checkAndReturnMaxPermission(anyString(), anyString(), any(ResourceAction.class));
-        say("move/add wrote into a bundle without any bundle permission (section 9 row pinned)");
+        assertThat(applicationsOf(from)).containsExactly(application);
+        assertThat(applicationsOf(to)).isEmpty();
+        assertNothingWritten();
+        say("move/add with %s of another org -> APPLICATION_AND_ORG_NOT_MATCH, nothing changed", foreignBundleId);
+    }
+
+    /**
+     * BF-011, the fail-closed fallback of the organization comparison: should the bundle or application lookup come back empty,
+     * the move or add is refused (BUNDLE_NOT_EXIST, APPLICATION_NOT_FOUND) instead of passing with nothing compared; nothing is
+     * changed. With the real services this is not the answer for a missing resource: the permission check, mocked as granted
+     * here, already fails with NO_RESOURCE_FOUND, and BundleServiceImpl.findById itself errors instead of completing empty.
+     */
+    @Test
+    void moveAndAddApp_whenABundleOrApplicationLookupIsEmpty_areRefused_andChangeNothing() {
+        Application application = app();
+        stubRelations(bundleWithApps("from-bundle", List.of(application)), bundleWithApps("to-bundle", List.of()), application);
+        when(bundleService.findById("no-such-bundle")).thenReturn(Mono.empty());
+
+        StepVerifier.create(service.addApp(APP_ID, "no-such-bundle"))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.BUNDLE_NOT_EXIST, "BUNDLE_NOT_EXIST")).verify();
+
+        when(applicationRepository.findById(APP_ID)).thenReturn(Mono.empty());
+        StepVerifier.create(service.moveApp(APP_ID, "from-bundle", "to-bundle"))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.APPLICATION_NOT_FOUND, "APPLICATION_NOT_FOUND")).verify();
+
+        assertNothingWritten();
+        say("empty bundle lookup -> BUNDLE_NOT_EXIST, empty application lookup -> APPLICATION_NOT_FOUND, nothing changed");
     }
 
     // ------------------------------------------------------------------ getElements

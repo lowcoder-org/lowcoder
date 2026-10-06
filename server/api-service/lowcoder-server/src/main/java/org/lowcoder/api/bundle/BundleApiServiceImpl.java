@@ -311,8 +311,7 @@ public class BundleApiServiceImpl implements BundleApiService {
     public Mono<Void> moveApp(String applicationId, String fromBundleId, String toBundleId) {
         return sessionUserService.getVisitorId()
                 // check permissions
-                .delayUntil(userId -> resourcePermissionService.checkResourcePermissionWithError(userId, applicationId,
-                        ResourceAction.MANAGE_APPLICATIONS))
+                .delayUntil(userId -> checkAppAndBundlesManageable(userId, applicationId, fromBundleId, toBundleId))
                 // remove old relations
                 .then(bundleElementRelationService.deleteByBundleIdAndElementId(fromBundleId, applicationId))
                 .flatMap(b -> {
@@ -334,6 +333,32 @@ public class BundleApiServiceImpl implements BundleApiService {
                 .then();
     }
 
+    /**
+     * The checks before an application is moved or added (BF-011): the visitor may manage the application and each bundle
+     * whose relations and editing DSL are written, and each of those bundles belongs to the application's organization
+     * (APPLICATION_AND_ORG_NOT_MATCH otherwise). The permission of a resource is computed in the resource's own organization,
+     * so a member of two organizations may manage a bundle of either; the organization comparison is what keeps the
+     * application in its own.
+     * <p>
+     * Limits: blank bundle ids are not checked; no bundle has one, so the relation removal the callers still run for a blank
+     * id matches nothing and no editing DSL is written. A missing application or bundle is already refused by the permission
+     * check, whose handler looks the resource up (NO_RESOURCE_FOUND); the APPLICATION_NOT_FOUND and BUNDLE_NOT_EXIST of the
+     * lookups here only keep an empty lookup from passing the organization comparison.
+     */
+    private Mono<Void> checkAppAndBundlesManageable(String userId, String applicationId, String... bundleIds) {
+        List<String> writtenBundleIds = Arrays.stream(bundleIds).filter(StringUtils::isNotBlank).distinct().toList();
+        return resourcePermissionService.checkResourcePermissionWithError(userId, applicationId, ResourceAction.MANAGE_APPLICATIONS)
+                .thenMany(Flux.fromIterable(writtenBundleIds))
+                .concatMap(bundleId -> resourcePermissionService.checkResourcePermissionWithError(userId, bundleId, MANAGE_BUNDLES))
+                .then(applicationRepository.findById(applicationId)
+                        .switchIfEmpty(deferredError(APPLICATION_NOT_FOUND, "APPLICATION_NOT_FOUND")))
+                .flatMapMany(application -> Flux.fromIterable(writtenBundleIds)
+                        .concatMap(this::checkBundleExist)
+                        .filter(bundle -> !Objects.equals(application.getOrganizationId(), bundle.getOrganizationId())))
+                .next()
+                .flatMap(foreignBundle -> ofError(APPLICATION_AND_ORG_NOT_MATCH, "APPLICATION_AND_ORG_NOT_MATCH"));
+    }
+
     private Mono<Bundle> addAppToBundle(Bundle bundle, Application newapplication) {
         var map = bundle.getEditingBundleDSL();
         if(map == null) map = new HashMap<>();
@@ -350,8 +375,7 @@ public class BundleApiServiceImpl implements BundleApiService {
     public Mono<Void> addApp(String applicationId, String toBundleId) {
         return sessionUserService.getVisitorId()
                 // check permissions
-                .delayUntil(userId -> resourcePermissionService.checkResourcePermissionWithError(userId, applicationId,
-                        ResourceAction.MANAGE_APPLICATIONS))
+                .delayUntil(userId -> checkAppAndBundlesManageable(userId, applicationId, toBundleId))
                 // remove old relations
                 .then(bundleElementRelationService.deleteByBundleIdAndElementId(toBundleId, applicationId))
                 .flatMap(b -> {
