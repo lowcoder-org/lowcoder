@@ -19,6 +19,7 @@ import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.service.OrgMemberService;
+import org.lowcoder.domain.organization.model.Organization.OrganizationCommonSettings;
 import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.model.*;
 import org.lowcoder.domain.user.model.User.TransformedUserInfo;
@@ -420,10 +421,10 @@ public class UserServiceImpl implements UserService {
                 .filter(UserServiceImpl::canRecoverPassword)
                 .zipWhen(user -> orgMemberService.getCurrentOrgMember(user.getId())
                 .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
-                .map(organization -> organization.getCommonSettings().getOrDefault(PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT, PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT)))
+                .map(organization -> passwordResetEmailTemplate(organization.getCommonSettings())))
                 .flatMap(tuple -> {
                     User user = tuple.getT1();
-                    String emailTemplate = (String)tuple.getT2();
+                    String emailTemplate = tuple.getT2();
 
                     String token = generateNewRandomPwd();
                     Instant tokenExpiry = Instant.now().plus(12, ChronoUnit.HOURS);
@@ -434,6 +435,17 @@ public class UserServiceImpl implements UserService {
                     user.setPasswordResetTokenExpiry(tokenExpiry);
                     return repository.save(user).then(Mono.empty());
                 });
+    }
+
+    /**
+     * The org's password-reset mail template, stored under {@link OrganizationCommonSettings#PASSWORD_RESET_EMAIL_TEMPLATE}
+     * (BF-041: it was looked up with the default template's text as the key, so a custom template was never used). Common
+     * settings take any JSON value, so anything but a non-blank text falls back to the default template.
+     */
+    private static String passwordResetEmailTemplate(OrganizationCommonSettings settings) {
+        return settings.get(OrganizationCommonSettings.PASSWORD_RESET_EMAIL_TEMPLATE) instanceof String template && StringUtils.isNotBlank(template)
+                ? template
+                : PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT;
     }
 
     @Override

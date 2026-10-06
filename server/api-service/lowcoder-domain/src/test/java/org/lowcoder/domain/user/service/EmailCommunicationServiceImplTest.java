@@ -1,6 +1,7 @@
 package org.lowcoder.domain.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -16,6 +17,8 @@ import java.util.Properties;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.mockito.ArgumentCaptor;
 import org.springframework.mail.MailSendException;
@@ -150,19 +153,57 @@ class EmailCommunicationServiceImplTest {
     }
 
     /**
-     * Pins plan section 9 row "a customised reset or invite template containing a literal % makes the mail silently
-     * fail (String.format; returns false)". Reachability: an org admin can store a template with
-     * PUT .../commonSettings (OrganizationController:178 -> OrgApiServiceImpl:394), the default template
-     * (OrganizationService:18-20) has only %s; today the stored value is never read (L3-2 row on the reset-template key,
-     * UserServiceImpl:423), so the failure becomes live once that is fixed. A fix (escape or replace instead of
-     * String.format) changes this test on purpose.
+     * BF-099 fixed: a customised reset template containing a literal % (an org admin stores it with PUT
+     * .../commonSettings, and lostPassword uses it since BF-041) made String.format throw, so the mail was silently not
+     * sent. The template is now filled without String.format: the mail is sent and the % is kept.
      */
     @Test
-    void aLiteralPercentInATemplateMakesBothMailsFailSilently_pinsTheSection9Row() {
-        assertThat(service.sendPasswordResetEmail(RECIPIENT, "tok", HTML_WITH_LITERAL_PERCENT)).isFalse();
+    void aLiteralPercentInTheResetTemplateIsKeptAndTheMailSentBF099() throws Exception {
+        assertThat(service.sendPasswordResetEmail(RECIPIENT, "tok", HTML_WITH_LITERAL_PERCENT)).isTrue();
+
+        String body = body(sentOnce());
+        System.out.println("[EmailCommunicationServiceImplTest] literal % in the reset template -> sent: " + body);
+        assertThat(body).isEqualTo("<table width=\"100%\"><tr><td>" + RECIPIENT + " " + LINK_PREFIX + "tok</td></tr></table>");
+    }
+
+    /**
+     * Not a defect: the invitation template is a server constant (InvitationController), so it stays a format string and
+     * a literal % in it still fails the mail; no org setting reaches it.
+     */
+    @Test
+    void theInvitationTemplateIsAFormatString_soALiteralPercentFailsIt() {
         assertThat(service.sendInvitationEmails(new String[] {RECIPIENT}, INVITE_LINK, "<td width=\"100%\">%s</td>")).isFalse();
         verify(sender, never()).send(any(MimeMessage.class));
-        System.out.println("[EmailCommunicationServiceImplTest] PINNED: literal % in a template -> false, nothing sent");
+        System.out.println("[EmailCommunicationServiceImplTest] literal % in the constant invitation format -> false, nothing sent");
+    }
+
+    /**
+     * Catches (BF-099) the filler differing from String.format on what both accept, or interpreting what it should keep.
+     * Columns: template, the filled text for the values "a" and "b".
+     */
+    @ParameterizedTest(name = "\"{0}\" -> \"{1}\"")
+    @CsvSource(delimiter = '|', value = {
+            "%s and %s|a and b",
+            "width=100%|width=100%",
+            "50% %s|50% a",
+            "%%s %s|%s a",
+            "100%% %s|100% a",
+            "%d %1$s %n %s|%d %1$s %n a",
+            "only %s|only a",
+            "ends with %|ends with %"
+    })
+    void fillTemplateReplacesPlaceholdersInOrderAndKeepsOtherPercentSigns(String template, String filled) {
+        String actual = EmailCommunicationServiceImpl.fillTemplate(template, "a", "b");
+        System.out.println("[EmailCommunicationServiceImplTest] fill '" + template + "' -> '" + actual + "'");
+        assertThat(actual).isEqualTo(filled);
+    }
+
+    /** Catches a template with more placeholders than values being filled halfway instead of refused. */
+    @Test
+    void fillTemplateRefusesMorePlaceholdersThanValues() {
+        assertThatThrownBy(() -> EmailCommunicationServiceImpl.fillTemplate("%s %s %s", "a", "b"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("more %s placeholders than the 2 values");
     }
 
     /** Catches: wrong recipients, subject, arguments of the invitation mail (the address is not a format argument). */
