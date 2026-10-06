@@ -148,31 +148,31 @@ class SqlBasedConfigMergeTest {
     }
 
     /**
-     * Pins the plan section 9 row "password logged when encryption fails (sql config; also ES, Redis, Google Sheets)",
-     * D-6, fix deferred: the error log of a failed encryption carries the password in clear. A fix of that row changes
-     * this test on purpose. The wording of the log line is not asserted.
+     * BF-026 a (plan section 9 row "password logged when encryption fails"): the error log of a failed encryption names the
+     * failure and carries the exception, but not the password. Limit: the exception is logged as thrown, so a function
+     * whose exception message quotes its input would still write it.
      */
     @Test
-    void encryptFailureLogsThePasswordInClear_pinsPlanSection9PasswordLogged() {
+    void encryptFailureLogsWithoutThePasswordBF026() {
         stored("super-secret-pw").doEncrypt(failing(ENCRYPT_FAILURE));
 
-        assertPasswordInErrorLog("super-secret-pw", ENCRYPT_FAILURE);
+        assertErrorLogWithoutPassword("super-secret-pw", "fail to encrypt password", ENCRYPT_FAILURE);
     }
 
-    /** Same plan section 9 row as above, for the decrypt branch (it logs the still-encrypted value it was given). */
+    /** Same for the decrypt branch, which was given the stored (encrypted) value. */
     @Test
-    void decryptFailureLogsThePasswordValueInClear_pinsPlanSection9PasswordLogged() {
+    void decryptFailureLogsWithoutThePasswordValueBF026() {
         stored("cipher-or-secret-value").doDecrypt(failing(DECRYPT_FAILURE));
 
-        assertPasswordInErrorLog("cipher-or-secret-value", DECRYPT_FAILURE);
+        assertErrorLogWithoutPassword("cipher-or-secret-value", "fail to decrypt password", DECRYPT_FAILURE);
     }
 
-    private void assertPasswordInErrorLog(String password, String failureMessage) {
+    private void assertErrorLogWithoutPassword(String password, String expectedLine, String failureMessage) {
         assertThat(appender.list).hasSize(1);
         ILoggingEvent event = appender.list.get(0);
+        System.out.println("[SqlBasedConfigMergeTest] error log: " + event.getFormattedMessage() + " / " + event.getThrowableProxy().getMessage());
         assertThat(event.getLevel()).isEqualTo(Level.ERROR);
-        assertThat(event.getFormattedMessage()).contains(password);
+        assertThat(event.getFormattedMessage()).isEqualTo(expectedLine).doesNotContain(password);
         assertThat(event.getThrowableProxy().getMessage()).isEqualTo(failureMessage);
-        System.out.println("[SqlBasedConfigMergeTest] error log leaks the password: " + event.getFormattedMessage());
     }
 }

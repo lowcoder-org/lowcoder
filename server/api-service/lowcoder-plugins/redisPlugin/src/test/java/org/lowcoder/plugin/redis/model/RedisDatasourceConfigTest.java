@@ -15,6 +15,7 @@ import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit RD-4 (task L5-9): {@code RedisDatasourceConfig}: {@code buildFrom}, the merge of an edited config into the stored one,
- * and the secret fields' encrypt and decrypt, including the failure path and defect D8 (the secret is written to the log).
+ * and the secret fields' encrypt and decrypt, including the failure path and defect D8 (fixed by BF-026: no secret in the log).
  *
  * <p>Limits: the encrypt function here is a stand-in for the production one (a pure string function); its own strength is not
  * under test.
@@ -34,6 +35,7 @@ public class RedisDatasourceConfigTest {
     static final String STORED_PASSWORD = "stored-secret";
     static final String STORED_URI = "redis://:stored-secret@cache.example.org:6379";
     static final String SECRET_IN_FAILURE = "do-not-log-me";
+    static final String URI_IN_FAILURE = "redis://:uri-secret-do-not-log@cache.example.org:6379";
 
     private static RedisDatasourceConfig config(Map<String, Object> values) {
         return RedisDatasourceConfig.buildFrom(new HashMap<>(values));
@@ -152,22 +154,23 @@ public class RedisDatasourceConfigTest {
     }
 
     /**
-     * Pins defect D8, Redis half (analysis-plugins section 0.6; plan section 9 D1-D20 row): when encrypting or decrypting fails,
-     * the plain secret is written to the log ({@code log.error("fail to encrypt password: {}", password, e)}), in both
-     * methods. A fix (a log line without the secret) changes this test on purpose.
+     * Defect D8 fixed, Redis half (BF-026 a): when encrypting or decrypting fails, the log line names the failure and carries
+     * the exception, but neither the password nor the URI (which can hold the password too).
      */
     @Test
-    public void aFailedEncryptOrDecryptWritesThePasswordToTheLog_pinsD8() {
+    public void aFailedEncryptOrDecryptLogsNeitherThePasswordNorTheUriBF026() {
         ListAppender<ILoggingEvent> appender = capture();
         try {
-            RedisDatasourceConfig built = config(Map.of("host", HOST, "password", SECRET_IN_FAILURE));
+            RedisDatasourceConfig built = config(Map.of("host", HOST, "password", SECRET_IN_FAILURE, "uri", URI_IN_FAILURE));
             built.doEncrypt(FAILING);
             built.doDecrypt(FAILING);
             List<String> lines = appender.list.stream().map(ILoggingEvent::getFormattedMessage).toList();
             System.out.println(TAG + "log lines: " + lines);
             assertEquals(2, lines.size());
-            for (String line : lines) {
-                assertTrue(line.contains(SECRET_IN_FAILURE), line);
+            assertEquals(List.of("fail to encrypt password and uri", "fail to decrypt password and uri"), lines);
+            for (ILoggingEvent event : appender.list) {
+                assertNotNull(event.getThrowableProxy(), "the exception is still logged");
+                assertFalse(event.getFormattedMessage().contains(SECRET_IN_FAILURE) || event.getFormattedMessage().contains(URI_IN_FAILURE));
             }
         } finally {
             release(appender);

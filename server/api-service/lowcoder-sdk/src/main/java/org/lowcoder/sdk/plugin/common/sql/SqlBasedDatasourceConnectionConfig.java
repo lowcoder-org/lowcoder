@@ -138,7 +138,7 @@ public abstract class SqlBasedDatasourceConnectionConfig implements DatasourceCo
             password = encryptFunc.apply(password);
             return this;
         } catch (Exception e) {
-            log.error("fail to encrypt password: {}", password, e);
+            log.error("fail to encrypt password", e);
             return this;
         }
     }
@@ -149,7 +149,7 @@ public abstract class SqlBasedDatasourceConnectionConfig implements DatasourceCo
             password = decryptFunc.apply(password);
             return this;
         } catch (Exception e) {
-            log.error("fail to encrypt password: {}", password, e);
+            log.error("fail to decrypt password", e);
             return this;
         }
     }

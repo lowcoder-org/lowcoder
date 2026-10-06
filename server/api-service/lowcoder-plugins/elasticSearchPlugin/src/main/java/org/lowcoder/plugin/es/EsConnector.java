@@ -19,6 +19,7 @@ import org.lowcoder.plugin.es.model.EsConnection;
 import org.lowcoder.plugin.es.model.EsDatasourceConfig;
 import org.lowcoder.sdk.util.HostGuards;
 import org.lowcoder.sdk.config.CommonConfig;
+import org.lowcoder.sdk.config.JsonViews;
 import org.lowcoder.sdk.config.dynamic.Conf;
 import org.lowcoder.sdk.config.dynamic.ConfigCenter;
 import org.lowcoder.sdk.exception.BizError;
@@ -161,11 +162,11 @@ public class EsConnector implements DatasourceConnector<EsConnection, EsDatasour
                         return DatasourceTestResult.testSuccess();
                     }
 
-                    log.error("test es fail.{},{}", JsonUtils.toJson(connectionConfig), response);
+                    log.error("test es fail.{},{}", JsonUtils.toJsonSafely(connectionConfig, JsonViews.Public.class), response);
                     return DatasourceTestResult.testFail(response.getStatusLine().getReasonPhrase());
                 })
                 .onErrorResume(throwable -> {
-                    log.error("test es error.{}", JsonUtils.toJson(connectionConfig), throwable);
+                    log.error("test es error.{}", JsonUtils.toJsonSafely(connectionConfig, JsonViews.Public.class), throwable);
                     return Mono.just(DatasourceTestResult.testFail(throwable));
                 })
                 .subscribeOn(QueryExecutionUtils.querySharedScheduler());
