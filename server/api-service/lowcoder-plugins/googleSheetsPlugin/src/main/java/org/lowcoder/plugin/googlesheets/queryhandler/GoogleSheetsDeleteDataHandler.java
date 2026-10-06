@@ -1,11 +1,14 @@
 package org.lowcoder.plugin.googlesheets.queryhandler;
 
+import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
+
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.lowcoder.plugin.googlesheets.model.GoogleSheetsDeleteDataRequest;
 import org.lowcoder.plugin.googlesheets.model.GoogleSheetsQueryExecutionContext;
+import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.common.QueryExecutionUtils;
 
@@ -40,7 +43,9 @@ public class GoogleSheetsDeleteDataHandler extends GoogleSheetsActionHandler {
                             .filter(sheetProperties -> sheetProperties.getTitle().equals(googleSheetsActionRequest.getSheetName()))
                             .map(SheetProperties::getSheetId)
                             .findFirst()
-                            .orElse(0);
+                            // a misspelt sheet name must not fall back to sheet id 0, another sheet (BF-029)
+                            .orElseThrow(() -> new PluginException(QUERY_ARGUMENT_ERROR, "GOOGLESHEETS_QUERY_PARAM_ERROR",
+                                    googleSheetsActionRequest.getSheetName()));
                     BatchUpdateSpreadsheetRequest content = new BatchUpdateSpreadsheetRequest();
                     Request request = new Request();
                     DeleteDimensionRequest deleteDimensionRequest = new DeleteDimensionRequest();
