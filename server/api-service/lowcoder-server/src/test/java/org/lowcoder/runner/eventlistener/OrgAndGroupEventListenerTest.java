@@ -1,7 +1,10 @@
 package org.lowcoder.runner.eventlistener;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -22,8 +25,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.domain.application.model.Application;
+import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.datasource.model.Datasource;
+import org.lowcoder.domain.datasource.model.DatasourceStatus;
+import org.lowcoder.domain.datasource.repository.DatasourceRepository;
 import org.lowcoder.domain.datasource.service.DatasourceService;
 import org.lowcoder.domain.group.event.GroupDeletedEvent;
 import org.lowcoder.domain.group.model.Group;
@@ -33,6 +39,7 @@ import org.lowcoder.domain.organization.event.OrgDeletedEvent;
 import org.lowcoder.domain.organization.event.OrgMemberLeftEvent;
 import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
+import org.mockito.ArgumentCaptor;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import reactor.core.publisher.Flux;
@@ -46,13 +53,13 @@ import reactor.core.publisher.MonoSink;
  * executing thread and an event log. A handler that ends in an error is subscribed without an error consumer, so the end of
  * such a chain is observed through Reactor's error-dropped hook.
  *
- * <p>Related pins, referenced and not repeated: L3-11b ({@code OrganizationServiceImplDeleteMongoTest}) drives the listener
- * through a real org delete against MongoDB and pins the section 9 row that deleting an org leaves its applications and
- * datasources (the two cleanup steps are empty stubs, listener :109-115, called at :67-68); L4-8
- * ({@code BiRelationServiceImplTest}) pins the BiRelation cascade through {@code deleteOrgMembers} and
+ * <p>Related tests, referenced and not repeated: L3-11b ({@code OrganizationServiceImplDeleteMongoTest}) drives the listener
+ * through a real org delete against MongoDB and checks that the org's applications and datasources end up soft-deleted
+ * (BF-017); L4-8 ({@code BiRelationServiceImplTest}) covers the BiRelation cascade through {@code deleteOrgMembers} and
  * {@code deleteGroupMembers}. This class covers what those runs do not branch through: the order of the steps, the retries,
- * the error handling, the thread, the group-deleted path and the user-leaves-org handler. BF-015 and BF-071 are fixed: the
- * user-leaves-org parts no longer cancel each other, and the group-deleted cleanup is retried like the others.
+ * the error handling, the thread, the group-deleted path and the user-leaves-org handler. BF-015, BF-071 and BF-017 are
+ * fixed: the user-leaves-org parts no longer cancel each other, the group-deleted cleanup is retried like the others, and
+ * deleting an org soft-deletes its applications and datasources.
  *
  * <p>The listener's pool uses non-daemon threads (idle timeout 60 s of a cached pool); the surefire fork exits normally.
  */
@@ -65,6 +72,7 @@ class OrgAndGroupEventListenerTest {
     private static final String APP_1 = "app-1";
     private static final String APP_2 = "app-2";
     private static final String DATASOURCE_1 = "ds-1";
+    private static final String DATASOURCE_2 = "ds-2";
     private static final String SCHEDULER_THREAD = "org-event-async-executor";
     private static final long WAIT_SECONDS = 10;
     private static final int RETRIES = 3;
@@ -76,6 +84,7 @@ class OrgAndGroupEventListenerTest {
     private ApplicationService applicationService;
     private DatasourceService datasourceService;
     private ResourcePermissionService resourcePermissionService;
+    private DatasourceRepository datasourceRepository;
 
     private final List<String> events = new CopyOnWriteArrayList<>();
     private final List<Throwable> dropped = new CopyOnWriteArrayList<>();
@@ -92,12 +101,14 @@ class OrgAndGroupEventListenerTest {
         applicationService = mock(ApplicationService.class);
         datasourceService = mock(DatasourceService.class);
         resourcePermissionService = mock(ResourcePermissionService.class);
+        datasourceRepository = mock(DatasourceRepository.class);
         ReflectionTestUtils.setField(listener, "orgMemberService", orgMemberService);
         ReflectionTestUtils.setField(listener, "groupService", groupService);
         ReflectionTestUtils.setField(listener, "groupMemberService", groupMemberService);
         ReflectionTestUtils.setField(listener, "applicationService", applicationService);
         ReflectionTestUtils.setField(listener, "datasourceService", datasourceService);
         ReflectionTestUtils.setField(listener, "resourcePermissionService", resourcePermissionService);
+        ReflectionTestUtils.setField(listener, "datasourceRepository", datasourceRepository);
         Hooks.onErrorDropped(error -> {
             dropped.add(error);
             Throwable expected = expectedFailure;
@@ -143,6 +154,16 @@ class OrgAndGroupEventListenerTest {
         return event;
     }
 
+    /** An org without applications or datasources, for the org deletion tests about the earlier steps. */
+    private void stubNoApplicationsOrDatasources() {
+        when(applicationService.findByOrganizationIdWithoutDsl(ORG_ID)).thenReturn(Flux.empty());
+        when(datasourceService.getByOrgId(ORG_ID)).thenReturn(Flux.empty());
+    }
+
+    private static boolean marksDeleted(Application update) {
+        return update != null && update.getApplicationStatus() == ApplicationStatus.DELETED;
+    }
+
     private static GroupDeletedEvent groupDeleted() {
         GroupDeletedEvent event = new GroupDeletedEvent();
         event.setGroupId(GROUP_1);
@@ -152,12 +173,13 @@ class OrgAndGroupEventListenerTest {
     // ------------------------------------------------------------------ onOrgDeleted
 
     /**
-     * Cleanup order: the org's members are deleted first, then the groups are listed, then each group is deleted, in the order
-     * the listing returns them. Applications and datasources are never touched (the section 9 row "deleting an org leaves its
-     * apps and datasources", pinned for real by L3-11b and not repeated here).
+     * Cleanup order: the org's members are deleted first, then the groups are listed and each is deleted in the order the
+     * listing returns them, then the applications are soft-deleted, then the datasources (BF-017). The datasources are
+     * marked DELETED directly: {@code DatasourceService.delete}, whose "still used by applications" check would leave a
+     * deleted org's datasource live, is never called.
      */
     @Test
-    void onOrgDeleted_runsMembersThenGroupDeletions_inThatOrder() throws InterruptedException {
+    void onOrgDeleted_runsMembersGroupsApplicationsThenDatasources_inThatOrder() throws InterruptedException {
         CountDownLatch done = new CountDownLatch(1);
         when(orgMemberService.deleteOrgMembers(ORG_ID)).thenReturn(Mono.defer(() -> {
             events.add("delete members");
@@ -173,15 +195,33 @@ class OrgAndGroupEventListenerTest {
         }));
         when(groupService.delete(GROUP_2)).thenReturn(Mono.defer(() -> {
             events.add("delete " + GROUP_2);
-            done.countDown();
             return Mono.empty();
+        }));
+        when(applicationService.findByOrganizationIdWithoutDsl(ORG_ID)).thenReturn(Flux.defer(() -> {
+            events.add("list applications");
+            return Flux.just(application(APP_1));
+        }));
+        when(applicationService.updateById(eq(APP_1), argThat(OrgAndGroupEventListenerTest::marksDeleted))).thenReturn(Mono.defer(() -> {
+            events.add("delete " + APP_1);
+            return Mono.just(true);
+        }));
+        when(datasourceService.getByOrgId(ORG_ID)).thenReturn(Flux.defer(() -> {
+            events.add("list datasources");
+            return Flux.just(datasource(DATASOURCE_1));
+        }));
+        when(datasourceRepository.markDatasourceAsDeleted(DATASOURCE_1)).thenReturn(Mono.defer(() -> {
+            events.add("delete " + DATASOURCE_1);
+            done.countDown();
+            return Mono.just(true);
         }));
 
         listener.onOrgDeleted(orgDeleted());
-        await(done, "the last group deletion");
+        await(done, "the last datasource deletion");
 
-        assertThat(events).containsExactly("delete members", "list groups", "delete " + GROUP_1, "delete " + GROUP_2);
-        verifyNoInteractions(applicationService, datasourceService, resourcePermissionService);
+        assertThat(events).containsExactly("delete members", "list groups", "delete " + GROUP_1, "delete " + GROUP_2,
+                "list applications", "delete " + APP_1, "list datasources", "delete " + DATASOURCE_1);
+        verify(datasourceService, never()).delete(anyString());
+        verifyNoInteractions(resourcePermissionService);
         say("org delete order: %s", events);
     }
 
@@ -190,6 +230,7 @@ class OrgAndGroupEventListenerTest {
         CountDownLatch listed = new CountDownLatch(1);
         when(orgMemberService.deleteOrgMembers(ORG_ID)).thenReturn(Mono.just(true));
         when(groupService.getByOrgId(ORG_ID)).thenReturn(Flux.defer(() -> Flux.<Group>empty().doOnComplete(listed::countDown)));
+        stubNoApplicationsOrDatasources();
 
         listener.onOrgDeleted(orgDeleted());
         await(listed, "the group listing of the empty org");
@@ -222,6 +263,7 @@ class OrgAndGroupEventListenerTest {
             done.countDown();
             return Mono.empty();
         }));
+        stubNoApplicationsOrDatasources();
 
         listener.onOrgDeleted(orgDeleted());
         await(done, "the group deletion after two failed attempts");
@@ -268,6 +310,7 @@ class OrgAndGroupEventListenerTest {
             return Mono.just(true);
         }));
         when(groupService.getByOrgId(ORG_ID)).thenReturn(Flux.defer(() -> Flux.<Group>empty().doOnComplete(finished::countDown)));
+        stubNoApplicationsOrDatasources();
 
         listener.onOrgDeleted(orgDeleted());
 
@@ -278,6 +321,65 @@ class OrgAndGroupEventListenerTest {
         await(finished, "the chain to finish");
         assertThat(thread.get()).isEqualTo(SCHEDULER_THREAD);
         assertThat(Thread.currentThread().getName()).isNotEqualTo(SCHEDULER_THREAD);
+    }
+
+    /**
+     * Catches a retried org deletion writing again what is already gone (BF-017): applications and datasources that are
+     * already DELETED are skipped; the others are soft-deleted, the applications with an update that sets the status
+     * DELETED and clears the public, marketplace and agency flags, and nothing else.
+     */
+    @Test
+    void onOrgDeleted_skipsApplicationsAndDatasourcesThatAreAlreadyDeleted() throws InterruptedException {
+        CountDownLatch done = new CountDownLatch(1);
+        when(orgMemberService.deleteOrgMembers(ORG_ID)).thenReturn(Mono.just(true));
+        when(groupService.getByOrgId(ORG_ID)).thenReturn(Flux.empty());
+        Application deletedApplication = Application.builder().id(APP_2).applicationStatus(ApplicationStatus.DELETED).build();
+        when(applicationService.findByOrganizationIdWithoutDsl(ORG_ID)).thenReturn(Flux.just(application(APP_1), deletedApplication));
+        ArgumentCaptor<Application> update = ArgumentCaptor.forClass(Application.class);
+        when(applicationService.updateById(eq(APP_1), update.capture())).thenReturn(Mono.just(true));
+        Datasource deletedDatasource = datasource(DATASOURCE_2);
+        deletedDatasource.setDatasourceStatus(DatasourceStatus.DELETED);
+        when(datasourceService.getByOrgId(ORG_ID)).thenReturn(Flux.just(deletedDatasource, datasource(DATASOURCE_1)));
+        when(datasourceRepository.markDatasourceAsDeleted(DATASOURCE_1)).thenReturn(Mono.defer(() -> {
+            done.countDown();
+            return Mono.just(true);
+        }));
+
+        listener.onOrgDeleted(orgDeleted());
+        await(done, "the datasource deletion");
+
+        verify(applicationService, never()).updateById(eq(APP_2), any());
+        verify(datasourceRepository, never()).markDatasourceAsDeleted(DATASOURCE_2);
+        assertThat(update.getValue().getApplicationStatus()).isEqualTo(ApplicationStatus.DELETED);
+        // the raw fields: the accessors read a missing flag as false, which would not show that the update clears it
+        assertThat(ReflectionTestUtils.getField(update.getValue(), "publicToAll")).isEqualTo(false);
+        assertThat(ReflectionTestUtils.getField(update.getValue(), "publicToMarketplace")).isEqualTo(false);
+        assertThat(ReflectionTestUtils.getField(update.getValue(), "agencyProfile")).isEqualTo(false);
+        assertThat(update.getValue().getName()).as("nothing else is set").isNull();
+        assertThat(update.getValue().getOrganizationId()).isNull();
+        say("org delete: already deleted application and datasource skipped");
+    }
+
+    /** A datasource failure fails the step, so the whole org deletion is retried (1 + 3 attempts) and then gives up. */
+    @Test
+    void onOrgDeleted_anotherDatasourceFailure_retriesTheChain() throws InterruptedException {
+        IllegalStateException failure = new IllegalStateException("datasource store down");
+        expectedFailure = failure;
+        AtomicInteger attempts = new AtomicInteger();
+        when(orgMemberService.deleteOrgMembers(ORG_ID)).thenReturn(Mono.just(true));
+        when(groupService.getByOrgId(ORG_ID)).thenReturn(Flux.empty());
+        when(applicationService.findByOrganizationIdWithoutDsl(ORG_ID)).thenReturn(Flux.empty());
+        when(datasourceService.getByOrgId(ORG_ID)).thenReturn(Flux.just(datasource(DATASOURCE_1)));
+        when(datasourceRepository.markDatasourceAsDeleted(DATASOURCE_1)).thenReturn(Mono.defer(() -> {
+            attempts.incrementAndGet();
+            return Mono.<Boolean>error(failure);
+        }));
+
+        listener.onOrgDeleted(orgDeleted());
+        await(droppedLatch, "the end of the failing chain");
+
+        assertThat(droppedFailure(failure)).isTrue();
+        assertThat(attempts.get()).isEqualTo(1 + RETRIES);
     }
 
     // ------------------------------------------------------------------ onGroupDeleted

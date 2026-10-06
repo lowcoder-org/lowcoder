@@ -222,7 +222,7 @@ class BiRelationServiceImplTest {
      * Catches a deleted org or group keeping its members (BF-016, formerly pinned as "removeAllBiRelations deletes only
      * the super_admin row": {@code is("super_admin").not()} was rendered as {@code {"relation": "super_admin"}}): the
      * call runs when an organization or a group is deleted (deleteOrgMembers, deleteGroupMembers, through
-     * OrgAndGroupEventListener.java:65 and :121) and now removes every relation of the source except the super admin's,
+     * OrgAndGroupEventListener.java:73 and :159) and now removes every relation of the source except the super admin's,
      * of that bizType only.
      */
     @Test
