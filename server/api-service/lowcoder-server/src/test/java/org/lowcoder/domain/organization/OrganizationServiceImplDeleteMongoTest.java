@@ -7,6 +7,7 @@ import static org.lowcoder.domain.organization.model.OrganizationState.DELETED;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -28,10 +29,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
 /**
- * OrganizationServiceImpl.delete (unit U14, task L3-11b): the soft delete, the event, and the section 9 row "deleting an
- * org leaves its apps and datasources". The collecting listener and the extra property give this class a Spring context
- * (and database) of its own. The real OrgAndGroupEventListener runs too, asynchronously: the test waits for it by polling
- * the org's groups (bounded, 20 s, 100 ms interval). What it does with the members is the L4-8 section 9 row on
+ * OrganizationServiceImpl.delete (unit U14, task L3-11b): the soft delete, the event, and (BF-017, formerly the section 9
+ * row "deleting an org leaves its apps and datasources") the soft delete of the org's applications and datasources. The
+ * collecting listener and the extra property give this class a Spring context (and database) of its own. The real
+ * OrgAndGroupEventListener runs too, asynchronously: the tests wait for it by polling the org's groups or, for its last
+ * step, the datasource's status (bounded, 20 s, 100 ms interval). What it does with the members is the L4-8 section 9 row on
  * BiRelationServiceImpl.removeAllBiRelations (fixed by BF-016) and is not asserted here.
  */
 @SpringBootTest(classes = ServerApplication.class)
@@ -98,34 +100,60 @@ class OrganizationServiceImplDeleteMongoTest extends OrganizationMongoTestBase {
         assertThat(DELETED_ORG_IDS).doesNotContain(unknown);
     }
 
+    /** Polls (bounded) until the asynchronous org-deletion handler has soft-deleted the datasource, its last step. */
+    private Datasource awaitDatasourceDeleted(String datasourceId) throws InterruptedException {
+        long deadline = System.nanoTime() + POLL_LIMIT.toNanos();
+        while (System.nanoTime() < deadline) {
+            Datasource datasource = mongo.findById(datasourceId, Datasource.class).block(TIMEOUT);
+            if (datasource != null && datasource.getDatasourceStatus() == DatasourceStatus.DELETED) {
+                return datasource;
+            }
+            Thread.sleep(POLL_INTERVAL_MILLIS);
+        }
+        throw new AssertionError("the org deletion handler did not soft-delete datasource " + datasourceId + " within " + POLL_LIMIT);
+    }
+
     /**
-     * Pins plan section 9 row "deleting an org leaves its apps and datasources": OrgAndGroupEventListener.onOrgDeleted
-     * (:61-73) ends with deleteOrgApplications() and deleteOrgDatasources() (:67-68), both of which return Mono.empty()
-     * (:109-115), so after the org is deleted (and the listener has finished: the groups are gone) its applications and
-     * datasources are still stored, still carrying the deleted org's id. A fix (delete them) changes this test on purpose.
+     * Catches a deleted org's applications and datasources staying usable (BF-017, formerly pinned as the plan section 9 row
+     * "deleting an org leaves its apps and datasources"): after the org is deleted, the real listener soft-deletes them. Both
+     * stay stored with the org's id and their other fields (an archive, not a removal), the application with the status
+     * DELETED and no longer public (it was public to all and on the marketplace), the datasource with DELETED. The
+     * datasource is used by the org's own application and by a live application of another organization (which the
+     * "still used" check of DatasourceService.delete would count): it is archived all the same, and the other
+     * organization's application is not touched.
      */
     @Test
-    void deletingAnOrgLeavesItsApplicationsAndDatasources_pinsTheSection9Row() throws Exception {
+    void deletingAnOrgSoftDeletesItsApplicationsAndDatasources() throws Exception {
         String orgId = savedOrgId();
         groupService.createAllUserGroup(orgId).block(TIMEOUT);
         groupService.createDevGroup(orgId).block(TIMEOUT);
-        Application application = mongo.save(Application.builder().organizationId(orgId).name("app-of-the-doomed-org")
-                .gid(UUID.randomUUID().toString()).applicationType(1).applicationStatus(ApplicationStatus.NORMAL).build()).block(TIMEOUT);
         Datasource datasource = mongo.save(Datasource.builder().organizationId(orgId).name("datasource-of-the-doomed-org")
                 .type("postgres").creationSource(0).build()).block(TIMEOUT);
+        Map<String, Object> dslUsingTheDatasource = Map.of("queries", List.of(Map.of("datasourceId", datasource.getId())));
+        Application application = mongo.save(Application.builder().organizationId(orgId).name("app-of-the-doomed-org")
+                .gid(UUID.randomUUID().toString()).applicationType(1).applicationStatus(ApplicationStatus.NORMAL)
+                .publicToAll(true).publicToMarketplace(true).editingApplicationDSL(dslUsingTheDatasource).build()).block(TIMEOUT);
+        Application otherOrgsApplication = mongo.save(Application.builder().organizationId(newId()).name("app-of-another-org")
+                .gid(UUID.randomUUID().toString()).applicationType(1).applicationStatus(ApplicationStatus.NORMAL)
+                .editingApplicationDSL(dslUsingTheDatasource).build()).block(TIMEOUT);
 
         assertThat(organizationService.delete(orgId).block(TIMEOUT)).isTrue();
-        awaitGroupsRemoved(orgId);
+        Datasource datasourceAfter = awaitDatasourceDeleted(datasource.getId());
 
         Application appAfter = mongo.findById(application.getId(), Application.class).block(TIMEOUT);
-        Datasource datasourceAfter = mongo.findById(datasource.getId(), Datasource.class).block(TIMEOUT);
-        System.out.println("[OrganizationServiceImplDeleteMongoTest] PINNED after the org deletion: application present="
-                + (appAfter != null) + " datasource present=" + (datasourceAfter != null));
+        System.out.println("[OrganizationServiceImplDeleteMongoTest] after the org deletion: application status="
+                + appAfter.getApplicationStatus() + " datasource status=" + datasourceAfter.getDatasourceStatus());
         assertThat(stored(orgId).getState()).isEqualTo(DELETED);
-        assertThat(appAfter).isNotNull();
+        assertThat(groupService.getOrgGroupCount(orgId).block(TIMEOUT)).isZero();
+        assertThat(appAfter.getApplicationStatus()).isEqualTo(ApplicationStatus.DELETED);
         assertThat(appAfter.getOrganizationId()).isEqualTo(orgId);
-        assertThat(datasourceAfter).isNotNull();
+        assertThat(appAfter.getName()).isEqualTo("app-of-the-doomed-org");
+        assertThat(appAfter.getGid()).isEqualTo(application.getGid());
+        assertThat(appAfter.isPublicToAll()).isFalse();
+        assertThat(appAfter.isPublicToMarketplace()).isFalse();
         assertThat(datasourceAfter.getOrganizationId()).isEqualTo(orgId);
-        assertThat(datasourceAfter.getDatasourceStatus()).as("not even soft-deleted").isEqualTo(DatasourceStatus.NORMAL);
+        assertThat(datasourceAfter.getName()).isEqualTo("datasource-of-the-doomed-org");
+        assertThat(mongo.findById(otherOrgsApplication.getId(), Application.class).block(TIMEOUT).getApplicationStatus())
+                .as("another organization's application is not touched").isEqualTo(ApplicationStatus.NORMAL);
     }
 }
