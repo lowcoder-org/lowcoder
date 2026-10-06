@@ -23,7 +23,7 @@ import java.util.Locale;
  * GroupServiceImpl.delete (unit U14, task L3-11a): the group is removed and exactly one GroupDeletedEvent carrying its id
  * is published. A collecting listener makes this class's Spring context, and therefore its database, its own. What the
  * real listener does with the group's members on that event is the L4-8 section 9 row on
- * BiRelationServiceImpl.removeAllBiRelations and is not asserted here.
+ * BiRelationServiceImpl.removeAllBiRelations (fixed by BF-016) and is not asserted here.
  */
 @SpringBootTest(classes = ServerApplication.class)
 @ActiveProfiles("test")
