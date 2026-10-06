@@ -49,8 +49,8 @@ import static org.lowcoder.plugin.mssql.MssqlContainerSupport.sql;
  * {@code ContainerImages.MSSQL_2022}, the module's {@code mssql-jdbc 10.2.1.jre11} driver), started once per JVM by
  * {@link MssqlContainerSupport}. Heavy-container tag: the default build does not run it (run command in log-L5.md).
  * Each test uses its own tables or schemas in database {@code app}. The self-signed certificate of the image is not
- * trusted, so a pool with usingSsl fails; {@code readOnly} is not enforced by the driver (see
- * {@link #readonlyFlagDoesNotStopAWriteBecauseTheDriverIgnoresIt}).
+ * trusted, so a pool with usingSsl fails. The driver ignores {@code readOnly}, so a read-only pool rolls every query back
+ * instead (BF-025, see {@link #readonlyPoolRollsBackAWriteAndStillAnswersAReadBF025}).
  */
 @Tag("heavy-container")
 public class MssqlDatabaseTest {
@@ -197,27 +197,80 @@ public class MssqlDatabaseTest {
     }
 
     /**
-     * Shows where the read-only switch stops: the connector hands {@code readOnly} to Hikari (asserted in
-     * {@code MssqlConnectorUrlTest}), but the SQL Server driver treats {@code Connection.setReadOnly} as a hint and sends
-     * nothing to the server, so an insert through a read-only pool succeeds and the row is stored. Pins the plan section 9 row
-     * "read-only not enforced" (D-6: fix deferred): the driver ignores the hint, the connector does set it, and even an
-     * {@code applicationIntent=ReadOnly} property does not make this server refuse the write.
+     * BF-025: the connector hands {@code readOnly} to Hikari (asserted in {@code MssqlConnectorUrlTest}), but the SQL Server
+     * driver treats {@code Connection.setReadOnly} as a hint and sends nothing to the server. {@code MssqlQueryExecutor}
+     * therefore runs every query of a read-only pool in a transaction it rolls back: the insert answers its affected rows,
+     * but no row is stored, and a read still answers.
      */
     @Test
-    public void readonlyFlagDoesNotStopAWriteBecauseTheDriverIgnoresIt() throws Exception {
+    public void readonlyPoolRollsBackAWriteAndStillAnswersAReadBF025() throws Exception {
         try (Connection jdbc = jdbc()) {
-            execute(jdbc, "drop table if exists dbo.t_readonly", "create table dbo.t_readonly (id int)");
+            execute(jdbc, "drop table if exists dbo.t_readonly", "create table dbo.t_readonly (id int)", "insert into dbo.t_readonly values (7)");
             MssqlDatasourceConfig readonly = config(USER, PASSWORD, false, true);
             HikariPerfWrapper pool = connect(readonly);
             try {
                 assertTrue(((HikariDataSource) pool.getHikariDataSource()).isReadOnly(), "the connector set read-only on the pool");
                 Object result = sql(pool, readonly, "insert into dbo.t_readonly values (1)", Map.of());
                 System.out.println("[MssqlDatabaseTest] insert through a read-only pool: " + result);
-                assertEquals(1, ((Map<?, ?>) result).get("affectedRows"));
+                assertEquals(1, ((Map<?, ?>) result).get("affectedRows"), "the rolled-back insert still reports its row");
+                Object read = sql(pool, readonly, "select id from dbo.t_readonly", Map.of());
+                System.out.println("[MssqlDatabaseTest] read through the read-only pool: " + read);
+                assertEquals(List.of(Map.of("id", 7)), read);
             } finally {
                 destroy(pool);
             }
-            assertEquals(List.of(1), column(jdbc, "select id from dbo.t_readonly", "id"), "the write reached the table");
+            assertEquals(List.of(7), column(jdbc, "select id from dbo.t_readonly", "id"), "the write was rolled back");
+        }
+    }
+
+    /**
+     * BF-025: a query that fails on a read-only pool is rolled back too and leaves the pooled connection usable. SQL Server
+     * runs the rest of a batch after a statement fails, so without the rollback the second insert would be stored although
+     * the query reports the first one's error.
+     */
+    @Test
+    public void readonlyPoolRollsBackAFailingQueryAndKeepsWorkingBF025() throws Exception {
+        try (Connection jdbc = jdbc()) {
+            execute(jdbc, "drop table if exists dbo.t_readonly_fail", "create table dbo.t_readonly_fail (id int primary key)",
+                    "insert into dbo.t_readonly_fail values (1)");
+            MssqlDatasourceConfig readonly = config(USER, PASSWORD, false, true);
+            HikariPerfWrapper pool = connect(readonly);
+            try {
+                PluginException thrown = assertThrows(PluginException.class, () -> sql(pool, readonly,
+                        "insert into dbo.t_readonly_fail values (1); insert into dbo.t_readonly_fail values (2)", Map.of()));
+                System.out.println("[MssqlDatabaseTest] failing batch through a read-only pool: " + thrown.getMessage());
+                assertEquals(QUERY_EXECUTION_ERROR, thrown.getError());
+                assertTrue(thrown.getMessage().contains("PRIMARY KEY"), thrown.getMessage());
+                assertEquals(List.of(Map.of("id", 1)), sql(pool, readonly, "select id from dbo.t_readonly_fail", Map.of()),
+                        "the next query on the pool runs and sees no row of the failed batch");
+            } finally {
+                destroy(pool);
+            }
+            assertEquals(List.of(1), column(jdbc, "select id from dbo.t_readonly_fail", "id"),
+                    "the insert after the failing statement was rolled back");
+        }
+    }
+
+    /**
+     * Pins the documented limit of BF-025: the rollback covers what a transaction covers, so a {@code COMMIT} inside the
+     * query commits the writes before it. Only the writes after it are rolled back.
+     */
+    @Test
+    public void readonlyPoolKeepsWritesBeforeAnExplicitCommit_pinsTheRollbackLimitBF025() throws Exception {
+        try (Connection jdbc = jdbc()) {
+            execute(jdbc, "drop table if exists dbo.t_readonly_commit", "create table dbo.t_readonly_commit (id int)");
+            MssqlDatasourceConfig readonly = config(USER, PASSWORD, false, true);
+            HikariPerfWrapper pool = connect(readonly);
+            try {
+                Object result = sql(pool, readonly,
+                        "insert into dbo.t_readonly_commit values (1); commit; insert into dbo.t_readonly_commit values (2)", Map.of());
+                System.out.println("[MssqlDatabaseTest] insert, commit, insert through a read-only pool: " + result);
+            } finally {
+                destroy(pool);
+            }
+            List<Object> kept = column(jdbc, "select id from dbo.t_readonly_commit", "id");
+            System.out.println("[MssqlDatabaseTest] rows kept after the explicit commit: " + kept);
+            assertEquals(List.of(1), kept, "the write before COMMIT is kept, the one after it is rolled back");
         }
     }
 
