@@ -78,7 +78,9 @@ import reactor.test.StepVerifier;
  * {@link #getGroupMembers_pageZero_failsWithIndexOutOfBounds}); the search variant guards it.</li>
  * </ul>
  * Fixed since: A1 {@code getPotentialGroupMembers} had no role or same-org check (BF-021); it now has the gate of
- * {@code addGroupMember} (see {@link #getPotentialGroupMembers_groupOfAnotherOrg_isInvalidGroupId_andListsNobody}).
+ * {@code addGroupMember} (see {@link #getPotentialGroupMembers_groupOfAnotherOrg_isInvalidGroupId_andListsNobody});
+ * {@code getGroups} for a plain member counted only the visitor's own membership rows (BF-042, see
+ * {@link #getGroups_plainMemberSeesTheSameMembersAsAnOrgAdminBF042}).
  */
 @ExtendWith(MockitoExtension.class)
 class GroupApiServiceImplTest {
@@ -971,7 +973,7 @@ class GroupApiServiceImplTest {
     /**
      * Catches a plain member seeing groups they do not belong to: only the groups of their own memberships are loaded
      * (never the whole org), each carries the visitor's role in that group, and the all-users group counts all org
-     * admins while an ordinary group counts the org admins among the listed members.
+     * admins while an ordinary group counts the org admins among its members (since BF-042 all members of the group).
      */
     @Test
     void getGroups_plainMember_seesOnlyOwnGroupsWithOwnRole() {
@@ -985,13 +987,20 @@ class GroupApiServiceImplTest {
         ArgumentCaptor<Collection<String>> requestedGroups = ArgumentCaptor.forClass(Collection.class);
         when(groupService.getByIds(requestedGroups.capture())).thenReturn(Flux.just(
                 group("g-ordinary", ORG_ID, null, null), group("g-all", ORG_ID, SystemGroups.ALL_USER, null)));
+        when(groupMemberService.getGroupMembers("g-ordinary")).thenReturn(Mono.just(List.of(
+                new GroupMember("g-ordinary", VISITOR_ID, MemberRole.ADMIN, ORG_ID, 1L),
+                new GroupMember("g-ordinary", "admin-1", MemberRole.MEMBER, ORG_ID, 2L))));
+        when(groupMemberService.getGroupMembers("g-all")).thenReturn(Mono.just(List.of(
+                new GroupMember("g-all", VISITOR_ID, MemberRole.MEMBER, ORG_ID, 1L),
+                new GroupMember("g-all", "admin-1", MemberRole.MEMBER, ORG_ID, 2L),
+                new GroupMember("g-all", "admin-2", MemberRole.MEMBER, ORG_ID, 3L))));
 
         StepVerifier.create(service.getGroups())
                 .assertNext(views -> {
                     assertThat(views).extracting(GroupView::getGroupId).containsExactly("g-all", "g-ordinary");
                     assertThat(views).extracting(GroupView::getVisitorRole).containsExactly(ROLE_MEMBER, ROLE_ADMIN);
                     assertThat(views.get(0).getStats()).containsEntry(STATS_ADMIN_COUNT, 2);
-                    assertThat(views.get(1).getStats()).containsEntry(STATS_ADMIN_COUNT, 0);
+                    assertThat(views.get(1).getStats()).containsEntry(STATS_ADMIN_COUNT, 1);
                 })
                 .verifyComplete();
         assertThat(requestedGroups.getValue()).containsExactlyInAnyOrder("g-ordinary", "g-all");
@@ -1011,6 +1020,8 @@ class GroupApiServiceImplTest {
         when(groupMemberService.getUserGroupMembersInOrg(ORG_ID, VISITOR_ID)).thenReturn(Mono.just(List.of(
                 new GroupMember("g-ordinary", VISITOR_ID, MemberRole.SUPER_ADMIN, ORG_ID, 1L))));
         when(groupService.getByIds(anyCollection())).thenReturn(Flux.just(group("g-ordinary", ORG_ID, null, null)));
+        when(groupMemberService.getGroupMembers("g-ordinary")).thenReturn(Mono.just(List.of(
+                new GroupMember("g-ordinary", VISITOR_ID, MemberRole.SUPER_ADMIN, ORG_ID, 1L))));
 
         StepVerifier.create(service.getGroups())
                 .assertNext(views -> {
@@ -1022,16 +1033,14 @@ class GroupApiServiceImplTest {
     }
 
     /**
-     * Pins the plan section 9 defect row "GroupApiServiceImpl.getGroups for a plain member counts and lists only the
-     * visitor's own membership rows": for the same group of three members an org admin gets userCount 3 and all three
-     * users, while a plain member gets userCount 1 and users = [visitor] (the member path filters the visitor's own
-     * rows from {@code getUserGroupMembersInOrg}, which returns only that user's rows). A fix changes this test on
-     * purpose.
+     * BF-042 fixed: for the same group of three members an org admin got userCount 3 and all three users, while a plain
+     * member got userCount 1 and users = [visitor], because the member path counted the visitor's own membership rows
+     * ({@code getUserGroupMembersInOrg}). Both now see the group's members: three users, the org admin among them counted.
      */
     @Test
-    void getGroups_plainMemberSeesOnlyOwnRowsWhereAdminSeesAllMembers_pinsSection9Defect() {
+    void getGroups_plainMemberSeesTheSameMembersAsAnOrgAdminBF042() {
         when(sessionUserService.isAnonymousUser()).thenReturn(Mono.just(false));
-        when(orgMemberService.getAllOrgAdmins(ORG_ID)).thenReturn(Mono.just(List.of()));
+        when(orgMemberService.getAllOrgAdmins(ORG_ID)).thenReturn(Mono.just(List.of(orgAdmin("other-1"))));
         Group ordinary = group("g-ordinary", ORG_ID, null, null);
         GroupMember visitorRow = new GroupMember("g-ordinary", VISITOR_ID, MemberRole.MEMBER, ORG_ID, 1L);
         when(groupMemberService.getGroupMembers("g-ordinary")).thenReturn(Mono.just(List.of(visitorRow,
@@ -1040,21 +1049,23 @@ class GroupApiServiceImplTest {
         when(groupService.getByOrgId(ORG_ID)).thenReturn(Flux.just(ordinary));
         when(groupMemberService.getUserGroupMembersInOrg(ORG_ID, VISITOR_ID)).thenReturn(Mono.just(List.of(visitorRow)));
         when(groupService.getByIds(anyCollection())).thenReturn(Flux.just(ordinary));
+        List<String> allThree = List.of(VISITOR_ID, "other-1", "other-2");
 
         when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(orgMember(MemberRole.ADMIN)));
         StepVerifier.create(service.getGroups())
                 .assertNext(views -> assertThat(views.get(0).getStats())
-                        .containsEntry(STATS_USER_COUNT, 3)
-                        .containsEntry(STATS_USERS, List.of(VISITOR_ID, "other-1", "other-2")))
+                        .containsEntry(STATS_USER_COUNT, 3).containsEntry(STATS_ADMIN_COUNT, 1).containsEntry(STATS_USERS, allThree))
                 .verifyComplete();
 
         when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(orgMember(MemberRole.MEMBER)));
         StepVerifier.create(service.getGroups())
-                .assertNext(views -> assertThat(views.get(0).getStats())
-                        .containsEntry(STATS_USER_COUNT, 1)
-                        .containsEntry(STATS_USERS, List.of(VISITOR_ID)))
+                .assertNext(views -> {
+                    say("getGroups as plain member, same 3-member group -> stats %s", views.get(0).getStats());
+                    assertThat(views.get(0).getVisitorRole()).isEqualTo(ROLE_MEMBER);
+                    assertThat(views.get(0).getStats())
+                            .containsEntry(STATS_USER_COUNT, 3).containsEntry(STATS_ADMIN_COUNT, 1).containsEntry(STATS_USERS, allThree);
+                })
                 .verifyComplete();
-        say("getGroups: same 3-member group, org admin sees 3 users, plain member sees only itself (section 9 defect pinned)");
     }
 
     // ------------------------------------------------------------------ getPotentialGroupMembers
