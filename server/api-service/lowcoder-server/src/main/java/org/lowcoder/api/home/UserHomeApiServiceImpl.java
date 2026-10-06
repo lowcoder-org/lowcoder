@@ -59,6 +59,14 @@ import static org.lowcoder.sdk.util.StreamUtils.collectList;
 @Component
 public class UserHomeApiServiceImpl implements UserHomeApiService {
 
+    private static final String DSL_SETTINGS = "settings";
+    private static final String SETTING_TITLE = "title";
+    private static final String SETTING_CATEGORY = "category";
+    private static final String SETTING_DESCRIPTION = "description";
+    private static final String SETTING_ICON = "icon";
+    /** The organization name of a listing entry whose organization no longer exists (BF-034). */
+    private static final String UNKNOWN_ORG_NAME = "";
+
     private final SessionUserService sessionUserService;
     private final OrganizationService organizationService;
     private final OrgMemberService orgMemberService;
@@ -356,9 +364,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                         .applicationType(application.getApplicationType())
                                         .applicationStatus(application.getApplicationStatus())
                                         .orgId(application.getOrganizationId())
-                                        .orgName(Optional.ofNullable(orgMap.get(application.getOrganizationId()))
-                                                .map(Organization::getName)
-                                                .orElse(""))
+                                        .orgName(orgName(orgMap, application.getOrganizationId()))
                                         .creatorEmail(Optional.ofNullable(userMap.get(application.getCreatedBy()))
                                                 .map(User::getName)
                                                 .orElse(""))
@@ -371,7 +377,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                 // marketplace specific fields
                                 return application.getPublishedApplicationDSL(applicationRecordService)
                                         .map(dsl -> {
-                                            Object settingsObj = dsl.getOrDefault("settings", new HashMap<>());
+                                            Object settingsObj = dsl.getOrDefault(DSL_SETTINGS, new HashMap<>());
                                             if (!(settingsObj instanceof Map)) {
                                                 return new HashMap<String, Object>(); // fallback if not a map
                                             }
@@ -379,10 +385,11 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                         })
                                         .defaultIfEmpty(new HashMap<>())
                                         .map(settings -> {
-                                            marketplaceApplicationInfoView.setTitle((String) settings.getOrDefault("title", application.getName()));
-                                            marketplaceApplicationInfoView.setCategory((String) settings.get("category"));
-                                            marketplaceApplicationInfoView.setDescription((String) settings.get("description"));
-                                            marketplaceApplicationInfoView.setImage((String) settings.get("icon"));
+                                            marketplaceApplicationInfoView.setTitle(Optional.ofNullable(settingText(settings, SETTING_TITLE))
+                                                    .orElse(application.getName()));
+                                            marketplaceApplicationInfoView.setCategory(settingText(settings, SETTING_CATEGORY));
+                                            marketplaceApplicationInfoView.setDescription(settingText(settings, SETTING_DESCRIPTION));
+                                            marketplaceApplicationInfoView.setImage(settingText(settings, SETTING_ICON));
                                             return marketplaceApplicationInfoView;
                                         });
                             });
@@ -431,7 +438,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                         .applicationType(application.getApplicationType())
                                         .applicationStatus(application.getApplicationStatus())
                                         .orgId(application.getOrganizationId())
-                                        .orgName(orgMap.get(application.getOrganizationId()).getName())
+                                        .orgName(orgName(orgMap, application.getOrganizationId()))
                                         .creatorEmail(Optional.ofNullable(userMap.get(application.getCreatedBy()))
                                                 .map(User::getName)
                                                 .orElse(""))
@@ -489,7 +496,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                         .name(bundle.getName())
                                         .bundleStatus(bundle.getBundleStatus())
                                         .orgId(bundle.getOrganizationId())
-                                        .orgName(orgMap.get(bundle.getOrganizationId()).getName())
+                                        .orgName(orgName(orgMap, bundle.getOrganizationId()))
                                         .creatorEmail(Optional.ofNullable(userMap.get(bundle.getCreatedBy()))
                                                 .map(User::getName)
                                                 .orElse(""))
@@ -542,7 +549,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                         .name(bundle.getName())
                                         .bundleStatus(bundle.getBundleStatus())
                                         .orgId(bundle.getOrganizationId())
-                                        .orgName(orgMap.get(bundle.getOrganizationId()).getName())
+                                        .orgName(orgName(orgMap, bundle.getOrganizationId()))
                                         .creatorEmail(Optional.ofNullable(userMap.get(bundle.getCreatedBy()))
                                                 .map(User::getName)
                                                 .orElse(""))
@@ -552,6 +559,23 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                             });
 
                 });
+    }
+
+    /**
+     * A text setting of a published DSL, or null when it is missing or not text (BF-034: a number or a map there failed the
+     * whole listing with a ClassCastException). A setting of another type is dropped, not converted.
+     */
+    @Nullable
+    private static String settingText(Map<String, Object> settings, String key) {
+        return settings.get(key) instanceof String text ? text : null;
+    }
+
+    /**
+     * The name of a listing entry's organization, or {@link #UNKNOWN_ORG_NAME} when the organization no longer exists (BF-034:
+     * a deleted organization failed the whole listing with a NullPointerException).
+     */
+    private static String orgName(Map<String, Organization> orgMap, String orgId) {
+        return Optional.ofNullable(orgMap.get(orgId)).map(Organization::getName).orElse(UNKNOWN_ORG_NAME);
     }
 
     private Mono<ApplicationInfoView> buildView(Application application, ResourceRole maxRole, Map<String, User> userMap, @Nullable Instant lastViewTime,
