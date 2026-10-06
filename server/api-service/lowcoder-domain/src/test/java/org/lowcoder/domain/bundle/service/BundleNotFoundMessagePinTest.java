@@ -17,7 +17,7 @@ import reactor.core.publisher.Flux;
 
 /**
  * Pins plan section 9 row G6 (task L3-12b): the message keys BundleServiceImpl uses for a bundle that does not exist,
- * BUNDLE_NOT_FOUND (BundleServiceImpl:54, :57; BundleApiServiceImpl:553) and CANT_FIND_BUNDLE (BundleServiceImpl:76), are in none
+ * BUNDLE_NOT_FOUND (BundleServiceImpl:54, :57; BundleApiServiceImpl:577) and CANT_FIND_BUNDLE (BundleServiceImpl:76), are in none
  * of locale_en, locale_de and locale_zh.properties. LocaleUtils.getMessage then logs "message key not exist" and answers the
  * text of INTERNAL_SERVER_ERROR ("Oops! Service is busy, please try again later."), so a user asking for an unknown bundle is
  * told the service is busy. Same shape as the L3-7 JS code display name row. A fix (add the keys to the three locale files)
