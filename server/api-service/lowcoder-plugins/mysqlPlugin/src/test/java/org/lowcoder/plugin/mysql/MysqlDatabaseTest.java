@@ -333,6 +333,23 @@ public class MysqlDatabaseTest {
         }
     }
 
+    /** BF-030 end to end: a GUI update without a filter and with multi-modify off changes one row of the real table, not all. */
+    @Test
+    public void guiUpdateWithoutAFilterChangesOneRowBF030() throws Exception {
+        try (Connection app = app()) {
+            execute(app, "drop table if exists t_gui_nofilter", "create table t_gui_nofilter (id int primary key, name varchar(20))",
+                    "insert into t_gui_nofilter values (1, 'ann'), (2, 'bob'), (3, 'cy')");
+
+            Object updated = gui("UPDATE", Map.of("table", "t_gui_nofilter", "changeSet", keyValueChangeSet("name", "{{name}}"),
+                    "filterBy", List.of(), "allowMultiModify", false), Map.of("name", "same"));
+
+            List<Object> names = rows(app, "select name from t_gui_nofilter order by id").stream().map(r -> r.get("name")).toList();
+            System.out.println("[MysqlDatabaseTest] update without a filter: " + updated + ", names " + names);
+            assertEquals(1, ((Map<?, ?>) updated).get("affectedRows"));
+            assertEquals(1, names.stream().filter("same"::equals).count(), "exactly one row changed: " + names);
+        }
+    }
+
     /**
      * BF-007 and BF-008 end to end: the elements of a GUI {@code IN} filter are bind parameters, so an element written to
      * break out of a quoted string ({@code x' or '1'='1}) matches only a row holding exactly that text and deletes nothing
