@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -621,30 +622,35 @@ class FolderApiServiceImplTest {
         assertThat(full.isManageable()).as("member, not the creator").isFalse();
         assertThat(full.getSubApplications()).extracting(ApplicationInfoView::getApplicationId).containsExactly("a-in");
         assertThat(empty.isVisible()).as("empty and the visitor is no developer").isFalse();
-        assertThat(empty.isManageable())
-                .as("the visitor created it, but the rule compares the user id with the creator's NAME (observed defect, pinned)")
-                .isFalse();
+        assertThat(empty.isManageable()).as("the visitor created it (BF-036)").isTrue();
         assertThat(root).anyMatch(o -> o instanceof ApplicationInfoView a && a.getApplicationId().equals("a-root"));
         System.out.println("[FolderApiServiceImplTest] root listing " + root.size() + " elements");
     }
 
     /**
-     * Pins plan §9 row "getElements' creator rule compares user id with creator name": the creator rule of {@code manageable} compares the visitor's
-     * user ID with {@code FolderInfoView.createBy}, which holds the creator's display NAME, so a non-admin creator
-     * manages a folder only when the name happens to equal the id.
+     * BF-036 fixed: the creator rule of {@code manageable} compared the visitor's user id with {@code FolderInfoView.createBy},
+     * the creator's display name, so a non-admin creator managed a folder only when the name happened to equal the id. Now
+     * the ids are compared: the creator gets the flag whatever the name, and another member whose display name equals the
+     * visitor's id does not.
      */
     @Test
-    void getElements_creatorRuleComparesTheUserIdWithTheCreatorsName_pinsTheSection9Row() {
-        User sameNameAsId = new User();
-        sameNameAsId.setId(VISITOR);
-        sameNameAsId.setName(VISITOR);
-        stubListing(List.of(folder("f-mine", ORG, null, "Mine", VISITOR)), List.of(), Map.of(), List.of());
-        when(userService.getByIds(anyCollection())).thenReturn(Mono.just(Map.of(VISITOR, sameNameAsId)));
+    void getElements_creatorRuleComparesUserIds_notTheCreatorsNameBF036() {
+        User otherNamedLikeTheVisitor = new User();
+        otherNamedLikeTheVisitor.setId(OTHER_USER);
+        otherNamedLikeTheVisitor.setName(VISITOR);
+        stubListing(List.of(folder("f-mine", ORG, null, "Mine", VISITOR), folder("f-other", ORG, null, "Other", OTHER_USER)),
+                List.of(), Map.of(), List.of());
+        when(userService.getByIds(anyCollection())).thenReturn(Mono.just(Map.of(VISITOR, user(VISITOR), OTHER_USER, otherNamedLikeTheVisitor)));
 
-        FolderInfoView view = (FolderInfoView) listing(null, null).get(0);
+        Map<String, FolderInfoView> byId = new HashMap<>();
+        listing(null, null).forEach(o -> byId.put(((FolderInfoView) o).getFolderId(), (FolderInfoView) o));
 
-        assertThat(view.getCreateBy()).isEqualTo(VISITOR);
-        assertThat(view.isManageable()).isTrue();
+        System.out.println("[FolderApiServiceImplTest] creator rule: mine createBy '" + byId.get("f-mine").getCreateBy() + "' manageable "
+                + byId.get("f-mine").isManageable() + ", other createBy '" + byId.get("f-other").getCreateBy() + "' manageable " + byId.get("f-other").isManageable());
+        assertThat(byId.get("f-mine").getCreateBy()).as("the display name, not the id").isNotEqualTo(VISITOR);
+        assertThat(byId.get("f-mine").isManageable()).as("the visitor created it").isTrue();
+        assertThat(byId.get("f-other").getCreateBy()).isEqualTo(VISITOR);
+        assertThat(byId.get("f-other").isManageable()).as("created by another member whose name equals the visitor's id").isFalse();
     }
 
     @ParameterizedTest

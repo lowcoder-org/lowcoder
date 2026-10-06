@@ -266,8 +266,6 @@ public class FolderApiServiceImpl implements FolderApiService {
                             if (folderInfoView == null) {
                                 return;
                             }
-                            folderInfoView.setManageable(orgMember.isAdmin() || orgMember.isSuperAdmin() ||  orgMember.getUserId().equals(folderInfoView.getCreateBy()));
-
                             List<FolderInfoView> folderInfoViews = folderNode.getFolderChildren().stream().filter(FolderInfoView::isVisible).toList();
                             folderInfoView.setSubFolders(folderInfoViews);
                             folderInfoView.setSubApplications(folderNode.getElementChildren());
@@ -339,6 +337,7 @@ public class FolderApiServiceImpl implements FolderApiService {
                                     .name(folder.getName())
                                     .createAt(folder.getCreatedAt().toEpochMilli())
                                     .createBy(creator == null ? null : creator.getName())
+                                    .isManageable(canManage(orgMember, folder))
                                     .createTime(folder.getCreatedAt())
                                     .lastViewTime(folderId2LastViewTimeMap.get(folder.getId()))
                                     .build();
@@ -366,13 +365,28 @@ public class FolderApiServiceImpl implements FolderApiService {
     private Mono<OrgMember> checkManagePermission(String folderId) {
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMap(orgMember -> {
-                    if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
+                    if (isOrgAdmin(orgMember)) {
                         return Mono.just(orgMember);
                     }
                     return isCreator(folderId)
                             .flatMap(isCreator -> isCreator ? Mono.just(orgMember)
                                                             : ofError(FOLDER_OPERATE_NO_PERMISSION, "FOLDER_OPERATE_NO_PERMISSION"));
                 });
+    }
+
+    /**
+     * The {@code manageable} flag of a listed folder: an organization admin, a super admin or the folder's creator, compared
+     * by user id (BF-036: the listing compared the visitor's id with {@code FolderInfoView.createBy}, the creator's display
+     * name, so a non-admin creator never got the flag). The same rule as {@link #checkManagePermission}, which decides each
+     * operation; the flag only drives what the client offers.
+     */
+    private static boolean canManage(OrgMember orgMember, Folder folder) {
+        return isOrgAdmin(orgMember) || orgMember.getUserId().equals(folder.getCreatedBy());
+    }
+
+    /** An organization admin or a super admin manages every folder of the organization. */
+    private static boolean isOrgAdmin(OrgMember orgMember) {
+        return orgMember.isAdmin() || orgMember.isSuperAdmin();
     }
 
     private Mono<Boolean> isCreator(String folderId) {
