@@ -30,6 +30,8 @@ import org.lowcoder.sdk.plugin.common.sql.SqlBasedDatasourceConnectionConfig;
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.pf4j.Extension;
 
+import com.zaxxer.hikari.HikariDataSource;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -51,6 +53,16 @@ public class MssqlQueryExecutor extends SqlBasedQueryExecutor {
                 return result;
             }
         });
+    }
+
+    /**
+     * A read-only datasource rolls every query back (BF-025): the SQL Server driver ignores {@code Connection.setReadOnly}, so
+     * the read-only pool {@code MssqlConnector} sets up would otherwise keep every write. The limits of the rollback are on
+     * {@code SqlBasedQueryExecutor.executeAndRollBack}.
+     */
+    @Override
+    protected boolean rollsBackEveryQuery(HikariDataSource dataSource) {
+        return dataSource.isReadOnly();
     }
 
     @Override
