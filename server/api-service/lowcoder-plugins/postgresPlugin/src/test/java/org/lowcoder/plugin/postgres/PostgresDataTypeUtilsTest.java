@@ -27,6 +27,14 @@ import static org.lowcoder.plugin.postgres.utils.PostgresDataTypeUtils.extractEx
  */
 public class PostgresDataTypeUtilsTest {
 
+    /** BF-032: a decimal a float cannot hold (as a float it was 1.23456792E7). */
+    static final String DECIMAL_TEXT = "12345678.9";
+    /** A double whose binary value is not 0.1; read from its text it is exactly 0.1. */
+    static final double DOUBLE_WITH_SHORT_TEXT = 0.1d;
+    static final String DOUBLE_SHORT_TEXT = "0.1";
+    /** A decimal comma: not a number for {@code BigDecimal}. */
+    static final String NOT_A_DECIMAL = "12,5";
+
     static final Set<String> SUPPORTED = Set.of("int8", "int4", "decimal", "varchar", "bool", "date", "time", "float8", "text", "int");
 
     @Test
@@ -44,7 +52,7 @@ public class PostgresDataTypeUtilsTest {
         assertEquals(List.of(DataType.TIME), observed.get("time"));
         assertEquals(List.of(DataType.STRING), observed.get("text"));
         assertEquals(List.of(DataType.INTEGER), observed.get("int"));
-        assertEquals(List.of(DataType.FLOAT), observed.get("decimal"));
+        assertEquals(List.of(DataType.BIG_DECIMAL), observed.get("decimal"));
     }
 
     /**
@@ -125,18 +133,20 @@ public class PostgresDataTypeUtilsTest {
     }
 
     /**
-     * Pins the plan section 9 row "PostgresDataTypeUtils maps an explicit ?::decimal cast to FLOAT ... precision is lost"
-     * (D-6: fix deferred): the bound text becomes a Java float before the database sees it. A fix (BigDecimal) changes this
-     * test on purpose; the loss through a real server is shown by {@code PostgresDatabaseTest}.
+     * BF-032 fixed: an explicit {@code ?::decimal} cast went through a Java float, so {@code 12345678.9} was bound as
+     * {@code 1.23456792E7}. It is now a {@code BigDecimal} made from the text of the value, so every digit is kept (through a
+     * real server: {@code PostgresDatabaseTest.explicitCastsRoundTripAndADecimalKeepsEveryDigitBF032}).
      */
     @Test
-    public void decimalCastGoesThroughAFloatAndLosesPrecision() {
-        assertEquals(List.of(DataType.FLOAT), extractExplicitCasting("select ?::decimal"));
-        Object cast = castValueWithTargetType("12345678.9", DataType.FLOAT);
-        assertEquals(Float.class, cast.getClass());
-        assertEquals(1.23456792E7f, cast);
-        assertEquals(false, new BigDecimal("12345678.9").compareTo(new BigDecimal(String.valueOf(cast))) == 0, "the digits after the float's precision are gone");
-        System.out.println("[PostgresDataTypeUtilsTest] 12345678.9 cast as decimal -> " + cast);
+    public void decimalCastKeepsEveryDigitBF032() {
+        assertEquals(List.of(DataType.BIG_DECIMAL), extractExplicitCasting("select ?::decimal"));
+        Object cast = castValueWithTargetType(DECIMAL_TEXT, extractExplicitCasting("select ?::decimal").get(0));
+        System.out.println("[PostgresDataTypeUtilsTest] " + DECIMAL_TEXT + " cast as decimal -> " + cast + " (" + cast.getClass().getSimpleName() + ")");
+        assertEquals(new BigDecimal(DECIMAL_TEXT), cast, "every digit is kept");
+        assertEquals(new BigDecimal(DOUBLE_SHORT_TEXT), castValueWithTargetType(DOUBLE_WITH_SHORT_TEXT, DataType.BIG_DECIMAL), "a number is read from its text, not its binary value");
+        BigDecimal decimal = new BigDecimal("1.50");
+        assertSame(decimal, castValueWithTargetType(decimal, DataType.BIG_DECIMAL));
+        assertThrows(NumberFormatException.class, () -> castValueWithTargetType(NOT_A_DECIMAL, DataType.BIG_DECIMAL), "not a number: the raw exception, as for the other numeric casts");
     }
 
     @Test

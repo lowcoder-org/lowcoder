@@ -52,6 +52,8 @@ import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR
 public class PostgresDatabaseTest {
 
     static final String WRONG_PASSWORD = "not-the-password";
+    /** BF-032: a decimal with more digits than a float holds (through a float the server answered 12345678). */
+    static final String DECIMAL_TEXT = "12345678.123456";
     static final int POSTGRES_POOL_SIZE = 100;
     static final String INJECTION = "x'; drop table t_gui; --";
 
@@ -162,23 +164,23 @@ public class PostgresDatabaseTest {
     }
 
     /**
-     * Shows through the server the plan section 9 row "PostgresDataTypeUtils maps an explicit ?::decimal cast to FLOAT":
-     * the decimals of the bound text are gone when the database answers. A fix (BigDecimal) changes this test on purpose.
+     * BF-032 fixed: the decimals of a value bound with {@code ?::decimal} were gone when the database answered (it went
+     * through a Java float); the database now answers the bound text exactly.
      */
     @Test
-    public void explicitCastsRoundTripAndDecimalLosesItsDigitsThroughTheServer() {
+    public void explicitCastsRoundTripAndADecimalKeepsEveryDigitBF032() {
         PostgresDatasourceConfig config = config();
         HikariPerfWrapper pool = connect(config);
         try {
             Object data = sql(pool, config, "select {{a}}::int4 as a, {{b}}::decimal as b, {{c}}::date as c, {{d}}::bool as d, {{e}}::text as e, {{f}}::float8 as f",
-                    Map.of("a", "42", "b", "12345678.123456", "c", "2024-02-29", "d", "true", "e", "x", "f", "0.1"));
+                    Map.of("a", "42", "b", DECIMAL_TEXT, "c", "2024-02-29", "d", "true", "e", "x", "f", "0.1"));
             System.out.println("[PostgresDatabaseTest] casts through the server: " + data);
             assertEquals(42, cell(data, "a"));
             assertEquals("2024-02-29", cell(data, "c"));
             assertEquals(true, cell(data, "d"));
             assertEquals("x", cell(data, "e"));
             assertEquals(0.1d, ((Number) cell(data, "f")).doubleValue());
-            assertEquals("12345678", String.valueOf(cell(data, "b")), "the digits after the point of ?::decimal are lost");
+            assertEquals(new java.math.BigDecimal(DECIMAL_TEXT), cell(data, "b"), "every digit of ?::decimal is kept");
         } finally {
             destroy(pool);
         }

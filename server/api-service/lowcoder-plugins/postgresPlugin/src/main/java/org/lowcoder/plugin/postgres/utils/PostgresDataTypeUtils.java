@@ -17,9 +17,9 @@
 // copied for postgres data types
 package org.lowcoder.plugin.postgres.utils;
 
+import static org.lowcoder.plugin.postgres.model.DataType.BIG_DECIMAL;
 import static org.lowcoder.plugin.postgres.model.DataType.BOOLEAN;
 import static org.lowcoder.plugin.postgres.model.DataType.DOUBLE;
-import static org.lowcoder.plugin.postgres.model.DataType.FLOAT;
 import static org.lowcoder.plugin.postgres.model.DataType.INTEGER;
 import static org.lowcoder.plugin.postgres.model.DataType.LONG;
 import static org.lowcoder.plugin.postgres.model.DataType.STRING;
@@ -35,6 +35,7 @@ import static org.lowcoder.plugin.postgres.utils.PostgresDataTypeUtils.PostgresD
 import static org.lowcoder.plugin.postgres.utils.PostgresDataTypeUtils.PostgresDataType.VARCHAR;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -120,7 +121,7 @@ public class PostgresDataTypeUtils {
             dataTypeMapper = new HashMap<>();
             dataTypeMapper.put(INT8, LONG);
             dataTypeMapper.put(INT4, INTEGER);
-            dataTypeMapper.put(DECIMAL, FLOAT);
+            dataTypeMapper.put(DECIMAL, BIG_DECIMAL);
             dataTypeMapper.put(VARCHAR, STRING);
             dataTypeMapper.put(BOOL, BOOLEAN);
             dataTypeMapper.put(DATE, DataType.DATE);
@@ -182,6 +183,13 @@ public class PostgresDataTypeUtils {
             case DOUBLE -> {
                 if (!(value instanceof Double)) {
                     return Double.parseDouble(String.valueOf(value));
+                }
+                return value;
+            }
+            case BIG_DECIMAL -> {
+                // from the text of the value, so that no binary floating-point step drops digits (BF-032)
+                if (!(value instanceof BigDecimal)) {
+                    return new BigDecimal(String.valueOf(value));
                 }
                 return value;
             }

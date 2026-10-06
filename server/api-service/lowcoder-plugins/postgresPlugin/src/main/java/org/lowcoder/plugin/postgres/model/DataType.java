@@ -21,6 +21,8 @@ public enum DataType {
     LONG,
     FLOAT,
     DOUBLE,
+    /** An exact decimal, bound as a {@code java.math.BigDecimal} (BF-032: an explicit {@code ?::decimal} cast). */
+    BIG_DECIMAL,
     BOOLEAN,
     DATE,
     TIME,
