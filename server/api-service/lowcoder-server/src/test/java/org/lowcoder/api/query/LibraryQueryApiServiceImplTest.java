@@ -63,6 +63,9 @@ import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
 import org.lowcoder.domain.plugin.client.DatasourcePluginClient;
 import org.lowcoder.domain.query.service.QueryExecutionServiceImpl;
 import org.lowcoder.sdk.config.CommonConfig;
+import org.lowcoder.sdk.query.QueryExecutionContext;
+import org.lowcoder.sdk.plugin.common.QueryExecutor;
+import org.lowcoder.domain.datasource.model.DatasourceConnectionHolder;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.models.DatasourceConnectionConfig;
@@ -114,6 +117,9 @@ class LibraryQueryApiServiceImplTest {
     /** The shipped maximum query timeout ({@code application.yaml} {@code common.max-query-timeout}), in seconds. */
     private static final int MAX_QUERY_TIMEOUT_SECONDS = 120;
     private static final String ABOVE_THE_MAXIMUM = (MAX_QUERY_TIMEOUT_SECONDS + 1) + "s";
+    /** The shipped maximum written in minutes, and one minute above it. */
+    private static final String MINUTES_AT_THE_MAXIMUM = (MAX_QUERY_TIMEOUT_SECONDS / 60) + "m";
+    private static final String MINUTES_ABOVE_THE_MAXIMUM = (MAX_QUERY_TIMEOUT_SECONDS / 60 + 1) + "m";
 
     private static final String ORG = "org-1";
     private static final String OTHER_ORG = "org-other";
@@ -886,35 +892,97 @@ class LibraryQueryApiServiceImplTest {
     }
 
     /**
-     * BF-043 through the library branch of {@code POST /api/query/execute}: with the real
-     * {@link QueryExecutionServiceImpl} and the shipped maximum of {@value #MAX_QUERY_TIMEOUT_SECONDS} s, a library query
-     * whose timeout is above it is answered with EXCEED_MAX_QUERY_TIMEOUT naming the maximum in seconds, and nothing runs.
+     * The real {@link QueryExecutionServiceImpl} with the shipped maximum of {@value #MAX_QUERY_TIMEOUT_SECONDS} s over
+     * mocked execution collaborators; {@link #runs} lets a query of a type reach the executor and answer {@code result}.
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private final class RealExecution {
+        final DatasourceConnectionPool pool = mock(DatasourceConnectionPool.class);
+        final DatasourceMetaInfoService metaInfo = mock(DatasourceMetaInfoService.class);
+        final DatasourcePluginClient pluginClient = mock(DatasourcePluginClient.class);
+        final QueryExecutor executor = mock(QueryExecutor.class);
+        final QueryExecutionServiceImpl service;
+
+        RealExecution() {
+            CommonConfig limits = new CommonConfig();
+            limits.setMaxQueryTimeout(MAX_QUERY_TIMEOUT_SECONDS);
+            service = new QueryExecutionServiceImpl(pool, metaInfo, pluginClient, limits);
+        }
+
+        void runs(String datasourceType) {
+            when(metaInfo.getQueryExecutor(datasourceType)).thenReturn(executor);
+            when(executor.buildQueryExecutionContextMono(any(), any(), any(), any())).thenReturn(Mono.just(mock(QueryExecutionContext.class)));
+            when(pool.getOrCreateConnection(any())).thenReturn((Mono) Mono.just(mock(DatasourceConnectionHolder.class)));
+            when(executor.doExecuteQuery(any(), any())).thenReturn(Mono.just(result));
+        }
+
+        void assertNothingRan() {
+            verifyNoInteractions(pool, metaInfo, pluginClient, executor);
+        }
+    }
+
+    private LibraryQueryApiServiceImpl serviceOver(RealExecution execution) {
+        LibraryQueryApiServiceImpl withRealExecution = new LibraryQueryApiServiceImpl(libraryQueryService, libraryQueryRecordService,
+                userService, orgDevChecker, sessionUserService, execution.service, datasourceService, businessEventPublisher,
+                resourcePermissionService, commonConfig, authenticationService);
+        ReflectionTestUtils.setField(withRealExecution, "port", PORT);
+        return withRealExecution;
+    }
+
+    private void storedTimeout(String timeout, Map<String, Object> queryConfig) {
+        datasource.setDetailConfig(null);
+        when(libraryQueryService.getEditingBaseQueryByLibraryQueryId(LQ_ID)).thenReturn(Mono.just(baseQuery(queryConfig, timeout)));
+    }
+
+    private static void assertRefusedOverTheMaximum(Throwable error) {
+        assertThat(error).isInstanceOfSatisfying(PluginException.class, plugin -> {
+            assertThat(plugin.getError()).isEqualTo(PluginCommonError.EXCEED_MAX_QUERY_TIMEOUT);
+            assertThat(plugin.getArgs()).containsExactly(MAX_QUERY_TIMEOUT_SECONDS);
+        });
+    }
+
+    /**
+     * BF-043 through the library branch of {@code POST /api/query/execute}: with the real execution service and the
+     * shipped maximum, a library query whose timeout is above it is answered with EXCEED_MAX_QUERY_TIMEOUT naming the
+     * maximum in seconds, and nothing runs.
      */
     @Test
     void executeLibraryQuery_timeoutAboveTheMaximum_isRefusedThroughTheRealExecutionServiceBF043() {
-        CommonConfig limits = new CommonConfig();
-        limits.setMaxQueryTimeout(MAX_QUERY_TIMEOUT_SECONDS);
-        DatasourceConnectionPool pool = mock(DatasourceConnectionPool.class);
-        DatasourceMetaInfoService metaInfo = mock(DatasourceMetaInfoService.class);
-        DatasourcePluginClient pluginClient = mock(DatasourcePluginClient.class);
-        LibraryQueryApiServiceImpl withRealExecution = new LibraryQueryApiServiceImpl(libraryQueryService, libraryQueryRecordService,
-                userService, orgDevChecker, sessionUserService, new QueryExecutionServiceImpl(pool, metaInfo, pluginClient, limits),
-                datasourceService, businessEventPublisher, resourcePermissionService, commonConfig, authenticationService);
-        ReflectionTestUtils.setField(withRealExecution, "port", PORT);
-        datasource.setDetailConfig(null);
-        when(libraryQueryService.getEditingBaseQueryByLibraryQueryId(LQ_ID))
-                .thenReturn(Mono.just(baseQuery(Map.of("sql", "x"), ABOVE_THE_MAXIMUM)));
+        RealExecution execution = new RealExecution();
+        storedTimeout(ABOVE_THE_MAXIMUM, Map.of("sql", "x"));
 
-        StepVerifier.create(withRealExecution.executeLibraryQuery(exchange, editingRequest(LQ_ID)))
+        StepVerifier.create(serviceOver(execution).executeLibraryQuery(exchange, editingRequest(LQ_ID)))
                 .expectErrorSatisfies(error -> {
                     say("library query, timeout %s with a %d s maximum -> %s", ABOVE_THE_MAXIMUM, MAX_QUERY_TIMEOUT_SECONDS, error);
-                    assertThat(error).isInstanceOfSatisfying(PluginException.class, plugin -> {
-                        assertThat(plugin.getError()).isEqualTo(PluginCommonError.EXCEED_MAX_QUERY_TIMEOUT);
-                        assertThat(plugin.getArgs()).containsExactly(MAX_QUERY_TIMEOUT_SECONDS);
-                    });
+                    assertRefusedOverTheMaximum(error);
                 })
                 .verify();
-        verifyNoInteractions(pool, metaInfo, pluginClient);
+        execution.assertNothingRan();
+    }
+
+    /**
+     * BF-044 through the library branch: a stored timeout in minutes is read in minutes; one minute above the shipped
+     * maximum is refused and nothing runs, the maximum written in minutes runs with its timeout in milliseconds.
+     */
+    @Test
+    void executeLibraryQuery_timeoutInMinutes_isReadInMinutesThroughTheRealExecutionServiceBF044() {
+        RealExecution refusing = new RealExecution();
+        storedTimeout(MINUTES_ABOVE_THE_MAXIMUM, new HashMap<>(Map.of("sql", "x")));
+        StepVerifier.create(serviceOver(refusing).executeLibraryQuery(exchange, editingRequest(LQ_ID)))
+                .expectErrorSatisfies(error -> {
+                    say("library query, timeout %s with a %d s maximum -> %s", MINUTES_ABOVE_THE_MAXIMUM, MAX_QUERY_TIMEOUT_SECONDS, error);
+                    assertRefusedOverTheMaximum(error);
+                })
+                .verify();
+        refusing.assertNothingRan();
+
+        RealExecution running = new RealExecution();
+        running.runs(datasource.getType());
+        Map<String, Object> queryConfig = new HashMap<>(Map.of("sql", "x"));
+        storedTimeout(MINUTES_AT_THE_MAXIMUM, queryConfig);
+        StepVerifier.create(serviceOver(running).executeLibraryQuery(exchange, editingRequest(LQ_ID))).expectNext(result).verifyComplete();
+        say("library query, timeout %s -> ran with timeoutMs %s", MINUTES_AT_THE_MAXIMUM, queryConfig.get("timeoutMs"));
+        assertThat(queryConfig).containsEntry("timeoutMs", String.valueOf(MAX_QUERY_TIMEOUT_SECONDS * 1000));
     }
 
     // ------------------------------------------------------------------ executeLibraryQueryFromJs (by name)

@@ -64,7 +64,7 @@ class QueryTimeoutUtilsTest {
         System.out.println("[QueryTimeoutUtilsTest] setDefaultQueryTimeoutMillis(30) -> blank timeout is 30000 ms (value is seconds)");
     }
 
-    /** Catches seconds read as milliseconds or the reverse, and case sensitivity of the unit (:64, :72-79). */
+    /** Catches seconds read as milliseconds or the reverse, and case sensitivity of the unit. */
     @ParameterizedTest(name = "\"{0}\" -> {1} ms")
     @CsvSource({"5s,5000", "5S,5000", "2.5s,2500", "500ms,500", "500MS,500", "500,500", "1e3,1000", "0,0", "0s,0"})
     void parse_secondsAndMilliseconds_areScaledAndCaseInsensitive(String input, int expectedMs) {
@@ -73,14 +73,31 @@ class QueryTimeoutUtilsTest {
     }
 
     /**
-     * Pins the plan section 9 row "QueryTimeoutUtils reads 5m as 5 ms" (convertToMs:63-69): only the exact unit "s"
-     * is scaled, every other unit (m, min, sec, minutes) is read as milliseconds. A fix changes this test on purpose.
+     * BF-044 fixed: only the exact unit "s" was scaled, so minutes and the long forms of seconds (5m, 5min, 10sec,
+     * 1minutes) were read as milliseconds. Every minute and second spelling is now scaled, in any case, with or without
+     * a space before or after the unit (quoted rows: an unquoted CSV value would lose its trailing space).
      */
     @ParameterizedTest(name = "\"{0}\" -> {1} ms")
-    @CsvSource({"5m,5", "5min,5", "10sec,10", "1minutes,1", "5M,5"})
-    void parse_unitsOtherThanExactlyS_areReadAsMilliseconds_pinsSection9Row(String input, int expectedMs) {
-        assertThat(parseQueryTimeoutMs(input, MAX_SECONDS)).isEqualTo(expectedMs);
-        System.out.println("[QueryTimeoutUtilsTest] pins the section 9 row: '" + input + "' read as " + expectedMs + " ms");
+    @CsvSource(delimiter = '|', value = {
+            "5m|300000", "5min|300000", "2mins|120000", "1minute|60000", "1minutes|60000", "5M|300000", "1.5m|90000",
+            "10sec|10000", "3secs|3000", "1second|1000", "2seconds|2000", "10SEC|10000", "5 s|5000", "'5s '|5000", "'2 min '|120000"
+    })
+    void parse_minuteAndSecondUnits_areScaledBF044(String input, int expectedMs) {
+        int parsed = parseQueryTimeoutMs(input, MAX_SECONDS);
+        System.out.println("[QueryTimeoutUtilsTest] '" + input + "' -> " + parsed + " ms");
+        assertThat(parsed).isEqualTo(expectedMs);
+    }
+
+    /**
+     * BF-044: a unit outside the table was read as milliseconds whenever it started with m or s (5mx, 5sx, 5msec); it is
+     * now refused like any other invalid timeout, and so are hours, which are not supported.
+     */
+    @ParameterizedTest(name = "\"{0}\"")
+    @ValueSource(strings = {"5mx", "5sx", "5msec", "5mm", "1h", "1hour", "2hours"})
+    void parse_unknownUnits_failWithQueryArgumentErrorBF044(String input) {
+        assertThatThrownBy(() -> parseQueryTimeoutMs(input, MAX_SECONDS))
+                .satisfies(error -> assertPluginError(error, PluginCommonError.QUERY_ARGUMENT_ERROR, "INVALID_TIMEOUT_SETTING", input));
+        System.out.println("[QueryTimeoutUtilsTest] '" + input + "' -> QUERY_ARGUMENT_ERROR");
     }
 
     /** Catches garbage turned into a negative or zero timeout (:51): invalid text and negative numbers are rejected. */
