@@ -83,24 +83,36 @@ class SqlQueryUtilsTest {
     }
 
     /**
-     * Pins the plan section 9 row "removeQueryComments: two - inside a -- comment delete query characters before the
-     * comment" (D-6, fix deferred, source: lane L4, L4-3 plan). The counter is not reset while inside the comment, so the
-     * second hyphen inside the comment deletes the last character already written. A fix changes this test on purpose.
+     * BF-046 fixed: the hyphen counter was not reset inside a comment, so a second hyphen in the comment deleted the last
+     * character already written (the 1, or the space before the comment). The comment alone is removed now.
      */
     @Test
-    void removeQueryCommentsCommentWithTwoDashesDeletesPrecedingQueryCharacter() {
-        assertThat(strip("select 1--a-b-c\nfrom t")).as("today's behaviour: the 1 is lost").isEqualTo("select \nfrom t");
-        assertThat(strip("select 1 -- a-b-c\nfrom t")).as("today's behaviour: the space before the comment is lost").isEqualTo("select 1\nfrom t");
+    void removeQueryCommentsHyphensInsideACommentKeepTheQueryBF046() {
+        assertThat(strip("select 1--a-b-c\nfrom t")).isEqualTo("select 1\nfrom t");
+        assertThat(strip("select 1 -- a-b-c\nfrom t")).isEqualTo("select 1 \nfrom t");
+        assertThat(strip("select 1 -- ----\nfrom t")).isEqualTo("select 1 \nfrom t");
     }
 
     /**
-     * Pins the plan section 9 row "removeQueryComments: a quote inside a -- comment flips the quote state" (D-6, fix
-     * deferred, source: lane L4, L4-3 plan): the apostrophe in the comment makes the later literal look unquoted, so its
-     * {@code --} starts a comment and the rest of the query is cut. A fix changes this test on purpose.
+     * BF-046 fixed: a quote inside a {@code --} comment flipped the quote state, so the later literal looked unquoted, its
+     * {@code --} started a comment and the rest of the query was cut. Quotes inside a comment are now only comment text,
+     * and a quote of the other kind inside a literal does not start anything either.
      */
     @Test
-    void removeQueryCommentsQuoteInsideCommentFlipsQuoteState() {
-        assertThat(strip("select 1 -- don't\nfrom t where x='--y'")).as("today's behaviour: the query is cut inside the literal")
-                .isEqualTo("select 1 \nfrom t where x='");
+    void removeQueryCommentsQuotesInsideACommentOrTheOtherQuoteKeepTheQueryBF046() {
+        assertThat(strip("select 1 -- don't\nfrom t where x='--y'")).isEqualTo("select 1 \nfrom t where x='--y'");
+        assertThat(strip("select 1 -- say \"hi\nfrom t where x=\"a--b\"")).isEqualTo("select 1 \nfrom t where x=\"a--b\"");
+        assertThat(strip("select 'a\"b' -- c\n, 'd--e'")).isEqualTo("select 'a\"b' \n, 'd--e'");
+        assertThat(strip("select 'it''s -- not a comment' -- one")).isEqualTo("select 'it''s -- not a comment'");
+    }
+
+    /**
+     * The limits stated in the javadoc: block comments are not recognised (BF-092, a later task), so a {@code --} inside
+     * one starts a line comment; an unterminated literal keeps the rest of the text.
+     */
+    @Test
+    void removeQueryCommentsKeepsBlockCommentsAndTheRestOfAnUnterminatedLiteral() {
+        assertThat(strip("select 1 /* -- */ from t")).isEqualTo("select 1 /*");
+        assertThat(strip("select 'open -- text")).isEqualTo("select 'open -- text");
     }
 }
