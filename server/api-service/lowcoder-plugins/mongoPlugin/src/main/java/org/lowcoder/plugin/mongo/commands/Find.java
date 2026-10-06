@@ -103,7 +103,7 @@ public class Find extends MongoCommand {
 
     private void setLimitAndBatchSize(String limitStr, Document document) {
         if (StringUtils.isBlank(limitStr)) {
-            document.put("batchSize", Integer.MAX_VALUE);
+            document.put("batchSize", UNLIMITED);
             return;
         }
 

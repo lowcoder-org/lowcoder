@@ -274,16 +274,16 @@ public class MongoCommandDocumentsTest {
     }
 
     /**
-     * The absent-limit assertion pins the plan section 9 row "data missing: a mongo aggregate with no limit field sends cursor {batchSize: 0} and MongoDB 7.0 returns zero rows" (server side:
-     * MongoEngineContainerTest.aggregateWithoutALimitFieldAgainstTheServer_pinsTheSection9Row). A fix (a default limit when the
-     * field is absent) changes it on purpose.
+     * BF-031 fixed: an absent limit field was sent as {@code {batchSize: 0}}, so the first batch was empty. It is now
+     * unlimited like a blank limit (server side: MongoEngineContainerTest.aggregateWithoutALimitFieldReturnsEveryRowBF031).
      */
     @Test
-    public void aggregateBatchSizeFollowsTheLimitField_pinsTheSection9Row() {
+    public void aggregateWithoutALimitIsUnlimitedLikeABlankLimitBF031() {
         assertEquals(Document.parse("{batchSize: 50}"), document(form("AGGREGATE", COLLECTION, "arrayPipelines", "[]", "limit", "50")).get("cursor"));
         assertEquals(Document.parse("{batchSize: " + Integer.MAX_VALUE + "}"), document(form("AGGREGATE", COLLECTION, "arrayPipelines", "[]", "limit", "  ")).get("cursor"), "a blank limit means unlimited");
         Document absent = document(form("AGGREGATE", COLLECTION, "arrayPipelines", "[]"));
-        assertEquals(Document.parse("{batchSize: 0}"), absent.get("cursor"), "an absent limit field leaves the limit at 0: batchSize 0 (observed; MG-6 confirms the rows against a server)");
+        System.out.println("[MongoCommandDocumentsTest] aggregate without a limit field: cursor " + absent.get("cursor"));
+        assertEquals(Document.parse("{batchSize: " + Integer.MAX_VALUE + "}"), absent.get("cursor"), "an absent limit field means unlimited");
     }
 
     @Test
