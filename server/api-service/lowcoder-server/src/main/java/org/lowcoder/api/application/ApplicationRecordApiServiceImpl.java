@@ -50,9 +50,15 @@ public class ApplicationRecordApiServiceImpl implements ApplicationRecordApiServ
                 .then(applicationRecordService.deleteById(id));
     }
 
+    /**
+     * The versions of an application of the visitor's organization; another organization's is APPLICATION_AND_ORG_NOT_MATCH,
+     * as for the record DSL and the delete (BF-012). Limit: like them, this checks the organization only, not a permission
+     * on the application itself.
+     */
     @Override
     public Mono<List<ApplicationRecordMetaView>> getByApplicationId(String applicationId) {
-        return applicationRecordService.getByApplicationId(applicationId)
+        return checkApplicationOfVisitorOrg(applicationService.findById(applicationId))
+                .then(applicationRecordService.getByApplicationId(applicationId))
                 .flatMap(applicationRecords -> multiBuild(applicationRecords,
                         ApplicationVersion::getCreatedBy,
                         userService::getByIds,
@@ -63,29 +69,24 @@ public class ApplicationRecordApiServiceImpl implements ApplicationRecordApiServ
 
     Mono<Void> checkApplicationRecordManagementPermission(String applicationRecordId) {
         return orgDevChecker.checkCurrentOrgDev()
-                .then(sessionUserService.getVisitorOrgMemberCache())
-                .zipWith(applicationRecordService.getById(applicationRecordId)
-                        .flatMap(applicationRecord -> applicationService.findById(applicationRecord.getApplicationId())))
-                .flatMap(tuple2 -> {
-                    OrgMember orgMember = tuple2.getT1();
-                    Application application = tuple2.getT2();
-                    if (!orgMember.getOrgId().equals(application.getOrganizationId())) {
-                        return ofError(APPLICATION_AND_ORG_NOT_MATCH, "APPLICATION_AND_ORG_NOT_MATCH");
-                    }
-                    return Mono.empty();
-                });
+                .then(checkApplicationOfVisitorOrg(applicationRecordService.getById(applicationRecordId)
+                        .flatMap(applicationRecord -> applicationService.findById(applicationRecord.getApplicationId()))));
     }
 
     Mono<Void> checkApplicationRecordViewPermission(ApplicationCombineId applicationCombineId) {
-        return sessionUserService.getVisitorOrgMemberCache()
-                .zipWith(Mono.defer(() -> {
-                    if (applicationCombineId.isUsingLiveRecord()) {
-                        return applicationService.findById(applicationCombineId.applicationId());
-                    }
-                    return applicationRecordService.getById(applicationCombineId.applicationRecordId())
-                            .flatMap(applicationRecord -> applicationService.findById(applicationRecord.getApplicationId()));
+        return checkApplicationOfVisitorOrg(Mono.defer(() -> {
+            if (applicationCombineId.isUsingLiveRecord()) {
+                return applicationService.findById(applicationCombineId.applicationId());
+            }
+            return applicationRecordService.getById(applicationCombineId.applicationRecordId())
+                    .flatMap(applicationRecord -> applicationService.findById(applicationRecord.getApplicationId()));
+        }));
+    }
 
-                }))
+    /** The application belongs to the visitor's current organization, else APPLICATION_AND_ORG_NOT_MATCH. */
+    private Mono<Void> checkApplicationOfVisitorOrg(Mono<Application> applicationMono) {
+        return sessionUserService.getVisitorOrgMemberCache()
+                .zipWith(applicationMono)
                 .flatMap(tuple2 -> {
                     OrgMember orgMember = tuple2.getT1();
                     Application application = tuple2.getT2();
@@ -95,6 +96,5 @@ public class ApplicationRecordApiServiceImpl implements ApplicationRecordApiServ
                     return Mono.empty();
                 });
     }
-
 
 }
