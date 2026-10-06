@@ -38,6 +38,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.MonoSink;
 
 /**
  * Tests of {@link OrgAndGroupEventListener} over mocked services. The handlers run on the listener's own scheduler, so the
@@ -47,10 +48,11 @@ import reactor.core.publisher.Mono;
  *
  * <p>Related pins, referenced and not repeated: L3-11b ({@code OrganizationServiceImplDeleteMongoTest}) drives the listener
  * through a real org delete against MongoDB and pins the section 9 row that deleting an org leaves its applications and
- * datasources (the two cleanup steps are empty stubs, listener :98-104, called at :64-65); L4-8
+ * datasources (the two cleanup steps are empty stubs, listener :109-115, called at :67-68); L4-8
  * ({@code BiRelationServiceImplTest}) pins the BiRelation cascade through {@code deleteOrgMembers} and
  * {@code deleteGroupMembers}. This class covers what those runs do not branch through: the order of the steps, the retries,
- * the error handling, the thread, the group-deleted path and the user-leaves-org handler.
+ * the error handling, the thread, the group-deleted path and the user-leaves-org handler. BF-015 and BF-071 are fixed: the
+ * user-leaves-org parts no longer cancel each other, and the group-deleted cleanup is retried like the others.
  *
  * <p>The listener's pool uses non-daemon threads (idle timeout 60 s of a cached pool); the surefire fork exits normally.
  */
@@ -299,14 +301,37 @@ class OrgAndGroupEventListenerTest {
     }
 
     /**
-     * Behaviour (candidate (a), no row): unlike {@code onOrgDeleted} (retry 3) and {@code onUserLeaveOrg} (retry 3 per part),
-     * {@code onGroupDeleted} has NO retry. A transient failure of {@code deleteGroupMembers} is attempted once, logged by the
-     * listener ("fail to handle group deletion"; the log line itself is not asserted) and not raised to the caller, and the
-     * deleted group's member rows stay behind (orphaned group-member rows).
+     * Catches orphaned group-member rows after a transient failure (BF-071, formerly recorded as "onGroupDeleted has NO
+     * retry"): like the other handlers, {@code deleteGroupMembers} is retried, so a deletion that fails twice and then
+     * succeeds completes after three attempts and nothing ends in the error hook.
      */
     @Test
-    void onGroupDeleted_failureIsNotRetried_andNotRaisedToTheCaller() throws InterruptedException {
-        IllegalStateException failure = new IllegalStateException("transient");
+    void onGroupDeleted_transientFailureIsRetried_thenSucceeds() throws InterruptedException {
+        AtomicInteger attempts = new AtomicInteger();
+        CountDownLatch done = new CountDownLatch(1);
+        when(groupMemberService.deleteGroupMembers(GROUP_1)).thenReturn(Mono.defer(() -> {
+            if (attempts.incrementAndGet() <= 2) {
+                return Mono.<Boolean>error(new IllegalStateException("transient"));
+            }
+            done.countDown();
+            return Mono.just(true);
+        }));
+
+        listener.onGroupDeleted(groupDeleted());
+        await(done, "the group member deletion after two failed attempts");
+
+        assertThat(attempts.get()).isEqualTo(3);
+        assertThat(dropped).isEmpty();
+        say("group delete: transient failure retried, %d attempts", attempts.get());
+    }
+
+    /**
+     * A deletion that always fails is attempted 1 + 3 times, logged by the listener ("fail to handle group deletion"; the log
+     * line itself is not asserted) and not raised to the caller.
+     */
+    @Test
+    void onGroupDeleted_givesUpAfterThreeRetries_withoutRaisingToTheCaller() throws InterruptedException {
+        IllegalStateException failure = new IllegalStateException("permanent");
         expectedFailure = failure;
         AtomicInteger attempts = new AtomicInteger();
         when(groupMemberService.deleteGroupMembers(GROUP_1)).thenReturn(Mono.defer(() -> {
@@ -318,7 +343,7 @@ class OrgAndGroupEventListenerTest {
         await(droppedLatch, "the end of the failing chain");
 
         assertThat(droppedFailure(failure)).isTrue();
-        assertThat(attempts.get()).as("one attempt, no retry").isEqualTo(1);
+        assertThat(attempts.get()).isEqualTo(1 + RETRIES);
     }
 
     // ------------------------------------------------------------------ onUserLeaveOrg
@@ -455,43 +480,45 @@ class OrgAndGroupEventListenerTest {
     }
 
     /**
-     * Pins the section 9 row "onUserLeaveOrg runs its three cleanups through Mono.zip with no error consumer: one part failing
-     * for good cancels the others, and the error is not logged; a user who left an org can keep application or datasource
-     * permissions". The group-member removal fails for good (after its retries) while the application-permission removal is in
-     * flight (a sink the test completes only after the zip has failed): the zip cancels the application part, which therefore
-     * never finishes, and the error is only dropped through Reactor's hook (the listener logs nothing for this handler, unlike
-     * onOrgDeleted and onGroupDeleted). A fix (running the parts independently, e.g. zipDelayError or Mono.when with delayError,
-     * with an error log) changes this test on purpose. What the unit test cannot show: whether these services fail in
-     * production, or the real timing of the three parts; the group part waits for the application part to be in flight so the
-     * cancellation is deterministic.
+     * Catches a user keeping permissions after leaving (BF-015, formerly pinned as the section 9 row "onUserLeaveOrg runs its
+     * three cleanups through Mono.zip with no error consumer: one part failing for good cancels the others, and the error is
+     * not logged"): the group-member removal fails for good (after its retries) while the application-permission removal is
+     * in flight; the application part is not cancelled, it finishes when the test completes it, and only then does the
+     * handler end with the group failure (logged by the listener; the log line itself is not asserted). What the unit test
+     * cannot show: whether these services fail in production, or the real timing of the three parts.
      */
     @Test
-    void onUserLeaveOrg_aPersistentFailureCancelsTheOtherParts_pinsTheSection9Row() throws InterruptedException {
+    void onUserLeaveOrg_aPersistentFailureDoesNotCancelTheOtherParts() throws InterruptedException {
         IllegalStateException failure = new IllegalStateException("permanent group failure");
         expectedFailure = failure;
         CountDownLatch applicationInFlight = new CountDownLatch(1);
-        CountDownLatch applicationCancelled = new CountDownLatch(1);
+        CountDownLatch groupGaveUp = new CountDownLatch(1 + RETRIES);
+        AtomicInteger applicationCancelled = new AtomicInteger();
         AtomicInteger applicationCompleted = new AtomicInteger();
+        AtomicReference<MonoSink<Boolean>> applicationSink = new AtomicReference<>();
         stubOrgContents(List.of(GROUP_1), List.of(APP_1), List.of());
         when(groupMemberService.removeMember(GROUP_1, USER_ID)).thenReturn(Mono.defer(() -> {
-            try {
-                applicationInFlight.await(WAIT_SECONDS, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+            groupGaveUp.countDown();
             return Mono.<Boolean>error(failure);
         }));
         when(resourcePermissionService.removeUserApplicationPermission(APP_1, USER_ID)).thenReturn(Mono.<Boolean>create(sink -> {
-            sink.onCancel(applicationCancelled::countDown);
+            sink.onCancel(applicationCancelled::incrementAndGet);
+            applicationSink.set(sink);
             applicationInFlight.countDown();
         }).doOnNext(ignored -> applicationCompleted.incrementAndGet()));
 
         listener.onUserLeaveOrg(new OrgMemberLeftEvent(ORG_ID, USER_ID));
+        await(applicationInFlight, "the application part to be in flight");
+        await(groupGaveUp, "the group part to fail on every attempt");
 
-        await(applicationCancelled, "the application part to be cancelled by the failing group part");
-        await(droppedLatch, "the end of the failing handler");
-        assertThat(droppedFailure(failure)).as("the error ends in Reactor's dropped-error hook, not in a listener log").isTrue();
-        assertThat(applicationCompleted.get()).as("the application permission removal never finished").isZero();
-        say("PINNED: group part failed for good -> application part cancelled, user keeps application permissions");
+        assertThat(applicationCancelled.get()).as("the failing group part does not cancel the application part").isZero();
+        assertThat(droppedFailure(failure)).as("the handler waits for the application part before it ends").isFalse();
+        applicationSink.get().success(true);
+        await(droppedLatch, "the end of the handler after the application part finished");
+
+        assertThat(applicationCompleted.get()).as("the application permission removal finished").isEqualTo(1);
+        assertThat(applicationCancelled.get()).isZero();
+        assertThat(droppedFailure(failure)).isTrue();
+        say("group part failed for good -> application part not cancelled, finished; then the handler ended with the error");
     }
 }
