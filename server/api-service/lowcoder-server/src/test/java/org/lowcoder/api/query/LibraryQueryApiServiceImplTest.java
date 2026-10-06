@@ -58,6 +58,10 @@ import org.lowcoder.domain.user.model.Connection;
 import org.lowcoder.domain.user.model.ConnectionAuthToken;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
+import org.lowcoder.domain.datasource.service.DatasourceConnectionPool;
+import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
+import org.lowcoder.domain.plugin.client.DatasourcePluginClient;
+import org.lowcoder.domain.query.service.QueryExecutionServiceImpl;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
@@ -65,6 +69,8 @@ import org.lowcoder.sdk.models.DatasourceConnectionConfig;
 import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
 import org.lowcoder.sdk.models.Param;
 import org.lowcoder.sdk.models.Property;
+import org.lowcoder.sdk.exception.PluginCommonError;
+import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
 import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
@@ -105,6 +111,9 @@ import reactor.test.StepVerifier;
 class LibraryQueryApiServiceImplTest {
 
     private static final String LOG_PREFIX = "[LibraryQueryApiServiceImplTest] ";
+    /** The shipped maximum query timeout ({@code application.yaml} {@code common.max-query-timeout}), in seconds. */
+    private static final int MAX_QUERY_TIMEOUT_SECONDS = 120;
+    private static final String ABOVE_THE_MAXIMUM = (MAX_QUERY_TIMEOUT_SECONDS + 1) + "s";
 
     private static final String ORG = "org-1";
     private static final String OTHER_ORG = "org-other";
@@ -874,6 +883,38 @@ class LibraryQueryApiServiceImplTest {
 
         say("%s: empty configured authId, only a null-authId connection -> %s", kind, properties);
         assertThat(properties).isNull();
+    }
+
+    /**
+     * BF-043 through the library branch of {@code POST /api/query/execute}: with the real
+     * {@link QueryExecutionServiceImpl} and the shipped maximum of {@value #MAX_QUERY_TIMEOUT_SECONDS} s, a library query
+     * whose timeout is above it is answered with EXCEED_MAX_QUERY_TIMEOUT naming the maximum in seconds, and nothing runs.
+     */
+    @Test
+    void executeLibraryQuery_timeoutAboveTheMaximum_isRefusedThroughTheRealExecutionServiceBF043() {
+        CommonConfig limits = new CommonConfig();
+        limits.setMaxQueryTimeout(MAX_QUERY_TIMEOUT_SECONDS);
+        DatasourceConnectionPool pool = mock(DatasourceConnectionPool.class);
+        DatasourceMetaInfoService metaInfo = mock(DatasourceMetaInfoService.class);
+        DatasourcePluginClient pluginClient = mock(DatasourcePluginClient.class);
+        LibraryQueryApiServiceImpl withRealExecution = new LibraryQueryApiServiceImpl(libraryQueryService, libraryQueryRecordService,
+                userService, orgDevChecker, sessionUserService, new QueryExecutionServiceImpl(pool, metaInfo, pluginClient, limits),
+                datasourceService, businessEventPublisher, resourcePermissionService, commonConfig, authenticationService);
+        ReflectionTestUtils.setField(withRealExecution, "port", PORT);
+        datasource.setDetailConfig(null);
+        when(libraryQueryService.getEditingBaseQueryByLibraryQueryId(LQ_ID))
+                .thenReturn(Mono.just(baseQuery(Map.of("sql", "x"), ABOVE_THE_MAXIMUM)));
+
+        StepVerifier.create(withRealExecution.executeLibraryQuery(exchange, editingRequest(LQ_ID)))
+                .expectErrorSatisfies(error -> {
+                    say("library query, timeout %s with a %d s maximum -> %s", ABOVE_THE_MAXIMUM, MAX_QUERY_TIMEOUT_SECONDS, error);
+                    assertThat(error).isInstanceOfSatisfying(PluginException.class, plugin -> {
+                        assertThat(plugin.getError()).isEqualTo(PluginCommonError.EXCEED_MAX_QUERY_TIMEOUT);
+                        assertThat(plugin.getArgs()).containsExactly(MAX_QUERY_TIMEOUT_SECONDS);
+                    });
+                })
+                .verify();
+        verifyNoInteractions(pool, metaInfo, pluginClient);
     }
 
     // ------------------------------------------------------------------ executeLibraryQueryFromJs (by name)
