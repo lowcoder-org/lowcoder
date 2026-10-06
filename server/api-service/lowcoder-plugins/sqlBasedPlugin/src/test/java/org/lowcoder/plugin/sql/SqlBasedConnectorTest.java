@@ -11,6 +11,9 @@ import org.lowcoder.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.Proxy;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +42,7 @@ public class SqlBasedConnectorTest {
     static final String HOST_COLON = "HOST_WITH_COLON";
     static final String DATABASE_EMPTY = "DATABASE_NAME_EMPTY";
     static final String CLOSED_MESSAGE = "hikari datasource closed.";
+    static final String CLOSE_FAILURE = "close failed on purpose";
     static final String VALID_HOST = "db.example.org";
     static final String VALID_DATABASE = "app";
 
@@ -171,6 +175,51 @@ public class SqlBasedConnectorTest {
         HikariPerfWrapper wrapper = HikariPerfWrapper.wrap(null, () -> 0, () -> 0, () -> 0, () -> 0, java.util.Properties::new, java.util.Properties::new);
         PluginException thrown = assertPluginError(CONNECTION_ERROR, "CONNECTION_ERROR", () -> executor.blockingGetStructure(wrapper, config(null)));
         assertEquals(CLOSED_MESSAGE, thrown.getArgs()[0]);
+    }
+
+    /** A pool that was never started is neither closed nor running; the executor refuses it before asking for a connection. */
+    @Test
+    public void aPoolThatWasNeverStartedIsAConnectionErrorForStructure() {
+        try (HikariDataSource neverStarted = new HikariDataSource()) {
+            System.out.println("[SqlBasedConnectorTest] never started: closed " + neverStarted.isClosed() + ", running " + neverStarted.isRunning());
+            assertFalse(neverStarted.isClosed(), "the case is the not-running branch, not the closed one");
+            assertFalse(neverStarted.isRunning(), "a pool that was never started does not run");
+            HikariPerfWrapper wrapper = HikariPerfWrapper.wrap(neverStarted, () -> 0, () -> 0, () -> 0, () -> 0, java.util.Properties::new, java.util.Properties::new);
+            PluginException thrown = assertPluginError(CONNECTION_ERROR, "CONNECTION_ERROR", () -> executor.blockingGetStructure(wrapper, config(null)));
+            assertEquals(CLOSED_MESSAGE, thrown.getArgs()[0]);
+        }
+    }
+
+    /**
+     * A connection that fails to close when the structure call hands it back turns the call into a query error. The test
+     * executor's structure is a fixed empty one that does not use the connection, so only the close is exercised here.
+     */
+    @Test
+    public void aConnectionThatFailsToCloseWhenHandedBackIsAQueryErrorForStructure() {
+        Connection failsToClose = (Connection) Proxy.newProxyInstance(Connection.class.getClassLoader(), new Class<?>[] {Connection.class},
+                (self, method, args) -> {
+                    if ("close".equals(method.getName())) {
+                        throw new SQLException(CLOSE_FAILURE);
+                    }
+                    throw new UnsupportedOperationException("Connection." + method.getName());
+                });
+        try (HikariDataSource running = new HikariDataSource() {
+            @Override
+            public Connection getConnection() {
+                return failsToClose;
+            }
+
+            @Override
+            public boolean isRunning() {
+                return true;
+            }
+        }) {
+            HikariPerfWrapper wrapper = HikariPerfWrapper.wrap(running, () -> 0, () -> 0, () -> 0, () -> 0, java.util.Properties::new, java.util.Properties::new);
+            PluginException thrown = assertPluginError(QUERY_EXECUTION_ERROR, H2SqlTestSupport.QUERY_ERROR_KEY,
+                    () -> executor.blockingGetStructure(wrapper, config(null)));
+            System.out.println("[SqlBasedConnectorTest] close failure: " + thrown.getMessage());
+            assertEquals(CLOSE_FAILURE, thrown.getArgs()[0]);
+        }
     }
 
     @Test
