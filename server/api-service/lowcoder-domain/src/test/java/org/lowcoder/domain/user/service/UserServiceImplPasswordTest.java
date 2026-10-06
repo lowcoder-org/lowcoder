@@ -341,30 +341,64 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] unknown and deleted accounts -> no mail, no save");
     }
 
-    /**
-     * Pins the plan section 9 row "UserServiceImpl.lostPassword reads the org's reset-mail template with the wrong
-     * key" (UserServiceImpl:423): the lookup key is the default template's own text, not
-     * {@code PASSWORD_RESET_EMAIL_TEMPLATE}, so an org with a custom template still gets the default one. A fix changes
-     * this test on purpose.
-     */
-    @Test
-    void lostPassword_orgWithCustomResetTemplate_stillSendsTheDefaultTemplate() {
+    private static final String CUSTOM_RESET_TEMPLATE = "<p>custom %s %s</p>";
+
+    /** Runs lostPassword for a member of an org with these common settings and answers the template the mail was sent with. */
+    private String templateSentFor(OrganizationCommonSettings settings) {
         User user = User.builder().id(USER_ID).email(USER_EMAIL).build();
         stubEmailLookup(user);
         when(fixture.orgMemberService.getCurrentOrgMember(USER_ID))
                 .thenReturn(Mono.just(OrgMember.builder().orgId(ORG_ID).userId(USER_ID).build()));
-        OrganizationCommonSettings settings = new OrganizationCommonSettings();
-        settings.put(OrganizationCommonSettings.PASSWORD_RESET_EMAIL_TEMPLATE, "<p>custom %s %s</p>");
         when(fixture.organizationService.getById(ORG_ID))
                 .thenReturn(Mono.just(Organization.builder().commonSettings(settings).build()));
         when(fixture.emailCommunicationService.sendPasswordResetEmail(any(), any(), any())).thenReturn(true);
 
         StepVerifier.create(service.lostPassword(USER_EMAIL)).verifyComplete();
 
-        verify(fixture.emailCommunicationService).sendPasswordResetEmail(eq(USER_EMAIL), any(),
-                eq(PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT));
-        verify(fixture.emailCommunicationService, never()).sendPasswordResetEmail(any(), any(), eq("<p>custom %s %s</p>"));
-        System.out.println("[UserServiceImplPasswordTest] pins the section 9 row: custom reset template ignored, default sent");
+        ArgumentCaptor<String> template = ArgumentCaptor.forClass(String.class);
+        verify(fixture.emailCommunicationService).sendPasswordResetEmail(eq(USER_EMAIL), any(), template.capture());
+        return template.getValue();
+    }
+
+    /**
+     * BF-041 fixed: lostPassword looked the org's reset-mail template up with the default template's own text as the key,
+     * so an org with a custom template still got the default one. It now reads {@code PASSWORD_RESET_EMAIL_TEMPLATE}.
+     */
+    @Test
+    void lostPassword_orgWithCustomResetTemplate_sendsTheCustomTemplateBF041() {
+        OrganizationCommonSettings settings = new OrganizationCommonSettings();
+        settings.put(OrganizationCommonSettings.PASSWORD_RESET_EMAIL_TEMPLATE, CUSTOM_RESET_TEMPLATE);
+
+        String sent = templateSentFor(settings);
+
+        System.out.println("[UserServiceImplPasswordTest] custom reset template -> sent with " + sent);
+        assertThat(sent).isEqualTo(CUSTOM_RESET_TEMPLATE);
+    }
+
+    static Stream<Arguments> noUsableTemplate() {
+        return Stream.of(
+                Arguments.of("no template stored", null, false),
+                Arguments.of("a blank template", "  ", true),
+                Arguments.of("a number (common settings take any JSON value)", 42, true),
+                Arguments.of("an object", java.util.Map.of("html", CUSTOM_RESET_TEMPLATE), true));
+    }
+
+    /**
+     * BF-041: with the right key, whatever an admin stored is read; anything but a non-blank text gives the default
+     * template instead of failing the unauthenticated lost-password request (a non-text value was cast to String).
+     */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("noUsableTemplate")
+    void lostPassword_withoutAUsableCustomTemplate_sendsTheDefaultTemplateBF041(String label, Object stored, boolean present) {
+        OrganizationCommonSettings settings = new OrganizationCommonSettings();
+        if (present) {
+            settings.put(OrganizationCommonSettings.PASSWORD_RESET_EMAIL_TEMPLATE, stored);
+        }
+
+        String sent = templateSentFor(settings);
+
+        System.out.println("[UserServiceImplPasswordTest] " + label + " -> default template sent: " + PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT.equals(sent));
+        assertThat(sent).isEqualTo(PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT);
     }
 
     /**
