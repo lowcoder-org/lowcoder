@@ -103,7 +103,9 @@ import reactor.test.StepVerifier;
  * {@link #moveAndAddApp_withoutTheBundlePermission_areRefused_andChangeNothing} and
  * {@link #moveAndAddApp_withABundleOfAnotherOrganization_areRefused_andChangeNothing}; "getElements has no
  * permission/status/org check" (BF-020), now asserted by {@link #getElements_withoutReadPermission_isRefused_andReadsNoElements}
- * and {@link #getElements_ofABundleThatIsNotNormal_isBadRequest_andReadsNoElements}.
+ * and {@link #getElements_ofABundleThatIsNotNormal_isBadRequest_andReadsNoElements}; "the bundle flag setters ask
+ * application actions" (BF-035), now the PUBLIC_TO_ALL, PUBLIC_TO_MARKETPLACE and AGENCY_PROFILE rows of
+ * {@link #mutatingOperation_checksPermissionAndStatus_beforeAnyChange}, which expect SET_BUNDLES_*.
  * Pinned as behaviour (no row): the null-flag NullPointerException of the view request (reachable only with documents
  * lacking the flag fields) and the application-copied EDIT action comparison of the readable error message.
  */
@@ -259,9 +261,9 @@ class BundleApiServiceImplPermissionsTest {
         GRANT(ResourceAction.MANAGE_BUNDLES, BundleStatus.NORMAL, false),
         UPDATE_PERMISSION(ResourceAction.MANAGE_BUNDLES, BundleStatus.NORMAL, false),
         REMOVE_PERMISSION(ResourceAction.MANAGE_BUNDLES, BundleStatus.NORMAL, false),
-        PUBLIC_TO_ALL(ResourceAction.SET_APPLICATIONS_PUBLIC, BundleStatus.NORMAL, false),
-        PUBLIC_TO_MARKETPLACE(ResourceAction.SET_APPLICATIONS_PUBLIC_TO_MARKETPLACE, BundleStatus.NORMAL, false),
-        AGENCY_PROFILE(ResourceAction.SET_APPLICATIONS_AS_AGENCY_PROFILE, BundleStatus.NORMAL, false),
+        PUBLIC_TO_ALL(ResourceAction.SET_BUNDLES_PUBLIC, BundleStatus.NORMAL, false),
+        PUBLIC_TO_MARKETPLACE(ResourceAction.SET_BUNDLES_PUBLIC_TO_MARKETPLACE, BundleStatus.NORMAL, false),
+        AGENCY_PROFILE(ResourceAction.SET_BUNDLES_AS_AGENCY_PROFILE, BundleStatus.NORMAL, false),
         REORDER(ResourceAction.MANAGE_BUNDLES, null, false);
 
         final ResourceAction action;
@@ -331,8 +333,8 @@ class BundleApiServiceImplPermissionsTest {
     /**
      * Catches a viewer toggling the public/marketplace/agency flags, editing permissions or changing the state of a bundle:
      * every mutating operation asks the permission its action requires (MANAGE_BUNDLES; PUBLISH_BUNDLES through
-     * {@code checkAndReturnMaxPermission}; and, as the code stands, the SET_APPLICATIONS_* actions for the three flags: they
-     * are application actions, see the log candidate D6), requires the bundle status it needs (NORMAL, RECYCLED for restore
+     * {@code checkAndReturnMaxPermission}; the bundle actions SET_BUNDLES_* for the three flags, BF-035: they asked the
+     * application actions SET_APPLICATIONS_*, which no user could pass on a bundle id), requires the bundle status it needs (NORMAL, RECYCLED for restore
      * and delete) with BAD_REQUEST otherwise, in the order the code has (recycle, restore, delete, publish check the status
      * first; the others the permission first), and mutates nothing when either check fails (counted subscriptions).
      */
