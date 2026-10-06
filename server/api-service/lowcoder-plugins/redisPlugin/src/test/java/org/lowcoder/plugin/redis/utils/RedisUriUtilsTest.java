@@ -18,8 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit RD-1 (task L5-9): {@code RedisUriUtils.getURI}, the connection URI built from the datasource config: host and port,
- * the default port, the credentials, URI mode, and the two known defects D5 (credentials not encoded) and D6 (the SSL switch
- * is never used).
+ * the default port, the credentials, URI mode, the SSL scheme (D6, fixed by BF-024) and the known defect D5 (credentials not
+ * encoded).
  *
  * <p>Limits: only the URI is built; whether a server accepts it is RD-6.
  */
@@ -129,14 +129,17 @@ public class RedisUriUtilsTest {
     }
 
     /**
-     * Pins defect D6 (analysis-plugins section 0.6; plan section 9 D1-D20 row): {@code usingSsl} is stored and merged but never
-     * read when the URI is built, so selecting SSL still gives a clear-text {@code redis://} URI. A fix ({@code rediss://}) changes
-     * this test on purpose.
+     * Catches a clear-text connection when SSL is selected (BF-024, formerly pinned as D6 "the SSL switch is ignored"): with
+     * {@code usingSsl} the scheme is {@code rediss}, the scheme Jedis connects to with TLS, with the same credentials, host and
+     * port as without it; without it the scheme stays {@code redis}. In URI mode the stored URI is passed through unchanged,
+     * whatever the switch says.
      */
     @Test
-    public void sslSwitchIsIgnored_pinsD6() throws Exception {
-        URI withSsl = uri(Map.of("host", HOST, "port", PORT, "usingSsl", true));
-        assertEquals("redis", withSsl.getScheme());
-        assertEquals(uri(Map.of("host", HOST, "port", PORT, "usingSsl", false)), withSsl);
+    public void sslSwitchSelectsTheRedissScheme() throws Exception {
+        URI withSsl = uri(Map.of("host", HOST, "port", PORT, "username", "alice", "password", "pw", "usingSsl", true));
+        URI withoutSsl = uri(Map.of("host", HOST, "port", PORT, "username", "alice", "password", "pw", "usingSsl", false));
+        assertEquals("rediss://alice:pw@" + HOST + ":" + PORT, withSsl.toString());
+        assertEquals("redis://alice:pw@" + HOST + ":" + PORT, withoutSsl.toString());
+        assertEquals("redis://u:p@other:7000/2", uri(Map.of("usingUri", true, "uri", "redis://u:p@other:7000/2", "usingSsl", true)).toString());
     }
 }
