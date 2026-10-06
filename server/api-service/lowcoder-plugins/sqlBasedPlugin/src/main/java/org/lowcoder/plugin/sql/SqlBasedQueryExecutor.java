@@ -91,9 +91,53 @@ public abstract class SqlBasedQueryExecutor extends BlockingQueryExecutor<SqlBas
         );
 
         try (Connection connection = getConnection(dataSource)) {
+            if (rollsBackEveryQuery(dataSource)) {
+                return executeAndRollBack(dataSource, connection, context);
+            }
             return generalSqlExecutor.execute(connection, context);
         } catch (SQLException e) {
             throw wrapException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR", e);
+        }
+    }
+
+    /**
+     * Whether every query on this pool runs in a transaction that is rolled back afterwards, for a database whose driver
+     * cannot make a connection read-only (BF-025). None by default.
+     */
+    protected boolean rollsBackEveryQuery(HikariDataSource dataSource) {
+        return false;
+    }
+
+    /**
+     * Runs the query with auto-commit off and rolls the transaction back whatever the outcome, so that nothing the query
+     * writes is kept. The pool turns auto-commit back on when the connection is returned (Hikari resets the connection state
+     * a borrower changed). If the rollback fails, the connection is evicted from the pool, so that a transaction it may still
+     * hold is never committed by a later query; the rollback failure is added to the query's own failure, or thrown if the
+     * query succeeded.
+     * <p>
+     * Limits: this covers what a transaction covers. An explicit {@code COMMIT} in the query commits what came before it, a
+     * statement that cannot run in a transaction is not covered, and effects outside the transaction (identity or sequence
+     * values, calls to other systems) stay. The answer still reports the affected rows of the rolled-back statements.
+     */
+    private QueryExecutionResult executeAndRollBack(HikariDataSource dataSource, Connection connection,
+            SqlBasedQueryExecutionContext context) throws SQLException {
+        connection.setAutoCommit(false);
+        Throwable queryFailure = null;
+        try {
+            return generalSqlExecutor.execute(connection, context);
+        } catch (Throwable e) {
+            queryFailure = e;
+            throw e;
+        } finally {
+            try {
+                connection.rollback();
+            } catch (SQLException rollbackFailure) {
+                dataSource.evictConnection(connection);
+                if (queryFailure == null) {
+                    throw rollbackFailure;
+                }
+                queryFailure.addSuppressed(rollbackFailure);
+            }
         }
     }
 
