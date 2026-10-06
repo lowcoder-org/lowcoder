@@ -11,10 +11,19 @@ import org.lowcoder.sdk.contract.FakeJdbc.Column;
 import org.lowcoder.sdk.contract.FakeJdbc.FailingCell;
 import org.lowcoder.sdk.contract.FakeJdbc.Rows;
 import org.lowcoder.sdk.exception.PluginException;
+import org.lowcoder.sdk.models.DatasourceStructure;
+import org.lowcoder.sdk.models.DatasourceStructure.Table;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -26,6 +35,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.lowcoder.plugin.mssql.util.MssqlStructureParser.COLUMNS_QUERY;
+import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_GET_STRUCTURE_ERROR;
 import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
 import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
 
@@ -33,7 +44,7 @@ import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR
  * Unit MS-3 (task L5-5a), the executor half: {@link MssqlQueryExecutor} on a {@link FakeJdbc} connection (through the
  * never-started pool of {@link MssqlFakeConnections#wrap}): the anonymous {@code parseDataRows} turns every row of the
  * result set into a column-ordered map through the MSSQL parser, and {@code parseSqlCommand} picks the GUI command class
- * by type name.
+ * by type name; {@code getDatabaseMetadata} groups the rows of {@code COLUMNS_QUERY} into one table per name.
  */
 public class MssqlQueryExecutorTest {
 
@@ -47,6 +58,15 @@ public class MssqlQueryExecutorTest {
             "delete", Map.of("table", "t", "filterBy", FILTER),
             "bulk_insert", Map.of("table", "t", "records", "[{\"a\":1}]"),
             "bulk_update", Map.of("table", "t", "primaryKey", "a", "records", "[{\"a\":1}]"));
+    static final String STRUCTURE_FAILURE = "structure query failed on purpose";
+    /**
+     * Rows of {@code COLUMNS_QUERY}, ordered by table name as the query orders them, with only the labels the parser reads
+     * ({@code ordinal_position}, {@code column_default} and {@code is_nullable} are not read).
+     */
+    static final List<Map<String, String>> COLUMN_ROWS = List.of(
+            Map.of("table_schema", "dbo", "table_name", "dbo.items", "column_name", "id", "column_type", "int"),
+            Map.of("table_schema", "dbo", "table_name", "dbo.items", "column_name", "name", "column_type", "varchar"),
+            Map.of("table_schema", "sales", "table_name", "sales.orders", "column_name", "item_id", "column_type", "int"));
     static final Map<String, Class<? extends GuiSqlCommand>> TYPES = Map.of(
             "insert", MssqlInsertCommand.class, "update", MssqlUpdateCommand.class, "delete", MssqlDeleteCommand.class,
             "bulk_insert", MssqlBulkInsertCommand.class, "bulk_update", MssqlBulkUpdateCommand.class);
@@ -129,5 +149,85 @@ public class MssqlQueryExecutorTest {
             Locale.setDefault(saved);
         }
         assertInstanceOf(MssqlInsertCommand.class, executor.parseSqlCommand("insert", DETAILS.get("insert")), "locale restored: " + Locale.getDefault());
+    }
+
+    /** What a fake answers for one interface call; {@code Object} methods are answered by {@link #fake}. */
+    private interface FakeCall {
+        Object answer(Method method, Object[] args) throws Throwable;
+    }
+
+    /** A proxy of {@code type} whose {@code equals} and {@code hashCode} are by identity and whose {@code toString} is a fixed name, as in {@code FakeJdbc}. */
+    private static <T> T fake(Class<T> type, FakeCall call) {
+        return type.cast(Proxy.newProxyInstance(MssqlQueryExecutorTest.class.getClassLoader(), new Class<?>[] {type}, (self, method, args) -> {
+            if (method.getDeclaringClass() == Object.class) {
+                return switch (method.getName()) {
+                    case "equals" -> self == args[0];
+                    case "hashCode" -> System.identityHashCode(self);
+                    default -> "fake " + type.getSimpleName();
+                };
+            }
+            return call.answer(method, args);
+        }));
+    }
+
+    /**
+     * A connection whose statement answers {@code COLUMNS_QUERY} with {@code rows} read by column label, or fails with
+     * {@code failure}; each close of the result set or the statement is recorded in {@code closed}. Not {@code FakeJdbc}:
+     * its statements do not answer {@code executeQuery} and its result sets read cells by index only, while the parser
+     * calls {@code executeQuery} and {@code getString(String)}. Any other call fails with a {@code SQLFeatureNotSupportedException}, as in {@code FakeJdbc}.
+     */
+    private static Connection structureConnection(List<Map<String, String>> rows, SQLException failure, List<String> closed) {
+        int[] row = {-1};
+        ResultSet resultSet = fake(ResultSet.class, (method, args) -> switch (method.getName()) {
+            case "next" -> ++row[0] < rows.size();
+            case "getString" -> rows.get(row[0]).get((String) args[0]);
+            case "close" -> closed.add("resultSet");
+            default -> throw new SQLFeatureNotSupportedException("ResultSet." + method.getName());
+        });
+        Statement statement = fake(Statement.class, (method, args) -> switch (method.getName()) {
+            case "executeQuery" -> {
+                assertEquals(COLUMNS_QUERY, args[0]);
+                if (failure != null) {
+                    throw failure;
+                }
+                yield resultSet;
+            }
+            case "close" -> closed.add("statement");
+            default -> throw new SQLFeatureNotSupportedException("Statement." + method.getName());
+        });
+        return fake(Connection.class, (method, args) -> switch (method.getName()) {
+            case "createStatement" -> statement;
+            default -> throw new SQLFeatureNotSupportedException("Connection." + method.getName());
+        });
+    }
+
+    @Test
+    public void structureHasOneTableOfColumnsPerTableName() {
+        List<String> closed = new ArrayList<>();
+
+        DatasourceStructure structure = executor.getDatabaseMetadata(structureConnection(COLUMN_ROWS, null, closed), null);
+
+        System.out.println("[MssqlQueryExecutorTest] structure: " + structure.getTables() + ", closed " + closed);
+        List<Table> tables = structure.getTables();
+        assertEquals(List.of("dbo.items", "sales.orders"), tables.stream().map(Table::getName).toList());
+        assertEquals(List.of("dbo", "sales"), tables.stream().map(Table::getSchema).toList());
+        assertEquals(List.of("id:int", "name:varchar"), tables.get(0).getColumns().stream().map(c -> c.getName() + ":" + c.getType()).toList());
+        assertEquals(List.of("item_id:int"), tables.get(1).getColumns().stream().map(c -> c.getName() + ":" + c.getType()).toList());
+        assertTrue(tables.stream().allMatch(table -> table.getKeys().isEmpty()), "COLUMNS_QUERY reads no keys");
+        assertEquals(List.of("resultSet", "statement"), closed);
+    }
+
+    @Test
+    public void aFailingStructureQueryIsAStructureErrorWithItsMessage() {
+        List<String> closed = new ArrayList<>();
+
+        PluginException thrown = assertThrows(PluginException.class,
+                () -> executor.getDatabaseMetadata(structureConnection(List.of(), new SQLException(STRUCTURE_FAILURE), closed), null));
+
+        System.out.println("[MssqlQueryExecutorTest] structure failure: " + thrown.getMessage() + ", closed " + closed);
+        assertEquals(DATASOURCE_GET_STRUCTURE_ERROR, thrown.getError());
+        assertEquals("DATASOURCE_GET_STRUCTURE_ERROR", thrown.getMessageKey());
+        assertEquals(STRUCTURE_FAILURE, thrown.getArgs()[0]);
+        assertEquals(List.of("statement"), closed, "no result set was opened; the statement is closed");
     }
 }
