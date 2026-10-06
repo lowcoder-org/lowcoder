@@ -100,8 +100,8 @@ class OrganizationServiceImplDeleteMongoTest extends OrganizationMongoTestBase {
 
     /**
      * Pins plan section 9 row "deleting an org leaves its apps and datasources": OrgAndGroupEventListener.onOrgDeleted
-     * (:58-70) ends with deleteOrgApplications() and deleteOrgDatasources() (:64-65), both of which return Mono.empty()
-     * (:98-104), so after the org is deleted (and the listener has finished: the groups are gone) its applications and
+     * (:61-73) ends with deleteOrgApplications() and deleteOrgDatasources() (:67-68), both of which return Mono.empty()
+     * (:109-115), so after the org is deleted (and the listener has finished: the groups are gone) its applications and
      * datasources are still stored, still carrying the deleted org's id. A fix (delete them) changes this test on purpose.
      */
     @Test
