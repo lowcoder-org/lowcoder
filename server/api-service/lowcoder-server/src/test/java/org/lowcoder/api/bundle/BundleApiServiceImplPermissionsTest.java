@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -96,12 +98,12 @@ import reactor.test.StepVerifier;
  * <ul>
  * <li>"getPermissions looks up the org by the creator's user id; no permission check":
  * {@link #getPermissions_looksUpTheOrganizationByTheCreatorsUserId_andChecksNoPermission_pinsTheSection9Row}</li>
- * <li>"getElements has no permission/status/org check":
- * {@link #getElements_hasNoPermissionStatusOrOrgCheck_pinsTheSection9Row}</li>
  * </ul>
  * Fixed since: "moveApp/addApp check only MANAGE_APPLICATIONS on the app, never the bundle" (BF-011), now asserted by
  * {@link #moveAndAddApp_withoutTheBundlePermission_areRefused_andChangeNothing} and
- * {@link #moveAndAddApp_withABundleOfAnotherOrganization_areRefused_andChangeNothing}.
+ * {@link #moveAndAddApp_withABundleOfAnotherOrganization_areRefused_andChangeNothing}; "getElements has no
+ * permission/status/org check" (BF-020), now asserted by {@link #getElements_withoutReadPermission_isRefused_andReadsNoElements}
+ * and {@link #getElements_ofABundleThatIsNotNormal_isBadRequest_andReadsNoElements}.
  * Pinned as behaviour (no row): the null-flag NullPointerException of the view request (reachable only with documents
  * lacking the flag fields) and the application-copied EDIT action comparison of the readable error message.
  */
@@ -794,8 +796,8 @@ class BundleApiServiceImplPermissionsTest {
      * visitor outside the organization NO_PERMISSION_TO_REQUEST_APP / INSUFFICIENT_PERMISSION, otherwise
      * NO_PERMISSION_TO_REQUEST_APP with NO_PERMISSION_TO_EDIT or NO_PERMISSION_TO_VIEW. The bundle variant picks the EDIT key
      * for EDIT_BUNDLES. The id-based variant was copied from the application code and compares with EDIT_APPLICATIONS, so even
-     * EDIT_BUNDLES gives the VIEW key there (pinned as behaviour, no row: its only caller, getEditingBundle, passes
-     * READ_BUNDLES, so no user sees it today).
+     * EDIT_BUNDLES gives the VIEW key there (pinned as behaviour, no row: its callers, getEditingBundle and getElements,
+     * pass READ_BUNDLES, so no user sees it today).
      */
     @ParameterizedTest(name = "bundle variant {0}, {1}, {2} -> {3}")
     @MethodSource("messageRows")
@@ -1136,13 +1138,22 @@ class BundleApiServiceImplPermissionsTest {
         return BiRelation.builder().targetId(target).extParam1(position).build();
     }
 
+    private void readGranted(String bundleId) {
+        when(resourcePermissionService.checkUserPermissionStatusOnResource(VISITOR, bundleId, ResourceAction.READ_BUNDLES))
+                .thenReturn(Mono.just(UserPermissionOnResourceStatus.success(permission(bundleId))));
+    }
+
     /**
-     * Catches elements in the wrong order or wrongly numbered: the bundle's element relations are sorted by the numeric
-     * position in extParam1, each target is resolved through the application service, and each result is wrapped with its
-     * index in the sorted order. A null or non-numeric position is a NumberFormatException (pinned as behaviour).
+     * Catches elements in the wrong order or wrongly numbered: once the read check passes, the bundle's element relations are
+     * sorted by the numeric position in extParam1, each target is resolved through the application service, and each result
+     * is wrapped with its index in the sorted order. A null or non-numeric position is a NumberFormatException (pinned as
+     * behaviour).
      */
     @Test
     void getElements_sortsByPosition_andIndexesTheApplications() {
+        readGranted(BUNDLE_ID);
+        readGranted("bad-bundle");
+        when(bundleService.findById("bad-bundle")).thenReturn(Mono.just(bundle("bad-bundle", BundleStatus.NORMAL)));
         Application a0 = mock(Application.class);
         Application a1 = mock(Application.class);
         Application a2 = mock(Application.class);
@@ -1166,22 +1177,58 @@ class BundleApiServiceImplPermissionsTest {
     }
 
     /**
-     * Pins the plan section 9 row "getElements has no permission/status/org check" (behind
-     * {@code GET /bundles/{id}/elements}, {@code BundleController.getElements}): the elements of any bundle id are listed with
-     * nothing but the relation lookup: no session, organization, permission or status is consulted. A fix changes this test on
-     * purpose. What this test cannot show: how the controller maps the elements to the response.
+     * BF-020 (was the pin of the plan section 9 row "getElements has no permission/status/org check", behind
+     * {@code GET /bundles/{id}/elements}, {@code BundleController.getElements}): a visitor who may not read the bundle gets the
+     * readable error of {@code checkPermissionWithReadableErrorMsg} (another organization's bundle: INSUFFICIENT_PERMISSION),
+     * and neither the bundle nor its element relations are read.
      */
-    @Test
-    void getElements_hasNoPermissionStatusOrOrgCheck_pinsTheSection9Row() {
-        bundle.setBundleStatus(BundleStatus.DELETED);
-        Application application = mock(Application.class);
-        when(biRelationService.getBySourceId(BiRelationBizType.BUNDLE_ELEMENT, "someone-elses-bundle")).thenReturn(Flux.just(relation("t0", "0")));
-        when(applicationServiceImpl.findById("t0")).thenReturn(Mono.just(application));
+    @ParameterizedTest(name = "{0} -> {1}")
+    @CsvSource({"NOT_IN_ORG, INSUFFICIENT_PERMISSION", "NOT_ENOUGH, NO_PERMISSION_TO_VIEW", "ANONYMOUS, USER_NOT_SIGNED_IN"})
+    void getElements_withoutReadPermission_isRefused_andReadsNoElements(Status denial, String messageKey) {
+        when(resourcePermissionService.checkUserPermissionStatusOnResource(VISITOR, "someone-elses-bundle", ResourceAction.READ_BUNDLES))
+                .thenReturn(Mono.just(status(denial)));
+        AtomicInteger bundleReads = new AtomicInteger();
+        when(bundleService.findById("someone-elses-bundle")).thenReturn(Mono.defer(() -> {
+            bundleReads.incrementAndGet();
+            return Mono.just(bundle("someone-elses-bundle", BundleStatus.NORMAL));
+        }));
+        AtomicInteger relationReads = new AtomicInteger();
+        when(biRelationService.getBySourceId(BiRelationBizType.BUNDLE_ELEMENT, "someone-elses-bundle"))
+                .thenReturn(Flux.defer(() -> {
+                    relationReads.incrementAndGet();
+                    return Flux.just(relation("t0", "0"));
+                }));
+        lenient().when(applicationServiceImpl.findById("t0")).thenReturn(Mono.just(mock(Application.class)));
+        BizError expected = denial == Status.ANONYMOUS ? BizError.USER_NOT_SIGNED_IN : BizError.NO_PERMISSION_TO_REQUEST_APP;
 
-        StepVerifier.create(service.getElements("someone-elses-bundle", null)).expectNextCount(1).verifyComplete();
+        StepVerifier.create(service.getElements("someone-elses-bundle", null))
+                .expectErrorSatisfies(error -> assertBizError(error, expected, messageKey)).verify();
 
-        verifyNoInteractions(sessionUserService, resourcePermissionService, orgMemberService, bundleService, organizationService);
-        say("getElements listed another bundle's elements without any check (section 9 row pinned)");
+        assertThat(bundleReads).as("the bundle is not read").hasValue(0);
+        assertThat(relationReads).as("the element relations are not read").hasValue(0);
+        verify(applicationServiceImpl, never()).findById(anyString());
+        say("getElements %s -> %s, nothing read", denial, messageKey);
+    }
+
+    /** BF-020: a recycled or deleted bundle is BAD_REQUEST even for a visitor who may read it, and its elements are not read. */
+    @ParameterizedTest
+    @EnumSource(value = BundleStatus.class, names = {"RECYCLED", "DELETED"})
+    void getElements_ofABundleThatIsNotNormal_isBadRequest_andReadsNoElements(BundleStatus status) {
+        readGranted(BUNDLE_ID);
+        bundle.setBundleStatus(status);
+        AtomicInteger relationReads = new AtomicInteger();
+        when(biRelationService.getBySourceId(BiRelationBizType.BUNDLE_ELEMENT, BUNDLE_ID)).thenReturn(Flux.defer(() -> {
+            relationReads.incrementAndGet();
+            return Flux.just(relation("t0", "0"));
+        }));
+        lenient().when(applicationServiceImpl.findById("t0")).thenReturn(Mono.just(mock(Application.class)));
+
+        StepVerifier.create(service.getElements(BUNDLE_ID, null))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST")).verify();
+
+        assertThat(relationReads).hasValue(0);
+        verify(applicationServiceImpl, never()).findById(anyString());
+        say("getElements of a %s bundle -> BAD_REQUEST, nothing read", status);
     }
 
     // ------------------------------------------------------------------ small ones

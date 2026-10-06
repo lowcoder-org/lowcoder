@@ -40,7 +40,7 @@ public interface BundleApiService {
 
     Mono<Void> addApp(String applicationId, String toBundleId);
 
-    Flux<?> getElements(@Nullable String bundleId, @Nullable ApplicationType applicationType);
+    Flux<?> getElements(String bundleId, @Nullable ApplicationType applicationType);
 
     @Nonnull
     Mono<ResourcePermission> checkBundlePermissionWithReadableErrorMsg(String bundleId, ResourceAction action, BundleRequestType requestType);
