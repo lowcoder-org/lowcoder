@@ -198,6 +198,8 @@ public class DatasourceServiceImpl implements DatasourceService {
         if (testDatasource.getId() != null) {
             datasourceMono = getById(testDatasource.getId())
                     .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                    // getById answers a system-static id with the shared constant: the test request is merged into a copy
+                    .map(datasource -> datasource.isSystemStatic() ? datasource.copy() : datasource)
                     .delayUntil(jsDatasourceHelper::fillPluginDefinition)
                     .map(datasource -> datasource.mergeWith(testDatasource));
         }
