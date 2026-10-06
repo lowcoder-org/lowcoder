@@ -59,6 +59,8 @@ import reactor.util.function.Tuples;
 @Service
 public class OrgApiServiceImpl implements OrgApiService {
 
+    private static final String BAD_REQUEST = "BAD_REQUEST";
+
     @Autowired
     private SessionUserService sessionUserService;
     @Autowired
@@ -155,9 +157,15 @@ public class OrgApiServiceImpl implements OrgApiService {
                 .collect(Collectors.toMap(Connection::getSource, Connection::getRawUserInfo, (map, map2) -> map));
     }
 
+    /**
+     * Sets a member's role in the organization, for a visitor who is ADMIN or SUPER_ADMIN of it; the SUPER_ADMIN role is
+     * neither granted nor changed ({@link #checkSuperAdminRoleUnchanged}), and granting ADMIN is checked against the
+     * developer quota.
+     */
     @Override
     public Mono<Boolean> updateRoleForMember(String orgId, UpdateRoleRequest updateRoleRequest) {
         return checkVisitorAdminRole(orgId)
+                .then(checkSuperAdminRoleUnchanged(orgId, updateRoleRequest))
                 .then(checkDeveloperCount(orgId, updateRoleRequest.getRole(), updateRoleRequest.getUserId()))
                 .then(orgMemberService.updateMemberRole(orgId,
                         updateRoleRequest.getUserId(),
@@ -170,6 +178,27 @@ public class OrgApiServiceImpl implements OrgApiService {
                 .flatMap(visitor -> orgMemberService.getOrgMember(orgId, visitor))
                 .filter(it -> it.getRole() == MemberRole.ADMIN || it.getRole() == MemberRole.SUPER_ADMIN)
                 .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"));
+    }
+
+    /**
+     * Refuses, with UNSUPPORTED_OPERATION, the requested role SUPER_ADMIN and any change to a member who has it, whoever
+     * the visitor is (BF-005): that role is given only by the super admin setup
+     * ({@code OrgMemberService.addToAllOrgAsAdminIfNot}). Deferred, so the target's membership is read only once the
+     * visitor has passed the admin check.
+     * <p>
+     * Limits: an unknown role name is not refused (it is written as MEMBER, {@link MemberRole#fromValue}), and neither is
+     * a target who is not a member: the update then changes nothing, and still answers true (the pinned
+     * {@code hasElement} answer of {@code OrgMemberService.updateMemberRole}).
+     */
+    private Mono<Void> checkSuperAdminRoleUnchanged(String orgId, UpdateRoleRequest updateRoleRequest) {
+        return Mono.defer(() -> {
+            if (MemberRole.fromValue(updateRoleRequest.getRole()) == MemberRole.SUPER_ADMIN) {
+                return Mono.error(new BizException(UNSUPPORTED_OPERATION, BAD_REQUEST));
+            }
+            return orgMemberService.getOrgMember(orgId, updateRoleRequest.getUserId())
+                    .filter(target -> target.getRole() == MemberRole.SUPER_ADMIN)
+                    .flatMap(target -> Mono.error(new BizException(UNSUPPORTED_OPERATION, BAD_REQUEST)));
+        });
     }
 
     private Mono<Void> checkDeveloperCount(String orgId, String role, String userId) {
@@ -272,7 +301,7 @@ public class OrgApiServiceImpl implements OrgApiService {
                 .then(Mono.defer(() -> {
                     Workspace workspace = commonConfig.getWorkspace();
                     if (workspace.getMode() == WorkspaceMode.ENTERPRISE && orgId.equals(workspace.getEnterpriseOrgId())) {
-                        return Mono.error(new BizException(UNSUPPORTED_OPERATION, "BAD_REQUEST"));
+                        return Mono.error(new BizException(UNSUPPORTED_OPERATION, BAD_REQUEST));
                     }
                     return Mono.empty();
                 }))
@@ -401,7 +430,7 @@ public class OrgApiServiceImpl implements OrgApiService {
     private Mono<Void> checkIfSaasMode() {
         return Mono.defer(() -> {
             if (commonConfig.getWorkspace().getMode() == WorkspaceMode.ENTERPRISE) {
-                return Mono.error(new BizException(UNSUPPORTED_OPERATION, "BAD_REQUEST"));
+                return Mono.error(new BizException(UNSUPPORTED_OPERATION, BAD_REQUEST));
             }
             return Mono.empty();
         });
