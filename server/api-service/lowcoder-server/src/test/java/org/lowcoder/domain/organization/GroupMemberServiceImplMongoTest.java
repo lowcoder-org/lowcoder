@@ -15,7 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 /**
  * GroupMemberServiceImpl against the MongoDB test container (unit U14, task L3-11a), shared {@code test} context, ids
- * generated per test. Not repeated: deleteGroupMembers (the L4-8 section 9 row on BiRelationServiceImpl.removeAllBiRelations)
+ * generated per test. Not repeated: deleteGroupMembers (the L4-8 section 9 row on BiRelationServiceImpl.removeAllBiRelations, fixed by BF-016)
  * and the bulk methods without a production caller (owner decision).
  */
 @SpringBootTest(classes = ServerApplication.class)

@@ -32,7 +32,7 @@ import org.springframework.test.context.TestPropertySource;
  * org leaves its apps and datasources". The collecting listener and the extra property give this class a Spring context
  * (and database) of its own. The real OrgAndGroupEventListener runs too, asynchronously: the test waits for it by polling
  * the org's groups (bounded, 20 s, 100 ms interval). What it does with the members is the L4-8 section 9 row on
- * BiRelationServiceImpl.removeAllBiRelations and is not asserted here.
+ * BiRelationServiceImpl.removeAllBiRelations (fixed by BF-016) and is not asserted here.
  */
 @SpringBootTest(classes = ServerApplication.class)
 @ActiveProfiles("test")
