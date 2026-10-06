@@ -41,7 +41,8 @@ import lombok.Setter;
 @Setter
 public class Aggregate extends MongoCommand {
     private String pipeline;
-    private int limit;
+    /** Sent as the cursor's {@code batchSize}; {@link #UNLIMITED} when the limit field is absent or blank (BF-031). */
+    private int limit = UNLIMITED;
 
     public Aggregate(Map<String, Object> formData) {
         super(formData);
@@ -51,9 +52,7 @@ public class Aggregate extends MongoCommand {
         }
 
         if (getValueSafelyFromFormData(formData, AGGREGATE_LIMIT) instanceof String limitStr) {
-            if (isBlank(limitStr)) {
-                limit = Integer.MAX_VALUE;
-            } else {
+            if (!isBlank(limitStr)) {
                 limit = NumberUtils.toInt(limitStr, 0);
                 if (limit <= 0) {
                     throw new PluginException(QUERY_ARGUMENT_ERROR, "INVALID_LIMIT_CONFIG");
