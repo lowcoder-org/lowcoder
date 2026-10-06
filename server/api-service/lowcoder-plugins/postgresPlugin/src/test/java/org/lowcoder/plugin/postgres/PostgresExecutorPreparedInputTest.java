@@ -65,24 +65,35 @@ public class PostgresExecutorPreparedInputTest {
     }
 
     /**
-     * Pins the plan section 9 row "PostgresDataTypeUtils' cast scanner reads the whole prepared SQL" (D-6: fix deferred): the
-     * scanner finds every {@code ?} of the SQL text, not only the parameters, so a {@code ?::bool} inside a string literal takes
-     * the cast slot of the first parameter, and the jsonb {@code ??} operator shifts the casts by one. A fix (a scanner that
-     * skips literals and escaped operators) changes this test on purpose.
+     * BF-045 fixed: the cast scanner read the whole prepared SQL, so a {@code ?::bool} inside a string literal took the cast
+     * slot of the first parameter (5 was bound as false) and the jsonb {@code ??} operator shifted the casts by one (5 stayed
+     * a string). Each parameter now gets its own cast.
      */
     @Test
-    public void castScannerReadsTheWholeSqlSoALiteralAndTheJsonbOperatorShiftTheCasts() {
-        assertEquals(List.of("setBoolean(1, java.lang.Boolean:false)"), binds("select '?::bool', {{b}}::int4", Map.of("b", "5")),
-                "the cast of the literal is applied to the parameter: 5 becomes false");
-        assertEquals(List.of("setString(1, java.lang.String:5)"), binds("select data ?? 'k' from t where x = {{b}}::int4", Map.of("b", "5")),
-                "the ?? operator takes the cast slot: 5 stays a string");
+    public void aLiteralAndTheJsonbOperatorNoLongerShiftTheCastsBF045() {
+        assertEquals(List.of("setInt(1, java.lang.Integer:5)"), binds("select '?::bool', {{b}}::int4", Map.of("b", "5")));
+        assertEquals(List.of("setInt(1, java.lang.Integer:5)"), binds("select data ?? 'k' from t where x = {{b}}::int4", Map.of("b", "5")));
     }
 
-    /** The row of {@code PostgresDataTypeUtilsTest.castPatternReadsLettersOnly_int8IsReadAsInt}, seen through the executor. */
+    /**
+     * BF-045 fixed, seen through the executor: {@code ?::int8} was read as {@code int}, so a number above the int range
+     * failed with a raw NumberFormatException, and {@code ?::float8} was not cast at all. They are cast to a Long and a
+     * Double; the shared binder hands a Double to the driver through {@code setBigDecimal}.
+     */
     @Test
-    public void int8CastIsReadAsIntSoABigNumberFailsWithARawNumberFormatException() {
-        assertThrows(NumberFormatException.class, () -> binds("select {{a}}::int8", Map.of("a", "3000000001")));
-        assertEquals(List.of("setString(1, java.lang.String:0.1)"), binds("select {{a}}::float8", Map.of("a", "0.1")), "float8 is not cast at all");
+    public void int8AndFloat8CastsBindALongAndADoubleBF045() {
+        assertEquals(List.of("setLong(1, java.lang.Long:3000000001)"), binds("select {{a}}::int8", Map.of("a", "3000000001")));
+        assertEquals(List.of("setBigDecimal(1, java.math.BigDecimal:0.1)"), binds("select {{a}}::float8", Map.of("a", "0.1")));
+    }
+
+    /**
+     * A placeholder inside a dollar-quoted string is no driver parameter, so the scanner finds fewer casts than there are
+     * placeholders: the value is bound as is (the driver itself then reports the mismatch) instead of failing on the
+     * missing cast.
+     */
+    @Test
+    public void aPlaceholderInsideADollarQuoteIsBoundAsIs() {
+        assertEquals(List.of("setString(1, java.lang.String:5)"), binds("select $$ {{x}} $$", Map.of("x", "5")));
     }
 
     @Test
