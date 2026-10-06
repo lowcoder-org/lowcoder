@@ -13,6 +13,7 @@ import org.lowcoder.domain.authentication.AuthenticationService;
 import org.lowcoder.domain.authentication.context.AuthRequestContext;
 import org.lowcoder.domain.user.model.AuthUser;
 import org.lowcoder.domain.user.model.Connection;
+import org.lowcoder.domain.user.model.ConnectionAuthToken;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.util.CookieHelper;
@@ -35,6 +36,12 @@ import static org.springframework.security.core.context.ReactiveSecurityContextH
 
 @Slf4j
 public class UserSessionPersistenceFilter implements WebFilter {
+
+    /**
+     * The stored expiry of an access token the provider gave no lifetime for ({@link ConnectionAuthToken#of}); such a token
+     * is never refreshed. Not {@link ConnectionAuthToken#isAccessTokenExpired()}, which reads this value as expired.
+     */
+    private static final long NO_EXPIRY = 0L;
 
     private final SessionUserService service;
 
@@ -70,7 +77,7 @@ public class UserSessionPersistenceFilter implements WebFilter {
 
                     Optional<Connection> activeConnectionOptional = user.getConnections()
                             .stream()
-                            .filter(connection -> connection.getAuthId().equals(user.getActiveAuthId()))
+                            .filter(connection -> connection.hasAuthId(user.getActiveAuthId()))
                             .findFirst();
 
                     if(!activeConnectionOptional.isPresent()) {
@@ -79,11 +86,14 @@ public class UserSessionPersistenceFilter implements WebFilter {
 
                     activeConnection = activeConnectionOptional.get();
 
-                    if(!activeConnection.getAuthId().equals(DEFAULT_AUTH_CONFIG.getId())) {
-                        if(activeConnection.getAuthConnectionAuthToken().getExpireAt() == 0) {
+                    if(!activeConnection.hasAuthId(DEFAULT_AUTH_CONFIG.getId())) {
+                        ConnectionAuthToken authToken = activeConnection.getAuthConnectionAuthToken();
+                        // BF-040: a connection without a stored token, or a token without an expiry, has nothing to refresh
+                        Long expireAt = authToken == null ? null : authToken.getExpireAt();
+                        if(expireAt == null || expireAt == NO_EXPIRY) {
                             return Triple.of(user, activeConnection, orgIds);
                         }
-                        boolean isAccessTokenExpired = (activeConnection.getAuthConnectionAuthToken().getExpireAt()*1000) < Instant.now().toEpochMilli();
+                        boolean isAccessTokenExpired = (expireAt*1000) < Instant.now().toEpochMilli();
                         if(isAccessTokenExpired) {
 
                             List<String> activeOrgIds = activeConnection.getOrgIds().stream().toList();

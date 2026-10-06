@@ -507,7 +507,7 @@ public class UserServiceImpl implements UserService {
                         OrgMember orgMember = tuple2.getT1();
                         List<Map<String, String>> groups = tuple2.getT2();
                         String activeAuthId = user.getActiveAuthId();
-                        Optional<Connection> connection = user.getConnections().stream().filter(con -> con.getAuthId().equals(activeAuthId)).findFirst();
+                        Optional<Connection> connection = user.getConnections().stream().filter(con -> con.hasAuthId(activeAuthId)).findFirst();
                         HashMap<String, Object> userAuth = connectionToUserAuthDetail(connection);
                         return UserDetail.builder()
                                 .id(user.getId())
@@ -560,7 +560,7 @@ public class UserServiceImpl implements UserService {
         return Optional.ofNullable(user.getOrgTransformedUserInfo())
                 .map(orgTransformedUserInfo -> orgTransformedUserInfo.get(orgId))
                 .map(TransformedUserInfo::extra)
-                .orElse(convertConnections(user.getConnections().stream().filter(c -> c.getAuthId().equals(user.getActiveAuthId())).collect(Collectors.toSet())));
+                .orElse(convertConnections(user.getConnections().stream().filter(c -> c.hasAuthId(user.getActiveAuthId())).collect(Collectors.toSet())));
     }
 
     protected Mono<List<Map<String, String>>> buildUserDetailGroups(String userId, OrgMember orgMember, boolean withoutDynamicGroups,
