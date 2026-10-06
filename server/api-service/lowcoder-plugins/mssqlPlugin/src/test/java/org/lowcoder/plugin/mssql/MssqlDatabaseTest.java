@@ -24,6 +24,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -119,14 +120,15 @@ public class MssqlDatabaseTest {
             assertTrue(dataSource.isRunning());
             assertEquals(DRIVER, dataSource.getDriverClassName());
             assertEquals(MSSQL_POOL_SIZE, dataSource.getMaximumPoolSize());
-            assertEquals("jdbc:sqlserver://" + MssqlContainerSupport.host() + ":" + MssqlContainerSupport.port() + ";databaseName=app;user=" + USER
-                    + ";password=" + PASSWORD + ";encrypt=false;", dataSource.getJdbcUrl());
+            assertEquals("jdbc:sqlserver://;serverName={" + MssqlContainerSupport.host() + "};portNumber=" + MssqlContainerSupport.port()
+                    + ";databaseName={app};encrypt=false;", dataSource.getJdbcUrl());
+            assertEquals(USER, dataSource.getUsername(), "the credentials go to Hikari, not into the URL");
             assertEquals(1, cell(sql(pool, config, "select 1 as one", Map.of()), "one"));
             assertEquals(42, cell(sql(pool, config, "select {{a}} + 1 as r", Map.of("a", 41)), "r"), "a bound parameter reaches the server");
             DatasourceTestResult test = CONNECTOR.testConnection(config).block();
             assertNotNull(test);
             assertTrue(test.isSuccess());
-            System.out.println("[MssqlDatabaseTest] pool url (password included, see D4): " + dataSource.getJdbcUrl() + ", test connection succeeded");
+            System.out.println("[MssqlDatabaseTest] pool url (no credentials, BF-027): " + dataSource.getJdbcUrl() + ", test connection succeeded");
         } finally {
             destroy(pool);
         }
@@ -153,37 +155,39 @@ public class MssqlDatabaseTest {
     }
 
     /**
-     * Pins defect D4 (analysis-plugins section 0.6; plan section 9 D1-D20 row) as the real driver shows it: the password is
-     * appended raw into the JDBC URL, so a password with {@code ;} and {@code }} that the server accepts for a login makes
-     * the pool fail before any connection: the driver does not accept the URL. A password with only a {@code ;} fails the
-     * same way. A fix (braces in the URL) changes this test on purpose.
+     * BF-027 (defect D4) as the real driver shows it: logins whose passwords contain {@code ;} and {@code }} connect and
+     * run a query, because the password reaches the driver through Hikari's properties, not through the URL.
      */
     @Test
-    public void passwordWithSemicolonAndBraceCannotConnect_pinsD4() {
+    public void passwordsWithSemicolonAndBraceConnectBF027() {
         createD4Logins();
-        RuntimeException braces = assertThrows(RuntimeException.class, () -> connect(config(D4_USER, D4_PASSWORD, false, false)));
-        System.out.println("[MssqlDatabaseTest] D4 password with ; and }: " + braces.getClass().getSimpleName() + ": " + braces.getMessage());
-        assertTrue(braces.getMessage().contains("claims to not accept jdbcUrl"), braces.getMessage());
-        RuntimeException semicolon = assertThrows(RuntimeException.class, () -> connect(config(SEMICOLON_USER, SEMICOLON_PASSWORD, false, false)));
-        System.out.println("[MssqlDatabaseTest] D4 password with ; only: " + semicolon.getClass().getSimpleName() + ": " + semicolon.getMessage());
-        assertTrue(semicolon.getMessage().contains("claims to not accept jdbcUrl"), semicolon.getMessage());
+        for (String[] login : new String[][] {{D4_USER, D4_PASSWORD}, {SEMICOLON_USER, SEMICOLON_PASSWORD}}) {
+            MssqlDatasourceConfig config = config(login[0], login[1], false, false);
+            HikariPerfWrapper pool = connect(config);
+            try {
+                Object answer = sql(pool, config, "select suser_name() as login", Map.of());
+                System.out.println("[MssqlDatabaseTest] D4 login " + login[0] + " connected: " + answer);
+                assertEquals(List.of(Map.of("login", login[0])), answer);
+            } finally {
+                destroy(pool);
+            }
+        }
     }
 
     /**
-     * Pins the plan section 9 row "secret in error text" (D-6: fix deferred): the pool failure of the previous test carries
-     * the URL with the password masked only up to its first {@code ;}, so everything after it is in the exception message
-     * (here {@code Pass}word1} and {@code Pass1}). A fix (braces quoting, so the URL is accepted, or masking the whole
-     * password) changes this test on purpose.
+     * BF-026 c: a failed login with a password containing {@code ;} shows no part of the password in the error text (it
+     * was masked by Hikari only up to its first {@code ;} while it was part of the URL).
      */
     @Test
-    public void failureTextContainsThePasswordTailAfterTheFirstSemicolon_pinsTheSecretInErrorTextRow() {
+    public void failureTextHasNoPartOfAPasswordWithASemicolonBF026() {
         createD4Logins();
-        for (String[] login : new String[][] {{D4_USER, D4_PASSWORD}, {SEMICOLON_USER, SEMICOLON_PASSWORD}}) {
-            String tail = login[1].substring(login[1].indexOf(';') + 1);
-            RuntimeException thrown = assertThrows(RuntimeException.class, () -> connect(config(login[0], login[1], false, false)));
-            System.out.println("[MssqlDatabaseTest] password tail '" + tail + "' in the failure text: " + thrown.getMessage());
-            assertTrue(thrown.getMessage().contains("password=<masked>;" + tail + ";"), "the tail after the first ';' is in the message: " + thrown.getMessage());
-            assertTrue(!thrown.getMessage().contains(login[1]), "the part before the ';' is masked: " + thrown.getMessage());
+        for (String password : new String[] {D4_PASSWORD + "x", SEMICOLON_PASSWORD + "x"}) {
+            RuntimeException thrown = assertThrows(RuntimeException.class, () -> connect(config(D4_USER, password, false, false)));
+            String tail = password.substring(password.indexOf(';') + 1);
+            System.out.println("[MssqlDatabaseTest] wrong password with ';': " + thrown.getMessage());
+            assertTrue(thrown.getMessage().contains("Login failed for user '" + D4_USER + "'"), thrown.getMessage());
+            assertFalse(thrown.getMessage().contains(tail), "no password tail in the message: " + thrown.getMessage());
+            assertFalse(thrown.getMessage().contains(password.substring(0, password.indexOf(';'))), "no password head: " + thrown.getMessage());
         }
     }
 
