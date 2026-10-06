@@ -20,13 +20,16 @@ import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 @Setter
 public class JsDatasourceConnectionConfig extends HashMap<String, Object> implements DatasourceConnectionConfig {
 
+    /** The key of the plugin-specific {@code extra} config, which is also put into plugin dynamic config requests. */
+    public static final String EXTRA_KEY = "extra";
+
     @Transient
     private Object definition;
     @Transient
     private String type;
 
     public Object getExtra() {
-        return this.get("extra");
+        return this.get(EXTRA_KEY);
     }
 
     @SuppressWarnings({"unchecked"})
@@ -149,8 +152,8 @@ public class JsDatasourceConnectionConfig extends HashMap<String, Object> implem
         newJsDatasourceConnectionConfig.put("dynamicParamsDef", jsDatasourceConnectionConfig.get("dynamicParamsDef"));
 
         // For the "extra" field of dynamic data source plugin config, keep it.
-        if (this.containsKey("extra") || jsDatasourceConnectionConfig.containsKey("extra")) {
-            newJsDatasourceConnectionConfig.putIfAbsent("extra", ObjectUtils.firstNonNull(jsDatasourceConnectionConfig.getExtra(), this.getExtra()));
+        if (this.containsKey(EXTRA_KEY) || jsDatasourceConnectionConfig.containsKey(EXTRA_KEY)) {
+            newJsDatasourceConnectionConfig.putIfAbsent(EXTRA_KEY, ObjectUtils.firstNonNull(jsDatasourceConnectionConfig.getExtra(), this.getExtra()));
         }
 
         // for oauth handling
