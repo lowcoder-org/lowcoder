@@ -16,15 +16,18 @@ import org.lowcoder.sdk.exception.PluginCommonError;
 import org.lowcoder.sdk.exception.PluginException;
 
 /**
- * {@code QueryTimeoutUtils} (unit U1, task L3-4), in its own unit: the maximum argument is in SECONDS. Note that the
- * only production caller, {@code QueryExecutionServiceImpl:47}, passes milliseconds (see the plan section 9 row "the
- * maximum query timeout is multiplied by 1000 twice over"); that is pinned with the caller, not here.
+ * {@code QueryTimeoutUtils} (unit U1, task L3-4), in its own unit: the maximum argument is in SECONDS, which is what the
+ * production caller {@code QueryExecutionServiceImpl} passes since BF-043 (it passed milliseconds).
  * The default is process-global static state, reset after every test.
  */
 class QueryTimeoutUtilsTest {
 
     private static final int DEFAULT_SECONDS = 10;
     private static final int MAX_SECONDS = 300;
+    /** 2148 s multiplied by 1000 as the caller did before BF-043: its milliseconds leave the int range. */
+    private static final int CALLER_SCALED_MAX_SECONDS = 2_148_000;
+    private static final int DEFAULT_MS = DEFAULT_SECONDS * 1000;
+    private static final String BEYOND_THE_INT_RANGE = "99999999999s";
 
     @AfterEach
     void resetTheStaticDefault() {
@@ -102,8 +105,7 @@ class QueryTimeoutUtilsTest {
 
     /**
      * Catches an off-by-one on the maximum and an int overflow slipping through (:56): with a 10 s maximum, exactly 10 s
-     * is accepted and anything above is rejected with EXCEED_MAX_QUERY_TIMEOUT carrying the maximum in seconds. (The
-     * production caller passes milliseconds here, see the section 9 row named in the class comment.)
+     * is accepted and anything above is rejected with EXCEED_MAX_QUERY_TIMEOUT carrying the maximum in seconds.
      */
     @Test
     void parse_maximumBoundary_isInclusive() {
@@ -137,5 +139,23 @@ class QueryTimeoutUtilsTest {
         assertThat(parseQueryTimeoutMs("{{missing}}", Map.of("t", "5s"), MAX_SECONDS)).isEqualTo(10_000);
         assertThat(parseQueryTimeoutMs("{{missing}}", Map.of("t", "5s"), 5)).as("clamped by the maximum").isEqualTo(5_000);
         System.out.println("[QueryTimeoutUtilsTest] unresolved {{missing}} -> blank -> default timeout");
+    }
+
+    /**
+     * Catches (BF-043) the blank-timeout default overflowing: a maximum whose milliseconds exceed the int range (2148 s
+     * multiplied by 1000 as the caller did, or the largest int) still gives the 10 s default, never a negative timeout.
+     */
+    @ParameterizedTest(name = "maximum {0} s")
+    @ValueSource(ints = {CALLER_SCALED_MAX_SECONDS, Integer.MAX_VALUE})
+    void parse_blankTimeoutWithAMaximumBeyondTheIntRange_isTheDefaultBF043(int maxSeconds) {
+        int timeoutMs = parseQueryTimeoutMs("", maxSeconds);
+        System.out.println("[QueryTimeoutUtilsTest] blank with maximum " + maxSeconds + " s -> " + timeoutMs + " ms");
+        assertThat(timeoutMs).isEqualTo(DEFAULT_MS);
+    }
+
+    /** Documents the limit of the javadoc: with a maximum beyond the int range, a larger timeout is cut to Integer.MAX_VALUE ms. */
+    @Test
+    void parse_aTimeoutBeyondTheIntRange_isCutToIntegerMaxValueMilliseconds() {
+        assertThat(parseQueryTimeoutMs(BEYOND_THE_INT_RANGE, Integer.MAX_VALUE)).isEqualTo(Integer.MAX_VALUE);
     }
 }

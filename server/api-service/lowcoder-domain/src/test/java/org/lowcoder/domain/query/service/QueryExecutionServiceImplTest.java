@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -55,6 +56,13 @@ class QueryExecutionServiceImplTest {
     private static final String JAVA_TYPE = "L3-6-java";
     private static final String JS_TYPE = "L3-6-js";
     private static final Duration VERIFY_TIMEOUT = Duration.ofSeconds(5);
+    /** {@code CommonConfig}'s maximum query timeout, in seconds. */
+    private static final int DEFAULT_MAX_SECONDS = 300;
+    private static final String AT_THE_MAXIMUM = DEFAULT_MAX_SECONDS + "s";
+    private static final String ABOVE_THE_MAXIMUM = (DEFAULT_MAX_SECONDS + 100) + "s";
+    /** The smallest maximum whose milliseconds, multiplied by 1000 again as the caller did (BF-043), leave the int range. */
+    private static final int OVERFLOWING_MAX_SECONDS = 2148;
+    private static final String DEFAULT_TIMEOUT_MS = "10000";
 
     private DatasourceConnectionPool pool;
     private DatasourceMetaInfoService metaInfoService;
@@ -128,39 +136,44 @@ class QueryExecutionServiceImplTest {
     }
 
     /**
-     * Pins the plan section 9 row "the maximum query timeout is multiplied by 1000 twice over" (:47): the caller
-     * passes {@code getMaxQueryTimeout() * 1000} to a method that takes seconds, so with the default maximum of 300 s
-     * a "400s" timeout is accepted (limit 300000 s). A fix changes this test on purpose.
+     * BF-043 fixed: the caller passed {@code getMaxQueryTimeout() * 1000} to a method that takes seconds, so with the
+     * default maximum of 300 s a "400s" timeout was accepted (limit 300000 s). The maximum is now enforced: 300 s is
+     * accepted, 400 s is refused with EXCEED_MAX_QUERY_TIMEOUT naming 300 (the message reads "{0}s"), before any executor.
      */
     @Test
-    void executeQuery_timeoutAboveTheConfiguredMaximum_isAcceptedToday_pinsSection9Row() {
-        assertThat(common.getMaxQueryTimeout()).isEqualTo(300);
-        Map<String, Object> queryConfig = new HashMap<>();
+    void executeQuery_timeoutAboveTheConfiguredMaximum_isRefusedBF043() {
+        assertThat(common.getMaxQueryTimeout()).isEqualTo(DEFAULT_MAX_SECONDS);
+        Map<String, Object> atTheMaximum = new HashMap<>();
+        StepVerifier.create(service.executeQuery(javaDatasource(), atTheMaximum, Map.of(), AT_THE_MAXIMUM, visitor())).expectNext(success).verifyComplete();
+        assertThat(atTheMaximum).containsEntry("timeoutMs", String.valueOf(DEFAULT_MAX_SECONDS * 1000));
+        clearInvocations(executor, pluginClient, pool);
 
-        StepVerifier.create(service.executeQuery(javaDatasource(), queryConfig, Map.of(), "400s", visitor())).expectNext(success).verifyComplete();
-
-        assertThat(queryConfig).containsEntry("timeoutMs", "400000");
-        System.out.println("[QueryExecutionServiceImplTest] pins the section 9 row: 400s accepted with a 300 s maximum");
+        assertThatThrownBy(() -> service.executeQuery(javaDatasource(), new HashMap<>(), Map.of(), ABOVE_THE_MAXIMUM, visitor()))
+                .isInstanceOfSatisfying(PluginException.class, plugin -> {
+                    System.out.println("[QueryExecutionServiceImplTest] " + ABOVE_THE_MAXIMUM + " with a " + DEFAULT_MAX_SECONDS + " s maximum -> "
+                            + plugin.getError() + " " + java.util.Arrays.toString(plugin.getArgs()));
+                    assertThat(plugin.getError()).isEqualTo(PluginCommonError.EXCEED_MAX_QUERY_TIMEOUT);
+                    assertThat(plugin.getArgs()).containsExactly(DEFAULT_MAX_SECONDS);
+                });
+        verifyNoInteractions(executor, pluginClient, pool);
     }
 
     /**
-     * Pins the overflow extension of the same section 9 row: with the x1000 a configured maximum of 2148 s makes the
-     * argument exceed 2,147,483 s, the int cast in {@code QueryTimeoutUtils:36} turns negative, and the blank-timeout
-     * default becomes a NEGATIVE timeoutMs, so the query times out at once. A fix (no x1000) changes this test.
+     * BF-043 fixed, overflow part: with the x1000 a configured maximum of 2148 s made the blank-timeout default a
+     * NEGATIVE timeoutMs, so every query timed out at once. Now the default (10 s) is used and the query answers.
      */
     @Test
-    void executeQuery_maximumOf2148Seconds_makesTheDefaultTimeoutNegative_pinsSection9Row() {
-        common.setMaxQueryTimeout(2148);
+    void executeQuery_maximumOf2148Seconds_keepsTheDefaultTimeoutBF043() {
+        common.setMaxQueryTimeout(OVERFLOWING_MAX_SECONDS);
         Map<String, Object> queryConfig = new HashMap<>();
-        when(executor.doExecuteQuery(any(), any())).thenReturn(Mono.never());
 
         StepVerifier.create(service.executeQuery(javaDatasource(), queryConfig, Map.of(), "", visitor()))
-                .assertNext(result -> assertThat(result.getQueryCode()).isEqualTo(PluginCommonError.QUERY_EXECUTION_TIMEOUT.name()))
+                .expectNext(success)
                 .expectComplete()
                 .verify(VERIFY_TIMEOUT);
 
-        assertThat(Integer.parseInt((String) queryConfig.get("timeoutMs"))).isNegative();
-        System.out.println("[QueryExecutionServiceImplTest] pins the section 9 row: maximum 2148 -> timeoutMs " + queryConfig.get("timeoutMs"));
+        System.out.println("[QueryExecutionServiceImplTest] maximum " + OVERFLOWING_MAX_SECONDS + " s -> timeoutMs " + queryConfig.get("timeoutMs"));
+        assertThat(queryConfig).containsEntry("timeoutMs", DEFAULT_TIMEOUT_MS);
     }
 
     /** Catches invalid timeouts reaching the executor (:47): they are thrown synchronously, outside the reactive chain. */
