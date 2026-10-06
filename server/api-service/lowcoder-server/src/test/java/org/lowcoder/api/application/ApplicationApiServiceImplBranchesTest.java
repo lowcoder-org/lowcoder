@@ -91,15 +91,12 @@ import reactor.test.StepVerifier;
  *
  * <p>Split with L3-12 (plan section 6.5): {@code ApplicationService}, {@code ApplicationRecordService} and the other
  * domain services are mocked here, so no {@code ApplicationServiceImpl} or {@code BundleServiceImpl} code runs; the
- * dependent-module expansion is only stubbed. Lines {@code :539-541} (the catch of the 5 second {@code block}) stay
+ * dependent-module expansion is only stubbed. Lines {@code :570-572} (the catch of the 5 second {@code block}) stay
  * uncovered on purpose: they need a timeout, and a 5 second test is not worth it.
  *
- * <p>Pinned production defects (owner decision D-6: fixes are deferred, a fix changes these tests on purpose):
- * <ul>
- * <li>plan section 9 row "ApplicationApiServiceImpl.getEditingApplication skips the edit-permission check for an app
- * that is public to all and to the marketplace, and that read also writes the application", see
- * {@link #getEditingApplication_publicMarketplaceApp_skipsTheEditPermissionCheckAndWritesTheApplication}.</li>
- * </ul>
+ * <p>Fixed since: the plan section 9 row "ApplicationApiServiceImpl.getEditingApplication skips the edit-permission check
+ * for an app that is public to all and to the marketplace, and that read also writes the application" (BF-018), see
+ * {@link #getEditingApplication_publicMarketplaceApp_withoutEditPermission_getsTheMarketplaceView_andWritesNothing}.
  */
 @ExtendWith(MockitoExtension.class)
 class ApplicationApiServiceImplBranchesTest {
@@ -642,8 +639,8 @@ class ApplicationApiServiceImplBranchesTest {
 
     /**
      * Catches the editor losing its own test data (the edited application's DSL is returned unsanitised) and a module
-     * leaking its secrets (dependent module DSL is sanitised); the application is written back, and the view carries
-     * the org common settings and the folder id of the folder relation.
+     * leaking its secrets (dependent module DSL is sanitised); nothing is written (BF-018), and the view carries the org
+     * common settings and the folder id of the folder relation.
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
@@ -668,31 +665,88 @@ class ApplicationApiServiceImplBranchesTest {
         assertThat(view.getOrgCommonSettings()).containsEntry("k", "v");
         assertThat(view.getApplicationInfoView().getFolderId()).isEqualTo(FOLDER_ID);
         assertThat(view.getApplicationInfoView().getRole()).isEqualTo(ResourceRole.EDITOR.getValue());
-        verify(applicationService).updateById(APP_ID, application);
+        verify(applicationService, never()).updateById(any(), any());
         say("getEditingApplication: own DSL kept, module DSL sanitised, folder %s, role %s", FOLDER_ID,
                 view.getApplicationInfoView().getRole());
     }
 
-    /**
-     * Pins the plan section 9 row "ApplicationApiServiceImpl.getEditingApplication skips the edit-permission check for
-     * an app that is public to all and to the marketplace, and that read also writes the application": a visitor with
-     * no permission at all gets the editing DSL with role "viewer", the edit-permission check is never run, and
-     * {@code updateById} is called. A fix changes this test on purpose. The private-app contrast is
-     * {@link #getEditingApplication_appNotPublicToBoth_needsTheEditPermission}.
-     */
-    @Test
-    void getEditingApplication_publicMarketplaceApp_skipsTheEditPermissionCheckAndWritesTheApplication() {
-        Map<String, Object> draftDsl = dsl("draft", "unpublished");
-        Application application = appBuilder(APP_ID, draftDsl).publicToAll(true).publicToMarketplace(true).build();
+    /** A public-to-all marketplace application whose editing DSL is a draft and whose published version differs. */
+    private Application publicMarketplaceAppWithAPublishedVersion(ApplicationStatus status) {
+        Application application = appBuilder(APP_ID, dsl("draft", "unpublished")).publicToAll(true).publicToMarketplace(true)
+                .applicationStatus(status).build();
         stubEditing(application, List.of());
+        stubPublished(application, ApplicationRequestType.PUBLIC_TO_MARKETPLACE, List.of());
+        when(applicationRecordService.getLatestRecordByApplicationId(APP_ID))
+                .thenReturn(Mono.just(ApplicationVersion.builder().applicationDSL(dsl("published", "v1")).build()));
+        return application;
+    }
+
+    static Stream<Arguments> visitorsWithoutEditPermission() {
+        return Stream.of(
+                Arguments.of("anonymous", UserPermissionOnResourceStatus.anonymousUser()),
+                Arguments.of("not in the org", UserPermissionOnResourceStatus.notInOrg()),
+                Arguments.of("without permission", UserPermissionOnResourceStatus.notEnoughPermission()),
+                Arguments.of("viewer permission (as for an application's creator)",
+                        UserPermissionOnResourceStatus.success(permission(ResourceRole.VIEWER))));
+    }
+
+    /**
+     * BF-018 (was the pin of the plan section 9 row "getEditingApplication skips the edit-permission check for an app that
+     * is public to all and to the marketplace, and that read also writes the application"): a visitor without
+     * EDIT_APPLICATIONS on such an application gets the marketplace view (role viewer, the published DSL), not the
+     * unpublished draft, and nothing is written. A status that carries a permission whose role cannot edit counts as no edit
+     * permission. The marketplace read check is the one the marketplace view runs.
+     */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("visitorsWithoutEditPermission")
+    void getEditingApplication_publicMarketplaceApp_withoutEditPermission_getsTheMarketplaceView_andWritesNothing(String label,
+            UserPermissionOnResourceStatus editStatus) {
+        publicMarketplaceAppWithAPublishedVersion(ApplicationStatus.NORMAL);
+        when(resourcePermissionService.checkUserPermissionStatusOnResource(VISITOR_ID, APP_ID, ResourceAction.EDIT_APPLICATIONS))
+                .thenReturn(Mono.just(editStatus));
 
         ApplicationView view = service.getEditingApplication(APP_ID, false).block();
 
         assertThat(view.getApplicationInfoView().getRole()).isEqualTo(ResourceRole.VIEWER.getValue());
-        assertThat(view.getApplicationDSL()).isEqualTo(draftDsl);
-        verify(resourcePermissionService, never()).checkUserPermissionStatusOnResource(any(), any(), any());
-        verify(applicationService).updateById(APP_ID, application);
-        say("getEditingApplication of a public+marketplace app: role viewer, edit check skipped, updateById called (section 9 defect pinned)");
+        assertThat(view.getApplicationDSL()).isEqualTo(dsl("published", "v1"));
+        verify(resourcePermissionService).checkUserPermissionStatusOnApplication(VISITOR_ID, APP_ID, ResourceAction.READ_APPLICATIONS,
+                ApplicationRequestType.PUBLIC_TO_MARKETPLACE);
+        verify(applicationService, never()).updateById(any(), any());
+        say("getEditingApplication of a public+marketplace app, visitor %s: published DSL, role viewer, nothing written", label);
+    }
+
+    /**
+     * BF-018: an editor of a public marketplace application gets the editing view with their own role (it used to be
+     * "viewer" for everyone) and the draft DSL, and nothing is written.
+     */
+    @Test
+    void getEditingApplication_publicMarketplaceApp_editorGetsTheEditingView() {
+        publicMarketplaceAppWithAPublishedVersion(ApplicationStatus.NORMAL);
+
+        ApplicationView view = service.getEditingApplication(APP_ID, false).block();
+
+        assertThat(view.getApplicationInfoView().getRole()).isEqualTo(ResourceRole.EDITOR.getValue());
+        assertThat(view.getApplicationDSL()).isEqualTo(dsl("draft", "unpublished"));
+        verify(applicationService, never()).updateById(any(), any());
+        say("getEditingApplication of a public+marketplace app, editor: draft DSL, role editor");
+    }
+
+    /**
+     * BF-018: a visitor without the edit permission never gets a recycled marketplace application, even when asking with
+     * {@code withDeleted = true} (as the marketplace view, which never passes it); an editor still does.
+     */
+    @Test
+    void getEditingApplication_recycledPublicMarketplaceApp_withDeleted_isServedToEditorsOnly() {
+        publicMarketplaceAppWithAPublishedVersion(ApplicationStatus.RECYCLED);
+
+        StepVerifier.create(service.getEditingApplication(APP_ID, true)).expectNextCount(1).verifyComplete();
+
+        when(resourcePermissionService.checkUserPermissionStatusOnResource(VISITOR_ID, APP_ID, ResourceAction.EDIT_APPLICATIONS))
+                .thenReturn(Mono.just(UserPermissionOnResourceStatus.notEnoughPermission()));
+        StepVerifier.create(service.getEditingApplication(APP_ID, true))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.UNSUPPORTED_OPERATION, MSG_BAD_REQUEST))
+                .verify();
+        say("recycled public+marketplace app with withDeleted: editor served, non-editor BAD_REQUEST");
     }
 
     static Stream<Arguments> notPublicToBoth() {
@@ -700,7 +754,7 @@ class ApplicationApiServiceImplBranchesTest {
     }
 
     /**
-     * Contrast to the pinned defect: an application that is not public to both (all, marketplace) needs the
+     * Contrast to the marketplace case: an application that is not public to both (all, marketplace) needs the
      * EDIT_APPLICATIONS permission check, and a visitor without it is refused.
      */
     @ParameterizedTest(name = "publicToAll={0} marketplace={1}")

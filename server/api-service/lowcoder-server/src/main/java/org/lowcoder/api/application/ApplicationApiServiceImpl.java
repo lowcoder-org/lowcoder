@@ -259,37 +259,68 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 }));
     }
 
+    /**
+     * The editing view: the editing DSL for a visitor with EDIT_APPLICATIONS (BF-018). An application that is public to all
+     * and to the marketplace stays readable here without that permission, because the marketplace view exports and
+     * duplicates it through this endpoint, but such a visitor gets what the marketplace view answers
+     * ({@link #getPublishedApplication} with PUBLIC_TO_MARKETPLACE, never a deleted application): the published DSL,
+     * sanitised, not the unpublished editing DSL. The read no longer writes the application document (the controller
+     * still records the visitor's last view time).
+     * <p>
+     * Limits: an application without a published version has its editing DSL as its live DSL
+     * ({@code Application.getLiveApplicationDsl}), so for such an application the marketplace view, and this view for
+     * non-editors, still show that DSL (sanitised). For the marketplace case the visitor's permission must be one whose
+     * role can edit; the permission check of other applications accepts any permission it finds, as before.
+     */
     @Override
     public Mono<ApplicationView> getEditingApplication(String applicationId, Boolean withDeleted) {
-        return applicationService.findById(applicationId).filter(application -> application.isPublicToAll() && application.isPublicToMarketplace())
-                .map(application -> {
-                    ResourcePermission permission = ResourcePermission.builder().resourceRole(ResourceRole.VIEWER).build();
-                    return permission;
-                })
-                .switchIfEmpty(checkPermissionWithReadableErrorMsg(applicationId, EDIT_APPLICATIONS))
-                .zipWhen(permission -> applicationService.findById(applicationId)
-                        .delayUntil(application -> Boolean.TRUE.equals(withDeleted)? Mono.empty() : checkApplicationStatus(application, NORMAL)))
-                .zipWhen(tuple -> applicationService.getAllDependentModulesFromApplication(tuple.getT2(), false), TupleUtils::merge)
-                .zipWhen(tuple -> organizationService.getOrgCommonSettings(tuple.getT2().getOrganizationId()), TupleUtils::merge)
+        return applicationService.findById(applicationId)
+                .flatMap(application -> {
+                    if (application.isPublicToAll() && application.isPublicToMarketplace()) {
+                        return findVisitorPermissionAllowing(applicationId, EDIT_APPLICATIONS)
+                                .flatMap(permission -> buildEditingView(applicationId, withDeleted, permission))
+                                .switchIfEmpty(Mono.defer(() -> getPublishedApplication(applicationId,
+                                        ApplicationRequestType.PUBLIC_TO_MARKETPLACE, false)));
+                    }
+                    return checkPermissionWithReadableErrorMsg(applicationId, EDIT_APPLICATIONS)
+                            .flatMap(permission -> buildEditingView(applicationId, withDeleted, permission));
+                });
+    }
+
+    /**
+     * The visitor's permission on the application when its role can do {@code action}, else empty. The role is checked
+     * because the status may carry a permission granted for viewing (the viewer permission of an application's creator).
+     */
+    private Mono<ResourcePermission> findVisitorPermissionAllowing(String applicationId, ResourceAction action) {
+        return sessionUserService.getVisitorId()
+                .flatMap(visitorId -> resourcePermissionService.checkUserPermissionStatusOnResource(visitorId, applicationId, action))
+                .filter(UserPermissionOnResourceStatus::hasPermission)
+                .map(UserPermissionOnResourceStatus::getPermission)
+                .filter(permission -> permission.getResourceRole().canDo(action));
+    }
+
+    private Mono<ApplicationView> buildEditingView(String applicationId, Boolean withDeleted, ResourcePermission permission) {
+        return applicationService.findById(applicationId)
+                .delayUntil(application -> Boolean.TRUE.equals(withDeleted)? Mono.empty() : checkApplicationStatus(application, NORMAL))
+                .zipWhen(application -> applicationService.getAllDependentModulesFromApplication(application, false))
+                .zipWhen(tuple -> organizationService.getOrgCommonSettings(tuple.getT1().getOrganizationId()), TupleUtils::merge)
                 .flatMap(tuple -> {
-                    ResourcePermission permission = tuple.getT1();
-                    Application application = tuple.getT2();
-                    List<Application> dependentModules = tuple.getT3();
-                    Map<String, Object> commonSettings = tuple.getT4();
+                    Application application = tuple.getT1();
+                    List<Application> dependentModules = tuple.getT2();
+                    Map<String, Object> commonSettings = tuple.getT3();
 
                     return Flux.fromIterable(dependentModules)
                             .flatMap(app -> app.getLiveApplicationDsl(applicationRecordService)
                                     .map(dsl -> Map.entry(app.getId(), sanitizeDsl(dsl))))
                             .collectMap(Map.Entry::getKey, Map.Entry::getValue)
                             .flatMap(dependentModuleDsl ->
-                                applicationService.updateById(applicationId, application).flatMap(__ ->
                                     buildView(application, permission.getResourceRole().getValue()).map(appInfoView ->
                                         ApplicationView.builder()
                                             .applicationInfoView(appInfoView)
                                             .applicationDSL(application.getEditingApplicationDSL())
                                             .moduleDSL(dependentModuleDsl)
                                             .orgCommonSettings(commonSettings)
-                                            .build())));
+                                            .build()));
                 });
     }
 

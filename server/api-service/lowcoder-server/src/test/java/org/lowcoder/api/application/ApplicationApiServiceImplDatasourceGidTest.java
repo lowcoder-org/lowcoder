@@ -67,7 +67,7 @@ import reactor.test.StepVerifier;
  * formerly the section 9 row "retainNoneExistAndNonCurrentOrgDatasourceIds with gids reports existing current-org datasources
  * as missing; the application edit check treats missing as allowed").
  *
- * <p>What runs for real: {@code ApplicationApiServiceImpl.checkDatasourcePermissions} (:748-781), the real
+ * <p>What runs for real: {@code ApplicationApiServiceImpl.checkDatasourcePermissions} (:779-812), the real
  * {@code DatasourceServiceImpl} and the real {@code DatasourceRepository} methods {@code findObjectIdsByIdOrGid} and
  * {@code retainNoneExistAndNonCurrentOrgDatasourceIds}. What is a stub: the Mongo repository {@code DatasourceDORepository},
  * whose {@code findAllById} / {@code findAllByGidIn} answer by the key kind exactly as the Mongo queries do (an id matches only
