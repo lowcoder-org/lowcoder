@@ -53,6 +53,9 @@ import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
 import org.lowcoder.domain.plugin.client.DatasourcePluginClient;
 import org.lowcoder.domain.query.service.QueryExecutionServiceImpl;
 import org.lowcoder.sdk.config.CommonConfig;
+import org.lowcoder.sdk.query.QueryExecutionContext;
+import org.lowcoder.sdk.plugin.common.QueryExecutor;
+import org.lowcoder.domain.datasource.model.DatasourceConnectionHolder;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.models.DatasourceConnectionConfig;
@@ -97,6 +100,9 @@ class ApplicationQueryApiServiceImplTest {
     /** The shipped maximum query timeout ({@code application.yaml} {@code common.max-query-timeout}), in seconds. */
     private static final int MAX_QUERY_TIMEOUT_SECONDS = 120;
     private static final String ABOVE_THE_MAXIMUM = (MAX_QUERY_TIMEOUT_SECONDS + 1) + "s";
+    /** The shipped maximum written in minutes, and one minute above it. */
+    private static final String MINUTES_AT_THE_MAXIMUM = (MAX_QUERY_TIMEOUT_SECONDS / 60) + "m";
+    private static final String MINUTES_ABOVE_THE_MAXIMUM = (MAX_QUERY_TIMEOUT_SECONDS / 60 + 1) + "m";
 
     private static final String APP_ID = "app-1";
     private static final String ROOT_APP_ID = "root-app";
@@ -444,35 +450,98 @@ class ApplicationQueryApiServiceImplTest {
     }
 
     /**
-     * BF-043 through the application branch of {@code POST /api/query/execute}: with the real
-     * {@link QueryExecutionServiceImpl} and the shipped maximum of {@value #MAX_QUERY_TIMEOUT_SECONDS} s, a query whose
-     * timeout is above it is answered with EXCEED_MAX_QUERY_TIMEOUT naming the maximum in seconds, and nothing runs. Before
-     * the fix the maximum was multiplied by 1000 and the query ran.
+     * The real {@link QueryExecutionServiceImpl} with the shipped maximum of {@value #MAX_QUERY_TIMEOUT_SECONDS} s over
+     * mocked execution collaborators; {@link #runs} lets a query of a type reach the executor and answer {@code result}.
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private final class RealExecution {
+        final DatasourceConnectionPool pool = org.mockito.Mockito.mock(DatasourceConnectionPool.class);
+        final DatasourceMetaInfoService metaInfo = org.mockito.Mockito.mock(DatasourceMetaInfoService.class);
+        final DatasourcePluginClient pluginClient = org.mockito.Mockito.mock(DatasourcePluginClient.class);
+        final QueryExecutor executor = org.mockito.Mockito.mock(QueryExecutor.class);
+        final QueryExecutionServiceImpl service;
+
+        RealExecution() {
+            CommonConfig limits = new CommonConfig();
+            limits.setMaxQueryTimeout(MAX_QUERY_TIMEOUT_SECONDS);
+            service = new QueryExecutionServiceImpl(pool, metaInfo, pluginClient, limits);
+        }
+
+        void runs(String datasourceType) {
+            when(metaInfo.getQueryExecutor(datasourceType)).thenReturn(executor);
+            when(executor.buildQueryExecutionContextMono(any(), any(), any(), any())).thenReturn(Mono.just(org.mockito.Mockito.mock(QueryExecutionContext.class)));
+            when(pool.getOrCreateConnection(any())).thenReturn((Mono) Mono.just(org.mockito.Mockito.mock(DatasourceConnectionHolder.class)));
+            when(executor.doExecuteQuery(any(), any())).thenReturn(Mono.just(result));
+        }
+
+        void assertNothingRan() {
+            verifyNoInteractions(pool, metaInfo, pluginClient, executor);
+        }
+    }
+
+    private ApplicationQueryApiServiceImpl serviceOver(RealExecution execution) {
+        ApplicationQueryApiServiceImpl withRealExecution = new ApplicationQueryApiServiceImpl(sessionUserService, libraryQueryService,
+                libraryQueryRecordService, applicationService, resourcePermissionService, datasourceService, execution.service,
+                commonConfig, applicationRecordService);
+        ReflectionTestUtils.setField(withRealExecution, "port", PORT);
+        return withRealExecution;
+    }
+
+    private void storedTimeout(String timeout, Map<String, Object> queryConfig) {
+        appQuery = new ApplicationQuery("q-id", "q-gid", "q-name", DATASOURCE_ID, queryConfig, "manual", timeout, PLAIN_TYPE);
+    }
+
+    private static void assertRefusedOverTheMaximum(Throwable error) {
+        assertThat(error).isInstanceOfSatisfying(PluginException.class, plugin -> {
+            assertThat(plugin.getError()).isEqualTo(PluginCommonError.EXCEED_MAX_QUERY_TIMEOUT);
+            assertThat(plugin.getArgs()).containsExactly(MAX_QUERY_TIMEOUT_SECONDS);
+        });
+    }
+
+    /**
+     * BF-043 through the application branch of {@code POST /api/query/execute}: with the real execution service and the
+     * shipped maximum, a query whose timeout is above it is answered with EXCEED_MAX_QUERY_TIMEOUT naming the maximum in
+     * seconds, and nothing runs. Before the fix the maximum was multiplied by 1000 and the query ran.
      */
     @Test
     void execute_timeoutAboveTheMaximum_isRefusedThroughTheRealExecutionServiceBF043() {
-        CommonConfig limits = new CommonConfig();
-        limits.setMaxQueryTimeout(MAX_QUERY_TIMEOUT_SECONDS);
-        DatasourceConnectionPool pool = org.mockito.Mockito.mock(DatasourceConnectionPool.class);
-        DatasourceMetaInfoService metaInfo = org.mockito.Mockito.mock(DatasourceMetaInfoService.class);
-        DatasourcePluginClient pluginClient = org.mockito.Mockito.mock(DatasourcePluginClient.class);
-        ApplicationQueryApiServiceImpl withRealExecution = new ApplicationQueryApiServiceImpl(sessionUserService, libraryQueryService,
-                libraryQueryRecordService, applicationService, resourcePermissionService, datasourceService,
-                new QueryExecutionServiceImpl(pool, metaInfo, pluginClient, limits), commonConfig, applicationRecordService);
-        ReflectionTestUtils.setField(withRealExecution, "port", PORT);
-        appQuery = new ApplicationQuery("q-id", "q-gid", "q-name", DATASOURCE_ID, Map.of("sql", "select 1"), "manual",
-                ABOVE_THE_MAXIMUM, PLAIN_TYPE);
+        RealExecution execution = new RealExecution();
+        storedTimeout(ABOVE_THE_MAXIMUM, Map.of("sql", "select 1"));
 
-        StepVerifier.create(withRealExecution.executeApplicationQuery(exchange, validRequest()))
+        StepVerifier.create(serviceOver(execution).executeApplicationQuery(exchange, validRequest()))
                 .expectErrorSatisfies(error -> {
                     say("timeout %s with a %d s maximum -> %s", ABOVE_THE_MAXIMUM, MAX_QUERY_TIMEOUT_SECONDS, error);
-                    assertThat(error).isInstanceOfSatisfying(PluginException.class, plugin -> {
-                        assertThat(plugin.getError()).isEqualTo(PluginCommonError.EXCEED_MAX_QUERY_TIMEOUT);
-                        assertThat(plugin.getArgs()).containsExactly(MAX_QUERY_TIMEOUT_SECONDS);
-                    });
+                    assertRefusedOverTheMaximum(error);
                 })
                 .verify();
-        verifyNoInteractions(pool, metaInfo, pluginClient);
+        execution.assertNothingRan();
+    }
+
+    /**
+     * BF-044 through the application branch: a stored timeout in minutes is read in minutes. With the shipped maximum
+     * of {@value #MAX_QUERY_TIMEOUT_SECONDS} s, {@value #MINUTES_ABOVE_THE_MAXIMUM} is refused and nothing runs, while
+     * {@value #MINUTES_AT_THE_MAXIMUM} runs with its timeout in milliseconds handed to the executor. Before the fix both
+     * were read as milliseconds and ran.
+     */
+    @Test
+    void execute_timeoutInMinutes_isReadInMinutesThroughTheRealExecutionServiceBF044() {
+        RealExecution refusing = new RealExecution();
+        storedTimeout(MINUTES_ABOVE_THE_MAXIMUM, new HashMap<>(Map.of("sql", "select 1")));
+        StepVerifier.create(serviceOver(refusing).executeApplicationQuery(exchange, validRequest()))
+                .expectErrorSatisfies(error -> {
+                    say("timeout %s with a %d s maximum -> %s", MINUTES_ABOVE_THE_MAXIMUM, MAX_QUERY_TIMEOUT_SECONDS, error);
+                    assertRefusedOverTheMaximum(error);
+                })
+                .verify();
+        refusing.assertNothingRan();
+
+        RealExecution running = new RealExecution();
+        running.runs(PLAIN_TYPE);
+        Map<String, Object> queryConfig = new HashMap<>(Map.of("sql", "select 1"));
+        storedTimeout(MINUTES_AT_THE_MAXIMUM, queryConfig);
+        StepVerifier.create(serviceOver(running).executeApplicationQuery(exchange, validRequest())).expectNext(result).verifyComplete();
+        say("timeout %s -> ran with timeoutMs %s", MINUTES_AT_THE_MAXIMUM, queryConfig.get("timeoutMs"));
+        assertThat(queryConfig).containsEntry("timeoutMs", String.valueOf(MAX_QUERY_TIMEOUT_SECONDS * 1000));
     }
 
     /** Catches a query run without its datasource: DATASOURCE_NOT_FOUND carrying the datasource id, nothing executed. */
