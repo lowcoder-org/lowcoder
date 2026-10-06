@@ -41,8 +41,8 @@ import static org.mockito.Mockito.when;
  * first. Mockito: the seven repositories are mocks, the entities are real objects.
  *
  * <p>Not a re-pin: the permission-bypass row of plan section 9 ({@code DatasourceRepository.retainNoneExistAndNonCurrentOrgDatasourceIds},
- * pinned by 1f8d88dce and 1b81200d8) starts from gids that come through {@code convertDatasourceIdToObjectId}; this class asserts only the
- * converter's own contract and never touches that repository or its callers.
+ * pinned by 1f8d88dce and 1b81200d8, fixed as BF-002) starts from gids that come through {@code convertDatasourceIdToObjectId}; this class
+ * asserts only the converter's own contract and never touches that repository or its callers.
  *
  * <p>Limits: the repositories are mocks; what the real queries match is not under test.
  */
