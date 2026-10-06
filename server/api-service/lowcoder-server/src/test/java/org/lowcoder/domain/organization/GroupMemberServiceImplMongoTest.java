@@ -102,8 +102,8 @@ class GroupMemberServiceImplMongoTest extends OrganizationMongoTestBase {
 
     /**
      * Pins plan section 9 row "updateMemberRole answers true for a member that does not exist (hasElement on the update
-     * result; OrgMemberServiceImpl:142-143, GroupMemberServiceImpl:47-48)". Caller GroupApiServiceImpl.updateRoleForMember
-     * (:243-251) returns that value to the client. A fix (map the update's boolean) changes this test on purpose.
+     * result; OrgMemberServiceImpl:142-143, GroupMemberServiceImpl:47-48)" (the org line is now OrgMemberServiceImpl:150-151).
+     * Caller GroupApiServiceImpl.updateRoleForMember (:243-251) returns that value to the client. A fix (map the update's boolean) changes this test on purpose.
      */
     @Test
     void updateMemberRoleAnswersTrueForAMemberWhoIsNotInTheGroup_pinsTheSection9Row() {
