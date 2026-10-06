@@ -393,9 +393,17 @@ public class GroupApiServiceImpl implements GroupApiService {
                 });
     }
 
+    /**
+     * The users of the group's organization who are not in the group yet, for a visitor who may add members: the gate of
+     * {@link #addGroupMember} (BF-021). A group of another organization, or one that does not exist, is INVALID_GROUP_ID; a
+     * visitor who is neither a group admin nor an org admin is NOT_AUTHORIZED.
+     */
     @Override
     public Mono<OrgMemberListView> getPotentialGroupMembers(String groupId, String searchName, Integer pageNum, Integer pageSize) {
-        return groupService.getById(groupId)
+        return getGroupAndOrgMemberInfo(groupId)
+                .filter(this::hasManagePermission)
+                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, NOT_AUTHORIZED))
+                .then(groupService.getById(groupId))
                 .flatMap(group -> {
                     String orgId = group.getOrganizationId();
                     Mono<List<OrgMember>> orgMemberUserIdsMono = orgMemberService.getOrganizationMembers(orgId).collectList();
