@@ -97,6 +97,29 @@ public class Datasource extends HasIdAndAuditing {
     @JsonProperty(value = "datasourceConfig")
     private DatasourceConnectionConfig detailConfig;
 
+    /**
+     * A new datasource with this one's id, gid, name, type, organization, creation source, status and detail config, for
+     * changing a system-static datasource without changing the shared constant: {@link #mergeWith} changes the
+     * datasource it is called on.
+     * <p>
+     * Limits: the copy is shallow, the detail config object is shared. {@link #mergeWith} replaces the copy's config with
+     * the merged one and does not change it in place for the REST API and GraphQL configs the system-static datasources
+     * have ({@code mergeWithUpdatedConfig} changes and returns the updated config); a config merge that changed the
+     * current config in place would still reach the original. Auditing fields and the plugin definition are not copied.
+     */
+    public Datasource copy() {
+        Datasource copy = new Datasource();
+        copy.setId(getId());
+        copy.setGid(gid);
+        copy.setName(name);
+        copy.setType(type);
+        copy.setOrganizationId(organizationId);
+        copy.setCreationSource(creationSource);
+        copy.setDatasourceStatus(datasourceStatus);
+        copy.setDetailConfig(detailConfig);
+        return copy;
+    }
+
     public Datasource mergeWith(Datasource updatedDatasource) {
         setName(updatedDatasource.getName());
         setDatasourceStatus(updatedDatasource.getDatasourceStatus());
