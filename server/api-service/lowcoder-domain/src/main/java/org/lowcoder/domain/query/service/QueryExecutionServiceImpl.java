@@ -44,7 +44,8 @@ public class QueryExecutionServiceImpl implements QueryExecutionService {
     public Mono<QueryExecutionResult> executeQuery(Datasource datasource, Map<String, Object> queryConfig, Map<String, Object> requestParams,
                                                    String timeoutStr, QueryVisitorContext queryVisitorContext) {
 
-        int timeoutMs = QueryTimeoutUtils.parseQueryTimeoutMs(timeoutStr, requestParams, common.getMaxQueryTimeout() * 1000);
+        // BF-043: the maximum is in seconds, as configured; it was passed multiplied by 1000
+        int timeoutMs = QueryTimeoutUtils.parseQueryTimeoutMs(timeoutStr, requestParams, common.getMaxQueryTimeout());
         queryConfig.putIfAbsent("timeoutMs", String.valueOf(timeoutMs));
 
         return Mono.defer(() -> {

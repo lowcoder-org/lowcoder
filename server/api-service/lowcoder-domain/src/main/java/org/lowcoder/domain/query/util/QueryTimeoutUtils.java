@@ -26,14 +26,24 @@ public final class QueryTimeoutUtils {
         QueryTimeoutUtils.defaultQueryTimeout = defaultQueryTimeout;
     }
 
-    public static int parseQueryTimeoutMs(String timeoutStr, Map<String, Object> paramMap, int maxQueryTimeout) {
-        return parseQueryTimeoutMs(renderMustacheString(timeoutStr, paramMap), maxQueryTimeout);
+    public static int parseQueryTimeoutMs(String timeoutStr, Map<String, Object> paramMap, int maxQueryTimeoutSeconds) {
+        return parseQueryTimeoutMs(renderMustacheString(timeoutStr, paramMap), maxQueryTimeoutSeconds);
     }
 
+    /**
+     * The query timeout in milliseconds: a blank text is the default, clamped by the maximum. The maximum and the
+     * default are in seconds and are compared in {@code long} (BF-043: the blank-timeout default was computed in
+     * {@code int}, so a large maximum made it negative and every query timed out at once).
+     * <p>
+     * Limits: a timeout is an {@code int} of milliseconds, so it is at most {@link Integer#MAX_VALUE} ms (about 24.8 days);
+     * a larger value that a maximum of that size allows is cut to it.
+     */
     @VisibleForTesting
-    public static int parseQueryTimeoutMs(String timeoutStr, int maxQueryTimeout) {
+    public static int parseQueryTimeoutMs(String timeoutStr, int maxQueryTimeoutSeconds) {
+        long maxQueryTimeoutMs = Duration.ofSeconds(maxQueryTimeoutSeconds).toMillis();
         if (StringUtils.isBlank(timeoutStr)) {
-            return Math.min(defaultQueryTimeout * 1000, (int)Duration.ofSeconds(maxQueryTimeout).toMillis());
+            long defaultQueryTimeoutMs = Duration.ofSeconds(defaultQueryTimeout).toMillis();
+            return (int) Math.min(Integer.MAX_VALUE, Math.min(defaultQueryTimeoutMs, maxQueryTimeoutMs));
         }
 
         Pair<String, Integer> unitInfo = getUnitInfo(timeoutStr);
@@ -53,8 +63,8 @@ public final class QueryTimeoutUtils {
         }
  
         int millis = convertToMs(value, unit);
-        if (millis > Duration.ofSeconds(maxQueryTimeout).toMillis()) {
-            throw new PluginException(EXCEED_MAX_QUERY_TIMEOUT, "EXCEED_MAX_QUERY_TIMEOUT", maxQueryTimeout);
+        if (millis > maxQueryTimeoutMs) {
+            throw new PluginException(EXCEED_MAX_QUERY_TIMEOUT, "EXCEED_MAX_QUERY_TIMEOUT", maxQueryTimeoutSeconds);
         }
 
         return millis;

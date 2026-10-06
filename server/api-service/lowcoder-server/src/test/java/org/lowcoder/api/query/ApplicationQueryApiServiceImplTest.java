@@ -48,6 +48,10 @@ import org.lowcoder.domain.query.service.QueryExecutionService;
 import org.lowcoder.domain.user.model.Connection;
 import org.lowcoder.domain.user.model.ConnectionAuthToken;
 import org.lowcoder.domain.user.model.User;
+import org.lowcoder.domain.datasource.service.DatasourceConnectionPool;
+import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
+import org.lowcoder.domain.plugin.client.DatasourcePluginClient;
+import org.lowcoder.domain.query.service.QueryExecutionServiceImpl;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
@@ -55,6 +59,8 @@ import org.lowcoder.sdk.models.DatasourceConnectionConfig;
 import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
 import org.lowcoder.sdk.models.Param;
 import org.lowcoder.sdk.models.Property;
+import org.lowcoder.sdk.exception.PluginCommonError;
+import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
 import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
@@ -88,6 +94,9 @@ import reactor.test.StepVerifier;
 class ApplicationQueryApiServiceImplTest {
 
     private static final String LOG_PREFIX = "[ApplicationQueryApiServiceImplTest] ";
+    /** The shipped maximum query timeout ({@code application.yaml} {@code common.max-query-timeout}), in seconds. */
+    private static final int MAX_QUERY_TIMEOUT_SECONDS = 120;
+    private static final String ABOVE_THE_MAXIMUM = (MAX_QUERY_TIMEOUT_SECONDS + 1) + "s";
 
     private static final String APP_ID = "app-1";
     private static final String ROOT_APP_ID = "root-app";
@@ -432,6 +441,38 @@ class ApplicationQueryApiServiceImplTest {
         }
         verify(datasourceService).getById(DATASOURCE_ID);
         say("library query, record id %s -> %s version executed", recordId, live ? "live" : "recorded");
+    }
+
+    /**
+     * BF-043 through the application branch of {@code POST /api/query/execute}: with the real
+     * {@link QueryExecutionServiceImpl} and the shipped maximum of {@value #MAX_QUERY_TIMEOUT_SECONDS} s, a query whose
+     * timeout is above it is answered with EXCEED_MAX_QUERY_TIMEOUT naming the maximum in seconds, and nothing runs. Before
+     * the fix the maximum was multiplied by 1000 and the query ran.
+     */
+    @Test
+    void execute_timeoutAboveTheMaximum_isRefusedThroughTheRealExecutionServiceBF043() {
+        CommonConfig limits = new CommonConfig();
+        limits.setMaxQueryTimeout(MAX_QUERY_TIMEOUT_SECONDS);
+        DatasourceConnectionPool pool = org.mockito.Mockito.mock(DatasourceConnectionPool.class);
+        DatasourceMetaInfoService metaInfo = org.mockito.Mockito.mock(DatasourceMetaInfoService.class);
+        DatasourcePluginClient pluginClient = org.mockito.Mockito.mock(DatasourcePluginClient.class);
+        ApplicationQueryApiServiceImpl withRealExecution = new ApplicationQueryApiServiceImpl(sessionUserService, libraryQueryService,
+                libraryQueryRecordService, applicationService, resourcePermissionService, datasourceService,
+                new QueryExecutionServiceImpl(pool, metaInfo, pluginClient, limits), commonConfig, applicationRecordService);
+        ReflectionTestUtils.setField(withRealExecution, "port", PORT);
+        appQuery = new ApplicationQuery("q-id", "q-gid", "q-name", DATASOURCE_ID, Map.of("sql", "select 1"), "manual",
+                ABOVE_THE_MAXIMUM, PLAIN_TYPE);
+
+        StepVerifier.create(withRealExecution.executeApplicationQuery(exchange, validRequest()))
+                .expectErrorSatisfies(error -> {
+                    say("timeout %s with a %d s maximum -> %s", ABOVE_THE_MAXIMUM, MAX_QUERY_TIMEOUT_SECONDS, error);
+                    assertThat(error).isInstanceOfSatisfying(PluginException.class, plugin -> {
+                        assertThat(plugin.getError()).isEqualTo(PluginCommonError.EXCEED_MAX_QUERY_TIMEOUT);
+                        assertThat(plugin.getArgs()).containsExactly(MAX_QUERY_TIMEOUT_SECONDS);
+                    });
+                })
+                .verify();
+        verifyNoInteractions(pool, metaInfo, pluginClient);
     }
 
     /** Catches a query run without its datasource: DATASOURCE_NOT_FOUND carrying the datasource id, nothing executed. */
