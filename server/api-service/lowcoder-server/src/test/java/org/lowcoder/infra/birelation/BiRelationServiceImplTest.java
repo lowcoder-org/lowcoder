@@ -223,7 +223,7 @@ class BiRelationServiceImplTest {
      * {@code where(RELATION).is("super_admin").not()} (BiRelationServiceImpl.java:135), and Spring turns that into the
      * plain criterion {@code {"relation": "super_admin"}}: the negation is lost. The call therefore deletes only the
      * super_admin row of the source and keeps every other member. It runs when an organization or a group is deleted
-     * (deleteOrgMembers, deleteGroupMembers, through OrgAndGroupEventListener.java:62 and :110), so a deleted org or
+     * (deleteOrgMembers, deleteGroupMembers, through OrgAndGroupEventListener.java:65 and :121), so a deleted org or
      * group keeps all its members except the super admin. The obvious fix is {@code where(RELATION).ne("super_admin")}
      * (delete everything except super_admin, as the code reads), which turns this test red.
      */
