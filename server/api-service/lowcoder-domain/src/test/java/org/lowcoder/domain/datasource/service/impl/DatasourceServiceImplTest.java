@@ -336,7 +336,7 @@ class DatasourceServiceImplTest {
 
     // ---------------------------------------------------------------- testDatasource
 
-    /** Catches the given datasource not being tested as is when it has no id (:196). */
+    /** Catches the given datasource not being tested as is when it has no id (:197). */
     @Test
     void testDatasource_withoutId_testsTheGivenDatasourceWithoutLookup() {
         DatasourceConnectionConfig config = mock(DatasourceConnectionConfig.class);
@@ -349,7 +349,7 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] test without id: given config tested, no lookup");
     }
 
-    /** Catches testing with credentials the user may not use (:198): an unknown id is NOT_AUTHORIZED. */
+    /** Catches testing with credentials the user may not use (:199): an unknown id is NOT_AUTHORIZED. */
     @Test
     void testDatasource_unknownId_failsNotAuthorized() {
         when(repository.findById("missing")).thenReturn(Mono.empty());
@@ -361,7 +361,7 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] test with an unknown id -> NOT_AUTHORIZED");
     }
 
-    /** Catches the stored credentials not being merged in before validation and test (:200). */
+    /** Catches the stored credentials not being merged in before validation and test (:201). */
     @Test
     void testDatasource_knownId_mergesTheStoredDatasourceBeforeTesting() {
         DatasourceConnectionConfig currentConfig = mock(DatasourceConnectionConfig.class);
@@ -378,7 +378,7 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] test with a known id: merged config validated and tested");
     }
 
-    /** Catches the wrong test path per plugin kind (:206): JS plugins go to the node client, Java plugins to the connector. */
+    /** Catches the wrong test path per plugin kind (:207): JS plugins go to the node client, Java plugins to the connector. */
     @Test
     void testDatasource_jsPluginGoesToTheNodeClient_javaPluginToTheLocalConnector() {
         JsDatasourceConnectionConfig jsConfig = new JsDatasourceConnectionConfig();
@@ -394,7 +394,7 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] test routing: JS -> node client, Java -> local connector");
     }
 
-    /** Catches a connector failure surfacing as an error signal (:217): it must become a failed test result. */
+    /** Catches a connector failure surfacing as an error signal (:218): it must become a failed test result. */
     @Test
     void testDatasource_connectorError_becomesAFailedResultNotAnError() {
         when(connector.doTestConnection(any())).thenReturn(Mono.error(new IllegalStateException("boom")));
@@ -408,7 +408,7 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] connector error -> failed DatasourceTestResult");
     }
 
-    /** Catches a hanging connector blocking the request (:216): after 10 seconds (virtual time) the test fails as a timeout. */
+    /** Catches a hanging connector blocking the request (:217): after 10 seconds (virtual time) the test fails as a timeout. */
     @Test
     void testDatasource_connectorNeverAnswers_failsAsTimeoutAfterTenSeconds() {
         when(connector.doTestConnection(any())).thenReturn(Mono.never());
@@ -431,7 +431,7 @@ class DatasourceServiceImplTest {
 
     /**
      * Pins the plan section 9 row "testDatasource merges into the shared static datasource": for a system-static id,
-     * {@code getById} returns the shared constant and {@code mergeWith} (:200) mutates it, so a connection test changes
+     * {@code getById} returns the shared constant and {@code mergeWith} (:201) mutates it, so a connection test changes
      * the global QUICK_REST_API for every later caller. The shared constant is restored in {@code finally}. A fix (merge
      * into a copy) changes this test on purpose.
      */
@@ -471,7 +471,7 @@ class DatasourceServiceImplTest {
         return config;
     }
 
-    /** Catches secrets going unmasked to the client (:230): JS plugin password-type keys are removed, others kept. */
+    /** Catches secrets going unmasked to the client (:231): JS plugin password-type keys are removed, others kept. */
     @Test
     void removePasswordTypeKeys_jsPlugin_removesPasswordKeysAfterFillingTheDefinition() {
         JsDatasourceConnectionConfig config = jsConfigWithPasswordParam();
@@ -484,7 +484,7 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] JS plugin: password-type keys removed, other keys kept");
     }
 
-    /** Catches passwords being removed even when filling the definition fails (doFinally), and for non-JS plugins (:228). */
+    /** Catches passwords being removed even when filling the definition fails (doFinally), and for non-JS plugins (:229). */
     @Test
     void removePasswordTypeKeys_removesEvenWhenFillFails_andNeverForJavaPlugins() {
         JsDatasourceConnectionConfig failing = jsConfigWithPasswordParam();
@@ -503,7 +503,7 @@ class DatasourceServiceImplTest {
 
     // ---------------------------------------------------------------- retain / delete
 
-    /** Catches a repository call for an empty or null id collection (:252). */
+    /** Catches a repository call for an empty or null id collection (:253). */
     @Test
     void retainNoneExist_emptyOrNullCollection_returnsEmptyWithoutRepository_otherwiseDelegates() {
         StepVerifier.create(service.retainNoneExistAndNonCurrentOrgDatasourceIds(List.of(), ORG_ID)).verifyComplete();
@@ -529,7 +529,7 @@ class DatasourceServiceImplTest {
         return subscriptions;
     }
 
-    /** Catches deleting a datasource that live applications still use (:262): their queries would break. */
+    /** Catches deleting a datasource that live applications still use (:263): their queries would break. */
     @ParameterizedTest
     @EnumSource(value = ApplicationStatus.class, names = {"NORMAL", "RECYCLED"})
     void delete_stillUsedByANonDeletedApplication_failsAndDoesNotMarkDeleted(ApplicationStatus status) {
@@ -543,7 +543,7 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] delete refused while a " + status + " application uses the datasource");
     }
 
-    /** Catches deleted applications blocking the delete (:274), and the delete not being executed once allowed. */
+    /** Catches deleted applications blocking the delete (:275), and the delete not being executed once allowed. */
     @Test
     void delete_unusedOrOnlyUsedByDeletedApplications_marksDeletedOnce() {
         AtomicInteger subscriptions = countDeleteSubscriptions();
