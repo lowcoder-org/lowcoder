@@ -118,7 +118,7 @@ class LibraryQueryServiceImplMongoTest extends LibraryQueryMongoTestBase {
         assertThat(libraryQueryService.update(newId(), LibraryQuery.builder().name("x").build()).block(TIMEOUT)).isFalse();
     }
 
-    /** Catches: delete by id or by gid removing the neighbours, or nothing. Observed: the query's records stay (the API layer removes them, LibraryQueryApiServiceImpl:147-148). */
+    /** Catches: delete by id or by gid removing the neighbours, or nothing. Observed: the query's records stay (the API layer removes them, LibraryQueryApiServiceImpl:167-168). */
     @Test
     void deleteByIdAndByGidRemoveOnlyThatQueryAndLeaveItsRecords() {
         String orgId = newId();

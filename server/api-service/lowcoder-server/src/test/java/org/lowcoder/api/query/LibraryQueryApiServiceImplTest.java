@@ -116,6 +116,8 @@ class LibraryQueryApiServiceImplTest {
     private static final String DS_PERMITTED = "ds-permitted";
     private static final String DS_DENIED = "ds-denied";
     private static final String DS_FOREIGN = "ds-foreign";
+    private static final String DS_PERMITTED_OBJECT_ID = "dspermittedobjectid";
+    private static final String DS_DENIED_OBJECT_ID = "dsdeniedobjectid";
     private static final int PORT = 18081;
     private static final Instant CREATED_AT = Instant.ofEpochMilli(1_700_000_000_000L);
     private static final String OAUTH_TYPE_NAME = RestApiAuthType.OAUTH2_INHERIT_FROM_LOGIN.name();
@@ -273,6 +275,7 @@ class LibraryQueryApiServiceImplTest {
         when(libraryQueryService.getByOrganizationId(ORG)).thenReturn(Flux.just(alpha, beta, gamma, delta, epsilon, zeta));
         when(resourcePermissionService.filterResourceWithPermission(VISITOR_ID, catalogueDatasourceIds, USE_DATASOURCES))
                 .thenReturn(Flux.just(DS_PERMITTED));
+        when(datasourceService.getObjectIdsByIdOrGid(catalogueDatasourceIds)).thenReturn(Mono.just(Map.of()));
         when(datasourceService.retainNoneExistAndNonCurrentOrgDatasourceIds(catalogueDatasourceIds, ORG))
                 .thenReturn(Flux.just(DS_FOREIGN));
         lenient().when(userService.getByIds(any())).thenReturn(Mono.just(Map.of(CREATOR_ID, creator)));
@@ -307,6 +310,33 @@ class LibraryQueryApiServiceImplTest {
                 })
                 .verifyComplete();
         say("list [%s] -> %s", name, expectedNames);
+    }
+
+    /**
+     * BF-002: a library query may name its datasource by gid, while the use permissions are stored under object ids. The gids
+     * are converted first, so the permission filter and the other-org check are asked about the object ids: a gid of a
+     * datasource the visitor may use is listed, a gid of one the visitor may not use is hidden (it used to be listed, as the
+     * gid was reported as missing).
+     */
+    @Test
+    void listLibraryQueries_gidReferences_areCheckedUnderTheObjectIds() {
+        String permittedGid = "gid-of-" + DS_PERMITTED_OBJECT_ID;
+        String deniedGid = "gid-of-" + DS_DENIED_OBJECT_ID;
+        List<String> objectIds = List.of(DS_PERMITTED_OBJECT_ID, DS_DENIED_OBJECT_ID);
+        when(libraryQueryService.getByOrganizationId(ORG)).thenReturn(Flux.just(
+                libraryQuery("lq-gid-permitted", ORG, "gid-permitted", permittedGid, CREATOR_ID),
+                libraryQuery("lq-gid-denied", ORG, "gid-denied", deniedGid, CREATOR_ID)));
+        when(datasourceService.getObjectIdsByIdOrGid(List.of(permittedGid, deniedGid)))
+                .thenReturn(Mono.just(Map.of(permittedGid, DS_PERMITTED_OBJECT_ID, deniedGid, DS_DENIED_OBJECT_ID)));
+        when(resourcePermissionService.filterResourceWithPermission(VISITOR_ID, objectIds, USE_DATASOURCES))
+                .thenReturn(Flux.just(DS_PERMITTED_OBJECT_ID));
+        when(datasourceService.retainNoneExistAndNonCurrentOrgDatasourceIds(objectIds, ORG)).thenReturn(Flux.empty());
+        lenient().when(userService.getByIds(any())).thenReturn(Mono.just(Map.of(CREATOR_ID, creator)));
+
+        StepVerifier.create(service.listLibraryQueries(""))
+                .assertNext(views -> assertThat(views).extracting(LibraryQueryView::name).containsExactly("gid-permitted"))
+                .verifyComplete();
+        say("list by gid: %s permitted, %s denied -> only gid-permitted", permittedGid, deniedGid);
     }
 
     /** Catches listing without the developer check: a failing check is the result and no library query is read. */

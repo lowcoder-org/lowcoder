@@ -5,6 +5,7 @@ import static org.lowcoder.sdk.util.JsonUtils.toJson;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.lowcoder.domain.datasource.model.Datasource;
@@ -18,7 +19,6 @@ import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.models.DatasourceConnectionConfig;
-import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,25 +115,57 @@ public class DatasourceRepository {
         return mongoUpsertHelper.updateById(datasource, datasourceId);
     }
 
+    /**
+     * The given datasource ids that need no use permission: those that match no datasource and those of a datasource of
+     * another organization. Each entry may be an object id or a gid (a list may mix both); a datasource of the current
+     * organization found by either key is left out under that key (BF-002).
+     */
     public Flux<String> retainNoneExistAndNonCurrentOrgDatasourceIds(Collection<String> datasourceIds, String orgId) {
         if (CollectionUtils.isEmpty(datasourceIds)) {
             return Flux.empty();
         }
-        Flux<DatasourceDO> mixedMono;
-        if(FieldName.isGID(datasourceIds.stream().findFirst().orElseThrow()))
-            mixedMono = repository.findAllByGidIn(new HashSet<>(datasourceIds));
-        else
-            mixedMono = repository.findAllById(new HashSet<>(datasourceIds));
-        return mixedMono.collectList()
+        return findAllDOByIdOrGid(datasourceIds).collectList()
                 .map(existDatasources -> {
                     Set<String> result = new HashSet<>(datasourceIds);
                     existDatasources.stream()
-                            .filter(datasource -> datasource.getOrganizationId().equals(orgId))
-                            .map(HasIdAndAuditing::getId)
-                            .forEach(result::remove);
+                            .filter(datasource -> Objects.equals(orgId, datasource.getOrganizationId()))
+                            .forEach(datasource -> {
+                                result.remove(datasource.getId());
+                                result.remove(datasource.getGid());
+                            });
                     return result;
                 })
                 .flatMapIterable(Function.identity());
+    }
+
+    /**
+     * Each given object id or gid that matches a datasource, of any organization, mapped to that datasource's object id;
+     * entries that match none are not in the map (BF-002).
+     */
+    public Mono<Map<String, String>> findObjectIdsByIdOrGid(Collection<String> datasourceIds) {
+        if (CollectionUtils.isEmpty(datasourceIds)) {
+            return Mono.just(Map.of());
+        }
+        Set<String> keys = new HashSet<>(datasourceIds);
+        return findAllDOByIdOrGid(keys)
+                .collect(HashMap::new, (objectIds, datasource) -> {
+                    if (keys.contains(datasource.getId())) {
+                        objectIds.put(datasource.getId(), datasource.getId());
+                    }
+                    if (keys.contains(datasource.getGid())) {
+                        objectIds.put(datasource.getGid(), datasource.getId());
+                    }
+                });
+    }
+
+    /** The stored datasources whose object id or gid is one of the given keys, without decrypting them. */
+    private Flux<DatasourceDO> findAllDOByIdOrGid(Collection<String> datasourceIds) {
+        Map<Boolean, Set<String>> keysByGid = datasourceIds.stream()
+                .collect(Collectors.partitioningBy(FieldName::isGID, Collectors.toSet()));
+        Set<String> ids = keysByGid.get(false);
+        Set<String> gids = keysByGid.get(true);
+        return Flux.merge(ids.isEmpty() ? Flux.empty() : repository.findAllById(ids),
+                gids.isEmpty() ? Flux.empty() : repository.findAllByGidIn(gids));
     }
 
     public Mono<Long> countByOrganizationId(String orgId) {
