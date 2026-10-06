@@ -105,7 +105,7 @@ class OrgMemberServiceImplMongoTest extends OrganizationMongoTestBase {
      * Pins plan section 9 row "updateMemberRole answers true for a member that does not exist (hasElement on the update
      * result; OrgMemberServiceImpl:142-143, GroupMemberServiceImpl:47-48)" (now OrgMemberServiceImpl:150-151):
      * {@code Mono<Boolean>.hasElement()} is true whenever the update helper emits any value, false included. Caller OrgApiServiceImpl.updateRoleForMember
-     * (:159-165) returns that value to the client. A fix (map the update's boolean) changes this test on purpose.
+     * (:166-173) returns that value to the client. A fix (map the update's boolean) changes this test on purpose.
      */
     @Test
     void updateMemberRoleAnswersTrueForAMemberWhoDoesNotExist_pinsTheSection9Row() {

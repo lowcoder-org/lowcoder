@@ -152,7 +152,7 @@ class EmailCommunicationServiceImplTest {
     /**
      * Pins plan section 9 row "a customised reset or invite template containing a literal % makes the mail silently
      * fail (String.format; returns false)". Reachability: an org admin can store a template with
-     * PUT .../commonSettings (OrganizationController:178 -> OrgApiServiceImpl:365), the default template
+     * PUT .../commonSettings (OrganizationController:178 -> OrgApiServiceImpl:394), the default template
      * (OrganizationService:18-20) has only %s; today the stored value is never read (L3-2 row on the reset-template key,
      * UserServiceImpl:423), so the failure becomes live once that is fixed. A fix (escape or replace instead of
      * String.format) changes this test on purpose.
