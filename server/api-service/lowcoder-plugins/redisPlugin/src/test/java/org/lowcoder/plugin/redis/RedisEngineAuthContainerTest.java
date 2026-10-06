@@ -20,7 +20,8 @@ import static org.lowcoder.plugin.redis.RedisContainerSupport.SPECIAL_PASSWORD;
  * with no password, the right and a wrong password, a user name, and a password with reserved URI characters (defect D5 against a
  * server).
  *
- * <p>Limits: the default user and the single {@code requirepass} password only; ACL users, TLS and clusters are not exercised.
+ * <p>Limits: the default user and the single {@code requirepass} password only; ACL users and clusters are not exercised, and
+ * TLS only as far as an SSL-selected config failing against a server without TLS (no TLS server is started).
  */
 public class RedisEngineAuthContainerTest {
 
@@ -49,6 +50,22 @@ public class RedisEngineAuthContainerTest {
         assertFalse(test("secured, wrong password", server.config(null, "wrong")).isSuccess());
         assertFalse(test("secured, no password", server.config(null, null)).isSuccess());
         assertFalse(test("secured, unknown user", server.config("nobody", PASSWORD)).isSuccess());
+    }
+
+    /**
+     * Catches the SSL switch not reaching the connection (BF-024): against a server without TLS, the config with SSL selected
+     * fails, while the same config without SSL connects. Jedis opens the TLS handshake on the first command (the pool's
+     * borrow test sends PING); the server, which speaks no TLS, does not answer the ClientHello, so the read times out and the
+     * test reports the borrow failure (observed with a direct probe: {@code redis} answers PONG, {@code rediss} ends in
+     * {@code SocketTimeoutException: Read timed out}).
+     */
+    @Test
+    public void sslSelectedAgainstAServerWithoutTlsFails() {
+        RedisContainerSupport.Server server = RedisContainerSupport.Open.SERVER;
+        RedisDatasourceConfig withSsl = RedisDatasourceConfig.buildFrom(Map.of("host", server.host(), "port", server.port(), "usingSsl", true));
+        RedisDatasourceConfig withoutSsl = RedisDatasourceConfig.buildFrom(Map.of("host", server.host(), "port", server.port(), "usingSsl", false));
+        assertTrue(test("open, SSL not selected", withoutSsl).isSuccess());
+        assertFalse(test("open, SSL selected", withSsl).isSuccess());
     }
 
     @Test
