@@ -1,6 +1,9 @@
 package org.lowcoder.plugin.postgres;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.lowcoder.plugin.postgres.model.DataType;
 import org.lowcoder.plugin.postgres.utils.PostgresDataTypeUtils;
 
@@ -13,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -44,7 +48,7 @@ public class PostgresDataTypeUtilsTest {
             observed.put(type, extractExplicitCasting("select ?::" + type));
             assertEquals(observed.get(type), extractExplicitCasting("select ?::" + type.toUpperCase()), type + " in upper case");
         }
-        // int8, int4 and float8 are asserted in castPatternReadsLettersOnly (plan section 9 row)
+        // int8, int4 and float8 are asserted in castTypeNamesKeepTheirDigitsBF045
         System.out.println("[PostgresDataTypeUtilsTest] casts as observed: " + observed);
         assertEquals(List.of(DataType.STRING), observed.get("varchar"));
         assertEquals(List.of(DataType.BOOLEAN), observed.get("bool"));
@@ -56,17 +60,58 @@ public class PostgresDataTypeUtilsTest {
     }
 
     /**
-     * Pins the plan section 9 row "PostgresDataTypeUtils' cast pattern ... reads letters only" (D-6: fix deferred): the
-     * pattern {@code [a-zA-Z]+} stops at a digit, so {@code ?::int8} is read as {@code int} (INTEGER, not LONG), {@code ?::float8}
-     * as {@code float} (not a supported name: no cast) and {@code ?::int4} only works by accident. A fix (digits in the
-     * pattern) changes this test on purpose.
+     * BF-045 fixed: the cast pattern {@code [a-zA-Z]+} stopped at a digit, so {@code ?::int8} was read as {@code int}
+     * (INTEGER, not LONG) and {@code ?::float8} as {@code float} (no cast). Type names now keep their digits.
      */
     @Test
-    public void castPatternReadsLettersOnly_int8IsReadAsInt() {
-        assertEquals(List.of(DataType.INTEGER), extractExplicitCasting("select ?::int8"), "int8 is read as int");
-        assertEquals(List.of(DataType.INTEGER), extractExplicitCasting("select ?::int4"));
-        assertEquals(Arrays.asList((DataType) null), extractExplicitCasting("select ?::float8"), "float8 is read as float: no cast");
+    public void castTypeNamesKeepTheirDigitsBF045() {
         System.out.println("[PostgresDataTypeUtilsTest] int8 -> " + extractExplicitCasting("?::int8") + ", float8 -> " + extractExplicitCasting("?::float8"));
+        assertEquals(List.of(DataType.LONG), extractExplicitCasting("select ?::int8"));
+        assertEquals(List.of(DataType.INTEGER), extractExplicitCasting("select ?::int4"));
+        assertEquals(List.of(DataType.DOUBLE), extractExplicitCasting("select ?::float8"));
+        assertEquals(List.of(DataType.LONG, DataType.DOUBLE), extractExplicitCasting("select ?::INT8, ?::Float8"));
+    }
+
+    static Stream<Arguments> sqlWithQuestionMarksThatAreNotParameters() {
+        List<DataType> intOnly = List.of(DataType.INTEGER);
+        return Stream.of(
+                Arguments.of("a string literal", "select '?::bool', ?::int4", intOnly),
+                Arguments.of("a literal with a doubled quote", "select 'it''s ?::bool', ?::int4", intOnly),
+                Arguments.of("an escape string with an escaped quote", "select E'it\\'s ?::bool', ?::int4", intOnly),
+                Arguments.of("an escape string in lower case", "select e'\\\\?::bool', ?::int4", intOnly),
+                Arguments.of("a backslash in a standard string ends nothing", "select 'a\\', ?::int4", intOnly),
+                Arguments.of("a quoted identifier", "select \"col?::bool\", ?::int4", intOnly),
+                Arguments.of("a dollar-quoted string", "select $$ ?::bool $$, ?::int4", intOnly),
+                Arguments.of("a tagged dollar-quoted string", "select $fn$ ?::bool $x$ ?::bool $fn$, ?::int4", intOnly),
+                Arguments.of("the jsonb ?? operator", "select data ?? 'k', ?::int4", intOnly),
+                Arguments.of("the jsonb ??| operator", "select data ??| array['k'], ?::int4", intOnly),
+                Arguments.of("an escaped operator before a parameter", "select ???::int4", intOnly),
+                Arguments.of("a line comment", "select ?::int4 -- ?::bool\n, ?::text", List.of(DataType.INTEGER, DataType.STRING)),
+                Arguments.of("a nested block comment", "select /* ?::bool /* ?::bool */ ?::bool */ ?::int4", intOnly),
+                Arguments.of("a positional $1 is no dollar quote", "select $1, ?::int4", intOnly),
+                Arguments.of("a tag cannot start with a digit", "select $1a$ ?::bool $1a$, ?::int4", List.of(DataType.BOOLEAN, DataType.INTEGER)),
+                Arguments.of("a $ inside a word is no dollar quote", "select a$b$c, ?::int4", intOnly),
+                Arguments.of("an unterminated literal", "select ?::int4, 'open ?::bool", intOnly));
+    }
+
+    /**
+     * BF-045 fixed: the scanner counted every {@code ?} of the SQL text, so one inside a literal, a quoted identifier, a
+     * dollar quote or a comment, or the driver's {@code ??} escape, shifted the casts onto the wrong parameters. Only the
+     * parameters the PostgreSQL JDBC driver binds are read now.
+     */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("sqlWithQuestionMarksThatAreNotParameters")
+    public void onlyTheParametersTheDriverBindsGetACastBF045(String label, String sql, List<DataType> expected) {
+        List<DataType> casts = extractExplicitCasting(sql);
+        System.out.println("[PostgresDataTypeUtilsTest] " + label + ": " + sql.replace("\n", "\\n") + " -> " + casts);
+        assertEquals(expected, casts);
+    }
+
+    /** The limits stated in the javadoc: a spaced cast is not read, an array cast is read as its element type. */
+    @Test
+    public void aSpacedCastIsNotReadAndAnArrayCastIsReadAsItsElementType() {
+        assertEquals(Arrays.asList((DataType) null), extractExplicitCasting("select ? :: int4"));
+        assertEquals(List.of(DataType.LONG), extractExplicitCasting("select ?::int8[]"));
     }
 
     @Test
