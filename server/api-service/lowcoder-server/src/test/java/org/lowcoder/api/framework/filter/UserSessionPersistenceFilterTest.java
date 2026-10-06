@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -62,12 +63,9 @@ import ch.qos.logback.core.read.ListAppender;
  * Unit tests of {@link UserSessionPersistenceFilter}: session resolution, authentication context, validity
  * extension and the OAuth access-token refresh.
  *
- * <p>Defects pinned (owner decision D-6: today's behaviour is asserted; a fix changes the test on purpose):
- * <ul>
- *   <li>plan §9 row "UserSessionPersistenceFilter: ... NPE for a connection with a null authId ... without a
- *       stored token".</li>
- * </ul>
- * Fixed since: the dropped request (BF-039), now asserted by the {@code ...ContinuesWithoutRefreshBF039} tests.
+ * <p>Fixed since: the dropped request (BF-039), now asserted by the {@code ...ContinuesWithoutRefreshBF039} tests; the
+ * NullPointerException for a connection with a null authId or without a stored token (BF-040), now asserted by the
+ * {@code ...BF040} tests.
  * Expiry is always computed relative to {@code Instant.now()} with a one-day margin, so no test depends on timing.
  */
 @ExtendWith(MockitoExtension.class)
@@ -438,32 +436,74 @@ class UserSessionPersistenceFilterTest {
     }
 
     /**
-     * Pins the plan §9 NPE defect (connection with a null authId): the lookup of the active connection dereferences
-     * {@code getAuthId()}, so every request of that session fails and the chain is not called. A fix changes this test.
+     * BF-040 fixed: a connection stored without an auth id made the lookup of the active connection throw, so every
+     * request of that session failed. It now matches no auth id: placed first (fixed iteration order) with an expired
+     * token, it is skipped; the active connection's valid token needs no refresh and the chain runs as the user.
      */
     @Test
-    void filter_connectionWithNullAuthId_failsWithNpe_pinsNullAuthIdDefect() {
-        User user = userWith(OAUTH_AUTH_ID, connection(null, token(validUntil(), REFRESH_TOKEN), ORG_ID));
+    void filter_connectionWithNullAuthId_isSkipped_andTheRequestContinuesBF040() {
+        User user = userWith(OAUTH_AUTH_ID);
+        user.setConnections(new LinkedHashSet<>(List.of(connection(null, token(expiredAt(), REFRESH_TOKEN), ORG_ID),
+                connection(OAUTH_AUTH_ID, token(validUntil(), REFRESH_TOKEN), ORG_ID))));
         sessionIs(user);
 
-        StepVerifier.create(filter.filter(exchange, recordingChain)).expectError(NullPointerException.class).verify();
+        StepVerifier.create(filter.filter(exchange, recordingChain)).verifyComplete();
 
-        assertThat(events).isEmpty();
-        System.out.println("[UserSessionPersistenceFilterTest] null authId connection -> NullPointerException, chain not called");
+        System.out.println("[UserSessionPersistenceFilterTest] null authId connection first -> events " + events);
+        assertChainRanAs(user);
+        verifyNoInteractions(authenticationService, authRequestFactory);
     }
 
     /**
-     * Pins the plan §9 NPE defect (non-default connection without a stored token): reading the expiry dereferences
-     * the missing token, so the request fails and the chain is not called. A fix changes this test on purpose.
+     * BF-040: a user without an active auth id does not take a connection without an auth id as the active one, so its
+     * expired token is not refreshed; the chain runs as the user.
      */
     @Test
-    void filter_nonDefaultConnectionWithoutStoredToken_failsWithNpe_pinsMissingTokenDefect() {
+    void filter_noActiveAuthId_doesNotMatchAConnectionWithoutAuthIdBF040() {
+        User user = userWith(null, connection(null, token(expiredAt(), REFRESH_TOKEN), ORG_ID));
+        sessionIs(user);
+
+        StepVerifier.create(filter.filter(exchange, recordingChain)).verifyComplete();
+
+        System.out.println("[UserSessionPersistenceFilterTest] no active auth id, null authId connection -> events " + events);
+        assertChainRanAs(user);
+        verifyNoInteractions(authenticationService, authRequestFactory);
+    }
+
+    /**
+     * BF-040 fixed: reading the expiry of a non-default active connection without a stored token threw, so every request
+     * of that session failed. Such a connection has nothing to refresh: the chain runs as the user, nothing is looked up,
+     * refreshed or removed.
+     */
+    @Test
+    void filter_nonDefaultConnectionWithoutStoredToken_hasNothingToRefresh_andTheRequestContinuesBF040() {
         User user = userWith(OAUTH_AUTH_ID, connection(OAUTH_AUTH_ID, null, ORG_ID));
         sessionIs(user);
 
-        StepVerifier.create(filter.filter(exchange, recordingChain)).expectError(NullPointerException.class).verify();
+        StepVerifier.create(filter.filter(exchange, recordingChain)).verifyComplete();
 
-        assertThat(events).isEmpty();
-        System.out.println("[UserSessionPersistenceFilterTest] connection without token -> NullPointerException, chain not called");
+        System.out.println("[UserSessionPersistenceFilterTest] connection without token -> events " + events);
+        assertChainRanAs(user);
+        verifyNoInteractions(authenticationService, authRequestFactory);
+        verify(sessionUserService, never()).removeUserSession(anyString());
+    }
+
+    /**
+     * BF-040: a non-default active connection whose stored token has no expiry (legacy data; {@code ConnectionAuthToken.of}
+     * writes 0 instead) failed reading it as a number, so every request of that session failed. Like 0, it has nothing to
+     * refresh: the chain runs as the user, nothing is looked up, refreshed or removed.
+     */
+    @Test
+    void filter_nonDefaultConnectionWithoutAnExpiry_hasNothingToRefresh_andTheRequestContinuesBF040() {
+        ConnectionAuthToken withoutExpiry = ConnectionAuthToken.builder().accessToken("access").refreshToken(REFRESH_TOKEN).build();
+        User user = userWith(OAUTH_AUTH_ID, connection(OAUTH_AUTH_ID, withoutExpiry, ORG_ID));
+        sessionIs(user);
+
+        StepVerifier.create(filter.filter(exchange, recordingChain)).verifyComplete();
+
+        System.out.println("[UserSessionPersistenceFilterTest] token without expiry -> events " + events);
+        assertChainRanAs(user);
+        verifyNoInteractions(authenticationService, authRequestFactory);
+        verify(sessionUserService, never()).removeUserSession(anyString());
     }
 }

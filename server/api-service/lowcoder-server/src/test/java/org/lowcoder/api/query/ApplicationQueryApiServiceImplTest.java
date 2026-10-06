@@ -80,10 +80,9 @@ import reactor.test.StepVerifier;
  * (own, live library record, recorded library record), what reaches {@code QueryExecutionService.executeQuery}, and
  * the "OAuth inherited from login" headers.
  *
- * <p>Pinned production defect (owner decision D-6: fixes are deferred, a fix changes this test on purpose): the plan
- * section 9 row "UserSessionPersistenceFilter: connection.getAuthId().equals(...) NPE for a connection with a null
- * authId" (this site added by the coordinator). See
- * {@link #oauthInherit_connectionWithNullAuthIdBeforeTheMatch_isANullPointerException_pinsSection9Row}.
+ * <p>Fixed since: the NullPointerException for a connection with a null authId (BF-040), now asserted by
+ * {@link #oauthInherit_connectionWithNullAuthId_isSkippedInEitherOrderBF040} and
+ * {@link #oauthInherit_noActiveAuthId_doesNotMatchAConnectionWithoutAuthIdBF040}.
  */
 @ExtendWith(MockitoExtension.class)
 class ApplicationQueryApiServiceImplTest {
@@ -618,27 +617,47 @@ class ApplicationQueryApiServiceImplTest {
         say("%s -> no headers", label);
     }
 
+    static Stream<Arguments> nullAuthIdOrderRows() {
+        List<Arguments> rows = new ArrayList<>();
+        for (Kind kind : Kind.values()) {
+            rows.add(Arguments.of(kind, true));
+            rows.add(Arguments.of(kind, false));
+        }
+        return rows.stream();
+    }
+
     /**
-     * Pins the plan section 9 row "UserSessionPersistenceFilter: connection.getAuthId().equals(...) NPE for a connection
-     * with a null authId" (same defect family, this call site added by the coordinator): when a visitor has a connection
-     * with a null auth id (legacy data) that comes before the matching one, every inherit-from-login query of that user
-     * fails with a NullPointerException. When the matching connection comes first the stream short-circuits and the query
-     * runs, so the failure depends on the connection order. A fix (null-safe comparison) changes this test on purpose.
+     * BF-040 fixed: a connection with a null auth id (legacy data) placed before the matching one made every
+     * inherit-from-login query of that user fail with a NullPointerException, while with the matching one first the
+     * stream short-circuited. It now matches no auth id, so the matching connection supplies the header in either order.
+     */
+    @ParameterizedTest(name = "{0}: null-authId connection first={1}")
+    @MethodSource("nullAuthIdOrderRows")
+    void oauthInherit_connectionWithNullAuthId_isSkippedInEitherOrderBF040(Kind kind, boolean nullAuthIdFirst) {
+        datasource.setDetailConfig(oauthConfig(kind, "auth-A"));
+        Connection withoutAuthId = connection(null, "t0");
+        Connection matching = connection("auth-A", "tA");
+        visitorWithConnections("auth-A", nullAuthIdFirst ? new Connection[] {withoutAuthId, matching} : new Connection[] {matching, withoutAuthId});
+
+        List<Property> properties = inheritedProperties();
+
+        say("%s: null-authId connection first=%s -> %s", kind, nullAuthIdFirst, properties);
+        assertThat(properties).containsExactly(expectedHeader(kind, "tA"));
+    }
+
+    /**
+     * BF-040: with an empty configured auth id and no active auth id the lookup id is null; a connection without an auth
+     * id is not taken as its match (nor does it throw), so no header is sent.
      */
     @ParameterizedTest
     @EnumSource(Kind.class)
-    void oauthInherit_connectionWithNullAuthIdBeforeTheMatch_isANullPointerException_pinsSection9Row(Kind kind) {
-        datasource.setDetailConfig(oauthConfig(kind, "auth-A"));
-        visitorWithConnections("auth-A", connection(null, "t0"), connection("auth-A", "tA"));
+    void oauthInherit_noActiveAuthId_doesNotMatchAConnectionWithoutAuthIdBF040(Kind kind) {
+        datasource.setDetailConfig(oauthConfig(kind, ""));
+        visitorWithConnections(null, connection(null, "t0"));
 
-        StepVerifier.create(service.executeApplicationQuery(exchange, validRequest()))
-                .expectError(NullPointerException.class)
-                .verify();
-        verify(queryExecutionService, never()).executeQuery(any(), any(), any(), any(), any());
+        List<Property> properties = inheritedProperties();
 
-        visitorWithConnections("auth-A", connection("auth-A", "tA"), connection(null, "t0"));
-        events.clear();
-        assertThat(inheritedProperties()).containsExactly(expectedHeader(kind, "tA"));
-        say("%s: null-authId connection first -> NullPointerException (section 9 row pinned); matching first -> works", kind);
+        say("%s: no active auth id, only a null-authId connection -> %s", kind, properties);
+        assertThat(properties).isNull();
     }
 }

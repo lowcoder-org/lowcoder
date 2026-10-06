@@ -390,7 +390,7 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
         }
         Optional<Connection> activeConnectionOptional = user.getConnections()
                 .stream()
-                .filter(connection -> connection.getAuthId().equals(authId))
+                .filter(connection -> connection.hasAuthId(authId))
                 .findFirst();
         if(!activeConnectionOptional.isPresent() || activeConnectionOptional.get().getAuthConnectionAuthToken() == null) {
             return Mono.empty();
