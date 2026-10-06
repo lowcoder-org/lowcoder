@@ -21,6 +21,27 @@ public final class QueryTimeoutUtils {
 
     private static int defaultQueryTimeout = 10;
 
+    private static final String MILLISECONDS = "ms";
+    private static final long MILLIS_PER_SECOND = 1000L;
+    private static final long MILLIS_PER_MINUTE = 60 * MILLIS_PER_SECOND;
+    /**
+     * The units a timeout may be written in (case-insensitive), in milliseconds (BF-044: only the exact unit {@code s}
+     * was scaled, so {@code 5m}, {@code 5min} or {@code 10sec} were read as milliseconds). A number without a unit is in
+     * milliseconds. Hours and any other unit are refused.
+     */
+    private static final Map<String, Long> MILLIS_PER_UNIT = Map.ofEntries(
+            Map.entry(MILLISECONDS, 1L),
+            Map.entry("s", MILLIS_PER_SECOND),
+            Map.entry("sec", MILLIS_PER_SECOND),
+            Map.entry("secs", MILLIS_PER_SECOND),
+            Map.entry("second", MILLIS_PER_SECOND),
+            Map.entry("seconds", MILLIS_PER_SECOND),
+            Map.entry("m", MILLIS_PER_MINUTE),
+            Map.entry("min", MILLIS_PER_MINUTE),
+            Map.entry("mins", MILLIS_PER_MINUTE),
+            Map.entry("minute", MILLIS_PER_MINUTE),
+            Map.entry("minutes", MILLIS_PER_MINUTE));
+
     @Value("${default.query-timeout}")
     public void setDefaultQueryTimeoutMillis(int defaultQueryTimeout) {
         QueryTimeoutUtils.defaultQueryTimeout = defaultQueryTimeout;
@@ -62,20 +83,16 @@ public final class QueryTimeoutUtils {
             throw new PluginException(QUERY_ARGUMENT_ERROR, "INVALID_TIMEOUT_SETTING", timeoutStr);
         }
  
-        int millis = convertToMs(value, unit);
+        Long millisPerUnit = MILLIS_PER_UNIT.get(unit);
+        if (millisPerUnit == null) {
+            throw new PluginException(QUERY_ARGUMENT_ERROR, "INVALID_TIMEOUT_SETTING", timeoutStr);
+        }
+        int millis = (int) (value * millisPerUnit);
         if (millis > maxQueryTimeoutMs) {
             throw new PluginException(EXCEED_MAX_QUERY_TIMEOUT, "EXCEED_MAX_QUERY_TIMEOUT", maxQueryTimeoutSeconds);
         }
 
         return millis;
-    }
-
-    private static int convertToMs(double value, String unit) {
-        if (unit.equals("s")) {
-            return (int) (value * 1000);
-        } else {
-            return (int) value;
-        }
     }
 
     private static Pair<String, Integer> getUnitInfo(String str) {
@@ -84,9 +101,9 @@ public final class QueryTimeoutUtils {
             unitIndex = StringUtils.indexOfAny(str, 'S', 's');
         }
         if (unitIndex == -1) {
-            return Pair.of("ms", -1);
+            return Pair.of(MILLISECONDS, -1);
         }
-        return Pair.of(str.substring(unitIndex).toLowerCase(), unitIndex);
+        return Pair.of(str.substring(unitIndex).trim().toLowerCase(), unitIndex);
 
     }
 
