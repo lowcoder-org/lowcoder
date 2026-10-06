@@ -48,7 +48,7 @@ public class GoogleSheetsDatasourceConfig implements DatasourceConnectionConfig 
             serviceAccount = encryptFunc.apply(serviceAccount);
             return this;
         } catch (Exception e) {
-            log.error("fail to encrypt password: {}", serviceAccount, e);
+            log.error("fail to encrypt service account", e);
             return this;
         }
     }
@@ -59,7 +59,7 @@ public class GoogleSheetsDatasourceConfig implements DatasourceConnectionConfig 
             serviceAccount = decryptFunc.apply(serviceAccount);
             return this;
         } catch (Exception e) {
-            log.error("fail to decrypt password: {}", serviceAccount, e);
+            log.error("fail to decrypt service account", e);
             return this;
         }
     }

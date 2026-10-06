@@ -50,7 +50,7 @@ public class RedisDatasourceConfig implements DatasourceConnectionConfig {
             uri = encryptFunc.apply(uri);
             return this;
         } catch (Exception e) {
-            log.error("fail to encrypt password: {}", password, e);
+            log.error("fail to encrypt password and uri", e);
             return this;
         }
     }
@@ -62,7 +62,7 @@ public class RedisDatasourceConfig implements DatasourceConnectionConfig {
             uri = decryptFunc.apply(uri);
             return this;
         } catch (Exception e) {
-            log.error("fail to encrypt password: {}", password, e);
+            log.error("fail to decrypt password and uri", e);
             return this;
         }
     }

@@ -90,14 +90,13 @@ public class EsDatasourceConfigTest {
     }
 
     /**
-     * DEFECT D8 pinned (analysis-plugins section 0.6; plan section 9 "D1-D20" row; D-6, fix deferred): when the
-     * encryption or decryption function throws, {@code EsDatasourceConfig} logs {@code "fail to encrypt password: {}"}
-     * with the password itself as the argument (EsDatasourceConfig.java:54 and :65; the decrypt branch even says
-     * "encrypt"), at ERROR level, together with the exception. The password stays in the object and the object is
-     * returned unchanged. The obvious fix is to log without the password, which turns the log assertions red.
+     * Defect D8 fixed (BF-026 a): when the encryption or decryption function throws, {@code EsDatasourceConfig} logs
+     * {@code "fail to encrypt password"} or {@code "fail to decrypt password"} (EsDatasourceConfig.java:54 and :65) at
+     * ERROR with the exception but without the password. The password stays in the object and the object is returned
+     * unchanged.
      */
     @Test
-    public void whenTheFunctionThrowsTheObjectIsUnchangedAndThePasswordIsWrittenToTheLogD8() {
+    public void whenTheFunctionThrowsTheObjectIsUnchangedAndThePasswordIsNotLoggedBF026() {
         Function<String, String> failing = text -> {
             throw new IllegalStateException("key unavailable");
         };
@@ -116,9 +115,10 @@ public class EsDatasourceConfigTest {
         assertEquals(2, events.size());
         events.forEach(event -> {
             assertEquals(Level.ERROR, event.getLevel());
-            assertTrue(event.getFormattedMessage().contains(PASSWORD), "the plaintext password is in the log: " + event.getFormattedMessage());
+            assertFalse(event.getFormattedMessage().contains(PASSWORD), "no password in the log: " + event.getFormattedMessage());
             assertTrue(event.getThrowableProxy().getMessage().contains("key unavailable"));
         });
-        assertFalse(events.get(1).getFormattedMessage().contains("decrypt"), "the decrypt branch reports an encrypt failure");
+        assertEquals("fail to encrypt password", events.get(0).getFormattedMessage());
+        assertEquals("fail to decrypt password", events.get(1).getFormattedMessage());
     }
 }

@@ -21,8 +21,8 @@ public class GoogleSheetsQueryExecutionContext extends QueryExecutionContext {
         return "GoogleSheetsQueryExecutionContext{" +
                 "actionType='" + actionType + '\'' +
                 ", googleSheetsActionRequest=" + googleSheetsActionRequest +
-                ", serviceAccount='" + serviceAccount + '\'' +
-                ", serviceAccountCredentials=" + serviceAccountCredentials +
+                ", serviceAccount=" + ServiceAccountJsonUtils.hidden(serviceAccount) +
+                ", serviceAccountCredentials=" + (serviceAccountCredentials == null ? null : ServiceAccountJsonUtils.HIDDEN_SECRET) +
                 '}';
     }
 }
