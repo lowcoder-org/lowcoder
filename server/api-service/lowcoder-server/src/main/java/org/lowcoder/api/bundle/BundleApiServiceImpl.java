@@ -5,7 +5,6 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.bundle.BundleEndpoints.CreateBundleRequest;
 import org.lowcoder.api.bundle.view.BundleInfoView;
@@ -413,13 +412,18 @@ public class BundleApiServiceImpl implements BundleApiService {
     }
 
     /**
-     * get the sub elements of a bundle or root.
+     * The elements of a bundle, with the checks of {@link #getEditingBundle} (BF-020): the visitor may read the bundle
+     * (READ_BUNDLES, computed in the bundle's organization; the readable errors of
+     * {@link #checkPermissionWithReadableErrorMsg}) and the bundle is NORMAL (BAD_REQUEST otherwise).
      *
-     * @return flux of {@link ApplicationInfoView} or {@link BundleInfoView}
+     * @return flux of {@link BundleApplication}
      */
     @Override
-    public Flux<?> getElements(@Nullable String bundleId, @Nullable ApplicationType applicationType) {
-        return biRelationService.getBySourceId(BiRelationBizType.BUNDLE_ELEMENT, bundleId)
+    public Flux<?> getElements(String bundleId, @Nullable ApplicationType applicationType) {
+        return checkPermissionWithReadableErrorMsg(bundleId, READ_BUNDLES)
+                .then(bundleService.findById(bundleId))
+                .flatMap(bundle -> checkBundleStatus(bundle, BundleStatus.NORMAL))
+                .thenMany(biRelationService.getBySourceId(BiRelationBizType.BUNDLE_ELEMENT, bundleId))
                 .sort((o1, o2) -> {
                     var pos1 = Integer.parseInt(o1.getExtParam1());
                     var pos2 = Integer.parseInt(o2.getExtParam1());
