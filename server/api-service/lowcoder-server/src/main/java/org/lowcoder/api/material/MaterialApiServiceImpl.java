@@ -18,6 +18,7 @@ import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Base64;
@@ -65,30 +66,50 @@ public class MaterialApiServiceImpl implements MaterialApiService {
                 .then(sessionUserService.getVisitorOrgMemberCache())
                 .delayUntil(__ -> orgDevChecker.checkCurrentOrgDev())
                 .delayUntil(orgMember -> checkTotalSize(orgMember.getOrgId(), decode.length))
-                .delayUntil(orgMember -> {
-                    // delete old logo or favicon.
-                    if (type == MaterialType.LOGO || type == MaterialType.FAVICON) {
-                        //noinspection ConstantConditions
-                        return materialMateRepository.findByOrgIdAndType(orgMember.getOrgId(), type)
-                                .delayUntil(materialMeta -> materialMateRepository.deleteById(materialMeta.getId()))
-                                .flatMap(materialMeta -> materialStorageService.delete(materialMeta));
-                    }
-                    // COMMON
-                    //noinspection ConstantConditions
-                    return materialMateRepository.findByOrgIdAndFilenameAndType(orgMember.getOrgId(), filename, type)
-                            .delayUntil(materialMeta -> materialMateRepository.deleteById(materialMeta.getId()))
-                            .flatMap(materialMeta -> materialStorageService.delete(materialMeta));
-                })
-                .flatMap(orgMember -> {
-                    MaterialMeta materialMeta = MaterialMeta.builder()
-                            .orgId(orgMember.getOrgId())
-                            .filename(filename)
-                            .size(decode.length)
-                            .type(type)
-                            .build();
-                    return materialMateRepository.save(materialMeta);
-                })
-                .delayUntil(materialMeta -> materialStorageService.save(materialMeta, decode));
+                .flatMap(orgMember -> findReplaced(orgMember.getOrgId(), filename, type).collectList()
+                        .flatMap(replaced -> {
+                            MaterialMeta materialMeta = MaterialMeta.builder()
+                                    .orgId(orgMember.getOrgId())
+                                    .filename(filename)
+                                    .size(decode.length)
+                                    .type(type)
+                                    .build();
+                            return materialMateRepository.save(materialMeta)
+                                    .delayUntil(saved -> storeOrRemoveRow(saved, decode))
+                                    .delayUntil(saved -> Flux.fromIterable(replaced)
+                                            .concatMap(old -> materialStorageService.delete(old)
+                                                    .then(materialMateRepository.deleteById(old.getId()))));
+                        }));
+    }
+
+    /**
+     * The materials an upload replaces: the org's logo or favicon, or for other types the org's material of the same
+     * filename and type. They are removed only after the new file is stored (BF-028), each file before its row, so a
+     * failure never leaves a file without a row.
+     */
+    private Flux<MaterialMeta> findReplaced(String orgId, String filename, MaterialType type) {
+        if (type == MaterialType.LOGO || type == MaterialType.FAVICON) {
+            return materialMateRepository.findByOrgIdAndType(orgId, type);
+        }
+        return materialMateRepository.findByOrgIdAndFilenameAndType(orgId, filename, type);
+    }
+
+    /**
+     * Stores the file of a saved row; if that fails, the row is deleted again and the storage failure is the answer (a
+     * failure of that clean-up is added to it as suppressed), so the replaced materials stay as they were. Limit: a failure
+     * after the new file is stored, while a replaced material is removed, answers with that error; the new material is kept,
+     * and the replaced material's row stays beside it, with or without its file (a logo or favicon lookup may then still
+     * find that row). The next upload of the same material removes it.
+     */
+    private Mono<Void> storeOrRemoveRow(MaterialMeta saved, byte[] content) {
+        return materialStorageService.save(saved, content)
+                .then()
+                .onErrorResume(storageFailure -> materialMateRepository.deleteById(saved.getId())
+                        .onErrorResume(cleanupFailure -> {
+                            storageFailure.addSuppressed(cleanupFailure);
+                            return Mono.empty();
+                        })
+                        .then(Mono.error(storageFailure)));
     }
 
     @Override
