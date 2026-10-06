@@ -11,7 +11,16 @@ import org.lowcoder.plugin.redis.model.RedisDatasourceConfig;
 public class RedisUriUtils {
     private static final Long DEFAULT_PORT = 6379L;
     private static final String REDIS_SCHEME = "redis://";
+    private static final String REDIS_SSL_SCHEME = "rediss://";
 
+    /**
+     * The connection URI: the stored URI in URI mode, otherwise one built from the fields, with the scheme {@code rediss://}
+     * when SSL is selected (BF-024; Jedis connects with TLS for that scheme) and {@code redis://} otherwise.
+     * <p>
+     * Limits: in URI mode the stored URI's own scheme decides, the SSL switch is not applied to it. With TLS, Jedis checks the
+     * server certificate against the JVM's default trust store but, as no hostname verifier is given, not the host name
+     * (NEW-7).
+     */
     public static URI getURI(RedisDatasourceConfig redisDatasourceConfig) throws URISyntaxException {
 
         if (redisDatasourceConfig.isUsingUri()) {
@@ -19,7 +28,7 @@ public class RedisUriUtils {
         }
 
         StringBuilder builder = new StringBuilder();
-        builder.append(REDIS_SCHEME);
+        builder.append(redisDatasourceConfig.isUsingSsl() ? REDIS_SSL_SCHEME : REDIS_SCHEME);
 
         String uriAuth = getUriAuth(redisDatasourceConfig);
         builder.append(uriAuth);
