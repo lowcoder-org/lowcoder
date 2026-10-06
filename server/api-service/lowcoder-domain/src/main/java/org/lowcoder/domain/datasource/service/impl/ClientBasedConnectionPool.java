@@ -24,6 +24,7 @@ import org.lowcoder.sdk.plugin.common.sql.HikariPerfWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -32,6 +33,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static org.lowcoder.infra.perf.PerfEvent.*;
@@ -48,6 +50,7 @@ import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.querySharedSche
 public class ClientBasedConnectionPool implements DatasourceConnectionPool {
 
     private static final int DEFAULT_RETRIEVE_CONNECTION_TIMES = 5;
+    private static final String STALE_DATASOURCE = "stale datasource";
 
     private static final List<PerfEvent> HIKARI_PERF_CONFIG = ImmutableList.of(
             HIKARI_POOL_ACTIVE_CONNECTIONS,
@@ -108,7 +111,9 @@ public class ClientBasedConnectionPool implements DatasourceConnectionPool {
 
                     HIKARI_PERF_WRAPPER_MAP.remove(key);
                     Mono.just(datasourceMetaInfoService.getDatasourceConnector(key.datasource().getType()))
-                            .flatMap(factory -> notification.getValue().flatMap(connection -> factory.destroyConnection(connection.connection())))
+                            .flatMap(factory -> notification.getValue()
+                                    .onErrorResume(creationFailure -> Mono.empty()) // a failed creation left nothing to destroy
+                                    .flatMap(connection -> factory.destroyConnection(connection.connection())))
                             .subscribeOn(querySharedScheduler())
                             .subscribe();
                 }
@@ -121,15 +126,31 @@ public class ClientBasedConnectionPool implements DatasourceConnectionPool {
 
                     releasePreviousConnection(datasource); // datasource is updated, so release previous connections
 
-                    return create(datasource)
-                            .doOnNext(connection -> {
-                                if (connection.connection() instanceof HikariPerfWrapper wrapper) {
+                    AtomicReference<Mono<ClientBasedDatasourceConnectionHolder>> loaded = new AtomicReference<>();
+                    Mono<ClientBasedDatasourceConnectionHolder> connection = create(datasource)
+                            .doOnNext(holder -> {
+                                if (holder.connection() instanceof HikariPerfWrapper wrapper) {
                                     HIKARI_PERF_WRAPPER_MAP.put(key, wrapper);
                                 }
                             })
+                            .doOnError(creationFailure -> forgetFailedCreation(key, loaded.get()))
                             .cache();
+                    loaded.set(connection);
+                    return connection;
                 }
             });
+
+    /**
+     * Drops a connection whose creation failed from the cache (BF-033), so that the next query for the datasource creates a
+     * new one instead of getting the cached failure until the datasource is edited or an hour passes without access. Only
+     * this entry is removed: an entry loaded for the key after it is kept.
+     * <p>
+     * Limits: callers already waiting on the failed creation still get its failure, and a creation that completes without a
+     * connection stays cached.
+     */
+    private void forgetFailedCreation(ClientBasedDatasourceCacheKey key, Mono<ClientBasedDatasourceConnectionHolder> failed) {
+        cache.asMap().remove(key, failed);
+    }
 
     private void releasePreviousConnection(Datasource datasource) {
         cache.asMap().keySet()
@@ -145,11 +166,15 @@ public class ClientBasedConnectionPool implements DatasourceConnectionPool {
                 .flatMap(clientBasedDatasourceConnection -> {
                     if (clientBasedDatasourceConnection.isStale()) {
                         cache.invalidate(clientBasedDatasourceCacheKey);
-                        return Mono.error(new RuntimeException("stale datasource")); // by retry
+                        return Mono.error(new StaleConnectionException()); // by retry
                     }
                     return Mono.just(clientBasedDatasourceConnection);
                 })
-                .retry(DEFAULT_RETRIEVE_CONNECTION_TIMES)
+                // only a stale connection is retried: a failed creation is not cached (BF-033), so retrying it would run the
+                // connector, and its timeout, again for every retry of the same query
+                .retryWhen(Retry.max(DEFAULT_RETRIEVE_CONNECTION_TIMES)
+                        .filter(StaleConnectionException.class::isInstance)
+                        .onRetryExhaustedThrow((spec, signal) -> signal.failure()))
                 .onErrorMap(throwable -> {
                     if (throwable instanceof BaseException) {
                         return throwable;
@@ -188,6 +213,14 @@ public class ClientBasedConnectionPool implements DatasourceConnectionPool {
         return datasourceMetaInfoService.getDatasourceConnector(datasource.getType())
                 .doCreateConnection(datasource.getDetailConfig())
                 .map(ClientBasedDatasourceConnectionHolder::new);
+    }
+
+    /** A cached connection that went stale; the only failure {@link #getOrCreateConnection} retries. */
+    private static final class StaleConnectionException extends RuntimeException {
+
+        StaleConnectionException() {
+            super(STALE_DATASOURCE);
+        }
     }
 
     /**
