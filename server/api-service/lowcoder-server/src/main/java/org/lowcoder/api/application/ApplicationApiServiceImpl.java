@@ -740,31 +740,44 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
         return queryConfig.size() == 1 && queryConfig.containsKey("fields");
     }
 
+    /**
+     * Every datasource the edited queries use must be usable by the visitor, unless it does not exist or belongs to another
+     * organization. A query may name its datasource by gid: the references are converted to object ids first, the key the
+     * use permissions are stored under (BF-002).
+     */
     private Mono<Void> checkDatasourcePermissions(Application application, String organizationId) {
         return Mono.defer(() -> {
-            Set<String> datasourceIds = SetUtils.emptyIfNull(application.getEditingQueries())
+            Set<String> referencedIds = SetUtils.emptyIfNull(application.getEditingQueries())
                     .stream()
                     .map(applicationQuery -> applicationQuery.getBaseQuery().getDatasourceId())
                     .filter(StringUtils::isNotBlank)
                     .filter(Datasource::isNotSystemStaticId)
                     .collect(Collectors.toSet());
-            if (CollectionUtils.isEmpty(datasourceIds)) {
+            if (CollectionUtils.isEmpty(referencedIds)) {
                 return Mono.empty();
             }
 
-            return sessionUserService.getVisitorId()
-                    .flatMap(userId -> resourcePermissionService.getMaxMatchingPermission(userId, datasourceIds, USE_DATASOURCES))
-                    .zipWith(datasourceService.retainNoneExistAndNonCurrentOrgDatasourceIds(datasourceIds, organizationId).collectList())
-                    .flatMap(tuple -> {
-                        Set<String> hasPermissionDatasourceIds = tuple.getT1().keySet();
-                        List<String> noneExistDatasourceIds = tuple.getT2();
-
-                        if (Sets.union(hasPermissionDatasourceIds, new HashSet<>(noneExistDatasourceIds)).containsAll(datasourceIds)) {
-                            return Mono.empty();
-                        }
-                        return ExceptionUtils.ofError(BizError.NOT_AUTHORIZED, "APPLICATION_EDIT_ERROR_LACK_OF_DATASOURCE_PERMISSIONS");
-                    });
+            return datasourceService.getObjectIdsByIdOrGid(referencedIds)
+                    .map(objectIds -> referencedIds.stream()
+                            .map(id -> objectIds.getOrDefault(id, id))
+                            .collect(Collectors.toSet()))
+                    .flatMap(datasourceIds -> checkDatasourceObjectIdPermissions(datasourceIds, organizationId));
         });
+    }
+
+    private Mono<Void> checkDatasourceObjectIdPermissions(Set<String> datasourceIds, String organizationId) {
+        return sessionUserService.getVisitorId()
+                .flatMap(userId -> resourcePermissionService.getMaxMatchingPermission(userId, datasourceIds, USE_DATASOURCES))
+                .zipWith(datasourceService.retainNoneExistAndNonCurrentOrgDatasourceIds(datasourceIds, organizationId).collectList())
+                .flatMap(tuple -> {
+                    Set<String> hasPermissionDatasourceIds = tuple.getT1().keySet();
+                    List<String> noneExistDatasourceIds = tuple.getT2();
+
+                    if (Sets.union(hasPermissionDatasourceIds, new HashSet<>(noneExistDatasourceIds)).containsAll(datasourceIds)) {
+                        return Mono.empty();
+                    }
+                    return ExceptionUtils.ofError(BizError.NOT_AUTHORIZED, "APPLICATION_EDIT_ERROR_LACK_OF_DATASOURCE_PERMISSIONS");
+                });
     }
 
     @Override

@@ -84,16 +84,28 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
                         LibraryQueryView::from));
     }
 
+    /**
+     * The organization's library queries whose datasource the visitor may use, or that does not exist or belongs to another
+     * organization. A query may name its datasource by gid: the references are converted to object ids first, the key the
+     * use permissions are stored under (BF-002).
+     */
     private Flux<LibraryQuery> getByOrgIdWithDatasourcePermissions(String orgId) {
         Flux<LibraryQuery> libraryQueryFlux = libraryQueryService.getByOrganizationId(orgId)
                 .cache();
 
-        Mono<List<String>> datasourceIdListMono = libraryQueryFlux.map(libraryQuery -> {
-                    var datasourceId = libraryQuery.getQuery().getDatasourceId();
-                    return Objects.requireNonNullElse(datasourceId, "");
-                })
+        Mono<List<String>> referencedIdListMono = libraryQueryFlux.map(LibraryQueryApiServiceImpl::datasourceReference)
                 .filter(StringUtils::isNotBlank)
                 .collectList()
+                .cache();
+
+        Mono<Map<String, String>> objectIdsMono = referencedIdListMono
+                .flatMap(datasourceService::getObjectIdsByIdOrGid)
+                .cache();
+
+        Mono<List<String>> datasourceIdListMono = referencedIdListMono
+                .zipWith(objectIdsMono, (referencedIds, objectIds) -> referencedIds.stream()
+                        .map(id -> objectIds.getOrDefault(id, id))
+                        .toList())
                 .cache();
 
         Mono<HashSet<String>> datasourceIdSetWithPermissionsOrNoneExists = datasourceIdListMono
@@ -110,8 +122,16 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
                 .cache();
 
         return libraryQueryFlux
-                .filterWhen(libraryQuery -> datasourceIdSetWithPermissionsOrNoneExists.map(
-                        set -> set.contains(libraryQuery.getQuery().getDatasourceId())));
+                .filterWhen(libraryQuery -> datasourceIdSetWithPermissionsOrNoneExists.zipWith(objectIdsMono,
+                        (set, objectIds) -> {
+                            String datasourceReference = datasourceReference(libraryQuery);
+                            return set.contains(objectIds.getOrDefault(datasourceReference, datasourceReference));
+                        }));
+    }
+
+    /** The library query's datasource id or gid as stored; blank when it has none. */
+    private static String datasourceReference(LibraryQuery libraryQuery) {
+        return Objects.requireNonNullElse(libraryQuery.getQuery().getDatasourceId(), "");
     }
 
     /** A library query of the visitor's organization; another organization's is LIBRARY_QUERY_AND_ORG_NOT_MATCH. */

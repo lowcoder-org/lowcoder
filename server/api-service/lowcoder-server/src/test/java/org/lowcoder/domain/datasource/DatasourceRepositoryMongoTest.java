@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -129,7 +130,7 @@ class DatasourceRepositoryMongoTest {
      * Pins plan section 9 row "DatasourceRepository.findByIds picks id or gid from one element and drops the other kind
      * (:65-72)": the key type of the whole list is decided by one element (findAny, the first of a list), so a mixed list
      * only returns the datasources of that element's kind. Reach: MetaController.getDatasourceMetas (MetaController:50) passes
-     * the client's datasource id list through DatasourceServiceImpl.getByIds (:133) unchanged. A fix (query both kinds, as
+     * the client's datasource id list through DatasourceServiceImpl.getByIds (:134) unchanged. A fix (query both kinds, as
      * findAllById does) changes this test on purpose.
      */
     @Test
@@ -216,16 +217,13 @@ class DatasourceRepositoryMongoTest {
     }
 
     /**
-     * Pins plan section 9 row "retainNoneExistAndNonCurrentOrgDatasourceIds reports existing current-org datasources as
-     * missing when given gids (:118-137)": for gids the datasources are found by gid but removed from the result by their real
-     * id, so every gid stays in the result, whatever exists in the current org. Effect on the callers: they treat the result
-     * as "needs no permission": ApplicationApiServiceImpl:757-768 passes the application edit check when
-     * hasPermission-union-retained covers all ids (so gid-referenced datasources never need the USE_DATASOURCES permission),
-     * and LibraryQueryApiServiceImpl:105-107 lists library queries whose datasource is in that set. A fix (remove by the
-     * key kind that was queried) changes this test on purpose.
+     * BF-002 (was the pin of plan section 9 row "retainNoneExistAndNonCurrentOrgDatasourceIds reports existing current-org
+     * datasources as missing when given gids"): a current-org datasource asked by its gid is no longer reported, so the
+     * callers (the application edit check and the library query listing) no longer treat it as needing no use permission.
+     * Catches the gid lookup removing found datasources by their object id only.
      */
     @Test
-    void retainOfGidsReportsExistingCurrentOrgDatasourcesAsMissing_pinsTheSection9Row() {
+    void retainOfGidsLeavesOutExistingCurrentOrgDatasources() {
         String orgId = org();
         Datasource own = save(orgId);
         Datasource foreign = save(org());
@@ -234,9 +232,63 @@ class DatasourceRepositoryMongoTest {
         List<String> byGid = repository.retainNoneExistAndNonCurrentOrgDatasourceIds(List.of(own.getGid(), foreign.getGid()), orgId)
                 .collectList().block(TIMEOUT);
 
-        System.out.println("[DatasourceRepositoryMongoTest] PINNED by id -> " + byId + ", by gid -> " + byGid.size() + " of 2");
-        assertThat(byId).as("the same datasource asked by its id is correctly not reported").isEmpty();
-        assertThat(byGid).as("asked by gid, the existing current-org datasource is reported as missing").containsExactlyInAnyOrder(own.getGid(), foreign.getGid());
+        System.out.println("[DatasourceRepositoryMongoTest] by id -> " + byId + ", by gid -> " + byGid);
+        assertThat(byId).as("the datasource asked by its id is not reported").isEmpty();
+        assertThat(byGid).as("asked by gid, only the other org's datasource is reported").containsExactly(foreign.getGid());
+    }
+
+    /**
+     * Catches a list mixing ids and gids being looked up by the kind of its first entry only: every entry is looked up by
+     * its own kind, and only the missing and other-org entries are reported, under the key they were given by.
+     */
+    @Test
+    void retainOfAMixedListLooksUpEachEntryByItsKind() {
+        String orgId = org();
+        Datasource ownById = save(orgId);
+        Datasource ownByGid = save(orgId);
+        Datasource foreign = save(org());
+        String missingId = IDUtils.generate();
+        String missingGid = UUID.randomUUID().toString();
+        List<String> keys = List.of(ownByGid.getGid(), ownById.getId(), foreign.getId(), foreign.getGid(), missingId, missingGid);
+
+        List<String> retained = repository.retainNoneExistAndNonCurrentOrgDatasourceIds(keys, orgId).collectList().block(TIMEOUT);
+
+        System.out.println("[DatasourceRepositoryMongoTest] mixed " + keys + " -> retained " + retained);
+        assertThat(retained).containsExactlyInAnyOrder(foreign.getId(), foreign.getGid(), missingId, missingGid);
+    }
+
+    /** Catches a missing organization id failing the lookup: no datasource is of "no organization", so every key is reported. */
+    @Test
+    void retainWithoutAnOrganizationReportsEveryKey() {
+        Datasource stored = save(org());
+        List<String> keys = List.of(stored.getId(), stored.getGid());
+
+        List<String> retained = repository.retainNoneExistAndNonCurrentOrgDatasourceIds(keys, null).collectList().block(TIMEOUT);
+
+        System.out.println("[DatasourceRepositoryMongoTest] no org " + keys + " -> retained " + retained);
+        assertThat(retained).containsExactlyInAnyOrderElementsOf(keys);
+    }
+
+    /**
+     * Catches a gid not mapped to its datasource's object id, a datasource of another org left out, or an unknown key
+     * mapped to something: each found id or gid maps to the object id, whatever the org; unknown keys are not in the map.
+     */
+    @Test
+    void findObjectIdsByIdOrGidMapsEachFoundKeyToTheObjectId() {
+        Datasource own = save(org());
+        Datasource foreign = save(org());
+        String missingId = IDUtils.generate();
+        String missingGid = UUID.randomUUID().toString();
+
+        Map<String, String> objectIds = repository.findObjectIdsByIdOrGid(
+                List.of(own.getId(), own.getGid(), foreign.getGid(), missingId, missingGid)).block(TIMEOUT);
+
+        System.out.println("[DatasourceRepositoryMongoTest] object ids " + objectIds);
+        assertThat(objectIds).containsOnly(
+                Map.entry(own.getId(), own.getId()),
+                Map.entry(own.getGid(), own.getId()),
+                Map.entry(foreign.getGid(), foreign.getId()));
+        assertThat(repository.findObjectIdsByIdOrGid(List.of()).block(TIMEOUT)).isEmpty();
     }
 
     /**
