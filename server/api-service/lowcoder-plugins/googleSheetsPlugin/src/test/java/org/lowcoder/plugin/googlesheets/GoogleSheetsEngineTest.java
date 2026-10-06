@@ -38,6 +38,8 @@ import com.google.api.services.sheets.v4.SheetsScopes;
  */
 public class GoogleSheetsEngineTest {
 
+    /** What {@code toString} prints for a secret that is set ({@code ServiceAccountJsonUtils.HIDDEN_SECRET}, package-private). */
+    private static final String HIDDEN_SECRET = "<hidden>";
     private static final String VISITOR = "visitor-1";
     private static final Map<String, Object> PARAMS = Map.of("id", "sheet-id-9", "name", "Orders", "row", "7", "who", "Ann");
     private static final Map<String, Object> CHANGE_SET = Map.of("compType", "KEY_VALUE_PAIRS",
@@ -251,5 +253,23 @@ public class GoogleSheetsEngineTest {
         assertFalse(readerText.contains(ServiceAccountTestKeys.keyMarker()), "the key reader hides the key");
         assertTrue(readerText.contains("privateKeyPkcs8=<hidden>"), readerText);
         assertTrue(readerText.contains(ServiceAccountTestKeys.CLIENT_EMAIL), "non-secret fields are still printed");
+    }
+
+    /** A secret that is not set prints {@code null}, not {@code <hidden>}, so a log still shows that it was missing. */
+    @Test
+    public void toStringPrintsNullForSecretsThatAreNotSetBF026() {
+        GoogleSheetsQueryExecutionContext context = new GoogleSheetsQueryExecutionContext();
+        context.setActionType("readData");
+        ServiceAccountJsonUtils reader = new ServiceAccountJsonUtils();
+
+        String contextText = context.toString();
+        String readerText = reader.toString();
+
+        System.out.println("[GoogleSheetsEngineTest] without secrets: context: " + contextText + "; reader: " + readerText);
+        assertTrue(contextText.contains("serviceAccount=null"), contextText);
+        assertTrue(contextText.contains("serviceAccountCredentials=null"), contextText);
+        assertFalse(contextText.contains(HIDDEN_SECRET), contextText);
+        assertTrue(readerText.contains("privateKeyPkcs8=null"), readerText);
+        assertFalse(readerText.contains(HIDDEN_SECRET), readerText);
     }
 }
