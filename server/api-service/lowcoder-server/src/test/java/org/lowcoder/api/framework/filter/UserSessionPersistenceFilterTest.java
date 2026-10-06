@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,6 +40,7 @@ import org.lowcoder.sdk.util.CookieHelper;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.core.Authentication;
@@ -51,18 +53,21 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+
 /**
  * Unit tests of {@link UserSessionPersistenceFilter}: session resolution, authentication context, validity
  * extension and the OAuth access-token refresh.
  *
  * <p>Defects pinned (owner decision D-6: today's behaviour is asserted; a fix changes the test on purpose):
  * <ul>
- *   <li>plan §9 row "UserSessionPersistenceFilter: ... the request is dropped with an empty response": an expired
- *       token whose auth config cannot be found or looked up makes the filter complete empty without calling the
- *       chain;</li>
  *   <li>plan §9 row "UserSessionPersistenceFilter: ... NPE for a connection with a null authId ... without a
  *       stored token".</li>
  * </ul>
+ * Fixed since: the dropped request (BF-039), now asserted by the {@code ...ContinuesWithoutRefreshBF039} tests.
  * Expiry is always computed relative to {@code Instant.now()} with a one-day margin, so no test depends on timing.
  */
 @ExtendWith(MockitoExtension.class)
@@ -79,6 +84,7 @@ class UserSessionPersistenceFilterTest {
     private static final String EVENT_CHAIN = "chain";
     private static final String EVENT_EXTEND = "extend";
     private static final long ONE_DAY_SECONDS = 24L * 3600L;
+    private static final String LOOKUP_FAILURE = "db down";
 
     @Mock private SessionUserService sessionUserService;
     @Mock private UserService userService;
@@ -92,6 +98,8 @@ class UserSessionPersistenceFilterTest {
     private ServerWebExchange exchange;
     private final List<String> events = new ArrayList<>();
     private final AtomicReference<Authentication> seenAuthentication = new AtomicReference<>();
+    private final ListAppender<ILoggingEvent> logs = new ListAppender<>();
+    private final Logger filterLogger = (Logger) LoggerFactory.getLogger(UserSessionPersistenceFilter.class);
 
     private static class StubAuthConfig extends AbstractAuthConfig {
         StubAuthConfig(String id) {
@@ -107,6 +115,14 @@ class UserSessionPersistenceFilterTest {
         lenient().when(cookieHelper.getCookieToken(exchange)).thenReturn(COOKIE_TOKEN);
         lenient().when(sessionUserService.extendValidity(COOKIE_TOKEN))
                 .thenReturn(Mono.<Void>fromRunnable(() -> events.add(EVENT_EXTEND)));
+        logs.start();
+        filterLogger.addAppender(logs);
+    }
+
+    @AfterEach
+    void tearDown() {
+        filterLogger.detachAppender(logs);
+        logs.stop();
     }
 
     // ---------------------------------------------------------------- helpers
@@ -380,36 +396,45 @@ class UserSessionPersistenceFilterTest {
     // ------------------------------------------------------- pinned defects
 
     /**
-     * Pins the plan §9 defect "UserSessionPersistenceFilter: ... the request is dropped with an empty response":
-     * with an expired token and no auth config of the connection's id, the refresh yields no user, so the chain is
-     * never called, validity is not extended and the filter's Mono completes empty. A fix changes this test on purpose.
+     * BF-039 fixed: with an expired token and no auth config of the connection's id, the refresh yielded no user, so the
+     * chain was never called and the request got an empty response. Now the request continues as the user, unrefreshed:
+     * the chain runs, validity is extended, nothing is refreshed, persisted or removed.
      */
     @Test
-    void filter_expiredToken_noMatchingAuthConfig_dropsTheRequest_pinsDroppedRequestDefect() {
+    void filter_expiredToken_noMatchingAuthConfig_continuesWithoutRefreshBF039() {
         User user = expiredOauthUser(REFRESH_TOKEN, ORG_ID);
         sessionIs(user);
         configFound(ORG_ID, OTHER_AUTH_ID);
 
         StepVerifier.create(filter.filter(exchange, recordingChain)).verifyComplete();
 
-        assertThat(events).isEmpty();
-        verify(sessionUserService, never()).extendValidity(anyString());
+        System.out.println("[UserSessionPersistenceFilterTest] no matching config -> events " + events);
+        assertChainRanAs(user);
         verifyNoInteractions(authRequestFactory);
-        System.out.println("[UserSessionPersistenceFilterTest] no matching config -> chain never called, empty completion (today's behaviour)");
+        verify(userService, never()).update(anyString(), any());
+        verify(sessionUserService, never()).removeUserSession(anyString());
     }
 
-    /** Pins the same plan §9 dropped-request defect for a failing auth-config lookup (error swallowed into empty). */
+    /**
+     * BF-039 fixed for a failing auth-config lookup: the error is logged as a warning with its cause and the org, then treated
+     * as no config found, so the request continues unrefreshed.
+     */
     @Test
-    void filter_expiredToken_authConfigLookupFails_dropsTheRequest_pinsDroppedRequestDefect() {
+    void filter_expiredToken_authConfigLookupFails_continuesWithoutRefreshBF039() {
         User user = expiredOauthUser(REFRESH_TOKEN, ORG_ID);
         sessionIs(user);
-        when(authenticationService.findAllAuthConfigs(ORG_ID, true)).thenReturn(Flux.error(new IllegalStateException("db down")));
+        when(authenticationService.findAllAuthConfigs(ORG_ID, true)).thenReturn(Flux.error(new IllegalStateException(LOOKUP_FAILURE)));
 
         StepVerifier.create(filter.filter(exchange, recordingChain)).verifyComplete();
 
-        assertThat(events).isEmpty();
-        verify(sessionUserService, never()).extendValidity(anyString());
-        System.out.println("[UserSessionPersistenceFilterTest] lookup error -> chain never called, empty completion (today's behaviour)");
+        System.out.println("[UserSessionPersistenceFilterTest] lookup error -> events " + events + ", logged "
+                + logs.list.stream().map(e -> e.getLevel() + " " + e.getFormattedMessage()).toList());
+        assertChainRanAs(user);
+        assertThat(logs.list).as("the lookup failure is logged with its cause and the org")
+                .anyMatch(e -> e.getLevel() == Level.WARN && e.getThrowableProxy() != null
+                        && LOOKUP_FAILURE.equals(e.getThrowableProxy().getMessage()) && e.getFormattedMessage().contains(ORG_ID));
+        verifyNoInteractions(authRequestFactory);
+        verify(sessionUserService, never()).removeUserSession(anyString());
     }
 
     /**
