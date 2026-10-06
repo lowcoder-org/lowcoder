@@ -35,7 +35,7 @@ import ch.qos.logback.core.read.ListAppender;
 
 /**
  * The request classes (binding, mustache rendering, row index, {@code hasInvalidData}) and
- * {@link GoogleSheetsDatasourceConfig} (merge, encrypt/decrypt, and the D8 log).
+ * {@link GoogleSheetsDatasourceConfig} (merge, encrypt/decrypt, and the D8 log, fixed by BF-026).
  */
 public class GoogleSheetsRequestModelsTest {
 
@@ -200,14 +200,12 @@ public class GoogleSheetsRequestModelsTest {
     }
 
     /**
-     * DEFECT D8 pinned, Google Sheets half (analysis-plugins section 0.6; plan section 9 D1-D20 row; D-6, fix deferred):
-     * when the function throws, {@code GoogleSheetsDatasourceConfig} logs {@code "fail to encrypt password: {}"} (:51) and
-     * {@code "fail to decrypt password: {}"} (:61) at ERROR with the whole service-account JSON, private key included,
-     * as the argument, and returns the object unchanged. The fix is to log without the value; it turns the log
-     * assertions red.
+     * Defect D8 fixed, Google Sheets half (BF-026 a): when the function throws, {@code GoogleSheetsDatasourceConfig} logs
+     * {@code "fail to encrypt service account"} (:51) or {@code "fail to decrypt service account"} (:62) at ERROR with the
+     * exception but without the service-account JSON, and returns the object unchanged.
      */
     @Test
-    public void whenTheFunctionThrowsTheServiceAccountJsonIsWrittenToTheLogD8() {
+    public void whenTheFunctionThrowsTheServiceAccountJsonIsNotLoggedBF026() {
         Function<String, String> failing = text -> {
             throw new IllegalStateException("key unavailable");
         };
@@ -220,15 +218,16 @@ public class GoogleSheetsRequestModelsTest {
         assertEquals(SERVICE_ACCOUNT, forEncrypt.getServiceAccount());
         assertEquals(SERVICE_ACCOUNT, forDecrypt.getServiceAccount());
         logs.list.forEach(event -> System.out.println("[GoogleSheetsRequestModelsTest] " + event.getLevel() + " "
-                + event.getFormattedMessage().replace(ServiceAccountTestKeys.keyMarker(), "<<KEY>>").substring(0, 60) + "... contains key: "
+                + event.getFormattedMessage().replace(ServiceAccountTestKeys.keyMarker(), "<<KEY>>") + " ... contains key: "
                 + event.getFormattedMessage().contains(ServiceAccountTestKeys.keyMarker())));
         assertEquals(2, logs.list.size());
         for (ILoggingEvent event : logs.list) {
             assertEquals(Level.ERROR, event.getLevel());
-            assertTrue(event.getFormattedMessage().contains(ServiceAccountTestKeys.keyMarker()), "the private key is in the log");
+            assertFalse(event.getFormattedMessage().contains(ServiceAccountTestKeys.keyMarker()), "no private key in the log");
+            assertFalse(event.getFormattedMessage().contains(ServiceAccountTestKeys.CLIENT_EMAIL), "no part of the JSON in the log");
             assertTrue(event.getThrowableProxy().getMessage().contains("key unavailable"));
         }
-        assertTrue(logs.list.get(0).getFormattedMessage().startsWith("fail to encrypt"));
-        assertTrue(logs.list.get(1).getFormattedMessage().startsWith("fail to decrypt"));
+        assertEquals("fail to encrypt service account", logs.list.get(0).getFormattedMessage());
+        assertEquals("fail to decrypt service account", logs.list.get(1).getFormattedMessage());
     }
 }

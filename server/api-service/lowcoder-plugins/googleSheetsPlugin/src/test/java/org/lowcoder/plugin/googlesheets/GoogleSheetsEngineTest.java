@@ -32,8 +32,8 @@ import com.google.api.services.sheets.v4.SheetsScopes;
 
 /**
  * {@link GoogleSheetsEngine}: configuration checks, the connection stubs, {@code buildQueryExecutionContext} for every
- * action type and for invalid input, {@code executeQuery} with an unknown action type, and the defects D9
- * ({@code toString()} prints the private key) and the testConnection row (reports success without using the service
+ * action type and for invalid input, {@code executeQuery} with an unknown action type, defect D9 ({@code toString()}
+ * printed the private key; fixed by BF-026) and the testConnection row (reports success without using the service
  * account). The service account is generated at test time ({@link ServiceAccountTestKeys}); no network is used.
  */
 public class GoogleSheetsEngineTest {
@@ -228,13 +228,12 @@ public class GoogleSheetsEngineTest {
     }
 
     /**
-     * DEFECT D9 pinned (analysis-plugins section 0.6; plan section 9 D1-D20 row; D-6, fix deferred):
-     * {@code GoogleSheetsQueryExecutionContext.toString()} (:20) prints the whole service-account JSON, so the private
-     * key, and {@code ServiceAccountJsonUtils.toString()} (:27) prints {@code privateKeyPkcs8}. Anything that logs
-     * either object writes the key. A toString without the key turns both assertions red.
+     * Defect D9 fixed (BF-026 d): {@code GoogleSheetsQueryExecutionContext.toString()} (:20) prints
+     * {@code <hidden>} for the service-account JSON and the credentials built from it, and
+     * {@code ServiceAccountJsonUtils.toString()} (:31) for {@code privateKeyPkcs8}; the non-secret fields are still printed.
      */
     @Test
-    public void toStringOfTheContextAndOfTheKeyReaderPrintThePrivateKeyD9() {
+    public void toStringOfTheContextAndOfTheKeyReaderHideThePrivateKeyBF026() {
         GoogleSheetsQueryExecutionContext context = build("readData", command());
         ServiceAccountJsonUtils reader = new ServiceAccountJsonUtils();
         reader.getData(ServiceAccountTestKeys.json());
@@ -244,9 +243,13 @@ public class GoogleSheetsEngineTest {
 
         System.out.println("[GoogleSheetsEngineTest] context.toString() has the key: " + contextText.contains(ServiceAccountTestKeys.keyMarker())
                 + ", reader.toString() has the key: " + readerText.contains(ServiceAccountTestKeys.keyMarker()));
-        assertTrue(contextText.contains(ServiceAccountTestKeys.keyMarker()), "the context prints the key");
-        assertTrue(readerText.contains(ServiceAccountTestKeys.keyMarker()), "the key reader prints the key");
-        assertTrue(readerText.contains(ServiceAccountTestKeys.CLIENT_EMAIL));
-        assertFalse(contextText.isEmpty());
+        System.out.println("[GoogleSheetsEngineTest] context: " + contextText + "; reader: " + readerText);
+        assertFalse(contextText.contains(ServiceAccountTestKeys.keyMarker()), "the context hides the key");
+        assertFalse(contextText.contains(ServiceAccountTestKeys.CLIENT_EMAIL), "the context hides the whole service-account JSON");
+        assertTrue(contextText.contains("serviceAccount=<hidden>"), contextText);
+        assertTrue(contextText.contains("actionType='readData'"), contextText);
+        assertFalse(readerText.contains(ServiceAccountTestKeys.keyMarker()), "the key reader hides the key");
+        assertTrue(readerText.contains("privateKeyPkcs8=<hidden>"), readerText);
+        assertTrue(readerText.contains(ServiceAccountTestKeys.CLIENT_EMAIL), "non-secret fields are still printed");
     }
 }
