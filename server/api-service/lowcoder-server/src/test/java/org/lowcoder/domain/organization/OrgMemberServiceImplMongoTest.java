@@ -24,7 +24,7 @@ import org.springframework.test.context.ActiveProfiles;
 /**
  * OrgMemberServiceImpl against the MongoDB test container (unit U14, task L3-11a), shared {@code test} context: every
  * test works only under ids it generates. Not repeated here: adding members + getOrganizationMembers (OrgMemberServiceTest; it adds with bulkAddMember on this branch and with addMember on coverage-gate),
- * deleteOrgMembers (the L4-8 section 9 row on BiRelationServiceImpl.removeAllBiRelations), the L1 role rules of
+ * deleteOrgMembers (the L4-8 section 9 row on BiRelationServiceImpl.removeAllBiRelations, fixed by BF-016), the L1 role rules of
  * OrgApiServiceImpl, and the bulk methods that have no production caller (owner decision).
  */
 @SpringBootTest(classes = ServerApplication.class)
