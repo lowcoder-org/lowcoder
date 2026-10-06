@@ -195,6 +195,19 @@ public class DatasourceApiServiceImpl implements DatasourceApiService {
         return datasourceConnectionPool.info(datasourceId);
     }
 
+    /**
+     * Forwards the requests to the plugin service, first putting into each request that names a datasource the
+     * {@code extra} of that JS-plugin datasource. Only datasources the visitor may manage give their {@code extra}, the
+     * permission the datasource edit form that sends these requests already needs to load the datasource
+     * ({@link #findByIdWithPermission}). Each id is checked on its own, so that the organization and the admin role are
+     * resolved for that datasource: a batched permission lookup resolves both from the first id only and would grant an
+     * organization's admin every id of the batch. Any other id, including one of another organization's datasource, is
+     * treated like an unknown id: its request gets a null {@code extra}, and no error is raised.
+     * <p>
+     * Limits: ids are matched as object ids only, so a gid reference gets a null {@code extra}. System static datasource
+     * ids pass the permission check for everyone, but they are not stored, so they give no {@code extra} either. The rest
+     * of each request, including the {@code dataSourceConfig} the caller sends, is forwarded unchecked.
+     */
     @Override
     public Mono<List<Object>> getPluginDynamicConfig(List<GetPluginDynamicConfigRequestDTO> getPluginDynamicConfigRequestDTOS) {
         if (CollectionUtils.isEmpty(getPluginDynamicConfigRequestDTOS)) {
@@ -207,7 +220,14 @@ public class DatasourceApiServiceImpl implements DatasourceApiService {
         if (CollectionUtils.isEmpty(datasourceIds)) {
             return datasourcePluginClient.getPluginDynamicConfig(getPluginDynamicConfigRequestDTOS);
         }
-        return datasourceRepository.findAllById(datasourceIds)
+        return sessionUserService.getVisitorId()
+                .flatMapMany(visitorId -> Flux.fromIterable(datasourceIds)
+                        .concatMap(datasourceId -> resourcePermissionService
+                                .getMaxMatchingPermission(visitorId, datasourceId, MANAGE_DATASOURCES)
+                                .map(permission -> datasourceId)))
+                .collectList()
+                .flatMapMany(manageableIds -> manageableIds.isEmpty() ? Flux.<Datasource> empty()
+                                                                      : datasourceRepository.findAllById(manageableIds))
                 .filter(datasource -> datasourceMetaInfoService.isJsDatasourcePlugin(datasource.getType())
                         && datasource.getDetailConfig() instanceof JsDatasourceConnectionConfig jsDatasourceConnectionConfig
                         && jsDatasourceConnectionConfig.getExtra() != null)
@@ -219,7 +239,7 @@ public class DatasourceApiServiceImpl implements DatasourceApiService {
                         .forEach(getPluginDynamicConfigRequestDTO -> {
                             if (StringUtils.isNotBlank(getPluginDynamicConfigRequestDTO.getDataSourceId())) {
                                 Object extra = datasourceId2ExtraMap.get(getPluginDynamicConfigRequestDTO.getDataSourceId());
-                                getPluginDynamicConfigRequestDTO.getDataSourceConfig().put("extra", extra);
+                                getPluginDynamicConfigRequestDTO.getDataSourceConfig().put(JsDatasourceConnectionConfig.EXTRA_KEY, extra);
                             }
                         }))
                 .then(datasourcePluginClient.getPluginDynamicConfig(getPluginDynamicConfigRequestDTOS));
