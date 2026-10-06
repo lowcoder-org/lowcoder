@@ -26,6 +26,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.api.authentication.dto.OrganizationDomainCheckResult;
 import org.lowcoder.api.usermanagement.view.OrgMemberListView;
@@ -80,15 +81,15 @@ import reactor.test.StepVerifier;
  *
  * <p>Pinned production defects (owner decision D-6: fixes are deferred, a fix changes these tests on purpose):
  * <ul>
- * <li>plan section 9 subList row, second site {@code OrgApiServiceImpl.getOrgMemberListView} :115: a page past the end
+ * <li>plan section 9 subList row, second site {@code OrgApiServiceImpl.getOrgMemberListView} :117: a page past the end
  * and page 0 (see {@link #getOrganizationMembers_pageBeyondTheEnd_failsWithIllegalArgumentException_pinsSection9SubListRow}).</li>
- * <li>plan section 9 row "updateRoleForMember ... an org ADMIN can make any member, themselves included, super_admin ...
- * skips the quota" (privilege escalation), including the demotion of a SUPER_ADMIN by an ADMIN (see
- * {@link #updateRoleForMember_adminMakesAnyoneSuperAdmin_skippingTheQuota_pinsSection9Row} and
- * {@link #updateRoleForMember_adminDemotesASuperAdmin_pinsSection9Row}).</li>
  * <li>plan section 9 row "removeUserFromOrg has no last-admin or super-admin guard" (see
  * {@link #removeUserFromOrg_adminRemovesTheOnlyOtherAdminOrASuperAdmin_pinsSection9Row}).</li>
  * </ul>
+ * The plan section 9 row "updateRoleForMember ... an org ADMIN can make any member, themselves included, super_admin ...
+ * skips the quota", including the demotion of a SUPER_ADMIN by an ADMIN, is fixed (BF-005): see
+ * {@link #updateRoleForMember_superAdminRole_isRefusedForEveryVisitorAndTarget} and
+ * {@link #updateRoleForMember_targetIsSuperAdmin_isRefusedForEveryVisitor}.
  */
 @ExtendWith(MockitoExtension.class)
 class OrgApiServiceImplTest {
@@ -196,6 +197,14 @@ class OrgApiServiceImplTest {
         stubVisitor();
         lenient().when(orgMemberService.getOrgMember(orgId, VISITOR_ID))
                 .thenReturn(role == null ? Mono.empty() : Mono.just(orgMember(orgId, VISITOR_ID, role, OrgMemberState.NORMAL)));
+    }
+
+    /** The target's membership, as the super admin check reads it (logged as "target read"); null: not a member. */
+    private void stubTargetRole(String userId, MemberRole role) {
+        lenient().when(orgMemberService.getOrgMember(ORG_ID, userId)).thenReturn(Mono.defer(() -> {
+            events.add("target read");
+            return role == null ? Mono.empty() : Mono.just(orgMember(ORG_ID, userId, role, OrgMemberState.NORMAL));
+        }));
     }
 
     private Workspace stubWorkspace(WorkspaceMode mode, String enterpriseOrgId) {
@@ -318,7 +327,7 @@ class OrgApiServiceImplTest {
     }
 
     /**
-     * Pins the plan section 9 subList row at its second site, {@code getOrgMemberListView} :115: the slice is the
+     * Pins the plan section 9 subList row at its second site, {@code getOrgMemberListView} :117: the slice is the
      * unguarded {@code list.subList((page - 1) * count, min(page * count, total))}; three resolvable members, page 3
      * of size 2 gives subList(4, 3) and the call fails with an IllegalArgumentException. A fix changes this test on
      * purpose.
@@ -431,6 +440,7 @@ class OrgApiServiceImplTest {
     @MethodSource("adminOperations")
     void adminOperation_requiresAnAdminOfTheOrganization(AdminOperation operation, MemberRole role, boolean allowed) {
         stubVisitorRole(ORG_ID, role);
+        stubTargetRole(TARGET_ID, MemberRole.MEMBER);
         stubWorkspace(WorkspaceMode.SAAS, null);
         Part part = mock(Part.class);
         lenient().when(orgMemberService.updateMemberRole(ORG_ID, TARGET_ID, MemberRole.MEMBER)).thenReturn(counting(true));
@@ -467,26 +477,28 @@ class OrgApiServiceImplTest {
     }
 
     /**
-     * Catches the developer quota bypass: for the role "admin" the dev group is looked up and
-     * {@code checkMaxDeveloperCount(orgId, devGroupId, userId)} completes before {@code updateMemberRole}; a quota
+     * Catches the developer quota bypass: for the role "admin" the target's role is read, then the dev group is looked
+     * up and {@code checkMaxDeveloperCount(orgId, devGroupId, userId)} completes before {@code updateMemberRole}; a quota
      * error stops the update; an org without a dev group goes straight to the update.
      */
     @Test
     void updateRoleForMember_roleAdmin_checksTheDeveloperQuotaBeforeUpdating() {
         stubVisitorRole(ORG_ID, MemberRole.ADMIN);
+        stubTargetRole(TARGET_ID, MemberRole.MEMBER);
         when(groupService.getDevGroup(ORG_ID)).thenReturn(Mono.just(Group.builder().id(DEV_GROUP_ID).build()));
         when(bizThresholdChecker.checkMaxDeveloperCount(ORG_ID, DEV_GROUP_ID, TARGET_ID)).thenReturn(loggedVoid("quota", null));
         when(orgMemberService.updateMemberRole(ORG_ID, TARGET_ID, MemberRole.ADMIN)).thenReturn(logged("update", true));
 
         StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(TARGET_ID, "admin"))).expectNext(true).verifyComplete();
 
-        assertThat(events).containsExactly("quota", "update");
+        assertThat(events).containsExactly("target read", "quota", "update");
         say("updateRoleForMember role admin: %s", events);
     }
 
     @Test
     void updateRoleForMember_roleAdmin_quotaExceeded_updatesNothing() {
         stubVisitorRole(ORG_ID, MemberRole.ADMIN);
+        stubTargetRole(TARGET_ID, MemberRole.MEMBER);
         when(groupService.getDevGroup(ORG_ID)).thenReturn(Mono.just(Group.builder().id(DEV_GROUP_ID).build()));
         when(bizThresholdChecker.checkMaxDeveloperCount(ORG_ID, DEV_GROUP_ID, TARGET_ID))
                 .thenReturn(loggedVoid("quota", new BizException(BizError.EXCEED_MAX_DEVELOPER_COUNT, "EXCEED_MAX_DEVELOPER_COUNT")));
@@ -495,19 +507,20 @@ class OrgApiServiceImplTest {
         StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(TARGET_ID, "admin")))
                 .expectErrorSatisfies(error -> assertBizError(error, BizError.EXCEED_MAX_DEVELOPER_COUNT, "EXCEED_MAX_DEVELOPER_COUNT"))
                 .verify();
-        assertThat(events).containsExactly("quota");
+        assertThat(events).containsExactly("target read", "quota");
         say("updateRoleForMember role admin over quota -> EXCEED_MAX_DEVELOPER_COUNT, role not updated");
     }
 
     @Test
     void updateRoleForMember_roleAdmin_orgWithoutDevGroup_updatesWithoutQuotaCall() {
         stubVisitorRole(ORG_ID, MemberRole.ADMIN);
+        stubTargetRole(TARGET_ID, MemberRole.MEMBER);
         when(groupService.getDevGroup(ORG_ID)).thenReturn(Mono.empty());
         when(orgMemberService.updateMemberRole(ORG_ID, TARGET_ID, MemberRole.ADMIN)).thenReturn(logged("update", true));
 
         StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(TARGET_ID, "admin"))).expectNext(true).verifyComplete();
 
-        assertThat(events).containsExactly("update");
+        assertThat(events).containsExactly("target read", "update");
         verifyNoInteractions(bizThresholdChecker);
         say("updateRoleForMember role admin, no dev group: %s", events);
     }
@@ -520,49 +533,119 @@ class OrgApiServiceImplTest {
     @ValueSource(strings = {"member", "no-such-role"})
     void updateRoleForMember_otherRoleNames_updateAsMemberWithoutAQuotaCheck(String roleName) {
         stubVisitorRole(ORG_ID, MemberRole.ADMIN);
+        stubTargetRole(TARGET_ID, MemberRole.MEMBER);
         when(orgMemberService.updateMemberRole(ORG_ID, TARGET_ID, MemberRole.MEMBER)).thenReturn(logged("update", true));
 
         StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(TARGET_ID, roleName))).expectNext(true).verifyComplete();
 
-        assertThat(events).containsExactly("update");
+        assertThat(events).containsExactly("target read", "update");
         verifyNoInteractions(groupService, bizThresholdChecker);
         say("updateRoleForMember role [%s] -> MEMBER, no quota check", roleName);
     }
 
-    /**
-     * Pins the plan section 9 row "updateRoleForMember ... an org ADMIN can make any member, themselves included,
-     * super_admin ... skips the quota" (privilege escalation): an ADMIN visitor writes the role "super_admin" for
-     * another member and for themselves, the update is subscribed, and neither the dev group nor the developer quota
-     * is consulted. A fix changes this test on purpose.
-     */
-    @ParameterizedTest(name = "target {0}")
-    @ValueSource(strings = {TARGET_ID, VISITOR_ID})
-    void updateRoleForMember_adminMakesAnyoneSuperAdmin_skippingTheQuota_pinsSection9Row(String targetId) {
-        stubVisitorRole(ORG_ID, MemberRole.ADMIN);
-        when(orgMemberService.updateMemberRole(ORG_ID, targetId, MemberRole.SUPER_ADMIN)).thenReturn(logged("update", true));
-
-        StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(targetId, "super_admin"))).expectNext(true).verifyComplete();
-
-        assertThat(events).containsExactly("update");
-        verifyNoInteractions(groupService, bizThresholdChecker);
-        say("updateRoleForMember: ADMIN made %s super_admin, no quota (section 9 row pinned)", targetId);
+    static Stream<Arguments> superAdminRoleRequests() {
+        List<Arguments> args = new ArrayList<>();
+        for (MemberRole visitorRole : List.of(MemberRole.ADMIN, MemberRole.SUPER_ADMIN)) {
+            for (String targetId : List.of(TARGET_ID, VISITOR_ID)) {
+                args.add(Arguments.of(visitorRole, targetId));
+            }
+        }
+        return args.stream();
     }
 
     /**
-     * Pins the same plan section 9 row (the gate looks at the visitor's role only, never at the target's): an ADMIN
-     * demotes a SUPER_ADMIN to MEMBER and the update is subscribed, with the target's membership never read. A fix
-     * changes this test on purpose.
+     * Catches a privilege escalation (BF-005, formerly pinned as "updateRoleForMember ... an org ADMIN can make any
+     * member, themselves included, super_admin ... skips the quota"): the role "super_admin" is refused with
+     * UNSUPPORTED_OPERATION for an ADMIN and for a SUPER_ADMIN visitor, for another member and for themselves, before
+     * the target is read, the quota is looked at or the role is written.
+     */
+    @ParameterizedTest(name = "visitor {0}, target {1}")
+    @MethodSource("superAdminRoleRequests")
+    void updateRoleForMember_superAdminRole_isRefusedForEveryVisitorAndTarget(MemberRole visitorRole, String targetId) {
+        stubVisitorRole(ORG_ID, visitorRole);
+        lenient().when(orgMemberService.updateMemberRole(ORG_ID, targetId, MemberRole.SUPER_ADMIN)).thenReturn(logged("update", true));
+
+        StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(targetId, MemberRole.SUPER_ADMIN.getValue())))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"))
+                .verify();
+
+        assertThat(events).isEmpty();
+        verifyNoInteractions(groupService, bizThresholdChecker);
+        say("updateRoleForMember: %s asked super_admin for %s -> UNSUPPORTED_OPERATION, nothing written", visitorRole, targetId);
+    }
+
+    static Stream<Arguments> superAdminTargetRequests() {
+        List<Arguments> args = new ArrayList<>();
+        for (MemberRole visitorRole : List.of(MemberRole.ADMIN, MemberRole.SUPER_ADMIN)) {
+            for (MemberRole requested : List.of(MemberRole.MEMBER, MemberRole.ADMIN)) {
+                args.add(Arguments.of(visitorRole, requested));
+            }
+        }
+        return args.stream();
+    }
+
+    /**
+     * Catches the demotion of a super admin (BF-005, formerly pinned as the gate looking at the visitor's role only):
+     * changing the role of a SUPER_ADMIN member is refused with UNSUPPORTED_OPERATION for an ADMIN and for a
+     * SUPER_ADMIN visitor, whichever role is asked; the target is read, the dev group and the quota are not subscribed
+     * (the quota check is assembled eagerly for the role "admin"), nothing is written.
+     */
+    @ParameterizedTest(name = "visitor {0}, requested {1}")
+    @MethodSource("superAdminTargetRequests")
+    void updateRoleForMember_targetIsSuperAdmin_isRefusedForEveryVisitor(MemberRole visitorRole, MemberRole requested) {
+        stubVisitorRole(ORG_ID, visitorRole);
+        stubTargetRole(SUPER_ADMIN_ID, MemberRole.SUPER_ADMIN);
+        lenient().when(groupService.getDevGroup(ORG_ID)).thenReturn(logged("dev group", Group.builder().id(DEV_GROUP_ID).build()));
+        lenient().when(bizThresholdChecker.checkMaxDeveloperCount(ORG_ID, DEV_GROUP_ID, SUPER_ADMIN_ID))
+                .thenReturn(loggedVoid("quota", null));
+        lenient().when(orgMemberService.updateMemberRole(ORG_ID, SUPER_ADMIN_ID, requested)).thenReturn(logged("update", true));
+
+        StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(SUPER_ADMIN_ID, requested.getValue())))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"))
+                .verify();
+
+        assertThat(events).containsExactly("target read");
+        say("updateRoleForMember: %s asked %s for the super admin -> UNSUPPORTED_OPERATION, nothing written", visitorRole,
+                requested);
+    }
+
+    /**
+     * Catches the target being read for a visitor who may not change roles: a visitor who is a MEMBER or not in the
+     * organization gets NOT_AUTHORIZED, even for the role "super_admin", and the target is never read.
+     */
+    @ParameterizedTest(name = "visitor {0}")
+    @NullSource
+    @EnumSource(value = MemberRole.class, names = "MEMBER")
+    void updateRoleForMember_visitorNotAnAdmin_isRefusedBeforeTheTargetIsRead(MemberRole visitorRole) {
+        stubVisitorRole(ORG_ID, visitorRole);
+        stubTargetRole(SUPER_ADMIN_ID, MemberRole.SUPER_ADMIN);
+        lenient().when(orgMemberService.updateMemberRole(ORG_ID, SUPER_ADMIN_ID, MemberRole.SUPER_ADMIN))
+                .thenReturn(logged("update", true));
+
+        StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(SUPER_ADMIN_ID, MemberRole.SUPER_ADMIN.getValue())))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                .verify();
+
+        assertThat(events).isEmpty();
+        say("updateRoleForMember: visitor %s -> NOT_AUTHORIZED, target not read", visitorRole);
+    }
+
+    /**
+     * Catches a refusal for a target who is not a member (the documented limit): the check finds no membership, so the
+     * update runs and its answer is returned. The real update answers true here although it changes nothing (pinned in
+     * OrgMemberServiceImplMongoTest), so the stub answers true.
      */
     @Test
-    void updateRoleForMember_adminDemotesASuperAdmin_pinsSection9Row() {
+    void updateRoleForMember_targetNotAMember_updateRunsAndItsAnswerIsReturned() {
         stubVisitorRole(ORG_ID, MemberRole.ADMIN);
-        when(orgMemberService.updateMemberRole(ORG_ID, SUPER_ADMIN_ID, MemberRole.MEMBER)).thenReturn(logged("update", true));
+        stubTargetRole(TARGET_ID, null);
+        when(orgMemberService.updateMemberRole(ORG_ID, TARGET_ID, MemberRole.MEMBER)).thenReturn(logged("update", true));
 
-        StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(SUPER_ADMIN_ID, "member"))).expectNext(true).verifyComplete();
+        StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(TARGET_ID, MemberRole.MEMBER.getValue())))
+                .expectNext(true).verifyComplete();
 
-        assertThat(events).containsExactly("update");
-        verify(orgMemberService, never()).getOrgMember(ORG_ID, SUPER_ADMIN_ID);
-        say("updateRoleForMember: ADMIN demoted the super admin, target role never read (section 9 row pinned)");
+        assertThat(events).containsExactly("target read", "update");
+        say("updateRoleForMember: target not a member -> %s", events);
     }
 
     // ------------------------------------------------------------------ switchCurrentOrganizationTo
