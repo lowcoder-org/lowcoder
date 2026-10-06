@@ -97,8 +97,9 @@ import reactor.test.StepVerifier;
  * <li>{@link #executeLibraryQuery_libraryQueryOfAnotherOrganization_isRefused_andNothingRuns}</li>
  * <li>{@link #executeFromJs_nameOnlyAnotherOrganizationUses_isNotFound_andNothingRuns}</li>
  * </ul>
- * Pinned production defect (owner decision D-6: fixes are deferred, a fix changes these tests on purpose): under the existing section 9 row "connection.getAuthId().equals(...) NPE for a connection with a null
- * authId": {@link #oauthInherit_connectionWithNullAuthIdBeforeTheMatch_isANullPointerException_pinsSection9Row}.
+ * Fixed since: the NullPointerException for a connection with a null authId (BF-040), now asserted by
+ * {@link #oauthInherit_connectionWithNullAuthId_isSkippedInEitherOrderBF040} and
+ * {@link #oauthInherit_editingFlow_emptyAuthId_doesNotMatchAConnectionWithoutAuthIdBF040}.
  */
 @ExtendWith(MockitoExtension.class)
 class LibraryQueryApiServiceImplTest {
@@ -834,25 +835,45 @@ class LibraryQueryApiServiceImplTest {
         say("%s -> no headers", label);
     }
 
+    static Stream<Arguments> nullAuthIdOrderRows() {
+        List<Arguments> rows = new ArrayList<>();
+        for (Kind kind : Kind.values()) {
+            rows.add(Arguments.of(kind, true));
+            rows.add(Arguments.of(kind, false));
+        }
+        return rows.stream();
+    }
+
     /**
-     * Pins the plan section 9 row "connection.getAuthId().equals(...) NPE for a connection with a null authId"
-     * ({@code getParamsAndHeadersInheritFromLogin} uses the same {@code connection.getAuthId().equals(...)} as the
-     * application flow): a connection with a null auth id placed before the matching one gives a NullPointerException;
-     * with the matching connection first the stream short-circuits and the query runs. A fix changes this test on purpose.
+     * BF-040 fixed: {@code getParamsAndHeadersInheritFromLogin} used the same {@code connection.getAuthId().equals(...)}
+     * as the application flow, so a connection with a null auth id placed before the matching one gave a
+     * NullPointerException. It now matches no auth id, so the matching connection supplies the header in either order.
      */
+    @ParameterizedTest(name = "{0}: null-authId connection first={1}")
+    @MethodSource("nullAuthIdOrderRows")
+    void oauthInherit_connectionWithNullAuthId_isSkippedInEitherOrderBF040(Kind kind, boolean nullAuthIdFirst) {
+        datasource.setDetailConfig(oauthConfig(kind, "auth-A"));
+        Connection withoutAuthId = connection(null, "t0");
+        Connection matching = connection("auth-A", "tA");
+        visitorWithConnections(nullAuthIdFirst ? new Connection[] {withoutAuthId, matching} : new Connection[] {matching, withoutAuthId});
+
+        List<Property> properties = inheritedPropertiesOfTheEditingFlow();
+
+        say("%s: null-authId connection first=%s -> %s", kind, nullAuthIdFirst, properties);
+        assertThat(properties).containsExactly(expectedHeader(kind, "tA"));
+    }
+
+    /** BF-040: an empty configured auth id is not the null auth id of a stored connection; no header, no exception. */
     @ParameterizedTest
     @EnumSource(Kind.class)
-    void oauthInherit_connectionWithNullAuthIdBeforeTheMatch_isANullPointerException_pinsSection9Row(Kind kind) {
-        datasource.setDetailConfig(oauthConfig(kind, "auth-A"));
-        when(libraryQueryService.getEditingBaseQueryByLibraryQueryId(LQ_ID)).thenReturn(Mono.just(baseQuery(Map.of("sql", "x"), null)));
-        visitorWithConnections(connection(null, "t0"), connection("auth-A", "tA"));
+    void oauthInherit_editingFlow_emptyAuthId_doesNotMatchAConnectionWithoutAuthIdBF040(Kind kind) {
+        datasource.setDetailConfig(oauthConfig(kind, ""));
+        visitorWithConnections(connection(null, "t0"));
 
-        StepVerifier.create(service.executeLibraryQuery(exchange, editingRequest(LQ_ID))).expectError(NullPointerException.class).verify();
-        verify(queryExecutionService, never()).executeQuery(any(), any(), any(), any(), any());
+        List<Property> properties = inheritedPropertiesOfTheEditingFlow();
 
-        visitorWithConnections(connection("auth-A", "tA"), connection(null, "t0"));
-        assertThat(inheritedPropertiesOfTheEditingFlow()).containsExactly(expectedHeader(kind, "tA"));
-        say("%s: null-authId connection first -> NullPointerException (section 9 row pinned); matching first -> works", kind);
+        say("%s: empty configured authId, only a null-authId connection -> %s", kind, properties);
+        assertThat(properties).isNull();
     }
 
     // ------------------------------------------------------------------ executeLibraryQueryFromJs (by name)

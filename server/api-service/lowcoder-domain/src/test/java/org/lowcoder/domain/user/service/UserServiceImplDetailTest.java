@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -149,6 +150,43 @@ class UserServiceImplDetailTest {
                         .containsEntry("jwt", "active-token").containsEntry("provider", GITHUB))
                 .verifyComplete();
         System.out.println("[UserServiceImplDetailTest] only the active connection's token is exposed");
+    }
+
+    /**
+     * BF-040: a connection stored without an auth id made the active-connection lookups of buildUserDetail (userAuth)
+     * and its extra throw a NullPointerException, so the user's detail failed. Placed first (fixed iteration order), it
+     * is now skipped: the active connection supplies userAuth and is the only one in extra.
+     */
+    @Test
+    void buildUserDetail_connectionWithoutAuthId_isSkippedBF040() {
+        Connection withoutAuthId = connection(null, "GOOGLE", Map.of(), ConnectionAuthToken.builder().accessToken("legacy-token").build());
+        Connection active = connection(ACTIVE_AUTH_ID, GITHUB, Map.of(), ConnectionAuthToken.builder().accessToken("active-token").build());
+        User user = User.builder().id(USER_ID).name("Jane").activeAuthId(ACTIVE_AUTH_ID)
+                .connections(new LinkedHashSet<>(List.of(withoutAuthId, active))).build();
+
+        StepVerifier.create(detail(user, false))
+                .assertNext(detail -> {
+                    System.out.println("[UserServiceImplDetailTest] null authId connection first -> userAuth "
+                            + detail.getUserAuth() + ", extra " + detail.getExtra());
+                    assertThat(detail.getUserAuth()).containsEntry("jwt", "active-token").containsEntry("provider", GITHUB);
+                    assertThat(detail.getExtra()).containsOnlyKeys(GITHUB);
+                })
+                .verifyComplete();
+    }
+
+    /** BF-040: a user without an active auth id does not take a connection without an auth id as the active one. */
+    @Test
+    void buildUserDetail_noActiveAuthId_doesNotMatchAConnectionWithoutAuthIdBF040() {
+        User user = userWith(null, connection(null, GITHUB, Map.of(), ConnectionAuthToken.builder().accessToken("legacy-token").build()));
+
+        StepVerifier.create(detail(user, false))
+                .assertNext(detail -> {
+                    System.out.println("[UserServiceImplDetailTest] no active auth id -> userAuth " + detail.getUserAuth()
+                            + ", extra " + detail.getExtra());
+                    assertThat(detail.getUserAuth()).isEmpty();
+                    assertThat(detail.getExtra()).isEmpty();
+                })
+                .verifyComplete();
     }
 
     // ---------------------------------------------------------------- fields and extra
