@@ -47,8 +47,8 @@ class OrgMemberServiceImplEnterpriseEnrolmentPinMongoTest extends OrganizationMo
     }
 
     /**
-     * Pins the row: getAllActiveOrgs (OrgMemberServiceImpl:60-97) enrols a non-member in the configured enterprise org
-     * (:82) but filters the memberships it read BEFORE that write (the cached orgMemberFlux), so the first call answers an
+     * Pins the row: getAllActiveOrgs (OrgMemberServiceImpl:63-100) enrols a non-member in the configured enterprise org
+     * (:85) but filters the memberships it read BEFORE that write (the cached orgMemberFlux), so the first call answers an
      * empty list and only the next call returns the org. Small reach: login enrols the user first through
      * tryAddUserToOrgAndSwitchOrg (AuthenticationApiServiceImpl:304), so this is hit only by an existing user who was
      * never added. A fix (re-read the memberships after the write) changes this test on purpose.
