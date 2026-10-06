@@ -23,6 +23,8 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.repository.ApplicationRepository;
 import org.lowcoder.domain.application.service.ApplicationServiceImpl;
+import org.lowcoder.domain.bundle.model.Bundle;
+import org.lowcoder.domain.bundle.service.BundleService;
 import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.organization.model.MemberRole;
 import org.lowcoder.domain.organization.model.OrgMember;
@@ -44,10 +46,10 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 /**
- * Pins candidate defect D6 of the L1 lane: the bundle flag setters ({@code BundleApiServiceImpl.setBundlePublicToAll},
- * {@code ...ToMarketplace}, {@code ...AsAgencyProfile}) ask {@code ResourcePermissionService.checkResourcePermissionWithError}
- * for the application actions {@code SET_APPLICATIONS_*} on a BUNDLE id, while the bundle actions {@code SET_BUNDLES_*}
- * exist and are used nowhere.
+ * Why the bundle flag setters ({@code BundleApiServiceImpl.setBundlePublicToAll}, {@code ...ToMarketplace},
+ * {@code ...AsAgencyProfile}) must ask {@code ResourcePermissionService.checkResourcePermissionWithError} for the bundle
+ * actions {@code SET_BUNDLES_*} (BF-035, fixed): they asked for the application actions {@code SET_APPLICATIONS_*} on a
+ * BUNDLE id, which no user can pass.
  *
  * <p>The real {@link ResourcePermissionServiceImpl}, the real {@link ApplicationPermissionHandler} and the real
  * {@link ApplicationServiceImpl} run here over mocked repositories and mocked org/group services. The action's resource
@@ -57,9 +59,10 @@ import reactor.test.StepVerifier;
  * NO_RESOURCE_FOUND (HTTP 500) rather than NOT_AUTHORIZED. Only the anonymous user gets NOT_AUTHORIZED (the anonymous role
  * may not do EDITOR actions).
  *
- * <p>These tests pin today's behaviour (D-6). A fix (the setters asking SET_BUNDLES_* or the handler resolving bundles)
- * changes {@link #bundleIdUnderApplicationAction_failsForEveryUser_pinsTheSection9Row} on purpose. The unit test cannot show
- * what the controller returns over HTTP, nor that no bundle was changed (the bundle service is not in this chain).
+ * <p>The service's answer for an application action on a bundle id is unchanged by the fix (it is the reason for it); the
+ * fixed path is {@link #bundleActionsWithTheRealBundleHandler_letOrgAdminsAndBundleEditorsSetTheFlagsBF035}, where the real
+ * {@link BundlePermissionHandler} resolves the bundle's organization. These tests cannot show what the controller returns over
+ * HTTP, nor that a bundle was changed (the bundle service is not in this chain).
  */
 class BundleIdUnderApplicationActionPermissionTest {
 
@@ -71,6 +74,7 @@ class BundleIdUnderApplicationActionPermissionTest {
 
     private ApplicationRepository applicationRepository;
     private OrgMemberService orgMemberService;
+    private GroupMemberService groupMemberService;
     private ResourcePermissionRepository permissionRepository;
     private ResourcePermissionHandlerService bundleHandler;
     private ResourcePermissionServiceImpl service;
@@ -79,7 +83,7 @@ class BundleIdUnderApplicationActionPermissionTest {
     void setUp() {
         applicationRepository = mock(ApplicationRepository.class);
         orgMemberService = mock(OrgMemberService.class);
-        GroupMemberService groupMemberService = mock(GroupMemberService.class);
+        groupMemberService = mock(GroupMemberService.class);
         permissionRepository = mock(ResourcePermissionRepository.class);
         bundleHandler = mock(ResourcePermissionHandlerService.class);
         ResourcePermissionHandlerService datasourceHandler = mock(ResourcePermissionHandlerService.class);
@@ -116,7 +120,7 @@ class BundleIdUnderApplicationActionPermissionTest {
     @ParameterizedTest(name = "{0}")
     @EnumSource(value = ResourceAction.class, names = {
             "SET_APPLICATIONS_PUBLIC", "SET_APPLICATIONS_PUBLIC_TO_MARKETPLACE", "SET_APPLICATIONS_AS_AGENCY_PROFILE"})
-    void bundleIdUnderApplicationAction_failsForEveryUser_pinsTheSection9Row(ResourceAction action) {
+    void bundleIdUnderApplicationAction_failsForEveryUser_whyTheSettersAskBundleActions(ResourceAction action) {
         assertThat(action.getResourceType()).as("the action belongs to APPLICATION, so the application handler decides")
                 .isEqualTo(ResourceType.APPLICATION);
 
@@ -191,5 +195,46 @@ class BundleIdUnderApplicationActionPermissionTest {
         verify(bundleHandler).getAllMatchingPermissions(eq(USER_ID), anyCollection(), eq(action));
         verify(applicationRepository, never()).findById(anyString());
         verify(applicationRepository, never()).findBySlug(anyString());
+    }
+
+    /**
+     * BF-035 fixed: the bundle actions, with the real bundle handler (only its bundle service is mocked), let an organization
+     * admin and a member holding EDITOR on the bundle set the flags, and refuse a member with no permission or only VIEWER
+     * (the actions need EDITOR) with NOT_AUTHORIZED.
+     */
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(value = ResourceAction.class, names = {
+            "SET_BUNDLES_PUBLIC", "SET_BUNDLES_PUBLIC_TO_MARKETPLACE", "SET_BUNDLES_AS_AGENCY_PROFILE"})
+    void bundleActionsWithTheRealBundleHandler_letOrgAdminsAndBundleEditorsSetTheFlagsBF035(ResourceAction action) {
+        BundleService bundleService = mock(BundleService.class);
+        when(bundleService.findById(BUNDLE_ID)).thenReturn(Mono.just(Bundle.builder().organizationId(ORG_ID).build()));
+        BundlePermissionHandler realBundleHandler = new BundlePermissionHandler(bundleService, mock(TemplateSolutionService.class));
+        ResourcePermissionServiceImpl withRealBundleHandler = new ResourcePermissionServiceImpl(permissionRepository,
+                mock(ResourcePermissionHandlerService.class), mock(ResourcePermissionHandlerService.class), realBundleHandler);
+        ReflectionTestUtils.setField(realBundleHandler, "resourcePermissionService", withRealBundleHandler);
+        ReflectionTestUtils.setField(realBundleHandler, "groupMemberService", groupMemberService);
+        ReflectionTestUtils.setField(realBundleHandler, "orgMemberService", orgMemberService);
+        ReflectionTestUtils.setField(realBundleHandler, "config", mock(CommonConfig.class));
+
+        stubMember(MemberRole.ADMIN);
+        StepVerifier.create(withRealBundleHandler.checkResourcePermissionWithError(USER_ID, BUNDLE_ID, action)).as("org admin").verifyComplete();
+
+        stubMember(MemberRole.MEMBER);
+        for (ResourceRole granted : new ResourceRole[] {null, ResourceRole.VIEWER, ResourceRole.EDITOR}) {
+            Map<String, Collection<ResourcePermission>> permissions = granted == null ? Map.of() : Map.of(BUNDLE_ID, List.of(
+                    ResourcePermission.builder().resourceType(ResourceType.BUNDLE).resourceId(BUNDLE_ID)
+                            .resourceHolder(ResourceHolder.USER).resourceHolderId(USER_ID).resourceRole(granted).build()));
+            when(permissionRepository.getByResourceTypeAndResourceIds(eq(ResourceType.BUNDLE), anyCollection())).thenReturn(Mono.just(permissions));
+            StepVerifier.Step<Void> check = StepVerifier.create(withRealBundleHandler.checkResourcePermissionWithError(USER_ID, BUNDLE_ID, action))
+                    .as("member with " + granted);
+            if (granted == ResourceRole.EDITOR) {
+                check.verifyComplete();
+            } else {
+                check.expectErrorSatisfies(error -> assertBizError(error, NOT_AUTHORIZED)).verify();
+            }
+            System.out.println("[BundleIdUnderApplicationActionPermissionTest] " + action + ", member with " + granted + " on the bundle: "
+                    + (granted == ResourceRole.EDITOR ? "allowed" : "NOT_AUTHORIZED"));
+        }
+        verify(applicationRepository, never()).findById(anyString());
     }
 }
