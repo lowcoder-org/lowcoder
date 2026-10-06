@@ -230,27 +230,22 @@ class GuiSqlCommandRenderTest {
     }
 
     /**
-     * Pins the plan section 9 row "UpdateCommand.render without filters returns a plain result before appendLimit and
-     * without the single-row guard" (D-6, fix deferred, source: lane L4, L4-3 plan): a MySQL GUI update with
-     * multi-modify off and no filter changes every row. Both halves are asserted: no {@code limit 1} and a plain
-     * {@link GuiSqlCommandRenderResult}, so the executor's single-row guard is skipped. The delete in the same case is
-     * the contrast. A fix changes this test on purpose.
+     * BF-030 (plan section 9 row "UpdateCommand.render without filters returns a plain result before appendLimit"): a
+     * MySQL GUI update with multi-modify off and no filter is limited to one row, as the delete in the same case is; with
+     * multi-modify on it still has no limit.
      */
     @Test
-    void mysqlUpdateWithoutFilterAndWithoutMultiModifyHasNoLimitAndNoSingleRowGuard() {
-        GuiSqlCommandRenderResult update = print("mysql update, no filter, multi off",
+    void mysqlUpdateWithoutFilterIsLimitedToOneRowUnlessMultiModifyBF030() {
+        GuiSqlCommandRenderResult single = print("mysql update, no filter, multi off",
                 MysqlUpdateCommand.from(detail(TABLE, false, List.of(), keyValueChangeSet("age", 30))).render(NO_PARAMS));
+        GuiSqlCommandRenderResult multi = print("mysql update, no filter, multi on",
+                MysqlUpdateCommand.from(detail(TABLE, true, List.of(), keyValueChangeSet("age", 30))).render(NO_PARAMS));
 
-        assertThat(update.sql()).as("today's behaviour: every row is updated").isEqualTo("update users set `age`=?");
-        assertThat(update.sql()).doesNotContain("limit");
-        assertThat(update.bindParams()).containsExactly(30);
-        assertThat(update).as("today's behaviour: the single-row guard result is not used")
-                .isNotInstanceOf(UpdateOrDeleteSingleCommandRenderResult.class);
-
-        // contrast: the same situation for a delete is limited to one row (MySQL) or guarded (PostgreSQL)
-        assertThat(MysqlDeleteCommand.from(detail(TABLE, false, List.of(), null)).render(NO_PARAMS).sql()).endsWith(" limit 1");
-        assertThat(PostgresDeleteCommand.from(detail(TABLE, false, List.of(), null)).render(NO_PARAMS))
-                .isInstanceOf(UpdateOrDeleteSingleCommandRenderResult.class);
+        assertThat(single.sql()).isEqualTo("update users set `age`=? limit 1");
+        assertThat(single.bindParams()).containsExactly(30);
+        assertThat(multi.sql()).isEqualTo("update users set `age`=?");
+        assertThat(MysqlDeleteCommand.from(detail(TABLE, false, List.of(), null)).render(NO_PARAMS).sql())
+                .as("the delete in the same case").endsWith(" limit 1");
     }
 
     // ---- insert ----
