@@ -1,6 +1,7 @@
 package org.lowcoder.plugin.googlesheets.queryhandler;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -61,23 +62,24 @@ public class GoogleSheetsDeleteClearHandlerTest extends GoogleSheetsCallSupport 
     }
 
     /**
-     * DEFECT D10 pinned (analysis-plugins section 0.6; plan section 9 "D1-D20" row; D-6, fix deferred): when no sheet has the
-     * named title, {@code .orElse(0)} (GoogleSheetsDeleteDataHandler.java:43) makes the delete apply to sheet id 0, so a
-     * misspelt sheet name deletes the row on whatever sheet has id 0. A fix that fails when no sheet matches turns the
-     * assertions red. (The spreadsheet here has no sheet with id 0; the request is still sent with {@code sheetId 0}.)
+     * Defect D10 fixed (BF-029): when no sheet has the named title, the delete fails with
+     * {@code GOOGLESHEETS_QUERY_PARAM_ERROR} naming the sheet (GoogleSheetsDeleteDataHandler.java:47) and no
+     * {@code batchUpdate} is sent, so a misspelt sheet name no longer deletes the row on the sheet with id 0.
      */
     @Test
-    public void aSheetNameThatDoesNotExistDeletesTheRowOnSheetIdZeroD10() {
+    public void aSheetNameThatDoesNotExistIsRefusedAndNothingIsDeletedBF029() {
         startDelete();
 
         QueryExecutionResult result = run("deleteData", deleteCommand("Missing"));
 
         List<Request> api = apiRequests();
-        System.out.println("[GoogleSheetsDeleteClearHandlerTest] missing sheet -> success " + result.isSuccess() + ", batchUpdate " + bodyText(api.get(api.size() - 1)));
-        assertTrue(result.isSuccess(), "the call is not rejected");
-        assertEquals(2, api.size());
-        assertEquals("POST", api.get(1).method());
-        assertEquals(deleteBody(0), body(api.get(1)));
+        System.out.println("[GoogleSheetsDeleteClearHandlerTest] missing sheet -> success " + result.isSuccess() + ", " + result.getMessageKey()
+                + ", requests " + api.stream().map(r -> r.method() + " " + r.pathAndQuery()).toList());
+        assertFalse(result.isSuccess(), "the delete is refused");
+        System.out.println("[GoogleSheetsDeleteClearHandlerTest] missing sheet message: " + failureText(result));
+        assertEquals("GOOGLESHEETS_REQUEST_ERROR", result.getMessageKey());
+        assertTrue(failureText(result).contains("Missing"), failureText(result));
+        assertEquals(List.of("GET " + SPREADSHEET_PATH), api.stream().map(r -> r.method() + " " + r.pathAndQuery()).toList(), "no batchUpdate is sent");
     }
 
     @Test
@@ -98,7 +100,7 @@ public class GoogleSheetsDeleteClearHandlerTest extends GoogleSheetsCallSupport 
     }
 
     /**
-     * Observation: delete and clear build the Sheets client before they create the Mono (GoogleSheetsDeleteDataHandler.java:34,
+     * Observation: delete and clear build the Sheets client before they create the Mono (GoogleSheetsDeleteDataHandler.java:37,
      * GoogleSheetsClearDataHandler.java:25), so a failure there (here: no credentials) is thrown to the caller of
      * {@code execute} and is not turned into a failed result by the engine's {@code onErrorResume}, unlike the other three
      * handlers, which build it inside the Mono.
