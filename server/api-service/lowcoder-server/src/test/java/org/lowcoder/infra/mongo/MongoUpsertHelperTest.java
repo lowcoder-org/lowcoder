@@ -131,6 +131,35 @@ class MongoUpsertHelperTest {
         assertThat(reload(saved.getId()).getRelation()).isEqualTo("old");
     }
 
+    /**
+     * BF-064: a field cannot be cleared through {@code update} (only the partial's non-null fields are written), so
+     * {@code updateAndUnset} also removes the named fields. It writes the partial and stamps the audit fields as
+     * {@code update} does, keeps the fields it is not given, and returns false and removes nothing when no row matches.
+     */
+    @Test
+    void updateAndUnsetRemovesTheNamedFieldsAndWritesThePartialBF064() {
+        BiRelation saved = save(source("a"), "old");
+        BiRelation other = save(source("b"), "old");
+        BiRelation partial = partial("new");
+
+        Boolean modified = helper.updateAndUnset(partial, bySource(source("a")), "extParam1", "extParam2").block(TIMEOUT);
+        Boolean noMatch = helper.updateAndUnset(partial("new"), bySource(source("missing")), "extParam1").block(TIMEOUT);
+
+        BiRelation reloaded = reload(saved.getId());
+        System.out.println("[MongoUpsertHelperTest] updateAndUnset -> " + modified + ", extParam1=" + reloaded.getExtParam1()
+                + " extParam2=" + reloaded.getExtParam2() + " extParam3='" + reloaded.getExtParam3() + "' relation=" + reloaded.getRelation()
+                + "; no match -> " + noMatch);
+        assertThat(modified).isTrue();
+        assertThat(reloaded.getExtParam1()).as("unset").isNull();
+        assertThat(reloaded.getExtParam2()).as("unset").isNull();
+        assertThat(reloaded.getExtParam3()).as("not named, kept").isEqualTo("");
+        assertThat(reloaded.getRelation()).as("the partial is written").isEqualTo("new");
+        assertThat(reloaded.getState()).isEqualTo("state");
+        assertThat(reloaded.getUpdatedAt()).isEqualTo(partial.getUpdatedAt().truncatedTo(java.time.temporal.ChronoUnit.MILLIS));
+        assertThat(noMatch).isFalse();
+        assertThat(reload(other.getId()).getExtParam1()).as("another row keeps its field").isEqualTo("");
+    }
+
     @Test
     void updateByKeyAndValueFollowsTheSameTrueAndFalseRule() {
         BiRelation saved = save(source("a"), "old");

@@ -291,27 +291,27 @@ class OrganizationServiceImplMongoTest extends OrganizationMongoTestBase {
     }
 
     /**
-     * Pins plan section 9 row "uploadLogo never removes the previous logo asset (prevAssetId read from a new empty
-     * Organization, OrganizationServiceImpl:221-223)": the previous asset id is read from an Organization created one line
-     * earlier, so it is always null; two uploads leave two assets stored and the first one orphaned. A fix (read the id from
-     * the stored org) changes this test on purpose.
+     * BF-063 (formerly pinned as plan section 9 row "uploadLogo never removes the previous logo asset (prevAssetId read from
+     * a new empty Organization)": two uploads left two assets stored and the first one orphaned): the previous asset id is
+     * read from the stored organization, so a second upload removes the first asset and references the second.
      */
     @Test
-    void aSecondLogoUploadLeavesTheFirstAssetStored_pinsTheSection9Row() {
+    void aSecondLogoUploadRemovesTheFirstAssetBF063() {
         Organization org = saveOrg(ACTIVE, "logo-twice");
 
         organizationService.uploadLogo(org.getId(), pngPart()).block(TIMEOUT);
         String first = stored(org.getId()).getLogoAssetId();
-        organizationService.uploadLogo(org.getId(), pngPart()).block(TIMEOUT);
+        assertThat(organizationService.uploadLogo(org.getId(), pngPart()).block(TIMEOUT)).isTrue();
         String second = stored(org.getId()).getLogoAssetId();
 
-        System.out.println("[OrganizationServiceImplMongoTest] PINNED first asset " + first + " still stored after the second " + second);
-        assertThat(second).isNotEqualTo(first);
-        assertThat(assetRepository.findById(first).blockOptional(TIMEOUT)).as("the first logo asset is orphaned, not removed").isPresent();
+        System.out.println("[OrganizationServiceImplMongoTest] first asset " + first + " present="
+                + assetRepository.findById(first).blockOptional(TIMEOUT).isPresent() + " after the second " + second);
+        assertThat(second).isNotBlank().isNotEqualTo(first);
+        assertThat(assetRepository.findById(first).blockOptional(TIMEOUT)).as("the first logo asset is removed").isEmpty();
         assertThat(assetRepository.findById(second).blockOptional(TIMEOUT)).isPresent();
     }
 
-    /** Catches: deleteLogo leaving the asset stored; the error cases mapping to the wrong key. */
+    /** Catches: deleteLogo leaving the asset or the reference stored; the error cases mapping to the wrong key. */
     @Test
     void deleteLogoRemovesTheAssetAndTheReferenceAndFailsWithoutALogo() {
         Organization org = saveOrg(ACTIVE, "logo-delete");
@@ -320,10 +320,10 @@ class OrganizationServiceImplMongoTest extends OrganizationMongoTestBase {
 
         assertThat(organizationService.deleteLogo(org.getId()).block(TIMEOUT)).isTrue();
 
-        assertThat(assetRepository.findById(assetId).blockOptional(TIMEOUT)).isEmpty();
-        // The org's logoAssetId after the delete is deliberately NOT asserted: today it is still set (candidate L7, reported).
         System.out.println("[OrganizationServiceImplMongoTest] after deleteLogo by id: asset present="
                 + assetRepository.findById(assetId).blockOptional(TIMEOUT).isPresent() + " reference=" + stored(org.getId()).getLogoAssetId());
+        assertThat(assetRepository.findById(assetId).blockOptional(TIMEOUT)).isEmpty();
+        assertThat(stored(org.getId()).getLogoAssetId()).as("the reference is removed (BF-064)").isNull();
 
         Organization withoutLogo = saveOrg(ACTIVE, "never-had-a-logo");
         BizException noLogo = assertThrows(BizException.class, () -> blockOrUnwrap(organizationService.deleteLogo(withoutLogo.getId())));

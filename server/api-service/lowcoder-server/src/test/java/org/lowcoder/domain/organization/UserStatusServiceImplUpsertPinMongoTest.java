@@ -27,7 +27,7 @@ class UserStatusServiceImplUpsertPinMongoTest extends OrganizationMongoTestBase 
 
     /**
      * Pins plan section 9 row "MongoUpsertHelper.upsert answers false for an insert; markNewUserGuidanceShown returns false
-     * to the client": upsert (MongoUpsertHelper:136) answers {@code getModifiedCount() > 0}, which is 0 for an insert and for
+     * to the client": upsert (MongoUpsertHelper:148) answers {@code getModifiedCount() > 0}, which is 0 for an insert and for
      * an update that changes nothing, so the first call and a repeat answer false although the status is stored;
      * UserController.newUserGuidanceShown (:176-180) returns that boolean. A fix (also count an upserted id) changes this test
      * on purpose.

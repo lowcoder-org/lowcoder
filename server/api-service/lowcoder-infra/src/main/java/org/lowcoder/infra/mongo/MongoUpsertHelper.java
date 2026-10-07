@@ -57,11 +57,24 @@ public class MongoUpsertHelper {
      * @see #updatePurely(HasIdAndAuditing, Query) for purely update.
      */
     public <T extends HasIdAndAuditing> Mono<Boolean> update(T partialResource, Query query) {
+        return updateAndUnset(partialResource, query);
+    }
+
+    /**
+     * Like {@link #update(HasIdAndAuditing, Query)}, and also removes the given fields from the matched document. A field
+     * cannot be cleared by leaving it null in the partial resource, because only its non-null fields are written (BF-064).
+     * The field names are the names stored in the document (for a property without {@code @Field}, its name).
+     */
+    public <T extends HasIdAndAuditing> Mono<Boolean> updateAndUnset(T partialResource, Query query, String... fieldsToUnset) {
         return Mono.deferContextual(ctx -> {
                     partialResource.setUpdatedAt(Instant.now());
                     partialResource.setModifiedBy(ctx.getOrDefault(GlobalContext.VISITOR_ID, GlobalContext.SYSTEM_USER_ID));
                     applicationEventPublisher.publishEvent(new BeforeSaveEvent<>(partialResource));
-                    return Mono.just(convertToUpdate(partialResource));
+                    Update update = convertToUpdate(partialResource);
+                    for (String field : fieldsToUnset) {
+                        update.unset(field);
+                    }
+                    return Mono.just(update);
                 })
                 .flatMap(updateData -> reactiveMongoTemplate.updateFirst(query, updateData, partialResource.getClass()))
                 .map(updateResult -> updateResult.getModifiedCount() > 0);

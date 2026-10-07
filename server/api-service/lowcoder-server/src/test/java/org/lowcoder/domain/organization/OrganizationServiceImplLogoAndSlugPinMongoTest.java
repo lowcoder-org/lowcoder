@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.lowcoder.domain.organization.model.OrganizationState.ACTIVE;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -26,8 +27,8 @@ import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Flux;
 
 /**
- * Pins of two section 9 rows found by L3-11b on OrganizationServiceImpl (follow-up): the dangling logo reference and the
- * hyphenated slug. Shared {@code test} context, ids generated per test.
+ * Two section 9 rows found by L3-11b on OrganizationServiceImpl (follow-up): the dangling logo reference (BF-064, fixed)
+ * and the hyphenated slug (pinned). Shared {@code test} context, ids generated per test.
  */
 @SpringBootTest(classes = ServerApplication.class)
 @ActiveProfiles("test")
@@ -58,38 +59,46 @@ class OrganizationServiceImplLogoAndSlugPinMongoTest extends OrganizationMongoTe
     }
 
     /**
-     * Pins plan section 9 row "deleteLogo keeps a dangling logoAssetId (null not written by convertToUpdate)": deleteLogo
-     * (OrganizationServiceImpl:251-256) clears the logo with updateById on an Organization whose logoAssetId is null, and
-     * MongoUpsertHelper.convertToUpdate (:139-147) writes only non-null fields, so the asset is deleted but the org keeps
-     * its logoAssetId (for the real id and, a fortiori, for a gid or slug). A second deleteLogo then fails naming the
-     * deleted asset. A fix (unset the field) changes this test on purpose.
+     * BF-064 (formerly pinned as plan section 9 row "deleteLogo keeps a dangling logoAssetId (null not written by
+     * convertToUpdate)": the asset was deleted, the reference stayed, and a second delete failed naming the deleted asset):
+     * deleteLogo unsets the reference and deletes the asset, by the organization's id, gid or slug, and a second delete
+     * fails as "no logo" ({@code ASSET_NOT_FOUND} with an empty argument).
      */
     @Test
-    void deleteLogoKeepsADanglingLogoAssetId_pinsTheSection9Row() {
-        Organization org = saveOrg();
-        organizationService.uploadLogo(org.getId(), pngPart()).block(TIMEOUT);
-        String assetId = stored(org.getId()).getLogoAssetId();
+    void deleteLogoRemovesTheReferenceAndTheAssetByIdGidOrSlugBF064() {
+        for (String by : List.of("id", "gid", "slug")) {
+            Organization org = saveOrg();
+            String key = switch (by) {
+                case "gid" -> org.getGid();
+                case "slug" -> org.getSlug();
+                default -> org.getId();
+            };
+            organizationService.uploadLogo(key, pngPart()).block(TIMEOUT);
+            String assetId = stored(org.getId()).getLogoAssetId();
+            assertThat(assetId).as("uploaded by " + by).isNotBlank();
 
-        organizationService.deleteLogo(org.getId()).block(TIMEOUT);
+            assertThat(organizationService.deleteLogo(key).block(TIMEOUT)).as("deleted by " + by).isTrue();
 
-        System.out.println("[OrganizationServiceImplLogoAndSlugPinMongoTest] PINNED asset " + assetId + " present="
-                + assetRepository.findById(assetId).blockOptional(TIMEOUT).isPresent() + ", reference " + stored(org.getId()).getLogoAssetId());
-        assertThat(assetRepository.findById(assetId).blockOptional(TIMEOUT)).as("the asset is deleted").isEmpty();
-        assertThat(stored(org.getId()).getLogoAssetId()).as("the reference stays").isEqualTo(assetId);
-        BizException again = assertThrows(BizException.class, () -> {
-            try {
-                organizationService.deleteLogo(org.getId()).block(TIMEOUT);
-            } catch (RuntimeException e) {
-                throw e instanceof BizException ? e : (BizException) e.getCause();
-            }
-        });
-        assertThat(again.getError()).isEqualTo(BizError.NO_RESOURCE_FOUND);
-        assertThat(again.getArgs()).containsExactly(assetId);
+            System.out.println("[OrganizationServiceImplLogoAndSlugPinMongoTest] by " + by + ": asset " + assetId + " present="
+                    + assetRepository.findById(assetId).blockOptional(TIMEOUT).isPresent() + ", reference " + stored(org.getId()).getLogoAssetId());
+            assertThat(assetRepository.findById(assetId).blockOptional(TIMEOUT)).as("the asset is deleted").isEmpty();
+            assertThat(stored(org.getId()).getLogoAssetId()).as("the reference is removed").isNull();
+            BizException again = assertThrows(BizException.class, () -> {
+                try {
+                    organizationService.deleteLogo(key).block(TIMEOUT);
+                } catch (RuntimeException e) {
+                    throw e instanceof BizException ? e : (BizException) e.getCause();
+                }
+            });
+            assertThat(again.getError()).isEqualTo(BizError.NO_RESOURCE_FOUND);
+            assertThat(again.getMessageKey()).isEqualTo("ASSET_NOT_FOUND");
+            assertThat(again.getArgs()).containsExactly("");
+        }
     }
 
     /**
      * Pins plan section 9 row "a hyphenated slug is accepted but unreachable (isGID)": SlugUtils.validate accepts a hyphen,
-     * but getById (OrganizationServiceImpl:175-179) decides GID-or-not by "contains a hyphen" (FieldName.guessFieldNameFromId),
+     * but getById (OrganizationServiceImpl:180-184) decides GID-or-not by "contains a hyphen" (FieldName.guessFieldNameFromId),
      * so the org cannot be found by that slug. A fix (reject hyphens, or look the slug up before the GID guess) changes this
      * test on purpose.
      */
