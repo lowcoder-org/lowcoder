@@ -75,15 +75,14 @@ import reactor.test.StepVerifier;
  * the connection update after re-authentication, user lookup/creation routing, the post-login organisation and
  * group join, and the login orchestration.
  *
- * <p>Defects pinned here (owner decision D-6: today's behaviour is asserted, a fix changes the test on purpose):
- * <ul>
- *   <li>plan §9 / analysis H3: {@code disableAuthConfig(.., delete=true)} on an organisation without an
- *       organisation domain throws a NullPointerException;</li>
- * </ul>
- * Fixed since: plan §9 "builds a duplicate-config error and drops it" (BF-087): a new config of a type the organisation
- * already has is refused ({@link #enableAuthConfig_newConfigOfATypeAlreadyAdded_isRefusedAsADuplicateBF087});
+ * <p>Fixed since (each was pinned under owner decision D-6): plan §9 "builds a duplicate-config error and drops it"
+ * (BF-087): a new config of a type the organisation already has is refused
+ * ({@link #enableAuthConfig_newConfigOfATypeAlreadyAdded_isRefusedAsADuplicateBF087});
  * plan §9 "findAuthConfigs ignores its enableOnly parameter" (BF-088): the parameter is passed on
- * ({@link #findAuthConfigs_admin_queriesOwnOrg_withTheCallersEnableOnlyBF088}).
+ * ({@link #findAuthConfigs_admin_queriesOwnOrg_withTheCallersEnableOnlyBF088});
+ * plan §9 / analysis H3 (BF-089): {@code disableAuthConfig(.., delete=true)} on an organisation without an
+ * organisation domain threw a NullPointerException; it now updates the organisation, which has nothing to delete
+ * ({@link #disableAuthConfig_deleteTrue_organizationWithoutDomain_updatesTheOrganizationWithoutAnErrorBF089}).
  */
 @ExtendWith(MockitoExtension.class)
 class AuthenticationApiServiceImplMutationsTest {
@@ -451,22 +450,24 @@ class AuthenticationApiServiceImplMutationsTest {
     }
 
     /**
-     * Pins the plan §9 / analysis H3 defect: {@code disableAuthConfig(.., delete=true)} dereferences
-     * {@code organization.getOrganizationDomain()} without a null check, so an organisation without a domain
-     * fails with a NullPointerException and is never updated. A fix changes this test on purpose.
+     * BF-089 (plan §9 / analysis H3, was pinned): {@code disableAuthConfig(.., delete=true)} on an organisation without a
+     * domain has no config to delete; the organisation is updated as it is, without a NullPointerException, and is given
+     * no domain.
      */
     @Test
-    void disableAuthConfig_deleteTrue_organizationWithoutDomain_failsWithNpe_pinsNullDomainDefect() {
+    void disableAuthConfig_deleteTrue_organizationWithoutDomain_updatesTheOrganizationWithoutAnErrorBF089() {
         visitorIs(MemberRole.ADMIN);
         enoughEffectiveConfigs();
-        organizationIs(organizationWithoutDomain());
+        Organization organization = organizationWithoutDomain();
+        organizationIs(organization);
+        when(organizationService.update(ORG_ID, organization)).thenReturn(Mono.just(false));
 
-        StepVerifier.create(service.disableAuthConfig(CONFIG_A, true))
-                .expectError(NullPointerException.class)
-                .verify();
+        StepVerifier.create(service.disableAuthConfig(CONFIG_A, true)).expectNext(false).verifyComplete();
 
-        verify(organizationService, never()).update(anyString(), any());
-        System.out.println("[AuthenticationApiServiceImplMutationsTest] no domain + delete=true -> NPE, no update (today's behaviour)");
+        verify(organizationService).update(ORG_ID, organization);
+        assertThat(organization.getOrganizationDomain()).isNull();
+        assertThat(organization.getAuthConfigs()).isEmpty();
+        System.out.println("[AuthenticationApiServiceImplMutationsTest] no domain + delete=true -> updated as it is, no error");
     }
 
     /** Catches sessions of a disabled provider staying valid: every org member's tokens for that auth id are removed. */
