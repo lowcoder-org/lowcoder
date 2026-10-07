@@ -12,13 +12,11 @@ import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
 
 /**
- * DEFECT pinned, through the REST executor (plan section 9 row "REST url: // inside a query value collapsed to /"; the
- * builder is pinned in the sdk by RestApiUriBuilderCollapseTest; D-6, fix deferred). {@code RestApiExecutor.java:177} hands the
- * datasource url and the path field to {@code RestApiUriBuilder.buildUri}, whose {@code replaceAll} (RestApiUriBuilder.java:41)
- * collapses every run of slashes except after {@code http:} / {@code https:}. The request line the local server (port 0,
- * loopback) receives therefore differs from the text typed into the path field, and from the value a {@code {{ }}} expression
- * puts there, while a value in the Parameters table arrives intact (it is added after the collapse). A fix that collapses only
- * the part before the first {@code ?} turns the first two assertions red.
+ * BF-059 through the REST executor (formerly pinned as the section 9 row "REST url: // inside a query value collapsed to /";
+ * the builder is tested in the sdk by RestApiUriBuilderCollapseTest). {@code RestApiExecutor.java:177} hands the datasource
+ * url and the path field to {@code RestApiUriBuilder.buildUri}, which now collapses runs of slashes only before the query.
+ * The request line the local server (port 0, loopback) receives keeps a double slash typed into the query of the path field,
+ * or put there by a {@code {{ }}} expression, and a value in the Parameters table arrives intact as before.
  */
 class RestApiUrlSlashCollapseTest {
 
@@ -44,19 +42,19 @@ class RestApiUrlSlashCollapseTest {
     }
 
     @Test
-    void aDoubleSlashTypedIntoTheQueryStringOfThePathFieldArrivesAsOneSlashPinsTheSection9Row() {
+    void aDoubleSlashTypedIntoTheQueryStringOfThePathFieldArrivesAsTypedBF059() {
         String line = requestLineFor(Map.of("httpMethod", "GET", "path", "/p?u=a//b"), Map.of());
 
         System.out.println("[RestApiUrlSlashCollapseTest] typed '/p?u=a//b' -> request line '" + line + "'");
-        assertThat(line).isEqualTo("/p?u=a/b");
+        assertThat(line).isEqualTo("/p?u=a//b");
     }
 
     @Test
-    void aValueSubstitutedByAMustacheExpressionIntoThePathFieldArrivesCollapsedPinsTheSection9Row() {
+    void aValueSubstitutedByAMustacheExpressionIntoThePathFieldArrivesAsItIsBF059() {
         String line = requestLineFor(Map.of("httpMethod", "GET", "path", "/p?u={{v}}"), Map.of("v", "a//b"));
 
         System.out.println("[RestApiUrlSlashCollapseTest] '/p?u={{v}}' with v='a//b' -> request line '" + line + "'");
-        assertThat(line).isEqualTo("/p?u=a/b");
+        assertThat(line).isEqualTo("/p?u=a//b");
     }
 
     @Test

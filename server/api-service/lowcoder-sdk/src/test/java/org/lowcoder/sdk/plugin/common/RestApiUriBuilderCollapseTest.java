@@ -13,14 +13,12 @@ import org.lowcoder.sdk.contract.RecordingHttpServer.Response;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
 
 /**
- * DEFECT pinned (plan section 9 row "REST url: // inside a query value collapsed to /"; D-6, fix deferred).
- * {@code RestApiUriBuilder.buildUri} runs {@code url.replaceAll("(?<!http:|https:)/{2,}", "/")} on the whole url text
- * (RestApiUriBuilder.java:41), after the mustache rendering of :40. The cleanup is meant for the joins of host and path, but
- * it also rewrites a double slash inside a query string that the user typed into the URL or path field or that a
- * {@code {{ }}} value brought in, so the server receives another value than the one entered. The entries of the form's
- * Parameters table are added after the collapse (RestApiUriBuilder.java:51-56) and are not changed. Callers:
- * RestApiExecutor.java:177 and GraphQLExecutor.java:246. A fix that collapses only the part before the first {@code ?}
- * turns the received-value assertions red. Requests go to a local server (port 0, loopback) only.
+ * BF-059 (formerly pinned as the section 9 row "REST url: // inside a query value collapsed to /"):
+ * {@code RestApiUriBuilder.buildUri} collapses runs of slashes only in the scheme, host and path of the rendered url
+ * ({@code collapseRedundantSlashes}), the clean-up meant for the joins of host and path. A double slash in the query or the
+ * fragment, typed into the URL or path field or brought in by a {@code {{ }}} value, reaches the server as entered. The
+ * entries of the form's Parameters table are added after the clean-up and are not changed. Callers: RestApiExecutor.java:177
+ * and GraphQLExecutor.java:246. Requests go to a local server (port 0, loopback) only.
  */
 public class RestApiUriBuilderCollapseTest {
 
@@ -35,22 +33,42 @@ public class RestApiUriBuilderCollapseTest {
     }
 
     @Test
-    public void aDoubleSlashInsideAQueryValueTypedIntoTheUrlIsCollapsedAndTheServerReceivesAnotherValuePinsTheSection9Row() {
+    public void aDoubleSlashInsideAQueryValueTypedIntoTheUrlReachesTheServerAsEnteredBF059() {
         String entered = "https://h.example/p?u=a//b&v=http://x//y";
 
         URI built = RestApiUriBuilder.buildUri(entered, Map.of(), Map.of());
         URI arrived = received(built);
 
         System.out.println("[RestApiUriBuilderCollapseTest] entered query 'u=a//b&v=http://x//y' -> built '" + built.getRawQuery() + "', server received '" + arrived + "'");
-        assertEquals("u=a/b&v=http://x/y", built.getRawQuery());
-        assertEquals("/p?u=a/b&v=http://x/y", arrived.toString(), "the received value is not the entered one");
+        assertEquals("u=a//b&v=http://x//y", built.getRawQuery());
+        assertEquals("/p?u=a//b&v=http://x//y", arrived.toString(), "the received value is the entered one");
     }
 
     @Test
-    public void aValueBroughtInByAMustacheExpressionIsCollapsedToo() {
+    public void aValueBroughtInByAMustacheExpressionIsKeptBF059() {
         URI built = RestApiUriBuilder.buildUri("https://h.example/p?u={{v}}", Map.of("v", "a//b"), Map.of());
 
-        assertEquals("u=a/b", built.getRawQuery());
+        assertEquals("u=a//b", built.getRawQuery());
+    }
+
+    @Test
+    public void thePathIsCleanedUpWhileTheQueryAndTheFragmentOfTheSameUrlAreKeptBF059() {
+        URI built = RestApiUriBuilder.buildUri("https://h.example//p//q?u=a//b#f//g", Map.of(), Map.of());
+
+        System.out.println("[RestApiUriBuilderCollapseTest] 'https://h.example//p//q?u=a//b#f//g' -> " + built);
+        assertEquals("/p/q", built.getRawPath());
+        assertEquals("u=a//b", built.getRawQuery());
+        assertEquals("f//g", built.getRawFragment());
+    }
+
+    @Test
+    public void theCleanUpEndsAtTheFirstQuestionMarkOrHashBF059() {
+        assertEquals("https://h/p/q", RestApiUriBuilder.collapseRedundantSlashes("https://h//p///q"));
+        assertEquals("http://h/p?x=//", RestApiUriBuilder.collapseRedundantSlashes("http://h//p?x=//"));
+        assertEquals("https://h/p#a//b?c=//", RestApiUriBuilder.collapseRedundantSlashes("https://h//p#a//b?c=//"));
+        assertEquals("?u=a//b", RestApiUriBuilder.collapseRedundantSlashes("?u=a//b"));
+        assertEquals("", RestApiUriBuilder.collapseRedundantSlashes(""));
+        assertEquals("ftp:/h/p", RestApiUriBuilder.collapseRedundantSlashes("ftp://h//p"), "only http and https keep their //");
     }
 
     @Test
