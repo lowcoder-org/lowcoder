@@ -242,16 +242,20 @@ class BiRelationServiceImplTest {
     }
 
     /**
-     * DEFECT pinned (plan section 9 row, D-6, fix deferred): {@code removeBiRelationById} answers true for an id that
-     * no row has, because it maps the completion of {@code deleteById} (which is empty for a missing id) to true
-     * (BiRelationServiceImpl.java:241-243); false is only produced by an error. Caller:
-     * ResourcePermissionRepositoryImpl.java:79 (removePermissionById). The obvious fix is to answer from whether a row
-     * existed (for example {@code existsById} before the delete), which turns this test red.
+     * BF-084 (fixed; was pinned as the plan section 9 row "removeBiRelationById answers true for an id that does not
+     * exist"): the answer says whether a row was removed, so an id no row has, and an id whose row was already removed,
+     * answer false. Caller: ResourcePermissionRepositoryImpl.java:79 (removePermissionById).
      */
     @Test
-    void removeBiRelationByIdAnswersTrueForAnIdNoRowHas() {
-        Boolean answer = service.removeBiRelationById(new org.bson.types.ObjectId().toHexString()).block(TIMEOUT);
+    void removeBiRelationByIdAnswersFalseForAnIdNoRowHasBF084() {
+        Boolean unknown = service.removeBiRelationById(new org.bson.types.ObjectId().toHexString()).block(TIMEOUT);
+        BiRelation saved = add(BIZ_TYPE, "s", "t", "r");
+        Boolean first = service.removeBiRelationById(saved.getId()).block(TIMEOUT);
+        Boolean again = service.removeBiRelationById(saved.getId()).block(TIMEOUT);
 
-        assertThat(answer).isTrue();
+        System.out.println("[BiRelationServiceImplTest] removeBiRelationById: unknown id " + unknown + ", saved row " + first + ", again " + again);
+        assertThat(unknown).as("an id no row has").isFalse();
+        assertThat(first).as("the saved row").isTrue();
+        assertThat(again).as("the same id after its row was removed").isFalse();
     }
 }
