@@ -10,10 +10,13 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ServiceLoader;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.lowcoder.api.framework.plugin.PluginTestSupport.MissingBase;
 import org.lowcoder.api.framework.plugin.PluginTestSupport.OrphanClass;
 import org.lowcoder.api.framework.plugin.PluginTestSupport.RecordingPlugin;
 import org.lowcoder.api.framework.plugin.PluginTestSupport.SecondPlugin;
@@ -26,8 +29,9 @@ import org.springframework.boot.system.ApplicationHome;
  * {@code PathBasedPluginLoader.cachedPluginJars} is static and keyed by the directory list, so every test uses its
  * own temporary directory (a unique key); the cache is deliberately never reset.
  *
- * <p>Pinned under D-6, plan §9 row "PluginClassLoader.loadClass returns null after a NoClassDefFoundError ...,
- * against the ClassLoader contract" ({@link #loadClass_classWithAMissingSuperclass_returnsNull_pinsNullContractViolation}).
+ * <p>BF-083 (fixed; was pinned under D-6 as the plan §9 row "PluginClassLoader.loadClass returns null after a
+ * NoClassDefFoundError ..., against the ClassLoader contract"):
+ * {@link #loadClass_classWithAMissingSuperclass_throwsTheNoClassDefFoundErrorBF083}.
  */
 class PluginLoadingTest {
 
@@ -148,6 +152,30 @@ class PluginLoadingTest {
         System.out.println("[PluginLoadingTest] jar naming a missing provider skipped, loaded " + plugins.size());
     }
 
+    /**
+     * BF-083: a services entry naming a class whose superclass is missing makes the ServiceLoader iteration of
+     * {@code PathBasedPluginLoader.loadPluginCandidates} fail with the NoClassDefFoundError naming the missing class, which
+     * the loader logs per jar; it used to fail with "Provider ... not found" although the provider is in the jar. The
+     * failure is caught per jar, so the other jars still load.
+     */
+    @Test
+    void loadPlugins_aProviderWithAMissingSuperclassIsReportedWithTheMissingClass_andTheOtherJarsLoadBF083() throws IOException {
+        Path root = tempDir.resolve("plugins-orphan-provider");
+        PluginTestSupport.jar(root, "good.jar", List.of(RecordingPlugin.class), RecordingPlugin.class);
+        Path orphan = PluginTestSupport.jar(root, "orphan.jar", List.of(OrphanClass.class), OrphanClass.class);
+
+        Iterator<LowcoderPlugin> providers = ServiceLoader.load(LowcoderPlugin.class,
+                new PluginClassLoader(orphan.getFileName().toString(), orphan)).iterator();
+        assertThatThrownBy(providers::next)
+                .isInstanceOf(NoClassDefFoundError.class)
+                .hasMessageContaining(PluginTestSupport.internalName(MissingBase.class));
+
+        List<LowcoderPlugin> plugins = loader(root.toString()).loadPlugins();
+
+        assertThat(plugins).extracting(LowcoderPlugin::pluginId).containsExactly("recording-plugin");
+        System.out.println("[PluginLoadingTest] provider with a missing superclass reported with the missing class, loaded " + plugins.size());
+    }
+
     @Test
     void loadPlugins_withoutAnyJar_isEmpty() {
         assertThat(loader().loadPlugins()).isEmpty();
@@ -217,17 +245,18 @@ class PluginLoadingTest {
     }
 
     /**
-     * Pins plan §9 row "PluginClassLoader.loadClass returns null after a NoClassDefFoundError ..., against the
-     * ClassLoader contract": a plugin class whose superclass is missing makes the definition fail with a
-     * NoClassDefFoundError, which is caught and answered with {@code null} instead of an exception. A fix changes this
-     * test on purpose.
+     * BF-083 (fixed; was pinned as the plan §9 row "PluginClassLoader.loadClass returns null after a NoClassDefFoundError
+     * ..., against the ClassLoader contract"): a plugin class whose superclass is missing makes the definition fail with a
+     * NoClassDefFoundError naming the missing class, which is now thrown instead of being answered with {@code null}.
      */
     @Test
-    void loadClass_classWithAMissingSuperclass_returnsNull_pinsNullContractViolation() throws Exception {
+    void loadClass_classWithAMissingSuperclass_throwsTheNoClassDefFoundErrorBF083() throws Exception {
         PluginClassLoader classLoader = classLoaderOf("orphan.jar", OrphanClass.class);
 
-        assertThat(classLoader.loadClass(OrphanClass.class.getName())).isNull();
-        System.out.println("[PluginLoadingTest] class with a missing superclass -> null (today's behaviour)");
+        assertThatThrownBy(() -> classLoader.loadClass(OrphanClass.class.getName()))
+                .isInstanceOf(NoClassDefFoundError.class)
+                .hasMessageContaining(PluginTestSupport.internalName(MissingBase.class));
+        System.out.println("[PluginLoadingTest] class with a missing superclass -> NoClassDefFoundError");
     }
 
     /** Catches resources of the plugin API (and other names) being looked up in the wrong loader. */

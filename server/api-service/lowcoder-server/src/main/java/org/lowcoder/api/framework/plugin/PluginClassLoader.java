@@ -54,18 +54,15 @@ public class PluginClassLoader extends URLClassLoader
 		
 		try
 		{
-			clazz = super.loadClass(name, resolve);
-			if (clazz != null)
-			{
-				return clazz;
-			}
+			return super.loadClass(name, resolve);
 		}
 		catch(NoClassDefFoundError cause)
 		{
+			// BF-083: logged with the class that could not be defined, then thrown as the ClassLoader contract requires;
+			// it used to be answered with null
 			log.error("[{}]  ::  Error loading class - {}", name, cause.getMessage(), cause );
+			throw cause;
 		}
-		
-		return null; 
 	}
 
 	@Override
