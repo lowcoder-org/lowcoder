@@ -139,38 +139,40 @@ public class EsContainerTest {
     }
 
     /**
-     * The bulk API takes newline-delimited JSON, and the server accepts such a body when it is sent as it is (the control, through
-     * the connection's own client). The query path renders the DSL with {@code renderMustacheJsonString} first, which reads the text
-     * as one JSON value: text that is not a single JSON value (as every valid bulk body is) comes out as one JSON string literal,
-     * with the quotes and line breaks escaped and the final line break dropped. The server answers that with a 400, so a valid bulk
-     * body cannot be run from a query. Pins the plan section 9 row "ES _bulk cannot be used: renderMustacheJsonString turns NDJSON into one
-     * JSON string literal; server 400" against the real server, as observed, with the exact transformation. A fix (leaving a body
-     * that is not one JSON value as it is) changes this test on purpose.
+     * BF-056 (formerly pinned as the section 9 row "ES _bulk cannot be used"): a bulk body, newline-delimited JSON with
+     * placeholders in its lines, runs through {@code buildQueryExecutionContext} and {@code executeQuery}: the server indexes
+     * both documents without errors. Before, the body was rendered as one JSON string literal and refused with a 400.
      */
     @Test
-    public void validBulkBodyIsRewrittenIntoAJsonStringAndRefusedByTheServer_pinsTheSection9Row() throws Exception {
+    public void validBulkBodyWithPlaceholdersIndexesItsDocumentsBF056() {
         String idx = index("bulk");
-        String ndjson = "{\"index\": {\"_index\": \"" + idx + "\", \"_id\": \"1\"}}\n{\"title\": \"one\"}\n"
-                + "{\"index\": {\"_index\": \"" + idx + "\", \"_id\": \"2\"}}\n{\"title\": \"two\"}\n";
-        var context = EXECUTOR.buildQueryExecutionContext(null, Map.of("httpMethod", "POST", "path", "_bulk", "dsl", ndjson), Map.of(), null);
+        String ndjson = "{\"index\": {\"_index\": \"{{idx}}\", \"_id\": \"1\"}}\n{\"title\": {{first}}}\n"
+                + "{\"index\": {\"_index\": \"{{idx}}\", \"_id\": \"2\"}}\n{\"title\": \"two\"}\n";
+        Map<String, Object> params = Map.of("idx", idx, "first", "one \"quoted\"");
+        var context = EXECUTOR.buildQueryExecutionContext(null, Map.of("httpMethod", "POST", "path", "_bulk?refresh=true", "dsl", ndjson), params, null);
         System.out.println(TAG + "bulk dsl in : " + ndjson.replace("\n", "\\n"));
         System.out.println(TAG + "bulk dsl out: " + context.getDsl().replace("\n", "\\n"));
-        String expected = "\"" + ndjson.substring(0, ndjson.length() - 1).replace("\"", "\\\"").replace("\n", "\\n") + "\"";
-        assertEquals(expected, context.getDsl(), "the whole body becomes one JSON string literal without its final line break");
+        QueryExecutionResult result = EXECUTOR.executeQuery(connection, context).block(BLOCK_TIMEOUT);
+        System.out.println(TAG + "bulk -> " + result.getQueryCode() + " " + result.getMessageKey() + " data=" + result.getData());
 
-        QueryExecutionResult result = run("POST", "_bulk?refresh=true", ndjson);
-        assertEquals(ES_ERROR_CODE, result.getQueryCode());
-        assertEquals(ES_QUERY_ERROR_KEY, result.getMessageKey());
-        assertTrue(String.valueOf(result.getMessageArgs()[0]).contains("400"), String.valueOf(result.getMessageArgs()[0]));
-
-        org.elasticsearch.client.Request direct = new org.elasticsearch.client.Request("POST", "/_bulk?refresh=true");
-        direct.setJsonEntity(ndjson);
-        org.elasticsearch.client.Response control = connection.reactorRestClientAdaptor().request(direct).block(BLOCK_TIMEOUT);
-        String body = org.apache.http.util.EntityUtils.toString(control.getEntity());
-        System.out.println(TAG + "the same body sent as it is: " + control.getStatusLine() + " " + body);
-        assertEquals(200, control.getStatusLine().getStatusCode());
-        assertTrue(body.contains("\"errors\":false"), body);
+        Map<String, Object> bulk = data(result);
+        assertEquals(false, bulk.get("errors"));
+        assertEquals(2, ((List<?>) bulk.get("items")).size());
+        Map<String, Object> first = data(run("GET", idx + "/_doc/1", null));
+        assertEquals("one \"quoted\"", ((Map<?, ?>) first.get("_source")).get("title"));
         assertEquals(2, ((Map<?, ?>) ((Map<?, ?>) data(run("GET", idx + "/_search", null)).get("hits")).get("total")).get("value"));
+    }
+
+    /** BF-056, the other NDJSON endpoint: a multi-search body (a header line and a query line per search) is answered per search. */
+    @Test
+    public void multiSearchBodyAnswersEachSearchBF056() {
+        String idx = index("msearch");
+        data(run("PUT", idx + "/_doc/1?refresh=true", "{\"title\": \"hello\"}"));
+        Map<String, Object> answer = data(run("POST", idx + "/_msearch", "{}\n{\"query\": {\"match_all\": {}}}\n{}\n{\"query\": {\"match\": {\"title\": \"absent\"}}}\n"));
+        List<?> responses = (List<?>) answer.get("responses");
+        assertEquals(2, responses.size());
+        assertEquals(1, ((Map<?, ?>) ((Map<?, ?>) ((Map<?, ?>) responses.get(0)).get("hits")).get("total")).get("value"));
+        assertEquals(0, ((Map<?, ?>) ((Map<?, ?>) ((Map<?, ?>) responses.get(1)).get("hits")).get("total")).get("value"));
     }
 
     @Test
