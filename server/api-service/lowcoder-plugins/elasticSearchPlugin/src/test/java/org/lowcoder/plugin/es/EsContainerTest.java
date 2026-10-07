@@ -210,23 +210,17 @@ public class EsContainerTest {
     static final String OBSERVED_TEXT_CODE = QUERY_CODE_OK;
 
     /**
-     * Pins the plan section 9 row "ES: a HEAD query ... answered 200 becomes a failed result" against the real server (the rows
-     * pinned against a stub in another class of this module, EP3): HEAD on an existing index answers 200 with no body, and the
-     * executor reads the missing entity as an error. A fix (reading a bodiless answer as success) changes this test on purpose.
+     * BF-075 (fixed; was pinned as the plan section 9 row "ES: a HEAD query ... answered 200 becomes a failed result", EP3)
+     * against the real server: HEAD on an existing index answers 200 and on a missing one 404, both without a body, and the
+     * result is a success whose data is that status code, where both were the same failed result before.
      */
     @Test
-    public void headOnAnExistingIndexBecomesAFailedResult_pinsTheSection9RowEP3() {
+    public void headTellsAnExistingIndexFromAMissingOneByTheStatusCodeBF075() {
         String idx = index("head");
         data(run("PUT", idx, null));
-        QueryExecutionResult exists = run("HEAD", idx, null);
-        assertFalse(exists.isSuccess());
-        assertEquals(ES_ERROR_CODE, exists.getQueryCode());
-        assertEquals(ES_QUERY_ERROR_KEY, exists.getMessageKey());
-        assertEquals("Entity may not be null", exists.getMessageArgs()[0]);
-        assertNull(exists.getData());
-        QueryExecutionResult absent = run("HEAD", index("head-absent"), null);
-        assertEquals(ES_ERROR_CODE, absent.getQueryCode());
-        assertEquals("Entity may not be null", absent.getMessageArgs()[0], "a missing index (404) gives the same result: the client does not raise a 404 for HEAD, so a HEAD query cannot tell an index exists");
+        assertEquals(Map.of(EsQueryExecutor.STATUS_CODE_KEY, 200), data(run("HEAD", idx, null)));
+        assertEquals(Map.of(EsQueryExecutor.STATUS_CODE_KEY, 404), data(run("HEAD", index("head-absent"), null)),
+                "the client does not raise a 404 for HEAD; the status code tells the index is missing");
     }
 
     // ---- destroy

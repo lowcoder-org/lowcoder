@@ -29,7 +29,9 @@ import java.util.Map;
  * answers the case of {@link #RESPONSES}; {@code executeQuery} reads the body with {@code JsonUtils.fromJsonMap} and
  * puts the {@code Map} into the result. A body that is not a JSON object (an array, invalid JSON) is read as
  * {@code null}, so the query succeeds without data (O76); a status that is not 2xx is an {@code ES_QUERY_ERROR}
- * result. Each case's report ({@link QueryResults#report}) is pinned in {@value #REPORT}.
+ * result. A HEAD query, answered without a body, succeeds with its status code as data (BF-075): 200 for a path the
+ * server answers, 404 for one it does not (the client does not raise the 404 of a HEAD). Each case's report
+ * ({@link QueryResults#report}) is pinned in {@value #REPORT}.
  *
  * <p>Limits: the server is not Elasticsearch; the error result's message arguments (which name the local port) are
  * not pinned.
@@ -44,6 +46,10 @@ public class EsResultContractTest {
     static final int NOT_FOUND = 404;
     static final Duration TIMEOUT = Duration.ofSeconds(20);
     static final Map<String, Response> RESPONSES = responses();
+    static final String HEAD = "HEAD";
+    static final String POST = "POST";
+    static final String HEAD_EXISTING = "/head/existing";
+    static final String HEAD_MISSING = "/head/missing";
 
     private static final GoldenJson GOLDEN = GoldenJson.forModule();
     private static RecordingHttpServer server;
@@ -52,7 +58,9 @@ public class EsResultContractTest {
 
     @BeforeAll
     public static void startServer() {
-        server = RecordingHttpServer.start(RESPONSES);
+        Map<String, Response> answers = new LinkedHashMap<>(RESPONSES);
+        answers.put(HEAD_EXISTING, new Response(OK, Map.of(), null));
+        server = RecordingHttpServer.start(answers);
     }
 
     @AfterAll
@@ -68,7 +76,10 @@ public class EsResultContractTest {
         try (EsConnection connection = connector.createConnection(connector.resolveConfig(Map.of("connectionString", server.baseUrl())))
                 .block(TIMEOUT)) {
             for (String path : RESPONSES.keySet()) {
-                report.put(path, report(connection, path));
+                report.put(path, report(connection, POST, path));
+            }
+            for (String path : List.of(HEAD_EXISTING, HEAD_MISSING)) {
+                report.put(HEAD + " " + path, report(connection, HEAD, path));
             }
         }
         String actual = ConfigBinding.write(report);
@@ -76,8 +87,10 @@ public class EsResultContractTest {
         GOLDEN.assertJson(REPORT, actual);
     }
 
-    private Object report(EsConnection connection, String path) {
-        Map<String, Object> queryConfig = Map.of("httpMethod", "POST", "path", path.substring(1), "dsl", DSL);
+    private Object report(EsConnection connection, String method, String path) {
+        Map<String, Object> queryConfig = method.equals(HEAD)
+                ? Map.of("httpMethod", method, "path", path.substring(1))
+                : Map.of("httpMethod", method, "path", path.substring(1), "dsl", DSL);
         try {
             QueryExecutionResult result = executor.executeQuery(connection,
                     executor.buildQueryExecutionContext(null, queryConfig, Map.of(), null)).block(TIMEOUT);
