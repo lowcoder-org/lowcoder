@@ -83,7 +83,11 @@ class BundleServiceImplTest {
         assertThat(failure(() -> service.updateById(null, patch).block(TIMEOUT)).getError()).isEqualTo(BizError.INVALID_PARAMETER);
     }
 
-    /** Catches: the findByIdIn routing (:62-66) changed for homogeneous lists. */
+    /**
+     * Catches: the findByIdIn routing changed for homogeneous lists (BF-155): plain keys go to the id query, keys with a
+     * hyphen to the gid query, each only when the list has keys of it, so an empty list asks no query (it asked the id
+     * query before, which a real database answers empty too). Mixed lists are in BundleServiceImplIdKindFamilyPinTest.
+     */
     @Test
     void findByIdInRoutesGidListsToTheGidQueryAndOthersToTheIdQuery() {
         AtomicInteger idQueries = new AtomicInteger();
@@ -94,9 +98,9 @@ class BundleServiceImplTest {
         assertThat(service.findByIdIn(List.of("aa-bb", "cc-dd")).collectList().block(TIMEOUT)).extracting(Bundle::getId).containsExactly("by-gid");
         assertThat(idQueries.get()).isZero();
         assertThat(service.findByIdIn(List.of("plain1", "plain2")).collectList().block(TIMEOUT)).extracting(Bundle::getId).containsExactly("by-id");
-        assertThat(service.findByIdIn(List.of()).collectList().block(TIMEOUT)).extracting(Bundle::getId).containsExactly("by-id");
+        assertThat(service.findByIdIn(List.of()).collectList().block(TIMEOUT)).isEmpty();
         assertThat(gidQueries.get()).isEqualTo(1);
-        assertThat(idQueries.get()).isEqualTo(2);
+        assertThat(idQueries.get()).isEqualTo(1);
     }
 
     /** Catches: the owner grant before the save or with another id, user, role or type; a failing grant not failing create. */
@@ -220,7 +224,7 @@ class BundleServiceImplTest {
         assertThrows(NullPointerException.class, () -> service.getFilteredPublicBundleIds(null, List.of("x"), USER, false));
     }
 
-    /** Catches: the marketplace truth table (anonymous x private mode) changed (:180). */
+    /** Catches: the marketplace truth table (anonymous x private mode) changed (:172). */
     @Test
     void marketplaceIdsAreHiddenOnlyFromAnonymousVisitorsOfAPrivateMarketplace() {
         AtomicInteger marketQ = new AtomicInteger();
@@ -235,7 +239,10 @@ class BundleServiceImplTest {
         assertThat(marketQ.get()).isEqualTo(3);
     }
 
-    /** Catches: the gid variant answering ids or the id variant answering gids; the empty list taking the gid variant. */
+    /**
+     * Catches: the gid variant answering ids or the id variant answering gids. An empty list asks no query and answers an
+     * empty set (BF-155; it asked the id query before, which a real database answers empty too).
+     */
     @Test
     void theFourFiltersAnswerGidsForGidListsAndIdsOtherwise() {
         Bundle withGid = bundleWithGid("real-id", "the-gid");
@@ -259,7 +266,7 @@ class BundleServiceImplTest {
         assertThat(service.getPrivateBundleIds(ids, USER).block(TIMEOUT)).containsExactly("real-id");
         assertThat(service.getPublicMarketplaceBundleIds(ids, false, false).block(TIMEOUT)).containsExactly("real-id");
         assertThat(service.getPublicAgencyBundleIds(ids).block(TIMEOUT)).containsExactly("real-id");
-        assertThat(service.getPublicBundleIds(List.of()).block(TIMEOUT)).containsExactly("real-id");
-        assertThat(service.getPublicAgencyBundleIds(List.of()).block(TIMEOUT)).containsExactly("real-id");
+        assertThat(service.getPublicBundleIds(List.of()).block(TIMEOUT)).isEmpty();
+        assertThat(service.getPublicAgencyBundleIds(List.of()).block(TIMEOUT)).isEmpty();
     }
 }
