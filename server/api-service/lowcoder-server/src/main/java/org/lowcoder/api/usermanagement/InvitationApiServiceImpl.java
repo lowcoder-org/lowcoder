@@ -26,6 +26,10 @@ import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 @Service
 public class InvitationApiServiceImpl implements InvitationApiService {
 
+    private static final String INVITED_ORG_DELETED_KEY = "INVITED_ORG_DELETED";
+    /** The inviter of an invitation no longer exists (BF-080: it was reported with the deleted-organization message). */
+    private static final String INVITER_NOT_FOUND_KEY = "INVITER_NOT_FOUND";
+
     private final InvitationService invitationService;
     private final OrgApiService orgApiService;
     private final UserService userService;
@@ -66,7 +70,7 @@ public class InvitationApiServiceImpl implements InvitationApiService {
     private Mono<JoinOrgResult> tryJoinOrg(String visitorId, Invitation invitation) {
         String orgId = invitation.getInvitedOrganizationId();
         return organizationService.getById(orgId)
-                .switchIfEmpty(deferredError(INVITED_ORG_DELETED, "INVITED_ORG_DELETED"))
+                .switchIfEmpty(deferredError(INVITED_ORG_DELETED, INVITED_ORG_DELETED_KEY))
                 .then(orgMemberService.getOrgMember(orgId, invitation.getCreateUserId())
                         .switchIfEmpty(deferredError(BizError.INVALID_INVITATION_CODE, "INVALID_INVITATION_CODE", invitation.getId())))
                 .then(orgMemberService.getOrgMember(orgId, visitorId)
@@ -94,13 +98,13 @@ public class InvitationApiServiceImpl implements InvitationApiService {
     @Nonnull
     private Mono<Organization> getOrgMono(Invitation invitation) {
         return organizationService.getById(invitation.getInvitedOrganizationId())
-                .switchIfEmpty(deferredError(INVITED_ORG_DELETED, "INVITED_ORG_DELETED"));
+                .switchIfEmpty(deferredError(INVITED_ORG_DELETED, INVITED_ORG_DELETED_KEY));
     }
 
     @Nonnull
     private Mono<User> getUserMono(Invitation invitation) {
         return userService.findById(invitation.getCreateUserId())
-                .switchIfEmpty(deferredError(INVITER_NOT_FOUND, "INVITED_ORG_DELETED"));
+                .switchIfEmpty(deferredError(INVITER_NOT_FOUND, INVITER_NOT_FOUND_KEY));
     }
 
     /**

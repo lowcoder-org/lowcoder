@@ -13,7 +13,7 @@ import org.lowcoder.sdk.util.LocaleUtils;
 
 /**
  * DEFECT pinned (plan section 9 row "CONTENT_PARSE_ERROR is unformattable"; D-6, fix deferred). The text of
- * {@code CONTENT_PARSE_ERROR} (locale_en.properties:183 and locale_zh.properties:183) contains
+ * {@code CONTENT_PARSE_ERROR} (locale_en.properties:184 and locale_zh.properties:184) contains
  * {@code {data:base64 string, name:string}}, which {@code MessageFormat} reads as a format element. Building any
  * {@link PluginException} with that key therefore throws an {@link IllegalArgumentException} from the constructor
  * ({@code LocaleUtils.getMessage}), so the three sites that mean to report a bad upload value (DataUtils.java:193 and
