@@ -1,10 +1,12 @@
 package org.lowcoder.plugin.es;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,12 +23,15 @@ import org.lowcoder.sdk.models.QueryExecutionResult;
 
 /**
  * {@link EsQueryExecutor} against a local server: the HTTP method, path and body that reach it, and the path
- * normalisation of {@code buildQueryExecutionContext}. Response parsing is pinned by EsResultContractTest.
+ * normalisation of {@code buildQueryExecutionContext}, and the newline-delimited body of the bulk and multi-search endpoints
+ * (BF-056). Response parsing is pinned by EsResultContractTest.
  */
 public class EsQueryExecutorHttpTest {
 
     private static final Duration TIMEOUT = Duration.ofSeconds(20);
     private static final String DSL = "{\"query\":{\"match_all\":{}}}";
+    private static final String BULK_PATH = "/_bulk";
+    private static final String OK_BODY = "{\"ok\":true}";
 
     private final EsQueryExecutor executor = new EsQueryExecutor();
     private final EsConnector connector = new EsConnector(new ConfigCenterForTest(), new CommonConfig());
@@ -35,8 +40,9 @@ public class EsQueryExecutorHttpTest {
 
     @BeforeEach
     public void connect() {
-        server = RecordingHttpServer.serve(Map.of("/idx/_doc", request -> new Response(200,
-                Map.of("Content-Type", List.of("application/json")), "{\"ok\":true}".getBytes(StandardCharsets.UTF_8))));
+        RecordingHttpServer.Handler ok = request -> new Response(200, Map.of("Content-Type", List.of("application/json")),
+                OK_BODY.getBytes(StandardCharsets.UTF_8));
+        server = RecordingHttpServer.serve(Map.of("/idx/_doc", ok, BULK_PATH, ok));
         connection = connector.createConnection(connector.resolveConfig(Map.of("connectionString", server.baseUrl()))).block(TIMEOUT);
     }
 
@@ -108,5 +114,53 @@ public class EsQueryExecutorHttpTest {
             assertEquals(expected, context.getPath(), parts.toString());
             assertEquals("", context.getDsl());
         });
+    }
+
+    @Test
+    public void ndjsonEndpointsAreRecognisedByTheirLastPathSegmentsBF056() {
+        for (String path : List.of("_bulk", "logs/_bulk", "_bulk?refresh=true", "logs/_msearch", "_msearch/template", "logs/_msearch/template?x=1")) {
+            assertTrue(EsQueryExecutor.isNdjsonEndpoint(path), path);
+        }
+        for (String path : List.of("", "logs/_search", "logs/_bulk_x", "my_bulk", "_bulk/x", "logs/_doc/1", "_search?q=_bulk", "_template")) {
+            assertFalse(EsQueryExecutor.isNdjsonEndpoint(path), path);
+        }
+    }
+
+    /**
+     * BF-056: the body of an NDJSON endpoint is rendered line by line: placeholders inside a line are filled in as in any DSL,
+     * blank lines and CR LF line ends are dropped, a line that is a single placeholder holding text is taken as NDJSON lines
+     * as they are, one holding an object is written as JSON, and the body ends with a line break. Before, the whole text was
+     * one JSON string literal.
+     */
+    @Test
+    public void bulkBodyIsRenderedLineByLineAndReachesTheServerAsNdjsonBF056() {
+        Map<String, Object> params = new LinkedHashMap<>();
+        params.put("idx", "logs");
+        params.put("id", 7);
+        params.put("title", "kůň \"q\"");
+        params.put("more", "{\"delete\":{\"_index\":\"logs\",\"_id\":\"8\"}}\n{\"index\":{\"_index\":\"logs\"}}\n{\"n\":9}\n");
+        params.put("doc", Map.of("n", 10));
+        String dsl = "{\"index\": {\"_index\": \"{{idx}}\", \"_id\": {{id}}}}\r\n{\"title\": {{title}}}\n\n   \n{{more}}\n"
+                + "{\"index\": {\"_index\": \"logs\"}}\n{{ doc }}";
+        Map<String, Object> queryConfig = Map.of("httpMethod", "POST", "path", BULK_PATH, "dsl", dsl);
+        EsQueryExecutionContext context = executor.buildQueryExecutionContext(null, queryConfig, params, null);
+        System.out.println("[EsQueryExecutorHttpTest] bulk dsl in : " + dsl.replace("\r", "\\r").replace("\n", "\\n"));
+        System.out.println("[EsQueryExecutorHttpTest] bulk dsl out: " + context.getDsl().replace("\n", "\\n"));
+
+        String expected = "{\"index\":{\"_index\":\"logs\",\"_id\":7}}\n"
+                + "{\"title\":\"kůň \\\"q\\\"\"}\n"
+                + "{\"delete\":{\"_index\":\"logs\",\"_id\":\"8\"}}\n{\"index\":{\"_index\":\"logs\"}}\n{\"n\":9}\n"
+                + "{\"index\":{\"_index\":\"logs\"}}\n"
+                + "{\"n\":10}\n";
+        assertEquals("_bulk", context.getPath());
+        assertEquals(expected, context.getDsl());
+
+        int before = server.requests().size();
+        QueryExecutionResult result = executor.executeQuery(connection, context).block(TIMEOUT);
+        RecordingHttpServer.Request request = server.requests().get(before);
+        System.out.println("[EsQueryExecutorHttpTest] bulk request " + request.method() + " " + request.pathAndQuery() + " -> " + result.getQueryCode());
+        assertEquals(BULK_PATH, request.pathAndQuery());
+        assertEquals(expected, request.bodyText(), "the server receives the NDJSON body as rendered");
+        assertTrue(result.isSuccess());
     }
 }

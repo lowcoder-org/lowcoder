@@ -32,7 +32,7 @@ public class EsDslTextContractTest {
 
     private final EsQueryExecutor executor = new EsQueryExecutor();
 
-    @BoundarySites("lowcoder-plugins/elasticSearchPlugin/src/main/java/org/lowcoder/plugin/es/EsQueryExecutor.java#EsQueryExecutor.buildQueryExecutionContext#renderMustacheJsonString#1")
+    @BoundarySites("lowcoder-plugins/elasticSearchPlugin/src/main/java/org/lowcoder/plugin/es/EsQueryExecutor.java#EsQueryExecutor.renderJson#renderMustacheJsonString#1")
     @Test
     public void dslAsRendered() {
         StringBuilder text = new StringBuilder();
