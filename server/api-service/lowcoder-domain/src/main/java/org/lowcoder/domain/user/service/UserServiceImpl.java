@@ -57,6 +57,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static org.lowcoder.domain.organization.service.OrganizationServiceImpl.PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT;
 import static org.lowcoder.domain.user.model.UserDetail.ANONYMOUS_CURRENT_USER;
 import static org.lowcoder.sdk.constants.GlobalContext.CLIENT_IP;
+import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 
@@ -383,7 +384,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Mono<Boolean> updatePassword(String userId, String oldPassword, String newPassword) {
-        return findById(userId)
+        return findExistingById(userId)
                 .<User> handle((user, sink) -> {
                     String password = user.getPassword();
                     if (StringUtils.isBlank(password)) {
@@ -489,7 +490,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Mono<Boolean> setPassword(String userId, String password) {
-        return findById(userId)
+        return findExistingById(userId)
                 .map(user -> {
                     user.setPassword(encryptionService.encryptPassword(password));
                     return user;
@@ -500,13 +501,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Mono<Boolean> markAsSuperAdmin(String userId) {
-        return findById(userId)
+        return findExistingById(userId)
                 .map(user -> {
                     user.setSuperAdmin(true);
                     return user;
                 })
                 .flatMap(repository::save)
                 .thenReturn(true);
+    }
+
+    /**
+     * The user, or USER_NOT_EXIST when there is none (BF-100: updatePassword, setPassword and markAsSuperAdmin answered
+     * true for an unknown id, as {@code thenReturn(true)} follows an empty upstream, though nothing was saved).
+     */
+    private Mono<User> findExistingById(String userId) {
+        return findById(userId)
+                .switchIfEmpty(deferredError(BizError.USER_NOT_EXIST, "USER_NOT_EXIST"));
     }
 
     @Override
