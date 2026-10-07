@@ -59,7 +59,7 @@ import lombok.extern.slf4j.Slf4j;
  * <p>The container is {@code mongo:4.0.28}, so {@code addTimeSeriesSnapshotHistory} takes its {@code < 5} ({@code $out})
  * branch; its {@code >= 5} branch is not reachable here and stays uncovered. {@link ArchiveSnapshotTask} runs once at
  * context start (initialDelay 0) against the same collections; the test waits for the scheduler thread to go idle before it
- * seeds anything. The task's own {@code < 5} pipeline is L2-11b's.
+ * seeds anything. The task's archival itself is tested by ArchiveSnapshotTaskTest and ArchiveSnapshotTaskBelow5Test (L2-11b).
  */
 @SpringBootTest(classes = ServerApplication.class)
 @ActiveProfiles("databaseChangelog")
