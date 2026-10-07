@@ -184,14 +184,4 @@ final class H2SqlTestSupport {
             return new DatasourceStructure(List.of());
         }
     }
-
-    /** The executor of PostgreSQL ({@code PostgresExecutor.getPreparedStatementInput}): the same input with a mutable list. */
-    static class MutableParamsGeneralSqlExecutor extends GeneralSqlExecutor {
-
-        @Override
-        protected StatementInput getPreparedStatementInput(String query, Map<String, Object> requestParams) {
-            StatementInput input = super.getPreparedStatementInput(query, requestParams);
-            return StatementInput.fromSql(input.isPreparedStatement(), input.getSql(), new ArrayList<>(input.getParams()));
-        }
-    }
 }

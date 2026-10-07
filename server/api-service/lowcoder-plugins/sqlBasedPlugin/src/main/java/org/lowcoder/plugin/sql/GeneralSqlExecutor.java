@@ -147,7 +147,9 @@ public class GeneralSqlExecutor {
         try {
             if (statementInput.isPreparedStatement()) {
                 String sql = statementInput.getSql();
-                List<Object> params = statementInput.getParams();
+                // A copy: the sort rewrite below removes params, and the input list may be immutable (BF-048: the default
+                // getPreparedStatementInput builds it with Stream.toList(), so a sort map failed on MySQL, MSSQL and Oracle).
+                List<Object> params = newArrayList(statementInput.getParams());
 
                 int orderByIndex;
                 String sortValue;
