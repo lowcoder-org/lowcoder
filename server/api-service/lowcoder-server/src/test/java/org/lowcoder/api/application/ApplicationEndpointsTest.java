@@ -61,10 +61,6 @@ class ApplicationEndpointsTest {
             String appId = invocation.getArgument(0);
             return Mono.just(appId);
         });
-        when(gidService.convertLibraryQueryIdToObjectId(any())).thenAnswer(invocation -> {
-            String appId = invocation.getArgument(0);
-            return Mono.just(appId);
-        });
 
         // Mock getApplicationPermissions to prevent null pointer exceptions
         ApplicationPermissionView mockPermissionView = Mockito.mock(ApplicationPermissionView.class);
