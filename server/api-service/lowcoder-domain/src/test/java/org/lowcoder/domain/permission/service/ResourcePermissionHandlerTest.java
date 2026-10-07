@@ -368,14 +368,13 @@ class ResourcePermissionHandlerTest {
     }
 
     /**
-     * Catches admin lock-out: an org admin / super admin is OWNER without any permission rows. Also pins the plan §9
-     * defect: buildAdminPermission called with resource and user id swapped in the single-resource checks (:106, :253,
-     * :312), so the granted row has resourceId == user id and resourceHolderId == resource id; a fix changes this
-     * test on purpose. Contrast: getAllMatchingPermissions builds the same row with the correct ids.
+     * Catches admin lock-out: an org admin / super admin is OWNER without any permission rows. BF-090 (plan §9, was
+     * pinned): the single-resource checks built that row with the resource and user ids swapped; the granted row now has
+     * resourceId == the resource id and resourceHolderId == the user id, as getAllMatchingPermissions builds it.
      */
     @ParameterizedTest
     @MethodSource("variantsWithAdminRole")
-    void check_orgAdminAndSuperAdmin_getOwnerWithoutPermissionRows_pinsSwappedIds(Variant variant, MemberRole role) {
+    void check_orgAdminAndSuperAdmin_getOwnerWithoutPermissionRows_withTheResourceAndUserIdsBF090(Variant variant, MemberRole role) {
         when(orgMemberService.getOrgMember(ORG_ID, USER_ID)).thenReturn(Mono.just(orgMember(role)));
 
         StepVerifier.create(check(variant, USER_ID, ResourceAction.MANAGE_APPLICATIONS))
@@ -385,14 +384,13 @@ class ResourcePermissionHandlerTest {
                     assertThat(granted.getResourceRole()).isEqualTo(ResourceRole.OWNER);
                     assertThat(granted.getResourceHolder()).isEqualTo(ResourceHolder.USER);
                     assertThat(granted.getResourceType()).isEqualTo(ResourceType.APPLICATION);
-                    // today's behaviour (plan §9 defect): the two ids are swapped
-                    assertThat(granted.getResourceId()).isEqualTo(USER_ID);
-                    assertThat(granted.getResourceHolderId()).isEqualTo(RESOURCE_ID);
+                    assertThat(granted.getResourceId()).isEqualTo(RESOURCE_ID);
+                    assertThat(granted.getResourceHolderId()).isEqualTo(USER_ID);
                 })
                 .verifyComplete();
         verifyNoInteractions(resourcePermissionService);
         System.out.println("[ResourcePermissionHandlerTest] " + variant + " " + role
-                + " -> OWNER without permission rows, ids swapped (plan §9 defect pinned)");
+                + " -> OWNER without permission rows, resourceId " + RESOURCE_ID + ", holder " + USER_ID);
     }
 
     /** Catches getMaxPermission picking the lowest role: VIEWER, OWNER, EDITOR rows resolve to OWNER. */

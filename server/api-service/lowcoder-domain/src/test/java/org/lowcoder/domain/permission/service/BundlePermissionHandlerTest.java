@@ -236,13 +236,12 @@ class BundlePermissionHandlerTest {
     }
 
     /**
-     * Catches admin lock-out on bundles (OWNER without permission rows). Pins the plan §9 defect: buildAdminPermission
-     * called with resource and user id swapped in the single-resource checks (:106, :312); a fix changes this test on
-     * purpose.
+     * Catches admin lock-out on bundles (OWNER without permission rows). BF-090 (plan §9, was pinned): the granted row has
+     * the bundle as its resource and the user as its holder; the single-resource checks used to swap the two ids.
      */
     @ParameterizedTest
     @MethodSource("variantsWithAdminRole")
-    void check_orgAdminAndSuperAdmin_getOwner_pinsSwappedIds(Variant variant, MemberRole role) {
+    void check_orgAdminAndSuperAdmin_getOwner_withTheResourceAndUserIdsBF090(Variant variant, MemberRole role) {
         when(orgMemberService.getOrgMember(ORG_ID, USER_ID)).thenReturn(Mono.just(orgMember(role)));
 
         StepVerifier.create(check(variant, USER_ID, ResourceAction.MANAGE_BUNDLES))
@@ -251,12 +250,12 @@ class BundlePermissionHandlerTest {
                     assertThat(granted.getResourceRole()).isEqualTo(ResourceRole.OWNER);
                     assertThat(granted.getResourceHolder()).isEqualTo(ResourceHolder.USER);
                     assertThat(granted.getResourceType()).isEqualTo(ResourceType.BUNDLE);
-                    assertThat(granted.getResourceId()).isEqualTo(USER_ID);
-                    assertThat(granted.getResourceHolderId()).isEqualTo(RESOURCE_ID);
+                    assertThat(granted.getResourceId()).isEqualTo(RESOURCE_ID);
+                    assertThat(granted.getResourceHolderId()).isEqualTo(USER_ID);
                 })
                 .verifyComplete();
         verifyNoInteractions(resourcePermissionService);
-        System.out.println("[BundlePermissionHandlerTest] " + variant + " " + role + " -> OWNER, ids swapped (plan §9 defect pinned)");
+        System.out.println("[BundlePermissionHandlerTest] " + variant + " " + role + " -> OWNER, resourceId " + RESOURCE_ID + ", holder " + USER_ID);
     }
 
     /** Contrast to the pin above: getAllMatchingPermissions builds the admin row with the correct ids. */
