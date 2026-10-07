@@ -45,6 +45,11 @@ import static org.lowcoder.plugin.mysql.MysqlContainerSupport.sqlConfig;
 public class MysqlDatabaseTest {
 
     static final String WRONG_PASSWORD = "not-the-password";
+    static final String ACCESS_DENIED = "Access denied";
+    static final String PUBLIC_KEY_RETRIEVAL_NOT_ALLOWED = "Public Key Retrieval is not allowed";
+    static final String FRESH_USER = "fresh";
+    static final String FRESH_USER_WITHOUT_KEY_RETRIEVAL = "fresh_no_key";
+    static final String FRESH_PASSWORD = "freshpw";
     static final String TRUE = "true";
     static final int MYSQL_POOL_SIZE = 50;
     /** The key of a parameter map that the SQL executor writes into the query as ASC or DESC. */
@@ -92,15 +97,15 @@ public class MysqlDatabaseTest {
     }
 
     @Test
-    public void wrongPasswordFailsTheConnectionCreation() {
+    public void wrongPasswordFailsTheConnectionCreationWithAccessDeniedBF054() {
         long start = System.nanoTime();
         RuntimeException thrown = assertThrows(RuntimeException.class, () -> connect(config(MysqlContainerSupport.DATABASE, WRONG_PASSWORD, false, false, false)));
         System.out.println("[MysqlDatabaseTest] wrong password: " + thrown.getClass().getSimpleName() + " after "
                 + (System.nanoTime() - start) / 1_000_000 + " ms: " + thrown.getMessage());
-        assertTrue(thrown.getMessage().contains("Public Key Retrieval is not allowed"), "without SSL a wrong password ends in the RSA step: " + thrown.getMessage());
+        assertTrue(thrown.getMessage().contains(ACCESS_DENIED), "without SSL a wrong password is refused as such: " + thrown.getMessage());
         RuntimeException withSsl = assertThrows(RuntimeException.class, () -> connect(config(MysqlContainerSupport.DATABASE, WRONG_PASSWORD, true, false, false)));
         System.out.println("[MysqlDatabaseTest] wrong password over SSL: " + withSsl.getMessage());
-        assertTrue(withSsl.getMessage().contains("Access denied"), withSsl.getMessage());
+        assertTrue(withSsl.getMessage().contains(ACCESS_DENIED), withSsl.getMessage());
     }
 
     @Test
@@ -140,24 +145,35 @@ public class MysqlDatabaseTest {
     }
 
     /**
-     * The pool without SSL cannot make the first login of a user the server has not cached ({@code caching_sha2_password}
-     * needs TLS or the RSA key, and the connector does not set {@code allowPublicKeyRetrieval}). Pins the plan section 9 row
-     * "the MySQL connector does not set allowPublicKeyRetrieval" (D-6: fix deferred); a fix changes this test, and the
-     * wrong-password test above, on purpose.
+     * BF-054: the pool without SSL makes the first login of a user the server has not cached ({@code caching_sha2_password}
+     * sends the password encrypted with the server's RSA key, which the connector now lets the driver fetch), and the session
+     * stays unencrypted. A datasource that sets {@code allowPublicKeyRetrieval=false} in its {@code extParams} still gets the
+     * refusal, so the property is what makes the difference.
      */
     @Test
-    public void sslOffFirstLoginOfAUserTheServerHasNotCachedFails() throws Exception {
+    public void sslOffFirstLoginOfAUserTheServerHasNotCachedSucceedsBF054() throws Exception {
         try (Connection root = MysqlContainerSupport.root()) {
-            execute(root, "drop user if exists 'fresh'@'%'", "create user 'fresh'@'%' identified by 'freshpw'", "grant all on app.* to 'fresh'@'%'");
+            for (String user : List.of(FRESH_USER, FRESH_USER_WITHOUT_KEY_RETRIEVAL)) {
+                execute(root, "drop user if exists '" + user + "'@'%'", "create user '" + user + "'@'%' identified by '" + FRESH_PASSWORD + "'",
+                        "grant all on app.* to '" + user + "'@'%'");
+            }
         }
-        RuntimeException thrown = assertThrows(RuntimeException.class,
-                () -> connect(config(MysqlContainerSupport.DATABASE, "fresh", "freshpw", false, false, false)));
-        System.out.println("[MysqlDatabaseTest] first login without SSL: " + thrown.getMessage());
-        assertTrue(thrown.getMessage().contains("Public Key Retrieval is not allowed"), thrown.getMessage());
-        HikariPerfWrapper overSsl = connect(config(MysqlContainerSupport.DATABASE, "fresh", "freshpw", true, false, false));
-        destroy(overSsl);
-        HikariPerfWrapper afterwards = connect(config(MysqlContainerSupport.DATABASE, "fresh", "freshpw", false, false, false));
-        destroy(afterwards);
+        MysqlDatasourceConfig fresh = config(MysqlContainerSupport.DATABASE, FRESH_USER, FRESH_PASSWORD, false, false, false);
+        HikariPerfWrapper wrapper = connect(fresh);
+        try {
+            Object data = run(wrapper, fresh, sqlConfig("select current_user() as who, (select variable_value from performance_schema.session_status "
+                    + "where variable_name = 'Ssl_cipher') as cipher", false), Map.of());
+            System.out.println("[MysqlDatabaseTest] first login without SSL: " + data);
+            assertEquals(FRESH_USER + "@%", value(data, 0, "who"));
+            assertEquals("", value(data, 0, "cipher"), "the session must stay unencrypted");
+        } finally {
+            destroy(wrapper);
+        }
+        MysqlDatasourceConfig optedOut = config(MysqlContainerSupport.DATABASE, FRESH_USER_WITHOUT_KEY_RETRIEVAL, FRESH_PASSWORD, false, false, false,
+                Map.of(MysqlConnector.ALLOW_PUBLIC_KEY_RETRIEVAL, "false"));
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> connect(optedOut));
+        System.out.println("[MysqlDatabaseTest] first login without SSL and with allowPublicKeyRetrieval=false: " + thrown.getMessage());
+        assertTrue(thrown.getMessage().contains(PUBLIC_KEY_RETRIEVAL_NOT_ALLOWED), thrown.getMessage());
     }
 
     private String cipher(MysqlDatasourceConfig config) {

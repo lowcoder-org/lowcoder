@@ -65,6 +65,16 @@ public class MysqlConnectorConfigTest {
     }
 
     @Test
+    public void publicKeyRetrievalIsAllowedOnlyWithoutSslBF054() {
+        Properties off = configured(DATABASE, USER, PASSWORD, PORT, false, false).getDataSourceProperties();
+        Properties on = configured(DATABASE, USER, PASSWORD, PORT, true, false).getDataSourceProperties();
+        System.out.println("[MysqlConnectorConfigTest] " + MysqlConnector.ALLOW_PUBLIC_KEY_RETRIEVAL + " with ssl off: "
+                + off.get(MysqlConnector.ALLOW_PUBLIC_KEY_RETRIEVAL) + ", with ssl on: " + on.get(MysqlConnector.ALLOW_PUBLIC_KEY_RETRIEVAL));
+        assertEquals(TRUE, off.get(MysqlConnector.ALLOW_PUBLIC_KEY_RETRIEVAL), "without TLS the first login needs the server's key");
+        assertNull(on.get(MysqlConnector.ALLOW_PUBLIC_KEY_RETRIEVAL), "over TLS the password goes on the encrypted channel");
+    }
+
+    @Test
     public void fixedDriverPropertiesAreSetForBothSslSettings() {
         for (boolean ssl : new boolean[] {false, true}) {
             Properties properties = configured(DATABASE, USER, PASSWORD, PORT, ssl, false).getDataSourceProperties();
