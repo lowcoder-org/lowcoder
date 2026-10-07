@@ -22,6 +22,8 @@ public final class QueryTimeoutUtils {
     private static int defaultQueryTimeout = 10;
 
     private static final String MILLISECONDS = "ms";
+    private static final String INVALID_TIMEOUT_SETTING_KEY = "INVALID_TIMEOUT_SETTING";
+    private static final String EXCEED_MAX_QUERY_TIMEOUT_KEY = "EXCEED_MAX_QUERY_TIMEOUT";
     private static final long MILLIS_PER_SECOND = 1000L;
     private static final long MILLIS_PER_MINUTE = 60 * MILLIS_PER_SECOND;
     /**
@@ -56,6 +58,10 @@ public final class QueryTimeoutUtils {
      * default are in seconds and are compared in {@code long} (BF-043: the blank-timeout default was computed in
      * {@code int}, so a large maximum made it negative and every query timed out at once).
      * <p>
+     * Invalid text, a negative number and {@code NaN} with or without a unit are refused with {@code INVALID_TIMEOUT_SETTING}
+     * (BF-079: {@code NaN} was read as 0 ms); {@code Infinity} is refused as above the maximum, unless the maximum is itself
+     * above {@link Integer#MAX_VALUE} ms, where it is cut like any larger value (see the limits).
+     * <p>
      * Limits: a timeout is an {@code int} of milliseconds, so it is at most {@link Integer#MAX_VALUE} ms (about 24.8 days);
      * a larger value that a maximum of that size allows is cut to it.
      */
@@ -79,17 +85,18 @@ public final class QueryTimeoutUtils {
         }
 
         double value = NumberUtils.toDouble(valueStr, -1);
-        if (value < 0) {
-            throw new PluginException(QUERY_ARGUMENT_ERROR, "INVALID_TIMEOUT_SETTING", timeoutStr);
+        // NaN is no timeout: it fails "< 0" and casts to 0 ms (BF-079)
+        if (Double.isNaN(value) || value < 0) {
+            throw new PluginException(QUERY_ARGUMENT_ERROR, INVALID_TIMEOUT_SETTING_KEY, timeoutStr);
         }
  
         Long millisPerUnit = MILLIS_PER_UNIT.get(unit);
         if (millisPerUnit == null) {
-            throw new PluginException(QUERY_ARGUMENT_ERROR, "INVALID_TIMEOUT_SETTING", timeoutStr);
+            throw new PluginException(QUERY_ARGUMENT_ERROR, INVALID_TIMEOUT_SETTING_KEY, timeoutStr);
         }
         int millis = (int) (value * millisPerUnit);
         if (millis > maxQueryTimeoutMs) {
-            throw new PluginException(EXCEED_MAX_QUERY_TIMEOUT, "EXCEED_MAX_QUERY_TIMEOUT", maxQueryTimeoutSeconds);
+            throw new PluginException(EXCEED_MAX_QUERY_TIMEOUT, EXCEED_MAX_QUERY_TIMEOUT_KEY, maxQueryTimeoutSeconds);
         }
 
         return millis;
