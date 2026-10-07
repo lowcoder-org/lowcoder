@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 import static org.lowcoder.infra.perf.PerfEvent.*;
 import static org.lowcoder.sdk.exception.BizError.PLUGIN_CREATE_CONNECTION_FAILED;
 import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.querySharedScheduler;
+import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 
 /**
  * for hikari pool/redis client/es client/..., these clients has taken over underlying connections
@@ -51,6 +52,9 @@ public class ClientBasedConnectionPool implements DatasourceConnectionPool {
 
     private static final int DEFAULT_RETRIEVE_CONNECTION_TIMES = 5;
     private static final String STALE_DATASOURCE = "stale datasource";
+    private static final String PLUGIN_CREATE_CONNECTION_FAILED_KEY = "PLUGIN_CREATE_CONNECTION_FAILED";
+    /** The error message argument of a creation that completed without a connection (BF-081). */
+    static final String NO_CONNECTION_CREATED = "the data source connector returned no connection";
 
     private static final List<PerfEvent> HIKARI_PERF_CONFIG = ImmutableList.of(
             HIKARI_POOL_ACTIVE_CONNECTIONS,
@@ -145,8 +149,10 @@ public class ClientBasedConnectionPool implements DatasourceConnectionPool {
      * new one instead of getting the cached failure until the datasource is edited or an hour passes without access. Only
      * this entry is removed: an entry loaded for the key after it is kept.
      * <p>
-     * Limits: callers already waiting on the failed creation still get its failure, and a creation that completes without a
-     * connection stays cached.
+     * A creation that completes without a connection is a failure too (BF-081, see {@link #create}), so it is dropped the
+     * same way.
+     * <p>
+     * Limits: callers already waiting on the failed creation still get its failure.
      */
     private void forgetFailedCreation(ClientBasedDatasourceCacheKey key, Mono<ClientBasedDatasourceConnectionHolder> failed) {
         cache.asMap().remove(key, failed);
@@ -180,7 +186,7 @@ public class ClientBasedConnectionPool implements DatasourceConnectionPool {
                         return throwable;
                     }
                     log.error("get connection error.", throwable);
-                    return new BizException(PLUGIN_CREATE_CONNECTION_FAILED, "PLUGIN_CREATE_CONNECTION_FAILED", throwable.getMessage());
+                    return new BizException(PLUGIN_CREATE_CONNECTION_FAILED, PLUGIN_CREATE_CONNECTION_FAILED_KEY, throwable.getMessage());
                 })
                 .subscribeOn(QueryExecutionUtils.querySharedScheduler());
     }
@@ -209,9 +215,17 @@ public class ClientBasedConnectionPool implements DatasourceConnectionPool {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * The connection the datasource's connector creates. A connector that completes without one fails the creation with
+     * {@code PLUGIN_CREATE_CONNECTION_FAILED} (BF-081), as {@code TokenBasedConnectionPool} does, instead of completing empty:
+     * the caller of the pool gets an error, and the failed creation is not cached.
+     * <p>
+     * Limits: only an empty completion is refused; a connector that emits a connection which does not work is not detected.
+     */
     private Mono<ClientBasedDatasourceConnectionHolder> create(Datasource datasource) {
         return datasourceMetaInfoService.getDatasourceConnector(datasource.getType())
                 .doCreateConnection(datasource.getDetailConfig())
+                .switchIfEmpty(deferredError(PLUGIN_CREATE_CONNECTION_FAILED, PLUGIN_CREATE_CONNECTION_FAILED_KEY, NO_CONNECTION_CREATED))
                 .map(ClientBasedDatasourceConnectionHolder::new);
     }
 

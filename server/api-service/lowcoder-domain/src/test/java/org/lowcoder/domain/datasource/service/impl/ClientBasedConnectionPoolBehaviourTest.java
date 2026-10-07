@@ -149,8 +149,8 @@ class ClientBasedConnectionPoolBehaviourTest {
     // ---------------------------------------------------------------- init gauges
 
     /**
-     * Catches gauges registered for the wrong pool type (:67), a size gauge counting other types (:72), and Hikari
-     * gauges reading the wrong counter or type (:82, :85-88): the captured gauge functions are applied to real data.
+     * Catches gauges registered for the wrong pool type (:74), a size gauge counting other types (:79), and Hikari
+     * gauges reading the wrong counter or type (:89, :92-95): the captured gauge functions are applied to real data.
      */
     @Test
     void init_registersTheGaugesAndTheirFunctionsCountPerType() {
@@ -208,7 +208,7 @@ class ClientBasedConnectionPoolBehaviourTest {
 
     // ---------------------------------------------------------------- errors
 
-    /** Catches raw exceptions reaching callers (:153-159), while exceptions that already are BaseExceptions pass through (:154). */
+    /** Catches raw exceptions reaching callers (:184-190), while exceptions that already are BaseExceptions pass through (:185). */
     @Test
     void connectorFailure_isMappedToPluginCreateConnectionFailed_butPluginExceptionsPassThrough() {
         when(connector.doCreateConnection(any())).thenReturn(Mono.error(new IllegalStateException("boom")));
@@ -231,7 +231,7 @@ class ClientBasedConnectionPoolBehaviourTest {
 
     // ---------------------------------------------------------------- perf counters, destruction
 
-    /** Catches missing create (:120) or removal (:107) counters: counted once per version, removal with its cause and type. */
+    /** Catches missing create (:129) or removal (:114) counters: counted once per version, removal with its cause and type. */
     @Test
     void perfCounters_createOncePerLoad_andTheRemovalCountsItsCause() {
         connection(datasource("perf", TYPE_A, V1));
@@ -250,7 +250,7 @@ class ClientBasedConnectionPoolBehaviourTest {
     }
 
     /**
-     * Catches a connection leak after a datasource edit (:111) and collateral invalidation (:137): the old version's
+     * Catches a connection leak after a datasource edit (:118-120) and collateral invalidation (:164): the old version's
      * connection is destroyed on the connector, another datasource's connection is neither destroyed nor replaced.
      */
     @Test
@@ -272,8 +272,8 @@ class ClientBasedConnectionPoolBehaviourTest {
     // ---------------------------------------------------------------- info
 
     /**
-     * Catches info() listing other datasources for an id (:171), more than 100 entries (:173), and wrappers outliving
-     * their datasource version (:109): after an update only the new wrapper is listed.
+     * Catches info() listing other datasources for an id (:202), more than 100 entries (:204), and wrappers outliving
+     * their datasource version (:116): after an update only the new wrapper is listed.
      */
     @Test
     void info_listsHikariWrappersById_limitedTo100_andDropsReplacedVersions() {
@@ -307,7 +307,7 @@ class ClientBasedConnectionPoolBehaviourTest {
 
     // ---------------------------------------------------------------- cache key
 
-    /** Catches the cache key comparing the datasource object (:211): only id and update time count. */
+    /** Catches the cache key comparing the datasource object (:258): only id and update time count. */
     @Test
     void cacheKey_equalsOnIdAndUpdateTimeOnly() {
         ClientBasedDatasourceCacheKey key = ClientBasedDatasourceCacheKey.of(datasource("key", TYPE_A, V1));
@@ -421,15 +421,27 @@ class ClientBasedConnectionPoolBehaviourTest {
     }
 
     /**
-     * Pins the plan section 9 row "a client based connector that returns no connection completes empty without an
-     * error" (ClientBasedConnectionPool:187-190; TokenBasedConnectionPool:43 has the switchIfEmpty this lacks): the
-     * caller of the pool gets an empty Mono. A fix (error on empty) changes this test on purpose.
+     * BF-081 (fixed; was pinned as the plan section 9 row "a client based connector that returns no connection completes
+     * empty without an error"): the creation fails with PLUGIN_CREATE_CONNECTION_FAILED, as in TokenBasedConnectionPool,
+     * and the failure is not cached, so the next call asks the connector again.
      */
     @Test
-    void connectorWithoutAConnection_completesEmptyWithoutAnError_pinsSection9Row() {
+    void connectorWithoutAConnection_failsWithPluginCreateConnectionFailedAndIsNotCachedBF081() {
         when(connector.doCreateConnection(any())).thenReturn(Mono.empty());
+        Datasource datasource = datasource("empty-connection", TYPE_A, V1);
 
-        StepVerifier.create(pool.getOrCreateConnection(datasource("empty-connection", TYPE_A, V1))).verifyComplete();
-        System.out.println("[ClientBasedConnectionPoolBehaviourTest] pins the section 9 row: no connection -> empty completion, no error");
+        for (int call = 1; call <= 2; call++) {
+            StepVerifier.create(pool.getOrCreateConnection(datasource))
+                    .expectErrorSatisfies(error -> {
+                        System.out.println("[ClientBasedConnectionPoolBehaviourTest] no connection -> " + error);
+                        assertThat(error).isInstanceOf(BizException.class);
+                        BizException biz = (BizException) error;
+                        assertThat(biz.getError()).isEqualTo(BizError.PLUGIN_CREATE_CONNECTION_FAILED);
+                        assertThat(biz.getArgs()).containsExactly(ClientBasedConnectionPool.NO_CONNECTION_CREATED);
+                    })
+                    .verify(WAIT);
+            assertThat(cache().asMap()).as("cache after call " + call).isEmpty();
+        }
+        verify(connector, times(2)).doCreateConnection(any());
     }
 }
