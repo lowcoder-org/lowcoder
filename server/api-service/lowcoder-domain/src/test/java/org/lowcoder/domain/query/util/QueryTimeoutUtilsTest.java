@@ -28,6 +28,10 @@ class QueryTimeoutUtilsTest {
     private static final int CALLER_SCALED_MAX_SECONDS = 2_148_000;
     private static final int DEFAULT_MS = DEFAULT_SECONDS * 1000;
     private static final String BEYOND_THE_INT_RANGE = "99999999999s";
+    private static final String INVALID_TIMEOUT_SETTING_KEY = "INVALID_TIMEOUT_SETTING";
+    private static final String EXCEED_MAX_QUERY_TIMEOUT_KEY = "EXCEED_MAX_QUERY_TIMEOUT";
+    /** The text {@code Double.parseDouble} reads as NaN (BF-079). */
+    private static final String NAN = "NaN";
 
     @AfterEach
     void resetTheStaticDefault() {
@@ -42,7 +46,7 @@ class QueryTimeoutUtilsTest {
         assertThat(plugin.getArgs()).containsExactly(arg);
     }
 
-    /** Catches a default larger than the maximum being handed out unclamped (:36). */
+    /** Catches a default larger than the maximum being handed out unclamped (QueryTimeoutUtils:71-74). */
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {"   "})
@@ -96,32 +100,34 @@ class QueryTimeoutUtilsTest {
     @ValueSource(strings = {"5mx", "5sx", "5msec", "5mm", "1h", "1hour", "2hours"})
     void parse_unknownUnits_failWithQueryArgumentErrorBF044(String input) {
         assertThatThrownBy(() -> parseQueryTimeoutMs(input, MAX_SECONDS))
-                .satisfies(error -> assertPluginError(error, PluginCommonError.QUERY_ARGUMENT_ERROR, "INVALID_TIMEOUT_SETTING", input));
+                .satisfies(error -> assertPluginError(error, PluginCommonError.QUERY_ARGUMENT_ERROR, INVALID_TIMEOUT_SETTING_KEY, input));
         System.out.println("[QueryTimeoutUtilsTest] '" + input + "' -> QUERY_ARGUMENT_ERROR");
     }
 
-    /** Catches garbage turned into a negative or zero timeout (:51): invalid text and negative numbers are rejected. */
+    /** Catches garbage turned into a negative or zero timeout (QueryTimeoutUtils:87-91): invalid text and negative numbers are rejected. */
     @ParameterizedTest(name = "\"{0}\"")
     @ValueSource(strings = {"-5", "-5s", "abc", "s", "ms", "5x", "1.2.3s", "5 5s"})
     void parse_invalidValues_failWithQueryArgumentError(String input) {
         assertThatThrownBy(() -> parseQueryTimeoutMs(input, MAX_SECONDS))
-                .satisfies(error -> assertPluginError(error, PluginCommonError.QUERY_ARGUMENT_ERROR, "INVALID_TIMEOUT_SETTING", input));
+                .satisfies(error -> assertPluginError(error, PluginCommonError.QUERY_ARGUMENT_ERROR, INVALID_TIMEOUT_SETTING_KEY, input));
         System.out.println("[QueryTimeoutUtilsTest] '" + input + "' -> QUERY_ARGUMENT_ERROR");
     }
 
     /**
-     * Pins the plan section 9 row "Candidate, to be reproduced by L3-4" (NaN): {@code NumberUtils.toDouble("NaN", -1)}
-     * is NaN, {@code NaN < 0} is false (:51), {@code (int) NaN} is 0 and {@code 0 > max} is false, so "NaN" is accepted
-     * as a 0 ms timeout. A fix (reject NaN) changes this test on purpose.
+     * BF-079 (fixed; was pinned as the plan section 9 candidate reproduced by L3-4): {@code NumberUtils.toDouble("NaN", -1)}
+     * is NaN, {@code NaN < 0} is false and {@code (int) NaN} is 0, so "NaN", signed or with a unit, was a 0 ms timeout. It is
+     * refused like any other invalid text.
      */
-    @Test
-    void parse_nan_isAcceptedAsZeroMilliseconds_pinsSection9Candidate() {
-        assertThat(parseQueryTimeoutMs("NaN", MAX_SECONDS)).isZero();
-        System.out.println("[QueryTimeoutUtilsTest] pins the section 9 candidate: 'NaN' -> 0 ms");
+    @ParameterizedTest(name = "\"{0}\"")
+    @ValueSource(strings = {NAN, "-" + NAN, "+" + NAN, NAN + "s", NAN + "ms", NAN + " min"})
+    void parse_nan_isRefusedAsAnInvalidTimeoutBF079(String input) {
+        assertThatThrownBy(() -> parseQueryTimeoutMs(input, MAX_SECONDS))
+                .satisfies(error -> assertPluginError(error, PluginCommonError.QUERY_ARGUMENT_ERROR, INVALID_TIMEOUT_SETTING_KEY, input));
+        System.out.println("[QueryTimeoutUtilsTest] '" + input + "' -> QUERY_ARGUMENT_ERROR");
     }
 
     /**
-     * Catches an off-by-one on the maximum and an int overflow slipping through (:56): with a 10 s maximum, exactly 10 s
+     * Catches an off-by-one on the maximum and an int overflow slipping through (QueryTimeoutUtils:97-100): with a 10 s maximum, exactly 10 s
      * is accepted and anything above is rejected with EXCEED_MAX_QUERY_TIMEOUT carrying the maximum in seconds.
      */
     @Test
@@ -132,12 +138,12 @@ class QueryTimeoutUtilsTest {
         for (String above : new String[] {"10001", "10.001s", "11s", "99999999999s", "Infinity"}) {
             assertThatThrownBy(() -> parseQueryTimeoutMs(above, 10))
                     .as(above)
-                    .satisfies(error -> assertPluginError(error, PluginCommonError.EXCEED_MAX_QUERY_TIMEOUT, "EXCEED_MAX_QUERY_TIMEOUT", 10));
+                    .satisfies(error -> assertPluginError(error, PluginCommonError.EXCEED_MAX_QUERY_TIMEOUT, EXCEED_MAX_QUERY_TIMEOUT_KEY, 10));
         }
         System.out.println("[QueryTimeoutUtilsTest] maximum 10 s: 10s/10000 accepted, 10001/10.001s/11s/overflow/Infinity rejected");
     }
 
-    /** Catches mustache placeholders being parsed as garbage (:30): the template is rendered from the parameters first. */
+    /** Catches mustache placeholders being parsed as garbage (QueryTimeoutUtils:53): the template is rendered from the parameters first. */
     @Test
     void parse_mustacheOverload_rendersParametersFirst() {
         assertThat(parseQueryTimeoutMs("{{t}}", Map.of("t", "5s"), MAX_SECONDS)).isEqualTo(5_000);
