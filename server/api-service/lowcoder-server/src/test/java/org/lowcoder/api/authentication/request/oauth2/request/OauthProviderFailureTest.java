@@ -162,6 +162,64 @@ class OauthProviderFailureTest {
         System.out.println("[OauthProviderFailureTest] user endpoint called with " + (post ? "POST" : "GET") + " and the bearer token");
     }
 
+    private static Oauth2GenericAuthConfig genericWithMapping(String baseUrl, boolean userInfoIntrospection, String attribute, String mapping) {
+        Oauth2GenericAuthConfig config = generic(baseUrl, userInfoIntrospection);
+        config.getSourceMappings().put(attribute, mapping);
+        return config;
+    }
+
+    private static Stream<Arguments> uidMappingsThatFindNothing() {
+        return Stream.of(
+                Arguments.of("sub[x]", false), Arguments.of("sub[x]", true),   // malformed index (BF-074)
+                Arguments.of("subject", false), Arguments.of("subject", true)); // a claim the IdP does not send
+    }
+
+    /**
+     * BF-074: a uid mapping that finds nothing, a malformed index included (which threw a raw NumberFormatException
+     * before), fails the login with an {@link AuthException}, from the id token alone and with the user endpoint, instead
+     * of building a user without a uid, whom the login would look up with a null uid.
+     */
+    @ParameterizedTest(name = "uid mapping {0}, introspection {1}")
+    @MethodSource("uidMappingsThatFindNothing")
+    void generic_aUidMappingThatFindsNothing_isAnAuthExceptionBF074(String uidMapping, boolean introspection, WireMockRuntimeInfo wireMock) {
+        GenericAuthRequest request = new GenericAuthRequest(genericWithMapping(wireMock.getHttpBaseUrl(), introspection, "uid", uidMapping));
+        stubJson(wireMock, RequestMethod.GET, GENERIC_USER_PATH, OK, "{\"sub\":\"u-2\",\"email\":\"two@example.com\"}");
+        AuthToken withJwt = AuthToken.builder().accessToken(ACCESS_TOKEN).jwt(jwt("{\"sub\":\"u-1\",\"email\":\"one@example.com\"}")).build();
+
+        StepVerifier.create(request.getAuthUser(withJwt))
+                .expectErrorSatisfies(e -> assertThat(e).isInstanceOf(AuthException.class).hasMessage(GenericAuthRequest.NO_UID))
+                .verify(BLOCK_TIMEOUT);
+        System.out.println("[OauthProviderFailureTest] uid mapping " + uidMapping + ", introspection " + introspection + " -> AuthException " + GenericAuthRequest.NO_UID);
+    }
+
+    /** BF-074: a blank uid claim is refused like a missing one. */
+    @Test
+    void generic_aBlankUidClaim_isAnAuthExceptionBF074(WireMockRuntimeInfo wireMock) {
+        GenericAuthRequest request = new GenericAuthRequest(generic(wireMock.getHttpBaseUrl(), false));
+        AuthToken withJwt = AuthToken.builder().accessToken(ACCESS_TOKEN).jwt(jwt("{\"sub\":\"  \",\"email\":\"one@example.com\"}")).build();
+
+        StepVerifier.create(request.getAuthUser(withJwt))
+                .expectErrorSatisfies(e -> assertThat(e).isInstanceOf(AuthException.class).hasMessage(GenericAuthRequest.NO_UID))
+                .verify(BLOCK_TIMEOUT);
+        System.out.println("[OauthProviderFailureTest] blank sub -> AuthException " + GenericAuthRequest.NO_UID);
+    }
+
+    /**
+     * BF-074 as the login sees it: a malformed index in another mapping ({@code avatar}) leaves that attribute empty and
+     * the user is built, where the raw exception failed every login of the provider.
+     */
+    @Test
+    void generic_aMalformedIndexInTheAvatarMapping_leavesTheAvatarEmptyBF074(WireMockRuntimeInfo wireMock) {
+        GenericAuthRequest request = new GenericAuthRequest(genericWithMapping(wireMock.getHttpBaseUrl(), false, "avatar", "picture[x]"));
+        AuthToken withJwt = AuthToken.builder().accessToken(ACCESS_TOKEN).jwt(jwt("{\"sub\":\"u-1\",\"picture\":\"https://pic\"}")).build();
+
+        AuthUser user = request.getAuthUser(withJwt).block(BLOCK_TIMEOUT);
+
+        System.out.println("[OauthProviderFailureTest] avatar mapping picture[x] -> uid " + user.getUid() + ", avatar " + user.getAvatar());
+        assertThat(user.getUid()).isEqualTo("u-1");
+        assertThat(user.getAvatar()).isNull();
+    }
+
     // ------------------------------------------------- Ory, Keycloak, Google
 
     private void assertThreeSitesRejectErrorDescription(String provider, AbstractOauth2Request<?> request) {
