@@ -53,6 +53,7 @@ import org.lowcoder.domain.user.model.ConnectionAuthToken;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
+import org.lowcoder.sdk.auth.constants.AuthTypeConstants;
 import org.lowcoder.sdk.config.AuthProperties;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.constants.AuthSourceConstants;
@@ -75,13 +76,12 @@ import reactor.test.StepVerifier;
  *
  * <p>Defects pinned here (owner decision D-6: today's behaviour is asserted, a fix changes the test on purpose):
  * <ul>
- *   <li>plan §9 "builds a duplicate-config error and drops it": {@code enableAuthConfig} (and
- *       {@code addOrUpdateNewAuthConfig}, which always reports a duplicate) never signals
- *       DUPLICATE_AUTH_CONFIG_ADDITION;</li>
  *   <li>plan §9 / analysis H3: {@code disableAuthConfig(.., delete=true)} on an organisation without an
  *       organisation domain throws a NullPointerException;</li>
  *   <li>plan §9 "findAuthConfigs ignores its enableOnly parameter".</li>
  * </ul>
+ * Fixed since: plan §9 "builds a duplicate-config error and drops it" (BF-087): a new config of a type the organisation
+ * already has is refused ({@link #enableAuthConfig_newConfigOfATypeAlreadyAdded_isRefusedAsADuplicateBF087}).
  */
 @ExtendWith(MockitoExtension.class)
 class AuthenticationApiServiceImplMutationsTest {
@@ -93,6 +93,8 @@ class AuthenticationApiServiceImplMutationsTest {
     private static final String CONFIG_A = "cfg-a";
     private static final String CONFIG_B = "cfg-b";
     private static final String SOURCE_GOOGLE = "GOOGLE";
+    private static final String STUB_TYPE = "STUB";
+    private static final String OTHER_TYPE = "OTHER";
     private static final String UID = "uid-1";
     private static final String OLD_AUTH_ID = "old-auth-id";
     private static final String GROUP_ID = "group-1";
@@ -122,8 +124,8 @@ class AuthenticationApiServiceImplMutationsTest {
     private static class StubAuthConfig extends AbstractAuthConfig {
         private AbstractAuthConfig mergedFrom;
 
-        StubAuthConfig(String id, String source, boolean enable, boolean enableRegister) {
-            super(id, source, source, enable, enableRegister, "STUB");
+        StubAuthConfig(String id, String source, boolean enable, boolean enableRegister, String authType) {
+            super(id, source, source, enable, enableRegister, authType);
         }
 
         @Override
@@ -152,13 +154,22 @@ class AuthenticationApiServiceImplMutationsTest {
     }
 
     private static StubAuthConfig config(String id, boolean enable) {
-        return new StubAuthConfig(id, SOURCE_GOOGLE, enable, true);
+        return new StubAuthConfig(id, SOURCE_GOOGLE, enable, true, STUB_TYPE);
+    }
+
+    private static StubAuthConfig config(String id, String authType) {
+        return new StubAuthConfig(id, SOURCE_GOOGLE, true, true, authType);
     }
 
     private static AuthConfigRequest request(String id) {
         AuthConfigRequest request = new AuthConfigRequest();
         request.put("id", id);
         return request;
+    }
+
+    /** A request that creates a config: it carries no id, as the client's "Add OAuth Provider" form sends it. */
+    private static AuthConfigRequest newConfigRequest() {
+        return new AuthConfigRequest();
     }
 
     private static Organization organization(AbstractAuthConfig... configs) {
@@ -184,7 +195,7 @@ class AuthenticationApiServiceImplMutationsTest {
 
     private static AuthUser authUser(String source, String uid, String orgId, String authConfigId, boolean enableRegister) {
         FormAuthRequestContext context = new FormAuthRequestContext("login", "pw", false, orgId);
-        context.setAuthConfig(new StubAuthConfig(authConfigId, source, true, enableRegister));
+        context.setAuthConfig(new StubAuthConfig(authConfigId, source, true, enableRegister, STUB_TYPE));
         return AuthUser.builder().uid(uid).orgId(orgId).authContext(context).build();
     }
 
@@ -278,24 +289,59 @@ class AuthenticationApiServiceImplMutationsTest {
     }
 
     /**
-     * Pins the plan §9 defect "AuthenticationApiServiceImpl builds a duplicate-config error and drops it":
-     * {@code addOrUpdateNewAuthConfig} always returns true and the {@code deferredError(..)} Mono is discarded,
-     * so enabling an id that already exists completes normally and DUPLICATE_AUTH_CONFIG_ADDITION is never
-     * signalled. A fix changes this test on purpose.
+     * BF-087 (fixed; was pinned as the plan §9 defect "builds a duplicate-config error and drops it"): a new config (a
+     * request without an id) of a type the organization already has is refused with DUPLICATE_AUTH_CONFIG_ADDITION, and
+     * the organization is not updated.
      */
     @Test
-    void enableAuthConfig_existingId_neverSignalsDuplicateError_pinsDroppedDuplicateErrorDefect() {
+    void enableAuthConfig_newConfigOfATypeAlreadyAdded_isRefusedAsADuplicateBF087() {
         visitorIs(MemberRole.ADMIN);
-        Organization organization = organization(config(CONFIG_A, true));
+        StubAuthConfig existing = config(CONFIG_A, STUB_TYPE);
+        Organization organization = organization(existing);
         organizationIs(organization);
-        when(authConfigFactory.build(any(), eq(true))).thenReturn(config(CONFIG_A, true));
+        when(authConfigFactory.build(any(), eq(true))).thenReturn(config(CONFIG_B, STUB_TYPE));
+
+        StepVerifier.create(service.enableAuthConfig(newConfigRequest()))
+                .expectErrorSatisfies(e -> {
+                    System.out.println("[AuthenticationApiServiceImplMutationsTest] new " + STUB_TYPE + " config beside an existing one -> " + e);
+                    assertBizError(e, BizError.DUPLICATE_AUTH_CONFIG_ADDITION);
+                })
+                .verify();
+        verify(organizationService, never()).update(anyString(), any());
+        assertThat(organization.getAuthConfigs()).containsExactly(existing);
+    }
+
+    /** BF-087: the generic OAuth type may be added more than once, as the client offers it; a second one is added. */
+    @Test
+    void enableAuthConfig_newGenericConfigBesideAnotherGeneric_isAddedBF087() {
+        visitorIs(MemberRole.ADMIN);
+        StubAuthConfig existing = config(CONFIG_A, AuthTypeConstants.GENERIC);
+        Organization organization = organization(existing);
+        organizationIs(organization);
+        StubAuthConfig built = config(CONFIG_B, AuthTypeConstants.GENERIC);
+        when(authConfigFactory.build(any(), eq(true))).thenReturn(built);
         when(organizationService.update(ORG_ID, organization)).thenReturn(Mono.just(true));
 
-        StepVerifier.create(service.enableAuthConfig(request(CONFIG_A)))
-                .expectNext(true)
-                .verifyComplete();
-        System.out.println("[AuthenticationApiServiceImplMutationsTest] existing id enabled again -> completes with true, "
-                + "no DUPLICATE_AUTH_CONFIG_ADDITION (today's behaviour)");
+        StepVerifier.create(service.enableAuthConfig(newConfigRequest())).expectNext(true).verifyComplete();
+
+        System.out.println("[AuthenticationApiServiceImplMutationsTest] second GENERIC config -> " + organization.getAuthConfigs().size() + " configs");
+        assertThat(organization.getAuthConfigs()).containsExactlyInAnyOrder(existing, built);
+    }
+
+    /** BF-087: a new config of a type the organization does not have yet is added beside the others. */
+    @Test
+    void enableAuthConfig_newConfigOfAnotherType_isAddedBF087() {
+        visitorIs(MemberRole.ADMIN);
+        StubAuthConfig existing = config(CONFIG_A, STUB_TYPE);
+        Organization organization = organization(existing);
+        organizationIs(organization);
+        StubAuthConfig built = config(CONFIG_B, OTHER_TYPE);
+        when(authConfigFactory.build(any(), eq(true))).thenReturn(built);
+        when(organizationService.update(ORG_ID, organization)).thenReturn(Mono.just(true));
+
+        StepVerifier.create(service.enableAuthConfig(newConfigRequest())).expectNext(true).verifyComplete();
+
+        assertThat(organization.getAuthConfigs()).containsExactlyInAnyOrder(existing, built);
     }
 
     // ----------------------------------------------------- disableAuthConfig
