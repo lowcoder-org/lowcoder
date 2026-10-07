@@ -73,6 +73,19 @@ public class SqlBasedQueryExecutorContextTest {
         }
     }
 
+    /**
+     * BF-092 through the executor: a block comment holding a mustache is removed. The default quoting rules
+     * ({@code quotingRules}, STANDARD) read brackets as subscripts, so a comment inside one is removed too; after
+     * {@code 'C:\'}, a literal a backslash makes ambiguous, the block comment is kept as before BF-092.
+     */
+    @Test
+    public void aBlockCommentIsRemovedInsideASubscriptAndKeptAfterABackslashAmbiguousLiteralBF092() {
+        SqlBasedQueryExecutionContext context = build(false,
+                H2SqlTestSupport.sqlConfig("select arr[1 /* {{x}} */], 'C:\\' /* {{x}} */ from t"));
+        System.out.println("[SqlBasedQueryExecutorContextTest] block comments -> [" + context.getQuery() + "]");
+        assertEquals("select arr[1  ], 'C:\\' /* {{x}} */ from t", context.getQuery());
+    }
+
     @Test
     public void blankAndCommentOnlySqlIsSqlEmpty() {
         for (String sql : new String[] {"", "   ", "-- nothing {{x}}"}) {
