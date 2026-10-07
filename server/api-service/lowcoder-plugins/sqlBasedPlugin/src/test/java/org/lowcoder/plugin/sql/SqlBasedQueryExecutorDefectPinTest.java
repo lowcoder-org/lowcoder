@@ -1,43 +1,45 @@
 package org.lowcoder.plugin.sql;
 
 import org.junit.jupiter.api.Test;
-import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
 
 import java.sql.Connection;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.lowcoder.sdk.exception.PluginCommonError.PREPARED_STATEMENT_BIND_PARAMETERS_ERROR;
 
 /**
- * Pins two production defects found in L5-1 (plan section 9, rows "removeQueryComments removes -- comments only" and
- * "SqlQueryConfig.getSql() throws a NullPointerException without a sql key"; owner decision D-6: the fixes are deferred).
- * A fix changes these tests on purpose.
+ * Pins a production defect found in L5-1 (plan section 9, row "SqlQueryConfig.getSql() throws a NullPointerException
+ * without a sql key"; owner decision D-6: the fix is deferred). A fix changes that test on purpose.
+ * <p>
+ * Fixed since: the row "removeQueryComments removes -- comments only" (BF-092): a block comment is removed with the
+ * mustache in it ({@link #mustacheInsideABlockCommentIsRemovedWithTheCommentAndTheQueryRunsBF092}).
  */
 public class SqlBasedQueryExecutorDefectPinTest {
 
     static final String BLOCK_COMMENT_SQL = "select 1 as one /* {{y}} */";
+    static final String WITHOUT_BLOCK_COMMENT_SQL = "select 1 as one";
 
     private final H2SqlTestSupport.H2Executor executor = new H2SqlTestSupport.H2Executor(new GeneralSqlExecutor());
     private final H2SqlTestSupport.H2Config datasource = new H2SqlTestSupport.H2Config("localhost", "db", false, null);
 
     /**
-     * Pins the block-comment defect: {@code removeQueryComments} strips {@code --} comments only, so the query keeps the
-     * block comment with its mustache; the prepared statement then turns {@code {{y}}} into a placeholder inside the
-     * comment, which the database does not count, and the bind of {@code y} fails as PREPARED_STATEMENT_BIND_PARAMETERS_ERROR.
+     * BF-092 (was pinned): {@code removeQueryComments} removes the block comment with its mustache, so no placeholder is
+     * left inside a comment for the bind of {@code y} to fail on (it failed as PREPARED_STATEMENT_BIND_PARAMETERS_ERROR),
+     * and the query runs.
      */
     @Test
-    public void mustacheInsideABlockCommentIsKeptAndTheBindFails() throws Exception {
+    public void mustacheInsideABlockCommentIsRemovedWithTheCommentAndTheQueryRunsBF092() throws Exception {
         SqlBasedQueryExecutionContext context = executor.buildQueryExecutionContext(datasource,
                 H2SqlTestSupport.sqlConfig(BLOCK_COMMENT_SQL), Map.of("y", 5), null);
-        assertEquals(BLOCK_COMMENT_SQL, context.getQuery(), "the block comment is not removed");
+        assertEquals(WITHOUT_BLOCK_COMMENT_SQL, context.getQuery(), "the block comment is removed");
         try (Connection connection = H2SqlTestSupport.open(H2SqlTestSupport.newUrl("blockcomment"))) {
-            PluginException thrown = assertThrows(PluginException.class, () -> new GeneralSqlExecutor().execute(connection, context));
-            assertEquals(PREPARED_STATEMENT_BIND_PARAMETERS_ERROR, thrown.getError());
-            System.out.println("[SqlBasedQueryExecutorDefectPinTest] block comment kept, bind failed: " + thrown.getMessage());
+            Object data = new GeneralSqlExecutor().execute(connection, context).getData();
+            System.out.println("[SqlBasedQueryExecutorDefectPinTest] block comment removed, H2 answers " + data);
+            assertEquals(List.of(Map.of("one", 1)), data);
         }
     }
 

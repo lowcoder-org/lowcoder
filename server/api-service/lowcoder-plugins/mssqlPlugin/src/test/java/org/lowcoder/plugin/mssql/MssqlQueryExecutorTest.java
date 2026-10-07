@@ -6,6 +6,7 @@ import org.lowcoder.plugin.mssql.gui.MssqlBulkUpdateCommand;
 import org.lowcoder.plugin.mssql.gui.MssqlDeleteCommand;
 import org.lowcoder.plugin.mssql.gui.MssqlInsertCommand;
 import org.lowcoder.plugin.mssql.gui.MssqlUpdateCommand;
+import org.lowcoder.plugin.mssql.model.MssqlDatasourceConfig;
 import org.lowcoder.sdk.contract.FakeJdbc;
 import org.lowcoder.sdk.contract.FakeJdbc.Column;
 import org.lowcoder.sdk.contract.FakeJdbc.FailingCell;
@@ -50,6 +51,11 @@ public class MssqlQueryExecutorTest {
 
     static final Duration TIMEOUT = Duration.ofSeconds(20);
     static final String QUERY = "select * from items";
+    static final String BRACKET_SQL = "select [a/*b*/], [c--d], [e]]/*f*/] from items /* {{x}} */";
+    static final String BRACKET_SQL_WITHOUT_COMMENT = "select [a/*b*/], [c--d], [e]]/*f*/] from items";
+    static final String MODE_KEY = "mode";
+    static final String SQL_MODE = "SQL";
+    static final String SQL_KEY = "sql";
     static final Map<String, Object> KEY_VALUES = Map.of("compType", "KEY_VALUE_PAIRS", "comp", List.of(Map.of("column", "a", "value", "1")));
     static final List<Map<String, Object>> FILTER = List.of(Map.of("column", "id", "condition", "=", "value", "1"));
     static final Map<String, Map<String, Object>> DETAILS = Map.of(
@@ -114,6 +120,20 @@ public class MssqlQueryExecutorTest {
                 List.of(List.of(new FailingCell("cannot read the value", "text")))));
         System.out.println("[MssqlQueryExecutorTest] failing cell: " + thrown.getError() + " " + thrown.getMessageKey());
         assertEquals(QUERY_EXECUTION_ERROR, thrown.getError());
+    }
+
+    /**
+     * BF-092: SQL Server quotes identifiers with brackets ({@code ]]} is an escaped bracket), so a comment start inside
+     * {@code [...]} is part of the identifier and kept, while the block comment after it is removed with its mustache.
+     */
+    @Test
+    public void aCommentStartInsideABracketIdentifierIsKeptBF092() {
+        MssqlDatasourceConfig datasource = new MssqlDatasourceConfig("db", "user", "password", "localhost", 1433L, false, null, false,
+                false, null);
+        SqlBasedQueryExecutionContext context = executor.buildQueryExecutionContext(datasource,
+                Map.of(MODE_KEY, SQL_MODE, SQL_KEY, BRACKET_SQL), Map.of(), null);
+        System.out.println("[MssqlQueryExecutorTest] [" + BRACKET_SQL + "] -> [" + context.getQuery() + "]");
+        assertEquals(BRACKET_SQL_WITHOUT_COMMENT, context.getQuery());
     }
 
     @Test
