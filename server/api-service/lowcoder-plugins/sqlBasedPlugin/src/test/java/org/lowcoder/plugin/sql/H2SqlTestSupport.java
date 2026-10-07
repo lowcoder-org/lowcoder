@@ -8,6 +8,7 @@ import org.lowcoder.sdk.models.DatasourceStructure;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedDatasourceConnectionConfig;
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.lowcoder.sdk.plugin.sqlcommand.command.postgres.PostgresDeleteCommand;
+import org.lowcoder.sdk.plugin.sqlcommand.command.postgres.PostgresInsertCommand;
 import org.lowcoder.sdk.plugin.sqlcommand.command.postgres.PostgresUpdateCommand;
 import org.junit.jupiter.api.function.Executable;
 
@@ -34,6 +35,7 @@ final class H2SqlTestSupport {
     static final String H2_USER = "sa";
     static final String GUI_UPDATE = "update";
     static final String GUI_DELETE = "delete";
+    static final String GUI_INSERT = "insert";
     static final String GUI_MODE = "GUI";
     static final String SQL_MODE = "SQL";
     static final String QUERY_ERROR_KEY = "QUERY_EXECUTION_ERROR";
@@ -160,7 +162,7 @@ final class H2SqlTestSupport {
         }
     }
 
-    /** An executor whose GUI commands are the sdk PostgreSQL update and delete; structure is an empty one. */
+    /** An executor whose GUI commands are the sdk PostgreSQL insert, update and delete; structure is an empty one. */
     static class H2Executor extends SqlBasedQueryExecutor {
 
         H2Executor(GeneralSqlExecutor generalSqlExecutor) {
@@ -170,6 +172,7 @@ final class H2SqlTestSupport {
         @Override
         protected GuiSqlCommand parseSqlCommand(String guiStatementType, Map<String, Object> detail) {
             return switch (guiStatementType) {
+                case GUI_INSERT -> PostgresInsertCommand.from(detail);
                 case GUI_UPDATE -> PostgresUpdateCommand.from(detail);
                 case GUI_DELETE -> PostgresDeleteCommand.from(detail);
                 default -> throw new IllegalArgumentException("not a command of this test executor: " + guiStatementType);

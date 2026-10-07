@@ -20,7 +20,7 @@ import static org.lowcoder.plugin.sql.H2SqlTestSupport.assertPluginError;
 import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
 
 /**
- * Unit SB-3 (task L5-1): a GUI update or delete with {@code allowMultiModify=false} first runs a {@code count} select
+ * Unit SB-3 (task L5-1), with the GUI insert and update of BF-047: a GUI update or delete with {@code allowMultiModify=false} first runs a {@code count} select
  * with the same filter and refuses to run when more than one row matches. GUI commands are the sdk PostgreSQL ones, built
  * through {@link SqlBasedQueryExecutor#buildQueryExecutionContext}; rows are verified with plain JDBC.
  */
@@ -31,6 +31,7 @@ public class GeneralSqlExecutorSingleRowGuardTest {
     static final String COUNT_KEY = "FAIL_TO_GET_AFFECTED_ROW_COUNT";
     static final int CHANGED = 9;
     static final int ORIGINAL = 0;
+    static final int NEW_ID = 4;
 
     private static final String URL = H2SqlTestSupport.newUrl("guard");
     private static Connection connection;
@@ -93,6 +94,45 @@ public class GeneralSqlExecutorSingleRowGuardTest {
         assertEquals(1L, count("marker = " + CHANGED + " and id = 3"));
         assertEquals(1L, count("marker = " + CHANGED));
         System.out.println("[GeneralSqlExecutorSingleRowGuardTest] update of 1 matching row: " + result.getData());
+    }
+
+    /**
+     * BF-047 through the executor and a database: a GUI update whose change set has an entry without a value sets that
+     * column to NULL (the change set failed to build with a NullPointerException before); the other rows keep their value.
+     */
+    @Test
+    public void updateWithAnEntryWithoutValueSetsTheColumnToNullBF047() {
+        Map<String, Object> withoutValue = new java.util.HashMap<>();
+        withoutValue.put("column", "marker");
+        withoutValue.put("value", null);
+        Map<String, Object> detail = new java.util.HashMap<>(filterOn("id", false));
+        detail.put("changeSet", Map.of("compType", "KEY_VALUE_PAIRS", "comp", List.of(withoutValue)));
+
+        QueryExecutionResult result = run(H2SqlTestSupport.GUI_UPDATE, detail, 3);
+
+        System.out.println("[GeneralSqlExecutorSingleRowGuardTest] update marker to NULL for id 3: " + result.getData()
+                + ", rows with NULL marker: " + count("marker is null"));
+        assertEquals(Map.of("affectedRows", 1), result.getData());
+        assertEquals(1L, count("marker is null and id = 3"));
+        assertEquals(2L, count("marker = " + ORIGINAL));
+    }
+
+    /**
+     * BF-047 for a GUI insert, whose PostgreSQL command inlines the values: an entry with no {@code value} key at all (an
+     * imported or API-written app) writes NULL into that column.
+     */
+    @Test
+    public void insertWithAnEntryWithoutValueKeyWritesNullBF047() {
+        Map<String, Object> detail = Map.of("table", TABLE, "changeSet", Map.of("compType", "KEY_VALUE_PAIRS", "comp",
+                List.of(Map.of("column", "id", "value", NEW_ID), Map.of("column", "grp", "value", 2), Map.of("column", "marker"))));
+
+        QueryExecutionResult result = run(H2SqlTestSupport.GUI_INSERT, detail, NEW_ID);
+
+        System.out.println("[GeneralSqlExecutorSingleRowGuardTest] insert id " + NEW_ID + " without marker value: " + result.getData()
+                + ", rows with NULL marker: " + count("marker is null"));
+        assertEquals(Map.of("affectedRows", 1), result.getData());
+        assertEquals(1L, count("marker is null and id = " + NEW_ID));
+        assertEquals(4L, count("1 = 1"));
     }
 
     @Test
