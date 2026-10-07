@@ -12,6 +12,7 @@ import org.lowcoder.sdk.models.DatasourceStructure;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.common.BlockingQueryExecutor;
 import org.lowcoder.sdk.plugin.common.SqlQueryUtils;
+import org.lowcoder.sdk.plugin.common.SqlQueryUtils.QuotingRules;
 import org.lowcoder.sdk.plugin.common.sql.HikariPerfWrapper;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedDatasourceConnectionConfig;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
@@ -51,7 +52,7 @@ public abstract class SqlBasedQueryExecutor extends BlockingQueryExecutor<SqlBas
                     .build();
         }
 
-        String query = SqlQueryUtils.removeQueryComments(sqlQueryConfig.getSql());
+        String query = SqlQueryUtils.removeQueryComments(sqlQueryConfig.getSql(), quotingRules());
         if (StringUtils.isBlank(query)) {
             throw new PluginException(QUERY_ARGUMENT_ERROR, "SQL_EMPTY");
         }
@@ -106,6 +107,14 @@ public abstract class SqlBasedQueryExecutor extends BlockingQueryExecutor<SqlBas
      */
     protected boolean rollsBackEveryQuery(HikariDataSource dataSource) {
         return false;
+    }
+
+    /**
+     * How this database's SQL quotes identifiers, so that a comment start inside a quoted span is text when comments are
+     * removed (BF-092). {@link QuotingRules#STANDARD} by default: a bracket is a subscript.
+     */
+    protected QuotingRules quotingRules() {
+        return QuotingRules.STANDARD;
     }
 
     /**
