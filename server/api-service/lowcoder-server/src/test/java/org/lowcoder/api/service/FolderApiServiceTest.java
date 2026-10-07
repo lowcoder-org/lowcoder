@@ -36,6 +36,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class FolderApiServiceTest {
 
+    private static final String SELF_PARENTED_FOLDER_NAME = "self_parented";
+
     @Autowired
     private FolderApiService folderApiService;
     @Autowired
@@ -189,6 +191,35 @@ public class FolderApiServiceTest {
                     Assertions.assertEquals("name_used_at_root", view.getName());
                     Assertions.assertEquals(parentId, view.getParentFolderId());
                 })
+                .verifyComplete();
+    }
+
+    /**
+     * BF-077: a folder stored with its own id as its parent (data from before the create fix of BF-004) is listed at the
+     * root and can be deleted; the delete cascade walked it forever (StackOverflowError) and the listing did not show it.
+     */
+    @Test
+    @WithMockUser
+    public void aSelfParentedFolderIsListedAtTheRootAndCanBeDeletedBF077() {
+        String id = createFolder(SELF_PARENTED_FOLDER_NAME, null).getFolderId();
+        Folder selfParent = new Folder();
+        selfParent.setParentFolderId(id);
+        StepVerifier.create(folderService.updateById(id, selfParent)).expectNext(true).verifyComplete();
+
+        List<?> rootElements = folderApiService.getElements(null, null, null, null).collectList().block();
+        assertNotNull(rootElements);
+        List<String> rootFolderIds = rootElements.stream()
+                .filter(FolderInfoView.class::isInstance)
+                .map(element -> ((FolderInfoView) element).getFolderId())
+                .toList();
+        System.out.println("[FolderApiServiceTest] root folders with a self-parented " + id + ": " + rootFolderIds);
+        assertTrue(rootFolderIds.contains(id));
+
+        StepVerifier.create(folderApiService.delete(id))
+                .assertNext(folder -> Assertions.assertEquals(id, folder.getId()))
+                .verifyComplete();
+        StepVerifier.create(folderService.exist(id))
+                .expectNext(false)
                 .verifyComplete();
     }
 
