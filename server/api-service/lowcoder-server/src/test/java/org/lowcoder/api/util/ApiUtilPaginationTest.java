@@ -30,6 +30,12 @@ public class ApiUtilPaginationTest {
     static final int MIN_SIZE = 5;
     static final int DEFAULT_MAX_SIZE = 100;
     static final String ILLEGAL_PAGE_KEY = "ILLEGAL_PAGE_NUMBER";
+    /** {@code pageOf}: five items, pages of two. */
+    static final List<String> FIVE = List.of("a", "b", "c", "d", "e");
+    static final int TWO = 2;
+    /** A page and size whose {@code int} bounds wrap to 0 and 65536 (2^32 and 2^32 + 2^16), a valid first page in int arithmetic. */
+    static final int WRAPPING_PAGE = 65_537;
+    static final int WRAPPING_SIZE = 65_536;
 
     @Test
     public void sizeIsClampedBetweenTheMinimumAndTheMaximum() {
@@ -160,5 +166,46 @@ public class ApiUtilPaginationTest {
         Flux<Integer> counting = Flux.range(1, 12).doOnSubscribe(s -> subscriptions.incrementAndGet());
         StepVerifier.create(Pagination.fluxToPageResponseView(1, 5, counting)).expectNextCount(1).verifyComplete();
         assertEquals(2, subscriptions.get());
+    }
+
+    /** BF-086: {@code pageOf} gives the requested slice; the last page may be short. */
+    @Test
+    public void pageOfGivesTheRequestedSlice() {
+        assertEquals(List.of("a", "b"), Pagination.pageOf(FIVE, 1, TWO));
+        assertEquals(List.of("c", "d"), Pagination.pageOf(FIVE, 2, TWO));
+        assertEquals(List.of("e"), Pagination.pageOf(FIVE, 3, TWO), "the last page is short");
+        System.out.println(TAG + "pageOf over " + FIVE + ", size " + TWO + ": " + Pagination.pageOf(FIVE, 1, TWO) + " "
+                + Pagination.pageOf(FIVE, 2, TWO) + " " + Pagination.pageOf(FIVE, 3, TWO));
+    }
+
+    /** BF-086: a page before the first (0 or less) or after the last is empty, where an unchecked subList threw. */
+    @Test
+    public void pageOfIsEmptyOutsideThePages() {
+        for (int page : new int[] {0, -1, 4, 5, Integer.MAX_VALUE, Integer.MIN_VALUE}) {
+            assertEquals(List.of(), Pagination.pageOf(FIVE, page, TWO), "page " + page);
+        }
+        assertEquals(List.of(), Pagination.pageOf(List.of(), 1, TWO), "the first page of an empty list");
+        System.out.println(TAG + "pageOf outside the pages of " + FIVE + " -> empty");
+    }
+
+    /** A page size of 0 or less is the whole list, whatever the page (the meaning 0 had at the call sites). */
+    @Test
+    public void pageOfWithASizeOfZeroOrLessIsTheWholeList() {
+        for (int size : new int[] {0, -1}) {
+            for (int page : new int[] {0, 1, 7}) {
+                assertSame(FIVE, Pagination.pageOf(FIVE, page, size), "page " + page + " size " + size);
+            }
+        }
+    }
+
+    /** The bounds are computed in long: a page whose int bounds wrap into the list is empty, not the first page. */
+    @Test
+    public void pageOfDoesNotWrapALargePageIntoTheList() {
+        int wrappedFrom = (WRAPPING_PAGE - 1) * WRAPPING_SIZE;
+        int wrappedTo = WRAPPING_PAGE * WRAPPING_SIZE;
+        System.out.println(TAG + "page " + WRAPPING_PAGE + " size " + WRAPPING_SIZE + ": int bounds " + wrappedFrom + ".." + wrappedTo
+                + " -> " + Pagination.pageOf(FIVE, WRAPPING_PAGE, WRAPPING_SIZE));
+        assertEquals(0, wrappedFrom, "the int start wraps to 0");
+        assertEquals(List.of(), Pagination.pageOf(FIVE, WRAPPING_PAGE, WRAPPING_SIZE));
     }
 }
