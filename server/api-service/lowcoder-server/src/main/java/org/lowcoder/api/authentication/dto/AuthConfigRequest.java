@@ -12,12 +12,19 @@ import static org.lowcoder.sdk.util.IDUtils.generate;
 
 public class AuthConfigRequest extends HashMap<String, Object> {
 
+    private static final String ID_KEY = "id";
+
     /**
      * If the current auth config is new, the id should be absent, and we will generate a new one. In other word, if the id is present, the auth
      * config will be updated instead of creating a new one.
      */
     public String getId() {
-        return ObjectUtils.firstNonNull(getString("id"), generate());
+        return ObjectUtils.firstNonNull(getString(ID_KEY), generate());
+    }
+
+    /** Whether the request creates an auth config: it carries no id, so {@link #getId()} generates one. */
+    public boolean isNewConfig() {
+        return getString(ID_KEY) == null;
     }
 
     public String getAuthType() {
