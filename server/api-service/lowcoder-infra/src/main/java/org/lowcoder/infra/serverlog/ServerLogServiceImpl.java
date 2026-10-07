@@ -2,6 +2,7 @@ package org.lowcoder.infra.serverlog;
 
 import io.micrometer.core.instrument.Tags;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.lowcoder.infra.event.SystemCommonEvent;
 import org.lowcoder.infra.perf.PerfHelper;
@@ -19,9 +20,16 @@ import java.util.concurrent.TimeUnit;
 
 import static org.lowcoder.infra.perf.PerfEvent.SERVER_LOG_BATCH_INSERT;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class ServerLogServiceImpl implements ServerLogService {
+
+    /**
+     * The most server logs kept for a retry while saving fails (a database outage); beyond it the oldest are dropped, so the
+     * memory they take stays bounded. A log is a few short strings, so this is some tens of MB at most.
+     */
+    static final int MAX_PENDING_LOGS = 100_000;
 
     private final ServerLogRepository serverLogRepository;
     private final PerfHelper perfHelper;
@@ -34,6 +42,10 @@ public class ServerLogServiceImpl implements ServerLogService {
         serverLogs.add(serverLog);
     }
 
+    /**
+     * Saves the logs recorded since the last run, then publishes their count ({@code apiCalls}). A batch whose save fails is
+     * put back for the next run (BF-066: the subscribe had no error handler, so the batch was lost and never counted).
+     */
     @Scheduled(initialDelay = 1, fixedRate = 1, timeUnit = TimeUnit.SECONDS)
     private void scheduledInsert() {
         if (CollectionUtils.isEmpty(serverLogs)) {
@@ -51,7 +63,23 @@ public class ServerLogServiceImpl implements ServerLogService {
                     		.detail("apiCalls", Integer.toString(count))
                     		.build()
                     );
-                });
+                }, error -> requeue(tmp, error));
+    }
+
+    /**
+     * Puts a batch whose save failed back into the queue, so the next run saves it with the logs recorded since; if the queue
+     * would then hold more than {@link #MAX_PENDING_LOGS}, the oldest logs of the batch are dropped.
+     * <p>
+     * Limits: a save that failed after part of the batch was written writes that part again (the logs carry no id), so
+     * those logs are stored twice and {@link #getApiUsageCount} counts them twice; the published {@code apiCalls} count,
+     * sent only after a save succeeds, counts them once. A log put back while the next run swaps the queue can be missed,
+     * the same window {@link #record} has.
+     */
+    private void requeue(Queue<ServerLog> batch, Throwable error) {
+        Queue<ServerLog> queue = serverLogs;
+        int dropped = Math.max(0, Math.min(batch.size(), batch.size() + queue.size() - MAX_PENDING_LOGS));
+        batch.stream().skip(dropped).forEach(queue::add);
+        log.error("Failed to save {} server logs, kept for the next run, {} dropped", batch.size(), dropped, error);
     }
 
     @Override
