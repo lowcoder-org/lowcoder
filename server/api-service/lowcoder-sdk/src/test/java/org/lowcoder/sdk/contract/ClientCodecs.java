@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * <p>All five {@code codecs(...)} constructions of the application set only {@code maxInMemorySize} on the default
  * codecs: {@code WebClientBuildHelper.java:131-134} (20 MB by default), {@code JsLibraryController.java:61-64} (-1),
  * {@code DatasourcePluginClient.java:42-45} (-1), {@code GraphQLExecutor.java:88-91} (10 MB) and
- * {@code RestApiExecutor.java:101-104} (-1). {@link #strategies(int)} builds the same thing, so tests can encode and
+ * {@code RestApiExecutor.java:102-105} (-1). {@link #strategies(int)} builds the same thing, so tests can encode and
  * decode with the client codecs without a network client.
  *
  * <p><b>Effective limit (plan §9, O11; evidence E14).</b> {@code JsLibraryController}, {@code GraphQLExecutor} and
@@ -68,7 +68,7 @@ public final class ClientCodecs {
      * The strategies a {@link WebClient} built by the application from {@code declared} really uses: a builder from
      * {@code WebClientBuildHelper.builder().systemProxy().toWebClientBuilder()} with {@code exchangeStrategies(declared)},
      * as {@code JsLibraryController.java:120-124}, {@code GraphQLExecutor.java:247-270} and
-     * {@code RestApiExecutor.java:221-245} build it. Their other builder calls (headers, cookies, filters, SSL, timeout,
+     * {@code RestApiExecutor.java:236-262} build it. Their other builder calls (headers, cookies, filters, SSL, timeout,
      * disallowed hosts) do not touch the codecs.
      *
      * <p>Limit: it reads Spring's non-public {@code DefaultWebClientBuilder#initExchangeStrategies}, so a Spring upgrade

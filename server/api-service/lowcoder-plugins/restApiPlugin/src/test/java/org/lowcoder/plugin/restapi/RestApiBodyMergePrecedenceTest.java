@@ -13,9 +13,9 @@ import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
 /**
  * DEFECT pinned (plan section 9 row "reproduced, to pin (L4-9 follow-up)", probe P2; D-6, fix deferred): the two body
  * merges of {@link RestApiExecutor} use opposite precedence for a key that the datasource and the query both set. In a
- * urlencoded or multipart body the query's value wins (mergeBody(List, List), RestApiExecutor.java:448-451). In a JSON
+ * urlencoded or multipart body the query's value wins (mergeBody(List, List), RestApiExecutor.java:466-470). In a JSON
  * body the datasource's value wins: mergeBody(QueryBody, List) overwrites the query's field with
- * {@code objectNode.put} (:206-209). A user who overrides a datasource default in a JSON query sees the default sent.
+ * {@code objectNode.put} (:223-226). A user who overrides a datasource default in a JSON query sees the default sent.
  * The obvious fix is one precedence for both (the query wins), which turns the JSON assertion red.
  */
 class RestApiBodyMergePrecedenceTest {
