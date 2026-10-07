@@ -338,7 +338,7 @@ class GuiSqlCommandRenderTest {
 
         GuiSqlCommandRenderResult result = print("mysql bulk update", MysqlBulkUpdateCommand.from(detail).render(NO_PARAMS));
 
-        assertThat(result.sql()).isEqualTo("UPDATE users set\n`name` = CASE WHEN `id` = ? THEN ? WHEN `id` = ? THEN ? ELSE `name` END\nwhere id in (?,?)");
+        assertThat(result.sql()).isEqualTo("UPDATE users set\n`name` = CASE WHEN `id` = ? THEN ? WHEN `id` = ? THEN ? ELSE `name` END\nwhere `id` in (?,?)");
         assertThat(result.bindParams()).as("pk and value per WHEN, then the pks of the where").containsExactly(1, "a", 2, "b", 1, 2);
     }
 
@@ -348,7 +348,7 @@ class GuiSqlCommandRenderTest {
 
         GuiSqlCommandRenderResult result = print("pg bulk update", PostgresBulkUpdateCommand.from(detail).render(NO_PARAMS));
 
-        assertThat(result.sql()).isEqualTo("UPDATE users set\n\"qty\" = CASE WHEN \"id\" = 1 THEN 5 WHEN \"id\" = 2 THEN 6 ELSE \"qty\" END\nwhere id in (1,2)");
+        assertThat(result.sql()).isEqualTo("UPDATE users set\n\"qty\" = CASE WHEN \"id\" = 1 THEN 5 WHEN \"id\" = 2 THEN 6 ELSE \"qty\" END\nwhere \"id\" in (1,2)");
         assertThat(result.bindParams()).isEmpty();
     }
 

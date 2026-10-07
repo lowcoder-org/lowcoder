@@ -198,7 +198,7 @@ public class PostgresCommandTest {
                         "name" = CASE WHEN "id" = 1 THEN $$jack$$ WHEN "id" = 2 THEN $$rose$$ ELSE "name" END,
                         "email" = CASE WHEN "id" = 1 THEN $$jack@jack.com$$ ELSE "email" END,
                         "info" = CASE WHEN "id" = 2 THEN $${"age":35,"job":"sales"}$$ ELSE "info" END
-                        where id in (1,2)""",
+                        where "id" in (1,2)""",
                 render.sql());
         Assertions.assertThat(render.bindParams()).isEqualTo(List.of());
     }

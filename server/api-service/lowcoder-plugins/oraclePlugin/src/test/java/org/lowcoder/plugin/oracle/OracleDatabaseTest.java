@@ -312,6 +312,24 @@ public class OracleDatabaseTest {
         }
     }
 
+    /**
+     * BF-051 on a real Oracle: a table whose key column was created quoted in lower case ({@code "id"}). The bulk update
+     * quotes the key in its CASE WHEN; the where clause wrote it raw, which Oracle folds to {@code ID}, a column that does
+     * not exist (ORA-00904). Both now quote it, and the two named rows change while the third keeps its value.
+     */
+    @Test
+    public void bulkUpdateWithALowerCaseQuotedKeyChangesTheNamedRowsBF051() throws Exception {
+        try (Connection jdbc = jdbc()) {
+            execute(jdbc, "drop table t_bulk_key", "create table t_bulk_key (\"id\" number primary key, \"name\" varchar2(10))",
+                    "insert into t_bulk_key values (1, 'a')", "insert into t_bulk_key values (2, 'b')", "insert into t_bulk_key values (3, 'c')");
+            Object updated = gui("BULK_UPDATE", Map.of("table", "t_bulk_key", "primaryKey", "id",
+                    "records", "[{\"id\":1,\"name\":\"A\"},{\"id\":3,\"name\":\"C\"}]"), Map.of());
+            System.out.println("[OracleDatabaseTest] bulk update with the lower-case key \"id\": " + updated);
+            assertEquals(2, ((Map<?, ?>) updated).get(AFFECTED_ROWS));
+            assertEquals(List.of("A", "b", "C"), column(jdbc, "select \"name\" from t_bulk_key order by \"id\"", "name"));
+        }
+    }
+
     @Test
     public void rownumOneChangesAndDeletesExactlyOneOfThreeMatchingRows() throws Exception {
         try (Connection jdbc = jdbc()) {
