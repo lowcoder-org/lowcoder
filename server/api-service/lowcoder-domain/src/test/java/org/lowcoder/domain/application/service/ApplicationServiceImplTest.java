@@ -4,11 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.lowcoder.domain.application.service.ApplicationServiceImplTestSupport.app;
 import static org.lowcoder.domain.application.service.ApplicationServiceImplTestSupport.appWithGid;
+import static org.lowcoder.domain.application.service.ApplicationServiceImplTestSupport.appWithSlug;
 import static org.lowcoder.domain.application.service.ApplicationServiceImplTestSupport.counted;
 import static org.lowcoder.domain.application.service.ApplicationServiceImplTestSupport.dslWithModules;
 import static org.lowcoder.domain.application.service.ApplicationServiceImplTestSupport.version;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -71,7 +74,7 @@ class ApplicationServiceImplTest {
     }
 
     /**
-     * Catches: the slug / gid / id routing of findByIdWithoutDsl (:64-70) changed: a slug hit stops the lookup, a "-" routes to
+     * Catches: the slug / gid / id routing of findByIdWithoutDsl (:65-71) changed: a slug hit stops the lookup, a "-" routes to
      * the gid query only, anything else to the id query only. The audit-event consequence of the slug route is the L1-8 row and
      * the hyphen heuristic's consequence the L3-11b row, neither is re-pinned here.
      */
@@ -170,12 +173,13 @@ class ApplicationServiceImplTest {
     }
 
     /**
-     * Catches: the findByIdIn routing (:128-132) changed. Homogeneous lists only: the empty list asks slugs then ids, a gid
-     * first asks the gid query only, a slug hit makes the id query unnecessary, no slug hit falls through to the ids. The mixed
-     * lists are the candidate pins' (ApplicationServiceImplFindByIdInPinTest, ApplicationServiceImplIdKindFamilyPinTest).
+     * Catches: the findByIdIn routing changed for homogeneous lists (BF-154, BF-155, BF-156): every list asks the slugs once;
+     * the keys no slug matched go to the id query (plain keys) or the gid query (keys with a hyphen), each only when the list
+     * has keys of it, so an empty list asks the slugs only. The mixed lists are in ApplicationServiceImplFindByIdInPinTest
+     * and ApplicationServiceImplIdKindFamilyPinTest.
      */
     @Test
-    void findByIdInRoutesGidThenSlugThenId() {
+    void findByIdInAsksTheSlugsThenTheIdsOrGidsOfTheRest() {
         AtomicInteger slugQueries = new AtomicInteger();
         AtomicInteger idQueries = new AtomicInteger();
         AtomicInteger gidQueries = new AtomicInteger();
@@ -183,23 +187,23 @@ class ApplicationServiceImplTest {
         when(s.repository.findByIdIn(anyCollection())).thenReturn(counted(Flux.just(app("i1")), idQueries));
         when(s.repository.findByGidIn(anyCollection())).thenReturn(counted(Flux.just(app("g1")), gidQueries));
 
-        assertThat(service.findByIdIn(List.of()).collectList().block(TIMEOUT)).extracting(Application::getId).containsExactly("i1");
+        assertThat(service.findByIdIn(List.of()).collectList().block(TIMEOUT)).isEmpty();
         assertThat(slugQueries.get()).isEqualTo(1);
-        assertThat(idQueries.get()).isEqualTo(1);
+        assertThat(idQueries.get()).isZero();
 
         assertThat(service.findByIdIn(List.of("plain1", "plain2")).collectList().block(TIMEOUT)).extracting(Application::getId).containsExactly("i1");
         assertThat(slugQueries.get()).isEqualTo(2);
-        assertThat(idQueries.get()).isEqualTo(2);
+        assertThat(idQueries.get()).isEqualTo(1);
         assertThat(gidQueries.get()).isZero();
 
         assertThat(service.findByIdIn(List.of("gid-1", "gid-2")).collectList().block(TIMEOUT)).extracting(Application::getId).containsExactly("g1");
         assertThat(gidQueries.get()).isEqualTo(1);
-        assertThat(slugQueries.get()).isEqualTo(2);
-        assertThat(idQueries.get()).isEqualTo(2);
+        assertThat(slugQueries.get()).isEqualTo(3);
+        assertThat(idQueries.get()).isEqualTo(1);
 
-        when(s.repository.findBySlugIn(anyCollection())).thenReturn(counted(Flux.just(app("s1")), slugQueries));
-        assertThat(service.findByIdIn(List.of("slugonly")).collectList().block(TIMEOUT)).extracting(Application::getId).containsExactly("s1");
-        assertThat(idQueries.get()).as("a slug hit makes the id query unnecessary").isEqualTo(2);
+        when(s.repository.findBySlugIn(anyCollection())).thenReturn(counted(Flux.just(appWithSlug("s1", "plain1")), slugQueries));
+        assertThat(service.findByIdIn(List.of("plain1")).collectList().block(TIMEOUT)).extracting(Application::getId).containsExactly("s1");
+        assertThat(idQueries.get()).as("a key a slug matched is not looked up again").isEqualTo(1);
     }
 
     private static Collection<String> anyCollection() {
@@ -257,7 +261,7 @@ class ApplicationServiceImplTest {
     }
 
     /**
-     * Behaviour (observed): the onErrorContinue of getAllDependentModulesFromDsl (:154) does not make a failing first-level
+     * Behaviour (observed): the onErrorContinue of getAllDependentModulesFromDsl (:169) does not make a failing first-level
      * lookup skippable: the repository error reaches the caller and the whole expansion fails, although the code logs "on error
      * continue". Only a database failure triggers it; no user input does.
      */
@@ -274,13 +278,13 @@ class ApplicationServiceImplTest {
         assertThat(failure).hasMessage("lookup failed");
     }
 
-    /** Behaviour (observed): the onErrorContinue one level down (:165) does not skip a failing lookup either, the error reaches the caller. */
+    /** Behaviour (observed): the onErrorContinue one level down (:180) does not skip a failing lookup either, the error reaches the caller. */
     @Test
     void aFailingSecondLevelModuleLookupFailsTheWholeExpansionToo() {
         Application root = app("root", dslWithModules("m1"));
         Application m1 = app("m1", dslWithModules("m2"));
         when(s.repository.findByIdWithDsl("root")).thenReturn(Mono.just(root));
-        when(s.repository.findByIdIn(List.of("m1"))).thenReturn(Flux.just(m1));
+        when(s.repository.findByIdIn(argThat(keys -> keys != null && List.copyOf(keys).equals(List.of("m1"))))).thenReturn(Flux.just(m1));
         when(s.repository.findBySlugIn(List.of("m2"))).thenReturn(Flux.error(new IllegalStateException("lookup failed")));
 
         IllegalStateException failure = assertThrows(IllegalStateException.class,
@@ -387,7 +391,7 @@ class ApplicationServiceImplTest {
         assertThrows(NullPointerException.class, () -> service.getFilteredPublicApplicationIds(null, List.of("x"), USER, false));
     }
 
-    /** Catches: the marketplace truth table (anonymous x private mode) changed (:301). */
+    /** Catches: the marketplace truth table (anonymous x private mode) changed (:317). */
     @Test
     void marketplaceIdsAreHiddenOnlyFromAnonymousVisitorsOfAPrivateMarketplace() {
         AtomicInteger marketQ = new AtomicInteger();
@@ -402,7 +406,10 @@ class ApplicationServiceImplTest {
         assertThat(marketQ.get()).isEqualTo(3);
     }
 
-    /** Catches: the gid variant answering ids or the id variant answering gids; the empty set taking the gid variant. */
+    /**
+     * Catches: the gid variant answering ids or the id variant answering gids. An empty set asks no query and answers an
+     * empty set (BF-155; it asked the id query before, which a real database answers empty too).
+     */
     @Test
     void theFourFiltersAnswerGidsForGidListsAndIdsOtherwise() {
         Application withGid = appWithGid("real-id", "the-gid");
@@ -426,15 +433,15 @@ class ApplicationServiceImplTest {
         assertThat(s.service.getPrivateApplicationIds(ids, USER).block(TIMEOUT)).containsExactly("real-id");
         assertThat(s.service.getPublicMarketplaceApplicationIds(ids, false, false).block(TIMEOUT)).containsExactly("real-id");
         assertThat(s.service.getPublicAgencyApplicationIds(ids).block(TIMEOUT)).containsExactly("real-id");
-        assertThat(s.service.getPublicApplicationIds(List.of()).block(TIMEOUT)).containsExactly("real-id");
-        assertThat(s.service.getPublicAgencyApplicationIds(List.of()).block(TIMEOUT)).containsExactly("real-id");
+        assertThat(s.service.getPublicApplicationIds(List.of()).block(TIMEOUT)).isEmpty();
+        assertThat(s.service.getPublicAgencyApplicationIds(List.of()).block(TIMEOUT)).isEmpty();
     }
 
-    /** Catches: the private route not trying slugs first, a slug hit not preventing the id query (:287). */
+    /** Catches: the private route not trying slugs first, a key a slug matched being sent to the id query too (:297). */
     @Test
     void privateIdsTrySlugsFirstAndAnswerTheRealIds() {
         AtomicInteger idQueries = new AtomicInteger();
-        when(s.repository.findByCreatedByAndSlugIn(eq(USER), any())).thenReturn(Flux.just(app("by-slug-id")));
+        when(s.repository.findByCreatedByAndSlugIn(eq(USER), any())).thenReturn(Flux.just(appWithSlug("by-slug-id", "someslug")));
         when(s.repository.findByCreatedByAndIdIn(anyString(), any())).thenReturn(counted(Flux.just(app("by-id")), idQueries));
 
         assertThat(service.getPrivateApplicationIds(List.of("someslug"), USER).block(TIMEOUT)).containsExactly("by-slug-id");

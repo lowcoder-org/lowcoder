@@ -58,6 +58,12 @@ final class ApplicationServiceImplTestSupport {
         return app(id, new HashMap<>());
     }
 
+    static Application appWithSlug(String id, String slug) {
+        Application application = Application.builder().slug(slug).editingApplicationDSL(new HashMap<>()).build();
+        application.setId(id);
+        return application;
+    }
+
     static Application appWithGid(String id, String gid) {
         Application application = Application.builder().gid(gid).editingApplicationDSL(new HashMap<>()).build();
         application.setId(id);
