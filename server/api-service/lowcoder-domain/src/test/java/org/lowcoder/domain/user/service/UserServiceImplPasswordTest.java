@@ -45,6 +45,8 @@ class UserServiceImplPasswordTest {
     private static final String OLD_PASSWORD = "old-password";
     private static final String NEW_PASSWORD = "new-password";
     private static final String TOKEN = "reset-token";
+    private static final String MISSING_USER_ID = "missing";
+    private static final String USER_NOT_EXIST_KEY = "USER_NOT_EXIST";
     /** Wide margin so nothing depends on timing. */
     private static final Duration ONE_HOUR = Duration.ofHours(1);
 
@@ -402,23 +404,24 @@ class UserServiceImplPasswordTest {
     }
 
     /**
-     * Pins the plan section 9 row "updatePassword, setPassword and markAsSuperAdmin emit true though nothing was
-     * saved" (UserServiceImpl:396-397, :481-482, :492-493): for an unknown user id each ends in
-     * {@code flatMap(save).thenReturn(true)}, which emits true after an empty upstream, and save is never subscribed.
-     * A fix (switchIfEmpty or hasElement) changes this test on purpose.
+     * BF-100 (was pinned as the plan section 9 row "updatePassword, setPassword and markAsSuperAdmin emit true though
+     * nothing was saved"): for an unknown user id each fails with USER_NOT_EXIST and saves nothing; each used to end in
+     * {@code flatMap(save).thenReturn(true)}, which emitted true after the empty lookup.
      */
     @ParameterizedTest
     @org.junit.jupiter.params.provider.ValueSource(strings = {"updatePassword", "setPassword", "markAsSuperAdmin"})
-    void unknownUser_updatePasswordSetPasswordMarkAsSuperAdmin_emitTrueAndSaveNothing(String method) {
-        when(fixture.repository.findById("missing")).thenReturn(Mono.empty());
+    void unknownUser_updatePasswordSetPasswordMarkAsSuperAdmin_failWithUserNotExistAndSaveNothingBF100(String method) {
+        when(fixture.repository.findById(MISSING_USER_ID)).thenReturn(Mono.empty());
         Mono<Boolean> result = switch (method) {
-            case "updatePassword" -> service.updatePassword("missing", OLD_PASSWORD, NEW_PASSWORD);
-            case "setPassword" -> service.setPassword("missing", NEW_PASSWORD);
-            default -> service.markAsSuperAdmin("missing");
+            case "updatePassword" -> service.updatePassword(MISSING_USER_ID, OLD_PASSWORD, NEW_PASSWORD);
+            case "setPassword" -> service.setPassword(MISSING_USER_ID, NEW_PASSWORD);
+            default -> service.markAsSuperAdmin(MISSING_USER_ID);
         };
 
-        StepVerifier.create(result).expectNext(true).verifyComplete();
+        StepVerifier.create(result)
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.USER_NOT_EXIST, USER_NOT_EXIST_KEY))
+                .verify();
         verify(fixture.repository, never()).save(any(User.class));
-        System.out.println("[UserServiceImplPasswordTest] pins the section 9 row: " + method + " on an unknown id emits true, nothing saved");
+        System.out.println("[UserServiceImplPasswordTest] " + method + " on an unknown id -> USER_NOT_EXIST, nothing saved (BF-100)");
     }
 }
