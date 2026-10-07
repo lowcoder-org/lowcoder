@@ -15,11 +15,14 @@ import org.lowcoder.domain.user.model.APIKey;
 import org.lowcoder.domain.user.repository.UserRepository;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
 import org.lowcoder.sdk.auth.EmailAuthConfig;
+import org.lowcoder.sdk.auth.constants.AuthTypeConstants;
 import org.lowcoder.sdk.constants.AuthSourceConstants;
+import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.CookieHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
@@ -39,6 +42,13 @@ import org.lowcoder.domain.user.model.Connection;
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AuthenticationEndpointsIntegrationTest {
+
+    /** The client id of the GitHub config the disable test adds (a GitHub config requires one). */
+    private static final String DISABLE_TEST_CLIENT_ID = "disable-test-client-id";
+    /** The id of the config the disable test adds and then disables. */
+    private static final String DISABLE_TEST_CONFIG_ID = "disable-test";
+    /** The client id of the GOOGLE configs the duplicate test adds (a GOOGLE config requires one). */
+    private static final String DUPLICATE_TEST_CLIENT_ID = "duplicate-test-client-id";
 
     @Autowired
     private AuthenticationController authenticationController;
@@ -396,17 +406,19 @@ class AuthenticationEndpointsIntegrationTest {
     @Test
     @WithMockUser(id = "user01")
     void testDisableAuthConfig_Integration_Success() {
-        // Arrange - First enable an auth config
+        // Arrange - First enable an auth config with a known id, so that the disable acts on it. Its type is one no other
+        // test adds to org01: an organization may have one config per type (BF-087), and
+        // testEnableAuthConfig_Integration_Success adds a FORM config to the same organization
+        String configId = DISABLE_TEST_CONFIG_ID;
         AuthConfigRequest authConfigRequest = new AuthConfigRequest();
-        authConfigRequest.put("authType", "FORM");
+        authConfigRequest.put("id", configId);
+        authConfigRequest.put("authType", AuthTypeConstants.GITHUB);
+        authConfigRequest.put("clientId", DISABLE_TEST_CLIENT_ID);
         authConfigRequest.put("source", "disable-test");
         authConfigRequest.put("sourceName", "Test Auth to Disable");
         authConfigRequest.put("enableRegister", true);
 
         authenticationController.enableAuthConfig(authConfigRequest).block();
-
-        // Get the config ID (this is a simplified approach - in real scenario you'd get it from the response)
-        String configId = "disable-test"; // Simplified for test
 
         // Act
         Mono<ResponseView<Void>> result = authenticationController.disableAuthConfig(configId, false);
@@ -418,6 +430,36 @@ class AuthenticationEndpointsIntegrationTest {
                     assertNull(response.getData());
                 })
                 .verifyComplete();
+        List<AbstractAuthConfig> configs = authenticationController.getAllConfigs().block().getData();
+        System.out.println("[AuthenticationEndpointsIntegrationTest] configs after the disable: "
+                + configs.stream().map(config -> config.getId() + " enable=" + config.isEnable()).toList());
+        assertTrue(configs.stream().anyMatch(config -> configId.equals(config.getId()) && !config.isEnable()),
+                "the added config is disabled");
+    }
+
+    /**
+     * BF-087: through the controller, a second new config (no id) of a type the organization already has is refused with
+     * DUPLICATE_AUTH_CONFIG_ADDITION, an HTTP 400; the type is one no other test adds to org01.
+     */
+    @Test
+    @WithMockUser(id = "user01")
+    void testEnableAuthConfig_secondNewConfigOfAType_isRefusedAsADuplicateBF087() {
+        AuthConfigRequest first = new AuthConfigRequest();
+        first.put("authType", AuthTypeConstants.GOOGLE);
+        first.put("clientId", DUPLICATE_TEST_CLIENT_ID);
+        AuthConfigRequest second = new AuthConfigRequest();
+        second.putAll(first);
+
+        StepVerifier.create(authenticationController.enableAuthConfig(first))
+                .assertNext(response -> assertTrue(response.isSuccess()))
+                .verifyComplete();
+        StepVerifier.create(authenticationController.enableAuthConfig(second))
+                .verifyErrorSatisfies(error -> {
+                    System.out.println("[AuthenticationEndpointsIntegrationTest] second new GOOGLE config -> " + error);
+                    BizException bizException = assertInstanceOf(BizException.class, error);
+                    assertEquals(BizError.DUPLICATE_AUTH_CONFIG_ADDITION, bizException.getError());
+                    assertEquals(HttpStatus.BAD_REQUEST.value(), bizException.getError().getHttpErrorCode());
+                });
     }
 
     @Test
