@@ -23,6 +23,7 @@ import org.lowcoder.domain.group.model.Group;
 import org.lowcoder.domain.group.model.GroupMember;
 import org.lowcoder.domain.user.model.UserState;
 import org.lowcoder.api.usermanagement.view.OrgMemberListView;
+import org.lowcoder.api.util.Pagination;
 import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.model.MemberRole;
@@ -94,7 +95,7 @@ public class GroupApiServiceImpl implements GroupApiService {
                                     .filter(Objects::nonNull)
                                     .toList();
                             var pageTotal = list.size();
-                            list = list.subList((page - 1) * count, count == 0 ? pageTotal : Math.min(page * count, pageTotal));
+                            list = Pagination.pageOf(list, page, count);
                             return Pair.of(list, pageTotal);
                     });
                 })
@@ -176,9 +177,7 @@ public class GroupApiServiceImpl implements GroupApiService {
                         }
 
                         int pageTotal = mutableList.size();
-                        int fromIndex = Math.max(0, (pageNum - 1) * pageSize);
-                        int toIndex = pageSize == 0 ? pageTotal : Math.min(pageNum * pageSize, pageTotal);
-                        List<GroupMemberView> pagedList = fromIndex < toIndex ? mutableList.subList(fromIndex, toIndex) : emptyList();
+                        List<GroupMemberView> pagedList = Pagination.pageOf(mutableList, pageNum, pageSize);
 
                         return Pair.of(pagedList, pageTotal);
                     });

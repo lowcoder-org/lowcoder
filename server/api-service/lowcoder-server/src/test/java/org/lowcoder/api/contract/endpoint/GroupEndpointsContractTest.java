@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.api.contract.support.ContractTestClient;
 import org.lowcoder.api.contract.support.EndpointContract;
 import org.lowcoder.api.contract.support.PayloadAssertions;
@@ -79,6 +81,9 @@ class GroupEndpointsContractTest {
     static final int PAGE_SIZE = 40_200;
     /** {@code getOrgGroups}' page: the second of size two over three groups, so only the last group. */
     static final int GROUP_PAGE_SIZE = 2;
+    /** Pages outside the three groups of {@link #GROUP_PAGE_SIZE}: after the last (two pages) and before the first. */
+    static final int PAGE_AFTER_THE_LAST = 3;
+    static final int PAGE_BEFORE_THE_FIRST = 0;
     static final String TRUE = "true";
     static final String EMPTY_ARRAY = "[]";
     /** {@code create}: the role and counts {@code GroupController#create} hands to {@code GroupView#from}. */
@@ -171,6 +176,35 @@ class GroupEndpointsContractTest {
      */
     @Test
     void getOrgGroups() {
+        stubThreeGroupsAndTheirOrganization();
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getOrgGroups", Map.of("pageNum", PAGE_NUM, "pageSize", GROUP_PAGE_SIZE), null);
+            EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.groupList(
+                    EndpointContract.array(EndpointContract.s1(GroupView.class)), TOTAL_ADMINS, TOTAL_ADMINS_AND_DEVELOPERS,
+                    TOTAL_DEVELOPERS_ONLY, TOTAL_OTHER_MEMBERS, 3, PAGE_NUM, GROUP_PAGE_SIZE));
+        }
+    }
+
+    /**
+     * NEW-31 (found and fixed in T81, BF-086's root cause in the group list): a page after the last (3 of size 2 over three
+     * groups) and a page before the first (0) are the envelope with an empty list and the same counts and total; the
+     * unchecked {@code subList} of {@code GroupController#getOrgGroups} answered both with a raw HTTP 500.
+     */
+    @ParameterizedTest
+    @ValueSource(ints = {PAGE_AFTER_THE_LAST, PAGE_BEFORE_THE_FIRST})
+    void getOrgGroupsOutsideThePagesIsAnEmptyPageNEW31(int pageNum) {
+        stubThreeGroupsAndTheirOrganization();
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getOrgGroups", Map.of("pageNum", pageNum, "pageSize", GROUP_PAGE_SIZE), null);
+            System.out.println("[GroupEndpointsContractTest] getOrgGroups page " + pageNum + " size " + GROUP_PAGE_SIZE + " -> "
+                    + result.getStatus() + " " + new String(result.getResponseBodyContent() == null ? new byte[0] : result.getResponseBodyContent()));
+            EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.groupList(EMPTY_ARRAY, TOTAL_ADMINS,
+                    TOTAL_ADMINS_AND_DEVELOPERS, TOTAL_DEVELOPERS_ONLY, TOTAL_OTHER_MEMBERS, 3, pageNum, GROUP_PAGE_SIZE));
+        }
+    }
+
+    /** Three groups, and the organization's members and dev group that {@code getOrgGroups} counts. */
+    private void stubThreeGroupsAndTheirOrganization() {
         Mockito.when(groupApiService.getGroups()).thenReturn(Mono.just(new ArrayList<>(List.of(otherGroupView(0), otherGroupView(1),
                 UserManagementSamples.groupView()))));
         Mockito.when(builder.mock(SessionUserService.class).getVisitorOrgMemberCache()).thenReturn(Mono.just(orgMember(USER_ID, MemberRole.ADMIN)));
@@ -182,12 +216,6 @@ class GroupEndpointsContractTest {
         Mockito.when(groupService.getDevGroup(ORG_ID)).thenReturn(Mono.just(Group.builder().id(DEV_GROUP_ID).build()));
         Mockito.when(groupMemberService.getGroupMembers(DEV_GROUP_ID)).thenReturn(Mono.just(List.of(
                 devMember(USER_ID + "[superAdmin]"), devMember(USER_ID + "[dev0]"), devMember(USER_ID + "[dev1]"))));
-        try (ContractTestClient client = client()) {
-            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getOrgGroups", Map.of("pageNum", PAGE_NUM, "pageSize", GROUP_PAGE_SIZE), null);
-            EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.groupList(
-                    EndpointContract.array(EndpointContract.s1(GroupView.class)), TOTAL_ADMINS, TOTAL_ADMINS_AND_DEVELOPERS,
-                    TOTAL_DEVELOPERS_ONLY, TOTAL_OTHER_MEMBERS, 3, PAGE_NUM, GROUP_PAGE_SIZE));
-        }
     }
 
     /** No groups: the envelope with an empty list, zero counts and the requested paging; nothing else is read. */
