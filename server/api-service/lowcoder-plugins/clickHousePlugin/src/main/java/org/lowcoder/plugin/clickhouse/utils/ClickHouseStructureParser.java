@@ -13,12 +13,16 @@ import org.lowcoder.sdk.models.DatasourceStructure.TableType;
 @SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
 public class ClickHouseStructureParser {
 
+    /**
+     * The columns of every table of the connection's database. No nullability is selected: it is not part of the structure,
+     * and {@code col.is_nullable != 0} failed on ClickHouse 24.8, where the column is a String (code 386, NO_COMMON_TYPE),
+     * so the structure of every database failed (BF-053).
+     */
     public static final String COLUMNS_QUERY = """
              select tab.table_name as table_name,
                                col.ordinal_position as column_id,
                                col.column_name as column_name,
-                               col.data_type as column_type,
-                               col.is_nullable != 0 as is_nullable
+                               col.data_type as column_type
             from information_schema.tables as tab
                  inner join information_schema.columns as col
                             on col.table_schema = tab.table_schema
