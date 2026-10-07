@@ -120,7 +120,6 @@ class ApplicationEndpointsContractTest {
         applicationRecordService = builder.mock(ApplicationRecordService.class);
         GidService gidService = builder.mock(GidService.class);
         Mockito.when(gidService.convertApplicationIdToObjectId(anyString())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
-        Mockito.when(gidService.convertLibraryQueryIdToObjectId(anyString())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
         builder.singleton("businessEventPublisher", Mockito.mock(BusinessEventPublisher.class, EMPTY_MONO));
         Mockito.when(applicationApiService.updateUserApplicationLastViewTime(anyString())).thenReturn(Mono.empty());
     }
