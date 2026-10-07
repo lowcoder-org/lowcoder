@@ -56,7 +56,8 @@ public class SqlQueryConfig {
         return "GUI".equalsIgnoreCase(mode);
     }
 
+    /** The SQL, trimmed; empty without a {@code sql} key (BF-093: that was a NullPointerException), so the query is SQL_EMPTY. */
     public String getSql() {
-        return sql.trim();
+        return org.apache.commons.lang3.StringUtils.trimToEmpty(sql);
     }
 }
