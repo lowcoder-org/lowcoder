@@ -45,10 +45,34 @@
     "concat" : "1.5"
   },
   "param:bigDecimal" : {
-    "error" : "org.lowcoder.sdk.exception.PluginException: JSON_PARSE_ERROR JSON_PARSE_ERROR"
+    "raw" : {
+      "classes" : {
+        "" : "java.math.BigDecimal"
+      },
+      "written" : 1.5
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.math.BigDecimal"
+      },
+      "written" : 1.5
+    },
+    "concat" : "1.5"
   },
   "param:bigInteger" : {
-    "error" : "org.lowcoder.sdk.exception.PluginException: JSON_PARSE_ERROR JSON_PARSE_ERROR"
+    "raw" : {
+      "classes" : {
+        "" : "java.math.BigInteger"
+      },
+      "written" : 9223372036854775808
+    },
+    "value" : {
+      "classes" : {
+        "" : "java.math.BigInteger"
+      },
+      "written" : 9223372036854775808
+    },
+    "concat" : "9223372036854775808"
   },
   "param:bool" : {
     "raw" : {
@@ -184,17 +208,17 @@
   "longMaxPlusOne" : {
     "raw" : {
       "classes" : {
-        "" : "java.lang.String"
+        "" : "java.math.BigInteger"
       },
-      "written" : "9223372036854775808"
+      "written" : 9223372036854775808
     },
     "value" : {
       "classes" : {
-        "" : "java.lang.String"
+        "" : "java.math.BigInteger"
       },
-      "written" : "9223372036854775808"
+      "written" : 9223372036854775808
     },
-    "concat" : "'9223372036854775808'"
+    "concat" : "9223372036854775808"
   },
   "decimal" : {
     "raw" : {
