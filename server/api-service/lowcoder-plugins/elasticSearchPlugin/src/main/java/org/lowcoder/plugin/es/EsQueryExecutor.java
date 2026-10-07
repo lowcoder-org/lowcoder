@@ -5,6 +5,7 @@ import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
 import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -14,8 +15,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Request;
+import org.elasticsearch.client.Response;
 import org.lowcoder.plugin.es.model.EsConnection;
 import org.lowcoder.plugin.es.model.EsDatasourceConfig;
 import org.lowcoder.plugin.es.model.EsQueryConfig;
@@ -42,6 +45,8 @@ public class EsQueryExecutor implements QueryExecutor<EsDatasourceConfig, EsConn
     private static final String QUERY_STRING_START = "?";
     private static final Pattern LINE_BREAK = Pattern.compile("\\r?\\n");
     private static final String NDJSON_LINE_END = "\n";
+    /** The key of the data of an answer without a body: its HTTP status code (BF-075). */
+    static final String STATUS_CODE_KEY = "statusCode";
 
     @Override
     public EsQueryExecutionContext buildQueryExecutionContext(EsDatasourceConfig datasourceConfig, Map<String, Object> queryConfig,
@@ -128,6 +133,14 @@ public class EsQueryExecutor implements QueryExecutor<EsDatasourceConfig, EsConn
 
     /**
      * non-blocked
+     * <p>
+     * An answer without a body is a success whose data is its status code, {@code {"statusCode": 200}} (BF-075). This is
+     * how a HEAD query answers: Elasticsearch answers 200 or 404 without a body, and the client does not raise the 404 of a
+     * HEAD, so the status code is what tells whether the index or document exists. Reading the missing body failed with
+     * "Entity may not be null" for both before.
+     * <p>
+     * Limits: only the status code is given, not the headers; a 404 of another method is still raised by the client and is
+     * an error result.
      */
     @Override
     public Mono<QueryExecutionResult> executeQuery(EsConnection esConnection, EsQueryExecutionContext context) {
@@ -139,8 +152,12 @@ public class EsQueryExecutor implements QueryExecutor<EsDatasourceConfig, EsConn
         return esConnection.reactorRestClientAdaptor()
                 .request(request)
                 .map(response -> {
+                    HttpEntity entity = response.getEntity();
+                    if (entity == null) {
+                        return statusCodeResult(response);
+                    }
                     try {
-                        Map<String, Object> map = JsonUtils.fromJsonMap(EntityUtils.toString(response.getEntity()));
+                        Map<String, Object> map = JsonUtils.fromJsonMap(EntityUtils.toString(entity));
                         return QueryExecutionResult.success(map);
                     } catch (IOException e) {
                         return QueryExecutionResult.error(ES_EXECUTION_ERROR, "ES_EXECUTION_ERROR", e.getMessage());
@@ -152,5 +169,12 @@ public class EsQueryExecutor implements QueryExecutor<EsDatasourceConfig, EsConn
                     }
                     return Mono.just(QueryExecutionResult.error(ES_EXECUTION_ERROR, "ES_QUERY_ERROR", throwable.getMessage()));
                 });
+    }
+
+    /** The data is a {@link LinkedHashMap}, the type {@code JsonUtils.fromJsonMap} gives the other answers. */
+    private static QueryExecutionResult statusCodeResult(Response response) {
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put(STATUS_CODE_KEY, response.getStatusLine().getStatusCode());
+        return QueryExecutionResult.success(data);
     }
 }
