@@ -17,10 +17,24 @@ public final class MongoConnectionUriParser {
      *   - mongodb+srv://user:pass@some-url/some-db...
      *   - mongodb://user:pass@some-url:port,some-url:port,.../some-db...
      * - It has been grouped like this: (mongodb+srv://)(user):(pass)@(some-url)/(some-db...)?(params...)
+     * - User and password are matched only in the authority, before the first / (CREDENTIAL_PART), as the driver reads
+     *   them (driver 4.11: the authority ends at the first /, so a ? before it belongs to the credentials): a : and a later
+     *   @ in the path or the options are not credentials (BF-060: they were, and the database was lost or another one was
+     *   taken). The URIs this changes are exactly those where the credentials were taken across a /; each is now read with
+     *   the / ending the authority, or is invalid when that leaves no host (mongodb:///:p@h/db). The host list
+     *   (HOST_LIST_PART) ends at the first / or ?, as before.
+     * - Limits: this is a split, not the driver's check. A URI the driver refuses can still match: an unencoded /, : or @
+     *   in the credentials (mongodb://u:p/ss@h/db is read as host u:p, database ss@h/db), options without a / before the ?,
+     *   or a / in the database name. The driver refuses such a URI when it connects.
      *
-     * ^(mongodb(?:\+srv)?:\/\/)(?:(.+):(.+)@)?([^\/\?]+)\/?([^\?]+)?\??(.+)?$
+     * ^(mongodb(?:\+srv)?:\/\/)(?:([^\/]+):([^\/]+)@)?([^\/\?]+)\/?([^\?]+)?\??(.+)?$
      */
-    public static final String MONGO_URL_REGEX = "^(mongodb(?:\\+srv)?://)(?:(.+):(.+)@)?([^/?]+)/?([^?]+)?\\??(.+)?$";
+    private static final String CREDENTIAL_PART = "[^/]+";
+
+    private static final String HOST_LIST_PART = "[^/?]+";
+
+    public static final String MONGO_URL_REGEX = "^(mongodb(?:\\+srv)?://)(?:(" + CREDENTIAL_PART + "):(" + CREDENTIAL_PART + ")@)?("
+            + HOST_LIST_PART + ")/?([^?]+)?\\??(.+)?$";
 
     private static final Pattern PATTERN = Pattern.compile(MONGO_URL_REGEX);
 

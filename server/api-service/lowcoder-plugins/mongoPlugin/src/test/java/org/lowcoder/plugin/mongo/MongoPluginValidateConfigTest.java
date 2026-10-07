@@ -1,5 +1,6 @@
 package org.lowcoder.plugin.mongo;
 
+import com.mongodb.ConnectionString;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.mongo.model.MongoDatasourceConfig;
 import org.lowcoder.sdk.config.dynamic.ConfigCenterForTest;
@@ -62,6 +63,18 @@ public class MongoPluginValidateConfigTest {
     public void invalidUriIsReported() {
         for (String invalid : List.of("not a uri", "http://h/db", "mongodb://", "MONGODB://h/db", " mongodb://h/db")) {
             assertEquals(Set.of(URL_INVALID), uri(invalid), "'" + invalid + "'");
+        }
+    }
+
+    /**
+     * BF-060: the credentials are read only before the first '/', so a URI whose authority is empty, which the old pattern
+     * read by taking the credentials from the path, is now invalid, as it is for the driver.
+     */
+    @Test
+    public void aUriWithAnEmptyAuthorityIsInvalidBF060() {
+        for (String emptyAuthority : List.of("mongodb:///:p@h/db", "mongodb+srv:///db:x@h")) {
+            assertEquals(Set.of(URL_INVALID), uri(emptyAuthority), emptyAuthority);
+            assertThrows(IllegalArgumentException.class, () -> new ConnectionString(emptyAuthority), "the driver refuses " + emptyAuthority);
         }
     }
 
