@@ -19,13 +19,14 @@ import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_ARGUMENT_E
  * head, credentials, host list, database and options, and the database name taken from it.
  *
  * <p>What consumes the result (MongoPlugin.java): the raw URI is what {@code MongoClients.create} gets in URI mode
- * ({@code buildClientUri}, lines 316-331), so the parsed host and credentials are never used to connect; the parts only
- * validate the string ({@code validateConfig} 394-410, {@code buildClientUri} 324-327) and the database name comes from here
- * ({@code getParsedDatabase}, used at lines 183, 206, 301 and 359). A misread therefore shows as a wrong or missing database
+ * ({@code buildClientUri}, lines 323-335), so the parsed host and credentials are never used to connect; the parts only
+ * validate the string ({@code validateConfig} 424-443, {@code buildClientUri} 329-332) and the database name comes from here
+ * ({@code getParsedDatabase}, used at lines 188, 211, 306 and 364). A misread therefore shows as a wrong or missing database
  * name, not as a wrong host.
  *
- * <p>Limits: pure string handling, no driver and no server; the client form carries a copy of the same regex
- * (mongoDatasourceForm.tsx:53-55), not tested here.
+ * <p>Limits: string handling, no server; the driver (the module's, 4.11) is used only to read the database it would connect
+ * with (BF-060 agreement test); the client form carries a copy of the regex as it was before BF-060, which accepts every
+ * URI this one accepts (mongoDatasourceForm.tsx:53-55), not tested here.
  */
 public class MongoConnectionUriParserTest {
 
@@ -78,7 +79,8 @@ public class MongoConnectionUriParserTest {
     public void credentialsAreReturnedAsWrittenNotDecoded() {
         assertEquals(expected(PLAIN_HEAD, "us%40er", "p%3Aw%40rd", "h", "db", null), parts("mongodb://us%40er:p%3Aw%40rd@h/db"));
         assertEquals(expected(PLAIN_HEAD, "u", "p@ss", "h", "db", null), parts("mongodb://u:p@ss@h/db"), "the greedy credentials group runs to the last @ before the host");
-        assertEquals(expected(PLAIN_HEAD, "u", "p/ss", "h", "db", null), parts("mongodb://u:p/ss@h/db"), "a slash in the password stays in the password");
+        assertEquals(expected(PLAIN_HEAD, null, null, "u:p", "ss@h/db", null), parts("mongodb://u:p/ss@h/db"),
+                "a slash ends the authority, as for the driver (which refuses this URI: an unencoded / in the password)");
     }
 
     @Test
@@ -119,26 +121,44 @@ public class MongoConnectionUriParserTest {
     }
 
     /**
-     * Pins the plan section 9 row "MongoConnectionUriParser reads a `:`...`@` in the query string as credentials: no database (createConnection fails) or a different database than the URI names (queries run against it)" (D-6: fix deferred): the optional credentials group {@code (.+):(.+)@} is greedy and sees the whole string, so a
-     * {@code :} and a later {@code @} in the options are read as user name and password and the host moves. In
-     * {@code mongodb://realhost/db?appName=a:b@other} the "user" becomes {@code realhost/db?appName=a}, the "password" {@code b},
-     * the "host" {@code other} and the database is lost: {@code parseDatabaseFrom} fails with MONGODB_DATABASE_EMPTY while
-     * the driver, which gets the raw URI, would connect to realhost/db. When a {@code /} follows the {@code @} the database name
-     * is the wrong one: {@code mongodb://h/db?appName=a:b@c/other} gives database {@code other}. A fix (credentials matched
-     * only before the first {@code /} or {@code ?}) changes this test on purpose.
+     * BF-060 (formerly pinned as the plan section 9 row "MongoConnectionUriParser reads a `:`...`@` in the query string as
+     * credentials"): the credentials are matched only before the first {@code /}, so a {@code :} and a later {@code @}
+     * in the options stay in the options, while a {@code ?} before the first {@code /} stays in the credentials, as the
+     * driver reads it. {@code mongodb://realhost/db?appName=a:b@other} has host
+     * {@code realhost} and database {@code db} (it lost its database before), and {@code mongodb://h/db?appName=a:b@c/other}
+     * has database {@code db} (it gave {@code other}); the driver reads the same database (driver agreement test below).
      */
     @Test
-    public void aColonAndAnAtSignInTheOptionsAreReadAsCredentials_pinsTheSection9Row() {
+    public void aColonAndAnAtSignInTheOptionsStayInTheOptionsBF060() {
         String uri = "mongodb://realhost/db?appName=a:b@other";
-        Map<String, String> info = parts(uri);
-        assertEquals(expected(PLAIN_HEAD, "realhost/db?appName=a", "b", "other", null, null), info);
-        assertTrue(MongoConnectionUriParser.isValid(uri), "the string passes the validity check");
-        PluginException thrown = assertThrows(PluginException.class, () -> MongoConnectionUriParser.parseDatabaseFrom(uri));
-        assertEquals("MONGODB_DATABASE_EMPTY", thrown.getMessageKey(), "the database of realhost/db is lost");
+        assertEquals(expected(PLAIN_HEAD, null, null, "realhost", "db", "appName=a:b@other"), parts(uri));
+        assertEquals("db", MongoConnectionUriParser.parseDatabaseFrom(uri));
 
-        String wrongDatabase = "mongodb://h/db?appName=a:b@c/other";
-        assertEquals(expected(PLAIN_HEAD, "h/db?appName=a", "b", "c", "other", null), parts(wrongDatabase));
-        assertEquals("other", MongoConnectionUriParser.parseDatabaseFrom(wrongDatabase), "the database named in the options is taken instead of db");
+        String otherDatabase = "mongodb://h/db?appName=a:b@c/other";
+        assertEquals(expected(PLAIN_HEAD, null, null, "h", "db", "appName=a:b@c/other"), parts(otherDatabase));
+        assertEquals("db", MongoConnectionUriParser.parseDatabaseFrom(otherDatabase));
+
+        String withCredentials = "mongodb://u:p@h/db?appName=a:b@c";
+        assertEquals(expected(PLAIN_HEAD, "u", "p", "h", "db", "appName=a:b@c"), parts(withCredentials), "real credentials are still read");
+
+        assertEquals(expected(PLAIN_HEAD, "u?x", "p?q", "h", "db", "a=1"), parts("mongodb://u?x:p?q@h/db?a=1"), "a ? before the first / is in the credentials");
+    }
+
+    /**
+     * BF-060: for every URI the MongoDB driver accepts, the database the parser gives is the one the driver connects with
+     * ({@code ConnectionString.getDatabase}): the database that the structure and the queries use is the URI's. The driver
+     * is the module's own (4.11), so a driver upgrade that reads the authority differently fails here: 5.5 ends the authority
+     * at a {@code ?}, reads no database from {@code mongodb://u?x:p?q@h/db?a=1} and refuses {@code mongodb://?u:p@h/db}.
+     */
+    @Test
+    public void theDatabaseIsTheOneTheDriverReadsBF060() {
+        for (String uri : List.of("mongodb://realhost/db?appName=a:b@other", "mongodb://h/db?appName=a:b@c/other", "mongodb://u:p@h:27017/db?x=y",
+                "mongodb+srv://u:p@cluster0.example.net/db?retryWrites=true", "mongodb://us%40er:p%3Aw%40rd@h/db", "mongodb://h1:1,h2:2/db?replicaSet=rs0",
+                "mongodb://u:p@h/db?authSource=admin&appName=x:y@z", "mongodb://u?x:p?q@h/db?a=1", "mongodb://?u:p@h/db")) {
+            String driverDatabase = new com.mongodb.ConnectionString(uri).getDatabase();
+            System.out.println("[MongoConnectionUriParserTest] " + uri + " driver database " + driverDatabase);
+            assertEquals(driverDatabase, MongoConnectionUriParser.parseDatabaseFrom(uri), uri);
+        }
     }
 
     /**
