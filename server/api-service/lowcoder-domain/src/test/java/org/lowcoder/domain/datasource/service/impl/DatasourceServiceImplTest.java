@@ -322,20 +322,44 @@ class DatasourceServiceImplTest {
     }
 
     /**
-     * Pins the plan section 9 row "Datasource.mergeWith NPE on a null config" (Datasource.java:126,
-     * {@code Optional.of(getDetailConfig())}) as it is reached through update(): a stored datasource without a detail
-     * config fails with a NullPointerException instead of taking the update's config (the else branch is dead). A fix
-     * changes this test on purpose.
+     * BF-102 (was pinned as the plan section 9 row "Datasource.mergeWith NPE on a null config",
+     * {@code Optional.of(getDetailConfig())}), reached through update(): a stored datasource without a detail config takes
+     * the update's config, which is validated and saved; it used to fail with a NullPointerException.
      */
     @Test
-    void update_storedDatasourceWithoutDetailConfig_failsWithNullPointerException() {
-        when(repository.findById(DATASOURCE_ID)).thenReturn(Mono.just(datasource(DATASOURCE_ID, "old", JAVA_TYPE, null)));
+    void update_storedDatasourceWithoutDetailConfig_takesTheUpdatesConfigBF102() {
+        DatasourceConnectionConfig updatedConfig = mock(DatasourceConnectionConfig.class);
+        Datasource current = datasource(DATASOURCE_ID, "old", JAVA_TYPE, null);
+        when(repository.findById(DATASOURCE_ID)).thenReturn(Mono.just(current));
 
-        StepVerifier.create(service.update(DATASOURCE_ID, datasource(null, "new", JAVA_TYPE, mock(DatasourceConnectionConfig.class))))
-                .expectError(NullPointerException.class)
-                .verify();
-        verify(repository, never()).save(any(Datasource.class));
-        System.out.println("[DatasourceServiceImplTest] pins the section 9 row: mergeWith on a null stored config -> NPE");
+        StepVerifier.create(service.update(DATASOURCE_ID, datasource(null, "new", JAVA_TYPE, updatedConfig)))
+                .assertNext(saved -> {
+                    assertThat(saved).isSameAs(current);
+                    assertThat(saved.getName()).isEqualTo("new");
+                    assertThat(saved.getDetailConfig()).isSameAs(updatedConfig);
+                })
+                .verifyComplete();
+        verify(connector).doValidateConfig(updatedConfig);
+        verify(repository).save(current);
+        System.out.println("[DatasourceServiceImplTest] stored datasource without config takes the update's config (BF-102)");
+    }
+
+    /**
+     * BF-102: the update's JS plugin config gets the datasource type also when the stored datasource has no config, as it
+     * does when the two configs are merged.
+     */
+    @Test
+    void update_jsPluginWithoutStoredDetailConfig_givesTheUpdatesConfigTheTypeBF102() {
+        JsDatasourceConnectionConfig updatedConfig = new JsDatasourceConnectionConfig();
+        when(repository.findById(DATASOURCE_ID)).thenReturn(Mono.just(datasource(DATASOURCE_ID, "old", JS_TYPE, null)));
+
+        StepVerifier.create(service.update(DATASOURCE_ID, datasource(null, "new", JS_TYPE, updatedConfig)))
+                .assertNext(saved -> {
+                    assertThat(saved.getDetailConfig()).isSameAs(updatedConfig);
+                    assertThat(updatedConfig.getType()).isEqualTo(JS_TYPE);
+                })
+                .verifyComplete();
+        System.out.println("[DatasourceServiceImplTest] JS config without a stored one gets type " + updatedConfig.getType() + " (BF-102)");
     }
 
     // ---------------------------------------------------------------- testDatasource
