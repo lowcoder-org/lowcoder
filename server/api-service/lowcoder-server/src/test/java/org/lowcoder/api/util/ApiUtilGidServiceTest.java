@@ -16,6 +16,8 @@ import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.repository.OrganizationRepository;
 import org.lowcoder.domain.query.model.LibraryQuery;
 import org.lowcoder.domain.query.repository.LibraryQueryRepository;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -28,8 +30,10 @@ import reactor.test.StepVerifier;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -55,6 +59,9 @@ public class ApiUtilGidServiceTest {
     static final String REAL_ID = "real-object-id";
     static final String OTHER_ID = "other-object-id";
     static final String SLUG = "my-slug";
+    static final String UNKNOWN_FOLDER_GID = "unknown-gid-3";
+    static final String FOLDER_GID_WITHOUT_ID = "no-id-gid";
+    static final String FOLDER_NOT_EXIST_KEY = "FOLDER_NOT_EXIST";
 
     @Mock
     private ApplicationRepository applicationRepository;
@@ -192,17 +199,32 @@ public class ApiUtilGidServiceTest {
 
     // ---- folder: the one converter that returns an Optional
 
+    /** A known gid, an object id and no id (the root folder) are answered as an Optional. */
     @Test
-    public void folderConverterReturnsAnOptionalInEveryCase() {
+    public void folderConverterReturnsAnOptionalForAKnownGidAnObjectIdAndNoId() {
         StepVerifier.create(service.convertFolderIdToObjectId(OBJECT_ID)).expectNext(Optional.of(OBJECT_ID)).verifyComplete();
         StepVerifier.create(service.convertFolderIdToObjectId(null)).expectNext(Optional.empty()).verifyComplete();
         when(folderRepository.findByGid(GID)).thenReturn(Flux.just(withId(new Folder(), REAL_ID)));
         StepVerifier.create(service.convertFolderIdToObjectId(GID)).expectNext(Optional.of(REAL_ID)).verifyComplete();
-        String unknown = "unknown-gid-3";
-        when(folderRepository.findByGid(unknown)).thenReturn(Flux.empty());
-        StepVerifier.create(service.convertFolderIdToObjectId(unknown)).expectNext(Optional.empty()).verifyComplete();
-        when(folderRepository.findByGid("no-id-gid")).thenReturn(Flux.just(new Folder()));
-        StepVerifier.create(service.convertFolderIdToObjectId("no-id-gid")).expectNext(Optional.empty()).verifyComplete();
+    }
+
+    /**
+     * BF-152, BF-158, BF-159 (fixed; the L1-13 pin answered Optional.empty(), the root folder, for both): a gid that no folder
+     * has, and a gid whose folder has no id, are the error FOLDER_NOT_EXIST naming the gid.
+     */
+    @Test
+    public void folderConverterRefusesAGidThatNamesNoFolderBF152() {
+        when(folderRepository.findByGid(UNKNOWN_FOLDER_GID)).thenReturn(Flux.empty());
+        when(folderRepository.findByGid(FOLDER_GID_WITHOUT_ID)).thenReturn(Flux.just(new Folder()));
+        for (String gid : List.of(UNKNOWN_FOLDER_GID, FOLDER_GID_WITHOUT_ID)) {
+            StepVerifier.create(service.convertFolderIdToObjectId(gid)).expectErrorSatisfies(error -> {
+                System.out.println(TAG + "folder gid " + gid + " -> " + error);
+                assertTrue(error instanceof BizException, "BizException expected, was " + error);
+                assertEquals(BizError.FOLDER_NOT_EXIST, ((BizException) error).getError());
+                assertEquals(FOLDER_NOT_EXIST_KEY, ((BizException) error).getMessageKey());
+                assertEquals(List.of(gid), List.of(((BizException) error).getArgs()));
+            }).verify();
+        }
     }
 
     @Test
