@@ -98,5 +98,31 @@
       "keyOrder" : { }
     },
     "written" : {"queryCode":"ES_EXECUTION_ERROR","success":false}
+  },
+  "HEAD /head/existing" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/statusCode" : "java.lang.Integer"
+      },
+      "keyOrder" : {
+        "" : [ "statusCode" ]
+      }
+    },
+    "written" : {"queryCode":"OK","data":{"statusCode":200},"success":true}
+  },
+  "HEAD /head/missing" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/statusCode" : "java.lang.Integer"
+      },
+      "keyOrder" : {
+        "" : [ "statusCode" ]
+      }
+    },
+    "written" : {"queryCode":"OK","data":{"statusCode":404},"success":true}
   }
 }
