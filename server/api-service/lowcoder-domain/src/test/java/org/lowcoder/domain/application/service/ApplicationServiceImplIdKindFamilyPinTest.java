@@ -1,73 +1,93 @@
 package org.lowcoder.domain.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.lowcoder.domain.application.service.ApplicationServiceImplTestSupport.app;
 import static org.lowcoder.domain.application.service.ApplicationServiceImplTestSupport.appWithGid;
-import static org.lowcoder.domain.application.service.ApplicationServiceImplTestSupport.counted;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
 import java.time.Duration;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.domain.application.model.Application;
+import org.mockito.ArgumentMatcher;
 
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
- * Pins the application sites of the section 9 family row (task L3-12, G3): "id-or-gid routing decided from one element drops
- * the other kind" (same cause as DatasourceRepository.findByIds, L3-11c, and LibraryQueryServiceImpl.getByIds, L3-11d).
- * ApplicationServiceImpl.findByIdIn (:129), getPublicApplicationIds (:262), getPrivateApplicationIds (:282),
- * getPublicMarketplaceApplicationIds (:303) and getPublicAgencyApplicationIds (:323) look at the first element only; a list
- * of one kind with an element of the other drops that element. Reach: ApplicationPermissionHandler.java:78 and :93 pass
- * {@code newHashSet(resourceIds)} (arbitrary first element) to getFilteredPublicApplicationIds, and MetaController.java:46
- * passes the client's appIds to findByIdIn. A fix (query both kinds) changes these tests on purpose.
+ * BF-155 (fixed; was pinned as the section 9 family row "id-or-gid routing decided from one element drops the other kind",
+ * task L3-12, G3) at the application sites: findByIdIn and the public, private, marketplace and agency filters tell each key
+ * apart (an object id or a gid) instead of taking the kind of the first one, in either order. Reach:
+ * ApplicationPermissionHandler passes {@code newHashSet(resourceIds)} (arbitrary first element) to the filters, and
+ * MetaController.java:46 passes the client's appIds to findByIdIn. The repository is a mock that answers a query only for the
+ * keys of its kind.
  */
 class ApplicationServiceImplIdKindFamilyPinTest {
 
     private static final Duration TIMEOUT = Duration.ofSeconds(5);
+    private static final String ID = "plainid";
+    private static final String GID = "aa-bb";
 
     private final ApplicationServiceImplTestSupport s = new ApplicationServiceImplTestSupport();
 
-    @Test
-    void findByIdInOfAGidAndAnIdQueriesOnlyTheKindOfTheFirstElement_pinsTheFamilyRow() {
-        AtomicInteger idQueries = new AtomicInteger();
-        AtomicInteger gidQueries = new AtomicInteger();
-        when(s.repository.findByGidIn(any())).thenReturn(counted(Flux.just(app("by-gid")), gidQueries));
-        when(s.repository.findByIdIn(any())).thenReturn(counted(Flux.just(app("by-id")), idQueries));
+    private static ArgumentMatcher<Collection<String>> only(String key) {
+        return actual -> actual != null && new HashSet<>(actual).equals(Set.of(key));
+    }
 
-        List<Application> gidFirst = s.service.findByIdIn(List.of("aa-bb", "plainid")).collectList().block(TIMEOUT);
-        assertThat(gidFirst).extracting(Application::getId).containsExactly("by-gid");
-        assertThat(idQueries.get()).as("the id of a gid-first list is never looked up").isZero();
+    private static Set<String> ordered(boolean gidFirst) {
+        return new LinkedHashSet<>(gidFirst ? List.of(GID, ID) : List.of(ID, GID));
+    }
 
-        List<Application> idFirst = s.service.findByIdIn(List.of("plainid", "aa-bb")).collectList().block(TIMEOUT);
-        System.out.println("[ApplicationServiceImplIdKindFamilyPinTest] PINNED gid first -> " + gidFirst.size() + " (gid queries " + gidQueries.get()
-                + "), id first -> " + idFirst.size() + " (id queries " + idQueries.get() + ")");
-        assertThat(idFirst).extracting(Application::getId).containsExactly("by-id");
-        assertThat(gidQueries.get()).as("the gid of an id-first list is never looked up").isEqualTo(1);
+    @ParameterizedTest(name = "gid first {0}")
+    @ValueSource(booleans = {true, false})
+    void findByIdInOfAGidAndAnIdAnswersBothBF155(boolean gidFirst) {
+        when(s.repository.findByIdIn(argThat(only(ID)))).thenReturn(Flux.just(appWithGid("by-id", "gid-of-by-id")));
+        when(s.repository.findByGidIn(argThat(only(GID)))).thenReturn(Flux.just(appWithGid("by-gid", GID)));
+
+        List<Application> found = s.service.findByIdIn(List.copyOf(ordered(gidFirst))).collectList().block(TIMEOUT);
+
+        System.out.println("[ApplicationServiceImplIdKindFamilyPinTest] findByIdIn " + ordered(gidFirst) + " -> " + found.stream().map(Application::getId).toList());
+        assertThat(found).extracting(Application::getId).containsExactlyInAnyOrder("by-id", "by-gid");
+    }
+
+    /** Each filter answers the matching keys as given: the object id key as the id, the gid key as the gid. */
+    @ParameterizedTest(name = "gid first {0}")
+    @ValueSource(booleans = {true, false})
+    void theFiltersOfAMixedSetAnswerBothKeysBF155(boolean gidFirst) {
+        Application byId = appWithGid(ID, "gid-of-the-id-match");
+        Application byGid = appWithGid("id-of-the-gid-match", GID);
+        when(s.repository.findByPublicToAllIsTrueAndIdIn(argThat(only(ID)))).thenReturn(Flux.just(byId));
+        when(s.repository.findByPublicToAllIsTrueAndGidIn(argThat(only(GID)))).thenReturn(Flux.just(byGid));
+        when(s.repository.findByCreatedByAndIdIn(org.mockito.ArgumentMatchers.eq("user"), argThat(only(ID)))).thenReturn(Flux.just(byId));
+        when(s.repository.findByCreatedByAndGidIn(org.mockito.ArgumentMatchers.eq("user"), argThat(only(GID)))).thenReturn(Flux.just(byGid));
+        when(s.repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsTrueAndIdIn(argThat(only(ID)))).thenReturn(Flux.just(byId));
+        when(s.repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsTrueAndGidIn(argThat(only(GID)))).thenReturn(Flux.just(byGid));
+        when(s.repository.findByPublicToAllIsTrueAndAgencyProfileIsTrueAndIdIn(argThat(only(ID)))).thenReturn(Flux.just(byId));
+        when(s.repository.findByPublicToAllIsTrueAndAgencyProfileIsTrueAndGidIn(argThat(only(GID)))).thenReturn(Flux.just(byGid));
+
+        List<Function<Set<String>, Mono<Set<String>>>> filters = List.of(
+                keys -> s.service.getPublicApplicationIds(keys),
+                keys -> s.service.getPrivateApplicationIds(keys, "user"),
+                keys -> s.service.getPublicMarketplaceApplicationIds(keys, false, false),
+                keys -> s.service.getPublicAgencyApplicationIds(keys));
+        for (Function<Set<String>, Mono<Set<String>>> filter : filters) {
+            Set<String> answered = filter.apply(ordered(gidFirst)).block(TIMEOUT);
+            System.out.println("[ApplicationServiceImplIdKindFamilyPinTest] filter " + ordered(gidFirst) + " -> " + answered);
+            assertThat(answered).containsExactlyInAnyOrder(ID, GID);
+        }
     }
 
     @Test
-    void thePublicIdFilterOfAMixedSetAnswersOnlyTheKindOfTheFirstElement_pinsTheFamilyRow() {
-        Application withGid = appWithGid("real-id", "the-gid");
-        AtomicInteger idQueries = new AtomicInteger();
-        AtomicInteger gidQueries = new AtomicInteger();
-        when(s.repository.findByPublicToAllIsTrueAndGidIn(any())).thenReturn(counted(Flux.just(withGid), gidQueries));
-        when(s.repository.findByPublicToAllIsTrueAndIdIn(any())).thenReturn(counted(Flux.just(withGid), idQueries));
-        Set<String> gidFirst = new LinkedHashSet<>(List.of("aa-bb", "plainid"));
-        Set<String> idFirst = new LinkedHashSet<>(List.of("plainid", "aa-bb"));
-
-        Set<String> byGidFirst = s.service.getPublicApplicationIds(gidFirst).block(TIMEOUT);
-        Set<String> byIdFirst = s.service.getPublicApplicationIds(idFirst).block(TIMEOUT);
-
-        System.out.println("[ApplicationServiceImplIdKindFamilyPinTest] PINNED public filter: gid first -> " + byGidFirst + ", id first -> " + byIdFirst);
-        assertThat(byGidFirst).containsExactly("the-gid");
-        assertThat(byIdFirst).containsExactly("real-id");
-        assertThat(gidQueries.get()).isEqualTo(1);
-        assertThat(idQueries.get()).isEqualTo(1);
+    void anEmptySetAnswersAnEmptySet() {
+        assertThat(s.service.getPublicApplicationIds(Set.of()).block(TIMEOUT)).isEmpty();
+        assertThat(s.service.findByIdIn(List.of()).collectList().block(TIMEOUT)).isEmpty();
     }
 }
