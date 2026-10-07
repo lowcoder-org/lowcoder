@@ -80,11 +80,9 @@ import reactor.test.StepVerifier;
  * {@code updateRoleForMember} and {@code removeUserFromOrg} assemble {@code .then(orgMemberService...)} eagerly, so
  * {@code verify(never())} on the call itself would not show a mutation.
  *
- * <p>Pinned production defects (owner decision D-6: fixes are deferred, a fix changes these tests on purpose):
- * <ul>
- * <li>plan section 9 subList row, second site {@code OrgApiServiceImpl.getOrgMemberListView} :117: a page past the end
- * and page 0 (see {@link #getOrganizationMembers_pageBeyondTheEnd_failsWithIllegalArgumentException_pinsSection9SubListRow}).</li>
- * </ul>
+ * <p>The plan section 9 subList row, second site {@code OrgApiServiceImpl.getOrgMemberListView}, is fixed (BF-086): a
+ * page past the end and page 0 are an empty page with the total (see
+ * {@link #getOrganizationMembers_pageOutsideTheMembers_isAnEmptyPageWithTheTotalBF086}).
  * The plan section 9 row "removeUserFromOrg has no last-admin or super-admin guard" is fixed (BF-072): see
  * {@link #removeUserFromOrg_refusesASuperAdminAndTheLastAdmin}.
  * The plan section 9 row "updateRoleForMember ... an org ADMIN can make any member, themselves included, super_admin ...
@@ -328,36 +326,26 @@ class OrgApiServiceImplTest {
     }
 
     /**
-     * Pins the plan section 9 subList row at its second site, {@code getOrgMemberListView} :117: the slice is the
-     * unguarded {@code list.subList((page - 1) * count, min(page * count, total))}; three resolvable members, page 3
-     * of size 2 gives subList(4, 3) and the call fails with an IllegalArgumentException. A fix changes this test on
-     * purpose.
+     * BF-086 (fixed; was pinned as the plan section 9 subList row at its second site, {@code getOrgMemberListView}: the
+     * unchecked {@code subList} failed with an IllegalArgumentException for a page after the last and an
+     * IndexOutOfBoundsException for page 0): three resolvable members, a page after the last (3 or 4 of size 2) or before
+     * the first (0) is an empty page with the full total and the requested paging.
      */
     @ParameterizedTest
-    @ValueSource(ints = {3, 4})
-    void getOrganizationMembers_pageBeyondTheEnd_failsWithIllegalArgumentException_pinsSection9SubListRow(int page) {
+    @ValueSource(ints = {0, 3, 4})
+    void getOrganizationMembers_pageOutsideTheMembers_isAnEmptyPageWithTheTotalBF086(int page) {
         stubRoster();
         lenient().when(commonConfig.isCloud()).thenReturn(false);
 
         StepVerifier.create(service.getOrganizationMembers(ORG_ID, page, 2))
-                .expectErrorSatisfies(error -> assertThat(error).isExactlyInstanceOf(IllegalArgumentException.class))
-                .verify();
-        say("getOrganizationMembers: page %d size 2 over 3 members -> IllegalArgumentException (section 9 subList row pinned)", page);
-    }
-
-    /**
-     * Pins the same plan section 9 subList row: page 0 gives a negative fromIndex and the call fails with an
-     * IndexOutOfBoundsException. A fix changes this test on purpose.
-     */
-    @Test
-    void getOrganizationMembers_pageZero_failsWithIndexOutOfBounds_pinsSection9SubListRow() {
-        stubRoster();
-        lenient().when(commonConfig.isCloud()).thenReturn(false);
-
-        StepVerifier.create(service.getOrganizationMembers(ORG_ID, 0, 2))
-                .expectErrorSatisfies(error -> assertThat(error).isInstanceOf(IndexOutOfBoundsException.class))
-                .verify();
-        say("getOrganizationMembers: page 0 -> IndexOutOfBoundsException (section 9 subList row pinned)");
+                .assertNext(view -> {
+                    say("getOrganizationMembers: page %d size 2 over 3 members -> members %s, total %d", page, view.getMembers(), view.getTotal());
+                    assertThat(view.getMembers()).isEmpty();
+                    assertThat(view.getTotal()).isEqualTo(3);
+                    assertThat(view.getPageNum()).isEqualTo(page);
+                    assertThat(view.getPageSize()).isEqualTo(2);
+                })
+                .verifyComplete();
     }
 
     // ------------------------------------------------------------------ the admin gate
