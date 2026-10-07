@@ -194,7 +194,8 @@ public class GeneralSqlExecutor {
                     }
                 } while(orderByIndex >= 0);
 
-                var statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                var statement = connection.prepareStatement(sql,
+                        statementInput.returnsGeneratedKeys() ? Statement.RETURN_GENERATED_KEYS : Statement.NO_GENERATED_KEYS);
 
                 bindPreparedStatementParams(statement, params);
                 var isResultSet = statement.execute();
@@ -239,7 +240,7 @@ public class GeneralSqlExecutor {
                 return StatementInput.fromUpdateOrDeleteSingleRowSql(updateOrDeleteSingle);
             }
 
-            return StatementInput.fromSql(true, renderResult.sql(), renderResult.bindParams());
+            return StatementInput.fromRenderResult(renderResult);
         }
 
         return getPreparedStatementInput(query, requestParams);
@@ -345,15 +346,22 @@ public class GeneralSqlExecutor {
         private final boolean preparedStatement;
         private final String sql;
         private final List<Object> params;
+        private final boolean returnsGeneratedKeys;
 
-        private StatementInput(boolean preparedStatement, String sql, List<Object> params) {
+        private StatementInput(boolean preparedStatement, String sql, List<Object> params, boolean returnsGeneratedKeys) {
             this.preparedStatement = preparedStatement;
             this.sql = sql;
             this.params = params;
+            this.returnsGeneratedKeys = returnsGeneratedKeys;
         }
 
         public static StatementInput fromSql(boolean preparedStatement, String sql, List<Object> params) {
-            return new StatementInput(preparedStatement, sql, params);
+            return new StatementInput(preparedStatement, sql, params, true);
+        }
+
+        /** A prepared GUI statement; it asks for generated keys only when the render result does (BF-050). */
+        public static StatementInput fromRenderResult(GuiSqlCommandRenderResult renderResult) {
+            return new StatementInput(true, renderResult.sql(), renderResult.bindParams(), renderResult.returnsGeneratedKeys());
         }
 
         public static StatementInput fromUpdateOrDeleteSingleRowSql(UpdateOrDeleteSingleCommandRenderResult updateOrDeleteSingle) {
@@ -373,6 +381,11 @@ public class GeneralSqlExecutor {
             return params;
         }
 
+        /** Whether a prepared statement is created with {@code RETURN_GENERATED_KEYS}. */
+        public boolean returnsGeneratedKeys() {
+            return returnsGeneratedKeys;
+        }
+
     }
 
     public static class UpdateOrDeleteSingleRowStatementInput extends StatementInput {
@@ -381,7 +394,7 @@ public class GeneralSqlExecutor {
         private final List<Object> selectParams;
 
         private UpdateOrDeleteSingleRowStatementInput(String sql, List<Object> params, String selectSql, List<Object> selectParams) {
-            super(true, sql, params);
+            super(true, sql, params, true);
             this.selectSql = selectSql;
             this.selectParams = selectParams;
         }

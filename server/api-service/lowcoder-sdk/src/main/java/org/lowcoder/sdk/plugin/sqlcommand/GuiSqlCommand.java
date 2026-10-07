@@ -21,10 +21,20 @@ public interface GuiSqlCommand {
 
         private final String sql;
         private final List<Object> bindParams;
+        private final boolean returnsGeneratedKeys;
 
         public GuiSqlCommandRenderResult(String sql, List<Object> bindParams) {
+            this(sql, bindParams, true);
+        }
+
+        /**
+         * @param returnsGeneratedKeys whether the executor asks the driver for the generated keys of this statement; false for
+         *         a statement the database refuses to run with them (BF-050: a multi-row insert on Oracle)
+         */
+        public GuiSqlCommandRenderResult(String sql, List<Object> bindParams, boolean returnsGeneratedKeys) {
             this.sql = sql;
             this.bindParams = bindParams;
+            this.returnsGeneratedKeys = returnsGeneratedKeys;
         }
 
         public String sql() {
@@ -33,6 +43,10 @@ public interface GuiSqlCommand {
 
         public List<Object> bindParams() {
             return bindParams;
+        }
+
+        public boolean returnsGeneratedKeys() {
+            return returnsGeneratedKeys;
         }
     }
 
