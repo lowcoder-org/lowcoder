@@ -13,6 +13,7 @@ import org.lowcoder.api.usermanagement.view.OrgMemberListView.OrgMemberView;
 import org.lowcoder.api.usermanagement.view.OrgView;
 import org.lowcoder.api.usermanagement.view.UpdateOrgRequest;
 import org.lowcoder.api.usermanagement.view.UpdateRoleRequest;
+import org.lowcoder.api.util.Pagination;
 import org.lowcoder.domain.authentication.AuthenticationService;
 import org.lowcoder.domain.authentication.FindAuthConfig;
 import org.lowcoder.domain.group.service.GroupService;
@@ -115,7 +116,7 @@ public class OrgApiServiceImpl implements OrgApiService {
                             .filter(Objects::nonNull)
                             .collect(Collectors.toList());
                         var pageTotal = list.size();
-                        list = list.subList((page - 1) * count, count == 0 ? pageTotal : Math.min(page * count, pageTotal));
+                        list = Pagination.pageOf(list, page, count);
                         return Pair.of(list, pageTotal);
                     });
                 })

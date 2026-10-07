@@ -71,13 +71,10 @@ import reactor.test.StepVerifier;
  * subscribed does not mutate), not by {@code verify(never())} on the call: {@code updateRoleForMember} and
  * {@code deleteGroup} build the service Mono eagerly, then chain it with {@code then(..)}.
  *
- * <p>Pinned production defects (owner decision D-6: fixes are deferred, a fix changes these tests on purpose):
- * <ul>
- * <li>A1 {@code subList}: {@code getGroupMembers} slices with an unguarded {@code subList}
- * (see {@link #getGroupMembers_pageBeyondLastPage_failsWithIllegalArgumentException} and
- * {@link #getGroupMembers_pageZero_failsWithIndexOutOfBounds}); the search variant guards it.</li>
- * </ul>
- * Fixed since: A1 {@code getPotentialGroupMembers} had no role or same-org check (BF-021); it now has the gate of
+ * <p>Fixed since: A1 {@code subList}: {@code getGroupMembers} sliced with an unguarded {@code subList}; it now pages
+ * with {@code Pagination.pageOf}, as the search variant does (BF-086, see
+ * {@link #getGroupMembers_pageOutsideTheMembers_isAnEmptyPageWithTheTotalBF086});
+ * A1 {@code getPotentialGroupMembers} had no role or same-org check (BF-021); it now has the gate of
  * {@code addGroupMember} (see {@link #getPotentialGroupMembers_groupOfAnotherOrg_isInvalidGroupId_andListsNobody});
  * {@code getGroups} for a plain member counted only the visitor's own membership rows (BF-042, see
  * {@link #getGroups_plainMemberSeesTheSameMembersAsAnOrgAdminBF042}).
@@ -411,38 +408,28 @@ class GroupApiServiceImplTest {
     }
 
     /**
-     * Pins defect A1 (plan section 9): {@code getGroupMembers} slices with {@code list.subList((page - 1) * count,
-     * min(page * count, total))} unguarded. Three members, page 3 of size 2 gives subList(4, 3) and the call fails
-     * with an IllegalArgumentException instead of returning an empty page (the search variant guards it, see
-     * {@link #roster_pagination_returnsRequestedSliceAndFullTotal}). A fix changes this test on purpose.
+     * BF-086 (fixed; was pinned as defect A1, plan section 9: {@code getGroupMembers} sliced with an unchecked
+     * {@code subList}, which failed with an IllegalArgumentException for a page after the last and an
+     * IndexOutOfBoundsException for page 0): three members, a page after the last (3 or 4 of size 2) or before the first
+     * (0) is an empty page with the full total, as in the search variant
+     * ({@link #roster_pagination_returnsRequestedSliceAndFullTotal}).
      */
     @ParameterizedTest
-    @ValueSource(ints = {3, 4})
-    void getGroupMembers_pageBeyondLastPage_failsWithIllegalArgumentException(int page) {
+    @ValueSource(ints = {0, 3, 4})
+    void getGroupMembers_pageOutsideTheMembers_isAnEmptyPageWithTheTotalBF086(int page) {
         stubVisitor(orgMember(MemberRole.ADMIN), null, normalGroup());
         stubRoster(Variant.PLAIN, roster(3));
         when(userService.getByIds(anyCollection())).thenReturn(Mono.just(usersOf(3)));
 
         StepVerifier.create(service.getGroupMembers(GROUP_ID, page, 2))
-                .expectErrorSatisfies(error -> assertThat(error).isExactlyInstanceOf(IllegalArgumentException.class))
-                .verify();
-        say("getGroupMembers: 3 members, page %d size 2 -> IllegalArgumentException (defect A1 pinned)", page);
-    }
-
-    /**
-     * Pins defect A1 (plan section 9), same unguarded {@code subList}: page 0 gives a negative fromIndex and the call
-     * fails with an IndexOutOfBoundsException. A fix changes this test on purpose.
-     */
-    @Test
-    void getGroupMembers_pageZero_failsWithIndexOutOfBounds() {
-        stubVisitor(orgMember(MemberRole.ADMIN), null, normalGroup());
-        stubRoster(Variant.PLAIN, roster(3));
-        when(userService.getByIds(anyCollection())).thenReturn(Mono.just(usersOf(3)));
-
-        StepVerifier.create(service.getGroupMembers(GROUP_ID, 0, 2))
-                .expectErrorSatisfies(error -> assertThat(error).isInstanceOf(IndexOutOfBoundsException.class))
-                .verify();
-        say("getGroupMembers: page 0 size 2 -> IndexOutOfBoundsException (defect A1 pinned)");
+                .assertNext(view -> {
+                    say("getGroupMembers: 3 members, page %d size 2 -> members %s, total %d", page, view.getMembers(), view.getTotal());
+                    assertThat(view.getMembers()).isEmpty();
+                    assertThat(view.getTotal()).isEqualTo(3);
+                    assertThat(view.getPageNum()).isEqualTo(page);
+                    assertThat(view.getPageSize()).isEqualTo(2);
+                })
+                .verifyComplete();
     }
 
     // ------------------------------------------------------------------ roster: search, role filter, sort
