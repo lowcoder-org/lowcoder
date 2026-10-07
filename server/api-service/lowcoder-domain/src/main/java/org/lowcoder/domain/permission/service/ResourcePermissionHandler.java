@@ -103,7 +103,7 @@ abstract class ResourcePermissionHandler implements ResourcePermissionHandlerSer
                 .flatMap(orgId -> orgMemberService.getOrgMember(orgId, userId))
                 .flatMap(orgMember -> {
                     if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
-                        return Mono.just(UserPermissionOnResourceStatus.success(buildAdminPermission(resourceType, resourceId, userId)));
+                        return Mono.just(UserPermissionOnResourceStatus.success(buildAdminPermission(resourceType, userId, resourceId)));
                     }
                     return getAllMatchingPermissions0(userId, orgMember.getOrgId(), resourceType, Collections.singleton(resourceId), resourceAction)
                             .map(it -> it.getOrDefault(resourceId, emptyList()))
@@ -250,7 +250,7 @@ abstract class ResourcePermissionHandler implements ResourcePermissionHandlerSer
                 .flatMap(orgId -> orgMemberService.getOrgMember(orgId, userId))
                 .flatMap(orgMember -> {
                     if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
-                        return Mono.just(UserPermissionOnResourceStatus.success(buildAdminPermission(resourceType, resourceId, userId)));
+                        return Mono.just(UserPermissionOnResourceStatus.success(buildAdminPermission(resourceType, userId, resourceId)));
                     }
                     return getAllMatchingPermissions0(userId, orgMember.getOrgId(), resourceType, Collections.singleton(resourceId), resourceAction)
                             .map(it -> it.getOrDefault(resourceId, emptyList()))
@@ -309,7 +309,7 @@ abstract class ResourcePermissionHandler implements ResourcePermissionHandlerSer
                 .flatMap(orgId -> orgMemberService.getOrgMember(orgId, userId))
                 .flatMap(orgMember -> {
                     if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
-                        return Mono.just(UserPermissionOnResourceStatus.success(buildAdminPermission(resourceType, resourceId, userId)));
+                        return Mono.just(UserPermissionOnResourceStatus.success(buildAdminPermission(resourceType, userId, resourceId)));
                     }
                     return getAllMatchingPermissions0(userId, orgMember.getOrgId(), resourceType, Collections.singleton(resourceId), resourceAction)
                             .map(it -> it.getOrDefault(resourceId, emptyList()))
