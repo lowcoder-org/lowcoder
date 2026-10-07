@@ -1,7 +1,6 @@
 package org.lowcoder.domain.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.lowcoder.domain.user.service.UserServiceFixture.AVATAR_MAX_SIZE_KB;
 import static org.lowcoder.domain.user.service.UserServiceFixture.USER_ID;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.domain.asset.model.Asset;
 import org.lowcoder.domain.authentication.context.AuthRequestContext;
 import org.lowcoder.domain.authentication.context.FormAuthRequestContext;
@@ -51,6 +51,8 @@ class UserServiceImplAccountTest {
     private static final String GITHUB = "GITHUB";
     private static final String PREVIOUS_AVATAR = "asset-old";
     private static final String NEW_AVATAR = "asset-new";
+    /** An avatar that is only whitespace: no photo, as {@code User#getAvatarUrl} reads it. */
+    private static final String BLANK_AVATAR = " ";
 
     private UserServiceFixture fixture;
     private UserServiceImpl service;
@@ -137,17 +139,24 @@ class UserServiceImplAccountTest {
     }
 
     /**
-     * Pins the plan section 9 candidate "deleteProfilePhoto thenReturn(null)" (UserServiceImpl:375): for a user
-     * without an avatar, {@code thenReturn(userAvatar)} receives null and Reactor rejects it with a
-     * NullPointerException at assembly, so the call fails instead of doing nothing. A fix changes this test on purpose.
+     * BF-098 (was pinned as the plan section 9 candidate "deleteProfilePhoto thenReturn(null)"): for a user without an
+     * avatar (null, or blank as {@code User#getAvatarUrl} reads it) there is no photo to delete, so the call completes
+     * without saving the user or removing an asset; for a null avatar it used to throw a NullPointerException
+     * ({@code thenReturn(null)}).
      */
-    @Test
-    void deleteProfilePhoto_userWithoutAvatar_throwsNullPointerException() {
-        User user = User.builder().id(USER_ID).build();
+    @ParameterizedTest(name = "[{index}] avatar <{0}>")
+    @NullAndEmptySource
+    @ValueSource(strings = BLANK_AVATAR)
+    void deleteProfilePhoto_userWithoutAvatar_completesWithoutSavingOrRemovingBF098(String avatar) {
+        when(fixture.assetService.remove(anyString())).thenReturn(Mono.empty());
+        User user = User.builder().id(USER_ID).avatar(avatar).build();
 
-        assertThatThrownBy(() -> service.deleteProfilePhoto(user)).isInstanceOf(NullPointerException.class);
+        StepVerifier.create(service.deleteProfilePhoto(user)).verifyComplete();
+
+        assertThat(user.getAvatar()).isEqualTo(avatar);
+        verify(fixture.repository, never()).save(any(User.class));
         verify(fixture.assetService, never()).remove(any());
-        System.out.println("[UserServiceImplAccountTest] pins the section 9 candidate: no avatar -> NPE");
+        System.out.println("[UserServiceImplAccountTest] avatar <" + avatar + "> -> nothing saved, nothing removed (BF-098)");
     }
 
     // ---------------------------------------------------------------- enterprise-mode deletion
