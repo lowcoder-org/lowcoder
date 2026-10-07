@@ -12,8 +12,12 @@ import org.lowcoder.sdk.plugin.common.sql.HikariPerfWrapper;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -258,29 +262,47 @@ public class OracleDatabaseTest {
     }
 
     /**
-     * Pins the plan section 9 row "CLOB/TIMESTAMPTZ/INTERVALDS cells as driver objects, toJson empty" (D-6: fix deferred): the shared result parser hands {@code CLOB}, {@code TIMESTAMP WITH TIME ZONE} and {@code INTERVAL DAY TO SECOND} cells to the result
-     * as the driver's own objects ({@code oracle.sql.CLOB}, {@code oracle.sql.TIMESTAMPTZ}, {@code oracle.sql.INTERVALDS}) instead of text, so the query
-     * result holds objects that are not readable data, and writing the result as JSON gives an empty string. A fix (reading them as text) changes this test on purpose.
+     * BF-052 fixed (plan section 9 row "CLOB/TIMESTAMPTZ/INTERVALDS cells as driver objects, toJson empty"): the shared
+     * result parser handed {@code CLOB}, {@code TIMESTAMP WITH TIME ZONE} and {@code INTERVAL DAY TO SECOND} cells, and
+     * their siblings {@code NCLOB}, {@code TIMESTAMP WITH LOCAL TIME ZONE}, {@code INTERVAL YEAR TO MONTH} and
+     * {@code ROWID}, to the result as the driver's own objects, so the result was written as an empty string. They are text
+     * now, the result is written as JSON, and the null cells of a row stay null (its rowid is text like any other).
      */
     @Test
-    public void lobTimeZoneAndIntervalCellsReachTheResultAsDriverObjects_pinsTheSection9Row() throws Exception {
+    public void lobTimeZoneIntervalAndRowidCellsReachTheResultAsTextBF052() throws Exception {
         try (Connection jdbc = jdbc()) {
-            execute(jdbc, "drop table t_lob", "create table t_lob (c_clob clob, c_tstz timestamp with time zone, c_intv interval day to second)");
-            execute(jdbc, "insert into t_lob values ('long text', timestamp '2024-02-29 13:14:15.123 +05:30', interval '1 02:03:04' day to second)");
+            execute(jdbc, "drop table t_lob", "create table t_lob (c_clob clob, c_nclob nclob, c_tstz timestamp with time zone, "
+                            + "c_tstz_region timestamp with time zone, c_tsltz timestamp with local time zone, c_intv interval day to second, "
+                            + "c_iym interval year to month)",
+                    "insert into t_lob values ('long text', N'žluťoučký', timestamp '2024-02-29 13:14:15.123 +05:30', "
+                            + "timestamp '2024-02-29 13:14:15.123 Europe/Prague', timestamp '2024-02-29 13:14:15.123', "
+                            + "interval '1 02:03:04.5' day to second, interval '2-3' year to month)",
+                    "insert into t_lob (c_clob) values (null)");
+            String rowid = column(jdbc, "select rowidtochar(rowid) as r from t_lob where c_clob is not null", "R").get(0).toString();
+            String localTimeZone = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
+                    LocalDateTime.parse("2024-02-29T13:14:15.123").atZone(ZoneId.systemDefault()).toOffsetDateTime());
             OracleDatasourceConfig config = config();
             HikariPerfWrapper pool = connect(config);
             try {
-                Object data = sql(pool, config, "select * from t_lob", Map.of());
-                Object clob = cell(data, "C_CLOB");
-                Object tstz = cell(data, "C_TSTZ");
-                Object interval = cell(data, "C_INTV");
-                System.out.println("[OracleDatabaseTest] clob " + clob.getClass().getName() + ", timestamptz " + tstz.getClass().getName() + ", interval " + interval.getClass().getName());
-                assertEquals("oracle.sql.INTERVALDS", interval.getClass().getName());
-                assertEquals("oracle.sql.CLOB", clob.getClass().getName());
-                assertEquals("oracle.sql.TIMESTAMPTZ", tstz.getClass().getName());
+                Object data = sql(pool, config, "select t.*, rowid as c_rowid from t_lob t order by c_intv nulls last", Map.of());
                 String json = org.lowcoder.sdk.util.JsonUtils.toJson(data);
-                System.out.println("[OracleDatabaseTest] json of the result: '" + json + "'");
-                assertEquals("", json, "the result with these objects cannot be written as JSON: the JSON helper returns an empty string");
+                System.out.println("[OracleDatabaseTest] lob, time zone, interval and rowid cells: " + json);
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> rows = (List<Map<String, Object>>) data;
+                Map<String, Object> expected = new LinkedHashMap<>();
+                expected.put("C_CLOB", "long text");
+                expected.put("C_NCLOB", "žluťoučký");
+                expected.put("C_TSTZ", "2024-02-29T13:14:15.123+05:30");
+                expected.put("C_TSTZ_REGION", "2024-02-29T13:14:15.123+01:00");
+                expected.put("C_TSLTZ", localTimeZone);
+                expected.put("C_INTV", "PT26H3M4.5S");
+                expected.put("C_IYM", "P2Y3M");
+                expected.put("C_ROWID", rowid);
+                assertEquals(expected, rows.get(0));
+                Map<String, Object> nulls = new LinkedHashMap<>(rows.get(1));
+                assertTrue(nulls.remove("C_ROWID") instanceof String rowOfNulls && !rowOfNulls.isBlank(), "every row has a rowid");
+                nulls.forEach((column, value) -> assertNull(value, column));
+                assertTrue(json.contains("\"C_CLOB\":\"long text\""), "the result is written as JSON: " + json);
             } finally {
                 destroy(pool);
             }

@@ -52,8 +52,12 @@ public class ResultSetParser {
         return row;
     }
 
+    /**
+     * The value of column {@code i} of the current row by the shared rules; a dialect parser reads its own types first and
+     * hands every other column here (BF-052: {@code OracleResultParser}).
+     */
     @Nullable
-    private static Object getValue(ResultSet resultSet, int i, String typeName) throws SQLException {
+    public static Object getValue(ResultSet resultSet, int i, String typeName) throws SQLException {
 
         // Special handle for this issue:
         // com.mysql.cj.exceptions.DataReadException: The value '30:00:00' is an invalid TIME value.
