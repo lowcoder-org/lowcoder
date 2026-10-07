@@ -38,6 +38,7 @@ import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.constants.WorkspaceMode;
 import org.lowcoder.sdk.contract.CanonicalJson;
 import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -308,6 +309,27 @@ class OrganizationEndpointsContractTest {
     void removeUserFromOrg() {
         Mockito.when(orgApiService.removeUserFromOrg(ORG_ID, USER_ID)).thenReturn(Mono.just(Boolean.TRUE));
         assertSuccessTrue("removeUserFromOrg", Map.of("userId", USER_ID), ORG_ID);
+    }
+
+    /**
+     * BF-072: the two refusals of the removal guard as the client receives them, HTTP 400 for a SUPER_ADMIN target and
+     * HTTP 500 for the last ADMIN, each with its code and message.
+     */
+    @Test
+    void removeUserFromOrgRefused() {
+        Map<BizException, HttpStatus> refusals = Map.of(
+                new BizException(BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"), HttpStatus.BAD_REQUEST,
+                new BizException(BizError.LAST_ADMIN_CANNOT_LEAVE_ORG, "LAST_ADMIN_CANNOT_LEAVE_ORG"), HttpStatus.INTERNAL_SERVER_ERROR);
+        refusals.forEach((refusal, status) -> {
+            Mockito.when(orgApiService.removeUserFromOrg(ORG_ID, USER_ID)).thenReturn(Mono.error(refusal));
+            try (ContractTestClient client = client()) {
+                EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "removeUserFromOrg", Map.of("userId", USER_ID), null, ORG_ID);
+                System.out.println("[OrganizationEndpointsContractTest] " + refusal.getError() + " -> " + result.getStatus() + " "
+                        + new String(result.getResponseBody(), StandardCharsets.UTF_8));
+                assertThat(result.getStatus()).isEqualTo(status);
+                EndpointContract.assertBizError(result, refusal.getError(), refusal.getMessageKey());
+            }
+        });
     }
 
     @Test
