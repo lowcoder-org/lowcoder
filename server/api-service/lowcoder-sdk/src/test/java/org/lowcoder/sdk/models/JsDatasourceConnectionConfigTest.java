@@ -317,17 +317,24 @@ class JsDatasourceConnectionConfigTest {
         System.out.println("[JsDatasourceConnectionConfigTest] " + label + " -> inherit=" + expectedInherit + ", authId=" + expectedAuthId);
     }
 
-    /**
-     * Pins the plan section 9 row "JsDatasourceConnectionConfig.isOauth2InheritFromLogin ... throws a NullPointerException
-     * when the stored authConfig map has no type key" (D-6, fix deferred): the authConfig is user-supplied JSON and
-     * line 212 does {@code get("type").equals(...)}. A fix of that row changes this test on purpose.
-     */
-    @Test
-    void isOauth2InheritFromLoginAndGetAuthIdThrowWhenAuthConfigHasNoType() {
-        JsDatasourceConnectionConfig config = stored(values(KEY_AUTH, new HashMap<>(values("authId", "auth-3"))));
+    static Stream<Arguments> malformedAuthConfigs() {
+        return Stream.of(
+                Arguments.of("map without type", new HashMap<>(values("authId", "auth-3"))),
+                Arguments.of("not a map", RestApiAuthType.OAUTH2_INHERIT_FROM_LOGIN.name()));
+    }
 
-        assertThatThrownBy(config::isOauth2InheritFromLogin).isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(config::getAuthId).isInstanceOf(NullPointerException.class);
-        System.out.println("[JsDatasourceConnectionConfigTest] authConfig without type -> NullPointerException (plan section 9 row, pinned)");
+    /**
+     * BF-091 (plan section 9 row "JsDatasourceConnectionConfig.isOauth2InheritFromLogin ... throws a NullPointerException
+     * when the stored authConfig map has no type key", was pinned): the authConfig is user-supplied JSON; one without a
+     * type, or one that is not a map, is not OAuth inherited from login and has no auth id, instead of throwing.
+     */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("malformedAuthConfigs")
+    void aMalformedAuthConfigIsNotInheritedFromLoginAndHasNoAuthIdBF091(String label, Object authConfig) {
+        JsDatasourceConnectionConfig config = stored(values(KEY_AUTH, authConfig));
+
+        assertThat(config.isOauth2InheritFromLogin()).isFalse();
+        assertThat(config.getAuthId()).isNull();
+        System.out.println("[JsDatasourceConnectionConfigTest] authConfig " + label + " -> inherit=false, authId=null");
     }
 }
