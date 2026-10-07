@@ -31,7 +31,8 @@
           "value" : "{{file}}",
           "type" : "file"
         } ],
-        "timeoutMs" : 10000
+        "timeoutMs" : 10000,
+        "bodyType" : "application/json"
       },
       "classes" : {
         "" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
@@ -58,11 +59,12 @@
         "/bodyFormData/0/key" : "java.lang.String",
         "/bodyFormData/0/value" : "java.lang.String",
         "/bodyFormData/0/type" : "java.lang.String",
-        "/timeoutMs" : "java.lang.Long"
+        "/timeoutMs" : "java.lang.Long",
+        "/bodyType" : "java.lang.String"
       },
-      "noView" : {"httpMethod":{},"disableEncodingParams":true,"body":"{\"id\": {{id}}}","path":"/users/{{id}}","params":[{"key":"page","value":"1","type":null,"multipartFileType":false},{"key":"q","value":"{{input.text}}","type":"text","multipartFileType":false}],"headers":[{"key":"Content-Type","value":"application/json","type":null,"multipartFileType":false}],"bodyFormData":[{"key":"f","value":"{{file}}","type":"file","multipartFileType":true}],"timeoutMs":10000},
-      "Public" : {"httpMethod":{},"disableEncodingParams":true,"body":"{\"id\": {{id}}}","path":"/users/{{id}}","params":[{"key":"page","value":"1","type":null,"multipartFileType":false},{"key":"q","value":"{{input.text}}","type":"text","multipartFileType":false}],"headers":[{"key":"Content-Type","value":"application/json","type":null,"multipartFileType":false}],"bodyFormData":[{"key":"f","value":"{{file}}","type":"file","multipartFileType":true}],"timeoutMs":10000},
-      "Internal" : {"httpMethod":{},"disableEncodingParams":true,"body":"{\"id\": {{id}}}","path":"/users/{{id}}","params":[{"key":"page","value":"1","type":null,"multipartFileType":false},{"key":"q","value":"{{input.text}}","type":"text","multipartFileType":false}],"headers":[{"key":"Content-Type","value":"application/json","type":null,"multipartFileType":false}],"bodyFormData":[{"key":"f","value":"{{file}}","type":"file","multipartFileType":true}],"timeoutMs":10000}
+      "noView" : {"httpMethod":{},"disableEncodingParams":true,"body":"{\"id\": {{id}}}","path":"/users/{{id}}","params":[{"key":"page","value":"1","type":null,"multipartFileType":false},{"key":"q","value":"{{input.text}}","type":"text","multipartFileType":false}],"headers":[{"key":"Content-Type","value":"application/json","type":null,"multipartFileType":false}],"bodyFormData":[{"key":"f","value":"{{file}}","type":"file","multipartFileType":true}],"timeoutMs":10000,"bodyType":"application/json"},
+      "Public" : {"httpMethod":{},"disableEncodingParams":true,"body":"{\"id\": {{id}}}","path":"/users/{{id}}","params":[{"key":"page","value":"1","type":null,"multipartFileType":false},{"key":"q","value":"{{input.text}}","type":"text","multipartFileType":false}],"headers":[{"key":"Content-Type","value":"application/json","type":null,"multipartFileType":false}],"bodyFormData":[{"key":"f","value":"{{file}}","type":"file","multipartFileType":true}],"timeoutMs":10000,"bodyType":"application/json"},
+      "Internal" : {"httpMethod":{},"disableEncodingParams":true,"body":"{\"id\": {{id}}}","path":"/users/{{id}}","params":[{"key":"page","value":"1","type":null,"multipartFileType":false},{"key":"q","value":"{{input.text}}","type":"text","multipartFileType":false}],"headers":[{"key":"Content-Type","value":"application/json","type":null,"multipartFileType":false}],"bodyFormData":[{"key":"f","value":"{{file}}","type":"file","multipartFileType":true}],"timeoutMs":10000,"bodyType":"application/json"}
     },
     "lowerCaseMethod" : {
       "class" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
@@ -75,7 +77,8 @@
         "params" : null,
         "headers" : null,
         "bodyFormData" : null,
-        "timeoutMs" : 0
+        "timeoutMs" : 0,
+        "bodyType" : null
       },
       "classes" : {
         "" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
@@ -86,11 +89,12 @@
         "/params" : "null",
         "/headers" : "null",
         "/bodyFormData" : "null",
-        "/timeoutMs" : "java.lang.Long"
+        "/timeoutMs" : "java.lang.Long",
+        "/bodyType" : "null"
       },
-      "noView" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":"/a","params":[],"headers":[],"bodyFormData":[],"timeoutMs":0},
-      "Public" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":"/a","params":[],"headers":[],"bodyFormData":[],"timeoutMs":0},
-      "Internal" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":"/a","params":[],"headers":[],"bodyFormData":[],"timeoutMs":0}
+      "noView" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":"/a","params":[],"headers":[],"bodyFormData":[],"timeoutMs":0,"bodyType":null},
+      "Public" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":"/a","params":[],"headers":[],"bodyFormData":[],"timeoutMs":0,"bodyType":null},
+      "Internal" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":"/a","params":[],"headers":[],"bodyFormData":[],"timeoutMs":0,"bodyType":null}
     },
     "unknownMethod" : {
       "class" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
@@ -103,7 +107,8 @@
         "params" : null,
         "headers" : null,
         "bodyFormData" : null,
-        "timeoutMs" : 2500
+        "timeoutMs" : 2500,
+        "bodyType" : null
       },
       "classes" : {
         "" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
@@ -114,11 +119,12 @@
         "/params" : "null",
         "/headers" : "null",
         "/bodyFormData" : "null",
-        "/timeoutMs" : "java.lang.Long"
+        "/timeoutMs" : "java.lang.Long",
+        "/bodyType" : "null"
       },
-      "noView" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":2500},
-      "Public" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":2500},
-      "Internal" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":2500}
+      "noView" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":2500,"bodyType":null},
+      "Public" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":2500,"bodyType":null},
+      "Internal" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":2500,"bodyType":null}
     },
     "longTimeout" : {
       "class" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
@@ -131,7 +137,8 @@
         "params" : null,
         "headers" : null,
         "bodyFormData" : null,
-        "timeoutMs" : 4294967296
+        "timeoutMs" : 4294967296,
+        "bodyType" : null
       },
       "classes" : {
         "" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
@@ -142,11 +149,12 @@
         "/params" : "null",
         "/headers" : "null",
         "/bodyFormData" : "null",
-        "/timeoutMs" : "java.lang.Long"
+        "/timeoutMs" : "java.lang.Long",
+        "/bodyType" : "null"
       },
-      "noView" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":4294967296},
-      "Public" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":4294967296},
-      "Internal" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":4294967296}
+      "noView" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":4294967296,"bodyType":null},
+      "Public" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":4294967296,"bodyType":null},
+      "Internal" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":4294967296,"bodyType":null}
     },
     "empty" : {
       "class" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
@@ -159,7 +167,8 @@
         "params" : null,
         "headers" : null,
         "bodyFormData" : null,
-        "timeoutMs" : 0
+        "timeoutMs" : 0,
+        "bodyType" : null
       },
       "classes" : {
         "" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
@@ -170,11 +179,12 @@
         "/params" : "null",
         "/headers" : "null",
         "/bodyFormData" : "null",
-        "/timeoutMs" : "java.lang.Long"
+        "/timeoutMs" : "java.lang.Long",
+        "/bodyType" : "null"
       },
-      "noView" : {"httpMethod":null,"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":0},
-      "Public" : {"httpMethod":null,"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":0},
-      "Internal" : {"httpMethod":null,"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":0}
+      "noView" : {"httpMethod":null,"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":0,"bodyType":null},
+      "Public" : {"httpMethod":null,"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":0,"bodyType":null},
+      "Internal" : {"httpMethod":null,"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":0,"bodyType":null}
     },
     "unknownProperty" : "ignored: binds as form full"
   }
