@@ -80,12 +80,12 @@ class GraphQLHostlessUriResolverGuardTest {
             HttpClient httpClient = HttpClient.create(provider).resolver(new SafeHostResolverGroup(Set.of("localhost")));
             WebClient client = WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient)).build();
             Method httpCall = GraphQLExecutor.class.getDeclaredMethod("httpCall", WebClient.class, HttpMethod.class, URI.class,
-                    BodyInserter.class, int.class, AuthConfig.class, Consumer.class);
+                    BodyInserter.class, int.class, AuthConfig.class, Consumer.class, boolean.class);
             httpCall.setAccessible(true);
             URI origin = URI.create(server.baseUrl() + "/start");
 
             Mono<?> call = (Mono<?>) httpCall.invoke(new GraphQLExecutor(new CommonConfig()), client, HttpMethod.POST, origin,
-                    BodyInserters.fromValue(new byte[0]), 0, null, (Consumer<HttpHeaders>) headers -> { });
+                    BodyInserters.fromValue(new byte[0]), 0, null, (Consumer<HttpHeaders>) headers -> { }, false);
             Object response = call.block(GraphQLCallSupport.TIMEOUT);
 
             System.out.println("[GraphQLHostlessUriResolverGuardTest] addresses refused by the provider: " + provider.refused

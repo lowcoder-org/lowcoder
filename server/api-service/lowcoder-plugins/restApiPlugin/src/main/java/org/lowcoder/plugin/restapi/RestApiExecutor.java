@@ -268,18 +268,28 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
                             context.getQueryBody(),
                             context.getBodyParams());
 
-                    return httpCall(client, context.getHttpMethod(), context.getUri(), bodyInserter, 0, authConfig, DEFAULT_HEADERS_CONSUMER)
+                    return httpCall(client, context.getHttpMethod(), context.getUri(), bodyInserter, 0, authConfig, DEFAULT_HEADERS_CONSUMER, false)
                             .map(this::convertToQueryExecutionResult)
                             .onErrorResume(e -> propagateError(REST_API_EXECUTION_ERROR, DEFAULT_REST_ERROR_CODE, e));
                 }));
     }
 
+    /**
+     * Sends the request, follows a redirect up to {@code MAX_REDIRECTS} requests, and answers a digest challenge once per
+     * request: {@code digestAnswered} is true for the request that carries the answer, so a new challenge to it, the server's
+     * answer to wrong credentials, is returned as the 401 it is (BF-078: every challenge was answered again until the request
+     * limit, and the query failed with the redirect-limit error). A followed redirect is a new request and may be answered.
+     * <p>
+     * Limits: the flag is not kept per URI, so a redirect back to an answered URI is answered again (within MAX_REDIRECTS);
+     * a challenge with {@code stale=true} (an expired nonce, right credentials) is not answered a second time; it gets the 401.
+     */
     private Mono<ResponseEntity<byte[]>> httpCall(WebClient webClient, HttpMethod httpMethod,
             URI uri,
             BodyInserter<?, ? super ClientHttpRequest> requestBody,
             int iteration,
             @Nullable AuthConfig authConfig,
-            Consumer<HttpHeaders> headersConsumer) {
+            Consumer<HttpHeaders> headersConsumer,
+            boolean digestAnswered) {
         if (iteration == MAX_REDIRECTS) {
             return Mono.error(new PluginException(QUERY_EXECUTION_ERROR, "REACH_REDIRECT_LIMIT", MAX_REDIRECTS));
         }
@@ -299,18 +309,18 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
                             return propagateError(REST_API_EXECUTION_ERROR, DEFAULT_REST_ERROR_CODE, e);
                         }
                         if (WebClientRedirects.isSameOrigin(uri, redirectUri)) {
-                            return httpCall(webClient, httpMethod, redirectUri, requestBody, iteration + 1, authConfig, headersConsumer);
+                            return httpCall(webClient, httpMethod, redirectUri, requestBody, iteration + 1, authConfig, headersConsumer, false);
                         }
                         // another origin: only content headers, no forwarded cookies, no digest answer
                         return httpCall(WebClientRedirects.forAnotherOrigin(webClient), httpMethod, redirectUri, requestBody,
-                                iteration + 1, null, DEFAULT_HEADERS_CONSUMER);
+                                iteration + 1, null, DEFAULT_HEADERS_CONSUMER, false);
                     }
                     //digest auth
-                    if (authConfig != null && authConfig.getType() == DIGEST_AUTH && AuthHelper.shouldDigestAuth(response)) {
+                    if (!digestAnswered && authConfig != null && authConfig.getType() == DIGEST_AUTH && AuthHelper.shouldDigestAuth(response)) {
                         try {
                             return httpCall(webClient, httpMethod, uri, requestBody, iteration + 1, authConfig,
                                     headersConsumer.andThen(
-                                            AuthHelper.digestAuth((BasicAuthConfig) authConfig, response, httpMethod, uri.getPath())));
+                                            AuthHelper.digestAuth((BasicAuthConfig) authConfig, response, httpMethod, uri.getPath())), true);
                         } catch (ParseException e) {
                             return propagateError(REST_API_EXECUTION_ERROR, DEFAULT_REST_ERROR_CODE, e);
                         }

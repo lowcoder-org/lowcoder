@@ -18,6 +18,7 @@ import org.lowcoder.sdk.contract.RecordingHttpServer;
 import org.lowcoder.sdk.contract.RecordingHttpServer.Request;
 import org.lowcoder.sdk.contract.RecordingHttpServer.Response;
 import org.lowcoder.sdk.exception.PluginException;
+import org.springframework.http.HttpStatus;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.BasicAuthConfig;
@@ -27,10 +28,9 @@ import org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType;
  * Basic and digest authentication of {@link GraphQLExecutor} against a local server. The REST API plugin has the same
  * code and an engine test for it; the GraphQL plugin had none.
  *
- * <p>Pins, for the GraphQL executor (the same behaviour is pinned for REST in RestApiEngineTest; open, fix deferred
- * under D-6, plan section 9 row on digest authentication): with a wrong password a digest-authenticated query is not
- * answered "unauthorized"; the executor answers each new challenge until its request limit (5 in GraphQLExecutor) and
- * fails with the redirect-limit error.
+ * <p>BF-078 (fixed; was pinned under D-6 as the plan section 9 row on digest authentication, as for REST in
+ * RestApiEngineTest): a digest challenge is answered once per request, so with a wrong password the query gets the
+ * server's 401 after two requests instead of the redirect-limit error after five.
  */
 class GraphQLAuthTest {
 
@@ -41,8 +41,9 @@ class GraphQLAuthTest {
     private static final String NONCE = "f2a8d2c6b1e04a7f9c3d5e6b7a8c9d0e";
     private static final String DIGEST = "Digest ";
     private static final Pattern DIGEST_PARAM = Pattern.compile("(\\w+)=(?:\"([^\"]*)\"|([^,\\s]+))");
-    /** {@code GraphQLExecutor.MAX_REDIRECTS} (private): calls 0 to 4 send a request, call 5 fails before sending one. */
-    private static final int REQUEST_LIMIT = 5;
+    private static final String MOVED_PATH = "/graphql-moved";
+    private static final String WRONG_PASSWORD = "wrong";
+    private static final String UNAUTHORIZED_CODE = "HTTP" + HttpStatus.UNAUTHORIZED.name();
 
     private final GraphQLCallSupport support = new GraphQLCallSupport();
 
@@ -81,21 +82,46 @@ class GraphQLAuthTest {
     }
 
     /**
-     * Pins the digest wrong-password behaviour for the GraphQL executor (see the class comment; the fix is deferred): the
-     * server answers every attempt with a new challenge, the executor answers each one until its limit, and the query
-     * fails with the redirect-limit error rather than an authentication failure. The obvious fix is to stop after a
-     * challenge that follows an authenticated attempt, which turns this test red.
+     * BF-078: the server answers the digest attempt with a wrong password with a new challenge; the executor does not answer
+     * it again, and the query result is the server's 401 (HTTPUNAUTHORIZED), after the challenged request and the answer.
      */
     @Test
-    void digestAuthWithAWrongPasswordRetriesUntilTheRequestLimitAndReportsTheRedirectLimit() {
+    void digestAuthWithAWrongPasswordGetsTheServersUnauthorizedAfterOneAnswerBF078() {
         try (RecordingHttpServer server = RecordingHttpServer.serve(Map.of(PATH, GraphQLAuthTest::digestServer))) {
 
-            Throwable failure = support.failureOf(datasource(server, RestApiAuthType.DIGEST_AUTH, "wrong"), GraphQLCallSupport.query(),
+            QueryExecutionResult result = support.run(datasource(server, RestApiAuthType.DIGEST_AUTH, WRONG_PASSWORD), GraphQLCallSupport.query(),
                     GraphQLCallSupport.visitor(null, null));
 
-            System.out.println("[GraphQLAuthTest] digest, wrong password: " + failure + " after " + server.requests().size() + " requests");
-            assertThat(failure).isInstanceOf(PluginException.class).hasMessageContaining("maximum HTTP redirects");
-            assertThat(server.requests()).hasSize(REQUEST_LIMIT);
+            System.out.println("[GraphQLAuthTest] digest, wrong password: " + result.getQueryCode() + " after " + server.requests().size() + " requests");
+            assertThat(result.isSuccess()).isFalse();
+            assertThat(result.getQueryCode()).isEqualTo(UNAUTHORIZED_CODE);
+            assertThat(server.requests()).hasSize(2);
+            assertThat(server.requests().get(1).header("Authorization")).hasSize(1).allMatch(value -> value.startsWith(DIGEST));
+        }
+    }
+
+    /**
+     * BF-078, what "once per request" keeps: after a digest answer, a same-origin redirect to another path that challenges
+     * again is answered there too (the first answer was computed for the old path), and the query gets the result.
+     */
+    @Test
+    void aRedirectAfterADigestAnswerToAPathThatChallengesIsAnsweredAgainBF078() {
+        Map<String, RecordingHttpServer.Handler> handlers = Map.of(
+                PATH, request -> {
+                    Response answer = digestServer(request);
+                    return answer.status() == 200 ? new Response(307, Map.of("Location", List.of(MOVED_PATH)), null) : answer;
+                },
+                MOVED_PATH, GraphQLAuthTest::digestServer);
+        try (RecordingHttpServer server = RecordingHttpServer.serve(handlers)) {
+
+            QueryExecutionResult result = support.run(datasource(server, RestApiAuthType.DIGEST_AUTH, PASSWORD), GraphQLCallSupport.query(),
+                    GraphQLCallSupport.visitor(null, null));
+
+            List<String> paths = server.requests().stream().map(Request::pathAndQuery).toList();
+            System.out.println("[GraphQLAuthTest] digest, redirect after the answer: " + paths + " -> " + result.getData());
+            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.getData().toString()).isEqualTo("{\"authenticated\":true}");
+            assertThat(paths).containsExactly(PATH, PATH, MOVED_PATH, MOVED_PATH);
         }
     }
 
