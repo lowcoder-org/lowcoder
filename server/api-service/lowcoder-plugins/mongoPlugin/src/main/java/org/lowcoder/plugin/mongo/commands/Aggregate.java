@@ -84,6 +84,8 @@ public class Aggregate extends MongoCommand {
         commandDocument.put("pipeline", parsePipeline());
         commandDocument.put("cursor", parseSafely("cursor", "{batchSize: " + limit + "}"));
 
+        putMaxTimeMs(commandDocument);
+
         return commandDocument;
     }
 

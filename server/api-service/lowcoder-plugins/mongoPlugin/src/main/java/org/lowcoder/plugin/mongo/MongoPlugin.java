@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableSet;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoException;
+import com.mongodb.MongoExecutionTimeoutException;
 import com.mongodb.MongoSocketWriteException;
 import com.mongodb.MongoTimeoutException;
 import com.mongodb.ServerAddress;
@@ -125,7 +126,7 @@ public class MongoPlugin extends Plugin {
             }
 
             return Mono.from(source)
-                    .onErrorMap(MongoTimeoutException.class,
+                    .onErrorMap(error -> error instanceof MongoTimeoutException || error instanceof MongoExecutionTimeoutException,
                             error -> new PluginException(QUERY_EXECUTION_TIMEOUT, "QUERY_TIMEOUT_ERROR", error.getMessage()))
                     .onErrorMap(MongoCommandException.class, error -> new PluginException(QUERY_ARGUMENT_ERROR, "QUERY_ARGUMENT_ERROR",
                             error.getErrorMessage()))

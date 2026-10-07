@@ -98,6 +98,8 @@ public class Find extends MongoCommand {
             document.put("skip", Long.parseLong(this.skip));
         }
 
+        putMaxTimeMs(document);
+
         return document;
     }
 

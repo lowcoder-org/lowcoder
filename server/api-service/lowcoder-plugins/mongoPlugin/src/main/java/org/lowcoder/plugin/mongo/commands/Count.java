@@ -54,6 +54,8 @@ public class Count extends MongoCommand {
 
         document.put("query", parseSafely("Query", this.query));
 
+        putMaxTimeMs(document);
+
         return document;
     }
 }
