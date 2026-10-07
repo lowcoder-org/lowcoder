@@ -47,6 +47,8 @@ public class MysqlDatabaseTest {
     static final String WRONG_PASSWORD = "not-the-password";
     static final String TRUE = "true";
     static final int MYSQL_POOL_SIZE = 50;
+    /** The key of a parameter map that the SQL executor writes into the query as ASC or DESC. */
+    static final String SORT_KEY = "sort";
 
     private static Object value(Object data, int row, String column) {
         @SuppressWarnings("unchecked")
@@ -198,6 +200,30 @@ public class MysqlDatabaseTest {
             System.out.println("[MysqlDatabaseTest] zero date row: " + data);
             assertEquals(1, value(data, 0, "id"));
             assertNull(value(data, 0, "created"));
+        } finally {
+            destroy(wrapper);
+        }
+    }
+
+    /**
+     * BF-048 on a real MySQL: a {@code {{x}}} whose value is a {@code sort} map is rewritten into the SQL as ASC or DESC
+     * through the default executor (whose immutable bind list made the rewrite fail before), after another bound parameter;
+     * a value that is neither falls back to ASC and the table survives.
+     */
+    @Test
+    public void sortPlaceholderOrdersRowsAndAnInjectedValueFallsBackToAscBF048() throws Exception {
+        MysqlDatasourceConfig config = config();
+        HikariPerfWrapper wrapper = connect(config);
+        try (Connection app = app()) {
+            execute(app, "drop table if exists t_sort", "create table t_sort (id int primary key)", "insert into t_sort values (1), (2), (3), (4)");
+            String query = "select id from t_sort where id > {{min}} order by id {{dir}}";
+            Object desc = run(wrapper, config, sqlConfig(query, false), Map.of("min", 1, "dir", Map.of(SORT_KEY, "desc")));
+            Object injected = run(wrapper, config, sqlConfig(query, false), Map.of("min", 1, "dir", Map.of(SORT_KEY, "x; drop table t_sort")));
+            System.out.println("[MysqlDatabaseTest] sort desc: " + desc + ", injected sort value: " + injected);
+            assertEquals(List.of(Map.of("id", 4), Map.of("id", 3), Map.of("id", 2)), desc);
+            assertEquals(List.of(Map.of("id", 2), Map.of("id", 3), Map.of("id", 4)), injected);
+            assertEquals(4, ((Number) value(run(wrapper, config, sqlConfig("select count(*) as n from t_sort", false), Map.of()), 0, "n")).intValue(),
+                    "the table survives the injected sort value");
         } finally {
             destroy(wrapper);
         }
