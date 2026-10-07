@@ -45,16 +45,25 @@ import lombok.Setter;
 @NoArgsConstructor
 public abstract class MongoCommand {
 
-    private static final int DEFAULT_VALUE = 8000;
-
     /**
      * The batch size of a find or aggregate whose limit field is absent or blank: no limit (BF-031). Only the first batch of
      * the cursor is read ({@code MongoQueryUtils}), so the server's own cap on a first batch (16 MB) still applies.
      */
     protected static final int UNLIMITED = Integer.MAX_VALUE;
 
+    /**
+     * The key under which the server puts the query's timeout, in milliseconds, into every query config before it runs the
+     * query ({@code QueryExecutionServiceImpl.executeQuery}): the timeout set on the query, or the default, capped by the
+     * configured maximum.
+     */
+    static final String QUERY_TIMEOUT_MS = "timeoutMs";
+
+    /** The command field that makes the server abort a read that runs longer than this many milliseconds. */
+    static final String MAX_TIME_MS = "maxTimeMS";
+
     private String collection;
-    private int timeoutMs;
+    /** The query's timeout from {@link #QUERY_TIMEOUT_MS}; null when the config has none or it is not a number. */
+    private Integer timeoutMs;
     private String type;
 
     List<String> fieldNamesWithNoConfiguration;
@@ -69,7 +78,7 @@ public abstract class MongoCommand {
             this.collection = (String) formData.get(COLLECTION);
         }
 
-        timeoutMs = MapUtils.getInteger(formData, "timeout", DEFAULT_VALUE);
+        timeoutMs = MapUtils.getInteger(formData, QUERY_TIMEOUT_MS);
     }
 
     public boolean isValid() {
@@ -88,8 +97,21 @@ public abstract class MongoCommand {
         return collection;
     }
 
-    public int getTimeoutMs() {
-        return timeoutMs;
+    /**
+     * BF-061: puts the query's timeout into a read command as {@code maxTimeMS}, so the server stops the read when the query
+     * times out instead of running it to the end after the caller has given up. Nothing is put when there is no positive
+     * timeout ({@code maxTimeMS} 0 would mean no limit).
+     * <p>
+     * Limits: used by the read commands only (find, aggregate, count, distinct). Insert, update and delete do not get it: a
+     * write stopped part-way leaves the documents written so far, and which server versions accept the field on a write was
+     * not established. A raw command is sent as written, so it carries {@code maxTimeMS} only when the user writes it. The
+     * server's own wait for the query ends at the same timeout, so the caller usually gets that timeout first; this limit
+     * makes MongoDB stop the work too.
+     */
+    protected void putMaxTimeMs(Document command) {
+        if (timeoutMs != null && timeoutMs > 0) {
+            command.put(MAX_TIME_MS, timeoutMs);
+        }
     }
 
     public String getType() {

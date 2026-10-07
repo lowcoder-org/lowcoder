@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.mongo.utils.MongoQueryUtils;
 import org.lowcoder.sdk.exception.PluginException;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +14,6 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
@@ -38,7 +36,7 @@ public class MongoCommandDocumentsTest {
     static final String SINGLE = "SINGLE";
     static final String INVALID_LIMIT = "INVALID_LIMIT_CONFIG";
     static final String INVALID_PARAMS = "INVALID_PARAM_CONFIG_PLZ_CHECK";
-    static final int DEFAULT_TIMEOUT_MS = 8000;
+    static final int QUERY_TIMEOUT_MS = 2500;
 
     private static Map<String, Object> form(String type, String collection, Object... compKeysAndValues) {
         Map<String, Object> comp = new HashMap<>();
@@ -371,25 +369,40 @@ public class MongoCommandDocumentsTest {
     }
 
     /**
-     * Pins defect D12 (analysis-plugins section 0.6; plan section 9 D1-D20 row): the {@code timeout} form field is read into
-     * {@code timeoutMs} (default 8000) and never reaches a command document: none of them carries {@code maxTimeMS}, so the
-     * setting has no effect. A fix (adding {@code maxTimeMS}) changes this test on purpose.
+     * BF-061 (formerly pinned as D12, "the timeout form field is read into timeoutMs and never reaches a command document"):
+     * the query's timeout, which the server puts into the query config as {@code timeoutMs} (a number in text), is sent as
+     * {@code maxTimeMS} in the read commands (find, aggregate, count, distinct), and not in the writes (insert, update,
+     * delete). Without a positive {@code timeoutMs}, or with only the old {@code timeout} key, which nothing sends, no command
+     * carries it.
      */
     @Test
-    public void timeoutIsReadButNoCommandDocumentCarriesIt_pinsD12() {
-        Map<String, Object> withTimeout = form("FIND", COLLECTION);
-        withTimeout.put("timeout", 100);
-        assertEquals(100, MongoQueryUtils.convertMongoFormInputToRawCommand(withTimeout).getTimeoutMs());
-        assertEquals(DEFAULT_TIMEOUT_MS, MongoQueryUtils.convertMongoFormInputToRawCommand(form("FIND", COLLECTION)).getTimeoutMs());
-        List<Map<String, Object>> forms = new ArrayList<>(List.of(
-                form("FIND", COLLECTION), form("INSERT", COLLECTION, "documents", "{}"), form("UPDATE", COLLECTION, "query", "{}", "update", "{}"),
-                form("DELETE", COLLECTION, "query", "{}"), form("COUNT", COLLECTION), form("DISTINCT", COLLECTION, "key", "k"),
-                form("AGGREGATE", COLLECTION, "arrayPipelines", "[]", "limit", "1")));
-        for (Map<String, Object> form : forms) {
-            form.put("timeout", 100);
-            Document document = MongoQueryUtils.convertMongoFormInputToRawCommand(form).parseCommand();
-            assertFalse(document.containsKey("maxTimeMS"), form.get("compType") + ": " + document.toJson());
-            assertNull(document.get("timeout"));
+    public void theQueryTimeoutIsSentAsMaxTimeMsInTheReadCommandsBF061() {
+        List<Map<String, Object>> reads = List.of(form("FIND", COLLECTION), form("COUNT", COLLECTION), form("DISTINCT", COLLECTION, "key", "k"),
+                form("AGGREGATE", COLLECTION, "arrayPipelines", "[]", "limit", "1"));
+        List<Map<String, Object>> writes = List.of(form("INSERT", COLLECTION, "documents", "{}"), form("UPDATE", COLLECTION, "query", "{}", "update", "{}"),
+                form("DELETE", COLLECTION, "query", "{}"));
+        for (Map<String, Object> form : reads) {
+            assertEquals(QUERY_TIMEOUT_MS, command(form, "timeoutMs", String.valueOf(QUERY_TIMEOUT_MS)).get("maxTimeMS"), String.valueOf(form.get("compType")));
+            assertEquals(QUERY_TIMEOUT_MS, command(form, "timeoutMs", QUERY_TIMEOUT_MS).get("maxTimeMS"), "an Integer value too");
         }
+        for (Map<String, Object> form : writes) {
+            assertFalse(command(form, "timeoutMs", String.valueOf(QUERY_TIMEOUT_MS)).containsKey("maxTimeMS"), String.valueOf(form.get("compType")));
+        }
+        for (Map<String, Object> form : reads) {
+            assertFalse(command(form, null, null).containsKey("maxTimeMS"), "no timeoutMs: " + form.get("compType"));
+            assertFalse(command(form, "timeoutMs", "0").containsKey("maxTimeMS"), "0 would mean no limit: " + form.get("compType"));
+            assertFalse(command(form, "timeoutMs", "abc").containsKey("maxTimeMS"), "not a number: " + form.get("compType"));
+            assertFalse(command(form, "timeout", QUERY_TIMEOUT_MS).containsKey("maxTimeMS"), "the old key: " + form.get("compType"));
+        }
+    }
+
+    private static Document command(Map<String, Object> form, String key, Object value) {
+        Map<String, Object> withValue = new HashMap<>(form);
+        if (key != null) {
+            withValue.put(key, value);
+        }
+        Document document = MongoQueryUtils.convertMongoFormInputToRawCommand(withValue).parseCommand();
+        System.out.println("[MongoCommandDocumentsTest] " + withValue.get("compType") + " " + key + "=" + value + " -> " + document.toJson());
+        return document;
     }
 }
