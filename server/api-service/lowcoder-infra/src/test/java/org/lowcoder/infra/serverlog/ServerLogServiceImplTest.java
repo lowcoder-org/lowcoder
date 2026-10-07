@@ -146,14 +146,14 @@ class ServerLogServiceImplTest {
     }
 
     /**
-     * Pins the plan section 9 candidate "scheduledInsert subscribes without an error handler" (reproduced by L4-6): the
-     * queue is swapped before the save, so when the save fails the batch is gone, nothing is published or counted, the
-     * next flush has nothing to retry, and no exception reaches the scheduler. A fix (re-queue or an error handler)
-     * changes this test on purpose.
+     * BF-066 (formerly pinned as plan section 9 candidate "scheduledInsert subscribes without an error handler": the batch
+     * of a failed save was gone, not retried, never published or counted): the failed batch is put back, nothing reaches
+     * the scheduler, and the next flush saves it and publishes and counts it once.
      */
     @Test
-    void aFailingSaveLosesTheBatchWithoutRetryOrEvent() throws Exception {
-        service.record(log("/lost"));
+    void aFailingSaveIsRetriedByTheNextFlushAndCountedOnceBF066() throws Exception {
+        ServerLog kept = log("/kept");
+        service.record(kept);
         saveOverride = () -> Flux.error(new IllegalStateException("db down"));
 
         Throwable thrownToScheduler = null;
@@ -162,14 +162,66 @@ class ServerLogServiceImplTest {
         } catch (Throwable t) {
             thrownToScheduler = t;
         }
+        assertThat(publishedEvents).as("nothing is published for the failed save").isEmpty();
         saveOverride = null;
         flush();
 
-        System.out.println("[ServerLogServiceImplTest] failing save: thrown to the scheduler = " + thrownToScheduler);
+        System.out.println("[ServerLogServiceImplTest] failing save: thrown to the scheduler = " + thrownToScheduler + ", batches " + savedBatches.size()
+                + ", events " + publishedEvents.size());
         assertThat(thrownToScheduler).as("the error does not reach the scheduler").isNull();
-        assertThat(savedBatches).as("the failed batch is not retried").hasSize(1);
-        assertThat(publishedEvents).isEmpty();
-        assertThat(meterRegistry.getMeters()).isEmpty();
+        assertThat(savedBatches).as("the failed batch is saved again").hasSize(2);
+        assertThat(savedBatches.get(1)).containsExactly(kept);
+        assertThat(publishedEvents).hasSize(1);
+        assertThat(((SystemCommonEvent) publishedEvents.get(0)).getApiCalls()).isEqualTo(1);
+        assertThat(meterRegistry.get("server_log_batch_insert").tags(List.of(Tag.of("size", "1"))).counter().count()).isEqualTo(1.0);
+    }
+
+    /** BF-066: the logs recorded while a save fails are saved by the next flush together with the batch put back. */
+    @Test
+    void aBatchPutBackIsSavedWithTheLogsRecordedMeanwhileBF066() throws Exception {
+        ServerLog failed = log("/failed");
+        ServerLog meanwhile = log("/meanwhile");
+        service.record(failed);
+        saveOverride = () -> Flux.error(new IllegalStateException("db down"));
+        duringSave = () -> {
+            duringSave = () -> { };
+            service.record(meanwhile);
+        };
+
+        flush();
+        saveOverride = null;
+        flush();
+
+        assertThat(savedBatches).hasSize(2);
+        assertThat(savedBatches.get(1)).containsExactlyInAnyOrder(failed, meanwhile);
+        assertThat(((SystemCommonEvent) publishedEvents.get(0)).getApiCalls()).isEqualTo(2);
+    }
+
+    /**
+     * BF-066: the logs kept for a retry are bounded by {@link ServerLogServiceImpl#MAX_PENDING_LOGS}: a failed batch two over
+     * the bound keeps all but its two oldest logs.
+     */
+    @Test
+    void aFailedBatchOverTheBoundDropsItsOldestLogsBF066() throws Exception {
+        List<ServerLog> recorded = new ArrayList<>();
+        for (int i = 0; i < ServerLogServiceImpl.MAX_PENDING_LOGS + 2; i++) {
+            ServerLog serverLog = log("/" + i);
+            recorded.add(serverLog);
+            service.record(serverLog);
+        }
+        saveOverride = () -> Flux.error(new IllegalStateException("db down"));
+
+        flush();
+        saveOverride = null;
+        flush();
+
+        List<ServerLog> retried = savedBatches.get(1);
+        System.out.println("[ServerLogServiceImplTest] bound " + ServerLogServiceImpl.MAX_PENDING_LOGS + ": recorded " + recorded.size()
+                + ", retried " + retried.size() + ", first retried " + retried.get(0).getUrlPath());
+        assertThat(retried).hasSize(ServerLogServiceImpl.MAX_PENDING_LOGS);
+        assertThat(retried).doesNotContain(recorded.get(0), recorded.get(1));
+        assertThat(retried.get(0)).isSameAs(recorded.get(2));
+        assertThat(retried.get(retried.size() - 1)).isSameAs(recorded.get(recorded.size() - 1));
     }
 
     @Test
