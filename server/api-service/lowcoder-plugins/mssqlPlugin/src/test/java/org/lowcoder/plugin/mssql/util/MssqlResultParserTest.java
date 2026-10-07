@@ -27,8 +27,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * Unit MS-3 (task L5-5a), the parser half: {@link MssqlResultParser#parseRowValue} on a {@code FakeJdbc} row typed by
  * the SQL Server type names the driver reports. {@code date} and {@code time} become text, the datetime family is
- * formatted with {@code yyyy-MM-dd HH:mm:ss} (no fraction), {@code datetimeoffset} becomes an ISO date-time with its
- * offset, a null cell stays null, every other type reaches the result as {@code getObject} gave it.
+ * formatted with {@code yyyy-MM-dd HH:mm:ss} (no fraction), {@code timestamp} (the rowversion) is its bytes,
+ * {@code datetimeoffset} becomes an ISO date-time with its offset, a null cell stays null, every other type reaches the
+ * result as {@code getObject} gave it.
  *
  * <p>Limits: the cells are what the MSSQL driver is assumed to return for these types, built by hand (the real driver is
  * the container unit MS-4); {@code FakeJdbc} has no {@code getTimestamp}, so the test-side wrapper
@@ -41,6 +42,8 @@ public class MssqlResultParserTest {
     static final OffsetDateTime OFFSET = OffsetDateTime.parse("2024-02-29T13:14:15.123+05:30");
     static final String OFFSET_TEXT = "2024-02-29T13:14:15.123+05:30";
     static final UUID GUID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+    /** A rowversion value as the driver returns it: 8 bytes. */
+    static final byte[] ROWVERSION = {0, 0, 0, 0, 0, 0, 0x07, (byte) 0xD1};
 
     private static Map<String, Object> parse(Map<String, Object> cells, Map<String, String> typeNames) throws SQLException {
         List<Column> columns = new ArrayList<>();
@@ -85,9 +88,23 @@ public class MssqlResultParserTest {
 
     @Test
     public void datetimeFamilyIsFormattedWithoutFraction() throws SQLException {
-        Map<String, Object> cells = row("a", TIMESTAMP, "b", TIMESTAMP, "c", TIMESTAMP, "d", TIMESTAMP);
-        Map<String, Object> parsed = parse(cells, types(cells, "datetime", "datetime2", "smalldatetime", "timestamp"));
-        assertEquals(Arrays.asList(TIMESTAMP_TEXT, TIMESTAMP_TEXT, TIMESTAMP_TEXT, TIMESTAMP_TEXT), new ArrayList<>(parsed.values()));
+        Map<String, Object> cells = row("a", TIMESTAMP, "b", TIMESTAMP, "c", TIMESTAMP);
+        Map<String, Object> parsed = parse(cells, types(cells, "datetime", "datetime2", "smalldatetime"));
+        assertEquals(Arrays.asList(TIMESTAMP_TEXT, TIMESTAMP_TEXT, TIMESTAMP_TEXT), new ArrayList<>(parsed.values()));
+    }
+
+    /**
+     * BF-049: the type name {@code timestamp} is SQL Server's {@code rowversion}, 8 bytes, not a date. It was read with
+     * {@code getTimestamp}, which the driver refuses (the fake result set refuses a non-{@link Timestamp} cell the same
+     * way), so the whole row failed; it now comes back as its bytes, like {@code varbinary}, and the other columns as before.
+     */
+    @Test
+    public void timestampIsTheRowversionAndComesBackAsItsBytesBF049() throws SQLException {
+        Map<String, Object> cells = row("id", 1, "rv", ROWVERSION, "created", TIMESTAMP);
+        Map<String, Object> parsed = parse(cells, types(cells, "int", "timestamp", "datetime2"));
+        assertArrayEquals(ROWVERSION, (byte[]) parsed.get("rv"));
+        assertEquals(1, parsed.get("id"));
+        assertEquals(TIMESTAMP_TEXT, parsed.get("created"));
     }
 
     /**
@@ -98,8 +115,8 @@ public class MssqlResultParserTest {
      */
     @Test
     public void upperCaseDatetimeTypeNameSkipsTheFormatting_pinsD16() throws SQLException {
-        Map<String, Object> cells = row("a", TIMESTAMP, "b", TIMESTAMP, "c", TIMESTAMP, "d", TIMESTAMP);
-        Map<String, Object> parsed = parse(cells, types(cells, "DATETIME", "DATETIME2", "SMALLDATETIME", "TIMESTAMP"));
+        Map<String, Object> cells = row("a", TIMESTAMP, "b", TIMESTAMP, "c", TIMESTAMP);
+        Map<String, Object> parsed = parse(cells, types(cells, "DATETIME", "DATETIME2", "SMALLDATETIME"));
         parsed.forEach((name, value) -> {
             assertInstanceOf(Timestamp.class, value, name + ": the raw Timestamp object comes back, not " + TIMESTAMP_TEXT);
             assertEquals(TIMESTAMP, value, name);

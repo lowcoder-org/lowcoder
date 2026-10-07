@@ -15,7 +15,12 @@ import com.google.common.collect.ImmutableSet;
 
 public class MssqlResultParser {
 
-    private static final Set<String> TIMESTAMP_TYPES = ImmutableSet.of("smalldatetime", "timestamp", "datetime", "datetime2");
+    /**
+     * The date-time types read with {@code getTimestamp}. Not {@code timestamp}: on SQL Server that is the synonym of
+     * {@code rowversion}, an 8-byte row counter the driver refuses to read as a date (BF-049: a {@code select *} from a
+     * table with one failed); {@code getObject} gives its bytes, as for {@code varbinary}.
+     */
+    private static final Set<String> TIMESTAMP_TYPES = ImmutableSet.of("smalldatetime", "datetime", "datetime2");
 
     public static Map<String, Object> parseRowValue(ResultSet resultSet, ResultSetMetaData metaData, int colCount) throws SQLException {
         Map<String, Object> row = new LinkedHashMap<>();
