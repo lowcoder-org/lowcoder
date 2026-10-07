@@ -7,6 +7,15 @@ import java.util.function.Function;
 
 import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 
+/**
+ * A configuration value read from {@link AutoReloadConfigFactory} and resolved from its string form, which is resolved
+ * again only when the string changes. An absent string, a string the resolver cannot resolve (it throws) and a string it
+ * resolves to null all give the default, on every read until the string changes (BF-082: a string that could not be
+ * resolved used to give the default on the first read only and then the value resolved from the string before it).
+ * <p>
+ * Limits: the resolution of one string is not shared between threads that read it for the first time at once, so the
+ * resolver can run more than once for it; a resolver failure is not logged here.
+ */
 class AutoReloadConfImpl<T> implements Conf<T> {
 
     private final String confKey;
@@ -14,8 +23,8 @@ class AutoReloadConfImpl<T> implements Conf<T> {
     private final Function<String, T> valueResolver;
     private final AutoReloadConfigFactory autoReloadConfigFactory;
 
-    private volatile String previousStrValue;
-    private volatile T currentValue;
+    /** The last string read and what it resolved to (null when it could not be resolved), replaced together. */
+    private volatile Resolved<T> resolved;
 
     public AutoReloadConfImpl(String confKey, T defaultValue,
             AutoReloadConfigFactory autoReloadConfigFactory,
@@ -33,17 +42,25 @@ class AutoReloadConfImpl<T> implements Conf<T> {
             return defaultValue;
         }
 
-        if (StringUtils.equals(previousStrValue, currentStrValue)) {
-            return firstNonNull(currentValue, defaultValue);
+        Resolved<T> last = resolved;
+        if (last != null && StringUtils.equals(last.strValue(), currentStrValue)) {
+            return firstNonNull(last.value(), defaultValue);
         }
 
-        previousStrValue = currentStrValue;
+        Resolved<T> current = new Resolved<>(currentStrValue, resolve(currentStrValue));
+        resolved = current;
+        return firstNonNull(current.value(), defaultValue);
+    }
+
+    /** The value of {@code strValue}, or null when the resolver throws. */
+    private T resolve(String strValue) {
         try {
-            currentValue = valueResolver.apply(currentStrValue);
-            return firstNonNull(currentValue, defaultValue);
+            return valueResolver.apply(strValue);
         } catch (Exception e) {
-            return defaultValue;
+            return null;
         }
     }
 
+    private record Resolved<T>(String strValue, T value) {
+    }
 }

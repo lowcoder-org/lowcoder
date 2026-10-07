@@ -6,6 +6,8 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.config.dynamic.Conf;
 
@@ -14,6 +16,11 @@ class AutoReloadConfImplTest {
 
     private static final String KEY = "k";
     private static final int DEFAULT = 5;
+    private static final String GOOD = "10";
+    private static final int GOOD_VALUE = 10;
+    private static final String UNPARSABLE = "bad";
+    private static final String NEXT_GOOD = "12";
+    private static final int NEXT_GOOD_VALUE = 12;
 
     /** The factory's stored strings, mutable so a test can change the "configured" value between reads. */
     private final Map<String, String> stored = new HashMap<>();
@@ -66,23 +73,32 @@ class AutoReloadConfImplTest {
     }
 
     /**
-     * DEFECT pinned (plan section 9 row A1, D-6, fix deferred): a value the resolver cannot parse is answered with the
-     * default only on the first read. {@code previousStrValue} is stored before the resolver runs, so the second read
-     * sees an unchanged string and returns {@code currentValue}, which still holds the value resolved from the
-     * previous string (10). Observed sequence 10, 5, 10. The obvious fix is to record {@code previousStrValue} only
-     * after a successful resolve (or to reset {@code currentValue} on failure), which makes the sequence 10, 5, 5.
+     * BF-082 (fixed; was pinned as plan section 9 row A1, D-6: the sequence was 10, 5, 10, because the string was
+     * recorded before the resolver ran and the value of the string before it was kept). A value the resolver cannot
+     * resolve gives the default on every read, the resolver runs once for it, and the next good string is resolved.
      */
     @Test
-    void aValueThatCannotBeResolvedGivesTheDefaultOnlyOnceAndThenTheStaleEarlierValue() {
-        AutoReloadConfImpl<Integer> conf = intConf();
-        stored.put(KEY, "10");
+    void aValueThatCannotBeResolvedGivesTheDefaultOnEveryReadBF082() {
+        AtomicInteger resolutions = new AtomicInteger();
+        AutoReloadConfImpl<Integer> conf = new AutoReloadConfImpl<>(KEY, DEFAULT, factory, s -> {
+            resolutions.incrementAndGet();
+            return Integer.valueOf(s);
+        });
+        stored.put(KEY, GOOD);
         int first = conf.get();
-        stored.put(KEY, "bad");
+        stored.put(KEY, UNPARSABLE);
         int second = conf.get();
         int third = conf.get();
+        int resolutionsOfTheBadValue = resolutions.get() - 1;
+        stored.put(KEY, NEXT_GOOD);
+        int recovered = conf.get();
 
-        System.out.println("[AutoReloadConfImplTest] sequence " + first + ", " + second + ", " + third);
-        assertThat(List.of(first, second, third)).containsExactly(10, DEFAULT, 10);
+        System.out.println("[AutoReloadConfImplTest] sequence " + first + ", " + second + ", " + third + ", then " + NEXT_GOOD
+                + " -> " + recovered + "; resolutions of '" + UNPARSABLE + "': " + resolutionsOfTheBadValue);
+        assertThat(List.of(first, second, third)).containsExactly(GOOD_VALUE, DEFAULT, DEFAULT);
+        assertThat(resolutionsOfTheBadValue).as("an unchanged unresolvable string is not resolved again").isEqualTo(1);
+        assertThat(recovered).isEqualTo(NEXT_GOOD_VALUE);
+        assertThat(resolutions.get()).as("the good, the bad and the next good string, each resolved once").isEqualTo(3);
     }
 
     @Test
