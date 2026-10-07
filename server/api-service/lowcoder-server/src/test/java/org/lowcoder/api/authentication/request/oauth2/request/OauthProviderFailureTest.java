@@ -28,6 +28,8 @@ import org.lowcoder.domain.user.model.AuthToken;
 import org.lowcoder.domain.user.model.AuthUser;
 import org.lowcoder.sdk.auth.Oauth2GenericAuthConfig;
 import org.lowcoder.sdk.auth.constants.AuthTypeConstants;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
 import org.mockito.MockedStatic;
 
@@ -221,16 +223,18 @@ class OauthProviderFailureTest {
     private static Stream<Arguments> githubTokenBodies() {
         return Stream.of(
                 Arguments.of("access_token=t1&scope=read%3Auser&token_type=bearer", "t1"),
-                Arguments.of("   ", null),
-                Arguments.of("a=b&&access_token=t2", "t2"),
-                Arguments.of("access_token=a=b", null));
+                Arguments.of("a=b&&access_token=t2", "t2"));
+    }
+
+    private static Stream<String> githubTokenBodiesWithoutAnAccessToken() {
+        return Stream.of("", "   ", "access_token=a=b", "access_token=", "scope=read%3Auser&token_type=bearer");
     }
 
     /**
      * GitHub answers the token request form-encoded; {@code parseStringToMap} turns it into the map the code reads.
-     * Pinned as behaviour (coordinator ruling): a value containing {@code =} (three parts) is dropped to null, and
-     * GitHub access tokens contain no {@code =}; a whitespace-only body parses to an empty map (a token without access
-     * token); blank items between {@code &} are skipped.
+     * Blank items between {@code &} are skipped. A body the parser reads no access token from (a value containing
+     * {@code =}, which GitHub access tokens do not contain, is dropped to null; a whitespace-only body is an empty map)
+     * is refused: see {@link #github_tokenResponseWithoutAnAccessToken_isAnAuthExceptionBF073}.
      */
     @ParameterizedTest(name = "body [{0}] -> access token {1}")
     @MethodSource("githubTokenBodies")
@@ -248,20 +252,50 @@ class OauthProviderFailureTest {
     }
 
     /**
-     * Pins the plan §9 row "GithubRequest.getAuthToken: an empty token response body ... the login completes empty"
-     * (D-6): an empty response body makes {@code bodyToMono(String.class)} complete without a value, so
-     * {@code getAuthToken} emits neither a token nor an error (the Mono is empty, not a token without access token,
-     * and not an auth error). A fix changes this test on purpose.
+     * BF-073 (fixed; was pinned as the plan §9 row "GithubRequest.getAuthToken: an empty token response body ... the
+     * login completes empty"): an answer without an access token, an empty body included (which completed without a
+     * value), fails with an {@link AuthException}.
      */
-    @Test
-    void github_blankTokenResponse_emitsNothing(WireMockRuntimeInfo wireMock) {
-        stub(wireMock, RequestMethod.POST, GITHUB_TOKEN_PATH, OK, FORM_CONTENT_TYPE, "");
+    @ParameterizedTest(name = "body [{0}]")
+    @MethodSource("githubTokenBodiesWithoutAnAccessToken")
+    void github_tokenResponseWithoutAnAccessToken_isAnAuthExceptionBF073(String body, WireMockRuntimeInfo wireMock) {
+        stub(wireMock, RequestMethod.POST, GITHUB_TOKEN_PATH, OK, FORM_CONTENT_TYPE, body);
         GithubRequest request = new GithubRequest(simple(AuthTypeConstants.GITHUB));
 
         try (MockedStatic<WebClientBuildHelper> ignored = redirectTo(wireMock.getHttpBaseUrl())) {
-            assertThat(request.getAuthToken(context()).block(BLOCK_TIMEOUT)).isNull();
+            StepVerifier.create(request.getAuthToken(context()))
+                    .expectErrorSatisfies(e -> assertThat(e).isInstanceOf(AuthException.class).hasMessage(GithubRequest.NO_ACCESS_TOKEN))
+                    .verify(BLOCK_TIMEOUT);
         }
-        System.out.println("[OauthProviderFailureTest] GitHub blank token response -> empty Mono (no token, no error)");
+        System.out.println("[OauthProviderFailureTest] GitHub token body [" + body + "] -> AuthException " + GithubRequest.NO_ACCESS_TOKEN);
+    }
+
+    /**
+     * BF-073 as the login sees it: {@code auth} turns an answer without an access token into FAIL_TO_GET_OIDC_INFO, which
+     * the login endpoints answer as an error, and the failure is the token step's ({@code NO_ACCESS_TOKEN} in the
+     * message). Before, an empty answer completed empty (answered as a success without a session), and the other answers
+     * went on to the user step with {@code token null} and failed there.
+     * <p>
+     * Limits: {@code auth} runs the user step on its own thread pool, where the static {@link OauthProviderStubs#redirectTo} mock does not
+     * apply, so whether the user endpoint was asked is read from the message, not from WireMock's request journal.
+     */
+    @ParameterizedTest(name = "body [{0}]")
+    @MethodSource("githubTokenBodiesWithoutAnAccessToken")
+    void github_tokenResponseWithoutAnAccessToken_failsTheAuthInTheTokenStepBF073(String body, WireMockRuntimeInfo wireMock) {
+        stub(wireMock, RequestMethod.POST, GITHUB_TOKEN_PATH, OK, FORM_CONTENT_TYPE, body);
+        GithubRequest request = new GithubRequest(simple(AuthTypeConstants.GITHUB));
+
+        try (MockedStatic<WebClientBuildHelper> ignored = redirectTo(wireMock.getHttpBaseUrl())) {
+            StepVerifier.create(request.auth(context()))
+                    .expectErrorSatisfies(e -> {
+                        System.out.println("[OauthProviderFailureTest] GitHub token body [" + body + "], auth -> " + e);
+                        assertThat(e).isInstanceOf(BizException.class);
+                        assertThat(((BizException) e).getError()).isEqualTo(BizError.FAIL_TO_GET_OIDC_INFO);
+                        assertThat(((BizException) e).getMessageKey()).isEqualTo(BizError.FAIL_TO_GET_OIDC_INFO.name());
+                        assertThat(e.getMessage()).contains(GithubRequest.NO_ACCESS_TOKEN);
+                    })
+                    .verify(BLOCK_TIMEOUT);
+        }
     }
 
     /** A key without a value ({@code error}) is still an error response: the key is present with a null value. */
