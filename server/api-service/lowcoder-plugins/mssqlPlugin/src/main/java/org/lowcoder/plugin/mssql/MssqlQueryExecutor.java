@@ -26,6 +26,7 @@ import org.lowcoder.plugin.sql.SqlBasedQueryExecutor;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.DatasourceStructure;
 import org.lowcoder.sdk.models.DatasourceStructure.Table;
+import org.lowcoder.sdk.plugin.common.SqlQueryUtils.QuotingRules;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedDatasourceConnectionConfig;
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.pf4j.Extension;
@@ -63,6 +64,12 @@ public class MssqlQueryExecutor extends SqlBasedQueryExecutor {
     @Override
     protected boolean rollsBackEveryQuery(HikariDataSource dataSource) {
         return dataSource.isReadOnly();
+    }
+
+    /** SQL Server quotes identifiers with {@code [...]}: a comment start inside one is not a comment (BF-092). */
+    @Override
+    protected QuotingRules quotingRules() {
+        return QuotingRules.BRACKET_IDENTIFIERS;
     }
 
     @Override
