@@ -11,6 +11,9 @@ import static org.lowcoder.sdk.plugin.common.constant.Constants.*;
 
 public abstract class SheetChangeSet {
 
+    /** The message key of a change set without operation data: missing, not a map, empty, or an object without data (BF-094). */
+    private static final String OPERATION_DATA_EMPTY_MESSAGE_KEY = "GUI_OPERATION_DATA_EMPTY";
+
     public abstract SheetChangeSetRow render(Map<String, Object> requestMap);
 
     public static SheetChangeSet parseChangeSet(Map<String, Object> commandDetail) {
@@ -20,12 +23,12 @@ public abstract class SheetChangeSet {
             return getFromChangeSet((Map<String, Object>) c);
         }
 
-        throw new PluginException(INVALID_GUI_SETTINGS, "GUI_OPERATION_DATA_EMPTY");
+        throw new PluginException(INVALID_GUI_SETTINGS, OPERATION_DATA_EMPTY_MESSAGE_KEY);
     }
 
     private static SheetChangeSet getFromChangeSet(Map<String, Object> changeSet) {
         if (MapUtils.isEmpty(changeSet)) {
-            throw new PluginException(INVALID_GUI_SETTINGS, "GUI_OPERATION_DATA_EMPTY");
+            throw new PluginException(INVALID_GUI_SETTINGS, OPERATION_DATA_EMPTY_MESSAGE_KEY);
         }
 
         String changeSetType = MapUtils.getString(changeSet, COMP_TYPE_KEY, "").toUpperCase();
@@ -40,6 +43,10 @@ public abstract class SheetChangeSet {
         }
 
         if (changeSetType.equals(CHANGE_SET_TYPE_OBJECT)) {
+            if (data == null) {
+                // BF-094: no data is empty operation data; its class name used to be read, a NullPointerException
+                throw new PluginException(INVALID_GUI_SETTINGS, OPERATION_DATA_EMPTY_MESSAGE_KEY);
+            }
             if (!(data instanceof String)) {
                 throw new PluginException(INVALID_GUI_SETTINGS, "GUI_INVALID_PARAM", data.getClass().getSimpleName());
             }
