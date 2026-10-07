@@ -118,21 +118,33 @@ class ReloadableCacheTest {
     }
 
     /**
-     * DEFECT pinned (plan section 9 row R1, D-6, fix deferred): the scheduled task assigns the result of
-     * {@code factory.getValue().block()} unconditionally, so a reload that completes empty writes null and the cache
-     * falls back to the caller's default, unlike a failing reload which keeps the old value. The obvious fix is to
-     * assign only a non-null result.
+     * BF-067 (formerly pinned as plan section 9 row R1: the scheduled task assigned the result of
+     * {@code factory.getValue().block()} unconditionally, so a reload that completed empty wrote null and the cache fell
+     * back to the caller's default): an empty reload keeps the cached value, as a failing reload does, and a later reload
+     * with a value replaces it.
      */
     @Test
-    void scheduledReloadThatReturnsAnEmptyMonoDropsTheCachedValue() throws InterruptedException {
+    void scheduledReloadKeepsTheOldValueWhenTheFactoryIsEmptyBF067() throws InterruptedException {
         AtomicInteger calls = new AtomicInteger();
-        ReloadableCache<String> cache = ReloadableCache.<String>newBuilder()
-                .setFactory(() -> calls.incrementAndGet() == 1 ? Mono.just("v") : Mono.empty())
-                .setInterval(RELOAD_INTERVAL).setName("drops").build();
+        List<String> seenWhenEmpty = Collections.synchronizedList(new ArrayList<>());
+        @SuppressWarnings("unchecked")
+        ReloadableCache<String>[] holder = new ReloadableCache[1];
+        holder[0] = ReloadableCache.<String>newBuilder().setFactory(() -> {
+            int call = calls.incrementAndGet();
+            if (call == 1) {
+                return Mono.just("v");
+            }
+            if (call <= 3) {
+                seenWhenEmpty.add(String.valueOf(holder[0].getCachedOrDefault(DEFAULT)));
+                return Mono.empty();
+            }
+            return Mono.just("new");
+        }).setInterval(RELOAD_INTERVAL).setName("keepsOnEmpty").build();
 
-        awaitTrue("the first load", () -> calls.get() >= 1);
-        awaitTrue("the value to be dropped after an empty reload", () -> DEFAULT.equals(cache.getCachedOrDefault(DEFAULT)) && calls.get() >= 2);
+        awaitTrue("two empty reloads and a later value", () -> "new".equals(holder[0].getCachedOrDefault(DEFAULT)));
+        seenWhenEmpty.add(String.valueOf(holder[0].getCachedOrDefault(DEFAULT)));
 
-        assertThat(cache.getCachedOrDefault(DEFAULT)).isEqualTo(DEFAULT);
+        System.out.println("[ReloadableCacheTest] value during and after empty reloads " + seenWhenEmpty);
+        assertThat(seenWhenEmpty).containsExactly("v", "v", "new");
     }
 }

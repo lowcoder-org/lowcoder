@@ -76,13 +76,26 @@ public final class ReloadableCache<T> {
             return cache;
         }
 
+        /**
+         * Reloads the value at the interval. A reload that fails or completes without a value keeps the cached value (BF-067:
+         * an empty reload wrote null, so callers fell back to their default until the next good reload).
+         * <p>
+         * Limits: a factory that completes empty to mean "no value any more" cannot clear the cache; it keeps the last value.
+         * A factory that maps a failure to a value (a placeholder) still replaces the cached value with it: only an empty
+         * completion or an error is kept out.
+         */
         @SuppressWarnings("UnstableApiUsage")
         private void startScheduledReloadTask(ReloadableCache<T> cache) {
             ScheduledExecutorService scheduledExecutor = newSingleThreadScheduledExecutor();
             scheduledExecutor.scheduleAtFixedRate(() -> {
                 log.trace("{} scheduled reload...", cacheName);
                 try {
-                    cache.cachedValue = factory.getValue().block();
+                    T value = factory.getValue().block();
+                    if (value != null) {
+                        cache.cachedValue = value;
+                    } else {
+                        log.warn("{} scheduled reload returned no value, the cached value is kept", cacheName);
+                    }
                 } catch (Exception e) {
                     // do not update value in error cases
                     log.error("scheduled load error", e);
