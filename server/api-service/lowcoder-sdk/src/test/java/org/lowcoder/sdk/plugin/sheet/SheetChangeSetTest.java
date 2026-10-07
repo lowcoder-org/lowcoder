@@ -142,17 +142,24 @@ class SheetChangeSetTest {
     }
 
     /**
-     * Pins the plan section 9 row "KeyValuePairChangeSet / SheetKeyValuePairChangeSet throw a NullPointerException for
-     * an entry without a value" (D-6, fix deferred): {@code Collectors.toMap} rejects the null value, so a GUI
-     * command that sets a column to NULL fails when the change set is built. A fix changes this test on purpose.
+     * BF-047 fixed: {@code Collectors.toMap} refused a null value, so a GUI command that set a column to NULL failed with
+     * a NullPointerException when the change set was built; an entry with no {@code value} key ({@code c}) is the same. The SQL change set now renders the column as NULL (bound as
+     * null, or the literal {@code null} in an inlined statement); the sheet change set writes an empty cell, since a sheet
+     * has no NULL and its handlers write every value as text. The other column keeps its value in both.
      */
     @Test
-    void keyValueChangeSetsThrowNullPointerExceptionForAnEntryWithoutValue() {
-        List<Object> withoutValue = List.of(pair("a", null));
+    void keyValueChangeSetsKeepAnEntryWithoutValueBF047() {
+        List<Object> withoutValue = List.of(pair("a", null), pair("b", 1), Map.of("column", "c"));
 
-        assertThatThrownBy(() -> new SheetKeyValuePairChangeSet(withoutValue)).isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> new KeyValuePairChangeSet(withoutValue)).isInstanceOf(NullPointerException.class);
-        System.out.println("[SheetChangeSetTest] entry without value -> NullPointerException in both classes (plan section 9 row, pinned)");
+        List<String> sql = new ArrayList<>();
+        new KeyValuePairChangeSet(withoutValue).render(Map.of()).forEach(item -> sql.add(item.column() + "=" + item.guiSqlValue().getValue()
+                + " inlined as " + item.guiSqlValue().getConcatSqlStr(text -> "'" + text + "'")));
+        List<Object> sheet = new ArrayList<>();
+        new SheetKeyValuePairChangeSet(withoutValue).render(Map.of()).forEach(item -> sheet.add(item.column() + "=[" + item.renderedValue() + "]"));
+
+        System.out.println("[SheetChangeSetTest] entry without value -> sql " + sql + ", sheet " + sheet);
+        assertThat(sql).containsExactly("a=null inlined as null", "b=1 inlined as 1", "c=null inlined as null");
+        assertThat(sheet).containsExactlyInAnyOrder("a=[]", "b=[1]", "c=[]");
     }
 
     /**

@@ -5,7 +5,6 @@ import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.util.MustacheHelper;
 import org.lowcoder.sdk.util.SqlGuiUtils;
@@ -30,6 +29,11 @@ public class KeyValuePairChangeSet extends ChangeSet {
         this(parseColumnValueMap(comp));
     }
 
+    /**
+     * The column values in the order written; a later entry of a column replaces an earlier one. An entry without a value
+     * (or with a null one) sets the column to NULL (BF-047: {@code Collectors.toMap} refused the null value with a
+     * NullPointerException, so a GUI insert or update could not set a column to NULL).
+     */
     @SuppressWarnings("unchecked")
     @Nonnull
     private static Map<String, Object> parseColumnValueMap(Object comp) {
@@ -37,21 +41,20 @@ public class KeyValuePairChangeSet extends ChangeSet {
             throw new PluginException(INVALID_GUI_SETTINGS, "GUI_INVALID_PARAM", toJson(comp));
         }
 
-        return list.stream()
-                .map(o -> {
-                    if (!(o instanceof Map<?, ?> map)) {
-                        throw new PluginException(INVALID_GUI_SETTINGS, "GUI_CHANGE_SET_TYPE_ERROR", o.getClass().getSimpleName());
-                    }
+        Map<String, Object> columnValueMap = new LinkedHashMap<>();
+        for (Object o : list) {
+            if (!(o instanceof Map<?, ?> map)) {
+                throw new PluginException(INVALID_GUI_SETTINGS, "GUI_CHANGE_SET_TYPE_ERROR", o.getClass().getSimpleName());
+            }
 
-                    String column = MapUtils.getString((Map<String, ?>) map, "column");
-                    if (StringUtils.isBlank(column)) {
-                        throw new PluginException(INVALID_GUI_SETTINGS, "GUI_CHANGE_SET_FIELD_EMPTY");
-                    }
+            String column = MapUtils.getString((Map<String, ?>) map, "column");
+            if (StringUtils.isBlank(column)) {
+                throw new PluginException(INVALID_GUI_SETTINGS, "GUI_CHANGE_SET_FIELD_EMPTY");
+            }
 
-                    Object value = MapUtils.getObject((Map<String, ?>) map, "value");
-                    return Pair.of(column, value);
-                })
-                .collect(Collectors.toMap(Pair::getKey, Pair::getValue, (a, b) -> b, LinkedHashMap::new));
+            columnValueMap.put(column, MapUtils.getObject((Map<String, ?>) map, "value"));
+        }
+        return columnValueMap;
     }
 
     @VisibleForTesting
