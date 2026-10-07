@@ -123,11 +123,12 @@ public class Datasource extends HasIdAndAuditing {
     public Datasource mergeWith(Datasource updatedDatasource) {
         setName(updatedDatasource.getName());
         setDatasourceStatus(updatedDatasource.getDatasourceStatus());
-        Optional.of(getDetailConfig())
+        if (updatedDatasource.getDetailConfig() instanceof JsDatasourceConnectionConfig jsDatasourceConnectionConfig) {
+            jsDatasourceConnectionConfig.setType(updatedDatasource.getType());
+        }
+        // BF-102: a datasource without a detail config takes the update's; Optional.of used to throw a NullPointerException
+        Optional.ofNullable(getDetailConfig())
                 .ifPresentOrElse(currentDetailConfig -> {
-                            if (updatedDatasource.getDetailConfig() instanceof JsDatasourceConnectionConfig jsDatasourceConnectionConfig) {
-                                jsDatasourceConnectionConfig.setType(updatedDatasource.getType());
-                            }
                             DatasourceConnectionConfig updatedDetailConfig =
                                     currentDetailConfig.mergeWithUpdatedConfig(updatedDatasource.getDetailConfig());
                             setDetailConfig(updatedDetailConfig);
