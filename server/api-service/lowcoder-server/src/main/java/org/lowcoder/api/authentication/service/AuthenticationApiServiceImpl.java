@@ -364,7 +364,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     public Flux<FindAuthConfig> findAuthConfigs(boolean enableOnly) {
         return checkIfAdmin().
                 then(sessionUserService.getVisitorOrgMemberCache())
-                .flatMapMany(orgMember -> authenticationService.findAllAuthConfigs(orgMember.getOrgId(),false));
+                .flatMapMany(orgMember -> authenticationService.findAllAuthConfigs(orgMember.getOrgId(), enableOnly));
     }
 
     @Override

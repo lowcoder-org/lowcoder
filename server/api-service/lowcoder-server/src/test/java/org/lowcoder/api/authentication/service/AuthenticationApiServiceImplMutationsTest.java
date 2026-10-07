@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
 import org.lowcoder.api.authentication.request.AuthRequestFactory;
 import org.lowcoder.api.authentication.service.factory.AuthConfigFactory;
@@ -78,10 +79,11 @@ import reactor.test.StepVerifier;
  * <ul>
  *   <li>plan §9 / analysis H3: {@code disableAuthConfig(.., delete=true)} on an organisation without an
  *       organisation domain throws a NullPointerException;</li>
- *   <li>plan §9 "findAuthConfigs ignores its enableOnly parameter".</li>
  * </ul>
  * Fixed since: plan §9 "builds a duplicate-config error and drops it" (BF-087): a new config of a type the organisation
- * already has is refused ({@link #enableAuthConfig_newConfigOfATypeAlreadyAdded_isRefusedAsADuplicateBF087}).
+ * already has is refused ({@link #enableAuthConfig_newConfigOfATypeAlreadyAdded_isRefusedAsADuplicateBF087});
+ * plan §9 "findAuthConfigs ignores its enableOnly parameter" (BF-088): the parameter is passed on
+ * ({@link #findAuthConfigs_admin_queriesOwnOrg_withTheCallersEnableOnlyBF088}).
  */
 @ExtendWith(MockitoExtension.class)
 class AuthenticationApiServiceImplMutationsTest {
@@ -527,20 +529,22 @@ class AuthenticationApiServiceImplMutationsTest {
     }
 
     /**
-     * Pins the plan §9 defect "findAuthConfigs ignores its enableOnly parameter": the admin's own organisation is
-     * queried with enableOnly=false even when the caller passes true. A fix changes this test on purpose.
+     * BF-088 (fixed; was pinned as the plan §9 defect "findAuthConfigs ignores its enableOnly parameter": the
+     * organisation was queried with enableOnly=false whatever the caller passed): the admin's own organisation is
+     * queried with the enableOnly the caller passes, true and false alike.
      */
-    @Test
-    void findAuthConfigs_admin_queriesOwnOrg_andIgnoresEnableOnly_pinsEnableOnlyDefect() {
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void findAuthConfigs_admin_queriesOwnOrg_withTheCallersEnableOnlyBF088(boolean enableOnly) {
         visitorIs(MemberRole.ADMIN);
-        FindAuthConfig found = new FindAuthConfig(config(CONFIG_A, false), null);
-        when(authenticationService.findAllAuthConfigs(ORG_ID, false)).thenReturn(Flux.just(found));
+        FindAuthConfig found = new FindAuthConfig(config(CONFIG_A, true), null);
+        when(authenticationService.findAllAuthConfigs(ORG_ID, enableOnly)).thenReturn(Flux.just(found));
 
-        StepVerifier.create(service.findAuthConfigs(true)).expectNext(found).verifyComplete();
+        StepVerifier.create(service.findAuthConfigs(enableOnly)).expectNext(found).verifyComplete();
 
-        verify(authenticationService).findAllAuthConfigs(ORG_ID, false);
-        verify(authenticationService, never()).findAllAuthConfigs(anyString(), eq(true));
-        System.out.println("[AuthenticationApiServiceImplMutationsTest] findAuthConfigs(true) still queried enableOnly=false");
+        verify(authenticationService).findAllAuthConfigs(ORG_ID, enableOnly);
+        verify(authenticationService, never()).findAllAuthConfigs(anyString(), eq(!enableOnly));
+        System.out.println("[AuthenticationApiServiceImplMutationsTest] findAuthConfigs(" + enableOnly + ") queried enableOnly=" + enableOnly);
     }
 
     // -------------------------------------------------------- updateConnection
