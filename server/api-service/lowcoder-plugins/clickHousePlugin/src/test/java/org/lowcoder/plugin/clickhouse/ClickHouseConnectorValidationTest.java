@@ -101,14 +101,14 @@ public class ClickHouseConnectorValidationTest {
     }
 
     /**
-     * Pins the plan section 9 row on {@code SqlQueryConfig.getSql()} (same shape, also for {@code ClickHouseQueryConfig}; D-6:
-     * fix deferred): a query config without a {@code sql} key throws a NullPointerException, not SQL_EMPTY. A fix changes
-     * this test on purpose.
+     * BF-093 (the plan section 9 row on {@code SqlQueryConfig.getSql()}, also for {@code ClickHouseQueryConfig}; was pinned):
+     * a query config without a {@code sql} key is SQL_EMPTY, like a blank query, instead of a NullPointerException.
      */
     @Test
-    public void configWithoutSqlKeyIsANullPointerExceptionNotSqlEmpty() {
-        NullPointerException thrown = assertThrows(NullPointerException.class, () -> build(false, Map.of("disablePreparedStatement", false)));
-        assertTrue(thrown.getMessage().contains("sql"), thrown.getMessage());
-        System.out.println("[ClickHouseConnectorValidationTest] no sql key: " + thrown.getMessage());
+    public void configWithoutSqlKeyIsSqlEmptyBF093() {
+        PluginException thrown = assertThrows(PluginException.class, () -> build(false, Map.of("disablePreparedStatement", false)));
+        assertEquals(QUERY_ARGUMENT_ERROR, thrown.getError());
+        assertEquals("SQL_EMPTY", thrown.getMessageKey());
+        System.out.println("[ClickHouseConnectorValidationTest] no sql key: " + thrown.getMessageKey());
     }
 }

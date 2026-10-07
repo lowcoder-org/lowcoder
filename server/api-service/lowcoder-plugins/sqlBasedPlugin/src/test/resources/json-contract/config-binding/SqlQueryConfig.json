@@ -69,15 +69,9 @@
         "/guiStatementDetail/filterBy/0/operator" : "java.lang.String",
         "/guiStatementDetail/filterBy/0/value" : "java.lang.String"
       },
-      "noView" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.sql.SqlQueryConfig[\"sql\"])"
-      },
-      "Public" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.sql.SqlQueryConfig[\"sql\"])"
-      },
-      "Internal" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.sql.SqlQueryConfig[\"sql\"])"
-      }
+      "noView" : {"sql":"","disablePreparedStatement":false,"mode":"GUI","guiStatementType":"INSERT","guiStatementDetail":{"table":"users","changeSet":[{"key":"id","value":"{{1}}"},{"key":"name","value":"{{input.value}}"}],"allowMultiModify":true,"filterBy":[{"key":"id","operator":"=","value":"7"}]},"guiMode":true},
+      "Public" : {"sql":"","disablePreparedStatement":false,"mode":"GUI","guiStatementType":"INSERT","guiStatementDetail":{"table":"users","changeSet":[{"key":"id","value":"{{1}}"},{"key":"name","value":"{{input.value}}"}],"allowMultiModify":true,"filterBy":[{"key":"id","operator":"=","value":"7"}]},"guiMode":true},
+      "Internal" : {"sql":"","disablePreparedStatement":false,"mode":"GUI","guiStatementType":"INSERT","guiStatementDetail":{"table":"users","changeSet":[{"key":"id","value":"{{1}}"},{"key":"name","value":"{{input.value}}"}],"allowMultiModify":true,"filterBy":[{"key":"id","operator":"=","value":"7"}]},"guiMode":true}
     },
     "guiJavaNames" : {
       "class" : "org.lowcoder.plugin.sql.SqlQueryConfig",
@@ -126,15 +120,9 @@
         "/guiStatementDetail/filterBy/0/operator" : "java.lang.String",
         "/guiStatementDetail/filterBy/0/value" : "java.lang.String"
       },
-      "noView" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.sql.SqlQueryConfig[\"sql\"])"
-      },
-      "Public" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.sql.SqlQueryConfig[\"sql\"])"
-      },
-      "Internal" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.sql.SqlQueryConfig[\"sql\"])"
-      }
+      "noView" : {"sql":"","disablePreparedStatement":false,"mode":"GUI","guiStatementType":"UPDATE","guiStatementDetail":{"table":"users","changeSet":[{"key":"id","value":"{{1}}"},{"key":"name","value":"{{input.value}}"}],"allowMultiModify":true,"filterBy":[{"key":"id","operator":"=","value":"7"}]},"guiMode":true},
+      "Public" : {"sql":"","disablePreparedStatement":false,"mode":"GUI","guiStatementType":"UPDATE","guiStatementDetail":{"table":"users","changeSet":[{"key":"id","value":"{{1}}"},{"key":"name","value":"{{input.value}}"}],"allowMultiModify":true,"filterBy":[{"key":"id","operator":"=","value":"7"}]},"guiMode":true},
+      "Internal" : {"sql":"","disablePreparedStatement":false,"mode":"GUI","guiStatementType":"UPDATE","guiStatementDetail":{"table":"users","changeSet":[{"key":"id","value":"{{1}}"},{"key":"name","value":"{{input.value}}"}],"allowMultiModify":true,"filterBy":[{"key":"id","operator":"=","value":"7"}]},"guiMode":true}
     },
     "scalarsAsStrings" : {
       "class" : "org.lowcoder.plugin.sql.SqlQueryConfig",
@@ -176,15 +164,9 @@
         "/guiStatementType" : "null",
         "/guiStatementDetail" : "null"
       },
-      "noView" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.sql.SqlQueryConfig[\"sql\"])"
-      },
-      "Public" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.sql.SqlQueryConfig[\"sql\"])"
-      },
-      "Internal" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.sql.SqlQueryConfig[\"sql\"])"
-      }
+      "noView" : {"sql":"","disablePreparedStatement":false,"mode":"SQL","guiStatementType":null,"guiStatementDetail":null,"guiMode":false},
+      "Public" : {"sql":"","disablePreparedStatement":false,"mode":"SQL","guiStatementType":null,"guiStatementDetail":null,"guiMode":false},
+      "Internal" : {"sql":"","disablePreparedStatement":false,"mode":"SQL","guiStatementType":null,"guiStatementDetail":null,"guiMode":false}
     },
     "empty" : {
       "error" : "org.lowcoder.sdk.exception.PluginException: INVALID_QUERY_SETTINGS EMPTY_SQL_QUERY_CONFIG"

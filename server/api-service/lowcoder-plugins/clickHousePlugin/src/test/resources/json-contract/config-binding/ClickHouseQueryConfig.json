@@ -68,15 +68,9 @@
         "/disablePreparedStatement" : "java.lang.Boolean",
         "/timeout" : "java.lang.Integer"
       },
-      "noView" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.clickhouse.model.ClickHouseQueryConfig[\"sql\"])"
-      },
-      "Public" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.clickhouse.model.ClickHouseQueryConfig[\"sql\"])"
-      },
-      "Internal" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.clickhouse.model.ClickHouseQueryConfig[\"sql\"])"
-      }
+      "noView" : {"sql":"","disablePreparedStatement":false,"timeout":1},
+      "Public" : {"sql":"","disablePreparedStatement":false,"timeout":1},
+      "Internal" : {"sql":"","disablePreparedStatement":false,"timeout":1}
     },
     "empty" : {
       "error" : "org.lowcoder.sdk.exception.PluginException: INVALID_QUERY_SETTINGS CLICKHOUSE_CONFIG_EMPTY"

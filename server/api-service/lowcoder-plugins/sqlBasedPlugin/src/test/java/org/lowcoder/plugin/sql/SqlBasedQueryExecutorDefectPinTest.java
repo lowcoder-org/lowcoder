@@ -1,6 +1,7 @@
 package org.lowcoder.plugin.sql;
 
 import org.junit.jupiter.api.Test;
+import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
 
 import java.sql.Connection;
@@ -8,15 +9,14 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
 
 /**
- * Pins a production defect found in L5-1 (plan section 9, row "SqlQueryConfig.getSql() throws a NullPointerException
- * without a sql key"; owner decision D-6: the fix is deferred). A fix changes that test on purpose.
- * <p>
- * Fixed since: the row "removeQueryComments removes -- comments only" (BF-092): a block comment is removed with the
- * mustache in it ({@link #mustacheInsideABlockCommentIsRemovedWithTheCommentAndTheQueryRunsBF092}).
+ * The two production defects found in L5-1 (plan section 9; owner decision D-6 deferred their fixes), both fixed since:
+ * the row "removeQueryComments removes -- comments only" (BF-092): a block comment is removed with the mustache in it
+ * ({@link #mustacheInsideABlockCommentIsRemovedWithTheCommentAndTheQueryRunsBF092}); the row "SqlQueryConfig.getSql()
+ * throws a NullPointerException without a sql key" (BF-093): such a config is SQL_EMPTY
+ * ({@link #configWithoutSqlKeyIsSqlEmptyBF093}).
  */
 public class SqlBasedQueryExecutorDefectPinTest {
 
@@ -43,13 +43,12 @@ public class SqlBasedQueryExecutorDefectPinTest {
         }
     }
 
-    /** Pins the missing-sql defect: a SQL-mode config without a {@code sql} key is a NullPointerException, not SQL_EMPTY. */
+    /** BF-093 (was pinned): a SQL-mode config without a {@code sql} key is SQL_EMPTY, like a blank query, not a NullPointerException. */
     @Test
-    public void configWithoutSqlKeyIsANullPointerExceptionNotSqlEmpty() {
+    public void configWithoutSqlKeyIsSqlEmptyBF093() {
         Map<String, Object> config = Map.of(H2SqlTestSupport.MODE_KEY, H2SqlTestSupport.SQL_MODE);
-        NullPointerException thrown = assertThrows(NullPointerException.class,
+        PluginException thrown = H2SqlTestSupport.assertPluginError(QUERY_ARGUMENT_ERROR, "SQL_EMPTY",
                 () -> executor.buildQueryExecutionContext(datasource, config, Map.of(), null));
-        assertTrue(thrown.getMessage().contains("sql"), thrown.getMessage());
-        System.out.println("[SqlBasedQueryExecutorDefectPinTest] no sql key: " + thrown.getMessage());
+        System.out.println("[SqlBasedQueryExecutorDefectPinTest] no sql key: " + thrown.getMessageKey());
     }
 }
