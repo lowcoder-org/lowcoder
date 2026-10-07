@@ -95,7 +95,7 @@ class OrgMemberServiceImplIsolatedMongoTest extends OrganizationMongoTestBase {
      * doesAtleastOneAdminExist counts relation `admin` only, and AuthenticationServiceImpl then sets enableRegister TRUE
      * despite configuration"): a SUPER_ADMIN row counts as an admin, so the configured registration setting (disabled)
      * applies. Reachable on a fresh deployment: AddSuperAdminUserImpl:42-50 creates the configured super admin through
-     * createDefault(user, true), whose first org membership is SUPER_ADMIN (OrganizationServiceImpl:165-167), while a
+     * createDefault(user, true), whose first org membership is SUPER_ADMIN (OrganizationServiceImpl:170-172), while a
      * normal first sign-up gets ADMIN (AuthenticationApiServiceImpl:159, :283-285).
      */
     @Test
