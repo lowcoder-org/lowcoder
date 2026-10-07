@@ -27,10 +27,22 @@
     "written" : 1.5
   },
   "param:bigDecimal" : {
-    "error" : "org.lowcoder.sdk.exception.PluginException: JSON_PARSE_ERROR JSON_PARSE_ERROR"
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.DecimalNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : 1.5
   },
   "param:bigInteger" : {
-    "error" : "org.lowcoder.sdk.exception.PluginException: JSON_PARSE_ERROR JSON_PARSE_ERROR"
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.BigIntegerNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : 9223372036854775808
   },
   "param:bool" : {
     "node" : {
@@ -120,11 +132,11 @@
   "longMaxPlusOne" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.TextNode"
+        "" : "com.fasterxml.jackson.databind.node.BigIntegerNode"
       },
       "keyOrder" : { }
     },
-    "written" : "9223372036854775808"
+    "written" : 9223372036854775808
   },
   "decimal" : {
     "node" : {

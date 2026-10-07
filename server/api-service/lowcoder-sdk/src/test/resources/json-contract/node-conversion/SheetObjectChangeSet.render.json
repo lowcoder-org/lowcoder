@@ -18,6 +18,18 @@
       },
       "written" : 1.5
     },
+    "param:bigDecimal" : {
+      "classes" : {
+        "" : "java.math.BigDecimal"
+      },
+      "written" : 1.5
+    },
+    "param:bigInteger" : {
+      "classes" : {
+        "" : "java.math.BigInteger"
+      },
+      "written" : 9223372036854775808
+    },
     "param:bool" : {
       "classes" : {
         "" : "java.lang.Boolean"
@@ -76,6 +88,12 @@
         "" : "java.lang.Long"
       },
       "written" : 2147483648
+    },
+    "longMaxPlusOne" : {
+      "classes" : {
+        "" : "java.math.BigInteger"
+      },
+      "written" : 9223372036854775808
     },
     "decimal" : {
       "classes" : {
@@ -177,15 +195,6 @@
     }
   },
   "array" : {
-    "error" : "org.lowcoder.sdk.exception.PluginException: INVALID_GUI_SETTINGS GUI_INVALID_JSON_MAP_TYPE"
-  },
-  "failing:param:bigDecimal" : {
-    "error" : "org.lowcoder.sdk.exception.PluginException: INVALID_GUI_SETTINGS GUI_INVALID_JSON_MAP_TYPE"
-  },
-  "failing:param:bigInteger" : {
-    "error" : "org.lowcoder.sdk.exception.PluginException: INVALID_GUI_SETTINGS GUI_INVALID_JSON_MAP_TYPE"
-  },
-  "failing:longMaxPlusOne" : {
     "error" : "org.lowcoder.sdk.exception.PluginException: INVALID_GUI_SETTINGS GUI_INVALID_JSON_MAP_TYPE"
   },
   "invalid" : {

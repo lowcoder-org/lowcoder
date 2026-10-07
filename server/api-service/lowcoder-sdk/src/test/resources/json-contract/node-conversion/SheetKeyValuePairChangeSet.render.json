@@ -18,10 +18,16 @@
     "written" : 1.5
   },
   "param:bigDecimal" : {
-    "error" : "org.lowcoder.sdk.exception.PluginException: JSON_PARSE_ERROR JSON_PARSE_ERROR"
+    "classes" : {
+      "" : "java.math.BigDecimal"
+    },
+    "written" : 1.5
   },
   "param:bigInteger" : {
-    "error" : "org.lowcoder.sdk.exception.PluginException: JSON_PARSE_ERROR JSON_PARSE_ERROR"
+    "classes" : {
+      "" : "java.math.BigInteger"
+    },
+    "written" : 9223372036854775808
   },
   "param:bool" : {
     "classes" : {
@@ -84,9 +90,9 @@
   },
   "longMaxPlusOne" : {
     "classes" : {
-      "" : "java.lang.String"
+      "" : "java.math.BigInteger"
     },
-    "written" : "9223372036854775808"
+    "written" : 9223372036854775808
   },
   "decimal" : {
     "classes" : {
