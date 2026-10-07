@@ -294,10 +294,19 @@ public final class MustacheHelper {
 
     @VisibleForTesting
     public static String renderMustacheTokens(List<String> tokens, Map<String, ?> paramMap, boolean removeSurroundedPar) {
+        return renderMustacheTokens(tokens, paramMap, removeSurroundedPar, MustacheHelper::isMustacheToken);
+    }
+
+    /**
+     * {@link #renderMustacheTokens(List, Map, boolean)} where {@code isMustache} tells which tokens are mustaches; any other
+     * token is text, kept as written even when it is in braces (BF-097: an escaped mustache in a JSON template).
+     */
+    static String renderMustacheTokens(List<String> tokens, Map<String, ?> paramMap, boolean removeSurroundedPar,
+            java.util.function.Predicate<String> isMustache) {
         StringBuilder rendered = new StringBuilder();
         for (int i = 0; i < tokens.size(); i++) {
             String token = tokens.get(i);
-            if (token.startsWith("{{") && token.endsWith("}}")) {
+            if (isMustache.test(token)) {
                 Object mustacheValue = paramMap.get(token.substring(2, token.length() - 2).trim());
                 String mustacheStrValue = convertToStringValue(mustacheValue);
                 boolean isSurroundedByPar = isSurroundedByPar(tokens, i);
