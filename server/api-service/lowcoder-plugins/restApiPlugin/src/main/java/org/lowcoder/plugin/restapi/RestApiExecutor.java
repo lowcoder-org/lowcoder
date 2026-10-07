@@ -127,6 +127,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
         boolean encodeParams = !queryConfig.isDisableEncodingParams();
 
         String queryBody = trimToEmpty(queryConfig.getBody());
+        String bodyType = trimToEmpty(queryConfig.getBodyType());
         String queryPath = trimToEmpty(queryConfig.getPath());
         List<Property> queryParams = queryConfig.getParams();
         List<Property> queryHeaders = queryConfig.getHeaders();
@@ -141,6 +142,19 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
         String contentType = parseContentType(allHeaders).toLowerCase();
         if (!isValidContentType(contentType)) {
             throw new PluginException(QUERY_ARGUMENT_ERROR, "INVALID_CONTENT_TYPE", contentType);
+        }
+        // No Content-Type header (BF-057: the body was dropped silently). The editor's body type decides, as the editor
+        // shows the query: a content-type body type (the header was removed by hand) stands in for the header; "None"
+        // sends no body, even when the query still holds text from a body type chosen before; no body type (a query not
+        // saved by the editor) sends the body text as it is, without a Content-Type. Limit: in that last case form fields
+        // (bodyFormData) are not sent, as a form cannot be encoded without its content type.
+        if (isNoneContentType(contentType)) {
+            if (RestApiQueryConfig.CONTENT_TYPE_BODY_TYPES.contains(bodyType)) {
+                contentType = bodyType;
+                allHeaders = withContentType(allHeaders, contentType);
+            } else if (RestApiQueryConfig.BODY_TYPE_NONE.equals(bodyType)) {
+                queryBody = "";
+            }
         }
 
         List<Property> updatedQueryBodyParams = renderMustacheValueForQueryBody(queryBodyParams, requestParams, contentType);
@@ -462,6 +476,16 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
                         (oldValue, newValue) -> newValue));
     }
 
+    /**
+     * The headers with the given Content-Type added, for a query whose editor body type stands in for the missing header
+     * (BF-057): the request then goes out as if the editor had set the header, as it does when the body type is chosen.
+     */
+    private static Map<String, String> withContentType(Map<String, String> headers, String contentType) {
+        Map<String, String> withContentType = new HashMap<>(headers);
+        withContentType.put(HttpHeaders.CONTENT_TYPE, contentType);
+        return Collections.unmodifiableMap(withContentType);
+    }
+
     private Map<String, String> buildHeaders(List<Property> datasourceHeaders, List<Property> updatedQueryHeaders) {
         return Stream.concat(datasourceHeaders.stream(),
                         updatedQueryHeaders.stream())
@@ -482,7 +506,8 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
         }
 
         if (isNoneContentType(requestContentType)) {
-            return BodyInserters.fromValue(new byte[0]);
+            // no Content-Type: the body as typed, as bytes, so that no encoder adds a Content-Type (BF-057: it was dropped)
+            return BodyInserters.fromValue(String.valueOf(queryBody.value()).getBytes(StandardCharsets.UTF_8));
         }
 
         if (queryBody.isSpecialJson()) {

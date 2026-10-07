@@ -28,7 +28,8 @@
         "type": "file"
       }
     ],
-    "timeoutMs": 10000
+    "timeoutMs": 10000,
+    "bodyType": "application/json"
   },
   "lowerCaseMethod": {
     "httpMethod": "get",
