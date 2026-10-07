@@ -65,6 +65,9 @@ public class MssqlDatabaseTest {
     static final String SEMICOLON_USER = "semiuser";
     static final String SEMICOLON_PASSWORD = "Str0ng;Pass1";
     static final long INIT_TIMEOUT_MILLIS = 10_000;
+    /** The type name the driver reports for a rowversion column, and the column's size in bytes. */
+    static final String ROWVERSION_TYPE_NAME = "timestamp";
+    static final int ROWVERSION_BYTES = 8;
 
     private static Map<String, Object> keyValues(Object... columnsAndValues) {
         List<Map<String, Object>> comp = new ArrayList<>();
@@ -374,23 +377,33 @@ public class MssqlDatabaseTest {
     }
 
     /**
-     * Pins the plan section 9 row "timestamp (rowversion) columns cannot be read" (D-6: fix deferred): {@code MssqlResultParser}
-     * formats the type name {@code timestamp} with {@code getTimestamp}, but on SQL Server {@code timestamp} is the binary
-     * row version, which the driver refuses to convert. So {@code select *} from a table with a rowversion column fails the
-     * whole query. A fix (reading {@code timestamp} as bytes) changes this test on purpose.
+     * BF-049 fixed (plan section 9 row "timestamp (rowversion) columns cannot be read"): the driver reports a rowversion
+     * column as type {@code timestamp}, which {@code MssqlResultParser} read with {@code getTimestamp}, refused by the
+     * driver ("The conversion from timestamp to TIMESTAMP is unsupported"), so {@code select *} from such a table failed
+     * the whole query. The column now comes back as its 8 bytes, the ones plain JDBC reads, and the other column as before.
      */
     @Test
-    public void tableWithARowversionColumnCannotBeQueried_pinsTheRowversionRow() throws Exception {
+    public void tableWithARowversionColumnReturnsItsBytesBF049() throws Exception {
         try (Connection jdbc = jdbc()) {
             execute(jdbc, "drop table if exists dbo.t_rowversion", "create table dbo.t_rowversion (id int, rv rowversion)", "insert into dbo.t_rowversion (id) values (1)");
+            String typeName;
+            byte[] expected;
+            try (Statement statement = jdbc.createStatement(); ResultSet resultSet = statement.executeQuery("select rv from dbo.t_rowversion")) {
+                typeName = resultSet.getMetaData().getColumnTypeName(1);
+                resultSet.next();
+                expected = resultSet.getBytes(1);
+            }
             MssqlDatasourceConfig config = config();
             HikariPerfWrapper pool = connect(config);
             try {
-                assertEquals(1, cell(sql(pool, config, "select id from dbo.t_rowversion", Map.of()), "id"), "without the rowversion column the table reads fine");
-                PluginException thrown = assertThrows(PluginException.class, () -> sql(pool, config, "select * from dbo.t_rowversion", Map.of()));
-                System.out.println("[MssqlDatabaseTest] select * with a rowversion column: " + thrown.getError() + " " + thrown.getMessage());
-                assertEquals(QUERY_EXECUTION_ERROR, thrown.getError());
-                assertTrue(thrown.getMessage().contains("The conversion from timestamp to TIMESTAMP is unsupported"), thrown.getMessage());
+                Object data = sql(pool, config, "select * from dbo.t_rowversion", Map.of());
+                Object rv = cell(data, "rv");
+                System.out.println("[MssqlDatabaseTest] select * with a rowversion column (driver type " + typeName + "): id " + cell(data, "id")
+                        + ", rv " + (rv instanceof byte[] bytes ? java.util.Arrays.toString(bytes) : rv));
+                assertEquals(ROWVERSION_TYPE_NAME, typeName, "the driver's name for a rowversion column");
+                assertEquals(1, cell(data, "id"));
+                assertEquals(ROWVERSION_BYTES, expected.length);
+                assertArrayEquals(expected, (byte[]) rv);
             } finally {
                 destroy(pool);
             }
