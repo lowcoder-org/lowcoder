@@ -78,13 +78,19 @@ final class RedisContainerSupport {
             return config(null, password);
         }
 
+        /** A direct connection to this server as its default user (the test's own setup, not the code under test); the caller closes it. */
+        Jedis jedis() {
+            Jedis jedis = new Jedis(host(), port(), PING_SOCKET_TIMEOUT_MILLIS);
+            if (password != null) {
+                jedis.auth(password);
+            }
+            return jedis;
+        }
+
         private void awaitPing(String name) {
             RuntimeException last = null;
             for (int attempt = 1; attempt <= PING_ATTEMPTS; attempt++) {
-                try (Jedis jedis = new Jedis(host(), port(), PING_SOCKET_TIMEOUT_MILLIS)) {
-                    if (password != null) {
-                        jedis.auth(password);
-                    }
+                try (Jedis jedis = jedis()) {
                     String pong = jedis.ping();
                     System.out.println("[RedisContainerSupport] " + name + " ping answered on attempt " + attempt + ": " + pong);
                     return;
