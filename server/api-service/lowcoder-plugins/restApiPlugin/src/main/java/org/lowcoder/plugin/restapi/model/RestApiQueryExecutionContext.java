@@ -17,11 +17,18 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 @Builder
 public class RestApiQueryExecutionContext extends QueryExecutionContext {
 
+    @Setter
     private URI uri;
+    /**
+     * The URI of this query for the given URL parameters, built as {@link #getUri()} was: to rebuild it once the parameters
+     * change after the context is built (the token parameters of OAuth "inherit from login", BF-058).
+     */
+    private Function<Map<String, String>, URI> uriForUrlParams;
     private HttpMethod httpMethod;
 
     @Setter
@@ -45,6 +52,10 @@ public class RestApiQueryExecutionContext extends QueryExecutionContext {
 
     public URI getUri() {
         return uri;
+    }
+
+    public URI uriForUrlParams(Map<String, String> params) {
+        return uriForUrlParams.apply(params);
     }
 
     public QueryBody getQueryBody() {

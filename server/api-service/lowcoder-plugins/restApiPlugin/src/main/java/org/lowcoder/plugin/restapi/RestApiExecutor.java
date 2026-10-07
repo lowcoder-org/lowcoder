@@ -69,6 +69,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -173,12 +174,14 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
         Map<String, String> urlParams = buildUrlParams(datasourceUrlParams, updatedQueryParams);
         List<Property> bodyParams = mergeBody(datasourceBodyFormData, updatedQueryBodyParams);
 
-        URI uri = RestApiUriBuilder.buildUri(urlDomain, updatedQueryPath, requestParams, urlParams);
+        Function<Map<String, String>, URI> uriForUrlParams = params -> RestApiUriBuilder.buildUri(urlDomain, updatedQueryPath, requestParams, params);
+        URI uri = uriForUrlParams.apply(urlParams);
 
         QueryBody mergedQueryBody = mergeBody(updatedQueryBody, datasourceBodyFormData);
         return RestApiQueryExecutionContext.builder()
                 .httpMethod(httpMethod)
                 .uri(uri)
+                .uriForUrlParams(uriForUrlParams)
                 .headers(allHeaders)
                 .contentType(contentType)
                 .urlParams(urlParams)
@@ -333,6 +336,8 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
                             paramMap.put(param.getKey(), param.getValue());
                         }
                         context.setUrlParams(ImmutableMap.copyOf(paramMap));
+                        // the URI was built from the parameters before the token's (BF-058: they never reached the URL)
+                        context.setUri(context.uriForUrlParams(context.getUrlParams()));
                     }
 
                     List<Property> headers = propertyMap.get("header");

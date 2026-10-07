@@ -30,8 +30,8 @@ import java.util.Set;
  * REST API plugin returns:
  * <ul>
  *   <li>the response headers, written by the production mapper ({@code toJsonThrows}) and read back into a tree
- *       ({@code RestApiExecutor.java:426-441}), with a header of two values and headers whose bytes are not ASCII;</li>
- *   <li>the body by content type ({@code RestApiExecutor.java:393-424}): JSON, a {@code +json} type and
+ *       ({@code RestApiExecutor.java:445-460}), with a header of two values and headers whose bytes are not ASCII;</li>
+ *   <li>the body by content type ({@code RestApiExecutor.java:412-443}): JSON, a {@code +json} type and
  *       {@code x-ndjson} read into a tree; an image base64-encoded into a {@code byte[]}, which the mapper
  *       base64-encodes again (O7); raw bytes; trimmed text; no body; and a JSON body that does not parse;</li>
  *   <li>{@code QueryExecutionResult.ofRestApiResult}, with the {@code HTTP...} code of a status that is not 2xx.</li>

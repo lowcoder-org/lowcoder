@@ -15,7 +15,7 @@ import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
 /**
  * DEFECT pinned (plan section 9 row "reproduced, to pin (L4-9 follow-up)", probe P1; D-6, fix deferred): an answer
  * with a 3xx status and no {@code Location} header, for example 304 Not Modified, is treated as a redirect and
- * {@code response.headers().header("Location").get(0)} (RestApiExecutor.java:277) reads an empty list. The caller does
+ * {@code response.headers().header("Location").get(0)} (RestApiExecutor.java:294) reads an empty list. The caller does
  * not get the 304 as a plain response; it gets {@code PluginException: REST API execution error: Index: 0.}, a message
  * that names neither the status nor the header. One request is sent. The obvious fix is to treat a 3xx without a
  * Location as an ordinary response, which turns this test red.
