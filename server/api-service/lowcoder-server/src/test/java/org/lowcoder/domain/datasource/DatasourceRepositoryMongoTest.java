@@ -127,14 +127,12 @@ class DatasourceRepositoryMongoTest {
     }
 
     /**
-     * Pins plan section 9 row "DatasourceRepository.findByIds picks id or gid from one element and drops the other kind
-     * (:65-72)": the key type of the whole list is decided by one element (findAny, the first of a list), so a mixed list
-     * only returns the datasources of that element's kind. Reach: MetaController.getDatasourceMetas (MetaController:50) passes
-     * the client's datasource id list through DatasourceServiceImpl.getByIds (:134) unchanged. A fix (query both kinds, as
-     * findAllById does) changes this test on purpose.
+     * BF-076 (fixed; was pinned as plan section 9 row "DatasourceRepository.findByIds picks id or gid from one element and
+     * drops the other kind"): a mixed list answers the datasources of both kinds, in either order. Reach:
+     * MetaController.getDatasourceMetas passes the client's datasource id list through DatasourceServiceImpl.getByIds.
      */
     @Test
-    void findByIdsOfAMixedListDropsTheOtherKind_pinsTheSection9Row() {
+    void findByIdsOfAMixedListAnswersBothKindsBF076() {
         String orgId = org();
         Datasource a = save(orgId);
         Datasource b = save(orgId);
@@ -142,9 +140,9 @@ class DatasourceRepositoryMongoTest {
         List<String> idFirst = ids(repository.findByIds(List.of(a.getId(), b.getGid())).collectList().block(TIMEOUT));
         List<String> gidFirst = ids(repository.findByIds(List.of(b.getGid(), a.getId())).collectList().block(TIMEOUT));
 
-        System.out.println("[DatasourceRepositoryMongoTest] PINNED mixed list: id first -> " + idFirst.size() + ", gid first -> " + gidFirst.size());
-        assertThat(idFirst).containsExactly(a.getId());
-        assertThat(gidFirst).containsExactly(b.getId());
+        System.out.println("[DatasourceRepositoryMongoTest] mixed list: id first -> " + idFirst + ", gid first -> " + gidFirst);
+        assertThat(idFirst).containsExactlyInAnyOrder(a.getId(), b.getId());
+        assertThat(gidFirst).containsExactlyInAnyOrder(a.getId(), b.getId());
     }
 
     /** Catches: findAllById dropping one key kind (it is the variant that must handle mixed lists). */

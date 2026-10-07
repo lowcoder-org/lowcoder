@@ -18,6 +18,7 @@ import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.permission.model.ResourceType;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.user.repository.UserRepository;
+import org.lowcoder.domain.util.IdOrGidLookup;
 import org.lowcoder.domain.util.SlugUtils;
 import org.lowcoder.infra.annotation.NonEmptyMono;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
@@ -124,11 +125,25 @@ public class ApplicationServiceImpl implements ApplicationService {
         return repository.countByOrganizationIdAndApplicationStatus(orgId, applicationStatus);
     }
 
+    /**
+     * The applications of a list of keys, each a slug, an object id or a gid, in any mix. As for one key
+     * ({@link #findByIdWithoutDsl}), every key is looked up by slug first, and the keys no slug matched by object id or gid
+     * ({@link IdOrGidLookup}); an application named by two keys is answered once. Before, a slug match dropped every other
+     * key (BF-154), the kind of the list was taken from its first element (BF-155), and a list starting with a slug that
+     * has a hyphen was taken for gids and never looked up by slug (BF-156).
+     */
     @Override
     public Flux<Application> findByIdIn(List<String> applicationIds) {
-        if(!applicationIds.isEmpty() && FieldName.isGID(applicationIds.get(0)))
-            return repository.findByGidIn(applicationIds);
-        return repository.findBySlugIn(applicationIds).switchIfEmpty(repository.findByIdIn(applicationIds));
+        return repository.findBySlugIn(applicationIds).collectList()
+                .flatMapMany(bySlug -> Flux.concat(Flux.fromIterable(bySlug), IdOrGidLookup.find(keysWithoutSlugMatch(applicationIds, bySlug),
+                        repository::findByIdIn, repository::findByGidIn)))
+                .distinct(HasIdAndAuditing::getId);
+    }
+
+    /** The keys that are not the slug of one of {@code bySlug}, the applications a slug lookup of the keys found. */
+    private static List<String> keysWithoutSlugMatch(Collection<String> keys, List<Application> bySlug) {
+        Set<String> slugs = bySlug.stream().map(Application::getSlug).collect(Collectors.toSet());
+        return keys.stream().filter(key -> !slugs.contains(key)).toList();
     }
 
     @Override
@@ -259,19 +274,19 @@ public class ApplicationServiceImpl implements ApplicationService {
     @NonEmptyMono
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
     public Mono<Set<String>> getPublicApplicationIds(Collection<String> applicationIds) {
-        if(!applicationIds.isEmpty() && FieldName.isGID(applicationIds.stream().findFirst().get()))
-            return repository.findByPublicToAllIsTrueAndGidIn(applicationIds)
-                    .map(Application::getGid)
-                    .collect(Collectors.toSet());
-
-        return repository.findByPublicToAllIsTrueAndIdIn(applicationIds)
-                .map(HasIdAndAuditing::getId)
-                .collect(Collectors.toSet());
+        return IdOrGidLookup.matchingKeys(applicationIds,
+                repository::findByPublicToAllIsTrueAndIdIn, HasIdAndAuditing::getId,
+                repository::findByPublicToAllIsTrueAndGidIn, Application::getGid);
     }
 
 
     /**
      * Find all private applications for viewing.
+     * <p>
+     * Each key is looked up by slug first and, when no slug matched it, by object id or gid ({@link IdOrGidLookup}), in any
+     * mix (BF-154, BF-155: a slug match dropped every other key, and the kind of the set was taken from its first element).
+     * A key found by object id or gid is answered as given; a key found by slug is answered as the application's object id,
+     * as before.
      */
     @Override
     @NonEmptyMono
@@ -279,14 +294,15 @@ public class ApplicationServiceImpl implements ApplicationService {
     public Mono<Set<String>> getPrivateApplicationIds(Collection<String> applicationIds, String userId) {
 
     	// TODO: in 2.4.0 we need to check whether the app was published or not
-        if(!applicationIds.isEmpty() && FieldName.isGID(applicationIds.stream().findFirst().get()))
-            return repository.findByCreatedByAndGidIn(userId, applicationIds)
-                    .map(Application::getGid)
-                    .collect(Collectors.toSet());
-
-        return repository.findByCreatedByAndSlugIn(userId, applicationIds).switchIfEmpty(repository.findByCreatedByAndIdIn(userId, applicationIds))
-                .map(HasIdAndAuditing::getId)
-                .collect(Collectors.toSet());
+        return repository.findByCreatedByAndSlugIn(userId, applicationIds).collectList()
+                .flatMap(bySlug -> IdOrGidLookup.matchingKeys(keysWithoutSlugMatch(applicationIds, bySlug),
+                                ids -> repository.findByCreatedByAndIdIn(userId, ids), HasIdAndAuditing::getId,
+                                gids -> repository.findByCreatedByAndGidIn(userId, gids), Application::getGid)
+                        .map(keys -> {
+                            Set<String> answered = new HashSet<>(keys);
+                            bySlug.forEach(application -> answered.add(application.getId()));
+                            return answered;
+                        }));
     }
     
     
@@ -300,14 +316,9 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     	if ((isAnonymous && !isPrivateMarketplace) || !isAnonymous)
     	{
-            if(!applicationIds.isEmpty() && FieldName.isGID(applicationIds.stream().findFirst().get()))
-                return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsTrueAndGidIn(applicationIds)
-                        .map(Application::getGid)
-                        .collect(Collectors.toSet());
-
-            return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsTrueAndIdIn(applicationIds)
-                    .map(HasIdAndAuditing::getId)
-                    .collect(Collectors.toSet());
+            return IdOrGidLookup.matchingKeys(applicationIds,
+                    repository::findByPublicToAllIsTrueAndPublicToMarketplaceIsTrueAndIdIn, HasIdAndAuditing::getId,
+                    repository::findByPublicToAllIsTrueAndPublicToMarketplaceIsTrueAndGidIn, Application::getGid);
     	}
     	return Mono.empty();
     }
@@ -320,14 +331,9 @@ public class ApplicationServiceImpl implements ApplicationService {
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
     public Mono<Set<String>> getPublicAgencyApplicationIds(Collection<String> applicationIds) {
 
-        if(!applicationIds.isEmpty() && FieldName.isGID(applicationIds.stream().findFirst().get()))
-            return repository.findByPublicToAllIsTrueAndAgencyProfileIsTrueAndGidIn(applicationIds)
-                    .map(Application::getGid)
-                    .collect(Collectors.toSet());
-
-        return repository.findByPublicToAllIsTrueAndAgencyProfileIsTrueAndIdIn(applicationIds)
-                .map(HasIdAndAuditing::getId)
-                .collect(Collectors.toSet());
+        return IdOrGidLookup.matchingKeys(applicationIds,
+                repository::findByPublicToAllIsTrueAndAgencyProfileIsTrueAndIdIn, HasIdAndAuditing::getId,
+                repository::findByPublicToAllIsTrueAndAgencyProfileIsTrueAndGidIn, Application::getGid);
     }
 
     @Override

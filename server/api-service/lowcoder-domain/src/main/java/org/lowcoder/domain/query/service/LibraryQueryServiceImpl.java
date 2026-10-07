@@ -6,6 +6,7 @@ import org.lowcoder.domain.query.model.BaseQuery;
 import org.lowcoder.domain.query.model.LibraryQuery;
 import org.lowcoder.domain.query.model.LibraryQueryRecord;
 import org.lowcoder.domain.query.repository.LibraryQueryRepository;
+import org.lowcoder.domain.util.IdOrGidLookup;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.lowcoder.sdk.constants.FieldName;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.lowcoder.sdk.exception.BizError.LIBRARY_QUERY_NOT_FOUND;
 import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
@@ -38,11 +38,12 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
     }
 
     @Override
+    /**
+     * The library queries of a list of object ids and gids, in any mix (BF-076: the kind of the whole list was taken from
+     * its first element, so a mixed list lost the other kind); see {@link IdOrGidLookup} for how a key's kind is told.
+     */
     public Flux<LibraryQuery> getByIds(Collection<String> libraryQueryIds) {
-        Optional<String> first = libraryQueryIds.stream().findFirst();
-        if(first.isPresent() && FieldName.isGID(first.get()))
-            return libraryQueryRepository.findByGidIn(libraryQueryIds);
-        return libraryQueryRepository.findAllById(libraryQueryIds);
+        return IdOrGidLookup.find(libraryQueryIds, libraryQueryRepository::findAllById, libraryQueryRepository::findByGidIn);
     }
 
     @Override
