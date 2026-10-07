@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.lowcoder.plugin.mongo.MongoContainerSupport.BLOCK_TIMEOUT;
 import static org.lowcoder.plugin.mongo.MongoContainerSupport.DATABASE;
 import static org.lowcoder.plugin.mongo.MongoContainerSupport.ENGINE;
+import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_TIMEOUT;
 
 /**
  * Unit MG-6 (task L5-8d): the Mongo engine against a real MongoDB 7.0 ({@link MongoContainerSupport}): connection and
@@ -47,6 +48,7 @@ public class MongoEngineContainerTest {
     static final String QUERY_CODE_OK = "OK";
     static final String UNREACHABLE_URI = "mongodb://127.0.0.1:1/nodb?serverSelectionTimeoutMS=300&connectTimeoutMS=300";
     static final long SLOW_FILTER_MILLIS = 1500;
+    static final long QUERY_TIMEOUT_MILLIS = 200;
 
     private static final com.fasterxml.jackson.databind.ObjectMapper JSON = new com.fasterxml.jackson.databind.ObjectMapper();
     private static MongoConnection connection;
@@ -227,25 +229,34 @@ public class MongoEngineContainerTest {
     }
 
     /**
-     * Pins defect D12 (analysis-plugins section 0.6; plan section 9 D1-D20 row) against a real server: the form's
-     * {@code timeout} (1 ms) reaches no command, so a find that the server needs {@value #SLOW_FILTER_MILLIS} ms for runs to
-     * completion and returns its row. The slow filter is {@code $where} with {@code sleep}, which MongoDB 7.0 runs by default
-     * (server-side JavaScript is enabled). A fix (maxTimeMS in the Find document) makes the server abort it and this test fail
-     * on purpose.
+     * BF-061 (formerly pinned as D12, "the form's timeout reaches no command, so a slow find runs to completion"): the
+     * query's timeout, which the server puts into the query config as {@code timeoutMs}, is sent as {@code maxTimeMS}, so the
+     * server stops a find that runs longer and the query fails as a timeout ({@code QUERY_TIMEOUT_ERROR}, the error the
+     * engine already gave for a {@code MongoTimeoutException}). The slow filter is {@code $where} with {@code sleep}, which MongoDB 7.0 runs by default; the
+     * control without a timeout shows that it takes {@value #SLOW_FILTER_MILLIS} ms.
      */
     @Test
-    public void formTimeoutDoesNotStopASlowFind_pinsD12() {
+    public void theQueryTimeoutStopsASlowFindOnTheServerBF061() {
         String c = collection("slow");
         seed(c, new Document("n", 1));
         Map<String, Object> form = form("FIND", c, "query", "{\"$where\": \"sleep(" + SLOW_FILTER_MILLIS + ") || true\"}");
-        form.put("timeout", "1");
+
         long start = System.nanoTime();
-        QueryExecutionResult result = run(connection, form, Map.of());
-        long elapsedMillis = (System.nanoTime() - start) / 1_000_000;
-        System.out.println(TAG + "slow find with timeout=1 took " + elapsedMillis + " ms: " + result.getQueryCode());
-        assertEquals(QUERY_CODE_OK, result.getQueryCode());
-        assertEquals(1, ((JsonNode) result.getData()).size());
-        assertTrue(elapsedMillis >= SLOW_FILTER_MILLIS, "the setting did not cut the command short: " + elapsedMillis);
+        assertEquals(1, data(run(connection, form, Map.of())).size());
+        long controlMillis = (System.nanoTime() - start) / 1_000_000;
+        System.out.println(TAG + "slow find without timeoutMs took " + controlMillis + " ms");
+        assertTrue(controlMillis >= SLOW_FILTER_MILLIS, "the control is slow: " + controlMillis);
+
+        form.put("timeoutMs", String.valueOf(QUERY_TIMEOUT_MILLIS));
+        long timedStart = System.nanoTime();
+        PluginException thrown = assertThrows(PluginException.class, () -> run(connection, form, Map.of()));
+        long elapsedMillis = (System.nanoTime() - timedStart) / 1_000_000;
+        System.out.println(TAG + "slow find with timeoutMs=" + QUERY_TIMEOUT_MILLIS + " stopped after " + elapsedMillis + " ms: "
+                + thrown.getError() + " " + thrown.getMessageKey() + " " + List.of(thrown.getArgs()));
+        assertEquals(QUERY_EXECUTION_TIMEOUT, thrown.getError());
+        assertEquals("QUERY_TIMEOUT_ERROR", thrown.getMessageKey());
+        assertTrue(String.valueOf(thrown.getArgs()[0]).contains("exceeded time limit"), String.valueOf(thrown.getArgs()[0]));
+        assertTrue(elapsedMillis < SLOW_FILTER_MILLIS, "the server stopped the find: " + elapsedMillis);
     }
 
     // ---- server errors
