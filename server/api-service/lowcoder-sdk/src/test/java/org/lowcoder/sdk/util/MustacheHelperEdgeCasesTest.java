@@ -262,31 +262,43 @@ class MustacheHelperEdgeCasesTest {
     }
 
     /**
-     * Pins the plan section 9 row "renderMustacheJson throws JSON_PARSE_ERROR 'unknown number node' for a BigInteger,
-     * BigDecimal or Short value" (D-6, fix deferred; BigInteger is the leading case, reachable for an integer beyond the
-     * long range). A fix changes this test on purpose.
+     * BF-096 (was pinned as the plan section 9 row "renderMustacheJson throws JSON_PARSE_ERROR 'unknown number node' for a
+     * BigInteger, BigDecimal or Short value", D-6): a Number without a node of its own renders as the number, alone and
+     * inside JSON text, and as the same node it gets inside a list parameter (the production mapper's {@code valueToTree},
+     * which writes a {@code BigDecimal} without its trailing zeros).
      */
     @ParameterizedTest(name = "[{index}] {0}")
-    @MethodSource("unsupportedNumbers")
-    void jsonRenderingOfAnUnsupportedNumberTypeThrowsUnknownNumberNode(Number value) {
-        for (String template : List.of("{{x}}", "[{{x}}, 1]")) {
-            assertThatThrownBy(() -> MustacheHelper.renderMustacheJson(template, Map.of("x", value))).isInstanceOfSatisfying(PluginException.class, e -> {
-                assertThat(e.getError()).isEqualTo(PluginCommonError.JSON_PARSE_ERROR);
-                assertThat(e.getMessageKey()).isEqualTo(JSON_PARSE_ERROR_KEY);
-                assertThat(String.valueOf(e.getArgs()[1])).isEqualTo("unknown number node: " + value.getClass().getSimpleName());
-            });
-        }
-        System.out.println("[MustacheHelperEdgeCasesTest] " + value.getClass().getSimpleName() + " -> unknown number node (plan section 9 row, pinned)");
+    @MethodSource("numbersWithoutANodeOfTheirOwn")
+    void aNumberWithoutANodeOfItsOwnRendersAsTheNumberItGetsInsideAListBF096(Number value, String written) {
+        JsonNode alone = renderJson("{{x}}", Map.of("x", value));
+        JsonNode insideAList = renderJson("{{list}}", Map.of("list", List.of(value)));
+
+        assertThat(alone.isNumber()).as("a number node, not text").isTrue();
+        assertThat(alone.toString()).isEqualTo(written);
+        assertThat(alone).isEqualTo(insideAList.get(0));
+        assertThat(renderJson("[{{x}}, 1]", Map.of("x", value)).toString()).isEqualTo("[" + written + ",1]");
+        System.out.println("[MustacheHelperEdgeCasesTest] " + value.getClass().getSimpleName() + " -> " + alone.getClass().getSimpleName() + " " + alone);
     }
 
-    static Stream<Number> unsupportedNumbers() {
-        return Stream.of(new BigInteger("12345678901234567890"), new BigDecimal("1.5"), (short) 3);
+    static Stream<Arguments> numbersWithoutANodeOfTheirOwn() {
+        return Stream.of(
+                Arguments.of(new BigInteger("12345678901234567890"), "12345678901234567890"),
+                Arguments.of(new BigDecimal("1.50"), "1.5"),
+                Arguments.of((short) 3, "3"),
+                Arguments.of((byte) 7, "7"));
     }
 
-    /** The same row, reached by a JSON literal beyond the long range in a template that also has a mustache. */
+    /**
+     * BF-096, reached by a JSON literal beyond the long range: inside a template that also has a mustache it is the
+     * number (it used to fail the template), and a template that is only the literal is the number, not its text.
+     */
     @Test
-    void anIntegerLiteralBeyondTheLongRangeInATemplateWithAMustacheThrowsUnknownNumberNode() {
-        assertThatThrownBy(() -> MustacheHelper.renderMustacheJson("{\"a\": 12345678901234567890, \"b\": {{n}}}", jsonParams()))
-                .isInstanceOfSatisfying(PluginException.class, e -> assertThat(String.valueOf(e.getArgs()[1])).isEqualTo("unknown number node: BigInteger"));
+    void anIntegerLiteralBeyondTheLongRangeIsTheNumberBF096() {
+        assertThat(renderJson("{\"a\": 12345678901234567890, \"b\": {{n}}}", jsonParams()).toString())
+                .isEqualTo("{\"a\":12345678901234567890,\"b\":5}");
+
+        JsonNode alone = renderJson("12345678901234567890", Map.of());
+        assertThat(alone.isBigInteger()).isTrue();
+        assertThat(alone.bigIntegerValue()).isEqualTo(new BigInteger("12345678901234567890"));
     }
 }

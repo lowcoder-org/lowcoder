@@ -196,7 +196,9 @@ class RjsonMustacheParser {
         if (number instanceof Double) {
             return DoubleNode.valueOf((double) number);
         }
-        throw new PluginException(JSON_PARSE_ERROR, "JSON_PARSE_ERROR", number, "unknown number node: " + number.getClass().getSimpleName());
+        // BF-096: BigInteger (a parameter or a literal past the long range), BigDecimal, Short and the other Number types
+        // used to throw "unknown number node"; they get the node the production mapper gives them inside a list or map
+        return valueToTree(number);
     }
 
     private static StringCheckResult checkString(String str) {
