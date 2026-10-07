@@ -44,10 +44,10 @@ import reactor.util.context.Context;
  * {@code subscribe()}), so a published event is awaited with a bounded Mockito {@code timeout}; the absence of an event
  * can only be asserted for a bounded time ({@code after(...).never()}), which is the limit of the "no event" tests.
  *
- * <p>Pinned under D-6, plan §9 rows named in the test comments: {@code ApiEventFilter} never publishes an event for a
- * request without an {@code X-Real-IP} header (a NullPointerException on {@code headers.remove("X-Real-IP").stream()},
- * swallowed by the fire-and-forget subscribe), and it fails with a NullPointerException after the chain when the
- * response status was never set.
+ * <p>BF-038 (fixed; was pinned under D-6 as plan §9 row "ApiEventFilter publishes no event without an X-Real-IP header":
+ * a NullPointerException on {@code headers.remove("X-Real-IP").stream()}, swallowed by the fire-and-forget subscribe): a
+ * request without that header is audited with an empty ip address. Still pinned: the filter fails with a
+ * NullPointerException after the chain when the response status was never set.
  */
 class ApiEventFilterTest {
 
@@ -213,19 +213,36 @@ class ApiEventFilterTest {
     }
 
     /**
-     * Pins plan §9 row "ApiEventFilter publishes no event without an X-Real-IP header": {@code headers.remove("X-Real-IP")}
-     * returns null for an absent header, so {@code .stream()} throws a NullPointerException inside the fire-and-forget
-     * subscription and the audit event is lost (the code's own fallback to an empty ip address is never reached).
-     * Reachable: any request without that header, for example one that does not pass a reverse proxy
-     * (ApiEventFilter:57-60).
+     * BF-038: a request without {@code X-Real-IP} (one that does not pass a reverse proxy) is audited too, with an empty ip
+     * address and the other fields as with the header; the event was lost before (ApiEventFilter:57-60 at the pin).
      */
     @Test
-    void throughTheRequestStack_withoutXRealIp_publishesNoEvent_pinsTheSection9Row() {
+    void throughTheRequestStack_withoutXRealIp_publishesAnEventWithAnEmptyIpBF038() {
         try (ContractTestClient client = harness()) {
-            client.web().get().uri("/probe/ok").exchange().expectStatus().isOk();
+            client.web().get().uri("/probe/ok?q=1").header("X-Other", "kept").exchange().expectStatus().isOk();
 
-            expectNoEvent();
-            System.out.println("[ApiEventFilterTest] real stack: no X-Real-IP -> no event");
+            APICallEvent event = awaitEvent();
+            System.out.println("[ApiEventFilterTest] real stack: no X-Real-IP -> event for " + event.getRequestUri() + " ip '"
+                    + event.getIpAddress() + "' headers " + event.getHeaders().keySet());
+            assertThat(event.getIpAddress()).isEmpty();
+            assertThat(event.getRequestUri()).isEqualTo("/probe/ok");
+            assertThat(event.getHttpMethod()).isEqualTo("GET");
+            assertThat(event.getUserId()).isEqualTo("user-1");
+            assertThat(event.getQueryParams()).containsEntry("q", java.util.List.of("1"));
+            assertThat(event.getHeaders()).containsKey("X-Other").doesNotContainKey("X-Real-IP");
         }
+    }
+
+    /** BF-038, the filter alone: without X-Real-IP the event is published with an empty ip, and the cookie is still removed. */
+    @Test
+    void withoutXRealIp_theFilterAlonePublishesAnEventWithAnEmptyIpBF038() {
+        MockServerHttpRequest request = MockServerHttpRequest.post("/api/orders").header("Cookie", "LOWCODE_TOKEN=secret").build();
+
+        StepVerifier.create(run(request, answering(HttpStatus.OK), context("user-1"))).verifyComplete();
+
+        APICallEvent event = awaitEvent();
+        assertThat(event.getIpAddress()).isEmpty();
+        assertThat(event.getHeaders()).doesNotContainKey("Cookie");
+        assertThat(event.getHttpMethod()).isEqualTo("POST");
     }
 }
