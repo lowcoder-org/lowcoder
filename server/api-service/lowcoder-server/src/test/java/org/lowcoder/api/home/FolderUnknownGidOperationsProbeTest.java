@@ -19,8 +19,8 @@ import org.lowcoder.domain.permission.model.ResourcePermission;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
-import org.lowcoder.sdk.constants.Authentication;
 import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.mockito.Mockito;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -43,21 +43,19 @@ import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
 
 /**
- * Task L1-13b item 3 (lane L5): what the folder endpoints do with a folder gid that no folder has: delete
- * ({@code FolderController.java:51-52}), grant ({@code :137-138}), update permission ({@code :115-116}), remove permission
- * ({@code :124-125}) and get permissions ({@code :144-145}). The converter answers {@code Optional.empty()} for an unknown gid and each
- * of these passes {@code null} on ({@code objectId.orElse(null)}); this class records what {@link FolderApiServiceImpl} does with the
- * {@code null}, as an org admin and as an ordinary member.
+ * Task L1-13b item 3 (lane L5), fixed as BF-158 and BF-159: what the folder endpoints do with a folder gid that no folder has:
+ * delete ({@code FolderController.java:51-52}), grant ({@code :137-138}), update permission ({@code :115-116}), remove permission
+ * ({@code :124-125}) and get permissions ({@code :144-145}). The converter used to answer {@code Optional.empty()} for an unknown
+ * gid and each of these passed {@code null} on: an admin's delete took the whole folder tree as its target (only an NPE at
+ * {@code getSelf()} stopped it), and an admin's permission update or remove threw an NPE at {@code folderId.equals}. The converter
+ * now answers {@code FOLDER_NOT_EXIST} before any of them runs; the service also refuses a blank delete id and compares the
+ * permission's folder null-safely, so a direct call with {@code null} is an error too, not an NPE.
  *
- * <p>These are observations, not pins of a defect: nothing here is named a plan row. Real: controller, {@code GidService},
- * {@code FolderApiServiceImpl}, {@code FolderServiceImpl} (whose {@code findById(null)} is a parameter error,
- * {@code FolderServiceImpl.java:38-41}). Mocks: the repositories, the permission, session and event services. The admin differs
- * from the member in {@code checkManagePermission} ({@code FolderApiServiceImpl.java:366-377}): the member goes through
- * {@code isCreator(null)}, whose {@code findById(null)} answers the parameter error before any permission lookup runs.
+ * <p>Real: controller, {@code GidService}, {@code FolderApiServiceImpl}, {@code FolderServiceImpl}. Mocks: the repositories, the
+ * permission, session and event services.
  *
- * <p>Limits: a real Mongo repository is not used, so what Spring Data does with a null id is not exercised; here the null never
- * reaches it because {@code FolderServiceImpl.findById} rejects it. The permission and organization services are stubs that answer
- * what the test sets.
+ * <p>Limits: a real Mongo repository is not used, so what Spring Data does with a null id is not exercised. The permission and
+ * organization services are stubs that answer what the test sets.
  */
 public class FolderUnknownGidOperationsProbeTest {
 
@@ -188,9 +186,7 @@ public class FolderUnknownGidOperationsProbeTest {
         assertEquals(new Outcome(status, error.getBizErrorCode()), outcome);
     }
 
-    private static final int HTTP_OK = 200;
     private static final int HTTP_INTERNAL_SERVER_ERROR = 500;
-    private static final int SUCCESS_CODE = 1;
 
     /** Guards the wiring: the stubs the observations depend on are the objects the service and the controller use. */
     @Test
@@ -204,146 +200,81 @@ public class FolderUnknownGidOperationsProbeTest {
     }
 
     /**
-     * Delete, admin: {@code Tree.get(null)} returns the tree itself for a blank id ({@code Tree.java:73-78}), so the lookup at
-     * {@code FolderApiServiceImpl.java:152} finds a node and does not answer FOLDER_NOT_EXIST. The root has no folder of its own, so
-     * {@code thenReturn(folderNode.getSelf())} (line 159) is {@code Mono.just(null)}, which throws an NPE while the lambda
-     * runs; the deletion Monos assembled just before it are never subscribed. The client sees the generic 500. Nothing is deleted.
+     * BF-158, BF-159: every folder endpoint refuses a gid that no folder has with FOLDER_NOT_EXIST (HTTP 500, code 6302), for an
+     * admin and for a member, whether or not the permission of the path exists: no folder tree is built, nothing is deleted,
+     * no permission is inserted, changed or removed. A grant without users or groups, which returned a success before any check,
+     * is refused too.
      */
     @Test
-    void adminDeleteOfAnUnknownGidIsAnInternalServerErrorAndDeletesNothing() {
-        asRole(true);
-
-        assertOutcome(call("admin delete", HttpMethod.DELETE, path(""), null), HTTP_INTERNAL_SERVER_ERROR, BizError.INTERNAL_SERVER_ERROR);
-
+    void everyFolderEndpointRefusesAnUnknownGidWithFolderNotExistAndWritesNothingBF158() {
+        for (boolean admin : new boolean[]{true, false}) {
+            for (boolean permissionExists : new boolean[]{false, true}) {
+                asRole(admin);
+                if (permissionExists) {
+                    permissionExists();
+                }
+                String who = (admin ? "admin" : "member") + (permissionExists ? " permission present " : " permission absent ");
+                assertOutcome(call(who + "delete", HttpMethod.DELETE, path(""), null), HTTP_INTERNAL_SERVER_ERROR, BizError.FOLDER_NOT_EXIST);
+                assertOutcome(call(who + "grant", HttpMethod.POST, path("/permissions"), grantRequest(Set.of(USER_ID))),
+                        HTTP_INTERNAL_SERVER_ERROR, BizError.FOLDER_NOT_EXIST);
+                assertOutcome(call(who + "grant none", HttpMethod.POST, path("/permissions"), grantRequest(Set.of())),
+                        HTTP_INTERNAL_SERVER_ERROR, BizError.FOLDER_NOT_EXIST);
+                assertOutcome(call(who + "update", HttpMethod.PUT, permissionPath(), new FolderEndpoints.UpdatePermissionRequest(ROLE_VALUE)),
+                        HTTP_INTERNAL_SERVER_ERROR, BizError.FOLDER_NOT_EXIST);
+                assertOutcome(call(who + "remove", HttpMethod.DELETE, permissionPath(), null), HTTP_INTERNAL_SERVER_ERROR, BizError.FOLDER_NOT_EXIST);
+                assertOutcome(call(who + "get", HttpMethod.GET, path("/permissions"), null), HTTP_INTERNAL_SERVER_ERROR, BizError.FOLDER_NOT_EXIST);
+            }
+        }
+        Mockito.verify(folderRepository, Mockito.never()).findByOrganizationId(any());
         deleteFoldersProbe.assertWasNotSubscribed();
         deleteRelationsProbe.assertWasNotSubscribed();
-        removePermissionProbe.assertWasNotSubscribed();
-        Mockito.verify(folderRepository).findByOrganizationId(ORG_ID);
-        StepVerifier.create(folderApiService.delete(null)).expectErrorSatisfies(error -> {
-            System.out.println(TAG + "delete error " + error.getClass().getName() + ": " + error.getMessage()
-                    + (error.getStackTrace().length > 0 ? " at " + error.getStackTrace()[0] : " (no stack trace)"));
-            assertTrue(error instanceof NullPointerException, "NullPointerException expected, was " + error);
-        }).verify();
-        deleteFoldersProbe.assertWasNotSubscribed();
-    }
-
-    /** Delete, member: {@code isCreator(null)} calls {@code findById(null)}, which is a parameter error naming id. */
-    @Test
-    void memberDeleteOfAnUnknownGidIsAParameterError() {
-        asRole(false);
-
-        assertOutcome(call("member delete", HttpMethod.DELETE, path(""), null), HTTP_INTERNAL_SERVER_ERROR, BizError.INVALID_PARAMETER);
-
-        deleteFoldersProbe.assertWasNotSubscribed();
-    }
-
-    /** Grant with users, admin: {@code checkFolderExist(null)} ends in the parameter error; no permission is inserted. */
-    @Test
-    void adminGrantOfAnUnknownGidIsAParameterErrorAndInsertsNothing() {
-        asRole(true);
-
-        assertOutcome(call("admin grant", HttpMethod.POST, path("/permissions"), grantRequest(Set.of(USER_ID))),
-                HTTP_INTERNAL_SERVER_ERROR, BizError.INVALID_PARAMETER);
-
-        Mockito.verify(permissions, Mockito.never()).insertBatchPermission(any(), any(), any(), any(), any());
-    }
-
-    /** Grant with users, member: the parameter error, from {@code isCreator(null)}. */
-    @Test
-    void memberGrantOfAnUnknownGidIsAParameterError() {
-        asRole(false);
-
-        assertOutcome(call("member grant", HttpMethod.POST, path("/permissions"), grantRequest(Set.of(USER_ID))),
-                HTTP_INTERNAL_SERVER_ERROR, BizError.INVALID_PARAMETER);
-
-        Mockito.verify(permissions, Mockito.never()).insertBatchPermission(any(), any(), any(), any(), any());
-    }
-
-    /**
-     * Grant without any user or group, either role: {@code FolderApiServiceImpl.java:385-387} returns before any check, so the
-     * answer is a success even though the folder does not exist and the member is no creator. Nothing is written.
-     */
-    @Test
-    void grantWithoutUsersOrGroupsIsASuccessForAdminAndMemberAlike() {
-        for (boolean admin : new boolean[]{true, false}) {
-            asRole(admin);
-            Outcome outcome = call((admin ? "admin" : "member") + " grant none", HttpMethod.POST, path("/permissions"), grantRequest(Set.of()));
-            assertEquals(new Outcome(HTTP_OK, SUCCESS_CODE), outcome);
-        }
-        Mockito.verify(permissions, Mockito.never()).insertBatchPermission(any(), any(), any(), any(), any());
-    }
-
-    /** Update and remove permission, admin, permission not found: {@code PERMISSION_NOT_EXIST} (code 6304); the folder is never looked at. */
-    @Test
-    void adminUpdateAndRemoveOfAnAbsentPermissionAreIllegalPermissionIdErrors() {
-        asRole(true);
-
-        assertOutcome(call("admin update absent", HttpMethod.PUT, permissionPath(), new FolderEndpoints.UpdatePermissionRequest(ROLE_VALUE)),
-                HTTP_INTERNAL_SERVER_ERROR, BizError.ILLEGAL_FOLDER_PERMISSION_ID);
-        assertOutcome(call("admin remove absent", HttpMethod.DELETE, permissionPath(), null),
-                HTTP_INTERNAL_SERVER_ERROR, BizError.ILLEGAL_FOLDER_PERMISSION_ID);
         updateRoleProbe.assertWasNotSubscribed();
         removePermissionProbe.assertWasNotSubscribed();
+        Mockito.verify(permissions, Mockito.never()).insertBatchPermission(any(), any(), any(), any(), any());
+        Mockito.verify(permissions, Mockito.never()).getById(any());
     }
 
     /**
-     * Update and remove permission, admin, permission found: {@code checkPermissionResource} evaluates
-     * {@code folderId.equals(resourcePermission.getResourceId())} with {@code folderId == null}
-     * ({@code FolderApiServiceImpl.java:414}); the client sees the generic 500 (code 5000). The permission is neither changed nor removed.
-     * The NPE is checked on the service itself by its type only: a JVM that has run the code hot throws a preallocated NPE without
-     * message or stack trace (OmitStackTraceInFastThrow), so neither is asserted; the location is shown by the fix mutation
-     * ({@code Objects.equals}) in evidence/L1-13b.mutations.py, which changes the outcome.
+     * BF-158: a blank folder id names the root of the tree ({@code Tree.get}), so {@code delete} refuses it before anything runs,
+     * with the parameter error {@code findById(null)} also gives; the organization's folders are not even read.
      */
     @Test
-    void adminUpdateAndRemoveOfAFoundPermissionThrowANullPointerExceptionAtTheFolderIdEquals() {
+    void deleteOfABlankIdIsAParameterErrorBeforeTheTreeIsBuiltBF158() {
+        asRole(true);
+        for (String blank : Arrays.asList(null, "", "  ")) {
+            StepVerifier.create(folderApiService.delete(blank)).expectErrorSatisfies(error -> {
+                System.out.println(TAG + "delete '" + blank + "' -> " + error);
+                assertTrue(error instanceof BizException, "BizException expected, was " + error);
+                assertEquals(BizError.INVALID_PARAMETER, ((BizException) error).getError());
+            }).verify();
+        }
+        Mockito.verify(folderRepository, Mockito.never()).findByOrganizationId(any());
+        deleteFoldersProbe.assertWasNotSubscribed();
+        deleteRelationsProbe.assertWasNotSubscribed();
+    }
+
+    /**
+     * BF-159: an admin's permission update or remove with a null folder id, for an existing permission of another folder, is
+     * refused as a permission of another folder (ILLEGAL_FOLDER_PERMISSION_ID) instead of a NullPointerException at
+     * {@code folderId.equals}; nothing is changed or removed.
+     */
+    @Test
+    void updateAndRemovePermissionWithANullFolderIdAreRefusedWithoutANullPointerExceptionBF159() {
         asRole(true);
         permissionExists();
-
-        assertOutcome(call("admin update present", HttpMethod.PUT, permissionPath(), new FolderEndpoints.UpdatePermissionRequest(ROLE_VALUE)),
-                HTTP_INTERNAL_SERVER_ERROR, BizError.INTERNAL_SERVER_ERROR);
-        assertOutcome(call("admin remove present", HttpMethod.DELETE, permissionPath(), null),
-                HTTP_INTERNAL_SERVER_ERROR, BizError.INTERNAL_SERVER_ERROR);
 
         List<Mono<Void>> operations = List.of(
                 folderApiService.updatePermission(null, PERMISSION_ID, ResourceRole.VIEWER),
                 folderApiService.removePermission(null, PERMISSION_ID));
         for (Mono<Void> operation : operations) {
             StepVerifier.create(operation).expectErrorSatisfies(error -> {
-                System.out.println(TAG + "service error " + error.getClass().getName() + ": " + error.getMessage()
-                        + (error.getStackTrace().length > 0 ? " at " + error.getStackTrace()[0] : " (no stack trace)"));
-                assertTrue(error instanceof NullPointerException, "NullPointerException expected, was " + error);
+                System.out.println(TAG + "service error " + error);
+                assertTrue(error instanceof BizException, "BizException expected, was " + error);
+                assertEquals(BizError.ILLEGAL_FOLDER_PERMISSION_ID, ((BizException) error).getError());
             }).verify();
         }
         updateRoleProbe.assertWasNotSubscribed();
         removePermissionProbe.assertWasNotSubscribed();
-    }
-
-    /** Update and remove permission, member, either permission state: the parameter error from {@code isCreator(null)}, before the permission lookup. */
-    @Test
-    void memberUpdateAndRemoveAreParameterErrorsWhetherOrNotThePermissionExists() {
-        asRole(false);
-        for (boolean exists : new boolean[]{false, true}) {
-            if (exists) {
-                permissionExists();
-            }
-            String state = exists ? " present" : " absent";
-            assertOutcome(call("member update" + state, HttpMethod.PUT, permissionPath(), new FolderEndpoints.UpdatePermissionRequest(ROLE_VALUE)),
-                    HTTP_INTERNAL_SERVER_ERROR, BizError.INVALID_PARAMETER);
-            assertOutcome(call("member remove" + state, HttpMethod.DELETE, permissionPath(), null),
-                    HTTP_INTERNAL_SERVER_ERROR, BizError.INVALID_PARAMETER);
-        }
-        updateRoleProbe.assertWasNotSubscribed();
-        removePermissionProbe.assertWasNotSubscribed();
-    }
-
-    /** Get permissions: no manage check; {@code findById(null)} is the parameter error for admin and member alike. */
-    @Test
-    void getPermissionsOfAnUnknownGidIsAParameterErrorForAdminAndMemberAlike() {
-        for (boolean admin : new boolean[]{true, false}) {
-            asRole(admin);
-            assertOutcome(call((admin ? "admin" : "member") + " get", HttpMethod.GET, path("/permissions"), null),
-                    HTTP_INTERNAL_SERVER_ERROR, BizError.INVALID_PARAMETER);
-        }
     }
 
     private static FolderEndpoints.BatchAddPermissionRequest grantRequest(Set<String> userIds) {
