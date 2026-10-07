@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.clickhouse.model.ClickHouseDatasourceConfig;
 import org.lowcoder.sdk.exception.PluginException;
+import org.lowcoder.sdk.models.DatasourceStructure;
 import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 
@@ -11,6 +12,7 @@ import java.net.ServerSocket;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +35,6 @@ import static org.lowcoder.plugin.clickhouse.ClickHouseContainerSupport.rows;
 import static org.lowcoder.plugin.clickhouse.ClickHouseContainerSupport.run;
 import static org.lowcoder.sdk.exception.PluginCommonError.CONNECTION_ERROR;
 import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_ARGUMENT_ERROR;
-import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_GET_STRUCTURE_ERROR;
 import static org.lowcoder.sdk.exception.PluginCommonError.PREPARED_STATEMENT_BIND_PARAMETERS_ERROR;
 import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
 
@@ -265,26 +266,31 @@ public class ClickHouseDatabaseTest {
     // ---- structure
 
     /**
-     * Pins the plan section 9 row "ClickHouseStructureParser's COLUMNS_QUERY uses col.is_nullable != 0" (D-6: fix deferred):
-     * against the pinned server, {@code ClickHouseStructureParser.COLUMNS_QUERY} fails, because {@code col.is_nullable != 0} compares a String
-     * with a number (ClickHouse code 386, NO_COMMON_TYPE), so {@code getStructure} fails for every database. A fix changes
-     * this test on purpose (then it should assert the tables and columns of two tables, and that tables of another database
-     * are not listed).
+     * BF-053 fixed (plan section 9 row "ClickHouseStructureParser's COLUMNS_QUERY uses col.is_nullable != 0"): the columns
+     * query compared {@code col.is_nullable}, a String on the pinned server, with a number (code 386, NO_COMMON_TYPE), so
+     * {@code getStructure} failed for every database. It now lists the tables of the configured database with their columns
+     * in order, and not the tables of another database.
      */
     @Test
-    public void structureQueryFailsAgainstTheServer() throws Exception {
+    public void structureListsTheTablesAndColumnsOfTheConfiguredDatabaseOnlyBF053() throws Exception {
         String database = "struct_db";
+        String otherDatabase = "struct_other_db";
         try (Connection jdbc = jdbc(DATABASE)) {
             execute(jdbc, "drop database if exists " + database, "create database " + database,
-                    "create table " + database + ".a_table (id Int32, name String) engine=Memory");
+                    "drop database if exists " + otherDatabase, "create database " + otherDatabase,
+                    "create table " + database + ".a_table (id Int32, name String) engine=Memory",
+                    "create table " + database + ".b_table (code Nullable(String), created DateTime) engine=Memory",
+                    "create table " + otherDatabase + ".other_table (x Int32) engine=Memory");
         }
         ClickHouseDatasourceConfig config = config(database);
         HikariDataSource pool = connect(config);
         try {
-            PluginException thrown = assertThrows(PluginException.class, () -> executor().getStructure(pool, config).block());
-            System.out.println("[ClickHouseDatabaseTest] getStructure: " + thrown.getError() + " " + thrown.getMessage());
-            assertEquals(DATASOURCE_GET_STRUCTURE_ERROR, thrown.getError());
-            assertTrue(thrown.getMessage().contains("NO_COMMON_TYPE"), thrown.getMessage());
+            DatasourceStructure structure = executor().getStructure(pool, config).block();
+            Map<String, List<String>> columns = new LinkedHashMap<>();
+            structure.getTables().forEach(table -> columns.put(table.getName(),
+                    table.getColumns().stream().map(column -> column.getName() + " " + column.getType()).toList()));
+            System.out.println("[ClickHouseDatabaseTest] getStructure: " + columns);
+            assertEquals(Map.of("a_table", List.of("id Int32", "name String"), "b_table", List.of("code Nullable(String)", "created DateTime")), columns);
             assertEquals(0, pool.getHikariPoolMXBean().getActiveConnections(), "the connection must go back to the pool");
         } finally {
             close(pool);
