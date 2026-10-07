@@ -1,11 +1,11 @@
 package org.lowcoder.api.framework.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.Duration;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -22,13 +22,16 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 /**
- * Tests of {@link APIDelayFilter}. The delay is a {@code Mono.delay(5s).block()} inside a reactive {@code map}, so it
- * cannot run on virtual time: exactly one test waits the real 5 seconds.
+ * Tests of {@link APIDelayFilter}. The delay is a real 5 second timer: two tests wait it, one with the repository answer on
+ * the calling thread and one with it on a Reactor non-blocking thread, as the server delivers it.
  *
- * <p>Pinned under D-6, plan §9 row "APIDelayFilter blocks inside a reactive map": the flag is written through
- * {@code POST /api/configs/isRateLimited} (ConfigController:61-68, ConfigEndpoints:44), since BF-001 by the deployment's
- * super admin only; nothing else writes it. On a Reactor non-blocking thread {@code block()} fails with IllegalStateException
- * ({@link #flagTrue_whenTheAnswerArrivesOnANonBlockingThread_failsWithIllegalState_pinsTheSection9Row}).
+ * <p>The flag is written through {@code POST /api/configs/isRateLimited} (ConfigController:61-68, ConfigEndpoints:44), since
+ * BF-001 by the deployment's super admin only, and by installed plugin code through {@code LowcoderServices.setConfig}
+ * (SharedPluginServices:52-53, no user check, ConfigController:55-58): the enterprise plugin's license check sets it when the
+ * licensed API calls are used up. No server code writes it. BF-062 (formerly pinned under D-6, plan §9 row
+ * "APIDelayFilter blocks inside a reactive map"): the delay was a {@code block()} inside {@code map}, which failed with
+ * IllegalStateException on a non-blocking thread, so every request failed
+ * ({@link #flagTrue_whenTheAnswerArrivesOnANonBlockingThread_delaysTheChainBF062}).
  */
 class APIDelayFilterTest {
 
@@ -42,7 +45,7 @@ class APIDelayFilterTest {
         ReflectionTestUtils.setField(filter, "serverConfigRepository", repository);
     }
 
-    /** The only 5 s test. Catches the flag being ignored: the chain runs after about 5 s, once. */
+    /** Catches the flag being ignored: the chain runs after about 5 s, once. */
     @Test
     void flagTrue_delaysTheChainByAboutFiveSeconds() {
         when(repository.findByKey("isRateLimited")).thenReturn(Mono.just(new ServerConfig("isRateLimited", true)));
@@ -83,20 +86,28 @@ class APIDelayFilterTest {
     }
 
     /**
-     * Pins plan §9 row "APIDelayFilter blocks inside a reactive map": with the flag true and the repository answer
-     * delivered on a Reactor non-blocking thread, the {@code block()} inside the map throws IllegalStateException, so
-     * the request fails instead of being delayed.
+     * BF-062 (formerly pinned as plan §9 row "APIDelayFilter blocks inside a reactive map": the {@code block()} threw
+     * IllegalStateException and the chain was never reached): with the flag true and the repository answer delivered on a
+     * Reactor non-blocking thread, the request waits about 5 s without an error and then reaches the chain once.
      */
     @Test
-    void flagTrue_whenTheAnswerArrivesOnANonBlockingThread_failsWithIllegalState_pinsTheSection9Row() {
+    void flagTrue_whenTheAnswerArrivesOnANonBlockingThread_delaysTheChainBF062() {
         when(repository.findByKey("isRateLimited"))
                 .thenReturn(Mono.just(new ServerConfig("isRateLimited", true)).publishOn(Schedulers.parallel()));
-        ChainProbe chain = new ChainProbe();
+        AtomicLong chainStartedNanos = new AtomicLong();
+        AtomicInteger chainRuns = new AtomicInteger();
+        WebFilterChain chain = exchange -> Mono.fromRunnable(() -> {
+            chainStartedNanos.set(System.nanoTime());
+            chainRuns.incrementAndGet();
+        });
+        long start = System.nanoTime();
 
-        assertThatThrownBy(() -> filter.filter(FilterTestSupport.exchange("/api/x"), chain).block(Duration.ofSeconds(30)))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("block()/blockFirst()/blockLast() are blocking");
-        assertThat(chain.subscribed).as("the chain is never reached").hasValue(0);
-        System.out.println("[APIDelayFilterTest] flag true on a non-blocking thread -> IllegalStateException, chain not reached");
+        filter.filter(FilterTestSupport.exchange("/api/x"), chain).block(Duration.ofSeconds(30));
+
+        Duration delay = Duration.ofNanos(chainStartedNanos.get() - start);
+        System.out.println("[APIDelayFilterTest] flag true on a non-blocking thread -> chain ran " + chainRuns.get() + " time(s) after "
+                + delay.toMillis() + " ms");
+        assertThat(chainRuns).as("the chain runs once").hasValue(1);
+        assertThat(delay).isGreaterThanOrEqualTo(Duration.ofMillis(4500));
     }
 }
