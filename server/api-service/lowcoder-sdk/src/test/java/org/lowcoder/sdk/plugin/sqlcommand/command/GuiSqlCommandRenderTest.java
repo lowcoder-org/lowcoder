@@ -300,6 +300,19 @@ class GuiSqlCommandRenderTest {
         assertThat(postgres.bindParams()).isEmpty();
     }
 
+    /** BF-050: a render result asks for generated keys unless its command says otherwise; the shared bulk insert does. */
+    @Test
+    void renderResultsAskForGeneratedKeysUnlessTheCommandSaysOtherwiseBF050() {
+        Map<String, Object> detail = bulkDetail("[{\"a\":1,\"b\":\"x\"},{\"a\":2,\"b\":\"y\"}]", null);
+        GuiSqlCommandRenderResult mysql = MysqlBulkInsertCommand.from(detail).render(NO_PARAMS);
+        GuiSqlCommandRenderResult postgres = PostgresBulkInsertCommand.from(detail).render(NO_PARAMS);
+        System.out.println("[GuiSqlCommandRenderTest] generated keys: mysql bulk " + mysql.returnsGeneratedKeys() + ", pg bulk " + postgres.returnsGeneratedKeys());
+        assertThat(mysql.returnsGeneratedKeys()).isTrue();
+        assertThat(postgres.returnsGeneratedKeys()).isTrue();
+        assertThat(new GuiSqlCommandRenderResult("select 1", List.of()).returnsGeneratedKeys()).isTrue();
+        assertThat(new GuiSqlCommandRenderResult("select 1", List.of(), false).returnsGeneratedKeys()).isFalse();
+    }
+
     @Test
     void bulkInsertRejectsEmptyMisalignedAndMalformedRecords() {
         assertPluginError(() -> MysqlBulkInsertCommand.from(bulkDetail("[]", null)).render(NO_PARAMS),

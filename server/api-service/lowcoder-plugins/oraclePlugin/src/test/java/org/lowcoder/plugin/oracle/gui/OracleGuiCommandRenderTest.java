@@ -11,7 +11,9 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
 import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_INSERT_COMMAND;
 import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_UPDATE_COMMAND;
@@ -180,6 +182,20 @@ public class OracleGuiCommandRenderTest {
                 KEY_RECORDS, "[{\"name\":\"{{n1}}\",\"qty\":1},{\"name\":\"b\",\"qty\":2}]")).render(Map.of("n1", INJECTION)));
         assertEquals("insert into ITEMS (\"name\",\"qty\") values (?,?),(?,?)", result.sql());
         assertEquals(List.of(INJECTION, 1, "b", 2), result.bindParams());
+    }
+
+    /**
+     * BF-050: Oracle refuses generated keys for the multi-row {@code values (..),(..)} (ORA-63809), so a bulk insert of two
+     * or more records does not ask for them; a single record still does, as a single-row {@code VALUES} allows it.
+     */
+    @Test
+    public void bulkInsertAsksForGeneratedKeysOnlyForASingleRecordBF050() {
+        GuiSqlCommandRenderResult two = OracleBulkInsertCommand.from(detail(KEY_RECORDS, "[{\"qty\":1},{\"qty\":2}]")).render(Map.of());
+        GuiSqlCommandRenderResult one = OracleBulkInsertCommand.from(detail(KEY_RECORDS, "[{\"qty\":1}]")).render(Map.of());
+        System.out.println("[OracleGuiCommandRenderTest] bulk insert generated keys: two records " + two.returnsGeneratedKeys() + ", one " + one.returnsGeneratedKeys());
+        assertFalse(two.returnsGeneratedKeys());
+        assertTrue(one.returnsGeneratedKeys());
+        assertEquals("insert into ITEMS (\"qty\") values (?)", one.sql());
     }
 
     @Test

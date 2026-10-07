@@ -8,10 +8,12 @@ import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.common.sql.HikariPerfWrapper;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
+import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -84,6 +86,42 @@ public class GeneralSqlExecutorStatementTest {
                 context("insert into " + TABLE + " (v) values ({{v}})", Map.of(VALUE, "b"), false));
         assertEquals(Map.of("affectedRows", 1, "generatedKeys", List.of(3L)), prepared.getData(), "prepared");
         System.out.println("[GeneralSqlExecutorStatementTest] keys: " + keyed + " ; none when unsupported ; prepared " + prepared.getData());
+    }
+
+    /** A GUI statement prepared with or without generated keys, as its render result asks (BF-050). */
+    private QueryExecutionResult runGui(boolean returnsGeneratedKeys) {
+        GuiSqlCommand command = new GuiSqlCommand() {
+            @Override
+            public GuiSqlCommandRenderResult render(Map<String, Object> requestMap) {
+                return new GuiSqlCommandRenderResult("insert into " + TABLE + " (v) values (?)", List.of(VALUE), returnsGeneratedKeys);
+            }
+
+            @Override
+            public boolean isInsertCommand() {
+                return true;
+            }
+
+            @Override
+            public Set<String> extractMustacheKeys() {
+                return Set.of();
+            }
+        };
+        return new GeneralSqlExecutor().execute(connection, SqlBasedQueryExecutionContext.builder().guiSqlCommand(command).requestParams(Map.of()).build());
+    }
+
+    /**
+     * BF-050: the executor asked for generated keys on every prepared statement, which Oracle refuses for a multi-row insert.
+     * A render result that does not want them is now prepared with NO_GENERATED_KEYS: the insert runs and answers its
+     * affected rows only; the default still answers the keys.
+     */
+    @Test
+    public void aGuiStatementIsPreparedWithGeneratedKeysOnlyWhenItsRenderResultAsksBF050() {
+        QueryExecutionResult withKeys = runGui(true);
+        QueryExecutionResult withoutKeys = runGui(false);
+        System.out.println("[GeneralSqlExecutorStatementTest] GUI insert with keys " + withKeys.getData() + ", without " + withoutKeys.getData());
+        assertEquals(Map.of("affectedRows", 1, "generatedKeys", List.of(1L)), withKeys.getData());
+        assertEquals(Map.of("affectedRows", 1), withoutKeys.getData());
+        assertEquals(2L, H2SqlTestSupport.scalar(connection, "select count(*) from " + TABLE), "both inserts ran");
     }
 
     @Test

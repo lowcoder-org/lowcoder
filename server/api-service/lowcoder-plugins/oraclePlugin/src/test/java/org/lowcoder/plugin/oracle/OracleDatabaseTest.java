@@ -4,7 +4,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.oracle.model.OracleDatasourceConfig;
-import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.DatasourceStructure;
 import org.lowcoder.sdk.models.DatasourceStructure.Table;
 import org.lowcoder.sdk.models.DatasourceStructure.TableType;
@@ -46,7 +45,6 @@ import static org.lowcoder.plugin.oracle.OracleContainerSupport.rows;
 import static org.lowcoder.plugin.oracle.OracleContainerSupport.run;
 import static org.lowcoder.plugin.oracle.OracleContainerSupport.serviceConfig;
 import static org.lowcoder.plugin.oracle.OracleContainerSupport.sql;
-import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
 
 /**
  * Unit OR-3 (task L5-6): {@code OracleConnector}, {@code OracleQueryExecutor} (structure), the shared result parsing and the
@@ -65,6 +63,8 @@ public class OracleDatabaseTest {
     static final String INJECTION = "x'; drop table t_gui; --";
     static final String LOGON_DENIED = "ORA-01017";
     static final long INIT_TIMEOUT_MILLIS = 10_000;
+    static final String AFFECTED_ROWS = "affectedRows";
+    static final String GENERATED_KEYS = "generatedKeys";
 
     private static Map<String, Object> keyValues(Object... columnsAndValues) {
         List<Map<String, Object>> comp = new ArrayList<>();
@@ -341,23 +341,22 @@ public class OracleDatabaseTest {
     }
 
     /**
-     * Pins the plan section 9 row "bulk insert of two or more records fails with ORA-63809" (D-6: fix deferred): the bulk insert renders one {@code insert ... values (?,?),(?,?)} (a table value constructor) and
-     * the executor asks for generated keys, which Oracle 23 refuses for such a statement (ORA-63809), so a bulk insert of two
-     * or more records fails and nothing is written; a single record works.
+     * BF-050 fixed (plan section 9 row "bulk insert of two or more records fails with ORA-63809"): the bulk insert renders
+     * one {@code insert ... values (?,?),(?,?)} and the executor asked for generated keys, which Oracle 23 refuses for such
+     * a statement (ORA-63809), so nothing was written. A bulk insert of two records now runs without generated keys and
+     * answers its affected rows; a single record still answers its generated key (the ROWID).
      */
     @Test
-    public void bulkInsertOfTwoRecordsFailsOnOracleWhileOneRecordWorks_pinsTheSection9Row() throws Exception {
+    public void bulkInsertOfTwoRecordsWritesBothAndOneRecordKeepsItsGeneratedKeyBF050() throws Exception {
         try (Connection jdbc = jdbc()) {
             execute(jdbc, "drop table t_bulk", "create table t_bulk (id number, name varchar2(10))");
             Object one = gui("BULK_INSERT", Map.of("table", "t_bulk", "records", "[{\"ID\":1,\"NAME\":\"a\"}]"), Map.of());
-            System.out.println("[OracleDatabaseTest] bulk insert of one record: " + one);
-            assertEquals(1, rows(jdbc, "select * from t_bulk").size());
-            PluginException thrown = assertThrows(PluginException.class, () -> gui("BULK_INSERT",
-                    Map.of("table", "t_bulk", "records", "[{\"ID\":2,\"NAME\":\"b\"},{\"ID\":3,\"NAME\":\"c\"}]"), Map.of()));
-            System.out.println("[OracleDatabaseTest] bulk insert of two records: " + thrown.getError() + " " + thrown.getMessage());
-            assertEquals(QUERY_EXECUTION_ERROR, thrown.getError());
-            assertTrue(thrown.getMessage().contains("ORA-63809"), thrown.getMessage());
-            assertEquals(1, rows(jdbc, "select * from t_bulk").size(), "nothing of the failed bulk insert was written");
+            Object two = gui("BULK_INSERT", Map.of("table", "t_bulk", "records", "[{\"ID\":2,\"NAME\":\"b\"},{\"ID\":3,\"NAME\":\"c\"}]"), Map.of());
+            System.out.println("[OracleDatabaseTest] bulk insert of one record: " + one + ", of two records: " + two);
+            assertEquals(1, ((Map<?, ?>) one).get(AFFECTED_ROWS));
+            assertEquals(1, ((List<?>) ((Map<?, ?>) one).get(GENERATED_KEYS)).size(), "the single-row insert keeps its generated key");
+            assertEquals(Map.of(AFFECTED_ROWS, 2), two, "affected rows only: Oracle has no generated keys for a multi-row insert");
+            assertEquals(List.of(new BigDecimal(1), new BigDecimal(2), new BigDecimal(3)), column(jdbc, "select id from t_bulk order by id", "ID"));
         }
     }
 }
