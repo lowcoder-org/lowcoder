@@ -152,6 +152,26 @@ class GraphQLAuthTest {
         }
     }
 
+    /**
+     * Behaviour, not a defect: a server that answers without a challenge is not sent a digest answer; the first answer, sent
+     * without an Authorization header, is the result. Since BF-078 this is the only test that has a non-401 answer reach the
+     * digest check ({@code AuthHelper.shouldDigestAuth}): after a digest answer the check is no longer made.
+     */
+    @Test
+    void digestAuthAgainstAServerThatDoesNotChallengeSendsOneRequestWithoutCredentials() {
+        try (RecordingHttpServer server = RecordingHttpServer.start(Map.of(PATH, GraphQLCallSupport.json(200, "{\"open\":true}")))) {
+
+            QueryExecutionResult result = support.run(datasource(server, RestApiAuthType.DIGEST_AUTH, PASSWORD), GraphQLCallSupport.query(),
+                    GraphQLCallSupport.visitor(null, null));
+
+            System.out.println("[GraphQLAuthTest] digest, no challenge: " + server.requests().size() + " request(s), Authorization "
+                    + server.requests().get(0).header("Authorization") + " -> " + result.getData());
+            assertThat(result.isSuccess()).isTrue();
+            assertThat(server.requests()).hasSize(1);
+            assertThat(server.requests().get(0).header("Authorization")).isEmpty();
+        }
+    }
+
     /** RFC 7616 with MD5 and qop=auth: 401 with a challenge until the Authorization header carries a valid response. */
     private static Response digestServer(Request request) {
         String authorization = request.header("Authorization").stream().findFirst().orElse("");
