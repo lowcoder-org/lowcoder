@@ -7,8 +7,18 @@ import java.util.Map;
 
 public class AdvancedMapUtils {
 
+    /** What {@link #parseIndex} answers for an index that is not a number between brackets. */
+    private static final int MALFORMED_INDEX = -1;
+
     /**
      * Retrieves a string value from a nested map structure using a key format that supports array indices and nested objects.
+     * <p>
+     * A malformed index ({@code abc[x]}, {@code abc[]}, {@code abc[0} without the closing bracket, a number too large for an
+     * int) finds nothing, like a missing key, instead of throwing (BF-074): the key is an admin's source mapping, read at
+     * every login of the provider.
+     * <p>
+     * Limits: what follows the first closing bracket of a part is ignored, so {@code abc[0]x} and {@code abc[0][1]} read
+     * {@code abc[0]}; a sign is accepted ({@code abc[+1]} reads index 1).
      *
      * @param map The map from which to retrieve the value.
      * @param key The key in the format "abc[0].def.hi".
@@ -26,9 +36,8 @@ public class AdvancedMapUtils {
 
             if (part.contains("[")) {
                 int startIdx = part.indexOf('[');
-                int endIdx = part.indexOf(']');
                 String arrayKey = part.substring(0, startIdx);
-                int index = Integer.parseInt(part.substring(startIdx + 1, endIdx));
+                int index = parseIndex(part, startIdx);
 
                 if (!(current instanceof Map)) {
                     return null;
@@ -54,6 +63,19 @@ public class AdvancedMapUtils {
         }
 
         return current!=null?current.toString():null;
+    }
+
+    /** The number between the bracket at {@code startIdx} and the next closing bracket, or {@link #MALFORMED_INDEX}. */
+    private static int parseIndex(String part, int startIdx) {
+        int endIdx = part.indexOf(']', startIdx);
+        if (endIdx < 0) {
+            return MALFORMED_INDEX;
+        }
+        try {
+            return Integer.parseInt(part.substring(startIdx + 1, endIdx));
+        } catch (NumberFormatException e) {
+            return MALFORMED_INDEX;
+        }
     }
 
     public static Map<String, Object> documentToMap(Document document) {

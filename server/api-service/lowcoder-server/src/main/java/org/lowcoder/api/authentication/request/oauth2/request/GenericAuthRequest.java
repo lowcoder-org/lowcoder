@@ -1,6 +1,7 @@
 package org.lowcoder.api.authentication.request.oauth2.request;
 
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.authentication.request.AuthException;
 import org.lowcoder.api.authentication.request.oauth2.GenericOAuthProviderSource;
 import org.lowcoder.api.authentication.request.oauth2.OAuth2RequestContext;
@@ -24,6 +25,8 @@ import static org.lowcoder.sdk.plugin.common.constant.Constants.HTTP_TIMEOUT;
  * This class is for Generic Auth Request
  */
 public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuthConfig>{
+
+    static final String NO_UID = "The user information has no value for the source mapping uid";
 
     public GenericAuthRequest(Oauth2GenericAuthConfig context) {
         super(context, new GenericOAuthProviderSource(context));
@@ -76,6 +79,15 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
                 });
     }
 
+    /**
+     * The user from the id token, or from the id token and the user endpoint, through the admin's source mappings. A user
+     * without a uid is refused with an {@link AuthException} (BF-074): a uid mapping that finds nothing (a missing claim,
+     * a misspelled key, or since BF-074 a malformed index) made the login look the user up with a null uid, which can find
+     * the account an earlier login without a uid created.
+     * <p>
+     * Limits: only a null or blank uid is refused; the other providers set the uid from a fixed claim and are not checked
+     * here.
+     */
     @Override
     protected Mono<AuthUser> getAuthUser(AuthToken authToken) {
         //parse the JWT token
@@ -90,7 +102,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
 
         if(!Boolean.TRUE.equals(config.getUserInfoIntrospection())) {
             if(jwtMap == null) return Mono.error(new AuthException("No JWT token found"));
-            return Mono.just(mapToAuthUser(jwtMap, config.getSourceMappings()));
+            return requireUid(mapToAuthUser(jwtMap, config.getSourceMappings()));
         }
 
         Map<String, Object> finalJwtMap = jwtMap;
@@ -108,7 +120,14 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
                         return Mono.error(new AuthException(JsonUtils.toJson(map)));
                     }
                     AuthUser merged = mergeAuthUser(mapToAuthUser(finalJwtMap, config.getSourceMappings()), mapToAuthUser(map, config.getSourceMappings()));
-                    return Mono.just(merged);
+                    return requireUid(merged);
                 });
+    }
+
+    private static Mono<AuthUser> requireUid(AuthUser authUser) {
+        if (StringUtils.isBlank(authUser.getUid())) {
+            return Mono.error(new AuthException(NO_UID));
+        }
+        return Mono.just(authUser);
     }
 }
