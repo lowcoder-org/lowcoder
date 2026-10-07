@@ -47,6 +47,7 @@ class DatasourceStructureServiceImplTest {
     private static final String DATASOURCE_ID = "ds-1";
     private static final String TYPE = "postgres";
     private static final long READ_STRUCTURE_TIMEOUT_MS = 5000;
+    private static final String PLUGIN_EXECUTION_TIMEOUT_KEY = "PLUGIN_EXECUTION_TIMEOUT";
 
     private DatasourceService datasourceService;
     private DatasourceMetaInfoService metaInfoService;
@@ -176,32 +177,48 @@ class DatasourceStructureServiceImplTest {
     }
 
     /**
-     * Pins the plan section 9 row "DatasourceStructureServiceImpl: a structure read that times out ... the timeout code
-     * never reaches the caller" (:107 versus :110-116): the timeout is mapped to BizException(PLUGIN_EXECUTION_TIMEOUT),
-     * which is not a PluginException, so the outer onErrorMap rewraps it as
-     * PluginException(DATASOURCE_GET_STRUCTURE_ERROR) carrying the BizException message. The holder is told about the
-     * timeout (doOnError, :106). A fix changes this test on purpose.
+     * BF-101 (was pinned as the plan section 9 row "DatasourceStructureServiceImpl: a structure read that times out ...
+     * the timeout code never reaches the caller"): the timeout reaches the caller as BizException(PLUGIN_EXECUTION_TIMEOUT)
+     * with the timeout in milliseconds, through both error maps (:110 and :52); both used to wrap it as
+     * PluginException(DATASOURCE_GET_STRUCTURE_ERROR). The holder is told about the timeout (doOnError, :106).
      */
     @Test
-    void getStructure_executorTimeout_notifiesTheHolderAndSurfacesOnlyTheGenericStructureError() {
+    void getStructure_executorTimeout_notifiesTheHolderAndSurfacesTheTimeoutErrorBF101() {
         when(executor.doGetStructure("connection-object", config)).thenReturn(Mono.never());
-        String expectedMessage = new BizException(BizError.PLUGIN_EXECUTION_TIMEOUT, "PLUGIN_EXECUTION_TIMEOUT", READ_STRUCTURE_TIMEOUT_MS).getMessage();
 
         StepVerifier.withVirtualTime(() -> service.getStructure(DATASOURCE_ID, true))
                 .expectSubscription()
                 .expectNoEvent(Duration.ofMillis(READ_STRUCTURE_TIMEOUT_MS - 1))
                 .thenAwait(Duration.ofMillis(1))
                 .expectErrorSatisfies(error -> {
-                    assertThat(error).isInstanceOf(PluginException.class);
-                    PluginException plugin = (PluginException) error;
-                    assertThat(plugin.getError()).isEqualTo(PluginCommonError.DATASOURCE_GET_STRUCTURE_ERROR);
-                    assertThat(plugin.getArgs()).containsExactly(expectedMessage);
+                    assertThat(error).isInstanceOf(BizException.class);
+                    BizException biz = (BizException) error;
+                    assertThat(biz.getError()).isEqualTo(BizError.PLUGIN_EXECUTION_TIMEOUT);
+                    assertThat(biz.getMessageKey()).isEqualTo(PLUGIN_EXECUTION_TIMEOUT_KEY);
+                    assertThat(biz.getArgs()).containsExactly(READ_STRUCTURE_TIMEOUT_MS);
                 })
                 .verify(Duration.ofSeconds(5));
 
         ArgumentCaptor<Throwable> reported = ArgumentCaptor.forClass(Throwable.class);
         verify(holder).onQueryError(reported.capture());
         assertThat(reported.getValue()).isInstanceOf(TimeoutException.class);
-        System.out.println("[DatasourceStructureServiceImplTest] pins the section 9 row: timeout surfaces as DATASOURCE_GET_STRUCTURE_ERROR");
+        System.out.println("[DatasourceStructureServiceImplTest] timeout surfaces as PLUGIN_EXECUTION_TIMEOUT (BF-101)");
+    }
+
+    /** BF-101, what does not change: a BizException other than the read timeout is still wrapped as the structure error. */
+    @Test
+    void getStructure_anotherBizException_isStillWrappedAsTheStructureErrorBF101() {
+        BizException other = new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER");
+        when(connectionPool.getOrCreateConnection(datasource)).thenReturn(Mono.error(other));
+
+        StepVerifier.create(service.getStructure(DATASOURCE_ID, true))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(PluginException.class);
+                    PluginException plugin = (PluginException) error;
+                    assertThat(plugin.getError()).isEqualTo(PluginCommonError.DATASOURCE_GET_STRUCTURE_ERROR);
+                    assertThat(plugin.getArgs()).containsExactly(other.getMessage());
+                })
+                .verify();
+        System.out.println("[DatasourceStructureServiceImplTest] other BizException -> DATASOURCE_GET_STRUCTURE_ERROR");
     }
 }

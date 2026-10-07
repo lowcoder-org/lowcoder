@@ -50,7 +50,7 @@ public class DatasourceStructureServiceImpl implements DatasourceStructureServic
         return getStructure0(datasourceId, ignoreCache)
                 .defaultIfEmpty(new DatasourceStructure())
                 .onErrorMap(e -> {
-                    if (e instanceof PluginException) {
+                    if (keepsItsCode(e)) {
                         return e;
                     }
 
@@ -108,12 +108,22 @@ public class DatasourceStructureServiceImpl implements DatasourceStructureServic
                                 readStructureTimeout))
                 )
                 .onErrorMap(e -> {
-                    if (e instanceof PluginException) {
+                    if (keepsItsCode(e)) {
                         return e;
                     }
                     log.error("get datasource structure error", e);
                     return new PluginException(DATASOURCE_GET_STRUCTURE_ERROR, "DATASOURCE_GET_STRUCTURE_ERROR", e.getMessage());
                 });
+    }
+
+    /**
+     * Whether a structure-read error reaches the caller as it is rather than as DATASOURCE_GET_STRUCTURE_ERROR: a plugin
+     * error, and the timeout of the read, PLUGIN_EXECUTION_TIMEOUT (BF-101: it was wrapped too, so its code and HTTP
+     * status never reached the caller). Any other error is wrapped.
+     */
+    private static boolean keepsItsCode(Throwable e) {
+        return e instanceof PluginException
+                || e instanceof BizException bizException && bizException.getError() == BizError.PLUGIN_EXECUTION_TIMEOUT;
     }
 
 }
