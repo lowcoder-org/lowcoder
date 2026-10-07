@@ -96,9 +96,14 @@ public final class PluginTestSupport {
     public static class OrphanClass extends MissingBase {
     }
 
+    /** Internal name of a class, as class files and NoClassDefFoundError messages give it (for example {@code a/b/C}). */
+    public static String internalName(Class<?> type) {
+        return type.getName().replace('.', '/');
+    }
+
     /** Resource path of a class file. */
     public static String classEntry(Class<?> type) {
-        return type.getName().replace('.', '/') + ".class";
+        return internalName(type) + ".class";
     }
 
     /**
