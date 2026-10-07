@@ -307,7 +307,7 @@ public class ApplicationController implements ApplicationEndpoints {
             @RequestParam(required = false, defaultValue = "1") Integer pageNum,
             @RequestParam(required = false, defaultValue = "1000") Integer pageSize) {
 
-        return gidService.convertLibraryQueryIdToObjectId(applicationId).flatMap(appId -> {
+        return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId -> {
             var flx = applicationApiService.getGroupsOrMembersWithoutPermissions(appId)
                     .flatMapMany(Flux::fromIterable)
                     .filter(item -> {
