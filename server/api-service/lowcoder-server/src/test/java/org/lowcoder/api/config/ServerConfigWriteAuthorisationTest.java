@@ -61,7 +61,7 @@ class ServerConfigWriteAuthorisationTest {
      * ConfigCenterImpl's {@code <group>.<key>} naming, ConfigCenterImpl:89-94) or by name, with the reading code.
      */
     static final List<String> CONFIG_KEYS_READ_BY_THE_SERVER = List.of(
-            "asset.logoMaxSizeInKb (OrganizationServiceImpl:74)",
+            "asset.logoMaxSizeInKb (OrganizationServiceImpl:79)",
             "asset.thumbNailPhotoDimension (AssetServiceImpl:43)",
             "asset.avatarMaxSizeInKb (UserServiceImpl:83)",
             "deployment.js-executor.host (CommonConfigHelper:19; the base URL of every JS executor call: NodeServerHelper:25, DatasourcePluginClient:101)",

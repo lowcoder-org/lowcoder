@@ -30,6 +30,8 @@ import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.UriUtils;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
@@ -54,6 +56,9 @@ import static org.lowcoder.sdk.util.LocaleUtils.getMessage;
 @RequiredArgsConstructor
 @Service
 public class OrganizationServiceImpl implements OrganizationService {
+
+    /** The Organization property that holds the logo's asset id. */
+    private static final String LOGO_ASSET_ID = "logoAssetId";
 
     private final UserRepository userRepository;
     private Conf<Integer> logoMaxSizeInKb;
@@ -211,49 +216,54 @@ public class OrganizationServiceImpl implements OrganizationService {
         return repository.findByState(ACTIVE);
     }
 
+    /**
+     * Stores the uploaded logo, points the organization at it, and then removes the logo it pointed at before (BF-063: the
+     * previous id was read from a new, empty Organization, so the old logo was never removed). The organization is looked up
+     * first (by id, gid or slug, {@link #getById}) and updated by its id.
+     * <p>
+     * Limits: two uploads for the same organization at the same time both read the same previous logo, so the asset of
+     * the upload that is overwritten first is left stored.
+     */
     @Override
     public Mono<Boolean> uploadLogo(String organizationId, Part filePart) {
-
-        Mono<Asset> uploadAssetMono = assetService.upload(filePart, logoMaxSizeInKb.get(), false);
-
-        return uploadAssetMono
-                .flatMap(uploadedAsset -> {
-                    Organization organization = new Organization();
-                    final String prevAssetId = organization.getLogoAssetId();
-                    organization.setLogoAssetId(uploadedAsset.getId());
-
-                    return mongoUpsertHelper.updateById(organization, organizationId)
-                            .flatMap(updateResult -> {
-                                if (StringUtils.isEmpty(prevAssetId)) {
-                                    return Mono.just(updateResult);
-                                }
-                                return assetService.remove(prevAssetId).thenReturn(updateResult);
-                            });
-                });
+        return getById(organizationId)
+                .flatMap(organization -> assetService.upload(filePart, logoMaxSizeInKb.get(), false)
+                        .flatMap(uploadedAsset -> {
+                            Organization update = new Organization();
+                            update.setLogoAssetId(uploadedAsset.getId());
+                            return mongoUpsertHelper.updateById(update, organization.getId());
+                        })
+                        .flatMap(updateResult -> {
+                            String prevAssetId = organization.getLogoAssetId();
+                            if (StringUtils.isEmpty(prevAssetId)) {
+                                return Mono.just(updateResult);
+                            }
+                            return assetService.remove(prevAssetId).thenReturn(updateResult);
+                        }));
     }
 
+    /**
+     * Removes the organization's logo: its reference is unset and then its asset deleted (BF-064: the reference was left,
+     * because a null field is not written, and the update used the raw argument instead of the organization found by gid
+     * or slug). Clearing the reference first means a failed asset delete leaves an unused asset, not a broken logo.
+     * <p>
+     * Limits: a reference to an asset that no longer exists fails with {@code ASSET_NOT_FOUND} and is kept; uploading a
+     * new logo replaces it.
+     */
     @Override
     public Mono<Boolean> deleteLogo(String organizationId) {
-        Mono<Organization> organizationMono;
-        if(FieldName.isGID(organizationId)) organizationMono = repository.findByGidAndState(organizationId, ACTIVE);
-        else organizationMono = repository.findBySlugAndState(organizationId, ACTIVE).switchIfEmpty(repository.findByIdAndState(organizationId, ACTIVE));
-        return organizationMono
+        return getById(organizationId)
                 .flatMap(organization -> {
-                    // delete from asset repo.
                     final String prevAssetId = organization.getLogoAssetId();
                     if (StringUtils.isBlank(prevAssetId)) {
                         return Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "ASSET_NOT_FOUND", ""));
                     }
                     return assetRepository.findById(prevAssetId)
                             .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "ASSET_NOT_FOUND", prevAssetId)))
-                            .flatMap(asset -> assetRepository.delete(asset));
-                })
-                .then(Mono.defer(() -> {
-                    // update org.
-                    Organization organization = new Organization();
-                    organization.setLogoAssetId(null);
-                    return mongoUpsertHelper.updateById(organization, organizationId);
-                }));
+                            .flatMap(asset -> mongoUpsertHelper.updateAndUnset(new Organization(),
+                                            new Query(Criteria.where(FieldName.ID).is(organization.getId())), LOGO_ASSET_ID)
+                                    .flatMap(updateResult -> assetRepository.delete(asset).thenReturn(updateResult)));
+                });
     }
 
     @Override
