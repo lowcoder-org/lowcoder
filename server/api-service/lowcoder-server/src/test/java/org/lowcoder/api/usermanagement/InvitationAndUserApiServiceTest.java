@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -39,6 +40,7 @@ import org.lowcoder.domain.user.repository.UserRepository;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
+import org.lowcoder.sdk.util.LocaleUtils;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -52,11 +54,9 @@ import reactor.test.StepVerifier;
  * removal of stale tokens), with every collaborator mocked. The two one-line delegates of {@code UserApiServiceImpl}
  * ({@code lostPassword}, {@code resetLostPassword}) are not tested: that would test a mock.
  *
- * <p>Pinned production defects (owner decision D-6: fixes are deferred, a fix changes these tests on purpose):
- * <ul>
- * <li>plan section 9 row "InvitationApiServiceImpl (:103) raises INVITER_NOT_FOUND with the message key
- * INVITED_ORG_DELETED": see {@link #getInvitationView_inviterMissing_isInviterNotFoundWithTheOrgDeletedKey_pinsSection9Row}.</li>
- * </ul>
+ * <p>Fixed (BF-080, was the plan section 9 row "InvitationApiServiceImpl raises INVITER_NOT_FOUND with the message key
+ * INVITED_ORG_DELETED"): a missing inviter is reported with its own message
+ * ({@link #getInvitationView_inviterMissing_isInviterNotFoundWithItsOwnMessageBF080}).
  * Fixed (BF-006, was the plan section 9 row "no role check on invitation creation"): creating an invitation needs
  * membership of the organization ({@link #create_visitorWhoIsNotAMemberOfTheOrganization_isRefused_andNothingIsSaved}), and
  * an invitation lets someone join only while its creator is a member
@@ -73,6 +73,12 @@ class InvitationAndUserApiServiceTest {
     private static final String CREATOR_ID = "creator-1";
     private static final String TARGET_ID = "target-1";
     private static final String ORG_NAME = "Org One";
+    private static final String INVITED_ORG_DELETED_KEY = "INVITED_ORG_DELETED";
+    private static final String INVITER_NOT_FOUND_KEY = "INVITER_NOT_FOUND";
+    /** The text a message key that is in no bundle falls back to ({@code LocaleUtils.getMessage}). */
+    private static final String INTERNAL_SERVER_ERROR_KEY = "INTERNAL_SERVER_ERROR";
+    /** The languages of the sdk bundles {@code locale_en}, {@code locale_zh} and {@code locale_de}. */
+    private static final List<Locale> BUNDLE_LOCALES = List.of(Locale.ENGLISH, Locale.CHINESE, Locale.GERMAN);
 
     @Mock
     private InvitationService invitationService;
@@ -205,7 +211,7 @@ class InvitationAndUserApiServiceTest {
         lenient().when(invitationService.inviteToOrg(VISITOR_ID, ORG_ID)).thenReturn(logged("invite", true));
 
         StepVerifier.create(invitationApiService.inviteUser(INVITATION_ID))
-                .expectErrorSatisfies(error -> assertBizError(error, BizError.INVITED_ORG_DELETED, "INVITED_ORG_DELETED"))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.INVITED_ORG_DELETED, INVITED_ORG_DELETED_KEY))
                 .verify();
         assertThat(events).isEmpty();
         say("inviteUser: deleted organization -> INVITED_ORG_DELETED, nothing subscribed");
@@ -321,25 +327,33 @@ class InvitationAndUserApiServiceTest {
         when(invitationService.getById(INVITATION_ID)).thenReturn(Mono.just(invitation()));
         stubViewParts(true, false);
         StepVerifier.create(invitationApiService.getInvitationView(INVITATION_ID))
-                .expectErrorSatisfies(error -> assertBizError(error, BizError.INVITED_ORG_DELETED, "INVITED_ORG_DELETED"))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.INVITED_ORG_DELETED, INVITED_ORG_DELETED_KEY))
                 .verify();
         say("getInvitationView: unknown code -> INVALID_INVITATION_CODE, deleted org -> INVITED_ORG_DELETED");
     }
 
     /**
-     * Pins the plan section 9 row "InvitationApiServiceImpl (:103) raises INVITER_NOT_FOUND with the message key
-     * INVITED_ORG_DELETED": an invitation whose creator no longer exists gives the error code INVITER_NOT_FOUND but the
-     * message key of the deleted organization, so the user is told the wrong thing. A fix changes this test on purpose.
+     * BF-080 (fixed; was pinned as the plan section 9 row "InvitationApiServiceImpl raises INVITER_NOT_FOUND with the
+     * message key INVITED_ORG_DELETED"): an invitation whose creator no longer exists gives INVITER_NOT_FOUND with its own
+     * message key, which every locale bundle has, instead of the deleted-organization message.
      */
     @Test
-    void getInvitationView_inviterMissing_isInviterNotFoundWithTheOrgDeletedKey_pinsSection9Row() {
+    void getInvitationView_inviterMissing_isInviterNotFoundWithItsOwnMessageBF080() {
         when(invitationService.getById(INVITATION_ID)).thenReturn(Mono.just(invitation()));
         stubViewParts(false, true);
 
         StepVerifier.create(invitationApiService.getInvitationView(INVITATION_ID))
-                .expectErrorSatisfies(error -> assertBizError(error, BizError.INVITER_NOT_FOUND, "INVITED_ORG_DELETED"))
+                .expectErrorSatisfies(error -> {
+                    assertBizError(error, BizError.INVITER_NOT_FOUND, INVITER_NOT_FOUND_KEY);
+                    for (Locale locale : BUNDLE_LOCALES) {
+                        String message = ((BizException) error).getMessage(locale);
+                        say("getInvitationView: inviter missing, " + locale + " -> " + message);
+                        assertThat(message)
+                                .isNotEqualTo(LocaleUtils.getMessage(locale, INTERNAL_SERVER_ERROR_KEY))
+                                .isNotEqualTo(LocaleUtils.getMessage(locale, INVITED_ORG_DELETED_KEY));
+                    }
+                })
                 .verify();
-        say("getInvitationView: inviter missing -> INVITER_NOT_FOUND with key INVITED_ORG_DELETED (section 9 row pinned)");
     }
 
     /**
