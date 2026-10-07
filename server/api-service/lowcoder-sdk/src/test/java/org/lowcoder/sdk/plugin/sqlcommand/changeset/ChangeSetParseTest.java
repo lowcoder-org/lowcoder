@@ -114,17 +114,16 @@ class ChangeSetParseTest {
     }
 
     /**
-     * Pins the plan section 9 row "ChangeSet.parseChangeSet: an object-type change set without data throws a
-     * NullPointerException instead of a PluginException" (D-6, fix deferred, source: lane L4, L4-3 plan). A fix
-     * changes this test on purpose.
+     * BF-094 (the plan section 9 row "ChangeSet.parseChangeSet: an object-type change set without data throws a
+     * NullPointerException instead of a PluginException", was pinned): an object change set without data is
+     * GUI_OPERATION_DATA_EMPTY.
      */
     @Test
-    void parseChangeSetObjectTypeWithoutDataThrowsNullPointerException() {
+    void parseChangeSetObjectTypeWithoutDataIsOperationDataEmptyBF094() {
         Map<String, Object> detail = new HashMap<>();
         detail.put(CHANGE_SET_FORM_KEY, changeSet("OBJECT", null));
 
-        assertThatThrownBy(() -> ChangeSet.parseChangeSet(detail)).isInstanceOf(NullPointerException.class);
-        System.out.println("[ChangeSetParseTest] object type without data -> NullPointerException (plan section 9 row, pinned)");
+        assertPluginError(() -> ChangeSet.parseChangeSet(detail), "GUI_OPERATION_DATA_EMPTY");
     }
 
     @Test
