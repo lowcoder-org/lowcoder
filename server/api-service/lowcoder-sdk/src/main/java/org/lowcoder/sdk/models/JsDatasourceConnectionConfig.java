@@ -22,6 +22,10 @@ public class JsDatasourceConnectionConfig extends HashMap<String, Object> implem
 
     /** The key of the plugin-specific {@code extra} config, which is also put into plugin dynamic config requests. */
     public static final String EXTRA_KEY = "extra";
+    /** The key of the stored auth config, a map with the auth {@code type} and, for OAuth inherited from login, the {@code authId}. */
+    public static final String AUTH_CONFIG_KEY = "authConfig";
+    private static final String AUTH_TYPE_KEY = "type";
+    private static final String AUTH_ID_KEY = "authId";
 
     @Transient
     private Object definition;
@@ -157,15 +161,15 @@ public class JsDatasourceConnectionConfig extends HashMap<String, Object> implem
         }
 
         // for oauth handling
-        if(this.containsKey("authConfig")) {
-            if(jsDatasourceConnectionConfig.containsKey("authConfig")) {
-                newJsDatasourceConnectionConfig.put("authConfig", jsDatasourceConnectionConfig.get("authConfig"));
+        if(this.containsKey(AUTH_CONFIG_KEY)) {
+            if(jsDatasourceConnectionConfig.containsKey(AUTH_CONFIG_KEY)) {
+                newJsDatasourceConnectionConfig.put(AUTH_CONFIG_KEY, jsDatasourceConnectionConfig.get(AUTH_CONFIG_KEY));
             } else {
                 // do nothing, save empty ( this will clear db )
             }
         } else {
-            if(jsDatasourceConnectionConfig.containsKey("authConfig")) {
-                newJsDatasourceConnectionConfig.put("authConfig", jsDatasourceConnectionConfig.get("authConfig"));
+            if(jsDatasourceConnectionConfig.containsKey(AUTH_CONFIG_KEY)) {
+                newJsDatasourceConnectionConfig.put(AUTH_CONFIG_KEY, jsDatasourceConnectionConfig.get(AUTH_CONFIG_KEY));
             }
         }
 
@@ -210,17 +214,25 @@ public class JsDatasourceConnectionConfig extends HashMap<String, Object> implem
         return this;
     }
 
+    /**
+     * Whether the stored auth config is OAuth inherited from login. BF-091: an auth config without a type, or one that is
+     * not a map (both only written outside the form), is not; reading its type used to throw.
+     */
     public boolean isOauth2InheritFromLogin() {
-        if (this.get("authConfig") != null) {
-            return ((HashMap<String, String>)this.get("authConfig")).get("type").equals(RestApiAuthType.OAUTH2_INHERIT_FROM_LOGIN.name());
-        }
-        return false;
+        Map<String, Object> authConfig = getAuthConfig();
+        return authConfig != null
+                && RestApiAuthType.OAUTH2_INHERIT_FROM_LOGIN.name().equals(MapUtils.getString(authConfig, AUTH_TYPE_KEY));
     }
 
     public String getAuthId() {
-        if(isOauth2InheritFromLogin()) {
-            return ((HashMap<String, String>)this.get("authConfig")).get("authId");
+        if (isOauth2InheritFromLogin()) {
+            return MapUtils.getString(getAuthConfig(), AUTH_ID_KEY);
         }
         return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> getAuthConfig() {
+        return this.get(AUTH_CONFIG_KEY) instanceof Map<?, ?> authConfig ? (Map<String, Object>) authConfig : null;
     }
 }
