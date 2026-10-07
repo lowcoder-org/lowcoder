@@ -107,6 +107,39 @@ public class PostgresDataTypeUtilsTest {
         assertEquals(expected, casts);
     }
 
+    /**
+     * The scanner at the edges of its input (BF-045 follow-up for the coverage gate): a quote, a {@code $} or a comment at
+     * the very start or end of the SQL, unterminated quotes and comments, a {@code $} that cannot open a dollar quote, a
+     * carriage return ending a line comment, and a {@code ::} that is followed by no type name.
+     */
+    static Stream<Arguments> sqlAtTheEdgesOfTheScanner() {
+        List<DataType> intOnly = List.of(DataType.INTEGER);
+        return Stream.of(
+                Arguments.of("a literal at the very start", "'?::bool' || ?::int4", intOnly),
+                Arguments.of("an escape string at the very start", "E'\\'?::bool' || ?::int4", intOnly),
+                Arguments.of("an E ending a longer word is no escape prefix", "select note'a\\', ?::int4", intOnly),
+                Arguments.of("a literal closing at the very end", "select ?::int4 || 'a'", intOnly),
+                Arguments.of("a dollar quote at the very start", "$$?::bool$$ || ?::int4", intOnly),
+                Arguments.of("an unterminated dollar quote", "select ?::int4, $$ ?::bool", intOnly),
+                Arguments.of("a $ at the very end", "select ?::int4, x $", intOnly),
+                Arguments.of("an unterminated tag name", "select ?::int4, $abc", intOnly),
+                Arguments.of("a tag name with a character no tag may hold", "select $a-b$ ?::int4", intOnly),
+                Arguments.of("a $ after an underscore or another $", "select a_$$ ?::int4", intOnly),
+                Arguments.of("a line comment that runs to the end", "select ?::int4 -- ?::bool", intOnly),
+                Arguments.of("a line comment ended by a carriage return", "select ?::int4 -- ?::bool\r?::text",
+                        List.of(DataType.INTEGER, DataType.STRING)),
+                Arguments.of("an unterminated block comment", "select ?::int4 /* ?::bool", intOnly),
+                Arguments.of("a :: followed by no type name", "select ?::(int4), ?::int4", Arrays.asList(null, DataType.INTEGER)));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("sqlAtTheEdgesOfTheScanner")
+    public void theScannerHandlesTheEdgesOfItsInput(String label, String sql, List<DataType> expected) {
+        List<DataType> casts = extractExplicitCasting(sql);
+        System.out.println("[PostgresDataTypeUtilsTest] edge, " + label + ": " + sql.replace("\r", "\\r") + " -> " + casts);
+        assertEquals(expected, casts);
+    }
+
     /** The limits stated in the javadoc: a spaced cast is not read, an array cast is read as its element type. */
     @Test
     public void aSpacedCastIsNotReadAndAnArrayCastIsReadAsItsElementType() {
