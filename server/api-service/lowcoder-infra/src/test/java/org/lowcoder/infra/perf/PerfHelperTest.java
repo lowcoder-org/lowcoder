@@ -33,6 +33,10 @@ class PerfHelperTest {
     private static final String EVENT_NAME = "server_log_batch_insert";
     private static final List<Tag> TAGS = List.of(Tag.of("size", "3"));
     private static final String TIMER_NAME = "test.timer";
+    private static final String HIKARI_ACTIVE_NAME = "hikari_pool_active_connections";
+    private static final List<Tag> OTHER_TAGS = List.of(Tag.of("size", "4"));
+    /** Enough collections for a weakly held AtomicInteger to be collected in practice; the fixed gauge does not depend on it. */
+    private static final int GC_ROUNDS = 3;
 
     private SimpleMeterRegistry registry;
     private PerfHelper helper;
@@ -141,25 +145,29 @@ class PerfHelperTest {
     }
 
     /**
-     * Pins the plan section 9 row "PerfHelper.gaugeInt keeps the AtomicInteger it registered first" (D-6, fix
-     * deferred): {@code MeterRegistry.gauge(name, tags, number)} returns the object it was given, so the later
-     * {@code gauge.set(number)} updates a fresh AtomicInteger the registry does not know, while the registry holds
-     * only a weak reference to the first one. The registered gauge therefore never shows the second value: it stays at
-     * the first value (3.0) or, once the first AtomicInteger has been garbage collected, reads NaN. Both are accepted
-     * here because the test must not depend on the garbage collector (and does not call System.gc()). A fix changes
-     * this test on purpose.
+     * BF-103 (was pinned as the plan section 9 row "PerfHelper.gaugeInt keeps the AtomicInteger it registered first",
+     * D-6): the registered gauge shows the latest value, and still does after garbage collections, because the helper
+     * keeps the AtomicInteger the registry holds only weakly. It used to give the registry a new AtomicInteger on each
+     * call, so the gauge kept the first value (3.0) or read NaN once that one was collected. A gauge with other tags is
+     * a gauge of its own.
      */
     @Test
-    void gaugeIntRegistersAGaugeButNeverShowsTheSecondValue() {
+    void gaugeIntShowsTheLatestValueAndKeepsItAcrossGarbageCollectionsBF103() {
         helper.gaugeInt(PerfEvent.HIKARI_POOL_ACTIVE_CONNECTIONS, TAGS, 3);
-        Gauge gauge = registry.get("hikari_pool_active_connections").tags(TAGS).gauge();
+        Gauge gauge = registry.get(HIKARI_ACTIVE_NAME).tags(TAGS).gauge();
 
         helper.gaugeInt(PerfEvent.HIKARI_POOL_ACTIVE_CONNECTIONS, TAGS, 7);
+        helper.gaugeInt(PerfEvent.HIKARI_POOL_ACTIVE_CONNECTIONS, OTHER_TAGS, 11);
+        for (int i = 0; i < GC_ROUNDS; i++) {
+            System.gc();
+        }
 
         double value = gauge.value();
-        System.out.println("[PerfHelperTest] gauge after gaugeInt(3) then gaugeInt(7) reads " + value + " (plan section 9 row, pinned: 3.0 or NaN, never 7.0)");
-        assertThat(value).isNotEqualTo(7.0);
-        assertThat(value == 3.0 || Double.isNaN(value)).isTrue();
+        double other = registry.get(HIKARI_ACTIVE_NAME).tags(OTHER_TAGS).gauge().value();
+        System.out.println("[PerfHelperTest] gauge after gaugeInt(3), gaugeInt(7) and " + GC_ROUNDS + " GCs reads " + value + "; other tags read " + other + " (BF-103)");
+        assertThat(value).isEqualTo(7.0);
+        assertThat(other).isEqualTo(11.0);
+        assertThat(registry.find(HIKARI_ACTIVE_NAME).gauges()).hasSize(2);
         assertThat(appender.list).isEmpty();
     }
 
