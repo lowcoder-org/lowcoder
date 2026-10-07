@@ -82,7 +82,12 @@ public class BulkInsertCommand implements GuiSqlCommand {
         }
         sb.deleteCharAt(sb.length() - 1);
 
-        return new GuiSqlCommandRenderResult(sb.toString(), bindParams);
+        return new GuiSqlCommandRenderResult(sb.toString(), bindParams, returnsGeneratedKeys(insertRows.rows().size()));
+    }
+
+    /** Whether the insert of {@code rowCount} rows is run with the generated keys requested; true unless a dialect says otherwise. */
+    protected boolean returnsGeneratedKeys(int rowCount) {
+        return true;
     }
 
     private static void appendQuestionMarks(StringBuilder sb, Set<String> columns) {
