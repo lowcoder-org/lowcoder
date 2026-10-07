@@ -25,6 +25,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -95,13 +96,8 @@ public class DatasourceStructure {
                 return 1;
             }
             if (this instanceof final PrimaryKey thisKey && other instanceof final PrimaryKey otherKey) {
-                if (thisKey.getName() != null && otherKey.getName() != null) {
-                    return thisKey.getName().compareTo(otherKey.getName());
-                }
-                if (thisKey.getName() == null) {
-                    return 1;
-                }
-                return -1;
+                // BF-095: by name, null names last and equal to each other; two null names used to compare 1 both ways
+                return Comparator.nullsLast(Comparator.<String> naturalOrder()).compare(thisKey.getName(), otherKey.getName());
             }
 
             return 0;

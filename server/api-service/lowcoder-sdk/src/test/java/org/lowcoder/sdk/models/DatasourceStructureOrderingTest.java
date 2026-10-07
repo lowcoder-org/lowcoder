@@ -81,27 +81,36 @@ class DatasourceStructureOrderingTest {
     }
 
     /**
-     * Pins the plan section 9 row on the {@code Key.compareTo} comparator contract (D-6, fix deferred): two primary keys
-     * with null names compare 1 in both directions, and a fixed alternating list of 40 primary keys (null name on even
-     * positions) makes {@code Collections.sort} (TimSort, JDK 17) throw "Comparison method violates its general
-     * contract". The sort exception depends on the JDK's TimSort and is deterministic for this fixed list on JDK 17.
-     * A fix changes this test on purpose.
+     * BF-095 (the plan section 9 row on the {@code Key.compareTo} comparator contract, was pinned): two primary keys with
+     * null names compare equal, so the comparator is antisymmetric, and the fixed alternating list of 40 primary keys
+     * (null name on even positions) that made {@code Collections.sort} (TimSort, JDK 17) throw "Comparison method violates
+     * its general contract" sorts: the named keys by name, then the null-named ones.
      */
     @Test
-    void twoNullNamedPrimaryKeysCompareOneInBothDirectionsAndBreakCollectionsSort() {
+    void twoNullNamedPrimaryKeysCompareEqualAndAListWithManyOfThemSortsBF095() {
         PrimaryKey first = pk(null);
         PrimaryKey second = pk(null);
 
-        assertThat(first.compareTo(second)).isEqualTo(1);
-        assertThat(second.compareTo(first)).as("antisymmetry is violated: both directions are 1").isEqualTo(1);
+        assertThat(first.compareTo(second)).isZero();
+        assertThat(second.compareTo(first)).as("antisymmetric: both directions are 0").isZero();
 
         List<Key> keys = new ArrayList<>();
+        List<String> expected = new ArrayList<>();
         for (int i = 0; i < TIMSORT_MERGE_SIZE; i++) {
             keys.add(pk(i % 2 == 0 ? null : "k" + i));
+            if (i % 2 != 0) {
+                expected.add("pr:k" + i);
+            }
         }
-        assertThatThrownBy(() -> Collections.sort(keys)).isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Comparison method violates its general contract");
-        System.out.println("[DatasourceStructureOrderingTest] sorting " + TIMSORT_MERGE_SIZE + " keys with alternating null names throws IllegalArgumentException (pinned)");
+        Collections.sort(expected);
+        for (int i = 0; i < TIMSORT_MERGE_SIZE / 2; i++) {
+            expected.add("pr:null");
+        }
+
+        Collections.sort(keys);
+
+        System.out.println("[DatasourceStructureOrderingTest] sorted " + TIMSORT_MERGE_SIZE + " keys with alternating null names: " + names(keys));
+        assertThat(names(keys)).containsExactlyElementsOf(expected);
     }
 
     @Test
