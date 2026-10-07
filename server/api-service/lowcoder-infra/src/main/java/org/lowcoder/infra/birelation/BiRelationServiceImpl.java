@@ -3,6 +3,7 @@ package org.lowcoder.infra.birelation;
 import com.google.common.base.Preconditions;
 import lombok.RequiredArgsConstructor;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
+import org.lowcoder.sdk.constants.FieldName;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -236,10 +237,13 @@ public class BiRelationServiceImpl implements BiRelationService {
         return biRelationRepository.findById(id);
     }
 
+    /**
+     * Whether a row with this id was removed: false for an id no row has (BF-084: the completion of the delete was
+     * answered with true whether or not a row existed). An error still answers false, as before.
+     */
     @Override
     public Mono<Boolean> removeBiRelationById(String id) {
-        return biRelationRepository.deleteById(id)
-                .thenReturn(true)
+        return mongoUpsertHelper.remove(new Query(where(FieldName.ID).is(id)), BiRelation.class)
                 .onErrorReturn(false);
     }
 }
