@@ -194,10 +194,13 @@ class DatasourcePermissionHandlerTest {
         System.out.println("[DatasourcePermissionHandlerTest] " + op + " member no row / row / unknown datasource checked");
     }
 
-    /** Catches admin lock-out on datasources. Pins the plan §9 swapped-id defect (:106, :253, :312) as in the other handlers. */
+    /**
+     * Catches admin lock-out on datasources. BF-090 (plan §9, was pinned as in the other handlers): the granted row has the
+     * datasource as its resource and the user as its holder.
+     */
     @ParameterizedTest
     @EnumSource(Operation.class)
-    void check_orgAdmin_getsOwner_pinsSwappedIds(Operation op) {
+    void check_orgAdmin_getsOwner_withTheResourceAndUserIdsBF090(Operation op) {
         when(orgMemberService.getOrgMember(ORG_ID, USER_ID)).thenReturn(Mono.just(orgMember(MemberRole.ADMIN)));
 
         StepVerifier.create(check(op, USER_ID))
@@ -205,12 +208,12 @@ class DatasourcePermissionHandlerTest {
                     ResourcePermission granted = status.getPermission();
                     assertThat(granted.getResourceRole()).isEqualTo(ResourceRole.OWNER);
                     assertThat(granted.getResourceType()).isEqualTo(ResourceType.DATASOURCE);
-                    assertThat(granted.getResourceId()).isEqualTo(USER_ID);
-                    assertThat(granted.getResourceHolderId()).isEqualTo(DATASOURCE_ID);
+                    assertThat(granted.getResourceId()).isEqualTo(DATASOURCE_ID);
+                    assertThat(granted.getResourceHolderId()).isEqualTo(USER_ID);
                 })
                 .verifyComplete();
         verifyNoInteractions(resourcePermissionService);
-        System.out.println("[DatasourcePermissionHandlerTest] " + op + " admin -> OWNER, ids swapped (plan §9 defect pinned)");
+        System.out.println("[DatasourcePermissionHandlerTest] " + op + " admin -> OWNER, resourceId " + DATASOURCE_ID + ", holder " + USER_ID);
     }
 
     private static ResourcePermission row(String resourceId, String userId, ResourceRole role) {
