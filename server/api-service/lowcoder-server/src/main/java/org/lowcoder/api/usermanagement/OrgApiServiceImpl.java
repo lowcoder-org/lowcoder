@@ -60,6 +60,7 @@ import reactor.util.function.Tuples;
 public class OrgApiServiceImpl implements OrgApiService {
 
     private static final String BAD_REQUEST = "BAD_REQUEST";
+    private static final String LAST_ADMIN_CANNOT_LEAVE_ORG_KEY = "LAST_ADMIN_CANNOT_LEAVE_ORG";
 
     @Autowired
     private SessionUserService sessionUserService;
@@ -252,8 +253,8 @@ public class OrgApiServiceImpl implements OrgApiService {
                 .flatMap(tuple -> {
                     String visitorId = tuple.getT1();
                     List<OrgMember> orgAdmins = tuple.getT2();
-                    if (orgAdmins.size() == 1 && orgAdmins.get(0).getUserId().equals(visitorId)) {
-                        return ofError(LAST_ADMIN_CANNOT_LEAVE_ORG, "LAST_ADMIN_CANNOT_LEAVE_ORG");
+                    if (isLastAdmin(orgAdmins, visitorId)) {
+                        return ofError(LAST_ADMIN_CANNOT_LEAVE_ORG, LAST_ADMIN_CANNOT_LEAVE_ORG_KEY);
                     }
                     return orgMemberService.removeMember(orgId, visitorId)
                             .handle((result, sink) -> {
@@ -281,11 +282,21 @@ public class OrgApiServiceImpl implements OrgApiService {
     }
 
     /**
-     * Remove the specified user from the organization, and if in enterprise mode, mark the user deleted.
+     * Whether {@code userId} is the only member of {@code orgAdmins} ({@link OrgMemberService#getAllOrgAdmins}, the members
+     * whose role is ADMIN; a SUPER_ADMIN is not among them).
+     */
+    private static boolean isLastAdmin(List<OrgMember> orgAdmins, String userId) {
+        return orgAdmins.size() == 1 && orgAdmins.get(0).getUserId().equals(userId);
+    }
+
+    /**
+     * Remove the specified user from the organization, and if in enterprise mode, mark the user deleted. The target must
+     * be removable ({@link #checkMemberRemovable}).
      */
     @Override
     public Mono<Boolean> removeUserFromOrg(String orgId, String userId) {
         return checkVisitorAdminRole(orgId)
+                .then(checkMemberRemovable(orgId, userId))
                 .then(orgMemberService.removeMember(orgId, userId))
                 .doOnNext(result -> {
                     if (result) {
@@ -293,6 +304,31 @@ public class OrgApiServiceImpl implements OrgApiService {
                     }
                 })
                 .delayUntil(__ -> userService.markUserDeletedAndInvalidConnectionsAtEnterpriseMode(userId));
+    }
+
+    /**
+     * Refuses, before anything is removed (BF-072), the removal of a SUPER_ADMIN, with UNSUPPORTED_OPERATION as for a change
+     * of that role ({@link #checkSuperAdminRoleUnchanged}), and of the last ADMIN, with LAST_ADMIN_CANNOT_LEAVE_ORG by the
+     * rule of {@link #leaveOrganization}, so an admin cannot remove themselves or be removed when no other ADMIN is left.
+     * Deferred, so the target is read only once the visitor has passed the admin check.
+     * <p>
+     * Limits: as in {@link #leaveOrganization}, only the role ADMIN counts, so the last ADMIN is kept even when a SUPER_ADMIN
+     * is also a member; a target who is not a member is not refused (the removal then answers false). The two reads and the
+     * removal are not atomic: two concurrent removals of the last two ADMINs can both pass.
+     */
+    private Mono<Void> checkMemberRemovable(String orgId, String userId) {
+        return Mono.defer(() -> orgMemberService.getOrgMember(orgId, userId)
+                .flatMap(target -> {
+                    if (target.getRole() == MemberRole.SUPER_ADMIN) {
+                        return Mono.error(new BizException(UNSUPPORTED_OPERATION, BAD_REQUEST));
+                    }
+                    if (target.getRole() != MemberRole.ADMIN) {
+                        return Mono.empty();
+                    }
+                    return orgMemberService.getAllOrgAdmins(orgId)
+                            .filter(orgAdmins -> isLastAdmin(orgAdmins, userId))
+                            .flatMap(__ -> ofError(LAST_ADMIN_CANNOT_LEAVE_ORG, LAST_ADMIN_CANNOT_LEAVE_ORG_KEY));
+                }));
     }
 
     @Override
