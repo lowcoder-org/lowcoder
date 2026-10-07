@@ -162,7 +162,7 @@ public class MssqlGuiCommandRenderTest {
     public void bulkUpdateRendersCaseWhenPerColumnAndTheKeysInTheWhere() {
         GuiSqlCommandRenderResult result = print("bulk update", MssqlBulkUpdateCommand.from(detail(KEY_PRIMARY, "id",
                 KEY_RECORDS, "[{\"id\":1,\"name\":\"a\"},{\"id\":2,\"name\":\"b\"}]")).render(Map.of()));
-        assertEquals("UPDATE dbo.items set\n[name] = CASE WHEN [id] = ? THEN ? WHEN [id] = ? THEN ? ELSE [name] END\nwhere id in (?,?)", result.sql());
+        assertEquals("UPDATE dbo.items set\n[name] = CASE WHEN [id] = ? THEN ? WHEN [id] = ? THEN ? ELSE [name] END\nwhere [id] in (?,?)", result.sql());
         assertEquals(List.of(1, "a", 2, "b", 1, 2), result.bindParams());
         PluginException missingKey = assertThrows(PluginException.class, () -> MssqlBulkUpdateCommand.from(detail(KEY_PRIMARY, "id",
                 KEY_RECORDS, "[{\"name\":\"a\"}]")).render(Map.of()));
