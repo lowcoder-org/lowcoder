@@ -372,6 +372,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public Mono<Void> deleteProfilePhoto(User visitor) {
         String userAvatar = visitor.getAvatar();
+        if (StringUtils.isBlank(userAvatar)) {
+            // BF-098: no photo to delete (blank, as User#getAvatarUrl reads it); thenReturn(null) below used to throw a NullPointerException
+            return Mono.empty();
+        }
         visitor.setAvatar(null);
         return repository.save(visitor).thenReturn(userAvatar)
                 .flatMap(assetService::remove);
