@@ -140,7 +140,7 @@ class RjsonMustacheParser {
         }
 
         if (toStringType || checkStringResult.isQuotedStr()) {
-            return TextNode.valueOf(MustacheHelper.renderMustacheString(checkStringResult.result(), paramMap));
+            return TextNode.valueOf(MustacheHelper.renderMustacheTokens(tokenize(checkStringResult.result()), paramMap, true, token -> isGeneratedMustache(token, paramMap)));
         }
 
         List<String> tokenize = tokenize(input);
@@ -150,13 +150,13 @@ class RjsonMustacheParser {
 
         if (tokenize.size() == 1) {
             String token = tokenize.get(0);
-            if (token.startsWith("{{") && token.endsWith("}}")) {
+            if (isGeneratedMustache(token, paramMap)) {
                 Object mustacheValue = paramMap.get(token.substring(2, token.length() - 2).trim());
                 return convertToJsonNode(mustacheValue);
             }
         }
 
-        return TextNode.valueOf(MustacheHelper.renderMustacheTokens(tokenize, paramMap));
+        return TextNode.valueOf(MustacheHelper.renderMustacheTokens(tokenize, paramMap, true, token -> isGeneratedMustache(token, paramMap)));
     }
 
     private static JsonNode convertToJsonNode(Object mustacheValue) {
@@ -252,6 +252,17 @@ class RjsonMustacheParser {
     @Nonnull
     private static String generateToken(AtomicInteger replaceCount) {
         return REPLACE_TOKEN + replaceCount.getAndIncrement();
+    }
+
+    /**
+     * Whether {@code token} is a mustache of the template: before parsing, {@link #escapeEvaluatedTokens} writes each one
+     * as an escaped generated key, so after parsing a mustache is one whose key {@code paramMap} holds. Any other text in
+     * braces is the template's own escaped mustache, {@code \{\{x\}\}}, and is the literal text {@code {{x}}} (BF-097:
+     * it was unescaped and rendered against the generated keys, so it became null or ""). Limit: an escaped mustache
+     * whose key is a generated one ({@code #replace0}) is read as that generated mustache.
+     */
+    private static boolean isGeneratedMustache(String token, Map<String, ?> paramMap) {
+        return isMustacheToken(token) && paramMap.containsKey(removeCurlyBraces(token));
     }
 
 }
