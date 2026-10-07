@@ -109,14 +109,13 @@ class SheetChangeSetTest {
     }
 
     /**
-     * Pins the twin of the plan section 9 row "ChangeSet.parseChangeSet: an object-type change set without data throws a
-     * NullPointerException instead of a PluginException" (D-6, fix deferred): the sheet class has the same
-     * {@code data.getClass()} and is named in that row. A fix changes this test on purpose.
+     * BF-094, the sheet twin (the plan section 9 row "ChangeSet.parseChangeSet: an object-type change set without data
+     * throws a NullPointerException instead of a PluginException" names both classes; was pinned): an object change set
+     * without data is GUI_OPERATION_DATA_EMPTY.
      */
     @Test
-    void sheetParseChangeSetObjectTypeWithoutDataThrowsNullPointerException() {
-        assertThatThrownBy(() -> SheetChangeSet.parseChangeSet(detail(changeSet("OBJECT", null)))).isInstanceOf(NullPointerException.class);
-        System.out.println("[SheetChangeSetTest] object type without data -> NullPointerException (plan section 9 U5 row twin, pinned)");
+    void sheetParseChangeSetObjectTypeWithoutDataIsOperationDataEmptyBF094() {
+        assertPluginError(() -> SheetChangeSet.parseChangeSet(detail(changeSet("OBJECT", null))), "GUI_OPERATION_DATA_EMPTY");
     }
 
     @Test
