@@ -462,14 +462,9 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
             Predicate<AbstractAuthConfig> authConfigPredicate = abstractAuthConfig -> Objects.equals(abstractAuthConfig.getId(), authId);
 
             if (delete) {
-                List<AbstractAuthConfig> abstractAuthConfigs = Optional.of(organization)
-                        .map(Organization::getAuthConfigs)
-                        .orElse(Collections.emptyList());
-
-                abstractAuthConfigs.removeIf(authConfigPredicate);
-
-                organization.getOrganizationDomain().setConfigs(abstractAuthConfigs);
-
+                // BF-089: getAuthConfigs is the domain's own list, or an empty one for an organization without a domain
+                // (which has nothing to delete); the domain used to be dereferenced, which threw for the latter
+                organization.getAuthConfigs().removeIf(authConfigPredicate);
             } else {
                 Optional.of(organization)
                         .map(Organization::getAuthConfigs)
