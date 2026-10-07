@@ -202,7 +202,7 @@ public class OracleGuiCommandRenderTest {
     public void bulkUpdateRendersCaseWhenPerColumnAndTheKeysInTheWhere() {
         GuiSqlCommandRenderResult result = print("bulk update", OracleBulkUpdateCommand.from(detail(KEY_PRIMARY, "id",
                 KEY_RECORDS, "[{\"id\":1,\"name\":\"a\"},{\"id\":2,\"name\":\"b\"}]")).render(Map.of()));
-        assertEquals("UPDATE ITEMS set\n\"name\" = CASE WHEN \"id\" = ? THEN ? WHEN \"id\" = ? THEN ? ELSE \"name\" END\nwhere id in (?,?)", result.sql());
+        assertEquals("UPDATE ITEMS set\n\"name\" = CASE WHEN \"id\" = ? THEN ? WHEN \"id\" = ? THEN ? ELSE \"name\" END\nwhere \"id\" in (?,?)", result.sql());
         assertEquals(List.of(1, "a", 2, "b", 1, 2), result.bindParams());
         PluginException missingKey = assertThrows(PluginException.class, () -> OracleBulkUpdateCommand.from(detail(KEY_PRIMARY, "id",
                 KEY_RECORDS, "[{\"name\":\"a\"}]")).render(Map.of()));
@@ -235,18 +235,18 @@ public class OracleGuiCommandRenderTest {
     }
 
     /**
-     * Pins the plan section 9 row "bulk update renders the primary key unquoted while columns are quoted" (D-6: fix deferred;
-     * the render is in the shared sdk {@code BulkUpdateCommand}): the key column is double-quoted inside the {@code CASE WHEN}
-     * parts but written raw in the {@code where ... in (...)}, and Oracle folds an unquoted name to upper case, so for a
-     * mixed-case or lower-case quoted key the statement names a column that does not exist (ORA-00904 on a real server, seen
-     * in the L5-6 probe). A fix (quoting the key in the where clause) changes this test on purpose.
+     * BF-051 fixed (plan section 9 row "bulk update renders the primary key unquoted while columns are quoted"; the render
+     * is in the shared sdk {@code BulkUpdateCommand}): the key was double-quoted inside the {@code CASE WHEN} parts but
+     * written raw in the {@code where ... in (...)}, and Oracle folds an unquoted name to upper case, so for a mixed-case
+     * or lower-case quoted key the statement named a column that does not exist (ORA-00904). The where clause now quotes
+     * the key the same way.
      */
     @Test
-    public void bulkUpdateRendersTheKeyUnquotedInTheWhereClauseWhileColumnsAreQuoted_pinsTheSection9Row() {
+    public void bulkUpdateQuotesTheKeyInTheWhereClauseAsInTheCaseWhenBF051() {
         GuiSqlCommandRenderResult result = print("bulk update mixed-case key", OracleBulkUpdateCommand.from(detail(KEY_PRIMARY, "Id",
                 KEY_RECORDS, "[{\"Id\":1,\"name\":\"a\"}]")).render(Map.of()));
-        assertEquals("UPDATE ITEMS set\n\"name\" = CASE WHEN \"Id\" = ? THEN ? ELSE \"name\" END\nwhere Id in (?)", result.sql(),
-                "the key is quoted in the CASE WHEN and raw in the where clause");
+        assertEquals("UPDATE ITEMS set\n\"name\" = CASE WHEN \"Id\" = ? THEN ? ELSE \"name\" END\nwhere \"Id\" in (?)", result.sql(),
+                "the key is quoted in the CASE WHEN and in the where clause");
         assertEquals(List.of(1, "a", 1), result.bindParams());
     }
 }

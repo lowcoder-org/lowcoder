@@ -71,7 +71,7 @@ public class BulkUpdateCommand implements GuiSqlCommand {
             String pkStr = updateRows.stream()
                     .map(row -> row.getItem(primaryKey).guiSqlValue().getConcatSqlStr(escapeStrFunc()))
                     .collect(Collectors.joining(","));
-            sb.append("where ").append(primaryKey)
+            sb.append("where ").append(quotedPrimaryKey())
                     .append(" in (")
                     .append(pkStr)
                     .append(")");
@@ -79,7 +79,7 @@ public class BulkUpdateCommand implements GuiSqlCommand {
         }
 
         String questionMarks = Joiner.on(",").join(Collections.nCopies(updateRows.size(), "?"));
-        sb.append("where ").append(primaryKey)
+        sb.append("where ").append(quotedPrimaryKey())
                 .append(" in (")
                 .append(questionMarks)
                 .append(")");
@@ -105,7 +105,7 @@ public class BulkUpdateCommand implements GuiSqlCommand {
         );
         columnToIdAndValue.asMap().forEach((column, pkAndValues) -> {
                     String columnWithDelimiter = SqlGuiUtils.quoteIdentifier(column, columnFrontDelimiter, columnBackDelimiter);
-                    String primaryKeyWithDelimiter = SqlGuiUtils.quoteIdentifier(primaryKey, columnFrontDelimiter, columnBackDelimiter);
+                    String primaryKeyWithDelimiter = quotedPrimaryKey();
                     sb.append(columnWithDelimiter)
                             .append(" = CASE ");
                     pkAndValues.forEach(pkAndValue -> {
@@ -134,6 +134,15 @@ public class BulkUpdateCommand implements GuiSqlCommand {
         sb.deleteCharAt(sb.length() - 1)
                 .deleteCharAt(sb.length() - 1)
                 .append("\n");
+    }
+
+    /**
+     * The primary key as the dialect quotes it, in the {@code CASE WHEN} and in the {@code WHERE} alike (BF-051: the
+     * {@code WHERE} named it unquoted, so a key whose quoted name differs from its unquoted folding, such as a lower-case
+     * key on Oracle, named another column there and failed with ORA-00904).
+     */
+    private String quotedPrimaryKey() {
+        return SqlGuiUtils.quoteIdentifier(primaryKey, columnFrontDelimiter, columnBackDelimiter);
     }
 
     @Override

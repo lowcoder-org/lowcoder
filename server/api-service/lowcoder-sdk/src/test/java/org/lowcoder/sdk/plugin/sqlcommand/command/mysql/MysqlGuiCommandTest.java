@@ -216,7 +216,7 @@ public class MysqlGuiCommandTest {
                         `name` = CASE WHEN `id` = ? THEN ? WHEN `id` = ? THEN ? ELSE `name` END,
                         `email` = CASE WHEN `id` = ? THEN ? ELSE `email` END,
                         `info` = CASE WHEN `id` = ? THEN ? ELSE `info` END
-                        where id in (?,?)""",
+                        where `id` in (?,?)""",
                 render.sql());
 
         /*
