@@ -17,7 +17,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,7 +26,8 @@ import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_GET_STRUCT
 /**
  * Unit SN-1 (task L5-7): {@link SnowflakeQueryExecutor} over an in-memory H2 database ({@link SnowflakeH2Support}): the forced
  * non-prepared execution, the structure query and its schema filter, and the GUI-mode refusal. Snowflake is a hosted service,
- * so H2 stands in for the SQL dialect and for {@code INFORMATION_SCHEMA} ({@code COLUMNS_QUERY} runs on it unchanged).
+ * so H2 stands in for the SQL dialect and for {@code INFORMATION_SCHEMA} ({@code COLUMNS_QUERY} runs on it unchanged, with its
+ * schema bound by H2's driver, not by Snowflake's).
  *
  * <p>Limits: H2's {@code INFORMATION_SCHEMA} also lists its own system tables (asserted where the schema filter is absent);
  * what Snowflake returns for its account is not tested.
@@ -39,6 +39,8 @@ public class SnowflakeQueryExecutorTest {
     static final String PUBLIC_SCHEMA = "PUBLIC";
     static final String OTHER_SCHEMA = "SALES";
     static final String INJECTION_SCHEMA = "PUBLIC' or '1'='1";
+    static final String BACKSLASH_INJECTION_SCHEMA = "PUBLIC\\' or '1'='1";
+    static final String QUOTED_SCHEMA = "O'NEIL";
 
     private final SnowflakeQueryExecutor executor = new SnowflakeQueryExecutor();
 
@@ -162,20 +164,19 @@ public class SnowflakeQueryExecutorTest {
     }
 
     /**
-     * Pins defect D20 (analysis-plugins section 0.6; plan section 9 D1-D20 row): the {@code schema} ext param (a free text field
-     * of the data source form, pages/datasource/form/snowflakeDatasourceForm.tsx in the client) is concatenated into the
-     * structure SQL, so a value such as {@code PUBLIC' or '1'='1} changes the statement and returns the tables of every schema.
-     * The analysis expected it to be rejected or escaped (red today); per D-6 the test asserts today's behaviour. A fix
-     * (escaping the quote) changes this test on purpose.
+     * BF-069 / D20 (fixed; was pinned as "the schema ext param is concatenated into the SQL"): the {@code schema} ext param (a
+     * free text field of the data source form, pages/datasource/form/snowflakeDatasourceForm.tsx in the client) is bound to
+     * the structure query, so {@code PUBLIC' or '1'='1}, which listed the tables of every schema, is now a schema name that
+     * matches nothing, as is the same value with a backslash before the quote. A schema whose name has a quote is listed.
      */
     @Test
-    public void schemaExtParamIsConcatenatedIntoTheSql_pinsD20() {
+    public void schemaExtParamIsBoundSoAQuoteDoesNotChangeTheStatementBF069() {
         try (SnowflakeH2Support h2 = new SnowflakeH2Support()) {
             createTables(h2);
-            Set<String> names = structureNames(h2, Map.of(SCHEMA_KEY, INJECTION_SCHEMA));
-            assertTrue(names.containsAll(Set.of("PUBLIC.ORDERS", "SALES.CUSTOMERS")), "the injected condition lists every schema: " + names);
-            assertTrue(names.stream().anyMatch(n -> n.startsWith("INFORMATION_SCHEMA.")), names.toString());
-            assertFalse(names.equals(Set.of("PUBLIC.ORDERS")));
+            h2.execute("create schema \"" + QUOTED_SCHEMA + "\"", "create table \"" + QUOTED_SCHEMA + "\".items (id int)");
+            assertEquals(Set.of(), structureNames(h2, Map.of(SCHEMA_KEY, INJECTION_SCHEMA)), "no schema has this name");
+            assertEquals(Set.of(), structureNames(h2, Map.of(SCHEMA_KEY, BACKSLASH_INJECTION_SCHEMA)), "no schema has this name");
+            assertEquals(Set.of(QUOTED_SCHEMA + ".ITEMS"), structureNames(h2, Map.of(SCHEMA_KEY, QUOTED_SCHEMA)));
         }
     }
 
