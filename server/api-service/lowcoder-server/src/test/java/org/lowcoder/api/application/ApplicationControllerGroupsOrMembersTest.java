@@ -25,6 +25,7 @@ import org.lowcoder.api.usermanagement.view.GroupView;
 import org.lowcoder.api.usermanagement.view.OrgMemberListView.OrgMemberView;
 import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.api.util.GidService;
+import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.repository.ApplicationRepository;
 import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.query.repository.LibraryQueryRepository;
@@ -41,14 +42,15 @@ import reactor.test.StepVerifier;
  * with the REAL {@link GidService} over mocked repositories, so the id converter the controller picks is exercised (the
  * endpoint tests mock the converter and cannot see it).
  *
- * <p>Section 9 row "ApplicationController uses convertLibraryQueryIdToObjectId for an application id" is pinned by
- * {@link #applicationGid_isResolvedInTheLibraryQueryRepository_andTheMonoEndsEmpty_pinsTheSection9Row} and
- * {@link #applicationSlug_isForwardedUnresolved_pinsTheSection9Row}; a fix (convertApplicationIdToObjectId) changes both on purpose.
+ * <p>BF-085 (fixed; was pinned as the section 9 row "ApplicationController uses convertLibraryQueryIdToObjectId for an
+ * application id"): {@link #applicationGid_isResolvedInTheApplicationRepositoryBF085} and
+ * {@link #applicationSlug_isResolvedInTheApplicationRepositoryBF085}.
  */
 class ApplicationControllerGroupsOrMembersTest {
 
     private static final String OBJECT_ID = "appobjectid1";
     private static final String GID = "app-gid-1"; // an id with a dash is looked up as a GID
+    private static final String SLUG = "myslug";
     private static final String TYPE = "type";
     private static final String DATA = "data";
     private static final String GROUP_TYPE = "Group";
@@ -121,37 +123,41 @@ class ApplicationControllerGroupsOrMembersTest {
     // ---- id forms (section 9 row) ----
 
     /**
-     * Pins the section 9 row "ApplicationController uses convertLibraryQueryIdToObjectId for an application id" (first
-     * consequence): an application GID is looked up in the LIBRARY QUERY repository, finds nothing, and the Mono ends empty, so
-     * the application service is never called (over HTTP an empty Mono is an empty 200 body, which the unit test cannot show).
-     * A fix changes this test on purpose.
+     * BF-085 (fixed; was pinned: the GID was looked up in the LIBRARY QUERY repository, found nothing, and the Mono ended
+     * empty, an empty 200 body over HTTP): an application GID is resolved in the application repository and the
+     * application's object id reaches the service.
      */
     @Test
-    void applicationGid_isResolvedInTheLibraryQueryRepository_andTheMonoEndsEmpty_pinsTheSection9Row() {
-        StepVerifier.create(controller.getGroupsOrMembersWithoutPermissions(GID, null, DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE))
-                .verifyComplete();
+    void applicationGid_isResolvedInTheApplicationRepositoryBF085() {
+        when(applicationRepository.findByGid(GID)).thenReturn(Flux.just(Application.builder().id(OBJECT_ID).build()));
+        serviceReturns(List.of(group("a")));
 
-        verify(libraryQueryRepository).findByGid(GID);
-        verify(applicationRepository, never()).findByGid(anyString());
-        verify(applicationRepository, never()).findBySlug(anyString());
-        verify(applicationApiService, never()).getGroupsOrMembersWithoutPermissions(anyString());
+        ResponseView<List<Object>> view = controller.getGroupsOrMembersWithoutPermissions(GID, null, DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE).block();
+
+        System.out.println("[ApplicationControllerGroupsOrMembersTest] gid " + GID + " -> " + (view == null ? null : names(view)));
+        verify(applicationRepository).findByGid(GID);
+        verify(libraryQueryRepository, never()).findByGid(anyString());
+        verify(applicationApiService).getGroupsOrMembersWithoutPermissions(OBJECT_ID);
+        assertThat(view).isNotNull();
+        assertPage(view, DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE, 1);
     }
 
     /**
-     * Pins the same section 9 row (second consequence): a slug (an id without a dash) is not resolved at all. The application
-     * repository is never asked for the slug and the slug itself reaches the application service, whose findById(slug) then
-     * finds no application at run time; every sibling method resolves slugs through convertApplicationIdToObjectId. A fix
-     * changes this test on purpose.
+     * BF-085 (fixed; was pinned: a slug was forwarded unresolved, so the service looked up an application by the slug as
+     * its id): a slug is resolved in the application repository, like every sibling endpoint, and the application's object
+     * id reaches the service.
      */
     @Test
-    void applicationSlug_isForwardedUnresolved_pinsTheSection9Row() {
-        String slug = "myslug";
-        when(applicationApiService.getGroupsOrMembersWithoutPermissions(slug)).thenReturn(Mono.just(List.of(group("a"))));
+    void applicationSlug_isResolvedInTheApplicationRepositoryBF085() {
+        when(applicationRepository.findBySlug(SLUG)).thenReturn(Flux.just(Application.builder().id(OBJECT_ID).build()));
+        serviceReturns(List.of(group("a")));
 
-        ResponseView<List<Object>> view = controller.getGroupsOrMembersWithoutPermissions(slug, null, DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE).block();
+        ResponseView<List<Object>> view = controller.getGroupsOrMembersWithoutPermissions(SLUG, null, DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE).block();
 
-        verify(applicationApiService).getGroupsOrMembersWithoutPermissions(slug);
-        verify(applicationRepository, never()).findBySlug(anyString());
+        System.out.println("[ApplicationControllerGroupsOrMembersTest] slug " + SLUG + " -> " + (view == null ? null : names(view)));
+        verify(applicationRepository).findBySlug(SLUG);
+        verify(applicationApiService).getGroupsOrMembersWithoutPermissions(OBJECT_ID);
+        verify(applicationApiService, never()).getGroupsOrMembersWithoutPermissions(SLUG);
         assertThat(view).isNotNull();
         assertPage(view, DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE, 1);
     }
