@@ -63,6 +63,8 @@ class QueryExecutionServiceImplTest {
     /** The smallest maximum whose milliseconds, multiplied by 1000 again as the caller did (BF-043), leave the int range. */
     private static final int OVERFLOWING_MAX_SECONDS = 2148;
     private static final String DEFAULT_TIMEOUT_MS = "10000";
+    /** A timeout text that parses to NaN (BF-079). */
+    private static final String NAN_TIMEOUT = "NaN";
 
     private DatasourceConnectionPool pool;
     private DatasourceMetaInfoService metaInfoService;
@@ -176,9 +178,12 @@ class QueryExecutionServiceImplTest {
         assertThat(queryConfig).containsEntry("timeoutMs", DEFAULT_TIMEOUT_MS);
     }
 
-    /** Catches invalid timeouts reaching the executor (:47): they are thrown synchronously, outside the reactive chain. */
+    /**
+     * Catches invalid timeouts reaching the executor (QueryExecutionServiceImpl:48): they are thrown synchronously, outside the
+     * reactive chain; "NaN" among them (BF-079: it was a 0 ms timeout).
+     */
     @ParameterizedTest
-    @ValueSource(strings = {"-5", "abc"})
+    @ValueSource(strings = {"-5", "abc", NAN_TIMEOUT})
     void executeQuery_invalidTimeout_throwsSynchronouslyBeforeAnyExecutor(String timeout) {
         assertThatThrownBy(() -> service.executeQuery(javaDatasource(), new HashMap<>(), Map.of(), timeout, visitor()))
                 .isInstanceOfSatisfying(PluginException.class, plugin -> assertThat(plugin.getError()).isEqualTo(PluginCommonError.QUERY_ARGUMENT_ERROR));
