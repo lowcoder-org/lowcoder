@@ -113,12 +113,12 @@ class GraphQLRedirectTest {
         };
         WebClient client = WebClient.builder().exchangeFunction(stub).build();
         Method httpCall = GraphQLExecutor.class.getDeclaredMethod("httpCall", WebClient.class, HttpMethod.class, URI.class,
-                BodyInserter.class, int.class, AuthConfig.class, Consumer.class);
+                BodyInserter.class, int.class, AuthConfig.class, Consumer.class, boolean.class);
         httpCall.setAccessible(true);
         URI origin = URI.create("http://origin.invalid:8080/start");
 
         Mono<?> call = (Mono<?>) httpCall.invoke(new GraphQLExecutor(new CommonConfig()), client, HttpMethod.POST, origin,
-                BodyInserters.fromValue(new byte[0]), 0, null, (Consumer<HttpHeaders>) headers -> { });
+                BodyInserters.fromValue(new byte[0]), 0, null, (Consumer<HttpHeaders>) headers -> { }, false);
         call.block(GraphQLCallSupport.TIMEOUT);
 
         System.out.println("[GraphQLRedirectTest] URLs called for a relative Location: " + called);
