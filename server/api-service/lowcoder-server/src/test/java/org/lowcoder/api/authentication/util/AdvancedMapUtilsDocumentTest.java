@@ -1,7 +1,6 @@
 package org.lowcoder.api.authentication.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -13,13 +12,15 @@ import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.lowcoder.domain.user.model.AuthUser;
 
 /**
  * Tests of {@link AdvancedMapUtils#documentToMap} (used by migration 028 to turn a stored DSL document into a map) and
  * of {@link AdvancedMapUtils#getString} edge cases not covered by {@code AdvancedMapUtilsTest}.
  *
- * <p>Pinned under D-6, plan §9 row "malformed admin auth-config input fails with raw exceptions instead of a coded
- * error": a malformed index in a source-mapping key throws NumberFormatException / StringIndexOutOfBoundsException.
+ * <p>The malformed-index part of plan §9 row "malformed admin auth-config input fails with raw exceptions instead of a
+ * coded error" is fixed (BF-074): see {@link #getString_malformedIndex_findsNothingBF074}.
  */
 class AdvancedMapUtilsDocumentTest {
 
@@ -111,13 +112,40 @@ class AdvancedMapUtilsDocumentTest {
     }
 
     /**
-     * Pins plan §9 row "malformed admin auth-config input fails with raw exceptions instead of a coded error": a
-     * non-numeric or unterminated index throws a raw exception. A fix changes this test on purpose.
+     * BF-074 (fixed; was pinned as plan §9 row "malformed admin auth-config input fails with raw exceptions instead of a
+     * coded error", NumberFormatException / StringIndexOutOfBoundsException): a malformed index finds nothing, like a
+     * missing key.
+     */
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = {"abc[x]", "abc[0", "abc[]", "abc]0[", "abc[99999999999]", "abc[x].def", "abc[0.def"})
+    void getString_malformedIndex_findsNothingBF074(String key) {
+        String value = AdvancedMapUtils.getString(sample(), key);
+        System.out.println("[AdvancedMapUtilsDocumentTest] getString(" + key + ") = " + value);
+        assertThat(value).isNull();
+    }
+
+    /** The limits stated on getString: text after the first closing bracket is ignored, and a sign is accepted. */
+    @ParameterizedTest(name = "{0} -> {1}")
+    @CsvSource({"abc[1]x,second", "abc[1][7],second", "abc[+1],second"})
+    void getString_textAfterTheClosingBracketIsIgnored(String key, String expected) {
+        assertThat(AdvancedMapUtils.getString(sample(), key)).isEqualTo(expected);
+        System.out.println("[AdvancedMapUtilsDocumentTest] getString(" + key + ") = " + expected);
+    }
+
+    /**
+     * BF-074 as the login sees it: a source mapping with a malformed index ({@code avatar}) leaves that attribute empty,
+     * and the user is still built from the other mappings, where the raw exception failed every login of the provider.
      */
     @Test
-    void getString_malformedIndex_throwsRawExceptions_pinsRawExceptionDefect() {
-        assertThatThrownBy(() -> AdvancedMapUtils.getString(sample(), "abc[x]")).isInstanceOf(NumberFormatException.class);
-        assertThatThrownBy(() -> AdvancedMapUtils.getString(sample(), "abc[0")).isInstanceOf(StringIndexOutOfBoundsException.class);
-        System.out.println("[AdvancedMapUtilsDocumentTest] abc[x] -> NumberFormatException, abc[0 -> StringIndexOutOfBoundsException");
+    void mapToAuthUser_aMalformedIndexInOneMapping_leavesOnlyThatAttributeEmptyBF074() {
+        Map<String, Object> userInfo = Map.of("sub", "u-1", "email", "u1@example.com", "pictures", List.of("https://avatars/u-1"));
+        HashMap<String, String> mappings = new HashMap<>(Map.of("uid", "sub", "email", "email", "avatar", "pictures[x]"));
+
+        AuthUser user = AuthenticationUtils.mapToAuthUser(userInfo, mappings);
+
+        System.out.println("[AdvancedMapUtilsDocumentTest] mapping avatar=pictures[x] -> uid " + user.getUid() + ", avatar " + user.getAvatar());
+        assertThat(user.getUid()).isEqualTo("u-1");
+        assertThat(user.getEmail()).isEqualTo("u1@example.com");
+        assertThat(user.getAvatar()).isNull();
     }
 }
