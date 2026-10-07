@@ -32,6 +32,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * <li>{@value #BASIC_AUTH_PATH} and {@value #DIGEST_AUTH_PATH}: {@code {"authenticated":true}} for the credentials
  * {@value #USERNAME}/{@value #PASSWORD}, else 401 (the digest path challenges first and checks the digest response of
  * RFC 7616 with MD5 and {@code qop=auth});</li>
+ * <li>{@value #DIGEST_REDIRECT_PATH}: the same digest challenge, and for a valid digest response a 307 to
+ * {@value #DIGEST_AUTH_PATH}, which challenges again;</li>
  * <li>{@value #RESPONSE_HEADERS_PATH}: every query parameter as a response header and as a member of the JSON body.</li>
  * </ul>
  *
@@ -43,12 +45,14 @@ final class EchoServerStub {
     static final String POST_PATH = "/post";
     static final String BASIC_AUTH_PATH = "/basic-auth";
     static final String DIGEST_AUTH_PATH = "/digest-auth";
+    static final String DIGEST_REDIRECT_PATH = "/digest-auth-redirect";
     static final String RESPONSE_HEADERS_PATH = "/response-headers";
     static final String USERNAME = "postman";
     static final String PASSWORD = "password";
 
     static final int OK = 200;
     static final int UNAUTHORIZED = 401;
+    static final int TEMPORARY_REDIRECT = 307;
     static final String AUTHENTICATED_BODY = "{\"authenticated\":true}";
 
     private static final String REALM = "Users";
@@ -56,6 +60,7 @@ final class EchoServerStub {
     private static final String QOP = "auth";
     private static final String AUTHORIZATION = "Authorization";
     private static final String WWW_AUTHENTICATE = "WWW-Authenticate";
+    private static final String LOCATION = "Location";
     private static final String HOST = "Host";
     private static final String JSON_UTF8 = "application/json; charset=utf-8";
     private static final String DEFAULT_FILE_TYPE = "application/octet-stream";
@@ -74,6 +79,7 @@ final class EchoServerStub {
                 POST_PATH, EchoServerStub::post,
                 BASIC_AUTH_PATH, EchoServerStub::basicAuth,
                 DIGEST_AUTH_PATH, EchoServerStub::digestAuth,
+                DIGEST_REDIRECT_PATH, EchoServerStub::digestAuthThenRedirect,
                 RESPONSE_HEADERS_PATH, EchoServerStub::responseHeaders));
     }
 
@@ -134,6 +140,11 @@ final class EchoServerStub {
     }
 
     /** RFC 7616 with MD5: response = MD5(HA1:nonce:nc:cnonce:qop:HA2), or MD5(HA1:nonce:HA2) without qop. */
+    private static Response digestAuthThenRedirect(Request request) {
+        Response answer = digestAuth(request);
+        return answer.status() == OK ? new Response(TEMPORARY_REDIRECT, Map.of(LOCATION, List.of(DIGEST_AUTH_PATH)), null) : answer;
+    }
+
     private static boolean validDigest(Request request, Map<String, String> digest) {
         String path = request.pathAndQuery().split("\\?")[0];
         if (!USERNAME.equals(digest.get("username")) || !REALM.equals(digest.get("realm"))

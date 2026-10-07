@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.restapi.model.RestApiQueryExecutionContext;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.contract.RecordingHttpServer;
-import org.lowcoder.sdk.exception.PluginException;
+import org.springframework.http.HttpStatus;
 import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.common.RestApiUriBuilder;
@@ -40,8 +40,9 @@ import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.DIGEST_AUTH;
 public class RestApiEngineTest {
 
     private static final String WRONG_PASSWORD = "wrong";
-    /** {@code RestApiExecutor.MAX_REDIRECTS} (private): calls 0 to 6 send a request, call 7 fails before sending one. */
-    private static final int EXECUTOR_REQUEST_LIMIT = 7;
+    /** A digest-authenticated request: the challenged request and the one that answers the challenge. */
+    private static final int CHALLENGE_AND_ANSWER = 2;
+    private static final String UNAUTHORIZED_CODE = "HTTP" + HttpStatus.UNAUTHORIZED.name();
 
     private static RecordingHttpServer server;
 
@@ -314,26 +315,48 @@ public class RestApiEngineTest {
     }
 
     /**
-     * The server answers every digest attempt with a wrong password with a new 401 challenge, and the executor answers
-     * each challenge again until its limit of {@value #EXECUTOR_REQUEST_LIMIT} requests, then fails the query with a
-     * {@link PluginException} that names redirects (the executor shares one counter between redirects and digest retries).
+     * BF-078 (fixed; was pinned: the executor answered every new challenge until its limit of 7 requests and failed with the
+     * redirect-limit error): the server answers the digest attempt with a wrong password with a new challenge, the executor
+     * does not answer it again, and the result is the server's 401 after two requests.
      */
     @Test
-    public void testDigestAuthWithWrongPasswordIsNotAuthenticated() {
-        long before = digestRequests();
+    public void testDigestAuthWithWrongPasswordIsNotAuthenticatedBF078() {
+        long before = requestsTo(EchoServerStub.DIGEST_AUTH_PATH);
         StepVerifier.create(authenticate(DIGEST_AUTH, EchoServerStub.DIGEST_AUTH_PATH, WRONG_PASSWORD))
-                .expectErrorSatisfies(error -> {
-                    long requests = digestRequests() - before;
-                    System.out.println("[RestApiEngineTest] digest auth, wrong password: " + error + " after " + requests + " requests");
-                    assertEquals(EXECUTOR_REQUEST_LIMIT, requests, "requests sent before the executor gave up");
-                    assertInstanceOf(PluginException.class, error);
-                    assertTrue(error.getMessage().contains("maximum HTTP redirects"), error.getMessage());
+                .assertNext(result -> {
+                    long requests = requestsTo(EchoServerStub.DIGEST_AUTH_PATH) - before;
+                    System.out.println("[RestApiEngineTest] digest auth, wrong password: " + result.getQueryCode() + " after " + requests + " requests");
+                    assertFalse(result.isSuccess());
+                    assertEquals(UNAUTHORIZED_CODE, result.getQueryCode());
+                    assertEquals(CHALLENGE_AND_ANSWER, requests, "the challenged request and one answer");
                 })
-                .verify();
+                .verifyComplete();
     }
 
-    private static long digestRequests() {
-        return server.requests().stream().filter(request -> request.pathAndQuery().equals(EchoServerStub.DIGEST_AUTH_PATH)).count();
+    /**
+     * BF-078, what "once per request" keeps: after the digest answer, a same-origin redirect to a path that challenges
+     * again is answered there too, and the query gets the result.
+     */
+    @Test
+    public void testDigestAuthAnswersAgainAfterARedirectToAnotherPathBF078() {
+        long redirectBefore = requestsTo(EchoServerStub.DIGEST_REDIRECT_PATH);
+        long targetBefore = requestsTo(EchoServerStub.DIGEST_AUTH_PATH);
+        StepVerifier.create(authenticate(DIGEST_AUTH, EchoServerStub.DIGEST_REDIRECT_PATH, EchoServerStub.PASSWORD))
+                .assertNext(result -> {
+                    long atRedirect = requestsTo(EchoServerStub.DIGEST_REDIRECT_PATH) - redirectBefore;
+                    long atTarget = requestsTo(EchoServerStub.DIGEST_AUTH_PATH) - targetBefore;
+                    System.out.println("[RestApiEngineTest] digest auth through a redirect: " + result.getData() + ", requests "
+                            + atRedirect + " + " + atTarget);
+                    assertTrue(result.isSuccess());
+                    assertEquals(EchoServerStub.AUTHENTICATED_BODY, result.getData().toString());
+                    assertEquals(CHALLENGE_AND_ANSWER, atRedirect);
+                    assertEquals(CHALLENGE_AND_ANSWER, atTarget);
+                })
+                .verifyComplete();
+    }
+
+    private static long requestsTo(String path) {
+        return server.requests().stream().filter(request -> request.pathAndQuery().equals(path)).count();
     }
 
     private Mono<QueryExecutionResult> authenticate(RestApiAuthType type, String path, String password) {
