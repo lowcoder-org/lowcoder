@@ -35,18 +35,20 @@ import ch.qos.logback.core.read.ListAppender;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * The {@code < 5} path of {@link ArchiveSnapshotTask} against the real MongoDB test container ({@code mongo:4.0.28}).
+ * {@link ArchiveSnapshotTask} against a real MongoDB below 5 (the test container {@code mongo:4.0.28}), where the archive
+ * collection is a regular collection.
  *
  * <p>Profile {@code archiveSnapshotBelow5}: a context and database ({@code lowcoder_test_<n>}) of its own. The task is
  * scheduled with initialDelay 0 and fires once at context start (thread {@value #SCHEDULER_THREAD}); the class waits,
  * bounded, for that thread to be idle before it seeds anything, and then calls {@code archive()} itself, so the test
  * decides when the task runs. The daily re-run is a day away and cannot fire during a test.
  *
- * <p>Pinned under D-6, plan §9 row "ArchiveSnapshotTask's pipeline for MongoDB < 5" (real-server answer): see
- * {@link #threeOldSnapshots_pinsTheSection9Row}.
+ * <p>BF-065 (formerly pinned under D-6, plan §9 row "ArchiveSnapshotTask's pipeline for MongoDB < 5": the server rejected
+ * the per-document aggregate and nothing was archived): see {@link #threeOldSnapshotsAreArchivedBF065}.
  *
- * <p>Not covered: the {@code >= 5} path (the container is 4.x), failed deletes and cursor failures (covered with mocks by
- * {@code ArchiveSnapshotTaskTest}; a real server cannot be made to fail them here).
+ * <p>Not covered: a MongoDB 5 or later with its time-series archive (the container is 4.x; the task runs the same inserts
+ * there), failed inserts, failed deletes and cursor failures (covered with mocks by {@code ArchiveSnapshotTaskTest}; a real
+ * server cannot be made to fail them here).
  */
 @SpringBootTest(classes = ServerApplication.class)
 @ActiveProfiles("archiveSnapshotBelow5")
@@ -59,11 +61,9 @@ public class ArchiveSnapshotTaskBelow5Test {
     private static final String SNAPSHOT_TS = "applicationHistorySnapshotTS";
     private static final String SCHEDULER_THREAD = "scheduling-1";
     private static final Duration SCHEDULER_WAIT = Duration.ofSeconds(60);
-    private static final int MONGO_NO_PIPELINE_FIX_MAJOR = 5;
+    private static final int TIME_SERIES_MAJOR = 5;
     private static final long OLD_EXTRA_DAYS = 1;
-    private static final String RUNNING_BELOW_5 = "Running archival for MongoDB version < 5";
-    private static final String RUNNING_5_AND_ABOVE = "Running archival for MongoDB version >= 5";
-    private static final String FAILED_AGGREGATE = "Failed to aggregate and insert document";
+    private static final String FAILED = "Failed";
     private static final String TO_ARCHIVE = "Total documents to archive: ";
     private static final String PROCESSED = "Processed document";
     private static final String COMPLETED = "Archival process completed. Total documents archived: ";
@@ -136,41 +136,44 @@ public class ArchiveSnapshotTaskBelow5Test {
     private void assertBelow5() {
         Document buildInfo = db.runCommand(new Document("buildInfo", 1));
         int major = Integer.parseInt(buildInfo.getString("version").split("\\.")[0]);
-        assertThat(major).as("MongoDB major version of the container (the < 5 path is the one that runs)")
-                .isLessThan(MONGO_NO_PIPELINE_FIX_MAJOR);
+        assertThat(major).as("MongoDB major version of the container (below 5: the archive is a regular collection)")
+                .isLessThan(TIME_SERIES_MAJOR);
     }
 
     /**
-     * The real server's answer to the task's per-document pipeline
-     * {@code aggregate([Filters.eq("_id", id), $project, $out "applicationHistorySnapshotTS"])}
-     * (ArchiveSnapshotTask:111-123): the first element is a filter, not a {@code $match} stage, and mongo:4.0.28
-     * rejects it. Each of the three old snapshots fails the aggregate (logged, ArchiveSnapshotTask:125), is not
-     * deleted (the {@code continue} at :126) and nothing is archived: on MongoDB below 5 the archive does not work.
-     * The recent snapshot is not selected. Pins plan §9 row "ArchiveSnapshotTask's pipeline for MongoDB < 5".
+     * BF-065 (formerly pinned as plan §9 row "ArchiveSnapshotTask's pipeline for MongoDB < 5": mongo:4.0.28 rejected the
+     * per-document aggregate, each old snapshot failed and stayed, and nothing was archived): the three old snapshots are
+     * inserted into the archive, with their {@code _id} as the field {@code id} and their content unchanged, and deleted
+     * from the snapshot collection. The recent snapshot is not selected.
      */
     @Test
-    public void threeOldSnapshots_pinsTheSection9Row() {
+    public void threeOldSnapshotsAreArchivedBF065() {
         assertBelow5();
         ObjectId a = new ObjectId();
         ObjectId b = new ObjectId();
         ObjectId c = new ObjectId();
         ObjectId recent = new ObjectId();
+        Document oldA = snapshot(a, "app-a", old());
         db.getCollection(SNAPSHOT).insertMany(List.of(
-                snapshot(a, "app-a", old()), snapshot(b, "app-b", old().minusSeconds(60)), snapshot(c, "app-c", old().minusSeconds(120)),
+                oldA, snapshot(b, "app-b", old().minusSeconds(60)), snapshot(c, "app-c", old().minusSeconds(120)),
                 snapshot(recent, "app-recent", Instant.now().minus(1, ChronoUnit.DAYS))));
+        Document expectedA = new Document(oldA);
 
         task.archive();
 
         List<String> source = applicationIds(SNAPSHOT);
         List<String> target = applicationIds(SNAPSHOT_TS);
-        log.info("{}source={} target={} log={}", TAG, source, target, messages());
-        assertThat(messages()).contains(RUNNING_BELOW_5).doesNotContain(RUNNING_5_AND_ABOVE);
-        assertThat(messages()).contains(TO_ARCHIVE + 3);
-        assertThat(messages().stream().filter(m -> m.startsWith(FAILED_AGGREGATE))).as("one failed aggregate per old snapshot").hasSize(3);
-        assertThat(messages().stream().filter(m -> m.startsWith(PROCESSED))).isEmpty();
-        assertThat(messages()).contains(COMPLETED + 0);
-        assertThat(source).as("nothing is deleted").containsExactlyInAnyOrder("app-a", "app-b", "app-c", "app-recent");
-        assertThat(target).as("nothing is archived").isEmpty();
+        Document archivedA = db.getCollection(SNAPSHOT_TS).find(new Document("id", a)).first();
+        log.info("{}source={} target={} archived app-a={} log={}", TAG, source, target, archivedA, messages());
+        assertThat(messages()).contains(TO_ARCHIVE + 3, COMPLETED + 3);
+        assertThat(messages().stream().filter(m -> m.startsWith(PROCESSED))).hasSize(3);
+        assertThat(messages().stream().filter(m -> m.startsWith(FAILED))).isEmpty();
+        assertThat(source).as("only the recent snapshot stays").containsExactly("app-recent");
+        assertThat(target).as("the old ones are archived").containsExactlyInAnyOrder("app-a", "app-b", "app-c");
+        expectedA.remove("_id");
+        archivedA.remove("_id");
+        expectedA.put("id", a);
+        assertThat(archivedA).as("content kept, _id kept as id").isEqualTo(expectedA);
     }
 
     @Test
@@ -184,20 +187,25 @@ public class ArchiveSnapshotTaskBelow5Test {
 
         Document after = db.getCollection(SNAPSHOT).find(new Document("_id", recent)).first();
         assertThat(after).isEqualTo(recentDoc);
-        assertThat(messages().stream().filter(m -> m.startsWith(FAILED_AGGREGATE))).hasSize(1);
+        assertThat(applicationIds(SNAPSHOT_TS)).containsExactly("app-old");
     }
 
-    /** A row already in the target is untouched when every aggregate is rejected (the server never reaches {@code $out}). */
+    /**
+     * The trap of BF-065: {@code $out} would replace the whole archive on each call. With inserts, a row archived earlier
+     * stays and the new ones are added next to it, also on a second run.
+     */
     @Test
-    public void aRowAlreadyInTheTarget_isLeftAlone() {
+    public void aRowAlreadyInTheTarget_isKept_andTheNewOnesAreAdded() {
         assertBelow5();
         db.getCollection(SNAPSHOT_TS).insertOne(snapshot(new ObjectId(), "archived-earlier", old()));
         db.getCollection(SNAPSHOT).insertMany(List.of(snapshot(new ObjectId(), "app-1", old()), snapshot(new ObjectId(), "app-2", old())));
 
         task.archive();
+        db.getCollection(SNAPSHOT).insertOne(snapshot(new ObjectId(), "app-3", old()));
+        task.archive();
 
-        assertThat(applicationIds(SNAPSHOT_TS)).containsExactly("archived-earlier");
-        assertThat(applicationIds(SNAPSHOT)).containsExactlyInAnyOrder("app-1", "app-2");
+        assertThat(applicationIds(SNAPSHOT_TS)).containsExactlyInAnyOrder("archived-earlier", "app-1", "app-2", "app-3");
+        assertThat(applicationIds(SNAPSHOT)).isEmpty();
     }
 
     @Test
@@ -208,18 +216,9 @@ public class ArchiveSnapshotTaskBelow5Test {
 
         task.archive();
 
-        assertThat(messages()).contains(RUNNING_BELOW_5, COMPLETED + 0);
-        assertThat(messages().stream().filter(m -> m.startsWith(FAILED_AGGREGATE))).isEmpty();
+        assertThat(messages()).contains(TO_ARCHIVE + 0, COMPLETED + 0);
+        assertThat(messages().stream().filter(m -> m.startsWith(FAILED))).isEmpty();
         assertThat(applicationIds(SNAPSHOT_TS)).containsExactly("archived-earlier");
         assertThat(applicationIds(SNAPSHOT)).containsExactly("app-recent");
-    }
-
-    @Test
-    public void theRealServerTakesTheBelow5Branch() {
-        assertBelow5();
-
-        task.archive();
-
-        assertThat(messages()).contains(RUNNING_BELOW_5).doesNotContain(RUNNING_5_AND_ABOVE);
     }
 }
