@@ -15,6 +15,8 @@ import org.lowcoder.domain.organization.repository.OrganizationRepository;
 import org.lowcoder.domain.query.model.LibraryQuery;
 import org.lowcoder.domain.query.repository.LibraryQueryRepository;
 import org.lowcoder.sdk.constants.FieldName;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,6 +26,8 @@ import java.util.Optional;
 
 @Component
 public class GidService {
+    private static final String FOLDER_NOT_EXIST_KEY = "FOLDER_NOT_EXIST";
+
     @Autowired
     private ApplicationRepository applicationRepository;
     @Autowired
@@ -80,9 +84,19 @@ public class GidService {
         return Mono.just(id);
     }
 
+    /**
+     * The object id of a folder named by its object id or its gid; empty for no id (null), which the folder endpoints read as
+     * the root folder. A gid that no folder has is the error {@code FOLDER_NOT_EXIST} (BF-152, BF-158, BF-159): it used to be
+     * empty too, so a move to it moved to the root, a delete of it targeted the whole folder tree, and a permission change
+     * failed with a NullPointerException.
+     * <p>
+     * Limits: an id without a hyphen is not looked up here and is answered as given; whether such a folder exists is left to
+     * the caller, as before.
+     */
     public Mono<Optional<String>> convertFolderIdToObjectId(String id) {
         if(FieldName.isGID(id)) {
-            return folderRepository.findByGid(id).next().mapNotNull(HasIdAndAuditing::getId).map(Optional::ofNullable).switchIfEmpty(Mono.just(Optional.empty()));
+            return folderRepository.findByGid(id).next().mapNotNull(HasIdAndAuditing::getId).map(Optional::of)
+                    .switchIfEmpty(Mono.error(() -> new BizException(BizError.FOLDER_NOT_EXIST, FOLDER_NOT_EXIST_KEY, id)));
         }
         return Mono.just(Optional.ofNullable(id));
     }

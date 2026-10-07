@@ -29,6 +29,7 @@ import org.lowcoder.domain.permission.model.ResourceType;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
+import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.springframework.context.annotation.Lazy;
@@ -49,6 +50,8 @@ import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 @RequiredArgsConstructor
 @Service
 public class FolderApiServiceImpl implements FolderApiService {
+
+    private static final String INVALID_PARAMETER_KEY = "INVALID_PARAMETER";
 
     private static final Comparator<Node<ApplicationInfoView, FolderInfoView>> DEFAULT_COMPARATOR =
             // compare by last view time reversed.
@@ -146,6 +149,10 @@ public class FolderApiServiceImpl implements FolderApiService {
      */
     @Override
     public Mono<Folder> delete(@Nonnull String folderId) {
+        // a blank id names the root of the tree (Tree.get), so the delete would take every folder of the org (BF-158)
+        if (StringUtils.isBlank(folderId)) {
+            return Mono.error(new BizException(INVALID_PARAMETER, INVALID_PARAMETER_KEY, FieldName.ID));
+        }
         return checkManagePermission(folderId)
                 .flatMap(orgMember -> buildFolderTree(orgMember.getOrgId()))
                 .flatMap(tree -> {
@@ -425,7 +432,7 @@ public class FolderApiServiceImpl implements FolderApiService {
         return resourcePermissionService.getById(permissionId)
                 .switchIfEmpty(Mono.defer(() -> Mono.error(new BizException(ILLEGAL_FOLDER_PERMISSION_ID, "PERMISSION_NOT_EXIST"))))
                 .flatMap(resourcePermission -> {
-                    if (!folderId.equals(resourcePermission.getResourceId())) {
+                    if (!StringUtils.equals(folderId, resourcePermission.getResourceId())) {
                         return Mono.error(new BizException(ILLEGAL_FOLDER_PERMISSION_ID, "NO_PERMISSION_TO_OPERATE_FOLDER"));
                     }
                     return Mono.empty();

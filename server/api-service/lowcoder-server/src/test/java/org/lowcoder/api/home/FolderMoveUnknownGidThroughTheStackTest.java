@@ -16,7 +16,7 @@ import org.lowcoder.domain.folder.service.FolderElementRelationService;
 import org.lowcoder.domain.permission.model.ResourceAction;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.infra.constant.NewUrl;
-import org.lowcoder.sdk.constants.Authentication;
+import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.plugin.api.event.LowcoderEvent.EventType;
 import org.lowcoder.domain.folder.model.FolderElement;
 import org.mockito.Mockito;
@@ -45,12 +45,11 @@ import static org.mockito.Mockito.verify;
  * {@link FolderController}, the real {@link GidService} and the real {@link FolderApiServiceImpl}, over the production codecs and
  * exception handling of {@link ContractTestClient}; only the repositories and services behind them are mocks.
  *
- * <p>Plan section 9 row "folder move to an unknown gid": {@code GidService.convertFolderIdToObjectId} answers
- * {@code Optional.empty()} for an unknown gid ({@code GidService.java:83-88}); the controller turns it into {@code null}
- * ({@code FolderController.java:99-102}), which {@code FolderApiServiceImpl.move} reads as the root folder
- * ({@code FolderApiServiceImpl.java:197-210}). The application is taken out of its folder, nothing is created, the audit event records
- * a move to nothing, and the client gets a success. The pin asserts today's behaviour; the fix (an error with a not-found code)
- * makes it fail. The L1-13 converter pin in {@code ApiUtilGidServiceTest} fails with the same fix; that is expected.
+ * <p>BF-152 (fixed; was pinned as plan section 9 row "folder move to an unknown gid"): {@code GidService.convertFolderIdToObjectId}
+ * answered {@code Optional.empty()} for an unknown gid, which the controller passed on as {@code null}, the root folder: the
+ * application was taken out of its folder, the audit event recorded a move to nothing, and the client got a success. The converter
+ * now answers {@code FOLDER_NOT_EXIST} for it ({@code GidService.java:96-102}), before the move runs
+ * ({@code FolderController.java:99-102}).
  *
  * <p>Limits: the repositories and the permission, session and event services are mocks; what the real queries match and what the
  * real events store is not under test. The id sent is a gid because {@code FieldName.isGID} is true for any text with a hyphen.
@@ -65,7 +64,6 @@ public class FolderMoveUnknownGidThroughTheStackTest {
     static final String KNOWN_FOLDER_OBJECT_ID = "known-folder-object-id";
     /** No hyphen, so {@code FieldName.isGID} is false. */
     static final String PLAIN_OBJECT_ID = "65a1b2c3d4e5f60718293a4b";
-    static final String VISITOR_ID = Authentication.ANONYMOUS_USER_ID;
     static final String MOVE_URL = NewUrl.FOLDER_URL + "/move/" + APPLICATION_ID;
     static final String TARGET_PARAMETER = "targetFolderId";
     static final int SUCCESS_CODE = 1;
@@ -161,22 +159,20 @@ public class FolderMoveUnknownGidThroughTheStackTest {
     }
 
     /**
-     * Pins today's behaviour of the plan section 9 row "folder move to an unknown gid": the response is a success, the old relation
-     * is deleted, no relation is created, and the event records a move from the old folder to {@code null}. A fix that rejects an
-     * unknown gid makes this test fail.
+     * BF-152: a move to a folder gid that no folder has is refused with FOLDER_NOT_EXIST (HTTP 500, code 6302, the status
+     * {@code BizError.FOLDER_NOT_EXIST} carries); the application keeps its folder relation, no relation is created and no move
+     * event is published. The permission check is not reached either, since the target is converted first.
      */
     @Test
-    void moveToAnUnknownFolderGidLeavesTheApplicationInTheRootFolder_pinsTheSection9Row() {
-        JsonNode body = put(UNKNOWN_FOLDER_GID, HttpStatus.OK);
+    void moveToAnUnknownFolderGidIsRefusedAndKeepsTheApplicationInItsFolderBF152() {
+        JsonNode body = put(UNKNOWN_FOLDER_GID, HttpStatus.valueOf(BizError.FOLDER_NOT_EXIST.getHttpErrorCode()));
 
-        assertEquals(SUCCESS_CODE, body.get("code").asInt());
+        assertEquals(BizError.FOLDER_NOT_EXIST.getBizErrorCode(), body.get("code").asInt());
         verify(folderRepository).findByGid(UNKNOWN_FOLDER_GID);
-        verify(permissions).checkResourcePermissionWithError(VISITOR_ID, APPLICATION_ID, ResourceAction.MANAGE_APPLICATIONS);
-        verify(relations).deleteByElementId(APPLICATION_ID);
+        verify(relations, never()).deleteByElementId(any());
         verify(relations, never()).create(any(), any());
-        // the audit event: moved out of the old folder, into nothing, still typed as a move
-        verify(events).publishApplicationCommonEvent(any(), eq(APPLICATION_ID), eq(FROM_FOLDER_ID), eq(null),
-                eq(EventType.APPLICATION_MOVE));
+        verify(permissions, never()).checkResourcePermissionWithError(any(), any(), any());
+        verify(events, never()).publishApplicationCommonEvent(any(), any(), any(), any(), any());
     }
 
     /** Control: a known gid is converted to its object id and the relation is created there. */
@@ -204,7 +200,7 @@ public class FolderMoveUnknownGidThroughTheStackTest {
         verify(relations).create(PLAIN_OBJECT_ID, APPLICATION_ID);
     }
 
-    /** Control: no target at all is the documented way to move to the root; the result is the same as the unknown gid. */
+    /** Control: no target at all is the documented way to move to the root, and still works. */
     @Test
     void moveWithoutATargetLandsInTheRootFolder() {
         JsonNode body = put(null, HttpStatus.OK);
