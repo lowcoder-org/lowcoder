@@ -2,6 +2,7 @@ package org.lowcoder.plugin.redis.utils;
 
 import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.redis.model.RedisDatasourceConfig;
+import redis.clients.jedis.util.JedisURIHelper;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -11,15 +12,13 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit RD-1 (task L5-9): {@code RedisUriUtils.getURI}, the connection URI built from the datasource config: host and port,
- * the default port, the credentials, URI mode, the SSL scheme (D6, fixed by BF-024) and the known defect D5 (credentials not
- * encoded).
+ * the default port, the credentials, URI mode, the SSL scheme (D6, fixed by BF-024) and the encoded credentials (D5, fixed by
+ * BF-055). The credentials are read back as Jedis reads them ({@link JedisURIHelper}).
  *
  * <p>Limits: only the URI is built; whether a server accepts it is RD-6.
  */
@@ -29,6 +28,9 @@ public class RedisUriUtilsTest {
     static final String HOST = "cache.example.org";
     static final long PORT = 6380;
     static final long DEFAULT_PORT = 6379;
+    static final String PASSWORD = "pw";
+    /** Each character a URI's user info gives a meaning to, a space, a plus and a non-ASCII letter. */
+    static final List<String> RESERVED = List.of("a@b", "a:b", "a/b", "a#b", "a%b", "a?b", "a b", "a+b", "p@ss:w/rd#1%", "pässwörd");
 
     private static RedisDatasourceConfig config(Map<String, Object> values) {
         return RedisDatasourceConfig.buildFrom(new HashMap<>(values));
@@ -62,12 +64,18 @@ public class RedisUriUtilsTest {
         assertEquals("redis://" + HOST + ":" + PORT, uri(Map.of("host", HOST, "port", PORT, "password", "   ")).toString(), "a blank password adds no credentials");
     }
 
-    /** Observation, part of the D5 row: a user name without a password is silently dropped, so the server sees an anonymous connection. */
+    /**
+     * BF-055 (formerly the D5 observation "a user name without a password is dropped", which connected anonymously): the user
+     * name is kept with an empty password, which Jedis sends as {@code AUTH alice ""}.
+     */
     @Test
-    public void userNameWithoutPasswordIsDropped_partOfTheD5Row() throws Exception {
+    public void userNameWithoutPasswordIsKeptWithAnEmptyPasswordBF055() throws Exception {
         URI uri = uri(Map.of("host", HOST, "port", PORT, "username", "alice"));
-        assertEquals("redis://" + HOST + ":" + PORT, uri.toString());
-        assertNull(uri.getUserInfo());
+        assertEquals("redis://alice:@" + HOST + ":" + PORT, uri.toString());
+        assertEquals("alice", JedisURIHelper.getUser(uri));
+        assertEquals("", JedisURIHelper.getPassword(uri));
+        URI blankPassword = uri(Map.of("host", HOST, "port", PORT, "username", "alice", "password", "  "));
+        assertEquals(uri, blankPassword, "a blank password counts as absent");
     }
 
     @Test
@@ -77,55 +85,46 @@ public class RedisUriUtilsTest {
         assertThrows(URISyntaxException.class, () -> uri(Map.of("usingUri", true, "uri", "redis://bad host:1")));
     }
 
-    private static boolean roundTrips(String password) {
-        try {
-            URI uri = RedisUriUtils.getURI(config(Map.of("host", HOST, "port", PORT, "password", password)));
-            boolean same = (":" + password).equals(uri.getUserInfo());
-            System.out.println(TAG + "password " + password + " -> " + uri + " userInfo=" + uri.getUserInfo() + " host=" + uri.getHost() + " roundTrips=" + same);
-            return same && HOST.equals(uri.getHost());
-        } catch (URISyntaxException e) {
-            System.out.println(TAG + "password " + password + " -> URISyntaxException " + e.getMessage());
-            return false;
+    /** The URI for the given credentials (null for none), as Jedis reads it back: user, password and host. */
+    private static List<String> readBack(String username, String password) throws URISyntaxException {
+        Map<String, Object> values = new HashMap<>(Map.of("host", HOST, "port", PORT));
+        if (username != null) {
+            values.put("username", username);
+        }
+        values.put("password", password);
+        URI uri = RedisUriUtils.getURI(config(values));
+        List<String> read = Arrays.asList(JedisURIHelper.getUser(uri), JedisURIHelper.getPassword(uri), uri.getHost());
+        System.out.println(TAG + "user " + username + ", password " + password + " -> " + uri + " -> Jedis reads " + read);
+        return read;
+    }
+
+    /**
+     * BF-055 (formerly pinned as D5, "credentials not URL-encoded"): a password with characters a URI gives a meaning to comes
+     * back from the URI unchanged, alone and with a user name.
+     */
+    @Test
+    public void passwordsWithReservedCharactersRoundTripBF055() throws Exception {
+        assertEquals("redis://:a%40b%3Ac%2Fd%23e%25f%20g@" + HOST + ":" + PORT, uri(Map.of("host", HOST, "port", PORT, "password", "a@b:c/d#e%f g")).toString());
+        for (String password : RESERVED) {
+            assertEquals(Arrays.asList(null, password, HOST), readBack(null, password), password);
+            assertEquals(List.of("alice", password, HOST), readBack("alice", password), password);
         }
     }
 
     /**
-     * Pins defect D5 (analysis-plugins section 0.6; plan section 9 D1-D20 row): the credentials are put into the URI without
-     * URL-encoding, so a password with one of {@code @ / # %} does not come back as the same password (a syntax error, or a
-     * different user info or host). A fix (encoding the user name and password) changes this test on purpose.
+     * BF-055, the user-name half: a user name with characters a URI gives a meaning to comes back unchanged, except a colon:
+     * Jedis splits the decoded user info at its first colon, so a user name with one cannot be given (the limit documented on
+     * {@code RedisUriUtils.getUriAuth}).
      */
     @Test
-    public void passwordsWithReservedCharactersDoNotRoundTrip_pinsD5() {
-        assertTrue(roundTrips("plain-Pass_1"), "a password without reserved characters is the control");
-        assertTrue(roundTrips("a:b"), "a colon in the password survives: the user info keeps everything before the at sign");
-        for (String password : List.of("a@b", "a/b", "a#b", "a%b")) {
-            assertFalse(roundTrips(password), password);
+    public void userNamesWithReservedCharactersRoundTripExceptAColonBF055() throws Exception {
+        for (String username : RESERVED) {
+            if (username.contains(":")) {
+                continue;
+            }
+            assertEquals(List.of(username, PASSWORD, HOST), readBack(username, PASSWORD), username);
         }
-    }
-
-    private static boolean userRoundTrips(String username) {
-        try {
-            URI uri = RedisUriUtils.getURI(config(Map.of("host", HOST, "port", PORT, "username", username, "password", "pw")));
-            boolean same = uri.getUserInfo() != null && Arrays.equals(new String[] {username, "pw"}, uri.getUserInfo().split(":", 2)); // the split Jedis applies: user before the first colon
-            System.out.println(TAG + "user " + username + " -> " + uri + " userInfo=" + uri.getUserInfo() + " host=" + uri.getHost() + " roundTrips=" + same);
-            return same && HOST.equals(uri.getHost());
-        } catch (URISyntaxException e) {
-            System.out.println(TAG + "user " + username + " -> URISyntaxException " + e.getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Pins the user-name half of defect D5 (analysis-plugins section 0.6; plan section 9 D1-D20 row): the user name is put into the
-     * URI without URL-encoding either, so a user name with one of {@code @ : / # %} does not come back as the same user (a syntax
-     * error, or a different user info or host). A fix (encoding the user name) changes this test on purpose.
-     */
-    @Test
-    public void userNamesWithReservedCharactersDoNotRoundTrip_pinsD5() {
-        assertTrue(userRoundTrips("alice_1"), "a user name without reserved characters is the control");
-        for (String username : List.of("a@b", "a:b", "a/b", "a#b", "a%b")) {
-            assertFalse(userRoundTrips(username), username);
-        }
+        assertEquals(List.of("a", "b:" + PASSWORD, HOST), readBack("a:b", PASSWORD), "the colon limit");
     }
 
     /**
