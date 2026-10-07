@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * <p>Host names are resolved by the loopback check (BF-023), in the host field and in the connection string the driver would
  * use; the names used for accepted hosts here do not resolve, which the check lets pass.
  *
- * <p>Limits: the second check of the URI branch ({@code extractInfoFromConnectionStringURI == null}, MongoPlugin.java:434-437)
+ * <p>Limits: the second check of the URI branch ({@code extractInfoFromConnectionStringURI == null}, MongoPlugin.java:435-438)
  * cannot fire, because {@code isValid} true implies a non-null parse, so it is not covered. The message codes are asserted, not
  * their localized texts.
  */

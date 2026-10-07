@@ -77,6 +77,8 @@ public class Distinct extends MongoCommand {
 
         document.put("key", this.key);
 
+        putMaxTimeMs(document);
+
         return document;
     }
 }
