@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -83,9 +84,9 @@ import reactor.test.StepVerifier;
  * <ul>
  * <li>plan section 9 subList row, second site {@code OrgApiServiceImpl.getOrgMemberListView} :117: a page past the end
  * and page 0 (see {@link #getOrganizationMembers_pageBeyondTheEnd_failsWithIllegalArgumentException_pinsSection9SubListRow}).</li>
- * <li>plan section 9 row "removeUserFromOrg has no last-admin or super-admin guard" (see
- * {@link #removeUserFromOrg_adminRemovesTheOnlyOtherAdminOrASuperAdmin_pinsSection9Row}).</li>
  * </ul>
+ * The plan section 9 row "removeUserFromOrg has no last-admin or super-admin guard" is fixed (BF-072): see
+ * {@link #removeUserFromOrg_refusesASuperAdminAndTheLastAdmin}.
  * The plan section 9 row "updateRoleForMember ... an org ADMIN can make any member, themselves included, super_admin ...
  * skips the quota", including the demotion of a SUPER_ADMIN by an ADMIN, is fixed (BF-005): see
  * {@link #updateRoleForMember_superAdminRole_isRefusedForEveryVisitorAndTarget} and
@@ -199,7 +200,7 @@ class OrgApiServiceImplTest {
                 .thenReturn(role == null ? Mono.empty() : Mono.just(orgMember(orgId, VISITOR_ID, role, OrgMemberState.NORMAL)));
     }
 
-    /** The target's membership, as the super admin check reads it (logged as "target read"); null: not a member. */
+    /** The target's membership, as the super admin check and the removal check read it (logged as "target read"); null: not a member. */
     private void stubTargetRole(String userId, MemberRole role) {
         lenient().when(orgMemberService.getOrgMember(ORG_ID, userId)).thenReturn(Mono.defer(() -> {
             events.add("target read");
@@ -797,35 +798,58 @@ class OrgApiServiceImplTest {
     @ValueSource(booleans = {true, false})
     void removeUserFromOrg_publishesTheLeaveEventOnlyWhenRemoved_andAlwaysMarksTheUser(boolean removed) {
         stubVisitorRole(ORG_ID, MemberRole.ADMIN);
+        stubTargetRole(TARGET_ID, MemberRole.MEMBER);
         when(orgMemberService.removeMember(ORG_ID, TARGET_ID)).thenReturn(Mono.just(removed));
         when(userService.markUserDeletedAndInvalidConnectionsAtEnterpriseMode(TARGET_ID)).thenReturn(logged("mark", true));
 
         StepVerifier.create(service.removeUserFromOrg(ORG_ID, TARGET_ID)).expectNext(removed).verifyComplete();
 
         assertEventPublished(removed, ORG_ID, TARGET_ID);
-        assertThat(events).containsExactly("mark");
+        assertThat(events).containsExactly("target read", "mark");
         say("removeUserFromOrg: removal=%s -> event %s, user marked", removed, removed);
     }
 
+    static Stream<Arguments> removalCases() {
+        return Stream.of(
+                Arguments.of("a SUPER_ADMIN", MemberRole.ADMIN, SUPER_ADMIN_ID, MemberRole.SUPER_ADMIN, List.of(VISITOR_ID), BizError.UNSUPPORTED_OPERATION),
+                Arguments.of("the visitor, the only ADMIN", MemberRole.ADMIN, VISITOR_ID, MemberRole.ADMIN, List.of(VISITOR_ID), BizError.LAST_ADMIN_CANNOT_LEAVE_ORG),
+                Arguments.of("the only ADMIN, by a SUPER_ADMIN", MemberRole.SUPER_ADMIN, TARGET_ID, MemberRole.ADMIN, List.of(TARGET_ID), BizError.LAST_ADMIN_CANNOT_LEAVE_ORG),
+                Arguments.of("an ADMIN with another ADMIN left", MemberRole.ADMIN, TARGET_ID, MemberRole.ADMIN, List.of(VISITOR_ID, TARGET_ID), null),
+                Arguments.of("the visitor, with another ADMIN left", MemberRole.ADMIN, VISITOR_ID, MemberRole.ADMIN, List.of(VISITOR_ID, TARGET_ID), null),
+                Arguments.of("a MEMBER", MemberRole.ADMIN, TARGET_ID, MemberRole.MEMBER, List.of(VISITOR_ID), null),
+                Arguments.of("a user who is not a member", MemberRole.ADMIN, TARGET_ID, null, List.of(VISITOR_ID), null));
+    }
+
     /**
-     * Pins the plan section 9 row "removeUserFromOrg has no last-admin or super-admin guard": an ADMIN visitor removes
-     * the only other admin and a SUPER_ADMIN, the removal is subscribed each time, and no admin or membership lookup
-     * is made for the target (compare {@code leaveOrganization}, which refuses the last admin). A fix changes this
-     * test on purpose.
+     * BF-072 (fixed; was pinned as the plan section 9 row "removeUserFromOrg has no last-admin or super-admin guard"):
+     * a SUPER_ADMIN is not removed (UNSUPPORTED_OPERATION, as for a change of that role), and neither is the last ADMIN
+     * (LAST_ADMIN_CANNOT_LEAVE_ORG, the rule of leaveOrganization), whether the visitor removes themselves or a SUPER_ADMIN
+     * removes them; a refused removal subscribes neither the removal nor the user marking. The admins are read only for an
+     * ADMIN target.
      */
-    @ParameterizedTest(name = "target {0}")
-    @ValueSource(strings = {"only-other-admin", SUPER_ADMIN_ID})
-    void removeUserFromOrg_adminRemovesTheOnlyOtherAdminOrASuperAdmin_pinsSection9Row(String targetId) {
-        stubVisitorRole(ORG_ID, MemberRole.ADMIN);
-        when(orgMemberService.removeMember(ORG_ID, targetId)).thenReturn(counting(true));
-        when(userService.markUserDeletedAndInvalidConnectionsAtEnterpriseMode(targetId)).thenReturn(Mono.just(true));
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("removalCases")
+    void removeUserFromOrg_refusesASuperAdminAndTheLastAdmin(String label, MemberRole visitorRole, String targetId, MemberRole targetRole,
+            List<String> adminIds, BizError refusal) {
+        stubVisitorRole(ORG_ID, visitorRole);
+        stubTargetRole(targetId, targetRole);
+        lenient().when(orgMemberService.getAllOrgAdmins(ORG_ID)).thenReturn(Mono.just(adminIds.stream().map(OrgApiServiceImplTest::admin).toList()));
+        lenient().when(orgMemberService.removeMember(ORG_ID, targetId)).thenReturn(counting(true));
+        lenient().when(userService.markUserDeletedAndInvalidConnectionsAtEnterpriseMode(targetId)).thenReturn(counting(true));
 
-        StepVerifier.create(service.removeUserFromOrg(ORG_ID, targetId)).expectNext(true).verifyComplete();
-
-        assertThat(mutations).hasValue(1);
-        verify(orgMemberService, never()).getAllOrgAdmins(any());
-        verify(orgMemberService, never()).getOrgMember(ORG_ID, targetId);
-        say("removeUserFromOrg: ADMIN removed %s without any guard (section 9 row pinned)", targetId);
+        if (refusal == null) {
+            StepVerifier.create(service.removeUserFromOrg(ORG_ID, targetId)).expectNext(true).verifyComplete();
+            assertThat(mutations).hasValue(2);
+        } else {
+            String messageKey = refusal == BizError.UNSUPPORTED_OPERATION ? "BAD_REQUEST" : refusal.name();
+            StepVerifier.create(service.removeUserFromOrg(ORG_ID, targetId))
+                    .expectErrorSatisfies(error -> assertBizError(error, refusal, messageKey)).verify();
+            assertThat(mutations).hasValue(0);
+        }
+        verify(orgMemberService, targetRole == MemberRole.ADMIN ? times(1) : never()).getAllOrgAdmins(ORG_ID);
+        // the visitor's own membership is the same stub when the visitor is the target, read once by the admin check too
+        assertThat(events).containsOnly("target read").hasSize(targetId.equals(VISITOR_ID) ? 2 : 1);
+        say("removeUserFromOrg: %s as %s -> %s, service subscriptions %d", label, visitorRole, refusal == null ? "removed" : refusal, mutations.get());
     }
 
     // ------------------------------------------------------------------ removeOrg, create, update
