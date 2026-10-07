@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.sdk.exception.PluginCommonError;
@@ -246,19 +247,32 @@ class MustacheHelperEdgeCasesTest {
     }
 
     /**
-     * Pins the plan section 9 row "RjsonMustacheParser.checkString recognises escaped braces but the rendered JSON drops
-     * them" (D-6, fix deferred): {@code \{\{x\}\}} is unescaped to {@code {{x}}} and then rendered as a mustache against
-     * the replaced-token map, so the literal is lost: a top-level value gives a JSON null, a value inside an object (or
-     * array) gives an empty string, even though the parameter {@code x} exists. A fix (the literal text
-     * {@code {{x}}}) changes this test on purpose.
+     * BF-097 (was pinned as the plan section 9 row "RjsonMustacheParser.checkString recognises escaped braces but the
+     * rendered JSON drops them", D-6): an escaped mustache {@code \{\{x\}\}} is the literal text {@code {{x}}}, at the top
+     * level, inside an object or array, quoted or not, as a key, and next to a mustache of the same parameter that is
+     * rendered; it used to be unescaped and rendered against the generated keys, so it became a JSON null or "".
      */
-    @Test
-    void escapedBracesAreUnescapedAndThenRenderedSoTheLiteralIsDropped() {
-        Map<String, Object> params = Map.of("x", "X");
+    @ParameterizedTest(name = "[{index}] {0}")
+    @CsvSource(delimiter = '|', value = {
+            "\\{\\{x\\}\\}|\"{{x}}\"",
+            "\"\\{\\{x\\}\\}\"|\"{{x}}\"",
+            "{\"a\": \"\\{\\{x\\}\\}\"}|{\"a\":\"{{x}}\"}",
+            "[\"\\{\\{x\\}\\}\"]|[\"{{x}}\"]",
+            "{\"a\": \"\\{\\{x\\}\\}\", \"b\": {{n}}}|{\"a\":\"{{x}}\",\"b\":5}",
+            "{\"a\": \\{\\{x\\}\\}, \"b\": {{n}}}|{\"a\":\"{{x}}\",\"b\":5}",
+            "{\"a\": \"pre \\{\\{x\\}\\} {{x}}\"}|{\"a\":\"pre {{x}} X\"}",
+            "{\"\\{\\{x\\}\\}\": {{n}}}|{\"{{x}}\":5}",
+            "[\"\\{\\{ x \\}\\}{{x}}\\{\\{n\\}\\}\", {{x}}]|[\"{{ x }}X{{n}}\",\"X\"]"
+    })
+    void anEscapedMustacheIsItsLiteralTextBF097(String template, String expected) {
+        assertThat(renderJson(template, Map.of("x", "X", "n", 5)).toString()).isEqualTo(expected);
+    }
 
-        assertThat(renderJson("\\{\\{x\\}\\}", params).isNull()).as("today's behaviour: top level gives null").isTrue();
-        assertThat(renderJson("{\"a\": \"\\{\\{x\\}\\}\"}", params).toString()).as("today's behaviour: empty string inside an object").isEqualTo("{\"a\":\"\"}");
-        assertThat(renderJson("[\"\\{\\{x\\}\\}\"]", params).toString()).isEqualTo("[\"\"]");
+    /** BF-097, what does not change: a mustache of a parameter that is missing is still null alone and "" in text. */
+    @Test
+    void aMustacheOfAMissingParameterIsStillNullAloneAndEmptyInTextBF097() {
+        assertThat(renderJson("{\"a\": {{missing}}, \"b\": \"{{missing}}\", \"c\": {{x}}}", Map.of("x", "X")).toString())
+                .isEqualTo("{\"a\":null,\"b\":\"\",\"c\":\"X\"}");
     }
 
     /**
