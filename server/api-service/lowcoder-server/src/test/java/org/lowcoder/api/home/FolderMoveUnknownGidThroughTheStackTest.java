@@ -49,7 +49,7 @@ import static org.mockito.Mockito.verify;
  * answered {@code Optional.empty()} for an unknown gid, which the controller passed on as {@code null}, the root folder: the
  * application was taken out of its folder, the audit event recorded a move to nothing, and the client got a success. The converter
  * now answers {@code FOLDER_NOT_EXIST} for it ({@code GidService.java:96-102}), before the move runs
- * ({@code FolderController.java:99-102}).
+ * ({@code FolderController.java:98-101}).
  *
  * <p>Limits: the repositories and the permission, session and event services are mocks; what the real queries match and what the
  * real events store is not under test. The id sent is a gid because {@code FieldName.isGID} is true for any text with a hyphen.
