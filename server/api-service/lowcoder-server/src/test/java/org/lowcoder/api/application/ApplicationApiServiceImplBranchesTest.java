@@ -670,6 +670,37 @@ class ApplicationApiServiceImplBranchesTest {
                 view.getApplicationInfoView().getRole());
     }
 
+    /** Org settings as stored: the password-reset template and its update time, and one other setting with its own. */
+    private static OrganizationCommonSettings storedSettingsWithTheTemplate() {
+        OrganizationCommonSettings settings = new OrganizationCommonSettings();
+        settings.put(OrganizationCommonSettings.PASSWORD_RESET_EMAIL_TEMPLATE, "<p>org template %s</p>");
+        settings.put(OrganizationCommonSettings.updateTimeKey(OrganizationCommonSettings.PASSWORD_RESET_EMAIL_TEMPLATE), 1L);
+        settings.put("themeId", "theme-1");
+        settings.put(OrganizationCommonSettings.updateTimeKey("themeId"), 2L);
+        return settings;
+    }
+
+    /**
+     * GH-02 (GitHub #924): the editing view and the published view (public to all, so also anonymous visitors) carry the
+     * org settings without the password-reset template and its update time; other settings stay. Catches: either view
+     * taking the stored settings unsanitized.
+     */
+    @Test
+    void editingAndPublishedViewsLeaveOutThePasswordResetTemplateGH02() {
+        Application application = app(dsl("ui", dsl()));
+        stubEditing(application, List.of());
+        stubPublished(application, ApplicationRequestType.PUBLIC_TO_ALL, List.of());
+        when(organizationService.getOrgCommonSettings(ORG_ID)).thenAnswer(invocation -> Mono.just(storedSettingsWithTheTemplate()));
+
+        ApplicationView editing = service.getEditingApplication(APP_ID, false).block();
+        ApplicationView published = service.getPublishedApplication(APP_ID, ApplicationRequestType.PUBLIC_TO_ALL, false).block();
+
+        say("GH-02 editing settings %s, published settings %s", editing.getOrgCommonSettings(), published.getOrgCommonSettings());
+        Map<String, Object> expected = Map.of("themeId", "theme-1", "themeId_updateTime", 2L);
+        assertThat(editing.getOrgCommonSettings()).isEqualTo(expected);
+        assertThat(published.getOrgCommonSettings()).isEqualTo(expected);
+    }
+
     /** A public-to-all marketplace application whose editing DSL is a draft and whose published version differs. */
     private Application publicMarketplaceAppWithAPublishedVersion(ApplicationStatus status) {
         Application application = appBuilder(APP_ID, dsl("draft", "unpublished")).publicToAll(true).publicToMarketplace(true)
