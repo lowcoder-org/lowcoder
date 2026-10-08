@@ -67,6 +67,8 @@ public class RedisPlugin extends Plugin {
     public static final int DEFAULT_QUERY_TIMEOUT_SECONDS = 8;
     private static final String CMD_KEY = "cmd";
     private static final String ARGS_KEY = "args";
+    private static final String COMMAND_EMPTY_KEY = "COMMAND_EMPTY";
+    private static final String INVALID_REDIS_REQUEST_KEY = "INVALID_REDIS_REQUEST";
 
     public RedisPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -186,7 +188,7 @@ public class RedisPlugin extends Plugin {
                 String rawCommandString = getValueSafelyFromFormData(queryConfig, RAW_COMMAND, String.class);
                 String renderedCommandString = renderMustacheStringWithoutRemoveSurroundedPar(rawCommandString, requestParams);
                 Map<String, Object> cmdAndArgs = getCommandAndArgs(renderedCommandString.trim());
-                protocolCommand = Protocol.Command.valueOf((String) cmdAndArgs.get(CMD_KEY));
+                protocolCommand = rawProtocolCommand((String) cmdAndArgs.get(CMD_KEY));
                 args = (String[]) cmdAndArgs.get(ARGS_KEY);
             } else {
                 RedisCommand redisCommand = convertRedisFormInputToRedisCommand(queryConfig);
@@ -196,7 +198,7 @@ public class RedisPlugin extends Plugin {
             }
 
             if (isNull(protocolCommand)) {
-                throw new PluginException(QUERY_ARGUMENT_ERROR, "COMMAND_EMPTY");
+                throw new PluginException(QUERY_ARGUMENT_ERROR, COMMAND_EMPTY_KEY);
             }
 
             return RedisQueryExecutionContext.builder()
@@ -262,6 +264,25 @@ public class RedisPlugin extends Plugin {
             }
 
             return cmdAndArgs;
+        }
+
+        /**
+         * The protocol command a raw query names (BF-121: a blank command failed with the NullPointerException and an unknown
+         * one with the IllegalArgumentException of {@code Protocol.Command.valueOf}). {@code null}, which
+         * {@link #getCommandAndArgs} leaves for a blank query, is QUERY_ARGUMENT_ERROR / COMMAND_EMPTY; a word that is no
+         * Jedis protocol command is QUERY_ARGUMENT_ERROR / INVALID_REDIS_REQUEST naming it, as the form's dispatch does.
+         * Limits: the word is checked against Jedis' {@link Protocol.Command} only; whether the server knows or allows the
+         * command is decided when it runs.
+         */
+        static Protocol.Command rawProtocolCommand(String command) {
+            if (command == null) {
+                throw new PluginException(QUERY_ARGUMENT_ERROR, COMMAND_EMPTY_KEY);
+            }
+            try {
+                return Protocol.Command.valueOf(command);
+            } catch (IllegalArgumentException e) {
+                throw new PluginException(QUERY_ARGUMENT_ERROR, INVALID_REDIS_REQUEST_KEY, command);
+            }
         }
 
         // This will be updated as we encounter different outputs.
