@@ -221,9 +221,9 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
         }
         JsonNode jsonNode = queryBody.getJsonValue();
         if (jsonNode instanceof ObjectNode objectNode) {
-            for (Property property : datasourceBody) {
-                objectNode.put(property.getKey(), property.getValue());
-            }
+            // BF-114: a field the query sets wins over the datasource's, as in a form body and for params and headers
+            datasourceBody.stream().filter(property -> !objectNode.has(property.getKey()))
+                    .forEach(property -> objectNode.put(property.getKey(), property.getValue()));
             return queryBody;
         }
 
