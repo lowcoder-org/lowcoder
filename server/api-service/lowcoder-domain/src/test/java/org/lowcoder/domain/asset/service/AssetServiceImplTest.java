@@ -55,6 +55,7 @@ class AssetServiceImplTest {
     private static final int MAX_KB = 4;
     private static final Duration TIMEOUT = Duration.ofSeconds(10);
     private static final String ASSET_ID = "asset-1";
+    private static final String IMAGE_PARSE_ERROR = "IMAGE_PARSE_ERROR";
     private static final byte[] NOT_AN_IMAGE = "<html><script>alert(1)</script></html>".getBytes(StandardCharsets.UTF_8);
 
     private final AssetRepository repository = mock(AssetRepository.class);
@@ -283,20 +284,45 @@ class AssetServiceImplTest {
     }
 
     /**
-     * Pins plan section 9 row "avatar upload of non-image bytes declared as png/jpeg fails with a NullPointerException
-     * (ImageIO.read null; catch :81 handles IOException only), not IMAGE_PARSE_ERROR". Reachable through the avatar
-     * upload, UserServiceImpl:202 (isThumbnail=true). A fix (a null check raising IMAGE_PARSE_ERROR) changes this test on
-     * purpose.
+     * BF-128: a thumbnail of bytes that are no image, declared as png or jpeg, failed with a NullPointerException
+     * ({@code ImageIO.read} answers null; the upload's catch handles IOException only). Reachable through the avatar upload,
+     * {@code UserServiceImpl:204} (isThumbnail=true). Now the null is an IOException and the upload answers INVALID_PARAMETER
+     * / IMAGE_PARSE_ERROR; nothing is saved.
      */
     @Test
-    void thumbnailOfNonImageBytesFailsWithANullPointerException_pinsTheSection9Row() {
+    void thumbnailOfNonImageBytesIsImageParseErrorBF128() {
         StepVerifier.create(service.upload(part(MediaType.IMAGE_PNG, buffer(NOT_AN_IMAGE)), 1024, true))
-                .expectErrorSatisfies(e -> {
-                    System.out.println("[AssetServiceImplTest] PINNED: thumbnail of non-image bytes fails with " + e.getClass().getSimpleName());
-                    assertThat(e).isInstanceOf(NullPointerException.class).isNotInstanceOf(BizException.class);
-                })
+                .expectErrorSatisfies(e -> assertBizError(e, BizError.INVALID_PARAMETER, IMAGE_PARSE_ERROR))
                 .verify(TIMEOUT);
         verify(repository, never()).save(any());
+    }
+
+    /**
+     * BF-128: the joined content buffer is released on every path. With pooled (Netty) buffers, as the server's multipart
+     * reader may hand them over, a thumbnail of non-image bytes kept its buffer allocated; a thumbnail and a plain upload
+     * of an image release it too, exactly once (a second release would throw).
+     */
+    @Test
+    void theContentBufferIsReleasedOnSuccessAndOnImageParseErrorBF128() throws Exception {
+        org.springframework.core.io.buffer.NettyDataBufferFactory pooled =
+                new org.springframework.core.io.buffer.NettyDataBufferFactory(io.netty.buffer.PooledByteBufAllocator.DEFAULT);
+
+        org.springframework.core.io.buffer.PooledDataBuffer notAnImage = (org.springframework.core.io.buffer.PooledDataBuffer) pooled.wrap(
+                io.netty.buffer.PooledByteBufAllocator.DEFAULT.buffer().writeBytes(NOT_AN_IMAGE));
+        StepVerifier.create(service.upload(part(MediaType.IMAGE_PNG, notAnImage), 1024, true))
+                .expectErrorSatisfies(e -> assertBizError(e, BizError.INVALID_PARAMETER, IMAGE_PARSE_ERROR))
+                .verify(TIMEOUT);
+        System.out.println("[AssetServiceImplTest] non-image thumbnail: buffer allocated after the upload = " + notAnImage.isAllocated());
+        assertThat(notAnImage.isAllocated()).as("released after IMAGE_PARSE_ERROR").isFalse();
+
+        for (boolean thumbnail : new boolean[] {true, false}) {
+            org.springframework.core.io.buffer.PooledDataBuffer image = (org.springframework.core.io.buffer.PooledDataBuffer) pooled.wrap(
+                    io.netty.buffer.PooledByteBufAllocator.DEFAULT.buffer().writeBytes(png(8, 8)));
+            Asset asset = uploaded(part(MediaType.IMAGE_PNG, image), 1024, thumbnail);
+            System.out.println("[AssetServiceImplTest] thumbnail=" + thumbnail + ": buffer allocated after the upload = " + image.isAllocated());
+            assertThat(asset).isNotNull();
+            assertThat(image.isAllocated()).as("released after the upload, thumbnail=" + thumbnail).isFalse();
+        }
     }
 
     // ---------------------------------------------------------------- repository delegation and response
