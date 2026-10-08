@@ -17,18 +17,19 @@ import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
 import org.lowcoder.sdk.query.QueryVisitorContext;
 
 /**
- * DEFECT pinned, one level up (plan section 9 row "CONTENT_PARSE_ERROR is unformattable"; pinned at the sdk in
- * DataUtilsContentParseErrorTest; D-6, fix deferred): what the user receives. The server builds a query's context with
- * {@code buildQueryExecutionContextMono} (QueryExecutionServiceImpl.java:72), which wraps what the plugin throws as a coded
- * {@code QUERY_ARGUMENT_ERROR}. A file field of a multipart query whose value is not valid upload data reaches
- * {@code convertToMultiformFileValue} (RestApiExecutor.java:207), whose intended message cannot be built, so the coded
- * message carries the IllegalArgumentException text of the failed formatting instead of the upload-format hint. Escaping
- * the braces in locale_en.properties:183 turns the message assertions red. A local server (port 0, loopback) stands in for
- * the datasource url and must see no request.
+ * BF-116 (fixed; was pinned one level up from DataUtilsContentParseErrorTest, plan section 9 row "CONTENT_PARSE_ERROR is
+ * unformattable", D-6): what the user receives. The server builds a query's context with
+ * {@code buildQueryExecutionContextMono} (QueryExecutionServiceImpl.java:73). A file field of a multipart query whose value
+ * is not valid upload data reaches {@code convertToMultiformFileValue} (RestApiExecutor.java:207), which now throws its
+ * coded {@code DATASOURCE_ARGUMENT_ERROR} with the upload-format hint ({@code CONTENT_PARSE_ERROR}, whose braces are
+ * quoted in locale_en.properties:184). The hint could not be formatted, so the user got a {@code QUERY_ARGUMENT_ERROR}
+ * carrying the IllegalArgumentException text "can't parse argument number: data:base64 string". A local server (port 0,
+ * loopback) stands in for the datasource url and must see no request.
  */
 class RestApiMultipartParseErrorTest {
 
     private static final String BAD_UPLOAD_VALUE = "this is not upload data";
+    private static final String UPLOAD_HINT = "Resolve upload data failed, it requires format {data:base64 string, name:string} or an array of it";
 
     private final RestApiExecutor executor = executor();
 
@@ -44,7 +45,7 @@ class RestApiMultipartParseErrorTest {
     }
 
     @Test
-    void theUserGetsTheIllegalArgumentTextInsideACodedQueryArgumentErrorInsteadOfTheUploadHintPinsTheSection9Row() {
+    void theUserGetsTheCodedUploadHintBF116() {
         try (RecordingHttpServer server = RecordingHttpServer.start(Map.of("/upload", RestApiCallSupport.json(200, "{}")))) {
             RestApiDatasourceConfig datasource = RestApiDatasourceConfig.builder().url(server.baseUrl() + "/upload").build();
             QueryVisitorContext visitor = RestApiCallSupport.visitor(null, null);
@@ -58,10 +59,9 @@ class RestApiMultipartParseErrorTest {
                     + ((PluginException) reactive).getMessageKey() + " / " + reactive.getMessage());
             for (Throwable failure : List.of(reactive, blocking)) {
                 PluginException coded = (PluginException) failure;
-                assertThat(coded.getError()).isEqualTo(PluginCommonError.INVALID_QUERY_SETTINGS);
-                assertThat(coded.getMessageKey()).isEqualTo("QUERY_ARGUMENT_ERROR");
-                assertThat(coded.getMessage()).contains("can't parse argument number: data:base64 string");
-                assertThat(coded.getMessage()).doesNotContain("Resolve upload data failed");
+                assertThat(coded.getError()).isEqualTo(PluginCommonError.DATASOURCE_ARGUMENT_ERROR);
+                assertThat(coded.getMessageKey()).isEqualTo("CONTENT_PARSE_ERROR");
+                assertThat(coded.getMessage()).isEqualTo(UPLOAD_HINT).doesNotContain("can't parse argument number");
             }
             assertThat(server.requests()).as("no request is made while the context is built").isEmpty();
         }
