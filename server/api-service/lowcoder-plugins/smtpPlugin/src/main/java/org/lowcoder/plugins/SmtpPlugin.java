@@ -11,6 +11,7 @@ import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
 import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
 import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.querySharedScheduler;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofPluginException;
+import static org.lowcoder.sdk.util.JsonUtils.fromJson;
 import static org.lowcoder.sdk.util.JsonUtils.fromJsonList;
 import static org.lowcoder.sdk.util.JsonUtils.toJson;
 import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheArrayJsonString;
@@ -70,6 +71,8 @@ public class SmtpPlugin extends Plugin {
     public static class SmtpEngine implements DatasourceQueryEngine<SmtpDatasourceConfig, Session, SmtpQueryExecutionContext> {
 
         private static final int DEFAULT_PORT = 25;
+        /** How a rendered address field that is a JSON string (the renderer writes text as a JSON text node) starts. */
+        private static final String JSON_STRING_START = "\"";
 
         /**
          * session is thread-safe and can be reused
@@ -198,6 +201,11 @@ public class SmtpPlugin extends Plugin {
                 return new InternetAddress[0];
             }
             String rendered = renderMustacheArrayJsonString(template, paramMap);
+            // NEW-36 (GitHub #1491): text, or a parameter holding text, renders to a JSON string, not an array; it is one
+            // address list (comma-separated, as InternetAddress.parse reads it), as the "from" field is read
+            if (rendered.startsWith(JSON_STRING_START)) {
+                return parse(List.of(fromJson(rendered, String.class)));
+            }
             List<String> addresses = fromJsonList(rendered, String.class);
             return parse(addresses);
         }

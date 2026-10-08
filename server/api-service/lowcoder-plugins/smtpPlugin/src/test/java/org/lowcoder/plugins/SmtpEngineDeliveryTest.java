@@ -227,6 +227,23 @@ public class SmtpEngineDeliveryTest {
         System.out.println(TAG + "stopped server message: " + result.getMessageArgs()[0]);
     }
 
+    /**
+     * NEW-36 (GitHub #1491): addresses typed as text, not as a JSON array, are delivered: a comma-separated "to" and a single
+     * "bcc". Before, the text read as no address at all and the send failed with "No recipient addresses".
+     */
+    @Test
+    public void addressesGivenAsTextAreDelivered() throws Exception {
+        Map<String, Object> queryConfig = query(TO_1 + ", " + TO_2, "Text addresses", "x");
+        queryConfig.put("bcc", BCC);
+        QueryExecutionResult result = sendAuthenticated(queryConfig);
+        System.out.println(TAG + "text addresses: " + result.getQueryCode() + " " + (result.getMessageArgs() == null ? null : Arrays.toString(result.getMessageArgs())));
+        assertEquals(QUERY_CODE_OK, result.getQueryCode());
+        assertTrue(server.waitForIncomingEmail(WAIT_MILLIS, 3));
+        for (String recipient : List.of(TO_1, TO_2, BCC)) {
+            assertEquals("[" + TO_1 + ", " + TO_2 + "]", addresses(only(recipient), Message.RecipientType.TO), recipient);
+        }
+    }
+
     /** Observation: a message with no recipient is refused by the mail library before anything is sent; the result is an error result, nothing is delivered. */
     @Test
     public void noRecipientGivesAnErrorResult() {
