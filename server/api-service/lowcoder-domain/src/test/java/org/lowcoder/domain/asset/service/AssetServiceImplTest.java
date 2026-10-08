@@ -368,21 +368,22 @@ class AssetServiceImplTest {
     }
 
     /**
-     * Pins plan section 9 row "GET of an unknown asset id answers 200 with an empty body, not 404 (makeImageResponse
-     * completes empty; AssetController:21)": nothing is written and no status is set, so the framework answers 200.
-     * A fix (switchIfEmpty to a not-found error) changes this test on purpose.
+     * BF-129 (was pinned as plan section 9 row "GET of an unknown asset id answers 200 with an empty body, not 404"):
+     * for an id no asset has, the response is completed with status 404 and no body, before the image write, which is
+     * skipped. Catches: the response left untouched (the framework then answered 200).
      */
     @Test
-    void anUnknownAssetCompletesWithoutWritingAnything_pinsTheSection9Row() {
+    void anUnknownAssetIsCompletedAsA404WithNoBodyBF129() {
         when(repository.findById(ASSET_ID)).thenReturn(Mono.empty());
         MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/assets/" + ASSET_ID));
 
         StepVerifier.create(service.makeImageResponse(exchange, ASSET_ID)).verifyComplete();
 
-        System.out.println("[AssetServiceImplTest] PINNED: unknown asset, status=" + exchange.getResponse().getStatusCode()
+        System.out.println("[AssetServiceImplTest] unknown asset, status=" + exchange.getResponse().getStatusCode()
                 + " committed=" + exchange.getResponse().isCommitted());
-        assertThat(exchange.getResponse().getStatusCode()).isNull();
-        assertThat(exchange.getResponse().isCommitted()).isFalse();
+        assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(exchange.getResponse().isCommitted()).isTrue();
         assertThat(exchange.getResponse().getHeaders().containsKey(HttpHeaders.CONTENT_TYPE)).isFalse();
+        assertThat(exchange.getResponse().getBodyAsString().block(TIMEOUT)).isEmpty();
     }
 }

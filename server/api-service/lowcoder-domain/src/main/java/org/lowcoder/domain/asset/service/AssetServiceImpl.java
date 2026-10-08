@@ -131,9 +131,15 @@ public class AssetServiceImpl implements AssetService {
         return data;
     }
 
+    /**
+     * Writes the asset's bytes with status 200 and its content type, or, for an id no asset has, completes the response
+     * with status 404 and no body (BF-129: the response used to be left untouched, so the framework answered 200 with an
+     * empty body). The 404 is decided before the write, because the write itself completes empty.
+     */
     @Override
     public Mono<Void> makeImageResponse(ServerWebExchange exchange, String assetId) {
         return getById(assetId)
+                .switchIfEmpty(Mono.defer(() -> notFound(exchange.getResponse())))
                 .flatMap(asset -> {
                     final String contentType = asset.getContentType();
                     final ServerHttpResponse response = exchange.getResponse();
@@ -146,6 +152,12 @@ public class AssetServiceImpl implements AssetService {
 
                     return response.writeWith(Mono.just(new DefaultDataBufferFactory().wrap(asset.getData())));
                 });
+    }
+
+    /** Completes {@code response} with status 404 and no body; empty, so the image write that follows is skipped. */
+    private static Mono<Asset> notFound(ServerHttpResponse response) {
+        response.setStatusCode(HttpStatus.NOT_FOUND);
+        return response.setComplete().then(Mono.empty());
     }
 
 }
