@@ -95,21 +95,32 @@ public class AssetServiceImpl implements AssetService {
         byte[] imageData;
         MediaType contentType;
 
-        if (createThumbnail) {
-            imageData = resizeImage(dataBuffer);
-            contentType = MediaType.IMAGE_JPEG;
-        } else {
-            imageData = new byte[dataBuffer.readableByteCount()];
-            dataBuffer.read(imageData);
-            contentType = srcContentType;
+        try {
+            if (createThumbnail) {
+                imageData = resizeImage(dataBuffer);
+                contentType = MediaType.IMAGE_JPEG;
+            } else {
+                imageData = new byte[dataBuffer.readableByteCount()];
+                dataBuffer.read(imageData);
+                contentType = srcContentType;
+            }
+        } finally {
+            // BF-128: released on every path; a failed thumbnail (bytes that are no image) used to keep it
+            DataBufferUtils.release(dataBuffer);
         }
-        DataBufferUtils.release(dataBuffer);
         return Asset.from(contentType, imageData);
     }
+
+    /** The IOException text for content that no ImageIO reader recognises; the caller answers IMAGE_PARSE_ERROR. */
+    private static final String NOT_AN_IMAGE = "the content is not an image ImageIO can read";
 
     private byte[] resizeImage(DataBuffer dataBuffer) throws IOException {
         int dimension = thumbNailPhotoDimension.get();
         BufferedImage bufferedImage = ImageIO.read(dataBuffer.asInputStream());
+        if (bufferedImage == null) {
+            // BF-128: ImageIO.read answers null, not an exception, for bytes no reader recognises (a NullPointerException below)
+            throw new IOException(NOT_AN_IMAGE);
+        }
         Image scaledImage = bufferedImage.getScaledInstance(dimension, dimension, Image.SCALE_SMOOTH);
         BufferedImage imageBuff = new BufferedImage(dimension, dimension, BufferedImage.TYPE_INT_RGB);
         imageBuff.getGraphics().drawImage(scaledImage, 0, 0, new Color(0, 0, 0), null);
@@ -117,7 +128,6 @@ public class AssetServiceImpl implements AssetService {
         ImageIO.write(imageBuff, "jpg", buffer);
         byte[] data = buffer.toByteArray();
         buffer.close();
-        DataBufferUtils.release(dataBuffer);
         return data;
     }
 
