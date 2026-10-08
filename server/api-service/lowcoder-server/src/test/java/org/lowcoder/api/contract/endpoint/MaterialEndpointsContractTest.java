@@ -54,6 +54,8 @@ class MaterialEndpointsContractTest {
     static final String TRUE = "true";
     /** {@code MaterialController#download}'s cache header: one hour. */
     static final String CACHE_CONTROL = "max-age=3600";
+    /** A PNG file name in upper case, as a camera or an older system names it. */
+    static final String UPPER_CASE_FILENAME = "MATERIALENDPOINTSCONTRACTTEST.LOGO.PNG";
 
     private ContractTestClient.Builder builder;
     private MaterialApiService materialApiService;
@@ -97,6 +99,17 @@ class MaterialEndpointsContractTest {
         assertThat(result.getResponseHeaders().getContentDisposition()).isEqualTo(ContentDisposition.inline().filename(MaterialSamples.FILENAME).build());
     }
 
+    /**
+     * BF-141: a material stored under an upper-case name is previewed with its media type (it was served as
+     * application/octet-stream, so the browser offered a download instead of showing the image).
+     */
+    @Test
+    void downloadPreviewOfAnUpperCaseNameBF141() {
+        EntityExchangeResult<byte[]> result = downloadAs(Map.of(TYPE_PARAMETER, MaterialEndpoints.PREVIEW_TYPE), UPPER_CASE_FILENAME);
+        System.out.println("[MaterialEndpointsContractTest] " + UPPER_CASE_FILENAME + " -> " + result.getResponseHeaders().getContentType());
+        assertThat(result.getResponseHeaders().getContentDisposition()).isEqualTo(ContentDisposition.inline().filename(UPPER_CASE_FILENAME).build());
+    }
+
     /** The {@code switchIfEmpty(Mono.error(...))} branch: no metadata for the id. */
     @Test
     void downloadMissing() {
@@ -130,7 +143,12 @@ class MaterialEndpointsContractTest {
 
     /** {@code download} with the {@code type} parameter of {@code query}: the file's bytes, type and caching. */
     private EntityExchangeResult<byte[]> downloadAs(Map<String, ?> query) {
-        MaterialMeta meta = MaterialSamples.materialMeta(MATERIAL_ID, MaterialSamples.FILENAME);
+        return downloadAs(query, MaterialSamples.FILENAME);
+    }
+
+    /** {@code download} of a material stored as {@code filename}, a PNG file name in any case. */
+    private EntityExchangeResult<byte[]> downloadAs(Map<String, ?> query, String filename) {
+        MaterialMeta meta = MaterialSamples.materialMeta(MATERIAL_ID, filename);
         Mockito.when(materialMetaService.findById(MATERIAL_ID)).thenReturn(Mono.just(meta));
         Mockito.doReturn(Flux.just(DefaultDataBufferFactory.sharedInstance.wrap(MaterialSamples.FILE_BYTES))).when(materialApiService).download(meta);
         try (ContractTestClient client = client()) {

@@ -6,6 +6,8 @@ import jakarta.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 
+import java.util.Locale;
+
 import static org.springframework.http.MediaType.*;
 
 public class MediaTypeUtils {
@@ -29,9 +31,14 @@ public class MediaTypeUtils {
         return getMediaType(fileType, APPLICATION_OCTET_STREAM);
     }
 
+    /**
+     * The media type of a file extension, in any case (BF-141: {@code PNG} or {@code Jpeg} got the default, so an
+     * upper-case material was served as application/octet-stream). The extension is lower-cased with {@link Locale#ROOT},
+     * so a Turkish default locale does not turn {@code GIF} into {@code gıf}.
+     */
     @Nullable
     public static MediaType getMediaType(String fileType, @Nullable MediaType defaultContentType) {
-        return switch (fileType) {
+        return switch (fileType.toLowerCase(Locale.ROOT)) {
             case "jpg", "jpeg" -> IMAGE_JPEG;
             case "gif" -> IMAGE_GIF;
             case "png" -> IMAGE_PNG;
