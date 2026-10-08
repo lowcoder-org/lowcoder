@@ -20,6 +20,9 @@ import java.util.Map;
  * ({@link FieldTree}: the addresses by their text, the attachments by their components) or the error. Pinned in
  * {@value #REPORT}.
  *
+ * <p>An address field that renders to a JSON string (text, or a parameter holding text) is read as one comma-separated
+ * address list (NEW-36, GitHub #1491); one that renders to an array is read element by element.
+ *
  * <p>Limits: no mail is sent; {@code fromJsonList} logs and returns {@code null} for text it cannot read, which the
  * engine treats as no addresses or no attachments, and the report shows that as an empty array or {@code null}.
  */
@@ -36,7 +39,8 @@ public class SmtpListsContractTest {
 
     @BoundarySites({
             "lowcoder-plugins/smtpPlugin/src/main/java/org/lowcoder/plugins/SmtpPlugin.java#SmtpPlugin.SmtpEngine.buildQueryExecutionContext#fromJsonList#1",
-            "lowcoder-plugins/smtpPlugin/src/main/java/org/lowcoder/plugins/SmtpPlugin.java#SmtpPlugin.SmtpEngine.renderAsArrayAndParse#fromJsonList#1"})
+            "lowcoder-plugins/smtpPlugin/src/main/java/org/lowcoder/plugins/SmtpPlugin.java#SmtpPlugin.SmtpEngine.renderAsArrayAndParse#fromJsonList#1",
+            "lowcoder-plugins/smtpPlugin/src/main/java/org/lowcoder/plugins/SmtpPlugin.java#SmtpPlugin.SmtpEngine.renderAsArrayAndParse#fromJson#1"})
     @Test
     public void listsAsPinned() {
         Map<String, Object> report = new LinkedHashMap<>();
@@ -59,6 +63,10 @@ public class SmtpListsContractTest {
         params.put("name", "report \"2026\".csv");
         params.put("attachments", List.of(Map.of("name", "a.txt", "contentType", "text/plain", "content", "aGk=")));
         params.put("count", 3_000_000_001L);
+        params.put("recipients", "test@mydomain.net");
+        params.put("recipientList", "a@example.com, \"Doe, Jane\" <jane@example.com>");
+        params.put("bracketed", "[test@mydomain.net]");
+        params.put("empty", "");
         return params;
     }
 
@@ -79,7 +87,14 @@ public class SmtpListsContractTest {
         cases.put("attachmentWithoutExtraProperty", config("[\"x@example.com\"]", "",
                 "[{\"name\": \"{{name}}\", \"contentType\": \"text/csv\", \"content\": \"YSxi\"}]"));
         cases.put("attachmentsParameter", config("[\"x@example.com\"]", "", "{{attachments}}"));
+        // NEW-36 (GitHub #1491): text, or a parameter holding text, is one address list (before: no address at all)
         cases.put("singleAddressNotArray", config("x@example.com", "", ""));
+        cases.put("addressListText", config("x@example.com, y@example.com", "\"Doe, Jane\" <jane@example.com>", ""));
+        cases.put("parameterHoldingAnAddress", config("{{recipients}}", "", ""));
+        cases.put("parameterHoldingAnAddressList", config("{{recipientList}}", "", ""));
+        cases.put("parameterHoldingBracketedText", config("{{bracketed}}", "", ""));
+        cases.put("parameterHoldingEmptyText", config("{{empty}}", "", ""));
+        cases.put("missingParameter", config("{{absent}}", "", ""));
         cases.put("arrayWithNumber", config("[\"x@example.com\", {{count}}]", "", ""));
         cases.put("attachmentNotObject", config("[\"x@example.com\"]", "", "[\"a.txt\"]"));
         cases.put("attachmentNumberContent", config("[\"x@example.com\"]", "", "[{\"name\": \"n\", \"content\": {{count}}}]"));
