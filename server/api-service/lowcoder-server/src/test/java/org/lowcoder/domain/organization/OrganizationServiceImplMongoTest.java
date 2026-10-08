@@ -161,19 +161,20 @@ class OrganizationServiceImplMongoTest extends OrganizationMongoTestBase {
     }
 
     /**
-     * Behaviour (candidate L6, reported, not pinned): SlugUtils accepts a hyphen in a slug, but getById treats any key
-     * containing a hyphen as a GID, so an org whose slug has a hyphen cannot be found by its slug afterwards.
+     * BF-133 (was the behaviour candidate L6, "accepted but not resolvable by slug"): SlugUtils accepts a hyphen in a
+     * slug, and getById, which took any key with a hyphen for a GID only, now looks such a key up as a slug after the GID.
      */
     @Test
-    void aSlugWithAHyphenIsAcceptedButNotResolvableBySlug() {
+    void aSlugWithAHyphenIsAcceptedAndResolvableBySlugBF133() {
         Organization org = saveOrg(ACTIVE, "hyphen");
         String slug = "my-" + newId();
 
         Organization updated = organizationService.updateSlug(org.getId(), slug).block(TIMEOUT);
 
         assertThat(updated.getSlug()).isEqualTo(slug);
-        Throwable error = assertThrows(RuntimeException.class, () -> organizationService.getById(slug).block(TIMEOUT));
-        System.out.println("[OrganizationServiceImplMongoTest] slug " + slug + " accepted; getById by that slug fails: " + error.getMessage());
+        Organization found = organizationService.getById(slug).block(TIMEOUT);
+        System.out.println("[OrganizationServiceImplMongoTest] slug " + slug + " accepted; getById by that slug -> " + found.getId());
+        assertThat(found.getId()).isEqualTo(org.getId());
     }
 
     /** Catches: a lost update time of a setting, or other keys being touched. */

@@ -46,7 +46,7 @@ class OrganizationServiceImplDeleteTwicePinMongoTest extends OrganizationMongoTe
 
     /**
      * Pins plan section 9 row "deleting a deleted org answers true and publishes a second OrgDeletedEvent": delete
-     * (OrganizationServiceImpl:274-285) updates the state without checking it, and the update reports a change because the
+     * (OrganizationServiceImpl:283-294) updates the state without checking it, and the update reports a change because the
      * auditing fields move, so a second delete answers true and publishes the event again (the cascades run twice). A fix
      * (guard on state ACTIVE) changes this test on purpose.
      */
