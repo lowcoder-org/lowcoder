@@ -22,6 +22,11 @@ import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_IN_OPERATOR_S
 
 public class FilterSet extends ForwardingList<FilterCondition> {
 
+    /** The key of a command detail's filter, a list of {@code column}, {@code condition} and {@code value} entries. */
+    public static final String FILTER_BY_KEY = "filterBy";
+    private static final String WHERE = " where ";
+    private static final String AND = " and ";
+
     private final ArrayList<FilterCondition> filters = newArrayList();
 
     public void addCondition(String column, String condition, Object value) {
@@ -40,10 +45,25 @@ public class FilterSet extends ForwardingList<FilterCondition> {
     public GuiSqlCommandRenderResult render(Map<String, Object> requestMap,
             String columnFrontDelimiter, String columnBackDelimiter, boolean renderWithRawSql, EscapeSql escapeSql) {
 
+        GuiSqlCommandRenderResult conditions = renderConditions(requestMap, columnFrontDelimiter, columnBackDelimiter,
+                renderWithRawSql, escapeSql);
+        if (filters.isEmpty()) {
+            return conditions;
+        }
+        return new GuiSqlCommandRenderResult(WHERE + conditions.sql(), conditions.bindParams());
+    }
+
+    /**
+     * The conditions joined by {@code and}, without the {@code where}: what a command with a {@code where} of its own
+     * appends (the bulk update, F01). Empty sql and no bind values for an empty filter.
+     */
+    public GuiSqlCommandRenderResult renderConditions(Map<String, Object> requestMap,
+            String columnFrontDelimiter, String columnBackDelimiter, boolean renderWithRawSql, EscapeSql escapeSql) {
+
         if (filters.isEmpty()) {
             return new GuiSqlCommandRenderResult("", emptyList());
         }
-        StringBuilder sb = new StringBuilder(" where ");
+        StringBuilder sb = new StringBuilder();
         List<Object> bindParams = newArrayList();
 
         for (int i = 0; i < filters.size(); i++) {
@@ -62,7 +82,7 @@ public class FilterSet extends ForwardingList<FilterCondition> {
             sb.append(renderItem.conditionSql());
             bindParams.addAll(renderItem.bindValues());
             if (i != filters.size() - 1) {
-                sb.append(" and ");
+                sb.append(AND);
             }
         }
 
@@ -159,7 +179,7 @@ public class FilterSet extends ForwardingList<FilterCondition> {
 
     @SuppressWarnings("unchecked")
     public static FilterSet parseFilterSet(Map<String, Object> commandDetail) {
-        Object filterBy = MapUtils.getObject(commandDetail, "filterBy", null);
+        Object filterBy = MapUtils.getObject(commandDetail, FILTER_BY_KEY, null);
         if (filterBy == null) {
             throw new PluginException(INVALID_GUI_SETTINGS, "GUI_FILTER_FIELD_EMPTY");
         }
@@ -186,6 +206,18 @@ public class FilterSet extends ForwardingList<FilterCondition> {
             filterSet.addCondition(column, condition.toUpperCase(), value);
         }
         return filterSet;
+    }
+
+    /**
+     * The filter of a command whose filter is optional (the bulk update, F01): an empty one when {@code filterBy} is absent
+     * or null, as in a bulk update saved before the editor had a filter; otherwise as {@link #parseFilterSet}, which
+     * refuses a missing filter.
+     */
+    public static FilterSet parseOptionalFilterSet(Map<String, Object> commandDetail) {
+        if (MapUtils.getObject(commandDetail, FILTER_BY_KEY) == null) {
+            return new FilterSet();
+        }
+        return parseFilterSet(commandDetail);
     }
 
     public Set<String> extractMustacheKeys() {

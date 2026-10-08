@@ -364,6 +364,23 @@ public class PostgresDatabaseTest {
     }
 
     /**
+     * F01 (GitHub #1641) on a real Postgres: a bulk update with a filter changes the records' rows that match it; a record whose
+     * row the filter excludes keeps its value; the value is written as a dollar-quoted literal (the filter used to be ignored, so that row was updated too).
+     */
+    @Test
+    public void guiBulkUpdateWithAFilterLeavesTheRowTheFilterExcludesF01() throws Exception {
+        try (Connection jdbc = jdbc()) {
+            execute(jdbc, "drop table if exists t_bulk_filter", "create table t_bulk_filter (id int primary key, name text, status text)",
+                    "insert into t_bulk_filter values (1, 'a', 'o''pen'), (2, 'b', 'closed'), (3, 'c', 'o''pen')");
+            Object updated = gui("BULK_UPDATE", Map.of("table", "t_bulk_filter", "primaryKey", "id",
+                    "records", "[{\"id\":1,\"name\":\"A\"},{\"id\":2,\"name\":\"B\"}]",
+                    "filterBy", List.of(Map.of("column", "status", "condition", "=", "value", "{{status}}"))), Map.of("status", "o'pen"));
+            System.out.println("[PostgresDatabaseTest] F01 bulk update with filter status = o'pen: " + updated);
+            assertEquals(List.of("A", "b", "c"), rows(jdbc, "select name from t_bulk_filter order by id").stream().map(r -> r.get("name")).toList());
+        }
+    }
+
+    /**
      * BF-007 and BF-008 end to end for the raw-SQL dialect: every element of a GUI {@code IN} filter is dollar-quoted, so
      * an element written to break out of a quoted string ({@code x' or '1'='1}) is compared as text and deletes nothing
      * else; a column name with a {@code "} stays one identifier, and a table name that is not an identifier is refused.

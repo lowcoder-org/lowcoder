@@ -207,7 +207,7 @@ public class MysqlGuiCommandTest {
         );
 
         var command = new MysqlBulkUpdateCommand("user",
-                new BulkObjectChangeSet(toJson(updateList)), "id");
+                new BulkObjectChangeSet(toJson(updateList)), "id", new FilterSet());
         var render = command.render(Map.of("rose", "rose", "email", "jack@jack.com", "id1", 1));
 
         Assertions.assertEquals(
