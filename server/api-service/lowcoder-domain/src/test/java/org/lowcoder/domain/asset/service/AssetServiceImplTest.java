@@ -20,6 +20,9 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
+import io.netty.buffer.Unpooled;
+import io.netty.buffer.UnpooledByteBufAllocator;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -31,6 +34,8 @@ import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.core.io.buffer.NettyDataBuffer;
+import org.springframework.core.io.buffer.NettyDataBufferFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -43,16 +48,15 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 /**
- * AssetServiceImpl (unit U13, task L3-10): upload validation, size estimate, thumbnails with real ImageIO, and the
+ * AssetServiceImpl (unit U13, task L3-10): upload validation, size limit, thumbnails with real ImageIO, and the
  * image response. The repository is a mock whose save echoes the asset.
  */
 class AssetServiceImplTest {
 
     private static final int DEFAULT_DIMENSION = 128;
     private static final int SMALL_DIMENSION = 32;
-    private static final int CHUNK_KB = 4;
-    private static final int CHUNK_BYTES = CHUNK_KB * 1024;
     private static final int MAX_KB = 4;
+    private static final int LIMIT_BYTES = MAX_KB * 1024;
     private static final Duration TIMEOUT = Duration.ofSeconds(10);
     private static final String ASSET_ID = "asset-1";
     private static final String IMAGE_PARSE_ERROR = "IMAGE_PARSE_ERROR";
@@ -164,12 +168,12 @@ class AssetServiceImplTest {
         verify(part, never()).content();
     }
 
-    // ---------------------------------------------------------------- size estimate (chunk count)
+    // ---------------------------------------------------------------- size limit (bytes, BF-150)
 
-    /** Catches: an off-by-one or a lost multiplier in the size limit: 2 chunks are 8 KB, 1 chunk is exactly the limit. */
+    /** Catches: an off-by-one or a lost multiplier in the size limit: the limit itself is accepted, one byte more is not. */
     @Test
-    void sizeLimitComparesChunkCountTimesFourKbWithTheLimit() {
-        Part tooBig = part(MediaType.IMAGE_PNG, buffer(CHUNK_BYTES), buffer(CHUNK_BYTES));
+    void theSizeLimitIsInclusiveAndCountsBytes() {
+        Part tooBig = part(MediaType.IMAGE_PNG, buffer(LIMIT_BYTES / 2), buffer(LIMIT_BYTES / 2 + 1));
         StepVerifier.create(service.upload(tooBig, MAX_KB, false))
                 .expectErrorSatisfies(e -> {
                     assertBizError(e, BizError.PAYLOAD_TOO_LARGE, "PAYLOAD_TOO_LARGE");
@@ -178,38 +182,66 @@ class AssetServiceImplTest {
                 .verify(TIMEOUT);
         verify(repository, never()).save(any());
 
-        Part atLimit = part(MediaType.IMAGE_PNG, buffer(CHUNK_BYTES));
-        assertThat(uploaded(atLimit, MAX_KB, false)).isNotNull();
-        System.out.println("[AssetServiceImplTest] 2 chunks rejected, 1 chunk at the limit accepted");
+        Part atLimit = part(MediaType.IMAGE_PNG, buffer(LIMIT_BYTES / 2), buffer(LIMIT_BYTES / 2));
+        assertThat(uploaded(atLimit, MAX_KB, false).getData()).hasSize(LIMIT_BYTES);
+        System.out.println("[AssetServiceImplTest] " + (LIMIT_BYTES + 1) + " bytes rejected, " + LIMIT_BYTES + " bytes at the " + MAX_KB + " KB limit accepted");
     }
 
     /**
-     * Pins plan section 9 row "upload size limit estimated as chunks x 4 KB (:71-73), not bytes: one large buffer
-     * passes, many tiny ones are rejected". Names say "chunk count" on purpose: the real effect depends on the chunk
-     * size of the multipart reader. A fix (count bytes) changes this test on purpose.
+     * BF-150 (was pinned as plan section 9 row "upload size limit estimated as chunks x 4 KB, not bytes: one large buffer
+     * passes"): 1 MB in one buffer is over a 100 KB limit. A real multipart part up to the codec's in-memory size arrives as
+     * one buffer, see {@link AssetServiceImplMultipartUploadTest}. Catches: the limit counting buffers instead of bytes.
      */
     @Test
-    void pinsTheSection9Row_chunkCountDecidesNotBytes_oneLargeBufferPasses() {
+    void oneLargeBufferOverTheLimitIsRejectedBF150() {
         int oneMegabyte = 1024 * 1024;
         Part large = part(MediaType.IMAGE_PNG, buffer(oneMegabyte));
 
-        Asset saved = uploaded(large, 100, false);
-        System.out.println("[AssetServiceImplTest] PINNED: 1 MB in one chunk accepted with a 100 KB limit, saved " + saved.getData().length + " bytes");
-        assertThat(saved.getData()).hasSize(oneMegabyte);
+        StepVerifier.create(service.upload(large, 100, false))
+                .expectErrorSatisfies(e -> assertBizError(e, BizError.PAYLOAD_TOO_LARGE, "PAYLOAD_TOO_LARGE"))
+                .verify(TIMEOUT);
+        verify(repository, never()).save(any());
+        System.out.println("[AssetServiceImplTest] 1 MB in one buffer rejected with a 100 KB limit");
     }
 
+    /** BF-150 (was pinned as the same row: "many tiny ones are rejected"): 1000 bytes in 1000 buffers are within 100 KB. */
     @Test
-    void pinsTheSection9Row_chunkCountDecidesNotBytes_manyTinyBuffersAreRejected() {
+    void manyTinyBuffersWithinTheLimitAreAcceptedWholeBF150() {
         DataBuffer[] tiny = new DataBuffer[1000];
         for (int i = 0; i < tiny.length; i++) {
             tiny[i] = buffer(1);
         }
         Part part = part(MediaType.IMAGE_PNG, tiny);
 
-        StepVerifier.create(service.upload(part, 100, false))
+        Asset saved = uploaded(part, 100, false);
+        System.out.println("[AssetServiceImplTest] 1000 bytes in 1000 buffers accepted with a 100 KB limit, saved " + saved.getData().length + " bytes");
+        assertThat(saved.getData()).hasSize(tiny.length);
+    }
+
+    /** Catches: buffers read before the limit was exceeded staying allocated (a leak of pooled Netty memory per rejected upload). */
+    @Test
+    void buffersReadBeforeTheLimitIsExceededAreReleasedBF150() {
+        NettyDataBufferFactory netty = new NettyDataBufferFactory(UnpooledByteBufAllocator.DEFAULT);
+        NettyDataBuffer first = netty.wrap(Unpooled.wrappedBuffer(new byte[LIMIT_BYTES / 2]));
+        NettyDataBuffer second = netty.wrap(Unpooled.wrappedBuffer(new byte[LIMIT_BYTES / 2 + 1]));
+
+        StepVerifier.create(service.upload(part(MediaType.IMAGE_PNG, first, second), MAX_KB, false))
                 .expectErrorSatisfies(e -> assertBizError(e, BizError.PAYLOAD_TOO_LARGE, "PAYLOAD_TOO_LARGE"))
                 .verify(TIMEOUT);
-        System.out.println("[AssetServiceImplTest] PINNED: 1000 bytes in 1000 chunks rejected with a 100 KB limit");
+        System.out.println("[AssetServiceImplTest] reference counts after the rejection: " + first.getNativeBuffer().refCnt() + ", " + second.getNativeBuffer().refCnt());
+        assertThat(first.getNativeBuffer().refCnt()).isZero();
+        assertThat(second.getNativeBuffer().refCnt()).isZero();
+    }
+
+    /** Catches: the KB-to-bytes conversion overflowing int for a huge limit, or a negative limit turning into "no limit". */
+    @Test
+    void theLimitInBytesIsCappedAtIntAndNeverNegativeBF150() {
+        assertThat(AssetServiceImpl.maxBytes(MAX_KB)).isEqualTo(MAX_KB * AssetServiceImpl.BYTES_PER_KB);
+        assertThat(AssetServiceImpl.maxBytes(Integer.MAX_VALUE)).isEqualTo(Integer.MAX_VALUE);
+        assertThat(AssetServiceImpl.maxBytes(-1)).isZero();
+        StepVerifier.create(service.upload(part(MediaType.IMAGE_PNG, buffer(1)), -1, false))
+                .expectErrorSatisfies(e -> assertBizError(e, BizError.PAYLOAD_TOO_LARGE, "PAYLOAD_TOO_LARGE"))
+                .verify(TIMEOUT);
     }
 
     /** Catches: an upload without any content crashing on the missing count or buffer; asserted as observed. */
