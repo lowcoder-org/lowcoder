@@ -1,7 +1,6 @@
 package org.lowcoder.api.framework.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -25,7 +24,6 @@ import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.infra.serverlog.ServerLogService;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.constants.Authentication;
-import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.util.CookieHelper;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
@@ -35,6 +33,7 @@ import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.http.server.reactive.MockServerHttpResponse;
@@ -49,12 +48,11 @@ import reactor.core.publisher.Mono;
 /**
  * A client-controlled {@code Referer} that {@link java.net.URI#create} rejects, through the production filter chain.
  *
- * <p>Pinned under D-6, plan §9 row "unparsable Referer breaks every request (UriUtils.getRefererURI)":
- * {@code UriUtils.getRefererURI} (UriUtils:41-47) calls {@code URI.create} on the raw header and lets the
- * IllegalArgumentException escape. Production path: {@code GlobalContextFilter.filter} builds its context map inside
- * {@code contextWrite} for EVERY request (GlobalContextFilter:111, {@code UriUtils.getRefererDomainFromRequest}), so the
- * request fails before the handler runs; the error then reaches {@code CustomErrorWebExceptionHandler}. The same call is
- * made by {@code CookieHelper.newCookieBuilder} (CookieHelper:50) for every cookie written or cleared (login, logout).
+ * <p>BF-143 (plan §9 row "unparsable Referer breaks every request (UriUtils.getRefererURI)"), fixed: {@code UriUtils.getRefererURI}
+ * called {@code URI.create} on the raw header and let the IllegalArgumentException escape, so {@code GlobalContextFilter.filter},
+ * which builds its context map for EVERY request ({@code UriUtils.getRefererDomainFromRequest}), failed the request before
+ * the handler with a generic 500, and {@code CookieHelper.newCookieBuilder} threw for every cookie written or cleared (login,
+ * logout). An unparsable value is now treated as no Referer.
  *
  * <p>Not covered: the real {@code SecurityConfig} filters and the Netty server; the chain here is
  * {@link WebHttpHandlerBuilder} with the production {@link GlobalContextFilter} and the production
@@ -67,6 +65,9 @@ class RefererFilterChainTest {
     private static final String PATH = "/api/applications/list";
     private static final String COOKIE_NAME = "LOWCODER_TOKEN_TEST";
     private static final String GOOD_REFERER = "https://app.example.com/apps";
+    /** Referer values that {@code URI.create} rejects. */
+    private static final String SPACE_IN_HOST_REFERER = "http://bad host/";
+    private static final String MARKUP_REFERER = "<script>alert(1)</script>";
 
     private final AtomicInteger handled = new AtomicInteger();
     private String lastBody;
@@ -117,7 +118,7 @@ class RefererFilterChainTest {
     }
 
     static Stream<String> unparsableReferers() {
-        return Stream.of("http://bad host/", "<script>alert(1)</script>");
+        return Stream.of(SPACE_IN_HOST_REFERER, MARKUP_REFERER);
     }
 
     @Test
@@ -128,29 +129,47 @@ class RefererFilterChainTest {
     }
 
     /**
-     * Pins plan §9 row "unparsable Referer breaks every request": the request never reaches the handler and the client
-     * gets an error status instead of the normal answer. The assertions state what the client receives (see the output
-     * line of this test for the status and body).
+     * BF-143: a request with an unparsable Referer reaches the handler and gets its normal answer, as one without a
+     * Referer does (it failed before the handler with a generic 500). Catches: the parse failure escaping the filter.
      */
     @ParameterizedTest
     @MethodSource("unparsableReferers")
-    void unparsableReferer_failsEveryRequestBeforeTheHandler_pinsTheSection9Row(String referer) {
+    void unparsableReferer_reachesTheHandlerAsWithoutARefererBF143(String referer) {
         MockServerHttpResponse response = send(referer);
 
-        assertThat(handled.get()).as("the handler is never reached").isZero();
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-        assertThat(lastBody).as("generic coded error, not the answer to the request").contains("\"code\":" + BizError.INTERNAL_SERVER_ERROR.getBizErrorCode());
+        assertThat(handled.get()).as("the handler is reached").isEqualTo(1);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(lastBody).as("no error body").isEmpty();
     }
 
-    /** The same parse in {@code CookieHelper} (CookieHelper:50): saving or clearing the auth cookie throws. */
+    /**
+     * BF-143: with an unparsable Referer, the auth cookie is saved and cleared as without a Referer (Lax, not Secure), and
+     * both carry the same matching attributes, so a logout still removes the cookie (it threw before). Catches: the cookie
+     * helper still throwing, or treating the unparsable value as https.
+     */
     @ParameterizedTest
     @MethodSource("unparsableReferers")
-    void unparsableReferer_makesTheCookieHelperThrow_pinsTheSection9Row(String referer) {
-        MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get(PATH).header(HttpHeaders.REFERER, referer));
+    void unparsableReferer_cookiesAreWrittenAsWithoutARefererBF143(String referer) {
+        MockServerWebExchange saved = MockServerWebExchange.from(MockServerHttpRequest.get(PATH).header(HttpHeaders.REFERER, referer));
+        MockServerWebExchange cleared = MockServerWebExchange.from(MockServerHttpRequest.get(PATH).header(HttpHeaders.REFERER, referer));
 
-        assertThatThrownBy(() -> cookieHelper.saveCookie("token", exchange)).isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining(referer);
-        assertThatThrownBy(() -> cookieHelper.clearCookie(exchange)).isInstanceOf(IllegalArgumentException.class).hasMessageContaining(referer);
+        cookieHelper.saveCookie("token", saved);
+        cookieHelper.clearCookie(cleared);
+
+        ResponseCookie save = onlyCookie(saved);
+        ResponseCookie clear = onlyCookie(cleared);
+        System.out.println(TAG + "Referer '" + referer + "' -> saved " + save + ", cleared " + clear);
+        assertThat(save.isSecure()).isFalse();
+        assertThat(save.getSameSite()).isEqualTo("Lax");
+        assertThat(clear.getMaxAge()).isEqualTo(Duration.ZERO);
+        assertThat(List.of(clear.getName(), clear.getPath(), String.valueOf(clear.getDomain()), clear.isSecure(), clear.getSameSite()))
+                .isEqualTo(List.of(save.getName(), save.getPath(), String.valueOf(save.getDomain()), save.isSecure(), save.getSameSite()));
+    }
+
+    private static ResponseCookie onlyCookie(MockServerWebExchange exchange) {
+        List<ResponseCookie> cookies = exchange.getResponse().getCookies().values().stream().flatMap(List::stream).toList();
+        assertThat(cookies).hasSize(1);
+        return cookies.get(0);
     }
 
     @Test
@@ -159,7 +178,7 @@ class RefererFilterChainTest {
 
         cookieHelper.saveCookie("token", exchange);
 
-        List<org.springframework.http.ResponseCookie> cookies = exchange.getResponse().getCookies().values().stream().flatMap(List::stream).toList();
+        List<ResponseCookie> cookies = exchange.getResponse().getCookies().values().stream().flatMap(List::stream).toList();
         assertThat(cookies).singleElement().satisfies(c -> {
             assertThat(c.isSecure()).isTrue();
             assertThat(c.getSameSite()).isEqualTo("None");

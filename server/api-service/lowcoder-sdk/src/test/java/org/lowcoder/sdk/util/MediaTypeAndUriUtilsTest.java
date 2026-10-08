@@ -24,6 +24,8 @@ public class MediaTypeAndUriUtilsTest {
 
     private static final MediaType SVG = new MediaType("image", "svg+xml");
     private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+    /** Referer values that {@code URI.create} rejects: a blank in the host, a blank in the authority, markup. */
+    private static final String[] UNPARSABLE_REFERERS = {"http://bad host/", "http://a b", "<script>"};
 
     private static MockServerWebExchange exchange(String url, String referer) {
         MockServerHttpRequest.BaseBuilder<?> builder = MockServerHttpRequest.get(url);
@@ -110,16 +112,19 @@ public class MediaTypeAndUriUtilsTest {
     }
 
     /**
-     * Observation (callers reported to the coordinator): the referer header is client-controlled and is parsed with
-     * {@code URI.create}, so a value that is not a valid URI (a space is enough) throws an IllegalArgumentException. Callers:
-     * GlobalContextFilter.java:111 (every request, inside the context write) and CookieHelper.java:50 (the session cookie).
+     * BF-143: the referer header is client-controlled; a value that is not a valid URI (a space is enough) is treated as
+     * no referer, an empty domain and a null URI, instead of an IllegalArgumentException that GlobalContextFilter (every
+     * request) and CookieHelper (the session cookie) let escape. Catches: the parse failure escaping again.
      */
     @Test
-    public void anInvalidRefererThrowsAnIllegalArgumentExceptionToItsCaller() {
-        for (String referer : new String[] {"http://bad host/", "http://a b", "<script>"}) {
-            IllegalArgumentException failure = assertThrows(IllegalArgumentException.class,
-                    () -> UriUtils.getRefererDomainFromRequest(exchange("http://x/", referer)), referer);
-            System.out.println("[MediaTypeAndUriUtilsTest] referer '" + referer + "' -> " + failure.getMessage());
+    public void anUnparsableRefererIsTreatedAsAbsentBF143() {
+        for (String referer : UNPARSABLE_REFERERS) {
+            MockServerWebExchange exchange = exchange("http://x/", referer);
+            String domain = UriUtils.getRefererDomainFromRequest(exchange);
+            URI uri = UriUtils.getRefererURI(exchange.getRequest());
+            System.out.println("[MediaTypeAndUriUtilsTest] referer '" + referer + "' -> domain '" + domain + "', uri " + uri);
+            assertEquals("", domain, referer);
+            assertNull(uri, referer);
         }
     }
 
