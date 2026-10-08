@@ -186,7 +186,8 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
         url = renderMustacheString(url, paramsMap);
 
         try {
-            return new URI(url).normalize().toString();
+            // NEW-19 (GitHub #1929): characters a URI cannot hold are encoded, as RestApiUriBuilder does; an error names the url as written
+            return new URI(RestApiUriBuilder.encodeIllegalCharacters(url)).normalize().toString();
         } catch (URISyntaxException e) {
             throw new PluginException(QUERY_ARGUMENT_ERROR, "INVALID_REQUEST_URL", url);
         }
