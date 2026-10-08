@@ -8,6 +8,7 @@ import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferLimitException;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
@@ -17,7 +18,6 @@ import org.springframework.http.codec.multipart.Part;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.imageio.ImageIO;
@@ -32,6 +32,7 @@ import java.util.Set;
 public class AssetServiceImpl implements AssetService {
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG);
+    static final int BYTES_PER_KB = 1024;
 
     private final AssetRepository repository;
     private final Conf<Integer> thumbNailPhotoDimension;
@@ -63,18 +64,13 @@ public class AssetServiceImpl implements AssetService {
             return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INCORRECT_IMAGE_TYPE"));
         }
 
-        final Flux<DataBuffer> contentCache = filePart.content().cache();
-
-        return contentCache.count()
-                .defaultIfEmpty(0L)
-                .flatMap(count -> {
-                    // Default implementation for the BufferFactory used breaks down the FilePart into chunks of 4KB.
-                    // So we multiply the count of chunks with 4 to get an estimate on the file size in KB.
-                    if (4 * count > maxFileSizeKB) {
-                        return Mono.error(new BizException(BizError.PAYLOAD_TOO_LARGE, "PAYLOAD_TOO_LARGE", maxFileSizeKB));
-                    }
-                    return DataBufferUtils.join(contentCache);
-                })
+        // BF-150: the limit counts bytes. It used to count chunks × 4 KB, but a multipart part has no fixed chunk size: with the
+        // server's codecs (in-memory size 20 MB, CustomWebFluxConfiguration) a part up to 20 MB arrives as one buffer, so a
+        // 20 MB file passed a 300 KB limit (measured in AssetServiceImplMultipartUploadTest). join stops at the limit and
+        // releases what it collected; a part without content completes empty and nothing is saved.
+        return DataBufferUtils.join(filePart.content(), maxBytes(maxFileSizeKB))
+                .onErrorMap(DataBufferLimitException.class,
+                        e -> new BizException(BizError.PAYLOAD_TOO_LARGE, "PAYLOAD_TOO_LARGE", maxFileSizeKB))
                 .flatMap(dataBuffer -> {
                     try {
                         return repository.save(createAsset(dataBuffer, contentType, isThumbnail));
@@ -83,6 +79,11 @@ public class AssetServiceImpl implements AssetService {
                         return Mono.error(new BizException(BizError.INVALID_PARAMETER, "IMAGE_PARSE_ERROR"));
                     }
                 });
+    }
+
+    /** The limit in bytes: a limit below 0 counts as 0, one beyond {@code int} is capped at {@link Integer#MAX_VALUE}. */
+    static int maxBytes(int maxFileSizeKB) {
+        return (int) Math.min(Math.max(0L, (long) maxFileSizeKB * BYTES_PER_KB), Integer.MAX_VALUE);
     }
 
     @Override
