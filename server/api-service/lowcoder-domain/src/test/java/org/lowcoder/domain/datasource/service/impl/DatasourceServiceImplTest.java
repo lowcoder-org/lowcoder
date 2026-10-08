@@ -362,6 +362,37 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] JS config without a stored one gets type " + updatedConfig.getType() + " (BF-102)");
     }
 
+    /**
+     * NEW-18 (GitHub #2053), the path of PUT /api/datasources/{id}: a JS plugin datasource keeps the cookie settings and
+     * headers its form sends, next to its own params; they used to be dropped by the merge, so the form showed them empty
+     * after save. Catches the merge dropping them again.
+     */
+    @Test
+    void update_jsPluginKeepsTheFormsCookieSettingsAndHeadersNEW18() {
+        JsDatasourceConnectionConfig storedConfig = new JsDatasourceConnectionConfig();
+        storedConfig.setType(JS_TYPE);
+        storedConfig.setDefinition(Map.of("dataSourceConfig", Map.of("params", List.of(Map.of("key", "serverURL", "type", "textInput")))));
+        storedConfig.put("serverURL", "http://old");
+        when(repository.findById(DATASOURCE_ID)).thenReturn(Mono.just(datasource(DATASOURCE_ID, "old", JS_TYPE, storedConfig)));
+        JsDatasourceConnectionConfig updatedConfig = new JsDatasourceConnectionConfig();
+        updatedConfig.put("serverURL", "http://api:8080");
+        updatedConfig.put(JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY, List.of("LOWCODER_CE_SELFHOST_TOKEN"));
+        updatedConfig.put(JsDatasourceConnectionConfig.FORWARD_ALL_COOKIES_KEY, true);
+        updatedConfig.put(JsDatasourceConnectionConfig.HEADERS_KEY, List.of(Map.of("key", "X-A", "value", "1")));
+
+        StepVerifier.create(service.update(DATASOURCE_ID, datasource(null, "new", JS_TYPE, updatedConfig)))
+                .assertNext(saved -> {
+                    System.out.println("[DatasourceServiceImplTest] NEW-18 saved JS config: " + saved.getDetailConfig());
+                    assertThat((Map<String, Object>) saved.getDetailConfig())
+                            .containsEntry("serverURL", "http://api:8080")
+                            .containsEntry(JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY, List.of("LOWCODER_CE_SELFHOST_TOKEN"))
+                            .containsEntry(JsDatasourceConnectionConfig.FORWARD_ALL_COOKIES_KEY, true)
+                            .containsEntry(JsDatasourceConnectionConfig.HEADERS_KEY, List.of(Map.of("key", "X-A", "value", "1")));
+                })
+                .verifyComplete();
+        verify(repository).save(any(Datasource.class));
+    }
+
     // ---------------------------------------------------------------- testDatasource
 
     /** Catches the given datasource not being tested as is when it has no id (:198). */
