@@ -33,6 +33,7 @@ class ApplicationQueryLookupTest {
     private static final String SHARED_QUERY = "shared";
     private static final String GID_ONLY_ID = "q-by-gid-id";
     private static final String GID_ONLY_GID = "q-by-gid";
+    private static final String QUERY_NOT_FOUND_KEY = "LIBRARY_QUERY_NOT_FOUND";
 
     private final ApplicationRecordService records = mock(ApplicationRecordService.class);
 
@@ -138,19 +139,22 @@ class ApplicationQueryLookupTest {
     }
 
     /**
-     * Pins today's behaviour of candidate defect L3-7(b), reported to the coordinator for a plan section 9 row: when the
-     * published DSL has no "queries" key, {@code getLiveQueries} maps JSON "null" to a null set, {@code mapNotNull}
-     * drops it, and the lookup COMPLETES EMPTY in view mode instead of failing with QUERY_NOT_FOUND (edit mode, with an
-     * empty editing set, throws QUERY_NOT_FOUND). A fix (an error for the missing set) changes this test on purpose.
+     * BF-109 (fixed; was pinned as candidate defect L3-7(b)): when the published DSL has no "queries" key,
+     * {@code getLiveQueries} maps JSON "null" to a null set and {@code mapNotNull} drops it, so it still completes empty;
+     * the view-mode lookup now fails with QUERY_NOT_FOUND, as edit mode does with an empty editing set. It completed empty.
      */
     @Test
-    void pinsViewModeCompletingEmptyWhenTheLiveDslHasNoQueriesKey() {
+    void viewModeIsQueryNotFoundWhenTheLiveDslHasNoQueriesKeyBF109() {
         Application application = application(ApplicationType.APPLICATION.getValue(), dsl(query(EDIT_ONLY_QUERY, null)), new HashMap<>());
 
         StepVerifier.create(application.getQueryByViewModeAndQueryId(true, EDIT_ONLY_QUERY, records))
-                .verifyComplete();
+                .expectErrorSatisfies(error -> {
+                    System.out.println("[ApplicationQueryLookupTest] live DSL without queries, view mode -> " + error);
+                    assertNotFound(error);
+                    assertThat(((BizException) error).getMessageKey()).isEqualTo(QUERY_NOT_FOUND_KEY);
+                })
+                .verify();
         StepVerifier.create(application.getLiveQueries(records)).verifyComplete();
-        System.out.println("[ApplicationQueryLookupTest] PINNED L3-7(b): live DSL without queries -> view mode completes empty");
     }
 
     /** Catches: the type test inverted, so an APPLICATION reports a container size or a module reports none. */
