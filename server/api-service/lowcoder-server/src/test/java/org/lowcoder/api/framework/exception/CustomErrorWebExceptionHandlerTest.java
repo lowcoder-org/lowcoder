@@ -25,6 +25,8 @@ import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
 import org.springframework.context.support.StaticApplicationContext;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -51,16 +53,19 @@ import reactor.core.publisher.Mono;
  * example errors of web filters). It is built with Spring's {@code DefaultErrorAttributes} and the default server
  * codecs; {@code ApiPerfHelper} is a mock and the locale service is the production {@link GlobalContextServiceImpl}.
  *
- * <p>Pinned under D-6, plan §9 row "malformed Accept-Language makes the error handler fail (LanguageRange.parse,
- * GlobalContextServiceImpl)": a filter error (here the rate limiter's REQUEST_THROTTLED, ThrottlingFilter) reaches
- * {@code render}, whose {@code getClientLocale} (CustomErrorWebExceptionHandler:95) throws for a malformed
- * {@code Accept-Language}; the client then gets an empty HTTP 500 instead of the coded JSON error
- * ({@link #malformedAcceptLanguage_makesTheHandlerFail_andTheClientGetsAnEmpty500_pinsTheSection9Row}).
+ * <p>BF-144 (plan §9 row "malformed Accept-Language makes the error handler fail (LanguageRange.parse,
+ * GlobalContextServiceImpl)"), fixed: a filter error (here the rate limiter's REQUEST_THROTTLED, ThrottlingFilter) reaches
+ * {@code render}, whose {@code getClientLocale} (CustomErrorWebExceptionHandler:95) threw for a malformed
+ * {@code Accept-Language}, so the client got an empty HTTP 500 instead of the coded JSON error; it now gets the coded error
+ * in English ({@link #malformedAcceptLanguage_getsTheCodedErrorInEnglishBF144}).
  */
 class CustomErrorWebExceptionHandlerTest {
 
     private static final Duration WAIT = Duration.ofSeconds(10);
     private static final ObjectMapper JSON = new ObjectMapper();
+    private static final String PATH = "/api/orders";
+    private static final String MALFORMED_ACCEPT_LANGUAGE = "not !! a language";
+    private static final String GERMAN = "de";
 
     private ApiPerfHelper apiPerfHelper;
     private CustomErrorWebExceptionHandler handler;
@@ -78,9 +83,9 @@ class CustomErrorWebExceptionHandlerTest {
     }
 
     private static MockServerWebExchange exchange(String acceptLanguage) {
-        MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/api/orders");
+        MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get(PATH);
         if (acceptLanguage != null) {
-            request.header("Accept-Language", acceptLanguage);
+            request.header(HttpHeaders.ACCEPT_LANGUAGE, acceptLanguage);
         }
         return MockServerWebExchange.from(request);
     }
@@ -108,7 +113,7 @@ class CustomErrorWebExceptionHandlerTest {
     /** Catches a business error losing its own status, code, localised message or headers. */
     @Test
     void bizException_usesItsStatusCodeLocalisedMessageAndHeaders() throws Exception {
-        MockServerWebExchange exchange = exchange("de");
+        MockServerWebExchange exchange = exchange(GERMAN);
         BizException error = new BizException(BizError.REQUEST_THROTTLED, "REQUEST_THROTTLED");
         error.addHeader("X-ORG-ID", "org-1");
 
@@ -145,30 +150,29 @@ class CustomErrorWebExceptionHandlerTest {
     }
 
     /**
-     * Pins plan §9 row "malformed Accept-Language makes the error handler fail (LanguageRange.parse,
-     * GlobalContextServiceImpl)": the handler's own Mono fails with IllegalArgumentException, and behind Spring's
-     * exception handling chain the client receives an HTTP 500 with an empty body, not the coded JSON error. The same
-     * filter error with a valid header answers the 429 JSON.
+     * BF-144: behind Spring's exception handling chain, a filter error of a request with a malformed {@code Accept-Language}
+     * answers the coded JSON error (429, REQUEST_THROTTLED) with the English message, as without the header; it was an
+     * empty HTTP 500. A valid header still selects its language. Catches: the handler failing again on the header.
      */
     @Test
-    void malformedAcceptLanguage_makesTheHandlerFail_andTheClientGetsAnEmpty500_pinsTheSection9Row() {
+    void malformedAcceptLanguage_getsTheCodedErrorInEnglishBF144() throws Exception {
         BizException throttled = new BizException(BizError.REQUEST_THROTTLED, "REQUEST_THROTTLED");
-        var failing = handler.handle(exchange("not !! a language"), throttled);
-        org.reactivestreams.Publisher<Void> publisher = failing;
-        org.assertj.core.api.Assertions.assertThatThrownBy(() -> Mono.from(publisher).block(WAIT)).isInstanceOf(IllegalArgumentException.class);
-
         HttpWebHandlerAdapter chain = new HttpWebHandlerAdapter(new ExceptionHandlingWebHandler(exchange -> Mono.error(throttled), List.of(handler)));
 
-        MockServerHttpResponse malformed = new MockServerHttpResponse(new org.springframework.core.io.buffer.DefaultDataBufferFactory());
-        chain.handle(MockServerHttpRequest.get("/api/orders").header("Accept-Language", "not !! a language").build(), malformed).block(WAIT);
+        MockServerHttpResponse malformed = new MockServerHttpResponse(new DefaultDataBufferFactory());
+        chain.handle(MockServerHttpRequest.get(PATH).header(HttpHeaders.ACCEPT_LANGUAGE, MALFORMED_ACCEPT_LANGUAGE).build(), malformed).block(WAIT);
         String malformedBody = malformed.getBodyAsString().defaultIfEmpty("").block(WAIT);
         System.out.println("[CustomErrorWebExceptionHandlerTest] malformed Accept-Language -> " + malformed.getStatusCode() + " body '" + malformedBody + "'");
-        assertThat(malformed.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-        assertThat(malformedBody).isEmpty();
+        assertThat(malformed.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
+        JsonNode body = JSON.readTree(malformedBody);
+        assertThat(body.get("code").asInt()).isEqualTo(BizError.REQUEST_THROTTLED.getBizErrorCode());
+        assertThat(body.get("message").asText()).isEqualTo(LocaleUtils.getMessage(Locale.ENGLISH, "REQUEST_THROTTLED"));
 
-        MockServerHttpResponse valid = new MockServerHttpResponse(new org.springframework.core.io.buffer.DefaultDataBufferFactory());
-        chain.handle(MockServerHttpRequest.get("/api/orders").header("Accept-Language", "en").build(), valid).block(WAIT);
-        System.out.println("[CustomErrorWebExceptionHandlerTest] valid Accept-Language -> " + valid.getStatusCode());
+        MockServerHttpResponse valid = new MockServerHttpResponse(new DefaultDataBufferFactory());
+        chain.handle(MockServerHttpRequest.get(PATH).header(HttpHeaders.ACCEPT_LANGUAGE, GERMAN).build(), valid).block(WAIT);
+        String validBody = valid.getBodyAsString().defaultIfEmpty("").block(WAIT);
+        System.out.println("[CustomErrorWebExceptionHandlerTest] valid Accept-Language -> " + valid.getStatusCode() + " body '" + validBody + "'");
         assertThat(valid.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
+        assertThat(JSON.readTree(validBody).get("message").asText()).isEqualTo(LocaleUtils.getMessage(Locale.GERMAN, "REQUEST_THROTTLED"));
     }
 }
