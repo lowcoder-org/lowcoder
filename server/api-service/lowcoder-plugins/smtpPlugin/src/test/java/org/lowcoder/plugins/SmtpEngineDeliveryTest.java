@@ -51,6 +51,9 @@ public class SmtpEngineDeliveryTest {
     static final String CC = "cc@example.com";
     static final String BCC = "bcc@example.com";
     static final String REPLY_TO = "reply@example.com";
+    /** How a header encoded as UTF-8 (RFC 2047) starts. */
+    static final String UTF_8_ENCODED_WORD = "=?UTF-8?";
+    static final String HTML_UTF_8 = "text/html; charset=UTF-8";
 
     private static GreenMail server;
     private final SmtpEngine engine = new SmtpEngine();
@@ -185,25 +188,28 @@ public class SmtpEngineDeliveryTest {
     }
 
     /**
-     * The subject is set with {@code MimeMessage.setSubject(String)}, which encodes with the JVM's default charset (no charset is
-     * given). With a UTF-8 default (the case on a UTF-8 locale and on Java 18 and later) a non-ASCII subject survives; with any
-     * other default (probed: {@code LC_ALL=C}, US-ASCII) every non-ASCII letter arrives as a question mark. The test asserts the
-     * outcome that belongs to the charset of the JVM it runs in and prints both; the dependence on the environment is an
-     * observation reported to the coordinator.
+     * GH-01 (GitHub #727) and BF-149 (was pinned as "the subject depends on the JVM's default charset"): a Turkish subject
+     * and HTML body arrive intact, both declared UTF-8, whatever the JVM's default charset. Before, the body arrived with
+     * {@code ğ ş ı İ} as "?" and the other letters as Latin-1 bytes under a UTF-8 label on every JVM, and the subject as
+     * "?" on a non-UTF-8 JVM. Run it under {@code -DargLine=-Dfile.encoding=ANSI_X3.4-1968} too: the outcome must not change.
+     * Catches: the subject or the body sent without an explicit UTF-8 charset.
      */
     @Test
-    public void nonAsciiSubjectDependsOnTheJvmDefaultCharset() throws Exception {
-        String subject = "Příliš žluťoučký kůň";
-        java.nio.charset.Charset charset = java.nio.charset.Charset.defaultCharset();
-        sendAuthenticated(query("[\"" + TO_1 + "\"]", subject, "<p>Žluťoučký</p>"));
+    public void nonAsciiSubjectAndBodyArriveIntactWhateverTheJvmCharsetGH01() throws Exception {
+        String subject = "Konu ğĞçÇşŞüÜöÖıİ";
+        String body = "<p>Türkçe: ğĞçÇşŞüÜöÖıİ, česky: Příliš žluťoučký kůň</p>";
+        QueryExecutionResult result = sendAuthenticated(query("[\"" + TO_1 + "\"]", subject, body));
+        assertEquals(QUERY_CODE_OK, result.getQueryCode());
         assertTrue(server.waitForIncomingEmail(WAIT_MILLIS, 1));
         MimeMessage message = only(TO_1);
-        System.out.println(TAG + "default charset " + charset + ", delivered subject: " + message.getSubject());
-        if (charset.equals(java.nio.charset.StandardCharsets.UTF_8)) {
-            assertEquals(subject, message.getSubject());
-        } else {
-            assertEquals(subject.chars().mapToObj(c -> c < 128 ? String.valueOf((char) c) : "?").collect(java.util.stream.Collectors.joining()), message.getSubject());
-        }
+        Part bodyPart = ((Multipart) message.getContent()).getBodyPart(0);
+        System.out.println(TAG + "default charset " + java.nio.charset.Charset.defaultCharset() + ", raw subject " + message.getHeader("Subject")[0]
+                + ", body type " + bodyPart.getContentType() + ", delivered subject: " + message.getSubject() + ", body: " + bodyPart.getContent());
+        assertEquals(subject, message.getSubject());
+        assertTrue(message.getHeader("Subject")[0].startsWith(UTF_8_ENCODED_WORD), message.getHeader("Subject")[0]);
+        assertEquals(body, bodyPart.getContent());
+        assertEquals(HTML_UTF_8, new jakarta.mail.internet.ContentType(bodyPart.getContentType()).getBaseType() + "; charset="
+                + new jakarta.mail.internet.ContentType(bodyPart.getContentType()).getParameter("charset"));
     }
 
     @Test
