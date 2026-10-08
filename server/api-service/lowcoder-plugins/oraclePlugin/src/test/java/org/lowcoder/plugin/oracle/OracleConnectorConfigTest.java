@@ -5,11 +5,16 @@ import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.oracle.model.OracleDatasourceConfig;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.plugin.mysql.MysqlDatasourceConfig;
+import org.lowcoder.sdk.util.JsonUtils;
+import org.lowcoder.sdk.util.LocaleUtils;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -34,6 +39,8 @@ public class OracleConnectorConfigTest {
     static final String PASSWORD = "secret";
     static final String EXPLICIT_URL = "jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=h)(PORT=1)))";
     static final String DRIVER = "oracle.jdbc.OracleDriver";
+    static final String INTERNAL_SERVER_ERROR_KEY = "INTERNAL_SERVER_ERROR";
+    static final String HAS_JDBC_URL_PROPERTY = "hasJdbcUrl";
 
     private final OracleConnector connector = new OracleConnector();
 
@@ -85,23 +92,65 @@ public class OracleConnectorConfigTest {
         assertNull(none.getPassword());
     }
 
-    /**
-     * Pins the plan section 9 row "validateConfig never fires" (D-6: fix deferred): {@code validateConfig} tests {@code isBlank(getJdbcUrl())}, but {@code getJdbcUrl()} is the
-     * computed URL (explicit URL, else built from host, port and sid or service name), which is never blank, so the check
-     * never fires and every config, an empty one included, is accepted. A fix (testing the stored URL) changes this test on
-     * purpose.
-     */
+    /** A config with a JDBC URL, or a host with a sid or a service name, is valid. */
     @Test
-    public void validateConfigNeverFiresBecauseTheComputedUrlIsNeverBlank_pinsTheSection9Row() {
+    public void validateConfigAcceptsAUrlOrAHostWithASidOrAServiceName() {
         assertEquals(Set.of(), connector.validateConfig(builder().sid(SID).build()));
         assertEquals(Set.of(), connector.validateConfig(builder().serviceName(SERVICE).build()));
         assertEquals(Set.of(), connector.validateConfig(OracleDatasourceConfig.builder().jdbcUrl(EXPLICIT_URL).build()));
+        System.out.println("[OracleConnectorConfigTest] host + sid, host + service name, URL alone -> valid");
+    }
+
+    /**
+     * BF-111 (fixed; was pinned as the plan section 9 row "validateConfig never fires"): {@code validateConfig} tested the
+     * computed URL, which is never blank, so every config passed; it now tests the configured one, so a config without a
+     * URL and without a host with a sid or a service name is INVALID_JDBC_URL_CONFIG, a key the bundles now have.
+     */
+    @Test
+    public void validateConfigRejectsAConfigWithoutAUrlOrAHostWithASidOrAServiceNameBF111() {
         OracleDatasourceConfig empty = OracleDatasourceConfig.builder().build();
-        System.out.println("[OracleConnectorConfigTest] empty config: url '" + empty.getJdbcUrl() + "', validate " + connector.validateConfig(empty));
+        Set<String> invalid = Set.of(OracleConnector.INVALID_JDBC_URL_CONFIG);
+        System.out.println("[OracleConnectorConfigTest] empty config: computed url '" + empty.getJdbcUrl() + "', validate " + connector.validateConfig(empty));
         assertEquals("jdbc:oracle:thin:@//:" + DEFAULT_PORT + "/null", empty.getJdbcUrl(), "the computed URL of an empty config is not blank");
-        assertEquals(Set.of(), connector.validateConfig(empty), "an empty config is accepted");
-        assertEquals(Set.of(), connector.validateConfig(builder().build()), "a host without sid or service name is accepted");
-        assertEquals(Set.of(), connector.validateConfig(builder().sid(" ").serviceName("").jdbcUrl(" ").build()), "blank values are accepted too");
+        assertFalse(empty.hasJdbcUrl());
+        assertEquals(invalid, connector.validateConfig(empty), "an empty config");
+        assertEquals(invalid, connector.validateConfig(builder().build()), "a host without sid or service name");
+        assertEquals(invalid, connector.validateConfig(builder().sid(" ").serviceName("").jdbcUrl(" ").build()), "blank values");
+        assertEquals(invalid, connector.validateConfig(OracleDatasourceConfig.builder().sid(SID).serviceName(SERVICE).build()), "a sid and a service name without a host");
+        for (Locale locale : List.of(Locale.ENGLISH, Locale.CHINESE)) {
+            String message = LocaleUtils.getMessage(locale, OracleConnector.INVALID_JDBC_URL_CONFIG);
+            System.out.println("[OracleConnectorConfigTest] " + locale + ": " + message);
+            assertNotEquals(LocaleUtils.getMessage(locale, INTERNAL_SERVER_ERROR_KEY), message, "the key is in the " + locale + " bundle");
+        }
+    }
+
+    /**
+     * BF-111 on the update and the test-with-id paths, which merge the request into the stored config before validating:
+     * the merge takes the update's configured URL, not its computed one, so an update without a URL and without a sid or
+     * a service name is still rejected, and an update with a URL keeps it.
+     */
+    @Test
+    public void aMergedConfigIsValidatedByTheUpdatesConfiguredUrlBF111() {
+        OracleDatasourceConfig stored = builder().serviceName(SERVICE).build();
+
+        OracleDatasourceConfig withoutService = (OracleDatasourceConfig) stored.mergeWithUpdatedConfig(builder().build());
+        System.out.println("[OracleConnectorConfigTest] merged without service name: computed url '" + withoutService.getJdbcUrl()
+                + "', validate " + connector.validateConfig(withoutService));
+        assertFalse(withoutService.hasJdbcUrl(), "the computed URL of the update is not taken as configured");
+        assertEquals(Set.of(OracleConnector.INVALID_JDBC_URL_CONFIG), connector.validateConfig(withoutService));
+
+        OracleDatasourceConfig withUrl = (OracleDatasourceConfig) stored.mergeWithUpdatedConfig(OracleDatasourceConfig.builder().jdbcUrl(EXPLICIT_URL).build());
+        assertTrue(withUrl.hasJdbcUrl());
+        assertEquals(EXPLICIT_URL, withUrl.getJdbcUrl());
+        assertEquals(Set.of(), connector.validateConfig(withUrl));
+    }
+
+    /** {@code hasJdbcUrl} is not a getter: the config's JSON has no property for it. */
+    @Test
+    public void hasJdbcUrlIsNotAJsonProperty() {
+        String json = JsonUtils.toJson(builder().jdbcUrl(EXPLICIT_URL).build());
+        System.out.println("[OracleConnectorConfigTest] json " + json);
+        assertFalse(json.contains(HAS_JDBC_URL_PROPERTY), json);
     }
 
     @Test
