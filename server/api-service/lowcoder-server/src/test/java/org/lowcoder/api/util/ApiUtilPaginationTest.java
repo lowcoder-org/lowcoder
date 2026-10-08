@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -36,6 +37,8 @@ public class ApiUtilPaginationTest {
     /** A page and size whose {@code int} bounds wrap to 0 and 65536 (2^32 and 2^32 + 2^16), a valid first page in int arithmetic. */
     static final int WRAPPING_PAGE = 65_537;
     static final int WRAPPING_SIZE = 65_536;
+    /** BF-153: page numbers before the first. */
+    static final int[] NON_POSITIVE_PAGES = {0, -1, -5, Integer.MIN_VALUE};
 
     @Test
     public void sizeIsClampedBetweenTheMinimumAndTheMaximum() {
@@ -146,17 +149,77 @@ public class ApiUtilPaginationTest {
         assertEquals(7, view(4, 0, Flux.range(1, 7)).getData().size(), "with size 0 the skip is 0 whatever the page");
     }
 
+    /** Asserts the {@code check()} error: INVALID_PARAMETER, ILLEGAL_PAGE_NUMBER, the page number as its argument. */
+    private static void assertIllegalPageNumber(Throwable error, int page) {
+        System.out.println(TAG + "page " + page + " -> " + error);
+        BizException biz = assertInstanceOf(BizException.class, error, "page " + page);
+        assertEquals(BizError.INVALID_PARAMETER, biz.getError());
+        assertEquals(ILLEGAL_PAGE_KEY, biz.getMessageKey());
+        assertEquals(page, biz.getArgs()[0]);
+    }
+
     /**
-     * Observation: {@code fluxToPageResponseView} does not check its arguments. A page number of 0 or less makes the skip count negative,
-     * and {@code Flux.skip} refuses that while the pipeline is being assembled, so the call throws an
-     * {@code IllegalArgumentException} to its caller (not a failed Mono, and not the {@code BizException} that {@code check()} gives).
+     * BF-153: a page number of 0 or less is the error {@code check()} gives, as a failed Mono, and the flux is not subscribed.
+     * Catches: the page passed on to {@code Flux.skip} unchecked again (an {@code IllegalArgumentException} thrown to the
+     * caller, a raw HTTP 500), or the check made after counting the flux.
      */
     @Test
-    public void aPageNumberOfZeroOrLessThrowsAnIllegalArgumentExceptionFromSkip() {
-        for (int bad : new int[] {0, -1, -5}) {
-            IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> Pagination.fluxToPageResponseView(bad, 10, Flux.range(1, 5)), "page " + bad);
-            System.out.println(TAG + "page " + bad + " -> " + thrown.getMessage());
+    public void aPageNumberOfZeroOrLessIsTheIllegalPageNumberErrorBF153() {
+        for (int bad : NON_POSITIVE_PAGES) {
+            AtomicInteger subscriptions = new AtomicInteger();
+            Flux<Integer> counting = Flux.range(1, 5).doOnSubscribe(s -> subscriptions.incrementAndGet());
+            StepVerifier.create(Pagination.fluxToPageResponseView(bad, 10, counting))
+                    .expectErrorSatisfies(error -> assertIllegalPageNumber(error, bad))
+                    .verify(TIMEOUT);
+            assertEquals(0, subscriptions.get(), "page " + bad + ": the flux is not subscribed");
         }
+    }
+
+    /** BF-153: a negative page size from page 2 on is the whole flux, as size 0 is, where the negative skip count threw. */
+    @Test
+    public void aNegativePageSizeAfterTheFirstPageReturnsEverythingBF153() {
+        PageResponseView<?> negative = view(2, -3, Flux.range(1, 7));
+        assertEquals(7, negative.getData().size());
+        assertEquals(7, negative.getTotal());
+        assertEquals(-3, negative.getPageSize());
+    }
+
+    /** {@code pageOf(Flux)} gives the requested slice; the last page may be short and a page past the end is empty. */
+    @Test
+    public void pageOfAFluxGivesTheRequestedSlice() {
+        Flux<String> five = Flux.fromIterable(FIVE);
+        StepVerifier.create(Pagination.pageOf(five, 1, TWO)).expectNext("a", "b").verifyComplete();
+        StepVerifier.create(Pagination.pageOf(five, 2, TWO)).expectNext("c", "d").verifyComplete();
+        StepVerifier.create(Pagination.pageOf(five, 3, TWO)).expectNext("e").verifyComplete();
+        StepVerifier.create(Pagination.pageOf(five, 4, TWO)).verifyComplete();
+        System.out.println(TAG + "pageOf(Flux) over " + FIVE + ", size " + TWO + ": " + Pagination.pageOf(five, 2, TWO).collectList().block(TIMEOUT));
+    }
+
+    /** BF-153: {@code pageOf(Flux)} with a page of 0 or less is the {@code check()} error, a failed flux, not a thrown exception. */
+    @Test
+    public void pageOfAFluxWithAPageOfZeroOrLessIsTheIllegalPageNumberErrorBF153() {
+        for (int bad : NON_POSITIVE_PAGES) {
+            Flux<String> page = Pagination.pageOf(Flux.fromIterable(FIVE), bad, TWO);
+            StepVerifier.create(page).expectErrorSatisfies(error -> assertIllegalPageNumber(error, bad)).verify(TIMEOUT);
+        }
+    }
+
+    /** BF-153: {@code pageOf(Flux)} with a page size of 0 or less is the whole flux, whatever the (valid) page. */
+    @Test
+    public void pageOfAFluxWithASizeOfZeroOrLessIsTheWholeFluxBF153() {
+        for (int size : new int[] {0, -1, -3}) {
+            for (int page : new int[] {1, 2, 7}) {
+                List<String> all = Pagination.pageOf(Flux.fromIterable(FIVE), page, size).collectList().block(TIMEOUT);
+                assertEquals(FIVE, all, "page " + page + " size " + size);
+            }
+        }
+    }
+
+    /** The skip count is computed in long: a page whose int skip count wraps to 0 is past the end, not the first page. */
+    @Test
+    public void pageOfAFluxDoesNotWrapALargePageIntoTheFlux() {
+        assertEquals(0, (WRAPPING_PAGE - 1) * WRAPPING_SIZE, "the int skip count wraps to 0");
+        StepVerifier.create(Pagination.pageOf(Flux.fromIterable(FIVE), WRAPPING_PAGE, WRAPPING_SIZE)).verifyComplete();
     }
 
     /** Observation (reported): the flux is subscribed twice, once to count it and once to take the slice. */
