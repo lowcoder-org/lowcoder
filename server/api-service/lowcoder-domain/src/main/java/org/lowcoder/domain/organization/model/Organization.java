@@ -96,6 +96,8 @@ public class Organization extends HasIdAndAuditing implements BeforeMongodbWrite
 
     public static class OrganizationCommonSettings extends HashMap<String, Object> {
         public static final String PASSWORD_RESET_EMAIL_TEMPLATE = "PASSWORD_RESET_EMAIL_TEMPLATE";
+        /** The suffix of the key that holds when a setting was last written ({@code <key>_updateTime}). */
+        public static final String UPDATE_TIME_SUFFIX = "_updateTime";
 
         /**
          * Settings excluded from sanitized export
@@ -103,13 +105,25 @@ public class Organization extends HasIdAndAuditing implements BeforeMongodbWrite
         private final Set<String> excludedKeys = Set.of(
             PASSWORD_RESET_EMAIL_TEMPLATE
         );
+
+        /** The key that holds when the setting {@code key} was last written. */
+        public static String updateTimeKey(String key) {
+            return key + UPDATE_TIME_SUFFIX;
+        }
+
+        /**
+         * A copy without the excluded settings and their update times (GH-02, GitHub #924: the update time of the
+         * password-reset template was kept), for views that are not the settings' own: the user profile and the
+         * application views, which reach anonymous visitors of a public application.
+         */
         public OrganizationCommonSettings sanitized() {
             OrganizationCommonSettings sanitized = new OrganizationCommonSettings();
             if (isEmpty()) {
                 return sanitized;
             }
             this.entrySet().stream()
-                    .filter((entry) -> !excludedKeys.contains(entry.getKey()))
+                    .filter((entry) -> excludedKeys.stream().noneMatch(excluded ->
+                            excluded.equals(entry.getKey()) || updateTimeKey(excluded).equals(entry.getKey())))
                     .forEach((entry) -> sanitized.put(entry.getKey(), entry.getValue()));
             return sanitized;
         }

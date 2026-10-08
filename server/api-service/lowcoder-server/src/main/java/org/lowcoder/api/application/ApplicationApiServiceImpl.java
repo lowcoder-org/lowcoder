@@ -39,6 +39,7 @@ import org.lowcoder.domain.group.model.GroupMember;
 import org.lowcoder.domain.interaction.UserApplicationInteractionService;
 import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.model.Organization;
+import org.lowcoder.domain.organization.model.Organization.OrganizationCommonSettings;
 import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.permission.model.*;
@@ -303,7 +304,8 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
         return applicationService.findById(applicationId)
                 .delayUntil(application -> Boolean.TRUE.equals(withDeleted)? Mono.empty() : checkApplicationStatus(application, NORMAL))
                 .zipWhen(application -> applicationService.getAllDependentModulesFromApplication(application, false))
-                .zipWhen(tuple -> organizationService.getOrgCommonSettings(tuple.getT1().getOrganizationId()), TupleUtils::merge)
+                // GH-02 (GitHub #924): without the password-reset template, which the views passed to every visitor
+                .zipWhen(tuple -> organizationService.getOrgCommonSettings(tuple.getT1().getOrganizationId()).map(OrganizationCommonSettings::sanitized), TupleUtils::merge)
                 .flatMap(tuple -> {
                     Application application = tuple.getT1();
                     List<Application> dependentModules = tuple.getT2();
@@ -331,7 +333,8 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                         .delayUntil(application -> Boolean.TRUE.equals(withDeleted)? Mono.empty() : checkApplicationStatus(application, NORMAL))
                         .delayUntil(application -> checkApplicationViewRequest(application, requestType)))
                 .zipWhen(tuple -> applicationService.getAllDependentModulesFromApplication(tuple.getT2(), true), TupleUtils::merge)
-                .zipWhen(tuple -> organizationService.getOrgCommonSettings(tuple.getT2().getOrganizationId()), TupleUtils::merge)
+                // GH-02 (GitHub #924): without the password-reset template, which the views passed to every visitor
+                .zipWhen(tuple -> organizationService.getOrgCommonSettings(tuple.getT2().getOrganizationId()).map(OrganizationCommonSettings::sanitized), TupleUtils::merge)
                 .zipWith(getTemplateIdFromApplicationId(applicationId), TupleUtils::merge)
                 .flatMap(tuple -> {
                     ResourcePermission permission = tuple.getT1();

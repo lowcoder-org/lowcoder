@@ -330,7 +330,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     private String buildCommonSettingsUpdateTimeKey(String key) {
-        return key + "_updateTime";
+        return OrganizationCommonSettings.updateTimeKey(key);
     }
 
     @Override
