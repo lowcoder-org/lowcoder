@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 /**
  * Group {@code tree-text}, its {@code smtpPlugin} rows (docs/API_PAYLOAD_TEST_PLAN.md §4.10, task T8.4):
  * {@code SmtpEngine.buildQueryExecutionContext} renders the attachments with {@code renderMustacheJsonString} and
- * the address lists with {@code renderMustacheArrayJsonString} ({@code SmtpPlugin.java:174}, {@code :190}), whose
+ * the address lists with {@code renderMustacheArrayJsonString} ({@code SmtpPlugin.java:184}, {@code :200}), whose
  * text is {@code JsonNode#toString} (E13), then reads that text with {@code fromJsonList}. For each template of
  * {@link #TEMPLATES} the line pins the text those helpers give for it with {@link #PARAMS}, and what the engine built
  * from the same template as {@code to} and as {@code attachments}, in {@value #REPORT}.
