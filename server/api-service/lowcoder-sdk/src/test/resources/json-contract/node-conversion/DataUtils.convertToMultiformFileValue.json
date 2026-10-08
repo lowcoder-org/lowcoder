@@ -49,6 +49,6 @@
     "error" : "org.lowcoder.sdk.exception.PluginException: DATASOURCE_ARGUMENT_ERROR MULTIFORM_DATA_IS_NOT_STRING"
   },
   "scalar" : {
-    "error" : "java.lang.IllegalArgumentException: can't parse argument number: data:base64 string"
+    "error" : "org.lowcoder.sdk.exception.PluginException: DATASOURCE_ARGUMENT_ERROR CONTENT_PARSE_ERROR"
   }
 }
