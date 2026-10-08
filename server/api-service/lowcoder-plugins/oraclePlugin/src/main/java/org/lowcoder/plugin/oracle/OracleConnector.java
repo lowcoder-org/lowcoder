@@ -17,6 +17,7 @@ import com.zaxxer.hikari.HikariConfig;
 public class OracleConnector extends SqlBasedConnector<OracleDatasourceConfig> {
 
     private static final String JDBC_DRIVER = "oracle.jdbc.OracleDriver";
+    static final String INVALID_JDBC_URL_CONFIG = "INVALID_JDBC_URL_CONFIG";
 
     public OracleConnector() {
         super(50);
@@ -43,12 +44,16 @@ public class OracleConnector extends SqlBasedConnector<OracleDatasourceConfig> {
         config.setReadOnly(oracleDatasourceConfig.isReadonly());
     }
 
+    /**
+     * A config needs a JDBC URL, or a host with a sid or a service name (BF-111: the computed URL was tested, which is
+     * never blank, so every config passed). Limits: the URL, host, sid and service name are tested for blankness only.
+     */
     @Override
     public Set<String> validateConfig(OracleDatasourceConfig connectionConfig) {
         Set<String> validates = new HashSet<>();
-        if (isBlank(connectionConfig.getJdbcUrl())
+        if (!connectionConfig.hasJdbcUrl()
                 && (isBlank(connectionConfig.getHost()) || isAllBlank(connectionConfig.getSid(), connectionConfig.getServiceName()))) {
-            validates.add("INVALID_JDBC_URL_CONFIG");
+            validates.add(INVALID_JDBC_URL_CONFIG);
         }
         return validates;
     }
