@@ -19,14 +19,18 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
 
     @Override
     public AbstractAuthConfig build(AuthConfigRequest authConfigRequest, boolean enable) {
-        return switch (authConfigRequest.getAuthType()) {
+        String authType = authConfigRequest.getAuthType();
+        if (authType == null) {
+            throw AuthConfigFactory.unsupportedAuthType(null);
+        }
+        return switch (authType) {
             case AuthTypeConstants.FORM -> buildEmailAuthConfig(authConfigRequest, enable);
             case AuthTypeConstants.GITHUB -> buildOauth2SimpleAuthConfig(GITHUB, GITHUB_NAME, authConfigRequest, enable);
             case AuthTypeConstants.GOOGLE -> buildOauth2SimpleAuthConfig(GOOGLE, GOOGLE_NAME, authConfigRequest, enable);
             case AuthTypeConstants.ORY -> buildOauth2OryAuthConfig(authConfigRequest, enable);
             case AuthTypeConstants.KEYCLOAK -> buildOauth2KeycloakAuthConfig(authConfigRequest, enable);
             case AuthTypeConstants.GENERIC -> buildOauth2GenericAuthConfig(authConfigRequest, enable);
-            default -> throw new UnsupportedOperationException(authConfigRequest.getAuthType());
+            default -> throw AuthConfigFactory.unsupportedAuthType(authType);
         };
     }
 
@@ -42,9 +46,9 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
         );
     }
 
+    /** BF-107: a request without {@code enableRegister} registers, as for the other types (it failed with an NPE on unboxing). */
     private EmailAuthConfig buildEmailAuthConfig(AuthConfigRequest authConfigRequest, boolean enable) {
-        Boolean enableRegister = MapUtils.getBoolean(authConfigRequest, "enableRegister");
-        return new EmailAuthConfig(authConfigRequest.getId(), enable, enableRegister);
+        return new EmailAuthConfig(authConfigRequest.getId(), enable, authConfigRequest.isEnableRegister());
     }
 
     private Oauth2SimpleAuthConfig buildOauth2SimpleAuthConfig(String source, String sourceName, AuthConfigRequest authConfigRequest,
