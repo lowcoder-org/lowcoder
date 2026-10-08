@@ -53,6 +53,69 @@
   "singleAddressNotArray" : {
     "@class" : "org.lowcoder.plugins.SmtpQueryExecutionContext",
     "from" : "sender@example.com",
+    "to" : [ "x@example.com" ],
+    "cc" : [ ],
+    "bcc" : [ ],
+    "replyTo" : [ ],
+    "subject" : "s",
+    "content" : "",
+    "attachments" : null,
+    "visitorId" : null
+  },
+  "addressListText" : {
+    "@class" : "org.lowcoder.plugins.SmtpQueryExecutionContext",
+    "from" : "sender@example.com",
+    "to" : [ "x@example.com", "y@example.com" ],
+    "cc" : [ "\"Doe, Jane\" <jane@example.com>" ],
+    "bcc" : [ ],
+    "replyTo" : [ ],
+    "subject" : "s",
+    "content" : "",
+    "attachments" : null,
+    "visitorId" : null
+  },
+  "parameterHoldingAnAddress" : {
+    "@class" : "org.lowcoder.plugins.SmtpQueryExecutionContext",
+    "from" : "sender@example.com",
+    "to" : [ "test@mydomain.net" ],
+    "cc" : [ ],
+    "bcc" : [ ],
+    "replyTo" : [ ],
+    "subject" : "s",
+    "content" : "",
+    "attachments" : null,
+    "visitorId" : null
+  },
+  "parameterHoldingAnAddressList" : {
+    "@class" : "org.lowcoder.plugins.SmtpQueryExecutionContext",
+    "from" : "sender@example.com",
+    "to" : [ "a@example.com", "\"Doe, Jane\" <jane@example.com>" ],
+    "cc" : [ ],
+    "bcc" : [ ],
+    "replyTo" : [ ],
+    "subject" : "s",
+    "content" : "",
+    "attachments" : null,
+    "visitorId" : null
+  },
+  "parameterHoldingBracketedText" : {
+    "error" : "org.lowcoder.sdk.exception.PluginException: QUERY_ARGUMENT_ERROR QUERY_ARGUMENT_ERROR"
+  },
+  "parameterHoldingEmptyText" : {
+    "@class" : "org.lowcoder.plugins.SmtpQueryExecutionContext",
+    "from" : "sender@example.com",
+    "to" : [ ],
+    "cc" : [ ],
+    "bcc" : [ ],
+    "replyTo" : [ ],
+    "subject" : "s",
+    "content" : "",
+    "attachments" : null,
+    "visitorId" : null
+  },
+  "missingParameter" : {
+    "@class" : "org.lowcoder.plugins.SmtpQueryExecutionContext",
+    "from" : "sender@example.com",
     "to" : [ ],
     "cc" : [ ],
     "bcc" : [ ],
