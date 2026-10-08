@@ -2,6 +2,7 @@ package org.lowcoder.api.home;
 
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
@@ -51,6 +52,7 @@ import java.util.stream.Collectors;
 import static java.util.Objects.isNull;
 import static org.lowcoder.domain.permission.model.ResourceAction.READ_APPLICATIONS;
 import static org.lowcoder.domain.permission.model.ResourceAction.READ_BUNDLES;
+import static org.lowcoder.domain.user.constant.UserStatusType.HAS_SHOW_NEW_USER_GUIDANCE;
 import static org.lowcoder.infra.util.MonoUtils.emptyIfNull;
 import static org.lowcoder.sdk.util.StreamUtils.collectList;
 
@@ -136,6 +138,9 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                         .orgAndRoles(orgAndRoles)
                                         .hasPassword(StringUtils.isNotBlank(user.getPassword()))
                                         .hasSetNickname(user.isHasSetNickname())
+                                        .hasShownNewUserGuidance(hasShownNewUserGuidance(userStatus))
+                                        // BF-132: a user stored without the flag is enabled, the User default
+                                        .isEnabled(BooleanUtils.isNotFalse(user.getIsEnabled()))
                                         .userStatus(userStatus.getStatusMap())
                                         .isOrgDev(isOrgDev)
                                         .createdTimeMs(user.getCreatedAt().toEpochMilli())
@@ -143,6 +148,15 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                         .build();
                             });
                 });
+    }
+
+    /**
+     * Whether the user was shown the new-user guidance: the {@code newUserGuidance} entry of the status map the profile
+     * also carries, which the client sets through mark-status, or else the stored flag (UserStatus.getStatusMap).
+     * BF-132: the profile's {@code hasShownNewUserGuidance} was never set, so it was always false.
+     */
+    private static boolean hasShownNewUserGuidance(UserStatus userStatus) {
+        return Boolean.TRUE.equals(userStatus.getStatusMap().get(HAS_SHOW_NEW_USER_GUIDANCE.getValue()));
     }
 
     @Override

@@ -77,8 +77,8 @@ import reactor.test.StepVerifier;
  * listings and the four marketplace / agency listings. Every collaborator is a mock; applications and bundles are real
  * model objects whose live DSL comes from a mocked {@link ApplicationRecordService}.
  *
- * <p>Pinned under D-6, plan §9 row "buildUserProfileView never sets hasShownNewUserGuidance or isEnabled" (test named
- * {@code *_pinsTheSection9Row}). The row "marketplace and agency listings fail" is fixed (BF-034): a DSL setting that is
+ * <p>The plan §9 row "buildUserProfileView never sets hasShownNewUserGuidance or isEnabled" is fixed (BF-132, test
+ * named {@code *BF132}). The row "marketplace and agency listings fail" is fixed (BF-034): a DSL setting that is
  * not text and a missing organization fall back instead of failing the listing (tests named {@code *BF034}).
  */
 class UserHomeApiServiceImplTest {
@@ -87,6 +87,8 @@ class UserHomeApiServiceImplTest {
     private static final String VISITOR = "visitor-1";
     private static final Instant CREATED = Instant.parse("2024-02-03T04:05:06Z");
     private static final Duration WAIT = Duration.ofSeconds(10);
+    /** The userStatus key of the new-user guidance (UserStatusType.HAS_SHOW_NEW_USER_GUIDANCE). */
+    private static final String NEW_USER_GUIDANCE = "newUserGuidance";
     /** An organization id with no organization row (a deleted organization). */
     private static final String DELETED_ORG = "org-gone";
 
@@ -251,21 +253,38 @@ class UserHomeApiServiceImplTest {
     }
 
     /**
-     * Pins plan §9 row "buildUserProfileView never sets hasShownNewUserGuidance or isEnabled": both profile fields are
-     * never set by the builder call, so they are always false, whatever the user status says.
+     * BF-132 (was pinned as plan §9 row "buildUserProfileView never sets hasShownNewUserGuidance or isEnabled"):
+     * hasShownNewUserGuidance is the {@code newUserGuidance} entry of the profile's own userStatus map (the map's entry,
+     * which the client writes through mark-status, else the stored flag), and isEnabled the user's flag, true when the
+     * stored user has none. Catches: either field left at its builder default false.
      */
-    @Test
-    void buildUserProfileView_neverFillsHasShownNewUserGuidanceOrIsEnabled_pinsTheSection9Row() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("guidanceAndEnabledCases")
+    void buildUserProfileView_fillsHasShownNewUserGuidanceAndIsEnabledBF132(String name, UserStatus status, Boolean enabled,
+            boolean expectedGuidance, boolean expectedEnabled) {
         User user = user("u1", "Ada", "x");
+        user.setIsEnabled(enabled);
         OrgMember current = OrgMember.builder().orgId("o1").userId("u1").role(MemberRole.MEMBER).build();
         stubProfile(user, List.of(current), current, List.of(org("o1", "One", null)), false);
-        when(userStatusService.findByUserId("u1")).thenReturn(Mono.just(UserStatus.builder().hasShowNewUserGuidance(true).build()));
+        when(userStatusService.findByUserId("u1")).thenReturn(Mono.just(status));
 
         UserProfileView view = service.buildUserProfileView(user, exchange()).block(WAIT);
 
-        assertThat(view.getUserStatus()).containsValue(true);
-        assertThat(view.isHasShownNewUserGuidance()).isFalse();
-        assertThat(view.isEnabled()).isFalse();
+        System.out.println("[UserHomeApiServiceImplTest] " + name + ": userStatus " + view.getUserStatus()
+                + " hasShownNewUserGuidance " + view.isHasShownNewUserGuidance() + " isEnabled " + view.isEnabled());
+        assertThat(view.isHasShownNewUserGuidance()).isEqualTo(expectedGuidance);
+        assertThat(view.getUserStatus().get(NEW_USER_GUIDANCE)).isEqualTo(expectedGuidance);
+        assertThat(view.isEnabled()).isEqualTo(expectedEnabled);
+    }
+
+    static Stream<Arguments> guidanceAndEnabledCases() {
+        return Stream.of(
+                Arguments.of("stored flag shown, enabled", UserStatus.builder().hasShowNewUserGuidance(true).build(), true, true, true),
+                Arguments.of("map entry shown (mark-status)", UserStatus.builder().statusMap(Map.of(NEW_USER_GUIDANCE, true)).build(), true, true, true),
+                Arguments.of("map entry not shown wins over the flag", UserStatus.builder().hasShowNewUserGuidance(true)
+                        .statusMap(Map.of(NEW_USER_GUIDANCE, false)).build(), true, false, true),
+                Arguments.of("no status, user without the flag", UserStatus.builder().id("u1").build(), null, false, true),
+                Arguments.of("disabled (deleted) user", UserStatus.builder().id("u1").build(), false, false, false));
     }
 
     /**
