@@ -1,7 +1,6 @@
 package org.lowcoder.api.framework.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Locale;
 import java.util.function.Function;
@@ -18,11 +17,15 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 /**
  * Tests of {@link GlobalContextServiceImpl#getClientLocale} for both request types.
  *
- * <p>Pinned under D-6, plan §9 row "malformed Accept-Language makes the error handler fail (LanguageRange.parse,
- * GlobalContextServiceImpl)": a malformed header makes both overloads throw IllegalArgumentException; the effect on
- * the client is shown in {@code CustomErrorWebExceptionHandlerTest}.
+ * <p>BF-144 (plan §9 row "malformed Accept-Language makes the error handler fail (LanguageRange.parse,
+ * GlobalContextServiceImpl)"), fixed: a malformed or empty header made both overloads throw IllegalArgumentException; it
+ * now gives English, as a missing header does. The effect on the client is shown in {@code CustomErrorWebExceptionHandlerTest}.
  */
 class GlobalContextServiceImplTest {
+
+    static final String MALFORMED = "this is !! not a language range";
+    private static final String EMPTY = "";
+    private static final String BAD_WEIGHT = "de;q=high";
 
     private final GlobalContextServiceImpl service = new GlobalContextServiceImpl();
 
@@ -70,13 +73,19 @@ class GlobalContextServiceImplTest {
         assertThat(locale).isEqualTo(Locale.forLanguageTag("fr"));
     }
 
-    /** Pins plan §9 row "malformed Accept-Language makes the error handler fail": the parse error is not caught. */
+    /**
+     * BF-144: a malformed header ({@value #MALFORMED}), an empty one and one with a weight that is no number give English
+     * for both request types, instead of an IllegalArgumentException. Catches: the parse failure escaping again.
+     */
     @ParameterizedTest
     @CsvSource({"false", "true"})
-    void malformedHeader_throwsIllegalArgument_pinsTheSection9Row(boolean functional) {
-        assertThatThrownBy(() -> resolve(functional, "this is !! not a language range"))
-                .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> resolve(functional, "")).isInstanceOf(IllegalArgumentException.class);
+    void malformedOrEmptyHeader_givesEnglishBF144(boolean functional) {
+        for (String header : new String[] {MALFORMED, EMPTY, BAD_WEIGHT}) {
+            Locale locale = resolve(functional, header);
+            System.out.println("[GlobalContextServiceImplTest] " + (functional ? "ServerRequest" : "ServerHttpRequest")
+                    + " '" + header + "' -> " + locale.toLanguageTag());
+            assertThat(locale).as(header).isEqualTo(Locale.ENGLISH);
+        }
     }
 
     @Test
