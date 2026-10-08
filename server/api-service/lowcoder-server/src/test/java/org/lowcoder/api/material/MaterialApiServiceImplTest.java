@@ -58,9 +58,9 @@ import reactor.test.StepVerifier;
  *
  * <p>BF-028 (plan §9 row "material upload deletes the old file before the new one is stored"), fixed: the replaced
  * material is removed only after the new file is stored, and a storage failure removes the new row and keeps the old
- * material ({@link #upload_whenTheStorageSaveFails_theNewRowIsRemovedAndTheOldMaterialStaysBF028}). Pinned under D-6, plan
- * §9 row "material quota counts the file being replaced":
- * {@link #upload_quotaCountsTheFileBeingReplaced_pinsTheSection9Row}. Pinned as
+ * material ({@link #upload_whenTheStorageSaveFails_theNewRowIsRemovedAndTheOldMaterialStaysBF028}). BF-140 (plan §9 row
+ * "material quota counts the file being replaced"), fixed: the replaced materials are not counted
+ * ({@link #upload_aSameSizeReplacementNearTheLimitIsAcceptedBF140}). Pinned as
  * behaviour (no row): a malformed base64 content is a synchronous IllegalArgumentException instead of a coded error
  * ({@link #upload_malformedBase64_throwsIllegalArgumentSynchronously_andTheClientGetsAGeneric500}).
  */
@@ -337,20 +337,58 @@ class MaterialApiServiceImplTest {
     }
 
     /**
-     * Pins plan §9 row "material quota counts the file being replaced" ({@code checkTotalSize}, MaterialApiServiceImpl:169-183):
-     * the org total includes the file that is being replaced, so a user near the quota cannot replace a LOGO with one
-     * of the same size: it is refused within one file size of the limit although the replacement does not grow the total.
+     * BF-140 (plan §9 row "material quota counts the file being replaced", {@code checkTotalSize}): the org total is
+     * counted without the material the upload replaces, so near the limit a LOGO is replaced by one of the same size (it
+     * was refused at 96/100 with a 5 byte old logo). Catches: the replaced size not deducted.
      */
     @Test
-    void upload_quotaCountsTheFileBeingReplaced_pinsTheSection9Row() {
+    void upload_aSameSizeReplacementNearTheLimitIsAcceptedBF140() {
         limitOverrides.put(TOTAL_LIMIT_KEY, 100L);
         when(metaService.totalSize(ORG)).thenReturn(Mono.just(96L));
         when(repository.findByOrgIdAndType(ORG, MaterialType.LOGO)).thenReturn(Flux.just(meta("old-logo", ORG, "logo.png", 5, MaterialType.LOGO)));
 
-        expectBizError(upload(bytes(5), MaterialType.LOGO), BizError.INVALID_MATERIAL_REQUEST, "EXCEEDS_ORG_SIZE_LIMIT");
+        StepVerifier.create(upload(bytes(5), MaterialType.LOGO)).expectNextCount(1).verifyComplete();
 
+        System.out.println("[MaterialApiServiceImplTest] same-size logo replacement at 96/100 with a 5 byte old logo: " + ops);
+        assertThat(ops).containsExactly("repo.save:LOGO:file.png", "storage.save:new-id", "storage.delete:old-logo", "repo.delete:old-logo");
+    }
+
+    /**
+     * BF-140: a replacement that grows the total is still limited: 96 - 5 + 9 = 100 passes, 96 - 5 + 10 = 101 fails and
+     * nothing changes. Catches: the replaced size deducted twice, or the comparison moved off by one.
+     */
+    @Test
+    void upload_aReplacementIsLimitedByItsGrowthBF140() {
+        limitOverrides.put(TOTAL_LIMIT_KEY, 100L);
+        when(metaService.totalSize(ORG)).thenReturn(Mono.just(96L));
+        when(repository.findByOrgIdAndType(ORG, MaterialType.LOGO)).thenReturn(Flux.just(meta("old-logo", ORG, "logo.png", 5, MaterialType.LOGO)));
+
+        StepVerifier.create(upload(bytes(9), MaterialType.LOGO)).expectNextCount(1).verifyComplete();
+        ops.clear();
+
+        expectBizError(upload(bytes(10), MaterialType.LOGO), BizError.INVALID_MATERIAL_REQUEST, "EXCEEDS_ORG_SIZE_LIMIT");
         assertThat(ops).as("the old logo stays").isEmpty();
-        System.out.println("[MaterialApiServiceImplTest] same-size logo replacement refused at 96/100 with a 5 byte old logo");
+    }
+
+    /**
+     * BF-140: every material the upload replaces is deducted: a COMMON file of the same name, and two rows of a LOGO
+     * (a row a failed removal left beside the logo, see {@code storeOrRemoveRow}). Catches: only the first replaced
+     * material deducted, or only for LOGO and FAVICON.
+     */
+    @Test
+    void upload_everyReplacedMaterialIsDeductedBF140() {
+        limitOverrides.put(TOTAL_LIMIT_KEY, 100L);
+        when(metaService.totalSize(ORG)).thenReturn(Mono.just(98L));
+        when(repository.findByOrgIdAndFilenameAndType(ORG, "file.png", MaterialType.COMMON))
+                .thenReturn(Flux.just(meta("old-common", ORG, "file.png", 8, MaterialType.COMMON)));
+        when(repository.findByOrgIdAndType(ORG, MaterialType.LOGO))
+                .thenReturn(Flux.just(meta("old-logo", ORG, "logo.png", 4, MaterialType.LOGO), meta("stale-logo", ORG, "logo.png", 4, MaterialType.LOGO)));
+
+        StepVerifier.create(upload(bytes(10), MaterialType.COMMON)).expectNextCount(1).verifyComplete();
+        StepVerifier.create(upload(bytes(10), MaterialType.LOGO)).expectNextCount(1).verifyComplete();
+
+        System.out.println("[MaterialApiServiceImplTest] 98/100, a 10 byte COMMON over 8 bytes and a 10 byte LOGO over 4 + 4 bytes: " + ops);
+        assertThat(ops).contains("repo.delete:old-common", "repo.delete:old-logo", "repo.delete:stale-logo");
     }
 
     // ------------------------------------------------------- storage failure
