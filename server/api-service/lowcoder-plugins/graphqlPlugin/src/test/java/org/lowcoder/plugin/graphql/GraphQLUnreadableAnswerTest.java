@@ -4,12 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.contract.RecordingHttpServer;
 import org.lowcoder.sdk.contract.RecordingHttpServer.Response;
 import org.lowcoder.sdk.models.QueryExecutionResult;
+import org.lowcoder.sdk.util.LocaleUtils;
 import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
 
 /**
@@ -17,9 +19,7 @@ import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
  * result with query code {@code GRAPHQL_EXECUTION_ERROR} (GraphQLExecutor's {@code onErrorResume}). Since BF-113 a 3xx
  * without a Location no longer reaches it; an answer whose {@code Content-Type} is not a media type does: reading it
  * fails with Spring's InvalidMediaTypeException. One request is sent.
- * <p>
- * Limits: the result's message is not asserted, as the key {@code GRAPHQL_EXECUTION_ERROR} is in no locale bundle
- * (BF-115).
+ * The result's message names the error (BF-115: the key {@code GRAPHQL_EXECUTION_ERROR} was in no locale bundle).
  */
 class GraphQLUnreadableAnswerTest {
 
@@ -27,6 +27,7 @@ class GraphQLUnreadableAnswerTest {
     private static final String NOT_A_MEDIA_TYPE = "not a media type";
     private static final String BODY = "{}";
     private static final int OK = 200;
+    private static final String EXECUTION_ERROR_PREFIX = "GraphQL execution error: ";
 
     private final GraphQLCallSupport support = new GraphQLCallSupport();
 
@@ -43,6 +44,9 @@ class GraphQLUnreadableAnswerTest {
             assertThat(result.isSuccess()).isFalse();
             assertThat(result.getQueryCode()).isEqualTo(GraphQLError.GRAPHQL_EXECUTION_ERROR.name());
             assertThat(result.getData()).isNull();
+            String message = LocaleUtils.getMessage(Locale.ENGLISH, result.getLocaleMessage());
+            System.out.println("[GraphQLUnreadableAnswerTest] message: " + message);
+            assertThat(message).startsWith(EXECUTION_ERROR_PREFIX).contains(NOT_A_MEDIA_TYPE);
             assertThat(server.requests()).hasSize(1);
         }
     }

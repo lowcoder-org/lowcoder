@@ -31,6 +31,7 @@ public class MaterialApiServiceImpl implements MaterialApiService {
 
     private static final long DEFAULT_SINGLE_FILE_SIZE_LIMIT = 20 * ONE_MB;
     private static final long DEFAULT_TOTAL_STORAGE_SIZE_LIMIT = 2 * ONE_GB;
+    private static final String MATERIAL_NOT_FOUND = "MATERIAL_NOT_FOUND";
 
     @Autowired
     private MaterialMetaService materialMetaService;
@@ -138,7 +139,7 @@ public class MaterialApiServiceImpl implements MaterialApiService {
     @Override
     public Mono<Void> delete(String id) {
         return materialMetaService.findById(id)
-                .switchIfEmpty(Mono.defer(() -> Mono.error(new BizException(BizError.INVALID_PARAMETER, "10095"))))
+                .switchIfEmpty(Mono.defer(() -> Mono.error(new BizException(BizError.INVALID_PARAMETER, MATERIAL_NOT_FOUND, id))))
                 .delayUntil(materialMeta -> checkMaterialOrg(materialMeta.getOrgId()))
                 .delayUntil(__ -> orgDevChecker.checkCurrentOrgDev())
                 .delayUntil(__ -> materialMetaService.deleteById(id))
