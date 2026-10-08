@@ -114,7 +114,8 @@ class BiRelationServiceImplTest {
         Boolean modified = service.upsert(changed).block(TIMEOUT);
         service.upsert(otherType).block(TIMEOUT);
 
-        assertThat(List.of(inserted, unchanged, modified)).containsExactly(false, false, true);
+        // BF-134: the insert answers true, a repeat that changes nothing false
+        assertThat(List.of(inserted, unchanged, modified)).containsExactly(true, false, true);
         assertThat(service.getBySourceId(BIZ_TYPE, id("s")).collectList().block(TIMEOUT)).singleElement()
                 .satisfies(row -> assertThat(row.getRelation()).isEqualTo(id("r2")));
         assertThat(service.getBySourceId(OTHER_BIZ_TYPE, id("s")).collectList().block(TIMEOUT)).hasSize(1);
