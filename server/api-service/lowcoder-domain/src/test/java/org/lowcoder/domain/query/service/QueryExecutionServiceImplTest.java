@@ -39,6 +39,7 @@ import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.common.QueryExecutor;
 import org.lowcoder.sdk.query.QueryExecutionContext;
 import org.lowcoder.sdk.query.QueryVisitorContext;
+import org.lowcoder.sdk.util.JsonUtils;
 import org.springframework.http.HttpCookie;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -300,6 +301,62 @@ class QueryExecutionServiceImplTest {
 
         assertThat(events).isEmpty();
         System.out.println("[QueryExecutionServiceImplTest] auth type " + authType + " -> the token is not requested");
+    }
+
+    /**
+     * NEW-37 (GitHub #2036): a token written with spaces inside the braces, anywhere in the query config, gets the value of
+     * its trimmed key once more under the text as written, which is the key node-service looks up. Catches: the spaced key
+     * missing (node-service finds nothing and the parameter is dropped), a key added for a token without spaces or without a
+     * value, or a parameter already sent under that text replaced.
+     */
+    @Test
+    void executeQuery_jsPlugin_addsTheKeyAsWrittenForATokenWithSpacesNEW37() {
+        JsDatasourceConnectionConfig config = jsConfigWithAuthType(null);
+        Map<String, Object> queryConfig = new HashMap<>();
+        queryConfig.put("password", "{{ui_newPassword.value }}");
+        queryConfig.put("params", List.of(Map.of("value", "pre {{  user.id}} and {{plain}} and {{ unknown }}"), "{{ kept }}"));
+        Map<String, Object> params = new HashMap<>();
+        params.put("ui_newPassword.value", "s3cret");
+        params.put("user.id", null);
+        params.put("plain", "p");
+        params.put("kept", "trimmed value");
+        params.put(" kept ", "sent as written");
+        when(pluginClient.executeQuery(eq(JS_TYPE), any(), any(), any())).thenReturn(Mono.just(success));
+
+        StepVerifier.create(service.executeQuery(jsDatasource(config), queryConfig, params, "", visitor())).expectNext(success).verifyComplete();
+
+        org.mockito.ArgumentCaptor<List<Map<String, Object>>> context = org.mockito.ArgumentCaptor.forClass(List.class);
+        verify(pluginClient).executeQuery(eq(JS_TYPE), eq(queryConfig), context.capture(), eq(config));
+        List<Map<String, Object>> sent = context.getValue();
+        System.out.println("[QueryExecutionServiceImplTest] NEW-37 context: " + JsonUtils.toJson(sent));
+        Map<String, Object> userId = new HashMap<>();
+        userId.put("key", "  user.id");
+        userId.put("value", null);
+        assertThat(sent.subList(params.size(), sent.size())).containsExactlyInAnyOrder(
+                Map.of("key", "ui_newPassword.value ", "value", "s3cret"), userId);
+        assertThat(sent).filteredOn(entry -> " kept ".equals(entry.get("key"))).containsExactly(Map.of("key", " kept ", "value", "sent as written"));
+    }
+
+    /**
+     * NEW-37: with tokens inherited from the login, a spaced token naming one of them gets its value too (added after the
+     * injection). A request parameter of the same name comes earlier in the context and loses in node-service
+     * ({@code Object.fromEntries}: the last entry wins), so the spaced token gets the inherited token, as the unspaced one
+     * does. Catches: the value copied from the first entry of a key, letting a parameter shadow the inherited token.
+     */
+    @Test
+    void executeQuery_jsPluginWithOauth2InheritFromLogin_addsTheKeyAsWrittenForATokenNEW37() {
+        JsDatasourceConnectionConfig config = jsConfigWithAuthType("OAUTH2_INHERIT_FROM_LOGIN");
+        Map<String, Object> queryConfig = new HashMap<>(Map.of("header", "Bearer {{ access_token }}"));
+        when(pluginClient.executeQuery(eq(JS_TYPE), any(), any(), any())).thenReturn(Mono.just(success));
+
+        StepVerifier.create(service.executeQuery(jsDatasource(config), queryConfig, Map.of("access_token", "from the request"), "",
+                visitor(new LinkedMultiValueMap<>(), Mono.just(List.of(new Property("access_token", "tok-1")))))).expectNext(success).verifyComplete();
+
+        org.mockito.ArgumentCaptor<List<Map<String, Object>>> context = org.mockito.ArgumentCaptor.forClass(List.class);
+        verify(pluginClient).executeQuery(eq(JS_TYPE), eq(queryConfig), context.capture(), eq(config));
+        System.out.println("[QueryExecutionServiceImplTest] NEW-37 oauth2 context: " + context.getValue());
+        assertThat(context.getValue()).containsExactly(Map.of("key", "access_token", "value", "from the request"),
+                Map.of("key", "access_token", "value", "tok-1"), Map.of("key", " access_token ", "value", "tok-1"));
     }
 
     // ---------------------------------------------------------------- error mapping
