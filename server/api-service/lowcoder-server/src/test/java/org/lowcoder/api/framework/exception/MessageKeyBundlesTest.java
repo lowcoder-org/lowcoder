@@ -7,6 +7,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,13 +50,30 @@ import org.lowcoder.api.contract.support.JsonBoundaryScanner;
  * <p>
  * Limits: the keys behind {@link #RUN_TIME_KEYS} and {@link #UNREAD_CALLS} are not checked here (each reason names where
  * they are); a key passed to a helper of another name, or held in an annotation, an enum or a map literal
- * ({@code SystemGroups}), is not read; a declaration is told from a call by the word before its name only. {@code locale_de} is partial (NEW-35); only that its keys are keys of {@code locale_en} is asserted.
+ * ({@code SystemGroups}), is not read; a declaration is told from a call by the word before its name only.
+ * {@code locale_de} is partial (NEW-35); only that its keys are keys of {@code locale_en} is asserted.
+ * <p>
+ * Every text of the three bundles is a valid {@code MessageFormat} pattern whose apostrophes are literal quoting (T110:
+ * BF-116, {@code CONTENT_PARSE_ERROR} could not be formatted). Limit: the number of arguments a text uses is not compared
+ * with the arguments its call sites pass.
  */
 class MessageKeyBundlesTest {
 
     private static final String BUNDLE_BASE_NAME = "locale";
     private static final List<Locale> REQUIRED_LOCALES = List.of(Locale.ENGLISH, Locale.CHINESE);
     private static final Locale PARTIAL_LOCALE = Locale.GERMAN;
+    private static final List<Locale> ALL_LOCALES = List.of(Locale.ENGLISH, Locale.CHINESE, Locale.GERMAN);
+    /** MessageFormat's quoting that writes a literal: an apostrophe, an opening brace, a closing brace. */
+    private static final Pattern LITERAL_QUOTES = Pattern.compile("''|'\\{'|'\\}'");
+    private static final String APOSTROPHE = "'";
+    private static final Object[] SAMPLE_ARGUMENTS = {"A0", "A1", "A2", "A3"};
+    /** Texts of BF-116 and of the same root, as a reader must see them (key, language, text formatted with "A0"). */
+    private static final List<String[]> FORMATTED_TEXTS = List.of(
+            new String[] {"CONTENT_PARSE_ERROR", "en",
+                    "Resolve upload data failed, it requires format {data:base64 string, name:string} or an array of it"},
+            new String[] {"PASSWORD_NOT_SET_YET", "en", "This user hasn't set password yet and cannot be reset."},
+            new String[] {"DUPLICATE_COLUMN", "de",
+                    "Doppelte Spalten gefunden: A0, bitte verwenden Sie das Schlüsselwort 'as', um doppelte Spalten umzubenennen."});
     private static final ResourceBundle.Control NO_FALLBACK =
             ResourceBundle.Control.getNoFallbackControl(ResourceBundle.Control.FORMAT_PROPERTIES);
 
@@ -215,6 +233,38 @@ class MessageKeyBundlesTest {
         Set<String> notEnglish = german.stream().filter(key -> !english.contains(key)).collect(Collectors.toCollection(TreeSet::new));
         System.out.println("[MessageKeyBundlesTest] de " + german.size() + " of " + english.size() + " keys (NEW-35), not in en " + notEnglish);
         assertThat(notEnglish).isEmpty();
+    }
+
+    /**
+     * Every text of every bundle is a valid {@link MessageFormat} pattern, and an apostrophe in it is quoting that writes a
+     * literal ({@code ''}, {@code '{'}, {@code '}'}); BF-116: an unquoted {@code {...}} made {@code LocaleUtils.getMessage}
+     * throw, and a single apostrophe is dropped together with the quoting it opens.
+     */
+    @Test
+    void everyBundleTextIsAMessageFormatWhoseApostrophesAreLiteralBF116() {
+        Map<String, String> problems = new TreeMap<>();
+        for (Locale locale : ALL_LOCALES) {
+            ResourceBundle bundle = bundle(locale);
+            for (String key : bundle.keySet()) {
+                String text = bundle.getString(key);
+                try {
+                    new MessageFormat(text).format(SAMPLE_ARGUMENTS);
+                } catch (IllegalArgumentException e) {
+                    problems.put(locale + RUN_TIME_KEY_SEPARATOR + key, "not a MessageFormat: " + e.getMessage());
+                    continue;
+                }
+                if (LITERAL_QUOTES.matcher(text).replaceAll("").contains(APOSTROPHE)) {
+                    problems.put(locale + RUN_TIME_KEY_SEPARATOR + key, "an apostrophe that is no literal: " + text);
+                }
+            }
+        }
+        System.out.println("[MessageKeyBundlesTest] bundle texts that do not format as written " + problems);
+        assertThat(problems).isEmpty();
+        for (String[] expected : FORMATTED_TEXTS) {
+            String formatted = new MessageFormat(bundle(Locale.forLanguageTag(expected[1])).getString(expected[0])).format(SAMPLE_ARGUMENTS);
+            System.out.println("[MessageKeyBundlesTest] " + expected[1] + " " + expected[0] + ": " + formatted);
+            assertThat(formatted).isEqualTo(expected[2]);
+        }
     }
 
     @Test
