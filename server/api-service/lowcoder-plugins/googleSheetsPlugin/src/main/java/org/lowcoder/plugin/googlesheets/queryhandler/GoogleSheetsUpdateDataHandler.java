@@ -61,14 +61,16 @@ public class GoogleSheetsUpdateDataHandler extends GoogleSheetsActionHandler {
                             .execute()
                             .getValues();
                     List<List<Object>> collect;
-                    List<Object> headerList = values1.get(0);
+                    // BF-120: an empty header row (no values) matches no change-set column
+                    List<Object> headerList = GoogleSheetsGetPreParameters.firstRow(values1);
                     if (values2 == null) {
                         throw new PluginException(GOOGLESHEETS_REQUEST_ERROR, "GOOGLESHEETS_REQUEST_ERROR");
                     }
                     List<Object> valuesList = values2.get(0);
                     Map<String, String> returnMap = new LinkedHashMap<>();
                     String[] valuesArray = new String[headerList.size()];
-                    for (int i = 0; i < valuesList.size(); i++) {
+                    // a cell right of the last header has no column (BF-120: an empty header row has none at all)
+                    for (int i = 0; i < Math.min(valuesList.size(), valuesArray.length); i++) {
                         valuesArray[i] = (String) valuesList.get(i);
                     }
                     for (int i = 0; i < headerList.size(); i++) {
