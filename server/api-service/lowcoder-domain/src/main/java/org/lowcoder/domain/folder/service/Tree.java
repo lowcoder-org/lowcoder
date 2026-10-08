@@ -63,6 +63,9 @@ public class Tree<T, F> extends FolderNode<T, F> {
         this.folderIdsOnAParentCycle = findFolderIdsOnAParentCycle();
         mount(this.folderId2FolderNodeMap.values());
         mount(elements.stream().map(element -> new ElementNode<T, F>(element, elementNodeParentIdExtractor)).toList());
+        // BF-137: every folder's children, and the root's, in the comparator's order
+        this.folderId2FolderNodeMap.values().forEach(FolderNode::sortChildren);
+        sortChildren();
     }
 
     private void mount(Collection<? extends Node<T, F>> nodes) {
