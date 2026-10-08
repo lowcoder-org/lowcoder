@@ -533,7 +533,7 @@ class BundleEndpointsUnitTest {
                 .userPermissions(List.of())
                 .build();
         
-        when(bundleApiService.getPermissions(anyString()))
+        when(bundleApiService.getBundlePermissions(anyString()))
                 .thenReturn(Mono.just(permissionView));
 
         // When
@@ -548,7 +548,7 @@ class BundleEndpointsUnitTest {
                 .verifyComplete();
         
         verify(gidService).convertBundleIdToObjectId(eq(bundleId));
-        verify(bundleApiService).getPermissions(eq("objectId"));
+        verify(bundleApiService).getBundlePermissions(eq("objectId"));
     }
 
     @Test

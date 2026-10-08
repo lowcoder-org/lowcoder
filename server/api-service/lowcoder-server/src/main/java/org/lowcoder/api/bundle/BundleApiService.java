@@ -53,8 +53,6 @@ public interface BundleApiService {
 
     Mono<Boolean> removePermission(String bundleId, String permissionId);
 
-    Mono<BundlePermissionView> getPermissions(String bundleId);
-
     Mono<BundleInfoView> buildBundleInfoView(Bundle bundle, boolean visible, boolean manageable, String folderId);
 
     Mono<Boolean> setBundlePublicToAll(String bundleId, boolean publicToAll);

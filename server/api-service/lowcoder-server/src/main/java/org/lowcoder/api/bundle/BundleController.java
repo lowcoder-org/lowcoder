@@ -189,10 +189,15 @@ public class BundleController implements BundleEndpoints
                 .then(Mono.fromSupplier(() -> ResponseView.success(null))));
     }
 
+    /**
+     * The permissions of a bundle, for a visitor who may read it (BF-145: this called a second listing that looked the
+     * organization up by the creator's user id, so it always failed, and checked no permission; it now uses
+     * {@code getBundlePermissions}, which checks READ_BUNDLES, requires a NORMAL bundle and reads the bundle's organization).
+     */
     @Override
     public Mono<ResponseView<BundlePermissionView>> getBundlePermissions(@PathVariable String bundleId) {
         return gidService.convertBundleIdToObjectId(bundleId).flatMap(objectId ->
-            bundleApiService.getPermissions(objectId)
+            bundleApiService.getBundlePermissions(objectId)
                 .map(ResponseView::success));
     }
 
