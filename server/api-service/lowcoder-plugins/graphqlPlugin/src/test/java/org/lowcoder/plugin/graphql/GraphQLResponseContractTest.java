@@ -52,7 +52,7 @@ public class GraphQLResponseContractTest {
     static final String UTF8_HEADER = "X-Utf8-Bytes";
     static final String UTF8_HEADER_TEXT = "žluť";
     static final String QUERY = "query { items { id } }";
-    /** The query's variables as the editor sends them; {@code buildQueryExecutionContext} fails without the list. */
+    /** The query's variables as the editor sends them (without the list the context has no variables, BF-161). */
     static final List<Map<String, String>> VARIABLES = List.of(Map.of("key", "limit", "value", "10"));
     static final byte[] IMAGE_BYTES = {(byte) 0x89, 'P', 'N', 'G', 0, 1, (byte) 0xFF};
     static final int OK = 200;

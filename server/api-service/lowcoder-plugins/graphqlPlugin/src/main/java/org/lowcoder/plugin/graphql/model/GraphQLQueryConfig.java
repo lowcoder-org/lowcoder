@@ -64,4 +64,13 @@ public class GraphQLQueryConfig {
     public List<Property> getBodyFormData() {
         return emptyIfNull(bodyFormData);
     }
+
+    /**
+     * The GraphQL variables, empty when the query config has no {@code variables} key, as the other lists are (BF-161: the
+     * executor iterated a null list, a raw NullPointerException). The client's GraphQL form always writes the key, so only
+     * a query config written outside it lacks it.
+     */
+    public List<Property> getVariables() {
+        return emptyIfNull(variables);
+    }
 }
