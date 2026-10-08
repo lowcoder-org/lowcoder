@@ -234,25 +234,25 @@ class MongoUpsertHelperTest {
     }
 
     @Test
-    void upsertOfAResourceInsertsThenReportsModifiedOnlyWhenARowChanged() {
+    void upsertOfAResourceReportsTheInsertAndAChangeButNotAnUnchangedMatchBF134() {
         Boolean inserted = helper.upsert(relation(source("a"), "v1"), SOURCE_ID, source("a")).block(TIMEOUT);
         Boolean unchanged = helper.upsert(relation(source("a"), "v1"), SOURCE_ID, source("a")).block(TIMEOUT);
         Boolean changed = helper.upsert(relation(source("a"), "v2"), Criteria.where(SOURCE_ID).is(source("a"))).block(TIMEOUT);
 
         System.out.println("[MongoUpsertHelperTest] upsert resource " + inserted + ", " + unchanged + ", " + changed);
-        assertThat(List.of(inserted, unchanged, changed)).containsExactly(false, false, true);
+        assertThat(List.of(inserted, unchanged, changed)).containsExactly(true, false, true);
         assertThat(count(source("a"))).isEqualTo(1);
     }
 
     @Test
-    void upsertOfAnUpdateInsertsThenReportsModifiedOnlyWhenARowChanged() {
+    void upsertOfAnUpdateReportsTheInsertAndAChangeButNotAnUnchangedMatchBF134() {
         Boolean inserted = helper.upsert(new Update().set("relation", "v1"), SOURCE_ID, source("a"), BiRelation.class).block(TIMEOUT);
         Boolean unchanged = helper.upsert(new Update().set("relation", "v1"), Criteria.where(SOURCE_ID).is(source("a")), BiRelation.class)
                 .block(TIMEOUT);
         Boolean changed = helper.upsert(new Update().set("relation", "v2"), SOURCE_ID, source("a"), BiRelation.class).block(TIMEOUT);
 
         System.out.println("[MongoUpsertHelperTest] upsert update " + inserted + ", " + unchanged + ", " + changed);
-        assertThat(List.of(inserted, unchanged, changed)).containsExactly(false, false, true);
+        assertThat(List.of(inserted, unchanged, changed)).containsExactly(true, false, true);
         assertThat(count(source("a"))).isEqualTo(1);
     }
 

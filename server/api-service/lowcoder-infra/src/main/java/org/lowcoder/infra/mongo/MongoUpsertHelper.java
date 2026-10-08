@@ -143,9 +143,14 @@ public class MongoUpsertHelper {
         return upsert(update, criteria, newResource.getClass());
     }
 
+    /**
+     * Applies {@code update} to the first document {@code criteria} matches, or inserts one, and answers whether a document
+     * was written: true for an insert and for a change, false for a match that the update leaves as it was (BF-134: an
+     * insert answered false, since only the modified count was read). The other upsert overloads answer the same.
+     */
     public Mono<Boolean> upsert(Update update, Criteria criteria, Class<?> collection) {
         return reactiveMongoTemplate.upsert(new Query(criteria), update, collection)
-                .map(updateResult -> updateResult.getModifiedCount() > 0);
+                .map(updateResult -> updateResult.getModifiedCount() > 0 || updateResult.getUpsertedId() != null);
     }
 
     @SuppressWarnings("unchecked")
