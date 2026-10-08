@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * Unit SN-2 (task L5-7): what {@link SnowflakeConnector#setUpConfigs} puts on the Hikari config: the JDBC URL of the account
@@ -24,6 +24,7 @@ public class SnowflakeConnectorConfigTest {
     static final String PASSWORD = "secret";
     static final String DRIVER = "net.snowflake.client.jdbc.SnowflakeDriver";
     static final String URL_PREFIX = "jdbc:snowflake://";
+    static final String PASSWORD_PROPERTY = "password";
 
     private final SnowflakeConnector connector = new SnowflakeConnector();
 
@@ -80,17 +81,20 @@ public class SnowflakeConnectorConfigTest {
     }
 
     /**
-     * Pins the plan section 9 row "Snowflake connector NPE on a null password (addDataSourceProperty)" (D-6: fix deferred):
-     * the config returns the password as stored, and a data source saved without one (the form's password field is not
-     * required, pages/datasource/form.tsx in the client) has {@code null}; {@code HikariConfig.addDataSourceProperty} puts it
-     * into a {@code Properties}, which rejects null values, so setting up the pool fails with a bare
-     * {@link NullPointerException}. A fix (skipping a null password, as the other connectors do) changes this test on purpose.
+     * BF-112 (fixed; was pinned as the plan section 9 row "Snowflake connector NPE on a null password
+     * (addDataSourceProperty)"): a data source saved without a password (the form's password field is not required,
+     * pages/datasource/form.tsx in the client) sets no {@code password} property; it was put into the Hikari config's
+     * {@code Properties}, which rejects null values, and setting up the pool failed with a bare NullPointerException. An
+     * empty password is still set as given.
      */
     @Test
-    public void nullPasswordFailsWithANullPointerException_pinsTheSection9Row() {
-        NullPointerException thrown = assertThrows(NullPointerException.class, () -> configured(ACCOUNT, DATABASE, USER, null));
-        System.out.println("[SnowflakeConnectorConfigTest] null password: " + thrown + " at " + thrown.getStackTrace()[0] + " / " + thrown.getStackTrace()[1]);
-        assertEquals("java.util.concurrent.ConcurrentHashMap", thrown.getStackTrace()[0].getClassName(), "the Properties map of the Hikari config rejects the null value");
-        assertEquals("", configured(ACCOUNT, DATABASE, USER, "").getDataSourceProperties().get("password"), "an empty password is accepted");
+    public void aNullPasswordSetsNoPasswordPropertyBF112() {
+        Properties properties = configured(ACCOUNT, DATABASE, USER, null).getDataSourceProperties();
+
+        assertFalse(properties.containsKey(PASSWORD_PROPERTY), "no password property");
+        assertEquals(DATABASE, properties.get("db"));
+        assertEquals(USER, properties.get("user"));
+        assertEquals(2, properties.size(), "only db and user are set");
+        assertEquals("", configured(ACCOUNT, DATABASE, USER, "").getDataSourceProperties().get(PASSWORD_PROPERTY), "an empty password is set");
     }
 }
