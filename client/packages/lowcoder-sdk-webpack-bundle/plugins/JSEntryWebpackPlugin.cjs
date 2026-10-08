@@ -59,6 +59,7 @@ class JSEntryWebpackPlugin {
         let scripts = ${JSON.stringify(assets.js)};
         for (let i = 0; i < scripts.length; i++) {
           const scriptEle = document.createElement('script');
+          scriptEle.async = false;
           scriptEle.src = scripts[i];
           document.body.appendChild(scriptEle);
         }
