@@ -1,8 +1,12 @@
 package org.lowcoder.sdk.webclient;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import jakarta.annotation.Nullable;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,6 +38,21 @@ public final class WebClientRedirects {
             HttpHeaders.USER_AGENT.toLowerCase(Locale.ROOT));
 
     private WebClientRedirects() {
+    }
+
+    /**
+     * The {@code Location} a {@code 3xx} answer redirects to: its first {@code Location} value, or null when the answer is
+     * not a {@code 3xx} or has no {@code Location} that is not blank (a {@code 304 Not Modified}, a {@code 300 Multiple
+     * Choices} without a preferred choice), which the caller then reads as an answer like any other (BF-113: it was read
+     * as a redirect, and the empty header list failed with "Index: 0").
+     */
+    @Nullable
+    public static String redirectLocation(ClientResponse response) {
+        if (!response.statusCode().is3xxRedirection()) {
+            return null;
+        }
+        List<String> locations = response.headers().header(HttpHeaders.LOCATION);
+        return locations.isEmpty() || StringUtils.isBlank(locations.get(0)) ? null : locations.get(0);
     }
 
     /**

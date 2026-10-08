@@ -2,6 +2,9 @@ package org.lowcoder.plugin.graphql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -10,35 +13,82 @@ import org.lowcoder.sdk.contract.RecordingHttpServer;
 import org.lowcoder.sdk.contract.RecordingHttpServer.Response;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
+import org.springframework.http.HttpStatus;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Streams;
 
 /**
- * DEFECT pinned for the GraphQL executor (plan section 9 row on a 3xx without Location, "restApi: a 3xx without
- * Location..." with its graphql clause; D-6, fix deferred): an answer with a 3xx status and no {@code Location} header,
- * for example 304 Not Modified, is treated as a redirect and {@code response.headers().header("Location").get(0)}
- * (GraphQLExecutor.java:344) reads an empty list. Unlike the REST executor, which throws a PluginException, the GraphQL
- * executor's error handler (:282-292) turns the index error into a failed {@code QueryExecutionResult} with query code
- * {@code GRAPHQL_EXECUTION_ERROR} and no data: the caller gets no exception and no status or header of the answer. One
- * request is sent. The obvious fix is to treat a 3xx without a Location as an ordinary response, which turns this test
- * red.
+ * BF-113 for the GraphQL executor (fixed; was pinned as the plan section 9 row on a 3xx without Location, with its graphql
+ * clause): an answer with a 3xx status and no {@code Location} header (or a blank one), for example 304 Not Modified, is
+ * an answer like any other: the query result of a status that is not 2xx, {@code HTTP<status name>}, with the answer's
+ * headers and body. It was read as a
+ * redirect, the empty header list failed with an index error, and the executor's error handler answered a failed result
+ * with query code {@code GRAPHQL_EXECUTION_ERROR}, without the answer's status. One request is sent.
  */
 class GraphQLRedirectWithoutLocationTest {
+
+    private static final String PATH = "/moved";
+    private static final String HTTP_CODE_PREFIX = "HTTP";
+    private static final String LOCATION = "Location";
+    private static final String BLANK = " ";
+    private static final String ANSWER_HEADER = "X-Answer";
+    private static final String ANSWER_HEADER_VALUE = "kept";
+    private static final String ANSWER_FIELD = "answer";
+    private static final String ANSWER_BODY = "{\"" + ANSWER_FIELD + "\":\"" + ANSWER_HEADER_VALUE + "\"}";
+    private static final String CONTENT_TYPE = "Content-Type";
+    private static final String JSON = "application/json";
+    /** A 304 has no body; the other statuses carry {@link #ANSWER_BODY}. */
+    private static final int NOT_MODIFIED = 304;
 
     private final GraphQLCallSupport support = new GraphQLCallSupport();
 
     @ParameterizedTest(name = "status {0}")
     @ValueSource(ints = {301, 302, 304})
-    void aRedirectStatusWithoutALocationGivesAFailedResultWithoutDataOrStatus(int status) {
-        try (RecordingHttpServer server = RecordingHttpServer.start(Map.of("/moved", new Response(status, Map.of(), null)))) {
-            GraphQLDatasourceConfig datasource = GraphQLDatasourceConfig.builder().url(server.baseUrl() + "/moved").build();
+    void aRedirectStatusWithoutALocationIsAnOrdinaryAnswerBF113(int status) {
+        assertOrdinaryAnswer(status, answer(status, Map.of()));
+    }
+
+    @ParameterizedTest(name = "status {0}")
+    @ValueSource(ints = {302, 307})
+    void aRedirectStatusWithABlankLocationIsAnOrdinaryAnswerBF113(int status) {
+        assertOrdinaryAnswer(status, answer(status, Map.of(LOCATION, List.of(BLANK))));
+    }
+
+    /** An answer with {@code headers}, the {@link #ANSWER_HEADER} and, unless a 304, the JSON {@link #ANSWER_BODY}. */
+    private static Response answer(int status, Map<String, List<String>> headers) {
+        Map<String, List<String>> all = new HashMap<>(headers);
+        all.put(ANSWER_HEADER, List.of(ANSWER_HEADER_VALUE));
+        if (status == NOT_MODIFIED) {
+            return new Response(status, all, null);
+        }
+        all.put(CONTENT_TYPE, List.of(JSON));
+        return new Response(status, all, ANSWER_BODY.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /** The values of the result header named {@code name}, compared without case (the test server normalizes names). */
+    private static JsonNode header(QueryExecutionResult result, String name) {
+        JsonNode headers = result.getHeaders();
+        return Streams.stream(headers.fieldNames()).filter(name::equalsIgnoreCase).findFirst().map(headers::get).orElse(null);
+    }
+
+    private void assertOrdinaryAnswer(int status, Response response) {
+        try (RecordingHttpServer server = RecordingHttpServer.start(Map.of(PATH, response))) {
+            GraphQLDatasourceConfig datasource = GraphQLDatasourceConfig.builder().url(server.baseUrl() + PATH).build();
 
             QueryExecutionResult result = support.run(datasource, GraphQLCallSupport.query(), GraphQLCallSupport.visitor(null, null));
 
-            System.out.println("[GraphQLRedirectWithoutLocationTest] " + status + " without Location -> success=" + result.isSuccess()
+            System.out.println("[GraphQLRedirectWithoutLocationTest] " + status + " " + response.headers() + " -> success=" + result.isSuccess()
                     + " code=" + result.getQueryCode() + " data=" + result.getData());
             assertThat(result.isSuccess()).isFalse();
-            assertThat(result.getQueryCode()).isEqualTo("GRAPHQL_EXECUTION_ERROR");
-            assertThat(result.getData()).isNull();
+            assertThat(result.getQueryCode()).isEqualTo(HTTP_CODE_PREFIX + HttpStatus.valueOf(status).name());
             assertThat(server.requests()).hasSize(1);
+            assertThat(header(result, ANSWER_HEADER)).as("the answer's headers").isNotNull();
+            assertThat(header(result, ANSWER_HEADER).get(0).asText()).isEqualTo(ANSWER_HEADER_VALUE);
+            if (status != NOT_MODIFIED) {
+                assertThat(result.getData()).as("the answer's body").isInstanceOf(JsonNode.class);
+                assertThat(((JsonNode) result.getData()).get(ANSWER_FIELD).asText()).isEqualTo(ANSWER_HEADER_VALUE);
+            }
         }
     }
 }
