@@ -33,6 +33,7 @@ import static org.lowcoder.plugin.postgres.utils.PostgresDataTypeUtils.PostgresD
 import static org.lowcoder.plugin.postgres.utils.PostgresDataTypeUtils.PostgresDataType.TEXT;
 import static org.lowcoder.plugin.postgres.utils.PostgresDataTypeUtils.PostgresDataType.TIME;
 import static org.lowcoder.plugin.postgres.utils.PostgresDataTypeUtils.PostgresDataType.VARCHAR;
+import static org.lowcoder.sdk.exception.PluginCommonError.PREPARED_STATEMENT_BIND_PARAMETERS_ERROR;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -50,10 +51,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.lowcoder.plugin.postgres.model.DataType;
+import org.lowcoder.sdk.exception.PluginException;
 
 public class PostgresDataTypeUtils {
 
     private static final char PARAMETER = '?';
+    private static final String PREPARED_STATEMENT_BIND_PARAMETERS_ERROR_KEY = "PREPARED_STATEMENT_BIND_PARAMETERS_ERROR";
+    /** The argument of the bind error: the value as text, then the type it was cast to. */
+    private static final String INVALID_CAST_MESSAGE = "\"%s\" is not a valid %s";
     private static final char SINGLE_QUOTE = '\'';
     private static final char DOUBLE_QUOTE = '"';
     private static final char DOLLAR = '$';
@@ -270,7 +275,22 @@ public class PostgresDataTypeUtils {
         return Character.isLetterOrDigit(c) || c == '_' || c == DOLLAR;
     }
 
+    /**
+     * {@code value} as the Java type of {@code targetType}, the explicit cast of its placeholder. A text that does not
+     * parse as that type is a PREPARED_STATEMENT_BIND_PARAMETERS_ERROR naming the value and the type (BF-106: the JDK's
+     * NumberFormatException or IllegalArgumentException escaped, and the server answered it as an unknown
+     * QUERY_EXECUTION_ERROR).
+     */
     public static Object castValueWithTargetType(Object value, DataType targetType) {
+        try {
+            return cast(value, targetType);
+        } catch (IllegalArgumentException e) {
+            throw new PluginException(PREPARED_STATEMENT_BIND_PARAMETERS_ERROR, PREPARED_STATEMENT_BIND_PARAMETERS_ERROR_KEY,
+                    String.format(INVALID_CAST_MESSAGE, value, targetType));
+        }
+    }
+
+    private static Object cast(Object value, DataType targetType) {
         switch (targetType) {
             case NULL -> {
                 return null;
