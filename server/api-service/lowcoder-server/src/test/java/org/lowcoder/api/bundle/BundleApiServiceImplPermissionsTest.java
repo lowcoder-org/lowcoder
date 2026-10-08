@@ -93,13 +93,12 @@ import reactor.test.StepVerifier;
  * {@link BundleApiServiceImpl} with every collaborator mocked: the permission and status checks before each mutation, the
  * view-request matrix, the readable permission errors, the permission and element operations, creation and update.
  *
- * <p>Pinned production defects (owner decision D-6: fixes are deferred, a fix changes these tests on purpose), each in a
- * test named {@code ..._pinsTheSection9Row}:
- * <ul>
- * <li>"getPermissions looks up the org by the creator's user id; no permission check":
- * {@link #getPermissions_looksUpTheOrganizationByTheCreatorsUserId_andChecksNoPermission_pinsTheSection9Row}</li>
- * </ul>
- * Fixed since: "moveApp/addApp check only MANAGE_APPLICATIONS on the app, never the bundle" (BF-011), now asserted by
+ * <p>Fixed since: "getPermissions looks up the org by the creator's user id; no permission check" (BF-145: the method is
+ * gone, {@code GET /bundles/{id}/permissions} now uses {@code getBundlePermissions}), now asserted by
+ * {@link #getBundlePermissions_readsAfterTheReadCheck_andBuildsTheView},
+ * {@link #getBundlePermissions_deniedRead_andWrongStatus} and
+ * {@link #getBundlePermissions_withTheRealOrganizationService_findsTheBundlesOrganizationBF145}; "moveApp/addApp check
+ * only MANAGE_APPLICATIONS on the app, never the bundle" (BF-011), now asserted by
  * {@link #moveAndAddApp_withoutTheBundlePermission_areRefused_andChangeNothing} and
  * {@link #moveAndAddApp_withABundleOfAnotherOrganization_areRefused_andChangeNothing}; "getElements has no
  * permission/status/org check" (BF-020), now asserted by {@link #getElements_withoutReadPermission_isRefused_andReadsNoElements}
@@ -877,47 +876,14 @@ class BundleApiServiceImplPermissionsTest {
     }
 
     /**
-     * Pins the plan section 9 row "getPermissions looks up the org by the creator's user id; no permission check" (the
-     * method behind {@code GET /bundles/{id}/permissions}, {@code BundleController.getBundlePermissions}): the organization
-     * is looked up with {@code bundle.getCreatedBy()}, a user id, not with the bundle's organization id (the sibling
-     * {@code getBundlePermissions} uses the organization id), and no permission, status or organization is checked at all.
-     * A fix changes this test on purpose. What this test cannot show: with the mocked {@code OrganizationService} here the
-     * lookup by the creator's id is stubbed to succeed; that the endpoint "always fails" with the real service is shown by the
-     * next test.
+     * BF-145 with the real {@code OrganizationServiceImpl} over a mocked repository that knows the bundle's organization:
+     * {@code getBundlePermissions}, which {@code GET /bundles/{id}/permissions} now uses, finds the organization by the
+     * bundle's organization id; the removed {@code getPermissions} looked it up by the creator's user id and failed here with
+     * UNABLE_TO_FIND_VALID_ORG. Catches: the organization looked up by the creator again. Limit: the repository is a mock that
+     * returns the organization for its id only (what a database does), no database is involved.
      */
     @Test
-    void getPermissions_looksUpTheOrganizationByTheCreatorsUserId_andChecksNoPermission_pinsTheSection9Row() {
-        Organization organization = new Organization();
-        organization.setName("Org Name");
-        when(organizationService.getById(VISITOR)).thenReturn(Mono.just(organization));
-        stubPermissionLists(List.of());
-
-        StepVerifier.create(service.getPermissions(BUNDLE_ID)).assertNext(view -> {
-            assertThat(view.getCreatorId()).isEqualTo(VISITOR);
-            assertThat(view.getOrgName()).isEqualTo("Org Name");
-            assertThat(view.getGroupPermissions()).extracting(PermissionItemView::getId).containsExactly("g1");
-            assertThat(view.getUserPermissions()).extracting(PermissionItemView::getId).containsExactly("u1");
-        }).verifyComplete();
-
-        verify(organizationService).getById(VISITOR);
-        verify(organizationService, never()).getById(ORG);
-        verify(resourcePermissionService, never()).checkResourcePermissionWithError(anyString(), anyString(), any(ResourceAction.class));
-        verify(resourcePermissionService, never()).checkAndReturnMaxPermission(anyString(), anyString(), any(ResourceAction.class));
-        verify(resourcePermissionService, never()).checkUserPermissionStatusOnResource(anyString(), anyString(), any(ResourceAction.class));
-        verifyNoInteractions(sessionUserService);
-        say("getPermissions: organization looked up by creator id %s, no permission check (section 9 row pinned)", VISITOR);
-    }
-
-    /**
-     * Shows the consequence of the same section 9 row with the real {@code OrganizationServiceImpl} over a mocked
-     * repository that knows the bundle's organization: {@code getPermissions} (organization looked up by the creator's user
-     * id) fails with UNABLE_TO_FIND_VALID_ORG (key INVALID_ORG_ID) for a bundle whose organization exists, while the sibling
-     * {@code getBundlePermissions} (organization looked up by the organization id) succeeds on the same fixtures. A fix
-     * changes this test on purpose. Limit: the repository is a mock that returns the organization for its id only (what a
-     * database does), no database is involved.
-     */
-    @Test
-    void getPermissions_withTheRealOrganizationService_failsWhileGetBundlePermissionsWorks_pinsTheSection9Row() {
+    void getBundlePermissions_withTheRealOrganizationService_findsTheBundlesOrganizationBF145() {
         // object-id-like ids (no dash: an id with a dash is looked up as a GID)
         bundle.setCreatedBy("5f1234abcd");
         bundle.setOrganizationId("6a9876fedc");
@@ -934,11 +900,14 @@ class BundleApiServiceImplPermissionsTest {
         BundleApiServiceImpl withRealOrganizations = newService(realOrganizations);
         stubPermissionLists(List.of());
 
-        StepVerifier.create(withRealOrganizations.getPermissions(BUNDLE_ID))
-                .expectErrorSatisfies(error -> assertBizError(error, BizError.UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID")).verify();
         StepVerifier.create(withRealOrganizations.getBundlePermissions(BUNDLE_ID))
-                .assertNext(view -> assertThat(view.getOrgName()).isEqualTo("Org Name")).verifyComplete();
-        say("getPermissions fails with UNABLE_TO_FIND_VALID_ORG, getBundlePermissions works (section 9 row pinned)");
+                .assertNext(view -> {
+                    assertThat(view.getOrgName()).isEqualTo("Org Name");
+                    assertThat(view.getCreatorId()).isEqualTo("5f1234abcd");
+                }).verifyComplete();
+        verify(organizationRepository).findByIdAndState("6a9876fedc", OrganizationState.ACTIVE);
+        verify(organizationRepository, never()).findByIdAndState("5f1234abcd", OrganizationState.ACTIVE);
+        say("getBundlePermissions finds the bundle's organization by its organization id (BF-145)");
     }
 
     // ------------------------------------------------------------------ moveApp / addApp

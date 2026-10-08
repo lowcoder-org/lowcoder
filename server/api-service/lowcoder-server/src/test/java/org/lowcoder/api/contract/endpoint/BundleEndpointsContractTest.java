@@ -310,10 +310,10 @@ class BundleEndpointsContractTest {
         }
     }
 
-    /** The controller answers {@code BundleApiService#getPermissions}. */
+    /** The controller answers {@code BundleApiService#getBundlePermissions} (BF-145: the checked listing). */
     @Test
     void getBundlePermissions() {
-        Mockito.when(bundleApiService.getPermissions(BUNDLE_ID)).thenReturn(Mono.just(BundleSamples.bundlePermissionView()));
+        Mockito.when(bundleApiService.getBundlePermissions(BUNDLE_ID)).thenReturn(Mono.just(BundleSamples.bundlePermissionView()));
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getBundlePermissions", Map.of(), null, BUNDLE_ID);
             EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.success(EndpointContract.s1(BundlePermissionView.class)));
