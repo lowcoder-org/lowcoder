@@ -28,7 +28,7 @@ import reactor.core.publisher.Flux;
 
 /**
  * Two section 9 rows found by L3-11b on OrganizationServiceImpl (follow-up): the dangling logo reference (BF-064, fixed)
- * and the hyphenated slug (pinned). Shared {@code test} context, ids generated per test.
+ * and the hyphenated slug (BF-133, fixed). Shared {@code test} context, ids generated per test.
  */
 @SpringBootTest(classes = ServerApplication.class)
 @ActiveProfiles("test")
@@ -97,28 +97,53 @@ class OrganizationServiceImplLogoAndSlugPinMongoTest extends OrganizationMongoTe
     }
 
     /**
-     * Pins plan section 9 row "a hyphenated slug is accepted but unreachable (isGID)": SlugUtils.validate accepts a hyphen,
-     * but getById (OrganizationServiceImpl:180-184) decides GID-or-not by "contains a hyphen" (FieldName.guessFieldNameFromId),
-     * so the org cannot be found by that slug. A fix (reject hyphens, or look the slug up before the GID guess) changes this
-     * test on purpose.
+     * BF-133 (was pinned as plan section 9 row "a hyphenated slug is accepted but unreachable (isGID)"): SlugUtils.validate
+     * accepts a hyphen, and the lookups took every key with a hyphen for a gid (FieldName.guessFieldNameFromId), so such a
+     * slug was never found. A key with a hyphen is now looked up as a gid and then as a slug, in getById,
+     * getByIdWithDeleted, getOrgCommonSettings and getByIds.
      */
     @Test
-    void aHyphenatedSlugIsAcceptedButUnreachable_pinsTheSection9Row() {
+    void aHyphenatedSlugIsFoundByEveryLookupBF133() {
         Organization org = saveOrg();
         String slug = "my-" + newId();
 
         assertThat(organizationService.updateSlug(org.getId(), slug).block(TIMEOUT).getSlug()).isEqualTo(slug);
 
         assertThat(stored(org.getId()).getSlug()).isEqualTo(slug);
+        Organization found = organizationService.getById(slug).block(TIMEOUT);
+        System.out.println("[OrganizationServiceImplLogoAndSlugPinMongoTest] slug " + slug + " -> " + found.getId());
+        assertThat(found.getId()).isEqualTo(org.getId());
+        assertThat(organizationService.getByIdWithDeleted(slug).block(TIMEOUT).getId()).isEqualTo(org.getId());
+        assertThat(organizationService.getOrgCommonSettings(slug).block(TIMEOUT)).isEqualTo(stored(org.getId()).getCommonSettings());
+        assertThat(organizationService.getByIds(List.of(slug)).map(Organization::getId).collectList().block(TIMEOUT))
+                .containsExactly(org.getId());
+        assertThat(organizationService.getById(org.getId()).block(TIMEOUT).getId()).as("the id still works").isEqualTo(org.getId());
+        assertThat(organizationService.getById(org.getGid()).block(TIMEOUT).getId()).as("the gid still works").isEqualTo(org.getId());
+    }
+
+    /**
+     * BF-133: the gid is looked up first, so a slug that spells another organization's gid does not take its lookups over;
+     * a key with a hyphen that names no organization is still UNABLE_TO_FIND_VALID_ORG.
+     */
+    @Test
+    void aGidIsLookedUpBeforeASlugAndAnUnknownHyphenatedKeyIsNotFoundBF133() {
+        Organization owner = saveOrg();
+        Organization other = saveOrg();
+        assertThat(organizationService.updateSlug(other.getId(), owner.getGid()).block(TIMEOUT).getSlug()).isEqualTo(owner.getGid());
+
+        assertThat(organizationService.getById(owner.getGid()).block(TIMEOUT).getId()).isEqualTo(owner.getId());
+        assertThat(organizationService.getByIdWithDeleted(owner.getGid()).block(TIMEOUT).getId()).isEqualTo(owner.getId());
+
+        String unknown = "no-such-" + newId();
         BizException error = assertThrows(BizException.class, () -> {
             try {
-                organizationService.getById(slug).block(TIMEOUT);
+                organizationService.getById(unknown).block(TIMEOUT);
             } catch (RuntimeException e) {
                 throw e instanceof BizException ? e : (BizException) e.getCause();
             }
         });
-        System.out.println("[OrganizationServiceImplLogoAndSlugPinMongoTest] PINNED slug " + slug + " not resolvable: " + error.getError());
+        System.out.println("[OrganizationServiceImplLogoAndSlugPinMongoTest] unknown " + unknown + " -> " + error.getError());
         assertThat(error.getError()).isEqualTo(BizError.UNABLE_TO_FIND_VALID_ORG);
-        assertThat(organizationService.getById(org.getId()).block(TIMEOUT).getId()).as("the id still works").isEqualTo(org.getId());
+        assertThat(organizationService.getByIds(List.of(unknown)).collectList().block(TIMEOUT)).isEmpty();
     }
 }
