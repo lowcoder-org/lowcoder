@@ -44,7 +44,7 @@ public class OracleDatasourceConfig extends SqlBasedDatasourceConnectionConfig {
                 .password(ObjectUtils.firstNonNull(newConfig.getPassword(), getPassword()))
                 .host(newConfig.getHost())
                 .port(newConfig.getPort())
-                .jdbcUrl(newConfig.getJdbcUrl())
+                .jdbcUrl(newConfig.jdbcUrl)
                 .sid(newConfig.getSid())
                 .serviceName(newConfig.getServiceName())
                 .enableTurnOffPreparedStatement(newConfig.isEnableTurnOffPreparedStatement())
@@ -61,8 +61,20 @@ public class OracleDatasourceConfig extends SqlBasedDatasourceConnectionConfig {
         return serviceName;
     }
 
+    /**
+     * Whether a JDBC URL was configured, as opposed to the one {@link #getJdbcUrl()} builds from host, port and sid or
+     * service name, which is never blank (BF-111). Not a getter, so it is not a JSON property. A merge takes the update's
+     * configured URL, not its computed one, so this holds for a merged config too.
+     * <p>
+     * Limits: {@link #getJdbcUrl()} is what Jackson writes as {@code jdbcUrl}, so a config read back from its JSON (a stored
+     * one) has the computed URL as its configured one and this is true for it.
+     */
+    public boolean hasJdbcUrl() {
+        return StringUtils.isNotBlank(jdbcUrl);
+    }
+
     public String getJdbcUrl() {
-        if (StringUtils.isNotBlank(jdbcUrl)) {
+        if (hasJdbcUrl()) {
             return jdbcUrl;
         }
         if (StringUtils.isNotBlank(sid)) {
