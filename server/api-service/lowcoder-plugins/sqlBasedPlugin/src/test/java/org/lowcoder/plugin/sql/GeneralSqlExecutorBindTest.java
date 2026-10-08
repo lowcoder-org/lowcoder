@@ -32,8 +32,8 @@ import static org.lowcoder.sdk.exception.PluginCommonError.PREPARED_STATEMENT_BI
 /**
  * Unit SB-1 (task L5-1): {@link GeneralSqlExecutor#bindParam} binds each Java type with the right setter, shown by a
  * round trip through a real H2 table (what {@code SqlBindContractTest} cannot show: it records calls on a fake and never
- * reaches Float/Double, byte[], Date/Time/Timestamp, nor the unsupported-type error). Pins defect D2 (the bind error
- * cannot name the parameter: the name is always the empty string).
+ * reaches Float/Double, byte[], Date/Time/Timestamp, nor the unsupported-type error). BF-123 (D2): the bind error names
+ * the parameter (it was always the empty string).
  */
 public class GeneralSqlExecutorBindTest {
 
@@ -175,14 +175,45 @@ public class GeneralSqlExecutorBindTest {
         }
     }
 
-    /** Pins defect D2: the parameter name in the error is always the empty string; a fix changes this test on purpose. */
+    /** BF-123 (D2): the bind error names the parameter by its mustache key; it was always the empty string. */
     @Test
-    public void unsupportedTypeIsRejectedAsBindErrorWithoutNamingTheParameter() {
+    public void unsupportedTypeIsRejectedAsBindErrorNamingTheParameterBF123() {
         PluginException thrown = assertPluginError(PREPARED_STATEMENT_BIND_PARAMETERS_ERROR, BIND_ERROR_KEY,
                 () -> insert("s", UUID.randomUUID()));
-        assertEquals("", thrown.getArgs()[0], "D2: the parameter name is empty today");
+        System.out.println("[GeneralSqlExecutorBindTest] UUID rejected: " + Arrays.toString(thrown.getArgs()) + " -> " + thrown.getMessage());
+        assertEquals(PARAM, thrown.getArgs()[0]);
         assertEquals("UUID", thrown.getArgs()[1]);
+        assertEquals("PreparedStatement binding exception: " + PARAM + ", parameter type UUID.", thrown.getMessage());
         assertEquals(0L, H2SqlTestSupport.scalar(connection, "select count(*) from " + TABLE), "nothing may be stored");
-        System.out.println("[GeneralSqlExecutorBindTest] UUID rejected: " + Arrays.toString(thrown.getArgs()) + " (D2: empty name)");
+    }
+
+    /**
+     * BF-123: the sort rewrite removes the sort map's value from the bind list; its name goes with it, so a parameter after
+     * the sort placeholder keeps its own name.
+     */
+    @Test
+    public void aParameterAfterARewrittenSortPlaceholderKeepsItsNameBF123() {
+        Map<String, Object> params = new HashMap<>();
+        params.put("dir", Map.of("sort", "desc"));
+        params.put("u", UUID.randomUUID());
+        SqlBasedQueryExecutionContext context = SqlBasedQueryExecutionContext.builder()
+                .query("select id from (select id, s from " + TABLE + " order by id {{dir}}) where s = {{u}}").requestParams(params).build();
+
+        PluginException thrown = assertPluginError(PREPARED_STATEMENT_BIND_PARAMETERS_ERROR, BIND_ERROR_KEY, () -> executor.execute(connection, context));
+
+        System.out.println("[GeneralSqlExecutorBindTest] after a sort placeholder: " + Arrays.toString(thrown.getArgs()));
+        assertEquals("u", thrown.getArgs()[0]);
+        assertEquals("UUID", thrown.getArgs()[1]);
+    }
+
+    /** BF-123: a key names the parameter; without keys (a GUI statement) its 1-based placeholder position does. */
+    @Test
+    public void bindKeyNameIsTheKeyOrThePositionBF123() {
+        List<String> keys = List.of("a", "b");
+        assertEquals("a", GeneralSqlExecutor.bindKeyName(keys, 0));
+        assertEquals("b", GeneralSqlExecutor.bindKeyName(keys, 1));
+        assertEquals("#3", GeneralSqlExecutor.bindKeyName(keys, 2), "a parameter beyond the keys");
+        assertEquals("#1", GeneralSqlExecutor.bindKeyName(List.of(), 0), "a GUI statement has no keys");
+        System.out.println("[GeneralSqlExecutorBindTest] names: a, b, " + GeneralSqlExecutor.bindKeyName(keys, 2) + ", " + GeneralSqlExecutor.bindKeyName(List.of(), 0));
     }
 }

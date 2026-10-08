@@ -66,7 +66,7 @@ public class PostgresExecutor extends SqlBasedQueryExecutor {
 
                 List<DataType> explicitCastDataTypes = extractExplicitCasting(preparedSql);
                 List<Object> finalValues = convertExplicitDataTypes(requestParams, mustacheKeysInOrder, explicitCastDataTypes);
-                return StatementInput.fromSql(true, preparedSql, finalValues);
+                return StatementInput.fromSql(true, preparedSql, finalValues, mustacheKeysInOrder); // BF-123: names the bind error
             }
 
             private List<Object> convertExplicitDataTypes(Map<String, Object> requestParams, List<String> mustacheKeysInOrder,
