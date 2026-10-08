@@ -35,6 +35,7 @@ public class SmtpEngineConnectionTest {
     static final String TAG = "[SmtpEngineConnectionTest] ";
     static final Duration BLOCK_TIMEOUT = Duration.ofSeconds(30);
     static final int DEFAULT_SMTP_PORT = 25;
+    static final long WAIT_MILLIS = 10_000;
 
     private static GreenMail server;
     private final SmtpEngine engine = new SmtpEngine();
@@ -64,12 +65,36 @@ public class SmtpEngineConnectionTest {
 
     /**
      * Observation: an empty user name (the form leaves the field as typed: an emptied field is the empty string) takes the with-credentials
-     * connect, which an authenticating server refuses. A user name that is absent altogether does not get that far: see
-     * {@link SmtpEngineOpenRelayTest} (D19).
+     * connect, which an authenticating server refuses. A user name that is absent altogether: see
+     * {@link #noUserNameConnectsAndSendsWithoutCredentialsBF125} and {@link SmtpEngineOpenRelayTest} (BF-125).
      */
     @Test
     public void emptyUserNameAgainstAnAuthenticatingServerFails() {
         assertFalse(test("empty user", configMap(server, "", "")).isSuccess());
+    }
+
+    /**
+     * BF-125: a config without a user name used to fail with a NullPointerException before connecting. It now connects without
+     * credentials ({@code mail.smtp.auth} off), so the test and a send reach the server. Limits: this GreenMail server, though it
+     * has a configured user, accepts mail without AUTH, so the test shows only that no credentials are needed to get there; a
+     * server that requires AUTH refuses the mail with its own error, which is not reproduced here.
+     */
+    @Test
+    public void noUserNameConnectsAndSendsWithoutCredentialsBF125() {
+        Map<String, Object> config = configMap(server, null, null);
+        assertTrue(test("no user", config).isSuccess());
+
+        Session session = engine.createConnection(engine.resolveConfig(config)).block(BLOCK_TIMEOUT);
+        Map<String, Object> query = new java.util.HashMap<>();
+        query.put("from", "sender@example.com");
+        query.put("to", "[\"rcpt@example.com\"]");
+        query.put("subject", "no user");
+        query.put("content", "x");
+        int before = server.getReceivedMessages().length;
+        var result = engine.executeQuery(session, engine.buildQueryExecutionContext(engine.resolveConfig(config), query, Map.of(), null)).block(BLOCK_TIMEOUT);
+        System.out.println(TAG + "no user: send " + result.getQueryCode());
+        assertEquals("OK", result.getQueryCode());
+        assertTrue(server.waitForIncomingEmail(WAIT_MILLIS, before + 1), "the mail reaches the server");
     }
 
     @Test

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.plugins.SmtpPlugin.SmtpEngine;
+import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 
 import java.time.Duration;
@@ -13,13 +14,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.lowcoder.plugins.SmtpGreenMailSupport.configMap;
 
 /**
- * Unit SM-1 / SM-2 (task L5-10), the open relay and defect D19: against a server that does not ask for authentication, a config
- * without a user, with an empty user and with a user.
+ * Unit SM-1 / SM-2 (task L5-10), the open relay and BF-125 (D19): against a server that does not ask for authentication, a
+ * config without a user, with an empty user and with a user.
  *
  * <p>Limits: GreenMail's disabled-authentication mode; a real relay may answer differently to an AUTH attempt.
  */
@@ -56,22 +57,29 @@ public class SmtpEngineOpenRelayTest {
     }
 
     /**
-     * Pins defect D19 (analysis-plugins section 0.6; plan section 9 D1-D20 row), as it behaves: {@code createConnection} puts the
-     * user name into {@code java.util.Properties} ({@code prop.put("mail.smtp.username", username)}), which refuses a null value, so a
-     * datasource saved without a user name fails with a raw {@code NullPointerException} before any server is contacted: not only is
-     * {@code mail.smtp.auth=true} always set, the no-user branch of {@code testConnection} ({@code session.getTransport().connect()})
-     * and the open-relay case are unreachable. The analysis row words it differently (the client sends AUTH with a null user, or the
-     * test connects without credentials); that is not what happens. The form leaves the user name optional
-     * (client form.tsx:95-104, smtpDatasourceForm.tsx:26), so a user can save such a datasource. A fix (guarding the property) changes
-     * these assertions on purpose.
+     * BF-125 (D19): {@code createConnection} put the user name into {@code java.util.Properties}, which refuses a null value, so a
+     * datasource saved without a user name failed with a raw {@code NullPointerException} before any server was contacted, and
+     * the no-user branch of {@code testConnection} ({@code session.getTransport().connect()}) and the open-relay case were
+     * unreachable. The form leaves the user name optional (client form.tsx:95-104, smtpDatasourceForm.tsx:29). Now a config
+     * without a user name has no {@code mail.smtp.username} and {@code mail.smtp.auth} off: the test connects without
+     * credentials and a mail goes through the open relay.
      */
     @Test
-    public void aConfigWithoutAUserFailsWithANullPointerExceptionBeforeAnyServerIsContacted_pinsD19() {
+    public void aConfigWithoutAUserConnectsWithoutAuthAndSendsThroughTheOpenRelayBF125() throws Exception {
         Map<String, Object> config = configMap(server, null, null);
-        NullPointerException create = assertThrows(NullPointerException.class, () -> engine.createConnection(engine.resolveConfig(config)));
-        System.out.println(TAG + "createConnection without a user: " + create);
-        assertThrows(NullPointerException.class, () -> engine.testConnection(engine.resolveConfig(config)).block(BLOCK_TIMEOUT));
-        assertEquals(0, server.getReceivedMessages().length);
+        Session session = engine.createConnection(engine.resolveConfig(config)).block(BLOCK_TIMEOUT);
+        System.out.println(TAG + "no user: auth=" + session.getProperties().get("mail.smtp.auth") + " username=" + session.getProperties().get("mail.smtp.username"));
+        assertEquals(false, session.getProperties().get("mail.smtp.auth"));
+        assertFalse(session.getProperties().containsKey("mail.smtp.username"));
+
+        DatasourceTestResult tested = engine.testConnection(engine.resolveConfig(config)).block(BLOCK_TIMEOUT);
+        System.out.println(TAG + "no user: test " + tested.isSuccess() + (tested.isSuccess() ? "" : " " + tested.getInvalidMessage(java.util.Locale.ENGLISH)));
+        assertTrue(tested.isSuccess());
+
+        int before = server.getReceivedMessages().length;
+        QueryExecutionResult result = send(config);
+        assertEquals("OK", result.getQueryCode());
+        assertTrue(server.waitForIncomingEmail(WAIT_MILLIS, before + 1));
     }
 
     /** Observation: with an empty user name the connection is built (auth on) and a send through the open relay works. */
