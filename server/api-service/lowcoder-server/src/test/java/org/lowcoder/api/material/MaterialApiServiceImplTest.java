@@ -72,6 +72,8 @@ class MaterialApiServiceImplTest {
     private static final String TOTAL_LIMIT_KEY = "material.total-size-limit";
     private static final long ONE_MB = 1024L * 1024L;
     private static final Duration WAIT = Duration.ofSeconds(10);
+    private static final String MATERIAL_NOT_FOUND_KEY = "MATERIAL_NOT_FOUND";
+    private static final String MATERIAL_NOT_FOUND_GHOST_EN = "Sorry, the material ghost cannot be found.";
 
     private final List<String> ops = new ArrayList<>();
     private final Map<String, Long> limitOverrides = new java.util.HashMap<>();
@@ -479,10 +481,17 @@ class MaterialApiServiceImplTest {
     // ------------------------------------------------------------------- delete
 
     @Test
-    void delete_unknownId_failsWithInvalidParameter10095_andDeletesNothing() {
+    void delete_unknownId_failsWithInvalidParameterMaterialNotFound_andDeletesNothing() {
         when(metaService.findById("ghost")).thenReturn(Mono.empty());
 
-        expectBizError(service.delete("ghost"), BizError.INVALID_PARAMETER, "10095");
+        // the key was "10095", in no locale bundle, so the answer read "Oops! Service is busy" (found by MessageKeyBundlesTest, T109)
+        StepVerifier.create(service.delete("ghost")).expectErrorSatisfies(throwable -> {
+            assertThat(throwable).isInstanceOf(BizException.class);
+            assertThat(((BizException) throwable).getError()).isEqualTo(BizError.INVALID_PARAMETER);
+            assertThat(((BizException) throwable).getMessageKey()).isEqualTo(MATERIAL_NOT_FOUND_KEY);
+            System.out.println("[MaterialApiServiceImplTest] unknown material: " + throwable.getMessage());
+            assertThat(throwable.getMessage()).isEqualTo(MATERIAL_NOT_FOUND_GHOST_EN);
+        }).verify(WAIT);
 
         assertThat(ops).isEmpty();
     }
