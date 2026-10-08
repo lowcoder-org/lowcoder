@@ -123,6 +123,83 @@ class JsDatasourceConnectionConfigTest {
         System.out.println("[JsDatasourceConnectionConfigTest] non-password key comes from the update only: " + merged);
     }
 
+    /** The Lowcoder plugin's datasource params (node-service {@code plugins/lowcoder/index.ts}): the plugin of GitHub #2053. */
+    private static Map<String, Object> lowcoderPluginDefinition() {
+        Map<String, Object> dataSourceConfig = new HashMap<>();
+        dataSourceConfig.put("params", List.of(param("serverURL", "textInput"), param("bearerAuth.value", "password"),
+                param("specVersion", "select")));
+        return values("dataSourceConfig", dataSourceConfig);
+    }
+
+    /** What the plugin form sends on save for the Lowcoder plugin with every advanced setting filled in (GitHub #2053). */
+    private static Map<String, Object> lowcoderFormUpdate() {
+        return values("serverURL", "http://api:8080", "specVersion", "v1.3",
+                JsDatasourceConnectionConfig.HEADERS_KEY, List.of(values("key", "X-A", "value", "1")),
+                JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY, List.of("LOWCODER_CE_SELFHOST_TOKEN"),
+                JsDatasourceConnectionConfig.FORWARD_ALL_COOKIES_KEY, true,
+                JsDatasourceConnectionConfig.SSL_CERT_VERIFICATION_TYPE_KEY, "VERIFY_SELF_SIGNED_CERT",
+                JsDatasourceConnectionConfig.SELF_SIGNED_CERT_KEY, "-----BEGIN CERTIFICATE-----",
+                "outside", "ignored");
+    }
+
+    /**
+     * NEW-18 (GitHub #2053): the headers and advanced settings the plugin form sends are kept on update, as create keeps
+     * them; they used to be dropped with every key outside the plugin definition. Catches a setting left out of the kept
+     * keys, the stored password lost, and other keys outside the definition kept.
+     */
+    @Test
+    void mergeKeepsTheHeadersAndAdvancedSettingsTheFormSendsNEW18() {
+        JsDatasourceConnectionConfig storedConfig = config(PLUGIN_TYPE, lowcoderPluginDefinition(),
+                values("serverURL", "http://old", "bearerAuth.value", "enc", "specVersion", "v1.3"));
+        Map<String, Object> sent = lowcoderFormUpdate();
+
+        JsDatasourceConnectionConfig merged = merge(storedConfig, update(sent));
+
+        System.out.println("[JsDatasourceConnectionConfigTest] NEW-18 update sent: " + sent);
+        System.out.println("[JsDatasourceConnectionConfigTest] NEW-18 merged     : " + merged);
+        for (String key : List.of(JsDatasourceConnectionConfig.HEADERS_KEY, JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY,
+                JsDatasourceConnectionConfig.FORWARD_ALL_COOKIES_KEY, JsDatasourceConnectionConfig.SSL_CERT_VERIFICATION_TYPE_KEY,
+                JsDatasourceConnectionConfig.SELF_SIGNED_CERT_KEY)) {
+            assertThat(merged.get(key)).as(key).isEqualTo(sent.get(key));
+        }
+        assertThat(merged).containsEntry("serverURL", "http://api:8080").containsEntry("bearerAuth.value", "enc")
+                .doesNotContainKey("outside");
+    }
+
+    /**
+     * NEW-18: the update decides, as for a non-password param: a stored setting the update leaves out is cleared, and an
+     * update without settings adds no keys. Catches a stored setting falling back in and settings added as nulls.
+     */
+    @Test
+    void aSettingTheUpdateLeavesOutIsClearedAndNoneIsAddedNEW18() {
+        JsDatasourceConnectionConfig storedConfig = config(PLUGIN_TYPE, lowcoderPluginDefinition(), values("serverURL", "http://old",
+                JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY, List.of("stored"), JsDatasourceConnectionConfig.FORWARD_ALL_COOKIES_KEY, true));
+
+        JsDatasourceConnectionConfig merged = merge(storedConfig, update(values("serverURL", "http://new",
+                JsDatasourceConnectionConfig.FORWARD_ALL_COOKIES_KEY, false)));
+
+        System.out.println("[JsDatasourceConnectionConfigTest] NEW-18 settings left out of the update: " + merged);
+        assertThat(merged).containsEntry(JsDatasourceConnectionConfig.FORWARD_ALL_COOKIES_KEY, false)
+                .doesNotContainKeys(JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY, JsDatasourceConnectionConfig.HEADERS_KEY,
+                        JsDatasourceConnectionConfig.SSL_CERT_VERIFICATION_TYPE_KEY, JsDatasourceConnectionConfig.SELF_SIGNED_CERT_KEY);
+    }
+
+    /**
+     * NEW-18: a plugin that declares a setting's key as its own param keeps that param's handling; for a password param an
+     * update sending no value keeps the stored one. Catches the kept settings overwriting the static param handling.
+     */
+    @Test
+    void aSettingKeyThePluginDeclaresAsAPasswordKeepsThePasswordHandlingNEW18() {
+        Map<String, Object> dataSourceConfig = values("params", List.of(param(JsDatasourceConnectionConfig.SELF_SIGNED_CERT_KEY, "password")));
+        JsDatasourceConnectionConfig storedConfig = config(PLUGIN_TYPE, values("dataSourceConfig", dataSourceConfig),
+                values(JsDatasourceConnectionConfig.SELF_SIGNED_CERT_KEY, STORED_PASSWORD));
+
+        JsDatasourceConnectionConfig merged = merge(storedConfig, update(values(JsDatasourceConnectionConfig.SELF_SIGNED_CERT_KEY, null)));
+
+        System.out.println("[JsDatasourceConnectionConfigTest] NEW-18 declared password param sent empty: " + merged);
+        assertThat(merged).containsEntry(JsDatasourceConnectionConfig.SELF_SIGNED_CERT_KEY, STORED_PASSWORD);
+    }
+
     @Test
     void mergeHandlesDynamicParamsDefinitionAndConfig() {
         JsDatasourceConnectionConfig storedConfig = stored(values(
