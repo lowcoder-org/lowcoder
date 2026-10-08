@@ -214,22 +214,29 @@ public class GoogleSheetsEngineTest {
     }
 
     /**
-     * DEFECT pinned (new plan section 9 row "Google Sheets testConnection reports success without using the service
-     * account"; D-6, fix deferred). {@code testConnection} (GoogleSheetsPlugin.java:61-63) is
-     * {@code Mono.just(testSuccess())}: it succeeds for a service account that is garbage or has a key that cannot be
-     * parsed, and for a config that validateConfig rejects. A fix that parses the key (or makes an authenticated call)
-     * turns the garbage and bad-key assertions red.
+     * BF-119 (fixed; was pinned as new plan section 9 row "Google Sheets testConnection reports success without using the
+     * service account"): {@code testConnection} (GoogleSheetsPlugin.java:61-63) reads the service-account key with
+     * {@code ServiceAccountCredentialsReader}: a readable key succeeds; text that is no key, a key that cannot be parsed and
+     * no key at all fail with GOOGLESHEETS_DATASOURCE_CONFIG_ERROR. It was {@code Mono.just(testSuccess())} for all of
+     * them. Nothing is sent to Google (the limit in {@code testResultOf}'s doc).
      */
     @Test
-    public void testConnectionSucceedsForAnyConfigWithoutLookingAtTheServiceAccountD() {
-        List<String> accounts = new java.util.ArrayList<>(List.of("garbage", ServiceAccountTestKeys.json("not a key"), ServiceAccountTestKeys.json()));
-        accounts.add(null);
-        for (String account : accounts) {
+    public void testConnectionSucceedsOnlyForAReadableServiceAccountKeyBF119() {
+        DatasourceTestResult valid = engine.testConnection(engine.resolveConfig(Map.of("serviceAccount", ServiceAccountTestKeys.json()))).block();
+        System.out.println("[GoogleSheetsEngineTest] testConnection(valid key) -> success " + valid.isSuccess());
+        assertTrue(valid.isSuccess());
+
+        List<String> unreadable = new java.util.ArrayList<>(List.of("garbage", ServiceAccountTestKeys.json("not a key")));
+        unreadable.add(null);
+        for (String account : unreadable) {
             Map<String, Object> map = new java.util.HashMap<>();
             map.put("serviceAccount", account);
             DatasourceTestResult result = engine.testConnection(engine.resolveConfig(map)).block();
-            System.out.println("[GoogleSheetsEngineTest] testConnection(" + (account == null ? null : account.substring(0, Math.min(12, account.length()))) + ") -> success " + result.isSuccess());
-            assertTrue(result.isSuccess());
+            String message = result.isSuccess() ? null : result.getInvalidMessage(java.util.Locale.ENGLISH);
+            System.out.println("[GoogleSheetsEngineTest] testConnection(" + (account == null ? null : account.substring(0, Math.min(12, account.length())))
+                    + ") -> success " + result.isSuccess() + ", " + message);
+            assertFalse(result.isSuccess(), String.valueOf(account));
+            assertEquals(INVALID_SERVICE_ACCOUNT_TEXT, message, String.valueOf(account));
         }
     }
 
