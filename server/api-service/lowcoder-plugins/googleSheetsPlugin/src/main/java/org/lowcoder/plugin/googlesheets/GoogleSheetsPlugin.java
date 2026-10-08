@@ -59,7 +59,7 @@ public class GoogleSheetsPlugin extends Plugin {
 
         @Override
         public Mono<DatasourceTestResult> testConnection(GoogleSheetsDatasourceConfig connectionConfig) {
-            return Mono.just(DatasourceTestResult.testSuccess());
+            return Mono.fromCallable(() -> testResultOf(connectionConfig.getServiceAccount())); // BF-119: it reported success for any key
         }
 
         @Override
@@ -125,5 +125,19 @@ public class GoogleSheetsPlugin extends Plugin {
                     });
         }
 
+        /**
+         * Success when the service-account key can be read into credentials, else the failure of
+         * {@link ServiceAccountCredentialsReader#read} (GOOGLESHEETS_DATASOURCE_CONFIG_ERROR). Limits: nothing is sent to
+         * Google, so a readable key of a deleted or unauthorised service account, or a sheet it cannot open, passes the
+         * test and fails when a query runs.
+         */
+        private static DatasourceTestResult testResultOf(String serviceAccount) {
+            try {
+                ServiceAccountCredentialsReader.read(serviceAccount);
+                return DatasourceTestResult.testSuccess();
+            } catch (PluginException e) {
+                return DatasourceTestResult.testFail(e);
+            }
+        }
     }
 }
