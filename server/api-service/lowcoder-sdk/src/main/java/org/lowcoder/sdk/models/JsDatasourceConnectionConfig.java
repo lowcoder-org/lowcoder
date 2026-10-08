@@ -26,6 +26,20 @@ public class JsDatasourceConnectionConfig extends HashMap<String, Object> implem
     public static final String AUTH_CONFIG_KEY = "authConfig";
     private static final String AUTH_TYPE_KEY = "type";
     private static final String AUTH_ID_KEY = "authId";
+    /** The headers the plugin form sends for every plugin, as a list of key-value entries. */
+    public static final String HEADERS_KEY = "headers";
+    public static final String FORWARD_COOKIES_KEY = "forwardCookies";
+    public static final String FORWARD_ALL_COOKIES_KEY = "forwardAllCookies";
+    public static final String SSL_CERT_VERIFICATION_TYPE_KEY = "sslCertVerificationType";
+    public static final String SELF_SIGNED_CERT_KEY = "selfSignedCert";
+    /**
+     * The settings the plugin form adds to every plugin's own params (headers and the "Advanced settings" section), which
+     * an update keeps as sent (NEW-18, GitHub #2053). Limits: api-service and node-service do not apply them when a query
+     * runs (every request cookie is still forwarded to every JS datasource; whether to honour them is an owner decision),
+     * and the form reads the SSL setting back from an {@code sslConfig} entry, so it does not show the stored flat keys.
+     */
+    private static final List<String> FORM_SETTING_KEYS = List.of(HEADERS_KEY, FORWARD_COOKIES_KEY, FORWARD_ALL_COOKIES_KEY,
+            SSL_CERT_VERIFICATION_TYPE_KEY, SELF_SIGNED_CERT_KEY);
 
     @Transient
     private Object definition;
@@ -154,6 +168,14 @@ public class JsDatasourceConnectionConfig extends HashMap<String, Object> implem
 
         //dynamic params definition
         newJsDatasourceConnectionConfig.put("dynamicParamsDef", jsDatasourceConnectionConfig.get("dynamicParamsDef"));
+
+        // NEW-18: the form's own settings are taken from the update, as create stores them, and one the update leaves out is
+        // cleared; a key the plugin definition declares too (gitlab's headers) keeps the static param handling above
+        for (String key : FORM_SETTING_KEYS) {
+            if (jsDatasourceConnectionConfig.containsKey(key)) {
+                newJsDatasourceConnectionConfig.putIfAbsent(key, jsDatasourceConnectionConfig.get(key));
+            }
+        }
 
         // For the "extra" field of dynamic data source plugin config, keep it.
         if (this.containsKey(EXTRA_KEY) || jsDatasourceConnectionConfig.containsKey(EXTRA_KEY)) {
