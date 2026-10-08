@@ -137,20 +137,24 @@ public class RedisEngineQueryConfigTest {
         assertEquals(Protocol.Command.GET, raw("get k").getProtocolCommand(), "a known command is still read");
     }
 
+    /** The default locale under which upper-casing "i" gives a dotted capital I. */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+
     /**
-     * Pins defect D17 (analysis-plugins section 0.6; plan section 9 D1-D20 row) for the raw parser
-     * ({@code RedisPlugin.java}, {@code matcher.group().toUpperCase()}): under a Turkish default locale a lower-case
-     * {@code lindex} becomes a dotted capital I word, which is no command, so the raw command fails with the enum's error. The
-     * default locale is global state: restored in finally. A fix ({@code Locale.ROOT}) changes this test on purpose. Since
-     * BF-121 the unknown word is the coded INVALID_REDIS_REQUEST instead of the enum's IllegalArgumentException.
+     * BF-122 (D17) for the raw parser ({@code RedisPlugin.java}, {@code matcher.group().toUpperCase}): the command word was
+     * upper-cased with the default locale, so under a Turkish default locale a lower-case {@code lindex} became a dotted
+     * capital I word, which is no command (since BF-121 the coded INVALID_REDIS_REQUEST). The raw command is typed by the
+     * user, so a query such as {@code incr n} from the query editor failed. It is upper-cased with {@code Locale.ROOT} now.
+     * The default locale is global state: restored in finally.
      */
     @Test
-    public void lowerCaseRawCommandFailsUnderATurkishDefaultLocale_pinsD17() {
+    public void lowerCaseRawCommandIsReadUnderATurkishDefaultLocaleBF122() {
         Locale saved = Locale.getDefault();
         try {
-            Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+            Locale.setDefault(TURKISH);
             System.out.println(TAG + "default locale: " + Locale.getDefault());
-            assertEquals("INVALID_REDIS_REQUEST", assertThrows(PluginException.class, () -> raw("lindex k 0")).getMessageKey());
+            assertEquals(Protocol.Command.LINDEX, raw("lindex k 0").getProtocolCommand(), "under " + Locale.getDefault());
+            assertEquals(Protocol.Command.INCR, raw("incr n").getProtocolCommand(), "under " + Locale.getDefault());
             assertEquals(Protocol.Command.LINDEX, raw("LINDEX k 0").getProtocolCommand(), "upper case is unaffected");
         } finally {
             Locale.setDefault(saved);

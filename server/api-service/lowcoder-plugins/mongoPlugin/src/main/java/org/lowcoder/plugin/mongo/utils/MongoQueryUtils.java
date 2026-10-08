@@ -87,7 +87,7 @@ public class MongoQueryUtils {
 
         // Parse the commands into raw appropriately
         String commandType = (String) formData.getOrDefault(COMMAND_TYPE, "");
-        MongoCommand command = switch (commandType.toUpperCase()) {
+        MongoCommand command = switch (commandType.toUpperCase(java.util.Locale.ROOT)) { // BF-122: not the default locale
             case "INSERT" -> new Insert(formData);
             case "FIND" -> new Find(formData);
             case "UPDATE" -> new UpdateMany(formData);

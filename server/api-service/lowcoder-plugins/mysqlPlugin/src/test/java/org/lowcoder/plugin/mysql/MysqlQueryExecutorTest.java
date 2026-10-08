@@ -53,18 +53,21 @@ public class MysqlQueryExecutorTest {
         System.out.println("[MysqlQueryExecutorTest] unknown type rejected with " + thrown.getClass().getSimpleName());
     }
 
+    /** The default locale under which upper-casing "i" gives a dotted capital I. */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+
     /**
-     * Pins defect D17 (plan section 9: default-locale toUpperCase): under a Turkish default locale "insert" becomes
-     * "INSERT" with a dotted capital I and falls into the error branch. A fix ({@code Locale.ROOT}) changes this test on
-     * purpose. The default locale is global state: restored in finally.
+     * BF-122 (D17): the GUI type was upper-cased with the default locale, so under a Turkish default locale "insert" became
+     * "INSERT" with a dotted capital I and fell into the error branch. It is upper-cased with {@code Locale.ROOT} now. The
+     * default locale is global state: restored in finally.
      */
     @Test
-    public void guiTypeInsertFailsUnderATurkishDefaultLocale_pinsD17() {
+    public void guiTypeInsertIsReadUnderATurkishDefaultLocaleBF122() {
         Locale saved = Locale.getDefault();
         try {
-            Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+            Locale.setDefault(TURKISH);
             System.out.println("[MysqlQueryExecutorTest] default locale: " + Locale.getDefault() + ", upper case of insert: " + "insert".toUpperCase());
-            EmptyLocaleBundle.assertThrown(() -> executor.parseSqlCommand("insert", DETAILS.get("insert")));
+            assertInstanceOf(MysqlInsertCommand.class, executor.parseSqlCommand("insert", DETAILS.get("insert")), "under " + Locale.getDefault());
         } finally {
             Locale.setDefault(saved);
         }
