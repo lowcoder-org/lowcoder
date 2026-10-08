@@ -5,6 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.net.URI;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -18,6 +21,9 @@ import reactor.core.publisher.Mono;
  * cookie domain of a request).
  */
 public class MediaTypeAndUriUtilsTest {
+
+    private static final MediaType SVG = new MediaType("image", "svg+xml");
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
 
     private static MockServerWebExchange exchange(String url, String referer) {
         MockServerHttpRequest.BaseBuilder<?> builder = MockServerHttpRequest.get(url);
@@ -54,19 +60,42 @@ public class MediaTypeAndUriUtilsTest {
     }
 
     /**
-     * DEFECT pinned (new plan section 9 row "MediaTypeUtils is case-sensitive: IMG.JPG is served as
-     * application/octet-stream"; D-6, fix deferred). {@code getMediaType} switches on the extension as written
-     * (MediaTypeUtils.java:34-41), and the only caller, MaterialController.download (MaterialController.java:59), passes the
-     * stored file name as uploaded (MaterialApiServiceImpl.upload keeps it unchanged), so a file named {@code IMG_0001.JPG} or
-     * {@code LOGO.PNG} is served with {@code application/octet-stream}, also for the inline preview. A fix that lower-cases
-     * the extension turns these assertions red.
+     * BF-141 (plan section 9 row "MediaTypeUtils is case-sensitive: IMG.JPG is served as application/octet-stream"): the
+     * extension is matched in any case, so {@code LOGO.PNG} or {@code IMG_0001.JPG}, stored with the name as uploaded and
+     * served by MaterialController.download, get their media type. Catches: the extension matched as written.
      */
     @Test
-    public void anUpperCaseExtensionIsNotRecognisedAndGetsOctetStreamD() {
-        for (String name : new String[] {"LOGO.PNG", "IMG_0001.JPG", "Photo.Jpeg", "SCAN.PDF", "ICON.SVG", "a.GIF"}) {
-            MediaType type = MediaTypeUtils.parse(name);
-            System.out.println("[MediaTypeAndUriUtilsTest] " + name + " -> " + type);
-            assertEquals(MediaType.APPLICATION_OCTET_STREAM, type, name);
+    public void anExtensionIsRecognisedInAnyCaseBF141() {
+        Map<String, MediaType> expected = new LinkedHashMap<>();
+        expected.put("LOGO.PNG", MediaType.IMAGE_PNG);
+        expected.put("IMG_0001.JPG", MediaType.IMAGE_JPEG);
+        expected.put("Photo.Jpeg", MediaType.IMAGE_JPEG);
+        expected.put("SCAN.PDF", MediaType.APPLICATION_PDF);
+        expected.put("ICON.SVG", SVG);
+        expected.put("a.GIF", MediaType.IMAGE_GIF);
+        expected.put("ARCHIVE.ZIP", MediaType.APPLICATION_OCTET_STREAM);
+        expected.forEach((name, type) -> {
+            MediaType actual = MediaTypeUtils.parse(name);
+            System.out.println("[MediaTypeAndUriUtilsTest] " + name + " -> " + actual);
+            assertEquals(type, actual, name);
+        });
+        assertEquals(MediaType.IMAGE_PNG, MediaTypeUtils.getMediaType("PNG"));
+    }
+
+    /**
+     * BF-141: the extension is lower-cased without the default locale, under which a Turkish {@code GIF} becomes
+     * {@code gıf} (dotless i). Catches: {@code toLowerCase()} with the default locale.
+     */
+    @Test
+    public void anUpperCaseExtensionIsRecognisedUnderATurkishDefaultLocaleBF141() {
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            MediaType actual = MediaTypeUtils.parse("a.GIF");
+            System.out.println("[MediaTypeAndUriUtilsTest] a.GIF under " + Locale.getDefault() + " -> " + actual);
+            assertEquals(MediaType.IMAGE_GIF, actual);
+        } finally {
+            Locale.setDefault(previous);
         }
     }
 
