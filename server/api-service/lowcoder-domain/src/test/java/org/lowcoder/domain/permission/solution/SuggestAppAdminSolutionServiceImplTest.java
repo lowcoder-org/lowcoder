@@ -41,6 +41,8 @@ class SuggestAppAdminSolutionServiceImplTest {
     private static final String APP_ID = "app-1";
     private static final int LIMIT = 3;
     private static final int NAMES_LIMIT = 7;
+    /** Room for two suggestions: a member of both owner groups and one more member. */
+    private static final int TWO = 2;
 
     private final GroupMemberService groupMemberService = mock(GroupMemberService.class);
     private final UserService userService = mock(UserService.class);
@@ -144,25 +146,42 @@ class SuggestAppAdminSolutionServiceImplTest {
     }
 
     /**
-     * Pins plan section 9 row "SuggestAppAdminSolutionServiceImpl: a member of two OWNER groups is suggested twice
-     * (dedupe only against owner users, :64-69)": the filter at :69 only knows the owner USERS, so the same person in
-     * two owner groups ends up twice in the id list and twice in the result. A fix (distinct across groups) changes
-     * this test on purpose.
+     * BF-138 (was pinned as plan section 9 row "SuggestAppAdminSolutionServiceImpl: a member of two OWNER groups is
+     * suggested twice (dedupe only against owner users, :64-69)"): the filter knew only the owner USERS, so the same
+     * person in two owner groups ended up twice in the id list and twice in the result. Group members are now distinct.
      */
     @Test
-    void aMemberOfTwoOwnerGroupsIsSuggestedTwice_pinsTheSection9Row() {
+    void aMemberOfTwoOwnerGroupsIsSuggestedOnceBF138() {
         givenPermissions(ownerGroup("g1"), ownerGroup("g2"));
         givenGroupMembers("g1", "u2");
         givenGroupMembers("g2", "u2", "u3");
 
         StepVerifier.create(service.getApplicationAdminUsers(APP_ID, NAMES_LIMIT))
                 .assertNext(users -> {
-                    System.out.println("[SuggestAppAdminSolutionServiceImplTest] PINNED duplicate suggestion " + ids(users));
-                    assertThat(ids(users)).containsExactly("u2", "u2", "u3");
+                    System.out.println("[SuggestAppAdminSolutionServiceImplTest] member of two owner groups " + ids(users));
+                    assertThat(ids(users)).containsExactly("u2", "u3");
                 })
                 .verifyComplete();
         verify(userService).getByIds(askedIds.capture());
-        assertThat(askedIds.getValue()).containsExactly("u2", "u2", "u3");
+        assertThat(askedIds.getValue()).containsExactly("u2", "u3");
+    }
+
+    /**
+     * BF-138: the limit counts distinct people: with room for two group members, a member of both owner groups and one
+     * more member are suggested. Catches: the dedupe placed after the limit, where the duplicate used up a place.
+     */
+    @Test
+    void aMemberOfTwoOwnerGroupsCountsOnceAgainstTheLimitBF138() {
+        givenPermissions(ownerGroup("g1"), ownerGroup("g2"));
+        givenGroupMembers("g1", "u2");
+        givenGroupMembers("g2", "u2", "u3");
+
+        StepVerifier.create(service.getApplicationAdminUsers(APP_ID, TWO))
+                .assertNext(users -> {
+                    System.out.println("[SuggestAppAdminSolutionServiceImplTest] limit " + TWO + " " + ids(users));
+                    assertThat(ids(users)).containsExactly("u2", "u3");
+                })
+                .verifyComplete();
     }
 
     /** Catches: results in map order instead of suggestion order, and unknown (deleted) users coming back as null. */
