@@ -8,13 +8,14 @@ import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.lowcoder.api.authentication.request.oauth2.request.OauthProviderStubs.*;
 
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -47,8 +48,8 @@ import reactor.test.StepVerifier;
  * this class covers what they leave out: an {@code error_description}-only body, the id-token-only user path of the
  * Generic provider, the form-encoded GitHub parser and a malformed Ory/Keycloak base URL.
  *
- * <p>Pinned under D-6: plan §9 row "malformed admin auth-config input fails with raw exceptions instead of a coded
- * error" (a malformed Ory/Keycloak {@code baseUrl}).
+ * <p>BF-108 (fixed; was pinned under D-6 as the plan §9 row "malformed admin auth-config input fails with raw exceptions
+ * instead of a coded error"): a malformed Ory/Keycloak {@code baseUrl} fails the Mono instead of throwing.
  */
 @WireMockTest
 class OauthProviderFailureTest {
@@ -258,22 +259,52 @@ class OauthProviderFailureTest {
         }
     }
 
-    /**
-     * Pins plan §9 row "malformed admin auth-config input fails with raw exceptions instead of a coded error": an
-     * Ory/Keycloak {@code baseUrl} that is not a valid URI makes {@code getAuthToken} and {@code refreshAuthToken}
-     * throw a {@code RuntimeException(URISyntaxException)} synchronously, instead of returning a failed Mono or
-     * raising a coded error. A fix changes this test on purpose.
-     */
-    @Test
-    void oryAndKeycloak_malformedBaseUrl_throwRawRuntimeExceptionSynchronously_pinsRawExceptionDefect() {
+    private static Stream<Arguments> malformedBaseUrlSites() {
         OryRequest ory = new OryRequest(ory(MALFORMED_BASE_URL));
         KeycloakRequest keycloak = new KeycloakRequest(keycloak(MALFORMED_BASE_URL));
+        return Stream.of(
+                Arguments.of("Ory getAuthToken", (Supplier<Mono<?>>) () -> ory.getAuthToken(context())),
+                Arguments.of("Ory refreshAuthToken", (Supplier<Mono<?>>) () -> ory.refreshAuthToken(REFRESH_TOKEN)),
+                Arguments.of("Keycloak getAuthToken", (Supplier<Mono<?>>) () -> keycloak.getAuthToken(context())),
+                Arguments.of("Keycloak refreshAuthToken", (Supplier<Mono<?>>) () -> keycloak.refreshAuthToken(REFRESH_TOKEN)));
+    }
 
-        assertThatThrownBy(() -> ory.getAuthToken(context())).isExactlyInstanceOf(RuntimeException.class).hasCauseInstanceOf(URISyntaxException.class);
-        assertThatThrownBy(() -> ory.refreshAuthToken(REFRESH_TOKEN)).isExactlyInstanceOf(RuntimeException.class).hasCauseInstanceOf(URISyntaxException.class);
-        assertThatThrownBy(() -> keycloak.getAuthToken(context())).isExactlyInstanceOf(RuntimeException.class).hasCauseInstanceOf(URISyntaxException.class);
-        assertThatThrownBy(() -> keycloak.refreshAuthToken(REFRESH_TOKEN)).isExactlyInstanceOf(RuntimeException.class).hasCauseInstanceOf(URISyntaxException.class);
-        System.out.println("[OauthProviderFailureTest] baseUrl '" + MALFORMED_BASE_URL + "' -> RuntimeException(URISyntaxException) from all four sites");
+    /**
+     * BF-108 (fixed; was pinned as the plan §9 row "malformed admin auth-config input fails with raw exceptions instead of
+     * a coded error"): an Ory/Keycloak {@code baseUrl} that is not a valid URI fails the Mono with the
+     * {@link URISyntaxException}; {@code getAuthToken} and {@code refreshAuthToken} threw a
+     * {@code RuntimeException(URISyntaxException)} synchronously.
+     */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("malformedBaseUrlSites")
+    void oryAndKeycloak_malformedBaseUrl_failTheMonoBF108(String site, Supplier<Mono<?>> call) {
+        Mono<?> mono = call.get();
+
+        StepVerifier.create(mono).expectError(URISyntaxException.class).verify(BLOCK_TIMEOUT);
+        System.out.println("[OauthProviderFailureTest] baseUrl '" + MALFORMED_BASE_URL + "', " + site + " -> failed Mono (URISyntaxException)");
+    }
+
+    /**
+     * BF-108 as the login and the session refresh see it: {@code auth} and {@code refresh} answer a malformed
+     * {@code baseUrl} with FAIL_TO_GET_OIDC_INFO, carrying the URI error; the synchronous throw passed their error mapping by.
+     */
+    @Test
+    void oryAndKeycloak_malformedBaseUrl_failAuthAndRefreshWithFailToGetOidcInfoBF108() {
+        Map<String, AbstractOauth2Request<?>> requests = Map.of(
+                "Ory", new OryRequest(ory(MALFORMED_BASE_URL)), "Keycloak", new KeycloakRequest(keycloak(MALFORMED_BASE_URL)));
+
+        requests.forEach((provider, request) -> {
+            for (Mono<AuthUser> call : List.of(request.auth(context()), request.refresh(REFRESH_TOKEN))) {
+                StepVerifier.create(call)
+                        .expectErrorSatisfies(e -> {
+                            System.out.println("[OauthProviderFailureTest] " + provider + " baseUrl '" + MALFORMED_BASE_URL + "' -> " + e);
+                            assertThat(e).isInstanceOf(BizException.class);
+                            assertThat(((BizException) e).getError()).isEqualTo(BizError.FAIL_TO_GET_OIDC_INFO);
+                            assertThat(e.getMessage()).contains(MALFORMED_BASE_URL);
+                        })
+                        .verify(BLOCK_TIMEOUT);
+            }
+        });
     }
 
     // ----------------------------------------------------------------- GitHub
