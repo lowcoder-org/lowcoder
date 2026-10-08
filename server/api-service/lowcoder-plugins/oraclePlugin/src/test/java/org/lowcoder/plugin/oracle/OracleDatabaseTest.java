@@ -352,6 +352,25 @@ public class OracleDatabaseTest {
         }
     }
 
+    /**
+     * F01 (GitHub #1641) on a real Oracle: a bulk update with a filter changes the records' rows that match it; a record whose
+     * row the filter excludes keeps its value (the filter used to be ignored, so that row was updated too).
+     */
+    @Test
+    public void guiBulkUpdateWithAFilterLeavesTheRowTheFilterExcludesF01() throws Exception {
+        try (Connection jdbc = jdbc()) {
+            execute(jdbc, "drop table t_bulk_filter", "create table t_bulk_filter (id number primary key, name varchar2(20), status varchar2(10))",
+                    "insert into t_bulk_filter values (1, 'a', 'open')", "insert into t_bulk_filter values (2, 'b', 'closed')",
+                    "insert into t_bulk_filter values (3, 'c', 'open')");
+            Object updated = gui("BULK_UPDATE", Map.of("table", "t_bulk_filter", "primaryKey", "ID",
+                    "records", "[{\"ID\":1,\"NAME\":\"A\"},{\"ID\":2,\"NAME\":\"B\"}]",
+                    "filterBy", List.of(Map.of("column", "STATUS", "condition", "=", "value", "{{status}}"))), Map.of("status", "open"));
+            System.out.println("[OracleDatabaseTest] F01 bulk update with filter STATUS = open: " + updated);
+            assertEquals(1, ((Map<?, ?>) updated).get(AFFECTED_ROWS));
+            assertEquals(List.of("A", "b", "c"), column(jdbc, "select name from t_bulk_filter order by id", "NAME"));
+        }
+    }
+
     @Test
     public void rownumOneChangesAndDeletesExactlyOneOfThreeMatchingRows() throws Exception {
         try (Connection jdbc = jdbc()) {

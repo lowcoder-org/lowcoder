@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.sdk.exception.PluginCommonError;
+import org.lowcoder.sdk.plugin.sqlcommand.filter.FilterSet;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand.GuiSqlCommandRenderResult;
@@ -360,6 +361,73 @@ class GuiSqlCommandRenderTest {
                 PluginCommonError.INVALID_INSERT_COMMAND, "BULK_UPDATE_DATA_NOT_CONTAIN_PRIMARY_KEY");
         assertPluginError(() -> MysqlBulkUpdateCommand.from(bulkDetail("[{\"id\":1}]", null)),
                 PluginCommonError.INVALID_GUI_SETTINGS, "GUI_PRIMARY_KEY_EMPTY");
+    }
+
+    private static Map<String, Object> filteredBulkDetail(Object filterBy) {
+        Map<String, Object> detail = bulkDetail("[{\"id\":1,\"name\":\"a\"},{\"id\":2,\"name\":\"b\"}]", "id");
+        detail.put(FilterSet.FILTER_BY_KEY, filterBy);
+        return detail;
+    }
+
+    /**
+     * F01 (GitHub #1641): a bulk update's filter is ANDed to the primary key list, its values bound after the keys, so a
+     * record whose row the filter excludes is not updated. Catches the filter ignored (the state before), its conditions
+     * joined to the keys without parentheses or with a second {@code where}, and its values bound out of order.
+     */
+    @Test
+    void bulkUpdateAndsTheFilterToTheKeysAndBindsItsValuesLastForMysqlF01() {
+        Map<String, Object> detail = filteredBulkDetail(List.of(filter("status", "=", "{{status}}"), filter("qty", ">", 3)));
+
+        GuiSqlCommandRenderResult result = print("mysql bulk update with filter", MysqlBulkUpdateCommand.from(detail).render(Map.of("status", "open")));
+
+        assertThat(result.sql()).isEqualTo("UPDATE users set\n`name` = CASE WHEN `id` = ? THEN ? WHEN `id` = ? THEN ? ELSE `name` END\n"
+                + "where `id` in (?,?) and (`status` = ?  and `qty` > ? )");
+        assertThat(result.bindParams()).as("the CASE WHEN binds, the keys, then the filter values").containsExactly(1, "a", 2, "b", 1, 2, "open", 3);
+        assertThat(MysqlBulkUpdateCommand.from(detail).extractMustacheKeys()).as("the filter's mustache keys are the query's too").contains("{{status}}");
+    }
+
+    /** F01: in the raw-SQL dialect the filter value is written as the update's filter writes it, dollar-quoted. */
+    @Test
+    void bulkUpdateWritesTheFilterValuesAsLiteralsForPostgresF01() {
+        Map<String, Object> detail = filteredBulkDetail(List.of(filter("status", "=", "{{status}}")));
+
+        GuiSqlCommandRenderResult result = print("pg bulk update with filter", PostgresBulkUpdateCommand.from(detail).render(Map.of("status", "o'pen")));
+
+        assertThat(result.sql()).matches("(?s)UPDATE users set\n\"name\" = CASE WHEN \"id\" = 1 THEN " + pgQuoted("a", 1)
+                + " WHEN \"id\" = 2 THEN " + pgQuoted("b", 2) + " ELSE \"name\" END\n"
+                + "where \"id\" in \\(1,2\\) and \\(\"status\" = " + pgQuoted("o'pen", 3) + "\\)");
+        assertThat(result.bindParams()).isEmpty();
+    }
+
+    /**
+     * F01: a bulk update without a filter renders as before, also when {@code filterBy} is null (a bulk update saved before
+     * the editor had a filter sends none) or empty; an empty IN list matches no row, as in the update. Catches a missing
+     * filter refused as the update refuses it (GUI_FILTER_FIELD_EMPTY) and an empty filter rendered as {@code and ()}.
+     */
+    @Test
+    void aBulkUpdateWithoutFilterRendersAsBeforeAndAnEmptyInListMatchesNoRowF01() {
+        String unfiltered = "UPDATE users set\n`name` = CASE WHEN `id` = ? THEN ? WHEN `id` = ? THEN ? ELSE `name` END\nwhere `id` in (?,?)";
+        Map<String, Object> absent = bulkDetail("[{\"id\":1,\"name\":\"a\"},{\"id\":2,\"name\":\"b\"}]", "id");
+        for (Map<String, Object> detail : List.of(absent, filteredBulkDetail(null), filteredBulkDetail(List.of()))) {
+            GuiSqlCommandRenderResult result = print("mysql bulk update, filterBy " + detail.get(FilterSet.FILTER_BY_KEY), MysqlBulkUpdateCommand.from(detail).render(NO_PARAMS));
+            assertThat(result.sql()).isEqualTo(unfiltered);
+            assertThat(result.bindParams()).containsExactly(1, "a", 2, "b", 1, 2);
+        }
+
+        GuiSqlCommandRenderResult emptyIn = print("mysql bulk update, empty IN", MysqlBulkUpdateCommand.from(
+                filteredBulkDetail(List.of(filter("status", "IN", "{{none}}")))).render(Map.of("none", List.of())));
+        assertThat(emptyIn.sql()).endsWith("where `id` in (?,?) and (false)");
+    }
+
+    /** F01: a bulk update's filter is checked as the update's is: not a list, a blank condition, an IN value that is not a list. */
+    @Test
+    void aBulkUpdateFilterIsCheckedAsTheUpdateFilterIsF01() {
+        assertPluginError(() -> MysqlBulkUpdateCommand.from(filteredBulkDetail("status = 1")),
+                PluginCommonError.INVALID_GUI_SETTINGS, "GUI_INVALID_FILTER_FIELD", "String");
+        assertPluginError(() -> MysqlBulkUpdateCommand.from(filteredBulkDetail(List.of(filter("status", " ", 1)))),
+                PluginCommonError.INVALID_GUI_SETTINGS, "GUI_INVALID_FILTER_CONDITION");
+        assertPluginError(() -> PostgresBulkUpdateCommand.from(filteredBulkDetail(List.of(filter("status", "IN", "x")))).render(NO_PARAMS),
+                PluginCommonError.INVALID_IN_OPERATOR_SETTINGS, "INVALID_IN");
     }
 
     // ---- upsert ----

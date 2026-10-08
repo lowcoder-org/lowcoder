@@ -184,7 +184,7 @@ public class PostgresCommandTest {
         );
 
         var command = new PostgresBulkUpdateCommand("user",
-                new BulkObjectChangeSet(toJson(updateList)), "id") {
+                new BulkObjectChangeSet(toJson(updateList)), "id", new FilterSet()) {
             @Override
             public EscapeSql escapeStrFunc() {
                 return testEscaper;
