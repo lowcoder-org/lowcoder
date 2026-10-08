@@ -37,13 +37,25 @@ public class UriUtils {
         });
     }
 
+    /**
+     * The request's {@code Referer} as a URI, or null when it is absent, blank or not a valid URI (BF-143: an unparsable
+     * value, which the client controls, threw from {@code URI.create} and failed every request in GlobalContextFilter and
+     * every cookie write in CookieHelper with a generic 500). An unparsable value is logged at debug level only, as any
+     * client can send one. Limit: such a request is treated as one without a Referer, so its referer domain is empty and an
+     * auth cookie written for it is not marked Secure.
+     */
     @Nullable
     public static URI getRefererURI(ServerHttpRequest request) {
         String refer = request.getHeaders().getFirst(REFERER);
-        if (StringUtils.isNotBlank(refer)) {
-            return URI.create(refer);
+        if (StringUtils.isBlank(refer)) {
+            return null;
         }
-        return null;
+        try {
+            return URI.create(refer);
+        } catch (IllegalArgumentException unparsable) {
+            log.debug("ignoring an unparsable Referer: {}", unparsable.getMessage());
+            return null;
+        }
     }
 
     @SuppressWarnings("UnstableApiUsage")
