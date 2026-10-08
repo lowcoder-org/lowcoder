@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
+import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
 import static org.lowcoder.plugin.mysql.MysqlContainerSupport.app;
 import static org.lowcoder.plugin.mysql.MysqlContainerSupport.config;
 import static org.lowcoder.plugin.mysql.MysqlContainerSupport.connect;
@@ -35,10 +37,10 @@ import static org.lowcoder.plugin.mysql.MysqlContainerSupport.sqlConfig;
  * {@code mysql:8.0} (the image pinned in {@code ContainerImages.MYSQL_8_0}). Each test uses its own tables, or its own
  * schema for the structure tests, so tests do not depend on order.
  *
- * <p>Error paths assert the MissingResourceException (key INTERNAL_SERVER_ERROR) that stands in for the PluginException and
- * the effect on the data: the module's own empty {@code locale.properties} shadows the SDK's message bundle (plan section 9
- * row "mysqlPlugin's empty locale.properties and locale_en.properties", D-6: fix deferred; the contract fixture
- * {@code MysqlQueryConfig.json} shows the same).
+ * <p>Error paths assert the coded PluginException (error, key and English text) and the effect on the data. Before BF-127
+ * the module's own empty {@code locale.properties} and {@code locale_en.properties} shadowed the SDK's message bundle on the
+ * test classpath, so a MissingResourceException (key INTERNAL_SERVER_ERROR) stood in for each PluginException; the files
+ * are gone.
  * TLS behaviour of the pinned image ({@code mysql:8.0}): the server offers TLS with a generated certificate, so a pool with
  * usingSsl (useSSL and requireSSL true, no certificate verification) negotiates TLS 1.3.
  */
@@ -46,6 +48,9 @@ public class MysqlDatabaseTest {
 
     static final String WRONG_PASSWORD = "not-the-password";
     static final String ACCESS_DENIED = "Access denied";
+    static final String READ_ONLY_REFUSAL = "Query execution error: Connection is read-only. Queries leading to data modification are not allowed.";
+    static final String QUERY_EXECUTION_ERROR_KEY = "QUERY_EXECUTION_ERROR";
+    static final String GUI_INVALID_TABLE_NAME_KEY = "GUI_INVALID_TABLE_NAME";
     static final String PUBLIC_KEY_RETRIEVAL_NOT_ALLOWED = "Public Key Retrieval is not allowed";
     static final String FRESH_USER = "fresh";
     static final String FRESH_USER_WITHOUT_KEY_RETRIEVAL = "fresh_no_key";
@@ -115,9 +120,12 @@ public class MysqlDatabaseTest {
             MysqlDatasourceConfig readonly = config(MysqlContainerSupport.DATABASE, MysqlContainerSupport.PASSWORD, false, true, false);
             HikariPerfWrapper readonlyPool = connect(readonly);
             try {
-                RuntimeException thrown = EmptyLocaleBundle.assertThrown(
+                PluginException thrown = assertThrows(PluginException.class,
                         () -> run(readonlyPool, readonly, sqlConfig("insert into t_readonly values (1)", false), Map.of()));
-                System.out.println("[MysqlDatabaseTest] read-only insert refused: " + thrown);
+                System.out.println("[MysqlDatabaseTest] read-only insert refused: " + thrown.getError() + " / " + thrown.getMessageKey() + ": " + thrown.getMessage());
+                assertEquals(QUERY_EXECUTION_ERROR, thrown.getError(), "BF-127: the coded error, not a MissingResourceException");
+                assertEquals(QUERY_EXECUTION_ERROR_KEY, thrown.getMessageKey());
+                assertEquals(READ_ONLY_REFUSAL, thrown.getMessage(), "the English text with the server's refusal");
             } finally {
                 destroy(readonlyPool);
             }
@@ -429,10 +437,9 @@ public class MysqlDatabaseTest {
      * table check. A plain name is accepted as returned. A name with a space is refused unquoted: written into the SQL as
      * returned, it never addressed that table (the statement the commands built before the check reads {@code spaced}
      * as the table and {@code items} as its alias, and fails here because there is no table {@code spaced}), and it works when
-     * quoted with backticks. A name that is not an identifier is refused before any statement runs. The refusals are
-     * asserted through {@link EmptyLocaleBundle} (the module's empty locale bundle turns the PluginException with key
-     * GUI_INVALID_TABLE_NAME into a MissingResourceException, BF-127); the key itself is asserted in the sdk's
-     * SqlGuiUtilsTest and PostgresDatabaseTest.
+     * quoted with backticks. A name that is not an identifier is refused before any statement runs, with INVALID_GUI_SETTINGS
+     * / GUI_INVALID_TABLE_NAME naming it (BF-127: the module's empty locale bundle used to turn that PluginException into a
+     * MissingResourceException on the test classpath).
      */
     @Test
     public void guiTableCheckAcceptsStructureNamesThatAreIdentifiersAndRefusesTheRestBeforeRunning() throws Exception {
@@ -456,8 +463,9 @@ public class MysqlDatabaseTest {
             System.out.println("[MysqlDatabaseTest] delete from the structure name plain_items: " + plain);
             assertEquals(1, ((Map<?, ?>) plain).get("affectedRows"));
 
-            RuntimeException unquoted = EmptyLocaleBundle.assertThrown(() -> run(wrapper, config, guiConfig("DELETE",
+            PluginException unquoted = assertThrows(PluginException.class, () -> run(wrapper, config, guiConfig("DELETE",
                     Map.of("table", "spaced items", "filterBy", List.of(idFilter), "allowMultiModify", true)), Map.of("id", 1)));
+            assertInvalidTableName("spaced items", unquoted);
             IllegalStateException before = assertThrows(IllegalStateException.class,
                     () -> execute(root, "delete from spaced items where `id` = 1"));
             System.out.println("[MysqlDatabaseTest] unquoted 'spaced items' refused: " + unquoted
@@ -468,15 +476,24 @@ public class MysqlDatabaseTest {
                     "allowMultiModify", true)), Map.of("id", 1));
             assertEquals(1, ((Map<?, ?>) quoted).get("affectedRows"));
 
-            RuntimeException injected = EmptyLocaleBundle.assertThrown(() -> run(wrapper, config, guiConfig("DELETE",
+            PluginException injected = assertThrows(PluginException.class, () -> run(wrapper, config, guiConfig("DELETE",
                     Map.of("table", "plain_items; delete from plain_items", "filterBy", List.of(idFilter), "allowMultiModify", true)),
                     Map.of("id", 99)));
+            assertInvalidTableName("plain_items; delete from plain_items", injected);
             System.out.println("[MysqlDatabaseTest] table that is not an identifier refused: " + injected);
             assertEquals(1, rows(root, "select id from plain_items").size(), "nothing ran");
             assertEquals(1, rows(root, "select id from `spaced items`").size());
         } finally {
             destroy(wrapper);
         }
+    }
+
+    /** BF-127: a refused GUI table name is INVALID_GUI_SETTINGS / GUI_INVALID_TABLE_NAME naming the table. */
+    private static void assertInvalidTableName(String table, PluginException thrown) {
+        System.out.println("[MysqlDatabaseTest] table '" + table + "' refused: " + thrown.getError() + " / " + thrown.getMessageKey() + ": " + thrown.getMessage());
+        assertEquals(INVALID_GUI_SETTINGS, thrown.getError());
+        assertEquals(GUI_INVALID_TABLE_NAME_KEY, thrown.getMessageKey());
+        assertEquals("Invalid GUI parameter: " + table + " is not a valid table name.", thrown.getMessage());
     }
 
     @Test
