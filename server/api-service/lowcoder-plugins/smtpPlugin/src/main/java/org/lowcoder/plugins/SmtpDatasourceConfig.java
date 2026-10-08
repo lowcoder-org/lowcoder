@@ -11,6 +11,8 @@ import java.util.function.Function;
 
 import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.lowcoder.sdk.exception.BizError.INVALID_DATASOURCE_CONFIG_TYPE;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 
 @Getter
 @Builder
@@ -27,7 +29,10 @@ public class SmtpDatasourceConfig implements DatasourceConnectionConfig {
 
     @Override
     public DatasourceConnectionConfig mergeWithUpdatedConfig(DatasourceConnectionConfig detailConfig) {
-        SmtpDatasourceConfig updateConfig = (SmtpDatasourceConfig) detailConfig;
+        // BF-124: a config of another type was cast unchecked (ClassCastException); refused as the other plugins do
+        if (!(detailConfig instanceof SmtpDatasourceConfig updateConfig)) {
+            throw ofException(INVALID_DATASOURCE_CONFIG_TYPE, "INVALID_DATASOURCE_CONFIG_TYPE", detailConfig.getClass().getSimpleName());
+        }
         return SmtpDatasourceConfig.builder()
                 .host(updateConfig.getHost())
                 .port(updateConfig.getPort())
