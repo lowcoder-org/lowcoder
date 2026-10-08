@@ -249,7 +249,7 @@ public class RedisPlugin extends Plugin {
             List<String> args = new ArrayList<>();
             while (matcher.find()) {
                 if (!cmdAndArgs.containsKey(CMD_KEY)) {
-                    cmdAndArgs.put(CMD_KEY, matcher.group().toUpperCase());
+                    cmdAndArgs.put(CMD_KEY, matcher.group().toUpperCase(Locale.ROOT)); // BF-122: not the default locale
                 } else {
                     String arg = matcher.group();
                     if (arg.startsWith("\"") && arg.endsWith("\"")) {

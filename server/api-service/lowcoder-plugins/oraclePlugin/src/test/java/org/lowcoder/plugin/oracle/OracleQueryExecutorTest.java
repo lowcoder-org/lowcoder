@@ -148,19 +148,21 @@ public class OracleQueryExecutorTest {
         assertEquals("merge", thrown.getArgs()[0]);
     }
 
+    /** The default locale under which upper-casing "i" gives a dotted capital I. */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+
     /**
-     * Pins defect D17 (analysis-plugins section 0.6; plan section 9 D1-D20 row: default-locale toUpperCase): under a
-     * Turkish default locale "insert" becomes a dotted capital I word and falls into the error branch. A fix
-     * ({@code Locale.ROOT}) changes this test on purpose. The default locale is global state: restored in finally.
+     * BF-122 (D17): the GUI type was upper-cased with the default locale, so under a Turkish default locale "insert" became a
+     * dotted capital I word and fell into the error branch (INVALID_GUI_COMMAND_TYPE). It is upper-cased with
+     * {@code Locale.ROOT} now. The default locale is global state: restored in finally.
      */
     @Test
-    public void guiTypeInsertFailsUnderATurkishDefaultLocale_pinsD17() {
+    public void guiTypeInsertIsReadUnderATurkishDefaultLocaleBF122() {
         Locale saved = Locale.getDefault();
         try {
-            Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+            Locale.setDefault(TURKISH);
             System.out.println("[OracleQueryExecutorTest] default locale: " + Locale.getDefault() + ", upper case of insert: " + "insert".toUpperCase());
-            PluginException thrown = assertThrows(PluginException.class, () -> executor.parseSqlCommand("insert", DETAILS.get("insert")));
-            assertEquals("INVALID_GUI_COMMAND_TYPE", thrown.getMessageKey());
+            assertInstanceOf(OracleInsertCommand.class, executor.parseSqlCommand("insert", DETAILS.get("insert")), "under " + Locale.getDefault());
         } finally {
             Locale.setDefault(saved);
         }

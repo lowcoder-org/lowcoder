@@ -369,22 +369,24 @@ public class MongoCommandDocumentsTest {
         assertFalse(MongoQueryUtils.isRawCommand(new HashMap<>()));
     }
 
+    /** The default locale under which upper-casing "i" gives a dotted capital I. */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+
     /**
-     * Pins defect D17 (analysis-plugins section 0.6; plan section 9 D1-D20 row: default-locale toUpperCase,
-     * {@code MongoQueryUtils.java:90}): under a Turkish default locale the command type {@code insert} (lower case) becomes a
-     * dotted capital I word and is rejected as unknown. The client sends upper-case types (mongoQuery.tsx:15-22), which a
-     * Turkish locale does not change, so only an API call with a lower-case type reaches it. A fix ({@code Locale.ROOT})
-     * changes this test on purpose. The default locale is global state: restored in finally.
+     * BF-122 (D17; {@code MongoQueryUtils.java:90}): the command type was upper-cased with the default locale, so under a
+     * Turkish default locale the type {@code insert} (lower case) became a dotted capital I word and was rejected as unknown
+     * (INVALID_MONGODB_REQUEST). The client sends upper-case types (mongoQuery.tsx:15-22), so only an API call with a
+     * lower-case type reached it. It is upper-cased with {@code Locale.ROOT} now. The default locale is global state:
+     * restored in finally.
      */
     @Test
-    public void lowerCaseCommandTypeIsRejectedUnderATurkishDefaultLocale_pinsD17() {
+    public void lowerCaseCommandTypeIsReadUnderATurkishDefaultLocaleBF122() {
         Locale saved = Locale.getDefault();
         try {
-            Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+            Locale.setDefault(TURKISH);
             System.out.println("[MongoCommandDocumentsTest] default locale: " + Locale.getDefault() + ", upper case of insert: " + "insert".toUpperCase());
-            PluginException thrown = invalid(form("insert", COLLECTION, "documents", "{}"));
-            assertEquals("INVALID_MONGODB_REQUEST", thrown.getMessageKey());
-            assertInstanceOf(Insert.class, MongoQueryUtils.convertMongoFormInputToRawCommand(form("INSERT", COLLECTION, "documents", "{}")), "the upper-case type the client sends is unaffected");
+            assertInstanceOf(Insert.class, MongoQueryUtils.convertMongoFormInputToRawCommand(form("insert", COLLECTION, "documents", "{}")), "under " + Locale.getDefault());
+            assertInstanceOf(Insert.class, MongoQueryUtils.convertMongoFormInputToRawCommand(form("INSERT", COLLECTION, "documents", "{}")), "the upper-case type the client sends");
         } finally {
             Locale.setDefault(saved);
         }

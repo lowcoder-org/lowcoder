@@ -55,7 +55,7 @@ public class MysqlQueryExecutor extends SqlBasedQueryExecutor {
 
     @Override
     protected GuiSqlCommand parseSqlCommand(String guiStatementType, Map<String, Object> detail) {
-        return switch (guiStatementType.toUpperCase()) {
+        return switch (guiStatementType.toUpperCase(java.util.Locale.ROOT)) { // BF-122: not the default locale
             case "INSERT" -> MysqlInsertCommand.from(detail);
             case "UPDATE" -> MysqlUpdateCommand.from(detail);
             case "UPSERT" -> MysqlUpsertCommand.from(detail);
