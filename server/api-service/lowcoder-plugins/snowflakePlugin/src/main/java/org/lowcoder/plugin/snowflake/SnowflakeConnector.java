@@ -9,6 +9,9 @@ import com.zaxxer.hikari.HikariConfig;
 public class SnowflakeConnector extends SqlBasedConnector<SnowflakeDatasourceConfig> {
 
     private static final String JDBC_DRIVER = "net.snowflake.client.jdbc.SnowflakeDriver";
+    private static final String DB_PROPERTY = "db";
+    private static final String USER_PROPERTY = "user";
+    private static final String PASSWORD_PROPERTY = "password";
 
     public SnowflakeConnector() {
         super(50);
@@ -26,8 +29,11 @@ public class SnowflakeConnector extends SqlBasedConnector<SnowflakeDatasourceCon
 
         String url = "jdbc:snowflake://" + host + ".snowflakecomputing.com/";
         config.setJdbcUrl(url);
-        config.addDataSourceProperty("db", database);
-        config.addDataSourceProperty("user", datasourceConfig.getUsername());
-        config.addDataSourceProperty("password", datasourceConfig.getPassword());
+        config.addDataSourceProperty(DB_PROPERTY, database);
+        config.addDataSourceProperty(USER_PROPERTY, datasourceConfig.getUsername());
+        // BF-112: the form's password is optional and the data-source properties reject null; an empty password is still set
+        if (datasourceConfig.getPassword() != null) {
+            config.addDataSourceProperty(PASSWORD_PROPERTY, datasourceConfig.getPassword());
+        }
     }
 }
