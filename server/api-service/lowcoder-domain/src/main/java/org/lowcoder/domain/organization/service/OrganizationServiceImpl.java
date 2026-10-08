@@ -175,10 +175,17 @@ public class OrganizationServiceImpl implements OrganizationService {
         return orgMemberService.addMember(newOrg.getId(), userId, MemberRole.SUPER_ADMIN);
     }
 
+    /**
+     * The active organization named by an object id, a gid or a slug. A key with a hyphen is looked up as a gid and then
+     * as a slug (BF-133: SlugUtils accepts a hyphen in a slug, and such a slug was never looked up), any other key as a
+     * slug and then as an object id. The same order holds for {@link #getByIdWithDeleted} and {@link #getOrgCommonSettings};
+     * {@link #getByIds} takes the kind of its first key for the whole list, as before.
+     */
     @Override
     public Mono<Organization> getById(String id) {
         if(FieldName.isGID(id))
             return repository.findByGidAndState(id, ACTIVE)
+                    .switchIfEmpty(repository.findBySlugAndState(id, ACTIVE))
                     .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
         return repository.findBySlugAndState(id, ACTIVE).switchIfEmpty(repository.findByIdAndState(id, ACTIVE))
                 .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
@@ -188,6 +195,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     public Mono<Organization> getByIdWithDeleted(String id) {
         if(FieldName.isGID(id))
             return repository.findByGid(id).next()
+                    .switchIfEmpty(repository.findBySlug(id).next())
                     .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
         return repository.findBySlug(id).next().switchIfEmpty(repository.findById(id))
                 .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
@@ -197,6 +205,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     public Mono<OrganizationCommonSettings> getOrgCommonSettings(String orgId) {
         if(FieldName.isGID(orgId))
             return repository.findByGidAndState(orgId, ACTIVE)
+                    .switchIfEmpty(repository.findBySlugAndState(orgId, ACTIVE))
                     .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"))
                     .map(Organization::getCommonSettings);
         return repository.findBySlugAndState(orgId, ACTIVE).switchIfEmpty(repository.findByIdAndState(orgId, ACTIVE))
@@ -207,7 +216,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     public Flux<Organization> getByIds(Collection<String> ids) {
         if(!ids.isEmpty() && FieldName.isGID(ids.stream().findFirst().get()))
-            return repository.findByGidInAndState(ids, ACTIVE);
+            return repository.findByGidInAndState(ids, ACTIVE).switchIfEmpty(repository.findBySlugInAndState(ids, ACTIVE));
         return repository.findBySlugInAndState(ids, ACTIVE).switchIfEmpty(repository.findByIdInAndState(ids, ACTIVE));
     }
 
