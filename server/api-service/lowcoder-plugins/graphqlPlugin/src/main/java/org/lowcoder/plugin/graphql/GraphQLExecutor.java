@@ -350,8 +350,8 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
                 .exchange()
                 .onErrorMap(e -> new PluginException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR", e.getMessage()))
                 .flatMap(response -> {
-                    if (response.statusCode().is3xxRedirection()) {
-                        String redirectUrl = response.headers().header("Location").get(0);
+                    String redirectUrl = WebClientRedirects.redirectLocation(response); // BF-113: null for a 3xx without a Location
+                    if (redirectUrl != null) {
                         URI redirectUri;
                         try {
                             redirectUri = WebClientRedirects.resolveLocation(uri, redirectUrl);
