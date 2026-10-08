@@ -17,6 +17,8 @@ public class Pagination {
 
     private static final int MIN_PAGE = 1;
     private static final int MIN_SIZE = 5;
+    /** The message key of the page-number error ({@code locale_en.properties}: "Invalid page number."). */
+    private static final String ILLEGAL_PAGE_NUMBER = "ILLEGAL_PAGE_NUMBER";
     private final int page;
     private final int size;
     private int maxSize = 100;
@@ -43,9 +45,13 @@ public class Pagination {
 
     public Pagination check() {
         if ((maxPage > 0 && page > maxPage) || page <= 0) {
-            throw new BizException(INVALID_PARAMETER, "ILLEGAL_PAGE_NUMBER", page);
+            throw illegalPageNumber(page);
         }
         return this;
+    }
+
+    private static BizException illegalPageNumber(int page) {
+        return new BizException(INVALID_PARAMETER, ILLEGAL_PAGE_NUMBER, page);
     }
 
     public PageRequest toPageRequest() {
@@ -82,12 +88,34 @@ public class Pagination {
         return fromIndex < toIndex ? list.subList((int) fromIndex, (int) toIndex) : emptyList();
     }
 
+    /**
+     * The page {@code pageNum} (counted from 1) of {@code flux}, {@code pageSize} items long; a page size of 0 or less is the
+     * whole flux, whatever the page, as for {@link #pageOf(List, int, int)}. A page number below 1 is the error that
+     * {@link #check()} gives, INVALID_PARAMETER with ILLEGAL_PAGE_NUMBER (BF-153: {@code Flux.skip} threw for the negative
+     * count, a raw HTTP 500, and a page size below 0 did the same from page 2 on). The skip count is computed in
+     * {@code long}.
+     * <p>
+     * Limits: the error is the returned flux's, so a caller that also counts {@code flux} (for the total) still subscribes
+     * to it; {@link #fluxToPageResponseView} checks the page first and subscribes to nothing.
+     */
+    public static <T> Flux<T> pageOf(Flux<T> flux, int pageNum, int pageSize) {
+        if (pageNum < MIN_PAGE) {
+            return Flux.error(illegalPageNumber(pageNum));
+        }
+        if (pageSize <= 0) {
+            return flux;
+        }
+        return flux.skip((long) (pageNum - 1) * pageSize).take(pageSize);
+    }
+
+    /** The page of {@code flux} as {@link #pageOf(Flux, int, int)} gives it, with the total; a page number below 1 is refused before {@code flux} is subscribed. */
     @NotNull
     public static Mono<PageResponseView<?>> fluxToPageResponseView(Integer pageNum, Integer pageSize, Flux<?> flux) {
+        if (pageNum < MIN_PAGE) {
+            return Mono.error(illegalPageNumber(pageNum));
+        }
         var countMono = flux.count();
-        var flux1 = flux.skip((long) (pageNum - 1) * pageSize);
-        if(pageSize > 0) flux1 = flux1.take(pageSize);
-        return flux1.collectList().zipWith(countMono)
+        return pageOf(flux, pageNum, pageSize).collectList().zipWith(countMono)
                 .map(tuple -> PageResponseView.success(tuple.getT1(), pageNum, pageSize, Math.toIntExact(tuple.getT2())));
     }
 }

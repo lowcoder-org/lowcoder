@@ -25,15 +25,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Task L1-13b (lane L5): a paged endpoint with {@code pageNum} 0 or negative, through the real {@link LibraryQueryController}
  * ({@code GET /library-queries/listByOrg}) over the production codecs and exception handling of {@link ContractTestClient}.
  *
- * <p>Plan section 9 row "pageNum <= 0 gives a raw 500": {@code Pagination.fluxToPageResponseView} computes
- * {@code skip((pageNum - 1) * pageSize)} ({@code Pagination.java:67}); a negative count makes Reactor throw an
- * {@code IllegalArgumentException} while the pipeline is assembled, which {@code GlobalExceptionHandler.catchException} answers as HTTP
- * 500 with code {@code INTERNAL_SERVER_ERROR} (5000). The seven callers listed in log-L5.md (L1-13) share it; this class pins one of
- * them. {@code Pagination.check()} would throw a {@code BizException} with {@code INVALID_PARAMETER} (HTTP 500, code 5002,
- * {@code BizError.java:15}) and the message key ILLEGAL_PAGE_NUMBER ({@code Pagination.java:41-46}); calling it first changes the code and
- * makes this pin fail. A page size of 0 is the documented way to take every item and stays a control.
+ * <p>BF-153 (plan section 9 row "pageNum <= 0 gives a raw 500"): {@code Pagination.fluxToPageResponseView} computed
+ * {@code skip((pageNum - 1) * pageSize)} unchecked; a negative count made Reactor throw an {@code IllegalArgumentException} while
+ * the pipeline was assembled, which {@code GlobalExceptionHandler.catchException} answered as HTTP 500 with code
+ * {@code INTERNAL_SERVER_ERROR} (5000). It now refuses a page below 1 with the error {@code Pagination.check()} gives: a
+ * {@code BizException} with {@code INVALID_PARAMETER} (HTTP 500, code 5002, {@code BizError.java:15}) and the message key
+ * ILLEGAL_PAGE_NUMBER ("Invalid page number.", {@code locale_en.properties:83}). The callers of
+ * {@code fluxToPageResponseView} and of {@code Pagination.pageOf(Flux, ...)} share it. A page size of 0 is the documented way to
+ * take every item and stays a control.
  *
- * <p>Limits: one endpoint stands for the seven; the service behind it is a mock. A page number whose skip count overflows is not tried.
+ * <p>Limits: one endpoint stands for every caller; the service behind it is a mock. The other callers are covered by
+ * {@code ApiUtilPaginationTest} through the shared method.
  */
 public class PagedEndpointPageNumZeroThroughTheStackTest {
 
@@ -47,6 +49,9 @@ public class PagedEndpointPageNumZeroThroughTheStackTest {
     static final int DEFAULT_PAGE_SIZE = 100;
     static final int ZERO_PAGE = 0;
     static final int NEGATIVE_PAGE = -3;
+    static final int NEGATIVE_PAGE_SIZE = -2;
+    /** {@code ILLEGAL_PAGE_NUMBER} in {@code locale_en.properties}. */
+    static final String INVALID_PAGE_NUMBER_MESSAGE = "Invalid page number.";
     static final int SUCCESS_CODE = 1;
     static final ObjectMapper JSON = new ObjectMapper();
 
@@ -93,21 +98,32 @@ public class PagedEndpointPageNumZeroThroughTheStackTest {
         }
     }
 
-    /** Pins today's behaviour of the plan section 9 row: page 0 is a raw internal server error, not a parameter error. */
-    @Test
-    void pageNumZeroGivesAnInternalServerErrorThroughTheStack_pinsTheSection9Row() {
-        JsonNode body = get(ZERO_PAGE, DEFAULT_PAGE_SIZE, HttpStatus.INTERNAL_SERVER_ERROR);
-
-        assertEquals(BizError.INTERNAL_SERVER_ERROR.getBizErrorCode(), body.get("code").asInt());
+    /** Asserts the BF-153 parameter error: HTTP 500 (set by the test's {@code get}), code 5002, the English message, no data. */
+    private static void assertInvalidPageNumber(JsonNode body) {
+        assertEquals(BizError.INVALID_PARAMETER.getBizErrorCode(), body.get("code").asInt());
+        assertEquals(INVALID_PAGE_NUMBER_MESSAGE, body.get("message").asText());
         assertTrue(body.get("data") == null || body.get("data").isNull());
     }
 
-    /** Same pin for a negative page number. */
+    /** BF-153: page 0 is the invalid-page-number parameter error, not a raw internal server error. Catches: the page passed to {@code skip} unchecked. */
     @Test
-    void aNegativePageNumGivesTheSameInternalServerError_pinsTheSection9Row() {
-        JsonNode body = get(NEGATIVE_PAGE, DEFAULT_PAGE_SIZE, HttpStatus.INTERNAL_SERVER_ERROR);
+    void pageNumZeroIsAnInvalidPageNumberBF153() {
+        assertInvalidPageNumber(get(ZERO_PAGE, DEFAULT_PAGE_SIZE, HttpStatus.INTERNAL_SERVER_ERROR));
+    }
 
-        assertEquals(BizError.INTERNAL_SERVER_ERROR.getBizErrorCode(), body.get("code").asInt());
+    /** BF-153: the same for a negative page number. */
+    @Test
+    void aNegativePageNumIsTheSameInvalidPageNumberBF153() {
+        assertInvalidPageNumber(get(NEGATIVE_PAGE, DEFAULT_PAGE_SIZE, HttpStatus.INTERNAL_SERVER_ERROR));
+    }
+
+    /** BF-153: a negative page size on page 2 takes every item, as size 0 does, where the negative skip count was a raw 500. */
+    @Test
+    void aNegativePageSizeOnPageTwoTakesEveryItemBF153() {
+        JsonNode body = get(2, NEGATIVE_PAGE_SIZE, HttpStatus.OK);
+
+        assertEquals(ITEM_COUNT, body.get("data").size());
+        assertEquals(ITEM_COUNT, body.get("total").asInt());
     }
 
     /** Control: the name filter is passed on to the service as sent. */
@@ -129,7 +145,7 @@ public class PagedEndpointPageNumZeroThroughTheStackTest {
         assertEquals(ITEM_COUNT, body.get("total").asInt());
     }
 
-    /** Control: page size 0 takes every item, and page 0 is the only value that fails. */
+    /** Control: page size 0 takes every item. */
     @Test
     void pageSizeZeroTakesEveryItem() {
         JsonNode body = get(1, 0, HttpStatus.OK);

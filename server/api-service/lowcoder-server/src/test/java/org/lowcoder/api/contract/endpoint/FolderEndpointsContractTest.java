@@ -27,6 +27,7 @@ import org.lowcoder.domain.folder.service.FolderElementRelationService;
 import org.lowcoder.domain.folder.service.FolderService;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.sdk.contract.CanonicalJson;
+import org.lowcoder.sdk.exception.BizError;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
@@ -80,6 +81,10 @@ class FolderEndpointsContractTest {
     /** {@code getElements}' defaults ({@code FolderEndpoints}): the first page, and {@code 0}, all elements. */
     static final int DEFAULT_PAGE_NUM = 1;
     static final int DEFAULT_PAGE_SIZE = 0;
+    /** BF-153: a page before the first, and a negative page size (no limit, as 0). */
+    static final int ZERO_PAGE_NUM = 0;
+    static final int NEGATIVE_PAGE_SIZE = -2;
+    static final String ILLEGAL_PAGE_NUMBER = "ILLEGAL_PAGE_NUMBER";
     /** {@code getEditingApplication(applicationId, withDeleted)} as {@code move} calls it. */
     static final Boolean WITH_DELETED = Boolean.TRUE;
 
@@ -187,6 +192,34 @@ class FolderEndpointsContractTest {
                     EndpointContract.s1(ApplicationInfoView.class), EndpointContract.s1(FolderInfoView.class)), DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE, 2));
             Mockito.verify(folderApiService).getElements(null, null, null, null);
             Mockito.verify(folderApiService).upsertLastViewTime(null);
+        }
+    }
+
+    /**
+     * BF-153: page 0 is the parameter error {@code Pagination.check()} gives (INVALID_PARAMETER, ILLEGAL_PAGE_NUMBER), where
+     * the negative skip count was a raw 500 (code 5000); the folder's last view time is not written for a refused page.
+     */
+    @Test
+    void getElementsWithPageNumZeroBF153() {
+        stubElements(FOLDER_ID, null, null, null, 3);
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getElements", Map.of("id", FOLDER_ID, "pageNum", ZERO_PAGE_NUM), null);
+            EndpointContract.assertBizError(result, BizError.INVALID_PARAMETER, ILLEGAL_PAGE_NUMBER, ZERO_PAGE_NUM);
+            Mockito.verify(folderApiService, Mockito.never()).upsertLastViewTime(any());
+        }
+    }
+
+    /** BF-153: a negative page size on page 2 takes every element, as 0 does, where the negative skip count was a raw 500. */
+    @Test
+    void getElementsWithANegativePageSizeOnPageTwoBF153() {
+        stubElements(FOLDER_ID, null, null, null, 3);
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getElements",
+                    Map.of("id", FOLDER_ID, "pageNum", PAGE_NUM, "pageSize", NEGATIVE_PAGE_SIZE), null);
+            EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.page(EndpointContract.array(
+                    EndpointContract.s1(ApplicationInfoView.class), EndpointContract.s1(FolderInfoView.class), EndpointContract.s1(ApplicationInfoView.class)),
+                    PAGE_NUM, NEGATIVE_PAGE_SIZE, 3));
+            Mockito.verify(folderApiService).upsertLastViewTime(FOLDER_ID);
         }
     }
 

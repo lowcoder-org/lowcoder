@@ -57,7 +57,9 @@ class ApplicationControllerGroupsOrMembersTest {
     private static final String USER_TYPE = "User";
     private static final int DEFAULT_PAGE_NUM = 1;
     private static final int DEFAULT_PAGE_SIZE = 1000;
-    private static final int INTERNAL_SERVER_ERROR_BIZ_CODE = BizError.INTERNAL_SERVER_ERROR.getBizErrorCode();
+    private static final int NEGATIVE_PAGE_NUM = -2;
+    private static final int NEGATIVE_PAGE_SIZE = -5;
+    private static final String ILLEGAL_PAGE_NUMBER = "ILLEGAL_PAGE_NUMBER";
 
     private ApplicationApiService applicationApiService;
     private ApplicationRepository applicationRepository;
@@ -288,28 +290,31 @@ class ApplicationControllerGroupsOrMembersTest {
     }
 
     /**
-     * Behaviour (consistent with L3's C6, not a section 9 row): pageNum 0 makes {@code skip((pageNum - 1) * pageSize)}
-     * negative, and Reactor's {@code Flux.skip} rejects it with an IllegalArgumentException that arrives as an error signal.
-     * It is not a BizException, so GlobalExceptionHandler.catchException (the catch-all for non-Biz exceptions) answers it:
-     * HTTP 500 with bizErrorCode 5000 (BizError.INTERNAL_SERVER_ERROR) and the generic INTERNAL_SERVER_ERROR message, i.e. a
-     * raw 500 for {@code ?pageNum=0}; the unit test does not run the handler. A negative pageSize on page 1 skips 0 and, since
-     * pageSize is not positive, applies no limit; on page 2 or later it is negative again and fails the same way.
+     * BF-153 (was pinned here: {@code skip((pageNum - 1) * pageSize)} went negative and Reactor's {@code Flux.skip} threw an
+     * IllegalArgumentException, which GlobalExceptionHandler.catchException answered as a raw 500 with code 5000): page 0
+     * or less is the {@code Pagination.check()} error, INVALID_PARAMETER with ILLEGAL_PAGE_NUMBER, and a negative page size
+     * is no limit on every page, as 0 is. Catches: the inline unchecked skip back in the controller.
      */
     @Test
-    void pageNumZero_andNegativePageSizeOnLaterPages_endInIllegalArgumentException() {
+    void pageNumZeroOrLessIsAnIllegalPageNumber_andANegativePageSizeIsNoLimitBF153() {
         serviceReturns(List.of(group("g1"), group("g2"), group("g3")));
 
-        StepVerifier.create(controller.getGroupsOrMembersWithoutPermissions(OBJECT_ID, null, 0, DEFAULT_PAGE_SIZE))
-                .expectErrorSatisfies(error -> assertThat(error).isInstanceOf(IllegalArgumentException.class)
-                        .isNotInstanceOf(BizException.class))
-                .verify();
-        StepVerifier.create(controller.getGroupsOrMembersWithoutPermissions(OBJECT_ID, null, 2, -5))
-                .expectErrorSatisfies(error -> assertThat(error).isInstanceOf(IllegalArgumentException.class))
-                .verify();
+        for (int bad : new int[] {0, NEGATIVE_PAGE_NUM}) {
+            StepVerifier.create(controller.getGroupsOrMembersWithoutPermissions(OBJECT_ID, null, bad, DEFAULT_PAGE_SIZE))
+                    .expectErrorSatisfies(error -> {
+                        System.out.println("[ApplicationControllerGroupsOrMembersTest] pageNum " + bad + " -> " + error);
+                        assertThat(error).isInstanceOf(BizException.class);
+                        assertThat(((BizException) error).getError()).isEqualTo(BizError.INVALID_PARAMETER);
+                        assertThat(((BizException) error).getMessageKey()).isEqualTo(ILLEGAL_PAGE_NUMBER);
+                        assertThat(((BizException) error).getArgs()).containsExactly(bad);
+                    })
+                    .verify();
+        }
 
-        ResponseView<List<Object>> firstPage = call(null, 1, -5);
-        assertThat(names(firstPage)).containsExactly("g1", "g2", "g3");
-        assertPage(firstPage, 1, -5, 3);
-        assertThat(INTERNAL_SERVER_ERROR_BIZ_CODE).as("code the catch-all handler answers").isEqualTo(5000);
+        for (int page : new int[] {1, 2}) {
+            ResponseView<List<Object>> view = call(null, page, NEGATIVE_PAGE_SIZE);
+            assertThat(names(view)).as("page " + page).containsExactly("g1", "g2", "g3");
+            assertPage(view, page, NEGATIVE_PAGE_SIZE, 3);
+        }
     }
 }
