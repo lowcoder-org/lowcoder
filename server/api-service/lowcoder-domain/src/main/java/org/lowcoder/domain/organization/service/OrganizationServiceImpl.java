@@ -280,11 +280,21 @@ public class OrganizationServiceImpl implements OrganizationService {
         return mongoUpsertHelper.updateById(updateOrg, orgId);
     }
 
+    /**
+     * Marks the organization deleted and publishes one {@link OrgDeletedEvent}, whose listener removes its members, groups,
+     * applications and datasources. Only an organization that is not deleted yet is matched (BF-135: the update matched a
+     * deleted one too and, since its auditing fields moved, reported a change, so a second delete answered true and
+     * published the event again); a second delete answers false and publishes nothing. The key is an object id or a gid,
+     * as for {@code MongoUpsertHelper.updateById}. Limit: the event carries the key as given, so a delete by gid sends the
+     * gid to the cleanup listener, which removes by object id (the REST caller passes the object id).
+     */
     @Override
     public Mono<Boolean> delete(String orgId) {
         Organization organization = new Organization();
         organization.setState(OrganizationState.DELETED);
-        return mongoUpsertHelper.updateById(organization, orgId)
+        Query notYetDeleted = new Query(Criteria.where(FieldName.guessFieldNameFromId(orgId)).is(orgId)
+                .and(fieldName(QOrganization.organization.state)).ne(OrganizationState.DELETED));
+        return mongoUpsertHelper.update(organization, notYetDeleted)
                 .delayUntil(success -> {
                     if (Boolean.TRUE.equals(success)) {
                         return sendOrgDeletedEvent(orgId);
