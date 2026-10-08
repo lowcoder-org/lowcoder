@@ -1,8 +1,6 @@
 package org.lowcoder.plugin.googlesheets;
 
 
-import com.google.api.services.sheets.v4.SheetsScopes;
-import com.google.auth.oauth2.ServiceAccountCredentials;
 import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
@@ -22,7 +20,6 @@ import org.pf4j.PluginWrapper;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -112,20 +109,7 @@ public class GoogleSheetsPlugin extends Plugin {
             context.setVisitorId(queryVisitorContext.getVisitorId());
             context.setGoogleSheetsActionRequest(googleSheetsActionRequest);
             context.setServiceAccount(datasourceConfig.getServiceAccount());
-            ServiceAccountJsonUtils serviceAccountJsonUtils = new ServiceAccountJsonUtils();
-            serviceAccountJsonUtils.getData(context.getServiceAccount());
-            ServiceAccountCredentials serviceAccountCredentials;
-            try {
-                serviceAccountCredentials = ServiceAccountCredentials.fromPkcs8(
-                        serviceAccountJsonUtils.getClientId(),
-                        serviceAccountJsonUtils.getClientEmail(),
-                        serviceAccountJsonUtils.getPrivateKeyPkcs8(),
-                        serviceAccountJsonUtils.getPrivateKeyId(),
-                        SheetsScopes.all());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            context.setServiceAccountCredentials(serviceAccountCredentials);
+            context.setServiceAccountCredentials(ServiceAccountCredentialsReader.read(context.getServiceAccount()));
             return context;
         }
 

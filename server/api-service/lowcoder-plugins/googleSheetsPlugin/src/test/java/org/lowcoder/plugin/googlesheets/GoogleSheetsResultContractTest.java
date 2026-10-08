@@ -32,8 +32,8 @@ import java.util.Map;
  *   <li>Append, update, delete, clear: {@code response.values()} of each response class parsed from an API answer
  *       ({@code GenericData} values, nested response objects included): a list of the values without their names (O77).</li>
  *   <li>The service-account key: {@code ServiceAccountJsonUtils.getData} reads the key text with
- *       {@code JsonUtils.fromJsonMap} and keeps four strings; a non-string value fails with a
- *       {@link ClassCastException} (O76).</li>
+ *       {@code JsonUtils.fromJsonMap} and keeps four strings; a non-string value is the coded
+ *       DATASOURCE_ARGUMENT_ERROR / GOOGLESHEETS_DATASOURCE_CONFIG_ERROR (BF-118; it was a ClassCastException, O76).</li>
  * </ul>
  * Pinned in {@value #REPORT}.
  *
