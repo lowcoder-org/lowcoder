@@ -59,6 +59,12 @@ public class MysqlStructureParser {
      * +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
      * | PRIMARY         | mytestdb    | test       | p               | id          | NULL           | NULL          | NULL           |
      * +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
+     *
+     * <p>The primary and foreign keys of the schema, one row per key column. The columns of a key are ordered by
+     * {@code k.ordinal_position}, their position in the key (BF-147: they were ordered by {@code position_in_unique_constraint},
+     * which is NULL for a primary key, so a composite primary key came back in whatever order the server chose, the table's
+     * column order once the schema had enough tables, not the key's). For a foreign key each row pairs a column with the one it
+     * references, so ordering by the column's position in the foreign key keeps both lists in the key's order.
      */
     public static final String KEYS_QUERY = """
             select i.constraint_name,
@@ -75,7 +81,7 @@ public class MysqlStructureParser {
             where i.table_schema = database()
               and k.constraint_schema = database()
               and i.constraint_type in ('FOREIGN KEY', 'PRIMARY KEY')
-            order by i.table_name, i.constraint_name, k.position_in_unique_constraint;
+            order by i.table_name, i.constraint_name, k.ordinal_position;
             """;
 
     public static void parseTableKeys(Map<String, Table> tablesByName, Statement statement) throws SQLException {
