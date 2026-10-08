@@ -14,13 +14,13 @@ import java.util.Map;
 /**
  * The {@code googleSheetsPlugin} rows of group {@code config-binding} (docs/API_PAYLOAD_TEST_PLAN.md §4.7, task T8.1):
  * {@code GoogleSheetsEngine.resolveConfig} for {@code GoogleSheetsDatasourceConfig}, and the {@code requestClass}
- * dispatch of {@code parseGoogleSheetsActionRequest} ({@code GoogleSheetsPlugin.java:85-92}) for the read, clear and
+ * dispatch of {@code parseGoogleSheetsActionRequest} ({@code GoogleSheetsPlugin.java:82-89}) for the read, clear and
  * delete requests, which binds {@code command} to the class its {@code commandType} names.
  *
  * <p>The dispatch is a private method of the engine; it is called by reflection with the two values
- * {@code buildQueryExecutionContext} passes it ({@code GoogleSheetsPlugin.java:102-105}), because that caller then
+ * {@code buildQueryExecutionContext} passes it ({@code GoogleSheetsPlugin.java:99-102}), because that caller then
  * builds service-account credentials from a real private key. The append and update requests are built by hand
- * ({@code GoogleSheetsPlugin.java:79-84}); their change sets are group {@code node-conversion}'s.
+ * ({@code GoogleSheetsPlugin.java:76-81}); their change sets are group {@code node-conversion}'s.
  */
 public class GoogleSheetsConfigBindingContractTest {
 
