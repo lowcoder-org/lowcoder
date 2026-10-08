@@ -6,7 +6,6 @@ import static jakarta.mail.Message.RecipientType.TO;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.lowcoder.sdk.exception.BizError.DATASOURCE_CLOSE_FAILED;
 import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_ARGUMENT_ERROR;
 import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
 import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
@@ -47,7 +46,6 @@ import jakarta.mail.util.ByteArrayDataSource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.plugins.SmtpQueryExecutionContext.Attachment;
-import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.lowcoder.sdk.models.QueryExecutionResult;
@@ -101,41 +99,53 @@ public class SmtpPlugin extends Plugin {
                     .subscribeOn(querySharedScheduler());
         }
 
+        /**
+         * Nothing to close: a {@link Session} holds no connection. {@code executeQuery} sends with {@code Transport.send}, which
+         * opens and closes its own transport, and {@code testConnection} closes the transport it connects (BF-126: this closed
+         * {@code session.getTransport()}, a new transport on every call that was never connected, and the connected one was
+         * left open).
+         */
         @Override
         public Mono<Void> destroyConnection(Session session) {
-            return Mono.<Void> fromRunnable(() -> {
-                        try {
-                            if (session.getTransport() != null) {
-                                session.getTransport().close();
-                            }
-                        } catch (MessagingException e) {
-                            throw new BizException(DATASOURCE_CLOSE_FAILED, "DATASOURCE_CLOSE_FAILED", e.getMessage());
-                        }
-                    })
-                    .subscribeOn(querySharedScheduler());
+            return Mono.empty();
         }
 
         @Override
         public Mono<DatasourceTestResult> testConnection(SmtpDatasourceConfig connectionConfig) {
-            Mono<Session> sessionMono = doCreateConnection(connectionConfig).cache();
-            return sessionMono
+            return doCreateConnection(connectionConfig)
                     .map(session -> {
                         try {
-                            if (connectionConfig.getUsername() != null) {
-                                session.getTransport().connect(connectionConfig.getUsername(), connectionConfig.getPassword());
+                            // BF-126: the transport that is connected is the one that is closed
+                            Transport transport = session.getTransport();
+                            try {
+                                if (connectionConfig.getUsername() != null) {
+                                    transport.connect(connectionConfig.getUsername(), connectionConfig.getPassword());
+                                } else {
+                                    transport.connect();
+                                }
+                                return DatasourceTestResult.testSuccess();
+                            } finally {
+                                closeQuietly(transport);
                             }
-                            else {
-                                session.getTransport().connect();
-                            }
-                            return DatasourceTestResult.testSuccess();
                         } catch (MessagingException e) {
                             log.debug("SmtpPlugin.testConnection() failed!", e);
                             return DatasourceTestResult.testFail(e);
                         }
                     })
                     .onErrorResume(throwable -> Mono.just(DatasourceTestResult.testFail(throwable)))
-                    .doFinally(signalType -> sessionMono.flatMap(this::destroyConnection).subscribeOn(querySharedScheduler()).subscribe())
                     .subscribeOn(querySharedScheduler());
+        }
+
+        /** Closes a transport the test connected; a failure to close does not change the test's answer, it is logged. */
+        static void closeQuietly(Transport transport) {
+            if (!transport.isConnected()) {
+                return;
+            }
+            try {
+                transport.close();
+            } catch (MessagingException e) {
+                log.debug("SmtpPlugin: closing the tested transport failed", e);
+            }
         }
 
         @Nonnull
