@@ -54,6 +54,9 @@ public class GoogleSheetsReadDataHandler extends GoogleSheetsActionHandler {
         Pattern findOffsetRowPattern = Pattern.compile("(\\d+):");
         String range = valueRange.getRange();
         List<List<Object>> values = valueRange.getValues();
+        if (values == null || values.isEmpty()) {
+            return result; // BF-120: the API leaves values out for an empty sheet, which has no rows
+        }
         Matcher matcher = findOffsetRowPattern.matcher(range);
         matcher.find();
         final int rowOffset = Integer.parseInt(matcher.group(1));
