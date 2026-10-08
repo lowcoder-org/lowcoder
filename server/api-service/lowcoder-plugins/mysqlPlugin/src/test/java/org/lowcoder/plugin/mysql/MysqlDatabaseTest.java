@@ -12,8 +12,12 @@ import org.lowcoder.sdk.plugin.common.sql.HikariPerfWrapper;
 import org.lowcoder.sdk.plugin.mysql.MysqlDatasourceConfig;
 
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -302,9 +306,68 @@ public class MysqlDatabaseTest {
         System.out.println("[MysqlDatabaseTest] keys: " + single + " ; " + composite);
         assertEquals(List.of("id"), single.getColumnNames());
         assertEquals("PRIMARY", composite.getName());
-        assertEquals(List.of("a", "b"), composite.getColumnNames().stream().sorted().toList(),
-                "the columns, not their order: KEYS_QUERY orders by position_in_unique_constraint, which is NULL for a primary key, so the server may return them in either order (seen: this test failed once in the scratch runs)");
+        assertEquals(List.of("a", "b"), composite.getColumnNames(), "the key's own order (BF-147)");
         assertEquals(1, table(structure, "composite_pk").getKeys().size(), "one key, not one per column");
+    }
+
+    /** Tables and key columns of the BF-147 schema: enough tables that the server stops returning key columns in key order by chance. */
+    static final int KEY_ORDER_TABLES = 200;
+    static final List<String> KEY_ORDER_COLUMNS = List.of("c1", "c2", "c3", "c4");
+    static final long KEY_ORDER_SEED = 147;
+
+    /**
+     * BF-147: every composite primary key, declared in a shuffled column order, comes back in the key's order, over
+     * {@value #KEY_ORDER_TABLES} tables (seed {@value #KEY_ORDER_SEED}). Ordered by {@code position_in_unique_constraint}, which
+     * is NULL for a primary key, 194 of the 200 keys came back in the table's column order on {@code mysql:8.0}. The schema
+     * holds primary keys only: with a foreign key in it the server happened to return the key order, which is why the failure
+     * depends on the schema and the old test missed it. Catches: the key columns ordered by anything but their position in the key.
+     */
+    @Test
+    public void compositePrimaryKeysKeepTheirDeclaredColumnOrderInALargeSchemaBF147() throws Exception {
+        String schema = "struct_key_order";
+        MysqlContainerSupport.newSchema(schema);
+        Random random = new Random(KEY_ORDER_SEED);
+        Map<String, List<String>> declared = new LinkedHashMap<>();
+        List<String> ddl = new ArrayList<>(List.of("use " + schema));
+        for (int i = 0; i < KEY_ORDER_TABLES; i++) {
+            List<String> keyColumns = new ArrayList<>(KEY_ORDER_COLUMNS);
+            Collections.shuffle(keyColumns, random);
+            String name = String.format("t%03d", i);
+            declared.put(name, keyColumns);
+            ddl.add("create table " + name + " (" + String.join(" int, ", KEY_ORDER_COLUMNS) + " int, primary key (" + String.join(",", keyColumns) + "))");
+        }
+        try (Connection root = MysqlContainerSupport.root()) {
+            execute(root, ddl.toArray(String[]::new));
+        }
+        DatasourceStructure structure = structureOf(schema);
+        int outOfOrder = 0;
+        for (Map.Entry<String, List<String>> entry : declared.entrySet()) {
+            PrimaryKey key = assertInstanceOf(PrimaryKey.class, table(structure, entry.getKey()).getKeys().get(0));
+            if (!entry.getValue().equals(key.getColumnNames()) && outOfOrder++ < 3) {
+                System.out.println("[MysqlDatabaseTest] BF-147 " + entry.getKey() + " declared " + entry.getValue() + ", listed " + key.getColumnNames());
+            }
+        }
+        System.out.println("[MysqlDatabaseTest] BF-147: " + outOfOrder + " of " + KEY_ORDER_TABLES + " primary keys out of order");
+        assertEquals(0, outOfOrder, "primary keys listed out of their declared order");
+    }
+
+    /**
+     * BF-147: a composite foreign key whose columns, and the referenced ones, run against the tables' column order keeps both
+     * lists in the key's order, so each column stays paired with the one it references. Catches: the foreign key columns
+     * ordered by anything but their position in the key.
+     */
+    @Test
+    public void compositeForeignKeyKeepsItsColumnsPairedWithTheReferencedOnesBF147() throws Exception {
+        String schema = "struct_fk_order";
+        MysqlContainerSupport.newSchema(schema);
+        try (Connection root = MysqlContainerSupport.root()) {
+            execute(root, "use " + schema, "create table parent (a int, b int, c int, primary key (c, b, a))",
+                    "create table child (x int, y int, z int, constraint fk_cba foreign key (z, y, x) references parent (c, b, a))");
+        }
+        ForeignKey foreign = assertInstanceOf(ForeignKey.class, table(structureOf(schema), "child").getKeys().get(0));
+        System.out.println("[MysqlDatabaseTest] BF-147 foreign key: " + foreign);
+        assertEquals(List.of("z", "y", "x"), foreign.getFromColumns(), "the foreign key's own columns, in its order");
+        assertEquals(List.of("parent.c", "parent.b", "parent.a"), foreign.getToColumns(), "the referenced columns, paired with them");
     }
 
     @Test
