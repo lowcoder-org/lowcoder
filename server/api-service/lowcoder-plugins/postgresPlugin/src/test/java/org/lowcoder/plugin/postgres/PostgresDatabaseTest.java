@@ -208,6 +208,31 @@ public class PostgresDatabaseTest {
         }
     }
 
+    /**
+     * NEW-17 (GitHub #2068), through the server: a null parameter with an explicit cast is bound as SQL NULL for every
+     * mapped cast (int, int4, int8, float8, decimal, varchar, text, bool, date, time), as it is without one; before, {@code ::varchar} and {@code ::text} stored the text "null", {@code ::bool}
+     * false, and the number, date and time casts failed with a bind error.
+     */
+    @Test
+    public void aNullWithAnExplicitCastIsBoundAsNullNEW17() {
+        PostgresDatasourceConfig config = config();
+        HikariPerfWrapper pool = connect(config);
+        Map<String, Object> params = new HashMap<>();
+        params.put("x", null);
+        try {
+            Object data = sql(pool, config, "select {{x}}::varchar is null as varchar, {{x}}::text is null as text, {{x}}::bool is null as bool, "
+                    + "{{x}}::int is null as int, {{x}}::int4 is null as int4, {{x}}::int8 is null as int8, {{x}}::float8 is null as float8, "
+                    + "{{x}}::decimal is null as decimal, {{x}}::date is null as date, {{x}}::time is null as time", params);
+            System.out.println("[PostgresDatabaseTest] null with a cast through the server: " + data);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> row = ((List<Map<String, Object>>) data).get(0);
+            assertEquals(10, row.size());
+            row.forEach((cast, isNull) -> assertEquals(true, isNull, cast));
+        } finally {
+            destroy(pool);
+        }
+    }
+
     @Test
     public void realDriverReturnsWhatTheResultContractCellsAssume() {
         PostgresDatasourceConfig config = config();
