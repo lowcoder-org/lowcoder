@@ -135,10 +135,10 @@ GroupEndpoints#removeUser(String, String)	codec	WP4	org.lowcoder.api.contract.en
 GroupEndpoints#searchPotentialGroupMembers(String, String, Integer, Integer)	codec	WP4	org.lowcoder.api.contract.endpoint.GroupEndpointsContractTest	pass-through		193 return=searchPotentialGroupMembers	
 GroupEndpoints#update(String, UpdateGroupRequest)	codec	WP4	org.lowcoder.api.contract.endpoint.GroupEndpointsContractTest	pass-through		59 return=update	
 GroupEndpoints#updateRoleForMember(UpdateRoleRequest, String)	codec	WP4	org.lowcoder.api.contract.endpoint.GroupEndpointsContractTest	pass-through		153 return=updateRoleForMember	
-InvitationEndpoints#create(String)	codec	WP4	org.lowcoder.api.contract.endpoint.InvitationEndpointsContractTest	pass-through		37 return=create	
-InvitationEndpoints#get(String)	codec	WP4	org.lowcoder.api.contract.endpoint.InvitationEndpointsContractTest	pass-through		43 return=get	
-InvitationEndpoints#inviteUser(String)	codec	WP4	org.lowcoder.api.contract.endpoint.InvitationEndpointsContractTest	pass-through	java.lang.Boolean,org.lowcoder.api.usermanagement.view.InvitationVO	49 return=inviteUser; 52 return=inviteUserNotLoggedIn; 55 return=inviteUser	
-InvitationEndpoints#sendInvitationEmails(InviteEmailRequest)	codec	WP4	org.lowcoder.api.contract.endpoint.InvitationEndpointsContractTest	pass-through		63 return=sendInvitationEmails	
+InvitationEndpoints#create(String)	codec	WP4	org.lowcoder.api.contract.endpoint.InvitationEndpointsContractTest	pass-through		45 return=create	
+InvitationEndpoints#get(String)	codec	WP4	org.lowcoder.api.contract.endpoint.InvitationEndpointsContractTest	pass-through		51 return=get	
+InvitationEndpoints#inviteUser(String)	codec	WP4	org.lowcoder.api.contract.endpoint.InvitationEndpointsContractTest	pass-through	java.lang.Boolean,org.lowcoder.api.usermanagement.view.InvitationVO	57 return=inviteUser; 60 return=inviteUserNotLoggedIn; 63 return=inviteUser	
+InvitationEndpoints#sendInvitationEmails(InviteEmailRequest)	codec	WP4	org.lowcoder.api.contract.endpoint.InvitationEndpointsContractTest	pass-through		79 return=sendInvitationEmailsWithoutEmails; 81 return=sendInvitationEmails	
 OrganizationEndpoints#create(Organization)	codec	WP4	org.lowcoder.api.contract.endpoint.OrganizationEndpointsContractTest	pass-through		86 return=create	
 OrganizationEndpoints#deleteLogo(String)	codec	WP4	org.lowcoder.api.contract.endpoint.OrganizationEndpointsContractTest	pass-through		108 return=deleteLogo	
 OrganizationEndpoints#getOrgApiUsageCount(String, Boolean)	codec	WP4	org.lowcoder.api.contract.endpoint.OrganizationEndpointsContractTest	pass-through		186 return=getOrgApiUsageCount	
