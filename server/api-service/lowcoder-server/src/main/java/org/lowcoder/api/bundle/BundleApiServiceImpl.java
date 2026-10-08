@@ -605,36 +605,6 @@ public class BundleApiServiceImpl implements BundleApiService {
     }
 
     @Override
-    public Mono<BundlePermissionView> getPermissions(String bundleId) {
-
-        Mono<List<ResourcePermission>> bundlePermissions =
-                resourcePermissionService.getByResourceTypeAndResourceId(ResourceType.BUNDLE, bundleId).cache();
-
-        Mono<List<PermissionItemView>> groupPermissionPairsMono = bundlePermissions
-                .flatMap(permissionHelper::getGroupPermissions);
-
-        Mono<List<PermissionItemView>> userPermissionPairsMono = bundlePermissions
-                .flatMap(permissionHelper::getUserPermissions);
-
-        return bundleService.findById(bundleId)
-                .flatMap(bundle -> {
-                    Mono<Organization> orgMono = organizationService.getById(bundle.getCreatedBy());
-                    return Mono.zip(groupPermissionPairsMono, userPermissionPairsMono, orgMono)
-                            .map(tuple -> {
-                                List<PermissionItemView> groupPermissionPairs = tuple.getT1();
-                                List<PermissionItemView> userPermissionPairs = tuple.getT2();
-                                Organization organization = tuple.getT3();
-                                return BundlePermissionView.builder()
-                                        .groupPermissions(groupPermissionPairs)
-                                        .userPermissions(userPermissionPairs)
-                                        .creatorId(bundle.getCreatedBy())
-                                        .orgName(organization.getName())
-                                        .build();
-                            });
-                });
-    }
-
-    @Override
     public Mono<BundleInfoView> buildBundleInfoView(Bundle bundle, boolean visible, boolean manageable, String folderId) {
         return userService.findById(bundle.getCreatedBy())
                 .map(user -> BundleInfoView.builder()
