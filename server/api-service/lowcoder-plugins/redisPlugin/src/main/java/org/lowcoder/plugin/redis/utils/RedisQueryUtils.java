@@ -52,7 +52,7 @@ public class RedisQueryUtils {
 
     public static RedisCommand convertRedisFormInputToRedisCommand(Map<String, Object> formData) {
         String commandType = (String) formData.getOrDefault(COMMAND, "");
-        return switch (commandType.toUpperCase()) {
+        return switch (commandType.toUpperCase(java.util.Locale.ROOT)) { // BF-122: not the default locale
             case "SET" -> new Set(formData);
             case "GET" -> new Get(formData);
             case "DEL" -> new Del(formData);
