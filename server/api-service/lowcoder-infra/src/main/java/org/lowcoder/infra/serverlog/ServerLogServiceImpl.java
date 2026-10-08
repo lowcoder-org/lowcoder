@@ -7,13 +7,14 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.lowcoder.infra.event.SystemCommonEvent;
 import org.lowcoder.infra.perf.PerfHelper;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Range;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.ZoneOffset;
-import java.time.temporal.TemporalAdjusters;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
@@ -85,13 +86,24 @@ public class ServerLogServiceImpl implements ServerLogService {
     @Override
     public Mono<Long> getApiUsageCount(String orgId, Boolean lastMonthOnly) {
         if(lastMonthOnly != null && lastMonthOnly) {
-            Long startMonthEpoch = LocalDateTime.now().minusMonths(1).with(TemporalAdjusters.firstDayOfMonth()).toEpochSecond(ZoneOffset.UTC)*1000;
-            Long endMonthEpoch = LocalDateTime.now().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).toEpochSecond(ZoneOffset.UTC)*1000;
-            System.out.println("startMonthEpoch is: " + startMonthEpoch);
-            System.out.println("endMonthEpoch is: " + endMonthEpoch);
-            return serverLogRepository.countByOrgIdAndCreateTimeBetween(orgId, startMonthEpoch, endMonthEpoch);
+            return serverLogRepository.countByOrgIdAndCreateTimeBetween(orgId, previousMonth(LocalDate.now(ZoneOffset.UTC)));
         }
         return serverLogRepository.countByOrgId(orgId);
+    }
+
+    /**
+     * The calendar month before {@code today}'s, in UTC epoch milliseconds: from 00:00 of its first day, inclusive, to
+     * 00:00 of the first day of {@code today}'s month, exclusive (BF-104: the window ran from the first to the last day of
+     * that month at the current time of day, both ends exclusive, so the logs of the first hours of the first day and of
+     * the last hours of the last day were left out, depending on when it was asked).
+     */
+    static Range<Long> previousMonth(LocalDate today) {
+        YearMonth month = YearMonth.from(today).minusMonths(1);
+        return Range.rightOpen(startOfDayMillis(month.atDay(1)), startOfDayMillis(month.plusMonths(1).atDay(1)));
+    }
+
+    private static long startOfDayMillis(LocalDate day) {
+        return day.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
     }
 
 }
