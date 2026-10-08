@@ -2,11 +2,21 @@ package org.lowcoder.sdk.plugin.common;
 
 public class SqlQueryUtils {
 
+    /**
+     * Whether the last statement of {@code query} that is not blank starts with {@code insert}, in any case (BF-105: a
+     * query of semicolons only threw an ArrayIndexOutOfBoundsException, and a blank statement after the last semicolon
+     * was read as the last statement). A query without a statement is not an insert. Limits: statements are split at
+     * every {@code ;}, also one inside a literal or a comment.
+     */
     public static boolean isInsertQuery(String query) {
-        String[] queries = query.split(";");
-        return queries[queries.length - 1].trim()
-                .split("\\s+")[0]
-                .equalsIgnoreCase("insert");
+        String[] queries = query.split(STATEMENT_SEPARATOR);
+        for (int i = queries.length - 1; i >= 0; i--) {
+            String statement = queries[i].trim();
+            if (!statement.isEmpty()) {
+                return statement.split(WHITESPACE)[0].equalsIgnoreCase(INSERT_KEYWORD);
+            }
+        }
+        return false;
     }
 
     /**
@@ -20,6 +30,9 @@ public class SqlQueryUtils {
         BRACKET_IDENTIFIERS
     }
 
+    private static final String STATEMENT_SEPARATOR = ";";
+    private static final String WHITESPACE = "\\s+";
+    private static final String INSERT_KEYWORD = "insert";
     private static final char SINGLE_QUOTE = '\'';
     private static final char DOUBLE_QUOTE = '"';
     /** A MySQL and ClickHouse identifier: {@code `...`}. */
