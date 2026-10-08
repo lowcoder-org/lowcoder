@@ -74,6 +74,6 @@
     "privateKeyId" : "k1"
   },
   "serviceAccountNumericClientId" : {
-    "error" : "java.lang.ClassCastException: class java.lang.Integer cannot be cast to class java.lang.String (java.lang.Integer and java.lang.String are in module java.base of loader 'bootstrap')"
+    "error" : "org.lowcoder.sdk.exception.PluginException: DATASOURCE_ARGUMENT_ERROR GOOGLESHEETS_DATASOURCE_CONFIG_ERROR"
   }
 }

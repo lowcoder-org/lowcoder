@@ -24,6 +24,7 @@ import org.lowcoder.plugin.googlesheets.model.GoogleSheetsQueryExecutionContext;
 import org.lowcoder.plugin.googlesheets.model.GoogleSheetsReadDataRequest;
 import org.lowcoder.plugin.googlesheets.model.GoogleSheetsUpdateDataRequest;
 import org.lowcoder.plugin.googlesheets.model.ServiceAccountJsonUtils;
+import org.lowcoder.sdk.exception.PluginCommonError;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.lowcoder.sdk.query.QueryVisitorContext;
@@ -41,6 +42,8 @@ public class GoogleSheetsEngineTest {
     /** What {@code toString} prints for a secret that is set ({@code ServiceAccountJsonUtils.HIDDEN_SECRET}, package-private). */
     private static final String HIDDEN_SECRET = "<hidden>";
     private static final String VISITOR = "visitor-1";
+    private static final String INVALID_SERVICE_ACCOUNT_KEY = "GOOGLESHEETS_DATASOURCE_CONFIG_ERROR";
+    private static final String INVALID_SERVICE_ACCOUNT_TEXT = "Fail to parse Google Sheets data source configuration.";
     private static final Map<String, Object> PARAMS = Map.of("id", "sheet-id-9", "name", "Orders", "row", "7", "who", "Ann");
     private static final Map<String, Object> CHANGE_SET = Map.of("compType", "KEY_VALUE_PAIRS",
             "comp", List.of(Map.of("column", "name", "value", "{{who}}")));
@@ -138,37 +141,37 @@ public class GoogleSheetsEngineTest {
     }
 
     /**
-     * DEFECT pinned (new plan section 9 row "Google Sheets: a malformed service-account key fails with a raw
-     * RuntimeException"; D-6, fix deferred). A user pastes the service-account JSON in the datasource form, and
-     * validateConfig only checks that it is not blank. When the key is not a PKCS8 PEM,
-     * {@code ServiceAccountCredentials.fromPkcs8} throws an IOException that GoogleSheetsPlugin.java:125-127 wraps in a
-     * plain RuntimeException, not a PluginException with a message key, so the caller gets no coded error. A fix that
-     * throws a PluginException turns the type assertions red.
+     * BF-118 (fixed; was pinned as new plan section 9 row "Google Sheets: a malformed service-account key fails with a raw
+     * RuntimeException"): a user pastes the service-account JSON in the datasource form, and validateConfig only checks
+     * that it is not blank. When the key is not a PKCS8 PEM, building the query context now fails with the coded
+     * DATASOURCE_ARGUMENT_ERROR / GOOGLESHEETS_DATASOURCE_CONFIG_ERROR ({@code ServiceAccountCredentialsReader}); the
+     * IOException of {@code ServiceAccountCredentials.fromPkcs8} was wrapped in a plain RuntimeException.
      */
     @Test
-    public void aMalformedPrivateKeyFailsWithARawRuntimeException() {
+    public void aMalformedPrivateKeyIsTheCodedDatasourceConfigErrorBF118() {
         Map<String, Object> bad = Map.of("serviceAccount", ServiceAccountTestKeys.json("not a key"));
         GoogleSheetsDatasourceConfig badConfig = engine.resolveConfig(bad);
 
         assertEquals(Set.of(), engine.validateConfig(badConfig), "validateConfig does not look at the key");
-        RuntimeException failure = assertThrows(RuntimeException.class,
+        PluginException failure = assertThrows(PluginException.class,
                 () -> engine.buildQueryExecutionContext(badConfig, queryConfig("readData", command()), PARAMS, visitor));
 
-        System.out.println("[GoogleSheetsEngineTest] malformed key -> " + failure.getClass().getName() + ": " + failure.getMessage()
-                + " (cause " + failure.getCause() + ")");
-        assertEquals(RuntimeException.class, failure.getClass());
-        assertInstanceOf(IOException.class, failure.getCause());
+        System.out.println("[GoogleSheetsEngineTest] malformed key -> " + failure.getError() + " / " + failure.getMessageKey() + " / " + failure.getMessage());
+        assertEquals(PluginCommonError.DATASOURCE_ARGUMENT_ERROR, failure.getError());
+        assertEquals(INVALID_SERVICE_ACCOUNT_KEY, failure.getMessageKey());
+        assertEquals(INVALID_SERVICE_ACCOUNT_TEXT, failure.getMessage());
     }
 
     /**
      * Observed, no defect row (ruled): the client always sends {@code commandType} and {@code command}
      * (googleSheetsQuery.tsx:72-79 builds the query as a type-and-children component keyed "commandType"/"command" with
      * default "readData"), so a missing {@code command} is only reachable through a direct API caller. Today it is an
-     * empty-query-parameter error for read, clear and delete and an NPE in {@code from(null)} for append and update, and a service account that is not JSON object text fails inside
-     * {@code ServiceAccountJsonUtils.getData}: JSON without a private_key fails inside the Google library (NPE), a JSON array in getData's map (NPE); the same family as the malformed-key row, asserted as observed.
+     * empty-query-parameter error for read, clear and delete and an NPE in {@code from(null)} for append and update. A
+     * service account without a private_key or that is no JSON object is the coded GOOGLESHEETS_DATASOURCE_CONFIG_ERROR
+     * (BF-118; it was an NPE inside the Google library or in {@code ServiceAccountJsonUtils.getData}).
      */
     @Test
-    public void aMissingCommandMapAndAnUnreadableServiceAccountFailWithRawExceptionsAsObserved() {
+    public void aMissingCommandMapFailsAsObservedAndAnUnreadableServiceAccountIsTheCodedErrorBF118() {
         for (String type : new String[] {"readData", "clearData", "deleteData", "appendData", "updateData"}) {
             Map<String, Object> noCommand = new java.util.HashMap<>();
             noCommand.put("commandType", type);
@@ -185,16 +188,17 @@ public class GoogleSheetsEngineTest {
 
         for (String account : new String[] {"{\"client_email\":\"a@b\"}", "[1]"}) {
             GoogleSheetsDatasourceConfig odd = engine.resolveConfig(Map.of("serviceAccount", account));
-            RuntimeException failure = assertThrows(RuntimeException.class,
+            PluginException failure = assertThrows(PluginException.class,
                     () -> engine.buildQueryExecutionContext(odd, queryConfig("readData", command()), PARAMS, visitor), account);
-            System.out.println("[GoogleSheetsEngineTest] service account " + account + " -> " + failure);
-            assertEquals(NullPointerException.class, failure.getClass(), account);
+            System.out.println("[GoogleSheetsEngineTest] service account " + account + " -> " + failure.getMessageKey());
+            assertEquals(PluginCommonError.DATASOURCE_ARGUMENT_ERROR, failure.getError(), account);
+            assertEquals(INVALID_SERVICE_ACCOUNT_KEY, failure.getMessageKey(), account);
         }
     }
 
     /**
      * Not an error result: {@code executeQuery} looks the handler up before it builds the Mono, so an unknown action type
-     * is thrown to the caller (GoogleSheetsPlugin.java:131-132, factory :28) and the {@code onErrorResume} mapping to
+     * is thrown to the caller (GoogleSheetsPlugin.java:118-119, factory :28) and the {@code onErrorResume} mapping to
      * GOOGLESHEETS_REQUEST_ERROR is never reached for it.
      */
     @Test
@@ -211,7 +215,7 @@ public class GoogleSheetsEngineTest {
 
     /**
      * DEFECT pinned (new plan section 9 row "Google Sheets testConnection reports success without using the service
-     * account"; D-6, fix deferred). {@code testConnection} (GoogleSheetsPlugin.java:64-66) is
+     * account"; D-6, fix deferred). {@code testConnection} (GoogleSheetsPlugin.java:61-63) is
      * {@code Mono.just(testSuccess())}: it succeeds for a service account that is garbage or has a key that cannot be
      * parsed, and for a config that validateConfig rejects. A fix that parses the key (or makes an authenticated call)
      * turns the garbage and bad-key assertions red.
