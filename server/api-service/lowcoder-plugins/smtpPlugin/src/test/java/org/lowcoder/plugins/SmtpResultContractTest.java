@@ -8,7 +8,7 @@ import org.lowcoder.sdk.models.QueryExecutionResult;
 
 /**
  * The SMTP row of the §4.6 producer table (docs/API_PAYLOAD_TEST_PLAN.md §4.6, task T8.2): a sent mail is
- * {@code QueryExecutionResult.success(null)} ({@code SmtpPlugin.java:217}), so the result has no {@code data}
+ * {@code QueryExecutionResult.success(null)} ({@code SmtpPlugin.java:227}), so the result has no {@code data}
  * member at all ({@code @JsonInclude(NON_NULL)}). Pinned in {@value #REPORT}.
  *
  * <p>Limits: no mail is sent; the test builds the value the anchored line builds.
