@@ -158,6 +158,15 @@ public class PostgresDataTypeUtilsTest {
         assertEquals(List.of(), extractExplicitCasting("select 1"));
     }
 
+    /** NEW-17 (GitHub #2068): a null value stays null for every cast. Catches: "null", false or a bind error for a JS null. */
+    @Test
+    public void aNullValueStaysNullForEveryDataTypeNEW17() {
+        for (DataType type : DataType.values()) {
+            assertNull(castValueWithTargetType(null, type), type.name());
+        }
+        System.out.println("[PostgresDataTypeUtilsTest] null stays null for all " + DataType.values().length + " data types");
+    }
+
     @Test
     public void castValueWithTargetTypeForEveryDataType() {
         assertEquals(42, castValueWithTargetType("42", DataType.INTEGER));
