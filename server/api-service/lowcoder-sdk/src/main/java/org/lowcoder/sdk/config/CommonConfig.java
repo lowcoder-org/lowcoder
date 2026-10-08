@@ -103,13 +103,21 @@ public class CommonConfig {
 
         private List<ApiEndpoint> forbiddenEndpoints;
         
+        /**
+         * The allowed CORS origin patterns: the configured list, then the comma-separated string (LOWCODER_CORS_DOMAINS).
+         * Each entry of the string is trimmed and empty entries are dropped (BF-142: in "https://a.com, https://b.com" the
+         * second entry kept its blank and never matched). Limit: the list entries are passed on as configured.
+         */
         public List<String> getAllCorsAllowedDomains() {
             List<String> all = new ArrayList<>();
             if (CollectionUtils.isNotEmpty(corsAllowedDomains)) {
                 all.addAll(corsAllowedDomains);
             }
             if (StringUtils.isNotBlank(corsAllowedDomainString)) {
-                List<String> domains = Arrays.stream(corsAllowedDomainString.split(",")).toList();
+                List<String> domains = Arrays.stream(corsAllowedDomainString.split(","))
+                        .map(String::trim)
+                        .filter(StringUtils::isNotEmpty)
+                        .toList();
                 all.addAll(domains);
             }
             return all;
