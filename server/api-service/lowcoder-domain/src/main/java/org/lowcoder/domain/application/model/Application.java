@@ -134,14 +134,22 @@ public class Application extends HasIdAndAuditing {
 		.stream()
 		.filter(query -> queryId.equals(query.getId()) || queryId.equals(query.getGid()))
 		.findFirst()
-		.orElseThrow(() -> new BizException(BizError.QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND")))
+		.orElseThrow(Application::queryNotFound))
+		// BF-109: a live DSL without queries has no live query set; it completed empty
+		.switchIfEmpty(Mono.error(Application::queryNotFound))
 		:
 		// Get Editing Queries in Edit/Preview Mode
 		Mono.just(getEditingQueries()
 		.stream()
 		.filter(query -> queryId.equals(query.getId()) || queryId.equals(query.getGid()))
 		.findFirst()
-		.orElseThrow(() -> new BizException(BizError.QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND")));
+		.orElseThrow(Application::queryNotFound));
+    }
+
+    private static final String QUERY_NOT_FOUND_KEY = "LIBRARY_QUERY_NOT_FOUND";
+
+    private static BizException queryNotFound() {
+        return new BizException(BizError.QUERY_NOT_FOUND, QUERY_NOT_FOUND_KEY);
     }
 
     /**
