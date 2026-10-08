@@ -7,18 +7,20 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.lowcoder.infra.event.SystemCommonEvent;
 import org.lowcoder.infra.perf.PerfHelper;
+import org.springframework.data.domain.Range;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -32,7 +34,6 @@ class ServerLogServiceImplTest {
     private static final String ORG_ID = "org-1";
     private static final long ALL_TIME_COUNT = 42L;
     private static final long LAST_MONTH_COUNT = 7L;
-    private static final long MILLIS_PER_SECOND = 1000L;
 
     private final List<List<ServerLog>> savedBatches = new ArrayList<>();
     private final List<Object> calls = new ArrayList<>();
@@ -64,7 +65,7 @@ class ServerLogServiceImplTest {
                             return Mono.just(ALL_TIME_COUNT);
                         }
                         case "countByOrgIdAndCreateTimeBetween" -> {
-                            calls.add(List.of(args[0], args[1], args[2]));
+                            calls.add(List.of(args[0], args[1]));
                             return Mono.just(LAST_MONTH_COUNT);
                         }
                         default -> throw new UnsupportedOperationException(method.getName());
@@ -232,33 +233,27 @@ class ServerLogServiceImplTest {
         assertThat(calls).containsExactly("countByOrgId:" + ORG_ID, "countByOrgId:" + ORG_ID);
     }
 
-    private static long startOfWindow(LocalDateTime now) {
-        return now.minusMonths(1).with(TemporalAdjusters.firstDayOfMonth()).truncatedTo(ChronoUnit.SECONDS).toEpochSecond(ZoneOffset.UTC) * MILLIS_PER_SECOND;
-    }
-
-    private static long endOfWindow(LocalDateTime now) {
-        return now.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).truncatedTo(ChronoUnit.SECONDS).toEpochSecond(ZoneOffset.UTC) * MILLIS_PER_SECOND;
+    private static long millis(String instant) {
+        return Instant.parse(instant).toEpochMilli();
     }
 
     /**
-     * Pins the plan section 9 row "ServerLogServiceImpl month window" (D-6, fix deferred): the last-month window is
-     * the first and the last day of the previous month at the CURRENT time of day (in whole seconds, UTC), not from
-     * 00:00:00 of the first day to the end of the last day, so entries from the first hours of the first day and the
-     * last hours of the last day are excluded depending on when the question is asked. The expected bounds are computed
-     * from the clock read before and after the call; the call is repeated if the date changed in between. A fix
-     * changes this test on purpose.
+     * BF-104 (was pinned as the plan section 9 row "ServerLogServiceImpl month window", D-6): the last-month count asks
+     * the repository for the previous calendar month of today (UTC), from 00:00 of its first day, inclusive, to 00:00 of
+     * the first day of this month, exclusive. It used to ask for the first to the last day of that month at the current
+     * time of day, both ends exclusive. The call is repeated if the date changed while it ran.
      */
     @Test
-    void apiUsageCountOfLastMonthUsesThePreviousMonthWindowAtTheCurrentTimeOfDay() {
-        LocalDateTime before = null;
-        LocalDateTime after = null;
+    void apiUsageCountOfLastMonthAsksForThePreviousCalendarMonthBF104() {
+        LocalDate before = null;
+        LocalDate after = null;
         Long result = null;
         for (int attempt = 0; attempt < 3; attempt++) {
             calls.clear();
-            before = LocalDateTime.now();
+            before = LocalDate.now(ZoneOffset.UTC);
             result = service.getApiUsageCount(ORG_ID, true).block();
-            after = LocalDateTime.now();
-            if (before.toLocalDate().equals(after.toLocalDate())) {
+            after = LocalDate.now(ZoneOffset.UTC);
+            if (before.equals(after)) {
                 break;
             }
         }
@@ -267,15 +262,33 @@ class ServerLogServiceImplTest {
         assertThat(calls).hasSize(1);
         @SuppressWarnings("unchecked")
         List<Object> call = (List<Object>) calls.get(0);
-        long start = (Long) call.get(1);
-        long end = (Long) call.get(2);
-        System.out.println("[ServerLogServiceImplTest] window start=" + start + " end=" + end + " asked between " + before + " and " + after
-                + " (plan section 9 month-window row, pinned)");
+        System.out.println("[ServerLogServiceImplTest] asked on " + after + " for " + call.get(1) + " (BF-104)");
         assertThat(call.get(0)).isEqualTo(ORG_ID);
-        assertThat(start).as("first day of the previous month, at the current time of day")
-                .isBetween(startOfWindow(before), startOfWindow(after));
-        assertThat(end).as("last day of the previous month, at the current time of day")
-                .isBetween(endOfWindow(before), endOfWindow(after));
-        assertThat(start).isLessThan(end);
+        assertThat(call.get(1)).isEqualTo(ServerLogServiceImpl.previousMonth(after));
+    }
+
+    /**
+     * BF-104: the window is the whole previous calendar month, across a year end and a leap February: its first
+     * millisecond and its last are in, the first millisecond of the next month is not.
+     */
+    @ParameterizedTest(name = "[{index}] {0} -> [{1}, {2})")
+    @CsvSource({
+            "2026-03-15, 2026-02-01T00:00:00Z, 2026-03-01T00:00:00Z",
+            "2026-01-01, 2025-12-01T00:00:00Z, 2026-01-01T00:00:00Z",
+            "2024-03-31, 2024-02-01T00:00:00Z, 2024-03-01T00:00:00Z",
+            "2026-10-08, 2026-09-01T00:00:00Z, 2026-10-01T00:00:00Z"
+    })
+    void previousMonthIsTheWholeCalendarMonthBeforeTodaysBF104(String today, String start, String end) {
+        Range<Long> window = ServerLogServiceImpl.previousMonth(LocalDate.parse(today));
+
+        System.out.println("[ServerLogServiceImplTest] " + today + " -> " + window + " (BF-104)");
+        assertThat(window.getLowerBound().getValue()).contains(millis(start));
+        assertThat(window.getLowerBound().isInclusive()).isTrue();
+        assertThat(window.getUpperBound().getValue()).contains(millis(end));
+        assertThat(window.getUpperBound().isInclusive()).isFalse();
+        assertThat(window.contains(millis(start))).isTrue();
+        assertThat(window.contains(millis(end) - 1)).isTrue();
+        assertThat(window.contains(millis(end))).isFalse();
+        assertThat(window.contains(millis(start) - 1)).isFalse();
     }
 }
