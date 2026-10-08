@@ -90,7 +90,7 @@ public class MssqlQueryExecutor extends SqlBasedQueryExecutor {
 
     @Override
     protected GuiSqlCommand parseSqlCommand(String guiStatementType, Map<String, Object> detail) {
-        return switch (guiStatementType.toUpperCase()) {
+        return switch (guiStatementType.toUpperCase(java.util.Locale.ROOT)) { // BF-122: not the default locale
             case "INSERT" -> MssqlInsertCommand.from(detail);
             case "UPDATE" -> MssqlUpdateCommand.from(detail);
             case "DELETE" -> MssqlDeleteCommand.from(detail);

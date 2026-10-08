@@ -139,22 +139,24 @@ public class RedisQueryUtilsTest {
         assertEquals(Arrays.asList("k", null), Arrays.asList(command.getArgs()));
     }
 
+    /** The default locale under which upper-casing "i" gives a dotted capital I. */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+
     /**
-     * Pins defect D17 (analysis-plugins section 0.6; plan section 9 D1-D20 row) for the dispatch
-     * ({@code RedisQueryUtils.java}, {@code commandType.toUpperCase()}): under a Turkish default locale the lower-case type
-     * {@code lindex} becomes a dotted capital I word and is rejected as unknown. The client sends upper-case types
-     * (redisQuery.tsx:22-57), which a Turkish locale does not change, so only an API call with a lower-case type reaches it.
-     * A fix ({@code Locale.ROOT}) changes this test on purpose. The default locale is global state: restored in finally.
+     * BF-122 (D17) for the dispatch ({@code RedisQueryUtils.java}, {@code commandType.toUpperCase}): the type was upper-cased
+     * with the default locale, so under a Turkish default locale the lower-case type {@code lindex} became a dotted capital I
+     * word and was rejected as unknown. The client sends upper-case types (redisQuery.tsx:22-55), so only an API call with a
+     * lower-case type reached it. It is upper-cased with {@code Locale.ROOT} now. The default locale is global state:
+     * restored in finally.
      */
     @Test
-    public void lowerCaseCommandTypeIsRejectedUnderATurkishDefaultLocale_pinsD17() {
+    public void lowerCaseCommandTypeIsReadUnderATurkishDefaultLocaleBF122() {
         Locale saved = Locale.getDefault();
         try {
-            Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+            Locale.setDefault(TURKISH);
             System.out.println(TAG + "default locale: " + Locale.getDefault() + ", upper case of lindex: " + "lindex".toUpperCase());
-            PluginException thrown = assertThrows(PluginException.class, () -> RedisQueryUtils.convertRedisFormInputToRedisCommand(form("lindex")));
-            assertEquals("INVALID_REDIS_REQUEST", thrown.getMessageKey());
-            assertInstanceOf(RedisCommand.Lindex.class, RedisQueryUtils.convertRedisFormInputToRedisCommand(form("LINDEX")), "the upper-case type the client sends is unaffected");
+            assertInstanceOf(RedisCommand.Lindex.class, RedisQueryUtils.convertRedisFormInputToRedisCommand(form("lindex")), "under " + Locale.getDefault());
+            assertInstanceOf(RedisCommand.Lindex.class, RedisQueryUtils.convertRedisFormInputToRedisCommand(form("LINDEX")), "the upper-case type the client sends");
         } finally {
             Locale.setDefault(saved);
         }
