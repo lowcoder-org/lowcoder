@@ -6,6 +6,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.lowcoder.plugin.postgres.model.DataType;
 import org.lowcoder.plugin.postgres.utils.PostgresDataTypeUtils;
+import org.lowcoder.sdk.exception.PluginCommonError;
+import org.lowcoder.sdk.exception.PluginException;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -38,6 +40,7 @@ public class PostgresDataTypeUtilsTest {
     static final String DOUBLE_SHORT_TEXT = "0.1";
     /** A decimal comma: not a number for {@code BigDecimal}. */
     static final String NOT_A_DECIMAL = "12,5";
+    static final String BIND_ERROR_KEY = "PREPARED_STATEMENT_BIND_PARAMETERS_ERROR";
 
     static final Set<String> SUPPORTED = Set.of("int8", "int4", "decimal", "varchar", "bool", "date", "time", "float8", "text", "int");
 
@@ -197,17 +200,32 @@ public class PostgresDataTypeUtilsTest {
     }
 
     /**
-     * Pins the plan section 9 row "PostgresDataTypeUtils casts a bound text value ... raw NumberFormatException /
-     * IllegalArgumentException instead of a coded PluginException" (D-6: fix deferred): a text that does not parse as the
-     * cast type escapes as the JDK's own exception. A fix (a PluginException) changes this test on purpose.
+     * BF-106 (was pinned as the plan section 9 row "PostgresDataTypeUtils casts a bound text value ... raw
+     * NumberFormatException / IllegalArgumentException instead of a coded PluginException", D-6): a text that does not
+     * parse as the cast type is a PREPARED_STATEMENT_BIND_PARAMETERS_ERROR naming the value and the type, for every type
+     * that parses text; the JDK's own exception used to escape.
      */
-    @Test
-    public void invalidTextEscapesAsRawParseExceptions() {
-        assertThrows(NumberFormatException.class, () -> castValueWithTargetType("12.5", DataType.INTEGER));
-        assertThrows(NumberFormatException.class, () -> castValueWithTargetType("x", DataType.LONG));
-        assertThrows(IllegalArgumentException.class, () -> castValueWithTargetType("not-a-date", DataType.DATE));
-        assertThrows(IllegalArgumentException.class, () -> castValueWithTargetType("yesterday", DataType.TIMESTAMP));
-        System.out.println("[PostgresDataTypeUtilsTest] raw exceptions for 12.5 -> INTEGER, not-a-date -> DATE");
+    @ParameterizedTest(name = "[{index}] {0} as {1}")
+    @MethodSource("invalidTexts")
+    public void invalidTextIsAPreparedStatementBindErrorBF106(String text, DataType type) {
+        PluginException thrown = assertThrows(PluginException.class, () -> castValueWithTargetType(text, type));
+
+        System.out.println("[PostgresDataTypeUtilsTest] " + text + " as " + type + " -> " + thrown.getError() + " " + thrown.getArgs()[0] + " (BF-106)");
+        assertEquals(PluginCommonError.PREPARED_STATEMENT_BIND_PARAMETERS_ERROR, thrown.getError());
+        assertEquals(BIND_ERROR_KEY, thrown.getMessageKey());
+        assertEquals("\"" + text + "\" is not a valid " + type, thrown.getArgs()[0]);
+    }
+
+    static Stream<Arguments> invalidTexts() {
+        return Stream.of(
+                Arguments.of("12.5", DataType.INTEGER),
+                Arguments.of("x", DataType.LONG),
+                Arguments.of("x", DataType.FLOAT),
+                Arguments.of("x", DataType.DOUBLE),
+                Arguments.of(NOT_A_DECIMAL, DataType.BIG_DECIMAL),
+                Arguments.of("not-a-date", DataType.DATE),
+                Arguments.of("noon", DataType.TIME),
+                Arguments.of("yesterday", DataType.TIMESTAMP));
     }
 
     /**
@@ -224,7 +242,7 @@ public class PostgresDataTypeUtilsTest {
         assertEquals(new BigDecimal(DOUBLE_SHORT_TEXT), castValueWithTargetType(DOUBLE_WITH_SHORT_TEXT, DataType.BIG_DECIMAL), "a number is read from its text, not its binary value");
         BigDecimal decimal = new BigDecimal("1.50");
         assertSame(decimal, castValueWithTargetType(decimal, DataType.BIG_DECIMAL));
-        assertThrows(NumberFormatException.class, () -> castValueWithTargetType(NOT_A_DECIMAL, DataType.BIG_DECIMAL), "not a number: the raw exception, as for the other numeric casts");
+        assertThrows(PluginException.class, () -> castValueWithTargetType(NOT_A_DECIMAL, DataType.BIG_DECIMAL), "not a number: the bind error, as for the other casts (BF-106)");
     }
 
     @Test
