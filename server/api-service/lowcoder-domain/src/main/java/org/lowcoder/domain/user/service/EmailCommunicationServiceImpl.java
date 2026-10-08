@@ -3,6 +3,7 @@ package org.lowcoder.domain.user.service;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -84,9 +85,17 @@ public class EmailCommunicationServiceImpl implements EmailCommunicationService 
         return filled.toString();
     }
 
-    /** The invitation template is a server constant ({@code InvitationController}), so it stays a format string. */
+    /**
+     * The invitation template is a server constant ({@code InvitationController}), so it stays a format string. No
+     * recipients is a failure: nothing is sent and the answer is false (BF-139: a mail to nobody was sent and reported
+     * true).
+     */
     @Override
     public boolean sendInvitationEmails(String[] to, String inviteLink, String message) {
+        if (ArrayUtils.isEmpty(to)) {
+            log.error("No recipients for the invitation mail, nothing sent");
+            return false;
+        }
         try {
             String subject = "You've been invited!";
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();

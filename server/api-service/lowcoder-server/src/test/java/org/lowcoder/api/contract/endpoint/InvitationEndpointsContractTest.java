@@ -23,6 +23,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,6 +61,9 @@ class InvitationEndpointsContractTest {
     /** The message of {@code inviteUser}'s error-with-data answer. */
     static final String NO_MESSAGE = "";
     static final String TRUE = "true";
+    /** The field {@code sendInvitationEmails} names when the body has no addresses or a blank one. */
+    static final String EMAILS_PARAMETER = "emails";
+    static final String RECIPIENT = "invitee@invitationendpointscontracttest.example.com";
 
     private ContractTestClient.Builder builder;
     private InvitationApiService invitationApiService;
@@ -134,6 +139,31 @@ class InvitationEndpointsContractTest {
             Mockito.verify(mail).sendInvitationEmails(emails.capture(), eq(PUBLIC_URL + INVITE_PATH + invitation.getInviteCode()), eq(INVITATION_MESSAGE));
             assertThat(emails.getValue()).as("the bound emails, in order").containsExactly(sample.emails());
         }
+    }
+
+    /**
+     * BF-139: a body with no addresses (an empty array, none at all, null) or with a blank one is INVALID_PARAMETER
+     * "emails", and neither an invitation is created nor a mail sent (an empty array stored an invitation and answered
+     * true).
+     */
+    @Test
+    void sendInvitationEmailsWithoutEmails() {
+        EmailCommunicationService mail = builder.mock(EmailCommunicationService.class);
+        Map<String, String> bodies = new LinkedHashMap<>();
+        bodies.put("empty array", "{\"emails\":[],\"orgId\":\"" + ORG_ID + "\"}");
+        bodies.put("no emails", "{\"orgId\":\"" + ORG_ID + "\"}");
+        bodies.put("null emails", "{\"emails\":null,\"orgId\":\"" + ORG_ID + "\"}");
+        bodies.put("a blank address", "{\"emails\":[\"" + RECIPIENT + "\",\" \"],\"orgId\":\"" + ORG_ID + "\"}");
+        try (ContractTestClient client = client()) {
+            bodies.forEach((name, body) -> {
+                EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "sendInvitationEmails", Map.of(), body);
+                System.out.println("[InvitationEndpointsContractTest] " + name + " -> " + result.getStatus() + " "
+                        + new String(result.getResponseBodyContent(), StandardCharsets.UTF_8));
+                EndpointContract.assertInvalidParameter(result, EMAILS_PARAMETER);
+            });
+        }
+        Mockito.verify(invitationApiService, Mockito.never()).create(any());
+        Mockito.verify(mail, Mockito.never()).sendInvitationEmails(any(), any(), any());
     }
 
     private ContractTestClient client() {

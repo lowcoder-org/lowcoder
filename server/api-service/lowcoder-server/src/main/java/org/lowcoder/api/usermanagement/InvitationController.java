@@ -2,7 +2,12 @@ package org.lowcoder.api.usermanagement;
 
 
 import static org.lowcoder.sdk.constants.Authentication.isAnonymousUser;
+import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
 import static org.lowcoder.sdk.exception.BizError.INVITED_USER_NOT_LOGIN;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.SessionUserService;
@@ -19,6 +24,9 @@ import reactor.core.publisher.Mono;
 @RestController
 public class InvitationController implements InvitationEndpoints
 {
+
+    /** The request field named by the INVALID_PARAMETER answer of {@link #sendInvitationEmails}. */
+    static final String EMAILS_PARAMETER = "emails";
 
     @Autowired
     private InvitationApiService invitationApiService;
@@ -58,8 +66,18 @@ public class InvitationController implements InvitationEndpoints
                 );
     }
 
+    /**
+     * Creates an invitation to the request's organization and mails its link to the request's addresses. A request
+     * without addresses, or with a blank one, is INVALID_PARAMETER "emails" and creates no invitation (BF-139: an empty
+     * array stored an invitation, mailed it to nobody and answered true).
+     * <p>Limits: an address is only checked for being blank here; one the mail server rejects still makes the answer false
+     * after the invitation is stored.
+     */
     @Override
     public Mono<ResponseView<Boolean>> sendInvitationEmails(InviteEmailRequest req) {
+        if (ArrayUtils.isEmpty(req.emails()) || StringUtils.isAnyBlank(req.emails())) {
+            return ofError(INVALID_PARAMETER, "INVALID_PARAMETER", EMAILS_PARAMETER);
+        }
         return invitationApiService.create(req.orgId()).map(invitation -> 
                 emailCommunicationService.sendInvitationEmails(req.emails(), 
                 config.getLowcoderPublicUrl() + "/invite/" + invitation.getInviteCode(), 
