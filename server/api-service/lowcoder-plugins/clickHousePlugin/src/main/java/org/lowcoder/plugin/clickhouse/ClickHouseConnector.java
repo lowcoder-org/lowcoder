@@ -17,6 +17,7 @@ import java.time.Duration;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
@@ -90,8 +91,7 @@ public class ClickHouseConnector implements DatasourceConnector<HikariDataSource
     @Override
     public Mono<HikariDataSource> createConnection(ClickHouseDatasourceConfig connectionConfig) {
 
-        return Mono.fromSupplier(() -> createHikariDataSource(connectionConfig))
-                .timeout(createConnectionTimeout.get())
+        return createWithTimeout(() -> createHikariDataSource(connectionConfig), createConnectionTimeout.get())
                 .onErrorMap(TimeoutException.class, error -> new PluginException(DATASOURCE_TIMEOUT_ERROR, "DATASOURCE_TIMEOUT_ERROR"))
                 .onErrorResume(exception -> {
                     if (exception instanceof PluginException) {
@@ -100,6 +100,32 @@ public class ClickHouseConnector implements DatasourceConnector<HikariDataSource
                     return Mono.error(new PluginException(DATASOURCE_ARGUMENT_ERROR, "DATASOURCE_ARGUMENT_ERROR", exception.getMessage()));
                 })
                 .subscribeOn(querySharedScheduler());
+    }
+
+    /**
+     * The data source {@code creation} gives, run on the shared query scheduler; a {@link TimeoutException} once
+     * {@code timeout} has passed (BF-151: the blocking creation ran inside the subscription, before {@code Mono.timeout}
+     * armed its timer, so a silent server answered only when the driver gave up, about 21 s later, with
+     * DATASOURCE_ARGUMENT_ERROR instead of DATASOURCE_TIMEOUT_ERROR). The timeout is decided on a copy of the creation's
+     * future, so the result is either the data source or the error, never both; a data source that arrives after the
+     * timeout, or after the subscriber cancelled, is closed so that its pool does not leak.
+     * <p>
+     * Limits: the creation itself is not interrupted; it keeps a thread of the shared query scheduler until the driver
+     * gives up or connects (as before the fix, when the caller also waited that long), so repeated tests of a silent host
+     * still occupy scheduler threads after their callers got the timeout. A data source already delivered belongs to the
+     * subscriber.
+     */
+    static Mono<HikariDataSource> createWithTimeout(Supplier<HikariDataSource> creation, Duration timeout) {
+        return Mono.defer(() -> {
+            CompletableFuture<HikariDataSource> created = CompletableFuture.supplyAsync(creation, task -> querySharedScheduler().schedule(task));
+            CompletableFuture<HikariDataSource> result = created.copy().orTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
+            result.whenComplete((dataSource, error) -> {
+                if (error != null) {
+                    created.thenAccept(HikariDataSource::close);
+                }
+            });
+            return Mono.fromFuture(result);
+        });
     }
 
     private HikariDataSource createHikariDataSource(ClickHouseDatasourceConfig datasourceConfig) throws PluginException {
