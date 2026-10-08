@@ -98,6 +98,20 @@ public class MongoCommandDocumentsTest {
         assertEquals(new Document(), document(form("FIND", COLLECTION, "query", "   ")).get("filter"), "a blank query is an empty filter");
     }
 
+    /** BF-117 through another caller of parseSafely: a query, sort or projection that is an array is INVALID_JSON_FORMAT of its field. */
+    @Test
+    public void findFieldsThatAreNoDocumentAreCodedErrorsBF117() {
+        for (String[] field : new String[][] {{"query", "Query"}, {"sort", "Sort"}, {"projection", "Projection"}}) {
+            for (String notADocument : List.of("[]", "[{\"a\": 1}]", "[}")) {
+                PluginException coded = assertThrows(PluginException.class, () -> document(form("FIND", COLLECTION, field[0], notADocument)), notADocument);
+                System.out.println("[MongoCommandDocumentsTest] FIND " + field[0] + " " + notADocument + " -> " + coded.getMessageKey() + " " + coded.getArgs()[0]);
+                assertEquals(QUERY_ARGUMENT_ERROR, coded.getError());
+                assertEquals("INVALID_JSON_FORMAT", coded.getMessageKey());
+                assertEquals(field[1], coded.getArgs()[0]);
+            }
+        }
+    }
+
     @Test
     public void findLimitMustBeAPositiveInteger() {
         for (String limit : List.of("0", "-3", "abc", "1.5")) {
@@ -150,17 +164,24 @@ public class MongoCommandDocumentsTest {
     static final List<String> BROKEN_ARRAYS = List.of("[}", "[{\"a\": ");
 
     /**
-     * Pins the plan section 9 row "Insert/Aggregate: [} or a truncated array escapes as a raw BsonInvalidOperationException (catch handles JsonParseException only)" as observed. A fix (catching it) changes this test on purpose.
-     * Most malformed arrays tried ({@link #BROKEN_ARRAYS}) escape as a raw BsonInvalidOperationException instead
-     * of the INVALID_JSON_ARRAY_FORMAT error; only a JsonParseException input such as {@code [,]} or {@code [{'a':}]} is mapped.
+     * BF-117 (fixed; was pinned as plan section 9 row "Insert/Aggregate: [} or a truncated array escapes as a raw
+     * BsonInvalidOperationException"): a text that starts with {@code [} but does not end with {@code ]} ({@link #BROKEN_ARRAYS})
+     * is not an array to {@code isArrayStr}, so it is parsed as one document by {@code MongoQueryUtils.parseSafely}, whose
+     * {@code Document.parse} throws BsonInvalidOperationException for it; parseSafely now maps that to INVALID_JSON_FORMAT
+     * with the field's name, as it does a JsonParseException. A malformed text in brackets ({@code [,]}, {@code [{'a':}]}) is
+     * parsed as an array and is INVALID_JSON_ARRAY_FORMAT, as before.
      */
     @Test
-    public void insertMalformedArraysEscapeAsRawBsonExceptionsExceptCommaOnly() {
+    public void insertMalformedArraysAreCodedErrorsBF117() {
         PluginException mapped = assertThrows(PluginException.class, () -> document(form("INSERT", COLLECTION, "documents", "[,]")));
         assertEquals("INVALID_JSON_ARRAY_FORMAT", mapped.getMessageKey());
         assertEquals("INVALID_JSON_ARRAY_FORMAT", assertThrows(PluginException.class, () -> document(form("INSERT", COLLECTION, "documents", "[{'a':}]"))).getMessageKey());
         for (String broken : BROKEN_ARRAYS) {
-            assertThrows(org.bson.BsonInvalidOperationException.class, () -> document(form("INSERT", COLLECTION, "documents", broken)), broken);
+            PluginException coded = assertThrows(PluginException.class, () -> document(form("INSERT", COLLECTION, "documents", broken)), broken);
+            System.out.println("[MongoCommandDocumentsTest] INSERT " + broken + " -> " + coded.getError() + " " + coded.getMessageKey() + " " + coded.getMessage());
+            assertEquals(QUERY_ARGUMENT_ERROR, coded.getError(), broken);
+            assertEquals("INVALID_JSON_FORMAT", coded.getMessageKey(), broken);
+            assertEquals("Documents", coded.getArgs()[0], broken);
         }
     }
 
@@ -293,12 +314,14 @@ public class MongoCommandDocumentsTest {
         }
     }
 
-    /** Aggregate side of the section 9 row named at {@link #insertMalformedArraysEscapeAsRawBsonExceptionsExceptCommaOnly}: Pins the plan section 9 row "Insert/Aggregate: [} or a truncated array escapes as a raw BsonInvalidOperationException (catch handles JsonParseException only)" as observed. */
+    /** Aggregate side of BF-117 ({@link #insertMalformedArraysAreCodedErrorsBF117}): the broken arrays are INVALID_JSON_FORMAT of "Array of Pipelines". */
     @Test
     public void aggregateMalformedPipelineAndMissingPipelineAreReported() {
         assertEquals("INVALID_MONGODB_BSON_ARRAY_FORMAT", assertThrows(PluginException.class, () -> document(form("AGGREGATE", COLLECTION, "arrayPipelines", "[,]", "limit", "5"))).getMessageKey());
         for (String broken : BROKEN_ARRAYS) {
-            assertThrows(org.bson.BsonInvalidOperationException.class, () -> document(form("AGGREGATE", COLLECTION, "arrayPipelines", broken, "limit", "5")), "observation: not mapped to INVALID_MONGODB_BSON_ARRAY_FORMAT: " + broken);
+            PluginException coded = assertThrows(PluginException.class, () -> document(form("AGGREGATE", COLLECTION, "arrayPipelines", broken, "limit", "5")), broken);
+            assertEquals("INVALID_JSON_FORMAT", coded.getMessageKey(), broken);
+            assertEquals("Array of Pipelines", coded.getArgs()[0], broken);
         }
         PluginException stage = assertThrows(PluginException.class, () -> document(form("AGGREGATE", COLLECTION, "arrayPipelines", "{\"$match\": ", "limit", "5")));
         assertEquals("INVALID_JSON_FORMAT", stage.getMessageKey());
