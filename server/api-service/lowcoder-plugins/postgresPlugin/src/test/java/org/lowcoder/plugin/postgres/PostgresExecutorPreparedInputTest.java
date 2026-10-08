@@ -22,6 +22,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.lowcoder.sdk.exception.PluginCommonError.PREPARED_STATEMENT_BIND_PARAMETERS_ERROR;
 import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
 import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
 
@@ -99,6 +100,25 @@ public class PostgresExecutorPreparedInputTest {
     @Test
     public void queryWithoutPlaceholdersBindsNothing() {
         assertEquals(List.of(), binds("select 1", Map.of("unused", 1)));
+    }
+
+    /**
+     * BF-106, seen through the executor: a bound text that does not parse as its explicit cast fails the query with the
+     * coded PREPARED_STATEMENT_BIND_PARAMETERS_ERROR before anything is bound; the JDK's NumberFormatException used to
+     * escape the plugin.
+     */
+    @Test
+    public void aTextThatDoesNotParseAsItsCastIsAPreparedStatementBindErrorBF106() {
+        List<String> bound = new ArrayList<>();
+        SqlBasedQueryExecutionContext context = SqlBasedQueryExecutionContext.builder().query("select {{n}}::int4").requestParams(Map.of("n", "12.5")).build();
+
+        PluginException thrown = assertThrows(PluginException.class,
+                () -> executor.executeQuery(PostgresResultContractTest.wrap(FakeJdbc.connection(List.of(new UpdateCount(1, null)), bound)), context).block(TIMEOUT));
+
+        System.out.println("[PostgresExecutorPreparedInputTest] 12.5::int4 -> " + thrown.getError() + " " + thrown.getArgs()[0] + ", bound " + bound + " (BF-106)");
+        assertEquals(PREPARED_STATEMENT_BIND_PARAMETERS_ERROR, thrown.getError());
+        assertEquals("\"12.5\" is not a valid INTEGER", thrown.getArgs()[0]);
+        assertEquals(List.of(), bound);
     }
 
     @Test
