@@ -101,20 +101,20 @@ class GroupMemberServiceImplMongoTest extends OrganizationMongoTestBase {
     }
 
     /**
-     * Pins plan section 9 row "updateMemberRole answers true for a member that does not exist (hasElement on the update
-     * result; OrgMemberServiceImpl:142-143, GroupMemberServiceImpl:47-48)" (the org line is now OrgMemberServiceImpl:150-151).
-     * Caller GroupApiServiceImpl.updateRoleForMember (:243-251) returns that value to the client. A fix (map the update's boolean) changes this test on purpose.
+     * BF-130 (was pinned as plan section 9 row "updateMemberRole answers true for a member that does not exist"): the
+     * answer is the update's own boolean, false when no membership matched; {@code hasElement()} on it was true for false
+     * too. Caller GroupApiServiceImpl.updateRoleForMember (:243-250) returns it.
      */
     @Test
-    void updateMemberRoleAnswersTrueForAMemberWhoIsNotInTheGroup_pinsTheSection9Row() {
+    void updateMemberRoleAnswersFalseForAMemberWhoIsNotInTheGroupBF130() {
         String groupId = newId();
         String stranger = newId();
 
         Boolean answer = groupMemberService.updateMemberRole(groupId, stranger, MemberRole.ADMIN).block(TIMEOUT);
 
-        System.out.println("[GroupMemberServiceImplMongoTest] PINNED updateMemberRole of a non-member answers " + answer);
+        System.out.println("[GroupMemberServiceImplMongoTest] updateMemberRole of a non-member answers " + answer);
         assertThat(rows(GROUP_MEMBER, groupId, stranger)).isEmpty();
-        assertThat(answer).isTrue();
+        assertThat(answer).isFalse();
     }
 
     /** Catches: removing the user from every group (or every user from the group) instead of one membership. */
@@ -136,5 +136,23 @@ class GroupMemberServiceImplMongoTest extends OrganizationMongoTestBase {
         assertThat(rows(GROUP_MEMBER, groupA, other)).hasSize(1);
         assertThat(groupMemberService.removeMember(groupA, user).block(TIMEOUT)).isFalse();
         System.out.println("[GroupMemberServiceImplMongoTest] removeMember kept the other group and the other member");
+    }
+
+    /**
+     * BF-130: setting a member's current role again still answers true, because the update also writes the
+     * membership's updatedAt, so a row is modified; false means only that no membership matched.
+     */
+    @Test
+    void updateMemberRoleToTheCurrentRoleAnswersTrueBF130() {
+        String org = newId();
+        String groupId = newId();
+        String user = newId();
+        groupMemberService.addMember(org, groupId, user, MemberRole.MEMBER).block(TIMEOUT);
+
+        Boolean answer = groupMemberService.updateMemberRole(groupId, user, MemberRole.MEMBER).block(TIMEOUT);
+
+        System.out.println("[GroupMemberServiceImplMongoTest] updateMemberRole to the current role answers " + answer);
+        assertThat(answer).isTrue();
+        assertThat(singleRow(GROUP_MEMBER, groupId, user).getRelation()).isEqualTo(MemberRole.MEMBER.getValue());
     }
 }

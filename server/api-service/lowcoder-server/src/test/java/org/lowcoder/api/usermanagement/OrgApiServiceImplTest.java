@@ -621,17 +621,17 @@ class OrgApiServiceImplTest {
 
     /**
      * Catches a refusal for a target who is not a member (the documented limit): the check finds no membership, so the
-     * update runs and its answer is returned. The real update answers true here although it changes nothing (pinned in
-     * OrgMemberServiceImplMongoTest), so the stub answers true.
+     * update runs and its answer is returned. The real update answers false here, it changes nothing (BF-130, tested in
+     * OrgMemberServiceImplMongoTest), so the stub answers false.
      */
     @Test
     void updateRoleForMember_targetNotAMember_updateRunsAndItsAnswerIsReturned() {
         stubVisitorRole(ORG_ID, MemberRole.ADMIN);
         stubTargetRole(TARGET_ID, null);
-        when(orgMemberService.updateMemberRole(ORG_ID, TARGET_ID, MemberRole.MEMBER)).thenReturn(logged("update", true));
+        when(orgMemberService.updateMemberRole(ORG_ID, TARGET_ID, MemberRole.MEMBER)).thenReturn(logged("update", false));
 
         StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(TARGET_ID, MemberRole.MEMBER.getValue())))
-                .expectNext(true).verifyComplete();
+                .expectNext(false).verifyComplete();
 
         assertThat(events).containsExactly("target read", "update");
         say("updateRoleForMember: target not a member -> %s", events);

@@ -102,21 +102,20 @@ class OrgMemberServiceImplMongoTest extends OrganizationMongoTestBase {
     }
 
     /**
-     * Pins plan section 9 row "updateMemberRole answers true for a member that does not exist (hasElement on the update
-     * result; OrgMemberServiceImpl:142-143, GroupMemberServiceImpl:47-48)" (now OrgMemberServiceImpl:150-151):
-     * {@code Mono<Boolean>.hasElement()} is true whenever the update helper emits any value, false included. Caller OrgApiServiceImpl.updateRoleForMember
-     * (:166-173) returns that value to the client. A fix (map the update's boolean) changes this test on purpose.
+     * BF-130 (was pinned as plan section 9 row "updateMemberRole answers true for a member that does not exist"): the
+     * answer is the update's own boolean, false when no membership matched; {@code hasElement()} on it was true for false
+     * too. Caller OrgApiServiceImpl.updateRoleForMember (:168-175) returns it to the client.
      */
     @Test
-    void updateMemberRoleAnswersTrueForAMemberWhoDoesNotExist_pinsTheSection9Row() {
+    void updateMemberRoleAnswersFalseForAMemberWhoDoesNotExistBF130() {
         String org = createActiveOrg();
         String stranger = newId();
 
         Boolean answer = orgMemberService.updateMemberRole(org, stranger, MemberRole.ADMIN).block(TIMEOUT);
 
-        System.out.println("[OrgMemberServiceImplMongoTest] PINNED updateMemberRole of a non-member answers " + answer);
+        System.out.println("[OrgMemberServiceImplMongoTest] updateMemberRole of a non-member answers " + answer);
         assertThat(rows(ORG_MEMBER, org, stranger)).isEmpty();
-        assertThat(answer).isTrue();
+        assertThat(answer).isFalse();
     }
 
     /** Catches: removing the user from every organisation instead of one (the analysis' defect). */
@@ -287,5 +286,22 @@ class OrgMemberServiceImplMongoTest extends OrganizationMongoTestBase {
         String deleted = createOrg(OrganizationState.DELETED);
         orgMemberService.addMember(deleted, user, MemberRole.MEMBER).block(TIMEOUT);
         assertThat(orgMemberService.getCurrentOrgMember(user).blockOptional(TIMEOUT)).isEmpty();
+    }
+
+    /**
+     * BF-130: setting a member's current role again still answers true, because the update also writes the
+     * membership's updatedAt, so a row is modified; false means only that no membership matched.
+     */
+    @Test
+    void updateMemberRoleToTheCurrentRoleAnswersTrueBF130() {
+        String org = createActiveOrg();
+        String user = newId();
+        orgMemberService.addMember(org, user, MemberRole.MEMBER).block(TIMEOUT);
+
+        Boolean answer = orgMemberService.updateMemberRole(org, user, MemberRole.MEMBER).block(TIMEOUT);
+
+        System.out.println("[OrgMemberServiceImplMongoTest] updateMemberRole to the current role answers " + answer);
+        assertThat(answer).isTrue();
+        assertThat(singleRow(ORG_MEMBER, org, user).getRelation()).isEqualTo(MemberRole.MEMBER.getValue());
     }
 }
