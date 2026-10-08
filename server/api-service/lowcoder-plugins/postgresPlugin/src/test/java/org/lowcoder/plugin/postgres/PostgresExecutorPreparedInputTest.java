@@ -166,4 +166,18 @@ public class PostgresExecutorPreparedInputTest {
         }
         assertInstanceOf(PostgresInsertCommand.class, executor.parseSqlCommand("insert", DETAILS.get("insert")), "locale restored: " + Locale.getDefault());
     }
+
+    /** BF-123: the Postgres prepared input names its parameters too, so a value of an unsupported type is named in the error. */
+    @Test
+    public void anUnsupportedValueIsABindErrorNamingItsKeyBF123() {
+        Map<String, Object> params = Map.of("n", "5", "u", java.util.UUID.randomUUID());
+
+        PluginException thrown = assertThrows(PluginException.class, () -> binds("select {{n}}::int4, {{u}}", params));
+
+        System.out.println("[PostgresExecutorPreparedInputTest] UUID parameter -> " + thrown.getError() + " " + java.util.Arrays.toString(thrown.getArgs()));
+        assertEquals(PREPARED_STATEMENT_BIND_PARAMETERS_ERROR, thrown.getError());
+        assertEquals("PS_BIND_ERROR", thrown.getMessageKey());
+        assertEquals("u", thrown.getArgs()[0]);
+        assertEquals("UUID", thrown.getArgs()[1]);
+    }
 }
