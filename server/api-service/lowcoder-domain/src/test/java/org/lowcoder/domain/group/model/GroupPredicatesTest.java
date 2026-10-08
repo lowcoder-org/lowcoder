@@ -165,6 +165,25 @@ class GroupPredicatesTest {
         assertThat(sanitized).isNotSameAs(settings);
     }
 
+    /**
+     * GH-02 (GitHub #924): the update time stored beside the template ({@code <key>_updateTime}) goes with it; the update
+     * time of a kept setting stays. Catches: the template's companion key left in a sanitized export.
+     */
+    @Test
+    void sanitizedDropsTheTemplatesUpdateTimeButKeepsOtherUpdateTimesGH02() {
+        Organization.OrganizationCommonSettings settings = new Organization.OrganizationCommonSettings();
+        String template = Organization.OrganizationCommonSettings.PASSWORD_RESET_EMAIL_TEMPLATE;
+        settings.put(template, "<html>secret</html>");
+        settings.put(Organization.OrganizationCommonSettings.updateTimeKey(template), 1L);
+        settings.put("theme", "dark");
+        settings.put(Organization.OrganizationCommonSettings.updateTimeKey("theme"), 2L);
+
+        Organization.OrganizationCommonSettings sanitized = settings.sanitized();
+        System.out.println("[GroupPredicatesTest] GH-02 sanitized=" + sanitized);
+        assertThat(sanitized).containsOnly(java.util.Map.entry("theme", "dark"), java.util.Map.entry("theme_updateTime", 2L));
+        assertThat(Organization.OrganizationCommonSettings.updateTimeKey(template)).isEqualTo("PASSWORD_RESET_EMAIL_TEMPLATE_updateTime");
+    }
+
     /** Catches: an empty settings map returning itself (callers mutate the result) or throwing. */
     @Test
     void sanitizedOfEmptySettingsIsANewEmptyInstance() {
