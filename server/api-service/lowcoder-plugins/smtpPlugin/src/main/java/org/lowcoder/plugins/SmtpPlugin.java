@@ -84,8 +84,8 @@ public class SmtpPlugin extends Plugin {
             prop.put("mail.transport.protocol", "smtp");
             prop.put("mail.smtp.host", connectionConfig.getHost());
             prop.put("mail.smtp.port", connectionConfig.getPort() <= 0 ? DEFAULT_PORT : connectionConfig.getPort());
-            prop.put("mail.smtp.auth", true);
-            prop.put("mail.smtp.username", connectionConfig.getUsername());
+            prop.put("mail.smtp.auth", connectionConfig.getUsername() != null); // BF-125: no user name, no AUTH
+            java.util.Optional.ofNullable(connectionConfig.getUsername()).ifPresent(user -> prop.put("mail.smtp.username", user)); // Properties refuses null
             prop.put("mail.smtp.starttls.enable", "true");
             prop.put("mail.smtp.ssl.protocols", "TLSv1.2");
             prop.put("mail.smtp.ssl.checkserveridentity", false);
