@@ -436,6 +436,23 @@ public class MssqlDatabaseTest {
         }
     }
 
+    /**
+     * F01 (GitHub #1641) on a real SQL Server: a bulk update with a filter changes the records' rows that match it; a record whose
+     * row the filter excludes keeps its value (the filter used to be ignored, so that row was updated too).
+     */
+    @Test
+    public void guiBulkUpdateWithAFilterLeavesTheRowTheFilterExcludesF01() throws Exception {
+        try (Connection jdbc = jdbc()) {
+            execute(jdbc, "drop table if exists dbo.t_bulk_filter", "create table dbo.t_bulk_filter (id int primary key, name nvarchar(20), status nvarchar(10))",
+                    "insert into dbo.t_bulk_filter values (1, 'a', 'open'), (2, 'b', 'closed'), (3, 'c', 'open')");
+            Object updated = gui("BULK_UPDATE", Map.of("table", "dbo.t_bulk_filter", "primaryKey", "id",
+                    "records", "[{\"id\":1,\"name\":\"A\"},{\"id\":2,\"name\":\"B\"}]",
+                    "filterBy", List.of(Map.of("column", "status", "condition", "=", "value", "{{status}}"))), Map.of("status", "open"));
+            System.out.println("[MssqlDatabaseTest] F01 bulk update with filter status = open: " + updated);
+            assertEquals(List.of("A", "b", "c"), column(jdbc, "select name from dbo.t_bulk_filter order by id", "name"));
+        }
+    }
+
     @Test
     public void topOneChangesAndDeletesExactlyOneOfThreeMatchingRows() throws Exception {
         try (Connection jdbc = jdbc()) {

@@ -209,6 +209,16 @@ public class OracleGuiCommandRenderTest {
         assertEquals("BULK_UPDATE_DATA_NOT_CONTAIN_PRIMARY_KEY", missingKey.getMessageKey());
     }
 
+    /** F01 (GitHub #1641): the bulk update's filter is ANDed to the keys, quoted as Oracle quotes, its value bound after the keys. */
+    @Test
+    public void bulkUpdateAndsItsFilterToTheKeysF01() {
+        GuiSqlCommandRenderResult result = print("bulk update with filter", OracleBulkUpdateCommand.from(detail(KEY_PRIMARY, "id",
+                KEY_RECORDS, "[{\"id\":1,\"name\":\"a\"},{\"id\":2,\"name\":\"b\"}]", KEY_FILTER, List.of(ID_FILTER))).render(Map.of("id", 1)));
+        assertEquals("UPDATE ITEMS set\n\"name\" = CASE WHEN \"id\" = ? THEN ? WHEN \"id\" = ? THEN ? ELSE \"name\" END\nwhere \"id\" in (?,?) and (\"id\" = ? )",
+                result.sql());
+        assertEquals(List.of(1, "a", 2, "b", 1, 2, 1), result.bindParams());
+    }
+
     @Test
     public void mustacheKeysAreExtractedFromFilterAndChangeSet() {
         assertEquals(Set.of("{{id}}"), OracleDeleteCommand.from(detail(KEY_FILTER, List.of(ID_FILTER))).extractMustacheKeys());
