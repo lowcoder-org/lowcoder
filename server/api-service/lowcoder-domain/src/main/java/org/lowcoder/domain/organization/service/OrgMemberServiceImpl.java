@@ -62,12 +62,12 @@ public class OrgMemberServiceImpl implements OrgMemberService {
     @Override
     public Flux<OrgMember> getAllActiveOrgs(String userId) {
         // get all.
-        Flux<OrgMember> orgMemberFlux = biRelationService.getByTargetId(ORG_MEMBER, userId)
-                .map(OrgMember::from)
+        Flux<OrgMember> orgMemberFlux = membershipsOf(userId)
+                // read once, for the active org ids and for the answer
                 .cache();
 
         // get all active org ids.
-        Mono<HashSet<String>> activeOrgIds = orgMemberFlux.map(OrgMember::getOrgId)
+        Mono<ActiveOrgIds> activeOrgIds = orgMemberFlux.map(OrgMember::getOrgId)
                 .collectList()
                 .flatMapMany(organizationService::getByIds)
                 .filter(organization -> organization.getState() != OrganizationState.DELETED)
@@ -80,23 +80,23 @@ public class OrgMemberServiceImpl implements OrgMemberService {
                         String enterpriseOrgId = workspace.getEnterpriseOrgId();
                         if (StringUtils.isNotBlank(enterpriseOrgId)) {
                             if (orgIds.contains(enterpriseOrgId)) {
-                                return Mono.just(List.of(enterpriseOrgId));
+                                return Mono.just(new ActiveOrgIds(List.of(enterpriseOrgId), false));
                             }
                             return addMember(enterpriseOrgId, userId, MemberRole.MEMBER)
-                                    .thenReturn(List.of(enterpriseOrgId));
+                                    .thenReturn(new ActiveOrgIds(List.of(enterpriseOrgId), true));
                         }
                         if (orgIds.size() > 1) {
-                            return Mono.just(orgIds.subList(0, 1));
+                            return Mono.just(new ActiveOrgIds(orgIds.subList(0, 1), false));
                         }
                     }
-                    return Mono.just(orgIds);
+                    return Mono.just(new ActiveOrgIds(orgIds, false));
                 })
-                .map(HashSet::new)
+                // BF-131: after an enrolment the answer reads the memberships again, as orgMemberFlux predates it
                 .cache();
 
         // filter by activeOrgIds.
-        return orgMemberFlux
-                .filterWhen(orgMember -> activeOrgIds.map(orgIds -> orgIds.contains(orgMember.getOrgId())));
+        return activeOrgIds.flatMapMany(active -> (active.enrolled() ? membershipsOf(userId) : orgMemberFlux)
+                .filter(orgMember -> active.orgIds().contains(orgMember.getOrgId())));
     }
 
     /**
@@ -261,5 +261,21 @@ public class OrgMemberServiceImpl implements OrgMemberService {
     private Mono<Void> bulkAddToAllUserGroup(Collection<String> orgIds, String userId, MemberRole memberRole) {
         return Flux.fromIterable(orgIds).flatMap(orgId -> groupService.getAllUsersGroup(orgId)
                 .flatMap(group -> groupMemberService.addMember(orgId, group.getId(), userId, memberRole))).then();
+    }
+
+    private Flux<OrgMember> membershipsOf(String userId) {
+        return biRelationService.getByTargetId(ORG_MEMBER, userId)
+                .map(OrgMember::from);
+    }
+
+    /**
+     * The org ids {@link #getAllActiveOrgs} answers memberships of, and whether finding them enrolled the user in the
+     * enterprise org, a membership written after the memberships were read (BF-131).
+     */
+    private record ActiveOrgIds(HashSet<String> orgIds, boolean enrolled) {
+
+        private ActiveOrgIds(List<String> orgIds, boolean enrolled) {
+            this(new HashSet<>(orgIds), enrolled);
+        }
     }
 }
