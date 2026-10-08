@@ -189,8 +189,8 @@ public class OrgApiServiceImpl implements OrgApiService {
      * visitor has passed the admin check.
      * <p>
      * Limits: an unknown role name is not refused (it is written as MEMBER, {@link MemberRole#fromValue}), and neither is
-     * a target who is not a member: the update then changes nothing, and still answers true (the pinned
-     * {@code hasElement} answer of {@code OrgMemberService.updateMemberRole}).
+     * a target who is not a member: the update then changes nothing and answers false (BF-130: it answered true), the
+     * answer of {@code OrgMemberService.updateMemberRole}.
      */
     private Mono<Void> checkSuperAdminRoleUnchanged(String orgId, UpdateRoleRequest updateRoleRequest) {
         return Mono.defer(() -> {

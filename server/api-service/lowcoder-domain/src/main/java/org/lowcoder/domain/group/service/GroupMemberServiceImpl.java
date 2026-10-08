@@ -44,8 +44,8 @@ public class GroupMemberServiceImpl implements GroupMemberService {
 
     @Override
     public Mono<Boolean> updateMemberRole(String groupId, String userId, MemberRole memberRole) {
-        return biRelationService.updateRelation(GROUP_MEMBER, groupId, userId, memberRole.getValue())
-                .hasElement();
+        // BF-130: whether a membership was modified; hasElement() answered true for the update's false too
+        return biRelationService.updateRelation(GROUP_MEMBER, groupId, userId, memberRole.getValue());
     }
 
     @Override
