@@ -22,7 +22,7 @@ import java.util.Map;
  * The Redis row of the §4.6 producer table (docs/API_PAYLOAD_TEST_PLAN.md §4.6, task T8.2):
  * {@code RedisEngine.executeQuery} with a pool whose connection answers each reply of {@link #OUTPUTS} to
  * {@code sendCommand}, as Jedis decodes the RESP2 types. The engine puts {@code processCommandOutput(reply)} into the
- * result ({@code RedisPlugin.java:221}): a bulk string becomes a {@code String} decoded as UTF-8, an array a
+ * result ({@code RedisPlugin.java:223}): a bulk string becomes a {@code String} decoded as UTF-8, an array a
  * {@code List<String>}, an integer its text; an array that holds an array (as {@code SCAN} and {@code EXEC} return)
  * or integers fails the cast to {@code byte[]}, and the engine returns a {@code REDIS_EXECUTION_ERROR} result (O76). Each case's report ({@link QueryResults#report}) is pinned in {@value #REPORT}.
  *
