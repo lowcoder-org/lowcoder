@@ -1,7 +1,6 @@
 package org.lowcoder.sdk.plugin.common;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -74,14 +73,29 @@ class SqlQueryUtilsTest {
     }
 
     /**
-     * Pins the plan section 9 row "SqlQueryUtils.isInsertQuery(";") throws" (D-6, fix deferred): a query made of
-     * semicolons only splits into an empty array and the last-element access fails. A fix changes this test on purpose.
+     * BF-105 (was pinned as the plan section 9 row "SqlQueryUtils.isInsertQuery(";") throws", D-6): a query of
+     * semicolons and blanks only has no statement and is not an insert; it used to split into an empty array and fail
+     * with an ArrayIndexOutOfBoundsException.
      */
     @ParameterizedTest
-    @ValueSource(strings = {";", ";;"})
-    void isInsertQueryThrowsArrayIndexOutOfBoundsForSemicolonOnlyQueries(String query) {
-        assertThatThrownBy(() -> SqlQueryUtils.isInsertQuery(query)).isInstanceOf(ArrayIndexOutOfBoundsException.class);
-        System.out.println("[SqlQueryUtilsTest] isInsertQuery [" + query + "] throws ArrayIndexOutOfBoundsException (plan section 9 row, pinned)");
+    @ValueSource(strings = {";", ";;", " ; ; ", ";\n;"})
+    void aQueryWithoutAStatementIsNotAnInsertBF105(String query) {
+        boolean actual = SqlQueryUtils.isInsertQuery(query);
+        System.out.println("[SqlQueryUtilsTest] isInsertQuery [" + query.replace("\n", "\\n") + "] = " + actual + " (BF-105)");
+        assertThat(actual).isFalse();
+    }
+
+    /**
+     * BF-105, the same cause: a blank statement after the last semicolon is not the last statement, so a query ending in
+     * an insert and a semicolon followed by spaces or a line break is an insert (it used to read the blank as the last
+     * statement); a blank after another statement does not make it an insert.
+     */
+    @Test
+    void blankStatementsAfterTheLastSemicolonAreSkippedBF105() {
+        assertThat(SqlQueryUtils.isInsertQuery("insert into t values (1);  ")).isTrue();
+        assertThat(SqlQueryUtils.isInsertQuery("select 1; insert into t values (1);\n")).isTrue();
+        assertThat(SqlQueryUtils.isInsertQuery("insert into t values (1); select 1; ; ")).isFalse();
+        System.out.println("[SqlQueryUtilsTest] trailing blank statements skipped (BF-105)");
     }
 
     /**
