@@ -280,8 +280,14 @@ public class PostgresDataTypeUtils {
      * parse as that type is a PREPARED_STATEMENT_BIND_PARAMETERS_ERROR naming the value and the type (BF-106: the JDK's
      * NumberFormatException or IllegalArgumentException escaped, and the server answered it as an unknown
      * QUERY_EXECUTION_ERROR).
+     *
+     * <p>A null value stays null whatever the cast, and is bound as SQL NULL as it is without a cast (NEW-17, GitHub #2068:
+     * {@code {{x}}::varchar} bound the text "null", {@code ::bool} false, and a number, date or time cast failed).
      */
     public static Object castValueWithTargetType(Object value, DataType targetType) {
+        if (value == null) {
+            return null;
+        }
         try {
             return cast(value, targetType);
         } catch (IllegalArgumentException e) {
