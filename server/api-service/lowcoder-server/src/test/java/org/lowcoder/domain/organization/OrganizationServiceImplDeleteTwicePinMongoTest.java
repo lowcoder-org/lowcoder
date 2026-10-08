@@ -22,8 +22,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
 /**
- * Pin of the section 9 row found by L3-11b on OrganizationServiceImpl.delete (follow-up). Own Spring context and database
- * (extra property), with a collecting OrgDeletedEvent listener.
+ * BF-135 (was the pin of the section 9 row found by L3-11b on OrganizationServiceImpl.delete, follow-up). Own Spring
+ * context and database (extra property), with a collecting OrgDeletedEvent listener.
  */
 @SpringBootTest(classes = ServerApplication.class)
 @ActiveProfiles("test")
@@ -45,23 +45,54 @@ class OrganizationServiceImplDeleteTwicePinMongoTest extends OrganizationMongoTe
     private OrganizationService organizationService;
 
     /**
-     * Pins plan section 9 row "deleting a deleted org answers true and publishes a second OrgDeletedEvent": delete
-     * (OrganizationServiceImpl:283-294) updates the state without checking it, and the update reports a change because the
-     * auditing fields move, so a second delete answers true and publishes the event again (the cascades run twice). A fix
-     * (guard on state ACTIVE) changes this test on purpose.
+     * BF-135 (was pinned as plan section 9 row "deleting a deleted org answers true and publishes a second OrgDeletedEvent"):
+     * delete updated the state without checking it, and the update reported a change because the auditing fields moved,
+     * so a second delete answered true and published the event again (the cascades ran twice). Only an org that is not
+     * deleted yet is matched now: the second delete answers false and publishes nothing.
      */
     @Test
-    void deletingADeletedOrgAnswersTrueAndPublishesASecondEvent_pinsTheSection9Row() {
+    void deletingADeletedOrgAnswersFalseAndPublishesNoSecondEventBF135() {
         String orgId = mongo.save(Organization.builder().name("twice").gid(UUID.randomUUID().toString()).state(ACTIVE).build()).block(TIMEOUT).getId();
 
         Boolean first = organizationService.delete(orgId).block(TIMEOUT);
         Boolean second = organizationService.delete(orgId).block(TIMEOUT);
 
         long events = DELETED_ORG_IDS.stream().filter(orgId::equals).count();
-        System.out.println("[OrganizationServiceImplDeleteTwicePinMongoTest] PINNED first=" + first + " second=" + second + " events=" + events);
+        System.out.println("[OrganizationServiceImplDeleteTwicePinMongoTest] first=" + first + " second=" + second + " events=" + events);
         assertThat(mongo.findById(orgId, Organization.class).block(TIMEOUT).getState()).isEqualTo(DELETED);
         assertThat(first).isTrue();
-        assertThat(second).isTrue();
-        assertThat(events).isEqualTo(2L);
+        assertThat(second).isFalse();
+        assertThat(events).isEqualTo(1L);
+    }
+
+    /**
+     * BF-135: the org is also deleted when named by its gid, as before (the key is an object id or a gid). The event
+     * carries the gid as given, a limit stated on delete (NEW-41 in the plan); the REST caller passes the object id.
+     */
+    @Test
+    void anOrgNamedByItsGidIsDeletedOnceBF135() {
+        String gid = UUID.randomUUID().toString();
+        String orgId = mongo.save(Organization.builder().name("by-gid").gid(gid).state(ACTIVE).build()).block(TIMEOUT).getId();
+
+        Boolean first = organizationService.delete(gid).block(TIMEOUT);
+        Boolean second = organizationService.delete(gid).block(TIMEOUT);
+
+        System.out.println("[OrganizationServiceImplDeleteTwicePinMongoTest] by gid first=" + first + " second=" + second);
+        assertThat(mongo.findById(orgId, Organization.class).block(TIMEOUT).getState()).isEqualTo(DELETED);
+        assertThat(first).isTrue();
+        assertThat(second).isFalse();
+        assertThat(DELETED_ORG_IDS.stream().filter(gid::equals).count()).isEqualTo(1L);
+    }
+
+    /** BF-135: deleting an org id that names no org answers false and publishes nothing. */
+    @Test
+    void deletingAnUnknownOrgAnswersFalseAndPublishesNothingBF135() {
+        String unknown = newId();
+
+        Boolean answer = organizationService.delete(unknown).block(TIMEOUT);
+
+        System.out.println("[OrganizationServiceImplDeleteTwicePinMongoTest] unknown " + unknown + " -> " + answer);
+        assertThat(answer).isFalse();
+        assertThat(DELETED_ORG_IDS).doesNotContain(unknown);
     }
 }
