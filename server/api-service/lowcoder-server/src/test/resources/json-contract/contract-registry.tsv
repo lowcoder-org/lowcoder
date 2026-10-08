@@ -50,14 +50,14 @@ AuthenticationEndpoints#logout(ServerWebExchange)	codec	WP7	org.lowcoder.api.con
 BundleEndpoints#addApp(String, String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		143 return=addApp	
 BundleEndpoints#create(CreateBundleRequest)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		44 return=create	
 BundleEndpoints#delete(String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		51 return=delete	
-BundleEndpoints#getAgencyProfileBundle(String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		217 return=getAgencyProfileBundle	
-BundleEndpoints#getAgencyProfileBundles()	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		239 return=getAgencyProfileBundles	
-BundleEndpoints#getBundlePermissions(String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		194 return=getBundlePermissions	
-BundleEndpoints#getBundles(BundleStatus)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		225 return=getBundles	
+BundleEndpoints#getAgencyProfileBundle(String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		222 return=getAgencyProfileBundle	
+BundleEndpoints#getAgencyProfileBundles()	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		244 return=getAgencyProfileBundles	
+BundleEndpoints#getBundlePermissions(String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		199 return=getBundlePermissions	
+BundleEndpoints#getBundles(BundleStatus)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		230 return=getBundles	
 BundleEndpoints#getElements(String, ApplicationType, Integer, Integer)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	assembling	org.lowcoder.domain.bundle.model.BundleApplication	125 return=getElements	
-BundleEndpoints#getMarketplaceBundles()	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		232 return=getMarketplaceBundles	
-BundleEndpoints#getPublishedBundle(String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		201 return=getPublishedBundle	
-BundleEndpoints#getPublishedMarketPlaceBundle(String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		209 return=getPublishedMarketPlaceBundle	
+BundleEndpoints#getMarketplaceBundles()	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		237 return=getMarketplaceBundles	
+BundleEndpoints#getPublishedBundle(String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		206 return=getPublishedBundle	
+BundleEndpoints#getPublishedMarketPlaceBundle(String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		214 return=getPublishedMarketPlaceBundle	
 BundleEndpoints#getRecycledBundles()	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		111 return=getRecycledBundles	
 BundleEndpoints#grantPermission(String, BatchAddPermissionRequest)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		185 return=grantPermissionWithUnknownRole; 187 return=grantPermission	
 BundleEndpoints#moveApp(String, String, String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		132 return=moveApp	
@@ -66,9 +66,9 @@ BundleEndpoints#recycle(String)	codec	WP3	org.lowcoder.api.contract.endpoint.Bun
 BundleEndpoints#removePermission(String, String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		174 return=removePermission	
 BundleEndpoints#reorder(String, List)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		152 return=reorder	
 BundleEndpoints#restore(String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		103 return=restore	
-BundleEndpoints#setBundleAsAgencyProfile(String, BundleAsAgencyProfileRequest)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		263 return=setBundleAsAgencyProfile	
-BundleEndpoints#setBundlePublicToAll(String, BundlePublicToAllRequest)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		247 return=setBundlePublicToAll	
-BundleEndpoints#setBundlePublicToMarketplace(String, BundlePublicToMarketplaceRequest)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		255 return=setBundlePublicToMarketplace	
+BundleEndpoints#setBundleAsAgencyProfile(String, BundleAsAgencyProfileRequest)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		268 return=setBundleAsAgencyProfile	
+BundleEndpoints#setBundlePublicToAll(String, BundlePublicToAllRequest)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		252 return=setBundlePublicToAll	
+BundleEndpoints#setBundlePublicToMarketplace(String, BundlePublicToMarketplaceRequest)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		260 return=setBundlePublicToMarketplace	
 BundleEndpoints#update(Bundle)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		78 return=update; 82 return=update	
 BundleEndpoints#updatePermission(String, String, UpdatePermissionRequest)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		162 return=updatePermissionWithUnknownRole; 165 return=updatePermission	
 ConfigEndpoints#getConfig(ServerWebExchange, String)	codec	WP7	org.lowcoder.api.contract.endpoint.ConfigEndpointsContractTest	pass-through		72 return=getConfig	
