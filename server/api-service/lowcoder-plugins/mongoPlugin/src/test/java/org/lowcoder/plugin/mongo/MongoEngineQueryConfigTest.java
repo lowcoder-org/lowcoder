@@ -15,12 +15,13 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_QUERY_SETTINGS;
+import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
 
 /**
  * Unit MG-5 (task L5-8c): {@code MongoEngine.buildQueryExecutionContext}: how the query config the client sends and the
  * request parameters become the command and the database name: the raw-command branch (its three error codes), the GUI
  * branch (template rendering of each field, BSON fields as JSON, the others as text), the leaf-type check with its dotted
- * path, and the wrapping of command errors. The special-type rewriting of rendered text is covered by
+ * path, and the wrapping of command errors (a coded command error keeps its key, BF-117). The special-type rewriting of rendered text is covered by
  * {@code MongoSpecialTypesContractTest}; the command documents themselves by {@code MongoCommandDocumentsTest}.
  *
  * <p>Limits: nothing is sent to a server (MG-6).
@@ -29,6 +30,8 @@ public class MongoEngineQueryConfigTest {
 
     static final String DATABASE = "shop";
     static final String INVALID_SETTINGS = "INVALID_QUERY_SETTINGS";
+    /** INVALID_JSON_FORMAT of "Documents" in locale_en. */
+    static final String INVALID_JSON_DOCUMENTS_TEXT = "Invalid query configuration: not a valid JSON Documents.";
 
     private final MongoPlugin.MongoEngine engine = new MongoPlugin.MongoEngine(new ConfigCenterForTest());
     private final MongoDatasourceConfig datasourceConfig = MongoDatasourceConfig.buildFrom(Map.of("database", DATABASE, "host", "localhost"));
@@ -86,6 +89,23 @@ public class MongoEngineQueryConfigTest {
         assertEquals(INVALID_QUERY_SETTINGS, thrown.getError());
         assertEquals(INVALID_SETTINGS, thrown.getMessageKey());
         assertEquals(1, thrown.getArgs().length, "the parser's message is the one argument");
+    }
+
+    /**
+     * BF-117: what the user receives for a GUI field that is no document. The command's coded error (here INVALID_JSON_FORMAT
+     * of "Documents") reaches the caller with its key, as on the raw path; before, every error of {@code parseCommand} was
+     * wrapped as INVALID_QUERY_SETTINGS, so a BsonInvalidOperationException's text ("readStartDocument can only be called
+     * when CurrentBSONType is DOCUMENT, not when CurrentBSONType is ARRAY.") reached the user, and a coded error lost its key.
+     */
+    @Test
+    public void aGuiFieldThatIsNoDocumentReachesTheCallerAsItsCodedErrorBF117() {
+        Map<String, Object> comp = new HashMap<>();
+        comp.put("documents", "[}");
+        PluginException thrown = failure(gui("INSERT", "c", comp), Map.of());
+        assertEquals(QUERY_ARGUMENT_ERROR, thrown.getError());
+        assertEquals("INVALID_JSON_FORMAT", thrown.getMessageKey());
+        assertEquals("Documents", thrown.getArgs()[0]);
+        assertEquals(INVALID_JSON_DOCUMENTS_TEXT, thrown.getMessage());
     }
 
     @Test
@@ -188,13 +208,26 @@ public class MongoEngineQueryConfigTest {
         assertEquals("{\"a\": {{v}}}", ((Map<?, ?>) config.get("comp")).get("query"), "the template in the caller's map is untouched");
     }
 
+    /**
+     * A command error that is not coded (here Find's {@code Long.parseLong} of a skip that is no number) is wrapped as
+     * INVALID_QUERY_SETTINGS with its message; a coded one keeps its key (BF-117: it was wrapped too), as do validation errors.
+     */
     @Test
-    public void commandErrorsAreWrappedAsInvalidQuerySettingsWhileValidationErrorsPassThrough() {
-        Map<String, Object> comp = new HashMap<>();
-        comp.put("query", "{\"a\": ");
-        PluginException wrapped = failure(gui("FIND", "c", comp), Map.of());
+    public void uncodedCommandErrorsAreWrappedAsInvalidQuerySettingsWhileCodedOnesPassThroughBF117() {
+        Map<String, Object> skip = new HashMap<>();
+        skip.put("skip", "ten");
+        PluginException wrapped = failure(gui("FIND", "c", skip), Map.of());
+        assertEquals(INVALID_QUERY_SETTINGS, wrapped.getError());
         assertEquals(INVALID_SETTINGS, wrapped.getMessageKey());
         assertEquals(1, wrapped.getArgs().length, "the original message is the argument");
+        assertEquals("For input string: \"ten\"", wrapped.getArgs()[0]);
+
+        Map<String, Object> comp = new HashMap<>();
+        comp.put("query", "{\"a\": ");
+        PluginException coded = failure(gui("FIND", "c", comp), Map.of());
+        assertEquals(QUERY_ARGUMENT_ERROR, coded.getError());
+        assertEquals("INVALID_JSON_FORMAT", coded.getMessageKey());
+        assertEquals("Query", coded.getArgs()[0]);
 
         PluginException invalid = failure(gui("DELETE", "c", new HashMap<>()), Map.of());
         assertEquals("INVALID_PARAM_CONFIG_PLZ_CHECK", invalid.getMessageKey());

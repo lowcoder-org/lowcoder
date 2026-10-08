@@ -204,8 +204,8 @@ public class MongoPlugin extends Plugin {
             Document command;
             try {
                 command = mongoCommand.parseCommand();
-            } catch (Exception e) {
-                throw new PluginException(INVALID_QUERY_SETTINGS, "INVALID_QUERY_SETTINGS", e.getMessage());
+            } catch (Exception e) { // BF-117: a coded PluginException (INVALID_JSON_FORMAT, ...) keeps its key, as on the raw path above
+                throw e instanceof PluginException pluginException ? pluginException : new PluginException(INVALID_QUERY_SETTINGS, "INVALID_QUERY_SETTINGS", e.getMessage());
             }
             return MongoQueryExecutionContext.builder()
                     .command(command)

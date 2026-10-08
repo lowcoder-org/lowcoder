@@ -73,7 +73,7 @@ public class MongoQueryUtils {
     public static Document parseSafely(String fieldName, String input) {
         try {
             return Document.parse(input);
-        } catch (JsonParseException e) {
+        } catch (JsonParseException | org.bson.BsonInvalidOperationException e) { // BF-117: Document.parse throws the latter for a text that is no document, e.g. "[}"
             throw new PluginException(QUERY_ARGUMENT_ERROR, "INVALID_JSON_FORMAT", fieldName);
         }
     }
