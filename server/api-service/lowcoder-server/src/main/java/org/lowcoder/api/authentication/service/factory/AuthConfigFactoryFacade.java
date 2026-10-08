@@ -37,7 +37,7 @@ public class AuthConfigFactoryFacade implements AuthConfigFactory {
     public AbstractAuthConfig build(AuthConfigRequest authConfigRequest, boolean enable) {
         AuthConfigFactory factory = factoryMap.get(authConfigRequest.getAuthType());
         if (factory == null) {
-            throw new UnsupportedOperationException(authConfigRequest.getAuthType());
+            throw AuthConfigFactory.unsupportedAuthType(authConfigRequest.getAuthType());
         }
         return factory.build(authConfigRequest, enable);
     }
