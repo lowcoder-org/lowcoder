@@ -170,16 +170,15 @@ class FolderTreeTest {
     }
 
     /**
-     * Pins plan section 9 row "folder listings in heap order, FolderNode:29". With a comparator the children are a
-     * PriorityQueue and every accessor streams its heap array, so only the first child is guaranteed to be the
-     * comparator minimum. FolderApiServiceImpl.DEFAULT_COMPARATOR (last view time reversed, then name; used for the
-     * home listing at :354) is private in lowcoder-server and works on server view classes, so it is UNREACHABLE from the
-     * domain module; VIEW_TIME_DESC_THEN_NAME above, the same ordering on the test records, is used instead.
-     * Today 8 elements with view times 1..8 come back as e8, e7, e6, e4, e3, e2, e5, e1 instead of e8 ... e1. A fix
-     * (drain the queue in comparator order) changes this test on purpose.
+     * BF-137 (was pinned as plan section 9 row "folder listings in heap order, FolderNode:29"). With a comparator the
+     * children were a PriorityQueue and every accessor streamed its heap array, so only the first child was the comparator
+     * minimum: 8 elements with view times 1..8 came back as e8, e7, e6, e4, e3, e2, e5, e1. The tree now sorts every
+     * node's children once mounting is done. FolderApiServiceImpl.DEFAULT_COMPARATOR (last view time reversed, then name)
+     * is private in lowcoder-server and works on server view classes, so it is unreachable from the domain module;
+     * VIEW_TIME_DESC_THEN_NAME above, the same ordering on the test records, is used instead.
      */
     @Test
-    void pinsHeapOrderOfChildrenWhenAComparatorIsGiven() {
+    void childrenComeInComparatorOrderWhenAComparatorIsGivenBF137() {
         List<El> elements = new ArrayList<>();
         for (int i = 1; i <= 8; i++) {
             elements.add(new El("e" + i, i, null));
@@ -189,11 +188,32 @@ class FolderTreeTest {
         List<String> viaAccessor = tree.getElementChildren().stream().map(El::name).toList();
         List<String> viaPostOrder = new ArrayList<>();
         tree.postOrderIterate(node -> viaPostOrder.add(label(node)));
-        System.out.println("[FolderTreeTest] PINNED heap order: " + viaAccessor + " (comparator order is e8..e1)");
+        System.out.println("[FolderTreeTest] order: " + viaAccessor + " (comparator order is e8..e1)");
 
-        assertThat(viaAccessor.get(0)).isEqualTo("e8");
-        assertThat(viaAccessor).containsExactly("e8", "e7", "e6", "e4", "e3", "e2", "e5", "e1");
-        assertThat(viaPostOrder).containsExactly("e8", "e7", "e6", "e4", "e3", "e2", "e5", "e1", "ROOT");
+        assertThat(viaAccessor).containsExactly("e8", "e7", "e6", "e5", "e4", "e3", "e2", "e1");
+        assertThat(viaPostOrder).containsExactly("e8", "e7", "e6", "e5", "e4", "e3", "e2", "e1", "ROOT");
+    }
+
+    /**
+     * BF-137: the children of a folder below the root, folders and elements mixed, come in comparator order too, and
+     * children the comparator ranks equal keep the order they were added (the sort is stable). Catches: only the root
+     * being sorted, and a sort that reorders ties.
+     */
+    @Test
+    void aSubFoldersMixedChildrenAreOrderedAndTiesKeepTheirOrderBF137() {
+        // "f-tie" (a folder named "tie") and the element "tie" rank equal; folders are mounted before elements
+        List<Fo> folders = List.of(new Fo("top", null, "top", 0), new Fo("f-old", "top", "f-old", 1), new Fo("f-tie", "top", "tie", 3),
+                new Fo("f-new", "top", "f-new", 9));
+        List<El> elements = List.of(new El("e-mid", 5, "top"), new El("tie", 3, "top"), new El("e-newest", 10, "top"));
+        Tree<El, Fo> tree = tree(folders, elements, VIEW_TIME_DESC_THEN_NAME);
+
+        List<String> children = new ArrayList<>();
+        tree.get("top").getChildren().forEach(node -> children.add(label(node)));
+        System.out.println("[FolderTreeTest] children of top: " + children);
+
+        assertThat(children).containsExactly("e-newest", "f-new", "e-mid", "f-tie", "tie", "f-old");
+        assertThat(tree.get("top").getElementChildren()).extracting(El::name).containsExactly("e-newest", "e-mid", "tie");
+        assertThat(tree.get("top").getFolderChildren()).extracting(Fo::id).containsExactly("f-new", "f-tie", "f-old");
     }
 
     /**
