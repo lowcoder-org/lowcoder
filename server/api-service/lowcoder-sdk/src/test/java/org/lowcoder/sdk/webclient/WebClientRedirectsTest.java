@@ -19,10 +19,11 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-/** Redirect target resolution, the same-origin decision and the credential-free client copy (BF-009, BF-010). */
+/** Redirect target resolution, the same-origin decision, the credential-free client copy (BF-009, BF-010) and the redirect location (BF-113). */
 class WebClientRedirectsTest {
 
     private static final URI ORIGIN = URI.create("http://api.example.com:8080/v1/start?x=1");
+    private static final String NO_VALUE = "NONE";
 
     @ParameterizedTest(name = "[{index}] {0} -> {1}")
     @CsvSource({
@@ -95,5 +96,30 @@ class WebClientRedirectsTest {
                 .as("header names are compared without case").containsExactlyInAnyOrder("accept", "accept-language", "content-type", "user-agent");
         assertThat(other.headers().getAccept()).hasToString("[application/json]");
         assertThat(other.cookies()).isEmpty();
+    }
+
+    /**
+     * BF-113: the location of a 3xx answer, or null for an answer that is not a 3xx or has no Location that is not
+     * blank, which the executors then read as an ordinary answer.
+     */
+    @ParameterizedTest(name = "[{index}] {0} Location={1} -> {2}")
+    @CsvSource(nullValues = NO_VALUE, value = {
+            "302, /next, /next",
+            "307, http://other.example.com/x, http://other.example.com/x",
+            "301, NONE, NONE",
+            "304, NONE, NONE",
+            "302, ' ', NONE",
+            "200, /next, NONE",
+    })
+    void redirectLocationIsTheLocationOfA3xxAnswerOnlyBF113(int status, String location, String expected) {
+        ClientResponse.Builder builder = ClientResponse.create(HttpStatus.valueOf(status), ExchangeStrategies.withDefaults());
+        if (location != null) {
+            builder.header(HttpHeaders.LOCATION, location);
+        }
+
+        String redirect = WebClientRedirects.redirectLocation(builder.build());
+
+        System.out.println("[WebClientRedirectsTest] " + status + " Location=" + location + " -> " + redirect);
+        assertThat(redirect).isEqualTo(expected);
     }
 }
