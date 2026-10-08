@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.plugin.sql.GeneralSqlExecutor;
 import org.lowcoder.plugin.sql.SqlBasedQueryExecutor;
+import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.DatasourceStructure;
 import org.lowcoder.sdk.models.DatasourceStructure.Column;
 import org.lowcoder.sdk.models.DatasourceStructure.Table;
@@ -25,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_GET_STRUCTURE_ERROR;
+import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
 
 @SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
 @Slf4j
@@ -34,6 +36,9 @@ public class SnowflakeQueryExecutor extends SqlBasedQueryExecutor {
     public SnowflakeQueryExecutor() {
         super(new GeneralSqlExecutor(false));
     }
+
+    /** The message key of a GUI command type the executor does not support, shared with the other SQL executors. */
+    private static final String INVALID_GUI_COMMAND_TYPE = "INVALID_GUI_COMMAND_TYPE";
 
     /** The data source ext param that limits the structure to one schema; blank or absent lists every schema. */
     static final String SCHEMA_EXT_PARAM = "schema";
@@ -132,9 +137,16 @@ public class SnowflakeQueryExecutor extends SqlBasedQueryExecutor {
         return null;
     }
 
+    /**
+     * Snowflake has no GUI commands, so every GUI type is refused as the other SQL executors refuse a type they do not know:
+     * QUERY_ARGUMENT_ERROR with INVALID_GUI_COMMAND_TYPE naming the type (BF-160: a bare {@code UnsupportedOperationException},
+     * which query execution reported as "Illegal query configuration: null.").
+     * <p>
+     * Limits: the client does not offer GUI mode for Snowflake, so only a query config written outside it reaches this.
+     */
     @Override
     protected GuiSqlCommand parseSqlCommand(String guiStatementType, Map<String, Object> detail) {
-        throw new UnsupportedOperationException();
+        throw new PluginException(QUERY_ARGUMENT_ERROR, INVALID_GUI_COMMAND_TYPE, guiStatementType);
     }
 
 }
