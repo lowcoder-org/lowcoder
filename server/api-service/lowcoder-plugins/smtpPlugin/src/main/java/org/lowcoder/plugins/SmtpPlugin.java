@@ -18,6 +18,7 @@ import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheArrayJsonString
 import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheJsonString;
 import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheString;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.HashSet;
@@ -73,6 +74,10 @@ public class SmtpPlugin extends Plugin {
         private static final int DEFAULT_PORT = 25;
         /** How a rendered address field that is a JSON string (the renderer writes text as a JSON text node) starts. */
         private static final String JSON_STRING_START = "\"";
+        /** The charset of the subject and the body of every mail. */
+        private static final String MAIL_CHARSET = StandardCharsets.UTF_8.name();
+        /** The body is HTML (text/html). */
+        private static final String HTML_SUBTYPE = "html";
 
         /**
          * session is thread-safe and can be reused
@@ -252,11 +257,13 @@ public class SmtpPlugin extends Plugin {
             if (isNotEmpty(context.getBcc())) {
                 message.setRecipients(BCC, context.getBcc());
             }
-            message.setSubject(context.getSubject());
+            // GH-01 (GitHub #727) and BF-149: subject and body in UTF-8, named in their headers; without a charset the subject
+            // took the JVM's default charset and the HTML body single-byte text, so letters such as ğ ş ı arrived as "?"
+            message.setSubject(context.getSubject(), MAIL_CHARSET);
 
             Multipart multipart = new MimeMultipart();
             MimeBodyPart contentPart = new MimeBodyPart();
-            contentPart.setContent(context.getContent(), "text/html");// default mime type
+            contentPart.setText(context.getContent(), MAIL_CHARSET, HTML_SUBTYPE);
             multipart.addBodyPart(contentPart);
             if (CollectionUtils.isNotEmpty(context.getAttachments())) {
                 Decoder decoder = Base64.getDecoder();
