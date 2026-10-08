@@ -232,8 +232,8 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
     }
 
     private List<Property> buildBodyParams(List<Property> datasourceBodyFormData, List<Property> updatedQueryBodyParams) {
-        return Stream.concat(datasourceBodyFormData.stream(),
-                        updatedQueryBodyParams.stream())
+        return Stream.concat(updatedQueryBodyParams.stream(), // BF-114: the first of a key is kept, so the query's value wins
+                        datasourceBodyFormData.stream())
                 .filter(it -> it.getKey() != null)
                 .filter(distinctByKey(Property::getKey))
                 .toList();

@@ -24,9 +24,13 @@ class GraphQLBodyTypesTest {
     private final GraphQLCallSupport support = new GraphQLCallSupport();
 
     private RecordingHttpServer.Request send(String contentType, Map<String, Object> query) {
+        return send(contentType, List.of(), query);
+    }
+
+    private RecordingHttpServer.Request send(String contentType, List<Property> datasourceBodyFormData, Map<String, Object> query) {
         try (RecordingHttpServer server = RecordingHttpServer.start(Map.of(PATH, GraphQLCallSupport.json(200, "{}")))) {
             GraphQLDatasourceConfig datasource = GraphQLDatasourceConfig.builder().url(server.baseUrl() + PATH)
-                    .headers(List.of(new Property(CONTENT_TYPE, contentType))).build();
+                    .headers(List.of(new Property(CONTENT_TYPE, contentType))).bodyFormData(datasourceBodyFormData).build();
             support.run(datasource, query, GraphQLCallSupport.visitor(null, null));
             assertThat(server.requests()).hasSize(1);
             return server.requests().get(0);
@@ -41,6 +45,21 @@ class GraphQLBodyTypesTest {
         System.out.println("[GraphQLBodyTypesTest] form body " + request.bodyText());
         assertThat(String.join(",", request.header(CONTENT_TYPE))).startsWith("application/x-www-form-urlencoded");
         assertThat(request.bodyText().split("&")).containsExactlyInAnyOrder("a=x+y%26z", "b=2");
+    }
+
+    /**
+     * BF-114: for a key that the datasource's and the query's body parameters both set, the query's value is sent, as in
+     * the REST API plugin and for URL parameters and headers; the datasource's other keys are added. The datasource's
+     * value was sent.
+     */
+    @Test
+    void inAFormBodyTheQueryValueOverridesTheDatasourceValueForTheSameKeyBF114() {
+        RecordingHttpServer.Request request = send("application/x-www-form-urlencoded",
+                List.of(new Property("k", "fromDatasource"), new Property("only", "ds")),
+                GraphQLCallSupport.query(Map.of("bodyFormData", List.of(new Property("k", "fromQuery")))));
+
+        System.out.println("[GraphQLBodyTypesTest] merged form body " + request.bodyText());
+        assertThat(request.bodyText().split("&")).containsExactlyInAnyOrder("k=fromQuery", "only=ds");
     }
 
     @Test
