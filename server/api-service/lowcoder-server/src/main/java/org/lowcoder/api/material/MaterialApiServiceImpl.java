@@ -66,8 +66,8 @@ public class MaterialApiServiceImpl implements MaterialApiService {
         return checkSingleFileSize(decode.length)
                 .then(sessionUserService.getVisitorOrgMemberCache())
                 .delayUntil(__ -> orgDevChecker.checkCurrentOrgDev())
-                .delayUntil(orgMember -> checkTotalSize(orgMember.getOrgId(), decode.length))
                 .flatMap(orgMember -> findReplaced(orgMember.getOrgId(), filename, type).collectList()
+                        .delayUntil(replaced -> checkTotalSize(orgMember.getOrgId(), decode.length, replaced))
                         .flatMap(replaced -> {
                             MaterialMeta materialMeta = MaterialMeta.builder()
                                     .orgId(orgMember.getOrgId())
@@ -167,14 +167,21 @@ public class MaterialApiServiceImpl implements MaterialApiService {
         return Mono.empty();
     }
 
-    private Mono<Void> checkTotalSize(String orgId, long newSize) {
+    /**
+     * The org's stored total, less the materials the upload replaces, plus the new file must stay within the limit
+     * (BF-140: the replaced materials were counted too, so a replacement that does not grow the total was refused near
+     * the limit). Limit: the replaced materials are removed only after the new file is stored ({@link #upload}); if that
+     * removal fails, both are stored and the total may then be above the limit.
+     */
+    private Mono<Void> checkTotalSize(String orgId, long newSize, List<MaterialMeta> replaced) {
         if (commonConfig.isSelfHost()) {
             return Mono.empty();
         }
+        long replacedSize = replaced.stream().mapToLong(MaterialMeta::getSize).sum();
         return materialMetaService.totalSize(orgId)
                 .flatMap(size -> {
                     long totalSizeLimit = configInstance.ofLong("material.total-size-limit", DEFAULT_TOTAL_STORAGE_SIZE_LIMIT);
-                    if ((size + newSize) > totalSizeLimit) {
+                    if ((size - replacedSize + newSize) > totalSizeLimit) {
                         return Mono.error(
                                 new BizException(BizError.INVALID_MATERIAL_REQUEST, "EXCEEDS_ORG_SIZE_LIMIT",
                                         byteCountToDisplaySize(totalSizeLimit)));
