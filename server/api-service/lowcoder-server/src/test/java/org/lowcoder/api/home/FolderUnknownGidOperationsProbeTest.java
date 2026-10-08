@@ -44,8 +44,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 
 /**
  * Task L1-13b item 3 (lane L5), fixed as BF-158 and BF-159: what the folder endpoints do with a folder gid that no folder has:
- * delete ({@code FolderController.java:51-52}), grant ({@code :137-138}), update permission ({@code :115-116}), remove permission
- * ({@code :124-125}) and get permissions ({@code :144-145}). The converter used to answer {@code Optional.empty()} for an unknown
+ * delete ({@code FolderController.java:52-53}), grant ({@code :136-137}), update permission ({@code :114-115}), remove permission
+ * ({@code :123-124}) and get permissions ({@code :143-144}). The converter used to answer {@code Optional.empty()} for an unknown
  * gid and each of these passed {@code null} on: an admin's delete took the whole folder tree as its target (only an NPE at
  * {@code getSelf()} stopped it), and an admin's permission update or remove threw an NPE at {@code folderId.equals}. The converter
  * now answers {@code FOLDER_NOT_EXIST} before any of them runs; the service also refuses a blank delete id and compares the

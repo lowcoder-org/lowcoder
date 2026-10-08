@@ -7,6 +7,7 @@ import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.api.util.GidService;
+import org.lowcoder.api.util.Pagination;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.folder.model.Folder;
 import org.lowcoder.domain.folder.model.FolderElement;
@@ -83,9 +84,7 @@ public class FolderController implements FolderEndpoints
             String objectId = optionalObjectId.orElse(null);
             var flux = folderApiService.getElements(optionalObjectId.orElse(null), applicationType, name, category).cache();
             var countMono = flux.count();
-            var flux1 = flux.skip((long) (pageNum - 1) * pageSize);
-            if (pageSize > 0) flux1 = flux1.take(pageSize);
-            return flux1.collectList()
+            return Pagination.pageOf(flux, pageNum, pageSize).collectList()
                     .delayUntil(__ -> folderApiService.upsertLastViewTime(objectId))
                     .zipWith(countMono)
                     .map(tuple -> PageResponseView.success(tuple.getT1(), pageNum, pageSize, Math.toIntExact(tuple.getT2())));

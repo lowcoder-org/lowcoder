@@ -2,32 +2,32 @@
 # endpoint, level (codec | decode-only), wp, test (planned test class), group (pass-through | assembling; set by the owning WP),
 # concrete (comma-separated concrete types of untyped roots; owning WP), branches ('<line> <token>=<branch>' joined by '; '; owning WP), reason.
 # Generated from PayloadTypeWalker on 2026-10-03 (task T0.6); PayloadContractCompletenessTest keeps it complete.
-ApplicationEndpoints#create(CreateApplicationRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		45 return=create	
-ApplicationEndpoints#createFromTemplate(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		52 return=createFromTemplate	
-ApplicationEndpoints#delete(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		84 return=delete	
-ApplicationEndpoints#getAgencyProfileApplication(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		119 return=getAgencyProfileApplication	
-ApplicationEndpoints#getAgencyProfileApplications(Integer)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		220 return=getAgencyProfileApplications	
-ApplicationEndpoints#getApplicationPermissions(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		270 return=getApplicationPermissions	
-ApplicationEndpoints#getApplications(Integer, ApplicationStatus, boolean, String, String, Integer, Integer)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	assembling		205 return=getApplications	
-ApplicationEndpoints#getEditingApplication(String, Boolean)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		93 return=getEditingApplication	
-ApplicationEndpoints#getGroupsOrMembersWithoutPermissions(String, String, Integer, Integer)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	assembling	org.lowcoder.api.usermanagement.view.GroupView,org.lowcoder.api.usermanagement.view.OrgMemberListView$OrgMemberView	310 return=getGroupsOrMembersWithoutPermissions; 314 return=getGroupsOrMembersWithoutPermissions; 315 return=getGroupsOrMembersWithoutPermissions; 319 return=getGroupsOrMembersWithoutPermissions; 322 return=getGroupsOrMembersWithoutPermissions; 324 return=getGroupsOrMembersWithoutPermissions; 330 return=getGroupsOrMembersWithoutPermissions	
-ApplicationEndpoints#getMarketplaceApplications(Integer)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		212 return=getMarketplaceApplications	
-ApplicationEndpoints#getPublishedApplication(String, Boolean)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		101 return=getPublishedApplication	
-ApplicationEndpoints#getPublishedMarketPlaceApplication(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		110 return=getPublishedMarketPlaceApplication	
-ApplicationEndpoints#getRecycledApplications(String, String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		77 return=getRecycledApplications	
-ApplicationEndpoints#getUserHomePage(int)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		187 return=getUserHomePage	
-ApplicationEndpoints#grantPermission(String, BatchAddPermissionRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		256 return=grantPermissionWithUnknownRole; 258 return=grantPermission	
-ApplicationEndpoints#publish(String, ApplicationPublishRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		140 return=publish; 156 return=publish; 158 switchIfEmpty=publish; 161 return=publish; 163 return=publish; 164 return=publish	
-ApplicationEndpoints#recycle(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		59 return=recycle	
-ApplicationEndpoints#removePermission(String, String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		244 return=removePermission	
-ApplicationEndpoints#restore(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		68 return=restore	
-ApplicationEndpoints#setApplicationAsAgencyProfile(String, ApplicationAsAgencyProfileRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		298 return=setApplicationAsAgencyProfile	
-ApplicationEndpoints#setApplicationPublicToAll(String, ApplicationPublicToAllRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		278 return=setApplicationPublicToAll	
-ApplicationEndpoints#setApplicationPublicToMarketplace(String, ApplicationPublicToMarketplaceRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		288 return=setApplicationPublicToMarketplace	
-ApplicationEndpoints#update(String, Application, Boolean)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		130 return=update	
-ApplicationEndpoints#updateEditState(String, UpdateEditStateRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		173 return=updateEditState	
-ApplicationEndpoints#updatePermission(String, String, UpdatePermissionRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		232 return=updatePermissionWithUnknownRole; 234 return=updatePermission	
-ApplicationEndpoints#updateSlug(String, String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		180 return=updateSlug	
+ApplicationEndpoints#create(CreateApplicationRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		46 return=create	
+ApplicationEndpoints#createFromTemplate(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		53 return=createFromTemplate	
+ApplicationEndpoints#delete(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		85 return=delete	
+ApplicationEndpoints#getAgencyProfileApplication(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		120 return=getAgencyProfileApplication	
+ApplicationEndpoints#getAgencyProfileApplications(Integer)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		219 return=getAgencyProfileApplications	
+ApplicationEndpoints#getApplicationPermissions(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		269 return=getApplicationPermissions	
+ApplicationEndpoints#getApplications(Integer, ApplicationStatus, boolean, String, String, Integer, Integer)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	assembling		204 return=getApplications	
+ApplicationEndpoints#getEditingApplication(String, Boolean)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		94 return=getEditingApplication	
+ApplicationEndpoints#getGroupsOrMembersWithoutPermissions(String, String, Integer, Integer)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	assembling	org.lowcoder.api.usermanagement.view.GroupView,org.lowcoder.api.usermanagement.view.OrgMemberListView$OrgMemberView	309 return=getGroupsOrMembersWithoutPermissions; 313 return=getGroupsOrMembersWithoutPermissions; 314 return=getGroupsOrMembersWithoutPermissions; 318 return=getGroupsOrMembersWithoutPermissions; 321 return=getGroupsOrMembersWithoutPermissions; 323 return=getGroupsOrMembersWithoutPermissions; 327 return=getGroupsOrMembersWithoutPermissions	
+ApplicationEndpoints#getMarketplaceApplications(Integer)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		211 return=getMarketplaceApplications	
+ApplicationEndpoints#getPublishedApplication(String, Boolean)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		102 return=getPublishedApplication	
+ApplicationEndpoints#getPublishedMarketPlaceApplication(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		111 return=getPublishedMarketPlaceApplication	
+ApplicationEndpoints#getRecycledApplications(String, String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		78 return=getRecycledApplications	
+ApplicationEndpoints#getUserHomePage(int)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		188 return=getUserHomePage	
+ApplicationEndpoints#grantPermission(String, BatchAddPermissionRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		255 return=grantPermissionWithUnknownRole; 257 return=grantPermission	
+ApplicationEndpoints#publish(String, ApplicationPublishRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		141 return=publish; 157 return=publish; 159 switchIfEmpty=publish; 162 return=publish; 164 return=publish; 165 return=publish	
+ApplicationEndpoints#recycle(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		60 return=recycle	
+ApplicationEndpoints#removePermission(String, String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		243 return=removePermission	
+ApplicationEndpoints#restore(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		69 return=restore	
+ApplicationEndpoints#setApplicationAsAgencyProfile(String, ApplicationAsAgencyProfileRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		297 return=setApplicationAsAgencyProfile	
+ApplicationEndpoints#setApplicationPublicToAll(String, ApplicationPublicToAllRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		277 return=setApplicationPublicToAll	
+ApplicationEndpoints#setApplicationPublicToMarketplace(String, ApplicationPublicToMarketplaceRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		287 return=setApplicationPublicToMarketplace	
+ApplicationEndpoints#update(String, Application, Boolean)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		131 return=update	
+ApplicationEndpoints#updateEditState(String, UpdateEditStateRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		174 return=updateEditState	
+ApplicationEndpoints#updatePermission(String, String, UpdatePermissionRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		231 return=updatePermissionWithUnknownRole; 233 return=updatePermission	
+ApplicationEndpoints#updateSlug(String, String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		181 return=updateSlug	
 ApplicationHistorySnapshotEndpoints#create(ApplicationHistorySnapshotRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationHistorySnapshotEndpointsContractTest	pass-through		47 return=create	
 ApplicationHistorySnapshotEndpoints#getHistorySnapshotDsl(String, String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationHistorySnapshotEndpointsContractTest	assembling		136 return=getHistorySnapshotDsl; 145 return=getHistorySnapshotDsl	
 ApplicationHistorySnapshotEndpoints#getHistorySnapshotDslArchived(String, String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationHistorySnapshotEndpointsContractTest	assembling		161 return=getHistorySnapshotDslArchived; 170 return=getHistorySnapshotDslArchived	
@@ -93,15 +93,15 @@ DatasourceEndpoints#update(String, UpsertDatasourceRequest)	codec	WP5	org.lowcod
 DatasourceEndpoints#updatePermission(String, UpdatePermissionRequest)	codec	WP5	org.lowcoder.api.contract.endpoint.DatasourceEndpointsContractTest	pass-through		202 return=updatePermissionWithUnknownRole; 204 return=updatePermission; 208 return=updatePermission; 211 return=updatePermission	
 IndexController#index()	codec	WP7	org.lowcoder.api.contract.endpoint.IndexControllerContractTest	pass-through		26 return=index	
 StateEndpoints#healthCheck()	codec	WP7	org.lowcoder.api.contract.endpoint.StateEndpointsContractTest	pass-through		25 return=healthCheckBeforeWarmup; 29 return=healthCheck	
-FolderEndpoints#create(Folder)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		43 return=create	
-FolderEndpoints#delete(String)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		51 return=delete	
-FolderEndpoints#getApplicationPermissions(String)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		144 return=getApplicationPermissions	
-FolderEndpoints#getElements(String, ApplicationType, String, String, Integer, Integer)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	assembling	org.lowcoder.api.application.view.ApplicationInfoView,org.lowcoder.api.home.FolderInfoView	82 return=getElements; 88 return=getElements	
-FolderEndpoints#grantPermission(String, BatchAddPermissionRequest)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		135 return=grantPermissionWithUnknownRole; 137 return=grantPermission	
-FolderEndpoints#move(String, String)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		98 return=move; 98 defaultIfEmpty=moveWithoutCurrentFolder	
-FolderEndpoints#removePermission(String, String)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		124 return=removePermission	
-FolderEndpoints#update(Folder)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		62 return=update; 66 return=update	
-FolderEndpoints#updatePermission(String, String, UpdatePermissionRequest)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		112 return=updatePermissionWithUnknownRole; 115 return=updatePermission	
+FolderEndpoints#create(Folder)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		44 return=create	
+FolderEndpoints#delete(String)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		52 return=delete	
+FolderEndpoints#getApplicationPermissions(String)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		143 return=getApplicationPermissions	
+FolderEndpoints#getElements(String, ApplicationType, String, String, Integer, Integer)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	assembling	org.lowcoder.api.application.view.ApplicationInfoView,org.lowcoder.api.home.FolderInfoView	83 return=getElements; 87 return=getElements	
+FolderEndpoints#grantPermission(String, BatchAddPermissionRequest)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		134 return=grantPermissionWithUnknownRole; 136 return=grantPermission	
+FolderEndpoints#move(String, String)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		97 return=move; 97 defaultIfEmpty=moveWithoutCurrentFolder	
+FolderEndpoints#removePermission(String, String)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		123 return=removePermission	
+FolderEndpoints#update(Folder)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		63 return=update; 67 return=update	
+FolderEndpoints#updatePermission(String, String, UpdatePermissionRequest)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		111 return=updatePermissionWithUnknownRole; 114 return=updatePermission	
 AssetEndpoints#getById(String, ServerWebExchange)	codec	WP7	org.lowcoder.api.contract.endpoint.AssetEndpointsContractTest	pass-through		37 return=getById	
 MaterialEndpoints#delete(String)	codec	WP7	org.lowcoder.api.contract.endpoint.MaterialEndpointsContractTest	pass-through		74 return=delete	
 MaterialEndpoints#download(String, String, ServerHttpResponse)	codec	WP7	org.lowcoder.api.contract.endpoint.MaterialEndpointsContractTest	pass-through		50 return=download; 51 switchIfEmpty=downloadMissing; 51 Mono.error=downloadMissing	

@@ -38,6 +38,7 @@ import org.lowcoder.domain.application.model.ApplicationVersion;
 import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.sdk.contract.CanonicalJson;
+import org.lowcoder.sdk.exception.BizError;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
@@ -95,6 +96,10 @@ class ApplicationEndpointsContractTest {
     /** {@code getGroupsOrMembersWithoutPermissions}'s defaults ({@code ApplicationEndpoints}). */
     static final int DEFAULT_PAGE_NUM = 1;
     static final int DEFAULT_PAGE_SIZE = 1000;
+    /** BF-153: a page before the first, and a negative page size (no limit, as 0). */
+    static final int ZERO_PAGE_NUM = 0;
+    static final int NEGATIVE_PAGE_SIZE = -2;
+    static final String ILLEGAL_PAGE_NUMBER = "ILLEGAL_PAGE_NUMBER";
     /** The keys and type names {@code ApplicationApiServiceImpl#getGroupsOrMembersWithoutPermissions} builds. */
     static final String ENTRY_TYPE = "type";
     static final String ENTRY_DATA = "data";
@@ -312,6 +317,30 @@ class ApplicationEndpointsContractTest {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getApplications", query, null);
             EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.page(
                     EndpointContract.array(EndpointContract.s1(ApplicationInfoView.class)), PAGE_NUM, PAGE_SIZE, 3));
+        }
+    }
+
+    /** BF-153: page 0 is the parameter error {@code Pagination.check()} gives, where the negative skip count was a raw 500 (code 5000). */
+    @Test
+    void getApplicationsWithPageNumZeroBF153() {
+        Mockito.when(userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(null, null, true, null, null))
+                .thenReturn(Flux.just(ApplicationSamples.applicationInfoView(), ApplicationSamples.applicationInfoView()));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getApplications", query("pageNum", ZERO_PAGE_NUM), null);
+            EndpointContract.assertBizError(result, BizError.INVALID_PARAMETER, ILLEGAL_PAGE_NUMBER, ZERO_PAGE_NUM);
+        }
+    }
+
+    /** BF-153: a negative page size on page 2 takes every application, as 0 does, where the negative skip count was a raw 500. */
+    @Test
+    void getApplicationsWithANegativePageSizeOnPageTwoBF153() {
+        Mockito.when(userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(null, null, true, null, null))
+                .thenReturn(Flux.just(ApplicationSamples.applicationInfoView(), ApplicationSamples.applicationInfoView()));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getApplications",
+                    query("pageNum", PAGE_NUM, "pageSize", NEGATIVE_PAGE_SIZE), null);
+            EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.page(EndpointContract.array(
+                    EndpointContract.s1(ApplicationInfoView.class), EndpointContract.s1(ApplicationInfoView.class)), PAGE_NUM, NEGATIVE_PAGE_SIZE, 2));
         }
     }
 
