@@ -8,6 +8,7 @@ import org.lowcoder.sdk.models.DatasourceStructure.Table;
 import org.lowcoder.sdk.models.DatasourceStructure.TableType;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
+import reactor.test.StepVerifier;
 
 import java.time.Duration;
 import java.util.LinkedHashMap;
@@ -16,16 +17,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.lowcoder.sdk.exception.PluginCommonError.CONNECTION_ERROR;
 import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_GET_STRUCTURE_ERROR;
+import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
 
 /**
  * Unit SN-1 (task L5-7): {@link SnowflakeQueryExecutor} over an in-memory H2 database ({@link SnowflakeH2Support}): the forced
- * non-prepared execution, the structure query and its schema filter, and the GUI-mode refusal. Snowflake is a hosted service,
+ * non-prepared execution, the structure query and its schema filter, and the GUI-mode refusal (BF-160). Snowflake is a hosted service,
  * so H2 stands in for the SQL dialect and for {@code INFORMATION_SCHEMA} ({@code COLUMNS_QUERY} runs on it unchanged, with its
  * schema bound by H2's driver, not by Snowflake's).
  *
@@ -41,6 +45,12 @@ public class SnowflakeQueryExecutorTest {
     static final String INJECTION_SCHEMA = "PUBLIC' or '1'='1";
     static final String BACKSLASH_INJECTION_SCHEMA = "PUBLIC\\' or '1'='1";
     static final String QUOTED_SCHEMA = "O'NEIL";
+    static final String INSERT = "INSERT";
+    /** The GUI types of the other SQL executors, in both cases, and one no executor knows. */
+    static final List<String> GUI_TYPES = List.of("insert", INSERT, "update", "delete", "bulk_insert", "bulk_update", "unknown");
+    static final String INVALID_GUI_COMMAND_TYPE_KEY = "INVALID_GUI_COMMAND_TYPE";
+    /** INVALID_GUI_COMMAND_TYPE in the English bundle, for {@link #INSERT}. */
+    static final String INVALID_GUI_COMMAND_TYPE_MESSAGE = "Invalid GUI command type INSERT.";
 
     private final SnowflakeQueryExecutor executor = new SnowflakeQueryExecutor();
 
@@ -182,27 +192,54 @@ public class SnowflakeQueryExecutorTest {
 
     // ---- GUI mode
 
-    /**
-     * Shows that GUI mode is refused with a bare {@link UnsupportedOperationException} instead of a {@code PluginException}:
-     * {@code parseSqlCommand} throws it for every type, from {@code buildQueryExecutionContext} and from
-     * {@code sanitizeQueryConfig}. The client does not offer GUI mode for Snowflake (the type is listed in
-     * NOT_SUPPORT_GUI_SQL_QUERY, comps/queries/sqlQuery/SQLQuery.tsx:264-269, and the mode selector is hidden for it,
-     * comps/queries/queryComp/queryPropertyView.tsx:378-379), so only a hand-made query config reaches this. Asserted as
-     * observed, no defect claimed.
-     */
-    @Test
-    public void guiModeIsRefusedWithABareUnsupportedOperationException() {
+    private static Map<String, Object> guiConfig(String commandType) {
         Map<String, Object> guiConfig = new LinkedHashMap<>();
         guiConfig.put("mode", "GUI");
-        guiConfig.put("commandType", "INSERT");
+        guiConfig.put("commandType", commandType);
         guiConfig.put("command", Map.of("table", "t", "changeSet", Map.of("compType", "KEY_VALUE_PAIRS", "comp", List.of(Map.of("column", "a", "value", "1")))));
-        assertThrows(UnsupportedOperationException.class, () -> executor.buildQueryExecutionContext(config(Map.of()), guiConfig, Map.of(), null));
-        assertThrows(UnsupportedOperationException.class, () -> executor.sanitizeQueryConfig(guiConfig));
-        for (String type : List.of("insert", "update", "delete", "bulk_insert", "bulk_update", "unknown")) {
-            assertThrows(UnsupportedOperationException.class, () -> executor.parseSqlCommand(type, Map.of()), type);
+        return guiConfig;
+    }
+
+    /** Asserts the refusal of a GUI type: QUERY_ARGUMENT_ERROR, INVALID_GUI_COMMAND_TYPE, the type as the argument. */
+    private static void assertInvalidGuiCommandType(Throwable error, String type) {
+        PluginException plugin = assertInstanceOf(PluginException.class, error, type);
+        assertEquals(QUERY_ARGUMENT_ERROR, plugin.getError(), type);
+        assertEquals(INVALID_GUI_COMMAND_TYPE_KEY, plugin.getMessageKey(), type);
+        assertArrayEquals(new Object[] {type}, plugin.getArgs(), type);
+    }
+
+    /**
+     * BF-160 (was pinned here as a bare {@link UnsupportedOperationException}): GUI mode is refused for every type as the other
+     * SQL executors refuse a type they do not know, from {@code parseSqlCommand}, {@code buildQueryExecutionContext} and
+     * {@code sanitizeQueryConfig}. The client does not offer GUI mode for Snowflake (the type is listed in
+     * NOT_SUPPORT_GUI_SQL_QUERY, comps/queries/sqlQuery/SQLQuery.tsx:264-269, and the mode selector is hidden for it,
+     * comps/queries/queryComp/queryPropertyView.tsx:378-379), so only a hand-made query config reaches this.
+     * Catches: the bare exception back, or a refusal that does not name the type.
+     */
+    @Test
+    public void guiModeIsRefusedAsAnInvalidGuiCommandTypeBF160() {
+        for (String type : GUI_TYPES) {
+            assertInvalidGuiCommandType(assertThrows(RuntimeException.class, () -> executor.parseSqlCommand(type, Map.of()), type), type);
         }
-        UnsupportedOperationException thrown = assertThrows(UnsupportedOperationException.class, () -> executor.parseSqlCommand("insert", Map.of()));
-        System.out.println("[SnowflakeQueryExecutorTest] GUI mode: " + thrown + ", message " + thrown.getMessage());
-        assertEquals(null, thrown.getMessage());
+        assertInvalidGuiCommandType(assertThrows(RuntimeException.class,
+                () -> executor.buildQueryExecutionContext(config(Map.of()), guiConfig(INSERT), Map.of(), null)), INSERT);
+        assertInvalidGuiCommandType(assertThrows(RuntimeException.class, () -> executor.sanitizeQueryConfig(guiConfig(INSERT))), INSERT);
+        System.out.println("[SnowflakeQueryExecutorTest] GUI mode refused for " + GUI_TYPES);
+    }
+
+    /**
+     * BF-160 on the execution path ({@code QueryExecutionServiceImpl} builds the context with
+     * {@code buildQueryExecutionContextMono}): the error names the type, where the bare exception was wrapped as
+     * "Illegal query configuration: null.".
+     */
+    @Test
+    public void guiModeOnTheExecutionPathNamesTheTypeBF160() {
+        StepVerifier.create(executor.buildQueryExecutionContextMono(config(Map.of()), guiConfig(INSERT), Map.of(), null))
+                .expectErrorSatisfies(error -> {
+                    System.out.println("[SnowflakeQueryExecutorTest] GUI mode on the execution path: " + error.getMessage());
+                    assertInvalidGuiCommandType(error, INSERT);
+                    assertEquals(INVALID_GUI_COMMAND_TYPE_MESSAGE, error.getMessage());
+                })
+                .verify(TIMEOUT);
     }
 }
