@@ -54,8 +54,9 @@ final class GraphQLCallSupport {
     }
 
     /**
-     * The query map of a GraphQL query: the query text in {@code body} and an empty {@code variables} list. The key is
-     * always given: a query config without {@code variables} fails with a NullPointerException (probe GP4, L4-10).
+     * The query map of a GraphQL query: the query text in {@code body} and an empty {@code variables} list, as the
+     * editor writes it. A config without the key builds the same context since BF-161 (probe GP4, L4-10, found the
+     * NullPointerException it gave before); {@code GraphQLQueryConfigWithoutVariablesTest} covers that case.
      */
     static Map<String, Object> query() {
         return Map.of("body", QUERY, "variables", List.of());
