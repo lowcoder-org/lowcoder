@@ -180,4 +180,26 @@ public class PostgresExecutorPreparedInputTest {
         assertEquals("u", thrown.getArgs()[0]);
         assertEquals("UUID", thrown.getArgs()[1]);
     }
+    /**
+     * BF-146 (T145, verify first) on the Postgres text path, whose {@code getPreparedStatementInput} override builds the bind
+     * list from the key list {@code doPrepareStatement} mutates, as the default one does: a sort map after a quoted literal
+     * with two keys, after an IN list, and after a literal {@code ?}, run through the real executor and its sort rewrite on
+     * a fake connection. Each ends (the rewrite's loop would not, with a sort map left without its {@code ?}) and binds no
+     * sort map. Limits: with the literal {@code ?} the rewrite puts the keyword on the wrong {@code ?} (NEW-46); the fake
+     * connection does not parse the SQL, so only the end of the loop and the bind count are asserted for it.
+     */
+    @Test
+    public void aSortMapAfterAQuotedLiteralOrAnInListEndsAndIsNotBoundBF146() {
+        Map<String, Object> params = Map.of("a", "x", "b", "y", "ids", List.of(1, 2), "n", 3, "dir", Map.of("sort", "desc"));
+        Map<String, Integer> expectedBinds = Map.of(
+                "select id from t where name like '%{{a}}%{{b}}%' order by id {{dir}}", 1,
+                "select id from t where id in ({{ids}}) and n > {{n}} order by id {{dir}}", 1,
+                "select id from t where n > {{n}} order by id {{dir}}, n {{dir}}", 1,
+                "select 'what?' as q, id from t where n > {{n}} order by id {{dir}}", 1);
+        expectedBinds.forEach((sql, count) -> {
+            List<String> binds = binds(sql, params);
+            assertEquals(count, binds.size(), sql);
+            org.junit.jupiter.api.Assertions.assertTrue(binds.stream().noneMatch(bind -> bind.contains("sort")), sql + ": a sort map was bound");
+        });
+    }
 }

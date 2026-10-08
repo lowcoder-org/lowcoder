@@ -252,4 +252,51 @@ public class MssqlQueryExecutorTest {
         assertEquals(STRUCTURE_FAILURE, thrown.getArgs()[0]);
         assertEquals(List.of("statement"), closed, "no result set was opened; the statement is closed");
     }
+    // ---- BF-146 (T145): bind values against placeholders with sort maps
+
+    static final Map<String, Object> SORT_PARAMS_BF146 = Map.of("s", Map.of("sort", "desc"));
+    static final Map<String, Object> SORT_VALUES_BF146 = Map.of("compType", "KEY_VALUE_PAIRS", "comp", List.of(Map.of("column", "a", "value", "{{s}}")));
+    static final List<Map<String, Object>> SORT_FILTER_BF146 = List.of(Map.of("column", "id", "condition", "=", "value", "{{s}}"));
+    static final String SORT_RECORDS_BF146 = "[{\"a\":1,\"b\":{\"sort\":\"desc\"}}]";
+    static final Map<String, Map<String, Object>> SORT_DETAILS_BF146 = Map.of(
+            "insert", Map.of("table", "t", "changeSet", SORT_VALUES_BF146),
+            "update", Map.of("table", "t", "changeSet", SORT_VALUES_BF146, "filterBy", SORT_FILTER_BF146),
+            "delete", Map.of("table", "t", "filterBy", SORT_FILTER_BF146),
+            "bulk_insert", Map.of("table", "t", "records", SORT_RECORDS_BF146),
+            "bulk_update", Map.of("table", "t", "primaryKey", "a", "records", SORT_RECORDS_BF146));
+
+    /**
+     * BF-146 (T145, verify first): {@code GeneralSqlExecutor}'s sort rewrite would loop endlessly on a bind value that is a
+     * map with a {@code sort} key and no {@code ?} of its own. Every GUI type of this dialect, rendered with such maps as its
+     * values, filter values and record values, binds them as text, never as a map, and binds no more values than its SQL has
+     * {@code ?} (counted as the rewrite counts them, literal ones included), the guard select of a single-row result too.
+     * Each render must bind the sort value (as its JSON text), so a renderer that dropped it would fail too.
+     * Catches: a renderer of this dialect that binds a value without writing its {@code ?}, or that binds a map.
+     */
+    @Test
+    public void everyGuiTypeBindsNoMapAndNoMoreValuesThanPlaceholdersBF146() {
+        int sortTexts = 0;
+        for (String type : TYPES.keySet()) {
+            for (boolean multi : new boolean[] {false, true}) {
+                Map<String, Object> detail = new java.util.HashMap<>(SORT_DETAILS_BF146.get(type));
+                detail.put("allowMultiModify", multi);
+                GuiSqlCommand.GuiSqlCommandRenderResult result = executor.parseSqlCommand(type, detail).render(SORT_PARAMS_BF146);
+                System.out.println("[BF-146] " + type + " multi=" + multi + " -> [" + result.sql().replace('\n', ' ') + "] " + result.bindParams());
+                assertNoMapAndEnoughPlaceholdersBF146(type, result.sql(), result.bindParams());
+                long reached = result.bindParams().stream().filter(value -> value instanceof String text && text.contains("\"sort\"")).count();
+                org.junit.jupiter.api.Assertions.assertTrue(reached > 0, type + " multi=" + multi + ": the sort value must reach the bind list");
+                sortTexts += (int) reached;
+                if (result instanceof org.lowcoder.sdk.plugin.sqlcommand.command.UpdateOrDeleteSingleCommandRenderResult single) {
+                    assertNoMapAndEnoughPlaceholdersBF146(type + " guard", single.getSelectQuery(), single.getSelectBindParams());
+                }
+            }
+        }
+        System.out.println("[BF-146] " + sortTexts + " sort values bound as JSON text, none as a map, none without a placeholder");
+    }
+
+    private static void assertNoMapAndEnoughPlaceholdersBF146(String label, String sql, List<Object> bindParams) {
+        int placeholders = sql.split("\\?", -1).length - 1;
+        org.junit.jupiter.api.Assertions.assertTrue(bindParams.size() <= placeholders, label + ": " + bindParams.size() + " values, " + placeholders + " ?");
+        org.junit.jupiter.api.Assertions.assertTrue(bindParams.stream().noneMatch(Map.class::isInstance), label + ": a map is bound");
+    }
 }

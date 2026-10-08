@@ -429,4 +429,66 @@ class GuiSqlCommandRenderTest {
     void fromRejectsABlankTable() {
         assertPluginError(() -> MysqlDeleteCommand.from(detail(" ", false, List.of(), null)), PluginCommonError.INVALID_GUI_SETTINGS, "GUI_FIELD_EMPTY");
     }
+    // ---- bind values against placeholders (BF-146, T145) ----
+
+    private static final String SORT_KEY = "sort";
+    private static final Map<String, Object> SORT_MAP = Map.of(SORT_KEY, "desc");
+    private static final String SORT_PARAM = "{{s}}";
+    private static final Map<String, Object> SORT_PARAMS = Map.of("s", SORT_MAP);
+    /** How a sort map's JSON text starts its key, to recognise it among the bind values. */
+    private static final String SORT_JSON_KEY = "\"" + SORT_KEY + "\"";
+    /** Bulk records whose non-key values are a JSON object with a {@code sort} key, so they bind as such a map. */
+    private static final String SORT_RECORDS = "[{\"id\":1,\"a\":{\"sort\":\"desc\"}},{\"id\":2,\"a\":{\"sort\":\"asc\"}}]";
+
+    private static int placeholders(String sql) {
+        return sql.split("\\?", -1).length - 1;
+    }
+
+    /**
+     * Asserts that {@code result} binds no more values than it has {@code ?} and binds no map (the guard select of a
+     * single-row result too); returns how many of its bind values are a sort map's JSON text.
+     */
+    private static int assertNoMoreBindValuesThanPlaceholders(String label, GuiSqlCommandRenderResult result) {
+        print(label, result);
+        assertThat(result.bindParams().size()).as(label).isLessThanOrEqualTo(placeholders(result.sql()));
+        assertThat(result.bindParams()).as(label + ": no bind value is a map").noneMatch(Map.class::isInstance);
+        if (result instanceof UpdateOrDeleteSingleCommandRenderResult single) {
+            assertThat(single.getSelectBindParams().size()).as(label + " guard").isLessThanOrEqualTo(placeholders(single.getSelectQuery()));
+            assertThat(single.getSelectBindParams()).as(label + " guard: no bind value is a map").noneMatch(Map.class::isInstance);
+        }
+        return (int) result.bindParams().stream().filter(value -> value instanceof String text && text.contains(SORT_JSON_KEY)).count();
+    }
+
+    /**
+     * BF-146 (T145, verify first): {@code GeneralSqlExecutor}'s sort rewrite acts on a bind value that is a map with a
+     * {@code sort} key and would loop endlessly on one without a {@code ?} of its own. Every GUI command factory of the sdk,
+     * rendered with such maps as its values and filter values, binds them as their JSON text (MySQL) or writes them into the
+     * SQL (Postgres), never as a map, and binds no more values than it has {@code ?}; so a GUI statement cannot reach that
+     * branch, nor the rewrite at all. The MSSQL and Oracle commands (plugin modules) are run the same way in
+     * {@code MssqlQueryExecutorTest} and {@code OracleQueryExecutorTest}. The {@code ?} are counted as the rewrite counts
+     * them, literal ones included, on purpose: that is the loop's own condition. Catches: a renderer that binds a value
+     * without writing its {@code ?}, or that starts binding maps.
+     */
+    @Test
+    void everyGuiCommandBindsNoMoreValuesThanPlaceholdersWithSortMapValuesBF146() {
+        List<Map<String, Object>> filters = List.of(filter("id", "=", SORT_PARAM), filter("grp", "IN", List.of(1, 2)));
+        Map<String, Object> changeSet = keyValueChangeSet("a", SORT_PARAM, "b", 2);
+        int sortMaps = 0;
+        sortMaps += assertNoMoreBindValuesThanPlaceholders("mysql insert", MysqlInsertCommand.from(detail(TABLE, false, null, changeSet)).render(SORT_PARAMS));
+        sortMaps += assertNoMoreBindValuesThanPlaceholders("pg insert", PostgresInsertCommand.from(detail(TABLE, false, null, changeSet)).render(SORT_PARAMS));
+        for (boolean multi : new boolean[] {false, true}) {
+            sortMaps += assertNoMoreBindValuesThanPlaceholders("mysql update multi=" + multi, MysqlUpdateCommand.from(detail(TABLE, multi, filters, changeSet)).render(SORT_PARAMS));
+            sortMaps += assertNoMoreBindValuesThanPlaceholders("pg update multi=" + multi, PostgresUpdateCommand.from(detail(TABLE, multi, filters, changeSet)).render(SORT_PARAMS));
+            sortMaps += assertNoMoreBindValuesThanPlaceholders("mysql delete multi=" + multi, MysqlDeleteCommand.from(detail(TABLE, multi, filters, null)).render(SORT_PARAMS));
+            sortMaps += assertNoMoreBindValuesThanPlaceholders("pg delete multi=" + multi, PostgresDeleteCommand.from(detail(TABLE, multi, filters, null)).render(SORT_PARAMS));
+        }
+        sortMaps += assertNoMoreBindValuesThanPlaceholders("mysql bulk insert", MysqlBulkInsertCommand.from(bulkDetail(SORT_RECORDS, null)).render(NO_PARAMS));
+        sortMaps += assertNoMoreBindValuesThanPlaceholders("pg bulk insert", PostgresBulkInsertCommand.from(bulkDetail(SORT_RECORDS, null)).render(NO_PARAMS));
+        sortMaps += assertNoMoreBindValuesThanPlaceholders("mysql bulk update", MysqlBulkUpdateCommand.from(bulkDetail(SORT_RECORDS, "id")).render(NO_PARAMS));
+        sortMaps += assertNoMoreBindValuesThanPlaceholders("pg bulk update", PostgresBulkUpdateCommand.from(bulkDetail(SORT_RECORDS, "id")).render(NO_PARAMS));
+        sortMaps += assertNoMoreBindValuesThanPlaceholders("mysql upsert",
+                MysqlUpsertCommand.from(upsertDetail(changeSet, keyValueChangeSet("b", SORT_PARAM))).render(SORT_PARAMS));
+        System.out.println("[GuiSqlCommandRenderTest] BF-146: " + sortMaps + " sort maps bound as JSON text, none as a map, none without a placeholder");
+        assertThat(sortMaps).as("the sort maps must reach the renders").isGreaterThan(0);
+    }
 }
