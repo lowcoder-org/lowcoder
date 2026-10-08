@@ -61,6 +61,25 @@ public class GoogleSheetsUpdateHandlerTest extends GoogleSheetsCallSupport {
         assertTrue(String.valueOf(result.getData()).contains("Sheet1!A8:C8"), String.valueOf(result.getData()));
     }
 
+    /**
+     * BF-120 (NEW-38): a row with cells right of the last header was copied into an array sized by the header row, which
+     * threw ArrayIndexOutOfBoundsException. Those cells have no column: the update writes the header's columns only, so
+     * Sheets leaves the cells right of them as they are.
+     */
+    @Test
+    public void aRowWiderThanTheHeaderRowUpdatesTheHeaderColumnsBF120() {
+        startWith("{\"range\":\"Sheet1!A8:E8\",\"majorDimension\":\"ROWS\",\"values\":[[\"x\",\"5\",\"y\",\"extra\",\"more\"]]}");
+
+        QueryExecutionResult result = run("updateData", command("age", "6"));
+
+        List<Request> api = apiRequests();
+        System.out.println("[GoogleSheetsUpdateHandlerTest] row wider than the header -> success=" + result.isSuccess() + " "
+                + api.stream().map(Request::method).toList() + (api.size() > 2 ? " body " + bodyText(api.get(2)) : ""));
+        assertTrue(result.isSuccess(), String.valueOf(result.getMessageArgs()));
+        assertEquals(List.of("GET", "GET", "PUT"), api.stream().map(Request::method).toList());
+        assertEquals(Map.of("majorDimension", "ROWS", "values", List.of(List.of("x", "6", "y"))), body(api.get(2)));
+    }
+
     @Test
     public void aRowBeyondTheDataFailsAndNothingIsPut() {
         startWith("{\"range\":\"Sheet1!A8:Z8\",\"majorDimension\":\"ROWS\"}");

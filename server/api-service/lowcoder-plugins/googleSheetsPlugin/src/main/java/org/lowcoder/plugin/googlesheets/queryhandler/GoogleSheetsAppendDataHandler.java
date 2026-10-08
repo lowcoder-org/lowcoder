@@ -44,32 +44,29 @@ public class GoogleSheetsAppendDataHandler extends GoogleSheetsActionHandler {
                             .get(googleSheetsActionRequest.getSpreadsheetId(), googleSheetsActionRequest.getSheetName())
                             .execute()
                             .getValues();
-                    List<List<Object>> collect = null;
-                    List<Object> firstRow = values.get(0);
+                    // BF-120: a sheet without a header row (an empty sheet has no values) has no column to match
+                    List<Object> firstRow = GoogleSheetsGetPreParameters.firstRow(values);
 
                     String range = googleSheetsActionRequest.getSheetName() + "!" + "A1";
-                    if (firstRow != null && !firstRow.isEmpty()) {
-                        Map<String, String> tempMap = new LinkedHashMap<>();
-                        Map<String, String> newMap = new LinkedHashMap<>();
-                        boolean validValues = false;
-                        for (Object object : firstRow) {
-                            Streams.stream(changeSetItems.iterator()).forEach((entry) -> tempMap.put(entry.column(),
-                                    String.valueOf(entry.renderedValue())));
-                            final String value = tempMap.getOrDefault(object, null);
-                            if (value != null) {
-                                validValues = true;
-                            }
-                            newMap.put((String) object, value);
+                    Map<String, String> tempMap = new LinkedHashMap<>();
+                    Map<String, String> newMap = new LinkedHashMap<>();
+                    boolean validValues = false;
+                    for (Object object : firstRow) {
+                        Streams.stream(changeSetItems.iterator()).forEach((entry) -> tempMap.put(entry.column(),
+                                String.valueOf(entry.renderedValue())));
+                        final String value = tempMap.getOrDefault(object, null);
+                        if (value != null) {
+                            validValues = true;
                         }
-                        if (Boolean.TRUE.equals(validValues)) {
-                            List<Object> row = Streams.stream(newMap.keySet().iterator())
-                                    .map(entry -> tempMap.getOrDefault(entry, null) == null ? "" : tempMap.getOrDefault(entry, null))
-                                    .collect(Collectors.toCollection(LinkedList::new));
-                            collect = List.of(row);
-                        } else {
-                            throw new PluginException(GOOGLESHEETS_EMPTY_QUERY_PARAM, "GOOGLESHEETS_QUERY_PARAM_EMPTY");
-                        }
+                        newMap.put((String) object, value);
                     }
+                    if (!validValues) {
+                        throw new PluginException(GOOGLESHEETS_EMPTY_QUERY_PARAM, "GOOGLESHEETS_QUERY_PARAM_EMPTY");
+                    }
+                    List<Object> row = Streams.stream(newMap.keySet().iterator())
+                            .map(entry -> tempMap.getOrDefault(entry, null) == null ? "" : tempMap.getOrDefault(entry, null))
+                            .collect(Collectors.toCollection(LinkedList::new));
+                    List<List<Object>> collect = List.of(row);
                     ValueRange requestBody = new ValueRange();
                     requestBody.setMajorDimension("ROWS");
                     requestBody.setRange(range);
