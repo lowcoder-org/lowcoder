@@ -95,9 +95,9 @@ import reactor.test.StepVerifier;
  *
  * <p>Effects pinned as behaviour (none ruled a defect), each named in its test:
  * <ul>
- * <li>an audit event is lost, not an error, when its application cannot be loaded for the details, including the
- * recycle and restore calls of {@code ApplicationController} (:62, :71) when the application is addressed by a slug:
- * {@link #applicationCommon_idForm_applicationNotFoundByTheSecondLookup_publishesNothing}</li>
+ * <li>an audit event is lost, not an error, when its application cannot be loaded for the details:
+ * {@link #applicationCommon_idForm_unresolvableApplication_publishesNothing} (an application addressed by its slug is
+ * resolved since BF-136: {@link #applicationCommon_idForm_slug_publishesTheEventWithTheObjectIdBF136})</li>
  * <li>the application common events fall back to an {@code OrgMember} with null ids, giving an audit event with null orgId
  * and userId: {@link #applicationCommon_visitorOrgMemberLookupFails_publishesAnEventWithNullOrgAndUser}</li>
  * <li>a failing visitor lookup gives no audit event and no error: {@link #failingVisitorLookup_isSwallowed_noEventNoError}</li>
@@ -112,6 +112,8 @@ class BusinessEventPublisherTest {
     private static final String USER = "user-1";
     private static final String TOKEN = "token-abc";
     private static final String APP_ID = "app-1";
+    /** A slug of the application {@link #APP_ID}: what ApplicationController passes when the path names the app by slug. */
+    private static final String APP_SLUG = "app-slug";
     private static final String BUNDLE_ID = "bundle-1";
     private static final String FOLDER_TO = "f-to";
     private static final String FOLDER_FROM = "f-from";
@@ -625,25 +627,44 @@ class BusinessEventPublisherTest {
     }
 
     /**
-     * Pins today's behaviour: the application common events are lost, with no error, when the application cannot be
-     * loaded for the details. (1) id form: an unknown id gives an empty result. (2) both forms: the second lookup
-     * {@code applicationService.findById(applicationInfoView.getApplicationId())} failing or empty drops the event. The
-     * id form passes the raw id of the caller on to that second lookup; {@code ApplicationController.recycle} (:62) and
-     * {@code restore} (:71) pass the path variable as is, and {@code findById} resolves only an object id or a GID
-     * ({@code CustomApplicationRepositoryImpl.findByIdWithDsl}, :28-29), so for an application addressed by its slug
-     * (which {@code findByIdWithoutDsl} and {@code GidService.convertApplicationIdToObjectId} do accept) the recycle and
-     * restore audit events are lost. The delete flow (:87) passes the view built after the soft delete, whose id resolves,
-     * so it is not affected. Not verified against a real database here: the second lookup is stubbed to fail.
+     * BF-136 (was pinned as behaviour here): {@code ApplicationController.recycle} and {@code restore} pass the path variable
+     * as is, which may be a slug. The publisher resolves it with {@code findByIdWithoutDsl} (slug-aware) and used to copy
+     * the raw key into the event, so the detail lookup {@code findById} (object id or GID only,
+     * {@code CustomApplicationRepositoryImpl.findByIdWithDsl}) failed and the event was dropped. The event now carries the
+     * resolved application's object id, and the detail lookup is made with it.
      */
     @Test
-    void applicationCommon_idForm_applicationNotFoundByTheSecondLookup_publishesNothing() {
-        lenient().when(applicationService.findByIdWithoutDsl("app-slug")).thenReturn(Mono.just(app));
-        lenient().when(applicationService.findById("app-slug"))
-                .thenReturn(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_APPLICATION", "app-slug")));
+    void applicationCommon_idForm_slug_publishesTheEventWithTheObjectIdBF136() {
+        lenient().when(applicationService.findByIdWithoutDsl(APP_SLUG)).thenReturn(Mono.just(app));
+
+        StepVerifier.create(withContext(publisher.publishApplicationCommonEvent(originalView(), APP_SLUG, null, null, EventType.APPLICATION_RECYCLED)))
+                .verifyComplete();
+
+        ApplicationCommonEvent event = (ApplicationCommonEvent) singleEvent();
+        say("application common by slug %s -> applicationId %s, type %s", APP_SLUG, event.getApplicationId(), event.getType());
+        assertThat(event.getApplicationId()).isEqualTo(APP_ID);
+        assertThat(event.getType()).isEqualTo(EventType.APPLICATION_RECYCLED);
+        verify(applicationService, never()).findById(APP_SLUG);
+    }
+
+    /**
+     * Pins today's behaviour: the application common events are lost, with no error, when the application cannot be
+     * loaded for the details. (1) id form: an unknown key gives an empty result. (2) both forms: the detail lookup
+     * {@code applicationService.findById(applicationInfoView.getApplicationId())} failing or empty drops the event. The
+     * delete flow passes the view built after the soft delete, whose id resolves. Not verified against a real database
+     * here: the lookups are stubbed.
+     */
+    @Test
+    void applicationCommon_idForm_unresolvableApplication_publishesNothing() {
+        Application unloadable = mock(Application.class);
+        lenient().when(unloadable.getId()).thenReturn("app-unloadable");
+        lenient().when(applicationService.findByIdWithoutDsl("app-unloadable")).thenReturn(Mono.just(unloadable));
+        lenient().when(applicationService.findById("app-unloadable"))
+                .thenReturn(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_APPLICATION", "app-unloadable")));
         lenient().when(applicationService.findByIdWithoutDsl("app-unknown")).thenReturn(Mono.empty());
         lenient().when(applicationService.findById("app-empty")).thenReturn(Mono.empty());
 
-        StepVerifier.create(withContext(publisher.publishApplicationCommonEvent(originalView(), "app-slug", null, null, EventType.APPLICATION_RECYCLED))).verifyComplete();
+        StepVerifier.create(withContext(publisher.publishApplicationCommonEvent(originalView(), "app-unloadable", null, null, EventType.APPLICATION_RECYCLED))).verifyComplete();
         StepVerifier.create(withContext(publisher.publishApplicationCommonEvent(originalView(), "app-unknown", null, null, EventType.APPLICATION_RECYCLED))).verifyComplete();
         StepVerifier.create(withContext(publisher.publishApplicationCommonEvent(originalView(),
                 ApplicationView.builder().applicationInfoView(ApplicationInfoView.builder().applicationId("app-empty").build()).build(),
