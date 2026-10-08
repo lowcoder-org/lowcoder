@@ -2,6 +2,8 @@ package org.lowcoder.plugins;
 
 import org.junit.jupiter.api.Test;
 import org.lowcoder.plugins.SmtpPlugin.SmtpEngine;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.models.DatasourceConnectionConfig;
 
 import java.util.HashMap;
@@ -17,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Unit SM-3 (task L5-10): {@code SmtpEngine.resolveConfig} and {@code validateConfig}, and {@code SmtpDatasourceConfig}: merge of
- * an edited config into the stored one, encrypt and decrypt of the password, and defect D18 (no type check in the merge).
+ * an edited config into the stored one, encrypt and decrypt of the password, and BF-124 (D18: the merge's type check).
  *
  * <p>Limits: the encrypt function is a stand-in (a pure string function); a server is not involved.
  */
@@ -78,15 +80,17 @@ public class SmtpDatasourceConfigTest {
     }
 
     /**
-     * Pins defect D18 (analysis-plugins section 0.6; plan section 9 D1-D20 row): the merge casts the update to
-     * {@code SmtpDatasourceConfig} without an {@code instanceof} check, so a config of another type gives a
-     * {@code ClassCastException} where the other plugins give {@code INVALID_DATASOURCE_CONFIG_TYPE}. A fix changes this test on
-     * purpose.
+     * BF-124 (D18): the merge cast the update to {@code SmtpDatasourceConfig} without an {@code instanceof} check, so a config
+     * of another type gave a {@code ClassCastException}. It is now refused with {@code INVALID_DATASOURCE_CONFIG_TYPE} naming the
+     * type, as the Mongo, Oracle and Elasticsearch configs do.
      */
     @Test
-    public void foreignConfigTypeIsAClassCastException_pinsD18() {
-        ClassCastException thrown = assertThrows(ClassCastException.class, () -> config(Map.of("host", HOST)).mergeWithUpdatedConfig(new Foreign()));
-        System.out.println(TAG + "foreign type: " + thrown.getMessage());
+    public void foreignConfigTypeIsRefusedAsAnInvalidConfigTypeBF124() {
+        BizException thrown = assertThrows(BizException.class, () -> config(Map.of("host", HOST)).mergeWithUpdatedConfig(new Foreign()));
+        System.out.println(TAG + "foreign type -> " + thrown.getError() + " / " + thrown.getMessageKey() + ": " + thrown.getMessage());
+        assertEquals(BizError.INVALID_DATASOURCE_CONFIG_TYPE, thrown.getError());
+        assertEquals("INVALID_DATASOURCE_CONFIG_TYPE", thrown.getMessageKey());
+        assertEquals(Foreign.class.getSimpleName(), thrown.getArgs()[0]);
     }
 
     @Test
