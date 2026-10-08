@@ -9,6 +9,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
@@ -18,20 +19,20 @@ import org.lowcoder.sdk.auth.Oauth2KeycloakAuthConfig;
 import org.lowcoder.sdk.auth.Oauth2OryAuthConfig;
 import org.lowcoder.sdk.auth.Oauth2SimpleAuthConfig;
 import org.lowcoder.sdk.auth.constants.AuthTypeConstants;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 
 /**
  * Tests of {@link AuthConfigFactoryImpl#build}: what each auth type builds from the request (the generic type with a
  * fully populated request is covered by {@code AuthConfigRequestConsumerTest}; this class covers the other types, the
  * defaults and the failures).
- *
- * <p>Pinned under D-6, plan §9 row "malformed admin auth-config input fails with raw exceptions instead of a coded
- * error": a null {@code authType} fails with a NullPointerException (switch on null). A fix changes the test on purpose.
  */
 class AuthConfigFactoryImplTest {
 
     private static final String CLIENT_ID = "client-1";
     private static final String CLIENT_SECRET = "secret-1";
     private static final String CONFIG_ID = "cfg-1";
+    private static final String UNSUPPORTED_AUTH_TYPE = "SAML";
 
     private final AuthConfigFactoryImpl factory = new AuthConfigFactoryImpl();
 
@@ -179,36 +180,43 @@ class AuthConfigFactoryImplTest {
     }
 
     /**
-     * Pins the plan §9 candidate "FORM config without an enableRegister key" (reproduced by L2-5): the request's value
-     * is read with {@code MapUtils.getBoolean(request, "enableRegister")}, which is null when the key is absent, and
-     * {@code EmailAuthConfig}'s constructor takes a primitive {@code boolean}, so building fails with a
-     * NullPointerException on unboxing (the other types default to true). A fix changes this test on purpose.
+     * BF-107 (fixed; was pinned as the plan §9 candidate "FORM config without an enableRegister key", reproduced by L2-5):
+     * a FORM request without {@code enableRegister} builds a config that registers, as the other types default to; the
+     * absent key was unboxed into {@code EmailAuthConfig}'s primitive {@code boolean} and failed with a NullPointerException.
      */
-    @Test
-    void build_formWithoutEnableRegister_failsWithNpeOnUnboxing_pinsMissingEnableRegisterDefect() {
-        assertThatThrownBy(() -> factory.build(request(AuthTypeConstants.FORM, "id", CONFIG_ID), true))
-                .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("enableRegister");
-        System.out.println("[AuthConfigFactoryImplTest] FORM without enableRegister -> NullPointerException on unboxing (today's behaviour)");
-    }
+    @ParameterizedTest(name = "enable={0}")
+    @ValueSource(booleans = {true, false})
+    void build_formWithoutEnableRegister_defaultsToRegisteringBF107(boolean enable) {
+        AbstractAuthConfig built = factory.build(request(AuthTypeConstants.FORM, "id", CONFIG_ID), enable);
 
-    /** Catches an unsupported auth type building something: it is an UnsupportedOperationException naming the type. */
-    @Test
-    void build_unsupportedAuthType_failsWithUnsupportedOperation() {
-        assertThatThrownBy(() -> factory.build(request("SAML"), true))
-                .isInstanceOf(UnsupportedOperationException.class)
-                .hasMessage("SAML");
-        System.out.println("[AuthConfigFactoryImplTest] SAML -> UnsupportedOperationException");
+        assertThat(built).isExactlyInstanceOf(EmailAuthConfig.class);
+        assertThat(built.isEnable()).isEqualTo(enable);
+        assertThat(built.isEnableRegister()).as("enableRegister defaults to true").isTrue();
+        System.out.println("[AuthConfigFactoryImplTest] FORM without enableRegister, enable=" + enable + " -> enableRegister=" + built.isEnableRegister());
     }
 
     /**
-     * Pins plan §9 row "malformed admin auth-config input fails with raw exceptions instead of a coded error": a
-     * request without {@code authType} fails with a NullPointerException from the switch, not a coded error.
+     * BF-108 (fixed; the null case was pinned as the plan §9 row "malformed admin auth-config input fails with raw
+     * exceptions instead of a coded error"): a request without {@code authType}, or with one no factory builds, is an
+     * INVALID_PARAMETER naming the type; they were a NullPointerException (switch on null) and an
+     * UnsupportedOperationException.
      */
-    @Test
-    void build_nullAuthType_failsWithNpe_pinsRawExceptionDefect() {
-        assertThatThrownBy(() -> factory.build(new AuthConfigRequest(), true)).isInstanceOf(NullPointerException.class);
-        System.out.println("[AuthConfigFactoryImplTest] missing authType -> NullPointerException (today's behaviour)");
+    @ParameterizedTest(name = "authType={0}")
+    @NullSource
+    @ValueSource(strings = {"", UNSUPPORTED_AUTH_TYPE})
+    void build_missingOrUnsupportedAuthType_isInvalidParameterBF108(String authType) {
+        AuthConfigRequest request = new AuthConfigRequest();
+        if (authType != null) {
+            request.put("authType", authType);
+        }
+
+        assertThatThrownBy(() -> factory.build(request, true))
+                .isInstanceOfSatisfying(BizException.class, e -> {
+                    System.out.println("[AuthConfigFactoryImplTest] authType [" + authType + "] -> " + e.getError() + ": " + e.getMessage());
+                    assertThat(e.getError()).isEqualTo(BizError.INVALID_PARAMETER);
+                    assertThat(e.getMessageKey()).isEqualTo(BizError.INVALID_PARAMETER.name());
+                    assertThat(e.getMessage()).contains(String.format(AuthConfigFactory.AUTH_TYPE_PARAMETER, authType));
+                });
     }
 
     @Test

@@ -8,10 +8,15 @@ import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
 import org.lowcoder.sdk.auth.EmailAuthConfig;
 import org.lowcoder.sdk.auth.constants.AuthTypeConstants;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /** Tests of {@link AuthConfigFactoryFacade}: dispatch by auth type to the registered factories. */
@@ -62,12 +67,20 @@ class AuthConfigFactoryFacadeTest {
         System.out.println("[AuthConfigFactoryFacadeTest] GITHUB, GOOGLE -> first; GENERIC -> second");
     }
 
-    @Test
-    void build_unknownAuthType_failsWithUnsupportedOperation() {
-        assertThatThrownBy(() -> facade.build(request(AuthTypeConstants.KEYCLOAK), true))
-                .isInstanceOf(UnsupportedOperationException.class)
-                .hasMessage(AuthTypeConstants.KEYCLOAK);
-        System.out.println("[AuthConfigFactoryFacadeTest] unregistered type -> UnsupportedOperationException");
+    /**
+     * BF-108: a type no factory registered, or none (the facade reads both as no factory), is an INVALID_PARAMETER naming
+     * the type; it was an UnsupportedOperationException, answered as an internal error.
+     */
+    @ParameterizedTest(name = "authType={0}")
+    @NullSource
+    @ValueSource(strings = {AuthTypeConstants.KEYCLOAK})
+    void build_unregisteredOrMissingAuthType_isInvalidParameterBF108(String authType) {
+        assertThatThrownBy(() -> facade.build(request(authType), true))
+                .isInstanceOfSatisfying(BizException.class, e -> {
+                    System.out.println("[AuthConfigFactoryFacadeTest] authType [" + authType + "] -> " + e.getError() + ": " + e.getMessage());
+                    assertThat(e.getError()).isEqualTo(BizError.INVALID_PARAMETER);
+                    assertThat(e.getMessage()).contains(String.format(AuthConfigFactory.AUTH_TYPE_PARAMETER, authType));
+                });
     }
 
     @Test
