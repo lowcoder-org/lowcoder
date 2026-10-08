@@ -233,17 +233,17 @@ class EmailCommunicationServiceImplTest {
     }
 
     /**
-     * Pins plan section 9 row "invitation mail with no recipients is sent and reports true". Reachable: POST
-     * /email/invite with {"emails": [], "orgId": ...} goes InvitationController:62-66 -> InvitationApiServiceImpl.create
-     * (which also stores an invitation) -> sendInvitationEmails(req.emails(), ...), with no validation of the array.
-     * A fix (reject an empty array) changes this test on purpose.
+     * BF-139: an invitation mail with no recipients is not sent and reports false (it was sent to nobody and reported
+     * true). Reachable: POST /api/invitation/email/invite with {"emails": [], ...}, which the controller now also refuses
+     * before an invitation is stored. Catches: the guard dropped, or an empty send reported as success.
      */
     @Test
-    void anInvitationWithNoRecipientsIsSentAndReportsTrue_pinsTheSection9Row() throws Exception {
-        assertThat(service.sendInvitationEmails(new String[0], INVITE_LINK, INVITE_TEMPLATE)).isTrue();
+    void anInvitationWithNoRecipientsIsNotSentAndReportsFalseBF139() {
+        boolean sent = service.sendInvitationEmails(new String[0], INVITE_LINK, INVITE_TEMPLATE);
 
-        MimeMessage message = sentOnce();
-        System.out.println("[EmailCommunicationServiceImplTest] PINNED: no recipients, sent, recipients=" + Arrays.toString(recipients(message)));
-        assertThat(recipients(message)).isEmpty();
+        System.out.println("[EmailCommunicationServiceImplTest] no recipients -> " + sent);
+        assertThat(sent).isFalse();
+        verify(sender, never()).createMimeMessage();
+        verify(sender, never()).send(any(MimeMessage.class));
     }
 }
