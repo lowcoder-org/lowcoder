@@ -102,7 +102,7 @@ FolderEndpoints#move(String, String)	codec	WP6	org.lowcoder.api.contract.endpoin
 FolderEndpoints#removePermission(String, String)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		124 return=removePermission	
 FolderEndpoints#update(Folder)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		62 return=update; 66 return=update	
 FolderEndpoints#updatePermission(String, String, UpdatePermissionRequest)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		112 return=updatePermissionWithUnknownRole; 115 return=updatePermission	
-AssetEndpoints#getById(String, ServerWebExchange)	codec	WP7	org.lowcoder.api.contract.endpoint.AssetEndpointsContractTest	pass-through		21 return=getById	
+AssetEndpoints#getById(String, ServerWebExchange)	codec	WP7	org.lowcoder.api.contract.endpoint.AssetEndpointsContractTest	pass-through		37 return=getById	
 MaterialEndpoints#delete(String)	codec	WP7	org.lowcoder.api.contract.endpoint.MaterialEndpointsContractTest	pass-through		74 return=delete	
 MaterialEndpoints#download(String, String, ServerHttpResponse)	codec	WP7	org.lowcoder.api.contract.endpoint.MaterialEndpointsContractTest	pass-through		50 return=download; 51 switchIfEmpty=downloadMissing; 51 Mono.error=downloadMissing	
 MaterialEndpoints#getFileList()	codec	WP7	org.lowcoder.api.contract.endpoint.MaterialEndpointsContractTest	pass-through		68 return=getFileList	
