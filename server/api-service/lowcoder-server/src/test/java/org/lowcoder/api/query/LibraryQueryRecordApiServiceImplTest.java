@@ -57,6 +57,8 @@ class LibraryQueryRecordApiServiceImplTest {
     private static final String USER_ID = "user-1";
     private static final String LIBRARY_QUERY_ID = "lq-1";
     private static final String OTHER_QUERY_ID = "lq-2";
+    /** The gid of the query {@code LIBRARY_QUERY_ID}; records store the object id, so a combined gid matches through the query. */
+    private static final String LIBRARY_QUERY_GID = "01905a3c-1111-7aaa-8bbb-000000000001";
     private static final String RECORD_ID = "record-1";
     private static final String LATEST = "latest";
     private static final Instant CREATED_AT = Instant.ofEpochMilli(1_700_000_000_000L);
@@ -142,7 +144,11 @@ class LibraryQueryRecordApiServiceImplTest {
     }
 
     private void stubFirstCheckPasses() {
-        when(libraryQueryApiService.checkLibraryQueryViewPermission(LIBRARY_QUERY_ID)).thenReturn(logged("view check " + LIBRARY_QUERY_ID));
+        stubFirstCheckPasses(LIBRARY_QUERY_ID);
+    }
+
+    private void stubFirstCheckPasses(String libraryQueryId) {
+        when(libraryQueryApiService.checkLibraryQueryViewPermission(libraryQueryId)).thenReturn(logged("view check " + libraryQueryId));
     }
 
     // ------------------------------------------------------------------ getRecordDSLFromLibraryQueryCombineId
@@ -162,21 +168,58 @@ class LibraryQueryRecordApiServiceImplTest {
         say("latest: %s", events);
     }
 
-    /** Another record id: the record's DSL; the live DSL is never asked and the second check follows the RECORD's own query. */
+    /** A record of the combined id's query: its DSL, read after both checks; the live DSL is never asked. */
     @Test
     void getRecordDsl_recordId_readsTheRecordedDsl() {
         stubFirstCheckPasses();
-        LibraryQueryRecord record = record(RECORD_ID, OTHER_QUERY_ID, USER_ID);
+        LibraryQueryRecord record = record(RECORD_ID, LIBRARY_QUERY_ID, USER_ID);
         when(libraryQueryRecordService.getById(RECORD_ID)).thenReturn(logged("get record", record));
-        when(libraryQueryService.getById(OTHER_QUERY_ID)).thenReturn(logged("get query " + OTHER_QUERY_ID, libraryQuery(OTHER_QUERY_ID, ORG_ID)));
+        when(libraryQueryService.getById(LIBRARY_QUERY_ID)).thenReturn(logged("get query " + LIBRARY_QUERY_ID, libraryQuery(LIBRARY_QUERY_ID, ORG_ID)));
 
         StepVerifier.create(service.getRecordDSLFromLibraryQueryCombineId(new LibraryQueryCombineId(LIBRARY_QUERY_ID, RECORD_ID)))
                 .expectNext(record.getLibraryQueryDSL()).verifyComplete();
 
         verify(libraryQueryService, never()).getLiveDSLByLibraryQueryId(anyString());
-        verify(libraryQueryService, never()).getById(LIBRARY_QUERY_ID);
-        assertThat(events).startsWith("view check " + LIBRARY_QUERY_ID, "get record", "get query " + OTHER_QUERY_ID);
-        assertThat(events.get(events.size() - 1)).as("the DSL is read after the checks").isEqualTo("get record");
+        assertThat(events).containsExactly("view check " + LIBRARY_QUERY_ID, "get record", "get query " + LIBRARY_QUERY_ID, "get record");
+        say("record of the combined query: %s", events);
+    }
+
+    /**
+     * NEW-2 (fixed; was this class's pin {@code getRecordDsl_recordId_readsTheRecordedDsl}, which served it): a record of
+     * ANOTHER library query of the same org, asked under the combined id (object id or gid), is LIBRARY_QUERY_NOT_FOUND,
+     * the answer for an unknown record; the record's DSL is never read and the live DSL never asked.
+     */
+    @ParameterizedTest(name = "combined query id [{0}]")
+    @ValueSource(strings = {LIBRARY_QUERY_ID, LIBRARY_QUERY_GID})
+    void getRecordDsl_recordOfAnotherQueryOfTheSameOrg_isRefusedBeforeAnyReadNEW2(String combinedQueryId) {
+        stubFirstCheckPasses(combinedQueryId);
+        when(libraryQueryRecordService.getById(RECORD_ID)).thenReturn(logged("get record", record(RECORD_ID, OTHER_QUERY_ID, USER_ID)));
+        when(libraryQueryService.getById(OTHER_QUERY_ID)).thenReturn(logged("get query " + OTHER_QUERY_ID, libraryQuery(OTHER_QUERY_ID, ORG_ID)));
+
+        StepVerifier.create(service.getRecordDSLFromLibraryQueryCombineId(new LibraryQueryCombineId(combinedQueryId, RECORD_ID)))
+                .expectErrorSatisfies(e -> assertBizError(e, BizError.LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND")).verify();
+
+        assertThat(events).as("checked once each, no second record read for the DSL")
+                .containsExactly("view check " + combinedQueryId, "get record", "get query " + OTHER_QUERY_ID);
+        verify(libraryQueryService, never()).getLiveDSLByLibraryQueryId(anyString());
+        say("NEW-2 record of %s under %s -> LIBRARY_QUERY_NOT_FOUND: %s", OTHER_QUERY_ID, combinedQueryId, events);
+    }
+
+    /** NEW-2: the combined id may be the query's gid; the record stores the object id and is served through the query's gid. */
+    @Test
+    void getRecordDsl_combinedIdIsTheQueryGid_readsTheRecordedDslNEW2() {
+        stubFirstCheckPasses(LIBRARY_QUERY_GID);
+        LibraryQueryRecord record = record(RECORD_ID, LIBRARY_QUERY_ID, USER_ID);
+        LibraryQuery query = LibraryQuery.builder().gid(LIBRARY_QUERY_GID).organizationId(ORG_ID).libraryQueryDSL(LIVE_DSL).build();
+        query.setId(LIBRARY_QUERY_ID);
+        when(libraryQueryRecordService.getById(RECORD_ID)).thenReturn(logged("get record", record));
+        when(libraryQueryService.getById(LIBRARY_QUERY_ID)).thenReturn(logged("get query " + LIBRARY_QUERY_ID, query));
+
+        StepVerifier.create(service.getRecordDSLFromLibraryQueryCombineId(new LibraryQueryCombineId(LIBRARY_QUERY_GID, RECORD_ID)))
+                .expectNext(record.getLibraryQueryDSL()).verifyComplete();
+
+        assertThat(events).containsExactly("view check " + LIBRARY_QUERY_GID, "get record", "get query " + LIBRARY_QUERY_ID, "get record");
+        say("NEW-2 combined gid %s, record of %s -> served: %s", LIBRARY_QUERY_GID, LIBRARY_QUERY_ID, events);
     }
 
     /**
