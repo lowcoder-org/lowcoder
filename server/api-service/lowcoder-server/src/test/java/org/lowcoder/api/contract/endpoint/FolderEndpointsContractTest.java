@@ -28,6 +28,7 @@ import org.lowcoder.domain.folder.service.FolderService;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.sdk.contract.CanonicalJson;
 import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
@@ -87,6 +88,8 @@ class FolderEndpointsContractTest {
     static final String ILLEGAL_PAGE_NUMBER = "ILLEGAL_PAGE_NUMBER";
     /** {@code getEditingApplication(applicationId, withDeleted)} as {@code move} calls it. */
     static final Boolean WITH_DELETED = Boolean.TRUE;
+    /** NEW-4: the message key of the editing view's refusal of a user outside the application's org. */
+    static final String INSUFFICIENT_PERMISSION_KEY = "INSUFFICIENT_PERMISSION";
 
     private ContractTestClient.Builder builder;
     private FolderApiService folderApiService;
@@ -239,6 +242,27 @@ class FolderEndpointsContractTest {
     void moveWithoutCurrentFolder() {
         Mockito.when(folderElementRelationService.getByElementIds(List.of(APPLICATION_ID))).thenReturn(Flux.empty());
         assertMove(Map.of(), null, null);
+    }
+
+    /**
+     * NEW-4 regression pin: {@code move} reads the editing view first, so its refusal answers 403 and nothing is moved or
+     * published. The fix makes that refusal reach a creator outside the org, who used to pass it and then get 401
+     * NOT_AUTHORIZED from the move's own check. Mocked service: this pins the controller's preflight, not the permission
+     * path. It passes before the fix as well.
+     */
+    @Test
+    void move_preflightRefusalNEW4_movesNothing() {
+        Mockito.when(folderElementRelationService.getByElementIds(List.of(APPLICATION_ID)))
+                .thenReturn(Flux.just(new FolderElement(FROM_FOLDER_ID, APPLICATION_ID)));
+        Mockito.when(applicationApiService.getEditingApplication(APPLICATION_ID, WITH_DELETED))
+                .thenReturn(Mono.error(new BizException(BizError.NO_PERMISSION_TO_REQUEST_APP, INSUFFICIENT_PERMISSION_KEY)));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "move", Map.of("targetFolderId", TARGET_FOLDER_ID), null, APPLICATION_ID);
+            EndpointContract.assertBizError(result, BizError.NO_PERMISSION_TO_REQUEST_APP, INSUFFICIENT_PERMISSION_KEY);
+        }
+        Mockito.verify(folderApiService, Mockito.never()).move(any(), any());
+        Mockito.verifyNoInteractions(businessEventPublisher);
+        System.out.println("[FolderEndpointsContractTest] NEW-4 move with a refused preflight -> 403, nothing moved, no event");
     }
 
     /** The D1 role is {@code ApplicationSamples#VIEWER_ROLE}. */

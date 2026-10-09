@@ -13,6 +13,7 @@ import static org.lowcoder.sdk.constants.Authentication.ANONYMOUS_USER_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -52,8 +53,8 @@ import reactor.test.StepVerifier;
 
 /**
  * Decision logic of the abstract {@code ResourcePermissionHandler}, exercised through the concrete
- * {@code ApplicationPermissionHandler} with Mockito collaborators (unit U3, task L3-1). No defect of the plan is
- * reached; every assertion states today's behaviour.
+ * {@code ApplicationPermissionHandler} with Mockito collaborators (unit U3, task L3-1). Every assertion states today's
+ * behaviour; the NEW-4 cases pin its fix (the non-anonymous public rows grant only actions a VIEWER can do).
  */
 class ResourcePermissionHandlerTest {
 
@@ -336,6 +337,74 @@ class ResourcePermissionHandlerTest {
                 .verifyComplete();
         System.out.println("[ResourcePermissionHandlerTest] priority " + variant + " org=" + orgRow
                 + " nonAnonPublic=" + nonAnonymousPublic + " anonPublic=" + anonymousPublic + " checked");
+    }
+
+    // ---------------------------------------------------------------- check*: the visitor's own and template apps (NEW-4)
+
+    /** Both variants times every APPLICATION action a VIEWER cannot do. */
+    static Stream<Arguments> variantsWithApplicationActionsAboveViewer() {
+        return Stream.of(Variant.values()).flatMap(variant -> Stream.of(ResourceAction.values())
+                .filter(action -> action.getResourceType() == ResourceType.APPLICATION && !ResourceRole.VIEWER.canDo(action))
+                .map(action -> Arguments.of(variant, action)));
+    }
+
+    /**
+     * NEW-4 (fixed): the non-anonymous public lookup gave the creator of an application (and any signed-in user, for a
+     * template application) the anonymous VIEWER row whatever the action, and that row beat the "not in org" outcome, so
+     * the creator passed an EDIT check after leaving the org. For an action a VIEWER cannot do the lookup is not made:
+     * the stubbed creator and template ids are never asked for, and the org outcome stands.
+     */
+    @ParameterizedTest(name = "{0} {1}")
+    @MethodSource("variantsWithApplicationActionsAboveViewer")
+    void check_creatorOutsideTheOrg_actionAboveViewer_getsNotInOrgWithoutTheNonAnonymousLookupNEW4(Variant variant,
+            ResourceAction action) {
+        stubPublicIds(Set.of(), Set.of(RESOURCE_ID));
+        when(templateSolutionService.getTemplateApplicationIds(any())).thenReturn(Mono.just(Set.of(RESOURCE_ID)));
+        clearInvocations(applicationService, templateSolutionService);
+
+        StepVerifier.create(check(variant, USER_ID, action))
+                .assertNext(status -> {
+                    assertThat(status.hasPermission()).as("no VIEWER row for " + action).isFalse();
+                    assertThat(status.failByNotInOrg()).isTrue();
+                })
+                .verifyComplete();
+        verify(applicationService, never()).getPrivateApplicationIds(any(), eq(USER_ID));
+        verify(applicationService, never()).getFilteredPublicApplicationIds(any(), any(), eq(USER_ID), any());
+        verify(templateSolutionService, never()).getTemplateApplicationIds(any());
+        System.out.println("[ResourcePermissionHandlerTest] " + variant + " creator outside the org, " + action
+                + " -> notInOrg, no creator or template lookup");
+    }
+
+    /** NEW-4: a member left without a permission row on the application it created is "not enough permission" for EDIT. */
+    @ParameterizedTest
+    @EnumSource(Variant.class)
+    void check_memberCreatorWithoutRow_actionAboveViewer_getsNotEnoughPermissionNEW4(Variant variant) {
+        when(orgMemberService.getOrgMember(ORG_ID, USER_ID)).thenReturn(Mono.just(orgMember(MemberRole.MEMBER)));
+        stubPublicIds(Set.of(), Set.of(RESOURCE_ID));
+        when(templateSolutionService.getTemplateApplicationIds(any())).thenReturn(Mono.just(Set.of(RESOURCE_ID)));
+
+        StepVerifier.create(check(variant, USER_ID, ResourceAction.EDIT_APPLICATIONS))
+                .assertNext(status -> {
+                    assertThat(status.hasPermission()).isFalse();
+                    assertThat(status.failByNotEnoughPermission()).isTrue();
+                })
+                .verifyComplete();
+        System.out.println("[ResourcePermissionHandlerTest] " + variant + " member creator without row, EDIT -> notEnoughPermission");
+    }
+
+    /** NEW-4, the other side of the guard: READ is a VIEWER action, so the creator outside the org keeps the VIEWER row. */
+    @ParameterizedTest
+    @EnumSource(Variant.class)
+    void check_creatorOutsideTheOrg_read_keepsTheViewerRowNEW4(Variant variant) {
+        stubPublicIds(Set.of(), Set.of(RESOURCE_ID));
+
+        StepVerifier.create(check(variant, USER_ID, ResourceAction.READ_APPLICATIONS))
+                .assertNext(status -> {
+                    assertThat(status.hasPermission()).isTrue();
+                    assertAnonymousViewerRow(status.getPermission(), RESOURCE_ID);
+                })
+                .verifyComplete();
+        System.out.println("[ResourcePermissionHandlerTest] " + variant + " creator outside the org, READ -> VIEWER row kept");
     }
 
     // ---------------------------------------------------------------- check*: org outcomes

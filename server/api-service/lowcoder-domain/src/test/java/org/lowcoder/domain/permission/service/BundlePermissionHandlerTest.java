@@ -11,6 +11,7 @@ import static org.lowcoder.sdk.constants.Authentication.ANONYMOUS_USER_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -49,7 +50,8 @@ import reactor.test.StepVerifier;
 /**
  * The bundle clone of the permission decisions (unit U3, task L3-1): {@code BundlePermissionHandler} with its own
  * public-id sources and the {@code checkUserPermissionStatusOnBundle} copy of the check method. Catches the bundle
- * clone diverging from the resource/application one. Every assertion states today's behaviour.
+ * clone diverging from the resource/application one. Every assertion states today's behaviour; the NEW-4 cases pin its
+ * fix (the non-anonymous public rows grant only actions a VIEWER can do).
  */
 class BundlePermissionHandlerTest {
 
@@ -206,6 +208,68 @@ class BundlePermissionHandlerTest {
                 .assertNext(status -> assertThat(status.failByAnonymousUser()).isTrue())
                 .verifyComplete();
         System.out.println("[BundlePermissionHandlerTest] " + variant + " anonymous + EDIT on public bundle rejected");
+    }
+
+    /** Both variants times every BUNDLE action a VIEWER cannot do. */
+    static Stream<Arguments> variantsWithBundleActionsAboveViewer() {
+        return Stream.of(Variant.values()).flatMap(variant -> Stream.of(ResourceAction.values())
+                .filter(action -> action.getResourceType() == ResourceType.BUNDLE && !ResourceRole.VIEWER.canDo(action))
+                .map(action -> Arguments.of(variant, action)));
+    }
+
+    /**
+     * NEW-4 (fixed), the bundle clone: the non-anonymous public lookup gave a bundle's creator the anonymous VIEWER row
+     * whatever the action, and it beat the "not in org" outcome. For an action a VIEWER cannot do the lookup is not
+     * made. No production caller asks these checks such an action today (the bundle API asks READ_BUNDLES only).
+     */
+    @ParameterizedTest(name = "{0} {1}")
+    @MethodSource("variantsWithBundleActionsAboveViewer")
+    void check_creatorOutsideTheOrg_actionAboveViewer_getsNotInOrgWithoutTheNonAnonymousLookupNEW4(Variant variant,
+            ResourceAction action) {
+        stubPublicIds(Set.of(), Set.of(RESOURCE_ID));
+        clearInvocations(bundleService);
+
+        StepVerifier.create(check(variant, USER_ID, action))
+                .assertNext(status -> {
+                    assertThat(status.hasPermission()).as("no VIEWER row for " + action).isFalse();
+                    assertThat(status.failByNotInOrg()).isTrue();
+                })
+                .verifyComplete();
+        verify(bundleService, never()).getPrivateBundleIds(any(), eq(USER_ID));
+        verify(bundleService, never()).getFilteredPublicBundleIds(any(), any(), eq(USER_ID), any());
+        System.out.println("[BundlePermissionHandlerTest] " + variant + " creator outside the org, " + action
+                + " -> notInOrg, no creator lookup");
+    }
+
+    /** NEW-4: a member left without a permission row on the bundle it created is "not enough permission" for EDIT. */
+    @ParameterizedTest
+    @EnumSource(Variant.class)
+    void check_memberCreatorWithoutRow_actionAboveViewer_getsNotEnoughPermissionNEW4(Variant variant) {
+        when(orgMemberService.getOrgMember(ORG_ID, USER_ID)).thenReturn(Mono.just(orgMember(MemberRole.MEMBER)));
+        stubPublicIds(Set.of(), Set.of(RESOURCE_ID));
+
+        StepVerifier.create(check(variant, USER_ID, ResourceAction.EDIT_BUNDLES))
+                .assertNext(status -> {
+                    assertThat(status.hasPermission()).isFalse();
+                    assertThat(status.failByNotEnoughPermission()).isTrue();
+                })
+                .verifyComplete();
+        System.out.println("[BundlePermissionHandlerTest] " + variant + " member creator without row, EDIT_BUNDLES -> notEnoughPermission");
+    }
+
+    /** NEW-4, the other side of the guard: READ_BUNDLES is a VIEWER action, so the creator keeps the VIEWER row. */
+    @ParameterizedTest
+    @EnumSource(Variant.class)
+    void check_creatorOutsideTheOrg_read_keepsTheViewerRowNEW4(Variant variant) {
+        stubPublicIds(Set.of(), Set.of(RESOURCE_ID));
+
+        StepVerifier.create(check(variant, USER_ID, ResourceAction.READ_BUNDLES))
+                .assertNext(status -> {
+                    assertThat(status.hasPermission()).isTrue();
+                    assertAnonymousViewerRow(status.getPermission(), RESOURCE_ID);
+                })
+                .verifyComplete();
+        System.out.println("[BundlePermissionHandlerTest] " + variant + " creator outside the org, READ_BUNDLES -> VIEWER row kept");
     }
 
     /** Catches a wrong deny reason: non-member with nothing public is "not in org"; unknown bundle too. */
