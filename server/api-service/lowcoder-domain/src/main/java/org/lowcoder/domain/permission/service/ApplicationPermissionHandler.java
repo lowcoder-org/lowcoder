@@ -56,6 +56,11 @@ class ApplicationPermissionHandler extends ResourcePermissionHandler {
     protected Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserPublicResourcePermissions
             (Collection<String> resourceIds, ResourceAction resourceAction, String userId) {
 
+        // the rows below grant ANONYMOUS_USER_ROLE only, so an action it cannot do gets none and the org outcome stands
+        if (!ANONYMOUS_USER_ROLE.canDo(resourceAction)) {
+            return Mono.just(emptyMap());
+        }
+
         Set<String> applicationIds = newHashSet(resourceIds);
         return Mono.zip(applicationService.getPrivateApplicationIds(applicationIds, userId),
                         templateSolutionService.getTemplateApplicationIds(applicationIds))
@@ -90,6 +95,11 @@ class ApplicationPermissionHandler extends ResourcePermissionHandler {
 	@Override
 	protected Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserApplicationPublicResourcePermissions(
 			Collection<String> resourceIds, ResourceAction resourceAction, ApplicationRequestType requestType, String userId) {
+        // the rows below grant ANONYMOUS_USER_ROLE only, so an action it cannot do gets none and the org outcome stands
+        if (!ANONYMOUS_USER_ROLE.canDo(resourceAction)) {
+            return Mono.just(emptyMap());
+        }
+
         Set<String> applicationIds = newHashSet(resourceIds);
         return Mono.zip(applicationService.getFilteredPublicApplicationIds(requestType, applicationIds, userId, config.getMarketplace().isPrivateMode()),
                         templateSolutionService.getTemplateApplicationIds(applicationIds))

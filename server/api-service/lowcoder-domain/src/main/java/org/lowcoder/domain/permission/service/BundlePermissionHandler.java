@@ -51,6 +51,11 @@ class BundlePermissionHandler extends ResourcePermissionHandler {
     protected Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserPublicResourcePermissions
             (Collection<String> resourceIds, ResourceAction resourceAction, String userId) {
 
+        // the rows below grant ANONYMOUS_USER_ROLE only, so an action it cannot do gets none and the org outcome stands
+        if (!ANONYMOUS_USER_ROLE.canDo(resourceAction)) {
+            return Mono.just(emptyMap());
+        }
+
         Set<String> bundleIds = newHashSet(resourceIds);
         return bundleService.getPrivateBundleIds(bundleIds, userId)
                 .map(publicAppIds -> collectMap(publicAppIds, identity(), this::getAnonymousUserPermission));
@@ -83,6 +88,11 @@ class BundlePermissionHandler extends ResourcePermissionHandler {
 	@Override
 	protected Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserBundlePublicResourcePermissions(
 			Collection<String> resourceIds, ResourceAction resourceAction, BundleRequestType requestType, String userId) {
+        // the rows below grant ANONYMOUS_USER_ROLE only, so an action it cannot do gets none and the org outcome stands
+        if (!ANONYMOUS_USER_ROLE.canDo(resourceAction)) {
+            return Mono.just(emptyMap());
+        }
+
         Set<String> bundleIds = newHashSet(resourceIds);
         return bundleService.getFilteredPublicBundleIds(requestType, bundleIds, userId, config.getMarketplace().isPrivateMode())
                 .map(publicAppIds -> collectMap(publicAppIds, identity(), this::getAnonymousUserPermission));
