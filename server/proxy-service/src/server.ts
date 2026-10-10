@@ -7,16 +7,13 @@ import { URL } from "node:url";
 import { createServer } from "node:http";
 import { createProxySession, joinProxySession } from "./session";
 import { getBearerToken, verifyProxyToken } from "./auth";
+import { HOCUSPOCUS_SECRET, resolveHocuspocusUrl } from "./hocuspocus";
 import { PROXY_PREFIX, buildProxiedUrlFromRequest } from "./urls";
 import { registerGoogleFormsProxy } from "./googleProxy";
 import { registerWebsiteProxy } from "./websiteProxy";
 
 const PORT = Number(process.env.PROXY_SERVICE_PORT ?? 6070);
 const LOWCODER_PUBLIC_URL = (process.env.LOWCODER_PUBLIC_URL ?? "http://localhost:3000").replace(/\/$/, "");
-const HOCUSPOCUS_URL = (process.env.LOWCODER_HOCUSPOCUS_URL ?? "ws://localhost:3006").trim();
-const HOCUSPOCUS_SECRET = (
-  process.env.LOWCODER_HOCUSPOCUS_SECRET ?? process.env.HOCUSPOCUS_SECRET ?? ""
-).trim();
 const RATE_LIMIT_PER_MINUTE = Number(process.env.LOWCODER_PROXY_RATE_LIMIT ?? 120);
 const ALLOWED_TYPEFORM_HOSTS = new Set(
   (process.env.LOWCODER_PROXY_ALLOWED_HOSTS ?? "form.typeform.com,embed.typeform.com,admin.typeform.com")
@@ -186,6 +183,7 @@ function rewriteSetCookie(rawValue: string): string[] {
 
 function injectBridgeAndRewriteHtml(html: string, req: Request, upstreamUrl: URL): string {
   const rewritten = rewriteBodyUrls(html, req, upstreamUrl);
+  const hocuspocusUrl = resolveHocuspocusUrl(req);
   const roomId = String(req.query.roomId ?? "");
   const role = String(req.query.role ?? "driver");
   const editorId = String(req.query.editorId ?? "local");
@@ -197,11 +195,11 @@ function injectBridgeAndRewriteHtml(html: string, req: Request, upstreamUrl: URL
     ` data-lowcoder-editor-id="${escapeHtml(editorId)}"` +
     ` data-lowcoder-collab-id="${escapeHtml(collabId)}"` +
     ` data-lowcoder-username="${escapeHtml(username)}"` +
-    ` data-lowcoder-hocuspocus-url="${escapeHtml(HOCUSPOCUS_URL)}"` +
+    ` data-lowcoder-hocuspocus-url="${escapeHtml(hocuspocusUrl)}"` +
     (HOCUSPOCUS_SECRET ? ` data-lowcoder-hocuspocus-token="${escapeHtml(HOCUSPOCUS_SECRET)}"` : "");
   const withRootAttrs = rewritten.replace("<html", `<html${attrs}`);
   const hocuspocusConfig = JSON.stringify({
-    url: HOCUSPOCUS_URL,
+    url: hocuspocusUrl,
     token: HOCUSPOCUS_SECRET || undefined,
   });
   const bridgeTag =

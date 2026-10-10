@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon src/server.ts",
     "build": "rm -rf build/ && tsc && node scripts/build-bridge.mjs",
-    "start": "node build/server.js"
+    "start": "node build/server.js",
+    "test": "yarn build && node --test \"test/*.test.js\""
   },
   "dependencies": {
     "@hocuspocus/provider": "^3.4.4",

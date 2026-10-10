@@ -18,6 +18,27 @@ This is the default target and can be built by running following command from pr
 DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce .
 ```
 
+The ChatBox component connects from the browser directly to hocuspocus. Its websocket URL and shared secret
+are baked into the client at build time; without them the client uses `ws://localhost:3006` (works only for
+a browser running on the docker host) and no authentication. To serve other machines, build with:
+
+```
+DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce \
+  --build-arg REACT_APP_HOCUSPOCUS_URL=ws://lowcoder.example.com:3006 \
+  --build-arg REACT_APP_HOCUSPOCUS_SECRET=<secret> .
+```
+
+and run the container with `LOWCODER_HOCUSPOCUS_SECRET=<secret>`. The secret is part of the public JS bundle:
+it only rejects clients that did not load this frontend, it does not protect documents from its users.
+Hocuspocus on port 3006 speaks plain `ws://`. Browsers refuse `ws://` from a page served over HTTPS, so for an
+HTTPS frontend put a TLS-terminating reverse proxy in front of port 3006 and build with its `wss://` URL.
+
+The agora token service on port 8081 has no authentication: once `LOWCODER_AGORA_APP_ID` and
+`LOWCODER_AGORA_APP_CERTIFICATE` are set, anyone who can reach the port can request RTC/RTM tokens for any
+channel and uid of that Agora project. Restrict access to the port (firewall, reverse proxy) or disable the
+service with `LOWCODER_AGORA_TOKEN_SERVICE_ENABLED=false`. `LOWCODER_AGORA_CORS_ALLOW_ORIGIN` only limits
+which web pages may call it from a browser.
+
 ### Configuration
 
 Image can be configured by setting environment variables.
@@ -50,8 +71,8 @@ Image can be configured by setting environment variables.
 | `LOWCODER_NODE_SERVICE_SECRET`      | Secret used for encrypting communication between API service and Node service - CHANGE IT! |                                    |
 | `LOWCODER_NODE_SERVICE_SALT`        | Salt used for encrypting communication between API service and Node service   - CHANGE IT! |                                    |
 | `LOWCODER_PROXY_SERVICE_URL`        | Lowcoder Proxy service URL                                              | `http://localhost:6070`                               |
-| `LOWCODER_HOCUSPOCUS_URL`           | Hocuspocus websocket URL injected by proxy-service into form bridges    | `ws://localhost:3006`                                 |
-| `LOWCODER_HOCUSPOCUS_SECRET`        | Hocuspocus shared secret, must match `REACT_APP_HOCUSPOCUS_SECRET` the frontend was built with | (empty - authentication disabled) |
+| `LOWCODER_HOCUSPOCUS_URL`           | Hocuspocus websocket URL injected by proxy-service into form bridges; a localhost URL is replaced by the host the browser used to reach the proxy | `ws://localhost:3006` |
+| `LOWCODER_HOCUSPOCUS_SECRET`        | Hocuspocus shared secret, must match the `REACT_APP_HOCUSPOCUS_SECRET` build argument (see above) | (empty - authentication disabled) |
 | `LOWCODER_AGORA_APP_ID`             | App ID of the Agora project used by the agora token service             |                                                       |
 | `LOWCODER_AGORA_APP_CERTIFICATE`    | App Certificate of the Agora project used by the agora token service    |                                                       |
 | `LOWCODER_AGORA_CORS_ALLOW_ORIGIN`  | Access-Control-Allow-Origin returned by the agora token service         | `*`                                                   |
@@ -199,6 +220,9 @@ From project root run:
 ```
 DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-frontend --target lowcoder-ce-frontend .
 ```
+
+The hocuspocus build arguments `REACT_APP_HOCUSPOCUS_URL` and `REACT_APP_HOCUSPOCUS_SECRET` described for the
+all-in-one image apply to this image too.
 
 ### Configuration
 

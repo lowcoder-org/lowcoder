@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { URL } from "node:url";
 import { getBearerToken, verifyProxyToken } from "./auth";
+import { HOCUSPOCUS_SECRET, resolveHocuspocusUrl } from "./hocuspocus";
 import {
   GOOGLE_FORMS_PROXY_PREFIX,
   buildGoogleFormsProxiedUrlFromRequest,
@@ -14,22 +15,6 @@ import {
 } from "./googleSession";
 
 const BRIDGE_PATH = "/proxy/google-forms-bridge.js";
-const HOCUSPOCUS_URL = (process.env.LOWCODER_HOCUSPOCUS_URL ?? "ws://localhost:3006").trim();
-
-function resolveHocuspocusUrl(req: Request): string {
-  if (!/localhost|127\.0\.0\.1/.test(HOCUSPOCUS_URL)) {
-    return HOCUSPOCUS_URL;
-  }
-  const forwardedHost = (req.get("x-forwarded-host") || req.get("host") || "localhost")
-    .split(",")[0]
-    .trim();
-  const hostname = forwardedHost.split(":")[0] || "localhost";
-  const port = new URL(HOCUSPOCUS_URL.replace(/^ws/, "http")).port || "3006";
-  return `ws://${hostname}:${port}`;
-}
-const HOCUSPOCUS_SECRET = (
-  process.env.LOWCODER_HOCUSPOCUS_SECRET ?? process.env.HOCUSPOCUS_SECRET ?? ""
-).trim();
 const RATE_LIMIT_PER_MINUTE = Number(process.env.LOWCODER_PROXY_RATE_LIMIT ?? 120);
 const ALLOWED_GOOGLE_FORMS_HOSTS = new Set(
   (process.env.LOWCODER_GOOGLE_FORMS_ALLOWED_HOSTS ?? "docs.google.com")

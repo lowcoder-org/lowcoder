@@ -190,6 +190,10 @@ ARG REACT_APP_COMMIT_ID=test
 ARG REACT_APP_ENV=production
 ARG REACT_APP_EDITION=community
 ARG REACT_APP_DISABLE_JS_SANDBOX=true
+# Hocuspocus websocket URL and shared secret baked into the client (empty = ws://localhost:3006, no auth).
+# The secret ends up in the public JS bundle - it must match LOWCODER_HOCUSPOCUS_SECRET of hocuspocus.
+ARG REACT_APP_HOCUSPOCUS_URL=
+ARG REACT_APP_HOCUSPOCUS_SECRET=
 RUN yarn build
 
 # Build lowcoder-comps
@@ -268,6 +272,10 @@ ARG REACT_APP_COMMIT_ID=test
 ARG REACT_APP_ENV=production
 ARG REACT_APP_EDITION=enterprise
 ARG REACT_APP_DISABLE_JS_SANDBOX=true
+# Hocuspocus websocket URL and shared secret baked into the client (empty = ws://localhost:3006, no auth).
+# The secret ends up in the public JS bundle - it must match LOWCODER_HOCUSPOCUS_SECRET of hocuspocus.
+ARG REACT_APP_HOCUSPOCUS_URL=
+ARG REACT_APP_HOCUSPOCUS_SECRET=
 RUN yarn build:ee
 
 # Build lowcoder-comps

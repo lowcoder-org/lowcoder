@@ -10,8 +10,19 @@
 ## Usage (from project root, after building the image):
 ##   deploy/docker/all-in-one/smoke-test.sh [image]
 ##
+## For an image built with the REACT_APP_HOCUSPOCUS_URL / REACT_APP_HOCUSPOCUS_SECRET
+## build arguments, pass the same values so the client bundle is checked for them:
+##   SMOKE_EXPECTED_HOCUSPOCUS_URL=<url> SMOKE_EXPECTED_HOCUSPOCUS_SECRET=<secret> \
+##     deploy/docker/all-in-one/smoke-test.sh [image]
+##
 ## Not covered: HTTPS frontend setup, external mongodb/redis, real Agora
-## credentials (dummy ones only prove that the env mapping reaches the service).
+## credentials (dummy ones only prove that the env mapping reaches the service),
+## hocuspocus rejecting a wrong token (needs a Yjs client; only the reported
+## auth state is checked). The client bundle checks grep the JS files for the
+## minified HocuspocusProvider arguments url:"…" and token:"…" (the form vite
+## emits today); they do not parse the bundle, so a value reaching the provider
+## in another shape (variable, other quoting) is not recognised: an expected
+## value then fails, an unexpected fallback or token passes unnoticed.
 ##
 
 set -uo pipefail
@@ -42,6 +53,17 @@ readonly URL_FRONTEND="http://localhost:3000"
 readonly MSG_API_UP="Lowcoder API is up and runnig"
 readonly MSG_NODE_UP="Lowcoder Node Service is up and running"
 readonly MSG_PROXY_UP="Lowcoder Proxy Service is up and running"
+
+# Built client served by the frontend
+readonly CLIENT_DIR="/lowcoder/client"
+# Fallback of the client when built without REACT_APP_HOCUSPOCUS_URL (hocuspocusClient.tsx)
+readonly DEFAULT_HOCUSPOCUS_CLIENT_URL="ws://localhost:3006"
+# Client JS files searched for the baked hocuspocus settings
+readonly CLIENT_JS_INCLUDE="--include=*.js"
+readonly EXPECTED_HOCUSPOCUS_URL="${SMOKE_EXPECTED_HOCUSPOCUS_URL:-$DEFAULT_HOCUSPOCUS_CLIENT_URL}"
+readonly EXPECTED_HOCUSPOCUS_SECRET="${SMOKE_EXPECTED_HOCUSPOCUS_SECRET:-}"
+# Used when no baked secret is expected: proves only the runtime env mapping
+readonly DUMMY_HOCUSPOCUS_SECRET="smoke-test-hocuspocus-secret"
 
 # 32 hex characters, the format of Agora App ID / App Certificate
 readonly DUMMY_AGORA_APP_ID="0123456789abcdef0123456789abcdef"
@@ -232,6 +254,22 @@ scenario_default() {
             -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" \
             "$URL_HOCUSPOCUS/smoke-test-room"
 
+    # hocuspocus connection settings baked into the client at build time
+    check "client JS has provider argument url:\"${EXPECTED_HOCUSPOCUS_URL}\"" "url:\"${EXPECTED_HOCUSPOCUS_URL}\"" "$c" \
+        grep -rhoF "$CLIENT_JS_INCLUDE" -- "url:\"${EXPECTED_HOCUSPOCUS_URL}\"" "$CLIENT_DIR"
+    if [ "$EXPECTED_HOCUSPOCUS_URL" != "$DEFAULT_HOCUSPOCUS_CLIENT_URL" ]; then
+        check_absent "client JS has no provider argument url:\"${DEFAULT_HOCUSPOCUS_CLIENT_URL}\"" \
+            "url:\"${DEFAULT_HOCUSPOCUS_CLIENT_URL}\"" "$c" \
+            grep -rhoF "$CLIENT_JS_INCLUDE" -- "url:\"${DEFAULT_HOCUSPOCUS_CLIENT_URL}\"" "$CLIENT_DIR"
+    fi
+    if [ -n "$EXPECTED_HOCUSPOCUS_SECRET" ]; then
+        check "client JS has provider argument token:\"…\" with the expected secret" "token:\"${EXPECTED_HOCUSPOCUS_SECRET}\"" "$c" \
+            grep -rhoF "$CLIENT_JS_INCLUDE" -- "token:\"${EXPECTED_HOCUSPOCUS_SECRET}\"" "$CLIENT_DIR"
+    else
+        check_absent "client JS has no baked token:\"…\" string" 'token:"' "$c" \
+            grep -rhoE "$CLIENT_JS_INCLUDE" -- 'token:"[^"]*"' "$CLIENT_DIR"
+    fi
+
     # agora token service, port and env mapping
     check "agora token service /ping answers pong" "pong" "$c" curl -sS "$URL_AGORA/ping"
     check "agora token service default CORS origin is *" "Access-Control-Allow-Origin: *" "$c" \
@@ -305,9 +343,33 @@ scenario_openshift() {
     check "proxy-service responds" "$MSG_PROXY_UP" "$c" curl -sS "$URL_PROXY_SERVICE/"
 }
 
+##
+## Scenario 4: hocuspocus with a shared secret, other services disabled
+##
+scenario_hocuspocus_secret() {
+    local secret="${EXPECTED_HOCUSPOCUS_SECRET:-$DUMMY_HOCUSPOCUS_SECRET}"
+    log "Scenario 4: hocuspocus with LOWCODER_HOCUSPOCUS_SECRET set"
+    local c
+    c=$(start_container hocuspocus-secret \
+        -e LOWCODER_HOCUSPOCUS_SECRET="$secret" \
+        -e LOWCODER_REDIS_ENABLED=false \
+        -e LOWCODER_MONGODB_ENABLED=false \
+        -e LOWCODER_API_SERVICE_ENABLED=false \
+        -e LOWCODER_NODE_SERVICE_ENABLED=false \
+        -e LOWCODER_PROXY_SERVICE_ENABLED=false \
+        -e LOWCODER_AGORA_TOKEN_SERVICE_ENABLED=false \
+        -e LOWCODER_FRONTEND_ENABLED=false) || { report "$STATUS_FAIL" "container starts"; return; }
+    CONTAINERS+=("$c")
+
+    wait_for "$c" '"status":"ok"' curl -sS "$URL_HOCUSPOCUS/health"
+    check "hocuspocus authentication enabled by LOWCODER_HOCUSPOCUS_SECRET" '"auth":"enabled"' "$c" \
+        curl -sS "$URL_HOCUSPOCUS/health"
+}
+
 scenario_default
 scenario_disabled
 scenario_openshift
+scenario_hocuspocus_secret
 
 echo
 log "Result: ${PASSED} passed, ${FAILED} failed"
