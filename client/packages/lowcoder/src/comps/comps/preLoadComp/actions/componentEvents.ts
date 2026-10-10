@@ -1,3 +1,4 @@
+import { reportActionError } from "../actionFeedback";
 /**
  * Event Names:
  * - click: Triggered when component is clicked
@@ -57,7 +58,7 @@ export const addEventHandlerAction: ActionConfig = {
     const componentInfo = getEditorComponentInfo(editorState, selectedEditorComponent as string);
       
     if (!componentInfo) {
-      message.error(`Component "${selectedEditorComponent}" not found`);
+      reportActionError(params, `Component "${selectedEditorComponent}" not found`);
       return;
     }
 
@@ -65,7 +66,7 @@ export const addEventHandlerAction: ActionConfig = {
     const targetComponent = allAppComponents.find(comp => comp.name === selectedEditorComponent);
 
     if (!targetComponent?.comp?.children?.onEvent) {
-      message.error(`Component "${selectedEditorComponent}" does not support event handlers`);
+      reportActionError(params, `Component "${selectedEditorComponent}" does not support event handlers`);
       return;
     }
 
@@ -73,7 +74,7 @@ export const addEventHandlerAction: ActionConfig = {
     const [eventName, actionType] = actionValue.split(':').map(s => s.trim());
     
     if (!eventName || !actionType) {
-      message.error('Please provide event name and action type in format: "eventName: actionType"');
+      reportActionError(params, 'Please provide event name and action type in format: "eventName: actionType"');
       return;
     }
     const eventConfigs = targetComponent.comp.children.onEvent.getEventNames?.() || [];
@@ -81,7 +82,7 @@ export const addEventHandlerAction: ActionConfig = {
     
     if (!availableEvents.includes(eventName)) {
       const availableEventsList = availableEvents.length > 0 ? availableEvents.join(', ') : 'none';
-      message.error(`Event "${eventName}" is not available for this component. Available events: ${availableEventsList}`);
+      reportActionError(params, `Event "${eventName}" is not available for this component. Available events: ${availableEventsList}`);
       return;
     }
     // ----- To be Removed after n8n integration ------ //
@@ -97,10 +98,10 @@ export const addEventHandlerAction: ActionConfig = {
 
     try {
       targetComponent.comp.children.onEvent.dispatch(pushAction(eventHandler));
-      message.success(`Event handler for "${eventName}" with action "${actionType}" added successfully!`);
+      if (!params.suppressSuccessNotifications) message.success(`Event handler for "${eventName}" with action "${actionType}" added successfully!`);
     } catch (error) {
       console.error('Error adding event handler:', error);
-      message.error('Failed to add event handler. Please try again.');
+      reportActionError(params, 'Failed to add event handler. Please try again.');
     }
   }
 };

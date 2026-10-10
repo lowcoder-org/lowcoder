@@ -1,3 +1,4 @@
+import { reportActionError } from "../actionFeedback";
 import { message } from "antd";
 import merge from "lodash/merge";
 import { ActionConfig, ActionExecuteParams } from "../types";
@@ -28,19 +29,19 @@ export const applyStyleAction: ActionConfig = {
     delete stylePatch.animationStyle;
 
     if (!componentName) {
-      message.error("No component name provided for set_style");
+      reportActionError(params, "No component name provided for set_style");
       return;
     }
 
     if (!editorState) {
-      message.error("Editor state is required");
+      reportActionError(params, "Editor state is required");
       return;
     }
 
     try {
       const comp = editorState.getUICompByName(componentName);
       if (!comp) {
-        message.error(`Component "${componentName}" not found`);
+        reportActionError(params, `Component "${componentName}" not found`);
         return;
       }
 
@@ -48,10 +49,10 @@ export const applyStyleAction: ActionConfig = {
       const config = merge({}, itemComp.toJsonValue(), stylePatch);
       itemComp.dispatchChangeValueAction(config);
 
-      message.success(`Styles updated on "${componentName}"`);
+      if (!params.suppressSuccessNotifications) message.success(`Styles updated on "${componentName}"`);
     } catch (error) {
       console.error("Error setting styles:", error);
-      message.error("Failed to set component styles");
+      reportActionError(params, "Failed to set component styles");
     }
   },
 };

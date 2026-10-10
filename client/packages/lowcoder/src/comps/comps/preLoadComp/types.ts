@@ -45,6 +45,10 @@ export interface ActionConfig {
 }
 
 export interface ActionExecuteParams {
+  /** Keep automated batches quiet while preserving error and warning messages. */
+  suppressSuccessNotifications?: boolean;
+  /** Report handled failures to the batch runner as well as the user. */
+  onError?: (error: string) => void;
   actionKey: string;
   actionValue: string;
   actionPayload?: any;

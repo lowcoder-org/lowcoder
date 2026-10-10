@@ -1,3 +1,4 @@
+import { reportActionError } from "../actionFeedback";
 import { message } from "antd";
 import { ActionConfig, ActionExecuteParams } from "../types";
 import ApplicationApi from "api/applicationApi";
@@ -48,7 +49,7 @@ export const configureAppMetaAction: ActionConfig = {
 
     } catch (error) {
       console.error('Error updating app settings:', error);
-      message.error('Failed to update app configuration');
+      reportActionError(params, 'Failed to update app configuration');
     }
   }
 }; 
@@ -65,7 +66,7 @@ export const publishAppAction: ActionConfig = {
 
     try {
       if (!applicationId) {
-        message.error('Application ID not found');
+        reportActionError(params, 'Application ID not found');
         return;
       }
 
@@ -77,15 +78,15 @@ export const publishAppAction: ActionConfig = {
       });
       
       if (response.data.success) {
-        message.success('Application published successfully');
+        if (!params.suppressSuccessNotifications) message.success('Application published successfully');
         window.open(`/applications/${applicationId}/view`, '_blank');
       } else {
-        message.error('Failed to publish application');
+        reportActionError(params, 'Failed to publish application');
       }
 
     } catch (error) {
       console.error('Error publishing application:', error);
-      message.error('Failed to publish application');
+      reportActionError(params, 'Failed to publish application');
     }
   }
 };
@@ -107,7 +108,7 @@ export const shareAppAction: ActionConfig = {
     const applicationId = applicationIdEditor.replace('app-', '');
 
     if (!applicationId) {
-      message.error('Application ID not found');
+      reportActionError(params, 'Application ID not found');
       return;
     }
 
@@ -118,14 +119,14 @@ export const shareAppAction: ActionConfig = {
   
       if (publicResponse.data.success) {
         reduxStore.dispatch(updateAppPermissionInfo({ publicToAll: appSharing.public }));
-        message.success('Application is now public!');
+        if (!params.suppressSuccessNotifications) message.success('Application is now public!');
         
         // Update Application Marketplace Sharing Status
         try {
           const marketplaceResponse = await ApplicationApi.publicToMarketplace(applicationId, appSharing.publishMarketplace);
           if (marketplaceResponse.data.success) {
             reduxStore.dispatch(updateAppPermissionInfo({ publicToMarketplace: appSharing.publishMarketplace }));
-            message.success(`Application ${appSharing.publishMarketplace ? 'published to' : 'unpublished from'} marketplace successfully!`);
+            if (!params.suppressSuccessNotifications) message.success(`Application ${appSharing.publishMarketplace ? 'published to' : 'unpublished from'} marketplace successfully!`);
           } 
         } catch (marketplaceError) {
           console.error(`Error ${appSharing.publishMarketplace ? 'publishing to' : 'unpublishing from'} marketplace:`, marketplaceError);
@@ -133,11 +134,11 @@ export const shareAppAction: ActionConfig = {
         }
 
       } else {
-        message.error('Failed to make application public');
+        reportActionError(params, 'Failed to make application public');
       }
     } catch (publicError) {
       console.error('Error making application public:', publicError);
-      message.error('Failed to make application public');
+      reportActionError(params, 'Failed to make application public');
     }
   }
 };
@@ -211,9 +212,9 @@ export const testAllDatasourcesAction: ActionConfig = {
       message.destroy();
       
       if (results.failed === 0) {
-        message.success(`All ${results.total} queries executed successfully!`);
+        if (!params.suppressSuccessNotifications) message.success(`All ${results.total} queries executed successfully!`);
       } else if (results.successful === 0) {
-        message.error(`All ${results.total} queries failed. Check console for details.`);
+        reportActionError(params, `All ${results.total} queries failed. Check console for details.`);
       } else {
         message.warning(
           `Query test completed: ${results.successful} successful, ${results.failed} failed`
@@ -237,7 +238,7 @@ export const testAllDatasourcesAction: ActionConfig = {
     } catch (error) {
       message.destroy();
       console.error('Error during application testing:', error);
-      message.error('Failed to test application. Check console for details.');
+      reportActionError(params, 'Failed to test application. Check console for details.');
     }
   }
 };
@@ -270,24 +271,24 @@ export const applyGlobalJSAction: ActionConfig = {
       
       const preloadComp = editorState.rootComp.children.preload;
       if (!preloadComp) {
-        message.error('Preload component not found');
+        reportActionError(params, 'Preload component not found');
         return;
       }
 
       const scriptComp = preloadComp.children.script;
       if (!scriptComp) {
-        message.error('Script component not found');
+        reportActionError(params, 'Script component not found');
         return;
       }
 
       scriptComp.dispatchChangeValueAction(jsCode);
       runScript(jsCode, false);
       
-      message.success('JavaScript applied successfully!');
+      if (!params.suppressSuccessNotifications) message.success('JavaScript applied successfully!');
       
     } catch (error) {
       console.error('Error applying global JavaScript:', error);
-      message.error('Failed to apply global JavaScript. Check console for details.');
+      reportActionError(params, 'Failed to apply global JavaScript. Check console for details.');
     }
   }
 };
@@ -324,13 +325,13 @@ export const applyCSSAction: ActionConfig = {
       
       const preloadComp = editorState.rootComp.children.preload;
       if (!preloadComp) {
-        message.error('Preload component not found');
+        reportActionError(params, 'Preload component not found');
         return;
       }
 
       const cssComp = preloadComp.children.css;
       if (!cssComp) {
-        message.error('CSS component not found');
+        reportActionError(params, 'CSS component not found');
         return;
       }
 
@@ -338,11 +339,11 @@ export const applyCSSAction: ActionConfig = {
       
       await cssComp.run('css', cssCode);
       
-      message.success('CSS applied successfully!');
+      if (!params.suppressSuccessNotifications) message.success('CSS applied successfully!');
       
     } catch (error) {
       console.error('Error applying CSS:', error);
-      message.error('Failed to apply CSS. Check console for details.');
+      reportActionError(params, 'Failed to apply CSS. Check console for details.');
     }
   }
 };
@@ -358,19 +359,19 @@ export const applyThemeAction: ActionConfig = {
 
     try {
       if (!selectedTheme) {
-        message.error('No theme selected');
+        reportActionError(params, 'No theme selected');
         return;
       }
 
       const appSettingsComp = editorState.getAppSettingsComp();
       if (!appSettingsComp) {
-        message.error('App settings component not found');
+        reportActionError(params, 'App settings component not found');
         return;
       }
 
       const themeIdComp = appSettingsComp.children.themeId;
       if (!themeIdComp) {
-        message.error('Theme ID component not found');
+        reportActionError(params, 'Theme ID component not found');
         return;
       }
 
@@ -379,11 +380,11 @@ export const applyThemeAction: ActionConfig = {
 
       themeIdComp.dispatchChangeValueAction(themeToApply);
       
-      message.success(`Theme applied successfully: ${selectedTheme}`);
+      if (!params.suppressSuccessNotifications) message.success(`Theme applied successfully: ${selectedTheme}`);
       
     } catch (error) {
       console.error('Error applying theme:', error);
-      message.error('Failed to apply theme. Check console for details.');
+      reportActionError(params, 'Failed to apply theme. Check console for details.');
     }
   }
 };
@@ -400,7 +401,7 @@ export const setCanvasSettingsAction: ActionConfig = {
     try {
       const appSettingsComp = editorState.getAppSettingsComp();
       if (!appSettingsComp) {
-        message.error('App settings component not found');
+        reportActionError(params, 'App settings component not found');
         return;
       }
 
@@ -467,11 +468,11 @@ export const setCanvasSettingsAction: ActionConfig = {
         gridBgImageOrigin.dispatchChangeValueAction(canvasSettings.gridBgImageOrigin);
       }
 
-      message.success('Canvas settings applied successfully!');
+      if (!params.suppressSuccessNotifications) message.success('Canvas settings applied successfully!');
       
     } catch (error) {
       console.error('Error applying canvas settings:', error);
-      message.error('Failed to apply canvas settings. Check console for details.');
+      reportActionError(params, 'Failed to apply canvas settings. Check console for details.');
     }
   }
 };
@@ -494,18 +495,18 @@ export const setCustomShortcutsAction: ActionConfig = {
     const { editorState, actionValue, selectedCustomShortcutAction } = params;
     try {
       if (!selectedCustomShortcutAction) {
-        message.error('No custom shortcut action selected');
+        reportActionError(params, 'No custom shortcut action selected');
         return;
       }
 
       const appSettingsComp = editorState.getAppSettingsComp();
       if (!appSettingsComp) {
-        message.error('App settings component not found');
+        reportActionError(params, 'App settings component not found');
         return;
       }
       const customShortcutsComp = appSettingsComp.children.customShortcuts;
       if (!customShortcutsComp) {
-        message.error('Custom shortcuts component not found');
+        reportActionError(params, 'Custom shortcuts component not found');
         return;
       }
       
@@ -519,10 +520,10 @@ export const setCustomShortcutsAction: ActionConfig = {
       
       customShortcutsComp.dispatch(customShortcutsComp.pushAction(newShortcutItem));
       const readableShortcutText = readableShortcut(actionValue.trim());
-      message.success(`Custom shortcut added successfully: ${readableShortcutText} -> ${selectedCustomShortcutAction}`);
+      if (!params.suppressSuccessNotifications) message.success(`Custom shortcut added successfully: ${readableShortcutText} -> ${selectedCustomShortcutAction}`);
     } catch (error) {
       console.error('Error setting custom shortcut:', error);
-      message.error('Failed to set custom shortcut. Check console for details.');
+      reportActionError(params, 'Failed to set custom shortcut. Check console for details.');
     }
   }
 };

@@ -1,3 +1,4 @@
+import { reportActionError } from "../actionFeedback";
 import { message } from "antd";
 import merge from "lodash/merge";
 import { ActionConfig, ActionExecuteParams } from "../types";
@@ -25,19 +26,19 @@ export const configureComponentAction: ActionConfig = {
     const compProperties = actionPayload?.action_parameters;
 
     if (!componentName) {
-      message.error("No component name provided for set_properties");
+      reportActionError(params, "No component name provided for set_properties");
       return;
     }
 
     if (!compProperties || typeof compProperties !== "object") {
-      message.error("No properties provided for set_properties");
+      reportActionError(params, "No properties provided for set_properties");
       return;
     }
 
     try {
       const comp = editorState.getUICompByName(componentName);
       if (!comp) {
-        message.error(`Component "${componentName}" not found`);
+        reportActionError(params, `Component "${componentName}" not found`);
         return;
       }
 
@@ -45,10 +46,10 @@ export const configureComponentAction: ActionConfig = {
       const config = merge({}, itemComp.toJsonValue(), compProperties);
       itemComp.dispatchChangeValueAction(config);
 
-      message.success(`Properties updated on "${componentName}"`);
+      if (!params.suppressSuccessNotifications) message.success(`Properties updated on "${componentName}"`);
     } catch (error) {
       console.error("Error setting properties:", error);
-      message.error("Failed to set component properties");
+      reportActionError(params, "Failed to set component properties");
     }
   }
 };

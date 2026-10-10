@@ -1,4 +1,4 @@
-import { message } from "antd";
+import { reportActionError } from "../actionFeedback";
 import { ActionConfig, ActionExecuteParams } from "../types";
 
 function getQueryName(params: ActionExecuteParams): string {
@@ -25,12 +25,12 @@ export const deleteQueryAction: ActionConfig = {
     const queryName = getQueryName(params);
 
     if (!editorState) {
-      message.error("Editor state is required");
+      reportActionError(params, "Editor state is required");
       return;
     }
 
     if (!queryName) {
-      message.error("Query name is required");
+      reportActionError(params, "Query name is required");
       return;
     }
 
@@ -40,7 +40,7 @@ export const deleteQueryAction: ActionConfig = {
       ?.some((query: any) => query?.children?.name?.getView?.() === queryName);
 
     if (!queryExists) {
-      message.error(`Query "${queryName}" not found`);
+      reportActionError(params, `Query "${queryName}" not found`);
       return;
     }
 

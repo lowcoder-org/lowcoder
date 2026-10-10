@@ -1,3 +1,8 @@
+import { AutomatorBuildCard } from "components/automator/AutomatorBuildCard";
+import { AutomatorLanguageGuide } from "components/automator/AutomatorLanguageGuide";
+import { applyAutomatorRecipe, AutomatorBuildState } from "components/automator/buildState";
+import { readAutomatorBuildResult, withAutomatorBuildResult } from "components/automator/buildMessage";
+import { preview } from "constants/routesURL";
 import { assertAiRobotAccess } from "util/assertAiRobotAccess";
 // client/packages/lowcoder/src/comps/comps/chatComp/components/ChatPanelContainer.tsx
 
@@ -12,7 +17,10 @@ import type {
   ExternalStoreThreadListAdapter,
 } from "@assistant-ui/react";
 import { Thread } from "components/assistant-ui/thread";
-import { ThreadList } from "components/assistant-ui/thread-list";
+import { AutomatorHistory } from "components/automator/AutomatorHistory";
+import { AutomatorStart } from "components/automator/AutomatorStart";
+import { AutomatorStudio } from "components/automator/AutomatorStudio.styles";
+import { Sparkles } from "lucide-react";
 import { 
   ChatProvider,
   useChatContext, 
@@ -20,7 +28,6 @@ import {
   NEW_THREAD_ID,
 } from "./context/ChatContext";
 import { AIAssistantMessageHandler, ChatMessage } from "../types/chatTypes";
-import styled from "styled-components";
 import { trans } from "i18n";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import {
@@ -105,6 +112,7 @@ function buildExecuteParams(
 
   return {
     actionKey: actionItem.action,
+    suppressSuccessNotifications: true,
     actionValue,
     actionPayload: actionItem,
     selectedComponent: actionItem.component || null,
@@ -121,52 +129,6 @@ function buildExecuteParams(
 // STYLED CONTAINER - SIMPLE FIXED STYLING FOR BOTTOM PANEL
 // ============================================================================
 
-const StyledChatContainer = styled.div<{
-  autoHeight?: boolean;
-  sidebarWidth?: string;
-}>`
-  display: flex;
-  height: ${(props) => (props.autoHeight ? "auto" : "100%")};
-  min-height: ${(props) => (props.autoHeight ? "300px" : "unset")};
-  min-width: 0;
-  overflow: hidden;
-
-  p {
-    margin: 0;
-  }
-
-  .aui-thread-list-root {
-    width: ${(props) => props.sidebarWidth || "250px"};
-    background-color: #fff;
-    padding: 10px;
-    min-height: 0;
-    overflow-y: auto;
-  }
-
-  .aui-thread-root {
-    flex: 1 1 auto;
-    min-width: 0;
-    min-height: 0;
-    background-color: #f9fafb;
-    height: 100%;
-    overflow: hidden;
-  }
-
-  .aui-thread-viewport {
-    min-height: 0;
-  }
-
-  .aui-thread-list-item {
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-
-    &[data-active="true"] {
-      background-color: #dbeafe;
-      border: 1px solid #bfdbfe;
-    }
-  }
-`;
-
 // ============================================================================
 // CHAT PANEL CONTAINER - DIRECT RENDERING
 // ============================================================================
@@ -181,6 +143,8 @@ export interface ChatPanelContainerProps {
 function ChatPanelView({ messageHandler, placeholder, onMessageUpdate }: Omit<ChatPanelContainerProps, 'storage'>) {
   const { state, actions } = useChatContext();
   const [isRunning, setIsRunning] = useState(false);
+  const [run, setRun] = useState<{ threadId: string; build: AutomatorBuildState }>();
+  const [recipeOpen, setRecipeOpen] = useState(false);
   const editorState = useContext(EditorContext);
   const editorStateRef = useRef(editorState);
   const mounted = useRef(true);
@@ -197,35 +161,47 @@ function ChatPanelView({ messageHandler, placeholder, onMessageUpdate }: Omit<Ch
     editorStateRef.current = editorState;
   }, [editorState]);
 
-  const performAction = async (actions: any[]) => {
+  const applicationId = editorState?.rootComp.preloadId.replace(/^app-/, "") || "";
+  const storedBuild = readAutomatorBuildResult(currentMessages[currentMessages.length - 1], applicationId);
+  // Completed reports render with their own message; only the current live run sits below the conversation.
+  const visibleBuild = run?.threadId === state.currentThreadId && run.build.startedAt !== storedBuild?.startedAt ? run.build : undefined;
+
+  const requestBuild = async (userMessage: ChatMessage, threadId: string, history: ChatMessage[]) => {
     const workspaceId = assertAiRobotAccess();
-    if (!mounted.current || !editorStateRef.current) {
-      console.error("[Automator] no editorState — skipping actions");
-      return;
-    }
-
-    console.log(`[Automator] executing ${actions.length} action(s)`);
-    let executed = 0;
-
-    for (const actionItem of actions) {
-      if (!mounted.current) return;
-      assertAiRobotAccess(workspaceId);
-      const executor = ACTION_REGISTRY[actionItem.action];
-      if (!executor) {
-        console.warn(`[Automator] unsupported action: ${actionItem.action}`);
-        continue;
+    let build: AutomatorBuildState = { phase: "planning", startedAt: Date.now(), recipe: [], steps: [] };
+    const updateBuild = (changes: Partial<AutomatorBuildState>) => {
+      build = { ...build, ...changes };
+      if (mounted.current) setRun({ threadId, build });
+    };
+    updateBuild({});
+    let assistantMessage: ChatMessage | undefined;
+    try {
+      assistantMessage = await messageHandler.sendMessage(userMessage, threadId, history);
+      onMessageUpdate?.(getTextFromThreadContent(userMessage.content));
+      const recipe = getAutomatorActionsFromMessage(assistantMessage);
+      if (!recipe.length) {
+        if (mounted.current) setRun(undefined);
+        return assistantMessage;
       }
-      try {
-        const params = buildExecuteParams(actionItem, editorStateRef.current);
-        await executor.execute(params);
-        executed++;
-      } catch (err) {
-        console.error(`[Automator] action "${actionItem.action}" failed:`, err);
-      }
-      await new Promise((r) => setTimeout(r, 500));
+      updateBuild({ phase: "applying", recipe });
+      const steps = await applyAutomatorRecipe(recipe, async (actionItem, onError) => {
+        const executor = ACTION_REGISTRY[actionItem.action];
+        if (!executor) throw new Error(trans("automator.build.unsupported", { action: String(actionItem.action) }));
+        await executor.execute({ ...buildExecuteParams(actionItem, editorStateRef.current), onError });
+      }, () => {
+        if (!mounted.current || !editorStateRef.current) throw new Error(trans("automator.build.interrupted"));
+        assertAiRobotAccess(workspaceId);
+      }, (steps, current) => updateBuild({ steps, current }));
+      const succeeded = steps.filter(step => step.status === "done").length;
+      updateBuild({ phase: succeeded === steps.length ? "complete" : succeeded ? "partial" : "failed", finishedAt: Date.now() });
+      return withAutomatorBuildResult(assistantMessage, build, applicationId);
+    } catch (error) {
+      updateBuild({ phase: "failed", current: undefined, finishedAt: Date.now() });
+      const failure = createAssistantErrorMessage(trans("chat.errorUnknown"), error);
+      return assistantMessage && build.recipe.length
+        ? withAutomatorBuildResult({ ...failure, content: [...assistantMessage.content, ...failure.content] }, build, applicationId)
+        : failure;
     }
-
-    console.log(`[Automator] done: ${executed}/${actions.length} succeeded`);
   };
 
   const convertMessage = (message: ChatMessage): ThreadMessageLike => message;
@@ -262,17 +238,7 @@ function ChatPanelView({ messageHandler, placeholder, onMessageUpdate }: Omit<Ch
     setIsRunning(true);
   
     try {
-      const assistantMessage = await messageHandler.sendMessage(
-        userMessage,
-        threadId,
-        conversationHistory
-      );
-      onMessageUpdate?.(getTextFromThreadContent(userMessage.content));
-
-      const automatorActions = getAutomatorActionsFromMessage(assistantMessage);
-      if (automatorActions.length) {
-        await performAction(automatorActions);
-      }
+      const assistantMessage = await requestBuild(userMessage, threadId, conversationHistory);
 
       await actions.addMessage(
         threadId,
@@ -281,7 +247,7 @@ function ChatPanelView({ messageHandler, placeholder, onMessageUpdate }: Omit<Ch
     } catch (error) {
       await actions.addMessage(
         threadId,
-        createAssistantErrorMessage(trans("chat.errorUnknown"))
+        createAssistantErrorMessage(trans("chat.errorUnknown"), error)
       );
     } finally {
       setIsRunning(false);
@@ -305,22 +271,12 @@ function ChatPanelView({ messageHandler, placeholder, onMessageUpdate }: Omit<Ch
     setIsRunning(true);
   
     try {
-      const assistantMessage = await messageHandler.sendMessage(
-        newMessages[newMessages.length - 1],
-        state.currentThreadId,
-        newMessages
-      );
-      onMessageUpdate?.(text);
-
-      const automatorActions = getAutomatorActionsFromMessage(assistantMessage);
-      if (automatorActions.length) {
-        await performAction(automatorActions);
-      }
+      const assistantMessage = await requestBuild(newMessages[newMessages.length - 1], state.currentThreadId, newMessages);
 
       newMessages.push(assistantMessage);
       await actions.updateMessages(state.currentThreadId, newMessages);
     } catch (error) {
-      newMessages.push(createAssistantErrorMessage(trans("chat.errorUnknown")));
+      newMessages.push(createAssistantErrorMessage(trans("chat.errorUnknown"), error));
       await actions.updateMessages(state.currentThreadId, newMessages);
     } finally {
       setIsRunning(false);
@@ -373,14 +329,21 @@ function ChatPanelView({ messageHandler, placeholder, onMessageUpdate }: Omit<Ch
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
-      <StyledChatContainer>
-        <ThreadList />
+      <AutomatorStudio>
+        <AutomatorHistory />
         <Thread
-          placeholder={placeholder}
+          placeholder={placeholder || trans("automator.studio.placeholder")}
+          presentation="automator"
+          welcome={<AutomatorStart />}
+          composerFooter={<div className="automator-composer-note"><Sparkles size={10} />{trans("automator.studio.composerNote")}</div>}
           showAttachments={false}
           suggestionMode="automator"
+          showLoadingIndicator={false}
+          activity={visibleBuild && <AutomatorBuildCard build={visibleBuild}
+            onPreview={() => preview(applicationId)} onRecipe={() => setRecipeOpen(true)} />}
         />
-      </StyledChatContainer>
+      </AutomatorStudio>
+      {recipeOpen && visibleBuild && <AutomatorLanguageGuide recipe={visibleBuild.recipe} onClose={() => setRecipeOpen(false)} />}
     </AssistantRuntimeProvider>
   );
 }
@@ -395,7 +358,7 @@ export function ChatPanelContainer({ storage, messageHandler, placeholder, onMes
       <ChatProvider storage={storage}>
         <ChatPanelView 
           messageHandler={messageHandler}
-          placeholder={placeholder}
+          placeholder={placeholder || trans("automator.studio.placeholder")}
           onMessageUpdate={onMessageUpdate}
         />
       </ChatProvider>

@@ -127,12 +127,16 @@ export const createUserMessage = (
   };
 };
 
-export const createAssistantErrorMessage = (text: string): ChatMessage => ({
-  id: generateMessageId(),
-  role: "assistant",
-  content: [{ type: "text", text }],
-  createdAt: new Date(),
-});
+export const createAssistantErrorMessage = (text: string, error?: unknown): ChatMessage => {
+  const detail = typeof error === "string" ? error : (error as { message?: unknown } | null)?.message;
+  return {
+    id: generateMessageId(),
+    role: "assistant",
+    content: [{ type: "text", text: typeof detail === "string" && detail.trim()
+      ? `${text}\n\n${detail.slice(0, 2000)}` : text }],
+    createdAt: new Date(),
+  };
+};
 
 export const toChatMessage = (message: ThreadMessageLike): ChatMessage => {
   if (message.role === "system") {

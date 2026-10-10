@@ -25,6 +25,9 @@ jest.mock('lowcoder-design', () => ({ AIGenerate: () => null, DocLink: () => nul
 jest.mock('@lowcoder-ee/comps/comps/chatComp/components/ChatPanel', () => ({ ChatPanel: () => <div>Chat</div> }));
 jest.mock('comps/editorState', () => ({ EditorContext: require('react').createContext({ queryCompInfoList: () => [] }) }));
 jest.mock('i18n', () => ({ trans: (key: string) => key }));
+jest.mock('components/automator/AutomatorTheme', () => ({ AutomatorTheme: ({ children }: any) => children, automatorColor: { accent: () => '#1677ff' } }));
+jest.mock('components/automator/AutomatorHeader', () => ({ AutomatorHeader: () => null }));
+jest.mock('components/automator/AutomatorLanguageGuide', () => ({ AutomatorLanguageGuide: () => null }));
 jest.mock('components/automator/AutomatorWelcome', () => ({ AutomatorWelcome: ({ onSetup }: any) => <button onClick={onSetup}>Open setup</button> }));
 jest.mock('components/automator/GuidedModelSetup', () => ({ AutomatorSetup: ({ onClose, accessStatus }: any) => <div>
   <input aria-label="Setup model" defaultValue="" />

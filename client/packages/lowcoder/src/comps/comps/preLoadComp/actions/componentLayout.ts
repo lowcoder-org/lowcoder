@@ -1,3 +1,4 @@
+import { reportActionError } from "../actionFeedback";
 import { message } from "antd";
 import { ActionConfig, ActionExecuteParams } from "../types";
 import { getEditorComponentInfo } from "../utils";
@@ -22,38 +23,38 @@ export const alignComponentAction: ActionConfig = {
     const { actionValue, editorState, selectedEditorComponent } = params;
     
     if (!selectedEditorComponent || !editorState) {
-      message.error('Component and editor state are required');
+      reportActionError(params, 'Component and editor state are required');
       return;
     }
 
     const alignment = actionValue.toLowerCase().trim();
     if (!['left', 'center', 'right'].includes(alignment)) {
-      message.error('Invalid alignment. Must be: left, center, or right');
+      reportActionError(params, 'Invalid alignment. Must be: left, center, or right');
       return;
     }
 
     try {
       const componentInfo = getEditorComponentInfo(editorState, selectedEditorComponent);
       if(!componentInfo) {
-        message.error(`Component "${selectedEditorComponent}" not found`);
+        reportActionError(params, `Component "${selectedEditorComponent}" not found`);
         return;
       }
 
       const { componentKey, currentLayout, simpleContainer, items } = componentInfo;
       if(!componentKey) {
-        message.error(`Component "${selectedEditorComponent}" not found`);
+        reportActionError(params, `Component "${selectedEditorComponent}" not found`);
         return;
       }
 
       const layout = currentLayout[componentKey];
       if(!layout) {
-        message.error(`Component "${selectedEditorComponent}" not found`);
+        reportActionError(params, `Component "${selectedEditorComponent}" not found`);
         return;
       }
 
       const appSettingsComp = editorState.getAppSettingsComp();
       if (!appSettingsComp) {
-        message.error('App settings component not found');
+        reportActionError(params, 'App settings component not found');
         return;
       }
 
@@ -134,11 +135,11 @@ export const alignComponentAction: ActionConfig = {
 
       editorState.setSelectedCompNames(new Set([selectedEditorComponent]), "alignComp");
       
-      message.success(`Component "${selectedEditorComponent}" aligned to ${alignment}`);
+      if (!params.suppressSuccessNotifications) message.success(`Component "${selectedEditorComponent}" aligned to ${alignment}`);
       
     } catch (error) {
       console.error('Error aligning component:', error);
-      message.error('Failed to align component. Please try again.');
+      reportActionError(params, 'Failed to align component. Please try again.');
     }
   }
 }; 
@@ -153,7 +154,7 @@ export const updateDynamicLayoutAction: ActionConfig = {
     const { selectedDynamicLayoutIndex, selectedEditorComponent, editorState } = params;
 
     if (!selectedEditorComponent || !editorState || !selectedDynamicLayoutIndex) {
-      message.error('Component, editor state, and layout index are required');
+      reportActionError(params, 'Component, editor state, and layout index are required');
       return;
     }
 
@@ -161,14 +162,14 @@ export const updateDynamicLayoutAction: ActionConfig = {
       const componentInfo = getEditorComponentInfo(editorState, selectedEditorComponent);
 
       if (!componentInfo) {
-        message.error(`Component "${selectedEditorComponent}" not found`);
+        reportActionError(params, `Component "${selectedEditorComponent}" not found`);
         return;
       }
 
       const { componentKey, currentLayout, simpleContainer, items } = componentInfo;
 
       if (!componentKey || !currentLayout[componentKey]) {
-        message.error(`Component "${selectedEditorComponent}" not found in layout`);
+        reportActionError(params, `Component "${selectedEditorComponent}" not found in layout`);
         return;
       }
 
@@ -176,7 +177,7 @@ export const updateDynamicLayoutAction: ActionConfig = {
       const newPos = parseInt(selectedDynamicLayoutIndex);
 
       if (isNaN(newPos)) {
-        message.error('Invalid layout index provided');
+        reportActionError(params, 'Invalid layout index provided');
         return;
       }
 
@@ -231,11 +232,11 @@ export const updateDynamicLayoutAction: ActionConfig = {
 
       editorState.setSelectedCompNames(new Set([selectedEditorComponent]), "layoutComp");
 
-      message.success(`Component "${selectedEditorComponent}" moved to position ${newPos}`);
+      if (!params.suppressSuccessNotifications) message.success(`Component "${selectedEditorComponent}" moved to position ${newPos}`);
       
     } catch (error) {
       console.error('Error updating dynamic layout:', error);
-      message.error('Failed to update dynamic layout. Please try again.');
+      reportActionError(params, 'Failed to update dynamic layout. Please try again.');
     }
   }
 }; 

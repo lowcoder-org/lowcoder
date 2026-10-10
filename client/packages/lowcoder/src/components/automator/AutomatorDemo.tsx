@@ -1,3 +1,4 @@
+import { AutomatorTheme, automatorColor } from "./AutomatorTheme";
 import { trans } from "i18n";
 import { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
@@ -7,26 +8,26 @@ const reveal = keyframes`
   to { opacity: 1; transform: translateY(0); }
 `;
 const Demo = styled.div<{ $compact: boolean }>`
-  border: 1px solid #ded9ef; border-radius: 16px; overflow: hidden;
-  background: #fff; box-shadow: 0 16px 42px #38305b0b; color: #25243b;
+  border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden;
+  background: #fff; box-shadow: 0 16px 42px #0000000b; color: #262626;
   width: 100%; min-width: 0;
   .demo-bar { display: flex; justify-content: space-between; gap: 12px; padding: 12px 16px;
-    background: #faf9fd; border-bottom: 1px solid #eeeaf5; font-size: 11px; color: #777086; }
+    background: #fafafa; border-bottom: 1px solid #e8e8e8; font-size: 11px; color: #6b6b6b; }
   .demo-stage { padding: ${p => p.$compact ? '16px' : '24px'}; min-height: ${p => p.$compact ? '160px' : '230px'}; }
-  .demo-prompt { padding: 10px 14px; border-radius: 12px 12px 3px 12px; background: #eee9fb;
+  .demo-prompt { padding: 10px 14px; border-radius: 12px 12px 3px 12px; background: ${automatorColor.accentBg};
     margin: 0 0 18px auto; max-width: 340px; font-size: 13px; }
-  .demo-app { border: 1px solid #e8e5ef; border-radius: 9px; padding: 14px; animation: ${reveal} .5s ease both; }
+  .demo-app { border: 1px solid #e5e5e5; border-radius: 9px; padding: 14px; animation: ${reveal} .5s ease both; }
   .demo-app h4 { margin: 0 0 12px; font-size: 15px; }
   .demo-form { display: flex; gap: 8px; font-size: 11px; margin-bottom: 12px; }
-  .demo-input { border: 1px solid #ddd; border-radius: 5px; padding: 6px 9px; flex: 1; color: #847f90; }
-  .demo-add { border-radius: 5px; background: #7860ba; padding: 6px 12px; color: white; }
+  .demo-input { border: 1px solid #ddd; border-radius: 5px; padding: 6px 9px; flex: 1; color: #757575; }
+  .demo-add { border-radius: 5px; background: ${automatorColor.accent}; padding: 6px 12px; color: white; }
   .demo-row { display: flex; justify-content: space-between; gap: 10px; font-size: 11px; padding: 8px 0; border-top: 1px solid #eee; }
   .demo-status { color: #46755e; }
-  .demo-placeholder { height: 113px; border: 1px dashed #d8d2e6; border-radius: 9px; display: grid; place-items: center; color: #91879f; font-size: 13px; }
-  .demo-footer { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; padding: 10px 14px; border-top: 1px solid #eeeaf5; }
-  button { cursor: pointer; border: 0; border-radius: 6px; background: transparent; color: #777086; padding: 6px 8px; font: inherit; font-size: 11px; }
-  button[aria-current="step"] { background: #eee9fb; color: #59418f; }
-  button:focus-visible { outline: 2px solid #7860ba; outline-offset: 2px; }
+  .demo-placeholder { height: 113px; border: 1px dashed #d9d9d9; border-radius: 9px; display: grid; place-items: center; color: #757575; font-size: 13px; }
+  .demo-footer { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; padding: 10px 14px; border-top: 1px solid #e8e8e8; }
+  button { cursor: pointer; border: 0; border-radius: 6px; background: transparent; color: #6b6b6b; padding: 6px 8px; font: inherit; font-size: 11px; }
+  button[aria-current="step"] { background: ${automatorColor.accentBg}; color: ${automatorColor.accent}; }
+  button:focus-visible { outline: 2px solid ${automatorColor.accent}; outline-offset: 2px; }
   .demo-play { margin-left: auto; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 `;
@@ -50,7 +51,7 @@ export function AutomatorDemo({ compact = false }: { compact?: boolean }) {
     }, 2800);
     return () => window.clearTimeout(timer);
   }, [step, playing]);
-  return <Demo $compact={compact} aria-label={trans("automator.demo.label")}>
+  return <AutomatorTheme><Demo $compact={compact} aria-label={trans("automator.demo.label")}>
     <div className="demo-bar"><strong>LOWCODER AUTOMATOR</strong><span>{trans("automator.demo.illustrative")}</span></div>
     <div className="demo-stage">
       <p className="demo-prompt">{step === 2 ? trans("automator.demo.refinePrompt") : trans("automator.demo.buildPrompt")}</p>
@@ -67,5 +68,5 @@ export function AutomatorDemo({ compact = false }: { compact?: boolean }) {
         onClick={() => { setPlaying(false); setStep(index); }}>{index + 1}. {label}</button>)}
       <button className="demo-play" onClick={() => { if (playing) setPlaying(false); else { setStep(0); setPlaying(true); } }}>{playing ? trans("automator.demo.pause") : trans("automator.demo.replay")}</button>
     </div>
-  </Demo>;
+  </Demo></AutomatorTheme>;
 }

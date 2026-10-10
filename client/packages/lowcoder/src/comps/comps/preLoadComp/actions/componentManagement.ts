@@ -1,3 +1,4 @@
+import { reportActionError } from "../actionFeedback";
 import { message } from "antd";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { parseCompType } from "comps/utils/remote";
@@ -27,7 +28,7 @@ export const addComponentAction: ActionConfig = {
     const { component_name: name, layout, action_parameters } = actionPayload;
 
     if (!selectedComponent || !editorState) {
-      message.error('Component and editor state are required');
+      reportActionError(params, 'Component and editor state are required');
       return;
     }
 
@@ -51,13 +52,13 @@ export const addComponentAction: ActionConfig = {
       const container = uiComp.getComp();
       
       if (!container) {
-        message.error('No container available to add component');
+        reportActionError(params, 'No container available to add component');
         return;
       }
 
       const simpleContainer = container.realSimpleContainer();
       if (!simpleContainer) {
-        message.error('No grid container available');
+        reportActionError(params, 'No grid container available');
         return;
       }
 
@@ -137,10 +138,10 @@ export const addComponentAction: ActionConfig = {
 
       editorState.setSelectedCompNames(new Set([compName]), "addComp");
       
-      message.success(`Component "${manifest?.name || selectedComponent}" added successfully!`);
+      if (!params.suppressSuccessNotifications) message.success(`Component "${manifest?.name || selectedComponent}" added successfully!`);
     } catch (error) {
       console.error('Error adding component:', error);
-      message.error('Failed to add component. Please try again.');
+      reportActionError(params, 'Failed to add component. Please try again.');
     }
   }
 };
@@ -160,7 +161,7 @@ export const nestComponentAction: ActionConfig = {
     // const { name, layout, target: selectedEditorComponent, ...otherProps } = actionPayload;
     
     if (!selectedEditorComponent || !selectedNestComponent || !editorState) {
-      message.error('Parent component, child component, and editor state are required');
+      reportActionError(params, 'Parent component, child component, and editor state are required');
       return;
     }
 
@@ -168,20 +169,20 @@ export const nestComponentAction: ActionConfig = {
     const parentItem = editorState.getUICompByName(editorComponent); //getEditorComponentInfo(editorState, editorComponent);
     
     // if (!parentComponentInfo) {
-    //   message.error(`Parent component "${selectedEditorComponent}" not found`);
+    //   reportActionError(params, `Parent component "${selectedEditorComponent}" not found`);
     //   return;
     // }
 
     // const { componentKey: parentKey, items } = parentComponentInfo;
     
     // if (!parentKey) {
-    //   message.error(`Parent component "${selectedEditorComponent}" not found in layout`);
+    //   reportActionError(params, `Parent component "${selectedEditorComponent}" not found in layout`);
     //   return;
     // }
 
     // const parentItem = items[parentKey];
     if (!parentItem) {
-      message.error(`Parent component "${selectedEditorComponent}" not found in items`);
+      reportActionError(params, `Parent component "${selectedEditorComponent}" not found in items`);
       return;
     }
 
@@ -190,7 +191,7 @@ export const nestComponentAction: ActionConfig = {
     const parentManifest = uiCompRegistry[parentCompType];
     
     if (!parentManifest?.isContainer) {
-      message.error(`Component "${selectedEditorComponent}" is not a container and cannot nest components`);
+      reportActionError(params, `Component "${selectedEditorComponent}" is not a container and cannot nest components`);
       return;
     }
 
@@ -246,13 +247,13 @@ export const nestComponentAction: ActionConfig = {
       }
 
       if (!originalContainer) {
-        message.error(`Container "${selectedEditorComponent}" cannot accept nested components`);
+        reportActionError(params, `Container "${selectedEditorComponent}" cannot accept nested components`);
         return;
       }
 
       const realContainer = originalContainer.realSimpleContainer();
       if (!realContainer) {
-        message.error(`Container "${selectedEditorComponent}" cannot accept nested components`);
+        reportActionError(params, `Container "${selectedEditorComponent}" cannot accept nested components`);
         return;
       }
       
@@ -290,10 +291,10 @@ export const nestComponentAction: ActionConfig = {
 
       editorState.setSelectedCompNames(new Set([compName]), "nestComp");
       
-      message.success(`Component "${manifest?.name || selectedNestComponent}" nested in "${selectedEditorComponent}" successfully!`);
+      if (!params.suppressSuccessNotifications) message.success(`Component "${manifest?.name || selectedNestComponent}" nested in "${selectedEditorComponent}" successfully!`);
     } catch (error) {
       console.error('Error nesting component:', error);
-      message.error('Failed to nest component. Please try again.');
+      reportActionError(params, 'Failed to nest component. Please try again.');
     }
   }
 }
@@ -308,7 +309,7 @@ export const deleteComponentAction: ActionConfig = {
     const { actionPayload: { component_name: selectedEditorComponent }, editorState } = params; 
     
     if (!selectedEditorComponent || !editorState) {
-      message.error('Component and editor state are required');
+      reportActionError(params, 'Component and editor state are required');
       return;
     }
 
@@ -316,7 +317,7 @@ export const deleteComponentAction: ActionConfig = {
       const componentInfo = getEditorComponentInfo(editorState, selectedEditorComponent);
       
       if (!componentInfo) {
-        message.error(`Component "${selectedEditorComponent}" not found`);
+        reportActionError(params, `Component "${selectedEditorComponent}" not found`);
         return;
       }
 
@@ -348,13 +349,13 @@ export const deleteComponentAction: ActionConfig = {
 
       editorState.setSelectedCompNames(new Set(), "deleteComp");
       
-      message.success(`Component "${selectedEditorComponent}" deleted successfully`);
+      if (!params.suppressSuccessNotifications) message.success(`Component "${selectedEditorComponent}" deleted successfully`);
       } else {
-        message.error(`Component "${selectedEditorComponent}" not found in any container`);
+        reportActionError(params, `Component "${selectedEditorComponent}" not found in any container`);
       }
     } catch (error) {
       console.error('Error deleting component:', error);
-      message.error('Failed to delete component. Please try again.');
+      reportActionError(params, 'Failed to delete component. Please try again.');
     }
   }
 };
@@ -391,7 +392,7 @@ export const moveComponentAction: ActionConfig = {
     const { layout: updatedLayout, component_name: selectedEditorComponent } = actionPayload;
 
     if (!selectedEditorComponent || !editorState) {
-      message.error('Component and editor state are required');
+      reportActionError(params, 'Component and editor state are required');
       return;
     }
 
@@ -407,14 +408,14 @@ export const moveComponentAction: ActionConfig = {
       // }
 
       if (!updatedLayout) {
-        message.error('No valid layout paramters provided');
+        reportActionError(params, 'No valid layout paramters provided');
         return;
       }
 
       const targetInfo = findTargetComponent(editorState, selectedEditorComponent);
 
       if (!targetInfo) {
-        message.error(`Component "${selectedEditorComponent}" not found in any container`);
+        reportActionError(params, `Component "${selectedEditorComponent}" not found in any container`);
         return;
       }
 
@@ -423,12 +424,12 @@ export const moveComponentAction: ActionConfig = {
       const componentInfo = getEditorComponentInfo(editorState, selectedEditorComponent);
       
       if (!componentInfo) {
-        message.error(`Component "${selectedEditorComponent}" not found`);
+        reportActionError(params, `Component "${selectedEditorComponent}" not found`);
         return;
       }
 
       if (!componentKey || !layout[componentKey]) {
-        message.error(`Component "${selectedEditorComponent}" not found in layout`);
+        reportActionError(params, `Component "${selectedEditorComponent}" not found in layout`);
         return;
       }
 
@@ -467,10 +468,10 @@ export const moveComponentAction: ActionConfig = {
       if (moveParams.x !== undefined) moveDescription.push(`x: ${moveParams.x}`);
       if (moveParams.y !== undefined) moveDescription.push(`y: ${moveParams.y}`);
       
-      message.success(`Component "${selectedEditorComponent}" moved to ${moveDescription.join(', ')}`);
+      if (!params.suppressSuccessNotifications) message.success(`Component "${selectedEditorComponent}" moved to ${moveDescription.join(', ')}`);
     } catch (error) {
       console.error('Error moving component:', error);
-      message.error('Failed to move component. Please try again.');
+      reportActionError(params, 'Failed to move component. Please try again.');
     }
   }
 };
@@ -496,7 +497,7 @@ export const renameComponentAction: ActionConfig = {
     const { selectedEditorComponent, actionValue, editorState } = params;
     
     if (!selectedEditorComponent || !actionValue) {
-      message.error('Component and name is required');
+      reportActionError(params, 'Component and name is required');
       return;
     }
 
@@ -504,32 +505,32 @@ export const renameComponentAction: ActionConfig = {
       const componentInfo = getEditorComponentInfo(editorState, selectedEditorComponent);
       
       if (!componentInfo) {
-        message.error(`Component "${selectedEditorComponent}" not found`);
+        reportActionError(params, `Component "${selectedEditorComponent}" not found`);
         return;
       }
 
       const { componentKey, currentLayout, items } = componentInfo;
 
       if (!componentKey) {
-        message.error(`Component "${selectedEditorComponent}" not found in layout`);
+        reportActionError(params, `Component "${selectedEditorComponent}" not found in layout`);
         return;
       }
 
       const componentItem = items[componentKey];
       if (!componentItem) {
-        message.error(`Component "${selectedEditorComponent}" not found in items`);
+        reportActionError(params, `Component "${selectedEditorComponent}" not found in items`);
         return;
       }
 
       if (editorState.rename(selectedEditorComponent, actionValue)) {
         editorState.setSelectedCompNames(new Set([actionValue]), "renameComp");
-        message.success(`Component "${selectedEditorComponent}" renamed to "${actionValue}" successfully`);
+        if (!params.suppressSuccessNotifications) message.success(`Component "${selectedEditorComponent}" renamed to "${actionValue}" successfully`);
       } else {
-        message.error('Failed to rename component. The name might already exist or be invalid.');
+        reportActionError(params, 'Failed to rename component. The name might already exist or be invalid.');
       }
     } catch(error) {
       console.error('Error renaming component:', error);
-      message.error('Failed to rename component. Please try again.');
+      reportActionError(params, 'Failed to rename component. Please try again.');
     }
   }
 };
@@ -566,7 +567,7 @@ export const resizeComponentAction: ActionConfig = {
     const { layout: updatedLayout, component_name: selectedEditorComponent } = actionPayload;
 
     if (!selectedEditorComponent || !editorState) {
-      message.error('Component and editor state are required');
+      reportActionError(params, 'Component and editor state are required');
       return;
     }
 
@@ -582,21 +583,21 @@ export const resizeComponentAction: ActionConfig = {
       // }
 
       if (!resizeParams.w && !resizeParams.h) {
-        message.error('No valid resize parameters provided');
+        reportActionError(params, 'No valid resize parameters provided');
         return;
       }
 
       const targetInfo = findTargetComponent(editorState, selectedEditorComponent);
 
       if (!targetInfo) {
-        message.error(`Component "${selectedEditorComponent}" not found in any container`);
+        reportActionError(params, `Component "${selectedEditorComponent}" not found in any container`);
         return;
       }
 
       const { container, layout, componentKey } = targetInfo;
 
       if (!componentKey || !layout[componentKey]) {
-        message.error(`Component "${selectedEditorComponent}" not found in layout`);
+        reportActionError(params, `Component "${selectedEditorComponent}" not found in layout`);
         return;
       }
 
@@ -635,10 +636,10 @@ export const resizeComponentAction: ActionConfig = {
       if (resizeParams.w !== undefined) resizeDescription.push(`width: ${resizeParams.w}`);
       if (resizeParams.h !== undefined) resizeDescription.push(`height: ${resizeParams.h}`);
       
-      message.success(`Component "${selectedEditorComponent}" resized to ${resizeDescription.join(', ')}`);
+      if (!params.suppressSuccessNotifications) message.success(`Component "${selectedEditorComponent}" resized to ${resizeDescription.join(', ')}`);
     } catch (error) {
       console.error('Error resizing component:', error);
-      message.error('Failed to resize component. Please try again.');
+      reportActionError(params, 'Failed to resize component. Please try again.');
     }
   }
 };

@@ -29,7 +29,7 @@ AI Robot provides access to Automator. Model-provider usage is billed separately
 
 ## Guided setup in the editor
 
-Open the **Automator** panel and choose **Set up AI connection**. If no query is selected (or the saved query is missing from this app), Automator shows the setup entry point instead of an empty chat.
+Open the **Automator** panel, open **Connection** in its header, and choose **Set up AI connection**. If no query is selected (or the saved query is missing from this app), Automator shows the setup entry point instead of an empty chat.
 
 1. **Connect.** Choose the OpenAI example and enter your API key and model name, or choose your own provider / self-hosted model. You can also reuse an existing REST datasource. The model must support function/tool calling.
 2. **Create queries.** Review the connection. The wizard saves a workspace REST datasource and adds a provider query plus a JavaScript bridge to this app, using available names. Existing queries are preserved, and both new queries run only when manually triggered. The JavaScript bridge (`automatorAI1`, or the next available name) is automatically selected for Automator; it supplies values to the provider HTTP query (`automatorHttp1`) and converts the reply.
@@ -486,3 +486,54 @@ The exact tool arguments are generated from the `tools` definition passed to you
 - Keep provider API keys in datasource or query configuration, not directly in app-visible code.
 - If Automator replies with text but does not change the app, check whether the model returned a tool call.
 - If the query fails, test the HTTP query first, then test the JavaScript bridge query.
+
+
+## Build with JSON, with or without an LLM
+
+Automator executes an ordered JSON recipe. An LLM is one way to write that recipe;
+a JavaScript query can produce the same actions with loops, conditions, or your own data.
+This is an editor automation interface, so the resulting components remain editable in Lowcoder.
+
+Open **Build with JSON** in the Automator header for a copyable example, the supported
+action names, and a JavaScript wrapper. After a build, **See the JSON recipe** opens the
+actions from that build so you can inspect or adapt them.
+
+To try a deterministic recipe:
+
+1. Start in a blank app. Create a JavaScript query in Data Queries and keep its trigger manual.
+2. Paste the following code and select this query in the Automator query selector.
+3. Send a message in the Automator conversation. That invokes the selected query and
+   applies the returned actions. The query's own **Run** button only returns the recipe.
+
+```javascript
+const actions = [{
+  action: typeof recipeTitle === "undefined" ? "place_component" : "set_properties",
+  component: "text",
+  component_name: "recipeTitle",
+  layout: { x: 0, y: 0, w: 12, h: 4 },
+  action_parameters: { text: "## Built from JSON", type: "markdown" }
+}];
+const args = { actions };
+return {
+  role: "assistant",
+  content: [{
+    type: "tool-call",
+    toolCallId: `recipe_${Date.now()}`,
+    toolName: "execute_automator_actions",
+    args,
+    argsText: JSON.stringify(args)
+  }]
+};
+```
+
+The example updates `recipeTitle` on later runs. It ignores the message text and makes
+no LLM call, so no model connection is needed. AI Robot access and a workspace admin
+or editor role are still required. Put the full ordered recipe in one
+`execute_automator_actions` call. Review copied recipes before running them again:
+creation actions can create duplicates, and actions are not rolled back as a group.
+
+During a run, Automator shows elapsed time while the query prepares its response, then
+progress based on actual processed actions. The finish card distinguishes successful,
+partial, and failed builds, provides an app preview when changes succeeded, and keeps
+the recipe with the conversation. It reports executor outcomes, not a guarantee that
+all generated app logic works as intended; use the preview to test your app.

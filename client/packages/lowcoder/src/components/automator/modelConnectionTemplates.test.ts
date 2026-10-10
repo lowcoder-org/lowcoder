@@ -122,3 +122,28 @@ test('preserves provider error details instead of replacing them with generic gu
   await expect(runBridge('responses', { error: { message: 'The requested model is not available to this project.' } }).result)
     .rejects.toThrow('The requested model is not available to this project.');
 });
+
+
+test.each([
+  [false, "", { error: { message: "You have no credits left.", type: "insufficient_quota" } }, "You have no credits left."],
+  [false, " ", { error: "Provider unavailable" }, "Provider unavailable"],
+  [false, "Server explanation", { error: { message: "Provider explanation" } }, "Server explanation"],
+  [true, "", { error: { message: "Application data" } }, ""],
+  [false, "", { error: { message: { arbitrary: "object" } } }, ""],
+])("retains provider errors through HTTP query execution (%s, %s)", async (success, message, data, expected) => {
+  const { paramsMillisecondsControl } = require("comps/controls/paramsControl");
+  const { evalAndReduce } = require("comps/utils");
+  const { toQueryView } = require("comps/queries/queryCompUtils");
+  const { QueryApi } = require("api/queryApi");
+  const Timeout = paramsMillisecondsControl({ defaultValue: 120000 });
+  const timeout = evalAndReduce(new Timeout({ value: "120000" }));
+  const execute = jest.spyOn(QueryApi, "executeQuery").mockResolvedValue({
+    data: { success, message, data, queryCode: "HTTPTOO_MANY_REQUESTS" },
+  });
+  try {
+    const result = await toQueryView([])({ queryId: "http-query", applicationId: "test-app", applicationPath: [], args: {}, variables: {}, timeout });
+    expect(result).toMatchObject({ success, message: expected, data });
+  } finally {
+    execute.mockRestore();
+  }
+});

@@ -1,3 +1,5 @@
+import styled from "styled-components";
+import { AutomatorRecipeMessage } from "components/automator/AutomatorRecipeMessage";
 import { trans } from "i18n";
 import {
   ActionBarMorePrimitive,
@@ -11,6 +13,7 @@ import {
 } from "@assistant-ui/react";
 import {
   CheckIcon,
+  Sparkles,
   ChevronLeftIcon,
   ChevronRightIcon,
   CopyIcon,
@@ -39,15 +42,17 @@ import { ToolFallback } from "./tool-fallback";
 import { TooltipIconButton } from "./tooltip-icon-button";
 import { UserMessageAttachments } from "./ui/attachment";
 
-export const ThreadMessage: FC<{ showAttachments?: boolean }> = ({
+export const ThreadMessage: FC<{ showAttachments?: boolean; showLoadingIndicator?: boolean; presentation?: "chat" | "automator" }> = ({
   showAttachments = true,
+  showLoadingIndicator = true,
+  presentation = "chat",
 }) => {
   const role = useAuiState((s) => s.message.role);
   const isEditing = useAuiState((s) => s.message.composer.isEditing);
 
   if (isEditing) return <EditComposer />;
   if (role === "user") return <UserMessage showAttachments={showAttachments} />;
-  return <AssistantMessage />;
+  return <AssistantMessage showLoadingIndicator={showLoadingIndicator} automator={presentation === "automator"} />;
 };
 
 const MessageError: FC = () => {
@@ -60,7 +65,9 @@ const MessageError: FC = () => {
   );
 };
 
-const AssistantMessage: FC = () => {
+const AssistantMessage: FC<{ showLoadingIndicator: boolean; automator: boolean }> = ({ showLoadingIndicator, automator }) => {
+  const hasText = useAuiState(s => s.message.parts.some(part => part.type === "text" && part.text.trim().length > 0));
+  const hasContent = useAuiState(s => s.message.parts.length > 0);
   const isEmptyRunningMessage = useAuiState(
     (s) =>
       s.message.parts.length === 0 &&
@@ -73,16 +80,18 @@ const AssistantMessage: FC = () => {
       data-role="assistant"
       className="aui-assistant-message-root"
     >
+      {automator && hasContent && <div className="automator-speaker"><Sparkles size={12} />Automator</div>}
       <div
         data-slot="aui_assistant-message-content"
         className="aui-assistant-message-content"
       >
-        {isEmptyRunningMessage && <AssistantMessageLoader />}
+        {showLoadingIndicator && isEmptyRunningMessage && <AssistantMessageLoader />}
         <MessagePrimitive.GroupedParts
           groupBy={(part) => {
             if (part.type === "reasoning")
               return ["group-chainOfThought", "group-reasoning"];
             if (part.type === "tool-call") {
+              if (automator && part.toolName === "execute_automator_actions") return null;
               if (getMcpAppFromToolPart(part)) return null;
               return ["group-chainOfThought", "group-tool"];
             }
@@ -116,12 +125,13 @@ const AssistantMessage: FC = () => {
                 );
               case "text":
                 if (part.status?.type === "running" && part.text === "") {
-                  return <AssistantMessageLoader />;
+                  return showLoadingIndicator ? <AssistantMessageLoader /> : null;
                 }
                 return <MarkdownText />;
               case "reasoning":
                 return <Reasoning {...part} />;
               case "tool-call":
+                if (automator && part.toolName === "execute_automator_actions") return <AutomatorRecipeMessage {...part} />;
                 return part.toolUI ?? <ToolFallback {...part} />;
               default:
                 return null;
@@ -131,16 +141,28 @@ const AssistantMessage: FC = () => {
         <MessageError />
       </div>
 
-      <div
+      {(!automator || hasText) && <div
         data-slot="aui_assistant-message-footer"
         className="aui-assistant-message-footer"
       >
         <BranchPicker />
         <AssistantActionBar />
-      </div>
+      </div>}
     </MessagePrimitive.Root>
   );
 };
+
+// The menu is portaled outside the thread root, so its styles must travel with it.
+const ActionMenuContent = styled(ActionBarMorePrimitive.Content)`
+  background: #fff; border: 1px solid #e3e9f2; border-radius: 10px; box-shadow: 0 8px 28px #2039641a;
+  min-width: 168px; padding: 5px; z-index: 1000;
+`;
+const ActionMenuItem = styled(ActionBarMorePrimitive.Item)`
+  display: flex; align-items: center; gap: 9px; padding: 8px 10px; font-size: 12px; color: #526581;
+  border-radius: 6px; cursor: pointer; outline: none;
+  &[data-highlighted], &:hover, &:focus { background: #f1f5fb; }
+  svg { width: 15px; height: 15px; flex: 0 0 auto; }
+`;
 
 const AssistantActionBar: FC = () => {
   return (
@@ -168,7 +190,7 @@ const AssistantActionBar: FC = () => {
             <MoreHorizontalIcon />
           </TooltipIconButton>
         </ActionBarMorePrimitive.Trigger>
-        <ActionBarMorePrimitive.Content
+        <ActionMenuContent
           side="bottom"
           align="start"
           className="aui-action-bar-more-content"
@@ -178,12 +200,12 @@ const AssistantActionBar: FC = () => {
           }}
         >
           <ActionBarPrimitive.ExportMarkdown asChild>
-            <ActionBarMorePrimitive.Item className="aui-action-bar-more-item">
+            <ActionMenuItem className="aui-action-bar-more-item">
               <DownloadIcon />
               {trans("automator.chat.exportMarkdown")}
-            </ActionBarMorePrimitive.Item>
+            </ActionMenuItem>
           </ActionBarPrimitive.ExportMarkdown>
-        </ActionBarMorePrimitive.Content>
+        </ActionMenuContent>
       </ActionBarMorePrimitive.Root>
     </ActionBarPrimitive.Root>
   );

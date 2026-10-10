@@ -2,6 +2,7 @@ import type { ChatMessage } from "../types/chatTypes";
 import {
   addSystemPromptToHistory,
   buildChatQueryArgs,
+  createAssistantErrorMessage,
 } from "./assistantMessages";
 
 const imageDataUrl = "data:image/png;base64,aW1hZ2U=";
@@ -72,5 +73,27 @@ describe("AI Chat query context", () => {
         ]),
       }),
     );
+  });
+});
+
+
+describe("assistant error details", () => {
+  test("shows actionable query errors from plain objects and Error instances", () => {
+    for (const error of [new Error("You have no credits left."), { message: "You have no credits left." }, "You have no credits left."]) {
+      expect(createAssistantErrorMessage("Request failed.", error).content).toEqual([
+        { type: "text", text: "Request failed.\n\nYou have no credits left." },
+      ]);
+    }
+  });
+
+  test("keeps the fallback for missing messages and bounds provider details", () => {
+    for (const error of [undefined, null, {}, { message: 42 }, { message: " " }]) {
+      expect(createAssistantErrorMessage("Request failed.", error).content).toEqual([
+        { type: "text", text: "Request failed." },
+      ]);
+    }
+    expect(createAssistantErrorMessage("Request failed.", "x".repeat(3000)).content).toEqual([
+      { type: "text", text: "Request failed.\n\n" + "x".repeat(2000) },
+    ]);
   });
 });

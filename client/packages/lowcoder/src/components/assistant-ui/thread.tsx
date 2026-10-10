@@ -1,6 +1,6 @@
 import { AuiIf, ThreadPrimitive } from "@assistant-ui/react";
 import { ArrowDownIcon } from "lucide-react";
-import type { FC } from "react";
+import type { FC, ReactNode } from "react";
 import { trans } from "i18n";
 
 import { Composer } from "./thread-composer";
@@ -13,6 +13,11 @@ interface ThreadProps {
   placeholder?: string;
   showAttachments?: boolean;
   autoHeight?: boolean;
+  activity?: ReactNode;
+  welcome?: ReactNode;
+  composerFooter?: ReactNode;
+  presentation?: "chat" | "automator";
+  showLoadingIndicator?: boolean;
   suggestionMode?: "chat" | "automator";
 }
 
@@ -21,6 +26,11 @@ export const Thread: FC<ThreadProps> = ({
   showAttachments = true,
   autoHeight = false,
   suggestionMode = "chat",
+  activity,
+  welcome,
+  composerFooter,
+  presentation = "chat",
+  showLoadingIndicator = true,
 }) => {
   return (
     <StyledThreadRoot
@@ -32,20 +42,22 @@ export const Thread: FC<ThreadProps> = ({
       }}
     >
       <ThreadPrimitive.Viewport
-        turnAnchor={autoHeight ? "bottom" : "top"}
+        turnAnchor={autoHeight || suggestionMode === "automator" ? "bottom" : "top"}
         data-slot="aui_thread-viewport"
         className="aui-thread-viewport"
       >
         <div className="aui-thread-layout">
           <AuiIf condition={(s) => s.thread.isEmpty}>
-            <ThreadWelcome suggestionMode={suggestionMode} />
+            {welcome || <ThreadWelcome suggestionMode={suggestionMode} />}
           </AuiIf>
 
           <div data-slot="aui_message-group" className="aui-message-group">
             <ThreadPrimitive.Messages>
-              {() => <ThreadMessage showAttachments={showAttachments} />}
+              {() => <ThreadMessage presentation={presentation} showAttachments={showAttachments} showLoadingIndicator={showLoadingIndicator} />}
             </ThreadPrimitive.Messages>
           </div>
+
+          {activity}
 
           <ThreadPrimitive.ViewportFooter className="aui-thread-viewport-footer">
             <ThreadScrollToBottom />
@@ -53,6 +65,7 @@ export const Thread: FC<ThreadProps> = ({
               placeholder={placeholder}
               showAttachments={showAttachments}
             />
+            {composerFooter}
           </ThreadPrimitive.ViewportFooter>
         </div>
       </ThreadPrimitive.Viewport>

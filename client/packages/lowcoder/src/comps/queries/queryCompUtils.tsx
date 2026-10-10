@@ -99,8 +99,18 @@ export function toQueryView(params: FunctionProperty[]) {
       props.timeout.children.text.getView() as number
     );
 
+    // HTTP failures can have an empty Lowcoder message while the provider
+    // supplies the actionable reason in its JSON error body.
+    const providerError = _.get(response.data.data, "error");
+    const providerMessage = typeof providerError === "string"
+      ? providerError : _.get(providerError, "message");
+    const message = response.data.success === false && !response.data.message?.trim()
+      && typeof providerMessage === "string"
+      ? providerMessage.slice(0, 2000) : response.data.message;
+
     return {
       ...response.data,
+      message,
       code: response.data.queryCode,
       extra: _.omit(response.data, ["code", "message", "data", "success", "runTime", "queryCode"]),
     };

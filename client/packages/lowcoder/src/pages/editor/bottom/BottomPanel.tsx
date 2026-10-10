@@ -20,13 +20,15 @@ import Flex from "antd/es/flex";
 import type { MenuProps } from 'antd/es/menu';
 import { DatabaseOutlined } from "@ant-design/icons";
 import Menu from "antd/es/menu/menu";
-import Select from "antd/es/select";
-import { AIGenerate, DocLink } from "lowcoder-design";
+import { Sparkles } from "lucide-react";
 import { ChatPanel } from "@lowcoder-ee/comps/comps/chatComp/components/ChatPanel";
 import { EditorContext } from "comps/editorState";
 import { trans } from "i18n";
 
 import { SubscriptionProductsEnum } from "constants/subscriptionConstants";
+import { AutomatorTheme, automatorColor } from "components/automator/AutomatorTheme";
+import { AutomatorHeader } from "components/automator/AutomatorHeader";
+import { AutomatorLanguageGuide } from "components/automator/AutomatorLanguageGuide";
 import { AutomatorWelcome } from "components/automator/AutomatorWelcome";
 import { AutomatorSetup } from "components/automator/GuidedModelSetup";
 import { useLocation } from "react-router-dom";
@@ -60,40 +62,11 @@ const StyledMenu = styled(Menu)`
   }
 `;
 
-const ChatHeader = styled.div`
-  flex: 0 0 auto;
-  min-height: 35px;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 0 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #e1e3eb;
-  background: #fafafa;
-`;
-const ChatTitle = styled.h3`
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #222222;
-`;
+const AutomatorMenuIcon = styled(Sparkles)`color: ${automatorColor.accent};`;
 
-const QuerySelectorWrapper = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  min-width: 0;
-  align-items: center;
-  gap: 12px;
-`;
-
-const QueryLabel = styled.span`
-  font-size: 12px;
-  color: #8b8fa3;
-  white-space: nowrap;
+const AutomatorWorkspace = styled.div`
+  container: automator-panel / inline-size;
+  display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden;
 `;
 
 const PanelBody = styled.div`
@@ -132,9 +105,11 @@ function Bottom(props: any) {
 
   const location = useLocation();
   const [setupOpen, setSetupOpen] = useState(false);
+  const [previousHeight, setPreviousHeight] = useState<number>();
+  const [languageOpen, setLanguageOpen] = useState(false);
   const [currentOption, setCurrentOption] = useState("data");
   const [selectedQuery, setSelectedQuery] = useState<string>(() => getSelectedAIQueryName());
-  useEffect(() => { setSetupOpen(false); setSelectedQuery(getSelectedAIQueryName()); }, [props.orgId, location.pathname]);
+  useEffect(() => { setSetupOpen(false); setLanguageOpen(false); setSelectedQuery(getSelectedAIQueryName()); }, [props.orgId, location.pathname]);
 
   const editorState = useContext(EditorContext);
   const aiRobotAccess = useSelector(getAiRobotAccess);
@@ -163,7 +138,7 @@ function Bottom(props: any) {
 
   const items: MenuItem[] = [
     { key: 'data', icon: <DatabaseOutlined />, label: trans('automator.panel.dataQueries') },
-    { key: 'ai', icon: <AIGenerate />, label: trans('automator.panel.lowcoderAI') },
+    { key: 'ai', icon: <span><AutomatorTheme><AutomatorMenuIcon size={16} /></AutomatorTheme></span>, label: trans('automator.panel.lowcoderAI') },
   ];
 
   return (
@@ -192,56 +167,34 @@ function Bottom(props: any) {
             {currentOption === "data" ? (
               <BottomContent />
             ) : (
-              <Flex style={{height: '100%'}} vertical>
-                <ChatHeader>
-                  <ChatTitle>
-                    Lowcoder Automator
-                    <DocLink
-                      href={trans("docUrls.githubAutomator")}
-                      title={trans("comp.menuViewDocsTooltip")}
-                    >
-                      {trans("comp.menuViewDocs")}
-                    </DocLink>
-                  </ChatTitle>
-                  {aiRobotAccess && <QuerySelectorWrapper>
-                    <QueryLabel>{trans('automator.panel.query')}</QueryLabel>
-                    <Select
-                      showSearch
-                      allowClear
-                      placeholder={trans('automator.panel.selectQuery')}
-                      value={queryAvailable ? selectedQuery : undefined}
-                      onChange={(value) => {
-                        const nextQuery = value || "";
-                        setSelectedQuery(nextQuery);
-                        saveSelectedAIQueryName(nextQuery);
-                      }}
-                      options={queryOptions}
-                      style={{ width: 200 }}
-                      size="small"
-                    />
-                    <Button size="small" onClick={() => setSetupOpen(true)}>{trans('automator.panel.setup')}</Button>
-                  </QuerySelectorWrapper>}
-                </ChatHeader>
+              <AutomatorTheme><AutomatorWorkspace>
+                <AutomatorHeader hasAccess={aiRobotAccess} queryName={queryAvailable ? selectedQuery : undefined}
+                  queryOptions={queryOptions} onSelect={selectQuery} onSetup={() => setSetupOpen(true)} onLanguage={() => setLanguageOpen(true)}
+                  expanded={previousHeight !== undefined} onExpand={() => {
+                    if (previousHeight !== undefined) { setBottomHeight(previousHeight); setPreviousHeight(undefined); }
+                    else { setPreviousHeight(bottomHeight); setBottomHeight(Math.max(285, clientHeight - 104)); }
+                  }} />
                 {aiRobotAccess ? (
                   queryAvailable
                     ? <ChatPanel key={`${props.orgId}:${location.pathname}`} tableName="LC_AI" chatQuery={selectedQuery} />
-                    : <AutomatorWelcome subscribed onSetup={() => setSetupOpen(true)} previewUrl={buildSubscriptionInfoLink(SubscriptionProductsEnum.AIROBOT)} />
+                    : <AutomatorWelcome onLanguage={() => setLanguageOpen(true)} subscribed onSetup={() => setSetupOpen(true)} previewUrl={buildSubscriptionInfoLink(SubscriptionProductsEnum.AIROBOT)} />
                 ) : !subscriptionsLoaded || subscriptionError ? (
                   <Flex vertical align="center" justify="center" gap={12} style={{ flex: 1, padding: 24 }}>
                     <strong>{subscriptionError ? trans('automator.panel.accessError') : trans('automator.panel.checkingAccess')}</strong>
                     {subscriptionError && <><span>{trans('automator.panel.retryAccess')}</span>
                       <Button href={SUBSCRIPTION_SETTING} target="_blank" rel="noopener noreferrer">{trans('automator.panel.subscriptionSettings')}</Button></>}
                   </Flex>
-                ) : <AutomatorWelcome subscribed={false} onSetup={() => setSetupOpen(true)} previewUrl={buildSubscriptionInfoLink(SubscriptionProductsEnum.AIROBOT)} />}
-              </Flex>
+                ) : <AutomatorWelcome onLanguage={() => setLanguageOpen(true)} subscribed={false} onSetup={() => setSetupOpen(true)} previewUrl={buildSubscriptionInfoLink(SubscriptionProductsEnum.AIROBOT)} />}
+              </AutomatorWorkspace></AutomatorTheme>
             )}
           </PanelContent>
         </PanelBody>
       </StyledResizableBox>
+      {languageOpen && <AutomatorTheme><AutomatorLanguageGuide onClose={() => setLanguageOpen(false)} /></AutomatorTheme>}
       {/* Subscription refreshes on window focus. Preserve the form while access is checked. */}
-      {setupOpen && <AutomatorSetup key={`${props.orgId}:${location.pathname}`}
+      {setupOpen && <AutomatorTheme><AutomatorSetup key={`${props.orgId}:${location.pathname}`}
         accessStatus={aiRobotAccess ? "ready" : !subscriptionsLoaded ? "checking" : "unavailable"}
-        onClose={() => setSetupOpen(false)} onSelect={selectQuery} />}
+        onClose={() => setSetupOpen(false)} onSelect={selectQuery} /></AutomatorTheme>}
     </>
   );
 }

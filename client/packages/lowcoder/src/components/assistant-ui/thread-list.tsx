@@ -43,10 +43,10 @@ const ThreadListSkeleton: FC = () => {
   );
 };
 
-export const ThreadList: FC = () => {
+export const ThreadList: FC<{ newThreadLabel?: string }> = ({ newThreadLabel }) => {
   return (
     <StyledThreadListRoot className="aui-root aui-thread-list-root">
-      <ThreadListNew />
+      <ThreadListNew label={newThreadLabel} />
       <AuiIf condition={(s) => s.threads.isLoading}>
         <ThreadListSkeleton />
       </AuiIf>
@@ -59,12 +59,12 @@ export const ThreadList: FC = () => {
   );
 };
 
-const ThreadListNew: FC = () => {
+const ThreadListNew: FC<{ label?: string }> = ({ label }) => {
   return (
     <ThreadListPrimitive.New asChild>
       <StyledNewThreadButton variant="default">
         <PlusIcon />
-        {trans("chat.newThread")}
+        {label || trans("chat.newThread")}
       </StyledNewThreadButton>
     </ThreadListPrimitive.New>
   );
