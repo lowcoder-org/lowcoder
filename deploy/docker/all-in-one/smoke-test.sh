@@ -277,6 +277,21 @@ scenario_default() {
     check "agora token service issues tokens with LOWCODER_AGORA_* credentials" '"rtcToken":"' "$c" \
         curl -sS "$URL_AGORA/rte/smoke-channel/publisher/uid/1"
 
+    # hocuspocus and agora token service through nginx
+    check "nginx proxy_pass points to hocuspocus" "proxy_pass http://localhost:3006;" "$c" \
+        cat /etc/nginx/server.conf
+    check "nginx proxy_pass points to agora token service" "proxy_pass http://localhost:8081/;" "$c" \
+        cat /etc/nginx/server.conf
+    check "nginx /hocuspocus accepts websocket upgrade" "101 Switching Protocols" "$c" \
+        curl -sS -i --max-time 3 \
+            -H "Connection: Upgrade" -H "Upgrade: websocket" \
+            -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" \
+            "$URL_FRONTEND/hocuspocus"
+    check "nginx /agora-token-service/ping reaches agora token service" "pong" "$c" \
+        curl -sS "$URL_FRONTEND/agora-token-service/ping"
+    check "nginx /agora-token-service/rte/... issues tokens" '"rtcToken":"' "$c" \
+        curl -sS "$URL_FRONTEND/agora-token-service/rte/smoke-channel/publisher/uid/1"
+
     # privileges dropped by entrypoints
     for program in $PROGRAMS_NEW; do
         check_program_user "$c" "$program" "lowcoder"
@@ -320,6 +335,10 @@ scenario_disabled() {
         curl -sS -o /dev/null -w "%{http_code}" "$URL_AGORA/ping"
     check "nothing listens on proxy-service port" "000" "$c" \
         curl -sS -o /dev/null -w "%{http_code}" "$URL_PROXY_SERVICE/"
+    check "nginx /hocuspocus answers 502 without hocuspocus" "502" "$c" \
+        curl -sS -o /dev/null -w "%{http_code}" "$URL_FRONTEND/hocuspocus"
+    check "nginx /agora-token-service/ answers 502 without agora token service" "502" "$c" \
+        curl -sS -o /dev/null -w "%{http_code}" "$URL_FRONTEND/agora-token-service/ping"
 }
 
 ##

@@ -24,20 +24,26 @@ a browser running on the docker host) and no authentication. To serve other mach
 
 ```
 DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce \
-  --build-arg REACT_APP_HOCUSPOCUS_URL=ws://lowcoder.example.com:3006 \
+  --build-arg REACT_APP_HOCUSPOCUS_URL=ws://lowcoder.example.com:3000/hocuspocus \
   --build-arg REACT_APP_HOCUSPOCUS_SECRET=<secret> .
 ```
 
 and run the container with `LOWCODER_HOCUSPOCUS_SECRET=<secret>`. The secret is part of the public JS bundle:
 it only rejects clients that did not load this frontend, it does not protect documents from its users.
-Hocuspocus on port 3006 speaks plain `ws://`. Browsers refuse `ws://` from a page served over HTTPS, so for an
-HTTPS frontend put a TLS-terminating reverse proxy in front of port 3006 and build with its `wss://` URL.
 
-The agora token service on port 8081 has no authentication: once `LOWCODER_AGORA_APP_ID` and
-`LOWCODER_AGORA_APP_CERTIFICATE` are set, anyone who can reach the port can request RTC/RTM tokens for any
-channel and uid of that Agora project. Restrict access to the port (firewall, reverse proxy) or disable the
-service with `LOWCODER_AGORA_TOKEN_SERVICE_ENABLED=false`. `LOWCODER_AGORA_CORS_ALLOW_ORIGIN` only limits
-which web pages may call it from a browser.
+The frontend nginx forwards `/hocuspocus` (websocket, path unchanged) to hocuspocus
+(`LOWCODER_HOCUSPOCUS_SERVICE_URL`), so hocuspocus is reachable on the frontend port as well as on port 3006.
+Hocuspocus itself speaks plain `ws://`; browsers refuse `ws://` from a page served over HTTPS, so for an HTTPS
+frontend build with the `wss://` URL of the frontend, e.g. `wss://lowcoder.example.com:3443/hocuspocus`
+(the HTTPS nginx serves the same locations).
+
+The agora token service has no authentication: once `LOWCODER_AGORA_APP_ID` and
+`LOWCODER_AGORA_APP_CERTIFICATE` are set, anyone who can reach port 8081, or `/agora-token-service/` on the
+frontend port, can request RTC/RTM tokens for any channel and uid of that Agora project. The frontend nginx
+removes the prefix: `/agora-token-service/rte/<channel>/<role>/<tokentype>/<uid>` reaches the service as
+`/rte/...` (`LOWCODER_AGORA_TOKEN_SERVICE_URL`). Restrict access (firewall, reverse proxy) or disable the
+service with `LOWCODER_AGORA_TOKEN_SERVICE_ENABLED=false` (nginx then answers 502 on `/agora-token-service/`).
+`LOWCODER_AGORA_CORS_ALLOW_ORIGIN` only limits which web pages may call it from a browser.
 
 ### Configuration
 
@@ -71,6 +77,8 @@ Image can be configured by setting environment variables.
 | `LOWCODER_NODE_SERVICE_SECRET`      | Secret used for encrypting communication between API service and Node service - CHANGE IT! |                                    |
 | `LOWCODER_NODE_SERVICE_SALT`        | Salt used for encrypting communication between API service and Node service   - CHANGE IT! |                                    |
 | `LOWCODER_PROXY_SERVICE_URL`        | Lowcoder Proxy service URL                                              | `http://localhost:6070`                               |
+| `LOWCODER_HOCUSPOCUS_SERVICE_URL`   | Hocuspocus URL the frontend nginx forwards `/hocuspocus` to             | `http://localhost:3006`                               |
+| `LOWCODER_AGORA_TOKEN_SERVICE_URL`  | Agora token service URL the frontend nginx forwards `/agora-token-service/` to (prefix removed) | `http://localhost:8081`       |
 | `LOWCODER_HOCUSPOCUS_URL`           | Hocuspocus websocket URL injected by proxy-service into form bridges; a localhost URL is replaced by the host the browser used to reach the proxy | `ws://localhost:3006` |
 | `LOWCODER_HOCUSPOCUS_SECRET`        | Hocuspocus shared secret, must match the `REACT_APP_HOCUSPOCUS_SECRET` build argument (see above) | (empty - authentication disabled) |
 | `LOWCODER_AGORA_APP_ID`             | App ID of the Agora project used by the agora token service             |                                                       |
@@ -224,6 +232,11 @@ DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcod
 The hocuspocus build arguments `REACT_APP_HOCUSPOCUS_URL` and `REACT_APP_HOCUSPOCUS_SECRET` described for the
 all-in-one image apply to this image too.
 
+Like the all-in-one image, its nginx forwards `/hocuspocus` to hocuspocus and `/agora-token-service/` to the
+agora token service. nginx resolves the host of every `LOWCODER_*_SERVICE_URL` when it starts and does not
+start when one of them does not resolve (`host not found in upstream`); a resolvable URL whose service is not
+running answers 502.
+
 ### Configuration
 
 Image can be configured by setting environment variables.
@@ -237,5 +250,7 @@ Image can be configured by setting environment variables.
 | `LOWCODER_API_SERVICE_URL`      | Lowcoder API service URL                                            | `http://localhost:8080`                                 |
 | `LOWCODER_NODE_SERVICE_URL`     | Lowcoder Node service (js executor) URL                             | `http://localhost:6060`                                 |
 | `LOWCODER_PROXY_SERVICE_URL`    | Lowcoder Proxy service URL                                          | `http://localhost:6070`                                 |
+| `LOWCODER_HOCUSPOCUS_SERVICE_URL` | Hocuspocus URL `/hocuspocus` is forwarded to (websocket, path unchanged) | `http://localhost:3006`                            |
+| `LOWCODER_AGORA_TOKEN_SERVICE_URL` | Agora token service URL `/agora-token-service/` is forwarded to (prefix removed) | `http://localhost:8081`                    |
 
 

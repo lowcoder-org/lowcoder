@@ -1,0 +1,22 @@
+{{- if .Values.hocuspocus.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "lowcoder.fullname" . }}-hocuspocus
+  labels:
+    {{- include "lowcoder.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.hocuspocus.service.type }}
+  ports:
+    - port: {{ .Values.hocuspocus.service.port }}
+      targetPort: hocuspocus
+      protocol: TCP
+      name: hocuspocus
+    {{- if .Values.hocuspocus.service.nodePort }}
+      {{- if or (eq .Values.hocuspocus.service.type "NodePort") (eq .Values.hocuspocus.service.type "LoadBalancer") }}
+      nodePort: {{ .Values.hocuspocus.service.nodePort }}
+      {{- end }}
+    {{- end }}
+  selector:
+    {{- include "lowcoder.selectorLabels" (dict "component" "hocuspocus" "Values" .Values "Release" .Release "Chart" .Chart) | nindent 4 }}
+{{- end }}

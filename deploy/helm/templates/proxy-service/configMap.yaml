@@ -1,0 +1,27 @@
+{{- if .Values.proxyService.enabled }}
+{{- $name := include "lowcoder.fullname" . -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "lowcoder.fullname" . }}-proxy-service
+  labels:
+    {{- include "lowcoder.labels" . | nindent 4 }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  PROXY_SERVICE_PORT: "6070"
+  {{- if .Values.global.config.apiServiceUrl }}
+  LOWCODER_API_SERVICE_URL: {{ .Values.global.config.apiServiceUrl | trimSuffix "/" | quote }}
+  {{- else }}
+  LOWCODER_API_SERVICE_URL: "http://{{ $name }}-api-service:{{ .Values.apiService.service.port }}"
+  {{- end }}
+  {{- with include "lowcoder.hocuspocus.publicUrl" . }}
+  LOWCODER_HOCUSPOCUS_URL: {{ . | quote }}
+  {{- end }}
+  LOWCODER_PROXY_RATE_LIMIT: {{ include "lowcoder.orDefault" (dict "value" .Values.proxyService.config.rateLimit "default" "120") | quote }}
+  LOWCODER_PROXY_ALLOWED_HOSTS: {{ .Values.proxyService.config.allowedHosts | default "" | quote }}
+  LOWCODER_GOOGLE_FORMS_ALLOWED_HOSTS: {{ .Values.proxyService.config.googleFormsAllowedHosts | default "" | quote }}
+  LOWCODER_WEBSITE_ALLOWED_HOSTS: {{ .Values.proxyService.config.websiteAllowedHosts | default "" | quote }}
+{{- end }}

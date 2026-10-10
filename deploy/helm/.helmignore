@@ -21,3 +21,6 @@
 .idea/
 *.tmproj
 .vscode/
+# Chart documentation and render tests
+docs/
+tests/

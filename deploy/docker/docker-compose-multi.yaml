@@ -178,6 +178,11 @@ services:
       lowcoder-proxy-service:
         condition: service_healthy
         restart: true
+      # nginx resolves the hosts of its upstreams at startup
+      hocuspocus:
+        condition: service_started
+      agora-token-service:
+        condition: service_healthy
     volumes:
       - ./lowcoder-stacks/assets:/lowcoder/assets
       - ./lowcoder-stacks/ssl:/lowcoder-stacks/ssl
