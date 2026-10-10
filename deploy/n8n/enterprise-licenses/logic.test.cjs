@@ -1,6 +1,8 @@
 const {test} = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
+const fs = require('node:fs');
+const vm = require('node:vm');
 const L = require('./logic.cjs');
 const capabilityHash=crypto.createHash('sha256').update('private-owner-capability').digest('hex');
 const now=Date.parse('2026-10-10T12:30:00Z');
@@ -32,3 +34,45 @@ test('another HTTPS installation can buy without central host registration',()=>
 
 test('allows the verified Stripe custom domain but rejects lookalike destinations',()=>{for(const kind of ['checkout','portal']){assert.equal(L.stripeUrl('https://secure.lowcoder.cloud/session',kind),true);for(const value of ['http://secure.lowcoder.cloud/x','https://secure.lowcoder.cloud.evil.test/x','https://secure.lowcoder.cloud@evil.test/x','https://evil.test/'])assert.equal(L.stripeUrl(value,kind),false);}});
 test('refunded or disputed charges cannot issue license files',()=>{const intent={status:'succeeded',customer:'cus_1',currency:'usd',amount_received:91800,latest_charge:{paid:true,status:'succeeded',amount_refunded:0,disputed:false}};L.verifyCharge(intent,order());for(const change of [{amount_refunded:1},{disputed:true},{paid:false},{status:'pending'}])assert.throws(()=>L.verifyCharge({...intent,latest_charge:{...intent.latest_charge,...change}},order()));});
+
+test('strict HTTPS return addresses work without URL or Node modules in Code runtime',()=>{
+  const source=fs.readFileSync(require.resolve('./logic.cjs'),'utf8').replace('module.exports =','return');
+  const isolated=vm.runInNewContext(`(()=>{${source}})()`,{});
+  const route='/setting/subscription?enterpriseLicense=return';
+  for(const host of ['example.test','localhost:8443','127.0.0.1:443','[2001:db8::1]:8443','[::1]'])
+    assert.equal(isolated.validReturnUrl('https://'+host+route),true,host);
+  for(const url of ['http://example.test'+route,'https://user:pass@example.test'+route,
+    'https://example.test:0'+route,'https://example.test:65536'+route,'https://[:::1]'+route,
+    'https://example.test'+route+'#extra','https://example.test'+route+'&extra=true',
+    'https://example.test'+route+'\n','https://example.test/other?enterpriseLicense=return',
+    'https://example.test\\@evil.test'+route,'https://%65xample.test'+route])
+    assert.equal(isolated.validReturnUrl(url),false,url);
+  assert.equal(isolated.validateRequest(body,config,now,capabilityHash).returnUrl,body.returnUrl);
+});
+
+test('native SHA256 output retains deterministic license UUIDs across retries',()=>{
+  const seed=body.requestId+':in_1:host-1';
+  const digest=crypto.createHash('sha256').update(seed).digest('hex');
+  const id=L.uuidFromHash(digest);
+  assert.match(id,/^[a-f0-9]{8}-[a-f0-9]{4}-5[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/);
+  assert.equal(id,L.uuidFromHash(digest));
+  assert.notEqual(id,L.uuidFromHash(crypto.createHash('sha256').update(seed+'2').digest('hex')));
+  for(const bad of [null,'a'.repeat(63),'z'.repeat(64)])assert.throws(()=>L.uuidFromHash(bad));
+});
+
+test('only an authoritative matching Stripe paid event becomes a receipt',()=>{
+  const event={id:'evt_fixture1',object:'event',type:'invoice.paid',livemode:false,
+    data:{object:{id:'in_fixture1',object:'invoice',status:'paid',livemode:false,
+      lines:{data:[{pricing:{price_details:{product:config.productId}}}]}}}};
+  assert.deepEqual(L.paidReceipt(event,event.id,config),{eventId:event.id,invoiceId:'in_fixture1'});
+  for(const change of [{id:'evt_other'},{type:'invoice.created'},{livemode:true},{object:'invoice'},
+    {data:{object:{...event.data.object,id:'in_/../customers'}}},
+    {data:{object:{...event.data.object,status:'open'}}},
+    {data:{object:{...event.data.object,livemode:true}}}])
+    assert.throws(()=>L.paidReceipt({...event,...change},event.id,config));
+  assert.throws(()=>L.paidReceipt(event,'evt_../../customers',config));
+  const legacy=structuredClone(event);legacy.data.object.lines.data=[{price:{product:config.productId}}];
+  assert.deepEqual(L.paidReceipt(legacy,event.id,config),{eventId:event.id,invoiceId:'in_fixture1'});
+  const unrelated=structuredClone(event);unrelated.data.object.lines.data=[{price:{product:'prod_seats'}}];
+  assert.equal(L.paidReceipt(unrelated,event.id,config),null);
+});

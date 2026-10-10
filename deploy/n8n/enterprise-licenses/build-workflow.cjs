@@ -19,6 +19,8 @@ function connect(from, to, output = 0) {
 }
 function chain(...names) { for (let i = 1; i < names.length; i++) connect(names[i-1], names[i]); }
 function code(name, body) { node(name, 'code', { jsCode: `const config = ${JSON.stringify(config)};\nconst logic = (() => {\n${source}\n})();\n${body}` }); }
+function hash(name, value, property) { node(name, 'crypto', { action: 'hash', binaryData: false,
+  type: 'SHA256', value, dataPropertyName: property, encoding: 'hex' }, 2); }
 function sql(name, query, values) { node(name, 'postgres', { operation: 'executeQuery', query,
   options: { queryReplacement: `={{ ${values} }}` } }, 2.6, dbCred); }
 function branch(name, expression) { node(name, 'if', { conditions: { options: { caseSensitive: true, typeValidation: 'strict', version: 2 },
@@ -33,14 +35,14 @@ const form = expression => `={{ Object.entries(${expression}).map(([k,v]) => enc
 const scope = `[$('Validate request').first().json.hostId, $('Validate request').first().json.orgId, $('Validate request').first().json.userId, $('Validate request').first().json.capabilityHash]`;
 const owner = `o.host_id=$1 AND o.org_id=$2 AND o.user_id=$3 AND o.capability_hash=$4`;
 node('Enterprise UI relay', 'webhook', { httpMethod: 'POST', path: 'secure/enterprise-licenses', authentication: 'none', responseMode: 'responseNode', options: {} }, 2);
+hash('Hash private owner', "={{ $json.headers?.['lowcoder-enterprise-owner'] || '' }}", 'capabilityHash');
 code('Validate request', `const input=$input.first().json; const token=input.headers?.['lowcoder-enterprise-owner'];
 if(typeof token !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(token)) throw new Error('Missing private ownership capability');
-const hash=require('crypto').createHash('sha256').update(token).digest('hex');
-return [{json: logic.validateRequest(input.body, config, Date.now(), hash)}];`);
+return [{json: logic.validateRequest(input.body, config, Date.now(), input.capabilityHash)}];`);
 node('Route request', 'switch', { rules: { values: ['checkout','sync','status','download','portal'].map(action => ({
   conditions: { options: { caseSensitive: true, typeValidation: 'strict', version: 2 }, conditions: [{ leftValue: '={{ $json.action }}', rightValue: action,
     operator: { type: 'string', operation: 'equals' } }], combinator: 'and' }, renameOutput: true, outputKey: action })) }, options: {} }, 3.2);
-chain('Enterprise UI relay', 'Validate request', 'Route request');
+chain('Enterprise UI relay', 'Hash private owner', 'Validate request', 'Route request');
 
 // Order payload and authenticated owner are immutable; a reused request ID cannot change a purchase.
 sql('Reserve purchase', `WITH inserted AS (
@@ -106,8 +108,14 @@ return [{json:{intentId:payments[0].payment.payment_intent.id}}];`);
 get('Check refund and dispute', '=https://api.stripe.com/v1/payment_intents/{{ $json.intentId }}', [['expand[]','latest_charge']]);
 code('Plan paid licenses', `const state=$('Check paid Enterprise period').item.json;
 logic.verifyCharge($json,state.order);
-const crypto=require('crypto'); const deterministicUuid=value=>{const b=crypto.createHash('sha256').update(value).digest();b[6]=(b[6]&15)|80;b[8]=(b[8]&63)|128;const h=b.subarray(0,16).toString('hex');return h.slice(0,8)+'-'+h.slice(8,12)+'-'+h.slice(12,16)+'-'+h.slice(16,20)+'-'+h.slice(20);};
-return logic.licensePlan(state.order,state.period,deterministicUuid).map(plan=>({json:{...plan,leaseToken:crypto.randomUUID()}}));`);
+return state.order.deploymentIds.map(deploymentId=>({json:{order:state.order,period:state.period,deploymentId,
+identitySeed:state.order.requestId+':'+state.period.invoiceId+':'+deploymentId}}));`);
+hash('Hash license identities', '={{ $json.identitySeed }}', 'identityHash');
+code('Finalize license plans', `return $input.all().map((item,index)=>{
+const p=item.json,id=logic.uuidFromHash(p.identityHash);
+const plan=logic.licensePlan({...p.order,deploymentIds:[p.deploymentId]},p.period,()=>id)[0];
+return {json:{...plan,leaseToken:String($execution.id)},pairedItem:{item:index}};
+});`);
 node('Each paid deployment', 'splitInBatches', { batchSize: 1, options: { reset: '={{ $("Plan paid licenses").isExecuted && $node["Each paid deployment"].context["done"] }}' } }, 3);
 sql('Claim license generation', `WITH claimed AS (INSERT INTO enterprise_billing.files(id,request_id,invoice_id,deployment_id,not_before,not_after,filename,lease_token,lease_until)
  VALUES($1::uuid,$2::uuid,$3,$4,$5::timestamp,$6::timestamp,$7,$8,now()+interval '180 seconds')
@@ -132,7 +140,7 @@ chain('Read paid subscription','Check subscription owner','Save subscription sta
 connect('Has invoice','Read current invoice'); connect('Has invoice','Each purchase',1);
 chain('Read current invoice','Check paid Enterprise period','Paid current period');
 connect('Paid current period','Verify invoice payments'); connect('Paid current period','Each purchase',1);
-chain('Verify invoice payments','Select successful payment','Check refund and dispute','Plan paid licenses','Each paid deployment');
+chain('Verify invoice payments','Select successful payment','Check refund and dispute','Plan paid licenses','Hash license identities','Finalize license plans','Each paid deployment');
 connect('Each paid deployment','Each purchase',0); connect('Each paid deployment','Claim license generation',1);
 chain('Claim license generation','Lease acquired');
 connect('Lease acquired','Generate private license'); connect('Lease acquired','Each paid deployment',1);
@@ -163,12 +171,26 @@ node('Respond privately','respondToWebhook',{respondWith:'json',responseBody:'={
 for(const name of ['Existing checkout response','Checkout response','Library response','Download response','Portal response'])connect(name,'Respond privately');
 fs.writeFileSync(path.join(__dirname,'workflow.json'),JSON.stringify({name:'Enterprise licenses - private purchase and UI renewal',nodes,connections,active:false,settings},null,2)+'\n');
 
-// Signed Stripe events are receipts, not license-generation triggers. Reconciliation also handles delayed/missed receipts.
+// Fetch the event from Stripe before recording it, independently of trigger signature verification.
+// Receipts never generate licenses. UI reconciliation also handles delayed/missed receipts.
 const paymentNodes=[{
  id:'stripe-paid-event',name:'Stripe payment receipt',type:'n8n-nodes-base.stripeTrigger',typeVersion:1,position:[0,0],
- parameters:{events:['invoice.paid'],resolveData:false},credentials:stripeCred
-},{id:'record-event',name:'Store verified receipt',type:'n8n-nodes-base.postgres',typeVersion:2.6,position:[300,0],credentials:dbCred,
+ parameters:{events:['invoice.paid'],apiVersion:'2026-08-26.dahlia'},credentials:stripeCred
+},{id:'validate-event-id',name:'Validate receipt event ID',type:'n8n-nodes-base.code',typeVersion:2,position:[260,0],
+ parameters:{jsCode:`const id=$input.first().json.id;
+if(typeof id!=='string'||!/^evt_[A-Za-z0-9]+$/.test(id)) throw new Error('Invalid Stripe event ID');
+return [{json:{eventId:id}}];`}
+},{id:'retrieve-event',name:'Retrieve authoritative Stripe event',type:'n8n-nodes-base.httpRequest',typeVersion:4.2,position:[520,0],credentials:stripeCred,
+ parameters:{url:'=https://api.stripe.com/v1/events/{{ $json.eventId }}',authentication:'predefinedCredentialType',nodeCredentialType:'stripeApi',
+ sendHeaders:true,headerParameters:{parameters:[{name:'Stripe-Version',value:'2026-08-26.dahlia'}]},options:{timeout:10000}}
+},{id:'verify-receipt',name:'Verify authoritative paid receipt',type:'n8n-nodes-base.code',typeVersion:2,position:[780,0],
+ parameters:{jsCode:`const config=${JSON.stringify({livemode:config.livemode,productId:config.productId})};\nconst logic=(()=>{\n${source}\n})();
+const receipt=logic.paidReceipt($input.first().json,$('Validate receipt event ID').first().json.eventId,config);
+return receipt?[{json:receipt}]:[];`}
+},{id:'record-event',name:'Store verified receipt',type:'n8n-nodes-base.postgres',typeVersion:2.6,position:[1040,0],credentials:dbCred,
  parameters:{operation:'executeQuery',query:`INSERT INTO enterprise_billing.payment_events(event_id,invoice_id) VALUES($1,$2) ON CONFLICT(event_id) DO NOTHING`,
- options:{queryReplacement:'={{ [$json.id,$json.data.object.id] }}'}}}];
+ options:{queryReplacement:'={{ [$json.eventId,$json.invoiceId] }}'}}}];
+const paymentConnections={};
+for(let i=1;i<paymentNodes.length;i++) paymentConnections[paymentNodes[i-1].name]={main:[[{node:paymentNodes[i].name,type:'main',index:0}]]};
 fs.writeFileSync(path.join(__dirname,'payment-workflow.json'),JSON.stringify({name:'Enterprise licenses - verified Stripe payment receipts',nodes:paymentNodes,
- connections:{'Stripe payment receipt':{main:[[{node:'Store verified receipt',type:'main',index:0}]]}},active:false,settings},null,2)+'\n');
+ connections:paymentConnections,active:false,settings},null,2)+'\n');

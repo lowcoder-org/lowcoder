@@ -7,6 +7,29 @@ const safeId = value => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.te
 const deploymentId = value => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,36}$/.test(value);
 const uuid = value => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 
+// Code nodes do not expose Node's URL global. Only an HTTPS authority and this
+// exact return route are accepted; credentials, escapes and other paths cannot pass.
+function validReturnUrl(value) {
+  if (typeof value !== 'string' || value.length > 2048) return false;
+  const match = /^https:\/\/((?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*|\[[0-9a-fA-F:]+\])(?::([0-9]{1,5}))?\/setting\/subscription\?enterpriseLicense=return$/.exec(value);
+  if (match?.[1].startsWith('[')) {
+    const halves = match[1].slice(1, -1).split('::');
+    const groups = halves.flatMap(half => half ? half.split(':') : []);
+    if (halves.length > 2 || !groups.every(group => /^[0-9a-fA-F]{1,4}$/.test(group)) ||
+        (halves.length === 1 ? groups.length !== 8 : groups.length >= 8)) return false;
+  }
+  return !!match && match[0] === value && match[1].length <= 253 &&
+    (!match[2] || (Number(match[2]) >= 1 && Number(match[2]) <= 65535));
+}
+
+function uuidFromHash(hash) {
+  assert(typeof hash === 'string' && /^[a-f0-9]{64}$/.test(hash), 'Invalid license identity hash');
+  // Preserve the identities issued by the original SHA-256 implementation.
+  const h = hash.slice(0, 12) + '5' + hash.slice(13, 16) +
+    ((parseInt(hash[16], 16) & 3) | 8).toString(16) + hash.slice(17, 32);
+  return h.slice(0, 8) + '-' + h.slice(8, 12) + '-' + h.slice(12, 16) + '-' + h.slice(16, 20) + '-' + h.slice(20);
+}
+
 function validateRequest(body, config, now = Date.now(), capabilityHash) {
   assert(typeof capabilityHash === 'string' && /^[a-f0-9]{64}$/.test(capabilityHash), 'Missing private ownership capability');
   assert(body && deploymentId(body.hostId) && safeId(body.orgId) && safeId(body.userId) &&
@@ -17,10 +40,7 @@ function validateRequest(body, config, now = Date.now(), capabilityHash) {
   if (body.action === 'download') { assert(uuid(body.licenseId), 'Invalid license ID'); result.licenseId = body.licenseId; }
   if (body.action === 'portal') { assert(uuid(body.requestId), 'Invalid request ID'); result.requestId = body.requestId; }
   if (['checkout', 'portal'].includes(body.action)) {
-    assert(typeof body.returnUrl === 'string' && body.returnUrl.length <= 2048, 'Invalid return URL');
-    const target = new URL(body.returnUrl);
-    assert(target.protocol === 'https:' && !target.username && !target.password && !target.hash &&
-      target.pathname === '/setting/subscription' && target.search === '?enterpriseLicense=return', 'Invalid return URL');
+    assert(validReturnUrl(body.returnUrl), 'Invalid return URL');
     result.returnUrl = body.returnUrl;
   }
   if (body.action === 'checkout') {
@@ -139,6 +159,17 @@ function verifyCharge(intent, order) {
     charge.amount_refunded === 0 && charge.disputed === false, 'Payment refunded, disputed, or not successful');
 }
 
+function paidReceipt(event, requestedId, config) {
+  assert(typeof requestedId === 'string' && /^evt_[A-Za-z0-9]+$/.test(requestedId), 'Invalid Stripe event ID');
+  assert(event?.object === 'event' && event.id === requestedId && event.type === 'invoice.paid' &&
+    event.livemode === config.livemode, 'Unexpected Stripe payment event');
+  const invoice = event.data?.object;
+  assert(invoice?.object === 'invoice' && typeof invoice.id === 'string' && /^in_[A-Za-z0-9]+$/.test(invoice.id) &&
+    invoice.status === 'paid' && invoice.livemode === config.livemode, 'Unexpected paid invoice');
+  if (!invoice.lines?.data?.some(line => idOf(line.pricing?.price_details?.product ?? line.price?.product) === config.productId)) return null;
+  return { eventId: event.id, invoiceId: invoice.id };
+}
+
 const stamp = seconds => new Date(seconds * 1000).toISOString().slice(0, 19).replace('T', ' ');
 const safeName = value => value.normalize('NFKD').replace(/[^a-zA-Z0-9_-]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 80) || 'Customer';
 function licensePlan(order, period, deterministicUuid) {
@@ -160,5 +191,5 @@ function generatedFile(response) {
     'License server did not return a valid file');
   return response.license;
 }
-module.exports = { UNIT_AMOUNTS, API_CALLS_LIMIT, validateRequest, stripeUrl, validatePrice, checkoutForm, checkSession,
-  paidPeriod, verifyPayments, verifyCharge, licensePlan, generatedFile };
+module.exports = { UNIT_AMOUNTS, API_CALLS_LIMIT, validateRequest, validReturnUrl, uuidFromHash, stripeUrl, validatePrice, checkoutForm, checkSession,
+  paidPeriod, verifyPayments, verifyCharge, paidReceipt, licensePlan, generatedFile };
