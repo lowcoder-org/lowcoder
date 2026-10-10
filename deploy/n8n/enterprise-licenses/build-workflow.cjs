@@ -10,7 +10,7 @@ function node(name, type, parameters, version = 2, credentials) {
     ...(credentials ? { credentials } : {}) });
 }
 const credential = (type, id, name) => ({ [type]: { id, name } });
-const stripeCred = credential('stripeApi', config.credentialIds.stripe, 'Lowcoder Stripe');
+const stripeCred = credential('stripeApi', config.credentialIds.stripe, 'Stripe PROD Account - Personal');
 const dbCred = credential('postgres', config.credentialIds.postgres, 'License Database — Enterprise licensing');
 function connect(from, to, output = 0) {
   const main = (connections[from] ||= { main: [] }).main;
