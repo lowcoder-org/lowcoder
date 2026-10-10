@@ -1,5 +1,6 @@
-import { trans } from "i18n";
 "use client";
+
+import { trans } from "i18n";
 
 import { memo, useCallback, useRef, useState } from "react";
 import { BrainIcon, ChevronDownIcon } from "lucide-react";

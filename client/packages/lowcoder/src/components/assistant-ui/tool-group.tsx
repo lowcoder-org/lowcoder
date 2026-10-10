@@ -1,5 +1,6 @@
-import { trans } from "i18n";
 "use client";
+
+import { trans } from "i18n";
 
 import {
   memo,
