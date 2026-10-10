@@ -57,8 +57,8 @@ branch) and `:latest` (built from `main`); there are no version tags. The chart 
   `ImagePullBackOff`, and `lowcoder-hocuspocus:latest` is an older amd64-only image that answers its first
   `/health` request and then exits (`ERR_HTTP_HEADERS_SENT`), so its pod restarts after every probe. Set
   `<service>.image.tag: dev` or `<service>.enabled: false` until then.
-- The default frontend and api-service images (`appVersion` 2.7.6) do not use them yet: 2.7.6 has no `/proxy/`
-  route and no ChatBox hocuspocus client. proxy-service and hocuspocus run, but nothing calls them.
+- The chart targets Lowcoder 3.0.0. Wait for the 3.0.0 frontend and API-service images to be published before
+  installing with the default tags. Older 2.7.6 images have no `/proxy/` route or ChatBox Hocuspocus client.
 
 ## Exposing the new services
 
@@ -75,7 +75,7 @@ The paths are not rewritten. proxy-service is not exposed: the frontend reaches 
 
 ### Through the frontend
 
-Frontend images built from this repository's current `deploy/docker/frontend` (not the default 2.7.6 image)
+Lowcoder 3.0.0 frontend images built from this repository's `deploy/docker/frontend`
 also forward, in their nginx:
 
 | Frontend path | Service | Frontend env (set by the chart when the service is enabled) |

@@ -187,7 +187,7 @@ nodeService:
 
 # Lowcoder frontend
 #
-# Its nginx forwards /api and /node-service/plugin-icons, and in current images (not 2.7.6) also /proxy/,
+# Its nginx in Lowcoder 3.0.0 forwards /api and /node-service/plugin-icons, as well as /proxy/,
 # /hocuspocus and /agora-token-service/, to the services of this chart; URLs of disabled services are not set.
 #
 frontend:
