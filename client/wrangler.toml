@@ -1,0 +1,17 @@
+# Cloudflare Pages configuration, recovered from the connected lowcoder-cloud project.
+# Paths are relative to client/, the project's configured build root.
+name = "lowcoder-cloud"
+pages_build_output_dir = "packages/lowcoder/build"
+compatibility_date = "2026-09-06"
+
+# Dev previews stay separate from production. Add the dev API URLs here once
+# provisioned; previews currently have no backend connection configured.
+[env.preview.vars]
+
+# Public frontend build settings; do not put credentials in this file.
+[env.production.vars]
+NODE_ENV = "production"
+NODE_OPTIONS = "--max_old_space_size=4096"
+REACT_APP_API_SERVICE_URL = "https://api-service.lowcoder.cloud"
+REACT_APP_LOG_LEVEL = "error"
+REACT_APP_NODE_SERVICE_URL = "https://node-service.lowcoder.cloud"

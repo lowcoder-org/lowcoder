@@ -1,5 +1,54 @@
 # Lowcoder frontend
 
+## Cloudflare Pages
+
+The `lowcoder-cloud` Pages project is connected to `lowcoder-org/lowcoder` on
+GitHub. Cloudflare builds `main` for production and other branches for previews.
+The existing Git integration performs deployment; no separate upload workflow
+or custom Worker is needed for this static frontend.
+
+Keep these build settings in the Cloudflare project:
+
+| Setting | Value |
+| --- | --- |
+| Root directory | `client/` |
+| Build command | `yarn workspace lowcoder build` |
+| Build output directory | `packages/lowcoder/build` |
+| Production branch | `main` |
+
+`wrangler.toml` records the Pages output directory, compatibility date, and
+production environment settings downloaded from the existing project. API URLs
+are compiled into the frontend during the build. The backend services continue
+to run separately; Pages does not host the Java or Node services.
+
+Preview backend addresses are intentionally unset. Configure
+`REACT_APP_API_SERVICE_URL` and `REACT_APP_NODE_SERVICE_URL` with the separate dev
+services for preview builds, then rebuild. A successful static preview deployment
+alone does not mean its API connection works. Do not copy production addresses
+into preview configuration.
+
+Vite copies `packages/lowcoder/public/_headers` into the build for cache
+revalidation of the app entry point and `VERSION` file. Pages provides SPA
+fallback routing for direct links and refreshes when no top-level `404.html`
+exists. Do not add a `/* /index.html 200` redirect: Pages rejects it as a loop.
+See [Pages routing behavior](https://developers.cloudflare.com/pages/configuration/serving-pages/#single-page-application-spa-rendering).
+
+Before pushing a dependency or version change, run from `client/`:
+
+```bash
+yarn install --immutable
+NODE_ENV=production NODE_OPTIONS=--max_old_space_size=4096 \
+  REACT_APP_API_SERVICE_URL=https://api-service.lowcoder.cloud \
+  REACT_APP_NODE_SERVICE_URL=https://node-service.lowcoder.cloud \
+  yarn workspace lowcoder build
+```
+
+Use a supported Node.js release (validated with Node.js 22) and the repository's
+Yarn 3.6.4. Commit `yarn.lock` together with package version changes. The CLI
+template's `lowcoder-sdk` range must accept the current workspace SDK version;
+otherwise Yarn can resolve an older published SDK or reject a stale lockfile
+during Cloudflare's immutable install.
+
 ## How to contribute
 
 ### Start a local backend server
