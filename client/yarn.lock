@@ -16714,7 +16714,19 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: unknown
   linkType: soft
 
-"lowcoder-sdk@^2.1.10, lowcoder-sdk@workspace:^, lowcoder-sdk@workspace:packages/lowcoder-sdk":
+"lowcoder-sdk@npm:^2.1.10":
+  version: 2.7.6
+  resolution: "lowcoder-sdk@npm:2.7.6"
+  dependencies:
+    prettier: ^3.1.1
+  peerDependencies:
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: 7d5e84211c49c37682d07ae139b0bb3b3ead3532c31d224d9b44686a7becec80d5713f94352465f51aedf18333cdceb20ecdb603253b78f84d7036a165dea411
+  languageName: node
+  linkType: hard
+
+"lowcoder-sdk@workspace:^, lowcoder-sdk@workspace:packages/lowcoder-sdk":
   version: 0.0.0-use.local
   resolution: "lowcoder-sdk@workspace:packages/lowcoder-sdk"
   dependencies:
