@@ -64,8 +64,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const isAI = productId === SubscriptionProductsEnum.AIROBOT;
   const isSupport = productId === SubscriptionProductsEnum.SUPPORT;
   const storyDescription = isAI
-    ? "Describe an app. Build it with AI. Keep refining native Lowcoder components with your own model."
-    : isSupport ? "Keep your team moving with expert help, tracked tickets and conversations right inside Lowcoder." : description;
+    ? trans("automator.subscription.cardDescription")
+    : isSupport ? trans("automator.subscription.supportCardDescription") : description;
 
   const goToCheckout = () => {
     if (checkoutLink) {
@@ -89,9 +89,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         image ? <img loading="lazy" alt={title} src={image} style={{width: '300px', height: '300px', background: '#f2f2f2'}} /> : <div style={{ height: 300, display: "grid", placeItems: "center", background: "#f2f2f2" }}><RobotOutlined style={{ fontSize: 96, color: "#ff6f3c" }} /></div>
       }
       actions={[
-        <Button type="default" block onClick={goToSubscriptionInformation} style={{width:"90%"}} icon={<InfoCircleOutlined />}>Explore</Button>,
+        <Button type="default" block onClick={goToSubscriptionInformation} style={{width:"90%"}} icon={<InfoCircleOutlined />}>{trans("automator.subscription.explore")}</Button>,
         activeSubscription ? (
-          <Button type="default" block onClick={goToSubscriptionSettings} style={{width:"90%"}} icon={<SettingOutlined />}>Manage</Button>
+          <Button type="default" block onClick={goToSubscriptionSettings} style={{width:"90%"}} icon={<SettingOutlined />}>{trans("automator.subscription.manage")}</Button>
         ) : (
         !activeSubscription && (
           checkoutLinkDataLoaded && checkoutLink ? (
@@ -106,7 +106,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     >
       <ProductTitle>{title}</ProductTitle>
       <ProductDescription>{storyDescription}</ProductDescription>
-      <PricingTypeDescription>{pricingType} {activeSubscription && <><span> Subscribed </span><CheckCircleOutlined key="check" style={{ color: 'green' }} /></>}</PricingTypeDescription>
+      <PricingTypeDescription>{isAI || isSupport ? trans("automator.subscription.seatPricing") : pricingType} {activeSubscription && <><span> {trans("automator.subscription.subscribed")} </span><CheckCircleOutlined key="check" style={{ color: 'green' }} /></>}</PricingTypeDescription>
     </ProductCardContainer>
   );
 };

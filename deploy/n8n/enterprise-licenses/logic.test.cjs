@@ -50,6 +50,20 @@ test('strict HTTPS return addresses work without URL or Node modules in Code run
   assert.equal(isolated.validateRequest(body,config,now,capabilityHash).returnUrl,body.returnUrl);
 });
 
+test('checkout and portal allow HTTP loopback return URLs only',()=>{
+  const route='/setting/subscription?enterpriseLicense=return';
+  for(const host of ['localhost','localhost:8000','127.0.0.1:8000','[::1]:8000']) {
+    for(const action of ['checkout','portal']) {
+      const request=L.validateRequest({...body,action,returnUrl:'http://'+host+route},config,now,capabilityHash);
+      assert.equal(request.returnUrl,'http://'+host+route);
+    }
+  }
+  for(const host of ['example.test','localhost.evil.test','127.0.0.1.evil.test','localhost@evil.test','evil.test@localhost',
+    '192.168.1.2:8000','localhost:0','localhost:65536','localhost.','[::ffff:127.0.0.1]'])
+    assert.equal(L.validReturnUrl('http://'+host+route),false,host);
+  for(const suffix of ['#extra','&extra=true','\n']) assert.equal(L.validReturnUrl('http://localhost:8000'+route+suffix),false);
+});
+
 test('native SHA256 output retains deterministic license UUIDs across retries',()=>{
   const seed=body.requestId+':in_1:host-1';
   const digest=crypto.createHash('sha256').update(seed).digest('hex');

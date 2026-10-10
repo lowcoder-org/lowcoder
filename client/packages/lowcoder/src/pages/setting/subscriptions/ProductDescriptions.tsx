@@ -1,3 +1,5 @@
+import { trans } from "i18n";
+
 // Stripe is the pricing authority. Shared snapshot of Support and AI Robot prices,
 // verified on 2026-10-10 (price_1PhAKrDDlQgecLSfzpt0hQSA / price_1UP0P3DDlQgecLSfuw4KtcZ0).
 // Volume pricing: the selected rate applies to every admin/editor seat. Tax is excluded.
@@ -245,46 +247,11 @@ ${monthlySeatPriceRows}
 `
 },
 
-AIRobotProduct: {
-  en: `
-# AI Robot
-
-## From an idea to something you can edit
-
-AI Robot unlocks **Lowcoder Automator**, your building partner inside the app editor. Describe a task, create native Lowcoder components and keep refining them through conversation or the visual editor.
-
-- **Start a useful first draft.** Ask for a to-do app, a customer form or a dashboard layout.
-- **Make everyday changes faster.** Add a filter, rearrange components or update supported properties and styles.
-- **Build on what is already there.** Automator uses the current app context to help with your next change.
-
-### Your first app starts with one connection
-
-Open **Automator → Set up AI connection** in the editor. The guided setup helps you connect an OpenAI API key or an existing model datasource, creates the two queries for you and checks that your model can return tool calls. Then try: “Create a simple to-do app with a task table and an add button.”
-
-### Your model. Your editable app.
-
-Use the OpenAI example to get started, or connect a self-hosted model or private gateway with an OpenAI-compatible API. Other API formats can use a custom bridge query. Inline guidance explains the endpoint, tool support and response format.
-
-Model output can vary. Automator applies supported changes directly in the editor; review the result before publishing. The subscription includes access to Automator, not model credits or custom app development.
-
-### Built for your workspace
-
-A workspace admin subscribes for the workspace. All admins and editors in that workspace count as billable seats and can use the Automator. App viewers are not billed. Each workspace requires its own subscription.
-
-## Monthly pricing
-
-Prices are in EUR, excluding tax. The workspace's seat count determines the price per seat for all seats (volume pricing).
-
-| Admins and editors | Monthly price per seat |
-|---|---|
-${monthlySeatPriceRows}
-
-For example, 11 seats cost 11 × €2.90 = €31.90 per month before tax. The seat count is set at checkout. On installations with seat synchronization enabled, changes to admins and editors are synchronized automatically while the workspace is open. Changes made while it is closed are reconciled on the next visit. Additions and removals are prorated on the next invoice.
-
-The Automator uses the AI query selected in the editor. Any provider charges associated with that query remain separate.
-`
-}
 };
+
+export function getAIRobotDescription() {
+  return trans("automator.subscription.descriptionMarkdown", { monthlySeatPriceRows });
+}
 
   export type Translations = {
     [key: string]: string; // Each language key maps to a string

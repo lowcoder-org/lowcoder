@@ -64,7 +64,7 @@ const ThreadScrollToBottom: FC = () => {
   return (
     <ThreadPrimitive.ScrollToBottom asChild>
       <TooltipIconButton
-        tooltip="Scroll to bottom"
+        tooltip={trans("automator.chat.scrollToBottom")}
         variant="outline"
         className="aui-thread-scroll-to-bottom"
       >

@@ -245,7 +245,7 @@ function ChatPanelView({ messageHandler, placeholder, onMessageUpdate }: Omit<Ch
     const text = getTextFromAppendMessage(message);
   
     if (!text) {
-      throw new Error("Cannot send an empty message");
+      throw new Error(trans("automator.chat.emptyMessage"));
     }
   
     const userMessage = createUserMessage(text);
@@ -293,7 +293,7 @@ function ChatPanelView({ messageHandler, placeholder, onMessageUpdate }: Omit<Ch
     const text = getTextFromAppendMessage(message);
   
     if (!text) {
-      throw new Error("Cannot send an empty message");
+      throw new Error(trans("automator.chat.emptyMessage"));
     }
   
     const index = currentMessages.findIndex((m) => m.id === message.parentId) + 1;
@@ -368,7 +368,7 @@ function ChatPanelView({ messageHandler, placeholder, onMessageUpdate }: Omit<Ch
   });
 
   if (!state.isInitialized) {
-    return <div>Loading...</div>;
+    return <div>{trans("automator.chat.loading")}</div>;
   }
 
   return (

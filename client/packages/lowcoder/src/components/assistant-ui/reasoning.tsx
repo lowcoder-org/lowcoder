@@ -1,3 +1,4 @@
+import { trans } from "i18n";
 "use client";
 
 import { memo, useCallback, useRef, useState } from "react";
@@ -205,7 +206,7 @@ function ReasoningTrigger({
   active?: boolean;
   duration?: number;
 }) {
-  const durationText = duration ? ` (${duration}s)` : "";
+  const label = duration ? trans("automator.chat.reasoningDuration", { seconds: duration }) : trans("automator.chat.reasoning");
 
   return (
     <StyledReasoningTrigger
@@ -221,14 +222,14 @@ function ReasoningTrigger({
         data-slot="reasoning-trigger-label"
         className="aui-reasoning-trigger-label-wrapper"
       >
-        <span>Reasoning{durationText}</span>
+        <span>{label}</span>
         {active ? (
           <span
             aria-hidden
             data-slot="reasoning-trigger-shimmer"
             className="aui-reasoning-trigger-shimmer"
           >
-            Reasoning{durationText}
+            {label}
           </span>
         ) : null}
       </span>

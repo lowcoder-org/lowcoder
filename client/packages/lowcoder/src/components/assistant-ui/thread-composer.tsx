@@ -31,7 +31,7 @@ export const Composer: FC<{
             className="aui-composer-input"
             rows={1}
             autoFocus
-            aria-label="Message input"
+            aria-label={trans("automator.chat.messageInput")}
           />
           <ComposerAction showAttachments={showAttachments} />
         </div>
@@ -53,10 +53,10 @@ export const EditComposer: FC = () => {
         />
         <div className="aui-edit-composer-footer">
           <ComposerPrimitive.Cancel asChild>
-            <Button variant="ghost">Cancel</Button>
+            <Button variant="ghost">{trans("cancel")}</Button>
           </ComposerPrimitive.Cancel>
           <ComposerPrimitive.Send asChild>
-            <Button>Update</Button>
+            <Button>{trans("automator.chat.update")}</Button>
           </ComposerPrimitive.Send>
         </div>
       </ComposerPrimitive.Root>
@@ -73,13 +73,13 @@ const ComposerAction: FC<{ showAttachments?: boolean }> = ({
       <AuiIf condition={(s) => !s.thread.isRunning}>
         <ComposerPrimitive.Send asChild>
           <TooltipIconButton
-            tooltip="Send message"
+            tooltip={trans("automator.chat.sendMessage")}
             side="bottom"
             type="button"
             variant="default"
             size="icon"
             className="aui-composer-send"
-            aria-label="Send message"
+            aria-label={trans("automator.chat.sendMessage")}
           >
             <ArrowUpIcon className="aui-composer-send-icon" />
           </TooltipIconButton>
@@ -92,7 +92,7 @@ const ComposerAction: FC<{ showAttachments?: boolean }> = ({
             variant="default"
             size="icon"
             className="aui-composer-cancel"
-            aria-label="Stop generating"
+            aria-label={trans("automator.chat.stopGenerating")}
           >
             <SquareIcon className="aui-composer-cancel-icon" />
           </Button>

@@ -63,4 +63,24 @@ class EnterpriseLicenseControllerTest {
         controller=mock(EnterpriseLicenseController.class,withSettings().mockMaker("mock-maker-subclass").useConstructor(sessions,config,capabilities,"","https://ui.example").defaultAnswer(CALLS_REAL_METHODS));
         assertThrows(ResponseStatusException.class,()->controller.request("checkout",body).block());verify(controller,never()).send(anyMap(),eq("private-test-token"));
     }
+    @Test void localCheckoutAndPortalCanReturnToTheDevelopmentUi() {
+        controller=mock(EnterpriseLicenseController.class,withSettings().mockMaker("mock-maker-subclass").useConstructor(sessions,config,capabilities,"https://flow.example/webhook/enterprise","").defaultAnswer(CALLS_REAL_METHODS));
+        for (String origin:List.of("http://localhost:8000", "http://127.0.0.1:8000", "http://[::1]:8000", "https://ui.example")) {
+            ((com.fasterxml.jackson.databind.node.ObjectNode)body).put("returnOrigin",origin);
+            doAnswer(call->{ Map<String,Object> p=call.getArgument(0);
+                assertEquals(origin+"/setting/subscription?enterpriseLicense=return",p.get("returnUrl"));
+                return Mono.just(mapper.valueToTree(Map.of("success",true))); }).when(controller).send(anyMap(),eq("private-test-token"));
+            for (String action:List.of("checkout", "portal")) assertNotNull(controller.request(action,body).block());
+        }
+    }
+    @Test void httpReturnExceptionDoesNotAllowRemoteHostsOrUrlTricks() {
+        controller=mock(EnterpriseLicenseController.class,withSettings().mockMaker("mock-maker-subclass").useConstructor(sessions,config,capabilities,"https://flow.example/webhook/enterprise","").defaultAnswer(CALLS_REAL_METHODS));
+        for (String origin:List.of("http://example.test", "http://localhost.evil.test", "http://127.0.0.1.evil.test",
+                "http://localhost@evil.test", "http://evil.test@localhost", "http://192.168.1.2:8000", "http://localhost:0",
+                "http://localhost:65536", "http://localhost:8000/other", "http://localhost?next=elsewhere", "http://localhost#other", "file:///tmp")) {
+            ((com.fasterxml.jackson.databind.node.ObjectNode)body).put("returnOrigin",origin);
+            assertThrows(ResponseStatusException.class,()->controller.request("checkout",body).block(),origin);
+        }
+        verify(controller,never()).send(anyMap(),anyString());
+    }
 }

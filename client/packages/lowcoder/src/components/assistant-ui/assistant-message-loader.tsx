@@ -1,3 +1,4 @@
+import { trans } from "i18n";
 import { LoadingOutlined } from "@ant-design/icons";
 import { Spin } from "antd";
 import type { FC } from "react";
@@ -21,6 +22,6 @@ const LoaderIcon = styled(LoadingOutlined)`
 export const AssistantMessageLoader: FC = () => (
   <LoaderRoot aria-live="polite">
     <Spin indicator={<LoaderIcon spin />} size="small" />
-    <span>Working on it...</span>
+    <span>{trans("automator.chat.working")}</span>
   </LoaderRoot>
 );

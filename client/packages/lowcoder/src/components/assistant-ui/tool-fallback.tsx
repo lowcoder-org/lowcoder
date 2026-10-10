@@ -1,3 +1,4 @@
+import { trans } from "i18n";
 "use client";
 
 import { memo, useCallback, useRef, useState } from "react";
@@ -240,7 +241,7 @@ function ToolFallbackTrigger({
     status?.type === "incomplete" && status.reason === "cancelled";
 
   const Icon = statusIconMap[statusType];
-  const label = isCancelled ? "Cancelled tool" : "Used tool";
+  const label = trans(isCancelled ? "automator.chat.cancelledTool" : "automator.chat.usedTool");
 
   return (
     <StyledToolFallbackTrigger
@@ -333,7 +334,7 @@ function ToolFallbackResult({
       className={className ? `aui-tool-fallback-result ${className}` : "aui-tool-fallback-result"}
       {...props}
     >
-      <ToolFallbackHeader className="aui-tool-fallback-result-header">Result:</ToolFallbackHeader>
+      <ToolFallbackHeader className="aui-tool-fallback-result-header">{trans("automator.chat.result")}</ToolFallbackHeader>
       <ToolFallbackPre className="aui-tool-fallback-result-content">
         {typeof result === "string" ? result : JSON.stringify(result, null, 2)}
       </ToolFallbackPre>
@@ -360,7 +361,7 @@ function ToolFallbackError({
   if (!errorText) return null;
 
   const isCancelled = status.reason === "cancelled";
-  const headerText = isCancelled ? "Cancelled reason:" : "Error:";
+  const headerText = trans(isCancelled ? "automator.chat.cancelReason" : "automator.chat.error");
 
   return (
     <ToolFallbackSection

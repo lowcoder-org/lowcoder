@@ -7,10 +7,14 @@ const safeId = value => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.te
 const deploymentId = value => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,36}$/.test(value);
 const uuid = value => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 
-// Code nodes do not expose Node's URL global. Only an HTTPS authority and this
-// exact return route are accepted; credentials, escapes and other paths cannot pass.
+// Code nodes do not expose Node's URL global. Only an HTTPS authority (or HTTP
+// loopback for local development) and this exact return route are accepted.
 function validReturnUrl(value) {
   if (typeof value !== 'string' || value.length > 2048) return false;
+  if (value.startsWith('http://')) {
+    if (!/^http:\/\/(?:localhost|127\.0\.0\.1|\[::1\])(?::[0-9]{1,5})?\//.test(value)) return false;
+    value = 'https://' + value.slice(7);
+  }
   const match = /^https:\/\/((?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*|\[[0-9a-fA-F:]+\])(?::([0-9]{1,5}))?\/setting\/subscription\?enterpriseLicense=return$/.exec(value);
   if (match?.[1].startsWith('[')) {
     const halves = match[1].slice(1, -1).split('::');

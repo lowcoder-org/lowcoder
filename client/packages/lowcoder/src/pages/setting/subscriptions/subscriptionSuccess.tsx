@@ -74,7 +74,7 @@ export function SubscriptionSuccess() {
           
           {/* Success Image */}
           <ImageWrapper>
-            <img loading="lazy" src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Lowcoder%20Team.jpg" alt={trans("subscription.successImageAlt")} />
+            <img loading="lazy" src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Lowcoder%20Team.jpg" alt={trans("automator.subscription.teamImage")} />
           </ImageWrapper>
 
           <Paragraph>{trans("subscription.successLowcoderTeam")}</Paragraph>

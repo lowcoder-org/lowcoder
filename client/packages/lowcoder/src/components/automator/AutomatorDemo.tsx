@@ -1,3 +1,4 @@
+import { trans } from "i18n";
 import { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
 
@@ -49,22 +50,22 @@ export function AutomatorDemo({ compact = false }: { compact?: boolean }) {
     }, 2800);
     return () => window.clearTimeout(timer);
   }, [step, playing]);
-  return <Demo $compact={compact} aria-label="Illustrated Automator demo: describe, build, refine">
-    <div className="demo-bar"><strong>LOWCODER AUTOMATOR</strong><span>Illustrative demo</span></div>
+  return <Demo $compact={compact} aria-label={trans("automator.demo.label")}>
+    <div className="demo-bar"><strong>LOWCODER AUTOMATOR</strong><span>{trans("automator.demo.illustrative")}</span></div>
     <div className="demo-stage">
-      <p className="demo-prompt">{step === 2 ? 'Add a status filter so I can focus on pending tasks.' : 'Create a simple to-do app with a task table and an add button.'}</p>
-      {step === 0 ? <div className="demo-placeholder">Your next app starts with an idea.</div> : <div className="demo-app">
-        <h4>Simple Todo App</h4>
-        <div className="demo-form"><span className="demo-input">New task…</span><span className="demo-add">+ Add task</span></div>
-        {step === 2 && <div className="demo-form"><span className="demo-input">Status: Pending ▾</span></div>}
-        <div className="demo-row"><span>Buy groceries</span><span className="demo-status">Pending</span></div>
-        {!compact && <div className="demo-row"><span>Book dentist appointment</span><span className="demo-status">Pending</span></div>}
+      <p className="demo-prompt">{step === 2 ? trans("automator.demo.refinePrompt") : trans("automator.demo.buildPrompt")}</p>
+      {step === 0 ? <div className="demo-placeholder">{trans("automator.demo.placeholder")}</div> : <div className="demo-app">
+        <h4>{trans("automator.demo.appTitle")}</h4>
+        <div className="demo-form"><span className="demo-input">{trans("automator.demo.newTask")}</span><span className="demo-add">{trans("automator.demo.addTask")}</span></div>
+        {step === 2 && <div className="demo-form"><span className="demo-input">{trans("automator.demo.statusFilter")}</span></div>}
+        <div className="demo-row"><span>{trans("automator.demo.groceries")}</span><span className="demo-status">{trans("automator.demo.pending")}</span></div>
+        {!compact && <div className="demo-row"><span>{trans("automator.demo.dentist")}</span><span className="demo-status">{trans("automator.demo.pending")}</span></div>}
       </div>}
     </div>
     <div className="demo-footer">
-      {['Describe', 'Build', 'Refine'].map((label, index) => <button key={label} aria-current={step === index ? 'step' : undefined}
+      {[trans("automator.demo.describe"), trans("automator.demo.build"), trans("automator.demo.refine")].map((label, index) => <button key={label} aria-current={step === index ? 'step' : undefined}
         onClick={() => { setPlaying(false); setStep(index); }}>{index + 1}. {label}</button>)}
-      <button className="demo-play" onClick={() => { if (playing) setPlaying(false); else { setStep(0); setPlaying(true); } }}>{playing ? 'Pause' : 'Replay'}</button>
+      <button className="demo-play" onClick={() => { if (playing) setPlaying(false); else { setStep(0); setPlaying(true); } }}>{playing ? trans("automator.demo.pause") : trans("automator.demo.replay")}</button>
     </div>
   </Demo>;
 }

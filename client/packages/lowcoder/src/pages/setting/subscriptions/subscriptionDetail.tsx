@@ -36,6 +36,16 @@ const ManageSubscriptionButton = styled(Button)`
   margin-top: 24px;
 `;
 
+const billingStatuses = new Set([
+  "active", "canceled", "incomplete", "incomplete_expired", "trialing", "past_due",
+  "unpaid", "paused", "draft", "open", "paid", "uncollectible", "void",
+]);
+
+function billingStatusLabel(status?: string) {
+  if (!status) return trans("automator.subscription.unavailableValue");
+  return billingStatuses.has(status) ? trans(`automator.subscription.statuses.${status}`) : status;
+}
+
 export function SubscriptionDetail() {
   const { subscriptionId } = useParams<{ subscriptionId: string }>();
   const { productId } = useParams<{ productId: string }>();
@@ -100,16 +110,16 @@ export function SubscriptionDetail() {
       <CardWrapper title={trans("subscription.subscriptionDetails")} style={{ marginTop: "40px" }}>
         <Descriptions bordered column={2}>
           <Descriptions.Item label={trans("subscription.productName")}>
-            {product?.name || "N/A"}
+            {product?.name || trans("automator.subscription.unavailableValue")}
           </Descriptions.Item>
           <Descriptions.Item contentStyle={{ color: statusColor }} label={trans("subscription.status")}>
-            {subscriptionDetails?.status || "N/A"}
+            {billingStatusLabel(subscriptionDetails?.status)}
           </Descriptions.Item>
           <Descriptions.Item label={trans("subscription.startDate")}>
-            {new Date(subscriptionDetails?.start_date * 1000).toLocaleDateString() || "N/A"}
+            {new Date(subscriptionDetails?.start_date * 1000).toLocaleDateString() || trans("automator.subscription.unavailableValue")}
           </Descriptions.Item>
           <Descriptions.Item label={trans("subscription.currentPeriodEnd")}>
-            {new Date(subscriptionDetails?.current_period_end * 1000).toLocaleDateString() || "N/A"}
+            {new Date(subscriptionDetails?.current_period_end * 1000).toLocaleDateString() || trans("automator.subscription.unavailableValue")}
           </Descriptions.Item>
         </Descriptions>
       </CardWrapper>
@@ -124,11 +134,11 @@ export function SubscriptionDetail() {
                 {invoice.customer_name || invoice.customer_email}
               </Descriptions.Item>
               <Descriptions.Item label={trans("subscription.billingReason")}>
-                {invoice.billing_reason === "subscription_cycle" ? trans("subscription.subscriptionCycle") : "N/A"}
+                {invoice.billing_reason === "subscription_cycle" ? trans("subscription.subscriptionCycle") : trans("automator.subscription.unavailableValue")}
               </Descriptions.Item>
               <Descriptions.Item label={trans("subscription.status")}>
                 <Text style={{ color: invoice.status === "paid" ? "green" : "red" }}>
-                  {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+                  {billingStatusLabel(invoice.status)}
                 </Text>
               </Descriptions.Item>
               <Descriptions.Item label={trans("subscription.links")}>
@@ -189,7 +199,7 @@ export function SubscriptionDetail() {
             {usageRecords?.length > 0 ? (
               usageRecords.map((record: any, index: number) => (
                 <Timeline.Item key={index} color={record.total_usage > 0 ? "green" : "gray"}>
-                  {`Usage for ${record.total_usage} units on ${new Date(record.period.start * 1000).toLocaleDateString()}`}
+                  {trans("automator.subscription.usage", { units: record.total_usage, date: new Date(record.period.start * 1000).toLocaleDateString() })}
                 </Timeline.Item>
               ))
             ) : (

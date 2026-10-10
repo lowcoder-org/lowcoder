@@ -2,6 +2,7 @@ import { AIAssistantQueryHandler } from "./messageHandlers";
 import { assertAiRobotAccess } from "util/assertAiRobotAccess";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
 
+jest.mock("i18n", () => ({ trans: (key: string) => key }));
 jest.mock("util/assertAiRobotAccess", () => ({ assertAiRobotAccess: jest.fn() }));
 jest.mock("util/promiseUtils", () => ({ getPromiseAfterDispatch: jest.fn() }));
 jest.mock("lowcoder-core", () => ({ routeByNameAction: jest.fn(), executeQueryAction: jest.fn() }));

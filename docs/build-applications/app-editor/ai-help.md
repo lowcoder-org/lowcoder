@@ -103,7 +103,7 @@ The OpenAI Responses example below uses `openAIResponses` and `unifiedAIQuery`. 
 
 ## HTTP Query
 
-Create an HTTP query that points to your model provider endpoint. Its URL, authentication, and body are provider-specific; the JavaScript bridge supplies the converted request values when it runs the HTTP query.
+Create an HTTP query that points to your model provider endpoint. Its URL, authentication, and body are provider-specific; the JavaScript bridge supplies the converted request values when it runs the HTTP query. For expressions such as `{{ instructions.value }}`, pass `{ instructions: { value: text } }` to `.run(...)`. These are runtime request values, so the query’s Variables list can remain empty. Run the JavaScript bridge from Automator or AI Help; running the HTTP query on its own does not supply these values.
 
 ### OpenAI Responses API
 
@@ -228,7 +228,7 @@ const tools = a.tools.map((tool) => ({
 }));
 
 return claudeHttp
-  .run({ system, messages, tools })
+  .run({ system: { value: system }, messages: { value: messages }, tools: { value: tools } })
   .then((response) => {
     const blocks = response.content || [];
     const text = blocks
@@ -295,9 +295,9 @@ const tools = request.tools.map((tool) => ({
 
 return openAIResponses
   .run({
-    instructions: systemMessage?.content || "",
-    input,
-    tools
+    instructions: { value: systemMessage?.content || "" },
+    input: { value: input },
+    tools: { value: tools }
   })
   .then((response) => {
     const output = response.output || [];
@@ -351,8 +351,8 @@ const a = ai.value;
 
 return llmHttp
   .run({
-    messages: a.messages,
-    tools: a.tools,
+    messages: { value: a.messages },
+    tools: { value: a.tools },
   })
   .then((response) => {
     const msg = response.choices?.[0]?.message || {};

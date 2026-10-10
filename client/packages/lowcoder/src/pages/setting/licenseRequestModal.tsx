@@ -118,7 +118,8 @@ export function LicenseRequestModal({ open, onClose, orgId }: Props) {
         <Space wrap style={{ display: "flex", justifyContent: "flex-end", marginTop: 24 }}>
           {step > 0 && <Button disabled={loading} onClick={() => setStep(step - 1)}>Back</Button>}
           {step < 2 ? <Button type="primary" onClick={next}>Continue</Button> :
-            <Button type="primary" loading={loading} onClick={checkout}>Continue to secure payment</Button>}
+            <Button type="primary" loading={loading} onClick={checkout}
+              style={{ backgroundColor: "#ff6f3c", borderColor: "#ff6f3c" }}>Continue to Secure Payment</Button>}
         </Space>
       </Form>}
   </Modal>;

@@ -32,13 +32,13 @@ AI Robot provides access to Automator. Model-provider usage is billed separately
 Open the **Automator** panel and choose **Set up AI connection**. If no query is selected (or the saved query is missing from this app), Automator shows the setup entry point instead of an empty chat.
 
 1. **Connect.** Choose the OpenAI example and enter your API key and model name, or choose your own provider / self-hosted model. You can also reuse an existing REST datasource. The model must support function/tool calling.
-2. **Create queries.** Review the connection. The wizard saves a workspace REST datasource and adds a provider query plus a JavaScript bridge to this app, using available names. Existing queries are preserved, and both new queries run only when manually triggered.
+2. **Create queries.** Review the connection. The wizard saves a workspace REST datasource and adds a provider query plus a JavaScript bridge to this app, using available names. Existing queries are preserved, and both new queries run only when manually triggered. The JavaScript bridge (`automatorAI1`, or the next available name) is automatically selected for Automator; it supplies values to the provider HTTP query (`automatorHttp1`) and converts the reply.
 3. **Try it.** Select **Test connection**. This makes one real provider request using a harmless `check_connection` tool. It sends no app context and does not apply canvas changes. Provider charges may apply. A text-only reply does not verify tool support.
 4. After verification, select **Start building**. The bridge is selected for you. In a blank app, try: “Create a simple to-do app with a task table and an add button.” Review the result before publishing.
 
 The API key is stored in the REST datasource's authentication header, outside the app's JavaScript. Datasource management permissions control who can manage that configuration. Do not embed keys in prompts or bridge scripts.
 
-If the connection test fails, the datasource and queries remain available. Fix the connection and retry without creating another pair. **Manage model connection** opens the datasource settings. If you finish later, select the generated `automatorAI` bridge from the Automator query selector when you return.
+If the connection test fails, the datasource and queries remain available. Fix the connection and retry without creating another pair. **Manage model connection** opens the datasource settings. If you finish later, the generated JavaScript bridge remains selected. Keep both queries. Returning to the browser may refresh subscription access, but the setup stays open and keeps your entries while that check completes.
 
 ### Self-hosted models and private gateways
 
@@ -131,7 +131,7 @@ The OpenAI Responses example below uses `openAIResponses` and `unifiedAIQuery`. 
 
 ## HTTP Query
 
-Create an HTTP query that points to your model provider endpoint. Its URL, authentication, and body are provider-specific; the JavaScript bridge supplies the converted request values when it runs the HTTP query.
+Create an HTTP query that points to your model provider endpoint. Its URL, authentication, and body are provider-specific; the JavaScript bridge supplies the converted request values when it runs the HTTP query. For expressions such as `{{ instructions.value }}`, pass `{ instructions: { value: text } }` to `.run(...)`. These are runtime request values, so the query’s Variables list can remain empty. Run the JavaScript bridge from Automator or AI Help; running the HTTP query on its own does not supply these values.
 
 ### OpenAI Responses API
 
@@ -256,7 +256,7 @@ const tools = a.tools.map((tool) => ({
 }));
 
 return claudeHttp
-  .run({ system, messages, tools })
+  .run({ system: { value: system }, messages: { value: messages }, tools: { value: tools } })
   .then((response) => {
     const blocks = response.content || [];
     const text = blocks
@@ -323,9 +323,9 @@ const tools = request.tools.map((tool) => ({
 
 return openAIResponses
   .run({
-    instructions: systemMessage?.content || "",
-    input,
-    tools
+    instructions: { value: systemMessage?.content || "" },
+    input: { value: input },
+    tools: { value: tools }
   })
   .then((response) => {
     const output = response.output || [];
@@ -379,8 +379,8 @@ const a = ai.value;
 
 return llmHttp
   .run({
-    messages: a.messages,
-    tools: a.tools,
+    messages: { value: a.messages },
+    tools: { value: a.tools },
   })
   .then((response) => {
     const msg = response.choices?.[0]?.message || {};

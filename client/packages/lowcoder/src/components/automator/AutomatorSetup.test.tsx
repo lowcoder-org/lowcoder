@@ -28,7 +28,12 @@ jest.mock('redux/selectors/datasourceSelectors', () => ({ getDataSource: () => [
 jest.mock('lowcoder-core', () => ({ executeQueryAction: (payload: any) => payload, routeByNameAction: (name: string, action: any) => ({ name, action }) }));
 jest.mock('util/promiseUtils', () => ({ getPromiseAfterDispatch: (...args: any[]) => mockPromise(...args) }));
 jest.mock('util/assertAiRobotAccess', () => ({ assertAiRobotAccess: () => mockAccess() }));
-jest.mock('i18n', () => ({ trans: () => '/docs/automator' }));
+jest.mock('i18n', () => {
+  const { en } = jest.requireActual('i18n/locales/en');
+  const trans = (key: string, vars: any = {}) => key.split('.').reduce((o: any, part: string) => o[part], en)
+    .replace(/\{(\w+)\}/g, (_: string, name: string) => typeof vars[name] === 'string' ? vars[name] : '');
+  return { trans, transToNode: trans };
+});
 
 const { AutomatorSetup } = require('./GuidedModelSetup');
 const { EditorContext } = require('comps/editorState');
@@ -52,7 +57,7 @@ async function createSetup() {
   await screen.findByText('One small test before your first app.');
 }
 
-test('creates manual queries without credentials, verifies separately, and selects bridge only on finish', async () => {
+test('creates manual queries without credentials, verifies separately, and automatically selects the bridge and finishes only after verification', async () => {
   const onSelect = jest.fn();
   const onClose = jest.fn();
   render(<EditorContext.Provider value={editor as any}><AutomatorSetup onSelect={onSelect} onClose={onClose} /></EditorContext.Provider>);
@@ -63,11 +68,14 @@ test('creates manual queries without credentials, verifies separately, and selec
   expect(push.mock.calls.map(call => call[0].triggerType)).toEqual(['manual', 'manual']);
   expect(JSON.stringify(push.mock.calls)).not.toContain('example-test-key');
   expect(mockDispatch.mock.calls[0][0].payload.datasourceConfig.headers).toEqual([{ key: 'Authorization', value: 'Bearer example-test-key' }]);
-  expect(onSelect).not.toHaveBeenCalled();
+  expect(onSelect).toHaveBeenCalledWith('automatorAI1');
+  expect(onClose).not.toHaveBeenCalled();
+  expect(screen.getByText(/automatorAI1 is selected for Automator/)).toBeTruthy();
   expect((screen.getByText('Start building') as HTMLButtonElement).disabled).toBe(true);
-  mockPromise.mockRejectedValueOnce(new Error('network failure'));
+  mockPromise.mockRejectedValueOnce({ message: 'The requested model is not available to this project.' });
   fireEvent.click(screen.getByText('Test connection'));
   await screen.findByText(/The connection test failed/);
+  expect(screen.getByText(/The requested model is not available to this project/)).toBeTruthy();
   expect(mockDispatch).toHaveBeenCalledTimes(1);
   expect(push).toHaveBeenCalledTimes(2);
   mockPromise.mockResolvedValueOnce({ role: 'assistant', content: [{ type: 'tool-call', toolName: 'check_connection', args: { ok: true } }] });
@@ -97,4 +105,37 @@ test('self-hosted setup accepts a private server without an API key', () => {
   fireEvent.change(screen.getByLabelText('Model'), { target: { value: 'local-tools-model' } });
   expect((screen.getByLabelText('API path') as HTMLInputElement).value).toBe('/v1/chat/completions');
   expect((screen.getByText('Review setup') as HTMLButtonElement).disabled).toBe(false);
+});
+
+
+test('keeps form entries while subscription access is refreshed and blocks dependent actions', () => {
+  const onClose = jest.fn();
+  const props = { onClose, onSelect: jest.fn() };
+  const view = (accessStatus: 'ready' | 'checking' | 'unavailable') => <EditorContext.Provider value={editor as any}>
+    <AutomatorSetup {...props} accessStatus={accessStatus} />
+  </EditorContext.Provider>;
+  const { rerender } = render(view('ready'));
+  fireEvent.change(screen.getByLabelText('API key'), { target: { value: 'keep-my-key' } });
+  fireEvent.change(screen.getByLabelText('Model'), { target: { value: 'my-model' } });
+  for (const status of ['checking', 'unavailable', 'ready'] as const) {
+    rerender(view(status));
+    fireEvent.focus(screen.getByLabelText('Model'));
+    expect((screen.getByLabelText('API key') as HTMLInputElement).value).toBe('keep-my-key');
+    expect((screen.getByLabelText('Model') as HTMLInputElement).value).toBe('my-model');
+    expect((screen.getByText('Review setup') as HTMLButtonElement).disabled).toBe(status !== 'ready');
+  }
+  expect(onClose).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByText('Cancel'));
+  expect(onClose).toHaveBeenCalledTimes(1);
+});
+
+test('Finish later retains the automatically selected JavaScript query', async () => {
+  const onClose = jest.fn();
+  const onSelect = jest.fn();
+  render(<EditorContext.Provider value={editor as any}><AutomatorSetup onSelect={onSelect} onClose={onClose} /></EditorContext.Provider>);
+  await createSetup();
+  fireEvent.click(screen.getByText('Finish later'));
+  expect(onSelect).toHaveBeenCalledWith('automatorAI1');
+  expect(onSelect).not.toHaveBeenCalledWith('automatorHttp1');
+  expect(onClose).toHaveBeenCalledTimes(1);
 });

@@ -171,7 +171,7 @@ export function SettingHome() {
                 style={{ backgroundColor: "#ff6f3c", borderColor: "#ff6f3c" }}
                 onClick={() => setHubspotVisible(true)}
               >
-                Request Enterprise Licenses
+                {trans("enterprise.requestLicensesBtton")}
               </Button>
 
               <div style={{ margin: "12px 0" }}>

@@ -59,7 +59,7 @@ export function SubscriptionSetting() {
   const handleCustomerPortalRedirect = async () => {
     try {
       if (!customerId) {
-        message.error("Customer ID not available for the subscription.");
+        message.error(trans("automator.subscription.customerUnavailable"));
         return;
       }
 
@@ -69,11 +69,11 @@ export function SubscriptionSetting() {
         // Redirect to the Stripe Customer Portal
         window.open(portalSession.url, '_blank', 'noopener,noreferrer');
       } else {
-        message.error("Failed to generate customer portal session link.");
+        message.error(trans("automator.subscription.portalLinkError"));
       }
     } catch (error) {
       console.error("Error redirecting to customer portal:", error);
-      message.error("An error occurred while redirecting to the customer portal.");
+      message.error(trans("automator.subscription.portalRedirectError"));
     }
   };
 
@@ -83,11 +83,11 @@ export function SubscriptionSetting() {
         {trans("settings.subscription")}
       </Level1SettingPageTitle>
       {seatSyncFailedOrgId === currentOrgId && <Alert type="warning" showIcon
-        message="Billing seat synchronization is pending"
-        description="Your workspace changes are saved. Billing will retry automatically while this workspace is open." />}
+        message={trans("automator.subscription.seatSyncPending")}
+        description={trans("automator.subscription.seatSyncDescription")} />}
       {customer != null ? (
         <SubscriptionSettingContent>
-          {customer && <h3>Your Customer Number: {customer?.id.substring(4)} {admin === "admin" && "| you are Subscriptions-Admin of this Workspace"}</h3>}
+          {customer && <h3>{trans("automator.subscription.customerNumber", { id: customer.id.substring(4) })} {admin === "admin" && <>| {trans("automator.subscription.adminNote")}</>}</h3>}
           <Flex wrap='wrap' gap="large" style={{marginTop: "40px", width : "100%"}}>
             {products
             .filter((product) => {
@@ -126,17 +126,17 @@ export function SubscriptionSetting() {
           </CardWrapper>
         </SubscriptionSettingContent>
       ) : (
-        <div>Loading...</div>
+        <div>{trans("automator.subscription.loading")}</div>
       )}
-      {isCreatingCustomer && <div><br/>Checking your customer account, please wait...</div>}
+      {isCreatingCustomer && <div><br/>{trans("automator.subscription.checkingCustomer")}</div>}
       {customerDataError && 
-        <h3>There was an error retrieving your customer data.</h3>
+        <h3>{trans("automator.subscription.customerError")}</h3>
       }
       {subscriptionDataError && 
-        <h3>There was an error retrieving your subscription data.</h3>
+        <h3>{trans("automator.subscription.subscriptionError")}</h3>
       }
       {checkoutLinkDataError && 
-        <h3>There was an error generating checkout links.</h3>
+        <h3>{trans("automator.subscription.checkoutError")}</h3>
       }
     </Level1SettingPageContent>
   );

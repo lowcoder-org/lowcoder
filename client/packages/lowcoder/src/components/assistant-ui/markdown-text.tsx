@@ -1,3 +1,4 @@
+import { trans } from "i18n";
 import "@assistant-ui/react-markdown/styles/dot.css";
 
 import {
@@ -35,7 +36,7 @@ const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
   return (
     <div className="aui-code-header-root">
       <span className="aui-code-header-language">{language}</span>
-      <TooltipIconButton tooltip="Copy" onClick={onCopy}>
+      <TooltipIconButton tooltip={trans("copy")} onClick={onCopy}>
         {!isCopied && <CopyIcon />}
         {isCopied && <CheckIcon />}
       </TooltipIconButton>

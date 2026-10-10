@@ -162,8 +162,8 @@ function Bottom(props: any) {
   };
 
   const items: MenuItem[] = [
-    { key: 'data', icon: <DatabaseOutlined />, label: 'Data Queries' },
-    { key: 'ai', icon: <AIGenerate />, label: 'Lowcoder AI' },
+    { key: 'data', icon: <DatabaseOutlined />, label: trans('automator.panel.dataQueries') },
+    { key: 'ai', icon: <AIGenerate />, label: trans('automator.panel.lowcoderAI') },
   ];
 
   return (
@@ -204,11 +204,11 @@ function Bottom(props: any) {
                     </DocLink>
                   </ChatTitle>
                   {aiRobotAccess && <QuerySelectorWrapper>
-                    <QueryLabel>Query:</QueryLabel>
+                    <QueryLabel>{trans('automator.panel.query')}</QueryLabel>
                     <Select
                       showSearch
                       allowClear
-                      placeholder="Select a query"
+                      placeholder={trans('automator.panel.selectQuery')}
                       value={queryAvailable ? selectedQuery : undefined}
                       onChange={(value) => {
                         const nextQuery = value || "";
@@ -219,7 +219,7 @@ function Bottom(props: any) {
                       style={{ width: 200 }}
                       size="small"
                     />
-                    <Button size="small" onClick={() => setSetupOpen(true)}>Set up AI connection</Button>
+                    <Button size="small" onClick={() => setSetupOpen(true)}>{trans('automator.panel.setup')}</Button>
                   </QuerySelectorWrapper>}
                 </ChatHeader>
                 {aiRobotAccess ? (
@@ -228,17 +228,20 @@ function Bottom(props: any) {
                     : <AutomatorWelcome subscribed onSetup={() => setSetupOpen(true)} previewUrl={buildSubscriptionInfoLink(SubscriptionProductsEnum.AIROBOT)} />
                 ) : !subscriptionsLoaded || subscriptionError ? (
                   <Flex vertical align="center" justify="center" gap={12} style={{ flex: 1, padding: 24 }}>
-                    <strong>{subscriptionError ? "We couldn’t verify your AI Robot access" : "Checking your AI Robot subscription…"}</strong>
-                    {subscriptionError && <><span>Please check your connection and retry from Subscription settings.</span>
-                      <Button href={SUBSCRIPTION_SETTING} target="_blank" rel="noopener noreferrer">Check subscription settings</Button></>}
+                    <strong>{subscriptionError ? trans('automator.panel.accessError') : trans('automator.panel.checkingAccess')}</strong>
+                    {subscriptionError && <><span>{trans('automator.panel.retryAccess')}</span>
+                      <Button href={SUBSCRIPTION_SETTING} target="_blank" rel="noopener noreferrer">{trans('automator.panel.subscriptionSettings')}</Button></>}
                   </Flex>
                 ) : <AutomatorWelcome subscribed={false} onSetup={() => setSetupOpen(true)} previewUrl={buildSubscriptionInfoLink(SubscriptionProductsEnum.AIROBOT)} />}
-                {aiRobotAccess && setupOpen && <AutomatorSetup key={`${props.orgId}:${location.pathname}`} onClose={() => setSetupOpen(false)} onSelect={selectQuery} />}
               </Flex>
             )}
           </PanelContent>
         </PanelBody>
       </StyledResizableBox>
+      {/* Subscription refreshes on window focus. Preserve the form while access is checked. */}
+      {setupOpen && <AutomatorSetup key={`${props.orgId}:${location.pathname}`}
+        accessStatus={aiRobotAccess ? "ready" : !subscriptionsLoaded ? "checking" : "unavailable"}
+        onClose={() => setSetupOpen(false)} onSelect={selectQuery} />}
     </>
   );
 }

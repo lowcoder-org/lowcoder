@@ -1,3 +1,4 @@
+import { trans } from "i18n";
 import { Button, Space } from "antd";
 import styled from "styled-components";
 import { AutomatorDemo } from "./AutomatorDemo";
@@ -14,13 +15,13 @@ const Welcome = styled.div`
 `;
 export function AutomatorWelcome({ subscribed, onSetup, previewUrl }: { subscribed: boolean; onSetup: () => void; previewUrl: string }) {
   return <Welcome><div className="welcome-grid"><div>
-    <span className="welcome-eyebrow">{subscribed ? 'One connection. Then your first app.' : 'Meet your AI building partner'}</span>
-    <h2>{subscribed ? 'Let’s get your first app started.' : 'Describe it. Build it. Make it yours.'}</h2>
-    <p>{subscribed ? 'Connect your model and we’ll create the queries for you. A guided test helps you get ready before Automator makes its first edit.' : 'Turn an idea into editable tables, forms and layouts. Ask for the next change in plain language, and keep building right here in Lowcoder.'}</p>
+    <span className="welcome-eyebrow">{subscribed ? trans("automator.welcome.connectedEyebrow") : trans("automator.welcome.eyebrow")}</span>
+    <h2>{subscribed ? trans("automator.welcome.connectedTitle") : trans("automator.welcome.title")}</h2>
+    <p>{subscribed ? trans("automator.welcome.connectedDescription") : trans("automator.welcome.description")}</p>
     <Space wrap>
-      {subscribed ? <Button type="primary" onClick={onSetup}>Set up AI connection</Button> : <Button type="primary" href={previewUrl} target="_blank" rel="noopener noreferrer">Explore AI Robot</Button>}
-      {!subscribed && <Button href={`${previewUrl}#demo`} target="_blank" rel="noopener noreferrer">See it in action</Button>}
+      {subscribed ? <Button type="primary" onClick={onSetup}>{trans("automator.welcome.setup")}</Button> : <Button type="primary" href={previewUrl} target="_blank" rel="noopener noreferrer">{trans("automator.welcome.explore")}</Button>}
+      {!subscribed && <Button href={`${previewUrl}#demo`} target="_blank" rel="noopener noreferrer">{trans("automator.welcome.seeDemo")}</Button>}
     </Space>
-    <p className="welcome-note">{subscribed ? 'Already connected? Select your bridge query above. OpenAI, your own provider or a self-hosted model.' : 'AI Robot subscription for workspace admins and editors. Viewers are not billed. Your model, your provider costs.'}</p>
+    <p className="welcome-note">{subscribed ? trans("automator.welcome.connectedNote") : trans("automator.welcome.note")}</p>
   </div><AutomatorDemo compact /></div></Welcome>;
 }

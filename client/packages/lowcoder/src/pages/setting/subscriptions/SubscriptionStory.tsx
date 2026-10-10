@@ -1,3 +1,4 @@
+import { trans } from "i18n";
 import { ReactNode, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { AutomatorDemo } from "components/automator/AutomatorDemo";
@@ -40,9 +41,9 @@ export function SubscriptionStory({ ai, action }: { ai: boolean; action: ReactNo
     }
   }, [ai]);
   const benefits = ai ? [
-    ['Skip the blank canvas', 'Turn a description into tables, forms and layouts you can keep working on.'],
-    ['Make the next change in words', 'Ask for a filter, adjust a layout or refine component properties while you build.'],
-    ['Keep control of your app', 'Work with native Lowcoder components. Choose your model and continue editing by hand.'],
+    [trans("automator.subscription.draftTitle"), trans("automator.subscription.draftText")],
+    [trans("automator.subscription.changeTitle"), trans("automator.subscription.changeText")],
+    [trans("automator.subscription.controlTitle"), trans("automator.subscription.controlText")],
   ] : [
     ['Spend less time stuck', 'Bring your Lowcoder questions to the team when an issue interrupts your work.'],
     ['Keep the context together', 'Descriptions, screenshots, attachments and replies stay with the ticket inside Lowcoder.'],
@@ -51,13 +52,13 @@ export function SubscriptionStory({ ai, action }: { ai: boolean; action: ReactNo
   return <Story>
     <div className="story-hero">
       <div>
-        <span className="story-eyebrow">{ai ? 'AI Robot · Powered by Lowcoder Automator' : 'Lowcoder Support · Built into your workspace'}</span>
-        <h1>{ai ? <>Less setup work.<br />More app.</> : <>Keep building.<br />We’re here when you get stuck.</>}</h1>
+        <span className="story-eyebrow">{ai ? trans("automator.subscription.eyebrow") : 'Lowcoder Support · Built into your workspace'}</span>
+        <h1>{ai ? trans("automator.subscription.title") : <>Keep building.<br />We’re here when you get stuck.</>}</h1>
         <p className="story-lead">{ai
-          ? 'Describe what you need. Watch Automator turn it into editable components, then refine it together—right inside the Lowcoder editor.'
+          ? trans("automator.subscription.lead")
           : 'A difficult issue shouldn’t bring your next release to a standstill. Give your team a direct path to Lowcoder support, with every question and next step in one place.'}</p>
         <div className="story-action">{action}</div>
-        <p className="story-note">{ai ? 'For workspace admins and editors. Viewers are not billed. Bring your own model; provider usage is separate.' : 'For all admins and editors in your workspace. App viewers are not billed.'}</p>
+        <p className="story-note">{ai ? trans("automator.subscription.note") : 'For all admins and editors in your workspace. App viewers are not billed.'}</p>
       </div>
       {ai ? <AutomatorDemo /> : <div className="support-journey" aria-label="How Lowcoder support works">
         <span className="story-eyebrow">From blocked to a clear next step</span>
@@ -69,12 +70,12 @@ export function SubscriptionStory({ ai, action }: { ai: boolean; action: ReactNo
       </div>}
     </div>
     <div className="story-benefits">{benefits.map(([title, text]) => <article key={title}><h3>{title}</h3><p>{text}</p></article>)}</div>
-    {ai && <details id="demo" ref={demoRef}><summary>Watch Automator build a real to-do app</summary>
-      <p className="story-note">Recorded in the Lowcoder editor. Results and response time depend on your model and request.</p>
-      <video controls playsInline preload="none" poster={`${import.meta.env.BASE_URL}automator/todo-app.png`} aria-label="Automator building a to-do app">
+    {ai && <details id="demo" ref={demoRef}><summary>{trans("automator.subscription.watchDemo")}</summary>
+      <p className="story-note">{trans("automator.subscription.recordingNote")}</p>
+      <video controls playsInline preload="none" poster={`${import.meta.env.BASE_URL}automator/todo-app.png`} aria-label={trans("automator.subscription.videoLabel")}>
         <source src={`${import.meta.env.BASE_URL}automator/todo-app.mp4`} type="video/mp4" />
-        <track kind="captions" src={`${import.meta.env.BASE_URL}automator/todo-app.vtt`} srcLang="en" label="Demo guide" />
-        Your browser does not support this video.
+        <track kind="captions" src={`${import.meta.env.BASE_URL}automator/todo-app.vtt`} srcLang="en" label={trans("automator.subscription.captions")} />
+        {trans("automator.subscription.videoUnsupported")}
       </video>
     </details>}
   </Story>;

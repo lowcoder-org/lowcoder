@@ -1,3 +1,4 @@
+import { trans } from "i18n";
 import {
   ActionBarMorePrimitive,
   ActionBarPrimitive,
@@ -149,7 +150,7 @@ const AssistantActionBar: FC = () => {
       className="aui-assistant-action-bar-root"
     >
       <ActionBarPrimitive.Copy asChild>
-        <TooltipIconButton tooltip="Copy">
+        <TooltipIconButton tooltip={trans("copy")}>
           <AuiIf condition={(s) => s.message.isCopied}>
             <CheckIcon />
           </AuiIf>
@@ -161,7 +162,7 @@ const AssistantActionBar: FC = () => {
       <ActionBarMorePrimitive.Root>
         <ActionBarMorePrimitive.Trigger asChild>
           <TooltipIconButton
-            tooltip="More"
+            tooltip={trans("automator.chat.more")}
             className="aui-action-bar-more-trigger"
           >
             <MoreHorizontalIcon />
@@ -179,7 +180,7 @@ const AssistantActionBar: FC = () => {
           <ActionBarPrimitive.ExportMarkdown asChild>
             <ActionBarMorePrimitive.Item className="aui-action-bar-more-item">
               <DownloadIcon />
-              Export as Markdown
+              {trans("automator.chat.exportMarkdown")}
             </ActionBarMorePrimitive.Item>
           </ActionBarPrimitive.ExportMarkdown>
         </ActionBarMorePrimitive.Content>
@@ -224,7 +225,7 @@ const UserActionBar: FC = () => {
       className="aui-user-action-bar-root"
     >
       <ActionBarPrimitive.Edit asChild>
-        <TooltipIconButton tooltip="Edit" className="aui-user-action-edit">
+        <TooltipIconButton tooltip={trans("edit")} className="aui-user-action-edit">
           <PencilIcon />
         </TooltipIconButton>
       </ActionBarPrimitive.Edit>
@@ -247,7 +248,7 @@ const BranchPicker: FC<BranchPickerPrimitive.Root.Props> = ({
       {...rest}
     >
       <BranchPickerPrimitive.Previous asChild>
-        <TooltipIconButton tooltip="Previous">
+        <TooltipIconButton tooltip={trans("automator.chat.previous")}>
           <ChevronLeftIcon />
         </TooltipIconButton>
       </BranchPickerPrimitive.Previous>
@@ -255,7 +256,7 @@ const BranchPicker: FC<BranchPickerPrimitive.Root.Props> = ({
         <BranchPickerPrimitive.Number /> / <BranchPickerPrimitive.Count />
       </span>
       <BranchPickerPrimitive.Next asChild>
-        <TooltipIconButton tooltip="Next">
+        <TooltipIconButton tooltip={trans("automator.chat.next")}>
           <ChevronRightIcon />
         </TooltipIconButton>
       </BranchPickerPrimitive.Next>

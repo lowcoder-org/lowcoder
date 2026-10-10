@@ -35,7 +35,7 @@ const ThreadListSkeleton: FC = () => {
   return (
     <SkeletonStack>
       {Array.from({ length: 5 }, (_, i) => (
-        <SkeletonRow key={i} role="status" aria-label="Loading threads">
+        <SkeletonRow key={i} role="status" aria-label={trans("automator.chat.loadingThreads")}>
           <SkeletonBar />
         </SkeletonRow>
       ))}
@@ -179,7 +179,7 @@ const ThreadListItemMore: FC<{ onRename: () => void }> = ({ onRename }) => {
           variant="ghost"
           size="icon-xs"
           className="aui-thread-list-item-more"
-          aria-label="More thread options"
+          aria-label={trans("automator.chat.moreThreadOptions")}
         >
           <MoreHorizontalIcon />
         </Button>
@@ -192,7 +192,7 @@ const ThreadListItemMore: FC<{ onRename: () => void }> = ({ onRename }) => {
         <ThreadListItemPrimitive.Delete asChild>
           <StyledMenuItem $danger>
             <TrashIcon />
-            Delete
+            {trans("delete")}
           </StyledMenuItem>
         </ThreadListItemPrimitive.Delete>
       </StyledMenuContent>

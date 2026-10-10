@@ -15,8 +15,8 @@ test('Responses bridge flattens tools and preserves text and every tool call', a
   const message = await result;
   expect(message.content).toHaveLength(3);
   expect(isConnectionVerified(message)).toBe(true);
-  expect(http.run.mock.calls[0][0].tools[0]).toMatchObject({ type: 'function', name: 'check_connection', strict: false });
-  expect(http.run.mock.calls[0][0].input.every((m: any) => m.role !== 'system')).toBe(true);
+  expect(http.run.mock.calls[0][0].tools.value[0]).toMatchObject({ type: 'function', name: 'check_connection', strict: false });
+  expect(http.run.mock.calls[0][0].input.value.every((m: any) => m.role !== 'system')).toBe(true);
 });
 
 test('Chat Completions bridge keeps provider-compatible tools and normalizes calls', async () => {
@@ -24,7 +24,7 @@ test('Chat Completions bridge keeps provider-compatible tools and normalizes cal
     { id: 'one', function: { name: 'check_connection', arguments: '{"ok":true}' } },
   ] } }] });
   expect(isConnectionVerified(await result)).toBe(true);
-  expect(http.run).toHaveBeenCalledWith({ messages: connectionTestRequest.messages, tools: connectionTestRequest.tools });
+  expect(http.run).toHaveBeenCalledWith({ messages: { value: connectionTestRequest.messages }, tools: { value: connectionTestRequest.tools } });
 });
 
 test.each([
@@ -62,3 +62,63 @@ test.each([
   ['javascript:alert(1)', false], ['https://user:secret@example.com', false],
   ['https://example.com?key=secret', false], ['', false],
 ])('validates model base URL %s', (url, valid) => expect(validModelBaseUrl(url as string)).toBe(valid));
+
+// Use the same expression evaluation and request mapping as a real HTTP query.
+// Cover explicit .value objects and the older plain arguments. The server
+// normalizes expression whitespace when applying runtime-variable overrides.
+test.each([['responses', false], ['chatCompletions', false], ['responses', true], ['chatCompletions', true]] as const)('%s bridge resolves every HTTP body parameter at runtime (legacy arguments: %s)', async (format, legacyArguments) => {
+  const { ParamsJsonControl, paramsMillisecondsControl } = require('comps/controls/paramsControl');
+  const { evalAndReduce } = require('comps/utils');
+  const { toQueryView } = require('comps/queries/queryCompUtils');
+  const { QueryApi } = require('api/queryApi');
+  const { setGlobalSettings, clearGlobalSettings } = require('comps/utils/globalSettings');
+  const body = modelRequestBody(format, 'test-model');
+  const params = evalAndReduce(new ParamsJsonControl({ value: body })).getQueryParams();
+  const Timeout = paramsMillisecondsControl({ defaultValue: 120000 });
+  const timeout = evalAndReduce(new Timeout({ value: '120000' }));
+  const response = format === 'responses'
+    ? { output: [{ type: 'function_call', call_id: 'test', name: 'check_connection', arguments: '{"ok":true}' }] }
+    : { choices: [{ message: { tool_calls: [{ id: 'test', function: { name: 'check_connection', arguments: '{"ok":true}' } }] } }] };
+  const execute = jest.spyOn(QueryApi, 'executeQuery').mockResolvedValue({ data: { success: true, data: response } });
+  setGlobalSettings({ applicationId: 'test-app' });
+  try {
+    const http = { run: async (args: Record<string, unknown>) => {
+      if (legacyArguments) args = Object.fromEntries(Object.entries(args).map(([key, value]) => [key, (value as any).value]));
+      const result = await toQueryView(params)({ queryId: 'http-query', applicationId: 'test-app', applicationPath: [], args, variables: args, timeout });
+      return result.data;
+    } };
+    const run = new Function('ai', 'modelHttp', modelBridgeScript(format, 'modelHttp'));
+    expect(isConnectionVerified(await run({ value: connectionTestRequest }, http))).toBe(true);
+    const request = execute.mock.calls[0][0] as any;
+    // QueryExecutionRequest.paramMap trims keys and keeps the last value.
+    const values = Object.fromEntries(request.params.map((p: any) => [p.key.trim(), p.value]));
+    const resolved = JSON.parse(body.replace(/\{\{(.*?)\}\}/g, (_match, expression) => {
+      expect(values[expression.trim()]).toBeDefined();
+      return JSON.stringify(values[expression.trim()]);
+    }));
+    expect(resolved.model).toBe('test-model');
+    expect(resolved.tools).toHaveLength(1);
+    if (format === 'responses') {
+      expect(resolved.instructions).toBe(connectionTestRequest.messages[0].content);
+      expect(resolved.input).toEqual([connectionTestRequest.messages[1]]);
+      expect(resolved.tools[0].name).toBe('check_connection');
+    } else {
+      expect(resolved.messages).toEqual(connectionTestRequest.messages);
+      expect(resolved.tools).toEqual(connectionTestRequest.tools);
+    }
+  } finally {
+    execute.mockRestore();
+    clearGlobalSettings();
+  }
+});
+
+test('running the bridge directly explains where its request comes from', () => {
+  const run = new Function('modelHttp', modelBridgeScript('responses', 'modelHttp'));
+  expect(() => run({ run: jest.fn() })).toThrow(/Run this query from Automator or AI Help/);
+});
+
+
+test('preserves provider error details instead of replacing them with generic guidance', async () => {
+  await expect(runBridge('responses', { error: { message: 'The requested model is not available to this project.' } }).result)
+    .rejects.toThrow('The requested model is not available to this project.');
+});

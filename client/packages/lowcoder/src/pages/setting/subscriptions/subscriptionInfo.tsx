@@ -11,7 +11,7 @@ import { Card, Tag, List, Button } from 'antd';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import { Level1SettingPageContent } from "../styled";
 import { TacoMarkDown } from "lowcoder-design";
-import ProductDescriptions, {Translations} from "./ProductDescriptions";
+import ProductDescriptions, { getAIRobotDescription, Translations } from "./ProductDescriptions";
 import { SubscriptionProductsEnum } from "@lowcoder-ee/constants/subscriptionConstants";
 import { useSubscriptionContext } from "@lowcoder-ee/util/context/SubscriptionContext";
 
@@ -59,7 +59,7 @@ const useProduct = (productId: string) => {
       getProduct(productId).then(data => {
         if (!cancelled) setProduct(data);
       }).catch(() => {
-        if (!cancelled) setError("Product details could not be loaded. Please return to Subscriptions and try again.");
+        if (!cancelled) setError(trans("automator.subscription.productLoadError"));
       }).finally(() => { if (!cancelled) setLoading(false); });
     }
     return () => { cancelled = true; };
@@ -82,8 +82,8 @@ const useMarkdown = (productId: string | null, userLanguage: string) => {
           descriptionContent = ProductDescriptions["SupportProduct"];
           break;
         case SubscriptionProductsEnum.AIROBOT:
-          descriptionContent = ProductDescriptions["AIRobotProduct"];
-          break;
+          setMarkdownContent(getAIRobotDescription());
+          return;
         default:
           descriptionContent = false;
           break;
@@ -110,20 +110,20 @@ export function SubscriptionInfo() {
   const isAI = productId === SubscriptionProductsEnum.AIROBOT;
   const hasStory = isAI || productId === SubscriptionProductsEnum.SUPPORT;
   const action = offering?.activeSubscription
-    ? <Button size="large" onClick={() => history.push(buildSubscriptionSettingsLink(offering.subscriptionId, productId))}>Manage subscription</Button>
+    ? <Button size="large" onClick={() => history.push(buildSubscriptionSettingsLink(offering.subscriptionId, productId))}>{trans("subscription.manageSubscription")}</Button>
     : admin !== "admin"
-      ? <span>Ask your workspace admin to activate {isAI ? "AI Robot" : "Support"}.</span>
+      ? <span>{trans("automator.subscription.askAdmin", { product: isAI ? "AI Robot" : "Lowcoder Support" })}</span>
       : <Button type="primary" size="large" href={offering?.checkoutLink || undefined}
           target="_blank" rel="noopener noreferrer" disabled={!offering?.checkoutLink || Boolean(subscriptionDataError)}>
-          {isAI ? "Start building with AI Robot" : "Give your team Lowcoder Support"}
+          {isAI ? trans("automator.subscription.startAI") : trans("automator.subscription.startSupport")}
         </Button>;
 
   if (loading && !hasStory) {
-    return <div style={{margin: "40px"}}>Loading...</div>;
+    return <div style={{margin: "40px"}}>{trans("automator.subscription.loading")}</div>;
   }
 
   if ((error || !product) && !hasStory) {
-    return <Wrapper><p>{error || "Product unavailable."}</p><Button onClick={() => history.push(SUBSCRIPTION_SETTING)}>Back to subscriptions</Button></Wrapper>;
+    return <Wrapper><p>{error || trans("automator.subscription.unavailable")}</p><Button onClick={() => history.push(SUBSCRIPTION_SETTING)}>{trans("subscription.backToSubscriptions")}</Button></Wrapper>;
   }
 
   return (
@@ -134,7 +134,7 @@ export function SubscriptionInfo() {
         <span>{product?.name || (isAI ? "AI Robot" : "Lowcoder Support & SLA")}</span>
       </HeaderBack>
       {hasStory && <SubscriptionStory ai={isAI} action={<>{action}
-        {admin === "admin" && !offering?.activeSubscription && !offering?.checkoutLink && <p>Checkout is not ready yet. <a href={SUBSCRIPTION_SETTING}>Check subscription settings</a>.</p>}
+        {admin === "admin" && !offering?.activeSubscription && !offering?.checkoutLink && <p>{trans("automator.subscription.checkoutPending")} <a href={SUBSCRIPTION_SETTING}>{trans("automator.subscription.checkSettings")}</a></p>}
       </>} />}
       <Level1SettingPageContent>
         <ContentWrapper>
@@ -156,7 +156,7 @@ export function SubscriptionInfo() {
               </Tag>
               <List
                 size="small"
-                header={<h3>What you get:</h3>}
+                header={<h3>{trans("automator.subscription.whatYouGet")}</h3>}
                 bordered
                 dataSource={product.marketing_features}
                 renderItem={(item: { name: string }) => <List.Item>{item.name}</List.Item>}
@@ -165,7 +165,7 @@ export function SubscriptionInfo() {
             </div>
           </Card>}
 
-          <FullWidthCard style={hasStory ? { width: "100%" } : undefined} title={hasStory ? "What’s included, setup and pricing" : "Product Documentation"}>
+          <FullWidthCard style={hasStory ? { width: "100%" } : undefined} title={hasStory ? trans("automator.subscription.included") : trans("automator.subscription.documentation")}>
             <TacoMarkDown>{markdownContent}</TacoMarkDown>
           </FullWidthCard>
         </ContentWrapper>

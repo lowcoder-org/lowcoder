@@ -1,3 +1,4 @@
+import { trans } from "i18n";
 import { assertAiRobotAccess } from "util/assertAiRobotAccess";
 // client/packages/lowcoder/src/comps/comps/chatComp/handlers/messageHandlers.ts
 
@@ -102,15 +103,15 @@ export class AIAssistantQueryHandler implements AIAssistantMessageHandler {
     }));
 
     if (!chatQuery) {
-      throw new Error("Select an Automator query before sending a message");
+      throw new Error(trans("automator.chat.selectQuery"));
     }
 
     if (!dispatch) {
-      throw new Error("Automator dispatch is unavailable");
+      throw new Error(trans("automator.chat.dispatchUnavailable"));
     }
 
     if (!getEditorState) {
-      throw new Error("Automator editor state is unavailable");
+      throw new Error(trans("automator.chat.editorUnavailable"));
     }
 
     const editorState = getEditorState();
@@ -139,7 +140,7 @@ export class AIAssistantQueryHandler implements AIAssistantMessageHandler {
       assertAiRobotAccess(workspaceId);
       return toAssistantMessage(result);
     } catch (e: any) {
-      throw new Error(e?.message || "AI assistant query execution failed");
+      throw new Error(e?.message || trans("automator.chat.queryFailed"));
     }
   }
 }

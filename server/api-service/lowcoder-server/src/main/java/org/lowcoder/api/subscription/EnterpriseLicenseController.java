@@ -76,10 +76,14 @@ public class EnterpriseLicenseController {
                     if (action.equals("checkout") || action.equals("portal")) {
                         String origin = publicUrl.isBlank() ? body.path("returnOrigin").asText() : publicUrl;
                         URI base = URI.create(origin);
-                        if (!"https".equals(base.getScheme()) || base.getHost() == null || base.getUserInfo() != null ||
+                        // Local development may return over HTTP. Payment and relay traffic still use HTTPS.
+                        boolean loopback = base.getHost() != null && List.of("localhost", "127.0.0.1", "[::1]").contains(base.getHost());
+                        if (!("https".equals(base.getScheme()) || ("http".equals(base.getScheme()) && loopback)) ||
+                                base.getHost() == null || base.getUserInfo() != null ||
+                                (base.getPort() != -1 && (base.getPort() < 1 || base.getPort() > 65535)) ||
                                 base.getQuery() != null || base.getFragment() != null ||
                                 !(base.getPath() == null || base.getPath().isEmpty() || base.getPath().equals("/"))) {
-                            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Use an HTTPS UI origin for Enterprise checkout");
+                            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Use an HTTPS UI origin or localhost for Enterprise checkout");
                         }
                         payload.put("returnUrl", origin.replaceAll("/+$", "") + "/setting/subscription?enterpriseLicense=return");
                     }

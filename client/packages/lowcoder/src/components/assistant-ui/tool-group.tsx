@@ -1,3 +1,4 @@
+import { trans } from "i18n";
 "use client";
 
 import {
@@ -193,7 +194,7 @@ function ToolGroupTrigger({
   count: number;
   active?: boolean;
 }) {
-  const label = `${count} tool ${count === 1 ? "call" : "calls"}`;
+  const label = trans("automator.chat.toolCalls", { count });
 
   return (
     <StyledToolGroupTrigger
