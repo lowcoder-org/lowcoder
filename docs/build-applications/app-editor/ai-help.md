@@ -2,7 +2,7 @@
 
 AI Help is an AI-assisted editor feature for focused help inside Lowcoder input fields, such as JavaScript, SQL, JSON, and chart option editors.
 
-AI Help is a subscription feature. When it is enabled for your workspace, supported editor fields show an AI Help action that opens the AI Helper panel.
+Supported editor fields show an AI Help action that opens the AI Helper panel. This field-level helper currently does not require an AI Robot subscription. The AI Robot subscription applies to [Lowcoder Automator](automator.md), which creates and edits apps. Model-provider usage is billed separately under your provider's terms.
 
 ## Bring Your Own Model
 
@@ -459,7 +459,7 @@ The exact tool arguments are generated from the `tools` definition passed to you
 
 ## Notes
 
-- AI Help is available only when the related subscription feature is enabled.
+- AI Help currently does not require AI Robot; the AI Robot subscription gates Automator.
 - You can use any model that can accept the provided messages and tools, or any backend that can translate them.
 - Keep provider API keys in datasource or query configuration, not directly in app-visible code.
 - If AI Help explains an answer but does not show an apply action, check whether the model returned a tool call.

@@ -2,7 +2,7 @@
 export enum SubscriptionProductsEnum {
   // PROD
   SUPPORT = "QYGsTWZYyJYzMg",
-  MEDIAPACKAGE = 'SOz085DH7CmNHG', 
+  AIROBOT = 'VPq5GQPHJSQnzq',
   
   // DEV
   // SUPPORT = "QW8L3WPMiNjQjI",
@@ -26,7 +26,7 @@ export enum SubscriptionProductsEnum {
 
 export const InitSubscriptionProducts = [
   {
-    pricingType: "For this Workspace, monthly, per User",
+    pricingType: "For this Workspace, monthly, per Admin & Editor.",
     activeSubscription: false,
     accessLink: "1PhAKrDDlQgecLSfzpt0hQSA",
     product: SubscriptionProductsEnum.SUPPORT,
@@ -37,15 +37,15 @@ export const InitSubscriptionProducts = [
     quantity_entity: "orgUser",
   },
   {
-    pricingType: "For you in this Workspace, monthly",
+    pricingType: "For this Workspace, monthly, per Admin & Editor.",
     activeSubscription: false,
-    accessLink: "1RUB2XDDlQgecLSfRsBDx14y",
-    product: SubscriptionProductsEnum.MEDIAPACKAGE,
+    accessLink: "1UP0P3DDlQgecLSfuw4KtcZ0",
+    product: SubscriptionProductsEnum.AIROBOT,
     checkoutLink: "",
     checkoutLinkDataLoaded: false,
     subscriptionId: "",
-    type: "user",
-    quantity_entity: "singleItem",
+    type: "org",
+    quantity_entity: "orgUser",
   },
   /* {
     pricingType: "For all in this Workspace, monthly",
@@ -74,7 +74,7 @@ export interface Subscription {
   quantity: number;
   billing_scheme: string;
   price: string;
-  histId?: string;
+  hostId?: string;
   orgId?: string;
   userId?: string;
   customerId?: string;

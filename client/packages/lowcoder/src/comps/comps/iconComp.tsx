@@ -154,7 +154,7 @@ let IconBasicComp = (function () {
       return (
       <>
         <Section name={sectionNames.basic}>
-          { children.sourceMode.propertyView({
+          {children.sourceMode.getView() === "asset-library" && children.sourceMode.propertyView({
             label: "",
             radioButton: true
           })}

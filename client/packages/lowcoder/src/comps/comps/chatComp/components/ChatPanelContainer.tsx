@@ -1,3 +1,4 @@
+import { assertAiRobotAccess } from "util/assertAiRobotAccess";
 // client/packages/lowcoder/src/comps/comps/chatComp/components/ChatPanelContainer.tsx
 
 import React, { useState, useEffect, useRef, useContext } from "react";
@@ -182,6 +183,11 @@ function ChatPanelView({ messageHandler, placeholder, onMessageUpdate }: Omit<Ch
   const [isRunning, setIsRunning] = useState(false);
   const editorState = useContext(EditorContext);
   const editorStateRef = useRef(editorState);
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
 
   const currentMessages = actions.getCurrentMessages();
 
@@ -192,7 +198,8 @@ function ChatPanelView({ messageHandler, placeholder, onMessageUpdate }: Omit<Ch
   }, [editorState]);
 
   const performAction = async (actions: any[]) => {
-    if (!editorStateRef.current) {
+    const workspaceId = assertAiRobotAccess();
+    if (!mounted.current || !editorStateRef.current) {
       console.error("[Automator] no editorState — skipping actions");
       return;
     }
@@ -201,6 +208,8 @@ function ChatPanelView({ messageHandler, placeholder, onMessageUpdate }: Omit<Ch
     let executed = 0;
 
     for (const actionItem of actions) {
+      if (!mounted.current) return;
+      assertAiRobotAccess(workspaceId);
       const executor = ACTION_REGISTRY[actionItem.action];
       if (!executor) {
         console.warn(`[Automator] unsupported action: ${actionItem.action}`);
@@ -232,6 +241,7 @@ function ChatPanelView({ messageHandler, placeholder, onMessageUpdate }: Omit<Ch
   };
 
   const onNew = async (message: AppendMessage) => {
+    assertAiRobotAccess();
     const text = getTextFromAppendMessage(message);
   
     if (!text) {
@@ -279,6 +289,7 @@ function ChatPanelView({ messageHandler, placeholder, onMessageUpdate }: Omit<Ch
   };
 
   const onEdit = async (message: AppendMessage) => {
+    assertAiRobotAccess();
     const text = getTextFromAppendMessage(message);
   
     if (!text) {

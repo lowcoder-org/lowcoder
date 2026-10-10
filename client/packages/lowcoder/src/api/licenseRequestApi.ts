@@ -1,81 +1,62 @@
-import axios from "axios";
+import Api from "api/api";
 
+export interface LicenseContactData {
+  companyName: string;
+  address: string;
+  registerNumber: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+  taxId?: string;
+  vatId?: string;
+}
 export interface LicenseRequestData {
-  contactData: {
-    companyName: string;
-    address: string;
-    registerNumber: string;
-    contactName: string;
-    contactEmail: string;
-    contactPhone: string;
-    taxId?: string;
-    vatId?: string;
-    organizationId: string;
-  };
-  licenseType: 'per-api-calls' | 'per-instance';
-  licenseData: {
-    apiCallLimit?: number;
-    instanceCount?: number;
-    currentApiUsage?: number;
-    lastMonthApiUsage?: number;
-  };
-  organizationId: string;
+  requestId: string;
+  orgId: string;
+  contactData: LicenseContactData;
+  billingInterval: "month" | "year";
   deploymentIds: string[];
 }
-
-export interface LicenseRequestResponse {
-  success: boolean;
-  message: string;
-  requestId?: string;
-  estimatedResponseTime?: string;
+export interface EnterpriseLicenseFile {
+  id: string;
+  filename: string;
+  deploymentId: string;
+  notBefore: string;
+  notAfter: string;
+}
+export interface EnterpriseLicenseOrder {
+  requestId: string;
+  companyName: string;
+  billingInterval: "month" | "year";
+  deploymentIds: string[];
+  status: string;
+  checkoutUrl?: string;
+}
+export interface EnterpriseLicenseStatus {
+  orders: EnterpriseLicenseOrder[];
+  licenses: EnterpriseLicenseFile[];
 }
 
-/**
- * Submit a license request to flow.lowcoder.cloud
- * @param data The license request data
- * @returns Promise with the response
- */
-export const submitLicenseRequest = async (data: LicenseRequestData): Promise<LicenseRequestResponse> => {
-  try {
-    // TODO: Replace with actual endpoint when available
-    const response = await axios.post('https://flow.lowcoder.cloud/api/license-requests', data, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      timeout: 30000, // 30 second timeout
-    });
-    
-    return response.data;
-  } catch (error) {
-    console.error('License request submission failed:', error);
-    
-    // For now, simulate a successful response since the endpoint doesn't exist yet
-    if (axios.isAxiosError(error) && error.code === 'ECONNREFUSED') {
-      // Simulate successful submission for development/testing
-      return {
-        success: true,
-        message: 'License request submitted successfully (simulated)',
-        requestId: `sim-${Date.now()}`,
-        estimatedResponseTime: '24-48 hours',
-      };
-    }
-    
-    throw new Error('Failed to submit license request. Please try again later.');
-  }
-};
+async function request<T>(action: string, body: object): Promise<T> {
+  const response = await Api.post(`/enterprise-licenses/${action}`, { ...body, returnOrigin: window.location.origin }, undefined, { timeout: 120000 });
+  const result = response.data?.data;
+  if (!result || result.success !== true) throw new Error("Enterprise licensing request was not confirmed");
+  return result as T;
+}
 
-/**
- * Get the status of a license request
- * @param requestId The request ID
- * @returns Promise with the status
- */
-export const getLicenseRequestStatus = async (requestId: string): Promise<any> => {
-  try {
-    // TODO: Replace with actual endpoint when available
-    const response = await axios.get(`https://flow.lowcoder.cloud/api/license-requests/${requestId}`);
-    return response.data;
-  } catch (error) {
-    console.error('Failed to get license request status:', error);
-    throw new Error('Failed to get request status');
+export const submitLicenseRequest = (data: LicenseRequestData) =>
+  request<{ success: true; requestId: string; checkoutUrl: string }>("checkout", data);
+export const getLicenseRequestStatus = (orgId: string) => request<EnterpriseLicenseStatus>("status", { orgId });
+export const synchronizeEnterpriseLicenses = (orgId: string) => request<EnterpriseLicenseStatus>("sync", { orgId });
+export const getEnterpriseLicenseFile = (orgId: string, licenseId: string) =>
+  request<{ filename: string; license: string }>("download", { orgId, licenseId });
+export const getEnterpriseBillingPortal = (orgId: string, requestId: string) =>
+  request<{ url: string }>("portal", { orgId, requestId });
+
+export function openStripePage(url: string, kind: "checkout" | "portal") {
+  const target = new URL(url);
+  if (target.protocol !== "https:" || target.hostname !== (kind === "checkout" ? "checkout.stripe.com" : "billing.stripe.com")) {
+    throw new Error("Invalid Stripe destination");
   }
-};
+  window.location.assign(target.href);
+}

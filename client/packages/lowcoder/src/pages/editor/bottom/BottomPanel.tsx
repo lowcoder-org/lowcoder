@@ -11,7 +11,10 @@ import { useEditorLayoutStore } from "pages/editor/editorLayoutStore";
 import { BottomResultPanel } from "../../../components/resultPanel/BottomResultPanel";
 import { AppState } from "../../../redux/reducers";
 import { getUser } from "../../../redux/selectors/usersSelectors";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
+import { getAiRobotAccess, getFetchSubscriptionsFinished, getSubscriptionsError } from "redux/selectors/subscriptionSelectors";
+import { SUBSCRIPTION_SETTING, buildSubscriptionInfoLink } from "constants/routesURL";
+import Button from "antd/es/button";
 import { Layers } from "constants/Layers";
 import Flex from "antd/es/flex";
 import type { MenuProps } from 'antd/es/menu';
@@ -22,6 +25,11 @@ import { AIGenerate, DocLink } from "lowcoder-design";
 import { ChatPanel } from "@lowcoder-ee/comps/comps/chatComp/components/ChatPanel";
 import { EditorContext } from "comps/editorState";
 import { trans } from "i18n";
+
+import { SubscriptionProductsEnum } from "constants/subscriptionConstants";
+import { AutomatorWelcome } from "components/automator/AutomatorWelcome";
+import { AutomatorSetup } from "components/automator/GuidedModelSetup";
+import { useLocation } from "react-router-dom";
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -53,7 +61,10 @@ const StyledMenu = styled(Menu)`
 `;
 
 const ChatHeader = styled.div`
-  flex: 0 0 35px;
+  flex: 0 0 auto;
+  min-height: 35px;
+  flex-wrap: wrap;
+  gap: 8px;
   padding: 0 16px;
   display: flex;
   align-items: center;
@@ -73,6 +84,8 @@ const ChatTitle = styled.h3`
 
 const QuerySelectorWrapper = styled.div`
   display: flex;
+  flex-wrap: wrap;
+  min-width: 0;
   align-items: center;
   gap: 12px;
 `;
@@ -117,10 +130,16 @@ function Bottom(props: any) {
     removeListener();
   };
 
+  const location = useLocation();
+  const [setupOpen, setSetupOpen] = useState(false);
   const [currentOption, setCurrentOption] = useState("data");
   const [selectedQuery, setSelectedQuery] = useState<string>(() => getSelectedAIQueryName());
+  useEffect(() => { setSetupOpen(false); setSelectedQuery(getSelectedAIQueryName()); }, [props.orgId, location.pathname]);
 
   const editorState = useContext(EditorContext);
+  const aiRobotAccess = useSelector(getAiRobotAccess);
+  const subscriptionsLoaded = useSelector(getFetchSubscriptionsFinished);
+  const subscriptionError = useSelector(getSubscriptionsError);
 
   useEffect(() => {
     if (currentOption === "ai") {
@@ -135,6 +154,12 @@ function Bottom(props: any) {
       value: info.name,
     }));
   }, [editorState]);
+
+  const queryAvailable = queryOptions.some(option => option.value === selectedQuery);
+  const selectQuery = (name: string) => {
+    setSelectedQuery(name);
+    saveSelectedAIQueryName(name);
+  };
 
   const items: MenuItem[] = [
     { key: 'data', icon: <DatabaseOutlined />, label: 'Data Queries' },
@@ -178,13 +203,13 @@ function Bottom(props: any) {
                       {trans("comp.menuViewDocs")}
                     </DocLink>
                   </ChatTitle>
-                  <QuerySelectorWrapper>
+                  {aiRobotAccess && <QuerySelectorWrapper>
                     <QueryLabel>Query:</QueryLabel>
                     <Select
                       showSearch
                       allowClear
                       placeholder="Select a query"
-                      value={selectedQuery || undefined}
+                      value={queryAvailable ? selectedQuery : undefined}
                       onChange={(value) => {
                         const nextQuery = value || "";
                         setSelectedQuery(nextQuery);
@@ -194,12 +219,21 @@ function Bottom(props: any) {
                       style={{ width: 200 }}
                       size="small"
                     />
-                  </QuerySelectorWrapper>
+                    <Button size="small" onClick={() => setSetupOpen(true)}>Set up AI connection</Button>
+                  </QuerySelectorWrapper>}
                 </ChatHeader>
-                <ChatPanel
-                  tableName="LC_AI"
-                  chatQuery={selectedQuery}
-                />
+                {aiRobotAccess ? (
+                  queryAvailable
+                    ? <ChatPanel key={`${props.orgId}:${location.pathname}`} tableName="LC_AI" chatQuery={selectedQuery} />
+                    : <AutomatorWelcome subscribed onSetup={() => setSetupOpen(true)} previewUrl={buildSubscriptionInfoLink(SubscriptionProductsEnum.AIROBOT)} />
+                ) : !subscriptionsLoaded || subscriptionError ? (
+                  <Flex vertical align="center" justify="center" gap={12} style={{ flex: 1, padding: 24 }}>
+                    <strong>{subscriptionError ? "We couldn’t verify your AI Robot access" : "Checking your AI Robot subscription…"}</strong>
+                    {subscriptionError && <><span>Please check your connection and retry from Subscription settings.</span>
+                      <Button href={SUBSCRIPTION_SETTING} target="_blank" rel="noopener noreferrer">Check subscription settings</Button></>}
+                  </Flex>
+                ) : <AutomatorWelcome subscribed={false} onSetup={() => setSetupOpen(true)} previewUrl={buildSubscriptionInfoLink(SubscriptionProductsEnum.AIROBOT)} />}
+                {aiRobotAccess && setupOpen && <AutomatorSetup key={`${props.orgId}:${location.pathname}`} onClose={() => setSetupOpen(false)} onSelect={selectQuery} />}
               </Flex>
             )}
           </PanelContent>

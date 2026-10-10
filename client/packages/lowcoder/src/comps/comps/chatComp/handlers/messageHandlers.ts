@@ -1,3 +1,4 @@
+import { assertAiRobotAccess } from "util/assertAiRobotAccess";
 // client/packages/lowcoder/src/comps/comps/chatComp/handlers/messageHandlers.ts
 
 import { AIAssistantMessageHandler, MessageHandler, QueryHandlerConfig, ChatMessage } from "../types/chatTypes";
@@ -90,6 +91,7 @@ export class AIAssistantQueryHandler implements AIAssistantMessageHandler {
     _sessionId: string | undefined,
     conversationHistory: ChatMessage[]
   ): Promise<ChatMessage> {
+    const workspaceId = assertAiRobotAccess();
     const { chatQuery, dispatch, getEditorState } = this.config;
     const history = conversationHistory;
 
@@ -134,6 +136,7 @@ export class AIAssistantQueryHandler implements AIAssistantMessageHandler {
         )
       );
 
+      assertAiRobotAccess(workspaceId);
       return toAssistantMessage(result);
     } catch (e: any) {
       throw new Error(e?.message || "AI assistant query execution failed");

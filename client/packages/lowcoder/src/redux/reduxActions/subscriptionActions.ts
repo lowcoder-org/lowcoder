@@ -13,5 +13,5 @@ export const fetchSubscriptionsSuccess = (subscriptions: Subscription[]) => ({
 
 export const fetchSubscriptionsError = (error: string) => ({
   type: ReduxActionErrorTypes.FETCH_SUBSCRIPTIONS_ERROR,
-  payload: { error },
+  payload: error,
 });

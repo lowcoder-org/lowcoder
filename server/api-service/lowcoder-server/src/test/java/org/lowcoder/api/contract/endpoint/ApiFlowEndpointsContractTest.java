@@ -227,6 +227,7 @@ class ApiFlowEndpointsContractTest {
         private final String baseUrl;
 
         RedirectedApiFlowController(String baseUrl) {
+            super(org.mockito.Mockito.mock(org.lowcoder.api.subscription.WorkspaceSeatSyncService.class));
             this.baseUrl = baseUrl;
         }
 

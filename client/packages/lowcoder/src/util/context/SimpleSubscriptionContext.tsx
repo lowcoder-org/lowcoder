@@ -103,27 +103,26 @@ export const SimpleSubscriptionContextProvider = (props: {
   }, [user.isAnonymous, productsLoaded, subscriptionProductsLoading]);
 
   useEffect(() => {
+    let cancelled = false;
+    setCustomer(undefined);
+    setCustomerDataError(false);
+    if (!deploymentId || !orgID || !user.id || user.isAnonymous) return;
+    setIsCreatingCustomer(true);
     const initializeCustomer = async () => {
       try {
-        setIsCreatingCustomer(true);
         const existingCustomer = await searchCustomer(subscriptionSearchCustomer);
-        if (existingCustomer != null) {
-          setCustomer(existingCustomer);
-        } else {
-          const newCustomer = await createCustomer(subscriptionNewCustomer);
-          setCustomer(newCustomer);
-        }
+        if (cancelled) return;
+        const nextCustomer = existingCustomer ?? await createCustomer(subscriptionNewCustomer);
+        if (!cancelled) setCustomer(nextCustomer);
       } catch (error) {
-        setCustomerDataError(true);
+        if (!cancelled) setCustomerDataError(true);
       } finally {
-        setIsCreatingCustomer(false);
+        if (!cancelled) setIsCreatingCustomer(false);
       }
     };
-
-    if (Boolean(deploymentId) && !customer) {
-      initializeCustomer();
-    }
-  }, [deploymentId]);
+    initializeCustomer();
+    return () => { cancelled = true; };
+  }, [deploymentId, orgID, user.id, user.isAnonymous]);
 
   const isCustomerInitializationComplete = !isCreatingCustomer && Boolean(customer);
 

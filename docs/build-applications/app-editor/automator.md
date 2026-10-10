@@ -2,7 +2,61 @@
 
 Lowcoder Automator is an AI-assisted editor feature for creating and changing parts of an app from natural language instructions.
 
-Automator is a subscription feature. When it is enabled for your workspace, it appears in the App Editor and lets you select the Lowcoder query that should handle AI requests.
+Automator requires an active **AI Robot** subscription for the current workspace. A workspace admin subscribes in **Settings → Subscriptions**. All admins and editors in that workspace are billable seats and can use Automator; app viewers are not billed. Each workspace needs its own subscription.
+
+Without an active subscription, the Automator panel shows a subscription prompt. With access, you can select the Lowcoder query that should handle AI requests.
+
+## AI Robot Subscription
+
+AI Robot currently uses the same monthly EUR prices as Lowcoder Support & SLA. These are separate subscriptions: Support does not unlock Automator. **Stripe is the source of truth for prices.** The table below reflects the live Stripe catalogue verified on 10 October 2026; prices exclude tax.
+
+| Admins and editors in the workspace | Monthly price per seat |
+|---|---|
+| 1–10 | €3.49 |
+| 11–100 | €2.90 |
+| 101–500 | €1.90 |
+| 501–1,000 | €0.90 |
+| 1,001–5,000 | €0.49 |
+| 5,001+ | €0.39 |
+
+Stripe uses **volume pricing**: the total seat count selects one rate, and that rate applies to every seat. For example, 11 seats cost 11 × €2.90 = €31.90 per month before tax.
+
+The seat count is set at checkout. On installations with seat synchronization enabled, changes to admins and editors are synchronized automatically while the workspace is open. Changes made while it is closed are reconciled on the next visit. Additions and removals are prorated on the next invoice. Viewers never count as billable seats.
+
+Seat synchronization requires deployment of the frontend and API changes and configuration of the private n8n relay. See the [server setup guide](../../../server/api-service/README.md#subscription-seat-synchronization).
+
+AI Robot provides access to Automator. Model-provider usage is billed separately under your provider's terms.
+
+## Guided setup in the editor
+
+Open the **Automator** panel and choose **Set up AI connection**. If no query is selected (or the saved query is missing from this app), Automator shows the setup entry point instead of an empty chat.
+
+1. **Connect.** Choose the OpenAI example and enter your API key and model name, or choose your own provider / self-hosted model. You can also reuse an existing REST datasource. The model must support function/tool calling.
+2. **Create queries.** Review the connection. The wizard saves a workspace REST datasource and adds a provider query plus a JavaScript bridge to this app, using available names. Existing queries are preserved, and both new queries run only when manually triggered.
+3. **Try it.** Select **Test connection**. This makes one real provider request using a harmless `check_connection` tool. It sends no app context and does not apply canvas changes. Provider charges may apply. A text-only reply does not verify tool support.
+4. After verification, select **Start building**. The bridge is selected for you. In a blank app, try: “Create a simple to-do app with a task table and an add button.” Review the result before publishing.
+
+The API key is stored in the REST datasource's authentication header, outside the app's JavaScript. Datasource management permissions control who can manage that configuration. Do not embed keys in prompts or bridge scripts.
+
+If the connection test fails, the datasource and queries remain available. Fix the connection and retry without creating another pair. **Manage model connection** opens the datasource settings. If you finish later, select the generated `automatorAI` bridge from the Automator query selector when you return.
+
+### Self-hosted models and private gateways
+
+Select **My own provider / self-hosted**, then supply the base URL, exact model name and optional API key. Choose **OpenAI-compatible Chat Completions** or **OpenAI Responses** to match the server. The API path is appended to the datasource URL: a base URL ending in `/v1` normally uses `/chat/completions` or `/responses`, rather than another `/v1` segment.
+
+The endpoint must be reachable from the Lowcoder server. In Docker, `localhost` is the container itself, not your laptop. Use the intended private network address; do not expose a local model publicly just to connect it. For custom authentication or extra headers, configure a REST datasource first, then select it in the wizard.
+
+Other API formats need a custom bridge. The examples below explain `ai.value`, provider requests and the expected assistant response. The generated Responses bridge explicitly uses `strict: false` because Automator's action parameters contain flexible property objects; see the [OpenAI function-calling guide](https://developers.openai.com/api/docs/guides/function-calling).
+
+### If setup does not work
+
+- **401 / authentication error:** check the datasource API key and authentication headers.
+- **429 / quota or rate limit:** check the provider account's billing, quota and rate limits.
+- **Connection or timeout error:** check the URL and reachability from the Lowcoder server.
+- **Text reply, no verified tool call:** choose a model with tool support and check the selected API format.
+- **No app changes after a real request:** inspect whether the model returned the supported Automator tool call. A text reply alone does not edit the canvas.
+
+Once connected, normal Automator requests send conversation and app context to your chosen provider and apply supported edits directly in the editor.
 
 ## Bring Your Own Model
 
@@ -427,7 +481,7 @@ The exact tool arguments are generated from the `tools` definition passed to you
 
 ## Notes
 
-- Automator is available only when the related subscription feature is enabled.
+- Automator requires an active AI Robot subscription for the current workspace and admin or editor access.
 - You can use any model that can accept the provided messages and tools, or any backend that can translate them.
 - Keep provider API keys in datasource or query configuration, not directly in app-visible code.
 - If Automator replies with text but does not change the app, check whether the model returned a tool call.

@@ -86,10 +86,10 @@ public class GroupController implements GroupEndpoints
                     .map(tuple -> {
                         List<OrgMember> orgMembers = tuple.getT1();
                         List<GroupMember> devMembers = tuple.getT2();
-                        int totalAdmins = orgMembers.stream().filter(OrgMember::isAdmin).toList().size();
-                        int totalAdminsAndDevelopers = orgMembers.stream()
-                            .filter(orgMember -> orgMember.isAdmin() ||
-                                devMembers.stream().anyMatch(devMember -> devMember.getUserId().equals(orgMember.getUserId()))).toList().size();
+                        int totalAdmins = (int) orgMembers.stream()
+                            .filter(member -> member.isAdmin() || member.isSuperAdmin())
+                            .map(OrgMember::getUserId).distinct().count();
+                        int totalAdminsAndDevelopers = org.lowcoder.api.subscription.WorkspaceSeatCounter.count(orgId, orgMembers, devMembers);
                         int totalDevelopersOnly = orgMembers.stream()
                             .filter(orgMember -> !orgMember.isAdmin() && !orgMember.isSuperAdmin() &&
                                 devMembers.stream().anyMatch(devMember -> devMember.getUserId().equals(orgMember.getUserId()))).toList().size();

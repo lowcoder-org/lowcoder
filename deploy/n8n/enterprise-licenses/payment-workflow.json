@@ -1,0 +1,71 @@
+{
+  "name": "Enterprise licenses - verified Stripe payment receipts",
+  "nodes": [
+    {
+      "id": "stripe-paid-event",
+      "name": "Stripe payment receipt",
+      "type": "n8n-nodes-base.stripeTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "events": [
+          "invoice.paid"
+        ],
+        "resolveData": false
+      },
+      "credentials": {
+        "stripeApi": {
+          "id": "REPLACE_WITH_STRIPE_CREDENTIAL_ID",
+          "name": "Lowcoder Stripe"
+        }
+      }
+    },
+    {
+      "id": "record-event",
+      "name": "Store verified receipt",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        300,
+        0
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "ssSYBhUdXUxCEl9q",
+          "name": "License Database — Enterprise licensing"
+        }
+      },
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO enterprise_billing.payment_events(event_id,invoice_id) VALUES($1,$2) ON CONFLICT(event_id) DO NOTHING",
+        "options": {
+          "queryReplacement": "={{ [$json.id,$json.data.object.id] }}"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Stripe payment receipt": {
+      "main": [
+        [
+          {
+            "node": "Store verified receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "executionTimeout": 100,
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false
+  }
+}

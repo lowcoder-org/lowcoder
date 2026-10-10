@@ -2,7 +2,10 @@ import styled from "styled-components";
 import { GreyTextColor } from "constants/style";
 import { trans } from "i18n";
 import { Level1SettingPageContent, Level1SettingPageTitle } from "../styled";
-import { Flex, Card, Button, message } from 'antd';
+import { Flex, Card, Button, message, Alert } from 'antd';
+import { useSeatSyncFailure } from "util/workspaceSeatSync";
+import { useSelector } from "react-redux";
+import { getUser } from "redux/selectors/usersSelectors";
 import { ProductCard } from "./productCard";
 import { getCustomerPortalSession }  from '@lowcoder-ee/api/subscriptionApi';
 import { useSubscriptionContext } from "@lowcoder-ee/util/context/SubscriptionContext";
@@ -36,6 +39,8 @@ const ManageSubscriptionButton = styled(Button)`
 `;
 
 export function SubscriptionSetting() {
+  const seatSyncFailedOrgId = useSeatSyncFailure();
+  const currentOrgId = useSelector(getUser).currentOrgId;
   const {
     admin,
     customer,
@@ -77,12 +82,17 @@ export function SubscriptionSetting() {
       <Level1SettingPageTitle>
         {trans("settings.subscription")}
       </Level1SettingPageTitle>
+      {seatSyncFailedOrgId === currentOrgId && <Alert type="warning" showIcon
+        message="Billing seat synchronization is pending"
+        description="Your workspace changes are saved. Billing will retry automatically while this workspace is open." />}
       {customer != null ? (
         <SubscriptionSettingContent>
-          {customer && <h3>Your Customer Number: {customer?.id.substring(4)} {admin && "| you are Subscriptions-Admin of this Workspace"}</h3>}
+          {customer && <h3>Your Customer Number: {customer?.id.substring(4)} {admin === "admin" && "| you are Subscriptions-Admin of this Workspace"}</h3>}
           <Flex wrap='wrap' gap="large" style={{marginTop: "40px", width : "100%"}}>
             {products
             .filter((product) => {
+              // Instance licenses require deployment IDs and their dedicated checkout.
+              if (product.product === "lowcoder_enterprise_instances") return false;
               if (product.type === "org") { 
                 return admin === "admin";
               }
