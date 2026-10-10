@@ -36,6 +36,9 @@ const server = new Server({
     console.log(`[hocuspocus] listening on ws://${HOST}:${PORT}`);
   },
 
+  // Hocuspocus writes its own default response after this hook resolves.
+  // Rejecting with a falsy value marks the request as handled and stops that
+  // default response; returning normally would write headers twice and crash.
   async onRequest({ request, response }) {
     if (request.url === "/health") {
       writeJson(response, 200, {
@@ -44,7 +47,7 @@ const server = new Server({
         port: PORT,
         auth: SECRET ? "enabled" : "disabled",
       });
-      return;
+      throw null;
     }
 
     if (request.url === "/") {
@@ -53,6 +56,7 @@ const server = new Server({
         websocket: `ws://${HOST}:${PORT}`,
         health: "/health",
       });
+      throw null;
     }
   },
 

@@ -51,9 +51,7 @@ services:
   agora-token-service:
     # agoracn/token only exposes POST /token/generate. Meeting Controller needs
     # GET /rte/... returning { rtcToken, rtmToken }.
-    build:
-      context: ./agora-token-service
-      dockerfile: Dockerfile
+    image: lowcoderorg/lowcoder-agora-token-service:latest
     container_name: agora-token-service
     restart: unless-stopped
     ports:
@@ -130,9 +128,7 @@ services:
       start_period: 40s
 
   lowcoder-proxy-service:
-    build:
-      context: ../../server/proxy-service
-      dockerfile: Dockerfile
+    image: lowcoderorg/lowcoder-proxy-service:latest
     container_name: lowcoder-proxy-service
     ports:
       - "6070:6070"
