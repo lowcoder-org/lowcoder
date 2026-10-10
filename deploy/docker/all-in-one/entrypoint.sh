@@ -50,6 +50,9 @@ mkdir -p ${LOGS}/redis \
   ${LOGS}/mongodb \
   ${LOGS}/api-service \
   ${LOGS}/node-service \
+  ${LOGS}/proxy-service \
+  ${LOGS}/hocuspocus \
+  ${LOGS}/agora-token-service \
   ${LOGS}/frontend \
   ${DATA}/redis \
   ${DATA}/mongodb \
@@ -80,6 +83,16 @@ if [ "${LOWCODER_MONGODB_ENABLED:=true}" = "true" ]; then
     ln ${SUPERVISOR_AVAILABLE}/02-mongodb.conf ${SUPERVISOR_ENABLED}/02-mongodb.conf
 fi;
 
+# Enable hocuspocus if configured to run
+if [ "${LOWCODER_HOCUSPOCUS_ENABLED:=true}" = "true" ]; then
+    ln ${SUPERVISOR_AVAILABLE}/03-hocuspocus.conf ${SUPERVISOR_ENABLED}/03-hocuspocus.conf
+fi;
+
+# Enable agora token service if configured to run
+if [ "${LOWCODER_AGORA_TOKEN_SERVICE_ENABLED:=true}" = "true" ]; then
+    ln ${SUPERVISOR_AVAILABLE}/04-agora-token-service.conf ${SUPERVISOR_ENABLED}/04-agora-token-service.conf
+fi;
+
 # Enable api-service if configured to run
 if [ "${LOWCODER_API_SERVICE_ENABLED:=true}" = "true" ]; then
     ln ${SUPERVISOR_AVAILABLE}/10-api-service.conf ${SUPERVISOR_ENABLED}/10-api-service.conf
@@ -88,6 +101,11 @@ fi;
 # Enable node-service if configured to run
 if [ "${LOWCODER_NODE_SERVICE_ENABLED:=true}" = "true" ]; then
     ln ${SUPERVISOR_AVAILABLE}/11-node-service.conf ${SUPERVISOR_ENABLED}/11-node-service.conf
+fi;
+
+# Enable proxy-service if configured to run
+if [ "${LOWCODER_PROXY_SERVICE_ENABLED:=true}" = "true" ]; then
+    ln ${SUPERVISOR_AVAILABLE}/12-proxy-service.conf ${SUPERVISOR_ENABLED}/12-proxy-service.conf
 fi;
 
 # Enable frontend if configured to run

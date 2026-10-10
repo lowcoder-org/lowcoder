@@ -29,6 +29,9 @@ Image can be configured by setting environment variables.
 | `LOWCODER_MONGODB_EXPOSED`          | If **true** mongo database accept connections from outside the docker   | `false`                                               |
 | `LOWCODER_API_SERVICE_ENABLED`      | If **true** lowcoder api-service is started in the container            | `true`                                                |
 | `LOWCODER_NODE_SERVICE_ENABLED`     | If **true** lowcoder node-service is started in the container           | `true`                                                |
+| `LOWCODER_PROXY_SERVICE_ENABLED`    | If **true** lowcoder proxy-service is started in the container (port 6070, served by the frontend under `/proxy/`) | `true`     |
+| `LOWCODER_HOCUSPOCUS_ENABLED`       | If **true** hocuspocus real-time collaboration server is started in the container (port 3006) | `true`                  |
+| `LOWCODER_AGORA_TOKEN_SERVICE_ENABLED` | If **true** agora token service is started in the container (port 8081) | `true`                                             |
 | `LOWCODER_FRONTEND_ENABLED`         | If **true** lowcoder web frontend is started in the container           | `true`                                                |
 | `LOWCODER_PUID`                     | ID of user running services. It will own all created logs and data.     | `9001`                                                |
 | `LOWCODER_PGID`                     | ID of group of the user running services.                               | `9001`                                                |
@@ -46,6 +49,12 @@ Image can be configured by setting environment variables.
 | `LOWCODER_NODE_SERVICE_URL`         | Lowcoder Node service (js executor) URL                                 | `http://localhost:6060`                               |
 | `LOWCODER_NODE_SERVICE_SECRET`      | Secret used for encrypting communication between API service and Node service - CHANGE IT! |                                    |
 | `LOWCODER_NODE_SERVICE_SALT`        | Salt used for encrypting communication between API service and Node service   - CHANGE IT! |                                    |
+| `LOWCODER_PROXY_SERVICE_URL`        | Lowcoder Proxy service URL                                              | `http://localhost:6070`                               |
+| `LOWCODER_HOCUSPOCUS_URL`           | Hocuspocus websocket URL injected by proxy-service into form bridges    | `ws://localhost:3006`                                 |
+| `LOWCODER_HOCUSPOCUS_SECRET`        | Hocuspocus shared secret, must match `REACT_APP_HOCUSPOCUS_SECRET` the frontend was built with | (empty - authentication disabled) |
+| `LOWCODER_AGORA_APP_ID`             | App ID of the Agora project used by the agora token service             |                                                       |
+| `LOWCODER_AGORA_APP_CERTIFICATE`    | App Certificate of the Agora project used by the agora token service    |                                                       |
+| `LOWCODER_AGORA_CORS_ALLOW_ORIGIN`  | Access-Control-Allow-Origin returned by the agora token service         | `*`                                                   |
 | `LOWCODER_MAX_ORGS_PER_USER`        | Default maximum organizations per user                                  | `100`                                                 |
 | `LOWCODER_MAX_MEMBERS_PER_ORG`      | Default maximum members per organization                                | `1000`                                                |
 | `LOWCODER_MAX_GROUPS_PER_ORG`       | Default maximum groups per organization                                 | `100`                                                 |
@@ -203,5 +212,6 @@ Image can be configured by setting environment variables.
 | `LOWCODER_MAX_REQUEST_SIZE`     | Lowcoder max request size                                           | `20m`                                                   |
 | `LOWCODER_API_SERVICE_URL`      | Lowcoder API service URL                                            | `http://localhost:8080`                                 |
 | `LOWCODER_NODE_SERVICE_URL`     | Lowcoder Node service (js executor) URL                             | `http://localhost:6060`                                 |
+| `LOWCODER_PROXY_SERVICE_URL`    | Lowcoder Proxy service URL                                          | `http://localhost:6070`                                 |
 
 

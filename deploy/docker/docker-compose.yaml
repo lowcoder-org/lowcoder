@@ -23,6 +23,10 @@ services:
     ports:
       - "3000:3000"
       - "3443:3443"
+      # hocuspocus (real-time collaboration websocket)
+      - "3006:3006"
+      # agora token service
+      - "8081:8081"
     #  - "27017:27017"
     volumes:
       - ./lowcoder-stacks:/lowcoder-stacks
