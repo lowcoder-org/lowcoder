@@ -46,6 +46,11 @@ function validateRequest(body, config, now = Date.now(), capabilityHash) {
   return result;
 }
 
+function stripeUrl(url, kind) {
+  const host = kind === 'checkout' ? 'checkout.stripe.com' : 'billing.stripe.com';
+  return typeof url === 'string' && (url.startsWith('https://' + host + '/') || url.startsWith('https://secure.lowcoder.cloud/'));
+}
+
 function validatePrice(price, order, config) {
   assert(price.id === order.priceId && idOf(price.product) === config.productId && price.active === true &&
     price.currency === 'usd' && price.unit_amount === UNIT_AMOUNTS[order.billingInterval] &&
@@ -155,5 +160,5 @@ function generatedFile(response) {
     'License server did not return a valid file');
   return response.license;
 }
-module.exports = { UNIT_AMOUNTS, API_CALLS_LIMIT, validateRequest, validatePrice, checkoutForm, checkSession,
+module.exports = { UNIT_AMOUNTS, API_CALLS_LIMIT, validateRequest, stripeUrl, validatePrice, checkoutForm, checkSession,
   paidPeriod, verifyPayments, verifyCharge, licensePlan, generatedFile };

@@ -55,7 +55,7 @@ export const getEnterpriseBillingPortal = (orgId: string, requestId: string) =>
 
 export function openStripePage(url: string, kind: "checkout" | "portal") {
   const target = new URL(url);
-  if (target.protocol !== "https:" || target.hostname !== (kind === "checkout" ? "checkout.stripe.com" : "billing.stripe.com")) {
+  if (target.protocol !== "https:" || target.username || target.password || target.port || ![kind === "checkout" ? "checkout.stripe.com" : "billing.stripe.com", "secure.lowcoder.cloud"].includes(target.hostname)) {
     throw new Error("Invalid Stripe destination");
   }
   window.location.assign(target.href);

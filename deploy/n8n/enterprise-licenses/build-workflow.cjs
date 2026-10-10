@@ -65,7 +65,7 @@ code('Prepare Checkout', `const order=$('Read purchase').first().json; return [{
 post('Create Stripe Checkout', 'https://api.stripe.com/v1/checkout/sessions', form('$json.fields'), '=enterprise-checkout-{{ $("Read purchase").first().json.requestId }}');
 code('Validate Checkout result', `const s=$json,o=$('Read purchase').first().json;
 if(s.mode!=='subscription'||s.client_reference_id!==o.requestId||s.metadata?.lowcoder_license_request!==o.requestId||
-!(s.url||'').startsWith('https://checkout.stripe.com/')) throw new Error('Unexpected Checkout response');
+!logic.stripeUrl(s.url,'checkout')) throw new Error('Unexpected Checkout response');
 return [{json:{requestId:o.requestId,id:s.id,url:s.url,customerId:$('Prepare Checkout').first().json.customerId}}];`);
 sql('Save Checkout', `UPDATE enterprise_billing.orders SET customer_id=$2,checkout_id=$3,checkout_url=$4,updated_at=now()
  WHERE request_id=$1::uuid AND (checkout_id IS NULL OR checkout_id=$3)
@@ -157,7 +157,7 @@ sql('Read owned billing account', `SELECT (SELECT jsonb_build_object('customer',
  `[...${scope},$('Validate request').first().json.requestId]`);
 code('Check billing owner', `if(!/^cus_/.test($json.account?.customer||'')||!/^bpc_/.test(config.portalConfigurationId)) throw new Error('Billing portal unavailable');return [{json:{customer:$json.account.customer,configuration:config.portalConfigurationId,return_url:$json.account.returnUrl}}];`);
 post('Open private billing portal','https://api.stripe.com/v1/billing_portal/sessions',form('$json'));
-code('Portal response', `if(!($json.url||'').startsWith('https://billing.stripe.com/')) throw new Error('Invalid billing URL');return [{json:{success:true,url:$json.url}}];`);
+code('Portal response', `if(!logic.stripeUrl($json.url,'portal')) throw new Error('Invalid billing URL');return [{json:{success:true,url:$json.url}}];`);
 connect('Route request','Read owned billing account',4);chain('Read owned billing account','Check billing owner','Open private billing portal','Portal response');
 node('Respond privately','respondToWebhook',{respondWith:'json',responseBody:'={{ $json }}',options:{responseHeaders:{entries:[{name:'Cache-Control',value:'no-store, private'}]}}},1.4);
 for(const name of ['Existing checkout response','Checkout response','Library response','Download response','Portal response'])connect(name,'Respond privately');
