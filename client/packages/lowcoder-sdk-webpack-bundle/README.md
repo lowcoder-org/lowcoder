@@ -40,6 +40,11 @@ module inputs, outputs and events, and demonstrates unmount/remount.
 rendering is scheduled, not after every query/component finishes. One backend per
 host page is supported: SDK config, Redux, history, styles and plugin globals are
 shared. CSS is not sandboxed. Configure backend access/authentication separately.
+The full embedding contract is maintained in `site/reference.html`; integration
+recipes live in `site/recipes.html`. The documentation test checks every public
+instance member, option, event and React prop against the source, and validates
+anchors, snippet syntax and search behavior.
+
 Existing `.lowcoder-module-container` markup and callbacks still work; call
 `LowcoderSDK.scan()` for later markup. See `/guide.html` for the complete example.
 
@@ -59,17 +64,34 @@ transfer/caching more granular; they do not claim a small independent renderer.
 
 `wrangler.jsonc` deploys the static `dist/` folder to the `lowcoder-sdk` Worker.
 The GitHub workflow tests and builds pull requests. Cloudflare Builds handles
-production releases through its existing GitHub connection and build token:
+production builds through its existing GitHub connection and build token.
+The release policy is **stable releases from main**, not every main push:
 
 - Repository: `lowcoder-org/lowcoder`; production branch: `main`.
 - Root: `client`; Node version: `22.22.2`.
 - Build variables: `NODE_VERSION=22.22.2`, `SKIP_DEPENDENCY_INSTALL=true`.
-- Build: `node packages/lowcoder-sdk-webpack-bundle/scripts/build-release.cjs`.
-- Deploy: `npx --yes wrangler@4.129.0 deploy --config packages/lowcoder-sdk-webpack-bundle/wrangler.jsonc`.
+- Build: `node packages/lowcoder-sdk-webpack-bundle/scripts/check-stable-release.cjs && node packages/lowcoder-sdk-webpack-bundle/scripts/build-release.cjs`.
+- Deploy: `node packages/lowcoder-sdk-webpack-bundle/scripts/check-stable-release.cjs && npx --yes wrangler@4.129.0 deploy --config packages/lowcoder-sdk-webpack-bundle/wrangler.jsonc`.
 - Disable preview builds: this production config owns the public SDK route.
 
-These settings require this change to be promoted to `main` before its next
-automatic release. No npm package is published by this pipeline.
+Keep push-triggered production builds disabled. Create a Cloudflare Deploy Hook
+for this Worker's `main` branch and store its URL in the GitHub repository secret
+`LOWCODER_SDK_DEPLOY_HOOK`. `.github/workflows/release-lowcoder-sdk.yml` requests
+that build only for a published stable release. Treat the hook URL as a credential;
+it allows its holder to trigger this Worker's builds. Never put it in source.
+
+The release guard runs before the request, before building and before deploying.
+It requires the checked-out commit, current `main`, and the latest stable release
+tag to resolve to the same commit. A pre-release, moved main branch, older release
+or unavailable GitHub verification fails closed. Publish the stable release while
+main still points at that commit. The guard is deliberately stricter than ancestry.
+
+Activation requires these files on `main` and the deploy-hook secret. The GitHub
+job confirms that Cloudflare accepted the request; check Cloudflare's build result
+and the live domain to confirm publication. No npm package is published here.
+
+Cloudflare documents branch-head hooks at
+https://developers.cloudflare.com/workers/ci-cd/builds/deploy-hooks/.
 
 Before publishing an update:
 

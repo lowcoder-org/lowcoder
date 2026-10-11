@@ -1,22 +1,219 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Lowcoder SDK — Your product. Lowcoder inside.</title>
-  <meta name="description" content="Embed visually built Lowcoder apps directly in your web app. Try a native DOM demo, connect inputs and events, and copy a working integration.">
-  <link rel="stylesheet" href="/site.css"><script src="/playground.js" defer></script>
-</head>
-<body class="sdk-site">
-  <a class="skip" href="#main">Skip to content</a>
-  <header class="site-header"><a class="brand" href="/">Lowcoder <span>SDK</span></a><nav aria-label="Main navigation"><a href="#playground">Playground</a><a href="/guide.html">Integration guide</a><a class="nav-github" href="https://github.com/lowcoder-org/lowcoder">GitHub ↗</a></nav></header>
-  <main id="main">
-    <section class="hero wrap"><div class="eyebrow"><span class="dot"></span> THE NATIVE EMBEDDING SDK</div><h1>Your product.<br><span>Lowcoder inside.</span></h1><div class="hero-bottom"><p>Build the parts that make your product yours.<br>Compose the rest visually — and embed them<br class="desktop-break"> directly into your app’s DOM.</p><div class="hero-actions"><a class="button primary" href="#playground">Try it in the page <span>↓</span></a><a class="text-link" href="/guide.html">Start integrating ↗</a></div></div><div class="proof-strip"><span>Native DOM rendering</span><span>Inputs, outputs & events</span><span>React or plain JavaScript</span><span>Cloud or self-hosted</span></div></section>
-    <section id="playground" class="playground-section"><div class="wrap"><div class="section-intro"><div><div class="eyebrow">01 / SEE THE CONNECTION</div><h2>One page. Two ways to build.</h2></div><p>The shell is ordinary HTML. The panel inside it is a real Lowcoder module. Change the customer and watch the input travel.</p></div>
-      <div class="workbench"><div class="browser-bar"><span class="window-dots">● ● ●</span><span>your-product.example / customers</span><span class="native-badge">Native DOM</span></div><div class="demo-shell"><aside class="demo-sidebar"><strong>acme<span> / workspace</span></strong><span class="sidebar-label">WORKSPACE</span><span>Overview</span><span class="selected">Customers <small>02</small></span><span>Activity</span><div class="sidebar-footer">Your application<br><small>Your navigation. Your layout.</small></div></aside><div class="demo-main"><div class="host-controls"><div><span class="eyebrow">CUSTOMER WORKSPACE</span><h3>A familiar home for new features.</h3></div><label>Customer<select id="customer"><option value="morgan">Morgan Lee · Growth</option><option value="alex">Alex Rivera · Starter</option></select></label></div><div class="embed-label"><span><span class="dot"></span> LOWCODER MODULE</span><span>Mounted in this page</span></div><div id="embed" class="embed-stage"><div class="demo-placeholder"><span class="code-glyph">&lt;/&gt;</span><h3>Meet your next embedded feature.</h3><p>Load the SDK and mount a customer panel here.<br>The demo uses sample data; no account needed.</p><button id="load-demo" class="button primary">Run live demo <span>↗</span></button></div></div><div class="demo-status"><span id="status" role="status">Ready when you are. The SDK loads on demand.</span><button id="reset-demo" class="quiet-button" hidden>Unmount</button></div></div></div><div class="event-panel"><div><span class="eyebrow">THE BRIDGE</span><strong>Host ↔ Lowcoder</strong></div><pre id="event-log" aria-live="polite">Run the demo to see real module outputs and events.</pre></div></div>
-      <div class="under-demo"><p>Inspect <code>#embed</code> in your browser. The module renders as DOM elements inside the host page.</p><a href="/demo.json" download>Download this demo’s app definition ↓</a></div>
-    </div></section>
-    <section class="wrap use-cases"><div class="section-intro"><div><div class="eyebrow">02 / BUILD WHERE IT MATTERS</div><h2>A feature, without a second front end.</h2></div><p>Keep your product’s shell in code. Give the workflows inside it a visual home your team can maintain.</p></div><div class="use-case-grid"><article><span class="case-number">01</span><h3>Customer portals</h3><p>Bring account tools, forms and service workflows into the product your customers already use.</p><span class="case-foot">Pass the customer context →</span></article><article><span class="case-number">02</span><h3>Operational workspaces</h3><p>Add approval screens, data tables and internal processes without rebuilding the surrounding application.</p><span class="case-foot">Return outputs and decisions →</span></article><article><span class="case-number">03</span><h3>Product extensions</h3><p>Ship a visually maintained module alongside your existing UI, then react to its events in your own code.</p><span class="case-foot">Connect to host actions →</span></article></div></section>
-    <section id="quickstart" class="quickstart wrap"><div><div class="eyebrow">03 / MAKE IT YOURS</div><h2>A DOM element.<br>A few lines.<br>Your app.</h2><p>Load the browser SDK once, wait for it to be ready, then mount your published Lowcoder app.</p><a class="text-link" href="/guide.html">Read the integration guide ↗</a><div class="install-line"><code>npm install lowcoder-sdk</code><span>For React projects</span></div></div><div class="code-card"><div class="code-toolbar"><span>index.html</span><button class="copy-button" data-copy="quickstart-code">Copy</button></div><pre id="quickstart-code">&lt;div id="my-app"&gt;&lt;/div&gt;
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Lowcoder SDK — Your product. Lowcoder inside.</title>
+    <meta
+      name="description"
+      content="Embed visually built Lowcoder apps directly in your web app. Try a native DOM demo, connect inputs and events, and copy a working integration."
+    />
+    <link rel="stylesheet" href="/site.css" />
+    <script src="/playground.js" defer></script>
+  </head>
+  <body class="sdk-site">
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href="/">Lowcoder <span>SDK</span></a>
+      <nav aria-label="Main navigation">
+        <a href="#playground">Playground</a
+        ><a href="/guide.html">Integration guide</a
+        ><a href="/reference.html">API reference</a
+        ><a class="nav-github" href="https://github.com/lowcoder-org/lowcoder"
+          >GitHub ↗</a
+        >
+      </nav>
+    </header>
+    <main id="main">
+      <section class="hero wrap">
+        <div class="eyebrow">
+          <span class="dot"></span> THE NATIVE EMBEDDING SDK
+        </div>
+        <h1>Your product.<br /><span>Lowcoder inside.</span></h1>
+        <div class="hero-bottom">
+          <p>
+            Build the parts that make your product yours.<br />Compose the rest
+            visually — and embed them<br class="desktop-break" />
+            directly into your app’s DOM.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#playground"
+              >Try it in the page <span>↓</span></a
+            ><a class="text-link" href="/guide.html">Start integrating ↗</a>
+          </div>
+        </div>
+        <div class="proof-strip">
+          <span>Native DOM rendering</span><span>Inputs, outputs & events</span
+          ><span>React or plain JavaScript</span
+          ><span>Cloud or self-hosted</span>
+        </div>
+      </section>
+      <section id="playground" class="playground-section">
+        <div class="wrap">
+          <div class="section-intro">
+            <div>
+              <div class="eyebrow">01 / SEE THE CONNECTION</div>
+              <h2>One page. Two ways to build.</h2>
+            </div>
+            <p>
+              The shell is ordinary HTML. The panel inside it is a real Lowcoder
+              module. Change the customer and watch the input travel.
+            </p>
+          </div>
+          <div class="workbench">
+            <div class="browser-bar">
+              <span class="window-dots">● ● ●</span
+              ><span>your-product.example / customers</span
+              ><span class="native-badge">Native DOM</span>
+            </div>
+            <div class="demo-shell">
+              <aside class="demo-sidebar">
+                <strong>acme<span> / workspace</span></strong
+                ><span class="sidebar-label">WORKSPACE</span
+                ><span>Overview</span
+                ><span class="selected">Customers <small>02</small></span
+                ><span>Activity</span>
+                <div class="sidebar-footer">
+                  Your application<br /><small
+                    >Your navigation. Your layout.</small
+                  >
+                </div>
+              </aside>
+              <div class="demo-main">
+                <div class="host-controls">
+                  <div>
+                    <span class="eyebrow">CUSTOMER WORKSPACE</span>
+                    <h3>A familiar home for new features.</h3>
+                  </div>
+                  <label
+                    >Customer<select id="customer">
+                      <option value="morgan">Morgan Lee · Growth</option>
+                      <option value="alex">Alex Rivera · Starter</option>
+                    </select></label
+                  >
+                </div>
+                <div class="embed-label">
+                  <span><span class="dot"></span> LOWCODER MODULE</span
+                  ><span>Mounted in this page</span>
+                </div>
+                <div id="embed" class="embed-stage">
+                  <div class="demo-placeholder">
+                    <span class="code-glyph">&lt;/&gt;</span>
+                    <h3>Meet your next embedded feature.</h3>
+                    <p>
+                      Load the SDK and mount a customer panel here.<br />The
+                      demo uses sample data; no account needed.
+                    </p>
+                    <button id="load-demo" class="button primary">
+                      Run live demo <span>↗</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="demo-status">
+                  <span id="status" role="status"
+                    >Ready when you are. The SDK loads on demand.</span
+                  ><button id="reset-demo" class="quiet-button" hidden>
+                    Unmount
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="event-panel">
+              <div>
+                <span class="eyebrow">THE BRIDGE</span
+                ><strong>Host ↔ Lowcoder</strong>
+              </div>
+              <pre id="event-log" aria-live="polite">
+Run the demo to see real module outputs and events.</pre
+              >
+            </div>
+          </div>
+          <div class="under-demo">
+            <p>
+              Inspect <code>#embed</code> in your browser. The module renders as
+              DOM elements inside the host page.
+            </p>
+            <a href="/demo.json" download
+              >Download this demo’s app definition ↓</a
+            >
+          </div>
+        </div>
+      </section>
+      <section class="wrap use-cases">
+        <div class="section-intro">
+          <div>
+            <div class="eyebrow">02 / BUILD WHERE IT MATTERS</div>
+            <h2>A feature, without a second front end.</h2>
+          </div>
+          <p>
+            Keep your product’s shell in code. Give the workflows inside it a
+            visual home your team can maintain.
+          </p>
+        </div>
+        <p>
+          <a class="text-link" href="/recipes.html"
+            >CRM, website, ticketing & POS integration recipes ↗</a
+          >
+        </p>
+        <div class="use-case-grid">
+          <article>
+            <span class="case-number">01</span>
+            <h3>Customer portals</h3>
+            <p>
+              Bring account tools, forms and service workflows into the product
+              your customers already use.
+            </p>
+            <span class="case-foot">Pass the customer context →</span>
+          </article>
+          <article>
+            <span class="case-number">02</span>
+            <h3>Operational workspaces</h3>
+            <p>
+              Add approval screens, data tables and internal processes without
+              rebuilding the surrounding application.
+            </p>
+            <span class="case-foot">Return outputs and decisions →</span>
+          </article>
+          <article>
+            <span class="case-number">03</span>
+            <h3>Product extensions</h3>
+            <p>
+              Ship a visually maintained module alongside your existing UI, then
+              react to its events in your own code.
+            </p>
+            <span class="case-foot">Connect to host actions →</span>
+          </article>
+        </div>
+      </section>
+      <section id="quickstart" class="quickstart wrap">
+        <div>
+          <div class="eyebrow">03 / MAKE IT YOURS</div>
+          <h2>A DOM element.<br />A few lines.<br />Your app.</h2>
+          <p>
+            Load the browser SDK once, wait for it to be ready, then mount your
+            published Lowcoder app.
+          </p>
+          <a class="text-link" href="/guide.html"
+            >Read the integration guide ↗</a
+          >
+          <p>
+            <a class="text-link" href="/reference.html"
+              >Explore every function, option and event ↗</a
+            >
+          </p>
+          <div class="install-line">
+            <code>npm install lowcoder-sdk</code><span>For React projects</span>
+          </div>
+        </div>
+        <div class="code-card">
+          <div class="code-toolbar">
+            <span>index.html</span
+            ><button class="copy-button" data-copy="quickstart-code">
+              Copy
+            </button>
+          </div>
+          <pre id="quickstart-code">
+&lt;div id="my-app"&gt;&lt;/div&gt;
 &lt;script src="https://sdk.lowcoder.cloud/bundle.js"&gt;&lt;/script&gt;
 &lt;script&gt;
   LowcoderSDK.ready.then(async (sdk) =&gt; {
@@ -29,7 +226,22 @@
       console.log(output);
     });
   }).catch(console.error);
-&lt;/script&gt;</pre></div></section>
-    <section class="wrap final-note"><h2>Your UI, connected.</h2><p>Start with one module. Keep ownership of the product around it.</p><a class="button primary" href="https://app.lowcoder.cloud">Build your first module ↗</a></section>
-  </main><footer class="wrap"><a class="brand" href="/">Lowcoder <span>SDK</span></a><span>Build visually. Embed natively.</span><a href="https://docs.lowcoder.cloud/lowcoder-documentation/publish-apps/embedd-an-app/native-embed-sdk">Documentation ↗</a></footer>
-</body></html>
+&lt;/script&gt;</pre
+          >
+        </div>
+      </section>
+      <section class="wrap final-note">
+        <h2>Your UI, connected.</h2>
+        <p>Start with one module. Keep ownership of the product around it.</p>
+        <a class="button primary" href="https://app.lowcoder.cloud"
+          >Build your first module ↗</a
+        >
+      </section>
+    </main>
+    <footer class="wrap">
+      <a class="brand" href="/">Lowcoder <span>SDK</span></a
+      ><span>Build visually. Embed natively.</span
+      ><a href="/reference.html">API reference ↗</a>
+    </footer>
+  </body>
+</html>

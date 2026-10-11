@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Four ways to connect. — Lowcoder SDK</title>
+    <meta
+      name="description"
+      content="Practical module contracts and host code for CRM, websites, ticketing and point of sale."
+    />
+    <link rel="stylesheet" href="/site.css" />
+    <link rel="stylesheet" href="/reference.css" />
+    <script src="/reference.js" defer></script>
+  </head>
+  <body class="sdk-site">
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href="/">Lowcoder <span>SDK</span></a>
+      <nav aria-label="Main navigation">
+        <a href="/#playground">Playground</a><a href="/guide.html">Quickstart</a
+        ><a href="/reference.html">API reference</a
+        ><a href="/recipes.html" aria-current="page">Recipes</a>
+      </nav>
+    </header>
+    <main id="main" class="guide reference wrap">
+      <aside aria-label="On this page">
+        <a class="docs-back" href="/reference.html">API reference ↗</a
+        ><label class="search-label" for="reference-search"
+          >Find in this reference</label
+        >
+        <div class="search-box">
+          <input
+            id="reference-search"
+            type="search"
+            placeholder="Try inputs, events, React…"
+            autocomplete="off"
+          /><button
+            id="clear-search"
+            type="button"
+            aria-label="Clear search"
+            hidden
+          >
+            ×
+          </button>
+        </div>
+        <p id="search-status" role="status" aria-live="polite"></p>
+        <nav id="reference-nav" aria-label="Reference sections">
+          <a href="#start">Start with a module contract</a
+          ><a href="#crm">CRM: a customer workspace</a
+          ><a href="#website">Website: an interactive product configurator</a
+          ><a href="#tickets">Ticket system: context and escalation</a
+          ><a href="#pos">POS: a loyalty panel beside the cart</a>
+        </nav>
+      </aside>
+      <article>
+        <div class="eyebrow">YOUR PRODUCT, CONNECTED</div>
+        <h1>Four ways to connect.</h1>
+        <p class="reference-lead">
+          Practical module contracts and host code for CRM, websites, ticketing
+          and point of sale.
+        </p>
+        <p id="search-empty" hidden>
+          No matching sections. Try a function name, an option or a shorter
+          phrase.
+        </p>
+        <section id="start">
+          <h2>Start with a module contract</h2>
+          <p>
+            These are integration recipes for your own host application, not
+            prebuilt connectors to a specific CRM, ticket vendor or payment
+            provider. Each names the module inputs, outputs and events you need
+            to create in Lowcoder first. Replace the placeholder application IDs
+            and host actions.
+          </p>
+          <p>
+            Load <code>bundle.js</code> once as shown in the
+            <a href="/guide.html#html">quickstart</a>, then use these examples
+            inside an async function or JavaScript module. They use the hosted
+            browser SDK. Remove each embed through
+            <code>await sdk.unmount(element)</code> when its screen closes.
+          </p>
+          <div class="notice">
+            Named module events contain only their name. Use outputs for data;
+            an output update and a separate event are not an atomic message. For
+            business mutations, prefer a single structured output with a request
+            ID and deduplicate it in the host/backend.
+          </div>
+        </section>
+        <section id="crm">
+          <h2>CRM: a customer workspace</h2>
+          <p>
+            Keep customer navigation and account selection in your CRM. Embed a
+            visually maintained account panel that receives the selected
+            customer and can ask the host to open their record.
+          </p>
+          <div
+            class="table-scroll"
+            tabindex="0"
+            role="region"
+            aria-label="Reference table"
+          >
+            <table>
+              <thead>
+                <tr>
+                  <th>Module contract</th>
+                  <th>Create in Lowcoder</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Inputs</td>
+                  <td>
+                    <code>customerId</code> (String),
+                    <code>customerName</code> (String)
+                  </td>
+                </tr>
+                <tr>
+                  <td>Outputs</td>
+                  <td>
+                    <code>healthScore</code> (Number) for the host’s summary
+                  </td>
+                </tr>
+                <tr>
+                  <td>Event</td>
+                  <td>
+                    <code>openCustomer</code> triggered by a module button
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="code-card">
+            <div class="code-toolbar"><span>JavaScript</span></div>
+            <pre><code>const sdk = await LowcoderSDK.ready;
+let selected = { id: &quot;customer-42&quot;, name: &quot;Morgan Lee&quot; };
+const app = await sdk.mount(&quot;#crm-panel&quot;, {
+  appId: &quot;YOUR_CRM_MODULE_ID&quot;,
+  moduleInputs: { customerId: selected.id, customerName: selected.name }
+});
+app.on(&quot;moduleOutputChange&quot;, ({ healthScore }) =&gt; {
+  document.querySelector(&quot;#health-score&quot;).textContent = healthScore ?? &quot;—&quot;;
+});
+app.on(&quot;moduleEventTriggered&quot;, (name) =&gt; {
+  if (name === &quot;openCustomer&quot;) {
+    // Use the authoritative selection already held by the host.
+    location.assign(&quot;/customers/&quot; + encodeURIComponent(selected.id));
+  }
+});
+function selectCustomer(customer) {
+  selected = customer;
+  app.setModuleInputs({ customerId: customer.id, customerName: customer.name });
+}</code></pre>
+          </div>
+          <p>
+            Create <code>#crm-panel</code> and <code>#health-score</code> in
+            your host. Wire its customer picker to <code>selectCustomer</code>.
+            The health output may arrive later than mount, so the host should
+            display a placeholder until it receives a value.
+          </p>
+        </section>
+        <section id="website">
+          <h2>Website: an interactive product configurator</h2>
+          <p>
+            Place a configuration module inside a product page. The site owns
+            the product route; Lowcoder owns the form, calculations and visual
+            editing. A named event can direct the host to its contact section.
+          </p>
+          <div
+            class="table-scroll"
+            tabindex="0"
+            role="region"
+            aria-label="Reference table"
+          >
+            <table>
+              <thead>
+                <tr>
+                  <th>Module contract</th>
+                  <th>Create in Lowcoder</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Inputs</td>
+                  <td>
+                    <code>productId</code> (String),
+                    <code>options</code> (Array)
+                  </td>
+                </tr>
+                <tr>
+                  <td>Outputs</td>
+                  <td>
+                    <code>estimatedTotal</code> (Number), calculated by the
+                    module
+                  </td>
+                </tr>
+                <tr>
+                  <td>Event</td>
+                  <td><code>requestContact</code> triggered by the visitor</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="code-card">
+            <div class="code-toolbar"><span>JavaScript</span></div>
+            <pre><code>const sdk = await LowcoderSDK.ready;
+const app = await sdk.mount(&quot;#configurator&quot;, {
+  appId: &quot;YOUR_CONFIGURATOR_MODULE_ID&quot;,
+  moduleInputs: {
+    productId: &quot;desk-01&quot;,
+    options: JSON.stringify([
+      { id: &quot;oak&quot;, label: &quot;Oak&quot;, price: 120 },
+      { id: &quot;walnut&quot;, label: &quot;Walnut&quot;, price: 160 }
+    ])
+  }
+});
+app.on(&quot;moduleOutputChange&quot;, ({ estimatedTotal }) =&gt; {
+  document.querySelector(&quot;#estimate&quot;).textContent =
+    typeof estimatedTotal === &quot;number&quot;
+      ? new Intl.NumberFormat(&quot;en&quot;, { style: &quot;currency&quot;, currency: &quot;EUR&quot; })
+          .format(estimatedTotal)
+      : &quot;Choose your options&quot;;
+});
+app.on(&quot;moduleEventTriggered&quot;, (name) =&gt; {
+  if (name === &quot;requestContact&quot;) {
+    document.querySelector(&quot;#contact&quot;).scrollIntoView();
+  }
+});</code></pre>
+          </div>
+          <p>
+            Create the <code>#configurator</code>, <code>#estimate</code> and
+            <code>#contact</code> elements. Publish the module for the intended
+            audience. Treat the displayed estimate as client-side information;
+            calculate an authoritative price on your backend before accepting an
+            order.
+          </p>
+        </section>
+        <section id="tickets">
+          <h2>Ticket system: context and escalation</h2>
+          <p>
+            Embed a triage panel alongside a ticket. Send the ticket context as
+            a Data input. Return an escalation request as one structured output,
+            so its ticket ID, reason and request ID travel together.
+          </p>
+          <div
+            class="table-scroll"
+            tabindex="0"
+            role="region"
+            aria-label="Reference table"
+          >
+            <table>
+              <thead>
+                <tr>
+                  <th>Module contract</th>
+                  <th>Create in Lowcoder</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Input</td>
+                  <td>
+                    <code>ticket</code> (Data):
+                    <code>{ id, subject, priority }</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Output</td>
+                  <td>
+                    <code>escalationRequest</code> (Data): <code>null</code>, or
+                    <code>{ requestId, ticketId, reason }</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Module action</td>
+                  <td>
+                    On explicit user escalation, assign a fresh request ID and
+                    set the complete output object
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="code-card">
+            <div class="code-toolbar"><span>JavaScript</span></div>
+            <pre><code>const sdk = await LowcoderSDK.ready;
+const ticket = { id: &quot;T-1042&quot;, subject: &quot;Export failed&quot;, priority: &quot;normal&quot; };
+const app = await sdk.mount(&quot;#ticket-tools&quot;, {
+  appId: &quot;YOUR_TRIAGE_MODULE_ID&quot;,
+  moduleInputs: { ticket: JSON.stringify(ticket) }
+});
+const handled = new Set();
+app.on(&quot;moduleOutputChange&quot;, ({ escalationRequest: request }) =&gt; {
+  if (!request || typeof request.requestId !== &quot;string&quot; || !request.requestId ||
+      request.ticketId !== ticket.id || typeof request.reason !== &quot;string&quot; ||
+      handled.has(request.requestId)) return;
+  handled.add(request.requestId);
+  // Show a host-owned confirmation using safe text rendering.
+  // Its submit action calls your ticket API, which validates access
+  // and deduplicates requestId. This output is a request, not authorization.
+  document.querySelector(&quot;#escalation-reason&quot;).textContent = request.reason;
+  document.querySelector(&quot;#escalation-confirmation&quot;).hidden = false;
+});</code></pre>
+          </div>
+          <p>
+            Create <code>#ticket-tools</code> and a host confirmation panel
+            containing <code>#escalation-reason</code>. Initialize the module’s
+            request output to <code>null</code> and change it only on a
+            deliberate user action. Keep backend deduplication across remounts;
+            the in-memory set only covers this screen’s lifetime.
+          </p>
+        </section>
+        <section id="pos">
+          <h2>POS: a loyalty panel beside the cart</h2>
+          <p>
+            Keep the cart, tender and payment flow in your POS. Embed a loyalty
+            or service panel that receives the current cart and requests an
+            optional lookup or host action.
+          </p>
+          <div
+            class="table-scroll"
+            tabindex="0"
+            role="region"
+            aria-label="Reference table"
+          >
+            <table>
+              <thead>
+                <tr>
+                  <th>Module contract</th>
+                  <th>Create in Lowcoder</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Inputs</td>
+                  <td>
+                    <code>cart</code> (Array), <code>customerId</code> (String)
+                  </td>
+                </tr>
+                <tr>
+                  <td>Event</td>
+                  <td><code>requestCustomerLookup</code></td>
+                </tr>
+                <tr>
+                  <td>Method</td>
+                  <td>
+                    <code>refreshOffers</code>, with a single
+                    <code>customerId</code> parameter
+                  </td>
+                </tr>
+                <tr>
+                  <td>Output</td>
+                  <td>
+                    <code>offerStatus</code> (String): module-owned
+                    loading/success/failure information
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="code-card">
+            <div class="code-toolbar"><span>JavaScript</span></div>
+            <pre><code>const sdk = await LowcoderSDK.ready;
+const app = await sdk.mount(&quot;#loyalty-panel&quot;, {
+  appId: &quot;YOUR_LOYALTY_MODULE_ID&quot;,
+  moduleInputs: {
+    customerId: &quot;customer-42&quot;,
+    cart: JSON.stringify([{ sku: &quot;coffee-01&quot;, quantity: 2 }])
+  }
+});
+app.on(&quot;moduleEventTriggered&quot;, (name) =&gt; {
+  if (name === &quot;requestCustomerLookup&quot;) {
+    document.querySelector(&quot;#customer-lookup&quot;).showModal();
+  }
+});
+app.on(&quot;moduleOutputChange&quot;, ({ offerStatus }) =&gt; {
+  document.querySelector(&quot;#offer-status&quot;).textContent = offerStatus ?? &quot;&quot;;
+});
+// Enable this host control only once the module is visibly usable.
+const refreshOffers = () =&gt; app.invokeMethod(&quot;refreshOffers&quot;, [&quot;customer-42&quot;]);
+document.querySelector(&quot;#refresh-offers&quot;).addEventListener(&quot;click&quot;, refreshOffers);
+
+// When leaving the POS screen, remove host-owned listeners too:
+async function closeLoyaltyPanel() {
+  document.querySelector(&quot;#refresh-offers&quot;).removeEventListener(&quot;click&quot;, refreshOffers);
+  await sdk.unmount(&quot;#loyalty-panel&quot;);
+}</code></pre>
+          </div>
+          <p>
+            Create the panel, a
+            <code>&lt;dialog id="customer-lookup"&gt;</code>, status text and
+            refresh button. A method call is not awaitable and can do nothing
+            before rendering; a real POS should make loading and action
+            availability explicit. Your POS/backend remains responsible for
+            prices, discounts and payment state. The SDK does not provide a
+            payment-terminal or offline transaction API.
+          </p>
+        </section>
+      </article>
+    </main>
+    <footer class="wrap">
+      <a class="brand" href="/">Lowcoder <span>SDK</span></a
+      ><a href="/guide.html">Quickstart ↗</a><a href="#main">Back to top ↑</a>
+    </footer>
+  </body>
+</html>

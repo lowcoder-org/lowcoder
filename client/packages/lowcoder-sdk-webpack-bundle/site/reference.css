@@ -1,0 +1,185 @@
+.sdk-site .reference {
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 54px;
+}
+.sdk-site .reference aside {
+  gap: 8px;
+  max-height: calc(100vh - 60px);
+}
+.sdk-site .reference aside .docs-back {
+  color: var(--accent);
+  margin-bottom: 15px;
+}
+.sdk-site .search-label {
+  font-weight: 650;
+  font-size: 12px;
+}
+.sdk-site .search-box {
+  position: relative;
+}
+.sdk-site .search-box input {
+  width: 100%;
+  padding: 12px 34px 12px 12px;
+  font-size: 12px;
+}
+.sdk-site .search-box button {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  border: 0;
+  background: transparent;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--muted);
+}
+.sdk-site .reference #search-status {
+  min-height: 18px;
+  margin: 0;
+  font-size: 11px;
+}
+.sdk-site #reference-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+  padding: 4px 6px 4px 0;
+}
+.sdk-site #reference-nav a {
+  font-size: 12px;
+  text-decoration: none;
+  padding: 7px 8px;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+}
+.sdk-site #reference-nav a:hover {
+  background: #e6eee5;
+}
+.sdk-site .reference h1 {
+  font-size: clamp(40px, 5vw, 64px);
+}
+.sdk-site .reference .reference-lead {
+  font-size: 20px;
+  max-width: 620px;
+  margin-bottom: 25px;
+}
+.sdk-site .reference h2 {
+  overflow-wrap: anywhere;
+  font-size: clamp(24px, 3vw, 31px);
+  letter-spacing: -1px;
+}
+.sdk-site .reference h3 {
+  font-size: 19px;
+  margin: 24px 0 12px;
+}
+.sdk-site .reference code {
+  overflow-wrap: anywhere;
+  font-size: 0.88em;
+}
+.sdk-site .reference .signature {
+  padding: 14px 16px;
+  border: 1px solid #d2dfd3;
+  border-radius: 6px;
+  background: #eff4ec;
+  color: var(--ink);
+}
+.sdk-site .reference pre code {
+  font-size: inherit;
+}
+.sdk-site .reference .code-card pre {
+  white-space: pre;
+  overflow-x: auto;
+  overflow-wrap: normal;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.sdk-site .table-scroll {
+  overflow-x: auto;
+  margin: 22px 0;
+}
+.sdk-site .table-scroll table {
+  min-width: 530px;
+}
+.sdk-site .table-scroll th {
+  color: var(--ink);
+  font-weight: 700;
+  background: #eef3e9;
+}
+.sdk-site .table-scroll td {
+  color: #405953;
+  line-height: 1.65;
+}
+.sdk-site .table-scroll td:first-child {
+  min-width: 150px;
+  color: var(--ink);
+}
+.sdk-site .release-label {
+  display: inline-block;
+  font-size: 11px;
+  border: 1px solid #bcd3bf;
+  border-radius: 20px;
+  padding: 3px 10px;
+  margin-right: 6px;
+  color: var(--accent);
+}
+.sdk-site .reference #search-empty {
+  padding: 30px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+@media (max-width: 1000px) {
+  .sdk-site .reference {
+    grid-template-columns: 190px minmax(0, 1fr);
+    gap: 30px;
+  }
+}
+@media (max-width: 700px) {
+  .sdk-site .site-header {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 94px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    gap: 12px;
+  }
+  .sdk-site .site-header nav {
+    gap: 17px;
+    width: 100%;
+    font-size: 12px;
+  }
+  .sdk-site .reference {
+    display: block;
+    padding-top: 24px;
+  }
+  .sdk-site .reference aside {
+    position: static;
+    display: block;
+    max-height: none;
+    margin-bottom: 35px;
+  }
+  .sdk-site .reference .docs-back {
+    display: inline-block;
+  }
+  .sdk-site .search-label {
+    display: block;
+    margin-bottom: 6px;
+  }
+  .sdk-site #reference-nav {
+    max-height: 190px;
+    border-bottom: 1px solid var(--line);
+  }
+  .sdk-site .reference .reference-lead {
+    font-size: 17px;
+  }
+  .sdk-site .reference h1 {
+    letter-spacing: -2px;
+  }
+  .sdk-site .reference .table-scroll td,
+  .sdk-site .reference .table-scroll th {
+    font-size: 12px;
+    padding: 12px 10px;
+  }
+  .sdk-site .reference .code-card pre {
+    font-size: 11px;
+    padding: 17px;
+  }
+}
