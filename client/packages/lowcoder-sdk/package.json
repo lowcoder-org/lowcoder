@@ -18,12 +18,14 @@
   "module": "./dist/lowcoder-sdk.js",
   "exports": {
     ".": {
+      "types": "./index.d.ts",
       "import": "./dist/lowcoder-sdk.js",
       "require": "./dist/lowcoder-sdk.js"
     },
     "./appView": {
-      "import": "./dist/appView.js",
-      "require": "./dist/appView.js"
+      "types": "./index.d.ts",
+      "import": "./dist/lowcoder-sdk.js",
+      "require": "./dist/lowcoder-sdk.js"
     },
     "./dataSource": {
       "types": "./dataSource.d.ts"
@@ -70,5 +72,6 @@
   "license": "MIT",
   "dependencies": {
     "prettier": "^3.1.1"
-  }
+  },
+  "types": "./index.d.ts"
 }

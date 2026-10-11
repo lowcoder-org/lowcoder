@@ -1,0 +1,57 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Integration guide — Lowcoder SDK</title><meta name="description" content="Mount a Lowcoder app in HTML or React, exchange module inputs and events, and understand hosting and lifecycle requirements."><link rel="stylesheet" href="/site.css"><script src="/playground.js" defer></script></head><body class="sdk-site"><a class="skip" href="#main">Skip to content</a><header class="site-header"><a class="brand" href="/">Lowcoder <span>SDK</span></a><nav aria-label="Main navigation"><a href="/#playground">Playground</a><a href="/guide.html" aria-current="page">Integration guide</a><a class="nav-github" href="https://github.com/lowcoder-org/lowcoder">GitHub ↗</a></nav></header><main class="guide wrap" id="main"><aside aria-label="On this page"><strong>Integration guide</strong><a href="#html">Plain JavaScript</a><a href="#react">React</a><a href="#communication">Inputs & events</a><a href="#lifecycle">Lifecycle</a><a href="#hosting">Hosting & access</a><a href="#legacy">Existing integrations</a></aside><article><div class="eyebrow">FROM A VISUAL APP TO YOUR PRODUCT</div><h1>Put Lowcoder<br>inside your app.</h1><p>The SDK renders Lowcoder components directly in a DOM element. Your host app controls where they live and how data moves between the two.</p><section id="html"><h2>Start with plain JavaScript</h2><p>Publish an app or module in Lowcoder and copy its application ID. Create a mount element with enough space for its layout, then load the browser SDK once.</p><div class="code-card"><div class="code-toolbar"><span>HTML + JavaScript</span><button class="copy-button" data-copy="html-code">Copy</button></div><pre id="html-code">&lt;div id="customer-panel" style="min-height: 360px"&gt;&lt;/div&gt;
+&lt;script src="https://sdk.lowcoder.cloud/bundle.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  async function start() {
+    const sdk = await LowcoderSDK.ready;
+    const app = await sdk.mount('#customer-panel', {
+      appId: 'YOUR_PUBLISHED_APP_ID',
+      baseUrl: 'https://api-service.lowcoder.cloud',
+      webUrl: 'https://app.lowcoder.cloud',
+      moduleInputs: { customerId: 'customer-42' }
+    });
+    app.on('moduleOutputChange', console.log);
+    app.on('moduleEventTriggered', console.log);
+  }
+  start().catch(console.error);
+&lt;/script&gt;</pre></div><p><code>LowcoderSDK.ready</code> resolves when the SDK scripts have loaded. <code>mount()</code> resolves after the application definition is loaded and rendering is scheduled. Individual components and queries may still be loading.</p></section><section id="react"><h2>Inside a React application</h2><p>The npm package provides <code>LowcoderAppView</code>. Install it with <code>npm install lowcoder-sdk</code> and import the stylesheet once in your application.</p><div class="code-card"><div class="code-toolbar"><span>CustomerPanel.tsx</span><button class="copy-button" data-copy="react-code">Copy</button></div><pre id="react-code">import { LowcoderAppView } from 'lowcoder-sdk';
+import 'lowcoder-sdk/dist/style.css';
+
+export function CustomerPanel({ customerId }) {
+  return (
+    &lt;LowcoderAppView
+      appId="YOUR_PUBLISHED_APP_ID"
+      moduleInputs={{ customerId }}
+      onModuleOutputChange={(output) =&gt; {
+        console.log(output);
+      }}
+      onModuleEventTriggered={(eventName) =&gt; {
+        console.log(eventName);
+      }}
+    /&gt;
+  );
+}</pre></div><p>Use the npm package for React integration or the browser loader for a plain DOM integration. The npm release and hosted browser SDK are separate distribution channels; check your installed version before relying on newly added APIs.</p></section><section id="communication"><h2>Make the connection work both ways</h2><p>Define inputs, outputs, events and methods in a Lowcoder <strong>module</strong>. Use those same names in your host application. A normal app can be embedded too; the module interface is what provides this explicit communication contract.</p><table><thead><tr><th>Direction</th><th>API</th><th>Use it for</th></tr></thead><tbody><tr><td>Host → module</td><td><code>app.setModuleInputs(values)</code></td><td>Customer context, filters and other named inputs.</td></tr><tr><td>Module → host</td><td><code>app.on('moduleOutputChange', handler)</code></td><td>Receive the module’s current output object.</td></tr><tr><td>Module → host</td><td><code>app.on('moduleEventTriggered', handler)</code></td><td>React to a named event such as <code>openCustomer</code>.</td></tr><tr><td>Host → module</td><td><code>app.invokeMethod(name, args)</code></td><td>Call a method explicitly exposed by the module after it has rendered.</td></tr></tbody></table><div class="code-card"><pre>app.setModuleInputs({ customerId: 'customer-99' });
+
+const unsubscribe = app.on('moduleEventTriggered', (name) =&gt; {
+  if (name === 'openCustomer') {
+    // Run your host application's navigation or action here.
+  }
+});
+
+// Each event has one active handler per instance.
+unsubscribe();</pre></div></section><section id="lifecycle"><h2>Mount, update, clean up</h2><p>Keep the returned instance while the panel is visible. Update inputs when context changes. Unmount it when your host removes that screen.</p><div class="code-card"><pre>// Browser SDK
+await LowcoderSDK.unmount('#customer-panel');
+
+// Or dispose the instance directly.
+app.destroy();
+
+// Mounting again on the same element replaces its previous instance.
+const next = await LowcoderSDK.mount('#customer-panel', {
+  appId: 'ANOTHER_PUBLISHED_APP_ID'
+});</pre></div><p>The browser SDK reports failed downloads through the rejected <code>ready</code> promise and the <code>lowcoder:error</code> window event. Handle mount errors in your host UI so visitors see a useful retry message.</p></section><section id="hosting"><h2>Choose your backend. Check the boundary.</h2><p>Set <code>baseUrl</code> to your Lowcoder API origin and <code>webUrl</code> to your Lowcoder frontend. For workspace-specific login, pass <code>orgId</code>. Hosting the SDK assets elsewhere does not move your backend or change application permissions.</p><ul><li>Public apps must be explicitly published and accessible to their intended audience.</li><li>Private apps still require authentication. Configure your API’s allowed origins and cookie settings for the host application; test the actual production domains.</li><li>Module inputs are client-visible context, never an authorization mechanism. Enforce access on the server.</li><li>The SDK shares runtime configuration and state. Use one Lowcoder deployment per host page; independent backend isolation is not supported.</li><li>Native embedding shares the page’s CSS and routing environment. Test typography, overlays and navigation with your host application. The SDK is not a style sandbox.</li></ul><div class="notice">The browser loader downloads content-hashed chunks from its own location. Keep <code>bundle.js</code> and the complete emitted asset directory together when self-hosting. Do not concatenate, rename or selectively omit the chunks.</div><p>The landing page does not load the SDK until you start the demo. Splitting the runtime improves transfer parallelism and cache reuse; it does not by itself remove the cost of rendering components.</p></section><section id="legacy"><h2>Already using bundle.js?</h2><p>The existing <code>.lowcoder-module-container</code> markup continues to work, including the historically spelled <code>locoder-backend-url</code> and <code>locoder-frontend-url</code> inputs. Global <code>opChange</code> and <code>onModuleEventTriggered</code> callbacks remain supported.</p><div class="code-card"><pre>&lt;div class="lowcoder-module-container"&gt;
+  &lt;input type="hidden" class="module-id"
+    value="YOUR_PUBLISHED_APP_ID"&gt;
+  &lt;input type="hidden" class="locoder-backend-url"
+    value="https://api-service.lowcoder.cloud"&gt;
+  &lt;div class="lowcoder-module-display"&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;script src="https://sdk.lowcoder.cloud/bundle.js"&gt;&lt;/script&gt;</pre></div><p>For markup added after page load, call <code>await LowcoderSDK.ready</code> followed by <code>LowcoderSDK.scan()</code>. For new integrations, use the explicit mount API so ownership and cleanup are clear.</p><p><a href="/custom_component.html">Legacy custom-component example ↗</a> · <a href="https://docs.lowcoder.cloud/lowcoder-documentation/publish-apps/embedd-an-app/native-embed-sdk">Full SDK documentation ↗</a></p></section></article></main><footer class="wrap"><a class="brand" href="/">Lowcoder <span>SDK</span></a><a href="/#playground">Back to the playground ↑</a></footer></body></html>

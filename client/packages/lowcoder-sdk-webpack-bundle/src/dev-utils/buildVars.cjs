@@ -23,6 +23,8 @@ const buildVars = [
     name: "REACT_APP_NODE_SERVICE_URL",
     defaultValue: "",
   },
+  { name: "REACT_APP_HOCUSPOCUS_URL", defaultValue: "" },
+  { name: "REACT_APP_HOCUSPOCUS_SECRET", defaultValue: "" },
   {
     name: "REACT_APP_ENV",
     defaultValue: "production",

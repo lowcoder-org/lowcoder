@@ -3,7 +3,7 @@ import axios from "axios";
 import type { RootComp } from "comps/comps/rootComp";
 import { setGlobalSettings } from "comps/utils/globalSettings";
 import { sdkConfig } from "constants/sdkConfig";
-import { get, set, isEqual } from "lodash";
+import { get, set, isEqual, cloneDeep } from "lodash";
 import type { Root } from "react-dom/client";
 import { StyleSheetManager } from "styled-components";
 import type { ModuleDSL, ModuleDSLIoInput } from "types/dsl";
@@ -52,6 +52,8 @@ export class AppViewInstance<I = any, O = any> {
     webUrl: "https://app.lowcoder.cloud",
   };
   private authorizedUser: boolean = true;
+  private destroyed = false;
+  readonly ready: Promise<void>;
 
   constructor(private appId: string, private node: Element, private root: Root, options: AppViewInstanceOptions = {}) {
     Object.assign(this.options, options);
@@ -63,7 +65,7 @@ export class AppViewInstance<I = any, O = any> {
     }
 
     this.dataPromise = this.loadData();
-    this.render();
+    this.ready = this.render();
   }
 
   private isModuleDSL(dsl: any): dsl is ModuleDSL {
@@ -73,7 +75,7 @@ export class AppViewInstance<I = any, O = any> {
   private async loadData() {
     const { baseUrl, appDsl, moduleDslMap, webUrl } = this.options;
 
-    let finalAppDsl = appDsl;
+    let finalAppDsl = appDsl ? cloneDeep(appDsl) : appDsl;
     let finalModuleDslMap = moduleDslMap;
 
     setGlobalSettings({
@@ -102,9 +104,10 @@ export class AppViewInstance<I = any, O = any> {
               }
             };
           }
+          throw e;
         });
       
-      await DatasourceApi.fetchJsDatasourceByApp(this.appId).then((res) => {
+      if (this.authorizedUser) await DatasourceApi.fetchJsDatasourceByApp(this.appId).then((res) => {
         res.data?.data?.forEach((i) => {
           registryDataSourcePlugin(i.type, i.id, i.pluginDefinition);
         });
@@ -122,7 +125,7 @@ export class AppViewInstance<I = any, O = any> {
       const inputsPath = "ui.comp.io.inputs";
       const nextInputs = get(finalAppDsl, inputsPath, []).map((i: ModuleDSLIoInput) => {
         const inputValue = this.options.moduleInputs[i.name];
-        if (inputValue) {
+        if (inputValue !== undefined) {
           return {
             ...i,
             defaultValue: {
@@ -143,6 +146,7 @@ export class AppViewInstance<I = any, O = any> {
   }
 
   private handleCompChange(comp: RootComp | null) {
+    if (this.destroyed) return;
     this.comp = comp;
 
     if (!comp) {
@@ -167,6 +171,7 @@ export class AppViewInstance<I = any, O = any> {
 
   private async render() {
     const data = await this.dataPromise;
+    if (this.destroyed) return;
     const loginUrl = this.options.orgId
       ? `${this.options.webUrl}/org/${this.options.orgId}/auth/login`
       : `${this.options.webUrl}${AUTH_LOGIN_URL}`;
@@ -226,10 +231,21 @@ export class AppViewInstance<I = any, O = any> {
       return () => {};
     }
     this.events.set(event, handler);
-    return () => this.events.delete(event);
+    return () => {
+      if (this.events.get(event) === handler) this.events.delete(event);
+    };
+  }
+
+  destroy() {
+    if (this.destroyed) return;
+    this.destroyed = true;
+    this.events.clear();
+    this.comp = null;
+    this.root.unmount();
   }
 
   setModuleInputs(inputs: I) {
+    if (this.destroyed) return;
     this.options.moduleInputs = inputs;
     this.render();
   }

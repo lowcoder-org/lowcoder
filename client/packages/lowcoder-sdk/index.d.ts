@@ -16,6 +16,8 @@ export interface AppViewInstanceOptions<I = any> {
   appDsl?: any;
   moduleDslMap?: any;
   baseUrl?: string;
+  webUrl?: string;
+  orgId?: string;
 }
 
 export interface LowcoderAppViewProps<I, O> extends AppViewInstanceOptions<I> {
@@ -26,6 +28,8 @@ export interface LowcoderAppViewProps<I, O> extends AppViewInstanceOptions<I> {
 }
 
 export interface AppViewInstance<I, O> {
+  readonly ready: Promise<void>;
+  destroy(): void;
   on<K extends keyof EventHandlerMap<O>>(event: K, handler?: EventHandlerMap<O>[K]): Off;
   setModuleInputs(inputs: I): void;
   invokeMethod(methodName: string, params?: any[]): void;

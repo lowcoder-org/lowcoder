@@ -1,0 +1,14 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "lowcoder-sdk",
+  "account_id": "4727dece8192846e8e1425afe6715cb4",
+  "compatibility_date": "2026-10-11",
+  "workers_dev": true,
+  "routes": [
+    { "pattern": "sdk.lowcoder.cloud/*", "zone_name": "lowcoder.cloud" }
+  ],
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  }
+}

@@ -95,8 +95,11 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    publicPath: "https://sdk.lowcoder.cloud/",
-    filename: '[name].bundle.js',
+    publicPath: "auto",
+    filename: 'assets/[name].[contenthash:12].js',
+    chunkFilename: 'assets/[name].[contenthash:12].js',
+    uniqueName: 'lowcoder-embed-sdk',
+    crossOriginLoading: 'anonymous',
     clean: true,
   },
   plugins: [
@@ -128,22 +131,25 @@ module.exports = {
           from: 'src/custom_component/index_custom_component_files', // Path to your folder
           to: 'index_custom_component_files/', // Destination path in the dist folder
         },
-        {
-          from: 'netlify.toml', // Path to your netlify.toml file
-          to: 'netlify.toml', // Destination filename in the dist folder
-        },
+        { from: 'site', to: '.' },
       ],
     }),
     isVisualizerEnabled && new BundleAnalyzerPlugin()
-  ],
+  ].filter(Boolean),
   optimization: {
     minimize: true,
     minimizer: [new TerserPlugin({
-      // Your customization if any
+      parallel: 2,
     })],
     sideEffects: true,
     splitChunks: {
       chunks: 'all',
+      // Partition the module graph without creating independent runtimes.
+      maxSize: 1600000,
+      minSize: 60000,
+      maxInitialRequests: 40,
+      maxAsyncRequests: 40,
+      hidePathInfo: true,
     },
     runtimeChunk: 'single',
   },
