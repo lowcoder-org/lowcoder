@@ -18,3 +18,5 @@ Follow the steps below:
 3. Set its name and configure general settings, including host, port, and database name. You can also set the user name and a password.
 4. (Optional) Click **Test connection** to check whether the new data source is successfully connected.
 5. Click **Save**, and it will be saved to your data source library.
+
+{% embed url="https://demos.lowcoder.cloud/demo/clzmno7d50b0prfaixv9i8nxc" %}

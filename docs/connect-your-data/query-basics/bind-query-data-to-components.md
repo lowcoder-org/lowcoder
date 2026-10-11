@@ -25,6 +25,39 @@ You can access the values in an array by index. The index always starts at 0, so
 
 The **Data** property of **Table** component is an array of objects. This GIF shows how to access the value of `first_name` in the first element of the **data** array in `table1`.
 
+## Query Usage Display
+
+While developing, we often lose track the components where we have used the queries, and have to look for the components when we need to perform CRUD operations on queries. It is a time taking process and we can lose track of where our queries are utilised. To tackle this, we have introduced Query Usage Display, showing you exactly where each query is used across your app. You will find it at each Data Query in the "Advanced" tab :&#x20;
+
+<figure><img src="../../.gitbook/assets/frame_generic_light (1) (2).png" alt=""><figcaption><p>Query Usage Display</p></figcaption></figure>
+
+## How to Use Query Variables
+
+Query Variables are unique variables and can be created in a Query as shown in the following screenshots : \
+
+
+![](<../../.gitbook/assets/Screenshot 2025-03-05 at 4.53.55 AM.png>)
+
+You can access the Query Variables as follow :&#x20;
+
+1. Inside a JS Query, Query variables should be accessible by their \<variable\_name>.value without the Handlebars as shown below : \
+   \
+   ![](<../../.gitbook/assets/frame_generic_light (1).png>)![](<../../.gitbook/assets/frame_generic_light (3).png>)![](<../../.gitbook/assets/frame_generic_light (2).png>)\
+
+2. In any other Query type or anywhere in the App, Query variables should be accessible by their \<variable\_name>.value within the Handlebars as shown below : \
+   \
+   ![](<../../.gitbook/assets/frame_generic_light (4).png>)
+
+**Query Variable's Value :**&#x20;
+
+The default value of the Query Variables will always be the one that User set in the "Variables" section of a Query. Lowcoder will always use that value when User tries to access the value by \<variable\_name>.value .&#x20;
+
+![](<../../.gitbook/assets/frame_generic_light (1).png>)![](<../../.gitbook/assets/frame_generic_light (7).png>)
+
+If User needs to access the dynamic value of a Query Variable, the User must pass the value as shown below :&#x20;
+
+![](<../../.gitbook/assets/frame_generic_light (1).png>)![](<../../.gitbook/assets/frame_generic_light (5).png>)![](<../../.gitbook/assets/frame_generic_light (6).png>)
+
 ## Transform data
 
 You can leverage built-in JS functions and third-party libraries in `{{ }}` to transform data, such as `filter()`, `map()` and `reduce()` operations.

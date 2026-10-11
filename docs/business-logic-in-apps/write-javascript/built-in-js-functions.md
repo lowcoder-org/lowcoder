@@ -59,12 +59,12 @@ utils.downloadFile(data: any, fileName: string, options?: {
 } )
 ```
 
-| Parameter | Description                                                                                                                                                                                                 |
-| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| data      | Required. A **String** or **Object** that specifies the data to download from queries, components, transformers, etc.                                                                                       |
-| fileName  | Required. A **String** value that specifies the name of the file to download.                                                                                                                               |
-| fileType  | Optional. A **String** value that specifies the type of the file to download. All [MIME types](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics\_of\_HTTP/MIME\_types/Common\_types) are supported. |
-| dataType  | Optional. A **String** value that specifies the type of the data: "url" or "base64".                                                                                                                        |
+| Parameter | Description                                                                                                                                                                                             |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| data      | Required. A **String** or **Object** that specifies the data to download from queries, components, transformers, etc.                                                                                   |
+| fileName  | Required. A **String** value that specifies the name of the file to download.                                                                                                                           |
+| fileType  | Optional. A **String** value that specifies the type of the file to download. All [MIME types](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types) are supported. |
+| dataType  | Optional. A **String** value that specifies the type of the data: "url" or "base64".                                                                                                                    |
 
 ```javascript
 // Example: Download the base64 data from a file component as a PNG file named users-data.
@@ -102,6 +102,15 @@ utils.copyToClipboard( text: string )
 ```javascript
 // Example: Copy the content of input component to clipboard.
 utils.copyToClipboard( input1.value )
+```
+
+### utils.logoutUser()
+
+Logout a User from the current Session.
+
+```javascript
+// Syntax
+utils.logOut()
 ```
 
 ## message - global notification

@@ -90,7 +90,7 @@ An alternative way to access the File is via the secure Link (Signed URL). To ge
 
 <figure><img src="../../../.gitbook/assets/Data Plugin  S3 Get Files with Signed Link.png" alt=""><figcaption><p>Get direct accessible Links of your files</p></figcaption></figure>
 
-You can now use the URL of each file and for example, display it in the File viewer or with the [Image Component](../../../build-applications/app-editor/visual-components/image.md).
+You can now use the URL of each file and for example, display it in the File viewer or with the [Image Component](../../../build-applications/app-editor/visual-components/multimedia-and-animation/image.md).
 
 ### Delete Files
 

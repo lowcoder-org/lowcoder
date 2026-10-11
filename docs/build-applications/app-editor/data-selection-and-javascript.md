@@ -49,6 +49,10 @@ Return name from query results.
 {{query1.data.map(i => i.name)}}. 
 ```
 
+#### Demo :&#x20;
+
+{% embed url="https://app.supademo.com/demo/clywwf2g61gzuz9kdlj9urrjm" %}
+
 ## Restrictions
 
 The JS code in `{{ }}` should be a single-line code, such as `.map()` or `.reduce()` combined with an arrow function or a ternary operator.
@@ -72,7 +76,7 @@ The following JS code examples are illegal in `{{ }}`.
 }}
 ```
 
-If you wish to orchestrate multiple lines of JavaScript, Lowcoder supports you writing such code in transformers.
+If you wish to orchestrate multiple lines of JavaScript, Lowcoder supports you writing such code in [Transformers](../../business-logic-in-apps/write-javascript/transformers.md) and [JavaScript Queries](../../business-logic-in-apps/write-javascript/javascript-query.md).
 
 ```javascript
 // codes inside a transformer

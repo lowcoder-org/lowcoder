@@ -1,27 +1,35 @@
 # Configure IP allowlists
 
-If your data source has firewall rules, it is vital to add IP addresses of Lowcoder to the allowlist before connection. Then you can connect to databases or APIs and create queries.
+If your database or API restricts incoming connections by source IP, add the Lowcoder Cloud outbound IP to its firewall or IP allowlist before connecting.
 
-## Allow IP addresses of Lowcoder
+## Lowcoder Cloud outbound IP
 
-Add the following IP addresses to your data source allowlist when needed:
+For server-side data source connections from [app.lowcoder.cloud](https://app.lowcoder.cloud), allow this static IPv4 address:
 
+```text
+34.181.220.47
 ```
-(US) !! IMPORTANT From 03.03.2024 we do not use US infrastructure !! 
-185.122.165.50
-185.122.165.51
-185.122.165.52
-185.122.165.56
 
-(GB)
-185.85.242.35
-185.85.242.36
-185.85.242.37
+If your firewall requires CIDR notation, use:
 
-(DE)
-185.44.64.41
-185.44.64.42
-185.44.64.43
-185.44.64.44
-185.44.64.47
+```text
+34.181.220.47/32
 ```
+
+This single address is used by both the API service and the Node service for outbound data source connections. The services run in US East (Ashburn).
+
+{% hint style="warning" %}
+Updated on 11 October 2026: this address replaces the IP lists previously published on this page. Add the new address and test your connections. Remove old Lowcoder Cloud allowlist entries once you have confirmed they are no longer needed for other services.
+{% endhint %}
+
+## Configure and test your firewall
+
+1. Allow incoming connections from `34.181.220.47/32` on the port used by your database or API.
+2. Keep your data source authentication and TLS settings enabled. An IP allowlist does not replace them.
+3. In Lowcoder, open **Data Sources**, select your connection, and click **Test connection**.
+
+Use the outbound IP above for source-IP rules. The IP addresses returned by DNS for the Lowcoder website or API domains are not the outbound address. Requests made directly from a user's browser use that user's network address instead.
+
+## Self-hosted and private deployments
+
+For self-hosted Lowcoder or a dedicated private deployment, allow the outbound IP address of that deployment's API and Node services, or its NAT gateway. The shared Lowcoder Cloud address above does not apply to those deployments.

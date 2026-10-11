@@ -243,7 +243,7 @@ const i18n = new I18n({ zh, en }, languages);
 
 ## Auto-generate plugin code based on Open API
 
-If the data source you're going to develop as a plugin provides an [Open API Spec](https://en.wikipedia.org/wiki/OpenAPI\_Specification) definition file, then its plugin code can be quickly generated.
+If the data source you're going to develop as a plugin provides an [Open API Spec](https://en.wikipedia.org/wiki/OpenAPI_Specification) definition file, then its plugin code can be quickly generated.
 
 Below is an example of generating Jira plugin code.
 

@@ -20,3 +20,7 @@ Follow the steps below:
    * **URI**: URI
 4. (Optional) Click **Test connection** to check whether the new data source is successfully connected.
 5. Click **Save**, and it will be saved to your data source library.
+
+## Demo
+
+{% embed url="https://demos.lowcoder.cloud/demo/clzmrsncw00abgumtam3k9iwi" %}

@@ -171,7 +171,7 @@ Some providers do only support OAuth - but not (yet?) OpenID. This means that th
 
 At your IDM you would need to prepare an OAuth Client resp. a OAuth Client Application. There are multiple settings.
 
-* Redirect URL. Here you enter your domain of your installation like **http://localhost:3000** or **https://app.lowcoder.cloud**
+* Redirect URL. Here you enter your domain (origin) of your installation like **http://localhost:3000** or **https://app.lowcoder.cloud and add the path:** `{origin}/user/auth/oauth/redirect`
 * Scopes: You should set the following Scopes if possible. **offline\_access** and **profile** are important.
   * openid
   * offline\_access

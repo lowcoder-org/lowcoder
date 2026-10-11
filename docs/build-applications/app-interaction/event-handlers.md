@@ -40,7 +40,7 @@ To control a component, select a component in the **Component** dropdown list an
 
 Store data in a temporary state.
 
-### Go to app
+### Go to app <a href="#go-to-app" id="go-to-app"></a>
 
 Navigate to an Lowcoder app with optional query or hash parameters.
 
