@@ -63,6 +63,7 @@ production releases through its existing GitHub connection and build token:
 
 - Repository: `lowcoder-org/lowcoder`; production branch: `main`.
 - Root: `client`; Node version: `22.22.2`.
+- Build variables: `NODE_VERSION=22.22.2`, `SKIP_DEPENDENCY_INSTALL=true`.
 - Build: `node packages/lowcoder-sdk-webpack-bundle/scripts/build-release.cjs`.
 - Deploy: `npx --yes wrangler@4.129.0 deploy --config packages/lowcoder-sdk-webpack-bundle/wrangler.jsonc`.
 - Disable preview builds: this production config owns the public SDK route.
