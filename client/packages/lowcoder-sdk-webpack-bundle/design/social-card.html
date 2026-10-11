@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <title>Lowcoder SDK share card artwork</title>
+    <style>
+      @font-face { font-family: Ubuntu; src: url('/brand/ubuntu-400.woff2'); font-weight: 400; }
+      @font-face { font-family: Ubuntu; src: url('/brand/ubuntu-500.woff2'); font-weight: 500; }
+      * { box-sizing: border-box; }
+      body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: #18101e; color: #fff; font-family: Ubuntu, sans-serif; }
+      .canvas { position: relative; width: 1200px; height: 630px; overflow: hidden; background: radial-gradient(ellipse at 92% 38%, #76399885, transparent 54%), radial-gradient(ellipse at 70% 115%, #b45df258, transparent 55%), #18101e; }
+      .grid { position: absolute; inset: 0 0 0 590px; opacity: .13; background-image: linear-gradient(#b480de55 1px, transparent 1px), linear-gradient(90deg, #b480de55 1px, transparent 1px); background-size: 42px 42px; mask-image: linear-gradient(90deg, transparent, black); }
+      .orbit { position: absolute; width: 520px; height: 520px; top: 12px; left: 690px; border: 1px solid #d2a9ed26; border-radius: 50%; }
+      .orbit.two { width: 650px; height: 650px; top: -53px; left: 625px; border-color: #d2a9ed14; }
+      .brand { position: absolute; left: 52px; top: 39px; display: flex; align-items: center; gap: 17px; }
+      .brand img { width: 200px; height: 63px; }
+      .brand span { font-size: 15px; letter-spacing: 2px; border-left: 1px solid #b480de66; padding: 8px 0 8px 19px; color: #e3c2f2; }
+      .eyebrow { position: absolute; left: 64px; top: 154px; margin: 0; color: #d5acef; font-size: 14px; font-weight: 500; letter-spacing: 2.1px; }
+      h1 { position: absolute; left: 60px; top: 201px; width: 665px; margin: 0; font-size: 68px; line-height: 1.07; letter-spacing: -2.8px; font-weight: 400; }
+      h1 span { display: block; white-space: nowrap; }
+      h1 span:last-child { color: #e3c2f2; }
+      body[data-card="integration-recipes"] h1 { font-size: 59px; line-height: 1.2; }
+      .caption { position: absolute; left: 64px; top: 386px; margin: 0; color: #dacfe1; font-size: 23px; line-height: 1.5; white-space: pre-line; }
+      .footer { position: absolute; left: 64px; right: 64px; bottom: 43px; display: flex; align-items: center; justify-content: space-between; color: #cbb9d5; font-size: 17px; }
+      .footer .url { color: #fff; }
+      .footer .url::before { display: inline-block; vertical-align: middle; content: ''; width: 28px; height: 2px; background: #b480de; margin-right: 13px; }
+      .footer .tag { padding: 10px 17px; border: 1px solid #d5acef40; border-radius: 25px; color: #e3c2f2; font-size: 14px; }
+      .visual { position: absolute; top: 161px; left: 757px; width: 391px; height: 328px; border: 1px solid #d2a9ed66; border-radius: 17px; background: #fcf8ff; box-shadow: 0 30px 75px #0b061b88, 0 0 65px #ac54e827; overflow: hidden; color: #281932; transform: rotate(-3deg); }
+      .bar { height: 40px; padding: 0 15px; display: flex; align-items: center; gap: 13px; border-bottom: 1px solid #e7daee; background: #f3ebf8; font-size: 11px; color: #807184; }
+      .dots { display: flex; gap: 5px; }
+      .dots i { display: block; width: 6px; height: 6px; border-radius: 50%; background: #ba9ecc; }
+      .app { display: grid; grid-template-columns: 58px 1fr; height: 288px; }
+      .sidebar { padding: 22px 10px; background: #eee2f5; display: flex; flex-direction: column; gap: 18px; }
+      .sidebar i { width: 25px; height: 7px; background: #cbb5d8; border-radius: 3px; }
+      .sidebar i:first-child { background: #9861b9; height: 23px; width: 23px; margin-bottom: 5px; border-radius: 7px; }
+      .workspace { padding: 22px 19px; }
+      .workspace h2 { font-size: 18px; letter-spacing: -.4px; margin: 0 0 18px; font-weight: 500; }
+      .module { padding: 19px 17px; border: 1px solid #c499e1; border-radius: 11px; background: linear-gradient(120deg, #f6eaff, #fff); box-shadow: 0 8px 22px #673b8112; }
+      .module-label { font-size: 9px; font-weight: 500; letter-spacing: 1.2px; color: #8555a2; margin-bottom: 15px; }
+      .person { display: flex; align-items: center; gap: 11px; font-size: 14px; font-weight: 500; }
+      .avatar { width: 34px; height: 34px; background: #d8b8ec; color: #683e86; display: grid; place-items: center; border-radius: 50%; font-size: 11px; }
+      .person small { display: block; font-size: 10px; font-weight: 400; margin-top: 3px; color: #8c749b; }
+      .fields { display: flex; gap: 7px; margin-top: 17px; }
+      .fields span { height: 22px; border: 1px solid #dcc8e8; background: white; border-radius: 5px; flex: 1; }
+      .bridge { margin-top: 15px; display: flex; gap: 6px; color: #8c579e; font-size: 9px; }
+      .bridge span { padding: 5px 7px; background: #eee0f6; border-radius: 5px; }
+      .connected { font-size: 11px; margin-top: 15px; color: #7b628b; }
+      .connected::before { content: ''; display: inline-block; width: 6px; height: 6px; margin-right: 7px; border-radius: 50%; background: #9a61bc; }
+      .code-panel { padding: 25px 21px; color: #dbcce8; background: #25172e; height: 288px; }
+      .code-panel h2 { font: 500 15px Ubuntu, sans-serif; color: #fff; margin: 0 0 24px; }
+      pre { margin: 0; font: 13px/1.85 monospace; }
+      .violet { color: #d1a4f2; } .green { color: #b8dacb; }
+      .step-pills { display: flex; gap: 8px; margin-top: 26px; }
+      .step-pills span { color: #d7b5eb; font-size: 11px; padding: 7px 9px; background: #b480de1c; border: 1px solid #b480de40; border-radius: 6px; }
+      .methods { padding: 20px; }
+      .methods h2 { font-size: 17px; margin: 0 0 19px; font-weight: 500; }
+      .method { display: flex; justify-content: space-between; align-items: center; margin-top: 9px; padding: 12px 10px; border: 1px solid #e4d4ed; border-radius: 7px; background: #fff; font-size: 12px; }
+      .method code { color: #6c4389; font-size: 12px; } .method span { color: #b08ac7; font-size: 10px; }
+      .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; padding: 22px; }
+      .tile { height: 107px; border: 1px solid #dfc4ef; border-radius: 10px; padding: 14px; background: linear-gradient(130deg,#f6eafd,#fff); }
+      .tile .icon { font-size: 24px; color: #9361b3; font-weight: 500; line-height: 1; }
+      .tile strong { display: block; margin-top: 13px; font-size: 14px; font-weight: 500; }
+      .corner { position: absolute; right: 0; bottom: 0; height: 7px; width: 290px; background: linear-gradient(90deg,#683e86,#b55ff2); border-radius: 7px 0 0; }
+    </style>
+  </head>
+  <body>
+    <main class="canvas">
+      <div class="grid"></div><div class="orbit"></div><div class="orbit two"></div>
+      <div class="brand"><img src="/brand/lowcoder.svg" alt="Lowcoder" /><span>SDK</span></div>
+      <p class="eyebrow"></p><h1></h1><p class="caption"></p>
+      <div class="visual"><div class="bar"><span class="dots"><i></i><i></i><i></i></span><span class="visual-label"></span></div><div class="visual-content"></div></div>
+      <div class="footer"><span class="url">sdk.lowcoder.cloud</span><span class="tag">React + JavaScript · Native DOM</span></div>
+      <div class="corner"></div>
+    </main>
+    <script>
+      (async () => {
+        const pages = await (await fetch('/seo.json')).json();
+        const route = new URLSearchParams(location.search).get('page') || '/';
+        const meta = pages[route];
+        document.body.dataset.card = meta.card;
+        document.querySelector('.eyebrow').textContent = meta.eyebrow;
+        meta.headline.forEach(line => { const span = document.createElement('span'); span.textContent = line; document.querySelector('h1').append(span); });
+        document.querySelector('.caption').textContent = meta.caption;
+        const visuals = {
+          embedding: ['Your application / customers', '<div class="app"><div class="sidebar"><i></i><i></i><i></i><i></i></div><div class="workspace"><h2>Customer workspace</h2><div class="module"><div class="module-label">LOWCODER · EMBEDDED MODULE</div><div class="person"><span class="avatar">ML</span><div>Morgan Lee<small>Customer details, built visually</small></div></div><div class="fields"><span></span><span></span></div><div class="bridge"><span>Inputs</span><span>Outputs</span><span>Events</span></div></div><div class="connected">Connected to your application</div></div></div>'],
+          quickstart: ['Your integration / quickstart', '<div class="code-panel"><h2>A native app. A few lines of code.</h2><pre><span class="violet">const</span> sdk = <span class="violet">await</span> LowcoderSDK.ready;\n<span class="violet">const</span> app = <span class="violet">await</span> sdk.mount(\n  <span class="green">\'#customer-panel\'</span>, {\n    appId: <span class="green">\'YOUR_APP_ID\'</span>\n  }\n);</pre><div class="step-pills"><span>01 Load</span><span>02 Mount</span><span>03 Connect</span></div></div>'],
+          'api-reference': ['Your integration / API reference', '<div class="methods"><h2>One SDK. Every connection.</h2><div class="method"><code>mount()</code><span>LIFECYCLE</span></div><div class="method"><code>setModuleInputs()</code><span>INPUTS</span></div><div class="method"><code>on()</code><span>EVENTS</span></div><div class="method"><code>invokeMethod()</code><span>METHODS</span></div></div>'],
+          'integration-recipes': ['Your product / integration recipes', '<div class="tiles"><div class="tile"><span class="icon">◎</span><strong>CRM</strong></div><div class="tile"><span class="icon">&lt;/&gt;</span><strong>Websites</strong></div><div class="tile"><span class="icon">≡</span><strong>Ticketing</strong></div><div class="tile"><span class="icon">▤</span><strong>Point of sale</strong></div></div>'],
+        };
+        document.querySelector('.visual-label').textContent = visuals[meta.card][0];
+        document.querySelector('.visual-content').innerHTML = visuals[meta.card][1];
+        await document.fonts.ready;
+        await Promise.all([...document.images].map(image => image.decode()));
+        document.body.dataset.ready = 'true';
+      })();
+    </script>
+  </body>
+</html>

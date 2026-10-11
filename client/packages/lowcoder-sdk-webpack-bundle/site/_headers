@@ -1,0 +1,19 @@
+/*
+  Access-Control-Allow-Origin: *
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/social/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/bundle.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/sdk-manifest.json
+  Cache-Control: public, max-age=0, must-revalidate
+
+/sdk-assets.json
+  Cache-Control: public, max-age=0, must-revalidate

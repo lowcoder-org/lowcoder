@@ -1,0 +1,42 @@
+{
+  "/": {
+    "file": "index.html",
+    "title": "Lowcoder SDK: Embed Apps in React & JavaScript",
+    "description": "Embed Lowcoder apps natively in your React or JavaScript product. Try a live demo, connect inputs and events, and build integrations with the SDK.",
+    "card": "embedding",
+    "eyebrow": "THE NATIVE EMBEDDING SDK",
+    "headline": ["Your product.", "Lowcoder inside."],
+    "caption": "Build visually. Embed natively.\nKeep your product yours.",
+    "imageAlt": "Lowcoder SDK: Your product. Lowcoder inside. A visual app embedded in a customer workspace."
+  },
+  "/guide": {
+    "file": "site/guide.html",
+    "title": "Lowcoder SDK Quickstart: React & JavaScript Embedding",
+    "description": "Learn to embed a Lowcoder app in React or plain JavaScript. Follow working examples for mounting apps, passing inputs, handling events, and cleanup.",
+    "card": "quickstart",
+    "eyebrow": "THE INTEGRATION QUICKSTART",
+    "headline": ["From visual app", "to your product."],
+    "caption": "Load. Mount. Connect.\nYour first native integration starts here.",
+    "imageAlt": "Lowcoder SDK quickstart: From visual app to your product. JavaScript and React native embedding examples."
+  },
+  "/reference": {
+    "file": "site/reference.html",
+    "title": "Lowcoder SDK API Reference: Methods, Options & Events",
+    "description": "Explore the Lowcoder embedding API: functions, options, events, return values, and React props. Find examples for mounting apps and connecting data.",
+    "card": "api-reference",
+    "eyebrow": "THE COMPLETE API REFERENCE",
+    "headline": ["Every method.", "Every connection."],
+    "caption": "Functions, options, events and examples.\nKnow exactly how your app connects.",
+    "imageAlt": "Lowcoder SDK API reference: Every method. Every connection. Mount, inputs, events and methods explained."
+  },
+  "/recipes": {
+    "file": "site/recipes.html",
+    "title": "Lowcoder SDK Examples: CRM, Websites, Tickets & POS",
+    "description": "Explore Lowcoder SDK integration recipes for CRM, websites, ticketing, and POS. Use practical host code and module contracts to connect your product.",
+    "card": "integration-recipes",
+    "eyebrow": "REAL PRODUCTS. NATIVE INTEGRATIONS.",
+    "headline": ["Four ways in.", "Endless possibilities."],
+    "caption": "CRM. Websites. Ticketing. Point of sale.\nBring visual apps into your workflow.",
+    "imageAlt": "Lowcoder SDK integration recipes for CRM, websites, ticketing and point of sale, shown as four connected modules."
+  }
+}

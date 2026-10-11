@@ -8,8 +8,8 @@ import { buildVars } from "./src/dev-utils/buildVars";
 import { globalDepPlugin } from "./src/dev-utils/globalDepPlguin";
 import dynamicImport from 'vite-plugin-dynamic-import';
 import { visualizer } from "rollup-plugin-visualizer";
-import { terser } from 'rollup-plugin-terser';
 import strip from "@rollup/plugin-strip";
+import { terser } from "rollup-plugin-terser";
 
 const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
 
@@ -36,7 +36,8 @@ export const viteConfig: UserConfig = {
   },
   base: ensureLastSlash(process.env.PUBLIC_URL),
   build: {
-    minify: "terser",
+    // Vite 4 skips its Terser pass for ES libraries. Minify exactly once below.
+    minify: false,
     chunkSizeWarningLimit: 500,
     lib: {
       formats: ["es"],
@@ -51,7 +52,7 @@ export const viteConfig: UserConfig = {
         tryCatchDeoptimization: false, 
         unknownGlobalSideEffects: false, 
       },
-      external: ["react", "react-dom"],
+      external: [/^react(?:\/|$)/, /^react-dom(?:\/|$)/],
       output: {
         chunkFileNames: "chunks/[name]-[hash].js",
         entryFileNames: "lowcoder-sdk.js",
@@ -68,9 +69,9 @@ export const viteConfig: UserConfig = {
         
             // TEXT EDITORS & PARSERS
             if (id.includes("codemirror")) return "codemirror";
+            if (id.includes("react-quill")) return "react-quill";
             if (id.includes("quill")) return "quill";
             if (id.includes("react-json-view")) return "react-json-view";
-            if (id.includes("react-quill")) return "react-quill";
             if (id.includes("remark-gfm")) return "remark-gfm";
             if (id.includes("rehype-raw")) return "rehype-raw";
             if (id.includes("rehype-sanitize")) return "rehype-sanitize";
@@ -93,11 +94,11 @@ export const viteConfig: UserConfig = {
             // UTILITIES & HELPERS
             if (id.includes("clsx")) return "clsx";
             if (id.includes("immer")) return "immer";
-            if (id.includes("lodash")) return "lodash";
             if (id.includes("lodash-es")) return "lodash-es";
+            if (id.includes("lodash")) return "lodash";
             if (id.includes("uuid")) return "uuid";
             if (id.includes("ua-parser-js")) return "ua-parser-js";
-            if (id.includes("html2canvas")) return "ua-parser-js";
+            if (id.includes("html2canvas")) return "html2canvas";
             if (id.includes("numbro")) return "numbro";
         
             // FILE & DATA PROCESSING
@@ -146,19 +147,11 @@ export const viteConfig: UserConfig = {
           return null;
         }
       },
-      experimental: {
-        minChunkSize: 300000, // 📏 Force smaller chunks (~300KB)
-      },
       plugins: [
         terser({
-          compress: {
-            drop_console: true,  
-            drop_debugger: true, 
-            pure_funcs: ["console.info", "console.debug", "console.log"], 
-          },
-          format: {
-            comments: /(@vite-ignore|webpackIgnore)/
-          },
+          numWorkers: 2,
+          compress: { drop_debugger: true, pure_funcs: ["console.info", "console.debug", "console.log"] },
+          format: { comments: /(@vite-ignore|webpackIgnore)/ },
         }) as PluginOption,
         strip({
           functions: ["console.log", "debugger"], // ✅ Remove logs

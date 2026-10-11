@@ -30,16 +30,34 @@ function LowcoderAppViewBase<I = any, O = any>(
     if (!node) {
       return;
     }
-    bootstrapAppAt<I>(appId, node, options).then(setInstance);
+    // An effect owns its mount node, including during StrictMode's async cleanup.
+    const mountNode = document.createElement("div");
+    node.appendChild(mountNode);
+    let cancelled = false;
+    let mounted: AppViewInstance | undefined;
+    setInstance(undefined);
+    bootstrapAppAt<I>(appId, mountNode, options).then((next) => {
+      if (cancelled) next.destroy();
+      else { mounted = next; setInstance(next); }
+    }).catch((error) => {
+      if (!cancelled) console.error("Lowcoder app could not mount", error);
+    });
+    return () => {
+      cancelled = true;
+      mountNode.remove();
+      // Avoid synchronously unmounting a nested root during React's commit.
+      if (mounted) queueMicrotask(() => mounted?.destroy());
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appId]);
+  }, [appId, options.baseUrl, options.webUrl, options.orgId]);
 
   useEffect(() => {
     if (!instance) {
       return;
     }
-    instance.on("moduleOutputChange", onModuleOutputChange);
-    instance.on("moduleEventTriggered", onModuleEventTriggered);
+    const offOutput = instance.on("moduleOutputChange", onModuleOutputChange);
+    const offEvent = instance.on("moduleEventTriggered", onModuleEventTriggered);
+    return () => { offOutput(); offEvent(); };
   }, [instance, onModuleEventTriggered, onModuleOutputChange]);
 
   useEffect(() => {

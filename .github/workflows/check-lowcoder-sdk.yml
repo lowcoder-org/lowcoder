@@ -1,0 +1,40 @@
+name: Check Lowcoder SDK
+
+on:
+  pull_request:
+    paths:
+      - 'client/**'
+      - '.github/workflows/*lowcoder-sdk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-lowcoder-sdk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    if: github.repository == 'lowcoder-org/lowcoder'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.2
+          cache: yarn
+          cache-dependency-path: client/yarn.lock
+      - name: Install dependencies
+        run: node .yarn/releases/yarn-3.6.4.cjs install --immutable
+      - name: Test browser SDK contract
+        run: node .yarn/releases/yarn-3.6.4.cjs workspace lowcoder-sdk-webpack-bundle test
+      - name: Build browser SDK and website
+        env:
+          NODE_OPTIONS: --max_old_space_size=6144
+        run: node .yarn/releases/yarn-3.6.4.cjs workspace lowcoder-sdk-webpack-bundle build
+      - name: Check release sizes and files
+        run: node packages/lowcoder-sdk-webpack-bundle/scripts/check-dist.cjs
