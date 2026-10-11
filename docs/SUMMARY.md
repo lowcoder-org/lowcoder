@@ -51,6 +51,10 @@
   * [Modules](build-applications/create-a-new-app/modules.md)
   * [Version and Release Management](build-applications/create-a-new-app/version-and-release-management.md)
 * [App Editor](build-applications/app-editor/README.md)
+  * [Automator](build-applications/app-editor/automator.md)
+  * [AI Help](build-applications/app-editor/ai-help.md)
+  * [NPM Template Plugins](build-applications/app-editor/npm-template-plugins.md)
+  * [Build Collaborative Video Apps](build-applications/app-editor/collaborative-video-apps.md)
   * [Query & Editing Roundtrips](build-applications/app-editor/query-and-editing-roundtrips.md)
   * [Bulk Editing](build-applications/app-editor/bulk-editing.md)
   * [Keyboard shortcuts](build-applications/app-editor/keyboard-shortcuts.md)
@@ -106,6 +110,9 @@
       * [Toggle Button](build-applications/app-editor/visual-components/data-collection-and-forms/toggle-button.md)
       * [Radio](build-applications/app-editor/visual-components/data-collection-and-forms/radio.md)
     * [Meeting & Collaboration](build-applications/app-editor/visual-components/meeting-and-collaboration.md)
+      * [Chat Box](build-applications/app-editor/visual-components/chat-box.md)
+      * [AI Chat](build-applications/app-editor/visual-components/ai-chat.md)
+      * [Chat Controller](build-applications/app-editor/visual-components/chat-controller.md)
       * [Avatar & Avatar Group](build-applications/app-editor/visual-components/meeting-and-collaboration/avatar-and-avatar-group.md)
       * [Comment](build-applications/app-editor/visual-components/meeting-and-collaboration/comment.md)
     * [Project Management](build-applications/app-editor/visual-components/project-management.md)
@@ -141,6 +148,7 @@
   * [Customize Styles](build-applications/themes-and-styling/customize-styles.md)
   * [Component Styling Possibilities](build-applications/themes-and-styling/component-styling-possibilities.md)
 * [Video Calls in Lowcoder](build-applications/video-calls-in-lowcoder.md)
+* [Realtime Shared State and Presence](build-applications/realtime-collaboration.md)
 
 ## 🚀 Connect your Data
 
