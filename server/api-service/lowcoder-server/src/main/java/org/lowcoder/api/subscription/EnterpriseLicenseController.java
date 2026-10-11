@@ -9,6 +9,7 @@ import org.lowcoder.api.framework.view.ResponseView;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
@@ -41,13 +42,22 @@ public class EnterpriseLicenseController {
     }
 
     @PostMapping("/{action:checkout|sync|status|download|portal}")
-    public Mono<ResponseView<JsonNode>> request(@PathVariable String action, @RequestBody JsonNode body) {
+    public Mono<ResponseView<JsonNode>> request(@PathVariable String action, @RequestBody JsonNode body,
+            ServerHttpRequest request) {
         return sessions.getVisitorOrgMember()
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.UNAUTHORIZED)))
                 .flatMap(member -> {
                     if (member.isInvalid() || !(member.isAdmin() || member.isSuperAdmin()) ||
                             !member.getOrgId().equals(body.path("orgId").asText())) {
                         return Mono.error(new ResponseStatusException(HttpStatus.FORBIDDEN));
+                    }
+                    // The configured UI URL remains authoritative even behind an internal proxy
+                    // or when a caller forges returnOrigin. Spring resolves forwarded request hosts.
+                    if (action.equals("checkout") && (isPublicCloudUrl(publicUrl) ||
+                            isPublicCloudUrl(request.getURI().toString()) ||
+                            isPublicCloudUrl(body.path("returnOrigin").asText()))) {
+                        return Mono.error(new ResponseStatusException(HttpStatus.FORBIDDEN,
+                                "Enterprise Edition is self-hosted. Purchase a license from your own Lowcoder installation."));
                     }
                     String hostId = config.deployment().ofString("id", "").get();
                     if (hostId == null || hostId.isBlank() || relayUrl.isBlank()) {
@@ -90,6 +100,15 @@ public class EnterpriseLicenseController {
                     return capabilities.token(hostId, member.getOrgId(), member.getUserId())
                             .flatMap(token -> send(payload, token));
                 }).map(ResponseView::success);
+    }
+
+    private static boolean isPublicCloudUrl(String url) {
+        try {
+            String host = URI.create(url).getHost();
+            return host != null && "app.lowcoder.cloud".equalsIgnoreCase(host.replaceAll("\\.$", ""));
+        } catch (IllegalArgumentException ignored) {
+            return false; // Existing return-origin validation handles malformed URLs.
+        }
     }
 
     Mono<JsonNode> send(Map<String, Object> payload, String token) {

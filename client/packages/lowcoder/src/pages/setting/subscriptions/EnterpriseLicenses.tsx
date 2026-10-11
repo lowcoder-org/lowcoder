@@ -8,8 +8,20 @@ import { currentOrgAdmin } from "util/permissionUtils";
 import { refreshEnterpriseLicenses, useEnterpriseLicenseStatus } from "util/enterpriseLicenseSync";
 import { getEnterpriseBillingPortal, getEnterpriseLicenseFile, openStripePage } from "api/licenseRequestApi";
 import LicenseRequestModal from "../licenseRequestModal";
+import { EnterpriseEditionInfo } from "../EnterpriseEditionInfo";
+import { isPublicLowcoderCloud } from "util/enterpriseHosting";
+import { trans } from "i18n";
 
 export function EnterpriseLicenses() {
+  if (isPublicLowcoderCloud()) {
+    return <Card title={trans("enterprise.selfHosted.title")} style={{ marginTop: 24 }}>
+      <EnterpriseEditionInfo />
+    </Card>;
+  }
+  return <SelfHostedEnterpriseLicenses />;
+}
+
+function SelfHostedEnterpriseLicenses() {
   const user = useSelector(getUser);
   const deploymentId = useSelector(getDeploymentId);
   const [open, setOpen] = useState(false);

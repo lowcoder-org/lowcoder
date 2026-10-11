@@ -4,14 +4,18 @@ on:
   workflow_dispatch:
     inputs:
       imageTag:
-        type: choice
-        description: 'Choose a tag for built docker image(s)'
+        type: string
+        description: 'Docker image tag, for example 3.0.0 or latest'
         required: true
         default: 'latest'
-        options:
-        - latest
-        - stable
-        - test
+      sourceRef:
+        type: string
+        description: 'Source tag, branch or commit (empty uses the workflow commit)'
+        required: false
+      publish_latest:
+        type: boolean
+        description: 'Also publish the same images as latest'
+        default: false
       build_allinone:
         type: boolean
         description: 'Build the All-In-One image'
@@ -41,6 +45,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout lowcoder source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.sourceRef || github.sha }}
+
       - name: 'Setup jq'
         uses: dcarbone/install-jq-action@v3
         with:
@@ -48,34 +57,40 @@ jobs:
 
       - name: Set environment variables
         shell: bash
+        env:
+          IMAGE_TAG: ${{ inputs.imageTag || github.ref_name }}
+          PUBLISH_LATEST: ${{ inputs.publish_latest || false }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          # Get the short SHA of last commit
-          echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> "${GITHUB_ENV}"
+          # Use the checked-out source commit, which may differ from the workflow.
+          echo "SHORT_SHA=$(git rev-parse --short=7 HEAD)" >> "${GITHUB_ENV}"
+          if [[ ! "${IMAGE_TAG}" =~ ^[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,127}$ ]]; then
+            echo "::error::Invalid Docker image tag"
+            exit 1
+          fi
 
-          # Get branch name - we don't use github.ref_head_name since we don't build on PRs
-          echo "BRANCH_NAME=${{ github.ref_name }}" >> "${GITHUB_ENV}"
-
-          # Set docker image tag
-          IMAGE_TAG=${{ inputs.imageTag || github.ref_name }}
-
-          # Check whether it's a release
-          LATEST_TAG=$(
-            curl -s -L \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{ github.token }}" \
-              https://api.github.com/repos/${{ github.repository }}/releases/latest \
-              | jq -r '.tag_name'
-          )
-          IS_LATEST="false"
-          if [[ "${LATEST_TAG}" == "${{ github.event.release.tag_name }}" ]]; then
+          # Stable releases keep their existing latest-tag behavior. Manual runs
+          # can publish latest without changing a GitHub pre-release's status.
+          IS_LATEST="${PUBLISH_LATEST}"
+          if [[ -n "${RELEASE_TAG}" ]]; then
+            LATEST_TAG=$(
+              curl --fail --silent --show-error --location \
+                -H "Accept: application/vnd.github+json" \
+                -H "Authorization: Bearer ${GH_TOKEN}" \
+                "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/latest" \
+                | jq -r '.tag_name'
+            )
+            if [[ "${LATEST_TAG}" == "${RELEASE_TAG}" ]]; then
               IS_LATEST="true"
-          fi;
+            fi
+          fi
 
           # Control which images to build
-          echo "BUILD_ALLINONE=${{ inputs.build_allinone || true }}" >> "${GITHUB_ENV}"
-          echo "BUILD_FRONTEND=${{ inputs.build_frontend || true }}" >> "${GITHUB_ENV}"
-          echo "BUILD_NODESERVICE=${{ inputs.build_nodeservice || true }}" >> "${GITHUB_ENV}"
-          echo "BUILD_APISERVICE=${{ inputs.build_apiservice || true }}" >> "${GITHUB_ENV}"
+          echo "BUILD_ALLINONE=${{ github.event_name != 'workflow_dispatch' || inputs.build_allinone }}" >> "${GITHUB_ENV}"
+          echo "BUILD_FRONTEND=${{ github.event_name != 'workflow_dispatch' || inputs.build_frontend }}" >> "${GITHUB_ENV}"
+          echo "BUILD_NODESERVICE=${{ github.event_name != 'workflow_dispatch' || inputs.build_nodeservice }}" >> "${GITHUB_ENV}"
+          echo "BUILD_APISERVICE=${{ github.event_name != 'workflow_dispatch' || inputs.build_apiservice }}" >> "${GITHUB_ENV}"
 
           # Image names
           ALLINONE_IMAGE_NAMES=lowcoderorg/lowcoder-ce:${IMAGE_TAG}
@@ -84,7 +99,7 @@ jobs:
           APISERVICE_IMAGE_NAMES=lowcoderorg/lowcoder-ce-api-service:${IMAGE_TAG}
           NODESERVICE_IMAGE_NAMES=lowcoderorg/lowcoder-ce-node-service:${IMAGE_TAG}
 
-          if [[ "${IS_LATEST}" == "true" ]]; then
+          if [[ "${IS_LATEST}" == "true" && "${IMAGE_TAG}" != "latest" ]]; then
                ALLINONE_IMAGE_NAMES="lowcoderorg/lowcoder-ce:latest,${ALLINONE_IMAGE_NAMES}"
                FRONTEND_IMAGE_NAMES="lowcoderorg/lowcoder-ce-frontend:latest,${FRONTEND_IMAGE_NAMES}"
                FRONTEND_EE_IMAGE_NAMES="lowcoderorg/lowcoder-enterprise-frontend:latest,${FRONTEND_EE_IMAGE_NAMES}"
@@ -97,11 +112,6 @@ jobs:
           echo "FRONTEND_EE_IMAGE_NAMES=${FRONTEND_EE_IMAGE_NAMES}" >> "${GITHUB_ENV}"
           echo "APISERVICE_IMAGE_NAMES=${APISERVICE_IMAGE_NAMES}" >> "${GITHUB_ENV}"
           echo "NODESERVICE_IMAGE_NAMES=${NODESERVICE_IMAGE_NAMES}" >> "${GITHUB_ENV}"
-
-      - name: Checkout lowcoder source
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ env.BRANCH_NAME }}
 
       - name: Log into Docker Hub
         uses: docker/login-action@v3
@@ -122,6 +132,7 @@ jobs:
         env:
           NODE_ENV: production
         with:
+          context: .
           file: ./deploy/docker/Dockerfile
           build-args: |
             REACT_APP_ENV=production
@@ -138,6 +149,7 @@ jobs:
         env:
           NODE_ENV: production
         with:
+          context: .
           file: ./deploy/docker/Dockerfile
           target: lowcoder-ce-frontend
           build-args: |
@@ -155,6 +167,7 @@ jobs:
         env:
           NODE_ENV: production
         with:
+          context: .
           file: ./deploy/docker/Dockerfile
           target: lowcoder-enterprise-frontend
           build-args: |
@@ -171,6 +184,7 @@ jobs:
         if: ${{ env.BUILD_NODESERVICE == 'true' }}
         uses: docker/build-push-action@v6
         with:
+          context: .
           file: ./deploy/docker/Dockerfile
           target: lowcoder-ce-node-service
           platforms: |
@@ -183,6 +197,7 @@ jobs:
         if: ${{ env.BUILD_APISERVICE == 'true' }}
         uses: docker/build-push-action@v6
         with:
+          context: .
           file: ./deploy/docker/Dockerfile
           target: lowcoder-ce-api-service
           platforms: |

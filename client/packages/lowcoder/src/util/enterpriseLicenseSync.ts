@@ -1,5 +1,6 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { EnterpriseLicenseStatus, synchronizeEnterpriseLicenses } from "api/licenseRequestApi";
+import { isPublicLowcoderCloud } from "./enterpriseHosting";
 
 const empty: EnterpriseLicenseStatus = { orders: [], licenses: [] };
 let snapshot = { scope: "", data: empty, loading: false, error: false };
@@ -18,7 +19,7 @@ export function useEnterpriseLicenseSync(orgId: string, userId: string, enabled:
   useEffect(() => {
     const scope = `${orgId}:${userId}`;
     publish({ scope, data: empty, loading: false, error: false });
-    if (!enabled || !orgId || !userId) return;
+    if (isPublicLowcoderCloud() || !enabled || !orgId || !userId) return;
     let stopped = false, busy = false, lastAttempt = 0;
     const run = async (force = false) => {
       if (stopped || busy || document.visibilityState === "hidden" || (!force && Date.now() - lastAttempt < 60000)) return;

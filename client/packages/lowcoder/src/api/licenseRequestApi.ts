@@ -1,4 +1,5 @@
 import Api from "api/api";
+import { isPublicLowcoderCloud } from "util/enterpriseHosting";
 
 export interface LicenseContactData {
   companyName: string;
@@ -38,6 +39,9 @@ export interface EnterpriseLicenseStatus {
 }
 
 async function request<T>(action: string, body: object): Promise<T> {
+  if (isPublicLowcoderCloud()) {
+    throw new Error("Enterprise licenses are available from your self-hosted Lowcoder installation.");
+  }
   const response = await Api.post(`/enterprise-licenses/${action}`, { ...body, returnOrigin: window.location.origin }, undefined, { timeout: 120000 });
   const result = response.data?.data;
   if (!result || result.success !== true) throw new Error("Enterprise licensing request was not confirmed");
