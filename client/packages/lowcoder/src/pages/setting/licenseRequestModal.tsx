@@ -7,12 +7,25 @@ import { getUser, getCurrentUser } from "redux/selectors/usersSelectors";
 import { getDeploymentId } from "redux/selectors/configSelectors";
 import { currentOrgAdmin } from "util/permissionUtils";
 import { LicenseRequestData, openStripePage, submitLicenseRequest } from "api/licenseRequestApi";
+import { isPublicLowcoderCloud } from "util/enterpriseHosting";
+import { EnterpriseEditionInfo } from "./EnterpriseEditionInfo";
+import { trans } from "i18n";
 
 const { Paragraph, Text } = Typography;
 interface Props { open: boolean; onClose: () => void; orgId: string; }
 const money = (amount: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(amount);
 
-export function LicenseRequestModal({ open, onClose, orgId }: Props) {
+export function LicenseRequestModal(props: Props) {
+  if (isPublicLowcoderCloud()) {
+    return <Modal open={props.open} onCancel={props.onClose} footer={null} width={760}
+      title={trans("enterprise.selfHosted.title")} destroyOnHidden>
+      <EnterpriseEditionInfo />
+    </Modal>;
+  }
+  return <EnterpriseLicensePurchaseModal {...props} />;
+}
+
+function EnterpriseLicensePurchaseModal({ open, onClose, orgId }: Props) {
   const [form] = Form.useForm();
   const user = useSelector(getUser);
   const profile = useSelector(getCurrentUser);

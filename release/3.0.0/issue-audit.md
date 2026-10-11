@@ -2,6 +2,14 @@
 
 Snapshot: 11 October 2026, Europe/Madrid. Repository: lowcoder-org/lowcoder.
 
+## Closure after the 3.0.0 merge
+
+After PR #2183 merged into main, the live filter returned 22 remaining open issues. At the release owner's explicit request, all 22 were closed as completed: #1077, #1658, #1758, #1938, #2099, #2100, #2101, #2107, #2111, #2113, #2118, #2119, #2123, #2124, #2133, #2134, #2135, #2145, #2149, #2153, #2172, and #2177. The GitHub issues endpoint subsequently returned zero open matches for Awaiting Release. Existing labels were retained.
+
+The evidence and verification limits below describe the initial audit. Closing the issues follows the release owner's completion signal; it does not imply that every reproduction was tested again.
+
+## Initial audit
+
 The exact [Awaiting Release filter](https://github.com/lowcoder-org/lowcoder/issues?q=is%3Aissue%20label%3A%22Awaiting%20Release%22) returned **46 issues across all states: 25 open and 21 closed**. The label description is “Ticket is Dev Complete. Awaiting for the Release.” Per the release owner's instruction, these are the completed-ticket inventory.
 
 **21 are already represented in main; 25 remain candidates for the 3.0.0 change list.** The latter include an additional fix for #1868. These are issue counts, not a benchmark or a count of independently tested bugs. Feature requests are included. The public announcement deliberately avoids “46 new bug fixes.”

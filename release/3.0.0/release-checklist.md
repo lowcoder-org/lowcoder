@@ -1,6 +1,19 @@
 # Lowcoder 3.0.0 release preparation
 
-Prepared on 11 October 2026, Europe/Madrid. Status: **local preparation, before the dev-to-main merge**.
+Prepared on 11 October 2026, Europe/Madrid. Current status: **published as a pre-release; delivery checks remain incomplete**.
+
+## Release status after the merge
+
+- PR #2183 merged `dev` into `main` at `aa1b660355340837c5918c43a1a696786ad7be22`.
+- [GitHub release 3.0.0](https://github.com/lowcoder-org/lowcoder/releases/tag/3.0.0) is published as a **pre-release**, with five screenshots, five expandable demo videos, and the expanded announcement. It is not marked Latest.
+- All 22 remaining open issues labeled Awaiting Release were closed as completed. The live open-issue endpoint returned no matches afterward; existing labels were preserved.
+- The source candidate's Client, Node Service, and development Docker builds passed. The merged main commit's Hocuspocus, Agora token-service, and proxy-service image builds passed.
+- Comps and SDK npm publication still fail with `ENEEDAUTH`: [Comps run](https://github.com/lowcoder-org/lowcoder/actions/runs/38097332706), [SDK run](https://github.com/lowcoder-org/lowcoder/actions/runs/38097332715).
+- The hosted SDK bundle builds successfully, but [Netlify deployment](https://github.com/lowcoder-org/lowcoder/actions/runs/38098796664) fails with `Project not found`.
+- [SonarCloud](https://github.com/lowcoder-org/lowcoder/actions/runs/38098796720) and [Java CodeQL](https://github.com/lowcoder-org/lowcoder/actions/runs/38098796681) fail before analysis because the compile-only Maven invocation cannot resolve `org.lowcoder:lowcoder-sdk:jar:tests:3.0.0`. JavaScript CodeQL passed.
+- The Docker release workflow listens for stable `released` events. Pre-release publication does not establish availability of the 3.0.0 Docker images.
+
+The remaining sections retain the initial preparation snapshot and release checklist for reference.
 
 ## Ready to use
 
