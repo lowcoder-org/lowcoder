@@ -8,20 +8,46 @@
       name="description"
       content="Practical module contracts and host code for CRM, websites, ticketing and point of sale."
     />
+    <meta name="theme-color" content="#18101e" />
+    <link rel="icon" href="/brand/favicon.svg" type="image/svg+xml" />
+    <link
+      rel="preload"
+      href="/brand/ubuntu-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <link rel="stylesheet" href="/site.css" />
     <link rel="stylesheet" href="/reference.css" />
     <script src="/reference.js" defer></script>
   </head>
   <body class="sdk-site">
     <a class="skip" href="#main">Skip to content</a>
-    <header class="site-header">
-      <a class="brand" href="/">Lowcoder <span>SDK</span></a>
-      <nav aria-label="Main navigation">
-        <a href="/#playground">Playground</a><a href="/guide.html">Quickstart</a
-        ><a href="/reference.html">API reference</a
-        ><a href="/recipes.html" aria-current="page">Recipes</a>
-      </nav>
+    <header class="site-header wrap">
+      <a class="brand" href="/" aria-label="Lowcoder SDK home">
+        <img src="/brand/lowcoder.svg" alt="Lowcoder" width="178" height="56" />
+        <span>SDK</span>
+      </a>
+      <a class="button primary login-button" href="https://app.lowcoder.cloud/"
+        >Login</a
+      >
     </header>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="/#playground">Playground</a>
+      <a href="/guide.html">Quickstart</a>
+      <a href="/reference.html">API reference</a>
+      <a href="/recipes.html" aria-current="page">Recipes</a>
+    </nav>
+    <section class="docs-hero" aria-label="Introduction">
+      <div class="wrap">
+        <div class="eyebrow">YOUR PRODUCT, CONNECTED</div>
+        <h1>Four ways to connect.</h1>
+        <p class="reference-lead">
+          Practical module contracts and host code for CRM, websites, ticketing
+          and point of sale.
+        </p>
+      </div>
+    </section>
     <main id="main" class="guide reference wrap">
       <aside aria-label="On this page">
         <a class="docs-back" href="/reference.html">API reference ↗</a
@@ -53,12 +79,6 @@
         </nav>
       </aside>
       <article>
-        <div class="eyebrow">YOUR PRODUCT, CONNECTED</div>
-        <h1>Four ways to connect.</h1>
-        <p class="reference-lead">
-          Practical module contracts and host code for CRM, websites, ticketing
-          and point of sale.
-        </p>
         <p id="search-empty" hidden>
           No matching sections. Try a function name, an option or a shorter
           phrase.
@@ -396,9 +416,64 @@ async function closeLoyaltyPanel() {
         </section>
       </article>
     </main>
-    <footer class="wrap">
-      <a class="brand" href="/">Lowcoder <span>SDK</span></a
-      ><a href="/guide.html">Quickstart ↗</a><a href="#main">Back to top ↑</a>
+    <footer class="site-footer">
+      <div class="footer-inner wrap">
+        <div class="footer-intro">
+          <a href="https://www.lowcoder.cloud/" aria-label="Lowcoder website"
+            ><img
+              src="/brand/lowcoder.svg"
+              alt="Lowcoder"
+              width="178"
+              height="56"
+              loading="lazy"
+          /></a>
+          <p>
+            Build visually. Embed natively.<br />Create the workflows your
+            customers need, inside the product they already know.
+          </p>
+          <a class="text-link" href="https://github.com/lowcoder-org/lowcoder"
+            >Explore Lowcoder on GitHub ↗</a
+          >
+        </div>
+        <div class="footer-links">
+          <div>
+            <a href="/#playground"
+              ><strong>Try the SDK</strong
+              ><span>A real app, right inside your page</span></a
+            >
+            <a href="/guide.html"
+              ><strong>Start integrating</strong
+              ><span>From a visual app to your product</span></a
+            >
+            <a href="/reference.html"
+              ><strong>API reference</strong
+              ><span>Every function, option and event</span></a
+            >
+            <a href="/recipes.html"
+              ><strong>Integration recipes</strong
+              ><span>CRM, websites, ticketing and POS</span></a
+            >
+          </div>
+          <div>
+            <a href="https://www.lowcoder.cloud/"
+              ><strong>Lowcoder</strong><span>Discover the app builder</span></a
+            >
+            <a href="https://www.lowcoder.cloud/pricing"
+              ><strong>Pricing</strong
+              ><span>Find the right fit for your team</span></a
+            >
+            <a href="https://www.lowcoder.cloud/terms"
+              ><strong>Terms of service</strong></a
+            >
+            <a href="https://www.lowcoder.cloud/privacy"
+              ><strong>Privacy policy</strong></a
+            >
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom wrap">
+        © Lowcoder Software LTD. All rights reserved.
+      </div>
     </footer>
   </body>
 </html>

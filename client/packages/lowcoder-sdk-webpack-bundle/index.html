@@ -8,43 +8,90 @@
       name="description"
       content="Embed visually built Lowcoder apps directly in your web app. Try a native DOM demo, connect inputs and events, and copy a working integration."
     />
+    <meta name="theme-color" content="#18101e" />
+    <link rel="icon" href="/brand/favicon.svg" type="image/svg+xml" />
+    <link
+      rel="preload"
+      href="/brand/ubuntu-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <link rel="stylesheet" href="/site.css" />
     <script src="/playground.js" defer></script>
   </head>
   <body class="sdk-site">
     <a class="skip" href="#main">Skip to content</a>
-    <header class="site-header">
-      <a class="brand" href="/">Lowcoder <span>SDK</span></a>
-      <nav aria-label="Main navigation">
-        <a href="#playground">Playground</a
-        ><a href="/guide.html">Integration guide</a
-        ><a href="/reference.html">API reference</a
-        ><a class="nav-github" href="https://github.com/lowcoder-org/lowcoder"
-          >GitHub ↗</a
-        >
-      </nav>
+    <header class="site-header wrap">
+      <a class="brand" href="/" aria-label="Lowcoder SDK home">
+        <img src="/brand/lowcoder.svg" alt="Lowcoder" width="178" height="56" />
+        <span>SDK</span>
+      </a>
+      <a class="button primary login-button" href="https://app.lowcoder.cloud/"
+        >Login</a
+      >
     </header>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="/#playground" aria-current="page">Playground</a>
+      <a href="/guide.html">Quickstart</a>
+      <a href="/reference.html">API reference</a>
+      <a href="/recipes.html">Recipes</a>
+    </nav>
     <main id="main">
-      <section class="hero wrap">
-        <div class="eyebrow">
-          <span class="dot"></span> THE NATIVE EMBEDDING SDK
-        </div>
-        <h1>Your product.<br /><span>Lowcoder inside.</span></h1>
-        <div class="hero-bottom">
-          <p>
-            Build the parts that make your product yours.<br />Compose the rest
-            visually — and embed them<br class="desktop-break" />
-            directly into your app’s DOM.
-          </p>
-          <div class="hero-actions">
-            <a class="button primary" href="#playground"
-              >Try it in the page <span>↓</span></a
-            ><a class="text-link" href="/guide.html">Start integrating ↗</a>
+      <section class="hero">
+        <div class="wrap hero-layout">
+          <div class="hero-copy">
+            <div class="eyebrow">THE NATIVE EMBEDDING SDK</div>
+            <h1>Your product.<br /><span>Lowcoder inside.</span></h1>
+            <p>
+              Build the parts that make your product yours. Compose the rest
+              visually — and embed them directly into your app’s DOM.
+            </p>
+            <div class="hero-actions">
+              <a class="button primary" href="#playground"
+                >Try it in the page <span>↓</span></a
+              >
+              <a class="button secondary" href="/guide.html"
+                >Start integrating ↗</a
+              >
+            </div>
+          </div>
+          <div
+            class="hero-visual"
+            aria-label="Lowcoder modules live inside your application"
+          >
+            <div class="visual-bar">
+              <span class="window-dots">● ● ●</span
+              ><span>Your application</span>
+            </div>
+            <div class="visual-shell">
+              <div class="visual-sidebar">
+                <span></span><span></span><span></span><span></span>
+              </div>
+              <div class="visual-content">
+                <div class="visual-heading">Your customer workspace</div>
+                <div class="visual-module">
+                  <img
+                    src="/brand/lowcoder.svg"
+                    alt="Lowcoder"
+                    width="178"
+                    height="56"
+                  />
+                  <strong>Built visually.<br />Connected natively.</strong>
+                  <div class="visual-fields"><span></span><span></span></div>
+                  <div class="visual-data">
+                    <span>Inputs</span><span>Outputs</span><span>Events</span>
+                  </div>
+                </div>
+                <p>Your design. Your navigation. Your product.</p>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="proof-strip">
-          <span>Native DOM rendering</span><span>Inputs, outputs & events</span
-          ><span>React or plain JavaScript</span
+        <div class="proof-strip wrap">
+          <span>Native DOM rendering</span
+          ><span>Inputs, outputs &amp; events</span>
+          <span>React or plain JavaScript</span
           ><span>Cloud or self-hosted</span>
         </div>
       </section>
@@ -238,10 +285,64 @@ Run the demo to see real module outputs and events.</pre
         >
       </section>
     </main>
-    <footer class="wrap">
-      <a class="brand" href="/">Lowcoder <span>SDK</span></a
-      ><span>Build visually. Embed natively.</span
-      ><a href="/reference.html">API reference ↗</a>
+    <footer class="site-footer">
+      <div class="footer-inner wrap">
+        <div class="footer-intro">
+          <a href="https://www.lowcoder.cloud/" aria-label="Lowcoder website"
+            ><img
+              src="/brand/lowcoder.svg"
+              alt="Lowcoder"
+              width="178"
+              height="56"
+              loading="lazy"
+          /></a>
+          <p>
+            Build visually. Embed natively.<br />Create the workflows your
+            customers need, inside the product they already know.
+          </p>
+          <a class="text-link" href="https://github.com/lowcoder-org/lowcoder"
+            >Explore Lowcoder on GitHub ↗</a
+          >
+        </div>
+        <div class="footer-links">
+          <div>
+            <a href="/#playground"
+              ><strong>Try the SDK</strong
+              ><span>A real app, right inside your page</span></a
+            >
+            <a href="/guide.html"
+              ><strong>Start integrating</strong
+              ><span>From a visual app to your product</span></a
+            >
+            <a href="/reference.html"
+              ><strong>API reference</strong
+              ><span>Every function, option and event</span></a
+            >
+            <a href="/recipes.html"
+              ><strong>Integration recipes</strong
+              ><span>CRM, websites, ticketing and POS</span></a
+            >
+          </div>
+          <div>
+            <a href="https://www.lowcoder.cloud/"
+              ><strong>Lowcoder</strong><span>Discover the app builder</span></a
+            >
+            <a href="https://www.lowcoder.cloud/pricing"
+              ><strong>Pricing</strong
+              ><span>Find the right fit for your team</span></a
+            >
+            <a href="https://www.lowcoder.cloud/terms"
+              ><strong>Terms of service</strong></a
+            >
+            <a href="https://www.lowcoder.cloud/privacy"
+              ><strong>Privacy policy</strong></a
+            >
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom wrap">
+        © Lowcoder Software LTD. All rights reserved.
+      </div>
     </footer>
   </body>
 </html>

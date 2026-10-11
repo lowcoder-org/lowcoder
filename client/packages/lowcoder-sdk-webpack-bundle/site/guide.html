@@ -8,22 +8,45 @@
       name="description"
       content="Mount a Lowcoder app in HTML or React, exchange module inputs and events, and understand hosting and lifecycle requirements."
     />
+    <meta name="theme-color" content="#18101e" />
+    <link rel="icon" href="/brand/favicon.svg" type="image/svg+xml" />
+    <link
+      rel="preload"
+      href="/brand/ubuntu-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <link rel="stylesheet" href="/site.css" />
     <script src="/playground.js" defer></script>
   </head>
   <body class="sdk-site">
     <a class="skip" href="#main">Skip to content</a>
-    <header class="site-header">
-      <a class="brand" href="/">Lowcoder <span>SDK</span></a>
-      <nav aria-label="Main navigation">
-        <a href="/#playground">Playground</a
-        ><a href="/guide.html" aria-current="page">Integration guide</a
-        ><a href="/reference.html">API reference</a
-        ><a class="nav-github" href="https://github.com/lowcoder-org/lowcoder"
-          >GitHub ↗</a
-        >
-      </nav>
+    <header class="site-header wrap">
+      <a class="brand" href="/" aria-label="Lowcoder SDK home">
+        <img src="/brand/lowcoder.svg" alt="Lowcoder" width="178" height="56" />
+        <span>SDK</span>
+      </a>
+      <a class="button primary login-button" href="https://app.lowcoder.cloud/"
+        >Login</a
+      >
     </header>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="/#playground">Playground</a>
+      <a href="/guide.html" aria-current="page">Quickstart</a>
+      <a href="/reference.html">API reference</a>
+      <a href="/recipes.html">Recipes</a>
+    </nav>
+    <section class="docs-hero" aria-label="Introduction">
+      <div class="wrap">
+        <div class="eyebrow">FROM A VISUAL APP TO YOUR PRODUCT</div>
+        <h1>Put Lowcoder<br />inside your app.</h1>
+        <p>
+          The SDK renders Lowcoder components directly in a DOM element. Your
+          host app controls where they live and how data moves between the two.
+        </p>
+      </div>
+    </section>
     <main class="guide wrap" id="main">
       <aside aria-label="On this page">
         <strong>Integration guide</strong><a href="#html">Plain JavaScript</a
@@ -33,12 +56,6 @@
         ><a href="#legacy">Existing integrations</a>
       </aside>
       <article>
-        <div class="eyebrow">FROM A VISUAL APP TO YOUR PRODUCT</div>
-        <h1>Put Lowcoder<br />inside your app.</h1>
-        <p>
-          The SDK renders Lowcoder components directly in a DOM element. Your
-          host app controls where they live and how data moves between the two.
-        </p>
         <div class="notice">
           Looking for every function, option, return value and event? Open the
           <a href="/reference.html">complete embedding API reference</a> or the
@@ -132,42 +149,49 @@ export function CustomerPanel({ customerId }) {
             application. A normal app can be embedded too; the module interface
             is what provides this explicit communication contract.
           </p>
-          <table>
-            <thead>
-              <tr>
-                <th>Direction</th>
-                <th>API</th>
-                <th>Use it for</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Host → module</td>
-                <td><code>app.setModuleInputs(values)</code></td>
-                <td>Customer context, filters and other named inputs.</td>
-              </tr>
-              <tr>
-                <td>Module → host</td>
-                <td><code>app.on('moduleOutputChange', handler)</code></td>
-                <td>Receive the module’s current output object.</td>
-              </tr>
-              <tr>
-                <td>Module → host</td>
-                <td><code>app.on('moduleEventTriggered', handler)</code></td>
-                <td>
-                  React to a named event such as <code>openCustomer</code>.
-                </td>
-              </tr>
-              <tr>
-                <td>Host → module</td>
-                <td><code>app.invokeMethod(name, args)</code></td>
-                <td>
-                  Call a method explicitly exposed by the module after it has
-                  rendered.
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div
+            class="table-scroll"
+            tabindex="0"
+            role="region"
+            aria-label="Communication APIs"
+          >
+            <table>
+              <thead>
+                <tr>
+                  <th>Direction</th>
+                  <th>API</th>
+                  <th>Use it for</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Host → module</td>
+                  <td><code>app.setModuleInputs(values)</code></td>
+                  <td>Customer context, filters and other named inputs.</td>
+                </tr>
+                <tr>
+                  <td>Module → host</td>
+                  <td><code>app.on('moduleOutputChange', handler)</code></td>
+                  <td>Receive the module’s current output object.</td>
+                </tr>
+                <tr>
+                  <td>Module → host</td>
+                  <td><code>app.on('moduleEventTriggered', handler)</code></td>
+                  <td>
+                    React to a named event such as <code>openCustomer</code>.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Host → module</td>
+                  <td><code>app.invokeMethod(name, args)</code></td>
+                  <td>
+                    Call a method explicitly exposed by the module after it has
+                    rendered.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
           <div class="code-card">
             <pre>
 app.setModuleInputs({ customerId: 'customer-99' });
@@ -293,9 +317,64 @@ const next = await LowcoderSDK.mount('#customer-panel', {
         </section>
       </article>
     </main>
-    <footer class="wrap">
-      <a class="brand" href="/">Lowcoder <span>SDK</span></a
-      ><a href="/#playground">Back to the playground ↑</a>
+    <footer class="site-footer">
+      <div class="footer-inner wrap">
+        <div class="footer-intro">
+          <a href="https://www.lowcoder.cloud/" aria-label="Lowcoder website"
+            ><img
+              src="/brand/lowcoder.svg"
+              alt="Lowcoder"
+              width="178"
+              height="56"
+              loading="lazy"
+          /></a>
+          <p>
+            Build visually. Embed natively.<br />Create the workflows your
+            customers need, inside the product they already know.
+          </p>
+          <a class="text-link" href="https://github.com/lowcoder-org/lowcoder"
+            >Explore Lowcoder on GitHub ↗</a
+          >
+        </div>
+        <div class="footer-links">
+          <div>
+            <a href="/#playground"
+              ><strong>Try the SDK</strong
+              ><span>A real app, right inside your page</span></a
+            >
+            <a href="/guide.html"
+              ><strong>Start integrating</strong
+              ><span>From a visual app to your product</span></a
+            >
+            <a href="/reference.html"
+              ><strong>API reference</strong
+              ><span>Every function, option and event</span></a
+            >
+            <a href="/recipes.html"
+              ><strong>Integration recipes</strong
+              ><span>CRM, websites, ticketing and POS</span></a
+            >
+          </div>
+          <div>
+            <a href="https://www.lowcoder.cloud/"
+              ><strong>Lowcoder</strong><span>Discover the app builder</span></a
+            >
+            <a href="https://www.lowcoder.cloud/pricing"
+              ><strong>Pricing</strong
+              ><span>Find the right fit for your team</span></a
+            >
+            <a href="https://www.lowcoder.cloud/terms"
+              ><strong>Terms of service</strong></a
+            >
+            <a href="https://www.lowcoder.cloud/privacy"
+              ><strong>Privacy policy</strong></a
+            >
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom wrap">
+        © Lowcoder Software LTD. All rights reserved.
+      </div>
     </footer>
   </body>
 </html>

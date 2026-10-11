@@ -4,15 +4,15 @@
 }
 .sdk-site .reference aside {
   gap: 8px;
-  max-height: calc(100vh - 60px);
+  max-height: calc(100vh - 130px);
 }
 .sdk-site .reference aside .docs-back {
-  color: var(--accent);
+  color: var(--purple-deep);
   margin-bottom: 15px;
 }
 .sdk-site .search-label {
-  font-weight: 650;
-  font-size: 12px;
+  font-weight: 500;
+  font-size: 13px;
 }
 .sdk-site .search-box {
   position: relative;
@@ -20,17 +20,20 @@
 .sdk-site .search-box input {
   width: 100%;
   padding: 12px 34px 12px 12px;
-  font-size: 12px;
+  font-size: 13px;
 }
 .sdk-site .search-box button {
   position: absolute;
   right: 5px;
   top: 5px;
+  min-width: 32px;
+  min-height: 32px;
   border: 0;
-  background: transparent;
+  border-radius: 50%;
+  background: var(--lavender-soft);
   font-size: 22px;
   cursor: pointer;
-  color: var(--muted);
+  color: var(--purple-deep);
 }
 .sdk-site .reference #search-status {
   min-height: 18px;
@@ -45,42 +48,34 @@
   padding: 4px 6px 4px 0;
 }
 .sdk-site #reference-nav a {
-  font-size: 12px;
+  font-size: 13px;
   text-decoration: none;
-  padding: 7px 8px;
-  border-radius: 4px;
+  padding: 8px 10px;
+  border-radius: 8px;
   overflow-wrap: anywhere;
 }
 .sdk-site #reference-nav a:hover {
-  background: #e6eee5;
-}
-.sdk-site .reference h1 {
-  font-size: clamp(40px, 5vw, 64px);
-}
-.sdk-site .reference .reference-lead {
-  font-size: 20px;
-  max-width: 620px;
-  margin-bottom: 25px;
+  background: var(--lavender-soft);
+  color: var(--purple-deep);
 }
 .sdk-site .reference h2 {
   overflow-wrap: anywhere;
   font-size: clamp(24px, 3vw, 31px);
-  letter-spacing: -1px;
 }
 .sdk-site .reference h3 {
-  font-size: 19px;
-  margin: 24px 0 12px;
+  font-size: 21px;
+  margin: 26px 0 12px;
 }
 .sdk-site .reference code {
   overflow-wrap: anywhere;
   font-size: 0.88em;
 }
 .sdk-site .reference .signature {
-  padding: 14px 16px;
-  border: 1px solid #d2dfd3;
-  border-radius: 6px;
-  background: #eff4ec;
-  color: var(--ink);
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--purple-deep);
 }
 .sdk-site .reference pre code {
   font-size: inherit;
@@ -92,20 +87,8 @@
   font-size: 12px;
   line-height: 1.8;
 }
-.sdk-site .table-scroll {
-  overflow-x: auto;
-  margin: 22px 0;
-}
-.sdk-site .table-scroll table {
-  min-width: 530px;
-}
-.sdk-site .table-scroll th {
-  color: var(--ink);
-  font-weight: 700;
-  background: #eef3e9;
-}
 .sdk-site .table-scroll td {
-  color: #405953;
+  color: var(--muted);
   line-height: 1.65;
 }
 .sdk-site .table-scroll td:first-child {
@@ -115,16 +98,18 @@
 .sdk-site .release-label {
   display: inline-block;
   font-size: 11px;
-  border: 1px solid #bcd3bf;
+  border: 1px solid var(--line);
   border-radius: 20px;
-  padding: 3px 10px;
+  padding: 4px 12px;
   margin-right: 6px;
-  color: var(--accent);
+  color: var(--purple-deep);
+  background: var(--lavender-soft);
 }
 .sdk-site .reference #search-empty {
   padding: 30px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 16px;
+  background: var(--paper);
 }
 @media (max-width: 1000px) {
   .sdk-site .reference {
@@ -132,29 +117,16 @@
     gap: 30px;
   }
 }
-@media (max-width: 700px) {
-  .sdk-site .site-header {
-    flex-wrap: wrap;
-    height: auto;
-    min-height: 94px;
-    padding-top: 15px;
-    padding-bottom: 15px;
-    gap: 12px;
-  }
-  .sdk-site .site-header nav {
-    gap: 17px;
-    width: 100%;
-    font-size: 12px;
-  }
+@media (max-width: 760px) {
   .sdk-site .reference {
     display: block;
-    padding-top: 24px;
+    padding-top: 30px;
   }
   .sdk-site .reference aside {
     position: static;
     display: block;
     max-height: none;
-    margin-bottom: 35px;
+    margin-bottom: 30px;
   }
   .sdk-site .reference .docs-back {
     display: inline-block;
@@ -164,14 +136,8 @@
     margin-bottom: 6px;
   }
   .sdk-site #reference-nav {
-    max-height: 190px;
-    border-bottom: 1px solid var(--line);
-  }
-  .sdk-site .reference .reference-lead {
-    font-size: 17px;
-  }
-  .sdk-site .reference h1 {
-    letter-spacing: -2px;
+    max-height: 185px;
+    border-top: 1px solid var(--line);
   }
   .sdk-site .reference .table-scroll td,
   .sdk-site .reference .table-scroll th {

@@ -1,5 +1,11 @@
 # Lowcoder browser SDK and playground
 
+The public pages share the Lowcoder website's Ubuntu typography, plum and purple
+palette, gradient buttons, floating navigation, logo and hero artwork. Original
+assets from the `lowcoder-cloud` website are served locally from `site/brand/`;
+the pages do not depend on an external font service. Keep these assets and the
+brand tokens in `site/site.css` aligned when the marketing website changes.
+
 This workspace builds the native DOM embedding SDK and the public site at
 https://sdk.lowcoder.cloud. The npm SDK lives alongside it in `../lowcoder-sdk`.
 
