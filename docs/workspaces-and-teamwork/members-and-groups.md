@@ -82,3 +82,7 @@ Group admins can add members to groups.
 The Administrator of a User Group can set an **Admin** or **Member** role for each group member. The permissions are listed in the table below.
 
 <table><thead><tr><th width="145">Role</th><th>Permissions</th></tr></thead><tbody><tr><td>Admin</td><td><ul><li>Change group name</li><li>Delete groups</li><li>Manage group members and set their roles</li><li>View group members</li></ul></td></tr><tr><td>Member</td><td>View group members</td></tr></tbody></table>
+
+## Demo
+
+{% embed url="https://demos.lowcoder.cloud/demo/clzsa3jx40j8h4oytd74ifxtj" %}

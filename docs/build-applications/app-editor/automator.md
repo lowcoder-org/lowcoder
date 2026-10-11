@@ -23,7 +23,7 @@ Stripe uses **volume pricing**: the total seat count selects one rate, and that 
 
 The seat count is set at checkout. On installations with seat synchronization enabled, changes to admins and editors are synchronized automatically while the workspace is open. Changes made while it is closed are reconciled on the next visit. Additions and removals are prorated on the next invoice. Viewers never count as billable seats.
 
-Seat synchronization requires deployment of the frontend and API changes and configuration of the private n8n relay. See the [server setup guide](../../../server/api-service/README.md#subscription-seat-synchronization).
+Seat synchronization requires deployment of the frontend and API changes and configuration of the private n8n relay. See the [server setup guide](https://github.com/lowcoder-org/lowcoder/blob/main/server/api-service/README.md#subscription-seat-synchronization).
 
 AI Robot provides access to Automator. Model-provider usage is billed separately under your provider's terms.
 

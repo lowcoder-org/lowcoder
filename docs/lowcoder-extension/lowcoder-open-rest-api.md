@@ -2,7 +2,9 @@
 
 Lowcoder comes with a feature-rich REST API, so you can use it in Lowcoder Apps or extend Lowcoder with new functionality.
 
-On [api-service.lowcoder.cloud](https://api-service.lowcoder.cloud/api/docs/webjars/swagger-ui/index.html#/) you can access this API as well, just some endpoints are not available.
+{% hint style="info" %}
+On [api-service.lowcoder.cloud](https://api-service.lowcoder.cloud/api/docs/webjars/swagger-ui/index.html#/) you can access the API Documentation.
+{% endhint %}
 
 ## Authentication
 
@@ -101,10 +103,6 @@ As the API Key impersonates the user, who created the API Key (based on the Cook
 
 ## OpenAPI Specification & Postman Collection
 
-You can find more information of the specification & documentation here:\
-[https://docs.lowcoder.cloud/lowcoder-api-specification/api-reference-lowcoder](https://docs.lowcoder.cloud/lowcoder-api-specification/api-reference-lowcoder)\
-
-
 The Base URL of the Lowcoder API depends on your installation.
 
 ### Single Docker Deployment
@@ -139,8 +137,8 @@ https://api-service.lowcoder.cloud/
 Since Lowcoder v2.1.6 we publish the OpenAPI Specification and the Swagger Documentation automatically.
 
 ```
-Swagger Documentation: <Lowcoder-Location>/api/docs/webjars/swagger-ui/index.html#
-OpenAPI Specification: <Lowcoder-Location>/api/docs/api-docs
+Swagger Documentation: <Lowcoder-Location>/api/docs/webjars/swagger-ui/index.html
+OpenAPI Specification: <Lowcoder-Location>/api/docs/openapi.json
 ```
 
 You can find the current API Documentation for example here: \

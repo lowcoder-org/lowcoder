@@ -363,7 +363,7 @@ This flag is the gate for LLM rooms: a message in an AI room stays human-to-huma
 
 ## Attachments
 
-The composer can carry file attachments, using the same model as the [File Upload](file-upload.md) component.
+The composer can carry file attachments, using the same model as the [File Upload](document-and-file-management/file-upload.md) component.
 
 ### Properties
 

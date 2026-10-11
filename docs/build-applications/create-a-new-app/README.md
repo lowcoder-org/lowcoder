@@ -2,11 +2,11 @@
 
 ## App or Module?
 
-A [Module](modules.md) is a special type of App, which can be **re-used** inside of other Modules or Apps and especially it is possible to [embed](../../publish-apps/embedd-an-app/) the Module directly in your native Web-Application outside of Lowcoder.&#x20;
+A [Module](modules.md) is a special type of App, which can be **re-used** inside of other Modules or Apps and especially it is possible to [embed](../../publish-apps/embed-an-app/) the Module directly in your native Web-Application outside of Lowcoder.&#x20;
 
 The Editor for Apps and Modules is the same, only Modules have some extra settings and parameters regarding the embedding.
 
-If you would like to [embed](../../publish-apps/embedd-an-app/) or re-use your Application, choose "Module". If you want only to build a fullscreen Application and eventually hang it in a Navigation, use "App".
+If you would like to [embed](../../publish-apps/embed-an-app/) or re-use your Application, choose "Module". If you want only to build a fullscreen Application and eventually hang it in a Navigation, use "App".
 
 {% hint style="info" %}
 Be aware that nested Modules "in each other" can cause a slowdown of the Application. It is always a consideration of listed elements in terms of the re-usability of child components or faster Application behavior. When creating Modules, testing regarding the speed of the overall Application and consumption of resources is necessary.

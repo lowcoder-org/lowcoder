@@ -37,7 +37,7 @@ You can access the global variable `theme` and call the method `theme.switchTo()
 
 `theme.switchTo()` method switches the theme at the end user's side, and requires only a theme ID. When the passed value is an empty string `""`, then the default theme is applied.Once the end user switches the theme, it will be saved to the user browser's local storage. And this theme will override the default theme and apply to all apps that are used in the same browser.
 
-#### Demo
+### Demo :&#x20;
 
 Combining Option lists and Events, end users can switch the theme within the app. For details, see [Change theme by code demo](https://cloud.lowcoder.dev/apps/63f84ca9f5f6f66102fedf3b/view).
 
@@ -50,6 +50,8 @@ Follow the steps below to include this function in your app.
 
 2. Set the labels and values as `{{item.name}}` and `{{item.id}}` respectively. Then, you can view the default theme and all other available themes in the current workspace.
 3. Insert a **Button** component onto your canvas to switch theme. Add an event to the button, select "Run JavaScript" as the action, and run `theme.switchTo()` method which takes the value of the **Select** component.
+
+{% embed url="https://app.supademo.com/demo/clxua85rk0g4l12o2zo0qss9o" %}
 
 ## Custom CSS
 

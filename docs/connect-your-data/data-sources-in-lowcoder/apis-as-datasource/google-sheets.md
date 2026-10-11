@@ -46,3 +46,7 @@ Follow the steps below:
 6.  To access and manipulate data in your app, you can fill in the **Spreadsheet** id and **Sheet Name** in a query editor as follows.
 
     The available methods are **Read Data**, **Append Row**, **Update Row**, and **Clear Row**.
+
+## Demo
+
+{% embed url="https://demos.lowcoder.cloud/demo/clzmujgro01mhgumtrlpvvdal" %}

@@ -56,3 +56,7 @@ Follow the steps to create a REST API query directly.
 2. Select **REST Query** in Data Sources. Lowcoder offers this built-in plain data source so that you can quickly create REST API queries without adding a new data source first.
 3. Enter URL, Query, Variables, Parameters, and fill in other fields if needed.
 4. Click ▶ **Run**.
+
+### Demo&#x20;
+
+{% embed url="https://demos.lowcoder.cloud/demo/clxsvibl3017u12o272ew9p67" %}
