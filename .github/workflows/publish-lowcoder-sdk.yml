@@ -64,9 +64,13 @@ jobs:
       - name: Set up npm for trusted publishing
         if: steps.check.outputs.changed == 'true'
         # OIDC requires npm >=11.5.1. Pin npm 11 to avoid npm 12 install-policy changes.
-        run: npm install --global npm@11.21.0 --registry=https://registry.npmjs.org/
+        run: |
+          npm install --global npm@11.21.0 --registry=https://registry.npmjs.org/
+          npm --version
 
       - name: Publish package to npm with OIDC
         if: steps.check.outputs.changed == 'true'
-        run: npm publish --access public --registry=https://registry.npmjs.org/
+        # npm hides OIDC token-exchange failures behind ENEEDAUTH at its default
+        # log level. Show the registry's reason so publisher settings can be fixed.
+        run: npm publish --access public --registry=https://registry.npmjs.org/ --loglevel=verbose
         working-directory: client/packages/lowcoder-sdk
