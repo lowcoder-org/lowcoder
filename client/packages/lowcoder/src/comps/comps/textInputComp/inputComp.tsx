@@ -32,11 +32,12 @@ import { hasIcon } from "comps/utils";
 import { InputRef } from "antd/es/input";
 import { RefControl } from "comps/controls/refControl";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
+import { withLinkedDefaultValue } from "comps/controls/codeStateControl";
 import { numberSimpleControl } from "comps/controls/numberSimpleControl";
 import { NumberControl } from "comps/controls/codeControl";
 
-import React, { useContext, useEffect } from "react";
-import { EditorContext } from "comps/editorState";
+import React, { useEffect } from "react";
+import { useEditorStore } from "comps/editorStore";
 
 /**
  * Input Comp
@@ -101,16 +102,17 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
   });
 })
   .setPropertyViewFn((children) => {
+    const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
     return (
       <>
         <TextInputBasicSection {...children} />
         <FormDataPropertyView {...children} />
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           children.label.getPropertyView()
         )}
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["logic", "both"].includes(editorModeStatus) && (
           <><TextInputInteractionSection {...children} />
             <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
             <Section name={sectionNames.advanced}>
@@ -123,7 +125,7 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
             <TextInputValidationSection {...children} />
           </>
         )}
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           <>
             <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
             <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
@@ -145,6 +147,9 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
   .build();
 
 
-const InputComp = migrateOldData(InputBasicComp, fixOldInputCompData);
+const InputComp = migrateOldData(
+  withLinkedDefaultValue(InputBasicComp, "defaultValue", "value"),
+  fixOldInputCompData
+);
 
 export { InputComp };

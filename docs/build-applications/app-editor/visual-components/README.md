@@ -24,6 +24,22 @@ These components share a number of [common settings and configurations](common-c
 
 <table data-column-title-hidden data-view="cards"><thead><tr><th>button</th><th data-hidden data-type="content-ref"></th><th data-hidden data-card-cover data-type="files"></th><th data-hidden data-card-target data-type="content-ref"></th></tr></thead><tbody><tr><td>Json Editor</td><td></td><td><a href="../../../.gitbook/assets/jsonEditor.svg">jsonEditor.svg</a></td><td></td></tr><tr><td>Json Explorer</td><td></td><td><a href="../../../.gitbook/assets/jsonExplorer.svg">jsonExplorer.svg</a></td><td></td></tr><tr><td>Json Schema based Form</td><td></td><td><a href="../../../.gitbook/assets/jsonSchemaForm.svg">jsonSchemaForm.svg</a></td><td></td></tr><tr><td>QR Code Display</td><td></td><td><a href="../../../.gitbook/assets/qrCode.svg">qrCode.svg</a></td><td></td></tr><tr><td>QR &#x26; 1D Code Scanner</td><td></td><td><a href="../../../.gitbook/assets/scanner.svg">scanner.svg</a></td><td></td></tr><tr><td>Signature Input Field</td><td></td><td><a href="../../../.gitbook/assets/signature.svg">signature.svg</a></td><td></td></tr><tr><td>File Viewer</td><td></td><td><a href="../../../.gitbook/assets/fileViewer.svg">fileViewer.svg</a></td><td></td></tr><tr><td>Tree</td><td></td><td><a href="../../../.gitbook/assets/tree.svg">tree.svg</a></td><td></td></tr><tr><td>Calendar</td><td></td><td><a href="../../../.gitbook/assets/calender.svg">calender.svg</a></td><td><a href="calendar.md">calendar.md</a></td></tr><tr><td>Image Editor</td><td></td><td><a href="../../../.gitbook/assets/imageEditor.svg">imageEditor.svg</a></td><td></td></tr><tr><td>Iframe</td><td></td><td><a href="../../../.gitbook/assets/iframe.svg">iframe.svg</a></td><td></td></tr></tbody></table>
 
+### Chat Components
+
+- [Chat Box](chat-box.md) — room-based chat UI for several people
+- [AI Chat](ai-chat.md) — thread-based assistant chat for a single user
+- [Chat Controller](chat-controller.md) — presence, typing, and shared live state
+
+Chat Box and Chat Controller need a running realtime server; see [Realtime Shared State and Presence](../../realtime-collaboration.md).
+
+### Video Meeting Components
+
+- **Agora Meeting Controller** — joins and controls an Agora meeting
+- **Camera Stream** — displays one participant's camera or profile image
+- **Screen Share Stream** — displays one participant's shared screen
+
+See [Build Collaborative Video Apps](../collaborative-video-apps.md) for meeting setup and patterns for presence, chat, AI, documents, forms, and shared websites.
+
 ### Extensible Components
 
 <table data-column-title-hidden data-view="cards"><thead><tr><th>button</th><th data-hidden data-type="content-ref"></th><th data-hidden data-card-cover data-type="files"></th><th data-hidden data-card-target data-type="content-ref"></th></tr></thead><tbody><tr><td>Chart / EChart</td><td><a href="charts-and-graphs.md">charts-and-graphs.md</a></td><td><a href="../../../.gitbook/assets/chart.svg">chart.svg</a></td><td><a href="charts-and-graphs.md">charts-and-graphs.md</a></td></tr><tr><td>Json Schema Form</td><td></td><td><a href="../../../.gitbook/assets/jsonSchemaForm.svg">jsonSchemaForm.svg</a></td><td></td></tr><tr><td>Custom Component</td><td></td><td><a href="../../../.gitbook/assets/custom.svg">custom.svg</a></td><td><a href="../../../lowcoder-extension/custom-component.md">custom-component.md</a></td></tr></tbody></table>

@@ -7,6 +7,7 @@ import React, { useContext, useState } from "react";
 import styled from "styled-components";
 import UserApi from "api/userApi";
 import { checkEmailValid, checkPhoneValid } from "util/stringUtils";
+import { useRedirectUrl } from "util/hooks";
 import { UserConnectionSource } from "@lowcoder-ee/constants/userConstants";
 import { trans } from "i18n";
 import { AuthContext, useAuthSubmit } from "pages/userAuth/authUtils";
@@ -30,6 +31,8 @@ export default function FormLogin(props: FormLoginProps) {
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
   const { fetchUserAfterAuthSuccess } = useContext(AuthContext);
+  const redirectUrl = useRedirectUrl();
+  console.log("redirectUrl", redirectUrl);
 
   const afterLoginSuccess = () => {
     if (props.organizationId) {
@@ -48,7 +51,7 @@ export default function FormLogin(props: FormLoginProps) {
         orgId: props.organizationId,
       }),
     false,
-    null,
+    redirectUrl,
     afterLoginSuccess,
   );
 

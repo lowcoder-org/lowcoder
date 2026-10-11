@@ -1,0 +1,9 @@
+rawObjectId	{"find": "items", "filter": {"_id": {"$oid": "65f0c0ffee0000000000abcd"}}}
+rawObjectIdSpaced	{"find": "items", "filter": {"_id": {"$oid": "65f0c0ffee0000000000abcd"}}}
+rawIsoDate	{"find": "items", "filter": {"day": {"$date": {"$numberLong": "1709212455123"}}}}
+rawIsoDateDoubleQuoted	{"find": "items", "filter": {"day": {"$date": {"$numberLong": "1709212455123"}}}}
+rawTimestamp	{"find": "items", "filter": {"ts": {"$timestamp": {"t": 1709212455, "i": 1}}}}
+rawSeveral	{"find": "items", "filter": {"_id": {"$oid": "65f0c0ffee0000000000abcd"}, "day": {"$date": {"$numberLong": "1709212455123"}}, "ts": {"$timestamp": {"t": 1709212455, "i": 1}}}}
+rawUnquotedArgument	{"find": "items", "filter": {"_id": {"$oid": "65f0c0ffee0000000000abcd"}}}
+rawQuotedText	ERROR org.lowcoder.sdk.exception.PluginException: INVALID_QUERY_SETTINGS INVALID_QUERY_SETTINGS [Failed to parse string as a date: it's \"q\" \\]
+guiFind	{"find": "items", "filter": {"_id": {"$oid": "65f0c0ffee0000000000abcd"}, "day": {"$lt": {"$date": {"$numberLong": "1709212455123"}}}}, "limit": {"$numberInt": "1"}, "batchSize": {"$numberInt": "1"}}

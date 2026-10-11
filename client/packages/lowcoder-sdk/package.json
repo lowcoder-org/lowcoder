@@ -1,6 +1,11 @@
 {
   "name": "lowcoder-sdk",
-  "version": "2.7.6",
+  "version": "3.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lowcoder-org/lowcoder.git",
+    "directory": "client/packages/lowcoder-sdk"
+  },
   "type": "module",
   "files": [
     "src",
@@ -42,7 +47,7 @@
     "@rollup/plugin-strip": "^3.0.4",
     "@rollup/plugin-url": "^7.0.0",
     "@svgr/rollup": "^6.3.1",
-    "@vitejs/plugin-react": "^2.2.0",
+    "@vitejs/plugin-react": "^4.3.4",
     "rollup": "^2",
     "rollup-plugin-cleaner": "^1.0.0",
     "rollup-plugin-node-builtins": "^2.1.2",

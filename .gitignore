@@ -19,6 +19,11 @@ server/api-service/lowcoder-server/src/main/resources/application-local-dev.yaml
 translations/locales/node_modules/
 server/api-service/lowcoder-server/src/main/resources/application-local-dev-ee.yaml
 node_modules
+.codegraph
+.cursor
 
 # Local Netlify folder
 .netlify
+
+# Local API payload test plan, evidence and reports (not needed by the build or tests)
+server/api-service/docs/

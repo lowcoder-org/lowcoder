@@ -6,6 +6,8 @@ import { DocLink } from "lowcoder-design";
 import { getGlobalSettings } from "comps/utils/globalSettings";
 import { trans } from "i18n";
 import { QUERY_EXECUTION_ERROR, QUERY_EXECUTION_OK } from "../../constants/queryConstants";
+import { useContext } from "react";
+import { CompNameContext } from "comps/editorState";
 
 export const JSQuery = (function () {
   const childrenMap = {
@@ -34,19 +36,31 @@ export const JSQuery = (function () {
       }
     };
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          {children.script.propertyView({
-            placeholder: "return 1 + 1",
-            placement: "bottom",
-            styleName: "medium",
-          })}
-          {QueryTutorials.js && (
-            <DocLink href={QueryTutorials.js}>{trans("query.jsQueryDocLink")}</DocLink>
-          )}
-        </>
-      );
-    })
+    .setPropertyViewFn((children) => <JSQueryPropertyView children={children} />)
     .build();
 })();
+
+function JSQueryPropertyView({ children }: { children: any }) {
+  const queryName = useContext(CompNameContext);
+  return (
+    <>
+      {children.script.propertyView({
+        placeholder: "return 1 + 1",
+        placement: "bottom",
+        styleName: "medium",
+        language: "javascript",
+        enableAIHelp: true,
+        aiHelp: {
+          targetKind: "javascript",
+          label: queryName ? `${queryName}.script` : "JS Query script",
+          queryType: "JS",
+          queryName,
+          targetId: queryName ? `${queryName}.script` : undefined,
+        },
+      })}
+      {QueryTutorials.js && (
+        <DocLink href={QueryTutorials.js}>{trans("query.jsQueryDocLink")}</DocLink>
+      )}
+    </>
+  );
+}

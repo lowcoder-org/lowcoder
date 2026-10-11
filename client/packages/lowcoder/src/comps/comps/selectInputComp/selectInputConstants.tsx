@@ -61,7 +61,6 @@ export const useSelectInputValidate = (props: ValidationParams) => {
   propsRef.current = props;
 
   const selectValue = props.value.value;
-  const defaultValue = props.defaultValue?.value;
 
   const handleValidate = (value: string | (string | number)[]) => {
     setValidateState(
@@ -74,10 +73,6 @@ export const useSelectInputValidate = (props: ValidationParams) => {
     );
   };
 
-  useEffect(() => {
-    props.value.onChange?.(defaultValue)
-  }, [defaultValue]);
-  
   useEffect(() => {
     if (!changeRef.current) return;
 

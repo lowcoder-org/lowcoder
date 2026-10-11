@@ -36,3 +36,8 @@ package-lock.json
 coverage-summary.json
 app/client/cypress/locators/Widgets.json
 application-lowcoder.yml
+
+# Shaded plugin jars that lowcoder-server's build copies here for its integration tests (pre-integration-test, read via
+# pf4j.pluginsDir / LOWCODER_PLUGINS_DIR) and deletes again in post-integration-test; a build stopped in between leaves
+# the directory behind. Build output, never source.
+lowcoder-plugins/plugins/

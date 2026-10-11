@@ -20,6 +20,7 @@ export interface NpmRegistryConfigEntry {
 export interface CommonSettingsState {
   settings: {
     npmPlugins?: string[] | null;
+    npmTemplates?: string[] | null;
     npmRegistries?: NpmRegistryConfigEntry[] | null
     themeList?: ThemeType[] | null;
     defaultTheme?: string | null;

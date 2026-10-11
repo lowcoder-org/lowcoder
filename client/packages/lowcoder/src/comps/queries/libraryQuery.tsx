@@ -2,7 +2,6 @@ import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
 import { default as Spin } from "antd/es/spin";
 import DataSourceIcon from "components/DataSourceIcon";
 import { ContextControlType, ContextJsonControl } from "comps/controls/contextCodeControl";
-import { FunctionControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import {
   CompAction,
@@ -42,8 +41,6 @@ import { toQueryView } from "./queryCompUtils";
 import { getGlobalSettings } from "comps/utils/globalSettings";
 import { QUERY_EXECUTION_ERROR, QUERY_EXECUTION_OK } from "../../constants/queryConstants";
 import type { SandBoxOption } from "lowcoder-core/src/eval/utils/evalScript";
-import { QueryLibraryApi } from "@lowcoder-ee/api/queryLibraryApi";
-import { validateResponse } from "@lowcoder-ee/api/apiUtils";
 import { JSONValue } from "@lowcoder-ee/util/jsonTypes";
 
 const NoInputsWrapper = styled.div`
@@ -132,7 +129,6 @@ type QueryLibraryUpdateAction = {
 const childrenMap = {
   libraryQueryId: valueComp<string>(""),
   libraryQueryRecordId: valueComp<string>("latest"),
-  libraryQueryType: valueComp<string>(""),
   libraryQueryDSL: valueComp<JSONValue>(null),
   inputs: InputsComp,
   error: stateComp<string>(""),
@@ -146,7 +142,6 @@ export const LibraryQuery = class extends LibraryQueryBase {
   readonly isReady: boolean = false;
 
   private value: DataType | undefined;
-  private queryInfo: any = null;
 
   constructor(params: CompParams<DataType>) {
     super(params);
@@ -154,10 +149,8 @@ export const LibraryQuery = class extends LibraryQueryBase {
   }
 
   override getView() {
-    // Check if this is a JS query
     const queryInfo = this.children.libraryQueryDSL.getView() as any;
-    const queryType = this.children.libraryQueryType.getView() as any;
-    if (queryType === "js") {
+    if (queryInfo?.query?.compType === "js") {
       return async (props: any) => {
         try {
           const { orgCommonSettings } = getGlobalSettings();
@@ -187,7 +180,7 @@ export const LibraryQuery = class extends LibraryQueryBase {
                 return current ?? match;
               });
             }
-            
+
             acc[name] = isDynamicSegment(unevaledValue) ? value : unevaledValue;
             return acc;
           }, {} as Record<string, any>);
@@ -231,10 +224,12 @@ export const LibraryQuery = class extends LibraryQueryBase {
 
   override reduce(action: CompAction): this {
     if (isMyCustomAction<QueryLibraryUpdateAction>(action, "queryLibraryUpdate")) {
-      const isJSQuery = this.children.libraryQueryType.getView() === 'js'
-      const queryDSL = isJSQuery ? action.value?.dsl : null;
-      const queryDSLValue  = this.children.libraryQueryDSL.reduce(this.children.libraryQueryDSL.changeValueAction(queryDSL))
-      
+      const fetchedDSL = action.value?.dsl;
+      const queryDSL = fetchedDSL?.query?.compType === "js" ? fetchedDSL : null;
+      const queryDSLValue = this.children.libraryQueryDSL.reduce(
+        this.children.libraryQueryDSL.changeValueAction(queryDSL)
+      );
+
       const inputs = this.children.inputs.setInputs(action.value?.dsl?.["inputs"] ?? []);
       return setFieldsNoTypeCheck(this, {
         children: { ...this.children, inputs: inputs, libraryQueryDSL: queryDSLValue },
@@ -257,6 +252,9 @@ const PropertyView = (props: { comp: InstanceType<typeof LibraryQuery> }) => {
   const info = queryLibraryRecord[queryId]?.[recordId];
 
   useEffect(() => {
+    if (info === undefined) {
+      return;
+    }
     dispatch(
       customAction<QueryLibraryUpdateAction>({ type: "queryLibraryUpdate", dsl: info }, true)
     );
@@ -326,17 +324,14 @@ const PropertyView = (props: { comp: InstanceType<typeof LibraryQuery> }) => {
               value: meta.libraryQueryMetaView.id,
             }))}
             value={queryId ?? queryLibraryMeta[0]?.libraryQueryMetaView.id}
-            onChange={(value) => {
-              const queryDSL = queryLibraryMeta[value]?.libraryQueryMetaView || null;
-              const { datasourceType } = queryDSL as any;
-
-              props.comp.dispatch(
+            onChange={(value) =>
+              dispatch(
                 multiChangeAction({
                   libraryQueryId: changeValueAction(value, false),
-                  libraryQueryType: changeValueAction(datasourceType, false),
+                  libraryQueryDSL: changeValueAction(null, false),
                 })
               )
-            }}
+            }
           />
         </div>
         <QueryTutorialButton
@@ -357,7 +352,14 @@ const PropertyView = (props: { comp: InstanceType<typeof LibraryQuery> }) => {
           })) ?? []),
         ]}
         value={recordId}
-        onChange={(value) => dispatch(props.comp.changeChildAction("libraryQueryRecordId", value))}
+        onChange={(value) =>
+          dispatch(
+            multiChangeAction({
+              libraryQueryRecordId: changeValueAction(value, false),
+              libraryQueryDSL: changeValueAction(null, false),
+            })
+          )
+        }
       />
 
       {getInputsView()}

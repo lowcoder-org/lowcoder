@@ -28,11 +28,6 @@ public class MaterialMetaServiceImpl implements MaterialMetaService {
     private final MaterialMateRepository repository;
 
     @Override
-    public Mono<Boolean> existsByOrgIdAndFilename(String orgId, String filename) {
-        return repository.existsByOrgIdAndFilename(orgId, filename);
-    }
-
-    @Override
     public Mono<MaterialMeta> findById(String id) {
         if (id == null) {
             return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ID));

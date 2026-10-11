@@ -21,8 +21,7 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { withDefault } from "comps/generators/simpleGenerators";
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, TextContainerStyle } from "comps/controls/styleControlConstants";
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
 
 const typeOptions = [
@@ -69,6 +68,7 @@ export const ContainerBaseComp = (function () {
     return <TriContainer {...props} />;
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
@@ -76,12 +76,12 @@ export const ContainerBaseComp = (function () {
             {children.text.propertyView({})}
           </Section>
 
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["logic", "both"].includes(editorModeStatus) && (
             <Section name={sectionNames.interaction}>
               {hiddenPropertyView(children)}
             </Section>
           )}
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             <>
               <Section name={sectionNames.layout}>
                 {children.container.getPropertyView()}

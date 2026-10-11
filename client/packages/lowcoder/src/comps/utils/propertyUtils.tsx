@@ -135,7 +135,7 @@ export const formatPropertyView = (params: {
       placeholder: params.placeholder,
       tooltip: (
         <>
-          {trans("date.reference")} &nbsp;
+          {trans("date.inputFormatTip")} &nbsp;
           <a
             href={`${
               language === "zh" ? "https://day.js.org/docs/zh-CN" : "https://day.js.org/docs/en"

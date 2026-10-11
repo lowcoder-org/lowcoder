@@ -1,0 +1,20 @@
+{
+  "dataSourceId" : "GetPluginDynamicConfigRequestDTO.dataSourceId",
+  "pluginName" : "GetPluginDynamicConfigRequestDTO.pluginName",
+  "path" : "GetPluginDynamicConfigRequestDTO.path",
+  "dataSourceConfig" : {
+    "host" : "GetPluginDynamicConfigRequestDTO.dataSourceConfig.host",
+    "port" : 40503,
+    "timeoutMillis" : 3000000502,
+    "ratio" : 2.5,
+    "ssl" : true,
+    "databases" : [
+      "GetPluginDynamicConfigRequestDTO.dataSourceConfig.databases[0]",
+      "GetPluginDynamicConfigRequestDTO.dataSourceConfig.databases[1]"
+    ],
+    "extra" : {
+      "region" : "GetPluginDynamicConfigRequestDTO.dataSourceConfig.extra.region",
+      "retries" : 40503
+    }
+  }
+}

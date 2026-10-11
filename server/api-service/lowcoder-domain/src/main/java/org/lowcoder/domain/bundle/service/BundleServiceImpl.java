@@ -88,25 +88,6 @@ public class BundleServiceImpl implements BundleService {
     }
 
     @Override
-    public Mono<Void> deleteAllById(Collection<String> ids) {
-        if(!ids.isEmpty() && FieldName.isGID(ids.stream().findFirst().get()))
-            return repository.deleteAllByGid(ids);
-        return repository.deleteAllById(ids);
-    }
-
-    @Override
-    public Mono<Boolean> exist(String id) {
-        return findById(id)
-                .hasElement()
-                .onErrorResume(throwable -> {
-                    if (throwable instanceof BizException bizException && bizException.getError() == NO_RESOURCE_FOUND) {
-                        return Mono.just(false);
-                    }
-                    return Mono.error(throwable);
-                });
-    }
-
-    @Override
     public Mono<Bundle> publish(String bundleId) {
         return findById(bundleId)
                 .flatMap(newBundle -> { // copy editingApplicationDSL to publishedApplicationDSL

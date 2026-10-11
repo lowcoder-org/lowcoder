@@ -44,6 +44,8 @@ import { Card, Divider, Flex, List, Tooltip } from 'antd';
 
 import { ThemeCompPanel } from "pages/setting/theme/ThemeCompPanel";
 import { JSONObject } from "@lowcoder-ee/util/jsonTypes";
+import { exportThemeAsJSONFile } from "../themeImportExport";
+import _ from "lodash";
 
 const ThemeSettingsView = styled.div`
   font-size: 14px;
@@ -129,7 +131,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
   }
 
   componentDidUpdate(prevProps: ThemeDetailPageProps, prevState: ThemeDetailPageState) {
-    if (prevProps.themeList?.length !== this.props.themeList?.length) {
+    if (prevProps.themeList !== this.props.themeList && prevProps.themeList?.length !== this.props.themeList?.length) {
       this.findCurrentTheme();
     }
   }
@@ -169,10 +171,17 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
   configChange(params: configChangeParams) {
     if (!this.state.theme) return;
 
+    const { themeSettingKey, ...rest } = params;
+    const value = _.find(_.values(rest), (v) => v !== undefined);
+
+    if (_.isEqual(this.state.theme[themeSettingKey as keyof typeof this.state.theme], value)) {
+      return;
+    }
+
     this.setState({
       theme: {
         ...this.state.theme,
-        [params.themeSettingKey]: params.color || params.radius || params.chart || params.margin || params.padding  || params.borderWidth || params.borderStyle || params.fontFamily || params.showComponentLoadingIndicators || params.showDataLoadingIndicators || params.dataLoadingIndicator || params.gridColumns || params.gridRowHeight || params.gridRowCount || params.gridPaddingX || params.gridPaddingY || params.gridBgImage || params.gridBgImageRepeat || params.gridBgImageSize || params.gridBgImagePosition || params.gridBgImageOrigin,
+        [themeSettingKey]: value,
       },
     });
   }
@@ -186,6 +195,18 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
 
   goList = () => {
     history.push(THEME_SETTING);
+  };
+
+  handleExport = () => {
+    if (!this.state.name || !this.state.theme) {
+      return;
+    }
+    exportThemeAsJSONFile({
+      name: this.state.name,
+      id: this.id,
+      updateTime: Date.now(),
+      theme: this.state.theme,
+    });
   };
 
   render() {
@@ -898,6 +919,13 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             >
               {trans("theme.saveBtn")}
             </SaveButton>
+            <ResetButton
+              onClick={this.handleExport}
+              disabled={!this.state.name || !this.state.theme}
+              style={{ marginLeft: "auto" }}
+            >
+              {trans("theme.exportTheme")}
+            </ResetButton>
           </Footer>
         </DetailContainer>
       </>

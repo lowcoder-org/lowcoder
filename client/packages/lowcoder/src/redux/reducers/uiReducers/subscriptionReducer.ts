@@ -18,9 +18,11 @@ const initialState: SubscriptionsReduxState = {
 const subscriptionReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_SUBSCRIPTIONS_INIT]: (state: SubscriptionsReduxState): SubscriptionsReduxState => ({
     ...state,
+    subscriptions: [],
     loadingStates: {
       ...state.loadingStates,
       fetchingSubscriptions: true,
+      fetchSubscriptionsFinished: false,
     },
     error: undefined,
   }),

@@ -37,6 +37,7 @@
   * [Modules](build-applications/create-a-new-app/modules.md)
   * [Version and Release Management](build-applications/create-a-new-app/version-and-release-management.md)
 * [App Editor](build-applications/app-editor/README.md)
+  * [Build Collaborative Video Apps](build-applications/app-editor/collaborative-video-apps.md)
   * [Visual Components](build-applications/app-editor/visual-components/README.md)
     * [Common Component Settings](build-applications/app-editor/visual-components/common-component-settings.md)
     * [File upload](build-applications/app-editor/visual-components/file-upload.md)
@@ -49,6 +50,12 @@
     * [Table](build-applications/app-editor/visual-components/table.md)
     * [Messages / Toast](build-applications/app-editor/visual-components/messages-toast.md)
     * [Calendar](build-applications/app-editor/visual-components/calendar.md)
+    * [Chat Box](build-applications/app-editor/visual-components/chat-box.md)
+    * [AI Chat](build-applications/app-editor/visual-components/ai-chat.md)
+    * [Chat Controller](build-applications/app-editor/visual-components/chat-controller.md)
+  * [Automator](build-applications/app-editor/automator.md)
+  * [AI Help](build-applications/app-editor/ai-help.md)
+  * [NPM Template Plugins](build-applications/app-editor/npm-template-plugins.md)
   * [Date handling](build-applications/app-editor/date-handling.md)
   * [Bulk Editing](build-applications/app-editor/bulk-editing.md)
   * [Layers](build-applications/app-editor/layers.md)
@@ -62,7 +69,7 @@
   * [Design an efficient and user-friendly form](build-applications/themes-and-styling/design-an-efficient-and-user-friendly-form.md)
   * [Customize Styles](build-applications/themes-and-styling/customize-styles.md)
   * [Component Styling Possibilities](build-applications/themes-and-styling/component-styling-possibilities.md)
-* [Video Calls in Lowcoder](build-applications/video-calls-in-lowcoder.md)
+* [Realtime Shared State and Presence](build-applications/realtime-collaboration.md)
 
 ## 🚀 Connect your Data
 

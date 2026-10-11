@@ -23,6 +23,7 @@ import { ColumnNumberComp } from "./columnTypeComps/ColumnNumberComp";
 import { ColumnAvatarsComp } from "./columnTypeComps/columnAvatarsComp";
 import { ColumnDropdownComp } from "./columnTypeComps/columnDropdownComp";
 import { ColumnPasswordComp } from "./columnTypeComps/columnPasswordComp";
+import { ColumnMultilineTextComp } from "./columnTypeComps/columnMultilineTextComp";
 
 const actionOptions = [
   {
@@ -106,6 +107,10 @@ const actionOptions = [
     label: "Password",
     value: "password",
   },
+  {
+    label: trans("table.multilineText"),
+    value: "multilineText",
+  },
 ] as const;
 
 export const ColumnTypeCompMap = {
@@ -129,6 +134,7 @@ export const ColumnTypeCompMap = {
   date: DateComp,
   time: TimeComp,
   password: ColumnPasswordComp,
+  multilineText: ColumnMultilineTextComp,
 };
 
 type ColumnTypeMapType = typeof ColumnTypeCompMap;

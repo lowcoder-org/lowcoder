@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import type { DateCompViewProps } from "./dateComp";
-import { disabledDate, getStyle, StyledPickerPanel } from "comps/comps/dateComp/dateCompUtil";
+import { disabledDate, getStyle, StyledPickerPanel, parseInputFormats } from "comps/comps/dateComp/dateCompUtil";
 import { useUIView } from "../../utils/useUIView";
 import { checkIsMobile } from "util/commonUtils";
 import React, { useContext } from "react";
@@ -68,20 +68,15 @@ export interface DateRangeUIViewProps extends DateCompViewProps {
 
 export const DateRangeUIView = (props: DateRangeUIViewProps) => {
   const editorState = useContext(EditorContext);
+  const placeholders: [string, string] = Array.isArray(props.placeholder) 
+    ? props.placeholder 
+    : [props.placeholder || 'Start Date', props.placeholder || 'End Date'];
 
-  // Extract or compute the placeholder values
-  let placeholders: [string, string];
-  if (Array.isArray(props.placeholder)) {
-    placeholders = props.placeholder;
-  } else {
-    // Use the same placeholder for both start and end if it's a single string
-    placeholders = [props.placeholder || 'Start Date', props.placeholder || 'End Date'];
-  }
   return useUIView(
     <DateRangeMobileUIView {...props} />,
     <RangePickerStyled
       {...omit(props, "onChange" , "format", "inputFormat", "pickerMode", "$childrenInputFieldStyle")}
-      format={props.inputFormat}
+      format={parseInputFormats(props.inputFormat)}
       ref={props.viewRef as any}
       picker={props.pickerMode as any}
       value={[props.start, props.end]}

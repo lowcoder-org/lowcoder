@@ -1,0 +1,79 @@
+{
+  "read" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "java.util.LinkedList",
+        "/0" : "java.util.LinkedHashMap",
+        "/0/rowIndex" : "java.lang.String",
+        "/0/name" : "java.lang.String",
+        "/0/Column-2" : "java.lang.String",
+        "/0/name_1" : "java.lang.String",
+        "/0/Column-4" : "java.lang.String",
+        "/1" : "java.util.LinkedHashMap",
+        "/1/rowIndex" : "java.lang.String",
+        "/1/name" : "java.lang.String",
+        "/1/Column-2" : "java.lang.String",
+        "/1/name_1" : "java.lang.String",
+        "/1/Column-4" : "java.lang.String"
+      },
+      "keyOrder" : {
+        "/0" : [ "rowIndex", "name", "Column-2", "name_1", "Column-4" ],
+        "/1" : [ "rowIndex", "name", "Column-2", "name_1", "Column-4" ]
+      }
+    },
+    "written" : {"queryCode":"OK","data":[{"rowIndex":"3","name":"žluť","Column-2":"1.50","name_1":"","Column-4":""},{"rowIndex":"4","name":"b","Column-2":"2","name_1":"x","Column-4":"extra"}],"success":true}
+  },
+  "readUnformattedNumber" : {
+    "error" : "java.lang.ClassCastException: class java.math.BigDecimal cannot be cast to class java.lang.String (java.math.BigDecimal and java.lang.String are in module java.base of loader 'bootstrap')"
+  },
+  "append" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "java.util.AbstractMap$2"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"OK","data":["s1","Sheet1!A1:B6",{"spreadsheetId":"s1","updatedCells":2,"updatedColumns":2,"updatedData":{"range":"Sheet1!A7:B7","values":[["a","1.50"]]},"updatedRange":"Sheet1!A7:B7","updatedRows":1}],"success":true}
+  },
+  "update" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "java.util.AbstractMap$2"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"OK","data":["s1",2,2,{"range":"Sheet1!A7:B7","values":[["a","1.50"]]},"Sheet1!A7:B7",1],"success":true}
+  },
+  "delete" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "java.util.AbstractMap$2"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"OK","data":[[{}],"s1"],"success":true}
+  },
+  "clear" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "java.util.AbstractMap$2"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"OK","data":["Sheet1!A7:Z7","s1"],"success":true}
+  },
+  "serviceAccount" : {
+    "clientId" : "1234567890",
+    "clientEmail" : "bot@p.iam.gserviceaccount.com",
+    "privateKeyPkcs8" : "-----BEGIN PRIVATE KEY-----\nMIIE+ž\n-----END PRIVATE KEY-----\n",
+    "privateKeyId" : "k1"
+  },
+  "serviceAccountNumericClientId" : {
+    "error" : "java.lang.ClassCastException: class java.lang.Integer cannot be cast to class java.lang.String (java.lang.Integer and java.lang.String are in module java.base of loader 'bootstrap')"
+  }
+}

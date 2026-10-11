@@ -1,0 +1,6 @@
+{
+  "baseQuery" : {
+    "libraryRecordQueryId" : "java.lang.NullPointerException",
+    "usingLibraryQuery" : "java.lang.NullPointerException"
+  }
+}

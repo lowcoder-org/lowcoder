@@ -254,7 +254,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
   };
 
   const gridPaddingInputBlur = (padding: string) => { 
-    let result = 20;  
+    let result = 0;  
     if (padding !== '') {  
       result = Number(padding);  
     }

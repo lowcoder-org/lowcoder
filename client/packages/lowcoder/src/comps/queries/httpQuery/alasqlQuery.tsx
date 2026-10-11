@@ -130,6 +130,15 @@ const PropertyView = (props: { comp: InstanceType<typeof AlaSqlQuery>; datasourc
           styleName: "medium",
           language: "sql",
           enableMetaCompletion: true,
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "sql",
+            label: "AlaSQL query",
+            queryType: "AlaSQL",
+            fieldName: "sql",
+            fieldDescription:
+              "AlaSQL SQL query for in-browser data. Supports SELECT, INSERT, UPDATE, DELETE, JOIN, and AlaSQL-specific extensions.",
+          },
         })}
         </QueryConfigItemWrapper>
       </QueryConfigWrapper>

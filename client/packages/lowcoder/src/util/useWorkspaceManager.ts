@@ -1,201 +1,93 @@
-import { useReducer, useEffect, useCallback, useMemo } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { debounce } from 'lodash';
 import { Org } from 'constants/orgConstants';
-import { getWorkspaces } from 'redux/selectors/orgSelectors';
-import { fetchWorkspacesAction } from 'redux/reduxActions/orgActions';
 import UserApi from 'api/userApi';
 
-// State interface for the workspace manager
-interface WorkspaceState {
-  searchTerm: string;
-  currentPage: number;
-  currentPageWorkspaces: Org[];
-  totalCount: number;
-  isLoading: boolean;
-}
-
-// Action types for the reducer
-type WorkspaceAction =
-  | { type: 'SET_SEARCH_TERM'; payload: string }
-  | { type: 'SET_PAGE'; payload: number }
-  | { type: 'SET_LOADING'; payload: boolean }
-  | { type: 'SET_WORKSPACES'; payload: { workspaces: Org[]; total: number } }
-  | { type: 'RESET'; payload: { totalCount: number } };
-
-// Initial state
-const initialState: WorkspaceState = {
-  searchTerm: '',
-  currentPage: 1,
-  currentPageWorkspaces: [],
-  totalCount: 0,
-  isLoading: false,
-};
-
-// Reducer function - handles state transitions
-function workspaceReducer(state: WorkspaceState, action: WorkspaceAction): WorkspaceState {
-  switch (action.type) {
-    case 'SET_SEARCH_TERM':
-      return { 
-        ...state, 
-        searchTerm: action.payload,
-        currentPage: 1 , 
-        isLoading: Boolean(action.payload.trim())
-      };
-    case 'SET_PAGE':
-      return { ...state, currentPage: action.payload };
-    case 'SET_LOADING':
-      return { ...state, isLoading: action.payload };
-    case 'SET_WORKSPACES':
-      return {
-        ...state,
-        currentPageWorkspaces: action.payload.workspaces,
-        totalCount: action.payload.total,
-        isLoading: false,
-      };
-    case 'RESET':
-      return {
-        ...initialState,
-        totalCount: action.payload.totalCount,
-      };
-    default:
-      return state;
-  }
-}
-
-// Hook interface
 interface UseWorkspaceManagerOptions {
   pageSize?: number;
 }
 
-// Main hook
 export function useWorkspaceManager({ 
   pageSize = 10 
 }: UseWorkspaceManagerOptions) {
-  // Get workspaces from Redux
-  const workspaces = useSelector(getWorkspaces);
-  const reduxDispatch = useDispatch();
-  
-  // Initialize reducer with Redux total count
-  const [state, dispatch] = useReducer(workspaceReducer, {
-    ...initialState,
-    totalCount: workspaces.totalCount,
-  });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [workspaces, setWorkspaces] = useState<Org[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
-
- 
-  /* ----- first-time fetch ------------------------------------------------ */
-  useEffect(() => {
-    if (!workspaces.isFetched && !workspaces.loading) {
-      reduxDispatch(fetchWorkspacesAction(1, pageSize));
-    }
-  }, [workspaces.isFetched, workspaces.loading, pageSize, reduxDispatch]);
-
-  // API call to fetch workspaces (memoized for stable reference)
-  const fetchWorkspacesPage = useCallback(
+  const fetchWorkspaces = useCallback(
     async (page: number, search?: string) => {
-      dispatch({ type: 'SET_LOADING', payload: true });
-
+      setIsLoading(true);
       try {
         const response = await UserApi.getMyOrgs(page, pageSize, search);
         if (response.data.success) {
           const apiData = response.data.data;
-          const transformedItems = apiData.data.map(item => ({
-            id: item.orgView.orgId,
-            name: item.orgView.orgName,
-            createdAt: item.orgView.createdAt,
-            updatedAt: item.orgView.updatedAt,
-            isCurrentOrg: item.isCurrentOrg,
-          }));
+          const items = apiData.data
+            .filter(item => item.orgView && item.orgView.orgId)
+            .map(item => ({
+              id: item.orgView.orgId,
+              name: item.orgView.orgName,
+              createdAt: item.orgView.createdAt,
+              updatedAt: item.orgView.updatedAt,
+              isCurrentOrg: item.isCurrentOrg,
+            })) as Org[];
 
-          dispatch({
-            type: 'SET_WORKSPACES',
-            payload: {
-              workspaces: transformedItems as Org[],
-              total: apiData.total,
-            },
-          });
+          setWorkspaces(items);
+          setTotalCount(apiData.total);
         }
       } catch (error) {
         console.error('Error fetching workspaces:', error);
-        dispatch({ type: 'SET_WORKSPACES', payload: { workspaces: [], total: 0 } });
+        setWorkspaces([]);
+        setTotalCount(0);
+      } finally {
+        setIsLoading(false);
       }
     },
-    [dispatch, pageSize]
+    [pageSize]
   );
 
-  // Debounced search function (memoized to keep a single instance across renders)
-  const debouncedSearch = useMemo(() =>
-    debounce(async (term: string) => {
-      if (!term.trim()) {
-        // Clear search - reset to Redux data
-        dispatch({
-          type: 'SET_WORKSPACES',
-          payload: { workspaces: [], total: workspaces.totalCount },
-        });
-        return;
-      }
-
-      // Perform search
-      await fetchWorkspacesPage(1, term);
-    }, 500)
-  , [dispatch, fetchWorkspacesPage, workspaces.totalCount]);
-
-  // Cleanup debounce on unmount
+  // Initial fetch
   useEffect(() => {
-    return () => {
-      debouncedSearch.cancel();
-    };
+    fetchWorkspaces(1);
+  }, [fetchWorkspaces]);
+
+  const debouncedSearch = useMemo(
+    () => debounce((term: string) => {
+      fetchWorkspaces(1, term || undefined);
+    }, 500),
+    [fetchWorkspaces]
+  );
+
+  useEffect(() => {
+    return () => { debouncedSearch.cancel(); };
   }, [debouncedSearch]);
 
-  // Handle search input change
   const handleSearchChange = (value: string) => {
-    dispatch({ type: 'SET_SEARCH_TERM', payload: value });
+    setSearchTerm(value);
+    setCurrentPage(1);
     debouncedSearch(value);
   };
 
-  // Handle page change
   const handlePageChange = (page: number) => {
-    dispatch({ type: 'SET_PAGE', payload: page });
-    
-    if (page === 1 && !state.searchTerm.trim()) {
-      // Page 1 + no search = use Redux data
-      dispatch({ 
-        type: 'SET_WORKSPACES', 
-        payload: { workspaces: [], total: workspaces.totalCount } 
-      });
-    } else {
-      // Other pages or search = fetch from API
-      fetchWorkspacesPage(page, state.searchTerm.trim() || undefined);
-    }
+    setCurrentPage(page);
+    fetchWorkspaces(page, searchTerm.trim() || undefined);
   };
 
-  // Determine which workspaces to display
-  const displayWorkspaces = (() => {
-    if (state.searchTerm.trim() || state.currentPage > 1) {
-      return state.currentPageWorkspaces; // API results
-    }
-    return workspaces.items; // Redux data for page 1
-  })();
-
-  // Determine current total count
-  const currentTotalCount = state.searchTerm.trim() 
-    ? state.totalCount 
-    : workspaces.totalCount;
+  const refetch = useCallback(
+    () => fetchWorkspaces(currentPage, searchTerm.trim() || undefined),
+    [fetchWorkspaces, currentPage, searchTerm]
+  );
 
   return {
-    // State
-    searchTerm: state.searchTerm,
-    currentPage: state.currentPage,
-    isLoading: state.isLoading || workspaces.loading,
-    displayWorkspaces,
-    totalCount: currentTotalCount,
-    
-    // Actions
+    searchTerm,
+    currentPage,
+    isLoading,
+    displayWorkspaces: workspaces,
+    totalCount,
     handleSearchChange,
     handlePageChange,
-    
-    // Config
     pageSize,
+    refetch,
   };
 }

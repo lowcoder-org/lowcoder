@@ -2,23 +2,25 @@ import { default as Menu } from "antd/es/menu";
 import { default as Dropdown } from "antd/es/dropdown";
 import { default as DropdownButton } from "antd/es/dropdown/dropdown-button";
 import { BoolControl } from "comps/controls/boolControl";
-import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import { BoolCodeControl, NumberControl, StringControl } from "comps/controls/codeControl";
 import { DropdownStyle, DropdownStyleType } from "comps/controls/styleControlConstants";
 import { withDefault } from "comps/generators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { Section, sectionNames } from "lowcoder-design";
 import { trans } from "i18n";
-import React, { ReactElement, useContext, useEffect } from "react";
-import { EditorContext } from "comps/editorState";
+import React, { ReactElement } from "react";
+import { useEditorStore } from "comps/editorStore";
 import styled from "styled-components";
+import EllipsisOutlined from "@ant-design/icons/EllipsisOutlined";
+import { IconControl } from "comps/controls/iconControl";
+import { hasIcon } from "comps/utils";
 import { ButtonEventHandlerControl } from "../../controls/eventHandlerControl";
 import { DropdownOptionControl } from "../../controls/optionsControl";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import {
   Button100,
   ButtonCompWrapper,
-  ButtonStyleControl,
   getButtonStyle,
 } from "./buttonCompConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
@@ -79,14 +81,69 @@ const RightButtonWrapper = styled.div<{ $buttonStyle: DropdownStyleType }>`
   }
 `;
 
+/** Single-button dropdown (matches split-button’s icon trigger styling, all corners rounded). */
+const IconTriggerOnlyWrapper = styled.div<{
+  $buttonStyle: DropdownStyleType;
+  $minTriggerWidth: number;
+}>`
+  display: inline-flex;
+  width: auto;
+  min-width: ${(p) => p.$minTriggerWidth}px;
+
+  ${(props) => `margin: ${props.$buttonStyle.margin};`}
+
+  .ant-btn {
+    ${(props) => getButtonStyle(props.$buttonStyle as any)}
+    margin: 0 !important;
+    &.ant-btn-default {
+      ${(props) => `border-radius: ${props.$buttonStyle.radius};`}
+    }
+    width: auto;
+    min-width: ${(p) => p.$minTriggerWidth}px;
+    height: 100%;
+  }
+`;
+
+const SizedTriggerIconWrap = styled.span<{ $size: number }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: ${(p) => p.$size}px;
+  line-height: 1;
+  & > *,
+  & svg {
+    width: 1em;
+    height: 1em;
+  }
+`;
+
 const triggerOptions = [
   { label: "Hover", value: "hover" },
   { label: "Click", value: "click" },
 ] as const;
 
+function renderSizedTriggerIcon(
+  triggerIcon: React.ReactNode,
+  sizePx: number,
+  fallback: React.ReactNode
+) {
+  return (
+    <SizedTriggerIconWrap $size={sizePx}>
+      {hasIcon(triggerIcon) ? triggerIcon : fallback}
+    </SizedTriggerIconWrap>
+  );
+}
+
+function labelButtonText(text: string) {
+  return !text || text.length === 0 ? " " : text;
+}
+
 const DropdownTmpComp = (function () {
   const childrenMap = {
     text: withDefault(StringControl, trans("menu")),
+    onlyIcon: BoolControl,
+    triggerIcon: IconControl,
+    triggerIconSize: withDefault(NumberControl, 15),
     onlyMenu: BoolControl,
     triggerMode: dropdownControl(triggerOptions, "hover"),
     options: DropdownOptionControl,
@@ -95,7 +152,10 @@ const DropdownTmpComp = (function () {
     style: styleControl(DropdownStyle, 'style'),
   };
   return new UICompBuilder(childrenMap, (props) => {
-    const hasIcon =
+    const rawTriggerIconSize = Number(props.triggerIconSize);
+    const triggerIconSizePx =
+      Number.isFinite(rawTriggerIconSize) && rawTriggerIconSize > 0 ? rawTriggerIconSize : 20;
+    const menuShowsOptionIcons =
       props.options.findIndex((option) => (option.prefixIcon as ReactElement)?.props.value) > -1;
     const items = props.options
       .filter((option) => !option.hidden)
@@ -105,7 +165,7 @@ const DropdownTmpComp = (function () {
         style: {padding: props.style.padding},
         key: option.label + " - " + index,
         disabled: option.disabled,
-        icon: hasIcon && <span>{option.prefixIcon}</span>,
+        icon: menuShowsOptionIcons && <span>{option.prefixIcon}</span>,
         index,
       }));
 
@@ -128,9 +188,42 @@ const DropdownTmpComp = (function () {
             popupRender={() => menu}
             trigger={[props.triggerMode]}
           >
-            <Button100 $buttonStyle={props.style as any} disabled={props.disabled}>
-              {props.text || " " /* Avoid button disappearing */}
+            <Button100
+              $buttonStyle={props.style as any}
+              disabled={props.disabled}
+              icon={
+                props.onlyIcon
+                  ? renderSizedTriggerIcon(
+                      props.triggerIcon,
+                      triggerIconSizePx,
+                      <EllipsisOutlined />
+                    )
+                  : undefined
+              }
+            >
+              {props.onlyIcon ? undefined : labelButtonText(props.text)}
             </Button100>
+          </Dropdown>
+        ) : props.onlyIcon ? (
+          <Dropdown
+            disabled={props.disabled}
+            popupRender={() => menu}
+            trigger={[props.triggerMode]}
+          >
+            <IconTriggerOnlyWrapper
+              $buttonStyle={props.style}
+              $minTriggerWidth={Math.max(32, triggerIconSizePx + 12)}
+            >
+              <Button100
+                $buttonStyle={props.style as any}
+                disabled={props.disabled}
+                icon={renderSizedTriggerIcon(
+                  props.triggerIcon,
+                  triggerIconSizePx,
+                  <EllipsisOutlined />
+                )}
+              />
+            </IconTriggerOnlyWrapper>
           </Dropdown>
         ) : (
           <StyledDropdownButton
@@ -151,29 +244,32 @@ const DropdownTmpComp = (function () {
               </RightButtonWrapper>,
             ]}
           >
-            {/* Avoid button disappearing */}
-            {!props.text || props.text?.length === 0 ? " " : props.text}
+            {labelButtonText(props.text)}
           </StyledDropdownButton>
         )}
       </ButtonCompWrapper>
     );
   })
-    .setPropertyViewFn((children) => (
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
         <Section name={sectionNames.basic}>
           {children.options.propertyView({})}
         </Section>
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "logic" || editorModeStatus === "both") && (
           <><Section name={sectionNames.interaction}>
-              {!children.onlyMenu.getView() && children.onEvent.getPropertyView()}
+              {!children.onlyMenu.getView() && !children.onlyIcon.getView()
+                ? children.onEvent.getPropertyView()
+                : undefined}
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
             </Section>
           </>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "layout" || editorModeStatus === "both") && (
           <>
             <Section name={sectionNames.layout}>
               {children.text.propertyView({ label: trans("label") })}
@@ -182,12 +278,22 @@ const DropdownTmpComp = (function () {
                 radioButton: true,
               })}
               {children.onlyMenu.propertyView({ label: trans("dropdown.onlyMenu") })}
+              {children.onlyIcon.propertyView({ label: trans("dropdown.onlyIcon") })}
+              {!children.onlyIcon.getView()
+                ? undefined
+                : children.triggerIcon.propertyView({ label: trans("dropdown.triggerIcon") })}
+              {!children.onlyIcon.getView()
+                ? undefined
+                : children.triggerIconSize.propertyView({
+                    label: trans("dropdown.triggerIconSize"),
+                  })}
             </Section>
             <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
           </>
         )}
       </>
-    ))
+    );
+    })
     .build();
 })();
 

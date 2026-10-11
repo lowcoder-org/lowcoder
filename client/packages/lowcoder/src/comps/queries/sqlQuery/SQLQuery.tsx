@@ -23,6 +23,7 @@ import { ColumnNameDropdown } from "./columnNameDropdown";
 import React, { useContext } from "react";
 import { QueryContext } from "util/context/QueryContext";
 import SupaDemoDisplay from "comps/utils/supademoDisplay";
+import { CompNameContext } from "comps/editorState";
 
 const AllowMultiModifyComp = withPropertyViewFn(BoolPureControl, (comp) =>
   comp.propertyView({
@@ -172,6 +173,7 @@ const regexp = new RegExp("(\\s|^)(update|insert|delete|drop)(\\s|$)", "i");
 const SQLQueryPropertyView = (props: { comp: InstanceType<typeof SQLQuery> }) => {
   const { children } = props.comp;
   const context = useContext(QueryContext);
+  const queryName = useContext(CompNameContext);
 
   return (
     <>
@@ -182,6 +184,15 @@ const SQLQueryPropertyView = (props: { comp: InstanceType<typeof SQLQuery> }) =>
           styleName: "medium",
           language: "sql",
           enableMetaCompletion: true,
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "sql",
+            label: queryName ? `${queryName}.sql` : "SQL Query",
+            datasourceId: context?.datasourceId,
+            queryType: context?.resourceType,
+            queryName,
+            targetId: queryName ? `${queryName}.sql` : undefined,
+          },
         })
       ) : (
         <>

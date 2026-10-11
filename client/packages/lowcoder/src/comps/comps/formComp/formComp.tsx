@@ -7,6 +7,7 @@ import {
 import { Section, sectionNames } from "lowcoder-design";
 import { genQueryId } from "comps/utils/idGenerator";
 import { CompNameContext, EditorContext, EditorState } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { ContainerPlaceholder } from "lowcoder-design";
 import {
@@ -208,13 +209,14 @@ const FormBaseComp = (function () {
     );
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
             {children.resetAfterSubmit.propertyView({ label: trans("formComp.resetAfterSubmit") })}
           </Section>
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "logic" || editorModeStatus === "both") && (
             <><Section name={sectionNames.interaction}>
                 {children.onEvent.getPropertyView()}
                 {disabledPropertyView(children)}
@@ -225,7 +227,7 @@ const FormBaseComp = (function () {
             </>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "layout" || editorModeStatus === "both") && (
             <>
               <Section name={sectionNames.layout}>
                 {children.container.getPropertyView()}
@@ -233,14 +235,14 @@ const FormBaseComp = (function () {
             </>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "logic" || editorModeStatus === "both") && (
             <Section name={sectionNames.advanced}>
               {children.initialData.propertyView({ label: trans("formComp.initialData") })}
               {children.invalidFormMessage.propertyView({ label: trans("formComp.invalidFormMessage") })}
             </Section>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "layout" || editorModeStatus === "both") && (
             <>
               <Section name={sectionNames.style}>
                 {children.container.stylePropertyView()}

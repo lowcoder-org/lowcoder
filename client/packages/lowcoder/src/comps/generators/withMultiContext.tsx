@@ -198,6 +198,24 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
         }
       } else {
         comp = super.reduce(action);
+        // When an inner comp under the template updates (e.g. RemoteCompReady) but the action path
+        // is still rooted at COMP_KEY, mirror that change into every __map__ instance — same as
+        // withParamsForMap, so list/grid rows (ContextContainer) materialize the loaded comp.
+        if (
+          isChildAction(action) &&
+          action.path[0] === COMP_KEY &&
+          action.type !== CompActionTypes.UPDATE_NODES_V2
+        ) {
+          const newMap = _.mapValues(comp.getMap(), (perKeyComp) => {
+            return perKeyComp.reduce(
+              WithParamCompCtor.setCompAction(comp.getOriginalComp().getComp())
+            );
+          });
+          comp = comp.setChild(
+            MAP_KEY,
+            comp.children[MAP_KEY].reduce(MapCtor.batchSetCompAction(newMap))
+          );
+        }
       }
       comp.getOriginalComp().node(); // for cache
 

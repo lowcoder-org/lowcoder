@@ -11,6 +11,7 @@ import {
   UpdateAppMetaPayload,
   UpdateAppPermissionPayload,
 } from "redux/reduxActions/applicationActions";
+import { UpdateOrgPayload } from "redux/reduxActions/orgActions";
 import { createReducer } from "util/reducerUtils";
 import {
   ApplicationDetail,
@@ -69,6 +70,15 @@ const usersReducer = createReducer(initialState, {
         ...action.payload,
       },
     },
+  }),
+  [ReduxActionTypes.UPDATE_ORG_SUCCESS]: (
+    state: ApplicationReduxState,
+    action: ReduxAction<UpdateOrgPayload>
+  ): ApplicationReduxState => ({
+    ...state,
+    homeOrg: state.homeOrg && state.homeOrg.id === action.payload.id
+      ? { ...state.homeOrg, ...(action.payload.orgName && { name: action.payload.orgName }) }
+      : state.homeOrg,
   }),
   [ReduxActionTypes.FETCH_HOME_DATA_SUCCESS]: (
     state: ApplicationReduxState,

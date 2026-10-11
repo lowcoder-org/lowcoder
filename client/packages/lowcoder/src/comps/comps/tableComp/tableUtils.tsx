@@ -99,6 +99,31 @@ export function filterData(
   return resultData;
 }
 
+export function applyHeaderFilters(
+  data: Array<RecordType>,
+  headerFilters: Record<string, any[]>
+) {
+  if (!headerFilters || Object.keys(headerFilters).length === 0) {
+    return data;
+  }
+
+  return data.filter((row) =>
+    Object.entries(headerFilters).every(([columnKey, filterValues]) => {
+      if (!Array.isArray(filterValues) || filterValues.length === 0) {
+        return true;
+      }
+
+      const cellValue = row[columnKey];
+      return filterValues.some((filterValue) => {
+        if (cellValue == null) {
+          return filterValue == null;
+        }
+        return String(cellValue) === String(filterValue);
+      });
+    })
+  );
+}
+
 export function sortData(
   data: Array<JSONObject>,
   columns: Record<string, { sortable: boolean }>, // key: dataIndex
@@ -291,6 +316,14 @@ export function getColumnsAggr(
         .uniqBy("text")
         .value();
     }
+
+    res.uniqueValues = _(oriDisplayData)
+      .map((row) => row[dataIndex])
+      .filter((value): value is JSONValue => value !== undefined && value !== null && value !== "")
+      .uniqWith(_.isEqual)
+      .slice(0, 100)
+      .value();
+
     return res;
   });
 }
@@ -338,6 +371,27 @@ export type CustomColumnType<RecordType> = ColumnType<RecordType> & {
   columnDataTestId?: string;
 };
 
+function buildHeaderFilterProps(
+  dataIndex: string,
+  filterable: boolean,
+  uniqueValues: any[],
+  headerFilters: Record<string, any[]> = {}
+) {
+  if (!filterable || uniqueValues.length === 0) {
+    return {};
+  }
+
+  return {
+    filters: uniqueValues.map((value) => ({
+      text: String(value),
+      value,
+    })),
+    filteredValue: headerFilters[dataIndex] ?? null,
+    filterSearch: true,
+    filterMultiple: true,
+  } as const;
+}
+
 /**
  * convert column in raw format into antd format
  */
@@ -351,6 +405,7 @@ export function columnsToAntdFormat(
   columnsAggrData: ColumnsAggrData,
   editMode: string,
   onTableEvent: (eventName: any) => void,
+  headerFilters: Record<string, any[]> = {},
 ): Array<CustomColumnType<RecordType>> {
   const customColumns = columns.filter(col => col.isCustom).map(col => col.dataIndex);
   const initialColumns = getInitialColumns(columnsAggrData, customColumns);
@@ -393,10 +448,18 @@ export function columnsToAntdFormat(
       text: string;
       status: StatusType;
     }[];
+    const uniqueValues = ((columnsAggrData[column.dataIndex] ?? {}).uniqueValues ?? []) as any[];
+    const columnKey = column.dataIndex || `custom-${mIndex}`;
     const title = renderTitle({ title: column.title, tooltip: column.titleTooltip, editable: column.editable });
+    const filterProps = buildHeaderFilterProps(
+      column.dataIndex,
+      column.filterable,
+      uniqueValues,
+      headerFilters
+    );
 
     return {
-      key: `${column.dataIndex}-${mIndex}`,
+      key: columnKey,
       title: column.showTitle ? title : '',
       titleText: column.title,
       dataIndex: column.dataIndex,
@@ -468,6 +531,7 @@ export function columnsToAntdFormat(
             showSorterTooltip: false,
           }
         : {}),
+      ...filterProps,
     };
   });
 }
@@ -503,6 +567,16 @@ export function onTableChange(
     }
     dispatch(changeChildAction("sort", sortValues, true));
     onEvent("sortChange");
+  }
+
+  if (extra.action === "filter") {
+    const headerFilters = _(filters)
+      .pickBy((filterValues) => Array.isArray(filterValues) && filterValues.length > 0)
+      .mapValues((filterValues) => filterValues as any[])
+      .value();
+
+    dispatch(changeChildAction("headerFilters", headerFilters, true));
+    onEvent("filterChange");
   }
 }
 

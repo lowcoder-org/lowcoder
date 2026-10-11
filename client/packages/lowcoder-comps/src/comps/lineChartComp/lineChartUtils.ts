@@ -16,6 +16,7 @@ import opacityToHex from "../../util/opacityToHex";
 import parseBackground from "../../util/gradientBackgroundColor";
 import {ba, s} from "@fullcalendar/core/internal-common";
 import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
+import { mergeCartesianAxis } from "../../util/echartsThemeUtils";
 
 export function transformData(
   originData: JSONObject[],
@@ -302,22 +303,27 @@ export function getEchartsConfig(
     );
     config = {
       ...config,
+      xAxis: mergeCartesianAxis(
+        theme,
+        finalXyConfig.xConfig.type,
+        finalXyConfig.xConfig,
+        props?.xAxisStyle,
+        11,
+        {
+          data: finalXyConfig.xConfig.type === "category" && (props.xAxisData as []).length!==0?props?.xAxisData:transformedData.map((i: any) => i[props.xAxisKey]),
+        }
+      ),
       // @ts-ignore
-      xAxis: {
-        ...finalXyConfig.xConfig,
-        axisLabel: {
-          ...styleWrapper(props?.xAxisStyle, theme?.xAxisStyle, 11)
-        },
-        data: finalXyConfig.xConfig.type === "category" && (props.xAxisData as []).length!==0?props?.xAxisData:transformedData.map((i: any) => i[props.xAxisKey]),
-      },
-      // @ts-ignore
-      yAxis: {
-        ...finalXyConfig.yConfig,
-        axisLabel: {
-          ...styleWrapper(props?.yAxisStyle, theme?.yAxisStyle, 11)
-        },
-        data: finalXyConfig.yConfig.type === "category" && (props.xAxisData as []).length!==0?props?.xAxisData:transformedData.map((i: any) => i[props.xAxisKey]),
-      },
+      yAxis: mergeCartesianAxis(
+        theme,
+        finalXyConfig.yConfig.type,
+        finalXyConfig.yConfig,
+        props?.yAxisStyle,
+        11,
+        {
+          data: finalXyConfig.yConfig.type === "category" && (props.xAxisData as []).length!==0?props?.xAxisData:transformedData.map((i: any) => i[props.xAxisKey]),
+        }
+      ),
     };
     
     if(props.chartConfig.race) {

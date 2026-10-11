@@ -23,6 +23,7 @@ import { EllipsisTextCss } from "lowcoder-design";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { migrateOldData } from "comps/generators/simpleGenerators";
+import { withLinkedDefaultValue } from "comps/controls/codeStateControl";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 import Tooltip from "antd/es/tooltip";
 import { useCallback, useRef, useEffect, memo } from "react";
@@ -281,7 +282,10 @@ let CheckboxBasicComp = (function () {
     .build();
 })();
 
-CheckboxBasicComp = migrateOldData(CheckboxBasicComp, fixOldInputCompData);
+CheckboxBasicComp = migrateOldData(
+  withLinkedDefaultValue(CheckboxBasicComp, "defaultValue", "value"),
+  fixOldInputCompData
+);
 
 export const CheckboxComp = withExposingConfigs(CheckboxBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),

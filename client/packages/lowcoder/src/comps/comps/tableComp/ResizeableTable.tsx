@@ -7,7 +7,7 @@ import { useUserViewMode } from "util/hooks";
 import { ReactRef, ResizeHandleAxis } from "layout/gridLayoutPropTypes";
 import { COL_MIN_WIDTH, RecordType, CustomColumnType } from "./tableUtils";
 import { RowColorViewType, RowHeightViewType } from "./tableTypes";
-import { TableColumnStyleType, TableColumnLinkStyleType, TableRowStyleType } from "comps/controls/styleControlConstants";
+import { TableColumnStyleType, TableGlobalColumnStyleType, TableColumnLinkStyleType, TableRowStyleType } from "comps/controls/styleControlConstants";
 import { CellColorViewType } from "./column/tableColumnComp";
 import { TableCellView } from "./TableCell";
 import { TableRowView } from "./TableRow";
@@ -105,7 +105,7 @@ type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | 
   visibleResizables: boolean;
   rowColorFn: RowColorViewType;
   rowHeightFn: RowHeightViewType;
-  columnsStyle: TableColumnStyleType;
+  columnsStyle: TableGlobalColumnStyleType;
   rowStyle: TableRowStyleType;
   size?: string;
   rowAutoHeight?: boolean;

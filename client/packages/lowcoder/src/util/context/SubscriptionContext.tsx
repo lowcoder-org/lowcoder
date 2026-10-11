@@ -1,4 +1,4 @@
-import { createCheckoutLink, cleanupCustomer } from "@lowcoder-ee/api/subscriptionApi";
+import { createCheckoutLink } from "@lowcoder-ee/api/subscriptionApi";
 import { StripeCustomer, SubscriptionProduct, InitSubscriptionProducts, LowcoderSearchCustomer, LowcoderNewCustomer, Subscription } from "@lowcoder-ee/constants/subscriptionConstants";
 import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
 import { getFetchSubscriptionsFinished, getSubscriptions, getSubscriptionsError } from "@lowcoder-ee/redux/selectors/subscriptionSelectors";
@@ -90,62 +90,43 @@ export const SubscriptionContextProvider = (props: {
   }, [productsLoaded, existingProducts, subscriptionProducts, subscriptionProductsLoading]);
 
   useEffect(() => {
-    const initializeCustomer = async () => {
-      if (existingCustomer) {
-        setCustomer(existingCustomer);
-
-        cleanupCustomer(subscriptionSearchCustomer);
-
-        return;
-      }
-    };
-
-    if (!customer && isCustomerInitializationComplete) {
-      initializeCustomer();
-    }
-  }, [customer, existingCustomer, isCustomerInitializationComplete, deploymentId]);
+    setCustomer(existingCustomer);
+  }, [existingCustomer]);
 
   useEffect(() => {
-    const prepareCheckout = async () => {
-      if (subscriptionDataLoaded && userCount > 0) { // Ensure user count is available
-        try {
-          const updatedProducts = await Promise.all(
-            products.map(async (product) => {
-              const matchingSubscription = subscriptions.find(
-                (sub) => sub.price === product.accessLink
-              );
+    let cancelled = false;
+    setProducts(InitSubscriptionProducts);
+    setCheckoutLinkDataError(false);
+    const customerMatchesWorkspace = customer?.metadata?.lowcoder_hostId === deploymentId &&
+      customer?.metadata?.lowcoder_orgId === orgID && customer?.metadata?.lowcoder_userId === user.id;
+    if (!productsLoaded || !customer || !customerMatchesWorkspace || !subscriptionDataLoaded ||
+        subscriptionDataError || userCount <= 0) return;
 
-              if (matchingSubscription) {
-                return {
-                  ...product,
-                  activeSubscription: true,
-                  checkoutLinkDataLoaded: true,
-                  subscriptionId: matchingSubscription.id,
-                };
-              } else {
-                // Use the user count to set the quantity for checkout link
-                const checkoutLink = await createCheckoutLink(customer!, product.accessLink, product.quantity_entity == "orgUser" ? userCount : 1);
-                return {
-                  ...product,
-                  activeSubscription: false,
-                  checkoutLink: checkoutLink ? checkoutLink.url : "",
-                  checkoutLinkDataLoaded: true,
-                };
-              }
-            })
+    const prepareCheckout = async () => {
+      try {
+        const updatedProducts = await Promise.all(InitSubscriptionProducts.map(async (product) => {
+          const matchingSubscription = subscriptions.find((sub) =>
+            sub.product === product.product && sub.status === "active" &&
+            sub.hostId === deploymentId && sub.orgId === orgID
           );
-          setProducts(updatedProducts);
-          setCheckoutLinkDataError(false);
-        } catch (error) {
-          setCheckoutLinkDataError(true);
-        }
+          if (matchingSubscription) {
+            return { ...product, activeSubscription: true, checkoutLinkDataLoaded: true,
+              subscriptionId: matchingSubscription.id };
+          }
+          if (product.type === "org" && admin !== "admin") return product;
+          const checkout = await createCheckoutLink(customer, product.accessLink,
+            product.quantity_entity === "orgUser" ? userCount : 1);
+          return { ...product, checkoutLink: checkout?.url || "", checkoutLinkDataLoaded: true };
+        }));
+        if (!cancelled) setProducts(updatedProducts);
+      } catch (error) {
+        if (!cancelled) setCheckoutLinkDataError(true);
       }
     };
-
-    if (productsLoaded && customer) {
-      prepareCheckout();
-    }
-  }, [subscriptionDataLoaded, customer, userCount]);
+    prepareCheckout();
+    return () => { cancelled = true; };
+  }, [productsLoaded, subscriptionDataLoaded, subscriptionDataError, subscriptions,
+      customer, userCount, deploymentId, orgID, user.id, admin]);
 
   return (
     <SubscriptionContext.Provider value={{

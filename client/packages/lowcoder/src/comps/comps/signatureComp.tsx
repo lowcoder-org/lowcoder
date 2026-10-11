@@ -27,8 +27,7 @@ import { UICompBuilder } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 
 const Wrapper = styled.div<{ $style: SignatureStyleType; $isEmpty: boolean }>`
   height: 100%;
@@ -227,6 +226,7 @@ let SignatureTmpComp = (function () {
     });
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
@@ -235,7 +235,7 @@ let SignatureTmpComp = (function () {
 
           <FormDataPropertyView {...children} />
 
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["logic", "both"].includes(editorModeStatus) && (
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {hiddenPropertyView(children)}
@@ -245,11 +245,11 @@ let SignatureTmpComp = (function () {
             </Section>
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             children.label.getPropertyView()
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             <>
               <Section name={sectionNames.style}>
                 {children.style.getPropertyView()}

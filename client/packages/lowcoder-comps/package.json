@@ -1,8 +1,13 @@
 {
   "name": "lowcoder-comps",
-  "version": "2.7.6",
+  "version": "3.0.0",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lowcoder-org/lowcoder.git",
+    "directory": "client/packages/lowcoder-comps"
+  },
   "dependencies": {
     "@fullcalendar/adaptive": "^6.1.11",
     "@fullcalendar/core": "^6.1.6",
@@ -17,8 +22,8 @@
     "@fullcalendar/resource-timeline": "^6.1.11",
     "@fullcalendar/timegrid": "^6.1.6",
     "@fullcalendar/timeline": "^6.1.6",
-    "agora-rtc-sdk-ng": "^4.20.2",
-    "agora-rtm-sdk": "^1.5.1",
+    "agora-rtc-sdk-ng": "^4.24.3",
+    "agora-rtm-sdk": "^2.2.4",
     "big.js": "^6.2.1",
     "echarts-extension-gmap": "^1.6.0",
     "echarts-gl": "^2.0.9",

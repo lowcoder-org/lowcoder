@@ -1,14 +1,13 @@
-import React, { useContext, useMemo, useState } from "react";
-import styled, { css } from "styled-components";
-import { TableCellContext, TableRowContext } from "./tableContext";
-import { TableColumnStyleType, TableColumnLinkStyleType, ThemeDetail, TableRowStyleType } from "comps/controls/styleControlConstants";
+import React, { useMemo, useState } from "react";
+import styled from "styled-components";
+import { TableCellContext } from "./tableContext";
+import { TableColumnStyleType, TableGlobalColumnStyleType, TableColumnLinkStyleType, ThemeDetail } from "comps/controls/styleControlConstants";
 import { RowColorViewType, RowHeightViewType } from "./tableTypes";
 import { CellColorViewType } from "./column/tableColumnComp";
 import { RecordType, OB_ROW_ORI_INDEX } from "./tableUtils";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import Skeleton from "antd/es/skeleton";
 import { SkeletonButtonProps } from "antd/es/skeleton/Button";
-import { isTransparentColor } from "lowcoder-design";
 
 interface TableTdProps {
   $background: string;
@@ -137,9 +136,9 @@ export const TableCellView = React.forwardRef<HTMLTableCellElement, {
   cellColorFn: CellColorViewType;
   rowIndex: number;
   children: any;
-  columnsStyle: TableColumnStyleType;
+  columnsStyle: TableGlobalColumnStyleType;
   columnStyle: TableColumnStyleType;
-  rowStyle: TableRowStyleType;
+  rowStyle: any;
   linkStyle: TableColumnLinkStyleType;
   tableSize?: string;
   autoHeight?: boolean;
@@ -166,7 +165,6 @@ export const TableCellView = React.forwardRef<HTMLTableCellElement, {
   } = props;
 
   const [editing, setEditing] = useState(false);
-  const rowContext = useContext(TableRowContext);
 
   // Memoize style calculations
   const style = useMemo(() => {
@@ -188,8 +186,10 @@ export const TableCellView = React.forwardRef<HTMLTableCellElement, {
       currentRow: record,
     });
 
+    const explicitBackground = cellColor || rowColor || columnStyle.background;
+
     return {
-      background: cellColor || rowColor || columnStyle.background || columnsStyle.background,
+      background: explicitBackground || 'inherit',
       margin: columnStyle.margin || columnsStyle.margin,
       text: columnStyle.text || columnsStyle.text,
       border: columnStyle.border || columnsStyle.border,
@@ -211,17 +211,12 @@ export const TableCellView = React.forwardRef<HTMLTableCellElement, {
     );
   }
 
-  let { background } = style!;
-  if (rowContext.hover && !isTransparentColor(rowStyle.hoverRowBackground)) {
-    background = 'transparent';
-  }
-
   return (
     <TableCellContext.Provider value={{ isEditing: editing, setIsEditing: setEditing }}>
       <TableTd
         ref={ref}
         {...restProps}
-        $background={background}
+        $background={style!.background}
         $style={style!}
         $defaultThemeDetail={defaultTheme}
         $linkStyle={linkStyle}

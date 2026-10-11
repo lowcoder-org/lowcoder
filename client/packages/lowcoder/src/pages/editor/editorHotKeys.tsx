@@ -1,21 +1,48 @@
 import React, { useCallback, useContext, useRef, useEffect } from "react";
 import { EditorContext, EditorState } from "comps/editorState";
-import { GridCompOperator } from "comps/utils/gridCompOperator";
+import { GridCompOperator, readFromClipboard } from "comps/utils/gridCompOperator";
+import { HookCompOperator } from "comps/utils/hookCompOperator";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { EditorHistory } from "util/editoryHistory";
 import { executeQueryAction } from "lowcoder-core";
 import {
   GlobalShortcutsWrapper,
+  isFilterInputTarget,
   modKeyPressed,
   selectCompModifierKeyPressed,
   ShortcutsWrapper,
 } from "util/keyUtils";
-import { PanelStatus, TogglePanel } from "pages/common/header";
+import type { TogglePanel } from "pages/common/header";
+import { useEditorLayoutStore } from "pages/editor/editorLayoutStore";
 import { clickCompNameClass } from "base/codeEditor/clickCompName";
 import { getShortcutAction } from "pages/common/shortcutConfigs";
 import { preview } from "constants/routesURL";
 import { useApplicationId } from "util/hooks";
 import { useUnmount } from "react-use";
+
+
+function isNativeClipboardContext(e: KeyboardEvent | React.KeyboardEvent): boolean {
+  return isFilterInputTarget(e) || !!window.getSelection?.()?.toString();
+}
+
+async function handleCopyComps(editorState: EditorState) {
+  const isHook = await HookCompOperator.copyComp(editorState);
+  if (!isHook) {
+    await GridCompOperator.copyComp(editorState, editorState.selectedComps());
+  }
+}
+
+async function handlePasteComps(editorState: EditorState) {
+  const payload = await readFromClipboard();
+  if (!payload) {
+    return;
+  }
+
+  const hookPasted = HookCompOperator.pasteFromPayload(editorState, payload);
+  if (!hookPasted) {
+    GridCompOperator.pasteFromPayload(editorState, payload);
+  }
+}
 
 type Props = {
   children: React.ReactNode;
@@ -23,8 +50,6 @@ type Props = {
 };
 
 type GlobalProps = Props & {
-  togglePanel: TogglePanel;
-  panelStatus: PanelStatus;
   toggleShortcutList: () => void;
 };
 
@@ -75,6 +100,26 @@ function handleGlobalKeyDown(
       break;
     }
     default:
+      if (modKeyPressed(e) && !isNativeClipboardContext(e)) {
+        const key = e.key?.toLowerCase();
+        const hasSelectedComps = editorState.selectedCompNames.size > 0;
+        if (key === "c" && hasSelectedComps) {
+          handleCopyComps(editorState);
+          break;
+        }
+        if (key === "v") {
+          handlePasteComps(editorState);
+          break;
+        }
+        if (key === "x" && hasSelectedComps) {
+          GridCompOperator.cutComp(editorState, editorState.selectedComps());
+          break;
+        }
+      }
+      if (e.key === "Escape") {
+        editorState.setSelectedCompNames(new Set());
+        break;
+      }
       return;
   }
   // avoid conflicts with the browser
@@ -117,7 +162,9 @@ function handleMouseDown(e: MouseEvent, editorState: EditorState, showLeftPanel:
 export const EditorGlobalHotKeys = React.memo((props: GlobalProps) => {
   const editorState = useContext(EditorContext);
   const { history: editorHistory } = useContext(ExternalEditorContext);
-  const { togglePanel, panelStatus, toggleShortcutList } = props;
+  const { toggleShortcutList } = props;
+  const togglePanel = useEditorLayoutStore((state) => state.togglePanel);
+  const panelStatus = useEditorLayoutStore((state) => state.panelStatus);
   const applicationId = useApplicationId();
   const mountedRef = useRef(true);
 
@@ -194,12 +241,15 @@ function handleEditorKeyDown(e: React.KeyboardEvent, editorState: EditorState) {
       e.stopPropagation();
       return;
     case "copyComps":
-      GridCompOperator.copyComp(editorState, editorState.selectedComps());
+      if (isNativeClipboardContext(e) || editorState.selectedCompNames.size === 0) return;
+      handleCopyComps(editorState);
       return;
     case "pasteComps":
-      GridCompOperator.pasteComp(editorState);
+      if (isNativeClipboardContext(e)) return;
+      handlePasteComps(editorState);
       return;
     case "cutComps":
+      if (isNativeClipboardContext(e) || editorState.selectedCompNames.size === 0) return;
       GridCompOperator.cutComp(editorState, editorState.selectedComps());
       return;
     case "deselectComps":

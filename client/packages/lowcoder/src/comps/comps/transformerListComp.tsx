@@ -40,6 +40,14 @@ const TransformerItemCompBase = new MultiCompBuilder(
                         placement: "bottom",
                         styleName: "medium",
                         width: "100%",
+                        enableAIHelp: true,
+                        aiHelp: {
+                          targetKind: "javascript",
+                          label: `${children.name.getView()}.script`,
+                          fieldName: "script",
+                          fieldDescription:
+                            "Transformer body: a JavaScript function that receives upstream data and returns the transformed value.",
+                        },
                       })}
                       {QueryTutorials.transformer && (
                         <><br/><TacoMarkDown>{trans("transformer.documentationText")}</TacoMarkDown>

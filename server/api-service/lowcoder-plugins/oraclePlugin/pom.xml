@@ -36,8 +36,7 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>oracle-xe</artifactId>
-            <version>1.17.3</version>
+            <artifactId>testcontainers-oracle-free</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -1,6 +1,6 @@
-import { PanelStatus } from "pages/common/header";
-import { DisabledCollisionStatus as DisabledCollisionStatus } from "pages/editor/LeftLayersContent";
-import { EditorModeStatus } from "pages/common/header";
+import type { PanelStatus } from "pages/common/header";
+import type { DisabledCollisionStatus as DisabledCollisionStatus } from "pages/editor/LeftLayersContent";
+import type { EditorModeStatus } from "pages/common/header";
 import log from "loglevel";
 import { JSONValue } from "util/jsonTypes";
 
@@ -9,6 +9,10 @@ export type PanelStyle = {
     h: number;
   };
   codeEditor: {
+    w: number;
+    h: number;
+  };
+  scriptsAndStyles: {
     w: number;
     h: number;
   };
@@ -27,6 +31,10 @@ const DefaultPanelStyle: PanelStyle = {
   codeEditor: {
     w: 744,
     h: 468,
+  },
+  scriptsAndStyles: {
+    w: 600,
+    h: 560,
   },
 };
 
@@ -120,4 +128,18 @@ export function getLocalThemeId() {
 
 export function setLocalThemeId(themeId: string) {
   return localStorage.setItem("theme_id", themeId);
+}
+
+const AIQueryStorageKey = "lc_ai_selected_query";
+
+export function getSelectedAIQueryName(): string {
+  return localStorage.getItem(AIQueryStorageKey) ?? "";
+}
+
+export function saveSelectedAIQueryName(queryName: string) {
+  if (queryName) {
+    localStorage.setItem(AIQueryStorageKey, queryName);
+  } else {
+    localStorage.removeItem(AIQueryStorageKey);
+  }
 }

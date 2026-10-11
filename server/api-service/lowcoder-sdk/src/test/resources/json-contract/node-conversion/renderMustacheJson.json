@@ -1,0 +1,265 @@
+{
+  "param:int" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.IntNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : 1
+  },
+  "param:long" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.LongNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : 3000000001
+  },
+  "param:double" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.DoubleNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : 1.5
+  },
+  "param:bigDecimal" : {
+    "error" : "org.lowcoder.sdk.exception.PluginException: JSON_PARSE_ERROR JSON_PARSE_ERROR"
+  },
+  "param:bigInteger" : {
+    "error" : "org.lowcoder.sdk.exception.PluginException: JSON_PARSE_ERROR JSON_PARSE_ERROR"
+  },
+  "param:bool" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.BooleanNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : true
+  },
+  "param:nothing" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.NullNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : null
+  },
+  "param:str" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.TextNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : "žluť \"quoted\""
+  },
+  "param:map" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/zeta" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/alpha" : "com.fasterxml.jackson.databind.node.ArrayNode",
+        "/alpha/0" : "com.fasterxml.jackson.databind.node.LongNode",
+        "/alpha/1" : "com.fasterxml.jackson.databind.node.DoubleNode",
+        "/alpha/2" : "com.fasterxml.jackson.databind.node.NullNode",
+        "/alpha/3" : "com.fasterxml.jackson.databind.node.DecimalNode"
+      },
+      "keyOrder" : {
+        "" : [ "zeta", "alpha" ]
+      }
+    },
+    "written" : {"zeta":1,"alpha":[3000000001,1.5,null,2.5]}
+  },
+  "param:list" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.ArrayNode",
+        "/0" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/1" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/2" : "com.fasterxml.jackson.databind.node.NullNode",
+        "/3" : "com.fasterxml.jackson.databind.node.ArrayNode",
+        "/3/0" : "com.fasterxml.jackson.databind.node.BooleanNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : [1,"two",null,[true]]
+  },
+  "missingParam" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.NullNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : null
+  },
+  "int" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.IntNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : 1
+  },
+  "intMaxPlusOne" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.LongNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : 2147483648
+  },
+  "longMaxPlusOne" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.TextNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : "9223372036854775808"
+  },
+  "decimal" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.FloatNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : 1.5
+  },
+  "decimalPastFloat" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.DoubleNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : 123456.789
+  },
+  "longDecimal" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.FloatNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : 0.1
+  },
+  "exponent" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.FloatNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : 1000.0
+  },
+  "true" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.BooleanNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : true
+  },
+  "null" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.NullNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : null
+  },
+  "quoted" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.TextNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : "quoted"
+  },
+  "text" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.TextNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : "plain žluť text"
+  },
+  "dateTime" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.TextNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : "2022-05-05 11:12:13"
+  },
+  "textWithParam" : {
+    "error" : "org.lowcoder.sdk.exception.PluginException: JSON_PARSE_ERROR JSON_PARSE_ERROR"
+  },
+  "array" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.ArrayNode",
+        "/0" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/1" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/2" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/3" : "com.fasterxml.jackson.databind.node.FloatNode",
+        "/4" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/4/zeta" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/4/alpha" : "com.fasterxml.jackson.databind.node.ArrayNode",
+        "/4/alpha/0" : "com.fasterxml.jackson.databind.node.LongNode",
+        "/4/alpha/1" : "com.fasterxml.jackson.databind.node.DoubleNode",
+        "/4/alpha/2" : "com.fasterxml.jackson.databind.node.NullNode",
+        "/4/alpha/3" : "com.fasterxml.jackson.databind.node.DecimalNode"
+      },
+      "keyOrder" : {
+        "/4" : [ "zeta", "alpha" ]
+      }
+    },
+    "written" : [1,1,"žluť \"quoted\"",1.5,{"zeta":1,"alpha":[3000000001,1.5,null,2.5]}]
+  },
+  "object" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/a" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/a/zeta" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/a/alpha" : "com.fasterxml.jackson.databind.node.ArrayNode",
+        "/a/alpha/0" : "com.fasterxml.jackson.databind.node.LongNode",
+        "/a/alpha/1" : "com.fasterxml.jackson.databind.node.DoubleNode",
+        "/a/alpha/2" : "com.fasterxml.jackson.databind.node.NullNode",
+        "/a/alpha/3" : "com.fasterxml.jackson.databind.node.DecimalNode",
+        "/b" : "com.fasterxml.jackson.databind.node.FloatNode",
+        "/žluť \"quoted\"" : "com.fasterxml.jackson.databind.node.LongNode"
+      },
+      "keyOrder" : {
+        "/a" : [ "zeta", "alpha" ],
+        "" : [ "a", "b", "žluť \"quoted\"" ]
+      }
+    },
+    "written" : {"a":{"zeta":1,"alpha":[3000000001,1.5,null,2.5]},"b":1.5,"žluť \"quoted\"":3000000001}
+  },
+  "escapedMustache" : {
+    "node" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.TextNode"
+      },
+      "keyOrder" : { }
+    },
+    "written" : "\\\\{\\\\{int\\\\}\\\\}"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id" : "Oauth2GenericAuthConfig.id",
+  "source" : "Oauth2GenericAuthConfig.source",
+  "sourceName" : "Oauth2GenericAuthConfig.sourceName",
+  "enable" : true,
+  "enableRegister" : false,
+  "authType" : "GENERIC",
+  "clientId" : "Oauth2GenericAuthConfig.clientId",
+  "clientSecret" : "SECRET-Oauth2GenericAuthConfig.clientSecret",
+  "sourceDescription" : "Oauth2GenericAuthConfig.sourceDescription",
+  "sourceIcon" : "Oauth2GenericAuthConfig.sourceIcon",
+  "sourceCategory" : "Oauth2GenericAuthConfig.sourceCategory",
+  "issuerUri" : "Oauth2GenericAuthConfig.issuerUri",
+  "authorizationEndpoint" : "Oauth2GenericAuthConfig.authorizationEndpoint",
+  "tokenEndpoint" : "Oauth2GenericAuthConfig.tokenEndpoint",
+  "userInfoEndpoint" : "Oauth2GenericAuthConfig.userInfoEndpoint",
+  "scope" : "Oauth2GenericAuthConfig.scope",
+  "sourceMappings" : {
+    "uid" : "Oauth2GenericAuthConfig.sourceMappings.uid",
+    "email" : "Oauth2GenericAuthConfig.sourceMappings.email"
+  },
+  "userInfoIntrospection" : true,
+  "userCanSelectAccounts" : false,
+  "postForUserEndpoint" : true
+}

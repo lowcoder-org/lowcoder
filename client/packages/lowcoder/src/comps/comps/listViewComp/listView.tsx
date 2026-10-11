@@ -1,10 +1,19 @@
 import { default as Pagination } from "antd/es/pagination";
 import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
-import _, { findIndex } from "lodash";
-import { ConstructorToView, deferAction } from "lowcoder-core";
+import _ from "lodash";
+import { ConstructorToView } from "lowcoder-core";
 import { DragIcon, HintPlaceHolder, ScrollBar, pageItemRender } from "lowcoder-design";
-import { RefObject, useContext, createContext, useMemo, useRef, useEffect } from "react";
+import {
+  RefObject,
+  useContext,
+  createContext,
+  memo,
+  useMemo,
+  useRef,
+  useEffect,
+} from "react";
 import { ResizePayload, useResizeDetector } from "react-resize-detector";
 import styled from "styled-components";
 import { checkIsMobile } from "util/commonUtils";
@@ -15,7 +24,6 @@ import {
   gridItemCompToGridItems,
   InnerGrid,
 } from "../containerComp/containerView";
-import { ContextContainerComp } from "./contextContainerComp";
 import { ListViewImplComp } from "./listViewComp";
 import { getCurrentItemParams, getData } from "./listViewUtils";
 import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
@@ -93,45 +101,53 @@ const MinHorizontalWidthContext = createContext<MinHorizontalWidthContextType>({
   minHorizontalWidth: '100px',
 });
 
-const ContainerInListView = (props: ContainerBaseProps & {itemIdx: number, enableSorting?: boolean} ) => {
-  const {
-    horizontalWidth,
-    minHorizontalWidth
-  } = useContext(MinHorizontalWidthContext);
+/** List row without dnd: must be used when {@link SortableContext} is not mounted. */
+const StaticContainerInListView = memo(function StaticContainerInListView(
+  props: ContainerBaseProps & { itemIdx: number }
+) {
+  const { horizontalWidth, minHorizontalWidth } = useContext(
+    MinHorizontalWidthContext
+  );
 
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
-    id: String(props.itemIdx),
-  });
+  return (
+    <div
+      style={{
+        width: horizontalWidth,
+        minWidth: minHorizontalWidth || "0px",
+      }}
+    >
+      <InnerGrid
+        {...props}
+        emptyRows={15}
+        containerPadding={[4, 4]}
+        hintPlaceholder={HintPlaceHolder}
+      />
+    </div>
+  );
+});
 
-  if (!props.enableSorting) {
-    return (
-      <div
-        style={{
-          width: horizontalWidth,
-          minWidth: minHorizontalWidth || '0px',
-        }}
-      >
-        <InnerGrid
-          {...props}
-          emptyRows={15}
-          containerPadding={[4, 4]}
-          hintPlaceholder={HintPlaceHolder}
-        />
-      </div>
-    )
-  }
+/** List row with sortable handle — only when parent wraps rows in {@link SortableContext}. */
+const SortableContainerInListView = memo(function SortableContainerInListView(
+  props: ContainerBaseProps & { itemIdx: number }
+) {
+  const { horizontalWidth, minHorizontalWidth } = useContext(
+    MinHorizontalWidthContext
+  );
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable(
+    { id: String(props.itemIdx) }
+  );
 
   return (
     <div
       ref={setNodeRef}
       style={{
         width: horizontalWidth,
-        minWidth: minHorizontalWidth || '0px',
+        minWidth: minHorizontalWidth || "0px",
         transform: CSS.Transform.toString(transform),
         transition,
-        display: 'flex',
-        flexWrap: 'nowrap',
-        alignItems: 'center',
+        display: "flex",
+        flexWrap: "nowrap",
+        alignItems: "center",
       }}
     >
       {<StyledDragIcon {...attributes} {...listeners} />}
@@ -143,7 +159,7 @@ const ContainerInListView = (props: ContainerBaseProps & {itemIdx: number, enabl
       />
     </div>
   );
-};
+});
 
 type ListItemProps = {
   itemIdx: number;
@@ -183,27 +199,33 @@ function ListItem({
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, []);
 
+  const minWidthContextValue = useMemo(
+    () => ({ horizontalWidth, minHorizontalWidth }),
+    [horizontalWidth, minHorizontalWidth]
+  );
+
+  const gridItems = useMemo(
+    () => gridItemCompToGridItems(containerProps.items),
+    [containerProps.items]
+  );
+
+  const Container = enableSorting
+    ? SortableContainerInListView
+    : StaticContainerInListView;
+
   return (
-    <MinHorizontalWidthContext.Provider
-      value={{
-        horizontalWidth,
-        minHorizontalWidth
-      }}
-    >
-      <ContainerInListView
+    <MinHorizontalWidthContext.Provider value={minWidthContextValue}>
+      <Container
         itemIdx={itemIdx}
         layout={containerProps.layout}
-        items={gridItemCompToGridItems(containerProps.items)}
+        items={gridItems}
         horizontalGridCells={horizontalGridCells}
         positionParams={containerProps.positionParams}
-        // all layout changes should only reflect on the commonContainer
         dispatch={itemIdx === offset ? containerProps.dispatch : _.noop}
         style={{
           height: "100%",
-          // in case of horizontal mode, minHorizontalWidth is 0px
-          width: minHorizontalWidth || '100%',
+          width: minHorizontalWidth || "100%",
           backgroundColor: "transparent",
-          // flex: "auto",
         }}
         autoHeight={autoHeight}
         isDroppable={itemIdx === offset}
@@ -214,11 +236,80 @@ function ListItem({
         overflow={"hidden"}
         minHeight={minHeight}
         enableGridLines={true}
-        enableSorting={enableSorting}
       />
     </MinHorizontalWidthContext.Provider>
   );
 }
+
+/**
+ * One list cell: re-run container getView() only when this row's item data or
+ * container API changes, so a module in another row is not re-mounted when
+ * a different row's `currentItem` / list data updates (immutable per-row objects).
+ */
+type ListViewDataRowProps = {
+  itemIdx: number;
+  itemData: JSONObject;
+  itemIndexName: string;
+  itemDataName: string;
+  containerFn: (params: Record<string, unknown>, key: string) => { getView: () => any };
+  offset: number;
+  horizontalGridCells?: number;
+  autoHeight: boolean;
+  scrollContainerRef?: RefObject<HTMLDivElement>;
+  minHeight?: string;
+  minHorizontalWidth?: string;
+  horizontalWidth: string;
+  enableSorting?: boolean;
+};
+
+function listViewDataRowPropsEqual(
+  prev: ListViewDataRowProps,
+  next: ListViewDataRowProps
+) {
+  return (
+    prev.itemData === next.itemData &&
+    prev.itemIdx === next.itemIdx &&
+    prev.offset === next.offset &&
+    prev.itemIndexName === next.itemIndexName &&
+    prev.itemDataName === next.itemDataName &&
+    prev.containerFn === next.containerFn &&
+    prev.horizontalGridCells === next.horizontalGridCells &&
+    prev.autoHeight === next.autoHeight &&
+    prev.minHeight === next.minHeight &&
+    prev.minHorizontalWidth === next.minHorizontalWidth &&
+    prev.horizontalWidth === next.horizontalWidth &&
+    prev.scrollContainerRef === next.scrollContainerRef &&
+    prev.enableSorting === next.enableSorting
+  );
+}
+
+const ListViewDataRow = memo(
+  function ListViewDataRow(props: ListViewDataRowProps) {
+    const {
+      itemIdx,
+      itemData,
+      itemIndexName,
+      itemDataName,
+      containerFn,
+      ...listItemRest
+    } = props;
+
+    const containerProps = useMemo(
+      () =>
+        containerFn(
+          {
+            [itemIndexName]: itemIdx,
+            [itemDataName]: itemData,
+          } as Record<string, unknown>,
+          String(itemIdx)
+        ).getView(),
+      [containerFn, itemData, itemDataName, itemIdx, itemIndexName]
+    );
+
+    return <ListItem {...listItemRest} itemIdx={itemIdx} containerProps={containerProps} />;
+  },
+  listViewDataRowPropsEqual
+);
 
 type Props = {
   comp: InstanceType<typeof ListViewImplComp>;
@@ -229,7 +320,7 @@ export function ListView(props: Props) {
   const children = comp.children;
   const ref = useRef(null);
   const editorState = useContext(EditorContext);
-  const isDragging = editorState.isDragging;
+  const isDragging = useEditorStore((state) => state.isDragging);
   const [listHeight, setListHeight] = useDelayState(0, isDragging);
   const dynamicHeight = useMemo(() => children.dynamicHeight.getView(), [children.dynamicHeight]);
   const heightUnitOfRow = useMemo(
@@ -270,7 +361,13 @@ export function ListView(props: Props) {
 
   const enableSorting = useMemo(() => children.enableSorting.getView(), [children.enableSorting]);
 
+  const listDataSyncKey = useMemo(() => JSON.stringify(data), [data]);
+  const listDataKeyDispatchedRef = useRef<string | undefined>(undefined);
   useEffect(() => {
+    if (listDataKeyDispatchedRef.current === listDataSyncKey) {
+      return;
+    }
+    listDataKeyDispatchedRef.current = listDataSyncKey;
     children.listData.dispatchChangeValueAction(data);
   }, [JSON.stringify(data)]);
 
@@ -279,7 +376,7 @@ export function ListView(props: Props) {
 
   const commonLayout = comp.realSimpleContainer()!.children.layout.getView();
   const isOneItem =
-    pageInfo.currentPageSize > 0 && (_.isEmpty(commonLayout) || editorState.isDragging);
+    pageInfo.currentPageSize > 0 && (_.isEmpty(commonLayout) || isDragging);
   const noOfRows = isOneItem
     ? 1
     : Math.floor((pageInfo.currentPageSize + noOfColumns - 1) / noOfColumns);
@@ -309,30 +406,23 @@ export function ListView(props: Props) {
             ) {
               return <div key={itemIdx} style={{ flex: "auto" }}></div>;
             }
-            const containerProps = containerFn(
-              {
-                [itemIndexName]: itemIdx,
-                [itemDataName]: getCurrentItemParams(listData as JSONObject[], itemIdx)
-              },
-              String(itemIdx)
-            ).getView();
-            const unMountFn = () => {
-              comp.children.container.dispatch(
-                deferAction(ContextContainerComp.batchDeleteAction([String(itemIdx)]))
-              );
-            };
-
+            const itemData = getCurrentItemParams(
+              listData as JSONObject[],
+              itemIdx
+            );
             return (
-              <ListItem
+              <ListViewDataRow
                 key={itemIdx}
                 itemIdx={itemIdx}
+                itemData={itemData}
+                itemIndexName={itemIndexName}
+                itemDataName={itemDataName}
+                containerFn={containerFn}
                 offset={pageInfo.offset}
-                containerProps={containerProps}
                 horizontalGridCells={horizontalGridCells}
                 autoHeight={isDragging || dynamicHeight}
                 scrollContainerRef={ref}
                 minHeight={minHeight}
-                unMountFn={unMountFn}
                 horizontalWidth={`${100 / noOfColumns}%`}
                 minHorizontalWidth={horizontal ? minHorizontalWidth : undefined}
                 enableSorting={enableSorting}

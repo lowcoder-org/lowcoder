@@ -68,4 +68,6 @@ The query editor is flexible and adapts the options to build queries to the data
 
 The component and property pane (red) is located on the right of the window. Drag components onto the canvas from the **Insert** tab and edit the properties of the components in the **Properties** tab.
 
+Under the **Insert** tab, switch to **Extensions** to access **Modules**, **Templates** (npm layout packages), and **Plugins**. See [NPM Template Plugins](./npm-template-plugins.md).
+
 When a component is selected on the canvas, the **Properties** tab will be activated automatically and display the properties of that component.

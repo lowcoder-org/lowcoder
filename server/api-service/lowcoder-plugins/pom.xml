@@ -21,6 +21,15 @@
 		</repository>
 	</repositories>
 
+    <properties>
+        <!-- JUnit 5 tag of the tests that start a heavy container (MSSQL, Elasticsearch, Oracle Free:
+             docs/COVERAGE_GATE_PLAN.md §6.3, D-5). The default build excludes them; a heavy run includes only them with
+             `-Dheavy.excluded= -Dgroups=heavy-container`. surefire reads the exclusion from this property, and a
+             property given on the command line overrides it, where a plain -DexcludedGroups would not override the
+             configuration. The gate does not read the heavy run's data. -->
+        <heavy.excluded>heavy-container</heavy.excluded>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.pf4j</groupId>
@@ -37,6 +46,14 @@
             <groupId>org.lowcoder</groupId>
             <artifactId>lowcoder-sdk</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <!-- Shared JSON-contract test helpers from the lowcoder-sdk test-jar (docs/API_PAYLOAD_TEST_PLAN.md §3.2). -->
+        <dependency>
+            <groupId>org.lowcoder</groupId>
+            <artifactId>lowcoder-sdk</artifactId>
+            <version>${revision}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -58,8 +75,8 @@
 
         <!-- Test Dependencies -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -208,6 +225,15 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<excludedGroups>${heavy.excluded}</excludedGroups>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
     
     <modules>

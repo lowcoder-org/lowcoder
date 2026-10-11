@@ -1,0 +1,102 @@
+{
+  "/representative/_search" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/took" : "java.lang.Integer",
+        "/hits" : "java.util.LinkedHashMap",
+        "/hits/hits" : "java.util.ArrayList",
+        "/hits/hits/0" : "java.util.LinkedHashMap",
+        "/hits/hits/0/_source" : "java.util.LinkedHashMap",
+        "/hits/hits/0/_source/zeta" : "java.lang.String",
+        "/hits/hits/0/_source/int" : "java.lang.Integer",
+        "/hits/hits/0/_source/negativeInt" : "java.lang.Integer",
+        "/hits/hits/0/_source/intMax" : "java.lang.Integer",
+        "/hits/hits/0/_source/intMaxPlusOne" : "java.lang.Long",
+        "/hits/hits/0/_source/intMinMinusOne" : "java.lang.Long",
+        "/hits/hits/0/_source/longMax" : "java.lang.Long",
+        "/hits/hits/0/_source/longMaxPlusOne" : "java.math.BigInteger",
+        "/hits/hits/0/_source/longMinMinusOne" : "java.math.BigInteger",
+        "/hits/hits/0/_source/decimal" : "java.lang.Double",
+        "/hits/hits/0/_source/trailingZeroDecimal" : "java.lang.Double",
+        "/hits/hits/0/_source/zeroPointZero" : "java.lang.Double",
+        "/hits/hits/0/_source/negativeZero" : "java.lang.Integer",
+        "/hits/hits/0/_source/exponent" : "java.lang.Double",
+        "/hits/hits/0/_source/exponentUpperCase" : "java.lang.Double",
+        "/hits/hits/0/_source/negativeExponent" : "java.lang.Double",
+        "/hits/hits/0/_source/longDecimal" : "java.lang.Double",
+        "/hits/hits/0/_source/true" : "java.lang.Boolean",
+        "/hits/hits/0/_source/false" : "java.lang.Boolean",
+        "/hits/hits/0/_source/null" : "null",
+        "/hits/hits/0/_source/emptyObject" : "java.util.LinkedHashMap",
+        "/hits/hits/0/_source/emptyArray" : "java.util.ArrayList",
+        "/hits/hits/0/_source/nested" : "java.util.LinkedHashMap",
+        "/hits/hits/0/_source/nested/array" : "java.util.ArrayList",
+        "/hits/hits/0/_source/nested/array/0" : "java.lang.Integer",
+        "/hits/hits/0/_source/nested/array/1" : "java.lang.String",
+        "/hits/hits/0/_source/nested/array/2" : "java.util.ArrayList",
+        "/hits/hits/0/_source/nested/array/2/0" : "java.lang.Integer",
+        "/hits/hits/0/_source/nested/array/2/1" : "java.util.LinkedHashMap",
+        "/hits/hits/0/_source/nested/array/2/1/four" : "java.lang.Double",
+        "/hits/hits/0/_source/nested/array/3" : "null",
+        "/hits/hits/0/_source/nested/array/4" : "java.lang.Boolean",
+        "/hits/hits/0/_source/nested/array/5" : "java.lang.Long",
+        "/hits/hits/0/_source/nested/object" : "java.util.LinkedHashMap",
+        "/hits/hits/0/_source/nested/object/z" : "java.lang.Integer",
+        "/hits/hits/0/_source/nested/object/a" : "java.util.LinkedHashMap",
+        "/hits/hits/0/_source/nested/object/a/deeper" : "java.util.ArrayList",
+        "/hits/hits/0/_source/nested/object/a/deeper/0" : "java.util.ArrayList",
+        "/hits/hits/0/_source/nested/object/a/deeper/1" : "java.util.LinkedHashMap",
+        "/hits/hits/0/_source/unicode" : "java.lang.String",
+        "/hits/hits/0/_source/escapes" : "java.lang.String",
+        "/hits/hits/0/_source/key with escaped name" : "java.lang.String",
+        "/hits/hits/0/_source/alpha" : "java.lang.String"
+      },
+      "keyOrder" : {
+        "/hits/hits/0/_source/emptyObject" : [ ],
+        "/hits/hits/0/_source/nested/array/2/1" : [ "four" ],
+        "/hits/hits/0/_source/nested/object/a/deeper/1" : [ ],
+        "/hits/hits/0/_source/nested/object/a" : [ "deeper" ],
+        "/hits/hits/0/_source/nested/object" : [ "z", "a" ],
+        "/hits/hits/0/_source/nested" : [ "array", "object" ],
+        "/hits/hits/0/_source" : [ "zeta", "int", "negativeInt", "intMax", "intMaxPlusOne", "intMinMinusOne", "longMax", "longMaxPlusOne", "longMinMinusOne", "decimal", "trailingZeroDecimal", "zeroPointZero", "negativeZero", "exponent", "exponentUpperCase", "negativeExponent", "longDecimal", "true", "false", "null", "emptyObject", "emptyArray", "nested", "unicode", "escapes", "key with escaped name", "alpha" ],
+        "/hits/hits/0" : [ "_source" ],
+        "/hits" : [ "hits" ],
+        "" : [ "took", "hits" ]
+      }
+    },
+    "written" : {"queryCode":"OK","data":{"took":1,"hits":{"hits":[{"_source":{"zeta":"first key, so that sorted output would differ from input order","int":1,"negativeInt":-40003,"intMax":2147483647,"intMaxPlusOne":2147483648,"intMinMinusOne":-2147483649,"longMax":9223372036854775807,"longMaxPlusOne":9223372036854775808,"longMinMinusOne":-9223372036854775809,"decimal":1.5,"trailingZeroDecimal":1.5,"zeroPointZero":0.0,"negativeZero":0,"exponent":100.0,"exponentUpperCase":100.0,"negativeExponent":0.0025,"longDecimal":0.1,"true":true,"false":false,"null":null,"emptyObject":{},"emptyArray":[],"nested":{"array":[1,"two",[3,{"four":4.0}],null,true,3000000001],"object":{"z":1,"a":{"deeper":[[],{}]}}},"unicode":"žluťoučký kůň 🐎 中文","escapes":"é \u0000 \n \t \" \\ / 😀","key with escaped name":"escaped key","alpha":"last key"}}]}},"success":true}
+  },
+  "/array/_cat" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "null"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"OK","success":true}
+  },
+  "/invalid/_search" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "null"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"OK","success":true}
+  },
+  "/missing/_search" : {
+    "queryCode" : "ES_EXECUTION_ERROR",
+    "messageKey" : "ES_QUERY_ERROR",
+    "dataShape" : {
+      "classes" : {
+        "" : "null"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"ES_EXECUTION_ERROR","success":false}
+  }
+}

@@ -26,6 +26,7 @@ import MobileOutlined from "@ant-design/icons/MobileOutlined";
 import TabletOutlined from "@ant-design/icons/TabletOutlined";
 import DesktopOutlined from "@ant-design/icons/DesktopOutlined";
 import { DeviceOrientation, DeviceType, EditorContext } from "@lowcoder-ee/comps/editorState";
+import { useEditorStore } from "@lowcoder-ee/comps/editorStore";
 import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
 import { buildMaterialPreviewURL } from "@lowcoder-ee/util/materialUtils";
 
@@ -150,6 +151,8 @@ export function HeaderProfile(props: { user: User }) {
 const PreviewHeaderComp = () => {
   const params = useParams<AppPathParams>();
   const editorState = useContext(EditorContext);
+  const deviceType = useEditorStore((state) => state.deviceType);
+  const deviceOrientation = useEditorStore((state) => state.deviceOrientation);
   const user = useSelector(getUser);
   const application = useSelector(currentApplication);
   const isPublicApp = useSelector(isPublicApplication);
@@ -237,20 +240,20 @@ const PreviewHeaderComp = () => {
             { value: 'tablet', icon: <TabletOutlined /> },
             { value: 'desktop', icon: <DesktopOutlined /> },
           ]}
-          value={editorState.deviceType}
+          value={deviceType}
           onChange={(value) => {
             editorState.setDeviceType(value);
           }}
         />
 
         {/* Orientation */}
-        {editorState.deviceType !== 'desktop' && (
+        {deviceType !== 'desktop' && (
           <Segmented<DeviceOrientation>
             options={[
               { value: 'portrait', label: "Portrait" },
               { value: 'landscape', label: "Landscape" },
             ]}
-            value={editorState.deviceOrientation}
+            value={deviceOrientation}
             onChange={(value) => {
               editorState.setDeviceOrientation(value);
             }}
@@ -260,8 +263,8 @@ const PreviewHeaderComp = () => {
     );
   }, [
     isPublicApp,
-    editorState.deviceType,
-    editorState.deviceOrientation,
+    deviceType,
+    deviceOrientation,
   ]);
 
   return (

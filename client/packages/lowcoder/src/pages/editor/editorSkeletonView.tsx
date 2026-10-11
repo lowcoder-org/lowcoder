@@ -1,14 +1,10 @@
-import Header from "pages/common/header";
 import React, { lazy, useCallback, useEffect, useRef } from "react";
 import {
   Body,
   EditorContainer,
   Height100Div,
 } from "pages/common/styledComponent";
-import { getPanelStatus, getEditorModeStatus, getPanelStyle } from "util/localStorageUtil";
-// import { BottomSkeleton } from "pages/editor/bottom/BottomContent";
-// import RightPanel from "pages/editor/right/RightPanel";
-import _ from "lodash";
+import { useEditorLayoutStore } from "pages/editor/editorLayoutStore";
 
 import styled from "styled-components";
 import { default as Skeleton } from "antd/es/skeleton";
@@ -55,9 +51,9 @@ export const EditorLoadingSpin = React.memo((props: { height?: string | number }
 
 export default function EditorSkeletonView() {
   const mountedRef = useRef(true);
-  const panelStatus = getPanelStatus();
-  const editorModeStatus = getEditorModeStatus();
-  const panelStyle = getPanelStyle();
+  // no provider here - the skeleton renders while the app is still loading
+  const panelStatus = useEditorLayoutStore((state) => state.panelStatus);
+  const bottomHeight = useEditorLayoutStore((state) => state.panelStyle.bottom.h);
   const isUserViewMode = useUserViewMode();
   const isTemplate = useTemplateViewMode();
 
@@ -83,12 +79,6 @@ export default function EditorSkeletonView() {
   return (
     <>
       <Height100Div>
-        {/* <Header
-          panelStatus={panelStatus}
-          togglePanel={_.noop}
-          editorModeStatus={editorModeStatus}
-          toggleEditorModeStatus={_.noop}
-        /> */}
         <Body>
           <SiderStyled />
           {panelStatus.left && (
@@ -104,7 +94,7 @@ export default function EditorSkeletonView() {
               <EditorLoadingSpin />
             </EditorContainer>
             {panelStatus.bottom && (
-              <div style={{ height: panelStyle.bottom.h + "px" }}>
+              <div style={{ height: bottomHeight + "px" }}>
                 <BottomSkeleton />
               </div>
             )}

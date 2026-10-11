@@ -10,8 +10,7 @@ import { UICompBuilder, withDefault } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { AutoHeightControl } from "../controls/autoHeightControl";
 import { BoolControl } from "../controls/boolControl";
 
@@ -98,6 +97,7 @@ let FileViewerBasicComp = (function () {
     />;
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
@@ -109,7 +109,7 @@ let FileViewerBasicComp = (function () {
             })}
           </Section>
 
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["logic", "both"].includes(editorModeStatus) && (
             <Section name={sectionNames.interaction}>
               {hiddenPropertyView(children)}
               {showDataLoadingIndicatorsPropertyView(children)}
@@ -124,7 +124,7 @@ let FileViewerBasicComp = (function () {
                 )}
           </Section>
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             <>
               <Section name={sectionNames.style}>
               {children.style.getPropertyView()}

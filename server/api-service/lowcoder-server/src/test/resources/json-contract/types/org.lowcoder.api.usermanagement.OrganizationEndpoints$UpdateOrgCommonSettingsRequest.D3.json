@@ -1,0 +1,22 @@
+{
+  "key" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "value" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  }
+}

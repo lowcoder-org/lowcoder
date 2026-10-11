@@ -15,7 +15,7 @@ import {
   eventHandlerControl,
   focusEvent,
 } from "../../controls/eventHandlerControl";
-import { stringExposingStateControl } from "../../controls/codeStateControl";
+import { stringExposingStateControl, withLinkedDefaultValue } from "../../controls/codeStateControl";
 import { LabelControl } from "../../controls/labelControl";
 import { UICompBuilder, withDefault } from "../../generators";
 import {
@@ -42,7 +42,7 @@ import {
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { TIME_FORMAT, TimeParser } from "util/dateTimeUtils";
-import React, { ReactNode, useContext, useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { Section, sectionNames } from "components/Section";
@@ -53,7 +53,7 @@ import { RefControl } from "comps/controls/refControl";
 // import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
 import { TimePickerProps } from "antd/es/time-picker";
 
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { timeZoneOptions } from "./timeZone";
 import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
@@ -159,19 +159,14 @@ export type TimeCompViewProps = Pick<
 };
 
 const TimePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
-  const defaultValue = { ...props.defaultValue }.value;
   const value = { ...props.value }.value;
 
   let time: dayjs.Dayjs | null = null;
   if(value !== '') {
     time = dayjs(value, TimeParser);
   }
-  
-  const [tempValue, setTempValue] = useState<dayjs.Dayjs | null>(time);
 
-  useEffect(() => {
-    props.value.onChange(defaultValue);
-  }, [defaultValue]);
+  const [tempValue, setTempValue] = useState<dayjs.Dayjs | null>(time);
 
   useEffect(() => {
     const newValue = value ? dayjs(value, TimeParser) : null;
@@ -221,7 +216,9 @@ const TimePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
     ...validate(props),
   });
 })
-  .setPropertyViewFn((children) => (
+  .setPropertyViewFn((children) => {
+    const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+    return (
     <>
       <Section name={sectionNames.basic}>
         {children.defaultValue.propertyView({
@@ -235,7 +232,7 @@ const TimePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
 
       <FormDataPropertyView {...children} />
 
-      {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+      {(editorModeStatus === "logic" || editorModeStatus === "both") && (
         <><Section name={sectionNames.validation}>
           {requiredPropertyView(children)}
           {children.showValidationWhenEmpty.propertyView({
@@ -254,15 +251,15 @@ const TimePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
         </Section></>
       )}
 
-      {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && children.label.getPropertyView()}
-      {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+      {(editorModeStatus === "layout" || editorModeStatus === "both") && children.label.getPropertyView()}
+      {(editorModeStatus === "layout" || editorModeStatus === "both") && (
         <Section name={sectionNames.layout}>
           {formatPropertyView({ children, placeholder: TIME_FORMAT })}
           {children.placeholder.propertyView({ label: trans("time.placeholderText") })}
         </Section>
       )}
 
-      {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+      {(editorModeStatus === "logic" || editorModeStatus === "both") && (
         <Section name={sectionNames.advanced}>
           {commonAdvanceSection(children)}
           {children.use12Hours.propertyView({ label: trans("prop.use12Hours") })}
@@ -270,7 +267,7 @@ const TimePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
         </Section>
       )}
 
-      {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+      {(editorModeStatus === "layout" || editorModeStatus === "both") && (
         <>
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
@@ -290,11 +287,15 @@ const TimePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
         </>
       )}
     </>
-  ))
+  );
+  })
   .setExposeMethodConfigs(dateRefMethods)
   .build();
 
-export const timePickerControl = migrateOldData(TimePickerTmpCmp, fixOldInputCompData);
+export const timePickerControl = migrateOldData(
+  withLinkedDefaultValue(TimePickerTmpCmp, "defaultValue", "value"),
+  fixOldInputCompData
+);
 
 const TimeRangeTmpCmp = (function () {
   const childrenMap = {
@@ -308,10 +309,7 @@ const TimeRangeTmpCmp = (function () {
   };
 
   return new UICompBuilder(childrenMap, (props) => {
-    const defaultStart = { ...props.defaultStart }.value;
     const startValue = { ...props.start }.value;
-
-    const defaultEnd = { ...props.defaultEnd }.value;
     const endValue = { ...props.end }.value;
 
     let start: dayjs.Dayjs | null = null;
@@ -325,14 +323,6 @@ const TimeRangeTmpCmp = (function () {
 
     const [tempStartValue, setTempStartValue] = useState<dayjs.Dayjs | null>(start);
     const [tempEndValue, setTempEndValue] = useState<dayjs.Dayjs | null>(end);
-
-    useEffect(() => {
-      props.start.onChange(defaultStart);
-    }, [defaultStart]);
-
-    useEffect(() => {
-      props.end.onChange(defaultEnd);
-    }, [defaultEnd]);
 
     useEffect(() => {
       const value = startValue ? dayjs(startValue, TimeParser) : null;
@@ -395,7 +385,9 @@ const TimeRangeTmpCmp = (function () {
         : startResult),
     });
   })
-    .setPropertyViewFn((children) => (
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
         <Section name={sectionNames.basic}>
           {children.defaultStart.propertyView({
@@ -413,7 +405,7 @@ const TimeRangeTmpCmp = (function () {
         
         <FormDataPropertyView {...children} />
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "logic" || editorModeStatus === "both") && (
           <><Section name={sectionNames.validation}>
             {requiredPropertyView(children)}
             {children.showValidationWhenEmpty.propertyView({
@@ -432,15 +424,15 @@ const TimeRangeTmpCmp = (function () {
           </Section></>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && children.label.getPropertyView()}
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "layout" || editorModeStatus === "both") && children.label.getPropertyView()}
+        {(editorModeStatus === "layout" || editorModeStatus === "both") && (
           <Section name={sectionNames.layout}>
             {formatPropertyView({ children, placeholder: TIME_FORMAT })}
             {children.placeholder.propertyView({ label: trans("time.placeholderText") })}
           </Section>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "logic" || editorModeStatus === "both") && (
           <Section name={sectionNames.advanced}>
             {commonAdvanceSection(children)}
             {children.use12Hours.propertyView({ label: trans("prop.use12Hours") })}
@@ -448,7 +440,7 @@ const TimeRangeTmpCmp = (function () {
           </Section>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "layout" || editorModeStatus === "both") && (
           <>
             <Section name={sectionNames.style}>
               {children.style.getPropertyView()}
@@ -468,11 +460,19 @@ const TimeRangeTmpCmp = (function () {
           </>
         )}
       </>
-    ))
+    );
+    })
     .build();
 })();
 
-export const timeRangeControl = migrateOldData(TimeRangeTmpCmp, fixOldDateOrTimeRangeData);
+export const timeRangeControl = migrateOldData(
+  withLinkedDefaultValue(
+    withLinkedDefaultValue(TimeRangeTmpCmp, "defaultStart", "start"),
+    "defaultEnd",
+    "end"
+  ),
+  fixOldDateOrTimeRangeData
+);
 
 const getTimeZoneInfo = (timeZone: any, otherTimeZone: any) => {
   const tz = timeZone === 'UserChoice' ? otherTimeZone : timeZone;
@@ -585,7 +585,7 @@ export let TimeRangeComp = withExposingConfigs(timeRangeControl, [
   depsConfig({
     name: "invalid",
     desc: trans("export.invalidDesc"),
-    depKeys: ["start", "end", "required", "minTime", "maxTime", "customRule"],
+    depKeys: ["start", "end", "showValidationWhenEmpty", "required", "minTime", "maxTime", "customRule"],
     func: (input) =>
       validate({
         ...input,

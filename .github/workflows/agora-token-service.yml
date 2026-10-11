@@ -1,0 +1,26 @@
+name: Build agora-token-service docker image
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev
+      - main
+    paths:
+      - 'deploy/docker/agora-token-service/**'
+      - '.github/workflows/agora-token-service.yml'
+      - '.github/workflows/build-service-image.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-service-image.yml
+    # Publishes the image used by the `agora-token-service` service
+    # in deploy/docker/docker-compose-multi.yaml
+    with:
+      context: ./deploy/docker/agora-token-service
+      dockerfile: ./deploy/docker/agora-token-service/Dockerfile
+      image_name: lowcoderorg/lowcoder-agora-token-service
+    secrets: inherit

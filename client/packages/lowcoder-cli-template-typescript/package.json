@@ -28,7 +28,7 @@
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
     "lowcoder-cli": "^0.0.30",
-    "lowcoder-sdk": "^2.1.10",
+    "lowcoder-sdk": "^3.0.0",
     "prop-types": "^15.7.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

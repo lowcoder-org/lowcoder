@@ -1,0 +1,97 @@
+{
+  "bulkString" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"OK","data":"{\"a\": 1.50, \"text\": \"žluť\"}","success":true}
+  },
+  "invalidUtf8" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"OK","data":"a�b","success":true}
+  },
+  "simpleStringOk" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"OK","data":"OK","success":true}
+  },
+  "integer" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "java.lang.String"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"OK","data":"3000000001","success":true}
+  },
+  "nil" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "null"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"OK","success":true}
+  },
+  "array" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "java.util.ArrayList",
+        "/0" : "java.lang.String",
+        "/1" : "null",
+        "/2" : "java.lang.String"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"OK","data":["one",null,"žluť"],"success":true}
+  },
+  "emptyArray" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "java.util.ArrayList"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"OK","data":[],"success":true}
+  },
+  "nestedArray" : {
+    "queryCode" : "REDIS_EXECUTION_ERROR",
+    "messageKey" : "REDIS_EXECUTION_ERROR",
+    "dataShape" : {
+      "classes" : {
+        "" : "null"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"REDIS_EXECUTION_ERROR","success":false}
+  },
+  "arrayOfIntegers" : {
+    "queryCode" : "REDIS_EXECUTION_ERROR",
+    "messageKey" : "REDIS_EXECUTION_ERROR",
+    "dataShape" : {
+      "classes" : {
+        "" : "null"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"REDIS_EXECUTION_ERROR","success":false}
+  }
+}

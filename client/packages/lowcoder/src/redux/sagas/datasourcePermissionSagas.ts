@@ -10,18 +10,17 @@ import { validateResponse } from "api/apiUtils";
 import log from "loglevel";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
-import { LibraryQuery } from "../../api/queryLibraryApi";
 import {
   DeleteDatasourcePermissionPayload,
   FetchDatasourcePermissionsPayload,
   GrantDatasourcePermissionPayload,
   UpdateDatasourcePermissionPayload,
 } from "../reduxActions/datasourcePermissionActions";
-import { DatasourcePermissionApi } from "../../api/datasourcePermissionApi";
+import { DatasourcePermissionApi, DatasourcePermissionInfo } from "../../api/datasourcePermissionApi";
 
 function* fetchPermissionsSaga(action: ReduxAction<FetchDatasourcePermissionsPayload>) {
   try {
-    const response: AxiosResponse<GenericApiResponse<LibraryQuery[]>> =
+    const response: AxiosResponse<GenericApiResponse<DatasourcePermissionInfo>> =
       yield DatasourcePermissionApi.fetchPermissions(action.payload.datasourceId);
     const isValidResponse: boolean = validateResponse(response);
     if (isValidResponse) {
@@ -61,13 +60,13 @@ function* grantPermissionSaga(
 
 function* updatePermissionSaga(action: ReduxAction<UpdateDatasourcePermissionPayload>) {
   try {
-    const response: AxiosResponse<GenericApiResponse<LibraryQuery>> =
+    const response: AxiosResponse<GenericApiResponse<boolean>> =
       yield DatasourcePermissionApi.updatePermission(action.payload);
     const isValidResponse: boolean = validateResponse(response);
 
     if (isValidResponse) {
       yield put({
-        type: ReduxActionTypes.UPDATE_QUERY_LIBRARY_SUCCESS,
+        type: ReduxActionTypes.UPDATE_DATASOURCE_PERMISSION_SUCCESS,
         payload: action.payload,
       });
     }

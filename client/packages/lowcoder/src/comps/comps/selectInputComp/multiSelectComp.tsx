@@ -15,6 +15,7 @@ import { SelectInputInvalidConfig, useSelectInputValidate } from "./selectInputC
 import { PaddingControl } from "../../controls/paddingControl";	
 import { MarginControl } from "../../controls/marginControl";
 import { migrateOldData } from "comps/generators/simpleGenerators";
+import { withLinkedDefaultValue } from "comps/controls/codeStateControl";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
 let MultiSelectBasicComp = (function () {
@@ -63,7 +64,10 @@ let MultiSelectBasicComp = (function () {
     .build();
 })();
 
-MultiSelectBasicComp = migrateOldData(MultiSelectBasicComp, fixOldInputCompData);
+MultiSelectBasicComp = migrateOldData(
+  withLinkedDefaultValue(MultiSelectBasicComp, "defaultValue", "value"),
+  fixOldInputCompData
+);
 
 export const MultiSelectComp = withExposingConfigs(MultiSelectBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),

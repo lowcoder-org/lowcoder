@@ -1,4 +1,5 @@
 import Api from "api/api";
+import { notifyWorkspaceSeatsChanged } from "util/workspaceSeatSyncEvents";
 import { AxiosPromise } from "axios";
 import { GroupUser, OrgGroup, OrgUser } from "constants/orgConstants";
 import {
@@ -81,21 +82,21 @@ export class OrgApi extends Api {
   }
 
   static deleteGroup(groupId: string): AxiosPromise<ApiResponse> {
-    return Api.delete(OrgApi.deleteGroupURL(groupId));
+    return Api.delete(OrgApi.deleteGroupURL(groupId)).then(notifyWorkspaceSeatsChanged);
   }
 
   static updateUserOrgRole(request: UpdateUserOrgRolePayload): AxiosPromise<ApiResponse> {
     return Api.put(OrgApi.updateUserOrgRoleURL(request.orgId), {
       userId: request.userId,
       role: request.role,
-    });
+    }).then(notifyWorkspaceSeatsChanged);
   }
 
   static updateUserGroupRole(request: UpdateUserGroupRolePayload): AxiosPromise<ApiResponse> {
     return Api.put(OrgApi.updateUserGroupRoleURL(request.groupId), {
       userId: request.userId,
       role: request.role,
-    });
+    }).then(notifyWorkspaceSeatsChanged);
   }
 
   static fetchOrgUsers(orgId: string): AxiosPromise<OrgUsersResponse> {
@@ -123,19 +124,19 @@ export class OrgApi extends Api {
   static deleteGroupUser(request: RemoveGroupUserPayload): AxiosPromise<ApiResponse> {
     return Api.delete(OrgApi.deleteGroupUserURL(request.groupId), {
       userId: request.userId,
-    });
+    }).then(notifyWorkspaceSeatsChanged);
   }
 
   static addGroupUser(request: AddGroupUserPayload): AxiosPromise<ApiResponse> {
     return Api.post(OrgApi.addGroupUserURL(request.groupId), {
       userId: request.userId,
       role: request.role,
-    });
+    }).then(notifyWorkspaceSeatsChanged);
   }
 
   static deleteOrgUser(request: DeleteOrgUserPayload): AxiosPromise<ApiResponse> {
     const { orgId, ...rest } = request;
-    return Api.delete(OrgApi.deleteOrgUsersURL(orgId), rest);
+    return Api.delete(OrgApi.deleteOrgUsersURL(orgId), rest).then(notifyWorkspaceSeatsChanged);
   }
 
   static quitOrg(orgId: string): AxiosPromise<ApiResponse> {
@@ -147,7 +148,7 @@ export class OrgApi extends Api {
   }
 
   static quitGroup(groupId: string): AxiosPromise<ApiResponse> {
-    return Api.delete(OrgApi.quitGroupURL(groupId));
+    return Api.delete(OrgApi.quitGroupURL(groupId)).then(notifyWorkspaceSeatsChanged);
   }
 
   static createOrg(orgName: string): AxiosPromise<CreateOrgResponse> {

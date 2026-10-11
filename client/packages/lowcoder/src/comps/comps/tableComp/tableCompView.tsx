@@ -108,6 +108,7 @@ export const TableCompView = React.memo((props: {
     () => compChildren.dynamicColumnConfig.getView(),
     [compChildren.dynamicColumnConfig]
   );
+  const headerFilters = useMemo(() => compChildren.headerFilters.getView(), [compChildren.headerFilters]);
   const columnsAggrData = comp.columnAggrData;
   const expansion = useMemo(() => compChildren.expansion.getView(), [compChildren.expansion]);
   const antdColumns = useMemo(
@@ -122,6 +123,7 @@ export const TableCompView = React.memo((props: {
         columnsAggrData,
         editModeClicks,
         onEvent,
+        headerFilters,
       ),
     [
       columnViews,
@@ -132,6 +134,7 @@ export const TableCompView = React.memo((props: {
       dynamicColumnConfig,
       columnsAggrData,
       editModeClicks,
+      headerFilters,
     ]
   );
 
@@ -294,8 +297,13 @@ export const TableCompView = React.memo((props: {
         )
       }
       onDownload={() => {
-        handleChangeEvent("download");
-        onDownload(`${compName}-data`)
+        if (compChildren.onEvent.isBind("download")) {
+          // Custom download handler exists
+          handleChangeEvent("download");
+        } else {
+          // Download default CSV 
+          onDownload(`${compName}-data`);
+        }
       }}
       hasChange={hasChange}
       onSaveChanges={() => handleChangeEvent("saveChanges")}
@@ -395,7 +403,8 @@ export const TableCompView = React.memo((props: {
                   }
                 },
                 onExpandedRowsChange: (expandedRowKeys) => {
-                  setExpandedRowKeys(expandedRowKeys as unknown as string[]);
+                  const keys = expandedRowKeys as unknown as string[];
+                  setExpandedRowKeys(expansion.singleRowExpand ? keys.slice(-1) : keys);
                 },
                 expandedRowKeys: expandedRowKeys,
               }}

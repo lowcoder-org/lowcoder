@@ -1,0 +1,22 @@
+{{- if .Values.proxyService.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "lowcoder.fullname" . }}-proxy-service
+  labels:
+    {{- include "lowcoder.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.proxyService.service.type }}
+  ports:
+    - port: {{ .Values.proxyService.service.port }}
+      targetPort: lowcoder-proxy
+      protocol: TCP
+      name: lowcoder-proxy
+    {{- if .Values.proxyService.service.nodePort }}
+      {{- if or (eq .Values.proxyService.service.type "NodePort") (eq .Values.proxyService.service.type "LoadBalancer") }}
+      nodePort: {{ .Values.proxyService.service.nodePort }}
+      {{- end }}
+    {{- end }}
+  selector:
+    {{- include "lowcoder.selectorLabels" (dict "component" "proxy-service" "Values" .Values "Release" .Release "Chart" .Chart) | nindent 4 }}
+{{- end }}

@@ -4,15 +4,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.collect.ImmutableMap;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.restapi.model.RestApiQueryExecutionContext;
 import org.lowcoder.sdk.config.CommonConfig;
+import org.lowcoder.sdk.contract.RecordingHttpServer;
+import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.common.RestApiUriBuilder;
 import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.BasicAuthConfig;
+import org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType;
 import org.lowcoder.sdk.query.QueryExecutionContext;
 import org.lowcoder.sdk.query.QueryVisitorContext;
 import reactor.core.publisher.Mono;
@@ -24,17 +28,42 @@ import java.util.Map;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.BASIC_AUTH;
 import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.DIGEST_AUTH;
 
+/**
+ * {@link RestApiExecutor} end to end against a local echo server ({@link EchoServerStub}) in place of postman-echo.com,
+ * so no network access is needed: request bodies by content type, form and multipart bodies, parameter encoding and
+ * binding, basic and digest authentication, and JSON response content types.
+ */
 public class RestApiEngineTest {
+
+    private static final String WRONG_PASSWORD = "wrong";
+    /** {@code RestApiExecutor.MAX_REDIRECTS} (private): calls 0 to 6 send a request, call 7 fails before sending one. */
+    private static final int EXECUTOR_REQUEST_LIMIT = 7;
+
+    private static RecordingHttpServer server;
 
     private final RestApiExecutor executor = new RestApiExecutor(new CommonConfig());
     private static final RestApiConnector connector = new RestApiConnector();
 
     private final QueryVisitorContext queryVisitorContext = new QueryVisitorContext("userId1",
             "workspace1", 8080, null, null, null);
+
+    @BeforeAll
+    static void startServer() {
+        server = EchoServerStub.start();
+    }
+
+    @AfterAll
+    static void stopServer() {
+        server.close();
+    }
+
+    private static String url(String path) {
+        return server.baseUrl() + path;
+    }
 
     @Test
     public void testUrlConcatenationWithUriBuilder() {
@@ -63,7 +92,7 @@ public class RestApiEngineTest {
     @Test
     public void testPostWithApplicationJson() {
         RestApiDatasourceConfig datasourceConfig = RestApiDatasourceConfig.builder()
-                .url("https://postman-echo.com/post")
+                .url(url(EchoServerStub.POST_PATH))
                 .build();
         Map<String, Object> queryConfig = ImmutableMap.of(
                 "httpMethod", "POST",
@@ -87,7 +116,7 @@ public class RestApiEngineTest {
     @Test
     public void testPostWithTextPlain() {
         RestApiDatasourceConfig dsConfig = RestApiDatasourceConfig.builder()
-                .url("https://postman-echo.com/post")
+                .url(url(EchoServerStub.POST_PATH))
                 .build();
         Map<String, Object> queryConfig = ImmutableMap.of(
                 "httpMethod", "POST",
@@ -110,7 +139,7 @@ public class RestApiEngineTest {
     @Test
     public void testMultipartFormDataWithTextType() {
         RestApiDatasourceConfig dsConfig = RestApiDatasourceConfig.builder()
-                .url("https://postman-echo.com/post")
+                .url(url(EchoServerStub.POST_PATH))
                 .build();
         Map<String, Object> queryConfig = ImmutableMap.of(
                 "httpMethod", "POST",
@@ -137,7 +166,7 @@ public class RestApiEngineTest {
                   """, "FILE");
 
         RestApiDatasourceConfig datasourceConfig = RestApiDatasourceConfig.builder()
-                .url("https://postman-echo.com/post")
+                .url(url(EchoServerStub.POST_PATH))
                 .build();
         Map<String, Object> queryConfig = ImmutableMap.of(
                 "httpMethod", "POST",
@@ -164,7 +193,7 @@ public class RestApiEngineTest {
     @Test
     public void testEncodingParams() {
         RestApiDatasourceConfig datasourceConfig = RestApiDatasourceConfig.builder()
-                .url("https://postman-echo.com/post")
+                .url(url(EchoServerStub.POST_PATH))
                 .build();
         Map<String, Object> queryConfig = ImmutableMap.of(
                 "httpMethod", "POST",
@@ -180,7 +209,7 @@ public class RestApiEngineTest {
                     assertTrue(result.isSuccess());
                     assertNotNull(result.getData());
                     JsonNode url = ((ObjectNode) result.getData()).get("url");
-                    assertEquals("\"https://postman-echo.com/post?param=value+with+blank\"", url.toString());
+                    assertEquals("\"" + url(EchoServerStub.POST_PATH) + "?param=value+with+blank\"", url.toString());
                 })
                 .verifyComplete();
     }
@@ -188,7 +217,7 @@ public class RestApiEngineTest {
     @Test
     public void testParamBinding() {
         RestApiDatasourceConfig datasourceConfig = RestApiDatasourceConfig.builder()
-                .url("https://postman-echo.com/post")
+                .url(url(EchoServerStub.POST_PATH))
                 .build();
 
         Map<String, Object> queryConfig = ImmutableMap.of(
@@ -228,11 +257,11 @@ public class RestApiEngineTest {
         RestApiDatasourceConfig datasourceConfig = RestApiDatasourceConfig.builder()
                 .headers(List.of(new Property("Content-Type", "application/json")))
                 .authConfig(BasicAuthConfig.builder()
-                        .username("postman")
-                        .password("password")
+                        .username(EchoServerStub.USERNAME)
+                        .password(EchoServerStub.PASSWORD)
                         .type(BASIC_AUTH)
                     .build())
-                .url("https://postman-echo.com/basic-auth")
+                .url(url(EchoServerStub.BASIC_AUTH_PATH))
                 .build();
 
         RestApiQueryExecutionContext context = executor.doBuildQueryExecutionContext(datasourceConfig,
@@ -240,10 +269,10 @@ public class RestApiEngineTest {
         StepVerifier.create(connector.doCreateConnection(datasourceConfig)
                         .flatMap(apiConnection -> executor.doExecuteQuery(apiConnection, context)))
                 .assertNext(result -> {
-                    Assert.assertNotNull(result);
-                    Assert.assertTrue(result.isSuccess());
-                    Assert.assertTrue(result.getData() instanceof ObjectNode);
-                    Assert.assertEquals("{\"authenticated\":true}", result.getData().toString());
+                    assertNotNull(result);
+                    assertTrue(result.isSuccess());
+                    assertTrue(result.getData() instanceof ObjectNode);
+                    assertEquals("{\"authenticated\":true}", result.getData().toString());
                 })
                 .verifyComplete();
     }
@@ -253,12 +282,12 @@ public class RestApiEngineTest {
         RestApiDatasourceConfig datasourceConfig = RestApiDatasourceConfig.builder()
                 .headers(List.of(new Property("Content-Type", "application/json")))
                 .authConfig(BasicAuthConfig.builder()
-                        .username("postman")
-                        .password("password")
+                        .username(EchoServerStub.USERNAME)
+                        .password(EchoServerStub.PASSWORD)
                         .type(DIGEST_AUTH)
                         .build()
                 )
-                .url("https://postman-echo.com/digest-auth")
+                .url(url(EchoServerStub.DIGEST_AUTH_PATH))
                 .build();
 
         RestApiQueryExecutionContext context = executor.doBuildQueryExecutionContext(datasourceConfig,
@@ -266,18 +295,66 @@ public class RestApiEngineTest {
         StepVerifier.create(connector.doCreateConnection(datasourceConfig)
                         .flatMap(apiConnection -> executor.doExecuteQuery(apiConnection, context)))
                 .assertNext(result -> {
-                    Assert.assertNotNull(result);
-                    Assert.assertTrue(result.isSuccess());
-                    Assert.assertTrue(result.getData() instanceof ObjectNode);
-                    Assert.assertEquals("{\"authenticated\":true}", result.getData().toString());
+                    assertNotNull(result);
+                    assertTrue(result.isSuccess());
+                    assertTrue(result.getData() instanceof ObjectNode);
+                    assertEquals("{\"authenticated\":true}", result.getData().toString());
                 })
                 .verifyComplete();
     }
 
     @Test
+    public void testBasicAuthWithWrongPasswordIsNotAuthenticated() {
+        StepVerifier.create(authenticate(BASIC_AUTH, EchoServerStub.BASIC_AUTH_PATH, WRONG_PASSWORD))
+                .assertNext(result -> {
+                    System.out.println("[RestApiEngineTest] basic auth, wrong password: success=" + result.isSuccess() + ", data=" + result.getData());
+                    assertFalse(result.isSuccess());
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * The server answers every digest attempt with a wrong password with a new 401 challenge, and the executor answers
+     * each challenge again until its limit of {@value #EXECUTOR_REQUEST_LIMIT} requests, then fails the query with a
+     * {@link PluginException} that names redirects (the executor shares one counter between redirects and digest retries).
+     */
+    @Test
+    public void testDigestAuthWithWrongPasswordIsNotAuthenticated() {
+        long before = digestRequests();
+        StepVerifier.create(authenticate(DIGEST_AUTH, EchoServerStub.DIGEST_AUTH_PATH, WRONG_PASSWORD))
+                .expectErrorSatisfies(error -> {
+                    long requests = digestRequests() - before;
+                    System.out.println("[RestApiEngineTest] digest auth, wrong password: " + error + " after " + requests + " requests");
+                    assertEquals(EXECUTOR_REQUEST_LIMIT, requests, "requests sent before the executor gave up");
+                    assertInstanceOf(PluginException.class, error);
+                    assertTrue(error.getMessage().contains("maximum HTTP redirects"), error.getMessage());
+                })
+                .verify();
+    }
+
+    private static long digestRequests() {
+        return server.requests().stream().filter(request -> request.pathAndQuery().equals(EchoServerStub.DIGEST_AUTH_PATH)).count();
+    }
+
+    private Mono<QueryExecutionResult> authenticate(RestApiAuthType type, String path, String password) {
+        RestApiDatasourceConfig datasourceConfig = RestApiDatasourceConfig.builder()
+                .authConfig(BasicAuthConfig.builder()
+                        .username(EchoServerStub.USERNAME)
+                        .password(password)
+                        .type(type)
+                        .build())
+                .url(url(path))
+                .build();
+        RestApiQueryExecutionContext context = executor.doBuildQueryExecutionContext(datasourceConfig,
+                Map.of("httpMethod", "GET"), emptyMap(), queryVisitorContext);
+        return connector.doCreateConnection(datasourceConfig)
+                .flatMap(apiConnection -> executor.doExecuteQuery(apiConnection, context));
+    }
+
+    @Test
     public void responseJsonTypeTest() {
         RestApiDatasourceConfig datasourceConfig = RestApiDatasourceConfig.builder()
-                .url("https://postman-echo.com/response-headers?key=value")
+                .url(url(EchoServerStub.RESPONSE_HEADERS_PATH) + "?key=value")
                 .build();
         for (String contentType : List.of("application/hal+json",
                 "application/problem+json",

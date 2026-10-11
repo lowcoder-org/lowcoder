@@ -12,11 +12,12 @@ import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConst
 import { styleControl } from "comps/controls/styleControl";
 import {  AnimationStyle, InputFieldStyle, LabelStyle, RatingStyle, RatingStyleType } from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
+import { withLinkedDefaultValue } from "comps/controls/codeStateControl";
 import { disabledPropertyView, hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
-import { useContext, useEffect, useRef } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEffect, useRef } from "react";
+import { useEditorStore } from "comps/editorStore";
 
 const EventOptions = [changeEvent] as const;
 
@@ -56,7 +57,6 @@ const RatingBasicComp = (function () {
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
-    const defaultValue = { ...props.defaultValue }.value;
     const value = { ...props.value }.value;
     const changeRef = useRef(false);
     const mountedRef = useRef(true);
@@ -77,10 +77,6 @@ const RatingBasicComp = (function () {
         mountedRef.current = false;
       };
     }, []);
-
-    useEffect(() => {
-      props.value.onChange(defaultValue);
-    }, [defaultValue]);
 
     useEffect(() => {
       if (!changeRef.current) return;
@@ -113,6 +109,7 @@ const RatingBasicComp = (function () {
     });
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
@@ -124,7 +121,7 @@ const RatingBasicComp = (function () {
 
           <FormDataPropertyView {...children} />
 
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["logic", "both"].includes(editorModeStatus) && (
             <><Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
@@ -140,11 +137,11 @@ const RatingBasicComp = (function () {
             </>
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             children.label.getPropertyView()
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             <>
               <Section name={sectionNames.style}>
                 {children.style.getPropertyView()}
@@ -166,11 +163,14 @@ const RatingBasicComp = (function () {
     .build();
 })();
 
-export const RatingComp = withExposingConfigs(RatingBasicComp, [
-  new NameConfig("value", trans("export.ratingValueDesc")),
-  new NameConfig("max", trans("export.ratingMaxDesc")),
-  ...CommonNameConfig,
-]);
+export const RatingComp = withExposingConfigs(
+  withLinkedDefaultValue(RatingBasicComp, "defaultValue", "value"),
+  [
+    new NameConfig("value", trans("export.ratingValueDesc")),
+    new NameConfig("max", trans("export.ratingMaxDesc")),
+    ...CommonNameConfig,
+  ]
+);
 
 const getStyle = (style: RatingStyleType) => {
   return css`

@@ -7,7 +7,6 @@ import {
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 import { examplesUrl,optionUrl } from "../chartComp/chartConfigs/chartUrls";
-
 export function sunburstChartPropertyView(
   children: ChartCompChildrenType,
   dispatch: (action: CompAction) => void
@@ -16,8 +15,27 @@ export function sunburstChartPropertyView(
   const jsonModePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsData.propertyView({ label: trans("chart.data") })}
-        {children.echartsLevels.propertyView({ label: trans("sunburstChart.levels") })}
+        {children.echartsData.propertyView({
+          label: trans("chart.data"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Sunburst data",
+            fieldName: "echartsData",
+            fieldDescription:
+              "JSON sunburst hierarchy (nested children with name and value), not full ECharts option JSON.",
+          },
+        })}
+        {children.echartsLevels.propertyView({
+          label: trans("sunburstChart.levels"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Sunburst levels",
+            fieldName: "echartsLevels",
+            fieldDescription: "JSON array of level style configs (radius, label, etc.) per ring.",
+          },
+        })}
 
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitleVerticalConfig.getPropertyView()}
@@ -53,6 +71,14 @@ export function sunburstChartPropertyView(
         {children.echartsOption.propertyView({
         label: trans("chart.echartsOptionLabel"),
         styleName: "higher",
+        language: "json",
+        enableAIHelp: true,
+        aiHelp: {
+          targetKind: "echarts-option",
+          label: "Sunburst option",
+          fieldName: "echartsOption",
+          fieldDescription: "Apache ECharts option JSON for this chart component.",
+        },
         tooltip: (
           <div>
             <a href={optionUrl} target="_blank" rel="noopener noreferrer">

@@ -215,6 +215,7 @@ let childrenMap: any = {
   updatedEvents: stateComp<JSONObject>({}),
   insertedEvents: stateComp<JSONObject>({}),
   deletedEvents: stateComp<JSONObject>({}),
+  selectedEvent: stateComp<JSONObject>({}),
   inputFormat: withDefault(StringControl, DATE_TIME_FORMAT),
 };
 
@@ -999,6 +1000,14 @@ let CalendarBasicComp = (function () {
               const event = events.find(
                 (item: EventInput) => item.id === info.event.id
               );
+              // Find original event from props.events to include all custom fields (e.g., join_url)
+              const originalEvent = props.events.find(
+                (item: EventType) => String(item.id) === String(info.event.id)
+              );
+              // Update selectedEvent state with all original data
+              comp?.children?.comp?.children?.selectedEvent?.dispatchChangeValueAction?.(
+                originalEvent || event || {}
+              );
               editEvent.current = event;
               setTimeout(() => {
                 editEvent.current = undefined;
@@ -1226,6 +1235,14 @@ const TmpCalendarComp = withExposingConfigs(CalendarBasicComp, [
     depKeys: ["deletedEvents"],
     func: (input: { deletedEvents: any[]; }) => {
       return input.deletedEvents;
+    },
+  }),
+  depsConfig({
+    name: "selectedEvent",
+    desc: trans("calendar.selectedEvent"),
+    depKeys: ["selectedEvent"],
+    func: (input: { selectedEvent: any; }) => {
+      return input.selectedEvent;
     },
   }),
 ]);

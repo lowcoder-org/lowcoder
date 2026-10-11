@@ -20,6 +20,7 @@ public record LibraryQueryView(String id,
                 libraryQuery.getName(),
                 libraryQuery.getLibraryQueryDSL(),
                 libraryQuery.getCreatedAt().toEpochMilli(),
-                user.getName());
+                // Null-safe creator (see LibraryQueryMetaView): tolerate an unresolved createdBy.
+                user == null ? null : user.getName());
     }
 }

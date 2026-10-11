@@ -9,7 +9,7 @@ import { default as Table, TableProps, ColumnType } from "antd/es/table";
 import ResizeableTitle from "./ResizeableTitle";
 import TableCellView from "./TableCellView";
 import { COL_MIN_WIDTH, CustomColumnType } from "../tableUtils";
-import { TableColumnStyleType } from "comps/controls/styleControlConstants";
+import { TableColumnStyleType, TableGlobalColumnStyleType } from "comps/controls/styleControlConstants";
 import { RowColorViewType, RowHeightViewType } from "../tableTypes";
 import styled from "styled-components";
 
@@ -41,7 +41,7 @@ export type ResizeableTableProps<RecordType> = Omit<
   viewModeResizable: boolean;
   rowColorFn: RowColorViewType;
   rowHeightFn: RowHeightViewType;
-  columnsStyle: TableColumnStyleType;
+  columnsStyle: TableGlobalColumnStyleType;
   size?: string;
   rowAutoHeight?: boolean;
   customLoading?: boolean;

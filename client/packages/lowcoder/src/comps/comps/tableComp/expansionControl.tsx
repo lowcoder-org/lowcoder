@@ -48,20 +48,25 @@ let ExpansionControlTmp = (function () {
   return new ControlItemCompBuilder(
     {
       expandable: BoolControl,
+      singleRowExpand: BoolControl,
       slot: ContextSlotControl,
     },
-    () => ({ expandableConfig: {}, expandModalView: null })
+    () => ({ expandableConfig: {}, expandModalView: null, singleRowExpand: false })
     )
     .setControlItemData({ filterText: label })
     .setPropertyViewFn((children, dispatch) => {
       return (
-        <> 
+        <>
           {children.expandable.propertyView({ label })}
-          {children.expandable.getView() &&
-            children.slot
-              .getSelectedComp()
-              .getComp()
-              .propertyView({ buttonText: trans("table.configExpandedView") })}
+          {children.expandable.getView() && (
+            <>
+              {children.singleRowExpand.propertyView({ label: trans("table.singleRowExpand") })}
+              {children.slot
+                .getSelectedComp()
+                .getComp()
+                .propertyView({ buttonText: trans("table.configExpandedView") })}
+            </>
+          )}
         </>
       );
     })
@@ -71,7 +76,7 @@ let ExpansionControlTmp = (function () {
 export class ExpansionControl extends ExpansionControlTmp {
   getView() {
     if (!this.children.expandable.getView()) {
-      return { expandableConfig: {}, expandModalView: null };
+      return { expandableConfig: {}, expandModalView: null, singleRowExpand: false };
     }
     const selectedContainer = this.children.slot.getSelectedComp();
     return {
@@ -94,6 +99,7 @@ export class ExpansionControl extends ExpansionControlTmp {
         },
       },
       expandModalView: selectedContainer.getView(),
+      singleRowExpand: this.children.singleRowExpand.getView(),
     };
   }
 

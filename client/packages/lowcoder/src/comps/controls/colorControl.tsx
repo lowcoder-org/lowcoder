@@ -35,7 +35,7 @@ const ColorInput = styled.div`
 const DepStyle = styled.div`
   left: 30px;
   width: 140px;
-  min-height: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   padding: 4px 8px;
@@ -48,6 +48,11 @@ const DepStyle = styled.div`
 
   span:nth-of-type(1) {
     color: #8b8fa3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    max-width: 100%;
   }
 
   span:nth-of-type(2) {

@@ -3,6 +3,7 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { IconControl } from "comps/controls/iconControl";
 import { CompNameContext, EditorContext, EditorState } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { withDefault } from "comps/generators";
 import { NewChildren, UICompBuilder } from "comps/generators/uiCompBuilder";
 import {
@@ -146,7 +147,7 @@ type ChildrenType = NewChildren<RecordConstructorToComp<typeof childrenMap>>;
 const ButtonPropertyView = React.memo((props: {
   children: ChildrenType
 }) => {
-  const { editorModeStatus } = useContext(EditorContext);
+  const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
   return (
     <>
       <Section name={sectionNames.basic}>

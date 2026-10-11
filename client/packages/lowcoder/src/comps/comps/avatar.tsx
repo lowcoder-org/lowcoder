@@ -55,6 +55,8 @@ ${(props) => {
       props.$style && {
         ...props.$style,
         borderRadius: props.$style.radius,
+        borderWidth: props.$style.borderWidth,
+        borderColor: props.$style.border,
       }
     );
   }}

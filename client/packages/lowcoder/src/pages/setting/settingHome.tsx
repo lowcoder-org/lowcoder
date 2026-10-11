@@ -38,7 +38,8 @@ import { AuditLog } from "@lowcoder-ee/pages/setting/audit";
 import { IdSourceHome } from "@lowcoder-ee/pages/setting/idSource";
 import { Subscription } from "./subscriptions";
 import history from "util/history";
-import { HubspotModal } from "./hubspotModal";
+import { LicenseRequestModal } from "./licenseRequestModal";
+import { EnterpriseLicenses } from "./subscriptions/EnterpriseLicenses";
 
 enum SettingPageEnum {
   Organization = "organization",
@@ -160,7 +161,7 @@ export function SettingHome() {
             items={items}
           />
 
-          {!isLicenseActive && (
+          {!isLicenseActive && currentOrgAdmin(user) && (
             <Card style={{ marginTop: "40px", color: "#aaa" }}>
               <div style={{ marginBottom: 12 }}>
                 {trans("enterprise.premiumFeaturesNotice")}
@@ -203,14 +204,13 @@ export function SettingHome() {
         {selectKey === SettingPageEnum.AppUsage && <AppUsage />}
         {selectKey === SettingPageEnum.AuditLog && <AuditLog />}
         {selectKey === SettingPageEnum.Branding && <Branding />}
-        {selectKey === SettingPageEnum.Subscription && <Subscription />}
+        {selectKey === SettingPageEnum.Subscription && <div style={{ minWidth: 0, width: "100%" }}><Subscription /><EnterpriseLicenses /></div>}
       </TwoColumnSettingPageContent>
 
-      <HubspotModal
+      <LicenseRequestModal
         open={hubspotVisible}
         onClose={() => setHubspotVisible(false)}
         orgId={user.currentOrgId}
-        deploymentIds={[deploymentId]} // Pass current single ID as array
       />
     </>
   );

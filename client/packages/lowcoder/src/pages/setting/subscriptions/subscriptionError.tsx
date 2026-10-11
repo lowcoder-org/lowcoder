@@ -30,7 +30,7 @@ export function SubscriptionError() {
   return (
     <Level1SettingPageContent>
       <Level1SettingPageTitle>
-        {trans("settings.subscription")} | ERROR
+        {trans("settings.subscription")} | {trans("error")}
       </Level1SettingPageTitle>
       
     </Level1SettingPageContent>

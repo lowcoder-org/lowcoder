@@ -2,6 +2,7 @@ import { executeQueryAction, routeByNameAction } from "lowcoder-core";
 import { InputTypeEnum } from "comps/comps/moduleContainerComp/ioComp/inputListItemComp";
 import { SimpleNameComp } from "comps/comps/simpleNameComp";
 import { EditorContext, EditorState } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { MultiCompBuilder } from "comps/generators/multi";
 import { BranchDiv, Dropdown } from "lowcoder-design";
 import { BottomResTypeEnum } from "types/bottomRes";
@@ -18,6 +19,11 @@ const ExecuteQueryPropertyView = ({
   comp: any,
   placement?: "query" | "table"
 }) => {
+  // subscribed so the EditorContext.Consumer below re-renders when the selected
+  // bottom resource changes (that field no longer flips EditorContext's identity)
+  useEditorStore((state) => state.selectedBottomResName);
+  useEditorStore((state) => state.selectedBottomResType);
+
   const getQueryOptions = useCallback((editorState?: EditorState) => {
     if (!editorState) return [];
       const options: {

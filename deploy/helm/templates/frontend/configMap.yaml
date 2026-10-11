@@ -1,4 +1,3 @@
-{{- $nameSpace := include "lowcoder.namespace" . -}}
 {{- $name := include "lowcoder.fullname" . -}}
 apiVersion: v1
 kind: ConfigMap
@@ -11,8 +10,8 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 data:
-  LOWCODER_PUID: {{ .Values.global.config.userId | default "9001" | quote }}
-  LOWCODER_PGID: {{ .Values.global.config.groupId | default "9001" | quote }}
+  LOWCODER_PUID: {{ include "lowcoder.orDefault" (dict "value" .Values.global.config.userId "default" "9001") | quote }}
+  LOWCODER_PGID: {{ include "lowcoder.orDefault" (dict "value" .Values.global.config.groupId "default" "9001") | quote }}
   {{- if .Values.global.config.apiServiceUrl }}
   LOWCODER_API_SERVICE_URL: {{ .Values.global.config.apiServiceUrl | trimSuffix "/" | quote }}
   {{- else }}
@@ -23,6 +22,18 @@ data:
   {{- else }}
   LOWCODER_NODE_SERVICE_URL: "http://{{ $name }}-node-service:{{ .Values.nodeService.service.port }}"
   {{- end }}
+  {{- if .Values.global.config.proxyServiceUrl }}
+  LOWCODER_PROXY_SERVICE_URL: {{ .Values.global.config.proxyServiceUrl | trimSuffix "/" | quote }}
+  {{- else if .Values.proxyService.enabled }}
+  LOWCODER_PROXY_SERVICE_URL: "http://{{ $name }}-proxy-service:{{ .Values.proxyService.service.port }}"
+  {{- end }}
+  {{- /* nginx of the frontend forwards /hocuspocus and /agora-token-service/; set only when the Service exists, nginx does not start with an unresolvable upstream host */}}
+  {{- if .Values.hocuspocus.enabled }}
+  LOWCODER_HOCUSPOCUS_SERVICE_URL: "http://{{ $name }}-hocuspocus:{{ .Values.hocuspocus.service.port }}"
+  {{- end }}
+  {{- if .Values.agoraTokenService.enabled }}
+  LOWCODER_AGORA_TOKEN_SERVICE_URL: "http://{{ $name }}-agora-token-service:{{ .Values.agoraTokenService.service.port }}"
+  {{- end }}
   LOWCODER_MAX_REQUEST_SIZE: {{ .Values.global.config.maxRequestSize | default "20m" | quote }}
-  LOWCODER_MAX_QUERY_TIMEOUT: {{ .Values.global.config.maxQueryTimeout | default "120" | quote }}
+  LOWCODER_MAX_QUERY_TIMEOUT: {{ include "lowcoder.orDefault" (dict "value" .Values.global.config.maxQueryTimeout "default" "120") | quote }}
 

@@ -104,6 +104,7 @@ public enum BizError {
     ID_NOT_EXIST(500, 5620),
     DUPLICATE_AUTH_CONFIG_ADDITION(400, 5621),
     EMAIL_PROVIDER_DISABLED(403, 5622),
+    INVALID_EMAIL_FORMAT(400, 5623),
 
 
     // asset related, code range 5700 - 5799

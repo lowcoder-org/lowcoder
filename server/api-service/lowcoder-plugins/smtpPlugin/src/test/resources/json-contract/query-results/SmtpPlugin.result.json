@@ -1,0 +1,10 @@
+{
+  "queryCode" : "OK",
+  "dataShape" : {
+    "classes" : {
+      "" : "null"
+    },
+    "keyOrder" : { }
+  },
+  "written" : {"queryCode":"OK","success":true}
+}

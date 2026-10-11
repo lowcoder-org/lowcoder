@@ -114,3 +114,22 @@ export function timestampToHumanReadable(
   }
   return timeInfo;
 }
+
+export function parseMessageTimestamp(msg: any): dayjs.Dayjs | null {
+  const raw = msg.timestamp ?? msg.createdAt ?? msg.created_at ?? msg.time;
+  if (raw == null) return null;
+  const d = dayjs(raw);
+  return d.isValid() ? d : null;
+}
+
+export function formatChatTime(d: dayjs.Dayjs): string {
+  const now = dayjs();
+  const diffSeconds = now.diff(d, "second");
+
+  if (diffSeconds < 60) return "Just now";
+  if (diffSeconds < 3600) return d.fromNow();
+  if (d.isToday()) return d.format("h:mm A");
+  if (d.isYesterday()) return `Yesterday ${d.format("h:mm A")}`;
+  if (d.isSame(now, "year")) return d.format("MMM D h:mm A");
+  return d.format("MMM D, YYYY h:mm A");
+}

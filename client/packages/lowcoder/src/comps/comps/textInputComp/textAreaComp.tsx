@@ -35,9 +35,10 @@ import { TextAreaRef } from "antd/es/input/TextArea";
 import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
 import { NumberControl } from "comps/controls/codeControl";
 
-import React, { useContext, useEffect } from "react";
-import { EditorContext } from "comps/editorState";
+import React, { useEffect } from "react";
+import { useEditorStore } from "comps/editorStore";
 import { migrateOldData } from "comps/generators/simpleGenerators";
+import { withLinkedDefaultValue } from "comps/controls/codeStateControl";
 
 const TextAreaStyled = styled(TextArea)<{
   $style: InputLikeStyleType;
@@ -121,16 +122,18 @@ let TextAreaTmpComp = (function () {
       ...validateState,
     });
   })
-    .setPropertyViewFn((children) => (
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
         <TextInputBasicSection {...children} />
         <FormDataPropertyView {...children} />
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           children.label.getPropertyView()
         )}
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["logic", "both"].includes(editorModeStatus) && (
           <><TextInputInteractionSection {...children} />
             <Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
@@ -148,7 +151,7 @@ let TextAreaTmpComp = (function () {
             <TextInputValidationSection {...children} /></>
         )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           <>
             <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
             <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
@@ -158,7 +161,8 @@ let TextAreaTmpComp = (function () {
           </>
         )}
       </>
-    ))
+    );
+    })
     .build();
 })();
 
@@ -168,7 +172,10 @@ TextAreaTmpComp = class extends TextAreaTmpComp {
   }
 };
 
-TextAreaTmpComp = migrateOldData(TextAreaTmpComp, fixOldInputCompData);
+TextAreaTmpComp = migrateOldData(
+  withLinkedDefaultValue(TextAreaTmpComp, "defaultValue", "value"),
+  fixOldInputCompData
+);
 
 const TextareaTmp2Comp = withMethodExposing(
   TextAreaTmpComp,

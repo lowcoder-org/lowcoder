@@ -28,6 +28,7 @@ public record LibraryQueryRecordMetaView(String id,
                 libraryQueryRecord.getTag(),
                 libraryQueryRecord.getCommitMessage(),
                 libraryQueryRecord.getCreatedAt().toEpochMilli(),
-                libraryQueryRecordCreator.getName());
+                // Null-safe creator (see LibraryQueryMetaView): tolerate an unresolved createdBy.
+                libraryQueryRecordCreator == null ? null : libraryQueryRecordCreator.getName());
     }
 }

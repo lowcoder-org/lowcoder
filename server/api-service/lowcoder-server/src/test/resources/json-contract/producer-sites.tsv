@@ -1,0 +1,23 @@
+# Query-result producer sites (docs/API_PAYLOAD_TEST_PLAN.md §4.6, §6.1 rule 9): every call in main code that puts a value
+# into QueryExecutionResult, and the test that pins the value it produces. Columns (tab-separated):
+# site (ContractSources#producerSites key: <path>#<member>#<callee>#<ordinal>), test (class in any module's test sources;
+# it builds its report with QueryResults.report), producer (the row of the §4.6 producer table).
+# Written in task T10.1 (2026-10-04); PayloadContractCompletenessTest rule 9 keeps it complete.
+lowcoder-plugins/clickHousePlugin/src/main/java/org/lowcoder/plugin/clickhouse/ClickHouseQueryExecutor.java#ClickHouseQueryExecutor.parseExecuteResult#success#1	org.lowcoder.plugin.clickhouse.ClickHouseResultContractTest	ClickHouse
+lowcoder-plugins/clickHousePlugin/src/main/java/org/lowcoder/plugin/clickhouse/ClickHouseQueryExecutor.java#ClickHouseQueryExecutor.parseExecuteResult#success#2	org.lowcoder.plugin.clickhouse.ClickHouseResultContractTest	ClickHouse
+lowcoder-plugins/elasticSearchPlugin/src/main/java/org/lowcoder/plugin/es/EsQueryExecutor.java#EsQueryExecutor.executeQuery#success#1	org.lowcoder.plugin.es.EsResultContractTest	Elasticsearch
+lowcoder-plugins/googleSheetsPlugin/src/main/java/org/lowcoder/plugin/googlesheets/queryhandler/GoogleSheetsAppendDataHandler.java#GoogleSheetsAppendDataHandler.execute#success#1	org.lowcoder.plugin.googlesheets.GoogleSheetsResultContractTest	Google Sheets append, update, delete, clear
+lowcoder-plugins/googleSheetsPlugin/src/main/java/org/lowcoder/plugin/googlesheets/queryhandler/GoogleSheetsClearDataHandler.java#GoogleSheetsClearDataHandler.execute#success#1	org.lowcoder.plugin.googlesheets.GoogleSheetsResultContractTest	Google Sheets append, update, delete, clear
+lowcoder-plugins/googleSheetsPlugin/src/main/java/org/lowcoder/plugin/googlesheets/queryhandler/GoogleSheetsDeleteDataHandler.java#GoogleSheetsDeleteDataHandler.execute#success#1	org.lowcoder.plugin.googlesheets.GoogleSheetsResultContractTest	Google Sheets append, update, delete, clear
+lowcoder-plugins/googleSheetsPlugin/src/main/java/org/lowcoder/plugin/googlesheets/queryhandler/GoogleSheetsReadDataHandler.java#GoogleSheetsReadDataHandler.execute#success#1	org.lowcoder.plugin.googlesheets.GoogleSheetsResultContractTest	Google Sheets read
+lowcoder-plugins/googleSheetsPlugin/src/main/java/org/lowcoder/plugin/googlesheets/queryhandler/GoogleSheetsUpdateDataHandler.java#GoogleSheetsUpdateDataHandler.execute#success#1	org.lowcoder.plugin.googlesheets.GoogleSheetsResultContractTest	Google Sheets append, update, delete, clear
+lowcoder-plugins/graphqlPlugin/src/main/java/org/lowcoder/plugin/graphql/GraphQLExecutor.java#GraphQLExecutor.convertToQueryExecutionResult#ofRestApiResult#1	org.lowcoder.plugin.graphql.GraphQLResponseContractTest	REST API, GraphQL
+lowcoder-plugins/graphqlPlugin/src/main/java/org/lowcoder/plugin/graphql/GraphQLExecutor.java#GraphQLExecutor.convertToQueryExecutionResult#ofRestApiResult#2	org.lowcoder.plugin.graphql.GraphQLResponseContractTest	REST API, GraphQL
+lowcoder-plugins/mongoPlugin/src/main/java/org/lowcoder/plugin/mongo/MongoPlugin.java#MongoPlugin.MongoEngine.executeQuery#success#1	org.lowcoder.plugin.mongo.MongoResultContractTest	Mongo
+lowcoder-plugins/redisPlugin/src/main/java/org/lowcoder/plugin/redis/RedisPlugin.java#RedisPlugin.RedisEngine.executeQuery#success#1	org.lowcoder.plugin.redis.RedisResultContractTest	Redis
+lowcoder-plugins/restApiPlugin/src/main/java/org/lowcoder/plugin/restapi/RestApiExecutor.java#RestApiExecutor.convertToQueryExecutionResult#ofRestApiResult#1	org.lowcoder.plugin.restapi.RestApiResponseContractTest	REST API, GraphQL
+lowcoder-plugins/restApiPlugin/src/main/java/org/lowcoder/plugin/restapi/RestApiExecutor.java#RestApiExecutor.convertToQueryExecutionResult#ofRestApiResult#2	org.lowcoder.plugin.restapi.RestApiResponseContractTest	REST API, GraphQL
+lowcoder-plugins/smtpPlugin/src/main/java/org/lowcoder/plugins/SmtpPlugin.java#SmtpPlugin.SmtpEngine.executeQuery#success#1	org.lowcoder.plugins.SmtpResultContractTest	SMTP
+lowcoder-plugins/sqlBasedPlugin/src/main/java/org/lowcoder/plugin/sql/GeneralSqlExecutor.java#GeneralSqlExecutor.parseExecuteResult#success#1	org.lowcoder.plugin.sql.SqlResultContractTest	SQL plugins
+lowcoder-plugins/sqlBasedPlugin/src/main/java/org/lowcoder/plugin/sql/GeneralSqlExecutor.java#GeneralSqlExecutor.parseExecuteResult#success#2	org.lowcoder.plugin.sql.SqlResultContractTest	SQL plugins
+lowcoder-domain/src/main/java/org/lowcoder/domain/plugin/client/DatasourcePluginClient.java#DatasourcePluginClient.executeQuery#::success#1	org.lowcoder.domain.plugin.client.DatasourcePluginClientContractTest	JS datasource plugins via the node service

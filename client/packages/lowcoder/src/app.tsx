@@ -64,6 +64,11 @@ import { EnterpriseProvider } from "./util/context/EnterpriseContext";
 import { SimpleSubscriptionContextProvider } from "./util/context/SimpleSubscriptionContext";
 import { getBrandingSetting } from "./redux/selectors/enterpriseSelectors";
 import { fetchSubscriptionsAction } from "./redux/reduxActions/subscriptionActions";
+import { useWorkspaceSeatSync } from "util/workspaceSeatSync";
+import { useEnterpriseLicenseSync } from "util/enterpriseLicenseSync";
+import { currentOrgAdmin } from "util/permissionUtils";
+import { getSubscriptions } from "redux/selectors/subscriptionSelectors";
+import { SubscriptionProductsEnum } from "constants/subscriptionConstants";
 
 const LazyUserAuthComp = React.lazy(() => import("pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
@@ -84,6 +89,13 @@ const Wrapper = React.memo((props: {
   const deploymentId = useSelector(getDeploymentId);
   const user = useSelector(getUser);
   const dispatch = useDispatch();
+  const subscriptions = useSelector(getSubscriptions);
+  const hasSeatSubscription = subscriptions.some(subscription =>
+    subscription.orgId === user.currentOrgId && subscription.hostId === deploymentId &&
+    (subscription.product === SubscriptionProductsEnum.SUPPORT || subscription.product === SubscriptionProductsEnum.AIROBOT));
+  // A demoted editor can still reconcile the workspace. Triggering a sync does not make a viewer billable.
+  useWorkspaceSeatSync(user.currentOrgId, !user.isAnonymous && hasSeatSubscription);
+  useEnterpriseLicenseSync(user.currentOrgId, user.id, !user.isAnonymous && currentOrgAdmin(user));
   
   useEffect(() => {
     if (user.currentOrgId) {
@@ -92,10 +104,13 @@ const Wrapper = React.memo((props: {
   }, [user.currentOrgId]);
 
   useEffect(() => {
-    if(Boolean(deploymentId)) {
-      dispatch(fetchSubscriptionsAction())
+    if(Boolean(deploymentId) && user.currentOrgId && !user.isAnonymous) {
+      const refreshSubscriptions = () => dispatch(fetchSubscriptionsAction());
+      refreshSubscriptions();
+      window.addEventListener("focus", refreshSubscriptions);
+      return () => window.removeEventListener("focus", refreshSubscriptions);
     }
-  }, [deploymentId]);
+  }, [deploymentId, user.currentOrgId, user.id, user.isAnonymous]);
   
   const theme = useMemo(() => {
     return {

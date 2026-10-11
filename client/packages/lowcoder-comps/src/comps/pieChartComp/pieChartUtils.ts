@@ -172,15 +172,7 @@ export function getEchartsConfig(
       }
     },
     tooltip: props.tooltip && {
-      trigger: "axis",
-      axisPointer: {
-        type: "line",
-        lineStyle: {
-          color: "rgba(0,0,0,0.2)",
-          width: 2,
-          type: "solid"
-        }
-      }
+      trigger: "item",
     },
     grid: {
       ...gridPos,

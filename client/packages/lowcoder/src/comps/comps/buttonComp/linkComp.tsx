@@ -21,8 +21,8 @@ import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
 
-import { EditorContext } from "comps/editorState";
-import React, { useContext, useEffect } from "react";
+import { useEditorStore } from "comps/editorStore";
+import React, { useEffect } from "react";
 
 const Link = styled(Button)<{
   $style: LinkStyleType;
@@ -120,13 +120,14 @@ const LinkTmpComp = (function () {
     );
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
             {children.text.propertyView({ label: trans("text") })}
           </Section>
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "logic" || editorModeStatus === "both") && (
             <><Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
@@ -141,7 +142,7 @@ const LinkTmpComp = (function () {
               </Section></>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "layout" || editorModeStatus === "both") && (
             <>
               <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
               <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>

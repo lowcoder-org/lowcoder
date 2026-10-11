@@ -25,6 +25,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -208,8 +209,55 @@ class AuthenticationEndpointsUnitTest {
                 .verifyComplete();
         
         verify(cookieHelper).getCookieToken(mockExchange);
+        verify(cookieHelper).clearCookie(mockExchange);
         verify(sessionUserService).removeUserSession("sessionToken");
         verify(businessEventPublisher).publishUserLogoutEvent();
+    }
+
+    /**
+     * Logout is permitAll, so anonymous requests reach the controller. Clearing the cookie must not depend on there
+     * being a session to remove, otherwise the stale cookie logout is meant to delete survives.
+     */
+    @Test
+    void testLogout_ClearsCookieEvenWithoutCookieHeader() {
+        // Arrange
+        when(cookieHelper.getCookieToken(mockExchange)).thenReturn("");
+        when(sessionUserService.removeUserSession("")).thenReturn(Mono.empty());
+        when(businessEventPublisher.publishUserLogoutEvent()).thenReturn(Mono.empty());
+
+        // Act
+        Mono<ResponseView<Boolean>> result = authenticationController.logout(mockExchange);
+
+        // Assert
+        StepVerifier.create(result)
+                .assertNext(response -> assertTrue(response.getData()))
+                .verifyComplete();
+
+        verify(cookieHelper).clearCookie(mockExchange);
+    }
+
+    /**
+     * The cookie is expired before the session teardown is attempted, so a Redis or Mongo failure cannot leave the
+     * user holding a cookie that still looks live.
+     */
+    @Test
+    void testLogout_ClearsCookieBeforeRemovingSession() {
+        // Arrange - record subscription order, which is what actually matters here. Mockito's InOrder would only see
+        // assembly order, and removeUserSession is invoked while the chain is being built.
+        List<String> effects = new ArrayList<>();
+        doAnswer(invocation -> effects.add("clearCookie")).when(cookieHelper).clearCookie(mockExchange);
+        when(cookieHelper.getCookieToken(mockExchange)).thenReturn("sessionToken");
+        when(sessionUserService.removeUserSession("sessionToken"))
+                .thenReturn(Mono.fromRunnable(() -> effects.add("removeUserSession")));
+        when(businessEventPublisher.publishUserLogoutEvent()).thenReturn(Mono.empty());
+
+        // Act
+        StepVerifier.create(authenticationController.logout(mockExchange))
+                .expectNextCount(1)
+                .verifyComplete();
+
+        // Assert
+        assertEquals(List.of("clearCookie", "removeUserSession"), effects);
     }
 
     @Test

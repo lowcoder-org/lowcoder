@@ -43,7 +43,7 @@ import {
   wrapActionExtraInfo,
 } from "lowcoder-core";
 import { ValueFromOption } from "lowcoder-design";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 import {
   BottomResComp,
   BottomResCompResult,
@@ -62,7 +62,7 @@ import {
   QUERY_EXECUTION_OK,
 } from "../../constants/queryConstants";
 import { QueryContext } from "../../util/context/QueryContext";
-import { useFixedDelay } from "../../util/hooks";
+import { useAppPathParam, useFixedDelay } from "../../util/hooks";
 import { JSONObject, JSONValue } from "../../util/jsonTypes";
 import { processCurlData } from "../../util/curlUtils";
 import { BoolPureControl } from "../controls/boolControl";
@@ -117,9 +117,10 @@ export const JSTriggerTypeOptions = [
   { label: trans("query.triggerTypeManual"), value: "manual" },
   { label: trans("query.triggerTypePageLoad"), value: "automatic" },
   ...CommonTriggerOptions,
+  { label: trans("query.triggerTypeBeforeUnload"), value: "onBeforeUnload" },
 ];
 
-export type TriggerType = ValueFromOption<typeof TriggerTypeOptions>;
+export type TriggerType = ValueFromOption<typeof TriggerTypeOptions> | "onBeforeUnload";
 
 const EventOptions = [
   { label: trans("query.success"), value: "success", description: trans("query.successDesc") },
@@ -322,6 +323,12 @@ interface QueryViewProps {
 
 function QueryView(props: QueryViewProps) {
   const { comp } = props;
+  const { appPageId } = useAppPathParam();
+  const compRef = useRef(comp);
+  compRef.current = comp;
+  const appPageIdRef = useRef(appPageId);
+  appPageIdRef.current = appPageId;
+  const triggerType = getTriggerType(comp);
 
   useEffect(() => {
     // Automatically load when page load
@@ -344,6 +351,38 @@ function QueryView(props: QueryViewProps) {
       }, comp.children.delayTime.getView());
     }
   }, []);
+
+  useEffect(() => {
+    if (triggerType !== "onBeforeUnload" || comp.children.isNewCreate.value) {
+      return;
+    }
+
+    const mountedAppPageId = appPageId;
+    let executed = false;
+    const runQueryOnce = () => {
+      if (executed) {
+        return;
+      }
+      executed = true;
+      compRef.current.dispatch(executeQueryAction({}));
+    };
+
+    const handlePageHide = () => {
+      runQueryOnce();
+    };
+
+    window.addEventListener("pagehide", handlePageHide);
+
+    return () => {
+      window.removeEventListener("pagehide", handlePageHide);
+      if (
+        getTriggerType(compRef.current) === "onBeforeUnload"
+        && appPageIdRef.current !== mountedAppPageId
+      ) {
+        runQueryOnce();
+      }
+    };
+  }, [appPageId, triggerType, comp.children.isNewCreate.value]);
 
   useFixedDelay(
     () =>

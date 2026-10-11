@@ -1,0 +1,92 @@
+{
+  "parseGoogleSheetsActionRequest" : {
+    "readData" : {
+      "class" : "org.lowcoder.plugin.googlesheets.model.GoogleSheetsReadDataRequest",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.googlesheets.model.GoogleSheetsReadDataRequest",
+        "spreadsheetId" : "sheet-1",
+        "sheetName" : "Sheet1",
+        "range" : "A1:C10",
+        "limit" : 100,
+        "offset" : 5
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.googlesheets.model.GoogleSheetsReadDataRequest",
+        "/spreadsheetId" : "java.lang.String",
+        "/sheetName" : "java.lang.String",
+        "/range" : "java.lang.String",
+        "/limit" : "java.lang.Integer",
+        "/offset" : "java.lang.Integer"
+      },
+      "noView" : {"spreadsheetId":"sheet-1","sheetName":"Sheet1","range":"A1:C10","limit":100,"offset":5},
+      "Public" : {"spreadsheetId":"sheet-1","sheetName":"Sheet1","range":"A1:C10","limit":100,"offset":5},
+      "Internal" : {"spreadsheetId":"sheet-1","sheetName":"Sheet1","range":"A1:C10","limit":100,"offset":5}
+    },
+    "clearData" : {
+      "class" : "org.lowcoder.plugin.googlesheets.model.GoogleSheetsClearDataRequst",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.googlesheets.model.GoogleSheetsClearDataRequst",
+        "spreadsheetId" : "sheet-1",
+        "sheetName" : "Sheet1",
+        "rowIndex" : 3,
+        "rowIndexString" : "{{row}}"
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.googlesheets.model.GoogleSheetsClearDataRequst",
+        "/spreadsheetId" : "java.lang.String",
+        "/sheetName" : "java.lang.String",
+        "/rowIndex" : "java.lang.Integer",
+        "/rowIndexString" : "java.lang.String"
+      },
+      "noView" : {"spreadsheetId":"sheet-1","sheetName":"Sheet1","rowIndex":3,"rowIndexString":"{{row}}"},
+      "Public" : {"spreadsheetId":"sheet-1","sheetName":"Sheet1","rowIndex":3,"rowIndexString":"{{row}}"},
+      "Internal" : {"spreadsheetId":"sheet-1","sheetName":"Sheet1","rowIndex":3,"rowIndexString":"{{row}}"}
+    },
+    "deleteData" : {
+      "class" : "org.lowcoder.plugin.googlesheets.model.GoogleSheetsDeleteDataRequest",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.googlesheets.model.GoogleSheetsDeleteDataRequest",
+        "spreadsheetId" : "sheet-1",
+        "sheetName" : "Sheet1",
+        "rowIndex" : 0,
+        "rowIndexString" : "4"
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.googlesheets.model.GoogleSheetsDeleteDataRequest",
+        "/spreadsheetId" : "java.lang.String",
+        "/sheetName" : "java.lang.String",
+        "/rowIndex" : "java.lang.Integer",
+        "/rowIndexString" : "java.lang.String"
+      },
+      "noView" : {"spreadsheetId":"sheet-1","sheetName":"Sheet1","rowIndex":0,"rowIndexString":"4"},
+      "Public" : {"spreadsheetId":"sheet-1","sheetName":"Sheet1","rowIndex":0,"rowIndexString":"4"},
+      "Internal" : {"spreadsheetId":"sheet-1","sheetName":"Sheet1","rowIndex":0,"rowIndexString":"4"}
+    },
+    "readDataDecimalLimit" : {
+      "class" : "org.lowcoder.plugin.googlesheets.model.GoogleSheetsReadDataRequest",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.googlesheets.model.GoogleSheetsReadDataRequest",
+        "spreadsheetId" : "s",
+        "sheetName" : "S",
+        "range" : null,
+        "limit" : 10,
+        "offset" : 0
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.googlesheets.model.GoogleSheetsReadDataRequest",
+        "/spreadsheetId" : "java.lang.String",
+        "/sheetName" : "java.lang.String",
+        "/range" : "null",
+        "/limit" : "java.lang.Integer",
+        "/offset" : "java.lang.Integer"
+      },
+      "noView" : {"spreadsheetId":"s","sheetName":"S","range":null,"limit":10,"offset":0},
+      "Public" : {"spreadsheetId":"s","sheetName":"S","range":null,"limit":10,"offset":0},
+      "Internal" : {"spreadsheetId":"s","sheetName":"S","range":null,"limit":10,"offset":0}
+    },
+    "unknownAction" : {
+      "error" : "org.lowcoder.sdk.exception.PluginException: GOOGLESHEETS_EMPTY_QUERY_PARAM GOOGLESHEETS_QUERY_PARAM_EMPTY"
+    },
+    "unknownProperty" : "ignored: binds as form readData"
+  }
+}

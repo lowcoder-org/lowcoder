@@ -15,6 +15,7 @@ import opacityToHex from "../../util/opacityToHex";
 import parseBackground from "../../util/gradientBackgroundColor";
 import {ba, s} from "@fullcalendar/core/internal-common";
 import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
+import { mergeCartesianAxis } from "../../util/echartsThemeUtils";
 
 export function transformData(
   originData: JSONObject[],
@@ -179,25 +180,29 @@ export function getEchartsConfig(
       ...gridPos,
       containLabel: true,
     },
-    xAxis: {
-      type: "category",
-      boundaryGap: props.chartConfig.boundaryGap,
-      splitLine: {
-        show: !props.chartConfig.boundaryGap,
+    xAxis: mergeCartesianAxis(
+      theme,
+      "category",
+      {
+        type: "category",
+        boundaryGap: props.chartConfig.boundaryGap,
+        splitLine: {
+          show: !props.chartConfig.boundaryGap,
+        },
+        axisLine: {
+          show: props.chartConfig.boundaryGap,
+        },
       },
-      axisLine: {
-        show: props.chartConfig.boundaryGap,
+      props?.xAxisStyle
+    ),
+    yAxis: mergeCartesianAxis(
+      theme,
+      "category",
+      {
+        type: "category",
       },
-      axisLabel: {
-        ...styleWrapper(props?.xAxisStyle, theme?.xAxisStyle, 11)
-      }
-    },
-    yAxis: {
-      type: "category",
-      axisLabel: {
-        ...styleWrapper(props?.yAxisStyle, theme?.yAxisStyle, 11)
-      }
-    },
+      props?.yAxisStyle
+    ),
   };
 
   if (props.data.length <= 0) {

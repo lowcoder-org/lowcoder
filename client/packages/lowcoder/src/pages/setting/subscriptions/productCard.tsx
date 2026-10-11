@@ -2,9 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import { GreyTextColor } from 'constants/style';
 import { Card, Button } from 'antd';
-import { SettingOutlined, CheckCircleOutlined, LoadingOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { RobotOutlined, SettingOutlined, CheckCircleOutlined, LoadingOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { buildSubscriptionSettingsLink, buildSubscriptionInfoLink } from "constants/routesURL";
 import history from "util/history";
+import { SubscriptionProductsEnum } from "constants/subscriptionConstants";
 import { trans } from "i18n";
 
 const ProductCardContainer = styled(Card)`
@@ -37,7 +38,7 @@ interface Pricing {
 interface ProductCardProps {
   title: string;
   description: string;
-  image: string;
+  image?: string | null;
   pricingType: string;
   activeSubscription: boolean;
   checkoutLink: string;
@@ -60,6 +61,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   productId,
 }) => {
 
+  const isAI = productId === SubscriptionProductsEnum.AIROBOT;
+  const isSupport = productId === SubscriptionProductsEnum.SUPPORT;
+  const storyDescription = isAI
+    ? trans("automator.subscription.cardDescription")
+    : isSupport ? trans("automator.subscription.supportCardDescription") : description;
+
   const goToCheckout = () => {
     if (checkoutLink) {
       window.open(checkoutLink, '_blank');
@@ -77,17 +84,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <ProductCardContainer
       hoverable
-      loading={!checkoutLinkDataLoaded || loading}
+      loading={loading}
       cover={
-        <img loading="lazy" alt={title} src={image} style={{width: '300px', height: '300px', background: '#f2f2f2'}} />
+        image ? <img loading="lazy" alt={title} src={image} style={{width: '300px', height: '300px', background: '#f2f2f2'}} /> : <div style={{ height: 300, display: "grid", placeItems: "center", background: "#f2f2f2" }}><RobotOutlined style={{ fontSize: 96, color: "#ff6f3c" }} /></div>
       }
       actions={[
-        <Button type="default" block onClick={goToSubscriptionInformation} style={{width:"90%"}} icon={<InfoCircleOutlined />}>Info</Button>,
+        <Button type="default" block onClick={goToSubscriptionInformation} style={{width:"90%"}} icon={<InfoCircleOutlined />}>{trans("automator.subscription.explore")}</Button>,
         activeSubscription ? (
-          <Button type="default" block onClick={goToSubscriptionSettings} style={{width:"90%"}} icon={<SettingOutlined />}>More</Button>
+          <Button type="default" block onClick={goToSubscriptionSettings} style={{width:"90%"}} icon={<SettingOutlined />}>{trans("automator.subscription.manage")}</Button>
         ) : (
         !activeSubscription && (
-          checkoutLinkDataLoaded ? (
+          checkoutLinkDataLoaded && checkoutLink ? (
             <Button type="primary" block onClick={goToCheckout} style={{width:"90%", backgroundColor: "#ff6f3c"}}>
               {trans("iconScout.buySubscriptionButton")}
             </Button>
@@ -98,8 +105,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       ]}
     >
       <ProductTitle>{title}</ProductTitle>
-      <ProductDescription>{description}</ProductDescription>
-      <PricingTypeDescription>{pricingType} {activeSubscription && <><span> Subscribed </span><CheckCircleOutlined key="check" style={{ color: 'green' }} /></>}</PricingTypeDescription>
+      <ProductDescription>{storyDescription}</ProductDescription>
+      <PricingTypeDescription>{isAI || isSupport ? trans("automator.subscription.seatPricing") : pricingType} {activeSubscription && <><span> {trans("automator.subscription.subscribed")} </span><CheckCircleOutlined key="check" style={{ color: 'green' }} /></>}</PricingTypeDescription>
     </ProductCardContainer>
   );
 };

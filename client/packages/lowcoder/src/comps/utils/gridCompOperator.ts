@@ -3,9 +3,11 @@ import { SimpleContainerComp } from "comps/comps/containerBase/simpleContainerCo
 import { GridItemComp } from "comps/comps/gridItemComp";
 import { remoteComp } from "comps/comps/remoteComp/remoteComp";
 import { EditorState } from "comps/editorState";
+import { NameGenerator } from "comps/utils";
 import { trans } from "i18n";
 import {
   calcPasteBaseXY,
+  DEFAULT_POSITION_PARAMS,
   Layout,
   LayoutItem,
   moveToZero,
@@ -29,16 +31,74 @@ import { genRandomKey } from "./idGenerator";
 import { getLatestVersion, getRemoteCompType, parseCompType } from "./remote";
 import { APPLICATION_VIEW_URL } from "@lowcoder-ee/constants/routesURL";
 
-export type CopyCompType = {
+const CLIPBOARD_TYPE = "lowcoder-components";
+const CLIPBOARD_VERSION = 1;
+
+export interface ClipboardGridItem {
+  compType: string;
+  comp: any;
+  name: string;
   layout: LayoutItem;
-  item: Comp;
-};
+  isContainer: boolean;
+}
+
+export interface LowcoderClipboardPayload {
+  type: typeof CLIPBOARD_TYPE;
+  version: number;
+  timestamp: number;
+  gridItems: ClipboardGridItem[];
+  hookItems: ClipboardHookItem[];
+  sourcePositionParams: PositionParams;
+}
+
+export interface ClipboardHookItem {
+  compType: string;
+  comp: any;
+  name: string;
+  fullValue: any;
+}
+
+async function writeToClipboard(payload: LowcoderClipboardPayload): Promise<boolean> {
+  try {
+    const json = JSON.stringify(payload);
+    await navigator.clipboard.writeText(json);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function readFromClipboard(): Promise<LowcoderClipboardPayload | null> {
+  try {
+    const text = await navigator.clipboard.readText();
+    if (!text) return null;
+    const parsed = JSON.parse(text);
+    if (parsed?.type !== CLIPBOARD_TYPE || !parsed?.version) return null;
+    return parsed as LowcoderClipboardPayload;
+  } catch {
+    return null;
+  }
+}
+
+function buildEmptyPayload(): LowcoderClipboardPayload {
+  return {
+    type: CLIPBOARD_TYPE,
+    version: CLIPBOARD_VERSION,
+    timestamp: Date.now(),
+    gridItems: [],
+    hookItems: [],
+    sourcePositionParams: DEFAULT_POSITION_PARAMS,
+  };
+}
+
+export async function writeHookOnlyToClipboard(hookItems: ClipboardHookItem[]): Promise<boolean> {
+  const payload = buildEmptyPayload();
+  payload.hookItems = hookItems;
+  return writeToClipboard(payload);
+}
 
 export class GridCompOperator {
-  private static copyComps: CopyCompType[] = [];
-  private static sourcePositionParams: PositionParams;
-
-  static copyComp(editorState: EditorState, compRecords: Record<string, Comp>) {
+  static async copyComp(editorState: EditorState, compRecords: Record<string, Comp>): Promise<boolean> {
     const oldUi = editorState.getUIComp().getComp();
     if (!oldUi) {
       messageInstance.info(trans("gridCompOperator.notSupport"));
@@ -65,24 +125,52 @@ export class GridCompOperator {
       layout: layout[key],
     }));
 
-    const toCopyComps = Object.values(compMap).filter((item) => !!item.item && !!item.layout);
-    if (!toCopyComps || _.size(toCopyComps) <= 0) {
+    const validComps = Object.values(compMap).filter((item) => !!item.item && !!item.layout);
+    if (!validComps || _.size(validComps) <= 0) {
       messageInstance.info(trans("gridCompOperator.selectAtLeastOneComponent"));
       return false;
     }
-    this.copyComps = toCopyComps;
-    this.sourcePositionParams = simpleContainer.children.positionParams.getView();
 
-    // log.debug( "copyComp. toCopyComps: ", this.copyComps, " sourcePositionParams: ", this.sourcePositionParams);
-    return true;
+    const sourcePositionParams = simpleContainer.children.positionParams.getView();
+    const nameGenerator = editorState.getNameGenerator();
+
+    const gridItems: ClipboardGridItem[] = validComps.map((comp) => {
+      const itemComp = comp.item as GridItemComp;
+      const compType = itemComp.children.compType.getView();
+      const name = itemComp.children.name.getView();
+      const innerComp = itemComp.children.comp;
+      const isContainerComp = isContainer(innerComp);
+      const compJSON = isContainerComp
+        ? {
+            ...innerComp.toJsonValue(),
+            ...innerComp.getPasteValue(nameGenerator) as Record<string, any>,
+          }
+        : innerComp.toJsonValue();
+      return { compType, comp: compJSON, name, layout: comp.layout, isContainer: isContainerComp };
+    });
+
+    const payload = buildEmptyPayload();
+    payload.sourcePositionParams = sourcePositionParams;
+    payload.gridItems = gridItems;
+    return writeToClipboard(payload);
   }
 
-  // FALK TODO: How can we enable Copy and Paste of components across Browser Tabs / Windows?
-  static pasteComp(editorState: EditorState) {
-    if (!this.copyComps || _.size(this.copyComps) <= 0 || !this.sourcePositionParams) {
-      messageInstance.info(trans("gridCompOperator.selectCompFirst"));
+  static pasteFromPayload(editorState: EditorState, payload: LowcoderClipboardPayload): boolean {
+    if (payload.gridItems.length === 0) {
       return false;
     }
+    return this.doPaste(
+      editorState,
+      payload.gridItems,
+      payload.sourcePositionParams || DEFAULT_POSITION_PARAMS,
+    );
+  }
+
+  private static doPaste(
+    editorState: EditorState,
+    items: ClipboardGridItem[],
+    sourcePositionParams: PositionParams,
+  ): boolean {
     const oldUi = editorState.getUIComp().getComp();
     if (!oldUi) {
       messageInstance.info(trans("gridCompOperator.notSupport"));
@@ -93,18 +181,8 @@ export class GridCompOperator {
       messageInstance.warning(trans("gridCompOperator.noContainerSelected"));
       return false;
     }
+
     const selectedComps = editorState.selectedComps();
-    const isSelectingContainer =
-      _.size(selectedComps) === 1 &&
-      (Object.values(selectedComps)[0] as GridItemComp)?.children?.comp === selectedContainer;
-    if (_.size(this.copyComps) === 1) {
-      const { item } = this.copyComps[0];
-      // Special case: To paste a container, and the container is currently selected, paste it outside the selected container
-      if (isContainer((item as GridItemComp).children.comp) && isSelectingContainer) {
-        selectedContainer =
-          editorState.findContainer(Object.keys(selectedComps)[0]) ?? selectedContainer;
-      }
-    }
 
     const selectedSimpleContainer =
       selectedContainer.realSimpleContainer(Object.keys(selectedComps)[0]) ??
@@ -115,43 +193,39 @@ export class GridCompOperator {
     const multiAddActions: Array<CustomAction<any>> = [];
     const copyLayouts: Layout = {};
     const copyCompNames = new Set<string>();
-    // log.debug("pasteComps. sourceContainer: ", this.sourceContainer, " targetContainer: ", selectedContainer);
-    this.copyComps.forEach((comp) => {
+
+    items.forEach((item) => {
       const key = genRandomKey();
       const { w, h } = switchLayoutWH(
-        comp.layout.w,
-        comp.layout.h,
-        this.sourcePositionParams,
+        item.layout.w,
+        item.layout.h,
+        sourcePositionParams,
         selectedSimpleContainer.children.positionParams.getView()
       );
       copyLayouts[key] = {
-        ...comp.layout,
+        ...item.layout,
         i: key,
-        x: comp.layout.x + baseX,
-        y: comp.layout.y + baseY,
+        x: item.layout.x + baseX,
+        y: item.layout.y + baseY,
         w,
         h,
         isDragging: true,
       };
-      const itemComp = comp.item as GridItemComp;
-      const compType = itemComp.children.compType.getView();
-      const compInfo = parseCompType(compType);
+      const compInfo = parseCompType(item.compType);
       const compName = nameGenerator.genItemName(compInfo.compName);
-      const compJSONValue = isContainer(itemComp.children.comp)
-        ? {
-            ...itemComp.children.comp.toJsonValue(),
-            ...itemComp.children.comp.getPasteValue(nameGenerator) as Record<string, any>,
-          }
-        : itemComp.children.comp.toJsonValue();
+      const compJSONValue = item.isContainer
+        ? remapContainerPasteValue(item.comp, nameGenerator)
+        : item.comp;
       copyCompNames.add(compName);
       multiAddActions.push(
         (oldUi.realSimpleContainer() as SimpleContainerComp).children.items.addAction(key, {
-          compType: compType,
+          compType: item.compType,
           comp: compJSONValue,
           name: compName,
         })
       );
     });
+
     selectedSimpleContainer.dispatch(
       multiChangeAction({
         layout: selectedSimpleContainer.children.layout.changeValueAction({
@@ -198,10 +272,11 @@ export class GridCompOperator {
     window.open(APPLICATION_VIEW_URL(applicationId, "edit"))
   }
 
-  static cutComp(editorState: EditorState, compRecords: Record<string, Comp>) {
-    this.copyComp(editorState, compRecords) &&
-      this.doDelete(editorState, compRecords) &&
-        messageInstance.info(trans("gridCompOperator.cutCompsSuccess", { pasteKey, undoKey }));
+  static async cutComp(editorState: EditorState, compRecords: Record<string, Comp>) {
+    const copied = await this.copyComp(editorState, compRecords);
+    if (copied && this.doDelete(editorState, compRecords)) {
+      messageInstance.info(trans("gridCompOperator.cutCompsSuccess", { pasteKey, undoKey }));
+    }
   }
 
   private static doDelete(editorState: EditorState, compRecords: Record<string, Comp>): boolean {
@@ -280,4 +355,47 @@ export class GridCompOperator {
     );
     messageInstance.success(trans("comp.upgradeSuccess"));
   }
+}
+
+/**
+ * Remap keys and names inside a serialized container JSON.
+ * Mirrors what SimpleContainerComp.getPasteValue() does, but operates on
+ * plain JSON so it works for cross-app clipboard payloads where we don't
+ * have live comp instances.
+ */
+function remapContainerPasteValue(compJson: any, nameGenerator: NameGenerator): any {
+  if (!compJson || typeof compJson !== "object") return compJson;
+
+  const items = compJson.items;
+  const layout = compJson.layout;
+  if (!items || typeof items !== "object") return compJson;
+
+  const keyMap: Record<string, string> = {};
+  Object.keys(items).forEach((oldKey) => {
+    keyMap[oldKey] = genRandomKey();
+  });
+
+  const newItems: Record<string, any> = {};
+  Object.entries(items).forEach(([oldKey, itemValue]: [string, any]) => {
+    const newKey = keyMap[oldKey];
+    const compType = itemValue?.compType;
+    const newName = compType ? nameGenerator.genItemName(compType) : genRandomKey();
+    const innerComp = itemValue?.comp;
+    const remappedComp = innerComp?.items
+      ? remapContainerPasteValue(innerComp, nameGenerator)
+      : innerComp;
+    newItems[newKey] = { ...itemValue, name: newName, comp: remappedComp };
+  });
+
+  let newLayout = layout;
+  if (layout && typeof layout === "object") {
+    const remapped: Record<string, any> = {};
+    Object.entries(layout).forEach(([oldKey, layoutItem]: [string, any]) => {
+      const newKey = keyMap[oldKey] || oldKey;
+      remapped[newKey] = { ...layoutItem, i: newKey };
+    });
+    newLayout = remapped;
+  }
+
+  return { ...compJson, items: newItems, layout: newLayout };
 }

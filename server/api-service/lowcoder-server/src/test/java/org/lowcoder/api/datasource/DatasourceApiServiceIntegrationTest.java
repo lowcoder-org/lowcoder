@@ -2,7 +2,6 @@ package org.lowcoder.api.datasource;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.api.common.InitData;
 import org.lowcoder.api.common.mockuser.WithMockUser;
@@ -30,7 +29,6 @@ import static org.lowcoder.domain.permission.model.ResourceRole.VIEWER;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Disabled("Enable after all plugins are loaded in test mode")
 //@RunWith(SpringRunner.class)
 public class DatasourceApiServiceIntegrationTest {
     @Autowired

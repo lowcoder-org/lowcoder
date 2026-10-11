@@ -1,6 +1,6 @@
 /// <reference types="react" />
 import * as react from 'react';
-import React, { ReactNode } from 'react';
+import { ReactNode, RefObject } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 
 type EvalMethods = Record<string, Record<string, Function>>;
@@ -388,6 +388,10 @@ interface Comp<ViewReturn = any, DataType extends JSONValue = JSONValue, NodeTyp
      */
     changeDispatch(dispatch: DispatchType): this;
     changeValueAction(value: DataType): ChangeValueAction;
+    /**
+     * Optional DOM ref for components that render a root element (e.g. UI comps, tour targets).
+     */
+    getRef(): RefObject<HTMLDivElement> | undefined;
 }
 declare abstract class AbstractComp<ViewReturn = any, DataType extends JSONValue = JSONValue, NodeType extends OptionalNodeType = OptionalNodeType> implements Comp<ViewReturn, DataType, NodeType> {
     dispatch: DispatchType;
@@ -403,6 +407,7 @@ declare abstract class AbstractComp<ViewReturn = any, DataType extends JSONValue
      */
     dispatchChangeValueAction(value: DataType): void;
     changeValueAction(value: DataType): ChangeValueAction;
+    getRef(): RefObject<HTMLDivElement> | undefined;
     /**
      * don't override the function, override nodeWithout function instead
      * FIXME: node reference mustn't be changed if this object is changed
@@ -616,7 +621,6 @@ declare abstract class MultiBaseComp<ChildrenType extends Record<string, Comp<un
     toJsonValue(): DataType;
     autoHeight(): boolean;
     changeChildAction(childName: string & keyof ChildrenType, value: ConstructorToDataType<new (...params: any) => ChildrenType[typeof childName]>): CompAction<JSONValue>;
-    getRef(): React.RefObject<HTMLDivElement>;
 }
 declare function mergeExtra(e1: ExtraNodeType | undefined, e2: ExtraNodeType): ExtraNodeType;
 

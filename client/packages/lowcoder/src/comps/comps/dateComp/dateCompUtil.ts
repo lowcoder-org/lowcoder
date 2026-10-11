@@ -171,6 +171,9 @@ export const getMobileStyle = (style: DateTimeStyleType) =>
 
 export const dateRefMethods = refMethods<CommonPickerMethods>([focusMethod, blurMethod]);
 
+export const parseInputFormats = (inputFormat?: string): string | string[] => 
+  inputFormat?.includes(',') ? inputFormat.split(',').map(f => f.trim()) : inputFormat || '';
+
 export const StyledPickerPanel = styled.div<{
   $style: ChildrenMultiSelectStyleType
 }>`

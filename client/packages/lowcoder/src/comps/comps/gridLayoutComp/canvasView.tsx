@@ -93,6 +93,7 @@ function getDragSelectedNames(
 const EmptySet = new Set<string>();
 
 export const CanvasView = React.memo((props: ContainerBaseProps) => {
+  const { canvasContainerId, ...innerGridProps } = props;
   const currentTheme = useContext(ThemeContext)?.theme;
   const isDefaultTheme = useContext(ThemeContext)?.themeId === 'default-theme-id';
   const isPreviewTheme = useContext(ThemeContext)?.themeId === 'preview-theme';
@@ -321,7 +322,7 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
           <InnerGrid
             containerPadding={defaultContainerPadding}
             overflow={rootContainerOverflow}
-            {...props}
+            {...innerGridProps}
             positionParams={positionParams}
             {...gridLayoutCanvasProps}
             bgColor={bgColor}
@@ -336,7 +337,7 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
   }
 
   return (
-    <CanvasContainer $maxWidth={maxWidth} id={CanvasContainerID}>
+    <CanvasContainer $maxWidth={maxWidth} id={canvasContainerId ?? CanvasContainerID}>
       <EditorContainer ref={scrollContainerRef}>
         <UICompContainer
           $maxWidth={maxWidth}
@@ -358,7 +359,7 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
               <InnerGrid
                 containerPadding={defaultContainerPadding}
                 overflow={rootContainerOverflow}
-                {...props}
+                {...innerGridProps}
                 {...gridLayoutCanvasProps}
                 dragSelectedComps={dragSelectedComps}
                 scrollContainerRef={scrollContainerRef}

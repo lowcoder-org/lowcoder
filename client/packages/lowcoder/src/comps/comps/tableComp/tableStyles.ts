@@ -16,59 +16,57 @@ export const getStyle = (
   toolbarStyle: TableToolbarStyleType,
 ) => {
   const background = genLinerGradient(style.background);
-  const selectedRowBackground = genLinerGradient(rowStyle.selectedRowBackground);
-  const hoverRowBackground = isTransparentColor(rowStyle.hoverRowBackground) ? null : genLinerGradient(rowStyle.hoverRowBackground);
+  const rowBackground = genLinerGradient(rowStyle.background);
   const alternateBackground = genLinerGradient(rowStyle.alternateBackground);
+  const selectedRowBackground = genLinerGradient(rowStyle.selectedRowBackground);
+  const hoverRowBackground = genLinerGradient(rowStyle.hoverRowBackground);
+  const hasHoverRowBackground = !isTransparentColor(rowStyle.hoverRowBackground);
 
   return css`
     .ant-table-body {
-      background: ${genLinerGradient(style.background)};
+      background: ${background};
     }
+
     .ant-table-tbody {
-      > tr:nth-of-type(2n + 1) {
-        background: ${genLinerGradient(rowStyle.background)};
+      > tr {
+        background: ${rowBackground};
       }
 
-      > tr:nth-of-type(2n) {
+      > tr:nth-of-type(2n):not(.ant-table-row-selected) {
         background: ${alternateBackground};
       }
 
-      // selected row
-      > tr:nth-of-type(2n + 1).ant-table-row-selected {
-        background: ${selectedRowBackground || rowStyle.background} !important;
-
-        // > td.ant-table-cell-row-hover,
-        &:hover {
-          background: ${hoverRowBackground || selectedRowBackground || rowStyle.background} !important;
-        }
+      > tr.ant-table-row-selected {
+        background: ${selectedRowBackground} !important;
       }
 
-      > tr:nth-of-type(2n).ant-table-row-selected {
-        background: ${selectedRowBackground || alternateBackground} !important;
-
-        // > td.ant-table-cell-row-hover,
-        &:hover {
-          background: ${hoverRowBackground || selectedRowBackground || alternateBackground} !important;
+      ${hasHoverRowBackground && css`
+        > tr:hover:not(.ant-table-row-selected) {
+          background: ${hoverRowBackground} !important;
         }
-      }
-
-      // hover row
-      > tr:nth-of-type(2n + 1):hover {
-        background: ${hoverRowBackground || rowStyle.background} !important;
-        > td.ant-table-cell-row-hover {
-          background: transparent;
-        }
-      }
-      > tr:nth-of-type(2n):hover {
-        background: ${hoverRowBackground || alternateBackground} !important;
-        > td.ant-table-cell-row-hover {
-          background: transparent;
-        }
-      }
+      `}
 
       > tr.ant-table-expanded-row {
         background: ${background};
       }
+    }
+
+    .ant-table-tbody-virtual .ant-table-row {
+      background: ${rowBackground};
+
+      &:nth-child(2n):not(.ant-table-row-selected) {
+        background: ${alternateBackground};
+      }
+
+      &.ant-table-row-selected {
+        background: ${selectedRowBackground} !important;
+      }
+
+      ${hasHoverRowBackground && css`
+        &:hover:not(.ant-table-row-selected) {
+          background: ${hoverRowBackground} !important;
+        }
+      `}
     }
   `;
 };
@@ -297,10 +295,6 @@ export const TableWrapper = styled.div.attrs<{
           }
 
         }
-
-        /* Fix for selected and hovered rows */
-
-        
 
         thead > tr:first-child {
           th:last-child {

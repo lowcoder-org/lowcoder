@@ -11,7 +11,7 @@
 	<version>${revision}</version>
 
 	<properties>
-		<revision>2.7.6</revision>
+		<revision>3.0.0</revision>
 		<java.version>17</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
@@ -19,6 +19,14 @@
 		<deploy.disabled>true</deploy.disabled>
 		<source.disabled>true</source.disabled>
 		<skipDockerBuild>true</skipDockerBuild>
+		<jacoco.version>0.8.14</jacoco.version>
+		<!-- declared so that the coverage gate's <skip>${jacoco.skip}</skip> (lowcoder-coverage-report) reads false by
+		     default; -Djacoco.skip=true still skips both JaCoCo and the gate -->
+		<jacoco.skip>false</jacoco.skip>
+		<!-- Empty default for the test JVM arguments: JaCoCo's prepare-agent goals append their agent to it, and the
+		     failsafe configuration of lowcoder-server refers to it as @{argLine}, which needs it defined even with
+		     -Djacoco.skip=true -->
+		<argLine></argLine>
 	</properties>
 
 	<profiles>
@@ -84,6 +92,45 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<version>3.6.1</version>
+			</plugin>
+			<!-- Code coverage of every module (docs/API_PAYLOAD_TEST_TASKS.md, T11.1): one agent for the unit tests
+			     (target/jacoco.exec, surefire) and one for the integration tests (target/jacoco-it.exec, failsafe), and a
+			     report of each per module (target/site/jacoco, target/site/jacoco-it); lowcoder-coverage-report aggregates
+			     them. Lombok-generated methods carry @lombok.Generated (lombok.config), which JaCoCo leaves out.
+			     Limits: only lowcoder-server has integration tests (failsafe), so only it has a jacoco-it report; a module's
+			     own report counts only that module's tests, while the aggregate counts a class as covered by the tests of any
+			     module that ran it; builds without tests (-DskipTests, the Docker build) attach the agent but write no data,
+			     and -Djacoco.skip=true attaches none. -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>prepare-agent-integration</id>
+						<goals>
+							<goal>prepare-agent-integration</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report-integration</id>
+						<goals>
+							<goal>report-integration</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 		<pluginManagement>
@@ -152,6 +199,8 @@
 		<module>lowcoder-domain</module>
 		<module>lowcoder-plugins</module>
 		<module>lowcoder-server</module>
+		<!-- last: it aggregates the coverage of every module above -->
+		<module>lowcoder-coverage-report</module>
 	</modules>
 
 </project>

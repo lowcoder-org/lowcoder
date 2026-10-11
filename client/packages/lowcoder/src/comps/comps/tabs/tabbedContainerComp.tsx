@@ -15,7 +15,7 @@ import { NameGenerator } from "comps/utils";
 import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
 import _ from "lodash";
-import React, {useContext, useMemo, useEffect } from "react";
+import React, {useMemo, useEffect } from "react";
 import styled, { css } from "styled-components";
 import { IContainer } from "../containerBase/iContainer";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
@@ -30,8 +30,7 @@ import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUt
 import { trans } from "i18n";
 import { BoolCodeControl, NumberControl } from "comps/controls/codeControl";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
-import { EditorContext } from "comps/editorState";
-import { checkIsMobile } from "util/commonUtils";
+import { useEditorStore } from "comps/editorStore";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { BoolControl } from "comps/controls/boolControl";
 import { PositionControl,dropdownControl } from "comps/controls/dropdownControl";
@@ -150,14 +149,13 @@ const StyledTabs = styled(Tabs)<{
   $style: TabContainerStyleType;
   $headerStyle: ContainerHeaderStyleType;
   $bodyStyle: TabBodyStyleType;
-  $isMobile?: boolean;
   $showHeader?: boolean;
-  $animationStyle:AnimationStyleType;
+  $animationStyle: AnimationStyleType;
   $isDestroyPane?: boolean;
 }>`
   &.ant-tabs {
     height: 100%;
-    ${props=>props.$animationStyle}
+    ${props => props.$animationStyle}
   }
 
   .ant-tabs-content-animated {
@@ -168,22 +166,18 @@ const StyledTabs = styled(Tabs)<{
     height: 100%;
   }
 
+  /* Keep AntD flex nav so overflow "..." stays on the right. */
   .ant-tabs-nav {
-    display: ${(props) => (props.$showHeader ? "block" : "none")};
-    padding: 0 ${(props) => (props.$isMobile ? 16 : 24)}px;
+    ${(props) => !props.$showHeader && `display: none;`}
     margin: 0px;
   }
 
-  .ant-tabs-tab + .ant-tabs-tab {
-    margin: 0 0 0 20px;
+  /* tabBarGutter also margins the more button; keep "..." flush like AntD default. */
+  .ant-tabs-nav-more {
+    margin-inline-start: 0 !important;
   }
 
-  .ant-tabs-nav-operations {
-    margin-right: -24px;
-  }
-
-  ${(props) =>
-    props.$style && getStyle(props.$style, props.$headerStyle, props.$bodyStyle)}
+  ${(props) => props.$style && getStyle(props.$style, props.$headerStyle, props.$bodyStyle)}
 
   /* Conditional styling for all modes except Destroy Inactive Pane */
   ${(props) => !props.$isDestroyPane && `
@@ -207,7 +201,6 @@ const ContainerInTab = (props: ContainerBaseProps) => {
 type TabPaneContentProps = {
   autoHeight: boolean;
   showVerticalScrollbar: boolean;
-  paddingWidth: number;
   horizontalGridCells: number;
   bodyBackground: string;
   layoutView: any;
@@ -219,7 +212,6 @@ type TabPaneContentProps = {
 const TabPaneContent: React.FC<TabPaneContentProps> = ({
   autoHeight,
   showVerticalScrollbar,
-  paddingWidth,
   horizontalGridCells,
   bodyBackground,
   layoutView,
@@ -243,7 +235,7 @@ const TabPaneContent: React.FC<TabPaneContentProps> = ({
           positionParams={positionParamsView}
           dispatch={dispatch}
           autoHeight={autoHeight}
-          containerPadding={[paddingWidth, 20]}
+          containerPadding={[0, 0]}
         />
       </ScrollBar>
     </BackgroundColorContext.Provider>
@@ -272,11 +264,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
     }
   }, [activeKey, props.selectedTabKey.value]);
 
-  const editorState = useContext(EditorContext);
-  const maxWidth = editorState.getAppSettings().maxWidth;
-  const isMobile = checkIsMobile(maxWidth);
   const showHeader = props.showHeader.valueOf();
-  const paddingWidth = isMobile ? 8 : 0;
 
   const tabItems = visibleTabs.map((tab) => {
     const id = String(tab.id);
@@ -302,7 +290,6 @@ const TabbedContainer = (props: TabbedContainerProps) => {
         <TabPaneContent
           autoHeight={props.autoHeight}
           showVerticalScrollbar={props.showVerticalScrollbar}
-          paddingWidth={paddingWidth}
           horizontalGridCells={horizontalGridCells}
           bodyBackground={bodyStyle.background}
           layoutView={containerChildren.layout.getView()}
@@ -334,7 +321,6 @@ const TabbedContainer = (props: TabbedContainerProps) => {
             }
           }}
           animated
-          $isMobile={isMobile}
           items={tabItems}
           tabBarGutter={props.tabsGutter}
           centered={props.tabsCentered}
@@ -353,6 +339,7 @@ export const TabbedContainerBaseComp = (function () {
     );
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
@@ -363,7 +350,7 @@ export const TabbedContainerBaseComp = (function () {
             {children.selectedTabKey.propertyView({ label: trans("prop.defaultValue") })}
           </Section>
 
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["logic", "both"].includes(editorModeStatus) && (
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
@@ -391,12 +378,15 @@ export const TabbedContainerBaseComp = (function () {
             </Section>
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             <>
               <Section name={sectionNames.layout}>
                 {children.placement.propertyView({ label: trans("tabbedContainer.placement"), radioButton: true })}
                 {children.tabsCentered.propertyView({ label: trans("tabbedContainer.tabsCentered")})}
-                { children.tabsGutter.propertyView({ label: trans("tabbedContainer.gutter"), tooltip : trans("tabbedContainer.gutterTooltip") })}
+                {children.tabsGutter.propertyView({
+                  label: trans("tabbedContainer.gutter"),
+                  tooltip: trans("tabbedContainer.gutterTooltip"),
+                })}
                 {children.horizontalGridCells.propertyView({
                   label: trans('prop.horizontalGridCells'),
                 })}

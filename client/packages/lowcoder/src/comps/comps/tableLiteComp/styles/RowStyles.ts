@@ -1,51 +1,63 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { isTransparentColor } from "lowcoder-design";
 
 export const RowStyleProvider = styled.div<{
   $rowStyle: any;
   $showHRowGridBorder: boolean;
 }>`
-
   /* Hide the measure row to avoid the extra space */
-  tr.ant-table-measure-row{
-        visibility: collapse;
-  } 
-  
-  /* Only apply row styles if explicitly set by user */
-  .ant-table-tbody > tr {
-    ${props => props.$rowStyle?.background && `background: ${props.$rowStyle.background};`}
-    ${props => props.$rowStyle?.borderColor && `border-color: ${props.$rowStyle.borderColor};`}
-    ${props => props.$rowStyle?.height && `height: ${props.$rowStyle.height};`}
-    ${props => props.$rowStyle?.minHeight && `min-height: ${props.$rowStyle.minHeight};`}
+  tr.ant-table-measure-row {
+    visibility: collapse;
   }
   
-  /* Row hover effects - only if explicitly set */
-  ${props => props.$rowStyle?.hoverBackground && `
-    .ant-table-tbody > tr:hover {
-      background: ${props.$rowStyle.hoverBackground};
+  .ant-table-tbody > tr {
+    background: ${(props) => props.$rowStyle.background};
+  }
+  
+  .ant-table-tbody > tr:nth-of-type(2n):not(.ant-table-row-selected) {
+    background: ${(props) => props.$rowStyle.alternateBackground} !important;
+  }
+
+  .ant-table-tbody > tr.ant-table-row-selected {
+    background: ${(props) => props.$rowStyle.selectedRowBackground} !important;
+  }
+
+  ${(props) => !isTransparentColor(props.$rowStyle.hoverRowBackground) && css`
+    .ant-table-tbody > tr:hover:not(.ant-table-row-selected) {
+      background: ${props.$rowStyle.hoverRowBackground} !important;
     }
   `}
-  
-  /* Alternating row colors - only if explicitly set */
-  ${props => props.$rowStyle?.alternatingBackground && `
-    .ant-table-tbody > tr:nth-child(even) {
-      background: ${props.$rowStyle.alternatingBackground};
+
+  /* Virtual mode row styles */
+  .ant-table-tbody-virtual .ant-table-row {
+    background: ${(props) => props.$rowStyle.background};
+
+    &:nth-child(2n):not(.ant-table-row-selected) {
+      background: ${(props) => props.$rowStyle.alternateBackground} !important;
     }
-  `}
-  
-  /* Selected row styling - only if explicitly set */
-  ${props => props.$rowStyle?.selectedBackground && `
-    .ant-table-tbody > tr.ant-table-row-selected {
-      background: ${props.$rowStyle.selectedBackground};
+
+    &.ant-table-row-selected {
+      background: ${(props) => props.$rowStyle.selectedRowBackground} !important;
+    }
+  }
+
+  ${(props) => !isTransparentColor(props.$rowStyle.hoverRowBackground) && css`
+    .ant-table-tbody-virtual .ant-table-row:hover:not(.ant-table-row-selected) {
+      background: ${props.$rowStyle.hoverRowBackground} !important;
     }
   `}
   
   /* Horizontal grid borders */
-  ${props => props.$showHRowGridBorder && `
+  ${(props) => props.$showHRowGridBorder && `
     .ant-table-tbody > tr > td {
-      border-bottom: 1px solid ${props.$rowStyle?.borderColor || '#f0f0f0'};
+      border-bottom: ${props.$rowStyle.borderWidth} ${props.$rowStyle.borderStyle} ${props.$rowStyle.border};
+    }
+
+    .ant-table-tbody-virtual .ant-table-row > td.ant-table-cell {
+      border-bottom: ${props.$rowStyle.borderWidth} ${props.$rowStyle.borderStyle} ${props.$rowStyle.border};
     }
   `}
   
   /* Custom row CSS */
-  ${props => props.$rowStyle?.customCSS || ''}
+  ${(props) => props.$rowStyle?.customCSS || ''}
 `;

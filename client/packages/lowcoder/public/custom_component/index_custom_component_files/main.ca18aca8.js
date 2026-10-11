@@ -1075,7 +1075,7 @@
         return (
           (function (e) {
             var t;
-            null === (t = window.top) ||
+            null === (t = window.parent) ||
               void 0 === t ||
               t.postMessage(P(P({}, e), {}, { hostId: N }), "*");
           })({ type: f.Invoke, payload: { id: n, method: e, data: t } }),

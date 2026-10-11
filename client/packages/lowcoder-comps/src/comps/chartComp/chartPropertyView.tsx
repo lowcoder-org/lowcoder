@@ -163,6 +163,15 @@ export function chartPropertyView(
         {children.echartsOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
+          language: "json",
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "echarts-option",
+            label: "ECharts option JSON",
+            fieldName: "echartsOption",
+            fieldDescription:
+              "Apache ECharts option JSON for the selected chart component.",
+          },
           tooltip: (
             <div>
               <a href={optionUrl} target="_blank" rel="noopener noreferrer">
@@ -211,6 +220,15 @@ export function chartPropertyView(
         {children.mapOptions.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
+          language: "json",
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "echarts-option",
+            label: "ECharts map option JSON",
+            fieldName: "mapOptions",
+            fieldDescription:
+              "Apache ECharts map option JSON for the selected chart component.",
+          },
           tooltip: (
             <div>
               <a href={mapOptionUrl} target="_blank" rel="noopener noreferrer">

@@ -6,6 +6,9 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+# Annotations added to the ConfigMaps and Secrets of all services
+annotations: {}
+
 #
 # Configuration values for Lowcoder
 #
@@ -30,6 +33,8 @@ global:
       password:
     #nodeServiceUrl: 
     #apiServiceUrl: 
+    # URL of an external proxy-service (empty = the proxy-service installed by this chart)
+    #proxyServiceUrl:
     apiKeySecret: "5a41b090758b39b226603177ef48d73ae9839dd458ccb7e66f7e7cc028d5a50b"
     nodeServiceSecret: "62e348319ab9f5c43c3b5a380b4d82525cdb68740f21140e767989b509ab0aa2"
     nodeServiceSalt: "lowcoder.org"
@@ -50,7 +55,7 @@ global:
     queryTimeout: 10
   mailServer:
     host: localhost
-    port: 578
+    port: 587
     smtpAuth: false
     authUsername:
     authPassword:
@@ -70,13 +75,25 @@ global:
 # To install redis, set enabled to 'true'
 # Find out more about configuration options at: https://github.com/bitnami/charts/tree/main/bitnami/redis/#parameters
 #
+# External redis: externalUrl is either a full URL starting with redis:// or rediss://
+# (used as given, include credentials yourself) or host[:port] (the chart builds
+# redis://[:<password>@]host[:port] from redis.auth below)
+#
+# With auth enabled the password comes from auth.password or from key
+# auth.existingSecretPasswordKey of auth.existingSecret; one of them is required
+#
 redis:
   #externalUrl: 
   enabled: true
   architecture: standalone
+  # Bitnami removed the versioned images from docker.io/bitnami; bitnamilegacy keeps them (no updates)
+  image:
+    repository: bitnamilegacy/redis
   auth:
     enabled: false
     #password: 
+    #existingSecret:
+    #existingSecretPasswordKey: redis-password
 
 # Mongo database
 #
@@ -89,8 +106,12 @@ redis:
 #
 mongodb:
   enabled: true
+  # Bitnami removed the versioned images from docker.io/bitnami; bitnamilegacy keeps them (no updates, amd64 only)
+  image:
+    repository: bitnamilegacy/mongodb
   service:
     nameOverride: lowcoder-mongodb
+    # host[:port] of an external mongodb, used when enabled is false
     #externalUrl:
   # if set to true, will use mongodb+srv:// as a prefix in mongo connection string
   useSrv: false
@@ -101,10 +122,14 @@ mongodb:
     rootPassword: secret
     usernames:
       - lowcoder
+    # With auth.existingSecret the password of usernames[0] is read from it, else passwords[0] is used:
+    # in-chart mongodb: first entry of key "mongodb-passwords" (the Bitnami subchart's key, comma-separated),
+    # external mongodb: key "password"
     passwords:
       - supersecret
     databases:
       - lowcoder
+    #existingSecret:
 
 # Lowcoder backend API service
 #
@@ -130,6 +155,9 @@ apiService:
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
 
+  # Container resources (falls back to the top-level `resources` when empty)
+  resources: {}
+
 # Lowcoder backend node service
 #
 # Find out more about configuration options at: https://github.com/lowcoder-org/lowcoder/tree/main/deploy/docker#configuration-3
@@ -153,8 +181,15 @@ nodeService:
     maxReplicas: 100
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
- 
+
+  # Container resources (falls back to the top-level `resources` when empty)
+  resources: {}
+
 # Lowcoder frontend
+#
+# Its nginx in Lowcoder 3.0.0 forwards /api and /node-service/plugin-icons, as well as /proxy/,
+# /hocuspocus and /agora-token-service/, to the services of this chart; URLs of disabled services are not set.
+#
 frontend:
   image:
     repository: lowcoderorg/lowcoder-ce-frontend
@@ -174,7 +209,115 @@ frontend:
     maxReplicas: 100
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
- 
+
+  # Container resources (falls back to the top-level `resources` when empty)
+  resources: {}
+
+# Lowcoder proxy-service (Typeform, Google Forms and website proxies with collaboration bridges)
+#
+# The frontend reaches it through nginx under /proxy/ (LOWCODER_PROXY_SERVICE_URL); not exposed by the ingress.
+# The images are published as :dev (dev branch) and :latest (main branch) only.
+#
+proxyService:
+  enabled: true
+  image:
+    repository: lowcoderorg/lowcoder-proxy-service
+    pullPolicy: Always
+    tag: latest
+
+  service:
+    type: ClusterIP
+    port: 80
+    #nodePort: 30098
+
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  resources: {}
+
+  config:
+    # Requests per minute per client IP
+    rateLimit: 120
+    # Comma separated upstream hosts allowed for the Typeform proxy
+    allowedHosts: "form.typeform.com,embed.typeform.com,admin.typeform.com"
+    # Comma separated upstream hosts allowed for the Google Forms proxy
+    googleFormsAllowedHosts: "docs.google.com"
+    # Comma separated upstream hosts allowed for the website proxy (empty = none)
+    websiteAllowedHosts: ""
+
+# Hocuspocus (Yjs websocket server used by the ChatBox component and the form bridges)
+#
+# Browsers connect to it directly. The ChatBox client has its websocket URL and secret baked in at frontend
+# build time (REACT_APP_HOCUSPOCUS_URL / REACT_APP_HOCUSPOCUS_SECRET); a published frontend image uses
+# ws://localhost:3006, so ChatBox works in Kubernetes only with a frontend built with publicUrl below.
+# Runs as a single replica: documents live in the memory of one process.
+#
+hocuspocus:
+  enabled: true
+  image:
+    repository: lowcoderorg/lowcoder-hocuspocus
+    pullPolicy: Always
+    tag: latest
+
+  service:
+    type: ClusterIP
+    port: 80
+    #nodePort: 30097
+
+  resources: {}
+
+  # Shared secret clients must send (empty = no authentication). It is visible in the frontend JS bundle,
+  # so it only keeps out clients that did not load this frontend.
+  secret: ""
+  # Websocket URL browsers use, e.g. wss://lowcoder.example.com/hocuspocus. Empty = derived from the first
+  # ingress host and hocuspocus.ingress.path (wss:// when that host has TLS); required with several hosts.
+  publicUrl: ""
+  ingress:
+    # Route hocuspocus.ingress.path on every ingress host to hocuspocus (needs ingress.enabled)
+    enabled: true
+    path: /hocuspocus
+
+# Agora token service (RTC/RTM tokens for the meeting components)
+#
+# It has no authentication: once appId/appCertificate are set, anyone who can reach it (the /rte ingress route,
+# or /agora-token-service/ of a current frontend image) requests tokens for any channel/uid of the Agora project.
+# corsAllowOrigin only limits browser callers.
+#
+agoraTokenService:
+  enabled: true
+  image:
+    repository: lowcoderorg/lowcoder-agora-token-service
+    pullPolicy: Always
+    tag: latest
+
+  service:
+    type: ClusterIP
+    port: 80
+    #nodePort: 30096
+
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  resources: {}
+
+  appId: ""
+  appCertificate: ""
+  corsAllowOrigin: "*"
+  ingress:
+    # Route /rte on every ingress host to the token service (needs ingress.enabled); the path is fixed
+    # because the service only answers /rte/<channel>/<role>/<tokentype>/<uid>
+    enabled: true
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
@@ -185,6 +328,9 @@ serviceAccount:
   name: ""
 
 podAnnotations: {}
+
+# Default container resources for services without their own `resources`
+resources: {}
 
 podSecurityContext: {}
   # fsGroup: 2000
@@ -201,6 +347,8 @@ securityContext: {}
 ingress:
   enabled: false
   className: ""
+  # Path prefix the frontend is served under (used by its probes)
+  contextPath: ""
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"

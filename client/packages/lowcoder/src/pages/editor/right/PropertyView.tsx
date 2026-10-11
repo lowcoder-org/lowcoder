@@ -6,6 +6,7 @@ import { SelectedComps } from "lowcoder-design";
 import { ScrollBar } from "lowcoder-design";
 import { ReactNode, useContext } from "react";
 import { trans } from "i18n";
+import { useEditorStore } from "comps/editorStore";
 
 const ScrollWrapper = (props: { children: ReactNode }) => (
   <ScrollBar>
@@ -20,8 +21,8 @@ interface PropertyViewProps {
 export default function PropertyView(props: PropertyViewProps) {
   const { uiComp } = props;
   const editorState = useContext(EditorContext);
-  const selectedCompNames = editorState.selectedCompNames;
-  const selectedComp = editorState.selectedComp();
+  const selectedCompNames = useEditorStore((state) => state.selectedCompNames);
+  const selectedComp = editorState.selectedComp(selectedCompNames);
   const moduleLayoutComp = uiComp?.getModuleLayoutComp();
 
   let propertyView;

@@ -14,6 +14,7 @@ import {
 } from "lowcoder-design";
 import { CSSProperties, useContext, useEffect, useState } from "react";
 import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { useSelector } from "react-redux";
 import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
 import { BottomResComp, BottomResTypeEnum } from "types/bottomRes";
@@ -34,7 +35,7 @@ const Contain = styled.div`
   width: 100%;
   background-color: #ffffff;
 `;
-const Title = styled.div`
+export const Title = styled.div`
   flex-shrink: 0;
   height: 40px;
   width: 100%;
@@ -82,16 +83,17 @@ const AddIcon = styled(BluePlusIcon)`
   width: 12px;
   margin-right: 2px;
 `;
-const AddBtn = styled(TacoButton)`
+export const AddBtn = styled(TacoButton)`
   &&& {
     height: 24px;
     width: 64px;
-    padding: 4px 12px;
+    padding: 4px 10px;
     background-color: #fafbff;
     color: #4965f2;
     border-color: #c9d1fc;
     display: flex;
     align-items: center;
+    gap: 0;
     box-shadow: none;
   
     &:hover {
@@ -439,7 +441,8 @@ function BottomSidebarItem(props: BottomSidebarItemProps) {
   const [editing, setEditing] = useState(false);
   const editorState = useContext(EditorContext);
   const readOnly = useSelector(showAppSnapshotSelector);
-  const { selectedBottomResName, selectedBottomResType } = editorState;
+  const selectedBottomResName = useEditorStore((state) => state.selectedBottomResName);
+  const selectedBottomResType = useEditorStore((state) => state.selectedBottomResType);
   const level = path.length - 1;
   const type = resComp.type();
   const name = resComp.name();

@@ -54,7 +54,7 @@ export function SubscriptionCancel() {
         </span>
       </HeaderBack>
       <div>
-        <h1>Canceled</h1>
+        <h1>{trans("automator.subscription.canceled")}</h1>
       </div>
     </Wrapper>
   );

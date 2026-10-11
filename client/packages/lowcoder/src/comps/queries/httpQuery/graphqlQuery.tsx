@@ -3,7 +3,7 @@ import { Input } from "components/Input";
 import { KeyValueList } from "components/keyValueList";
 import { QueryConfigItemWrapper, QueryConfigLabel, QueryConfigWrapper } from "components/query";
 import { simpleMultiComp } from "comps/generators/multi";
-import { ReactNode } from "react";
+import { ReactNode, useContext } from "react";
 import { JSONValue } from "../../../util/jsonTypes";
 import { keyValueListControl } from "../../controls/keyValueListControl";
 import { ParamsJsonControl, ParamsStringControl } from "../../controls/paramsControl";
@@ -16,6 +16,7 @@ import {
   HttpPathPropertyView,
 } from "./httpQueryConstants";
 import { SimpleNameComp } from "@lowcoder-ee/comps/comps/simpleNameComp";
+import { CompNameContext } from "comps/editorState";
 
 interface VariablesControlParams {
   // variables: string[]; todo support parse variables
@@ -108,6 +109,7 @@ function parseVariables(value: JSONValue): string[] {
 const PropertyView = (props: { comp: InstanceType<typeof GraphqlQuery>; datasourceId: string }) => {
   const { comp } = props;
   const { children } = comp;
+  const queryName = useContext(CompNameContext);
 
   return (
     <>
@@ -119,6 +121,17 @@ const PropertyView = (props: { comp: InstanceType<typeof GraphqlQuery>; datasour
           {children.body.propertyView({
             styleName: "medium",
             width: "100%",
+            enableAIHelp: true,
+            aiHelp: {
+              targetKind: "component-field",
+              label: queryName ? `${queryName}.graphql` : "GraphQL query",
+              queryType: "GRAPHQL",
+              queryName,
+              fieldName: "body",
+              fieldDescription:
+                "GraphQL query document. Help write, explain, or improve the GraphQL operation and variables usage.",
+              targetId: queryName ? `${queryName}.graphql` : undefined,
+            },
           })}
         </QueryConfigItemWrapper>
       </QueryConfigWrapper>

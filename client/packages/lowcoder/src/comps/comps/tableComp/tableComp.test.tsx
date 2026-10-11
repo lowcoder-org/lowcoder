@@ -186,6 +186,10 @@ test("test table data transform", () => {
     )
   );
   getAndExpectTableData(2, comp);
+  comp = evalAndReduce(comp.reduce(comp.changeChildAction("headerFilters", { name: ["gg2"] })));
+  ({ transformedData } = getAndExpectTableData(1, comp));
+  expect(transformedData.map((d: any) => d["name"])).toEqual(["gg2"]);
+  comp = evalAndReduce(comp.reduce(comp.changeChildAction("headerFilters", {})));
   // filter
   comp = evalAndReduce(
     comp.reduce(

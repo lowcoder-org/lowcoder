@@ -29,6 +29,8 @@ import { default as Button } from "antd/es/button";
 import { default as Divider } from "antd/es/divider";
 import { default as Dropdown } from "antd/es/dropdown";
 import { default as Flex } from "antd/es/flex";
+import { useEditorStore } from "comps/editorStore";
+import { selectCompsFromLeftPanel } from "comps/hooks/hookSelection";
 import { default as Input } from "antd/es/input";
 import { default as Menu } from "antd/es/menu";
 import { default as Space } from "antd/es/space";
@@ -152,6 +154,7 @@ const CustomDropdown = styled(Dropdown)`
 export const LeftLayersContent = (props: LeftLayersContentProps) => {
   const { uiComp } = props;
   const editorState = useContext(EditorContext);
+  const selectedCompNames = useEditorStore((state) => state.selectedCompNames);
   const [expandedKeys, setExpandedKeys] = useState<Array<React.Key>>([]);
   const dispatch = useDispatch();
   const applicationId = useApplicationId();
@@ -212,7 +215,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
 
   const uiCollapseClick = useCallback(
     (compName: string) => {
-      editorState.setSelectedCompNames(new Set([compName]), "leftPanel");
+      selectCompsFromLeftPanel(editorState, new Set([compName]));
     },
     [editorState]
   );
@@ -244,12 +247,12 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
 
     if (dsl.ui.compType === "module") {
       explorerData.forEach(data => {
-        data['pos'] = dsl.ui.comp.container.layout[data.key].pos;
+        data['pos'] = dsl.ui.comp.container.layout[data.key]?.pos ?? 0;
       })
     }
     else {
       explorerData.forEach(data => {
-        data['pos'] = dsl.ui.layout[data.key].pos;
+        data['pos'] = dsl.ui.layout[data.key]?.pos ?? 0;
       })
     }
 
@@ -426,7 +429,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
     const selectedComponentsOnCanvas: string[] = [];
     const compTree = editorState.getUIComp().getTree();
     const explorerData: NodeItem[] = getTree(compTree, []);
-    for (let value of editorState.selectedCompNames) {
+    for (let value of selectedCompNames) {
       for (let key of explorerData) {
         if (key.title === value) {
           selectedComponentsOnCanvas.push(key.key);
@@ -434,7 +437,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
       }
     }
     setCheckedKeys(selectedComponentsOnCanvas);
-  }, [editorState]);
+  }, [editorState, selectedCompNames]);
 
   // make sure to handle the selectedActionKey for the changed input fields
   /* useEffect(() => {
@@ -448,7 +451,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
     for (let key of e.checkedNodes){
       checkedComponents.add(key.title);
     }
-    editorState.setSelectedCompNames(checkedComponents, "leftPanel");
+    selectCompsFromLeftPanel(editorState, checkedComponents);
   }
 
   const getCheckedKeys = () => {

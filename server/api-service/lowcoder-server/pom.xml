@@ -50,6 +50,14 @@
 			<groupId>org.lowcoder</groupId>
 			<artifactId>lowcoder-infra</artifactId>
 		</dependency>
+		<!-- Shared JSON-contract test helpers from the lowcoder-sdk test-jar (docs/API_PAYLOAD_TEST_PLAN.md §3.2). -->
+		<dependency>
+			<groupId>org.lowcoder</groupId>
+			<artifactId>lowcoder-sdk</artifactId>
+			<version>${revision}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.lowcoder</groupId>
 			<artifactId>lowcoder-domain</artifactId>
@@ -168,11 +176,6 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
@@ -187,9 +190,17 @@
 			<artifactId>reactor-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- MongoDB and Redis of the Spring Boot tests run in containers (org.lowcoder.api.common.TestContainers);
+		     the version comes from the testcontainers-bom in lowcoder-dependencies -->
 		<dependency>
-			<groupId>de.flapdoodle.embed</groupId>
-			<artifactId>de.flapdoodle.embed.mongo.spring30x</artifactId>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-mongodb</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- GenericContainer (Redis), Startables and DockerImageName are core API, used directly by TestContainers -->
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -213,24 +224,6 @@
 			<version>1.6.3</version>
 		</dependency>
 
-		<dependency>
-			<groupId>it.ozimov</groupId>
-			<artifactId>embedded-redis</artifactId>
-			<version>0.7.3</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.directory.server</groupId>
-			<artifactId>apacheds-test-framework</artifactId>
-			<version>2.0.0.AM26</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.vintage</groupId>
-			<artifactId>junit-vintage-engine</artifactId>
-			<version>5.9.3</version>
-			<scope>test</scope>
-		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
@@ -373,12 +366,21 @@
 				<version>3.2.5</version>
 				<configuration>
 					<skipTests>${skipIntegrationTests}</skipTests>
+					<!-- Test the unsigned classes, not the jar signed by maven-jarsigner-plugin in the package phase:
+					     unsigned test classes sharing a package with signed classes fail discovery with a SecurityException -->
+					<classesDirectory>${project.build.outputDirectory}</classesDirectory>
 					<includes>
 						<include>**/*IntegrationTest.java</include>
 					</includes>
+					<!-- @{argLine} keeps the JaCoCo agent that prepare-agent-integration puts there (T11.1) -->
 					<argLine>
-						-Dpf4j.pluginsDir=../lowcoder-plugins/plugins
+						@{argLine} -Dpf4j.pluginsDir=../lowcoder-plugins/plugins
 					</argLine>
+					<!-- the server's own plugin loader reads common.plugin-dirs, which application.yaml takes from
+					     LOWCODER_PLUGINS_DIR: the same directory as pf4j's -->
+					<environmentVariables>
+						<LOWCODER_PLUGINS_DIR>../lowcoder-plugins/plugins</LOWCODER_PLUGINS_DIR>
+					</environmentVariables>
 				</configuration>
 				<executions>
 					<execution>
@@ -398,8 +400,12 @@
 						<configuration>
 							<target>
 								<copy todir="../lowcoder-plugins/plugins">
+									<!-- the shaded plugin jars: the shade plugin replaces each plugin's main jar and keeps
+									     the unshaded one as original-*.jar; sqlBasedPlugin is a library, not a plugin (the
+									     distribution assembly takes the org.lowcoder.plugins modules the same way) -->
 									<fileset dir="../lowcoder-plugins"
-										includes="/*/target/*shaded.jar" />
+										includes="*/target/*Plugin-${revision}.jar"
+										excludes="*/target/original-*.jar sqlBasedPlugin/**" />
 									<mapper type="flatten" />
 								</copy>
 							</target>

@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import type { DateCompViewProps } from "./dateComp";
-import { disabledDate, getStyle, StyledPickerPanel } from "comps/comps/dateComp/dateCompUtil";
+import { disabledDate, getStyle, StyledPickerPanel, parseInputFormats } from "comps/comps/dateComp/dateCompUtil";
 import { useUIView } from "../../utils/useUIView";
 import { checkIsMobile } from "util/commonUtils";
 import React, { useContext } from "react";
@@ -55,7 +55,7 @@ const StyledAntdSelect = styled(AntdSelect)`
 export interface DataUIViewProps extends DateCompViewProps {
   value?: DatePickerProps<Dayjs>['value'];
   onChange: DatePickerProps<Dayjs>['onChange'];
-  onPanelChange: () => void;
+  onPanelChange?: () => void;
   onClickDateTimeZone:(value:any)=>void;
   tabIndex?: number;
   $disabledStyle?: DisabledInputStyleType;
@@ -67,15 +67,15 @@ const DateMobileUIView = React.lazy(() =>
 
 export const DateUIView = (props: DataUIViewProps) => {
   const editorState = useContext(EditorContext);
-
   const placeholder = Array.isArray(props.placeholder) ? props.placeholder[0] : props.placeholder;
+
   return useUIView(
     <DateMobileUIView {...props} />,
     <DatePickerStyled
       {...omit(props, "format", "inputFormat", "pickerMode", "$childrenInputFieldStyle")}
       $disabledStyle={props.$disabledStyle}
       multiple={false}
-      format={props.inputFormat}
+      format={parseInputFormats(props.inputFormat)}
       ref={props.viewRef as any}
       minDate={props.minDate ? dayjs(props.minDate, DateParser) : undefined}
       maxDate={props.maxDate ? dayjs(props.maxDate, DateParser) : undefined}

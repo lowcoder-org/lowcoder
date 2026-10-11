@@ -7,7 +7,6 @@ import {
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 import { examplesUrl,optionUrl } from "../chartComp/chartConfigs/chartUrls";
-
 export function graphChartPropertyView(
   children: ChartCompChildrenType,
   dispatch: (action: CompAction) => void
@@ -16,9 +15,36 @@ export function graphChartPropertyView(
   const jsonModePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsCategories.propertyView({ label: trans("graphChart.categories") })}
-        {children.echartsLinks.propertyView({ label: trans("graphChart.links") })}
-        {children.echartsNodes.propertyView({ label: trans("graphChart.nodes") })}
+        {children.echartsCategories.propertyView({
+          label: trans("graphChart.categories"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Graph categories",
+            fieldName: "echartsCategories",
+            fieldDescription: "JSON array of category names for grouping graph nodes.",
+          },
+        })}
+        {children.echartsLinks.propertyView({
+          label: trans("graphChart.links"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Graph links",
+            fieldName: "echartsLinks",
+            fieldDescription: "JSON array of edges: source, target, and optional value.",
+          },
+        })}
+        {children.echartsNodes.propertyView({
+          label: trans("graphChart.nodes"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Graph nodes",
+            fieldName: "echartsNodes",
+            fieldDescription: "JSON array of nodes with name, value, and optional category index.",
+          },
+        })}
         {children.echartsTitle.propertyView({ label: trans("graphChart.title"), tooltip: trans("echarts.titleTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitleVerticalConfig.getPropertyView()}
@@ -48,6 +74,14 @@ export function graphChartPropertyView(
         {children.echartsOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
+          language: "json",
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "echarts-option",
+            label: "Graph option",
+            fieldName: "echartsOption",
+            fieldDescription: "Apache ECharts option JSON for this chart component.",
+          },
           tooltip: (
             <div>
               <a href={optionUrl} target="_blank" rel="noopener noreferrer">

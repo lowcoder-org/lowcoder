@@ -37,8 +37,7 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { BoolControl } from "comps/controls/boolControl";
 import { BoolCodeControl, NumberControl } from "comps/controls/codeControl";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
@@ -292,6 +291,7 @@ export const ResponsiveLayoutBaseComp = (function () {
     );
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
@@ -301,14 +301,14 @@ export const ResponsiveLayoutBaseComp = (function () {
             })}
           </Section>
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "logic" || editorModeStatus === "both") && (
             <Section name={sectionNames.interaction}>
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
             </Section>
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             <>
             <Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}

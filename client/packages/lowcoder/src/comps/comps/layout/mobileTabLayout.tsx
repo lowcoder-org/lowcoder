@@ -11,11 +11,11 @@ import { AppSelectComp } from "comps/comps/layout/appSelectComp";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
 import { ConstructorToComp, ConstructorToDataType } from "lowcoder-core";
 import { CanvasContainer } from "comps/comps/gridLayoutComp/canvasView";
-import { CanvasContainerID } from "constants/domLocators";
-import { PreviewContainerID } from "constants/domLocators";
+import { CanvasContainerID, PreviewContainerID } from "constants/domLocators";
 import { EditorContainer, EmptyContent } from "pages/common/styledComponent";
 import { Layers } from "constants/Layers";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
+import { EditorContext } from "comps/editorState";
 import { default as Skeleton } from "antd/es/skeleton";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { dropdownControl } from "@lowcoder-ee/comps/controls/dropdownControl";
@@ -46,6 +46,21 @@ const TabBarItem = React.lazy(() =>
   }))
 );
 const EventOptions = [clickEvent] as const;
+
+/** Mobile nav editor: tab bar uses position:absolute bottom; this root is the containing block */
+const MobileNavCanvasRoot = styled(CanvasContainer)`
+  position: relative;
+`;
+
+/** Strip shared EditorContainer defaults (16px padding + scrollbar-gutter: stable) for mobile nav */
+const MobileNavEditorContainer = styled(EditorContainer)`
+  padding: 0;
+  padding-right: 0;
+  scrollbar-gutter: auto;
+  overflow-x: auto;
+  overflow-y: auto;
+  background: transparent;
+`;
 
 const AppViewContainer = styled.div`
   position: absolute;
@@ -221,17 +236,17 @@ const TabBarWrapper = styled.div<{
   $readOnly: boolean,
   $canvasBg: string,
   $tabBarHeight: string,
-  $maxWidth: number,
   $verticalAlignment: string;
 }>`
+  box-sizing: border-box;
   max-width: inherit;
   background: ${(props) => (props.$canvasBg)};
   margin: 0 auto;
-  position: fixed;
+  position: ${(props) => (props.$readOnly ? "fixed" : "absolute")};
   bottom: 0;
   left: 0;
   right: 0;
-  width: ${(props) => props.$readOnly ? "100%" : `${props.$maxWidth - 30}px`};
+  width: 100%;
   z-index: ${Layers.tabBar};
   padding-bottom: env(safe-area-inset-bottom, 0);
 
@@ -389,7 +404,6 @@ function convertTreeData(data: any) {
 
 function TabBarView(props: TabBarProps & { 
     tabBarHeight: string; 
-    maxWidth: number;
     verticalAlignment: string;
     showSeparator: boolean;
     navIconSize: string;
@@ -404,7 +418,6 @@ function TabBarView(props: TabBarProps & {
         $readOnly={props.readOnly}
         $canvasBg={canvasBg}
         $tabBarHeight={props.tabBarHeight}
-        $maxWidth={props.maxWidth}
         $verticalAlignment={props.verticalAlignment} 
       >
         <StyledTabBar
@@ -664,6 +677,36 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
   const bgColor = (useContext(ThemeContext)?.theme || defaultTheme).canvas;
   const onEvent = comp.children.onEvent.getView();
 
+  // Pull app-level Theme / Canvas Settings (managed via the left-sidebar
+  // "Canvas" pane and shared with normal apps + modules). Mobile nav already
+  // owns its own maxWidth + grid behaviour, so we only consume the
+  // background + padding subset here.
+  const editorState = useContext(EditorContext);
+  const appSettings = editorState?.getAppSettings();
+  const canvasBg = appSettings?.gridBg;
+  const canvasBgImage = appSettings?.gridBgImage;
+  const canvasBgImageRepeat = appSettings?.gridBgImageRepeat || "no-repeat";
+  const canvasBgImageSize = appSettings?.gridBgImageSize || "cover";
+  const canvasBgImagePosition = appSettings?.gridBgImagePosition || "center";
+  const canvasBgImageOrigin = appSettings?.gridBgImageOrigin || "padding-box";
+  const canvasPaddingX = appSettings?.gridPaddingX ?? 0;
+  const canvasPaddingY = appSettings?.gridPaddingY ?? 0;
+
+  const canvasBackgroundStyle: React.CSSProperties = {
+    background: "#FFFFFF",
+  };
+  if (canvasBg) {
+    canvasBackgroundStyle.background = canvasBg;
+  }
+  if (canvasBgImage) {
+    canvasBackgroundStyle.backgroundImage = `url('${canvasBgImage}')`;
+    canvasBackgroundStyle.backgroundRepeat = canvasBgImageRepeat;
+    canvasBackgroundStyle.backgroundSize = canvasBgImageSize;
+    canvasBackgroundStyle.backgroundPosition = canvasBgImagePosition;
+    canvasBackgroundStyle.backgroundOrigin = canvasBgImageOrigin;
+  }
+  const canvasContentPadding = `${canvasPaddingY}px ${canvasPaddingX}px`;
+
   const getContainer = useCallback(() =>
     document.querySelector(`#${PreviewContainerID}`) ||
     document.querySelector(`#${CanvasContainerID}`) ||
@@ -702,7 +745,7 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
         currentTab.children.app.getView()) || (
         <EmptyContent
           text={readOnly ? "" : trans("aggregation.emptyTabTooltip")}
-          style={{ height: "100%", backgroundColor: "white" }}
+          style={{ height: "100%" }}
         />
       );
     }
@@ -712,7 +755,7 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
       currentTab.children.action.getView()) || (
       <EmptyContent
         text={readOnly ? "" : trans("aggregation.emptyTabTooltip")}
-        style={{ height: "100%", backgroundColor: "white" }}
+        style={{ height: "100%" }}
       />
       )
   }, [tabIndex, tabViews, dataOptionType]);
@@ -769,7 +812,6 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
       tabItemActiveStyle={navItemActiveStyle}
       tabBarHeight={tabBarHeight}
       navIconSize={navIconSize}
-      maxWidth={maxWidth}
       verticalAlignment={verticalAlignment}
       showSeparator={showSeparator}
     />
@@ -870,8 +912,12 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
 
   if (readOnly) {
     return (
-      <TabLayoutViewContainer maxWidth={maxWidth} tabBarHeight={containerTabBarHeight}>
-        <AppViewContainer>{appView}</AppViewContainer>
+      <TabLayoutViewContainer
+        maxWidth={maxWidth}
+        tabBarHeight={containerTabBarHeight}
+        style={canvasBackgroundStyle}
+      >
+        <AppViewContainer style={{ padding: canvasContentPadding }}>{appView}</AppViewContainer>
         {menuMode === MobileMode.Hamburger ? (
           <>
             {hamburgerButton}
@@ -885,8 +931,12 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
   }
 
   return (
-    <CanvasContainer $maxWidth={maxWidth} id={CanvasContainerID}>
-      <EditorContainer>{appView}</EditorContainer>
+    <MobileNavCanvasRoot
+      $maxWidth={maxWidth}
+      id={CanvasContainerID}
+      style={canvasBackgroundStyle}
+    >
+      <MobileNavEditorContainer style={{ padding: canvasContentPadding }}>{appView}</MobileNavEditorContainer>
       {menuMode === MobileMode.Hamburger ? (
         <>
           {hamburgerButton}
@@ -895,7 +945,7 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
       ) : (
         tabBarView
       )}
-    </CanvasContainer>
+    </MobileNavCanvasRoot>
   );
 });
 

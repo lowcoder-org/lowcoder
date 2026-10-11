@@ -188,6 +188,10 @@ function ThemeList(props: ThemeListProp) {
                           key: MENU_TYPE.COPY,
                         },
                         {
+                          label: trans("theme.exportTheme"),
+                          key: MENU_TYPE.EXPORT,
+                        },
+                        {
                           label: trans("delete"),
                           key: MENU_TYPE.DELETE,
                         },

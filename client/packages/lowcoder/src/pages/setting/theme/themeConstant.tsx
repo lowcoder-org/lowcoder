@@ -8,6 +8,7 @@ export enum MENU_TYPE {
   COPY = "copy",
   EDIT = "edit",
   RENAME = "rename",
+  EXPORT = "export",
 }
 
 export enum DETAIL_TYPE {

@@ -34,6 +34,7 @@ import { getNpmPackageMeta } from "../utils/remote";
 import { compPluginsList } from "constants/compPluginConstants";
 import Select from "antd/es/select";
 import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+import { useEditorStore } from "../editorStore";
 
 export type NewChildren<ChildrenCompMap extends Record<string, Comp<unknown>>> =
   ChildrenCompMap & {
@@ -77,7 +78,11 @@ export const ExtendedPropertyView = React.memo(<
   const [compVersions, setCompVersions] = useState(['latest']);
   const [compName, setCompName] = useState('');
   const editorState = useContext(EditorContext);
-  const selectedComp = values(editorState?.selectedComps())[0];
+  const selectedCompNames = useEditorStore((state) => state.selectedCompNames);
+  const selectedComp = useMemo(
+    () => values(editorState?.selectedComps(selectedCompNames))[0],
+    [editorState, selectedCompNames]
+  );
   const compType = selectedComp?.children?.compType?.getView() as UICompType;
   const timeoutRef = useRef<NodeJS.Timeout>();
 

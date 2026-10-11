@@ -7,7 +7,6 @@ import {
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 import { examplesUrl,optionUrl } from "../chartComp/chartConfigs/chartUrls";
-
 export function radarChartPropertyView(
   children: ChartCompChildrenType,
   dispatch: (action: CompAction) => void
@@ -16,8 +15,28 @@ export function radarChartPropertyView(
   const jsonModePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsData.propertyView({ label: trans("chart.data") })}
-        {children.echartsIndicators.propertyView({ label: trans("radarChart.indicators") })}
+        {children.echartsData.propertyView({
+          label: trans("chart.data"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Radar chart series data",
+            fieldName: "echartsData",
+            fieldDescription:
+              "JSON array of radar series. Each item has name and value (array of numbers matching indicator count).",
+          },
+        })}
+        {children.echartsIndicators.propertyView({
+          label: trans("radarChart.indicators"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Radar indicators",
+            fieldName: "echartsIndicators",
+            fieldDescription:
+              "JSON array of radar axes. Each item has name and max (e.g. { name: \"Speed\", max: 100 }).",
+          },
+        })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitleVerticalConfig.getPropertyView()}
         {children.legendVisibility.getView() && children.echartsLegendAlignConfig.getPropertyView()}
@@ -60,6 +79,14 @@ export function radarChartPropertyView(
         {children.echartsOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
+          language: "json",
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "echarts-option",
+            label: "Radar option",
+            fieldName: "echartsOption",
+            fieldDescription: "Apache ECharts option JSON for this chart component.",
+          },
           tooltip: (
             <div>
               <a href={optionUrl} target="_blank" rel="noopener noreferrer">

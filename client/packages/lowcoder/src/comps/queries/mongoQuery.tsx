@@ -42,6 +42,15 @@ const QueryField = withPropertyViewFn(ParamsJsonControl, (comp) =>
 }`,
     styleName: "medium",
     enableMetaCompletion: true,
+    enableAIHelp: true,
+    aiHelp: {
+      targetKind: "json",
+      label: "MongoDB query filter",
+      queryType: "MongoDB",
+      fieldName: "query",
+      fieldDescription:
+        "MongoDB query/filter document. Use MongoDB query operators ($gte, $in, $regex, etc.) to match documents.",
+    },
   })
 );
 
@@ -99,6 +108,15 @@ const CommandMap: Record<
 }]`,
         styleName: "medium",
         enableMetaCompletion: true,
+        enableAIHelp: true,
+        aiHelp: {
+          targetKind: "json",
+          label: "MongoDB insert documents",
+          queryType: "MongoDB",
+          fieldName: "documents",
+          fieldDescription:
+            "JSON array of documents to insert into the collection.",
+        },
       })
     ),
   }),
@@ -113,6 +131,15 @@ const CommandMap: Record<
 }`,
         styleName: "medium",
         enableMetaCompletion: true,
+        enableAIHelp: true,
+        aiHelp: {
+          targetKind: "json",
+          label: "MongoDB update operators",
+          queryType: "MongoDB",
+          fieldName: "update",
+          fieldDescription:
+            "MongoDB update document. Use update operators ($set, $inc, $push, $unset, etc.) to modify matched documents.",
+        },
       })
     ),
     limit: LimitDropdownField,
@@ -146,6 +173,15 @@ const CommandMap: Record<
 ]`,
         styleName: "medium",
         enableMetaCompletion: true,
+        enableAIHelp: true,
+        aiHelp: {
+          targetKind: "json",
+          label: "MongoDB aggregation pipeline",
+          queryType: "MongoDB",
+          fieldName: "arrayPipelines",
+          fieldDescription:
+            "MongoDB aggregation pipeline stages as a JSON array. Use stages like $match, $group, $sort, $project, $lookup, $unwind, etc.",
+        },
       })
     ),
     limit: LimitInputField,
@@ -161,6 +197,15 @@ const CommandMap: Record<
 ]`,
         styleName: "medium",
         enableMetaCompletion: true,
+        enableAIHelp: true,
+        aiHelp: {
+          targetKind: "json",
+          label: "MongoDB raw command",
+          queryType: "MongoDB",
+          fieldName: "command",
+          fieldDescription:
+            "Raw MongoDB command as JSON. Supports any valid MongoDB database command.",
+        },
       })
     ),
   }),

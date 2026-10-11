@@ -6,7 +6,6 @@ import {
   Section,
   sectionNames,
   AutoHeightControl,
-  EditorContext,
   styled,
   MeetingEventHandlerControl,
   BoolCodeControl,
@@ -15,19 +14,25 @@ import {
   UICompBuilder,
   CommonNameConfig,
 } from "lowcoder-sdk";
-import { useEffect, useRef, useState } from "react";
-import { client } from "./meetingControllerComp";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
+import {
+  client,
+  playScreenShareToElement,
+} from "./meetingControllerComp";
 import { trans } from "../../i18n/comps";
 import { useResizeDetector } from "react-resize-detector";
 import { ButtonStyleControl } from "./videobuttonCompConstants";
+import {
+  meetingShareElementId,
+  meetingStreamTargetUid,
+  parseMeetingParticipant,
+} from "./meetingStreamUtils";
 
 const VideoContainer = styled.video`
   height: 100%;
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
+  object-fit: contain;
 `;
 
 const sharingStreamChildren = {
@@ -48,140 +53,121 @@ let SharingCompBuilder = (function () {
   return new UICompBuilder(sharingStreamChildren, (props: any) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const conRef = useRef<HTMLDivElement>(null);
-    const [userId, setUserId] = useState();
-    const [userName, setUsername] = useState("");
-    const [showVideoSharing, setVideoSharing] = useState(true);
 
+    const streamTargetUid = useMemo(
+      () => meetingStreamTargetUid(props.userId.value),
+      [props.userId.value]
+    );
+
+    const participant = useMemo(
+      () => parseMeetingParticipant(props.userId.value),
+      [props.userId.value]
+    );
+
+    const showVideoSharing = participant?.streamingSharing ?? false;
+    const shareElementId = streamTargetUid
+      ? meetingShareElementId(streamTargetUid)
+      : "";
+
+    const isLocalTarget =
+      streamTargetUid !== "" &&
+      client.uid != null &&
+      String(client.uid) === streamTargetUid;
+
+    // Mount the <video> first, then attach the Agora track (re-attach on publish only).
     useEffect(() => {
-      if (props.userId.value !== "") {
-        let userData = JSON.parse(props.userId?.value);
-        client.on(
-          "user-published",
-          async (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
-            if (mediaType === "video") {
-              const remoteTrack = await client.subscribe(user, mediaType);
-              let userId = user.uid + "";
-              if (
-                user.hasVideo &&
-                user.uid + "" !== userData.user &&
-                userData.user !== ""
-              ) {
-                props.onEvent("videoOn");
-              }
-              const element = document.getElementById(userId);
-
-              if (element) {
-                remoteTrack.play(userId);
-              }
-            }
-            if (mediaType === "audio") {
-              const remoteTrack = await client.subscribe(user, mediaType);
-              if (
-                user.hasAudio &&
-                user.uid + "" !== userData.user &&
-                userData.user !== ""
-              ) {
-                userData.audiostatus = user.hasVideo;
-
-                props.onEvent("audioUnmuted");
-              }
-              remoteTrack.play();
-            }
-          }
-        );
-        client.on(
-          "user-unpublished",
-          (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
-            if (mediaType === "audio") {
-              if (
-                !user.hasAudio &&
-                user.uid + "" !== userData.user &&
-                userData.user !== ""
-              ) {
-                userData.audiostatus = user.hasVideo;
-                props.onEvent("audioMuted");
-              }
-            }
-            if (mediaType === "video") {
-              if (videoRef.current && videoRef.current?.id === user.uid + "") {
-                videoRef.current.srcObject = null;
-              }
-              if (
-                !user.hasVideo &&
-                user.uid + "" !== userData.user &&
-                userData.user !== ""
-              ) {
-                props.onEvent("videoOff");
-              }
-            }
-          }
-        );
-
-        setUserId(userData.user);
-        setUsername(userData.userName);
-        setVideoSharing(userData.streamingSharing);
+      if (!streamTargetUid || !showVideoSharing || !shareElementId) {
+        return;
       }
-    }, [props.userId.value]);
+
+      let cancelled = false;
+
+      const attach = () => {
+        if (cancelled) {
+          return;
+        }
+        void playScreenShareToElement(streamTargetUid, isLocalTarget);
+      };
+
+      const onUserPublished = (
+        user: IAgoraRTCRemoteUser,
+        mediaType: "video" | "audio"
+      ) => {
+        if (mediaType !== "video" || String(user.uid) !== streamTargetUid) {
+          return;
+        }
+        attach();
+      };
+
+      client.on("user-published", onUserPublished);
+
+      const rafId = requestAnimationFrame(() => {
+        requestAnimationFrame(attach);
+      });
+      const timers = [300, 1000, 2000].map((ms) =>
+        window.setTimeout(attach, ms)
+      );
+
+      return () => {
+        cancelled = true;
+        cancelAnimationFrame(rafId);
+        timers.forEach((id) => window.clearTimeout(id));
+        client.off("user-published", onUserPublished);
+      };
+    }, [streamTargetUid, showVideoSharing, shareElementId, isLocalTarget]);
+
+    const containerStyle = useMemo(
+      () => ({
+        display: showVideoSharing ? "flex" : "none",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100%",
+        overflow: "hidden",
+        borderRadius: props?.style?.radius,
+        aspectRatio: props?.videoAspectRatio,
+        backgroundColor: props.style?.background,
+        padding: props.style?.padding,
+        margin: props.style?.margin,
+      }),
+      [
+        showVideoSharing,
+        props?.style?.radius,
+        props.style?.background,
+        props.style?.padding,
+        props.style?.margin,
+        props.videoAspectRatio,
+      ]
+    );
+
+    const videoStyle = useMemo(
+      () => ({
+        width: "100%",
+        height: "100%",
+        aspectRatio: props.videoAspectRatio,
+        borderRadius: props.style.radius,
+      }),
+      [props.videoAspectRatio, props.style.radius]
+    );
+
+    const onVideoClick = useCallback(() => {
+      props.onEvent("videoClicked");
+    }, [props.onEvent]);
 
     useResizeDetector({
       targetRef: conRef,
     });
-    
+
     return (
-      <EditorContext.Consumer>
-        {(editorState: any) => (
-          <div
-            ref={conRef}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              height: "100%",
-              overflow: "hidden",
-              borderRadius: props?.style?.radius,
-              aspectRatio: props?.videoAspectRatio,
-              backgroundColor: props.style?.background,
-              padding: props.style?.padding,
-              margin: props.style?.margin,
-            }}
-          >
-            {userId ? (
-              <VideoContainer
-                onClick={() => props.onEvent("videoClicked")}
-                ref={videoRef}
-                style={{
-                  display: `${showVideoSharing ? "flex" : "none"}`,
-                  aspectRatio: props.videoAspectRatio,
-                  borderRadius: props.style.radius,
-                  width: "auto",
-                }}
-                id="share-screen"
-              ></VideoContainer>
-            ) : (
-              <></>
-            )}
-            <div
-              style={{
-                flexDirection: "column",
-                alignItems: "center",
-                display: `${!showVideoSharing || userId ? "flex" : "none"}`,
-                margin: "0 auto",
-                padding: props.profilePadding,
-              }}
-            >
-              <img
-                alt=""
-                style={{
-                  borderRadius: props.profileBorderRadius,
-                  width: "100%",
-                  overflow: "hidden",
-                }}
-                src={props.profileImageUrl?.value}
-              />
-              <p style={{ margin: "0" }}>{userName ?? ""}</p>
-            </div>
-          </div>
-        )}
-      </EditorContext.Consumer>
+      <div ref={conRef} style={containerStyle}>
+        {showVideoSharing && streamTargetUid ? (
+          <VideoContainer
+            onClick={onVideoClick}
+            ref={videoRef}
+            style={videoStyle}
+            id={shareElementId}
+          />
+        ) : null}
+      </div>
     );
   })
     .setPropertyViewFn((children: any) => (
@@ -190,17 +176,6 @@ let SharingCompBuilder = (function () {
           {children.userId.propertyView({ label: trans("meeting.videoId") })}
         </Section>
 
-        {/* {(useContext(EditorContext).editorModeStatus === "logic" ||
-          useContext(EditorContext).editorModeStatus === "both") && (
-          <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {hiddenPropertyView(children)}
-          </Section>
-        )} */}
-
-        {/* {(useContext(EditorContext).editorModeStatus === "layout" ||
-          useContext(EditorContext).editorModeStatus === "both") && (
-          <> */}
         <Section name={sectionNames.layout}>
           {children.autoHeight.getPropertyView()}
         </Section>
@@ -216,8 +191,6 @@ let SharingCompBuilder = (function () {
           })}
           {children.style?.getPropertyView()}
         </Section>
-        {/* </> */}
-        {/* )} */}
       </>
     ))
     .build();

@@ -13,7 +13,7 @@ import { BottomResTypeEnum } from "types/bottomRes";
 import { LargeBottomResIconWrapper } from "util/bottomResUtils";
 import type { PageType } from "../constants/pageConstants";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
-import { Datasource } from "constants/datasourceConstants";
+import { Datasource, QUICK_SSE_HTTP_API_ID } from "constants/datasourceConstants";
 import {
   QUICK_GRAPHQL_ID,
   QUICK_REST_API_ID,
@@ -172,11 +172,20 @@ const ResButton = (props: {
         compType: "streamApi",
       },
     },
+
     alasql: {
       label: trans("query.quickAlasql"),
       type: BottomResTypeEnum.Query,
       extra: {
         compType: "alasql",
+      },
+    },
+    sseHttpApi: { 
+      label: trans("query.quickSseHttpAPI"),
+      type: BottomResTypeEnum.Query,
+      extra: {
+        compType: "sseHttpApi",
+        dataSourceId: QUICK_SSE_HTTP_API_ID,
       },
     },
     graphql: {
@@ -339,6 +348,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
               <DataSourceListWrapper $placement={placement}>
                 <ResButton size={buttonSize} identifier={"restApi"} onSelect={onSelect} />
                 <ResButton size={buttonSize} identifier={"streamApi"} onSelect={onSelect} />
+                <ResButton size={buttonSize} identifier={"sseHttpApi"} onSelect={onSelect} />
                 <ResButton size={buttonSize} identifier={"alasql"} onSelect={onSelect} />
                 <ResButton size={buttonSize} identifier={"graphql"} onSelect={onSelect} />
                 <DataSourceButton size={buttonSize} onClick={() => setCurlModalVisible(true)}>

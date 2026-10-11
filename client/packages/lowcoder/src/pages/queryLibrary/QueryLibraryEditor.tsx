@@ -51,6 +51,7 @@ import { isEmpty } from "lodash";
 import { getVersionOptions } from "@lowcoder-ee/util/versionOptions";
 import { VersionDataForm } from "../common/versionDataForm";
 import { processCurlData } from "../../util/curlUtils";
+import { createEditorStore, EditorStoreProvider } from "../../comps/editorStore";
 
 const Wrapper = styled.div`
   display: flex;
@@ -79,6 +80,8 @@ function transformData(input: LibraryQuery[]) {
 
 export const QueryLibraryEditor = () => {
   const dispatch = useDispatch();
+  // Query-library editor components render outside RootView, so they need their own store scope.
+  const [editorStore] = useState(createEditorStore);
   const queryLibraryRecords = useSelector(getQueryLibraryRecords);
   const originDatasourceInfo = useSelector(getDataSource);
   const currentUser = useSelector(getUser);
@@ -252,9 +255,9 @@ export const QueryLibraryEditor = () => {
   };
 
   return (
-    <>
+    <EditorStoreProvider store={editorStore}>
       <Helmet>{<title>{trans("home.queryLibrary")}</title>}</Helmet>
-        <Wrapper>
+      <Wrapper>
         <LeftNav
           selectedQuery={isCreatePanelShow ? undefined : selectedQuery}
           queryList={Object.values(queryLibrary)}
@@ -318,7 +321,7 @@ export const QueryLibraryEditor = () => {
           onClose={() => setPublishModalVisible(false)}
           latestVersion={Object.values(selectedRecords)?.[0]?.tag} />
       </Wrapper>
-    </>
+    </EditorStoreProvider>
   );
 };
 

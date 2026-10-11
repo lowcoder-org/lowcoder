@@ -16,7 +16,6 @@ import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.models.DatasourceStructure;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -45,18 +44,7 @@ class DatasourceEndpointsIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        try {
-            initData.init();
-        } catch (RuntimeException e) {
-            // Handle duplicate key errors gracefully - this happens when test data already exists
-            if (e.getCause() instanceof DuplicateKeyException) {
-                // Data already exists, continue with test
-                System.out.println("Test data already exists, continuing with test...");
-            } else {
-                // Re-throw other exceptions
-                throw e;
-            }
-        }
+        initData.init();
     }
 
     @Test

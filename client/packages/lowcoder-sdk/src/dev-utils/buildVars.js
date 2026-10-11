@@ -44,6 +44,14 @@ export const buildVars = [
     defaultValue: "",
   },
   {
+    name: "REACT_APP_HOCUSPOCUS_URL",
+    defaultValue: "",
+  },
+  {
+    name: "REACT_APP_HOCUSPOCUS_SECRET",
+    defaultValue: "",
+  },
+  {
     name: "REACT_APP_BUNDLE_BUILTIN_PLUGIN",
     defaultValue: "",
   },

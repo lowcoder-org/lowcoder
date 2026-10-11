@@ -1,0 +1,12 @@
+{
+  "agencyProfile" : {
+    "absent" : {
+      "class" : "java.lang.Boolean",
+      "value" : "false"
+    },
+    "null" : {
+      "class" : "java.lang.Boolean",
+      "value" : "false"
+    }
+  }
+}

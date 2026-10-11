@@ -222,6 +222,7 @@ export const CompStateIcon: {
   mention: <MemoizedIcon Icon={MentionCompIconSmall} />,
   mermaid: <MemoizedIcon Icon={MermaidCompIconSmall} />,
   modal: <MemoizedIcon Icon={ModalCompIconSmall} />,
+  toast: <MemoizedIcon Icon={CommentCompIconSmall} />,
   module: <MemoizedIcon Icon={ModuleIconSmall} />,
   moduleContainer: <MemoizedIcon Icon={ModuleIconSmall} />,
   navigation: <MemoizedIcon Icon={NavComIconSmall} />,
@@ -309,4 +310,7 @@ export const CompStateIcon: {
   sunburstChart: <MemoizedIcon Icon={SunburstChartCompIconSmall} />,
   themeriverChart: <MemoizedIcon Icon={ThemeriverChartCompIconSmall} />,
   basicChart: <MemoizedIcon Icon={ChartCompIconSmall} />,
+  chat: <MemoizedIcon Icon={CommentCompIconSmall} />,
+  chatController: <MemoizedIcon Icon={CommentCompIconSmall} />,
+  chatBox: <MemoizedIcon Icon={CommentCompIconSmall} />,
 } as const;

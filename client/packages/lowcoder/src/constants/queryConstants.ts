@@ -14,12 +14,14 @@ import { toPluginQuery } from "comps/queries/pluginQuery/pluginQuery";
 import { MultiCompConstructor } from "lowcoder-core";
 import { DataSourcePluginMeta } from "lowcoder-sdk/dataSource";
 import { AlaSqlQuery } from "@lowcoder-ee/comps/queries/httpQuery/alasqlQuery";
+import { SseHttpQuery } from "@lowcoder-ee/comps/queries/httpQuery/sseHttpQuery";
 
 export type DatasourceType =
   | "mysql"
   | "mongodb"
   | "restApi"
   | "streamApi"
+  | "sseHttpApi"  
   | "postgres"
   | "redis"
   | "es"
@@ -41,6 +43,7 @@ export const QueryMap = {
   alasql: AlaSqlQuery,
   restApi: HttpQuery,
   streamApi: StreamQuery,
+  sseHttpApi: SseHttpQuery,
   mongodb: MongoQuery,
   postgres: SQLQuery,
   redis: RedisQuery,

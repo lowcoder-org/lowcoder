@@ -7,7 +7,6 @@ import {
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 import { examplesUrl,optionUrl } from "../chartComp/chartConfigs/chartUrls";
-
 export function candleStickChartPropertyView(
   children: ChartCompChildrenType,
   dispatch: (action: CompAction) => void
@@ -16,9 +15,30 @@ export function candleStickChartPropertyView(
   const jsonModePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsData.propertyView({ label: trans("chart.data") })}
+        {children.echartsData.propertyView({
+          label: trans("chart.data"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "CandleStick chart data",
+            fieldName: "echartsData",
+            fieldDescription:
+              "JSON array of OHLC values. Each item is [open, close, low, high] for one period, in the same order as x-axis labels.",
+          },
+        })}
         {children.echartsTitleConfig.getPropertyView()}
-        {children.echartsTitleData.propertyView({ label: trans("chart.xAxisLabels"), tooltip: trans("chart.xAxisLabelsTooltip") })}
+        {children.echartsTitleData.propertyView({
+          label: trans("chart.xAxisLabels"),
+          tooltip: trans("chart.xAxisLabelsTooltip"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "CandleStick x-axis labels",
+            fieldName: "echartsTitleData",
+            fieldDescription:
+              "JSON array of x-axis labels (e.g. dates). Length must match the number of OHLC rows in Data.",
+          },
+        })}
         {children.echartsTitleVerticalConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("candleStickChart.title"), tooltip: trans("echarts.titleTooltip") })}
         {children.left.propertyView({ label: trans("candleStickChart.left"), tooltip: trans("echarts.leftTooltip") })}
@@ -52,6 +72,14 @@ export function candleStickChartPropertyView(
         {children.echartsOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
+          language: "json",
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "echarts-option",
+            label: "CandleStick option",
+            fieldName: "echartsOption",
+            fieldDescription: "Apache ECharts option JSON for this chart component.",
+          },
           tooltip: (
             <div>
               <a href={optionUrl} target="_blank" rel="noopener noreferrer">

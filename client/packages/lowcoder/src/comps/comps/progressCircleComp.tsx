@@ -3,16 +3,20 @@ import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, CircleProgressStyle, CircleProgressType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { Section, sectionNames } from "lowcoder-design";
-import { numberExposingStateControl } from "../controls/codeStateControl";
+import { numberExposingStateControl, stringExposingStateControl } from "../controls/codeStateControl";
 import { UICompBuilder } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
-
-// TODO: after Update of ANTd, introduce Size attribute to ProgressCircle
+import { BoolControl } from "../controls/boolControl";
+import { dropdownControl } from "../controls/dropdownControl";
+import { NumberControl } from "../controls/codeControl";
+import { useEditorStore } from "comps/editorStore";
+import { 
+  ProgressTypeOptions, 
+  StrokeLinecapOptions, 
+  GapPositionOptions 
+} from "./progressCircleConstants";
 
 const getStyle = (style: CircleProgressType) => {
   return css`
@@ -20,13 +24,13 @@ const getStyle = (style: CircleProgressType) => {
     height: ${heightCalculator(style.margin)};	
     margin: ${style.margin};	
     padding: ${style.padding};
-    border-radius:${style.radius};
+    border-radius: ${style.radius};
     .ant-progress-text {
       color: ${style.text} !important;
-      font-family:${style.fontFamily};
-      font-style:${style.fontStyle};
-      font-size:${style.textSize} !important;
-      font-weight:${style.textWeight};
+      font-family: ${style.fontFamily};
+      font-style: ${style.fontStyle};
+      font-size: ${style.textSize} !important;
+      font-weight: ${style.textWeight};
     }
     .ant-progress-circle-trail {
       stroke: ${style.track};
@@ -68,21 +72,55 @@ export const StyledProgressCircle = styled(Progress)<{
 let ProgressCircleTmpComp = (function () {
   const childrenMap = {
     value: numberExposingStateControl("value", 60),
-    // borderRadius property hidden as it's not valid for progress circle
+    progressType: dropdownControl(ProgressTypeOptions, "circle"),
+    showInfo: BoolControl.DEFAULT_TRUE,
+    strokeWidth: NumberControl,
+    strokeLinecap: dropdownControl(StrokeLinecapOptions, "round"),
+    gapDegree: NumberControl,
+    gapPosition: dropdownControl(GapPositionOptions, "bottom"),
+    customFormat: stringExposingStateControl("customFormat", ""),
+    // Steps configuration for segmented progress
+    stepsEnabled: BoolControl,
+    stepsCount: NumberControl,
+    stepsGap: NumberControl,
+    // Style controls
     style: styleControl(CircleProgressStyle, 'style'),
     animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   };
+
   return new UICompBuilder(childrenMap, (props) => {
+    const percent = Math.round(props.value.value);
+    const customFormatValue = props.customFormat.value?.trim();
+    
+    // Simple format function - just returns the custom text if provided
+    const formatFunction = customFormatValue ? () => customFormatValue : undefined;
+
+    // Build steps configuration if enabled
+    const stepsConfig = props.stepsEnabled && props.stepsCount > 0
+      ? { count: props.stepsCount, gap: props.stepsGap || 2 }
+      : undefined;
+
     return (
       <StyledProgressCircle
         $style={props.style}
         $animationStyle={props.animationStyle}
-        percent={Math.round(props.value.value)}
-        type="circle"
+        percent={percent}
+        type={props.progressType}
+        showInfo={props.showInfo}
+        strokeWidth={props.strokeWidth || 6}
+        strokeLinecap={props.strokeLinecap}
+        gapDegree={props.progressType === "dashboard" ? (props.gapDegree || 75) : undefined}
+        gapPosition={props.progressType === "dashboard" ? props.gapPosition : undefined}
+        format={formatFunction}
+        steps={stepsConfig}
       />
     );
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      const progressType = children.progressType.getView();
+      const stepsEnabled = children.stepsEnabled.getView();
+      
       return (
         <>
           <Section name={sectionNames.basic}>
@@ -90,23 +128,77 @@ let ProgressCircleTmpComp = (function () {
               label: trans("progress.value"),
               tooltip: trans("progress.valueTooltip"),
             })}
+            {children.progressType.propertyView({
+              label: trans("progressCircle.progressType"),
+              tooltip: trans("progressCircle.progressTypeTooltip"),
+            })}
           </Section>
 
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <Section name={trans("progressCircle.appearance")}>
+            {children.showInfo.propertyView({
+              label: trans("progress.showInfo"),
+            })}
+            {children.customFormat.propertyView({
+              label: trans("progressCircle.customFormat"),
+              tooltip: trans("progressCircle.customFormatTooltip"),
+            })}
+            {children.strokeWidth.propertyView({
+              label: trans("progressCircle.strokeWidth"),
+              tooltip: trans("progressCircle.strokeWidthTooltip"),
+              placeholder: "6",
+            })}
+            {children.strokeLinecap.propertyView({
+              label: trans("progressCircle.strokeLinecap"),
+              tooltip: trans("progressCircle.strokeLinecapTooltip"),
+            })}
+          </Section>
+
+          <Section name={trans("progressCircle.segments")}>
+            {children.stepsEnabled.propertyView({
+              label: trans("progressCircle.stepsEnabled"),
+              tooltip: trans("progressCircle.stepsEnabledTooltip"),
+            })}
+            {stepsEnabled && children.stepsCount.propertyView({
+              label: trans("progressCircle.stepsCount"),
+              tooltip: trans("progressCircle.stepsCountTooltip"),
+              placeholder: "5",
+            })}
+            {stepsEnabled && children.stepsGap.propertyView({
+              label: trans("progressCircle.stepsGap"),
+              tooltip: trans("progressCircle.stepsGapTooltip"),
+              placeholder: "2",
+            })}
+          </Section>
+
+          {progressType === "dashboard" && (
+            <Section name={trans("progressCircle.dashboardSettings")}>
+              {children.gapDegree.propertyView({
+                label: trans("progressCircle.gapDegree"),
+                tooltip: trans("progressCircle.gapDegreeTooltip"),
+                placeholder: "75",
+              })}
+              {children.gapPosition.propertyView({
+                label: trans("progressCircle.gapPosition"),
+                tooltip: trans("progressCircle.gapPositionTooltip"),
+              })}
+            </Section>
+          )}
+
+          {["logic", "both"].includes(editorModeStatus) && (
             <Section name={sectionNames.interaction}>
               {hiddenPropertyView(children)}
             </Section>
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             <>
               <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
+                {children.style.getPropertyView()}
               </Section>
               <Section name={sectionNames.animationStyle} hasTooltip={true}>
-              {children.animationStyle.getPropertyView()}
+                {children.animationStyle.getPropertyView()}
               </Section>
-              </>
+            </>
           )}
         </>
       );
@@ -122,5 +214,6 @@ ProgressCircleTmpComp = class extends ProgressCircleTmpComp {
 
 export const ProgressCircleComp = withExposingConfigs(ProgressCircleTmpComp, [
   new NameConfig("value", trans("progress.valueDesc")),
+  new NameConfig("customFormat", trans("progressCircle.customFormatDesc")),
   NameConfigHidden,
 ]);

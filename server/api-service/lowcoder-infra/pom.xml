@@ -16,10 +16,18 @@
             <groupId>org.lowcoder</groupId>
             <artifactId>lowcoder-sdk</artifactId>
         </dependency>
+        <!-- Shared JSON-contract test helpers from the lowcoder-sdk test-jar (docs/API_PAYLOAD_TEST_PLAN.md §3.2). -->
+        <dependency>
+            <groupId>org.lowcoder</groupId>
+            <artifactId>lowcoder-sdk</artifactId>
+            <version>${revision}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
 

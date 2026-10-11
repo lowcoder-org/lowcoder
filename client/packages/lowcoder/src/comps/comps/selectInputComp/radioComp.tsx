@@ -13,6 +13,7 @@ import { EllipsisTextCss, ValueFromOption } from "lowcoder-design";
 import { trans } from "i18n";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
+import { withLinkedDefaultValue } from "comps/controls/codeStateControl";
 import Tooltip from "antd/es/tooltip";
 import { useCallback, useRef, useEffect, memo } from "react";
 
@@ -215,7 +216,10 @@ let RadioBasicComp = (function () {
     .build();
 })();
 
-RadioBasicComp = migrateOldData(RadioBasicComp, fixOldInputCompData);
+RadioBasicComp = migrateOldData(
+  withLinkedDefaultValue(RadioBasicComp, "defaultValue", "value"),
+  fixOldInputCompData
+);
 
 export const RadioComp = withExposingConfigs(RadioBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),

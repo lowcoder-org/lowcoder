@@ -15,6 +15,7 @@ import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
 import { useContext } from "react";
 import parseBackground from "../../util/gradientBackgroundColor";
 import {styleWrapper} from "../../util/styleWrapper";
+import { mergeCartesianAxis } from "../../util/echartsThemeUtils";
 
 export function transformData(
   originData: JSONObject[],
@@ -172,39 +173,44 @@ export function getEchartsConfig(
           height: props?.dataZoomHeight
         }
       ],
-      yAxis: {
-        type: "value",
-        scale: true,
-        splitArea: props?.axisFlagVisibility && {
-          show: true,
-          areaStyle: {
-            color: props?.echartsData?.axisColor || props?.echartsOption?.axisColor
-          }
-        },
-        axisLabel: {
-          ...styleWrapper(props?.yAxisStyle, theme?.yAxisStyle, 13),
-        }
-      },
-      xAxis: props?.echartsOption && {
-        type: 'category',
-        data: props?.echartsTitleData.length && props?.echartsTitleData || props?.echartsData.xAxis && props?.echartsData.xAxis.data || props?.echartsOption.xAxis && props?.echartsOption.xAxis.data,
-        splitArea: !props?.axisFlagVisibility && {
-          show: true,
-          areaStyle: {
-            // Provide multiple colors to alternate through
-            color: props?.echartsData?.axisColor || props?.echartsOption?.axisColor
+      yAxis: mergeCartesianAxis(
+        theme,
+        "value",
+        {
+          type: "value",
+          scale: true,
+          splitArea: props?.axisFlagVisibility && {
+            show: true,
+            areaStyle: {
+              color: props?.echartsData?.axisColor || props?.echartsOption?.axisColor
+            }
           },
         },
-        axisLabel: {
-          ...styleWrapper(props?.xAxisStyle, theme?.xAxisStyle, 13),
+        props?.yAxisStyle,
+        13
+      ),
+      xAxis: props?.echartsOption && mergeCartesianAxis(
+        theme,
+        "category",
+        {
+          type: 'category',
+          data: props?.echartsTitleData.length && props?.echartsTitleData || props?.echartsData.xAxis && props?.echartsData.xAxis.data || props?.echartsOption.xAxis && props?.echartsOption.xAxis.data,
+          boundaryGap: true,
+          splitLine: {
+            show: false
+          },
         },
-        boundaryGap: true,
-        // Turn off x-axis split lines if desired, so you only see colored areas
-        splitLine: {
-          show: false
-        },
-        // Show split areas, each day with a different background color
-      },
+        props?.xAxisStyle,
+        13,
+        {
+          splitArea: !props?.axisFlagVisibility && {
+            show: true,
+            areaStyle: {
+              color: props?.echartsData?.axisColor || props?.echartsOption?.axisColor
+            },
+          },
+        }
+      ),
       series: props?.echartsOption && [
         {
           name: props?.echartsConfig.type,

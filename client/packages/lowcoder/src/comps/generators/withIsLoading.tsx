@@ -43,7 +43,7 @@ const LoadingWrapper = ({
     const compDataIndicator = compState.comp?.comp?.showDataLoadingIndicators;
 
     return isLoading ? (
-      compDataIndicator !== 'undefined' ? compDataIndicator : Boolean(themeDataIndicator)
+      compDataIndicator !== undefined ? compDataIndicator : Boolean(themeDataIndicator)
     ) : false;
   }, [
     isLoading,

@@ -27,6 +27,7 @@ import { useSelector } from "react-redux";
 import { getDataSource, getDataSourceTypes } from "redux/selectors/datasourceSelectors";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { EditorContext } from "../../editorState";
+import { useEditorStore } from "../../editorStore";
 import { JSTriggerTypeOptions, QueryComp, TriggerType, TriggerTypeOptions } from "../queryComp";
 import { ResourceDropdown } from "../resourceDropdown";
 import { NOT_SUPPORT_GUI_SQL_QUERY, SQLQuery } from "../sqlQuery/SQLQuery";
@@ -216,6 +217,8 @@ export const QueryGeneralPropertyView = (props: {
 }) => {
   const { comp, placement = "editor" } = props;
   const editorState = useContext(EditorContext);
+  const selectedBottomResName = useEditorStore((state) => state.selectedBottomResName);
+  const selectedBottomResType = useEditorStore((state) => state.selectedBottomResType);
   const datasource = useSelector(getDataSource);
 
   const children = comp.children;
@@ -261,8 +264,8 @@ export const QueryGeneralPropertyView = (props: {
         }))
         .filter((option) => {
           // Filter out the current query under query
-          if (editorState.selectedBottomResType === BottomResTypeEnum.Query) {
-            return option.value !== editorState.selectedBottomResName;
+          if (selectedBottomResType === BottomResTypeEnum.Query) {
+            return option.value !== selectedBottomResName;
           }
           return true;
         }) || [];
@@ -278,7 +281,7 @@ export const QueryGeneralPropertyView = (props: {
         }
       });
     return options;
-  }, [editorState]);
+  }, [editorState, selectedBottomResName, selectedBottomResType]);
 
   return (
     <QueryPropertyViewWrapper>

@@ -33,8 +33,8 @@ import {
 import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
-import { useContext, useState, useCallback } from "react";
-import { EditorContext } from "comps/editorState";
+import { useState, useCallback } from "react";
+import { useEditorStore } from "comps/editorStore";
 import { createNavItemsControl } from "./components/NavItemsControl";
 import { Layers } from "constants/Layers";
 import { CanvasContainerID } from "constants/domLocators";
@@ -94,6 +94,7 @@ const Item = styled.div<{
   $fontStyle: string;
   $textWeight: string;
   $textSize: string;
+  $lineHeight?: string;
   $textDecoration: string;
   $hoverFontFamily?: string;
   $hoverFontStyle?: string;
@@ -117,17 +118,16 @@ const Item = styled.div<{
   $radius?: string;
   $disabled?: boolean;
 }>`
-  line-height: 30px;
+  line-height: ${(props) => props.$lineHeight || "30px"};
   padding: ${(props) => props.$padding || '0 16px'};
   color: ${(props) => props.$disabled ? `${props.$color}80` : (props.$active ? props.$activeColor : props.$color)};
   background-color: ${(props) => (props.$active ? (props.$activeBg || 'transparent') : (props.$bg || 'transparent'))};
-  border: ${(props) => {
-    const width = props.$borderWidth || '1px';
-    if (props.$active) {
-      return props.$activeBorder ? `${width} solid ${props.$activeBorder}` : (props.$border ? `${width} solid ${props.$border}` : `${width} solid transparent`);
-    }
-    return props.$border ? `${width} solid ${props.$border}` : `${width} solid transparent`;
-  }};
+  border-width: ${(props) => props.$borderWidth || "1px"};
+  border-style: solid;
+  border-color: ${(props) =>
+    props.$active
+      ? props.$activeBorder || props.$border || "transparent"
+      : props.$border || "transparent"};
   border-radius: ${(props) => props.$radius || '0px'};
   font-weight: ${(props) => props.$active 
     ? (props.$activeTextWeight || props.$textWeight || 500) 
@@ -149,13 +149,10 @@ const Item = styled.div<{
   &:hover {
     color: ${(props) => props.$disabled ? (props.$active ? props.$activeColor : props.$color) : (props.$hoverColor || props.$activeColor)};
     background-color: ${(props) => props.$disabled ? (props.$active ? (props.$activeBg || 'transparent') : (props.$bg || 'transparent')) : (props.$hoverBg || props.$activeBg || props.$bg || 'transparent')};
-    border: ${(props) => {
-      const width = props.$borderWidth || '1px';
-      if (props.$hoverBorder) return `${width} solid ${props.$hoverBorder}`;
-      if (props.$activeBorder) return `${width} solid ${props.$activeBorder}`;
-      if (props.$border) return `${width} solid ${props.$border}`;
-      return `${width} solid transparent`;
-    }};
+    border-width: ${(props) => props.$borderWidth || "1px"};
+    border-style: solid;
+    border-color: ${(props) =>
+      props.$hoverBorder || props.$activeBorder || props.$border || "transparent"};
     cursor: ${(props) => props.$disabled ? 'not-allowed' : 'pointer'};
     font-weight: ${(props) => props.$disabled ? undefined : (props.$hoverTextWeight || props.$textWeight || 500)};
     font-family: ${(props) => props.$disabled ? undefined : (props.$hoverFontFamily || props.$fontFamily || 'sans-serif')};
@@ -203,6 +200,7 @@ const StyledMenu = styled(Menu) <
     $fontStyle?: string;
     $textWeight?: string;
     $textSize?: string;
+    $lineHeight?: string;
     $textDecoration?: string;
     $hoverFontFamily?: string;
     $hoverFontStyle?: string;
@@ -230,7 +228,7 @@ const StyledMenu = styled(Menu) <
     text-decoration: ${(p) => p.$textDecoration || "none"};
     padding: ${(p) => p.$padding || "0 16px"};
     margin: ${(p) => p.$margin || "0px"};
-    line-height: 30px;
+    line-height: ${(p) => p.$lineHeight || "30px"};
   }
   /* Hover state */
   .ant-dropdown-menu-item:hover {
@@ -480,6 +478,23 @@ function renderStyleSections(
   );
 }
 
+function NavPropertyView({ childrenMap }: { childrenMap: any }) {
+  const mode = useEditorStore((state) => state.editorModeStatus);
+  const showLogic = mode === "logic" || mode === "both";
+  const showLayout = mode === "layout" || mode === "both";
+  const [styleSegment, setStyleSegment] = useState<MenuItemStyleOptionValue>("normal");
+
+  return (
+    <>
+      {renderBasicSection(childrenMap)}
+      {showLogic && renderInteractionSection(childrenMap)}
+      {showLayout && renderLayoutSection(childrenMap)}
+      {showLogic && renderAdvancedSection(childrenMap)}
+      {showLayout && renderStyleSections(childrenMap, styleSegment, setStyleSegment)}
+    </>
+  );
+}
+
 const childrenMap = {
   logoUrl: StringControl,
   logoEvent: withDefault(eventHandlerControl(logoEventHandlers), [{ name: "click" }]),
@@ -596,6 +611,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             $fontStyle={props.navItemStyle?.fontStyle || 'normal'}
             $textWeight={props.navItemStyle?.textWeight || '500'}
             $textSize={props.navItemStyle?.textSize || '14px'}
+            $lineHeight={props.navItemStyle?.lineHeight}
             $textDecoration={props.navItemStyle?.textDecoration || 'none'}
             $hoverFontFamily={props.navItemHoverStyle?.fontFamily}
             $hoverFontStyle={props.navItemHoverStyle?.fontStyle}
@@ -663,6 +679,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
                 $fontStyle={props.navItemStyle?.fontStyle || 'normal'}
                 $textWeight={props.navItemStyle?.textWeight || '500'}
                 $textSize={props.navItemStyle?.textSize || '14px'}
+                $lineHeight={props.navItemStyle?.lineHeight}
                 $textDecoration={props.navItemStyle?.textDecoration || 'none'}
                 $hoverFontFamily={props.navItemHoverStyle?.fontFamily}
                 $hoverFontStyle={props.navItemHoverStyle?.fontStyle}
@@ -745,7 +762,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             width={["left", "right"].includes(props.placement as any) ? transToPxSize(props.drawerWidth || DEFAULT_SIZE) : undefined as any}
             height={["top", "bottom"].includes(props.placement as any) ? transToPxSize(props.drawerHeight || DEFAULT_SIZE) : undefined as any}
             styles={{ body: { padding: 0 } }}
-            destroyOnClose
+            destroyOnHidden
           >
             <DrawerContent 
               $background={props.drawerContainerStyle?.background || '#FFFFFF'}
@@ -773,22 +790,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
     </Wrapper>
   );
 })
-  .setPropertyViewFn((children) => {
-    const mode = useContext(EditorContext).editorModeStatus;
-    const showLogic = mode === "logic" || mode === "both";
-    const showLayout = mode === "layout" || mode === "both";
-    const [styleSegment, setStyleSegment] = useState<MenuItemStyleOptionValue>("normal");
-
-    return (
-      <>
-        {renderBasicSection(children)}
-        {showLogic && renderInteractionSection(children)}
-        {showLayout && renderLayoutSection(children)}
-        {showLogic && renderAdvancedSection(children)}
-        {showLayout && renderStyleSections(children, styleSegment, setStyleSegment)}
-      </>
-    );
-  })
+  .setPropertyViewFn((children) => <NavPropertyView childrenMap={children} />)
   .build();
 
 export const NavComp = withExposingConfigs(NavCompBase, [

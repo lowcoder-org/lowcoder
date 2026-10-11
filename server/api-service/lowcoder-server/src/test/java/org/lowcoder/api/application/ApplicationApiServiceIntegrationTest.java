@@ -5,7 +5,6 @@ package org.lowcoder.api.application;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.api.application.ApplicationEndpoints.CreateApplicationRequest;
 import org.lowcoder.api.application.view.ApplicationView;
@@ -17,6 +16,7 @@ import org.lowcoder.api.permission.view.CommonPermissionView;
 import org.lowcoder.api.permission.view.PermissionItemView;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationType;
+import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.sdk.constants.FieldName;
@@ -29,6 +29,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,7 +38,6 @@ import java.util.Set;
 @ActiveProfiles("ApplicationApiServiceIntegrationTest")
 //@RunWith(SpringRunner.class)
 @Slf4j(topic = "ApplicationApiServiceIntegrationTest")
-@Disabled("Enable after all plugins are loaded in test mode")
 public class ApplicationApiServiceIntegrationTest {
 
     @Autowired
@@ -45,7 +45,11 @@ public class ApplicationApiServiceIntegrationTest {
     @Autowired
     private DatasourceApiService datasourceApiService;
     @Autowired
+    private ApplicationService applicationService;
+    @Autowired
     private InitData initData;
+
+    private static final String EDITING_USER_ID = "user01";
 
     @BeforeEach
     public void beforeEach() {
@@ -126,16 +130,31 @@ public class ApplicationApiServiceIntegrationTest {
                 .verify();
     }
 
+    /**
+     * The editing user is set when an editor saves a history snapshot ({@code ApplicationHistorySnapshotController} calls
+     * {@link ApplicationService#updateLastEditedAt}) and cleared by {@code updateEditState} with {@code editingFinished =
+     * true}; {@code editingFinished = false} leaves it.
+     */
     @Test
     @WithMockUser
     public void testUpdateEditingStateSuccess() {
-        Mono<ApplicationView> applicationViewMono = applicationApiService.create(new CreateApplicationRequest("org01", null, "app1", ApplicationType.APPLICATION.getValue(), Map.of("comp", "list"), null, null, null));
-        Mono<ApplicationView> updateEditStateMono = applicationViewMono.delayUntil(app -> applicationApiService.updateEditState(app.getApplicationInfoView().getApplicationId(), new ApplicationEndpoints.UpdateEditStateRequest(true)));
-        Mono<ApplicationView> app = updateEditStateMono.flatMap(applicationView -> applicationApiService.getEditingApplication(applicationView.getApplicationInfoView().getApplicationId(), false));
-        StepVerifier.create(app)
-                .assertNext(application -> {
-                    Assertions.assertEquals("user01", application.getApplicationInfoView().getEditingUserId());
-                })
+        Mono<String> applicationIdMono = applicationApiService.create(new CreateApplicationRequest("org01", null, "app1", ApplicationType.APPLICATION.getValue(), Map.of("comp", "list"), null, null, null))
+                .map(applicationView -> applicationView.getApplicationInfoView().getApplicationId())
+                .delayUntil(applicationId -> applicationService.updateLastEditedAt(applicationId, Instant.now(), EDITING_USER_ID))
+                .cache();
+
+        StepVerifier.create(applicationIdMono
+                        .delayUntil(applicationId -> applicationApiService.updateEditState(applicationId, new ApplicationEndpoints.UpdateEditStateRequest(false)))
+                        .flatMap(applicationId -> applicationApiService.getEditingApplication(applicationId, false)))
+                .assertNext(application -> Assertions.assertEquals(EDITING_USER_ID, application.getApplicationInfoView().getEditingUserId(),
+                        "editing not finished: the editing user stays"))
+                .verifyComplete();
+
+        StepVerifier.create(applicationIdMono
+                        .delayUntil(applicationId -> applicationApiService.updateEditState(applicationId, new ApplicationEndpoints.UpdateEditStateRequest(true)))
+                        .flatMap(applicationId -> applicationApiService.getEditingApplication(applicationId, false)))
+                .assertNext(application -> Assertions.assertEquals("", application.getApplicationInfoView().getEditingUserId(),
+                        "editing finished: the editing user is cleared"))
                 .verifyComplete();
     }
 }

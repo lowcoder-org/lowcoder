@@ -1,0 +1,179 @@
+# ContractRegistry (docs/API_PAYLOAD_TEST_PLAN.md §3.2, §6.1): one row per endpoint. Columns (tab-separated):
+# endpoint, level (codec | decode-only), wp, test (planned test class), group (pass-through | assembling; set by the owning WP),
+# concrete (comma-separated concrete types of untyped roots; owning WP), branches ('<line> <token>=<branch>' joined by '; '; owning WP), reason.
+# Generated from PayloadTypeWalker on 2026-10-03 (task T0.6); PayloadContractCompletenessTest keeps it complete.
+ApplicationEndpoints#create(CreateApplicationRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		45 return=create	
+ApplicationEndpoints#createFromTemplate(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		52 return=createFromTemplate	
+ApplicationEndpoints#delete(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		84 return=delete	
+ApplicationEndpoints#getAgencyProfileApplication(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		119 return=getAgencyProfileApplication	
+ApplicationEndpoints#getAgencyProfileApplications(Integer)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		220 return=getAgencyProfileApplications	
+ApplicationEndpoints#getApplicationPermissions(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		270 return=getApplicationPermissions	
+ApplicationEndpoints#getApplications(Integer, ApplicationStatus, boolean, String, String, Integer, Integer)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	assembling		205 return=getApplications	
+ApplicationEndpoints#getEditingApplication(String, Boolean)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		93 return=getEditingApplication	
+ApplicationEndpoints#getGroupsOrMembersWithoutPermissions(String, String, Integer, Integer)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	assembling	org.lowcoder.api.usermanagement.view.GroupView,org.lowcoder.api.usermanagement.view.OrgMemberListView$OrgMemberView	310 return=getGroupsOrMembersWithoutPermissions; 314 return=getGroupsOrMembersWithoutPermissions; 315 return=getGroupsOrMembersWithoutPermissions; 319 return=getGroupsOrMembersWithoutPermissions; 322 return=getGroupsOrMembersWithoutPermissions; 324 return=getGroupsOrMembersWithoutPermissions; 330 return=getGroupsOrMembersWithoutPermissions	
+ApplicationEndpoints#getMarketplaceApplications(Integer)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		212 return=getMarketplaceApplications	
+ApplicationEndpoints#getPublishedApplication(String, Boolean)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		101 return=getPublishedApplication	
+ApplicationEndpoints#getPublishedMarketPlaceApplication(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		110 return=getPublishedMarketPlaceApplication	
+ApplicationEndpoints#getRecycledApplications(String, String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		77 return=getRecycledApplications	
+ApplicationEndpoints#getUserHomePage(int)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		187 return=getUserHomePage	
+ApplicationEndpoints#grantPermission(String, BatchAddPermissionRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		256 return=grantPermissionWithUnknownRole; 258 return=grantPermission	
+ApplicationEndpoints#publish(String, ApplicationPublishRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		140 return=publish; 156 return=publish; 158 switchIfEmpty=publish; 161 return=publish; 163 return=publish; 164 return=publish	
+ApplicationEndpoints#recycle(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		59 return=recycle	
+ApplicationEndpoints#removePermission(String, String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		244 return=removePermission	
+ApplicationEndpoints#restore(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		68 return=restore	
+ApplicationEndpoints#setApplicationAsAgencyProfile(String, ApplicationAsAgencyProfileRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		298 return=setApplicationAsAgencyProfile	
+ApplicationEndpoints#setApplicationPublicToAll(String, ApplicationPublicToAllRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		278 return=setApplicationPublicToAll	
+ApplicationEndpoints#setApplicationPublicToMarketplace(String, ApplicationPublicToMarketplaceRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		288 return=setApplicationPublicToMarketplace	
+ApplicationEndpoints#update(String, Application, Boolean)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		130 return=update	
+ApplicationEndpoints#updateEditState(String, UpdateEditStateRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		173 return=updateEditState	
+ApplicationEndpoints#updatePermission(String, String, UpdatePermissionRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		232 return=updatePermissionWithUnknownRole; 234 return=updatePermission	
+ApplicationEndpoints#updateSlug(String, String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationEndpointsContractTest	pass-through		180 return=updateSlug	
+ApplicationHistorySnapshotEndpoints#create(ApplicationHistorySnapshotRequest)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationHistorySnapshotEndpointsContractTest	pass-through		47 return=create	
+ApplicationHistorySnapshotEndpoints#getHistorySnapshotDsl(String, String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationHistorySnapshotEndpointsContractTest	assembling		136 return=getHistorySnapshotDsl; 145 return=getHistorySnapshotDsl	
+ApplicationHistorySnapshotEndpoints#getHistorySnapshotDslArchived(String, String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationHistorySnapshotEndpointsContractTest	assembling		161 return=getHistorySnapshotDslArchived; 170 return=getHistorySnapshotDslArchived	
+ApplicationHistorySnapshotEndpoints#listAllHistorySnapshotBriefInfo(String, int, int, String, String, Instant, Instant)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationHistorySnapshotEndpointsContractTest	assembling	org.lowcoder.api.application.ApplicationHistorySnapshotEndpoints$ApplicationHistorySnapshotBriefInfo	70 return=listAllHistorySnapshotBriefInfo; 90 return=listAllHistorySnapshotBriefInfo	
+ApplicationHistorySnapshotEndpoints#listAllHistorySnapshotBriefInfoArchived(String, int, int, String, String, Instant, Instant)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationHistorySnapshotEndpointsContractTest	assembling	org.lowcoder.api.application.ApplicationHistorySnapshotEndpoints$ApplicationHistorySnapshotBriefInfo	107 return=listAllHistorySnapshotBriefInfoArchived; 127 return=listAllHistorySnapshotBriefInfoArchived	
+ApplicationRecordEndpoints#delete(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationRecordEndpointsContractTest	pass-through		24 return=delete	
+ApplicationRecordEndpoints#dslById(String, String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationRecordEndpointsContractTest	pass-through		37 return=dslById	
+ApplicationRecordEndpoints#getByApplicationId(String)	codec	WP2	org.lowcoder.api.contract.endpoint.ApplicationRecordEndpointsContractTest	pass-through		29 return=getByApplicationId	
+AuthenticationEndpoints#bindEmail(String)	codec	WP7	org.lowcoder.api.contract.endpoint.AuthenticationEndpointsContractTest	pass-through	java.lang.Boolean	138 return=bindEmail	
+AuthenticationEndpoints#createAPIKey(APIKeyRequest)	codec	WP7	org.lowcoder.api.contract.endpoint.AuthenticationEndpointsContractTest	pass-through	org.lowcoder.api.authentication.dto.APIKeyRequest	119 return=createAPIKey	
+AuthenticationEndpoints#deleteAPIKey(String)	codec	WP7	org.lowcoder.api.contract.endpoint.AuthenticationEndpointsContractTest	pass-through		125 return=deleteAPIKey	
+AuthenticationEndpoints#disableAuthConfig(String, boolean)	codec	WP7	org.lowcoder.api.contract.endpoint.AuthenticationEndpointsContractTest	pass-through		104 return=disableAuthConfig	
+AuthenticationEndpoints#enableAuthConfig(AuthConfigRequest)	codec	WP7	org.lowcoder.api.contract.endpoint.AuthenticationEndpointsContractTest	pass-through	org.lowcoder.api.authentication.dto.AuthConfigRequest	98 return=enableAuthConfig	
+AuthenticationEndpoints#formLogin(FormLoginRequest, String, String, ServerWebExchange)	codec	WP7	org.lowcoder.api.contract.endpoint.AuthenticationEndpointsContractTest	pass-through		49 return=formLogin	
+AuthenticationEndpoints#getAllAPIKeys()	codec	WP7	org.lowcoder.api.contract.endpoint.AuthenticationEndpointsContractTest	pass-through		131 return=getAllAPIKeys	
+AuthenticationEndpoints#getAllConfigs()	codec	WP7	org.lowcoder.api.contract.endpoint.AuthenticationEndpointsContractTest	pass-through		110 return=getAllConfigs	
+AuthenticationEndpoints#linkAccountWithThirdParty(String, String, String, String, String, ServerWebExchange)	codec	WP7	org.lowcoder.api.contract.endpoint.AuthenticationEndpointsContractTest	pass-through		80 return=linkAccountWithThirdParty	
+AuthenticationEndpoints#loginWithThirdParty(String, String, String, String, String, String, ServerWebExchange)	codec	WP7	org.lowcoder.api.contract.endpoint.AuthenticationEndpointsContractTest	pass-through		67 return=loginWithThirdParty	
+AuthenticationEndpoints#logout(ServerWebExchange)	codec	WP7	org.lowcoder.api.contract.endpoint.AuthenticationEndpointsContractTest	pass-through		90 return=logout	
+BundleEndpoints#addApp(String, String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		143 return=addApp	
+BundleEndpoints#create(CreateBundleRequest)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		44 return=create	
+BundleEndpoints#delete(String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		51 return=delete	
+BundleEndpoints#getAgencyProfileBundle(String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		217 return=getAgencyProfileBundle	
+BundleEndpoints#getAgencyProfileBundles()	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		239 return=getAgencyProfileBundles	
+BundleEndpoints#getBundlePermissions(String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		194 return=getBundlePermissions	
+BundleEndpoints#getBundles(BundleStatus)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		225 return=getBundles	
+BundleEndpoints#getElements(String, ApplicationType, Integer, Integer)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	assembling	org.lowcoder.domain.bundle.model.BundleApplication	125 return=getElements	
+BundleEndpoints#getMarketplaceBundles()	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		232 return=getMarketplaceBundles	
+BundleEndpoints#getPublishedBundle(String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		201 return=getPublishedBundle	
+BundleEndpoints#getPublishedMarketPlaceBundle(String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		209 return=getPublishedMarketPlaceBundle	
+BundleEndpoints#getRecycledBundles()	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		111 return=getRecycledBundles	
+BundleEndpoints#grantPermission(String, BatchAddPermissionRequest)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		185 return=grantPermissionWithUnknownRole; 187 return=grantPermission	
+BundleEndpoints#moveApp(String, String, String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		132 return=moveApp	
+BundleEndpoints#publish(String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		89 return=publish	
+BundleEndpoints#recycle(String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		95 return=recycle	
+BundleEndpoints#removePermission(String, String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		174 return=removePermission	
+BundleEndpoints#reorder(String, List)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		152 return=reorder	
+BundleEndpoints#restore(String)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		103 return=restore	
+BundleEndpoints#setBundleAsAgencyProfile(String, BundleAsAgencyProfileRequest)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		263 return=setBundleAsAgencyProfile	
+BundleEndpoints#setBundlePublicToAll(String, BundlePublicToAllRequest)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		247 return=setBundlePublicToAll	
+BundleEndpoints#setBundlePublicToMarketplace(String, BundlePublicToMarketplaceRequest)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		255 return=setBundlePublicToMarketplace	
+BundleEndpoints#update(Bundle)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		78 return=update; 82 return=update	
+BundleEndpoints#updatePermission(String, String, UpdatePermissionRequest)	codec	WP3	org.lowcoder.api.contract.endpoint.BundleEndpointsContractTest	pass-through		162 return=updatePermissionWithUnknownRole; 165 return=updatePermission	
+ConfigEndpoints#getConfig(ServerWebExchange, String)	codec	WP7	org.lowcoder.api.contract.endpoint.ConfigEndpointsContractTest	pass-through		53 return=getConfig	
+ConfigEndpoints#getDeploymentId()	codec	WP7	org.lowcoder.api.contract.endpoint.ConfigEndpointsContractTest	pass-through		35 return=getDeploymentId	
+ConfigEndpoints#getServerConfig(String)	codec	WP7	org.lowcoder.api.contract.endpoint.ConfigEndpointsContractTest	pass-through		40 return=getServerConfig; 41 defaultIfEmpty=getServerConfigNotStored	
+ConfigEndpoints#updateServerConfig(String, UpdateConfigRequest)	codec	WP7	org.lowcoder.api.contract.endpoint.ConfigEndpointsContractTest	pass-through		47 return=updateServerConfig	
+ServerSettingEndpoints#getServerSettings()	codec	WP7	org.lowcoder.api.contract.endpoint.ServerSettingEndpointsContractTest	pass-through		18 return=getServerSettings	
+DatasourceEndpoints#create(UpsertDatasourceRequest)	codec	WP5	org.lowcoder.api.contract.endpoint.DatasourceEndpointsContractTest	pass-through		56 return=create	
+DatasourceEndpoints#delete(String)	codec	WP5	org.lowcoder.api.contract.endpoint.DatasourceEndpointsContractTest	pass-through		84 return=delete; 89 return=delete; 91 return=delete	
+DatasourceEndpoints#deletePermission(String)	codec	WP5	org.lowcoder.api.contract.endpoint.DatasourceEndpointsContractTest	pass-through		218 return=deletePermission	
+DatasourceEndpoints#getById(String)	codec	WP5	org.lowcoder.api.contract.endpoint.DatasourceEndpointsContractTest	pass-through		64 return=getById	
+DatasourceEndpoints#getPermissions(String)	codec	WP5	org.lowcoder.api.contract.endpoint.DatasourceEndpointsContractTest	pass-through		172 return=getPermissions	
+DatasourceEndpoints#getPluginDynamicConfig(List)	codec	WP5	org.lowcoder.api.contract.endpoint.DatasourceEndpointsContractTest	pass-through		141 return=getPluginDynamicConfigWithoutRequests; 143 return=getPluginDynamicConfig	
+DatasourceEndpoints#getStructure(String, boolean)	codec	WP5	org.lowcoder.api.contract.endpoint.DatasourceEndpointsContractTest	pass-through		116 return=getStructure	
+DatasourceEndpoints#grantPermission(String, BatchAddPermissionRequest)	codec	WP5	org.lowcoder.api.contract.endpoint.DatasourceEndpointsContractTest	pass-through		182 return=grantPermissionWithUnknownRole; 184 return=grantPermission; 189 return=grantPermission; 193 return=grantPermission	
+DatasourceEndpoints#info(String)	codec	WP5	org.lowcoder.api.contract.endpoint.DatasourceEndpointsContractTest	pass-through		226 return=info	
+DatasourceEndpoints#listAppDataSources(String, String, String, int, int)	codec	WP5	org.lowcoder.api.contract.endpoint.DatasourceEndpointsContractTest	assembling	org.lowcoder.api.datasource.DatasourceView	164 return=listAppDataSourcesWithBlankAppId; 166 return=listAppDataSources	
+DatasourceEndpoints#listJsDatasourcePlugins(String, String, String, int, int)	codec	WP5	org.lowcoder.api.contract.endpoint.DatasourceEndpointsContractTest	assembling	org.lowcoder.domain.datasource.model.Datasource	129 return=listJsDatasourcePlugins	
+DatasourceEndpoints#listOrgDataSources(String, String, String, int, int)	codec	WP5	org.lowcoder.api.contract.endpoint.DatasourceEndpointsContractTest	assembling	org.lowcoder.api.datasource.DatasourceView	153 return=listOrgDataSourcesWithBlankOrgId; 155 return=listOrgDataSources	
+DatasourceEndpoints#testDatasource(UpsertDatasourceRequest)	codec	WP5	org.lowcoder.api.contract.endpoint.DatasourceEndpointsContractTest	assembling		99 return=testDatasource; 101 return=testDatasource	
+DatasourceEndpoints#update(String, UpsertDatasourceRequest)	codec	WP5	org.lowcoder.api.contract.endpoint.DatasourceEndpointsContractTest	pass-through		74 return=update	
+DatasourceEndpoints#updatePermission(String, UpdatePermissionRequest)	codec	WP5	org.lowcoder.api.contract.endpoint.DatasourceEndpointsContractTest	pass-through		202 return=updatePermissionWithUnknownRole; 204 return=updatePermission; 208 return=updatePermission; 211 return=updatePermission	
+IndexController#index()	codec	WP7	org.lowcoder.api.contract.endpoint.IndexControllerContractTest	pass-through		26 return=index	
+StateEndpoints#healthCheck()	codec	WP7	org.lowcoder.api.contract.endpoint.StateEndpointsContractTest	pass-through		25 return=healthCheckBeforeWarmup; 29 return=healthCheck	
+FolderEndpoints#create(Folder)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		43 return=create	
+FolderEndpoints#delete(String)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		51 return=delete	
+FolderEndpoints#getApplicationPermissions(String)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		144 return=getApplicationPermissions	
+FolderEndpoints#getElements(String, ApplicationType, String, String, Integer, Integer)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	assembling	org.lowcoder.api.application.view.ApplicationInfoView,org.lowcoder.api.home.FolderInfoView	82 return=getElements; 88 return=getElements	
+FolderEndpoints#grantPermission(String, BatchAddPermissionRequest)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		135 return=grantPermissionWithUnknownRole; 137 return=grantPermission	
+FolderEndpoints#move(String, String)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		98 return=move; 98 defaultIfEmpty=moveWithoutCurrentFolder	
+FolderEndpoints#removePermission(String, String)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		124 return=removePermission	
+FolderEndpoints#update(Folder)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		62 return=update; 66 return=update	
+FolderEndpoints#updatePermission(String, String, UpdatePermissionRequest)	codec	WP6	org.lowcoder.api.contract.endpoint.FolderEndpointsContractTest	pass-through		112 return=updatePermissionWithUnknownRole; 115 return=updatePermission	
+AssetEndpoints#getById(String, ServerWebExchange)	codec	WP7	org.lowcoder.api.contract.endpoint.AssetEndpointsContractTest	pass-through		21 return=getById	
+MaterialEndpoints#delete(String)	codec	WP7	org.lowcoder.api.contract.endpoint.MaterialEndpointsContractTest	pass-through		74 return=delete	
+MaterialEndpoints#download(String, String, ServerHttpResponse)	codec	WP7	org.lowcoder.api.contract.endpoint.MaterialEndpointsContractTest	pass-through		50 return=download; 51 switchIfEmpty=downloadMissing; 51 Mono.error=downloadMissing	
+MaterialEndpoints#getFileList()	codec	WP7	org.lowcoder.api.contract.endpoint.MaterialEndpointsContractTest	pass-through		68 return=getFileList	
+MaterialEndpoints#upload(UploadMaterialRequestDTO)	codec	WP7	org.lowcoder.api.contract.endpoint.MaterialEndpointsContractTest	assembling		32 return=upload; 39 return=upload	
+MetaEndpoints#getMetaData(GetMetaDataRequest)	codec	WP7	org.lowcoder.api.contract.endpoint.MetaEndpointsContractTest	assembling		54 return=getMetaData	
+ApiFlowEndpoints#flow(FlowRequest)	decode-only	WP7	org.lowcoder.api.contract.endpoint.ApiFlowEndpointsContractTest	pass-through		40 return=flow; 50 onErrorResume=flowUpstreamFailed; 55 return=flowWithoutHeaders; 55 Mono.error=flowWithoutHeaders	§1.3: the outbound HTTPS client is built inline (ApiFlowController.java:40-48) and the answer is the upstream's text, not JSON; FlowRequest is decoded at codec level, the outbound request is run against a local server through a test subclass that redirects the client, and the outbound body is pinned by api-flow
+JsLibraryEndpoints#getMeta(Collection)	codec	WP7	org.lowcoder.api.contract.endpoint.JsLibraryEndpointsContractTest	pass-through		103 return=getMetaWithoutNames; 105 return=getMeta; 108 return=getMetaRecommended; 110 return=getMeta; 111 onErrorReturn=getMetaFetchFailed	
+JsLibraryEndpoints#getRecommendationMetas()	codec	WP7	org.lowcoder.api.contract.endpoint.JsLibraryEndpointsContractTest	pass-through		97 return=getRecommendationMetas	
+PrivateNpmRegistryEndpoint#getNpmPackageAsset(String, String)	codec	WP7	org.lowcoder.api.contract.endpoint.PrivateNpmRegistryEndpointContractTest	pass-through		46 return=getNpmPackageAsset	
+PrivateNpmRegistryEndpoint#getNpmPackageMeta(String, String)	codec	WP7	org.lowcoder.api.contract.endpoint.PrivateNpmRegistryEndpointContractTest	pass-through		41 return=getNpmPackageMeta	
+LibraryQueryEndpoints#create(LibraryQuery)	codec	WP6	org.lowcoder.api.contract.endpoint.LibraryQueryEndpointsContractTest	pass-through		72 return=create	
+LibraryQueryEndpoints#delete(String)	codec	WP6	org.lowcoder.api.contract.endpoint.LibraryQueryEndpointsContractTest	pass-through		93 return=delete	
+LibraryQueryEndpoints#dropDownList(String)	codec	WP6	org.lowcoder.api.contract.endpoint.LibraryQueryEndpointsContractTest	pass-through		51 return=dropDownList	
+LibraryQueryEndpoints#get(String)	codec	WP6	org.lowcoder.api.contract.endpoint.LibraryQueryEndpointsContractTest	pass-through		66 return=get	
+LibraryQueryEndpoints#list(String, int, int)	codec	WP6	org.lowcoder.api.contract.endpoint.LibraryQueryEndpointsContractTest	assembling	org.lowcoder.api.query.view.LibraryQueryView	61 return=list	
+LibraryQueryEndpoints#publish(String, LibraryQueryPublishRequest)	codec	WP6	org.lowcoder.api.contract.endpoint.LibraryQueryEndpointsContractTest	pass-through		104 return=publish; 105 defaultIfEmpty=publishFirstVersion	
+LibraryQueryEndpoints#update(String, UpsertLibraryQueryRequest)	codec	WP6	org.lowcoder.api.contract.endpoint.LibraryQueryEndpointsContractTest	pass-through		82 return=update	
+LibraryQueryRecordEndpoints#delete(String)	codec	WP6	org.lowcoder.api.contract.endpoint.LibraryQueryRecordEndpointsContractTest	pass-through		28 return=delete	
+LibraryQueryRecordEndpoints#dslById(String, String)	codec	WP6	org.lowcoder.api.contract.endpoint.LibraryQueryRecordEndpointsContractTest	pass-through		42 return=dslById	
+LibraryQueryRecordEndpoints#getByLibraryQueryId(String, int, int)	codec	WP6	org.lowcoder.api.contract.endpoint.LibraryQueryRecordEndpointsContractTest	assembling	org.lowcoder.api.query.view.LibraryQueryRecordMetaView	35 return=getByLibraryQueryId	
+QueryEndpoints#execute(ServerWebExchange, QueryExecutionRequest)	codec	WP5	org.lowcoder.api.contract.endpoint.QueryEndpointsContractTest	pass-through		46 return=execute; 48 return=execute; 50 onErrorResume=executeFailing; 54 return=executeWithExpiredLogin; 57 Mono.error=executeWithExpiredLogin; 59 return=executeFailing; 59 Mono.error=executeFailing	
+QueryEndpoints#executeLibraryQueryFromJs(ServerWebExchange, LibraryQueryRequestFromJs)	codec	WP5	org.lowcoder.api.contract.endpoint.QueryEndpointsContractTest	pass-through		67 return=executeLibraryQueryFromJs; 72 return=executeLibraryQueryFromJsFromAnotherHost; 74 return=executeLibraryQueryFromJs	
+GroupEndpoints#addGroupMember(String, AddMemberRequest)	codec	WP4	org.lowcoder.api.contract.endpoint.GroupEndpointsContractTest	pass-through		136 return=addGroupMemberWithBlankGroupId; 139 return=addGroupMemberWithoutUserId; 142 return=addGroupMemberWithoutRole; 144 return=addGroupMember	
+GroupEndpoints#create(CreateGroupRequest)	codec	WP4	org.lowcoder.api.contract.endpoint.GroupEndpointsContractTest	assembling		50 return=create	
+GroupEndpoints#delete(String)	codec	WP4	org.lowcoder.api.contract.endpoint.GroupEndpointsContractTest	pass-through		68 return=delete	
+GroupEndpoints#getGroupMembers(String, String, String, String, String, Integer, Integer)	codec	WP4	org.lowcoder.api.contract.endpoint.GroupEndpointsContractTest	pass-through		127 return=getGroupMembers	
+GroupEndpoints#getOrgGroups(Integer, Integer)	codec	WP4	org.lowcoder.api.contract.endpoint.GroupEndpointsContractTest	assembling		78 return=getOrgGroups; 79 return=getOrgGroupsEmpty; 81 return=getOrgGroups; 101 return=getOrgGroups	
+GroupEndpoints#leaveGroup(String)	codec	WP4	org.lowcoder.api.contract.endpoint.GroupEndpointsContractTest	pass-through		164 return=leaveGroup	
+GroupEndpoints#removeUser(String, String)	codec	WP4	org.lowcoder.api.contract.endpoint.GroupEndpointsContractTest	pass-through		177 return=removeUserWithBlankUserId; 179 return=removeUser	
+GroupEndpoints#searchPotentialGroupMembers(String, String, Integer, Integer)	codec	WP4	org.lowcoder.api.contract.endpoint.GroupEndpointsContractTest	pass-through		193 return=searchPotentialGroupMembers	
+GroupEndpoints#update(String, UpdateGroupRequest)	codec	WP4	org.lowcoder.api.contract.endpoint.GroupEndpointsContractTest	pass-through		59 return=update	
+GroupEndpoints#updateRoleForMember(UpdateRoleRequest, String)	codec	WP4	org.lowcoder.api.contract.endpoint.GroupEndpointsContractTest	pass-through		153 return=updateRoleForMember	
+InvitationEndpoints#create(String)	codec	WP4	org.lowcoder.api.contract.endpoint.InvitationEndpointsContractTest	pass-through		37 return=create	
+InvitationEndpoints#get(String)	codec	WP4	org.lowcoder.api.contract.endpoint.InvitationEndpointsContractTest	pass-through		43 return=get	
+InvitationEndpoints#inviteUser(String)	codec	WP4	org.lowcoder.api.contract.endpoint.InvitationEndpointsContractTest	pass-through	java.lang.Boolean,org.lowcoder.api.usermanagement.view.InvitationVO	49 return=inviteUser; 52 return=inviteUserNotLoggedIn; 55 return=inviteUser	
+InvitationEndpoints#sendInvitationEmails(InviteEmailRequest)	codec	WP4	org.lowcoder.api.contract.endpoint.InvitationEndpointsContractTest	pass-through		63 return=sendInvitationEmails	
+OrganizationEndpoints#create(Organization)	codec	WP4	org.lowcoder.api.contract.endpoint.OrganizationEndpointsContractTest	pass-through		86 return=create	
+OrganizationEndpoints#deleteLogo(String)	codec	WP4	org.lowcoder.api.contract.endpoint.OrganizationEndpointsContractTest	pass-through		108 return=deleteLogo	
+OrganizationEndpoints#getOrgApiUsageCount(String, Boolean)	codec	WP4	org.lowcoder.api.contract.endpoint.OrganizationEndpointsContractTest	pass-through		186 return=getOrgApiUsageCount	
+OrganizationEndpoints#getOrgCommonSettings(String)	codec	WP4	org.lowcoder.api.contract.endpoint.OrganizationEndpointsContractTest	pass-through	org.lowcoder.domain.organization.model.Organization$OrganizationCommonSettings	172 return=getOrgCommonSettings	
+OrganizationEndpoints#getOrgMembers(String, int, int)	codec	WP4	org.lowcoder.api.contract.endpoint.OrganizationEndpointsContractTest	pass-through		117 return=getOrgMembers	
+OrganizationEndpoints#getOrganization(String, Boolean)	codec	WP4	org.lowcoder.api.contract.endpoint.OrganizationEndpointsContractTest	pass-through		199 return=getOrganization; 201 switchIfEmpty=getOrganizationNotFound; 201 Mono.error=getOrganizationNotFound	
+OrganizationEndpoints#getOrganizationByUser(String, Integer, Integer)	codec	WP4	org.lowcoder.api.contract.endpoint.OrganizationEndpointsContractTest	assembling	org.lowcoder.api.usermanagement.view.OrgView	76 return=getOrganizationByUserWithUnnamedOrganization; 78 return=getOrganizationByUser; 80 return=getOrganizationByUser	
+OrganizationEndpoints#getSupportedDatasourceTypes(String)	codec	WP4	org.lowcoder.api.contract.endpoint.OrganizationEndpointsContractTest	pass-through		165 return=getSupportedDatasourceTypes	
+OrganizationEndpoints#leaveOrganization(String)	codec	WP4	org.lowcoder.api.contract.endpoint.OrganizationEndpointsContractTest	pass-through		150 return=leaveOrganization	
+OrganizationEndpoints#removeOrg(String)	codec	WP4	org.lowcoder.api.contract.endpoint.OrganizationEndpointsContractTest	pass-through		143 return=removeOrg	
+OrganizationEndpoints#removeUserFromOrg(String, String)	codec	WP4	org.lowcoder.api.contract.endpoint.OrganizationEndpointsContractTest	pass-through		158 return=removeUserFromOrg	
+OrganizationEndpoints#setCurrentOrganization(String, ServerWebExchange)	codec	WP4	org.lowcoder.api.contract.endpoint.OrganizationEndpointsContractTest	pass-through	java.lang.Boolean,org.lowcoder.api.authentication.dto.RedirectView	132 return=setCurrentOrganizationRedirect; 138 defaultIfEmpty=setCurrentOrganization	
+OrganizationEndpoints#update(String, UpdateOrgRequest)	codec	WP4	org.lowcoder.api.contract.endpoint.OrganizationEndpointsContractTest	pass-through		93 return=update	
+OrganizationEndpoints#updateOrgCommonSettings(String, UpdateOrgCommonSettingsRequest)	codec	WP4	org.lowcoder.api.contract.endpoint.OrganizationEndpointsContractTest	pass-through		179 return=updateOrgCommonSettings	
+OrganizationEndpoints#updateRoleForMember(UpdateRoleRequest, String)	codec	WP4	org.lowcoder.api.contract.endpoint.OrganizationEndpointsContractTest	pass-through		125 return=updateRoleForMember	
+OrganizationEndpoints#updateSlug(String, String)	codec	WP4	org.lowcoder.api.contract.endpoint.OrganizationEndpointsContractTest	pass-through		193 return=updateSlug	
+OrganizationEndpoints#uploadLogo(String, Mono)	codec	WP4	org.lowcoder.api.contract.endpoint.OrganizationEndpointsContractTest	pass-through	org.springframework.http.codec.multipart.FilePart	101 return=uploadLogo	
+UserEndpoints#createSCIMUserAndAddToOrg(String, CreateUserRequest)	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	pass-through	org.lowcoder.domain.user.model.User	92 return=createSCIMUserAndAddToOrg; 95 return=createSCIMUserAndAddToOrgWithInvalidEmail; 102 return=createSCIMUserAndAddToOrg; 105 return=createSCIMUserAndAddToOrg; 108 switchIfEmpty=createSCIMUserAndAddToOrgForNewUser; 119 return=createSCIMUserAndAddToOrgForNewUser	
+UserEndpoints#createUserAndAddToOrg(String, CreateUserRequest)	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	pass-through	org.lowcoder.domain.user.model.User	68 return=createUserAndAddToOrg	
+UserEndpoints#deleteProfilePhoto()	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	pass-through		237 return=deleteProfilePhoto	
+UserEndpoints#deleteProfilePhotoById(String, String)	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	pass-through		244 return=deleteProfilePhotoById	
+UserEndpoints#getCurrentUser(ServerWebExchange)	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	pass-through		316 return=getCurrentUser	
+UserEndpoints#getProfilePhoto(ServerWebExchange)	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	pass-through		251 return=getProfilePhoto; 257 return=getProfilePhoto; 258 switchIfEmpty=getProfilePhotoNotFound	
+UserEndpoints#getProfilePhoto(ServerWebExchange, String)	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	pass-through		257 return=getProfilePhotoOfUser; 258 switchIfEmpty=getProfilePhotoOfUserNotFound	
+UserEndpoints#getUserDetail(String)	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	pass-through	org.lowcoder.domain.user.model.UserDetail	323 return=getUserDetail	
+UserEndpoints#getUserOrgs(ServerWebExchange, String, Integer, Integer)	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	assembling	org.lowcoder.api.usermanagement.view.OrgView	142 return=getUserOrgs; 148 return=getUserOrgs; 164 return=getUserOrgs; 169 return=getUserOrgs	
+UserEndpoints#getUserProfile(ServerWebExchange)	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	pass-through	org.lowcoder.api.usermanagement.view.UserProfileView,org.lowcoder.api.authentication.dto.RedirectView	130 return=getUserProfileRedirect; 134 switchIfEmpty=getUserProfile	
+UserEndpoints#lostPassword(LostPasswordRequest)	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	pass-through		287 return=lostPasswordWithoutEmail; 289 return=lostPassword	
+UserEndpoints#markStatus(MarkUserStatusRequest)	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	pass-through		186 return=markStatusWithUnknownType; 189 return=markStatus	
+UserEndpoints#newUserGuidanceShown()	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	pass-through		177 return=newUserGuidanceShown	
+UserEndpoints#resetLostPassword(ResetLostPasswordRequest)	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	pass-through		297 return=resetLostPasswordWithMissingField; 300 return=resetLostPassword	
+UserEndpoints#resetPassword(ResetPasswordRequest)	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	pass-through		274 return=resetPasswordOutsideEnterpriseMode; 277 return=resetPasswordWithoutUserId; 279 return=resetPassword	
+UserEndpoints#setPassword(String)	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	pass-through		307 return=setPasswordEmpty; 309 return=setPassword	
+UserEndpoints#update(String, String, UpdateUserRequest, ServerWebExchange)	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	pass-through		202 return=updateById	
+UserEndpoints#update(UpdateUserRequest, ServerWebExchange)	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	pass-through		196 return=update; 202 return=update	
+UserEndpoints#updatePassword(UpdatePasswordRequest)	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	pass-through		264 return=updatePasswordWithEmptyPassword; 266 return=updatePassword	
+UserEndpoints#uploadProfilePhoto(Mono)	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	pass-through	org.springframework.http.codec.multipart.FilePart	222 return=uploadProfilePhoto	
+UserEndpoints#uploadProfilePhotoById(String, String, Mono)	codec	WP4	org.lowcoder.api.contract.endpoint.UserEndpointsContractTest	pass-through	org.springframework.http.codec.multipart.FilePart	229 return=uploadProfilePhotoById	

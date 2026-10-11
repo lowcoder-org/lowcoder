@@ -5,13 +5,11 @@ import org.lowcoder.domain.bundle.model.Bundle;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 
 @Repository
 public interface BundleRepository extends ReactiveMongoRepository<Bundle, String> {
-    Mono<Void> deleteAllByGid(Collection<String> gids);
     Flux<Bundle> findByGid(@Nonnull String gid);
     Flux<Bundle> findAllByGid(Collection<String> gids);
 

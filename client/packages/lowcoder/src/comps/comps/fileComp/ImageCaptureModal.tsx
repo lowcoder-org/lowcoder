@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { default as Button } from "antd/es/button";
 import Dropdown from "antd/es/dropdown";
 import type { ItemType } from "antd/es/menu/interface";
@@ -8,6 +8,7 @@ import Flex from "antd/es/flex";
 import styled from "styled-components";
 import { trans } from "i18n";
 import { CustomModal } from "lowcoder-design";
+import { CaptureResolution, RESOLUTION_CONSTRAINTS } from "./fileComp";
 
 const CustomModalStyled = styled(CustomModal)`
   top: 10vh;
@@ -53,23 +54,32 @@ const ReactWebcam = React.lazy(() => import("react-webcam"));
 
 export const ImageCaptureModal = (props: {
   showModal: boolean;
+  captureResolution?: CaptureResolution;
   onModalClose: () => void;
   onImageCapture: (image: string) => void;
 }) => {
   const [errMessage, setErrMessage] = useState("");
-  const [videoConstraints, setVideoConstraints] = useState<MediaTrackConstraints>({
-    facingMode: "environment",
-  });
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
   const [modeList, setModeList] = useState<ItemType[]>([]);
   const [dropdownShow, setDropdownShow] = useState(false);
   const [imgSrc, setImgSrc] = useState<string>();
   const webcamRef = useRef<any>(null);
 
+  const resolution = props.captureResolution ?? "auto";
+  const resolutionSize = RESOLUTION_CONSTRAINTS[resolution] ?? {};
+
+  const videoConstraints = useMemo<MediaTrackConstraints>(() => {
+    const base: MediaTrackConstraints = selectedDeviceId
+      ? { deviceId: { exact: selectedDeviceId } }
+      : { facingMode: "environment" };
+    return { ...base, ...resolutionSize };
+  }, [selectedDeviceId, resolutionSize]);
+
   useEffect(() => {
     if (props.showModal) {
       setImgSrc("");
       setErrMessage("");
-      setVideoConstraints({ facingMode: "environment" });
+      setSelectedDeviceId(null);
       setDropdownShow(false);
     }
   }, [props.showModal]);
@@ -125,6 +135,8 @@ export const ImageCaptureModal = (props: {
                   ref={webcamRef}
                   onUserMediaError={handleMediaErr}
                   screenshotFormat="image/jpeg"
+                  screenshotQuality={1}
+                  forceScreenshotSourceSize
                   videoConstraints={videoConstraints}
                 />
               </Suspense>
@@ -172,7 +184,7 @@ export const ImageCaptureModal = (props: {
                     <Menu
                       items={modeList}
                       onClick={(value) => {
-                        setVideoConstraints({ deviceId: { exact: value.key } });
+                        setSelectedDeviceId(value.key);
                         setDropdownShow(false);
                       }}
                     />

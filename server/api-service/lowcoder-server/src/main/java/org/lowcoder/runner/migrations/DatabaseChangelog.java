@@ -35,6 +35,7 @@ import org.lowcoder.infra.serverlog.ServerLog;
 import org.lowcoder.runner.migrations.job.AddPtmFieldsJob;
 import org.lowcoder.runner.migrations.job.AddSuperAdminUser;
 import org.lowcoder.runner.migrations.job.CompleteAuthType;
+import org.lowcoder.runner.migrations.job.EmailNormalizationBackfill;
 import org.lowcoder.runner.migrations.job.MigrateAuthConfigJob;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.springframework.context.annotation.Profile;
@@ -500,6 +501,16 @@ public class DatabaseChangelog {
             Query deleteQuery = Query.query(Criteria.where("_id").in(userIdsToDelete));
             mongoTemplate.remove(deleteQuery, User.class);
         }
+    }
+
+    /**
+     * Backfills existing email addresses to the canonical form every write path has used since the
+     * sanitization change. Accounts that would collide are left as they are and reported; see
+     * {@link EmailNormalizationBackfill} and EMAIL-SANITIZATION.md.
+     */
+    @ChangeSet(order = "032", id = "normalize-email-backfill", author = "")
+    public void normalizeEmailBackfill(MongoDatabase mongoDatabase) {
+        EmailNormalizationBackfill.run(mongoDatabase);
     }
 
     private void addGidField(MongockTemplate mongoTemplate, String collectionName) {
