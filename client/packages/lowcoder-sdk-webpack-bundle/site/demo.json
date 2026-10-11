@@ -1,0 +1,182 @@
+{
+  "settings": {
+    "themeId": "default",
+    "maxWidth": {
+      "input": 0,
+      "dropdown": "1920"
+    }
+  },
+  "ui": {
+    "comp": {
+      "container": {
+        "layout": {
+          "intro": {
+            "w": 24,
+            "h": 9,
+            "x": 0,
+            "y": 0,
+            "i": "intro"
+          },
+          "details": {
+            "w": 24,
+            "h": 8,
+            "x": 0,
+            "y": 9,
+            "i": "details"
+          },
+          "action": {
+            "w": 12,
+            "h": 5,
+            "x": 0,
+            "y": 18,
+            "i": "action"
+          }
+        },
+        "items": {
+          "intro": {
+            "name": "welcome",
+            "compType": "text",
+            "comp": {
+              "text": "### {{customerName.value}}\nCustomer workspace \u00b7 {{plan.value}} plan",
+              "type": "markdown",
+              "autoHeight": "auto"
+            }
+          },
+          "details": {
+            "name": "details",
+            "compType": "text",
+            "comp": {
+              "text": "**{{seats.value}} seats** in this workspace.\n\nThis panel is rendered by Lowcoder. Change the customer above to update its inputs.",
+              "type": "markdown",
+              "autoHeight": "auto"
+            }
+          },
+          "action": {
+            "name": "openCustomerButton",
+            "compType": "button",
+            "comp": {
+              "text": "Open customer \u2192",
+              "type": "",
+              "onEvent": [
+                {
+                  "name": "click",
+                  "handler": {
+                    "compType": "triggerModuleEvent",
+                    "comp": {
+                      "name": "openCustomer"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "containerRowCount": 0,
+      "events": {
+        "enableEventTestMessage": false,
+        "list": [
+          {
+            "name": "openCustomer"
+          }
+        ]
+      },
+      "containerSize": {
+        "width": 24,
+        "height": 28
+      },
+      "io": {
+        "inputs": [
+          {
+            "name": "customerName",
+            "type": "string",
+            "defaultValue": {
+              "compType": "string",
+              "comp": "Morgan Lee"
+            }
+          },
+          {
+            "name": "plan",
+            "type": "string",
+            "defaultValue": {
+              "compType": "string",
+              "comp": "Growth"
+            }
+          },
+          {
+            "name": "seats",
+            "type": "number",
+            "defaultValue": {
+              "compType": "number",
+              "comp": "12"
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "name": "customer",
+            "value": "{{customerName.value}}"
+          },
+          {
+            "name": "plan",
+            "value": "{{plan.value}}"
+          },
+          {
+            "name": "seats",
+            "value": "{{seats.value}}"
+          }
+        ]
+      }
+    },
+    "compType": "module"
+  },
+  "refTree": {
+    "value": ""
+  },
+  "hooks": [
+    {
+      "compType": "urlParams",
+      "comp": {},
+      "name": "url"
+    },
+    {
+      "compType": "dayJsLib",
+      "comp": {},
+      "name": "dayjs"
+    },
+    {
+      "compType": "lodashJsLib",
+      "comp": {},
+      "name": "_"
+    },
+    {
+      "compType": "utils",
+      "comp": {},
+      "name": "utils"
+    },
+    {
+      "compType": "message",
+      "comp": {},
+      "name": "message"
+    },
+    {
+      "compType": "localStorage",
+      "comp": {},
+      "name": "localStorage"
+    },
+    {
+      "compType": "currentUser",
+      "comp": {},
+      "name": "currentUser"
+    },
+    {
+      "compType": "theme",
+      "comp": {},
+      "name": "theme"
+    }
+  ],
+  "preload": {
+    "css": "",
+    "script": ""
+  }
+}

@@ -1,0 +1,45 @@
+name: Release Lowcoder SDK
+
+on:
+  release:
+    types: [released]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-lowcoder-sdk
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.repository == 'lowcoder-org/lowcoder' && !github.event.release.prerelease && !github.event.release.draft
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.2
+      - name: Verify this stable release is the current main commit
+        run: node client/packages/lowcoder-sdk-webpack-bundle/scripts/check-stable-release.cjs
+      - name: Request the Cloudflare production build
+        env:
+          LOWCODER_SDK_DEPLOY_HOOK: ${{ secrets.LOWCODER_SDK_DEPLOY_HOOK }}
+        run: |
+          node <<'NODE'
+          const hook = process.env.LOWCODER_SDK_DEPLOY_HOOK;
+          if (!hook) throw new Error('Configure the LOWCODER_SDK_DEPLOY_HOOK repository secret.');
+          const url = new URL(hook);
+          if (url.origin !== 'https://api.cloudflare.com' || !url.pathname.startsWith('/client/v4/workers/builds/deploy_hooks/')) {
+            throw new Error('Unexpected Cloudflare deploy hook URL.');
+          }
+          (async () => {
+            const response = await fetch(url, { method: 'POST', signal: AbortSignal.timeout(30000) });
+            const result = await response.json();
+            if (!response.ok || !result.success || !result.result?.build_uuid) throw new Error('Cloudflare did not accept the build request.');
+            console.log('Cloudflare build accepted: ' + result.result.build_uuid);
+            console.log('Publication is confirmed by the Cloudflare build, not by this trigger request.');
+          })().catch(error => { console.error(error.message); process.exitCode = 1; });
+          NODE

@@ -95,7 +95,7 @@ In the **Settings** tab, click **+** **Add** to create a new Module Method. Clic
 <figure><img src="../../.gitbook/assets/App Editor  Module Methods.png" alt=""><figcaption><p>From an App, one can call Methods of a embedded Module.</p></figcaption></figure>
 
 {% hint style="warning" %}
-When creating a Method for a Module, you cannot create input parameters for the Method and can only reference parameters within the scope of the current Module.
+Module methods can define named parameters and defaults. When calling a method from the native SDK, pass arguments in the configured order with `instance.invokeMethod(methodName, args)`. This call returns no result or completion promise; expose results through module outputs or events. See the [SDK method reference](https://sdk.lowcoder.cloud/reference.html#methods).
 {% endhint %}
 
 #### Call a Method

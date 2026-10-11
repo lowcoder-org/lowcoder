@@ -8,12 +8,18 @@ export async function bootstrapAppAt<I>(
   options: AppViewInstanceOptions<I> = {}
 ) {
   if (!node) {
-    console.error("node must be not null.");
-    return;
+    throw new Error("bootstrapAppAt requires an existing DOM element.");
   }
 
   loadComps();
 
   const { AppViewInstance } = await import("./AppViewInstance");
-  return new AppViewInstance(appId, node, createRoot(node), options);
+  const instance = new AppViewInstance(appId, node, createRoot(node), options);
+  try {
+    await instance.ready;
+    return instance;
+  } catch (error) {
+    instance.destroy();
+    throw error;
+  }
 }
