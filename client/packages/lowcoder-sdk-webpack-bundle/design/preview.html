@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>SDK search and share preview review</title>
+    <style>
+      @font-face { font-family: Ubuntu; src: url('/brand/ubuntu-400.woff2'); }
+      * { box-sizing: border-box; }
+      body { margin: 0; padding: 32px; background: #f5f1f8; color: #211729; font: 16px/1.5 Ubuntu, sans-serif; }
+      header, main { max-width: 1200px; margin: auto; }
+      h1 { margin: 0; font-size: 30px; font-weight: 400; }
+      header p { margin: 8px 0 28px; color: #65566d; }
+      main { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+      article { overflow: hidden; background: white; border-radius: 16px; border: 1px solid #ded2e5; }
+      img { width: 100%; height: auto; display: block; }
+      .content { padding: 20px 24px; }
+      .url, small { color: #766880; font-size: 13px; }
+      h2 { margin: 6px 0; color: #50336b; font-weight: 400; font-size: 20px; line-height: 1.3; }
+      .description { margin: 0 0 12px; color: #514958; font-size: 14px; }
+      @media (max-width: 700px) { body { padding: 20px; } main { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Lowcoder SDK · Search &amp; share previews</h1>
+      <p>Four pages. Four distinct previews. Artwork at feed size, with the proposed search copy below.</p>
+    </header>
+    <main></main>
+    <script>
+      (async () => {
+        const [pages, images] = await Promise.all(['/seo.json', '/social-images.json'].map(url => fetch(url).then(response => response.json())));
+        for (const [route, page] of Object.entries(pages)) {
+          const article = document.createElement('article');
+          const image = document.createElement('img');
+          image.src = images[page.card]; image.alt = page.imageAlt;
+          image.width = 1200; image.height = 630;
+          const content = document.createElement('div'); content.className = 'content';
+          const fields = [
+            ['div', 'url', 'sdk.lowcoder.cloud' + route],
+            ['h2', '', page.title],
+            ['p', 'description', page.description],
+            ['small', '', `${page.title.length} title characters · ${page.description.length} description characters · 1200 × 630 PNG`],
+          ];
+          for (const [tag, className, text] of fields) {
+            const element = document.createElement(tag); element.className = className; element.textContent = text; content.append(element);
+          }
+          article.append(image, content); document.querySelector('main').append(article);
+        }
+        await document.fonts.ready;
+        await Promise.all([...document.images].map(image => image.decode()));
+        document.body.dataset.ready = 'true';
+      })();
+    </script>
+  </body>
+</html>

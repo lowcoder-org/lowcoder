@@ -24,6 +24,33 @@ node .yarn/releases/yarn-3.6.4.cjs workspace lowcoder-sdk-webpack-bundle check:d
 only on request and mounts `site/demo.json` through the real SDK. It exchanges
 module inputs, outputs and events, and demonstrates unmount/remount.
 
+## Search and social previews
+
+The four public pages have distinct titles, descriptions and 1200 × 630 PNG share
+images. Canonical URLs use Cloudflare's clean paths: `/`, `/guide`, `/reference`
+and `/recipes`. `seo.json` is the metadata source; `prepare:site` writes static
+HTML tags, Open Graph, X/Twitter cards, JSON-LD, `robots.txt` and `sitemap.xml`.
+It also runs before production builds. Commit the generated HTML and crawl files
+so validation can catch stale metadata before the build. Titles and descriptions
+use concise editorial budgets; search engines may rewrite or truncate snippets.
+
+The image source is `design/social-card.html`, outside the published directory.
+To refresh artwork, serve this package with `site/` as a fallback for public assets,
+open `/design/social-card.html?page=/guide` (or another canonical path), and capture
+a 1200 × 630 viewport after `body[data-ready="true"]` appears. Export actual PNG
+bytes (some capture tools return JPEG regardless of the filename). Save each PNG in
+`site/social/` as `<card>-<first 12 hex digits of SHA-256>.png`, then update
+`social-images.json`. Hashed URLs allow immutable caching without stale images
+when artwork changes. Run `prepare:site`, tests, build and `check:dist` afterward.
+The tests check static tags, structured data, image dimensions and hashes, sitemap
+coverage and clean internal links. The 404 and component sandbox are `noindex`.
+`/design/preview.html` shows all four images at feed size alongside the proposed
+search copy and character counts; it is a local review page, excluded from builds.
+
+After a stable release publishes these files, share services must fetch the live
+page to refresh their own cached previews. The local artwork and metadata checks
+do not confirm a social network's cache or search engine indexing.
+
 ## Browser integration
 
 ```html
@@ -52,7 +79,7 @@ instance member, option, event and React prop against the source, and validates
 anchors, snippet syntax and search behavior.
 
 Existing `.lowcoder-module-container` markup and callbacks still work; call
-`LowcoderSDK.scan()` for later markup. See `/guide.html` for the complete example.
+`LowcoderSDK.scan()` for later markup. See `/guide` for the complete example.
 
 ## Chunk boundaries
 

@@ -6,6 +6,9 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
+/social/*
+  Cache-Control: public, max-age=31536000, immutable
+
 /bundle.js
   Cache-Control: public, max-age=0, must-revalidate
 

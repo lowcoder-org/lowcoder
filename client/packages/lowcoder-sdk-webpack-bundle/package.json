@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node --test test/*.test.cjs",
     "start": "webpack-dev-server --config ./webpack.config.cjs --mode development --progress --color --port 5000",
-    "build": "webpack --mode production",
+    "build": "node scripts/prepare-site.cjs && webpack --mode production",
+    "prepare:site": "node scripts/prepare-site.cjs",
     "check:dist": "node scripts/check-dist.cjs"
   },
   "author": "Lowcoder Software LTD",

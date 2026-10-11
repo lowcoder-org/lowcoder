@@ -44,7 +44,7 @@ test('reference covers the browser facade exported by the entry and loader', () 
 test('documentation has valid local anchors, unique IDs and parseable JS/JSX examples', () => {
   const pages = new Map([
     ['/', new JSDOM(read('index.html')).window.document],
-    ...['guide', 'reference', 'recipes'].map(name => [`/${name}.html`, new JSDOM(read(`site/${name}.html`)).window.document]),
+    ...['guide', 'reference', 'recipes'].map(name => [`/${name}`, new JSDOM(read(`site/${name}.html`)).window.document]),
   ]);
   for (const [name, page] of pages) {
     const ids = [...page.querySelectorAll('[id]')].map(node => node.id);
@@ -67,7 +67,7 @@ test('documentation has valid local anchors, unique IDs and parseable JS/JSX exa
 });
 
 test('search filters full section content, clears, and reveals a hidden cross-reference', () => {
-  const dom = new JSDOM(read('site/reference.html'), { url: 'https://sdk.lowcoder.cloud/reference.html', runScripts: 'outside-only' });
+  const dom = new JSDOM(read('site/reference.html'), { url: 'https://sdk.lowcoder.cloud/reference', runScripts: 'outside-only' });
   const { window } = dom;
   window.HTMLElement.prototype.scrollIntoView = function () {};
   window.eval(read('site/reference.js'));
