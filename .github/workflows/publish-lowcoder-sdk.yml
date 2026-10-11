@@ -1,19 +1,27 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
-# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
+# Build and publish changed SDK versions to npm from dev.
 
 name: Publish Lowcoder SDK
 
 on:
   push:
     branches: [ "dev" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: publish-lowcoder-sdk
+  cancel-in-progress: false
 
 jobs:
   publish-package:
-    if: ${{ github.repositoryUrl == 'git://github.com/lowcoder-org/lowcoder.git'}}
+    if: github.repository == 'lowcoder-org/lowcoder' && github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Check version changes
         uses: EndBug/version-check@v1
@@ -30,28 +38,35 @@ jobs:
       
       - name: Set up Node.js for NPM
         if: steps.check.outputs.changed == 'true'
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
-          node-version: 16
-          registry-url: https://registry.npmjs.org/
+          node-version: 22
+          package-manager-cache: false
+
+      - name: Verify GitHub OIDC availability
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          if [[ -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" || -z "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}" ]]; then
+            echo "::error::GitHub OIDC is unavailable. This publishing job requires id-token: write."
+            exit 1
+          fi
 
       - name: Install dependencies
         if: steps.check.outputs.changed == 'true'
-        uses: borales/actions-yarn@v4.2.0
-        with:
-          cmd: install
-          dir: client/packages/lowcoder-sdk
+        run: node .yarn/releases/yarn-3.6.4.cjs install --immutable
+        working-directory: client
       
       - name: Build Package
         if: steps.check.outputs.changed == 'true'
-        uses: borales/actions-yarn@v4.2.0
-        with:
-          cmd: build
-          dir: client/packages/lowcoder-sdk
+        run: node .yarn/releases/yarn-3.6.4.cjs workspace lowcoder-sdk build
+        working-directory: client
 
-      - name: Publish package to NPM
+      - name: Set up npm for trusted publishing
         if: steps.check.outputs.changed == 'true'
-        run: npm publish
+        # OIDC requires npm >=11.5.1. Pin npm 11 to avoid npm 12 install-policy changes.
+        run: npm install --global npm@11.21.0 --registry=https://registry.npmjs.org/
+
+      - name: Publish package to npm with OIDC
+        if: steps.check.outputs.changed == 'true'
+        run: npm publish --access public --registry=https://registry.npmjs.org/
         working-directory: client/packages/lowcoder-sdk
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.LOWCODERNPMBOT }}

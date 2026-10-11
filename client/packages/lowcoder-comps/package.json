@@ -3,6 +3,11 @@
   "version": "3.0.0",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lowcoder-org/lowcoder.git",
+    "directory": "client/packages/lowcoder-comps"
+  },
   "dependencies": {
     "@fullcalendar/adaptive": "^6.1.11",
     "@fullcalendar/core": "^6.1.6",

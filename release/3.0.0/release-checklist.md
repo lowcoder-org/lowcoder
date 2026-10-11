@@ -51,12 +51,14 @@ Application version metadata is aligned to 3.0.0 in:
 
 The Helm chart version was already 3.0.0 and stays there. Its README and frontend comment now describe the intended 3.0.0 images. Independently versioned packages and third-party dependency versions are unchanged.
 
-These changes and the release materials are **uncommitted and unpushed**. No PR, tag, or GitHub release has been created. Nothing has been merged or deployed by this preparation.
+The version changes and release materials were subsequently committed in `88e90f9cd` and pushed to `dev`. This preparation has not created a PR, tag, or GitHub release, or merged `dev` into `main`.
 
 ## Before merging dev into main
 
 - [ ] Review the announcement and include the local version/document changes in the release branch.
 - [ ] Account for the existing npm publication behavior before pushing the version updates: SDK and Comps workflows trigger on pushes to dev and can publish changed versions immediately. They do not wait for a GitHub release.
+- [ ] Configure the Comps and SDK npm trusted publishers using the exact values in client/README.md, then confirm actual 3.0.0 registry publication from the updated workflows. Successful builds and package dry runs do not validate OIDC authorization.
+- [ ] Resolve the pre-existing SDK `./appView` export mismatch before release: package.json points to `dist/appView.js`, while the current Vite build only emits `dist/lowcoder-sdk.js` as its entry point. This packaging issue is separate from npm's authentication failures.
 - [ ] Open the dev-to-main PR using the merge message and preserve the repository's intended merge strategy.
 - [ ] Confirm Client and Node Service builds on the final candidate. Their CI steps named “Run tests” currently execute build commands; they are not evidence of a full unit test suite.
 - [ ] Run the application tests required for the final candidate and check representative existing apps.

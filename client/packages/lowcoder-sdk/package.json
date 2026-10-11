@@ -1,6 +1,11 @@
 {
   "name": "lowcoder-sdk",
   "version": "3.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lowcoder-org/lowcoder.git",
+    "directory": "client/packages/lowcoder-sdk"
+  },
   "type": "module",
   "files": [
     "src",
