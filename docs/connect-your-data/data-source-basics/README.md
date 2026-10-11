@@ -7,7 +7,7 @@ Lowcoder stores your credentials securely and does not store any data from your 
 ## Connect to a new data source
 
 {% hint style="info" %}
-Check out IP allowlist and add Lowcoder IP addresses to your data source allowlist when needed.
+If your database or API uses an IP allowlist, follow [Configure IP allowlists](configure-ip-allowlists.md) before connecting. The guide lists the current static outbound IP for Lowcoder Cloud and explains what to allow for self-hosted deployments.
 {% endhint %}
 
 Follow the steps below:
