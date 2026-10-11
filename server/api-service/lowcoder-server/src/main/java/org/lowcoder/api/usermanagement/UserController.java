@@ -3,23 +3,47 @@ package org.lowcoder.api.usermanagement;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.authentication.dto.OrganizationDomainCheckResult;
+import org.lowcoder.api.authentication.service.AuthenticationApiService;
+import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.home.UserHomeApiService;
+import org.lowcoder.api.home.UserHomepageView;
+import org.lowcoder.api.usermanagement.view.OrgView;
 import org.lowcoder.api.usermanagement.view.UpdateUserRequest;
 import org.lowcoder.api.usermanagement.view.UserProfileView;
+import org.lowcoder.domain.organization.model.MemberRole;
+import org.lowcoder.domain.organization.model.OrgMember;
+import org.lowcoder.domain.organization.model.Organization;
+import org.lowcoder.domain.organization.service.OrgMemberService;
+import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.constant.UserStatusType;
+import org.lowcoder.domain.user.model.AuthUser;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.model.UserDetail;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.domain.user.service.UserStatusService;
 import org.lowcoder.sdk.config.CommonConfig;
+import org.lowcoder.sdk.constants.AuthSourceConstants;
 import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
+import org.lowcoder.sdk.util.EmailUtils;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 
 import static org.lowcoder.sdk.exception.BizError.INVALID_USER_STATUS;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
@@ -35,6 +59,71 @@ public class UserController implements UserEndpoints
     private final UserStatusService userStatusService;
     private final UserApiService userApiService;
     private final CommonConfig commonConfig;
+    private final AuthenticationApiService authenticationApiService;
+    private final OrgMemberService orgMemberService;
+    private final OrganizationService organizationService;
+
+    @Override
+    public Mono<ResponseView<?>> createUserAndAddToOrg(@PathVariable String orgId, CreateUserRequest request) {
+        return orgApiService.checkVisitorAdminRole(orgId).flatMap(__ ->
+                        authenticationApiService.authenticateByForm(request.email(), request.password(),
+                                AuthSourceConstants.EMAIL, true, null, orgId))
+                .flatMap(authUser -> userService.createNewUserByAuthUser(authUser, false))
+                .delayUntil(user -> orgMemberService.tryAddOrgMember(orgId, user.getId(), MemberRole.MEMBER))
+                .delayUntil(user -> orgApiService.switchCurrentOrganizationTo(user.getId(), orgId))
+                .map(ResponseView::success);
+    }
+
+    @Override
+    public Mono<ResponseView<?>> createSCIMUserAndAddToOrg(@PathVariable String orgId, CreateUserRequest request) {
+        // The third writer of an address, and the only one that validated nothing. A blank value creates a
+        // row whose email is "" -- which findByEmailDeep can never resolve, since it short-circuits on
+        // empty. The lookup below is fed the value AS SUPPLIED rather than the normalized one, so the
+        // two-probe lookup gets both chances: the typed casing byte-exact, then the canonical form. It
+        // does NOT find a row stored in some third casing -- e.g. stored "Stored@Example.COM" is not
+        // reachable from "stored@example.com". Changeset 032 converges such rows, so what is left is one
+        // the backfill deliberately froze as part of a reported conflict, or an install where 032 has not
+        // run yet. Only what gets written is normalized.
+        //
+        // Authorize first, validate second: a caller who is not an org admin must be turned away by
+        // checkVisitorAdminRole regardless of what they sent, and must not be able to tell a malformed
+        // payload from a well-formed one by the error they get back.
+        String normalizedEmail = EmailUtils.normalize(request.email());
+        return orgApiService.checkVisitorAdminRole(orgId)
+                .flatMap(__ -> {
+                    if (!EmailUtils.looksLikeEmail(normalizedEmail)) {
+                        return ofError(BizError.INVALID_EMAIL_FORMAT, "INVALID_EMAIL_FORMAT");
+                    }
+                    // For SCIM provisioning: Create a minimal user without auth connection
+                    // The auth connection will be added on first SSO login via JIT provisioning
+                    // This allows SCIM to pre-provision users while SSO handles authentication
+
+                    // Check if user already exists by email
+                    return userService.findByEmailDeep(request.email())
+                            .flatMap(existingUser -> {
+                                // User already exists, just add to org if not already a member
+                                return orgMemberService.tryAddOrgMember(orgId, existingUser.getId(), MemberRole.MEMBER)
+                                        .thenReturn(existingUser);
+                            })
+                            .switchIfEmpty(
+                                    // Create new user without auth connection (placeholder for SSO)
+                                    Mono.defer(() -> {
+                                        User newUser = User.builder()
+                                                .name(normalizedEmail)
+                                                .email(normalizedEmail)
+                                                .isEnabled(true)
+                                                .build();
+                                        newUser.setConnections(new HashSet<>());
+                                        newUser.setIsNewUser(true);
+                                        
+                                        return userService.saveUser(newUser)
+                                                .delayUntil(user -> orgMemberService.tryAddOrgMember(orgId, user.getId(), MemberRole.MEMBER));
+                                    })
+                            );
+                })
+                .delayUntil(user -> orgApiService.switchCurrentOrganizationTo(user.getId(), orgId))
+                .map(ResponseView::success);
+    }
 
     @Override
     public Mono<ResponseView<?>> getUserProfile(ServerWebExchange exchange) {
@@ -43,6 +132,44 @@ public class UserController implements UserEndpoints
                 .flatMap(view -> orgApiService.checkOrganizationDomain()
                         .flatMap(OrganizationDomainCheckResult::buildOrganizationDomainCheckView)
                         .switchIfEmpty(Mono.just(ResponseView.success(view))));
+    }
+
+    @Override
+    public Mono<ResponseView<?>> getUserOrgs(ServerWebExchange exchange,
+                                             @RequestParam(required = false) String orgName,
+                                             @RequestParam(required = false, defaultValue = "1") Integer pageNum,
+                                             @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
+        return sessionUserService.getVisitor()
+                .flatMap(user -> {
+                    Pageable pageable = PageRequest.of(pageNum - 1, pageSize, Sort.by(Sort.Direction.DESC, "updatedAt"));
+                    String filter = orgName == null ? "" : orgName;
+                    Mono<String> currentOrgIdMono = sessionUserService.getVisitorOrgMemberCache()
+                            .map(OrgMember::getOrgId);
+                    return organizationService.findUserOrgs(user.getId(), filter, pageable)
+                            .map(OrgView::new)
+                            .collectList()
+                            .zipWith(organizationService.countUserOrgs(user.getId(), filter))
+                            .zipWith(currentOrgIdMono)
+                            .map(tuple -> {
+                                List<OrgView> orgViews = tuple.getT1().getT1();
+                                long total = tuple.getT1().getT2();
+                                String currentOrgId = tuple.getT2();
+
+                                // Create a list of maps each containing orgView and isCurrentOrg
+                                List<Map<String, Object>> resultList = orgViews.stream()
+                                        .map(orgView -> {
+                                            Map<String, Object> map = new HashMap<>();
+                                            map.put("orgView", orgView);
+                                            map.put("isCurrentOrg", orgView.getOrgId().equals(currentOrgId));
+                                            return map;
+                                        })
+                                        .sorted((a, b) -> Boolean.compare((Boolean) b.get("isCurrentOrg"), (Boolean) a.get("isCurrentOrg")))
+                                        .collect(Collectors.toList());
+
+                                return PageResponseView.success(resultList, pageNum, pageSize, (int) total);
+                            });
+                })
+                .map(ResponseView::success);
     }
 
     @Override
@@ -67,19 +194,27 @@ public class UserController implements UserEndpoints
     @Override
     public Mono<ResponseView<UserProfileView>> update(@RequestBody UpdateUserRequest updateUserRequest, ServerWebExchange exchange) {
         return sessionUserService.getVisitorId()
-                .flatMap(uid -> {
-                    User updateUser = new User();
-                    if (StringUtils.isNotBlank(updateUserRequest.getName())) {
-                        updateUser.setName(updateUserRequest.getName());
-                        updateUser.setHasSetNickname(true);
-                    }
-                    if (StringUtils.isNotBlank(updateUserRequest.getUiLanguage())) {
-                        updateUser.setUiLanguage(updateUserRequest.getUiLanguage());
-                    }
-                    return userService.update(uid, updateUser);
-                })
-                .flatMap(user -> userHomeApiService.buildUserProfileView(user, exchange))
-                .map(ResponseView::success);
+                .flatMap(uid -> updateUser(uid, updateUserRequest, exchange));
+    }
+
+    @Override
+    public Mono<ResponseView<UserProfileView>> update(@PathVariable String orgId, @PathVariable String userId, @RequestBody UpdateUserRequest updateUserRequest, ServerWebExchange exchange) {
+        return orgApiService.checkVisitorAdminRole(orgId)
+                .flatMap(__ -> updateUser(userId, updateUserRequest, exchange));
+    }
+
+    public Mono<ResponseView<UserProfileView>> updateUser(String userId, @RequestBody UpdateUserRequest updateUserRequest, ServerWebExchange exchange) {
+        User updateUser = new User();
+        if (StringUtils.isNotBlank(updateUserRequest.getName())) {
+            updateUser.setName(updateUserRequest.getName());
+            updateUser.setHasSetNickname(true);
+        }
+        if (StringUtils.isNotBlank(updateUserRequest.getUiLanguage())) {
+            updateUser.setUiLanguage(updateUserRequest.getUiLanguage());
+        }
+        return userService.update(userId, updateUser)
+            .flatMap(user -> userHomeApiService.buildUserProfileView(user, exchange))
+            .map(ResponseView::success);
     }
 
     @Override
@@ -90,9 +225,24 @@ public class UserController implements UserEndpoints
     }
 
     @Override
+    public Mono<ResponseView<Boolean>> uploadProfilePhotoById(@PathVariable String orgId, @PathVariable String userId, @RequestPart("file") Mono<Part> fileMono) {
+        return orgApiService.checkVisitorAdminRole(orgId).flatMap(__ -> userService.findById(userId))
+                .zipWith(fileMono)
+                .flatMap(tuple -> userService.saveProfilePhoto(tuple.getT2(), tuple.getT1()))
+                .map(ResponseView::success);
+    }
+
+    @Override
     public Mono<ResponseView<Void>> deleteProfilePhoto() {
         return sessionUserService.getVisitor()
                 .flatMap(visitor -> userService.deleteProfilePhoto(visitor)
+                        .map(ResponseView::success));
+    }
+
+    @Override
+    public Mono<ResponseView<Void>> deleteProfilePhotoById(@PathVariable String orgId, @PathVariable String userId) {
+        return orgApiService.checkVisitorAdminRole(orgId).flatMap(__ -> userService.findById(userId))
+                .flatMap(user -> userService.deleteProfilePhoto(user)
                         .map(ResponseView::success));
     }
 

@@ -12,11 +12,12 @@ import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConst
 import { styleControl } from "comps/controls/styleControl";
 import {  AnimationStyle, InputFieldStyle, LabelStyle, RatingStyle, RatingStyleType } from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
-import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
+import { withLinkedDefaultValue } from "comps/controls/codeStateControl";
+import { disabledPropertyView, hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
-import { useContext, useEffect, useRef } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEffect, useRef } from "react";
+import { useEditorStore } from "comps/editorStore";
 
 const EventOptions = [changeEvent] as const;
 
@@ -43,24 +44,39 @@ const RatingBasicComp = (function () {
     allowHalf: BoolControl,
     disabled: BoolCodeControl,
     onEvent: eventHandlerControl(EventOptions),
-    style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(InputFieldStyle, 'style') , 
+    animationStyle: styleControl(AnimationStyle, 'animationStyle'),
     labelStyle: styleControl(
       LabelStyle.filter(
         (style) => ['accent', 'validate'].includes(style.name) === false
-      )
+      ),
+      'labelStyle',
     ),
-    inputFieldStyle: migrateOldData(styleControl(RatingStyle), fixOldData),
+    inputFieldStyle: migrateOldData(styleControl(RatingStyle, 'inputFieldStyle'), fixOldData),
+    tabIndex: NumberControl,
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
-    const defaultValue = { ...props.defaultValue }.value;
     const value = { ...props.value }.value;
-    const changeRef = useRef(false)
+    const changeRef = useRef(false);
+    const mountedRef = useRef(true);
+    const rateRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
-      props.value.onChange(defaultValue);
-    }, [defaultValue]);
+      if (!mountedRef.current) return;
+      if (rateRef.current && typeof props.tabIndex === 'number') {
+        const stars = rateRef.current.querySelectorAll('li');
+        stars.forEach((star, index) => {
+          (star as HTMLElement).setAttribute('tabindex', (props.tabIndex + index).toString());
+        });
+      }
+    }, [props.tabIndex, props.max]);
+
+    useEffect(() => {
+      return () => {
+        mountedRef.current = false;
+      };
+    }, []);
 
     useEffect(() => {
       if (!changeRef.current) return;
@@ -75,9 +91,10 @@ const RatingBasicComp = (function () {
       inputFieldStyle:props.inputFieldStyle,
       animationStyle:props.animationStyle,
       children: (
-        <RateStyled
+        <div ref={rateRef}>
+          <RateStyled
           count={props.max}
-          value={props.value.value}
+          value={value}
           onChange={(e) => {
             props.value.onChange(e);
             changeRef.current = true;
@@ -85,11 +102,14 @@ const RatingBasicComp = (function () {
           allowHalf={props.allowHalf}
           disabled={props.disabled}
           $style={props.inputFieldStyle}
+          tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
         />
+        </div>
       ),
     });
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
@@ -101,11 +121,13 @@ const RatingBasicComp = (function () {
 
           <FormDataPropertyView {...children} />
 
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["logic", "both"].includes(editorModeStatus) && (
             <><Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
+              {showDataLoadingIndicatorsPropertyView(children)}
+              {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
             </Section>
               <Section name={sectionNames.advanced}>
                 {children.allowHalf.propertyView({
@@ -115,11 +137,11 @@ const RatingBasicComp = (function () {
             </>
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             children.label.getPropertyView()
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             <>
               <Section name={sectionNames.style}>
                 {children.style.getPropertyView()}
@@ -141,11 +163,14 @@ const RatingBasicComp = (function () {
     .build();
 })();
 
-export const RatingComp = withExposingConfigs(RatingBasicComp, [
-  new NameConfig("value", trans("export.ratingValueDesc")),
-  new NameConfig("max", trans("export.ratingMaxDesc")),
-  ...CommonNameConfig,
-]);
+export const RatingComp = withExposingConfigs(
+  withLinkedDefaultValue(RatingBasicComp, "defaultValue", "value"),
+  [
+    new NameConfig("value", trans("export.ratingValueDesc")),
+    new NameConfig("max", trans("export.ratingMaxDesc")),
+    ...CommonNameConfig,
+  ]
+);
 
 const getStyle = (style: RatingStyleType) => {
   return css`

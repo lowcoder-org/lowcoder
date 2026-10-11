@@ -1,15 +1,17 @@
 import { default as Skeleton } from "antd/es/skeleton";
-import { simpleMultiComp } from "comps/generators";
+import { simpleMultiComp, withIsLoading } from "comps/generators";
 import { withExposingConfigs } from "comps/generators/withExposing";
 import { GreyTextColor } from "constants/style";
 import log from "loglevel";
 import { Comp, CompAction, CompConstructor, CompParams, customAction, isCustomAction } from "lowcoder-core";
 import { WhiteLoading } from "lowcoder-design";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useMount } from "react-use";
 import styled from "styled-components";
-import { RemoteCompInfo, RemoteCompLoader } from "types/remoteComp";
+import { RemoteCompInfo } from "types/remoteComp";
 import { withErrorBoundary } from "comps/generators/withErrorBoundary";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import React from "react";
 
 const ViewError = styled.div`
   display: flex;
@@ -47,11 +49,14 @@ interface LazyCompViewProps {
   loadComp: () => Promise<void>;
   loadingElement?: () => React.ReactNode;
   errorElement?: (error: any) => React.ReactNode;
+  height?: number,
 }
 
-function LazyCompView(props: React.PropsWithChildren<LazyCompViewProps>) {
+const LazyCompView = React.memo((props: React.PropsWithChildren<LazyCompViewProps>) => {
   const { loadComp, loadingElement, errorElement } = props;
   const [error, setError] = useState<any>("");
+  const currentTheme = useContext(ThemeContext)?.theme;
+  const showComponentLoadingIndicators = currentTheme?.showComponentLoadingIndicators;
 
   useMount(() => {
     setError("");
@@ -71,16 +76,16 @@ function LazyCompView(props: React.PropsWithChildren<LazyCompViewProps>) {
     );
   }
 
+  if (!showComponentLoadingIndicators) return<></>;
+
   if (loadingElement) {
     return <ViewLoadingWrapper>{loadingElement()}</ViewLoadingWrapper>;
   }
 
   return (
-    <ViewLoadingWrapper>
-      <WhiteLoading />
-    </ViewLoadingWrapper>
+    <WhiteLoading compHeight={props.height} />
   );
-}
+});
 
 export type LazyloadCompLoader<T = RemoteCompInfo> = () => Promise<CompConstructor | null>;
 
@@ -88,7 +93,9 @@ export function lazyLoadComp(
   compName?: string,
   compPath?: string,
   loader?: LazyloadCompLoader,
-  loadingElement?: () => React.ReactNode
+  loadingElement?: () => React.ReactNode,
+  withoutLoading?: boolean,
+  height?: number,
 ) {
   class LazyLoadComp extends simpleMultiComp({}) {
     compValue: any;
@@ -115,6 +122,8 @@ export function lazyLoadComp(
         return;
       }
 
+      LazyExportedComp = withoutLoading ? LazyExportedComp : withIsLoading(LazyExportedComp);
+
       const params: CompParams<any> = {
         dispatch: this.dispatch,
       };
@@ -138,7 +147,12 @@ export function lazyLoadComp(
       // const key = `${remoteInfo?.packageName}-${remoteInfo?.packageVersion}-${remoteInfo?.compName}`;
       const key = `${compName}`;
       return (
-        <LazyCompView key={key} loadComp={() => this.load()} loadingElement={loadingElement} />
+        <LazyCompView
+          key={key}
+          loadComp={() => this.load()}
+          loadingElement={loadingElement}
+          height={height}
+        />
       );
     }
 

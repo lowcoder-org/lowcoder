@@ -7,6 +7,7 @@ import org.lowcoder.infra.constant.Url;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,5 +47,20 @@ public interface InvitationEndpoints
 	)
     @GetMapping("/{invitationId}/invite")
     public Mono<ResponseView<?>> inviteUser(@PathVariable String invitationId);
+	
+	@Operation(
+			tags = TAG_INVITATION_MANAGEMENT,
+			operationId = "sendInvitationEmails",
+			summary = "Send invitation emails",
+			description = "Send invitation emails to the specified addresses"
+	)
+	@PostMapping("/email/invite")
+	public Mono<ResponseView<Boolean>> sendInvitationEmails(@RequestBody InviteEmailRequest req);
+	/**
+	 * @param emails email addresses to send the invitation to
+	 * @param inviteLink the link to be included in the email
+	 */
+	public record InviteEmailRequest(String[] emails, String orgId) {
+	}
 
 }

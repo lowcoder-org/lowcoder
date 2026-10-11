@@ -1,17 +1,18 @@
-import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import { BoolCodeControl, StringControl, NumberControl } from "comps/controls/codeControl";
 import { withDefault } from "comps/generators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import {
   disabledPropertyView,
   hiddenPropertyView,
   loadingPropertyView,
+  showDataLoadingIndicatorsPropertyView,
 } from "comps/utils/propertyUtils";
 import { Section, sectionNames } from "lowcoder-design";
 import { trans } from "i18n";
 import styled from "styled-components";
 import { ChangeEventHandlerControl } from "../../controls/eventHandlerControl";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
-import { Button100, ButtonCompWrapper, buttonRefMethods } from "./buttonCompConstants";
+import { Button100, ButtonCompWrapper, buttonRefMethods, DisabledButtonStyleControl } from "./buttonCompConstants";
 import { IconControl } from "comps/controls/iconControl";
 import { AlignWithStretchControl, LeftRightControl } from "comps/controls/dropdownControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
@@ -23,8 +24,9 @@ import {
 import { styleControl } from "comps/controls/styleControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { RefControl } from "comps/controls/refControl";
-import React, { useContext } from "react";
-import { EditorContext } from "comps/editorState"; 
+import React, { useEffect } from "react";
+import { useEditorStore } from "comps/editorStore";
+import { Tooltip } from "antd";
 
 const IconWrapper = styled.div`
   display: flex;
@@ -60,40 +62,50 @@ const ToggleTmpComp = (function () {
     falseIcon: withDefault(IconControl, "/icon:solid/AngleDown"),
     iconPosition: LeftRightControl,
     alignment: AlignWithStretchControl,
-    style: styleControl(ToggleButtonStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(ToggleButtonStyle , 'style'),
+    disabledStyle: DisabledButtonStyleControl,
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
     showBorder: withDefault(BoolControl, true),
     viewRef: RefControl<HTMLElement>,
+    tooltip: StringControl,
+    tabIndex: NumberControl,
   };
   return new UICompBuilder(childrenMap, (props) => {
     const text = props.showText
       ? (props.value.value ? props.trueText : props.falseText) || undefined
       : undefined;
+
     return (
       <ButtonCompWrapperStyled
-        disabled={props.disabled}
+        $disabled={props.disabled}
         $align={props.alignment}
         $showBorder={props.showBorder}
         $animationStyle={props.animationStyle}
       >
-        <Button100
-          ref={props.viewRef}
-          $buttonStyle={props.style}
-          loading={props.loading}
-          disabled={props.disabled}
-          onClick={() => {
-            props.onEvent("change");
-            props.value.onChange(!props.value.value);
-          }}
-        >
-          {props.iconPosition === "right" && text}
-          {<IconWrapper>{props.value.value ? props.trueIcon : props.falseIcon}</IconWrapper>}
-          {props.iconPosition === "left" && text}
-        </Button100>
+        <Tooltip title={props.tooltip}>
+          <Button100
+            ref={props.viewRef}
+            $buttonStyle={props.style}
+            $disabledStyle={props.disabledStyle}
+            loading={props.loading}
+            disabled={props.disabled}
+            onClick={() => {
+              props.onEvent("change");
+              props.value.onChange(!props.value.value);
+            }}
+            tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
+          >
+            {props.iconPosition === "right" && text}
+            {<IconWrapper>{props.value.value ? props.trueIcon : props.falseIcon}</IconWrapper>}
+            {props.iconPosition === "left" && text}
+          </Button100>
+        </Tooltip>
       </ButtonCompWrapperStyled>
     );
   })
-    .setPropertyViewFn((children) => (
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
         <Section name={sectionNames.basic}>
           {children.value.propertyView({
@@ -102,15 +114,18 @@ const ToggleTmpComp = (function () {
           })}
         </Section>
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "logic" || editorModeStatus === "both") && (
           <><Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
               {loadingPropertyView(children)}
+              {showDataLoadingIndicatorsPropertyView(children)}
+              {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
             </Section>
             <Section name={sectionNames.advanced}>
               {children.showText.propertyView({ label: trans("toggleButton.showText") })}
+              {children.tooltip.propertyView({label: trans("labelProp.tooltip")})}
               {children.showText.getView() && 
                 children.trueText.propertyView({ label: trans("toggleButton.trueLabel") })}
               {children.showText.getView() &&
@@ -130,8 +145,8 @@ const ToggleTmpComp = (function () {
           </>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" ||
-          useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "layout" ||
+          editorModeStatus === "both") && (
           <>
             <Section name={sectionNames.style}>
               {children.showBorder.propertyView({
@@ -145,8 +160,10 @@ const ToggleTmpComp = (function () {
           </>
           )}
         
+        <Section name={trans("prop.disabledStyle")}>{children.disabledStyle.getPropertyView()}</Section>
       </>
-    ))
+    );
+    })
     .setExposeMethodConfigs(buttonRefMethods)
     .build();
 })();

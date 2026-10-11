@@ -10,6 +10,7 @@ interface UploadResponse {
 export enum MaterialUploadTypeEnum {
   LOGO = "LOGO",
   FAVICON = "FAVICON",
+  COMMON = "COMMON",
 }
 
 class MaterialApi extends Api {

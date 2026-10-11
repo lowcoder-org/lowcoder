@@ -1,0 +1,14 @@
+{
+  "id": "Folder.id",
+  "createdBy": "Folder.createdBy",
+  "organizationId": "Folder.organizationId",
+  "gid": "Folder.gid",
+  "parentFolderId": "Folder.parentFolderId",
+  "parentFolderGid": "Folder.parentFolderGid",
+  "name": "Folder.name",
+  "title": "Folder.title",
+  "description": "Folder.description",
+  "category": "Folder.category",
+  "type": "Folder.type",
+  "image": "Folder.image"
+}

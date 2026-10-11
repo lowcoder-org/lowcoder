@@ -2,6 +2,7 @@ import { EditorContext, EditorState } from "comps/editorState";
 import { sameTypeMap, stateComp, valueComp } from "comps/generators";
 import { addMapChildAction, addMapCompChildAction } from "comps/generators/sameTypeMap";
 import { hookCompCategory, HookCompType } from "comps/hooks/hookCompTypes";
+import { shouldOpenOverlayOnCreate } from "comps/hooks/hookSelection";
 import { UICompLayoutInfo, uiCompRegistry, UICompType } from "comps/uiCompRegistry";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { parseCompType } from "comps/utils/remote";
@@ -22,9 +23,10 @@ import {
   calcRowCount,
   calcRowHeight,
   DEFAULT_GRID_COLUMNS,
+  DEFAULT_ROW_COUNT,
   DEFAULT_ROW_HEIGHT,
 } from "layout/calculateUtils";
-import _ from "lodash";
+import _, { isEqual } from "lodash";
 import {
   ActionExtraInfo,
   changeChildAction,
@@ -53,14 +55,16 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useResizeDetector } from "react-resize-detector";
+import { useEditorStore } from "comps/editorStore";
+import { ResizePayload, useResizeDetector } from "react-resize-detector";
 import styled from "styled-components";
 import { checkIsMobile } from "util/commonUtils";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { selectCompModifierKeyPressed } from "util/keyUtils";
 import { defaultLayout, GridItemComp, GridItemDataType } from "../gridItemComp";
 import { ThemeContext } from "comps/utils/themeContext";
-import { defaultTheme } from "comps/controls/styleControlConstants";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
+import { ExpandViewContext } from "../tableComp/expansionControl";
 
 const childrenMap = {
   layout: valueComp<Layout>({}),
@@ -121,7 +125,13 @@ type ExtraProps = {
   isSelectable?: boolean;
   overflow?: string;
   enableGridLines?: boolean;
+  horizontalGridCells?: number;
   onRowCountChange?: (rowHeight: number) => void;
+  /**
+   * When a module (CanvasView) is used inside a ListView/Grid, each instance
+   * must not reuse the app-wide canvas id or portals / queries collide.
+   */
+  canvasContainerId?: string;
 };
 
 type DispatchProps = { dispatch: DispatchType };
@@ -207,13 +217,16 @@ const onDrop = async (
   // log.debug("layout: onDrop start. layout: ", layout, " items: ", items, " compType: ", compType);
   if (hookCompCategory(compType) === "ui") {
     const compName = editorState.getNameGenerator().genItemName(compType);
+    const hookValue = {
+      name: compName,
+      compType: compType as HookCompType,
+      ...(shouldOpenOverlayOnCreate(compType) && { comp: { visible: true } }),
+    };
     editorState
       .getHooksComp()
       .dispatch(
         wrapActionExtraInfo(
-          editorState
-            .getHooksComp()
-            .pushAction({ name: compName, compType: compType as HookCompType }),
+          editorState.getHooksComp().pushAction(hookValue),
           { compInfos: [{ compName: compName, compType: compType, type: "add" }] }
         )
       );
@@ -222,9 +235,10 @@ const onDrop = async (
     const nameGenerator = editorState.getNameGenerator();
     const compInfo = parseCompType(compType);
     const compName = nameGenerator.genItemName(compInfo.compName);
+    const isLazyLoadComp = uiCompRegistry[compType as UICompType]?.lazyLoad;
     let defaultDataFn = undefined;
     
-    if (!compInfo.isRemote) {
+    if (isLazyLoadComp) {
       const {
         defaultDataFnName,
         defaultDataFnPath,
@@ -234,6 +248,8 @@ const onDrop = async (
         const module = await import(`../../${defaultDataFnPath}.tsx`);
         defaultDataFn = module[defaultDataFnName];
       }
+    } else if(!compInfo.isRemote) {
+      defaultDataFn = uiCompRegistry[compType as UICompType]?.defaultDataFn;
     }
 
     const widgetValue: GridItemDataType = {
@@ -293,9 +309,10 @@ const getExtraLayout = (
     const autoHeight = item.autoHeight;
     const name = item.name;
     const compType = item.compType;
+    const comp = item.comp;
     const isSelected = selectedCompNames.has(name) || dragSelectedNames?.has?.(name);
     const hidden = item.hidden;
-    return { autoHeight, isSelected, name, hidden, compType };
+    return { autoHeight, isSelected, name, hidden, compType, comp };
   });
 };
 
@@ -311,24 +328,24 @@ const ItemWrapper = styled.div<{ $disableInteract?: boolean }>`
   pointer-events: ${(props) => (props.$disableInteract ? "none" : "unset")};
 `;
 
-const GridItemWrapper = React.forwardRef(
+const GridItemWrapper = React.memo(React.forwardRef(
   (
     props: React.PropsWithChildren<HTMLAttributes<HTMLDivElement>>,
     ref: React.ForwardedRef<HTMLDivElement>
   ) => {
-    const editorState = useContext(EditorContext);
+    const disableInteract = useEditorStore((state) => state.disableInteract);
     const { children, ...divProps } = props;
     return (
-      <ItemWrapper ref={ref} $disableInteract={editorState.disableInteract} {...divProps}>
+      <ItemWrapper ref={ref} $disableInteract={disableInteract} {...divProps}>
         {props.children}
       </ItemWrapper>
     );
   }
-);
+));
 
 type GirdItemViewRecord = Record<string, GridItem>;
 
-export function InnerGrid(props: ViewPropsWithSelect) {
+export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
   const {
     positionParams,
     rowCount = Infinity,
@@ -337,32 +354,41 @@ export function InnerGrid(props: ViewPropsWithSelect) {
     enableGridLines,
     isRowCountLocked,
   } = props;
+  const horizontalGridCells = props.horizontalGridCells ? String(props.horizontalGridCells) : undefined;
+  const currentTheme = useContext(ThemeContext)?.theme;
   const [currentRowCount, setRowCount] = useState(rowCount || Infinity);
-  const [currentRowHeight, setRowHeight] = useState(DEFAULT_ROW_HEIGHT);
+  const [currentRowHeight, setRowHeight] = useState(positionParams.rowHeight || DEFAULT_ROW_HEIGHT);
   const editorState = useContext(EditorContext);
+  const selectedCompNames = useEditorStore((state) => state.selectedCompNames);
+  const isDragging = useEditorStore((state) => state.isDragging);
+  const showGridLines = useEditorStore((state) => state.isDragging || state.forceShowGrid);
   const { readOnly } = useContext(ExternalEditorContext);
+  const appSettingsComp = editorState?.getAppSettingsComp().getView();
+
+  const maxWidth = useMemo(() => appSettingsComp?.maxWidth, [appSettingsComp?.maxWidth]);
 
   // Falk: TODO: Here we can define the inner grid columns dynamically
-  //Added By Aqib Mirza
-  const defaultGrid =
-    useContext(ThemeContext)?.theme?.gridColumns ||
-    defaultTheme?.gridColumns ||
-    "12";
-  /////////////////////
+  const defaultGrid = useMemo(() => {
+    return horizontalGridCells
+      || String(positionParams.cols)
+      || String(DEFAULT_GRID_COLUMNS);
+  }, [horizontalGridCells, positionParams.cols]);
+
+  const isExpandView = useContext(ExpandViewContext);
   const isDroppable =
-    useContext(IsDroppable) && (_.isNil(props.isDroppable) || props.isDroppable) && !readOnly;
-  const isDraggable = !readOnly && (_.isNil(props.isDraggable) || props.isDraggable);
-  const isResizable = !readOnly && (_.isNil(props.isResizable) || props.isResizable);
-  const isSelectable = !readOnly && (_.isNil(props.isSelectable) || props.isSelectable);
+    useContext(IsDroppable) && (_.isNil(props.isDroppable) || props.isDroppable) && !readOnly && !isExpandView;
+  const isDraggable = !readOnly  && !isExpandView && (_.isNil(props.isDraggable) || props.isDraggable);
+  const isResizable = !readOnly  && !isExpandView && (_.isNil(props.isResizable) || props.isResizable);
+  const isSelectable = !readOnly  && !isExpandView && (_.isNil(props.isSelectable) || props.isSelectable);
   const extraLayout = useMemo(
     () =>
       getExtraLayout(
         props.items,
         props.layout,
-        editorState.selectedCompNames,
+        selectedCompNames,
         props.dragSelectedComps
       ),
-    [props.items, props.layout, editorState.selectedCompNames, props.dragSelectedComps]
+    [props.items, props.layout, selectedCompNames, props.dragSelectedComps]
   );
 
   const [containerSelectNames, setContainerSelectNames] = useState<Set<string>>(new Set([]));
@@ -379,13 +405,23 @@ export function InnerGrid(props: ViewPropsWithSelect) {
   }, [extraLayout, containerSelectNames]);
 
   const canAddSelect = useMemo(
-    () => _.size(containerSelectNames) === _.size(editorState.selectedCompNames),
-    [containerSelectNames, editorState]
+    () => _.size(containerSelectNames) === _.size(selectedCompNames),
+    [containerSelectNames, selectedCompNames]
   );
 
   const dispatchPositionParamsTimerRef = useRef(0);
+  
+  // Add cleanup for timeout
+  useEffect(() => {
+    return () => {
+      if (dispatchPositionParamsTimerRef.current) {
+        window.clearTimeout(dispatchPositionParamsTimerRef.current);
+      }
+    };
+  }, []);
+
   const onResize = useCallback(
-    (width?: number, height?: number) => {
+    ({width, height}: ResizePayload) => {
       if(!width || !height) return;
 
       if (width !== positionParams.containerWidth) {
@@ -426,17 +462,39 @@ export function InnerGrid(props: ViewPropsWithSelect) {
       isRowCountLocked,
       onPositionParamsChange,
       onRowCountChange,
-      positionParams,
-      props,
+      JSON.stringify(positionParams),
+      JSON.stringify(props.containerPadding),
+      props.dispatch,
     ]
   );
+
+  // Cleanup resize detector
+  const { width, ref } = useResizeDetector({
+    onResize,
+    handleHeight: isRowCountLocked,
+    refreshMode: 'debounce',
+    refreshRate: 100,
+  });
+
   const setSelectedNames = useCallback(
     (names: Set<string>) => {
-      editorState.setSelectedCompNames(names);
+      editorState?.setSelectedCompNames(names);
     },
-    [editorState]
+    [editorState?.setSelectedCompNames]
   );
-  const { width, ref } = useResizeDetector({ onResize, handleHeight: isRowCountLocked });
+
+  // Cleanup item references when items are removed
+  useEffect(() => {
+    const currentKeys = new Set(Object.keys(props.items));
+    const refKeys = new Set(Object.keys(itemViewRef.current));
+    
+    // Remove references to items that no longer exist
+    refKeys.forEach(key => {
+      if (!currentKeys.has(key)) {
+        delete itemViewRef.current[key];
+      }
+    });
+  }, [props.items]);
 
   const itemViewRef = useRef<GirdItemViewRecord>({});
   const itemViews = useMemo(() => {
@@ -459,31 +517,30 @@ export function InnerGrid(props: ViewPropsWithSelect) {
   const clickItem = useCallback(
     (
       e: React.MouseEvent<HTMLDivElement,
-      globalThis.MouseEvent>, name: string
+      globalThis.MouseEvent>,
+      name: string,
     ) => selectItem(e, name, canAddSelect, containerSelectNames, setSelectedNames),
-    [canAddSelect, containerSelectNames, setSelectedNames]
+    [selectItem, canAddSelect, containerSelectNames, setSelectedNames]
   );
 
   useEffect(() => {
     if (!isRowCountLocked) {
-      setRowHeight(DEFAULT_ROW_HEIGHT);
+      setRowHeight(positionParams.rowHeight || DEFAULT_ROW_HEIGHT);
       setRowCount(Infinity);
       onRowCountChange?.(0);
     }
-  }, [isRowCountLocked, onRowCountChange]);
-
-  const maxWidth = editorState.getAppSettings().maxWidth;
+  }, [isRowCountLocked, positionParams.rowHeight, onRowCountChange]);
 
   // log.info("rowCount:", currentRowCount, "rowHeight:", currentRowHeight);
 
   return (
     <ReactGridLayout
-      innerRef={ref}
+      innerRef={ref as RefObject<HTMLDivElement>}
       className={props.className}
       style={props.style}
       scrollContainerRef={props.scrollContainerRef}
       width={width ?? 0}
-      showGridLines={editorState.showGridLines() && (isDroppable || enableGridLines)}
+      showGridLines={showGridLines && (isDroppable || enableGridLines)}
       isRowCountLocked={isRowCountLocked}
       isDraggable={isDraggable}
       isResizable={isResizable}
@@ -500,7 +557,7 @@ export function InnerGrid(props: ViewPropsWithSelect) {
             : defaultLayout(compType);
           return {
             size: compLayout ?? defaultSize,
-            positionParams: editorState.canvasPositionParams(),
+            positionParams: editorState?.canvasPositionParams(),
           };
         }
       }}
@@ -516,20 +573,21 @@ export function InnerGrid(props: ViewPropsWithSelect) {
         const items = _.pick(props.items, Object.keys(layoutItems));
         draggingUtils.setData("sourceDispatch", props.dispatch);
         draggingUtils.setData<Record<string, GridItem>>("items", items);
-        editorState.setDragging(true);
+        editorState?.setDragging(true);
         const names = Object.values(items).map((item) => item.name);
-        editorState.setSelectedCompNames(new Set(names));
+        editorState?.setSelectedCompNames(new Set(names));
       }}
       onFlyDrop={(layout, items) => {
         onFlyDrop(layout, items, props.dispatch);
       }}
       onResizeStart={(_a, _b, _c, _d, event) => {
         event.stopPropagation();
-        editorState.setDragging(true);
+        editorState?.setDragging(true);
       }}
-      onResizeStop={() => editorState.setDragging(false)}
+      onResizeStop={() => editorState?.setDragging(false)}
       margin={[0, 0]}
       containerPadding={props.containerPadding}
+      fixedRowCount={props.emptyRows !== DEFAULT_ROW_COUNT}
       emptyRows={props.emptyRows}
       maxRows={currentRowCount}
       rowHeight={currentRowHeight}
@@ -540,17 +598,19 @@ export function InnerGrid(props: ViewPropsWithSelect) {
       minHeight={props.minHeight}
       bgColor={props.bgColor}
       radius={props.radius}
-      hintPlaceholder={!editorState.isDragging && !readOnly && props.hintPlaceholder}
+      hintPlaceholder={!isDragging && !readOnly && props.hintPlaceholder}
       selectedSize={_.size(containerSelectNames)}
       clickItem={clickItem}
       isCanvas={props.isCanvas}
       showName={props.showName}
-      disableDirectionKey={editorState.isDragging || readOnly}
+      disableDirectionKey={isDragging || readOnly}
     >
       {itemViews}
     </ReactGridLayout>
   );
-}
+}, (prevProps, newProps) => {
+  return isEqual(prevProps, newProps);
+});
 
 function selectItem(
   e: MouseEvent<HTMLDivElement>,

@@ -1,0 +1,86 @@
+{
+  "from" : {
+    "full" : {
+      "class" : "org.lowcoder.plugin.clickhouse.model.ClickHouseQueryConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.clickhouse.model.ClickHouseQueryConfig",
+        "sql" : "  select number from system.numbers limit {{n}}  ",
+        "disablePreparedStatement" : true,
+        "timeout" : 30
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.clickhouse.model.ClickHouseQueryConfig",
+        "/sql" : "java.lang.String",
+        "/disablePreparedStatement" : "java.lang.Boolean",
+        "/timeout" : "java.lang.Integer"
+      },
+      "noView" : {"sql":"select number from system.numbers limit {{n}}","disablePreparedStatement":true,"timeout":30},
+      "Public" : {"sql":"select number from system.numbers limit {{n}}","disablePreparedStatement":true,"timeout":30},
+      "Internal" : {"sql":"select number from system.numbers limit {{n}}","disablePreparedStatement":true,"timeout":30}
+    },
+    "scalarsAsStrings" : {
+      "class" : "org.lowcoder.plugin.clickhouse.model.ClickHouseQueryConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.clickhouse.model.ClickHouseQueryConfig",
+        "sql" : "select 1",
+        "disablePreparedStatement" : false,
+        "timeout" : 15
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.clickhouse.model.ClickHouseQueryConfig",
+        "/sql" : "java.lang.String",
+        "/disablePreparedStatement" : "java.lang.Boolean",
+        "/timeout" : "java.lang.Integer"
+      },
+      "noView" : {"sql":"select 1","disablePreparedStatement":false,"timeout":15},
+      "Public" : {"sql":"select 1","disablePreparedStatement":false,"timeout":15},
+      "Internal" : {"sql":"select 1","disablePreparedStatement":false,"timeout":15}
+    },
+    "decimalTimeout" : {
+      "class" : "org.lowcoder.plugin.clickhouse.model.ClickHouseQueryConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.clickhouse.model.ClickHouseQueryConfig",
+        "sql" : "select 1",
+        "disablePreparedStatement" : false,
+        "timeout" : 2
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.clickhouse.model.ClickHouseQueryConfig",
+        "/sql" : "java.lang.String",
+        "/disablePreparedStatement" : "java.lang.Boolean",
+        "/timeout" : "java.lang.Integer"
+      },
+      "noView" : {"sql":"select 1","disablePreparedStatement":false,"timeout":2},
+      "Public" : {"sql":"select 1","disablePreparedStatement":false,"timeout":2},
+      "Internal" : {"sql":"select 1","disablePreparedStatement":false,"timeout":2}
+    },
+    "sqlMissing" : {
+      "class" : "org.lowcoder.plugin.clickhouse.model.ClickHouseQueryConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.clickhouse.model.ClickHouseQueryConfig",
+        "sql" : null,
+        "disablePreparedStatement" : false,
+        "timeout" : 1
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.clickhouse.model.ClickHouseQueryConfig",
+        "/sql" : "null",
+        "/disablePreparedStatement" : "java.lang.Boolean",
+        "/timeout" : "java.lang.Integer"
+      },
+      "noView" : {
+        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.clickhouse.model.ClickHouseQueryConfig[\"sql\"])"
+      },
+      "Public" : {
+        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.clickhouse.model.ClickHouseQueryConfig[\"sql\"])"
+      },
+      "Internal" : {
+        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.clickhouse.model.ClickHouseQueryConfig[\"sql\"])"
+      }
+    },
+    "empty" : {
+      "error" : "org.lowcoder.sdk.exception.PluginException: INVALID_QUERY_SETTINGS CLICKHOUSE_CONFIG_EMPTY"
+    },
+    "unknownProperty" : "ignored: binds as form full"
+  }
+}

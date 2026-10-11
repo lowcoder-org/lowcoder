@@ -1,15 +1,14 @@
 package org.lowcoder.api.application;
 
 
-import java.util.Map;
-import java.util.Set;
 
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.api.application.ApplicationEndpoints.CreateApplicationRequest;
 import org.lowcoder.api.application.view.ApplicationView;
+import org.lowcoder.api.common.InitData;
 import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.api.datasource.DatasourceApiService;
 import org.lowcoder.api.datasource.DatasourceApiServiceIntegrationTest;
@@ -17,21 +16,27 @@ import org.lowcoder.api.permission.view.CommonPermissionView;
 import org.lowcoder.api.permission.view.PermissionItemView;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationType;
+import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+
+import java.time.Instant;
+import java.util.Map;
+import java.util.Set;
+
 @SuppressWarnings({"OptionalGetWithoutIsPresent"})
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ActiveProfiles("ApplicationApiServiceIntegrationTest")
+//@RunWith(SpringRunner.class)
 @Slf4j(topic = "ApplicationApiServiceIntegrationTest")
 public class ApplicationApiServiceIntegrationTest {
 
@@ -39,6 +44,17 @@ public class ApplicationApiServiceIntegrationTest {
     private ApplicationApiService applicationApiService;
     @Autowired
     private DatasourceApiService datasourceApiService;
+    @Autowired
+    private ApplicationService applicationService;
+    @Autowired
+    private InitData initData;
+
+    private static final String EDITING_USER_ID = "user01";
+
+    @BeforeEach
+    public void beforeEach() {
+        initData.init();
+    }
 
     @SuppressWarnings("ConstantConditions")
     @Test
@@ -58,21 +74,22 @@ public class ApplicationApiServiceIntegrationTest {
         });
         //
         Mono<ApplicationView> applicationViewMono = datasourceMono.map(datasource -> new CreateApplicationRequest(
-                        "org01",
+                        "org01", null,
                         "app05",
                         ApplicationType.APPLICATION.getValue(),
-                        Map.of("comp", "table"),
                         Map.of("comp", "list", "queries", Set.of(Map.of("datasourceId", datasource.getId()))),
-                        null))
+                        null, null, null))
                 .delayUntil(__ -> deleteMono)
                 .flatMap(createApplicationRequest -> applicationApiService.create(createApplicationRequest));
 
         StepVerifier.create(applicationViewMono)
-                .assertNext(applicationView -> Assert.assertNotNull(applicationView.getApplicationInfoView().getApplicationId()))
+                .assertNext(applicationView -> {
+                    Assertions.assertNotNull(applicationView.getApplicationInfoView().getApplicationId());
+                    Assertions.assertTrue(FieldName.isGID(applicationView.getApplicationInfoView().getApplicationGid()));
+                })
                 .verifyComplete();
     }
 
-    @Ignore
     @SuppressWarnings("ConstantConditions")
     @Test
     @WithMockUser(id = "user02")
@@ -91,12 +108,11 @@ public class ApplicationApiServiceIntegrationTest {
         });
         //
         Mono<ApplicationView> applicationViewMono = datasourceMono.map(datasource -> new CreateApplicationRequest(
-                        "org01",
+                        "org01", null,
                         "app03",
                         ApplicationType.APPLICATION.getValue(),
-                        Map.of("comp", "table"),
                         Map.of("comp", "list", "queries", Set.of(Map.of("datasourceId", datasource.getId()))),
-                        null))
+                        null, null, null))
                 .delayUntil(__ -> deleteMono)
                 .flatMap(createApplicationRequest -> applicationApiService.create(createApplicationRequest))
                 .flatMap(applicationView -> {
@@ -104,7 +120,7 @@ public class ApplicationApiServiceIntegrationTest {
                             .editingApplicationDSL(applicationView.getApplicationDSL())
                             .name("app03")
                             .build();
-                    return applicationApiService.update(applicationView.getApplicationInfoView().getApplicationId(), application);
+                    return applicationApiService.update(applicationView.getApplicationInfoView().getApplicationId(), application, false);
                 });
 
         StepVerifier.create(applicationViewMono)
@@ -112,5 +128,33 @@ public class ApplicationApiServiceIntegrationTest {
                         && bizException.getError() == BizError.NOT_AUTHORIZED
                         && bizException.getMessageKey().equals("APPLICATION_EDIT_ERROR_LACK_OF_DATASOURCE_PERMISSIONS"))
                 .verify();
+    }
+
+    /**
+     * The editing user is set when an editor saves a history snapshot ({@code ApplicationHistorySnapshotController} calls
+     * {@link ApplicationService#updateLastEditedAt}) and cleared by {@code updateEditState} with {@code editingFinished =
+     * true}; {@code editingFinished = false} leaves it.
+     */
+    @Test
+    @WithMockUser
+    public void testUpdateEditingStateSuccess() {
+        Mono<String> applicationIdMono = applicationApiService.create(new CreateApplicationRequest("org01", null, "app1", ApplicationType.APPLICATION.getValue(), Map.of("comp", "list"), null, null, null))
+                .map(applicationView -> applicationView.getApplicationInfoView().getApplicationId())
+                .delayUntil(applicationId -> applicationService.updateLastEditedAt(applicationId, Instant.now(), EDITING_USER_ID))
+                .cache();
+
+        StepVerifier.create(applicationIdMono
+                        .delayUntil(applicationId -> applicationApiService.updateEditState(applicationId, new ApplicationEndpoints.UpdateEditStateRequest(false)))
+                        .flatMap(applicationId -> applicationApiService.getEditingApplication(applicationId, false)))
+                .assertNext(application -> Assertions.assertEquals(EDITING_USER_ID, application.getApplicationInfoView().getEditingUserId(),
+                        "editing not finished: the editing user stays"))
+                .verifyComplete();
+
+        StepVerifier.create(applicationIdMono
+                        .delayUntil(applicationId -> applicationApiService.updateEditState(applicationId, new ApplicationEndpoints.UpdateEditStateRequest(true)))
+                        .flatMap(applicationId -> applicationApiService.getEditingApplication(applicationId, false)))
+                .assertNext(application -> Assertions.assertEquals("", application.getApplicationInfoView().getEditingUserId(),
+                        "editing finished: the editing user is cleared"))
+                .verifyComplete();
     }
 }

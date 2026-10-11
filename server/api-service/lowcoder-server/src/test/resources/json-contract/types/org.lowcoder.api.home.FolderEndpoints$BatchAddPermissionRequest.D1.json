@@ -1,0 +1,5 @@
+{
+  "role" : "editor",
+  "userIds" : [ "FolderEndpoints.BatchAddPermissionRequest.userIds[0]", "FolderEndpoints.BatchAddPermissionRequest.userIds[1]" ],
+  "groupIds" : [ "FolderEndpoints.BatchAddPermissionRequest.groupIds[0]", "FolderEndpoints.BatchAddPermissionRequest.groupIds[1]" ]
+}

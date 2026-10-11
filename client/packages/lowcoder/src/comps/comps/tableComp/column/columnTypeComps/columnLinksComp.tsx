@@ -1,6 +1,6 @@
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { default as Menu } from "antd/es/menu";
 import { ColumnTypeCompBuilder } from "comps/comps/tableComp/column/columnTypeCompBuilder";
-import { ActionSelectorControlInContext } from "comps/controls/actionSelector/actionSelectorControl";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { manualOptionsControl } from "comps/controls/optionsControl";
 import { MultiCompBuilder } from "comps/generators";
@@ -9,6 +9,10 @@ import { trans } from "i18n";
 import styled from "styled-components";
 import { ColumnLink } from "comps/comps/tableComp/column/columnTypeComps/columnLinkComp";
 import { LightActiveTextColor, PrimaryColor } from "constants/style";
+import { clickEvent, eventHandlerControl, doubleClickEvent } from "comps/controls/eventHandlerControl";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
+import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
+import { fixOldActionData } from "comps/comps/tableComp/column/simpleColumnTypeComps";
 
 const MenuLinkWrapper = styled.div`
   > a {
@@ -36,10 +40,27 @@ const MenuWrapper = styled.div`
   }  
 `;
 
-const OptionItem = new MultiCompBuilder(
+const LinkEventOptions = [clickEvent, doubleClickEvent] as const;
+
+// Memoized menu item component
+const MenuItem = React.memo(({ option, index }: { option: any; index: number }) => {
+  return (
+    <MenuLinkWrapper>
+      <ColumnLink
+        disabled={option.disabled}
+        label={option.label}
+        onClick={option.onClick}
+      />
+    </MenuLinkWrapper>
+  );
+});
+
+MenuItem.displayName = 'MenuItem';
+
+const OptionItemTmp = new MultiCompBuilder(
   {
     label: StringControl,
-    onClick: ActionSelectorControlInContext,
+    onClick: eventHandlerControl(LinkEventOptions),
     hidden: BoolCodeControl,
     disabled: BoolCodeControl,
   },
@@ -51,18 +72,47 @@ const OptionItem = new MultiCompBuilder(
     return (
       <>
         {children.label.propertyView({ label: trans("label") })}
-        {children.onClick.propertyView({
-          label: trans("table.action"),
-          placement: "table",
-        })}
         {hiddenPropertyView(children)}
         {disabledPropertyView(children)}
+        {children.onClick.propertyView()}
       </>
     );
   })
   .build();
 
-export const ColumnLinksComp = (function () {
+const OptionItem = migrateOldData(OptionItemTmp, fixOldActionData);
+
+// Memoized menu component
+const LinksMenu = React.memo(({ options }: { options: any[] }) => {
+  const mountedRef = useRef(true);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const menuItems = useMemo(() => 
+    options
+      .filter((o) => !o.hidden)
+      .map((option, index) => ({
+        key: index,
+        label: <MenuItem option={option} index={index} />
+      })),
+    [options]
+  );
+
+  return (
+    <MenuWrapper>
+      <Menu mode="horizontal" items={menuItems} />
+    </MenuWrapper>
+  );
+});
+
+LinksMenu.displayName = 'LinksMenu';
+
+const ColumnLinksCompTmp = (function () {
   const childrenMap = {
     options: manualOptionsControl(OptionItem, {
       initOptions: [{ label: trans("table.option1") }],
@@ -71,28 +121,7 @@ export const ColumnLinksComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props) => {
-      const menuItems = props.options
-        .filter((o) => !o.hidden)
-        .map((option, index) => (
-          {
-            key: index,
-            label: (
-              <MenuLinkWrapper>
-                <ColumnLink
-                  disabled={option.disabled}
-                  label={option.label}
-                  onClick={option.onClick}
-                />
-              </MenuLinkWrapper>
-            )
-          }
-        ));
-
-      return (
-        <MenuWrapper>
-          <Menu mode="horizontal" items={menuItems}  />
-        </MenuWrapper>
-      )
+      return <LinksMenu options={props.options} />;
     },
     () => ""
   )
@@ -106,3 +135,5 @@ export const ColumnLinksComp = (function () {
     ))
     .build();
 })();
+
+export const ColumnLinksComp = migrateOldData(ColumnLinksCompTmp, fixOldActionData);

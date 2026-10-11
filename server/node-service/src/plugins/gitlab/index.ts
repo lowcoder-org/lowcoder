@@ -34,7 +34,7 @@ const gitlabPlugin: DataSourcePlugin<
 > = {
   id: "gitlab",
   name: "Gitlab",
-  category: "api",
+  category: "App Development",
   icon: "gitlab.svg",
   dataSourceConfig,
   queryConfig: graphQLQueryConfig,

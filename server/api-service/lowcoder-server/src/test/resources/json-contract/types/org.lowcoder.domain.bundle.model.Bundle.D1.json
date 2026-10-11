@@ -1,0 +1,47 @@
+{
+  "id" : "Bundle.id",
+  "createdBy" : "Bundle.createdBy",
+  "gid" : "Bundle.gid",
+  "organizationId" : "Bundle.organizationId",
+  "name" : "Bundle.name",
+  "title" : "Bundle.title",
+  "description" : "Bundle.description",
+  "category" : "Bundle.category",
+  "image" : "Bundle.image",
+  "bundleStatus" : "RECYCLED",
+  "publicToAll" : true,
+  "publicToMarketplace" : false,
+  "agencyProfile" : true,
+  "editingBundleDSL" : {
+    "layout" : {
+      "items" : [ {
+        "appId" : "Bundle.editingBundleDSL.layout.items[0].appId",
+        "order" : 40200
+      }, {
+        "appId" : "Bundle.editingBundleDSL.layout.items[1].appId",
+        "order" : 40201
+      } ],
+      "width" : 1.50
+    },
+    "settings" : {
+      "title" : "Bundle.editingBundleDSL.settings.title",
+      "maxWidth" : 40202
+    }
+  },
+  "publishedBundleDSL" : {
+    "layout" : {
+      "items" : [ {
+        "appId" : "Bundle.publishedBundleDSL.layout.items[0].appId",
+        "order" : 40200
+      }, {
+        "appId" : "Bundle.publishedBundleDSL.layout.items[1].appId",
+        "order" : 40201
+      } ],
+      "width" : 1.50
+    },
+    "settings" : {
+      "title" : "Bundle.publishedBundleDSL.settings.title",
+      "maxWidth" : 40202
+    }
+  }
+}

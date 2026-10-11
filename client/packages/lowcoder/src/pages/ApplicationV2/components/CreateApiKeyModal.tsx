@@ -13,6 +13,7 @@ import { validateResponse } from "api/apiUtils";
 import _ from "lodash";
 import { styled } from "styled-components";
 import UserApi, { ApiKeyPayload } from "api/userApi";
+import { ApiKeyType } from "./UserApiKeysCard";
 
 const CustomModalStyled = styled(CustomModal)`
   button {
@@ -90,7 +91,7 @@ const FormStyled = styled(Form)`
 type CreateApiKeyModalProps = {
   modalVisible: boolean;
   closeModal: () => void;
-  onConfigCreate: () => void;
+  onConfigCreate: (apiKey?: ApiKeyType) => void;
 };
 
 function CreateApiKeyModal(props: CreateApiKeyModalProps) {
@@ -101,6 +102,7 @@ function CreateApiKeyModal(props: CreateApiKeyModalProps) {
   } = props;
   const [form] = Form.useForm();
   const [saveLoading, setSaveLoading] = useState(false);
+  const [apiKey, setApiKey] = useState<{id: string, token: string}>();
 
   const handleOk = () => {
     form.validateFields().then(values => {
@@ -115,12 +117,15 @@ function CreateApiKeyModal(props: CreateApiKeyModalProps) {
       .then((resp) => {
         if (validateResponse(resp)) {
           messageInstance.success(trans("idSource.saveSuccess"));
+          onConfigCreate(resp.data.data);
         }
       })
-      .catch((e) => messageInstance.error(e.message))
+      .catch((e) => {
+        messageInstance.error(e.message);
+        onConfigCreate();
+      })
       .finally(() => {
         setSaveLoading(false);
-        onConfigCreate();
       });
   }
 
@@ -134,13 +139,15 @@ function CreateApiKeyModal(props: CreateApiKeyModalProps) {
       width="500px"
       title={"Create API Key"}
       open={modalVisible}
+      showOkButton
+      showCancelButton
       okText={"Save"}
       okButtonProps={{
         loading: saveLoading
       }}
       onOk={handleOk}
       onCancel={handleCancel}
-      destroyOnClose
+      destroyOnHidden
       afterClose={() => form.resetFields()}
     >
       <FormStyled

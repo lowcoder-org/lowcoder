@@ -22,7 +22,7 @@ import { useCompInstance } from "../../comps/utils/useCompInstance";
 import { QueryLibraryComp } from "../../comps/comps/queryLibrary/queryLibraryComp";
 import { useSearchParam, useThrottle } from "react-use";
 import { Comp } from "lowcoder-core";
-import { LibraryQuery } from "../../api/queryLibraryApi";
+import {LibraryQuery} from "../../api/queryLibraryApi";
 import { NameGenerator } from "../../comps/utils";
 import { QueryLibraryHistoryView } from "./QueryLibraryHistoryView";
 import { default as Form } from "antd/es/form";
@@ -46,6 +46,12 @@ import { importQueryLibrary } from "./importQueryLibrary";
 import { registryDataSourcePlugin } from "constants/queryConstants";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { Helmet } from "react-helmet";
+import {fetchQLPaginationByOrg} from "@lowcoder-ee/util/pagination/axios";
+import { isEmpty } from "lodash";
+import { getVersionOptions } from "@lowcoder-ee/util/versionOptions";
+import { VersionDataForm } from "../common/versionDataForm";
+import { processCurlData } from "../../util/curlUtils";
+import { createEditorStore, EditorStoreProvider } from "../../comps/editorStore";
 
 const Wrapper = styled.div`
   display: flex;
@@ -59,9 +65,23 @@ const RightContent = styled.div`
   position: relative;
 `;
 
+interface ElementsState {
+  elements: LibraryQuery[];
+  total: number;
+}
+
+function transformData(input: LibraryQuery[]) {
+  const output: any = {};
+  input.forEach((item) => {
+    output[item.id] = item;
+  });
+  return output;
+}
+
 export const QueryLibraryEditor = () => {
   const dispatch = useDispatch();
-  const queryLibrary = useSelector(getQueryLibrary);
+  // Query-library editor components render outside RootView, so they need their own store scope.
+  const [editorStore] = useState(createEditorStore);
   const queryLibraryRecords = useSelector(getQueryLibraryRecords);
   const originDatasourceInfo = useSelector(getDataSource);
   const currentUser = useSelector(getUser);
@@ -74,6 +94,12 @@ export const QueryLibraryEditor = () => {
   const [publishModalVisible, setPublishModalVisible] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [isDataSourceReady, setIsDataSourceReady] = useState(false);
+  const [elements, setElements] = useState<ElementsState>({ elements: [], total: 0 });
+  const [queryLibrary, setQueryLibrary] = useState<any>({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [searchValues, setSearchValues] = useState("");
+  const [modify, setModify] = useState(false);
 
   const selectedRecords = queryLibraryRecords[selectedQuery] ?? {};
   const libraryQuery = queryLibrary[selectedQuery];
@@ -99,8 +125,32 @@ export const QueryLibraryEditor = () => {
   useSaveQueryLibrary(libraryQuery, comp);
 
   useEffect(() => {
+        try {
+            fetchQLPaginationByOrg(
+                {
+                    name: searchValues,
+                    pageNum: currentPage,
+                    pageSize: pageSize,
+                }
+            ).then(result => {
+                if (result.success){
+                    setElements({elements: result.data || [], total: result.total || 1})
+                    setQueryLibrary(transformData(result.data || []));
+                }
+            });
+        } catch (error) {
+            console.error(error)
+        }
+  }, [currentPage, pageSize, searchValues, modify])
+
+    useEffect( () => {
+            if (searchValues !== "")
+                setCurrentPage(1);
+        }, [searchValues]
+    );
+
+  useEffect(() => {
     if (orgId) {
-      dispatch(fetchQueryLibrary());
       dispatch(fetchDataSourceTypes({ organizationId: orgId }));
       dispatch(
         fetchDatasource({
@@ -125,7 +175,8 @@ export const QueryLibraryEditor = () => {
 
   useEffect(() => {
     if (!forwardQueryId && !queryLibrary[selectedQuery]) {
-      setSelectedQuery(Object.values(queryLibrary)?.[0]?.id);
+      // @ts-ignore
+        setSelectedQuery(Object.values(queryLibrary)?.[0]?.id);
     }
   }, [dispatch, Object.keys(queryLibrary).length]);
 
@@ -145,31 +196,57 @@ export const QueryLibraryEditor = () => {
     })
     .map((info) => info.datasource);
 
-  const recentlyUsed = Object.values(queryLibrary)
-    .map((i) => i.libraryQueryDSL?.query.datasourceId)
+    const recentlyUsed = Object.values(queryLibrary)
+    .map((i: any) => i.libraryQueryDSL?.query.datasourceId)
     .map((id) => datasource.find((d) => d.id === id))
     .filter((i) => !!i) as Datasource[];
 
   const nameGenerator = new NameGenerator();
-  nameGenerator.init(Object.values(queryLibrary).map((t) => t.name));
+    nameGenerator.init(Object.values(queryLibrary).map((t: any) => t.name));
   const newName = nameGenerator.genItemName(trans("queryLibrary.unnamed"));
 
   const handleAdd = (type: BottomResTypeEnum, extraInfo?: any) => {
+    // Build basic query DSL
+    let queryDSL: any = {
+      triggerType: "manual",
+      datasourceId: extraInfo?.dataSourceId,
+      compType: extraInfo?.compType,
+    };
+
+    // If it is a REST API created from cURL, pre-populate the HTTP query fields
+    if (extraInfo?.compType === "restApi" && extraInfo?.curlData) {
+      const curlConfig = processCurlData(extraInfo.curlData);
+      if (curlConfig) {
+        queryDSL = {
+          ...queryDSL,
+          comp: {
+            httpMethod: curlConfig.method,
+            path: curlConfig.url,
+            headers: curlConfig.headers,
+            params: curlConfig.params,
+            bodyType: curlConfig.bodyType,
+            body: curlConfig.body,
+            bodyFormData: curlConfig.bodyFormData,
+          },
+        };
+      }
+    }
+
     dispatch(
       createQueryLibrary(
         {
           name: newName,
           organizationId: orgId,
           libraryQueryDSL: {
-            query: {
-              triggerType: "manual",
-              datasourceId: extraInfo?.dataSourceId,
-              compType: extraInfo?.compType,
-            },
+            query: queryDSL,
           },
         },
         (resp) => {
           setSelectedQuery(resp.data.data.id);
+          setTimeout(() => {
+            setModify(!modify);
+          }, 200);
+          setCurrentPage(Math.ceil(elements.total / pageSize));
         },
         () => {}
       )
@@ -178,9 +255,9 @@ export const QueryLibraryEditor = () => {
   };
 
   return (
-    <>
+    <EditorStoreProvider store={editorStore}>
       <Helmet>{<title>{trans("home.queryLibrary")}</title>}</Helmet>
-        <Wrapper>
+      <Wrapper>
         <LeftNav
           selectedQuery={isCreatePanelShow ? undefined : selectedQuery}
           queryList={Object.values(queryLibrary)}
@@ -189,7 +266,16 @@ export const QueryLibraryEditor = () => {
             setSelectedQuery(id);
             showCreatePanel(false);
           } }
-          readOnly={showHistory} />
+          setCurrentPage={setCurrentPage}
+          setPageSize={setPageSize}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          total={elements.total}
+          setSearchValues={setSearchValues}
+          searchValues={searchValues}
+          setModify={setModify}
+          modify={modify}
+        />
         <RightContent>
           {!selectedQuery || !comp?.children.query.children.id.getView() ? (
             EmptyQueryWithoutTab
@@ -202,6 +288,8 @@ export const QueryLibraryEditor = () => {
             comp.propertyView({
               onPublish: () => setPublishModalVisible(true),
               onHistoryShow: () => setShowHistory(true),
+              setModify: setModify,
+              modify: modify
             })
           )}
 
@@ -219,6 +307,10 @@ export const QueryLibraryEditor = () => {
                 onSuccess: (resp) => {
                   setSelectedQuery(resp.data.data.id);
                   showCreatePanel(false);
+                  setTimeout(() => {
+                    setModify(!modify);
+                  }, 200);
+                  setCurrentPage(Math.ceil(elements.total / pageSize));
                 },
               })} />
           )}
@@ -229,7 +321,7 @@ export const QueryLibraryEditor = () => {
           onClose={() => setPublishModalVisible(false)}
           latestVersion={Object.values(selectedRecords)?.[0]?.tag} />
       </Wrapper>
-    </>
+    </EditorStoreProvider>
   );
 };
 
@@ -251,7 +343,7 @@ const PublishModal = (props: {
     <CustomModal
       open={props.visible}
       onCancel={props.onClose}
-      destroyOnClose={true}
+      destroyOnHidden={true}
       width="600px"
       title={trans("queryLibrary.publishNewVersion")}
       footer={
@@ -282,44 +374,10 @@ const PublishModal = (props: {
         </div>
       }
     >
-      <DatasourceForm form={form} preserve={false} style={{ gap: "12px" }}>
-        <FormSection>
-          <FormRadioItem
-            name={"tag"}
-            label={trans("queryLibrary.version")}
-            options={versionOptions}
-            initialValue={versionOptions[1].value}
-          />
-          <FormInputItem name={"commitMessage"} label={trans("queryLibrary.desc")} />
-        </FormSection>
-      </DatasourceForm>
+      <VersionDataForm form={form} preserve={false} latestVersion={props?.latestVersion} />
     </CustomModal>
   );
 };
-
-function getVersionOptions(version?: string): Array<CheckboxOptionType> {
-  if (!version) {
-    return [
-      { label: "v1.0.0", value: "v1.0.0" },
-      { label: "v0.1.0", value: "v0.1.0" },
-    ];
-  }
-  const [major, minor, patch] = version.slice(1).split(".");
-  return [
-    {
-      label: ["v" + (Number(major) + 1), 0, 0].join("."),
-      value: ["v" + (Number(major) + 1), 0, 0].join("."),
-    },
-    {
-      label: ["v" + major, Number(minor) + 1, 0].join("."),
-      value: ["v" + major, Number(minor) + 1, 0].join("."),
-    },
-    {
-      label: ["v" + major, minor, Number(patch) + 1].join("."),
-      value: ["v" + major, minor, Number(patch) + 1].join("."),
-    },
-  ];
-}
 
 function useSaveQueryLibrary(
   query: LibraryQuery,
@@ -330,16 +388,38 @@ function useSaveQueryLibrary(
   const dispatch = useDispatch();
   const [prevComp, setPrevComp] = useState<Comp>();
   const [prevJsonStr, setPrevJsonStr] = useState<string>();
+  const [prevQueryId, setPrevQueryId] = useState<string>();
+  const queryId = query?.id;
 
   useEffect(() => {
-    if (!comp || comp === prevComp || !query || !comp?.children.query.children.id.getView()) {
+    if (!comp || comp === prevComp) {
       return;
     }
+
     const curJson = comp.toJsonValue();
     const curJsonStr = JSON.stringify(curJson);
+
+    if (isEmpty(curJson?.query?.comp)) {
+      return;
+    }
+    if (!Boolean(prevQueryId) && Boolean(queryId)) {
+      setPrevComp(comp);
+      setPrevJsonStr(curJsonStr);
+      return setPrevQueryId(queryId);
+    }
+    if (prevQueryId !== queryId) {
+      setPrevComp(comp);
+      setPrevJsonStr(curJsonStr);
+      return setPrevQueryId(queryId);
+    }
+    if (!Boolean(prevJsonStr) && Boolean(curJsonStr)) {
+      setPrevComp(comp)
+      return setPrevJsonStr(curJsonStr);
+    }
     if (prevJsonStr === curJsonStr) {
       return;
     }
+
     // the first time is a normal change, the latter is the manual update
     if (prevComp) {
       query.name = comp.children.query.children.name.getView();
@@ -348,5 +428,6 @@ function useSaveQueryLibrary(
     }
     setPrevComp(comp);
     setPrevJsonStr(curJsonStr);
-  }, [comp, query, prevComp, prevJsonStr, dispatch]);
+    setPrevQueryId(queryId);
+  }, [comp, queryId, dispatch]);
 }

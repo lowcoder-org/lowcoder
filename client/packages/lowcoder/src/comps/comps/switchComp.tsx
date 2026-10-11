@@ -1,24 +1,26 @@
 import { default as Switch } from "antd/es/switch";
-import { BoolCodeControl } from "comps/controls/codeControl";
+import { BoolCodeControl, NumberControl } from "comps/controls/codeControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { changeEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { styleControl } from "comps/controls/styleControl";
 import { SwitchStyle, SwitchStyleType, LabelStyle,  InputFieldStyle, AnimationStyle } from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
-import { Section, sectionNames } from "lowcoder-design";
+import { withLinkedDefaultValue } from "comps/controls/codeStateControl";
+import { Section, lightenColor, sectionNames } from "lowcoder-design";
 import styled, { css } from "styled-components";
 import { UICompBuilder } from "../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
-import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, disabledPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUtils";
+import { fixOldInputCompData } from "./textInputComp/textInputConstants";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useCallback } from "react";
+import { useEditorStore } from "comps/editorStore";
 
 const EventOptions = [
   changeEvent,
@@ -37,13 +39,16 @@ const EventOptions = [
 const getStyle = (style: SwitchStyleType) => {
   return css`
     .ant-switch-handle::before {
-      background-color: ${style.handle};
+      background: ${style.handle};
     }
     button {
       background-image: none;
-      background-color: ${style.unchecked};
+      background: ${style.unchecked};
       &.ant-switch-checked {
-        background-color: ${style.checked};
+        background: ${style.checked};
+        &:hover:not(.ant-switch-disabled) {
+          background: ${lightenColor(style.checked, 0.2)}
+        }
       }
     }
   `;
@@ -85,22 +90,33 @@ function fixOldData(oldData: any) {
  */
 let SwitchTmpComp = (function () {
   const childrenMap = {
+    defaultValue: booleanExposingStateControl("defaultValue"),
     value: booleanExposingStateControl("value"),
     label: LabelControl,
     onEvent: eventHandlerControl(EventOptions),
     disabled: BoolCodeControl,
-    style: styleControl(InputFieldStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(InputFieldStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
     labelStyle: styleControl(
       LabelStyle.filter(
         (style) => ['accent', 'validate'].includes(style.name) === false
-      )
+      ),
+      'labelStyle'
     ),
     viewRef: RefControl<HTMLElement>,
-    inputFieldStyle:migrateOldData(styleControl(SwitchStyle), fixOldData),
+    inputFieldStyle: migrateOldData(styleControl(SwitchStyle, 'inputFieldStyle'), fixOldData),
+    tabIndex: NumberControl,
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
+    const value = { ...props.value }.value;
+
+    const handleChange = useCallback((checked: boolean) => {
+      props.value.onChange(checked);
+      props.onEvent("change");
+      props.onEvent(checked ? "true" : "false");
+    }, [props.value, props.onEvent]);
+
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,
@@ -109,41 +125,44 @@ let SwitchTmpComp = (function () {
       children: (
         <SwitchWrapper disabled={props.disabled} $style={props.inputFieldStyle}>
           <Switch
-            checked={props.value.value}
+            checked={value}
             disabled={props.disabled}
             ref={props.viewRef}
-            onChange={(checked) => {
-              props.value.onChange(checked);
-              props.onEvent("change");
-              props.onEvent(checked ? "true" : "false");
-            }}
+            onChange={handleChange}
+            tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
           />
         </SwitchWrapper>
       ),
     });
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      const isLogicMode = ["logic", "both"].includes(editorModeStatus);
+      const isLayoutMode = ["layout", "both"].includes(editorModeStatus);
+
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.value.propertyView({ label: trans("switchComp.defaultValue") })}
+            {children.defaultValue.propertyView({ label: trans("switchComp.defaultValue") })}
           </Section>
 
           <FormDataPropertyView {...children} />
 
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {isLogicMode && (
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
+              {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {isLayoutMode && (
             children.label.getPropertyView()
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {isLayoutMode && (
             <>
               <Section name={sectionNames.style}>
                 {children.style.getPropertyView()}
@@ -165,6 +184,11 @@ let SwitchTmpComp = (function () {
     .setExposeMethodConfigs(refMethods([focusWithOptions, blurMethod, clickMethod]))
     .build();
 })();
+
+SwitchTmpComp = migrateOldData(
+  withLinkedDefaultValue(SwitchTmpComp, "defaultValue", "value"),
+  fixOldInputCompData
+);
 
 export const SwitchComp = withExposingConfigs(SwitchTmpComp, [
   new NameConfig("value", trans("switchComp.valueDesc")),

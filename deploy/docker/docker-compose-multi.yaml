@@ -1,24 +1,71 @@
-version: "3"
 services:
 
   ##
   ## Start services required for Lowcoder (MongoDB and Redis)
   ##
   mongodb:
-    image: "mongo:4.4"
+    image: "mongo:7.0"
     container_name: mongodb
     environment:
       MONGO_INITDB_DATABASE: lowcoder
       MONGO_INITDB_ROOT_USERNAME: lowcoder
       MONGO_INITDB_ROOT_PASSWORD: secret123
-    # Uncomment to save database data into local 'mongodata' folder
-    # volumes:
-    #   - ./mongodata:/data/db
+    volumes:
+      - ./lowcoder-stacks/data/mongodb:/data/db
     restart: unless-stopped
+    healthcheck: # https://github.com/rodrigobdz/docker-compose-healthchecks?tab=readme-ov-file#mongo
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--quiet",
+          "127.0.0.1/test",
+          "--eval",
+          "'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)'",
+        ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
 
   redis:
     image: redis:7-alpine
     container_name: redis
+    restart: unless-stopped
+    healthcheck: # https://stackoverflow.com/a/71504657
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 1s
+      timeout: 3s
+      retries: 10
+
+  hocuspocus:
+    image: lowcoderorg/lowcoder-hocuspocus:latest
+    container_name: hocuspocus
+    restart: unless-stopped
+    ports:
+      - "3006:3006"
+    environment:
+      # Empty so the Vite frontend (built with no Hocuspocus secret) can sync locally.
+      HOCUSPOCUS_SECRET: ""
+
+  agora-token-service:
+    # agoracn/token only exposes POST /token/generate. Meeting Controller needs
+    # GET /rte/... returning { rtcToken, rtmToken }.
+    image: lowcoderorg/lowcoder-agora-token-service:latest
+    container_name: agora-token-service
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    environment:
+      APP_ID: "YOUR_APP_ID"
+      APP_CERTIFICATE: "YOUR_APP_CERTIFICATE"
+      SERVER_PORT: "8080"
+      CORS_ALLOW_ORIGIN: "*"
+    healthcheck:
+      test: curl -sS http://127.0.0.1:8080/ping | grep -c pong > /dev/null
+      interval: 3s
+      timeout: 5s
+      retries: 10
 
 
   ##
@@ -30,51 +77,30 @@ services:
     # Enabled ports to be able to access backend from host
     # ports:
     #   - "8080:8080"
-    environment:
-      LOWCODER_PUID: "9001"
-      LOWCODER_PGID: "9001"
-      LOWCODER_MONGODB_URL: "mongodb://lowcoder:secret123@mongodb/lowcoder?authSource=admin"
-      LOWCODER_REDIS_URL: "redis://redis:6379"
-      LOWCODER_NODE_SERVICE_URL: "http://lowcoder-node-service:6060"
-      LOWCODER_MAX_QUERY_TIMEOUT: 120
-      LOWCODER_EMAIL_AUTH_ENABLED: "true"
-      LOWCODER_EMAIL_SIGNUP_ENABLED: "true"
-      LOWCODER_CREATE_WORKSPACE_ON_SIGNUP: "true"
-      #
-      # ! PLEASE CHANGE THESE TO SOMETHING UNIQUE !
-      # 
-      #    LOWCODER_DB_ENCRYPTION_PASSWORD and LOWCODER_DB_ENCRYPTION_SALT is used 
-      #    to encrypt sensitive data in database so it is important to change the defaults
-      #
-      LOWCODER_DB_ENCRYPTION_PASSWORD: "lowcoder.org"
-      LOWCODER_DB_ENCRYPTION_SALT: "lowcoder.org"
-      LOWCODER_CORS_DOMAINS: "*"
-      LOWCODER_MAX_ORGS_PER_USER: 100
-      LOWCODER_MAX_MEMBERS_PER_ORG: 1000
-      LOWCODER_MAX_GROUPS_PER_ORG: 100
-      LOWCODER_MAX_APPS_PER_ORG: 1000
-      LOWCODER_MAX_DEVELOPERS: 50
-      #
-      # API-KEY secret - should be a string of at least 32 random characters
-      #    - on linux/mac, generate one eg. with: head /dev/urandom | head -c 30 | shasum -a 256
-      #
-      LOWCODER_API_KEY_SECRET: "5a41b090758b39b226603177ef48d73ae9839dd458ccb7e66f7e7cc028d5a50b"
-      LOWCODER_WORKSPACE_MODE: SAAS
-      # Lowcoder notification emails setup
-      LOWCODER_ADMIN_SMTP_HOST: smtp.gmail.com
-      LOWCODER_ADMIN_SMTP_PORT: 587
-      LOWCODER_ADMIN_SMTP_USERNAME:
-      LOWCODER_ADMIN_SMTP_PASSWORD:
-      LOWCODER_ADMIN_SMTP_AUTH: true
-      LOWCODER_ADMIN_SMTP_SSL_ENABLED: false
-      LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED: true
-      LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED: true
-      # Email used as sender in lost password email
-      LOWCODER_EMAIL_NOTIFICATIONS_SENDER: info@localhost
+    env_file:
+      - path: ./default.env
+        required: true
+      - path: ./default-multi.env
+        required: true
+      - path: ./override.env
+        required: false
     restart: unless-stopped
     depends_on:
-      - mongodb
-      - redis
+      mongodb:
+        condition: service_healthy
+        restart: true
+      redis:
+        condition: service_healthy
+        restart: true
+    volumes:
+      - ./lowcoder-stacks:/lowcoder-stacks
+      - ./lowcoder-stacks/assets:/lowcoder/assets
+    healthcheck: #https://stackoverflow.com/questions/71101967/how-should-i-use-grep-in-docker-compose-healthcheck
+      test: curl -sS http://lowcoder-api-service:8080  | grep -c "Lowcoder API is up and runnig" > /dev/null
+      interval: 3s
+      timeout: 5s
+      retries: 10
+
 
   lowcoder-node-service:
     image: lowcoderorg/lowcoder-ce-node-service:latest
@@ -82,13 +108,49 @@ services:
     # Enabled ports to be able to access backend from host
     # ports:
     #   - "6060:6060"
-    environment:
-      LOWCODER_PUID: "9001"
-      LOWCODER_PGID: "9001"
-      LOWCODER_API_SERVICE_URL: "http://lowcoder-api-service:8080"
+    env_file:
+      - path: ./default.env
+        required: true
+      - path: ./default-multi.env
+        required: true
+      - path: ./override.env
+        required: false
     restart: unless-stopped
     depends_on:
-      - lowcoder-api-service
+      lowcoder-api-service:
+        condition: service_healthy
+        restart: true
+    healthcheck: #https://stackoverflow.com/questions/71101967/how-should-i-use-grep-in-docker-compose-healthcheck
+      test: curl -sS http://lowcoder-node-service:6060  | grep -c "Lowcoder Node Service is up and running" > /dev/null
+      interval: 3s
+      timeout: 5s
+      retries: 15
+      start_period: 40s
+
+  lowcoder-proxy-service:
+    image: lowcoderorg/lowcoder-proxy-service:latest
+    container_name: lowcoder-proxy-service
+    ports:
+      - "6070:6070"
+    environment:
+      PROXY_SERVICE_PORT: "6070"
+    env_file:
+      - path: ./default.env
+        required: true
+      - path: ./default-multi.env
+        required: true
+      - path: ./override.env
+        required: false
+    restart: unless-stopped
+    depends_on:
+      lowcoder-api-service:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test: curl -sS http://lowcoder-proxy-service:6070 | grep -c "Lowcoder Proxy Service is up and running" > /dev/null
+      interval: 3s
+      timeout: 5s
+      retries: 10
 
   ##
   ## Start Lowcoder web frontend
@@ -98,18 +160,36 @@ services:
     container_name: lowcoder-frontend
     ports:
       - "3000:3000"
-    environment:
-      LOWCODER_PUID: "9001"
-      LOWCODER_PGID: "9001"
-      LOWCODER_MAX_REQUEST_SIZE: 20m
-      LOWCODER_MAX_QUERY_TIMEOUT: 120
-      LOWCODER_API_SERVICE_URL: "http://lowcoder-api-service:8080"
-      LOWCODER_NODE_SERVICE_URL: "http://lowcoder-node-service:6060"
+    env_file:
+      - path: ./default.env
+        required: true
+      - path: ./default-multi.env
+        required: true
+      - path: ./override.env
+        required: false
     restart: unless-stopped
     depends_on:
-      - lowcoder-node-service
-      - lowcoder-api-service
-    # Uncomment to serve local files as static assets
-    # volumes:
-    #   - ./static-assets:/lowcoder/assets
+      lowcoder-node-service:
+        condition: service_healthy
+        restart: true
+      lowcoder-api-service:
+        condition: service_healthy
+        restart: true
+      lowcoder-proxy-service:
+        condition: service_healthy
+        restart: true
+      # nginx resolves the hosts of its upstreams at startup
+      hocuspocus:
+        condition: service_started
+      agora-token-service:
+        condition: service_healthy
+    volumes:
+      - ./lowcoder-stacks/assets:/lowcoder/assets
+      - ./lowcoder-stacks/ssl:/lowcoder-stacks/ssl
+    healthcheck:
+      test: curl --fail http://lowcoder-frontend:3000 || exit 1
+      interval: 5s
+      retries: 10
+      start_period: 10s
+      timeout: 10s
 

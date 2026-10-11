@@ -15,7 +15,7 @@ import { NameGenerator } from "comps/utils";
 import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
 import _ from "lodash";
-import React, { useCallback, useContext } from "react";
+import React, {useMemo, useEffect } from "react";
 import styled, { css } from "styled-components";
 import { IContainer } from "../containerBase/iContainer";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
@@ -30,11 +30,12 @@ import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUt
 import { trans } from "i18n";
 import { BoolCodeControl, NumberControl } from "comps/controls/codeControl";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
-import { EditorContext } from "comps/editorState";
-import { checkIsMobile } from "util/commonUtils";
+import { useEditorStore } from "comps/editorStore";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { BoolControl } from "comps/controls/boolControl";
-import { PositionControl } from "comps/controls/dropdownControl";
+import { PositionControl,dropdownControl } from "comps/controls/dropdownControl";
+import { SliderControl } from "@lowcoder-ee/comps/controls/sliderControl";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const EVENT_OPTIONS = [
   {
@@ -44,6 +45,14 @@ const EVENT_OPTIONS = [
   },
 ] as const;
 
+const TAB_BEHAVIOR_OPTIONS = [
+  { label: trans("tabbedContainer.tabBehaviorLazy"), value: "lazy" },
+  { label: trans("tabbedContainer.tabBehaviorKeepAlive"), value: "keep-alive" },
+  { label: trans("tabbedContainer.tabBehaviorDestroy"), value: "destroy" },
+] as const;
+
+const TabBehaviorControl = dropdownControl(TAB_BEHAVIOR_OPTIONS, "lazy");
+
 const childrenMap = {
   tabs: TabsOptionControl,
   selectedTabKey: stringExposingStateControl("key", "Tab1"),
@@ -52,22 +61,25 @@ const childrenMap = {
     1: { layout: {}, items: {} },
   }),
   autoHeight: AutoHeightControl,
+  showVerticalScrollbar: withDefault(BoolControl, false),
+  horizontalGridCells: SliderControl,
   scrollbars: withDefault(BoolControl, false),
   placement: withDefault(PositionControl, "top"),
   onEvent: eventHandlerControl(EVENT_OPTIONS),
   disabled: BoolCodeControl,
   showHeader: withDefault(BoolControl, true),
-  style: withDefault(styleControl(TabContainerStyle),{borderWidth:'1px'}),
-  headerStyle: styleControl(ContainerHeaderStyle),
-  bodyStyle: styleControl(TabBodyStyle),
-  animationStyle: styleControl(AnimationStyle),
+  tabBehavior: withDefault(TabBehaviorControl, "lazy"),
+  style: styleControl(TabContainerStyle , 'style'),
+  headerStyle: styleControl(ContainerHeaderStyle , 'headerStyle'),
+  bodyStyle: styleControl(TabBodyStyle , 'bodyStyle'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   tabsGutter: withDefault(NumberControl, 32),
   tabsCentered: withDefault(BoolControl, false),
 };
 
 type ViewProps = RecordConstructorToView<typeof childrenMap>;
 type TabbedContainerProps = ViewProps & { dispatch: DispatchType };
- 
+
 const getStyle = (
   style: TabContainerStyleType,
   headerStyle: ContainerHeaderStyleType,
@@ -76,26 +88,30 @@ const getStyle = (
   return css`
     &.ant-tabs {
       overflow: hidden;
-      border: ${style.borderWidth} solid ${style.border};
+      border: ${style.borderWidth} ${style.borderStyle} ${style.border};
       border-radius: ${style.radius};
       padding: ${style.padding};
-      background-color: ${style.background};
-      background-image: url(${style.backgroundImage});
-      background-repeat: ${style.backgroundImageRepeat};
-      background-size: ${style.backgroundImageSize};
-      background-position: ${style.backgroundImagePosition};
-      background-origin: ${style.backgroundImageOrigin};
+      ${getBackgroundStyle(style)}
 
       > .ant-tabs-content-holder > .ant-tabs-content > .ant-tabs-tabpane {
         height: 100%;
         .react-grid-layout {
           border-radius: 0;
-          background-color: ${bodyStyle.background || 'transparent'};
+          padding: ${bodyStyle.containerBodyPadding};
+          ${getBackgroundStyle(bodyStyle)}
         }
       }
 
       > .ant-tabs-nav {
-        background-color: ${headerStyle.headerBackground || 'transparent'};
+        padding: ${headerStyle.containerHeaderPadding};
+        ${getBackgroundStyle({
+          background: headerStyle.headerBackground,
+          backgroundImage: headerStyle.headerBackgroundImage,
+          backgroundImageSize: headerStyle.headerBackgroundImageSize,
+          backgroundImageRepeat: headerStyle.headerBackgroundImageRepeat,
+          backgroundImageOrigin: headerStyle.headerBackgroundImageOrigin,
+          backgroundImagePosition: headerStyle.headerBackgroundImagePosition,
+        })}
 
         .ant-tabs-tab {
           div {
@@ -108,6 +124,7 @@ const getStyle = (
         }
 
         .ant-tabs-tab-btn {
+          color: ${style.tabText} !important;
           font-size: ${style.textSize};
           font-family:${style.fontFamily};
           font-weight:${style.textWeight};
@@ -128,17 +145,17 @@ const getStyle = (
   `;
 };
 
-const StyledTabs = styled(Tabs)<{ 
+const StyledTabs = styled(Tabs)<{
   $style: TabContainerStyleType;
   $headerStyle: ContainerHeaderStyleType;
   $bodyStyle: TabBodyStyleType;
-  $isMobile?: boolean; 
   $showHeader?: boolean;
-  $animationStyle:AnimationStyleType
+  $animationStyle: AnimationStyleType;
+  $isDestroyPane?: boolean;
 }>`
   &.ant-tabs {
     height: 100%;
-    ${props=>props.$animationStyle}
+    ${props => props.$animationStyle}
   }
 
   .ant-tabs-content-animated {
@@ -147,34 +164,81 @@ const StyledTabs = styled(Tabs)<{
 
   .ant-tabs-content {
     height: 100%;
-    // margin-top: -16px;
   }
 
+  /* Keep AntD flex nav so overflow "..." stays on the right. */
   .ant-tabs-nav {
-    display: ${(props) => (props.$showHeader ? "block" : "none")};
-    padding: 0 ${(props) => (props.$isMobile ? 16 : 24)}px;
-    background: white;
+    ${(props) => !props.$showHeader && `display: none;`}
     margin: 0px;
   }
 
-  .ant-tabs-tab + .ant-tabs-tab {
-    margin: 0 0 0 20px;
+  /* tabBarGutter also margins the more button; keep "..." flush like AntD default. */
+  .ant-tabs-nav-more {
+    margin-inline-start: 0 !important;
   }
 
-  .ant-tabs-nav-operations {
-    margin-right: -24px;
-  }
+  ${(props) => props.$style && getStyle(props.$style, props.$headerStyle, props.$bodyStyle)}
 
-  ${(props) => props.$style && getStyle(
-    props.$style,
-    props.$headerStyle,
-    props.$bodyStyle,
-  )}
+  /* Conditional styling for all modes except Destroy Inactive Pane */
+  ${(props) => !props.$isDestroyPane && `
+    .ant-tabs-content-holder { position: relative; }
+ 
+    .ant-tabs-tabpane[aria-hidden="true"],
+    .ant-tabs-tabpane-hidden {
+      display: block !important;
+      visibility: hidden !important;
+      position: absolute !important;
+      inset: 0;
+      pointer-events: none;
+    }
+  `}
 `;
 
 const ContainerInTab = (props: ContainerBaseProps) => {
+  return <InnerGrid {...props} emptyRows={15} hintPlaceholder={HintPlaceHolder} />;
+};
+
+type TabPaneContentProps = {
+  autoHeight: boolean;
+  showVerticalScrollbar: boolean;
+  horizontalGridCells: number;
+  bodyBackground: string;
+  layoutView: any;
+  itemsView: any;
+  positionParamsView: any;
+  dispatch: DispatchType;
+};
+
+const TabPaneContent: React.FC<TabPaneContentProps> = ({
+  autoHeight,
+  showVerticalScrollbar,
+  horizontalGridCells,
+  bodyBackground,
+  layoutView,
+  itemsView,
+  positionParamsView,
+  dispatch,
+}) => {
+  const gridItems = useMemo(() => gridItemCompToGridItems(itemsView), [itemsView]);
+
   return (
-    <InnerGrid {...props} emptyRows={15} hintPlaceholder={HintPlaceHolder} />
+    <BackgroundColorContext.Provider value={bodyBackground}>
+      <ScrollBar
+        style={{ height: autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }}
+        hideScrollbar={!showVerticalScrollbar}
+        overflow={autoHeight ? "hidden" : "scroll"}
+      >
+        <ContainerInTab
+          layout={layoutView}
+          items={gridItems}
+          horizontalGridCells={horizontalGridCells}
+          positionParams={positionParamsView}
+          dispatch={dispatch}
+          autoHeight={autoHeight}
+          containerPadding={[0, 0]}
+        />
+      </ScrollBar>
+    </BackgroundColorContext.Provider>
   );
 };
 
@@ -186,102 +250,85 @@ const TabbedContainer = (props: TabbedContainerProps) => {
     style,
     headerStyle,
     bodyStyle,
+    horizontalGridCells,
+    tabBehavior,
   } = props;
 
   const visibleTabs = tabs.filter((tab) => !tab.hidden);
   const selectedTab = visibleTabs.find((tab) => tab.key === props.selectedTabKey.value);
-  const activeKey = selectedTab
-    ? selectedTab.key
-    : visibleTabs.length > 0
-    ? visibleTabs[0].key
-    : undefined;
+  const activeKey = selectedTab? selectedTab.key: visibleTabs.length > 0 ? visibleTabs[0].key : undefined;
 
-  const onTabClick = useCallback(
-    (key: string, event: React.KeyboardEvent<Element> | React.MouseEvent<Element, MouseEvent>) => {
-      // log.debug("onTabClick. event: ", event);
-      const target = event.target;
-      (target as any).parentNode.click
-        ? (target as any).parentNode.click()
-        : (target as any).parentNode.parentNode.click();
-    },
-    []
-  );
+  useEffect(() => {
+    if (activeKey && activeKey !== props.selectedTabKey.value) {
+      props.selectedTabKey.onChange(activeKey);
+    }
+  }, [activeKey, props.selectedTabKey.value]);
 
-  const editorState = useContext(EditorContext);
-  const maxWidth = editorState.getAppSettings().maxWidth;
-  const isMobile = checkIsMobile(maxWidth);
   const showHeader = props.showHeader.valueOf();
-  const paddingWidth = isMobile ? 8 : 0;
 
   const tabItems = visibleTabs.map((tab) => {
     const id = String(tab.id);
     const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
-    const containerProps = containers[id].children;
+    const containerChildren = containers[id].children;
     const hasIcon = tab.icon.props.value;
+
     const label = (
       <>
-        {tab.iconPosition === "left" && hasIcon && (
-          <span style={{ marginRight: "4px" }}>{tab.icon}</span>
-        )}
+        {tab.iconPosition === "left" && hasIcon && <span style={{ marginRight: 4 }}>{tab.icon}</span>}
         {tab.label}
-        {tab.iconPosition === "right" && hasIcon && (
-          <span style={{ marginLeft: "4px" }}>{tab.icon}</span>
-        )}
+        {tab.iconPosition === "right" && hasIcon && <span style={{ marginLeft: 4 }}>{tab.icon}</span>}
       </>
     );
+
+    const forceRender = tabBehavior === "keep-alive";
+
     return {
       label,
       key: tab.key,
-      forceRender: true,
+      forceRender,
       children: (
-        <BackgroundColorContext.Provider value={bodyStyle.background}>
-          <ScrollBar style={{ height: props.autoHeight ? "100%" : "auto", margin: "0px", padding: "0px" }} hideScrollbar={!props.scrollbars}>
-            <ContainerInTab
-              layout={containerProps.layout.getView()}
-              items={gridItemCompToGridItems(containerProps.items.getView())}
-              positionParams={containerProps.positionParams.getView()}
-              dispatch={childDispatch}
-              autoHeight={props.autoHeight}
-              containerPadding={[paddingWidth, 20]}
-            />
-          </ScrollBar>
-        </BackgroundColorContext.Provider>
-      )
-    }
-  })
+        <TabPaneContent
+          autoHeight={props.autoHeight}
+          showVerticalScrollbar={props.showVerticalScrollbar}
+          horizontalGridCells={horizontalGridCells}
+          bodyBackground={bodyStyle.background}
+          layoutView={containerChildren.layout.getView()}
+          itemsView={containerChildren.items.getView()}
+          positionParamsView={containerChildren.positionParams.getView()}
+          dispatch={childDispatch}
+        />
+      ),
+    };
+  });
 
   return (
-    <ScrollBar style={{ height: props.autoHeight ? "100%" : "auto", margin: "0px", padding: "0px" }} hideScrollbar={!props.scrollbars}>
-      <div style={{padding: props.style.margin, height: props.autoHeight ? "100%" : "auto"}}>
-        <BackgroundColorContext.Provider value={headerStyle.headerBackground}>
-          <StyledTabs
-            $animationStyle={props.animationStyle}
-              tabPosition={props.placement}
-              activeKey={activeKey}
-              $style={style}
-              $headerStyle={headerStyle}
-              $bodyStyle={bodyStyle}
-              $showHeader={showHeader}
-              onChange={(key) => {
-                if (key !== props.selectedTabKey.value) {
-                  props.selectedTabKey.onChange(key);
-                  props.onEvent("change");
-                }
-              }}
-              onTabClick={onTabClick}
-              animated
-              $isMobile={isMobile}
-              items={tabItems}
-              tabBarGutter={props.tabsGutter}
-              centered={props.tabsCentered}
-          >
-          </StyledTabs>
-        </BackgroundColorContext.Provider>
-      </div>
-    </ScrollBar>
+      <div style={{padding: props.style.margin, height: props.autoHeight ? "auto" : "100%"}}>
+      <BackgroundColorContext.Provider value={headerStyle.headerBackground}>
+        <StyledTabs
+          destroyOnHidden={tabBehavior === "destroy"}
+          $animationStyle={props.animationStyle}
+          tabPosition={props.placement}
+          activeKey={activeKey}
+          $style={style}
+          $headerStyle={headerStyle}
+          $bodyStyle={bodyStyle}
+          $showHeader={showHeader}
+          $isDestroyPane={tabBehavior === "destroy"}
+          onChange={(key) => {
+            if (key !== props.selectedTabKey.value) {
+              props.selectedTabKey.onChange(key);
+              props.onEvent("change");
+            }
+          }}
+          animated
+          items={tabItems}
+          tabBarGutter={props.tabsGutter}
+          centered={props.tabsCentered}
+        />
+      </BackgroundColorContext.Provider>
+    </div>
   );
 };
-
 
 export const TabbedContainerBaseComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
@@ -292,6 +339,7 @@ export const TabbedContainerBaseComp = (function () {
     );
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
@@ -301,26 +349,51 @@ export const TabbedContainerBaseComp = (function () {
             })}
             {children.selectedTabKey.propertyView({ label: trans("prop.defaultValue") })}
           </Section>
-        
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+
+          {["logic", "both"].includes(editorModeStatus) && (
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
-              {children.showHeader.propertyView({ label: trans("tabbedContainer.showTabs") })}
               {hiddenPropertyView(children)}
+              {children.showHeader.propertyView({ label: trans("tabbedContainer.showTabs") })}
+              {children.tabBehavior.propertyView({
+                label: trans("tabbedContainer.tabBehavior"),
+                tooltip: (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div>
+                      <b>{trans("tabbedContainer.tabBehaviorLazy")}:</b>
+                      &nbsp;{trans("tabbedContainer.tabBehaviorLazyTooltip")}
+                    </div>
+                    <div>
+                      <b>{trans("tabbedContainer.tabBehaviorKeepAlive")}:</b>
+                      &nbsp;{trans("tabbedContainer.tabBehaviorKeepAliveTooltip")}
+                    </div>
+                    <div>
+                      <b>{trans("tabbedContainer.tabBehaviorDestroy")}:</b>
+                      &nbsp;{trans("tabbedContainer.tabBehaviorDestroyTooltip")}
+                    </div>
+                  </div>
+                ),
+              })}
             </Section>
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             <>
               <Section name={sectionNames.layout}>
                 {children.placement.propertyView({ label: trans("tabbedContainer.placement"), radioButton: true })}
                 {children.tabsCentered.propertyView({ label: trans("tabbedContainer.tabsCentered")})}
-                { children.tabsGutter.propertyView({ label: trans("tabbedContainer.gutter"), tooltip : trans("tabbedContainer.gutterTooltip") })}
+                {children.tabsGutter.propertyView({
+                  label: trans("tabbedContainer.gutter"),
+                  tooltip: trans("tabbedContainer.gutterTooltip"),
+                })}
+                {children.horizontalGridCells.propertyView({
+                  label: trans('prop.horizontalGridCells'),
+                })}
                 {children.autoHeight.getPropertyView()}
                 {!children.autoHeight.getView() && (
-                  children.scrollbars.propertyView({
-                    label: trans("prop.scrollbar"),
+                  children.showVerticalScrollbar.propertyView({
+                    label: trans("prop.showVerticalScrollbar"),
                   })
                 )}
               </Section>
@@ -355,21 +428,18 @@ class TabbedContainerImplComp extends TabbedContainerBaseComp implements IContai
     const actions: CompAction[] = [];
     Object.keys(containers).forEach((id) => {
       if (!ids.has(id)) {
-        // log.debug("syncContainers delete. ids=", ids, " id=", id);
         actions.push(wrapChildAction("containers", wrapChildAction(id, deleteCompAction())));
       }
     });
     // new
     ids.forEach((id) => {
       if (!containers.hasOwnProperty(id)) {
-        // log.debug("syncContainers new containers: ", containers, " id: ", id);
         actions.push(
           wrapChildAction("containers", addMapChildAction(id, { layout: {}, items: {} }))
         );
       }
     });
 
-    // log.debug("syncContainers. actions: ", actions);
     let instance = this;
     actions.forEach((action) => {
       instance = instance.reduce(action);
@@ -391,19 +461,19 @@ class TabbedContainerImplComp extends TabbedContainerBaseComp implements IContai
           },
         } as CompAction;
       }
-      if (value.type === "delete" && this.children.tabs.getView().length <= 1) {
+      const { path } = action;
+      if (value.type === "delete" && path[0] === 'tabs' && this.children.tabs.getView().length <= 1) {
         messageInstance.warning(trans("tabbedContainer.atLeastOneTabError"));
         // at least one tab
         return this;
       }
     }
-    // log.debug("before super reduce. action: ", action);
+
     let newInstance = super.reduce(action);
     if (action.type === CompActionTypes.UPDATE_NODES_V2) {
       // Need eval to get the value in StringControl
       newInstance = newInstance.syncContainers();
     }
-    // log.debug("reduce. instance: ", this, " newInstance: ", newInstance);
     return newInstance;
   }
 
@@ -447,8 +517,6 @@ class TabbedContainerImplComp extends TabbedContainerBaseComp implements IContai
   override autoHeight(): boolean {
     return this.children.autoHeight.getView();
   }
-
-
 }
 
 export const TabbedContainerComp = withExposingConfigs(TabbedContainerImplComp, [

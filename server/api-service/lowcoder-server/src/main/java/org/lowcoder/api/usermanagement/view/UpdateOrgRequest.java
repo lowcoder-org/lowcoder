@@ -1,5 +1,7 @@
 package org.lowcoder.api.usermanagement.view;
 
+import org.lowcoder.domain.organization.model.OrganizationState;
+
 public class UpdateOrgRequest {
 
     private String orgName;
@@ -9,6 +11,16 @@ public class UpdateOrgRequest {
     private String contactEmail;
 
     private String contactPhoneNumber;
+
+    private OrganizationState state;
+
+    public OrganizationState getState() {
+        return state;
+    }
+
+    public void setState(OrganizationState state) {
+        this.state = state;
+    }
 
     public String getOrgName() {
         return orgName;

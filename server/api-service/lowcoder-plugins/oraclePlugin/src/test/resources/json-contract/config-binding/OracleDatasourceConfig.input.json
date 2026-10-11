@@ -1,0 +1,35 @@
+{
+  "serviceName": {
+    "username": " system ",
+    "password": "s3crét",
+    "host": " ora.example.com ",
+    "port": 1521,
+    "serviceName": "ORCLPDB1",
+    "isReadonly": true,
+    "enableTurnOffPreparedStatement": true,
+    "extParams": {
+      "connectTimeout": 5000,
+      "allowPublicKeyRetrieval": "true",
+      "useCursorFetch": false,
+      "nested": {
+        "list": [
+          1,
+          2.5,
+          null
+        ]
+      }
+    },
+    "database": "ignored by the creator",
+    "usingSsl": true
+  },
+  "sid": {
+    "host": "ora.example.com",
+    "port": "1522",
+    "sid": "ORCL"
+  },
+  "jdbcUrl": {
+    "jdbcUrl": "jdbc:oracle:thin:@//ora.example.com:1521/X",
+    "readonly": true
+  },
+  "empty": {}
+}

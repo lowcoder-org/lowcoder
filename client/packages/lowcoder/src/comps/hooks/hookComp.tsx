@@ -1,8 +1,6 @@
 import { CompName } from "components/CompName";
-import { getAllCompItems } from "comps/comps/containerBase/utils";
 import { SimpleNameComp } from "comps/comps/simpleNameComp";
 import { StringControl } from "comps/controls/codeControl";
-import { EditorContext } from "comps/editorState";
 import { RemoteCompInfo } from "types/remoteComp";
 import {
   simpleMultiComp,
@@ -17,17 +15,14 @@ import { DrawerComp } from "comps/hooks/drawerComp";
 import { remoteComp } from "comps/comps/remoteComp/remoteComp";
 
 import {
-  HookCompConstructor,
   HookCompMapRawType,
-  HookCompType,
 } from "comps/hooks/hookCompTypes";
 import { ModalComp } from "comps/hooks/modalComp";
 import { trans } from "i18n";
 import _ from "lodash";
 import dayjs from "dayjs";
-import { ConstructorToComp } from "lowcoder-core";
 import { ScrollBar, Section, sectionNames } from "lowcoder-design";
-import React, { useContext, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useCallback } from "react";
 import { useInterval, useTitle, useWindowSize } from "react-use";
 import { useCurrentUser } from "util/currentUser";
 import { LocalStorageComp } from "./localStorageComp";
@@ -37,6 +32,8 @@ import { ThemeComp } from "./themeComp";
 import UrlParamsHookComp from "./UrlParamsHookComp";
 import { UtilsComp } from "./utilsComp";
 import { ScreenInfoHookComp } from "./screenInfoComp";
+import { ChatControllerComp } from "./chatControllerComp";
+import { useEditorStore } from "comps/editorStore";
 
 window._ = _;
 window.dayjs = dayjs;
@@ -53,9 +50,16 @@ const CurrentUserHookComp = hookToStateComp(() => {
 
 function useCurrentTime() {
   const [time, setTime] = React.useState(0);
-  useInterval(() => {
-    setTime(new Date().getTime());
-  }, 1000);
+  
+  // Add cleanup for the interval
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(new Date().getTime());
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   return useMemo(
     () => ({
       time: time,
@@ -88,7 +92,8 @@ const TitleHookComp = withPropertyViewFn(TitleTmp2Comp, (comp) => {
   );
 });
 const builtInRemoteComps: Omit<RemoteCompInfo, "compName"> = {
-  source: !!REACT_APP_BUNDLE_BUILTIN_PLUGIN ? "bundle" : "npm",
+  // source: !!REACT_APP_BUNDLE_BUILTIN_PLUGIN ? "bundle" : "npm",
+  source: "npm",
   isRemote: true,
   packageName: "lowcoder-comps",
 };
@@ -110,77 +115,33 @@ const HookMap: HookCompMapRawType = {
   urlParams: UrlParamsHookComp,
   drawer: DrawerComp,
   theme: ThemeComp,
+  chatController: ChatControllerComp,
 };
 
 export const HookTmpComp = withTypeAndChildren(HookMap, "title", {
   name: SimpleNameComp,
 });
 
-function SelectHookView(props: {
+type SelectHookViewProps = {
   children: React.ReactNode;
   compName: string;
-  compType: HookCompType;
-  comp: ConstructorToComp<HookCompConstructor>;
-}) {
-  const editorState = useContext(EditorContext);
-  const selectedComp = editorState.selectedComp();
+};
 
-  // Select the modal and its subcomponents on the left to display the modal
-  useEffect(() => {
-    if (
-      (props.compType !== "modal" &&
-        props.compType !== "drawer" &&
-        props.compType !== "meeting") ||
-      !selectedComp ||
-      (editorState.selectSource !== "addComp" &&
-        editorState.selectSource !== "leftPanel")
-    ) {
-      return;
-    } else if (
-      (selectedComp as any).children.comp === props.comp
-    ) {
-      if ((selectedComp as any).children.comp?.remoteInfo?.isRemote){
-        return;
-      }
-
-      // Select the current modal to display the modal
-      !props.comp.children.visible.getView().value &&
-        props.comp.children.visible.dispatch(
-          props.comp.children.visible.changeChildAction("value", true)
-        );
-    } else {
-      // all child components of modal
-      const allChildComp = getAllCompItems((props.comp as any).getCompTree());
-      const selectChildComp = Object.values(allChildComp).find(
-        (child) => child === selectedComp
-      );
-      const visible = props.comp.children.visible.getView().value;
-      if (selectChildComp && !visible) {
-        props.comp.children.visible.dispatch(
-          props.comp.children.visible.changeChildAction("value", true)
-        );
-      } else if (!selectChildComp && visible) {
-        props.comp.children.visible.dispatch(
-          props.comp.children.visible.changeChildAction("value", false)
-        );
-      }
-    }
-  }, [selectedComp, editorState.selectSource]);
-
-  return (
-    <div
-      onClick={() =>
-        editorState.setSelectedCompNames(new Set([props.compName]))
-      }
-    >
-      {props.children}
-    </div>
-  );
+function SelectHookView(props: SelectHookViewProps) {
+  const setSelectedCompNames = useEditorStore((state) => state.setSelectedCompNames);
+  const handleClick = useCallback(() => {
+    setSelectedCompNames(new Set([props.compName]));
+  }, [props.compName, setSelectedCompNames]);
+  return <div onClick={handleClick}>{props.children}</div>;
 }
 
 export class HookComp extends HookTmpComp {
   exposingInfo() {
     return this.children.comp.exposingInfo();
+  }
+
+  override getRef() {
+    return this.children.comp.getRef?.();
   }
 
   override getView() {
@@ -192,8 +153,6 @@ export class HookComp extends HookTmpComp {
     return (
       <SelectHookView
         compName={this.children.name.getView()}
-        compType={this.children.compType.getView()}
-        comp={this.children.comp}
       >
         {view}
       </SelectHookView>

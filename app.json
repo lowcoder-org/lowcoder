@@ -1,8 +1,8 @@
 {
   "name": "lowcoder",
-  "description": "An all-in-one IDE to create internal or customer-facing apps. · Visual UI builder with 50+ built-in components",
+  "description": "A Visual App builder with 120+ built-in components. Create software applications (internal and customer-facing!) and Meeting/Collaboration tools for your Company and your Customers with minimal coding experience.",
   "repository": "https://github.com/lowcoder-org/lowcoder",
-  "logo": "https://lowcoder.cloud/images/webclip.png",
+  "logo": "https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Lowcoder%20Logo%20512.png",
   "keywords": [
     "LowCode",
     "Low code",
@@ -10,7 +10,8 @@
     "Fast Application Development",
     "Rapid development",
     "Collaboration tool",
-    "Video conferencing"
+    "Video conferencing",
+    "AI User Interface"
   ],
   "stack": "container",
   "formation": {
@@ -22,11 +23,11 @@
   "env": {
     "LOWCODER_DB_ENCRYPTION_PASSWORD": {
       "description": "The encryption password used to encrypt all sensitive credentials in the database. You can use any random string (eg abcd).",
-      "required": false
+      "required": true
     },
     "LOWCODER_DB_ENCRYPTION_SALT": {
       "description": "The encryption salt used to encrypt all sensitive credentials in the database. You can use any random string (eg abcd).",
-      "required": false
+      "required": true
     },
     "LOWCODER_CORS_DOMAINS": {
       "description": "The domains supported for CORS requests. All domains are allowed by default. If there are multiple domains, please separate them with commas.",
@@ -39,6 +40,176 @@
     "LOWCODER_REDIS_URL": {
       "description": "Your Redis Database URL.",
       "required": false
+    },
+    "LOWCODER_MAX_REQUEST_SIZE": {
+      "description": "Lowcoder max request size",
+      "value": "20m",
+      "required": false
+    },
+    "LOWCODER_MAX_QUERY_TIMEOUT": {
+      "description": "Lowcoder max query timeout (in seconds)",
+      "value": "120",
+      "required": false
+    },
+    "LOWCODER_DEFAULT_QUERY_TIMEOUT": {
+      "description": "Lowcoder default query timeout (in seconds)",
+      "value": "10",
+      "required": false
+    },
+    "LOWCODER_API_RATE_LIMIT": {
+      "description": "Number of max Request per Second",
+      "value": "100",
+      "required": false
+    },
+    "LOWCODER_API_SERVICE_URL": {
+      "description": "Lowcoder API service URL (main backend) - for multi-docker image installations.",
+      "value": "http://localhost:8080",
+      "required": false
+    },
+    "LOWCODER_NODE_SERVICE_URL": {
+      "description": "Lowcoder Node Service URL (data execution server) - for multi-docker image installations",
+      "value": "http://localhost:6060",
+      "required": false
+    },
+    "LOWCODER_MAX_ORGS_PER_USER": {
+      "description": "Default maximum organizations per user",
+      "value": "100",
+      "required": false
+    },
+    "LOWCODER_MAX_MEMBERS_PER_ORG": {
+      "description": "Default maximum members per organization",
+      "value": "1000",
+      "required": false
+    },
+    "LOWCODER_MAX_GROUPS_PER_ORG": {
+      "description": "Default maximum groups per organization",
+      "value": "100",
+      "required": false
+    },
+    "LOWCODER_MAX_APPS_PER_ORG": {
+      "description": "Default maximum applications per organization",
+      "value": "1000",
+      "required": false
+    },
+    "LOWCODER_MAX_DEVELOPERS": {
+      "description": "Default maximum developers",
+      "value": "100",
+      "required": false
+    },
+    "LOWCODER_WORKSPACE_MODE": {
+      "description": "SAAS (MULTIWORKSPACE) to activate, SINGLEWORKSPACE (ENTERPRISE) to switch off - Workspaces",
+      "value": "SAAS",
+      "required": true
+    },
+    "LOWCODER_EMAIL_SIGNUP_ENABLED": {
+      "description": "Control if users create their own Workspace automatic when Sign Up",
+      "value": "true",
+      "required": false
+    },
+    "LOWCODER_CREATE_WORKSPACE_ON_SIGNUP": {
+      "description": "IF LOWCODER_WORKSPACE_MODE = SAAS, controls if a own workspace is created for the user after sign up",
+      "value": "true",
+      "required": false
+    },
+    "LOWCODER_MARKETPLACE_PRIVATE_MODE": {
+      "description": "Control if not to show Apps on the local Marketplace to anonymous users",
+      "value": "true",
+      "required": false
+    },
+    "LOWCODER_SUPERUSER_USERNAME": {
+      "description": "Username of the Super-User of an Lowcoder Installation",
+      "value": "admin@localhost",
+      "required": true
+    },
+    "LOWCODER_SUPERUSER_PASSWORD": {
+      "description": "Password of the Super-User, if not present or empty, it will be generated",
+      "value": "`generated and printed into log file",
+      "required": true
+    },
+    "LOWCODER_API_KEY_SECRET": {
+      "description": "String to encrypt/sign API Keys that users may create",
+      "required": true
+    },
+    "LOWCODER_ADMIN_SMTP_HOST": {
+      "description": "SMTP Hostname of your Mail Relay Server",
+      "required": false
+    },
+    "LOWCODER_ADMIN_SMTP_PORT": {
+      "description": "Port number for the SMTP service",
+      "value": "587",
+      "required": false
+    },
+    "LOWCODER_ADMIN_SMTP_USERNAME": {
+      "description": "Username for SMTP authentication",
+      "required": false
+    },
+    "LOWCODER_ADMIN_SMTP_PASSWORD": {
+      "description": "Password for SMTP authentication",
+      "required": false
+    },
+    "LOWCODER_ADMIN_SMTP_AUTH": {
+      "description": "Enable SMTP authentication",
+      "value": "true",
+      "required": false
+    },
+    "LOWCODER_ADMIN_SMTP_SSL_ENABLED": {
+      "description": "Enable SSL encryption",
+      "value": "false",
+      "required": false
+    },
+    "LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED": {
+      "description": "Enable STARTTLS encryption",
+      "value": "true",
+      "required": false
+    },
+    "LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED": {
+      "description": "Require STARTTLS encryption",
+      "value": "true",
+      "required": false
+    },
+    "LOWCODER_LOST_PASSWORD_EMAIL_SENDER": {
+      "description": "\"from\" Email address of the password Reset Email Sender",
+      "value": "service@lowcoder.cloud",
+      "required": false
+    },
+    "LOWCODER_REDIS_ENABLED": {
+      "description": "If true redis server is started in the single docker image container",
+      "required": true
+    },
+    "LOWCODER_MONGODB_ENABLED": {
+      "description": "If true mongo database is started in the single docker image container",
+      "required": true
+    },
+    "LOWCODER_MONGODB_EXPOSED": {
+      "description": "If true mongo database accept connections from outside the docker in the single docker image container",
+      "required": false
+    },
+    "LOWCODER_API_SERVICE_ENABLED": {
+      "description": "If true lowcoder api-service is started in the container",
+      "required": false
+    },
+    "LOWCODER_NODE_SERVICE_ENABLED": {
+      "description": "If true lowcoder node-service is started in the container",
+      "required": false
+    },
+    "LOWCODER_FRONTEND_ENABLED": {
+      "description": "If true lowcoder web frontend is started in the container",
+      "required": false
+    },
+    "LOWCODER_PUID": {
+      "description": "ID of user running services. It will own all created logs and data.",
+      "value": "9001",
+      "required": false
+    },
+    "LOWCODER_PGID": {
+      "description": "ID of group of the user running services.",
+      "value": "9001",
+      "required": false
+    },
+    "LOWCODER_PUBLIC_URL": {
+      "description": "The URL of the public User Interface",
+      "value": "localhost:3000",
+      "required": false
     }
-  }
+  }  
 }

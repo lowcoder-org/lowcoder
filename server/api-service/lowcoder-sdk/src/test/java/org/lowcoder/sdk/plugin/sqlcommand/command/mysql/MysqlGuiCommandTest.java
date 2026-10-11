@@ -1,7 +1,7 @@
 package org.lowcoder.sdk.plugin.sqlcommand.command.mysql;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.BulkObjectChangeSet;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.KeyValuePairChangeSet;
 import org.lowcoder.sdk.plugin.sqlcommand.filter.FilterSet;
@@ -31,7 +31,7 @@ public class MysqlGuiCommandTest {
         var command = new MysqlInsertCommand("user", changeSet);
         var render = command.render(Map.of("email", email, "info", infoMap));
 
-        Assert.assertEquals("insert into user (`id`,`name`,`email`,`info`) values (?,?,?,?)", render.sql());
+        Assertions.assertEquals("insert into user (`id`,`name`,`email`,`info`) values (?,?,?,?)", render.sql());
         assertThat(render.bindParams()).isEqualTo(List.of(Integer.parseInt(id), name, email, toJson(infoMap)));
 
         assertThat(command.extractMustacheKeys()).isEqualTo(Set.of("{{ email }}", "{{ info }}"));
@@ -62,7 +62,7 @@ public class MysqlGuiCommandTest {
         var command = new MysqlUpdateCommand("user", changeSet, filterSet, false);
         var render = command.render(Map.of("email", email, "info", infoMap, "name", name, "ids", List.of(1, 2, 5)));
 
-        Assert.assertEquals(
+        Assertions.assertEquals(
                 "update user set `id`=?,`name`=?,`email`=?,`info`=? "
                         + "where `name` = ?  and `status` > ?  and `id` IN (1,2,5) and `phone` IS null  limit 1",
                 render.sql());
@@ -104,7 +104,7 @@ public class MysqlGuiCommandTest {
         var command = new MysqlUpsertCommand("user", changeSet, changeSet2);
         var render = command.render(Map.of("email", email, "info", infoMap, "id", Integer.parseInt(id), "name", name));
 
-        Assert.assertEquals(
+        Assertions.assertEquals(
                 "insert into user (`id`,`name`,`email`,`info`) values (?,?,?,?) on duplicate key update `id`=?,`name`=?,`email`=?,`info`=?",
                 render.sql());
 
@@ -140,7 +140,7 @@ public class MysqlGuiCommandTest {
         var command = new MysqlDeleteCommand("user", filterSet, false);
         var render = command.render(Map.of("email", email, "info", infoMap, "name", name, "ids", List.of(1, 2, 5)));
 
-        Assert.assertEquals(
+        Assertions.assertEquals(
                 "delete from user where `name` = ?  and `status` > ?  and `id` IN (1,2,5) and `phone` IS null  limit 1",
                 render.sql());
 
@@ -171,7 +171,7 @@ public class MysqlGuiCommandTest {
         var command = new MysqlBulkInsertCommand("user", new BulkObjectChangeSet(toJson(insertList)));
         var render = command.render(Map.of("email", email, "info", infoMap));
 
-        Assert.assertEquals(
+        Assertions.assertEquals(
                 "insert into user (`id`,`name`,`email`,`info`) values (?,?,?,?),(?,?,?,?)",
                 render.sql());
 
@@ -208,7 +208,7 @@ public class MysqlGuiCommandTest {
                 new BulkObjectChangeSet(toJson(updateList)), "id");
         var render = command.render(Map.of("rose", "rose", "email", "jack@jack.com", "id1", 1));
 
-        Assert.assertEquals(
+        Assertions.assertEquals(
                 """
                         UPDATE user set
                         `name` = CASE WHEN `id` = ? THEN ? WHEN `id` = ? THEN ? ELSE `name` END,

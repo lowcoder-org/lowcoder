@@ -18,7 +18,8 @@ const AllHookComp = [
   "screenInfo",
   "urlParams",
   "theme",
-  "meeting"
+  "meeting",
+  "chatController"
 ] as const;
 
 export type HookCompType = (typeof AllHookComp)[number];
@@ -49,6 +50,10 @@ const HookCompConfig: Record<
     category: "ui",
     singleton: false,
   },
+  chatController: {
+    category: "ui",
+    singleton: false,
+  },
   lodashJsLib: {
     category: "hide",
   },
@@ -60,7 +65,10 @@ const HookCompConfig: Record<
   },
   utils: { category: "hide" },
   message: { category: "hide" },
-  toast: { category: "hide" },
+  toast: { 
+    category: "ui",
+    singleton: false,
+  },
 };
 
 // Get hook component category

@@ -38,6 +38,17 @@ export interface ExternalEditorContextState {
    */
   showScriptsAndStyleModal?: boolean;
 
+  /**
+   * whether to block editing if someone else is editing the app
+   */
+  blockEditing?: boolean;
+  /**
+   * passing this function to refresh app from header
+   */
+  fetchApplication?: () => void;
+
+  exportPublicAppToJson?: () => void;
+
   changeExternalState?: (state: Partial<ExternalEditorContextState>) => void;
 }
 

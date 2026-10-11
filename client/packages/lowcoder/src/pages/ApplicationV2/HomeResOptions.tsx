@@ -3,8 +3,6 @@ import { HomeResTypeEnum } from "../../types/homeRes";
 import { exportApplicationAsJSONFile } from "./components/AppImport";
 import { CustomModal, EditPopover, EditPopoverItemType, PointIcon } from "lowcoder-design";
 import { HomeResInfo } from "../../util/homeResUtils";
-import { recycleApplication } from "../../redux/reduxActions/applicationActions";
-import { deleteFolder } from "../../redux/reduxActions/folderActions";
 import { useDispatch } from "react-redux";
 import React, { useState } from "react";
 import styled from "styled-components";
@@ -13,6 +11,8 @@ import { useParams } from "react-router-dom";
 import { AppTypeEnum } from "constants/applicationConstants";
 import { CopyModal } from "pages/common/copyModal";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import ApplicationApi from "../../api/applicationApi";
+import { deleteFolder } from "../../redux/reduxActions/folderActions";
 
 const PopoverIcon = styled(PointIcon)`
   cursor: pointer;
@@ -38,8 +38,10 @@ export const HomeResOptions = (props: {
   onDuplicate?: (res: HomeRes | undefined) => void;
   onRename: (res: HomeRes) => void;
   onMove: (res: HomeRes) => void;
+  setModify: any;
+  modify: boolean;
 }) => {
-  const { res, onDuplicate, onRename, onMove } = props;
+  const { res, onDuplicate, onRename, onMove, setModify, modify } = props;
   const dispatch = useDispatch();
   const [showCopyModal, setShowCopyModal] = useState(false);
 
@@ -51,7 +53,7 @@ export const HomeResOptions = (props: {
     if (res.isEditable) {
       options = [
         ...options,
-        { text: trans("rename"), onClick: () => onRename(res) },
+        { text: trans("home.renameApp"), onClick: () => onRename(res) },
         {
           text: trans("header.duplicate", { type: HomeResInfo[res.type].name.toLowerCase() }),
           onClick: () => {
@@ -78,19 +80,21 @@ export const HomeResOptions = (props: {
                 type: HomeResInfo[res.type].name,
                 name: <b>{res.name}</b>,
               }),
-              onConfirm: () =>
-                new Promise((resolve, reject) => {
-                  dispatch(
-                    recycleApplication(
-                      { applicationId: res.id, folderId: folderId },
-                      () => {
-                        messageInstance.success(trans("success"));
-                        resolve(true);
-                      },
-                      () => reject()
-                    )
-                  );
-                }),
+              onConfirm: async () => {
+                try {
+                  await ApplicationApi.recycleApplication({ 
+                    applicationId: res.id, 
+                    folderId: folderId || "" 
+                  });
+                  messageInstance.success(trans("success"));
+                  setTimeout(() => {
+                    setModify(!modify);
+                  }, 200);
+                } catch (error) {
+                  console.error("Failed to recycle application:", error);
+                  messageInstance.error("Failed to delete application");
+                }
+              },
               confirmBtnType: "delete",
               okText: trans("home.moveToTrash"),
             });
@@ -115,19 +119,25 @@ export const HomeResOptions = (props: {
                 type: HomeResInfo[res.type].name.toLowerCase(),
                 name: <b>{res.name}</b>,
               }),
-              onConfirm: () =>
-                new Promise((resolve, reject) => {
-                  dispatch(
-                    deleteFolder(
-                      { folderId: res.id, parentFolderId: folderId },
-                      () => {
-                        messageInstance.success(trans("home.deleteSuccessMsg"));
-                        resolve(true);
-                      },
-                      () => reject()
-                    )
-                  );
-                }),
+              onConfirm: () => {
+                dispatch(deleteFolder(
+                  { 
+                    folderId: res.id, 
+                    parentFolderId: folderId || "" 
+                  },
+                  () => {
+                    // Success callback
+                    messageInstance.success(trans("home.deleteSuccessMsg"));
+                    setTimeout(() => {
+                      setModify(!modify);
+                    }, 200);
+                  },
+                  () => {
+                    // Error callback
+                    messageInstance.error("Failed to delete folder");
+                  }
+                ));
+              },
               confirmBtnType: "delete",
               okText: trans("delete"),
             });

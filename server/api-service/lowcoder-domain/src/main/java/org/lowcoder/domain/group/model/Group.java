@@ -42,6 +42,8 @@ public class Group extends HasIdAndAuditing implements Comparable<Group> {
 
     @NotNull
     private String name;
+    @Getter
+    private String gid;
 
     @Getter
     @NotNull

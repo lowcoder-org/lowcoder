@@ -1,0 +1,165 @@
+{
+  "from" : {
+    "raw" : {
+      "class" : "org.lowcoder.plugin.mssql.model.MssqlQueryConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.mssql.model.MssqlQueryConfig",
+        "sql" : "  select * from users where id = {{id}}  ",
+        "disablePreparedStatement" : true,
+        "mode" : "SQL",
+        "guiStatementType" : null,
+        "guiStatementDetail" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.mssql.model.MssqlQueryConfig",
+        "/sql" : "java.lang.String",
+        "/disablePreparedStatement" : "java.lang.Boolean",
+        "/mode" : "java.lang.String",
+        "/guiStatementType" : "null",
+        "/guiStatementDetail" : "null"
+      },
+      "noView" : {"sql":"select * from users where id = {{id}}","disablePreparedStatement":true,"mode":"SQL","commandType":null,"command":null,"guiMode":false},
+      "Public" : {"sql":"select * from users where id = {{id}}","disablePreparedStatement":true,"mode":"SQL","commandType":null,"command":null,"guiMode":false},
+      "Internal" : {"sql":"select * from users where id = {{id}}","disablePreparedStatement":true,"mode":"SQL","commandType":null,"command":null,"guiMode":false}
+    },
+    "gui" : {
+      "class" : "org.lowcoder.plugin.mssql.model.MssqlQueryConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.mssql.model.MssqlQueryConfig",
+        "sql" : null,
+        "disablePreparedStatement" : false,
+        "mode" : "GUI",
+        "guiStatementType" : "INSERT",
+        "guiStatementDetail" : {
+          "table" : "users",
+          "changeSet" : [ {
+            "key" : "id",
+            "value" : "{{1}}"
+          }, {
+            "key" : "name",
+            "value" : "{{input.value}}"
+          } ],
+          "allowMultiModify" : true,
+          "filterBy" : [ {
+            "key" : "id",
+            "operator" : "=",
+            "value" : "7"
+          } ]
+        }
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.mssql.model.MssqlQueryConfig",
+        "/sql" : "null",
+        "/disablePreparedStatement" : "java.lang.Boolean",
+        "/mode" : "java.lang.String",
+        "/guiStatementType" : "java.lang.String",
+        "/guiStatementDetail" : "java.util.LinkedHashMap",
+        "/guiStatementDetail/table" : "java.lang.String",
+        "/guiStatementDetail/changeSet" : "java.util.ArrayList",
+        "/guiStatementDetail/changeSet/0" : "java.util.LinkedHashMap",
+        "/guiStatementDetail/changeSet/0/key" : "java.lang.String",
+        "/guiStatementDetail/changeSet/0/value" : "java.lang.String",
+        "/guiStatementDetail/changeSet/1" : "java.util.LinkedHashMap",
+        "/guiStatementDetail/changeSet/1/key" : "java.lang.String",
+        "/guiStatementDetail/changeSet/1/value" : "java.lang.String",
+        "/guiStatementDetail/allowMultiModify" : "java.lang.Boolean",
+        "/guiStatementDetail/filterBy" : "java.util.ArrayList",
+        "/guiStatementDetail/filterBy/0" : "java.util.LinkedHashMap",
+        "/guiStatementDetail/filterBy/0/key" : "java.lang.String",
+        "/guiStatementDetail/filterBy/0/operator" : "java.lang.String",
+        "/guiStatementDetail/filterBy/0/value" : "java.lang.String"
+      },
+      "noView" : {
+        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
+      },
+      "Public" : {
+        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
+      },
+      "Internal" : {
+        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
+      }
+    },
+    "guiJavaNames" : {
+      "class" : "org.lowcoder.plugin.mssql.model.MssqlQueryConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.mssql.model.MssqlQueryConfig",
+        "sql" : null,
+        "disablePreparedStatement" : false,
+        "mode" : "GUI",
+        "guiStatementType" : null,
+        "guiStatementDetail" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.mssql.model.MssqlQueryConfig",
+        "/sql" : "null",
+        "/disablePreparedStatement" : "java.lang.Boolean",
+        "/mode" : "java.lang.String",
+        "/guiStatementType" : "null",
+        "/guiStatementDetail" : "null"
+      },
+      "noView" : {
+        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
+      },
+      "Public" : {
+        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
+      },
+      "Internal" : {
+        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
+      }
+    },
+    "scalarsAsStrings" : {
+      "class" : "org.lowcoder.plugin.mssql.model.MssqlQueryConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.mssql.model.MssqlQueryConfig",
+        "sql" : "select 1",
+        "disablePreparedStatement" : true,
+        "mode" : null,
+        "guiStatementType" : null,
+        "guiStatementDetail" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.mssql.model.MssqlQueryConfig",
+        "/sql" : "java.lang.String",
+        "/disablePreparedStatement" : "java.lang.Boolean",
+        "/mode" : "null",
+        "/guiStatementType" : "null",
+        "/guiStatementDetail" : "null"
+      },
+      "noView" : {"sql":"select 1","disablePreparedStatement":true,"mode":null,"commandType":null,"command":null,"guiMode":false},
+      "Public" : {"sql":"select 1","disablePreparedStatement":true,"mode":null,"commandType":null,"command":null,"guiMode":false},
+      "Internal" : {"sql":"select 1","disablePreparedStatement":true,"mode":null,"commandType":null,"command":null,"guiMode":false}
+    },
+    "sqlMissing" : {
+      "class" : "org.lowcoder.plugin.mssql.model.MssqlQueryConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.mssql.model.MssqlQueryConfig",
+        "sql" : null,
+        "disablePreparedStatement" : false,
+        "mode" : "SQL",
+        "guiStatementType" : null,
+        "guiStatementDetail" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.mssql.model.MssqlQueryConfig",
+        "/sql" : "null",
+        "/disablePreparedStatement" : "java.lang.Boolean",
+        "/mode" : "java.lang.String",
+        "/guiStatementType" : "null",
+        "/guiStatementDetail" : "null"
+      },
+      "noView" : {
+        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
+      },
+      "Public" : {
+        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
+      },
+      "Internal" : {
+        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
+      }
+    },
+    "empty" : {
+      "error" : "org.lowcoder.sdk.exception.PluginException: INVALID_QUERY_SETTINGS SQLSERVER_QUERY_CONFIG_EMPTY"
+    },
+    "unknownProperty" : "ignored: binds as form raw"
+  }
+}

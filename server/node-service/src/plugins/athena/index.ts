@@ -40,8 +40,8 @@ const timeout = 1000 * 60; // 60s
 
 const athenaPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
   id: "athena",
-  name: "Athena",
-  category: "api",
+  name: "AWS Athena",
+  category: "Big Data",
   icon: "athena.svg",
   dataSourceConfig,
   queryConfig,

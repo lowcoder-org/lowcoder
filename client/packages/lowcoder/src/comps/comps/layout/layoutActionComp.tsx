@@ -3,7 +3,7 @@ import { Dropdown } from "components/Dropdown";
 import { StringControl } from "comps/controls/codeControl";
 import { BranchDiv, Treediv } from "components/Trees";
 import { AppSelectComp } from "comps/comps/layout/appSelectComp";
-import { keyValueListControl } from "comps/controls/keyValueControl";
+import { keyValueListControl } from "comps/controls/keyValueListControl";
 import { trans } from "i18n";
 import { KeyValue } from "types/common";
 import { keyValueListToSearchStr } from "util/appUtils";

@@ -10,8 +10,20 @@ client/packages/lowcoder-plugin-demo/.yarn/install-state.gz
 client/packages/lowcoder-plugin-demo/yarn.lock
 client/packages/lowcoder-plugin-demo/.yarn/cache/@types-node-npm-16.18.68-56f72825c0-094ae9ed80.zip
 application-dev.yml
-server/api-service/lowcoder-server/src/main/resources/application-lowcoder.yml
-server/api-service/lowcoder-server/src/main/resources/application-debug.yaml
+application-lowcoder.yml
+application-debug.yaml
+application-dev-localhost.yaml
 .vscode/settings.json
 .vscode/launch.json
-server/api-service/lowcoder-server/src/main/resources/application-debug.yaml
+server/api-service/lowcoder-server/src/main/resources/application-local-dev.yaml
+translations/locales/node_modules/
+server/api-service/lowcoder-server/src/main/resources/application-local-dev-ee.yaml
+node_modules
+.codegraph
+.cursor
+
+# Local Netlify folder
+.netlify
+
+# Local API payload test plan, evidence and reports (not needed by the build or tests)
+server/api-service/docs/

@@ -1,0 +1,5 @@
+{
+  "role" : "editor",
+  "userIds" : [ "BundleEndpoints.BatchAddPermissionRequest.userIds[0]", "BundleEndpoints.BatchAddPermissionRequest.userIds[1]" ],
+  "groupIds" : [ "BundleEndpoints.BatchAddPermissionRequest.groupIds[0]", "BundleEndpoints.BatchAddPermissionRequest.groupIds[1]" ]
+}

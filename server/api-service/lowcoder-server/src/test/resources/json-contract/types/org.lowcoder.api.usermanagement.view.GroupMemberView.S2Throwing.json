@@ -1,0 +1,13 @@
+{
+  "groupMember" : {
+    "groupId" : "java.lang.NullPointerException",
+    "joinTime" : "java.lang.NullPointerException",
+    "orgId" : "java.lang.NullPointerException",
+    "role" : "java.lang.NullPointerException"
+  },
+  "user" : {
+    "avatarUrl" : "java.lang.NullPointerException",
+    "userId" : "java.lang.NullPointerException",
+    "userName" : "java.lang.NullPointerException"
+  }
+}

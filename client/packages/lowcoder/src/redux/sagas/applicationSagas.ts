@@ -22,6 +22,7 @@ import {
   PublishApplicationPayload,
   RecycleApplicationPayload,
   RestoreApplicationPayload,
+  SetAppEditingStatePayload,
   UpdateApplicationPayload,
   UpdateAppMetaPayload,
   UpdateAppPermissionPayload,
@@ -34,6 +35,7 @@ import { SERVER_ERROR_CODES } from "constants/apiConstants";
 import history from "util/history";
 import { ApplicationMeta, AppTypeEnum } from "constants/applicationConstants";
 import { trans } from "i18n";
+import { PUBLIC_APP_ID, publicAppResponse } from "@lowcoder-ee/constants/publicApp";
 
 export function* fetchHomeDataSaga(action: ReduxAction<HomeDataPayload>) {
   try {
@@ -177,7 +179,7 @@ export function* updateApplicationMetaSaga(action: ReduxAction<UpdateAppMetaPayl
 
 export function* publishApplicationSaga(action: ReduxAction<PublishApplicationPayload>) {
   try {
-    const response: AxiosResponse<ApiResponse> = yield call(
+    const response: AxiosResponse<ApplicationResp> = yield call(
       ApplicationApi.publishApplication,
       action.payload
     );
@@ -187,6 +189,20 @@ export function* publishApplicationSaga(action: ReduxAction<PublishApplicationPa
         type: ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS,
         payload: action.payload,
       });
+      if (response.data.data && response.data.data.applicationInfoView) {
+        const appInfo = response.data.data.applicationInfoView;
+        yield put({
+          type: ReduxActionTypes.UPDATE_APPLICATION_META_SUCCESS,
+          payload: {
+            applicationId: appInfo.applicationId,
+            name: appInfo.name,
+            folderId: appInfo.folderId,
+            publishedVersion: appInfo.publishedVersion,
+            lastPublishedTime: appInfo.lastPublishedTime,
+          },
+        });
+      }
+      
       messageInstance.success(trans("api.publishSuccess"));
       window.open(APPLICATION_VIEW_URL(action.payload.applicationId, "view"));
     }
@@ -202,10 +218,16 @@ export function* publishApplicationSaga(action: ReduxAction<PublishApplicationPa
 
 export function* fetchApplicationDetailSaga(action: ReduxAction<FetchAppInfoPayload>) {
   try {
-    const response: AxiosResponse<ApplicationResp> = yield call(
-      ApplicationApi.getApplicationDetail,
-      action.payload
-    );
+    
+    let response: AxiosResponse<ApplicationResp>;
+    if (action.payload.applicationId === PUBLIC_APP_ID) {
+      response = publicAppResponse as AxiosResponse<ApplicationResp>;
+    } else {
+      response = yield call(
+        ApplicationApi.getApplicationDetail,
+        action.payload
+      );
+    }
     const isValidResponse: boolean = doValidResponse(response);
     if (isValidResponse && action.payload) {
       const {
@@ -242,7 +264,8 @@ export function* fetchApplicationDetailSaga(action: ReduxAction<FetchAppInfoPayl
       return;
     } else if (!isValidResponse) {
       if (response.data.code === SERVER_ERROR_CODES.NO_PERMISSION_TO_REQUEST_APP) {
-        history.push(BASE_URL);
+        // history.push(BASE_URL);
+        action.payload.onError?.(response.data.message);
       }
       throw Error(response.data.message);
     }
@@ -390,6 +413,34 @@ function* fetchAllMarketplaceAppsSaga() {
   }
 }
 
+function* setAppEditingStateSaga(action: ReduxAction<SetAppEditingStatePayload>) {
+  try {
+    yield call(
+      ApplicationApi.setAppEditingState,
+      action.payload
+    ); 
+  } catch (error) {
+    log.debug("set app editing state: ", error);
+  }
+}
+
+export function* fetchServerSettingsSaga() {
+  try {
+    const response: AxiosResponse<GenericApiResponse<Record<string,string>>> = yield call(
+      ApplicationApi.fetchServerSettings
+    );
+    if (Boolean(response.data)) {
+      yield put({
+        type: ReduxActionTypes.FETCH_SERVER_SETTINGS_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error: any) {
+    log.debug("fetch server settings error: ", error);
+    messageInstance.error(error.message);
+  }
+}
+
 export default function* applicationSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_HOME_DATA, fetchHomeDataSaga),
@@ -415,5 +466,7 @@ export default function* applicationSagas() {
       ReduxActionTypes.FETCH_ALL_MARKETPLACE_APPS,
       fetchAllMarketplaceAppsSaga,
     ),
+    takeLatest(ReduxActionTypes.SET_APP_EDITING_STATE, setAppEditingStateSaga),
+    takeLatest(ReduxActionTypes.FETCH_SERVER_SETTINGS, fetchServerSettingsSaga),
   ]);
 }

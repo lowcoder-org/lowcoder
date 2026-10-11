@@ -10,7 +10,8 @@ import _ from "lodash";
 
 const LabelWrapper = styled.div<{ $placement: ControlPlacement }>`
   flex-shrink: 0;
-  width: ${(props) => (props.$placement === "right" ? "96px" : "bottom" ? "112px" : "136px")};
+  width: ${(props) =>
+    props.$placement === "right" ? "96px" : props.$placement === "bottom" ? "112px" : "136px"};
 `;
 
 const DropDownItemLabel = styled.div`
@@ -69,7 +70,7 @@ export function multiSelectControl<T extends OptionsType>(
             <DropdownContainer $placement={placement}>
               <CustomSelect
                 mode={"multiple"}
-                popupClassName="ob-dropdown-control-select"
+                classNames={{popup: {root: "ob-dropdown-control-select"}}}
                 filterOption={(input, option) => {
                   if (!option?.value) {
                     return false;

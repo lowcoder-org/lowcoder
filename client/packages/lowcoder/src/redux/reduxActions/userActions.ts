@@ -27,7 +27,7 @@ export const updateUserAction = (payload: UpdateUserPayload) => {
   return {
     type: ReduxActionTypes.UPDATE_USER_PROFILE,
     payload: payload,
-  };
+  }; 
 };
 
 export const updateUserSuccess = (payload: UpdateUserPayload) => {
@@ -52,7 +52,10 @@ export const markUserStatus = (type: UserStatusType, value: boolean) => {
   };
 };
 
-type LogoutActionPayload = { notAuthorised?: boolean };
+type LogoutActionPayload = {
+  notAuthorised?: boolean,
+  organizationId?: string,
+};
 export type LogoutActionType = ReduxAction<LogoutActionPayload>;
 export const logoutAction = (payload: LogoutActionPayload) => ({
   type: ReduxActionTypes.LOGOUT_USER_INIT,
@@ -67,7 +70,6 @@ export const fetchApiKeysAction = () => {
     type: ReduxActionTypes.FETCH_API_KEYS,
   };
 };
-
 export const fetchApiKeysSuccess = (payload: FetchApiKeysPayload) => {
   return {
     type: ReduxActionTypes.FETCH_API_KEYS_SUCCESS,

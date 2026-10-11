@@ -1,18 +1,18 @@
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, FileViewerStyle, FileViewerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { isEmpty } from "lodash";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DocumentViewer } from "react-documents";
 import styled, { css } from "styled-components";
 import { Section, sectionNames } from "lowcoder-design";
 import { StringControl } from "../controls/codeControl";
-import { UICompBuilder } from "../generators";
+import { UICompBuilder, withDefault } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
+import { AutoHeightControl } from "../controls/autoHeightControl";
+import { BoolControl } from "../controls/boolControl";
 
 const getStyle = (style: FileViewerStyleType) => {
   return css`
@@ -22,7 +22,7 @@ const getStyle = (style: FileViewerStyleType) => {
     padding: ${style.padding};
 
     overflow: hidden;
-    background-color: ${style.background};
+    background: ${style.background};
     border: ${(props) => (style.borderWidth ? style.borderWidth : "1px")} solid ${style.border};
     border-radius: calc(min(${style.radius}, 20px));
   `;
@@ -42,12 +42,18 @@ const StyledDiv = styled.div<{$style: FileViewerStyleType;}>`
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
-const DraggableFileViewer = (props: { src: string; style: FileViewerStyleType,animationStyle:AnimationStyleType }) => {
+const DraggableFileViewer = (props: {
+  src: string;
+  style: FileViewerStyleType,
+  animationStyle:AnimationStyleType,
+  showVerticalScrollbar: boolean,
+}) => {
   const [isActive, setActive] = useState(false);
 
   return (
     <StyledDiv
       $style={props.style}
+      id="fileViewer"
       onClick={(e) => setActive(true)}
       onMouseLeave={(e) => setActive(false)}
     >
@@ -67,8 +73,10 @@ const DraggableFileViewer = (props: { src: string; style: FileViewerStyleType,an
 let FileViewerBasicComp = (function () {
   const childrenMap = {
     src: StringControl,
-    style: styleControl(FileViewerStyle),
-    animationStyle: styleControl(AnimationStyle),
+    autoHeight: withDefault(AutoHeightControl,'auto'),
+    showVerticalScrollbar: withDefault(BoolControl, false),
+    style: styleControl(FileViewerStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
   return new UICompBuilder(childrenMap, (props) => {
     if (isEmpty(props.src)) {
@@ -81,9 +89,15 @@ let FileViewerBasicComp = (function () {
         </ErrorWrapper>
       );
     }
-    return <DraggableFileViewer src={props.src} style={props.style} animationStyle={props.animationStyle}/>;
+    return <DraggableFileViewer
+      src={props.src}
+      style={props.style}
+      animationStyle={props.animationStyle}
+      showVerticalScrollbar={props.showVerticalScrollbar}
+    />;
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
@@ -95,13 +109,22 @@ let FileViewerBasicComp = (function () {
             })}
           </Section>
 
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["logic", "both"].includes(editorModeStatus) && (
             <Section name={sectionNames.interaction}>
               {hiddenPropertyView(children)}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           )}
+          <Section name={sectionNames.layout}>
+              {children.autoHeight.getPropertyView()}
+              {!children.autoHeight.getView() && (
+                  children.showVerticalScrollbar.propertyView({
+                    label: trans("prop.showVerticalScrollbar"),
+                  })
+                )}
+          </Section>
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             <>
               <Section name={sectionNames.style}>
               {children.style.getPropertyView()}
@@ -119,7 +142,7 @@ let FileViewerBasicComp = (function () {
 
 FileViewerBasicComp = class extends FileViewerBasicComp {
   override autoHeight(): boolean {
-    return false;
+    return this.children.autoHeight.getView();
   }
 };
 

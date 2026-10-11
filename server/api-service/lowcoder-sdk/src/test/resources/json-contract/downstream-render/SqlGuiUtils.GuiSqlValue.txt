@@ -1,0 +1,10 @@
+int	java.lang.Integer:1	1
+long	java.lang.Long:3000000001	3000000001
+decimal	java.lang.Double:1.5	1.5
+exponent	java.lang.Double:1.0E20	1.0E20
+bool	java.lang.Boolean:true	true
+null	null	null
+string	java.lang.String:it's "q" \ žluť	$tag$it's "q" \ žluť$tag$
+dollar	java.lang.String:cost $1	$tag$cost $1$tag$
+list	java.lang.String:[1,"it's \"q\"",2.5,null,[true],{"k":1.50}]	$tag$[1,"it's \"q\"",2.5,null,[true],{"k":1.50}]$tag$
+map	java.lang.String:{"zeta":"it's","decimal":1.50,"nested":[1,null]}	$tag${"zeta":"it's","decimal":1.50,"nested":[1,null]}$tag$

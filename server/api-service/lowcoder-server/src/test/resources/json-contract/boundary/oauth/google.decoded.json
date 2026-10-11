@@ -1,0 +1,87 @@
+{
+  "token" : {
+    "request" : "POST /oauth2/v4/token?code=c0de&client_id=lowcoder-client&client_secret=s3cr3t&grant_type=authorization_code&redirect_uri=https%3A%2F%2Flowcoder.example.com%2Fapps%2Foauth%2Fredirect",
+    "decoded" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/access_token" : "java.lang.String",
+        "/expires_in" : "java.lang.Integer",
+        "/refresh_token" : "java.lang.String",
+        "/scope" : "java.lang.String",
+        "/token_type" : "java.lang.String",
+        "/id_token" : "java.lang.String"
+      },
+      "keyOrder" : {
+        "" : [ "access_token", "expires_in", "refresh_token", "scope", "token_type", "id_token" ]
+      }
+    },
+    "authToken" : {
+      "accessToken" : "ya29.a0AfH6SMBgoogle0001",
+      "expireIn" : 3599,
+      "refreshToken" : "1//0gGoogleRefresh0001",
+      "refreshTokenExpireIn" : 0,
+      "jwt" : null
+    }
+  },
+  "refresh" : {
+    "request" : "POST /oauth2/v4/token?refresh_token=rt.input.0001&client_id=lowcoder-client&client_secret=s3cr3t&grant_type=refresh_token",
+    "decoded" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/access_token" : "java.lang.String",
+        "/expires_in" : "java.lang.Integer",
+        "/scope" : "java.lang.String",
+        "/token_type" : "java.lang.String",
+        "/id_token" : "java.lang.String"
+      },
+      "keyOrder" : {
+        "" : [ "access_token", "expires_in", "scope", "token_type", "id_token" ]
+      }
+    },
+    "authToken" : {
+      "accessToken" : "ya29.a0AfH6SMBgoogle0002",
+      "expireIn" : 3599,
+      "refreshToken" : null,
+      "refreshTokenExpireIn" : 0,
+      "jwt" : null
+    }
+  },
+  "user" : {
+    "request" : "POST /oauth2/v3/userinfo",
+    "decoded" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/sub" : "java.lang.String",
+        "/name" : "java.lang.String",
+        "/given_name" : "java.lang.String",
+        "/family_name" : "java.lang.String",
+        "/picture" : "java.lang.String",
+        "/email" : "java.lang.String",
+        "/email_verified" : "java.lang.Boolean",
+        "/locale" : "java.lang.String",
+        "/hd" : "null"
+      },
+      "keyOrder" : {
+        "" : [ "sub", "name", "given_name", "family_name", "picture", "email", "email_verified", "locale", "hd" ]
+      }
+    },
+    "authUser" : {
+      "uid" : "113249926842638649371",
+      "username" : "tech.ninja@gmail.com",
+      "email" : null,
+      "avatar" : "https://lh3.googleusercontent.com/a/ACg8ocL_s96-c",
+      "groupId" : null,
+      "rawUserInfo" : {
+        "sub" : "113249926842638649371",
+        "name" : "Tech Ninja",
+        "given_name" : "Tech",
+        "family_name" : "Ninja",
+        "picture" : "https://lh3.googleusercontent.com/a/ACg8ocL_s96-c",
+        "email" : "tech.ninja@gmail.com",
+        "email_verified" : true,
+        "locale" : "sk",
+        "hd" : null
+      }
+    }
+  }
+}

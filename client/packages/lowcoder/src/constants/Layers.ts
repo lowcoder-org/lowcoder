@@ -1,12 +1,12 @@
 export const Layers = {
   // new user tutorials
-  tutorials: 3000,
+  tutorials: 5000,
   //
   videoDialog: 2010,
   //
-  codeEditorTooltip: 3000,
+  codeEditorTooltip: 1000,
   //
-  codeEditorPanel: 1100,
+  codeEditorPanel: 1000,
   //
   queryResultPanel: 1000,
   //
@@ -24,7 +24,7 @@ export const Layers = {
   //
   helpIcon: 550,
   // bottom panel, keep the code completion displayed above the right panel
-  bottomPanel: 550,
+  bottomPanel: 450,
   // right panel's z-index should be higher than canvas and comps, to make sure the code completion displayed above
   rightPanel: 500,
   // comp selection wrapper

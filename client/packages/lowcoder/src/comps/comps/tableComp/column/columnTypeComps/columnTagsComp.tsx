@@ -10,12 +10,13 @@ import { codeControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import styled from "styled-components";
 import _ from "lodash";
-import { ReactNode, useContext, useState } from "react";
+import React, { ReactNode, useContext, useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { toJson } from "really-relaxed-json";
 import { hashToNum } from "util/stringUtils";
 import { CustomSelect, PackUpIcon } from "lowcoder-design";
 import { ScrollBar } from "lowcoder-design";
 import { ColoredTagOptionControl } from "comps/controls/optionsControl";
+import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 
 const colors = PresetStatusColorTypes;
 
@@ -56,32 +57,108 @@ const TagsControl = codeControl<Array<string> | string>(
   { expectedType: "string | Array<string>", codeType: "JSON" }
 );
 
-function getTagColor(tagText : any, tagOptions: any[]) {
-  const foundOption = tagOptions.find((option: { label: any; }) => option.label === tagText);
-  return foundOption ? foundOption.color : (function() {
-    const index = Math.abs(hashToNum(tagText)) % colors.length;
-    return colors[index];
-  })();
+function getTagColor(tagText: string, tagOptions: TagOption[]): string | undefined {
+  const foundOption = tagOptions.find(option => option.label === tagText);
+  if (foundOption) {
+    if (foundOption.colorType === "preset") {
+      return foundOption.presetColor;
+    } else if (foundOption.colorType === "custom") {
+      return undefined; // For custom colors, we'll use style instead
+    }
+    // Backward compatibility - if no colorType specified, assume it's the old color field
+    return foundOption.color;
+  }
+  // Default fallback
+  const index = Math.abs(hashToNum(tagText)) % colors.length;
+  return colors[index];
 }
 
-function getTagIcon(tagText: any, tagOptions: any[]) {
+function getTagStyle(tagText: string, tagOptions: TagOption[]): React.CSSProperties {
+  const foundOption = tagOptions.find(option => option.label === tagText);
+  if (foundOption) {
+    const style: React.CSSProperties = {};
+    
+    // Handle color styling
+    if (foundOption.colorType === "custom") {
+      style.backgroundColor = foundOption.color;
+      style.color = foundOption.textColor;
+      style.border = `1px solid ${foundOption.color}`;
+    }
+    
+    // Add border styling if specified
+    if (foundOption.border) {
+      style.borderColor = foundOption.border;
+      if (!foundOption.colorType || foundOption.colorType !== "custom") {
+        style.border = `1px solid ${foundOption.border}`;
+      }
+    }
+    
+    // Add border radius if specified
+    if (foundOption.radius) {
+      style.borderRadius = foundOption.radius;
+    }
+    
+    // Add margin if specified
+    if (foundOption.margin) {
+      style.margin = foundOption.margin;
+    }
+    
+    // Add padding if specified
+    if (foundOption.padding) {
+      style.padding = foundOption.padding;
+    }
+    
+    return style;
+  }
+  return {};
+}
+
+function getTagIcon(tagText: string, tagOptions: TagOption[]): React.ReactNode | undefined {
   const foundOption = tagOptions.find(option => option.label === tagText);
   return foundOption ? foundOption.icon : undefined;
+}
+
+// Utility function to process comma-separated tags into individual tags
+function processTagItems(tagItems: string[]): string[] {
+  const result: string[] = [];
+  tagItems.forEach((item) => {
+    if (item.split(",")[1]) {
+      item.split(",").forEach((tag) => result.push(tag));
+    }
+    result.push(item);
+  });
+  return result;
 }
 
 const childrenMap = {
   text: TagsControl,
   tagColors: ColoredTagOptionControl,
+  onEvent: eventHandlerControl([clickEvent]),
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string | string[], string | string[]> = (
   props
 ) => props.text;
 
+interface TagOption {
+  label: string;
+  colorType?: "preset" | "custom";
+  presetColor?: string;
+  color?: string;
+  textColor?: string;
+  border?: string;
+  radius?: string;
+  margin?: string;
+  padding?: string;
+  icon?: React.ReactNode;
+  onEvent?: (eventType: string) => void;
+}
+
 type TagEditPropsType = {
   value: string | string[];
   onChange: (value: string | string[]) => void;
   onChangeEnd: () => void;
+  tagOptions: TagOption[];
 };
 
 export const Wrapper = styled.div`
@@ -91,11 +168,15 @@ export const Wrapper = styled.div`
   height: 100%;
   position: absolute;
   top: 0;
+  left: 0;
   background: transparent !important;
+  padding: 8px;
+
   > div {
     width: 100%;
     height: 100%;
   }
+
   .ant-select {
     height: 100%;
     .ant-select-selector {
@@ -145,6 +226,9 @@ export const Wrapper = styled.div`
       }
     }
   }
+  .ant-tag {
+    margin-left: 5px;
+  }
   .ant-tag svg {
     margin-right: 4px;
   }
@@ -155,6 +239,10 @@ export const DropdownStyled = styled.div`
     padding: 3px 8px;
     margin: 0 0 2px 8px;
     border-radius: 4px;
+
+    &.ant-select-item-option-active {
+      background-color: #f2f7fc;
+    }
   }
   .ant-select-item-option-content {
     display: flex;
@@ -169,26 +257,68 @@ export const DropdownStyled = styled.div`
 `;
 
 export const TagStyled = styled(Tag)`
+  margin-right: 8px;
+  cursor: pointer;
   svg {
     margin-right: 4px;
   }
 `;
 
-let tagOptionsList: any[] = [];
-
-const TagEdit = (props: TagEditPropsType) => {
+const TagEdit = React.memo((props: TagEditPropsType) => {
   const defaultTags = useContext(TagsContext);
-  const [tags, setTags] = useState(() => {
-    const result: string[] = [];
-    defaultTags.forEach((item) => {
-      if (item.split(",")[1]) {
-        item.split(",").forEach((tag) => result.push(tag));
-      }
-      result.push(item);
-    });
-    return result;
-  });
-  const [open, setOpen] = useState(true);
+  const [tags, setTags] = useState(() => processTagItems(defaultTags));
+  const [open, setOpen] = useState(false);
+  const mountedRef = useRef(true);
+
+  // Memoize tag options to prevent unnecessary re-renders
+  const memoizedTagOptions = useMemo(() => props.tagOptions || [], [props.tagOptions]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      setTags([]);
+      setOpen(false);
+    };
+  }, []);
+
+  // Update tags when defaultTags changes
+  useEffect(() => {
+    if (!mountedRef.current) return;
+    setTags(processTagItems(defaultTags));
+  }, [defaultTags]);
+
+  const handleSearch = useCallback((value: string) => {
+    if (!mountedRef.current) return;
+    
+    if (defaultTags.findIndex((item) => item.includes(value)) < 0) {
+      setTags([...processTagItems(defaultTags), value]);
+    } else {
+      setTags(processTagItems(defaultTags));
+    }
+    props.onChange(value);
+  }, [defaultTags, props.onChange]);
+
+  const handleChange = useCallback((value: string | string[]) => {
+    if (!mountedRef.current) return;
+    props.onChange(value);
+    setOpen(false);
+  }, [props.onChange]);
+
+  const handleBlur = useCallback(() => {
+    if (!mountedRef.current) return;
+    props.onChangeEnd();
+    setOpen(false);
+  }, [props.onChangeEnd]);
+
+  const handleTagClick = useCallback((tagText: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const foundOption = memoizedTagOptions.find(option => option.label === tagText);
+    if (foundOption && foundOption.onEvent) {
+      foundOption.onEvent("click");
+    }
+  }, [memoizedTagOptions]);
+
   return (
     <Wrapper>
       <CustomSelect
@@ -200,42 +330,63 @@ const TagEdit = (props: TagEditPropsType) => {
         defaultValue={props.value}
         style={{ width: "100%" }}
         open={open}
+        allowClear={true}
         suffixIcon={<PackUpIcon />}
-        onSearch={(value: string) => {
-          if (defaultTags.findIndex((item) => item.includes(value)) < 0) {
-            setTags([...defaultTags, value]);
-          } else {
-            setTags(defaultTags);
-          }
-          props.onChange(value);
-        }}
-        onChange={(value: string | string[]) => {
-          props.onChange(value);
-        }}
-        dropdownRender={(originNode: ReactNode) => (
+        onSearch={handleSearch}
+        onChange={handleChange}
+        popupRender={(originNode: ReactNode) => (
           <DropdownStyled>
             <ScrollBar style={{ maxHeight: "256px" }}>{originNode}</ScrollBar>
           </DropdownStyled>
         )}
-        dropdownStyle={{ marginTop: "7px", padding: "8px 0 6px 0" }}
-        onBlur={props.onChangeEnd}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            props.onChangeEnd();
+        styles={{ popup: { root: { marginTop: "7px", padding: "8px 0 6px 0" }}}}
+        onFocus={() => {
+          if (mountedRef.current) {
+            setOpen(true);
           }
         }}
-        onClick={() => setOpen(!open)}
+        onBlur={handleBlur}
+        onClick={() => {
+          if (mountedRef.current) {
+            setOpen(!open);
+          }
+        }}
       >
         {tags.map((value, index) => (
           <CustomSelect.Option value={value} key={index}>
             {value.split(",")[1] ? (
-              value.split(",").map((item, i) => (
-                <Tag color={getTagColor(item, tagOptionsList)} icon={getTagIcon(item, tagOptionsList)} key={i} style={{ marginRight: "8px" }}>
-                  {item}
-                </Tag>
-              ))
+              value.split(",").map((item, i) => {
+                const tagColor = getTagColor(item, memoizedTagOptions);
+                const tagIcon = getTagIcon(item, memoizedTagOptions);
+                const tagStyle = getTagStyle(item, memoizedTagOptions);
+                
+                return (
+                  <Tag 
+                    color={tagColor}
+                    icon={tagIcon} 
+                    key={i} 
+                    style={{ 
+                      marginRight: tagStyle.margin ? undefined : "8px", 
+                      cursor: "pointer",
+                      ...tagStyle 
+                    }}
+                    onClick={(e) => handleTagClick(item, e)}
+                  >
+                    {item}
+                  </Tag>
+                );
+              })
             ) : (
-              <Tag color={getTagColor(value, tagOptionsList)} icon={getTagIcon(value, tagOptionsList)} key={index}>
+              <Tag 
+                color={getTagColor(value, memoizedTagOptions)} 
+                icon={getTagIcon(value, memoizedTagOptions)} 
+                key={index}
+                style={{
+                  cursor: "pointer",
+                  ...getTagStyle(value, memoizedTagOptions)
+                }}
+                onClick={(e) => handleTagClick(value, e)}
+              >
                 {value}
               </Tag>
             )}
@@ -244,27 +395,65 @@ const TagEdit = (props: TagEditPropsType) => {
       </CustomSelect>
     </Wrapper>
   );
-};
+});
+
+TagEdit.displayName = 'TagEdit';
 
 export const ColumnTagsComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
       const tagOptions = props.tagColors;
-      tagOptionsList = props.tagColors;
       let value = props.changeValue ?? getBaseValue(props, dispatch);
       value = typeof value === "string" && value.split(",")[1] ? value.split(",") : value;
-      const tags = _.isArray(value) ? value : [value];
+      const tags = _.isArray(value) ? value : (value.length ? [value] : []);
+      
+      const handleTagClick = (e: React.MouseEvent, tagText: string) => {
+        e.stopPropagation();
+        const foundOption = tagOptions.find(option => option.label === tagText);
+        if (foundOption && foundOption.onEvent) {
+          foundOption.onEvent("click");
+        }
+        // Also trigger the main component's event handler
+        if (props.onEvent) {
+          props.onEvent("click");
+        }
+      };
+
+      const handleTagWrapperClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (props.onEvent) {
+          props.onEvent("click");
+        }
+      };
+      
       const view = tags.map((tag, index) => {
         // The actual eval value is of type number or boolean
         const tagText = String(tag);
+        const tagColor = getTagColor(tagText, tagOptions);
+        const tagIcon = getTagIcon(tagText, tagOptions);
+        const tagStyle = getTagStyle(tagText, tagOptions);
+        
         return (
-          <TagStyled color={getTagColor(tagText, tagOptions)} icon={getTagIcon(tagText, tagOptions)} key={index} >
+          <TagStyled 
+            key={`${tagText.split(' ').join('_')}-${index}`}
+            color={tagColor} 
+            icon={tagIcon} 
+            style={tagStyle}
+            onClick={(e) => handleTagClick(e, tagText)}
+          >
             {tagText}
           </TagStyled>
         );
       });
-      return view;
+      return (
+        <div
+          style={{ width: '100%', height: '100%', minHeight: '22px'}}
+          onClick={handleTagWrapperClick}
+        >
+          {view}
+        </div>
+      );
     },
     (nodeValue) => {
       const text = nodeValue.text.value;
@@ -275,7 +464,12 @@ export const ColumnTagsComp = (function () {
     .setEditViewFn((props) => {
       const text = props.value;
       const value = _.isArray(text) ? text.join(",") : text;
-      return <TagEdit value={value} onChange={props.onChange} onChangeEnd={props.onChangeEnd} />;
+      return <TagEdit 
+        value={value} 
+        onChange={props.onChange} 
+        onChangeEnd={props.onChangeEnd} 
+        tagOptions={props.otherProps?.tagColors || []} 
+      />;
     })
     .setPropertyViewFn((children) => (
       <>
@@ -284,8 +478,9 @@ export const ColumnTagsComp = (function () {
           tooltip: ColumnValueTooltip,
         })}
         {children.tagColors.propertyView({
-          title: "test",
+          title: "Tag Options",
         })}
+        {children.onEvent.propertyView()}
       </>
     ))
     .build();

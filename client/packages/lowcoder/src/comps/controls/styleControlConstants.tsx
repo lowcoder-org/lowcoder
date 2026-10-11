@@ -2,6 +2,7 @@ import {ThemeDetail} from "api/commonSettingApi";
 import {darkenColor, isDarkColor, lightenColor, toHex} from "lowcoder-design";
 import {trans} from "i18n";
 import {StyleConfigType} from "./styleControl";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 
 type SupportPlatform = "pc" | "mobile";
 
@@ -9,11 +10,17 @@ type CommonColorConfig = {
   readonly name: string;
   readonly label: string;
   readonly platform?: SupportPlatform; // support all if undefined
+  readonly tooltip?: string; // Tooltip text to show on hover
 };
 
 export type SimpleColorConfig = CommonColorConfig & {
   readonly color: string;
 };
+
+export type LineHeightConfig = CommonColorConfig & {
+  readonly lineHeight: string; // Define the lineHeight property
+};
+
 
 export type RadiusConfig = CommonColorConfig & {
   readonly radius: string;
@@ -33,6 +40,22 @@ export type BoxShadowConfig = CommonColorConfig & {
 
 export type BoxShadowColorConfig = CommonColorConfig & {
   readonly boxShadowColor: string;
+};
+
+export type ChartBackgroundColorConfig = CommonColorConfig & {
+  readonly chartBackgroundColor: string;
+};
+export type ChartGradientColorConfig = CommonColorConfig & {
+  readonly chartGradientColor: string;
+};
+export type ChartShadowColorConfig = CommonColorConfig & {
+  readonly chartShadowColor: string;
+};
+export type ChartBorderColorConfig = CommonColorConfig & {
+  readonly chartBorderColor: string;
+};
+export type ChartTextColorConfig = CommonColorConfig & {
+  readonly chartTextColor: string;
 };
 
 export type AnimationIterationCountConfig = CommonColorConfig & {
@@ -159,6 +182,50 @@ export type MarginConfig = CommonColorConfig & {
   readonly margin: string;
 };
 
+export type DirectionConfig = CommonColorConfig & {
+  readonly direction: string;
+};
+
+export type DetailSizeConfig = CommonColorConfig & {
+  readonly detailSize: string;
+};
+
+export type ChartOpacityConfig = CommonColorConfig & {
+  readonly chartOpacity: string;
+};
+
+export type ChartBoxShadowConfig = CommonColorConfig & {
+  readonly chartBoxShadow: string;
+};
+
+export type ChartBorderStyleConfig = CommonColorConfig & {
+  readonly chartBorderStyle: string;
+};
+
+export type ChartBorderRadiusConfig = CommonColorConfig & {
+  readonly chartBorderRadius: string;
+};
+
+export type ChartBorderWidthConfig = CommonColorConfig & {
+  readonly chartBorderWidth: string;
+};
+
+export type ChartTextSizeConfig = CommonColorConfig & {
+  readonly chartTextSize: string;
+};
+
+export type ChartTextWeightConfig = CommonColorConfig & {
+  readonly chartTextWeight: string;
+};
+
+export type ChartFontFamilyConfig = CommonColorConfig & {
+  readonly chartFontFamily: string;
+};
+
+export type ChartFontStyleConfig = CommonColorConfig & {
+  readonly chartFontStyle: string;
+};
+
 export type PaddingConfig = CommonColorConfig & {
   readonly padding: string;
 };
@@ -178,9 +245,14 @@ export type DepColorConfig = CommonColorConfig & {
   transformer: (color: string, ...rest: string[]) => string;
 };
 
+export type PlaceholderConfig = CommonColorConfig & {
+  readonly placeholder?: string;
+};
+
 export type SingleColorConfig =
   | SimpleColorConfig
   | DepColorConfig
+  | PlaceholderConfig
   | RadiusConfig
   | BorderWidthConfig
   | RotationConfig
@@ -197,6 +269,17 @@ export type SingleColorConfig =
   | FontFamilyConfig
   | FontStyleConfig
   | MarginConfig
+  | DirectionConfig
+  | DetailSizeConfig
+  | ChartOpacityConfig
+  | ChartBoxShadowConfig
+  | ChartBorderStyleConfig
+  | ChartBorderRadiusConfig
+  | ChartBorderWidthConfig
+  | ChartTextSizeConfig
+  | ChartTextWeightConfig
+  | ChartFontFamilyConfig
+  | ChartFontStyleConfig
   | PaddingConfig
   | ContainerHeaderPaddingConfig
   | ContainerSiderPaddingConfig
@@ -223,27 +306,15 @@ export type SingleColorConfig =
   | OpacityConfig
   | BoxShadowConfig
   | BoxShadowColorConfig
-  | AnimationIterationCountConfig;
-
-export const defaultTheme: ThemeDetail = {
-  primary: "#3377FF",
-  textDark: "#222222",
-  textLight: "#FFFFFF",
-  canvas: "#F5F5F6",
-  primarySurface: "#FFFFFF",
-  borderRadius: "4px",
-  margin: "3px",
-  padding: "3px",
-  gridColumns: "24",
-  textSize: "14px",
-  animation: "",
-  animationDelay: "",
-  animationDuration: "",
-  opacity: "1",
-  boxShadow: "",
-  boxShadowColor: "",
-  animationIterationCount: "",
-};
+  | AnimationIterationCountConfig
+  | LineHeightConfig
+  | ChartBackgroundColorConfig
+  | ChartGradientColorConfig
+  | ChartShadowColorConfig
+  | ChartBorderColorConfig
+  | ChartTextColorConfig
+  
+ 
 
 export const SURFACE_COLOR = "#FFFFFF";
 const SECOND_SURFACE_COLOR = "#D7D9E0";
@@ -260,7 +331,7 @@ export function contrastText(
   textDark: string,
   textLight: string
 ) {
-  return isDarkColor(color) && color !== "#00000000" ? textLight : textDark;
+  return color && isDarkColor(color) && color !== "#00000000" ? textLight : textDark;
 }
 
 // return similar background color
@@ -387,6 +458,18 @@ export function handleToCalendarToday(color: string) {
     return "#0000000c";
   }
 }
+export function getLineHeightValue(theme: ThemeDetail, value: string | number) {
+  if (typeof value === 'number') {
+    return `${value}px`;
+  } else {
+    const lineHeightValue = theme.lineHeight;
+    if (lineHeightValue) {
+      return lineHeightValue;
+    } else {
+      return value; // default line height value
+    }
+  }
+}
 
 // return calendar text
 function handleCalendarText(
@@ -456,6 +539,36 @@ const BOXSHADOWCOLOR = {
   boxShadowColor: "boxShadowColor",
 } as const;
 
+const CHARTBACKGROUNDCOLOR = {
+  name: "chartBackgroundColor",
+  label: trans("style.chartBackgroundColor"),
+  chartBackgroundColor: "chartBackgroundColor",
+} as const;
+
+const CHARTGRADIENTCOLOR = {
+  name: "chartGradientColor",
+  label: trans("style.chartGradientColor"),
+  chartGradientColor: "chartGradientColor",
+} as const;
+
+const CHARTSHADOWCOLOR = {
+  name: "chartShadowColor",
+  label: trans("style.chartShadowColor"),
+  chartShadowColor: "chartShadowColor",
+} as const;
+
+const CHARTBORDERCOLOR = {
+  name: "chartBorderColor",
+  label: trans("style.chartBorderColor"),
+  chartBorderColor: "chartBorderColor",
+} as const;
+
+const CHARTTEXTCOLOR = {
+  name: "chartTextColor",
+  label: trans("style.chartTextColor"),
+  chartTextColor: "chartTextColor",
+} as const;
+
 const OPACITY = {
   name: "opacity",
   label: trans("style.opacity"),
@@ -496,7 +609,7 @@ const BORDER = {
 const RADIUS = {
   name: "radius",
   label: trans("style.borderRadius"),
-  radius: "borderRadius",
+  radius: "radius",
 } as const;
 
 const BORDER_WIDTH = {
@@ -535,10 +648,82 @@ const BACKGROUND_IMAGE_ORIGIN = {
   backgroundImageOrigin: "backgroundImageOrigin",
 } as const;
 
+const LINE_HEIGHT = {
+  name: "lineHeight",
+  label: trans("style.lineHeight"),
+  lineHeight: "lineHeight",
+} as const;
+
 const MARGIN = {
   name: "margin",
   label: trans("style.margin"),
   margin: "margin",
+} as const;
+
+const DIRECTION = {
+  name: "direction",
+  label: trans("style.direction"),
+  direction: "direction",
+} as const;
+
+const DETAILSIZE = {
+  name: "detailSize",
+  label: trans("style.detailSize"),
+  detailSize: "detailSize",
+} as const;
+
+const CHARTOPACITY = {
+  name: "chartOpacity",
+  label: trans("style.opacity"),
+  chartOpacity: "chartOpacity",
+} as const;
+
+const CHARTBOXSHADOW = {
+  name: "chartBoxShadow",
+  label: trans("style.boxShadow"),
+  chartBoxShadow: "chartBoxShadow",
+} as const;
+
+const CHARTBORDERSTYLE = {
+  name: "chartBorderStyle",
+  label: trans("style.borderStyle"),
+  chartBorderStyle: "chartBorderStyle",
+} as const;
+
+const CHARTBORDERRADIUS = {
+  name: "chartBorderRadius",
+  label: trans("style.borderRadius"),
+  chartBorderRadius: "chartBorderRadius",
+} as const;
+
+const CHARTBORDERWIDTH = {
+  name: "chartBorderWidth",
+  label: trans("style.borderWidth"),
+  chartBorderWidth: "chartBorderWidth",
+} as const;
+
+const CHARTTEXTSIZE = {
+  name: "chartTextSize",
+  label: trans("style.textSize"),
+  chartTextSize: "chartTextSize",
+} as const;
+
+const CHARTTEXTWEIGHT = {
+  name: "chartTextWeight",
+  label: trans("style.textWeight"),
+  chartTextWeight: "chartTextWeight",
+} as const;
+
+const CHARTFONTFAMILY = {
+  name: "chartFontFamily",
+  label: trans("style.fontFamily"),
+  chartFontFamily: "chartFontFamily",
+} as const;
+
+const CHARTFONTSTYLE = {
+  name: "chartFontStyle",
+  label: trans("style.fontStyle"),
+  chartFontStyle: "chartFontStyle",
 } as const;
 
 const PADDING = {
@@ -559,11 +744,11 @@ const TEXT_WEIGHT = {
   textWeight: "textWeight",
 } as const;
 
-const HOVER_BACKGROUND_COLOR = {
+const CHECKBOX_HOVER_BACKGROUND_COLOR = {
   name: "hoverBackground",
   label: trans("style.hoverBackground"),
   hoverBackground: "hoverBackground",
-  color: SECOND_SURFACE_COLOR,
+  // color: SECOND_SURFACE_COLOR,
 }
 
 const FONT_FAMILY = {
@@ -664,6 +849,7 @@ const STYLING_FIELDS_SEQUENCE = [
   RADIUS,
   BORDER_WIDTH,
   ROTATION,
+  LINE_HEIGHT
 ];
 
 const STYLING_FIELDS_CONTAINER_SEQUENCE = [
@@ -677,6 +863,7 @@ const STYLING_FIELDS_CONTAINER_SEQUENCE = [
   BOXSHADOW,
   BOXSHADOWCOLOR,
   ROTATION,
+  LINE_HEIGHT
 ];
 
 export const AnimationStyle = [
@@ -733,6 +920,16 @@ function getBackground(depTheme: keyof ThemeDetail = "primarySurface") {
   } as const;
 }
 
+function getGradientBackground(depTheme: keyof ThemeDetail = "primarySurface") {
+  return {
+    name: "gradientBackground",
+    label: trans("style.gradientBackground"),
+    depTheme: depTheme,
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  } as const;
+}
+
 function getStaticBackground(color: string) {
   return {
     name: "background",
@@ -768,13 +965,103 @@ function replaceAndMergeMultipleStyles(
   return temp;
 }
 
-export const ButtonStyle = [
-  getBackground('primary'),
-  ...STYLING_FIELDS_SEQUENCE
+// Add disabled style constants
+const DISABLED_BACKGROUND = {
+  name: "disabledBackground",
+  label: trans("style.disabledBackground"),
+  color: SECOND_SURFACE_COLOR,
+} as const;
+
+
+
+const DISABLED_TEXT = {
+  name: "disabledText",
+  label: trans("style.disabledText"),
+  depName: "disabledBackground",
+  depType: DEP_TYPE.CONTRAST_TEXT,
+  transformer: (color: string) => lightenColor(color, 0.8),
+} as const;
+
+
+export const DISABLED_BORDER = {
+  name: "disabledBorder",
+  label: trans("style.disabledBorder"),
+  color: SECOND_SURFACE_COLOR,
+} as const;
+
+export const DISABLED_STYLE_FIELDS = [
+  DISABLED_BACKGROUND,
+  DISABLED_TEXT,
+  DISABLED_BORDER,
 ] as const;
 
-export const DropdownStyle = [
+// Add disabled style constants specifically for slider components
+const DISABLED_SLIDER_FILL = {
+  name: "disabledFill",
+  label: trans("style.disabledFill"),
+  depName: "fill",
+  transformer: (color: string) => lightenColor(color, 0.8),
+} as const;
+
+const DISABLED_SLIDER_TRACK = {
+  name: "disabledTrack",
+  label: trans("style.disabledTrack"),
+  depName: "track",
+  transformer: (color: string) => lightenColor(color, 0.8),
+} as const;
+
+const DISABLED_SLIDER_THUMB = {
+  name: "disabledThumb",
+  label: trans("style.disabledThumb"),
+  depName: "thumb",
+  transformer: (color: string) => lightenColor(color, 0.8),
+} as const;
+
+const DISABLED_SLIDER_THUMB_BORDER = {
+  name: "disabledThumbBorder",
+  label: trans("style.disabledThumbBorder"),
+  depName: "thumbBorder",
+  transformer: (color: string) => lightenColor(color, 0.8),
+} as const;
+
+// Re-export for reuse in slider components
+export const DISABLED_SLIDER_STYLE_FIELDS = [
+  DISABLED_SLIDER_FILL,
+  DISABLED_SLIDER_TRACK,
+] as const;
+
+// Helper to quickly create a component-specific disabled style list by
+// extending the two generic disabled tokens above.
+export const withDisabled = <Extra extends readonly SingleColorConfig[] = []>(
+  extra: Extra = [] as unknown as Extra,
+) => [...DISABLED_STYLE_FIELDS, ...extra] as const;
+
+
+export const withDisabledSlider = <Extra extends readonly SingleColorConfig[] = []>(
+  extra: Extra = [] as unknown as Extra,
+) => [...DISABLED_SLIDER_STYLE_FIELDS, ...extra] as const;
+
+
+export const DisabledSliderStyle = withDisabledSlider();
+
+export const ButtonStyle = [
   getBackground('primary'),
+  ...STYLING_FIELDS_SEQUENCE,
+] as const;
+
+// Create separate disabled style control
+export const DisabledButtonStyle = withDisabled();
+
+
+// For input components 
+export const DisabledInputStyle = withDisabled();
+
+// for step control
+export const DisabledStepStyle = withDisabled();
+
+
+export const DropdownStyle = [
+  getBackground(),
   ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'),
 ] as const;
 
@@ -1026,13 +1313,23 @@ export const SliderStyle = [
   PADDING,
 ] as const;
 
+
+const PLACEHOLDER = {
+  name: "placeholder",
+  label: "Placeholder",
+  depName: "text",
+  transformer: (color: string) => lightenColor(color, 0.4),
+} as const;
+
 export const InputLikeStyle = [
   getStaticBackground(SURFACE_COLOR),
   BOXSHADOW,
   BOXSHADOWCOLOR,
-  ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'),
+  ...STYLING_FIELDS_SEQUENCE.filter((style)=>style.name!=='rotation' && style.name!=='lineHeight'),
+  PLACEHOLDER,
   ...ACCENT_VALIDATE,
 ] as const;
+
 
 // added by Mousheng
 
@@ -1086,6 +1383,30 @@ export const FloatButtonStyle = [
   BORDER_WIDTH,
 ] as const;
 
+export const HamburgerButtonStyle = [
+  getBackground(),
+  {
+    name: "iconFill",
+    label: trans("style.fill"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  MARGIN,
+  PADDING,
+  BORDER,
+  RADIUS,
+  BORDER_WIDTH,
+] as const;
+
+export const DrawerContainerStyle = [
+  getBackground(),
+  MARGIN,
+  PADDING,
+  BORDER,
+  BORDER_WIDTH,
+] as const;
+
 export const TransferStyle = [
   getStaticBackground(SURFACE_COLOR),
   ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(style=>style.name!=='rotation'),
@@ -1129,16 +1450,16 @@ export const startButtonStyle = [
 export const LabelStyle = [
   ...replaceAndMergeMultipleStyles([...InputLikeStyle], "text", [LABEL]).filter(
     (style) => style.name !== "radius" && style.name !== "background" && style.name!=='rotation' && style.name !== "boxShadow"&&style.name!=='boxShadowColor'
+    &&style.name!=='lineHeight'
   ),
 ];
 
 export const InputFieldStyle = [
   getBackground(),
   getStaticBorder(),
-  ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(
-    (style) => ["border"].includes(style.name) === false
+ ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(
+    (style) =>!["border", "lineHeight"].includes(style.name)
   ),
-  // ...STYLING_FIELDS_CONTAINER_SEQUENCE,
 ] as const;
 
 export const SignatureContainerStyle = [
@@ -1189,7 +1510,7 @@ export const SwitchStyle = [
 ] as const;
 
 export const SelectStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "border", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation' && style.name !== 'lineHeight'), "border", [
     ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   ]),
   BOXSHADOW,
@@ -1198,7 +1519,7 @@ export const SelectStyle = [
 ] as const;
 
 const multiSelectCommon = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "border", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation' && style.name !== 'lineHeight'), "border", [
     ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   ]),
   {
@@ -1234,7 +1555,21 @@ export const MultiSelectStyle = [
 
 export const ChildrenMultiSelectStyle = [
   ...STYLING_FIELDS_SEQUENCE,
-  getBackground()
+  getBackground(),
+  {
+    name: "activeBackground",
+    label: trans("style.activeBackground"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: handleLightenColor,
+  },
+  {
+    name: "selectBackground",
+    label: trans("style.selectBackground"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  }
 ] as const;
 
 export const TabContainerStyle = [
@@ -1243,7 +1578,7 @@ export const TabContainerStyle = [
     [
       ...ContainerStyle.filter(
         (style) =>
-          ["border", "radius", "f", "margin", "padding"].includes(
+          ["border", "radius", "f", "margin", "padding",'borderWidth','borderStyle'].includes(
             style.name
           ) === false
       ),
@@ -1275,6 +1610,61 @@ export const ModalStyle = [
   BACKGROUND_IMAGE_SIZE,
   BACKGROUND_IMAGE_POSITION,
   BACKGROUND_IMAGE_ORIGIN,
+] as const;
+
+
+export const NotificationStyle = [
+  getBackground("primarySurface"),
+  {
+    name: "color",
+    label: trans("color"),
+    depName: "background",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  {
+    name: "closeIconColor",
+    label: trans("toastComp.closeIconColor"),
+    depName: "background",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  {
+    name: "infoIconColor",
+    label: trans("toastComp.infoIconColor"),
+    color: "#1890ff",
+  },
+  {
+    name: "successIconColor",
+    label: trans("toastComp.successIconColor"),
+    color: "#52c41a",
+  },
+  {
+    name: "warningIconColor",
+    label: trans("toastComp.warningIconColor"),
+    color: "#faad14",
+  },
+  {
+    name: "errorIconColor",
+    label: trans("toastComp.errorIconColor"),
+    color: "#ff4d4f",
+  },
+  {
+    name: "progressColor",
+    label: trans("toastComp.progressColor"),
+    color: "#1890ff",
+  },
+  {
+    name: "progressBackground",
+    label: trans("toastComp.progressBackground"),
+    color: "#e8e8e8",
+  },
+  getStaticBorder("transparent"),
+  RADIUS,
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const CascaderStyle = [
@@ -1310,39 +1700,40 @@ function checkAndUncheck() {
 }
 
 export const CheckboxStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(styles=>styles.name!=='rotation'), "text", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(styles=>styles.name!=='rotation' && styles.name !== 'lineHeight'),"text", [
     STATIC_TEXT,
     VALIDATE,
   ]).filter((style) => style.name !== "border"),
   ...checkAndUncheck(),
   {
-    name: "checked",
+    name: "checkedBorder",
     label: trans("style.checked"),
     depName: "checkedBackground",
-    depType: DEP_TYPE.CONTRAST_TEXT,
-    transformer: contrastText,
+    // depType: DEP_TYPE.CONTRAST_TEXT,
+    // transformer: contrastText,
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
   },
-  HOVER_BACKGROUND_COLOR,
+  CHECKBOX_HOVER_BACKGROUND_COLOR,
 ] as const;
 
 export const RadioStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "text", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'&& style.name !== 'lineHeight'), "text", [
     STATIC_TEXT,
     VALIDATE,
   ]).filter((style) => style.name !== "border" && style.name !== "radius"),
   ...checkAndUncheck(),
   {
-    name: "checked",
+    name: "checkedBorder",
     label: trans("style.checked"),
-    depName: "uncheckedBackground",
-    depType: DEP_TYPE.SELF,
+    depName: "checkedBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: toSelf,
   },
-  HOVER_BACKGROUND_COLOR,
+  CHECKBOX_HOVER_BACKGROUND_COLOR,
 ] as const;
 
 export const SegmentStyle = [
-  LABEL,
   ...STYLING_FIELDS_SEQUENCE.filter(
     (style) => ["border", "borderWidth"].includes(style.name) === false
   ),
@@ -1384,22 +1775,57 @@ export const SegmentStyle = [
 
 export const StepsStyle = [
   {
-    name: "activeBackground",
+    name: "stepActiveColor",
     label: trans("style.accent"),
-    depName: "activeBackground",
-    transformer: handleToSegmentBackground,
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
   },
   {
-    name: "titleText",
+    name: "stepErrorColor",
+    label: trans("style.validate"),
+    color: ERROR_COLOR,
+  },
+  {
+    name: "stepTitleColor",
     label: trans("title"),
-    depName: "text",
-    depType: DEP_TYPE.SELF,
+    color: "rgba(0,0,0,0.88)",
+  },
+  {
+    name: "stepDescriptionColor",
+    label: trans("stepOptionsControl.description"),
+    color: "rgba(0,0,0,0.45)",
+  },
+  {
+    name: "stepDisabledColor",
+    label: trans("disabled"),
+    color: "rgba(0,0,0,0.25)",
+  },
+  {
+    name: "stepIconTextColor",
+    label: trans("text"),
+    depName: "stepActiveColor",
+    depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
-  ...STYLING_FIELDS_SEQUENCE.filter(
-    (style) =>
-      ["background", "textSize", "textDecoration"].includes(style.name) ===
-      false
+  {
+    name: "stepLineColor",
+    label: trans("style.border"),
+    color: "rgba(5,5,5,0.06)",
+  },
+  {
+    name: "stepIconBackground",
+    label: trans("style.background"),
+    color: "rgba(0,0,0,0.04)",
+  },
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
+  FONT_STYLE,
+  TEXT_TRANSFORM,
+  TEXT_DECORATION,
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(
+    (style) => style.name !== "lineHeight",
   ),
   getBackground(),
   {
@@ -1470,16 +1896,46 @@ export const TableToolbarStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: toSelf,
   },
+  // Pagination specific styling
+  {
+    name: "paginationBackground",
+    label: trans("style.paginationBackground"),
+    tooltip: trans("style.paginationBackgroundTooltip"),
+    depName: "background",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  {
+    name: "paginationText",
+    label: trans("style.paginationText"),
+    tooltip: trans("style.paginationTextTooltip"),
+    depName: "paginationBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  {
+    name: "paginationActiveBackground",
+    label: trans("style.paginationActiveBackground"),
+    tooltip: trans("style.paginationActiveBackgroundTooltip"),
+    depName: "paginationBackground",
+    transformer: contrastBackground,
+  },
+  {
+    name: "paginationActiveText",
+    label: trans("style.paginationActiveText"),
+    tooltip: trans("style.paginationActiveTextTooltip"),
+    depName: "paginationActiveBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
 ] as const;
 
 export const TableHeaderStyle = [
   MARGIN,
-  PADDING,
   FONT_FAMILY,
   FONT_STYLE,
-  TEXT,
-  getStaticBackground(SURFACE_COLOR),
-  getBackground("primarySurface"),
+  // getStaticBackground(SURFACE_COLOR),
+  // getBackground("primarySurface"),
   {
     name: "headerBackground",
     label: trans("style.tableHeaderBackground"),
@@ -1501,14 +1957,12 @@ export const TableHeaderStyle = [
   },
   TEXT_SIZE,
   TEXT_WEIGHT,
-  FONT_FAMILY,
 ] as const;
 
 export const TableRowStyle = [
   BORDER_WIDTH,
   BORDER_STYLE,
   ...BG_STATIC_BORDER_RADIUS,
-  getBackground(),
   {
     name: "selectedRowBackground",
     label: trans("style.selectedRowBackground"),
@@ -1535,7 +1989,17 @@ export const TableColumnStyle = [
   getStaticBackground("#00000000"),
   getStaticBorder(),
   MARGIN,
+  RADIUS,
+  TEXT,
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
+  FONT_STYLE,
+] as const;
 
+export const TableGlobalColumnStyle = [
+  getStaticBorder(),
+  MARGIN,
   RADIUS,
   TEXT,
   TEXT_SIZE,
@@ -1545,6 +2009,18 @@ export const TableColumnStyle = [
 ] as const;
 
 export const TableColumnLinkStyle = [...LinkTextStyle] as const;
+
+export const TableSummaryRowStyle = [
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  ...BG_STATIC_BORDER_RADIUS,
+  MARGIN,
+  TEXT,
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
+  FONT_STYLE,
+] as const;
 
 export const FileStyle = [
   // ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
@@ -1571,7 +2047,7 @@ export const IframeStyle = [
   BORDER_WIDTH,
   MARGIN,
   PADDING,
-  ROTATION
+  ROTATION,
 ] as const;
 
 export const CustomStyle = [
@@ -1584,6 +2060,7 @@ export const DateTimeStyle = [
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   getStaticBorder(SECOND_SURFACE_COLOR),
   TEXT,
+  PLACEHOLDER,
   MARGIN,
   PADDING,
   BORDER_STYLE,
@@ -1654,42 +2131,27 @@ export const CircleProgressStyle = [
 ];
 
 export const NavigationStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "text", [
-    {
-      name: "text",
-      label: trans("text"),
-      depName: "background",
-      depType: DEP_TYPE.CONTRAST_TEXT,
-      transformer: contrastText,
-    },
-    ACCENT,
-    getStaticBackground("#FFFFFF00"),
-  ]),
-  // {
-  //   name: "text",
-  //   label: trans("text"),
-  //   depName: "background",
-  //   depType: DEP_TYPE.CONTRAST_TEXT,
-  //   transformer: contrastText,
-  // },
-  // ACCENT,
-  // getStaticBackground("#FFFFFF00"),
-  // getStaticBorder("#FFFFFF00"),
-  // MARGIN,
-  // PADDING,
-  // FONT_FAMILY,
-  // FONT_STYLE,
-  // TEXT_WEIGHT,
-  // TEXT_SIZE,
-  // BORDER_WIDTH
+  getStaticBackground("#FFFFFF00"),
+  getStaticBorder("#FFFFFF00"),
+  BORDER_STYLE,
+  BORDER_WIDTH,
+  RADIUS,
+  MARGIN,
+  PADDING,
+  ACCENT,
 ] as const;
 
 export const ImageStyle = [
-  getStaticBorder("#00000000"),
-  RADIUS,
-  BORDER_WIDTH,
+  // getStaticBorder("#00000000"),
   MARGIN,
   PADDING,
+  BORDER,
+  BORDER_STYLE,
+  RADIUS,
+  BORDER_WIDTH,
+  OPACITY,
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
   ROTATION
 ] as const;
 
@@ -1773,6 +2235,81 @@ export const JsonEditorStyle = [LABEL] as const;
 
 export const EchartsStyle = [getBackground("primarySurface")] as const;
 
+export const EchartDefaultTextStyle = [
+  CHARTTEXTCOLOR,
+  CHARTTEXTSIZE,
+  CHARTTEXTWEIGHT,
+  CHARTFONTFAMILY,
+  CHARTFONTSTYLE,
+  CHARTSHADOWCOLOR,
+  CHARTBOXSHADOW,
+] as const;
+
+export const EchartDefaultChartStyle = [
+  getBackground("primarySurface"),
+  // CHARTBACKGROUNDCOLOR,
+  // CHARTGRADIENTCOLOR,
+  // DIRECTION,
+  // CHARTOPACITY,
+  CHARTSHADOWCOLOR,
+  CHARTBOXSHADOW,
+  CHARTBORDERCOLOR,
+  CHARTBORDERSTYLE,
+  CHARTBORDERRADIUS,
+  CHARTBORDERWIDTH,
+] as const;
+
+export const EchartCandleStickChartStyle = [
+  getBackground("primarySurface"),
+  CHARTSHADOWCOLOR,
+  CHARTBOXSHADOW,
+  CHARTBORDERSTYLE,
+  CHARTBORDERRADIUS,
+  CHARTBORDERWIDTH,
+] as const;
+
+export const SankeyLineStyle = [
+  CHARTSHADOWCOLOR,
+  CHARTBOXSHADOW,
+  CHARTBORDERCOLOR,
+  CHARTBORDERSTYLE,
+  CHARTBORDERRADIUS,
+  CHARTBORDERWIDTH,
+] as const;
+
+export const EchartDefaultDetailStyle = [
+  CHARTBACKGROUNDCOLOR,
+  DETAILSIZE,
+  PADDING,
+  CHARTTEXTCOLOR,
+  CHARTTEXTSIZE,
+  CHARTTEXTWEIGHT,
+  CHARTFONTFAMILY,
+  CHARTFONTSTYLE,
+  CHARTSHADOWCOLOR,
+  CHARTBOXSHADOW,
+  CHARTBORDERCOLOR,
+  CHARTBORDERSTYLE,
+  CHARTBORDERRADIUS,
+  CHARTBORDERWIDTH,
+] as const;
+
+export const RadarLabelStyle = [
+  CHARTBACKGROUNDCOLOR,
+  PADDING,
+  CHARTTEXTCOLOR,
+  CHARTTEXTSIZE,
+  CHARTTEXTWEIGHT,
+  CHARTFONTFAMILY,
+  CHARTFONTSTYLE,
+  CHARTSHADOWCOLOR,
+  CHARTBOXSHADOW,
+  CHARTBORDERCOLOR,
+  CHARTBORDERSTYLE,
+  CHARTBORDERRADIUS,
+  CHARTBORDERWIDTH,
+] as const;
+
 export const CalendarStyle = [
   getBackground("primarySurface"),
   {
@@ -1839,6 +2376,21 @@ export const SignatureStyle = [
   BORDER_WIDTH,
 ] as const;
 
+export const EventModalStyle = [
+  getBackground("primarySurface"),
+  BORDER,
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  TEXT,
+  {
+    name: "labelBackground",
+    label: trans("style.labelBackground"),
+    depTheme: "primarySurface",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+] as const;
+
 // Added by Aqib Mirza
 export const LottieStyle = [
   {
@@ -1887,6 +2439,26 @@ export const ResponsiveLayoutColStyle = [
   PADDING,
 ] as const;
 
+export const SplitLayoutRowStyle = [
+  getBackground("canvas"),
+  getStaticBorder("transparent"),
+  RADIUS,
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  MARGIN,
+  PADDING,
+] as const;
+
+export const SplitLayoutColStyle = [
+  getBackground("canvas"),
+  getStaticBorder("transparent"),
+  RADIUS,
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  MARGIN,
+  PADDING,
+] as const;
+
 export const NavLayoutStyle = [
   ...getBgBorderRadiusByBg(),
   {
@@ -1905,6 +2477,7 @@ export const NavLayoutItemStyle = [
   getBackground("primarySurface"),
   getStaticBorder("transparent"),
   RADIUS,
+  BORDER_WIDTH,
   {
     name: "text",
     label: trans("text"),
@@ -1912,6 +2485,12 @@ export const NavLayoutItemStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
+  TEXT_SIZE,
+  LINE_HEIGHT,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
+  FONT_STYLE,
+  TEXT_DECORATION,
   MARGIN,
   PADDING,
 ] as const;
@@ -1926,6 +2505,11 @@ export const NavLayoutItemHoverStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
+  FONT_STYLE,
+  TEXT_DECORATION,
 ] as const;
 
 export const NavLayoutItemActiveStyle = [
@@ -1938,7 +2522,13 @@ export const NavLayoutItemActiveStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
+  FONT_STYLE,
+  TEXT_DECORATION,
 ] as const;
+
 
 export const CarouselStyle = [getBackground("canvas")] as const;
 
@@ -1949,7 +2539,154 @@ export const RichTextEditorStyle = [
   BORDER_WIDTH,
 ] as const;
 
+// Chat Component Styles
+export const ChatStyle = [
+  getBackground(),
+  MARGIN,
+  PADDING,
+  BORDER,
+  BORDER_STYLE,
+  RADIUS,
+  BORDER_WIDTH,
+] as const;
+
+export const ChatSidebarStyle = [
+  {
+    name: "sidebarBackground",
+    label: trans("style.sidebarBackground"),
+    depTheme: "primarySurface",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  {
+    name: "threadText",
+    label: trans("style.threadText"),
+    depName: "sidebarBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+] as const;
+
+export const ChatMessagesStyle = [
+  {
+    name: "messagesBackground",
+    label: trans("style.messagesBackground"),
+    color: "#f9fafb",
+  },
+  {
+    name: "userMessageBackground",
+    label: trans("style.userMessageBackground"),
+    color: "#e5e7eb",
+  },
+  {
+    name: "userMessageText",
+    label: trans("style.userMessageText"),
+    depName: "userMessageBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  {
+    name: "assistantMessageBackground",
+    label: trans("style.assistantMessageBackground"),
+    color: "#ffffff",
+  },
+  {
+    name: "assistantMessageText",
+    label: trans("style.assistantMessageText"),
+    depName: "assistantMessageBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+] as const;
+
+export const ChatInputStyle = [
+  {
+    name: "inputText",
+    label: trans("style.inputText"),
+    color: "#1f2937",
+  },
+] as const;
+
+export const ChatSendButtonStyle = [
+  {
+    name: "sendButtonBackground",
+    label: trans("style.sendButtonBackground"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  {
+    name: "sendButtonIcon",
+    label: trans("style.sendButtonIcon"),
+    depName: "sendButtonBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+] as const;
+
+export const ChatNewThreadButtonStyle = [
+  {
+    name: "newThreadBackground",
+    label: trans("style.newThreadBackground"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  {
+    name: "newThreadText",
+    label: trans("style.newThreadText"),
+    depName: "newThreadBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+] as const;
+
+export const ChatThreadItemStyle = [
+  {
+    name: "threadItemBackground",
+    label: trans("style.threadItemBackground"),
+    color: "transparent",
+  },
+  {
+    name: "threadItemText",
+    label: trans("style.threadItemText"),
+    color: "inherit",
+  },
+  {
+    name: "threadItemBorder",
+    label: trans("style.threadItemBorder"),
+    color: "transparent",
+  },
+  {
+    name: "activeThreadBackground",
+    label: trans("style.activeThreadBackground"),
+    color: "#dbeafe",
+  },
+  {
+    name: "activeThreadText",
+    label: trans("style.activeThreadText"),
+    color: "inherit",
+  },
+  {
+    name: "activeThreadBorder",
+    label: trans("style.activeThreadBorder"),
+    color: "#bfdbfe",
+  },
+] as const;
+export const TableColumnButtonStyle = [
+  getBackground('primary'),
+  {
+    name: "text",
+    label: trans("style.text"),
+    color: "#000000",
+  },
+  PADDING,  
+  BORDER,
+] as const;
+
+
 export type QRCodeStyleType = StyleConfigType<typeof QRCodeStyle>;
+export type TimeLineStyleType = StyleConfigType<typeof TimeLineStyle>;
 export type AvatarStyleType = StyleConfigType<typeof AvatarStyle>;
 export type AvatarLabelStyleType = StyleConfigType<typeof avatarLabelStyle>;
 export type AvatarContainerStyleType = StyleConfigType<
@@ -1972,6 +2709,9 @@ export type InputFieldStyleType = StyleConfigType<typeof InputFieldStyle>;
 export type SignatureContainerStyleType = StyleConfigType<typeof SignatureContainerStyle>;
 export type ColorPickerStyleType = StyleConfigType<typeof ColorPickerStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
+export type DisabledButtonStyleType = StyleConfigType<typeof DisabledButtonStyle>;
+export type DisabledInputStyleType = StyleConfigType<typeof DisabledInputStyle>;
+export type DisabledStepStyleType = StyleConfigType<typeof DisabledStepStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;
 export type TextStyleType = StyleConfigType<typeof TextStyle>;
 export type TextContainerStyleType = StyleConfigType<typeof TextContainerStyle>;
@@ -1987,6 +2727,7 @@ export type ContainerFooterStyleType = StyleConfigType<
   typeof ContainerFooterStyle
 >;
 export type SliderStyleType = StyleConfigType<typeof SliderStyle>;
+export type DisabledSliderStyleType = StyleConfigType<typeof DisabledSliderStyle>;
 export type RatingStyleType = StyleConfigType<typeof RatingStyle>;
 export type SwitchStyleType = StyleConfigType<typeof SwitchStyle>;
 export type SelectStyleType = StyleConfigType<typeof SelectStyle>;
@@ -1997,6 +2738,7 @@ export type ChildrenMultiSelectStyleType = StyleConfigType<
 export type TabContainerStyleType = StyleConfigType<typeof TabContainerStyle>;
 export type TabBodyStyleType = StyleConfigType<typeof TabBodyStyle>;
 export type ModalStyleType = StyleConfigType<typeof ModalStyle>;
+export type NotificationStyleType = StyleConfigType<typeof NotificationStyle>;
 export type CascaderStyleType = StyleConfigType<typeof CascaderStyle>;
 export type CheckboxStyleType = StyleConfigType<typeof CheckboxStyle>;
 export type RadioStyleType = StyleConfigType<typeof RadioStyle>;
@@ -2007,9 +2749,12 @@ export type TableHeaderStyleType = StyleConfigType<typeof TableHeaderStyle>;
 export type TableToolbarStyleType = StyleConfigType<typeof TableToolbarStyle>;
 export type TableRowStyleType = StyleConfigType<typeof TableRowStyle>;
 export type TableColumnStyleType = StyleConfigType<typeof TableColumnStyle>;
+export type TableGlobalColumnStyleType = StyleConfigType<typeof TableGlobalColumnStyle>;
 export type TableColumnLinkStyleType = StyleConfigType<
   typeof TableColumnLinkStyle
 >;
+export type TableColumnButtonStyleType = StyleConfigType<typeof TableColumnButtonStyle>;
+export type TableSummaryRowStyleType = StyleConfigType<typeof TableSummaryRowStyle>;
 export type FileStyleType = StyleConfigType<typeof FileStyle>;
 export type FileViewerStyleType = StyleConfigType<typeof FileViewerStyle>;
 export type IframeStyleType = StyleConfigType<typeof IframeStyle>;
@@ -2032,6 +2777,7 @@ export type TreeSelectStyleType = StyleConfigType<typeof TreeSelectStyle>;
 export type DrawerStyleType = StyleConfigType<typeof DrawerStyle>;
 export type JsonEditorStyleType = StyleConfigType<typeof JsonEditorStyle>;
 export type CalendarStyleType = StyleConfigType<typeof CalendarStyle>;
+export type EventModalStyleType = StyleConfigType<typeof EventModalStyle>;
 export type SignatureStyleType = StyleConfigType<typeof SignatureStyle>;
 export type CarouselStyleType = StyleConfigType<typeof CarouselStyle>;
 export type RichTextEditorStyleType = StyleConfigType<
@@ -2043,6 +2789,14 @@ export type ResponsiveLayoutRowStyleType = StyleConfigType<
 export type ResponsiveLayoutColStyleType = StyleConfigType<
   typeof ResponsiveLayoutColStyle
 >;
+
+export type SplitLayoutRowStyleType = StyleConfigType<
+  typeof SplitLayoutRowStyle
+>;
+export type SplitLayoutColStyleType = StyleConfigType<
+  typeof SplitLayoutColStyle
+>;
+
 export type NavLayoutStyleType = StyleConfigType<typeof NavLayoutStyle>;
 export type NavLayoutItemStyleType = StyleConfigType<typeof NavLayoutItemStyle>;
 export type NavLayoutItemHoverStyleType = StyleConfigType<
@@ -2051,6 +2805,453 @@ export type NavLayoutItemHoverStyleType = StyleConfigType<
 export type NavLayoutItemActiveStyleType = StyleConfigType<
   typeof NavLayoutItemActiveStyle
 >;
+
+export type ChatStyleType = StyleConfigType<typeof ChatStyle>;
+export type ChatSidebarStyleType = StyleConfigType<typeof ChatSidebarStyle>;
+export type ChatMessagesStyleType = StyleConfigType<typeof ChatMessagesStyle>;
+export type ChatInputStyleType = StyleConfigType<typeof ChatInputStyle>;
+export type ChatSendButtonStyleType = StyleConfigType<typeof ChatSendButtonStyle>;
+export type ChatNewThreadButtonStyleType = StyleConfigType<typeof ChatNewThreadButtonStyle>;
+export type ChatThreadItemStyleType = StyleConfigType<typeof ChatThreadItemStyle>;
+
+// ─── Chat Box Styles ─────────────────────────────────────────────────────────
+
+export const ChatBoxContainerStyle = [
+  getBackground(),
+  BORDER,
+  BORDER_STYLE,
+  RADIUS,
+  BORDER_WIDTH,
+  MARGIN,
+  PADDING,
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
+] as const;
+
+export const ChatBoxSidebarStyle = [
+  {
+    name: "sidebarBackground",
+    label: trans("style.chatSidebarBackground"),
+    color: "#fafbfc",
+  },
+  {
+    name: "sidebarText",
+    label: trans("style.chatSidebarText"),
+    depName: "sidebarBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  {
+    name: "sidebarBorder",
+    label: trans("style.chatSidebarBorder"),
+    color: "#eeeeee",
+  },
+  {
+    name: "sidebarHeaderBackground",
+    label: trans("style.chatSidebarHeaderBackground"),
+    depName: "sidebarBackground",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  {
+    name: "sidebarActiveItemBackground",
+    label: trans("style.chatActiveItemBackground"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  {
+    name: "sidebarActiveItemText",
+    label: trans("style.chatActiveItemText"),
+    depName: "sidebarActiveItemBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  {
+    name: "padding",
+    label: trans("style.chatSidebarItemPadding"),
+    padding: "padding",
+  },
+  {
+    name: "radius",
+    label: trans("style.chatSidebarRadius"),
+    radius: "radius",
+  },
+] as const;
+
+export const ChatBoxHeaderStyle = [
+  {
+    name: "headerBackground",
+    label: trans("style.chatHeaderBackground"),
+    color: "#ffffff",
+  },
+  {
+    name: "headerText",
+    label: trans("style.chatHeaderText"),
+    depName: "headerBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  {
+    name: "headerBorder",
+    label: trans("style.chatHeaderBorder"),
+    color: "#eeeeee",
+  },
+  {
+    name: "padding",
+    label: trans("style.chatHeaderPadding"),
+    padding: "padding",
+  },
+] as const;
+
+export const ChatBoxMessageAreaStyle = [
+  {
+    name: "messageAreaBackground",
+    label: trans("style.chatMessageAreaBackground"),
+    color: "#ffffff",
+  },
+  {
+    name: "padding",
+    label: trans("style.chatMessageAreaPadding"),
+    padding: "padding",
+  },
+] as const;
+
+const CHAT_MESSAGE_BUBBLE_LAYOUT = [
+  TEXT_SIZE,
+  {
+    name: "padding",
+    label: trans("style.chatMessageBubblePadding"),
+    padding: "padding",
+  },
+  {
+    name: "radius",
+    label: trans("style.chatMessageBubbleRadius"),
+    radius: "radius",
+  },
+  {
+    name: "messageMetaText",
+    label: trans("style.chatMessageMetaText"),
+    color: "#999999",
+  },
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
+] as const;
+
+export const ChatBoxOwnMessageStyle = [
+  {
+    name: "background",
+    label: trans("style.chatOwnMessageBackground"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  {
+    name: "text",
+    label: trans("style.chatOwnMessageText"),
+    depName: "background",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  getStaticBorder("transparent"),
+  ...CHAT_MESSAGE_BUBBLE_LAYOUT,
+] as const;
+
+export const ChatBoxOtherMessageStyle = [
+  {
+    name: "background",
+    label: trans("style.chatOtherMessageBackground"),
+    color: "#f0f0f0",
+  },
+  {
+    name: "text",
+    label: trans("style.chatOtherMessageText"),
+    depName: "background",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  getStaticBorder("transparent"),
+  ...CHAT_MESSAGE_BUBBLE_LAYOUT,
+] as const;
+
+export const ChatBoxAiMessageStyle = [
+  {
+    name: "background",
+    label: trans("style.chatAiMessageBackground"),
+    color: "#faf5ff",
+  },
+  {
+    name: "text",
+    label: trans("style.chatAiMessageText"),
+    color: "#1f1f1f",
+  },
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  {
+    name: "border",
+    label: trans("style.chatAiMessageBorder"),
+    color: "#e9d5ff",
+  },
+  ...CHAT_MESSAGE_BUBBLE_LAYOUT,
+] as const;
+
+export const ChatBoxOwnAvatarStyle = [
+  {
+    name: "background",
+    label: trans("style.chatAvatarBackground"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  {
+    name: "text",
+    label: trans("style.chatAvatarText"),
+    depName: "background",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  getStaticBorder("transparent"),
+] as const;
+
+export const ChatBoxOtherAvatarStyle = [
+  {
+    name: "background",
+    label: trans("style.chatAvatarBackground"),
+    color: "#f0f0f0",
+  },
+  {
+    name: "text",
+    label: trans("style.chatAvatarText"),
+    depName: "background",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  getStaticBorder("transparent"),
+] as const;
+
+export const ChatBoxAiAvatarStyle = [
+  {
+    name: "background",
+    label: trans("style.chatAvatarBackground"),
+    color: "#f3e8ff",
+  },
+  {
+    name: "text",
+    label: trans("style.chatAvatarText"),
+    color: "#7c3aed",
+  },
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  {
+    name: "border",
+    label: trans("style.chatAvatarBorder"),
+    color: "#e9d5ff",
+  },
+] as const;
+
+export const ChatBoxInputAreaStyle = [
+  {
+    name: "inputAreaBackground",
+    label: trans("style.chatInputAreaBackground"),
+    color: "#ffffff",
+  },
+  {
+    name: "margin",
+    label: trans("style.margin"),
+    margin: "margin",
+  },
+  {
+    name: "padding",
+    label: trans("style.chatInputAreaPadding"),
+    padding: "padding",
+  },
+  {
+    name: "borderWidth",
+    label: trans("style.borderWidth"),
+    borderWidth: "borderWidth",
+  },
+  {
+    name: "borderStyle",
+    label: trans("style.borderStyle"),
+    borderStyle: "borderStyle",
+  },
+  {
+    name: "border",
+    label: trans("style.chatInputAreaBorder"),
+    color: "#eeeeee",
+  },
+] as const;
+
+export const ChatBoxInputFieldStyle = [
+  {
+    name: "inputBackground",
+    label: trans("style.chatInputFieldBackground"),
+    color: "#ffffff",
+  },
+  {
+    name: "margin",
+    label: trans("style.margin"),
+    margin: "margin",
+  },
+  {
+    name: "padding",
+    label: trans("style.chatInputFieldPadding"),
+    padding: "padding",
+  },
+  {
+    name: "radius",
+    label: trans("style.chatInputFieldRadius"),
+    radius: "radius",
+  },
+  {
+    name: "borderWidth",
+    label: trans("style.borderWidth"),
+    borderWidth: "borderWidth",
+  },
+  {
+    name: "borderStyle",
+    label: trans("style.borderStyle"),
+    borderStyle: "borderStyle",
+  },
+  {
+    name: "border",
+    label: trans("style.chatInputFieldBorder"),
+    color: "#e5e7eb",
+  },
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
+  {
+    name: "text",
+    label: trans("style.chatInputText"),
+    depName: "inputBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  {
+    name: "inputPlaceholder",
+    label: trans("style.chatInputPlaceholder"),
+    color: "#9ca3af",
+  },
+] as const;
+
+export const ChatBoxInputSendButtonStyle = [
+  {
+    name: "sendButtonBackground",
+    label: trans("style.chatSendButtonBackground"),
+    color: "#93c5fd",
+  },
+  {
+    name: "sendButtonIcon",
+    label: trans("style.chatSendButtonIcon"),
+    depName: "sendButtonBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  {
+    name: "radius",
+    label: trans("style.chatSendButtonRadius"),
+    radius: "radius",
+  },
+  {
+    name: "margin",
+    label: trans("style.margin"),
+    margin: "margin",
+  },
+  {
+    name: "padding",
+    label: trans("style.padding"),
+    padding: "padding",
+  },
+  {
+    name: "borderWidth",
+    label: trans("style.borderWidth"),
+    borderWidth: "borderWidth",
+  },
+  {
+    name: "borderStyle",
+    label: trans("style.borderStyle"),
+    borderStyle: "borderStyle",
+  },
+  {
+    name: "borderColor",
+    label: trans("style.border"),
+    color: "#93c5fd",
+  },
+] as const;
+
+export const ChatBoxInputAttachButtonStyle = [
+  {
+    name: "attachButtonIcon",
+    label: trans("style.chatAttachButtonIcon"),
+    color: "#1f2937",
+  },
+  {
+    name: "attachButtonHoverBackground",
+    label: trans("style.chatAttachButtonHoverBackground"),
+    color: "#f3f4f6",
+  },
+  {
+    name: "radius",
+    label: trans("style.chatAttachButtonRadius"),
+    radius: "radius",
+  },
+  {
+    name: "margin",
+    label: trans("style.margin"),
+    margin: "margin",
+  },
+  {
+    name: "padding",
+    label: trans("style.padding"),
+    padding: "padding",
+  },
+  {
+    name: "borderWidth",
+    label: trans("style.borderWidth"),
+    borderWidth: "borderWidth",
+  },
+  {
+    name: "borderStyle",
+    label: trans("style.borderStyle"),
+    borderStyle: "borderStyle",
+  },
+  {
+    name: "borderColor",
+    label: trans("style.border"),
+    color: "transparent",
+  },
+] as const;
+
+export type ChatBoxContainerStyleType = StyleConfigType<typeof ChatBoxContainerStyle>;
+export type ChatBoxSidebarStyleType = StyleConfigType<typeof ChatBoxSidebarStyle>;
+export type ChatBoxHeaderStyleType = StyleConfigType<typeof ChatBoxHeaderStyle>;
+export type ChatBoxMessageAreaStyleType = StyleConfigType<typeof ChatBoxMessageAreaStyle>;
+export type ChatBoxOwnMessageStyleType = StyleConfigType<typeof ChatBoxOwnMessageStyle>;
+export type ChatBoxOtherMessageStyleType = StyleConfigType<typeof ChatBoxOtherMessageStyle>;
+export type ChatBoxAiMessageStyleType = StyleConfigType<typeof ChatBoxAiMessageStyle>;
+export type ChatBoxOwnAvatarStyleType = StyleConfigType<typeof ChatBoxOwnAvatarStyle>;
+export type ChatBoxOtherAvatarStyleType = StyleConfigType<typeof ChatBoxOtherAvatarStyle>;
+export type ChatBoxAiAvatarStyleType = StyleConfigType<typeof ChatBoxAiAvatarStyle>;
+export type ChatBoxMessageRoleStyleType =
+  | ChatBoxOwnMessageStyleType
+  | ChatBoxOtherMessageStyleType
+  | ChatBoxAiMessageStyleType;
+export type ChatBoxAvatarRoleStyleType =
+  | ChatBoxOwnAvatarStyleType
+  | ChatBoxOtherAvatarStyleType
+  | ChatBoxAiAvatarStyleType;
+export type ChatBoxInputAreaStyleType = StyleConfigType<typeof ChatBoxInputAreaStyle>;
+export type ChatBoxInputFieldStyleType = StyleConfigType<typeof ChatBoxInputFieldStyle>;
+export type ChatBoxInputSendButtonStyleType = StyleConfigType<typeof ChatBoxInputSendButtonStyle>;
+export type ChatBoxInputAttachButtonStyleType = StyleConfigType<typeof ChatBoxInputAttachButtonStyle>;
 
 export function widthCalculator(margin: string) {
   const marginArr = margin?.trim().replace(/\s+/g, " ").split(" ") || "";

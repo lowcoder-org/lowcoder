@@ -16,7 +16,8 @@ export const ImgWrapper = styled.div<{
   border: 1px solid rgba(0, 0, 0, 0.1);
   justify-content: center;
   cursor: default;
-  background-color: ${(props) => props.$backgroundColor};
+  background-color: #0093E9;
+  background-image: linear-gradient(160deg, #0093E9 0%, #80D0C7 100%);
 
   & span {
     color: #ffffff;
@@ -52,13 +53,13 @@ export default function ProfileImage(props: {
   const [hasErrorLoadingImage, setHasErrorLoadingImage] = useState(false);
   const sourceUrl = fullAvatarUrl(props.source);
   const shouldRenderImage = (sourceUrl || props.svg) && !hasErrorLoadingImage;
-  const backgroundColor = shouldRenderImage ? "transparent" : initialsAndColorCode[1];
+  // const backgroundColor = shouldRenderImage ? "transparent" : initialsAndColorCode[1];
 
   return (
     <ImgWrapper
       $fontSize={props.fontSize}
       style={props.style}
-      $backgroundColor={backgroundColor}
+      // $backgroundColor={backgroundColor}
       className={props.className}
       $side={props.side}
       title={props.userName}

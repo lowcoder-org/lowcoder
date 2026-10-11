@@ -1,16 +1,16 @@
-import ReactResizeDetector from "react-resize-detector";
+import { useResizeDetector } from "react-resize-detector";
 import { NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
 import { TriContainer } from "../triContainerComp/triContainer";
 import {
   ContainerCompBuilder,
 } from "../triContainerComp/triContainerCompBuilder";
-import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
+import { disabledPropertyView, hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
-import { useContext, useEffect, useRef, useState } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEffect, useRef, useState } from "react";
+import { useEditorStore } from "comps/editorStore";
 import { Card } from "antd";
 import styled from "styled-components";
 import { AnimationStyle, AnimationStyleType, CardHeaderStyle, CardHeaderStyleType, CardStyle, CardStyleType } from "comps/controls/styleControlConstants";
@@ -20,6 +20,9 @@ import { ButtonEventHandlerControl, CardEventHandlerControl, clickEvent, refresh
 import { optionsControl } from "comps/controls/optionsControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { styleControl } from "comps/controls/styleControl";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
+
 const { Meta } = Card;
 
 const Wrapper = styled.div<{
@@ -33,7 +36,6 @@ const Wrapper = styled.div<{
   height: 100%;
   width: 100%;
   .ant-card-small >.ant-card-head {
-    background-color: ${props => props.$headerStyle?.background} !important;
     border: ${props => props.$headerStyle?.border};
     border-style: ${props => props.$headerStyle?.borderStyle};
     border-width: ${props => props.$headerStyle?.borderWidth};
@@ -48,6 +50,11 @@ const Wrapper = styled.div<{
     rotate: ${props => props.$headerStyle?.rotation};
     margin: ${props => props.$headerStyle?.margin};
     padding: ${props => props.$headerStyle?.padding};
+    ${props => getBackgroundStyle(props.$headerStyle)}
+  }
+  .ant-card-head-title{
+    font-size: ${props => props.$headerStyle?.textSize};
+    font-family: ${props => props.$headerStyle?.fontFamily};
   }
   .ant-card .ant-card-actions {
     border-top: 1px solid ${props => props.$style?.border};
@@ -56,10 +63,9 @@ const Wrapper = styled.div<{
     border-inline-end: 1px solid ${props => props.$style?.border};
   }
   .ant-card .ant-card-actions {
-    background-color: ${props => props.$style?.background};
+    ${props => props.$style && getBackgroundStyle(props.$style)}
   }
   .ant-card .ant-card-body {
-   background-color: ${props => props.$bodyStyle?.background} !important;
     border: ${props => props.$bodyStyle?.border};
     border-style: ${props => props.$bodyStyle?.borderStyle};
     border-width: ${props => props.$bodyStyle?.borderWidth};
@@ -67,18 +73,21 @@ const Wrapper = styled.div<{
     rotate: ${props => props.$bodyStyle?.rotation};
     margin: ${props => props.$bodyStyle?.margin};
     padding: ${props => props.$bodyStyle?.padding};
+    ${props => getBackgroundStyle(props.$bodyStyle)}
   }
   .ant-card {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background-color: ${props => props.$style?.background};
+    margin: ${props => props.$style?.margin};
+    padding: ${props => props.$style?.padding};
     border: ${props => props.$style?.border};
     rotate: ${props => props.$style?.rotation};
     border-style: ${props => props.$style?.borderStyle};
     border-radius: ${props => props.$style?.radius};
     border-width: ${props => props.$style?.borderWidth};
     box-shadow: ${props=>`${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
+    ${props => props.$style && getBackgroundStyle(props.$style)}
     ${props=>props.$animationStyle}
   }
   .ant-card-body {
@@ -180,15 +189,14 @@ export const ContainerBaseComp = (function () {
     actionOptions: ActionOptionControl,
 
     onEvent: CardEventHandlerControl,
-    style: styleControl(CardStyle),
-    headerStyle: styleControl(CardHeaderStyle),
-    bodyStyle: styleControl(CardHeaderStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(CardStyle , 'style'),
+    headerStyle: styleControl(CardHeaderStyle , 'headerStyle'),
+    bodyStyle: styleControl(CardHeaderStyle , 'bodyStyle'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
 
-  return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
+  return new ContainerCompBuilder(childrenMap, (props) => {    
     props.container.showHeader = false;
-    // 注入容器参数
     props.container.style = Object.assign(props.container.style, {
       CONTAINER_BODY_PADDING: props.style.containerBodyPadding,
       border: '#00000000',
@@ -197,6 +205,12 @@ export const ContainerBaseComp = (function () {
     const conRef = useRef<HTMLDivElement>(null);
     const [width, setWidth] = useState(0);
     const [height, setHeight] = useState(0);
+    const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent})
+    const actionHandlers = props.actionOptions.map(item => ({
+      ...item,
+      clickHandler: useCompClickEventHandler({onEvent: item.onEvent})
+    }));
+
     useEffect(() => {
       if (height && width) {
         onResize();
@@ -208,57 +222,64 @@ export const ContainerBaseComp = (function () {
       setWidth(container?.clientWidth ?? 0);
       setHeight(container?.clientHeight ?? 0);
     };
-    return (
-      <ReactResizeDetector onResize={onResize}>
-        <Wrapper
-          ref={conRef}
-          $style={props.style}
-          $animationStyle={props.animationStyle}
-          $headerStyle={props.headerStyle}
-          $bodyStyle={props.bodyStyle}
-          $showMate={props.showMeta || props.cardType == 'custom'}
-          $cardType={props.cardType}
-          onMouseEnter={() => props.onEvent('focus')}
-          onMouseLeave={() => props.onEvent('blur')}
-          onClick={() => props.onEvent('click')}
-        >
-          {<Card
-            style={{ width: width, height: '100%' }}
-            size={props.size}
-            hoverable={props.hoverable}
-            // 标题设置
-            title={props.showTitle && props.title}
-            extra={props.showTitle && <a href="#" onClick={() => props.onEvent('clickExtra')}>{props.extraTitle}</a>}
 
-            // 内容
-            cover={props.cardType == 'common' && props.CoverImg && <img src={props.imgSrc} height={props.imgHeight} />}
-            actions={props.cardType == 'common' && props.showActionIcon ?
-              props.actionOptions.filter(item => !item.hidden).map(item => {
-                return (
-                  <IconWrapper
-                    onClick={() => item.onEvent('click')}
-                    disabled={item.disabled}
-                    $style={props.style}
-                  >
-                    {item.icon}
-                  </IconWrapper>)
-              }
-              ) : []
+    useResizeDetector({
+      targetRef: conRef,
+      onResize,
+    });
+
+    return (
+      <Wrapper
+        ref={conRef}
+        $style={props.style}
+        $animationStyle={props.animationStyle}
+        $headerStyle={props.headerStyle}
+        $bodyStyle={props.bodyStyle}
+        $showMate={props.showMeta || props.cardType == 'custom'}
+        $cardType={props.cardType}
+        onMouseEnter={() => props.onEvent('focus')}
+        onMouseLeave={() => props.onEvent('blur')}
+        onClick={handleClickEvent}
+      >
+        <Card
+          style={{ width: width, height: '100%' }}
+          size={props.size}
+          hoverable={props.hoverable}
+          // 标题设置
+          title={props.showTitle && props.title}
+          extra={props.showTitle && <a href="#" onClick={() => props.onEvent('clickExtra')}>{props.extraTitle}</a>}
+
+          // 内容
+          cover={props.cardType == 'common' && props.CoverImg && <img src={props.imgSrc} height={props.imgHeight} />}
+          actions={props.cardType == 'common' && props.showActionIcon ?
+            actionHandlers.filter(item => !item.hidden).map(item => {
+              return (
+                <IconWrapper
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    item.clickHandler()
+                  }}
+                  disabled={item.disabled}
+                  $style={props.style}
+                >
+                  {item.icon}
+                </IconWrapper>)
             }
-          >
-            {props.cardType == 'common' && props.showMeta && <Meta title={props.metaTitle} description={props.metaDesc} />}
-            {props.cardType == 'custom' && <ContainWrapper>
-              <TriContainer {...props} /></ContainWrapper>}
-          </Card>
+            ) : []
           }
-        </Wrapper>
-      </ReactResizeDetector>
+        >
+          {props.cardType == 'common' && props.showMeta && <Meta title={props.metaTitle} description={props.metaDesc} />}
+          {props.cardType == 'custom' && <ContainWrapper>
+            <TriContainer {...props} /></ContainWrapper>}
+        </Card>
+      </Wrapper>
     );
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "logic" || editorModeStatus === "both") && (
             <>
               <Section name={sectionNames.basic}>
                 {children.size.propertyView({
@@ -310,13 +331,14 @@ export const ContainerBaseComp = (function () {
 
               </Section>
               <Section name={sectionNames.interaction}>
-                {hiddenPropertyView(children)}
                 {children.onEvent.getPropertyView()}
+                {hiddenPropertyView(children)}
+                {showDataLoadingIndicatorsPropertyView(children)}
               </Section>
             </>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "layout" || editorModeStatus === "both") && (
             <>
               <Section name={sectionNames.layout}>
                 {children.cardType.propertyView({
@@ -345,4 +367,3 @@ export const ContainerBaseComp = (function () {
 })();
 
 export const CardComp = withExposingConfigs(ContainerBaseComp, [NameConfigHidden]);
-

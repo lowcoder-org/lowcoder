@@ -1,0 +1,528 @@
+{
+  "[Ljava.lang.String; @ creator (InviteEmailRequest.emails)" : {
+    "[]" : {
+      "class" : "[Ljava.lang.String;",
+      "elementClasses" : [ ],
+      "json" : "[]"
+    },
+    "[\"a\",\"a\"]" : {
+      "class" : "[Ljava.lang.String;",
+      "elementClasses" : [ "java.lang.String", "java.lang.String" ],
+      "json" : "[\"a\",\"a\"]"
+    },
+    "[\"a\",null]" : {
+      "class" : "[Ljava.lang.String;",
+      "elementClasses" : [ "java.lang.String", "null" ],
+      "json" : "[\"a\",null]"
+    },
+    "[1, true]" : {
+      "class" : "[Ljava.lang.String;",
+      "elementClasses" : [ "java.lang.String", "java.lang.String" ],
+      "json" : "[\"1\",\"true\"]"
+    },
+    "\"a\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidDefinitionException"
+    },
+    "\"\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "null" : {
+      "class" : "null",
+      "elementClasses" : [ ],
+      "json" : "null"
+    },
+    "{}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "{\"a\": 1, \"b\": true, \"c\": null, \"d\": 1.5}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    }
+  },
+  "[Ljava.lang.String; @ field-setter (QueryExecutionRequest.path)" : {
+    "[]" : {
+      "class" : "[Ljava.lang.String;",
+      "elementClasses" : [ ],
+      "json" : "[]"
+    },
+    "[\"a\",\"a\"]" : {
+      "class" : "[Ljava.lang.String;",
+      "elementClasses" : [ "java.lang.String", "java.lang.String" ],
+      "json" : "[\"a\",\"a\"]"
+    },
+    "[\"a\",null]" : {
+      "class" : "[Ljava.lang.String;",
+      "elementClasses" : [ "java.lang.String", "null" ],
+      "json" : "[\"a\",null]"
+    },
+    "[1, true]" : {
+      "class" : "[Ljava.lang.String;",
+      "elementClasses" : [ "java.lang.String", "java.lang.String" ],
+      "json" : "[\"1\",\"true\"]"
+    },
+    "\"a\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidDefinitionException"
+    },
+    "\"\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "null" : {
+      "class" : "null",
+      "elementClasses" : [ ],
+      "json" : "null"
+    },
+    "{}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "{\"a\": 1, \"b\": true, \"c\": null, \"d\": 1.5}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    }
+  },
+  "java.lang.Object @ creator (UpdateOrgCommonSettingsRequest.value)" : {
+    "[]" : {
+      "class" : "java.util.ArrayList",
+      "elementClasses" : [ ],
+      "json" : "[]"
+    },
+    "[\"a\",\"a\"]" : {
+      "class" : "java.util.ArrayList",
+      "elementClasses" : [ "java.lang.String", "java.lang.String" ],
+      "json" : "[\"a\",\"a\"]"
+    },
+    "[\"a\",null]" : {
+      "class" : "java.util.ArrayList",
+      "elementClasses" : [ "java.lang.String", "null" ],
+      "json" : "[\"a\",null]"
+    },
+    "[1, true]" : {
+      "class" : "java.util.ArrayList",
+      "elementClasses" : [ "java.lang.Integer", "java.lang.Boolean" ],
+      "json" : "[1,true]"
+    },
+    "\"a\"" : {
+      "class" : "java.lang.String",
+      "elementClasses" : [ ],
+      "json" : "\"a\""
+    },
+    "\"\"" : {
+      "class" : "java.lang.String",
+      "elementClasses" : [ ],
+      "json" : "\"\""
+    },
+    "null" : {
+      "class" : "null",
+      "elementClasses" : [ ],
+      "json" : "null"
+    },
+    "{}" : {
+      "class" : "java.util.LinkedHashMap",
+      "elementClasses" : [ ],
+      "json" : "{}"
+    },
+    "{\"a\": 1, \"b\": true, \"c\": null, \"d\": 1.5}" : {
+      "class" : "java.util.LinkedHashMap",
+      "elementClasses" : [ "java.lang.Integer", "java.lang.Boolean", "null", "java.lang.Double" ],
+      "json" : "{\"a\":1,\"b\":true,\"c\":null,\"d\":1.5}"
+    }
+  },
+  "java.lang.Object @ field-setter (Param.value)" : {
+    "[]" : {
+      "class" : "java.util.ArrayList",
+      "elementClasses" : [ ],
+      "json" : "[]"
+    },
+    "[\"a\",\"a\"]" : {
+      "class" : "java.util.ArrayList",
+      "elementClasses" : [ "java.lang.String", "java.lang.String" ],
+      "json" : "[\"a\",\"a\"]"
+    },
+    "[\"a\",null]" : {
+      "class" : "java.util.ArrayList",
+      "elementClasses" : [ "java.lang.String", "null" ],
+      "json" : "[\"a\",null]"
+    },
+    "[1, true]" : {
+      "class" : "java.util.ArrayList",
+      "elementClasses" : [ "java.lang.Integer", "java.lang.Boolean" ],
+      "json" : "[1,true]"
+    },
+    "\"a\"" : {
+      "class" : "java.lang.String",
+      "elementClasses" : [ ],
+      "json" : "\"a\""
+    },
+    "\"\"" : {
+      "class" : "java.lang.String",
+      "elementClasses" : [ ],
+      "json" : "\"\""
+    },
+    "null" : {
+      "class" : "null",
+      "elementClasses" : [ ],
+      "json" : "null"
+    },
+    "{}" : {
+      "class" : "java.util.LinkedHashMap",
+      "elementClasses" : [ ],
+      "json" : "{}"
+    },
+    "{\"a\": 1, \"b\": true, \"c\": null, \"d\": 1.5}" : {
+      "class" : "java.util.LinkedHashMap",
+      "elementClasses" : [ "java.lang.Integer", "java.lang.Boolean", "null", "java.lang.Double" ],
+      "json" : "{\"a\":1,\"b\":true,\"c\":null,\"d\":1.5}"
+    }
+  },
+  "java.util.HashMap<java.lang.String,java.lang.String> @ builder (Oauth2GenericAuthConfig.sourceMappings)" : {
+    "[]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"a\",\"a\"]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"a\",null]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[1, true]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"a\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "null" : {
+      "class" : "null",
+      "elementClasses" : [ ],
+      "json" : "null"
+    },
+    "{}" : {
+      "class" : "java.util.HashMap",
+      "elementClasses" : [ ],
+      "json" : "{}"
+    },
+    "{\"a\": 1, \"b\": true, \"c\": null, \"d\": 1.5}" : {
+      "class" : "java.util.HashMap",
+      "elementClasses" : [ "java.lang.String", "java.lang.String", "null", "java.lang.String" ],
+      "json" : "{\"a\":\"1\",\"b\":\"true\",\"c\":null,\"d\":\"1.5\"}"
+    }
+  },
+  "java.util.List<java.lang.String> @ creator (GetMetaDataRequest.appIds)" : {
+    "[]" : {
+      "class" : "java.util.ArrayList",
+      "elementClasses" : [ ],
+      "json" : "[]"
+    },
+    "[\"a\",\"a\"]" : {
+      "class" : "java.util.ArrayList",
+      "elementClasses" : [ "java.lang.String", "java.lang.String" ],
+      "json" : "[\"a\",\"a\"]"
+    },
+    "[\"a\",null]" : {
+      "class" : "java.util.ArrayList",
+      "elementClasses" : [ "java.lang.String", "null" ],
+      "json" : "[\"a\",null]"
+    },
+    "[1, true]" : {
+      "class" : "java.util.ArrayList",
+      "elementClasses" : [ "java.lang.String", "java.lang.String" ],
+      "json" : "[\"1\",\"true\"]"
+    },
+    "\"a\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "null" : {
+      "class" : "null",
+      "elementClasses" : [ ],
+      "json" : "null"
+    },
+    "{}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "{\"a\": 1, \"b\": true, \"c\": null, \"d\": 1.5}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    }
+  },
+  "java.util.List<org.lowcoder.sdk.auth.AbstractAuthConfig> @ field-setter (OrganizationDomain.configs)" : {
+    "[]" : {
+      "class" : "java.util.ArrayList",
+      "elementClasses" : [ ],
+      "json" : "[]"
+    },
+    "[\"a\",\"a\"]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidTypeIdException"
+    },
+    "[\"a\",null]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidTypeIdException"
+    },
+    "[1, true]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidTypeIdException"
+    },
+    "\"a\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "null" : {
+      "class" : "null",
+      "elementClasses" : [ ],
+      "json" : "null"
+    },
+    "{}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "{\"a\": 1, \"b\": true, \"c\": null, \"d\": 1.5}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    }
+  },
+  "java.util.List<org.lowcoder.sdk.models.Param> @ field-setter (LibraryQueryRequestFromJs.params)" : {
+    "[]" : {
+      "class" : "java.util.ArrayList",
+      "elementClasses" : [ ],
+      "json" : "[]"
+    },
+    "[\"a\",\"a\"]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"a\",null]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[1, true]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"a\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "null" : {
+      "class" : "null",
+      "elementClasses" : [ ],
+      "json" : "null"
+    },
+    "{}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "{\"a\": 1, \"b\": true, \"c\": null, \"d\": 1.5}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    }
+  },
+  "java.util.Map<java.lang.String,java.lang.Object> @ builder (Application.editingApplicationDSL)" : {
+    "[]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"a\",\"a\"]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"a\",null]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[1, true]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"a\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "null" : {
+      "class" : "null",
+      "elementClasses" : [ ],
+      "json" : "null"
+    },
+    "{}" : {
+      "class" : "java.util.LinkedHashMap",
+      "elementClasses" : [ ],
+      "json" : "{}"
+    },
+    "{\"a\": 1, \"b\": true, \"c\": null, \"d\": 1.5}" : {
+      "class" : "java.util.LinkedHashMap",
+      "elementClasses" : [ "java.lang.Integer", "java.lang.Boolean", "null", "java.lang.Double" ],
+      "json" : "{\"a\":1,\"b\":true,\"c\":null,\"d\":1.5}"
+    }
+  },
+  "java.util.Map<java.lang.String,java.lang.Object> @ creator (CreateApplicationRequest.editingApplicationDSL)" : {
+    "[]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"a\",\"a\"]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"a\",null]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[1, true]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"a\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "null" : {
+      "class" : "null",
+      "elementClasses" : [ ],
+      "json" : "null"
+    },
+    "{}" : {
+      "class" : "java.util.LinkedHashMap",
+      "elementClasses" : [ ],
+      "json" : "{}"
+    },
+    "{\"a\": 1, \"b\": true, \"c\": null, \"d\": 1.5}" : {
+      "class" : "java.util.LinkedHashMap",
+      "elementClasses" : [ "java.lang.Integer", "java.lang.Boolean", "null", "java.lang.Double" ],
+      "json" : "{\"a\":1,\"b\":true,\"c\":null,\"d\":1.5}"
+    }
+  },
+  "java.util.Map<java.lang.String,java.lang.Object> @ field-setter (UpsertDatasourceRequest.datasourceConfig)" : {
+    "[]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"a\",\"a\"]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"a\",null]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[1, true]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"a\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "null" : {
+      "class" : "null",
+      "elementClasses" : [ ],
+      "json" : "null"
+    },
+    "{}" : {
+      "class" : "java.util.LinkedHashMap",
+      "elementClasses" : [ ],
+      "json" : "{}"
+    },
+    "{\"a\": 1, \"b\": true, \"c\": null, \"d\": 1.5}" : {
+      "class" : "java.util.LinkedHashMap",
+      "elementClasses" : [ "java.lang.Integer", "java.lang.Boolean", "null", "java.lang.Double" ],
+      "json" : "{\"a\":1,\"b\":true,\"c\":null,\"d\":1.5}"
+    }
+  },
+  "java.util.Map<java.lang.String,java.lang.String> @ creator (FlowRequest.headers)" : {
+    "[]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"a\",\"a\"]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"a\",null]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[1, true]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"a\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "null" : {
+      "class" : "null",
+      "elementClasses" : [ ],
+      "json" : "null"
+    },
+    "{}" : {
+      "class" : "java.util.LinkedHashMap",
+      "elementClasses" : [ ],
+      "json" : "{}"
+    },
+    "{\"a\": 1, \"b\": true, \"c\": null, \"d\": 1.5}" : {
+      "class" : "java.util.LinkedHashMap",
+      "elementClasses" : [ "java.lang.String", "java.lang.String", "null", "java.lang.String" ],
+      "json" : "{\"a\":\"1\",\"b\":\"true\",\"c\":null,\"d\":\"1.5\"}"
+    }
+  },
+  "java.util.Set<java.lang.String> @ creator (BatchAddPermissionRequest.groupIds)" : {
+    "[]" : {
+      "class" : "java.util.HashSet",
+      "elementClasses" : [ ],
+      "json" : "[]"
+    },
+    "[\"a\",\"a\"]" : {
+      "class" : "java.util.HashSet",
+      "elementClasses" : [ "java.lang.String" ],
+      "json" : "[\"a\"]"
+    },
+    "[\"a\",null]" : {
+      "class" : "java.util.HashSet",
+      "elementClasses" : [ "null", "java.lang.String" ],
+      "json" : "[null,\"a\"]"
+    },
+    "[1, true]" : {
+      "class" : "java.util.HashSet",
+      "elementClasses" : [ "java.lang.String", "java.lang.String" ],
+      "json" : "[\"1\",\"true\"]"
+    },
+    "\"a\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "null" : {
+      "class" : "null",
+      "elementClasses" : [ ],
+      "json" : "null"
+    },
+    "{}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "{\"a\": 1, \"b\": true, \"c\": null, \"d\": 1.5}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    }
+  },
+  "org.lowcoder.domain.organization.model.Organization$OrganizationCommonSettings @ builder (Organization.commonSettings)" : {
+    "[]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"a\",\"a\"]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"a\",null]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[1, true]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"a\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "null" : {
+      "class" : "null",
+      "elementClasses" : [ ],
+      "json" : "null"
+    },
+    "{}" : {
+      "class" : "org.lowcoder.domain.organization.model.Organization$OrganizationCommonSettings",
+      "elementClasses" : [ ],
+      "json" : "{}"
+    },
+    "{\"a\": 1, \"b\": true, \"c\": null, \"d\": 1.5}" : {
+      "class" : "org.lowcoder.domain.organization.model.Organization$OrganizationCommonSettings",
+      "elementClasses" : [ "java.lang.Integer", "java.lang.Boolean", "null", "java.lang.Double" ],
+      "json" : "{\"a\":1,\"b\":true,\"c\":null,\"d\":1.5}"
+    }
+  }
+}

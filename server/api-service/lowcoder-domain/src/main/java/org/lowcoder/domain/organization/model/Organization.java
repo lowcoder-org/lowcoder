@@ -1,13 +1,10 @@
 package org.lowcoder.domain.organization.model;
 
-import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
-import static org.lowcoder.infra.util.AssetUtils.toAssetPath;
-
-import java.util.*;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -16,16 +13,15 @@ import org.lowcoder.domain.mongodb.AfterMongodbRead;
 import org.lowcoder.domain.mongodb.BeforeMongodbWrite;
 import org.lowcoder.domain.mongodb.MongodbInterceptorContext;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
-import org.lowcoder.sdk.config.JsonViews;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.*;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
+import static org.lowcoder.infra.util.AssetUtils.toAssetPath;
+import java.time.Instant;
 
 
 @Getter
@@ -37,6 +33,10 @@ import lombok.Setter;
 public class Organization extends HasIdAndAuditing implements BeforeMongodbWrite, AfterMongodbRead {
 
     private static final OrganizationCommonSettings EMPTY_SETTINGS = new OrganizationCommonSettings();
+    @Getter
+    private String gid;
+
+    private String slug;
 
     private String name;
 
@@ -47,6 +47,13 @@ public class Organization extends HasIdAndAuditing implements BeforeMongodbWrite
     private String contactEmail;
 
     private String contactPhoneNumber;
+
+    private Boolean isEmailDisabled;
+
+    public Boolean getIsEmailDisabled() {
+        if(isEmailDisabled == null) return false;
+        else return isEmailDisabled;
+    }
 
     @JsonIgnore
     private String logoAssetId;

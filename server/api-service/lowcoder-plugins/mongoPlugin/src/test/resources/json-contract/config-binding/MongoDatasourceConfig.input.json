@@ -1,0 +1,37 @@
+{
+  "endpoints": {
+    "usingUri": false,
+    "srvMode": true,
+    "ssl": true,
+    "endpoints": [
+      {
+        "host": " m1.example.com ",
+        "port": 27017
+      },
+      {
+        "host": "m2.example.com",
+        "port": "27018"
+      },
+      {
+        "host": "m3.example.com"
+      }
+    ],
+    "host": "m.example.com",
+    "port": 27019,
+    "database": "app",
+    "username": " admin ",
+    "password": "pw",
+    "authMechanism": "SCRAM_SHA_256"
+  },
+  "uri": {
+    "usingUri": "true",
+    "uri": "mongodb+srv://u:p@cluster.example.com/app?retryWrites=true"
+  },
+  "authMechanismValue": {
+    "authMechanism": "SCRAM-SHA-256"
+  },
+  "longPort": {
+    "port": 4294967296
+  },
+  "empty": {}
+}

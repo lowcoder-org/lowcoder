@@ -24,7 +24,7 @@ import { useHostCheck } from "./useHostCheck";
 import { useSelector } from "react-redux";
 import { getUser } from "redux/selectors/usersSelectors";
 
-const AuthTypeOptions = [
+export const AuthTypeOptions = [
   { label: "None", value: "NO_AUTH" },
   { label: "Basic", value: "BASIC_AUTH" },
   { label: "Digest", value: "DIGEST_AUTH" },

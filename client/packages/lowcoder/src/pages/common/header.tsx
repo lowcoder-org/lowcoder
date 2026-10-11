@@ -1,6 +1,10 @@
 import { default as Dropdown } from "antd/es/dropdown";
 import { default as Skeleton } from "antd/es/skeleton";
 import { default as Radio, RadioChangeEvent } from "antd/es/radio";
+import { default as Statistic} from "antd/es/statistic";
+import { default as Flex} from "antd/es/flex";
+import { default as Popover } from "antd/es/popover";
+import { default as Typography } from "antd/es/typography";
 import LayoutHeader from "components/layout/Header";
 import { SHARE_TITLE } from "constants/apiConstants";
 import { AppTypeEnum } from "constants/applicationConstants";
@@ -9,7 +13,7 @@ import {
   AUTH_LOGIN_URL,
   preview,
 } from "constants/routesURL";
-import { User } from "constants/userConstants";
+import { CurrentUser, User } from "constants/userConstants";
 import {
   CommonTextLabel,
   CustomModal,
@@ -20,12 +24,14 @@ import {
   Middle,
   ModuleIcon,
   PackUpIcon,
+  RefreshIcon,
   Right,
   TacoButton,
 } from "lowcoder-design";
 import { trans } from "i18n";
 import dayjs from "dayjs";
-import { useContext, useState } from "react";
+import { useEditorLayoutStore } from "pages/editor/editorLayoutStore";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   publishApplication,
@@ -35,7 +41,7 @@ import {
   recoverSnapshotAction,
   setShowAppSnapshot,
 } from "redux/reduxActions/appSnapshotActions";
-import { currentApplication } from "redux/selectors/applicationSelector";
+import { currentApplication, isPublicApplication } from "redux/selectors/applicationSelector";
 import {
   getSelectedAppSnapshot,
   showAppSnapshotSelector,
@@ -52,7 +58,21 @@ import { HeaderStartDropdown } from "./headerStartDropdown";
 import { AppPermissionDialog } from "../../components/PermissionDialog/AppPermissionDialog";
 import { getBrandingConfig } from "../../redux/selectors/configSelectors";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
-import { EditorContext } from "../../comps/editorState";
+import Tooltip from "antd/es/tooltip";
+import { LockOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import UserApi from "@lowcoder-ee/api/userApi";
+import { validateResponse } from "@lowcoder-ee/api/apiUtils";
+import ProfileImage from "./profileImage";
+
+import { buildMaterialPreviewURL } from "@lowcoder-ee/util/materialUtils";
+import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
+
+import GitHubButton from 'react-github-btn';
+import { Row, Col } from "antd";
+
+
+const { Countdown } = Statistic;
+const { Text } = Typography;
 
 const StyledLink = styled.a`
   display: flex;
@@ -180,6 +200,10 @@ const GrayBtn = styled(TacoButton)`
       color: #ffffff;
       border: none;
     }
+    
+    &[disabled] {
+      cursor: not-allowed;
+    }
   }
 `;
 
@@ -233,12 +257,6 @@ const DropdownStyled = styled(Dropdown)`
   }
 `;
 
-const DropdownMenuStyled = styled(DropdownMenu)`
-  .ant-dropdown-menu-item:hover {
-    background: #edf4fa;
-  }
-`;
-
 const Wrapper = styled.div`
   .taco-edit-text-wrapper {
     width: fit-content;
@@ -260,6 +278,58 @@ const Prefix = styled.div`
     visibility: visible;
   }
 `;
+
+const EditingNoticeWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  background-color: #ffe6e6; /* Light red background for warning */
+  padding: 2px 8px;
+  border-radius: 5px;
+  margin-right: 8px;
+`;
+
+const EditingHintText = styled.span`
+  margin-left: 8px;
+  font-size: 12px;
+  color: #ff4d4f; /* Red color to indicate warning */
+`;
+
+const WarningIcon = styled(ExclamationCircleOutlined)`
+  margin-left: 8px;
+  font-size: 16px;
+  color: #ff4d4f; /* Red color for the icon */
+`;
+
+const StyledCountdown = styled(Countdown)`
+  .ant-statistic-content {
+    color: #ff4d4f;
+    margin-top: 2px;
+    text-align: center;
+  }
+`;
+
+const StyledRefreshIcon = styled(RefreshIcon)`
+  width: 16px !important;
+  height: 16px !important;
+  margin-right: -3px !important;
+  > g > g {
+    stroke: white;
+  }
+`;
+
+// Add the lock icon logic for disabled options
+const DropdownMenuStyled = styled(DropdownMenu)`
+  .ant-dropdown-menu-item:hover {
+    background: ${(props) =>
+      props.disabled ? 'inherit' : '#edf4fa'};
+    cursor: ${(props) =>
+      props.disabled ? 'not-allowed' : 'pointer'};
+  }
+`;
+
+const BrandLogo = styled.img`
+  height: 28px;
+`
 
 function HeaderProfile(props: { user: User }) {
   const { user } = props;
@@ -283,6 +353,8 @@ function HeaderProfile(props: { user: User }) {
   );
 }
 
+const setCountdown = () => dayjs().add(3, 'minutes').toISOString();
+
 export type PanelStatus = { left: boolean; bottom: boolean; right: boolean };
 export type TogglePanel = (panel?: keyof PanelStatus) => void;
 
@@ -292,39 +364,57 @@ export type ToggleEditorModeStatus = (
 ) => void;
 
 type HeaderProps = {
-  panelStatus: PanelStatus;
-  togglePanel: TogglePanel;
   editorModeStatus: EditorModeStatus;
   toggleEditorModeStatus: ToggleEditorModeStatus;
 };
 
 // header in editor page
 export default function Header(props: HeaderProps) {
-  const editorState = useContext(EditorContext);
-  const { togglePanel } = props;
+  const { blockEditing, fetchApplication } = useContext(ExternalEditorContext);
   const { toggleEditorModeStatus } = props;
-  const { left, bottom, right } = props.panelStatus;
+  const togglePanel = useEditorLayoutStore((state) => state.togglePanel);
+  const { left, bottom, right } = useEditorLayoutStore((state) => state.panelStatus);
   const user = useSelector(getUser);
   const application = useSelector(currentApplication);
+  const isPublicApp = useSelector(isPublicApplication);
   const applicationId = useApplicationId();
   const dispatch = useDispatch();
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
-  const selectedSnapshot = useSelector(getSelectedAppSnapshot);
+  const {selectedSnapshot, isArchivedSnapshot} = useSelector(getSelectedAppSnapshot);
+  const brandingSettings = useSelector(getBrandingSetting);
   const { appType } = useContext(ExternalEditorContext);
   const [editName, setEditName] = useState(false);
   const [editing, setEditing] = useState(false);
   const [permissionDialogVisible, setPermissionDialogVisible] = useState(false);
+  const [editingUser, setEditingUser] = useState<CurrentUser>();
+  const [enableCheckEditingStatus, setEnableCheckEditingStatus] = useState<boolean>(false);
+  const editingCountdown = useRef(setCountdown());
 
   const isModule = appType === AppTypeEnum.Module;
+
+  useEffect(() => {
+    if(blockEditing && application && Boolean(application?.editingUserId)) {
+      UserApi.getUserDetail(application.editingUserId!)
+        .then(resp => {
+          if (validateResponse(resp)) {
+
+            console.log('editing user', resp.data.data);
+            setEditingUser(resp.data.data);
+          }
+        });
+    }
+  }, [blockEditing]);
 
   const editorModeOptions = [
     {
       label: trans("header.editorMode_layout"),
+      tooltip: trans("header.editorMode_layout_tooltip"),
       key: "editorModeSelector_layout",
       value: "layout",
     },
     {
       label: trans("header.editorMode_logic"),
+      tooltip: trans("header.editorMode_logic_tooltip"),
       key: "editorModeSelector_logic",
       value: "logic",
     },
@@ -339,15 +429,19 @@ export default function Header(props: HeaderProps) {
     target: { value },
   }: RadioChangeEvent) => {
     toggleEditorModeStatus(value);
-    editorState.setEditorModeStatus(value);
   };
-
 
   const headerStart = (
     <>
       <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
         {/* {REACT_APP_LOWCODER_SHOW_BRAND === 'true' ? REACT_APP_LOWCODER_CUSTOM_LOGO_SQUARE !== "" ? <img src={REACT_APP_LOWCODER_CUSTOM_LOGO_SQUARE } height={24} width={24} alt="logo" /> :<LogoIcon /> :  <LogoHome />} */}
-        <LogoHome />
+        { brandingSettings?.config_set?.logo
+          ? (
+            Boolean(brandingSettings?.orgId)
+            ? <BrandLogo src={buildMaterialPreviewURL(brandingSettings?.config_set?.logo)} />
+            : <BrandLogo src={brandingSettings?.config_set?.logo} />
+          ) : <LogoHome />
+        }
       </StyledLink>
       {editName ? (
         <Wrapper>
@@ -388,8 +482,6 @@ export default function Header(props: HeaderProps) {
 
   const headerMiddle = (
     <>
-      <>      
-      </>
       <Radio.Group
         onChange={onEditorStateValueChange}
         value={props.editorModeStatus}
@@ -398,9 +490,11 @@ export default function Header(props: HeaderProps) {
         size="small"
       >
         {editorModeOptions.map((option) => (
-          <Radio.Button key={option.key} value={option.value}>
-            {option.label}
-          </Radio.Button>
+          <Tooltip key={option.key} title={option.tooltip}>
+            <Radio.Button key={option.key} value={option.value}>
+              {option.label}
+            </Radio.Button>
+          </Tooltip>
         ))}
       </Radio.Group>
       <IconRadius>
@@ -431,7 +525,8 @@ export default function Header(props: HeaderProps) {
                     recoverSnapshotAction(
                       application.applicationId,
                       selectedSnapshot.snapshotId,
-                      selectedSnapshot.createTime
+                      selectedSnapshot.createTime,
+                      isArchivedSnapshot,
                     )
                   );
                 },
@@ -448,73 +543,146 @@ export default function Header(props: HeaderProps) {
     </>
   );
 
-  const headerEnd = showAppSnapshot ? (
-    <HeaderProfile user={user} />
-  ) : (
-    <>
-      {applicationId && (
-        <AppPermissionDialog
-          applicationId={applicationId}
-          visible={permissionDialogVisible}
-          onVisibleChange={(visible) =>
-            !visible && setPermissionDialogVisible(false)
-          }
-        />
-      )}
-      {canManageApp(user, application) && (
-        <GrayBtn onClick={() => setPermissionDialogVisible(true)}>
-          {SHARE_TITLE}
-        </GrayBtn>
-      )}
-      <PreviewBtn buttonType="primary" onClick={() => preview(applicationId)}>
-        {trans("header.preview")}
-      </PreviewBtn>
-
-      <Dropdown
-        className="cypress-header-dropdown"
-        placement="bottomRight"
-        trigger={["click"]}
-        dropdownRender={() => (
-          <DropdownMenuStyled
-            style={{ minWidth: "110px", borderRadius: "4px" }}
-            onClick={(e) => {
-              if (e.key === "deploy") {
-                dispatch(publishApplication({ applicationId }));
-              } else if (e.key === "snapshot") {
-                dispatch(setShowAppSnapshot(true));
-              }
+  const headerEnd = useMemo(() => {
+    return showAppSnapshot ? (
+      <HeaderProfile user={user} />
+    ) : (
+      <>
+        {/* Display a hint about who is editing the app */}
+        {blockEditing && Boolean(applicationId) && (
+          <>
+          <Popover
+            style={{ width: 200 }}
+            content={() => {
+              return (
+                <Flex vertical gap={10} align="center" style={{maxWidth : "250px"}}>
+                  <Text style={{textAlign : "center"}}> 
+                    {trans("header.AppEditingBlockedHint")}
+                  </Text>
+                  <StyledCountdown
+                    title={trans("header.AppEditingBlocked")}
+                    value={editingCountdown.current}
+                    onFinish={() => {
+                      setEnableCheckEditingStatus(true)
+                    }}
+                  />
+                  <Tooltip
+                    title={trans("header.AppEditingBlockedMessage")}
+                    placement="bottom"
+                  >
+                    <TacoButton
+                      style={{width: '100%'}}
+                      buttonType="primary"
+                      disabled={blockEditing && !enableCheckEditingStatus}
+                      onClick={() => {
+                        fetchApplication?.();
+                        setEnableCheckEditingStatus(false);
+                        editingCountdown.current = setCountdown();
+                      }}
+                    >
+                      <StyledRefreshIcon />
+                      <span>{trans("header.AppEditingBlockedCheckStatus")}</span>
+                    </TacoButton>
+                  </Tooltip>
+                </Flex>
+              )
             }}
-            items={[
-              {
-                key: "deploy",
-                label: (
-                  <CommonTextLabel>{trans("header.deploy")}</CommonTextLabel>
-                ),
-              },
-              {
-                key: "snapshot",
-                label: (
-                  <CommonTextLabel>{trans("header.snapshot")}</CommonTextLabel>
-                ),
-              },
-            ]}
+            trigger="hover"
+          >
+            <EditingNoticeWrapper>
+              <ProfileImage source={user.avatarUrl} userName={user.username} side={24} />
+              <EditingHintText>
+                {`${editingUser?.email || trans("header.AppEditingBlockedSomeone")}` + " " + trans("header.AppEditingBlockedMessageSnipped")}
+              </EditingHintText>
+              <WarningIcon />
+            </EditingNoticeWrapper>
+          </Popover>
+          </>
+        )}
+
+        {Boolean(applicationId) && !isPublicApp && (
+          <AppPermissionDialog
+            applicationId={applicationId}
+            visible={permissionDialogVisible}
+            onVisibleChange={(visible) =>
+              !visible && setPermissionDialogVisible(false)
+            }
+            publishedVersion={application?.publishedVersion}
           />
         )}
-      >
-        <PackUpBtn buttonType="primary">
-          <PackUpIcon />
-        </PackUpBtn>
-      </Dropdown>
+        {canManageApp(user, application) && (
+          <GrayBtn
+            onClick={() => setPermissionDialogVisible(true)}
+            disabled={blockEditing}
+          >
+            {trans("header.deploy")}
+          </GrayBtn>
+        )}
 
-      <HeaderProfile user={user} />
-    </>
-  );
+        <PreviewBtn buttonType="primary" onClick={() => preview(applicationId)}>
+          {trans("header.preview")}
+        </PreviewBtn>
+
+        <Dropdown
+          className="cypress-header-dropdown"
+          placement="bottomRight"
+          trigger={["click"]}
+          popupRender={() => (
+            <DropdownMenuStyled
+              style={{ minWidth: "110px", borderRadius: "4px" }}
+              onClick={(e) => {
+                if (blockEditing) return; // Prevent clicks if the app is being edited by someone else
+                if (e.key === "snapshot") {
+                  dispatch(setShowAppSnapshot(true));
+                }
+              }}
+              items={[
+                {
+                  key: "snapshot",
+                  label: (
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      {blockEditing && (
+                        <LockOutlined style={{ marginRight: "8px" }} />
+                      )}
+                      <CommonTextLabel
+                        style={{ color: blockEditing ? "#ccc" : "#222" }}
+                      >
+                        {trans("header.snapshot")}
+                      </CommonTextLabel>
+                    </div>
+                  ),
+                  disabled: blockEditing,
+                },
+              ]}
+            />
+          )}
+        >
+          <PackUpBtn buttonType="primary" disabled={blockEditing}>
+            <PackUpIcon />
+          </PackUpBtn>
+        </Dropdown>
+
+        <HeaderProfile user={user} />
+      </>
+    );
+  }, [
+    user,
+    showAppSnapshot,
+    applicationId,
+    permissionDialogVisible,
+    blockEditing, // Include the state in the dependency array
+    enableCheckEditingStatus,
+    editingUser?.name,
+  ]);
 
   return (
     <LayoutHeader
       headerStart={headerStart}
       headerMiddle={headerMiddle}
       headerEnd={headerEnd}
+      style={{
+        backgroundColor: brandingSettings?.config_set?.appHeaderColor
+      }}
     />
   );
 }
@@ -522,21 +690,47 @@ export default function Header(props: HeaderProps) {
 // header in manager page
 export function AppHeader() {
   const user = useSelector(getUser);
-  const brandingConfig = useSelector(getBrandingConfig);
+  const brandingSettings = useSelector(getBrandingSetting);
+
   const headerStart = (
     <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
       {/* {REACT_APP_LOWCODER_SHOW_BRAND === 'true' ?  REACT_APP_LOWCODER_CUSTOM_LOGO !== "" ? <img src={REACT_APP_LOWCODER_CUSTOM_LOGO}  height={28} alt="logo" /> :<LogoWithName branding={!user.orgDev} /> : <LogoHome />} */}
-      <LogoHome />
+      { brandingSettings?.config_set?.logo
+        ? (
+          Boolean(brandingSettings?.orgId)
+          ? <BrandLogo src={buildMaterialPreviewURL(brandingSettings?.config_set?.logo)} />
+          : <BrandLogo src={brandingSettings?.config_set?.logo} />
+        ) : <LogoHome />
+      }
     </StyledLink>
   );
-  const headerEnd = <HeaderProfile user={user} />;
+  const headerEnd = (
+    <Row align="middle" gutter={32}>
+      <Col style={{marginTop : "6px"}}>
+      {user.orgDev && ( 
+        <GitHubButton
+          href="https://github.com/lowcoder-org/lowcoder"
+          data-color-scheme="no-preference: light; light: light; dark: dark;"
+          data-size="small"
+          data-show-count="true"
+          aria-label="Star lowcoder-org/lowcoder on GitHub"
+        >
+          Star
+        </GitHubButton>
+      )}
+      </Col>
+      <Col>
+        <HeaderProfile user={user} />
+      </Col>
+    </Row>
+  );  
   return (
     <LayoutHeader
       headerStart={headerStart}
       headerEnd={headerEnd}
-      style={
-        user.orgDev ? {} : { backgroundColor: brandingConfig?.headerColor }
-      }
+      style={{
+        backgroundColor: brandingSettings?.config_set?.appHeaderColor
+      }}
     />
   );
 }

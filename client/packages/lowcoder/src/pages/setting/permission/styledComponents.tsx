@@ -22,6 +22,7 @@ import ReactJson from "react-json-view";
 import { StyledLink } from "pages/common/styledComponent";
 import _ from "lodash";
 import { Avatar, Card, List } from "antd";
+import { fullAvatarUrl } from "util/urlUtils";
 
 export const StyledTable = styled(AntdTable)`
   .ant-table-cell {
@@ -122,14 +123,20 @@ export const UserTableCellWrapper = styled.div`
 
   svg {
     margin-left: 8px;
+    flex-shrink: 0;
   }
 
   > span {
-    max-width: 120px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     word-break: keep-all;
+    flex-shrink: 1;
+  }
+
+  /* Prevent profile image from shrinking */
+  > div:first-child {
+    flex-shrink: 0;
   }
 `;
 
@@ -435,9 +442,9 @@ export function UserDetailPopup(props: { userId: string; title: string }) {
               style={{ width: "90%", borderRadius: 8, margin: "0 auto" }}
               cover={
                 <div style={{ display: 'flex', justifyContent: 'center', padding: 20 }}>
-                  <Avatar
+                  <Avatar 
                     size={100}
-                    src={userInfo.avatarUrl || ''}
+                    src={userInfo.avatarUrl ? fullAvatarUrl(userInfo.avatarUrl) : ''}
                     alt={userInfo.name || ''}
                   />
                 </div>

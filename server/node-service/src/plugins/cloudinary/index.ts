@@ -1,4 +1,4 @@
-import { readYaml } from "../../common/util";
+import { readYaml, specsToOptions, version2spec } from "../../common/util";
 import _ from "lodash";
 import path from "path";
 import { OpenAPI } from "openapi-types";
@@ -14,6 +14,9 @@ const specList = [
   { spec: adminApiSpec, id: "admin" },
   { spec: uploadApiSpec, id: "upload" },
 ];
+const specs = {
+  "v1.0": specList,
+}
 
 const dataSourceConfig = {
   type: "dataSource",
@@ -32,6 +35,14 @@ const dataSourceConfig = {
       tooltip: "Basic auth password",
       placeholder: "<Basic Auth Password>",
     },
+    {
+      label: "Spec Version",
+      key: "specVersion",
+      type: "select",
+      tooltip: "Version of the spec file.",
+      placeholder: "v1.0",
+      options: specsToOptions(specs)
+    },
   ],
 } as const;
 
@@ -46,18 +57,18 @@ const parseOptions: ParseOpenApiOptions = {
 
 type DataSourceConfigType = ConfigToType<typeof dataSourceConfig>;
 
-let queryConfig: QueryConfig;
+let queryConfig: any = {};
 
 const cloudinaryPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "cloudinary",
   name: "Cloudinary",
   icon: "cloudinary.svg",
-  category: "api",
+  category: "Assets",
   dataSourceConfig,
-  queryConfig: async () => {
-    if (!queryConfig) {
-      const { actions, categories } = await parseMultiOpenApi(specList, parseOptions);
-      queryConfig = {
+  queryConfig: async (data) => {
+    if (!queryConfig[data.specVersion as keyof typeof queryConfig]) {
+      const { actions, categories } = await parseMultiOpenApi(version2spec(specs, data.specVersion), parseOptions);
+      queryConfig[data.specVersion as keyof typeof queryConfig] = {
         type: "query",
         label: "Action",
         categories: {
@@ -67,15 +78,16 @@ const cloudinaryPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
         actions,
       };
     }
-    return queryConfig;
+    return queryConfig[data.specVersion as keyof typeof queryConfig];
   },
   run: function (actionData, dataSourceConfig): Promise<any> {
     const runApiDsConfig = {
       url: "",
       serverURL: "",
       dynamicParamsConfig: dataSourceConfig,
+      specVersion: dataSourceConfig.specVersion,
     };
-    return runOpenApi(actionData, runApiDsConfig, specList);
+    return runOpenApi(actionData, runApiDsConfig, version2spec(specs, dataSourceConfig.specVersion));
   },
 };
 

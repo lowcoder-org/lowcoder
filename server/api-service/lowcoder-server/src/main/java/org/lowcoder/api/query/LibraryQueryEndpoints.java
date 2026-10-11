@@ -4,6 +4,7 @@ import static org.lowcoder.infra.constant.NewUrl.LIBRARY_QUERY_URL;
 
 import java.util.List;
 
+import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.query.view.LibraryQueryAggregateView;
 import org.lowcoder.api.query.view.LibraryQueryPublishRequest;
@@ -11,14 +12,7 @@ import org.lowcoder.api.query.view.LibraryQueryRecordMetaView;
 import org.lowcoder.api.query.view.LibraryQueryView;
 import org.lowcoder.api.query.view.UpsertLibraryQueryRequest;
 import org.lowcoder.domain.query.model.LibraryQuery;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Operation;
 import reactor.core.publisher.Mono;
@@ -36,7 +30,7 @@ public interface LibraryQueryEndpoints
 		    description = "Retrieve Library Queries in a dropdown format within Lowcoder, suitable for selection in user interfaces."
 	)
     @GetMapping("/dropDownList")
-    public Mono<ResponseView<List<LibraryQueryAggregateView>>> dropDownList();
+    public Mono<ResponseView<List<LibraryQueryAggregateView>>> dropDownList(@RequestParam(required = false, defaultValue = "") String name);
 
 	@Operation(
 			tags = TAG_LIBRARY_QUERY_MANAGEMENT,
@@ -45,7 +39,18 @@ public interface LibraryQueryEndpoints
 		    description = "Retrieve a list of Library Queries for a specific Organization within Lowcoder."
 	)
     @GetMapping("/listByOrg")
-    public Mono<ResponseView<List<LibraryQueryView>>> list();
+    public Mono<PageResponseView<?>> list(@RequestParam(required = false, defaultValue = "") String name,
+															   @RequestParam(required = false, defaultValue = "1") int pageNum,
+															   @RequestParam(required = false, defaultValue = "100") int pageSize);
+
+	@Operation(
+			tags = TAG_LIBRARY_QUERY_MANAGEMENT,
+			operationId = "getLibraryQuery",
+			summary = "Get a Library By Id",
+			description = "Get a Library Query by Id."
+	)
+	@GetMapping("/{libraryQueryId}")
+	public Mono<ResponseView<LibraryQueryView>> get(@PathVariable String libraryQueryId);
 
 	@Operation(
 			tags = TAG_LIBRARY_QUERY_MANAGEMENT,

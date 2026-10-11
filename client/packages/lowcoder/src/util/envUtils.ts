@@ -10,31 +10,19 @@ export function developEnv(): boolean {
   return REACT_APP_ENV === "development" || localEnv();
 }
 
-/**
- * is enterprise edition
- */
-// Falk: TODO: check EE by API Call
-export function isEE(): boolean {
-  return REACT_APP_EDITION === "enterprise" || REACT_APP_EDITION === "enterprise-global";
+// Is hosted as Enterprise Edition?
+export function isEEEnvironment(): boolean {
+  return REACT_APP_EDITION === "enterprise";
 }
 
 export function isSaasMode(config?: SystemConfig) {
-  return config?.workspaceMode === "SAAS";
+  return config?.workspaceMode === "SAAS" || config?.workspaceMode === "MULTIWORSPACE";
 }
 
 export function isEnterpriseMode(config?: SystemConfig) {
-  return config?.workspaceMode === "ENTERPRISE";
+  return config?.workspaceMode === "ENTERPRISE" || config?.workspaceMode === "SINGLEWORKSPACE";
 }
 
 export function isSelfDomain(config?: SystemConfig) {
   return config?.selfDomain;
-}
-
-export function showAuditLog(config?: SystemConfig) {
-  return config?.featureFlag?.enableAuditLog;
-}
-
-export function useCloudHosting() {
-  const systemConfig = useSelector(selectSystemConfig);
-  return systemConfig?.cloudHosting ?? true;
 }

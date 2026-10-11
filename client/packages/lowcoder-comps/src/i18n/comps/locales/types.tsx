@@ -2,9 +2,17 @@ import { JSONObject } from "lowcoder-sdk";
 import { XAXisComponentOption } from "echarts";
 
 export type I18nObjects = {
+  defaultBarChartOption: Record<string, unknown>;
   defaultDataSource: JSONObject[];
   defaultEchartsJsonOption: Record<string, unknown>;
   defaultGaugeChartOption: Record<string, unknown>;
+  defaultStageGaugeChartOption: Record<string, unknown>;
+  defaultGradeGaugeChartOption: Record<string, unknown>;
+  defaultTemperatureGaugeChartOption: Record<string, unknown>;
+  defaultMultiTitleGaugeChartOption: Record<string, unknown>;
+  defaultRingGaugeChartOption: Record<string, unknown>;
+  defaultBarometerGaugeChartOption: Record<string, unknown>;
+  defaultClockGaugeChartOption: Record<string, unknown>;
   defaultFunnelChartOption: Record<string, unknown>;
   defaultSankeyChartOption: Record<string, unknown>;
   defaultCandleStickChartOption: Record<string, unknown>;
@@ -19,4 +27,8 @@ export type I18nObjects = {
   defaultMapJsonOption: Record<string, unknown>;
   timeXAxisLabel?: XAXisComponentOption["axisLabel"];
   imageEditorLocale?: Record<string, string>;
+  defaultPieBg: string;
+  usaMap: Record<string, unknown>;
+  defaultDatasourceBoxplot: unknown[];
+  defaultDatasourceParallel: unknown[];
 };

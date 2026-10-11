@@ -27,6 +27,10 @@ export type CustomListAction<CompCtor extends CompConstructor = CompConstructor>
 
 type ListAction<CompCtor extends CompConstructor = CompConstructor> =
   | {
+    type: "setChildrens";
+    value: Array<ConstructorToDataType<CompCtor>>;
+  }
+  | {
       type: "push";
       value: ConstructorToDataType<CompCtor>;
     }
@@ -145,7 +149,19 @@ export function list<ChildCompCtor extends CompConstructor<any, any>>(
 
     private reduceCustom(action: ListAction<ChildCompCtor>): this {
       switch (action.type) {
-        case "push":
+        case "setChildrens": {
+          const childrenMap: Record<number, ConstructorToComp<ChildCompCtor>> = {};
+          const childrenOrder: number[] = [];
+          action.value.forEach((children: any, key: number) => {
+            childrenMap[key] = newChild(this.dispatch, String(key), children);
+            childrenOrder.push(key);
+          })
+          return setFieldsNoTypeCheck(this, {
+            children: childrenMap,
+            childrenOrder: childrenOrder,
+          });
+        }
+        case "push": {
           const key = this.genKey();
           const newChildren = {
             ...this.children,
@@ -155,6 +171,7 @@ export function list<ChildCompCtor extends CompConstructor<any, any>>(
             children: newChildren,
             childrenOrder: [...this.childrenOrder, key],
           });
+        }
         case "pushComp": {
           const key = this.genKey();
           const newChildren = {
@@ -209,6 +226,17 @@ export function list<ChildCompCtor extends CompConstructor<any, any>>(
         }
       }
     }
+
+    setChildrensAction(value: Array<ConstructorToDataType<ChildCompCtor>>) {
+      return customAction<ListAction<ChildCompCtor>>(
+        {
+          type: "setChildrens",
+          value: value,
+        },
+        true
+      );
+    }
+    
     pushAction(value: ConstructorToDataType<ChildCompCtor>) {
       return customAction<ListAction<ChildCompCtor>>(
         {

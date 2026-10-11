@@ -56,7 +56,9 @@ export default function PreviewApp(props: {
 
   return (
     <Preview style={props.style}>
-      <ThemeContext.Provider value={{ previewTheme: theme }}>{view}</ThemeContext.Provider>
+      <ThemeContext.Provider value={{ previewTheme: theme }}>
+        {view}
+      </ThemeContext.Provider>
     </Preview>
   );
 }

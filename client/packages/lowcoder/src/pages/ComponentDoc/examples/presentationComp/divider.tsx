@@ -16,7 +16,29 @@ export default function DividerExample() {
         title={trans("componentDoc.basicUsage")}
         description={trans("componentDoc.basicDemoDescription")}
       >
-        <Example title="" hideSettings={true} config={{}} compFactory={DividerComp} />
+      <Example 
+        title="Default Divider component" 
+        config={{
+          style: {
+            borderStyle: "solid",
+            border: "#000",
+            borderWidth: "2px"
+          },
+        }}
+        compFactory={DividerComp} 
+      />
+      <Example 
+        title="Hiding Divider component" 
+        config={{
+          style: {
+            borderStyle: "solid", 
+            border: "#000",
+            borderWidth: "2px",
+            hidden: "true",
+          },
+        }}
+        compFactory={DividerComp} 
+      />
       </ExampleGroup>
 
       <ExampleGroup title={trans("componentDoc.titleAlign")}>
@@ -24,9 +46,9 @@ export default function DividerExample() {
           title={trans("componentDoc.left")}
           nameMap={nameMap}
           config={{
+            style: {borderStyle: "solid", border: "#000",borderWidth: "2px"},
             title: trans("componentDoc.imADivider"),
             align: "left",
-            color: "#222222",
           }}
           compFactory={DividerComp}
         />
@@ -36,7 +58,7 @@ export default function DividerExample() {
           config={{
             title: trans("componentDoc.imADivider"),
             align: "center",
-            color: "#222222",
+            style: {borderStyle: "solid", border: "#000",borderWidth: "2px"},
           }}
           compFactory={DividerComp}
         />
@@ -46,30 +68,188 @@ export default function DividerExample() {
           config={{
             title: trans("componentDoc.imADivider"),
             align: "right",
-            color: "#222222",
+            style: {borderStyle: "solid", border: "#000",borderWidth: "2px"},
           }}
           compFactory={DividerComp}
         />
       </ExampleGroup>
-      <ExampleGroup title={trans("componentDoc.style")}>
+
+      <ExampleGroup title="Styling Properties">
         <Example
-          title={trans("componentDoc.dashed")}
-          nameMap={nameMap}
-          config={{
-            title: trans("componentDoc.imADivider"),
-            align: "left",
-            color: "#222222",
-            dashed: true,
-          }}
-          compFactory={DividerComp}
-        />
-        <Example
-          title={trans("componentDoc.color")}
+          title="Dashed Border"
           nameMap={nameMap}
           config={{
             title: trans("componentDoc.imADivider"),
             align: "center",
-            color: "#666666",
+            style: {borderStyle: "dashed", border: "#000",borderWidth: "2px"},
+          }}
+          compFactory={DividerComp}
+        />
+        <Example
+          title="Solid Border"
+          nameMap={nameMap}
+          config={{
+            title: trans("componentDoc.imADivider"),
+            align: "center",
+            style: {borderStyle: "solid", border: "#000",borderWidth: "2px"},
+          }}
+          compFactory={DividerComp}
+        />
+        <Example
+          title="Border Width & Border Color"
+          nameMap={nameMap}
+          config={{
+            title: "Divider",
+            align: "center",
+            style: {borderStyle: "solid", border: "#00FFFF",borderWidth: "10px"},
+          }}
+          compFactory={DividerComp}
+        />
+        <Example
+          title="Text Transform - Uppercase"
+          nameMap={nameMap}
+          config={{
+            title: trans("componentDoc.imADivider"),
+            align: "center",
+            style: {borderStyle: "solid", border: "#000",borderWidth: "3px", textTransform: "uppercase"},
+          }}
+          compFactory={DividerComp}
+        />
+        <Example
+          title="Text Transform - Capitalize"
+          nameMap={nameMap}
+          config={{
+            title: trans("componentDoc.imADivider"),
+            align: "center",
+            style: {borderStyle: "solid", border: "#000",borderWidth: "3px", textTransform: "capitalize"},
+          }}
+          compFactory={DividerComp}
+        />
+        <Example
+          title="Text Decoration - Underline"
+          nameMap={nameMap}
+          config={{
+            title: trans("componentDoc.imADivider"),
+            align: "center",
+            style: {borderStyle: "solid", border: "#000",borderWidth: "3px", textDecoration: "underline"},
+          }}
+          compFactory={DividerComp}
+        />
+        <Example
+          title="Text Decoration - Line through"
+          nameMap={nameMap}
+          config={{
+            title: trans("componentDoc.imADivider"),
+            align: "center",
+            style: {borderStyle: "solid", border: "#000",borderWidth: "3px", textDecoration: "line-through"},
+          }}
+          compFactory={DividerComp}
+        />
+        <Example
+          title="Other Text Properties"
+          nameMap={nameMap}
+          config={{
+            title: trans("componentDoc.imADivider"),
+            align: "center",
+            style: {
+              text: "#E67373",
+              textSize: "10px",
+              textWeight: "bold",
+              fontFamily: "Courier New",
+              fontStyle: "italic",
+              border: "#000",
+              borderWidth: "3px",
+              borderStyle: "solid",
+            }
+          }}
+          compFactory={DividerComp}
+        />
+        <Example
+          title="Vertical Divider"
+          nameMap={nameMap}
+          height={400}
+          config={{
+            title: trans("componentDoc.imADivider"),
+            align: "center",
+            style: {borderStyle: "solid", border: "#000",borderWidth: "2px"},
+            type: true,
+          }}
+          compFactory={DividerComp}
+        />
+        <Example
+          title="Component Rotation - 90deg"
+          nameMap={nameMap}
+          config={{
+            title: trans("componentDoc.imADivider"),
+            align: "center",
+            style: {borderStyle: "solid", border: "#000",borderWidth: "3px", rotation: "90deg"},
+          }}
+          compFactory={DividerComp}
+        />
+        <Example
+          title="Component Rotation - 180deg"
+          nameMap={nameMap}
+          config={{
+            title: trans("componentDoc.imADivider"),
+            align: "center",
+            style: {borderStyle: "solid", border: "#000",borderWidth: "3px", rotation: "180deg"},
+          }}
+          compFactory={DividerComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Animation Style"
+        description="The Following Examples Show different animations on the Cascader Component."
+      >
+        <Example
+          title="Bounce Animation"
+          config={{
+            style: {
+              borderStyle: "solid",
+              border: "#000",
+              borderWidth: "2px"
+            },
+            animationStyle: {
+              "animation": "bounce",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={DividerComp}
+        />
+        <Example
+          title="Swing Animation"
+          config={{
+            style: {
+              borderStyle: "solid",
+              border: "#000",
+              borderWidth: "2px"
+            },
+            animationStyle: {
+              "animation": "swing",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={DividerComp}
+        />
+        <Example
+          title="Tada Animation"
+          config={{
+            style: {
+              borderStyle: "solid",
+              border: "#000",
+              borderWidth: "2px"
+            },
+            animationStyle: {
+              "animation": "tada",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
           }}
           compFactory={DividerComp}
         />

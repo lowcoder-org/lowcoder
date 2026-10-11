@@ -1,0 +1,26 @@
+name: Build lowcoder-proxy-service docker image
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev
+      - main
+    paths:
+      - 'server/proxy-service/**'
+      - '.github/workflows/proxy-service.yml'
+      - '.github/workflows/build-service-image.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-service-image.yml
+    # Publishes the image used by the `lowcoder-proxy-service` service
+    # in deploy/docker/docker-compose-multi.yaml
+    with:
+      context: ./server/proxy-service
+      dockerfile: ./server/proxy-service/Dockerfile
+      image_name: lowcoderorg/lowcoder-proxy-service
+    secrets: inherit

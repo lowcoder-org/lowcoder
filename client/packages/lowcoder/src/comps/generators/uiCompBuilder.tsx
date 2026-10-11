@@ -1,5 +1,5 @@
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
-import React, { ReactNode, useContext, useRef } from "react";
+import React, { ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { Comp, CompParams, MultiBaseComp } from "lowcoder-core";
 import {
@@ -22,20 +22,34 @@ import {
   MethodConfigsType,
   withMethodExposing,
 } from "./withMethodExposing";
-import { Section } from "lowcoder-design";
+import {Section, controlItem } from "lowcoder-design";
 import { trans } from "i18n";
+import { BoolControl } from "../controls/boolControl";
+import { valueComp, withDefault } from "./simpleGenerators";
+import { getPromiseAfterDispatch } from "@lowcoder-ee/util/promiseUtils";
+import { EditorContext } from "../editorState";
+import { isEqual, values } from "lodash";
+import { UICompType, uiCompRegistry } from "../uiCompRegistry";
+import { getNpmPackageMeta } from "../utils/remote";
+import { compPluginsList } from "constants/compPluginConstants";
+import Select from "antd/es/select";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+import { useEditorStore } from "../editorStore";
 
 export type NewChildren<ChildrenCompMap extends Record<string, Comp<unknown>>> =
   ChildrenCompMap & {
     hidden: InstanceType<typeof BoolCodeControl>;
+    showDataLoadingIndicators: InstanceType<typeof BoolControl>,
     className: InstanceType<typeof StringControl>;
     dataTestId: InstanceType<typeof StringControl>;
+    preventStyleOverwriting: InstanceType<typeof BoolControl>;
+    version: InstanceType<typeof StringControl>;
   };
 
-export function HidableView(props: {
+export const HidableView = React.memo((props: {
   children: JSX.Element | React.ReactNode;
   hidden: boolean;
-}) {
+}) => {
   const { readOnly } = useContext(ExternalEditorContext);
   if (readOnly) {
     return <>{props.children}</>;
@@ -52,25 +66,86 @@ export function HidableView(props: {
       </>
     );
   }
-}
+})
 
-export function ExtendedPropertyView<
+export const ExtendedPropertyView = React.memo(<
   ChildrenCompMap extends Record<string, Comp<unknown>>,
 >(props: {
   children: JSX.Element | React.ReactNode,
   childrenMap: NewChildren<ChildrenCompMap>
 }
-) {
+) => {
+  const [compVersions, setCompVersions] = useState(['latest']);
+  const [compName, setCompName] = useState('');
+  const editorState = useContext(EditorContext);
+  const selectedCompNames = useEditorStore((state) => state.selectedCompNames);
+  const selectedComp = useMemo(
+    () => values(editorState?.selectedComps(selectedCompNames))[0],
+    [editorState, selectedCompNames]
+  );
+  const compType = selectedComp?.children?.compType?.getView() as UICompType;
+  const timeoutRef = useRef<NodeJS.Timeout>();
+
+  useEffect(() => {
+    setCompName(uiCompRegistry[compType]?.compName || '');
+  }, [compType]);
+
+  useEffect(() => {
+    const fetchCompsPackageMeta = async () => {
+      const packageMeta = await getNpmPackageMeta(compName);
+      if (packageMeta?.versions) {
+        setCompVersions(Object.keys(packageMeta.versions).reverse())
+      }
+    }
+    if (Boolean(compName) && compPluginsList.includes(compName)) {
+      fetchCompsPackageMeta();
+    }
+  }, [compName]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
     <>
       {props.children}
       <Section name={trans("prop.component")}>
         {props.childrenMap.className?.propertyView({ label: trans("prop.className") })}
         {props.childrenMap.dataTestId?.propertyView({ label: trans("prop.dataTestId") })}
+        {props.childrenMap.preventStyleOverwriting?.propertyView({ label: trans("prop.preventOverwriting") })}
       </Section>
+      {compPluginsList.includes(compName) && (
+        <Section name={'Component Version'}>
+          {controlItem({}, (
+            <Select
+              defaultValue={props.childrenMap.version.getView()}
+              placeholder={'Select version'}
+              options={
+                compVersions.map(version => ({label: version, value: version}))
+              }
+              onChange={async (value) => {
+                await getPromiseAfterDispatch(
+                  props.childrenMap.version.dispatch,
+                  props.childrenMap.version.changeValueAction(value), {
+                    autoHandleAfterReduce: true,
+                  }
+                )
+                timeoutRef.current = setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
+              }}
+            />
+          ))}
+        </Section>
+      )}
     </>
   );
-}
+});
 
 export function uiChildren<
   ChildrenCompMap extends Record<string, Comp<unknown>>,
@@ -80,8 +155,12 @@ export function uiChildren<
   return {
     ...childrenMap,
     hidden: BoolCodeControl,
+    showDataLoadingIndicators: withDefault(BoolControl, false),
     className: StringControl,
-    dataTestId: StringControl
+    dataTestId: StringControl,
+    preventStyleOverwriting: withDefault(BoolControl, false),
+    appliedThemeId: valueComp<string>(''),
+    version: withDefault(StringControl, 'latest'),
   } as any;
 }
 
@@ -149,7 +228,7 @@ export class UICompBuilder<
   }
 
   build() {
-    const reservedProps = ["hidden", "className", "dataTestId"];
+    const reservedProps = ["hidden", "className", "dataTestId", "preventStyleOverwriting", "appliedThemeId"];
     for (const reservedProp of reservedProps) {
       if (this.childrenMap.hasOwnProperty(reservedProp)) {
         throw new Error(`Property »${reservedProp}« is reserved and must not be implemented in components!`);
@@ -213,51 +292,39 @@ export const DisabledContext = React.createContext<boolean>(false);
 /**
  * Guaranteed to be in a react component, so that react hooks can be used internally
  */
-function UIView(props: {
+const UIView = React.memo((props: {
   innerRef: React.RefObject<HTMLDivElement>;
   comp: any;
   viewFn: any;
-}) {
+}) => {
   const comp = props.comp;
   const childrenProps = childrenToProps(comp.children);
+  const childrenJsonProps = comp.toJsonValue();
   const parentDisabled = useContext(DisabledContext);
   const disabled = childrenProps['disabled'];
   if (disabled !== undefined && typeof disabled === 'boolean') {
     childrenProps['disabled'] = disabled || parentDisabled;
   }
 
-  //ADDED BY FRED
-  if (childrenProps.events) {
-    const events = childrenProps.events as {value?: any[]};
-    if (!events.value || events.value.length === 0) {
-      events.value = [];
-    }
-  }
-  //END ADD BY FRED
+  useMergeCompStyles(
+    childrenProps as Record<string, any>,
+    comp.dispatch
+  );
 
-  if (comp.children.hasOwnProperty('showMask') && comp.children.hasOwnProperty('maskClosable')) {
-    return (
-      <HidableView hidden={childrenProps.hidden as boolean}>
-        {props.viewFn(
-          childrenProps,
-          comp.dispatch
-        )}
-      </HidableView>
-    );
-  }
+  // Optimize memoization by combining related values
+  const { defaultChildren, isNotContainer, restrictPaddingOnRotation } = useMemo(() => ({
+    defaultChildren: comp.children,
+    isNotContainer: Boolean(comp.children.style),
+    restrictPaddingOnRotation: Boolean(comp.children.restrictPaddingOnRotation)
+  }), [comp.children]);
 
-  let defaultChildren = comp.children;
-  const isNotContainer = defaultChildren.hasOwnProperty('style');
-  const restrictPaddingOnRotation = defaultChildren.hasOwnProperty('restrictPaddingOnRotation');
-  let rotationVal:any = null
-  let boxShadowVal:any = null;
-  let restrictPaddingOnRotationVal:any=null;
-  if (isNotContainer) {
-    rotationVal = defaultChildren.style.children?.rotation?.valueAndMsg.value;
-    boxShadowVal = defaultChildren.style?.children?.boxShadow?.valueAndMsg?.value;
-    restrictPaddingOnRotationVal = defaultChildren?.restrictPaddingOnRotation?.valueAndMsg?.value;
-  }
-  const getPadding = () => {
+  const { rotationVal, boxShadowVal, restrictPaddingOnRotationVal } = useMemo(() => ({
+    rotationVal: isNotContainer ? defaultChildren.style?.children?.rotation?.valueAndMsg.value : null,
+    boxShadowVal: isNotContainer ? defaultChildren.style?.children?.boxShadow?.valueAndMsg?.value : null,
+    restrictPaddingOnRotationVal: isNotContainer ? defaultChildren?.restrictPaddingOnRotation?.valueAndMsg?.value : null
+  }), [isNotContainer, defaultChildren]);
+
+  const getPadding = useCallback(() => {
     if (
       (rotationVal === null ||
         rotationVal === undefined ||
@@ -287,7 +354,11 @@ function UIView(props: {
       } else {
         return '0px'; // Both rotation and box-shadow are empty or restricted
       }
-    } else if (rotationVal !== '' && rotationVal !== '0deg') {
+    }else if (
+      rotationVal === null ||
+      rotationVal === undefined ||
+      rotationVal === '0px'
+    ){return '0px'} else if (rotationVal !== '' && rotationVal !== '0deg') {
       // Rotation applied
       if (
         boxShadowVal === null ||
@@ -313,7 +384,24 @@ function UIView(props: {
     } else {
       return '0px'; // Default value if neither rotation nor box-shadow is applied
     }
-  };
+  }, [
+    rotationVal,
+    boxShadowVal,
+    restrictPaddingOnRotationVal,
+    restrictPaddingOnRotation,
+  ]);
+
+  // render condition for modal and drawer as we are not getting compType here
+  if (comp.children.hasOwnProperty('showMask') && comp.children.hasOwnProperty('maskClosable')) {
+    return (
+      <HidableView hidden={childrenProps.hidden as boolean}>
+        {props.viewFn(
+          childrenProps,
+          comp.dispatch
+        )}
+      </HidableView>
+    );
+  }
 
   return (
     <div
@@ -324,8 +412,7 @@ function UIView(props: {
         width: '100%',
         height: '100%',
         margin: '0px',
-        padding:getPadding()
-          
+        padding: getPadding(),
       }}
     >
       <HidableView hidden={childrenProps.hidden as boolean}>
@@ -333,4 +420,6 @@ function UIView(props: {
       </HidableView>
     </div>
   );
-}
+}, (prevProps, nextProps) => {
+  return isEqual(prevProps, nextProps);
+});

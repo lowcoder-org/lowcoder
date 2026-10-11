@@ -5,6 +5,10 @@ import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
 import spec from "./circleCi.spec.json";
+import { specsToOptions, version2spec } from "../../common/util";
+const specs = {
+  "v1.0": spec,
+}
 
 const dataSourceConfig = {
   type: "dataSource",
@@ -15,6 +19,14 @@ const dataSourceConfig = {
       label: "API Token",
       tooltip:
         "[Personal API Token](https://circleci.com/docs/managing-api-tokens/#creating-a-personal-api-token)",
+    },
+    {
+      label: "Spec Version",
+      key: "specVersion",
+      type: "select",
+      tooltip: "Version of the spec file.",
+      placeholder: "v1.0",
+      options: specsToOptions(specs)
     },
   ],
 } as const;
@@ -31,11 +43,11 @@ const circleCiPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "circleCi",
   name: "CircleCI",
   icon: "circleCI.svg",
-  category: "api",
+  category: "DevOps",
   dataSourceConfig,
-  queryConfig: async () => {
+  queryConfig: async (data) => {
     const { actions, categories } = await parseOpenApi(
-      spec as unknown as OpenAPI.Document,
+      version2spec(specs, data.specVersion) as unknown as OpenAPI.Document,
       parseOptions
     );
     return {
@@ -53,8 +65,9 @@ const circleCiPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       url: "",
       serverURL: "",
       dynamicParamsConfig: dataSourceConfig,
+      specVersion: dataSourceConfig.specVersion,
     };
-    return runOpenApi(actionData, runApiDsConfig, spec as unknown as OpenAPIV3.Document);
+    return runOpenApi(actionData, runApiDsConfig, version2spec(specs, dataSourceConfig.specVersion) as unknown as OpenAPIV3.Document);
   },
 };
 

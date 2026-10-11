@@ -46,6 +46,8 @@ public class Connection implements Serializable {
 
     private final String name;
 
+    private final String email;
+
     private final String avatar;
 
     private Set<String> orgIds;
@@ -59,12 +61,13 @@ public class Connection implements Serializable {
     private Set<String> tokens;
 
     @JsonCreator
-    private Connection(String authId, String source, String rawId, String name, String avatar, Set<String> orgIds, @Nullable
+    private Connection(String authId, String source, String rawId, String name, String email, String avatar, Set<String> orgIds, @Nullable
     ConnectionAuthToken authConnectionAuthToken, Map<String, Object> rawUserInfo, Set<String> tokens) {
         this.authId = authId;
         this.source = source;
         this.rawId = rawId;
         this.name = name;
+        this.email = email;
         this.avatar = avatar;
         this.orgIds = CollectionUtils.isEmpty(orgIds) ? new HashSet<>() : orgIds;
         this.authConnectionAuthToken = authConnectionAuthToken;

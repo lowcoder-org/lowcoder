@@ -11,15 +11,18 @@ import org.lowcoder.infra.serverlog.ServerLogService;
 import org.lowcoder.infra.util.NetworkUtils;
 import org.lowcoder.sdk.util.CookieHelper;
 import org.lowcoder.sdk.util.UriUtils;
+import org.springframework.context.i18n.LocaleContext;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -30,6 +33,7 @@ import static org.lowcoder.api.framework.filter.FilterOrder.GLOBAL_CONTEXT;
 import static org.lowcoder.sdk.constants.Authentication.isAnonymousUser;
 import static org.lowcoder.sdk.constants.GlobalContext.*;
 import static org.lowcoder.sdk.util.IDUtils.generate;
+import static org.springframework.http.HttpHeaders.writableHttpHeaders;
 
 @Component
 @RequiredArgsConstructor
@@ -98,10 +102,18 @@ public class GlobalContextFilter implements WebFilter, Ordered {
         contextMap.put(REQUEST_PATH, request.getPath().pathWithinApplication().value());
         contextMap.put(REQUEST, request);
         contextMap.put(REQUEST_METHOD, ofNullable(request.getMethod()).map(HttpMethod::name).orElse(""));
-        contextMap.put(CLIENT_LOCALE, globalContextService.getClientLocale(request));
+
+        LocaleContext localeContext = serverWebExchange.getLocaleContext();
+        Locale currentLocale = localeContext.getLocale() != null ? localeContext.getLocale() : Locale.ENGLISH;
+        contextMap.put(CLIENT_LOCALE, currentLocale);
         contextMap.put(CURRENT_ORG_MEMBER, orgMemberService.getCurrentOrgMember(visitorId).cache());
         contextMap.put(VISITOR_TOKEN, cookieHelper.getCookieToken(serverWebExchange));
         contextMap.put(DOMAIN, UriUtils.getRefererDomainFromRequest(serverWebExchange));
+
+        //Analytics related fields
+        MultiValueMap<String, String> headers = writableHttpHeaders(request.getHeaders());
+        headers.remove("Cookie");
+        contextMap.put(HEADERS, headers);
         return contextMap;
     }
 

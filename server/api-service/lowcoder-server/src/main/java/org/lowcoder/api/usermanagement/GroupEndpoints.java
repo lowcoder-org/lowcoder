@@ -5,12 +5,7 @@ import java.util.List;
 import jakarta.validation.Valid;
 
 import org.lowcoder.api.framework.view.ResponseView;
-import org.lowcoder.api.usermanagement.view.AddMemberRequest;
-import org.lowcoder.api.usermanagement.view.CreateGroupRequest;
-import org.lowcoder.api.usermanagement.view.GroupMemberAggregateView;
-import org.lowcoder.api.usermanagement.view.GroupView;
-import org.lowcoder.api.usermanagement.view.UpdateGroupRequest;
-import org.lowcoder.api.usermanagement.view.UpdateRoleRequest;
+import org.lowcoder.api.usermanagement.view.*;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.infra.constant.Url;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -68,18 +63,25 @@ public interface GroupEndpoints
 		    description = "Retrieve a list of User Groups within Lowcoder, providing an overview of available groups, based on the access rights of the currently impersonated User."
 	)
     @GetMapping("/list")
-    public Mono<ResponseView<List<GroupView>>> getOrgGroups();
+    public Mono<GroupListResponseView<List<GroupView>>> getOrgGroups(@RequestParam(required = false, defaultValue = "1") Integer pageNum,
+			@RequestParam(required = false, defaultValue = "0") Integer pageSize);
 
 	@Operation(
 			tags = TAG_GROUP_MEMBERS,
-		    operationId = "listGroupMembers",
-		    summary = "List User Group Members",
-		    description = "Retrieve a list of Users / Members within a specific User Group in Lowcoder, showing the group's composition."
+			operationId = "listGroupMembersWithSearchAndSort",
+			summary = "List User Group Members with Search and Sort",
+			description = "Retrieve a paginated, searchable, and sortable list of Users / Members within a specific User Group in Lowcoder."
 	)
-    @GetMapping("/{groupId}/members")
-    public Mono<ResponseView<GroupMemberAggregateView>> getGroupMembers(@PathVariable String groupId,
-            @RequestParam(name = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(name = "count", required = false, defaultValue = "100") int count);
+	@GetMapping("/{groupId}/members")
+	public Mono<ResponseView<GroupMemberAggregateView>> getGroupMembers(
+			@PathVariable String groupId,
+			@RequestParam(required = false) String search,
+			@RequestParam(required = false) String role,
+			@RequestParam(required = false) String sort,
+			@RequestParam(required = false) String order,
+			@RequestParam(required = false, defaultValue = "1") Integer pageNum,
+			@RequestParam(required = false, defaultValue = "100") Integer pageSize
+	);
 
 	@Operation(
 			tags = TAG_GROUP_MEMBERS,
@@ -119,4 +121,19 @@ public interface GroupEndpoints
     @DeleteMapping("/{groupId}/remove")
     public Mono<ResponseView<Boolean>> removeUser(@PathVariable String groupId,
             @RequestParam String userId);
+
+	@Operation(
+			tags = TAG_GROUP_MEMBERS,
+			operationId = "searchPotentialGroupMembers",
+			summary = "Search Potential Group Members",
+			description = "Retrieve a list of users who are not currently members of the specified group within an organization."
+	)
+
+	@GetMapping("/{groupId}/potential-members")
+	public Mono<ResponseView<OrgMemberListView>> searchPotentialGroupMembers(
+			@PathVariable String groupId,
+			@RequestParam(required = false) String searchName,
+			@RequestParam(required = false, defaultValue = "1") Integer pageNum,
+			@RequestParam(required = false, defaultValue = "1000") Integer pageSize
+	);
 }

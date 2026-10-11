@@ -7,7 +7,7 @@ const slackPlugin = {
   id: "slack",
   name: "Slack",
   icon: "slack.svg",
-  category: "api",
+  category: "Project Management",
   dataSourceConfig,
   queryConfig: queryConfig,
 

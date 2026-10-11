@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 import { NofileIcon } from "lowcoder-design";
 import { EmptyTab } from "./BottomTabs";
 import { CompNameContext, EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { BottomSidebar } from "./BottomSidebar";
 import { useSelector } from "react-redux";
 import { MetaDataContext } from "base/codeEditor/codeEditorTypes";
@@ -62,6 +63,8 @@ export function BottomSkeleton() {
 export const BottomContent = () => {
   const editorState = useContext(EditorContext);
   const datasourceInfos = useSelector(getDataSource);
+  const selectedBottomResName = useEditorStore((state) => state.selectedBottomResName);
+  const selectedBottomResType = useEditorStore((state) => state.selectedBottomResType);
   const selectedComp = editorState.selectedBottomResComp();
   const [isCreatePanelShow, showCreatePanel] = useState(false);
 
@@ -70,7 +73,7 @@ export const BottomContent = () => {
   const transformerItems = editorState.getTransformersComp().getView();
   const folderItems = editorState.getFoldersComp().getView();
   const dataResponderItems = editorState.getDataRespondersComp().getView();
-  const isFolderSelected = editorState.selectedBottomResType === BottomResTypeEnum.Folder;
+  const isFolderSelected = selectedBottomResType === BottomResTypeEnum.Folder;
   const refTreeComp = editorState.rootComp.children.refTree;
 
   const bottomResItems = [
@@ -97,7 +100,7 @@ export const BottomContent = () => {
     showCreatePanel(false);
 
     const isFolder = type === BottomResTypeEnum.Folder;
-    const parent = isFolderSelected && !isFolder ? editorState.selectedBottomResName : "";
+    const parent = isFolderSelected && !isFolder ? selectedBottomResName : "";
     const index = isFolder ? folderItems.length : undefined;
     editorState.rootComp.children.refTree.appendRef(parent, id, index);
   };
@@ -123,8 +126,8 @@ export const BottomContent = () => {
   };
 
   useEffect(() => {
-    editorState.selectedBottomResName && showCreatePanel(false);
-  }, [editorState.selectedBottomResName, showCreatePanel]);
+    selectedBottomResName && showCreatePanel(false);
+  }, [selectedBottomResName, showCreatePanel]);
 
   // keep reference unchanged when metaData unchange, avoid re-configure when auto-completion changes
   const selectedDatasourceId =

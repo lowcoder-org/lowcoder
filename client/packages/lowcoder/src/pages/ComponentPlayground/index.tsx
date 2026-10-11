@@ -1,11 +1,15 @@
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import "comps";
-import { UICompType, UICompManifest, uiCompRegistry, UICompCategory } from "comps/uiCompRegistry";
+import { UICompType, UICompManifest, uiCompRegistry, UICompCategory, ExposingMultiCompConstructor } from "comps/uiCompRegistry";
 import { CompPlayground } from "ide/CompPlayground";
 import { Comp } from "lowcoder-core";
 import { EditorContext, EditorState } from "comps/editorState";
 import { RootComp } from "comps/comps/rootComp";
+import { useMemo } from "react";
+import { lazyLoadComp } from "@lowcoder-ee/comps/comps/lazyLoadComp/lazyLoadComp";
+import { LoadingBarHideTrigger } from "@lowcoder-ee/util/hideLoading";
+import { createEditorStore, EditorStoreProvider } from "comps/editorStore";
 
 type CompInfo = UICompManifest & { key: string };
 const groups: Partial<Record<UICompCategory, CompInfo[]>> = {};
@@ -47,7 +51,8 @@ const Wrapper = styled.div`
   }
 `;
 
-const editorState = new EditorState(new RootComp({ value: {} }), () => {});
+const editorStore = createEditorStore();
+const editorState = new EditorState(new RootComp({ value: {} }), () => {}, false, editorStore);
 
 export default function ComponentPlayground() {
   window.__LOWCODER_ORG__ = {};
@@ -56,16 +61,31 @@ export default function ComponentPlayground() {
   const dsl = JSON.parse(decodeURIComponent(params.dsl || ""));
   const compManifest = uiCompRegistry[params.name];
 
+  const comp = useMemo(() => {
+    if (!compManifest.lazyLoad) {
+      return compManifest.comp;
+    }
+
+    return lazyLoadComp(
+      compManifest.compName,
+      compManifest.compPath,
+    )
+  }, [compManifest]);
+  if (!comp) return null;
+
   return (
     <Wrapper>
+      <LoadingBarHideTrigger />
       <div className="content">
-        <EditorContext.Provider value={editorState}>
-          <CompPlayground
-            initialValue={dsl}
-            compFactory={compManifest.comp as unknown as Comp<any>}
-            layoutInfo={compManifest.layoutInfo || { h: 5, w: 5 }}
-          />
-        </EditorContext.Provider>
+        <EditorStoreProvider store={editorStore}>
+          <EditorContext.Provider value={editorState}>
+            <CompPlayground
+              initialValue={dsl}
+              compFactory={comp as unknown as Comp<any>}
+              layoutInfo={compManifest.layoutInfo || { h: 5, w: 5 }}
+            />
+          </EditorContext.Provider>
+        </EditorStoreProvider>
       </div>
     </Wrapper>
   );

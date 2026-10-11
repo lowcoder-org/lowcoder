@@ -202,7 +202,7 @@ export const QueryNotificationControl = class extends QueryNotificationTmpContro
           })}
         </QuerySectionWrapper>
 
-        {triggerType === "manual" && (
+        {/* {triggerType === "manual" && ( */}
           <QuerySectionWrapper>
             {this.children.showSuccess.propertyView({
               label: trans("query.showSuccessNotification"),
@@ -211,7 +211,7 @@ export const QueryNotificationControl = class extends QueryNotificationTmpContro
             })}
             {this.children.success.getPropertyView()}
           </QuerySectionWrapper>
-        )}
+        {/* )} */}
 
         <QuerySectionWrapper>
           {this.children.duration.propertyView({

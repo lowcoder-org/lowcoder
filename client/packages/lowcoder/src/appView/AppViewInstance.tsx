@@ -14,6 +14,8 @@ import { saveAuthSearchParams } from "pages/userAuth/authUtils";
 import { Suspense, lazy } from "react";
 import Flex from "antd/es/flex";
 import { TacoButton } from "components/button";
+import { DatasourceApi } from "@lowcoder-ee/api/datasourceApi";
+import { registryDataSourcePlugin } from "@lowcoder-ee/constants/queryConstants";
 
 const AppView = lazy(
   () => import('./AppView')
@@ -82,7 +84,7 @@ export class AppViewInstance<I = any, O = any> {
     if (!appDsl) {
       const http = axios.create({ baseURL: baseUrl, withCredentials: true });
       const data: ApplicationResp = await http
-        .get(`/api/v1/applications/${this.appId}/view`)
+        .get(`/api/applications/${this.appId}/view`)
         .then((i) => i.data)
         .catch((e) => {
           if (e.response?.status === API_STATUS_CODES.REQUEST_NOT_AUTHORISED) {
@@ -101,13 +103,19 @@ export class AppViewInstance<I = any, O = any> {
             };
           }
         });
-
-      setGlobalSettings({
-        orgCommonSettings: data.data.orgCommonSettings,
+      
+      await DatasourceApi.fetchJsDatasourceByApp(this.appId).then((res) => {
+        res.data?.data?.forEach((i) => {
+          registryDataSourcePlugin(i.type, i.id, i.pluginDefinition);
+        });
       });
 
-      finalAppDsl = data.data.applicationDSL;
-      finalModuleDslMap = data.data.moduleDSL;
+      setGlobalSettings({
+        orgCommonSettings: data?.data?.orgCommonSettings,
+      });
+
+      finalAppDsl = data?.data?.applicationDSL || {};
+      finalModuleDslMap = data?.data?.moduleDSL || {};
     }
 
     if (this.options.moduleInputs && this.isModuleDSL(finalAppDsl)) {

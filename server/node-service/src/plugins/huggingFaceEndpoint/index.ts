@@ -5,6 +5,10 @@ import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
 import spec from "./huggingFace.spec.json";
+import { specsToOptions, version2spec } from "../../common/util";
+const specs = {
+  "v1.0": spec,
+}
 
 const dataSourceConfig = {
   type: "dataSource",
@@ -25,6 +29,14 @@ const dataSourceConfig = {
       tooltip:
         "You can get an Access Token [in your profile setting page](https://huggingface.co/settings/tokens)",
     },
+    {
+      label: "Spec Version",
+      key: "specVersion",
+      type: "select",
+      tooltip: "Version of the spec file.",
+      placeholder: "v1.0",
+      options: specsToOptions(specs)
+    },
   ],
 } as const;
 
@@ -40,11 +52,11 @@ const huggingFacePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "huggingFaceEndpoint",
   name: "Hugging Face Endpoints",
   icon: "huggingFace.svg",
-  category: "api",
+  category: "AI",
   dataSourceConfig,
-  queryConfig: async () => {
+  queryConfig: async (data) => {
     const { actions, categories } = await parseOpenApi(
-      spec as unknown as OpenAPI.Document,
+      version2spec(specs, data.specVersion) as unknown as OpenAPI.Document,
       parseOptions
     );
     return {
@@ -62,8 +74,9 @@ const huggingFacePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       url: "",
       serverURL: "",
       dynamicParamsConfig: dataSourceConfig,
+      specVersion: dataSourceConfig.specVersion,
     };
-    return runOpenApi(actionData, runApiDsConfig, spec as unknown as OpenAPIV3.Document);
+    return runOpenApi(actionData, runApiDsConfig, version2spec(specs, dataSourceConfig.specVersion) as unknown as OpenAPIV3.Document);
   },
 };
 

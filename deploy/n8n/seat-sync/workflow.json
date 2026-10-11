@@ -1,0 +1,700 @@
+{
+  "name": "Workspace subscription seat synchronization",
+  "nodes": [
+    {
+      "id": "seat-sync-webhook",
+      "name": "Seat sync webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "secure/sync-workspace-seats",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_SEAT_SYNC_CREDENTIAL_ID",
+          "name": "Lowcoder Seat Sync (server only)"
+        }
+      }
+    },
+    {
+      "id": "validate-snapshot",
+      "name": "Validate snapshot",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const logic = (() => {\n// Billing quantities are supplied by the authenticated local API, never by a browser.\n// Keep this module dependency-free: build-workflow.cjs embeds it into n8n Code nodes.\nconst PRODUCTS = new Set(['prod_QYGsTWZYyJYzMg', 'prod_VPq5GQPHJSQnzq']);\nconst STATUSES = new Set(['active', 'trialing', 'past_due']);\n\nfunction validateSnapshot(body, expectedHostId, now = Date.now()) {\n  if (!expectedHostId || expectedHostId.startsWith('REPLACE_')) throw new Error('Configure the trusted deployment ID');\n  const safeId = value => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(value);\n  if (!body || body.hostId !== expectedHostId || !safeId(body.hostId) || !safeId(body.orgId) ||\n      !safeId(body.requestId) || !Number.isSafeInteger(body.quantity) || body.quantity < 0 ||\n      !Number.isSafeInteger(body.issuedAt) || now - body.issuedAt > 30000 || body.issuedAt - now > 5000) {\n    throw new Error('Invalid, foreign, or expired seat snapshot');\n  }\n  return { hostId: body.hostId, orgId: body.orgId, requestId: body.requestId,\n    quantity: body.quantity, issuedAt: body.issuedAt };\n}\n\nfunction collectPages(pages, expectedLists) {\n  if (!Array.isArray(pages) || pages.filter(page => page.has_more === false).length !== expectedLists ||\n      pages.some(page => !Array.isArray(page.data) || typeof page.has_more !== 'boolean')) {\n    throw new Error('Incomplete Stripe pagination; refusing partial reconciliation');\n  }\n  const unique = new Map();\n  for (const page of pages) for (const item of page.data) {\n    if (!item.id) throw new Error('Stripe object ID is missing');\n    unique.set(item.id, item);\n  }\n  return [...unique.values()];\n}\n\nfunction customersForSnapshot(customers, snapshot) {\n  return customers.filter(customer => !customer.deleted &&\n    customer.metadata?.lowcoder_hostId === snapshot.hostId &&\n    customer.metadata?.lowcoder_orgId === snapshot.orgId);\n}\n\nfunction subscriptionsForCustomers(subscriptions, customers) {\n  const ids = new Set(customers.map(customer => customer.id));\n  return subscriptions.filter(subscription => ids.has(subscription.customer) && STATUSES.has(subscription.status));\n}\n\nfunction planUpdates(items, subscriptions, snapshot) {\n  const ids = new Set(subscriptions.map(subscription => subscription.id));\n  return items.filter(item => ids.has(item.subscription) && PRODUCTS.has(item.price?.product) &&\n      item.price?.recurring?.usage_type === 'licensed' && item.quantity !== snapshot.quantity)\n    .map(item => ({ itemId: item.id, quantity: snapshot.quantity,\n      prorationBehavior: 'create_prorations',\n      idempotencyKey: `seat-sync:${snapshot.requestId}:${item.id}:${snapshot.quantity}` }));\n}\n\nfunction confirmUpdates(responses, updates, snapshot) {\n  if (responses.length !== updates.length || updates.some(update =>\n      !responses.some(response => response.id === update.itemId && response.quantity === update.quantity))) {\n    throw new Error('Stripe did not confirm every requested seat update');\n  }\n  return { success: true, requestId: snapshot.requestId, quantity: snapshot.quantity, updated: updates.length };\n}\n\nreturn { validateSnapshot, collectPages, customersForSnapshot, subscriptionsForCustomers, planUpdates, confirmUpdates };\n\n})();\nconst expectedHostId = 'REPLACE_WITH_DEPLOYMENT_ID';\nreturn [{ json: logic.validateSnapshot($input.first().json.body, expectedHostId) }];"
+      }
+    },
+    {
+      "id": "search-customers",
+      "name": "Search customers",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.stripe.com/v1/customers/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "stripeApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ \"metadata['lowcoder_hostId']:'\" + $json.hostId + \"' AND metadata['lowcoder_orgId']:'\" + $json.orgId + \"'\" }}"
+            },
+            {
+              "name": "limit",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000,
+          "pagination": {
+            "pagination": {
+              "paginationMode": "updateAParameterInEachRequest",
+              "parameters": {
+                "parameters": [
+                  {
+                    "type": "qs",
+                    "name": "page",
+                    "value": "={{ $response.body.next_page }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ !$response.body.has_more }}",
+              "limitPagesFetched": true,
+              "maxRequests": 100
+            }
+          }
+        }
+      },
+      "credentials": {
+        "stripeApi": {
+          "id": "REPLACE_STRIPE_CREDENTIAL_ID",
+          "name": "Lowcoder Stripe"
+        }
+      }
+    },
+    {
+      "id": "collect-customers",
+      "name": "Collect customers",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const logic = (() => {\n// Billing quantities are supplied by the authenticated local API, never by a browser.\n// Keep this module dependency-free: build-workflow.cjs embeds it into n8n Code nodes.\nconst PRODUCTS = new Set(['prod_QYGsTWZYyJYzMg', 'prod_VPq5GQPHJSQnzq']);\nconst STATUSES = new Set(['active', 'trialing', 'past_due']);\n\nfunction validateSnapshot(body, expectedHostId, now = Date.now()) {\n  if (!expectedHostId || expectedHostId.startsWith('REPLACE_')) throw new Error('Configure the trusted deployment ID');\n  const safeId = value => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(value);\n  if (!body || body.hostId !== expectedHostId || !safeId(body.hostId) || !safeId(body.orgId) ||\n      !safeId(body.requestId) || !Number.isSafeInteger(body.quantity) || body.quantity < 0 ||\n      !Number.isSafeInteger(body.issuedAt) || now - body.issuedAt > 30000 || body.issuedAt - now > 5000) {\n    throw new Error('Invalid, foreign, or expired seat snapshot');\n  }\n  return { hostId: body.hostId, orgId: body.orgId, requestId: body.requestId,\n    quantity: body.quantity, issuedAt: body.issuedAt };\n}\n\nfunction collectPages(pages, expectedLists) {\n  if (!Array.isArray(pages) || pages.filter(page => page.has_more === false).length !== expectedLists ||\n      pages.some(page => !Array.isArray(page.data) || typeof page.has_more !== 'boolean')) {\n    throw new Error('Incomplete Stripe pagination; refusing partial reconciliation');\n  }\n  const unique = new Map();\n  for (const page of pages) for (const item of page.data) {\n    if (!item.id) throw new Error('Stripe object ID is missing');\n    unique.set(item.id, item);\n  }\n  return [...unique.values()];\n}\n\nfunction customersForSnapshot(customers, snapshot) {\n  return customers.filter(customer => !customer.deleted &&\n    customer.metadata?.lowcoder_hostId === snapshot.hostId &&\n    customer.metadata?.lowcoder_orgId === snapshot.orgId);\n}\n\nfunction subscriptionsForCustomers(subscriptions, customers) {\n  const ids = new Set(customers.map(customer => customer.id));\n  return subscriptions.filter(subscription => ids.has(subscription.customer) && STATUSES.has(subscription.status));\n}\n\nfunction planUpdates(items, subscriptions, snapshot) {\n  const ids = new Set(subscriptions.map(subscription => subscription.id));\n  return items.filter(item => ids.has(item.subscription) && PRODUCTS.has(item.price?.product) &&\n      item.price?.recurring?.usage_type === 'licensed' && item.quantity !== snapshot.quantity)\n    .map(item => ({ itemId: item.id, quantity: snapshot.quantity,\n      prorationBehavior: 'create_prorations',\n      idempotencyKey: `seat-sync:${snapshot.requestId}:${item.id}:${snapshot.quantity}` }));\n}\n\nfunction confirmUpdates(responses, updates, snapshot) {\n  if (responses.length !== updates.length || updates.some(update =>\n      !responses.some(response => response.id === update.itemId && response.quantity === update.quantity))) {\n    throw new Error('Stripe did not confirm every requested seat update');\n  }\n  return { success: true, requestId: snapshot.requestId, quantity: snapshot.quantity, updated: updates.length };\n}\n\nreturn { validateSnapshot, collectPages, customersForSnapshot, subscriptionsForCustomers, planUpdates, confirmUpdates };\n\n})();\nconst snapshot = $('Validate snapshot').first().json;\nconst customers = logic.customersForSnapshot(logic.collectPages($input.all().map(i => i.json), 1), snapshot);\nreturn [{ json: { customers } }];"
+      }
+    },
+    {
+      "id": "has-customers",
+      "name": "Has customers",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "Has customers",
+              "leftValue": "={{ $json.customers.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "split-customers",
+      "name": "Split customers",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        0
+      ],
+      "parameters": {
+        "fieldToSplitOut": "customers",
+        "options": {
+          "destinationFieldName": "customers"
+        }
+      }
+    },
+    {
+      "id": "list-subscriptions",
+      "name": "List subscriptions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.stripe.com/v1/subscriptions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "stripeApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "customer",
+              "value": "={{ $json.customers.id }}"
+            },
+            {
+              "name": "status",
+              "value": "all"
+            },
+            {
+              "name": "limit",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000,
+          "pagination": {
+            "pagination": {
+              "paginationMode": "updateAParameterInEachRequest",
+              "parameters": {
+                "parameters": [
+                  {
+                    "type": "qs",
+                    "name": "starting_after",
+                    "value": "={{ $response.body.data[$response.body.data.length - 1].id }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ !$response.body.has_more }}",
+              "limitPagesFetched": true,
+              "maxRequests": 100
+            }
+          }
+        }
+      },
+      "credentials": {
+        "stripeApi": {
+          "id": "REPLACE_STRIPE_CREDENTIAL_ID",
+          "name": "Lowcoder Stripe"
+        }
+      }
+    },
+    {
+      "id": "collect-subscriptions",
+      "name": "Collect subscriptions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const logic = (() => {\n// Billing quantities are supplied by the authenticated local API, never by a browser.\n// Keep this module dependency-free: build-workflow.cjs embeds it into n8n Code nodes.\nconst PRODUCTS = new Set(['prod_QYGsTWZYyJYzMg', 'prod_VPq5GQPHJSQnzq']);\nconst STATUSES = new Set(['active', 'trialing', 'past_due']);\n\nfunction validateSnapshot(body, expectedHostId, now = Date.now()) {\n  if (!expectedHostId || expectedHostId.startsWith('REPLACE_')) throw new Error('Configure the trusted deployment ID');\n  const safeId = value => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(value);\n  if (!body || body.hostId !== expectedHostId || !safeId(body.hostId) || !safeId(body.orgId) ||\n      !safeId(body.requestId) || !Number.isSafeInteger(body.quantity) || body.quantity < 0 ||\n      !Number.isSafeInteger(body.issuedAt) || now - body.issuedAt > 30000 || body.issuedAt - now > 5000) {\n    throw new Error('Invalid, foreign, or expired seat snapshot');\n  }\n  return { hostId: body.hostId, orgId: body.orgId, requestId: body.requestId,\n    quantity: body.quantity, issuedAt: body.issuedAt };\n}\n\nfunction collectPages(pages, expectedLists) {\n  if (!Array.isArray(pages) || pages.filter(page => page.has_more === false).length !== expectedLists ||\n      pages.some(page => !Array.isArray(page.data) || typeof page.has_more !== 'boolean')) {\n    throw new Error('Incomplete Stripe pagination; refusing partial reconciliation');\n  }\n  const unique = new Map();\n  for (const page of pages) for (const item of page.data) {\n    if (!item.id) throw new Error('Stripe object ID is missing');\n    unique.set(item.id, item);\n  }\n  return [...unique.values()];\n}\n\nfunction customersForSnapshot(customers, snapshot) {\n  return customers.filter(customer => !customer.deleted &&\n    customer.metadata?.lowcoder_hostId === snapshot.hostId &&\n    customer.metadata?.lowcoder_orgId === snapshot.orgId);\n}\n\nfunction subscriptionsForCustomers(subscriptions, customers) {\n  const ids = new Set(customers.map(customer => customer.id));\n  return subscriptions.filter(subscription => ids.has(subscription.customer) && STATUSES.has(subscription.status));\n}\n\nfunction planUpdates(items, subscriptions, snapshot) {\n  const ids = new Set(subscriptions.map(subscription => subscription.id));\n  return items.filter(item => ids.has(item.subscription) && PRODUCTS.has(item.price?.product) &&\n      item.price?.recurring?.usage_type === 'licensed' && item.quantity !== snapshot.quantity)\n    .map(item => ({ itemId: item.id, quantity: snapshot.quantity,\n      prorationBehavior: 'create_prorations',\n      idempotencyKey: `seat-sync:${snapshot.requestId}:${item.id}:${snapshot.quantity}` }));\n}\n\nfunction confirmUpdates(responses, updates, snapshot) {\n  if (responses.length !== updates.length || updates.some(update =>\n      !responses.some(response => response.id === update.itemId && response.quantity === update.quantity))) {\n    throw new Error('Stripe did not confirm every requested seat update');\n  }\n  return { success: true, requestId: snapshot.requestId, quantity: snapshot.quantity, updated: updates.length };\n}\n\nreturn { validateSnapshot, collectPages, customersForSnapshot, subscriptionsForCustomers, planUpdates, confirmUpdates };\n\n})();\nconst customers = $('Collect customers').first().json.customers;\nconst subscriptions = logic.subscriptionsForCustomers(logic.collectPages($input.all().map(i => i.json), customers.length), customers);\nreturn [{ json: { subscriptions } }];"
+      }
+    },
+    {
+      "id": "has-subscriptions",
+      "name": "Has subscriptions",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "Has subscriptions",
+              "leftValue": "={{ $json.subscriptions.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "split-subscriptions",
+      "name": "Split subscriptions",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1980,
+        0
+      ],
+      "parameters": {
+        "fieldToSplitOut": "subscriptions",
+        "options": {
+          "destinationFieldName": "subscriptions"
+        }
+      }
+    },
+    {
+      "id": "list-subscription-items",
+      "name": "List subscription items",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2200,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.stripe.com/v1/subscription_items",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "stripeApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "subscription",
+              "value": "={{ $json.subscriptions.id }}"
+            },
+            {
+              "name": "limit",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000,
+          "pagination": {
+            "pagination": {
+              "paginationMode": "updateAParameterInEachRequest",
+              "parameters": {
+                "parameters": [
+                  {
+                    "type": "qs",
+                    "name": "starting_after",
+                    "value": "={{ $response.body.data[$response.body.data.length - 1].id }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ !$response.body.has_more }}",
+              "limitPagesFetched": true,
+              "maxRequests": 100
+            }
+          }
+        }
+      },
+      "credentials": {
+        "stripeApi": {
+          "id": "REPLACE_STRIPE_CREDENTIAL_ID",
+          "name": "Lowcoder Stripe"
+        }
+      }
+    },
+    {
+      "id": "plan-updates",
+      "name": "Plan updates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const logic = (() => {\n// Billing quantities are supplied by the authenticated local API, never by a browser.\n// Keep this module dependency-free: build-workflow.cjs embeds it into n8n Code nodes.\nconst PRODUCTS = new Set(['prod_QYGsTWZYyJYzMg', 'prod_VPq5GQPHJSQnzq']);\nconst STATUSES = new Set(['active', 'trialing', 'past_due']);\n\nfunction validateSnapshot(body, expectedHostId, now = Date.now()) {\n  if (!expectedHostId || expectedHostId.startsWith('REPLACE_')) throw new Error('Configure the trusted deployment ID');\n  const safeId = value => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(value);\n  if (!body || body.hostId !== expectedHostId || !safeId(body.hostId) || !safeId(body.orgId) ||\n      !safeId(body.requestId) || !Number.isSafeInteger(body.quantity) || body.quantity < 0 ||\n      !Number.isSafeInteger(body.issuedAt) || now - body.issuedAt > 30000 || body.issuedAt - now > 5000) {\n    throw new Error('Invalid, foreign, or expired seat snapshot');\n  }\n  return { hostId: body.hostId, orgId: body.orgId, requestId: body.requestId,\n    quantity: body.quantity, issuedAt: body.issuedAt };\n}\n\nfunction collectPages(pages, expectedLists) {\n  if (!Array.isArray(pages) || pages.filter(page => page.has_more === false).length !== expectedLists ||\n      pages.some(page => !Array.isArray(page.data) || typeof page.has_more !== 'boolean')) {\n    throw new Error('Incomplete Stripe pagination; refusing partial reconciliation');\n  }\n  const unique = new Map();\n  for (const page of pages) for (const item of page.data) {\n    if (!item.id) throw new Error('Stripe object ID is missing');\n    unique.set(item.id, item);\n  }\n  return [...unique.values()];\n}\n\nfunction customersForSnapshot(customers, snapshot) {\n  return customers.filter(customer => !customer.deleted &&\n    customer.metadata?.lowcoder_hostId === snapshot.hostId &&\n    customer.metadata?.lowcoder_orgId === snapshot.orgId);\n}\n\nfunction subscriptionsForCustomers(subscriptions, customers) {\n  const ids = new Set(customers.map(customer => customer.id));\n  return subscriptions.filter(subscription => ids.has(subscription.customer) && STATUSES.has(subscription.status));\n}\n\nfunction planUpdates(items, subscriptions, snapshot) {\n  const ids = new Set(subscriptions.map(subscription => subscription.id));\n  return items.filter(item => ids.has(item.subscription) && PRODUCTS.has(item.price?.product) &&\n      item.price?.recurring?.usage_type === 'licensed' && item.quantity !== snapshot.quantity)\n    .map(item => ({ itemId: item.id, quantity: snapshot.quantity,\n      prorationBehavior: 'create_prorations',\n      idempotencyKey: `seat-sync:${snapshot.requestId}:${item.id}:${snapshot.quantity}` }));\n}\n\nfunction confirmUpdates(responses, updates, snapshot) {\n  if (responses.length !== updates.length || updates.some(update =>\n      !responses.some(response => response.id === update.itemId && response.quantity === update.quantity))) {\n    throw new Error('Stripe did not confirm every requested seat update');\n  }\n  return { success: true, requestId: snapshot.requestId, quantity: snapshot.quantity, updated: updates.length };\n}\n\nreturn { validateSnapshot, collectPages, customersForSnapshot, subscriptionsForCustomers, planUpdates, confirmUpdates };\n\n})();\nconst snapshot = $('Validate snapshot').first().json;\nconst subscriptions = $('Collect subscriptions').first().json.subscriptions;\nconst updates = logic.planUpdates(logic.collectPages($input.all().map(i => i.json), subscriptions.length), subscriptions, snapshot);\nreturn [{ json: { updates } }];"
+      }
+    },
+    {
+      "id": "has-updates",
+      "name": "Has updates",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2640,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "Has updates",
+              "leftValue": "={{ $json.updates.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "split-updates",
+      "name": "Split updates",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2860,
+        0
+      ],
+      "parameters": {
+        "fieldToSplitOut": "updates",
+        "options": {
+          "destinationFieldName": "updates"
+        }
+      }
+    },
+    {
+      "id": "update-stripe-quantity",
+      "name": "Update Stripe quantity",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3080,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.stripe.com/v1/subscription_items/{{ $json.updates.itemId }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "stripeApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $json.updates.idempotencyKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "quantity",
+              "value": "={{ $json.updates.quantity }}"
+            },
+            {
+              "name": "proration_behavior",
+              "value": "={{ $json.updates.prorationBehavior }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "credentials": {
+        "stripeApi": {
+          "id": "REPLACE_STRIPE_CREDENTIAL_ID",
+          "name": "Lowcoder Stripe"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "confirm-updates",
+      "name": "Confirm updates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3300,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const logic = (() => {\n// Billing quantities are supplied by the authenticated local API, never by a browser.\n// Keep this module dependency-free: build-workflow.cjs embeds it into n8n Code nodes.\nconst PRODUCTS = new Set(['prod_QYGsTWZYyJYzMg', 'prod_VPq5GQPHJSQnzq']);\nconst STATUSES = new Set(['active', 'trialing', 'past_due']);\n\nfunction validateSnapshot(body, expectedHostId, now = Date.now()) {\n  if (!expectedHostId || expectedHostId.startsWith('REPLACE_')) throw new Error('Configure the trusted deployment ID');\n  const safeId = value => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(value);\n  if (!body || body.hostId !== expectedHostId || !safeId(body.hostId) || !safeId(body.orgId) ||\n      !safeId(body.requestId) || !Number.isSafeInteger(body.quantity) || body.quantity < 0 ||\n      !Number.isSafeInteger(body.issuedAt) || now - body.issuedAt > 30000 || body.issuedAt - now > 5000) {\n    throw new Error('Invalid, foreign, or expired seat snapshot');\n  }\n  return { hostId: body.hostId, orgId: body.orgId, requestId: body.requestId,\n    quantity: body.quantity, issuedAt: body.issuedAt };\n}\n\nfunction collectPages(pages, expectedLists) {\n  if (!Array.isArray(pages) || pages.filter(page => page.has_more === false).length !== expectedLists ||\n      pages.some(page => !Array.isArray(page.data) || typeof page.has_more !== 'boolean')) {\n    throw new Error('Incomplete Stripe pagination; refusing partial reconciliation');\n  }\n  const unique = new Map();\n  for (const page of pages) for (const item of page.data) {\n    if (!item.id) throw new Error('Stripe object ID is missing');\n    unique.set(item.id, item);\n  }\n  return [...unique.values()];\n}\n\nfunction customersForSnapshot(customers, snapshot) {\n  return customers.filter(customer => !customer.deleted &&\n    customer.metadata?.lowcoder_hostId === snapshot.hostId &&\n    customer.metadata?.lowcoder_orgId === snapshot.orgId);\n}\n\nfunction subscriptionsForCustomers(subscriptions, customers) {\n  const ids = new Set(customers.map(customer => customer.id));\n  return subscriptions.filter(subscription => ids.has(subscription.customer) && STATUSES.has(subscription.status));\n}\n\nfunction planUpdates(items, subscriptions, snapshot) {\n  const ids = new Set(subscriptions.map(subscription => subscription.id));\n  return items.filter(item => ids.has(item.subscription) && PRODUCTS.has(item.price?.product) &&\n      item.price?.recurring?.usage_type === 'licensed' && item.quantity !== snapshot.quantity)\n    .map(item => ({ itemId: item.id, quantity: snapshot.quantity,\n      prorationBehavior: 'create_prorations',\n      idempotencyKey: `seat-sync:${snapshot.requestId}:${item.id}:${snapshot.quantity}` }));\n}\n\nfunction confirmUpdates(responses, updates, snapshot) {\n  if (responses.length !== updates.length || updates.some(update =>\n      !responses.some(response => response.id === update.itemId && response.quantity === update.quantity))) {\n    throw new Error('Stripe did not confirm every requested seat update');\n  }\n  return { success: true, requestId: snapshot.requestId, quantity: snapshot.quantity, updated: updates.length };\n}\n\nreturn { validateSnapshot, collectPages, customersForSnapshot, subscriptionsForCustomers, planUpdates, confirmUpdates };\n\n})();\nreturn [{ json: logic.confirmUpdates($input.all().map(i => i.json), $('Plan updates').first().json.updates, $('Validate snapshot').first().json) }];"
+      }
+    },
+    {
+      "id": "no-changes",
+      "name": "No changes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3520,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const logic = (() => {\n// Billing quantities are supplied by the authenticated local API, never by a browser.\n// Keep this module dependency-free: build-workflow.cjs embeds it into n8n Code nodes.\nconst PRODUCTS = new Set(['prod_QYGsTWZYyJYzMg', 'prod_VPq5GQPHJSQnzq']);\nconst STATUSES = new Set(['active', 'trialing', 'past_due']);\n\nfunction validateSnapshot(body, expectedHostId, now = Date.now()) {\n  if (!expectedHostId || expectedHostId.startsWith('REPLACE_')) throw new Error('Configure the trusted deployment ID');\n  const safeId = value => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(value);\n  if (!body || body.hostId !== expectedHostId || !safeId(body.hostId) || !safeId(body.orgId) ||\n      !safeId(body.requestId) || !Number.isSafeInteger(body.quantity) || body.quantity < 0 ||\n      !Number.isSafeInteger(body.issuedAt) || now - body.issuedAt > 30000 || body.issuedAt - now > 5000) {\n    throw new Error('Invalid, foreign, or expired seat snapshot');\n  }\n  return { hostId: body.hostId, orgId: body.orgId, requestId: body.requestId,\n    quantity: body.quantity, issuedAt: body.issuedAt };\n}\n\nfunction collectPages(pages, expectedLists) {\n  if (!Array.isArray(pages) || pages.filter(page => page.has_more === false).length !== expectedLists ||\n      pages.some(page => !Array.isArray(page.data) || typeof page.has_more !== 'boolean')) {\n    throw new Error('Incomplete Stripe pagination; refusing partial reconciliation');\n  }\n  const unique = new Map();\n  for (const page of pages) for (const item of page.data) {\n    if (!item.id) throw new Error('Stripe object ID is missing');\n    unique.set(item.id, item);\n  }\n  return [...unique.values()];\n}\n\nfunction customersForSnapshot(customers, snapshot) {\n  return customers.filter(customer => !customer.deleted &&\n    customer.metadata?.lowcoder_hostId === snapshot.hostId &&\n    customer.metadata?.lowcoder_orgId === snapshot.orgId);\n}\n\nfunction subscriptionsForCustomers(subscriptions, customers) {\n  const ids = new Set(customers.map(customer => customer.id));\n  return subscriptions.filter(subscription => ids.has(subscription.customer) && STATUSES.has(subscription.status));\n}\n\nfunction planUpdates(items, subscriptions, snapshot) {\n  const ids = new Set(subscriptions.map(subscription => subscription.id));\n  return items.filter(item => ids.has(item.subscription) && PRODUCTS.has(item.price?.product) &&\n      item.price?.recurring?.usage_type === 'licensed' && item.quantity !== snapshot.quantity)\n    .map(item => ({ itemId: item.id, quantity: snapshot.quantity,\n      prorationBehavior: 'create_prorations',\n      idempotencyKey: `seat-sync:${snapshot.requestId}:${item.id}:${snapshot.quantity}` }));\n}\n\nfunction confirmUpdates(responses, updates, snapshot) {\n  if (responses.length !== updates.length || updates.some(update =>\n      !responses.some(response => response.id === update.itemId && response.quantity === update.quantity))) {\n    throw new Error('Stripe did not confirm every requested seat update');\n  }\n  return { success: true, requestId: snapshot.requestId, quantity: snapshot.quantity, updated: updates.length };\n}\n\nreturn { validateSnapshot, collectPages, customersForSnapshot, subscriptionsForCustomers, planUpdates, confirmUpdates };\n\n})();\nreturn [{ json: logic.confirmUpdates([], [], $('Validate snapshot').first().json) }];"
+      }
+    },
+    {
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        3740,
+        0
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Has customers": {
+      "main": [
+        [
+          {
+            "node": "Split customers",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No changes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has subscriptions": {
+      "main": [
+        [
+          {
+            "node": "Split subscriptions",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No changes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has updates": {
+      "main": [
+        [
+          {
+            "node": "Split updates",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No changes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Seat sync webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate snapshot": {
+      "main": [
+        [
+          {
+            "node": "Search customers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search customers": {
+      "main": [
+        [
+          {
+            "node": "Collect customers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect customers": {
+      "main": [
+        [
+          {
+            "node": "Has customers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split customers": {
+      "main": [
+        [
+          {
+            "node": "List subscriptions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List subscriptions": {
+      "main": [
+        [
+          {
+            "node": "Collect subscriptions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect subscriptions": {
+      "main": [
+        [
+          {
+            "node": "Has subscriptions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split subscriptions": {
+      "main": [
+        [
+          {
+            "node": "List subscription items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List subscription items": {
+      "main": [
+        [
+          {
+            "node": "Plan updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Plan updates": {
+      "main": [
+        [
+          {
+            "node": "Has updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split updates": {
+      "main": [
+        [
+          {
+            "node": "Update Stripe quantity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Stripe quantity": {
+      "main": [
+        [
+          {
+            "node": "Confirm updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirm updates": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No changes": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "executionTimeout": 60,
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false
+  }
+}

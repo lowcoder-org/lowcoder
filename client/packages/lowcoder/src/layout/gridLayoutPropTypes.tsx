@@ -34,6 +34,7 @@ export type GridLayoutProps = {
   containerPadding?: [number, number];
   rowHeight?: number;
   isRowCountLocked?: boolean;
+  fixedRowCount?: boolean;
   emptyRows?: number;
   maxRows?: number;
   isDraggable?: boolean;

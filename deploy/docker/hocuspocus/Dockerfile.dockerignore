@@ -1,0 +1,7 @@
+# Build context is client/packages/lowcoder; expose only the server script to the build.
+# BuildKit already transfers only the files the Dockerfile COPYs, so this does not shrink
+# the current build. It guards against a broader COPY (e.g. `COPY . .`) pulling in the
+# package's sources and node_modules. It is only honoured by BuildKit (buildx / compose v2),
+# not by the legacy builder.
+*
+!hocuspocus-server.js

@@ -1,0 +1,70 @@
+{
+  "applicationId" : "ApplicationHistorySnapshotRequest.applicationId",
+  "dsl" : {
+    "ui" : {
+      "compType" : "normal",
+      "comp" : {
+        "title" : "ApplicationHistorySnapshotRequest.dsl.ui.comp.title",
+        "width" : 1.50
+      },
+      "items" : [ {
+        "compType" : "module",
+        "comp" : {
+          "appId" : "ApplicationHistorySnapshotRequest.dsl.ui.items[0].comp.appId",
+          "height" : 40060
+        }
+      }, {
+        "compType" : "module",
+        "comp" : {
+          "appId" : "ApplicationHistorySnapshotRequest.dsl.ui.items[1].comp.appId",
+          "height" : 40061
+        }
+      }, {
+        "compType" : "text",
+        "comp" : {
+          "text" : "ApplicationHistorySnapshotRequest.dsl.ui.items[2].comp.text",
+          "hidden" : false
+        }
+      } ]
+    },
+    "queries" : [ {
+      "id" : "ApplicationHistorySnapshotRequest.dsl.queries[0].id",
+      "gid" : "ApplicationHistorySnapshotRequest.dsl.queries[0].gid",
+      "name" : "ApplicationHistorySnapshotRequest.dsl.queries[0].name",
+      "datasourceId" : "ApplicationHistorySnapshotRequest.dsl.queries[0].datasourceId",
+      "comp" : {
+        "method" : "ApplicationHistorySnapshotRequest.dsl.queries[0].comp.method",
+        "path" : "ApplicationHistorySnapshotRequest.dsl.queries[0].comp.path"
+      },
+      "triggerType" : "ApplicationHistorySnapshotRequest.dsl.queries[0].triggerType",
+      "timeout" : "ApplicationHistorySnapshotRequest.dsl.queries[0].timeout",
+      "compType" : "restApi"
+    }, {
+      "id" : "ApplicationHistorySnapshotRequest.dsl.queries[1].id",
+      "gid" : "ApplicationHistorySnapshotRequest.dsl.queries[1].gid",
+      "name" : "ApplicationHistorySnapshotRequest.dsl.queries[1].name",
+      "datasourceId" : "ApplicationHistorySnapshotRequest.dsl.queries[1].datasourceId",
+      "comp" : {
+        "libraryQueryId" : "ApplicationHistorySnapshotRequest.dsl.queries[1].comp.libraryQueryId",
+        "libraryQueryRecordId" : "ApplicationHistorySnapshotRequest.dsl.queries[1].comp.libraryQueryRecordId"
+      },
+      "triggerType" : "ApplicationHistorySnapshotRequest.dsl.queries[1].triggerType",
+      "timeout" : "ApplicationHistorySnapshotRequest.dsl.queries[1].timeout",
+      "compType" : "libraryQuery"
+    } ],
+    "settings" : {
+      "title" : "ApplicationHistorySnapshotRequest.dsl.settings.title",
+      "maxWidth" : 40062
+    }
+  },
+  "context" : {
+    "operations" : [ {
+      "type" : "ApplicationHistorySnapshotRequest.context.operations[0].type",
+      "compName" : "ApplicationHistorySnapshotRequest.context.operations[0].compName"
+    }, {
+      "type" : "ApplicationHistorySnapshotRequest.context.operations[1].type",
+      "compName" : "ApplicationHistorySnapshotRequest.context.operations[1].compName"
+    } ],
+    "version" : 40080
+  }
+}

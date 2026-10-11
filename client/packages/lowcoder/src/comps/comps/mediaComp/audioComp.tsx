@@ -11,10 +11,10 @@ import { TacoAudio } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { withDefault } from "../../generators/simpleGenerators";
 import { trans } from "i18n";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEffect } from "react";
+import { useEditorStore } from "comps/editorStore";
 
 const Container = styled.div<{ $style: any; $animationStyle: AnimationStyleType }>`
 ${props => props.$style};
@@ -66,8 +66,8 @@ const ContainerAudio = (props: RecordConstructorToView<typeof childrenMap>) => {
 const childrenMap = {
   src: withDefault(StringStateControl, trans("audio.defaultSrcUrl")),
   onEvent: eventHandlerControl(EventOptions),
-  style: styleControl(AudioStyle),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(AudioStyle , 'style'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   autoPlay: BoolControl,
   loop: BoolControl,
   ...mediaCommonChildren,
@@ -78,6 +78,7 @@ let AudioBasicComp = (function () {
     return <ContainerAudio {...props} />;
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
@@ -87,7 +88,7 @@ let AudioBasicComp = (function () {
             })}
           </Section>
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "logic" || editorModeStatus === "both") && (
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {hiddenPropertyView(children)}
@@ -97,6 +98,7 @@ let AudioBasicComp = (function () {
               {children.loop.propertyView({
                 label: trans("audio.loop"),
               })}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           )}
           <Section name={sectionNames.style}>

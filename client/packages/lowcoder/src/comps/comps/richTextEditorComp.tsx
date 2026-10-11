@@ -1,4 +1,4 @@
-import { StringControl } from "comps/controls/codeControl";
+import { StringControl, NumberControl } from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { BoolCodeControl } from "../controls/codeControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
@@ -7,8 +7,8 @@ import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { UICompBuilder, withDefault } from "comps/generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
-import React, { Suspense, useEffect, useRef, useState } from "react";
-import type ReactQuill from "react-quill";
+import React, { ChangeEvent, Suspense, useEffect, useRef, useState } from "react";
+import type ReactQuill from "react-quill-new";
 import { useDebounce } from "react-use";
 import styled, { css } from "styled-components";
 import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
@@ -17,15 +17,15 @@ import {
   hiddenPropertyView,
   placeholderPropertyView,
   readOnlyPropertyView,
+  showDataLoadingIndicatorsPropertyView,
 } from "comps/utils/propertyUtils";
-import _ from "lodash";
+import _, { debounce } from "lodash";
 import { trans } from "i18n";
 import { default as Skeleton } from "antd/es/skeleton";
 import { styleControl } from "comps/controls/styleControl";
 import { RichTextEditorStyle, RichTextEditorStyleType } from "comps/controls/styleControlConstants";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 
 const localizeStyle = css`
   & .ql-snow {
@@ -79,8 +79,12 @@ const localizeStyle = css`
   }
 `;
 
-const commonStyle = (style: RichTextEditorStyleType) => css`
+const commonStyle = (style: RichTextEditorStyleType, contentScrollBar: boolean) => css`
   height: 100%;
+
+  .ql-editor::-webkit-scrollbar {
+    display: ${contentScrollBar ? "block" : "none"};
+  }
 
   & .ql-editor {
     min-height: 85px;
@@ -94,7 +98,7 @@ const commonStyle = (style: RichTextEditorStyleType) => css`
     &.ql-container,
     &.ql-toolbar {
       border-color: ${style.border};
-      background-color: ${style.background};
+      background: ${style.background};
       
     }
   }
@@ -104,7 +108,7 @@ const commonStyle = (style: RichTextEditorStyleType) => css`
   }
   & .ql-container {
     border-radius: 0 0 ${style.radius} ${style.radius};
-    background-color: ${style.background};
+    background: ${style.background};
     border-width: ${style.borderWidth ? style.borderWidth : "1px"};
   }
 `;
@@ -126,11 +130,12 @@ const hideToolbarStyle = (style: RichTextEditorStyleType) => css`
 interface Props {
   $hideToolbar: boolean;
   $style: RichTextEditorStyleType;
+  $contentScrollBar: boolean;
 }
 
 const AutoHeightReactQuill = styled.div<Props>`
   ${localizeStyle}
-  ${(props) => commonStyle(props.$style)}
+  ${(props) => commonStyle(props.$style, props.$contentScrollBar)}
   & .ql-container .ql-editor {
     min-height: 125px;
   }
@@ -139,7 +144,7 @@ const AutoHeightReactQuill = styled.div<Props>`
 
 const FixHeightReactQuill = styled.div<Props>`
   ${localizeStyle}
-  ${(props) => commonStyle(props.$style)}
+  ${(props) => commonStyle(props.$style, props.$contentScrollBar)}
   & .quill {
     display: flex;
     flex-direction: column;
@@ -165,14 +170,17 @@ const toolbarOptions = [
 ];
 
 const childrenMap = {
-  value: stringExposingStateControl("value"),
+  value: stringExposingStateControl("value"),     
+  delta: stringExposingStateControl("delta"),     
   hideToolbar: BoolControl,
   readOnly: BoolControl,
   autoHeight: withDefault(AutoHeightControl, "fixed"),
+  contentScrollBar: withDefault(BoolControl, false),
   placeholder: withDefault(StringControl, trans("richTextEditor.placeholder")),
   toolbar: withDefault(StringControl, JSON.stringify(toolbarOptions)),
   onEvent: ChangeEventHandlerControl,
-  style: styleControl(RichTextEditorStyle),
+  style: styleControl(RichTextEditorStyle , 'style'),
+  tabIndex: NumberControl,
 
   ...formDataChildren,
 };
@@ -186,17 +194,41 @@ interface IProps {
   hideToolbar: boolean;
   readOnly: boolean;
   autoHeight: boolean;
-  onChange: (value: string) => void;
+  onChange: (html: string, deltaJSON: string, text: string) => void; 
   $style: RichTextEditorStyleType;
+  contentScrollBar: boolean;
+  tabIndex?: number;
 }
 
-const ReactQuillEditor = React.lazy(() => import("react-quill"));
+const ReactQuillEditor = React.lazy(() => import("react-quill-new"));
 
 function RichTextEditor(props: IProps) {
   const [key, setKey] = useState(0);
   const [content, setContent] = useState("");
   const wrapperRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<ReactQuill>(null);
+
+   // know exactly when the editor mounts
+   const [editorReady, setEditorReady] = useState(false);
+   const setEditorRef = (node: ReactQuill | null) => {
+     (editorRef as any).current = node as any;
+     setEditorReady(!!node);
+   };
+
+  const getQuill = () => (editorRef.current as any)?.getEditor?.();
+
+  const tryParseDelta = (v: unknown) => {
+    if (!v) return null;
+    if (typeof v === "string") {
+      try {
+        const d = JSON.parse(v);
+        return Array.isArray(d?.ops) ? d : null;
+      } catch { return null; }
+    }
+    if (typeof v === "object" && Array.isArray((v as any).ops)) return v as any;
+    return null;
+  };
+
   const isTypingRef = useRef(0);
 
   const debounce = INPUT_DEFAULT_ONCHANGE_DEBOUNCE;
@@ -204,14 +236,8 @@ function RichTextEditor(props: IProps) {
   const originOnChangeRef = useRef(props.onChange);
   originOnChangeRef.current = props.onChange;
 
-  const onChangeRef = useRef(
-    debounce > 0
-      ? _.debounce((v: string) => {
-          window.clearTimeout(isTypingRef.current);
-          isTypingRef.current = window.setTimeout(() => (isTypingRef.current = 0), 100);
-          originOnChangeRef.current?.(v);
-        })
-      : (v: string) => originOnChangeRef.current?.(v)
+  const onChangeRef = useRef((html: string, deltaJSON: string, text: string) =>
+    originOnChangeRef.current?.(html, deltaJSON, text)
   );
 
   // react-quill will not take effect after the placeholder is updated
@@ -224,6 +250,15 @@ function RichTextEditor(props: IProps) {
     [props.placeholder]
   );
 
+  useEffect(() => {
+    if (editorRef.current && props.tabIndex !== undefined) {
+      const editor = editorRef.current.getEditor();
+      if (editor && editor.scroll && editor.scroll.domNode) {
+        (editor.scroll.domNode as HTMLElement).tabIndex = props.tabIndex;
+      }
+    }
+  }, [props.tabIndex, key]); 
+
   const contains = (parent: HTMLElement, descendant: HTMLElement) => {
     try {
       // Firefox inserts inaccessible nodes around video elements
@@ -235,19 +270,26 @@ function RichTextEditor(props: IProps) {
     return parent.contains(descendant);
   };
 
-  const handleChange = (value: string) => {
-    setContent(value);
-    // props.onChange(value);
-    onChangeRef.current(value);
-  };
 
   useEffect(() => {
-    let finalValue = props.value;
-    if (!/^<\w+>.+<\/\w+>$/.test(props.value)) {
-      finalValue = `<p class="">${props.value}</p>`;
+    const q = getQuill();
+    if (!q) {
+      return;
     }
-    setContent(finalValue);
-  }, [props.value]);
+  
+    const asDelta = tryParseDelta(props.value);
+    if (asDelta) {
+      q.setContents(asDelta, "api");
+      const html = q.root?.innerHTML ?? "";
+      setContent(html);
+      return;
+    }
+    const v = props.value ?? "";
+    const looksHtml = /<\/?[a-z][\s\S]*>/i.test(v);
+    const html = looksHtml ? v : `<p class="">${v}</p>`;
+    setContent(html);
+  }, [props.value, editorReady]);
+  
 
   const handleClickWrapper = (e: React.MouseEvent<HTMLDivElement>) => {
     // grid item prevents bubbling, quill can't listen to events on document.body, so it can't close the toolbar drop-down box
@@ -270,11 +312,12 @@ function RichTextEditor(props: IProps) {
       ref={wrapperRef}
       $hideToolbar={props.hideToolbar}
       $style={props.$style}
+      $contentScrollBar={props.contentScrollBar}
     >
       <Suspense fallback={<Skeleton />}>
         <ReactQuillEditor
           key={key}
-          ref={editorRef}
+          ref={setEditorRef}
           bounds={`#${id}`}
           modules={{
             toolbar: JSON.parse(props.toolbar),
@@ -283,7 +326,13 @@ function RichTextEditor(props: IProps) {
           value={content}
           placeholder={props.placeholder}
           readOnly={props.readOnly}
-          onChange={handleChange}
+          onChange={(html, _delta, source, editor) => {
+            setContent(html);
+            const quill = editorRef.current?.getEditor?.();
+            const fullDelta = quill?.getContents?.() ?? { ops: [] };
+            const text = quill?.getText?.() ?? "";
+            onChangeRef.current(html, JSON.stringify(fullDelta), text);
+            }}
         />
       </Suspense>
     </Wrapper>
@@ -291,9 +340,47 @@ function RichTextEditor(props: IProps) {
 }
 
 const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
-  const handleChange = (v: string) => {
-    props.value.onChange(v);
-    props.onEvent("change");
+  const propsRef = useRef(props);
+  propsRef.current = props;
+
+  // Local state to manage editor content
+  const [localValue, setLocalValue] = useState(props.value.value);
+  const isUserTyping = useRef(false);
+
+  // Sync local state with props when they change externally (not from user typing)
+  useEffect(() => {
+    if (!isUserTyping.current) {
+      setLocalValue(props.value.value);
+    }
+  }, [props.value.value]);
+
+  const debouncedOnChangeRef = useRef(
+    debounce((html: string, deltaJSON: string, text: string) => {
+      // Update delta first as it's the primary source of truth
+      propsRef.current.delta.onChange(deltaJSON);   
+      // Update value with the HTML representation
+      propsRef.current.value.onChange(html);        
+      propsRef.current.onEvent("change");
+    }, 1000)
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedOnChangeRef.current?.cancel();
+    };
+  }, []);
+
+  const handleChange = (html: string, deltaJSON: string, text: string) => {
+    // Mark that user is typing
+    isUserTyping.current = true;
+    // Update local state immediately for responsive UI
+    setLocalValue(html);
+    // Debounce the prop updates
+    debouncedOnChangeRef.current?.(html, deltaJSON, text);
+    // Reset the flag after a brief delay
+    setTimeout(() => {
+      isUserTyping.current = false;
+    }, 100);
   };
 
   return (
@@ -302,14 +389,17 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
       hideToolbar={props.hideToolbar}
       toolbar={props.toolbar}
       readOnly={props.readOnly}
-      value={props.value.value}
+      value={localValue}
       placeholder={props.placeholder}
       onChange={handleChange}
       $style={props.style}
+      contentScrollBar={props.contentScrollBar}
+      tabIndex={props.tabIndex}
     />
   );
 })
   .setPropertyViewFn((children) => {
+    const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
     return (
       <>
         <Section name={sectionNames.basic}>
@@ -319,18 +409,23 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
 
         <FormDataPropertyView {...children} />
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["logic", "both"].includes(editorModeStatus) && (
           <Section name={sectionNames.interaction}>
             {children.onEvent.getPropertyView()}
             {hiddenPropertyView(children)}
             {readOnlyPropertyView(children)}
+            {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
+            {showDataLoadingIndicatorsPropertyView(children)}
           </Section>
         )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           <>
             <Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
+              {!children.autoHeight.getView() && children.contentScrollBar.propertyView({
+                label: trans("prop.textAreaScrollBar"),
+              })}
               {children.toolbar.propertyView({ label: trans("richTextEditor.toolbar"), tooltip: trans("richTextEditor.toolbarDescription") })}
               {children.hideToolbar.propertyView({ label: trans("richTextEditor.hideToolbar") })}
             </Section>
@@ -352,6 +447,7 @@ class RichTextEditorCompAutoHeight extends RichTextEditorCompBase {
 
 export const RichTextEditorComp = withExposingConfigs(RichTextEditorCompAutoHeight, [
   new NameConfig("value", trans("export.richTextEditorValueDesc")),
+  new NameConfig("delta", trans("export.richTextEditorDeltaDesc")), 
   new NameConfig("readOnly", trans("export.richTextEditorReadOnlyDesc")),
   new NameConfig("hideToolbar", trans("export.richTextEditorHideToolBarDesc")),
   NameConfigHidden,

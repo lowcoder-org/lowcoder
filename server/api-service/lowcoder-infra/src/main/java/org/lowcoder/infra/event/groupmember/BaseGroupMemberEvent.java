@@ -8,9 +8,4 @@ import org.lowcoder.infra.event.AbstractEvent;
 @SuperBuilder
 public abstract class BaseGroupMemberEvent extends AbstractEvent {
 
-    private final String groupId;
-    private final String groupName;
-    private final String memberId;
-    private final String memberName;
-    private final String memberRole;
 }

@@ -1,0 +1,358 @@
+{
+  "buildFrom" : {
+    "canonical" : {
+      "class" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+        "database" : " lowcoder ",
+        "username" : " root ",
+        "password" : "s3crét \"quoted\"",
+        "host" : " db.example.com ",
+        "port" : 5432,
+        "usingSsl" : true,
+        "serverTimezone" : "Europe/Bratislava",
+        "isReadonly" : true,
+        "enableTurnOffPreparedStatement" : true,
+        "extParams" : {
+          "connectTimeout" : 5000,
+          "allowPublicKeyRetrieval" : "true",
+          "useCursorFetch" : false,
+          "nested" : {
+            "list" : [ 1, 2.5, null ]
+          }
+        }
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+        "/database" : "java.lang.String",
+        "/username" : "java.lang.String",
+        "/password" : "java.lang.String",
+        "/host" : "java.lang.String",
+        "/port" : "java.lang.Long",
+        "/usingSsl" : "java.lang.Boolean",
+        "/serverTimezone" : "java.lang.String",
+        "/isReadonly" : "java.lang.Boolean",
+        "/enableTurnOffPreparedStatement" : "java.lang.Boolean",
+        "/extParams" : "java.util.LinkedHashMap",
+        "/extParams/connectTimeout" : "java.lang.Integer",
+        "/extParams/allowPublicKeyRetrieval" : "java.lang.String",
+        "/extParams/useCursorFetch" : "java.lang.Boolean",
+        "/extParams/nested" : "java.util.LinkedHashMap",
+        "/extParams/nested/list" : "java.util.ArrayList",
+        "/extParams/nested/list/0" : "java.lang.Integer",
+        "/extParams/nested/list/1" : "java.lang.Double",
+        "/extParams/nested/list/2" : "null"
+      },
+      "noView" : {"database":"lowcoder","username":"root","password":"s3crét \"quoted\"","host":"db.example.com","port":5432,"usingSsl":true,"serverTimezone":"Europe/Bratislava","enableTurnOffPreparedStatement":true,"extParams":{"connectTimeout":5000,"allowPublicKeyRetrieval":"true","useCursorFetch":false,"nested":{"list":[1,2.5,null]}},"readonly":true},
+      "Public" : {"database":"lowcoder","username":"root","host":"db.example.com","port":5432,"usingSsl":true,"serverTimezone":"Europe/Bratislava","enableTurnOffPreparedStatement":true,"extParams":{"connectTimeout":5000,"allowPublicKeyRetrieval":"true","useCursorFetch":false,"nested":{"list":[1,2.5,null]}},"readonly":true},
+      "Internal" : {"database":"lowcoder","username":"root","password":"s3crét \"quoted\"","host":"db.example.com","port":5432,"usingSsl":true,"serverTimezone":"Europe/Bratislava","enableTurnOffPreparedStatement":true,"extParams":{"connectTimeout":5000,"allowPublicKeyRetrieval":"true","useCursorFetch":false,"nested":{"list":[1,2.5,null]}},"readonly":true}
+    },
+    "scalarsAsStrings" : {
+      "class" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+        "database" : null,
+        "username" : null,
+        "password" : null,
+        "host" : "db.example.com",
+        "port" : 5433,
+        "usingSsl" : true,
+        "serverTimezone" : null,
+        "isReadonly" : false,
+        "enableTurnOffPreparedStatement" : true,
+        "extParams" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+        "/database" : "null",
+        "/username" : "null",
+        "/password" : "null",
+        "/host" : "java.lang.String",
+        "/port" : "java.lang.Long",
+        "/usingSsl" : "java.lang.Boolean",
+        "/serverTimezone" : "null",
+        "/isReadonly" : "java.lang.Boolean",
+        "/enableTurnOffPreparedStatement" : "java.lang.Boolean",
+        "/extParams" : "null"
+      },
+      "noView" : {"database":"","username":"","password":null,"host":"db.example.com","port":5433,"usingSsl":true,"serverTimezone":null,"enableTurnOffPreparedStatement":true,"extParams":{},"readonly":false},
+      "Public" : {"database":"","username":"","host":"db.example.com","port":5433,"usingSsl":true,"serverTimezone":null,"enableTurnOffPreparedStatement":true,"extParams":{},"readonly":false},
+      "Internal" : {"database":"","username":"","password":null,"host":"db.example.com","port":5433,"usingSsl":true,"serverTimezone":null,"enableTurnOffPreparedStatement":true,"extParams":{},"readonly":false}
+    },
+    "getterNames" : {
+      "class" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+        "database" : null,
+        "username" : null,
+        "password" : null,
+        "host" : "db.example.com",
+        "port" : 5434,
+        "usingSsl" : false,
+        "serverTimezone" : null,
+        "isReadonly" : false,
+        "enableTurnOffPreparedStatement" : false,
+        "extParams" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+        "/database" : "null",
+        "/username" : "null",
+        "/password" : "null",
+        "/host" : "java.lang.String",
+        "/port" : "java.lang.Long",
+        "/usingSsl" : "java.lang.Boolean",
+        "/serverTimezone" : "null",
+        "/isReadonly" : "java.lang.Boolean",
+        "/enableTurnOffPreparedStatement" : "java.lang.Boolean",
+        "/extParams" : "null"
+      },
+      "noView" : {"database":"","username":"","password":null,"host":"db.example.com","port":5434,"usingSsl":false,"serverTimezone":null,"enableTurnOffPreparedStatement":false,"extParams":{},"readonly":false},
+      "Public" : {"database":"","username":"","host":"db.example.com","port":5434,"usingSsl":false,"serverTimezone":null,"enableTurnOffPreparedStatement":false,"extParams":{},"readonly":false},
+      "Internal" : {"database":"","username":"","password":null,"host":"db.example.com","port":5434,"usingSsl":false,"serverTimezone":null,"enableTurnOffPreparedStatement":false,"extParams":{},"readonly":false}
+    },
+    "minimal" : {
+      "class" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+        "database" : null,
+        "username" : null,
+        "password" : null,
+        "host" : "db.example.com",
+        "port" : null,
+        "usingSsl" : false,
+        "serverTimezone" : null,
+        "isReadonly" : false,
+        "enableTurnOffPreparedStatement" : false,
+        "extParams" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+        "/database" : "null",
+        "/username" : "null",
+        "/password" : "null",
+        "/host" : "java.lang.String",
+        "/port" : "null",
+        "/usingSsl" : "java.lang.Boolean",
+        "/serverTimezone" : "null",
+        "/isReadonly" : "java.lang.Boolean",
+        "/enableTurnOffPreparedStatement" : "java.lang.Boolean",
+        "/extParams" : "null"
+      },
+      "noView" : {"database":"","username":"","password":null,"host":"db.example.com","port":5432,"usingSsl":false,"serverTimezone":null,"enableTurnOffPreparedStatement":false,"extParams":{},"readonly":false},
+      "Public" : {"database":"","username":"","host":"db.example.com","port":5432,"usingSsl":false,"serverTimezone":null,"enableTurnOffPreparedStatement":false,"extParams":{},"readonly":false},
+      "Internal" : {"database":"","username":"","password":null,"host":"db.example.com","port":5432,"usingSsl":false,"serverTimezone":null,"enableTurnOffPreparedStatement":false,"extParams":{},"readonly":false}
+    },
+    "empty" : {
+      "class" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+        "database" : null,
+        "username" : null,
+        "password" : null,
+        "host" : null,
+        "port" : null,
+        "usingSsl" : false,
+        "serverTimezone" : null,
+        "isReadonly" : false,
+        "enableTurnOffPreparedStatement" : false,
+        "extParams" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+        "/database" : "null",
+        "/username" : "null",
+        "/password" : "null",
+        "/host" : "null",
+        "/port" : "null",
+        "/usingSsl" : "java.lang.Boolean",
+        "/serverTimezone" : "null",
+        "/isReadonly" : "java.lang.Boolean",
+        "/enableTurnOffPreparedStatement" : "java.lang.Boolean",
+        "/extParams" : "null"
+      },
+      "noView" : {"database":"","username":"","password":null,"host":"","port":5432,"usingSsl":false,"serverTimezone":null,"enableTurnOffPreparedStatement":false,"extParams":{},"readonly":false},
+      "Public" : {"database":"","username":"","host":"","port":5432,"usingSsl":false,"serverTimezone":null,"enableTurnOffPreparedStatement":false,"extParams":{},"readonly":false},
+      "Internal" : {"database":"","username":"","password":null,"host":"","port":5432,"usingSsl":false,"serverTimezone":null,"enableTurnOffPreparedStatement":false,"extParams":{},"readonly":false}
+    },
+    "unknownProperty" : "ignored: binds as form canonical"
+  },
+  "PostgresConnector.resolveConfig" : {
+    "canonical" : {
+      "class" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+        "database" : " lowcoder ",
+        "username" : " root ",
+        "password" : "s3crét \"quoted\"",
+        "host" : " db.example.com ",
+        "port" : 5432,
+        "usingSsl" : true,
+        "serverTimezone" : "Europe/Bratislava",
+        "isReadonly" : true,
+        "enableTurnOffPreparedStatement" : true,
+        "extParams" : {
+          "connectTimeout" : 5000,
+          "allowPublicKeyRetrieval" : "true",
+          "useCursorFetch" : false,
+          "nested" : {
+            "list" : [ 1, 2.5, null ]
+          }
+        }
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+        "/database" : "java.lang.String",
+        "/username" : "java.lang.String",
+        "/password" : "java.lang.String",
+        "/host" : "java.lang.String",
+        "/port" : "java.lang.Long",
+        "/usingSsl" : "java.lang.Boolean",
+        "/serverTimezone" : "java.lang.String",
+        "/isReadonly" : "java.lang.Boolean",
+        "/enableTurnOffPreparedStatement" : "java.lang.Boolean",
+        "/extParams" : "java.util.LinkedHashMap",
+        "/extParams/connectTimeout" : "java.lang.Integer",
+        "/extParams/allowPublicKeyRetrieval" : "java.lang.String",
+        "/extParams/useCursorFetch" : "java.lang.Boolean",
+        "/extParams/nested" : "java.util.LinkedHashMap",
+        "/extParams/nested/list" : "java.util.ArrayList",
+        "/extParams/nested/list/0" : "java.lang.Integer",
+        "/extParams/nested/list/1" : "java.lang.Double",
+        "/extParams/nested/list/2" : "null"
+      },
+      "noView" : {"database":"lowcoder","username":"root","password":"s3crét \"quoted\"","host":"db.example.com","port":5432,"usingSsl":true,"serverTimezone":"Europe/Bratislava","enableTurnOffPreparedStatement":true,"extParams":{"connectTimeout":5000,"allowPublicKeyRetrieval":"true","useCursorFetch":false,"nested":{"list":[1,2.5,null]}},"readonly":true},
+      "Public" : {"database":"lowcoder","username":"root","host":"db.example.com","port":5432,"usingSsl":true,"serverTimezone":"Europe/Bratislava","enableTurnOffPreparedStatement":true,"extParams":{"connectTimeout":5000,"allowPublicKeyRetrieval":"true","useCursorFetch":false,"nested":{"list":[1,2.5,null]}},"readonly":true},
+      "Internal" : {"database":"lowcoder","username":"root","password":"s3crét \"quoted\"","host":"db.example.com","port":5432,"usingSsl":true,"serverTimezone":"Europe/Bratislava","enableTurnOffPreparedStatement":true,"extParams":{"connectTimeout":5000,"allowPublicKeyRetrieval":"true","useCursorFetch":false,"nested":{"list":[1,2.5,null]}},"readonly":true}
+    },
+    "scalarsAsStrings" : {
+      "class" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+        "database" : null,
+        "username" : null,
+        "password" : null,
+        "host" : "db.example.com",
+        "port" : 5433,
+        "usingSsl" : true,
+        "serverTimezone" : null,
+        "isReadonly" : false,
+        "enableTurnOffPreparedStatement" : true,
+        "extParams" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+        "/database" : "null",
+        "/username" : "null",
+        "/password" : "null",
+        "/host" : "java.lang.String",
+        "/port" : "java.lang.Long",
+        "/usingSsl" : "java.lang.Boolean",
+        "/serverTimezone" : "null",
+        "/isReadonly" : "java.lang.Boolean",
+        "/enableTurnOffPreparedStatement" : "java.lang.Boolean",
+        "/extParams" : "null"
+      },
+      "noView" : {"database":"","username":"","password":null,"host":"db.example.com","port":5433,"usingSsl":true,"serverTimezone":null,"enableTurnOffPreparedStatement":true,"extParams":{},"readonly":false},
+      "Public" : {"database":"","username":"","host":"db.example.com","port":5433,"usingSsl":true,"serverTimezone":null,"enableTurnOffPreparedStatement":true,"extParams":{},"readonly":false},
+      "Internal" : {"database":"","username":"","password":null,"host":"db.example.com","port":5433,"usingSsl":true,"serverTimezone":null,"enableTurnOffPreparedStatement":true,"extParams":{},"readonly":false}
+    },
+    "getterNames" : {
+      "class" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+        "database" : null,
+        "username" : null,
+        "password" : null,
+        "host" : "db.example.com",
+        "port" : 5434,
+        "usingSsl" : false,
+        "serverTimezone" : null,
+        "isReadonly" : false,
+        "enableTurnOffPreparedStatement" : false,
+        "extParams" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+        "/database" : "null",
+        "/username" : "null",
+        "/password" : "null",
+        "/host" : "java.lang.String",
+        "/port" : "java.lang.Long",
+        "/usingSsl" : "java.lang.Boolean",
+        "/serverTimezone" : "null",
+        "/isReadonly" : "java.lang.Boolean",
+        "/enableTurnOffPreparedStatement" : "java.lang.Boolean",
+        "/extParams" : "null"
+      },
+      "noView" : {"database":"","username":"","password":null,"host":"db.example.com","port":5434,"usingSsl":false,"serverTimezone":null,"enableTurnOffPreparedStatement":false,"extParams":{},"readonly":false},
+      "Public" : {"database":"","username":"","host":"db.example.com","port":5434,"usingSsl":false,"serverTimezone":null,"enableTurnOffPreparedStatement":false,"extParams":{},"readonly":false},
+      "Internal" : {"database":"","username":"","password":null,"host":"db.example.com","port":5434,"usingSsl":false,"serverTimezone":null,"enableTurnOffPreparedStatement":false,"extParams":{},"readonly":false}
+    },
+    "minimal" : {
+      "class" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+        "database" : null,
+        "username" : null,
+        "password" : null,
+        "host" : "db.example.com",
+        "port" : null,
+        "usingSsl" : false,
+        "serverTimezone" : null,
+        "isReadonly" : false,
+        "enableTurnOffPreparedStatement" : false,
+        "extParams" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+        "/database" : "null",
+        "/username" : "null",
+        "/password" : "null",
+        "/host" : "java.lang.String",
+        "/port" : "null",
+        "/usingSsl" : "java.lang.Boolean",
+        "/serverTimezone" : "null",
+        "/isReadonly" : "java.lang.Boolean",
+        "/enableTurnOffPreparedStatement" : "java.lang.Boolean",
+        "/extParams" : "null"
+      },
+      "noView" : {"database":"","username":"","password":null,"host":"db.example.com","port":5432,"usingSsl":false,"serverTimezone":null,"enableTurnOffPreparedStatement":false,"extParams":{},"readonly":false},
+      "Public" : {"database":"","username":"","host":"db.example.com","port":5432,"usingSsl":false,"serverTimezone":null,"enableTurnOffPreparedStatement":false,"extParams":{},"readonly":false},
+      "Internal" : {"database":"","username":"","password":null,"host":"db.example.com","port":5432,"usingSsl":false,"serverTimezone":null,"enableTurnOffPreparedStatement":false,"extParams":{},"readonly":false}
+    },
+    "empty" : {
+      "class" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+        "database" : null,
+        "username" : null,
+        "password" : null,
+        "host" : null,
+        "port" : null,
+        "usingSsl" : false,
+        "serverTimezone" : null,
+        "isReadonly" : false,
+        "enableTurnOffPreparedStatement" : false,
+        "extParams" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.postgres.model.PostgresDatasourceConfig",
+        "/database" : "null",
+        "/username" : "null",
+        "/password" : "null",
+        "/host" : "null",
+        "/port" : "null",
+        "/usingSsl" : "java.lang.Boolean",
+        "/serverTimezone" : "null",
+        "/isReadonly" : "java.lang.Boolean",
+        "/enableTurnOffPreparedStatement" : "java.lang.Boolean",
+        "/extParams" : "null"
+      },
+      "noView" : {"database":"","username":"","password":null,"host":"","port":5432,"usingSsl":false,"serverTimezone":null,"enableTurnOffPreparedStatement":false,"extParams":{},"readonly":false},
+      "Public" : {"database":"","username":"","host":"","port":5432,"usingSsl":false,"serverTimezone":null,"enableTurnOffPreparedStatement":false,"extParams":{},"readonly":false},
+      "Internal" : {"database":"","username":"","password":null,"host":"","port":5432,"usingSsl":false,"serverTimezone":null,"enableTurnOffPreparedStatement":false,"extParams":{},"readonly":false}
+    },
+    "unknownProperty" : "ignored: binds as form canonical"
+  }
+}

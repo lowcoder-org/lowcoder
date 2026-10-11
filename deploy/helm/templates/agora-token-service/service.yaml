@@ -1,0 +1,22 @@
+{{- if .Values.agoraTokenService.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "lowcoder.fullname" . }}-agora-token-service
+  labels:
+    {{- include "lowcoder.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.agoraTokenService.service.type }}
+  ports:
+    - port: {{ .Values.agoraTokenService.service.port }}
+      targetPort: agora-token
+      protocol: TCP
+      name: agora-token
+    {{- if .Values.agoraTokenService.service.nodePort }}
+      {{- if or (eq .Values.agoraTokenService.service.type "NodePort") (eq .Values.agoraTokenService.service.type "LoadBalancer") }}
+      nodePort: {{ .Values.agoraTokenService.service.nodePort }}
+      {{- end }}
+    {{- end }}
+  selector:
+    {{- include "lowcoder.selectorLabels" (dict "component" "agora-token-service" "Values" .Values "Release" .Release "Chart" .Chart) | nindent 4 }}
+{{- end }}

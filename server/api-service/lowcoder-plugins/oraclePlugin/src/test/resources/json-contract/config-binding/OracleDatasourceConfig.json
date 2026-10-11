@@ -1,0 +1,172 @@
+{
+  "OracleConnector.resolveConfig" : {
+    "serviceName" : {
+      "class" : "org.lowcoder.plugin.oracle.model.OracleDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.oracle.model.OracleDatasourceConfig",
+        "sid" : null,
+        "serviceName" : "ORCLPDB1",
+        "jdbcUrl" : null,
+        "database" : "ignored by the creator",
+        "username" : " system ",
+        "password" : "s3crét",
+        "host" : " ora.example.com ",
+        "port" : 1521,
+        "usingSsl" : true,
+        "serverTimezone" : null,
+        "isReadonly" : true,
+        "enableTurnOffPreparedStatement" : true,
+        "extParams" : {
+          "connectTimeout" : 5000,
+          "allowPublicKeyRetrieval" : "true",
+          "useCursorFetch" : false,
+          "nested" : {
+            "list" : [ 1, 2.5, null ]
+          }
+        }
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.oracle.model.OracleDatasourceConfig",
+        "/sid" : "null",
+        "/serviceName" : "java.lang.String",
+        "/jdbcUrl" : "null",
+        "/database" : "java.lang.String",
+        "/username" : "java.lang.String",
+        "/password" : "java.lang.String",
+        "/host" : "java.lang.String",
+        "/port" : "java.lang.Long",
+        "/usingSsl" : "java.lang.Boolean",
+        "/serverTimezone" : "null",
+        "/isReadonly" : "java.lang.Boolean",
+        "/enableTurnOffPreparedStatement" : "java.lang.Boolean",
+        "/extParams" : "java.util.LinkedHashMap",
+        "/extParams/connectTimeout" : "java.lang.Integer",
+        "/extParams/allowPublicKeyRetrieval" : "java.lang.String",
+        "/extParams/useCursorFetch" : "java.lang.Boolean",
+        "/extParams/nested" : "java.util.LinkedHashMap",
+        "/extParams/nested/list" : "java.util.ArrayList",
+        "/extParams/nested/list/0" : "java.lang.Integer",
+        "/extParams/nested/list/1" : "java.lang.Double",
+        "/extParams/nested/list/2" : "null"
+      },
+      "noView" : {"username":"system","password":"s3crét","host":"ora.example.com","port":1521,"sid":null,"serviceName":"ORCLPDB1","jdbcUrl":"jdbc:oracle:thin:@//ora.example.com:1521/ORCLPDB1","enableTurnOffPreparedStatement":true,"extParams":{"connectTimeout":5000,"allowPublicKeyRetrieval":"true","useCursorFetch":false,"nested":{"list":[1,2.5,null]}},"database":"ignored by the creator","usingSsl":true,"serverTimezone":null,"readonly":true},
+      "Public" : {"username":"system","host":"ora.example.com","port":1521,"sid":null,"serviceName":"ORCLPDB1","jdbcUrl":"jdbc:oracle:thin:@//ora.example.com:1521/ORCLPDB1","enableTurnOffPreparedStatement":true,"extParams":{"connectTimeout":5000,"allowPublicKeyRetrieval":"true","useCursorFetch":false,"nested":{"list":[1,2.5,null]}},"database":"ignored by the creator","usingSsl":true,"serverTimezone":null,"readonly":true},
+      "Internal" : {"username":"system","password":"s3crét","host":"ora.example.com","port":1521,"sid":null,"serviceName":"ORCLPDB1","jdbcUrl":"jdbc:oracle:thin:@//ora.example.com:1521/ORCLPDB1","enableTurnOffPreparedStatement":true,"extParams":{"connectTimeout":5000,"allowPublicKeyRetrieval":"true","useCursorFetch":false,"nested":{"list":[1,2.5,null]}},"database":"ignored by the creator","usingSsl":true,"serverTimezone":null,"readonly":true}
+    },
+    "sid" : {
+      "class" : "org.lowcoder.plugin.oracle.model.OracleDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.oracle.model.OracleDatasourceConfig",
+        "sid" : "ORCL",
+        "serviceName" : null,
+        "jdbcUrl" : null,
+        "database" : null,
+        "username" : null,
+        "password" : null,
+        "host" : "ora.example.com",
+        "port" : 1522,
+        "usingSsl" : false,
+        "serverTimezone" : null,
+        "isReadonly" : false,
+        "enableTurnOffPreparedStatement" : false,
+        "extParams" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.oracle.model.OracleDatasourceConfig",
+        "/sid" : "java.lang.String",
+        "/serviceName" : "null",
+        "/jdbcUrl" : "null",
+        "/database" : "null",
+        "/username" : "null",
+        "/password" : "null",
+        "/host" : "java.lang.String",
+        "/port" : "java.lang.Long",
+        "/usingSsl" : "java.lang.Boolean",
+        "/serverTimezone" : "null",
+        "/isReadonly" : "java.lang.Boolean",
+        "/enableTurnOffPreparedStatement" : "java.lang.Boolean",
+        "/extParams" : "null"
+      },
+      "noView" : {"username":"","password":null,"host":"ora.example.com","port":1522,"sid":"ORCL","serviceName":null,"jdbcUrl":"jdbc:oracle:thin:@ora.example.com:1522:ORCL","enableTurnOffPreparedStatement":false,"extParams":{},"database":"","usingSsl":false,"serverTimezone":null,"readonly":false},
+      "Public" : {"username":"","host":"ora.example.com","port":1522,"sid":"ORCL","serviceName":null,"jdbcUrl":"jdbc:oracle:thin:@ora.example.com:1522:ORCL","enableTurnOffPreparedStatement":false,"extParams":{},"database":"","usingSsl":false,"serverTimezone":null,"readonly":false},
+      "Internal" : {"username":"","password":null,"host":"ora.example.com","port":1522,"sid":"ORCL","serviceName":null,"jdbcUrl":"jdbc:oracle:thin:@ora.example.com:1522:ORCL","enableTurnOffPreparedStatement":false,"extParams":{},"database":"","usingSsl":false,"serverTimezone":null,"readonly":false}
+    },
+    "jdbcUrl" : {
+      "class" : "org.lowcoder.plugin.oracle.model.OracleDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.oracle.model.OracleDatasourceConfig",
+        "sid" : null,
+        "serviceName" : null,
+        "jdbcUrl" : "jdbc:oracle:thin:@//ora.example.com:1521/X",
+        "database" : null,
+        "username" : null,
+        "password" : null,
+        "host" : null,
+        "port" : null,
+        "usingSsl" : false,
+        "serverTimezone" : null,
+        "isReadonly" : false,
+        "enableTurnOffPreparedStatement" : false,
+        "extParams" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.oracle.model.OracleDatasourceConfig",
+        "/sid" : "null",
+        "/serviceName" : "null",
+        "/jdbcUrl" : "java.lang.String",
+        "/database" : "null",
+        "/username" : "null",
+        "/password" : "null",
+        "/host" : "null",
+        "/port" : "null",
+        "/usingSsl" : "java.lang.Boolean",
+        "/serverTimezone" : "null",
+        "/isReadonly" : "java.lang.Boolean",
+        "/enableTurnOffPreparedStatement" : "java.lang.Boolean",
+        "/extParams" : "null"
+      },
+      "noView" : {"username":"","password":null,"host":"","port":1521,"sid":null,"serviceName":null,"jdbcUrl":"jdbc:oracle:thin:@//ora.example.com:1521/X","enableTurnOffPreparedStatement":false,"extParams":{},"database":"","usingSsl":false,"serverTimezone":null,"readonly":false},
+      "Public" : {"username":"","host":"","port":1521,"sid":null,"serviceName":null,"jdbcUrl":"jdbc:oracle:thin:@//ora.example.com:1521/X","enableTurnOffPreparedStatement":false,"extParams":{},"database":"","usingSsl":false,"serverTimezone":null,"readonly":false},
+      "Internal" : {"username":"","password":null,"host":"","port":1521,"sid":null,"serviceName":null,"jdbcUrl":"jdbc:oracle:thin:@//ora.example.com:1521/X","enableTurnOffPreparedStatement":false,"extParams":{},"database":"","usingSsl":false,"serverTimezone":null,"readonly":false}
+    },
+    "empty" : {
+      "class" : "org.lowcoder.plugin.oracle.model.OracleDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.oracle.model.OracleDatasourceConfig",
+        "sid" : null,
+        "serviceName" : null,
+        "jdbcUrl" : null,
+        "database" : null,
+        "username" : null,
+        "password" : null,
+        "host" : null,
+        "port" : null,
+        "usingSsl" : false,
+        "serverTimezone" : null,
+        "isReadonly" : false,
+        "enableTurnOffPreparedStatement" : false,
+        "extParams" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.oracle.model.OracleDatasourceConfig",
+        "/sid" : "null",
+        "/serviceName" : "null",
+        "/jdbcUrl" : "null",
+        "/database" : "null",
+        "/username" : "null",
+        "/password" : "null",
+        "/host" : "null",
+        "/port" : "null",
+        "/usingSsl" : "java.lang.Boolean",
+        "/serverTimezone" : "null",
+        "/isReadonly" : "java.lang.Boolean",
+        "/enableTurnOffPreparedStatement" : "java.lang.Boolean",
+        "/extParams" : "null"
+      },
+      "noView" : {"username":"","password":null,"host":"","port":1521,"sid":null,"serviceName":null,"jdbcUrl":"jdbc:oracle:thin:@//:1521/null","enableTurnOffPreparedStatement":false,"extParams":{},"database":"","usingSsl":false,"serverTimezone":null,"readonly":false},
+      "Public" : {"username":"","host":"","port":1521,"sid":null,"serviceName":null,"jdbcUrl":"jdbc:oracle:thin:@//:1521/null","enableTurnOffPreparedStatement":false,"extParams":{},"database":"","usingSsl":false,"serverTimezone":null,"readonly":false},
+      "Internal" : {"username":"","password":null,"host":"","port":1521,"sid":null,"serviceName":null,"jdbcUrl":"jdbc:oracle:thin:@//:1521/null","enableTurnOffPreparedStatement":false,"extParams":{},"database":"","usingSsl":false,"serverTimezone":null,"readonly":false}
+    },
+    "unknownProperty" : "ignored: binds as form serviceName"
+  }
+}

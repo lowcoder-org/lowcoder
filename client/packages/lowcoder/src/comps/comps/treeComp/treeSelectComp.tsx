@@ -21,7 +21,7 @@ import {
 } from "./treeUtils";
 import { baseSelectRefMethods, getStyle } from "../selectInputComp/selectCompConstants";
 import { useSelectInputValidate, SelectInputValidationSection } from "../selectInputComp/selectInputConstants";
-import { StringControl } from "comps/controls/codeControl";
+import { StringControl, NumberControl } from "comps/controls/codeControl";
 import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { selectInputValidate } from "../selectInputComp/selectInputConstants";
 import { BoolControl } from "comps/controls/boolControl";
@@ -30,12 +30,12 @@ import { trans } from "i18n";
 import {
   allowClearPropertyView,
   placeholderPropertyView,
+  showDataLoadingIndicatorsPropertyView,
   showSearchPropertyView,
 } from "comps/utils/propertyUtils";
 import { BaseSelectRef } from "rc-select";
 import { RefControl } from "comps/controls/refControl";
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 
 const StyledTreeSelect = styled(TreeSelect)<{ $style: TreeSelectStyleType }>`
   width: 100%;
@@ -65,10 +65,11 @@ const childrenMap = {
   allowClear: BoolControl,
   showSearch: BoolControl.DEFAULT_TRUE,
   inputValue: stateComp<string>(""), // search value
-  style:styleControl(InputFieldStyle),
-  labelStyle:styleControl(LabelStyle),
-  inputFieldStyle: withDefault(styleControl(TreeSelectStyle), {borderWidth: '1px'}),
+  style:styleControl(InputFieldStyle , 'style'),
+  labelStyle:styleControl(LabelStyle  , 'labelStyle'),
+  inputFieldStyle: styleControl(TreeSelectStyle, 'inputFieldStyle'),
   viewRef: RefControl<BaseSelectRef>,
+  tabIndex: NumberControl,
 };
 
 function getCheckedStrategy(v: ValueFromOption<typeof checkedStrategyOptions>) {
@@ -122,6 +123,7 @@ const TreeCompView = (
         treeLine={props.showLine ? { showLeafIcon: props.showLeafIcon } : false}
         // fix expand issue when searching
         treeExpandedKeys={inputValue ? undefined : expanded.value}
+        tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
         onTreeExpand={(keys) => {
           expanded.onChange(keys as (string | number)[]);
         }}
@@ -141,21 +143,25 @@ const TreeCompView = (
         onBlur={() => props.onEvent("blur")}
       />
     ),
+    showValidationWhenEmpty: props.showValidationWhenEmpty,
   });
 };
 
 let TreeBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => (
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    return(
     <TreeCompView {...props} dispatch={dispatch} />
-  ))
-    .setPropertyViewFn((children) => (
+  )})
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
         <Section name={sectionNames.basic}>
           {treeDataPropertyView(children)}
           {placeholderPropertyView(children)}
         </Section>
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["logic", "both"].includes(editorModeStatus) && (
           <><SelectInputValidationSection {...children} />
             {formSection(children)}
             <Section name={sectionNames.interaction}>
@@ -168,11 +174,13 @@ let TreeBasicComp = (function () {
                 children.checkedStrategy.propertyView({ label: trans("tree.checkedStrategy") })}
               {allowClearPropertyView(children)}
               {showSearchPropertyView(children)}
+              {showDataLoadingIndicatorsPropertyView(children)}
+              {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
             </Section>
           </>
         )}
       
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           <Section name={sectionNames.layout}>
             {children.expanded.propertyView({ label: trans("tree.expanded") })}
             {children.defaultExpandAll.propertyView({ label: trans("tree.defaultExpandAll") })}
@@ -181,9 +189,9 @@ let TreeBasicComp = (function () {
           </Section>
         )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && ( children.label.getPropertyView() )}
+        {["layout", "both"].includes(editorModeStatus) && ( children.label.getPropertyView() )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           <>
           <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
           <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
@@ -191,7 +199,8 @@ let TreeBasicComp = (function () {
           </>
         )}
       </>
-    ))
+    );
+    })
     .setExposeMethodConfigs(baseSelectRefMethods)
     .build();
 })();

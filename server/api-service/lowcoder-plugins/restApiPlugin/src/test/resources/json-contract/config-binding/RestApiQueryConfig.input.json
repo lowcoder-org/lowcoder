@@ -1,0 +1,46 @@
+{
+  "full": {
+    "httpMethod": "POST",
+    "disableEncodingParams": true,
+    "body": "{\"id\": {{id}}}",
+    "path": "/users/{{id}}",
+    "params": [
+      {
+        "key": "page",
+        "value": "1"
+      },
+      {
+        "key": "q",
+        "value": "{{input.text}}",
+        "type": "text"
+      }
+    ],
+    "headers": [
+      {
+        "key": "Content-Type",
+        "value": "application/json"
+      }
+    ],
+    "bodyFormData": [
+      {
+        "key": "f",
+        "value": "{{file}}",
+        "type": "file"
+      }
+    ],
+    "timeoutMs": 10000
+  },
+  "lowerCaseMethod": {
+    "httpMethod": "get",
+    "path": "/a"
+  },
+  "unknownMethod": {
+    "httpMethod": "PROPFIND",
+    "timeoutMs": "2500"
+  },
+  "longTimeout": {
+    "httpMethod": "GET",
+    "timeoutMs": 4294967296
+  },
+  "empty": {}
+}

@@ -16,6 +16,7 @@ import { ExampleContext } from "../ExampleContext";
 import { trans } from "i18n";
 import { EditorContext, EditorState } from "comps/editorState";
 import { RootComp } from "comps/comps/rootComp";
+import { createEditorStore, EditorStoreProvider } from "comps/editorStore";
 
 const Wrapper = styled.div`
   border: 1px solid #d7d9e0;
@@ -90,6 +91,7 @@ interface IBoundProps {
 const Bound = styled.div<IBoundProps>`
   padding: 5px;
   border: ${({ show }) => `1px dashed ${show ? "rgb(51, 119, 255)" : "transparent"}`};
+  transform: translate(0);
 `;
 
 const StyledBorderIcon = styled(ShowBorderIcon)`
@@ -190,7 +192,8 @@ const externalState: ExternalEditorContextState = {
   appType: AppTypeEnum.Application,
 };
 
-const editorState = new EditorState(new RootComp({ value: {} }), () => {});
+const editorStore = createEditorStore();
+const editorState = new EditorState(new RootComp({ value: {} }), () => {}, false, editorStore);
 
 export default function Example(props: IProps) {
   const {
@@ -250,7 +253,9 @@ export default function Example(props: IProps) {
             </OperationBtn>
           </OperationWrapper>
           <Bound show={isBorderShow} style={{ width, height }}>
-            <EditorContext.Provider value={editorState}>{view}</EditorContext.Provider>
+            <EditorStoreProvider store={editorStore}>
+              <EditorContext.Provider value={editorState}>{view}</EditorContext.Provider>
+            </EditorStoreProvider>
           </Bound>
         </div>
         {!hideSettings && (

@@ -4,7 +4,7 @@ import { StringStateControl, numberExposingStateControl } from "../../controls/c
 import { UICompBuilder } from "../../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../../generators/withExposing";
 import { RecordConstructorToView } from "lowcoder-core";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { styleControl } from "comps/controls/styleControl";
 import {
   AnimationStyle,
@@ -15,14 +15,13 @@ import { BoolControl } from "comps/controls/boolControl";
 import { withDefault } from "../../generators/simpleGenerators";
 import { playIcon } from "lowcoder-design";
 import { RangeControl } from "../../controls/codeControl";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { Video } from "lowcoder-design";
 import type ReactPlayer from "react-player";
 import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import styled, { css } from "styled-components";
 
 const EventOptions = [
@@ -115,8 +114,8 @@ const childrenMap = {
   src: withDefault(StringStateControl, trans('video.defaultSrcUrl')),
   poster: withDefault(StringStateControl, trans('video.defaultPosterUrl')),
   onEvent: eventHandlerControl(EventOptions),
-  style: styleControl(VideoStyle),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(VideoStyle , 'style'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   autoPlay: BoolControl,
   loop: BoolControl,
   controls: BoolControl,
@@ -132,6 +131,7 @@ let VideoBasicComp = (function () {
     return <ContainerVideo {...props} />;
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
@@ -141,11 +141,12 @@ let VideoBasicComp = (function () {
             })}
           </Section>
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "logic" || editorModeStatus === "both") && (
 
             <><Section name={sectionNames.interaction}>
                 {children.onEvent.getPropertyView()}
                 {hiddenPropertyView(children)}
+                {showDataLoadingIndicatorsPropertyView(children)}
               </Section>
               <Section name={sectionNames.advanced}>
                 {children.poster.propertyView({
@@ -176,9 +177,9 @@ let VideoBasicComp = (function () {
               <Section name={sectionNames.style}>
                 {children.style.getPropertyView()}
               </Section>
-              <Section name={sectionNames.animationStyle} hasTooltip={true}>
+              {/* <Section name={sectionNames.animationStyle} hasTooltip={true}>
                 {children.animationStyle.getPropertyView()}
-              </Section>
+              </Section> */}
             </>
           )}
         </>

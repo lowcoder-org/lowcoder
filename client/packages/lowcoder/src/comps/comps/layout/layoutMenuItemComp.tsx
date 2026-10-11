@@ -1,6 +1,7 @@
 import { MultiBaseComp } from "lowcoder-core";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
-import { valueComp } from "comps/generators";
+import { BoolControl } from "comps/controls/boolControl";
+import { valueComp, withPropertyViewFn } from "comps/generators";
 import { list } from "comps/generators/list";
 import {
   parseChildrenFromValueAndChildrenMap,
@@ -16,16 +17,21 @@ import { genRandomKey } from "comps/utils/idGenerator";
 import { LayoutActionComp } from "comps/comps/layout/layoutActionComp";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 
+// BoolControl without property view (internal state only)
+const CollapsedControl = withPropertyViewFn(BoolControl, () => null);
+
 const childrenMap = {
   label: StringControl,
   hidden: BoolCodeControl,
   action: LayoutActionComp,
+  collapsed: CollapsedControl, // tree editor collapsed state
   itemKey: valueComp<string>(""),
   icon: IconControl,
 };
 
 type ChildrenType = ToInstanceType<typeof childrenMap> & {
   items: InstanceType<typeof LayoutMenuItemListComp>;
+  collapsed: InstanceType<typeof CollapsedControl>;
 };
 
 /**
@@ -72,6 +78,14 @@ export class LayoutMenuItemComp extends MultiBaseComp<ChildrenType> {
 
   getItemKey() {
     return this.children.itemKey.getView();
+  }
+
+  getCollapsed(): boolean {
+    return this.children.collapsed.getView();
+  }
+
+  setCollapsed(collapsed: boolean) {
+    this.children.collapsed.dispatchChangeValueAction(collapsed);
   }
 }
 

@@ -1,20 +1,21 @@
-import { CompAction, RecordConstructorToView, changeChildAction } from "lowcoder-core";
+import { CompAction, RecordConstructorToComp, RecordConstructorToView, changeChildAction } from "lowcoder-core";
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, startButtonStyle, StartButtonStyleType, timerStyle, timerStyleType } from "comps/controls/styleControlConstants";
-import { UICompBuilder } from "comps/generators/uiCompBuilder";
+import { NewChildren, UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { Button, Space } from "antd";
 import { countdownEvent, eventHandlerControl, pauseEvent, resetEvent, resumeEvent, startEvent } from "../controls/eventHandlerControl";
 import styled from "styled-components";
-import { useContext, useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { stateComp } from "../generators";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { dropdownControl } from "../controls/dropdownControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { BoolControl } from "comps/controls/boolControl";
+import React from "react";
 
 const Container = styled.div<{
   $style: timerStyleType | undefined;
@@ -113,7 +114,9 @@ const childrenMap = {
   hideButton: BoolControl,
 };
 
-const AvatarGroupView = (props: RecordConstructorToView<typeof childrenMap> & { dispatch: (action: CompAction) => void; }) => {
+type ChildrenType = NewChildren<RecordConstructorToComp<typeof childrenMap>>;
+
+const TimerCompView = React.memo((props: RecordConstructorToView<typeof childrenMap> & { dispatch: (action: CompAction) => void; }) => {
   const [startTime, setStartTime] = useState(0)
   const [timerState, setTimerState] = useState('stoped')
   const [elapsedTime, setElapsedTime] = useState(0)
@@ -219,50 +222,58 @@ const AvatarGroupView = (props: RecordConstructorToView<typeof childrenMap> & { 
       </ButtonWarrper>
     </Container>
   );
-};
+});
 
-let AvatarGroupBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => <AvatarGroupView {...props} dispatch={dispatch} />)
-    .setPropertyViewFn((children) => (
-      <>
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <>
-            <Section name={sectionNames.basic}>
-              {children.timerType.propertyView({
-                label: trans('timer.timerType')
-              })}
-              {children.defaultValue.propertyView({
-                label: trans('timer.defaultValue')
-              })}
-              {children.hideButton.propertyView({
-                label: trans('timer.hideButton')
-              })}
-            </Section>
-            <Section name={sectionNames.interaction}>
-              {hiddenPropertyView(children)}
-              {children.onEvent.propertyView()}
-            </Section>
-          </>
-        )}
+const TimerCompPropertyView = React.memo((props: {
+  children: ChildrenType
+}) => {
+  const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+  return (
+    <>
+      {["logic", "both"].includes(editorModeStatus) && (
+        <>
+          <Section name={sectionNames.basic}>
+            {props.children.timerType.propertyView({
+              label: trans('timer.timerType')
+            })}
+            {props.children.defaultValue.propertyView({
+              label: trans('timer.defaultValue')
+            })}
+            {props.children.hideButton.propertyView({
+              label: trans('timer.hideButton')
+            })}
+          </Section>
+          <Section name={sectionNames.interaction}>
+            {props.children.onEvent.propertyView()}
+            {hiddenPropertyView(props.children)}
+            {showDataLoadingIndicatorsPropertyView(props.children)}
+          </Section>
+        </>
+      )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <>
-          <Section name={sectionNames.style}>
-            {children.style.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.animationStyle} hasTooltip={true}>
-            {children.animationStyle.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.startButtonStyle}>
-            {children.startButtonStyle.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.resetButtonStyle}>
-            {children.resetButtonStyle.getPropertyView()}
-          </Section>
-          </>
-        )}
-      </>
-    ))
+      {["layout", "both"].includes(editorModeStatus) && (
+        <>
+        <Section name={sectionNames.style}>
+          {props.children.style.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.animationStyle} hasTooltip={true}>
+          {props.children.animationStyle.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.startButtonStyle}>
+          {props.children.startButtonStyle.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.resetButtonStyle}>
+          {props.children.resetButtonStyle.getPropertyView()}
+        </Section>
+        </>
+      )}
+    </>
+  )
+});
+
+let TimerCompBasic = (function () {
+  return new UICompBuilder(childrenMap, (props, dispatch) => <TimerCompView {...props} dispatch={dispatch} />)
+    .setPropertyViewFn((children) => <TimerCompPropertyView children={children} />)
     .setExposeMethodConfigs([
       {
         method: {
@@ -289,11 +300,47 @@ let AvatarGroupBasicComp = (function () {
           comp.children.actionHandler.dispatch(comp.children.actionHandler.changeValueAction('reset'))
         },
       },
+      {
+        method: {
+          name: "start",
+          description: trans("timer.start"),
+          params: [],
+        },
+        execute: async (comp, params) => {
+          if (comp.children.timerState.value === 'stoped') {
+            comp.children.actionHandler.dispatch(comp.children.actionHandler.changeValueAction('start'))
+          }
+        },
+      },
+      {
+        method: {
+          name: "pause",
+          description: trans("timer.pause"),
+          params: [],
+        },
+        execute: async (comp, params) => {
+          if (comp.children.timerState.value === 'started') {
+            comp.children.actionHandler.dispatch(comp.children.actionHandler.changeValueAction('pause'))
+          }
+        },
+      },
+      {
+        method: {
+          name: "resume",
+          description: trans("timer.resume"),
+          params: [],
+        },
+        execute: async (comp, params) => {
+          if (comp.children.timerState.value === 'paused') {
+            comp.children.actionHandler.dispatch(comp.children.actionHandler.changeValueAction('resume'))
+          }
+        }
+      }
     ])
     .build();
 })();
 
-export const TimerComp = withExposingConfigs(AvatarGroupBasicComp, [
+export const TimerComp = withExposingConfigs(TimerCompBasic, [
   new NameConfig("defaultValue", trans("timer.defaultValue")),
   new NameConfig("elapsedTime", trans("timer.elapsedTime")),
   new NameConfig("timerState", trans("timer.timerState")),

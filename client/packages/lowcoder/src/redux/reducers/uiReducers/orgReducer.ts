@@ -28,15 +28,17 @@ const initialState: OrgReduxState = {
   orgCreateStatus: "init",
   apiUsage: 0,
   lastMonthApiUsage: 0,
+  orgUserStats: {},
 };
 
 const orgReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.FETCH_ORG_GROUPS_SUCCESS]: (
     state: OrgReduxState,
-    action: ReduxAction<{ orgGroups: OrgGroup[] }>
+    action: ReduxAction<{ orgGroups: OrgGroup[], orgUserStats: Record<string, number> }>
   ): OrgReduxState => ({
     ...state,
     orgGroups: action.payload.orgGroups,
+    orgUserStats: action.payload.orgUserStats,
     fetchOrgGroupsFinished: true,
   }),
   [ReduxActionErrorTypes.FETCH_ORG_GROUPS_ERROR]: (state: OrgReduxState): OrgReduxState => ({
@@ -137,6 +139,7 @@ export interface OrgReduxState {
   orgCreateStatus: ApiRequestStatus;
   apiUsage: number;
   lastMonthApiUsage: number;
+  orgUserStats: Record<string, number>;
 }
 
 export default orgReducer;

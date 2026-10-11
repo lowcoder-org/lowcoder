@@ -4,42 +4,73 @@ import { trans } from "i18n";
 import { useState } from "react";
 import { validateResponse } from "api/apiUtils";
 import IdSourceApi from "api/idSourceApi";
-import { DangerIcon, CustomModal } from "lowcoder-design";
+import { CustomModal } from "lowcoder-design";
 import history from "util/history";
 import { OAUTH_PROVIDER_SETTING } from "constants/routesURL";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import Flex from "antd/es/flex";
+import Alert from "antd/es/alert";
 
-export const DeleteConfig = (props: { id: string }) => {
+export const DeleteConfig = (props: {
+  id: string,
+  allowDelete?: boolean,
+  allowDisable?: boolean,
+  isLastEnabledConfig?: boolean,
+}) => {
+  const [disableLoading, setDisableLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const handleDelete = () => {
+
+  const handleDelete = (deleteConfig?: boolean) => {
+    const setLoading = deleteConfig ? setDeleteLoading : setDisableLoading;
+    const action = deleteConfig ? trans("delete") : trans("idSource.disable");
     CustomModal.confirm({
       title: trans("idSource.disableTip"),
-      content: trans("idSource.disableContent"),
+      content: trans("idSource.disableContent", {action}),
       onConfirm: () => {
-        setDeleteLoading(true);
-        IdSourceApi.deleteConfig(props.id)
-          .then((resp) => {
-            if (validateResponse(resp)) {
-              messageInstance.success(trans("idSource.disableSuccess"), 0.8, () =>
+        setLoading(true);
+        IdSourceApi.deleteConfig(props.id, deleteConfig)
+        .then((resp) => {
+          if (validateResponse(resp)) {
+              const successMsg = deleteConfig ? trans("home.deleteSuccessMsg") : trans("idSource.disableSuccess");
+              messageInstance.success(successMsg, 0.8, () =>
                 history.push(OAUTH_PROVIDER_SETTING)
               );
             }
           })
           .catch((e) => messageInstance.error(e.message))
-          .finally(() => setDeleteLoading(false));
+          .finally(() => setLoading(false));
       },
     });
   };
   return (
     <DeleteWrapper>
-      <div>{trans("idSource.dangerLabel")}</div>
-      <div className="danger-tip">
-        <DangerIcon />
-        {trans("idSource.dangerTip")}
-      </div>
-      <Button loading={deleteLoading} onClick={() => handleDelete()}>
-        {trans("idSource.disable")}
-      </Button>
+      <h4>{trans("idSource.dangerLabel")}</h4>
+      <Alert
+        className="danger-tip"
+        description={trans("idSource.dangerTip")}
+        type="warning"
+        showIcon
+      />
+      {props.isLastEnabledConfig && (
+        <Alert
+          className="danger-tip"
+          description={trans("idSource.lastEnabledConfig")}
+          type="warning"
+          showIcon
+        />
+      )}
+      <Flex gap={8}>
+        {props.allowDisable && (
+          <Button danger disabled={props.isLastEnabledConfig} loading={disableLoading}  onClick={() => handleDelete()}>
+            {trans("idSource.disable")}
+          </Button>
+        )}
+        {props.allowDelete && (
+          <Button type="primary" danger disabled={props.isLastEnabledConfig} loading={deleteLoading} onClick={() => handleDelete(true)}>
+            {trans("delete")}
+          </Button>
+        )}
+      </Flex>
     </DeleteWrapper>
   );
 };

@@ -14,13 +14,14 @@ import {
   EventContent,
   EventDiv,
   EventTitle,
+  Tooltip,
   InlineEventFormWrapper,
   LinkButton,
   OptionType,
   QueryConfigItemWrapper,
   ValueFromOption,
 } from "lowcoder-design";
-import { Fragment, ReactNode, useContext, useEffect, useState} from "react";
+import { Fragment, ReactNode, useContext, useEffect, useState, useRef, useCallback } from "react";
 import { memo } from "util/cacheUtils";
 import { EditorContext } from "../editorState";
 import { ActionSelectorControl } from "./actionSelector/actionSelectorControl";
@@ -59,7 +60,12 @@ class SingleEventHandlerControl<
         return;
       }
       if (handler) {
-        return handler();
+        try {
+          return handler();
+        } catch (error) {
+          console.error('Error in event handler:', error);
+          return Promise.reject(error);
+        }
       }
     };
   }
@@ -118,7 +124,11 @@ class SingleEventHandlerControl<
           defaultVisible={props.popup}
         >
           <EventContent>
-            {!_.isEmpty(eventName) && <EventTitle>{eventName}</EventTitle>}
+            {!_.isEmpty(eventName) && (
+              <Tooltip title={eventName} placement="top">
+                <EventTitle>{eventName}</EventTitle>
+              </Tooltip>
+            )}
             <EventAction>{eventAction}</EventAction>
           </EventContent>
         </CustomPopover>
@@ -142,10 +152,9 @@ const EventHandlerControlPropertyView = (props: {
   type?: "query";
   eventConfigs: EventConfigsType;
 }) => {
-
-  
   const editorState = useContext(EditorContext);
   const [showNewCreate, setShowNewCreate] = useState(false);
+  const mountedRef = useRef(true);
 
   const {
     dispatch,
@@ -157,22 +166,41 @@ const EventHandlerControlPropertyView = (props: {
     type
   } = props;
   
-  useEffect(() => setShowNewCreate(false), [dispatch]);
+  // Reset state on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      setShowNewCreate(false);
+    };
+  }, []);
+
+  // Reset showNewCreate when dispatch changes
+  useEffect(() => {
+    if (mountedRef.current) {
+      setShowNewCreate(false);
+    }
+  }, [dispatch]);
 
   const queryHandler = {
     name: eventConfigs[0].value,
   };
 
-  const handleAdd = () => {
-    if (eventConfigs.length === 0) {
+  const handleAdd = useCallback(() => {
+    if (eventConfigs.length === 0 || !mountedRef.current) {
       return;
     }
+    
+    const queryVariables = editorState
+      ?.selectedOrFirstQueryComp()
+      ?.children.variables.toJsonValue();
+
     const queryExecHandler = {
       compType: "executeQuery",
       comp: {
         queryName: editorState
           ?.selectedOrFirstQueryComp()
           ?.children.name.getView(),
+        queryVariables: queryVariables?.map((variable) => ({...variable, value: ''})),
       },
     };
     const messageHandler = {
@@ -184,8 +212,10 @@ const EventHandlerControlPropertyView = (props: {
       handler: isInDevIde ? messageHandler : queryExecHandler,
     } as const;
     dispatch(pushAction(type !== "query" ? newHandler : queryHandler));
-    setShowNewCreate(true);
-  };
+    if (mountedRef.current) {
+      setShowNewCreate(true);
+    }
+  }, [dispatch, eventConfigs, editorState, pushAction, type]);
 
   const renderItems = () =>
     items.length > 0 ? (
@@ -245,7 +275,12 @@ class EventHandlerControl<T extends EventConfigsType> extends list(SingleEventHa
       super.getView().forEach((child) => {
         const ret = child.getView()(eventName);
         if (ret) {
-          list.push(ret);
+          list.push(
+            Promise.resolve(ret).catch(error => {
+              console.error('Error in event handler:', error);
+              return Promise.reject(error);
+            })
+          );
         }
       });
       return Promise.all(list);
@@ -483,7 +518,11 @@ export const resetEvent: EventConfigType = {
   value: "reset",
   description: trans("event.resetDesc"),
 };
-
+export const sortChangeEvent: EventConfigType = {
+  label: trans("event.sortChange"),
+  value: "sortChange",
+  description: trans("event.sortChangeDesc"),
+};
 
 // Meeting Events
 
@@ -670,6 +709,7 @@ export const InputEventHandlerControl = eventHandlerControl([
 
 export const ButtonEventHandlerControl = eventHandlerControl([
   clickEvent,
+  doubleClickEvent,
 ] as const);
 
 export const ChangeEventHandlerControl = eventHandlerControl([
@@ -698,6 +738,12 @@ export const CheckboxEventHandlerControl = eventHandlerControl([
 export const DragEventHandlerControl = eventHandlerControl([
   dragEvent,
   dropEvent,
+] as const);
+
+export const CalendarEventHandlerControl = eventHandlerControl([
+  changeEvent,
+  clickEvent,
+  doubleClickEvent,
 ] as const);
 
 export const ElementEventHandlerControl = eventHandlerControl([
@@ -730,6 +776,13 @@ export const SelectEventHandlerControl = eventHandlerControl([
   changeEvent,
   focusEvent,
   blurEvent,
+] as const);
+
+export const TreeEventHandlerControl = eventHandlerControl([
+  changeEvent,
+  focusEvent,
+  blurEvent,
+  doubleClickEvent,
 ] as const);
 
 export const ScannerEventHandlerControl = eventHandlerControl([
@@ -779,4 +832,5 @@ export const CardEventHandlerControl = eventHandlerControl([
   clickExtraEvent,
   focusEvent,
   blurEvent,
+  doubleClickEvent
 ] as const);

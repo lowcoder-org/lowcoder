@@ -1,0 +1,21 @@
+{
+  "full": {
+    "host": "smtp.example.com",
+    "port": 587,
+    "username": "mailer@example.com",
+    "password": "pw"
+  },
+  "scalarsAsStrings": {
+    "host": "smtp.example.com",
+    "port": "465"
+  },
+  "decimalPort": {
+    "host": "smtp.example.com",
+    "port": 25.0
+  },
+  "longPort": {
+    "host": "smtp.example.com",
+    "port": 4294967296
+  },
+  "empty": {}
+}

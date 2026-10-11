@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-cli-template-typescript",
-  "version": "0.0.20",
+  "version": "0.0.22",
   "type": "module",
   "scripts": {
     "start": "NODE_OPTIONS=--max_old_space_size=6144 vite",
@@ -22,17 +22,19 @@
     }
   },
   "dependencies": {
+    "@observablehq/inspector": "^5.0.1",
     "@observablehq/runtime": "^4.8.2",
+    "@observablehq/stdlib": "^5.8.8",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
     "lowcoder-cli": "^0.0.30",
-    "lowcoder-sdk": "^2.1.10",
+    "lowcoder-sdk": "^3.0.0",
     "prop-types": "^15.7.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-resize-detector": "^7.0.0",
     "typescript": "5.3.3",
-    "vite": "^4.5.2"
+    "vite": "^4.5.5"
   },
   "keywords": [
     "Lowcoder, Component, Template, Plugin, Demonstrator"

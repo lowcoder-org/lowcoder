@@ -6,12 +6,10 @@ import styled from "styled-components";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, IframeStyle, IframeStyleType } from "comps/controls/styleControlConstants";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import log from "loglevel";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 
 const Wrapper = styled.div<{$style: IframeStyleType; $animationStyle:AnimationStyleType}>`
   width: 100%;
@@ -21,19 +19,41 @@ const Wrapper = styled.div<{$style: IframeStyleType; $animationStyle:AnimationSt
       props.$style.borderWidth ? props.$style.borderWidth : '1px'}
     solid ${(props) => props.$style.border};
   border-radius: calc(min(${(props) => props.$style.radius}, 20px));
-rotate:${props => props.$style.rotation}
+rotate:${props => props.$style.rotation};
+margin:${props => props.$style.margin};
+padding:${props => props.$style.padding};
 ${props=>props.$animationStyle}
   iframe {
     border: 0;
     width: 100%;
     height: 100%;
     display: block;
-    background-color: ${(props) => props.$style.background};
+    background: ${(props) => props.$style.background};
   }
 `;
 
-const regex =
-  /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)/g;
+export function getIframeSrc(url: string): string {
+  const value = url.trim();
+  if (!value) {
+    return "about:blank";
+  }
+
+  const hasScheme = /^[a-z][a-z\d+.-]*:/i.test(value);
+  const isRelativeUrl =
+    value.startsWith("/") || value.startsWith("./") || value.startsWith("../");
+  if (!hasScheme && !isRelativeUrl) {
+    return "about:blank";
+  }
+
+  try {
+    const parsedUrl = new URL(value, "https://lowcoder.local");
+    return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:"
+      ? value
+      : "about:blank";
+  } catch {
+    return "about:blank";
+  }
+}
 
 let IFrameCompBase = new UICompBuilder(
   {
@@ -43,8 +63,8 @@ let IFrameCompBase = new UICompBuilder(
     allowMicrophone: BoolControl,
     allowCamera: BoolControl,
     allowPopup: BoolControl,
-    style: styleControl(IframeStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(IframeStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   },
   (props) => {
     const sandbox = ["allow-scripts", "allow-same-origin"];
@@ -56,8 +76,7 @@ let IFrameCompBase = new UICompBuilder(
     props.allowCamera && allow.push("camera");
     props.allowMicrophone && allow.push("microphone");
 
-    const src = regex.test(props.url) ? props.url : "about:blank";
-    log.log(props.url, regex.test(props.url) ? props.url : "about:blank", src);
+    const src = getIframeSrc(props.url);
     return (
       <Wrapper $style={props.style} $animationStyle={props.animationStyle}>
         <iframe src={src} sandbox={sandbox.join(" ")} allow={allow.join(";")} />
@@ -65,13 +84,15 @@ let IFrameCompBase = new UICompBuilder(
     );
   }
 )
-  .setPropertyViewFn((children) => (
+  .setPropertyViewFn((children) => {
+    const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+    return (
     <>
       <Section name={sectionNames.basic}>
         {children.url.propertyView({ label: "Source URL", placeholder: "https://example.com", tooltip: trans("iframe.URLDesc") })}
       </Section>
 
-      {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+      {["logic", "both"].includes(editorModeStatus) && (
         <Section name={sectionNames.interaction}>
           {hiddenPropertyView(children)}
           {children.allowDownload.propertyView({ label: trans("iframe.allowDownload") })}
@@ -79,10 +100,11 @@ let IFrameCompBase = new UICompBuilder(
           {children.allowMicrophone.propertyView({ label: trans("iframe.allowMicrophone") })}
           {children.allowCamera.propertyView({ label: trans("iframe.allowCamera") })}
           {children.allowPopup.propertyView({ label: trans("iframe.allowPopup") })}
+          {showDataLoadingIndicatorsPropertyView(children)}
         </Section>
       )}
 
-      {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+      {["layout", "both"].includes(editorModeStatus) && (
         <>
         <Section name={sectionNames.style}>
           {children.style.getPropertyView()}
@@ -93,7 +115,8 @@ let IFrameCompBase = new UICompBuilder(
         </>
       )}
     </>
-  ))
+  );
+  })
   .build();
 
 IFrameCompBase = class extends IFrameCompBase {

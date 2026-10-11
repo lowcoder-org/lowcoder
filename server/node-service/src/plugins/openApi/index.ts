@@ -39,7 +39,7 @@ const dataSourceConfig = {
       type: "textInput",
       tooltip: "Change the default server url written in the spec file.",
       placeholder: "https://example.com/api/v1",
-    },
+    }
   ],
 } as const;
 
@@ -62,7 +62,14 @@ async function getDefinitions(
     const specList = Array.isArray(spec) ? spec : [{ spec, id: "" }];
     return await Promise.all(
       specList.map(async ({id, spec}) => {
-        const deRefedSpec = await SwaggerParser.dereference(spec);
+        const deRefedSpec = await SwaggerParser.dereference(spec, { dereference: {
+          circular: true, // Retains circular references
+        },
+        resolve: {
+          external: false,
+          http: false,
+        },
+      });
         return {
           def: deRefedSpec,
           id,
@@ -114,6 +121,7 @@ export async function runOpenApi(
   try {
     const { parameters, requestBody } = normalizeParams(otherActionData, operation, isOas3Spec);
     let securities = extractSecurityParams(dataSourceConfig, definition);
+
     const response = await SwaggerClient.execute({
       spec: definition,
       operationId: realOperationId,
@@ -154,7 +162,7 @@ const openApiPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
   id: "openApi",
   name: "Open API",
   icon: "swagger.svg",
-  category: "api",
+  category: "App Development",
   dataSourceConfig: {
     ...dataSourceConfig,
     extra: async (dataSourceConfig) => {

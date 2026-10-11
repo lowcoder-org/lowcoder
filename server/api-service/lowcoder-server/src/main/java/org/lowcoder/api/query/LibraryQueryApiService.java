@@ -9,7 +9,9 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 public interface LibraryQueryApiService {
-    Mono<List<LibraryQueryView>> listLibraryQueries();
+    Mono<List<LibraryQueryView>> listLibraryQueries(String name);
+
+    Mono<LibraryQueryView> get(String libraryQueryId);
 
     Mono<LibraryQueryView> create(LibraryQuery libraryQuery);
 
@@ -20,7 +22,7 @@ public interface LibraryQueryApiService {
     Mono<LibraryQueryRecordMetaView> publish(String libraryQueryId, LibraryQueryPublishRequest libraryQueryPublishRequest);
 
     @SuppressWarnings("ConstantConditions")
-    Mono<List<LibraryQueryAggregateView>> dropDownList();
+    Mono<List<LibraryQueryAggregateView>> dropDownList(String name);
 
     Mono<QueryExecutionResult> executeLibraryQueryFromJs(ServerWebExchange exchange, LibraryQueryRequestFromJs request);
 

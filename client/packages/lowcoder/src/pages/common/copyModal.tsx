@@ -38,8 +38,10 @@ export function CopyModal(props: CopyModalProps) {
       title={trans("home.copyModalTitle", {name: appName})}
       open={visible}
       okButtonProps={{ disabled: !copyName }}
-      destroyOnClose={true}
+      destroyOnHidden={true}
       onCancel={close}
+      showCancelButton
+      showOkButton
       onOk={async () => {
         let dsl = null;
         await ApplicationApi.getApplicationDetail({ applicationId: id, type: "editing" }).then(

@@ -209,11 +209,19 @@ export async function parseOpenApi(
    */
   specId?: string
 ): Promise<OpenAPIParseResult> {
+
   let spec = specJsonOrObj;
   if (typeof specJsonOrObj === "string") {
     spec = JSON.parse(specJsonOrObj);
   }
-  const openApiDoc = await SwaggerParser.dereference(spec, { dereference: { circular: "ignore" } });
+  const openApiDoc = await SwaggerParser.dereference(spec, { dereference: {
+      circular: true, // Retains circular references
+    },
+    resolve: {
+      external: false,
+      http: false,
+    },
+  });
   const actions: ActionConfig[] = [];
   const categories: ActionCategory[] = [];
   if (!openApiDoc.paths) {
@@ -264,7 +272,7 @@ export async function parseOpenApi(
         return;
       }
 
-      const { tags } = operation;
+      const { tags = ["other"] } = operation;
       if (tags) {
         appendCategories(
           categories,
@@ -288,7 +296,7 @@ export async function parseOpenApi(
         );
       }
       const action: ActionConfig = {
-        category: operation.tags || "",
+        category: tags || "",
         actionName: operationId,
         label: actionLabel(httpMethod, path, operation),
         description: actionDescription(httpMethod, path, operation),

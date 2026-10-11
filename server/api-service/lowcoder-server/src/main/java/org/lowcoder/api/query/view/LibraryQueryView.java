@@ -6,6 +6,7 @@ import org.lowcoder.domain.query.model.LibraryQuery;
 import org.lowcoder.domain.user.model.User;
 
 public record LibraryQueryView(String id,
+                               String gid,
                                String organizationId,
                                String name,
                                Map<String, Object> libraryQueryDSL,
@@ -14,10 +15,12 @@ public record LibraryQueryView(String id,
 
     public static LibraryQueryView from(LibraryQuery libraryQuery, User user) {
         return new LibraryQueryView(libraryQuery.getId(),
+                libraryQuery.getGid(),
                 libraryQuery.getOrganizationId(),
                 libraryQuery.getName(),
                 libraryQuery.getLibraryQueryDSL(),
                 libraryQuery.getCreatedAt().toEpochMilli(),
-                user.getName());
+                // Null-safe creator (see LibraryQueryMetaView): tolerate an unresolved createdBy.
+                user == null ? null : user.getName());
     }
 }

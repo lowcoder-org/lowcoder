@@ -1,0 +1,27 @@
+name: Build lowcoder-hocuspocus docker image
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev
+      - main
+    paths:
+      - 'client/packages/lowcoder/hocuspocus-server.js'
+      - 'deploy/docker/hocuspocus/**'
+      - '.github/workflows/hocuspocus.yml'
+      - '.github/workflows/build-service-image.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-service-image.yml
+    # Publishes the image used by the `hocuspocus` service
+    # in deploy/docker/docker-compose-multi.yaml
+    with:
+      context: ./client/packages/lowcoder
+      dockerfile: ./deploy/docker/hocuspocus/Dockerfile
+      image_name: lowcoderorg/lowcoder-hocuspocus
+    secrets: inherit

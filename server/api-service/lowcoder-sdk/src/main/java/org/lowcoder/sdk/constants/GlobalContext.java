@@ -16,4 +16,6 @@ public class GlobalContext {
 
     public static final String CURRENT_ORG_MEMBER = "currentOrgMember";
     public static final String DOMAIN = "domain";
+    public static final String HEADERS = "headers";
+
 }

@@ -1,0 +1,70 @@
+{{- if .Values.proxyService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "lowcoder.fullname" . }}-proxy-service
+  labels:
+    {{- include "lowcoder.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.proxyService.autoscaling.enabled }}
+  replicas: {{ .Values.proxyService.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "lowcoder.selectorLabels" (dict "component" "proxy-service" "Values" .Values "Release" .Release "Chart" .Chart) | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/proxy-service/configMap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/proxy-service/secrets.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "lowcoder.selectorLabels" (dict "component" "proxy-service" "Values" .Values "Release" .Release "Chart" .Chart) | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "lowcoder.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.proxyService.image.repository }}:{{ .Values.proxyService.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.proxyService.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "lowcoder.fullname" . }}-proxy-service
+            - secretRef:
+                name: {{ include "lowcoder.fullname" . }}-proxy-service
+          ports:
+            - name: lowcoder-proxy
+              containerPort: 6070
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: lowcoder-proxy
+          readinessProbe:
+            httpGet:
+              path: /
+              port: lowcoder-proxy
+          resources:
+            {{- include "lowcoder.resources" (dict "service" .Values.proxyService "root" .) | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

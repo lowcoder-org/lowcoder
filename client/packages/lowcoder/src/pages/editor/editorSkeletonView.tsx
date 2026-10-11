@@ -1,21 +1,23 @@
-import Header from "pages/common/header";
-import React from "react";
+import React, { lazy, useCallback, useEffect, useRef } from "react";
 import {
   Body,
   EditorContainer,
   Height100Div,
-  LeftPanel,
-  MiddlePanel,
 } from "pages/common/styledComponent";
-import { getPanelStatus, getEditorModeStatus, getPanelStyle } from "util/localStorageUtil";
-import { BottomSkeleton } from "pages/editor/bottom/BottomContent";
-import RightPanel from "pages/editor/right/RightPanel";
-import _ from "lodash";
+import { useEditorLayoutStore } from "pages/editor/editorLayoutStore";
+
 import styled from "styled-components";
 import { default as Skeleton } from "antd/es/skeleton";
 import { default as Spin } from "antd/es/spin";
 import { useTemplateViewMode, useUserViewMode } from "util/hooks";
 import { ProductLoading } from "components/ProductLoading";
+import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
+import { useUnmount } from "react-use";
+
+const BottomSkeleton = lazy(() => import("pages/editor/bottom/BottomContent").then(module => ({default: module.BottomSkeleton})));
+const RightPanel = lazy(() => import('pages/editor/right/RightPanel'));
+const LeftPanel = lazy(() => import("pages/common/styledComponent").then(module =>({default: module.LeftPanel})));
+const MiddlePanel = lazy(() => import("pages/common/styledComponent").then(module =>({default: module.MiddlePanel})));
 
 const StyledSkeleton = styled(Skeleton)`
   padding: 16px;
@@ -36,21 +38,39 @@ const SiderStyled = styled.div`
   background-color: #373945;
 `
 
-export const EditorLoadingSpin = (props: { height?: string | number }) => {
+const LoadingOutlinedMemo = React.memo(LoadingOutlined);
+
+export const EditorLoadingSpin = React.memo((props: { height?: string | number }) => {
   const { height = "100vh" } = props;
   return (
     <div style={{ height: height }}>
-      <StyledSpin />
+      <StyledSpin size="large" indicator={<LoadingOutlinedMemo spin />}/>
     </div>
   );
-};
+});
 
 export default function EditorSkeletonView() {
-  const panelStatus = getPanelStatus();
-  const editorModeStatus = getEditorModeStatus();
-  const panelStyle = getPanelStyle();
+  const mountedRef = useRef(true);
+  // no provider here - the skeleton renders while the app is still loading
+  const panelStatus = useEditorLayoutStore((state) => state.panelStatus);
+  const bottomHeight = useEditorLayoutStore((state) => state.panelStyle.bottom.h);
   const isUserViewMode = useUserViewMode();
   const isTemplate = useTemplateViewMode();
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const handleNoop = useCallback(() => {
+    if (!mountedRef.current) return;
+    // No-op handler
+  }, []);
+
+  useUnmount(() => {
+    mountedRef.current = false;
+  });
 
   if (isUserViewMode) {
     return <ProductLoading hideHeader={isTemplate} />;
@@ -59,18 +79,12 @@ export default function EditorSkeletonView() {
   return (
     <>
       <Height100Div>
-        <Header
-          panelStatus={panelStatus}
-          togglePanel={_.noop}
-          editorModeStatus={editorModeStatus}
-          toggleEditorModeStatus={_.noop}
-        />
         <Body>
           <SiderStyled />
           {panelStatus.left && (
             <LeftPanel
               collisionStatus={false}
-              toggleCollisionStatus={_.noop}
+              toggleCollisionStatus={handleNoop}
             >
               <StyledSkeleton active paragraph={{ rows: 10 }} />
             </LeftPanel>
@@ -80,7 +94,7 @@ export default function EditorSkeletonView() {
               <EditorLoadingSpin />
             </EditorContainer>
             {panelStatus.bottom && (
-              <div style={{ height: panelStyle.bottom.h + "px" }}>
+              <div style={{ height: bottomHeight + "px" }}>
                 <BottomSkeleton />
               </div>
             )}
@@ -88,8 +102,8 @@ export default function EditorSkeletonView() {
           {panelStatus.right && (
             <RightPanel
               showPropertyPane={false}
-              onCompDrag={_.noop}
-              onTabChange={_.noop}
+              onCompDrag={handleNoop}
+              onTabChange={handleNoop}
             />
           )}
         </Body>

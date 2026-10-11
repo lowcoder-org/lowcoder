@@ -26,6 +26,22 @@ public class GoogleSheetsGetPreParameters {
 
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
+    /**
+     * Test-only seam (plan section 5 D-1). {@code null} in production, which keeps Google's root URL. It is
+     * package-private, so neither a datasource configuration nor any class outside {@code queryhandler} can set it. It is a
+     * JVM-wide static: a test that sets it must reset it, and it does NOT guard against another test class running
+     * concurrently in the same JVM while it is set (so tests that set it must not run in parallel with other Sheets tests).
+     */
+    private static volatile String rootUrlOverride;
+
+    /**
+     * Test-only: points {@link #GetSheetsService} at {@code rootUrl}; {@code null} restores Google's root URL. Package-private
+     * and JVM-wide, see {@link #rootUrlOverride}.
+     */
+    static void setRootUrlForTests(String rootUrl) {
+        rootUrlOverride = rootUrl;
+    }
+
     public static Sheets GetSheetsService(GoogleSheetsQueryExecutionContext context) {
         HttpTransport httpTransport;
         try {
@@ -35,7 +51,12 @@ public class GoogleSheetsGetPreParameters {
         }
         final GoogleCredentials googleCredentials = context.getServiceAccountCredentials();
         HttpRequestInitializer requestInitializer = new HttpCredentialsAdapter(googleCredentials);
-        return new Builder(httpTransport, JSON_FACTORY, requestInitializer).build();
+        Builder builder = new Builder(httpTransport, JSON_FACTORY, requestInitializer);
+        String rootUrl = rootUrlOverride;
+        if (rootUrl != null) {
+            builder.setRootUrl(rootUrl);
+        }
+        return builder.build();
     }
 
     public static SheetChangeSetRow getChangeSet(GoogleSheetsQueryExecutionContext context) {

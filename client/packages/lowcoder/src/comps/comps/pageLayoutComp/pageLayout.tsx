@@ -11,6 +11,7 @@ import { ConfigProvider, Layout } from 'antd';
 import { contrastBackground, contrastText } from "comps/controls/styleControlConstants";
 import { useRef, useState } from "react";
 import { LowcoderAppView } from "appView/LowcoderAppView";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -26,19 +27,15 @@ const getStyle = (style: ContainerStyleType) => {
   return css`
     border-color: ${style.border};
     border-width: ${style.borderWidth};
+    border-style: ${style.borderStyle};
     border-radius: ${style.radius};
     overflow: hidden;
     padding: ${style.padding};
-    ${style.background && `background-color: ${style.background};`}
-    ${style.backgroundImage && `background-image: url(${style.backgroundImage});`}
-    ${style.backgroundImageRepeat && `background-repeat: ${style.backgroundImageRepeat};`}
-    ${style.backgroundImageSize && `background-size: ${style.backgroundImageSize};`}
-    ${style.backgroundImagePosition && `background-position: ${style.backgroundImagePosition};`}
-    ${style.backgroundImageOrigin && `background-origin: ${style.backgroundImageOrigin};`}
+    ${style && getBackgroundStyle(style)}
   `;
 };
 
-const Wrapper = styled.div<{ $style: ContainerStyleType,$animationStyle:AnimationStyleType }>`
+const Wrapper = styled.div<{ $style: ContainerStyleType,$animationStyle:AnimationStyleType, $mainScrollbars: boolean }>`
   display: flex;
   flex-flow: column;
   height: 100%;
@@ -46,14 +43,34 @@ const Wrapper = styled.div<{ $style: ContainerStyleType,$animationStyle:Animatio
   border-radius: 4px;
   ${(props) => props.$style && getStyle(props.$style)}
   ${props=>props.$animationStyle}
+
+  #pageLayout::-webkit-scrollbar {
+    display: ${(props) => props.$mainScrollbars ? "block" : "none"};
+  }
+  
+  .ant-layout {
+    background: transparent;
+  }
 `;
 
 const HeaderInnerGrid = styled(InnerGrid)<{
-  $backgroundColor: string
+  $backgroundColor: string,
+  $headerBackgroundImage: string,
+  $headerBackgroundImageSize: string,
+  $headerBackgroundImageRepeat: string,
+  $headerBackgroundImageOrigin: string,
+  $headerBackgroundImagePosition: string,
  }>`
   overflow: visible;
-  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
+  ${props => getBackgroundStyle({
+    background: props.$backgroundColor,
+    backgroundImage: props.$headerBackgroundImage,
+    backgroundImageSize: props.$headerBackgroundImageSize,
+    backgroundImageRepeat: props.$headerBackgroundImageRepeat,
+    backgroundImageOrigin: props.$headerBackgroundImageOrigin,
+    backgroundImagePosition: props.$headerBackgroundImagePosition,
+  })}
 `;
 
 const SiderInnerGrid = styled(InnerGrid)<{
@@ -65,25 +82,42 @@ const SiderInnerGrid = styled(InnerGrid)<{
   $siderBackgroundImageOrigin: string;
  }>`
   overflow: auto;
-  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
-  ${(props) => props.$siderBackgroundImage && `background-image: url(${props.$siderBackgroundImage});`}
-  ${(props) => props.$siderBackgroundImageRepeat && `background-repeat: ${props.$siderBackgroundImageRepeat};`}
-  ${(props) => props.$siderBackgroundImageSize && `background-size: ${props.$siderBackgroundImageSize};`}
-  ${(props) => props.$siderBackgroundImagePosition && `background-position: ${props.$siderBackgroundImagePosition};`}
-  ${(props) => props.$siderBackgroundImageOrigin && `background-origin: ${props.$siderBackgroundImageOrigin};`}
+  ${props => getBackgroundStyle({
+    background: props.$backgroundColor,
+    backgroundImage: props.$siderBackgroundImage,
+    backgroundImageSize: props.$siderBackgroundImageSize,
+    backgroundImageRepeat: props.$siderBackgroundImageRepeat,
+    backgroundImageOrigin: props.$siderBackgroundImageOrigin,
+    backgroundImagePosition: props.$siderBackgroundImagePosition,
+  })}
 `;
 
 const BodyInnerGrid = styled(InnerGrid)<{
   $showBorder: boolean;
-  $backgroundColor: string;
   $borderColor: string;
   $borderWidth: string;
+  $backgroundColor: string;
+  $bodyBackgroundImage: string;
+  $bodyBackgroundImageRepeat: string;
+  $bodyBackgroundImageSize: string;
+  $bodyBackgroundImagePosition: string;
+  $bodyBackgroundImageOrigin: string;
+  $bodyPadding: string;
 }>`
   border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
   flex: 1;
-  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
+  padding: ${(props) => props.$bodyPadding || "0px"} !important;
+
+  ${props => getBackgroundStyle({
+    background: props.$backgroundColor,
+    backgroundImage: props.$bodyBackgroundImage,
+    backgroundImageSize: props.$bodyBackgroundImageSize,
+    backgroundImageRepeat: props.$bodyBackgroundImageRepeat,
+    backgroundImageOrigin: props.$bodyBackgroundImageOrigin,
+    backgroundImagePosition: props.$bodyBackgroundImagePosition,
+  })}
 `;
 
 const FooterInnerGrid = styled(InnerGrid)<{
@@ -99,13 +133,15 @@ const FooterInnerGrid = styled(InnerGrid)<{
 }>`
   border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
   overflow: visible;
-  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
-  ${(props) => props.$footerBackgroundImage && `background-image: url(${props.$footerBackgroundImage});`}
-  ${(props) => props.$footerBackgroundImageRepeat && `background-repeat: ${props.$footerBackgroundImageRepeat};`}
-  ${(props) => props.$footerBackgroundImageSize && `background-size: ${props.$footerBackgroundImageSize};`}
-  ${(props) => props.$footerBackgroundImagePosition && `background-position: ${props.$footerBackgroundImagePosition};`}
-  ${(props) => props.$footerBackgroundImageOrigin && `background-origin: ${props.$footerBackgroundImageOrigin};`}
+  ${props => getBackgroundStyle({
+    background: props.$backgroundColor,
+    backgroundImage: props.$footerBackgroundImage,
+    backgroundImageSize: props.$footerBackgroundImageSize,
+    backgroundImageRepeat: props.$footerBackgroundImageRepeat,
+    backgroundImageOrigin: props.$footerBackgroundImageOrigin,
+    backgroundImagePosition: props.$footerBackgroundImagePosition,
+  })}
 `;
 
 export type LayoutProps = LayoutViewProps & {
@@ -127,6 +163,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
     siderStyle,
     bodyStyle,
     footerStyle,
+    horizontalGridCells,
   } = container; 
 
   const editorState = useContext(EditorContext);
@@ -134,13 +171,22 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
   const isMobile = checkIsMobile(maxWidth);
   const appRef = useRef();
 
+  // Handle mobile responsiveness for sider collapse
+  useEffect(() => {
+    // Force collapse on mobile if sider is shown
+    if (isMobile && showSider) {
+      props.setSiderCollapsed(true);
+    }
+  }, [isMobile, showSider, props.setSiderCollapsed]);
+
   function onSiderCollapse (collapsed : boolean) {
     props.setSiderCollapsed(collapsed);
-    // how to set the collapsed state in the container when the user manually collapses the sider?
+    // We already updated the state through props.setSiderCollapsed
+    // The parent component will update the value via useEffect
   }
 
   useEffect(() => {setSiderCollapsed(container.siderCollapsed)} , [container.siderCollapsed]);
-  
+
   return (
     <div style={{padding: style.margin, height: '100%'}}>
       <ConfigProvider
@@ -154,15 +200,15 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
             },
           }}
         >
-      <Wrapper $style={style} $animationStyle={animationStyle}>
-        <Layout style={{padding: "0px"}} hasSider={showSider && !container.innerSider}>
+      <Wrapper $style={style} $animationStyle={animationStyle} $mainScrollbars={container.mainScrollbars}>
+        <Layout id="pageLayout" style={{padding: "0px", overflowY: "scroll"}} hasSider={showSider && !container.innerSider}>
           {showSider && !container.innerSider && !container.siderRight && (
             <><BackgroundColorContext.Provider value={siderStyle?.siderBackground}>
               <Sider 
                 width={container.siderWidth}
                 style={{ padding: "0px", margin: '0px', backgroundColor: siderStyle?.siderBackground || 'transparent' }} 
-                collapsible={container.siderCollapsible} 
-                breakpoint="sm"
+                collapsible={container.siderCollapsible && !isMobile} 
+                breakpoint={container.siderCollapsible ? "sm" : undefined}
                 collapsedWidth={container.siderCollapsedWidth}
                 collapsed={siderCollapsed} onCollapse={(value) => onSiderCollapse(value)}
                 >
@@ -170,6 +216,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                     <SiderInnerGrid
                       {...otherSiderProps}
                       items={gridItemCompToGridItems(siderItems)}
+                      horizontalGridCells={horizontalGridCells}
                       autoHeight={true}
                       emptyRows={30}
                       minHeight={`calc(100vh - ${style.padding}px)`}
@@ -195,12 +242,18 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                         <HeaderInnerGrid
                           {...otherHeaderProps}
                           items={gridItemCompToGridItems(headerItems)}
+                          horizontalGridCells={horizontalGridCells}
                           autoHeight={true}
                           emptyRows={5}
-                          minHeight="46px"
+                          minHeight="60px"
                           containerPadding={[0, 0]}
                           showName={{ bottom: showFooter ? 20 : 0 }}
                           $backgroundColor={headerStyle?.headerBackground || 'transparent'}
+                          $headerBackgroundImage={headerStyle?.headerBackgroundImage}
+                          $headerBackgroundImageRepeat={headerStyle?.headerBackgroundImageRepeat}
+                          $headerBackgroundImageSize={headerStyle?.headerBackgroundImageSize}
+                          $headerBackgroundImagePosition={headerStyle?.headerBackgroundImagePosition}
+                          $headerBackgroundImageOrigin={headerStyle?.headerBackgroundImageOrigin}
                           style={{ padding: headerStyle.containerHeaderPadding }} />
                       </Header>
                     </BackgroundColorContext.Provider>
@@ -213,8 +266,8 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                         <Sider 
                           width={container.siderWidth} 
                           style={{ padding: "0px", margin: '0px', marginTop: style.borderWidth, backgroundColor: siderStyle?.siderBackground || 'transparent' }} 
-                          collapsible={container.siderCollapsible} 
-                          breakpoint="sm"
+                          collapsible={container.siderCollapsible && !isMobile} 
+                          breakpoint={container.siderCollapsible ? "sm" : undefined}
                           collapsedWidth={container.siderCollapsedWidth}
                           collapsed={siderCollapsed} onCollapse={(value) => setSiderCollapsed(value)}
                         >
@@ -222,6 +275,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                             <SiderInnerGrid
                               {...otherSiderProps}
                               items={gridItemCompToGridItems(siderItems)}
+                              horizontalGridCells={horizontalGridCells}
                               autoHeight={true}
                               emptyRows={30}
                               minHeight={`calc(100vh - ${style.padding}px)`}
@@ -255,15 +309,22 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                               $showBorder={showHeader}
                               {...otherBodyProps}
                               items={gridItemCompToGridItems(bodyItems)}
+                              horizontalGridCells={horizontalGridCells}
                               autoHeight={container.autoHeight}
                               emptyRows={14}
                               minHeight={showHeader ? "143px" : "142px"}
                               containerPadding={[0, 0]}
                               hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
                               $backgroundColor={bodyStyle?.background || 'transparent'}
+                              $bodyBackgroundImage={bodyStyle?.backgroundImage}
+                              $bodyBackgroundImageRepeat={bodyStyle?.backgroundImageRepeat}
+                              $bodyBackgroundImageSize={bodyStyle?.backgroundImageSize}
+                              $bodyBackgroundImagePosition={bodyStyle?.backgroundImagePosition}
+                              $bodyBackgroundImageOrigin={bodyStyle?.backgroundImageOrigin}
                               $borderColor={style?.border}
                               $borderWidth={style?.borderWidth}
-                              style={{ padding: bodyStyle.containerBodyPadding }} />
+                              $bodyPadding={bodyStyle.containerBodyPadding}
+                              style={{ padding: "0px" }} />
                           )}
                         </ScrollBar>
                       </Content>
@@ -272,8 +333,8 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                           <Sider 
                             width={container.siderWidth}
                             style={{ padding: "0px", margin: '0px', backgroundColor: siderStyle?.siderBackground || 'transparent' }} 
-                            collapsible={container.siderCollapsible}
-                            breakpoint="sm"
+                            collapsible={container.siderCollapsible && !isMobile}
+                            breakpoint={container.siderCollapsible ? "sm" : undefined}
                             collapsedWidth={container.siderCollapsedWidth}
                             reverseArrow={true}
                             collapsed={siderCollapsed} onCollapse={(value) => setSiderCollapsed(value)}
@@ -282,6 +343,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                               <SiderInnerGrid
                                 {...otherSiderProps}
                                 items={gridItemCompToGridItems(siderItems)}
+                                horizontalGridCells={horizontalGridCells}
                                 autoHeight={true}
                                 emptyRows={30}
                                 minHeight={`calc(100vh - ${style.padding}px)`}
@@ -317,15 +379,22 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                           $showBorder={showHeader}
                           {...otherBodyProps}
                           items={gridItemCompToGridItems(bodyItems)}
+                          horizontalGridCells={horizontalGridCells}
                           autoHeight={container.autoHeight}
                           emptyRows={14}
                           minHeight={showHeader ? "143px" : "142px"}
                           containerPadding={[0, 0]}
                           hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
                           $backgroundColor={bodyStyle?.background || 'transparent'}
+                          $bodyBackgroundImage={bodyStyle?.backgroundImage}
+                          $bodyBackgroundImageRepeat={bodyStyle?.backgroundImageRepeat}
+                          $bodyBackgroundImageSize={bodyStyle?.backgroundImageSize}
+                          $bodyBackgroundImagePosition={bodyStyle?.backgroundImagePosition}
+                          $bodyBackgroundImageOrigin={bodyStyle?.backgroundImageOrigin}
                           $borderColor={style?.border}
                           $borderWidth={style?.borderWidth}
-                          style={{ padding: bodyStyle.containerBodyPadding }} />
+                          $bodyPadding={bodyStyle.containerBodyPadding}
+                          style={{ padding: "0px" }} />
                         )}
                       </ScrollBar>
                     </Content>
@@ -336,6 +405,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                         $showBorder={showHeader}
                         {...otherFooterProps}
                         items={gridItemCompToGridItems(footerItems)}
+                        horizontalGridCells={horizontalGridCells}
                         autoHeight={true}
                         emptyRows={5}
                         minHeight={"48px"}
@@ -359,8 +429,8 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                 <Sider 
                   width={container.siderWidth}
                   style={{ padding: "0px", margin: '0px', backgroundColor: siderStyle?.siderBackground || 'transparent'}} 
-                  collapsible={container.siderCollapsible}
-                  breakpoint="sm"
+                  collapsible={container.siderCollapsible && !isMobile}
+                  breakpoint={container.siderCollapsible ? "sm" : undefined}
                   collapsedWidth={container.siderCollapsedWidth}
                   reverseArrow={true}
                   collapsed={siderCollapsed} onCollapse={(value) => setSiderCollapsed(value)}
@@ -369,6 +439,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                       <SiderInnerGrid
                         {...otherSiderProps}
                         items={gridItemCompToGridItems(siderItems)}
+                        horizontalGridCells={horizontalGridCells}
                         autoHeight={true}
                         emptyRows={30}
                         minHeight={`calc(100vh - ${style.padding}px)`}

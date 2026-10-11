@@ -1,0 +1,10 @@
+{
+  "variables" : {
+    "contentType" : [ "application/json" ],
+    "body" : {"variables":{"int":1,"long":3000000001,"decimal":1.5,"exponent":1.0E20,"bool":true,"null":null,"string":"it's \"q\" \\ žluť","dollar":"cost $1","list":[1,"it's \"q\"",2.5,null,[true],{"k":1.5}],"map":{"zeta":"it's","decimal":1.5,"nested":[1,null]},"inText":"it's \"q\" \\ žluť cost $1","literal":[1.5,1000.0,2147483648]},"query":"query Items($int: Int) { items(limit: $int) { id } }"}
+  },
+  "noVariables" : {
+    "contentType" : [ "application/json" ],
+    "body" : {"query":"query Items($int: Int) { items(limit: $int) { id } }"}
+  }
+}

@@ -1,0 +1,1 @@
+{"access_token":"eyJhbGciOiJSUzI1NiJ9.keycloak.0001","expires_in":300,"refresh_expires_in":1800,"refresh_token":"eyJhbGciOiJIUzI1NiJ9.keycloak.refresh.0001","token_type":"Bearer","id_token":"$ID_TOKEN","not-before-policy":0,"session_state":"0c9d8e7f-6a5b-4c3d-2e1f-0a9b8c7d6e5f","scope":"openid email profile"}

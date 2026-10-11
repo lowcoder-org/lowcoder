@@ -149,6 +149,15 @@ const CommandMap: Record<
         placement: "bottom",
         placeholder: `INCR counter`,
         styleName: "medium",
+        enableAIHelp: true,
+        aiHelp: {
+          targetKind: "component-field",
+          label: "Redis raw command",
+          queryType: "Redis",
+          fieldName: "command",
+          fieldDescription:
+            "Raw Redis command string (e.g. GET key, SET key value, INCR counter, HGETALL hash). Supports any Redis CLI command.",
+        },
       })
     ),
   }),

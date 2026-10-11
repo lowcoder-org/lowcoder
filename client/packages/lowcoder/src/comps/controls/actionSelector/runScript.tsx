@@ -31,6 +31,14 @@ export class RunScriptAction extends RunScriptTmpAction {
           layout: "vertical",
           styleName: "medium",
           showLineNum: false,
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "javascript",
+            label: "Event handler script",
+            fieldName: "script",
+            fieldDescription:
+              "JavaScript to run when this event fires. Has access to all Lowcoder component and query references.",
+          },
         })}
       </BranchDiv>
     );

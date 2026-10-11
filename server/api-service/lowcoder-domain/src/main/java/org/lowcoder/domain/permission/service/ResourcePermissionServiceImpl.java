@@ -59,6 +59,12 @@ public class ResourcePermissionServiceImpl implements ResourcePermissionService 
 
     @Override
     @NonEmptyMono
+    public Mono<List<ResourcePermission>> getByBundleId(String bundleId) {
+        return getByResourceTypeAndResourceId(ResourceType.BUNDLE, bundleId);
+    }
+
+    @Override
+    @NonEmptyMono
     public Mono<List<ResourcePermission>> getByDataSourceId(String dataSourceId) {
         return getByResourceTypeAndResourceId(ResourceType.DATASOURCE, dataSourceId);
     }

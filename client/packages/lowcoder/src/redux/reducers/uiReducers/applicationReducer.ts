@@ -11,6 +11,7 @@ import {
   UpdateAppMetaPayload,
   UpdateAppPermissionPayload,
 } from "redux/reduxActions/applicationActions";
+import { UpdateOrgPayload } from "redux/reduxActions/orgActions";
 import { createReducer } from "util/reducerUtils";
 import {
   ApplicationDetail,
@@ -69,6 +70,15 @@ const usersReducer = createReducer(initialState, {
         ...action.payload,
       },
     },
+  }),
+  [ReduxActionTypes.UPDATE_ORG_SUCCESS]: (
+    state: ApplicationReduxState,
+    action: ReduxAction<UpdateOrgPayload>
+  ): ApplicationReduxState => ({
+    ...state,
+    homeOrg: state.homeOrg && state.homeOrg.id === action.payload.id
+      ? { ...state.homeOrg, ...(action.payload.orgName && { name: action.payload.orgName }) }
+      : state.homeOrg,
   }),
   [ReduxActionTypes.FETCH_HOME_DATA_SUCCESS]: (
     state: ApplicationReduxState,
@@ -129,7 +139,10 @@ const usersReducer = createReducer(initialState, {
     action: ReduxAction<ApplicationDetail>
   ): ApplicationReduxState => ({
     ...state,
-    applicationList: [action.payload.applicationInfoView, ...state.applicationList],
+    // Might be unnecessary to add the new application to the list
+    // TODO: Remove this after testing
+    // applicationList: [action.payload.applicationInfoView, ...state.applicationList],
+    applicationList:[],
     loadingStatus: {
       ...state.loadingStatus,
       isApplicationCreating: false,
@@ -337,6 +350,13 @@ const usersReducer = createReducer(initialState, {
       fetchingAppDetail: false,
     },
   }),
+  [ReduxActionTypes.FETCH_SERVER_SETTINGS_SUCCESS]: (
+    state: ApplicationReduxState,
+    action: ReduxAction<Record<string,string>>
+  ): ApplicationReduxState => ({
+    ...state,
+    serverSettings: action.payload,
+  }),
 });
 
 export interface ApplicationReduxState {
@@ -348,6 +368,7 @@ export interface ApplicationReduxState {
   appPermissionInfo?: AppPermissionInfo;
   currentApplication?: ApplicationMeta;
   templateId?: string;
+  serverSettings?: Record<string,string>;
   loadingStatus: {
     deletingApplication: boolean;
     isFetchingHomeData: boolean; // fetching app list

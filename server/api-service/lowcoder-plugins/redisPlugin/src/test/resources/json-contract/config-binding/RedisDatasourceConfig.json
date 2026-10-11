@@ -1,0 +1,109 @@
+{
+  "buildFrom" : {
+    "full" : {
+      "class" : "org.lowcoder.plugin.redis.model.RedisDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.redis.model.RedisDatasourceConfig",
+        "host" : " redis.example.com ",
+        "port" : 6379,
+        "usingSsl" : true,
+        "username" : "default",
+        "password" : "pw",
+        "usingUri" : false,
+        "uri" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.redis.model.RedisDatasourceConfig",
+        "/host" : "java.lang.String",
+        "/port" : "java.lang.Long",
+        "/usingSsl" : "java.lang.Boolean",
+        "/username" : "java.lang.String",
+        "/password" : "java.lang.String",
+        "/usingUri" : "java.lang.Boolean",
+        "/uri" : "null"
+      },
+      "noView" : {"host":" redis.example.com ","port":6379,"usingSsl":true,"username":"default","password":"pw","usingUri":false,"uri":null},
+      "Public" : {"host":" redis.example.com ","port":6379,"usingSsl":true,"username":"default","usingUri":false},
+      "Internal" : {"host":" redis.example.com ","port":6379,"usingSsl":true,"username":"default","password":"pw","usingUri":false,"uri":null}
+    },
+    "uri" : {
+      "class" : "org.lowcoder.plugin.redis.model.RedisDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.redis.model.RedisDatasourceConfig",
+        "host" : null,
+        "port" : null,
+        "usingSsl" : false,
+        "username" : null,
+        "password" : null,
+        "usingUri" : true,
+        "uri" : "rediss://default:pw@redis.example.com:6380/0"
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.redis.model.RedisDatasourceConfig",
+        "/host" : "null",
+        "/port" : "null",
+        "/usingSsl" : "java.lang.Boolean",
+        "/username" : "null",
+        "/password" : "null",
+        "/usingUri" : "java.lang.Boolean",
+        "/uri" : "java.lang.String"
+      },
+      "noView" : {"host":null,"port":null,"usingSsl":false,"username":null,"password":null,"usingUri":true,"uri":"rediss://default:pw@redis.example.com:6380/0"},
+      "Public" : {"host":null,"port":null,"usingSsl":false,"username":null,"usingUri":true},
+      "Internal" : {"host":null,"port":null,"usingSsl":false,"username":null,"password":null,"usingUri":true,"uri":"rediss://default:pw@redis.example.com:6380/0"}
+    },
+    "scalarsAsStrings" : {
+      "class" : "org.lowcoder.plugin.redis.model.RedisDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.redis.model.RedisDatasourceConfig",
+        "host" : null,
+        "port" : 6380,
+        "usingSsl" : false,
+        "username" : null,
+        "password" : null,
+        "usingUri" : false,
+        "uri" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.redis.model.RedisDatasourceConfig",
+        "/host" : "null",
+        "/port" : "java.lang.Long",
+        "/usingSsl" : "java.lang.Boolean",
+        "/username" : "null",
+        "/password" : "null",
+        "/usingUri" : "java.lang.Boolean",
+        "/uri" : "null"
+      },
+      "noView" : {"host":null,"port":6380,"usingSsl":false,"username":null,"password":null,"usingUri":false,"uri":null},
+      "Public" : {"host":null,"port":6380,"usingSsl":false,"username":null,"usingUri":false},
+      "Internal" : {"host":null,"port":6380,"usingSsl":false,"username":null,"password":null,"usingUri":false,"uri":null}
+    },
+    "empty" : {
+      "class" : "org.lowcoder.plugin.redis.model.RedisDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.redis.model.RedisDatasourceConfig",
+        "host" : null,
+        "port" : null,
+        "usingSsl" : false,
+        "username" : null,
+        "password" : null,
+        "usingUri" : false,
+        "uri" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.redis.model.RedisDatasourceConfig",
+        "/host" : "null",
+        "/port" : "null",
+        "/usingSsl" : "java.lang.Boolean",
+        "/username" : "null",
+        "/password" : "null",
+        "/usingUri" : "java.lang.Boolean",
+        "/uri" : "null"
+      },
+      "noView" : {"host":null,"port":null,"usingSsl":false,"username":null,"password":null,"usingUri":false,"uri":null},
+      "Public" : {"host":null,"port":null,"usingSsl":false,"username":null,"usingUri":false},
+      "Internal" : {"host":null,"port":null,"usingSsl":false,"username":null,"password":null,"usingUri":false,"uri":null}
+    },
+    "unknownProperty" : "ignored: binds as form full"
+  }
+}

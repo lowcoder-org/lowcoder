@@ -1,0 +1,5 @@
+addressArray	["x@example.com","žluť <zlut@example.com>"]	["x@example.com","žluť <zlut@example.com>"]	to=[x@example.com, "žluť" <zlut@example.com>] attachments=null
+listParameter	["a@example.com","b@example.com"]	["a@example.com","b@example.com"]	to=[a@example.com, b@example.com] attachments=null
+attachmentArray	[{"name":"résumé.pdf","contentType":"application/pdf","content":"JVBERi0="}]	[{"name":"résumé.pdf","contentType":"application/pdf","content":"JVBERi0="}]	to=[] attachments=[Attachment[name=résumé.pdf, contentType=application/pdf, content=JVBERi0=]]
+attachmentsParameter	[{"name":"a \"1\".txt","contentType":"text/plain","content":"aGk="}]	[{"name":"a \"1\".txt","contentType":"text/plain","content":"aGk="}]	to=[] attachments=[Attachment[name=a "1".txt, contentType=text/plain, content=aGk=]]
+blank	[]	{}	to=[] attachments=null

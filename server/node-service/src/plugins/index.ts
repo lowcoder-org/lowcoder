@@ -32,45 +32,97 @@ import faunaPlugin from "./fauna";
 import huggingFaceInferencePlugin from "./huggingFaceInference";
 import didPlugin from "./did";
 import bigQueryPlugin from "./bigQuery";
+import ossPlugin from "./aliyunOss";
 import appConfigPlugin from "./appconfig";
 import tursoPlugin from "./turso";
+import postmanEchoPlugin from "./postmanEcho";
+import lowcoderPlugin from "./lowcoder";
+import supabaseApiPlugin from "./supabaseApi";
+import firebirdsqlPlugin from "./firebirdsql";
+import apiTemplatePlugin from "./apiTemplate";
+import uiPathPlugin from "./uiPath";
+import serpApiPlugin from "./serpApi";
+import carboneIoPlugin from "./carboneIo";
+import boomiPlugin from "./boomi";
+import eodhdApiPlugin from "./eodhdApi";
+// import hubspotPlugin from "./hubspot";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
-  s3Plugin,
-  openApiPlugin,
-  n8nPlugin,
+  
+  // Databases
   dynamoDBPlugin,
-  firebasePlugin,
   couchdbPlugin,
-  wooCommercePlugin,
-  openAiPlugin,
-  athenaPlugin,
   duckdbPlugin,
-  lambdaPlugin,
-  googleCloudStorage,
-  stripePlugin,
-  asanaPlugin,
-  circleCiPlugin,
-  frontPlugin,
-  githubPlugin,
+  faunaPlugin,
+  tursoPlugin,
+  firebirdsqlPlugin,
+
+  // Big Data
+  athenaPlugin,
+  bigQueryPlugin,
+
+  // AI
+  openAiPlugin,
   huggingFacePlugin,
   huggingFaceInferencePlugin,
-  jiraPlugin,
-  oneSignalPlugin,
+  didPlugin,
+
+  //DevOps
+  appConfigPlugin,
+  datadogPlugin,
+  circleCiPlugin,
+
+  // App Development
+  openApiPlugin,
+  postmanEchoPlugin,
+  lowcoderPlugin,
+  githubPlugin,
+  gitlabPlugin,
+  lambdaPlugin,
+  firebasePlugin,
+  supabaseApiPlugin,
+  
+  // Workflow
+  n8nPlugin,
+  boomiPlugin,
+
+  // Messaging
+  twilioPlugin,
   sendGridPlugin,
-  shopifyPlugin,
-  slackPlugin,
+  oneSignalPlugin,
+  
+  // Assets
+  s3Plugin,
+  googleCloudStorage,
   supabasePlugin,
   cloudinaryPlugin,
+  ossPlugin,
+  
+  // Project Management
+  asanaPlugin,
+  jiraPlugin,
   notionPlugin,
-  datadogPlugin,
-  twilioPlugin,
-  gitlabPlugin,
-  faunaPlugin,
-  didPlugin,
-  bigQueryPlugin,
-  appConfigPlugin,
-  tursoPlugin,
+  slackPlugin,
+
+  // Reports & Document Creation
+  apiTemplatePlugin,
+  carboneIoPlugin,
+
+  // CRM
+  frontPlugin,
+  // hubspotPlugin,
+
+  // E-commerce
+  stripePlugin,
+  shopifyPlugin,
+  wooCommercePlugin,
+
+  // Webscrapers
+  serpApiPlugin,
+  eodhdApiPlugin,
+
+  // RPA
+  uiPathPlugin
 ];
 
 try {

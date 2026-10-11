@@ -1,0 +1,100 @@
+{
+  "selectWithRepeatedLabel" : {
+    "prepared" : {
+      "queryCode" : "OK",
+      "dataShape" : {
+        "classes" : {
+          "" : "java.util.ArrayList",
+          "/0" : "java.util.LinkedHashMap",
+          "/0/id" : "java.lang.Integer",
+          "/0/name" : "java.lang.String",
+          "/0/price" : "java.math.BigDecimal",
+          "/0/day" : "java.lang.String",
+          "/0/tags" : "java.util.ImmutableCollections$List12",
+          "/0/tags/0" : "java.lang.String",
+          "/0/tags/1" : "java.lang.String"
+        },
+        "keyOrder" : {
+          "/0" : [ "id", "name", "price", "day", "tags" ]
+        }
+      },
+      "written" : {"queryCode":"OK","data":[{"id":7,"name":"žluť","price":1.50,"day":"2024-02-29","tags":["a","b"]}],"success":true}
+    },
+    "plain" : {
+      "queryCode" : "OK",
+      "dataShape" : {
+        "classes" : {
+          "" : "java.util.ArrayList",
+          "/0" : "java.util.LinkedHashMap",
+          "/0/id" : "java.lang.Integer",
+          "/0/name" : "java.lang.String",
+          "/0/price" : "java.math.BigDecimal",
+          "/0/day" : "java.lang.String",
+          "/0/tags" : "java.util.ImmutableCollections$List12",
+          "/0/tags/0" : "java.lang.String",
+          "/0/tags/1" : "java.lang.String"
+        },
+        "keyOrder" : {
+          "/0" : [ "id", "name", "price", "day", "tags" ]
+        }
+      },
+      "written" : {"queryCode":"OK","data":[{"id":7,"name":"žluť","price":1.50,"day":"2024-02-29","tags":["a","b"]}],"success":true}
+    }
+  },
+  "insert" : {
+    "prepared" : {
+      "queryCode" : "OK",
+      "dataShape" : {
+        "classes" : {
+          "" : "java.util.LinkedHashMap",
+          "/affectedRows" : "java.lang.Integer"
+        },
+        "keyOrder" : {
+          "" : [ "affectedRows" ]
+        }
+      },
+      "written" : {"queryCode":"OK","data":{"affectedRows":3},"success":true}
+    },
+    "plain" : {
+      "queryCode" : "OK",
+      "dataShape" : {
+        "classes" : {
+          "" : "java.util.LinkedHashMap",
+          "/affectedRows" : "java.lang.Integer"
+        },
+        "keyOrder" : {
+          "" : [ "affectedRows" ]
+        }
+      },
+      "written" : {"queryCode":"OK","data":{"affectedRows":3},"success":true}
+    }
+  },
+  "noUpdateCount" : {
+    "prepared" : {
+      "queryCode" : "OK",
+      "dataShape" : {
+        "classes" : {
+          "" : "java.util.LinkedHashMap",
+          "/affectedRows" : "java.lang.Integer"
+        },
+        "keyOrder" : {
+          "" : [ "affectedRows" ]
+        }
+      },
+      "written" : {"queryCode":"OK","data":{"affectedRows":0},"success":true}
+    },
+    "plain" : {
+      "queryCode" : "OK",
+      "dataShape" : {
+        "classes" : {
+          "" : "java.util.LinkedHashMap",
+          "/affectedRows" : "java.lang.Integer"
+        },
+        "keyOrder" : {
+          "" : [ "affectedRows" ]
+        }
+      },
+      "written" : {"queryCode":"OK","data":{"affectedRows":0},"success":true}
+    }
+  }
+}

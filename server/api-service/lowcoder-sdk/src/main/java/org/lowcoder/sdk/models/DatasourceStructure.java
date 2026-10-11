@@ -20,13 +20,11 @@
 package org.lowcoder.sdk.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.gson.InstanceCreator;
 import jakarta.annotation.Nonnull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
@@ -164,17 +162,6 @@ public class DatasourceStructure {
             this.body = body;
         }
 
-    }
-
-    /**
-     * Instance creator is required while de-serialising using Gson as key instance can't be invoked with
-     * no-args constructor
-     */
-    public static class KeyInstanceCreator implements InstanceCreator<Key> {
-        @Override
-        public Key createInstance(Type type) {
-            return () -> null;
-        }
     }
 
 }

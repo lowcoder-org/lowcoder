@@ -81,6 +81,14 @@ export const deleteGroupUserAction = (payload: RemoveGroupUserPayload) => ({
   payload: payload,
 });
 
+export const fetchGroupPotentialMembersAction = (searchName: string, groupId: string) => ({
+  type: ReduxActionTypes.FETCH_GROUP_POTENTIAL_MEMBERS,
+  payload: {
+    searchName,
+    groupId
+  },
+});
+
 export type AddGroupUserPayload = {
   role: string;
   groupId: string;
@@ -153,7 +161,6 @@ export const updateOrgSuccess = (payload: UpdateOrgPayload) => {
 };
 
 
-// till now
 export type OrgAPIUsagePayload = {
   apiUsage: number,
 };
@@ -173,7 +180,6 @@ export const fetchAPIUsageActionSuccess = (payload: OrgAPIUsagePayload) => {
   };
 };
 
-// last month
 export type OrgLastMonthAPIUsagePayload = {
   lastMonthApiUsage: number,
 };

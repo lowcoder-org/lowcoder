@@ -45,6 +45,7 @@ const expectColumn = (
       comp.children.dynamicColumn.getView(),
       dynamicColumnConfig,
       comp.columnAggrData,
+      comp.children.editModeClicks.getView(),
       onEvent,
     );
     expect(columnViews.length).toBeGreaterThanOrEqual(antdColumns.length);

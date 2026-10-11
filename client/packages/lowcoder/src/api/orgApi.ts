@@ -1,4 +1,5 @@
 import Api from "api/api";
+import { notifyWorkspaceSeatsChanged } from "util/workspaceSeatSyncEvents";
 import { AxiosPromise } from "axios";
 import { GroupUser, OrgGroup, OrgUser } from "constants/orgConstants";
 import {
@@ -10,6 +11,15 @@ import {
   UpdateUserOrgRolePayload,
 } from "redux/reduxActions/orgActions";
 import { ApiResponse, GenericApiResponse } from "./apiResponses";
+import {
+  ApiPaginationResponse,
+  fetchGroupUserRequestType,
+  fetchOrgsByEmailRequestType,
+  fetchOrgUserRequestType,
+  GenericApiPaginationResponse,
+  GroupUsersPaginationResponse,
+  orgGroupRequestType, OrgUsersPaginationResponse
+} from "@lowcoder-ee/util/pagination/type";
 
 export interface GroupUsersResponse extends ApiResponse {
   data: {
@@ -34,24 +44,26 @@ export interface OrgAPIUsageResponse extends ApiResponse {
 }
 
 export class OrgApi extends Api {
-  static createGroupURL = "/v1/groups";
-  static updateGroupURL = (groupId: string) => `/v1/groups/${groupId}/update`;
-  static fetchGroupURL = "/v1/groups/list";
-  static fetchGroupUsersURL = (groupId: string) => `/v1/groups/${groupId}/members`;
-  static deleteGroupURL = (groupId: string) => `/v1/groups/${groupId}`;
-  static fetchOrgUsersURL = (orgId: string) => `/v1/organizations/${orgId}/members`;
-  static deleteOrgUsersURL = (orgId: string) => `/v1/organizations/${orgId}/remove`;
-  static deleteGroupUserURL = (groupId: string) => `/v1/groups/${groupId}/remove`;
-  static addGroupUserURL = (groupId: string) => `/v1/groups/${groupId}/addMember`;
-  static updateUserOrgRoleURL = (orgId: string) => `/v1/organizations/${orgId}/role`;
-  static updateUserGroupRoleURL = (groupId: string) => `/v1/groups/${groupId}/role`;
-  static quitOrgURL = (orgId: string) => `/v1/organizations/${orgId}/leave`;
-  static quitGroupURL = (groupId: string) => `/v1/groups/${groupId}/leave`;
-  static switchOrgURL = (orgId: string) => `/v1/organizations/switchOrganization/${orgId}`;
-  static createOrgURL = "/v1/organizations";
-  static deleteOrgURL = (orgId: string) => `/v1/organizations/${orgId}`;
-  static updateOrgURL = (orgId: string) => `/v1/organizations/${orgId}/update`;
-  static fetchUsage = (orgId: string) => `/v1/organizations/${orgId}/api-usage`;
+  static createGroupURL = "/groups";
+  static updateGroupURL = (groupId: string) => `/groups/${groupId}/update`;
+  static fetchGroupURL = "/groups/list";
+  static fetchGroupUsersURL = (groupId: string) => `/groups/${groupId}/members`;
+  static deleteGroupURL = (groupId: string) => `/groups/${groupId}`;
+  static fetchOrgUsersURL = (orgId: string) => `/organizations/${orgId}/members`;
+  static deleteOrgUsersURL = (orgId: string) => `/organizations/${orgId}/remove`;
+  static deleteGroupUserURL = (groupId: string) => `/groups/${groupId}/remove`;
+  static addGroupUserURL = (groupId: string) => `/groups/${groupId}/addMember`;
+  static updateUserOrgRoleURL = (orgId: string) => `/organizations/${orgId}/role`;
+  static updateUserGroupRoleURL = (groupId: string) => `/groups/${groupId}/role`;
+  static quitOrgURL = (orgId: string) => `/organizations/${orgId}/leave`;
+  static quitGroupURL = (groupId: string) => `/groups/${groupId}/leave`;
+  static switchOrgURL = (orgId: string) => `/organizations/switchOrganization/${orgId}`;
+  static createOrgURL = "/organizations";
+  static deleteOrgURL = (orgId: string) => `/organizations/${orgId}`;
+  static updateOrgURL = (orgId: string) => `/organizations/${orgId}/update`;
+  static fetchUsage = (orgId: string) => `/organizations/${orgId}/api-usage`;
+  static fetchOrgsByEmailURL = (email: string) => `organizations/byuser/${email}`;
+  static fetchGroupPotentialMembersURL = (groupId: string) => `/groups/${groupId}/potential-members`;
 
   static createGroup(request: { name: string }): AxiosPromise<GenericApiResponse<OrgGroup>> {
     return Api.post(OrgApi.createGroupURL, request);
@@ -65,48 +77,66 @@ export class OrgApi extends Api {
     return Api.get(OrgApi.fetchGroupURL);
   }
 
+  static fetchGroupPagination(request: orgGroupRequestType): AxiosPromise<GenericApiPaginationResponse<OrgGroup[]>> {
+    return Api.get(OrgApi.fetchGroupURL, {...request});
+  }
+
   static deleteGroup(groupId: string): AxiosPromise<ApiResponse> {
-    return Api.delete(OrgApi.deleteGroupURL(groupId));
+    return Api.delete(OrgApi.deleteGroupURL(groupId)).then(notifyWorkspaceSeatsChanged);
   }
 
   static updateUserOrgRole(request: UpdateUserOrgRolePayload): AxiosPromise<ApiResponse> {
     return Api.put(OrgApi.updateUserOrgRoleURL(request.orgId), {
       userId: request.userId,
       role: request.role,
-    });
+    }).then(notifyWorkspaceSeatsChanged);
   }
 
   static updateUserGroupRole(request: UpdateUserGroupRolePayload): AxiosPromise<ApiResponse> {
     return Api.put(OrgApi.updateUserGroupRoleURL(request.groupId), {
       userId: request.userId,
       role: request.role,
-    });
+    }).then(notifyWorkspaceSeatsChanged);
   }
 
   static fetchOrgUsers(orgId: string): AxiosPromise<OrgUsersResponse> {
     return Api.get(OrgApi.fetchOrgUsersURL(orgId));
   }
 
+  static fetchOrgUsersPagination(request:fetchOrgUserRequestType): AxiosPromise<OrgUsersPaginationResponse> {
+    const {orgId, ...res} = request;
+    return Api.get(OrgApi.fetchOrgUsersURL(orgId), {...res});
+  }
+
   static fetchGroupUsers(groupId: string): AxiosPromise<GroupUsersResponse> {
     return Api.get(OrgApi.fetchGroupUsersURL(groupId));
+  }
+
+  static fetchGroupPotentialMembers(searchName: string, groupId: string): AxiosPromise<OrgUsersResponse> {
+    return Api.get(OrgApi.fetchGroupPotentialMembersURL(groupId), {searchName})
+  }
+
+  static fetchGroupUsersPagination(request: fetchGroupUserRequestType): AxiosPromise<GroupUsersPaginationResponse> {
+    const {groupId, ...res} = request;
+    return Api.get(OrgApi.fetchGroupUsersURL(groupId), {...res});
   }
 
   static deleteGroupUser(request: RemoveGroupUserPayload): AxiosPromise<ApiResponse> {
     return Api.delete(OrgApi.deleteGroupUserURL(request.groupId), {
       userId: request.userId,
-    });
+    }).then(notifyWorkspaceSeatsChanged);
   }
 
   static addGroupUser(request: AddGroupUserPayload): AxiosPromise<ApiResponse> {
     return Api.post(OrgApi.addGroupUserURL(request.groupId), {
       userId: request.userId,
       role: request.role,
-    });
+    }).then(notifyWorkspaceSeatsChanged);
   }
 
   static deleteOrgUser(request: DeleteOrgUserPayload): AxiosPromise<ApiResponse> {
     const { orgId, ...rest } = request;
-    return Api.delete(OrgApi.deleteOrgUsersURL(orgId), rest);
+    return Api.delete(OrgApi.deleteOrgUsersURL(orgId), rest).then(notifyWorkspaceSeatsChanged);
   }
 
   static quitOrg(orgId: string): AxiosPromise<ApiResponse> {
@@ -118,7 +148,7 @@ export class OrgApi extends Api {
   }
 
   static quitGroup(groupId: string): AxiosPromise<ApiResponse> {
-    return Api.delete(OrgApi.quitGroupURL(groupId));
+    return Api.delete(OrgApi.quitGroupURL(groupId)).then(notifyWorkspaceSeatsChanged);
   }
 
   static createOrg(orgName: string): AxiosPromise<CreateOrgResponse> {
@@ -141,6 +171,14 @@ export class OrgApi extends Api {
     return Api.get(OrgApi.fetchUsage(orgId), { lastMonthOnly: true });
   }
 
+  static fetchOrgsByEmail(email: string): AxiosPromise<ApiResponse> {
+    return Api.get(OrgApi.fetchOrgsByEmailURL(email));
+  }
+
+  static fetchOrgsPaginationByEmail(request: fetchOrgsByEmailRequestType): AxiosPromise<ApiPaginationResponse> {
+    const { email, ...rest } = request;
+    return Api.get(OrgApi.fetchOrgsByEmailURL(email), {...rest});
+  }
 }
 
 export default OrgApi;

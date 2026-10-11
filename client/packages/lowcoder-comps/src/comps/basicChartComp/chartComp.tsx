@@ -10,7 +10,7 @@ import { chartChildrenMap, ChartSize, getDataKeys } from "./chartConstants";
 import { chartPropertyView } from "./chartPropertyView";
 import _ from "lodash";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import ReactResizeDetector from "react-resize-detector";
+import { useResizeDetector } from "react-resize-detector";
 import ReactECharts from "./reactEcharts";
 import {
   childrenToProps,
@@ -25,7 +25,7 @@ import {
   ThemeContext,
   chartColorPalette,
   getPromiseAfterDispatch,
-  dropdownControl
+  dropdownControl,
 } from "lowcoder-sdk";
 import { getEchartsLocale, trans } from "i18n/comps";
 import { ItemColorComp } from "comps/chartComp/chartConfigs/lineChartConfig";
@@ -33,7 +33,7 @@ import {
   echartsConfigOmitChildren,
   getEchartsConfig,
   getSelectedPoints,
-} from "comps/chartComp/chartUtils";
+} from "./chartUtils";
 import 'echarts-extension-gmap';
 import log from "loglevel";
 
@@ -57,7 +57,8 @@ BasicChartTmpComp = withViewFn(BasicChartTmpComp, (comp) => {
   const onUIEvent = comp.children.onUIEvent.getView();
   const onEvent = comp.children.onEvent.getView();
 
-  const echartsCompRef = useRef<ReactECharts | null>();
+  const echartsCompRef = useRef<ReactECharts | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [chartSize, setChartSize] = useState<ChartSize>();
   const firstResize = useRef(true);
   const theme = useContext(ThemeContext);
@@ -120,42 +121,49 @@ BasicChartTmpComp = withViewFn(BasicChartTmpComp, (comp) => {
   }, [onUIEvent]);
 
   const echartsConfigChildren = _.omit(comp.children, echartsConfigOmitChildren);
+
+  const childrenProps = childrenToProps(echartsConfigChildren);
+
   const option = useMemo(() => {
     return getEchartsConfig(
-      childrenToProps(echartsConfigChildren) as ToViewReturn<typeof echartsConfigChildren>,
-      chartSize
+      childrenProps as ToViewReturn<typeof echartsConfigChildren>,
+      chartSize,
+      themeConfig
     );
-  }, [chartSize, ...Object.values(echartsConfigChildren)]);
+  }, [childrenProps, chartSize, ...Object.values(echartsConfigChildren)]);
 
   useEffect(() => {
     comp.children.mapInstance.dispatch(changeValueAction(null, false))
   }, [option])
 
+  useResizeDetector({
+    targetRef: containerRef,
+    onResize: ({width, height}) => {
+      if (width && height) {
+        setChartSize({ w: width, h: height });
+      }
+      if (!firstResize.current) {
+        // ignore the first resize, which will impact the loading animation
+        echartsCompRef.current?.getEchartsInstance().resize();
+      } else {
+        firstResize.current = false;
+      }
+    }
+  })
+
   return (
-    <ReactResizeDetector
-      onResize={(w, h) => {
-        if (w && h) {
-          setChartSize({ w: w, h: h });
-        }
-        if (!firstResize.current) {
-          // ignore the first resize, which will impact the loading animation
-          echartsCompRef.current?.getEchartsInstance().resize();
-        } else {
-          firstResize.current = false;
-        }
-      }}
-    >
+    <div ref={containerRef} style={{height: '100%'}}>
       <ReactECharts
-          ref={(e) => (echartsCompRef.current = e)}
-          style={{ height: "100%" }}
-          notMerge
-          lazyUpdate
-          opts={{ locale: getEchartsLocale() }}
-          option={option}
-          theme={themeConfig}
-          mode={mode}
-        />
-    </ReactResizeDetector>
+        ref={(e) => (echartsCompRef.current = e)}
+        style={{ height: "100%" }}
+        notMerge
+        lazyUpdate
+        opts={{ locale: getEchartsLocale() }}
+        option={option}
+        theme={themeConfig}
+        mode={mode}
+      />
+    </div>
   );
 });
 

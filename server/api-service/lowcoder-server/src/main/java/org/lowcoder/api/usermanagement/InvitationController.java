@@ -7,6 +7,8 @@ import static org.lowcoder.sdk.exception.BizError.INVITED_USER_NOT_LOGIN;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.usermanagement.view.InvitationVO;
+import org.lowcoder.domain.user.service.EmailCommunicationService;
+import org.lowcoder.sdk.config.CommonConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,6 +25,12 @@ public class InvitationController implements InvitationEndpoints
 
     @Autowired
     private SessionUserService sessionUserService;
+
+    @Autowired
+    private EmailCommunicationService emailCommunicationService;
+
+    @Autowired
+    private CommonConfig config;
 
     @Override
     public Mono<ResponseView<InvitationVO>> create(@RequestParam String orgId) {
@@ -48,6 +56,15 @@ public class InvitationController implements InvitationEndpoints
                                     .map(ResponseView::success);
                         }
                 );
+    }
+
+    @Override
+    public Mono<ResponseView<Boolean>> sendInvitationEmails(InviteEmailRequest req) {
+        return invitationApiService.create(req.orgId()).map(invitation -> 
+                emailCommunicationService.sendInvitationEmails(req.emails(), 
+                config.getLowcoderPublicUrl() + "/invite/" + invitation.getInviteCode(), 
+                    "You have been invited to join our platform. Click here to accept the invitation: %s"))
+            .map(ResponseView::success);
     }
 
 }

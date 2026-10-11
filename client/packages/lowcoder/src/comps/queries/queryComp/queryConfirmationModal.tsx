@@ -1,7 +1,7 @@
 import { MultiCompBuilder } from "../../generators";
 import { BoolPureControl } from "../../controls/boolControl";
 import { StringControl } from "../../controls/codeControl";
-import { CustomModal } from "lowcoder-design";
+import { CustomModal, TacoMarkDown } from "lowcoder-design";
 import { isEmpty } from "lodash";
 import { QueryResult } from "../queryComp";
 import { trans } from "i18n";
@@ -16,15 +16,19 @@ export const QueryConfirmationModal = new MultiCompBuilder(
       new Promise<QueryResult>((resolve) => {
         props.showConfirmationModal && isManual
           ? CustomModal.confirm({
-              content: isEmpty(props.confirmationMessage)
-                ? trans("query.confirmationMessage")
-                : props.confirmationMessage,
+              content: (
+                <TacoMarkDown>
+                  {isEmpty(props.confirmationMessage)
+                    ? trans("query.confirmationMessage")
+                    : props.confirmationMessage}
+                </TacoMarkDown>
+              ),
               onConfirm: () => {
                 resolve(onConfirm());
               },
               confirmBtnType: "primary",
               style: { top: "-100px" },
-              bodyStyle: { marginTop: 0, height: "42px" },
+              bodyStyle: { marginTop: 0 },
             })
           : resolve(onConfirm());
       })

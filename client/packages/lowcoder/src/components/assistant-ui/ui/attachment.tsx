@@ -1,0 +1,373 @@
+"use client";
+
+import { PropsWithChildren, useCallback, useEffect, useRef, useState, type FC } from "react";
+import { CircleXIcon, FileIcon, PaperclipIcon } from "lucide-react";
+import {
+  AttachmentPrimitive,
+  ComposerPrimitive,
+  MessagePrimitive,
+  useAttachment,
+} from "@assistant-ui/react";
+import styled from "styled-components";
+import { Modal } from "antd";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "./tooltip";
+import { Avatar, AvatarImage, AvatarFallback } from "./avatar";
+import { TooltipIconButton } from "../tooltip-icon-button";
+
+// ============================================================================
+// STYLED COMPONENTS
+// ============================================================================
+
+const StyledModalTrigger = styled.div`
+  cursor: pointer;
+  transition: background-color 0.2s;
+  padding: 2px;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+`;
+
+const StyledAvatar = styled(Avatar)`
+  background-color: #f1f5f9;
+  display: flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  font-size: 14px;
+`;
+
+const AttachmentContainer = styled.div<{ $isImage?: boolean }>`
+  display: flex;
+  height: ${({ $isImage }) => ($isImage ? "56px" : "48px")};
+  width: ${({ $isImage }) => ($isImage ? "56px" : "160px")};
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: ${({ $isImage }) => ($isImage ? "12px" : "8px")};
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  padding: ${({ $isImage }) => ($isImage ? "0" : "4px")};
+`;
+
+const AttachmentTextContainer = styled.div`
+  flex-grow: 1;
+  flex-basis: 0;
+  overflow: hidden;
+`;
+
+const AttachmentName = styled.p`
+  color: #64748b;
+  font-size: 12px;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-break: break-all;
+  margin: 0;
+  line-height: 16px;
+`;
+
+const AttachmentType = styled.p`
+  color: #64748b;
+  font-size: 12px;
+  margin: 0;
+  line-height: 16px;
+`;
+
+const AttachmentRoot = styled(AttachmentPrimitive.Root)`
+  position: relative;
+  margin-top: 12px;
+`;
+
+const StyledTooltipIconButton = styled(TooltipIconButton)`
+  color: #64748b;
+  position: absolute;
+  right: -12px;
+  top: -12px;
+  width: 24px;
+  height: 24px;
+
+  & svg {
+    background-color: white;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+  }
+`;
+
+const UserAttachmentsContainer = styled.div`
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  gap: 12px;
+  grid-column: 1 / -1;
+  grid-row-start: 1;
+  justify-content: flex-end;
+`;
+
+const ComposerAttachmentsContainer = styled.div`
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  gap: 12px;
+  overflow-x: auto;
+`;
+
+const StyledComposerButton = styled(TooltipIconButton)`
+  margin: 10px 0;
+  width: 32px;
+  height: 32px;
+  padding: 8px;
+  transition: opacity 0.2s ease-in;
+`;
+
+// ScreenReaderOnly component removed as it's no longer needed with ANTD Modal
+
+
+const useAttachmentSrc = () => {
+  // Listen only to image-type attachments
+  const attachment = useAttachment(
+    useCallback((a: any) => (a.type === "image" ? a : undefined), [])
+  );
+
+  const [src, setSrc] = useState<string | undefined>();
+
+  // Keep track of the last generated object URL so that we can revoke it
+  const objectUrlRef = useRef<string | undefined>();
+  const lastAttachmentIdRef = useRef<string | undefined>();
+
+  useEffect(() => {
+    // If the same attachment is rendered again, do nothing
+    if (!attachment || attachment.id === lastAttachmentIdRef.current) return;
+
+    // Clean up any previous object URL
+    if (objectUrlRef.current) {
+      try {
+        URL.revokeObjectURL(objectUrlRef.current);
+      } catch {
+        /* ignore */
+      }
+      objectUrlRef.current = undefined;
+    }
+
+    // ------------------------------------------------------------------
+    // 1. New (local) File object – generate a temporary ObjectURL
+    // ------------------------------------------------------------------
+    if (attachment.file instanceof File) {
+      const url = URL.createObjectURL(attachment.file);
+      objectUrlRef.current = url;
+      setSrc(url);
+      lastAttachmentIdRef.current = attachment.id;
+      return;
+    }
+
+    // ------------------------------------------------------------------
+    // 2. Restored attachment coming from storage – use stored base64 image
+    // ------------------------------------------------------------------
+    const imgPart = attachment.content?.find((p: any) => p.type === "image");
+    if (imgPart?.image) {
+      setSrc(imgPart.image as string);
+      lastAttachmentIdRef.current = attachment.id;
+      return;
+    }
+
+    // ------------------------------------------------------------------
+    // 3. No usable preview – clear src
+    // ------------------------------------------------------------------
+    setSrc(undefined);
+    lastAttachmentIdRef.current = attachment.id;
+  }, [attachment]);
+
+  /* Cleanup when the component using this hook unmounts */
+  useEffect(() => {
+    return () => {
+      if (objectUrlRef.current) {
+        try {
+          URL.revokeObjectURL(objectUrlRef.current);
+        } catch {
+          /* ignore */
+        }
+      }
+    };
+  }, []);
+
+  return src;
+};
+// ============================================================================
+// ATTACHMENT COMPONENTS
+// ============================================================================
+
+type AttachmentPreviewProps = {
+  src: string;
+};
+
+const AttachmentPreview: FC<AttachmentPreviewProps> = ({ src }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  return (
+    <img
+      src={src}
+      style={{
+        width: "auto",
+        height: "auto",
+        maxWidth: "75dvh",
+        maxHeight: "75dvh",
+        display: isLoaded ? "block" : "none",
+        overflow: "clip",
+      }}
+      onLoad={() => setIsLoaded(true)}
+      alt="Preview"
+    />
+  );
+};
+
+const AttachmentPreviewDialog: FC<PropsWithChildren> = ({ children }) => {
+  const src = useAttachmentSrc();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  if (!src) return <>{children}</>;
+
+  return (
+    <>
+      <StyledModalTrigger onClick={() => setIsModalOpen(true)}>
+        {children}
+      </StyledModalTrigger>
+      <Modal
+        title="Image Attachment Preview"
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        footer={null}
+        width="auto"
+        style={{ 
+          maxWidth: "80vw", 
+          top: 20,
+        }}
+        styles={{
+          body: {
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "20px",
+          }
+        }}
+      >
+        <AttachmentPreview src={src} />
+      </Modal>
+    </>
+  );
+};
+
+const AttachmentThumb: FC = () => {
+  const isImage = useAttachment((a) => a.type === "image");
+  const src = useAttachmentSrc();
+  return (
+    <StyledAvatar>
+      <AvatarFallback delayMs={isImage ? 200 : 0}>
+        <FileIcon />
+      </AvatarFallback>
+      <AvatarImage src={src} />
+    </StyledAvatar>
+  );
+};
+
+const AttachmentUI: FC = () => {
+  const canRemove = useAttachment((a) => a.source !== "message");
+  const typeLabel = useAttachment((a) => {
+    const type = a.type;
+    switch (type) {
+      case "image":
+        return "Image";
+      case "document":
+        return "Document";
+      case "file":
+        return "File";
+      default:
+        return "File";
+    }
+  });
+  
+  return (
+    <Tooltip>
+      <AttachmentRoot>
+        <AttachmentPreviewDialog>
+          <TooltipTrigger asChild>
+            <AttachmentContainer $isImage={typeLabel === "Image"}>
+              <AttachmentThumb />
+              {typeLabel !== "Image" && (
+                <AttachmentTextContainer>
+                  <AttachmentName>
+                    <AttachmentPrimitive.Name />
+                  </AttachmentName>
+                  <AttachmentType>{typeLabel}</AttachmentType>
+                </AttachmentTextContainer>
+              )}
+            </AttachmentContainer>
+          </TooltipTrigger>
+        </AttachmentPreviewDialog>
+        {canRemove && <AttachmentRemove />}
+      </AttachmentRoot>
+      <TooltipContent side="top">
+        <AttachmentPrimitive.Name />
+      </TooltipContent>
+    </Tooltip>
+  );
+};
+
+const AttachmentRemove: FC = () => {
+  return (
+    <AttachmentPrimitive.Remove asChild>
+      <StyledTooltipIconButton
+        tooltip="Remove file"
+        side="top"
+      >
+        <CircleXIcon />
+      </StyledTooltipIconButton>
+    </AttachmentPrimitive.Remove>
+  );
+};
+
+// ============================================================================
+// EXPORTED COMPONENTS
+// ============================================================================
+
+export const UserMessageAttachments: FC = () => {
+  return (
+    <UserAttachmentsContainer>
+      <MessagePrimitive.Attachments>
+        {() => <AttachmentUI />}
+      </MessagePrimitive.Attachments>
+    </UserAttachmentsContainer>
+  );
+};
+
+export const ComposerAttachments: FC = () => {
+  return (
+    <ComposerAttachmentsContainer>
+      <ComposerPrimitive.Attachments>
+        {() => <AttachmentUI />}
+      </ComposerPrimitive.Attachments>
+    </ComposerAttachmentsContainer>
+  );
+};
+
+export const ComposerAddAttachment: FC = () => {
+  return (
+    <ComposerPrimitive.AddAttachment asChild>
+      <StyledComposerButton
+        tooltip="Add Attachment"
+        variant="ghost"
+      >
+        <PaperclipIcon />
+      </StyledComposerButton>
+    </ComposerPrimitive.AddAttachment>
+  );
+};

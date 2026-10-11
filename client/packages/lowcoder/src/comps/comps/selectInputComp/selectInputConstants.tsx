@@ -18,6 +18,8 @@ import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
 
 export const SelectInputValidationChildren = {
   required: BoolControl,
+  showValidationWhenEmpty: BoolControl,
+  allowCustomTags: BoolControl,
   customRule: CustomRuleControl,
 };
 type ValidationComp = RecordConstructorToComp<typeof SelectInputValidationChildren>;
@@ -59,7 +61,6 @@ export const useSelectInputValidate = (props: ValidationParams) => {
   propsRef.current = props;
 
   const selectValue = props.value.value;
-  const defaultValue = props.defaultValue?.value;
 
   const handleValidate = (value: string | (string | number)[]) => {
     setValidateState(
@@ -72,10 +73,6 @@ export const useSelectInputValidate = (props: ValidationParams) => {
     );
   };
 
-  useEffect(() => {
-    props.value.onChange?.(defaultValue)
-  }, [defaultValue]);
-  
   useEffect(() => {
     if (!changeRef.current) return;
 
@@ -122,6 +119,13 @@ export const SelectInputInvalidConfig = depsConfig<
 export const SelectInputValidationSection = (children: ValidationComp) => (
   <Section name={sectionNames.validation}>
     {requiredPropertyView(children)}
+    {children.showValidationWhenEmpty.propertyView({
+      label: trans("prop.showEmptyValidation"),
+    })}
+    {children.allowCustomTags.propertyView({
+      label: trans("prop.customTags"),
+      tooltip: trans("prop.customTagsTooltip")
+    })}
     {children.customRule.propertyView({})}
   </Section>
 );

@@ -43,7 +43,7 @@ public class CommonConfig {
     private SuperAdmin superAdmin = new SuperAdmin();
     private Marketplace marketplace = new Marketplace();
     private String lowcoderPublicUrl;
-    private String lostPasswordEmailSender;
+    private String notificationsEmailSender;
 
     public boolean isSelfHost() {
         return !isCloud();
@@ -137,12 +137,19 @@ public class CommonConfig {
     @Data
     public static class Cookie {
         //Set cookie max age to 1 day
-        private long maxAgeInSeconds = Duration.ofDays(1).toSeconds();
+        private long maxAgeInHours = 24;
+
+        public long getMaxAgeInSeconds() {
+            return Duration.ofHours(maxAgeInHours).toSeconds();
+        }
     }
 
     @Data
     public static class JsExecutor {
         private String host;
+        private String password;
+        private String salt;
+        private boolean isEncrypted;
     }
 
     @Data
@@ -156,6 +163,7 @@ public class CommonConfig {
     @Setter
     public static class Query {
         private long readStructureTimeout = 15000;
+        private long appSnapshotKeepDuration = 30;
     }
 
     @Data

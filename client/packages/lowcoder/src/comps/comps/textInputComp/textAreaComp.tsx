@@ -22,7 +22,7 @@ import {
 import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
-import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
+import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, DisabledInputStyle, DisabledInputStyleType } from "comps/controls/styleControlConstants";
 import { TextArea } from "components/TextArea";
 import {
   allowClearPropertyView,
@@ -33,17 +33,29 @@ import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { TextAreaRef } from "antd/es/input/TextArea";
 import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
+import { NumberControl } from "comps/controls/codeControl";
 
-import React, { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import React, { useEffect } from "react";
+import { useEditorStore } from "comps/editorStore";
 import { migrateOldData } from "comps/generators/simpleGenerators";
+import { withLinkedDefaultValue } from "comps/controls/codeStateControl";
 
 const TextAreaStyled = styled(TextArea)<{
   $style: InputLikeStyleType;
+  $disabledStyle?: DisabledInputStyleType;
 }>`
   box-shadow: ${(props) =>
     `${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
   ${(props) => props.$style && getStyle(props.$style)}
+  
+  /* Disabled state styling */
+  &:disabled,
+  &.ant-input-disabled {
+    color: ${(props) => props.$disabledStyle?.disabledText};
+    background: ${(props) => props.$disabledStyle?.disabledBackground};
+    border-color: ${(props) => props.$disabledStyle?.disabledBorder};
+    cursor: not-allowed;
+  }
 `;
 
 const Wrapper = styled.div<{
@@ -52,6 +64,9 @@ const Wrapper = styled.div<{
   height: 100% !important;
   
   .ant-input { 
+    height:100% !important;
+  }
+  .ant-input-affix-wrapper {
     height:100% !important;
   }
 
@@ -73,13 +88,17 @@ let TextAreaTmpComp = (function () {
     viewRef: RefControl<TextAreaRef>,
     allowClear: BoolControl,
     autoHeight: withDefault(AutoHeightControl, "fixed"),
-    style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
-    labelStyle: styleControl(LabelStyle),
-    inputFieldStyle:  withDefault(styleControl(InputLikeStyle), {borderWidth: '1px'}),
-    animationStyle: styleControl(AnimationStyle)
+    style: styleControl(InputFieldStyle, 'style') , 
+    labelStyle: styleControl(LabelStyle ,'labelStyle' ),
+    textAreaScrollBar: withDefault(BoolControl, false),
+    inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'),
+    animationStyle: styleControl(AnimationStyle, 'animationStyle'),
+    disabledStyle: styleControl(DisabledInputStyle, 'disabledStyle'),
+    tabIndex: NumberControl
   };
   return new UICompBuilder(childrenMap, (props) => {
     const [inputProps, validateState] = useTextInputProps(props);
+
     return props.label({
       required: props.required,
       inputFieldStyle:props.inputFieldStyle,
@@ -91,47 +110,59 @@ let TextAreaTmpComp = (function () {
             allowClear={props.allowClear}
             style={{ height: "100% !important", resize: "vertical" }}
             $style={props.inputFieldStyle}
+            $disabledStyle={props.disabledStyle}
+            tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
           />
         </Wrapper>
       ),
       style: props.style,
       labelStyle: props.labelStyle,
       animationStyle: props.animationStyle,
+      showValidationWhenEmpty: props.showValidationWhenEmpty,
       ...validateState,
     });
   })
-    .setPropertyViewFn((children) => (
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
         <TextInputBasicSection {...children} />
         <FormDataPropertyView {...children} />
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           children.label.getPropertyView()
         )}
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["logic", "both"].includes(editorModeStatus) && (
           <><TextInputInteractionSection {...children} />
             <Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
+              {!children.autoHeight.getView() &&
+                children.textAreaScrollBar.propertyView({
+                  label: trans("prop.textAreaScrollBar"),
+                })}
               {hiddenPropertyView(children)}
             </Section>
             <Section name={sectionNames.advanced}>
               {allowClearPropertyView(children)}
               {readOnlyPropertyView(children)}
+              {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
             </Section>
             <TextInputValidationSection {...children} /></>
         )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           <>
             <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
             <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
             <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
+            <Section name={trans("prop.disabledStyle")}>{children.disabledStyle.getPropertyView()}</Section>
             <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
           </>
         )}
       </>
-    ))
+    );
+    })
     .build();
 })();
 
@@ -141,7 +172,10 @@ TextAreaTmpComp = class extends TextAreaTmpComp {
   }
 };
 
-TextAreaTmpComp = migrateOldData(TextAreaTmpComp, fixOldInputCompData);
+TextAreaTmpComp = migrateOldData(
+  withLinkedDefaultValue(TextAreaTmpComp, "defaultValue", "value"),
+  fixOldInputCompData
+);
 
 const TextareaTmp2Comp = withMethodExposing(
   TextAreaTmpComp,

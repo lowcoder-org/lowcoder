@@ -8,9 +8,7 @@ export default {
     };
   },
   getCacheKey() {
-    // The output is always the same.
-    return {
-      code: "cssTransform",
-    };
+    // The output is always the same. Jest requires this to be a string.
+    return "cssTransform";
   },
 };

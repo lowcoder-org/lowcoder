@@ -29,11 +29,13 @@ import { tableDataDivClassName } from "pages/tutorials/tutorialsConstant";
 import styled, { css } from "styled-components";
 import { getSelectedRowKeys } from "./selectionControl";
 import { TableChildrenType } from "./tableTypes";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import { GreyTextColor } from "constants/style";
 import { alignOptions } from "comps/controls/dropdownControl";
 import { ColumnTypeCompMap } from "comps/comps/tableComp/column/columnTypeComp";
-import { changeChildAction } from "lowcoder-core";
+import Segmented from "antd/es/segmented";
+import { CheckboxChangeEvent } from "antd/es/checkbox";
+import { useEditorStore } from "comps/editorStore";
 
 const InsertDiv = styled.div`
   display: flex;
@@ -99,10 +101,38 @@ const ColumnDropdown = styled(Dropdown)`
 const ColumnBatchOptionWrapper = styled.div`
   display: flex;
   align-items: center;
-  color: ${GreyTextColor}
+  color: ${GreyTextColor};
   line-height: 16px;
   font-size: 13px;
 `;
+
+type ViewOptionType = "normal" | "summary";
+
+const summaryRowOptions = [
+  {
+    label: "Row 1",
+    value: 0,
+  },
+  {
+    label: "Row 2",
+    value: 1,
+  },
+  {
+    label: "Row 3",
+    value: 2,
+  },
+];
+
+const columnViewOptions = [
+  {
+    label: "Normal",
+    value: "normal",
+  },
+  {
+    label: "Summary",
+    value: "summary",
+  },
+];
 
 const columnFilterOptions = [
   { label: trans("table.allColumn"), value: "all" },
@@ -135,50 +165,62 @@ const columnBatchOptions = [
 
 type ColumnBatchOptionValueType = typeof columnBatchOptions[number]["value"];
 
-function HideIcon(props: { hide: boolean; setHide: (hide: boolean) => void }) {
+const HideIcon = React.memo((props: { hide: boolean; setHide: (hide: boolean) => void }) => {
   const { hide, setHide } = props;
   const Eye = hide ? CloseEye : OpenEye;
-  return (
-    <Eye
-      onClick={(e) => {
-        setHide(!hide);
-      }}
-    />
-  );
-}
+  
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setHide(!hide);
+  }, [hide, setHide]);
 
-function columnBatchCheckBox<T extends keyof ColumnCompType["children"]>(
-  childrenKey: T,
-  convertValueFunc?: (checked: boolean) => RawColumnType[T]
-) {
-  const isChecked = (column: ColumnCompType) => {
+  return <Eye onClick={handleClick} />;
+});
+
+HideIcon.displayName = 'HideIcon';
+
+function ColumnBatchCheckBox<T extends keyof ColumnCompType["children"]>({
+  childrenKey,
+  column,
+  convertValueFunc,
+}: {
+  childrenKey: T;
+  column: ColumnCompType | Array<ColumnCompType>;
+  convertValueFunc?: (checked: boolean) => RawColumnType[T];
+}) {
+  const isChecked = useCallback((column: ColumnCompType) => {
     if (childrenKey === "autoWidth") {
       return column.children.autoWidth.getView() === "auto";
     } else {
       return column.children[childrenKey].getView();
     }
-  };
+  }, [childrenKey]);
 
-  const convertValue = convertValueFunc ?? ((checked: boolean) => checked);
+  const convertValue = useCallback((checked: boolean) => 
+    convertValueFunc ? convertValueFunc(checked) : checked,
+    [convertValueFunc]
+  );
 
-  return (column: Array<ColumnCompType> | ColumnCompType) => {
-    const isBatch = Array.isArray(column);
-    const columns = isBatch ? column : [column];
-    const disabledStatus = columns.map((c) => {
-      if (childrenKey !== "editable") {
-        return false;
-      }
-      const columnType = c.children.render
-        .getOriginalComp()
-        .children.comp.children.compType.getView();
-      return !ColumnTypeCompMap[columnType].canBeEditable();
-    });
+  const isBatch = Array.isArray(column);
+  const columns = isBatch ? column : [column];
+  
+  const disabledStatus = useMemo(() => columns.map((c) => {
+    if (childrenKey !== "editable") {
+      return false;
+    }
+    const columnType = c.children.render
+      .getOriginalComp()
+      .children.comp.children.compType.getView();
+    return !ColumnTypeCompMap[columnType].canBeEditable();
+  }), [columns, childrenKey]);
+
+  const { allChecked, allNotChecked } = useMemo(() => {
     let allChecked = true;
     let allNotChecked = true;
+    
     columns.forEach((c, index) => {
       if (disabledStatus[index]) {
         if (!isBatch) {
-          // The batch status is not affected by disabled
           allChecked = false;
         }
         return;
@@ -189,44 +231,50 @@ function columnBatchCheckBox<T extends keyof ColumnCompType["children"]>(
         allChecked = false;
       }
     });
+    
+    return { allChecked, allNotChecked };
+  }, [columns, disabledStatus, isBatch, isChecked]);
 
-    const onCheckChange = (checked: boolean) => {
-      columns.forEach(
-        (c, index) =>
-          !disabledStatus[index] &&
-          c.children[childrenKey].dispatch(
-            deferAction(changeValueAction(convertValue(checked) as any, true))
-          )
-      );
-    };
-
-    if (childrenKey === "hide") {
-      return <HideIcon hide={allChecked} setHide={(hide) => onCheckChange(hide)} />;
-    }
-
-    return (
-      <CheckBox
-        indeterminate={!allChecked && !allNotChecked}
-        disabled={!isBatch && disabledStatus[0]}
-        checked={allChecked}
-        onChange={(e) => {
-          onCheckChange(e.target.checked);
-        }}
-      />
+  const onCheckChange = useCallback((checked: boolean) => {
+    columns.forEach(
+      (c, index) =>
+        !disabledStatus[index] &&
+        c.children[childrenKey].dispatch(
+          deferAction(changeValueAction(convertValue(checked) as any, true))
+        )
     );
-  };
+  }, [columns, disabledStatus, childrenKey, convertValue]);
+
+  if (childrenKey === "hide") {
+    return <HideIcon hide={allChecked} setHide={onCheckChange} />;
+  }
+
+  return (
+    <CheckBox
+      indeterminate={!allChecked && !allNotChecked}
+      disabled={!isBatch && disabledStatus[0]}
+      checked={allChecked}
+      onChange={(e: CheckboxChangeEvent) => {
+        onCheckChange(e.target.checked);
+      }}
+    />
+  );
 }
 
 const ColumnBatchView: Record<
   ColumnBatchOptionValueType,
   (column: ColumnCompType | Array<ColumnCompType>) => JSX.Element
 > = {
-  hide: columnBatchCheckBox("hide"),
-  editable: columnBatchCheckBox("editable"),
-  sortable: columnBatchCheckBox("sortable"),
-  autoWidth: columnBatchCheckBox("autoWidth", (checked) => {
-    return checked ? "auto" : "fixed";
-  }),
+  hide: (column) => <ColumnBatchCheckBox childrenKey="hide" column={column} />,
+  editable: (column) => <ColumnBatchCheckBox childrenKey="editable" column={column} />,
+  sortable: (column) => <ColumnBatchCheckBox childrenKey="sortable" column={column} />,
+  autoWidth: (column) => (
+    <ColumnBatchCheckBox
+      childrenKey="autoWidth"
+      column={column}
+      convertValueFunc={(checked) => (checked ? "auto" : "fixed")}
+    />
+  ),
   align: (column) => {
     const columns = Array.isArray(column) ? column : [column];
     const value = Array.isArray(column) ? undefined : column.children.align.getView();
@@ -250,17 +298,37 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
   columnLabel: string;
 }) {
   const { comp } = props;
-  const selection = getSelectedRowKeys(comp.children.selection)[0] ?? "0";
+  const [viewMode, setViewMode] = useState<ViewOptionType>('normal');
+  const [summaryRow, setSummaryRow] = useState(0);
   const [columnFilterType, setColumnFilterType] = useState<ColumnFilterOptionValueType>("all");
-  const columns = comp.children.columns.getView();
-  const rowExample = comp.children.dataRowExample.getView();
-  const dynamicColumn = comp.children.dynamicColumn.getView();
-  const data = comp.children.data.getView();
   const [columnBatchType, setColumnBatchType] = useState<ColumnBatchOptionValueType>("hide");
+  
+  const selection = useMemo(() => getSelectedRowKeys(comp.children.selection)[0] ?? "0", [comp.children.selection]);
+  const columns = useMemo(() => comp.children.columns.getView(), [comp.children.columns]);
+  const rowExample = useMemo(() => comp.children.dataRowExample.getView(), [comp.children.dataRowExample]);
+  const dynamicColumn = useMemo(() => comp.children.dynamicColumn.getView(), [comp.children.dynamicColumn]);
+  const data = useMemo(() => comp.children.data.getView(), [comp.children.data]);
   const columnOptionItems = useMemo(
     () => columns.filter((c) => columnFilterType === "all" || !c.children.hide.getView()),
     [columnFilterType, columns]
   );
+  const summaryRows = parseInt(comp.children.summaryRows.getView());
+
+  const handleViewModeChange = useCallback((value: string) => {
+    setViewMode(value as ViewOptionType);
+  }, []);
+
+  const handleSummaryRowChange = useCallback((value: number) => {
+    setSummaryRow(value);
+  }, []);
+
+  const handleColumnFilterChange = useCallback((value: ColumnFilterOptionValueType) => {
+    setColumnFilterType(value);
+  }, []);
+
+  const handleColumnBatchTypeChange = useCallback((value: ColumnBatchOptionValueType) => {
+    setColumnBatchType(value);
+  }, []);
 
   const columnOptionToolbar = (
     <InsertDiv>
@@ -313,7 +381,7 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
                 options={columnFilterOptions}
                 label=""
                 onChange={(value) => {
-                  setColumnFilterType(value);
+                  handleColumnFilterChange(value);
                 }}
               />
             }
@@ -328,7 +396,7 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
                   options={columnBatchOptions}
                   label=""
                   onChange={(value) => {
-                    setColumnBatchType(value);
+                    handleColumnBatchTypeChange(value);
                   }}
                 />
                 {ColumnBatchView[columnBatchType](columns)}
@@ -365,7 +433,21 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
         }}
         content={(column, index) => (
           <>
-            {column.propertyView(selection)}
+            <Segmented
+              block
+              options={columnViewOptions}
+              value={viewMode}
+              onChange={(k) => handleViewModeChange(k as ViewOptionType)}
+            />
+            {viewMode === 'summary' && (
+              <Segmented
+                block
+                options={summaryRowOptions.slice(0, summaryRows)}
+                value={summaryRow}
+                onChange={(k) => handleSummaryRowChange(k)}
+              />
+            )}
+            {column.propertyView(selection, viewMode, summaryRow)}
             {column.getView().isCustom && (
               <RedButton
                 onClick={() => {
@@ -415,9 +497,10 @@ function columnPropertyView<T extends MultiBaseComp<TableChildrenType>>(comp: T)
   ];
 }
 
-export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType> & { editorModeStatus: string }>(comp: T) {
-  const editorModeStatus = comp.editorModeStatus;
+function TablePropertyView<T extends MultiBaseComp<TableChildrenType>>({ comp }: { comp: T }) {
+  const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
   const dataLabel = trans("data");
+
   return (
     <>
       {["logic", "both"].includes(editorModeStatus) && (
@@ -427,6 +510,14 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
             <div className={tableDataDivClassName}>
               {comp.children.data.propertyView({
                 label: dataLabel,
+                enableAIHelp: true,
+                aiHelp: {
+                  targetKind: "json",
+                  label: "Table data",
+                  fieldName: "data",
+                  fieldDescription:
+                    "JSON array of row objects for the Table component. Generate rows with consistent object keys so table columns can be created from the data shape.",
+                },
               })}
             </div>
           )}
@@ -443,9 +534,35 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
         <>
           <Section name={sectionNames.interaction}>
             {comp.children.onEvent.getPropertyView()}
-            {comp.children.selection.getPropertyView()}
             {hiddenPropertyView(comp.children)}
             {loadingPropertyView(comp.children)}
+            {comp.children.selection.getPropertyView()}
+            {comp.children.editModeClicks.propertyView({
+              label: trans("table.editMode"),
+              radioButton: true,
+            })}
+            {comp.children.searchText.propertyView({
+              label: trans("table.searchText"),
+              tooltip: trans("table.searchTextTooltip"),
+              placeholder: "{{input1.value}}",
+            })}
+          </Section>
+
+          <Section name={"Summary"}>
+            {comp.children.showSummary.propertyView({
+              label: trans("table.showSummary")
+            })}
+            {comp.children.showSummary.getView() &&
+              comp.children.summaryRows.propertyView({
+              label: trans("table.totalSummaryRows"),
+              radioButton: true,
+            })}
+          </Section>
+
+          <Section name={"Insert Rows"}>
+            {comp.children.inlineAddNewRow.propertyView({
+              label: trans("table.inlineAddNewRow")
+            })}
           </Section>
 
           <Section name={trans("prop.toolbar")}>
@@ -462,12 +579,21 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
               radioButton: true,
             })}
             {comp.children.autoHeight.getPropertyView()}
+            {comp.children.showHorizontalScrollbar.propertyView({
+              label: trans("prop.showHorizontalScrollbar"),
+            })}
+            {!comp.children.autoHeight.getView() && comp.children.showVerticalScrollbar.propertyView({
+              label: trans("prop.showVerticalScrollbar"),
+            })}
             {comp.children.fixedHeader.propertyView({
               label: trans("table.fixedHeader"),
               tooltip: trans("table.fixedHeaderTooltip")
             })}
             {comp.children.hideHeader.propertyView({
               label: trans("table.hideHeader"),
+            })}
+            {comp.children.hideToolbar.propertyView({
+              label: trans("table.hideToolbar"),
             })}
             {comp.children.viewModeResizable.propertyView({
               label: trans("table.viewModeResizable"),
@@ -488,20 +614,17 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
         <>
           <Section name={sectionNames.advanced}>
             {comp.children.expansion.getPropertyView()}
-            {comp.children.showDataLoadSpinner.propertyView({
-              label: trans("table.showDataLoadSpinner"),
-            })}
             {comp.children.dynamicColumn.propertyView({ label: trans("table.dynamicColumn") })}
             {comp.children.dynamicColumn.getView() &&
               comp.children.dynamicColumnConfig.propertyView({
                 label: trans("table.dynamicColumnConfig"),
                 tooltip: trans("table.dynamicColumnConfigDesc"),
             })}
-            {comp.children.searchText.propertyView({
-              label: trans("table.searchText"),
-              tooltip: trans("table.searchTextTooltip"),
-              placeholder: "{{input1.value}}",
-            })}
+          </Section>
+
+          <Section name={trans("prop.component")}>
+            {comp.children.className.propertyView({ label: trans("prop.className") })}
+            {comp.children.dataTestId.propertyView({ label: trans("prop.dataTestId") })}
           </Section>
         </>
       )}
@@ -531,8 +654,15 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
           <Section name={"Column Style"}>
             {comp.children.columnsStyle.getPropertyView()}
           </Section>
+          <Section name={"Summary Row Style"}>
+            {comp.children.summaryRowStyle.getPropertyView()}
+          </Section>
         </>
       )}
     </>
   );
+}
+
+export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>>(comp: T) {
+  return <TablePropertyView comp={comp} />;
 }

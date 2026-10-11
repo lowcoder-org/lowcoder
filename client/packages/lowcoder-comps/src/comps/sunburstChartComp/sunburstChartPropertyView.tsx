@@ -7,7 +7,6 @@ import {
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 import { examplesUrl,optionUrl } from "../chartComp/chartConfigs/chartUrls";
-
 export function sunburstChartPropertyView(
   children: ChartCompChildrenType,
   dispatch: (action: CompAction) => void
@@ -16,31 +15,83 @@ export function sunburstChartPropertyView(
   const jsonModePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsOption.propertyView({
-          label: trans("chart.echartsOptionLabel"),
-          styleName: "higher",
-          tooltip: (
-            <div>
-              <a href={optionUrl} target="_blank" rel="noopener noreferrer">
-                {trans("chart.echartsOptionTooltip")}
-              </a>
-              <br />
-              <a href={examplesUrl} target="_blank" rel="noopener noreferrer">
-                {trans("chart.echartsOptionExamples")}
-              </a>
-            </div>
-          ),
+        {children.echartsData.propertyView({
+          label: trans("chart.data"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Sunburst data",
+            fieldName: "echartsData",
+            fieldDescription:
+              "JSON sunburst hierarchy (nested children with name and value), not full ECharts option JSON.",
+          },
         })}
-        {children.echartsTitle.propertyView({ label: trans("sunburstChart.title") })}
-        {children.tooltip.propertyView({label: trans("sunburstChart.tooltip")})}
+        {children.echartsLevels.propertyView({
+          label: trans("sunburstChart.levels"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Sunburst levels",
+            fieldName: "echartsLevels",
+            fieldDescription: "JSON array of level style configs (radius, label, etc.) per ring.",
+          },
+        })}
+
+        {children.echartsTitleConfig.getPropertyView()}
+        {children.echartsTitleVerticalConfig.getPropertyView()}
+
+        {children.echartsTitle.propertyView({ label: trans("sunburstChart.title"), tooltip: trans("echarts.titleTooltip") })}
+        {children.radiusInline.propertyView({ label: trans("sunburstChart.radiusInline"), tooltip: trans("sunburstChart.radiusInlineTooltip") })}
+        {children.radiusOutline.propertyView({ label: trans("sunburstChart.radiusOutline"), tooltip: trans("sunburstChart.radiusOutlineTooltip") })}
+        {children.position_x.propertyView({ label: trans("sunburstChart.position_x"), tooltip: trans("echarts.positionChart_x_Tooltip") })}
+        {children.position_y.propertyView({ label: trans("sunburstChart.position_Y"), tooltip: trans("echarts.positionChart_y_Tooltip") })}
+
+        {children.tooltip.propertyView({label: trans("sunburstChart.tooltip"), tooltip: trans("echarts.tooltipTooltip")})}
+        {children.labelVisibility.propertyView({label: trans("sunburstChart.labelVisibility"), tooltip: trans("echarts.labelVisibilityTooltip")})}
       </Section>
       <Section name={sectionNames.interaction}>
         {children.onEvent.propertyView()}
       </Section>
-      <Section name={sectionNames.style}>
-         {children.style.getPropertyView()}
+
+      <Section name={sectionNames.chartStyle}>
+        {children.chartStyle?.getPropertyView()}
       </Section>
+      <Section name={sectionNames.titleStyle}>
+        {children.titleStyle?.getPropertyView()}
+      </Section>
+      {
+        children.labelVisibility.getView() &&
+          <Section name={sectionNames.detailStyle}>
+            {children.detailStyle?.getPropertyView()}
+          </Section>
+      }
+
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+      <Section name={sectionNames.advanced}>
+        {children.echartsOption.propertyView({
+        label: trans("chart.echartsOptionLabel"),
+        styleName: "higher",
+        language: "json",
+        enableAIHelp: true,
+        aiHelp: {
+          targetKind: "echarts-option",
+          label: "Sunburst option",
+          fieldName: "echartsOption",
+          fieldDescription: "Apache ECharts option JSON for this chart component.",
+        },
+        tooltip: (
+          <div>
+            <a href={optionUrl} target="_blank" rel="noopener noreferrer">
+              {trans("chart.echartsOptionTooltip")}
+            </a>
+            <br />
+            <a href={examplesUrl} target="_blank" rel="noopener noreferrer">
+              {trans("chart.echartsOptionExamples")}
+            </a>
+          </div>
+        ),
+      })}
+      </Section>
     </>
   );
   

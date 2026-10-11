@@ -1,7 +1,6 @@
 package org.lowcoder.api.authentication;
 
 import java.util.List;
-import java.util.Map;
 
 import org.lowcoder.api.authentication.dto.APIKeyRequest;
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
@@ -14,10 +13,9 @@ import org.lowcoder.api.usermanagement.view.APIKeyVO;
 import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.domain.authentication.FindAuthConfig;
 import org.lowcoder.domain.user.model.APIKey;
+import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
-import org.lowcoder.sdk.auth.Oauth2GenericAuthConfig;
 import org.lowcoder.sdk.util.CookieHelper;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,6 +34,7 @@ public class AuthenticationController implements AuthenticationEndpoints
     private final SessionUserService sessionUserService;
     private final CookieHelper cookieHelper;
     private final BusinessEventPublisher businessEventPublisher;
+    private final UserService userService;
 
     /**
      * login by email or phone with password; or register by email for now.
@@ -86,7 +85,10 @@ public class AuthenticationController implements AuthenticationEndpoints
     @Override
     public Mono<ResponseView<Boolean>> logout(ServerWebExchange exchange) {
         String cookieToken = cookieHelper.getCookieToken(exchange);
-        return sessionUserService.removeUserSession(cookieToken)
+        // expire the browser cookie first, so a failure to drop the server side session cannot leave the user
+        // holding a cookie that still looks live
+        return Mono.<Void> fromRunnable(() -> cookieHelper.clearCookie(exchange))
+                .then(sessionUserService.removeUserSession(cookieToken))
                 .then(businessEventPublisher.publishUserLogoutEvent())
                 .thenReturn(ResponseView.success(true));
     }
@@ -128,6 +130,12 @@ public class AuthenticationController implements AuthenticationEndpoints
     public Mono<ResponseView<List<APIKey>>> getAllAPIKeys() {
         return authenticationApiService.findAPIKeys()
                 .collectList()
+                .map(ResponseView::success);
+    }
+
+    @Override
+    public Mono<ResponseView<?>> bindEmail(@RequestParam String email) {
+        return sessionUserService.getVisitor().flatMap(user -> userService.bindEmail(user, email))
                 .map(ResponseView::success);
     }
 }

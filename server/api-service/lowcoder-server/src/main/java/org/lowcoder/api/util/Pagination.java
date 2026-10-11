@@ -2,8 +2,13 @@ package org.lowcoder.api.util;
 
 import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
 
+import org.jetbrains.annotations.NotNull;
+import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.sdk.exception.BizException;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.web.bind.annotation.RequestParam;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public class Pagination {
 
@@ -54,5 +59,14 @@ public class Pagination {
 
     public int size() {
         return Math.min(Math.max(MIN_SIZE, size), maxSize);
+    }
+
+    @NotNull
+    public static Mono<PageResponseView<?>> fluxToPageResponseView(Integer pageNum, Integer pageSize, Flux<?> flux) {
+        var countMono = flux.count();
+        var flux1 = flux.skip((long) (pageNum - 1) * pageSize);
+        if(pageSize > 0) flux1 = flux1.take(pageSize);
+        return flux1.collectList().zipWith(countMono)
+                .map(tuple -> PageResponseView.success(tuple.getT1(), pageNum, pageSize, Math.toIntExact(tuple.getT2())));
     }
 }

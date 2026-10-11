@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { ReactComponent as close } from "icons/icon-flokclose.svg";
+import { ReactComponent as close } from "icons/v1/icon-flokclose.svg";
 import { ScrollBar } from "../components/ScrollBar";
 
 const Container = styled.div<{ $width: number }>`

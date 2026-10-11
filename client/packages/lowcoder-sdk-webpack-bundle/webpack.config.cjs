@@ -102,7 +102,7 @@ module.exports = {
   plugins: [
     new webpack.DefinePlugin({
       ...define,
-      REACT_APP_API_HOST: JSON.stringify(apiBaseUrl),
+      REACT_APP_API_SERVICE_URL: JSON.stringify(apiBaseUrl),
       REACT_APP_BUNDLE_TYPE: JSON.stringify("sdk"),
     }),
     new webpack.IgnorePlugin({

@@ -3,16 +3,15 @@ import {
   CloseIcon,
   CommonTextLabel,
   CustomSelect,
+  Search,
   TacoButton,
 } from "lowcoder-design";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import styled from "styled-components";
+import { debounce } from "lodash";
 import ProfileImage from "pages/common/profileImage";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchGroupsAction, fetchOrgUsersAction } from "redux/reduxActions/orgActions";
-import { getOrgGroups, getOrgUsers } from "redux/selectors/orgSelectors";
-import { OrgGroup, OrgUser } from "constants/orgConstants";
-import { ApplicationPermissionType, ApplicationRoleType } from "constants/applicationConstants";
+import { useSelector } from "react-redux";
+import { ApplicationPermissionType, ApplicationRoleType, GroupsMembersPermission } from "constants/applicationConstants";
 import {
   PermissionItemName,
   RoleSelectOption,
@@ -27,6 +26,8 @@ import { getUser } from "redux/selectors/usersSelectors";
 import { EmptyContent } from "pages/common/styledComponent";
 import { trans } from "i18n";
 import { PermissionItem } from "./PermissionList";
+import { currentApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
+import { fetchAvailableGroupsMembers, fetchAvailableOrgGroupsMembers } from "@lowcoder-ee/util/pagination/axios";
 
 const AddAppUserContent = styled.div`
   display: flex;
@@ -86,8 +87,7 @@ const PermissionSelectWrapper = styled.div`
   padding: 4px 8px;
   margin-top: 8px;
   background: #fdfdfd;
-  outline: 1px solid #d7d9e0;
-  border-radius: 4px;
+  outline: 1px dashed #d7d9e0;
 
   .ant-select {
     font-size: 13px;
@@ -95,11 +95,11 @@ const PermissionSelectWrapper = styled.div`
   }
 
   &:hover {
-    outline: 1px solid #8b8fa3;
+    outline: 1px dashed #8b8fa3;
   }
 
   &:focus-within {
-    outline: 1px solid #315efb;
+    outline: 1px dashed rgb(203, 212, 245);
     border-radius: 4px;
     box-shadow: 0 0 0 3px rgb(24 144 255 / 20%);
   }
@@ -186,6 +186,13 @@ const AddRoleSelect = styled(StyledRoleSelect)<{ $isVisible: boolean }>`
   display: ${(props) => (props.$isVisible ? "unset" : "none")};
 `;
 
+type PermissionContextType = "application" | "organization";
+
+type PermissionContextProps = {
+  contextType: PermissionContextType;
+  organizationId?: string;
+};
+
 type AddAppOptionView = {
   type: ApplicationPermissionType;
   id: string;
@@ -199,48 +206,34 @@ type PermissionAddEntity = {
   key: string;
 };
 
-/**
- * compose users and groups's permissions, filter the data
- *
- * @param orgGroups groups
- * @param orgUsers users
- * @param currentUser currentUser
- * @param filterItems filterItems
- */
+function isGroup(data: GroupsMembersPermission) {
+  return data?.type === "Group"
+}
+
 function getPermissionOptionView(
-  orgGroups: OrgGroup[],
-  orgUsers: OrgUser[],
-  currentUser: User,
+  groupsMembers: GroupsMembersPermission[],
   filterItems: PermissionItem[]
 ): AddAppOptionView[] {
-  let permissionViews: AddAppOptionView[] = orgGroups.map((group) => {
+
+  let permissionsViews = groupsMembers?.map((user) => {
     return {
-      type: "GROUP",
-      id: group.groupId,
-      name: group.groupName,
-    };
-  });
-  permissionViews = permissionViews.concat(
-    orgUsers.map((user) => {
-      return {
-        type: "USER",
-        id: user.userId,
-        name: user.name,
-        avatarUrl: user.avatarUrl,
-      };
-    })
+      type: user.type as ApplicationPermissionType,
+      id: isGroup(user) ? user.data.groupId : user.data.userId,
+      name: isGroup(user) ? user.data.groupName : user.data.name,
+      ...(isGroup(user) ? {} : { avatarUrl: user.data.avatarUrl })
+    }
+  })
+
+  permissionsViews = permissionsViews.filter((v) =>
+    !filterItems.find((i) => i.id === v.id && i.type === v.type)
   );
-  permissionViews = permissionViews.filter(
-    (v) =>
-      !filterItems.find((i) => i.id === v.id && i.type === v.type) &&
-      !(v.type === "USER" && v.id === currentUser.id)
-  );
-  return permissionViews;
+
+  return permissionsViews.filter((v) => v.id && v.name) as AddAppOptionView[];
 }
 
 function PermissionSelectorOption(props: { optionView: AddAppOptionView }) {
   const { optionView } = props;
-  const groupIcon = optionView.type === "GROUP" && (
+  const groupIcon = optionView.type === "Group" && (
     <StyledGroupIcon $color={getInitialsAndColorCode(optionView.name)[1]} />
   );
   return (
@@ -258,7 +251,7 @@ function PermissionSelectorOption(props: { optionView: AddAppOptionView }) {
 
 function PermissionSelectorLabel(props: { view: AddAppOptionView }) {
   const { view } = props;
-  const groupIcon = view.type === "GROUP" && (
+  const groupIcon = view.type === "Group" && (
     <StyledGroupIcon $color={getInitialsAndColorCode(view.name)[1]} $side={9} />
   );
   return (
@@ -288,7 +281,7 @@ function PermissionTagRender(props: CustomTagProps) {
       color={value}
       closable={closable}
       onClose={onClose}
-      style={{ marginRight: 3 }}
+      style={{ marginRight: 3, display: "flex", alignItems: "center" }}
     >
       {label}
     </StyledTag>
@@ -308,13 +301,54 @@ const PermissionSelector = (props: {
   user: User;
   filterItems: PermissionItem[];
   supportRoles: { label: string; value: PermissionRole }[];
+  contextType: PermissionContextType;
+  organizationId?: string;
 }) => {
-  const orgGroups = useSelector(getOrgGroups);
-  const orgUsers = useSelector(getOrgUsers);
-  const { selectedItems, setSelectRole, setSelectedItems, user } = props;
-  const optionViews = getPermissionOptionView(orgGroups, orgUsers, user, props.filterItems);
+  const { selectedItems, setSelectRole, setSelectedItems, user, contextType, organizationId } = props;
   const [roleSelectVisible, setRoleSelectVisible] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
+  const [optionViews, setOptionViews] = useState<AddAppOptionView[]>()
+  const [searchValue, setSearchValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const application = useSelector(currentApplication)
+
+  const debouncedUserSearch = useCallback(
+    debounce((searchTerm: string) => {
+      setIsLoading(true);
+      
+      if (contextType === "application" && application) {
+        fetchAvailableGroupsMembers(application.applicationId, searchTerm).then(res => {
+          if(res.success) {
+            setOptionViews(getPermissionOptionView(res.data, props.filterItems))
+          }
+          setIsLoading(false);
+        }).catch(() => {
+          setIsLoading(false);
+        });
+      } else if (contextType === "organization" && organizationId) {
+        fetchAvailableOrgGroupsMembers(organizationId, searchTerm).then(res => {
+          if(res.success) {
+            setOptionViews(getPermissionOptionView(res.data || [], props.filterItems))
+          }
+          setIsLoading(false);
+        }).catch(() => {
+          setIsLoading(false);
+        });
+      } else {
+        setIsLoading(false);
+      }
+    }, 500),
+    [application, props.filterItems, contextType, organizationId]
+  );
+
+  useEffect(() => {
+    debouncedUserSearch(searchValue);
+    return () => {
+      debouncedUserSearch.cancel();
+    };
+  }, [searchValue, debouncedUserSearch]);
+
+
 
   useEffect(() => {
     setRoleSelectVisible(selectedItems.length > 0);
@@ -325,12 +359,18 @@ const PermissionSelector = (props: {
 
   return (
     <>
+      <Search
+        placeholder={trans("home.addPermissionPlaceholder")}
+        value={searchValue}
+        onChange={(e) => setSearchValue(e.target.value)}
+      />
       <PermissionSelectWrapper>
         <AddPermissionsSelect
           open
           ref={selectRef}
-          placeholder={trans("home.addPermissionPlaceholder")}
+          placeholder={trans("home.selectedUsersAndGroups")}
           mode="multiple"
+          showSearch={false}
           getPopupContainer={() => document.getElementById("add-app-user-permission-dropdown")!}
           optionLabelProp="label"
           tagRender={PermissionTagRender}
@@ -350,7 +390,7 @@ const PermissionSelector = (props: {
             setSelectedItems(selectedItems.filter((item) => item.key !== option.key));
           }}
         >
-          {optionViews.map((view) => {
+          {optionViews?.map((view) => {
             return (
               <CustomSelect.Option
                 key={`${view.type}-${view.id}`}
@@ -365,8 +405,10 @@ const PermissionSelector = (props: {
           })}
         </AddPermissionsSelect>
         <AddRoleSelect
-          dropdownStyle={{
-            width: "fit-content",
+          styles={{
+            popup: {
+              root: { width: "fit-content" }
+            }
           }}
           $isVisible={roleSelectVisible}
           variant="borderless"
@@ -391,17 +433,11 @@ export const Permission = (props: {
   supportRoles: { label: string; value: PermissionRole }[];
   onCancel: () => void;
   addPermission: (userIds: string[], groupIds: string[], role: string) => void;
-}) => {
-  const { onCancel } = props;
-  const dispatch = useDispatch();
+} & PermissionContextProps) => {
+  const { onCancel, contextType = "application", organizationId } = props;
   const user = useSelector(getUser);
   const [selectRole, setSelectRole] = useState<ApplicationRoleType>("viewer");
   const [selectedItems, setSelectedItems] = useState<PermissionAddEntity[]>([]);
-
-  useEffect(() => {
-    dispatch(fetchOrgUsersAction(user.currentOrgId));
-    dispatch(fetchGroupsAction(user.currentOrgId));
-  }, []);
 
   return (
     <AddAppUserContent>
@@ -415,6 +451,8 @@ export const Permission = (props: {
         user={user}
         filterItems={props.filterItems}
         supportRoles={props.supportRoles}
+        contextType={contextType}
+        organizationId={organizationId}
       />
       <BottomButton>
         <TacoButton style={{ marginRight: "8px" }} onClick={onCancel}>
@@ -424,10 +462,10 @@ export const Permission = (props: {
           buttonType="primary"
           onClick={() => {
             const uids = selectedItems
-              .filter((item) => item.type === "USER")
+              .filter((item) => item.type === "User")
               .map((item) => item.id);
             const gids = selectedItems
-              .filter((item) => item.type === "GROUP")
+              .filter((item) => item.type === "Group")
               .map((item) => item.id);
             if (uids.length === 0 && gids.length === 0) {
               onCancel();

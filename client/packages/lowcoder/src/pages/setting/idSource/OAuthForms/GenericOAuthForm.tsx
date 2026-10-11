@@ -65,6 +65,7 @@ export interface ConfigProvider {
   scope: string,
   sourceMappings: any,
   userInfoIntrospection?: boolean,
+  userCanSelectAccounts?: boolean,
 }
 
 type GenericOAuthFormProp = {
@@ -79,6 +80,7 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
     onSave,
     onCancel
   } = props;
+
   const [form1] = Form.useForm<ConfigProvider>();
 
   const [saveLoading, setSaveLoading] = useState(false);
@@ -115,12 +117,12 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
             authType: AuthType.Generic,
             source: '',
             sourceName: '',
-            issuer: res.data.issuer,
+            issuerUri: res.data.issuer,
             authorizationEndpoint: res.data.authorization_endpoint,
             tokenEndpoint: res.data.token_endpoint,
             userInfoEndpoint: res.data.userinfo_endpoint,
             jwksUri: res.data.jwks_uri,
-            scope: res.data.scopes_supported.join(','),
+            scope: res.data.scopes_supported.join(' '),
             sourceMappings: sourceMappingKeys.map(sourceKey => ({
               [sourceKey]: sourceKey,
             }))
@@ -196,7 +198,7 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
       />
       
       <FormStyled
-        form={form1}
+        form={form1 as unknown as FormInstance<unknown>}
         name="generic"
         layout="vertical"
         style={{ maxWidth: '100%' }}

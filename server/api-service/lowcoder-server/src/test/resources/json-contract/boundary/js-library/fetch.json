@@ -1,0 +1,31 @@
+{
+  "full" : {
+    "name" : "full",
+    "latestVersion" : "4.10.0",
+    "homepage" : "https://full.example.com/docs",
+    "description" : "A library whose registry document has every field JsLibraryController reads: é ✓ \"quoted\"",
+    "downloadUrl" : null
+  },
+  "repository-homepage" : {
+    "name" : "repository-homepage",
+    "latestVersion" : "1.0.0",
+    "homepage" : "https://github.com/example/repository-homepage.git",
+    "description" : "A library without a homepage: JsLibraryController falls back to its git repository",
+    "downloadUrl" : null
+  },
+  "no-homepage" : {
+    "name" : "no-homepage",
+    "latestVersion" : null,
+    "homepage" : null,
+    "description" : "A library without homepage or dist-tags, whose repository is not git",
+    "downloadUrl" : null
+  },
+  "not-found" : {
+    "name" : "not-found",
+    "latestVersion" : null,
+    "homepage" : null,
+    "description" : null,
+    "downloadUrl" : null
+  },
+  "not-json" : "failsWith org.springframework.core.codec.DecodingException"
+}

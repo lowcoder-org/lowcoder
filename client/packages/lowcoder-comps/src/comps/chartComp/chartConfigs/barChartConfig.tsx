@@ -5,7 +5,7 @@ import {
   showLabelPropertyView,
 } from "lowcoder-sdk";
 import { BarSeriesOption } from "echarts";
-import { trans } from "i18n/comps";
+import { i18nObjs, trans } from "i18n/comps";
 
 const BarTypeOptions = [
   {

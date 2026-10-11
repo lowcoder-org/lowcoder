@@ -75,11 +75,11 @@ With Docker Compose
 
 {% tabs %}
 {% tab title="All-in-one Docker image" %}
-`docker-compose down`
+`docker compose down`
 {% endtab %}
 
 {% tab title="Multi-Image Deployment" %}
-`docker-compose -f docker-compose-multi.yaml down`
+`docker compose -f docker-compose-multi.yaml down`
 {% endtab %}
 {% endtabs %}
 
@@ -141,11 +141,11 @@ Mind to re-connect (mount) the /lowcoder-stacks folder
 
 {% tabs %}
 {% tab title="All-in-one Docker image" %}
-`docker-compose up -d`
+`docker compose up -d`
 {% endtab %}
 
 {% tab title="Multi-Image Deployment" %}
-`docker-compose -f docker-compose-multi.yaml up -d`
+`docker compose -f docker-compose-multi.yaml up -d`
 {% endtab %}
 {% endtabs %}
 

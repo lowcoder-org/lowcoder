@@ -10,6 +10,7 @@ import { ExternalEditorContextState } from "util/context/ExternalEditorContext";
 const initialState: ConfigState = {
   fetchingConfig: false,
   editorExternalState: {},
+  deploymentId: '',
 };
 
 const configReducer = createReducer(initialState, {
@@ -40,12 +41,22 @@ const configReducer = createReducer(initialState, {
       editorExternalState: action.payload,
     };
   },
+  [ReduxActionTypes.FETCH_DEPLOYMENT_ID_SUCCESS]: (
+    state: ConfigState,
+    action: ReduxAction<string>
+  ): ConfigState => {
+    return {
+      ...state,
+      deploymentId: action.payload,
+    };
+  },
 });
 
 export interface ConfigState {
   fetchingConfig: boolean;
   systemConfig?: SystemConfig;
   editorExternalState: Partial<ExternalEditorContextState>;
+  deploymentId: string;
 }
 
 export default configReducer;

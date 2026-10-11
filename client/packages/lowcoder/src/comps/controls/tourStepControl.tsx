@@ -19,7 +19,7 @@ import {
 } from "lowcoder-core";
 import { controlItem, Dropdown, Option, OptionsType, ValueFromOption } from "lowcoder-design";
 import { getNextEntityName } from "util/stringUtils";
-import { BoolControl, ControlParams } from "lowcoder-sdk";
+import { ControlParams } from "comps/controls/controlParams";
 import { ReactNode, useContext, useEffect, useState } from "react";
 import { EditorContext, EditorState } from "@lowcoder-ee/comps/editorState";
 import { PlacementOptions, TypeOptions } from "@lowcoder-ee/comps/comps/tourComp/tourControlConstants";
@@ -310,7 +310,11 @@ function EditorStateDropdownPropertyView<T extends OptionsType>(props: DropdownP
       showSearch={true}
       onChange={onChange}
       disabled={params.disabled}
-      dropdownStyle={props.dropdownStyle}
+      styles={{
+        popup: {
+          root: props.dropdownStyle
+        }
+      }}
       labelStyle={props.labelStyle}
     />
   );

@@ -1,0 +1,1252 @@
+openapi: 3.0.0
+info:
+  title: Webhooks API Collections
+  description: >-
+    The Webhooks API allows you to subscribe to events happening in a HubSpot
+    account with your integration installed. Rather than making an API call when
+    an event happens in a connected account, HubSpot can send an HTTP request to
+    an endpoint you configure. You can configure subscribed events in your app’s
+    settings or using the endpoints detailed below. Webhooks can be more
+    scalable than regularly polling for changes, especially for apps with a
+    large install base.
+
+
+    Using the Webhooks API requires the following:
+
+
+    - You must set up a HubSpot app to use webhooks by subscribing to the events
+    you want to be notified about, and by specifying a URL to send those
+    notifications. See the [prerequisites
+    documentation](https://developers.hubspot.com/docs/faq/integration-platform-api-requirements)
+    for more details about creating an app.
+
+    - You must deploy a publicly available and secure (HTTPS) endpoint for that
+    URL that can handle the webhook payloads specified in this documentation.
+        
+
+    Webhooks are set up for a [HubSpot
+    app](https://developers.hubspot.com/docs/faq/how-do-i-create-an-app-in-hubspot),
+    not individual accounts. Any account that install your app by going through
+    the [OAuth
+    flow](https://developers.hubspot.com/docs/methods/oauth2/initiate-oauth-integration)
+    will be subscribed to its webhook subscriptions.
+
+
+    You can subscribe to CRM object events, which includes contacts, companies,
+    deals, tickets, products and line items, as well as conversations events.
+
+
+    **Fork the collections using Run in Postman:**
+
+
+    [<img src="https://run.pstmn.io/button.svg" alt="Run In
+    Postman">](https://app.getpostman.com/run-collection/26126890-83294135-c996-4e81-8491-4cef2c52eab8?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D26126890-83294135-c996-4e81-8491-4cef2c52eab8%26entityType%3Dcollection%26workspaceId%3Dd7645f33-539d-49c6-9e0c-efa6faae355d)
+  version: 1.0.0
+servers:
+  - url: http://{{baseurl}}
+components:
+  securitySchemes:
+    apikeyAuth:
+      type: http
+      scheme: apikey
+tags:
+  - name: Webhooks API
+    description: >-
+      Provides a way for apps to subscribe to certain change events in HubSpot.
+      Once configured, apps will receive event payloads containing details about
+      the changes at a specified target URL. There can only be one target URL
+      for receiving event notifications per app.
+  - name: Webhooks API > Settings
+  - name: Webhooks API > Subscriptions
+paths:
+  /webhooks/v3/{appId}/settings:
+    get:
+      tags:
+        - Webhooks API > Settings
+      summary: get-/webhooks/v3/{app Id}/settings get All
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: appId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <integer>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                createdAt: <dateTime>
+                targetUrl: <string>
+                throttling:
+                  maxConcurrentRequests: <integer>
+                  period: ROLLING_MINUTE
+                updatedAt: <dateTime>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "nisi2": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "nisi_bd0": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "ad_a": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "nisidf": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "amet73d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "in9e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "Lorem_b47": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "ipsum_d00": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "velit__8d": "<string>",
+                    "amet8b": "<string>"
+                  }
+                }
+    put:
+      tags:
+        - Webhooks API > Settings
+      summary: put-/webhooks/v3/{app Id}/settings configure
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                targetUrl: <string>
+                throttling:
+                  maxConcurrentRequests: <integer>
+                  period: ROLLING_MINUTE
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: appId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <integer>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                createdAt: <dateTime>
+                targetUrl: <string>
+                throttling:
+                  maxConcurrentRequests: <integer>
+                  period: ROLLING_MINUTE
+                updatedAt: <dateTime>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "nisi2": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "nisi_bd0": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "ad_a": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "nisidf": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "amet73d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "in9e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "Lorem_b47": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "ipsum_d00": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "velit__8d": "<string>",
+                    "amet8b": "<string>"
+                  }
+                }
+    delete:
+      tags:
+        - Webhooks API > Settings
+      summary: delete-/webhooks/v3/{app Id}/settings clear
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: '*/*'
+        - name: appId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <integer>
+      responses:
+        '204':
+          description: No Content
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: null
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "nisi2": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "nisi_bd0": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "ad_a": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "nisidf": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "amet73d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "in9e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "Lorem_b47": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "ipsum_d00": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "velit__8d": "<string>",
+                    "amet8b": "<string>"
+                  }
+                }
+  /webhooks/v3/{appId}/subscriptions/{subscriptionId}:
+    get:
+      tags:
+        - Webhooks API > Subscriptions
+      summary: get-/webhooks/v3/{app Id}/subscriptions/{subscription Id} get By Id
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: appId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <integer>
+        - name: subscriptionId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <integer>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                active: <boolean>
+                createdAt: <dateTime>
+                eventType: deal.propertyChange
+                id: <string>
+                propertyName: <string>
+                updatedAt: <dateTime>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "nisi2": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "nisi_bd0": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "ad_a": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "nisidf": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "amet73d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "in9e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "Lorem_b47": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "ipsum_d00": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "velit__8d": "<string>",
+                    "amet8b": "<string>"
+                  }
+                }
+    delete:
+      tags:
+        - Webhooks API > Subscriptions
+      summary: delete-/webhooks/v3/{app Id}/subscriptions/{subscription Id} archive
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: '*/*'
+        - name: appId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <integer>
+        - name: subscriptionId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <integer>
+      responses:
+        '204':
+          description: No Content
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: null
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "nisi2": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "nisi_bd0": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "ad_a": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "nisidf": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "amet73d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "in9e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "Lorem_b47": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "ipsum_d00": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "velit__8d": "<string>",
+                    "amet8b": "<string>"
+                  }
+                }
+    patch:
+      tags:
+        - Webhooks API > Subscriptions
+      summary: patch-/webhooks/v3/{app Id}/subscriptions/{subscription Id} update
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                active: <boolean>
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: appId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <integer>
+        - name: subscriptionId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <integer>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                active: <boolean>
+                createdAt: <dateTime>
+                eventType: deal.propertyChange
+                id: <string>
+                propertyName: <string>
+                updatedAt: <dateTime>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "nisi2": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "nisi_bd0": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "ad_a": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "nisidf": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "amet73d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "in9e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "Lorem_b47": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "ipsum_d00": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "velit__8d": "<string>",
+                    "amet8b": "<string>"
+                  }
+                }
+  /webhooks/v3/{appId}/subscriptions:
+    get:
+      tags:
+        - Webhooks API > Subscriptions
+      summary: get-/webhooks/v3/{app Id}/subscriptions get All
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: appId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <integer>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                results:
+                  - active: <boolean>
+                    createdAt: <dateTime>
+                    eventType: deal.restore
+                    id: <string>
+                    propertyName: <string>
+                    updatedAt: <dateTime>
+                  - active: <boolean>
+                    createdAt: <dateTime>
+                    eventType: line_item.restore
+                    id: <string>
+                    propertyName: <string>
+                    updatedAt: <dateTime>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "nisi2": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "nisi_bd0": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "ad_a": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "nisidf": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "amet73d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "in9e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "Lorem_b47": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "ipsum_d00": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "velit__8d": "<string>",
+                    "amet8b": "<string>"
+                  }
+                }
+    post:
+      tags:
+        - Webhooks API > Subscriptions
+      summary: post-/webhooks/v3/{app Id}/subscriptions create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                eventType: conversation.newMessage
+                propertyName: <string>
+                active: <boolean>
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: appId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <integer>
+      responses:
+        '201':
+          description: Created
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                active: <boolean>
+                createdAt: <dateTime>
+                eventType: deal.propertyChange
+                id: <string>
+                propertyName: <string>
+                updatedAt: <dateTime>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "nisi2": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "nisi_bd0": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "ad_a": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "nisidf": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "amet73d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "in9e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "Lorem_b47": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "ipsum_d00": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "velit__8d": "<string>",
+                    "amet8b": "<string>"
+                  }
+                }
+  /webhooks/v3/{appId}/subscriptions/batch/update:
+    post:
+      tags:
+        - Webhooks API > Subscriptions
+      summary: post-/webhooks/v3/{app Id}/subscriptions/batch/update update Batch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                inputs:
+                  - active: <boolean>
+                    id: <integer>
+                  - active: <boolean>
+                    id: <integer>
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: appId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <integer>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                completedAt: <dateTime>
+                results:
+                  - active: <boolean>
+                    createdAt: <dateTime>
+                    eventType: conversation.privacyDeletion
+                    id: <string>
+                    propertyName: <string>
+                    updatedAt: <dateTime>
+                  - active: <boolean>
+                    createdAt: <dateTime>
+                    eventType: ticket.creation
+                    id: <string>
+                    propertyName: <string>
+                    updatedAt: <dateTime>
+                startedAt: <dateTime>
+                status: PROCESSING
+                requestedAt: <dateTime>
+                links:
+                  in_4ae: <string>
+                  voluptate_e: <string>
+                  id4: <string>
+        '207':
+          description: Multi-Status (WebDAV) (RFC 4918)
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                completedAt: <dateTime>
+                results:
+                  - active: <boolean>
+                    createdAt: <dateTime>
+                    eventType: conversation.privacyDeletion
+                    id: <string>
+                    propertyName: <string>
+                    updatedAt: <dateTime>
+                  - active: <boolean>
+                    createdAt: <dateTime>
+                    eventType: line_item.propertyChange
+                    id: <string>
+                    propertyName: <string>
+                    updatedAt: <dateTime>
+                startedAt: <dateTime>
+                status: COMPLETE
+                numErrors: <integer>
+                errors:
+                  - category: <string>
+                    context:
+                      velit5:
+                        - <string>
+                        - <string>
+                      nulla9:
+                        - <string>
+                        - <string>
+                    errors:
+                      - message: <string>
+                        in: <string>
+                        code: <string>
+                        subCategory: <string>
+                        context:
+                          consequat_ee:
+                            - <string>
+                            - <string>
+                      - message: <string>
+                        in: <string>
+                        code: <string>
+                        subCategory: <string>
+                        context:
+                          sunt_9:
+                            - <string>
+                            - <string>
+                          deserunt_1:
+                            - <string>
+                            - <string>
+                          et__b:
+                            - <string>
+                            - <string>
+                    links:
+                      eu7f: <string>
+                      exd: <string>
+                    message: <string>
+                    status: <string>
+                    id: <string>
+                    subCategory: {}
+                  - category: <string>
+                    context:
+                      sed_0_:
+                        - <string>
+                        - <string>
+                    errors:
+                      - message: <string>
+                        in: <string>
+                        code: <string>
+                        subCategory: <string>
+                        context:
+                          ut_9:
+                            - <string>
+                            - <string>
+                          qui9:
+                            - <string>
+                            - <string>
+                          minim_c5:
+                            - <string>
+                            - <string>
+                      - message: <string>
+                        in: <string>
+                        code: <string>
+                        subCategory: <string>
+                        context:
+                          culpa_c2:
+                            - <string>
+                            - <string>
+                          enim7e_:
+                            - <string>
+                            - <string>
+                    links:
+                      aliquip14: <string>
+                      doloreb: <string>
+                      sit_12: <string>
+                      Duis_81d: <string>
+                    message: <string>
+                    status: <string>
+                    id: <string>
+                    subCategory: {}
+                requestedAt: <dateTime>
+                links:
+                  est__e: <string>
+                  esse_5: <string>
+                  inb9: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "nisi2": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "nisi_bd0": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "ad_a": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "nisidf": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "amet73d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "in9e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "Lorem_b47": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "ipsum_d00": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "velit__8d": "<string>",
+                    "amet8b": "<string>"
+                  }
+                }

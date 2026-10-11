@@ -7,6 +7,7 @@ import {
 import { Section, sectionNames } from "lowcoder-design";
 import { genQueryId } from "comps/utils/idGenerator";
 import { CompNameContext, EditorContext, EditorState } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { ContainerPlaceholder } from "lowcoder-design";
 import {
@@ -58,7 +59,9 @@ import { DisabledContext } from "comps/generators/uiCompBuilder";
 import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { styled } from "styled-components";
-import { AnimationStyle, styleControl } from "@lowcoder-ee/index.sdk";
+import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
+import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import { StringControl } from "comps/controls/codeControl";
 
 const FormWrapper = styled.div`
   height: 100%;
@@ -79,7 +82,8 @@ const childrenMap = {
   disableSubmit: BoolCodeControl,
   loading: BoolCodeControl,
   onEvent: eventHandlerControl(eventOptions),
-  animationStyle:styleControl(AnimationStyle)
+  animationStyle: styleControl(AnimationStyle),
+  invalidFormMessage: StringControl
 };
 
 type FormProps = TriContainerViewProps &
@@ -166,14 +170,18 @@ function onCreate(
 const BodyPlaceholder = (props: FormProps) => {
   const editorState = useContext(EditorContext);
   const formName = useContext(CompNameContext);
+  
+  const handleCreate = (data: CreateData) => {
+    const result = onCreate(data, props, editorState, formName);
+    return Promise.resolve(result);
+  };
+  
   return (
     <ContainerPlaceholder>
       {trans("formComp.containerPlaceholder")}
       <br />
       <CreateForm
-        onCreate={(data: CreateData) =>
-          Promise.resolve(onCreate(data, props, editorState, formName))
-        }
+        onCreate={handleCreate}
       />
     </ContainerPlaceholder>
   );
@@ -201,13 +209,14 @@ const FormBaseComp = (function () {
     );
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
             {children.resetAfterSubmit.propertyView({ label: trans("formComp.resetAfterSubmit") })}
           </Section>
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "logic" || editorModeStatus === "both") && (
             <><Section name={sectionNames.interaction}>
                 {children.onEvent.getPropertyView()}
                 {disabledPropertyView(children)}
@@ -218,7 +227,7 @@ const FormBaseComp = (function () {
             </>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "layout" || editorModeStatus === "both") && (
             <>
               <Section name={sectionNames.layout}>
                 {children.container.getPropertyView()}
@@ -226,13 +235,14 @@ const FormBaseComp = (function () {
             </>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "logic" || editorModeStatus === "both") && (
             <Section name={sectionNames.advanced}>
               {children.initialData.propertyView({ label: trans("formComp.initialData") })}
+              {children.invalidFormMessage.propertyView({ label: trans("formComp.invalidFormMessage") })}
             </Section>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "layout" || editorModeStatus === "both") && (
             <>
               <Section name={sectionNames.style}>
                 {children.container.stylePropertyView()}
@@ -277,7 +287,8 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
   }
   traverseFormItems(consumer: (item: GridItemComp) => boolean) {
     return traverseCompTree(this.getCompTree(), (item) => {
-      return item.children.comp.children.formDataKey ? consumer(item as GridItemComp) : true;
+      const hasFormDataKey = item.children.comp.children.hasOwnProperty("formDataKey");
+      return hasFormDataKey ? consumer(item as GridItemComp) : true;
     });
   }
   validateFormItems() {
@@ -320,18 +331,34 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
   setData(data: JSONObject, initialData?: JSONObject) {
     // For the properties, first find in data, then initialData, subcomponent default value (resetValue), empty value (clearValue)
     const newData = { ...(initialData ?? this.children.initialData.getView()), ...data };
+
     return this.runMethodOfItems(
       {
         name: "setValue",
         getParams: (t) => {
           // use component name when formDataKey is empty
-          const key = t.children.comp.children.formDataKey?.getView() || t.children.name.getView();
+          const formDataKey = t.children.comp.children.formDataKey?.getView();
+          const componentName = t.children.name.getView();
+          const key = formDataKey || componentName;
           const value = newData[key];
           return value !== undefined ? [value as EvalParamType] : undefined;
         },
       },
+      {
+        name: "setRange",
+        getParams: (t) => {
+          // use component name when formDataKey is empty
+          const formDataKey = t.children.comp.children.formDataKey?.getView();
+          const componentName = t.children.name.getView();
+          const key = formDataKey || componentName;
+          const value = newData[key] ? newData[key] : undefined;
+          return value !== undefined ? [value as EvalParamType] : undefined;
+        },
+      },
       { name: "resetValue" },
-      { name: "clearValue" }
+      { name: "resetAll" },
+      { name: "clearValue" },
+      { name: "clearAll" }
     );
   }
   reset() {
@@ -350,7 +377,8 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
         return Promise.resolve();
       });
     } else {
-      messageInstance.error(trans("formComp.notValidForm"));
+      const customMessage = this.children.invalidFormMessage.getView();
+      messageInstance.error(customMessage || trans("formComp.notValidForm"));
       return Promise.reject("formComp.notValidForm");
     }
   }
@@ -361,20 +389,28 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
     switch (action.type) {
       case CompActionTypes.UPDATE_NODES_V2: {
         const ret = super.reduce(action);
-        // When the initial value changes, update the form
         if (ret.children.initialData !== this.children.initialData) {
           // FIXME: kill setTimeout ?
           setTimeout(() => {
-            this.dispatch(
-              customAction<SetDataAction>(
-                {
-                  type: "setData",
-                  initialData: (action.value["initialData"] as ValueAndMsg<JSONObject>).value || {},
-                },
-                false
-              )
-            );
-          });
+            const newInitialData = (action.value["initialData"] as ValueAndMsg<JSONObject>)
+              .value;
+            // only setData when initialData has explicit keys.
+            if (
+              newInitialData &&
+              typeof newInitialData === "object" &&
+              Object.keys(newInitialData).length > 0
+            ) {
+              this.dispatch(
+                customAction<SetDataAction>(
+                  {
+                    type: "setData",
+                    initialData: newInitialData,
+                  },
+                  false
+                )
+              );
+            }
+          }, 1000);
         }
         return ret;
       }
@@ -442,10 +478,24 @@ export const FormComp = withExposingConfigs(FormTmpComp, [
     func: (input) => {
       const data: Record<string, unknown> = {};
       Object.entries(input.container).forEach(([name, value]) => {
+
         const exposingValues = value as any;
         if (exposingValues?.hasOwnProperty("formDataKey")) {
           // use component name when formDataKey is empty
-          data[exposingValues["formDataKey"] || name] = exposingValues["value"];
+          let inputValue = exposingValues['value'];
+          // for timeRange/dateRange we don't have value
+          // instead we have start and end
+          if (
+            !inputValue
+            && exposingValues?.hasOwnProperty('start')
+            && exposingValues?.hasOwnProperty('end')
+          ) {
+            inputValue = {
+              start: exposingValues['start'],
+              end: exposingValues['end'],
+            }
+          }
+          data[exposingValues["formDataKey"] || name] = inputValue;
         }
       });
       return data;

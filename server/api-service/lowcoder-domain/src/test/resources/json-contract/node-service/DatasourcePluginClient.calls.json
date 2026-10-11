@@ -1,0 +1,470 @@
+{
+  "ok" : {
+    "getPluginDynamicConfig" : {
+      "request" : {
+        "method" : "POST",
+        "path" : "/node-service/api/getPluginDynamicConfig",
+        "X-Encrypted" : [ ],
+        "contentType" : [ "application/json" ],
+        "body" : [{"dataSourceId":"ds1","pluginName":"contractPlugin","path":"tables","dataSourceConfig":{"host":"žluť \"db\"","port":5432,"ratio":1.50,"tags":["a",null]}}]
+      },
+      "result" : {
+        "classes" : {
+          "" : "java.util.ArrayList",
+          "/0" : "java.util.LinkedHashMap",
+          "/0/zeta" : "java.lang.String",
+          "/0/int" : "java.lang.Integer",
+          "/0/negativeInt" : "java.lang.Integer",
+          "/0/intMax" : "java.lang.Integer",
+          "/0/intMaxPlusOne" : "java.lang.Long",
+          "/0/intMinMinusOne" : "java.lang.Long",
+          "/0/longMax" : "java.lang.Long",
+          "/0/longMaxPlusOne" : "java.math.BigInteger",
+          "/0/longMinMinusOne" : "java.math.BigInteger",
+          "/0/decimal" : "java.lang.Double",
+          "/0/trailingZeroDecimal" : "java.lang.Double",
+          "/0/zeroPointZero" : "java.lang.Double",
+          "/0/negativeZero" : "java.lang.Integer",
+          "/0/exponent" : "java.lang.Double",
+          "/0/exponentUpperCase" : "java.lang.Double",
+          "/0/negativeExponent" : "java.lang.Double",
+          "/0/longDecimal" : "java.lang.Double",
+          "/0/true" : "java.lang.Boolean",
+          "/0/false" : "java.lang.Boolean",
+          "/0/null" : "null",
+          "/0/emptyObject" : "java.util.LinkedHashMap",
+          "/0/emptyArray" : "java.util.ArrayList",
+          "/0/nested" : "java.util.LinkedHashMap",
+          "/0/nested/array" : "java.util.ArrayList",
+          "/0/nested/array/0" : "java.lang.Integer",
+          "/0/nested/array/1" : "java.lang.String",
+          "/0/nested/array/2" : "java.util.ArrayList",
+          "/0/nested/array/2/0" : "java.lang.Integer",
+          "/0/nested/array/2/1" : "java.util.LinkedHashMap",
+          "/0/nested/array/2/1/four" : "java.lang.Double",
+          "/0/nested/array/3" : "null",
+          "/0/nested/array/4" : "java.lang.Boolean",
+          "/0/nested/array/5" : "java.lang.Long",
+          "/0/nested/object" : "java.util.LinkedHashMap",
+          "/0/nested/object/z" : "java.lang.Integer",
+          "/0/nested/object/a" : "java.util.LinkedHashMap",
+          "/0/nested/object/a/deeper" : "java.util.ArrayList",
+          "/0/nested/object/a/deeper/0" : "java.util.ArrayList",
+          "/0/nested/object/a/deeper/1" : "java.util.LinkedHashMap",
+          "/0/unicode" : "java.lang.String",
+          "/0/escapes" : "java.lang.String",
+          "/0/key with escaped name" : "java.lang.String",
+          "/0/alpha" : "java.lang.String",
+          "/1" : "java.util.LinkedHashMap",
+          "/1/n" : "java.lang.Double",
+          "/1/big" : "java.math.BigInteger"
+        },
+        "keyOrder" : {
+          "/0/emptyObject" : [ ],
+          "/0/nested/array/2/1" : [ "four" ],
+          "/0/nested/object/a/deeper/1" : [ ],
+          "/0/nested/object/a" : [ "deeper" ],
+          "/0/nested/object" : [ "z", "a" ],
+          "/0/nested" : [ "array", "object" ],
+          "/0" : [ "zeta", "int", "negativeInt", "intMax", "intMaxPlusOne", "intMinMinusOne", "longMax", "longMaxPlusOne", "longMinMinusOne", "decimal", "trailingZeroDecimal", "zeroPointZero", "negativeZero", "exponent", "exponentUpperCase", "negativeExponent", "longDecimal", "true", "false", "null", "emptyObject", "emptyArray", "nested", "unicode", "escapes", "key with escaped name", "alpha" ],
+          "/1" : [ "n", "big" ]
+        }
+      }
+    },
+    "getDatasourcePluginDefinitions" : {
+      "request" : {
+        "method" : "GET",
+        "path" : "/node-service/api/plugins",
+        "X-Encrypted" : [ ]
+      },
+      "result" : {
+        "classes" : {
+          "" : "java.util.ArrayList",
+          "/0" : "org.lowcoder.domain.plugin.client.dto.DatasourcePluginDefinition",
+          "/0/name" : "java.lang.String",
+          "/0/limit" : "java.lang.Long",
+          "/0/dataSourceConfig" : "java.util.LinkedHashMap",
+          "/0/dataSourceConfig/extra" : "java.util.LinkedHashMap",
+          "/0/dataSourceConfig/extra/type" : "java.lang.String",
+          "/0/id" : "java.lang.String",
+          "/0/ratio" : "java.lang.Double"
+        },
+        "keyOrder" : {
+          "/0/dataSourceConfig/extra" : [ "type" ],
+          "/0/dataSourceConfig" : [ "extra" ],
+          "/0" : [ "name", "limit", "dataSourceConfig", "id", "ratio" ]
+        }
+      }
+    },
+    "executeQuery" : {
+      "request" : {
+        "method" : "POST",
+        "path" : "/node-service/api/runPluginQuery",
+        "X-Encrypted" : [ ],
+        "contentType" : [ "application/json" ],
+        "body" : {"pluginName":"contractPlugin","dsl":{"zeta":"first key, so that sorted output would differ from input order","int":1,"negativeInt":-40003,"intMax":2147483647,"intMaxPlusOne":2147483648,"intMinMinusOne":-2147483649,"longMax":9223372036854775807,"longMaxPlusOne":9223372036854775808,"longMinMinusOne":-9223372036854775809,"decimal":1.5,"trailingZeroDecimal":1.5,"zeroPointZero":0.0,"negativeZero":0,"exponent":100.0,"exponentUpperCase":100.0,"negativeExponent":0.0025,"longDecimal":0.1,"true":true,"false":false,"null":null,"emptyObject":{},"emptyArray":[],"nested":{"array":[1,"two",[3,{"four":4.0}],null,true,3000000001],"object":{"z":1,"a":{"deeper":[[],{}]}}},"unicode":"žluťoučký kůň \uD83D\uDC0E 中文","escapes":"é \u0000 \n \t \" \\ / \uD83D\uDE00","key with escaped name":"escaped key","alpha":"last key"},"dataSourceConfig":{"host":"žluť \"db\"","port":5432,"ratio":1.50,"tags":["a",null]},"context":[{"key":"limit","value":3000000001}]}
+      },
+      "result" : {
+        "queryCode" : "OK",
+        "dataShape" : {
+          "classes" : {
+            "" : "java.util.LinkedHashMap",
+            "/zeta" : "java.lang.String",
+            "/int" : "java.lang.Integer",
+            "/negativeInt" : "java.lang.Integer",
+            "/intMax" : "java.lang.Integer",
+            "/intMaxPlusOne" : "java.lang.Long",
+            "/intMinMinusOne" : "java.lang.Long",
+            "/longMax" : "java.lang.Long",
+            "/longMaxPlusOne" : "java.math.BigInteger",
+            "/longMinMinusOne" : "java.math.BigInteger",
+            "/decimal" : "java.lang.Double",
+            "/trailingZeroDecimal" : "java.lang.Double",
+            "/zeroPointZero" : "java.lang.Double",
+            "/negativeZero" : "java.lang.Integer",
+            "/exponent" : "java.lang.Double",
+            "/exponentUpperCase" : "java.lang.Double",
+            "/negativeExponent" : "java.lang.Double",
+            "/longDecimal" : "java.lang.Double",
+            "/true" : "java.lang.Boolean",
+            "/false" : "java.lang.Boolean",
+            "/null" : "null",
+            "/emptyObject" : "java.util.LinkedHashMap",
+            "/emptyArray" : "java.util.ArrayList",
+            "/nested" : "java.util.LinkedHashMap",
+            "/nested/array" : "java.util.ArrayList",
+            "/nested/array/0" : "java.lang.Integer",
+            "/nested/array/1" : "java.lang.String",
+            "/nested/array/2" : "java.util.ArrayList",
+            "/nested/array/2/0" : "java.lang.Integer",
+            "/nested/array/2/1" : "java.util.LinkedHashMap",
+            "/nested/array/2/1/four" : "java.lang.Double",
+            "/nested/array/3" : "null",
+            "/nested/array/4" : "java.lang.Boolean",
+            "/nested/array/5" : "java.lang.Long",
+            "/nested/object" : "java.util.LinkedHashMap",
+            "/nested/object/z" : "java.lang.Integer",
+            "/nested/object/a" : "java.util.LinkedHashMap",
+            "/nested/object/a/deeper" : "java.util.ArrayList",
+            "/nested/object/a/deeper/0" : "java.util.ArrayList",
+            "/nested/object/a/deeper/1" : "java.util.LinkedHashMap",
+            "/unicode" : "java.lang.String",
+            "/escapes" : "java.lang.String",
+            "/key with escaped name" : "java.lang.String",
+            "/alpha" : "java.lang.String"
+          },
+          "keyOrder" : {
+            "/emptyObject" : [ ],
+            "/nested/array/2/1" : [ "four" ],
+            "/nested/object/a/deeper/1" : [ ],
+            "/nested/object/a" : [ "deeper" ],
+            "/nested/object" : [ "z", "a" ],
+            "/nested" : [ "array", "object" ],
+            "" : [ "zeta", "int", "negativeInt", "intMax", "intMaxPlusOne", "intMinMinusOne", "longMax", "longMaxPlusOne", "longMinMinusOne", "decimal", "trailingZeroDecimal", "zeroPointZero", "negativeZero", "exponent", "exponentUpperCase", "negativeExponent", "longDecimal", "true", "false", "null", "emptyObject", "emptyArray", "nested", "unicode", "escapes", "key with escaped name", "alpha" ]
+          }
+        },
+        "written" : {"queryCode":"OK","data":{"zeta":"first key, so that sorted output would differ from input order","int":1,"negativeInt":-40003,"intMax":2147483647,"intMaxPlusOne":2147483648,"intMinMinusOne":-2147483649,"longMax":9223372036854775807,"longMaxPlusOne":9223372036854775808,"longMinMinusOne":-9223372036854775809,"decimal":1.5,"trailingZeroDecimal":1.5,"zeroPointZero":0.0,"negativeZero":0,"exponent":100.0,"exponentUpperCase":100.0,"negativeExponent":0.0025,"longDecimal":0.1,"true":true,"false":false,"null":null,"emptyObject":{},"emptyArray":[],"nested":{"array":[1,"two",[3,{"four":4.0}],null,true,3000000001],"object":{"z":1,"a":{"deeper":[[],{}]}}},"unicode":"žluťoučký kůň 🐎 中文","escapes":"é \u0000 \n \t \" \\ / 😀","key with escaped name":"escaped key","alpha":"last key"},"success":true}
+      }
+    },
+    "executeQueryEncrypted" : {
+      "request" : {
+        "method" : "POST",
+        "path" : "/node-service/api/runPluginQuery",
+        "X-Encrypted" : [ "true" ],
+        "contentType" : [ "text/plain;charset=UTF-8" ],
+        "decrypted" : {"pluginName":"contractPlugin","dsl":{"zeta":"first key, so that sorted output would differ from input order","int":1,"negativeInt":-40003,"intMax":2147483647,"intMaxPlusOne":2147483648,"intMinMinusOne":-2147483649,"longMax":9223372036854775807,"longMaxPlusOne":9223372036854775808,"longMinMinusOne":-9223372036854775809,"decimal":1.5,"trailingZeroDecimal":1.5,"zeroPointZero":0.0,"negativeZero":0,"exponent":100.0,"exponentUpperCase":100.0,"negativeExponent":0.0025,"longDecimal":0.1,"true":true,"false":false,"null":null,"emptyObject":{},"emptyArray":[],"nested":{"array":[1,"two",[3,{"four":4.0}],null,true,3000000001],"object":{"z":1,"a":{"deeper":[[],{}]}}},"unicode":"žluťoučký kůň 🐎 中文","escapes":"é \u0000 \n \t \" \\ / 😀","key with escaped name":"escaped key","alpha":"last key"},"dataSourceConfig":{"host":"žluť \"db\"","port":5432,"ratio":1.50,"tags":["a",null]},"context":[{"key":"limit","value":3000000001}]}
+      },
+      "result" : {
+        "queryCode" : "OK",
+        "dataShape" : {
+          "classes" : {
+            "" : "java.util.LinkedHashMap",
+            "/zeta" : "java.lang.String",
+            "/int" : "java.lang.Integer",
+            "/negativeInt" : "java.lang.Integer",
+            "/intMax" : "java.lang.Integer",
+            "/intMaxPlusOne" : "java.lang.Long",
+            "/intMinMinusOne" : "java.lang.Long",
+            "/longMax" : "java.lang.Long",
+            "/longMaxPlusOne" : "java.math.BigInteger",
+            "/longMinMinusOne" : "java.math.BigInteger",
+            "/decimal" : "java.lang.Double",
+            "/trailingZeroDecimal" : "java.lang.Double",
+            "/zeroPointZero" : "java.lang.Double",
+            "/negativeZero" : "java.lang.Integer",
+            "/exponent" : "java.lang.Double",
+            "/exponentUpperCase" : "java.lang.Double",
+            "/negativeExponent" : "java.lang.Double",
+            "/longDecimal" : "java.lang.Double",
+            "/true" : "java.lang.Boolean",
+            "/false" : "java.lang.Boolean",
+            "/null" : "null",
+            "/emptyObject" : "java.util.LinkedHashMap",
+            "/emptyArray" : "java.util.ArrayList",
+            "/nested" : "java.util.LinkedHashMap",
+            "/nested/array" : "java.util.ArrayList",
+            "/nested/array/0" : "java.lang.Integer",
+            "/nested/array/1" : "java.lang.String",
+            "/nested/array/2" : "java.util.ArrayList",
+            "/nested/array/2/0" : "java.lang.Integer",
+            "/nested/array/2/1" : "java.util.LinkedHashMap",
+            "/nested/array/2/1/four" : "java.lang.Double",
+            "/nested/array/3" : "null",
+            "/nested/array/4" : "java.lang.Boolean",
+            "/nested/array/5" : "java.lang.Long",
+            "/nested/object" : "java.util.LinkedHashMap",
+            "/nested/object/z" : "java.lang.Integer",
+            "/nested/object/a" : "java.util.LinkedHashMap",
+            "/nested/object/a/deeper" : "java.util.ArrayList",
+            "/nested/object/a/deeper/0" : "java.util.ArrayList",
+            "/nested/object/a/deeper/1" : "java.util.LinkedHashMap",
+            "/unicode" : "java.lang.String",
+            "/escapes" : "java.lang.String",
+            "/key with escaped name" : "java.lang.String",
+            "/alpha" : "java.lang.String"
+          },
+          "keyOrder" : {
+            "/emptyObject" : [ ],
+            "/nested/array/2/1" : [ "four" ],
+            "/nested/object/a/deeper/1" : [ ],
+            "/nested/object/a" : [ "deeper" ],
+            "/nested/object" : [ "z", "a" ],
+            "/nested" : [ "array", "object" ],
+            "" : [ "zeta", "int", "negativeInt", "intMax", "intMaxPlusOne", "intMinMinusOne", "longMax", "longMaxPlusOne", "longMinMinusOne", "decimal", "trailingZeroDecimal", "zeroPointZero", "negativeZero", "exponent", "exponentUpperCase", "negativeExponent", "longDecimal", "true", "false", "null", "emptyObject", "emptyArray", "nested", "unicode", "escapes", "key with escaped name", "alpha" ]
+          }
+        },
+        "written" : {"queryCode":"OK","data":{"zeta":"first key, so that sorted output would differ from input order","int":1,"negativeInt":-40003,"intMax":2147483647,"intMaxPlusOne":2147483648,"intMinMinusOne":-2147483649,"longMax":9223372036854775807,"longMaxPlusOne":9223372036854775808,"longMinMinusOne":-9223372036854775809,"decimal":1.5,"trailingZeroDecimal":1.5,"zeroPointZero":0.0,"negativeZero":0,"exponent":100.0,"exponentUpperCase":100.0,"negativeExponent":0.0025,"longDecimal":0.1,"true":true,"false":false,"null":null,"emptyObject":{},"emptyArray":[],"nested":{"array":[1,"two",[3,{"four":4.0}],null,true,3000000001],"object":{"z":1,"a":{"deeper":[[],{}]}}},"unicode":"žluťoučký kůň 🐎 中文","escapes":"é \u0000 \n \t \" \\ / 😀","key with escaped name":"escaped key","alpha":"last key"},"success":true}
+      }
+    },
+    "executeQueryWithInstant" : {
+      "request" : null,
+      "result" : {
+        "error" : "org.lowcoder.sdk.exception.ServerException: Encryption error"
+      }
+    },
+    "executeQueryEncryptedWithInstant" : {
+      "request" : null,
+      "result" : {
+        "error" : "org.lowcoder.sdk.exception.ServerException: Encryption error"
+      }
+    },
+    "test" : {
+      "request" : {
+        "method" : "POST",
+        "path" : "/node-service/api/validatePluginDataSourceConfig",
+        "X-Encrypted" : [ ],
+        "contentType" : [ "application/json" ],
+        "body" : {"pluginName":"contractPlugin","dataSourceConfig":{"host":"žluť \"db\"","port":5432,"ratio":1.50,"tags":["a",null]}}
+      },
+      "result" : {
+        "values" : {
+          "@class" : "org.lowcoder.sdk.models.DatasourceTestResult",
+          "localeErrorMsg" : null
+        },
+        "classes" : {
+          "" : "org.lowcoder.sdk.models.DatasourceTestResult",
+          "/localeErrorMsg" : "null"
+        }
+      }
+    }
+  },
+  "failing" : {
+    "getPluginDynamicConfig" : {
+      "request" : {
+        "method" : "POST",
+        "path" : "/node-service/api/getPluginDynamicConfig",
+        "X-Encrypted" : [ ],
+        "contentType" : [ "application/json" ],
+        "body" : [{"dataSourceId":"ds1","pluginName":"contractPlugin","path":"tables","dataSourceConfig":{"host":"žluť \"db\"","port":5432,"ratio":1.50,"tags":["a",null]}}]
+      },
+      "result" : {
+        "error" : "org.lowcoder.sdk.exception.ServerException: get dynamic config error"
+      }
+    },
+    "getDatasourcePluginDefinitions" : {
+      "request" : {
+        "method" : "GET",
+        "path" : "/node-service/api/plugins",
+        "X-Encrypted" : [ ]
+      },
+      "result" : {
+        "classes" : {
+          "" : "java.util.ArrayList"
+        },
+        "keyOrder" : { }
+      }
+    },
+    "executeQuery" : {
+      "request" : {
+        "method" : "POST",
+        "path" : "/node-service/api/runPluginQuery",
+        "X-Encrypted" : [ ],
+        "contentType" : [ "application/json" ],
+        "body" : {"pluginName":"contractPlugin","dsl":{"zeta":"first key, so that sorted output would differ from input order","int":1,"negativeInt":-40003,"intMax":2147483647,"intMaxPlusOne":2147483648,"intMinMinusOne":-2147483649,"longMax":9223372036854775807,"longMaxPlusOne":9223372036854775808,"longMinMinusOne":-9223372036854775809,"decimal":1.5,"trailingZeroDecimal":1.5,"zeroPointZero":0.0,"negativeZero":0,"exponent":100.0,"exponentUpperCase":100.0,"negativeExponent":0.0025,"longDecimal":0.1,"true":true,"false":false,"null":null,"emptyObject":{},"emptyArray":[],"nested":{"array":[1,"two",[3,{"four":4.0}],null,true,3000000001],"object":{"z":1,"a":{"deeper":[[],{}]}}},"unicode":"žluťoučký kůň \uD83D\uDC0E 中文","escapes":"é \u0000 \n \t \" \\ / \uD83D\uDE00","key with escaped name":"escaped key","alpha":"last key"},"dataSourceConfig":{"host":"žluť \"db\"","port":5432,"ratio":1.50,"tags":["a",null]},"context":[{"key":"limit","value":3000000001}]}
+      },
+      "result" : {
+        "queryCode" : "FAILED",
+        "dataShape" : {
+          "classes" : {
+            "" : "null"
+          },
+          "keyOrder" : { }
+        },
+        "written" : {"queryCode":"FAILED","message":"bad \"q\" žluť","success":false}
+      }
+    },
+    "executeQueryEncrypted" : {
+      "request" : {
+        "method" : "POST",
+        "path" : "/node-service/api/runPluginQuery",
+        "X-Encrypted" : [ "true" ],
+        "contentType" : [ "text/plain;charset=UTF-8" ],
+        "decrypted" : {"pluginName":"contractPlugin","dsl":{"zeta":"first key, so that sorted output would differ from input order","int":1,"negativeInt":-40003,"intMax":2147483647,"intMaxPlusOne":2147483648,"intMinMinusOne":-2147483649,"longMax":9223372036854775807,"longMaxPlusOne":9223372036854775808,"longMinMinusOne":-9223372036854775809,"decimal":1.5,"trailingZeroDecimal":1.5,"zeroPointZero":0.0,"negativeZero":0,"exponent":100.0,"exponentUpperCase":100.0,"negativeExponent":0.0025,"longDecimal":0.1,"true":true,"false":false,"null":null,"emptyObject":{},"emptyArray":[],"nested":{"array":[1,"two",[3,{"four":4.0}],null,true,3000000001],"object":{"z":1,"a":{"deeper":[[],{}]}}},"unicode":"žluťoučký kůň 🐎 中文","escapes":"é \u0000 \n \t \" \\ / 😀","key with escaped name":"escaped key","alpha":"last key"},"dataSourceConfig":{"host":"žluť \"db\"","port":5432,"ratio":1.50,"tags":["a",null]},"context":[{"key":"limit","value":3000000001}]}
+      },
+      "result" : {
+        "queryCode" : "FAILED",
+        "dataShape" : {
+          "classes" : {
+            "" : "null"
+          },
+          "keyOrder" : { }
+        },
+        "written" : {"queryCode":"FAILED","message":"bad \"q\" žluť","success":false}
+      }
+    },
+    "executeQueryWithInstant" : {
+      "request" : null,
+      "result" : {
+        "error" : "org.lowcoder.sdk.exception.ServerException: Encryption error"
+      }
+    },
+    "executeQueryEncryptedWithInstant" : {
+      "request" : null,
+      "result" : {
+        "error" : "org.lowcoder.sdk.exception.ServerException: Encryption error"
+      }
+    },
+    "test" : {
+      "request" : {
+        "method" : "POST",
+        "path" : "/node-service/api/validatePluginDataSourceConfig",
+        "X-Encrypted" : [ ],
+        "contentType" : [ "application/json" ],
+        "body" : {"pluginName":"contractPlugin","dataSourceConfig":{"host":"žluť \"db\"","port":5432,"ratio":1.50,"tags":["a",null]}}
+      },
+      "result" : {
+        "values" : {
+          "@class" : "org.lowcoder.sdk.models.DatasourceTestResult",
+          "localeErrorMsg" : {
+            "@class" : "org.lowcoder.sdk.models.LocaleMessage",
+            "messageKey" : "DATASOURCE_TEST_GENERIC_ERROR",
+            "args" : [ "1.5" ]
+          }
+        },
+        "classes" : {
+          "" : "org.lowcoder.sdk.models.DatasourceTestResult",
+          "/localeErrorMsg" : "org.lowcoder.sdk.models.LocaleMessage",
+          "/localeErrorMsg/messageKey" : "java.lang.String",
+          "/localeErrorMsg/args" : "[Ljava.lang.Object;",
+          "/localeErrorMsg/args/0" : "java.lang.String"
+        }
+      }
+    }
+  },
+  "textValues" : {
+    "getPluginDynamicConfig" : {
+      "request" : {
+        "method" : "POST",
+        "path" : "/node-service/api/getPluginDynamicConfig",
+        "X-Encrypted" : [ ],
+        "contentType" : [ "application/json" ],
+        "body" : [{"dataSourceId":"ds1","pluginName":"contractPlugin","path":"tables","dataSourceConfig":{"host":"žluť \"db\"","port":5432,"ratio":1.50,"tags":["a",null]}}]
+      },
+      "result" : {
+        "error" : "org.springframework.core.codec.DecodingException: JSON decoding error: Cannot deserialize value of type `java.util.ArrayList<java.lang.Object>` from Object value (token `JsonToken.START_OBJECT`)"
+      }
+    },
+    "getDatasourcePluginDefinitions" : {
+      "request" : {
+        "method" : "GET",
+        "path" : "/node-service/api/plugins",
+        "X-Encrypted" : [ ]
+      },
+      "result" : {
+        "classes" : {
+          "" : "java.util.ArrayList"
+        },
+        "keyOrder" : { }
+      }
+    },
+    "executeQuery" : {
+      "request" : {
+        "method" : "POST",
+        "path" : "/node-service/api/runPluginQuery",
+        "X-Encrypted" : [ ],
+        "contentType" : [ "application/json" ],
+        "body" : {"pluginName":"contractPlugin","dsl":{"zeta":"first key, so that sorted output would differ from input order","int":1,"negativeInt":-40003,"intMax":2147483647,"intMaxPlusOne":2147483648,"intMinMinusOne":-2147483649,"longMax":9223372036854775807,"longMaxPlusOne":9223372036854775808,"longMinMinusOne":-9223372036854775809,"decimal":1.5,"trailingZeroDecimal":1.5,"zeroPointZero":0.0,"negativeZero":0,"exponent":100.0,"exponentUpperCase":100.0,"negativeExponent":0.0025,"longDecimal":0.1,"true":true,"false":false,"null":null,"emptyObject":{},"emptyArray":[],"nested":{"array":[1,"two",[3,{"four":4.0}],null,true,3000000001],"object":{"z":1,"a":{"deeper":[[],{}]}}},"unicode":"žluťoučký kůň \uD83D\uDC0E 中文","escapes":"é \u0000 \n \t \" \\ / \uD83D\uDE00","key with escaped name":"escaped key","alpha":"last key"},"dataSourceConfig":{"host":"žluť \"db\"","port":5432,"ratio":1.50,"tags":["a",null]},"context":[{"key":"limit","value":3000000001}]}
+      },
+      "result" : {
+        "queryCode" : "OK",
+        "dataShape" : {
+          "classes" : {
+            "" : "java.lang.String"
+          },
+          "keyOrder" : { }
+        },
+        "written" : {"queryCode":"OK","data":"text","success":true}
+      }
+    },
+    "executeQueryEncrypted" : {
+      "request" : {
+        "method" : "POST",
+        "path" : "/node-service/api/runPluginQuery",
+        "X-Encrypted" : [ "true" ],
+        "contentType" : [ "text/plain;charset=UTF-8" ],
+        "decrypted" : {"pluginName":"contractPlugin","dsl":{"zeta":"first key, so that sorted output would differ from input order","int":1,"negativeInt":-40003,"intMax":2147483647,"intMaxPlusOne":2147483648,"intMinMinusOne":-2147483649,"longMax":9223372036854775807,"longMaxPlusOne":9223372036854775808,"longMinMinusOne":-9223372036854775809,"decimal":1.5,"trailingZeroDecimal":1.5,"zeroPointZero":0.0,"negativeZero":0,"exponent":100.0,"exponentUpperCase":100.0,"negativeExponent":0.0025,"longDecimal":0.1,"true":true,"false":false,"null":null,"emptyObject":{},"emptyArray":[],"nested":{"array":[1,"two",[3,{"four":4.0}],null,true,3000000001],"object":{"z":1,"a":{"deeper":[[],{}]}}},"unicode":"žluťoučký kůň 🐎 中文","escapes":"é \u0000 \n \t \" \\ / 😀","key with escaped name":"escaped key","alpha":"last key"},"dataSourceConfig":{"host":"žluť \"db\"","port":5432,"ratio":1.50,"tags":["a",null]},"context":[{"key":"limit","value":3000000001}]}
+      },
+      "result" : {
+        "queryCode" : "OK",
+        "dataShape" : {
+          "classes" : {
+            "" : "java.lang.String"
+          },
+          "keyOrder" : { }
+        },
+        "written" : {"queryCode":"OK","data":"text","success":true}
+      }
+    },
+    "executeQueryWithInstant" : {
+      "request" : null,
+      "result" : {
+        "error" : "org.lowcoder.sdk.exception.ServerException: Encryption error"
+      }
+    },
+    "executeQueryEncryptedWithInstant" : {
+      "request" : null,
+      "result" : {
+        "error" : "org.lowcoder.sdk.exception.ServerException: Encryption error"
+      }
+    },
+    "test" : {
+      "request" : {
+        "method" : "POST",
+        "path" : "/node-service/api/validatePluginDataSourceConfig",
+        "X-Encrypted" : [ ],
+        "contentType" : [ "application/json" ],
+        "body" : {"pluginName":"contractPlugin","dataSourceConfig":{"host":"žluť \"db\"","port":5432,"ratio":1.50,"tags":["a",null]}}
+      },
+      "result" : {
+        "values" : {
+          "@class" : "org.lowcoder.sdk.models.DatasourceTestResult",
+          "localeErrorMsg" : null
+        },
+        "classes" : {
+          "" : "org.lowcoder.sdk.models.DatasourceTestResult",
+          "/localeErrorMsg" : "null"
+        }
+      }
+    }
+  }
+}

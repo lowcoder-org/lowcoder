@@ -1,4 +1,4 @@
-import { BASE_URL, SETTING } from "constants/routesURL";
+import { BASE_URL, SETTING_URL } from "constants/routesURL";
 import { useSelector } from "react-redux";
 import { getUser } from "redux/selectors/usersSelectors";
 import { currentOrgAdminOrDev } from "util/permissionUtils";
@@ -15,7 +15,7 @@ export function Setting() {
 
   return (
     <Switch>
-      <Route path={[`${SETTING}/:setting`, SETTING]} component={SettingHome} />
+      <Route path={[`${SETTING_URL}/:setting`, SETTING_URL]} component={SettingHome} />
     </Switch>
   );
 }

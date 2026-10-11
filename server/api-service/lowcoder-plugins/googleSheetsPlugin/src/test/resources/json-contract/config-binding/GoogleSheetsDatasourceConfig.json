@@ -1,0 +1,33 @@
+{
+  "GoogleSheetsEngine.resolveConfig" : {
+    "full" : {
+      "class" : "org.lowcoder.plugin.googlesheets.model.GoogleSheetsDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.googlesheets.model.GoogleSheetsDatasourceConfig",
+        "serviceAccount" : "{\"type\":\"service_account\",\"client_id\":\"1\"}"
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.googlesheets.model.GoogleSheetsDatasourceConfig",
+        "/serviceAccount" : "java.lang.String"
+      },
+      "noView" : {"serviceAccount":"{\"type\":\"service_account\",\"client_id\":\"1\"}"},
+      "Public" : {},
+      "Internal" : {"serviceAccount":"{\"type\":\"service_account\",\"client_id\":\"1\"}"}
+    },
+    "empty" : {
+      "class" : "org.lowcoder.plugin.googlesheets.model.GoogleSheetsDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.googlesheets.model.GoogleSheetsDatasourceConfig",
+        "serviceAccount" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.googlesheets.model.GoogleSheetsDatasourceConfig",
+        "/serviceAccount" : "null"
+      },
+      "noView" : {"serviceAccount":null},
+      "Public" : {},
+      "Internal" : {"serviceAccount":null}
+    },
+    "unknownProperty" : "ignored: binds as form full"
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "token" : {
+    "request" : "POST /oauth2/token",
+    "decoded" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/access_token" : "java.lang.String",
+        "/expires_in" : "java.lang.Integer",
+        "/id_token" : "java.lang.String",
+        "/refresh_token" : "java.lang.String",
+        "/scope" : "java.lang.String",
+        "/token_type" : "java.lang.String"
+      },
+      "keyOrder" : {
+        "" : [ "access_token", "expires_in", "id_token", "refresh_token", "scope", "token_type" ]
+      }
+    },
+    "authToken" : {
+      "accessToken" : "ory_at_0001",
+      "expireIn" : 3599,
+      "refreshToken" : "ory_rt_0001",
+      "refreshTokenExpireIn" : 0,
+      "jwt" : null
+    }
+  },
+  "refresh" : {
+    "request" : "POST /oauth2/token",
+    "decoded" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/access_token" : "java.lang.String",
+        "/expires_in" : "java.lang.Double",
+        "/id_token" : "java.lang.String",
+        "/refresh_token" : "java.lang.String",
+        "/scope" : "java.lang.String",
+        "/token_type" : "java.lang.String"
+      },
+      "keyOrder" : {
+        "" : [ "access_token", "expires_in", "id_token", "refresh_token", "scope", "token_type" ]
+      }
+    },
+    "authToken" : {
+      "accessToken" : "ory_at_0002",
+      "expireIn" : 3599,
+      "refreshToken" : "ory_rt_0002",
+      "refreshTokenExpireIn" : 0,
+      "jwt" : null
+    }
+  },
+  "user" : {
+    "request" : "POST /userinfo",
+    "decoded" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/sub" : "java.lang.String",
+        "/email" : "java.lang.String",
+        "/email_verified" : "java.lang.Boolean",
+        "/picture" : "java.lang.String",
+        "/amr" : "java.util.ArrayList",
+        "/amr/0" : "java.lang.String",
+        "/amr/1" : "java.lang.String",
+        "/aud" : "java.util.ArrayList",
+        "/aud/0" : "java.lang.String",
+        "/auth_time" : "java.lang.Integer",
+        "/iat" : "java.lang.Integer",
+        "/rat" : "java.lang.Double",
+        "/iss" : "java.lang.String",
+        "/ext" : "java.util.LinkedHashMap",
+        "/ext/tenant" : "java.util.LinkedHashMap",
+        "/ext/tenant/id" : "java.lang.Integer",
+        "/ext/tenant/weight" : "java.lang.Double"
+      },
+      "keyOrder" : {
+        "/ext/tenant" : [ "id", "weight" ],
+        "/ext" : [ "tenant" ],
+        "" : [ "sub", "email", "email_verified", "picture", "amr", "aud", "auth_time", "iat", "rat", "iss", "ext" ]
+      }
+    },
+    "authUser" : {
+      "uid" : "8d6e5f4a-3b2c-4d1e-9f0a-1b2c3d4e5f6a",
+      "username" : "ory@example.com",
+      "email" : null,
+      "avatar" : "https://cdn.example.com/ory.png",
+      "groupId" : null,
+      "rawUserInfo" : {
+        "sub" : "8d6e5f4a-3b2c-4d1e-9f0a-1b2c3d4e5f6a",
+        "email" : "ory@example.com",
+        "email_verified" : true,
+        "picture" : "https://cdn.example.com/ory.png",
+        "amr" : [ "password", "totp" ],
+        "aud" : [ "lowcoder" ],
+        "auth_time" : 1767225600,
+        "iat" : 1767225650,
+        "rat" : 1.76722560025E9,
+        "iss" : "https://ory.example.com",
+        "ext" : {
+          "tenant" : {
+            "id" : 7,
+            "weight" : 0.1
+          }
+        }
+      }
+    }
+  }
+}

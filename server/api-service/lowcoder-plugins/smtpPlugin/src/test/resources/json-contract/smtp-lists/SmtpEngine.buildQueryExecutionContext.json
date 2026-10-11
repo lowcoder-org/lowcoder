@@ -1,0 +1,112 @@
+{
+  "arrays" : {
+    "@class" : "org.lowcoder.plugins.SmtpQueryExecutionContext",
+    "from" : "sender@example.com",
+    "to" : [ "x@example.com", "\"žluť\" <zlut@example.com>" ],
+    "cc" : [ "a@example.com", "b@example.com", "c@example.com" ],
+    "bcc" : [ ],
+    "replyTo" : [ ],
+    "subject" : "s",
+    "content" : "",
+    "attachments" : [ {
+      "@class" : "org.lowcoder.plugins.SmtpQueryExecutionContext$Attachment",
+      "name" : "report \"2026\".csv",
+      "contentType" : "text/csv",
+      "content" : "YSxi"
+    } ],
+    "visitorId" : null
+  },
+  "attachmentWithoutExtraProperty" : {
+    "@class" : "org.lowcoder.plugins.SmtpQueryExecutionContext",
+    "from" : "sender@example.com",
+    "to" : [ "x@example.com" ],
+    "cc" : [ ],
+    "bcc" : [ ],
+    "replyTo" : [ ],
+    "subject" : "s",
+    "content" : "",
+    "attachments" : [ {
+      "@class" : "org.lowcoder.plugins.SmtpQueryExecutionContext$Attachment",
+      "name" : "report \"2026\".csv",
+      "contentType" : "text/csv",
+      "content" : "YSxi"
+    } ],
+    "visitorId" : null
+  },
+  "attachmentsParameter" : {
+    "@class" : "org.lowcoder.plugins.SmtpQueryExecutionContext",
+    "from" : "sender@example.com",
+    "to" : [ "x@example.com" ],
+    "cc" : [ ],
+    "bcc" : [ ],
+    "replyTo" : [ ],
+    "subject" : "s",
+    "content" : "",
+    "attachments" : [ {
+      "@class" : "org.lowcoder.plugins.SmtpQueryExecutionContext$Attachment",
+      "name" : "a.txt",
+      "contentType" : "text/plain",
+      "content" : "aGk="
+    } ],
+    "visitorId" : null
+  },
+  "singleAddressNotArray" : {
+    "@class" : "org.lowcoder.plugins.SmtpQueryExecutionContext",
+    "from" : "sender@example.com",
+    "to" : [ ],
+    "cc" : [ ],
+    "bcc" : [ ],
+    "replyTo" : [ ],
+    "subject" : "s",
+    "content" : "",
+    "attachments" : null,
+    "visitorId" : null
+  },
+  "arrayWithNumber" : {
+    "@class" : "org.lowcoder.plugins.SmtpQueryExecutionContext",
+    "from" : "sender@example.com",
+    "to" : [ "x@example.com", "3000000001" ],
+    "cc" : [ ],
+    "bcc" : [ ],
+    "replyTo" : [ ],
+    "subject" : "s",
+    "content" : "",
+    "attachments" : null,
+    "visitorId" : null
+  },
+  "attachmentNotObject" : {
+    "@class" : "org.lowcoder.plugins.SmtpQueryExecutionContext",
+    "from" : "sender@example.com",
+    "to" : [ "x@example.com" ],
+    "cc" : [ ],
+    "bcc" : [ ],
+    "replyTo" : [ ],
+    "subject" : "s",
+    "content" : "",
+    "attachments" : null,
+    "visitorId" : null
+  },
+  "attachmentNumberContent" : {
+    "@class" : "org.lowcoder.plugins.SmtpQueryExecutionContext",
+    "from" : "sender@example.com",
+    "to" : [ "x@example.com" ],
+    "cc" : [ ],
+    "bcc" : [ ],
+    "replyTo" : [ ],
+    "subject" : "s",
+    "content" : "",
+    "attachments" : [ {
+      "@class" : "org.lowcoder.plugins.SmtpQueryExecutionContext$Attachment",
+      "name" : "n",
+      "contentType" : null,
+      "content" : "3000000001"
+    } ],
+    "visitorId" : null
+  },
+  "invalidAddress" : {
+    "error" : "org.lowcoder.sdk.exception.PluginException: QUERY_ARGUMENT_ERROR QUERY_ARGUMENT_ERROR"
+  },
+  "arrayWithNull" : {
+    "error" : "java.lang.NullPointerException: Cannot invoke \"String.length()\" because \"s\" is null"
+  }
+}

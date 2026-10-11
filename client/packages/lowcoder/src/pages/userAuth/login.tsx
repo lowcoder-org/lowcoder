@@ -3,12 +3,14 @@ import { AuthSearchParams } from "constants/authConstants";
 import { CommonTextLabel } from "components/Label";
 import { trans } from "i18n";
 import { ThirdPartyAuth } from "pages/userAuth/thirdParty/thirdPartyAuth";
-import FormLogin from "@lowcoder-ee/pages/userAuth/formLogin";
+import FormLogin from "@lowcoder-ee/pages/userAuth/formLoginAdmin";
 import { AuthContainer } from "pages/userAuth/authComponents";
 import React, { useContext, useMemo } from "react";
 import { AuthContext, getLoginTitle } from "pages/userAuth/authUtils";
 import styled from "styled-components";
 import { requiresUnAuth } from "pages/userAuth/authHOC";
+import FormLoginSteps from "./formLoginSteps";
+import { useEnterpriseContext } from "@lowcoder-ee/util/context/EnterpriseContext";
 
 const ThirdAuthWrapper = styled.div`
   display: flex;
@@ -84,10 +86,11 @@ export const ThirdPartyBindCard = () => {
 // this is the classic Sign In
 function Login() {
   const { inviteInfo, systemConfig, thirdPartyAuthError } = useContext(AuthContext);
+  const { isEnterpriseActive } = useEnterpriseContext();
   const invitationId = inviteInfo?.invitationId;
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const orgId = useParams<any>().orgId;
+  const { orgId } = useParams<{orgId?: string}>();
 
   const loginType = systemConfig?.authConfigs.find(
     (config) => config.sourceType === queryParams.get(AuthSearchParams.loginType)
@@ -142,8 +145,9 @@ function Login() {
       <AuthContainer
         heading={loginHeading}
         subHeading={loginSubHeading}
+        isEE={isEnterpriseActive}
       >
-        <FormLogin organizationId={organizationId} />
+        <FormLoginSteps organizationId={organizationId} />
       </AuthContainer>
     </>
   );

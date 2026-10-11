@@ -2,7 +2,7 @@ import { RecordConstructorToComp } from "lowcoder-core";
 import { StringControl } from "comps/controls/codeControl";
 import { CompNameContext, EditorContext } from "comps/editorState";
 import { Section } from "lowcoder-design";
-import { ReactNode } from "react";
+import { ReactNode, useContext, useMemo } from "react";
 import { trans } from "i18n";
 
 export interface IForm {
@@ -17,24 +17,26 @@ export const formDataChildren = {
 
 type FormDataComp = RecordConstructorToComp<typeof formDataChildren>;
 
-export const FormDataPropertyView = (children: FormDataComp) => (
-  <EditorContext.Consumer>
-    {(editorState) => (
-      <CompNameContext.Consumer>
-        {(name) => (
-          <>
-            {editorState?.findUIParentContainer(name, "form") && (
-              <Section name={trans("form")}>
-                {children.formDataKey.propertyView({
-                  label: trans("formComp.name"),
-                  placeholder: name,
-                  tooltip: trans("formComp.nameTooltip"),
-                })}
-              </Section>
-            )}
-          </>
-        )}
-      </CompNameContext.Consumer>
-    )}
-  </EditorContext.Consumer>
-);
+export const FormDataPropertyView = (children: FormDataComp) => {
+  const editorState = useContext(EditorContext);
+  const name = useContext(CompNameContext);
+  
+  const isFormParent = useMemo(() => 
+    editorState?.findUIParentContainer(name, "form"),
+    [editorState, name]
+  );
+
+  if (!isFormParent) {
+    return null;
+  }
+
+  return (
+    <Section name={trans("form")}>
+      {children.formDataKey.propertyView({
+        label: trans("formComp.name"),
+        placeholder: name,
+        tooltip: trans("formComp.nameTooltip"),
+      })}
+    </Section>
+  );
+};

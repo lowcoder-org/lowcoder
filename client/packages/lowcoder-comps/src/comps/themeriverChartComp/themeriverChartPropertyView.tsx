@@ -7,7 +7,6 @@ import {
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 import { examplesUrl,optionUrl } from "../chartComp/chartConfigs/chartUrls";
-
 export function themeriverChartPropertyView(
   children: ChartCompChildrenType,
   dispatch: (action: CompAction) => void
@@ -16,9 +15,68 @@ export function themeriverChartPropertyView(
   const jsonModePropertyView = (
     <>
       <Section name={trans("chart.config")}>
+        {children.echartsData.propertyView({
+          label: trans("chart.data"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Theme river data",
+            fieldName: "echartsData",
+            fieldDescription:
+              "JSON array of theme river rows: [date/time, value, seriesName] per ECharts themeRiver format.",
+          },
+        })}
+        {children.echartsColors.propertyView({ label: trans("themeriverChart.colors") })}
+
+        {children.echartsTitleConfig.getPropertyView()}
+        {children.echartsTitleVerticalConfig.getPropertyView()}
+        {children.legendVisibility.getView() && children.echartsLegendAlignConfig.getPropertyView()}
+        {children.legendVisibility.getView() && children.echartsLegendConfig.getPropertyView()}
+        {children.legendVisibility.getView() && children.echartsLegendOrientConfig.getPropertyView()}
+
+        {children.echartsTitle.propertyView({ label: trans("themeriverChart.title"), tooltip: trans("echarts.titleTooltip") })}
+        {children.splitNumber.propertyView({ label: trans("themeriverChart.splitNumber"), tooltip: trans("echarts.splitNumberTooltip") })}
+        {children.left.propertyView({ label: trans("themeriverChart.left"), tooltip: trans("echarts.leftTooltip") })}
+        {children.right.propertyView({ label: trans("themeriverChart.right"), tooltip: trans("echarts.rightTooltip") })}
+        {children.top.propertyView({ label: trans("themeriverChart.top"), tooltip: trans("echarts.topTooltip") })}
+        {children.bottom.propertyView({ label: trans("themeriverChart.bottom"), tooltip: trans("echarts.bottomTooltip") })}
+
+        {children.legendVisibility.propertyView({label: trans("echarts.legendVisibility"), tooltip: trans("echarts.legendVisibilityTooltip")})}
+        {children.tooltip.propertyView({label: trans("themeriverChart.tooltip"), tooltip: trans("echarts.tooltipTooltip")})}
+      </Section>
+      <Section name={sectionNames.interaction}>
+        {children.onEvent.propertyView()}
+      </Section>
+
+      <Section name={sectionNames.chartStyle}>
+        {children.chartStyle?.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.titleStyle}>
+        {children.titleStyle?.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.xAxisStyle}>
+        {children.axisStyle?.getPropertyView()}
+      </Section>
+      {
+        children.legendVisibility.getView() &&
+          <Section name={sectionNames.legendStyle}>
+            {children.legendStyle?.getPropertyView()}
+          </Section>
+      }
+
+      <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+      <Section name={sectionNames.advanced}>
         {children.echartsOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
+          language: "json",
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "echarts-option",
+            label: "Theme river option",
+            fieldName: "echartsOption",
+            fieldDescription: "Apache ECharts option JSON for this chart component.",
+          },
           tooltip: (
             <div>
               <a href={optionUrl} target="_blank" rel="noopener noreferrer">
@@ -31,16 +89,7 @@ export function themeriverChartPropertyView(
             </div>
           ),
         })}
-        {children.echartsTitle.propertyView({ label: trans("themeriverChart.title") })}
-        {children.tooltip.propertyView({label: trans("themeriverChart.tooltip")})}
       </Section>
-      <Section name={sectionNames.interaction}>
-        {children.onEvent.propertyView()}
-      </Section>
-      <Section name={sectionNames.style}>
-         {children.style.getPropertyView()}
-      </Section>
-      <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
     </>
   );
   

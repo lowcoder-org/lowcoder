@@ -1,0 +1,41 @@
+{
+  "readData": {
+    "commandType": "readData",
+    "command": {
+      "spreadsheetId": "sheet-1",
+      "sheetName": "Sheet1",
+      "range": "A1:C10",
+      "limit": 100,
+      "offset": "5"
+    }
+  },
+  "clearData": {
+    "commandType": "clearData",
+    "command": {
+      "spreadsheetId": "sheet-1",
+      "sheetName": "Sheet1",
+      "rowIndexString": "{{row}}",
+      "rowIndex": 3
+    }
+  },
+  "deleteData": {
+    "commandType": "deleteData",
+    "command": {
+      "spreadsheetId": "sheet-1",
+      "sheetName": "Sheet1",
+      "rowIndexString": "4"
+    }
+  },
+  "readDataDecimalLimit": {
+    "commandType": "readData",
+    "command": {
+      "spreadsheetId": "s",
+      "sheetName": "S",
+      "limit": 10.0
+    }
+  },
+  "unknownAction": {
+    "commandType": "sortData",
+    "command": {}
+  }
+}

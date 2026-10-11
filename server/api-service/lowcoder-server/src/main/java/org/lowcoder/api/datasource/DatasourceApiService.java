@@ -6,6 +6,7 @@ import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.plugin.client.dto.GetPluginDynamicConfigRequestDTO;
 import org.lowcoder.sdk.models.DatasourceTestResult;
+import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -15,11 +16,11 @@ import java.util.Set;
 public interface DatasourceApiService {
     Mono<Datasource> create(Datasource datasource);
 
-    Flux<Datasource> listJsDatasourcePlugins(String applicationId);
+    Flux<Datasource> listJsDatasourcePlugins(String applicationId, String name, String type);
 
-    Flux<DatasourceView> listAppDataSources(String appId);
+    Flux<DatasourceView> listAppDataSources(String appId, String name, String type);
 
-    Flux<DatasourceView> listOrgDataSources(String orgId);
+    Flux<DatasourceView> listOrgDataSources(String orgId, String name, String type);
 
     Mono<Datasource> update(String datasourceId, Datasource updatedDatasource);
 

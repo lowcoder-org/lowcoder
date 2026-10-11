@@ -1,0 +1,41 @@
+{
+  "canonical": {
+    "database": " lowcoder ",
+    "username": " root ",
+    "password": "s3crét \"quoted\"",
+    "host": " db.example.com ",
+    "port": 5432,
+    "usingSsl": true,
+    "serverTimezone": "Europe/Bratislava",
+    "isReadonly": true,
+    "enableTurnOffPreparedStatement": true,
+    "extParams": {
+      "connectTimeout": 5000,
+      "allowPublicKeyRetrieval": "true",
+      "useCursorFetch": false,
+      "nested": {
+        "list": [
+          1,
+          2.5,
+          null
+        ]
+      }
+    }
+  },
+  "scalarsAsStrings": {
+    "host": "db.example.com",
+    "port": "5433",
+    "usingSsl": "true",
+    "isReadonly": "false",
+    "enableTurnOffPreparedStatement": "true"
+  },
+  "getterNames": {
+    "host": "db.example.com",
+    "readonly": true,
+    "port": 5434.0
+  },
+  "minimal": {
+    "host": "db.example.com"
+  },
+  "empty": {}
+}

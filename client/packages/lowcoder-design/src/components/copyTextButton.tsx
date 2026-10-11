@@ -1,6 +1,6 @@
 import copy from "copy-to-clipboard";
 import styled from "styled-components";
-import { ReactComponent as Dcopy } from "icons/icon-copy.svg";
+import { ReactComponent as Dcopy } from "icons/v1/icon-copy.svg";
 import { trans } from "i18n/design";
 import { CSSProperties } from "react";
 import { messageInstance } from "./GlobalInstances";

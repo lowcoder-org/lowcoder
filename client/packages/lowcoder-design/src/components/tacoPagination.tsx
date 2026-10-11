@@ -1,6 +1,6 @@
 import { default as Pagination, PaginationProps } from "antd/es/pagination";
 import styled, { css } from "styled-components";
-import { ReactComponent as PackUpIcon } from "icons/icon-Pack-up.svg";
+import { ReactComponent as PackUpIcon } from "icons/v1/icon-Pack-up.svg";
 
 const packUpIconCss = css`
   height: 24px;

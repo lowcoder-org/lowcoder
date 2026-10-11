@@ -9,5 +9,4 @@ import org.lowcoder.infra.event.AbstractEvent;
 public abstract class BaseGroupEvent extends AbstractEvent {
 
     private final String groupId;
-    private final String groupName;
 }

@@ -1,0 +1,35 @@
+{
+  "key" : "Param.key",
+  "value" : {
+    "zeta": "first key, so that sorted output would differ from input order",
+    "int": 1,
+    "negativeInt": -40003,
+    "intMax": 2147483647,
+    "intMaxPlusOne": 2147483648,
+    "intMinMinusOne": -2147483649,
+    "longMax": 9223372036854775807,
+    "longMaxPlusOne": 9223372036854775808,
+    "longMinMinusOne": -9223372036854775809,
+    "decimal": 1.5,
+    "trailingZeroDecimal": 1.50,
+    "zeroPointZero": 0.0,
+    "negativeZero": -0,
+    "exponent": 1e2,
+    "exponentUpperCase": 1E+2,
+    "negativeExponent": 2.5e-3,
+    "longDecimal": 0.1000000000000000055511151231257827,
+    "true": true,
+    "false": false,
+    "null": null,
+    "emptyObject": {},
+    "emptyArray": [],
+    "nested": {
+      "array": [1, "two", [3, {"four": 4.0}], null, true, 3000000001],
+      "object": {"z": 1, "a": {"deeper": [[], {}]}}
+    },
+    "unicode": "žluťoučký kůň 🐎 中文",
+    "escapes": "\u00e9 \u0000 \n \t \" \\ \/ \ud83d\ude00",
+    "k\u0065y with escaped name": "escaped key",
+    "alpha": "last key"
+  }
+}

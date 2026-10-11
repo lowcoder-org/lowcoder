@@ -1,23 +1,23 @@
-import { CompAction, RecordConstructorToView, changeChildAction } from "lowcoder-core";
+import { CompAction, RecordConstructorToComp, RecordConstructorToView, changeChildAction } from "lowcoder-core";
 import { BoolControl } from "comps/controls/boolControl";
 import { arrayObjectExposingStateControl, arrayStringExposingStateControl } from "comps/controls/codeStateControl";
 import { styleControl } from "comps/controls/styleControl";
 import { TransferStyle, TransferStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
-import { UICompBuilder } from "comps/generators/uiCompBuilder";
+import { NewChildren, UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { NumberControl, StringControl } from "comps/controls/codeControl";
-import { Transfer } from "antd";
-import ReactResizeDetector from "react-resize-detector";
+import { default as Transfer } from "antd/es/transfer";
+import type { TransferKey } from "antd/es/transfer/interface";
+import { useResizeDetector } from "react-resize-detector";
 import { changeEvent, eventHandlerControl, searchEvent, selectedChangeEvent } from "../controls/eventHandlerControl";
 import styled, { css } from "styled-components";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { valueComp, withDefault } from "../generators";
 import type { TransferDirection } from 'antd/es/transfer';
-import { _ } from "core-js";
-
+import React from "react";
 
 const Container = styled.div<{ $style: TransferStyleType }>`
   height: 100%;
@@ -57,28 +57,30 @@ const defaultItems = [
 const EventOptions = [changeEvent, searchEvent, selectedChangeEvent] as const;
 
 const childrenMap = {
-  style: styleControl(TransferStyle),
+  style: styleControl(TransferStyle , 'style'),
   onEvent: eventHandlerControl(EventOptions),
   sourceTitle: withDefault(StringControl, trans('transfer.sourceTitle')),
   targetTitle: withDefault(StringControl, trans('transfer.targetTitle')),
   oneWay: BoolControl,
   pagination: BoolControl,
   showSearch: BoolControl.DEFAULT_TRUE,
+  caseSensitive: BoolControl,
   pageSize: withDefault(NumberControl, 10),
   items: arrayObjectExposingStateControl('items', defaultItems as any),
   targetKeys: arrayStringExposingStateControl('targetKeys', []),
-  selectedKeys: valueComp<any>([[], []]),
-  targerObject: valueComp<any>([]),
+  selectedKeys: arrayStringExposingStateControl('selectedKeys', []),
+  targetObject: arrayObjectExposingStateControl('targetObject', []),
   searchInfo: valueComp<string[]>(['', '']),
 };
 
-const TransferView = (props: RecordConstructorToView<typeof childrenMap> & {
+type ChildrenType = NewChildren<RecordConstructorToComp<typeof childrenMap>>;
+
+const TransferView = React.memo((props: RecordConstructorToView<typeof childrenMap> & {
   dispatch: (action: CompAction) => void;
 }) => {
   const conRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
   useEffect(() => {
     if (height && width) {
@@ -86,15 +88,18 @@ const TransferView = (props: RecordConstructorToView<typeof childrenMap> & {
     }
   }, [height, width]);
 
-  const handleChange = (newTargetKeys: string[]) => {
-    props.targetKeys.onChange(newTargetKeys);
-    props.dispatch(changeChildAction("targerObject", Array.isArray(props.items.value) ? props.items.value.filter(item => newTargetKeys.includes(item.key as string)) : [], false));
+  const handleChange = (newTargetKeys: TransferKey[]) => {
+    props.targetKeys.onChange(newTargetKeys as string[]);
+    const targetObjects = Array.isArray(props.items.value) 
+      ? props.items.value.filter(item => newTargetKeys.includes(item.key as string)) 
+      : [];
+    props.targetObject.onChange(targetObjects);
     props.onEvent('change')
   };
 
-  const onSelectChange = (sourceSelectedKeys: string[], targetSelectedKeys: string[]) => {
-    setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys]);
-    props.dispatch(changeChildAction("selectedKeys", [sourceSelectedKeys, targetSelectedKeys], false));
+  const onSelectChange = (sourceSelectedKeys: TransferKey[], targetSelectedKeys: TransferKey[]) => {
+    const allSelectedKeys = [...sourceSelectedKeys, ...targetSelectedKeys] as string[];
+    props.selectedKeys.onChange(allSelectedKeys);
     props.onEvent('selectedChange')
   };
 
@@ -103,79 +108,102 @@ const TransferView = (props: RecordConstructorToView<typeof childrenMap> & {
     props.onEvent('search')
   };
 
+  const filterOption = useCallback((inputValue: string, item: RecordType) => {
+    if (props.caseSensitive) {
+      return item.title?.includes(inputValue) ?? false;
+    }
+    return item.title?.toLowerCase().includes(inputValue.toLowerCase()) ?? false;
+  }, [props.caseSensitive]);
+
   const onResize = () => {
     const container = conRef.current;
     setWidth(container?.clientWidth ?? 0);
     setHeight(container?.clientHeight ?? 0);
   };
   
+  useResizeDetector({
+    targetRef: conRef,
+    onResize,
+  });
+
   return (
-    <ReactResizeDetector onResize={onResize}>
-      <Container
-        ref={conRef}
-        $style={props.style}
-      >
-        <Transfer
-          listStyle={{
-            width: width,
-            height: height,
-          }}
-          showSearch={props.showSearch}
-          dataSource={props.items.value as any}
-          titles={[props.targetTitle, props.sourceTitle]}
-          targetKeys={props.targetKeys.value}
-          selectedKeys={selectedKeys}
-          onChange={handleChange}
-          onSelectChange={onSelectChange}
-          render={(item: RecordType) => item.title}
-          oneWay={props.oneWay}
-          onSearch={handleSearch}
-          pagination={props.pagination ? {
-            pageSize: props.pageSize || 10,
-          } : false}
-        />
-      </Container>
-    </ReactResizeDetector>
+    <Container
+      ref={conRef}
+      $style={props.style}
+    >
+      <Transfer
+        listStyle={{
+          width: width,
+          height: height,
+        }}
+        showSearch={props.showSearch}
+        dataSource={props.items.value as any}
+        titles={[props.targetTitle, props.sourceTitle]}
+        targetKeys={props.targetKeys.value}
+        selectedKeys={props.selectedKeys.value}
+        onChange={handleChange}
+        onSelectChange={onSelectChange}
+        render={(item: RecordType) => item.title}
+        filterOption={filterOption}
+        oneWay={props.oneWay}
+        onSearch={handleSearch}
+        pagination={props.pagination ? {
+          pageSize: props.pageSize || 10,
+        } : false}
+      />
+    </Container>
   );
-};
+});
+
+const TransferCompPropertyView = React.memo((props: {
+  children: ChildrenType
+}) => {
+  return (
+    <>
+      <Section name={sectionNames.basic}>
+        {props.children.items.propertyView({
+          label: trans("transfer.items"),
+        })}
+        {props.children.selectedKeys.propertyView({
+          label: trans("transfer.selectedKeys"),
+        })}
+        {props.children.sourceTitle.propertyView({
+          label: trans("transfer.sourceTitle"),
+        })}
+        {props.children.targetTitle.propertyView({
+          label: trans("transfer.targetTitle"),
+        })}
+        {props.children.showSearch.propertyView({
+          label: trans("transfer.allowSearch"),
+        })}
+        {props.children.showSearch.getView() && props.children.caseSensitive.propertyView({
+          label: trans("transfer.caseSensitive"),
+        })}
+        {props.children.oneWay.propertyView({
+          label: trans("transfer.oneWay"),
+        })}
+        {props.children.pagination.propertyView({
+          label: trans("transfer.pagination"),
+        })}
+        {props.children.pagination.getView() && props.children.pageSize.propertyView({
+          label: trans("transfer.pageSize"),
+        })}
+      </Section>
+      <Section name={sectionNames.interaction}>
+        {props.children.onEvent.propertyView()}
+        {hiddenPropertyView(props.children)}
+        {showDataLoadingIndicatorsPropertyView(props.children)}
+      </Section>
+      <Section name={sectionNames.style}>{props.children.style.getPropertyView()}</Section>
+    </>
+  )
+});
 
 let TransferBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => <TransferView {...props} dispatch={dispatch} />)
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.items.propertyView({
-            label: trans("transfer.items"),
-          })}
-          {children.targetKeys.propertyView({
-            label: trans("transfer.targetKeys"),
-          })}
-          {children.sourceTitle.propertyView({
-            label: trans("transfer.sourceTitle"),
-          })}
-          {children.targetTitle.propertyView({
-            label: trans("transfer.targetTitle"),
-          })}
-          {children.showSearch.propertyView({
-            label: trans("transfer.allowSearch"),
-          })}
-          {children.oneWay.propertyView({
-            label: trans("transfer.oneWay"),
-          })}
-          {children.pagination.propertyView({
-            label: trans("transfer.pagination"),
-          })}
-          {children.pagination.getView() && children.pageSize.propertyView({
-            label: trans("transfer.pageSize"),
-          })}
-        </Section>
-        <Section name={sectionNames.layout}>
-          {children.onEvent.propertyView()}
-          {hiddenPropertyView(children)}
-        </Section>
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
-      </>
-    ))
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    return (
+    <TransferView {...props} dispatch={dispatch} />)})
+    .setPropertyViewFn((children) => <TransferCompPropertyView children={children} />)
     .build();
 })();
 
@@ -188,7 +216,7 @@ TransferBasicComp = class extends TransferBasicComp {
 export const transferComp = withExposingConfigs(TransferBasicComp, [
   new NameConfig("items", trans("transfer.items")),
   new NameConfig("targetKeys", trans("transfer.targetKeys")),
-  new NameConfig("targerObject", trans("transfer.targerObject")),
+  new NameConfig("targetObject", trans("transfer.targetObject")),
   new NameConfig("selectedKeys", trans("transfer.selectedKeys")),
   new NameConfig("searchInfo", trans("transfer.searchInfo")),
   NameConfigHidden,

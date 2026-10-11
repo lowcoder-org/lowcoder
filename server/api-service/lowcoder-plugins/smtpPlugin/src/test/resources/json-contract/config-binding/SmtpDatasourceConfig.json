@@ -1,0 +1,88 @@
+{
+  "SmtpEngine.resolveConfig" : {
+    "full" : {
+      "class" : "org.lowcoder.plugins.SmtpDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugins.SmtpDatasourceConfig",
+        "host" : "smtp.example.com",
+        "port" : 587,
+        "username" : "mailer@example.com",
+        "password" : "pw"
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugins.SmtpDatasourceConfig",
+        "/host" : "java.lang.String",
+        "/port" : "java.lang.Integer",
+        "/username" : "java.lang.String",
+        "/password" : "java.lang.String"
+      },
+      "noView" : {"host":"smtp.example.com","port":587,"username":"mailer@example.com","password":"pw"},
+      "Public" : {"host":"smtp.example.com","port":587,"username":"mailer@example.com"},
+      "Internal" : {"host":"smtp.example.com","port":587,"username":"mailer@example.com","password":"pw"}
+    },
+    "scalarsAsStrings" : {
+      "class" : "org.lowcoder.plugins.SmtpDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugins.SmtpDatasourceConfig",
+        "host" : "smtp.example.com",
+        "port" : 465,
+        "username" : null,
+        "password" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugins.SmtpDatasourceConfig",
+        "/host" : "java.lang.String",
+        "/port" : "java.lang.Integer",
+        "/username" : "null",
+        "/password" : "null"
+      },
+      "noView" : {"host":"smtp.example.com","port":465,"username":null,"password":null},
+      "Public" : {"host":"smtp.example.com","port":465,"username":null},
+      "Internal" : {"host":"smtp.example.com","port":465,"username":null,"password":null}
+    },
+    "decimalPort" : {
+      "class" : "org.lowcoder.plugins.SmtpDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugins.SmtpDatasourceConfig",
+        "host" : "smtp.example.com",
+        "port" : 25,
+        "username" : null,
+        "password" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugins.SmtpDatasourceConfig",
+        "/host" : "java.lang.String",
+        "/port" : "java.lang.Integer",
+        "/username" : "null",
+        "/password" : "null"
+      },
+      "noView" : {"host":"smtp.example.com","port":25,"username":null,"password":null},
+      "Public" : {"host":"smtp.example.com","port":25,"username":null},
+      "Internal" : {"host":"smtp.example.com","port":25,"username":null,"password":null}
+    },
+    "longPort" : {
+      "error" : "org.lowcoder.sdk.exception.PluginException: DATASOURCE_ARGUMENT_ERROR INVALID_SMTP_CONFIG"
+    },
+    "empty" : {
+      "class" : "org.lowcoder.plugins.SmtpDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugins.SmtpDatasourceConfig",
+        "host" : null,
+        "port" : 0,
+        "username" : null,
+        "password" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugins.SmtpDatasourceConfig",
+        "/host" : "null",
+        "/port" : "java.lang.Integer",
+        "/username" : "null",
+        "/password" : "null"
+      },
+      "noView" : {"host":null,"port":0,"username":null,"password":null},
+      "Public" : {"host":null,"port":0,"username":null},
+      "Internal" : {"host":null,"port":0,"username":null,"password":null}
+    },
+    "unknownProperty" : "ignored: binds as form full"
+  }
+}

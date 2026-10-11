@@ -57,6 +57,7 @@ export type ThirdPartyConfigType = {
   url: string;
   name: string;
   logo: string;
+  icon: string;
   // login source
   sourceType: string;
   // url is react router
@@ -102,7 +103,7 @@ export const AuthRoutes: Array<{ path: string; component: React.ComponentType<an
 
 export type ServerAuthType = "GOOGLE" | "GITHUB" | "FORM" | "KEYCLOAK" | "ORY" | "GENERIC";
 
-export type ServerAuthTypeInfoValueType = { logo?: string; isOAuth2?: boolean };
+export type ServerAuthTypeInfoValueType = { logo?: string; sourceIcon?: string; isOAuth2?: boolean };
 export const ServerAuthTypeInfo: { [key in ServerAuthType]?: ServerAuthTypeInfoValueType } = {
   GOOGLE: {
     logo: GoogleLoginIcon,

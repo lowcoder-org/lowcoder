@@ -9,9 +9,10 @@ import {
   PublishApplicationPayload,
   RecycleApplicationPayload,
   RestoreApplicationPayload,
+  SetAppEditingStatePayload,
   UpdateAppPermissionPayload,
 } from "redux/reduxActions/applicationActions";
-import { ApiResponse, GenericApiResponse } from "./apiResponses";
+import {ApiResponse, GenericApiResponse} from "./apiResponses";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import {
   ApplicationDetail,
@@ -23,6 +24,7 @@ import {
 } from "constants/applicationConstants";
 import { CommonSettingResponseData } from "./commonSettingApi";
 import { ResourceType } from "@lowcoder-ee/constants/queryConstants";
+import {fetchAppRequestType, GenericApiPaginationResponse} from "@lowcoder-ee/util/pagination/type";
 
 export interface HomeOrgMeta {
   id: string;
@@ -68,6 +70,11 @@ export interface ApplicationResp extends ApiResponse {
   data: ApplicationDetail;
 }
 
+export interface ApplicationPublishRequest {
+  commitMessage?: string;
+  tag: string;
+}
+
 interface GrantAppPermissionReq {
   applicationId: string;
   role: ApplicationRoleType;
@@ -77,26 +84,28 @@ interface GrantAppPermissionReq {
 
 class ApplicationApi extends Api {
   static newURLPrefix = "/applications";
-  static fetchHomeDataURL = "/v1/applications/home";
-  static createApplicationURL = "/v1/applications";
-  static fetchAllMarketplaceAppsURL = "/v1/applications/marketplace-apps";
-  static deleteApplicationURL = (applicationId: string) => `/v1/applications/${applicationId}`;
-  static getAppPublishInfoURL = (applicationId: string) => `/v1/applications/${applicationId}/view`;
-  static getAppEditingInfoURL = (applicationId: string) => `/v1/applications/${applicationId}`;
-  static updateApplicationURL = (applicationId: string) => `/v1/applications/${applicationId}`;
+  static fetchHomeDataURL = "/applications/home";
+  static createApplicationURL = "/applications";
+  static fetchAllMarketplaceAppsURL = "/applications/marketplace-apps";
+  static deleteApplicationURL = (applicationId: string) => `/applications/${applicationId}`;
+  static getAppPublishInfoURL = (applicationId: string) => `/applications/${applicationId}/view`;
+  static getAppEditingInfoURL = (applicationId: string) => `/applications/${applicationId}`;
+  static updateApplicationURL = (applicationId: string) => `/applications/${applicationId}`;
   static getApplicationPermissionURL = (applicationId: string) =>
-    `/v1/applications/${applicationId}/permissions`;
+    `/applications/${applicationId}/permissions`;
   static grantAppPermissionURL = (applicationId: string) =>
-    `/v1/applications/${applicationId}/permissions`;
+    `/applications/${applicationId}/permissions`;
   static publishApplicationURL = (applicationId: string) =>
-    `/v1/applications/${applicationId}/publish`;
+    `/applications/${applicationId}/publish`;
   static updateAppPermissionURL = (applicationId: string, permissionId: string) =>
-    `/v1/applications/${applicationId}/permissions/${permissionId}`;
-  static createFromTemplateURL = `/v1/applications/createFromTemplate`;
+    `/applications/${applicationId}/permissions/${permissionId}`;
+  static createFromTemplateURL = `/applications/createFromTemplate`;
   static publicToAllURL = (applicationId: string) => `/applications/${applicationId}/public-to-all`;
-  static publicToMarketplaceURL = (applicationId: string) => `/v1/applications/${applicationId}/public-to-marketplace`;
-  static getMarketplaceAppURL = (applicationId: string) => `/v1/applications/${applicationId}/view_marketplace`;
-
+  static publicToMarketplaceURL = (applicationId: string) => `/applications/${applicationId}/public-to-marketplace`;
+  static getMarketplaceAppURL = (applicationId: string) => `/applications/${applicationId}/view_marketplace`;
+  static setAppEditingStateURL = (applicationId: string) => `/applications/editState/${applicationId}`;
+  static getAvailableGroupsMembersURL = (applicationId: string) => `/applications/${applicationId}/groups-members/available`;
+  static serverSettingsURL = () => `/serverSettings`;
 
   static fetchHomeData(request: HomeDataPayload): AxiosPromise<HomeDataResponse> {
     return Api.get(ApplicationApi.fetchHomeDataURL, request);
@@ -104,6 +113,10 @@ class ApplicationApi extends Api {
 
   static fetchAllApplications(request: HomeDataPayload): AxiosPromise<ApplicationMeta[]> {
     return Api.get(ApplicationApi.newURLPrefix + "/list", { ...request, withContainerSize: false });
+  }
+
+  static fetchAllApplicationsPagination(request: fetchAppRequestType): AxiosPromise<GenericApiPaginationResponse<ApplicationMeta[]>> {
+    return Api.get(ApplicationApi.newURLPrefix + "/list", { ...request, withContainerSize: false, applicationStatus: "RECYCLED" });
   }
 
   static fetchAllModules(request: HomeDataPayload): AxiosPromise<ApplicationMeta[]> {
@@ -163,8 +176,13 @@ class ApplicationApi extends Api {
     return Api.put(ApplicationApi.updateApplicationURL(applicationId), rest);
   }
 
-  static publishApplication(request: PublishApplicationPayload): AxiosPromise<ApiResponse> {
-    return Api.post(ApplicationApi.publishApplicationURL(request.applicationId));
+  static publishApplication(
+    request: PublishApplicationPayload
+  ): AxiosPromise<ApiResponse> {
+    return Api.post(
+      ApplicationApi.publishApplicationURL(request.applicationId),
+      request?.request
+    );
   }
 
   static getApplicationDetail(request: FetchAppInfoPayload): AxiosPromise<ApplicationResp> {
@@ -210,6 +228,10 @@ class ApplicationApi extends Api {
     });
   }
 
+  static getAvailableGroupsMembers(applicationId: string, search: string): AxiosPromise<any> {
+    return Api.get(ApplicationApi.getAvailableGroupsMembersURL(applicationId), {search})
+  }
+
   /**
    * set app as public
    */
@@ -231,6 +253,17 @@ class ApplicationApi extends Api {
 
   static getMarketplaceApp(appId: string) {
     return Api.get(ApplicationApi.getMarketplaceAppURL(appId));
+  }
+
+  static setAppEditingState(request: SetAppEditingStatePayload): AxiosPromise<ApplicationResp> {
+    const { applicationId, editingFinished } = request;
+    return Api.put(ApplicationApi.setAppEditingStateURL(applicationId), {
+      editingFinished,
+    });
+  }
+
+  static fetchServerSettings(): AxiosPromise<any> {
+    return Api.get(ApplicationApi.serverSettingsURL());
   }
 }
 

@@ -1,0 +1,12 @@
+{
+  "org.lowcoder.sdk.plugin.common.ssl.SslConfig" : {
+    "DISABLED" : "org.lowcoder.sdk.plugin.common.ssl.DisableVerifySslConfig",
+    "VERIFY_SELF_SIGNED_CERT" : "org.lowcoder.sdk.plugin.common.ssl.VerifySelfSignedCertSslConfig"
+  },
+  "org.lowcoder.sdk.plugin.restapi.auth.AuthConfig" : {
+    "BASIC_AUTH" : "org.lowcoder.sdk.plugin.restapi.auth.BasicAuthConfig",
+    "DIGEST_AUTH" : "org.lowcoder.sdk.plugin.restapi.auth.BasicAuthConfig",
+    "NO_AUTH" : "org.lowcoder.sdk.plugin.restapi.auth.NoneAuthConfig",
+    "OAUTH2_INHERIT_FROM_LOGIN" : "org.lowcoder.sdk.plugin.restapi.auth.OAuthInheritAuthConfig"
+  }
+}

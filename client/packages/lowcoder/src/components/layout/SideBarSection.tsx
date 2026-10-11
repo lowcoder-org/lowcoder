@@ -11,6 +11,7 @@ import { getUser } from "../../redux/selectors/usersSelectors";
 import { normalAppListSelector } from "../../redux/selectors/applicationSelector";
 import { useLocation } from "react-router-dom";
 import history from "../../util/history";
+import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
 
 const defaultOnSelectedFn = (routePath: string, currentPath: string) => routePath === currentPath;
 
@@ -23,10 +24,14 @@ const Wrapper = styled.div`
 export const SideBarSection = (props: SideBarSectionProps) => {
   const user = useSelector<AppState, User>(getUser);
   const applications = useSelector<AppState, ApplicationMeta[]>(normalAppListSelector);
+  const brandingSettings = useSelector(getBrandingSetting);
   const currentPath = useLocation().pathname;
+  const isShow = props.items
+    .map((item) => (item.visible ? item.visible({ user: user, applications: applications }) : true))
+    .includes(true);
 
   return (
-    <Wrapper className={CNSidebarSection} style={props.style}>
+    <Wrapper className={isShow ? CNSidebarSection : ""} style={props.style}>
       {props.title}
       {props.items
         .filter((item) =>
@@ -42,10 +47,17 @@ export const SideBarSection = (props: SideBarSectionProps) => {
                   ? item.onSelected(item.routePath, currentPath)
                   : defaultOnSelectedFn(item.routePath, currentPath)
               }
-              onClick={
-                item.onClick ??
-                (() => currentPath !== item.routePath && history.push(item.routePath))
-              }
+              selectedBgColor={brandingSettings?.config_set?.adminSidebarActiveBgColor}
+              selectedFontColor={brandingSettings?.config_set?.adminSidebarActiveFontColor}
+              onClick={() => {
+                // Trigger item's onClick if defined
+                item.onClick
+                  ? item.onClick("")
+                  : currentPath !== item.routePath && history.push(item.routePath);
+
+                // Trigger parent onItemClick to close the drawer
+                props.onItemClick?.();
+              }}
             />
           );
         })}
@@ -54,15 +66,17 @@ export const SideBarSection = (props: SideBarSectionProps) => {
 };
 
 export type SideBarItemType = Omit<SideBarItemProps, "selected"> & {
-  onSelected?: (routePath: string, currentPath: string) => boolean; // customize select logic from url path
+  onSelected?: (routePath: string, currentPath: string) => boolean; // Customize select logic from URL path
   routePath: string;
   routePathExact?: boolean;
   visible?: (params: { user: User; applications: ApplicationMeta[] }) => boolean;
   routeComp: React.ComponentType<any>;
+  mobileVisible?: boolean;
 };
 
 export interface SideBarSectionProps {
   title?: ReactNode;
   items: SideBarItemType[];
   style?: CSSProperties;
+  onItemClick?: () => void; // New prop for handling item click
 }

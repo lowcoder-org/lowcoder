@@ -6,7 +6,7 @@ import {
 } from "lowcoder-core";
 import { BoolControl } from "../../controls/boolControl";
 import { LabelControl } from "../../controls/labelControl";
-import { BoolCodeControl, StringControl } from "../../controls/codeControl";
+import { BoolCodeControl, StringControl, NumberControl } from "../../controls/codeControl";
 import { PaddingControl } from "../../controls/paddingControl";
 import { MarginControl } from "../../controls/marginControl";
 import {
@@ -48,6 +48,7 @@ import {
   disabledPropertyView,
   hiddenPropertyView,
   placeholderPropertyView,
+  showDataLoadingIndicatorsPropertyView,
   showSearchPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
@@ -56,9 +57,9 @@ import { RefControl } from "comps/controls/refControl";
 import { BaseSelectRef } from "rc-select";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, focusMethod } from "comps/utils/methodUtils";
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { styleControl } from "comps/controls/styleControl";
+import SupaDemoDisplay from "comps/utils/supademoDisplay";
 
 export const getStyle = (
   style:
@@ -74,10 +75,13 @@ export const getStyle = (
       padding: ${style.padding};	
       height: auto;	
     }	
-    .ant-select-selection-search {	
+    .ant-select-selection-search {
+      min-width: 50px; 	
       padding: ${style.padding};
     }	
-    .ant-select-selection-search-input {
+    .ant-select-selection-search-input,
+    .ant-select-selection-item,
+    .ant-select-selection-item .option-label {
       font-family:${(style as SelectStyleType).fontFamily} !important;
       text-transform:${(style as SelectStyleType).textTransform} !important;
       text-decoration:${(style as SelectStyleType).textDecoration} !important;
@@ -106,7 +110,7 @@ export const getStyle = (
       }
 
       .ant-select-selector {
-        background-color: ${style.background};
+        background: ${style.background};
         border-color: ${style.border};
         border-width:${(style as SelectStyleType).borderWidth};
         box-shadow:${(style as SelectStyleType).boxShadow} ${(style as SelectStyleType).boxShadowColor};
@@ -115,13 +119,13 @@ export const getStyle = (
       &.ant-select-focused,
       &:hover {
         .ant-select-selector {
-          border-color: ${style.accent};
+          border-color: ${style.accent} !important;
         }
       }
 
       .ant-select-arrow,
       .ant-select-clear {
-        background-color: ${style.background};
+        // background: ${style.background};
         color: ${style.text === "#222222"
       ? "#8B8FA3"
       : isDarkColor(style.text)
@@ -139,7 +143,7 @@ export const getStyle = (
 
       &.ant-select-multiple .ant-select-selection-item {
         border: none;
-        background-color: ${(style as MultiSelectStyleType).tags};
+        background: ${(style as MultiSelectStyleType).tags};
         color: ${(style as MultiSelectStyleType).tagsText};
         border-radius: ${style.radius};
 
@@ -187,8 +191,8 @@ const Select = styled(AntdSelect) <{ $style: SelectStyleType & MultiSelectStyleT
   ${(props) => props.$inputFieldStyle && getStyle(props.$inputFieldStyle)}
 `;
 
-const DropdownStyled = styled.div<{ $style: ChildrenMultiSelectStyleType }>`
- background-color: ${props => props.$style?.background};
+export const DropdownStyled = styled.div<{ $style: ChildrenMultiSelectStyleType }>`
+    background: ${props => props.$style?.background};
     border: ${props => props.$style?.border};
     border-style: ${props => props.$style?.borderStyle};
     border-width: ${props => props.$style?.borderWidth};
@@ -203,6 +207,7 @@ const DropdownStyled = styled.div<{ $style: ChildrenMultiSelectStyleType }>`
     font-weight: ${props => props.$style?.textWeight};
     text-transform: ${props => props.$style?.textTransform};
     color: ${props => props.$style?.text};
+    line-height: ${props => props.$style?.lineHeight};
   }
   .option-label{
     text-decoration: ${props => props.$style?.textDecoration} !important;
@@ -210,6 +215,12 @@ const DropdownStyled = styled.div<{ $style: ChildrenMultiSelectStyleType }>`
   .option-label img {
     min-width: 14px;
     margin-right: 0;
+  }
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    background-color: ${props => props.$style?.selectBackground ? `${props.$style.selectBackground}` : 'transparent'};
+  }
+  .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+    background-color: ${props => props.$style?.activeBackground ? `${props.$style.activeBackground}` : 'transparent'};
   }
 `;
 
@@ -236,6 +247,7 @@ export const SelectChildrenMap = {
   margin: MarginControl,
   padding: PaddingControl,
   inputFieldStyle:styleControl(SelectStyle),
+  tabIndex: NumberControl,
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
@@ -249,10 +261,12 @@ export const SelectUIView = (
     inputFieldStyle: SelectStyleType;
     onChange: (value: any) => void;
     dispatch: DispatchType;
+    autoFocus?: boolean;
   }
 ) => {
   return <Select
     ref={props.viewRef}
+    autoFocus={props.autoFocus}
     mode={props.mode}
     $inputFieldStyle={props.inputFieldStyle}
     $style={props.style as SelectStyleType & MultiSelectStyleType}
@@ -261,16 +275,20 @@ export const SelectUIView = (
     placeholder={props.placeholder}
     value={props.value}
     showSearch={props.showSearch}
-    filterOption={(input, option) =>
-      option?.label.toLowerCase().includes(input.toLowerCase())
-    }
-    dropdownRender={(originNode: ReactNode) => (
+    tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
+    filterOption={(input, option) => {
+      if (!option) return false;
+      return String(option.label ?? option.value ?? "").toLowerCase().includes(input.toLowerCase());
+    }}
+    popupRender={(originNode: ReactNode) => (
       <DropdownStyled $style={props.childrenInputFieldStyle as ChildrenMultiSelectStyleType}>
         {originNode}
       </DropdownStyled>
     )}
-    dropdownStyle={{
-      padding: 0,
+    styles={{
+      popup: {
+        root: { padding: 0 },
+      }
     }}
     menuItemSelectedIcon={props.mode ? <MultiselectTagIcon title="" /> : ""}
     onChange={props.onChange}
@@ -316,7 +334,9 @@ export const SelectPropertyView = (
     inputFieldStyle: { getPropertyView: () => ControlNode };
     childrenInputFieldStyle: { getPropertyView: () => ControlNode };
   }
-) => (
+) => {
+  const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+  return (
   <>
     <Section name={sectionNames.basic}>
       {children.options.propertyView({})}
@@ -326,7 +346,7 @@ export const SelectPropertyView = (
       {placeholderPropertyView(children)}
     </Section>
 
-    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+    {["logic", "both"].includes(editorModeStatus) && (
       <>
         <>
           <SelectInputValidationSection {...children} />
@@ -336,14 +356,16 @@ export const SelectPropertyView = (
           {children.onEvent.getPropertyView()}
           {disabledPropertyView(children)}
           {hiddenPropertyView(children)}
+          {showDataLoadingIndicatorsPropertyView(children as any)}
+          {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
         </Section>
       </>
     )}
 
-    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) &&
+    {["layout", "both"].includes(editorModeStatus) &&
       children.label.getPropertyView()}
 
-    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+    {["logic", "both"].includes(editorModeStatus) && (
       <Section name={sectionNames.advanced}>
         {allowClearPropertyView(children)}
         {showSearchPropertyView(children)}
@@ -351,7 +373,7 @@ export const SelectPropertyView = (
     )}
 
     {["layout", "both"].includes(
-      useContext(EditorContext).editorModeStatus
+      editorModeStatus
     ) && (
         <>
           <Section name={sectionNames.style}>
@@ -363,13 +385,14 @@ export const SelectPropertyView = (
           <Section name={sectionNames.inputFieldStyle}>
             {children.inputFieldStyle.getPropertyView()}
           </Section>
-          <Section name={'Children Input Field Styles'}>
+          <Section name={sectionNames.childrenInputFieldStyle}>
             {children.childrenInputFieldStyle.getPropertyView()}
           </Section>
         </>
       )}
   </>
 );
+};
 
 export const baseSelectRefMethods = refMethods<BaseSelectRef>([
   focusMethod,

@@ -11,6 +11,7 @@ import { LowcoderCompMeta } from "types/remoteComp";
 import { TransparentImg } from "util/commonUtils";
 import { ModuleIcon } from "lowcoder-design";
 import { NPM_PLUGIN_ASSETS_BASE_URL } from "constants/npmPlugins";
+import { useApplicationId } from "@lowcoder-ee/util/hooks";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -75,10 +76,11 @@ interface PluginCompItemProps {
 }
 
 export function PluginCompItem(props: PluginCompItemProps) {
+  const appId = useApplicationId();
   const { packageName, packageVersion, compName, compMeta, onDrag } = props;
   const compType = getRemoteCompType("npm", packageName, packageVersion, compName);
 
-  const icon = `${NPM_PLUGIN_ASSETS_BASE_URL}/${packageName}@${packageVersion}/${compMeta.icon}`;
+  const icon = `${NPM_PLUGIN_ASSETS_BASE_URL}/${appId}/${packageName}@${packageVersion}/${compMeta.icon}`;
 
   return (
     <ItemWrapper

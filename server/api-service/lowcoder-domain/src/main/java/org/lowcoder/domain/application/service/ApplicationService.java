@@ -7,6 +7,7 @@ import org.lowcoder.infra.annotation.NonEmptyMono;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +20,7 @@ public interface ApplicationService {
 
     Mono<Boolean> updateById(String applicationId, Application application);
 
-    Mono<Boolean> updatePublishedApplicationDSL(String applicationId, Map<String, Object> applicationDSL);
-
-    Mono<Application> publish(String applicationId);
+    Mono<Boolean> updateEditState(String applicationId, Boolean editingFinished);
 
     Mono<Application> create(Application newApplication, String visitorId);
 
@@ -71,4 +70,9 @@ public interface ApplicationService {
     Mono<Set<String>> getPublicAgencyApplicationIds(Collection<String> applicationIds);
 
     Flux<Application> findAll();
+
+    Mono<Boolean> updateLastEditedAt(String applicationId, Instant time, String visitorId);
+    Mono<Map<String, Object>> getLiveDSLByApplicationId(String applicationId);
+
+    Mono<Application> updateSlug(String applicationId, String newSlug);
 }

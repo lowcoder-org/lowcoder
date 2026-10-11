@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { ReactNode, useContext, useMemo, useRef, useState } from "react";
+import { ReactNode, useContext, useRef, useState, useCallback, useEffect } from "react";
 import { Layers } from "../../constants/Layers";
 import { CodeEditorOpenIcon, CodeEditorPinnedIcon, CodeEditorUnPinnedIcon } from "lowcoder-design";
 import { CodeEditorCloseIcon } from "lowcoder-design";
@@ -8,10 +8,11 @@ import Trigger from "rc-trigger";
 import { Resizable } from "react-resizable";
 import Handle from "../../layout/handler";
 import Draggable from "react-draggable";
-import { getPanelStyle, savePanelStyle } from "../../util/localStorageUtil";
+import { useEditorLayoutStore } from "./editorLayoutStore";
 import { CompNameContext } from "../../comps/editorState";
 import { isEmpty } from "lodash";
 import { trans } from "i18n";
+import { useUnmount } from "react-use";
 
 const Wrapper = styled.div`
   max-width: 60vw;
@@ -22,7 +23,7 @@ const Wrapper = styled.div`
   left: 50%;
   border-radius: 8px;
   background: #ffffff;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.2);
 `;
 const HeaderWrapper = styled.div`
   height: 40px;
@@ -136,6 +137,7 @@ export const CodeEditorPanel = (props: {
   const draggableRef = useRef<HTMLDivElement>(null);
   const [unDraggable, setUnDraggable] = useState(true);
   const [pinned, setPinned] = useState(false);
+  const mountedRef = useRef(true);
 
   const [bounds, setBounds] = useState({
     left: 0,
@@ -144,12 +146,72 @@ export const CodeEditorPanel = (props: {
     right: 0,
   });
 
-  const panelStyle = useMemo(() => getPanelStyle(), [props.editor]);
-  const [size, setSize] = useState({ w: panelStyle.codeEditor.w, h: panelStyle.codeEditor.h });
+  const savedSize = useEditorLayoutStore((state) => state.panelStyle.codeEditor);
+  const setCodeEditorSize = useEditorLayoutStore((state) => state.setCodeEditorSize);
+  // local state drives the live drag; only the committed size goes to the store
+  const [size, setSize] = useState({ w: savedSize.w, h: savedSize.h });
 
   const [visible, setVisible] = useState(false);
 
   const compName = useContext(CompNameContext);
+
+  const handleMouseOver = useCallback(() => {
+    if (mountedRef.current) {
+      setUnDraggable(false);
+    }
+  }, []);
+
+  const handleMouseOut = useCallback(() => {
+    if (mountedRef.current) {
+      setUnDraggable(true);
+    }
+  }, []);
+
+  const handleDragStart = useCallback((event: any, uiData: any) => {
+    if (!mountedRef.current) return;
+
+    const { clientWidth, clientHeight } = window.document.documentElement;
+    const targetRect = draggableRef.current?.getBoundingClientRect();
+    if (!targetRect) {
+      return;
+    }
+    setBounds({
+      left: -targetRect.left + uiData.x,
+      right: clientWidth - (targetRect.right - uiData.x),
+      top: -targetRect.top + uiData.y,
+      bottom: clientHeight - (targetRect.bottom - uiData.y),
+    });
+  }, []);
+
+  const handleResize = useCallback((event: any, { size }: { size: { width: number; height: number } }) => {
+    if (mountedRef.current) {
+      setSize({ w: size.width, h: size.height });
+    }
+  }, []);
+
+  const handleResizeStop = useCallback(() => {
+    if (mountedRef.current) {
+      setCodeEditorSize({ w: size.w, h: size.h });
+    }
+  }, [setCodeEditorSize, size.w, size.h]);
+
+  const handleVisibleChange = useCallback((visible: boolean) => {
+    if (mountedRef.current) {
+      setVisible(visible);
+    }
+  }, []);
+
+  const handleAfterVisibleChange = useCallback((visible: boolean) => {
+    if (mountedRef.current) {
+      props.onVisibleChange(visible);
+    }
+  }, [props.onVisibleChange]);
+
+  useUnmount(() => {
+    mountedRef.current = false;
+    setVisible(false);
+    props.onVisibleChange(false);
+  });
 
   return (
     <Trigger
@@ -159,50 +221,37 @@ export const CodeEditorPanel = (props: {
       popupStyle={{ opacity: 1, display: visible ? "block" : "none" }}
       maskClosable={!pinned}
       mask={true}
-      onPopupVisibleChange={(visible) => setVisible(visible)}
-      afterPopupVisibleChange={(visible) => props.onVisibleChange(visible)}
+      onPopupVisibleChange={handleVisibleChange}
+      afterPopupVisibleChange={handleAfterVisibleChange}
       getPopupContainer={(node: any) => node.parentNode.parentNode}
       popup={() => (
         <Draggable
+          nodeRef={draggableRef}
           positionOffset={{ x: "-50%", y: "-50%" }}
           disabled={unDraggable}
           bounds={bounds}
-          onStart={(event, uiData) => {
-            const { clientWidth, clientHeight } = window.document.documentElement;
-            const targetRect = draggableRef.current?.getBoundingClientRect();
-            if (!targetRect) {
-              return;
-            }
-            setBounds({
-              left: -targetRect.left + uiData.x,
-              right: clientWidth - (targetRect.right - uiData.x),
-              top: -targetRect.top + uiData.y,
-              bottom: clientHeight - (targetRect.bottom - uiData.y),
-            });
-          }}
+          onStart={handleDragStart}
         >
           <Resizable
             width={size.w}
             height={size.h}
-            onResize={(event, { size }) => setSize({ w: size.width, h: size.height })}
-            onResizeStop={() =>
-              savePanelStyle({ ...panelStyle, codeEditor: { w: size.w, h: size.h } })
-            }
+            onResize={handleResize}
+            onResizeStop={handleResizeStop}
             handle={Handle}
             resizeHandles={["s", "n", "w", "e", "sw", "nw", "se", "ne"]}
             minConstraints={[480, 360]}
           >
             <Wrapper ref={draggableRef} style={{ width: size.w + "px", height: size.h + "px" }}>
               <HeaderWrapper
-                onMouseOver={() => setUnDraggable(false)}
-                onMouseOut={() => setUnDraggable(true)}
+                onMouseOver={handleMouseOver}
+                onMouseOut={handleMouseOut}
               >
                 <TitleWrapper>
                   <StyledDragIcon />
                   {[compName, ...(props.breadcrumb ?? [])].filter((t) => !isEmpty(t)).join(" / ")}
                 </TitleWrapper>
                 <Buttons>
-                  <PinButton onClick={() => setPinned(!pinned) }> 
+                  <PinButton onClick={() => setPinned(!pinned)}>
                     {pinned ? <CodeEditorPinnedIcon/> : <CodeEditorUnPinnedIcon/>}
                   </PinButton>
                   <CloseButton onClick={() => setVisible(false)}>
@@ -211,7 +260,6 @@ export const CodeEditorPanel = (props: {
                   </CloseButton>
                 </Buttons>
               </HeaderWrapper>
-
               <BodyWrapper>{props.editor}</BodyWrapper>
             </Wrapper>
           </Resizable>

@@ -26,11 +26,12 @@ import {
   useIcon,
   wrapperToControlItem,
 } from "lowcoder-design";
-import { ReactNode, useCallback, useState } from "react";
+import { memo, ReactNode, useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
 import { StringControl } from "./codeControl";
 import { ControlParams } from "./controlParams";
+import { IconDictionary } from "@lowcoder-ee/constants/iconConstants";
 
 const ButtonWrapper = styled.div`
   width: 100%;
@@ -90,7 +91,7 @@ export const IconPicker = (props: {
             <ButtonIconWrapper>{icon.getView()}</ButtonIconWrapper>
             <ButtonText title={icon.title}>{icon.title}</ButtonText>
             <StyledDeleteInputIcon
-              onClick={(e) => {
+              onClick={(e: any) => {
                 props.onChange("");
                 e.stopPropagation();
               }}
@@ -208,14 +209,28 @@ type ChangeModeAction = {
   useCodeEditor: boolean;
 };
 
-function IconControlView(props: { value: string }) {
+export const IconControlView = memo((props: { value: string }) => {
   const { value } = props;
   const icon = useIcon(value);
-  if (icon) {
-    return icon.getView();
-  }
-  return <StyledImage src={value} alt="" />;
-}
+
+  return useMemo(() => {
+    if (value && IconDictionary[value] && IconDictionary[value]?.title === icon?.title) {
+      return IconDictionary[value];
+    }
+
+    if (value && icon) {
+      const renderIcon = icon.getView();
+      IconDictionary[value] = renderIcon;
+      return renderIcon;
+    }
+
+    if (value) {
+      return <StyledImage src={value} alt="" />;
+    }
+
+    return '';
+  }, [icon, value, IconDictionary[value]])
+});
 
 export class IconControl extends AbstractComp<ReactNode, string, Node<ValueAndMsg<string>>> {
   private readonly useCodeEditor: boolean;

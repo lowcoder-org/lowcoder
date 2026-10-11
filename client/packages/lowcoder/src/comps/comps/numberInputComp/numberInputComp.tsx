@@ -21,7 +21,7 @@ import {
   withExposingConfigs,
 } from "comps/generators/withExposing";
 import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState, useCallback } from "react";
 import styled, { css } from "styled-components";
 import { RecordConstructorToView } from "lowcoder-core";
 import { InputEventHandlerControl } from "../../controls/eventHandlerControl";
@@ -30,7 +30,7 @@ import { formDataChildren, FormDataPropertyView } from "../formComp/formDataCons
 import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { RefControl } from "../../controls/refControl";
 import { styleControl } from "comps/controls/styleControl";
-import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, DisabledInputStyle, DisabledInputStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import {
   disabledPropertyView,
   hiddenPropertyView,
@@ -50,9 +50,9 @@ import {
   setSelectionRangeMethod,
 } from "comps/utils/methodUtils";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { migrateOldData } from "comps/generators/simpleGenerators";
+import { withLinkedDefaultValue } from "comps/controls/codeStateControl";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
 const getStyle = (style: InputLikeStyleType) => {
@@ -74,11 +74,7 @@ const getStyle = (style: InputLikeStyleType) => {
       &:hover {
         border-color: ${style.accent};
       }
-
-      &::-webkit-input-placeholder {
-        color: ${style.text};
-        opacity: 0.4;
-      }
+  
       .ant-input-number {	
         margin: 0;	
         
@@ -92,6 +88,26 @@ const getStyle = (style: InputLikeStyleType) => {
         font-weight:${style.textWeight} !important;
         font-size:${style.textSize} !important;
         font-style:${style.fontStyle} !important;
+
+        &::-webkit-input-placeholder {
+          color: ${style.placeholder};
+          opacity: 1;
+        }
+
+        &::-moz-placeholder {
+          color: ${style.placeholder};
+          opacity: 1;
+        }
+
+        &:-ms-input-placeholder {
+          color: ${style.placeholder};
+          opacity: 1;
+        }
+
+        &::placeholder {
+          color: ${style.placeholder};
+          opacity: 1;
+        }
       }
 
       .ant-input-number-handler-wrap {
@@ -121,11 +137,27 @@ const getStyle = (style: InputLikeStyleType) => {
 
 const InputNumber = styled(AntdInputNumber)<{
   $style: InputLikeStyleType;
+  $disabledStyle?: DisabledInputStyleType;
 }>`
   box-shadow: ${(props) =>
     `${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
   width: 100%;
   ${(props) => props.$style && getStyle(props.$style)}
+  
+  /* Disabled state styling */
+  &:disabled,
+  &.ant-input-number-disabled {
+    color: ${(props) => props.$disabledStyle?.disabledText};
+    background: ${(props) => props.$disabledStyle?.disabledBackground};
+    border-color: ${(props) => props.$disabledStyle?.disabledBorder};
+    cursor: not-allowed;
+    
+    .ant-input-number-input {
+      color: ${(props) => props.$disabledStyle?.disabledText};
+      background: ${(props) => props.$disabledStyle?.disabledBackground};
+    }
+    
+  }
 `;
 
 const FormatterOptions = [
@@ -259,51 +291,53 @@ const childrenMap = {
   allowNull: BoolControl,
   onEvent: InputEventHandlerControl,
   viewRef: RefControl<HTMLInputElement>,
-  style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
-  labelStyle:styleControl(LabelStyle),
-  prefixText : stringExposingStateControl("defaultValue"),
-  animationStyle: styleControl(AnimationStyle),
-
+  style: styleControl(InputFieldStyle , 'style') , 
+  labelStyle: styleControl(LabelStyle , 'labelStyle'),
+  prefixText: StringControl,
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   prefixIcon: IconControl,
-  inputFieldStyle: withDefault(styleControl(InputLikeStyle), {borderWidth: '1px'}) ,
+  inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'),
+  disabledStyle: styleControl(DisabledInputStyle, 'disabledStyle'),
   // validation
   required: BoolControl,
+  showValidationWhenEmpty: BoolControl,
   min: UndefinedNumberControl,
   max: UndefinedNumberControl,
   customRule: CustomRuleControl,
+  tabIndex: NumberControl,
 
   ...formDataChildren,
 };
 
 const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) => {
   const ref = useRef<HTMLInputElement | null>(null);
-  const defaultValue = props.defaultValue.value;
+  const mountedRef = useRef(true);
 
+  // Cleanup on unmount
   useEffect(() => {
-    let value = 0;
-    if (defaultValue === 'null' && props.allowNull) {
-      value = NaN;
-    } else if (!isNaN(Number(defaultValue))) {
-      value = Number(defaultValue);
-    }
-    props.value.onChange(value);
-  }, [defaultValue]);
+    return () => {
+      mountedRef.current = false;
+      ref.current = null;
+    };
+  }, []);
 
   const formatFn = (value: number) =>
     format(value, props.allowNull, props.formatter, props.precision, props.thousandsSeparator);
 
   const [tmpValue, setTmpValue] = useState(formatFn(props.value.value));
 
-  const handleFinish = () => {
+  const handleFinish = useCallback(() => {
+    if (!mountedRef.current) return;
     const oldValue = props.value.value;
     const newValue = parseNumber(tmpValue, props.allowNull);
     props.value.onChange(newValue);
     if((oldValue !== newValue)) {
       props.onEvent("change");
     }
-  };
+  }, [tmpValue, props.allowNull, props.value, props.onEvent]);
 
   useEffect(() => {
+    if (!mountedRef.current) return;
     setTmpValue(formatFn(props.value.value));
   }, [
     props.value.value,
@@ -313,9 +347,48 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
     props.thousandsSeparator,
   ]);
 
+  const handleChangeCapture = useCallback((e: any) => {
+    if (!mountedRef.current) return;
+    setTmpValue((e.target.value?.toString() ?? "").replace("。", "."));
+  }, []);
+
+  const handleStep = useCallback((_: any, info: any) => {
+    if (!mountedRef.current) return;
+    const v = NP.plus(
+      parseNumber(tmpValue),
+      NP.times(info.type === "up" ? 1 : -1, Number(info.offset))
+    );
+    props.value.onChange(v);
+    props.onEvent("change");
+  }, [tmpValue, props.value, props.onEvent]);
+
+  const handleKeyPress = useCallback((event: React.KeyboardEvent) => {
+    if (!mountedRef.current) return;
+    const value = tmpValue;
+    const cursor = ref.current?.selectionStart;
+    if (/\d/.test(event.key)) {
+      return;
+    }
+    if (cursor === 0 && event.key === "-" && !/-/.test(value)) {
+      return;
+    }
+    if (cursor !== 0 && props.thousandsSeparator && event.key === ",") {
+      return;
+    }
+    if (
+      props.precision > 0 &&
+      (event.key === "." || event.key === "。") &&
+      !/[.]/.test(value)
+    ) {
+      return;
+    }
+    event.preventDefault();
+  }, [tmpValue, props.thousandsSeparator, props.precision]);
+
   return (
     <InputNumber
       ref={(input) => {
+        if (!mountedRef.current) return;
         props.viewRef(input);
         ref.current = input;
       }}
@@ -328,54 +401,24 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
       stringMode={true}
       precision={props.precision}
       $style={props.inputFieldStyle}
-      prefix={hasIcon(props.prefixIcon) ? props.prefixIcon : props.prefixText.value}
+      $disabledStyle={props.disabledStyle}
+      prefix={hasIcon(props.prefixIcon) ? props.prefixIcon : props.prefixText}
+      tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
       onPressEnter={() => {
         handleFinish();
         props.onEvent("submit");
       }}
-      onChangeCapture={(e: any) => {
-        // eslint-disable-next-line only-ascii/only-ascii
-        setTmpValue((e.target.value?.toString() ?? "").replace("。", "."));
-      }}
-      onStep={(_, info) => {
-        // since percentage mode needs to be handled manually
-        const v = NP.plus(
-          parseNumber(tmpValue),
-          NP.times(info.type === "up" ? 1 : -1, Number(info.offset))
-        );
-        props.value.onChange(v);
-        props.onEvent("change");
-      }}
+      onChangeCapture={handleChangeCapture}
+      onStep={handleStep}
       onFocus={() => {
+        if (!mountedRef.current) return;
         props.onEvent("focus");
       }}
       onBlur={() => {
         handleFinish();
         props.onEvent("blur");
       }}
-      onKeyPress={(event) => {
-        const value = tmpValue;
-        const cursor = ref.current?.selectionStart;
-        if (/\d/.test(event.key)) {
-          return;
-        }
-        if (cursor === 0 && event.key === "-" && !/-/.test(value)) {
-          return;
-        }
-        if (cursor !== 0 && props.thousandsSeparator && event.key === ",") {
-          return;
-        }
-        if (
-          cursor !== 0 &&
-          props.precision > 0 &&
-          // eslint-disable-next-line only-ascii/only-ascii
-          (event.key === "." || event.key === "。") &&
-          !/[.]/.test(value)
-        ) {
-          return;
-        }
-        event.preventDefault();
-      }}
+      onKeyPress={handleKeyPress}
     />
   );
 };
@@ -389,10 +432,13 @@ let NumberInputTmpComp = (function () {
       labelStyle: props.labelStyle,
       inputFieldStyle:props.inputFieldStyle,
       animationStyle:props.animationStyle,
+      showValidationWhenEmpty: props.showValidationWhenEmpty,
       ...validate(props),
     });
   })
-    .setPropertyViewFn((children) => (
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
         <Section name={sectionNames.basic}>
           {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
@@ -402,9 +448,10 @@ let NumberInputTmpComp = (function () {
 
         <FormDataPropertyView {...children} />
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "logic" || editorModeStatus === "both") && (
           <><Section name={sectionNames.validation}>
             {requiredPropertyView(children)}
+            {children.showValidationWhenEmpty.propertyView({label: trans("prop.showEmptyValidation")})}
             {children.min.propertyView({ label: trans("prop.minimum") })}
             {children.max.propertyView({ label: trans("prop.maximum") })}
             {children.customRule.propertyView({})}
@@ -413,15 +460,16 @@ let NumberInputTmpComp = (function () {
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
+              {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
             </Section>
           </>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "layout" || editorModeStatus === "both") && (
           children.label.getPropertyView()
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "logic" || editorModeStatus === "both") && (
           <Section name={sectionNames.advanced}>
             {children.step.propertyView({ label: trans("numberInput.step") })}
             {children.precision.propertyView({ label: trans("numberInput.precision") })}
@@ -436,7 +484,7 @@ let NumberInputTmpComp = (function () {
           </Section>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "layout" || editorModeStatus === "both") && (
           <>
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
@@ -447,17 +495,33 @@ let NumberInputTmpComp = (function () {
           <Section name={sectionNames.inputFieldStyle}>
             {children.inputFieldStyle.getPropertyView()}
           </Section>
+                      <Section name={trans("prop.disabledStyle")}>
+              {children.disabledStyle.getPropertyView()}
+            </Section>
           <Section name={sectionNames.animationStyle} hasTooltip={true}>
             {children.animationStyle.getPropertyView()}
           </Section>
           </>
         )}
       </>
-    ))
+    );
+    })
     .build();
 })();
 
-NumberInputTmpComp = migrateOldData(NumberInputTmpComp, fixOldInputCompData);
+NumberInputTmpComp = migrateOldData(
+  withLinkedDefaultValue(NumberInputTmpComp, "defaultValue", "value", (defaultValue: any, comp: any) => {
+    const allowNull = comp.children.allowNull?.getView?.();
+    if (defaultValue === "null" && allowNull) {
+      return NaN;
+    }
+    if (!isNaN(Number(defaultValue))) {
+      return Number(defaultValue);
+    }
+    return 0;
+  }),
+  fixOldInputCompData
+);
 
 const NumberInputTmp2Comp = withMethodExposing(
   NumberInputTmpComp,

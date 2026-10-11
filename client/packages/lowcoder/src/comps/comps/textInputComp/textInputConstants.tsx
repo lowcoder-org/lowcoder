@@ -11,7 +11,7 @@ import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { InputLikeStyleType, LabelStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
-import _ from "lodash";
+import { debounce, fromPairs } from "lodash";
 import { css } from "styled-components";
 import { EMAIL_PATTERN, URL_PATTERN } from "util/stringUtils";
 import { MultiBaseComp, RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
@@ -30,9 +30,10 @@ import {
   placeholderPropertyView,
   regexPropertyView,
   requiredPropertyView,
+  showDataLoadingIndicatorsPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { InputRef } from "antd/es/input";
 import {
@@ -83,7 +84,7 @@ type ValidationParams = {
   customRule: string;
 };
 
-const valueInfoMap = _.fromPairs(
+const valueInfoMap = fromPairs(
   TextInputValidationOptions.map((option) => [option.value, option])
 );
 
@@ -144,6 +145,7 @@ export const textInputChildren = {
 
   // validation
   required: BoolControl,
+  showValidationWhenEmpty: BoolControl,
   minLength: NumberControl,
   maxLength: NumberControl,
   validationType: dropdownControl(TextInputValidationOptions, "Text"),
@@ -167,16 +169,19 @@ export const textInputProps = (props: RecordConstructorToView<typeof textInputCh
 export const useTextInputProps = (props: RecordConstructorToView<typeof textInputChildren>) => {
   const [validateState, setValidateState] = useState({});
   const changeRef = useRef(false)
+  const touchRef = useRef(false);
+  const [localInputValue, setLocalInputValue] = useState<string>('');
 
   const propsRef = useRef<RecordConstructorToView<typeof textInputChildren>>(props);
   propsRef.current = props;
 
-  const defaultValue = { ...props.defaultValue }.value;
   const inputValue = { ...props.value }.value;
 
   useEffect(() => {
-    props.value.onChange(defaultValue)
-  }, [defaultValue]);
+    if (!touchRef.current) {
+      setLocalInputValue(inputValue);
+    }
+  }, [inputValue]);
 
   useEffect(() => {
     if (!changeRef.current) return;
@@ -185,23 +190,69 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
       textInputValidate({
         ...propsRef.current,
         value: {
-          value: inputValue,
+          value: localInputValue,
         },
       })
     );
-    propsRef.current.onEvent("change");
     changeRef.current = false;
-  }, [inputValue]);
+  }, [localInputValue]);
+
+  useEffect(() => {
+    if (!touchRef.current) return;
+
+    setValidateState(
+      textInputValidate({
+        ...propsRef.current,
+        value: {
+          value: localInputValue,
+        },
+      })
+    );
+  }, [props.customRule])
+
+  const debouncedOnChangeRef = useRef(
+    debounce(function (value: string, valueCtx: any) {
+      propsRef.current.value.onChange(value);
+      propsRef.current.onEvent("change");
+      changeRef.current = false;  // Reset after commit
+    }, 100)
+  );  
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    props.value.onChange(e.target.value);
+    const value = e.target.value;
+    setLocalInputValue(value);
+
     changeRef.current = true;
+    touchRef.current = true;
+    debouncedOnChangeRef.current?.(value, propsRef.current.value);
   };
+
+  const handleBlur = () => {
+    debouncedOnChangeRef.current.flush?.();
+    touchRef.current = false;
+    propsRef.current.onEvent("blur");
+  };
+
+  // Cleanup refs on unmount
+  useEffect(() => {
+    return () => {
+      changeRef.current = false;
+      touchRef.current = false;
+      propsRef.current = null as any;
+      debouncedOnChangeRef.current.cancel();
+    };
+  }, []);
 
   return [
     {
-      ...textInputProps(props),
+      ...textInputProps({
+        ...props,
+        value: {
+          value: localInputValue,
+        } as any,
+      }),
       onChange: handleChange,
+      onBlur: handleBlur,
     },
     validateState,
   ];
@@ -220,12 +271,15 @@ export const TextInputInteractionSection = (children: TextInputComp) => (
   <Section name={sectionNames.interaction}>
     {children.onEvent.getPropertyView()}
     {disabledPropertyView(children)}
+    {showDataLoadingIndicatorsPropertyView(children as any)}
+    {(children as any).tabIndex?.propertyView({ label: trans("prop.tabIndex") })}
   </Section>
 );
 
 export const TextInputValidationSection = (children: TextInputComp) => (
   <Section name={sectionNames.validation}>
     {requiredPropertyView(children)}
+    {children.showValidationWhenEmpty.propertyView({label: trans("prop.showEmptyValidation")})}
     {children.validationType.propertyView({ label: trans("prop.textType") })}
     {valueInfoMap[children.validationType.getView()]?.extra === undefined &&
       regexPropertyView(children)}
@@ -263,8 +317,23 @@ export function getStyle(style: InputLikeStyleType, labelStyle?: LabelStyleType)
       }
 
       &::-webkit-input-placeholder {
-        color: ${style.text};
-        opacity: 0.4;
+        color: ${style.placeholder};
+        opacity: 1;
+      }
+
+      &::-moz-placeholder {
+        color: ${style.placeholder};
+        opacity: 1;
+      }
+
+      &:-ms-input-placeholder {
+        color: ${style.placeholder};
+        opacity: 1;
+      }
+
+      &::placeholder {
+        color: ${style.placeholder};
+        opacity: 1;
       }
 
       .ant-input-show-count-suffix,

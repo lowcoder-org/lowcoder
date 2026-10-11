@@ -1,5 +1,9 @@
 import yaml from "yaml";
 import fs from "fs";
+import { MultiOpenApiSpecItem } from "../plugins/openApi/parse";
+import path from "path";
+import { appendTags } from "../plugins/openApi/util";
+import _ from "lodash";
 
 export function kvToRecord(
   kvs: { key: string; value: string }[],
@@ -84,4 +88,46 @@ export function safeJsonStringify(data: any) {
     console.warn("can not json stringify:", data, e);
     return null;
   }
+}
+
+export function specsToOptions(specs: any) {
+  return Object.keys(specs).map(k => ({value: k, label: k}));
+}
+
+export function version2spec(specs: any, version: any) {
+  if(version == undefined || version == "") {
+    const keys = Object.keys(specs);
+    if(keys.length == 0) return;
+    return specs[keys[0]];
+  }
+  return specs[version];
+}
+
+function genTagFromFileName(name: string) {
+  const fileName = name.replace(/\.yaml|twilio_|\.json/g, "");
+  const parts = fileName.split("_");
+  return parts.reduce((a, b) => {
+    if (/v\d+/.test(b)) {
+      return `${a}(${b})`;
+    }
+    return a + _.upperFirst(b);
+  }, "");
+}
+
+export function dirToSpecList(specDir: string) {
+  const specList: MultiOpenApiSpecItem[] = [];
+
+  const start = performance.now();
+  const specFiles = fs.readdirSync(specDir);
+  specFiles.forEach((specFile) => {
+    const spec = readYaml(path.join(specDir, specFile));
+    const tag = genTagFromFileName(specFile);
+    appendTags(spec, tag);
+    specList.push({
+      id: tag,
+      spec,
+    });
+  });
+  // logger.info("spec list loaded %s, duration: %d ms",specDir, performance.now() - start);
+  return specList;
 }

@@ -115,8 +115,10 @@ function PermissionLiItem(props: {
       ) : (
         <StyledRoleSelect
           style={{ marginRight: "4px" }}
-          dropdownStyle={{
-            width: "100px",
+          styles={{
+            popup: {
+              root: { width: "100px" }
+            },
           }}
           defaultValue={permissionItem.role}
           variant="borderless"
@@ -163,7 +165,7 @@ export const PermissionList = (props: {
 }) => (
   <>
     <CommonTextLabel style={{ marginBottom: "4px" }}>
-      {trans("home.memberPermissionList")}
+      {`${trans("memberSettings.title")}:`}
     </CommonTextLabel>
     <UserPermissionUl $height={201}>
       {props.permissionItems.map((item, index) => (

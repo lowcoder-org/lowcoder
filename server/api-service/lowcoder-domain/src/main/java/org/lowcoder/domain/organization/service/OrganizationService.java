@@ -8,11 +8,16 @@ import org.lowcoder.domain.user.model.User;
 import org.lowcoder.infra.annotation.NonEmptyMono;
 import org.lowcoder.infra.annotation.PossibleEmptyMono;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.data.domain.Pageable;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface OrganizationService {
+
+    public static final String PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT = "<p>Hi, %s<br/>" +
+            "Here is the link to reset your password: %s<br/>" +
+            "Please note that the link will expire after 12 hours.<br/><br/></p>";
 
     @PossibleEmptyMono
     Mono<Organization> getOrganizationInEnterpriseMode();
@@ -23,8 +28,12 @@ public interface OrganizationService {
 
     Mono<Organization> getById(String id);
 
+    Mono<Organization> getByIdWithDeleted(String id);
+
     @NonEmptyMono
     Flux<Organization> getByIds(Collection<String> ids);
+    @NonEmptyMono
+    Flux<Organization> getAllActive();
 
     Mono<OrganizationCommonSettings> getOrgCommonSettings(String orgId);
 
@@ -42,4 +51,9 @@ public interface OrganizationService {
     Mono<Organization> getByDomain();
 
     Mono<Boolean> updateCommonSettings(String orgId, String key, Object value);
+
+    Mono<Organization> updateSlug(String organizationId, String newSlug);
+
+    Flux<Organization> findUserOrgs(String userId, String orgName, Pageable pageable);
+    Mono<Long> countUserOrgs(String userId, String orgName);
 }

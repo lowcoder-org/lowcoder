@@ -1,0 +1,953 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0",
+    "title": "Postman Echo",
+    "description": "Postman Echo is a service you can use to test your REST clients and make sample API calls. It provides endpoints for `GET`, `POST`, `PUT`, various auth mechanisms, and other utility endpoints.\n\nThe documentation for the endpoints as well as example responses can be found at [Postman Echo](https://echo.getpostman.com?source=echo-collection-app-onboarding)."
+  },
+  "servers": [
+    {
+      "url": "https://postman-echo.com",
+      "description": "Public Postman Echo Server"
+    }
+  ],
+  "paths": {
+    "/digest-auth": {
+      "get": {
+        "summary": "DigestAuth Request",
+        "description": "Performing a simple `GET` request to this endpoint returns a status code `401 Unauthorized` with a `WWW-Authenticate` header containing information to successfully authenticate subsequent requests.\nThe `WWW-Authenticate` header must be processed to extract `realm` and `nonce` values to hash subsequent requests.\n\nWhen this request is executed within Postman, the script attached with this request does the hard work of extracting realm and nonce from the header and sets it as [global variables](https://postman-echo.com)",
+        "operationId": "DigestAuthGet",
+        "deprecated": false,
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A successful authentication response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/basic-auth": {
+      "get": {
+        "summary": "Basic Auth",
+        "description": "This endpoint simulates a **basic-auth** protected endpoint.\nThe endpoint accepts a default username and password and returns a status code of `200 OK` only if the same is provided.\nOtherwise, it will return a status code `401 Unauthorized`.\n\n**Credentials:**\n\n* Username: `postman`\n* Password: `password`\n\nTo use this endpoint, send a request with the header `Authorization: Basic cG9zdG1hbjpwYXNzd29yZA==`.\nThe latter half of the header value is a base64 encoded concatenation of the default username and password.",
+        "operationId": "BasicAuthGet",
+        "deprecated": false,
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A successful authentication response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/oauth1": {
+      "get": {
+        "summary": "OAuth1.0 Verify Signature",
+        "description": "OAuth1.0a is a specification that defines a protocol that can be used by one\nservice to access \"protected\" resources (endpoints) on another service. A\nmajor part of OAuth1.0 is HTTP Request Signing. This endpoint allows you to\ncheck whether the request calculation works properly in the client.\n\nThe endpoint supports the HTTP `Authorization` header. In case the signature\nverification fails, the endpoint provides the following four debug values:\n\n* `base_uri`\n* `normalized_param_string`\n* `base_str`",
+        "operationId": "Oauth1Get",
+        "deprecated": false,
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A successful OAuth1.0 verification response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuth1Response"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/auth/hawk": {
+      "get": {
+        "summary": "Hawk Auth",
+        "description": "This endpoint is protected with Hawk Authentication. [Hawk authentication](https://github.com/hueniverse/hawk) is a widely used protocol for protecting API endpoints. One of Hawk's main goals is to enable HTTP authentication for services that do not use TLS (although it can be used in conjunction with TLS as well).\n\nTo use this endpoint, select the \"Hawk Auth\" helper inside Postman, and set the following values:\n\n* Hawk Auth ID: `dh37fgj492je`\n* Hawk Auth Key: `werxhqb98rpaxn39848xru`",
+        "operationId": "AuthHawkGet",
+        "deprecated": false,
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A successful Hawk authentication response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/cookies/set": {
+      "get": {
+        "summary": "Set Cookies",
+        "description": "The cookie setter endpoint accepts a list of cookies and their values as part of URL parameters of a `GET` request. These cookies are saved and can be subsequently retrieved or deleted. The response of this request returns a JSON with all cookies listed.\n\nTo set your own set of cookies, simply replace the URL parameters \"foo1=bar1&foo2=bar2\" with your own set of key-value pairs.",
+        "operationId": "CookiesSetGet",
+        "deprecated": false,
+        "parameters": [
+          {
+            "name": "foo1",
+            "in": "query",
+            "description": "Value for the cookie `foo1`.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "foo2",
+            "in": "query",
+            "description": "Value for the cookie `foo2`.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of cookies that have been set.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CookiesResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Cookie"
+        ]
+      }
+    },
+    "/cookies/delete": {
+      "get": {
+        "summary": "Delete Cookies",
+        "description": "One or more cookies that have been set for this domain can be deleted by providing the cookie names as part of the URL parameter. The response of this request is a JSON containing the list of currently set cookies.",
+        "operationId": "CookiesDeleteGet",
+        "deprecated": false,
+        "parameters": [
+          {
+            "name": "foo1",
+            "in": "query",
+            "description": "Name of the cookie to delete.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of cookies that are still set after the deletion.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CookiesResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Cookie"
+        ]
+      }
+    },
+    "/cookies": {
+      "get": {
+        "summary": "Get Cookies",
+        "description": "Use this endpoint to get a list of all cookies that are stored with respect to this domain. Whatever key-value pairs that have been previously set by calling the \"Set Cookies\" endpoint, will be returned as response JSON.",
+        "operationId": "CookiesGet",
+        "deprecated": false,
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A list of all cookies currently set for the domain.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CookiesResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Cookie"
+        ]
+      }
+    },
+    "/headers": {
+      "get": {
+        "summary": "Request Headers",
+        "description": "A `GET` request to this endpoint returns the list of all request headers as part of the response JSON.\nIn Postman, sending your own set of headers through the [Headers tab](https://www.getpostman.com/docs/requests#headers?source=echo-collection-app-onboarding) will reveal the headers as part of the response.",
+        "operationId": "HeadersGet",
+        "deprecated": false,
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A list of all request headers sent with the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HeadersResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Helpers"
+        ]
+      }
+    },
+    "/response-headers": {
+      "get": {
+        "summary": "Response Headers",
+        "description": "This endpoint causes the server to send a custom set of response headers. Providing header values as part of the URL parameters of a `GET` request to this endpoint returns the same as part of the response header.\n\nTo send your own set of headers, simply add or replace the URL parameters with your own set.",
+        "operationId": "ResponseHeadersGet",
+        "deprecated": false,
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "query",
+            "description": "Value for the `Content-Type` header.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "test",
+            "in": "query",
+            "description": "Value for a custom header `test`.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The custom response headers that were set.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseHeaders"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Helpers"
+        ]
+      }
+    },
+    "/get": {
+      "get": {
+        "summary": "GET Request",
+        "description": "The HTTP `GET` request method is meant to retrieve data from a server. The data is identified by a unique URI (Uniform Resource Identifier).\n\nA `GET` request can pass parameters to the server using \"Query String Parameters\". For example, in the following request:\n\n> http://example.com/hi/there?hand=wave\n\nThe parameter \"hand\" has the value \"wave\".\n\nThis endpoint echoes the HTTP headers, request parameters, and the complete URI requested.",
+        "operationId": "GetGet",
+        "deprecated": false,
+        "parameters": [
+          {
+            "name": "test",
+            "in": "query",
+            "description": "A test query parameter.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The echoed request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestEcho"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Standard Requests"
+        ]
+      }
+    },
+    "/post": {
+      "post": {
+        "summary": "POST Request",
+        "description": "The HTTP `POST` request method is meant to transfer data to a server and elicit a response. What data is returned depends on the implementation of the server.\n\nA `POST` request can pass parameters to the server using \"Query String Parameters\", as well as the Request Body. For example, in the following request:\n\n> POST /hi/there?hand=wave\n\nThe parameter \"hand\" has the value \"wave\". The request body can be in multiple formats. These formats are defined by the MIME type of the request.",
+        "operationId": "PostPost",
+        "deprecated": false,
+        "parameters": [
+          {
+            "in": "query",
+            "name": "test",
+            "description": "an optional Query Parameter",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The echoed request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestEcho"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Standard Requests"
+        ],
+        "requestBody": {
+          "description": "A JSON based Payload",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "others": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "examples": {
+                "example1": {
+                  "value": {
+                    "hello": "world"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/file": {
+      "post": {
+        "summary": "POST Request with File Upload (multipart/form-data)",
+        "description": "The HTTP `POST` request method is meant to transfer data to a server and elicit a response. What data is returned depends on the implementation of the server.\n\nA `POST` request can pass parameters to the server using \"Query String Parameters\", as well as the Request Body. For example, in the following request:\n\n> POST /hi/there?hand=wave\n\nThe parameter \"hand\" has the value \"wave\". The request body can be in multiple formats. These formats are defined by the MIME type of the request.",
+        "operationId": "PostFile",
+        "deprecated": false,
+        "parameters": [
+          {
+            "in": "query",
+            "name": "test",
+            "description": "an optional Query Parameter",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The echoed request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestEcho"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Standard Requests"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "address": {
+                    "type": "object",
+                    "properties": {
+                      "street": {
+                        "type": "string"
+                      },
+                      "city": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "profileImage": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "The profile image as base64 from File-Upload. You need to pack it in this JSON Structure, so the Backend-Server will turn it into binary format - {{ {data: file1.value[0], name: file1.files[0].name} }}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/image": {
+      "post": {
+        "summary": "POST Request with Imnage (Base64 String) Upload (multipart/form-data)",
+        "description": "The HTTP `POST` request method is meant to transfer data to a server and elicit a response. What data is returned depends on the implementation of the server.\n\nA `POST` request can pass parameters to the server using \"Query String Parameters\", as well as the Request Body. For example, in the following request:\n\n> POST /hi/there?hand=wave\n\nThe parameter \"hand\" has the value \"wave\". The request body can be in multiple formats. These formats are defined by the MIME type of the request.",
+        "operationId": "PostImage",
+        "deprecated": false,
+        "parameters": [
+          {
+            "in": "query",
+            "name": "test",
+            "description": "an optional Query Parameter",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The echoed request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestEcho"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Standard Requests"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "address": {
+                    "type": "object",
+                    "properties": {
+                      "street": {
+                        "type": "string"
+                      },
+                      "city": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "profileImage": {
+                    "type": "string",
+                    "format": "base64"
+                  }
+                }
+              },
+              "encoding": {
+                "profileImage": {
+                  "contentType": "image/png, image/jpeg"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/put": {
+      "put": {
+        "summary": "PUT Request",
+        "description": "The HTTP `PUT` request method is similar to HTTP `POST`. It is meant to transfer data to a server and elicit a response. What data is returned depends on the implementation of the server.\n\nA `PUT` request can pass parameters to the server using \"Query String Parameters\", as well as the Request Body. For example, in the following raw HTTP request:\n\n> PUT /hi/there?hand=wave",
+        "operationId": "PutPut",
+        "deprecated": false,
+        "parameters": [
+          {
+            "in": "query",
+            "name": "test",
+            "description": "an optional Query Parameter",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The echoed request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestEcho"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Standard Requests"
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "examples": {
+                "example1": {
+                  "value": {
+                    "hello": "world"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/patch": {
+      "patch": {
+        "summary": "PATCH Request",
+        "description": "The HTTP `PATCH` method is used to update resources on a server. The exact use of `PATCH` requests depends on the server in question. There are a number of server implementations that handle `PATCH` differently. Technically, `PATCH` supports both Query String parameters and a Request Body.\n\nThis endpoint accepts an HTTP `PATCH` request and provides debug information such as the HTTP headers, Query String arguments, and the Request Body.",
+        "operationId": "PatchPatch",
+        "deprecated": false,
+        "parameters": [
+          {
+            "in": "query",
+            "name": "test",
+            "description": "an optional Query Parameter",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The echoed request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestEcho"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Standard Requests"
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "examples": {
+                "example1": {
+                  "value": {
+                    "hello": "world"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/delete": {
+      "delete": {
+        "summary": "DELETE Request",
+        "description": "The HTTP `DELETE` method is used to delete resources on a server. The exact use of `DELETE` requests depends on the server implementation. In general, `DELETE` requests support both Query String parameters as well as a Request Body.\n\nThis endpoint accepts an HTTP `DELETE` request and provides debug information such as the HTTP headers, Query String arguments, and the Request Body.",
+        "operationId": "DeleteDelete",
+        "deprecated": false,
+        "parameters": [
+          {
+            "in": "query",
+            "name": "test",
+            "description": "an optional Query Parameter",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The echoed request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestEcho"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Standard Requests"
+        ]
+      }
+    },
+    "/status/200": {
+      "get": {
+        "summary": "Response Status Code",
+        "description": "This endpoint allows one to instruct the server which status code to respond with.\n\nEvery response is accompanied by a status code. The status code provides a summary of the nature of the response sent by the server. For example, a status code of `200` means everything is okay with the response and a code of `404` implies that the requested URL does not exist on the server.\nA list of all valid HTTP status codes can be found at the [List of Status Codes](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes).",
+        "operationId": "Status200Get",
+        "deprecated": false,
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The response with the specified status code.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusCodeResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Helpers"
+        ]
+      }
+    },
+    "/stream/10": {
+      "get": {
+        "summary": "Streamed Response",
+        "description": "This endpoint allows one to receive streaming HTTP responses using [chunked transfer encoding](https://en.wikipedia.org/wiki/Chunked_transfer_encoding) of a configurable length.\n\nA streaming response does not wait for the entire response to be generated on the server before flushing it out. This implies that for a fairly large response, parts of it can be streamed to the requestee as and when it is generated on the server. The client can then take actions to process this partially received data.",
+        "operationId": "Stream10Get",
+        "deprecated": false,
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The streamed response data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Helpers"
+        ]
+      }
+    },
+    "/delay/3": {
+      "get": {
+        "summary": "Delay Response",
+        "description": "Using this endpoint one can configure how long it takes for the server to come back with a response. Appending a number to the URL defines the time (in seconds) the server will wait before responding.\n\nNote that a maximum delay of 10 seconds is accepted by the server.",
+        "operationId": "Delay3Get",
+        "deprecated": false,
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The delayed response data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DelayResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Helpers"
+        ]
+      }
+    },
+    "/encoding/utf8": {
+      "get": {
+        "summary": "Get UTF8 Encoded Response",
+        "description": "If a response of an endpoint requires sending data beyond the basic English / ASCII character set, the `charset` parameter in the `Content-Type` response header defines the character encoding policy.\n\nThis endpoint returns a UTF-8 character encoded response body with text in various languages such as Greek, Latin, East Asian, etc. Postman can interpret the character encoding and use appropriate methods to display the character set in responses.",
+        "operationId": "EncodingUtf8Get",
+        "deprecated": false,
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The UTF-8 encoded response data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Utf8Response"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Helpers"
+        ]
+      }
+    },
+    "/gzip": {
+      "get": {
+        "summary": "GZip Compressed Response",
+        "description": "This endpoint returns the response using the [gzip compression algorithm](https://en.wikipedia.org/wiki/Gzip).\nThe uncompressed response is a JSON string containing the details of the request sent by the client. For this endpoint to work, one should request with an `Accept-encoding` header containing `gzip` as part of its value. Postman supports gzip, deflate, and SDCH decoding and automatically sends them as part of the request.\n\nHTTP Compression allows the server to send responses in a compressed format, which can reduce the amount of data that needs to be transferred over the network.",
+        "operationId": "GzipGet",
+        "deprecated": false,
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The gzip compressed response data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompressedResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Helpers"
+        ]
+      }
+    },
+    "/deflate": {
+      "get": {
+        "summary": "Deflate Compressed Response",
+        "description": "This endpoint returns the response using the [deflate compression algorithm](https://en.wikipedia.org/wiki/DEFLATE).\nThe uncompressed response is a JSON string containing the details of the request sent by the client. For this endpoint to work, one should request with an `Accept-encoding` header containing `deflate` as part of its value. Postman supports gzip, deflate, and SDCH decoding and automatically sends them as part of the request.\n\nHTTP Compression allows the server to send responses in a compressed format, which can reduce the amount of data that needs to be transferred over the network.",
+        "operationId": "DeflateGet",
+        "deprecated": false,
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The deflate compressed response data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompressedResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Helpers"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "authenticated": {
+            "description": "Indicates if the authentication was successful.",
+            "type": "boolean"
+          }
+        }
+      },
+      "OAuth1Response": {
+        "type": "object",
+        "properties": {
+          "base_uri": {
+            "description": "The base URI used in the OAuth1.0 signature.",
+            "type": "string"
+          },
+          "normalized_param_string": {
+            "description": "The normalized parameter string used in the OAuth1.0 signature.",
+            "type": "string"
+          },
+          "base_str": {
+            "description": "The base string used in the OAuth1.0 signature.",
+            "type": "string"
+          }
+        }
+      },
+      "CookiesResponse": {
+        "type": "object",
+        "properties": {
+          "cookies": {
+            "description": "A list of cookies.",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "HeadersResponse": {
+        "type": "object",
+        "properties": {
+          "headers": {
+            "description": "A list of headers.",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ResponseHeaders": {
+        "type": "object",
+        "properties": {
+          "Content-Type": {
+            "description": "The content type of the response.",
+            "type": "string"
+          },
+          "test": {
+            "description": "A custom test header.",
+            "type": "string"
+          }
+        }
+      },
+      "RequestEcho": {
+        "type": "object",
+        "properties": {
+          "headers": {
+            "description": "The request headers.",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "args": {
+            "description": "The query parameters.",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "url": {
+            "description": "The full URL of the request.",
+            "type": "string"
+          }
+        }
+      },
+      "StatusCodeResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "description": "The HTTP status code.",
+            "type": "integer"
+          }
+        }
+      },
+      "StreamResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "The streamed response data.",
+            "type": "string"
+          }
+        }
+      },
+      "DelayResponse": {
+        "type": "object",
+        "properties": {
+          "delay": {
+            "description": "The delay time in seconds.",
+            "type": "string"
+          }
+        }
+      },
+      "Utf8Response": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "description": "The UTF-8 encoded text.",
+            "type": "string"
+          }
+        }
+      },
+      "CompressedResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "The compressed response data.",
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Standard Requests",
+      "description": "Test GET, POST, PUT, PATCH and DELETE",
+      "externalDocs": {
+        "description": "",
+        "url": ""
+      }
+    },
+    {
+      "name": "Authentication",
+      "description": "Test various Authentication Methods",
+      "externalDocs": {
+        "description": "",
+        "url": ""
+      }
+    },
+    {
+      "name": "Cookie",
+      "description": "Test Requests for Cookie Handling",
+      "externalDocs": {
+        "description": "",
+        "url": ""
+      }
+    },
+    {
+      "name": "Helpers",
+      "description": "",
+      "externalDocs": {
+        "description": "",
+        "url": ""
+      }
+    }
+  ]
+}

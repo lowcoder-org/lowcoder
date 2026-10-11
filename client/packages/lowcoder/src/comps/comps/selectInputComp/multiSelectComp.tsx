@@ -14,7 +14,8 @@ import { SelectInputInvalidConfig, useSelectInputValidate } from "./selectInputC
 
 import { PaddingControl } from "../../controls/paddingControl";	
 import { MarginControl } from "../../controls/marginControl";
-import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
+import { migrateOldData } from "comps/generators/simpleGenerators";
+import { withLinkedDefaultValue } from "comps/controls/codeStateControl";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
 let MultiSelectBasicComp = (function () {
@@ -22,19 +23,23 @@ let MultiSelectBasicComp = (function () {
     ...SelectChildrenMap,
     defaultValue: arrayStringExposingStateControl("defaultValue", ["1", "2"]),
     value: arrayStringExposingStateControl("value"),
-    style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}),
-    labelStyle:styleControl(LabelStyle),
-    inputFieldStyle:withDefault(styleControl(MultiSelectStyle),{borderWidth:'1px'}),
-    childrenInputFieldStyle:styleControl(ChildrenMultiSelectStyle),
+    style: styleControl(InputFieldStyle , 'style'),
+    labelStyle: styleControl(LabelStyle , 'labelStyle'),
+    inputFieldStyle: styleControl(MultiSelectStyle , 'inputFieldStyle'),
+    childrenInputFieldStyle: styleControl(ChildrenMultiSelectStyle, 'childrenInputFieldStyle'),
     margin: MarginControl,	
     padding: PaddingControl,
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    const valueSet = new Set<any>(props.options.map((o) => o.value)); // Filter illegal default values entered by the user
+    const valueSet = new Set<any>((props.options as any[]).map((o: any) => o.value)); // Filter illegal default values entered by the user
     const [
       validateState,
       handleChange,
     ] = useSelectInputValidate(props);
+
+    const removeIllegalEntries = () => {
+      return props.value.value.filter?.((v) => valueSet.has(v))
+    }
     
     return props.label({
       required: props.required,
@@ -45,8 +50,8 @@ let MultiSelectBasicComp = (function () {
       children: (
         <SelectUIView
           {...props}
-          mode={"multiple"}
-          value={props.value.value.filter?.((v) => valueSet.has(v))}
+          mode={props.allowCustomTags ? "tags" : "multiple"}
+          value={props.allowCustomTags ? props.value.value : removeIllegalEntries()}
           onChange={handleChange}
           dispatch={dispatch}
         />
@@ -59,7 +64,10 @@ let MultiSelectBasicComp = (function () {
     .build();
 })();
 
-MultiSelectBasicComp = migrateOldData(MultiSelectBasicComp, fixOldInputCompData);
+MultiSelectBasicComp = migrateOldData(
+  withLinkedDefaultValue(MultiSelectBasicComp, "defaultValue", "value"),
+  fixOldInputCompData
+);
 
 export const MultiSelectComp = withExposingConfigs(MultiSelectBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),

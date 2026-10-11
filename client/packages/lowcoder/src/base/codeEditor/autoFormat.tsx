@@ -2,30 +2,31 @@ import type { CodeType } from "lowcoder-core";
 import { relaxedJSONToJSON } from "lowcoder-core";
 import { getDynamicStringSegments, isDynamicSegment } from "lowcoder-core";
 import { format as formatSQL } from "sql-formatter";
+import estree from "prettier/plugins/estree";
 import type { Language } from "./codeEditorTypes";
 
 export async function cssFormatter(text: string) {
-  const prettier = await require("prettier/standalone");
-  const parserPlugin = await require("prettier/parser-postcss");
+  const prettier = await import("prettier/standalone");
+  const parserPlugin = await import("prettier/plugins/postcss");
   return (await prettier.format(text, { parser: "css", plugins: [parserPlugin], semi: false })).trim();
 }
 
 export async function htmlFormatter(text: string) {
-  const prettier = await require("prettier/standalone");
-  const parserPlugin = await require("prettier/parser-html");
+  const prettier = await import("prettier/standalone");
+  const parserPlugin = await import("prettier/plugins/html");
   return (await prettier.format(text, { parser: "html", plugins: [parserPlugin], semi: false })).trim();
 } 
 
 async function getJavascriptFormatter() {
-  const prettier = await require("prettier/standalone");
-  const parserBabel = await require("prettier/parser-babel");
+  const prettier = await import("prettier/standalone");
+  const parserBabel = await import("prettier/plugins/babel");
   return async (text: string) =>
-    (await prettier.format(text, { parser: "babel", plugins: [parserBabel], semi: false })).trim();
+    (await prettier.format(text, { parser: "babel", plugins: [parserBabel, estree], semi: false })).trim();
 }
 
 export async function getJsonFormatter() {
-  const prettier = await require("prettier/standalone");
-  const parserBabel = await require("prettier/parser-babel");
+  const prettier = await import("prettier/standalone");
+  const parserBabel = await import("prettier/plugins/babel");
   return async (text: string) => (await prettier.format(text, { parser: "json", plugins: [parserBabel] })).trim();
 }
 
@@ -46,15 +47,16 @@ async function formatJsSegment(formatter: (text: string) => Promise<string>, scr
 async function getJsSegmentFormatter() {
   const formatter = await getJavascriptFormatter();
   return async (segment: string) => {
-    return "{{" + formatJsSegment(formatter, segment.slice(2, -2)) + "}}";
+    return "{{" + await formatJsSegment(formatter, segment.slice(2, -2)) + "}}";
   };
 }
 
 export async function formatStringWithJsSnippets(text: string): Promise<string> {
   const jsSegmentFormatter = await getJsSegmentFormatter();
-  return getDynamicStringSegments(text)
-    .map((s) => (isDynamicSegment(s) ? jsSegmentFormatter(s) : s))
-    .join("");
+  const formatedSegments = await Promise.all(
+    getDynamicStringSegments(text).map((s) => (isDynamicSegment(s) ? jsSegmentFormatter(s) : s))
+  );
+  return formatedSegments.join("");
 }
 
 export async function formatSqlWithJsSnippets(text: string) {

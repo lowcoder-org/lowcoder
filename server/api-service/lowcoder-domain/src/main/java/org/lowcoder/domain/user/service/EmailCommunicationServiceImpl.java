@@ -3,10 +3,14 @@ package org.lowcoder.domain.user.service;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @RequiredArgsConstructor
 @Service
@@ -24,13 +28,41 @@ public class EmailCommunicationServiceImpl implements EmailCommunicationService 
 
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
 
-            mimeMessageHelper.setFrom(config.getLostPasswordEmailSender());
+            mimeMessageHelper.setFrom(config.getNotificationsEmailSender());
             mimeMessageHelper.setTo(to);
             mimeMessageHelper.setSubject(subject);
 
             // Construct the message with the token link
-            String resetLink = config.getLowcoderPublicUrl() + "/lost-password?token=" + token;
+            String resetLink = config.getLowcoderPublicUrl() + "/user/auth/lost-password?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8);
             String formattedMessage = String.format(message, to, resetLink);
+            mimeMessageHelper.setText(formattedMessage, true); // Set HTML to true to allow links
+
+            javaMailSender.send(mimeMessage);
+
+            return true;
+
+        } catch (Exception e) {
+            log.error("Failed to send mail to: {}, Exception: ", to, e);
+            return false;
+        }
+
+
+    }
+
+    @Override
+    public boolean sendInvitationEmails(String[] to, String inviteLink, String message) {
+        try {
+            String subject = "You've been invited!";
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
+
+            mimeMessageHelper.setFrom(config.getNotificationsEmailSender());
+            mimeMessageHelper.setTo(to);
+            mimeMessageHelper.setSubject(subject);
+
+            // Construct the message with the invite link
+            String formattedMessage = String.format(message, inviteLink);
             mimeMessageHelper.setText(formattedMessage, true); // Set HTML to true to allow links
 
             javaMailSender.send(mimeMessage);

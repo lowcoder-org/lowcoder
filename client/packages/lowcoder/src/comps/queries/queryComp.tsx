@@ -43,7 +43,7 @@ import {
   wrapActionExtraInfo,
 } from "lowcoder-core";
 import { ValueFromOption } from "lowcoder-design";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 import {
   BottomResComp,
   BottomResCompResult,
@@ -62,8 +62,9 @@ import {
   QUERY_EXECUTION_OK,
 } from "../../constants/queryConstants";
 import { QueryContext } from "../../util/context/QueryContext";
-import { useFixedDelay } from "../../util/hooks";
+import { useAppPathParam, useFixedDelay } from "../../util/hooks";
 import { JSONObject, JSONValue } from "../../util/jsonTypes";
+import { processCurlData } from "../../util/curlUtils";
 import { BoolPureControl } from "../controls/boolControl";
 import { millisecondsControl } from "../controls/millisecondControl";
 import { paramsMillisecondsControl } from "../controls/paramsControl";
@@ -75,6 +76,8 @@ import { QueryNotificationControl } from "./queryComp/queryNotificationControl";
 import { QueryPropertyView } from "./queryComp/queryPropertyView";
 import { getTriggerType, onlyManualTrigger } from "./queryCompUtils";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import {VariablesComp} from "@lowcoder-ee/comps/queries/queryComp/variablesComp";
+import { migrateOldData } from "../generators/simpleGenerators";
 
 const latestExecution: Record<string, string> = {};
 
@@ -97,11 +100,27 @@ interface AfterExecuteQueryAction {
   result: QueryResult;
 }
 
-const TriggerTypeOptions = [
-  { label: trans("query.triggerTypeAuto"), value: "automatic" },
+const CommonTriggerOptions = [
+  { label: trans("query.triggerTypeTimeout"), value: "onTimeout"},
+  { label: trans("query.triggerTypeQueryExec"), value: "onQueryExecution"},
+  { label: trans("query.triggerTypeInputChange"), value: "onInputChange"},
+]
+
+export const TriggerTypeOptions = [
   { label: trans("query.triggerTypeManual"), value: "manual" },
+  { label: trans("query.triggerTypePageLoad"), value: "onPageLoad"},
+  ...CommonTriggerOptions,
+  { label: trans("query.triggerTypeAuto"), value: "automatic" },
 ] as const;
-export type TriggerType = ValueFromOption<typeof TriggerTypeOptions>;
+
+export const JSTriggerTypeOptions = [
+  { label: trans("query.triggerTypeManual"), value: "manual" },
+  { label: trans("query.triggerTypePageLoad"), value: "automatic" },
+  ...CommonTriggerOptions,
+  { label: trans("query.triggerTypeBeforeUnload"), value: "onBeforeUnload" },
+];
+
+export type TriggerType = ValueFromOption<typeof TriggerTypeOptions> | "onBeforeUnload";
 
 const EventOptions = [
   { label: trans("query.success"), value: "success", description: trans("query.successDesc") },
@@ -134,10 +153,11 @@ const childrenMap = {
   // advanced
   timeout: paramsMillisecondsControl({
     left: 0,
-    right: 120 * 1000,
+    right: 3200 * 1000,
     defaultValue: 10 * 1000,
   }),
   confirmationModal: QueryConfirmationModal,
+  variables: VariablesComp,
   periodic: BoolPureControl,
   periodicTime: millisecondsControl({
     defaultValue: Number.NaN,
@@ -151,6 +171,13 @@ const childrenMap = {
     },
   }),
   cancelPrevious: withDefault(BoolPureControl, false),
+  // use only for onQueryExecution trigger
+  depQueryName: SimpleNameComp,
+  // use only for onTimeout trigger, triggers query after x time passed on page load
+  delayTime: millisecondsControl({
+    left: 0,
+    defaultValue: 5 * 1000,
+  })
 };
 
 let QueryCompTmp = withTypeAndChildren<typeof QueryMap, ToInstanceType<typeof childrenMap>>(
@@ -174,6 +201,7 @@ export type QueryChildrenType = InstanceType<typeof QueryCompTmp> extends MultiB
   ? X
   : never;
 
+let blockInputChangeQueries = true;
 /**
  * Logic to automatically trigger execution
  */
@@ -208,6 +236,7 @@ QueryCompTmp = class extends QueryCompTmp {
         queryDepFetchInfo: new FetchCheckNode(this.runningDependNodes(), {
           ignoreManualDepReadyStatus:
             this.children.compType.getView() === "js" && getTriggerType(this) === "automatic",
+          queryName: this.children.name.value,
         }),
       },
       updateNodeFields: (value: any) => {
@@ -221,11 +250,21 @@ QueryCompTmp = class extends QueryCompTmp {
     const isJsQuery = this.children.compType.getView() === "js";
     const notExecuted = this.children.lastQueryStartTime.getView() === -1;
     const isAutomatic = getTriggerType(this) === "automatic";
+    const isPageLoadTrigger = getTriggerType(this) === "onPageLoad";
+    const isInputChangeTrigger = getTriggerType(this) === "onInputChange";
 
     if (
-      action.type === CompActionTypes.UPDATE_NODES_V2 &&
-      isAutomatic &&
-      (!isJsQuery || (isJsQuery && notExecuted)) // query which has deps can be executed on page load(first time)
+      action.type === CompActionTypes.UPDATE_NODES_V2
+      && (
+        isAutomatic
+        || isInputChangeTrigger
+        || (isPageLoadTrigger && notExecuted)
+      )
+      && (
+        !isJsQuery
+        || (isJsQuery && !isAutomatic)
+        || (isJsQuery && isAutomatic && notExecuted)
+      ) // query which has deps can be executed on page load(first time)
     ) {
       const next = super.reduce(action);
       const depends = this.children.comp.node()?.dependValues();
@@ -249,9 +288,21 @@ QueryCompTmp = class extends QueryCompTmp {
       const dependsChanged = !_.isEqual(preDepends, depends);
       const dslNotChanged = _.isEqual(preDsl, dsl);
 
+      if(isInputChangeTrigger && blockInputChangeQueries && dependsChanged) {
+        // block executing input change queries initially on page refresh
+        setTimeout(() => {
+          blockInputChangeQueries = false;
+        }, 500)
+        
+        return setFieldsNoTypeCheck(next, {
+          [lastDependsKey]: depends,
+          [lastDslKey]: dsl,
+        });
+      }
+
       // If the dsl has not changed, but the dependent node value has changed, then trigger the query execution
       // FIXME, this should be changed to a reference judgement, but for unknown reasons if the reference is modified once, it will change twice.
-      if (dependsChanged) {
+      if (dependsChanged && !isJsQuery) {
         if (dslNotChanged) {
           this.execute(next);
         }
@@ -272,28 +323,75 @@ interface QueryViewProps {
 
 function QueryView(props: QueryViewProps) {
   const { comp } = props;
+  const { appPageId } = useAppPathParam();
+  const compRef = useRef(comp);
+  compRef.current = comp;
+  const appPageIdRef = useRef(appPageId);
+  appPageIdRef.current = appPageId;
+  const triggerType = getTriggerType(comp);
 
   useEffect(() => {
     // Automatically load when page load
     if (
-      getTriggerType(comp) === "automatic" &&
+      (
+        getTriggerType(comp) === "automatic"
+        || getTriggerType(comp) === "onPageLoad"
+      ) &&
       (comp as any).isDepReady &&
       !comp.children.isNewCreate.value
     ) {
       setTimeout(() => {
         comp.dispatch(deferAction(executeQueryAction({})));
-      }, 300);
+      }, 600);
+    }
+
+    if(getTriggerType(comp) === "onTimeout") {
+      setTimeout(() => {
+        comp.dispatch(deferAction(executeQueryAction({})));
+      }, comp.children.delayTime.getView());
     }
   }, []);
+
+  useEffect(() => {
+    if (triggerType !== "onBeforeUnload" || comp.children.isNewCreate.value) {
+      return;
+    }
+
+    const mountedAppPageId = appPageId;
+    let executed = false;
+    const runQueryOnce = () => {
+      if (executed) {
+        return;
+      }
+      executed = true;
+      compRef.current.dispatch(executeQueryAction({}));
+    };
+
+    const handlePageHide = () => {
+      runQueryOnce();
+    };
+
+    window.addEventListener("pagehide", handlePageHide);
+
+    return () => {
+      window.removeEventListener("pagehide", handlePageHide);
+      if (
+        getTriggerType(compRef.current) === "onBeforeUnload"
+        && appPageIdRef.current !== mountedAppPageId
+      ) {
+        runQueryOnce();
+      }
+    };
+  }, [appPageId, triggerType, comp.children.isNewCreate.value]);
 
   useFixedDelay(
     () =>
       getPromiseAfterDispatch(comp.dispatch, executeQueryAction({}), {
         notHandledError: trans("query.fixedDelayError"),
       }),
-    getTriggerType(comp) === "automatic" && comp.children.periodic.getView()
-      ? comp.children.periodicTime.getView()
-      : null
+      getTriggerType(comp) === "automatic" && comp.children.periodic.getView()
+        ? comp.children.periodicTime.getView()
+        : null
   );
 
   return null;
@@ -310,6 +408,9 @@ QueryCompTmp = class extends QueryCompTmp {
     }
     if (action.type === CompActionTypes.EXECUTE_QUERY) {
       if (getReduceContext().disableUpdateState) return this;
+      action.args = action.args || {};
+      action.args.$queryName = this.children.name.getView();
+
       return this.executeQuery(action);
     }
     if (action.type === CompActionTypes.CHANGE_VALUE) {
@@ -353,16 +454,21 @@ QueryCompTmp = class extends QueryCompTmp {
     return this;
   }
 
+
+
+
   /**
    * Process the execution result
    */
   private processResult(result: QueryResult, action: ExecuteQueryAction, startTime: number) {
     const lastQueryStartTime = this.children.lastQueryStartTime.getView();
+
     if (lastQueryStartTime > startTime) {
       // There are more new requests, ignore this result
       // FIXME: cancel this request in advance in the future
       return;
     }
+
     const changeAction = multiChangeAction({
       code: this.children.code.changeValueAction(result.code ?? QUERY_EXECUTION_OK),
       success: this.children.success.changeValueAction(result.success ?? true),
@@ -419,8 +525,9 @@ QueryCompTmp = class extends QueryCompTmp {
           applicationId: applicationId,
           applicationPath: parentApplicationPath,
           args: action.args,
+          variables: action.args,
           timeout: this.children.timeout,
-          callback: (result) => this.processResult(result, action, startTime)
+          callback: (result: QueryResult) => this.processResult(result, action, startTime)
         });
       }, getTriggerType(this) === "manual")
       .then(
@@ -593,6 +700,13 @@ QueryCompTmp = withMethodExposing(QueryCompTmp, [
   },
 ]);
 
+QueryCompTmp = migrateOldData(QueryCompTmp, (oldData: any) => {
+  if (oldData?.variables?.variables) {
+    oldData.variables = oldData.variables.variables;
+  }
+  return oldData;
+});
+
 export const QueryComp = withExposingConfigs(QueryCompTmp, [
   new NameConfig("data", trans("query.dataExportDesc")),
   new NameConfig("code", trans("query.codeExportDesc")),
@@ -608,10 +722,45 @@ export const QueryComp = withExposingConfigs(QueryCompTmp, [
 const QueryListTmpComp = list(QueryComp);
 
 class QueryListComp extends QueryListTmpComp implements BottomResListComp {
+  override reduce(action: CompAction): this {
+    if (isCustomAction<AfterExecuteQueryAction>(action, "afterExecQuery")) {
+      if (
+        action.path?.length ===  1
+        && !isNaN(parseInt(action.path[0]))
+        && action.value.result.success
+      ) {
+        const queryIdx = parseInt(action.path[0]);
+        const queryComps = this.getView();
+        const queryName = queryComps?.[queryIdx]?.children.name.getView();
+        const dependentQueries = queryComps.filter((query, idx) => {
+          if (queryIdx === idx) return false;
+          if (
+            getTriggerType(query) === 'onQueryExecution'
+            && query.children.depQueryName.getView() === queryName
+          ) {
+            return true; 
+          }
+        })
+        dependentQueries?.forEach((query) => {
+          query.dispatch(deferAction(executeQueryAction({})));
+        })
+      }
+    }
+    return super.reduce(action);
+  }
+
   nameAndExposingInfo(): NameAndExposingInfo {
-    const result: NameAndExposingInfo = {};
+    let result: NameAndExposingInfo = {};
     Object.values(this.children).forEach((comp) => {
       result[comp.children.name.getView()] = comp.exposingInfo();
+
+      const variables = comp.children.variables.nameAndExposingInfo();
+      if (variables) {
+        result = {
+          ...result,
+          ...variables,
+        }
+      }
     });
     return result;
   }
@@ -634,18 +783,42 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
     const name = this.genNewName(editorState);
     const compType = extraInfo?.compType || "js";
     const dataSourceId = extraInfo?.dataSourceId;
+    const curlData = extraInfo?.curlData;
+    console.log("CURL DATA", curlData);
+
+    // Build the basic payload
+    let payload: any = {
+      id: id,
+      name: name,
+      datasourceId: dataSourceId,
+      compType,
+      triggerType: manualTriggerResource.includes(compType) ? "manual" : "automatic",
+      isNewCreate: true,
+      order: Date.now(),
+    };
+
+    // If this is a REST API created from cURL, pre-populate the HTTP query fields
+    if (compType === "restApi" && curlData) {
+      const curlConfig = processCurlData(curlData);
+      if (curlConfig) {
+        payload = {
+          ...payload,
+          comp: {
+            httpMethod: curlConfig.method,
+            path: curlConfig.url,
+            headers: curlConfig.headers,
+            params: curlConfig.params,
+            bodyType: curlConfig.bodyType,
+            body: curlConfig.body,
+            bodyFormData: curlConfig.bodyFormData,
+          },
+        };
+      }
+    }
 
     this.dispatch(
       wrapActionExtraInfo(
-        this.pushAction({
-          id: id,
-          name: name,
-          datasourceId: dataSourceId,
-          compType,
-          triggerType: manualTriggerResource.includes(compType) ? "manual" : "automatic",
-          isNewCreate: true,
-          order: Date.now(),
-        }),
+        this.pushAction(payload),
         {
           compInfos: [
             {
@@ -668,12 +841,26 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
     if (!originQuery) {
       return;
     }
+
+    const jsonData = originQuery.toJsonValue();
+    //Regenerate variable header
+    const newKeys:string[] = [];
+    jsonData.variables?.forEach(kv => {
+      const [prefix, _] = (kv.key as string).split(/(?=\d+$)/);
+      let i=1, newName = "";
+      do {
+        newName = prefix + (i++);
+      } while(editorState.checkRename("", newName) || newKeys.includes(newName));
+      kv.key = newName;
+      newKeys.push(newName);
+    })
+
     const newQueryName = this.genNewName(editorState);
     const id = genQueryId();
     this.dispatch(
       wrapActionExtraInfo(
         this.pushAction({
-          ...originQuery.toJsonValue(),
+          ...jsonData,
           id: id,
           name: newQueryName,
           isNewCreate: true,
@@ -684,7 +871,7 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
             {
               type: "add",
               compName: name,
-              compType: originQuery.children.compType.getView(),
+              compType: jsonData.compType,
             },
           ],
         }

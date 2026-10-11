@@ -1,0 +1,2 @@
+# Points every Spring Boot test context at the MongoDB and Redis test containers (see TestContainersInitializer)
+org.springframework.context.ApplicationContextInitializer=org.lowcoder.api.common.TestContainersInitializer

@@ -1,4 +1,4 @@
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { UICompType } from "comps/uiCompRegistry";
 import { Layers } from "constants/Layers";
 import { ModulePrimaryColor, PrimaryColor } from "constants/style";
@@ -10,15 +10,16 @@ import React, {
   MouseEvent,
   MouseEventHandler,
   useCallback,
-  useContext,
+  useMemo,
   useRef,
   useState,
 } from "react";
-import ReactResizeDetector, { useResizeDetector } from "react-resize-detector";
+import { ResizePayload, useResizeDetector } from "react-resize-detector";
 import styled, { css } from "styled-components";
 import { EllipsisTextCss } from "lowcoder-design";
 import { draggingUtils } from "./draggingUtils";
-import { ResizeHandleAxis } from "./gridLayoutPropTypes";
+import type { ResizeHandleAxis } from "./gridLayoutPropTypes";
+import { isEqual } from "lodash";
 
 export type DragHandleName = "w" | "e" | "nw" | "ne" | "sw" | "se";
 type NamePos = "top" | "bottom" | "bottomInside";
@@ -35,7 +36,7 @@ const NameDiv = styled.div<{
     }
     return "#B8B9BF";
   }};
-  border-radius: ${(props) => (props.$position === "top" ? "2px 2px 0 0" : "0 0 2px 2px")};
+  border-radius: ${(props) => (props.$position === "top" ? "4px 4px 0 0" : "0 0 4px 4px")};
   font-weight: 500;
   color: #ffffff;
   position: absolute;
@@ -89,13 +90,15 @@ function getLineStyle(
 
   return `
       border: ${GRID_ITEM_BORDER_WIDTH}px ${borderStyle} ${borderColor};
-      padding: ${isHidden && !isSelected ? 0 : padding[1] - GRID_ITEM_BORDER_WIDTH}px;
-      padding-left: ${padding[0] - GRID_ITEM_BORDER_WIDTH}px;
-      padding-right: ${padding[0] - GRID_ITEM_BORDER_WIDTH}px;
+      padding: 0px;
+      // padding: ${isHidden || !isSelected ? 0 : padding[1] - GRID_ITEM_BORDER_WIDTH}px;
+      // padding-left: ${padding[0] - GRID_ITEM_BORDER_WIDTH}px;
+      // padding-right: ${padding[0] - GRID_ITEM_BORDER_WIDTH}px;
   `;
 }
 
 // padding: ${props => props.hover || props.showDashline ? 3 : 4}px;
+
 const SelectableDiv = styled.div<{
   $hover?: boolean;
   $showDashLine: boolean;
@@ -173,7 +176,7 @@ const dragCss = (props: DragHandleProps, handle: ResizeHandleAxis) => css`
   height: 8px;
   width: 8px;
   border: 1px solid ${props.$compType === "module" ? ModulePrimaryColor : PrimaryColor};
-  border-radius: 2px;
+  border-radius: 4px;
   background-color: #f5f5f6;
   z-index: 11;
   pointer-events: none;
@@ -231,7 +234,29 @@ const HiddenIcon = styled(CloseEyeIcon)`
   }
 `;
 
-export const CompSelectionWrapper = (props: {
+const ResizableChildren = React.memo((props: {
+  compType: string;
+  onInnerResize: (width?: number, height?: number) => void;
+  children: JSX.Element | React.ReactNode;
+}) => {
+  const { ref: innerRef } = useResizeDetector({
+    refreshMode: "debounce",
+    refreshRate: 10,
+    // The callback updates the parent grid layout. Avoid invoking it from the
+    // resize detector's internal React state updater.
+    disableRerender: true,
+    onResize: ({width, height}: ResizePayload) => props.onInnerResize(width ?? undefined, height ?? undefined),
+    observerOptions: { box: "border-box" }
+  });
+
+  return (
+    <div ref={innerRef}>
+      {props.children}
+    </div>
+  )
+});
+
+export const CompSelectionWrapper = React.memo((props: {
   id?: string;
   compType: UICompType;
   className?: string;
@@ -256,8 +281,9 @@ export const CompSelectionWrapper = (props: {
   resizeIconSize: "small" | "normal";
 }) => {
   const nameDivRef = useRef<HTMLDivElement>(null);
-  const editorState = useContext(EditorContext);
-  let [hover, setHover] = useState(false);
+  const showGridLines = useEditorStore((state) => state.isDragging || state.forceShowGrid);
+  const [hover, setHover] = useState(false);
+
   const onMouseOver = useCallback(
     (e: MouseEvent<HTMLDivElement>) => {
       e.stopPropagation();
@@ -271,8 +297,9 @@ export const CompSelectionWrapper = (props: {
       }
       setHover(true);
     },
-    [setHover]
+    [nameDivRef.current]
   );
+
   const onMouseOut = useCallback(
     (e: MouseEvent<HTMLDivElement>) => {
       e.stopPropagation();
@@ -285,48 +312,68 @@ export const CompSelectionWrapper = (props: {
       }
       setHover(false);
     },
-    [setHover]
+    [nameDivRef.current, setHover]
   );
 
-  const selectableDivProps = props.isSelectable
-    ? {
-        onMouseOver,
-        onMouseOut,
-        onClick: props.onClick,
-        $hover: hover || undefined,
-        $showDashLine: editorState.showGridLines() || props.hidden,
-        $isSelected: props.isSelected,
-        $isHidden: props.hidden,
-      }
-    : {
-        $hover: undefined,
-        $showDashLine: false,
-        $isSelected: false,
-        $isHidden: false,
-      };
+  const selectableDivProps = useMemo(() => {
+    return props.isSelectable
+      ? {
+          onMouseOver,
+          onMouseOut,
+          onClick: props.onClick,
+          $hover: hover || undefined,
+          $showDashLine: showGridLines || props.hidden,
+          $isSelected: props.isSelected,
+          $isHidden: props.hidden,
+        }
+      : {
+          $hover: undefined,
+          $showDashLine: false,
+          $isSelected: false,
+          $isHidden: false,
+        };
+  }, [
+    hover,
+    props.hidden,
+    props.isSelected,
+    props.isSelectable,
+  ]);  
 
-  const zIndex = props.isSelected
-    ? Layers.compSelected
-    : hover
-    ? Layers.compHover
-    : props.hidden
-    ? Layers.compHidden
-    : undefined;
+  const zIndex = useMemo(() => {
+    return props.isSelected
+      ? Layers.compSelected
+      : hover
+      ? Layers.compHover
+      : props.hidden
+      ? Layers.compHidden
+      : undefined;
+  }, [
+    hover,
+    props.hidden,
+    props.isSelected
+  ]);
 
-  const needResizeDetector = props.autoHeight && !props.placeholder;
-  const { ref: wrapperRef } = useResizeDetector({
-    onResize: props.onWrapperResize,
-    handleHeight: needResizeDetector,
-    handleWidth: false,
-  });
+  const needResizeDetector = useMemo(() => {
+    return props.autoHeight && !props.placeholder;
+  }, [props.autoHeight, props.placeholder]);
+
+  // const { ref: wrapperRef } = useResizeDetector({
+  //   onResize: ({width, height}: ResizePayload) => props.onWrapperResize(width ?? undefined, height ?? undefined),
+  //   handleHeight: needResizeDetector,
+  //   handleWidth: false,
+  //   refreshMode: 'debounce',
+  //   refreshRate: 100,
+  // });
+
   // log.debug("CompSelectionWrapper. name: ", props.name, " zIndex: ", zIndex);
   const { nameConfig, resizeIconSize } = props;
+
   return (
     <div id={props.id} style={{ ...props.style, zIndex }} className={props.className}>
       <SelectableDiv
         {...selectableDivProps}
         $compType={props.compType}
-        ref={wrapperRef}
+        // ref={wrapperRef}
         $needResizeDetector={needResizeDetector}
       >
         {props.isSelectable && nameConfig.show && (hover || props.isSelected || props.hidden) && (
@@ -366,14 +413,14 @@ export const CompSelectionWrapper = (props: {
         )}
         {!needResizeDetector && props.children}
         {needResizeDetector && (
-          <ReactResizeDetector
-            onResize={props.onInnerResize}
-            observerOptions={{ box: "border-box" }}
+          <ResizableChildren
+            compType={props.compType}
+            onInnerResize={props.onInnerResize}
           >
-            <div>{props.children}</div>
-          </ReactResizeDetector>
+            <>{props.children}</>
+          </ResizableChildren>
         )}
       </SelectableDiv>
     </div>
   );
-};
+}, (prev, next) => isEqual(prev, next));

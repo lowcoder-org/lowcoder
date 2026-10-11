@@ -33,6 +33,7 @@ export const uiCompCategoryNames = {
   itemHandling: trans("uiCompCategory.itemHandling"),
   multimedia: trans("uiCompCategory.multimedia"),
   integration: trans("uiCompCategory.integration"),
+  legacy: trans("uiCompCategory.legacy"),
 };
 
 export type UICompCategory = keyof typeof uiCompCategoryNames;
@@ -50,6 +51,7 @@ export interface UICompManifest {
   lazyLoad?: boolean;
   compName?: string;
   compPath?: string;
+  isContainer?: boolean;
   defaultDataFn?: CompDefaultDataFunction;
   defaultDataFnName?: string;
   defaultDataFnPath?: string;
@@ -92,6 +94,7 @@ export type UICompType =
   | "dropdown"
   | "text"
   | "table"
+  | "tableLite"
   | "image"
   | "progress"
   | "progressCircle"
@@ -105,8 +108,10 @@ export type UICompType =
   | "container"
   | "pageLayout" // added by Falk Wolsky
   | "floatTextContainer"
+  | "multiTags" // Added by Kamal Qureshi
   | "tabbedContainer"
   | "modal"
+  | "toast"
   | "listView"
   | "grid"
   | "navigation"
@@ -140,6 +145,9 @@ export type UICompType =
   | "timeline" //Added By Mousheng
   | "comment" //Added By Mousheng
   | "mention" //Added By Mousheng
+  | "chat" //Added By Kamal Qureshi
+  | "chatController"
+  | "chatBox"
   | "autocomplete" //Added By Mousheng
   | "colorPicker" //Added By Mousheng
   | "floatingButton" //Added By Mousheng
@@ -147,7 +155,12 @@ export type UICompType =
   | "card"  //Added By Mousheng
   | "timer" //Added by Mousheng
   | "responsiveLayout"
+  | "splitLayout"
   | "tour"
+  | "barChart"
+  | "lineChart"
+  | "pieChart"
+  | "scatterChart"
   | "funnelChart"
   | "gaugeChart"
   | "sankeyChart"
@@ -161,6 +174,9 @@ export type UICompType =
   | "themeriverChart" 
   | "basicChart"
   | "columnLayout"
+  | "ganttChart"
+  | "kanban"
+  | "chat" // Added by Faran
   ;
 
 

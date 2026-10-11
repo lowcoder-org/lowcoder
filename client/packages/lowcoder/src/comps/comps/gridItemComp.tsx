@@ -39,7 +39,6 @@ const TmpComp = withTypeAndChildren<
 >(
   (type) => {
     const compInfo = parseCompType(type);
-
     if (compInfo.isRemote) {
       return remoteComp(compInfo);
     }
@@ -53,7 +52,11 @@ const TmpComp = withTypeAndChildren<
         return lazyLoadComp(
           manifest.compName,
           manifest.compPath,
-        );
+          undefined,
+          undefined,
+          manifest.withoutLoading,
+          manifest.layoutInfo?.h,
+        )
       }
       const comp = manifest.withoutLoading ? manifest.comp : withIsLoading(manifest.comp!);
       return withErrorBoundary(comp!) as ExposingMultiCompConstructor;
@@ -63,7 +66,7 @@ const TmpComp = withTypeAndChildren<
   childrenMap
 );
 
-function CachedView(props: { comp: Comp; name: string }) {
+const CachedView = React.memo((props: { comp: Comp; name: string }) => {
   return React.useMemo(
     () => (
       <Profiler id={props.name} onRender={profilerCallback}>
@@ -74,13 +77,13 @@ function CachedView(props: { comp: Comp; name: string }) {
     ),
     [props.comp, props.name]
   );
-}
+})
 
-function CachedPropertyView(props: {
+const CachedPropertyView = React.memo((props: {
   comp: Comp;
   name: string;
   withParamsContext: WithParamsContext;
-}) {
+}) => {
   const prevHints = useContext(CompExposingContext);
   const { withParamsContext } = props;
   const hints = useMemo(
@@ -94,6 +97,7 @@ function CachedPropertyView(props: {
   useEffect(() => {
     setSearchText("");
   }, [props.name]);
+
   return useMemo(() => {
     return (
       <>
@@ -110,7 +114,7 @@ function CachedPropertyView(props: {
       </>
     );
   }, [props.comp, props.name, hints, searchText, setSearchText]);
-}
+});
 
 export class GridItemComp extends TmpComp {
   private readonly withParamsContext: WithParamsContext = { params: {} };
@@ -129,6 +133,10 @@ export class GridItemComp extends TmpComp {
   autoHeight(): boolean {
     return this.children.comp.autoHeight();
     // Or add a node specifically for providing exposingData data
+  }
+
+  override getRef() {
+    return this.children.comp.getRef?.();
   }
 
   exposingInfo(): ExposingInfo {

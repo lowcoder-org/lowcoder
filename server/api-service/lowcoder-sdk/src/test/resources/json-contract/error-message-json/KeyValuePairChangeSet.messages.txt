@@ -1,0 +1,9 @@
+int	[1]	Invalid object parameter: 1.
+long	[3000000001]	Invalid object parameter: 3000000001.
+decimal	[1.5]	Invalid object parameter: 1.5.
+exponent	[1.0E20]	Invalid object parameter: 1.0E20.
+bigDecimal	[1.50]	Invalid object parameter: 1.50.
+bool	[true]	Invalid object parameter: true.
+null	[null]	Invalid object parameter: null.
+string	["it's \"q\" \\ žluť"]	Invalid object parameter: "it's \"q\" \\ žluť".
+map	[{"zeta":"it's","decimal":1.50,"nested":[1,null,[true]]}]	Invalid object parameter: {"zeta":"it's","decimal":1.50,"nested":[1,null,[true]]}.

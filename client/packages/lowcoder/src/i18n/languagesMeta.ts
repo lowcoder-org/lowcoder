@@ -3,19 +3,11 @@ import {
     Flag_gb, 
     Flag_it, 
     Flag_cn,
-    Flag_fr,
     Flag_ru,
-    Flag_cz,
-    Flag_pl,
     Flag_es,
-    Flag_vi,
-    Flag_id,
-    Flag_tr,
-    Flag_th,
-    Flag_ar,
-    Flag_pt,
     Flag_br
   } from "lowcoder-design";
+import { es, ru } from "./locales";
 
 // Define the structure for a single language's metadata
 export interface LanguageMeta {
@@ -45,6 +37,18 @@ export interface LanguageMeta {
     pt: {
         languageName: "Português",
         flag: Flag_br
-    }
+    },
+    it: {
+      languageName: "Italiano",
+      flag: Flag_it
+    },
+    es: {
+      languageName: "Español",
+      flag: Flag_es
+    },
+    ru: {
+      languageName: "Русский",
+      flag: Flag_ru
+    },
   };
   

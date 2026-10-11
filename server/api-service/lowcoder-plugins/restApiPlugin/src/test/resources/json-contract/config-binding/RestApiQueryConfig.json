@@ -1,0 +1,181 @@
+{
+  "from" : {
+    "full" : {
+      "class" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
+        "httpMethod" : "POST",
+        "disableEncodingParams" : true,
+        "body" : "{\"id\": {{id}}}",
+        "path" : "/users/{{id}}",
+        "params" : [ {
+          "@class" : "org.lowcoder.sdk.models.Property",
+          "key" : "page",
+          "value" : "1",
+          "type" : null
+        }, {
+          "@class" : "org.lowcoder.sdk.models.Property",
+          "key" : "q",
+          "value" : "{{input.text}}",
+          "type" : "text"
+        } ],
+        "headers" : [ {
+          "@class" : "org.lowcoder.sdk.models.Property",
+          "key" : "Content-Type",
+          "value" : "application/json",
+          "type" : null
+        } ],
+        "bodyFormData" : [ {
+          "@class" : "org.lowcoder.sdk.models.Property",
+          "key" : "f",
+          "value" : "{{file}}",
+          "type" : "file"
+        } ],
+        "timeoutMs" : 10000
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
+        "/httpMethod" : "org.springframework.http.HttpMethod",
+        "/disableEncodingParams" : "java.lang.Boolean",
+        "/body" : "java.lang.String",
+        "/path" : "java.lang.String",
+        "/params" : "java.util.ArrayList",
+        "/params/0" : "org.lowcoder.sdk.models.Property",
+        "/params/0/key" : "java.lang.String",
+        "/params/0/value" : "java.lang.String",
+        "/params/0/type" : "null",
+        "/params/1" : "org.lowcoder.sdk.models.Property",
+        "/params/1/key" : "java.lang.String",
+        "/params/1/value" : "java.lang.String",
+        "/params/1/type" : "java.lang.String",
+        "/headers" : "java.util.ArrayList",
+        "/headers/0" : "org.lowcoder.sdk.models.Property",
+        "/headers/0/key" : "java.lang.String",
+        "/headers/0/value" : "java.lang.String",
+        "/headers/0/type" : "null",
+        "/bodyFormData" : "java.util.ArrayList",
+        "/bodyFormData/0" : "org.lowcoder.sdk.models.Property",
+        "/bodyFormData/0/key" : "java.lang.String",
+        "/bodyFormData/0/value" : "java.lang.String",
+        "/bodyFormData/0/type" : "java.lang.String",
+        "/timeoutMs" : "java.lang.Long"
+      },
+      "noView" : {"httpMethod":{},"disableEncodingParams":true,"body":"{\"id\": {{id}}}","path":"/users/{{id}}","params":[{"key":"page","value":"1","type":null,"multipartFileType":false},{"key":"q","value":"{{input.text}}","type":"text","multipartFileType":false}],"headers":[{"key":"Content-Type","value":"application/json","type":null,"multipartFileType":false}],"bodyFormData":[{"key":"f","value":"{{file}}","type":"file","multipartFileType":true}],"timeoutMs":10000},
+      "Public" : {"httpMethod":{},"disableEncodingParams":true,"body":"{\"id\": {{id}}}","path":"/users/{{id}}","params":[{"key":"page","value":"1","type":null,"multipartFileType":false},{"key":"q","value":"{{input.text}}","type":"text","multipartFileType":false}],"headers":[{"key":"Content-Type","value":"application/json","type":null,"multipartFileType":false}],"bodyFormData":[{"key":"f","value":"{{file}}","type":"file","multipartFileType":true}],"timeoutMs":10000},
+      "Internal" : {"httpMethod":{},"disableEncodingParams":true,"body":"{\"id\": {{id}}}","path":"/users/{{id}}","params":[{"key":"page","value":"1","type":null,"multipartFileType":false},{"key":"q","value":"{{input.text}}","type":"text","multipartFileType":false}],"headers":[{"key":"Content-Type","value":"application/json","type":null,"multipartFileType":false}],"bodyFormData":[{"key":"f","value":"{{file}}","type":"file","multipartFileType":true}],"timeoutMs":10000}
+    },
+    "lowerCaseMethod" : {
+      "class" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
+        "httpMethod" : "get",
+        "disableEncodingParams" : false,
+        "body" : null,
+        "path" : "/a",
+        "params" : null,
+        "headers" : null,
+        "bodyFormData" : null,
+        "timeoutMs" : 0
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
+        "/httpMethod" : "org.springframework.http.HttpMethod",
+        "/disableEncodingParams" : "java.lang.Boolean",
+        "/body" : "null",
+        "/path" : "java.lang.String",
+        "/params" : "null",
+        "/headers" : "null",
+        "/bodyFormData" : "null",
+        "/timeoutMs" : "java.lang.Long"
+      },
+      "noView" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":"/a","params":[],"headers":[],"bodyFormData":[],"timeoutMs":0},
+      "Public" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":"/a","params":[],"headers":[],"bodyFormData":[],"timeoutMs":0},
+      "Internal" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":"/a","params":[],"headers":[],"bodyFormData":[],"timeoutMs":0}
+    },
+    "unknownMethod" : {
+      "class" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
+        "httpMethod" : "PROPFIND",
+        "disableEncodingParams" : false,
+        "body" : null,
+        "path" : null,
+        "params" : null,
+        "headers" : null,
+        "bodyFormData" : null,
+        "timeoutMs" : 2500
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
+        "/httpMethod" : "org.springframework.http.HttpMethod",
+        "/disableEncodingParams" : "java.lang.Boolean",
+        "/body" : "null",
+        "/path" : "null",
+        "/params" : "null",
+        "/headers" : "null",
+        "/bodyFormData" : "null",
+        "/timeoutMs" : "java.lang.Long"
+      },
+      "noView" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":2500},
+      "Public" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":2500},
+      "Internal" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":2500}
+    },
+    "longTimeout" : {
+      "class" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
+        "httpMethod" : "GET",
+        "disableEncodingParams" : false,
+        "body" : null,
+        "path" : null,
+        "params" : null,
+        "headers" : null,
+        "bodyFormData" : null,
+        "timeoutMs" : 4294967296
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
+        "/httpMethod" : "org.springframework.http.HttpMethod",
+        "/disableEncodingParams" : "java.lang.Boolean",
+        "/body" : "null",
+        "/path" : "null",
+        "/params" : "null",
+        "/headers" : "null",
+        "/bodyFormData" : "null",
+        "/timeoutMs" : "java.lang.Long"
+      },
+      "noView" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":4294967296},
+      "Public" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":4294967296},
+      "Internal" : {"httpMethod":{},"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":4294967296}
+    },
+    "empty" : {
+      "class" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
+        "httpMethod" : null,
+        "disableEncodingParams" : false,
+        "body" : null,
+        "path" : null,
+        "params" : null,
+        "headers" : null,
+        "bodyFormData" : null,
+        "timeoutMs" : 0
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.restapi.model.RestApiQueryConfig",
+        "/httpMethod" : "null",
+        "/disableEncodingParams" : "java.lang.Boolean",
+        "/body" : "null",
+        "/path" : "null",
+        "/params" : "null",
+        "/headers" : "null",
+        "/bodyFormData" : "null",
+        "/timeoutMs" : "java.lang.Long"
+      },
+      "noView" : {"httpMethod":null,"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":0},
+      "Public" : {"httpMethod":null,"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":0},
+      "Internal" : {"httpMethod":null,"disableEncodingParams":false,"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"timeoutMs":0}
+    },
+    "unknownProperty" : "ignored: binds as form full"
+  }
+}

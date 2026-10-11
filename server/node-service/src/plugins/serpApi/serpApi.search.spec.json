@@ -1,0 +1,394 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "SerpApi Google Search API",
+    "description": "The SerpApi Google Search API provides a streamlined way to access Google search results in real-time, handling complexities like proxies and CAPTCHA challenges to deliver structured data in JSON format. This API allows developers to fetch real-time search results, geolocate queries, and receive enriched JSON data with minimal effort.",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "Search",
+      "description": "Endpoints related to Google search queries."
+    }
+  ],
+  "paths": {
+    "/search.json": {
+      "get": {
+        "summary": "Perform a Google search query",
+        "description": "This endpoint allows you to submit a query to the SerpApi Google Search API and retrieve structured search results, including organic results, maps, local listings, stories, shopping results, direct answers, and knowledge graphs.",
+        "tags": ["Search"],
+        "deprecated": false,
+        "parameters": [
+          {
+            "name": "engine",
+            "in": "query",
+            "description": "Parameter defines the search engine you want to query. Defaults to `google` if not provided.",
+            "required": true,
+            "example": "google",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Parameter defines the query you want to search. You can use anything that you would use in a regular Google search. e.g. inurl:",
+            "required": true,
+            "example": "coffee",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "description": "Parameter defines from where you want the search to originate. If several locations match the location requested",
+            "required": false,
+            "example": "Austin, Texas, United States",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "uule",
+            "in": "query",
+            "description": "Parameter is the Google encoded location you want to use for the search. uule and location parameters can't be used together.",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ludocid",
+            "in": "query",
+            "description": "Parameter defines the id (CID) of the Google My Business listing you want to scrape. Also known as Google Place ID.",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lsig",
+            "in": "query",
+            "description": "Parameter that you might have to use to force the knowledge graph map view to show up. You can find the lsig ID by using our Local Pack API or Google Local API.lsig ID is also available via a redirect Google uses within Google My Business.",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "kgmid",
+            "in": "query",
+            "description": "Parameter defines the id (KGMID) of the Google Knowledge Graph listing you want to scrape. Also known as Google Knowledge Graph ID. Searches with kgmid parameter will return results for the originally encrypted search parameters. For some searches",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "si",
+            "in": "query",
+            "description": "Parameter defines the cached search parameters of the Google Search you want to scrape. Searches with si parameter will return results for the originally encrypted search parameters. For some searches",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ibp",
+            "in": "query",
+            "description": "Parameter is responsible for rendering layouts and expansions for some elements (e.g.",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "google_domain",
+            "in": "query",
+            "description": "Parameter defines the Google domain to use. It defaults to google.com. Head to the Google domains page for a full list of supported Google domains.",
+            "required": false,
+            "example": "google.com",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "gl",
+            "in": "query",
+            "description": "Parameter defines the country to use for the Google search. It's a two-letter country code. (e.g.",
+            "required": false,
+            "example": "us",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hl",
+            "in": "query",
+            "description": "Parameter defines the language to use for the Google search. It's a two-letter language code. (e.g.",
+            "required": false,
+            "example": "en",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cr",
+            "in": "query",
+            "description": "Parameter defines one or multiple countries to limit the search to. It uses country{two-letter upper-case country code} to specify countries and | as a delimiter. (e.g.",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lr",
+            "in": "query",
+            "description": "Parameter defines one or multiple languages to limit the search to. It uses lang_{two-letter language code} to specify languages and | as a delimiter. (e.g.",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tbs",
+            "in": "query",
+            "description": "(to be searched) parameter defines advanced search parameters that aren't possible in the regular query field. (e.g.",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "safe",
+            "in": "query",
+            "description": "Parameter defines the level of filtering for adult content. It can be set to active or off",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "nfpr",
+            "in": "query",
+            "description": "Parameter defines the exclusion of results from an auto-corrected query when the original query is spelled wrong. It can be set to 1 to exclude these results",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "Parameter defines if the filters for 'Similar Results' and 'Omitted Results' are on or off. It can be set to 1 (default) to enable these filters",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tbm",
+            "in": "query",
+            "description": "(to be matched) parameter defines the type of search you want to do.It can be set to:(no tbm parameter): regular Google Search",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "description": "Parameter defines the result offset. It skips the given number of results. It's used for pagination. (e.g.",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "num",
+            "in": "query",
+            "description": "Parameter defines the maximum number of results to return. (e.g.",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "device",
+            "in": "query",
+            "description": "Parameter defines the device to use to get the results. It can be set to desktop (default) to use a regular browser",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "no_cache",
+            "in": "query",
+            "description": "Parameter will force SerpApi to fetch the Google results even if a cached version is already present. A cache is served only if the query and all parameters are exactly the same. Cache expires after 1h. Cached searches are free",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "async",
+            "in": "query",
+            "description": "Parameter defines the way you want to submit your search to SerpApi. It can be set to false (default) to open an HTTP connection and keep it open until you got your search results",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "output",
+            "in": "query",
+            "description": "Parameter defines the final output you want. It can be set to json (default) to get a structured JSON of the results",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response containing the structured JSON data of the search results.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "search_metadata": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "status": { "type": "string" },
+                        "json_endpoint": { "type": "string" },
+                        "created_at": { "type": "string" },
+                        "processed_at": { "type": "string" },
+                        "google_url": { "type": "string" },
+                        "raw_html_file": { "type": "string" },
+                        "total_time_taken": { "type": "number" }
+                      }
+                    },
+                    "search_parameters": {
+                      "type": "object",
+                      "properties": {
+                        "engine": { "type": "string" },
+                        "q": { "type": "string" },
+                        "location_requested": { "type": "string" },
+                        "location_used": { "type": "string" },
+                        "google_domain": { "type": "string" },
+                        "hl": { "type": "string" },
+                        "gl": { "type": "string" },
+                        "device": { "type": "string" }
+                      }
+                    },
+                    "search_information": {
+                      "type": "object",
+                      "properties": {
+                        "organic_results_state": { "type": "string" },
+                        "query_displayed": { "type": "string" },
+                        "total_results": { "type": "integer" },
+                        "time_taken_displayed": { "type": "number" }
+                      }
+                    },
+                    "recipes_results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": { "type": "string" },
+                          "link": { "type": "string" },
+                          "source": { "type": "string" },
+                          "total_time": { "type": "string" },
+                          "ingredients": {
+                            "type": "array",
+                            "items": { "type": "string" }
+                          },
+                          "thumbnail": { "type": "string" }
+                        }
+                      }
+                    },
+                    "shopping_results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "position": { "type": "integer" },
+                          "block_position": { "type": "string" },
+                          "title": { "type": "string" },
+                          "price": { "type": "string" },
+                          "extracted_price": { "type": "number" },
+                          "link": { "type": "string" },
+                          "source": { "type": "string" },
+                          "reviews": { "type": "integer" },
+                          "thumbnail": { "type": "string" }
+                        }
+                      }
+                    },
+                    "local_map": {
+                      "type": "object",
+                      "properties": {
+                        "link": { "type": "string" },
+                        "image": { "type": "string" },
+                        "gps_coordinates": {
+                          "type": "object",
+                          "properties": {
+                            "latitude": { "type": "number" },
+                            "longitude": { "type": "number" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apikey-query-api_key": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {},
+    "securitySchemes": {
+      "apikey-query-api_key": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "api_key"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://serpapi.com",
+      "description": "SerpApi Base URL"
+    }
+  ]
+}

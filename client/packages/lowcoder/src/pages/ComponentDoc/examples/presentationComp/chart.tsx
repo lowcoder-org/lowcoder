@@ -4,7 +4,7 @@ import { chartColorPalette } from "lowcoder-design";
 import Example from "../../common/Example";
 import ExampleGroup from "../../common/ExampleGroup";
 
-const ChartCompWithDefault = uiCompRegistry["chart"].comp;
+const ChartCompWithDefault = uiCompRegistry["basicChart"].comp;
 
 const defaultDataSource = [
   {
@@ -171,6 +171,7 @@ export default function ChartExample() {
           compFactory={ChartCompWithDefault}
         />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.line")}>
         <Example
           title={trans("componentDoc.basicLine")}
@@ -221,6 +222,7 @@ export default function ChartExample() {
           compFactory={ChartCompWithDefault}
         />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.scatter")}>
         <Example
           title={trans("componentDoc.circle")}
@@ -316,6 +318,7 @@ export default function ChartExample() {
           compFactory={ChartCompWithDefault}
         />
       </ExampleGroup>
+      
       <ExampleGroup title={trans("componentDoc.pie")}>
         <Example
           title={trans("componentDoc.basicPie")}
@@ -359,6 +362,26 @@ export default function ChartExample() {
             data: data,
             series: series,
             chartConfig: { compType: "pie", comp: { type: "rosePie" } },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup title={trans("componentDoc.pie")}>
+        <Example
+          title={trans("componentDoc.basicPie")}
+          width={500}
+          height={300}
+          nameMap={{ "chartConfig.comp.type": trans("componentDoc.pieChatType") }}
+          blackListConfig={blackListConfig}
+          config={{
+            mode: "map",
+            data: data,
+            series: series,
+            chartConfig: {
+              compType: "bar",
+              comp: { type: "basicBar" },
+            },
           }}
           compFactory={ChartCompWithDefault}
         />

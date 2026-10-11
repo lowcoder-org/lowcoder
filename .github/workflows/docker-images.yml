@@ -1,0 +1,208 @@
+name: Build lowcoder docker images
+
+on:
+  workflow_dispatch:
+    inputs:
+      imageTag:
+        type: string
+        description: 'Docker image tag, for example 3.0.0 or latest'
+        required: true
+        default: 'latest'
+      sourceRef:
+        type: string
+        description: 'Source tag, branch or commit (empty uses the workflow commit)'
+        required: false
+      publish_latest:
+        type: boolean
+        description: 'Also publish the same images as latest'
+        default: false
+      build_allinone:
+        type: boolean
+        description: 'Build the All-In-One image'
+        default: true
+      build_frontend:
+        type: boolean
+        description: 'Build the Frontend image'
+        default: true
+      build_nodeservice:
+        type: boolean
+        description: 'Build the Node service image'
+        default: true
+      build_apiservice:
+        type: boolean
+        description: 'Build the API service image'
+        default: true
+  push:
+    branches: dev
+    paths:
+      - 'client/**'
+      - 'server/**'
+      - 'deploy/docker/**'
+  release:
+    types: [released]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout lowcoder source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.sourceRef || github.sha }}
+
+      - name: 'Setup jq'
+        uses: dcarbone/install-jq-action@v3
+        with:
+          version: '1.7'
+
+      - name: Set environment variables
+        shell: bash
+        env:
+          IMAGE_TAG: ${{ inputs.imageTag || github.ref_name }}
+          PUBLISH_LATEST: ${{ inputs.publish_latest || false }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Use the checked-out source commit, which may differ from the workflow.
+          echo "SHORT_SHA=$(git rev-parse --short=7 HEAD)" >> "${GITHUB_ENV}"
+          if [[ ! "${IMAGE_TAG}" =~ ^[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,127}$ ]]; then
+            echo "::error::Invalid Docker image tag"
+            exit 1
+          fi
+
+          # Stable releases keep their existing latest-tag behavior. Manual runs
+          # can publish latest without changing a GitHub pre-release's status.
+          IS_LATEST="${PUBLISH_LATEST}"
+          if [[ -n "${RELEASE_TAG}" ]]; then
+            LATEST_TAG=$(
+              curl --fail --silent --show-error --location \
+                -H "Accept: application/vnd.github+json" \
+                -H "Authorization: Bearer ${GH_TOKEN}" \
+                "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/latest" \
+                | jq -r '.tag_name'
+            )
+            if [[ "${LATEST_TAG}" == "${RELEASE_TAG}" ]]; then
+              IS_LATEST="true"
+            fi
+          fi
+
+          # Control which images to build
+          echo "BUILD_ALLINONE=${{ github.event_name != 'workflow_dispatch' || inputs.build_allinone }}" >> "${GITHUB_ENV}"
+          echo "BUILD_FRONTEND=${{ github.event_name != 'workflow_dispatch' || inputs.build_frontend }}" >> "${GITHUB_ENV}"
+          echo "BUILD_NODESERVICE=${{ github.event_name != 'workflow_dispatch' || inputs.build_nodeservice }}" >> "${GITHUB_ENV}"
+          echo "BUILD_APISERVICE=${{ github.event_name != 'workflow_dispatch' || inputs.build_apiservice }}" >> "${GITHUB_ENV}"
+
+          # Image names
+          ALLINONE_IMAGE_NAMES=lowcoderorg/lowcoder-ce:${IMAGE_TAG}
+          FRONTEND_IMAGE_NAMES=lowcoderorg/lowcoder-ce-frontend:${IMAGE_TAG}
+          FRONTEND_EE_IMAGE_NAMES=lowcoderorg/lowcoder-enterprise-frontend:${IMAGE_TAG}
+          APISERVICE_IMAGE_NAMES=lowcoderorg/lowcoder-ce-api-service:${IMAGE_TAG}
+          NODESERVICE_IMAGE_NAMES=lowcoderorg/lowcoder-ce-node-service:${IMAGE_TAG}
+
+          if [[ "${IS_LATEST}" == "true" && "${IMAGE_TAG}" != "latest" ]]; then
+               ALLINONE_IMAGE_NAMES="lowcoderorg/lowcoder-ce:latest,${ALLINONE_IMAGE_NAMES}"
+               FRONTEND_IMAGE_NAMES="lowcoderorg/lowcoder-ce-frontend:latest,${FRONTEND_IMAGE_NAMES}"
+               FRONTEND_EE_IMAGE_NAMES="lowcoderorg/lowcoder-enterprise-frontend:latest,${FRONTEND_EE_IMAGE_NAMES}"
+               APISERVICE_IMAGE_NAMES="lowcoderorg/lowcoder-ce-api-service:latest,${APISERVICE_IMAGE_NAMES}"
+               NODESERVICE_IMAGE_NAMES="lowcoderorg/lowcoder-ce-node-service:latest,${NODESERVICE_IMAGE_NAMES}"
+          fi;
+
+          echo "ALLINONE_IMAGE_NAMES=${ALLINONE_IMAGE_NAMES}" >> "${GITHUB_ENV}"
+          echo "FRONTEND_IMAGE_NAMES=${FRONTEND_IMAGE_NAMES}" >> "${GITHUB_ENV}"
+          echo "FRONTEND_EE_IMAGE_NAMES=${FRONTEND_EE_IMAGE_NAMES}" >> "${GITHUB_ENV}"
+          echo "APISERVICE_IMAGE_NAMES=${APISERVICE_IMAGE_NAMES}" >> "${GITHUB_ENV}"
+          echo "NODESERVICE_IMAGE_NAMES=${NODESERVICE_IMAGE_NAMES}" >> "${GITHUB_ENV}"
+
+      - name: Log into Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_LOGIN }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Setup Docker Buildx with cloud driver
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: "lab:latest"
+          driver: cloud
+          endpoint: "lowcoderorg/lowcoder-cloud-builder"
+
+      - name: Build and push the all-in-one image
+        if: ${{ env.BUILD_ALLINONE == 'true' }}
+        uses: docker/build-push-action@v6
+        env:
+          NODE_ENV: production
+        with:
+          context: .
+          file: ./deploy/docker/Dockerfile
+          build-args: |
+            REACT_APP_ENV=production
+            REACT_APP_COMMIT_ID="dev #${{ env.SHORT_SHA }}"
+          platforms: |
+            linux/amd64
+            linux/arm64
+          push: true
+          tags: ${{ env.ALLINONE_IMAGE_NAMES }}
+
+      - name: Build and push the frontend image
+        if: ${{ env.BUILD_FRONTEND == 'true' }}
+        uses: docker/build-push-action@v6
+        env:
+          NODE_ENV: production
+        with:
+          context: .
+          file: ./deploy/docker/Dockerfile
+          target: lowcoder-ce-frontend
+          build-args: |
+            REACT_APP_ENV=production
+            REACT_APP_COMMIT_ID="dev #${{ env.SHORT_SHA }}"
+          platforms: |
+            linux/amd64
+            linux/arm64
+          push: true
+          tags: ${{ env.FRONTEND_IMAGE_NAMES }}
+
+      - name: Build and push the enterprise edition frontend image
+        if: ${{ env.BUILD_FRONTEND == 'true' }}
+        uses: docker/build-push-action@v6
+        env:
+          NODE_ENV: production
+        with:
+          context: .
+          file: ./deploy/docker/Dockerfile
+          target: lowcoder-enterprise-frontend
+          build-args: |
+            REACT_APP_ENV=production
+            REACT_APP_EDITION=enterprise
+            REACT_APP_COMMIT_ID="dev #${{ env.SHORT_SHA }}"
+          platforms: |
+            linux/amd64
+            linux/arm64
+          push: true
+          tags: ${{ env.FRONTEND_EE_IMAGE_NAMES }}
+
+      - name: Build and push the node service image
+        if: ${{ env.BUILD_NODESERVICE == 'true' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./deploy/docker/Dockerfile
+          target: lowcoder-ce-node-service
+          platforms: |
+            linux/amd64
+            linux/arm64
+          push: true
+          tags: ${{ env.NODESERVICE_IMAGE_NAMES }}
+
+      - name: Build and push the API service image
+        if: ${{ env.BUILD_APISERVICE == 'true' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./deploy/docker/Dockerfile
+          target: lowcoder-ce-api-service
+          platforms: |
+            linux/amd64
+            linux/arm64
+          push: true
+          tags: ${{ env.APISERVICE_IMAGE_NAMES }}
+

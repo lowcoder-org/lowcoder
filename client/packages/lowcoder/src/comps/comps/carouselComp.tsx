@@ -9,14 +9,13 @@ import { trans } from "i18n";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
 import { PositionControl } from "comps/controls/dropdownControl";
-import { useRef, useState } from "react";
-import ReactResizeDetector from "react-resize-detector";
+import { useEffect, useRef, useState } from "react";
+import  { useResizeDetector } from "react-resize-detector";
 import { ArrayStringControl } from "comps/controls/codeControl";
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, CarouselStyle } from "comps/controls/styleControlConstants";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 
 // TODO: dots at top position needs proper margin (should be the same as bottom position)
 
@@ -29,7 +28,7 @@ const Container = styled.div<{$bg: string; $animationStyle:AnimationStyleType}>`
   &,
   .ant-carousel {
     height: 100%;
-    background-color: ${(props) => props.$bg};
+    background: ${(props) => props.$bg};
     ${props=>props.$animationStyle}
   }
 `;
@@ -44,8 +43,8 @@ let CarouselBasicComp = (function () {
     onEvent: ChangeEventHandlerControl,
     showDots: withDefault(BoolControl, true),
     dotPosition: withDefault(PositionControl, "bottom"),
-    style: styleControl(CarouselStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(CarouselStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
@@ -56,37 +55,42 @@ let CarouselBasicComp = (function () {
         setHeight(containerRef.current.clientHeight);
       }
     };
+
+    useResizeDetector({
+      targetRef: containerRef,
+      onResize,
+    });
+
     return (
       <Container
         ref={containerRef}
         $bg={props.style.background}
         $animationStyle={props.animationStyle}
       >
-        <ReactResizeDetector onResize={onResize}>
-          <Carousel
-            dots={props.showDots}
-            dotPosition={props.dotPosition}
-            autoplay={props.autoPlay}
-            afterChange={() => props.onEvent("change")}
-          >
-            {props.data.map((url, index) => (
-              <div key={index}>
-                <CarouselItem $src={url} style={{ height }} />
-              </div>
-            ))}
-          </Carousel>
-        </ReactResizeDetector>
+        <Carousel
+          dots={props.showDots}
+          dotPosition={props.dotPosition}
+          autoplay={props.autoPlay}
+          afterChange={() => props.onEvent("change")}
+        >
+          {props.data.map((url, index) => (
+            <div key={index}>
+              <CarouselItem $src={url} style={{ height }} />
+            </div>
+          ))}
+        </Carousel>
       </Container>
     );
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
             {children.data.propertyView({ label: trans("data") })}
           </Section>
 
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["logic", "both"].includes(editorModeStatus) && (
             <><FormDataPropertyView {...children} />
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
@@ -94,7 +98,7 @@ let CarouselBasicComp = (function () {
               {children.autoPlay.propertyView({ label: trans("carousel.autoPlay") })}
             </Section></>
           )}
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             <><Section name={sectionNames.layout}>
                 {children.showDots.propertyView({ label: trans("carousel.showDots") })}
                 {children.dotPosition.propertyView({

@@ -1,5 +1,6 @@
 import { CellProps } from "components/table/EditableCell";
 import { DateTimeComp } from "comps/comps/tableComp/column/columnTypeComps/columnDateTimeComp";
+import { TimeComp } from "./columnTypeComps/columnTimeComp";
 import { ButtonComp } from "comps/comps/tableComp/column/simpleColumnTypeComps";
 import { withType } from "comps/generators";
 import { trans } from "i18n";
@@ -20,6 +21,9 @@ import { SimpleTextComp } from "./columnTypeComps/simpleTextComp";
 import { ColumnNumberComp } from "./columnTypeComps/ColumnNumberComp";
 
 import { ColumnAvatarsComp } from "./columnTypeComps/columnAvatarsComp";
+import { ColumnDropdownComp } from "./columnTypeComps/columnDropdownComp";
+import { ColumnPasswordComp } from "./columnTypeComps/columnPasswordComp";
+import { ColumnMultilineTextComp } from "./columnTypeComps/columnMultilineTextComp";
 
 const actionOptions = [
   {
@@ -51,6 +55,10 @@ const actionOptions = [
     value: "select",
   },
   {
+    label: trans("table.dropdown"),
+    value: "dropdown",
+  },
+  {
     label: trans("table.badgeStatus"),
     value: "badgeStatus",
   },
@@ -62,6 +70,11 @@ const actionOptions = [
     label: trans("table.image"),
     value: "image",
   },
+  {
+    label: trans("table.time"),
+    value: "time",
+  },
+
   {
     label: trans("table.date"),
     value: "date",
@@ -90,6 +103,14 @@ const actionOptions = [
     label: trans("table.progress"),
     value: "progress",
   },
+  {
+    label: "Password",
+    value: "password",
+  },
+  {
+    label: trans("table.multilineText"),
+    value: "multilineText",
+  },
 ] as const;
 
 export const ColumnTypeCompMap = {
@@ -101,6 +122,7 @@ export const ColumnTypeCompMap = {
   link: LinkComp,
   tag: ColumnTagsComp,
   select: ColumnSelectComp,
+  dropdown: ColumnDropdownComp,
   links: ColumnLinksComp,
   image: ImageComp,
   markdown: ColumnMarkdownComp,
@@ -110,6 +132,9 @@ export const ColumnTypeCompMap = {
   rating: RatingComp,
   progress: ProgressComp,
   date: DateComp,
+  time: TimeComp,
+  password: ColumnPasswordComp,
+  multilineText: ColumnMultilineTextComp,
 };
 
 type ColumnTypeMapType = typeof ColumnTypeCompMap;
@@ -128,6 +153,18 @@ export class ColumnTypeComp extends TypedColumnTypeComp {
     };
   }
 
+  private handleTypeChange: (value: ColumnTypeKeys) => void = (value) => {
+    // Keep the previous text value, some components do not have text, the default value is currentCell
+    let textRawData = "{{currentCell}}";
+    if (this.children.comp.children.hasOwnProperty("text")) {
+      textRawData = (this.children.comp.children as any).text.toJsonValue();
+    }
+    this.dispatchChangeValueAction({
+      compType: value,
+      comp: { text: textRawData },
+    } as any);
+  }
+
   override getPropertyView() {
     return (
       <>
@@ -136,17 +173,7 @@ export class ColumnTypeComp extends TypedColumnTypeComp {
           value={this.children.compType.getView()}
           options={actionOptions}
           label={trans("table.columnType")}
-          onChange={(value) => {
-            // Keep the previous text value, some components do not have text, the default value is currentCell
-            let textRawData = "{{currentCell}}";
-            if (this.children.comp.children.hasOwnProperty("text")) {
-              textRawData = (this.children.comp.children as any).text.toJsonValue();
-            }
-            this.dispatchChangeValueAction({
-              compType: value,
-              comp: { text: textRawData },
-            } as any);
-          }}
+          onChange={this.handleTypeChange}
         />
         {this.children.comp.getPropertyView()}
       </>

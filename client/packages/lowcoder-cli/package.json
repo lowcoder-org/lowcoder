@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "^2.2.0",
-    "axios": "^1.1.3",
+    "axios": "^1.7.4",
     "chalk": "4",
     "commander": "^9.4.1",
     "cross-spawn": "^7.0.3",
@@ -33,12 +33,11 @@
     "react-dom": "^18.2.0",
     "react-json-view": "^1.21.3",
     "rollup-plugin-external-globals": "^0.7.1",
-    "vite": "^4.5.2",
+    "vite": "^4.5.5",
     "vite-plugin-css-injected-by-js": "^2.1.1",
     "vite-plugin-svgr": "^2.2.2"
   },
   "devDependencies": {
-    "@types/axios": "^0.14.0",
     "typescript": "^4.8.4"
   },
   "peerDependencies": {

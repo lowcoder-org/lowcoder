@@ -6,6 +6,7 @@ import { ReactNode } from "react";
 import styled from "styled-components";
 import { CustomSelect } from "./customSelect";
 import { EllipsisTextCss } from "./Label";
+import { useEffect } from "react";
 import { TacoMarkDown } from "./markdown";
 import { Tooltip, ToolTipLabel } from "./toolTip";
 
@@ -17,9 +18,9 @@ export const DropdownContainer = styled.div<{ $placement: ControlPlacement }>`
   width: ${(props) =>
     props.$placement === "right"
       ? "calc(100% - 96px)"
-      : "bottom"
-      ? "calc(100% - 112px)"
-      : "calc(100% - 136px"};
+      : props.$placement === "bottom"
+        ? "calc(100% - 112px)"
+        : "calc(100% - 136px)"};
   flex-grow: 1;
 
   .ant-select:not(.ant-select-customize-input) .ant-select-selector {
@@ -123,8 +124,8 @@ const FlexDiv = styled.div`
 
 const LabelWrapper = styled.div<{ $placement: ControlPlacement }>`
   flex-shrink: 0;
-  width: ${(props) => (props.$placement === "right" ? "96px" : "bottom" ? "112px" : "136px")};
-`;
+  width: ${(props) => props.$placement === "right" ? "96px" : props.$placement === "bottom" ? "112px" : "136px"};
+  `;
 
 export type OptionType = {
   readonly label: ReactNode;
@@ -157,6 +158,8 @@ interface DropdownProps<T extends OptionsType> extends Omit<SelectProps, "placem
 export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
   const { placement = "right" } = props;
   const valueInfoMap = _.fromPairs(props.options.map((option) => [option.value, option]));
+
+
   return (
     <FlexDiv style={props.style} className={props.className}>
       {props.label && (
@@ -171,7 +174,7 @@ export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
             <CustomSelect
               open={props.open}
               listHeight={props.lineHeight}
-              popupClassName="ob-dropdown-control-select"
+              classNames={{popup: { root: "ob-dropdown-control-select"}}}
               showSearch={props.showSearch}
               filterOption={(input, option) => {
                 if (props.optionFilterProp) {
@@ -203,7 +206,7 @@ export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
               allowClear={props.allowClear}
               placeholder={props.placeholder}
               optionLabelProp={props.optionLabelProp}
-              dropdownRender={(menu) =>
+              popupRender={(menu) =>
                 props.preNode ? (
                   <>
                     {props.preNode()}
@@ -235,7 +238,7 @@ export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
         <SegmentedWrapper $placement={placement}>
           <Segmented
             block={true}
-            onChange={(value) => props.onChange(value.toString())}
+            onChange={(value) => props.onChange(String(value))}
             defaultValue={props.defaultValue}
             value={props.value}
             options={props.options as any}

@@ -53,15 +53,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public Flux<FindAuthConfig> findAllAuthConfigs(String orgId, boolean enableOnly) {
 
         Mono<FindAuthConfig> emailAuthConfigMono = orgMemberService.doesAtleastOneAdminExist()
-                .map(doesAtleastOneAdminExist -> {
+                .flatMap(doesAtleastOneAdminExist -> {
                     boolean shouldEnableRegister;
                     if(doesAtleastOneAdminExist) {
                         shouldEnableRegister = authProperties.getEmail().getEnableRegister();
                     } else {
                         shouldEnableRegister = Boolean.TRUE;
                     }
-                    return new FindAuthConfig
-                            (new EmailAuthConfig(AuthSourceConstants.EMAIL, authProperties.getEmail().isEnable(), shouldEnableRegister), null);
+                    if(orgId == null) return Mono.just(new FindAuthConfig(new EmailAuthConfig(AuthSourceConstants.EMAIL, authProperties.getEmail().isEnable(), shouldEnableRegister), null));
+                    else return organizationService.getById(orgId).map(organization -> new FindAuthConfig(new EmailAuthConfig(AuthSourceConstants.EMAIL, !organization.getIsEmailDisabled(), shouldEnableRegister), null));
                 });
 
 

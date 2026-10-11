@@ -4,7 +4,6 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.application.view.ApplicationInfoView;
-import org.lowcoder.api.application.view.ApplicationInfoView.ApplicationInfoViewBuilder;
 import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
 import org.lowcoder.api.bundle.view.BundleInfoView;
 import org.lowcoder.api.bundle.view.MarketplaceBundleInfoView;
@@ -12,14 +11,17 @@ import org.lowcoder.api.usermanagement.OrgDevChecker;
 import org.lowcoder.api.usermanagement.view.OrgAndVisitorRoleView;
 import org.lowcoder.api.usermanagement.view.UserProfileView;
 import org.lowcoder.domain.application.model.Application;
+import org.lowcoder.domain.application.model.ApplicationVersion;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
+import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.bundle.model.Bundle;
 import org.lowcoder.domain.bundle.model.BundleElement;
 import org.lowcoder.domain.bundle.model.BundleStatus;
 import org.lowcoder.domain.bundle.service.BundleElementRelationServiceImpl;
 import org.lowcoder.domain.bundle.service.BundleService;
+import org.lowcoder.domain.folder.service.FolderElementRelationService;
 import org.lowcoder.domain.interaction.UserApplicationInteraction;
 import org.lowcoder.domain.interaction.UserApplicationInteractionService;
 import org.lowcoder.domain.organization.model.OrgMember;
@@ -34,6 +36,7 @@ import org.lowcoder.domain.user.model.UserStatus;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.domain.user.service.UserStatusService;
 import org.lowcoder.infra.util.NetworkUtils;
+import org.lowcoder.infra.util.TupleUtils;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -69,6 +72,8 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
     private final CommonConfig config;
     private final BundleElementRelationServiceImpl bundleElementRelationServiceImpl;
     private final BundleService bundleService;
+    private final ApplicationRecordService applicationRecordService;
+    private final FolderElementRelationService folderElementRelationService;
 
     @Override
     public Mono<UserProfileView> buildUserProfileView(User user, ServerWebExchange exchange) {
@@ -157,31 +162,10 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                     }
 
                     return organizationService.getById(currentOrgId)
-                            .zipWith(folderApiService.getElements(null, applicationType).collectList())
+                            .zipWith(folderApiService.getElements(null, applicationType, null, null).collectList())
                             .map(tuple2 -> {
                                 Organization organization = tuple2.getT1();
-                                List<?> list = tuple2.getT2();
-                                List<ApplicationInfoView> applicationInfoViews = list.stream()
-                                        .map(o -> {
-                                            if (o instanceof ApplicationInfoView applicationInfoView) {
-                                                return applicationInfoView;
-                                            }
-                                            return null;
-                                        })
-                                        .filter(Objects::nonNull)
-                                        .toList();
-                                List<FolderInfoView> folderInfoViews = list.stream()
-                                        .map(o -> {
-                                            if (o instanceof FolderInfoView folderInfoView) {
-                                                return folderInfoView;
-                                            }
-                                            return null;
-                                        })
-                                        .filter(Objects::nonNull)
-                                        .toList();
                                 userHomepageVO.setOrganization(organization);
-                                userHomepageVO.setHomeApplicationViews(applicationInfoViews);
-                                userHomepageVO.setFolderInfoViews(folderInfoViews);
                                 return userHomepageVO;
                             });
                 });
@@ -189,7 +173,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
 
     @Override
     public Flux<ApplicationInfoView> getAllAuthorisedApplications4CurrentOrgMember(@Nullable ApplicationType applicationType,
-                                                                                   @Nullable ApplicationStatus applicationStatus, boolean withContainerSize) {
+                                                                                   @Nullable ApplicationStatus applicationStatus, boolean withContainerSize, @Nullable String name, @Nullable String category) {
 
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMapMany(orgMember -> {
@@ -201,9 +185,13 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                     return applicationService.findByOrganizationIdWithDsl(currentOrgId);
                                 }
                                 return applicationService.findByOrganizationIdWithoutDsl(currentOrgId);
-                            })
-                            .filter(application -> isNull(applicationType) || application.getApplicationType() == applicationType.getValue())
-                            .filter(application -> isNull(applicationStatus) || application.getApplicationStatus() == applicationStatus)
+                            }).flatMap(application -> application.getCategory(applicationRecordService)
+                                    .map(categoryValue -> Map.entry(application, categoryValue)))
+                            .filter(entry -> (isNull(applicationType) || applicationType == ApplicationType.ALL || entry.getKey().getApplicationType() == applicationType.getValue())
+                                    && (isNull(applicationStatus) || entry.getKey().getApplicationStatus() == applicationStatus)
+                                    && (isNull(name) || StringUtils.containsIgnoreCase(entry.getKey().getName(), name))
+                                    && (isNull(category) || StringUtils.containsIgnoreCase(entry.getValue(), category)))
+                            .map(Map.Entry::getKey)
                             .cache()
                             .collectList()
                             .flatMapIterable(Function.identity());
@@ -250,8 +238,8 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                         .flatMap(positions -> {
                                             long position = positions.isEmpty() ? 0 : positions.get(0);
                                             ResourceRole resourceRole = resourcePermissionMap.get(application.getId()).getResourceRole();
-                                            return Mono.just(buildView(application, resourceRole, userMap, applicationLastViewTimeMap.get(application.getId()),
-                                                    position, withContainerSize));
+                                            return buildView(application, resourceRole, userMap, applicationLastViewTimeMap.get(application.getId()),
+                                                    position, withContainerSize);
                                         });
                             });
                 });
@@ -303,6 +291,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
 
                                 BundleInfoView bundleInfoView = BundleInfoView.builder()
                                         .bundleId(bundle.getId())
+                                        .bundleGid(bundle.getGid())
                                         .image(bundle.getImage())
                                         .name(bundle.getName())
                                         .title(bundle.getTitle())
@@ -355,8 +344,8 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
 
 
                     return applicationFlux
-                            .flatMap(application -> Mono.zip(Mono.just(application), userMapMono, orgMapMono))
-                            .map(tuple2 -> {
+                            .flatMap(application -> Mono.zip(Mono.justOrEmpty(application), userMapMono, orgMapMono))
+                            .flatMap(tuple2 -> {
                                 // build view
                                 Application application = tuple2.getT1();
                                 Map<String, User> userMap = tuple2.getT2();
@@ -367,28 +356,35 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                         .applicationType(application.getApplicationType())
                                         .applicationStatus(application.getApplicationStatus())
                                         .orgId(application.getOrganizationId())
-                                        .orgName(orgMap.get(application.getOrganizationId()).getName())
+                                        .orgName(Optional.ofNullable(orgMap.get(application.getOrganizationId()))
+                                                .map(Organization::getName)
+                                                .orElse(""))
                                         .creatorEmail(Optional.ofNullable(userMap.get(application.getCreatedBy()))
                                                 .map(User::getName)
                                                 .orElse(""))
-                                        .createAt(application.getCreatedAt().toEpochMilli())
+                                        .createAt(Optional.ofNullable(application.getCreatedAt())
+                                                .map(Instant::toEpochMilli)
+                                                .orElse(0L))
                                         .createBy(application.getCreatedBy())
                                         .build();
 
                                 // marketplace specific fields
-                                Map<String, Object> settings = new HashMap<>();
-                                if (application.getPublishedApplicationDSL() != null)
-                                {
-                                	settings.putAll((Map<String, Object>)application.getPublishedApplicationDSL().getOrDefault("settings", new HashMap<>()));
-                                }
-                                
-                                marketplaceApplicationInfoView.setTitle((String)settings.getOrDefault("title", application.getName()));
-                                marketplaceApplicationInfoView.setCategory((String)settings.get("category"));
-                                marketplaceApplicationInfoView.setDescription((String)settings.get("description"));
-                                marketplaceApplicationInfoView.setImage((String)settings.get("icon"));
-
-                                return marketplaceApplicationInfoView;
-
+                                return application.getPublishedApplicationDSL(applicationRecordService)
+                                        .map(dsl -> {
+                                            Object settingsObj = dsl.getOrDefault("settings", new HashMap<>());
+                                            if (!(settingsObj instanceof Map)) {
+                                                return new HashMap<String, Object>(); // fallback if not a map
+                                            }
+                                            return (Map<String, Object>) settingsObj;
+                                        })
+                                        .defaultIfEmpty(new HashMap<>())
+                                        .map(settings -> {
+                                            marketplaceApplicationInfoView.setTitle((String) settings.getOrDefault("title", application.getName()));
+                                            marketplaceApplicationInfoView.setCategory((String) settings.get("category"));
+                                            marketplaceApplicationInfoView.setDescription((String) settings.get("description"));
+                                            marketplaceApplicationInfoView.setImage((String) settings.get("icon"));
+                                            return marketplaceApplicationInfoView;
+                                        });
                             });
 
                 });
@@ -489,6 +485,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
 
                                 return MarketplaceBundleInfoView.builder()
                                         .bundleId(bundle.getId())
+                                        .bundleGid(bundle.getGid())
                                         .name(bundle.getName())
                                         .bundleStatus(bundle.getBundleStatus())
                                         .orgId(bundle.getOrganizationId())
@@ -541,6 +538,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                 Map<String, Organization> orgMap = tuple.getT3();
                                 return MarketplaceBundleInfoView.builder()
                                         .bundleId(bundle.getId())
+                                        .bundleGid(bundle.getGid())
                                         .name(bundle.getName())
                                         .bundleStatus(bundle.getBundleStatus())
                                         .orgId(bundle.getOrganizationId())
@@ -556,30 +554,56 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                 });
     }
 
-    private ApplicationInfoView buildView(Application application, ResourceRole maxRole, Map<String, User> userMap, @Nullable Instant lastViewTime,
+    private Mono<ApplicationInfoView> buildView(Application application, ResourceRole maxRole, Map<String, User> userMap, @Nullable Instant lastViewTime,
                                           Long bundlePosition, boolean withContainerSize) {
-        ApplicationInfoViewBuilder applicationInfoViewBuilder = ApplicationInfoView.builder()
-                .applicationId(application.getId())
-                .orgId(application.getOrganizationId())
-                .name(application.getName())
-                .createBy(Optional.ofNullable(userMap.get(application.getCreatedBy()))
-                        .map(User::getName)
-                        .orElse(""))
-                .createAt(application.getCreatedAt().toEpochMilli())
-                .role(maxRole.getValue())
-                .applicationType(application.getApplicationType())
-                .applicationStatus(application.getApplicationStatus())
-                .lastModifyTime(application.getUpdatedAt())
-                .lastViewTime(lastViewTime)
-                .publicToAll(application.isPublicToAll())
-                .publicToMarketplace(application.isPublicToMarketplace())
-                .agencyProfile(application.agencyProfile());
-        if (withContainerSize) {
-            return applicationInfoViewBuilder
-                    .containerSize(application.getLiveContainerSize())
-                    .build();
-        }
-        return applicationInfoViewBuilder.build();
+        return application.getTitle(applicationRecordService)
+                .zipWith(application.getDescription(applicationRecordService))
+                .zipWith(application.getCategory(applicationRecordService), TupleUtils::merge)
+                .zipWith(application.getIcon(applicationRecordService), TupleUtils::merge)
+                .zipWith(applicationRecordService.getLatestRecordByApplicationId(application.getId()).map(Optional::of).switchIfEmpty(Mono.just(Optional.empty())), TupleUtils::merge)
+                .flatMap(tuple -> {
+                    Optional<ApplicationVersion> lastAppRecord = tuple.getT5();
+                    ApplicationInfoView.ApplicationInfoViewBuilder applicationInfoViewBuilder = ApplicationInfoView.builder()
+                        .applicationId(application.getId())
+                        .applicationGid(application.getGid())
+                        .orgId(application.getOrganizationId())
+                        .name(application.getName())
+                        .title(tuple.getT1())
+                        .description(tuple.getT2())
+                        .category(tuple.getT3())
+                        .icon(tuple.getT4())
+                        .published(lastAppRecord.isPresent())
+                        .publishedVersion(lastAppRecord.map(ApplicationVersion::version).orElse(null))
+                        .lastPublishedTime(lastAppRecord.map(ApplicationVersion::getCreatedAt).orElse(null))
+                        .createBy(Optional.ofNullable(userMap.get(application.getCreatedBy()))
+                                .map(User::getName)
+                                .orElse(""))
+                        .createAt(application.getCreatedAt().toEpochMilli())
+                        .role(maxRole.getValue())
+                        .applicationType(application.getApplicationType())
+                        .applicationStatus(application.getApplicationStatus())
+                        .lastModifyTime(application.getUpdatedAt())
+                        .lastViewTime(lastViewTime)
+                        .lastEditedAt(application.getLastEditedAt())
+                        .publicToAll(application.isPublicToAll())
+                        .publicToMarketplace(application.isPublicToMarketplace())
+                        .agencyProfile(application.agencyProfile());
+                    if (withContainerSize) {
+                        return application.getLiveContainerSize(applicationRecordService).map(size -> applicationInfoViewBuilder
+                                .containerSize(size)
+                                .build())
+                                .switchIfEmpty(Mono.just(applicationInfoViewBuilder
+                                        .containerSize(null)
+                                        .build()));
+                    }
+                    return Mono.just(applicationInfoViewBuilder.build());
+        }).delayUntil(applicationInfoView -> {
+            String applicationId = applicationInfoView.getApplicationId();
+            return folderElementRelationService.getByElementIds(List.of(applicationId))
+                    .doOnNext(folderElement -> {
+                        applicationInfoView.setFolderId(folderElement.folderId());
+                    }).then();
+        });
     }
 
 }

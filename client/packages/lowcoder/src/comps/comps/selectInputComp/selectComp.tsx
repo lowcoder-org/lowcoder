@@ -15,20 +15,21 @@ import {
   SelectInputInvalidConfig,
   useSelectInputValidate,
 } from "./selectInputConstants";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { RecordConstructorToView } from "lowcoder-core";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
+import { withLinkedDefaultValue } from "comps/controls/codeStateControl";
 
 let SelectBasicComp = (function () {
   const childrenMap = {
     ...SelectChildrenMap,
     defaultValue: stringExposingStateControl("defaultValue"),
     value: stringExposingStateControl("value"),
-    style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}),
-    labelStyle: styleControl(LabelStyle),
-    inputFieldStyle: withDefault(styleControl(SelectStyle),{borderWidth:'1px'}),
-    childrenInputFieldStyle: styleControl(ChildrenMultiSelectStyle)
+    style: styleControl(InputFieldStyle , 'style'),
+    labelStyle: styleControl(LabelStyle , 'labelStyle'),
+    inputFieldStyle: styleControl(SelectStyle , 'inputFieldStyle'),
+    childrenInputFieldStyle: styleControl(ChildrenMultiSelectStyle, 'childrenInputFieldStyle')
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const [
@@ -39,7 +40,7 @@ let SelectBasicComp = (function () {
     const propsRef = useRef<RecordConstructorToView<typeof childrenMap>>(props);
     propsRef.current = props;
 
-    const valueSet = new Set<any>(props.options.map((o) => o.value)); // Filter illegal default values entered by the user
+    const valueSet = new Set<any>((props.options as any[]).map((o: any) => o.value)); // Filter illegal default values entered by the user
 
     return props.label({
       required: props.required,
@@ -55,6 +56,7 @@ let SelectBasicComp = (function () {
           dispatch={dispatch}
         />
       ),
+      showValidationWhenEmpty: props.showValidationWhenEmpty,
       ...validateState,
     });
   })
@@ -63,7 +65,10 @@ let SelectBasicComp = (function () {
     .build();
 })();
 
-SelectBasicComp = migrateOldData(SelectBasicComp, fixOldInputCompData);
+SelectBasicComp = migrateOldData(
+  withLinkedDefaultValue(SelectBasicComp, "defaultValue", "value"),
+  fixOldInputCompData
+);
 
 export const SelectComp = withExposingConfigs(SelectBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),

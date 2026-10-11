@@ -16,6 +16,8 @@ import { createContext, useContext } from "react";
 import styled from "styled-components";
 import { NameGenerator } from "comps/utils";
 import { JSONValue } from "util/jsonTypes";
+import React from "react";
+import { isEqual } from "lodash";
 
 const ModalStyled = styled.div<{ $background?: string }>`
   .ant-modal-content {
@@ -42,15 +44,15 @@ export const SlotConfigContext = createContext<{
   modalWidth: 520,
 });
 
-const ContainerView = (props: ContainerBaseProps) => {
+const ContainerView = React.memo((props: ContainerBaseProps) => {
   return <InnerGrid {...props} emptyRows={15} autoHeight />;
-};
+});
 
-function ModalConfigView(props: {
+const ModalConfigView = React.memo((props: {
   visible: boolean;
   containerProps: ConstructorToView<typeof SimpleContainerComp>;
   onCancel: () => void;
-}) {
+}) => {
   const { visible, containerProps, onCancel } = props;
   const background = useContext(BackgroundColorContext);
   const { modalWidth = 520 } = useContext(SlotConfigContext);
@@ -58,7 +60,7 @@ function ModalConfigView(props: {
     return null;
   }
   return (
-    (<ModalWrapper>
+    <ModalWrapper>
       <Modal
         width={modalWidth}
         open={visible}
@@ -67,6 +69,7 @@ function ModalConfigView(props: {
         footer={null}
         styles={{ body: {padding: "0"} }}
         zIndex={Layers.modal}
+        maskClosable={false}
         modalRender={(node) => (
           <ModalStyled $background={background} onClick={() => {}}>
             {node}
@@ -81,9 +84,9 @@ function ModalConfigView(props: {
           items={gridItemCompToGridItems(containerProps.items)}
         />
       </Modal>
-    </ModalWrapper>)
+    </ModalWrapper>
   );
-}
+}, (prevProps, nextProps) => isEqual(prevProps, nextProps));
 
 const childrenMap = {
   container: SimpleContainerComp,

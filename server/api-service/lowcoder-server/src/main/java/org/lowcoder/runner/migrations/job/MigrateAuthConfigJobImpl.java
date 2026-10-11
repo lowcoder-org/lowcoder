@@ -8,6 +8,7 @@ import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
 import org.lowcoder.sdk.config.AuthProperties;
 import org.lowcoder.sdk.config.CommonConfig;
+import org.lowcoder.sdk.constants.AuthSourceConstants;
 import org.lowcoder.sdk.constants.WorkspaceMode;
 import org.lowcoder.sdk.util.IDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,6 @@ public class MigrateAuthConfigJobImpl implements MigrateAuthConfigJob {
             organization.setOrganizationDomain(domain);
         }
         authConfigs.forEach(abstractAuthConfig -> abstractAuthConfig.setId(IDUtils.generate()));
-        domain.setConfigs(authConfigs);
+        domain.setConfigs(authConfigs.stream().filter(authConfig -> !authConfig.getSource().equals(AuthSourceConstants.EMAIL)).toList());
     }
 }

@@ -1,0 +1,9 @@
+{
+  "BASIC_AUTH" : { "type" : "BASIC_AUTH", "username" : "AuthConfig.BASIC_AUTH.username", "password" : "SECRET-AuthConfig.BASIC_AUTH.password" },
+  "DIGEST_AUTH" : { "type" : "DIGEST_AUTH", "username" : "AuthConfig.DIGEST_AUTH.username", "password" : "SECRET-AuthConfig.DIGEST_AUTH.password" },
+  "NO_AUTH" : { "type" : "NO_AUTH" },
+  "OAUTH2_INHERIT_FROM_LOGIN" : { "type" : "OAUTH2_INHERIT_FROM_LOGIN", "authId" : "AuthConfig.OAUTH2_INHERIT_FROM_LOGIN.authId" },
+  "unregisteredConstant" : { "type" : "BEARER_TOKEN_AUTH", "username" : "AuthConfig.unregisteredConstant.username" },
+  "unknownId" : { "type" : "AuthConfig.unknownId", "username" : "AuthConfig.unknownId.username" },
+  "missingId" : { "username" : "AuthConfig.missingId.username" }
+}

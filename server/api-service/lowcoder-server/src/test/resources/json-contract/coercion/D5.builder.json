@@ -1,0 +1,673 @@
+{
+  "java.lang.String" : {
+    "\"1\"" : {
+      "class" : "java.lang.String",
+      "value" : "1"
+    },
+    "1" : {
+      "class" : "java.lang.String",
+      "value" : "1"
+    },
+    "1.5" : {
+      "class" : "java.lang.String",
+      "value" : "1.5"
+    },
+    "\"1.5\"" : {
+      "class" : "java.lang.String",
+      "value" : "1.5"
+    },
+    "1e2" : {
+      "class" : "java.lang.String",
+      "value" : "1e2"
+    },
+    "-0" : {
+      "class" : "java.lang.String",
+      "value" : "-0"
+    },
+    "\" 1 \"" : {
+      "class" : "java.lang.String",
+      "value" : " 1 "
+    },
+    "true" : {
+      "class" : "java.lang.String",
+      "value" : "true"
+    },
+    "\"true\"" : {
+      "class" : "java.lang.String",
+      "value" : "true"
+    },
+    "\"\"" : {
+      "class" : "java.lang.String",
+      "value" : ""
+    },
+    "\"null\"" : {
+      "class" : "java.lang.String",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "[]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"1\"]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "{}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    }
+  },
+  "java.lang.Integer" : {
+    "\"1\"" : {
+      "class" : "java.lang.Integer",
+      "value" : "1"
+    },
+    "1" : {
+      "class" : "java.lang.Integer",
+      "value" : "1"
+    },
+    "1.5" : {
+      "class" : "java.lang.Integer",
+      "value" : "1"
+    },
+    "\"1.5\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "1e2" : {
+      "class" : "java.lang.Integer",
+      "value" : "100"
+    },
+    "-0" : {
+      "class" : "java.lang.Integer",
+      "value" : "0"
+    },
+    "\" 1 \"" : {
+      "class" : "java.lang.Integer",
+      "value" : "1"
+    },
+    "true" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"true\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "\"\"" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "\"null\"" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "[]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"1\"]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "{}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    }
+  },
+  "java.lang.Boolean" : {
+    "\"1\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "1" : {
+      "class" : "java.lang.Boolean",
+      "value" : "true"
+    },
+    "1.5" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"1.5\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "1e2" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "-0" : {
+      "class" : "java.lang.Boolean",
+      "value" : "false"
+    },
+    "\" 1 \"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "true" : {
+      "class" : "java.lang.Boolean",
+      "value" : "true"
+    },
+    "\"true\"" : {
+      "class" : "java.lang.Boolean",
+      "value" : "true"
+    },
+    "\"\"" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "\"null\"" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "[]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"1\"]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "{}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    }
+  },
+  "boolean" : {
+    "\"1\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "1" : {
+      "class" : "java.lang.Boolean",
+      "value" : "true"
+    },
+    "1.5" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"1.5\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "1e2" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "-0" : {
+      "class" : "java.lang.Boolean",
+      "value" : "false"
+    },
+    "\" 1 \"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "true" : {
+      "class" : "java.lang.Boolean",
+      "value" : "true"
+    },
+    "\"true\"" : {
+      "class" : "java.lang.Boolean",
+      "value" : "true"
+    },
+    "\"\"" : {
+      "class" : "java.lang.Boolean",
+      "value" : "false"
+    },
+    "\"null\"" : {
+      "class" : "java.lang.Boolean",
+      "value" : "false"
+    },
+    "null" : {
+      "class" : "java.lang.Boolean",
+      "value" : "false"
+    },
+    "[]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"1\"]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "{}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    }
+  },
+  "java.time.Instant" : {
+    "\"1\"" : {
+      "class" : "java.time.Instant",
+      "value" : "1970-01-01T00:00:01Z"
+    },
+    "1" : {
+      "class" : "java.time.Instant",
+      "value" : "1970-01-01T00:00:01Z"
+    },
+    "1.5" : {
+      "class" : "java.time.Instant",
+      "value" : "1970-01-01T00:00:01.500Z"
+    },
+    "\"1.5\"" : {
+      "class" : "java.time.Instant",
+      "value" : "1970-01-01T00:00:01.500Z"
+    },
+    "1e2" : {
+      "class" : "java.time.Instant",
+      "value" : "1970-01-01T00:01:40Z"
+    },
+    "-0" : {
+      "class" : "java.time.Instant",
+      "value" : "1970-01-01T00:00:00Z"
+    },
+    "\" 1 \"" : {
+      "class" : "java.time.Instant",
+      "value" : "1970-01-01T00:00:01Z"
+    },
+    "true" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"true\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "\"\"" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "\"null\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "[]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"1\"]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "{}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    }
+  },
+  "java.lang.Object" : {
+    "\"1\"" : {
+      "class" : "java.lang.String",
+      "value" : "1"
+    },
+    "1" : {
+      "class" : "java.lang.Integer",
+      "value" : "1"
+    },
+    "1.5" : {
+      "class" : "java.lang.Double",
+      "value" : "1.5"
+    },
+    "\"1.5\"" : {
+      "class" : "java.lang.String",
+      "value" : "1.5"
+    },
+    "1e2" : {
+      "class" : "java.lang.Double",
+      "value" : "100.0"
+    },
+    "-0" : {
+      "class" : "java.lang.Integer",
+      "value" : "0"
+    },
+    "\" 1 \"" : {
+      "class" : "java.lang.String",
+      "value" : " 1 "
+    },
+    "true" : {
+      "class" : "java.lang.Boolean",
+      "value" : "true"
+    },
+    "\"true\"" : {
+      "class" : "java.lang.String",
+      "value" : "true"
+    },
+    "\"\"" : {
+      "class" : "java.lang.String",
+      "value" : ""
+    },
+    "\"null\"" : {
+      "class" : "java.lang.String",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "[]" : {
+      "class" : "java.util.ArrayList",
+      "value" : "[]"
+    },
+    "[\"1\"]" : {
+      "class" : "java.util.ArrayList",
+      "value" : "[1]"
+    },
+    "{}" : {
+      "class" : "java.util.LinkedHashMap",
+      "value" : "{}"
+    }
+  },
+  "org.lowcoder.domain.application.model.ApplicationStatus" : {
+    "\"1\"" : {
+      "class" : "org.lowcoder.domain.application.model.ApplicationStatus",
+      "value" : "RECYCLED"
+    },
+    "1" : {
+      "class" : "org.lowcoder.domain.application.model.ApplicationStatus",
+      "value" : "RECYCLED"
+    },
+    "1.5" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"1.5\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "1e2" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "-0" : {
+      "class" : "org.lowcoder.domain.application.model.ApplicationStatus",
+      "value" : "NORMAL"
+    },
+    "\" 1 \"" : {
+      "class" : "org.lowcoder.domain.application.model.ApplicationStatus",
+      "value" : "RECYCLED"
+    },
+    "true" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"true\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "\"\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "\"null\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "[]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"1\"]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "{}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"NORMAL\"" : {
+      "class" : "org.lowcoder.domain.application.model.ApplicationStatus",
+      "value" : "NORMAL"
+    },
+    "\"normal\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "\"D5_UNKNOWN\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "0" : {
+      "class" : "org.lowcoder.domain.application.model.ApplicationStatus",
+      "value" : "NORMAL"
+    }
+  },
+  "org.lowcoder.domain.bundle.model.BundleStatus" : {
+    "\"1\"" : {
+      "class" : "org.lowcoder.domain.bundle.model.BundleStatus",
+      "value" : "RECYCLED"
+    },
+    "1" : {
+      "class" : "org.lowcoder.domain.bundle.model.BundleStatus",
+      "value" : "RECYCLED"
+    },
+    "1.5" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"1.5\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "1e2" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "-0" : {
+      "class" : "org.lowcoder.domain.bundle.model.BundleStatus",
+      "value" : "NORMAL"
+    },
+    "\" 1 \"" : {
+      "class" : "org.lowcoder.domain.bundle.model.BundleStatus",
+      "value" : "RECYCLED"
+    },
+    "true" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"true\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "\"\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "\"null\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "[]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"1\"]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "{}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"NORMAL\"" : {
+      "class" : "org.lowcoder.domain.bundle.model.BundleStatus",
+      "value" : "NORMAL"
+    },
+    "\"normal\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "\"D5_UNKNOWN\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "0" : {
+      "class" : "org.lowcoder.domain.bundle.model.BundleStatus",
+      "value" : "NORMAL"
+    }
+  },
+  "org.lowcoder.domain.datasource.model.DatasourceStatus" : {
+    "\"1\"" : {
+      "class" : "org.lowcoder.domain.datasource.model.DatasourceStatus",
+      "value" : "DELETED"
+    },
+    "1" : {
+      "class" : "org.lowcoder.domain.datasource.model.DatasourceStatus",
+      "value" : "DELETED"
+    },
+    "1.5" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"1.5\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "1e2" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "-0" : {
+      "class" : "org.lowcoder.domain.datasource.model.DatasourceStatus",
+      "value" : "NORMAL"
+    },
+    "\" 1 \"" : {
+      "class" : "org.lowcoder.domain.datasource.model.DatasourceStatus",
+      "value" : "DELETED"
+    },
+    "true" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"true\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "\"\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "\"null\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "[]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"1\"]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "{}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"NORMAL\"" : {
+      "class" : "org.lowcoder.domain.datasource.model.DatasourceStatus",
+      "value" : "NORMAL"
+    },
+    "\"normal\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "\"D5_UNKNOWN\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "0" : {
+      "class" : "org.lowcoder.domain.datasource.model.DatasourceStatus",
+      "value" : "NORMAL"
+    }
+  },
+  "org.lowcoder.domain.material.model.MaterialType" : {
+    "\"1\"" : {
+      "class" : "org.lowcoder.domain.material.model.MaterialType",
+      "value" : "LOGO"
+    },
+    "1" : {
+      "class" : "org.lowcoder.domain.material.model.MaterialType",
+      "value" : "LOGO"
+    },
+    "1.5" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"1.5\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "1e2" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "-0" : {
+      "class" : "org.lowcoder.domain.material.model.MaterialType",
+      "value" : "COMMON"
+    },
+    "\" 1 \"" : {
+      "class" : "org.lowcoder.domain.material.model.MaterialType",
+      "value" : "LOGO"
+    },
+    "true" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"true\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "\"\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "\"null\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "[]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"1\"]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "{}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"COMMON\"" : {
+      "class" : "org.lowcoder.domain.material.model.MaterialType",
+      "value" : "COMMON"
+    },
+    "\"common\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "\"D5_UNKNOWN\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "0" : {
+      "class" : "org.lowcoder.domain.material.model.MaterialType",
+      "value" : "COMMON"
+    }
+  },
+  "org.lowcoder.domain.organization.model.OrganizationState" : {
+    "\"1\"" : {
+      "class" : "org.lowcoder.domain.organization.model.OrganizationState",
+      "value" : "DELETED"
+    },
+    "1" : {
+      "class" : "org.lowcoder.domain.organization.model.OrganizationState",
+      "value" : "DELETED"
+    },
+    "1.5" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"1.5\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "1e2" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "-0" : {
+      "class" : "org.lowcoder.domain.organization.model.OrganizationState",
+      "value" : "ACTIVE"
+    },
+    "\" 1 \"" : {
+      "class" : "org.lowcoder.domain.organization.model.OrganizationState",
+      "value" : "DELETED"
+    },
+    "true" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"true\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "\"\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "\"null\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "[]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "[\"1\"]" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "{}" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    },
+    "\"ACTIVE\"" : {
+      "class" : "org.lowcoder.domain.organization.model.OrganizationState",
+      "value" : "ACTIVE"
+    },
+    "\"active\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "\"D5_UNKNOWN\"" : {
+      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+    },
+    "0" : {
+      "class" : "org.lowcoder.domain.organization.model.OrganizationState",
+      "value" : "ACTIVE"
+    }
+  }
+}

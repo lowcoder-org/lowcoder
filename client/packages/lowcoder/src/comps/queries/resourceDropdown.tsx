@@ -13,10 +13,9 @@ import { getBottomResIcon } from "@lowcoder-ee/util/bottomResUtils";
 import { trans } from "i18n";
 import { DatasourceType, ResourceType } from "@lowcoder-ee/constants/queryConstants";
 import {
-  LOWCODER_API_ID,
-  LOWCODER_API_INFO,
   QUICK_GRAPHQL_ID,
   QUICK_REST_API_ID,
+  JS_CODE_ID
 } from "constants/datasourceConstants";
 import {
   apiPluginsForQueryLibrary,
@@ -80,7 +79,7 @@ interface ResourceOptionValue {
 }
 
 const JSOptionValue: ResourceOptionValue = {
-  id: "",
+  id: JS_CODE_ID,
   type: "js",
 };
 
@@ -104,9 +103,9 @@ const QuickGraphqlValue: ResourceOptionValue = {
   type: "graphql",
 };
 
-const LowcoderAPIValue: ResourceOptionValue = {
-  id: LOWCODER_API_ID,
-  type: "lowcoderApi",
+const QuickAlasqlValue: ResourceOptionValue = {
+  id: "",
+  type: "alasql",
 };
 
 interface ResourceDropdownProps {
@@ -158,14 +157,15 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
           const optionValue: ResourceOptionValue = JSON.parse(value);
           const datasourceId = optionValue.id;
           const datasourceType = optionValue.type;
+
           if (!datasourceType) {
             messageInstance.error("datasource invalid");
             return;
           }
           props.changeResource(datasourceId, datasourceType);
         }}
-        onDropdownVisibleChange={onDropdownVisibleChange}
-        dropdownRender={
+        onOpenChange={onDropdownVisibleChange}
+        popupRender={
           Object.keys(dataSourceTypesMap).length > 0
             ? (menu) => (
                 <DropdownWrapper>
@@ -272,6 +272,17 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
             <SelectOptionLabel>{trans("query.quickStreamAPI")} </SelectOptionLabel>
           </SelectOptionContains>
         </SelectOption>
+        
+        <SelectOption
+          key={JSON.stringify(QuickAlasqlValue)}
+          label={trans("query.quickAlasql")}
+          value={JSON.stringify(QuickAlasqlValue)}
+        >
+          <SelectOptionContains>
+            {getBottomResIcon("restApi")}
+            <SelectOptionLabel>{trans("query.quickAlasql")} </SelectOptionLabel>
+          </SelectOptionContains>
+        </SelectOption>
 
         <SelectOption
           key={JSON.stringify(QuickGraphqlValue)}
@@ -284,30 +295,20 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
           </SelectOptionContains>
         </SelectOption>
 
-        {context?.placement !== "queryLibrary" && (
-          <>
-            <SelectOption
-              key={JSON.stringify(LowcoderAPIValue)}
-              label={LOWCODER_API_INFO.name}
-              value={JSON.stringify(LowcoderAPIValue)}
-            >
-              <SelectOptionContains>
-                {LOWCODER_API_INFO.icon}
-                <SelectOptionLabel>{LOWCODER_API_INFO.name} </SelectOptionLabel>
-              </SelectOptionContains>
-            </SelectOption>
+        {/* Always show JS option regardless of placement */}
+          <SelectOption
+            key={JSON.stringify(JSOptionValue)}
+            label={trans("query.executeJSCode")}
+            value={JSON.stringify(JSOptionValue)}
+          >
+            <SelectOptionContains>
+              {getBottomResIcon("js")}
+              <SelectOptionLabel>{trans("query.executeJSCode")} </SelectOptionLabel>
+            </SelectOptionContains>
+          </SelectOption>
 
-            <SelectOption
-              key={JSON.stringify(JSOptionValue)}
-              label={trans("query.executeJSCode")}
-              value={JSON.stringify(JSOptionValue)}
-            >
-              <SelectOptionContains>
-                {getBottomResIcon("js")}
-                <SelectOptionLabel>{trans("query.executeJSCode")} </SelectOptionLabel>
-              </SelectOptionContains>
-            </SelectOption>
-
+          {/* Only show Library Query option when not in Query Library */}
+          {context?.placement !== "queryLibrary" && (
             <SelectOption
               key={JSON.stringify(LibraryQueryOptionValue)}
               label={trans("query.importFromQueryLibrary")}
@@ -318,8 +319,7 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
                 <SelectOptionLabel>{trans("query.importFromQueryLibrary")} </SelectOptionLabel>
               </SelectOptionContains>
             </SelectOption>
-          </>
-        )}
+          )}
       </CustomSelect>
     </SelectWrapper>
   );

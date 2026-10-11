@@ -1,36 +1,38 @@
-import { Section, sectionNames } from "lowcoder-design";
+import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import { UICompBuilder } from "../../generators";
 import { NameConfigHidden, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { defaultData } from "./jsonConstants";
 import styled from "styled-components";
 import { jsonValueExposingStateControl } from "comps/controls/codeStateControl";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { LabelControl } from "comps/controls/labelControl";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { AnimationStyle, JsonEditorStyle } from "comps/controls/styleControlConstants";
 import { styleControl } from "comps/controls/styleControl";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
-import { useRef, useEffect, useContext } from "react";
+import { useRef, useEffect, useCallback, useMemo } from "react";
 import {
   EditorState,
   EditorView,
   type EditorView as EditorViewType,
 } from "base/codeEditor/codeMirror";
 import { useExtensions } from "base/codeEditor/extensions";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
+import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
+import { BoolControl } from "@lowcoder-ee/comps/controls/boolControl";
 
 /**
  * JsonEditor Comp
  */
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{$height: boolean; $showVerticalScrollbar: boolean}>`
   background-color: #fff;
   border: 1px solid #d7d9e0;
   border-radius: 4px;
-  overflow: auto;
   height: 100%;
+  overflow-y: ${props => (props.$showVerticalScrollbar ? 'scroll' : 'auto')};
 `;
 
 /**
@@ -62,90 +64,168 @@ function fixOldDataSecond(oldData: any) {
 }
 
 const childrenMap = {
-  value: jsonValueExposingStateControl("value", defaultData),
+  value: jsonValueExposingStateControl('value', defaultData),
   onEvent: ChangeEventHandlerControl,
-  label: withDefault(LabelControl, { position: "column" }),
-  style: styleControl(JsonEditorStyle),
-  animationStyle: styleControl(AnimationStyle),
-
+  autoHeight: withDefault(AutoHeightControl,'auto'),
+  showVerticalScrollbar: BoolControl,
+  label: withDefault(LabelControl, {position: 'column'}),
+  style: styleControl(JsonEditorStyle, 'style'),
+  animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   ...formDataChildren,
 };
 
 let JsonEditorTmpComp = (function () {
   return new UICompBuilder(childrenMap, (props) => {
     const wrapperRef = useRef<HTMLDivElement>(null);
-    const view = useRef<EditorViewType | null>(null);
-    const editContent = useRef<string>();
+    const viewRef = useRef<EditorViewType | null>(null);
+    const initializedRef = useRef(false);
+    const stateRef = useRef<EditorState | null>(null);
+    const editContentRef = useRef<string>();
+    const mountedRef = useRef(true);
+
+    const handleChange = useCallback((state: EditorState) => {
+      if (!mountedRef.current) return;
+      
+      editContentRef.current = state.doc.toString();
+      try {
+        const value = JSON.parse(state.doc.toString());
+        props.value.onChange(value);
+        props.onEvent("change");
+      } catch (error) {
+        // Invalid JSON - ignore
+      }
+    }, [props.value, props.onEvent]);
+
     const { extensions } = useExtensions({
       codeType: "PureJSON",
       language: "json",
       showLineNum: true,
       enableClickCompName: false,
-      onFocus: (focused) => {
+      onFocus: useCallback((focused: boolean) => {
         if (focused) {
           wrapperRef.current?.click();
         }
-      },
-      onChange: (state) => {
-        editContent.current = state.doc.toString();
-        try {
-          const value = JSON.parse(state.doc.toString());
-          props.value.onChange(value);
-          props.onEvent("change");
-        } catch (error) {}
-      },
+      }, []),
+      onChange: handleChange,
     });
 
+    // Initialize editor state
     useEffect(() => {
-      if (wrapperRef.current && !view.current) {
-        const state = EditorState.create({
+      if (!initializedRef.current && wrapperRef.current) {
+        stateRef.current = EditorState.create({
           doc: JSON.stringify(props.value.value, null, 2),
           extensions,
         });
-        view.current = new EditorView({ state, parent: wrapperRef.current });
       }
-    }, [wrapperRef.current]);
+      if (wrapperRef.current && viewRef.current && !editContentRef.current) {
+        const newState = EditorState.create({
+          doc: JSON.stringify(props.value.value, null, 2),
+          extensions,
+        });
+        viewRef.current?.setState(newState);
+      }
+    }, [wrapperRef.current, extensions, props.value.value]);
 
-    if (wrapperRef.current && view.current && !editContent.current) {
-      const state = EditorState.create({
-        doc: JSON.stringify(props.value.value, null, 2),
-        extensions,
-      });
-      view.current?.setState(state);
-    }
-    if (editContent.current) {
-      editContent.current = undefined;
-    }
+    // Create editor view
+    useEffect(() => {
+      if (stateRef.current && wrapperRef.current) {
+        viewRef.current = new EditorView({ 
+          state: stateRef.current, 
+          parent: wrapperRef.current 
+        });
+        initializedRef.current = true;
+      }
+
+      return () => {
+        viewRef.current?.destroy();
+        viewRef.current = null;
+        stateRef.current = null;
+        initializedRef.current = false;
+      };
+    }, [props.showVerticalScrollbar]);
+
+    // Cleanup on unmount
+    useEffect(() => {
+      return () => {
+        mountedRef.current = false;
+        viewRef.current?.destroy();
+        viewRef.current = null;
+        stateRef.current = null;
+        initializedRef.current = false;
+      };
+    }, []);
+
+    const handleFocus = useCallback(() => {
+      editContentRef.current = 'focus';
+    }, []);
+
+    const editorContent = useMemo(() => (
+      <ScrollBar hideScrollbar={!props.showVerticalScrollbar}>
+        <Wrapper
+          ref={wrapperRef}
+          onFocus={handleFocus}
+          $height={props.autoHeight}
+          $showVerticalScrollbar={props.showVerticalScrollbar}
+        />
+      </ScrollBar>
+    ), [props.showVerticalScrollbar, props.autoHeight, handleFocus]);
+
     return props.label({
       style: props.style,
       animationStyle: props.animationStyle,
-      children: <Wrapper ref={wrapperRef} onFocus={() => (editContent.current = "focus")} />,
+      children: editorContent,
     });
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      const isLogicMode = editorModeStatus === "logic" || editorModeStatus === "both";
+      const isLayoutMode = editorModeStatus === "layout" || editorModeStatus === "both";
+
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.value.propertyView({ label: trans("export.jsonEditorDesc") })}
+            {children.value.propertyView({
+              label: trans("export.jsonEditorDesc"),
+              enableAIHelp: true,
+              aiHelp: {
+                targetKind: "json",
+                label: "JSON Editor value",
+                fieldName: "value",
+                fieldDescription:
+                  "JSON value edited by the JSON Editor component. Generate valid JSON that can be an object, array, string, number, boolean, or null.",
+              },
+            })}
           </Section>
 
           <FormDataPropertyView {...children} />
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {isLogicMode && (
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {hiddenPropertyView(children)}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && ( children.label.getPropertyView() )}
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-            <>
-            <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
-              <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
-              </>
+          <Section name={trans('prop.height')}>
+            {children.autoHeight.propertyView({ label: trans('prop.height') })}
+          </Section>
+
+          {!children.autoHeight.getView() && (
+            <Section name={sectionNames.layout}>
+              {children.showVerticalScrollbar.propertyView({label: trans('prop.showVerticalScrollbar')})}
+            </Section>
           )}
 
+          {isLayoutMode && (
+            <>
+              {children.label.getPropertyView()}
+              <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
+                {children.animationStyle.getPropertyView()}
+              </Section>
+            </>
+          )}
         </>
       );
     })
@@ -153,12 +233,11 @@ let JsonEditorTmpComp = (function () {
 })();
 
 JsonEditorTmpComp = migrateOldData(JsonEditorTmpComp, fixOldData);
-
 JsonEditorTmpComp = migrateOldData(JsonEditorTmpComp, fixOldDataSecond);
 
 JsonEditorTmpComp = class extends JsonEditorTmpComp {
   override autoHeight(): boolean {
-    return false;
+    return this.children.autoHeight.getView();
   }
 };
 

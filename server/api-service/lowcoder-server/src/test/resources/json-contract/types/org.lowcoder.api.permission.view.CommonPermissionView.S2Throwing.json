@@ -1,0 +1,8 @@
+{
+  "groupPermissions" : {
+    "permissions" : "java.lang.NullPointerException"
+  },
+  "userPermissions" : {
+    "permissions" : "java.lang.NullPointerException"
+  }
+}

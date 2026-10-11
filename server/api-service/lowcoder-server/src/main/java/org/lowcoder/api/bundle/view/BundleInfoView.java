@@ -18,6 +18,7 @@ public class BundleInfoView {
 
     private final String userId;
     private final String bundleId;
+    private final String bundleGid;
     private final String name;
     private final String title;
     private final String description;
@@ -26,6 +27,7 @@ public class BundleInfoView {
     private final Long createAt;
     private final String createBy;
     private final String folderId;
+    private final String folderIdFrom;
     private final Boolean publicToAll;
     private final Boolean publicToMarketplace;
     private final Boolean agencyProfile;

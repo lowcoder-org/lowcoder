@@ -1,6 +1,6 @@
 import { changeValueAction, ChangeValueAction, CompAction, CompActionTypes } from "actions";
 import { Node } from "eval";
-import { ReactNode } from "react";
+import { ReactNode, RefObject } from "react";
 import { memo } from "util/cacheUtils";
 import { JSONValue } from "util/jsonTypes";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
@@ -34,6 +34,11 @@ export interface Comp<
   changeDispatch(dispatch: DispatchType): this;
 
   changeValueAction(value: DataType): ChangeValueAction;
+
+  /**
+   * Optional DOM ref for components that render a root element (e.g. UI comps, tour targets).
+   */
+  getRef(): RefObject<HTMLDivElement> | undefined;
 }
 
 export abstract class AbstractComp<
@@ -71,6 +76,10 @@ export abstract class AbstractComp<
 
   changeValueAction(value: DataType): ChangeValueAction {
     return changeValueAction(value, true);
+  }
+
+  getRef(): RefObject<HTMLDivElement> | undefined {
+    return undefined;
   }
 
   /**

@@ -3,6 +3,7 @@ package org.lowcoder.api.usermanagement;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.lowcoder.api.authentication.dto.OrganizationDomainCheckResult;
 import org.lowcoder.api.bizthreshold.AbstractBizThresholdChecker;
 import org.lowcoder.api.config.ConfigView;
@@ -39,6 +40,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
+import org.lowcoder.domain.group.service.GroupMemberService;
+import org.lowcoder.domain.group.model.GroupMember;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,6 +52,8 @@ import static org.lowcoder.sdk.exception.BizError.UNSUPPORTED_OPERATION;
 import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 import static org.lowcoder.sdk.util.StreamUtils.collectSet;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 @Slf4j
 @Service
@@ -71,9 +77,10 @@ public class OrgApiServiceImpl implements OrgApiService {
     private GroupService groupService;
     @Autowired
     private AuthenticationService authenticationService;
-
     @Autowired
     private ServerLogService serverLogService;
+    @Autowired
+    private GroupMemberService groupMemberService;
 
     @Override
     public Mono<OrgMemberListView> getOrganizationMembers(String orgId, int page, int count) {
@@ -84,7 +91,7 @@ public class OrgApiServiceImpl implements OrgApiService {
     }
 
     private Mono<OrgMemberListView> getOrgMemberListView(String orgId, int page, int count) {
-        return orgMemberService.getOrganizationMembers(orgId, page, count)
+        return orgMemberService.getOrganizationMembers(orgId)
                 .collectList()
                 .flatMap(orgMembers -> {
                     List<String> userIds = orgMembers.stream()
@@ -92,7 +99,8 @@ public class OrgApiServiceImpl implements OrgApiService {
                             .collect(Collectors.toList());
                     Mono<Map<String, User>> users = userService.getByIds(userIds);
 
-                    return users.map(map -> orgMembers.stream()
+                    return users.map(map -> {
+                        var list = orgMembers.stream()
                             .map(orgMember -> {
                                 User user = map.get(orgMember.getUserId());
                                 if (user == null) {
@@ -102,15 +110,22 @@ public class OrgApiServiceImpl implements OrgApiService {
                                 return build(user, orgMember);
                             })
                             .filter(Objects::nonNull)
-                            .collect(Collectors.toList())
-                    );
+                            .collect(Collectors.toList());
+                        var pageTotal = list.size();
+                        list = list.subList((page - 1) * count, count == 0 ? pageTotal : Math.min(page * count, pageTotal));
+                        return Pair.of(list, pageTotal);
+                    });
                 })
                 .zipWith(sessionUserService.getVisitorOrgMemberCache())
                 .map(tuple -> {
-                    List<OrgMemberView> orgMemberViews = tuple.getT1();
+                    List<OrgMemberView> orgMemberViews = tuple.getT1().getLeft();
+                    var pageTotal = tuple.getT1().getRight();
                     OrgMember orgMember = tuple.getT2();
                     return OrgMemberListView.builder()
                             .members(orgMemberViews)
+                            .total(pageTotal)
+                            .pageNum(page)
+                            .pageSize(count)
                             .visitorRole(orgMember.getRole().getValue())
                             .build();
                 });
@@ -149,10 +164,11 @@ public class OrgApiServiceImpl implements OrgApiService {
                         MemberRole.fromValue(updateRoleRequest.getRole())));
     }
 
-    private Mono<OrgMember> checkVisitorAdminRole(String orgId) {
+    @Override
+    public Mono<OrgMember> checkVisitorAdminRole(String orgId) {
         return sessionUserService.getVisitorId()
                 .flatMap(visitor -> orgMemberService.getOrgMember(orgId, visitor))
-                .filter(it -> it.getRole() == MemberRole.ADMIN)
+                .filter(it -> it.getRole() == MemberRole.ADMIN || it.getRole() == MemberRole.SUPER_ADMIN)
                 .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"));
     }
 
@@ -168,14 +184,17 @@ public class OrgApiServiceImpl implements OrgApiService {
     @Override
     public Mono<Boolean> switchCurrentOrganizationTo(String nextCurrentOrgId) {
         return sessionUserService.getVisitorId()
-                .flatMap(it -> orgMemberService.getAllActiveOrgs(it).collectList())
+                .flatMap(it -> switchCurrentOrganizationTo(it, nextCurrentOrgId));
+    }
+
+    @Override
+    public Mono<Boolean> switchCurrentOrganizationTo(String userId, String nextCurrentOrgId) {
+        return orgMemberService.getAllActiveOrgs(userId).collectList()
                 .defaultIfEmpty(Collections.emptyList())
                 .flatMap(orgMembers -> {
                     if (!collectSet(orgMembers, OrgMember::getOrgId).contains(nextCurrentOrgId)) {
                         return Mono.error(new BizException(BizError.INVALID_ORG_ID, "INVALID_ORG_ID"));
                     }
-
-                    String userId = orgMembers.get(0).getUserId();
 
                     Optional<OrgMember> previousCurrentOrgMember = orgMembers.stream()
                             .filter(OrgMember::isCurrentOrg)
@@ -278,6 +297,7 @@ public class OrgApiServiceImpl implements OrgApiService {
                     updateOrg.setContactEmail(updateOrgRequest.getContactEmail());
                     updateOrg.setContactPhoneNumber(updateOrgRequest.getContactPhoneNumber());
                     updateOrg.setContactName(updateOrgRequest.getContactName());
+                    updateOrg.setState(updateOrgRequest.getState());
                     return organizationService.update(orgId, updateOrg);
                 });
     }

@@ -1,9 +1,10 @@
 import { ColorCodeControl } from "./codeControl";
 import { ColorSelect, controlItem, ControlPropertyViewWrapper, IconDep } from "lowcoder-design";
 import styled from "styled-components";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ControlParams } from "./controlParams";
 import { trans } from "i18n";
+import { useThemeColors } from "@lowcoder-ee/util/hooks";
 
 const ColorContainer = styled.div`
   display: inline-flex;
@@ -34,7 +35,7 @@ const ColorInput = styled.div`
 const DepStyle = styled.div`
   left: 30px;
   width: 140px;
-  min-height: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   padding: 4px 8px;
@@ -47,6 +48,11 @@ const DepStyle = styled.div`
 
   span:nth-of-type(1) {
     color: #8b8fa3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    max-width: 100%;
   }
 
   span:nth-of-type(2) {
@@ -72,6 +78,8 @@ type PropertyViewParam = {
   isDep?: boolean;
   // auto-generated message?
   depMsg?: string;
+  allowGradient?: boolean;
+  tooltip?: React.ReactNode;
 };
 
 export class ColorControl extends ColorCodeControl {
@@ -93,6 +101,8 @@ function ColorItem(props: {
   const [focus, setFocus] = useState(false);
   const inputRef = React.createRef<HTMLDivElement>();
   const containerRef = React.createRef<HTMLDivElement>();
+  
+  const currentThemeColors = useThemeColors(param.allowGradient);
 
   const input = propertyView.call(controlThis, {
     placeholder: param.panelDefaultColor,
@@ -112,6 +122,7 @@ function ColorItem(props: {
   }, [focus]);
 
   const color = controlThis.getView();
+
   useEffect(() => {
     setShowDep(param.isDep && !focus && !color);
   }, [color, focus, param.isDep]);
@@ -129,11 +140,13 @@ function ColorItem(props: {
   }, [containerRef]);
 
   return (
-    <ControlPropertyViewWrapper label={param.label} labelEllipsis>
+    <ControlPropertyViewWrapper label={param.label} tooltip={param.tooltip} labelEllipsis>
       <ColorContainer ref={containerRef}>
         <ColorSelect
           dispatch={controlThis.dispatch}
           color={param.panelDefaultColor || color || DEFAULT_COLOR}
+          allowGradient={param.allowGradient}
+          presetColors={currentThemeColors}
         />
         <div style={{ display: "flex" }}>
           <DepStyle

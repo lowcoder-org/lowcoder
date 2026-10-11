@@ -10,25 +10,26 @@ import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUt
 import { trans } from "i18n";
 import { BoolCodeControl } from "comps/controls/codeControl";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
-import React, { useContext, useEffect, useState } from "react";
-import { EditorContext } from "comps/editorState";
+import { useState } from "react";
+import { useEditorStore } from "comps/editorStore";
 
 import {
   ContainerChildren,
   ContainerCompBuilder,
 } from "../pageLayoutComp/pageLayoutCompBuilder";
 import { PageLayout } from "../pageLayoutComp/pageLayout";
-import { AnimationStyle, styleControl } from "@lowcoder-ee/index.sdk";
+import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 
 export const ContainerBaseComp = (function () {
   const childrenMap = {
     disabled: BoolCodeControl,
-    animationStyle: styleControl(AnimationStyle),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
 
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
 
-    const [siderCollapsed, setSiderCollapsed] = useState(false);
+    const [siderCollapsed, setSiderCollapsed] = useState(false);  
 
     return (
       <DisabledContext.Provider value={props.disabled}>
@@ -37,9 +38,10 @@ export const ContainerBaseComp = (function () {
     );
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "logic" || editorModeStatus === "both") && (
             <Section name={sectionNames.interaction}>
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
@@ -47,7 +49,7 @@ export const ContainerBaseComp = (function () {
             </Section>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "layout" || editorModeStatus === "both") && (
             <><Section name={sectionNames.layout}>
               {children.container.getPropertyView()}
             </Section>
@@ -140,10 +142,8 @@ export const PageLayoutComp = withMethodExposing(PageLayoutCompTmP, [
       params: [{ name: "collapsed", type: "boolean" }],
     },
     execute: (comp, values) => {
-      const page = values[0] as number;
-      if (page && page > 0) {
-        // comp.children.pagination.children.pageNo.dispatchChangeValueAction(page);
-      }
+      const collapsed = !!values[0]; // Ensure boolean value
+      comp.children.container.children.siderCollapsed.dispatchChangeValueAction(collapsed);
     },
   }
 ]);

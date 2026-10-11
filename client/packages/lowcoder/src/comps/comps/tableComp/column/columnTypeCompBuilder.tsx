@@ -54,6 +54,7 @@ export class ColumnTypeCompBuilder<
     RecordConstructorToComp<NewChildrenCtorMap<ChildrenCtorMap, T>>
   >;
   private editViewFn?: EditViewFn<T>;
+  private cleanupFunctions: (() => void)[] = [];
 
   constructor(
     childrenMap: ChildrenCtorMap,
@@ -93,22 +94,57 @@ export class ColumnTypeCompBuilder<
     if (!this.propertyViewFn) {
       throw new Error("need property view fn");
     }
+
+    // Memoize the props processing
+    const memoizedViewFn = _.memoize(
+      (props: any, dispatch: any) => {
+          const baseValue = this.baseValueFn?.(props, dispatch);
+          const normalView = this.viewFn(props, dispatch);
+          return (
+            <EditableCell<T>
+              {...props}
+              normalView={normalView}
+              dispatch={dispatch}
+              baseValue={baseValue}
+              changeValue={props.changeValue as any}
+              editViewFn={this.editViewFn}
+            />
+          );
+      },
+      (props) => {
+        let safeOptions = [];
+        let safeAvatars = [];
+        if(props.options) {
+          safeOptions = props.options.map((option: Record<string, any>) => {
+            const {prefixIcon, suffixIcon, ...safeOption} = option;
+            return safeOption;
+          })
+        }
+        if(props.avatars) {
+          safeAvatars = props.avatars.map((avatar: Record<string, any>) => {
+            const {AvatarIcon, ...safeAvatar} = avatar;
+            return safeAvatar;
+          })
+        }
+        const {
+          prefixIcon,
+          suffixIcon,
+          iconFalse,
+          iconTrue,
+          iconNull,
+          tagColors,
+          options,
+          avatars,
+          ...safeProps
+        } = props;
+        return safeProps;
+      }
+    );
+
     const viewFn: ColumnTypeViewFn<ChildrenCtorMap, T, CellViewReturn> =
       (props, dispatch): CellViewReturn =>
-      (cellProps) => {
-        const baseValue = this.baseValueFn?.(props, dispatch);
-        const normalView = this.viewFn(props, dispatch);
-        return (
-          <EditableCell<T>
-            {...cellProps}
-            normalView={normalView}
-            dispatch={dispatch}
-            baseValue={baseValue}
-            changeValue={props.changeValue as any}
-            editViewFn={this.editViewFn}
-          />
-        );
-      };
+      (cellProps) => memoizedViewFn({ ...props, ...cellProps } as any, dispatch);
+
     const ColumnTypeCompTmp = new MultiCompBuilder(
       this.childrenMap as ToConstructor<
         RecordConstructorToComp<NewChildrenCtorMap<ChildrenCtorMap, T>>
@@ -117,12 +153,21 @@ export class ColumnTypeCompBuilder<
     )
       .setPropertyViewFn(this.propertyViewFn)
       .build();
+
     const displayValueFn = this.displayValueFn;
     const editViewFn = this.editViewFn;
 
     return class extends ColumnTypeCompTmp {
       // table cell data
-      readonly displayValue: JSONValue = null;
+      private _displayValue: JSONValue = null;
+      private cleanupFunctions: (() => void)[] = [];
+      constructor(props: any) {
+        super(props);
+        this.cleanupFunctions.push(() => {
+          this._displayValue = null;
+          memoizedViewFn.cache.clear?.();
+        });
+      }
 
       override extraNode() {
         return {
@@ -134,7 +179,8 @@ export class ColumnTypeCompBuilder<
           },
           updateNodeFields: (value: any) => {
             const displayValueFunc = value[__COLUMN_DISPLAY_VALUE_FN];
-            return { displayValue: displayValueFunc(value) };
+            this._displayValue = displayValueFunc(value);
+            return { displayValue: this._displayValue };
           },
         };
       }
@@ -143,12 +189,24 @@ export class ColumnTypeCompBuilder<
        * Get the data actually displayed by the table cell
        */
       getDisplayValue() {
-        return this.displayValue;
+        return this._displayValue;
       }
 
       static canBeEditable() {
         return !_.isNil(editViewFn);
       }
+
+      componentWillUnmount() {
+        // Cleanup all registered cleanup functions
+        this.cleanupFunctions.forEach(cleanup => cleanup());
+        this.cleanupFunctions = [];
+      }
     };
+  }
+
+  // Cleanup method to be called when the builder is no longer needed
+  cleanup() {
+    this.cleanupFunctions.forEach(cleanup => cleanup());
+    this.cleanupFunctions = [];
   }
 }

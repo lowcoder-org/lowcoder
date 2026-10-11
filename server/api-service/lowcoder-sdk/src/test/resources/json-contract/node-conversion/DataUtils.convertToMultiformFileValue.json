@@ -1,0 +1,54 @@
+{
+  "object" : {
+    "values" : [ {
+      "@class" : "org.lowcoder.sdk.plugin.restapi.MultipartFormData",
+      "name" : "a.txt",
+      "data" : "aGVsbG8="
+    } ],
+    "classes" : {
+      "" : "java.util.ImmutableCollections$List12",
+      "/0" : "org.lowcoder.sdk.plugin.restapi.MultipartFormData",
+      "/0/name" : "java.lang.String",
+      "/0/data" : "java.lang.String"
+    }
+  },
+  "array" : {
+    "values" : [ {
+      "@class" : "org.lowcoder.sdk.plugin.restapi.MultipartFormData",
+      "name" : "žluť \"quoted\"",
+      "data" : "aGk="
+    }, {
+      "@class" : "org.lowcoder.sdk.plugin.restapi.MultipartFormData",
+      "name" : "b",
+      "data" : "YQ=="
+    } ],
+    "classes" : {
+      "" : "java.util.ImmutableCollections$ListN",
+      "/0" : "org.lowcoder.sdk.plugin.restapi.MultipartFormData",
+      "/0/name" : "java.lang.String",
+      "/0/data" : "java.lang.String",
+      "/1" : "org.lowcoder.sdk.plugin.restapi.MultipartFormData",
+      "/1/name" : "java.lang.String",
+      "/1/data" : "java.lang.String"
+    }
+  },
+  "parameter" : {
+    "values" : [ {
+      "@class" : "org.lowcoder.sdk.plugin.restapi.MultipartFormData",
+      "name" : "f.bin",
+      "data" : "AAE="
+    } ],
+    "classes" : {
+      "" : "java.util.ImmutableCollections$List12",
+      "/0" : "org.lowcoder.sdk.plugin.restapi.MultipartFormData",
+      "/0/name" : "java.lang.String",
+      "/0/data" : "java.lang.String"
+    }
+  },
+  "dataNotText" : {
+    "error" : "org.lowcoder.sdk.exception.PluginException: DATASOURCE_ARGUMENT_ERROR MULTIFORM_DATA_IS_NOT_STRING"
+  },
+  "scalar" : {
+    "error" : "java.lang.IllegalArgumentException: can't parse argument number: data:base64 string"
+  }
+}

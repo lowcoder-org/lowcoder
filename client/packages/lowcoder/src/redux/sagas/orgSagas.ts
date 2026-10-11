@@ -1,6 +1,6 @@
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
-import { ApiResponse, GenericApiResponse } from "api/apiResponses";
+import { ApiResponse, FetchGroupApiResponse } from "api/apiResponses";
 import OrgApi, { CreateOrgResponse, GroupUsersResponse, OrgAPIUsageResponse, OrgUsersResponse } from "api/orgApi";
 import { AxiosResponse } from "axios";
 import { OrgGroup } from "constants/orgConstants";
@@ -49,7 +49,7 @@ export function* updateGroupSaga(action: ReduxAction<UpdateGroupActionPayload>) 
 
 export function* fetchGroupsSaga(action: ReduxAction<{ orgId: string }>) {
   try {
-    const response: AxiosResponse<GenericApiResponse<OrgGroup[]>> = yield call(OrgApi.fetchGroup);
+    const response: AxiosResponse<FetchGroupApiResponse<OrgGroup[]>> = yield call(OrgApi.fetchGroup);
     const isValidResponse: boolean = validateResponse(response);
     if (isValidResponse) {
       const groups = response.data.data;
@@ -57,6 +57,12 @@ export function* fetchGroupsSaga(action: ReduxAction<{ orgId: string }>) {
         type: ReduxActionTypes.FETCH_ORG_GROUPS_SUCCESS,
         payload: {
           orgGroups: groups,
+          orgUserStats: {
+            totalAdmins: response.data.totalAdmins,
+            totalAdminsAndDevelopers: response.data.totalAdminsAndDevelopers,
+            totalDevelopersOnly: response.data.totalDevelopersOnly,
+            totalOtherMembers: response.data.totalOtherMembers,
+          }
         },
       });
     }
@@ -98,11 +104,30 @@ export function* updateUserGroupRoleSaga(action: ReduxAction<UpdateUserGroupRole
   }
 }
 
+export function* fetchGroupPotentialMembersSaga(action: ReduxAction<{ searchName: string, groupId: string }>) {
+  try {
+    const response: AxiosResponse<OrgUsersResponse> = yield call(
+      OrgApi.fetchGroupPotentialMembers,
+      action.payload.searchName,
+      action.payload.groupId
+    );
+    const isValidResponse: boolean = validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_ORG_ALL_USERS_SUCCESS,
+        payload: response.data.data,
+      });
+    }
+  } catch (error) {
+    log.error(error);
+  }
+}
+
 export function* fetchOrgUsersSaga(action: ReduxAction<{ orgId: string }>) {
   try {
     const response: AxiosResponse<OrgUsersResponse> = yield call(
       OrgApi.fetchOrgUsers,
-      action.payload.orgId
+      action.payload.orgId,
     );
     const isValidResponse: boolean = validateResponse(response);
     if (isValidResponse) {
@@ -236,7 +261,6 @@ export function* createOrgSaga(action: ReduxAction<{ orgName: string }>) {
     );
     const isValidResponse: boolean = validateResponse(response);
     if (isValidResponse) {
-      // update org list
       yield call(getUserSaga);
       yield put({
         type: ReduxActionTypes.CREATE_ORG_SUCCESS,
@@ -328,6 +352,7 @@ export default function* orgSagas() {
     takeLatest(ReduxActionTypes.UPDATE_USER_ORG_ROLE, updateUserOrgRoleSaga),
     takeLatest(ReduxActionTypes.UPDATE_USER_GROUP_ROLE, updateUserGroupRoleSaga),
     takeLatest(ReduxActionTypes.FETCH_ORG_ALL_USERS, fetchOrgUsersSaga),
+    takeLatest(ReduxActionTypes.FETCH_GROUP_POTENTIAL_MEMBERS, fetchGroupPotentialMembersSaga),
     takeLatest(ReduxActionTypes.DELETE_ORG_USER, deleteOrgUserSaga),
     takeLatest(ReduxActionTypes.QUIT_GROUP, quitGroupSaga),
     takeLatest(ReduxActionTypes.QUIT_ORG, quitOrgSaga),

@@ -1,0 +1,85 @@
+{
+  "EsQueryExecutor.buildQueryExecutionContext" : {
+    "full" : {
+      "class" : "org.lowcoder.plugin.es.model.EsQueryExecutionContext",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.es.model.EsQueryExecutionContext",
+        "httpMethod" : "POST",
+        "path" : "logs-2026/docs/_search",
+        "dsl" : "{\"query\":{\"match\":{\"title\":\"kůň \\\"quoted\\\"\"}},\"size\":10}",
+        "visitorId" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.es.model.EsQueryExecutionContext",
+        "/httpMethod" : "org.springframework.http.HttpMethod",
+        "/path" : "java.lang.String",
+        "/dsl" : "java.lang.String",
+        "/visitorId" : "null"
+      },
+      "noView" : {"visitorId":null,"httpMethod":{},"path":"logs-2026/docs/_search","dsl":"{\"query\":{\"match\":{\"title\":\"kůň \\\"quoted\\\"\"}},\"size\":10}"},
+      "Public" : {"visitorId":null,"httpMethod":{},"path":"logs-2026/docs/_search","dsl":"{\"query\":{\"match\":{\"title\":\"kůň \\\"quoted\\\"\"}},\"size\":10}"},
+      "Internal" : {"visitorId":null,"httpMethod":{},"path":"logs-2026/docs/_search","dsl":"{\"query\":{\"match\":{\"title\":\"kůň \\\"quoted\\\"\"}},\"size\":10}"}
+    },
+    "lowerCaseMethod" : {
+      "class" : "org.lowcoder.plugin.es.model.EsQueryExecutionContext",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.es.model.EsQueryExecutionContext",
+        "httpMethod" : "get",
+        "path" : "_cat/indices",
+        "dsl" : "",
+        "visitorId" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.es.model.EsQueryExecutionContext",
+        "/httpMethod" : "org.springframework.http.HttpMethod",
+        "/path" : "java.lang.String",
+        "/dsl" : "java.lang.String",
+        "/visitorId" : "null"
+      },
+      "noView" : {"visitorId":null,"httpMethod":{},"path":"_cat/indices","dsl":""},
+      "Public" : {"visitorId":null,"httpMethod":{},"path":"_cat/indices","dsl":""},
+      "Internal" : {"visitorId":null,"httpMethod":{},"path":"_cat/indices","dsl":""}
+    },
+    "unknownMethod" : {
+      "class" : "org.lowcoder.plugin.es.model.EsQueryExecutionContext",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.es.model.EsQueryExecutionContext",
+        "httpMethod" : "PURGE",
+        "path" : "x",
+        "dsl" : "",
+        "visitorId" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.es.model.EsQueryExecutionContext",
+        "/httpMethod" : "org.springframework.http.HttpMethod",
+        "/path" : "java.lang.String",
+        "/dsl" : "java.lang.String",
+        "/visitorId" : "null"
+      },
+      "noView" : {"visitorId":null,"httpMethod":{},"path":"x","dsl":""},
+      "Public" : {"visitorId":null,"httpMethod":{},"path":"x","dsl":""},
+      "Internal" : {"visitorId":null,"httpMethod":{},"path":"x","dsl":""}
+    },
+    "noMethod" : {
+      "class" : "org.lowcoder.plugin.es.model.EsQueryExecutionContext",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.es.model.EsQueryExecutionContext",
+        "httpMethod" : null,
+        "path" : "x",
+        "dsl" : "",
+        "visitorId" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.es.model.EsQueryExecutionContext",
+        "/httpMethod" : "null",
+        "/path" : "java.lang.String",
+        "/dsl" : "java.lang.String",
+        "/visitorId" : "null"
+      },
+      "noView" : {"visitorId":null,"httpMethod":null,"path":"x","dsl":""},
+      "Public" : {"visitorId":null,"httpMethod":null,"path":"x","dsl":""},
+      "Internal" : {"visitorId":null,"httpMethod":null,"path":"x","dsl":""}
+    },
+    "unknownProperty" : "ignored: binds as form full"
+  }
+}

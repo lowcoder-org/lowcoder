@@ -17,6 +17,7 @@ import {
 import { shallowEqual } from "react-redux";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { lastValueIfEqual } from "util/objectUtils";
+import { EMPTY_ROW_KEY } from "../tableCompView";
 
 /**
  * column list
@@ -36,9 +37,10 @@ type ActionDataType = {
 };
 
 export function tableDataRowExample(data: Array<JSONObject>) {
-  if (data.length <= 0) {
+  if (!data?.length) {
     return undefined;
   }
+  
   if (typeof data[0] === "string") {
     // do not parse arrays in string format
     return undefined;
@@ -70,14 +72,17 @@ export class ColumnListComp extends ColumnListTmpComp {
     return super.reduce(action);
   }
 
-  getChangeSet() {
+  getChangeSet(filterNewRowsChange?: boolean) {
     const changeSet: Record<string, Record<string, JSONValue>> = {};
     const columns = this.getView();
     columns.forEach((column) => {
       const columnChangeSet = column.getChangeSet();
       Object.keys(columnChangeSet).forEach((dataIndex) => {
         Object.keys(columnChangeSet[dataIndex]).forEach((key) => {
-          if (!_.isNil(columnChangeSet[dataIndex][key])) {
+          const includeChange = filterNewRowsChange
+            ? key.startsWith(EMPTY_ROW_KEY)
+            : !key.startsWith(EMPTY_ROW_KEY);
+          if (!_.isNil(columnChangeSet[dataIndex][key]) && includeChange) {
             if (!changeSet[key]) changeSet[key] = {};
             changeSet[key][dataIndex] = columnChangeSet[dataIndex][key];
           }
@@ -90,6 +95,11 @@ export class ColumnListComp extends ColumnListTmpComp {
   dispatchClearChangeSet() {
     const columns = this.getView();
     columns.forEach((column) => column.dispatchClearChangeSet());
+  }
+
+  dispatchClearInsertSet() {
+    const columns = this.getView();
+    columns.forEach((column) => column.dispatchClearInsertSet());
   }
 
   /**
@@ -106,7 +116,7 @@ export class ColumnListComp extends ColumnListTmpComp {
         type: "dataChanged",
         ...param,
       },
-      false
+      true
     );
   }
 

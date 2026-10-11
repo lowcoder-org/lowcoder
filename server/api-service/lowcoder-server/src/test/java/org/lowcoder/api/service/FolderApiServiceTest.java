@@ -1,20 +1,25 @@
 package org.lowcoder.api.service;
 
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
+import org.lowcoder.api.common.InitData;
 import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.api.home.FolderApiService;
+import org.lowcoder.api.home.FolderInfoView;
 import org.lowcoder.api.permission.view.PermissionItemView;
 import org.lowcoder.domain.folder.model.Folder;
 import org.lowcoder.domain.folder.service.FolderService;
 import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.sdk.constants.FieldName;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -22,32 +27,43 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ActiveProfiles("testFolder")
+//@RunWith(SpringRunner.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class FolderApiServiceTest {
 
     @Autowired
     private FolderApiService folderApiService;
     @Autowired
     private FolderService folderService;
+    @Autowired
+    private InitData initData;
+
+    @BeforeAll
+    public void beforeAll() {
+        initData.init();
+    }
 
     @Test
     @WithMockUser
-    @Ignore("Disabled until it is fixed")
     public void create() {
         Folder folder = new Folder();
         folder.setParentFolderId(null);
         folder.setName("root");
         StepVerifier.create(folderApiService.create(folder))
-                .assertNext(f -> Assert.assertNotNull(f.getFolderId()))
+                .assertNext(f -> {
+                    assertNotNull(f.getFolderId());
+                    assertTrue(FieldName.isGID(f.getFolderGid()));
+                })
                 .verifyComplete();
     }
 
     @Test
     @WithMockUser
-    @Ignore("Disabled until it is fixed")
     public void delete() {
 
         String id = "folder03";
@@ -57,7 +73,7 @@ public class FolderApiServiceTest {
                 .verifyComplete();
 
         StepVerifier.create(folderApiService.delete(id))
-                .assertNext(folder -> Assert.assertEquals(id, folder.getId()))
+                .assertNext(folder -> Assertions.assertEquals(id, folder.getId()))
                 .verifyComplete();
 
         StepVerifier.create(folderService.exist(id))
@@ -67,46 +83,142 @@ public class FolderApiServiceTest {
 
     @Test
     @WithMockUser
-    @Ignore("Disabled until it is fixed")
+    public void checkExistingByGid() {
+
+        String id = "01905d61-5c7e-788a-b650-82c983f04968";
+        String id2 = "01905d61-5c7e-788a-b650-82c983f04969";
+
+        StepVerifier.create(folderService.exist(id))
+                .expectNext(true)
+                .verifyComplete();
+
+        StepVerifier.create(folderService.exist(id2))
+                .expectNext(false)
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockUser
     public void update() {
         String id = "folder02";
 
         StepVerifier.create(folderService.findById(id))
-                .assertNext(folder -> assertEquals("folder02", folder.getName()))
+                .assertNext(folder -> Assertions.assertEquals("folder02", folder.getName()))
                 .verifyComplete();
 
         Folder newFolder = new Folder();
         newFolder.setId(id);
         newFolder.setName("test_update");
         StepVerifier.create(folderApiService.update(newFolder))
-                .assertNext(Assert::assertNotNull)
+                .assertNext(Assertions::assertNotNull)
                 .verifyComplete();
 
         StepVerifier.create(folderService.findById(id))
-                .assertNext(folder -> assertEquals("test_update", folder.getName()))
+                .assertNext(folder -> Assertions.assertEquals("test_update", folder.getName()))
                 .verifyComplete();
     }
 
     @Test
     @WithMockUser
-    @Ignore("Disabled until it is fixed")
+    public void updateByGid() {
+        // gid of folder04; update() renames folder02, so the two tests must not share a folder
+        String id = "01905d61-5c7e-788a-b650-82c983f04968";
+
+        Folder newFolder = new Folder();
+        newFolder.setId(id);
+        newFolder.setName("test_update_by_gid");
+        StepVerifier.create(folderApiService.update(newFolder))
+                .assertNext(Assertions::assertNotNull)
+                .verifyComplete();
+
+        StepVerifier.create(folderService.findById(id))
+                .assertNext(folder -> Assertions.assertEquals("test_update_by_gid", folder.getName()))
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockUser
+    public void updateWithUnchangedNameSucceeds() {
+        String folderId = createFolder("unchanged_name_folder", null).getFolderId();
+
+        Folder newFolder = new Folder();
+        newFolder.setId(folderId);
+        newFolder.setName("unchanged_name_folder");
+        newFolder.setTitle("new title");
+        StepVerifier.create(folderApiService.update(newFolder))
+                .assertNext(view -> Assertions.assertEquals("unchanged_name_folder", view.getName()))
+                .verifyComplete();
+
+        StepVerifier.create(folderService.findById(folderId))
+                .assertNext(folder -> Assertions.assertEquals("new title", folder.getTitle()))
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockUser
+    public void updateRejectsNameOfSiblingInSameParent() {
+        String parentId = createFolder("sibling_conflict_parent", null).getFolderId();
+        createFolder("sibling_a", parentId);
+        String siblingBId = createFolder("sibling_b", parentId).getFolderId();
+
+        Folder newFolder = new Folder();
+        newFolder.setId(siblingBId);
+        newFolder.setName("sibling_a");
+        StepVerifier.create(folderApiService.update(newFolder))
+                .expectErrorMatches(throwable -> throwable instanceof BizException bizException
+                        && bizException.getError() == BizError.FOLDER_NAME_CONFLICT)
+                .verify();
+
+        StepVerifier.create(folderService.findById(siblingBId))
+                .assertNext(folder -> Assertions.assertEquals("sibling_b", folder.getName()))
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockUser
+    public void updateAllowsNameUsedOnlyInAnotherParent() {
+        createFolder("name_used_at_root", null);
+        String parentId = createFolder("other_parent", null).getFolderId();
+        String childId = createFolder("child_to_rename", parentId).getFolderId();
+
+        Folder newFolder = new Folder();
+        newFolder.setId(childId);
+        newFolder.setName("name_used_at_root");
+        StepVerifier.create(folderApiService.update(newFolder))
+                .assertNext(view -> {
+                    Assertions.assertEquals("name_used_at_root", view.getName());
+                    Assertions.assertEquals(parentId, view.getParentFolderId());
+                })
+                .verifyComplete();
+    }
+
+    private FolderInfoView createFolder(String name, String parentFolderId) {
+        Folder folder = new Folder();
+        folder.setName(name);
+        folder.setParentFolderId(parentFolderId);
+        FolderInfoView created = folderApiService.create(folder).block();
+        assertNotNull(created);
+        return created;
+    }
+
+    @Test
+    @WithMockUser
     public void move() {
 
         Mono<? extends List<?>> mono = folderApiService.move("app01", "folder02")
-                .then(folderApiService.getElements("folder02", null).collectList());
+                .then(folderApiService.getElements("folder02", null, null, null).collectList());
 
         StepVerifier.create(mono)
                 .assertNext(list -> {
-                    assertEquals(1, list.size());
+                    Assertions.assertEquals(1, list.size());
                     ApplicationInfoView applicationInfoView = (ApplicationInfoView) list.get(0);
-                    assertEquals("app01", applicationInfoView.getApplicationId());
+                    Assertions.assertEquals("app01", applicationInfoView.getApplicationId());
                 })
                 .verifyComplete();
     }
 
     @Test
     @WithMockUser
-    @Ignore("Disabled until it is fixed")
     public void grantPermission() {
 
         Mono<ApplicationPermissionView> mono =
@@ -115,11 +227,11 @@ public class FolderApiServiceTest {
 
         StepVerifier.create(mono)
                 .assertNext(applicationPermissionView -> {
-                    assertEquals(2, applicationPermissionView.getPermissions().size());
+                    Assertions.assertEquals(2, applicationPermissionView.getPermissions().size());
                     Set<String> ids = applicationPermissionView.getPermissions().stream()
                             .map(PermissionItemView::getId)
                             .collect(Collectors.toSet());
-                    assertEquals(Set.of("user02", "group01"), ids);
+                    Assertions.assertEquals(Set.of("user02", "group01"), ids);
                 })
                 .verifyComplete();
     }

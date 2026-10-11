@@ -15,6 +15,10 @@ import {
   lightenColor,
   toHex,
   UnderlineCss,
+  EventModalStyleType,
+  DateParser,
+  isValidColor,
+  Theme,
 } from "lowcoder-sdk";
 import styled from "styled-components";
 import dayjs from "dayjs";
@@ -26,11 +30,16 @@ import {
 } from "@fullcalendar/core";
 import { default as Form } from "antd/es/form";
 
+type Theme = typeof Theme;
+type EventModalStyleType = typeof EventModalStyleType;
+type CalendarStyleType = typeof CalendarStyleType;
+
 export const Wrapper = styled.div<{
   $editable?: boolean;
   $style?: CalendarStyleType;
   $theme?: ThemeDetail;
   $left?: number;
+  $showVerticalScrollbar?:boolean;
 }>`
   position: relative;
   height: 100%;
@@ -67,8 +76,20 @@ export const Wrapper = styled.div<{
   .fc-list {
     .fc-list-table {
       table-layout: fixed;
+      thead {
+        position: relative;
+        left: unset;
+        visibility: hidden;
+      }
       th {
         background-color: ${(props) => props.$style.background};
+
+        &:first-child {
+          width: 150px;
+        }
+        &:nth-child(2) {
+          width: 300px;
+        }
       }
     }
     .fc-list-event-graphic {
@@ -114,7 +135,6 @@ export const Wrapper = styled.div<{
         box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.15);
         border-width: 1px;
         margin: 2px 5px;
-        height: 20px;
         .event-title {
           margin-left: 15px;
         }
@@ -126,8 +146,6 @@ export const Wrapper = styled.div<{
     .fc-event {
       font-size: 13px;
       line-height: 20px;
-      display: flex;
-      align-items: center;
       &.no-time {
         padding-left: 19px;
       }
@@ -140,21 +158,15 @@ export const Wrapper = styled.div<{
       box-sizing: content-box;
     }
     .fc-list-event-title {
-      min-width: 266px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
       padding: 0 14px 0 0;
       cursor: pointer;
       .event {
         font-size: 13px;
-        height: 18px;
         line-height: 18px;
         margin: 3px 5px;
         border-width: 0;
         align-items: center;
         &::before {
-          height: 14px;
           top: 2px;
           left: 3px;
         }
@@ -163,9 +175,6 @@ export const Wrapper = styled.div<{
         }
         .event-title {
           margin-left: 16px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
         }
         .event-remove {
           background-color: inherit;
@@ -358,10 +367,14 @@ export const Wrapper = styled.div<{
   .fc .fc-scrollgrid table {
     width: 100% !important;
   }
+  .fc-scroller.fc-scroller-liquid-absolute::-webkit-scrollbar {
+    display:${(props) => (props.$showVerticalScrollbar ? 'block' : 'none')};
+  }
 
   // event
   .fc-timegrid-event .fc-event-main {
     padding: 4px 0 4px 1px;
+    
   }
   .fc-event {
     position: relative;
@@ -652,11 +665,12 @@ export const Remove = styled.div<{ $isList: boolean }>`
 `;
 
 export const Event = styled.div<{
-  $bg: string;
   theme: Object;
   $isList: boolean;
   $allDay: boolean;
   $style: CalendarStyleType;
+  $backgroundColor:string;
+  $extendedProps: any;
 }>`
   height: 100%;
   width: 100%;
@@ -665,14 +679,17 @@ export const Event = styled.div<{
   box-shadow: ${(props) => !props.$isList && "0 0 5px 0 rgba(0, 0, 0, 0.15)"};
   border: 1px solid ${(props) => props.$style.border};
   display: ${(props) => props.$isList && "flex"};
-  background-color: ${(props) =>
-    !props.$isList && lightenColor(props.$style.background, 0.1)};
+  background-color:${(props) => props?.$backgroundColor || "#ffffff"} ;
   overflow: hidden;
   font-size: 13px;
   line-height: 19px;
   padding-right: 20px;
   overflow: hidden;
   position: relative;
+  animation: ${(props) => props?.$extendedProps?.animation || ""};
+  animation-delay: ${(props) => props?.$extendedProps?.animationDelay || ""} ;
+  animation-duration: ${(props) => props?.$extendedProps?.animationDuration || ""};
+  animation-iteration-count: ${(props) => props?.$extendedProps?.animationIterationCount || ""};
   &::before {
     content: "";
     position: absolute;
@@ -682,7 +699,7 @@ export const Event = styled.div<{
     left: 2px;
     top: 2px;
     border-radius: 3px;
-    background-color: ${(props) => props.$bg};
+    background-color: ${(props) => props.$extendedProps?.color};
   }
 
   .event-time {
@@ -696,11 +713,21 @@ export const Event = styled.div<{
     margin-top: 2px;
   }
   .event-title {
-    color: ${(props) => !props.$isList && props.$style.text};
-    font-weight: 500;
+    color: ${(props) => props?.$extendedProps?.titleColor || "#000000"};
+    font-weight: ${(props) => props?.$extendedProps?.titleFontWeight || "normal"};
+    font-style: ${(props) => props?.$extendedProps?.titleFontStyle || ""};
     margin-left: 15px;
     white-space: pre-wrap;
     word-break: break-word;
+  }
+  .event-detail {
+    color: ${(props) => props?.$extendedProps?.detailColor || "#000000"};
+    font-weight: ${(props) => props?.$extendedProps?.detailFontWeight || "normal"};
+    font-style: ${(props) => props?.$extendedProps?.detailFontStyle || "italic"};
+    margin-left: 15px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-top: 2px; 
   }
 
   &.small {
@@ -708,7 +735,9 @@ export const Event = styled.div<{
     .event-time {
       display: none;
     }
-    .event-title {
+    .event-title,
+    .event-detail
+    {
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
@@ -717,7 +746,9 @@ export const Event = styled.div<{
   &.middle {
     padding-top: 2px;
     .event-time,
-    .event-title {
+    .event-title,
+     .event-detail
+     {
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
@@ -730,38 +761,61 @@ export const Event = styled.div<{
   }
   &.past {
     background-color: ${(props) =>
-      isDarkColor(props.$style.background) && props.$style.background};
+    `rgba(${props?.$extendedProps?.color}, 0.3)`};
     &::before {
-      background-color: ${(props) =>
-        toHex(props.$style.text) === "#3C3C3C"
-          ? "#8B8FA3"
-          : isDarkColor(props.$style.text)
-            ? lightenColor(props.$style.text, 0.3)
-            : props.$style.text};
+    background-color: ${(props) => props?.$extendedProps?.color};
+    opacity: 0.3;
     }
     &::before,
     .event-title,
-    .event-time {
+    .event-time,
+    .event-detail
+    {
       opacity: 0.35;
     }
   }
 `;
 
-export const FormWrapper = styled(Form)`
+export const FormWrapper = styled(Form)<{
+  $modalStyle?: EventModalStyleType
+}>`
   .ant-form-item-label {
-    width: 100px;
+    width: 125px;
     text-align: left;
     line-height: 18px;
+
     label:not(.ant-form-item-required) {
-      margin-left: 11px;
+      margin-left: 2px;
+    }
+      label.ant-form-item-required{
+      margin-left: 2px;
     }
     label span {
       ${UnderlineCss}
+      
     }
   }
+
+  // Setting style for input fields
+  .ant-input {
+    background-color: ${(props) => props.$modalStyle?.labelBackground };
+    border-color: ${(props) => props.$modalStyle?.border};
+    border-width: ${(props) => props.$modalStyle?.borderWidth};
+    border-style: ${(props) => props.$modalStyle?.borderStyle};
+    color: ${(props) => props.$modalStyle?.text};
+  }
+
 `;
 
 export type EventType = {
+  animationIterationCount: any;
+  animationDuration: any;
+  animationDelay: any;
+  animation: any;
+  titleFontWeight: any;
+  titleFontStyle: any;
+  detailFontWeight: any;
+  detailFontStyle: any;
   id?: string;
   resourceId?: string;
   label?: string;
@@ -770,8 +824,12 @@ export type EventType = {
   end?: string;
   allDay?: boolean;
   color?: string;
+  backgroundColor?:string;
   groupId?: string;
   value?: string;
+  detail?:string;
+  titleColor?:string;
+  detailColor?:string;
 };
 
 export enum ViewType {
@@ -885,27 +943,64 @@ export const FirstDayOptions = [
   },
 ];
 
-export const defaultData = [
+export const defaultEvents = [
   {
     id: "1",
-    title: "Coding",
+    label: "Coding",
     start: dayjs().hour(10).minute(0).second(0).format(DATE_TIME_FORMAT),
     end: dayjs().hour(12).minute(30).second(0).format(DATE_TIME_FORMAT),
     color: "#079968",
+    backgroundColor:"#ffffff",
+    detail: 'Discuss project milestones and deliverables.',
+    titleColor:"#000000",
+    detailColor:"#000000",
+    titleFontWeight:"normal",
+    titleFontStyle:"italic",
+    detailFontWeight:"normal",
+    detailFontStyle:"italic",
+    animation:"none",
+    animationDelay:"0s",
+    animationDuration:"0s",
+    animationIterationCount:"0",
   },
   {
     id: "2",
-    title: "Rest",
+    label: "Rest",
     start: dayjs().hour(24).format(DATE_FORMAT),
     end: dayjs().hour(48).format(DATE_FORMAT),
+    color: "#079968",
     allDay: true,
+  },
+  {
+    id: "3",
+    resourceId: "d1",
+    label: "event 1",
+    start: dayjs().hour(10).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(17).minute(30).second(0).format(DATE_TIME_FORMAT),
+    color: "#079968",
+  },
+  {
+    id: "4",
+    resourceId: "b",
+    label: "event 5",
+    start: dayjs().hour(8).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(16).minute(30).second(0).format(DATE_TIME_FORMAT),
+    color: "#079968",
+  },
+  {
+    id: "5",
+    resourceId: "a",
+    label: "event 3",
+    start: dayjs().hour(12).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(21).minute(30).second(0).format(DATE_TIME_FORMAT),
+    color: "#079968",
   },
 ];
 export const resourcesEventsDefaultData = [
   {
     id: "1",
     resourceId: "d1",
-    title: "event 1",
+    label: "event 1",
     start: dayjs().hour(10).minute(0).second(0).format(DATE_TIME_FORMAT),
     end: dayjs().hour(17).minute(30).second(0).format(DATE_TIME_FORMAT),
     color: "#079968",
@@ -913,7 +1008,7 @@ export const resourcesEventsDefaultData = [
   {
     id: "2",
     resourceId: "b",
-    title: "event 5",
+    label: "event 5",
     start: dayjs().hour(8).minute(0).second(0).format(DATE_TIME_FORMAT),
     end: dayjs().hour(16).minute(30).second(0).format(DATE_TIME_FORMAT),
     color: "#079968",
@@ -921,7 +1016,7 @@ export const resourcesEventsDefaultData = [
   {
     id: "3",
     resourceId: "a",
-    title: "event 3",
+    label: "event 3",
     start: dayjs().hour(12).minute(0).second(0).format(DATE_TIME_FORMAT),
     end: dayjs().hour(21).minute(30).second(0).format(DATE_TIME_FORMAT),
     color: "#079968",
@@ -1046,3 +1141,33 @@ export const viewClassNames = (info: ViewContentArg) => {
   }
   return className;
 };
+
+export const formattedEvents = (events: EventType[], theme?: Theme) => {
+  return events.map((item: EventType) => {
+    return {
+      title: item.label,
+      label: item.label,
+      id: item.id,
+      start: dayjs(item.start, DateParser).format(),
+      end: dayjs(item.end, DateParser).format(),
+      allDay: item.allDay,
+      ...(item.resourceId ? { resourceId: item.resourceId } : {}),
+      ...(item.groupId ? { groupId: item.groupId } : {}),
+      backgroundColor: item.backgroundColor,
+      extendedProps: {   // Ensure color is in extendedProps
+        color: isValidColor(item.color || "") ? item.color : theme?.theme?.primary,
+        detail: item.detail,
+        titleColor: item.titleColor,
+        detailColor: item.detailColor,
+        titleFontWeight: item.titleFontWeight,
+        titleFontStyle: item.titleFontStyle,
+        detailFontWeight: item.detailFontWeight,
+        detailFontStyle: item.detailFontStyle,
+        animation: item?.animation,
+        animationDelay: item?.animationDelay,
+        animationDuration: item?.animationDuration,
+        animationIterationCount: item?.animationIterationCount
+      }
+    }
+  })
+}

@@ -1,7 +1,7 @@
 import { ButtonProps } from "antd/es/button";
 import { default as AntdModal, ModalFuncProps, ModalProps as AntdModalProps } from "antd/es/modal";
-import { ReactComponent as PackUpIcon } from "icons/icon-Pack-up.svg";
-import React, { ReactNode, useState } from "react";
+import { ReactComponent as PackUpIcon } from "icons/v1/icon-Pack-up.svg";
+import React, { ReactNode, useRef, useState } from "react";
 import styled from "styled-components";
 import { TacoButtonType, TacoButton } from "components/button";
 import Draggable from "react-draggable";
@@ -12,6 +12,7 @@ import { modalInstance } from "components/GlobalInstances";
 
 type ModalWrapperProps = {
   $width?: string | number;
+  $customStyles?:any
 };
 
 type Model = {
@@ -24,12 +25,16 @@ const ModalWrapper = styled.div<ModalWrapperProps>`
   flex-direction: column;
   width: ${(props) => (props.$width ? props.$width : "368px")};
   height: fit-content;
-  background: #ffffff;
+  background:${(props) => props.$customStyles?.backgroundColor || '#ffffff'};
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   padding: 0 0 16px;
   pointer-events: auto;
   will-change: transform;
+  animation: ${(props) => props.$customStyles?.animationStyle?.animation};
+  animation-delay: ${(props) => props.$customStyles?.animationStyle?.animationDelay};
+  animation-duration: ${(props) => props.$customStyles?.animationStyle?.animationDuration};
+  animation-iteration-count: ${(props) => props.$customStyles?.animationStyle?.animationIterationCount};
 `;
 
 const ModalHeaderWrapper = styled.div<{ $draggable?: boolean }>`
@@ -205,6 +210,7 @@ export type CustomModalProps = {
   children?: JSX.Element | React.ReactNode;
   okButtonType?: TacoButtonType;
   model?: Model;
+  customStyles?:any
 } & AntdModalProps;
 
 const DEFAULT_PROPS = {
@@ -214,10 +220,16 @@ const DEFAULT_PROPS = {
   autoFocusButton: "ok",
 } as const;
 
-function CustomModalRender(props: CustomModalProps & ModalFuncProps) {
+function CustomModalRender(props: Omit<CustomModalProps & ModalFuncProps, "width"> & { width?: string | number }) {
+  const draggableRef = useRef<HTMLDivElement>(null);
+
   return (
-    <Draggable handle=".handle" disabled={!props.draggable}>
-      <ModalWrapper $width={props.width}>
+    <Draggable handle=".handle" disabled={!props.draggable} nodeRef={draggableRef}>
+      <ModalWrapper
+        ref={draggableRef} 
+        $width={props.width}
+        $customStyles={props?.customStyles}
+      >
         <>
           <ModalHeaderWrapper className="handle" $draggable={props.draggable}>
             <ModalHeader
@@ -243,19 +255,20 @@ function CustomModalRender(props: CustomModalProps & ModalFuncProps) {
   );
 }
 
+
 /**
  * an antd modal capsulation
  */
-
 function CustomModal(props: CustomModalProps) {
   return (
     <AntdModal
       {...props}
-      width="fit-content"
-      modalRender={() => <CustomModalRender {...DEFAULT_PROPS} {...props} />}
+      width={typeof props.width === "object" ? undefined : props.width} // Ensure valid type
+      modalRender={() => <CustomModalRender {...props} width={typeof props.width === "object" ? undefined : props.width} />}
     />
   );
 }
+
 
 const TitleIcon = {
   error: <ErrorIcon />,
@@ -276,7 +289,10 @@ CustomModal.confirm = (props: {
   footer?: ReactNode;
   type?: "info" | "warn" | "error" | "success";
   width?: number | string;
+  customStyles?:React.CSSProperties;
 }): any => {
+
+  const fixedWidth = typeof props.width === "object" ? undefined : props.width;
 
   const defaultConfirmProps: ModalFuncProps = {
     ...DEFAULT_PROPS,
@@ -294,7 +310,7 @@ CustomModal.confirm = (props: {
   };
   // create model
   const model = modalInstance.confirm({
-    width: "fit-content",
+    width: fixedWidth,
     style: props.style,
     centered: true,
     onCancel: () => {
@@ -333,6 +349,7 @@ CustomModal.confirm = (props: {
         }}
         footer={props.footer}
         width={props.width}
+        customStyles={props.customStyles}
       />
     ),
   });

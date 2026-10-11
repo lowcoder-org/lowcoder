@@ -32,6 +32,9 @@ const DropdownRenderStyle = styled.div<{ $childrenInputFieldStyle: ChildrenMulti
     text-decoration: ${props => props.$childrenInputFieldStyle?.textDecoration};
     color: ${props => props.$childrenInputFieldStyle?.text};
     }
+    .ant-cascader-menu-item-active:not(.ant-cascader-menu-item-disabled) {
+      background-color: ${props => props.$childrenInputFieldStyle?.activeBackground ? `${props.$childrenInputFieldStyle.activeBackground}22` : 'rgb(242, 247, 252)'};
+    }
 `
 
 let CascaderBasicComp = (function () {
@@ -56,14 +59,15 @@ let CascaderBasicComp = (function () {
           showSearch={props.showSearch}
           $style={props.inputFieldStyle}
           $childrenInputFieldStyle={props.childrenInputFieldStyle}
+          tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
           onFocus={() => props.onEvent("focus")}
           onBlur={() => props.onEvent("blur")}
-          dropdownRender={(menus: React.ReactNode) => (
-  <DropdownRenderStyle $childrenInputFieldStyle={props.childrenInputFieldStyle}>
-    {menus}
+          popupRender={(menus: React.ReactNode) => (
+            <DropdownRenderStyle $childrenInputFieldStyle={props.childrenInputFieldStyle}>
+              {menus}
             </DropdownRenderStyle>
           )}
-          onChange={(value: (string | number)[]) => {
+          onChange={(value: (string | number | null)[]) => {
             props.value.onChange(value as string[]);
             props.onEvent("change");
           }}

@@ -12,6 +12,9 @@ import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-s
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
 import { googleMapsApiUrl } from "./chartConfigs/chartUrls";
+import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
+import { mergeCartesianAxis } from "../../util/echartsThemeUtils";
+import parseBackground from "../../util/gradientBackgroundColor";
 
 export function transformData(
   originData: JSONObject[],
@@ -128,57 +131,27 @@ export function getSeriesConfig(props: EchartsConfigProps) {
 }
 
 // https://echarts.apache.org/en/option.html
-export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSize): EChartsOptionWithMap {
+export function getEchartsConfig(
+  props: EchartsConfigProps,
+  chartSize?: ChartSize,
+  theme?: any,
+): EChartsOptionWithMap {
   if (props.mode === "json") {
-    let opt={
-  "title": {
-    "text": props.echartsTitle,
-    'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
-    "left":"center"
-  },
-  "backgroundColor": props?.style?.background,
-      "color": props.echartsOption.data?.map(data => data.color),
-  "tooltip": props.tooltip&&{
-    "trigger": "item",
-    "formatter": "{a} <br/>{b} : {c}%"
-  },
-  "legend":props.legendVisibility&& {
-    "data": props.echartsOption.data?.map(data=>data.name),
-    "top": props.echartsLegendConfig.top,
-  },
-  "series": [
-    {
-      "name": props.echartsConfig.type,
-      "type": props.echartsConfig.type,
-      "left": "10%",
-      "top": 60,
-      "bottom": 60,
-      "width": "80%",
-      "min": 0,
-      "max": 100,
-      "gap": 2,
-      "label": {
-        "show": true,
-        "position": props.echartsLabelConfig.top
-      },
-      "data": props.echartsOption.data
-    }
-  ]
-}
-    return props.echartsOption ? opt : {};
-    
+    return props.echartsOption ? props.echartsOption : {};
   }
-  
   if(props.mode === "map") {
     const {
       mapZoomLevel,
       mapCenterLat,
       mapCenterLng,
-      mapOptions, 
-      showCharts, 
+      mapOptions,
+      showCharts,
     } = props;
+    let newMapOptions: any = {...mapOptions};
+    newMapOptions.series = [{...newMapOptions.series[0]}];
+    if(props.echartsData && props.echartsData.length > 0) newMapOptions.series[0].data = props.echartsData;
 
-    const echartsOption = mapOptions && showCharts ? mapOptions : {};
+    const echartsOption = newMapOptions && showCharts ? newMapOptions : {};
     return {
       gmap: {
         center: [mapCenterLng, mapCenterLat],
@@ -193,18 +166,38 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
   // axisChart
   const axisChart = isAxisChart(props.chartConfig.type);
   const gridPos = {
-    left: 20,
-    right: props.legendConfig.left === "right" ? "10%" : 20,
-    top: 50,
-    bottom: 35,
+    left: `${props?.left}%`,
+    right: `${props?.right}%`,
+    bottom: `${props?.bottom}%`,
+    top: `${props?.top}%`,
   };
-  let config: EChartsOptionWithMap = {
-    title: { text: props.title, left: "center" },
-    tooltip: {
-      confine: true,
-      trigger: axisChart ? "axis" : "item",
+  let config: any = {
+    title: {
+      text: props.title,
+      top: props.echartsTitleVerticalConfig.top,
+      left:props.echartsTitleConfig.top,
+      textStyle: {
+        ...styleWrapper(props?.titleStyle, theme?.titleStyle)
+      }
     },
-    legend: props.legendConfig,
+    backgroundColor: parseBackground( props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
+    legend: {
+      ...props.legendConfig,
+      textStyle: {
+        ...styleWrapper(props?.legendStyle, theme?.legendStyle, 15)
+      }
+    },
+    tooltip: props.tooltip && {
+      trigger: "axis",
+      axisPointer: {
+        type: "line",
+        lineStyle: {
+          color: "rgba(0,0,0,0.2)",
+          width: 2,
+          type: "solid"
+        }
+      }
+    },
     grid: {
       ...gridPos,
       containLabel: true,
@@ -223,9 +216,7 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
     .map((s) => s.getView().columnName);
   // y-axis is category and time, data doesn't need to aggregate
   const transformedData =
-    yAxisConfig.type === "category" || yAxisConfig.type === "time"
-      ? props.data
-      : transformData(props.data, props.xAxisKey, seriesColumnNames);
+    yAxisConfig.type === "category" || yAxisConfig.type === "time" ? props.echartsData.length && props.echartsData || props.data : transformData(props.echartsData.length && props.echartsData || props.data, props.xAxisKey, seriesColumnNames);
   config = {
     ...config,
     dataset: [
@@ -234,7 +225,16 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
         sourceHeader: false,
       },
     ],
-    series: getSeriesConfig(props),
+    series: getSeriesConfig(props).map(series => ({
+      ...series,
+      itemStyle: {
+        ...series.itemStyle,
+        ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
+      },
+      lineStyle: {
+        ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
+      }
+    })),
   };
   if (axisChart) {
     // pure chart's size except the margin around
@@ -261,13 +261,22 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
     );
     config = {
       ...config,
+      xAxis: mergeCartesianAxis(
+        theme,
+        finalXyConfig.xConfig.type,
+        finalXyConfig.xConfig,
+        props?.xAxisStyle
+      ),
       // @ts-ignore
-      xAxis: finalXyConfig.xConfig,
-      // @ts-ignore
-      yAxis: finalXyConfig.yConfig,
+      yAxis: mergeCartesianAxis(
+        theme,
+        finalXyConfig.yConfig.type,
+        finalXyConfig.yConfig,
+        props?.yAxisStyle
+      ),
     };
   }
-  // log.log("Echarts transformedData and config", transformedData, config);
+  // console.log("Echarts transformedData and config", transformedData, config);
   return config;
 }
 

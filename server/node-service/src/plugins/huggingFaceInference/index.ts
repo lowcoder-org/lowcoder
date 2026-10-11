@@ -1,19 +1,6 @@
 import _ from "lodash";
 import { ConfigToType, DataSourcePlugin } from "lowcoder-sdk/dataSource";
-
-const dataSourceConfig = {
-  type: "dataSource",
-  params: [
-    {
-      type: "password",
-      key: "token",
-      label: "Access Token",
-      rules: [{ required: true }],
-      tooltip:
-        "You can get an Access Token [in your profile setting page](https://huggingface.co/settings/tokens)",
-    },
-  ],
-} as const;
+import { specsToOptions, version2spec } from "../../common/util";
 
 const queryConfig = {
   type: "query",
@@ -42,6 +29,30 @@ const queryConfig = {
     },
   ],
 } as const;
+const specs = {
+  "v1.0": queryConfig
+}
+const dataSourceConfig = {
+  type: "dataSource",
+  params: [
+    {
+      type: "password",
+      key: "token",
+      label: "Access Token",
+      rules: [{ required: true }],
+      tooltip:
+        "You can get an Access Token [in your profile setting page](https://huggingface.co/settings/tokens)",
+    },
+    {
+      label: "Spec Version",
+      key: "specVersion",
+      type: "select",
+      tooltip: "Version of the spec file.",
+      placeholder: "v1.0",
+      options: specsToOptions(specs)
+    },
+  ],
+} as const;
 
 type DataSourceConfigType = ConfigToType<typeof dataSourceConfig>;
 type ActionConfigType = ConfigToType<typeof queryConfig>;
@@ -50,9 +61,11 @@ const huggingFaceInferencePlugin: DataSourcePlugin<ActionConfigType, DataSourceC
   id: "huggingFaceInference",
   name: "Hugging Face Inference",
   icon: "huggingFace.svg",
-  category: "api",
+  category: "AI",
   dataSourceConfig,
-  queryConfig,
+  queryConfig: async (data) => {
+    return version2spec(specs, data.specVersion);
+  },
   run: async (actionData, dataSourceConfig) => {
     const response = await fetch(
       `https://api-inference.huggingface.co/models/${actionData.model}`,

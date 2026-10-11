@@ -3,6 +3,7 @@ import fsExtra from "fs-extra";
 import { build } from "vite";
 import { writeFileSync, existsSync, readFileSync, readdirSync } from "fs";
 import { resolve } from "path";
+import { pathToFileURL } from "url";
 import paths from "../config/paths.js";
 import "../util/log.js";
 import chalk from "chalk";
@@ -80,7 +81,9 @@ export default async function buildAction(options) {
   console.log("");
   console.cyan("Building...");
 
-  const viteConfig = await import(paths.appViteConfigJs).default;
+  const viteConfigURL = pathToFileURL(paths.appViteConfigJs);
+  const viteConfig = await import(viteConfigURL).default;
+  console.log(paths.appViteConfigJs);
   await build(viteConfig);
 
   // write package.json

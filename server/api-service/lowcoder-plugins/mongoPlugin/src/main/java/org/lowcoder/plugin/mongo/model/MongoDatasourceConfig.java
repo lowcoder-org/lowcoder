@@ -3,7 +3,6 @@ package org.lowcoder.plugin.mongo.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.google.common.annotations.VisibleForTesting;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
@@ -106,22 +105,6 @@ public class MongoDatasourceConfig implements DatasourceConnectionConfig {
                 .host(updatedMongoConfig.getHost())
                 .port(updatedMongoConfig.getPort())
                 .build();
-    }
-
-    @VisibleForTesting
-    public MongoDatasourceConfigBuilder toBuilder() {
-        return builder()
-                .usingUri(usingUri)
-                .uri(uri)
-                .srvMode(srvMode)
-                .ssl(ssl)
-                .authMechanism(authMechanism)
-                .endpoints(endpoints)
-                .database(database)
-                .username(username)
-                .password(password)
-                .host(host)
-                .port(port);
     }
 
     @Override

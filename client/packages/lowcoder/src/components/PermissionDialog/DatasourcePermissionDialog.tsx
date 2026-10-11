@@ -13,6 +13,45 @@ import { DatasourceRole } from "../../api/datasourcePermissionApi";
 import { getDataSourcePermissionInfo } from "../../redux/selectors/datasourceSelectors";
 import { StyledLoading } from "./commonComponents";
 import { PermissionRole } from "./Permission";
+import { getUser } from "../../redux/selectors/usersSelectors";
+import styled from "styled-components";
+import { TacoButton } from "components/button";
+import { AddIcon } from "icons";
+import { GreyTextColor } from "constants/style";
+
+const BottomWrapper = styled.div`
+  margin: 12px 16px 0 16px;
+  display: flex;
+  justify-content: flex-start;
+`;
+
+const AddPermissionButton = styled(TacoButton)`
+  &,
+  &:hover,
+  &:focus {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    line-height: 14px;
+    background: #ffffff;
+    transition: unset;
+  }
+
+  svg {
+    margin-right: 4px;
+  }
+
+  &:hover {
+    color: #315efb;
+
+    svg g path {
+      fill: #315efb;
+    }
+  }
+`;
 
 export const DatasourcePermissionDialog = (props: {
   datasourceId: string;
@@ -22,6 +61,7 @@ export const DatasourcePermissionDialog = (props: {
   const { datasourceId } = props;
   const dispatch = useDispatch();
   const permissionInfo = useSelector(getDataSourcePermissionInfo)[datasourceId];
+  const user = useSelector(getUser);
 
   useEffect(() => {
     dispatch(fetchDatasourcePermissions({ datasourceId: datasourceId }));
@@ -75,12 +115,27 @@ export const DatasourcePermissionDialog = (props: {
         { label: trans("share.datasourceOwner"), value: PermissionRole.Owner },
       ]}
       permissionItems={permissions}
+      contextType="organization"
+      organizationId={user.currentOrgId}
       viewBodyRender={(list) => {
         if (!permissionInfo) {
           return <StyledLoading size={18} />;
         }
         return list;
       }}
+      viewFooterRender={(_primaryModelProps, stepProps) => (
+        <BottomWrapper>
+          <AddPermissionButton
+            style={{ height: 28 }}
+            icon={<AddIcon style={{ color: GreyTextColor }} />}
+            onClick={() => {
+              stepProps.next();
+            }}
+          >
+            {trans("home.addMember")}
+          </AddPermissionButton>
+        </BottomWrapper>
+      )}
       addPermission={(userIds, groupIds, role, onSuccess) => {
         dispatch(
           grantDatasourcePermission(

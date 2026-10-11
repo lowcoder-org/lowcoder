@@ -1,8 +1,11 @@
 package org.lowcoder.sdk.webclient;
 
+import io.netty.channel.ChannelOption;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +27,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class WebClientBuildHelper {
@@ -87,7 +91,12 @@ public class WebClientBuildHelper {
         HttpClient httpClient = HttpClient.create();
         if (timeoutMs != null)
         {
-        	httpClient.responseTimeout(Duration.ofMillis(timeoutMs));
+            httpClient = httpClient
+                .responseTimeout(Duration.ofMillis(timeoutMs))
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, timeoutMs.intValue())
+                .doOnConnected(conn -> conn
+                    .addHandlerLast(new ReadTimeoutHandler(timeoutMs, TimeUnit.MILLISECONDS))
+                    .addHandlerLast(new WriteTimeoutHandler(timeoutMs, TimeUnit.MILLISECONDS)));
         }
         
         if (sslConfig != null) {

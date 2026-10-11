@@ -14,12 +14,12 @@ import {
   LeftSettingIcon,
   LeftStateIcon,
   LeftLayersIcon,
+  LeftColorPaletteIcon,
+  LeftJSSettingIcon,
   ScrollBar,
 } from "lowcoder-design";
 import { useTemplateViewMode } from "util/hooks";
-import Header, {
-  type PanelStatus,
-  type TogglePanel,
+import {
   type EditorModeStatus,
   type ToggleEditorModeStatus
 } from "pages/common/header";
@@ -28,10 +28,12 @@ import {
   UserGuideLocationState,
 } from "pages/tutorials/tutorialsConstant";
 import React, {
+  ReactNode,
   Suspense,
   lazy,
   useCallback,
   useContext,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useState,
@@ -40,19 +42,33 @@ import { Helmet } from "react-helmet";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useParams } from "react-router-dom";
 import { setEditorExternalStateAction } from "redux/reduxActions/configActions";
-import { currentApplication } from "redux/selectors/applicationSelector";
+import { currentApplication, isPublicApplication } from "redux/selectors/applicationSelector";
 import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
 import styled from "styled-components";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
-import {
-  DefaultPanelStatus,
-  getPanelStatus,
-  savePanelStatus,
-  getEditorModeStatus,
-  saveEditorModeStatus,
-} from "util/localStorageUtil";
 import { isAggregationApp } from "util/appUtils";
 import EditorSkeletonView from "./editorSkeletonView";
+import {
+  getCommonSettings
+} from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
+import { isEqual, noop } from "lodash";
+import { AppSettingContext, AppSettingType } from "@lowcoder-ee/comps/utils/appSettingContext";
+import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
+import Flex from "antd/es/flex";
+import { PreviewContainerID } from "constants/domLocators";
+import { useEditorStore } from "comps/editorStore";
+import { useEditorLayoutStore } from "./editorLayoutStore";
+// import { BottomSkeleton } from "./bottom/BottomContent";
+
+const Header = lazy(
+    () => import("pages/common/header")
+        .then(module => ({default: module.default}))
+);
+
+const BottomSkeleton = lazy(
+    () => import("pages/editor/bottom/BottomContent")
+        .then(module => ({default: module.BottomSkeleton}))
+);
 
 const LeftContent = lazy(
   () => import('./LeftContent')
@@ -129,9 +145,14 @@ const ViewBody = styled.div<{ $hideBodyHeader?: boolean; $height?: number }>`
   )`};
 `;
 
-const SiderWrapper = styled.div`
+const SiderWrapper = styled.div<{
+  $bgColor?: string;
+  $fontColor?: string;
+  $activeBgColor?: string;
+  $activeFontColor?: string;
+}>`
   .ant-menu {
-    background-color: #393b47;
+    background-color: ${props => props.$bgColor ? props.$bgColor : '#393b47'};
     height: calc(100vh - 48px);
 
     .ant-menu-item {
@@ -144,15 +165,16 @@ const SiderWrapper = styled.div`
         height: 26px;
         width: 26px;
         padding: 5px;
+        color: ${props => props.$fontColor ? props.$fontColor : '#ffffffa6'};
       }
 
       &.ant-menu-item-selected,
       &:hover,
       &:active {
-        background-color: #393b47;
-
+        background-color: ${props => props.$bgColor ? props.$bgColor : '#393b47'};
         svg {
-          background: #8b8fa37f;
+          background: ${props => props.$activeBgColor ? props.$activeBgColor : '#8b8fa37f'};
+          color: ${props => props.$activeFontColor ? props.$activeFontColor : '#ffffffa6'};
           border-radius: 4px;
         }
       }
@@ -230,9 +252,40 @@ const PreloadDiv = styled.div`
 `;
 
 export const EditorWrapper = styled.div`
-  overflow: auto;
+  overflow: hidden;
   position: relative;
   flex: 1 1 0;
+`;
+
+const DeviceWrapperInner = styled(Flex)`
+  margin: 2% 0 0;
+  .device-mockup.portrait {
+    > div:first-child {
+      > div:first-child {
+        > div:first-child {
+          > div:nth-child(2) {
+            contain: paint;
+            display: block !important;
+            overflow: hidden auto !important;
+          } 
+        } 
+      }
+    }
+  }
+  .device-mockup.landscape {
+    > div:first-child {
+      > div:first-child {
+        > div:first-child {
+          > div:nth-child(2) {
+            > div:first-child {
+              display: block !important;
+              overflow: hidden auto !important;
+            }
+          } 
+        } 
+      }
+    }
+  }
 `;
 
 interface EditorViewProps {
@@ -244,6 +297,8 @@ enum SiderKey {
   State = "state",
   Setting = "setting",
   Layout = "layout",
+  Canvas = "canvas",
+  JS = "js",
 }
 
 const standardSiderItems = [
@@ -254,6 +309,14 @@ const standardSiderItems = [
   {
     key: SiderKey.Setting,
     icon: <LeftSettingIcon />,
+  },
+  {
+    key: SiderKey.Canvas,
+    icon: <LeftColorPaletteIcon />,
+  },
+  {
+    key: SiderKey.JS,
+    icon: <LeftJSSettingIcon />,
   },
   {
     key: SiderKey.Layout,
@@ -269,18 +332,94 @@ const aggregationSiderItems = [
   {
     key: SiderKey.Setting,
     icon: <LeftSettingIcon />,
-  }
+  },
+  {
+    key: SiderKey.Canvas,
+    icon: <LeftColorPaletteIcon />,
+  },
+  {
+    key: SiderKey.JS,
+    icon: <LeftJSSettingIcon />,
+  },
 ];
+
+const DeviceWrapper = ({
+  deviceType,
+  deviceOrientation,
+  children,
+}: {
+  deviceType: string,
+  deviceOrientation: string,
+  children: ReactNode,
+}) => {
+  const [Wrapper, setWrapper] = useState<React.ElementType | null>(null);
+
+  useEffect(() => {
+    const loadWrapper = async () => {
+      if (deviceType === "tablet") {
+        const { IPadMockup } = await import("react-device-mockup");
+        setWrapper(() => IPadMockup);
+      } else if (deviceType === "mobile") {
+        const { IPhoneMockup } = await import("react-device-mockup");
+        setWrapper(() => IPhoneMockup);
+      } else {
+        setWrapper(() => null);
+      }
+    };
+
+    loadWrapper();
+  }, [deviceType]);
+
+  const deviceWidth = useMemo(() => {
+    if (deviceType === 'tablet' && deviceOrientation === 'portrait') {
+      return 850;
+    }
+    if (deviceType === 'tablet' && deviceOrientation === 'landscape') {
+      return 1100;
+    }
+    if (deviceType === 'mobile' && deviceOrientation === 'portrait') {
+      return 450;
+    }
+    if (deviceType === 'mobile' && deviceOrientation === 'landscape') {
+      return 1200;
+    }
+  }, [deviceType, deviceOrientation]);
+
+  if (!Wrapper) return <>{children}</>;
+
+  return (
+    <DeviceWrapperInner justify="center" >
+      <Wrapper
+        isLandscape={deviceOrientation === 'landscape'}
+        screenWidth={deviceWidth}
+        className={`device-mockup ${deviceOrientation === 'landscape' && deviceType === 'mobile' ? 'landscape' : 'portrait'} `}
+        frameColor={"background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);"}
+      >
+        {children}
+      </Wrapper>
+    </DeviceWrapperInner>
+  );
+}
 
 function EditorView(props: EditorViewProps) {
   const { uiComp } = props;
   const params = useParams<AppPathParams>();
   const editorState = useContext(EditorContext);
+  const showPropertyPane = useEditorStore((state) => state.showPropertyPane);
+  const editorModeStatus = useEditorStore(
+    (state) => state.editorModeStatus as EditorModeStatus
+  );
+  const setEditorModeStatus = useEditorStore((state) => state.setEditorModeStatus);
+  const deviceType = useEditorStore((state) => state.deviceType);
+  const deviceOrientation = useEditorStore((state) => state.deviceOrientation);
   const { readOnly, hideHeader } = useContext(ExternalEditorContext);
   const application = useSelector(currentApplication);
+  const isPublicApp = useSelector(isPublicApplication);
+  const commonSettings = useSelector(getCommonSettings);
   const locationState = useLocation<UserGuideLocationState>().state;
   const showNewUserGuide = locationState?.showNewUserGuide;
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
+  const brandingSettings = useSelector(getBrandingSetting);
   const [showShortcutList, setShowShortcutList] = useState(false);
   const toggleShortcutList = useCallback(
     () => setShowShortcutList(!showShortcutList),
@@ -290,49 +429,25 @@ function EditorView(props: EditorViewProps) {
   const [height, setHeight] = useState<number>();
   const dispatch = useDispatch();
 
-  const [panelStatus, setPanelStatus] = useState(() => {
-    return showNewUserGuide ? DefaultPanelStatus : getPanelStatus();
-  });
+  const panelStatus = useEditorLayoutStore((state) => state.panelStatus);
+  const setPanel = useEditorLayoutStore((state) => state.setPanel);
+  const resetPanelStatus = useEditorLayoutStore((state) => state.resetPanelStatus);
 
-  const [prePanelStatus, setPrePanelStatus] =
-    useState<PanelStatus>(DefaultPanelStatus);
+  // the guide starts from the default layout; layout effect so it lands before paint
+  useLayoutEffect(() => {
+    if (showNewUserGuide) {
+      resetPanelStatus();
+    }
+  }, [showNewUserGuide, resetPanelStatus]);
 
   const isViewMode = params.viewMode === 'view';
 
   const appSettingsComp = editorState.getAppSettingsComp();
   const { showHeaderInPublic } = appSettingsComp.getView();
 
-  const togglePanel: TogglePanel = useCallback(
-    (key) => {
-      let newPanelStatus;
-      if (key) {
-        newPanelStatus = Object.assign({}, panelStatus);
-        newPanelStatus[key] = !panelStatus[key];
-      } else {
-        if (Object.values(panelStatus).some((value) => value)) {
-          setPrePanelStatus(panelStatus);
-          newPanelStatus = { left: false, bottom: false, right: false };
-        } else {
-          newPanelStatus = prePanelStatus;
-        }
-      }
-      setPanelStatus(newPanelStatus);
-      savePanelStatus(newPanelStatus);
-    },
-    [panelStatus, prePanelStatus]
-  );
-
-  // added by Falk Wolsky to support a Layout and Logic Mode in Lowcoder
-  const [editorModeStatus, setEditorModeStatus] = useState(() => {
-    return getEditorModeStatus();
-  });
-
   const toggleEditorModeStatus: ToggleEditorModeStatus = useCallback(
-    (value) => {
-      setEditorModeStatus(value ? value : ("both" as EditorModeStatus));
-      saveEditorModeStatus(value ? value : ("both" as EditorModeStatus));
-    },
-    [editorModeStatus]
+    (value) => setEditorModeStatus(value ?? "both"),
+    [setEditorModeStatus]
   );
 
   const onCompDrag = useCallback(
@@ -366,14 +481,59 @@ function EditorView(props: EditorViewProps) {
       "orientationchange" in window ? "orientationchange" : "resize";
     window.addEventListener(eventType, updateSize);
     updateSize();
-    return () => window.removeEventListener(eventType, updateSize);
+
+    return () => {
+      window.removeEventListener(eventType, updateSize);
+    };
   }, []);
 
-  const hideBodyHeader = useTemplateViewMode() || (isViewMode && !showHeaderInPublic);
+  const hideBodyHeader = useTemplateViewMode() || (isViewMode && (!showHeaderInPublic || !commonSettings.showHeaderInPublicApps));
 
-  // we check if we are on the public cloud
+  const uiCompView = useMemo(() => {
+    if (showAppSnapshot) {
+      return (
+        <ViewBody $hideBodyHeader={hideBodyHeader} $height={height}>
+          <EditorContainer>{uiComp.getView()}</EditorContainer>
+        </ViewBody>
+      );
+    }
+    
+    return uiComp.getView();
+  }, [
+    showAppSnapshot,
+    hideBodyHeader,
+    height,
+    uiComp,
+  ]);
+
+  const uiCompViewWrapper = useMemo(() => {
+    if (isViewMode) return uiComp.getView();
+
+    return (
+      deviceType === "mobile" || deviceType === "tablet" ? (
+        <DeviceWrapper
+            deviceType={deviceType}
+            deviceOrientation={deviceOrientation}
+          >
+            <div id={PreviewContainerID}>
+              {uiComp.getView()}
+            </div>
+        </DeviceWrapper>
+      ) : (
+        <div id={PreviewContainerID}>
+          {uiComp.getView()}
+        </div>
+      )
+    )
+  }, [
+    uiComp,
+    isViewMode,
+    deviceType,
+    deviceOrientation,
+  ]);
+
   const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
-
+  const isLocalhost = window.location.hostname === 'localhost';
   if (readOnly && hideHeader) {
     return (
       <CustomShortcutWrapper>
@@ -387,23 +547,29 @@ function EditorView(props: EditorViewProps) {
     return (
       <CustomShortcutWrapper>
         <Helmet>
-          {application && <title>{application.name}</title>}
-          {isLowCoderDomain && [
-            // Adding Support for iframely to be able to embedd the component explorer in the docu
-            <meta key="iframely:title" property="iframely:title" content="Lowcoder" />,
-            <meta key="iframely:description" property="iframely:description" content="Lowcoder | rapid App & VideoMeeting builder for everyone." />,
+        {application && <title>{appSettingsComp?.children?.title?.getView?.() || application?.name}</title>}
+          {isLowCoderDomain || isLocalhost && [
+            // Adding Support for iframely to be able to embedd apps as iframes
+            application?.name ? ([
+              <meta key="iframely:title" property="iframely:title" content={application.name} />,
+              <meta key="iframely:description" property="iframely:description" content={application.description} />,
+            ]) : ([
+              <meta key="iframely:title" property="iframely:title" content="Lowcoder 3" />,
+              <meta key="iframely:description" property="iframely:description" content="Lowcoder | rapid App & VideoMeeting builder for everyone." />,
+            ]),
+            <link rel="iframely" type="text/html" href={window.location.href} media="(aspect-ratio: 1280/720)"/>,
             <link key="preconnect-googleapis" rel="preconnect" href="https://fonts.googleapis.com" />,
             <link key="preconnect-gstatic" rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />,
             <link key="font-ubuntu" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet" />,
-            // adding Clearbit Support for Analytics
-            <script key="clearbit-script" src="https://tag.clearbitscripts.com/v1/pk_dfbc0aeefb28dc63475b67134facf127/tags.js" referrerPolicy="strict-origin-when-cross-origin" type="text/javascript"></script>
+            // adding Hubspot Support for Analytics
+            <script key="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/144574215.js" type="text/javascript" id="hs-script-loader"></script>
           ]}
         </Helmet>
         <Suspense fallback={<EditorSkeletonView />}>
           {!hideBodyHeader && <PreviewHeader />}
           <EditorContainerWithViewMode>
             <ViewBody $hideBodyHeader={hideBodyHeader} $height={height}>
-              {uiComp.getView()}
+              {uiCompViewWrapper}
             </ViewBody>
             <div style={{ zIndex: Layers.hooksCompContainer }}>
               {hookCompViews}
@@ -416,154 +582,171 @@ function EditorView(props: EditorViewProps) {
   
   // history mode, display with the right panel, a little trick
   const showRight = panelStatus.right || showAppSnapshot;
-  let uiCompView;
-  if (showAppSnapshot) {
-    uiCompView = (
-      <ViewBody $hideBodyHeader={hideBodyHeader} $height={height}>
-        <EditorContainer>{uiComp.getView()}</EditorContainer>
-      </ViewBody>
-    );
-  } else {
-    uiCompView = uiComp.getView();
-  }
 
   const clickMenu = (params: { key: string }) => {
-    let left = true;
-    if (panelStatus.left && params.key === menuKey) {
-      left = false;
-    }
-    setPanelStatus({ ...panelStatus, left });
-    savePanelStatus({ ...panelStatus, left });
+    // clicking the active menu entry collapses the left panel, otherwise open it
+    setPanel("left", !(panelStatus.left && params.key === menuKey));
     setMenuKey(params.key);
   };
 
   return (
+    <>
+    <Helmet>
+      {application && <title>{appSettingsComp?.children?.title?.getView?.() || application?.name}</title>}
+      {isLowCoderDomain || isLocalhost && [
+        // Adding Support for iframely to be able to embedd apps as iframes
+        application?.name ? ([
+          <meta key="iframely:title" property="iframely:title" content={application.name} />,
+          <meta key="iframely:description" property="iframely:description" content={application.description} />,
+        ]) : ([
+          <meta key="iframely:title" property="iframely:title" content="Lowcoder 3" />,
+          <meta key="iframely:description" property="iframely:description" content="Lowcoder | rapid App & VideoMeeting builder for everyone." />,
+        ]),
+        <link key="iframely" rel="iframely" type="text/html" href={window.location.href} media="(aspect-ratio: 1280/720)" />,
+        <link key="preconnect-googleapis" rel="preconnect" href="https://fonts.googleapis.com" />,
+        <link key="preconnect-gstatic" rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />,
+        <link key="font-ubuntu" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet" />,
+        // adding Clearbit Support for Analytics
+        <script key="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/144574215.js" type="text/javascript" id="hs-script-loader"></script>
+      ]}
+    </Helmet>
     <Height100Div
       onDragEnd={(e) => {
         // log.debug("layout: onDragEnd. Height100Div");
         editorState.setDragging(false);
         draggingUtils.clearData();
-      }}
+      } }
     >
-      <Header
-        togglePanel={togglePanel}
-        panelStatus={panelStatus}
-        toggleEditorModeStatus={toggleEditorModeStatus}
-        editorModeStatus={editorModeStatus} 
-      />
-      <Helmet>
-        {application && <title>{application.name}</title>}
-        {isLowCoderDomain && [
-            // Adding Support for iframely to be able to embedd the component explorer in the docu
-            <meta key="iframely:title" property="iframely:title" content="Lowcoder" />,
-            <meta key="iframely:description" property="iframely:description" content="Lowcoder | rapid App & VideoMeeting builder for everyone." />,
-            <link key="preconnect-googleapis" rel="preconnect" href="https://fonts.googleapis.com" />,
-            <link key="preconnect-gstatic" rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />,
-            <link key="font-ubuntu" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet" />,
-            // adding Clearbit Support for Analytics
-            <script key="clearbit-script" src="https://tag.clearbitscripts.com/v1/pk_dfbc0aeefb28dc63475b67134facf127/tags.js" referrerPolicy="strict-origin-when-cross-origin" type="text/javascript"></script>
-        ]}
-      </Helmet>
-      {showNewUserGuide && <EditorTutorials />}
-      <EditorGlobalHotKeys
-        disabled={readOnly}
-        togglePanel={togglePanel}
-        panelStatus={panelStatus}
-        toggleShortcutList={toggleShortcutList}
-      >
-        <Body>
-          <SiderWrapper>
-            <Sider width={40} >
-              <Menu
-                theme="dark"
-                mode="inline"
-                defaultSelectedKeys={[SiderKey.State]}
-                selectedKeys={panelStatus.left ? [menuKey] : [""]}
-                items={application &&
-                  !isAggregationApp(
-                    AppUILayoutType[application.applicationType]
-                  ) ? standardSiderItems : aggregationSiderItems}
-                disabled={showAppSnapshot}
-                onClick={(params) => clickMenu(params)}
-              >
-              </Menu>
-              
-              {!showAppSnapshot && (
-                <HelpDiv>
-                  <HelpDropdown
-                    showShortcutList={showShortcutList}
-                    setShowShortcutList={setShowShortcutList}
-                    isEdit={true}
-                  />
-                </HelpDiv>
-              )}
-            </Sider>
-          </SiderWrapper>
+        {isPublicApp
+          ? <PreviewHeader />
+          : (
+            <Header
+              toggleEditorModeStatus={toggleEditorModeStatus}
+              editorModeStatus={editorModeStatus}
+            />
+          )
+        }
 
-          {panelStatus.left && editorModeStatus !== "layout" && (
-            <LeftPanel>
-              {menuKey === SiderKey.State && <LeftContent uiComp={uiComp}/>}
-              {menuKey === SiderKey.Setting && (
-                <SettingsDiv>
-                  <ScrollBar>
-                    {application &&
-                      !isAggregationApp(
-                        AppUILayoutType[application.applicationType]
-                      ) && (
-                        <>
-                          {appSettingsComp.getPropertyView()}
-                          <Divider />
-                        </>
+        {showNewUserGuide && <EditorTutorials />}
+        <EditorGlobalHotKeys
+          disabled={readOnly}
+          toggleShortcutList={toggleShortcutList}
+        >
+          <Body>
+            <SiderWrapper
+              $bgColor={brandingSettings?.config_set?.editorSidebarColor}
+              $fontColor={brandingSettings?.config_set?.editorSidebarFontColor}
+              $activeBgColor={brandingSettings?.config_set?.editorSidebarActiveBgColor}
+              $activeFontColor={brandingSettings?.config_set?.editorSidebarActiveFontColor}
+            >
+              <Sider width={40}>
+                <Menu
+                  theme="dark"
+                  mode="inline"
+                  defaultSelectedKeys={[SiderKey.State]}
+                  selectedKeys={panelStatus.left ? [menuKey] : [""]}
+                  items={application &&
+                    !isAggregationApp(
+                      AppUILayoutType[application.applicationType]
+                    ) ? standardSiderItems : aggregationSiderItems}
+                  disabled={showAppSnapshot}
+                  onClick={(params) => clickMenu(params)}
+                >
+                </Menu>
+
+                {!showAppSnapshot && (
+                  <HelpDiv>
+                    <HelpDropdown
+                      showShortcutList={showShortcutList}
+                      setShowShortcutList={setShowShortcutList}
+                      isEdit={true} />
+                  </HelpDiv>
+                )}
+              </Sider>
+            </SiderWrapper>
+            <Suspense fallback={null}>
+              {panelStatus.left && editorModeStatus !== "layout" && (
+                <LeftPanel>
+                  {menuKey === SiderKey.State && <LeftContent uiComp={uiComp} />}
+                  <AppSettingContext.Provider value={{settingType: menuKey as AppSettingType}}>
+                    <>
+                      {menuKey === SiderKey.Setting && (
+                        <SettingsDiv>
+                          <ScrollBar>
+                            {application &&
+                              (
+                                <>
+                                  {appSettingsComp.getPropertyView()}
+                                </>
+                              )}
+                          </ScrollBar>
+                        </SettingsDiv>
                       )}
-                    <TitleDiv>{trans("leftPanel.toolbarTitle")}</TitleDiv>
-                    {props.preloadComp.getPropertyView()}
-                    <PreloadDiv
-                      onClick={() =>
-                        dispatch(
+                      {menuKey === SiderKey.Canvas && (
+                        <SettingsDiv>
+                          <ScrollBar>
+                            {application && (
+                              <>
+                                {appSettingsComp.getPropertyView()}
+                              </>
+                            )}
+                          </ScrollBar>
+                        </SettingsDiv>
+                      )}
+                    </>
+                  </AppSettingContext.Provider>
+                  {menuKey === SiderKey.JS && (
+                    <>
+                      <TitleDiv>{trans("leftPanel.toolbarTitle")}</TitleDiv>
+                      {props.preloadComp.getPropertyView()}
+                      <PreloadDiv
+                        onClick={() => dispatch(
                           setEditorExternalStateAction({
                             showScriptsAndStyleModal: true,
                           })
-                        )
-                      }
-                    >
-                      <LeftPreloadIcon />
-                      {trans("leftPanel.toolbarPreload")}
-                    </PreloadDiv>
-                  </ScrollBar>
-
-                  {props.preloadComp.getJSLibraryPropertyView()}
-                </SettingsDiv>
+                        )}
+                      >
+                        <LeftPreloadIcon />
+                        {trans("leftPanel.toolbarPreload")}
+                      </PreloadDiv>
+                      
+                      {props.preloadComp.getJSLibraryPropertyView()}
+                    </>
+                  )}
+                  {menuKey === SiderKey.Layout && (
+                    <LeftLayersContent uiComp={uiComp} />
+                  )}
+                </LeftPanel>
               )}
-
-              {menuKey === SiderKey.Layout && (
-                <LeftLayersContent uiComp={uiComp} />
+            </Suspense>
+            <MiddlePanel>
+              <EditorWrapper className={editorContentClassName}>
+                <EditorHotKeys disabled={readOnly}>
+                  <EditorContainerWithViewMode>
+                    {uiCompView}
+                    <HookCompContainer>{hookCompViews}</HookCompContainer>
+                  </EditorContainerWithViewMode>
+                </EditorHotKeys>
+              </EditorWrapper>
+              <Suspense fallback={<BottomSkeleton />}>
+                {panelStatus.bottom && editorModeStatus !== "layout" && <Bottom />}
+              </Suspense>
+            </MiddlePanel>
+            <Suspense fallback={null}>
+              {showRight && (
+                <RightPanel
+                  uiComp={uiComp}
+                  onCompDrag={onCompDrag}
+                  showPropertyPane={showPropertyPane}
+                  onTabChange={setShowPropertyPane} />
               )}
-
-            </LeftPanel>
-          )}
-          <MiddlePanel>
-            <EditorWrapper className={editorContentClassName}>
-              <EditorHotKeys disabled={readOnly}>
-                <EditorContainerWithViewMode>
-                  {uiCompView}
-                  <HookCompContainer>{hookCompViews}</HookCompContainer>
-                </EditorContainerWithViewMode>
-              </EditorHotKeys>
-            </EditorWrapper>
-            {panelStatus.bottom && editorModeStatus !== "layout" && <Bottom />}
-          </MiddlePanel>
-          {showRight && (
-            <RightPanel
-              uiComp={uiComp}
-              onCompDrag={onCompDrag}
-              showPropertyPane={editorState.showPropertyPane}
-              onTabChange={setShowPropertyPane}
-            />
-          )}
-        </Body>
-      </EditorGlobalHotKeys>
-    </Height100Div>
+            </Suspense>
+          </Body>
+        </EditorGlobalHotKeys>
+      </Height100Div></>
   );
 }
 
-export default EditorView;
+export default React.memo(EditorView, (prevProps, newProps) => {
+  return isEqual(prevProps, newProps);
+});

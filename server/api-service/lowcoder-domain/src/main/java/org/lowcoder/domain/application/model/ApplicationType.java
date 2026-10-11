@@ -6,9 +6,14 @@ import lombok.Getter;
 
 @Getter
 public enum ApplicationType {
+    ALL(0),
     APPLICATION(1),
     MODULE(2),
-    COMPOUND_APPLICATION(3);
+    NAV_LAYOUT(3),
+    FOLDER(4),
+    MOBILE_TAB_LAYOUT(6),
+    NAVIGATION(7),
+    BUNDLE(8);
 
     private final int value;
 

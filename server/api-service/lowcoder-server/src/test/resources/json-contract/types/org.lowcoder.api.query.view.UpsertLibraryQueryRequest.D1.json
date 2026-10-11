@@ -1,0 +1,21 @@
+{
+  "name": "UpsertLibraryQueryRequest.name",
+  "libraryQueryDSL": {
+    "query": {
+      "id": "UpsertLibraryQueryRequest.libraryQueryDSL.query.id",
+      "name": "UpsertLibraryQueryRequest.libraryQueryDSL.query.name",
+      "datasourceId": "UpsertLibraryQueryRequest.libraryQueryDSL.query.datasourceId",
+      "compType": "restApi",
+      "comp": {
+        "method": "UpsertLibraryQueryRequest.libraryQueryDSL.query.comp.method",
+        "path": "UpsertLibraryQueryRequest.libraryQueryDSL.query.comp.path",
+        "bodyLimit": 40100,
+        "maxBytes": 3000000001,
+        "ratio": 1.50
+      },
+      "triggerType": "UpsertLibraryQueryRequest.libraryQueryDSL.query.triggerType",
+      "timeout": "UpsertLibraryQueryRequest.libraryQueryDSL.query.timeout"
+    },
+    "version": 40101
+  }
+}

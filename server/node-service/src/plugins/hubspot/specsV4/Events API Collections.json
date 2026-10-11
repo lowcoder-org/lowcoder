@@ -1,0 +1,2062 @@
+openapi: 3.0.0
+info:
+  title: Events API Collections
+  description: >-
+    Custom events enable you to define and track events that are unique to your
+    business, such as events on your site or in an app. You can configure events
+    to store information within properties, which you can then use across
+    HubSpot's tools.
+
+
+    To send [custom
+    event](https://developers.hubspot.com/docs/api/analytics/events) data to
+    HubSpot, you first need to define the event. This is similar to custom CRM
+    objects, where you first need to define the custom object before you can
+    create individual records for that object. An event definition includes
+    details such as its metadata, CRM object associations, and properties.
+
+
+    Below, learn more about creating and managing event definitions using the
+    API. To learn how to create event definitions without using the API, check
+    out [HubSpot's Knowledge
+    Base](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events-with-the-code-wizard).
+
+
+    **Fork the collections using Run in Postman:**
+
+
+    [<img src="https://run.pstmn.io/button.svg" alt="Run In
+    Postman">](https://app.getpostman.com/run-collection/26126890-7e433548-43f3-4a64-83b5-989f6e81694f?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D26126890-7e433548-43f3-4a64-83b5-989f6e81694f%26entityType%3Dcollection%26workspaceId%3Dd7645f33-539d-49c6-9e0c-efa6faae355d)
+  version: 1.0.0
+servers:
+  - url: http://{{baseurl}}
+components:
+  securitySchemes:
+    apikeyAuth:
+      type: http
+      scheme: apikey
+tags:
+  - name: Custom Behavioral Events API
+    description: "Custom events are account-defined events that store event details in event properties. There are three types of custom events that you can create in HubSpot:\n\n- [Clicked element](https://knowledge.hubspot.com/analytics-tools/create-clicked-element-events)\_and\_[visited URL&nbsp;](https://knowledge.hubspot.com/analytics-tools/create-visited-url-events)\_events are custom events that the tracking code automatically populates with data. You can further customize these events by updating your tracking code with the\_[trackCustomEvent](https://developers.hubspot.com/docs/api/events/tracking-code#events-js-api)\_function.\_\n    \n- [Manually tracked events](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events)\_are\_custom events that are unique to your business that are not captured automatically by HubSpot or by an integration. You can manually send data to these events through this API.\n    \n\nBelow, learn how to create a manually tracked custom event, send event data through the API, and to use event data once captured.\n\n## Define the event\n\nTo send event completion data to HubSpot, you first need to define the event itself, including its metadata, CRM object associations, and properties. You can define events using the\_[custom event definition API](https://developers.hubspot.com/docs/api/events/custom-events), or if you have a\_Marketing Hub\_Enterprise\_subscription you can\_[create the event in HubSpot](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events). When creating the event, HubSpot will include a set of default event properties that you can use to store event data. You can also create additional properties for the event. These properties can be created or edited at any time.\_\n\nOnce you’ve set up your event, you can send data to it through the API."
+  - name: Custom Behavioral Events API > Custom Behavioral Events API
+  - name: Custom Event Definitions API
+    description: "Custom events enable you to define and track events that are unique to your business, such as events on your site or in an app. You can configure events to store information within properties, which you can then use across HubSpot's tools.\_\n\nTo send\_[custom event](https://developers.hubspot.com/docs/api/analytics/events)\_data to HubSpot, you first need to define the event. This is similar to custom CRM objects, where you first need to define the custom object before you can create individual records for that object.\_An event definition includes details such as its metadata, CRM object associations, and properties.\n\nBelow, learn more about creating and managing event definitions using the API. To learn how to create event definitions without using the API, check out\_[HubSpot's Knowledge Base](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events-with-the-code-wizard).\n\n## Create an event definition\n\nTo create the custom event schema, make a\_`POST`\_request to\_`events/v3/event-definitions`. In the request body, include definitions for your event schema, including its label, name, CRM object associations, and custom properties.\n\nBelow is an example request body along with parameter definitions. For a full example, view the\_[custom event example below](https://developers.hubspot.com/docs/api/events/custom-events#custom-event-example).\n\n| `label`\_\_**string**\_(required)<br><br>The event's human readable label, which will display in HubSpot (up to 100 characters). Long labels may be cut off in certain parts of HubSpot's UI. |\n| `name`\_\_**string**<br><br>The unique, internal name of the event, which you'll use to reference the event through the API. If no value is provided, HubSpot will automatically generate one based on the\_`label`. This property\_cannot\_be changed after the event definition is created.<br><br>Note the following naming requirements:\_<br><br>- This property can only contain lowercase letters, numbers, underscores, and hyphens (up to 50 characters).<br>    <br>- The first character must be a letter. |\n| `description`\_\_**string**<br><br>The event's description, which will display in HubSpot. |\n| `primaryObject`\_\_**string**<br><br>The CRM object that the event will be associated with. Event completions will display on CRM record timelines of the specified object. Can be one of\_`CONTACT`,\_`COMPANY`,\_`DEAL`,\_`TICKET`\_or\_`CUSTOM OBJECT NAME`.<br><br>If no value is provided, HubSpot will automatically associate the event with contacts. This\_cannot\_be changed after the event definition is created. |\n| `propertyDefinitions`\_\_**array**<br><br>For each custom event definition, HubSpot provides a set of default properties that you can use when sending event data. Include this array to define any custom properties that your event needs outside of those default properties. You can include up to 50 custom properties per event.<br><br>For each property, include:<br><br>- `label`: the property's in-app label.<br>    <br>- `name`: the property's internal name, which you'll use when sending property data through the API.<br>    <br>- `type`: the\_[type of property](https://developers.hubspot.com/docs/api/events/custom-events#custom-property-types). Default is\_`string`.<br>    <br>- `options`: for\_`enumeration`\_properties, the array of pre-defined values, including a\_`label`\_and\_`value`\_for each.<br>    <br>- `description`: optional text to describe the property. |"
+  - name: Custom Event Definitions API > Event definition
+  - name: Custom Event Definitions API > Event tracking
+paths:
+  /events/v3/send:
+    post:
+      tags:
+        - Custom Event Definitions API > Event tracking
+      summary: Send custom event completion data
+      description: Send event data to HubSpot using an existing custom event definition.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                eventName: <string>
+                occurredAt: <dateTime>
+                utk: <string>
+                uuid: <string>
+                email: <string>
+                properties:
+                  site: <string>
+                objectId: <string>
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: '*/*'
+      responses:
+        '204':
+          description: No Content
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: null
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "reprehenderit36": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "laboris0_": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "laborumfb": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "Duis_81": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "dolore_dbd": "<string>",
+                    "non_52": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "occaecat_805": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "anim_9e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_c6c": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "dolor2": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "eu1": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adipisicing_1": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "labore_06": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /events/v3/event-definitions:
+    get:
+      tags:
+        - Custom Event Definitions API > Event definition
+      summary: Query custom event definitions
+      description: Search for existing custom event definitions.
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: searchString
+          in: query
+          schema:
+            type: string
+          description: >-
+            Characters in the event name that the user is searching for. This
+            search is a naive “contains” search, no fuzzy matching is done.
+          example: <string>
+        - name: after
+          in: query
+          schema:
+            type: string
+          description: >-
+            The paging cursor token of the last successfully read resource will
+            be returned as the `paging.next.after` JSON property of a paged
+            response containing more results.
+          example: <string>
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: The maximum number of results to display per page.
+          example: <integer>
+        - name: includeProperties
+          in: query
+          schema:
+            type: string
+          example: <boolean>
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+          example: <string>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                results:
+                  - archived: <boolean>
+                    associations:
+                      - allowsCustomLabels: <boolean>
+                        cardinality: ONE_TO_ONE
+                        category: USER_DEFINED
+                        fromObjectTypeId: <string>
+                        hasAllAssociatedObjects: <boolean>
+                        hasCascadingDeletes: <boolean>
+                        hasUserEnforcedMaxFromObjectIds: <boolean>
+                        hasUserEnforcedMaxToObjectIds: <boolean>
+                        hidden: <boolean>
+                        id: <integer>
+                        inverseAllowsCustomLabels: <boolean>
+                        inverseCardinality: ONE_TO_ONE
+                        inverseHasAllAssociatedObjects: <boolean>
+                        inverseId: <integer>
+                        inverseName: <string>
+                        isInversePrimary: <boolean>
+                        isPrimary: <boolean>
+                        maxFromObjectIds: <integer>
+                        maxToObjectIds: <integer>
+                        name: <string>
+                        portalUniqueIdentifier: <string>
+                        toObjectTypeId: <string>
+                        inverseLabel: <string>
+                        fromObjectType: AD_CAMPAIGN
+                        toObjectType: TEMPLATE
+                        label: <string>
+                      - allowsCustomLabels: <boolean>
+                        cardinality: ONE_TO_MANY
+                        category: HUBSPOT_DEFINED
+                        fromObjectTypeId: <string>
+                        hasAllAssociatedObjects: <boolean>
+                        hasCascadingDeletes: <boolean>
+                        hasUserEnforcedMaxFromObjectIds: <boolean>
+                        hasUserEnforcedMaxToObjectIds: <boolean>
+                        hidden: <boolean>
+                        id: <integer>
+                        inverseAllowsCustomLabels: <boolean>
+                        inverseCardinality: ONE_TO_MANY
+                        inverseHasAllAssociatedObjects: <boolean>
+                        inverseId: <integer>
+                        inverseName: <string>
+                        isInversePrimary: <boolean>
+                        isPrimary: <boolean>
+                        maxFromObjectIds: <integer>
+                        maxToObjectIds: <integer>
+                        name: <string>
+                        portalUniqueIdentifier: <string>
+                        toObjectTypeId: <string>
+                        inverseLabel: <string>
+                        fromObjectType: AD
+                        toObjectType: SOCIAL_PROFILE
+                        label: <string>
+                    fullyQualifiedName: <string>
+                    id: <string>
+                    labels:
+                      singular: <string>
+                      plural: <string>
+                    name: <string>
+                    objectTypeId: <string>
+                    properties:
+                      - description: <string>
+                        fieldType: <string>
+                        groupName: <string>
+                        label: <string>
+                        name: <string>
+                        options:
+                          - hidden: <boolean>
+                            label: <string>
+                            value: <string>
+                            displayOrder: <integer>
+                            description: <string>
+                          - hidden: <boolean>
+                            label: <string>
+                            value: <string>
+                            displayOrder: <integer>
+                            description: <string>
+                        type: <string>
+                        createdUserId: <string>
+                        hidden: <boolean>
+                        modificationMetadata:
+                          archivable: <boolean>
+                          readOnlyDefinition: <boolean>
+                          readOnlyValue: <boolean>
+                          readOnlyOptions: <boolean>
+                        displayOrder: <integer>
+                        showCurrencySymbol: <boolean>
+                        hubspotDefined: <boolean>
+                        formField: <boolean>
+                        createdAt: <dateTime>
+                        archivedAt: <dateTime>
+                        archived: <boolean>
+                        referencedObjectType: <string>
+                        calculationFormula: <string>
+                        hasUniqueValue: <boolean>
+                        updatedUserId: <string>
+                        calculated: <boolean>
+                        externalOptions: <boolean>
+                        updatedAt: <dateTime>
+                      - description: <string>
+                        fieldType: <string>
+                        groupName: <string>
+                        label: <string>
+                        name: <string>
+                        options:
+                          - hidden: <boolean>
+                            label: <string>
+                            value: <string>
+                            displayOrder: <integer>
+                            description: <string>
+                          - hidden: <boolean>
+                            label: <string>
+                            value: <string>
+                            displayOrder: <integer>
+                            description: <string>
+                        type: <string>
+                        createdUserId: <string>
+                        hidden: <boolean>
+                        modificationMetadata:
+                          archivable: <boolean>
+                          readOnlyDefinition: <boolean>
+                          readOnlyValue: <boolean>
+                          readOnlyOptions: <boolean>
+                        displayOrder: <integer>
+                        showCurrencySymbol: <boolean>
+                        hubspotDefined: <boolean>
+                        formField: <boolean>
+                        createdAt: <dateTime>
+                        archivedAt: <dateTime>
+                        archived: <boolean>
+                        referencedObjectType: <string>
+                        calculationFormula: <string>
+                        hasUniqueValue: <boolean>
+                        updatedUserId: <string>
+                        calculated: <boolean>
+                        externalOptions: <boolean>
+                        updatedAt: <dateTime>
+                    createdUserId: <integer>
+                    trackingType: VISITED_URL
+                    description: <string>
+                    primaryObjectId: <string>
+                    primaryObject: <string>
+                    createdAt: <dateTime>
+                  - archived: <boolean>
+                    associations:
+                      - allowsCustomLabels: <boolean>
+                        cardinality: ONE_TO_MANY
+                        category: USER_DEFINED
+                        fromObjectTypeId: <string>
+                        hasAllAssociatedObjects: <boolean>
+                        hasCascadingDeletes: <boolean>
+                        hasUserEnforcedMaxFromObjectIds: <boolean>
+                        hasUserEnforcedMaxToObjectIds: <boolean>
+                        hidden: <boolean>
+                        id: <integer>
+                        inverseAllowsCustomLabels: <boolean>
+                        inverseCardinality: ONE_TO_MANY
+                        inverseHasAllAssociatedObjects: <boolean>
+                        inverseId: <integer>
+                        inverseName: <string>
+                        isInversePrimary: <boolean>
+                        isPrimary: <boolean>
+                        maxFromObjectIds: <integer>
+                        maxToObjectIds: <integer>
+                        name: <string>
+                        portalUniqueIdentifier: <string>
+                        toObjectTypeId: <string>
+                        inverseLabel: <string>
+                        fromObjectType: CAMPAIGN_TEMPLATE
+                        toObjectType: SITE_PAGE
+                        label: <string>
+                      - allowsCustomLabels: <boolean>
+                        cardinality: ONE_TO_ONE
+                        category: USER_DEFINED
+                        fromObjectTypeId: <string>
+                        hasAllAssociatedObjects: <boolean>
+                        hasCascadingDeletes: <boolean>
+                        hasUserEnforcedMaxFromObjectIds: <boolean>
+                        hasUserEnforcedMaxToObjectIds: <boolean>
+                        hidden: <boolean>
+                        id: <integer>
+                        inverseAllowsCustomLabels: <boolean>
+                        inverseCardinality: ONE_TO_MANY
+                        inverseHasAllAssociatedObjects: <boolean>
+                        inverseId: <integer>
+                        inverseName: <string>
+                        isInversePrimary: <boolean>
+                        isPrimary: <boolean>
+                        maxFromObjectIds: <integer>
+                        maxToObjectIds: <integer>
+                        name: <string>
+                        portalUniqueIdentifier: <string>
+                        toObjectTypeId: <string>
+                        inverseLabel: <string>
+                        fromObjectType: PLAYLIST
+                        toObjectType: SOCIAL_PROFILE
+                        label: <string>
+                    fullyQualifiedName: <string>
+                    id: <string>
+                    labels:
+                      singular: <string>
+                      plural: <string>
+                    name: <string>
+                    objectTypeId: <string>
+                    properties:
+                      - description: <string>
+                        fieldType: <string>
+                        groupName: <string>
+                        label: <string>
+                        name: <string>
+                        options:
+                          - hidden: <boolean>
+                            label: <string>
+                            value: <string>
+                            displayOrder: <integer>
+                            description: <string>
+                          - hidden: <boolean>
+                            label: <string>
+                            value: <string>
+                            displayOrder: <integer>
+                            description: <string>
+                        type: <string>
+                        createdUserId: <string>
+                        hidden: <boolean>
+                        modificationMetadata:
+                          archivable: <boolean>
+                          readOnlyDefinition: <boolean>
+                          readOnlyValue: <boolean>
+                          readOnlyOptions: <boolean>
+                        displayOrder: <integer>
+                        showCurrencySymbol: <boolean>
+                        hubspotDefined: <boolean>
+                        formField: <boolean>
+                        createdAt: <dateTime>
+                        archivedAt: <dateTime>
+                        archived: <boolean>
+                        referencedObjectType: <string>
+                        calculationFormula: <string>
+                        hasUniqueValue: <boolean>
+                        updatedUserId: <string>
+                        calculated: <boolean>
+                        externalOptions: <boolean>
+                        updatedAt: <dateTime>
+                      - description: <string>
+                        fieldType: <string>
+                        groupName: <string>
+                        label: <string>
+                        name: <string>
+                        options:
+                          - hidden: <boolean>
+                            label: <string>
+                            value: <string>
+                            displayOrder: <integer>
+                            description: <string>
+                          - hidden: <boolean>
+                            label: <string>
+                            value: <string>
+                            displayOrder: <integer>
+                            description: <string>
+                        type: <string>
+                        createdUserId: <string>
+                        hidden: <boolean>
+                        modificationMetadata:
+                          archivable: <boolean>
+                          readOnlyDefinition: <boolean>
+                          readOnlyValue: <boolean>
+                          readOnlyOptions: <boolean>
+                        displayOrder: <integer>
+                        showCurrencySymbol: <boolean>
+                        hubspotDefined: <boolean>
+                        formField: <boolean>
+                        createdAt: <dateTime>
+                        archivedAt: <dateTime>
+                        archived: <boolean>
+                        referencedObjectType: <string>
+                        calculationFormula: <string>
+                        hasUniqueValue: <boolean>
+                        updatedUserId: <string>
+                        calculated: <boolean>
+                        externalOptions: <boolean>
+                        updatedAt: <dateTime>
+                    createdUserId: <integer>
+                    trackingType: VISITED_URL
+                    description: <string>
+                    primaryObjectId: <string>
+                    primaryObject: <string>
+                    createdAt: <dateTime>
+                total: <integer>
+                paging:
+                  next:
+                    after: <string>
+                    link: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "reprehenderit36": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "laboris0_": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "laborumfb": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "Duis_81": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "dolore_dbd": "<string>",
+                    "non_52": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "occaecat_805": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "anim_9e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_c6c": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "dolor2": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "eu1": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adipisicing_1": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "labore_06": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+    post:
+      tags:
+        - Custom Event Definitions API > Event definition
+      summary: Create custom event definition
+      description: Create a custom event definition.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                label: <string>
+                propertyDefinitions:
+                  - label: <string>
+                    type: <string>
+                    name: <string>
+                    options:
+                      - displayOrder: <integer>
+                        hidden: <boolean>
+                        label: <string>
+                        value: <string>
+                        description: <string>
+                      - displayOrder: <integer>
+                        hidden: <boolean>
+                        label: <string>
+                        value: <string>
+                        description: <string>
+                    description: <string>
+                  - label: <string>
+                    type: <string>
+                    name: <string>
+                    options:
+                      - displayOrder: <integer>
+                        hidden: <boolean>
+                        label: <string>
+                        value: <string>
+                        description: <string>
+                      - displayOrder: <integer>
+                        hidden: <boolean>
+                        label: <string>
+                        value: <string>
+                        description: <string>
+                    description: <string>
+                name: <string>
+                description: <string>
+                primaryObject: <string>
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+      responses:
+        '201':
+          description: Created
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                archived: <boolean>
+                associations:
+                  - allowsCustomLabels: <boolean>
+                    cardinality: ONE_TO_ONE
+                    category: HUBSPOT_DEFINED
+                    fromObjectTypeId: <string>
+                    hasAllAssociatedObjects: <boolean>
+                    hasCascadingDeletes: <boolean>
+                    hasUserEnforcedMaxFromObjectIds: <boolean>
+                    hasUserEnforcedMaxToObjectIds: <boolean>
+                    hidden: <boolean>
+                    id: <integer>
+                    inverseAllowsCustomLabels: <boolean>
+                    inverseCardinality: ONE_TO_MANY
+                    inverseHasAllAssociatedObjects: <boolean>
+                    inverseId: <integer>
+                    inverseName: <string>
+                    isInversePrimary: <boolean>
+                    isPrimary: <boolean>
+                    maxFromObjectIds: <integer>
+                    maxToObjectIds: <integer>
+                    name: <string>
+                    portalUniqueIdentifier: <string>
+                    toObjectTypeId: <string>
+                    inverseLabel: <string>
+                    fromObjectType: CALL
+                    toObjectType: CAMPAIGN_BUDGET_ITEM
+                    label: <string>
+                  - allowsCustomLabels: <boolean>
+                    cardinality: ONE_TO_ONE
+                    category: USER_DEFINED
+                    fromObjectTypeId: <string>
+                    hasAllAssociatedObjects: <boolean>
+                    hasCascadingDeletes: <boolean>
+                    hasUserEnforcedMaxFromObjectIds: <boolean>
+                    hasUserEnforcedMaxToObjectIds: <boolean>
+                    hidden: <boolean>
+                    id: <integer>
+                    inverseAllowsCustomLabels: <boolean>
+                    inverseCardinality: ONE_TO_ONE
+                    inverseHasAllAssociatedObjects: <boolean>
+                    inverseId: <integer>
+                    inverseName: <string>
+                    isInversePrimary: <boolean>
+                    isPrimary: <boolean>
+                    maxFromObjectIds: <integer>
+                    maxToObjectIds: <integer>
+                    name: <string>
+                    portalUniqueIdentifier: <string>
+                    toObjectTypeId: <string>
+                    inverseLabel: <string>
+                    fromObjectType: PARTNER_CLIENT
+                    toObjectType: PAYMENT_SCHEDULE_INSTALLMENT
+                    label: <string>
+                fullyQualifiedName: <string>
+                id: <string>
+                labels:
+                  singular: <string>
+                  plural: <string>
+                name: <string>
+                objectTypeId: <string>
+                properties:
+                  - description: <string>
+                    fieldType: <string>
+                    groupName: <string>
+                    label: <string>
+                    name: <string>
+                    options:
+                      - hidden: <boolean>
+                        label: <string>
+                        value: <string>
+                        displayOrder: <integer>
+                        description: <string>
+                      - hidden: <boolean>
+                        label: <string>
+                        value: <string>
+                        displayOrder: <integer>
+                        description: <string>
+                    type: <string>
+                    createdUserId: <string>
+                    hidden: <boolean>
+                    modificationMetadata:
+                      archivable: <boolean>
+                      readOnlyDefinition: <boolean>
+                      readOnlyValue: <boolean>
+                      readOnlyOptions: <boolean>
+                    displayOrder: <integer>
+                    showCurrencySymbol: <boolean>
+                    hubspotDefined: <boolean>
+                    formField: <boolean>
+                    createdAt: <dateTime>
+                    archivedAt: <dateTime>
+                    archived: <boolean>
+                    referencedObjectType: <string>
+                    calculationFormula: <string>
+                    hasUniqueValue: <boolean>
+                    updatedUserId: <string>
+                    calculated: <boolean>
+                    externalOptions: <boolean>
+                    updatedAt: <dateTime>
+                  - description: <string>
+                    fieldType: <string>
+                    groupName: <string>
+                    label: <string>
+                    name: <string>
+                    options:
+                      - hidden: <boolean>
+                        label: <string>
+                        value: <string>
+                        displayOrder: <integer>
+                        description: <string>
+                      - hidden: <boolean>
+                        label: <string>
+                        value: <string>
+                        displayOrder: <integer>
+                        description: <string>
+                    type: <string>
+                    createdUserId: <string>
+                    hidden: <boolean>
+                    modificationMetadata:
+                      archivable: <boolean>
+                      readOnlyDefinition: <boolean>
+                      readOnlyValue: <boolean>
+                      readOnlyOptions: <boolean>
+                    displayOrder: <integer>
+                    showCurrencySymbol: <boolean>
+                    hubspotDefined: <boolean>
+                    formField: <boolean>
+                    createdAt: <dateTime>
+                    archivedAt: <dateTime>
+                    archived: <boolean>
+                    referencedObjectType: <string>
+                    calculationFormula: <string>
+                    hasUniqueValue: <boolean>
+                    updatedUserId: <string>
+                    calculated: <boolean>
+                    externalOptions: <boolean>
+                    updatedAt: <dateTime>
+                createdUserId: <integer>
+                trackingType: VISITED_URL
+                description: <string>
+                primaryObjectId: <string>
+                primaryObject: <string>
+                createdAt: <dateTime>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "reprehenderit36": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "laboris0_": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "laborumfb": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "Duis_81": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "dolore_dbd": "<string>",
+                    "non_52": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "occaecat_805": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "anim_9e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_c6c": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "dolor2": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "eu1": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adipisicing_1": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "labore_06": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /events/v3/event-definitions/{eventName}:
+    get:
+      tags:
+        - Custom Event Definitions API > Event definition
+      summary: Fetch a specific custom event definition
+      description: Fetch a single custom event definition by name.
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: eventName
+          in: path
+          schema:
+            type: string
+          required: true
+          description: (Required) The internal name of the custom event.
+          example: <string>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                archived: <boolean>
+                associations:
+                  - allowsCustomLabels: <boolean>
+                    cardinality: ONE_TO_ONE
+                    category: HUBSPOT_DEFINED
+                    fromObjectTypeId: <string>
+                    hasAllAssociatedObjects: <boolean>
+                    hasCascadingDeletes: <boolean>
+                    hasUserEnforcedMaxFromObjectIds: <boolean>
+                    hasUserEnforcedMaxToObjectIds: <boolean>
+                    hidden: <boolean>
+                    id: <integer>
+                    inverseAllowsCustomLabels: <boolean>
+                    inverseCardinality: ONE_TO_MANY
+                    inverseHasAllAssociatedObjects: <boolean>
+                    inverseId: <integer>
+                    inverseName: <string>
+                    isInversePrimary: <boolean>
+                    isPrimary: <boolean>
+                    maxFromObjectIds: <integer>
+                    maxToObjectIds: <integer>
+                    name: <string>
+                    portalUniqueIdentifier: <string>
+                    toObjectTypeId: <string>
+                    inverseLabel: <string>
+                    fromObjectType: CALL
+                    toObjectType: CAMPAIGN_BUDGET_ITEM
+                    label: <string>
+                  - allowsCustomLabels: <boolean>
+                    cardinality: ONE_TO_ONE
+                    category: USER_DEFINED
+                    fromObjectTypeId: <string>
+                    hasAllAssociatedObjects: <boolean>
+                    hasCascadingDeletes: <boolean>
+                    hasUserEnforcedMaxFromObjectIds: <boolean>
+                    hasUserEnforcedMaxToObjectIds: <boolean>
+                    hidden: <boolean>
+                    id: <integer>
+                    inverseAllowsCustomLabels: <boolean>
+                    inverseCardinality: ONE_TO_ONE
+                    inverseHasAllAssociatedObjects: <boolean>
+                    inverseId: <integer>
+                    inverseName: <string>
+                    isInversePrimary: <boolean>
+                    isPrimary: <boolean>
+                    maxFromObjectIds: <integer>
+                    maxToObjectIds: <integer>
+                    name: <string>
+                    portalUniqueIdentifier: <string>
+                    toObjectTypeId: <string>
+                    inverseLabel: <string>
+                    fromObjectType: PARTNER_CLIENT
+                    toObjectType: PAYMENT_SCHEDULE_INSTALLMENT
+                    label: <string>
+                fullyQualifiedName: <string>
+                id: <string>
+                labels:
+                  singular: <string>
+                  plural: <string>
+                name: <string>
+                objectTypeId: <string>
+                properties:
+                  - description: <string>
+                    fieldType: <string>
+                    groupName: <string>
+                    label: <string>
+                    name: <string>
+                    options:
+                      - hidden: <boolean>
+                        label: <string>
+                        value: <string>
+                        displayOrder: <integer>
+                        description: <string>
+                      - hidden: <boolean>
+                        label: <string>
+                        value: <string>
+                        displayOrder: <integer>
+                        description: <string>
+                    type: <string>
+                    createdUserId: <string>
+                    hidden: <boolean>
+                    modificationMetadata:
+                      archivable: <boolean>
+                      readOnlyDefinition: <boolean>
+                      readOnlyValue: <boolean>
+                      readOnlyOptions: <boolean>
+                    displayOrder: <integer>
+                    showCurrencySymbol: <boolean>
+                    hubspotDefined: <boolean>
+                    formField: <boolean>
+                    createdAt: <dateTime>
+                    archivedAt: <dateTime>
+                    archived: <boolean>
+                    referencedObjectType: <string>
+                    calculationFormula: <string>
+                    hasUniqueValue: <boolean>
+                    updatedUserId: <string>
+                    calculated: <boolean>
+                    externalOptions: <boolean>
+                    updatedAt: <dateTime>
+                  - description: <string>
+                    fieldType: <string>
+                    groupName: <string>
+                    label: <string>
+                    name: <string>
+                    options:
+                      - hidden: <boolean>
+                        label: <string>
+                        value: <string>
+                        displayOrder: <integer>
+                        description: <string>
+                      - hidden: <boolean>
+                        label: <string>
+                        value: <string>
+                        displayOrder: <integer>
+                        description: <string>
+                    type: <string>
+                    createdUserId: <string>
+                    hidden: <boolean>
+                    modificationMetadata:
+                      archivable: <boolean>
+                      readOnlyDefinition: <boolean>
+                      readOnlyValue: <boolean>
+                      readOnlyOptions: <boolean>
+                    displayOrder: <integer>
+                    showCurrencySymbol: <boolean>
+                    hubspotDefined: <boolean>
+                    formField: <boolean>
+                    createdAt: <dateTime>
+                    archivedAt: <dateTime>
+                    archived: <boolean>
+                    referencedObjectType: <string>
+                    calculationFormula: <string>
+                    hasUniqueValue: <boolean>
+                    updatedUserId: <string>
+                    calculated: <boolean>
+                    externalOptions: <boolean>
+                    updatedAt: <dateTime>
+                createdUserId: <integer>
+                trackingType: VISITED_URL
+                description: <string>
+                primaryObjectId: <string>
+                primaryObject: <string>
+                createdAt: <dateTime>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "reprehenderit36": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "laboris0_": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "laborumfb": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "Duis_81": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "dolore_dbd": "<string>",
+                    "non_52": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "occaecat_805": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "anim_9e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_c6c": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "dolor2": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "eu1": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adipisicing_1": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "labore_06": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+    delete:
+      tags:
+        - Custom Event Definitions API > Event definition
+      summary: delete-/events/v3/event-definitions/{event Name}
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: '*/*'
+        - name: eventName
+          in: path
+          schema:
+            type: string
+          required: true
+          description: '(Required) '
+          example: <string>
+      responses:
+        '204':
+          description: No Content
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: null
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "reprehenderit36": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "laboris0_": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "laborumfb": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "Duis_81": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "dolore_dbd": "<string>",
+                    "non_52": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "occaecat_805": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "anim_9e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_c6c": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "dolor2": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "eu1": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adipisicing_1": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "labore_06": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+    patch:
+      tags:
+        - Custom Event Definitions API > Event definition
+      summary: Update a custom event definition
+      description: Update a specific custom event definition by name.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                description: <string>
+                label: <string>
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: eventName
+          in: path
+          schema:
+            type: string
+          required: true
+          description: (Required) The internal name of the custom event.
+          example: <string>
+      responses:
+        '201':
+          description: Created
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                archived: <boolean>
+                associations:
+                  - allowsCustomLabels: <boolean>
+                    cardinality: ONE_TO_ONE
+                    category: HUBSPOT_DEFINED
+                    fromObjectTypeId: <string>
+                    hasAllAssociatedObjects: <boolean>
+                    hasCascadingDeletes: <boolean>
+                    hasUserEnforcedMaxFromObjectIds: <boolean>
+                    hasUserEnforcedMaxToObjectIds: <boolean>
+                    hidden: <boolean>
+                    id: <integer>
+                    inverseAllowsCustomLabels: <boolean>
+                    inverseCardinality: ONE_TO_MANY
+                    inverseHasAllAssociatedObjects: <boolean>
+                    inverseId: <integer>
+                    inverseName: <string>
+                    isInversePrimary: <boolean>
+                    isPrimary: <boolean>
+                    maxFromObjectIds: <integer>
+                    maxToObjectIds: <integer>
+                    name: <string>
+                    portalUniqueIdentifier: <string>
+                    toObjectTypeId: <string>
+                    inverseLabel: <string>
+                    fromObjectType: CALL
+                    toObjectType: CAMPAIGN_BUDGET_ITEM
+                    label: <string>
+                  - allowsCustomLabels: <boolean>
+                    cardinality: ONE_TO_ONE
+                    category: USER_DEFINED
+                    fromObjectTypeId: <string>
+                    hasAllAssociatedObjects: <boolean>
+                    hasCascadingDeletes: <boolean>
+                    hasUserEnforcedMaxFromObjectIds: <boolean>
+                    hasUserEnforcedMaxToObjectIds: <boolean>
+                    hidden: <boolean>
+                    id: <integer>
+                    inverseAllowsCustomLabels: <boolean>
+                    inverseCardinality: ONE_TO_ONE
+                    inverseHasAllAssociatedObjects: <boolean>
+                    inverseId: <integer>
+                    inverseName: <string>
+                    isInversePrimary: <boolean>
+                    isPrimary: <boolean>
+                    maxFromObjectIds: <integer>
+                    maxToObjectIds: <integer>
+                    name: <string>
+                    portalUniqueIdentifier: <string>
+                    toObjectTypeId: <string>
+                    inverseLabel: <string>
+                    fromObjectType: PARTNER_CLIENT
+                    toObjectType: PAYMENT_SCHEDULE_INSTALLMENT
+                    label: <string>
+                fullyQualifiedName: <string>
+                id: <string>
+                labels:
+                  singular: <string>
+                  plural: <string>
+                name: <string>
+                objectTypeId: <string>
+                properties:
+                  - description: <string>
+                    fieldType: <string>
+                    groupName: <string>
+                    label: <string>
+                    name: <string>
+                    options:
+                      - hidden: <boolean>
+                        label: <string>
+                        value: <string>
+                        displayOrder: <integer>
+                        description: <string>
+                      - hidden: <boolean>
+                        label: <string>
+                        value: <string>
+                        displayOrder: <integer>
+                        description: <string>
+                    type: <string>
+                    createdUserId: <string>
+                    hidden: <boolean>
+                    modificationMetadata:
+                      archivable: <boolean>
+                      readOnlyDefinition: <boolean>
+                      readOnlyValue: <boolean>
+                      readOnlyOptions: <boolean>
+                    displayOrder: <integer>
+                    showCurrencySymbol: <boolean>
+                    hubspotDefined: <boolean>
+                    formField: <boolean>
+                    createdAt: <dateTime>
+                    archivedAt: <dateTime>
+                    archived: <boolean>
+                    referencedObjectType: <string>
+                    calculationFormula: <string>
+                    hasUniqueValue: <boolean>
+                    updatedUserId: <string>
+                    calculated: <boolean>
+                    externalOptions: <boolean>
+                    updatedAt: <dateTime>
+                  - description: <string>
+                    fieldType: <string>
+                    groupName: <string>
+                    label: <string>
+                    name: <string>
+                    options:
+                      - hidden: <boolean>
+                        label: <string>
+                        value: <string>
+                        displayOrder: <integer>
+                        description: <string>
+                      - hidden: <boolean>
+                        label: <string>
+                        value: <string>
+                        displayOrder: <integer>
+                        description: <string>
+                    type: <string>
+                    createdUserId: <string>
+                    hidden: <boolean>
+                    modificationMetadata:
+                      archivable: <boolean>
+                      readOnlyDefinition: <boolean>
+                      readOnlyValue: <boolean>
+                      readOnlyOptions: <boolean>
+                    displayOrder: <integer>
+                    showCurrencySymbol: <boolean>
+                    hubspotDefined: <boolean>
+                    formField: <boolean>
+                    createdAt: <dateTime>
+                    archivedAt: <dateTime>
+                    archived: <boolean>
+                    referencedObjectType: <string>
+                    calculationFormula: <string>
+                    hasUniqueValue: <boolean>
+                    updatedUserId: <string>
+                    calculated: <boolean>
+                    externalOptions: <boolean>
+                    updatedAt: <dateTime>
+                createdUserId: <integer>
+                trackingType: VISITED_URL
+                description: <string>
+                primaryObjectId: <string>
+                primaryObject: <string>
+                createdAt: <dateTime>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "reprehenderit36": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "laboris0_": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "laborumfb": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "Duis_81": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "dolore_dbd": "<string>",
+                    "non_52": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "occaecat_805": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "anim_9e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_c6c": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "dolor2": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "eu1": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adipisicing_1": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "labore_06": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /events/v3/event-definitions/{eventName}/property:
+    post:
+      tags:
+        - Custom Event Definitions API > Event definition
+      summary: Create a new property for a custom event definition.
+      description: Add a new property to an existing custom event definition.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                label: <string>
+                type: <string>
+                name: <string>
+                options:
+                  - displayOrder: <integer>
+                    hidden: <boolean>
+                    label: <string>
+                    value: <string>
+                    description: <string>
+                  - displayOrder: <integer>
+                    hidden: <boolean>
+                    label: <string>
+                    value: <string>
+                    description: <string>
+                description: <string>
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: eventName
+          in: path
+          schema:
+            type: string
+          required: true
+          description: (Required) The internal name of the custom event.
+          example: <string>
+      responses:
+        '201':
+          description: Created
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                description: <string>
+                fieldType: <string>
+                groupName: <string>
+                label: <string>
+                name: <string>
+                options:
+                  - hidden: <boolean>
+                    label: <string>
+                    value: <string>
+                    displayOrder: <integer>
+                    description: <string>
+                  - hidden: <boolean>
+                    label: <string>
+                    value: <string>
+                    displayOrder: <integer>
+                    description: <string>
+                type: <string>
+                createdUserId: <string>
+                hidden: <boolean>
+                modificationMetadata:
+                  archivable: <boolean>
+                  readOnlyDefinition: <boolean>
+                  readOnlyValue: <boolean>
+                  readOnlyOptions: <boolean>
+                displayOrder: <integer>
+                showCurrencySymbol: <boolean>
+                hubspotDefined: <boolean>
+                formField: <boolean>
+                createdAt: <dateTime>
+                archivedAt: <dateTime>
+                archived: <boolean>
+                referencedObjectType: <string>
+                calculationFormula: <string>
+                hasUniqueValue: <boolean>
+                updatedUserId: <string>
+                calculated: <boolean>
+                externalOptions: <boolean>
+                updatedAt: <dateTime>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "reprehenderit36": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "laboris0_": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "laborumfb": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "Duis_81": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "dolore_dbd": "<string>",
+                    "non_52": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "occaecat_805": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "anim_9e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_c6c": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "dolor2": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "eu1": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adipisicing_1": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "labore_06": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /events/v3/event-definitions/{eventName}/property/{propertyName}:
+    delete:
+      tags:
+        - Custom Event Definitions API > Event definition
+      summary: Delete a property from a custom event definition
+      description: Deletes a property from an existing custom event definition.
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: '*/*'
+        - name: eventName
+          in: path
+          schema:
+            type: string
+          required: true
+          description: (Required) The internal name of the custom event.
+          example: <string>
+        - name: propertyName
+          in: path
+          schema:
+            type: string
+          required: true
+          description: (Required) The internal name of the property to delete.
+          example: <string>
+      responses:
+        '204':
+          description: No Content
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: null
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "reprehenderit36": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "laboris0_": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "laborumfb": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "Duis_81": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "dolore_dbd": "<string>",
+                    "non_52": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "occaecat_805": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "anim_9e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_c6c": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "dolor2": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "eu1": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adipisicing_1": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "labore_06": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+    patch:
+      tags:
+        - Custom Event Definitions API > Event definition
+      summary: Update an existing custom event property
+      description: Updates an existing property in a custom event definition.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                options:
+                  - displayOrder: <integer>
+                    hidden: <boolean>
+                    label: <string>
+                    value: <string>
+                    description: <string>
+                  - displayOrder: <integer>
+                    hidden: <boolean>
+                    label: <string>
+                    value: <string>
+                    description: <string>
+                description: <string>
+                label: <string>
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: eventName
+          in: path
+          schema:
+            type: string
+          required: true
+          description: (Required) The internal name of the custom event.
+          example: <string>
+        - name: propertyName
+          in: path
+          schema:
+            type: string
+          required: true
+          description: (Required) The internal name of the property to update.
+          example: <string>
+      responses:
+        '201':
+          description: Created
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                description: <string>
+                fieldType: <string>
+                groupName: <string>
+                label: <string>
+                name: <string>
+                options:
+                  - hidden: <boolean>
+                    label: <string>
+                    value: <string>
+                    displayOrder: <integer>
+                    description: <string>
+                  - hidden: <boolean>
+                    label: <string>
+                    value: <string>
+                    displayOrder: <integer>
+                    description: <string>
+                type: <string>
+                createdUserId: <string>
+                hidden: <boolean>
+                modificationMetadata:
+                  archivable: <boolean>
+                  readOnlyDefinition: <boolean>
+                  readOnlyValue: <boolean>
+                  readOnlyOptions: <boolean>
+                displayOrder: <integer>
+                showCurrencySymbol: <boolean>
+                hubspotDefined: <boolean>
+                formField: <boolean>
+                createdAt: <dateTime>
+                archivedAt: <dateTime>
+                archived: <boolean>
+                referencedObjectType: <string>
+                calculationFormula: <string>
+                hasUniqueValue: <boolean>
+                updatedUserId: <string>
+                calculated: <boolean>
+                externalOptions: <boolean>
+                updatedAt: <dateTime>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "reprehenderit36": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "laboris0_": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "laborumfb": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "Duis_81": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "dolore_dbd": "<string>",
+                    "non_52": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "occaecat_805": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "anim_9e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_c6c": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "dolor2": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "eu1": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adipisicing_1": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "labore_06": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }

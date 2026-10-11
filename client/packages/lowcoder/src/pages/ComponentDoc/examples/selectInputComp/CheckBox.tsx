@@ -44,6 +44,7 @@ export default function CheckboxExample() {
   };
   return (
     <>
+
       <ExampleGroup
         title={trans("componentDoc.basicUsage")}
         description={trans("componentDoc.basicDemoDescription")}
@@ -94,8 +95,29 @@ export default function CheckboxExample() {
           blackListConfig={blackListConfig}
           compFactory={CheckboxComp}
         />
+        <Example
+          title="Hiding the Checkbox component"
+          config={{
+            value: JSON.stringify([
+              trans("componentDoc.appleOptionLabel"),
+              trans("componentDoc.waterMelonOptionLabel"),
+              trans("componentDoc.lemonOptionLabel"),
+            ]),
+            hidden: true,
+            options: options,
+            label: {
+              text: trans("componentDoc.likedFruits"),
+            },
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={CheckboxComp}
+        />
       </ExampleGroup>
-      <ExampleGroup title={trans("componentDoc.labelText")} description="">
+
+      <ExampleGroup 
+      title={trans("componentDoc.labelText")} 
+      description="The Following Examples Show the differnet alignment positions on the Checkbox Component."
+      >
         <Example
           title={trans("componentDoc.leftLeftAlign")}
           config={{
@@ -167,7 +189,84 @@ export default function CheckboxExample() {
           blackListConfig={blackListConfig}
           compFactory={CheckboxComp}
         />
+        <Example
+          title="Display Tooltip on Hover"
+          config={{
+            value: JSON.stringify([
+              trans("componentDoc.appleOptionLabel"),
+              trans("componentDoc.waterMelonOptionLabel"),
+            ]),
+            options: options,
+            label: {
+              text: trans("componentDoc.likedFruits"),
+              tooltip: "Checkmark your favorite Fruits",
+            },
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={CheckboxComp}
+        />
       </ExampleGroup>
+
+      <ExampleGroup
+        title="Layout Options"
+        description="The Following Examples Show the different Layout options on the Checkbox Component."
+      >
+        <Example
+          title="Horizontal Layout"
+          width={600}
+          config={{
+            value: JSON.stringify([
+              trans("componentDoc.appleOptionLabel"),
+              trans("componentDoc.waterMelonOptionLabel"),
+              trans("componentDoc.lemonOptionLabel"),
+            ]),
+            options: options,
+            label: {
+              text: trans("componentDoc.likedFruits"),
+            },
+            layout: "horizontal",
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={CheckboxComp}
+        />
+        <Example
+          title="Vertical Layout"
+          width={600}
+          config={{
+            value: JSON.stringify([
+              trans("componentDoc.appleOptionLabel"),
+              trans("componentDoc.waterMelonOptionLabel"),
+              trans("componentDoc.lemonOptionLabel"),
+            ]),
+            options: options,
+            label: {
+              text: trans("componentDoc.likedFruits"),
+            },
+            layout: "vertical",
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={CheckboxComp}
+        />
+        <Example
+          title="Auto Column Layout"
+          width={600}
+          config={{
+            value: JSON.stringify([
+              trans("componentDoc.appleOptionLabel"),
+              trans("componentDoc.waterMelonOptionLabel"),
+              trans("componentDoc.lemonOptionLabel"),
+            ]),
+            options: options,
+            label: {
+              text: trans("componentDoc.likedFruits"),
+            },
+            layout: "auto_columns",
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={CheckboxComp}
+        />
+      </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.validation")}>
         <Example
           title={trans("componentDoc.required")}
@@ -180,6 +279,136 @@ export default function CheckboxExample() {
             },
           }}
           blackListConfig={blackListConfig}
+          compFactory={CheckboxComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Styling Properties"
+        description="The Following Examples Show the different Styling properties of the Checkbox Component."
+      >
+        <Example
+          title="Select component Styling properties"
+          config={{
+            options: options,
+            label: {
+              text: trans("componentDoc.favoriteFruits"),
+            },
+            style: {
+              "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+              "margin": "10px",
+              "padding": "10px",
+              "text": "#222222",
+              "textSize": "20px",
+              "textWeight": "bold",
+              "fontStyle": "italic",
+              "border": "#222222",
+              "borderStyle": "solid",
+              "radius": "10px",
+              "borderWidth": "2px",
+            },
+          }}
+          compFactory={CheckboxComp}
+        />
+        <Example
+          title="Label Styling properties"
+          config={{
+            options: options,
+            label: {
+              text: trans("componentDoc.favoriteFruits"),
+            },
+            labelStyle: {
+              "margin": "5px",
+              "padding": "5px",
+              "label": "#01865B",
+              "textTransform": "Uppercase",
+              "textDecoration": "underline",
+              "textSize": "18px",
+              "textWeight": "bold",
+              "fontStyle": "italic",
+              "border": "#222222",
+              "borderWidth": "2px",
+              "borderStyle": "solid",
+            },
+          }}
+          compFactory={CheckboxComp}
+        />
+        <Example
+          title="Input Field Styling properties"
+          config={{
+            options: options,
+            label: {
+              text: trans("componentDoc.favoriteFruits"),
+            },
+            inputFieldStyle: {
+              "background": "linear-gradient(45deg, #d53369 0%, #daae51 100%)",
+              "border": "#222222",
+              "radius": "10px",
+              "text": "#222222",
+              "checkedBackground": "#36B389",
+              "uncheckedBackground": "#F99F01",
+              "uncheckedBorder": "#FCA101",
+              "hoverBackground": "#C3C6D1",
+              "textSize": "15px",
+              "textWeight": "bold",
+              "fontFamily": "Courier New",
+              "fontStyle": "italic",
+            },
+          }}
+          compFactory={CheckboxComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Animation Style"
+        description="The Following Examples Show different animations on the CheckBox Component."
+      >
+        <Example
+          title="Bounce Animation"
+          config={{
+            options: options,
+            label: {
+              text: trans("componentDoc.favoriteFruits"),
+            },
+            animationStyle: {
+              "animation": "bounce",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={CheckboxComp}
+        />
+        <Example
+          title="Swing Animation"
+          config={{
+            options: options,
+            label: {
+              text: trans("componentDoc.favoriteFruits"),
+            },
+            animationStyle: {
+              "animation": "swing",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={CheckboxComp}
+        />
+        <Example
+          title="Tada Animation"
+          config={{
+            options: options,
+            label: {
+              text: trans("componentDoc.favoriteFruits"),
+            },
+            animationStyle: {
+              "animation": "tada",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
+          }}
           compFactory={CheckboxComp}
         />
       </ExampleGroup>

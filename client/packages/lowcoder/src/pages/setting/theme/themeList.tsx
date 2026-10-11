@@ -146,7 +146,7 @@ function ThemeList(props: ThemeListProp) {
       <Column
         key="id"
         dataIndex="id"
-        render={(value, theme) =>
+        render={(value, theme: ThemeType) =>
           isAdmin && (
             <ControlCol>
               <EditButton
@@ -160,7 +160,7 @@ function ThemeList(props: ThemeListProp) {
                 <Dropdown
                   trigger={["click"]}
                   getPopupContainer={() => document.getElementById("theme-list-table")!}
-                  dropdownRender={() => (
+                  popupRender={() => (
                     <Menu
                       onClick={(params) => {
                         if (params.key !== MENU_TYPE.RENAME) {
@@ -186,6 +186,10 @@ function ThemeList(props: ThemeListProp) {
                         {
                           label: trans("theme.copyTheme"),
                           key: MENU_TYPE.COPY,
+                        },
+                        {
+                          label: trans("theme.exportTheme"),
+                          key: MENU_TYPE.EXPORT,
                         },
                         {
                           label: trans("delete"),

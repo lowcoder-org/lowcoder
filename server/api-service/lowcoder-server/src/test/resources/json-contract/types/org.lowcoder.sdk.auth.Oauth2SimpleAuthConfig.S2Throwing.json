@@ -1,0 +1,8 @@
+{
+  "clientId" : {
+    "authorizeUrl" : "java.lang.NullPointerException"
+  },
+  "authType" : {
+    "authorizeUrl" : "java.lang.NullPointerException"
+  }
+}

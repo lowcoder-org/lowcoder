@@ -6,7 +6,12 @@ import { useLocation } from "react-router-dom";
 
 type SideBarSize = "medium" | "small";
 
-const Wrapper = styled.div<{ $size?: SideBarSize; $selected?: boolean }>`
+const Wrapper = styled.div<{
+  $size?: SideBarSize;
+  $selected?: boolean;
+  $selectedBgColor?: string;
+  $selectedFontColor?: string;
+}>`
   width: 100%;
   height: ${(props) => (props.$size === "small" ? "36px" : "44px")};
   border-radius: 4px;
@@ -16,7 +21,12 @@ const Wrapper = styled.div<{ $size?: SideBarSize; $selected?: boolean }>`
   cursor: pointer;
 
   &:hover {
-    background: ${(props) => (props.$selected ? "#ebf0f7" : "#efeff1")};
+    background: ${(props) => (props.$selected ? (
+      `${props.$selectedBgColor ? props.$selectedBgColor : '#ebf0f7'}`
+    ) : (
+      `${props.$selectedBgColor ? props.$selectedBgColor : '#efeff1'}`
+    ))};
+    color: ${(props) => props.$selectedFontColor ? props.$selectedFontColor : '#4965f2'}
   }
 
   svg {
@@ -26,8 +36,8 @@ const Wrapper = styled.div<{ $size?: SideBarSize; $selected?: boolean }>`
   ${(props) =>
     props.$selected &&
     css`
-      color: #4965f2;
-      background: #ebf0f7;
+      color: ${props.$selectedFontColor ? props.$selectedFontColor : '#4965f2'};
+      background: ${props.$selectedBgColor ? props.$selectedBgColor : '#ebf0f7'};
     `}
 `;
 
@@ -41,6 +51,8 @@ export const SideBarItem = (props: SideBarItemProps) => {
       className={CNSidebarItem}
       $size={props.size}
       $selected={props.selected}
+      $selectedBgColor={props.selectedBgColor}
+      $selectedFontColor={props.selectedFontColor}
       onClick={() => props.onClick?.(currentPath)}
     >
       {Icon && <Icon selected={props.selected} style={{ marginRight: "8px" }} />}
@@ -53,6 +65,8 @@ export interface SideBarItemProps {
   icon?: FunctionComponent<SVGProps<any> & { selected?: boolean }>;
   text: ReactNode | FunctionComponent<{ selected?: boolean }>;
   selected?: boolean;
+  selectedBgColor?: string;
+  selectedFontColor?: string;
   size?: SideBarSize;
   onClick?: (currentPath: string) => void;
   style?: CSSProperties;

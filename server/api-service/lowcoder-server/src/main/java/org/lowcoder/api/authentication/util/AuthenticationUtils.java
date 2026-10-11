@@ -4,9 +4,11 @@ import static java.util.Collections.emptyMap;
 import static reactor.core.scheduler.Schedulers.newBoundedElastic;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.lowcoder.domain.user.model.AuthToken;
 import org.lowcoder.domain.user.model.AuthUser;
 import org.lowcoder.domain.user.model.User;
@@ -63,27 +65,60 @@ public final class AuthenticationUtils {
 
     /**
      * Utility method to map from Map to AuthToken
-     * @param map Object
+     *
+     * @param map            Object
+     * @param sourceMappings
      * @return AuthToken
      */
-    public static AuthToken mapToAuthToken(Map<String, Object> map) {
+    public static AuthToken mapToAuthToken(Map<String, Object> map, HashMap<String, String> sourceMappings) {
         return AuthToken.builder()
                 .accessToken(MapUtils.getString(map, "access_token"))
                 .expireIn(MapUtils.getIntValue(map, "expires_in"))
                 .refreshToken(MapUtils.getString(map, "refresh_token"))
+                .jwt(AdvancedMapUtils.getString(map, MapUtils.getString(sourceMappings, "jwt", "access_token")))
                 .build();
     }
 
     /**
      * Utility method to map from Map to AuthUser
-     * @param map Object
+     *
+     * @param map            Object
+     * @param sourceMappings
      * @return AuthUser
      */
-    public static AuthUser mapToAuthUser(Map<String, Object> map) {
+    public static AuthUser mapToAuthUser(Map<String, Object> map, HashMap<String, String> sourceMappings) {
+        String uid = AdvancedMapUtils.getString(map, MapUtils.getString(sourceMappings, "uid"));
+        String email = AdvancedMapUtils.getString(map, MapUtils.getString(sourceMappings, "email"));
+        String username = AdvancedMapUtils.getString(map, MapUtils.getString(sourceMappings, "username"));
+        if(StringUtils.isEmpty(username)) username = email;
+        if(StringUtils.isEmpty(username)) username = uid;
+        String avatar = AdvancedMapUtils.getString(map, MapUtils.getString(sourceMappings, "avatar"));
+        // Add group id mapping
+        String groupId = AdvancedMapUtils.getString(map, MapUtils.getString(sourceMappings, "group_id"));
         return AuthUser.builder()
-                .uid(MapUtils.getString(map, "sub"))
-                .username(MapUtils.getString(map, "email"))
+                .uid(uid)
+                .username(username)
+                .email(email)
+                .avatar(avatar)
+                .groupId(groupId) // Make sure AuthUser has this field and builder method
                 .rawUserInfo(map)
+                .build();
+    }
+
+    /**
+     * Merge two AuthUser object - overwrite high into low
+     * @param low base object for merge
+     * @param high overwriting object
+     * @return
+     */
+    public static AuthUser mergeAuthUser(AuthUser low, AuthUser high) {
+        return AuthUser.builder()
+                .uid(high.getUid() != null ? high.getUid() : low.getUid())
+                .username(high.getUsername() != null ? high.getUsername() : low.getUsername())
+                .email(high.getEmail() != null ? high.getEmail() : low.getEmail())
+                .avatar(high.getAvatar() != null ? high.getAvatar() : low.getAvatar())
+                .rawUserInfo(high.getRawUserInfo() != null ? high.getRawUserInfo() : low.getRawUserInfo())
+                .authToken(high.getAuthToken() != null ? high.getAuthToken() : low.getAuthToken())
                 .build();
     }
 }

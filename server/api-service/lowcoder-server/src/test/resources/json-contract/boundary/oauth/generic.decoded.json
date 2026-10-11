@@ -1,0 +1,185 @@
+{
+  "token" : {
+    "request" : "POST /generic/token",
+    "decoded" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/access_token" : "java.lang.String",
+        "/expires_in" : "java.lang.Integer",
+        "/refresh_expires_in" : "java.lang.Integer",
+        "/refresh_token" : "java.lang.String",
+        "/token_type" : "java.lang.String",
+        "/id_token" : "java.lang.String",
+        "/not-before-policy" : "java.lang.Integer",
+        "/session_state" : "java.lang.String",
+        "/scope" : "java.lang.String"
+      },
+      "keyOrder" : {
+        "" : [ "access_token", "expires_in", "refresh_expires_in", "refresh_token", "token_type", "id_token", "not-before-policy", "session_state", "scope" ]
+      }
+    },
+    "authToken" : {
+      "accessToken" : "at.generic.0001",
+      "expireIn" : 3599,
+      "refreshToken" : "rt.generic.0001",
+      "refreshTokenExpireIn" : 0,
+      "jwt" : "<id token of boundary/jwt-claims/claims.input.json>"
+    }
+  },
+  "refresh" : {
+    "request" : "POST /generic/token",
+    "decoded" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/access_token" : "java.lang.String",
+        "/expires_in" : "java.lang.String",
+        "/refresh_token" : "java.lang.String",
+        "/token_type" : "java.lang.String",
+        "/id_token" : "java.lang.String",
+        "/scope" : "java.lang.String"
+      },
+      "keyOrder" : {
+        "" : [ "access_token", "expires_in", "refresh_token", "token_type", "id_token", "scope" ]
+      }
+    },
+    "authToken" : {
+      "accessToken" : "at.generic.0002",
+      "expireIn" : 3599,
+      "refreshToken" : "rt.generic.0002",
+      "refreshTokenExpireIn" : 0,
+      "jwt" : "<id token of boundary/jwt-claims/claims.input.json>"
+    }
+  },
+  "user" : {
+    "request" : "GET /generic/userinfo",
+    "decoded" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/sub" : "java.lang.String",
+        "/email_verified" : "java.lang.Boolean",
+        "/name" : "java.lang.String",
+        "/preferred_username" : "java.lang.String",
+        "/given_name" : "java.lang.String",
+        "/family_name" : "java.lang.String",
+        "/email" : "java.lang.String",
+        "/picture" : "java.lang.String",
+        "/groups" : "java.util.ArrayList",
+        "/groups/0" : "java.lang.String",
+        "/groups/1" : "java.lang.String",
+        "/updated_at" : "java.lang.Integer",
+        "/quota" : "java.lang.Double",
+        "/address" : "java.util.LinkedHashMap",
+        "/address/country" : "java.lang.String",
+        "/address/postal_code" : "java.lang.String"
+      },
+      "keyOrder" : {
+        "/address" : [ "country", "postal_code" ],
+        "" : [ "sub", "email_verified", "name", "preferred_username", "given_name", "family_name", "email", "picture", "groups", "updated_at", "quota", "address" ]
+      }
+    },
+    "authUser" : {
+      "uid" : "f3b1c2d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "username" : "tech.ninja",
+      "email" : "Tech.Ninja@Example.com",
+      "avatar" : "https://cdn.example.com/a/tech.png?s=96&v=2",
+      "groupId" : null,
+      "rawUserInfo" : {
+        "sub" : "f3b1c2d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "email_verified" : true,
+        "name" : "Tech Ninja",
+        "preferred_username" : "tech.ninja",
+        "given_name" : "Tech",
+        "family_name" : "Ninja",
+        "email" : "Tech.Ninja@Example.com",
+        "picture" : "https://cdn.example.com/a/tech.png?s=96&v=2",
+        "groups" : [ "/admins", "/devs" ],
+        "updated_at" : 1767225650,
+        "quota" : 12.5,
+        "address" : {
+          "country" : "SK",
+          "postal_code" : "81101"
+        }
+      }
+    }
+  },
+  "userFromIdToken" : {
+    "decoded" : {
+      "classes" : {
+        "" : "java.util.LinkedHashMap",
+        "/iss" : "java.lang.String",
+        "/sub" : "java.lang.String",
+        "/aud" : "java.util.ArrayList",
+        "/aud/0" : "java.lang.String",
+        "/aud/1" : "java.lang.String",
+        "/iat" : "java.lang.Integer",
+        "/exp" : "java.lang.Long",
+        "/nbf" : "java.lang.Double",
+        "/auth_time" : "java.lang.Integer",
+        "/email_verified" : "java.lang.Boolean",
+        "/preferred_username" : "java.lang.String",
+        "/name" : "java.lang.String",
+        "/email" : "java.lang.String",
+        "/picture" : "java.lang.String",
+        "/groups" : "java.util.ArrayList",
+        "/groups/0" : "java.lang.String",
+        "/groups/1" : "java.lang.String",
+        "/realm_access" : "java.util.LinkedHashMap",
+        "/realm_access/roles" : "java.util.ArrayList",
+        "/realm_access/roles/0" : "java.lang.String",
+        "/realm_access/roles/1" : "java.lang.String",
+        "/realm_access/level" : "java.lang.Integer",
+        "/quota" : "java.lang.Double",
+        "/ratio" : "java.lang.Double",
+        "/serial" : "java.math.BigInteger",
+        "/mixed" : "java.util.ArrayList",
+        "/mixed/0" : "java.lang.Integer",
+        "/mixed/1" : "java.lang.String",
+        "/mixed/2" : "java.lang.Boolean",
+        "/mixed/3" : "null",
+        "/mixed/4" : "java.lang.Double",
+        "/mixed/5" : "java.util.LinkedHashMap",
+        "/mixed/5/deep" : "java.util.ArrayList",
+        "/mixed/5/deep/0" : "java.util.ArrayList",
+        "/acr" : "null"
+      },
+      "keyOrder" : {
+        "/realm_access" : [ "roles", "level" ],
+        "/mixed/5" : [ "deep" ],
+        "" : [ "iss", "sub", "aud", "iat", "exp", "nbf", "auth_time", "email_verified", "preferred_username", "name", "email", "picture", "groups", "realm_access", "quota", "ratio", "serial", "mixed", "acr" ]
+      }
+    },
+    "authUser" : {
+      "uid" : "f3b1c2d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "username" : "tech.ninja",
+      "email" : "tech.ninja@example.com",
+      "avatar" : "https://cdn.example.com/a/tech.png?s=96&v=2",
+      "groupId" : "/admins",
+      "rawUserInfo" : {
+        "iss" : "https://idp.example.com/realms/lowcoder",
+        "sub" : "f3b1c2d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "aud" : [ "lowcoder", "account" ],
+        "iat" : 1767225650,
+        "exp" : 4102444800,
+        "nbf" : 1.7672256505E9,
+        "auth_time" : 0,
+        "email_verified" : true,
+        "preferred_username" : "tech.ninja",
+        "name" : "Ján \"Tech\" Ninja\\",
+        "email" : "tech.ninja@example.com",
+        "picture" : "https://cdn.example.com/a/tech.png?s=96&v=2",
+        "groups" : [ "/admins", "/devs" ],
+        "realm_access" : {
+          "roles" : [ "offline_access", "uma_authorization" ],
+          "level" : 2
+        },
+        "quota" : 12.5,
+        "ratio" : 0.001,
+        "serial" : 18446744073709551616,
+        "mixed" : [ 1, "two", false, null, 2.0, {
+          "deep" : [ [ ] ]
+        } ],
+        "acr" : null
+      }
+    }
+  }
+}

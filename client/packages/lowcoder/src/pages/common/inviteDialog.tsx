@@ -12,6 +12,9 @@ import { HelpText } from "components/HelpText";
 import copyToClipboard from "copy-to-clipboard";
 import { trans } from "i18n";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import Divider from "antd/es/divider";
+import Flex from "antd/es/flex";
+import Select from "antd/es/select";
 
 const InviteButton = styled(TacoButton)`
   width: 76px;
@@ -23,14 +26,36 @@ const StyledLoading = styled(WhiteLoading)`
   height: 170px;
 `;
 
-function InviteContent(props: { inviteInfo: InviteInfo }) {
-  const { inviteInfo } = props;
+function InviteContent(props: { inviteInfo: InviteInfo, onClose?: () => void }) {
+  const { inviteInfo, onClose } = props;
   const inviteLink = genInviteLink(inviteInfo?.inviteCode);
   const inviteText = trans("memberSettings.inviteText", {
     userName: inviteInfo.createUserName,
     organization: inviteInfo.invitedOrganizationName,
     inviteLink,
   });
+  const [emails, setEmails] = useState<string[]>([]);
+
+  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const sendInvitations = async () => {
+    const filteredEmails = emails.filter(isValidEmail);
+    if (!filteredEmails.length) {
+      return messageInstance.error(trans("memberSettings.noValidEmails"));
+    }
+    try {
+      const resp = await InviteApi.sendInvitations({emails: filteredEmails, orgId: inviteInfo.invitedOrganizationId})
+      if (validateResponse(resp) && resp.data.success) {
+        messageInstance.success(trans('membersSettings.inviteByEmailSuccess'));
+        onClose?.();
+        return;
+      }
+      throw new Error(trans('membersSettings.inviteByEmailError'));
+    } catch(e: any) {
+      messageInstance.error(e.message);
+    }
+  }
+
   return (
     <>
       <HelpText style={{ marginBottom: 16 }}>{trans("memberSettings.inviteUserHelp")}</HelpText>
@@ -48,6 +73,34 @@ function InviteContent(props: { inviteInfo: InviteInfo }) {
           {trans("memberSettings.inviteCopyLink")}
         </InviteButton>
       </div>
+      <Divider style={{marginTop: '60px'}}/>
+      <HelpText style={{ marginBottom: 16 }}>{trans("memberSettings.inviteByEmailHelp")}</HelpText>
+      <CommonTextLabel>{trans("memberSettings.inviteByEmailLabel")}</CommonTextLabel>
+      <Select
+        mode="tags"
+        allowClear
+        open={false}
+        style={{ width: '100%', marginTop: '8px', marginBottom: '8px' }}
+        placeholder="Enter emails"
+        defaultValue={[]}
+        onChange={(value) => {
+          setEmails(value);
+        }}
+        options={[]}
+        showSearch={false}
+        suffixIcon={''}
+      />
+      <Flex justify="end">
+        <TacoButton
+          buttonType="primary"
+          onClick={() => {
+            sendInvitations();
+          }}
+          disabled={!Boolean(emails?.length)}
+        >
+          {trans("memberSettings.inviteByEmailButton")}
+        </TacoButton>
+      </Flex>
     </>
   );
 }
@@ -95,13 +148,13 @@ function InviteDialog(props: {
       <CustomModal
         open={inviteDialogVisible}
         title={trans("memberSettings.inviteUser")}
-        destroyOnClose
+        destroyOnHidden
         onCancel={() => setInviteDialogVisible(false)}
         showOkButton={false}
         showCancelButton={false}
         width="440px"
       >
-        {!inviteInfo ? <StyledLoading size={20} /> : <InviteContent inviteInfo={inviteInfo} />}
+        {!inviteInfo ? <StyledLoading size={20} /> : <InviteContent inviteInfo={inviteInfo} onClose={() => setInviteDialogVisible(false)} />}
       </CustomModal>
     </>
   );

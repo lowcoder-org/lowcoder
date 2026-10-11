@@ -15,7 +15,6 @@ import {
   MongoIcon,
   MSSQLIcon,
   MysqlIcon,
-  LowcoderQueryIcon,
   OptionsApiIcon,
   OracleIcon,
   PatchApiIcon,
@@ -25,6 +24,8 @@ import {
   QueryLibraryIcon,
   RedisIcon,
   RestApiIcon,
+  AlasqlIcon,
+  StreamApiIcon,
   SMTPIcon,
   SnowflakeIcon,
   TempStateIcon,
@@ -64,7 +65,7 @@ export const LargeBottomResIconWrapper = styled(IconWrapper)`
 function getBottomResIconInnerByUrl(type: BottomResType, url: string) {
   let fullUrl = url;
   if (!fullUrl.startsWith("http")) {
-    fullUrl = `${LOWCODER_NODE_SERVICE_URL !== "" ? LOWCODER_NODE_SERVICE_URL : REACT_APP_API_HOST}/node-service/plugin-icons/${url}`;
+    fullUrl = `${REACT_APP_NODE_SERVICE_URL !== "" ? REACT_APP_NODE_SERVICE_URL : REACT_APP_API_SERVICE_URL}/node-service/plugin-icons/${url}`;
   }
   return <img style={{ width: "100%", height: "100%" }} src={fullUrl} alt="" />;
 }
@@ -107,6 +108,12 @@ export const getBottomResIcon = (
         return <MysqlIcon />;
       case "mongodb":
         return <MongoIcon />;
+      case "streamApi":
+        return <StreamApiIcon />;
+      case "sseHttpApi":
+        return <StreamApiIcon />;
+      case "alasql":
+        return <AlasqlIcon />;
       case "restApi":
         return httpMethod ? HttpMethodIcon[httpMethod] : <RestApiIcon />;
       case "postgres":
@@ -131,8 +138,6 @@ export const getBottomResIcon = (
         return <GoogleSheetsIcon />;
       case "graphql":
         return <GraphqlIcon />;
-      case "lowcoderApi":
-        return <LowcoderQueryIcon />;
       case "snowflake":
         return <SnowflakeIcon />;
       case "mariadb":

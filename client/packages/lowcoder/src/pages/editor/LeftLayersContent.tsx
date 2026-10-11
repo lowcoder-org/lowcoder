@@ -29,6 +29,8 @@ import { default as Button } from "antd/es/button";
 import { default as Divider } from "antd/es/divider";
 import { default as Dropdown } from "antd/es/dropdown";
 import { default as Flex } from "antd/es/flex";
+import { useEditorStore } from "comps/editorStore";
+import { selectCompsFromLeftPanel } from "comps/hooks/hookSelection";
 import { default as Input } from "antd/es/input";
 import { default as Menu } from "antd/es/menu";
 import { default as Space } from "antd/es/space";
@@ -39,8 +41,7 @@ import {
   saveCollisionStatus,
 } from "util/localStorageUtil";
 import { default as DownOutlined } from "@ant-design/icons/DownOutlined";
-import type { ItemType } from "antd/es/menu/hooks/useItems";
-import ColorPicker from "components/ColorPicker";
+import ThemeSettingsSelector from "components/ThemeSettingsSelector";
 
 export type DisabledCollisionStatus = "true" | "false"; // "true" means collision is not enabled - Layering works, "false" means collision is enabled - Layering does not work
 export type ToggleCollisionStatus = (collisionStatus?: DisabledCollisionStatus) => void;
@@ -153,6 +154,7 @@ const CustomDropdown = styled(Dropdown)`
 export const LeftLayersContent = (props: LeftLayersContentProps) => {
   const { uiComp } = props;
   const editorState = useContext(EditorContext);
+  const selectedCompNames = useEditorStore((state) => state.selectedCompNames);
   const [expandedKeys, setExpandedKeys] = useState<Array<React.Key>>([]);
   const dispatch = useDispatch();
   const applicationId = useApplicationId();
@@ -213,7 +215,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
 
   const uiCollapseClick = useCallback(
     (compName: string) => {
-      editorState.setSelectedCompNames(new Set([compName]), "leftPanel");
+      selectCompsFromLeftPanel(editorState, new Set([compName]));
     },
     [editorState]
   );
@@ -245,12 +247,12 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
 
     if (dsl.ui.compType === "module") {
       explorerData.forEach(data => {
-        data['pos'] = dsl.ui.comp.container.layout[data.key].pos;
+        data['pos'] = dsl.ui.comp.container.layout[data.key]?.pos ?? 0;
       })
     }
     else {
       explorerData.forEach(data => {
-        data['pos'] = dsl.ui.layout[data.key].pos;
+        data['pos'] = dsl.ui.layout[data.key]?.pos ?? 0;
       })
     }
 
@@ -427,7 +429,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
     const selectedComponentsOnCanvas: string[] = [];
     const compTree = editorState.getUIComp().getTree();
     const explorerData: NodeItem[] = getTree(compTree, []);
-    for (let value of editorState.selectedCompNames) {
+    for (let value of selectedCompNames) {
       for (let key of explorerData) {
         if (key.title === value) {
           selectedComponentsOnCanvas.push(key.key);
@@ -435,7 +437,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
       }
     }
     setCheckedKeys(selectedComponentsOnCanvas);
-  }, [editorState]);
+  }, [editorState, selectedCompNames]);
 
   // make sure to handle the selectedActionKey for the changed input fields
   /* useEffect(() => {
@@ -449,7 +451,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
     for (let key of e.checkedNodes){
       checkedComponents.add(key.title);
     }
-    editorState.setSelectedCompNames(checkedComponents, "leftPanel");
+    selectCompsFromLeftPanel(editorState, checkedComponents);
   }
 
   const getCheckedKeys = () => {
@@ -526,7 +528,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
           onDrop={(info) => handleDrop(info)}
           treeData={componentTreeData}
           icon={(props: any) => props.type && (
-            <div style={{ margin: '3px 4px 0 -4px'}}> 
+            <div style={{ margin: '16px 5px 0 -3px'}}> 
               {CompStateIcon[props.type as UICompType] || <LeftCommon />}
             </div>
           )}
@@ -539,7 +541,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
         <div style={{margin:"10px 0px"}}> 
           <Flex gap="small" vertical>
             <CustomDropdown
-              dropdownRender={() => (
+              popupRender={() => (
                 <Menu
                   items={items}
                   onClick={({ key }) => {
@@ -566,20 +568,20 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
               Apply Action
             </Button>
             <br/>
-            <ColorPicker
-                colorKey={"background"}
+            <ThemeSettingsSelector
+                themeSettingKey={"background"}
                 name={trans("componentDoc.styleBackgroundColor")}
                 color={"#ffffff"}
                 configChange={(params) => handleColorChange(params.color, "style.background")}
             />
-            <ColorPicker
-                colorKey={"border"}
+            <ThemeSettingsSelector
+                themeSettingKey={"border"}
                 name={trans("componentDoc.styleBorderColor")}
                 color={"#ffffff"}
                 configChange={(params) => handleColorChange(params.color, "style.border")}
             />
-            <ColorPicker
-                colorKey={"text"}
+            <ThemeSettingsSelector
+                themeSettingKey={"text"}
                 name={trans("style.textColor")}
                 color={"#ffffff"}
                 configChange={(params) => handleColorChange(params.color, "style.text")}

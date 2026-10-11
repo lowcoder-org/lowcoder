@@ -1,6 +1,11 @@
 {
   "name": "lowcoder-sdk",
-  "version": "2.4.3",
+  "version": "3.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lowcoder-org/lowcoder.git",
+    "directory": "client/packages/lowcoder-sdk"
+  },
   "type": "module",
   "files": [
     "src",
@@ -25,20 +30,24 @@
     },
     "./dist/style.css": {
       "import": "./dist/style.css"
+    },
+    "./dist/chunks/": {
+      "import": "./dist/chunks/"
     }
   },
   "scripts": {
-    "build": "vite build",
-    "start": "vite"
+    "build": "NODE_OPTIONS=--max_old_space_size=6442 vite build",
+    "start": "NODE_OPTIONS=--max_old_space_size=2048 vite"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^22.0.2",
     "@rollup/plugin-json": "^5.0.1",
     "@rollup/plugin-node-resolve": "^14.1.0",
     "@rollup/plugin-replace": "^5.0.1",
+    "@rollup/plugin-strip": "^3.0.4",
     "@rollup/plugin-url": "^7.0.0",
     "@svgr/rollup": "^6.3.1",
-    "@vitejs/plugin-react": "^2.2.0",
+    "@vitejs/plugin-react": "^4.3.4",
     "rollup": "^2",
     "rollup-plugin-cleaner": "^1.0.0",
     "rollup-plugin-node-builtins": "^2.1.2",
@@ -47,7 +56,7 @@
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-typescript": "^1.0.1",
     "typescript": "^4.8.4",
-    "vite": "^4.5.2",
+    "vite": "^4.5.5",
     "vite-plugin-svgr": "^2.2.2",
     "vite-tsconfig-paths": "^3.6.0"
   },

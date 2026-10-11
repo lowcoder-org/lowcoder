@@ -1,0 +1,11 @@
+{
+  "role" : "editor",
+  "userIds" : [
+    "DatasourceEndpoints.BatchAddPermissionRequest.userIds[0]",
+    "DatasourceEndpoints.BatchAddPermissionRequest.userIds[1]"
+  ],
+  "groupIds" : [
+    "DatasourceEndpoints.BatchAddPermissionRequest.groupIds[0]",
+    "DatasourceEndpoints.BatchAddPermissionRequest.groupIds[1]"
+  ]
+}

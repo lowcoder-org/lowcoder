@@ -1,0 +1,30 @@
+{
+  "orgId": "CreateApplicationRequest.orgId",
+  "gid": "CreateApplicationRequest.gid",
+  "name": "CreateApplicationRequest.name",
+  "applicationType": 40001,
+  "editingApplicationDSL": {
+    "ui": {
+      "compType": "editingApplicationDSL.ui.compType",
+      "comp": {
+        "text": "editingApplicationDSL.ui.comp.text",
+        "hidden": false
+      }
+    },
+    "queries": [
+      {
+        "id": "editingApplicationDSL.queries[0]",
+        "timeout": 40002
+      },
+      {
+        "id": "editingApplicationDSL.queries[1]",
+        "timeout": 3000000001
+      }
+    ],
+    "ratio": 1.50,
+    "removed": null
+  },
+  "folderId": "CreateApplicationRequest.folderId",
+  "publicToAll": true,
+  "publicToMarketplace": false
+}

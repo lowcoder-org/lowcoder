@@ -13,7 +13,7 @@ import { trans, transToNode } from "i18n";
 import { exportApplicationAsJSONFile } from "pages/ApplicationV2/components/AppImport";
 import { useContext, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { currentApplication } from "redux/selectors/applicationSelector";
+import { currentApplication, isPublicApplication } from "redux/selectors/applicationSelector";
 import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
 import styled from "styled-components";
 import history from "util/history";
@@ -74,9 +74,10 @@ export function HeaderStartDropdown(props: { setEdit: () => void, isViewMarketpl
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
   const applicationId = useApplicationId();
   const application = useSelector(currentApplication);
+  const isPublicApp = useSelector(isPublicApplication);
   const [showCopyModal, setShowCopyModal] = useState(false);
   const dispatch = useDispatch();
-  const { appType } = useContext(ExternalEditorContext);
+  const { appType, exportPublicAppToJson } = useContext(ExternalEditorContext);
   const isModule = appType === AppTypeEnum.Module;
 
   const isEditable = canEditApp(user, application);
@@ -99,7 +100,7 @@ export function HeaderStartDropdown(props: { setEdit: () => void, isViewMarketpl
             })}
           </CommonTextLabel>
         ),
-        visible: true,
+        visible: !isPublicApp,
       },
     ];
   
@@ -130,13 +131,16 @@ export function HeaderStartDropdown(props: { setEdit: () => void, isViewMarketpl
         placement="bottomLeft"
         trigger={["click"]}
         disabled={showAppSnapshot}
-        dropdownRender={() => (
+        popupRender={() => (
           <DropdownMenuStyled
             style={{ minWidth: "136px", maxWidth: "288px", borderRadius: "4px" }}
             onClick={(e) => {
               if (e.key === "edit") {
                 props.setEdit();
               } else if (e.key === "export") {
+                if (isPublicApp && exportPublicAppToJson) {
+                  return exportPublicAppToJson?.();
+                }
                 exportApplicationAsJSONFile(applicationId);
               } else if (e.key === "duplicate") {
                 setShowCopyModal(true);
@@ -163,7 +167,9 @@ export function HeaderStartDropdown(props: { setEdit: () => void, isViewMarketpl
                 });
               }
             }}
-            items={menuItems.filter(item => item.visible)}
+            items={menuItems
+              .filter((item) => item.visible)
+              .map(({ visible, ...rest }) => rest)}
           />
         )}
       >

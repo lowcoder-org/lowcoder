@@ -1,6 +1,5 @@
 package org.lowcoder.domain.group.service;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.lowcoder.domain.group.model.Group;
@@ -12,7 +11,7 @@ import reactor.core.publisher.Mono;
 
 public interface GroupMemberService {
 
-    Mono<List<GroupMember>> getGroupMembers(String groupId, int page, int count);
+    Mono<List<GroupMember>> getGroupMembers(String groupId);
 
     Mono<Boolean> addMember(String orgId, String groupId, String userId, MemberRole memberRole);
 
@@ -37,8 +36,6 @@ public interface GroupMemberService {
 
     Mono<Boolean> isMember(Group group, String userId);
 
-    Mono<List<GroupMember>> bulkAddMember(Collection<GroupMember> groupMembers);
-
-    Mono<Boolean> bulkRemoveMember(String groupId, Collection<String> userIds);
+    Mono<List<GroupMember>> getGroupMembersByIdAndRole(String groupId, String role);
 
 }

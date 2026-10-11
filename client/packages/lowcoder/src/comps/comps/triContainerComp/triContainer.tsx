@@ -7,20 +7,17 @@ import styled, { css } from "styled-components";
 import { checkIsMobile } from "util/commonUtils";
 import { gridItemCompToGridItems, InnerGrid } from "../containerComp/containerView";
 import { TriContainerViewProps } from "../triContainerComp/triContainerCompBuilder";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const getStyle = (style: ContainerStyleType) => {
   return css`
     border-color: ${style.border};
     border-width: ${style.borderWidth};
     border-radius: ${style.radius};
+    border-style: ${style.borderStyle};
     overflow: hidden;
     padding: ${style.padding};
-    ${style.background && `background-color: ${style.background};`}
-    ${style.backgroundImage && `background-image: url(${style.backgroundImage});`}
-    ${style.backgroundImageRepeat && `background-repeat: ${style.backgroundImageRepeat};`}
-    ${style.backgroundImageSize && `background-size: ${style.backgroundImageSize};`}
-    ${style.backgroundImagePosition && `background-position: ${style.backgroundImagePosition};`}
-    ${style.backgroundImageOrigin && `background-origin: ${style.backgroundImageOrigin};`}
+    ${getBackgroundStyle(style)}
   `;
 };
 
@@ -35,11 +32,23 @@ const Wrapper = styled.div<{$style: ContainerStyleType; $animationStyle?:Animati
 `;
 
 const HeaderInnerGrid = styled(InnerGrid)<{
-  $backgroundColor: string
+  $backgroundColor: string,
+  $headerBackgroundImage: string;
+  $headerBackgroundImageRepeat: string;
+  $headerBackgroundImageSize: string;
+  $headerBackgroundImagePosition: string;
+  $headerBackgroundImageOrigin: string;
  }>`
   overflow: visible;
-  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
+  ${props => getBackgroundStyle({
+    background: props.$backgroundColor,
+    backgroundImage: props.$headerBackgroundImage,
+    backgroundImageSize: props.$headerBackgroundImageSize,
+    backgroundImageRepeat: props.$headerBackgroundImageRepeat,
+    backgroundImageOrigin: props.$headerBackgroundImageOrigin,
+    backgroundImagePosition: props.$headerBackgroundImagePosition,
+  })}
 `;
 
 const BodyInnerGrid = styled(InnerGrid)<{
@@ -47,11 +56,23 @@ const BodyInnerGrid = styled(InnerGrid)<{
   $backgroundColor: string;
   $borderColor: string;
   $borderWidth: string;
+  $backgroundImage: string;
+  $backgroundImageRepeat: string;
+  $backgroundImageSize: string;
+  $backgroundImagePosition: string;
+  $backgroundImageOrigin: string;
 }>`
   border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
   flex: 1;
-  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
+  ${props => getBackgroundStyle({
+    background: props.$backgroundColor,
+    backgroundImage: props.$backgroundImage,
+    backgroundImageSize: props.$backgroundImageSize,
+    backgroundImageRepeat: props.$backgroundImageRepeat,
+    backgroundImageOrigin: props.$backgroundImageOrigin,
+    backgroundImagePosition: props.$backgroundImagePosition,
+  })}
 `;
 
 const FooterInnerGrid = styled(InnerGrid)<{
@@ -67,13 +88,15 @@ const FooterInnerGrid = styled(InnerGrid)<{
 }>`
   border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
   overflow: visible;
-  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
-  ${(props) => props.$footerBackgroundImage && `background-image: url(${props.$footerBackgroundImage});`}
-  ${(props) => props.$footerBackgroundImageRepeat && `background-repeat: ${props.$footerBackgroundImageRepeat};`}
-  ${(props) => props.$footerBackgroundImageSize && `background-size: ${props.$footerBackgroundImageSize};`}
-  ${(props) => props.$footerBackgroundImagePosition && `background-position: ${props.$footerBackgroundImagePosition};`}
-  ${(props) => props.$footerBackgroundImageOrigin && `background-origin: ${props.$footerBackgroundImageOrigin};`}
+  ${props => getBackgroundStyle({
+    background: props.$backgroundColor,
+    backgroundImage: props.$footerBackgroundImage,
+    backgroundImageSize: props.$footerBackgroundImageSize,
+    backgroundImageRepeat: props.$footerBackgroundImageRepeat,
+    backgroundImageOrigin: props.$footerBackgroundImageOrigin,
+    backgroundImagePosition: props.$footerBackgroundImagePosition,
+  })}
 `;
 
 export type TriContainerProps = TriContainerViewProps & {
@@ -83,10 +106,10 @@ export type TriContainerProps = TriContainerViewProps & {
 
 export function TriContainer(props: TriContainerProps) {
   const {container, animationStyle} = props;
-  const { showHeader, showFooter } = container;
+  const { showHeader, showFooter, horizontalGridCells } = container;
   // When the header and footer are not displayed, the body must be displayed
   const showBody = container.showBody || (!showHeader && !showFooter);
-  const scrollbars = container.scrollbars;
+  const showVerticalScrollbar = container.showVerticalScrollbar;
 
   const { items: headerItems, ...otherHeaderProps } = container.header;
   const { items: bodyItems, ...otherBodyProps } = container.body["0"].children.view.getView();
@@ -110,6 +133,7 @@ export function TriContainer(props: TriContainerProps) {
         <BackgroundColorContext.Provider value={headerStyle.headerBackground}>
           <HeaderInnerGrid
             {...otherHeaderProps}
+            horizontalGridCells={horizontalGridCells}
             items={gridItemCompToGridItems(headerItems)}
             autoHeight={true}
             emptyRows={5}
@@ -117,6 +141,11 @@ export function TriContainer(props: TriContainerProps) {
             containerPadding={[paddingWidth, 3]}
             showName={{ bottom: showBody || showFooter ? 20 : 0 }}
             $backgroundColor={headerStyle?.headerBackground || 'transparent'}
+            $headerBackgroundImage={headerStyle?.headerBackgroundImage}
+            $headerBackgroundImageRepeat={headerStyle?.headerBackgroundImageRepeat}
+            $headerBackgroundImageSize={headerStyle?.headerBackgroundImageSize}
+            $headerBackgroundImagePosition={headerStyle?.headerBackgroundImagePosition}
+            $headerBackgroundImageOrigin={headerStyle?.headerBackgroundImageOrigin}
             style={{padding: headerStyle.containerHeaderPadding}}
 
           />
@@ -124,10 +153,11 @@ export function TriContainer(props: TriContainerProps) {
       )}
       {showBody && (
         <BackgroundColorContext.Provider value={bodyStyle.background}>
-            <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!scrollbars}>
+            <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!showVerticalScrollbar}  overflow={container.autoHeight?'hidden':'scroll'}>
               <BodyInnerGrid
                 $showBorder={showHeader}
                 {...otherBodyProps}
+                horizontalGridCells={horizontalGridCells}
                 items={gridItemCompToGridItems(bodyItems)}
                 autoHeight={container.autoHeight}
                 emptyRows={14}
@@ -139,6 +169,11 @@ export function TriContainer(props: TriContainerProps) {
                 $backgroundColor={bodyStyle?.background || 'transparent'}
                 $borderColor={style?.border}
                 $borderWidth={style?.borderWidth}
+                $backgroundImage={bodyStyle?.backgroundImage}
+                $backgroundImageRepeat={bodyStyle?.backgroundImageRepeat}
+                $backgroundImageSize={bodyStyle?.backgroundImageSize}
+                $backgroundImagePosition={bodyStyle?.backgroundImagePosition}
+                $backgroundImageOrigin={bodyStyle?.backgroundImageOrigin}
                 style={{padding: bodyStyle.containerBodyPadding}}
               />
             </ScrollBar>
@@ -149,6 +184,7 @@ export function TriContainer(props: TriContainerProps) {
           <FooterInnerGrid
             $showBorder={showHeader || showBody}
             {...otherFooterProps}
+            horizontalGridCells={horizontalGridCells}
             items={gridItemCompToGridItems(footerItems)}
             autoHeight={true}
             emptyRows={5}

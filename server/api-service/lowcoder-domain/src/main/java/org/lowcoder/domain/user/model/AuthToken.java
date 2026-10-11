@@ -18,6 +18,7 @@ public class AuthToken implements Serializable {
     private int expireIn;
     private String refreshToken;
     private int refreshTokenExpireIn;
+    private String jwt;
 
     private String openId;
     private String code;

@@ -13,10 +13,11 @@ spec:
       {{- include "lowcoder.selectorLabels" (dict "component" "frontend" "Values" .Values "Release" .Release "Chart" .Chart) | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/frontend/configMap.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
       labels:
         {{- include "lowcoder.selectorLabels" (dict "component" "frontend" "Values" .Values "Release" .Release "Chart" .Chart) | nindent 8 }}
     spec:
@@ -49,7 +50,7 @@ spec:
               path: {{ .Values.ingress.contextPath | default "" | trimSuffix "/" }}/apps
               port: lowcoder
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- include "lowcoder.resources" (dict "service" .Values.frontend "root" .) | nindent 12 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

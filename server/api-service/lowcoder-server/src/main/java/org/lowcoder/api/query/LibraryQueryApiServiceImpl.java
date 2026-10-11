@@ -71,10 +71,11 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
     private int port;
 
     @Override
-    public Mono<List<LibraryQueryView>> listLibraryQueries() {
+    public Mono<List<LibraryQueryView>> listLibraryQueries(String name) {
         return orgDevChecker.checkCurrentOrgDev()
                 .then(sessionUserService.getVisitorOrgMemberCache())
                 .flatMapMany(orgMember -> getByOrgIdWithDatasourcePermissions(orgMember.getOrgId()))
+                .filter(libraryQuery -> StringUtils.containsIgnoreCase(libraryQuery.getName(), name))
                 .collectList()
                 .flatMap(libraryQueries -> ViewBuilder.multiBuild(libraryQueries,
                         LibraryQuery::getCreatedBy,
@@ -86,7 +87,10 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
         Flux<LibraryQuery> libraryQueryFlux = libraryQueryService.getByOrganizationId(orgId)
                 .cache();
 
-        Mono<List<String>> datasourceIdListMono = libraryQueryFlux.map(libraryQuery -> libraryQuery.getQuery().getDatasourceId())
+        Mono<List<String>> datasourceIdListMono = libraryQueryFlux.map(libraryQuery -> {
+                    var datasourceId = libraryQuery.getQuery().getDatasourceId();
+                    return Objects.requireNonNullElse(datasourceId, "");
+                })
                 .filter(StringUtils::isNotBlank)
                 .collectList()
                 .cache();
@@ -107,6 +111,13 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
         return libraryQueryFlux
                 .filterWhen(libraryQuery -> datasourceIdSetWithPermissionsOrNoneExists.map(
                         set -> set.contains(libraryQuery.getQuery().getDatasourceId())));
+    }
+
+    @Override
+    public Mono<LibraryQueryView> get(String libraryQueryId) {
+        return libraryQueryService.getById(libraryQueryId)
+                .zipWhen(lb -> userService.findById(lb.getCreatedBy()))
+                .map(tuple -> LibraryQueryView.from(tuple.getT1(), tuple.getT2()));
     }
 
     @Override
@@ -152,9 +163,10 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
 
     @Override
     @SuppressWarnings("ConstantConditions")
-    public Mono<List<LibraryQueryAggregateView>> dropDownList() {
+    public Mono<List<LibraryQueryAggregateView>> dropDownList(String name) {
         Mono<List<LibraryQuery>> libraryQueryListMono = sessionUserService.getVisitorOrgMemberCache()
                 .flatMapMany(orgMember -> getByOrgIdWithDatasourcePermissions(orgMember.getOrgId()))
+                .filter(libraryQuery -> StringUtils.containsIgnoreCase(libraryQuery.getName(), name))
                 .collectList()
                 .cache();
 

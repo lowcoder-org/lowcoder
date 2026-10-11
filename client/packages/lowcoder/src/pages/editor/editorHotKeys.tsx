@@ -1,20 +1,48 @@
-import React, { useCallback, useContext } from "react";
+import React, { useCallback, useContext, useRef, useEffect } from "react";
 import { EditorContext, EditorState } from "comps/editorState";
-import { GridCompOperator } from "comps/utils/gridCompOperator";
+import { GridCompOperator, readFromClipboard } from "comps/utils/gridCompOperator";
+import { HookCompOperator } from "comps/utils/hookCompOperator";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { EditorHistory } from "util/editoryHistory";
 import { executeQueryAction } from "lowcoder-core";
 import {
   GlobalShortcutsWrapper,
+  isFilterInputTarget,
   modKeyPressed,
   selectCompModifierKeyPressed,
   ShortcutsWrapper,
 } from "util/keyUtils";
-import { PanelStatus, TogglePanel } from "pages/common/header";
+import type { TogglePanel } from "pages/common/header";
+import { useEditorLayoutStore } from "pages/editor/editorLayoutStore";
 import { clickCompNameClass } from "base/codeEditor/clickCompName";
 import { getShortcutAction } from "pages/common/shortcutConfigs";
 import { preview } from "constants/routesURL";
 import { useApplicationId } from "util/hooks";
+import { useUnmount } from "react-use";
+
+
+function isNativeClipboardContext(e: KeyboardEvent | React.KeyboardEvent): boolean {
+  return isFilterInputTarget(e) || !!window.getSelection?.()?.toString();
+}
+
+async function handleCopyComps(editorState: EditorState) {
+  const isHook = await HookCompOperator.copyComp(editorState);
+  if (!isHook) {
+    await GridCompOperator.copyComp(editorState, editorState.selectedComps());
+  }
+}
+
+async function handlePasteComps(editorState: EditorState) {
+  const payload = await readFromClipboard();
+  if (!payload) {
+    return;
+  }
+
+  const hookPasted = HookCompOperator.pasteFromPayload(editorState, payload);
+  if (!hookPasted) {
+    GridCompOperator.pasteFromPayload(editorState, payload);
+  }
+}
 
 type Props = {
   children: React.ReactNode;
@@ -22,8 +50,6 @@ type Props = {
 };
 
 type GlobalProps = Props & {
-  togglePanel: TogglePanel;
-  panelStatus: PanelStatus;
   toggleShortcutList: () => void;
 };
 
@@ -74,6 +100,26 @@ function handleGlobalKeyDown(
       break;
     }
     default:
+      if (modKeyPressed(e) && !isNativeClipboardContext(e)) {
+        const key = e.key?.toLowerCase();
+        const hasSelectedComps = editorState.selectedCompNames.size > 0;
+        if (key === "c" && hasSelectedComps) {
+          handleCopyComps(editorState);
+          break;
+        }
+        if (key === "v") {
+          handlePasteComps(editorState);
+          break;
+        }
+        if (key === "x" && hasSelectedComps) {
+          GridCompOperator.cutComp(editorState, editorState.selectedComps());
+          break;
+        }
+      }
+      if (e.key === "Escape") {
+        editorState.setSelectedCompNames(new Set());
+        break;
+      }
       return;
   }
   // avoid conflicts with the browser
@@ -113,13 +159,24 @@ function handleMouseDown(e: MouseEvent, editorState: EditorState, showLeftPanel:
   }
 }
 
-export function EditorGlobalHotKeys(props: GlobalProps) {
+export const EditorGlobalHotKeys = React.memo((props: GlobalProps) => {
   const editorState = useContext(EditorContext);
   const { history: editorHistory } = useContext(ExternalEditorContext);
-  const { togglePanel, panelStatus, toggleShortcutList } = props;
+  const { toggleShortcutList } = props;
+  const togglePanel = useEditorLayoutStore((state) => state.togglePanel);
+  const panelStatus = useEditorLayoutStore((state) => state.panelStatus);
   const applicationId = useApplicationId();
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   const onKeyDown = useCallback(
     (e: KeyboardEvent) => {
+      if (!mountedRef.current) return;
       setGlobalState(editorState, e);
       handleGlobalKeyDown(
         e,
@@ -133,17 +190,28 @@ export function EditorGlobalHotKeys(props: GlobalProps) {
     },
     [editorState, editorHistory, togglePanel, toggleShortcutList, applicationId]
   );
+
   const setGlobalStateCb = useCallback(
-    (e: KeyboardEvent | MouseEvent) => setGlobalState(editorState, e),
+    (e: KeyboardEvent | MouseEvent) => {
+      if (!mountedRef.current) return;
+      setGlobalState(editorState, e);
+    },
     [editorState]
   );
+
   const onMouseDown = useCallback(
     (e: MouseEvent) => {
+      if (!mountedRef.current) return;
       setGlobalState(editorState, e);
       handleMouseDown(e, editorState, () => !panelStatus.left && togglePanel("left"));
     },
     [editorState, panelStatus, togglePanel]
   );
+
+  useUnmount(() => {
+    mountedRef.current = false;
+  });
+
   return (
     <GlobalShortcutsWrapper
       disabled={props.disabled}
@@ -152,10 +220,11 @@ export function EditorGlobalHotKeys(props: GlobalProps) {
       // fix the problem when a user press keys without focus
       onMouseMoveCapture={setGlobalStateCb}
       onMouseDownCapture={onMouseDown}
-      children={props.children}
-    />
+    >
+      {props.children}
+    </GlobalShortcutsWrapper>
   );
-}
+})
 
 // local hotkeys
 function handleEditorKeyDown(e: React.KeyboardEvent, editorState: EditorState) {
@@ -172,12 +241,15 @@ function handleEditorKeyDown(e: React.KeyboardEvent, editorState: EditorState) {
       e.stopPropagation();
       return;
     case "copyComps":
-      GridCompOperator.copyComp(editorState, editorState.selectedComps());
+      if (isNativeClipboardContext(e) || editorState.selectedCompNames.size === 0) return;
+      handleCopyComps(editorState);
       return;
     case "pasteComps":
-      GridCompOperator.pasteComp(editorState);
+      if (isNativeClipboardContext(e)) return;
+      handlePasteComps(editorState);
       return;
     case "cutComps":
+      if (isNativeClipboardContext(e) || editorState.selectedCompNames.size === 0) return;
       GridCompOperator.cutComp(editorState, editorState.selectedComps());
       return;
     case "deselectComps":
@@ -186,33 +258,64 @@ function handleEditorKeyDown(e: React.KeyboardEvent, editorState: EditorState) {
   }
 }
 
-export function EditorHotKeys(props: Props) {
+export const EditorHotKeys = React.memo((props: Props) => {
   const editorState = useContext(EditorContext);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   const onKeyDown = useCallback(
-    (e: React.KeyboardEvent) => handleEditorKeyDown(e, editorState),
+    (e: React.KeyboardEvent) => {
+      if (!mountedRef.current) return;
+      handleEditorKeyDown(e, editorState);
+    },
     [editorState]
   );
+
+  useUnmount(() => {
+    mountedRef.current = false;
+  });
+
   return (
     <ShortcutsWrapper
       disabled={props.disabled}
       onKeyDown={onKeyDown}
       style={{ width: "100%", height: "100%" }}
-      children={props.children}
-    />
+    >
+      {props.children}
+    </ShortcutsWrapper>
   );
-}
+})
 
-export function CustomShortcutWrapper(props: { children: React.ReactNode }) {
+export const CustomShortcutWrapper = React.memo((props: { children: React.ReactNode }) => {
   const editorState = useContext(EditorContext);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   const handleCustomShortcut = useCallback(
     (e: KeyboardEvent) => {
+      if (!mountedRef.current) return;
       editorState.getAppSettingsComp().children.customShortcuts.handleKeyEvent(e);
     },
     [editorState]
   );
+
+  useUnmount(() => {
+    mountedRef.current = false;
+  });
+
   return (
     <GlobalShortcutsWrapper onKeyDownCapture={handleCustomShortcut}>
       {props.children}
     </GlobalShortcutsWrapper>
   );
-}
+})

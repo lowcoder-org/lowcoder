@@ -1,19 +1,19 @@
 package org.lowcoder.api.application;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Nullable;
 import org.apache.commons.lang3.BooleanUtils;
-import org.lowcoder.api.application.view.ApplicationInfoView;
-import org.lowcoder.api.application.view.ApplicationPermissionView;
-import org.lowcoder.api.application.view.ApplicationView;
-import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
+import org.lowcoder.api.application.view.*;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.UserHomepageView;
+import org.lowcoder.api.query.view.LibraryQueryPublishRequest;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.infra.constant.Url;
+import org.lowcoder.sdk.config.JsonViews;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -71,7 +71,7 @@ public interface ApplicationEndpoints
 		    description = "List all the recycled Lowcoder Applications in the recycle bin where the authenticated or impersonated user has access."
 	)
     @GetMapping("/recycle/list")
-    public Mono<ResponseView<List<ApplicationInfoView>>> getRecycledApplications();
+    public Mono<ResponseView<List<ApplicationInfoView>>> getRecycledApplications(@RequestParam(required = false) String name, @RequestParam(required = false) String category);
 
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
@@ -89,7 +89,7 @@ public interface ApplicationEndpoints
 		    description = "Retrieve the DSL data of a Lowcoder Application in edit-mode by its ID."
 	)
     @GetMapping("/{applicationId}")
-    public Mono<ResponseView<ApplicationView>> getEditingApplication(@PathVariable String applicationId);
+    public Mono<ResponseView<ApplicationView>> getEditingApplication(@PathVariable String applicationId, @RequestParam(required = false) Boolean withDeleted);
 
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
@@ -98,7 +98,7 @@ public interface ApplicationEndpoints
 		    description = "Retrieve the DSL data of a Lowcoder Application in view-mode by its ID."
 	)
     @GetMapping("/{applicationId}/view")
-    public Mono<ResponseView<ApplicationView>> getPublishedApplication(@PathVariable String applicationId);
+    public Mono<ResponseView<ApplicationView>> getPublishedApplication(@PathVariable String applicationId, @RequestParam(required = false) Boolean withDeleted);
 
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
@@ -126,7 +126,8 @@ public interface ApplicationEndpoints
 	)
     @PutMapping("/{applicationId}")
     public Mono<ResponseView<ApplicationView>> update(@PathVariable String applicationId,
-            @RequestBody Application newApplication);
+            @RequestBody Application newApplication,
+			@RequestParam(required = false) Boolean updateStatus);
 
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
@@ -135,7 +136,27 @@ public interface ApplicationEndpoints
 		    description = "Set a Lowcoder Application identified by its ID as available to all selected Users or User-Groups. This is similar to the classic deployment. The Lowcoder Apps gets published in production mode."
 	)
     @PostMapping("/{applicationId}/publish")
-    public Mono<ResponseView<ApplicationView>> publish(@PathVariable String applicationId);
+	public Mono<ResponseView<ApplicationView>> publish(@PathVariable String applicationId,
+												@RequestBody(required = false) ApplicationPublishRequest applicationPublishRequest);
+
+	@Operation(
+			tags = TAG_APPLICATION_MANAGEMENT,
+			operationId = "updateApplicationEditingState",
+			summary = "Update Application editing state",
+			description = "Update the editing state of a specific Lowcoder Application identified by its ID."
+	)
+	@PutMapping("/editState/{applicationId}")
+	public Mono<ResponseView<Boolean>> updateEditState(@PathVariable String applicationId,
+														@RequestBody UpdateEditStateRequest updateEditStateRequest);
+
+	@Operation(
+		tags = TAG_APPLICATION_MANAGEMENT,
+		operationId = "updateApplicationSlug",
+		summary = "Update Application URL Path Slug",
+		description = "The slug is used to build a friendly reader URL for Apps instead of the ID"
+	)
+	@PutMapping("/{applicationId}/slug")
+	public Mono<ResponseView<Application>> updateSlug(@PathVariable String applicationId, @RequestBody String slug);
 
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
@@ -144,6 +165,7 @@ public interface ApplicationEndpoints
 		    description = "Retrieve the first displayed Lowcoder Application for an authenticated or impersonated user."
 	)
     @GetMapping("/home")
+	@JsonView(JsonViews.Public.class)
     public Mono<ResponseView<UserHomepageView>> getUserHomePage(@RequestParam(required = false, defaultValue = "0") int applicationType);
 
     @Operation(
@@ -155,7 +177,11 @@ public interface ApplicationEndpoints
     @GetMapping("/list")
     public Mono<ResponseView<List<ApplicationInfoView>>> getApplications(@RequestParam(required = false) Integer applicationType,
             @RequestParam(required = false) ApplicationStatus applicationStatus,
-            @RequestParam(defaultValue = "true") boolean withContainerSize);
+            @RequestParam(defaultValue = "true") boolean withContainerSize,
+			@RequestParam(required = false) String name,
+			@RequestParam(required = false) String category,
+			@RequestParam(required = false, defaultValue = "1") Integer pageNum,
+			@RequestParam(required = false, defaultValue = "0") Integer pageSize);
 
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
@@ -220,6 +246,20 @@ public interface ApplicationEndpoints
     public Mono<ResponseView<ApplicationPermissionView>> getApplicationPermissions(@PathVariable String applicationId);
 
 	@Operation(
+			tags = ApplicationEndpoints.TAG_APPLICATION_PERMISSIONS,
+			operationId = "listGroupsOrMembersWithoutPermissions",
+			summary = "Get groups or members without permissions",
+			description = "Retrieve the groups or members of a specific Lowcoder Application identified by its ID that do not have permissions."
+	)
+	@GetMapping("/{applicationId}/groups-members/available")
+	public Mono<ResponseView<List<Object>>> getGroupsOrMembersWithoutPermissions(
+			@PathVariable String applicationId,
+			@RequestParam(required = false) String search,
+			@RequestParam(required = false, defaultValue = "1") Integer pageNum,
+			@RequestParam(required = false, defaultValue = "1000") Integer pageSize
+	);
+
+	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
 		    operationId = "setApplicationAsPublic",
 		    summary = "Set Application as publicly available",
@@ -279,11 +319,15 @@ public interface ApplicationEndpoints
     }
 
     public record CreateApplicationRequest(@JsonProperty("orgId") String organizationId,
+										   @Nullable String gid,
                                            String name,
                                            Integer applicationType,
-                                           Map<String, Object> publishedApplicationDSL,
                                            Map<String, Object> editingApplicationDSL,
-                                           @Nullable String folderId) {
+                                           @Nullable String folderId,
+										   @Nullable Boolean publicToAll,
+										   @Nullable Boolean publicToMarketplace) {
     }
+	public record UpdateEditStateRequest(Boolean editingFinished) {
+	}
 
 }

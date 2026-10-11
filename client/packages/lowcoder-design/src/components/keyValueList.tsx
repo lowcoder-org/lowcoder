@@ -1,9 +1,10 @@
 import styled from "styled-components";
-import { ReactComponent as Bin } from "icons/icon-recycle-bin.svg";
+import { ReactComponent as Bin } from "icons/v1/icon-recycle-bin.svg";
 import { TacoButton } from "./button";
 import { ReactNode } from "react";
 import { BluePlusIcon } from "icons";
 import { trans } from "i18n/design";
+import { BranchDiv } from "./Trees";
 
 const KeyValueListItem = styled.div`
   display: flex;
@@ -72,24 +73,53 @@ const AddBtn = styled(TacoButton)`
   }
 `;
 
+const IndicatorWrapper = ({
+  indicatorForAll,
+  children,
+}: {
+  indicatorForAll?: boolean;
+  children: ReactNode,
+}) => {
+  if (indicatorForAll) {
+    return (
+      <BranchDiv $type={"inline"}>
+        {children}
+      </BranchDiv>
+    )
+  }
+  return (<>{children}</>);
+};
+
 export const KeyValueList = (props: {
   list: ReactNode[];
   onAdd: () => void;
   onDelete: (item: ReactNode, index: number) => void;
-}) => (
-  <>
-    {props.list.map((item, index) => (
-      <KeyValueListItem key={index /* FIXME: find a proper key instead of `index` */}>
-        {item}
-        <DelIcon
-          onClick={() => props.list.length > 1 && props.onDelete(item, index)}
-          $forbidden={props.list.length === 1}
-        />
-      </KeyValueListItem>
-    ))}
-    <AddBtn onClick={props.onAdd}>
-      <AddIcon />
-      {trans("addItem")}
-    </AddBtn>
-  </>
-);
+  isStatic?: boolean;
+  indicatorForAll?: boolean;
+  allowDeletingAll?: boolean;
+}) => {
+  return (
+    <>
+      {props.list.map((item, index) => (
+        <IndicatorWrapper key={index} indicatorForAll={props.indicatorForAll}>
+          <KeyValueListItem key={index /* FIXME: find a proper key instead of `index` */}>
+            {item}
+            {!props.isStatic &&
+              <DelIcon
+                onClick={() => (props.allowDeletingAll || (!props.allowDeletingAll && props.list.length > 1)) && props.onDelete(item, index)}
+                $forbidden={!props.allowDeletingAll && props.list.length === 1}
+              />
+            }
+          </KeyValueListItem>
+        </IndicatorWrapper>
+      ))}
+      {!props.isStatic && (
+        <AddBtn onClick={props.onAdd}>
+          <AddIcon />
+          {trans("addItem")}
+        </AddBtn>
+
+      )}
+    </>
+  )
+};

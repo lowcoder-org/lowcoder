@@ -7,7 +7,6 @@ import {
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 import { examplesUrl,optionUrl } from "../chartComp/chartConfigs/chartUrls";
-
 export function candleStickChartPropertyView(
   children: ChartCompChildrenType,
   dispatch: (action: CompAction) => void
@@ -16,9 +15,71 @@ export function candleStickChartPropertyView(
   const jsonModePropertyView = (
     <>
       <Section name={trans("chart.config")}>
+        {children.echartsData.propertyView({
+          label: trans("chart.data"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "CandleStick chart data",
+            fieldName: "echartsData",
+            fieldDescription:
+              "JSON array of OHLC values. Each item is [open, close, low, high] for one period, in the same order as x-axis labels.",
+          },
+        })}
+        {children.echartsTitleConfig.getPropertyView()}
+        {children.echartsTitleData.propertyView({
+          label: trans("chart.xAxisLabels"),
+          tooltip: trans("chart.xAxisLabelsTooltip"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "CandleStick x-axis labels",
+            fieldName: "echartsTitleData",
+            fieldDescription:
+              "JSON array of x-axis labels (e.g. dates). Length must match the number of OHLC rows in Data.",
+          },
+        })}
+        {children.echartsTitleVerticalConfig.getPropertyView()}
+        {children.echartsTitle.propertyView({ label: trans("candleStickChart.title"), tooltip: trans("echarts.titleTooltip") })}
+        {children.left.propertyView({ label: trans("candleStickChart.left"), tooltip: trans("echarts.leftTooltip") })}
+        {children.right.propertyView({ label: trans("candleStickChart.right"), tooltip: trans("echarts.rightTooltip") })}
+        {children.top.propertyView({ label: trans("candleStickChart.top"), tooltip: trans("echarts.topTooltip") })}
+        {children.bottom.propertyView({ label: trans("candleStickChart.bottom"), tooltip: trans("echarts.bottomTooltip") })}
+        {children.dataZoomVisibility.getView() && children.dataZoomHeight.propertyView({ label: trans("candleStickChart.dataZoomHeight"), tooltip: trans("candleStickChart.dataZoomHeightTooltip") })}
+        {children.dataZoomVisibility.getView() && children.dataZoomBottom.propertyView({ label: trans("candleStickChart.dataZoomBottom"), tooltip: trans("candleStickChart.dataZoomBottomTooltip") })}
+        {children.axisFlagVisibility.propertyView({label: trans("candleStickChart.axisFlagVisibility"), tooltip: trans("candleStickChart.axisFlagVisibilityTooltip") })}
+        {children.dataZoomVisibility.propertyView({label: trans("candleStickChart.dataZoomVisibility"), tooltip: trans("candleStickChart.dataZoomVisibilityTooltip") })}
+      </Section>
+      <Section name={sectionNames.interaction}>
+        {children.onEvent.propertyView()}
+      </Section>
+      <Section name={sectionNames.layout}>{hiddenPropertyView(children)}
+      </Section>
+
+      <Section name={sectionNames.chartStyle}>
+        {children.chartStyle?.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.titleStyle}>
+        {children.titleStyle?.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.xAxisStyle}>
+        {children.xAxisStyle?.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.yAxisStyle}>
+        {children.yAxisStyle?.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.advanced}>
         {children.echartsOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
+          language: "json",
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "echarts-option",
+            label: "CandleStick option",
+            fieldName: "echartsOption",
+            fieldDescription: "Apache ECharts option JSON for this chart component.",
+          },
           tooltip: (
             <div>
               <a href={optionUrl} target="_blank" rel="noopener noreferrer">
@@ -31,19 +92,10 @@ export function candleStickChartPropertyView(
             </div>
           ),
         })}
-        {children.echartsTitle.propertyView({ label: trans("candleStickChart.title") })}
-        {children.tooltip.propertyView({label: trans("candleStickChart.tooltip")})}
       </Section>
-      <Section name={sectionNames.interaction}>
-        {children.onEvent.propertyView()}
-      </Section>
-      <Section name={sectionNames.style}>
-         {children.style.getPropertyView()}
-      </Section>
-      <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
     </>
   );
-  
+
   const getChatConfigByMode = (mode: string) => {
     switch(mode) {
       case "json":

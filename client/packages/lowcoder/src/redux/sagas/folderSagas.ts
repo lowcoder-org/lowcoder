@@ -20,6 +20,7 @@ import {
 } from "../reduxActions/folderActions";
 import { FolderApi } from "../../api/folderApi";
 import { ApplicationMeta, FolderMeta } from "../../constants/applicationConstants";
+import { flattenFolderTree } from "../../util/folderUtils";
 
 export function* createFolderSaga(action: ReduxActionWithCallbacks<CreateFolderPayload, any, any>) {
   try {
@@ -84,14 +85,16 @@ export function* deleteFolderSaga(action: ReduxActionWithCallbacks<DeleteFolderP
 
 export function* moveToFolderSaga(action: ReduxActionWithCallbacks<MoveToFolderPayload, any, any>) {
   try {
+    const { moveFlag } = action.payload;
+    delete action.payload.moveFlag;
     const response: AxiosResponse<GenericApiResponse<void>> = yield FolderApi.moveToFolder(
       action.payload
     );
     const isValidResponse: boolean = validateResponse(response);
-
+    const type = moveFlag ? ReduxActionTypes.MOVE_TO_FOLDER2_SUCCESS : ReduxActionTypes.MOVE_TO_FOLDER_SUCCESS;
     if (isValidResponse) {
       yield put({
-        type: ReduxActionTypes.MOVE_TO_FOLDER_SUCCESS,
+        type,
         payload: action.payload,
       });
       action.onSuccessCallback && action.onSuccessCallback(response);
@@ -114,9 +117,12 @@ export function* fetchFolderElementsSaga(action: ReduxAction<FetchFolderElements
         // todo use new get all folders api
         yield put({
           type: ReduxActionTypes.FETCH_ALL_FOLDERS_SUCCESS,
-          payload: response.data.data.filter((m) => m.folder),
+          payload: flattenFolderTree(
+            response.data.data.filter((m) => m.folder),
+          ),
         });
       }
+      
       yield put({
         type: ReduxActionTypes.FETCH_FOLDER_ELEMENTS_SUCCESS,
         payload: { parentFolderId: action.payload.folderId, elements: response.data.data },

@@ -1,0 +1,70 @@
+{{- if .Values.agoraTokenService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "lowcoder.fullname" . }}-agora-token-service
+  labels:
+    {{- include "lowcoder.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.agoraTokenService.autoscaling.enabled }}
+  replicas: {{ .Values.agoraTokenService.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "lowcoder.selectorLabels" (dict "component" "agora-token-service" "Values" .Values "Release" .Release "Chart" .Chart) | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/agora-token-service/configMap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/agora-token-service/secrets.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "lowcoder.selectorLabels" (dict "component" "agora-token-service" "Values" .Values "Release" .Release "Chart" .Chart) | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "lowcoder.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.agoraTokenService.image.repository }}:{{ .Values.agoraTokenService.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.agoraTokenService.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "lowcoder.fullname" . }}-agora-token-service
+            - secretRef:
+                name: {{ include "lowcoder.fullname" . }}-agora-token-service
+          ports:
+            - name: agora-token
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: agora-token
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: agora-token
+          resources:
+            {{- include "lowcoder.resources" (dict "service" .Values.agoraTokenService "root" .) | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

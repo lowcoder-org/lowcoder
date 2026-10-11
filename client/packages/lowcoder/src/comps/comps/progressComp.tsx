@@ -7,11 +7,10 @@ import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, ProgressStyle, ProgressStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 
 const getStyle = (style: ProgressStyleType) => {
   return css`
@@ -53,8 +52,8 @@ const ProgressBasicComp = (function () {
   const childrenMap = {
     value: numberExposingStateControl('value', 60),
     showInfo: BoolControl,
-    style: styleControl(ProgressStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(ProgressStyle, 'style'),
+    animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   };
   return new UICompBuilder(childrenMap, (props) => {
     return (
@@ -67,6 +66,7 @@ const ProgressBasicComp = (function () {
     );
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
@@ -76,16 +76,17 @@ const ProgressBasicComp = (function () {
             })}
           </Section>
 
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["logic", "both"].includes(editorModeStatus) && (
             <Section name={sectionNames.interaction}>
               {hiddenPropertyView(children)}
               {children.showInfo.propertyView({
                 label: trans("progress.showInfo"),
               })}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             <>
               <Section name={sectionNames.style}>
               {children.style.getPropertyView()}

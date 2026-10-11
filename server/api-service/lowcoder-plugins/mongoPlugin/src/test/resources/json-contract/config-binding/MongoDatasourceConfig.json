@@ -1,0 +1,134 @@
+{
+  "buildFrom" : {
+    "endpoints" : {
+      "class" : "org.lowcoder.plugin.mongo.model.MongoDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.mongo.model.MongoDatasourceConfig",
+        "usingUri" : false,
+        "srvMode" : true,
+        "ssl" : true,
+        "uri" : null,
+        "endpoints" : [ {
+          "@class" : "org.lowcoder.sdk.models.Endpoint",
+          "host" : " m1.example.com ",
+          "port" : 27017
+        }, {
+          "@class" : "org.lowcoder.sdk.models.Endpoint",
+          "host" : "m2.example.com",
+          "port" : 27018
+        }, {
+          "@class" : "org.lowcoder.sdk.models.Endpoint",
+          "host" : "m3.example.com",
+          "port" : null
+        } ],
+        "host" : "m.example.com",
+        "port" : 27019,
+        "database" : "app",
+        "username" : " admin ",
+        "password" : "pw",
+        "authMechanism" : "SCRAM_SHA_256"
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.mongo.model.MongoDatasourceConfig",
+        "/usingUri" : "java.lang.Boolean",
+        "/srvMode" : "java.lang.Boolean",
+        "/ssl" : "java.lang.Boolean",
+        "/uri" : "null",
+        "/endpoints" : "java.util.ArrayList",
+        "/endpoints/0" : "org.lowcoder.sdk.models.Endpoint",
+        "/endpoints/0/host" : "java.lang.String",
+        "/endpoints/0/port" : "java.lang.Long",
+        "/endpoints/1" : "org.lowcoder.sdk.models.Endpoint",
+        "/endpoints/1/host" : "java.lang.String",
+        "/endpoints/1/port" : "java.lang.Long",
+        "/endpoints/2" : "org.lowcoder.sdk.models.Endpoint",
+        "/endpoints/2/host" : "java.lang.String",
+        "/endpoints/2/port" : "null",
+        "/host" : "java.lang.String",
+        "/port" : "java.lang.Integer",
+        "/database" : "java.lang.String",
+        "/username" : "java.lang.String",
+        "/password" : "java.lang.String",
+        "/authMechanism" : "org.lowcoder.plugin.mongo.model.MongoAuthMechanism"
+      },
+      "noView" : {"usingUri":false,"srvMode":true,"ssl":true,"uri":null,"endpoints":[{"host":"m1.example.com","port":27017},{"host":"m2.example.com","port":27018},{"host":"m3.example.com","port":null}],"host":"m.example.com","port":27019,"database":"app","username":"admin","password":"pw","authMechanism":"SCRAM_SHA_256"},
+      "Public" : {"usingUri":false,"srvMode":true,"ssl":true,"endpoints":[{"host":"m1.example.com","port":27017},{"host":"m2.example.com","port":27018},{"host":"m3.example.com","port":null}],"host":"m.example.com","port":27019,"database":"app","username":"admin","authMechanism":"SCRAM_SHA_256"},
+      "Internal" : {"usingUri":false,"srvMode":true,"ssl":true,"uri":null,"endpoints":[{"host":"m1.example.com","port":27017},{"host":"m2.example.com","port":27018},{"host":"m3.example.com","port":null}],"host":"m.example.com","port":27019,"database":"app","username":"admin","password":"pw","authMechanism":"SCRAM_SHA_256"}
+    },
+    "uri" : {
+      "class" : "org.lowcoder.plugin.mongo.model.MongoDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.mongo.model.MongoDatasourceConfig",
+        "usingUri" : true,
+        "srvMode" : false,
+        "ssl" : false,
+        "uri" : "mongodb+srv://u:p@cluster.example.com/app?retryWrites=true",
+        "endpoints" : null,
+        "host" : null,
+        "port" : null,
+        "database" : null,
+        "username" : null,
+        "password" : null,
+        "authMechanism" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.mongo.model.MongoDatasourceConfig",
+        "/usingUri" : "java.lang.Boolean",
+        "/srvMode" : "java.lang.Boolean",
+        "/ssl" : "java.lang.Boolean",
+        "/uri" : "java.lang.String",
+        "/endpoints" : "null",
+        "/host" : "null",
+        "/port" : "null",
+        "/database" : "null",
+        "/username" : "null",
+        "/password" : "null",
+        "/authMechanism" : "null"
+      },
+      "noView" : {"usingUri":true,"srvMode":false,"ssl":false,"uri":"mongodb+srv://u:p@cluster.example.com/app?retryWrites=true","endpoints":[],"host":null,"port":27017,"database":null,"username":"","password":null,"authMechanism":null},
+      "Public" : {"usingUri":true,"srvMode":false,"ssl":false,"endpoints":[],"host":null,"port":27017,"database":null,"username":"","authMechanism":null},
+      "Internal" : {"usingUri":true,"srvMode":false,"ssl":false,"uri":"mongodb+srv://u:p@cluster.example.com/app?retryWrites=true","endpoints":[],"host":null,"port":27017,"database":null,"username":"","password":null,"authMechanism":null}
+    },
+    "authMechanismValue" : {
+      "error" : "org.lowcoder.sdk.exception.PluginException: DATASOURCE_ARGUMENT_ERROR INVALID_MONGODB_CONFIG"
+    },
+    "longPort" : {
+      "error" : "org.lowcoder.sdk.exception.PluginException: DATASOURCE_ARGUMENT_ERROR INVALID_MONGODB_CONFIG"
+    },
+    "empty" : {
+      "class" : "org.lowcoder.plugin.mongo.model.MongoDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.mongo.model.MongoDatasourceConfig",
+        "usingUri" : false,
+        "srvMode" : false,
+        "ssl" : false,
+        "uri" : null,
+        "endpoints" : null,
+        "host" : null,
+        "port" : null,
+        "database" : null,
+        "username" : null,
+        "password" : null,
+        "authMechanism" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.mongo.model.MongoDatasourceConfig",
+        "/usingUri" : "java.lang.Boolean",
+        "/srvMode" : "java.lang.Boolean",
+        "/ssl" : "java.lang.Boolean",
+        "/uri" : "null",
+        "/endpoints" : "null",
+        "/host" : "null",
+        "/port" : "null",
+        "/database" : "null",
+        "/username" : "null",
+        "/password" : "null",
+        "/authMechanism" : "null"
+      },
+      "noView" : {"usingUri":false,"srvMode":false,"ssl":false,"uri":null,"endpoints":[],"host":null,"port":27017,"database":null,"username":"","password":null,"authMechanism":null},
+      "Public" : {"usingUri":false,"srvMode":false,"ssl":false,"endpoints":[],"host":null,"port":27017,"database":null,"username":"","authMechanism":null},
+      "Internal" : {"usingUri":false,"srvMode":false,"ssl":false,"uri":null,"endpoints":[],"host":null,"port":27017,"database":null,"username":"","password":null,"authMechanism":null}
+    },
+    "unknownProperty" : "ignored: binds as form endpoints"
+  }
+}

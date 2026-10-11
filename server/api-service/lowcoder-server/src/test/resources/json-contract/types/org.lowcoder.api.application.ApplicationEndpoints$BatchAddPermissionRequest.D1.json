@@ -1,0 +1,5 @@
+{
+  "role" : "editor",
+  "userIds" : [ "BatchAddPermissionRequest.userIds[0]", "BatchAddPermissionRequest.userIds[1]" ],
+  "groupIds" : [ "BatchAddPermissionRequest.groupIds[1]", "BatchAddPermissionRequest.groupIds[0]" ]
+}

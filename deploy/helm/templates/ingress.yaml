@@ -1,6 +1,17 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "lowcoder.fullname" . -}}
 {{- $svcPort := .Values.frontend.service.port -}}
+{{- /* Service paths go before the frontend paths: first-match controllers would send them to a catch-all "/" */ -}}
+{{- $servicePaths := list -}}
+{{- if and .Values.hocuspocus.enabled .Values.hocuspocus.ingress.enabled -}}
+{{- /* fails the render when the browser URL of hocuspocus cannot be derived */ -}}
+{{- $_ := include "lowcoder.hocuspocus.publicUrl" . -}}
+{{- $servicePaths = append $servicePaths (dict "path" .Values.hocuspocus.ingress.path "service" (printf "%s-hocuspocus" $fullName) "port" .Values.hocuspocus.service.port) -}}
+{{- end -}}
+{{- if and .Values.agoraTokenService.enabled .Values.agoraTokenService.ingress.enabled -}}
+{{- /* fixed: the token service only answers /rte/<channel>/<role>/<tokentype>/<uid> and must see that path */ -}}
+{{- $servicePaths = append $servicePaths (dict "path" "/rte" "service" (printf "%s-agora-token-service" $fullName) "port" .Values.agoraTokenService.service.port) -}}
+{{- end -}}
 {{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
   {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
   {{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className}}
@@ -41,6 +52,22 @@ spec:
     - host: {{ .host | quote }}
       http:
         paths:
+          {{- range $servicePaths }}
+          - path: {{ .path }}
+            {{- if semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion }}
+            pathType: Prefix
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ .service }}
+                port:
+                  number: {{ .port }}
+              {{- else }}
+              serviceName: {{ .service }}
+              servicePort: {{ .port }}
+              {{- end }}
+          {{- end }}
           {{- range .paths }}
           - path: {{ .path }}
             {{- if and .pathType (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}

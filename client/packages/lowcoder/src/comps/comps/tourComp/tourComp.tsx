@@ -4,13 +4,6 @@ import { withMethodExposing } from "../../generators/withMethodExposing";
 import { UICompBuilder } from "../../generators";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
-import { MultiBaseComp } from "lowcoder-core";
-
-// FALK TODO: Check imports
-// import { MultiBaseComp } from "lowcoder-core";
-// import { UICompBuilder } from "comps/generators/uiCompBuilder";
-// import { stringExposingStateControl } from "comps/controls/codeStateControl";
-// import { withMethodExposing } from "comps/generators/withMethodExposing";
 
 import { TourChildrenMap, TourPropertyView } from "./tourPropertyView";
 import { Tour, TourProps } from "antd";
@@ -39,12 +32,7 @@ let TourBasicComp = (function() {
       let target = undefined;
       const compListItem = compMap.find((compItem) => compItem.children.name.getView() === targetName);
       if (compListItem) {
-        // console.log(`setting selected comp to ${compListItem}`);
-        try {
-          target = ((compListItem as MultiBaseComp).children.comp as GridItemComp).getRef?.();
-        } catch (e) {
-          target = ((compListItem as MultiBaseComp).children.comp as HookComp).getRef?.();
-        }
+        target = compListItem.getRef();
       }
 
       return {

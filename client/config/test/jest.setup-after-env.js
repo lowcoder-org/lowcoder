@@ -3,6 +3,7 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom";
+import { URL } from 'url';
 
 // implementation of window.resizeTo for dispatching event
 window.resizeTo = function resizeTo(width, height) {
@@ -54,3 +55,5 @@ class Worker {
 }
 
 window.Worker = Worker;
+
+global.URL = URL;

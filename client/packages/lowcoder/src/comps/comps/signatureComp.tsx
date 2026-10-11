@@ -15,20 +15,19 @@ import {
   SignatureContainerStyle
 } from "comps/controls/styleControlConstants";
 import { stateComp, withDefault } from "comps/generators/simpleGenerators";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { changeValueAction, multiChangeAction } from "lowcoder-core";
 import { Section, sectionNames, UndoIcon } from "lowcoder-design";
-import React, { Suspense, useState } from "react";
-import ReactResizeDetector from "react-resize-detector";
+import React, { Suspense, useEffect, useRef, useState } from "react";
+import { ResizePayload, useResizeDetector } from "react-resize-detector";
 import type SignatureCanvasType from "react-signature-canvas";
 import styled from "styled-components";
 import { UICompBuilder } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 
 const Wrapper = styled.div<{ $style: SignatureStyleType; $isEmpty: boolean }>`
   height: 100%;
@@ -99,12 +98,12 @@ const childrenMap = {
   tips: withDefault(StringControl, trans('signature.signHere')),
   onEvent: ChangeEventHandlerControl,
   label: withDefault(LabelControl, {position: 'column', text: ''}),
-  style: styleControl(SignatureContainerStyle),
-  labelStyle: styleControl(LabelStyle),
+  style: styleControl(SignatureContainerStyle , 'style'),
+  labelStyle: styleControl(LabelStyle , 'labelStyle'),
   showUndo: withDefault(BoolControl, true),
   showClear: withDefault(BoolControl, true),
   value: stateComp(''),
-  inputFieldStyle: styleControl(SignatureStyle),
+  inputFieldStyle: styleControl(SignatureStyle , 'inputFieldStyle'),
   ...formDataChildren,
 };
 
@@ -112,95 +111,122 @@ const SignatureCanvas = React.lazy(() => import("react-signature-canvas"));
 
 let SignatureTmpComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    let canvas: SignatureCanvasType | null = null;
+    const canvasRef = useRef<SignatureCanvasType | null>(null);
     const [isBegin, setIsBegin] = useState(false);
     const [canvasSize, setCanvasSize] = useState([0, 0]);
+    const conRef = useRef<HTMLDivElement>(null);
 
     const updateValue = (isClear: boolean = false) => {
-      const clear = isClear || canvas?.toData().length === 0;
-      if (canvas) {
-        clear && canvas?.clear();
+      if (!canvasRef.current) return;
+      
+      const clear = isClear || canvasRef.current.toData().length === 0;
+      if (clear) {
+        canvasRef.current.clear();
+        setIsBegin(false);
         dispatch(
           multiChangeAction({
-            value: changeValueAction(clear ? "" : canvas.toDataURL(), false),
+            value: changeValueAction("", false),
+          })
+        );
+      } else {
+        dispatch(
+          multiChangeAction({
+            value: changeValueAction(canvasRef.current.toDataURL(), false),
           })
         );
       }
     };
+
+    useResizeDetector({
+      targetRef: conRef,
+      onResize: ({width, height}: ResizePayload) => {
+        if (width && height) {
+          setCanvasSize([width, height]);
+          // Don't clear on resize as it breaks the drawing functionality
+          // updateValue(true);
+        }
+      },
+    });
+
+    // Cleanup on unmount
+    useEffect(() => {
+      return () => {
+        if (canvasRef.current) {
+          canvasRef.current.clear();
+        }
+      };
+    }, []);
+
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,
-      inputFieldStyle:props.inputFieldStyle,
+      inputFieldStyle: props.inputFieldStyle,
       children: (
-        <ReactResizeDetector
-          onResize={(width, height) => {
-            width && height && setCanvasSize([width, height]);
-            updateValue(true);
+        <Wrapper
+          ref={conRef}
+          onMouseDown={(e) => {
+            e.preventDefault();
           }}
+          $style={props.inputFieldStyle}
+          $isEmpty={!props.value && !isBegin}
         >
-          <Wrapper
-            onMouseDown={(e) => {
-              e.preventDefault();
-            }}
-            $style={props.inputFieldStyle}
-            $isEmpty={!props.value && !isBegin}
-          >
-            <div className="signature">
-              <Suspense fallback={<Skeleton />}>
-                <SignatureCanvas
-                  ref={(ref) => {
-                    canvas = ref;
-                  }}
-                  penColor={props.inputFieldStyle.pen}
-                  clearOnResize={false}
-                  canvasProps={{
-                    className: "sigCanvas",
-                    width: canvasSize[0],
-                    height: canvasSize[1],
-                  }}
-                  onEnd={() => {
-                    updateValue();
-                    setIsBegin(false);
-                    props.onEvent("change");
-                  }}
-                  onBegin={() => setIsBegin(true)}
-                />
-              </Suspense>
-            </div>
-            {(props.showClear || props.showUndo) && (
-              <div className="footer">
-                {props.showUndo && (
-                  <span className="anticon">
-                    <UndoIcon
-                      onClick={() => {
-                        const data = canvas?.toData();
-                        if (data) {
-                          data?.pop();
-                          canvas?.fromData(data);
-                          updateValue();
-                          props.onEvent("change");
-                        }
-                      }}
-                    />
-                  </span>
-                )}
-                {props.showClear && (
-                  <DeleteOutlined
+          <div key="signature" className="signature">
+            <Suspense fallback={<Skeleton />}>
+              <SignatureCanvas
+                ref={canvasRef}
+                penColor={props.inputFieldStyle.pen}
+                clearOnResize={false}
+                canvasProps={{
+                  className: "sigCanvas",
+                  width: canvasSize[0],
+                  height: canvasSize[1],
+                }}
+                onEnd={() => {
+                  updateValue();
+                  setIsBegin(false);
+                  props.onEvent("change");
+                }}
+                onBegin={() => {
+                  setIsBegin(true);
+                }}
+              />
+            </Suspense>
+          </div>
+          {(props.showClear || props.showUndo) && (
+            <div key="footer" className="footer">
+              {props.showUndo && (
+                <span className="anticon">
+                  <UndoIcon
                     onClick={() => {
-                      updateValue(true);
-                      props.onEvent("change");
+                      if (!canvasRef.current) return;
+                      const data = canvasRef.current.toData();
+                      if (data && data.length > 0) {
+                        data.pop();
+                        canvasRef.current.fromData(data);
+                        updateValue();
+                        props.onEvent("change");
+                      }
                     }}
                   />
-                )}
-              </div>
-            )}
-            {!(isBegin || props.value) && <div className="empty">{props.tips}</div>}
-          </Wrapper>
-        </ReactResizeDetector>
+                </span>
+              )}
+              {props.showClear && (
+                <DeleteOutlined
+                  onClick={() => {
+                    updateValue(true);
+                    props.onEvent("change");
+                  }}
+                />
+              )}
+            </div>
+          )}
+          {!(isBegin || props.value) && <div key="empty" className="empty">{props.tips}</div>}
+        </Wrapper>
       ),
     });
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
@@ -209,20 +235,21 @@ let SignatureTmpComp = (function () {
 
           <FormDataPropertyView {...children} />
 
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["logic", "both"].includes(editorModeStatus) && (
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {hiddenPropertyView(children)}
               {children.showUndo.propertyView({ label: trans("signature.showUndo") })}
               {children.showClear.propertyView({ label: trans("signature.showClear") })}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             children.label.getPropertyView()
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["layout", "both"].includes(editorModeStatus) && (
             <>
               <Section name={sectionNames.style}>
                 {children.style.getPropertyView()}

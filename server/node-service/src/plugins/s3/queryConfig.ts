@@ -1,7 +1,7 @@
 import { ActionParamConfig, Config, ConfigToType, QueryConfig } from "lowcoder-sdk/dataSource";
 import { S3I18nTranslator } from "./i18n";
 
-function getQueryConfig(i18n: S3I18nTranslator) {
+function getQueryConfig(i18n: S3I18nTranslator, version: string) {
   const bucketActionParam = {
     key: "bucket",
     type: "textInput",

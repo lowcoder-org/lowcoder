@@ -1,4 +1,4 @@
-import { Section, sectionNames } from "lowcoder-design";
+import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import { UICompBuilder, withDefault } from "../../generators";
 import { NameConfigHidden, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import ReactJson, { type ThemeKeys } from "react-json-view";
@@ -7,11 +7,13 @@ import styled from "styled-components";
 import { BoolControl } from "comps/controls/boolControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ArrayOrJSONObjectControl, NumberControl } from "comps/controls/codeControl";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { EditorContext } from "comps/editorState";
-import { useContext } from "react";
-import { AnimationStyle, AnimationStyleType, styleControl } from "@lowcoder-ee/index.sdk";
+import { useEditorStore } from "comps/editorStore";
+import { useEffect } from "react";
+import { AnimationStyle, AnimationStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
+import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
 
 /**
  * JsonExplorer Comp
@@ -42,7 +44,7 @@ const JsonExplorerContainer = styled.div<{
   ${(props) => props.$animationStyle}
   height: 100%;
   overflow-y: scroll;
-  background-color: ${(props) => bgColorMap[props.$theme] || "#ffffff"};
+  background-color: ${(props) => bgColorMap[props.$theme] || '#ffffff'};
   border: 1px solid #d7d9e0;
   border-radius: 4px;
   padding: 10px;
@@ -51,48 +53,73 @@ const JsonExplorerContainer = styled.div<{
 let JsonExplorerTmpComp = (function () {
   const childrenMap = {
     value: withDefault(ArrayOrJSONObjectControl, JSON.stringify(defaultData, null, 2)),
+    autoHeight: withDefault(AutoHeightControl, 'auto'),
+    showVerticalScrollbar:BoolControl,
     indent: withDefault(NumberControl, 4),
     expandToggle: BoolControl.DEFAULT_TRUE,
     theme: dropdownControl(themeOptions, 'shapeshifter:inverted'),
-    animationStyle:styleControl(AnimationStyle),
+    animationStyle:styleControl(AnimationStyle, 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props) => (
-    <JsonExplorerContainer
-      $theme={props.theme as keyof typeof bgColorMap}
-      $animationStyle={props.animationStyle}
-    >
-      <ReactJson
-        name={false}
-        src={props.value}
-        theme={props.theme as ThemeKeys}
-        collapsed={!props.expandToggle}
-        displayDataTypes={false}
-        indentWidth={props.indent}
-      />
-    </JsonExplorerContainer>
-  ))
+  return new UICompBuilder(childrenMap, (props) => {
+    return (
+      <JsonExplorerContainer
+        $theme={props.theme as keyof typeof bgColorMap}
+        $animationStyle={props.animationStyle}
+      >
+        <ScrollBar hideScrollbar={!props.showVerticalScrollbar}>
+          <ReactJson
+            name={false}
+            src={props.value}
+            theme={props.theme as ThemeKeys}
+            collapsed={!props.expandToggle}
+            displayDataTypes={false}
+            indentWidth={props.indent}
+          />
+        </ScrollBar>
+      </JsonExplorerContainer>
+    );
+  })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.value.propertyView({ label: trans("export.jsonEditorDesc") })}
+             {children.value.propertyView({
+               label: trans("export.jsonEditorDesc"),
+               enableAIHelp: true,
+               aiHelp: {
+                 targetKind: "json",
+                 label: "JSON Explorer value",
+                 fieldName: "value",
+                 fieldDescription:
+                   "JSON object or array displayed by the JSON Explorer component. Generate valid JSON that is useful to inspect as a nested data structure.",
+               },
+             })}
           </Section>
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "logic" || editorModeStatus === "both") && (
             <Section name={sectionNames.interaction}>
               {hiddenPropertyView(children)}
               {children.expandToggle.propertyView({ label: trans("jsonExplorer.expandToggle") })}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(editorModeStatus === "logic" || editorModeStatus === "both") && (
             <Section name={sectionNames.advanced}>
               {children.indent.propertyView({ label: trans("jsonExplorer.indent") })}
             </Section>
           )}
-
-          {(useContext(EditorContext).editorModeStatus === 'layout' ||
-            useContext(EditorContext).editorModeStatus === 'both') && (
+          <Section name={trans('prop.height')}>
+            {children.autoHeight.propertyView({label: trans('prop.height')})}
+          </Section>
+          {!children.autoHeight.getView()&&<Section name={sectionNames.layout}>
+            {children.showVerticalScrollbar.propertyView({
+              label: trans('prop.showVerticalScrollbar'),
+            })}
+          </Section>}
+          {(editorModeStatus === 'layout' ||
+            editorModeStatus === 'both') && (
             <>
               <Section name={sectionNames.style}>
                 {children.theme.propertyView({
@@ -112,7 +139,7 @@ let JsonExplorerTmpComp = (function () {
 
 JsonExplorerTmpComp = class extends JsonExplorerTmpComp {
   override autoHeight(): boolean {
-    return false;
+    return this.children.autoHeight.getView();
   }
 };
 

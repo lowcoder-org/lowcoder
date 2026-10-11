@@ -10,17 +10,17 @@ import { trans } from "i18n/comps";
 
 const TitlePositionOptions = [
   {
+    label: <AlignLeft />,
+    value: "left",
+  },
+  {
     label: <AlignClose />,
     value: "center",
   },
   {
     label: <AlignRight />,
     value: "right",
-  },
-  {
-    label: <AlignLeft />,
-    value: "left",
-  },
+  }
 ] as const;
 
 export const EchartsTitleConfig = (function () {
@@ -42,6 +42,7 @@ export const EchartsTitleConfig = (function () {
         {children.position.propertyView({
           label: trans("echarts.titlePosition"),
           radioButton: true,
+          tooltip: trans("echarts.changingTitle_x_Tooltip")
         })}
       </>
     ))

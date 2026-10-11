@@ -27,8 +27,8 @@ export default defineConfig({
     extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
   },
   build: {
-    target: "es2015",
-    cssTarget: "chrome63",
+    target: "es2020",
+    cssTarget: "chrome87",
     outDir: paths.appOutPath,
     emptyOutDir: true,
     lib: {

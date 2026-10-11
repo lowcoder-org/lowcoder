@@ -1,0 +1,167 @@
+{
+  "findAndModify" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/value" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/value/zeta" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/value/date" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/value/longMax" : "com.fasterxml.jackson.databind.node.LongNode",
+        "/value/intMax" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/value/double" : "com.fasterxml.jackson.databind.node.DoubleNode",
+        "/value/wholeDouble" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/value/nested" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/value/nested/ids" : "com.fasterxml.jackson.databind.node.ArrayNode",
+        "/value/nested/ids/0" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/value/nested/ids/1" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/value/nested/ids/2" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/value/nested/ids/2/at" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/value/int" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/value/long" : "com.fasterxml.jackson.databind.node.LongNode",
+        "/value/null" : "com.fasterxml.jackson.databind.node.NullNode",
+        "/value/alpha" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/value/true" : "com.fasterxml.jackson.databind.node.BooleanNode",
+        "/value/unicode" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/value/_id" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/value/emptyArray" : "com.fasterxml.jackson.databind.node.ArrayNode",
+        "/value/emptyObject" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/value/decimal128" : "com.fasterxml.jackson.databind.node.DoubleNode",
+        "/value/bigDouble" : "com.fasterxml.jackson.databind.node.DoubleNode"
+      },
+      "keyOrder" : {
+        "/value/nested/ids/2" : [ "at" ],
+        "/value/nested" : [ "ids" ],
+        "/value/emptyObject" : [ ],
+        "/value" : [ "zeta", "date", "longMax", "intMax", "double", "wholeDouble", "nested", "int", "long", "null", "alpha", "true", "unicode", "_id", "emptyArray", "emptyObject", "decimal128", "bigDouble" ],
+        "" : [ "value" ]
+      }
+    },
+    "written" : {"queryCode":"OK","data":{"value":{"zeta":"first key","date":"<date in the JVM zone: 2024-02-29T23:59:58Z>","longMax":9223372036854775807,"intMax":2147483647,"double":1.5,"wholeDouble":2,"nested":{"ids":["65f0c0ffee0000000000abcd",7,{"at":"<date in the JVM zone: 2024-02-29T23:59:58Z>"}]},"int":1,"long":3000000001,"null":null,"alpha":"last key","true":true,"unicode":"žluťoučký kůň 🐎","_id":"65f0c0ffee0000000000abcd","emptyArray":[],"emptyObject":{},"decimal128":1.5,"bigDouble":1.0E20}},"success":true}
+  },
+  "find" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.ArrayNode",
+        "/0" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/0/zeta" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/0/date" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/0/longMax" : "com.fasterxml.jackson.databind.node.LongNode",
+        "/0/intMax" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/0/double" : "com.fasterxml.jackson.databind.node.DoubleNode",
+        "/0/wholeDouble" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/0/nested" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/0/nested/ids" : "com.fasterxml.jackson.databind.node.ArrayNode",
+        "/0/nested/ids/0" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/0/nested/ids/1" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/0/nested/ids/2" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/0/nested/ids/2/at" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/0/int" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/0/long" : "com.fasterxml.jackson.databind.node.LongNode",
+        "/0/null" : "com.fasterxml.jackson.databind.node.NullNode",
+        "/0/alpha" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/0/true" : "com.fasterxml.jackson.databind.node.BooleanNode",
+        "/0/unicode" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/0/_id" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/0/emptyArray" : "com.fasterxml.jackson.databind.node.ArrayNode",
+        "/0/emptyObject" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/0/decimal128" : "com.fasterxml.jackson.databind.node.DoubleNode",
+        "/0/bigDouble" : "com.fasterxml.jackson.databind.node.DoubleNode",
+        "/1" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/1/_id" : "com.fasterxml.jackson.databind.node.IntNode"
+      },
+      "keyOrder" : {
+        "/0/nested/ids/2" : [ "at" ],
+        "/0/nested" : [ "ids" ],
+        "/0/emptyObject" : [ ],
+        "/0" : [ "zeta", "date", "longMax", "intMax", "double", "wholeDouble", "nested", "int", "long", "null", "alpha", "true", "unicode", "_id", "emptyArray", "emptyObject", "decimal128", "bigDouble" ],
+        "/1" : [ "_id" ]
+      }
+    },
+    "written" : {"queryCode":"OK","data":[{"zeta":"first key","date":"<date in the JVM zone: 2024-02-29T23:59:58Z>","longMax":9223372036854775807,"intMax":2147483647,"double":1.5,"wholeDouble":2,"nested":{"ids":["65f0c0ffee0000000000abcd",7,{"at":"<date in the JVM zone: 2024-02-29T23:59:58Z>"}]},"int":1,"long":3000000001,"null":null,"alpha":"last key","true":true,"unicode":"žluťoučký kůň 🐎","_id":"65f0c0ffee0000000000abcd","emptyArray":[],"emptyObject":{},"decimal128":1.5,"bigDouble":1.0E20},{"_id":2}],"success":true}
+  },
+  "findPreEpochDate" : {
+    "error" : "org.lowcoder.sdk.exception.PluginException: QUERY_EXECUTION_ERROR QUERY_EXECUTION_ERROR"
+  },
+  "insert" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/n" : "com.fasterxml.jackson.databind.node.LongNode"
+      },
+      "keyOrder" : {
+        "" : [ "n" ]
+      }
+    },
+    "written" : {"queryCode":"OK","data":{"n":3000000001},"success":true}
+  },
+  "update" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/nModified" : "com.fasterxml.jackson.databind.node.IntNode"
+      },
+      "keyOrder" : {
+        "" : [ "nModified" ]
+      }
+    },
+    "written" : {"queryCode":"OK","data":{"nModified":2},"success":true}
+  },
+  "updateWithN" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/n" : "com.fasterxml.jackson.databind.node.IntNode"
+      },
+      "keyOrder" : {
+        "" : [ "n" ]
+      }
+    },
+    "written" : {"queryCode":"OK","data":{"n":2},"success":true}
+  },
+  "distinct" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "com.fasterxml.jackson.databind.node.ObjectNode",
+        "/values" : "com.fasterxml.jackson.databind.node.ArrayNode",
+        "/values/0" : "com.fasterxml.jackson.databind.node.IntNode",
+        "/values/1" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/values/2" : "com.fasterxml.jackson.databind.node.TextNode",
+        "/values/3" : "com.fasterxml.jackson.databind.node.DoubleNode",
+        "/values/4" : "com.fasterxml.jackson.databind.node.LongNode",
+        "/values/5" : "com.fasterxml.jackson.databind.node.DoubleNode",
+        "/values/6" : "com.fasterxml.jackson.databind.node.TextNode"
+      },
+      "keyOrder" : {
+        "" : [ "values" ]
+      }
+    },
+    "written" : {"queryCode":"OK","data":{"values":[1,"two","65f0c0ffee0000000000abcd",2.5,3000000001,10.5,"<date in the JVM zone: 2024-02-29T23:59:58Z>"]},"success":true}
+  },
+  "other" : {
+    "queryCode" : "OK",
+    "dataShape" : {
+      "classes" : {
+        "" : "null"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"OK","success":true}
+  },
+  "notOk" : {
+    "queryCode" : "MONGO_EXECUTION_ERROR",
+    "messageKey" : "MONGODB_EXECUTE_ERROR",
+    "dataShape" : {
+      "classes" : {
+        "" : "null"
+      },
+      "keyOrder" : { }
+    },
+    "written" : {"queryCode":"MONGO_EXECUTION_ERROR","success":false}
+  }
+}

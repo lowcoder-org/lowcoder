@@ -13,7 +13,7 @@ import {
   stringExposingStateControl,
 } from "lowcoder-sdk";
 import { useRef } from "react";
-import ReactResizeDetector from "react-resize-detector";
+import { useResizeDetector } from "react-resize-detector";
 import _ from "lodash";
 import { RecordConstructorToView } from "lowcoder-core";
 import { Container, customTheme, EmbeddedButton, saveEvent } from "./imageEditorConstants";
@@ -70,6 +70,12 @@ const ContainerImageEditor = (props: RecordConstructorToView<typeof childrenMap>
     props.dataURI.onChange(dataURL);
     props.data.onChange(dataURL.split(",")[1]);
   };
+
+  useResizeDetector({
+    targetRef: conRef,
+    onResize,
+  });
+
   return (
     <Container ref={conRef}>
       <EmbeddedButton
@@ -81,34 +87,32 @@ const ContainerImageEditor = (props: RecordConstructorToView<typeof childrenMap>
       >
         {props.buttonText.value}
       </EmbeddedButton>
-      <ReactResizeDetector onResize={onResize}>
-        <div style={{ width: "100%", height: "100%" }}>
-          <ImageEditor
-            ref={editorRef}
-            includeUI={{
-              loadImage: {
-                path: props.src.value,
-                name: props.name.value,
-              },
-              menu: filteredMenu,
-              theme: customTheme,
-              uiSize: {
-                width: "100%",
-                height: "100%",
-              },
-              menuBarPosition: "bottom",
-              locale: i18nObjs.imageEditorLocale ?? {},
-            }}
-            cssMaxWidth={document.documentElement.clientWidth}
-            cssMaxHeight={document.documentElement.clientHeight}
-            selectionStyle={{
-              cornerSize: 50,
-              rotatingPointOffset: 100,
-            }}
-            usageStatistics={false}
-          />
-        </div>
-      </ReactResizeDetector>
+      <div style={{ width: "100%", height: "100%" }}>
+        <ImageEditor
+          ref={editorRef}
+          includeUI={{
+            loadImage: {
+              path: props.src.value,
+              name: props.name.value,
+            },
+            menu: filteredMenu,
+            theme: customTheme,
+            uiSize: {
+              width: "100%",
+              height: "100%",
+            },
+            menuBarPosition: "bottom",
+            locale: i18nObjs.imageEditorLocale ?? {},
+          }}
+          cssMaxWidth={document.documentElement.clientWidth}
+          cssMaxHeight={document.documentElement.clientHeight}
+          selectionStyle={{
+            cornerSize: 50,
+            rotatingPointOffset: 100,
+          }}
+          usageStatistics={false}
+        />
+      </div>
     </Container>
   );
 };

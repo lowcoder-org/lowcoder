@@ -12,8 +12,8 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { StringControl } from "comps/controls/codeControl";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEffect } from "react";
+import { useEditorStore } from "comps/editorStore";
 import { withDefault } from "../generators";
 
 // TODO: add styling for image (size)
@@ -31,8 +31,8 @@ const childrenMap = {
   level: dropdownControl(levelOptions, 'L'),
   includeMargin: BoolControl.DEFAULT_TRUE,
   image: StringControl,
-  style: withDefault(styleControl(QRCodeStyle),{background:'transparent'}),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(QRCodeStyle , 'style'),
+  animationStyle: styleControl(AnimationStyle  , 'animationStyle'),
   restrictPaddingOnRotation: withDefault(StringControl, 'qrCode'),
 };
 
@@ -78,8 +78,11 @@ const QRCodeView = (props: RecordConstructorToView<typeof childrenMap>) => {
 };
 
 let QRCodeBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => <QRCodeView {...props} />)
-    .setPropertyViewFn((children) => (
+  return new UICompBuilder(childrenMap, (props) => {
+    return( <QRCodeView {...props} />)})
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
         <Section name={sectionNames.basic}>
           {children.value.propertyView({
@@ -89,7 +92,7 @@ let QRCodeBasicComp = (function () {
           })}
         </Section>
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["logic", "both"].includes(editorModeStatus) && (
           <><Section name={sectionNames.interaction}>
               {hiddenPropertyView(children)}
             </Section>
@@ -106,7 +109,7 @@ let QRCodeBasicComp = (function () {
           </>
         )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           <>
             <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
@@ -118,7 +121,8 @@ let QRCodeBasicComp = (function () {
           </>
         )}
       </>
-    ))
+    );
+    })
     .build();
 })();
 

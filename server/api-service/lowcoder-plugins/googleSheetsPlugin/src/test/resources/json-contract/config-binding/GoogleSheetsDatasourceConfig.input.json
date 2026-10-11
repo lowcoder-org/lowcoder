@@ -1,0 +1,6 @@
+{
+  "full": {
+    "serviceAccount": "{\"type\":\"service_account\",\"client_id\":\"1\"}"
+  },
+  "empty": {}
+}

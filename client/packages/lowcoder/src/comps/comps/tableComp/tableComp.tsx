@@ -1,8 +1,9 @@
 import { tableDataRowExample } from "comps/comps/tableComp/column/tableColumnListComp";
 import { getPageSize } from "comps/comps/tableComp/paginationControl";
-import { TableCompView } from "comps/comps/tableComp/tableCompView";
+import { EMPTY_ROW_KEY, TableCompView } from "comps/comps/tableComp/tableCompView";
 import { TableFilter } from "comps/comps/tableComp/tableToolbarComp";
 import {
+  applyHeaderFilters,
   columnHide,
   ColumnsAggrData,
   COLUMN_CHILDREN_KEY,
@@ -26,13 +27,14 @@ import {
   depsConfig,
   DepsConfig,
   NameConfig,
+  NameConfigHidden,
   withExposingConfigs,
 } from "comps/generators/withExposing";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { MAP_KEY } from "comps/generators/withMultiContext";
 import { NameGenerator } from "comps/utils";
 import { trans } from "i18n";
-import _ from "lodash";
+import _, { isArray } from "lodash";
 import {
   changeChildAction,
   CompAction,
@@ -40,8 +42,13 @@ import {
   deferAction,
   executeQueryAction,
   fromRecord,
+  FunctionNode,
+  Node,
   onlyEvalAction,
+  RecordNode,
+  RecordNodeToValue,
   routeByNameAction,
+  ValueAndMsg,
   withFunction,
   wrapChildAction,
 } from "lowcoder-core";
@@ -51,10 +58,9 @@ import { lastValueIfEqual, shallowEqual } from "util/objectUtils";
 import { IContainer } from "../containerBase";
 import { getSelectedRowKeys } from "./selectionControl";
 import { compTablePropertyView } from "./tablePropertyView";
-import { RowColorComp, RowHeightComp, TableChildrenView, TableInitComp } from "./tableTypes";
+import { RowColorComp, RowHeightComp, SortValue, TableChildrenView, TableInitComp } from "./tableTypes";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useState } from "react";
 
 export class TableImplComp extends TableInitComp implements IContainer {
   private prevUnevaledValue?: string;
@@ -93,10 +99,15 @@ export class TableImplComp extends TableInitComp implements IContainer {
   }
 
   downloadData(fileName: string) {
+    // displayData already contains only visible columns (filtered in transformDispalyData)
+    const displayData = (this as any).exposingValues["displayData"];
+    const delimiter = this.children.toolbar.children.columnSeparator.getView();
+
     saveDataAsFile({
-      data: (this as any).exposingValues["displayData"],
+      data: displayData,
       filename: fileName,
       fileType: "csv",
+      delimiter,
     });
   }
 
@@ -290,21 +301,50 @@ export class TableImplComp extends TableInitComp implements IContainer {
 
   // handle sort: data -> sortedData
   sortDataNode() {
-    const nodes = {
+    const nodes: {
+      data: Node<JSONObject[]>;
+      sort: Node<SortValue[]>;
+      dataIndexes: RecordNode<Record<string, Node<string>>>;
+      sortables: RecordNode<Record<string, Node<ValueAndMsg<boolean>>>>;
+      withParams: RecordNode<_.Dictionary<any>>,
+  } = {
       data: this.children.data.exposingNode(),
       sort: this.children.sort.node(),
       dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
       sortables: this.children.columns.getColumnsNode("sortable"),
+      withParams: this.children.columns.withParamsNode(),
     };
     const sortedDataNode = withFunction(fromRecord(nodes), (input) => {
       const { data, sort, dataIndexes, sortables } = input;
-      const columns = _(dataIndexes)
+      const sortColumns = _(dataIndexes)
         .mapValues((dataIndex, idx) => ({ sortable: !!sortables[idx] }))
         .mapKeys((sortable, idx) => dataIndexes[idx])
         .value();
-      const sortedData = sortData(data, columns, sort);
+      const dataColumns = _(dataIndexes)
+        .mapValues((dataIndex, idx) => ({
+          dataIndex,
+          render: input.withParams[idx] as any,
+        }))
+        .value();
+      const updatedData: Array<RecordType> = data.map((row, index) => ({
+        ...row,
+        [OB_ROW_ORI_INDEX]: index + "",
+      }));
+      const updatedDataMap: Record<string, RecordType> = {};
+      updatedData.forEach((row) => {
+        updatedDataMap[row[OB_ROW_ORI_INDEX]] = row;
+      })
+      const originalData = getOriDisplayData(updatedData, 1000, Object.values(dataColumns))
+      const sortedData = sortData(originalData, sortColumns, sort);
+
       // console.info( "sortNode. data: ", data, " sort: ", sort, " columns: ", columns, " sortedData: ", sortedData);
-      return sortedData;
+      const newData = sortedData.map(row => {
+        return {
+          ...row,
+          ...updatedDataMap[row[OB_ROW_ORI_INDEX]],
+        }
+      });
+      return newData;
     });
     return lastValueIfEqual(this, "sortedDataNode", [sortedDataNode, nodes] as const, (a, b) =>
       shallowEqual(a[1], b[1])
@@ -317,12 +357,14 @@ export class TableImplComp extends TableInitComp implements IContainer {
       data: this.sortDataNode(),
       searchValue: this.children.searchText.node(),
       filter: this.children.toolbar.children.filter.node(),
+      headerFilters: this.children.headerFilters.node(),
       showFilter: this.children.toolbar.children.showFilter.node(),
     };
     let context = this;
     const filteredDataNode = withFunction(fromRecord(nodes), (input) => {
-      const { data, searchValue, filter, showFilter } = input;
-      const filteredData = filterData(data, searchValue.value, filter, showFilter.value);
+      const { data, searchValue, filter, headerFilters, showFilter } = input;
+      const toolbarFilteredData = filterData(data, searchValue.value, filter, showFilter.value);
+      const filteredData = applyHeaderFilters(toolbarFilteredData, headerFilters);
       // console.info("filterNode. data: ", data, " filter: ", filter, " filteredData: ", filteredData);
       // if data is changed on search then trigger event
       if(Boolean(searchValue.value) && data.length !== filteredData.length) {
@@ -385,12 +427,11 @@ export class TableImplComp extends TableInitComp implements IContainer {
     )[0];
   }
 
-  changeSetNode() {
-    const nodes = {
-      dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
-      renders: this.children.columns.getColumnsNode("render"),
-    };
-    const resNode = withFunction(fromRecord(nodes), (input) => {
+  private getUpsertSetResNode(
+    nodes: Record<string, RecordNode<Record<string, Node<any>>>>,
+    filterNewRows?: boolean,
+  ) {
+    return withFunction(fromRecord(nodes), (input) => {
       // merge input.dataIndexes and input.withParams into one structure
       const dataIndexRenderDict = _(input.dataIndexes)
         .mapValues((dataIndex, idx) => input.renders[idx])
@@ -400,7 +441,8 @@ export class TableImplComp extends TableInitComp implements IContainer {
       _.forEach(dataIndexRenderDict, (render, dataIndex) => {
         _.forEach(render[MAP_KEY], (value, key) => {
           const changeValue = (value.comp as any).comp.changeValue;
-          if (!_.isNil(changeValue)) {
+          const includeRecord = (filterNewRows && key.startsWith(EMPTY_ROW_KEY)) || (!filterNewRows && !key.startsWith(EMPTY_ROW_KEY));
+          if (!_.isNil(changeValue) && includeRecord) {
             if (!record[key]) record[key] = {};
             record[key][dataIndex] = changeValue;
           }
@@ -408,9 +450,45 @@ export class TableImplComp extends TableInitComp implements IContainer {
       });
       return record;
     });
+  }
+
+  changeSetNode() {
+    const nodes = {
+      dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
+      renders: this.children.columns.getColumnsNode("render"),
+    };
+
+    const resNode = this.getUpsertSetResNode(nodes);
     return lastValueIfEqual(this, "changeSetNode", [resNode, nodes] as const, (a, b) =>
       shallowEqual(a[1], b[1])
     )[0];
+  }
+
+  insertSetNode() {
+    const nodes = {
+      dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
+      renders: this.children.columns.getColumnsNode("render"),
+    };
+
+    const resNode = this.getUpsertSetResNode(nodes, true);
+    return lastValueIfEqual(this, "insertSetNode", [resNode, nodes] as const, (a, b) =>
+      shallowEqual(a[1], b[1])
+    )[0];
+  }
+
+  private getToUpsertRowsResNodes(
+    nodes: Record<string, FunctionNode<any, any>>
+  ) {
+    return withFunction(fromRecord(nodes), (input) => {
+      const res = _(input.changeSet)
+        .map((changeValues, oriIndex) => {
+          const idx = input.indexes[oriIndex];
+          const oriRow = _.omit(input.oriDisplayData[idx], OB_ROW_ORI_INDEX);
+          return { ...oriRow, ...changeValues };
+        })
+        .value();
+      return res;
+    });
   }
 
   toUpdateRowsNode() {
@@ -419,18 +497,22 @@ export class TableImplComp extends TableInitComp implements IContainer {
       indexes: this.displayDataIndexesNode(),
       changeSet: this.changeSetNode(),
     };
-    const resNode = withFunction(fromRecord(nodes), (input) => {
-      const res = _(input.changeSet)
-        .map((changeValues, oriIndex) => {
-          const idx = input.indexes[oriIndex];
-          const oriRow = _.omit(input.oriDisplayData[idx], OB_ROW_ORI_INDEX);
-          return { ...oriRow, ...changeValues };
-        })
-        .value();
-      // console.info("toUpdateRowsNode. input: ", input, " res: ", res);
-      return res;
-    });
+
+    const resNode = this.getToUpsertRowsResNodes(nodes);
     return lastValueIfEqual(this, "toUpdateRowsNode", [resNode, nodes] as const, (a, b) =>
+      shallowEqual(a[1], b[1])
+    )[0];
+  }
+
+  toInsertRowsNode() {
+    const nodes = {
+      oriDisplayData: this.oriDisplayDataNode(),
+      indexes: this.displayDataIndexesNode(),
+      changeSet: this.insertSetNode(),
+    };
+
+    const resNode = this.getToUpsertRowsResNodes(nodes);
+    return lastValueIfEqual(this, "toInsertRowsNode", [resNode, nodes] as const, (a, b) =>
       shallowEqual(a[1], b[1])
     )[0];
   }
@@ -440,14 +522,25 @@ export class TableImplComp extends TableInitComp implements IContainer {
       oriDisplayData: this.oriDisplayDataNode(),
       withParams: this.children.columns.withParamsNode(),
       dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
+      changeSet: this.changeSetNode(),
     };
     const resNode = withFunction(fromRecord(nodes), (input) => {
       const dataIndexWithParamsDict = _(input.dataIndexes)
         .mapValues((dataIndex, idx) => input.withParams[idx])
         .mapKeys((withParams, idx) => input.dataIndexes[idx])
         .value();
-      const res = getColumnsAggr(input.oriDisplayData, dataIndexWithParamsDict);
-      // console.info("columnAggrNode: ", res);
+      
+      const columnChangeSets: Record<string, Record<string, any>> = {};
+      _.forEach(input.changeSet, (rowData, rowId) => {
+        _.forEach(rowData, (value, dataIndex) => {
+          if (!columnChangeSets[dataIndex]) {
+            columnChangeSets[dataIndex] = {};
+          }
+          columnChangeSets[dataIndex][rowId] = value;
+        });
+      });
+      
+      const res = getColumnsAggr(input.oriDisplayData, dataIndexWithParamsDict, columnChangeSets);
       return res;
     });
     return lastValueIfEqual(this, "columnAggrNode", [resNode, nodes] as const, (a, b) =>
@@ -457,6 +550,7 @@ export class TableImplComp extends TableInitComp implements IContainer {
 }
 
 let TableTmpComp = withViewFn(TableImplComp, (comp) => {
+  const [emptyRows, setEmptyRows] = useState([]);
   return (
     <HidableView hidden={comp.children.hidden.getView()}>
       <TableCompView
@@ -469,15 +563,7 @@ let TableTmpComp = withViewFn(TableImplComp, (comp) => {
 });
 
 
-const withEditorModeStatus = (Component:any) => (props:any) => {
-  const editorModeStatus = useContext(EditorContext).editorModeStatus;
-  return <Component {...props} editorModeStatus={editorModeStatus} />;
-};
-
-// Use this HOC when defining TableTmpComp
-TableTmpComp = withPropertyViewFn(TableTmpComp, (comp) => withEditorModeStatus(compTablePropertyView)(comp));
-
-// TableTmpComp = withPropertyViewFn(TableTmpComp, compTablePropertyView);
+TableTmpComp = withPropertyViewFn(TableTmpComp, compTablePropertyView);
 
 
 
@@ -586,6 +672,24 @@ TableTmpComp = withMethodExposing(TableTmpComp, [
   },
   {
     method: {
+      name: "setMultiSort",
+      description: "",
+      params: [
+        { name: "sortColumns", type: "arrayObject"},
+      ],
+    },
+    execute: (comp, values) => {
+      const sortColumns = values[0];
+      if (!isArray(sortColumns)) {
+        return Promise.reject("setMultiSort function only accepts array of sort objects i.e. [{column: column_name, desc: boolean}]")
+      }
+      if (sortColumns && isArray(sortColumns)) {
+        comp.children.sort.dispatchChangeValueAction(sortColumns as SortValue[]);
+      }
+    },
+  },
+  {
+    method: {
       name: "resetSelections",
       description: "",
       params: [],
@@ -595,6 +699,202 @@ TableTmpComp = withMethodExposing(TableTmpComp, [
       comp.children.selection.children.selectedRowKeys.dispatchChangeValueAction([]);
     },
   },
+  {
+    method: {
+      name: "selectAll",
+      description: "Select all rows in the current filtered view",
+      params: [],
+    },
+    execute: (comp) => {
+      const displayData = comp.filterData ?? [];
+      const allKeys = displayData.map((row) => row[OB_ROW_ORI_INDEX] + "");
+      comp.children.selection.children.selectedRowKey.dispatchChangeValueAction(allKeys[0] || "0");
+      comp.children.selection.children.selectedRowKeys.dispatchChangeValueAction(allKeys);
+    },
+  },
+  {
+    method: {
+      name: "rowClick",
+      description:
+        "Programmatically click a table row by index and trigger rowClick event handlers",
+      params: [{ name: "rowIndex", type: "number" }],
+    },
+    execute: (comp, values) => {
+      const rowIndex = Number(values[0]);
+      const displayData = comp.filterData ?? [];
+      if (Number.isNaN(rowIndex) || rowIndex < 0 || rowIndex >= displayData.length) {
+        return Promise.reject(
+          "rowClick expects a valid row index within the current filtered data"
+        );
+      }
+      const key = displayData[rowIndex][OB_ROW_ORI_INDEX] + "";
+      const prevKey = comp.children.selection.children.selectedRowKey.getView();
+      if (key !== prevKey) {
+        comp.children.selection.children.selectedRowKey.dispatchChangeValueAction(key);
+      }
+      const onEvent = comp.children.onEvent.getView();
+      onEvent("rowClick");
+      if (key !== prevKey) {
+        onEvent("rowSelectChange");
+      }
+    },
+  },
+  {
+    method: {
+      name: "selectRowsByIndex",
+      description: "Select rows by index",
+      params: [
+        { name: "rowIndexes", type: "arrayNumberString"},
+      ]
+    },
+    execute: (comp, values) => {
+      const rowIndexes = values[0];
+      if (!isArray(rowIndexes)) {
+        return Promise.reject("selectRowsByIndex function only accepts array of string or number i.e. ['1', '2', '3'] or [1, 2, 3]")
+      }
+      const displayData = comp.filterData ?? [];
+      const selectedKeys: string[] = rowIndexes
+        .map((index) => {
+          const numIndex = Number(index);
+          if (isNaN(numIndex) || numIndex < 0 || numIndex >= displayData.length) {
+            return null;
+          }
+          return displayData[numIndex][OB_ROW_ORI_INDEX];
+        })
+        .filter((key): key is string => key !== null);
+      
+      comp.children.selection.children.selectedRowKey.dispatchChangeValueAction(selectedKeys[0] || "0");
+      comp.children.selection.children.selectedRowKeys.dispatchChangeValueAction(selectedKeys);
+    },
+  },
+  {
+    method: {
+      name: "selectRowsByIds",
+      description: "Select rows by ids",
+      params: [
+        { name: "rowIds", type: "arrayNumberString"},
+      ]
+    },
+    execute: (comp, values) => {
+      const rowIds = values[0];
+      if (!isArray(rowIds)) {
+        return Promise.reject("selectRowsByIds function only accepts array of string or number i.e. ['1', '2', '3'] or [1, 2, 3]")
+      }
+      const displayData = comp.filterData ?? [];
+      
+      // Common ID field names to check
+      const idFields = ['id', 'ID', 'Id', 'key', 'Key', 'KEY'];
+      
+      const selectedKeys: string[] = rowIds
+        .map((id) => {
+          // First try to find by common ID fields
+          for (const field of idFields) {
+            const foundRow = displayData.find((row) => {
+              const fieldValue = row[field];
+              return fieldValue !== undefined && String(fieldValue) === String(id);
+            });
+            if (foundRow) {
+              return foundRow[OB_ROW_ORI_INDEX];
+            }
+          }
+          
+          // If no ID field found, fall back to comparing with OB_ROW_ORI_INDEX
+          const foundRow = displayData.find((row) => row[OB_ROW_ORI_INDEX] === String(id));
+          return foundRow ? foundRow[OB_ROW_ORI_INDEX] : null;
+        })
+        .filter((key): key is string => key !== null);
+      
+      comp.children.selection.children.selectedRowKey.dispatchChangeValueAction(selectedKeys[0] || "0");
+      comp.children.selection.children.selectedRowKeys.dispatchChangeValueAction(selectedKeys);
+    },
+  },
+  {
+    method: {
+      name: "cancelChanges",
+      description: "",
+      params: [],
+    },
+    execute: (comp, values) => {
+      comp.children.columns.dispatchClearChangeSet();
+    },
+  },
+  {
+    method: {
+      name: "cancelInsertChanges",
+      description: "",
+      params: [],
+    },
+    execute: (comp, values) => {
+      comp.children.columns.dispatchClearInsertSet();
+    },
+  },
+  {
+    method: {
+      name: "setExpandedRows",
+      description: "",
+      params: [
+        { name: "expandedRows", type: "arrayString"},
+      ],
+    },
+    execute: (comp, values) => {
+      const expandedRows = values[0];
+      if (!isArray(expandedRows)) {
+        return Promise.reject("setExpandedRows function only accepts array of string i.e. ['1', '2', '3']")
+      }
+      if (expandedRows && isArray(expandedRows)) {
+        comp.children.currentExpandedRows.dispatchChangeValueAction(expandedRows as string[]);
+      }
+    },
+  }
+  ,
+  {
+    method: {
+      name: "hideColumns",
+      description: "Hide specified columns by dataIndex or title",
+      params: [
+        { name: "columns", type: "arrayString" },
+      ],
+    },
+    execute: (comp, values) => {
+      const columns = values[0];
+      if (!isArray(columns)) {
+        return Promise.reject("hideColumns expects an array of strings, e.g. ['id','name']");
+      }
+      const targets = new Set((columns as any[]).map((c) => String(c)));
+      comp.children.columns.getView().forEach((c) => {
+        const view = c.getView();
+        if (targets.has(view.dataIndex) || targets.has(view.title)) {
+          // Ensure both persistent and temporary flags are updated
+          c.children.hide.dispatchChangeValueAction(true);
+          c.children.tempHide.dispatchChangeValueAction(true);
+        }
+      });
+    },
+  }
+  ,
+  {
+    method: {
+      name: "showColumns",
+      description: "Show specified columns by dataIndex or title",
+      params: [
+        { name: "columns", type: "arrayString" },
+      ],
+    },
+    execute: (comp, values) => {
+      const columns = values[0];
+      if (!isArray(columns)) {
+        return Promise.reject("showColumns expects an array of strings, e.g. ['id','name']");
+      }
+      const targets = new Set((columns as any[]).map((c) => String(c)));
+      comp.children.columns.getView().forEach((c) => {
+        const view = c.getView();
+        if (targets.has(view.dataIndex) || targets.has(view.title)) {
+          c.children.hide.dispatchChangeValueAction(false);
+          c.children.tempHide.dispatchChangeValueAction(false);
+        }
+      });
+    },
+  }
 ]);
 
 // exposing data
@@ -672,12 +972,30 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
     trans("table.changeSetDesc")
   ),
   new CompDepsConfig(
+    "insertSet",
+    (comp) => ({
+      insertSet: comp.insertSetNode(),
+    }),
+    (input) => input.insertSet,
+    trans("table.changeSetDesc")
+  ),
+  new CompDepsConfig(
     "toUpdateRows",
     (comp) => ({
       toUpdateRows: comp.toUpdateRowsNode(),
     }),
     (input) => {
       return input.toUpdateRows;
+    },
+    trans("table.toUpdateRowsDesc")
+  ),
+  new CompDepsConfig(
+    "toInsertRows",
+    (comp) => ({
+      toInsertRows: comp.toInsertRowsNode(),
+    }),
+    (input) => {
+      return input.toInsertRows;
     },
     trans("table.toUpdateRowsDesc")
   ),
@@ -729,6 +1047,18 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
       } else {
         return sortIndex;
       }
+    },
+    trans("table.sortColumnDesc")
+  ),
+  new DepsConfig(
+    "sortColumns",
+    (children) => {
+      return {
+        sort: children.sort.node(),
+      };
+    },
+    (input) => {
+      return input.sort;
     },
     trans("table.sortColumnDesc")
   ),
@@ -795,6 +1125,30 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
     },
     trans("table.displayDataDesc")
   ),
+  new CompDepsConfig(
+    "hiddenColumns",
+    (comp) => {
+      return {
+        dataIndexes: comp.children.columns.getColumnsNode("dataIndex"),
+        hides: comp.children.columns.getColumnsNode("hide"),
+        tempHides: comp.children.columns.getColumnsNode("tempHide"),
+        columnSetting: comp.children.toolbar.children.columnSetting.node(),
+      };
+    },
+    (input) => {
+      const hidden: string[] = [];
+      _.forEach(input.dataIndexes, (dataIndex, idx) => {
+        const isHidden = columnHide({
+          hide: input.hides[idx].value,
+          tempHide: input.tempHides[idx],
+          enableColumnSetting: input.columnSetting.value,
+        });
+        if (isHidden) hidden.push(dataIndex);
+      });
+      return hidden;
+    },
+    trans("table.displayDataDesc")
+  ),
   new DepsConfig(
     "filter",
     (children) => {
@@ -808,6 +1162,18 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
     trans("table.filterDesc")
   ),
   new DepsConfig(
+    "headerFilters",
+    (children) => {
+      return {
+        headerFilters: children.headerFilters.node(),
+      };
+    },
+    (input) => {
+      return input.headerFilters;
+    },
+    trans("table.headerFiltersDesc")
+  ),
+  new DepsConfig(
     "selectedCell",
     (children) => {
       return {
@@ -819,5 +1185,25 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
     },
     trans("table.selectedCellDesc")
   ),
+  depsConfig({
+    name: "currentExpandedRow",
+    desc: trans("table.sortDesc"),
+    depKeys: ["currentExpandedRows"],
+    func: (input) => {
+      if (input.currentExpandedRows.length > 0) {
+        return input.currentExpandedRows[input.currentExpandedRows.length - 1];
+      }
+      return "";
+    },
+  }),
+  depsConfig({
+    name: "currentExpandedRows",
+    desc: trans("table.sortDesc"),
+    depKeys: ["currentExpandedRows"],
+    func: (input) => {
+      return input.currentExpandedRows;
+    },
+  }),
   new NameConfig("data", trans("table.dataDesc")),
+  NameConfigHidden,
 ]);

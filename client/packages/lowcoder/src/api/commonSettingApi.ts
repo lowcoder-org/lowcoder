@@ -2,6 +2,7 @@ import Api from "./api";
 import { AxiosPromise } from "axios";
 import { ApiResponse, GenericApiResponse } from "./apiResponses";
 import { trans } from "i18n";
+import { JSONObject } from "@lowcoder-ee/util/jsonTypes";
 
 export type FetchCommonSettingPayload = {
   orgId: string;
@@ -12,16 +13,19 @@ export interface CommonSettingResponseData {
   themeList?: ThemeType[];
   defaultTheme?: string | null;
   preloadCSS?: string | null;
+  preloadGlobalCSS?: string | null;
   preloadJavaScript?: string | null;
   runJavaScriptInHost?: boolean | null;
   preloadLibs?: string[] | null;
   npmPlugins?: string[] | null;
+  npmTemplates?: string[] | null;
   applyPreloadCSSToHomePage?: boolean | null;
   defaultHomePage?: string | null;
 }
 
 export type SetCommonSettingPayload<T = any> = {
   orgId: string;
+  isPublicApp?: boolean;
   data: {
     key: string;
     value: T;
@@ -42,44 +46,61 @@ export interface ThemeDetail {
   textLight: string;
   canvas: string; // app bg-color
   primarySurface: string; // comp bg-color
-  borderRadius: string;
+  borderRadius?: string; // will be depreceated
+  borderColor?: string; // will be depreceated
+  radius?: string;
+  border?: string;
+  borderWidth?: string;
+  borderStyle?: string;
   chart?: string;
   margin?: string;
+  direction?: string;
   padding?: string;
-  gridColumns?: string; //Added By Aqib Mirza
+  gridPaddingX?: number;
+  gridPaddingY?: number;
+  gridColumns?: string;
+  gridRowHeight?: string;
+  gridRowCount?: number;
+  gridBgImage?: string;
+  gridBgImageRepeat?: string;
+  gridBgImageSize?: string;
+  gridBgImagePosition?: string;
+  gridBgImageOrigin?: string;
+  text?: string;
   textSize?: string;
+  fontFamily?: string;
   animation?: string;
   animationDelay?: string;
   animationDuration?: string;
   opacity?: string;
   boxShadow?: string;
+  lineHeight?: string;
   boxShadowColor?: string;
   animationIterationCount?: string;
+  components?: Record<string, JSONObject>;
+  showComponentLoadingIndicators?: boolean;
+  showDataLoadingIndicators?: boolean;
+  dataLoadingIndicator?: string;
 }
 
 export function getThemeDetailName(key: keyof ThemeDetail) {
   switch (key) {
-    case "primary":
-      return trans("themeDetail.primary");
-    case "textDark":
-      return trans("themeDetail.textDark");
-    case "textLight":
-      return trans("themeDetail.textLight");
-    case "canvas":
-      return trans("themeDetail.canvas");
-    case "primarySurface":
-      return trans("themeDetail.primarySurface");
-    case "borderRadius":
-      return trans("themeDetail.borderRadius");
-    case "margin":	
-      return trans("style.margin");	
-    case "padding":	
-      return trans("style.padding");
-    //Added By Aqib Mirza
-    case "gridColumns":
-      return trans("themeDetail.gridColumns");
-    case "textSize":
-      return trans("style.textSize");
+    case "primary": return trans("themeDetail.primary");
+    case "textDark": return trans("themeDetail.textDark");
+    case "textLight": return trans("themeDetail.textLight");
+    case "canvas": return trans("themeDetail.canvas");
+    case "primarySurface": return trans("themeDetail.primarySurface");
+    case "radius": return trans("themeDetail.borderRadius");
+    case "border": return trans("themeDetail.borderColor");
+    case "borderWidth": return trans("themeDetail.borderWidth");
+    case "borderStyle": return trans("themeDetail.borderStyle");
+    case "fontFamily": return trans("themeDetail.fontFamily");
+    case "margin": return trans("style.margin");
+    case "direction": return trans("style.direction");
+    case "padding":	return trans("style.padding");
+    case "gridColumns": return trans("themeDetail.gridColumns");
+    case "textSize": return trans("style.textSize");
+    case "lineHeight": return trans("themeDetail.lineHeight"); 
   }
   return "";
 }
@@ -91,10 +112,19 @@ export function isThemeColorKey(key: string) {
     case "textLight":
     case "canvas":
     case "primarySurface":
-    case "margin":	
+    case "borderRadius":
+    case "borderColor":
+    case "radius":
+    case "border":
+    case "borderWidth":
+    case "borderStyle":
+    case "fontFamily":
+    case "margin":
+    case "direction":
     case "padding":
-    case "gridColumns": //Added By Aqib Mirza
+    case "gridColumns":
     case "textSize":
+    case "lineHeight":
       return true;
   }
   return false;

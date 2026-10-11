@@ -9,6 +9,7 @@ import { AttributeIcon } from "lowcoder-design";
 import { InsertIcon } from "lowcoder-design";
 import { trans } from "i18n";
 import { isAggregationApp } from "util/appUtils";
+import React from "react";
 
 type RightPanelProps = {
   onTabChange: (key: string) => void;
@@ -17,7 +18,7 @@ type RightPanelProps = {
   uiComp?: InstanceType<typeof UIComp>;
 };
 
-export default function RightPanel(props: RightPanelProps) {
+function RightPanel(props: RightPanelProps) {
   const { onTabChange, showPropertyPane, uiComp } = props;
   const uiCompType = uiComp && (uiComp.children.compType.getView() as UiLayoutType);
   const aggregationApp = uiCompType && isAggregationApp(uiCompType);
@@ -55,3 +56,5 @@ export default function RightPanel(props: RightPanelProps) {
     </RightPanelWrapper>
   );
 }
+
+export default React.memo(RightPanel);

@@ -1,4 +1,5 @@
 import styled, { css } from "styled-components";
+import { RefObject } from "react";
 
 type ResizeHandleAxis = "s" | "w" | "e" | "n" | "sw" | "nw" | "se" | "ne";
 type ReactRef<T extends HTMLElement> = {
@@ -83,8 +84,10 @@ const ResizeHandle = styled.div<{ $axis: string }>`
   ${(props) => (["sw", "nw", "se", "ne"].indexOf(props.$axis) >= 0 ? CornerHandle : "")};
 `;
 
-const Handle = (axis: ResizeHandleAxis, ref: ReactRef<HTMLDivElement>) => {
-  return <ResizeHandle ref={ref} $axis={axis} className={`react-resizable-handle`}></ResizeHandle>;
+const Handle = (resizeHandle: ResizeHandleAxis, ref: RefObject<HTMLDivElement>) => {
+  return <ResizeHandle ref={ref} $axis={resizeHandle} className="react-resizable-handle" />;
 };
+
+Handle.displayName = 'Handle';
 
 export default Handle;

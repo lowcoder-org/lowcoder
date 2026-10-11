@@ -5,8 +5,8 @@ import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.BEARER_TOKEN_
 import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.DIGEST_AUTH;
 import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.NO_AUTH;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.BasicAuthConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.DefaultAuthConfig;
@@ -34,11 +34,11 @@ public class AuthConfigTest {
                 }
                 """;
         RestApiDatasourceConfig restApiDatasourceConfig = JsonUtils.fromJson(json, RestApiDatasourceConfig.class);
-        Assert.assertNotNull(restApiDatasourceConfig);
+        Assertions.assertNotNull(restApiDatasourceConfig);
         BasicAuthConfig basicAuthConfig = (BasicAuthConfig) restApiDatasourceConfig.getAuthConfig();
-        Assert.assertEquals(BASIC_AUTH, basicAuthConfig.getType());
-        Assert.assertEquals("jack", basicAuthConfig.getUsername());
-        Assert.assertEquals("123456", basicAuthConfig.getPassword());
+        Assertions.assertEquals(BASIC_AUTH, basicAuthConfig.getType());
+        Assertions.assertEquals("jack", basicAuthConfig.getUsername());
+        Assertions.assertEquals("123456", basicAuthConfig.getPassword());
     }
 
     @Test
@@ -60,11 +60,11 @@ public class AuthConfigTest {
                 }
                 """;
         RestApiDatasourceConfig restApiDatasourceConfig = JsonUtils.fromJson(json, RestApiDatasourceConfig.class);
-        Assert.assertNotNull(restApiDatasourceConfig);
+        Assertions.assertNotNull(restApiDatasourceConfig);
         BasicAuthConfig basicAuthConfig = (BasicAuthConfig) restApiDatasourceConfig.getAuthConfig();
-        Assert.assertEquals(DIGEST_AUTH, basicAuthConfig.getType());
-        Assert.assertEquals("jack", basicAuthConfig.getUsername());
-        Assert.assertEquals("123456", basicAuthConfig.getPassword());
+        Assertions.assertEquals(DIGEST_AUTH, basicAuthConfig.getType());
+        Assertions.assertEquals("jack", basicAuthConfig.getUsername());
+        Assertions.assertEquals("123456", basicAuthConfig.getPassword());
     }
 
     @Test
@@ -86,9 +86,9 @@ public class AuthConfigTest {
                 }
                 """;
         RestApiDatasourceConfig restApiDatasourceConfig = JsonUtils.fromJson(json, RestApiDatasourceConfig.class);
-        Assert.assertNotNull(restApiDatasourceConfig);
+        Assertions.assertNotNull(restApiDatasourceConfig);
         NoneAuthConfig noneAuthConfig = (NoneAuthConfig) restApiDatasourceConfig.getAuthConfig();
-        Assert.assertEquals(NO_AUTH, noneAuthConfig.getType());
+        Assertions.assertEquals(NO_AUTH, noneAuthConfig.getType());
     }
 
     @Test
@@ -110,8 +110,8 @@ public class AuthConfigTest {
                 }
                 """;
         RestApiDatasourceConfig restApiDatasourceConfig = JsonUtils.fromJson(json, RestApiDatasourceConfig.class);
-        Assert.assertNotNull(restApiDatasourceConfig);
+        Assertions.assertNotNull(restApiDatasourceConfig);
         DefaultAuthConfig defaultAuthConfig = (DefaultAuthConfig) restApiDatasourceConfig.getAuthConfig();
-        Assert.assertEquals(BEARER_TOKEN_AUTH, defaultAuthConfig.getType());
+        Assertions.assertEquals(BEARER_TOKEN_AUTH, defaultAuthConfig.getType());
     }
 }

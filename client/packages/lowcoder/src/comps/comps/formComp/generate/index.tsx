@@ -12,6 +12,8 @@ export function getDataSourceTypeConfig(
     switch (dataSourceType) {
       case "mysql":
         return mysqlConfig;
+      case "mariadb":
+        return mysqlConfig;
       case "postgres":
         return postgreSqlConfig;
       case "mssql":

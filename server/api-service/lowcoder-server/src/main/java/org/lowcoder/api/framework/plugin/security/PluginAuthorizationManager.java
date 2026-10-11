@@ -31,11 +31,12 @@ public class PluginAuthorizationManager implements ReactiveAuthorizationManager<
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, MethodInvocation invocation) 
 	{
 		log.info("Checking plugin reactive endpoint invocation security for {}", invocation.getMethod().getName());
-		
+
 		EndpointExtension endpointExtension = (EndpointExtension)invocation.getArguments()[1];
 		if (endpointExtension == null || StringUtils.isBlank(endpointExtension.authorize()))
 		{
-			return Mono.empty();
+			log.debug("Authorization expression is empty, proceeding without authorization - authorization granted.");
+			return Mono.just(new AuthorizationDecision(true));
 		}
 		
 		Expression authorizeExpression = this.expressionHandler.getExpressionParser()

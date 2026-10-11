@@ -8,6 +8,13 @@ export default babelJest.createTransformer({
         runtime: "automatic",
       },
     ],
+    [
+      "babel-preset-vite",
+      {
+        "env": true,
+        "glob": false
+      }
+    ]
   ],
   babelrc: false,
   configFile: false,

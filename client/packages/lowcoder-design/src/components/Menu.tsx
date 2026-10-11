@@ -1,7 +1,7 @@
 import { default as AntdMenu, MenuProps, SubMenuProps } from "antd/es/menu";
 import { NormalMenuIconColor, TabActiveColor } from "constants/style";
-import { ReactComponent as AddIcon } from "icons/icon-add.svg";
-import { ReactComponent as RecycleBinIcon } from "icons/icon-recycle-bin.svg";
+import { ReactComponent as AddIcon } from "icons/v1/icon-add.svg";
+import { ReactComponent as RecycleBinIcon } from "icons/v1/icon-recycle-bin.svg";
 import styled from "styled-components";
 
 const MenuItemWrapper = styled.div`

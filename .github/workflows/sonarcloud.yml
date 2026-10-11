@@ -24,9 +24,12 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Build Java
         run: |
-          mvn clean compile -DskipTests -f ./server/api-service/pom.xml
+          # Downstream modules need the SDK's shared test-helper JAR, which is
+          # attached during package. Keep test compilation enabled for that JAR.
+          mvn --batch-mode --no-transfer-progress clean package -DskipTests -f ./server/api-service/pom.xml
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_SCANNER_OPTS: "-Dsonar.javascript.node.maxspace=8192 -Xmx8192m"

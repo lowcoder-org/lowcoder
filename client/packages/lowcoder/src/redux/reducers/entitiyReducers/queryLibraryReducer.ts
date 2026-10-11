@@ -123,11 +123,27 @@ export const queryLibraryReducer = createReducer(initialState, {
     state: QueryLibraryState,
     action: ReduxAction<LibraryQuery>
   ): QueryLibraryState => {
-    const info = state.queryLibraryInfo;
-    info[action.payload.id] = action.payload;
+    const queryId = action.payload.id;
+    const dropdownInfo = state.queryLibraryDropdownInfo[queryId];
+
     return {
       ...state,
-      queryLibraryInfo: info,
+      queryLibraryInfo: {
+        ...state.queryLibraryInfo,
+        [queryId]: action.payload,
+      },
+      queryLibraryDropdownInfo: dropdownInfo
+        ? {
+            ...state.queryLibraryDropdownInfo,
+            [queryId]: {
+              ...dropdownInfo,
+              libraryQueryMetaView: {
+                ...dropdownInfo.libraryQueryMetaView,
+                name: action.payload.name,
+              },
+            },
+          }
+        : state.queryLibraryDropdownInfo,
     };
   },
 

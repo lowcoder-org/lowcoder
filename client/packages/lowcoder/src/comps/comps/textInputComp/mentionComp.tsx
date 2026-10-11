@@ -54,9 +54,10 @@ import {
   changeEvent
 } from "comps/controls/eventHandlerControl";
 
-import React, { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import React from "react";
+import { useEditorStore } from "comps/editorStore";
 import { migrateOldData } from "comps/generators/simpleGenerators";
+import { withLinkedDefaultValue } from "comps/controls/codeStateControl";
 
 const Wrapper = styled.div<{
   $style: InputLikeStyleType;
@@ -96,17 +97,14 @@ let MentionTmpComp = (function () {
     viewRef: RefControl<TextAreaRef>,
     allowClear: BoolControl,
     autoHeight: AutoHeightControl,
-    style: styleControl(InputLikeStyle),
-    animationStyle: styleControl(AnimationStyle),
-    mentionList: jsonControl(checkMentionListData, {
-      "@": ["Li Lei", "Han Meimei"],
-      "#": ["123", "456", "789"],
-    }),
+    style: styleControl(InputLikeStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
+    mentionList: jsonControl(checkMentionListData, {"@":["John Doe","Jane Doe","Michael Smith","Emily Davis","Robert Johnson","Patricia Brown","William Jones","Jennifer Miller","David Wilson","Linda Moore"],"#":["#lowcode","#automation","#appbuilder","#nocode","#workflow","#draganddrop","#rapiddevelopment","#digitaltransformation","#integration","#api"]}),
     onEvent: eventHandlerControl(EventOptions),
     invalid: booleanExposingStateControl("invalid"),
   };
 
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props) => {  
     const { mentionList } = props;
     const [validateState, setvalidateState] = useState({});
     const [activationFlag, setActivationFlag] = useState(false);
@@ -224,14 +222,16 @@ let MentionTmpComp = (function () {
       ...validateState,
     });
   })
-    .setPropertyViewFn((children) => (
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
         <Section name={sectionNames.basic}>
           {children.value.propertyView({ label: trans("prop.defaultValue") })}
           {children.placeholder.propertyView({
             label: trans("prop.placeholder"),
           })}
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {["logic", "both"].includes(editorModeStatus) && (
             children.mentionList.propertyView({
               label: trans("mention.mentionList"),
             })
@@ -239,11 +239,11 @@ let MentionTmpComp = (function () {
         </Section>
         <FormDataPropertyView {...children} />
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           children.label.getPropertyView()
         )}
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["logic", "both"].includes(editorModeStatus) && (
           <><Section name={sectionNames.interaction}>
             {children.onEvent.getPropertyView()}
             {disabledPropertyView(children)}
@@ -262,7 +262,7 @@ let MentionTmpComp = (function () {
             </Section></>
         )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           <>
             <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
@@ -273,7 +273,8 @@ let MentionTmpComp = (function () {
           </>
         )}
       </>
-    ))
+    );
+    })
     .build();
 })();
 
@@ -284,7 +285,10 @@ MentionTmpComp = class extends MentionTmpComp {
   }
 };
 
-MentionTmpComp = migrateOldData(MentionTmpComp, fixOldInputCompData);
+MentionTmpComp = migrateOldData(
+  withLinkedDefaultValue(MentionTmpComp, "defaultValue", "value"),
+  fixOldInputCompData
+);
 
 const TextareaTmp2Comp = withMethodExposing(
   MentionTmpComp,

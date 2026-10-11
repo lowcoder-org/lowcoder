@@ -9,10 +9,11 @@ export enum AppTypeEnum {
   Application = 1,
   Module = 2,
   NavLayout = 3,
-  // 4 folder, 5 mobile
   MobileTabLayout = 6,
+  // Folder = 4,
+  // Mobile = 5,
   // WorkflowScreen = 7,
-  // Slide = 8,
+  // Bundle = 8,
 }
 
 export enum ApplicationCategoriesEnum {
@@ -61,12 +62,24 @@ export const AppUILayoutType: Record<AppTypeEnum, UiLayoutType> = {
 
 export type ApplicationDSLType = "editing" | "published" | "view_marketplace";
 export type ApplicationRoleType = "viewer" | "editor" | "owner";
-export type ApplicationPermissionType = "USER" | "GROUP" | "ORG_ADMIN";
+export type ApplicationPermissionType = "User" | "Group" | "ORG_ADMIN" | "USER" | "GROUP";
 
 export interface ApplicationExtra {
   moduleHeight?: number;
   moduleWidth?: number;
   layers?: boolean;
+}
+
+export type GroupsMembersPermission = {
+  type: string
+  data: {
+    groupGid?: string
+    groupId?: string
+    userId?: string
+    groupName?: string
+    name?: string
+    avatarUrl?: string
+  }
 }
 
 export interface ApplicationMeta {
@@ -80,6 +93,7 @@ export interface ApplicationMeta {
   title?: string;
   description?: string;
   image?: string;
+  icon?: string;
   category?: ApplicationCategoriesEnum;
   showheader?: boolean;
   orgId: string;
@@ -91,6 +105,10 @@ export interface ApplicationMeta {
   folder: false;
   isLocalMarketplace?: boolean;
   applicationStatus: "NORMAL" | "RECYCLED" | "DELETED";
+  editingUserId: string | null;
+  lastEditedAt: number;
+  publishedVersion?: string;
+  lastPublishedTime?: number;
 }
 
 export interface FolderMeta {

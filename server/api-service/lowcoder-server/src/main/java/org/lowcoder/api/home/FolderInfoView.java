@@ -18,7 +18,9 @@ public class FolderInfoView {
 
     private final String orgId;
     private final String folderId;
+    private final String folderGid;
     private final String parentFolderId;
+    private final String parentFolderGid;
     private final String name;
     private final String title;
     private final String description;

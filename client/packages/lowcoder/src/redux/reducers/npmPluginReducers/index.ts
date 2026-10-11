@@ -5,11 +5,17 @@ import { NpmPackageMeta } from "types/remoteComp";
 export interface NPMPluginState {
   packageMeta: Record<string, NpmPackageMeta>;
   packageVersion: Record<string, string>;
+  loading: {
+    lowcoderComps: boolean,
+  },
 }
 
 const initialState: NPMPluginState = {
   packageMeta: {},
   packageVersion: {},
+  loading: {
+    lowcoderComps: false,
+  }
 };
 
 const npmPluginReducer = createReducer(initialState, {
@@ -45,7 +51,6 @@ const npmPluginReducer = createReducer(initialState, {
       }
       selectVersions[i] = defaultVersion;
     });
-
     return {
       ...state,
       packageMeta: {
@@ -55,6 +60,17 @@ const npmPluginReducer = createReducer(initialState, {
       packageVersion: {
         ...state.packageVersion,
         ...selectVersions,
+      },
+    };
+  },
+  [ReduxActionTypes.LOWCODER_COMPS_LOADING]: (
+    state: NPMPluginState,
+    action: ReduxAction<{loading: boolean}>
+  ): NPMPluginState => {
+    return {
+      ...state,
+      loading: {
+        lowcoderComps: action.payload.loading,
       },
     };
   },

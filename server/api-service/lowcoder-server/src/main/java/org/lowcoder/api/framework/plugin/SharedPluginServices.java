@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.lowcoder.api.framework.plugin.endpoint.PluginEndpointHandler;
+import org.lowcoder.infra.config.model.ServerConfig;
 import org.lowcoder.infra.config.repository.ServerConfigRepository;
 import org.lowcoder.plugin.api.LowcoderServices;
 import org.lowcoder.plugin.api.PluginEndpoint;
@@ -54,6 +55,9 @@ public class SharedPluginServices implements LowcoderServices
 
 	@Override
 	public Object getConfig(String key) {
-		return serverConfigRepository.findByKey(key).block();
+		return serverConfigRepository.findByKey(key)
+				.map(ServerConfig::getValue)
+				.block();
 	}
+
 }

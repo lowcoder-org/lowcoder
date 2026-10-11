@@ -2,6 +2,7 @@ import Api from "./api";
 import { AxiosPromise } from "axios";
 import { GenericApiResponse } from "./apiResponses";
 import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
+import {fetchQueryLibraryPaginationRequestType, GenericApiPaginationResponse} from "@lowcoder-ee/util/pagination/type";
 
 export interface LibraryQuery {
   id: string;
@@ -47,6 +48,10 @@ export class QueryLibraryApi extends Api {
 
   static fetchQueryLibraryByOrg(): AxiosPromise<GenericApiResponse<Array<LibraryQuery>>> {
     return Api.get(QueryLibraryApi.url + `/listByOrg`);
+  }
+
+  static fetchQueryLibraryPaginationByOrg(request: fetchQueryLibraryPaginationRequestType): AxiosPromise<GenericApiPaginationResponse<Array<LibraryQuery>>> {
+    return Api.get(QueryLibraryApi.url + `/listByOrg`, {...request});
   }
 
   static fetchQueryLibraryDropdown(): AxiosPromise<

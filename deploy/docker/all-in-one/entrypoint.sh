@@ -5,6 +5,18 @@ set -e
 export USER_ID=${LOWCODER_PUID:=9001}
 export GROUP_ID=${LOWCODER_PGID:=9001}
 
+# Set default variable values
+echo "Overriding default environment variables:"
+for line in `grep '^[ \t]*LOWCODER_.*$' /lowcoder/etc/default.env`; do
+    VARNAME=`echo ${line} | sed -e 's/^\([A-Z0-9_]\+\)\([ \t]*=[ \t]*\)\(.*\)$/\1/'`
+    if [ -z "$(eval echo \"\$$VARNAME\")" ]; then
+        export $(eval echo "${line}")
+    else
+        echo "    ${line}"
+    fi;
+done;
+echo "Done."
+
 # Update ID of lowcoder user if required
 if [ ! "$(id --user lowcoder)" -eq ${USER_ID} ]; then
     usermod --uid ${USER_ID} lowcoder
@@ -25,6 +37,11 @@ else
     export MONGO_LISTEN_HOST="127.0.0.1"
 fi;
 
+# Set the default mongodb connection string if not set explicitly
+if [ -z "${LOWCODER_MONGODB_URL}" ]; then
+    export LOWCODER_MONGODB_URL="mongodb://localhost:27017/lowcoder?authSource=admin"
+fi;
+
 LOGS="/lowcoder-stacks/logs"
 DATA="/lowcoder-stacks/data"
 CERT="/lowcoder-stacks/ssl"
@@ -33,6 +50,9 @@ mkdir -p ${LOGS}/redis \
   ${LOGS}/mongodb \
   ${LOGS}/api-service \
   ${LOGS}/node-service \
+  ${LOGS}/proxy-service \
+  ${LOGS}/hocuspocus \
+  ${LOGS}/agora-token-service \
   ${LOGS}/frontend \
   ${DATA}/redis \
   ${DATA}/mongodb \
@@ -63,6 +83,16 @@ if [ "${LOWCODER_MONGODB_ENABLED:=true}" = "true" ]; then
     ln ${SUPERVISOR_AVAILABLE}/02-mongodb.conf ${SUPERVISOR_ENABLED}/02-mongodb.conf
 fi;
 
+# Enable hocuspocus if configured to run
+if [ "${LOWCODER_HOCUSPOCUS_ENABLED:=true}" = "true" ]; then
+    ln ${SUPERVISOR_AVAILABLE}/03-hocuspocus.conf ${SUPERVISOR_ENABLED}/03-hocuspocus.conf
+fi;
+
+# Enable agora token service if configured to run
+if [ "${LOWCODER_AGORA_TOKEN_SERVICE_ENABLED:=true}" = "true" ]; then
+    ln ${SUPERVISOR_AVAILABLE}/04-agora-token-service.conf ${SUPERVISOR_ENABLED}/04-agora-token-service.conf
+fi;
+
 # Enable api-service if configured to run
 if [ "${LOWCODER_API_SERVICE_ENABLED:=true}" = "true" ]; then
     ln ${SUPERVISOR_AVAILABLE}/10-api-service.conf ${SUPERVISOR_ENABLED}/10-api-service.conf
@@ -71,6 +101,11 @@ fi;
 # Enable node-service if configured to run
 if [ "${LOWCODER_NODE_SERVICE_ENABLED:=true}" = "true" ]; then
     ln ${SUPERVISOR_AVAILABLE}/11-node-service.conf ${SUPERVISOR_ENABLED}/11-node-service.conf
+fi;
+
+# Enable proxy-service if configured to run
+if [ "${LOWCODER_PROXY_SERVICE_ENABLED:=true}" = "true" ]; then
+    ln ${SUPERVISOR_AVAILABLE}/12-proxy-service.conf ${SUPERVISOR_ENABLED}/12-proxy-service.conf
 fi;
 
 # Enable frontend if configured to run

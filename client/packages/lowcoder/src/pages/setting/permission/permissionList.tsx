@@ -9,14 +9,18 @@ import { getUser } from "redux/selectors/usersSelectors";
 import { getNextEntityName } from "util/stringUtils";
 import { validateResponse } from "api/apiUtils";
 import {
+  AddMemberButton,
   GroupNameView,
   OperationWrapper,
   EditBtn,
   PopoverIcon,
   CreateButton,
 } from "./styledComponents";
+import {
+  MembersIcon,
+} from "lowcoder-design";
+import styled from "styled-components";
 import { trans } from "i18n";
-import { getOrgGroups } from "redux/selectors/orgSelectors";
 import { Table } from "components/Table";
 import history from "util/history";
 import { Level1SettingPageContentWithList, Level1SettingPageTitleWithBtn } from "../styled";
@@ -25,8 +29,18 @@ import { timestampToHumanReadable } from "../../../util/dateTimeUtils";
 import { usePermissionMenuItems } from "@lowcoder-ee/pages/setting/permission/permissionMenuItems";
 import { OrgGroup } from "constants/orgConstants";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import InviteDialog from "pages/common/inviteDialog";
+import { Flex } from "antd";
+import {fetchOrgGroups} from "@lowcoder-ee/util/pagination/axios";
+import PaginationComp from "@lowcoder-ee/util/pagination/Pagination";
 
 const NEW_GROUP_PREFIX = trans("memberSettings.newGroupPrefix");
+
+const StyledMembersIcon = styled(MembersIcon)`
+  g g {
+    stroke: #ffffff;
+  }
+`;
 
 type DataItemInfo = {
   key: string;
@@ -38,23 +52,58 @@ type DataItemInfo = {
   group?: OrgGroup;
 };
 
-export default function PermissionSetting() {
+type PermissionSettingProps = {
+  currentPage: number;
+  setCurrentPage: (value: number) => void;
+  pageSize: number;
+  setPageSize: (value: number) => void;
+};
+
+interface ElementsState {
+  elements: OrgGroup[];
+  total: number;
+}
+
+export default function PermissionSetting(props: PermissionSettingProps) {
+
+  const {currentPage, setCurrentPage, pageSize, setPageSize} = props;
+  let dataSource: DataItemInfo[] = [];
   const user = useSelector(getUser);
   const orgId = user.currentOrgId;
-  const orgGroups = useSelector(getOrgGroups);
-  const visibleOrgGroups = orgGroups.filter((g) => !g.allUsersGroup);
-  const allUsersGroup = orgGroups.find((g) => g.allUsersGroup);
   const dispatch = useDispatch();
   const [needRenameId, setNeedRenameId] = useState<string | undefined>(undefined);
   const { nameSuffixFunc, menuItemsFunc, menuExtraView } = usePermissionMenuItems(orgId);
   const [groupCreating, setGroupCreating] = useState(false);
+  const [elements, setElements] = useState<ElementsState>({ elements: [], total: 0 });
+  const [modify, setModify] = useState(false);
+  const visibleOrgGroups = elements.elements.filter((g) => !g.allUsersGroup);
+  const allUsersGroup = elements.elements.find((g) => g.allUsersGroup);
 
-  useEffect(() => {
-    if (!orgId) {
-      return;
-    }
-    dispatch(fetchGroupsAction(orgId));
-  }, [orgId]);
+  useEffect( () => {
+      fetchOrgGroups(
+        {
+          pageNum: currentPage,
+          pageSize: pageSize,
+        }
+      ).then(result => {
+        if (result.success){
+          setElements({elements: result.data || [], total: result.total || 1})
+        }
+        else
+          console.error("ERROR: fetchFolderElements", result.error)
+      })
+    }, [currentPage, pageSize, modify]
+  )
+
+
+  dataSource = currentPage === 1 ? [{
+    key: "users",
+    label: trans("memberSettings.allMembers"),
+    createTime: allUsersGroup?.createTime,
+    lock: true,
+    del: false,
+    rename: false,
+  }] : [];
   if (!orgId) {
     return null;
   }
@@ -71,6 +120,9 @@ export default function PermissionSetting() {
           setTimeout(() => {
             dispatch(fetchGroupsAction(orgId));
           }, 200);
+          setTimeout(() => {
+            setModify(!modify);
+          }, 200);
         }
       })
       .catch((e) => {
@@ -85,23 +137,15 @@ export default function PermissionSetting() {
       .then((resp) => {
         if (validateResponse(resp)) {
           dispatch(fetchGroupsAction(orgId));
+          setTimeout(() => {
+            setModify(!modify);
+          }, 200);
         }
       })
       .catch((e) => {
         messageInstance.error(e.message);
       });
   };
-
-  const dataSource: DataItemInfo[] = [
-    {
-      key: "users",
-      label: trans("memberSettings.allMembers"),
-      createTime: allUsersGroup?.createTime,
-      lock: true,
-      del: false,
-      rename: false,
-    },
-  ];
 
   visibleOrgGroups.forEach((group) => {
     dataSource.push({
@@ -120,7 +164,8 @@ export default function PermissionSetting() {
       <Level1SettingPageTitleWithBtn>
         {trans("settings.userGroups")}
         {currentOrgAdmin(user) && (
-          <CreateButton
+          <Flex gap="middle">
+            <CreateButton
             loading={groupCreating}
             buttonType={"primary"}
             icon={<AddIcon />}
@@ -128,6 +173,12 @@ export default function PermissionSetting() {
           >
             {trans("memberSettings.createGroup")}
           </CreateButton>
+          <InviteDialog
+            trigger={<AddMemberButton buttonType="primary" icon={<StyledMembersIcon />}>
+              {trans("memberSettings.inviteUser")}
+            </AddMemberButton>}
+            style={{ marginLeft: "auto" }} />
+          </Flex>
         )}
       </Level1SettingPageTitleWithBtn>
       <div>
@@ -136,7 +187,14 @@ export default function PermissionSetting() {
           scroll={{ x: "100%" }}
           pagination={false}
           onRow={(record) => ({
-            onClick: () => history.push(buildGroupId((record as DataItemInfo).key)),
+            onClick: (e) => {
+              // Don't navigate if this row is in rename mode
+              if ((record as DataItemInfo).key === needRenameId) {
+                e.stopPropagation();
+                return;
+              }
+              history.push(buildGroupId((record as DataItemInfo).key));
+            },
           })}
           columns={[
             {
@@ -160,6 +218,9 @@ export default function PermissionSetting() {
                           return;
                         }
                         dispatch(updateGroupAction(record.key, { groupName: value }, orgId));
+                        setTimeout(() => {
+                          setModify(!modify);
+                        }, 200);
                         setNeedRenameId(undefined);
                       },
                     }}
@@ -235,6 +296,13 @@ export default function PermissionSetting() {
         />
       </div>
       {menuExtraView}
+      <PaginationComp
+          currentPage={currentPage}
+          pageSize={pageSize}
+          setPageSize={setPageSize}
+          setCurrentPage={setCurrentPage}
+          total={elements.total}
+      />
     </Level1SettingPageContentWithList>
   );
 }

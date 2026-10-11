@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.home.FolderInfoView;
 import org.lowcoder.domain.folder.service.FolderNode;
@@ -54,10 +54,10 @@ public class TreeTest {
 
     @Test
     public void testTreeBuilder() {
-        Assert.assertEquals(4, tree.get(null).getAllFolderChildren().size());
-        Assert.assertEquals(1, tree.get("folder002").getAllFolderChildren().size());
-        Assert.assertEquals("folder003", tree.get("folder002").getAllFolderChildren().get(0).getFolderId());
-        Assert.assertEquals(0, tree.get("folder001").getAllFolderChildren().size());
+        Assertions.assertEquals(4, tree.get(null).getAllFolderChildren().size());
+        Assertions.assertEquals(1, tree.get("folder002").getAllFolderChildren().size());
+        Assertions.assertEquals("folder003", tree.get("folder002").getAllFolderChildren().get(0).getFolderId());
+        Assertions.assertEquals(0, tree.get("folder001").getAllFolderChildren().size());
     }
 
     @Test
@@ -72,13 +72,13 @@ public class TreeTest {
                 folderNode.getSelf().setSubFolders(folderNode.getFolderChildren());
             }
         });
-        Assert.assertEquals(0, folderInfoViews.get(0).getSubFolders().size());
-        Assert.assertEquals(0, folderInfoViews.get(0).getSubApplications().size());
-        Assert.assertEquals(1, folderInfoViews.get(1).getSubFolders().size());
-        Assert.assertEquals(1, folderInfoViews.get(1).getSubApplications().size());
-        Assert.assertEquals(0, folderInfoViews.get(2).getSubFolders().size());
-        Assert.assertEquals(0, folderInfoViews.get(2).getSubApplications().size());
-        Assert.assertEquals(0, folderInfoViews.get(3).getSubFolders().size());
-        Assert.assertEquals(0, folderInfoViews.get(3).getSubApplications().size());
+        Assertions.assertEquals(0, folderInfoViews.get(0).getSubFolders().size());
+        Assertions.assertEquals(0, folderInfoViews.get(0).getSubApplications().size());
+        Assertions.assertEquals(1, folderInfoViews.get(1).getSubFolders().size());
+        Assertions.assertEquals(1, folderInfoViews.get(1).getSubApplications().size());
+        Assertions.assertEquals(0, folderInfoViews.get(2).getSubFolders().size());
+        Assertions.assertEquals(0, folderInfoViews.get(2).getSubApplications().size());
+        Assertions.assertEquals(0, folderInfoViews.get(3).getSubFolders().size());
+        Assertions.assertEquals(0, folderInfoViews.get(3).getSubApplications().size());
     }
 }

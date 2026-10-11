@@ -1,4 +1,4 @@
-import { readYaml } from "../../common/util";
+import { readYaml, specsToOptions, version2spec } from "../../common/util";
 import _ from "lodash";
 import path from "path";
 import { OpenAPIV3, OpenAPI } from "openapi-types";
@@ -7,6 +7,9 @@ import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
 const spec = readYaml(path.join(__dirname, "./datadog.spec.yaml"));
+const specs = {
+  "v1.0": spec,
+}
 
 const dataSourceConfig = {
   type: "dataSource",
@@ -27,6 +30,14 @@ const dataSourceConfig = {
       key: "appKeyAuth.value",
       label: "Application Key",
     },
+    {
+      label: "Spec Version",
+      key: "specVersion",
+      type: "select",
+      tooltip: "Version of the spec file.",
+      placeholder: "v1.0",
+      options: specsToOptions(specs)
+    },
   ],
 } as const;
 
@@ -45,10 +56,10 @@ const datadogPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "datadog",
   name: "Datadog",
   icon: "datadog.svg",
-  category: "api",
+  category: "DevOps",
   dataSourceConfig,
-  queryConfig: async () => {
-    const { actions, categories } = await parseOpenApi(spec, parseOptions);
+  queryConfig: async (data) => {
+    const { actions, categories } = await parseOpenApi(version2spec(specs, data.specVersion), parseOptions);
     return {
       type: "query",
       label: "Action",
@@ -64,8 +75,9 @@ const datadogPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       url: "",
       serverURL: dataSourceConfig.serverURL,
       dynamicParamsConfig: dataSourceConfig,
+      specVersion: dataSourceConfig.specVersion,
     };
-    return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);
+    return runOpenApi(actionData, runApiDsConfig, version2spec(specs, dataSourceConfig.specVersion) as OpenAPIV3.Document);
   },
 };
 

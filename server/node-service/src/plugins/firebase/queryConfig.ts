@@ -86,8 +86,8 @@ const queryConfig = {
     ...(
       [
         {
-          label: "Query Firestore",
-          actionName: "FS.QueryFireStore",
+          label: "List Documents from Collection",
+          actionName: "FS.ListFireStore",
           params: [
             firestoreCollectionParamConfig,
             {
@@ -103,10 +103,28 @@ const queryConfig = {
               placeholder: "asc",
             },
             {
-              key: "limit",
-              label: "Limit",
+              key: "pageSize",
+              label: "Page Size",
               type: "numberInput",
               defaultValue: 10,
+            },
+            {
+              key: "pageNumber",
+              label: "Page Number",
+              type: "numberInput",
+              defaultValue: 1,
+            }
+          ],
+        },
+        {
+          label: "Query Collection",
+          actionName: "FS.QueryFireStore",
+          params: [
+            firestoreCollectionParamConfig,
+            {
+              key: "query",
+              label: "Query JSON",
+              type: "jsonInput",
             },
           ],
         },

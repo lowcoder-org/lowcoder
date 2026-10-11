@@ -5,10 +5,12 @@ import org.lowcoder.domain.query.model.LibraryQuery;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Collection;
 import java.util.Map;
 
 public interface LibraryQueryService {
     Mono<LibraryQuery> getById(String libraryQueryId);
+    Flux<LibraryQuery> getByIds(Collection<String> libraryQueryIds);
 
     Mono<LibraryQuery> getByName(String libraryQueryName);
 

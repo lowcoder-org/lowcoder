@@ -7,9 +7,9 @@ import { ServiceError } from "../../common/error";
 
 const supabasePlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
   id: "supabase",
-  name: "Supabase",
+  name: "Supabase Assets",
   icon: "supabase.svg",
-  category: "api",
+  category: "Assets",
   dataSourceConfig,
   queryConfig,
   run: async function (actionData, dataSourceConfig) {

@@ -1,0 +1,16 @@
+{
+  "_id" : "full",
+  "_rev" : "40-3000000001",
+  "name" : "full",
+  "description" : "A library whose registry document has every field JsLibraryController reads: é ✓ \"quoted\"",
+  "homepage" : "https://full.example.com/docs",
+  "dist-tags" : { "latest" : "4.10.0", "next" : "5.0.0-beta.1" },
+  "repository" : { "type" : "git", "url" : "git+https://github.com/example/full.git" },
+  "versions" : {
+    "4.10.0" : { "name" : "full", "version" : "4.10.0", "dist" : { "unpackedSize" : 3000000001, "fileCount" : 40012, "ratio" : 1.50 } }
+  },
+  "time" : { "created" : "2016-01-01T00:00:00.000Z", "4.10.0" : "2026-01-01T00:00:00.000Z" },
+  "maintainers" : [ { "name" : "maintainer-1" }, { "name" : "maintainer-2" } ],
+  "deprecated" : null,
+  "private" : false
+}

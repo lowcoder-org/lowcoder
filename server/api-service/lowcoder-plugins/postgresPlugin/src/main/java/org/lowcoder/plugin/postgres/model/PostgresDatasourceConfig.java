@@ -9,8 +9,6 @@ import java.util.Map;
 import org.lowcoder.sdk.exception.PluginCommonError;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedDatasourceConnectionConfig;
 
-import com.google.common.annotations.VisibleForTesting;
-
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,19 +35,6 @@ public class PostgresDatasourceConfig extends SqlBasedDatasourceConnectionConfig
             throw ofPluginException(PluginCommonError.DATASOURCE_ARGUMENT_ERROR, "INVALID_PG_CONFIG");
         }
         return result;
-    }
-
-    @VisibleForTesting
-    public PostgresDatasourceConfigBuilder toBuilder() {
-        return builder()
-                .database(getDatabase())
-                .username(getUsername())
-                .password(getPassword())
-                .usingSsl(isUsingSsl())
-                .host(getHost())
-                .port(getPort())
-                .serverTimezone(getServerTimezone())
-                .enableTurnOffPreparedStatement(isEnableTurnOffPreparedStatement());
     }
 
 }

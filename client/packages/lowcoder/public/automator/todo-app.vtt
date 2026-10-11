@@ -1,0 +1,13 @@
+WEBVTT
+
+00:00.000 --> 00:08.000
+Start with a blank canvas and a connected AI query in Lowcoder Automator.
+
+00:08.000 --> 00:22.000
+Ask Automator to create a simple to-do app.
+
+00:22.000 --> 00:27.000
+Automator adds native, editable Lowcoder components to the canvas.
+
+00:27.000 --> 00:32.500
+The result: a task input, Add task button, status filter and task table.

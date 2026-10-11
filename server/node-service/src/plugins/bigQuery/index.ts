@@ -5,9 +5,9 @@ import run, { validateDataSourceConfig } from "./run";
 
 const bigQueryPlugin = {
   id: "bigQuery",
-  name: "Big Query",
+  name: "Google Big Query",
   icon: "bigQuery.svg",
-  category: "database",
+  category: "Big Data",
   dataSourceConfig,
   queryConfig: queryConfig,
 

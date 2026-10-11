@@ -1,0 +1,21 @@
+{
+  "full": {
+    "esMethod": "search",
+    "prefix": "/{{index}}",
+    "suffix": "_search/",
+    "path": "  docs  ",
+    "httpMethod": "POST",
+    "dsl": "{\"query\": {\"match\": {\"title\": {{q}}}}, \"size\": 10}"
+  },
+  "lowerCaseMethod": {
+    "httpMethod": "get",
+    "path": "_cat/indices"
+  },
+  "unknownMethod": {
+    "httpMethod": "PURGE",
+    "path": "x"
+  },
+  "noMethod": {
+    "path": "x"
+  }
+}

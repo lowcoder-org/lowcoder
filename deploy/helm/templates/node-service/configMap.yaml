@@ -1,6 +1,4 @@
-{{- $nameSpace := include "lowcoder.namespace" . -}}
 {{- $name := include "lowcoder.fullname" . -}}
-{{- $lowcoderDatabase := first .Values.mongodb.auth.databases -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -12,8 +10,8 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 data:
-  LOWCODER_PUID: {{ .Values.global.config.userId | default "9001" | quote }}
-  LOWCODER_PGID: {{ .Values.global.config.groupId | default "9001" | quote }}
+  LOWCODER_PUID: {{ include "lowcoder.orDefault" (dict "value" .Values.global.config.userId "default" "9001") | quote }}
+  LOWCODER_PGID: {{ include "lowcoder.orDefault" (dict "value" .Values.global.config.groupId "default" "9001") | quote }}
   {{- if .Values.global.config.apiServiceUrl }}
   LOWCODER_API_SERVICE_URL: {{ .Values.global.config.apiServiceUrl | quote }}
   {{- else }}

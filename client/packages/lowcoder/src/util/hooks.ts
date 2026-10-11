@@ -2,13 +2,14 @@ import { AppPathParams } from "constants/applicationConstants";
 import React, {
   Dispatch,
   SetStateAction,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
-import { shallowEqual, useSelector } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useLocation, useParams } from "react-router-dom";
 import { DATASOURCE_URL, QUERY_LIBRARY_URL } from "../constants/routesURL";
 import { AuthSearchParams } from "constants/authConstants";
@@ -17,6 +18,18 @@ import { EditorContext } from "comps/editorState";
 import { getDataSourceStructures } from "redux/selectors/datasourceSelectors";
 import { DatasourceStructure } from "api/datasourceApi";
 import { loadAuthSearchParams } from "pages/userAuth/authUtils";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { defaultTheme } from "constants/themeConstants";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { CompAction, changeChildAction } from "lowcoder-core";
+import { ThemeDetail } from "@lowcoder-ee/api/commonSettingApi";
+import { uniq } from "lodash";
+import { constantColors } from "components/colorSelect/colorUtils";
+import { AppState } from "@lowcoder-ee/redux/reducers";
+import { getOrgUserStats } from "@lowcoder-ee/redux/selectors/orgSelectors";
+import { fetchGroupsAction } from "@lowcoder-ee/redux/reduxActions/orgActions";
+import debounce from "lodash/debounce";
 
 export const ForceViewModeContext = React.createContext<boolean>(false);
 
@@ -161,4 +174,130 @@ export function useMetaData(datasourceId: string) {
     () => getMetaData(datasourceStructure, datasourceId),
     [datasourceStructure, datasourceId]
   );
+}
+
+export function useMergeCompStyles(
+  props: Record<string, any>,
+  dispatch: (action: CompAction) => void
+) {
+  const editorState = useContext(EditorContext);
+  const theme = useContext(ThemeContext);
+  const compType = useContext(CompTypeContext);
+  const compTheme = theme?.theme?.components?.[compType];
+  const themeId = theme?.themeId;
+  const appSettingsComp = editorState?.getAppSettingsComp();
+  const preventAppStylesOverwriting = appSettingsComp?.getView()?.preventAppStylesOverwriting;
+  const { preventStyleOverwriting, appliedThemeId } = props;
+
+  const styleKeys = Object.keys(props).filter(key => key.toLowerCase().endsWith('style') || key.toLowerCase().endsWith('styles'));
+  const styleProps: Record<string, any> = {};
+  styleKeys.forEach((key: string) => {
+    styleProps[key] = (props as any)[key];
+  });
+
+  const mergeStyles = useCallback(
+    ({
+      dispatch,
+      compTheme,
+      styleProps,
+      themeId
+    }: any) => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+        themeId,
+      })
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (
+      preventAppStylesOverwriting
+      || preventStyleOverwriting
+      || themeId === appliedThemeId
+    ) return;
+    mergeStyles({
+      dispatch,
+      compTheme,
+      styleProps,
+      themeId,
+    })
+  }, [
+    themeId,
+    JSON.stringify(styleProps),
+    JSON.stringify(compTheme),
+    mergeStyles,
+    preventAppStylesOverwriting,
+    preventStyleOverwriting,
+  ]);
+}
+
+type ColorKey = 'primary' | 'textDark' | 'textLight' | 'canvas' | 'primarySurface' | 'border';
+type ColorKeys = ColorKey[];
+
+export function useThemeColors(allowGradient?: boolean) {
+  const currentTheme = useContext(ThemeContext)?.theme ?? {} as ThemeDetail;
+  const colorKeys: ColorKeys = ['primary', 'textDark', 'textLight', 'canvas', 'primarySurface', 'border'];
+
+  return useMemo(() => {
+    let colors: string[] = [];
+
+    colorKeys.forEach(colorKey => {
+      if (Boolean(defaultTheme[colorKey])) {
+        colors.push(defaultTheme[colorKey] ?? '');
+      }
+      if (Boolean(currentTheme[colorKey])) {
+        colors.push(currentTheme[colorKey] ?? '');
+      }
+    })
+    if (!allowGradient) {
+      colors = colors.concat(constantColors);
+    }
+    return uniq(colors);
+  }, [
+    currentTheme,
+    defaultTheme,
+  ]);
+}
+
+export const useOrgUserCount = (orgId: string) => {
+  const dispatch = useDispatch();
+  const orgUserStats = useSelector((state: AppState) => getOrgUserStats(state)); // Use selector to get orgUsers from state
+  const [userCount, setUserCount] = useState<number>(0);
+
+  useEffect(() => {
+    // Dispatch action to fetch organization users
+    if (orgId) {
+      dispatch(fetchGroupsAction(orgId));
+    }
+  }, [dispatch, orgId]);
+
+  useEffect(() => {
+    // Update user count when orgUsers state changes
+    if (Object.values(orgUserStats).length && orgUserStats.hasOwnProperty('totalAdminsAndDevelopers')) {
+      setUserCount(orgUserStats.totalAdminsAndDevelopers);
+    }
+  }, [orgUserStats]);
+
+  return userCount;
+};
+
+/**
+ * Returns a debounced version of the incoming value that only updates
+ */
+export function useDebouncedValue<T>(value: T, delay = 500): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  const updater = useMemo(() => debounce(setDebouncedValue, delay), [delay]);
+
+  useEffect(() => {
+    updater(value);
+    return () => {
+      updater.cancel();
+    };
+  }, [value, updater]);
+
+  return debouncedValue;
 }

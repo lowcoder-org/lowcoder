@@ -1,0 +1,7 @@
+{
+  "loginId" : "FormLoginRequest.loginId",
+  "password" : "SECRET-FormLoginRequest.password",
+  "register" : true,
+  "source" : "FormLoginRequest.source",
+  "authId" : "FormLoginRequest.authId"
+}

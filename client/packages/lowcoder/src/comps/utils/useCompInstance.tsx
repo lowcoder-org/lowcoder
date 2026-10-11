@@ -304,11 +304,11 @@ export function useCompInstance<T extends CompConstructor>(
 
     let updateHandler = () => setComp(container.comp);
 
-    if (UPDATE_ROOT_VIEW_DEBOUNCE > 0) {
+    // if (UPDATE_ROOT_VIEW_DEBOUNCE > 0) {
       updateHandler = debounce(() => {
         setComp(container.comp);
-      }, UPDATE_ROOT_VIEW_DEBOUNCE);
-    }
+      }, 50 /* UPDATE_ROOT_VIEW_DEBOUNCE */);
+    // }
 
     const finalHandlers = [...(handlers || []), updateHandler];
     finalHandlers.forEach((handler) => container.addChangeListener(handler));

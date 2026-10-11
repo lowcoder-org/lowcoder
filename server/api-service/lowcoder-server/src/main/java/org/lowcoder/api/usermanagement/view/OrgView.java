@@ -2,6 +2,7 @@ package org.lowcoder.api.usermanagement.view;
 
 import jakarta.annotation.Nonnull;
 import org.lowcoder.domain.organization.model.Organization;
+import java.time.Instant;
 
 public class OrgView {
 
@@ -19,5 +20,7 @@ public class OrgView {
         return organization.getName();
     }
 
+    public Instant getCreatedAt() { return organization.getCreatedAt(); }
 
+    public Instant getUpdatedAt() { return organization.getUpdatedAt(); }
 }

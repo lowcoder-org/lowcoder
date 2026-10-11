@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
+import java.util.HashMap;
+
 import static org.lowcoder.sdk.auth.constants.Oauth2Constants.BASE_URL_PLACEHOLDER;
 import static org.lowcoder.sdk.auth.constants.Oauth2Constants.SCOPE_PLACEHOLDER;
 
@@ -22,14 +24,18 @@ public class Oauth2GenericAuthConfig extends Oauth2SimpleAuthConfig {
     private String tokenEndpoint;
     private String userInfoEndpoint;
     private String scope;
+    private HashMap<String, String> sourceMappings;
     private Boolean userInfoIntrospection;
+    private Boolean userCanSelectAccounts;
+    private Boolean postForUserEndpoint;
 
     @Override
     public String replaceAuthUrlClientIdPlaceholder(String url)
     {
         return super.replaceAuthUrlClientIdPlaceholder(url)
                 .replace(BASE_URL_PLACEHOLDER, authorizationEndpoint)
-                .replace(SCOPE_PLACEHOLDER, scope);
+                .replace(SCOPE_PLACEHOLDER, scope)
+                .concat(Boolean.FALSE.equals(userCanSelectAccounts)?"":"&prompt=select_account");
     }
 
 

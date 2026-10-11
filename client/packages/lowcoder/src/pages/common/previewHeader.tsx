@@ -5,7 +5,7 @@ import { ALL_APPLICATIONS_URL, APPLICATION_VIEW_URL, AUTH_LOGIN_URL } from "cons
 import { User } from "constants/userConstants";
 import { EllipsisTextCss, isDarkColor, TacoButton, TextEditIcon } from "lowcoder-design";
 import { useSelector } from "react-redux";
-import { currentApplication, getTemplateId } from "redux/selectors/applicationSelector";
+import { currentApplication, getTemplateId, isPublicApplication } from "redux/selectors/applicationSelector";
 import { getUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import styled from "styled-components";
 import history from "util/history";
@@ -15,11 +15,20 @@ import ProfileDropdown from "./profileDropdown";
 import { trans } from "i18n";
 import { Logo } from "@lowcoder-ee/assets/images";
 import { AppPermissionDialog } from "../../components/PermissionDialog/AppPermissionDialog";
-import { useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { getBrandingConfig } from "../../redux/selectors/configSelectors";
 import { HeaderStartDropdown } from "./headerStartDropdown";
 import { useParams } from "react-router";
 import { AppPathParams } from "constants/applicationConstants";
+import React from "react";
+import Segmented from "antd/es/segmented";
+import MobileOutlined from "@ant-design/icons/MobileOutlined";
+import TabletOutlined from "@ant-design/icons/TabletOutlined";
+import DesktopOutlined from "@ant-design/icons/DesktopOutlined";
+import { DeviceOrientation, DeviceType, EditorContext } from "@lowcoder-ee/comps/editorState";
+import { useEditorStore } from "@lowcoder-ee/comps/editorStore";
+import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
+import { buildMaterialPreviewURL } from "@lowcoder-ee/util/materialUtils";
 
 const HeaderFont = styled.div<{ $bgColor: string }>`
   font-weight: 500;
@@ -105,10 +114,16 @@ const Wrapper = styled.div`
   }
 `;
 
+const BrandLogo = styled.img`
+  height: 28px;
+`
+
 export function HeaderProfile(props: { user: User }) {
   const { user } = props;
   const fetchingUser = useSelector(isFetchingUser);
   const templateId = useSelector(getTemplateId);
+  const isPublicApp = useSelector(isPublicApplication);
+
   if (fetchingUser) {
     return <Skeleton.Avatar shape="circle" size={28} />;
   }
@@ -116,7 +131,13 @@ export function HeaderProfile(props: { user: User }) {
     <div>
       {user.isAnonymous ? (
         !templateId ? (
-          <LoginBtn buttonType="primary" onClick={() => history.push(AUTH_LOGIN_URL)}>
+          <LoginBtn buttonType="primary" onClick={() => {
+            if (isPublicApp) {
+              window.top?.open('https://app.lowcoder.cloud/user/auth/login');
+            } else {
+              history.push(AUTH_LOGIN_URL)
+            }
+          }}>
             {trans("userAuth.login")}
           </LoginBtn>
         ) : null
@@ -127,20 +148,31 @@ export function HeaderProfile(props: { user: User }) {
   );
 }
 
-export const PreviewHeader = () => {
+const PreviewHeaderComp = () => {
   const params = useParams<AppPathParams>();
+  const editorState = useContext(EditorContext);
+  const deviceType = useEditorStore((state) => state.deviceType);
+  const deviceOrientation = useEditorStore((state) => state.deviceOrientation);
   const user = useSelector(getUser);
   const application = useSelector(currentApplication);
+  const isPublicApp = useSelector(isPublicApplication);
   const applicationId = useApplicationId();
   const templateId = useSelector(getTemplateId);
-  const brandingConfig = useSelector(getBrandingConfig);
+  const brandingSettings = useSelector(getBrandingSetting);
   const [permissionDialogVisible, setPermissionDialogVisible] = useState(false);
-  const isViewMarketplaceMode = params.viewMode === 'view_marketplace';
+  const isViewMarketplaceMode = params.viewMode === 'view_marketplace' || isPublicApp;
 
   const headerStart = (
     <>
-      <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
-        <LogoIcon branding={true} />
+      <StyledLink onClick={() => !isPublicApp && history.push(ALL_APPLICATIONS_URL)}>
+        {/* <LogoIcon branding={true} /> */}
+        { brandingSettings?.config_set?.logo
+          ? (
+            Boolean(brandingSettings?.orgId)
+            ? <BrandLogo src={buildMaterialPreviewURL(brandingSettings?.config_set?.logo)} />
+            : <BrandLogo src={brandingSettings?.config_set?.logo} />
+          ) : <LogoIcon branding={true} />
+        }
       </StyledLink>
       {isViewMarketplaceMode && (
         <HeaderStartDropdown
@@ -149,7 +181,7 @@ export const PreviewHeader = () => {
         />
       )}
       {!isViewMarketplaceMode && (
-        <HeaderFont $bgColor={brandingConfig?.headerColor ?? "#2c2c2c"}>
+        <HeaderFont $bgColor={brandingSettings?.config_set?.appHeaderColor ?? "#2c2c2c"}>
           {application && application.name}
         </HeaderFont>
       )}
@@ -158,17 +190,17 @@ export const PreviewHeader = () => {
 
   const headerEnd = (
     <Wrapper>
-      {canManageApp(user, application) && (
+      {canManageApp(user, application) && !isPublicApp && (
         <AppPermissionDialog
           applicationId={applicationId}
           visible={permissionDialogVisible}
           onVisibleChange={(visible) => !visible && setPermissionDialogVisible(false)}
         />
       )}
-      {canManageApp(user, application) && (
+      {canManageApp(user, application) && !isPublicApp && (
         <PreviewBtn onClick={() => setPermissionDialogVisible(true)}>{SHARE_TITLE}</PreviewBtn>
       )}
-      {canEditApp(user, application) && (
+      {canEditApp(user, application) && !isPublicApp && (
         <EditBtn
           buttonType={"primary"}
           onClick={() =>
@@ -195,11 +227,54 @@ export const PreviewHeader = () => {
       <HeaderProfile user={user} />
     </Wrapper>
   );
+
+  const headerMiddle = useMemo(() => {
+    if (isPublicApp) return null;
+
+    return (
+      <>
+        {/* Devices */}
+        <Segmented<DeviceType>
+          options={[
+            { value: 'mobile', icon: <MobileOutlined /> },
+            { value: 'tablet', icon: <TabletOutlined /> },
+            { value: 'desktop', icon: <DesktopOutlined /> },
+          ]}
+          value={deviceType}
+          onChange={(value) => {
+            editorState.setDeviceType(value);
+          }}
+        />
+
+        {/* Orientation */}
+        {deviceType !== 'desktop' && (
+          <Segmented<DeviceOrientation>
+            options={[
+              { value: 'portrait', label: "Portrait" },
+              { value: 'landscape', label: "Landscape" },
+            ]}
+            value={deviceOrientation}
+            onChange={(value) => {
+              editorState.setDeviceOrientation(value);
+            }}
+          />
+        )}
+      </>
+    );
+  }, [
+    isPublicApp,
+    deviceType,
+    deviceOrientation,
+  ]);
+
   return (
     <Header
       headerStart={headerStart}
+      headerMiddle={headerMiddle}
       headerEnd={headerEnd}
-      style={{ backgroundColor: brandingConfig?.headerColor }}
+      style={{ backgroundColor: brandingSettings?.config_set?.appHeaderColor }}
     />
   );
 };
+
+export const PreviewHeader = React.memo(PreviewHeaderComp);

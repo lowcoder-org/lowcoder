@@ -14,3 +14,10 @@ export const selectNpmPluginVersionAction = (packageName: string, version: strin
     [packageName]: version,
   },
 });
+
+export const setLowcoderCompsLoading = (loading: boolean) => ({
+  type: ReduxActionTypes.LOWCODER_COMPS_LOADING,
+  payload: {
+    loading,
+  },
+});

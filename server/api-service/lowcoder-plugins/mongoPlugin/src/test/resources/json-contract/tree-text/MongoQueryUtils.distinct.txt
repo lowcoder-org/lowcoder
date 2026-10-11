@@ -1,0 +1,2 @@
+toString	{"values":[1,3000000001,2.5,"žluť \"quoted\"","65f0c0ffee0000000000abcd",10.5,{"nested":[true]}]}
+production	{"values":[1,3000000001,2.5,"žluť \"quoted\"","65f0c0ffee0000000000abcd",10.5,{"nested":[true]}]}

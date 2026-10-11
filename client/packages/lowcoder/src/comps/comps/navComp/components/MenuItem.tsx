@@ -1,24 +1,15 @@
 import { ActiveTextColor, GreyTextColor } from "constants/style";
 import { EditPopover, SimplePopover } from "lowcoder-design";
 import { PointIcon } from "lowcoder-design";
-import React, { HTMLAttributes, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-import DraggableItem from "./DraggableItem";
 import { NavCompType } from "comps/comps/navComp/components/types";
 import { trans } from "i18n";
 
-export interface ICommonItemProps {
-  path: number[];
+export interface IMenuItemProps {
   item: NavCompType;
-  dropInAsSub?: boolean;
-  onDelete?: (path: number[]) => void;
-  onAddSubMenu?: (path: number[], value?: any) => void;
-}
-
-interface IMenuItemProps extends ICommonItemProps, Omit<HTMLAttributes<HTMLDivElement>, "id"> {
-  isOver?: boolean;
-  dragging?: boolean;
-  dragListeners?: Record<string, Function>;
+  onDelete?: () => void;
+  onAddSubMenu?: () => void;
 }
 
 const MenuItemWrapper = styled.div`
@@ -29,6 +20,13 @@ const MenuItemWrapper = styled.div`
 
 const MenuItemContent = styled.div`
   width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  flex: 1;
+  color: #333;
+  font-size: 13px;
 `;
 
 const StyledPointIcon = styled(PointIcon)`
@@ -39,61 +37,50 @@ const StyledPointIcon = styled(PointIcon)`
   }
 `;
 
-const MenuItem = React.forwardRef((props: IMenuItemProps, ref: React.Ref<HTMLDivElement>) => {
+const MenuItem: React.FC<IMenuItemProps> = (props) => {
   const {
-    path,
     item,
-    isOver,
-    dragging,
-    dragListeners,
-    dropInAsSub = true,
     onDelete,
     onAddSubMenu,
-    ...divProps
   } = props;
 
   const [isConfigPopShow, showConfigPop] = useState(false);
 
   const handleDel = () => {
-    onDelete?.(path);
+    onDelete?.();
   };
 
   const handleAddSubMenu = () => {
-    onAddSubMenu?.(path);
+    onAddSubMenu?.();
   };
 
   const content = <MenuItemWrapper>{item.getPropertyView()}</MenuItemWrapper>;
 
   return (
-    <DraggableItem
-      {...divProps}
-      id={path.join("_")}
-      ref={ref}
-      isOver={isOver}
-      dragging={dragging}
-      dropInAsSub={dropInAsSub}
-      dragListeners={dragListeners}
-      dragContent={
-        <SimplePopover
-          title={trans("edit")}
-          content={content}
-          visible={isConfigPopShow}
-          setVisible={showConfigPop}
+    <>
+      <SimplePopover
+        title={trans("edit")}
+        content={content}
+        visible={isConfigPopShow}
+        setVisible={showConfigPop}
+      >
+        <MenuItemContent 
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
         >
-          <MenuItemContent>{item.children.label.getView()}</MenuItemContent>
-        </SimplePopover>
-      }
-      extra={
-        <EditPopover
-          del={handleDel}
-          add={onAddSubMenu && handleAddSubMenu}
-          addText={trans("navigation.addText")}
-        >
-          <StyledPointIcon />
-        </EditPopover>
-      }
-    />
+          {item.children.label.getView() || trans("untitled")}
+        </MenuItemContent>
+      </SimplePopover>
+      <EditPopover
+        del={handleDel}
+        add={onAddSubMenu ? handleAddSubMenu : undefined}
+        addText={trans("navigation.addText")}
+      >
+        <StyledPointIcon />
+      </EditPopover>
+    </>
   );
-});
+};
 
 export default MenuItem;

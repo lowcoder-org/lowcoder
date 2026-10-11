@@ -1,0 +1,329 @@
+{
+  "buildFrom" : {
+    "basicAuth" : {
+      "class" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+        "params" : [ {
+          "@class" : "org.lowcoder.sdk.models.Property",
+          "key" : "page",
+          "value" : "1",
+          "type" : null
+        }, {
+          "@class" : "org.lowcoder.sdk.models.Property",
+          "key" : "q",
+          "value" : "{{input.text}}",
+          "type" : null
+        } ],
+        "body" : "{\"a\": 1}",
+        "bodyFormData" : [ {
+          "@class" : "org.lowcoder.sdk.models.Property",
+          "key" : "file",
+          "value" : "{{file.value}}",
+          "type" : "file"
+        }, {
+          "@class" : "org.lowcoder.sdk.models.Property",
+          "key" : "name",
+          "value" : "n",
+          "type" : "text"
+        } ],
+        "headers" : [ {
+          "@class" : "org.lowcoder.sdk.models.Property",
+          "key" : "X-Trace",
+          "value" : "éè",
+          "type" : null
+        } ],
+        "url" : " https://api.example.com/v1 ",
+        "forwardCookies" : [ "a", "auth", "session" ],
+        "forwardAllCookies" : true,
+        "authConfig" : {
+          "@class" : "org.lowcoder.sdk.plugin.restapi.auth.BasicAuthConfig",
+          "username" : "user",
+          "password" : "pass",
+          "type" : "BASIC_AUTH"
+        }
+      },
+      "classes" : {
+        "" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+        "/params" : "java.util.ArrayList",
+        "/params/0" : "org.lowcoder.sdk.models.Property",
+        "/params/0/key" : "java.lang.String",
+        "/params/0/value" : "java.lang.String",
+        "/params/0/type" : "null",
+        "/params/1" : "org.lowcoder.sdk.models.Property",
+        "/params/1/key" : "java.lang.String",
+        "/params/1/value" : "java.lang.String",
+        "/params/1/type" : "null",
+        "/body" : "java.lang.String",
+        "/bodyFormData" : "java.util.ArrayList",
+        "/bodyFormData/0" : "org.lowcoder.sdk.models.Property",
+        "/bodyFormData/0/key" : "java.lang.String",
+        "/bodyFormData/0/value" : "java.lang.String",
+        "/bodyFormData/0/type" : "java.lang.String",
+        "/bodyFormData/1" : "org.lowcoder.sdk.models.Property",
+        "/bodyFormData/1/key" : "java.lang.String",
+        "/bodyFormData/1/value" : "java.lang.String",
+        "/bodyFormData/1/type" : "java.lang.String",
+        "/headers" : "java.util.ArrayList",
+        "/headers/0" : "org.lowcoder.sdk.models.Property",
+        "/headers/0/key" : "java.lang.String",
+        "/headers/0/value" : "java.lang.String",
+        "/headers/0/type" : "null",
+        "/url" : "java.lang.String",
+        "/forwardCookies" : "java.util.HashSet",
+        "/forwardCookies/0" : "java.lang.String",
+        "/forwardCookies/1" : "java.lang.String",
+        "/forwardCookies/2" : "java.lang.String",
+        "/forwardAllCookies" : "java.lang.Boolean",
+        "/authConfig" : "org.lowcoder.sdk.plugin.restapi.auth.BasicAuthConfig",
+        "/authConfig/username" : "java.lang.String",
+        "/authConfig/password" : "java.lang.String",
+        "/authConfig/type" : "org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType"
+      },
+      "noView" : {"params":[{"key":"page","value":"1","type":null,"multipartFileType":false},{"key":"q","value":"{{input.text}}","type":null,"multipartFileType":false}],"body":"{\"a\": 1}","bodyFormData":[{"key":"file","value":"{{file.value}}","type":"file","multipartFileType":true},{"key":"name","value":"n","type":"text","multipartFileType":false}],"headers":[{"key":"X-Trace","value":"éè","type":null,"multipartFileType":false}],"url":"https://api.example.com/v1","forwardCookies":["a","auth","session"],"forwardAllCookies":true,"authConfig":{"type":"DIGEST_AUTH","type":"BASIC_AUTH","username":"user","password":"pass"},"authType":"BASIC_AUTH","oauth2InheritFromLogin":false},
+      "Public" : {"params":[{"key":"page","value":"1","type":null,"multipartFileType":false},{"key":"q","value":"{{input.text}}","type":null,"multipartFileType":false}],"body":"{\"a\": 1}","bodyFormData":[{"key":"file","value":"{{file.value}}","type":"file","multipartFileType":true},{"key":"name","value":"n","type":"text","multipartFileType":false}],"headers":[{"key":"X-Trace","value":"éè","type":null,"multipartFileType":false}],"url":"https://api.example.com/v1","forwardCookies":["a","auth","session"],"forwardAllCookies":true,"authConfig":{"type":"DIGEST_AUTH","type":"BASIC_AUTH","username":"user"},"authType":"BASIC_AUTH","oauth2InheritFromLogin":false},
+      "Internal" : {"params":[{"key":"page","value":"1","type":null,"multipartFileType":false},{"key":"q","value":"{{input.text}}","type":null,"multipartFileType":false}],"body":"{\"a\": 1}","bodyFormData":[{"key":"file","value":"{{file.value}}","type":"file","multipartFileType":true},{"key":"name","value":"n","type":"text","multipartFileType":false}],"headers":[{"key":"X-Trace","value":"éè","type":null,"multipartFileType":false}],"url":"https://api.example.com/v1","forwardCookies":["a","auth","session"],"forwardAllCookies":true,"authConfig":{"type":"DIGEST_AUTH","type":"BASIC_AUTH","username":"user","password":"pass"},"authType":"BASIC_AUTH","oauth2InheritFromLogin":false}
+    },
+    "digestAuth" : {
+      "class" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+        "params" : null,
+        "body" : null,
+        "bodyFormData" : null,
+        "headers" : null,
+        "url" : "https://api.example.com",
+        "forwardCookies" : null,
+        "forwardAllCookies" : false,
+        "authConfig" : {
+          "@class" : "org.lowcoder.sdk.plugin.restapi.auth.BasicAuthConfig",
+          "username" : "user",
+          "password" : "pass",
+          "type" : "DIGEST_AUTH"
+        }
+      },
+      "classes" : {
+        "" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+        "/params" : "null",
+        "/body" : "null",
+        "/bodyFormData" : "null",
+        "/headers" : "null",
+        "/url" : "java.lang.String",
+        "/forwardCookies" : "null",
+        "/forwardAllCookies" : "java.lang.Boolean",
+        "/authConfig" : "org.lowcoder.sdk.plugin.restapi.auth.BasicAuthConfig",
+        "/authConfig/username" : "java.lang.String",
+        "/authConfig/password" : "java.lang.String",
+        "/authConfig/type" : "org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType"
+      },
+      "noView" : {"params":[],"body":null,"bodyFormData":[],"headers":[],"url":"https://api.example.com","forwardCookies":[],"forwardAllCookies":false,"authConfig":{"type":"DIGEST_AUTH","type":"DIGEST_AUTH","username":"user","password":"pass"},"authType":"DIGEST_AUTH","oauth2InheritFromLogin":false},
+      "Public" : {"params":[],"body":null,"bodyFormData":[],"headers":[],"url":"https://api.example.com","forwardCookies":[],"forwardAllCookies":false,"authConfig":{"type":"DIGEST_AUTH","type":"DIGEST_AUTH","username":"user"},"authType":"DIGEST_AUTH","oauth2InheritFromLogin":false},
+      "Internal" : {"params":[],"body":null,"bodyFormData":[],"headers":[],"url":"https://api.example.com","forwardCookies":[],"forwardAllCookies":false,"authConfig":{"type":"DIGEST_AUTH","type":"DIGEST_AUTH","username":"user","password":"pass"},"authType":"DIGEST_AUTH","oauth2InheritFromLogin":false}
+    },
+    "noAuth" : {
+      "class" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+        "params" : null,
+        "body" : null,
+        "bodyFormData" : null,
+        "headers" : null,
+        "url" : "https://api.example.com",
+        "forwardCookies" : null,
+        "forwardAllCookies" : false,
+        "authConfig" : {
+          "@class" : "org.lowcoder.sdk.plugin.restapi.auth.NoneAuthConfig",
+          "type" : "NO_AUTH"
+        }
+      },
+      "classes" : {
+        "" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+        "/params" : "null",
+        "/body" : "null",
+        "/bodyFormData" : "null",
+        "/headers" : "null",
+        "/url" : "java.lang.String",
+        "/forwardCookies" : "null",
+        "/forwardAllCookies" : "java.lang.Boolean",
+        "/authConfig" : "org.lowcoder.sdk.plugin.restapi.auth.NoneAuthConfig",
+        "/authConfig/type" : "org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType"
+      },
+      "noView" : {"params":[],"body":null,"bodyFormData":[],"headers":[],"url":"https://api.example.com","forwardCookies":[],"forwardAllCookies":false,"authConfig":{"type":"NO_AUTH","type":"NO_AUTH"},"authType":"NO_AUTH","oauth2InheritFromLogin":false},
+      "Public" : {"params":[],"body":null,"bodyFormData":[],"headers":[],"url":"https://api.example.com","forwardCookies":[],"forwardAllCookies":false,"authConfig":{"type":"NO_AUTH","type":"NO_AUTH"},"authType":"NO_AUTH","oauth2InheritFromLogin":false},
+      "Internal" : {"params":[],"body":null,"bodyFormData":[],"headers":[],"url":"https://api.example.com","forwardCookies":[],"forwardAllCookies":false,"authConfig":{"type":"NO_AUTH","type":"NO_AUTH"},"authType":"NO_AUTH","oauth2InheritFromLogin":false}
+    },
+    "oauthInherit" : {
+      "class" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+        "params" : null,
+        "body" : null,
+        "bodyFormData" : null,
+        "headers" : null,
+        "url" : "https://api.example.com",
+        "forwardCookies" : null,
+        "forwardAllCookies" : false,
+        "authConfig" : {
+          "@class" : "org.lowcoder.sdk.plugin.restapi.auth.OAuthInheritAuthConfig",
+          "authId" : "auth-1",
+          "type" : "OAUTH2_INHERIT_FROM_LOGIN"
+        }
+      },
+      "classes" : {
+        "" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+        "/params" : "null",
+        "/body" : "null",
+        "/bodyFormData" : "null",
+        "/headers" : "null",
+        "/url" : "java.lang.String",
+        "/forwardCookies" : "null",
+        "/forwardAllCookies" : "java.lang.Boolean",
+        "/authConfig" : "org.lowcoder.sdk.plugin.restapi.auth.OAuthInheritAuthConfig",
+        "/authConfig/authId" : "java.lang.String",
+        "/authConfig/type" : "org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType"
+      },
+      "noView" : {"params":[],"body":null,"bodyFormData":[],"headers":[],"url":"https://api.example.com","forwardCookies":[],"forwardAllCookies":false,"authConfig":{"type":"OAUTH2_INHERIT_FROM_LOGIN","type":"OAUTH2_INHERIT_FROM_LOGIN","authId":"auth-1"},"authType":"OAUTH2_INHERIT_FROM_LOGIN","oauth2InheritFromLogin":true},
+      "Public" : {"params":[],"body":null,"bodyFormData":[],"headers":[],"url":"https://api.example.com","forwardCookies":[],"forwardAllCookies":false,"authConfig":{"type":"OAUTH2_INHERIT_FROM_LOGIN","type":"OAUTH2_INHERIT_FROM_LOGIN","authId":"auth-1"},"authType":"OAUTH2_INHERIT_FROM_LOGIN","oauth2InheritFromLogin":true},
+      "Internal" : {"params":[],"body":null,"bodyFormData":[],"headers":[],"url":"https://api.example.com","forwardCookies":[],"forwardAllCookies":false,"authConfig":{"type":"OAUTH2_INHERIT_FROM_LOGIN","type":"OAUTH2_INHERIT_FROM_LOGIN","authId":"auth-1"},"authType":"OAUTH2_INHERIT_FROM_LOGIN","oauth2InheritFromLogin":true}
+    },
+    "bearerToken" : {
+      "class" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+        "params" : null,
+        "body" : null,
+        "bodyFormData" : null,
+        "headers" : null,
+        "url" : "https://api.example.com",
+        "forwardCookies" : null,
+        "forwardAllCookies" : false,
+        "authConfig" : {
+          "@class" : "org.lowcoder.sdk.plugin.restapi.auth.DefaultAuthConfig",
+          "type" : "BEARER_TOKEN_AUTH"
+        }
+      },
+      "classes" : {
+        "" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+        "/params" : "null",
+        "/body" : "null",
+        "/bodyFormData" : "null",
+        "/headers" : "null",
+        "/url" : "java.lang.String",
+        "/forwardCookies" : "null",
+        "/forwardAllCookies" : "java.lang.Boolean",
+        "/authConfig" : "org.lowcoder.sdk.plugin.restapi.auth.DefaultAuthConfig",
+        "/authConfig/type" : "org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType"
+      },
+      "noView" : {"params":[],"body":null,"bodyFormData":[],"headers":[],"url":"https://api.example.com","forwardCookies":[],"forwardAllCookies":false,"authConfig":{"type":"DefaultAuthConfig","type":"BEARER_TOKEN_AUTH"},"authType":"BEARER_TOKEN_AUTH","oauth2InheritFromLogin":false},
+      "Public" : {"params":[],"body":null,"bodyFormData":[],"headers":[],"url":"https://api.example.com","forwardCookies":[],"forwardAllCookies":false,"authConfig":{"type":"DefaultAuthConfig","type":"BEARER_TOKEN_AUTH"},"authType":"BEARER_TOKEN_AUTH","oauth2InheritFromLogin":false},
+      "Internal" : {"params":[],"body":null,"bodyFormData":[],"headers":[],"url":"https://api.example.com","forwardCookies":[],"forwardAllCookies":false,"authConfig":{"type":"DefaultAuthConfig","type":"BEARER_TOKEN_AUTH"},"authType":"BEARER_TOKEN_AUTH","oauth2InheritFromLogin":false}
+    },
+    "authWithoutType" : {
+      "class" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+        "params" : null,
+        "body" : null,
+        "bodyFormData" : null,
+        "headers" : null,
+        "url" : "https://api.example.com",
+        "forwardCookies" : null,
+        "forwardAllCookies" : false,
+        "authConfig" : {
+          "@class" : "org.lowcoder.sdk.plugin.restapi.auth.DefaultAuthConfig",
+          "type" : null
+        }
+      },
+      "classes" : {
+        "" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+        "/params" : "null",
+        "/body" : "null",
+        "/bodyFormData" : "null",
+        "/headers" : "null",
+        "/url" : "java.lang.String",
+        "/forwardCookies" : "null",
+        "/forwardAllCookies" : "java.lang.Boolean",
+        "/authConfig" : "org.lowcoder.sdk.plugin.restapi.auth.DefaultAuthConfig",
+        "/authConfig/type" : "null"
+      },
+      "noView" : {
+        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.name()\" because the return value of \"org.lowcoder.sdk.plugin.restapi.auth.AuthConfig.getType()\" is null (through reference chain: org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig[\"oauth2InheritFromLogin\"])"
+      },
+      "Public" : {
+        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.name()\" because the return value of \"org.lowcoder.sdk.plugin.restapi.auth.AuthConfig.getType()\" is null (through reference chain: org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig[\"oauth2InheritFromLogin\"])"
+      },
+      "Internal" : {
+        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.name()\" because the return value of \"org.lowcoder.sdk.plugin.restapi.auth.AuthConfig.getType()\" is null (through reference chain: org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig[\"oauth2InheritFromLogin\"])"
+      }
+    },
+    "unknownAuthType" : {
+      "error" : "org.lowcoder.sdk.exception.PluginException: DATASOURCE_ARGUMENT_ERROR INVALID_RESTAPI_CONFIG"
+    },
+    "propertyWithExtraKey" : {
+      "class" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+        "params" : [ {
+          "@class" : "org.lowcoder.sdk.models.Property",
+          "key" : "k",
+          "value" : "v",
+          "type" : "text"
+        } ],
+        "body" : null,
+        "bodyFormData" : null,
+        "headers" : null,
+        "url" : "https://api.example.com",
+        "forwardCookies" : null,
+        "forwardAllCookies" : true,
+        "authConfig" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+        "/params" : "java.util.ArrayList",
+        "/params/0" : "org.lowcoder.sdk.models.Property",
+        "/params/0/key" : "java.lang.String",
+        "/params/0/value" : "java.lang.String",
+        "/params/0/type" : "java.lang.String",
+        "/body" : "null",
+        "/bodyFormData" : "null",
+        "/headers" : "null",
+        "/url" : "java.lang.String",
+        "/forwardCookies" : "null",
+        "/forwardAllCookies" : "java.lang.Boolean",
+        "/authConfig" : "null"
+      },
+      "noView" : {"params":[{"key":"k","value":"v","type":"text","multipartFileType":false}],"body":null,"bodyFormData":[],"headers":[],"url":"https://api.example.com","forwardCookies":[],"forwardAllCookies":true,"authConfig":null,"authType":"NO_AUTH","oauth2InheritFromLogin":false},
+      "Public" : {"params":[{"key":"k","value":"v","type":"text","multipartFileType":false}],"body":null,"bodyFormData":[],"headers":[],"url":"https://api.example.com","forwardCookies":[],"forwardAllCookies":true,"authConfig":null,"authType":"NO_AUTH","oauth2InheritFromLogin":false},
+      "Internal" : {"params":[{"key":"k","value":"v","type":"text","multipartFileType":false}],"body":null,"bodyFormData":[],"headers":[],"url":"https://api.example.com","forwardCookies":[],"forwardAllCookies":true,"authConfig":null,"authType":"NO_AUTH","oauth2InheritFromLogin":false}
+    },
+    "empty" : {
+      "class" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+        "params" : null,
+        "body" : null,
+        "bodyFormData" : null,
+        "headers" : null,
+        "url" : null,
+        "forwardCookies" : null,
+        "forwardAllCookies" : false,
+        "authConfig" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig",
+        "/params" : "null",
+        "/body" : "null",
+        "/bodyFormData" : "null",
+        "/headers" : "null",
+        "/url" : "null",
+        "/forwardCookies" : "null",
+        "/forwardAllCookies" : "java.lang.Boolean",
+        "/authConfig" : "null"
+      },
+      "noView" : {"params":[],"body":null,"bodyFormData":[],"headers":[],"url":"","forwardCookies":[],"forwardAllCookies":false,"authConfig":null,"authType":"NO_AUTH","oauth2InheritFromLogin":false},
+      "Public" : {"params":[],"body":null,"bodyFormData":[],"headers":[],"url":"","forwardCookies":[],"forwardAllCookies":false,"authConfig":null,"authType":"NO_AUTH","oauth2InheritFromLogin":false},
+      "Internal" : {"params":[],"body":null,"bodyFormData":[],"headers":[],"url":"","forwardCookies":[],"forwardAllCookies":false,"authConfig":null,"authType":"NO_AUTH","oauth2InheritFromLogin":false}
+    },
+    "unknownProperty" : "ignored: binds as form basicAuth"
+  }
+}

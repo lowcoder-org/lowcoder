@@ -67,7 +67,11 @@ function DropdownPropertyView<T extends OptionsType>(props: DropdownPropertyView
       showSearch={params.showSearch}
       onChange={onChange}
       disabled={params.disabled}
-      dropdownStyle={props.dropdownStyle}
+      styles={{
+        popup: {
+          root: props.dropdownStyle
+        }
+      }}
       labelStyle={props.labelStyle}
     />
   );

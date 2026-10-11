@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { default as Button } from "antd/es/button";
 import {
   changeChildAction,
@@ -8,8 +8,8 @@ import {
 } from "lowcoder-core";
 import { trans } from "i18n";
 import { UICompBuilder, withDefault } from "../../generators";
-import { Section, sectionNames } from "lowcoder-design";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { ScrollBar, Section, sectionNames } from "lowcoder-design";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { BoolControl } from "comps/controls/boolControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
@@ -30,12 +30,14 @@ import {
 import {
   clickEvent,
   eventHandlerControl,
+  doubleClickEvent,
 } from "comps/controls/eventHandlerControl";
 import {
   TimeLineStyle,
   heightCalculator,
   widthCalculator,
   marginCalculator,
+  TimeLineStyleType,
 } from "comps/controls/styleControlConstants";
 import { stateComp, valueComp } from "comps/generators/simpleGenerators";
 import {
@@ -46,10 +48,30 @@ import {
 import { timelineDate, timelineNode, TimelineDataTooltip } from "./timelineConstants";
 import { convertTimeLineData } from "./timelineUtils";
 import { default as Timeline } from "antd/es/timeline";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
+import { styled } from "styled-components";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
+
+const TimelineWrapper = styled.div<{
+  $style: TimeLineStyleType
+}>`
+  ${props => `margin: ${props.$style.margin ?? '3px'}` };
+  ${props => `padding: ${props.$style.padding !== '3px' ? props.$style.padding : '20px 10px 0px 10px'}` };
+  ${props => `width: ${widthCalculator(props.$style.margin ?? '3px')}` };
+  ${props => `height: ${heightCalculator(props.$style.margin ?? '3px')}` };
+  ${props => `background: ${props.$style.background}` };
+  ${props => `border-radius: ${props.$style.radius}` };
+  overflow: auto;
+  overflow-x: hidden;
+
+  .ant-timeline .ant-timeline-item-head {
+    background-color: transparent;
+  }
+`;
 
 const EventOptions = [
   clickEvent,
+  doubleClickEvent,
 ] as const;
 
 const modeOptions = [
@@ -62,9 +84,11 @@ const childrenMap = {
   value: jsonControl(convertTimeLineData, timelineDate),
   mode: dropdownControl(modeOptions, "alternate"),
   reverse: BoolControl,
+  autoHeight: AutoHeightControl,
+  verticalScrollbar: withDefault(BoolControl, false),
   pending: withDefault(StringControl, trans("timeLine.defaultPending")),
   onEvent: eventHandlerControl(EventOptions),
-  style: styleControl(TimeLineStyle),
+  style: styleControl(TimeLineStyle, 'style'),
   clickedObject: valueComp<timelineNode>({ title: "" }),
   clickedIndex: valueComp<number>(0),
 };
@@ -89,6 +113,7 @@ const TimelineComp = (
 ) => {
   const { value, dispatch, style, mode, reverse, onEvent } = props;
   const [icons, setIcons] = useState<React.ReactNode[]>([]);
+  const handleClickEvent = useCompClickEventHandler({onEvent})
 
   useEffect(() => {
     const loadIcons = async () => {
@@ -120,11 +145,17 @@ const TimelineComp = (
             e.preventDefault();
             dispatch(changeChildAction("clickedObject", value, false));
             dispatch(changeChildAction("clickedIndex", index, false));
-            onEvent("click");
+            handleClickEvent()
           }}
+          // for responsiveness
           style={{
             cursor: "pointer",
             color: value?.titleColor || style?.titleColor,
+            whiteSpace: "normal",
+            wordWrap: "break-word",
+            textAlign: "left",
+            height: "auto",
+            padding: "0"
           }}
         >
           <b>{value?.title}</b>
@@ -137,31 +168,22 @@ const TimelineComp = (
   }));
 
   return (
-    <div
-      style={{
-        margin: style.margin ?? '3px',
-        padding: style.padding !== '3px' ? style.padding : '20px 10px 0px 10px',
-        width: widthCalculator(style.margin ?? '3px'),
-        height: heightCalculator(style.margin ?? '3px'),
-        background: style.background,
-        overflow: "auto",
-        overflowX: "hidden",
-        borderRadius: style.radius,
-      }}
-    >
-      <Timeline
-        mode={props?.mode || "left"}
-        reverse={props?.reverse}
-        pending={
-          props?.pending && (
-            <span style={{ color: style?.titleColor }}>
-              {props?.pending || ""}
-            </span>
-          )
-        }
-        items={timelineItems}
-      />
-    </div>
+    <ScrollBar hideScrollbar={!props.verticalScrollbar}>
+      <TimelineWrapper $style={style}>
+        <Timeline
+          mode={props?.mode || "left"}
+          reverse={props?.reverse}
+          pending={
+            props?.pending && (
+              <span style={{ color: style?.titleColor }}>
+                {props?.pending || ""}
+              </span>
+            )
+          }
+          items={timelineItems}
+        />
+      </TimelineWrapper>
+    </ScrollBar>
   );
 };
 
@@ -169,7 +191,9 @@ let TimeLineBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => (
     <TimelineComp {...props} dispatch={dispatch} />
   ))
-    .setPropertyViewFn((children) => (
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
         <Section name={sectionNames.basic}>
           {children.value.propertyView({
@@ -179,15 +203,21 @@ let TimeLineBasicComp = (function () {
           })}
         </Section>
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["logic", "both"].includes(editorModeStatus) && (
           <Section name={sectionNames.interaction}>
             {children.onEvent.getPropertyView()}
             {hiddenPropertyView(children)}
+            {showDataLoadingIndicatorsPropertyView(children)}
           </Section>
         )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           <><Section name={sectionNames.layout}>
+              {children.autoHeight.getPropertyView()}
+              {!children.autoHeight.getView() && 
+                children.verticalScrollbar.propertyView({
+                  label: trans("prop.showVerticalScrollbar")
+                })}
               {children.mode.propertyView({
                 label: trans("timeLine.mode"),
                 tooltip: trans("timeLine.modeTooltip"),
@@ -206,13 +236,14 @@ let TimeLineBasicComp = (function () {
           </>
         )}
       </>
-    ))
+    );
+    })
     .build();
 })();
 
 TimeLineBasicComp = class extends TimeLineBasicComp {
   override autoHeight(): boolean {
-    return false;
+    return this.children.autoHeight.getView();
   }
 };
 

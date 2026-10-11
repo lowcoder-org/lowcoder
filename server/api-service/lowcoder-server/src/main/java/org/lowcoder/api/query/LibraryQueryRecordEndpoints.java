@@ -5,6 +5,7 @@ import static org.lowcoder.infra.constant.NewUrl.LIBRARY_QUERY_RECORD_URL;
 import java.util.List;
 import java.util.Map;
 
+import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.query.view.LibraryQueryRecordMetaView;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -39,7 +40,9 @@ public interface LibraryQueryRecordEndpoints
 		    description = "Retrieve a specific Library Query Record within Lowcoder using the associated library query ID."
 	)
     @GetMapping("/listByLibraryQueryId")
-    public Mono<ResponseView<List<LibraryQueryRecordMetaView>>> getByLibraryQueryId(@RequestParam(name = "libraryQueryId") String libraryQueryId);
+    public Mono<PageResponseView<?>> getByLibraryQueryId(@RequestParam(name = "libraryQueryId") String libraryQueryId,
+														 @RequestParam(required = false, defaultValue = "1") int pageNum,
+														 @RequestParam(required = false, defaultValue = "100") int pageSize);
 
 	@Operation(
 			tags = TAG_LIBRARY_QUERY_RECORDS,

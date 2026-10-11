@@ -1,0 +1,1 @@
+<html>the registry answered with a page, not JSON</html>

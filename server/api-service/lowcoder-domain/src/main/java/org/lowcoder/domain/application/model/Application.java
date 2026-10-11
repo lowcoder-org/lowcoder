@@ -1,23 +1,16 @@
 package org.lowcoder.domain.application.model;
 
 
-import static com.google.common.base.Suppliers.memoize;
-import static java.util.Optional.ofNullable;
-import static org.lowcoder.domain.application.ApplicationUtil.getContainerSizeFromDSL;
-import static org.lowcoder.domain.application.ApplicationUtil.getDependentModulesFromDsl;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Supplier;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.lowcoder.domain.application.ApplicationUtil;
+import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.query.model.ApplicationQuery;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
@@ -25,25 +18,36 @@ import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
+import reactor.core.publisher.Mono;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
 
-import lombok.Builder;
+import static com.google.common.base.Suppliers.memoize;
+import static java.util.Optional.ofNullable;
+import static org.lowcoder.domain.application.ApplicationUtil.getContainerSizeFromDSL;
+import static org.lowcoder.domain.application.ApplicationUtil.getDependentModulesFromDsl;
 
 @Document
 @Jacksonized
 @SuperBuilder
 @NoArgsConstructor
 public class Application extends HasIdAndAuditing {
-
+    @Getter
+    private String gid;
+    @Setter
+    @Getter
+    private String slug;
     private String organizationId;
     private String name;
     private Integer applicationType;
     private ApplicationStatus applicationStatus;
 
-    private Map<String, Object> publishedApplicationDSL;
+    @Setter
     private Map<String, Object> editingApplicationDSL;
 
     @Setter
@@ -52,68 +56,63 @@ public class Application extends HasIdAndAuditing {
     private Boolean publicToMarketplace;
     @Setter
     private Boolean agencyProfile;
+    @Getter
+    @Setter
+    private String editingUserId;
+    @Getter
+    @Setter
+    protected Instant lastEditedAt;
 
     public Application(
             @JsonProperty("orgId") String organizationId,
+            @JsonProperty("gid") String gid,
             @JsonProperty("name") String name,
             @JsonProperty("applicationType") Integer applicationType,
             @JsonProperty("applicationStatus") ApplicationStatus applicationStatus,
-            @JsonProperty("publishedApplicationDSL") Map<String, Object> publishedApplicationDSL,
             @JsonProperty("editingApplicationDSL") Map<String, Object> editingApplicationDSL,
             @JsonProperty("publicToAll") Boolean publicToAll,
             @JsonProperty("publicToMarketplace") Boolean publicToMarketplace,
-            @JsonProperty("agencyProfile") Boolean agencyProfile
+            @JsonProperty("agencyProfile") Boolean agencyProfile,
+            @JsonProperty("editingUserId") String editingUserId,
+            @JsonProperty("lastEditedAt") Instant lastEditedAt
     ) {
+        this.gid = gid;
         this.organizationId = organizationId;
         this.name = name;
         this.applicationType = applicationType;
         this.applicationStatus = applicationStatus;
-        this.publishedApplicationDSL = publishedApplicationDSL;
         this.publicToAll = publicToAll;
         this.publicToMarketplace = publicToMarketplace;
         this.agencyProfile = agencyProfile;
         this.editingApplicationDSL = editingApplicationDSL;
+        this.editingUserId = editingUserId;
+        this.lastEditedAt = lastEditedAt;
     }
 
     @Transient
     private final Supplier<Set<ApplicationQuery>> editingQueries =
-            memoize(() -> Optional.ofNullable(editingApplicationDSL)
+            memoize(() -> ofNullable(editingApplicationDSL)
                     .map(map -> map.get("queries"))
                     .map(queries -> JsonUtils.fromJsonSet(JsonUtils.toJson(queries), ApplicationQuery.class))
                     .orElse(Collections.emptySet()));
 
     @Transient
-    private final Supplier<Set<ApplicationQuery>> liveQueries =
-            memoize(() -> JsonUtils.fromJsonSet(JsonUtils.toJson(getLiveApplicationDsl().get("queries")), ApplicationQuery.class));
-
-    @Transient
     private final Supplier<Set<String>> editingModules = memoize(() -> getDependentModulesFromDsl(editingApplicationDSL));
-
-    @Transient
-    private final Supplier<Set<String>> liveModules = memoize(() -> getDependentModulesFromDsl(getLiveApplicationDsl()));
-
-    @Transient
-    private final Supplier<Object> liveContainerSize = memoize(() -> {
-        if (ApplicationType.APPLICATION.getValue() == getApplicationType()) {
-            return null;
-        }
-        return getContainerSizeFromDSL(getLiveApplicationDsl());
-    });
 
     public Set<ApplicationQuery> getEditingQueries() {
         return editingQueries.get();
     }
 
-    public Set<ApplicationQuery> getLiveQueries() {
-        return liveQueries.get();
+    public Mono<Set<ApplicationQuery>> getLiveQueries(ApplicationRecordService applicationRecordService) {
+        return getLiveApplicationDsl(applicationRecordService).mapNotNull(liveApplicationDSL -> JsonUtils.fromJsonSet(JsonUtils.toJson(liveApplicationDSL.get("queries")), ApplicationQuery.class));
     }
 
     public Set<String> getEditingModules() {
         return editingModules.get();
     }
 
-    public Set<String> getLiveModules() {
-        return liveModules.get();
+    public Mono<Set<String>> getLiveModules(ApplicationRecordService applicationRecordService) {
+        return getLiveApplicationDsl(applicationRecordService).map(ApplicationUtil::getDependentModulesFromDsl);
     }
 
     public boolean isPublicToAll() {
@@ -128,12 +127,21 @@ public class Application extends HasIdAndAuditing {
         return BooleanUtils.toBooleanDefaultIfNull(agencyProfile, false);
     }
 
-    public ApplicationQuery getQueryByViewModeAndQueryId(boolean isViewMode, String queryId) {
-        return (isViewMode ? getLiveQueries() : getEditingQueries())
-                .stream()
-                .filter(query -> queryId.equals(query.getId()))
-                .findFirst()
-                .orElseThrow(() -> new BizException(BizError.QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"));
+    public Mono<ApplicationQuery> getQueryByViewModeAndQueryId(boolean isViewMode, String queryId, ApplicationRecordService applicationRecordService) {
+	return isViewMode ?
+		// Get Published Queries in View/View Marketplace Mode
+		getLiveQueries(applicationRecordService).map(liveQueries -> (liveQueries)
+		.stream()
+		.filter(query -> queryId.equals(query.getId()) || queryId.equals(query.getGid()))
+		.findFirst()
+		.orElseThrow(() -> new BizException(BizError.QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND")))
+		:
+		// Get Editing Queries in Edit/Preview Mode
+		Mono.just(getEditingQueries()
+		.stream()
+		.filter(query -> queryId.equals(query.getId()) || queryId.equals(query.getGid()))
+		.findFirst()
+		.orElseThrow(() -> new BizException(BizError.QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND")));
     }
 
     /**
@@ -141,8 +149,10 @@ public class Application extends HasIdAndAuditing {
      */
     @Transient
     @JsonIgnore
-    public Map<String, Object> getLiveApplicationDsl() {
-        return MapUtils.isEmpty(publishedApplicationDSL) ? editingApplicationDSL : publishedApplicationDSL;
+    public Mono<Map<String, Object>> getLiveApplicationDsl(ApplicationRecordService applicationRecordService) {
+        return applicationRecordService.getLatestRecordByApplicationId(this.getId())
+                .map(ApplicationVersion::getApplicationDSL)
+                .switchIfEmpty(Mono.just(getEditingApplicationDSL()));
     }
 
     public String getOrganizationId() {
@@ -162,15 +172,82 @@ public class Application extends HasIdAndAuditing {
     }
 
     public Map<String, Object> getEditingApplicationDSL() {
-        return editingApplicationDSL;
+        var dsl = editingApplicationDSL;
+        if (dsl == null) dsl = new HashMap<>();
+        return dsl;
     }
 
-    public Object getLiveContainerSize() {
-        return liveContainerSize.get();
+    public Mono<String> getCategory(ApplicationRecordService applicationRecordService) {
+        return getLiveApplicationDsl(applicationRecordService).map(liveDSL -> {
+            if (liveDSL == null || liveDSL.get("settings") == null) return "";
+            Object settingsObject = liveDSL.get("settings");
+            if (settingsObject instanceof Map) {
+                Map<?, ?> settings = (Map<?, ?>) liveDSL.get("settings");
+                Object category = settings.get("category");
+                return (category != null & category instanceof String)?(String) category:"";
+            } else {
+                return "";
+            }
+        }).onErrorReturn("");
     }
 
-	public Map<String, Object> getPublishedApplicationDSL() {
-		return publishedApplicationDSL;
+    public Mono<String> getTitle(ApplicationRecordService applicationRecordService) {
+        return getLiveApplicationDsl(applicationRecordService).map(liveDSL -> {
+            if (liveDSL == null || liveDSL.get("settings") == null) return "";
+            Object settingsObject = liveDSL.get("settings");
+            if (settingsObject instanceof Map) {
+                Map<?, ?> settings = (Map<?, ?>) liveDSL.get("settings");
+                Object title = settings.get("title");
+                return (title != null & title instanceof String)?(String) title:"";
+            } else {
+                return "";
+            }
+        }).onErrorReturn("");
+    }
+
+    public Mono<String> getDescription(ApplicationRecordService applicationRecordService) {
+        return getLiveApplicationDsl(applicationRecordService).map(liveDSL -> {
+                if (liveDSL == null || liveDSL.get("settings") == null) return "";
+                Object settingsObject = liveDSL.get("settings");
+                if (settingsObject instanceof Map) {
+                    Map<?, ?> settings = (Map<?, ?>) liveDSL.get("settings");
+                    Object description = settings.get("description");
+                    return (description != null & description instanceof String)?(String) description:"";
+                } else {
+                    return "";
+                }
+            }
+        ).onErrorReturn("");
+    }
+
+    public Mono<String> getIcon(ApplicationRecordService applicationRecordService) {
+        return getLiveApplicationDsl(applicationRecordService).map(liveDSL -> {
+                    if (liveDSL == null || liveDSL.get("settings") == null) return "";
+                    Object settingsObject = liveDSL.get("settings");
+                    if (settingsObject instanceof Map) {
+                        Map<?, ?> settings = (Map<?, ?>) liveDSL.get("settings");
+                        Object icon = settings.get("icon");
+                        return (icon != null & icon instanceof String)?(String) icon:"";
+                    } else {
+                        return "";
+                    }
+                }
+        ).onErrorReturn("");
+    }
+
+    public Map<String, Object> getEditingApplicationDSLOrNull() {return editingApplicationDSL; }
+
+    public Mono<Object> getLiveContainerSize(ApplicationRecordService applicationRecordService) {
+        return getLiveApplicationDsl(applicationRecordService).flatMap(dsl -> {
+            if (ApplicationType.APPLICATION.getValue() == getApplicationType()) {
+                return Mono.empty();
+            }
+            return Mono.justOrEmpty(getContainerSizeFromDSL(dsl));
+        });
+    }
+
+	public Mono<Map<String, Object>> getPublishedApplicationDSL(ApplicationRecordService applicationRecordService) {
+        return applicationRecordService.getLatestRecordByApplicationId(this.getId()).map(ApplicationVersion::getApplicationDSL);
 	}
 
 }

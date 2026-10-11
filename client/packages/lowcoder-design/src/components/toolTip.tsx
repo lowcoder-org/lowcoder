@@ -3,7 +3,7 @@ import { default as AntdTooltip, TooltipProps } from "antd/es/tooltip";
 import { CSSProperties, ReactNode } from "react";
 import styled, { css } from "styled-components";
 import { labelCss } from "components/Label";
-import { ReactComponent as CloseIcon } from "icons/icon-close.svg";
+import { ReactComponent as CloseIcon } from "icons/v1/icon-close.svg";
 import { TooltipRenderProps } from "react-joyride";
 import { trans } from "i18n/design";
 
@@ -155,7 +155,7 @@ export const UnderlineCss = css`
 `;
 
 function Tooltip(props: TooltipProps) {
-  return <AntdTooltip color="#2c2c2c2" overlayInnerStyle={overlayInnerCss} {...props} />;
+  return <AntdTooltip color="#2c2c2c2" styles={{ body: overlayInnerCss }} {...props} />;
 }
 
 const Label = styled.div<{ $border?: boolean }>`
@@ -181,7 +181,9 @@ function ToolTipLabel(
     <AntdTooltip
       color="#2c2c2c"
       title={title && <TooltipTitleWrapper><>{title}</></TooltipTitleWrapper>}
-      overlayInnerStyle={{ maxWidth: "232px", whiteSpace: "break-spaces" }}
+      styles={{
+        body: { maxWidth: "232px", whiteSpace: "break-spaces" }
+      }}
       arrow={{
         pointAtCenter: true
       }}
@@ -208,6 +210,7 @@ export const TutorialsTooltip = ({
   step,
   backProps,
   skipProps,
+  closeProps,
   primaryProps,
   tooltipProps,
   isLastStep,
@@ -217,7 +220,7 @@ export const TutorialsTooltip = ({
     <ToolTipDiv {...tooltipProps} style={{ width: step.styles?.options?.width }}>
       <TooltipHeader>
         {step.title && <Title>{step.title}</Title>}
-        <CloseDiv {...skipProps}>
+        <CloseDiv {...closeProps}>
           <CloseIcon />
         </CloseDiv>
       </TooltipHeader>

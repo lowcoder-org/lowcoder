@@ -2,6 +2,7 @@ import type { EditorState } from "@codemirror/state";
 import { isThemeColorKey } from "api/commonSettingApi";
 import type { Language } from "base/codeEditor/codeEditorTypes";
 import { EditorContext } from "comps/editorState";
+import { EditorStoreSelector } from "comps/editorStore";
 import { withDefault } from "comps/generators/simpleGenerators";
 import { CompExposingContext } from "comps/generators/withContext";
 import { exposingDataForAutoComplete } from "comps/utils/exposingTypes";
@@ -28,6 +29,7 @@ import {
 import {
   ControlPropertyViewWrapper,
   isValidColor,
+  isValidGradient,
   toHex,
   wrapperToControlItem,
 } from "lowcoder-design";
@@ -100,18 +102,18 @@ export function codeControl<
       this._exposingNode = withFunction(this._node, (x) => x.value);
 
       // make sure handleChange's reference only changes when the instance changes, avoid CodeEditor frequent reconfigure
-      this.handleChange = debounce((state: EditorState) => {
+      this.handleChange = (state: EditorState) => {
         this.dispatchChangeValueAction(state.doc.toString());
-      }, 50);
+      };
     }
 
     override changeDispatch(dispatch: DispatchType) {
       // need to re-bind handleChange when dispatch changes, otherwise old instance's dispatch is still in use
       const comp = setFieldsNoTypeCheck(this, {
         dispatch,
-        handleChange: debounce((state: EditorState) => {
+        handleChange: (state: EditorState) => {
           comp.dispatchChangeValueAction(state.doc.toString());
-        }, 50),
+        },
       });
       return comp;
     }
@@ -188,35 +190,39 @@ export function codeControl<
       const cardContent = params.disableCard
         ? ""
         : getCardContent(this.unevaledValue, this.valueAndMsg, codeControlParams);
+      const { key, ...restParams } = params;
       return (
         <EditorContext.Consumer>
           {(editorState) => (
             <CompExposingContext.Consumer>
               {(exposingData) => (
-                <>
-                  <Suspense fallback={null}>
-                    <CodeEditor
-                      {...params}
-                      bordered
-                      value={this.unevaledValue}
-                      codeType={codeType}
-                      cardTitle={toCardTitle(codeControlParams?.expectedType, this.valueAndMsg.value)}
-                      cardContent={cardContent}
-                      onChange={this.handleChange}
-                      hasError={this.valueAndMsg?.hasError()}
-                      segments={this.valueAndMsg?.extra?.segments}
-                      exposingData={{
-                        ...exposingDataForAutoComplete(
-                          editorState?.nameAndExposingInfo(),
-                          evalWithMethods
-                        ),
-                        ...exposingData,
-                      }}
-                      boostExposingData={exposingData}
-                      enableClickCompName={editorState?.forceShowGrid}
-                    />
-                  </Suspense>
-                </>
+                <EditorStoreSelector selector={(state) => state.forceShowGrid}>
+                  {(forceShowGrid) => (
+                    <Suspense fallback={null}>
+                      <CodeEditor
+                        key={key}
+                        {...restParams}
+                        bordered
+                        value={this.unevaledValue}
+                        codeType={codeType}
+                        cardTitle={toCardTitle(codeControlParams?.expectedType, this.valueAndMsg.value)}
+                        cardContent={cardContent}
+                        onChange={this.handleChange}
+                        hasError={this.valueAndMsg?.hasError()}
+                        segments={this.valueAndMsg?.extra?.segments}
+                        exposingData={{
+                          ...exposingDataForAutoComplete(
+                            editorState?.nameAndExposingInfo(),
+                            evalWithMethods
+                          ),
+                          ...exposingData,
+                        }}
+                        boostExposingData={exposingData}
+                        enableClickCompName={forceShowGrid}
+                      />
+                    </Suspense>
+                  )}
+                </EditorStoreSelector>
               )}
             </CompExposingContext.Consumer>
           )}
@@ -278,7 +284,8 @@ function toRegExp(value: unknown): RegExp {
     return value as RegExp;
   } else if (valueType === "string") {
     const regexStr = trimStart(value as string, "^");
-    return new RegExp("^" + (regexStr ?? ".*") + "$");
+    const finalRegexStr = regexStr || ".*";
+    return new RegExp("^" + finalRegexStr + "$");
   }
   throw new TypeError(
     `must be a valid JavaScript regular expression without forward slashes around the pattern`
@@ -432,7 +439,7 @@ export function stringUnionControl<T extends readonly string[]>(
 export const ColorCodeControl = codeControl<string>(
   (value: unknown) => {
     const valueString = toString(value);
-
+    
     if (valueString === "") {
       return valueString;
     }
@@ -440,6 +447,9 @@ export const ColorCodeControl = codeControl<string>(
       return toHex(valueString);
     }
     if (isThemeColorKey(valueString)) {
+      return valueString;
+    }
+    if (isValidGradient(valueString)) {
       return valueString;
     }
     throw new Error(`the argument must be type CSS color`);
@@ -463,6 +473,9 @@ export const ColorOrBoolCodeControl = codeControl<string>(
       return toHex(valueString);
     }
     if (isThemeColorKey(valueString)) {
+      return valueString;
+    }
+    if (isValidGradient(valueString)) {
       return valueString;
     }
     throw new Error(`the argument must be type CSS color or Boolean`);

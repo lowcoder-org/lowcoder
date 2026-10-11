@@ -1,7 +1,7 @@
 import { Input, Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
-import { AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, LabelStyleType } from "comps/controls/styleControlConstants";
+import { AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, LabelStyleType, DisabledInputStyle, DisabledInputStyleType } from "comps/controls/styleControlConstants";
 import {
   NameConfig,
   NameConfigPlaceHolder,
@@ -32,18 +32,33 @@ import { hasIcon } from "comps/utils";
 import { InputRef } from "antd/es/input";
 import { RefControl } from "comps/controls/refControl";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
+import { withLinkedDefaultValue } from "comps/controls/codeStateControl";
+import { numberSimpleControl } from "comps/controls/numberSimpleControl";
+import { NumberControl } from "comps/controls/codeControl";
 
-import React, { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import React, { useEffect } from "react";
+import { useEditorStore } from "comps/editorStore";
 
 /**
  * Input Comp
  */
 
-const InputStyle = styled(Input)<{$style: InputLikeStyleType}>`
+const InputStyle = styled(Input)<{
+  $style: InputLikeStyleType;
+  $disabledStyle?: DisabledInputStyleType;
+}>`
   box-shadow: ${(props) =>
     `${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
   ${(props) => props.$style && getStyle(props.$style)}
+  
+  /* Disabled state styling */
+  &:disabled,
+  &.ant-input-disabled {
+    color: ${(props) => props.$disabledStyle?.disabledText};
+    background: ${(props) => props.$disabledStyle?.disabledBackground};
+    border-color: ${(props) => props.$disabledStyle?.disabledBorder};
+    cursor: not-allowed;
+  }
 `;
 
 const childrenMap = {
@@ -51,12 +66,14 @@ const childrenMap = {
   viewRef: RefControl<InputRef>,
   showCount: BoolControl,
   allowClear: BoolControl,
-  style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
-  labelStyle:styleControl(LabelStyle), 
+  style: styleControl(InputFieldStyle, 'style'), 
+  labelStyle:styleControl(LabelStyle, 'labelStyle'), 
   prefixIcon: IconControl,
   suffixIcon: IconControl,
-  inputFieldStyle:withDefault(styleControl(InputLikeStyle),{borderWidth: '1px'}) ,
-  animationStyle: styleControl(AnimationStyle),
+  inputFieldStyle: styleControl(InputLikeStyle, 'inputFieldStyle'),
+  animationStyle: styleControl(AnimationStyle, 'animationStyle'),
+  disabledStyle: styleControl(DisabledInputStyle, 'disabledStyle'),
+  tabIndex: NumberControl,
 };
 
 let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
@@ -70,28 +87,32 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
         showCount={props.showCount}
         allowClear={props.allowClear}
         $style={props.inputFieldStyle}
+        $disabledStyle={props.disabledStyle}
         prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
         suffix={hasIcon(props.suffixIcon) && props.suffixIcon}
+        tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
       />
     ),
     style: props.style,
     labelStyle: props.labelStyle,
     inputFieldStyle:props.inputFieldStyle,
     animationStyle:props.animationStyle,
+    showValidationWhenEmpty: props.showValidationWhenEmpty,
     ...validateState,
   });
 })
   .setPropertyViewFn((children) => {
+    const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
     return (
       <>
         <TextInputBasicSection {...children} />
         <FormDataPropertyView {...children} />
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           children.label.getPropertyView()
         )}
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["logic", "both"].includes(editorModeStatus) && (
           <><TextInputInteractionSection {...children} />
             <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
             <Section name={sectionNames.advanced}>
@@ -104,11 +125,12 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
             <TextInputValidationSection {...children} />
           </>
         )}
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           <>
             <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
             <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
             <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
+            <Section name={trans("prop.disabledStyle")}>{children.disabledStyle.getPropertyView()}</Section>
             <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
           </>
         )}
@@ -125,6 +147,9 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
   .build();
 
 
-const InputComp = migrateOldData(InputBasicComp, fixOldInputCompData);
+const InputComp = migrateOldData(
+  withLinkedDefaultValue(InputBasicComp, "defaultValue", "value"),
+  fixOldInputCompData
+);
 
 export { InputComp };

@@ -249,7 +249,7 @@ abstract class ResourcePermissionHandler implements ResourcePermissionHandlerSer
         Mono<UserPermissionOnResourceStatus> orgUserPermissionMono = getOrgId(resourceId)
                 .flatMap(orgId -> orgMemberService.getOrgMember(orgId, userId))
                 .flatMap(orgMember -> {
-                    if (orgMember.isAdmin()) {
+                    if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
                         return Mono.just(UserPermissionOnResourceStatus.success(buildAdminPermission(resourceType, resourceId, userId)));
                     }
                     return getAllMatchingPermissions0(userId, orgMember.getOrgId(), resourceType, Collections.singleton(resourceId), resourceAction)
@@ -308,7 +308,7 @@ abstract class ResourcePermissionHandler implements ResourcePermissionHandlerSer
         Mono<UserPermissionOnResourceStatus> orgUserPermissionMono = getOrgId(resourceId)
                 .flatMap(orgId -> orgMemberService.getOrgMember(orgId, userId))
                 .flatMap(orgMember -> {
-                    if (orgMember.isAdmin()) {
+                    if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
                         return Mono.just(UserPermissionOnResourceStatus.success(buildAdminPermission(resourceType, resourceId, userId)));
                     }
                     return getAllMatchingPermissions0(userId, orgMember.getOrgId(), resourceType, Collections.singleton(resourceId), resourceAction)

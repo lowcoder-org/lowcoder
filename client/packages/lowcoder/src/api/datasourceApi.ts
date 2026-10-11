@@ -8,6 +8,11 @@ import { JSONArray } from "util/jsonTypes";
 import { AuthType, HttpOAuthGrantType } from "pages/datasource/form/httpDatasourceForm";
 import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import { DataSourcePluginMeta } from "lowcoder-sdk/dataSource";
+import {
+  fetchDataSourcePaginationRequestType,
+  fetchDBRequestType,
+  GenericApiPaginationResponse
+} from "@lowcoder-ee/util/pagination/type";
 
 export interface PreparedStatementConfig {
   enableTurnOffPreparedStatement: boolean;
@@ -155,7 +160,7 @@ export interface DataSourceTypeInfo {
 }
 
 export class DatasourceApi extends Api {
-  static url = "v1/datasources";
+  static url = "datasources";
 
   // this api can be accessed by anonymous users when app is public.
   static fetchJsDatasourceByApp(
@@ -164,12 +169,26 @@ export class DatasourceApi extends Api {
     return Api.get(DatasourceApi.url + `/jsDatasourcePlugins?appId=${appId}`);
   }
 
+  static fetchJsDatasourcePaginationByApp( request: fetchDataSourcePaginationRequestType ): AxiosPromise<GenericApiPaginationResponse<NodePluginDatasourceInfo[]>> {
+    const {appId, ...res} = request
+    return Api.get(DatasourceApi.url + `/jsDatasourcePlugins?appId=${appId}` ,{...res});
+  }
+
   static fetchDatasourceByApp(appId: string): AxiosPromise<GenericApiResponse<DatasourceInfo[]>> {
     return Api.get(DatasourceApi.url + `/listByApp?appId=${appId}`);
   }
 
   static fetchDatasourceByOrg(orgId: string): AxiosPromise<GenericApiResponse<DatasourceInfo[]>> {
     return Api.get(DatasourceApi.url + `/listByOrg?orgId=${orgId}`);
+  }
+
+  static fetchDatasourcePaginationByOrg(request: fetchDBRequestType): AxiosPromise<GenericApiPaginationResponse<DatasourceInfo[]>> {
+    const {orgId, ...res} = request;
+    return Api.get(DatasourceApi.url + `/listByOrg?orgId=${orgId}`, {...res});
+  }
+
+  static getDatasourceById(id: string): AxiosPromise<GenericApiResponse<Datasource>> {
+    return Api.get(`${DatasourceApi.url}/${id}`);
   }
 
   static createDatasource(
@@ -207,7 +226,7 @@ export class DatasourceApi extends Api {
   static fetchDatasourceType(
     orgId: string
   ): AxiosPromise<GenericApiResponse<DataSourceTypeInfo[]>> {
-    return Api.get(`/v1/organizations/${orgId}/datasourceTypes`);
+    return Api.get(`/organizations/${orgId}/datasourceTypes`);
   }
 
   static fetchDynamicPluginConfig<T = any>(

@@ -7,6 +7,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.lowcoder.api.bundle.view.BundleInfoView;
 import org.lowcoder.api.bundle.view.BundlePermissionView;
 import org.lowcoder.api.bundle.view.MarketplaceBundleInfoView;
+import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.bundle.model.Bundle;
@@ -120,8 +121,10 @@ public interface BundleEndpoints
 		    description = "Retrieve the contents of an Bundle Bundle within Lowcoder, including Bundles."
 	)
     @GetMapping("/{bundleId}/elements")
-    public Mono<ResponseView<List<?>>> getElements(@PathVariable String bundleId,
-            @RequestParam(value = "applicationType", required = false) ApplicationType applicationType);
+    public Mono<PageResponseView<?>> getElements(@PathVariable String bundleId,
+												 @RequestParam(value = "applicationType", required = false) ApplicationType applicationType,
+												 @RequestParam(required = false, defaultValue = "1") Integer pageNum,
+												 @RequestParam(required = false, defaultValue = "0") Integer pageSize);
 
 	@Operation(
 			tags = TAG_BUNDLE_MANAGEMENT,
@@ -253,6 +256,15 @@ public interface BundleEndpoints
 	@PutMapping("/{bundleId}/agency-profile")
 	public Mono<ResponseView<Boolean>> setBundleAsAgencyProfile(@PathVariable String bundleId,
 																	 @RequestBody BundleEndpoints.BundleAsAgencyProfileRequest request);
+
+	@Operation(
+			tags = TAG_BUNDLE_MANAGEMENT,
+			operationId = "publicBundle",
+			summary = "Publish Bundle for users",
+			description = "Set a Lowcoder Bundle identified by its ID as available to all selected Users or User-Groups. This is similar to the classic deployment. The Lowcoder Bundle gets published in production mode."
+	)
+	@PostMapping("/{bundleId}/publish")
+	public Mono<ResponseView<BundleInfoView>> publish(@PathVariable String bundleId);
 	
 	public record BundlePublicToAllRequest(Boolean publicToAll) {
 		@Override
@@ -283,6 +295,7 @@ public interface BundleEndpoints
     }
 
 	public record CreateBundleRequest(@JsonProperty("orgId") String organizationId,
+										   String gid,
 										   String name,
 										   String title,
 										   String description,

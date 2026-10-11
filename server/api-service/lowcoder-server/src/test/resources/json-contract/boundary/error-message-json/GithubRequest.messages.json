@@ -1,0 +1,4 @@
+{
+  "GithubRequest.getAuthToken" : "{\"error_description\":\"The code passed is incorrect or expired.\",\"error\":\"bad_verification_code\",\"error_uri\":\"https://docs.github.com/apps/managing-oauth-apps/troubleshooting-oauth-app-access-token-request-errors/#bad-verification-code\"}",
+  "GithubRequest.getAuthUser" : "{\"error\":\"invalid_grant\",\"error_description\":\"Code \\\"c0de\\\" expired – réessayez\",\"error_uri\":\"https://idp.example.com/errors?code=invalid_grant&lang=fr\",\"status\":400,\"retry_after\":1.5,\"details\":{\"attempts\":[1,2],\"trace\":null}}"
+}

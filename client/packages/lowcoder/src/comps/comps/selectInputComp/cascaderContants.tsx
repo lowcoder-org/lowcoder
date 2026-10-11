@@ -1,7 +1,7 @@
 import { SelectEventHandlerControl } from "../../controls/eventHandlerControl";
 import { Section, sectionNames } from "lowcoder-design";
 import { RecordConstructorToComp } from "lowcoder-core";
-import { BoolCodeControl, JSONObjectArrayControl, StringControl } from "comps/controls/codeControl";
+import { BoolCodeControl, JSONObjectArrayControl, StringControl, NumberControl } from "comps/controls/codeControl";
 import { arrayStringExposingStateControl } from "comps/controls/codeStateControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { LabelControl } from "comps/controls/labelControl";
@@ -12,6 +12,7 @@ import {
   disabledPropertyView,
   hiddenPropertyView,
   placeholderPropertyView,
+  showDataLoadingIndicatorsPropertyView,
   showSearchPropertyView,
 } from "comps/utils/propertyUtils";
 import { i18nObjs, trans } from "i18n";
@@ -21,8 +22,7 @@ import { CascaderRef } from "antd/es/cascader";
 import { MarginControl } from "../../controls/marginControl";
 import { PaddingControl } from "../../controls/paddingControl";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 
 export const defaultDataSource = JSON.stringify(i18nObjs.cascader, null, " ");
 
@@ -34,20 +34,23 @@ export const CascaderChildren = {
   onEvent: SelectEventHandlerControl,
   allowClear: BoolControl,
   options: JSONObjectArrayControl,
-  style: styleControl(InputFieldStyle),
-  labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
+  style: styleControl(InputFieldStyle , 'style'),
+  labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false), 'labelStyle'),
   showSearch: BoolControl.DEFAULT_TRUE,
   viewRef: RefControl<CascaderRef>,
   margin: MarginControl,
   padding: PaddingControl,
-  inputFieldStyle:styleControl(CascaderStyle),
+  inputFieldStyle:styleControl(CascaderStyle , 'inputFieldStyle'),
   childrenInputFieldStyle:styleControl(ChildrenMultiSelectStyle),
-  animationStyle:styleControl(AnimationStyle)
+  animationStyle:styleControl(AnimationStyle ,'animationStyle'),
+  tabIndex: NumberControl
 };
 
 export const CascaderPropertyView = (
   children: RecordConstructorToComp<typeof CascaderChildren & { hidden: typeof BoolCodeControl }>
-) => (
+) => {
+  const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+  return (
   <>
     <Section name={sectionNames.basic}>
       {children.options.propertyView({ label: trans("cascader.options") })}
@@ -55,26 +58,28 @@ export const CascaderPropertyView = (
       {placeholderPropertyView(children)}
     </Section>
 
-    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+    {["logic", "both"].includes(editorModeStatus) && (
       <Section name={sectionNames.interaction}>
         {children.onEvent.getPropertyView()}
         {disabledPropertyView(children)}
         {hiddenPropertyView(children)}
+        {showDataLoadingIndicatorsPropertyView(children as any)}
+        {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
       </Section>
     )}
 
-    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+    {["layout", "both"].includes(editorModeStatus) && (
       children.label.getPropertyView()
     )}
 
-    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+    {["logic", "both"].includes(editorModeStatus) && (
       <Section name={sectionNames.advanced}>
         {allowClearPropertyView(children)}
         {showSearchPropertyView(children)}
       </Section>
     )}
 
-    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+    {["layout", "both"].includes(editorModeStatus) && (
       <>
         <Section name={sectionNames.style}>
           {children.style.getPropertyView()}
@@ -85,7 +90,7 @@ export const CascaderPropertyView = (
         <Section name={sectionNames.inputFieldStyle}>
           {children.inputFieldStyle.getPropertyView()}
         </Section>
-        <Section name={'Children Input Field Style'}>
+        <Section name={sectionNames.childrenInputFieldStyle}>
           {children.childrenInputFieldStyle.getPropertyView()}
         </Section>
         <Section name={sectionNames.animationStyle} hasTooltip={true}>
@@ -95,3 +100,4 @@ export const CascaderPropertyView = (
     )}
   </>
 );
+};

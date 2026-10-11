@@ -1,0 +1,65 @@
+{
+  "EsConnector.resolveConfig" : {
+    "full" : {
+      "class" : "org.lowcoder.plugin.es.model.EsDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.es.model.EsDatasourceConfig",
+        "connectionString" : "https://es.example.com:9200",
+        "username" : "elastic",
+        "password" : "pw",
+        "usingSsl" : true
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.es.model.EsDatasourceConfig",
+        "/connectionString" : "java.lang.String",
+        "/username" : "java.lang.String",
+        "/password" : "java.lang.String",
+        "/usingSsl" : "java.lang.Boolean"
+      },
+      "noView" : {"connectionString":"https://es.example.com:9200","username":"elastic","password":"pw","usingSsl":true},
+      "Public" : {"connectionString":"https://es.example.com:9200","username":"elastic","usingSsl":true},
+      "Internal" : {"connectionString":"https://es.example.com:9200","username":"elastic","password":"pw","usingSsl":true}
+    },
+    "scalarsAsStrings" : {
+      "class" : "org.lowcoder.plugin.es.model.EsDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.es.model.EsDatasourceConfig",
+        "connectionString" : "http://es:9200",
+        "username" : null,
+        "password" : null,
+        "usingSsl" : false
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.es.model.EsDatasourceConfig",
+        "/connectionString" : "java.lang.String",
+        "/username" : "null",
+        "/password" : "null",
+        "/usingSsl" : "java.lang.Boolean"
+      },
+      "noView" : {"connectionString":"http://es:9200","username":null,"password":null,"usingSsl":false},
+      "Public" : {"connectionString":"http://es:9200","username":null,"usingSsl":false},
+      "Internal" : {"connectionString":"http://es:9200","username":null,"password":null,"usingSsl":false}
+    },
+    "empty" : {
+      "class" : "org.lowcoder.plugin.es.model.EsDatasourceConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.es.model.EsDatasourceConfig",
+        "connectionString" : null,
+        "username" : null,
+        "password" : null,
+        "usingSsl" : null
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.es.model.EsDatasourceConfig",
+        "/connectionString" : "null",
+        "/username" : "null",
+        "/password" : "null",
+        "/usingSsl" : "null"
+      },
+      "noView" : {"connectionString":null,"username":null,"password":null,"usingSsl":null},
+      "Public" : {"connectionString":null,"username":null,"usingSsl":null},
+      "Internal" : {"connectionString":null,"username":null,"password":null,"usingSsl":null}
+    },
+    "unknownProperty" : "ignored: binds as form full"
+  }
+}

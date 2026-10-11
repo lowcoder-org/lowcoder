@@ -22,7 +22,7 @@ import {
   TacoMarkDown,
 } from "lowcoder-design";
 import { DatasourceFormProps } from "./datasourceFormRegistry";
-import { DatasourceNameFormInputItem, GeneralSettingFormSectionLabel } from "../form";
+import { AdvancedSettingFormSectionLabel, CertValidationFormItem, DatasourceNameFormInputItem, ForwardCookiesFormItem, GeneralSettingFormSectionLabel, encryptedPlaceholder } from "../form";
 import {
   DataSourceParamConfig,
   ParamOption,
@@ -38,6 +38,9 @@ import { FieldData } from "rc-field-form/es/interface";
 import { default as Alert } from "antd/es/alert";
 import { default as Form } from "antd/es/form";
 import { default as Input } from "antd/es/input";
+import { AuthType, AuthTypeOptions } from "./httpDatasourceForm";
+import { useSelector } from "react-redux";
+import { getUser } from "@lowcoder-ee/redux/selectors/usersSelectors";
 
 const TooltipWrapper = styled.div`
   .markdown-body {
@@ -130,13 +133,23 @@ export const PluginDataSourceForm = (props: DatasourceFormProps) => {
   const [extraParamConfigs, setExtraParamConfigs] = useState<DataSourceParamConfig[]>([]);
   const [isExtraParamsRefreshing, setExtraParamRefreshing] = useState(false);
   const [isExtraParamsRefreshError, setExtraParamRefreshError] = useState(false);
+  
   const pluginDef = dataSourceTypeInfo?.definition || datasource.pluginDefinition;
   const pluginName = dataSourceTypeInfo?.id || datasource.pluginDefinition?.id;
   const isEditing = !!datasource;
   const hasDynamicConfig = !!pluginDef?.dataSourceConfig?.extra;
+  
+  const [authType, setAuthType] = useState(pluginDef?.dataSourceConfig?.authConfig?.type);
+  const [authId, setAuthId] = useState(pluginDef?.dataSourceConfig?.authConfig?.authId);
 
   const readyStatusCallbackRef = useRef(onFormReadyStatusChange);
   readyStatusCallbackRef.current = onFormReadyStatusChange;
+
+  const userAuthSources = useSelector(getUser).connections?.filter(authSource => authSource.source !== "EMAIL");;
+  const userAuthSourcesOptions = userAuthSources?.map(item => ({
+    label: item.source,
+    value: item.authId
+  })) || [];
 
   const handleRefreshExtraParams = useCallback(() => {
     if (!pluginName) {
@@ -205,6 +218,65 @@ export const PluginDataSourceForm = (props: DatasourceFormProps) => {
   const initialValues = getDefaultValues(pluginDef, datasource);
   const hasGeneralSettings = dataSourceConfig.params?.[0]?.type !== "groupTitle";
 
+  const UsernameFormItem = (
+    <FormInputItem
+      name={"username"}
+      label="Username"
+      initialValue={(dataSourceConfig?.authConfig as any)?.username}
+      required={true}
+      rules={[{ required: true, message: trans("query.userNameRequiredMessage") }]}
+      labelWidth={142}
+    />
+  );
+
+  const PasswordFormItem = (
+    <FormInputItem
+      name={"password"}
+      label="Password"
+      initialValue={(dataSourceConfig?.authConfig as any)?.password}
+      required={true}
+      rules={[{ required: !dataSourceConfig, message: trans("query.passwordRequiredMessage") }]}
+      labelWidth={142}
+      // eslint-disable-next-line only-ascii/only-ascii
+      placeholder={props.datasource ? encryptedPlaceholder : "••••••••••••"}
+    />
+  );
+
+  const showAuthItem = (type: AuthType) => {
+    switch (type) {
+      case "BASIC_AUTH":
+        return (
+          <>
+            {UsernameFormItem}
+            {PasswordFormItem}
+          </>
+        );
+      case "DIGEST_AUTH":
+        return (
+          <>
+            {UsernameFormItem}
+            {PasswordFormItem}
+          </>
+        );
+    }
+  };
+
+  const showUserAuthSourceSelector = () => {
+    if (authType === "OAUTH2_INHERIT_FROM_LOGIN") {
+      return (
+        <FormSelectItem
+          name={"authId"}
+          label="User Authentication Source"
+          options={userAuthSourcesOptions}
+          initialValue={dataSourceConfig?.authConfig ? authId : null}
+          afterChange={(value) => setAuthId(value) }
+          labelWidth={142}
+        />
+      );
+    }
+    return null;
+  };
+
   return (
     <DatasourceForm form={form} initialValues={initialValues} onFieldsChange={handleFieldsChange}>
       <Form.Item noStyle name="extra">
@@ -236,6 +308,31 @@ export const PluginDataSourceForm = (props: DatasourceFormProps) => {
             </React.Fragment>
           );
         })}
+        <FormKeyValueItem
+          name={"headers"}
+          label={"Headers"}
+          initialValue={dataSourceConfig?.headers}
+          labelWidth={122}
+        />
+      </FormSection>
+      <FormSection $size={props.size}>
+        <FormSectionLabel>{trans("query.authentication")}</FormSectionLabel>
+        <FormSelectItem
+          name={"authConfigType"}
+          label={trans("query.authenticationType")}
+          options={AuthTypeOptions}
+          initialValue={dataSourceConfig?.authConfig?.type ?? "NO_AUTH"}
+          afterChange={(value) => setAuthType(value)}
+          labelWidth={122}
+        />
+        {showUserAuthSourceSelector()}
+        {showAuthItem(authType)}
+      </FormSection>
+
+      <FormSection $size={props.size}>
+        <AdvancedSettingFormSectionLabel />
+        <CertValidationFormItem datasource={props.datasource} />
+        <ForwardCookiesFormItem datasource={props.datasource} />
       </FormSection>
       {isExtraParamsRefreshing && (
         <Alert showIcon type="info" message={trans("query.dynamicDataSourceConfigLoadingText")} />

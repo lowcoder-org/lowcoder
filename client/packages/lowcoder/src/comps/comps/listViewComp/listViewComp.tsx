@@ -29,7 +29,7 @@ import {
   withFunction,
   WrapContextNodeV2,
 } from "lowcoder-core";
-import { JSONValue } from "util/jsonTypes";
+import { JSONArray, JSONObject, JSONValue } from "util/jsonTypes";
 import { depthEqual, lastValueIfEqual, shallowEqual } from "util/objectUtils";
 import { CompTree, getAllCompItems, IContainer } from "../containerBase";
 import { SimpleContainerComp, toSimpleContainerData } from "../containerBase/simpleContainerComp";
@@ -39,9 +39,12 @@ import { ListView } from "./listView";
 import { listPropertyView } from "./listViewPropertyView";
 import { getData } from "./listViewUtils";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
+import { SliderControl } from "@lowcoder-ee/comps/controls/sliderControl";
+import { eventHandlerControl, sortChangeEvent } from "@lowcoder-ee/comps/controls/eventHandlerControl";
 
 const childrenMap = {
   noOfRows: withIsLoadingMethod(NumberOrJSONObjectArrayControl), // FIXME: migrate "noOfRows" to "data"
+  listData: stateComp<JSONArray>([]),
   noOfColumns: withDefault(NumberControl, 1),
   itemIndexName: withDefault(StringControl, "i"),
   itemDataName: withDefault(StringControl, "currentItem"),
@@ -49,13 +52,18 @@ const childrenMap = {
   heightUnitOfRow: withDefault(NumberControl, 1),
   container: ContextContainerComp,
   autoHeight: AutoHeightControl,
+  showVerticalScrollbar: withDefault(BoolControl, false),
+  showHorizontalScrollbar: withDefault(BoolControl, false),
+  horizontalGridCells: SliderControl,
   scrollbars: withDefault(BoolControl, false),
   showBorder: BoolControl,
   pagination: withDefault(PaginationControl, { pageSize: "6" }),
-  style: styleControl(ListViewStyle),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(ListViewStyle, 'style'),
+  animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   horizontal: withDefault(BoolControl, false),
   minHorizontalWidth: withDefault(RadiusControl, '100px'),
+  enableSorting: withDefault(BoolControl, false),
+  onEvent: eventHandlerControl([sortChangeEvent] as const),
 };
 
 const ListViewTmpComp = new UICompBuilder(childrenMap, () => <></>)
@@ -112,7 +120,7 @@ export class ListViewImplComp extends ListViewTmpComp implements IContainer {
     const { itemCount } = getData(this.children.noOfRows.getView());
     const itemIndexName = this.children.itemIndexName.getView();
     const itemDataName = this.children.itemDataName.getView();
-    const dataExposingNode = this.children.noOfRows.exposingNode();
+    const dataExposingNode = this.children.listData.exposingNode();
     const containerComp = this.children.container;
     // for each container expose each comps with params
     const exposingRecord = _(_.range(0, itemCount))
@@ -174,6 +182,15 @@ ListViewPropertyComp = withExposingConfigs(ListViewPropertyComp, [
     depKeys: ["noOfRows"],
     func: (input) => {
       const { data } = getData(input.noOfRows);
+      return data;
+    },
+  }),
+  depsConfig({
+    name: "sortedData",
+    desc: trans("listView.dataDesc"),
+    depKeys: ["listData"],
+    func: (input) => {
+      const { data } = getData(input.listData as JSONObject[]);
       return data;
     },
   }),

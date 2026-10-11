@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The coverage gate (docs/COVERAGE_GATE_PLAN.md §2), run by maven-antrun-plugin in this module's verify phase, after
+     jacoco-maven-plugin's report-aggregate. It reads the same execution data and classes as the aggregate report, one
+     group per module with code, and checks one BUNDLE rule per module: line and branch covered ratio at least the
+     module's floor (the gate.floor.* properties of pom.xml). Nothing is excluded.
+     gate.failonviolation (pom.xml) decides whether a violation fails the build or is only reported.
+
+     Limits:
+     - Executed, not asserted: it counts what the tests ran, not what they asserted.
+     - Credit across modules: a module is credited with the tests of any module (the aggregate's data).
+     - Timing: coverage that depends on wall-clock time can make a figure move between builds.
+     - Local builds only: it runs only where `mvn verify` runs; no CI job runs it (owner decision D-7, 2026-10-04).
+     - Clean builds only: JaCoCo appends to an existing jacoco.exec and the gate reads whatever is in target/, so its
+       figures are meaningful only for `mvn -B clean verify`. The data files it read are listed, with their times on
+       Linux only (GNU ls); elsewhere only their names are listed.
+     - Skipped, not gated: a build with -Djacoco.skip=true (antrun's <skip>), or with no execution data at all (for
+       example -DskipTests), passes without a check. The Docker build (package, -DskipTests) never reaches verify. -->
+<project name="coverage-gate" xmlns:jacoco="antlib:org.jacoco.ant">
+
+  <property name="api" location="${basedir}/.."/>
+  <property name="gate.dir" location="${basedir}/target/coverage-gate"/>
+
+  <fileset id="gate.exec" dir="${api}" includes="*/target/jacoco.exec,*/target/jacoco-it.exec,lowcoder-plugins/*/target/jacoco.exec,lowcoder-plugins/*/target/jacoco-it.exec"/>
+
+  <target name="count">
+    <resourcecount property="gate.exec.count" refid="gate.exec"/>
+    <condition property="gate.no.data"><equals arg1="${gate.exec.count}" arg2="0"/></condition>
+    <echo message="GATE EXECUTION DATA FILES: ${gate.exec.count}"/>
+  </target>
+
+  <target name="skipped" depends="count" if="gate.no.data">
+    <echo message="GATE SKIPPED: no execution data"/>
+  </target>
+
+  <target name="gate" depends="count,skipped" unless="gate.no.data">
+    <!-- the data files the gate reads: their names on every OS, and their times on Linux, where GNU ls is available -->
+    <pathconvert property="gate.exec.list" refid="gate.exec" pathsep="${line.separator}"/>
+    <echo message="GATE EXECUTION DATA:${line.separator}${gate.exec.list}"/>
+    <apply executable="ls" parallel="true" os="Linux" failonerror="false">
+      <arg value="-l"/>
+      <arg value="--time-style=+%F %T"/>
+      <fileset refid="gate.exec"/>
+    </apply>
+    <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml" classpathref="maven.plugin.classpath"/>
+    <mkdir dir="${gate.dir}"/>
+    <jacoco:report>
+      <executiondata><fileset refid="gate.exec"/></executiondata>
+      <structure name="lowcoder">
+        <group name="lowcoder-sdk"><classfiles><fileset dir="${api}/lowcoder-sdk/target/classes"/></classfiles></group>
+        <group name="lowcoder-infra"><classfiles><fileset dir="${api}/lowcoder-infra/target/classes"/></classfiles></group>
+        <group name="lowcoder-domain"><classfiles><fileset dir="${api}/lowcoder-domain/target/classes"/></classfiles></group>
+        <group name="lowcoder-server"><classfiles><fileset dir="${api}/lowcoder-server/target/classes"/></classfiles></group>
+        <group name="clickHousePlugin"><classfiles><fileset dir="${api}/lowcoder-plugins/clickHousePlugin/target/classes"/></classfiles></group>
+        <group name="elasticSearchPlugin"><classfiles><fileset dir="${api}/lowcoder-plugins/elasticSearchPlugin/target/classes"/></classfiles></group>
+        <group name="googleSheetsPlugin"><classfiles><fileset dir="${api}/lowcoder-plugins/googleSheetsPlugin/target/classes"/></classfiles></group>
+        <group name="graphqlPlugin"><classfiles><fileset dir="${api}/lowcoder-plugins/graphqlPlugin/target/classes"/></classfiles></group>
+        <group name="mongoPlugin"><classfiles><fileset dir="${api}/lowcoder-plugins/mongoPlugin/target/classes"/></classfiles></group>
+        <group name="mssqlPlugin"><classfiles><fileset dir="${api}/lowcoder-plugins/mssqlPlugin/target/classes"/></classfiles></group>
+        <group name="mysqlPlugin"><classfiles><fileset dir="${api}/lowcoder-plugins/mysqlPlugin/target/classes"/></classfiles></group>
+        <group name="oraclePlugin"><classfiles><fileset dir="${api}/lowcoder-plugins/oraclePlugin/target/classes"/></classfiles></group>
+        <group name="postgresPlugin"><classfiles><fileset dir="${api}/lowcoder-plugins/postgresPlugin/target/classes"/></classfiles></group>
+        <group name="redisPlugin"><classfiles><fileset dir="${api}/lowcoder-plugins/redisPlugin/target/classes"/></classfiles></group>
+        <group name="restApiPlugin"><classfiles><fileset dir="${api}/lowcoder-plugins/restApiPlugin/target/classes"/></classfiles></group>
+        <group name="smtpPlugin"><classfiles><fileset dir="${api}/lowcoder-plugins/smtpPlugin/target/classes"/></classfiles></group>
+        <group name="snowflakePlugin"><classfiles><fileset dir="${api}/lowcoder-plugins/snowflakePlugin/target/classes"/></classfiles></group>
+        <group name="sqlBasedPlugin"><classfiles><fileset dir="${api}/lowcoder-plugins/sqlBasedPlugin/target/classes"/></classfiles></group>
+      </structure>
+      <check failonviolation="${gate.failonviolation}" violationsproperty="gate.violations">
+        <rule element="BUNDLE" includes="lowcoder-sdk"><limit counter="LINE" value="COVEREDRATIO" minimum="${gate.floor.lowcoder-sdk.line}"/><limit counter="BRANCH" value="COVEREDRATIO" minimum="${gate.floor.lowcoder-sdk.branch}"/></rule>
+        <rule element="BUNDLE" includes="lowcoder-infra"><limit counter="LINE" value="COVEREDRATIO" minimum="${gate.floor.lowcoder-infra.line}"/><limit counter="BRANCH" value="COVEREDRATIO" minimum="${gate.floor.lowcoder-infra.branch}"/></rule>
+        <rule element="BUNDLE" includes="lowcoder-domain"><limit counter="LINE" value="COVEREDRATIO" minimum="${gate.floor.lowcoder-domain.line}"/><limit counter="BRANCH" value="COVEREDRATIO" minimum="${gate.floor.lowcoder-domain.branch}"/></rule>
+        <rule element="BUNDLE" includes="lowcoder-server"><limit counter="LINE" value="COVEREDRATIO" minimum="${gate.floor.lowcoder-server.line}"/><limit counter="BRANCH" value="COVEREDRATIO" minimum="${gate.floor.lowcoder-server.branch}"/></rule>
+        <rule element="BUNDLE" includes="clickHousePlugin"><limit counter="LINE" value="COVEREDRATIO" minimum="${gate.floor.clickHousePlugin.line}"/><limit counter="BRANCH" value="COVEREDRATIO" minimum="${gate.floor.clickHousePlugin.branch}"/></rule>
+        <rule element="BUNDLE" includes="elasticSearchPlugin"><limit counter="LINE" value="COVEREDRATIO" minimum="${gate.floor.elasticSearchPlugin.line}"/><limit counter="BRANCH" value="COVEREDRATIO" minimum="${gate.floor.elasticSearchPlugin.branch}"/></rule>
+        <rule element="BUNDLE" includes="googleSheetsPlugin"><limit counter="LINE" value="COVEREDRATIO" minimum="${gate.floor.googleSheetsPlugin.line}"/><limit counter="BRANCH" value="COVEREDRATIO" minimum="${gate.floor.googleSheetsPlugin.branch}"/></rule>
+        <rule element="BUNDLE" includes="graphqlPlugin"><limit counter="LINE" value="COVEREDRATIO" minimum="${gate.floor.graphqlPlugin.line}"/><limit counter="BRANCH" value="COVEREDRATIO" minimum="${gate.floor.graphqlPlugin.branch}"/></rule>
+        <rule element="BUNDLE" includes="mongoPlugin"><limit counter="LINE" value="COVEREDRATIO" minimum="${gate.floor.mongoPlugin.line}"/><limit counter="BRANCH" value="COVEREDRATIO" minimum="${gate.floor.mongoPlugin.branch}"/></rule>
+        <rule element="BUNDLE" includes="mssqlPlugin"><limit counter="LINE" value="COVEREDRATIO" minimum="${gate.floor.mssqlPlugin.line}"/><limit counter="BRANCH" value="COVEREDRATIO" minimum="${gate.floor.mssqlPlugin.branch}"/></rule>
+        <rule element="BUNDLE" includes="mysqlPlugin"><limit counter="LINE" value="COVEREDRATIO" minimum="${gate.floor.mysqlPlugin.line}"/><limit counter="BRANCH" value="COVEREDRATIO" minimum="${gate.floor.mysqlPlugin.branch}"/></rule>
+        <rule element="BUNDLE" includes="oraclePlugin"><limit counter="LINE" value="COVEREDRATIO" minimum="${gate.floor.oraclePlugin.line}"/><limit counter="BRANCH" value="COVEREDRATIO" minimum="${gate.floor.oraclePlugin.branch}"/></rule>
+        <rule element="BUNDLE" includes="postgresPlugin"><limit counter="LINE" value="COVEREDRATIO" minimum="${gate.floor.postgresPlugin.line}"/><limit counter="BRANCH" value="COVEREDRATIO" minimum="${gate.floor.postgresPlugin.branch}"/></rule>
+        <rule element="BUNDLE" includes="redisPlugin"><limit counter="LINE" value="COVEREDRATIO" minimum="${gate.floor.redisPlugin.line}"/><limit counter="BRANCH" value="COVEREDRATIO" minimum="${gate.floor.redisPlugin.branch}"/></rule>
+        <rule element="BUNDLE" includes="restApiPlugin"><limit counter="LINE" value="COVEREDRATIO" minimum="${gate.floor.restApiPlugin.line}"/><limit counter="BRANCH" value="COVEREDRATIO" minimum="${gate.floor.restApiPlugin.branch}"/></rule>
+        <rule element="BUNDLE" includes="smtpPlugin"><limit counter="LINE" value="COVEREDRATIO" minimum="${gate.floor.smtpPlugin.line}"/><limit counter="BRANCH" value="COVEREDRATIO" minimum="${gate.floor.smtpPlugin.branch}"/></rule>
+        <rule element="BUNDLE" includes="snowflakePlugin"><limit counter="LINE" value="COVEREDRATIO" minimum="${gate.floor.snowflakePlugin.line}"/><limit counter="BRANCH" value="COVEREDRATIO" minimum="${gate.floor.snowflakePlugin.branch}"/></rule>
+        <rule element="BUNDLE" includes="sqlBasedPlugin"><limit counter="LINE" value="COVEREDRATIO" minimum="${gate.floor.sqlBasedPlugin.line}"/><limit counter="BRANCH" value="COVEREDRATIO" minimum="${gate.floor.sqlBasedPlugin.branch}"/></rule>
+      </check>
+      <xml destfile="${gate.dir}/gate.xml"/>
+    </jacoco:report>
+    <!-- set by the check only when a rule is violated; Ant properties are immutable, so this is the default -->
+    <property name="gate.violations" value="none"/>
+    <echo message="GATE VIOLATIONS: ${gate.violations}"/>
+  </target>
+</project>

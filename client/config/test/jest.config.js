@@ -15,7 +15,9 @@ const currentDir = currentDirName(import.meta.url);
 export default {
   testEnvironment: "jsdom",
   moduleNameMapper: {
-    "react-markdown": path.resolve(currentDir, "./mocks/react-markdown.js"),
+    // Anchored: an unanchored "react-markdown" also matches unrelated packages
+    // such as "@assistant-ui/react-markdown" and swaps them for this mock.
+    "^react-markdown$": path.resolve(currentDir, "./mocks/react-markdown.js"),
     "\\.md\\?url$": path.resolve(currentDir, "./mocks/markdown-url-module.js"),
     "^@lowcoder-ee(.*)$": path.resolve(
       currentDir, "../../packages/lowcoder/src/$1"

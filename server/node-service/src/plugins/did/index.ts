@@ -1,26 +1,14 @@
-import { readYaml } from "../../common/util";
+import { dirToSpecList, specsToOptions, version2spec } from "../../common/util";
 import _ from "lodash";
 import path from "path";
-import { OpenAPIV3, OpenAPI } from "openapi-types";
-import { QueryConfig, ConfigToType, DataSourcePlugin } from "lowcoder-sdk/dataSource";
+import { OpenAPI } from "openapi-types";
+import { ConfigToType, DataSourcePlugin, QueryConfig } from "lowcoder-sdk/dataSource";
 import { runOpenApi } from "../openApi";
-import { MultiOpenApiSpecItem, parseMultiOpenApi, ParseOpenApiOptions } from "../openApi/parse";
-import { appendTags } from "../../plugins/openApi/util";
-import { readdirSync } from "fs";
+import { parseMultiOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
-const specList: MultiOpenApiSpecItem[] = [];
-const specFiles = readdirSync(path.join(__dirname, "./did.spec"));
-const start = performance.now();
-specFiles.forEach((specFile) => {
-  const spec = readYaml(path.join(__dirname, "./did.spec", specFile));
-  const tag = _.upperFirst(specFile.replace(".json", ""));
-  appendTags(spec, tag);
-  specList.push({
-    spec,
-    id: tag,
-  });
-});
-logger.info("did spec list loaded, duration: %d ms", performance.now() - start);
+const specs = {
+  "v1.0": dirToSpecList(path.join(__dirname, "./did.spec")),
+}
 
 const dataSourceConfig = {
   type: "dataSource",
@@ -44,6 +32,14 @@ const dataSourceConfig = {
       tooltip: "Basic auth password",
       placeholder: "<Basic Auth Password>",
     },
+    {
+      label: "Spec Version",
+      key: "specVersion",
+      type: "select",
+      tooltip: "Version of the spec file.",
+      placeholder: "v1.0",
+      options: specsToOptions(specs)
+    },
   ],
 } as const;
 
@@ -55,18 +51,18 @@ const parseOptions: ParseOpenApiOptions = {
 
 type DataSourceConfigType = ConfigToType<typeof dataSourceConfig>;
 
-let queryConfig: QueryConfig | undefined;
+let queryConfig: any = {};
 
 const didPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "did",
   name: "D-ID",
   icon: "did.svg",
-  category: "api",
+  category: "AI",
   dataSourceConfig,
-  queryConfig: async () => {
-    if (!queryConfig) {
-      const { actions, categories } = await parseMultiOpenApi(specList, parseOptions);
-      queryConfig = {
+  queryConfig: async (data) => {
+    if (!queryConfig[data.specVersion as keyof typeof queryConfig]) {
+      const { actions, categories } = await parseMultiOpenApi(version2spec(specs, data.specVersion), parseOptions);
+      queryConfig[data.specVersion as keyof typeof queryConfig] = {
         type: "query",
         label: "Action",
         categories: {
@@ -76,15 +72,16 @@ const didPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
         actions,
       };
     }
-    return queryConfig;
+    return queryConfig[data.specVersion as keyof typeof queryConfig];
   },
   run: function (actionData, dataSourceConfig): Promise<any> {
     const runApiDsConfig = {
       url: "",
       serverURL: "",
       dynamicParamsConfig: dataSourceConfig,
+      specVersion: dataSourceConfig.specVersion,
     };
-    return runOpenApi(actionData, runApiDsConfig, specList);
+    return runOpenApi(actionData, runApiDsConfig, version2spec(specs, dataSourceConfig.specVersion));
   },
 };
 

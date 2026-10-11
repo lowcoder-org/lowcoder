@@ -1,0 +1,25 @@
+[ {
+  "name" : "i18next",
+  "latestVersion" : "4.10.0",
+  "homepage" : "https://full.example.com/docs",
+  "description" : "A library whose registry document has every field JsLibraryController reads: é ✓ \"quoted\"",
+  "downloadUrl" : "https://unpkg.com/i18next/dist/umd/i18next.min.js"
+}, {
+  "name" : "jmespath",
+  "latestVersion" : "4.10.0",
+  "homepage" : "https://full.example.com/docs",
+  "description" : "A library whose registry document has every field JsLibraryController reads: é ✓ \"quoted\"",
+  "downloadUrl" : "https://unpkg.com/jmespath/jmespath.js"
+}, {
+  "name" : "jsonpath",
+  "latestVersion" : "4.10.0",
+  "homepage" : "https://full.example.com/docs",
+  "description" : "A library whose registry document has every field JsLibraryController reads: é ✓ \"quoted\"",
+  "downloadUrl" : "https://unpkg.com/jsonpath/jsonpath.js"
+}, {
+  "name" : "jspdf",
+  "latestVersion" : "4.10.0",
+  "homepage" : "https://full.example.com/docs",
+  "description" : "A library whose registry document has every field JsLibraryController reads: é ✓ \"quoted\"",
+  "downloadUrl" : "https://unpkg.com/jspdf/dist/jspdf.umd.min.js"
+} ]

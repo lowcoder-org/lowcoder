@@ -7,7 +7,6 @@ import {
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 import { examplesUrl,optionUrl } from "../chartComp/chartConfigs/chartUrls";
-
 export function treeChartPropertyView(
   children: ChartCompChildrenType,
   dispatch: (action: CompAction) => void
@@ -16,31 +15,75 @@ export function treeChartPropertyView(
   const jsonModePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsOption.propertyView({
-          label: trans("chart.echartsOptionLabel"),
-          styleName: "higher",
-          tooltip: (
-            <div>
-              <a href={optionUrl} target="_blank" rel="noopener noreferrer">
-                {trans("chart.echartsOptionTooltip")}
-              </a>
-              <br />
-              <a href={examplesUrl} target="_blank" rel="noopener noreferrer">
-                {trans("chart.echartsOptionExamples")}
-              </a>
-            </div>
-          ),
+        {children.echartsData.propertyView({
+          label: trans("chart.data"),
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "json",
+            label: "Tree chart data",
+            fieldName: "echartsData",
+            fieldDescription:
+              "JSON tree hierarchy (nested children with name and optional value), not a full ECharts option.",
+          },
         })}
+        {children.echartsTitleConfig.getPropertyView()}
+        {children.echartsTitleVerticalConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("treeChart.title") })}
+
+        {children.left.propertyView({ label: trans("treeChart.left"), tooltip: trans("echarts.leftTooltip") })}
+        {children.right.propertyView({ label: trans("treeChart.right"), tooltip: trans("echarts.rightTooltip") })}
+        {children.top.propertyView({ label: trans("treeChart.top"), tooltip: trans("echarts.topTooltip") })}
+        {children.bottom.propertyView({ label: trans("treeChart.bottom"), tooltip: trans("echarts.bottomTooltip") })}
+        {children.pointSize.propertyView({ label: trans("treeChart.pointSize"), tooltip: trans("treeChart.pointSizeTooltip") })}
+        {children.lineWidth.propertyView({ label: trans("treeChart.lineWidth"), tooltip: trans("treeChart.lineWidthTooltip") })}
+
         {children.tooltip.propertyView({label: trans("treeChart.tooltip")})}
+        {children.labelVisibility.propertyView({
+          label: trans("treeChart.labelVisibility"), 
+          tooltip: trans("echarts.labelVisibilityTooltip")
+        })}
+
       </Section>
       <Section name={sectionNames.interaction}>
         {children.onEvent.propertyView()}
       </Section>
-      <Section name={sectionNames.style}>
-         {children.style.getPropertyView()}
+
+      <Section name={sectionNames.chartStyle}>
+        {children.chartStyle?.getPropertyView()}
       </Section>
+      <Section name={sectionNames.titleStyle}>
+        {children.titleStyle?.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.detailStyle}>
+        {children.detailStyle?.getPropertyView()}
+      </Section>
+
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+      <Section name={sectionNames.advanced}>
+        {children.echartsOption.propertyView({
+        label: trans("chart.echartsOptionLabel"),
+        styleName: "higher",
+        language: "json",
+        enableAIHelp: true,
+        aiHelp: {
+          targetKind: "echarts-option",
+          label: "Tree option",
+          fieldName: "echartsOption",
+          fieldDescription: "Apache ECharts option JSON for this chart component.",
+        },
+        tooltip: (
+          <div>
+            <a href={optionUrl} target="_blank" rel="noopener noreferrer">
+              {trans("chart.echartsOptionTooltip")}
+            </a>
+            <br />
+            <a href={examplesUrl} target="_blank" rel="noopener noreferrer">
+              {trans("chart.echartsOptionExamples")}
+            </a>
+          </div>
+        ),
+      })}
+      </Section>
     </>
   );
   

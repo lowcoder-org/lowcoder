@@ -1,6 +1,6 @@
 import { default as AntdCheckboxGroup } from "antd/es/checkbox/Group";
 import { SelectInputOptionControl } from "comps/controls/optionsControl";
-import { BoolCodeControl } from "../../controls/codeControl";
+import { BoolCodeControl, NumberControl } from "../../controls/codeControl";
 import { arrayStringExposingStateControl } from "../../controls/codeStateControl";
 import { LabelControl } from "../../controls/labelControl";
 import { ChangeEventHandlerControl } from "../../controls/eventHandlerControl";
@@ -18,16 +18,18 @@ import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, CheckboxStyle, CheckboxStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import { RadioLayoutOptions, RadioPropertyView } from "./radioCompConstants";
 import { dropdownControl } from "../../controls/dropdownControl";
-import { ValueFromOption } from "lowcoder-design";
+import { ValueFromOption, lightenColor } from "lowcoder-design";
 import { EllipsisTextCss } from "lowcoder-design";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { migrateOldData } from "comps/generators/simpleGenerators";
+import { withLinkedDefaultValue } from "comps/controls/codeStateControl";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
+import Tooltip from "antd/es/tooltip";
+import { useCallback, useRef, useEffect, memo } from "react";
 
 export const getStyle = (style: CheckboxStyleType) => {
   return css`
-    &,
     .ant-checkbox-wrapper:not(.ant-checkbox-wrapper-disabled) {
       color: ${style.staticText};
       max-width: calc(100% - 8px);
@@ -36,10 +38,20 @@ export const getStyle = (style: CheckboxStyleType) => {
         ${EllipsisTextCss};
       }
 
-      .ant-checkbox-checked {
+      .ant-checkbox .ant-checkbox-checked > .ant-checkbox-inner {
+        border-color: ${style.checkedBorder};
+        border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
+      }
+
+      .ant-checkbox:not(.ant-checkbox-checked) > .ant-checkbox-inner{
+        border-color: ${style.uncheckedBorder};
+        border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
+      }
+
+      .ant-checkbox-checked:not(.ant-checkbox-disabled) {
         .ant-checkbox-inner {
           background-color: ${style.checkedBackground};
-          border-color: ${style.checkedBackground};
+          border-color: ${style.checkedBorder};
           border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
 
           &::after {
@@ -48,36 +60,38 @@ export const getStyle = (style: CheckboxStyleType) => {
         }
 
         &::after {
-          border-color: ${style.checkedBackground};
+          border-color: ${style.checkedBorder};
           border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
           border-radius: ${style.radius};
         }
       }
       
       .ant-checkbox-inner {
-        border-radius: ${style.radius};
         background-color: ${style.uncheckedBackground};
-        border-color: ${style.uncheckedBorder};
-        border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
+        border-radius: ${style.radius};
+        border-color: ${style.checkedBorder};
+        border-width:${style.borderWidth ? style.borderWidth : '2px'};
       }
     
       &:hover .ant-checkbox-inner, 
       .ant-checkbox:hover .ant-checkbox-inner,
       .ant-checkbox-input + ant-checkbox-inner {
-        background-color:${style.hoverBackground ? style.hoverBackground : '#fff'};
+        ${style.hoverBackground && `background-color: ${style.hoverBackground}`};
+        ${style.hoverBackground && `border-color: ${style.hoverBackground}`};
       }
 
-      &:hover .ant-checkbox-checked .ant-checkbox-inner, 
-      .ant-checkbox:hover .ant-checkbox-inner,
-      .ant-checkbox-input + ant-checkbox-inner {
-        background-color:${style.hoverBackground ? style.hoverBackground : '#ffff'};
-      }
+      
 
       &:hover .ant-checkbox-inner,
       .ant-checkbox:hover .ant-checkbox-inner,
       .ant-checkbox-input:focus + .ant-checkbox-inner {
-        border-color: ${style.checkedBackground};
+        border-color: ${style.checkedBorder};
         border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
+      }
+
+      &:hover .ant-checkbox-checked:not(.ant-checkbox-disabled) .ant-checkbox-inner {
+        background-color: ${style.hoverBackground || lightenColor(style.checkedBackground, 0.1)};
+        border-color: ${style.hoverBackground || lightenColor(style.checkedBackground, 0.1)};
       }
     }
 
@@ -104,6 +118,7 @@ export const getStyle = (style: CheckboxStyleType) => {
 const CheckboxGroup = styled(AntdCheckboxGroup) <{
   $style: CheckboxStyleType;
   $layout: ValueFromOption<typeof RadioLayoutOptions>;
+  tabIndex?: number;
 }>`
   min-height: 32px;
   ${(props) => props.$style && getStyle(props.$style)}
@@ -128,6 +143,54 @@ const CheckboxGroup = styled(AntdCheckboxGroup) <{
   }}
 `;
 
+const MemoizedCheckboxGroup = memo(({ 
+  value, 
+  disabled, 
+  style, 
+  layout, 
+  options, 
+  onChange, 
+  viewRef,
+  tabIndex
+}: { 
+  value: string[];
+  disabled: boolean;
+  style: CheckboxStyleType;
+  layout: ValueFromOption<typeof RadioLayoutOptions>;
+  options: Array<{ label: any; value: string; disabled?: boolean }>;
+  onChange: (values: string[]) => void;
+  viewRef: React.Ref<HTMLDivElement>;
+  tabIndex?: number
+}) => {
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const handleChange = useCallback((values: unknown[]) => {
+    if (!mountedRef.current) return;
+    onChange(values as string[]);
+  }, [onChange]);
+
+  return (
+    <CheckboxGroup
+      ref={viewRef}
+      disabled={disabled}
+      value={value}
+      $style={style}
+      $layout={layout}
+      options={options}
+      onChange={handleChange}
+      tabIndex={tabIndex}
+    />
+  );
+});
+
+MemoizedCheckboxGroup.displayName = 'MemoizedCheckboxGroup';
+
 let CheckboxBasicComp = (function () {
   const childrenMap = {
     defaultValue: arrayStringExposingStateControl("defaultValue"),
@@ -136,43 +199,79 @@ let CheckboxBasicComp = (function () {
     disabled: BoolCodeControl,
     onEvent: ChangeEventHandlerControl,
     options: SelectInputOptionControl,
-    style: styleControl(InputFieldStyle),
-    labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
+    style: styleControl(InputFieldStyle , 'style'),
+    labelStyle: styleControl(
+      LabelStyle.filter((style) => ['accent', 'validate', 'lineheight'].includes(style.name) === false),
+      'labelStyle',
+    ),
     layout: dropdownControl(RadioLayoutOptions, "horizontal"),
     viewRef: RefControl<HTMLDivElement>,
-    inputFieldStyle:styleControl(CheckboxStyle),
-    animationStyle:styleControl(AnimationStyle),
+    inputFieldStyle: styleControl(CheckboxStyle , 'inputFieldStyle'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
+    tabIndex: NumberControl,
     ...SelectInputValidationChildren,
     ...formDataChildren,
   };
+
   return new UICompBuilder(childrenMap, (props) => {
-    const [
-      validateState,
-      handleChange,
-    ] = useSelectInputValidate(props);
+    const mountedRef = useRef(true);
+    const checkboxRef = useRef<HTMLDivElement | null>(null);
+    const [validateState, handleChange] = useSelectInputValidate(props);
+
+    useEffect(() => {
+      if (!mountedRef.current) return;
+      if (checkboxRef.current && typeof props.tabIndex === 'number') {
+        const checkboxInputs = checkboxRef.current.querySelectorAll('input[type="checkbox"]');
+        checkboxInputs.forEach((input, index) => {
+          // Set sequential tabindex for each checkbox
+          input.setAttribute('tabindex', (props.tabIndex + index).toString());
+        });
+      }
+    }, [props.tabIndex, props.options]);
+
+    useEffect(() => {
+      return () => {
+        mountedRef.current = false;
+      };
+    }, []);
+
+    const handleValidateChange = useCallback((values: string[]) => {
+      if (!mountedRef.current) return;
+      handleChange(values);
+    }, [handleChange]);
+
+    const filteredOptions = useCallback(() => {
+      return props.options
+        .filter((option) => option.value !== undefined && !option.hidden)
+        .map((option) => ({
+          label: option.label,
+          value: option.value,
+          disabled: option.disabled,
+        }));
+    }, [props.options]);
+
     return props.label({
       required: props.required,
       style: props.style,
       labelStyle: props.labelStyle,
-      inputFieldStyle:props.inputFieldStyle,
-      animationStyle:props.animationStyle,
+      inputFieldStyle: props.inputFieldStyle,
+      animationStyle: props.animationStyle,
       children: (
-        <CheckboxGroup
-          ref={props.viewRef}
-          disabled={props.disabled}
+        <MemoizedCheckboxGroup
           value={props.value.value}
-          $style={props.inputFieldStyle}
-          $layout={props.layout}
-          options={props.options
-            .filter((option) => option.value !== undefined && !option.hidden)
-            .map((option) => ({
-              label: option.label,
-              value: option.value,
-              disabled: option.disabled,
-            }))}
-          onChange={(values) => {
-            handleChange(values as string[]);
+          disabled={props.disabled}
+          style={props.inputFieldStyle}
+          layout={props.layout}
+          options={filteredOptions()}
+          onChange={handleValidateChange}
+          viewRef={(el) => {
+            if (!mountedRef.current) return;
+            if (el) {
+              props.viewRef(el);
+              checkboxRef.current = el;
+            }
           }}
+          tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
         />
       ),
       ...validateState,
@@ -183,7 +282,10 @@ let CheckboxBasicComp = (function () {
     .build();
 })();
 
-CheckboxBasicComp = migrateOldData(CheckboxBasicComp, fixOldInputCompData);
+CheckboxBasicComp = migrateOldData(
+  withLinkedDefaultValue(CheckboxBasicComp, "defaultValue", "value"),
+  fixOldInputCompData
+);
 
 export const CheckboxComp = withExposingConfigs(CheckboxBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),

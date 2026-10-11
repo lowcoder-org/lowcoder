@@ -13,12 +13,14 @@ import {
 } from "comps/uiCompRegistry";
 import { ExampleContext } from "./ExampleContext";
 import { trans } from "i18n";
+import { Helmet } from "react-helmet";
+import { LoadingBarHideTrigger } from "@lowcoder-ee/util/hideLoading";
 
 type CompInfo = UICompManifest & { key: string };
 const groups: Partial<Record<UICompCategory, CompInfo[]>> = {};
 
 Object.entries(uiCompRegistry).forEach(([key, comp]) => {
-  const cat = comp.categories.find((c) => c !== "dashboards");
+  const cat = comp.categories[0];
   if (cat === undefined) {
     return;
   }
@@ -93,14 +95,22 @@ export default function ComponentDoc() {
       {
         type: "component-change",
         componentName: params.name,
-      },
+      }, 
       "*"
     );
   }, [params.name]);
 
+  console.log("uiCompCategoryNames", uiCompCategoryNames);
+
   return (
     <ExampleContext.Provider value={{ name: params.name }}>
+      <Helmet>
+        <meta key="iframely:title" property="iframely:title" content={"Lowcoder | " + (compManifest.enName ? compManifest.enName : params.name)} />,
+        <meta key="iframely:description" property="iframely:description" content={compManifest.description? compManifest.description.toString() : ""} />,
+        <link rel="iframely" type="text/html" href={window.location.href} media="(aspect-ratio: 1280/720)"/>,
+      </Helmet>
       <Wrapper>
+        <LoadingBarHideTrigger />
         <div className="main">
           <div className="sidebar">
             <div className="search">
@@ -120,7 +130,7 @@ export default function ComponentDoc() {
               return (
                 <div className="nav-group" key={key}>
                   <div className="nav-group-title">
-                    {uiCompCategoryNames[key as UICompCategory]}
+                    {uiCompCategoryNames[key as UICompCategory]} 
                   </div>
                   <div>
                     {children.map((n) => (

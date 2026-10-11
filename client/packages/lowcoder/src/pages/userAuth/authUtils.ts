@@ -82,6 +82,7 @@ export function authRespValidate(
 
   if (doValidResponse(resp)) {
     onAuthSuccess?.();
+    sessionStorage.setItem("_just_logged_in_", "true");
     history.replace(replaceUrl.replace(baseUrl, ''));
   } else if (
     resp.data.code === SERVER_ERROR_CODES.EXCEED_MAX_USER_ORG_COUNT ||

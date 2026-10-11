@@ -45,32 +45,7 @@ export const CommentUserDataTooltip = (
   </li>
 )
 
-export const commentDate = [
-  {
-    user: {
-      name: "Li Lei",
-      avatar:
-        "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
-    },
-    value: "What is the use of this component?",
-    createdAt: "2023-06-15T08:40:41.658Z",
-  },
-  {
-    user: { name: "mou" },
-    value: "This component allows you to post or delete comments, as well as mention people who appear in the chat.",
-    createdAt: "2023-06-16T08:43:42.658Z",
-  },
-  {
-    user: { name: "Han Meimei", displayName: "Han" },
-    value: "I want to give it a try",
-    createdAt: "2023-06-17T08:49:01.658Z",
-  },
-  {
-    user: { name: "mou" },
-    value: "Enter the content in the input box below and press shift+enter to send it immediately",
-    createdAt: "2023-06-18T08:50:11.658Z",
-  },
-];
+export const commentDate = [{"user":{"name":"John Doe","avatar":"https://ui-avatars.com/api/?name=John+Doe"},"value":"Has anyone tried using Lowcode for our new internal tool yet?","createdAt":"2024-09-20T10:15:41.658Z"},{"user":{"name":"Jane Smith","avatar":"https://ui-avatars.com/api/?name=Jane+Smith"},"value":"Yes, I’ve been experimenting with it for automating our workflows. It's super quick to set up.","createdAt":"2024-09-20T10:17:12.658Z"},{"user":{"name":"Michael Brown","displayName":"Michael","avatar":"https://ui-avatars.com/api/?name=Michael+Brown"},"value":"That sounds interesting! What kind of automation are you building?","createdAt":"2024-09-20T10:18:45.658Z"},{"user":{"name":"Jane Smith","avatar":"https://ui-avatars.com/api/?name=Jane+Smith"},"value":"Mostly automating form submissions and integrating them with our CRM. It's easy to drag-and-drop components.","createdAt":"2024-09-20T10:20:30.658Z"},{"user":{"name":"John Doe","avatar":"https://ui-avatars.com/api/?name=John+Doe"},"value":"We should look into using it for API integrations as well. Lowcode could save a lot of development time.","createdAt":"2024-09-20T10:22:05.658Z"},{"user":{"name":"Michael Brown","displayName":"Michael","avatar":"https://ui-avatars.com/api/?name=Michael+Brown"},"value":"I agree. Let’s plan a session next week to dive deeper into the possibilities.","createdAt":"2024-09-20T10:23:55.658Z"}];
 
 export function convertCommentData(data: any) {
   return data === "" ? [] : checkDataNodes(data) ?? [];

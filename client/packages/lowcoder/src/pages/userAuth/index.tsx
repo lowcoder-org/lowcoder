@@ -1,4 +1,4 @@
-import { AUTH_LOGIN_URL, USER_AUTH_URL } from "constants/routesURL";
+import { ADMIN_AUTH_URL, AUTH_LOGIN_URL, USER_AUTH_URL } from "constants/routesURL";
 import { Redirect, Route, Switch, useLocation, useParams } from "react-router-dom";
 import React, { useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
@@ -9,8 +9,10 @@ import { AuthLocationState } from "constants/authConstants";
 import { ProductLoading } from "components/ProductLoading";
 import { fetchConfigAction } from "redux/reduxActions/configActions";
 import { fetchUserAction } from "redux/reduxActions/userActions";
+import LoginAdmin from "./loginAdmin";
 import _ from "lodash";
-
+import {LoadingBarHideTrigger} from "@lowcoder-ee/util/hideLoading";
+import { fetchBrandingSetting } from "@lowcoder-ee/redux/reduxActions/enterpriseActions";
 export default function UserAuth() {
   const dispatch = useDispatch();
   const location = useLocation<AuthLocationState>();
@@ -28,6 +30,9 @@ export default function UserAuth() {
   useEffect(() => {
     if(organizationId) {
       dispatch(fetchConfigAction(organizationId));
+      dispatch(fetchBrandingSetting({orgId: organizationId, fallbackToGlobal: true}));
+    } else {
+      dispatch(fetchBrandingSetting({orgId: ''}));
     }
   }, [organizationId, dispatch])
 
@@ -49,8 +54,10 @@ export default function UserAuth() {
         fetchUserAfterAuthSuccess,
       }}
     >
+      <LoadingBarHideTrigger />
       <Switch location={location}>
         <Redirect exact from={USER_AUTH_URL} to={AUTH_LOGIN_URL} />
+        <Route exact path={ADMIN_AUTH_URL} component={LoginAdmin} />
         {AuthRoutes.map((route) => (
           <Route key={route.path} path={route.path} component={route.component} />
         ))}

@@ -9,20 +9,23 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 public interface BundleService {
     Mono<Boolean> updateById(String id, Bundle resource);
 
     Mono<Bundle> findById(String id);
+    Flux<Bundle> findByIdIn(Collection<String> ids);
+
+    Mono<Bundle> findByIdWithoutDsl(String id);
 
     Mono<Bundle> create(Bundle bundle, String userId);
 
     Flux<Bundle> findByUserId(String bundleId);
 
-    Mono<Void> deleteAllById(Collection<String> ids);
-
-    Mono<Boolean> exist(String id);
+    Mono<Bundle> publish(String bundleId);
+    Mono<Boolean> updatePublishedBundleDSL(String bundleId, Map<String, Object> bundleDSL);
 
     @NonEmptyMono
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")

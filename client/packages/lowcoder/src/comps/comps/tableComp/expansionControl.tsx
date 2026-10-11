@@ -11,7 +11,7 @@ import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { trans } from "i18n";
 import _ from "lodash";
 import { ConstructorToView, wrapChildAction } from "lowcoder-core";
-import { useContext } from "react";
+import { createContext, useContext, useCallback } from "react";
 import { tryToNumber } from "util/convertUtils";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 import { OB_ROW_ORI_INDEX, RecordType } from "./tableUtils";
@@ -19,6 +19,7 @@ import { NameGenerator } from "comps/utils";
 import { JSONValue } from "util/jsonTypes";
 
 const ContextSlotControl = withSelectedMultiContext(SlotControl);
+export const ExpandViewContext = createContext(false);
 
 const ContainerView = (props: ContainerBaseProps) => {
   return <InnerGrid {...props} emptyRows={15} autoHeight />;
@@ -47,20 +48,25 @@ let ExpansionControlTmp = (function () {
   return new ControlItemCompBuilder(
     {
       expandable: BoolControl,
+      singleRowExpand: BoolControl,
       slot: ContextSlotControl,
     },
-    () => ({ expandableConfig: {}, expandModalView: null })
+    () => ({ expandableConfig: {}, expandModalView: null, singleRowExpand: false })
     )
     .setControlItemData({ filterText: label })
     .setPropertyViewFn((children, dispatch) => {
       return (
-        <> 
+        <>
           {children.expandable.propertyView({ label })}
-          {children.expandable.getView() &&
-            children.slot
-              .getSelectedComp()
-              .getComp()
-              .propertyView({ buttonText: trans("table.configExpandedView") })}
+          {children.expandable.getView() && (
+            <>
+              {children.singleRowExpand.propertyView({ label: trans("table.singleRowExpand") })}
+              {children.slot
+                .getSelectedComp()
+                .getComp()
+                .propertyView({ buttonText: trans("table.configExpandedView") })}
+            </>
+          )}
         </>
       );
     })
@@ -70,7 +76,7 @@ let ExpansionControlTmp = (function () {
 export class ExpansionControl extends ExpansionControlTmp {
   getView() {
     if (!this.children.expandable.getView()) {
-      return { expandableConfig: {}, expandModalView: null };
+      return { expandableConfig: {}, expandModalView: null, singleRowExpand: false };
     }
     const selectedContainer = this.children.slot.getSelectedComp();
     return {
@@ -85,10 +91,15 @@ export class ExpansionControl extends ExpansionControlTmp {
             String(record[OB_ROW_ORI_INDEX])
           );
           const containerProps = slotControl.children.container.getView();
-          return <ExpandView key={record[OB_ROW_ORI_INDEX]} containerProps={containerProps} />;
+          return (
+            <ExpandViewContext.Provider value={true}>
+              <ExpandView key={record[OB_ROW_ORI_INDEX]} containerProps={containerProps} />
+            </ExpandViewContext.Provider>
+          );
         },
       },
       expandModalView: selectedContainer.getView(),
+      singleRowExpand: this.children.singleRowExpand.getView(),
     };
   }
 

@@ -25,12 +25,29 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(value = {Url.USER_URL, NewUrl.USER_URL})
-public interface UserEndpoints 
+public interface UserEndpoints
 {
 	public static final String TAG_USER_MANAGEMENT = "User APIs";
 	public static final String TAG_USER_PASSWORD_MANAGEMENT = "User Password APIs";
 	public static final String TAG_USER_PROFILE_PHOTO_MANAGEMENT = "User Profile Photo APIs";
-	
+	@Operation(
+			tags = TAG_USER_MANAGEMENT,
+			operationId = "createUserAndAddToOrg",
+			summary = "Create user and add to the org",
+			description = "Create a new user and add to specified organization."
+	)
+	@PostMapping("/new/{orgId}")
+	public Mono<ResponseView<?>> createUserAndAddToOrg(@PathVariable String orgId, @RequestBody CreateUserRequest request);
+
+
+@Operation(
+			tags = TAG_USER_MANAGEMENT,
+			operationId = "createSCIMUserAndAddToOrg",
+			summary = "Create SCIM user and add to the org",
+			description = "Create a new user from Entra/Auth0 through SCIM add to the Organization."
+	)
+	@PostMapping("/newscim/{orgId}")
+	public Mono<ResponseView<?>> createSCIMUserAndAddToOrg(@PathVariable String orgId, @RequestBody CreateUserRequest request);
 	@Operation(
 			tags = TAG_USER_MANAGEMENT,
 		    operationId = "getUserProfile",
@@ -39,6 +56,20 @@ public interface UserEndpoints
 	)
     @GetMapping("/me")
     public Mono<ResponseView<?>> getUserProfile(ServerWebExchange exchange);
+
+	@Operation(
+			tags = {TAG_USER_MANAGEMENT},
+			operationId = "getUserOrgs",
+			summary = "Get User Organizations",
+			description = "Retrieve a paginated list of organizations for the current user, filtered by organization name if provided."
+	)
+	@GetMapping("/myorg")
+	public Mono<ResponseView<?>> getUserOrgs(
+			ServerWebExchange exchange,
+			@RequestParam(required = false) String orgName,
+			@RequestParam(required = false, defaultValue = "1") Integer pageNum,
+			@RequestParam(required = false, defaultValue = "10") Integer pageSize
+	);
 
 	@Operation(
 			tags = TAG_USER_MANAGEMENT,
@@ -68,6 +99,15 @@ public interface UserEndpoints
     public Mono<ResponseView<UserProfileView>> update(@RequestBody UpdateUserRequest updateUserRequest, ServerWebExchange exchange);
 
 	@Operation(
+			tags = TAG_USER_MANAGEMENT,
+			operationId = "updateUser",
+			summary = "Update selected User",
+			description = "Update specified user profile information within Lowcoder, ensuring accuracy and relevance."
+	)
+	@PutMapping("/{orgId}/{userId}")
+	public Mono<ResponseView<UserProfileView>> update(@PathVariable String orgId, @PathVariable String userId, @RequestBody UpdateUserRequest updateUserRequest, ServerWebExchange exchange);
+
+	@Operation(
 			tags = TAG_USER_PROFILE_PHOTO_MANAGEMENT,
 		    operationId = "uploadUserProfilePhoto",
 		    summary = "Upload current Users profile photo",
@@ -78,12 +118,30 @@ public interface UserEndpoints
 
 	@Operation(
 			tags = TAG_USER_PROFILE_PHOTO_MANAGEMENT,
-		    operationId = "deleteUserProfilePhoto",
-		    summary = "Delete current users profile photo",
-		    description = "Remove the profile Photo associated with the current User within Lowcoder."
+			operationId = "uploadUserProfilePhotoById",
+			summary = "Upload specific Users profile photo",
+			description = "Upload or change specific profile photo within Lowcoder for personalization."
 	)
-    @DeleteMapping("/photo")
-    public Mono<ResponseView<Void>> deleteProfilePhoto();
+	@PostMapping(value = "/photo/{orgId}/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public Mono<ResponseView<Boolean>> uploadProfilePhotoById(@PathVariable String orgId, @PathVariable String userId, @RequestPart("file") Mono<Part> fileMono);
+
+	@Operation(
+			tags = TAG_USER_PROFILE_PHOTO_MANAGEMENT,
+		    operationId = "deleteUserProfilePhotoById",
+		    summary = "Delete specific users profile photo",
+		    description = "Remove the profile Photo associated with the specific User within Lowcoder."
+	)
+
+	@DeleteMapping("/photo/{orgId}/{userId}")
+    public Mono<ResponseView<Void>> deleteProfilePhotoById(@PathVariable String orgId, @PathVariable String userId);
+	@Operation(
+			tags = TAG_USER_PROFILE_PHOTO_MANAGEMENT,
+			operationId = "deleteUserProfilePhoto",
+			summary = "Delete current users profile photo",
+			description = "Remove the profile Photo associated with the current User within Lowcoder."
+	)
+	@DeleteMapping("/photo")
+	public Mono<ResponseView<Void>> deleteProfilePhoto();
 
 	@Operation(
 			tags = TAG_USER_PROFILE_PHOTO_MANAGEMENT,
@@ -181,4 +239,6 @@ public interface UserEndpoints
     public record MarkUserStatusRequest(String type, Object value) {
     }
 
+	public record CreateUserRequest(String email, String password) {
+	}
 }

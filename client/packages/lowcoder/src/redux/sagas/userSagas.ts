@@ -6,7 +6,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/reduxActionConstants";
-import { AUTH_LOGIN_URL } from "constants/routesURL";
+import { AUTH_LOGIN_URL, ORG_AUTH_LOGIN_URL } from "constants/routesURL";
 import log from "loglevel";
 import { all, call, delay, put, takeLatest } from "redux-saga/effects";
 import {
@@ -71,10 +71,12 @@ export function* getUserSaga() {
         orgs: orgs,
         orgRoleMap: orgRoleMap,
       };
+
       yield put({
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
         payload: user,
       });
+       
     }
   } catch (error: any) {
     yield put({
@@ -138,7 +140,9 @@ export function* updateUserSaga(action: ReduxAction<UpdateUserPayload>) {
 
 export function* logoutSaga(action: LogoutActionType) {
   try {
-    let redirectURL = AUTH_LOGIN_URL;
+    let redirectURL = action.payload.organizationId
+      ? ORG_AUTH_LOGIN_URL.replace(':orgId', action.payload.organizationId)
+      : AUTH_LOGIN_URL;
     if (action.payload.notAuthorised) {
       const currentUrl = window.location.href
       const urlObj = new URL(currentUrl);

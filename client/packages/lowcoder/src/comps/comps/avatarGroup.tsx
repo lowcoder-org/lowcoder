@@ -8,17 +8,18 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { Avatar, Tooltip } from "antd";
-import { clickEvent, eventHandlerControl, refreshEvent } from "../controls/eventHandlerControl";
+import { clickEvent, doubleClickEvent, eventHandlerControl, refreshEvent } from "../controls/eventHandlerControl";
 import styled from "styled-components";
-import { useContext, ReactElement } from "react";
+import { ReactElement, useEffect } from "react";
 import { MultiCompBuilder, stateComp, withDefault } from "../generators";
-import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { IconControl } from "../controls/iconControl";
 import { ColorControl } from "../controls/colorControl";
 import { optionsControl } from "../controls/optionsControl";
 import { BoolControl } from "../controls/boolControl";
 import { dropdownControl } from "../controls/dropdownControl";
 import { JSONObject } from "util/jsonTypes";
+import { useCompClickEventHandler } from "../utils/useCompClickEventHandler";
 
 const MacaroneList = [
   '#fde68a',
@@ -77,7 +78,7 @@ const DropdownOption = new MultiCompBuilder(
   ))
   .build();
 
-const EventOptions = [clickEvent, refreshEvent] as const;
+const EventOptions = [clickEvent, refreshEvent, doubleClickEvent] as const;
 
 export const alignOptions = [
   { label: <AlignLeft />, value: "flex-start" },
@@ -86,8 +87,8 @@ export const alignOptions = [
 ] as const;
 
 const childrenMap = {
-  avatar: styleControl(avatarGroupStyle),
-  style: styleControl(avatarContainerStyle),
+  avatar: styleControl(avatarGroupStyle , 'avatar'),
+  style: styleControl(avatarContainerStyle , 'style'),
   maxCount: withDefault(NumberControl, 3),
   avatarSize: withDefault(NumberControl, 40),
   alignment: dropdownControl(alignOptions, "center"),
@@ -105,17 +106,19 @@ const childrenMap = {
 };
 
 const AvatarGroupView = (props: RecordConstructorToView<typeof childrenMap> & { dispatch: (action: CompAction) => void; }) => {
+  const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent})
+  
   return (
     <Container
       $style={props.style}
       alignment={props.alignment}
     >
       {
-        <Avatar.Group maxCount={props.maxCount} size={props.avatarSize}>
+        <Avatar.Group max={{ count: props.maxCount }} size={props.avatarSize}>
           {
             props.avatars.map((item, index) => {
               return (
-                <Tooltip title={item.Tooltip}>
+                <Tooltip title={item.Tooltip} key={index}>
                   <Avatar
                     src={item.src ?? undefined}
                     icon={(item.AvatarIcon as ReactElement)?.props.value === '' || item.label.trim() !== '' ? undefined : item.AvatarIcon}
@@ -125,7 +128,7 @@ const AvatarGroupView = (props: RecordConstructorToView<typeof childrenMap> & { 
                     }}
                     size={props.avatarSize}
                     onClick={() => {
-                      props.onEvent("click")
+                      handleClickEvent();
                       props.dispatch(changeChildAction("currentAvatar", item as JSONObject, false));
                     }}
                   >
@@ -142,10 +145,14 @@ const AvatarGroupView = (props: RecordConstructorToView<typeof childrenMap> & { 
 };
 
 let AvatarGroupBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => <AvatarGroupView {...props} dispatch={dispatch} />)
-    .setPropertyViewFn((children) => (
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    return( <AvatarGroupView {...props} dispatch={dispatch} />
+)}) 
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["logic", "both"].includes(editorModeStatus) && (
           <>
             <Section name={sectionNames.basic}>
               {children.avatars.propertyView({})}
@@ -170,7 +177,7 @@ let AvatarGroupBasicComp = (function () {
           </>
         )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(editorModeStatus) && (
           <>
           <Section name={sectionNames.avatarStyle}>
             {children.avatar.getPropertyView()}
@@ -181,7 +188,8 @@ let AvatarGroupBasicComp = (function () {
           </>
         )}
       </>
-    ))
+    );
+    })
     .build();
 })();
 

@@ -1,5 +1,5 @@
-import "comps/comps/layout/navLayout";
-import "comps/comps/layout/mobileTabLayout";
+// import "comps/comps/layout/navLayout";
+// import "comps/comps/layout/mobileTabLayout";
 
 import { CompAction, CompActionTypes } from "lowcoder-core";
 import { EditorContext, EditorState } from "comps/editorState";
@@ -8,7 +8,7 @@ import { HookListComp } from "comps/hooks/hookListComp";
 import { QueryListComp } from "comps/queries/queryComp";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
 import { handlePromiseAndDispatch } from "util/promiseUtils";
-import { HTMLAttributes, Suspense, lazy, useContext, useEffect, useMemo, useState } from "react";
+import { HTMLAttributes, Suspense, lazy, useContext, useMemo, useState } from "react";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
 import { AppSettingsComp } from "./appSettingsComp";
 import { PreloadComp } from "./preLoadComp";
@@ -17,21 +17,23 @@ import { TransformerListComp } from "./transformerListComp";
 import UIComp from "./uiComp";
 import { ThemeContext } from "comps/utils/themeContext";
 import { ModuleLayoutCompName } from "constants/compConstants";
-import { defaultTheme as localDefaultTheme } from "comps/controls/styleControlConstants";
+import { defaultTheme as localDefaultTheme } from "constants/themeConstants";
 import { ModuleLoading } from "components/ModuleLoading";
 import EditorSkeletonView from "pages/editor/editorSkeletonView";
 import { getGlobalSettings } from "comps/utils/globalSettings";
 import { getCurrentTheme } from "comps/utils/themeUtil";
 import { DataChangeResponderListComp } from "./dataChangeResponderComp";
 import { FolderListComp } from "./folderListComp";
-import {
-  PropertySectionContext,
-  PropertySectionContextType,
-  PropertySectionState,
-} from "lowcoder-design";
 import RefTreeComp from "./refTreeComp";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { useUserViewMode } from "util/hooks";
+import React from "react";
+import { isEqual } from "lodash";
+import {LoadingBarHideTrigger} from "@lowcoder-ee/util/hideLoading";
+import clsx from "clsx";
+import { AIHelperModal, AIHelperProvider } from "components/ai-helper";
+import { createEditorStore, EditorStoreProvider } from "comps/editorStore";
+import { EditorPropertySectionProvider } from "comps/editorPropertySectionContext";
 
 const EditorView = lazy(
   () => import("pages/editor/editorView"),
@@ -55,89 +57,85 @@ const childrenMap = {
   preload: PreloadComp,
 };
 
-function RootView(props: RootViewProps) {
+const RootView = React.memo((props: RootViewProps) => {
   const previewTheme = useContext(ThemeContext);
   const { comp, isModuleRoot, ...divProps } = props;
-  const [editorState, setEditorState] = useState<EditorState>();
-  const [propertySectionState, setPropertySectionState] = useState<PropertySectionState>({});
+  const [editorStore] = useState(createEditorStore);
+  const [editorState, setEditorState] = useState(
+    () =>
+      new EditorState(
+        comp,
+        (changeEditorStateFn) => {
+          setEditorState(changeEditorStateFn);
+        },
+        isModuleRoot,
+        editorStore
+      )
+  );
   const { readOnly } = useContext(ExternalEditorContext);
   const isUserViewMode = useUserViewMode();
+
   const appThemeId = comp.children.settings.getView().themeId;
   const { orgCommonSettings } = getGlobalSettings();
   const themeList = orgCommonSettings?.themeList || [];
+  const selectedTheme = getCurrentTheme(themeList, appThemeId);
 
   const theme =
     previewTheme?.previewTheme ||
-    getCurrentTheme(themeList, appThemeId)?.theme ||
+    selectedTheme?.theme ||
     localDefaultTheme;
+  
+  const themeId = selectedTheme ? selectedTheme.id : (
+    previewTheme?.previewTheme ? "preview-theme" : 'default-theme-id'
+  ); 
 
-  useEffect(() => {
-    const newEditorState = new EditorState(comp, (changeEditorStateFn) => {
-      setEditorState((oldState) => (oldState ? changeEditorStateFn(oldState) : undefined));
-    });
-    setEditorState(newEditorState);
-  }, []);
+  const currentEditorState = useMemo(
+    () =>
+      editorState.rootComp === comp
+        ? editorState
+        : setFieldsNoTypeCheck(editorState, { rootComp: comp }),
+    [comp, editorState]
+  );
 
-  useEffect(() => {
-    if (editorState != null) {
-      editorState.setComp(() => comp);
-    }
-  }, [comp]);
-
-  /**
-   * ensure memo, otherwise all component caches will be invalid
-   */
   const themeContextValue = useMemo(
     () => ({
       theme,
+      themeId,
     }),
-    [theme]
+    [theme, themeId]
   );
-
-  const propertySectionContextValue = useMemo<PropertySectionContextType>(() => {
-    const compName = Object.keys(editorState?.selectedComps() || {})[0];
-    return {
-      compName,
-      state: propertySectionState,
-      toggle: (compName: string, sectionName: string) => {
-        setPropertySectionState((oldState) => {
-          const nextSectionState: PropertySectionState = { ...oldState };
-          const compState = nextSectionState[compName] || {};
-          compState[sectionName] = compState[sectionName] === false;
-          nextSectionState[compName] = compState;
-          return nextSectionState;
-        });
-      },
-    };
-  }, [editorState, propertySectionState]);
-
-  if (!editorState && !isUserViewMode && readOnly) {
-    return <ModuleLoading />;
-  }
 
   const SuspenseFallback = isModuleRoot ? <ModuleLoading /> : <EditorSkeletonView />;
 
-  if (!editorState) {
-    return SuspenseFallback;
-  }
-
   return (
-    <div {...divProps} style={{height: '100%'}}>
-      <PropertySectionContext.Provider value={propertySectionContextValue}>
-        <ThemeContext.Provider value={themeContextValue}>
-          <EditorContext.Provider value={editorState}>
-            {Object.keys(comp.children.queries.children).map((key) => (
-              <div key={key}>{comp.children.queries.children[key].getView()}</div>
-            ))}
-            <Suspense fallback={!readOnly || isUserViewMode ? SuspenseFallback : null}>
-              <EditorView uiComp={comp.children.ui} preloadComp={comp.children.preload} />
-            </Suspense>
-          </EditorContext.Provider>
-        </ThemeContext.Provider>
-      </PropertySectionContext.Provider>
+    <div {...divProps}
+          className={clsx(
+            divProps.id, 
+          )} 
+       style={{height: '100%'}}>
+      <EditorStoreProvider store={editorStore}>
+        <EditorPropertySectionProvider editorState={currentEditorState}>
+          <ThemeContext.Provider value={themeContextValue}>
+            <EditorContext.Provider value={currentEditorState}>
+              <AIHelperProvider>
+                {Object.keys(comp.children.queries.children).map((key) => (
+                  <div key={key}>{comp.children.queries.children[key].getView()}</div>
+                ))}
+                <Suspense fallback={!readOnly || isUserViewMode ? SuspenseFallback : null}>
+                  <LoadingBarHideTrigger />
+                  <EditorView uiComp={comp.children.ui} preloadComp={comp.children.preload} />
+                </Suspense>
+                {!readOnly && !isUserViewMode && !isModuleRoot && <AIHelperModal />}
+              </AIHelperProvider>
+            </EditorContext.Provider>
+          </ThemeContext.Provider>
+        </EditorPropertySectionProvider>
+      </EditorStoreProvider>
     </div>
   );
-}
+}, (prevProps, nextProps) => {
+  return isEqual(prevProps, nextProps);
+});
 
 /**
  * Root Comp
@@ -168,8 +166,13 @@ export class RootComp extends RootCompBase {
     if (this.preloaded) {
       return this;
     }
-    await this.children.preload.run(id);
-    return setFieldsNoTypeCheck(this, { preloaded: true, preloadId: id });
+    try {
+      await this.children.preload.run(id);
+      return setFieldsNoTypeCheck(this, { preloaded: true, preloadId: id });
+    } catch (error) {
+      this.clearPreload();
+      throw error;
+    }
   }
 
   private findInternalComp(name: string) {

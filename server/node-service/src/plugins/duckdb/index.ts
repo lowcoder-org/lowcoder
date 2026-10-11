@@ -1,7 +1,7 @@
 import { DataSourcePlugin } from "lowcoder-sdk/dataSource";
 import dataSourceConfig, { DataSourceDataType } from "./dataSourceConfig";
 import queryConfig, { ActionDataType } from "./queryConfig";
-import { Database } from "duckdb-async";
+import { DuckDBInstance } from "@duckdb/node-api";
 import { ServiceError } from "../../common/error";
 
 // Helper function to handle BigInt serialization
@@ -23,17 +23,19 @@ const duckdbPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
     run: async function (actionData, dataSourceConfig): Promise<any> {
         const { databaseFile, options } = dataSourceConfig;
         const parsedOptions = JSON.parse(options);
-        const db = await Database.create(databaseFile, parsedOptions);
+        const instance = await DuckDBInstance.create(databaseFile, parsedOptions);
+        const db = await instance.connect();
 
         if (actionData.actionName === "Query") {
             try {
-                const result = await db.all(actionData.queryString);
+                const result = await db.runAndReadAll(actionData.queryString);
+                const data = await result.getRows();
                 // Apply BigInt serialization to each row
-                return result.map(serializeBigInts);
+                return data.map(serializeBigInts);
             } catch (error) {
                 throw new ServiceError((error as Error).message);
             } finally {
-                await db.close();
+                await db.closeSync();
             }
         }
     },

@@ -5,15 +5,15 @@ import { jsonObjectStateControl } from "comps/controls/codeStateControl";
 import { UICompBuilder, withDefault } from "comps/generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
-import { useEffect, useRef, useContext } from "react";
+import { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
 import { EventData, EventTypeEnum } from "./types";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { EditorContext } from "comps/editorState";
-import { AnimationStyle, AnimationStyleType, CustomStyle, CustomStyleType, styleControl } from "@lowcoder-ee/index.sdk";
-
+import { useEditorStore } from "comps/editorStore";
+import { AnimationStyle, AnimationStyleType, CustomStyle, CustomStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 // TODO: eventually to embedd in container so we have styling?
 // TODO: support different starter templates for different frameworks (react, ANT, Flutter, Angular, etc)
 
@@ -45,7 +45,7 @@ const defaultCode = `
         <Space>
           <Button
             type="primary"
-            onClick={() => runQuery(model.query)}
+            onClick={() => runQuery({ queryName: model.query })}
          >
             ${trans("customComp.triggerQuery")}
           </Button>
@@ -104,10 +104,11 @@ function InnerCustomComponent(props: IProps) {
 
   const methodsRef = useRef({
     runQuery: async (data: any) => {
-      const { queryName } = data;
+      
+      const { queryName, params } = data.queryName;
       return getPromiseAfterDispatch(
         dispatch,
-        routeByNameAction(queryName, executeQueryAction({}))
+        routeByNameAction(queryName, executeQueryAction({ args: params }))
       ).catch((error) => Promise.resolve({}));
     },
 
@@ -190,7 +191,12 @@ function InnerCustomComponent(props: IProps) {
     window.addEventListener("message", handleMessage);
     iframe.addEventListener("load", handleIFrameLoad);
 
-    const src = iframe.getAttribute("src");
+    // in dev, load from sdk bundle and on prod load from build package
+    const src = (REACT_APP_BUNDLE_TYPE && REACT_APP_BUNDLE_TYPE === 'sdk')
+      || (import.meta.env && import.meta.env.DEV)
+      ? trans('customComponent.entryUrl')
+      : `${window.location.origin}/custom_component/custom_component.html`;
+
     if (src && reloadFlagRef) {
       reloadFlagRef.current = false;
       const url = new URL("?_t=" + Date.now(), src);
@@ -209,7 +215,6 @@ function InnerCustomComponent(props: IProps) {
       <iframe
         ref={iframeRef}
         title="custom-comp"
-        src={trans('customComponent.entryUrl')}
       />
     </Wrapper>
   );
@@ -218,8 +223,8 @@ function InnerCustomComponent(props: IProps) {
 const childrenMap = {
   model: jsonObjectStateControl(defaultModel),
   code: withDefault(StringControl, defaultCode),
-  style:styleControl(CustomStyle),
-  animationStyle:styleControl(AnimationStyle),
+  style: styleControl(CustomStyle , 'style'),
+  animationStyle:styleControl(AnimationStyle , 'animationStyle'),
 };
 
 const CustomCompBase = new UICompBuilder(childrenMap, (props, dispatch) => {
@@ -236,13 +241,15 @@ const CustomCompBase = new UICompBuilder(childrenMap, (props, dispatch) => {
   );
 })
   .setPropertyViewFn((children) => {
+    const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
     return (
       <>
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "logic" || editorModeStatus === "both") && (
           <><Section name={sectionNames.interaction}>
               {children.model.propertyView({ label: trans("customComp.data") })}
               {children.code.propertyView({ label: trans("customComp.code"), language: "html" })}
               {hiddenPropertyView(children)}
+              {showDataLoadingIndicatorsPropertyView(children)}
           </Section>
             <Section name={sectionNames.style}>
               {children.style.getPropertyView()}

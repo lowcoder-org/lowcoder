@@ -1,5 +1,6 @@
 import { ViewDocIcon } from "assets/icons";
 import { ArrayControl, BoolCodeControl, NumberControl, RadiusControl, StringControl } from "comps/controls/codeControl";
+import { BoolControl } from "comps/controls/boolControl";
 import { dropdownControl, LeftRightControl } from "comps/controls/dropdownControl";
 import { IconControl } from "comps/controls/iconControl";
 import { MultiCompBuilder, valueComp, withContext, withDefault } from "comps/generators";
@@ -28,7 +29,7 @@ import {
   IconRadius,
   Option,
   WidthIcon,
-  ImageCompIcon,
+  CloseEyeIcon,
 } from "lowcoder-design";
 import styled from "styled-components";
 import { lastValueIfEqual } from "util/objectUtils";
@@ -37,8 +38,28 @@ import { JSONObject, JSONValue } from "util/jsonTypes";
 import { ButtonEventHandlerControl } from "./eventHandlerControl";
 import { ControlItemCompBuilder } from "comps/generators/controlCompBuilder";
 import { ColorControl } from "./colorControl";
-import { StringStateControl } from "./codeStateControl";
-import { reduceInContext } from "../utils/reduceContext";
+
+import { BorderOuterOutlined } from "@ant-design/icons";
+
+// Tag preset color options
+const TAG_PRESET_COLORS = [
+  { label: "Magenta", value: "magenta" },
+  { label: "Red", value: "red" },
+  { label: "Volcano", value: "volcano" },
+  { label: "Orange", value: "orange" },
+  { label: "Gold", value: "gold" },
+  { label: "Lime", value: "lime" },
+  { label: "Green", value: "green" },
+  { label: "Cyan", value: "cyan" },
+  { label: "Blue", value: "blue" },
+  { label: "Geek Blue", value: "geekblue" },
+  { label: "Purple", value: "purple" },
+  { label: "Success", value: "success" },
+  { label: "Processing", value: "processing" },
+  { label: "Error", value: "error" },
+  { label: "Warning", value: "warning" },
+  { label: "Default", value: "default" },
+] as const;
 
 const OptionTypes = [
   {
@@ -279,15 +300,37 @@ export function mapOptionsControl<T extends OptionsControlType>(
     }
   )
     .setControlItemData({ filterText: label })
-    .setPropertyViewFn((children) => (
-      <>
-        {children.data.propertyView({ label })}
-        <AutoArea>
-          {children.mapData.getPropertyView()}
-          {OptionTip}
-        </AutoArea>
-      </>
-    ))
+    .setPropertyViewFn((children) => {
+      const mapSchema = (() => {
+        try {
+          const json = children.mapData.toJsonValue();
+          const keys = Object.keys(json as Record<string, unknown>);
+          return keys.length > 0 ? keys.join(", ") : "label, value";
+        } catch {
+          return "label, value";
+        }
+      })();
+
+      return (
+        <>
+          {children.data.propertyView({
+            label,
+            enableAIHelp: true,
+            aiHelp: {
+              targetKind: "json",
+              label: "Map mode data",
+              fieldName: "data",
+              fieldDescription:
+                `JSON array of objects. Each object is mapped to a component option via {{item}}. The mapped fields are: ${mapSchema}. Generate rows with keys matching those fields.`,
+            },
+          })}
+          <AutoArea>
+            {children.mapData.getPropertyView()}
+            {OptionTip}
+          </AutoArea>
+        </>
+      );
+    })
     .build();
 
   return class extends TmpOptionControl {
@@ -313,14 +356,6 @@ export function mapOptionsControl<T extends OptionsControlType>(
     }
 
     override reduce(action: CompAction) {
-      // TODO: temporary solution condition to fix context issue in dropdown option's events
-      if (
-        action.type === CompActionTypes.CUSTOM
-        && (action.value as JSONObject).type === 'actionTriggered'
-      ) {
-        const comp = reduceInContext({ inEventContext: true }, () => super.reduce(action));
-        return comp;
-      } else
       if (action.type === CompActionTypes.UPDATE_NODES_V2) {
         const comp = super.reduce(action)
         if (comp.children.data !== this.children.data) {
@@ -359,6 +394,7 @@ export function optionsControl<T extends OptionsControlType>(
     uniqField?: keyof ConstructorToView<T>;
     // manual mode list title
     title?: string;
+    autoIncField?: keyof PickNumberFields<ConstructorToView<T>>;
   }
 ) {
   type OptionViewType = ConstructorToView<T>;
@@ -369,6 +405,7 @@ export function optionsControl<T extends OptionsControlType>(
       manual: manualOptionsControl(VariantComp, {
         initOptions: config.initOptions,
         uniqField: config.uniqField,
+        autoIncField: config.autoIncField,
       }),
       mapData: mapOptionsControl(VariantComp, config.uniqField),
     },
@@ -533,6 +570,7 @@ const TabsOption = new MultiCompBuilder(
     </>
   ))
   .build();
+  
 
 export const TabsOptionControl = manualOptionsControl(TabsOption, {
   initOptions: [
@@ -540,6 +578,37 @@ export const TabsOptionControl = manualOptionsControl(TabsOption, {
     { id: 1, key: "Tab2", label: "Tab2" },
   ],
   uniqField: "key",
+  autoIncField: "id",
+});
+
+const TagsOption = new MultiCompBuilder(
+  {
+    id: valueComp<number>(-1),
+    label: StringControl,
+    icon: IconControl,
+    iconPosition: withDefault(LeftRightControl, "left"),
+    hidden: BoolCodeControl,
+  },
+  (props) => props
+)
+  .setPropertyViewFn((children) => (
+    <>
+      {children.label.propertyView({ label: trans("label") })}
+      {children.icon.propertyView({ label: trans("icon") })}
+      {children.iconPosition.propertyView({
+        label: trans("tabbedContainer.iconPosition"),
+        radioButton: true,
+      })}
+      {hiddenPropertyView(children)}
+    </>
+  ))
+  .build();
+
+export const TagsOptionControl = optionsControl(TagsOption, {
+  initOptions: [
+    { id: 0, label: "Option 1" },
+    { id: 1, label: "Option 2" },
+  ],
   autoIncField: "id",
 });
 
@@ -585,6 +654,7 @@ const ColumnOption = new MultiCompBuilder(
     radius: withDefault(RadiusControl, ""),
     margin: withDefault(StringControl, ""),
     padding: withDefault(StringControl, ""),
+    hidden: withDefault(BoolCodeControl, false),
   },
   (props) => props
 )
@@ -621,6 +691,10 @@ const ColumnOption = new MultiCompBuilder(
       preInputNode: <StyledIcon as={CompressIcon} title="" />,	
       placeholder: '3px',
     })}
+    {children.hidden.propertyView({
+      label: trans('style.hideColumn'),
+      preInputNode: <StyledIcon as={CloseEyeIcon} title="" />
+    })}
   </StyledContent>
 ))
   .build();
@@ -629,6 +703,54 @@ export const ColumnOptionControl = manualOptionsControl(ColumnOption, {
   initOptions: [
     { id: 0, key: "Column1", label: "Column1" },
     { id: 1, key: "Column2", label: "Column2" },
+  ],
+  uniqField: "key",
+  autoIncField: "id",
+});
+
+const SplitColumnOption = new MultiCompBuilder(
+  {
+    id: valueComp<number>(-1),
+    label: StringControl,
+    key: StringControl,
+    minWidth: withDefault(RadiusControl, ""),
+    maxWidth: withDefault(RadiusControl, ""),
+    width: withDefault(RadiusControl, ""),
+    collapsible: withDefault(BoolControl, false),
+    background: withDefault(ColorControl, ""),
+    backgroundImage: withDefault(StringControl, ""),
+    padding: withDefault(StringControl, ""),
+  },
+  (props) => props
+)
+.setPropertyViewFn((children) => (
+  <StyledContent>
+    {children.minWidth.propertyView({
+      label: trans('splitLayout.minWidth'),
+      preInputNode: <StyledIcon as={WidthIcon} title="" />,
+      placeholder: '3px',
+    })}
+    {children.maxWidth.propertyView({
+      label: trans('splitLayout.maxWidth'),
+      preInputNode: <StyledIcon as={WidthIcon} title="" />,
+      placeholder: '80%',
+    })}
+    {children.width.propertyView({
+      label: trans('splitLayout.width'),
+      preInputNode: <StyledIcon as={WidthIcon} title="" />,
+      placeholder: '3px',
+    })}
+    {children.collapsible.propertyView({
+      label: trans('splitLayout.collapsible'),
+    })}
+  </StyledContent>
+))
+  .build();
+
+export const SplitColumnOptionControl = manualOptionsControl(SplitColumnOption, {
+  initOptions: [
+    { id: 0, key: "Area1", label: "Area 1", minWidth: "10%", maxWidth: "90%",  width: "50%"},
+    { id: 1, key: "Area2", label: "Area 2", minWidth: "10%", maxWidth: "90%",  width: "50%", collapsible : true},
   ],
   uniqField: "key",
   autoIncField: "id",
@@ -643,6 +765,7 @@ let StepOption = new MultiCompBuilder(
     icon: IconControl,
     status: StringControl,
     disabled: BoolCodeControl,
+    hidden: BoolCodeControl,
   },
   (props) => props
 ).build();
@@ -658,6 +781,7 @@ StepOption = class extends StepOption implements OptionCompProperty {
         {this.children.icon.propertyView({ label: trans("stepOptionsControl.icon") })}
         {this.children.status.propertyView({ label: trans("stepOptionsControl.status") })}
         {disabledPropertyView(this.children)}
+        {hiddenPropertyView(this.children)}
       </>
     );
   }
@@ -673,29 +797,165 @@ export const StepOptionControl = optionsControl(StepOption, {
   uniqField: "label",
 });
 
+let TagsCompOptions = new MultiCompBuilder(
+  {
+    label: StringControl,
+    icon: IconControl,
+    colorType: dropdownControl([
+      { label: "Default", value: "default"},
+      { label: trans("style.preset"), value: "preset" },
+      { label: trans("style.custom"), value: "custom" },
+    ], "default"),
+    presetColor: dropdownControl(TAG_PRESET_COLORS, "default"),
+    color: withDefault(ColorControl, "#1890ff"),
+    textColor: withDefault(ColorControl, "#ffffff"),
+    border: withDefault(ColorControl, ""),
+    borderWidth: withDefault(RadiusControl, ""),
+    borderStyle: withDefault(dropdownControl([
+      { label: "Solid", value: "solid" },
+      { label: "Dashed", value: "dashed" },
+      { label: "Dotted", value: "dotted" },
+      { label: "None", value: "none" },
+    ], "solid"), "solid"),
+    radius: withDefault(RadiusControl, ""),
+    margin: withDefault(StringControl, ""),
+    padding: withDefault(StringControl, ""),
+    width: withDefault(StringControl, ""),
+  },
+  (props) => props
+).build();
+
+TagsCompOptions = class extends TagsCompOptions implements OptionCompProperty {
+  propertyView(param: { autoMap?: boolean }) {
+    const colorType = this.children.colorType.getView();
+    return (
+      <>
+        {this.children.label.propertyView({ label: trans("coloredTagOptionControl.tag") })}
+        {this.children.icon.propertyView({ label: trans("coloredTagOptionControl.icon") })}
+        {this.children.colorType.propertyView({ 
+          label: trans("style.styleOptions")
+        })}
+        {colorType === "preset" && this.children.presetColor.propertyView({ 
+          label: trans("style.presetColor") 
+        })}
+        {colorType === "custom" && (
+          <>
+            {this.children.color.propertyView({ label: trans("coloredTagOptionControl.color") })}
+            {this.children.textColor.propertyView({ label: trans("style.textColor") })}
+          </>
+        )}
+        {this.children.borderStyle.propertyView({
+          label: trans('style.borderStyle'),
+          preInputNode: <StyledIcon as={BorderOuterOutlined} title="" />,
+        })}
+        {this.children.border.propertyView({
+          label: trans('style.border')
+        })}
+        {this.children.borderWidth.propertyView({
+          label: trans('style.borderWidth'),
+          preInputNode: <StyledIcon as={WidthIcon} title="" />,
+        })}
+        {this.children.radius.propertyView({
+          label: trans('style.borderRadius'),
+          preInputNode: <StyledIcon as={IconRadius} title="" />,	
+          placeholder: '3px',
+        })}
+        {this.children.margin.propertyView({
+          label: trans('style.margin'),
+          preInputNode: <StyledIcon as={ExpandIcon} title="" />,	
+          placeholder: '3px',
+        })}
+        {this.children.padding.propertyView({
+          label: trans('style.padding'),
+          preInputNode: <StyledIcon as={CompressIcon} title="" />,	
+          placeholder: '3px',
+        })}
+        {this.children.width.propertyView({
+          label: trans('splitLayout.width'),
+          preInputNode: <StyledIcon as={WidthIcon} title="" />,	
+          placeholder: '100px',
+        })}
+      </>
+    );
+  }
+};
+
+export const TagsCompOptionsControl = optionsControl(TagsCompOptions, {
+  initOptions: [
+    { label: "Option 1", colorType: "default"}, 
+    { label: "Option 2", colorType: "default"}
+  ],
+  uniqField: "label",
+});
 
 let ColoredTagOption = new MultiCompBuilder(
   {
     label: StringControl,
     icon: IconControl,
-    color: withDefault(ColorControl, ""),
+    colorType: withDefault(dropdownControl([
+      { label: trans("style.preset"), value: "preset" },
+      { label: trans("style.custom"), value: "custom" },
+    ] as const, "preset"), "preset"),
+    presetColor: withDefault(dropdownControl(TAG_PRESET_COLORS, "blue"), "blue"),
+    color: withDefault(ColorControl, "#1890ff"),
+    textColor: withDefault(ColorControl, "#ffffff"),
+    border: withDefault(ColorControl, ""),
+    radius: withDefault(RadiusControl, ""),
+    margin: withDefault(StringControl, ""),
+    padding: withDefault(StringControl, ""),
+    onEvent: ButtonEventHandlerControl,
   },
   (props) => props
 ).build();
 
 ColoredTagOption = class extends ColoredTagOption implements OptionCompProperty {
   propertyView(param: { autoMap?: boolean }) {
+    const colorType = this.children.colorType.getView();
     return (
       <>
         {this.children.label.propertyView({ label: trans("coloredTagOptionControl.tag") })}
         {this.children.icon.propertyView({ label: trans("coloredTagOptionControl.icon") })}
-        {this.children.color.propertyView({ label: trans("coloredTagOptionControl.color") })}
+        {this.children.colorType.propertyView({ 
+          label: trans("style.colorType"), 
+          radioButton: true 
+        })}
+        {colorType === "preset" && this.children.presetColor.propertyView({ 
+          label: trans("style.presetColor") 
+        })}
+        {colorType === "custom" && (
+          <>
+            {this.children.color.propertyView({ label: trans("coloredTagOptionControl.color") })}
+            {this.children.textColor.propertyView({ label: trans("style.textColor") })}
+          </>
+        )}
+        {this.children.border.propertyView({
+          label: trans('style.border')
+        })}
+        {this.children.radius.propertyView({
+          label: trans('style.borderRadius'),
+          preInputNode: <StyledIcon as={IconRadius} title="" />,	
+          placeholder: '3px',
+        })}
+        {this.children.margin.propertyView({
+          label: trans('style.margin'),
+          preInputNode: <StyledIcon as={ExpandIcon} title="" />,	
+          placeholder: '3px',
+        })}
+        {this.children.padding.propertyView({
+          label: trans('style.padding'),
+          preInputNode: <StyledIcon as={CompressIcon} title="" />,	
+          placeholder: '3px',
+        })}
+        {this.children.onEvent.propertyView()}
       </>
     );
   }
 };
 
 export const ColoredTagOptionControl = optionsControl(ColoredTagOption, {
-  initOptions: [{ label: "Tag1", icon: "/icon:solid/tag", color: "#f50" }, { label: "Tag2", icon: "/icon:solid/tag", color: "#2db7f5" }],
+  initOptions: [
+    { label: "Tag1", icon: "/icon:solid/tag", colorType: "preset", presetColor: "blue" }, 
+    { label: "Tag2", icon: "/icon:solid/tag", colorType: "preset", presetColor: "green" }
+  ],
   uniqField: "label",
 });

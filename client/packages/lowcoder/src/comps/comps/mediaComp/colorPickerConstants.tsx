@@ -1,4 +1,4 @@
-import { trans } from "@lowcoder-ee/i18n";
+import { trans } from "i18n";
 
 export const presets =
 {

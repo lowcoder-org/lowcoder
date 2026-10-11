@@ -1,6 +1,7 @@
 // import { CodeEditor } from "base/codeEditor/codeEditor";
 import { CompParams } from "lowcoder-core";
 import { EditorContext } from "comps/editorState";
+import { useEditorStore } from "comps/editorStore";
 import { valueComp } from "comps/generators";
 import { CompExposingContext } from "comps/generators/withContext";
 import { exposingDataForAutoComplete } from "comps/utils/exposingTypes";
@@ -26,6 +27,7 @@ function CodeTextEditor(props: CodeTextEditorProps) {
   const { codeText, onChange, enableExposingDataAutoCompletion = false, ...params } = props;
   const compExposingData = useContext(CompExposingContext);
   const editorState = useContext(EditorContext);
+  const forceShowGrid = useEditorStore((state) => state.forceShowGrid);
 
   const expsoingData = useMemo(() => {
     if (enableExposingDataAutoCompletion) {
@@ -47,7 +49,7 @@ function CodeTextEditor(props: CodeTextEditorProps) {
         exposingData={expsoingData}
         boostExposingData={compExposingData}
         onChange={(state) => onChange(state.doc.toString())}
-        enableClickCompName={editorState.forceShowGrid}
+        enableClickCompName={forceShowGrid}
       />
     </Suspense>
   );
@@ -71,6 +73,11 @@ export class CodeTextControl extends valueComp<string>("") {
         <CodeTextEditor onChange={this.handleChange} codeText={this.getView()} {...params} />
       </ControlPropertyViewWrapper>
     );
+  }
+
+  // the editor without the property view chrome, for layouts that size it themselves
+  editorView(params: Omit<CodeTextEditorProps, "onChange" | "codeText">) {
+    return <CodeTextEditor onChange={this.handleChange} codeText={this.getView()} {...params} />;
   }
 
   getPropertyView(): ReactNode {

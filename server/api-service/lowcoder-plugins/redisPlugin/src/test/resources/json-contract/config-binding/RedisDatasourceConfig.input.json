@@ -1,0 +1,20 @@
+{
+  "full": {
+    "host": " redis.example.com ",
+    "port": 6379,
+    "usingSsl": true,
+    "username": "default",
+    "password": "pw",
+    "usingUri": false,
+    "uri": null
+  },
+  "uri": {
+    "usingUri": true,
+    "uri": "rediss://default:pw@redis.example.com:6380/0"
+  },
+  "scalarsAsStrings": {
+    "port": "6380",
+    "usingSsl": "false"
+  },
+  "empty": {}
+}

@@ -1,7 +1,9 @@
 import { default as Button } from "antd/es/button";
 import { default as AntdUpload } from "antd/es/upload";
-import { UploadFile, UploadProps, UploadChangeParam } from "antd/es/upload/interface";
+import { default as Dropdown } from "antd/es/dropdown";
+import { UploadFile, UploadProps, UploadChangeParam, UploadFileStatus, RcFile } from "antd/es/upload/interface";
 import { Buffer } from "buffer";
+import { v4 as uuidv4 } from "uuid";
 import { darkenColor } from "components/colorSelect/colorUtils";
 import { Section, sectionNames } from "components/Section";
 import { IconControl } from "comps/controls/iconControl";
@@ -10,7 +12,7 @@ import { AnimationStyle, AnimationStyleType, FileStyle, FileStyleType, heightCal
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { hasIcon } from "comps/utils";
 import { getComponentDocUrl } from "comps/utils/compDocUtil";
-import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
+import { disabledPropertyView, hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import _ from "lodash";
 import mime from "mime";
@@ -22,7 +24,7 @@ import {
   RecordConstructorToView,
 } from "lowcoder-core";
 import { UploadRequestOption } from "rc-upload/lib/interface";
-import { useEffect, useState } from "react";
+import { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { JSONObject, JSONValue } from "../../../util/jsonTypes";
 import { BoolControl, BoolPureControl } from "../../controls/boolControl";
@@ -39,9 +41,12 @@ import { stateComp, UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
-
-import React, { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { CustomModal } from "lowcoder-design";
+import { DraggerUpload } from "./draggerUpload";
+import { ImageCaptureModal } from "./ImageCaptureModal";
+import { useEditorStore } from "comps/editorStore";
+import { checkIsMobile } from "@lowcoder-ee/util/commonUtils";
+import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
 
 const FileSizeControl = codeControl((value) => {
   if (typeof value === "number") {
@@ -91,6 +96,23 @@ const validationChildren = {
   minSize: FileSizeControl,
   maxSize: FileSizeControl,
   maxFiles: NumberControl,
+  fileNamePattern: StringControl,
+};
+
+export type CaptureResolution = "auto" | "1080p" | "720p" | "480p";
+
+export const CaptureResolutionOptions = [
+  { label: trans("file.captureResolutionAuto"), value: "auto" },
+  { label: trans("file.captureResolution1080p"), value: "1080p" },
+  { label: trans("file.captureResolution720p"), value: "720p" },
+  { label: trans("file.captureResolution480p"), value: "480p" },
+] as const;
+
+export const RESOLUTION_CONSTRAINTS: Record<CaptureResolution, { width?: number; height?: number }> = {
+  auto: {},
+  "1080p": { width: 1920, height: 1080 },
+  "720p": { width: 1280, height: 720 },
+  "480p": { width: 640, height: 480 },
 };
 
 const commonChildren = {
@@ -100,12 +122,14 @@ const commonChildren = {
   showUploadList: BoolControl.DEFAULT_TRUE,
   disabled: BoolCodeControl,
   onEvent: eventHandlerControl(EventOptions),
-  style: styleControl(FileStyle),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(FileStyle , 'style'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   parseFiles: BoolPureControl,
   parsedValue: stateComp<Array<JSONValue | null>>([]),
   prefixIcon: withDefault(IconControl, "/icon:solid/arrow-up-from-bracket"),
   suffixIcon: IconControl,
+  forceCapture: BoolControl,
+  captureResolution: dropdownControl(CaptureResolutionOptions, "auto"),
   ...validationChildren,
 };
 
@@ -120,9 +144,14 @@ const commonValidationFields = (children: RecordConstructorToComp<typeof validat
     placeholder: "10kb",
     tooltip: trans("file.maxSizeTooltip"),
   }),
+  children.fileNamePattern.propertyView({
+    label: trans("file.fileNamePattern"),
+    placeholder: trans("file.fileNamePatternPlaceholder"),
+    tooltip: trans("file.fileNamePatternTooltip"),
+  }),
 ];
 
-const commonProps = (
+export const commonProps = (
   props: RecordConstructorToView<typeof commonChildren> & {
     uploadType: "single" | "multiple" | "directory";
   }
@@ -133,6 +162,49 @@ const commonProps = (
   showUploadList: props.showUploadList,
   customRequest: (options: UploadRequestOption) => options.onSuccess && options.onSuccess({}), // Override the default upload logic and do not upload to the specified server
 });
+
+export interface FileValidationOptions {
+  minSize?: number;
+  maxSize?: number;
+  fileNamePattern?: string;
+}
+
+
+export const validateFile = (
+  file: { name: string; size?: number },
+  options: FileValidationOptions
+): boolean | typeof AntdUpload.LIST_IGNORE => {
+  // Empty file validation
+  if (!file.size || file.size <= 0) {
+    messageInstance.error(`${file.name} ` + trans("file.fileEmptyErrorMsg"));
+    return AntdUpload.LIST_IGNORE;
+  }
+
+  // File size validation
+  if (
+    (!!options.minSize && file.size < options.minSize) ||
+    (!!options.maxSize && file.size > options.maxSize)
+  ) {
+    messageInstance.error(`${file.name} ` + trans("file.fileSizeExceedErrorMsg"));
+    return AntdUpload.LIST_IGNORE;
+  }
+
+  // File name pattern validation
+  if (options.fileNamePattern) {
+    try {
+      const pattern = new RegExp(options.fileNamePattern);
+      if (!pattern.test(file.name)) {
+        messageInstance.error(`${file.name} ` + trans("file.fileNamePatternErrorMsg"));
+        return AntdUpload.LIST_IGNORE;
+      }
+    } catch (e) {
+      messageInstance.error(trans("file.invalidFileNamePatternMsg", { error: String(e) }));
+      return AntdUpload.LIST_IGNORE;
+    }
+  }
+
+  return true;
+};
 
 const getStyle = (style: FileStyleType) => {
   return css`
@@ -148,11 +220,15 @@ const getStyle = (style: FileStyleType) => {
       font-weight:${style.textWeight};
       font-style:${style.fontStyle};
       border-width:${style.borderWidth};
+      border-style:${style.borderStyle};
+      text-decoration:${style.textDecoration};
+      text-transform:${style.textTransform};
+      text-transform:${style.textTransform};
     }
 
     .ant-btn:not(:disabled) {
       border-color: ${style.border};
-      background-color: ${style.background};
+      background: ${style.background};
       color: ${style.text};
 
       &:hover,
@@ -198,6 +274,10 @@ const IconWrapper = styled.span`
   display: flex;
 `;
 
+const CustomModalStyled = styled(CustomModal)``;
+const Error = styled.div``;
+const Wrapper = styled.div``;
+
 export function resolveValue(files: UploadFile[]) {
   return Promise.all(
     files.map(
@@ -237,128 +317,168 @@ export function resolveParsedValue(files: UploadFile[]) {
   );
 }
 
+// ImageCaptureModal moved to its own file for reuse
+
 const Upload = (
   props: RecordConstructorToView<typeof commonChildren> & {
     uploadType: "single" | "multiple" | "directory";
     text: string;
+    dragHintText?: string;
     dispatch: (action: CompAction) => void;
-  }
+    forceCapture: boolean;
+    tabIndex?: number;
+  },
 ) => {
   const { dispatch, files, style } = props;
-  const [fileList, setFileList] = useState<UploadFile[]>(
-    files.map((f) => ({ ...f, status: "done" })) as UploadFile[]
-  );
-  useEffect(() => {
-    if (files.length === 0 && fileList.length !== 0) {
-      setFileList([]);
-    }
-  }, [files]);
+  // Track only files currently being uploaded (not yet in props.files)
+  const [uploadingFiles, setUploadingFiles] = useState<UploadFile[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const isMobile = checkIsMobile(window.innerWidth);
+
+  // Derive fileList from props.files (source of truth) + currently uploading files
+  const fileList = useMemo<UploadFile[]>(() => [
+    ...(files.map((f) => ({ ...f, status: "done" as const })) as UploadFile[]),
+    ...uploadingFiles,
+  ], [files, uploadingFiles]);
+
   // chrome86 bug: button children should not contain only empty span
   const hasChildren = hasIcon(props.prefixIcon) || !!props.text || hasIcon(props.suffixIcon);
+  
+  const handleOnChange = (param: UploadChangeParam) => {
+    const currentlyUploading = param.fileList.filter((f) => f.status === "uploading");
+    // the onChange callback will be executed when the state of the antd upload file changes.
+    // so make a trick logic: the file list with loading will not be processed
+    if (currentlyUploading.length !== 0) {
+      setUploadingFiles(currentlyUploading);
+      return;
+    }
+
+    // Clear uploading state when all uploads complete
+    setUploadingFiles([]);
+
+    let maxFiles = props.maxFiles;
+    if (props.uploadType === "single") {
+      maxFiles = 1;
+    } else if (props.maxFiles <= 0) {
+      maxFiles = 100; // limit 100 currently
+    }
+
+    const uploadedFiles = param.fileList.filter((f) => f.status === "done");
+
+    if (param.file.status === "removed") {
+      const index = props.files.findIndex((f) => f.uid === param.file.uid);
+      dispatch(
+        multiChangeAction({
+          value: changeValueAction(
+            [...props.value.slice(0, index), ...props.value.slice(index + 1)],
+            false
+          ),
+          files: changeValueAction(
+            [...props.files.slice(0, index), ...props.files.slice(index + 1)],
+            false
+          ),
+          parsedValue: changeValueAction(
+            [...props.parsedValue.slice(0, index), ...props.parsedValue.slice(index + 1)],
+            false
+          ),
+        })
+      );
+      props.onEvent("change");
+    } else {
+      const unresolvedValueIdx = Math.min(props.value.length, uploadedFiles.length);
+      const unresolvedParsedValueIdx = Math.min(props.parsedValue.length, uploadedFiles.length);
+
+      // After all files are processed, perform base64 encoding on the latest file list uniformly
+      Promise.all([
+        resolveValue(uploadedFiles.slice(unresolvedValueIdx)),
+        resolveParsedValue(uploadedFiles.slice(unresolvedParsedValueIdx)),
+      ]).then(([value, parsedValue]) => {
+        dispatch(
+          multiChangeAction({
+            value: changeValueAction([...props.value, ...value].slice(-maxFiles), false),
+            files: changeValueAction(
+              uploadedFiles
+                .map((file) => _.pick(file, ["uid", "name", "type", "size", "lastModified"]))
+                .slice(-maxFiles),
+              false
+            ),
+            ...(props.parseFiles
+              ? {
+                  parsedValue: changeValueAction(
+                    [...props.parsedValue, ...parsedValue].slice(-maxFiles),
+                    false
+                  ),
+                }
+              : {}),
+          })
+        );
+        props.onEvent("change");
+        props.onEvent("parse");
+      });
+    }
+  };
+
   return (
-    <StyledUpload
-    $animationStyle={props.animationStyle}
-      {...commonProps(props)}
-      $style={style}
-      fileList={fileList}
-      beforeUpload={(file) => {
-        if (!file.size || file.size <= 0) {
-          messageInstance.error(`${file.name} ` + trans("file.fileEmptyErrorMsg"));
-          return AntdUpload.LIST_IGNORE;
-        }
+    <>
+      <StyledUpload
+        capture={props.forceCapture}
+        $animationStyle={props.animationStyle}
+        {...commonProps(props)}
+        $style={style}
+        fileList={fileList}
+        beforeUpload={(file) => validateFile(file, {
+          minSize: props.minSize,
+          maxSize: props.maxSize,
+          fileNamePattern: props.fileNamePattern,
+        })}
+        onChange={handleOnChange}
 
-        if (
-          (!!props.minSize && file.size < props.minSize) ||
-          (!!props.maxSize && file.size > props.maxSize)
-        ) {
-          messageInstance.error(`${file.name} ` + trans("file.fileSizeExceedErrorMsg"));
-          return AntdUpload.LIST_IGNORE;
-        }
-        return true;
-      }}
-      onChange={(param: UploadChangeParam) => {
-        const uploadingFiles = param.fileList.filter((f) => f.status === "uploading");
-        // the onChange callback will be executed when the state of the antd upload file changes.
-        // so make a trick logic: the file list with loading will not be processed
-        if (uploadingFiles.length !== 0) {
-          setFileList(param.fileList);
-          return;
-        }
+      >
+        <Button 
+          disabled={props.disabled} 
+          tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
+          onClick={(e) => {
+            if (props.forceCapture && !isMobile) {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowModal(true);
+            }
+          }}
+        >
+          {hasChildren && (
+            <span>
+              {hasIcon(props.prefixIcon) && <IconWrapper>{props.prefixIcon}</IconWrapper>}
+              {!!props.text && props.text}
+              {hasIcon(props.suffixIcon) && <IconWrapper>{props.suffixIcon}</IconWrapper>}
+            </span>
+          )}
+        </Button>
+      </StyledUpload>
 
-        let maxFiles = props.maxFiles;
-        if (props.uploadType === "single") {
-          maxFiles = 1;
-        } else if (props.maxFiles <= 0) {
-          maxFiles = 100; // limit 100 currently
-        }
-
-        const uploadedFiles = param.fileList.filter((f) => f.status === "done");
-
-        if (param.file.status === "removed") {
-          const index = props.files.findIndex((f) => f.uid === param.file.uid);
-          dispatch(
-            multiChangeAction({
-              value: changeValueAction(
-                [...props.value.slice(0, index), ...props.value.slice(index + 1)],
-                false
-              ),
-              files: changeValueAction(
-                [...props.files.slice(0, index), ...props.files.slice(index + 1)],
-                false
-              ),
-              parsedValue: changeValueAction(
-                [...props.parsedValue.slice(0, index), ...props.parsedValue.slice(index + 1)],
-                false
-              ),
-            })
-          );
-          props.onEvent("change");
-        } else {
-          const unresolvedValueIdx = Math.min(props.value.length, uploadedFiles.length);
-          const unresolvedParsedValueIdx = Math.min(props.parsedValue.length, uploadedFiles.length);
-
-          // After all files are processed, perform base64 encoding on the latest file list uniformly
-          Promise.all([
-            resolveValue(uploadedFiles.slice(unresolvedValueIdx)),
-            resolveParsedValue(uploadedFiles.slice(unresolvedParsedValueIdx)),
-          ]).then(([value, parsedValue]) => {
-            dispatch(
-              multiChangeAction({
-                value: changeValueAction([...props.value, ...value].slice(-maxFiles), false),
-                files: changeValueAction(
-                  uploadedFiles
-                    .map((file) => _.pick(file, ["uid", "name", "type", "size", "lastModified"]))
-                    .slice(-maxFiles),
-                  false
-                ),
-                ...(props.parseFiles
-                  ? {
-                      parsedValue: changeValueAction(
-                        [...props.parsedValue, ...parsedValue].slice(-maxFiles),
-                        false
-                      ),
-                    }
-                  : {}),
-              })
-            );
-            props.onEvent("change");
-            props.onEvent("parse");
-          });
-        }
-
-        setFileList(uploadedFiles.slice(-maxFiles));
-      }}
-    >
-      <Button disabled={props.disabled}>
-        {hasChildren && (
-          <span>
-            {hasIcon(props.prefixIcon) && <IconWrapper>{props.prefixIcon}</IconWrapper>}
-            {!!props.text && props.text}
-            {hasIcon(props.suffixIcon) && <IconWrapper>{props.suffixIcon}</IconWrapper>}
-          </span>
-        )}
-      </Button>
-    </StyledUpload>
+      <ImageCaptureModal
+        showModal={showModal}
+        captureResolution={props.captureResolution as CaptureResolution}
+        onModalClose={() => setShowModal(false)}
+        onImageCapture={async (image) => {
+          setShowModal(false);
+          const res: Response = await fetch(image);
+          const blob: Blob = await res.blob();
+          const file = new File([blob], "image.jpg", {type: 'image/jpeg'});
+          const fileUid = uuidv4();
+          const uploadFile = {
+            uid: fileUid,
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            lastModified: file.lastModified,
+            lastModifiedDate: (file as any).lastModifiedDate,
+            status: 'done' as UploadFileStatus,
+            originFileObj: file as RcFile,
+          };
+          handleOnChange({file: uploadFile, fileList: [...fileList, uploadFile]})
+        }}
+      />
+    </>
   );
 };
 
@@ -368,28 +488,55 @@ const UploadTypeOptions = [
   { label: trans("file.directory"), value: "directory" },
 ] as const;
 
+const UploadModeOptions = [
+  { label: trans("file.button"), value: "button" },
+  { label: trans("file.dragArea"), value: "dragArea" },
+] as const;
+
 const childrenMap = {
   text: withDefault(StringControl, trans("file.upload")),
+  dragHintText: withDefault(StringControl, trans("file.dragAreaHint")),
   uploadType: dropdownControl(UploadTypeOptions, "single"),
+  uploadMode: dropdownControl(UploadModeOptions, "button"),
+  autoHeight: withDefault(AutoHeightControl, "auto"),
+  tabIndex: NumberControl,
   ...commonChildren,
   ...formDataChildren,
 };
 
-let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => (
-  <Upload {...props} dispatch={dispatch} />
-))
-  .setPropertyViewFn((children) => (
+let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => {
+  const uploadMode = props.uploadMode;
+  const autoHeight = props.autoHeight;
+  
+  if (uploadMode === "dragArea") {
+    return <DraggerUpload {...props} dispatch={dispatch} autoHeight={autoHeight} />;
+  }
+  
+  return <Upload {...props} dispatch={dispatch} />;
+})
+  .setPropertyViewFn((children) => {
+    const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+    return (
     <>
       <Section name={sectionNames.basic}>
         {children.text.propertyView({
           label: trans("text"),
         })}
+        {children.uploadMode.propertyView({ 
+          label: trans("file.uploadMode"),
+          radioButton: true,
+        })}
+        {children.uploadMode.getView() === "dragArea" &&
+          children.dragHintText.propertyView({
+            label: trans("file.dragHintText"),
+          })}
         {children.uploadType.propertyView({ label: trans("file.uploadType") })}
+        {children.autoHeight.getPropertyView()}
       </Section>
 
       <FormDataPropertyView {...children} />
 
-      {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+      {(editorModeStatus === "logic" || editorModeStatus === "both") && (
         <><Section name={sectionNames.validation}>
           {children.uploadType.getView() !== "single" && children.maxFiles.propertyView({ label: trans("file.maxFiles") })}
           {commonValidationFields(children)}
@@ -398,6 +545,8 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => (
             {children.onEvent.getPropertyView()}
             {disabledPropertyView(children)}
             {hiddenPropertyView(children)}
+            {showDataLoadingIndicatorsPropertyView(children)}
+            {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
           </Section>
           <Section name={sectionNames.advanced}>
               {children.fileType.propertyView({
@@ -414,6 +563,14 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => (
             })}
             {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
             {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+            {children.forceCapture.propertyView({
+              label: trans("file.forceCapture"),
+              tooltip: trans("file.forceCaptureTooltip")
+            })}
+            {children.forceCapture.getView() && children.captureResolution.propertyView({
+              label: trans("file.captureResolution"),
+              tooltip: trans("file.captureResolutionTooltip"),
+            })}
             {children.showUploadList.propertyView({ label: trans("file.showUploadList") })}
             {children.parseFiles.propertyView({
               label: trans("file.parseFiles"),
@@ -424,17 +581,26 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => (
         </>
       )}
 
-      {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+      {(editorModeStatus === "layout" || editorModeStatus === "both") && (
         <>
           <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
           <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
         </>
       )}
     </>
-  ))
+  );
+  })
   .build();
 
-FileTmpComp = withMethodExposing(FileTmpComp, [
+  class FileImplComp extends FileTmpComp {
+    override autoHeight(): boolean {
+      // Both button and dragArea modes should respect the autoHeight setting
+      const h = this.children.autoHeight.getView();
+      return h;
+    }
+  }
+
+const FileWithMethods = withMethodExposing(FileImplComp, [
   {
     method: {
       name: "clearValue",
@@ -450,9 +616,43 @@ FileTmpComp = withMethodExposing(FileTmpComp, [
         })
       ),
   },
+  {
+    method: {
+      name: "clearValueAt",
+      description: trans("file.clearValueAtDesc"),
+      params: [{ name: "index", type: "number" }],
+    },
+    execute: (comp, params) => {
+      const index = params[0] as number;
+      const value = comp.children.value.getView();
+      const files = comp.children.files.getView();
+      const parsedValue = comp.children.parsedValue.getView();
+
+      if (index < 0 || index >= files.length) {
+        return;
+      }
+
+      comp.dispatch(
+        multiChangeAction({
+          value: changeValueAction(
+            [...value.slice(0, index), ...value.slice(index + 1)],
+            false
+          ),
+          files: changeValueAction(
+            [...files.slice(0, index), ...files.slice(index + 1)],
+            false
+          ),
+          parsedValue: changeValueAction(
+            [...parsedValue.slice(0, index), ...parsedValue.slice(index + 1)],
+            false
+          ),
+        })
+      );
+    },
+  },
 ]);
 
-export const FileComp = withExposingConfigs(FileTmpComp, [
+export const FileComp = withExposingConfigs(FileWithMethods, [
   new NameConfig("value", trans("file.filesValueDesc")),
   new NameConfig(
     "files",

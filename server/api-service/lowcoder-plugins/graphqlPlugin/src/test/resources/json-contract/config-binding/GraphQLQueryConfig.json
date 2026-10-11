@@ -1,0 +1,97 @@
+{
+  "from" : {
+    "full" : {
+      "class" : "org.lowcoder.plugin.graphql.model.GraphQLQueryConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.graphql.model.GraphQLQueryConfig",
+        "httpMethod" : "POST",
+        "body" : "query { user(id: {{id}}) { name } }",
+        "path" : "/graphql",
+        "params" : [ {
+          "@class" : "org.lowcoder.sdk.models.Property",
+          "key" : "page",
+          "value" : "1",
+          "type" : null
+        }, {
+          "@class" : "org.lowcoder.sdk.models.Property",
+          "key" : "q",
+          "value" : "{{input.text}}",
+          "type" : "text"
+        } ],
+        "headers" : [ {
+          "@class" : "org.lowcoder.sdk.models.Property",
+          "key" : "Authorization",
+          "value" : "Bearer {{token}}",
+          "type" : null
+        } ],
+        "bodyFormData" : [ ],
+        "variables" : [ {
+          "@class" : "org.lowcoder.sdk.models.Property",
+          "key" : "id",
+          "value" : "{{id}}",
+          "type" : null
+        } ],
+        "disableEncodingParams" : false
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.graphql.model.GraphQLQueryConfig",
+        "/httpMethod" : "org.springframework.http.HttpMethod",
+        "/body" : "java.lang.String",
+        "/path" : "java.lang.String",
+        "/params" : "java.util.ArrayList",
+        "/params/0" : "org.lowcoder.sdk.models.Property",
+        "/params/0/key" : "java.lang.String",
+        "/params/0/value" : "java.lang.String",
+        "/params/0/type" : "null",
+        "/params/1" : "org.lowcoder.sdk.models.Property",
+        "/params/1/key" : "java.lang.String",
+        "/params/1/value" : "java.lang.String",
+        "/params/1/type" : "java.lang.String",
+        "/headers" : "java.util.ArrayList",
+        "/headers/0" : "org.lowcoder.sdk.models.Property",
+        "/headers/0/key" : "java.lang.String",
+        "/headers/0/value" : "java.lang.String",
+        "/headers/0/type" : "null",
+        "/bodyFormData" : "java.util.ArrayList",
+        "/variables" : "java.util.ArrayList",
+        "/variables/0" : "org.lowcoder.sdk.models.Property",
+        "/variables/0/key" : "java.lang.String",
+        "/variables/0/value" : "java.lang.String",
+        "/variables/0/type" : "null",
+        "/disableEncodingParams" : "java.lang.Boolean"
+      },
+      "noView" : {"body":"query { user(id: {{id}}) { name } }","path":"/graphql","params":[{"key":"page","value":"1","type":null,"multipartFileType":false},{"key":"q","value":"{{input.text}}","type":"text","multipartFileType":false}],"headers":[{"key":"Authorization","value":"Bearer {{token}}","type":null,"multipartFileType":false}],"bodyFormData":[],"variables":[{"key":"id","value":"{{id}}","type":null,"multipartFileType":false}],"httpMethod":{},"disableEncodingParams":false},
+      "Public" : {"body":"query { user(id: {{id}}) { name } }","path":"/graphql","params":[{"key":"page","value":"1","type":null,"multipartFileType":false},{"key":"q","value":"{{input.text}}","type":"text","multipartFileType":false}],"headers":[{"key":"Authorization","value":"Bearer {{token}}","type":null,"multipartFileType":false}],"bodyFormData":[],"variables":[{"key":"id","value":"{{id}}","type":null,"multipartFileType":false}],"httpMethod":{},"disableEncodingParams":false},
+      "Internal" : {"body":"query { user(id: {{id}}) { name } }","path":"/graphql","params":[{"key":"page","value":"1","type":null,"multipartFileType":false},{"key":"q","value":"{{input.text}}","type":"text","multipartFileType":false}],"headers":[{"key":"Authorization","value":"Bearer {{token}}","type":null,"multipartFileType":false}],"bodyFormData":[],"variables":[{"key":"id","value":"{{id}}","type":null,"multipartFileType":false}],"httpMethod":{},"disableEncodingParams":false}
+    },
+    "empty" : {
+      "class" : "org.lowcoder.plugin.graphql.model.GraphQLQueryConfig",
+      "fields" : {
+        "@class" : "org.lowcoder.plugin.graphql.model.GraphQLQueryConfig",
+        "httpMethod" : "POST",
+        "body" : null,
+        "path" : null,
+        "params" : null,
+        "headers" : null,
+        "bodyFormData" : null,
+        "variables" : null,
+        "disableEncodingParams" : false
+      },
+      "classes" : {
+        "" : "org.lowcoder.plugin.graphql.model.GraphQLQueryConfig",
+        "/httpMethod" : "org.springframework.http.HttpMethod",
+        "/body" : "null",
+        "/path" : "null",
+        "/params" : "null",
+        "/headers" : "null",
+        "/bodyFormData" : "null",
+        "/variables" : "null",
+        "/disableEncodingParams" : "java.lang.Boolean"
+      },
+      "noView" : {"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"variables":null,"httpMethod":{},"disableEncodingParams":false},
+      "Public" : {"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"variables":null,"httpMethod":{},"disableEncodingParams":false},
+      "Internal" : {"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"variables":null,"httpMethod":{},"disableEncodingParams":false}
+    },
+    "unknownProperty" : "ignored: binds as form full"
+  }
+}

@@ -11,10 +11,10 @@ export const setShowAppSnapshot = (show: boolean) => {
   };
 };
 
-export const setSelectSnapshotId = (snapshotId: string) => {
+export const setSelectSnapshotId = (snapshotId: string, archived?: boolean) => {
   return {
     type: ReduxActionTypes.SET_SELECT_SNAPSHOT_ID,
-    payload: { snapshotId: snapshotId },
+    payload: { snapshotId: snapshotId, archived: archived },
   };
 };
 
@@ -33,6 +33,7 @@ export const createSnapshotAction = (payload: CreateSnapshotPayload) => {
 
 export type FetchSnapshotsPayload = {
   applicationId: string;
+  archived: boolean;
   onSuccess?: (snapshots: AppSnapshotList) => void;
 } & PaginationParam;
 
@@ -46,17 +47,24 @@ export const fetchSnapshotsAction = (payload: FetchSnapshotsPayload) => {
 export type FetchSnapshotDslPayload = {
   applicationId: string;
   snapshotId: string;
+  archived?: boolean;
   onSuccess: (res: AppSnapshotDslInfo) => void;
 };
 
 export const fetchSnapshotDslAction = (
   appId: string,
   snapshotId: string,
+  archived: boolean,
   onSuccess: (res: AppSnapshotDslInfo) => void
 ): ReduxAction<FetchSnapshotDslPayload> => {
   return {
     type: ReduxActionTypes.FETCH_APP_SNAPSHOT_DSL,
-    payload: { applicationId: appId, snapshotId: snapshotId, onSuccess: onSuccess },
+    payload: {
+      applicationId: appId,
+      snapshotId: snapshotId,
+      archived: archived,
+      onSuccess: onSuccess,
+    },
   };
 };
 
@@ -64,12 +72,14 @@ export type RecoverSnapshotPayload = {
   applicationId: string;
   snapshotId: string;
   snapshotCreateTime: number;
+  isArchivedSnapshot?: boolean;
 };
 
 export const recoverSnapshotAction = (
   appId: string,
   snapshotId: string,
-  snapshotCreateTime: number
+  snapshotCreateTime: number,
+  isArchivedSnapshot?: boolean,
 ): ReduxAction<RecoverSnapshotPayload> => {
   return {
     type: ReduxActionTypes.RECOVER_APP_SNAPSHOT,
@@ -77,6 +87,7 @@ export const recoverSnapshotAction = (
       applicationId: appId,
       snapshotId: snapshotId,
       snapshotCreateTime: snapshotCreateTime,
+      isArchivedSnapshot, 
     },
   };
 };

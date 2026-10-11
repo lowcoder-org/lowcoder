@@ -1,0 +1,16 @@
+{
+  "productId": "prod_lowcoder_enterprise_instances",
+  "prices": {
+    "month": "price_1UP2eQDDlQgecLSfIMWhfOJr",
+    "year": "price_1UP2e2DDlQgecLSfqdpKTD90"
+  },
+  "livemode": true,
+  "integrationIdentifier": "lowcoder_enterprise_kjqmxrav",
+  "licenseServerUrl": "http://lowcoder-licensing-server.ns-6clrm8dzlwsk:8080",
+  "portalConfigurationId": "bpc_1Pf5cjDDlQgecLSfDpGA17up",
+  "credentialIds": {
+    "stripe": "qWh6hSp12boIuMmx",
+    "postgres": "ssSYBhUdXUxCEl9q",
+    "generator": "1j34Z4zEZtoD9rfx"
+  }
+}

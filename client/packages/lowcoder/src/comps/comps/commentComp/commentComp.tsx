@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useContext } from "react";
+import React, { useEffect, useState, useRef } from "react";
 // Render the component to the editor
 import {
   changeChildAction,
@@ -12,7 +12,7 @@ import { UICompBuilder, withDefault } from "../../generators";
 // Right-side attribute subframe
 import { Section, sectionNames } from "lowcoder-design";
 // Switch indicating whether the component is hidden or not
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 // Right property switch
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl"; //样式输入框
@@ -25,9 +25,10 @@ import {
   eventHandlerControl,
   deleteEvent,
   mentionEvent,
-} from "comps/controls/eventHandlerControl";
+  doubleClickEvent,
+} from "comps/controls/eventHandlerControl"; 
+import { useEditorStore } from "comps/editorStore";
 
-import { EditorContext } from "comps/editorState";
 
 // Introducing styles
 import {
@@ -66,6 +67,8 @@ import dayjs from "dayjs";
 // import "dayjs/locale/zh-cn";
 import { getInitialsAndColorCode } from "util/stringUtils";
 import { default as CloseOutlined } from "@ant-design/icons/CloseOutlined";
+import { useCompClickEventHandler } from "@lowcoder-ee/comps/utils/useCompClickEventHandler";
+
 dayjs.extend(relativeTime);
 // dayjs.locale("zh-cn");
 
@@ -79,6 +82,7 @@ dayjs.extend(relativeTime);
 
 const EventOptions = [
   clickEvent,
+  doubleClickEvent,
   submitEvent,
   deleteEvent,
   mentionEvent,
@@ -95,13 +99,10 @@ const childrenMap = {
     name: "{{currentUser.name}}",
     email: "{{currentUser.email}}",
   }),
-  mentionList: jsonControl(checkMentionListData, {
-    "@": ["Li Lei", "Han Meimei"],
-    "#": ["123", "456", "789"],
-  }),
+  mentionList: jsonControl(checkMentionListData, {"@":["John Doe","Jane Doe","Michael Smith","Emily Davis","Robert Johnson","Patricia Brown","William Jones","Jennifer Miller","David Wilson","Linda Moore"],"#":["#lowcode","#automation","#appbuilder","#nocode","#workflow","#draganddrop","#rapiddevelopment","#digitaltransformation","#integration","#api"]}),
   onEvent: eventHandlerControl(EventOptions),
-  style: styleControl(CommentStyle),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(CommentStyle , 'style'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   commentList: jsonValueExposingStateControl("commentList", []),
   deletedItem: jsonValueExposingStateControl("deletedItem", []),
   submitedItem: jsonValueExposingStateControl("submitedItem", []),
@@ -135,6 +136,8 @@ const CommentCompBase = (
   const [commentListData, setCommentListData] = useState<commentDataTYPE[]>([]);
   const [prefix, setPrefix] = useState<PrefixType>("@");
   const [context, setContext] = useState<string>("");
+  const handleClickEvent = useCompClickEventHandler({onEvent: props.onEvent})
+  
   // Integrate the comment list with the names in the original mention list
   const mergeAllMentionList = (mentionList: any) => {
     setMentionList(
@@ -176,7 +179,7 @@ const CommentCompBase = (
   const generateCommentAvatar = (item: commentDataTYPE) => {
     return (
       <Avatar
-        onClick={() => props.onEvent("click")}
+        onClick={handleClickEvent}
         // If there is an avatar, no background colour is set, and if displayName is not null, displayName is called using getInitialsAndColorCode
         style={{
           backgroundColor: item?.user?.avatar
@@ -292,7 +295,9 @@ const CommentCompBase = (
                 <List.Item.Meta
                   avatar={generateCommentAvatar(item)}
                   title={
-                    <div onClick={() => props.onEvent("click")}>
+                    <div 
+                      onClick={handleClickEvent}
+                    >
                       <a>{item?.user?.name}</a>
                       <Tooltip
                         title={
@@ -370,10 +375,13 @@ const CommentCompBase = (
 };
 
 let CommentBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => (
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    return (
     <CommentCompBase {...props} dispatch={dispatch} />
-  ))
-    .setPropertyViewFn((children) => (
+  )})
+    .setPropertyViewFn((children) => {
+      const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+      return (
       <>
         <Section name={sectionNames.basic}>
           {children.title.propertyView({
@@ -381,7 +389,7 @@ let CommentBasicComp = (function () {
           })}
         </Section>
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "logic" || editorModeStatus === "both") && (
           <>
           <Section name={sectionNames.data}>
             {children.value.propertyView({
@@ -407,11 +415,12 @@ let CommentBasicComp = (function () {
               {children.deleteAble.propertyView({
                 label: trans("comment.deleteAble"),
               })}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           </>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(editorModeStatus === "layout" || editorModeStatus === "both") && (
           <><Section name={sectionNames.layout}>
             {children.sendCommentAble.getView() &&
               children.buttonText.propertyView({
@@ -430,7 +439,8 @@ let CommentBasicComp = (function () {
         )}
 
       </>
-    ))
+    );
+    })
     .build();
 })();
 

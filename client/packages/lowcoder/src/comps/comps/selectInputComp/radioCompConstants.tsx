@@ -1,5 +1,5 @@
 import { RecordConstructorToComp } from "lowcoder-core";
-import { BoolCodeControl } from "../../controls/codeControl";
+import { BoolCodeControl, NumberControl } from "../../controls/codeControl";
 import { LabelControl } from "../../controls/labelControl";
 import {
   arrayStringExposingStateControl,
@@ -16,13 +16,12 @@ import { formDataChildren, FormDataPropertyView } from "../formComp/formDataCons
 import { styleControl } from "comps/controls/styleControl";
 import {  AnimationStyle, InputFieldStyle, LabelStyle, RadioStyle } from "comps/controls/styleControlConstants";
 import { dropdownControl } from "../../controls/dropdownControl";
-import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, disabledPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
-import { withDefault } from "@lowcoder-ee/index.sdk";
+import { useEditorStore } from "comps/editorStore";
+import { withDefault } from "@lowcoder-ee/comps/generators";
 
 export const RadioLayoutOptions = [
   { label: trans("radio.horizontal"), value: "horizontal" },
@@ -37,12 +36,13 @@ export const RadioChildrenMap = {
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
   options: SelectInputOptionControl,
-  style: styleControl(InputFieldStyle),
-  labelStyle:styleControl(LabelStyle),
+  style: styleControl(InputFieldStyle , 'style'),
+  labelStyle:styleControl(LabelStyle , 'labelStyle'),
   layout: dropdownControl(RadioLayoutOptions, "horizontal"),
   viewRef: RefControl<HTMLDivElement>,
-  inputFieldStyle:withDefault(styleControl(RadioStyle),{borderWidth: '1px'}),
-  animationStyle: styleControl(AnimationStyle),
+  inputFieldStyle:styleControl(RadioStyle ,'inputFieldStyle' ),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
+  tabIndex: NumberControl,
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
@@ -58,24 +58,29 @@ export const RadioPropertyView = (
         | ReturnType<typeof arrayStringExposingStateControl>;
     }
   >
-) => (
+) => {
+  const editorModeStatus = useEditorStore((state) => state.editorModeStatus);
+  return (
   <>
     <Section name={sectionNames.basic}>
       {children.options.propertyView({})}
       {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
     </Section>
 
-    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+    {["logic", "both"].includes(editorModeStatus) && (
       <><SelectInputValidationSection {...children} />
       <FormDataPropertyView {...children} />
       <Section name={sectionNames.interaction}>
         {children.onEvent.getPropertyView()}
         {disabledPropertyView(children)}
         {hiddenPropertyView(children)}
-      </Section></>
+        {showDataLoadingIndicatorsPropertyView(children as any)}
+        {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
+      </Section>
+      </>
     )}
 
-    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+    {["layout", "both"].includes(editorModeStatus) && (
       <Section name={sectionNames.layout}>
         {children.layout.propertyView({
           label: trans("radio.options"),
@@ -90,11 +95,11 @@ export const RadioPropertyView = (
       </Section>
     )}
 
-    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && ( 
+    {["layout", "both"].includes(editorModeStatus) && (
       children.label.getPropertyView() 
     )}
 
-    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+    {["layout", "both"].includes(editorModeStatus) && (
       <>
       <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
       <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
@@ -104,3 +109,4 @@ export const RadioPropertyView = (
     )}
   </>
 );
+};

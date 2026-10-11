@@ -2,8 +2,6 @@ package org.lowcoder.domain.bundle.service;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.lowcoder.domain.application.model.Application;
-import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.bundle.model.Bundle;
 import org.lowcoder.domain.bundle.model.BundleRequestType;
 import org.lowcoder.domain.bundle.repository.BundleRepository;
@@ -22,6 +20,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -50,8 +49,31 @@ public class BundleServiceImpl implements BundleService {
             return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ID));
         }
 
+        if(FieldName.isGID(id))
+            return Mono.from(repository.findByGid(id))
+                    .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "BUNDLE_NOT_FOUND", id)));
+
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "BUNDLE_NOT_FOUND", id)));
+    }
+
+    @Override
+    public Flux<Bundle> findByIdIn(Collection<String> ids) {
+        Optional<String> first = ids.stream().findFirst();
+        if(first.isPresent() && FieldName.isGID(first.get()))
+            return repository.findAllByGid(ids);
+
+        return repository.findAllById(ids);
+    }
+
+    @Override
+    public Mono<Bundle> findByIdWithoutDsl(String id) {
+        if (id == null) {
+            return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ID));
+        }
+
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_BUNDLE", id)));
     }
 
     @Override
@@ -66,26 +88,23 @@ public class BundleServiceImpl implements BundleService {
     }
 
     @Override
-    public Mono<Void> deleteAllById(Collection<String> ids) {
-        return repository.deleteAllById(ids);
-    }
-
-    @Override
-    public Mono<Boolean> exist(String id) {
-        return findById(id)
-                .hasElement()
-                .onErrorResume(throwable -> {
-                    if (throwable instanceof BizException bizException && bizException.getError() == NO_RESOURCE_FOUND) {
-                        return Mono.just(false);
-                    }
-                    return Mono.error(throwable);
+    public Mono<Bundle> publish(String bundleId) {
+        return findById(bundleId)
+                .flatMap(newBundle -> { // copy editingApplicationDSL to publishedApplicationDSL
+                    Map<String, Object> editingBundleDSL = newBundle.getEditingBundleDSL();
+                    return updatePublishedBundleDSL(bundleId, editingBundleDSL)
+                            .thenReturn(newBundle);
                 });
     }
 
+    @Override
+    public Mono<Boolean> updatePublishedBundleDSL(String bundleId, Map<String, Object> bundleDSL) {
+        Bundle bundle = Bundle.builder().publishedBundleDSL(bundleDSL).build();
+        return mongoUpsertHelper.updateById(bundle, bundleId);
+    }
 
     @Override
     @NonEmptyMono
-    @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
     public Mono<Set<String>> getFilteredPublicBundleIds(BundleRequestType requestType, Collection<String> bundleIds, String userId, Boolean isPrivateMarketplace) {
         boolean isAnonymous = StringUtils.isBlank(userId);
         switch(requestType)
@@ -116,6 +135,11 @@ public class BundleServiceImpl implements BundleService {
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
     public Mono<Set<String>> getPublicBundleIds(Collection<String> bundleIds) {
 
+        if(!bundleIds.isEmpty() && FieldName.isGID(bundleIds.stream().findFirst().get()))
+            return repository.findByPublicToAllIsTrueAndGidIn(bundleIds)
+                    .map(Bundle::getGid)
+                    .collect(Collectors.toSet());
+
         return repository.findByPublicToAllIsTrueAndIdIn(bundleIds)
                 .map(HasIdAndAuditing::getId)
                 .collect(Collectors.toSet());
@@ -131,6 +155,10 @@ public class BundleServiceImpl implements BundleService {
     public Mono<Set<String>> getPrivateBundleIds(Collection<String> bundleIds, String userId) {
 
         // TODO: in 2.4.0 we need to check whether the app was published or not
+        if(!bundleIds.isEmpty() && FieldName.isGID(bundleIds.stream().findFirst().get()))
+            return repository.findByCreatedByAndGidIn(userId, bundleIds)
+                    .map(Bundle::getGid)
+                    .collect(Collectors.toSet());
         return repository.findByCreatedByAndIdIn(userId, bundleIds)
                 .map(HasIdAndAuditing::getId)
                 .collect(Collectors.toSet());
@@ -149,8 +177,13 @@ public class BundleServiceImpl implements BundleService {
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
     public Mono<Set<String>> getPublicMarketplaceBundleIds(Collection<String> bundleIds, boolean isAnonymous, boolean isPrivateMarketplace) {
 
-        if ((isAnonymous && !isPrivateMarketplace) || !isAnonymous)
+        if (!isAnonymous || !isPrivateMarketplace)
         {
+            if(!bundleIds.isEmpty() && FieldName.isGID(bundleIds.stream().findFirst().get()))
+                return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsTrueAndGidIn(bundleIds)
+                        .map(Bundle::getGid)
+                        .collect(Collectors.toSet());
+
             return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsTrueAndIdIn(bundleIds)
                     .map(HasIdAndAuditing::getId)
                     .collect(Collectors.toSet());
@@ -165,6 +198,11 @@ public class BundleServiceImpl implements BundleService {
     @NonEmptyMono
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
     public Mono<Set<String>> getPublicAgencyBundleIds(Collection<String> bundleIds) {
+
+        if(!bundleIds.isEmpty() && FieldName.isGID(bundleIds.stream().findFirst().get()))
+            return repository.findByPublicToAllIsTrueAndAgencyProfileIsTrueAndGidIn(bundleIds)
+                    .map(Bundle::getGid)
+                    .collect(Collectors.toSet());
 
         return repository.findByPublicToAllIsTrueAndAgencyProfileIsTrueAndIdIn(bundleIds)
                 .map(HasIdAndAuditing::getId)

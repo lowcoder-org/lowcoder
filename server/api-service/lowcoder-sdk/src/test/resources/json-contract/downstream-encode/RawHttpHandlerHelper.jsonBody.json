@@ -1,0 +1,17 @@
+{
+  "representativeInput" : {
+    "contentType" : [ "application/json" ],
+    "body" : "{\n  \"zeta\": \"first key, so that sorted output would differ from input order\",\n  \"int\": 1,\n  \"negativeInt\": -40003,\n  \"intMax\": 2147483647,\n  \"intMaxPlusOne\": 2147483648,\n  \"intMinMinusOne\": -2147483649,\n  \"longMax\": 9223372036854775807,\n  \"longMaxPlusOne\": 9223372036854775808,\n  \"longMinMinusOne\": -9223372036854775809,\n  \"decimal\": 1.5,\n  \"trailingZeroDecimal\": 1.50,\n  \"zeroPointZero\": 0.0,\n  \"negativeZero\": -0,\n  \"exponent\": 1e2,\n  \"exponentUpperCase\": 1E+2,\n  \"negativeExponent\": 2.5e-3,\n  \"longDecimal\": 0.1000000000000000055511151231257827,\n  \"true\": true,\n  \"false\": false,\n  \"null\": null,\n  \"emptyObject\": {},\n  \"emptyArray\": [],\n  \"nested\": {\n    \"array\": [1, \"two\", [3, {\"four\": 4.0}], null, true, 3000000001],\n    \"object\": {\"z\": 1, \"a\": {\"deeper\": [[], {}]}}\n  },\n  \"unicode\": \"žluťoučký kůň \uD83D\uDC0E 中文\",\n  \"escapes\": \"\\u00e9 \\u0000 \\n \\t \\\" \\\\ \\/ \\ud83d\\ude00\",\n  \"k\\u0065y with escaped name\": \"escaped key\",\n  \"alpha\": \"last key\"\n}"
+  },
+  "literals" : {
+    "contentType" : [ "application/json" ],
+    "body" : {"c":[1,1.5,1000.0,100.0,2147483648,3000000001,0.1],"t":"it's \"q\" \\ žluť"}
+  },
+  "unrenderedParameter" : {
+    "error" : "org.lowcoder.sdk.exception.PluginException: JSON_PARSE_ERROR JSON_PARSE_ERROR"
+  },
+  "notJson" : {
+    "contentType" : [ "application/json" ],
+    "body" : "plain text"
+  }
+}

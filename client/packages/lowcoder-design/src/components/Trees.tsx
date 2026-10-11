@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import { ReactComponent as Folded } from "icons/icon-folded.svg";
+import { ReactComponent as Folded } from "icons/v1/icon-folded.svg";
 import { DataNode, TreeProps } from "antd/es/tree";
 import DirectoryTree from "antd/es/tree/DirectoryTree";
 
@@ -52,7 +52,7 @@ const BranchStyle = css`
     background-color: #d7d9e0;
   }
 `;
-export const BranchDiv = styled.div<{ $type?: "inline" | "switch" }>`
+export const BranchDiv = styled.div<{ $type?: "inline" | "switch" | "center" }>`
   position: relative;
   ${BranchStyle}
   ${(props) => {
@@ -79,6 +79,16 @@ export const BranchDiv = styled.div<{ $type?: "inline" | "switch" }>`
           &::after {
             top: auto;
             bottom: 11px;
+          }
+        `;
+      case "center":
+        return css`
+          &::before {
+            top: calc(50% - 2px);
+          }
+
+          &::after {
+            top: 50%;
           }
         `;
       default:

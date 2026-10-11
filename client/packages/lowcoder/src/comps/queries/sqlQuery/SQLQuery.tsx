@@ -22,6 +22,8 @@ import { trans } from "i18n";
 import { ColumnNameDropdown } from "./columnNameDropdown";
 import React, { useContext } from "react";
 import { QueryContext } from "util/context/QueryContext";
+import SupaDemoDisplay from "comps/utils/supademoDisplay";
+import { CompNameContext } from "comps/editorState";
 
 const AllowMultiModifyComp = withPropertyViewFn(BoolPureControl, (comp) =>
   comp.propertyView({
@@ -140,6 +142,7 @@ const CommandMap = {
           label={trans("sqlQuery.primaryKeyColumn")}
         />
         {children.records.getPropertyView()}
+
       </>
     ))
     .build(),
@@ -170,16 +173,26 @@ const regexp = new RegExp("(\\s|^)(update|insert|delete|drop)(\\s|$)", "i");
 const SQLQueryPropertyView = (props: { comp: InstanceType<typeof SQLQuery> }) => {
   const { children } = props.comp;
   const context = useContext(QueryContext);
+  const queryName = useContext(CompNameContext);
 
   return (
     <>
       {children.mode.getView() === "SQL" ? (
         children.sql.propertyView({
           placement: "bottom",
-          placeholder: "SELECT * FROM users;",
+          placeholder: "SELECT * FROM users WHERE user_id = {{userId}}::uuid", 
           styleName: "medium",
           language: "sql",
           enableMetaCompletion: true,
+          enableAIHelp: true,
+          aiHelp: {
+            targetKind: "sql",
+            label: queryName ? `${queryName}.sql` : "SQL Query",
+            datasourceId: context?.datasourceId,
+            queryType: context?.resourceType,
+            queryName,
+            targetId: queryName ? `${queryName}.sql` : undefined,
+          },
         })
       ) : (
         <>
@@ -212,10 +225,12 @@ const SQLQueryPropertyView = (props: { comp: InstanceType<typeof SQLQuery> }) =>
               });
             }}
           />
+          
           {children.command.getPropertyView()}
         </>
       )}
     </>
+
   );
 };
 
@@ -251,6 +266,7 @@ export const NOT_SUPPORT_GUI_SQL_QUERY: string[] = [
   "snowflake",
   "tdengine",
   "dameng",
+  "alasql",
 ];
 const SUPPORT_UPSERT_SQL_QUERY: string[] = [
   "mysql",

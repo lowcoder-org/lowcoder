@@ -1,5 +1,6 @@
 package org.lowcoder.api.home;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
@@ -84,6 +85,7 @@ public class FolderApiServiceImpl implements FolderApiService {
         if (StringUtils.isBlank(folder.getName())) {
             return Mono.error(new BizException(BizError.INVALID_PARAMETER, "FOLDER_NAME_EMPTY"));
         }
+        if(StringUtils.isEmpty(folder.getId())) folder.setGid(UuidCreator.getTimeOrderedEpoch().toString());
         return orgDevChecker.checkCurrentOrgDev()
                 .then(sessionUserService.getVisitorOrgMemberCache())
                 .delayUntil(orgMember -> {
@@ -93,7 +95,7 @@ public class FolderApiServiceImpl implements FolderApiService {
                     return checkFolderExist(folder.getParentFolderId())
                             .flatMap(parent -> checkFolderCurrentOrg(parent, orgMember.getOrgId()));
                 })
-                .delayUntil(orgMember -> checkFolderNameUnique(folder.getParentFolderId(), folder.getName(), orgMember.getOrgId()))
+                .delayUntil(orgMember -> checkFolderNameUnique(folder.getParentFolderId(), folder.getName(), orgMember.getOrgId(), null))
                 .flatMap(orgMember -> {
                     folder.setOrganizationId(orgMember.getOrgId());
                     folder.setCreatedBy(orgMember.getUserId());
@@ -116,9 +118,13 @@ public class FolderApiServiceImpl implements FolderApiService {
         return Mono.error(new BizException(FOLDER_NOT_EXIST, "FOLDER_NOT_EXIST", folder.getId()));
     }
 
-    private Mono<Void> checkFolderNameUnique(@Nullable String parentFolderId, String name, String orgId) {
+    /**
+     * @param excludedFolderId the folder being renamed, so that keeping its current name is not a conflict; null when creating
+     */
+    private Mono<Void> checkFolderNameUnique(@Nullable String parentFolderId, String name, String orgId, @Nullable String excludedFolderId) {
         return folderService.findByOrganizationId(orgId)
                 .filter(folder -> StringUtils.equals(parentFolderId, folder.getParentFolderId()))
+                .filter(folder -> !StringUtils.equals(excludedFolderId, folder.getId()))
                 .map(Folder::getName)
                 .collectList()
                 .flatMap(list -> {
@@ -171,6 +177,9 @@ public class FolderApiServiceImpl implements FolderApiService {
         newFolder.setDescription(folder.getDescription());
         newFolder.setImage(folder.getImage());
         return checkManagePermission(folder.getId())
+                .flatMap(orgMember -> checkFolderExist(folder.getId())
+                        .flatMap(existing -> checkFolderNameUnique(existing.getParentFolderId(), folder.getName(),
+                                orgMember.getOrgId(), existing.getId())))
                 .then(folderService.updateById(folder.getId(), newFolder))
                 .then(folderService.findById(folder.getId()))
                 .flatMap(f -> buildFolderInfoView(f, true, true));
@@ -231,8 +240,8 @@ public class FolderApiServiceImpl implements FolderApiService {
      * @return flux of {@link ApplicationInfoView} or {@link FolderInfoView}
      */
     @Override
-    public Flux<?> getElements(@Nullable String folderId, @Nullable ApplicationType applicationType) {
-        return buildApplicationInfoViewTree(applicationType)
+    public Flux<?> getElements(@Nullable String folderId, @Nullable ApplicationType applicationType, @Nullable String name, @Nullable String category) {
+        return buildApplicationInfoViewTree(applicationType, name, category, folderId)
                 .flatMap(tree -> {
                     FolderNode<ApplicationInfoView, FolderInfoView> folderNode = tree.get(folderId);
                     if (folderNode == null) {
@@ -276,13 +285,13 @@ public class FolderApiServiceImpl implements FolderApiService {
                 .map(folders -> new Tree<>(folders, Folder::getId, Folder::getParentFolderId, Collections.emptyList(), null, null));
     }
 
-    private Mono<Tree<ApplicationInfoView, FolderInfoView>> buildApplicationInfoViewTree(@Nullable ApplicationType applicationType) {
+    private Mono<Tree<ApplicationInfoView, FolderInfoView>> buildApplicationInfoViewTree(@Nullable ApplicationType applicationType, @Nullable String name, @Nullable String category, @Nullable String folderId) {
 
         Mono<OrgMember> orgMemberMono = sessionUserService.getVisitorOrgMemberCache()
                 .cache();
 
         Flux<ApplicationInfoView> applicationInfoViewFlux =
-                userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationType, ApplicationStatus.NORMAL, false)
+                userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationType, ApplicationStatus.NORMAL, false, name, category)
                         .cache();
 
         Mono<Map<String, String>> application2FolderMapMono = applicationInfoViewFlux
@@ -292,6 +301,10 @@ public class FolderApiServiceImpl implements FolderApiService {
                 .collectMap(FolderElement::elementId, FolderElement::folderId);
 
         Flux<Folder> folderFlux = orgMemberMono.flatMapMany(orgMember -> folderService.findByOrganizationId(orgMember.getOrgId()))
+                .filter(folder -> name == null || StringUtils.containsIgnoreCase(folder.getName(), name)
+                        || StringUtils.containsIgnoreCase(folder.getType(), name)
+                        || StringUtils.containsIgnoreCase(folder.getDescription(), name)
+                        || StringUtils.containsIgnoreCase(folder.getId(), folderId))
                 .cache();
 
         Mono<Map<String, Instant>> folderId2LastViewTimeMapMono = orgMemberMono
@@ -315,7 +328,9 @@ public class FolderApiServiceImpl implements FolderApiService {
                             return FolderInfoView.builder()
                                     .orgId(orgMember.getOrgId())
                                     .folderId(folder.getId())
+                                    .folderGid(folder.getGid())
                                     .parentFolderId(folder.getParentFolderId())
+                                    .parentFolderGid(folder.getParentFolderGid())
                                     .name(folder.getName())
                                     .createAt(folder.getCreatedAt().toEpochMilli())
                                     .createBy(creator == null ? null : creator.getName())
@@ -435,6 +450,7 @@ public class FolderApiServiceImpl implements FolderApiService {
                 .map(user -> FolderInfoView.builder()
                         .orgId(folder.getOrganizationId())
                         .folderId(folder.getId())
+                        .folderGid(folder.getGid())
                         .parentFolderId(folder.getParentFolderId())
                         .name(folder.getName())
                         .description(folder.getDescription())

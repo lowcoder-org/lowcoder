@@ -2,7 +2,7 @@ import { EmptyContent } from "components/EmptyContent";
 import { HelpText } from "components/HelpText";
 import { GreyTextColor } from "constants/style";
 import { CustomModal, CustomSelect, TacoButton } from "lowcoder-design";
-import React, { lazy, useEffect, useState } from "react";
+import { lazy, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCommonSettings, setCommonSettings } from "redux/reduxActions/commonSettingsActions";
 import { getCommonSettings } from "redux/selectors/commonSettingSelectors";
@@ -25,6 +25,9 @@ import { getGlobalSettings } from "comps/utils/globalSettings";
 import { fetchJSLibrary } from "util/jsLibraryUtils";
 import { evalFunc } from "lowcoder-core";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { NpmRegistryConfig } from "@lowcoder-ee/components/NpmRegistryConfig";
+import { NpmRegistryConfigEntry } from "@lowcoder-ee/redux/reducers/uiReducers/commonSettingsReducer";
+import { default as Switch } from "antd/es/switch";
 
 const CodeEditor = lazy(
   () => import("base/codeEditor/codeEditor")
@@ -93,9 +96,18 @@ export function AdvancedSetting() {
   }, [currentUser.currentOrgId])
 
   useEffect(() => {
-    dispatch(fetchCommonSettings({ orgId: currentUser.currentOrgId }));
-    dispatch(fetchAllApplications({}));
-  }, [currentUser.currentOrgId, dispatch]);
+    // Only fetch common settings if not already loaded
+    if (Object.keys(commonSettings).length === 0) {
+      dispatch(fetchCommonSettings({ orgId: currentUser.currentOrgId }));
+    }
+  }, [currentUser.currentOrgId, dispatch, commonSettings]);
+
+  // Lazy load applications only when dropdown is opened
+  const handleDropdownOpen = () => {
+    if (appList.length === 0) {
+      dispatch(fetchAllApplications({}));
+    }
+  };
 
   useEffect(() => {
     setSettings(commonSettings);
@@ -107,9 +119,7 @@ export function AdvancedSetting() {
     }
   }, [canLeave]);
 
-  useEffect(() => {
-    dispatch(fetchCommonSettings({ orgId: currentUser.currentOrgId }));
-  }, [currentUser.currentOrgId, dispatch]);
+
 
   const handleSave = (key: keyof typeof settings, onSuccess?: () => void) => {
     return (value?: any) => {
@@ -170,10 +180,13 @@ export function AdvancedSetting() {
             allowClear={true}
             showSearch={true}
             style={{ width: "264px", height: "32px", marginBottom: 12 }}
-            dropdownStyle={{ width: "264px" }}
+            styles={{ popup: { root: { width: "264px" }}}}
             value={settings.defaultHomePage}
             onChange={(value: string) => {
               setSettings((v) => ({ ...v, defaultHomePage: value }));
+            }}
+            onDropdownVisibleChange={(open) => {
+              if (open) handleDropdownOpen();
             }}
             options={appListOptions}
             filterOption={(input, option) => (option?.label as string).includes(input)}
@@ -182,6 +195,34 @@ export function AdvancedSetting() {
             buttonType="primary"
             disabled={commonSettings.defaultHomePage === settings.defaultHomePage}
             onClick={() => handleSave("defaultHomePage")()}
+          >
+            {trans("advanced.saveBtn")}
+          </SaveButton>
+        </div>
+        <div className="section-title">{trans("advanced.showHeaderInPublicApps")}</div>
+        <HelpText style={{ marginBottom: 12 }}>{trans("advanced.showHeaderInPublicAppsHelp")}</HelpText>
+        <div className="section-content">
+          <Switch
+            style={{ marginBottom: 12 }}
+            checked={
+              settings.hasOwnProperty('showHeaderInPublicApps')
+              ? settings.showHeaderInPublicApps
+              : true
+            }
+            onChange={(value: boolean) => {
+              setSettings((v) => ({ ...v, showHeaderInPublicApps: value }));
+            }}
+          />
+          <SaveButton
+            buttonType="primary"
+            disabled={commonSettings.showHeaderInPublicApps === settings.showHeaderInPublicApps}
+            onClick={
+              () => handleSave("showHeaderInPublicApps")(
+                settings.hasOwnProperty('showHeaderInPublicApps')
+                ? settings.showHeaderInPublicApps
+                : true
+              )
+            }
           >
             {trans("advanced.saveBtn")}
           </SaveButton>
@@ -277,12 +318,26 @@ export function AdvancedSetting() {
             />
           )}
         </div>
+        <div className="section-title">{trans("advanced.npmRegistryTitle")}</div>
+        <HelpText style={{ marginBottom: 12 }}>{trans("advanced.npmRegistryHelp")}</HelpText>
+        <div className="section-content">
+          <div>
+            <NpmRegistryConfig initialData={settings.npmRegistries?.at(0)} onSave={(config: NpmRegistryConfigEntry|null) => { 
+              // Wrap in array to enable future option for multiple registries
+              if (config === null) {
+                handleSave("npmRegistries")([]);
+              } else {
+                handleSave("npmRegistries")([config]);
+              }
+            }} />
+          </div>
+        </div>
         {extraAdvanceSettings}
         <div className="section-title">{trans("advanced.APIConsumption")}</div>
         <HelpText style={{ marginBottom: 12 }}>{trans("advanced.APIConsumptionDescription")}</HelpText>
         <div className="section-content">
-          {trans("advanced.overallAPIConsumption")} : {apiUsage ? Intl.NumberFormat('en-GB', { maximumFractionDigits: 2 }).format(apiUsage) + " API Calls.": 'Loading API usage data...'}<br/>
-          {trans("advanced.lastMonthAPIConsumption")} : {lastMonthApiUsage ? Intl.NumberFormat('en-GB', { maximumFractionDigits: 2 }).format(lastMonthApiUsage) + " API Calls." : 'Loading API usage data...'}
+          {trans("advanced.overallAPIConsumption")} : {apiUsage ? Intl.NumberFormat('en-GB', { maximumFractionDigits: 2 }).format(apiUsage) + " " + trans("enterprise.apiUsage") : trans("enterprise.loadingApiUsage")}<br/>
+          {trans("advanced.lastMonthAPIConsumption")} : {lastMonthApiUsage ? Intl.NumberFormat('en-GB', { maximumFractionDigits: 2 }).format(lastMonthApiUsage) + " " + trans("enterprise.apiUsage") : trans("enterprise.loadingApiUsage")}
         </div>
       </AdvancedSettingContent>
     </Level1SettingPageContent>

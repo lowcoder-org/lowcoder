@@ -2,12 +2,14 @@ import _ from "lodash";
 import {
   Comp,
   CompAction,
+  CompActionTypes,
   CompParams,
   ConstructorToComp,
   ConstructorToNodeType,
   customAction,
   deferAction,
   isChildAction,
+  isCustomAction,
   isMyCustomAction,
   MultiBaseComp,
   MultiCompConstructor,
@@ -23,6 +25,8 @@ import { JSONValue } from "util/jsonTypes";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
 import { map } from "./map";
 import { paramsEqual, withParamsWithDefault } from "./withParams";
+import { LazyCompReadyAction } from "../comps/lazyLoadComp/lazyLoadComp";
+import { RemoteCompReadyAction } from "../comps/remoteComp/remoteComp";
 
 export const COMP_KEY = "__comp__";
 export const MAP_KEY = "__map__";
@@ -122,13 +126,20 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
       const params = this.cacheParamsMap.get(key);
       if (_.isNil(comp) && !_.isNil(params)) {
         const mapComps = this.getMap();
-        if (mapComps.hasOwnProperty(key) && !paramsEqual(params, mapComps[key].getParams())) {
+        if (
+          Object.keys(mapComps).length === Object.keys(this.cacheParamsMap.getMap()).length
+          && mapComps.hasOwnProperty(key)
+          && !paramsEqual(params, mapComps[key].getParams())
+        ) {
           // refresh the item, since params changed
-          this.dispatch(deferAction(wrapChildAction(MAP_KEY, MapCtor.batchDeleteAction([key]))));
+          // this.dispatch(deferAction(wrapChildAction(MAP_KEY, MapCtor.batchDeleteAction([key]))));
+          this.dispatch(wrapChildAction(MAP_KEY, MapCtor.batchDeleteAction([key])));
+          comp = this.getOriginalComp();
+        } else {
+          comp = this.getOriginalComp()
+            .setParams(params)
+            .changeDispatch(wrapDispatch(wrapDispatch(this.dispatch, MAP_KEY), key));
         }
-        comp = this.getOriginalComp()
-          .setParams(params)
-          .changeDispatch(wrapDispatch(wrapDispatch(this.dispatch, MAP_KEY), key));
       }
       return comp;
     }
@@ -157,8 +168,12 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
       } else if (
         isChildAction(action) &&
         action.path[0] === MAP_KEY &&
-        !_.isNil(action.path[1]) &&
-        !thisCompMap.hasOwnProperty(action.path[1])
+        !_.isNil(action.path[1])
+        && (
+          !thisCompMap.hasOwnProperty(action.path[1])
+          || isCustomAction<LazyCompReadyAction>(action, "LazyCompReady")
+          || isCustomAction<RemoteCompReadyAction>(action, "RemoteCompReady")
+        )
       ) {
         /**
          * a virtual path is activated, should generate a new comp in __map__
@@ -172,6 +187,7 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
             .setParams(params)
             .changeDispatch(wrapDispatch(wrapDispatch(comp.dispatch, MAP_KEY), key));
           const newChildComp = childComp.reduce(childAction);
+          
           if (childComp !== newChildComp) {
             const comps = { [key]: newChildComp };
             comp = comp.setChild(
@@ -182,6 +198,24 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
         }
       } else {
         comp = super.reduce(action);
+        // When an inner comp under the template updates (e.g. RemoteCompReady) but the action path
+        // is still rooted at COMP_KEY, mirror that change into every __map__ instance — same as
+        // withParamsForMap, so list/grid rows (ContextContainer) materialize the loaded comp.
+        if (
+          isChildAction(action) &&
+          action.path[0] === COMP_KEY &&
+          action.type !== CompActionTypes.UPDATE_NODES_V2
+        ) {
+          const newMap = _.mapValues(comp.getMap(), (perKeyComp) => {
+            return perKeyComp.reduce(
+              WithParamCompCtor.setCompAction(comp.getOriginalComp().getComp())
+            );
+          });
+          comp = comp.setChild(
+            MAP_KEY,
+            comp.children[MAP_KEY].reduce(MapCtor.batchSetCompAction(newMap))
+          );
+        }
       }
       comp.getOriginalComp().node(); // for cache
 

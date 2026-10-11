@@ -18,7 +18,7 @@ import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR
 
 public abstract class SqlBasedConnector<T extends SqlBasedDatasourceConnectionConfig> extends BlockingDatasourceConnector<HikariPerfWrapper, T> {
 
-    private static final long LEAK_DETECTION_THRESHOLD_MS = TimeUnit.SECONDS.toMillis(30);
+    private static final long LEAK_DETECTION_THRESHOLD_MS = TimeUnit.SECONDS.toMillis(600);
     private static final long MAX_LIFETIME_MS = TimeUnit.MINUTES.toMillis(30);
     private static final long KEEPALIVE_TIME_MS = TimeUnit.MINUTES.toMillis(3);
     private static final long CONNECTION_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(5);

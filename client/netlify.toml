@@ -2,3 +2,7 @@
   from = "/*"
   to = "/"
   status = 200
+[build]
+  base = "client"
+  command = "yarn workspace lowcoder build"
+  publish = "client/packages/lowcoder/build"

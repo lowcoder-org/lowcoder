@@ -3,6 +3,7 @@
   "data": [
     {
       "id": "org01",
+      "gid": "019053a4-c5c8-7621-8740-e3a43e1e85d1",
       "name": "The Avengers",
       "state": "ACTIVE",
       "organizationDomain": {
@@ -25,7 +26,13 @@
             "authType": "GENERIC",
             "userInfoIntrospection": false,
             "enable": true,
-            "enableRegister": true
+            "enableRegister": true,
+            "sourceMappings": {
+              "uid": "sub",
+              "email": "email",
+              "username": "username",
+              "avatar": "avatar"
+            }
           }
         ]
       }

@@ -1,0 +1,35 @@
+{
+  "domain" : "OrganizationDomain.domain",
+  "configs" : [ {
+    "authType" : "FORM",
+    "id" : "OrganizationDomain.configs[0].id",
+    "enable" : true,
+    "enableRegister" : false,
+    "source" : "OrganizationDomain.configs[0].source",
+    "sourceName" : "OrganizationDomain.configs[0].sourceName"
+  }, {
+    "authType" : "GENERIC",
+    "id" : "OrganizationDomain.configs[1].id",
+    "source" : "OrganizationDomain.configs[1].source",
+    "sourceName" : "OrganizationDomain.configs[1].sourceName",
+    "enable" : true,
+    "enableRegister" : false,
+    "clientId" : "OrganizationDomain.configs[1].clientId",
+    "clientSecret" : "SECRET-OrganizationDomain.configs[1].clientSecret",
+    "sourceDescription" : "OrganizationDomain.configs[1].sourceDescription",
+    "sourceIcon" : "OrganizationDomain.configs[1].sourceIcon",
+    "sourceCategory" : "OrganizationDomain.configs[1].sourceCategory",
+    "issuerUri" : "OrganizationDomain.configs[1].issuerUri",
+    "authorizationEndpoint" : "OrganizationDomain.configs[1].authorizationEndpoint",
+    "tokenEndpoint" : "OrganizationDomain.configs[1].tokenEndpoint",
+    "userInfoEndpoint" : "OrganizationDomain.configs[1].userInfoEndpoint",
+    "scope" : "OrganizationDomain.configs[1].scope",
+    "sourceMappings" : {
+      "uid" : "OrganizationDomain.configs[1].sourceMappings.uid",
+      "email" : "OrganizationDomain.configs[1].sourceMappings.email"
+    },
+    "userInfoIntrospection" : true,
+    "userCanSelectAccounts" : false,
+    "postForUserEndpoint" : true
+  } ]
+}

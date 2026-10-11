@@ -1,9 +1,11 @@
-import { ADMIN_ROLE } from "constants/orgConstants";
+import { ADMIN_ROLE, SUPER_ADMIN_ROLE} from "constants/orgConstants";
 import { ApplicationMeta } from "constants/applicationConstants";
 import { User } from "constants/userConstants";
 
-export function currentOrgAdmin(user: User) {
-  return user.orgRoleMap.get(user.currentOrgId) === ADMIN_ROLE;
+
+export function currentOrgAdmin(user: User) { 
+  const role = user.orgRoleMap.get(user.currentOrgId); 
+  return role === ADMIN_ROLE || role === SUPER_ADMIN_ROLE;
 }
 
 export function currentOrgAdminOrDev(user: User) {
@@ -11,7 +13,7 @@ export function currentOrgAdminOrDev(user: User) {
 }
 
 export function isGroupAdmin(userGroupRole: string | undefined) {
-  return userGroupRole === ADMIN_ROLE;
+  return userGroupRole === ADMIN_ROLE || userGroupRole === SUPER_ADMIN_ROLE;
 }
 
 export function canManageApp(user: User, application?: ApplicationMeta) {

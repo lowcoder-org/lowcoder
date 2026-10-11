@@ -33,14 +33,15 @@ import { FreeTypes } from "pages/setting/idSource/idSourceConstants";
 import { messageInstance, AddIcon } from "lowcoder-design";
 import { currentOrgAdmin } from "../../../util/permissionUtils";
 import CreateModal from "./createModal";
-import _ from "lodash";
 import { HelpText } from "components/HelpText";
+import { IconControlView } from "@lowcoder-ee/comps/controls/iconControl";
 
 export const IdSourceList = (props: any) => {
   const user = useSelector(getUser);
   const config = useSelector(selectSystemConfig);
   const { currentOrgId}  = user;
   const [configs, setConfigs] = useState<ConfigItem[]>([]);
+  const [enabledConfigs, setEnabledConfigs] = useState<ConfigItem[]>([]);
   const [fetching, setFetching] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const enableEnterpriseLogin = useSelector(selectSystemConfig)?.featureFlag?.enableEnterpriseLogin;
@@ -75,8 +76,8 @@ export const IdSourceList = (props: any) => {
           let res: ConfigItem[] = resp.data.data.filter((item: ConfigItem) =>
             IdSource.includes(item.authType)
           );
-          res = _.uniqBy(res, 'authType');
           setConfigs(res);
+          setEnabledConfigs(res.filter(item => item.enable));
         }
       })
       .catch((e) => {
@@ -125,7 +126,7 @@ export const IdSourceList = (props: any) => {
               }
               history.push({
                 pathname: OAUTH_PROVIDER_DETAIL,
-                state: record,
+                state: { config: record, totalEnabledConfigs: enabledConfigs.length },
               });
             },
           })}
@@ -137,10 +138,12 @@ export const IdSourceList = (props: any) => {
             render={(value: AuthType, record: ConfigItem) => (
               <SpanStyled disabled={authTypeDisabled(value, enableEnterpriseLogin)}>
                 {
-                  <img
-                    src={ServerAuthTypeInfo[value as AuthType]?.logo || GeneralLoginIcon}
-                    alt={value}
-                  />
+                  (record as any).sourceIcon
+                    ? <span className="sourceIcon"><IconControlView value={(record as any).sourceIcon} /></span>
+                    : <img
+                      src={ServerAuthTypeInfo[value as AuthType]?.logo || GeneralLoginIcon}
+                      alt={value}
+                    />
                 }
                 <span>
                   {value === AuthType.Generic

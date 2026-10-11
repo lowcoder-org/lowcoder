@@ -11,7 +11,7 @@ import {
   showCustomerServicePanel,
   showHelpDropdown,
 } from "@lowcoder-ee/pages/common/customerService";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createApplication } from "redux/reduxActions/applicationActions";
 import history from "util/history";
@@ -27,6 +27,8 @@ import { ShortcutListPopup } from "./shortcutListPopup";
 import { QuestionIcon, UpgradeIcon } from "lowcoder-design";
 import { trans } from "i18n";
 import { localEnv } from "util/envUtils";
+import { isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
+import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
 
 const StyledMenu = styled(DropdownMenu)<{ $edit: boolean | string }>`
   ${(props) =>
@@ -181,7 +183,7 @@ const introVideoUrl = trans("docUrls.introVideo");
 const issueUrl = trans("lowcoderUrl.createIssue");
 const discordUrl = trans("lowcoderUrl.discord");
 
-export function HelpDropdown(props: HelpDropdownProps) {
+function HelpDropdownComp(props: HelpDropdownProps) {
   const [showHelp, setShowHelp] = useState(true);
   const [version, setVersion] = useState("");
   const dispatch = useDispatch();
@@ -189,6 +191,24 @@ export function HelpDropdown(props: HelpDropdownProps) {
   const [videoVisible, setVideoVisible] = useState(false);
   const [toolTipContent, setToolTipContent] = useState<React.ReactNode>(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const isPublicApp = useSelector(isPublicApplication);
+  const brandingSettings = useSelector(getBrandingSetting);
+
+  const showDocLink = useMemo(() => {
+    if (!Boolean(brandingSettings)) return Boolean(docHomeUrl);
+    return brandingSettings?.config_set?.showDocumentation;
+  }, [brandingSettings?.config_set?.showDocumentation]);
+
+  const showSubmitIssueLink = useMemo(() => {
+    if (!Boolean(brandingSettings)) return Boolean(issueUrl);
+    return brandingSettings?.config_set?.submitIssue;
+  }, [brandingSettings?.config_set?.submitIssue]);
+
+  const showWhatsNewLink = useMemo(() => {
+    if (!Boolean(brandingSettings)) return Boolean(changeLogDocUrl);
+    return brandingSettings?.config_set?.whatsNew;
+  }, [brandingSettings?.config_set?.whatsNew]);
+
   const closeTooltip = () => {
     // turn of tooltip
     setToolTipContent(null);
@@ -238,6 +258,7 @@ export function HelpDropdown(props: HelpDropdownProps) {
           !props.isEdit && setShowHelp(false);
           return;
         case "editorTutorial":
+          if (isPublicApp) return;
           dispatch(
             createApplication({
               applicationName: trans("help.appName"),
@@ -251,6 +272,9 @@ export function HelpDropdown(props: HelpDropdownProps) {
           );
           return;
         case "docs":
+          if (brandingSettings?.config_set?.documentationLink) {
+            return window.open(brandingSettings?.config_set?.documentationLink);
+          }
           window.open(docHomeUrl);
           return;
         case "issue":
@@ -263,6 +287,9 @@ export function HelpDropdown(props: HelpDropdownProps) {
           props.setShowShortcutList?.(true);
           return;
         case "changeLog":
+          if (brandingSettings?.config_set?.whatsNewLink) {
+            return window.open(brandingSettings?.config_set?.whatsNewLink);
+          }
           window.open(changeLogDocUrl);
           return;
       }
@@ -298,7 +325,7 @@ export function HelpDropdown(props: HelpDropdownProps) {
               ),
             }
           : null,
-        {
+        showDocLink ? {
           key: "docs",
           label: (
             <ItemWrapper>
@@ -306,8 +333,8 @@ export function HelpDropdown(props: HelpDropdownProps) {
               <span>{trans("help.docs")}</span>
             </ItemWrapper>
           ),
-        },
-        issueUrl
+        } : null,
+        showSubmitIssueLink
           ? {
               key: "issue",
               label: (
@@ -349,7 +376,7 @@ export function HelpDropdown(props: HelpDropdownProps) {
               ),
             }
           : null,
-        changeLogDocUrl
+          showWhatsNewLink
           ? {
               key: "changeLog",
               label: (
@@ -427,7 +454,7 @@ export function HelpDropdown(props: HelpDropdownProps) {
         <ShortcutListPopup setShowShortcutList={props.setShowShortcutList} />
       )}
       <Dropdown
-        dropdownRender={() => overlayMenus}
+        popupRender={() => overlayMenus}
         placement="topRight"
         trigger={["click"]}
         open={showDropdown}
@@ -446,3 +473,5 @@ export function HelpDropdown(props: HelpDropdownProps) {
     </HelpWrapper>
   </>);
 }
+
+export const HelpDropdown = React.memo(HelpDropdownComp);

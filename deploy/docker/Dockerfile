@@ -17,6 +17,7 @@ COPY server/api-service/lowcoder-server/src/main/resources/application.yaml /low
 # Add bootstrapfile
 COPY deploy/docker/api-service/entrypoint.sh /lowcoder/api-service/entrypoint.sh
 COPY deploy/docker/api-service/init.sh /lowcoder/api-service/init.sh
+ENV JAVA_OPTS="-Xmx2G -Xms512M"
 RUN chmod +x /lowcoder/api-service/*.sh
 
 ##
@@ -32,6 +33,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends gosu \
   && rm -rf /var/cache/apt/lists \
   && addgroup --system --gid 9001 lowcoder \
   && adduser --system --disabled-password --no-create-home --uid 9001 --gid 9001 lowcoder
+
 
 # Copy lowcoder server configuration
 COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder/api-service /lowcoder/api-service
@@ -56,7 +58,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
 # Add nodejs repo and keys
 RUN mkdir -p /etc/apt/keyrings \
   && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
 
 # Download nodejs and install yarn
 RUN apt-get update \
@@ -88,7 +90,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
 # Add nodejs repo and keys
 RUN mkdir -p /etc/apt/keyrings \
   && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
 
 # Download nodejs and install yarn
 RUN apt-get update \
@@ -106,9 +108,75 @@ CMD [ "/bin/sh", "/lowcoder/node-service/entrypoint.sh" ]
 #############################################################################
 
 ##
+## Build lowcoder proxy service (for all-in-one image)
+##
+## Standalone image is built from server/proxy-service/Dockerfile
+##
+FROM node:22.23-slim AS build-proxy-service
+
+# Copy only the build inputs, so local build/ and node_modules folders are never picked up
+COPY server/proxy-service/package.json server/proxy-service/yarn.lock server/proxy-service/tsconfig.json /lowcoder/proxy-service/app/
+COPY server/proxy-service/scripts /lowcoder/proxy-service/app/scripts
+COPY server/proxy-service/src /lowcoder/proxy-service/app/src
+WORKDIR /lowcoder/proxy-service/app
+RUN yarn install --frozen-lockfile
+RUN yarn build
+# Keep only runtime dependencies
+RUN rm -rf node_modules \
+  && yarn install --frozen-lockfile --production \
+  && yarn cache clean
+
+# Copy startup script
+COPY deploy/docker/proxy-service/entrypoint.sh /lowcoder/proxy-service/entrypoint.sh
+RUN chmod +x /lowcoder/proxy-service/*.sh
+
+#############################################################################
+
+##
+## Build agora token service (for all-in-one image)
+##
+## Standalone image is built from deploy/docker/agora-token-service/Dockerfile
+##
+FROM node:22.23-slim AS build-agora-token-service
+
+WORKDIR /lowcoder/agora-token-service/app
+COPY deploy/docker/agora-token-service/package.json ./
+RUN npm install --omit=dev
+COPY deploy/docker/agora-token-service/server.js ./
+
+# Copy startup script
+COPY deploy/docker/agora-token-service/entrypoint.sh /lowcoder/agora-token-service/entrypoint.sh
+RUN chmod +x /lowcoder/agora-token-service/*.sh
+
+#############################################################################
+
+##
+## Build hocuspocus server (for all-in-one image)
+##
+## Standalone image is built from deploy/docker/hocuspocus/Dockerfile - keep
+## HOCUSPOCUS_SERVER_VERSION in sync with it.
+## @hocuspocus/server 4.x requires node >= 22.
+##
+FROM node:22.23-slim AS build-hocuspocus
+
+ARG HOCUSPOCUS_SERVER_VERSION=4.3.0
+
+WORKDIR /lowcoder/hocuspocus/app
+COPY client/packages/lowcoder/hocuspocus-server.js ./
+# hocuspocus-server.js uses ESM imports; declare the package type so Node does not reparse it
+RUN npm install --save-exact @hocuspocus/server@${HOCUSPOCUS_SERVER_VERSION} \
+  && npm pkg set type=module
+
+# Copy startup script
+COPY deploy/docker/hocuspocus/entrypoint.sh /lowcoder/hocuspocus/entrypoint.sh
+RUN chmod +x /lowcoder/hocuspocus/*.sh
+
+#############################################################################
+
+##
 ## Build lowcoder client application
 ##
-FROM node:20.2-slim AS build-client
+FROM node:22.23-slim AS build-client
 
 # curl is required for yarn build to succeed, because it calls it while building client
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
@@ -122,6 +190,10 @@ ARG REACT_APP_COMMIT_ID=test
 ARG REACT_APP_ENV=production
 ARG REACT_APP_EDITION=community
 ARG REACT_APP_DISABLE_JS_SANDBOX=true
+# Hocuspocus websocket URL and shared secret baked into the client (empty = ws://localhost:3006, no auth).
+# The secret ends up in the public JS bundle - it must match LOWCODER_HOCUSPOCUS_SECRET of hocuspocus.
+ARG REACT_APP_HOCUSPOCUS_URL=
+ARG REACT_APP_HOCUSPOCUS_SECRET=
 RUN yarn build
 
 # Build lowcoder-comps
@@ -145,7 +217,7 @@ RUN yarn build
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-frontend --target lowcoder-ce-frontend .
 ##
-FROM nginx:1.25.1 AS lowcoder-ce-frontend
+FROM nginx:1.27.1 AS lowcoder-ce-frontend
 LABEL maintainer="lowcoder"
 
 # Change default nginx user into lowcoder user and remove default nginx config
@@ -184,29 +256,113 @@ EXPOSE 3443
 #############################################################################
 
 ##
-## Build Lowcoder all-in-one image
+## Build lowcoder client (Enterprise) application
 ##
-FROM lowcoder-ce-frontend
+FROM node:22.23-slim AS build-client-ee
+
+# curl is required for yarn build to succeed, because it calls it while building client
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+
+# Build client
+COPY ./client /lowcoder-client-ee
+WORKDIR /lowcoder-client-ee
+RUN yarn --immutable
+
+ARG REACT_APP_COMMIT_ID=test
+ARG REACT_APP_ENV=production
+ARG REACT_APP_EDITION=enterprise
+ARG REACT_APP_DISABLE_JS_SANDBOX=true
+# Hocuspocus websocket URL and shared secret baked into the client (empty = ws://localhost:3006, no auth).
+# The secret ends up in the public JS bundle - it must match LOWCODER_HOCUSPOCUS_SECRET of hocuspocus.
+ARG REACT_APP_HOCUSPOCUS_URL=
+ARG REACT_APP_HOCUSPOCUS_SECRET=
+RUN yarn build:ee
+
+# Build lowcoder-comps
+WORKDIR /lowcoder-client-ee/packages/lowcoder-comps
+RUN yarn install
+RUN yarn build
+RUN tar -zxf lowcoder-comps-*.tgz && mv package lowcoder-comps
+
+# Build lowcoder-sdk
+WORKDIR /lowcoder-client-ee/packages/lowcoder-sdk
+RUN yarn install
+RUN yarn build
+
+WORKDIR /lowcoder-client-ee/packages/lowcoder-sdk-webpack-bundle
+RUN yarn install
+RUN yarn build
+
+##
+## Intermediary Lowcoder client (Enterprise) image
+##
+## To create a separate image out of it, build it with:
+##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ee-frontend --target lowcoder-ee-frontend .
+##
+FROM nginx:1.27.1 AS lowcoder-enterprise-frontend
 LABEL maintainer="lowcoder"
 
-RUN apt-get update && apt-get upgrade -y \
-  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg \
+# Change default nginx user into lowcoder user and remove default nginx config
+RUN usermod --login lowcoder --uid 9001 nginx \
+  && groupmod --new-name lowcoder --gid 9001 nginx \
+  && rm -f /etc/nginx/nginx.conf \
+  && mkdir -p /lowcoder/assets
+
+# Copy lowcoder client
+COPY --chown=lowcoder:lowcoder --from=build-client-ee /lowcoder-client-ee/packages/lowcoder/build/ /lowcoder/client
+# Copy lowcoder components
+COPY --chown=lowcoder:lowcoder --from=build-client-ee /lowcoder-client-ee/packages/lowcoder-comps/lowcoder-comps /lowcoder/client-comps
+# Copy lowcoder SDK
+COPY --chown=lowcoder:lowcoder --from=build-client-ee /lowcoder-client-ee/packages/lowcoder-sdk /lowcoder/client-sdk
+# Copy lowcoder SDK webpack bundle
+COPY --chown=lowcoder:lowcoder --from=build-client-ee /lowcoder-client-ee/packages/lowcoder-sdk-webpack-bundle/dist /lowcoder/client-embed
+
+
+# Copy additional nginx init scripts
+COPY deploy/docker/frontend/00-change-nginx-user.sh /docker-entrypoint.d/00-change-nginx-user.sh
+COPY deploy/docker/frontend/01-update-nginx-conf.sh /docker-entrypoint.d/01-update-nginx-conf.sh
+
+RUN chmod +x /docker-entrypoint.d/00-change-nginx-user.sh && \
+    chmod +x /docker-entrypoint.d/01-update-nginx-conf.sh
+
+COPY deploy/docker/frontend/server.conf /etc/nginx/server.conf
+COPY deploy/docker/frontend/nginx-http.conf /etc/nginx/nginx-http.conf
+COPY deploy/docker/frontend/nginx-https.conf /etc/nginx/nginx-https.conf
+COPY deploy/docker/frontend/ssl-certificate.conf /etc/nginx/ssl-certificate.conf
+COPY deploy/docker/frontend/ssl-params.conf /etc/nginx/ssl-params.conf
+
+
+EXPOSE 3000
+EXPOSE 3444
+
+#############################################################################
+
+##
+## Build Lowcoder all-in-one image
+##
+FROM ubuntu:jammy
+LABEL maintainer="lowcoder"
+
+# Install essential tools
+RUN apt-get update \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg bash lsb-release \
   && rm -rf /var/cache/apt/lists /var/lib/apt/lists/* /var/log/dpkg.log \
   && apt-get clean
 
-# Add nodejs repo and keys
-RUN mkdir -p /etc/apt/keyrings \
-  && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+# Add required apt repositories and signing keys
+RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource-keyring.gpg \
+  && echo "deb [signed-by=/usr/share/keyrings/nodesource-keyring.gpg] https://deb.nodesource.com/node_22.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
+  && curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg \
+  && echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb `lsb_release -cs` main" | tee /etc/apt/sources.list.d/redis.list \
+  && curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-archive-keyring.gpg \
+  && echo "deb [signed-by=/usr/share/keyrings/mongodb-archive-keyring.gpg] https://repo.mongodb.org/apt/ubuntu `lsb_release -cs`/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list \
+  && curl -fsSL https://nginx.org/keys/nginx_signing.key | gpg --dearmor -o /usr/share/keyrings/nginx-archive-keyring.gpg \
+  && echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] http://nginx.org/packages/mainline/ubuntu `lsb_release -cs` nginx" | tee /etc/apt/sources.list.d/nginx.list
 
 
 # Install required packages
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y bash gnupg curl lsb-release \
-  && curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg \
-  && echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb bookworm main" | tee /etc/apt/sources.list.d/redis.list \
-  && curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-archive-keyring.gpg \
-  && echo "deb [signed-by=/usr/share/keyrings/mongodb-archive-keyring.gpg] https://repo.mongodb.org/apt/debian bookworm/mongodb-org/7.0 main" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list \
-  && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends -y \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends -y \
+      nginx=1.27.1-1~jammy \
       mongodb-org \
       redis \
       supervisor \
@@ -215,9 +371,38 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
       openjdk-17-jdk-headless \
   && npm install -g yarn \
   && rm -rf /var/cache/apt/lists /var/lib/apt/lists/* /var/log/dpkg.log \
-  && mkdir -p /lowcoder/assets \
   && apt-get clean \
   && rm -rf /tmp/*
+
+# Use configuration setup from official nginx image
+RUN rm -rf /etc/nginx/nginx.conf
+COPY --from=nginx:1.27.1 /docker-entrypoint.d /docker-entrypoint.d
+COPY --from=nginx:1.27.1 /docker-entrypoint.sh /docker-entrypoint.sh
+
+# Add lowcoder user
+RUN usermod --login lowcoder --uid 9001 nginx \
+  && groupmod --new-name lowcoder --gid 9001 nginx
+
+# Copy additional nginx init scripts and configs
+COPY --chmod=0755 deploy/docker/frontend/00-change-nginx-user.sh /docker-entrypoint.d/00-change-nginx-user.sh
+COPY --chmod=0755 deploy/docker/frontend/01-update-nginx-conf.sh /docker-entrypoint.d/01-update-nginx-conf.sh
+COPY deploy/docker/frontend/server.conf /etc/nginx/server.conf
+COPY deploy/docker/frontend/nginx-http.conf /etc/nginx/nginx-http.conf
+COPY deploy/docker/frontend/nginx-https.conf /etc/nginx/nginx-https.conf
+COPY deploy/docker/frontend/ssl-certificate.conf /etc/nginx/ssl-certificate.conf
+COPY deploy/docker/frontend/ssl-params.conf /etc/nginx/ssl-params.conf
+
+
+# Add lowcoder frontend
+#    copy lowcoder client
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder/build/ /lowcoder/client
+#    copy lowcoder components
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder-comps/lowcoder-comps /lowcoder/client-comps
+#    copy lowcoder SDK
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder-sdk /lowcoder/client-sdk
+#    copy lowcoder SDK webpack bundle
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder-sdk-webpack-bundle/dist /lowcoder/client-embed
+RUN mkdir -p /lowcoder/assets/ && chown lowcoder:lowcoder /lowcoder/assets/
 
 # Add lowcoder api-service
 COPY --chown=lowcoder:lowcoder --from=lowcoder-ce-api-service /lowcoder/api-service /lowcoder/api-service
@@ -226,11 +411,23 @@ RUN mkdir -p /lowcoder/plugins/ && chown lowcoder:lowcoder /lowcoder/plugins/
 # Add lowcoder node-service
 COPY --chown=lowcoder:lowcoder --from=lowcoder-ce-node-service /lowcoder/node-service /lowcoder/node-service
 
+# Add lowcoder proxy-service
+COPY --chown=lowcoder:lowcoder --from=build-proxy-service /lowcoder/proxy-service /lowcoder/proxy-service
+
+# Add agora token service
+COPY --chown=lowcoder:lowcoder --from=build-agora-token-service /lowcoder/agora-token-service /lowcoder/agora-token-service
+
+# Add hocuspocus server
+COPY --chown=lowcoder:lowcoder --from=build-hocuspocus /lowcoder/hocuspocus /lowcoder/hocuspocus
+
 # Add services configuration
 COPY --chown=lowcoder:lowcoder deploy/docker/all-in-one/etc /lowcoder/etc
 
 # Add startup script
-COPY --chown=lowcoder:lowcoder deploy/docker/all-in-one/entrypoint.sh /lowcoder/entrypoint.sh
+COPY --chown=lowcoder:lowcoder --chmod=0755 deploy/docker/all-in-one/entrypoint.sh /lowcoder/entrypoint.sh
+
+# Copy default environment properties
+COPY --chown=lowcoder:lowcoder deploy/docker/default.env /lowcoder/etc/default.env
 
 # Fixes for OpenShift compatibility (after all files are copied)
 RUN echo  \
@@ -246,6 +443,10 @@ RUN echo  \
 EXPOSE 27017
 EXPOSE 3000
 EXPOSE 3443
+# hocuspocus (websocket URL is baked into the client, browsers connect directly)
+EXPOSE 3006
+# agora token service
+EXPOSE 8081
 
 ENTRYPOINT [ "/bin/sh" , "/lowcoder/entrypoint.sh" ]
 CMD ["/usr/bin/supervisord", "-n" , "-c" , "/lowcoder/etc/supervisord.conf"]

@@ -1,0 +1,14 @@
+{
+  "authorizationEndpoint" : {
+    "authorizeUrl" : "java.lang.NullPointerException"
+  },
+  "scope" : {
+    "authorizeUrl" : "java.lang.NullPointerException"
+  },
+  "clientId" : {
+    "authorizeUrl" : "java.lang.NullPointerException"
+  },
+  "authType" : {
+    "authorizeUrl" : "java.lang.NullPointerException"
+  }
+}

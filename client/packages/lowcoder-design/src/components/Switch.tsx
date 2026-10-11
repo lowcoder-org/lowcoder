@@ -1,8 +1,8 @@
 import * as React from "react";
 import { ReactNode } from "react";
 import styled, { css } from "styled-components";
-import { ReactComponent as jsIcon } from "icons/icon-Js-colors.svg";
-import { ReactComponent as jsIconGray } from "icons/icon-Js-Gray.svg";
+import { ReactComponent as jsIcon } from "icons/v1/icon-Js-colors.svg";
+import { ReactComponent as jsIconGray } from "icons/v1/icon-Js-Gray.svg";
 import { ToolTipLabel } from "components/toolTip";
 
 type ControlPlacement = "bottom" | "right" | "modal";
@@ -51,6 +51,24 @@ const SwitchStyle: any = styled.input`
     margin-left: 2px;
     border-radius: 20px;
     background-color: #ffffff;
+  }
+
+  &:disabled {
+    background-color: #e0e0e0;
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &:disabled::before {
+    background-color: #cccccc;
+  }
+
+  &:disabled:checked {
+    background-color: #a0a0a0;
+  }
+
+  &:disabled:hover {
+    cursor: not-allowed;
   }
 `;
 
@@ -104,16 +122,18 @@ const JsIconGray = styled(jsIconGray)<Ishow>`
 interface SwitchProps extends Omit<React.HTMLAttributes<HTMLInputElement>, "value" | "onChange"> {
   value: boolean;
   onChange: (value: boolean) => void;
+  disabled?: boolean;
 }
 
 export const Switch = (props: SwitchProps) => {
-  const { value, onChange, ...inputChanges } = props;
+  const { value, onChange, disabled, ...inputChanges } = props;
   return (
     <SwitchStyle
       type="checkbox"
-      checked={props.value}
-      onClick={() => props.onChange(!props.value)}
+      checked={value}
+      onClick={() => onChange(!value)}
       onChange={() => {}}
+      disabled={disabled}
       {...inputChanges}
     />
   );
@@ -154,15 +174,17 @@ export const SwitchWrapper = (props: {
 export function TacoSwitch(props: {
   label: string;
   checked: boolean;
-  onChange: (checked: boolean) => void;
+  disabled?: boolean;
+  onChange?: (checked: boolean) => void;
 }) {
   return (
     <SwitchWrapper label={props.label}>
       <Switch
         onChange={(value) => {
-          props.onChange(value);
+          props.onChange ? props.onChange(value) : null;
         }}
         value={props.checked}
+        disabled={props.disabled}
       />
     </SwitchWrapper>
   );
