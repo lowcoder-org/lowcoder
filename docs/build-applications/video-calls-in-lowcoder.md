@@ -1,5 +1,7 @@
 # Video Calls in Lowcoder
 
+> For the Lowcoder 3.0 guide, see [Build Collaborative Video Apps](app-editor/collaborative-video-apps.md), including meeting setup, chat, AI, documents, and shared forms or websites. For Chat Controller deployment, see [Realtime Shared State and Presence](realtime-collaboration.md).
+
 Collaboration features, especially interactive video calls, in customer-facing and internal employee apps are crucial for modern Applications.&#x20;
 
 For customer-facing apps, this enhances engagement, provides immediate support, and personalizes the user experience, fostering customer satisfaction and loyalty.&#x20;
