@@ -96,6 +96,14 @@ Activation requires these files on `main` and the deploy-hook secret. The GitHub
 job confirms that Cloudflare accepted the request; check Cloudflare's build result
 and the live domain to confirm publication. No npm package is published here.
 
+Setup status (2026-10-11): the `sdk-stable-release-main` hook exists for `main`,
+and its URL is stored as `LOWCODER_SDK_DEPLOY_HOOK` in the repository's Actions
+secrets. Push-triggered production and preview builds remain disabled. Activation
+still requires publishing the prepared source to `main` and applying the guarded
+Cloudflare build/deploy commands above; those commands are the intended setup,
+not a claim that the live build configuration has already been updated. The hook
+has not been triggered as a substitute for a stable release.
+
 Cloudflare documents branch-head hooks at
 https://developers.cloudflare.com/workers/ci-cd/builds/deploy-hooks/.
 
