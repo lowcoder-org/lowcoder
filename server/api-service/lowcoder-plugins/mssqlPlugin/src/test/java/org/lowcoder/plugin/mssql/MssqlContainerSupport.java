@@ -66,7 +66,12 @@ final class MssqlContainerSupport {
     }
 
     static MssqlDatasourceConfig config(String user, String password, boolean ssl, boolean readonly) {
-        return new MssqlDatasourceConfig(DATABASE, user, password, host(), (long) port(), ssl, null, readonly, false, null);
+        return config(user, password, ssl, readonly, false);
+    }
+
+    /** As {@link #config(String, String, boolean, boolean)}; {@code enableTurnOffPreparedStatement} lets a query run as a plain statement. */
+    static MssqlDatasourceConfig config(String user, String password, boolean ssl, boolean readonly, boolean enableTurnOffPreparedStatement) {
+        return new MssqlDatasourceConfig(DATABASE, user, password, host(), (long) port(), ssl, null, readonly, enableTurnOffPreparedStatement, null);
     }
 
     static MssqlDatasourceConfig config() {

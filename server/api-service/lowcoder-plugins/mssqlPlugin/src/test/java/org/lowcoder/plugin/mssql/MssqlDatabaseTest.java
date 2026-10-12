@@ -11,6 +11,7 @@ import org.lowcoder.sdk.models.DatasourceStructure.Table;
 import org.lowcoder.sdk.models.DatasourceStructure.TableType;
 import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.lowcoder.sdk.plugin.common.sql.HikariPerfWrapper;
+import org.lowcoder.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -21,7 +22,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -43,6 +46,7 @@ import static org.lowcoder.plugin.mssql.MssqlContainerSupport.jdbc;
 import static org.lowcoder.plugin.mssql.MssqlContainerSupport.rows;
 import static org.lowcoder.plugin.mssql.MssqlContainerSupport.run;
 import static org.lowcoder.plugin.mssql.MssqlContainerSupport.sql;
+import static org.lowcoder.plugin.mssql.MssqlContainerSupport.sqlConfig;
 
 /**
  * Unit MS-4 (task L5-5b): {@code MssqlConnector}, {@code MssqlQueryExecutor}, {@code MssqlStructureParser},
@@ -68,6 +72,13 @@ public class MssqlDatabaseTest {
     /** The type name the driver reports for a rowversion column, and the column's size in bytes. */
     static final String ROWVERSION_TYPE_NAME = "timestamp";
     static final int ROWVERSION_BYTES = 8;
+    static final String NEW9_TABLE = "dbo.t_new9";
+    static final String NEW9_WRITE_THEN_DUPLICATE = "insert into " + NEW9_TABLE + " values (2); insert into " + NEW9_TABLE + " values (1)";
+    static final String NEW9_WRITE_THEN_DIVIDE_BY_ZERO = "insert into " + NEW9_TABLE + " values (2); select 1/0 as boom";
+    static final String NEW9_TWO_WRITES = "insert into " + NEW9_TABLE + " values (2); insert into " + NEW9_TABLE + " values (3)";
+    static final String DUPLICATE_KEY_TEXT = "PRIMARY KEY";
+    static final String DIVIDE_BY_ZERO_TEXT = "Divide by zero";
+    static final String DISABLE_PREPARED_KEY = "disablePreparedStatement";
 
     private static Map<String, Object> keyValues(Object... columnsAndValues) {
         List<Map<String, Object>> comp = new ArrayList<>();
@@ -478,6 +489,76 @@ public class MssqlDatabaseTest {
             multiUpdate.put("changeSet", keyValues("marker", "all"));
             assertEquals(1, ((Map<?, ?>) gui("UPDATE", multiUpdate, Map.of("key", 2))).get("affectedRows"));
             assertEquals(List.of("all"), column(jdbc, "select marker from dbo.t_top", "marker"));
+        }
+    }
+
+    // ---- NEW-9: an update count followed directly by a failing statement
+
+    /** Drops and recreates {@link #NEW9_TABLE} with the single row 1, so a case does not depend on an earlier one. */
+    private static void resetNew9Table(Connection jdbc) {
+        execute(jdbc, "drop table if exists " + NEW9_TABLE, "create table " + NEW9_TABLE + " (id int primary key)",
+                "insert into " + NEW9_TABLE + " values (1)");
+    }
+
+    /** Runs {@code sql} on a fresh pool of {@code config}, prepared or plain; a plain run first proves it really is plain. */
+    private static Object runNew9(MssqlDatasourceConfig config, String sql, boolean plain) {
+        Map<String, Object> queryConfig = sqlConfig(sql);
+        queryConfig.put(DISABLE_PREPARED_KEY, plain);
+        SqlBasedQueryExecutionContext context = EXECUTOR.buildQueryExecutionContext(config, queryConfig, Map.of(), null);
+        assertEquals(plain, context.isDisablePreparedStatement(), "the query runs " + (plain ? "plain" : "prepared"));
+        HikariPerfWrapper pool = connect(config);
+        try {
+            return run(pool, config, queryConfig, Map.of());
+        } finally {
+            destroy(pool);
+        }
+    }
+
+    private static void assertFailsWith(Connection jdbc, String label, Supplier<Object> query, String messagePart, List<Object> idsAfter) {
+        resetNew9Table(jdbc);
+        PluginException thrown = assertThrows(PluginException.class, query::get, label + ": the failing statement must fail the query");
+        System.out.println("[MssqlDatabaseTest] NEW-9 " + label + ": " + thrown.getMessage());
+        assertEquals(QUERY_EXECUTION_ERROR, thrown.getError(), label);
+        assertTrue(thrown.getMessage().contains(messagePart), label + ": " + thrown.getMessage());
+        assertEquals(idsAfter, column(jdbc, "select id from " + NEW9_TABLE + " order by id", "id"), label);
+    }
+
+    /**
+     * NEW-9: SQL Server raises the error of the statement after an update count from {@code getGeneratedKeys}, which the
+     * executor took for "no keys", so the query answered {@code {affectedRows=1}}. It now fails, prepared and plain; the
+     * earlier write stays (auto-commit, as for any failing batch), a read-only pool rolls it back. A failure that already
+     * surfaced through {@code getMoreResults} (a result set after the write) keeps failing.
+     */
+    @Test
+    public void aFailingStatementAfterAWriteFailsTheQueryNEW9() throws Exception {
+        MssqlDatasourceConfig prepared = config();
+        MssqlDatasourceConfig plainAllowed = config(USER, PASSWORD, false, false, true);
+        MssqlDatasourceConfig readonly = config(USER, PASSWORD, false, true);
+        try (Connection jdbc = jdbc()) {
+            assertAll(
+                    () -> assertFailsWith(jdbc, "prepared", () -> runNew9(prepared, NEW9_WRITE_THEN_DUPLICATE, false), DUPLICATE_KEY_TEXT, List.of(1, 2)),
+                    () -> assertFailsWith(jdbc, "plain", () -> runNew9(plainAllowed, NEW9_WRITE_THEN_DUPLICATE, true), DUPLICATE_KEY_TEXT, List.of(1, 2)),
+                    () -> assertFailsWith(jdbc, "read-only prepared", () -> runNew9(readonly, NEW9_WRITE_THEN_DUPLICATE, false), DUPLICATE_KEY_TEXT, List.of(1)),
+                    () -> assertFailsWith(jdbc, "prepared, result set after the write", () -> runNew9(prepared, NEW9_WRITE_THEN_DIVIDE_BY_ZERO, false),
+                            DIVIDE_BY_ZERO_TEXT, List.of(1, 2)));
+        }
+    }
+
+    /**
+     * NEW-9 guard: the driver's own "no keys" exception after an update count (it carries no server error) still means "no
+     * keys", prepared and plain, so a batch without a failing statement succeeds. The answer is today's: only the first
+     * count, the second is lost (NEW-50, not fixed here); fixing NEW-50 changes the expected value below.
+     */
+    @Test
+    public void aWriteBatchWithoutAFailingStatementStillSucceedsNEW9() throws Exception {
+        try (Connection jdbc = jdbc()) {
+            for (boolean plain : new boolean[] {false, true}) {
+                resetNew9Table(jdbc);
+                Object answer = runNew9(config(USER, PASSWORD, false, false, plain), NEW9_TWO_WRITES, plain);
+                System.out.println("[MssqlDatabaseTest] NEW-9 guard, plain=" + plain + ": two writes -> " + answer);
+                assertEquals(Map.of("affectedRows", 1), answer, "plain=" + plain);
+                assertEquals(List.of(1, 2, 3), column(jdbc, "select id from " + NEW9_TABLE + " order by id", "id"), "plain=" + plain);
+            }
         }
     }
 }
