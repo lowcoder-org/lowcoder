@@ -31,6 +31,7 @@ import org.lowcoder.sdk.plugin.common.sql.SqlBasedDatasourceConnectionConfig;
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.pf4j.Extension;
 
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 import com.zaxxer.hikari.HikariDataSource;
 
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +53,18 @@ public class MssqlQueryExecutor extends SqlBasedQueryExecutor {
                     result.add(row);
                 }
                 return result;
+            }
+
+            /**
+             * A {@link SQLServerException} with a server error reports an error the server raised for the batch (NEW-9); the
+             * driver's own "no keys" exception (for example after a statement that was not the last of the batch) carries none
+             * and still means "no keys". Limits: only the top-level exception is classified, not a cause or
+             * {@code getNextException()}; the rule rests on what mssql-jdbc 10.2.1 was observed to do, not on a driver contract,
+             * so a driver upgrade needs the NEW-9 tests of {@code MssqlDatabaseTest} re-run.
+             */
+            @Override
+            protected boolean isQueryFailure(SQLException e) {
+                return e instanceof SQLServerException serverException && serverException.getSQLServerError() != null;
             }
         });
     }
