@@ -36,6 +36,12 @@ import org.lowcoder.sdk.plugin.sqlcommand.changeset.KeyValuePairChangeSet;
 class SheetChangeSetTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final String BLANK_EMPTY = "";
+    private static final String BLANK_SPACE = " ";
+    private static final String BLANK_TAB_SPACE = "\t ";
+    private static final String BLANK_LINE_FEED = "\n";
+    private static final String BLANK_CRLF = "\r\n";
+    private static final String BLANK_EM_SPACE = "\u2003";
 
     private static void assertPluginError(Runnable action, String messageKey, Object... args) {
         assertThatThrownBy(action::run).isInstanceOfSatisfying(PluginException.class, e -> {
@@ -159,6 +165,51 @@ class SheetChangeSetTest {
         System.out.println("[SheetChangeSetTest] entry without value -> sql " + sql + ", sheet " + sheet);
         assertThat(sql).containsExactly("a=null inlined as null", "b=1 inlined as 1", "c=null inlined as null");
         assertThat(sheet).containsExactlyInAnyOrder("a=[]", "b=[1]", "c=[]");
+    }
+
+    static Stream<Arguments> blankValues() {
+        return Stream.of(
+                Arguments.of("empty", BLANK_EMPTY),
+                Arguments.of("space", BLANK_SPACE),
+                Arguments.of("tab and space", BLANK_TAB_SPACE),
+                Arguments.of("line feed", BLANK_LINE_FEED),
+                Arguments.of("carriage return and line feed", BLANK_CRLF),
+                Arguments.of("em space", BLANK_EM_SPACE));
+    }
+
+    /**
+     * NEW-13 fixed: a blank value went through the mustache JSON renderer, which answers an empty object for blank text,
+     * so the sheet handlers wrote the text {@code {}} into the cell. A blank value is the editor's starting state (a new
+     * pair is {@code { column: "", value: "" }}); it now renders as itself, as the SQL GUI binds it. The other values of
+     * the same change set still render through the JSON path.
+     */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("blankValues")
+    void aBlankValueRendersAsItselfNotAnEmptyObjectNEW13(String label, String blank) {
+        List<Object> comp = List.of(pair("blank", blank), pair("n", "{{n}}"), pair("list", "[1, {{n}}]"));
+
+        SheetChangeSetRow row = new SheetKeyValuePairChangeSet(comp).render(Map.of("n", 5));
+
+        Object rendered = valueOf(row, "blank");
+        System.out.println("[SheetChangeSetTest] blank value (" + label + ") " + MAPPER.valueToTree(blank) + " -> "
+                + (rendered == null ? "null" : rendered.getClass().getSimpleName() + " " + MAPPER.valueToTree(rendered))
+                + ", n=" + valueOf(row, "n") + " list=" + valueOf(row, "list"));
+        assertThat(rendered).as("the blank value renders as itself").isInstanceOf(String.class).isEqualTo(blank);
+        assertThat(valueOf(row, "n")).isEqualTo(5);
+        assertThat(valueOf(row, "list")).isEqualTo(List.of(1, 5));
+    }
+
+    /** NEW-13: a blank last entry of a column replaces an earlier value with itself, not with an empty object. */
+    @Test
+    void aBlankLastDuplicateOverridesAnEarlierValueNEW13() {
+        List<Object> comp = List.of(pair("c", "plain"), pair("c", BLANK_SPACE));
+
+        SheetChangeSetRow row = new SheetKeyValuePairChangeSet(comp).render(Map.of());
+
+        System.out.println("[SheetChangeSetTest] c=plain then c=" + MAPPER.valueToTree(BLANK_SPACE) + " -> columns "
+                + row.getColumns() + ", c=" + MAPPER.valueToTree(valueOf(row, "c")));
+        assertThat(row.getColumns()).containsExactly("c");
+        assertThat(valueOf(row, "c")).as("the last entry wins, as itself").isEqualTo(BLANK_SPACE);
     }
 
     /**

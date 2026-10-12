@@ -46,16 +46,28 @@ public class SheetKeyValuePairChangeSet extends SheetChangeSet {
         map = columnValues;
     }
 
-    /** A null value writes {@link #EMPTY_CELL}; the sheet handlers write every value as text, so a null would be "null". */
+    /** A blank value writes itself and a null one {@link #EMPTY_CELL} ({@link #blankCell}); any other value renders as JSON. */
     @Override
     public SheetChangeSetRow render(Map<String, Object> requestMap) {
         List<SheetChangeSetItem> result = new ArrayList<>();
         for (String column : map.keySet()) {
             String value = map.get(column);
-            Object renderedValue = value == null ? EMPTY_CELL : JsonUtils.jsonNodeToObject(renderMustacheJson(value, requestMap));
+            Object renderedValue = StringUtils.isBlank(value) ? blankCell(value) : JsonUtils.jsonNodeToObject(renderMustacheJson(value, requestMap));
             result.add(new SheetChangeSetItem(column, renderedValue));
         }
         return new SheetChangeSetRow(result);
+    }
+
+    /**
+     * NEW-13: blank text is not rendered as JSON, where it becomes an empty object that the handlers write as the text
+     * {@code {}}; it writes itself, as the SQL GUI binds it. A null writes {@link #EMPTY_CELL}: the sheet handlers write
+     * every value as text, so a null would be "null" (BF-047).
+     */
+    private static Object blankCell(String value) {
+        if (value == null) {
+            return EMPTY_CELL;
+        }
+        return value;
     }
 
 }
