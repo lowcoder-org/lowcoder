@@ -34,8 +34,9 @@ import java.util.Map;
  *
  * <p>Limits: only the methods named here are implemented; any other call fails with
  * {@link SQLFeatureNotSupportedException} naming the method, so a parser that starts calling another method fails
- * the test instead of reading a default. The conversions are those of the JDBC specification, not of one driver; the one
- * exception is {@link StreamedCell}, a cell of a streamed column, which models the Oracle driver and says so.
+ * the test instead of reading a default. The conversions are those of the JDBC specification, not of one driver; the
+ * exceptions are {@link StreamedCell}, a cell of a streamed column, which models the Oracle driver, and
+ * {@link MissingClassCell}, a cell whose type needs an absent helper class. Both say so in their own documentation.
  */
 public final class FakeJdbc {
 
@@ -52,6 +53,14 @@ public final class FakeJdbc {
      * value that is a duration) and whose {@code getString} gives {@code text}.
      */
     public record FailingCell(String message, String text) {
+    }
+
+    /**
+     * A cell whose every getter throws a {@link NoClassDefFoundError} naming {@code className}, the way a driver does
+     * for a column whose type needs a helper class the deployment does not have (NEW-16). Not JDBC-specification
+     * behaviour, like {@link StreamedCell}: an {@code Error} is not something the specification has a driver raise.
+     */
+    public record MissingClassCell(String className) {
     }
 
     /**
@@ -227,6 +236,9 @@ public final class FakeJdbc {
         if (cell instanceof FailingCell failing) {
             throw new SQLException(failing.message());
         }
+        if (cell instanceof MissingClassCell missing) {
+            throw new NoClassDefFoundError(missing.className());
+        }
         if (cell instanceof StreamedCell streamed) {
             return streamed.readOnce();
         }
@@ -244,6 +256,9 @@ public final class FakeJdbc {
     private static String string(Object cell) throws SQLException {
         if (cell instanceof FailingCell failing) {
             return failing.text();
+        }
+        if (cell instanceof MissingClassCell missing) {
+            throw new NoClassDefFoundError(missing.className());
         }
         if (cell instanceof StreamedCell streamed) {
             Object value = streamed.readOnce();

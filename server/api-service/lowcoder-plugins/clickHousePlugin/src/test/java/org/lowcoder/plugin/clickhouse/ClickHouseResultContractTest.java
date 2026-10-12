@@ -1,16 +1,23 @@
 package org.lowcoder.plugin.clickhouse;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
+
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.config.dynamic.ConfigCenterForTest;
 import org.lowcoder.sdk.contract.ConfigBinding;
 import org.lowcoder.sdk.contract.FakeJdbc;
 import org.lowcoder.sdk.contract.FakeJdbc.Column;
+import org.lowcoder.sdk.contract.FakeJdbc.MissingClassCell;
 import org.lowcoder.sdk.contract.FakeJdbc.Rows;
 import org.lowcoder.sdk.contract.FakeJdbc.StatementResult;
 import org.lowcoder.sdk.contract.FakeJdbc.UpdateCount;
 import org.lowcoder.sdk.contract.GoldenJson;
 import org.lowcoder.sdk.contract.QueryResults;
+import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
 
@@ -41,6 +48,10 @@ public class ClickHouseResultContractTest {
     static final String PREPARED = "prepared";
     static final String PLAIN = "plain";
     static final Duration TIMEOUT = Duration.ofSeconds(20);
+    /** For the NEW-16 test, whose failure mode at HEAD is a hang: short, so the suite is not held for 20 s. */
+    static final Duration MISSING_CLASS_TIMEOUT = Duration.ofMillis(250);
+    /** A class a driver would need for a column type the deployment cannot read; the answer must name it. */
+    static final String MISSING_CLASS = "com.clickhouse.data.value.ClickHouseGeoPointValue";
     static final Map<String, Supplier<List<StatementResult>>> CASES = cases();
 
     private static final GoldenJson GOLDEN = GoldenJson.forModule();
@@ -59,6 +70,35 @@ public class ClickHouseResultContractTest {
         String actual = ConfigBinding.write(report);
         System.out.println("[ClickHouseResultContractTest]\n" + actual);
         GOLDEN.assertJson(REPORT, actual);
+    }
+
+    /**
+     * NEW-16 (T165): ClickHouse does not inherit {@code BlockingQueryExecutor}, but its query method has the same
+     * shape - {@code Mono.fromSupplier(...)} subscribed on the shared plugin scheduler - so a
+     * {@link NoClassDefFoundError} while a result is read was rethrown as JVM-fatal on a worker, before its own
+     * {@code onErrorMap} could see it, and the query never answered. It now fails with an execution error naming the
+     * class.
+     *
+     * <p>Deliberately not a case in {@link #CASES}: that map's output is pinned in a golden file, and this task has no
+     * reason to rewrite it. Limit: the missing class is simulated by {@link MissingClassCell}, not produced by a real
+     * ClickHouse driver.
+     */
+    @Test
+    public void aCellWhoseClassIsMissingFailsTheQueryWithAnExecutionErrorNEW16() {
+        SqlBasedQueryExecutionContext context = SqlBasedQueryExecutionContext.builder()
+                .query(QUERY).requestParams(Map.of()).build();
+        List<StatementResult> results = List.of(new Rows(FakeJdbc.resultSet(
+                List.of(new Column("point", "Point")),
+                List.of(List.of(new MissingClassCell(MISSING_CLASS))))));
+
+        PluginException thrown = assertThrows(PluginException.class,
+                () -> executor.executeQuery(dataSource(FakeJdbc.connection(results)), context).block(MISSING_CLASS_TIMEOUT));
+
+        System.out.println("[ClickHouseResultContractTest] missing class: " + thrown.getError() + " "
+                + thrown.getMessageKey() + " " + Arrays.toString(thrown.getArgs()));
+        assertEquals(QUERY_EXECUTION_ERROR, thrown.getError());
+        assertTrue(Arrays.toString(thrown.getArgs()).contains(MISSING_CLASS),
+                "the answer must name the missing class, was " + Arrays.toString(thrown.getArgs()));
     }
 
     private Object report(List<StatementResult> results, boolean disablePreparedStatement) {
