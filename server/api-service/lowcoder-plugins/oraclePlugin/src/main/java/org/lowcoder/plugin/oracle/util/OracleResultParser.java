@@ -25,10 +25,19 @@ import org.lowcoder.sdk.plugin.common.sql.ResultSetParser;
  * ISO-8601 duration ({@code PT26H3M4.5S}) and an {@code INTERVAL YEAR TO MONTH} as an ISO-8601 period ({@code P2Y3M}).
  * Every other column follows {@link ResultSetParser#getValue}. A null cell stays null.
  * <p>
+ * The driver also streams the two {@code LONG} types, so each of their cells can be read exactly once, while
+ * {@link ResultSetParser#getValue} reads every cell twice (once for its null check): every query selecting such a column
+ * failed with {@code ORA-17027: Stream has already been closed.} (NEW-15). They are read once here too: a {@code LONG} as
+ * its text, with the other text types, and a {@code LONG RAW} as its bytes, the value a {@code RAW} column has (the result
+ * JSON writes them as base64).
+ * <p>
  * Limits: a time zone given by region ({@code Europe/Prague}) is written as its offset at that instant, without the region
  * name; a {@code TIMESTAMP WITH LOCAL TIME ZONE} is read in the session time zone, which the driver takes from the JVM;
  * the other Oracle types the driver hands over as its own objects ({@code XMLTYPE}, {@code BFILE}, object and collection
- * types) are not handled here.
+ * types) are not handled here. A {@code LONG} or {@code LONG RAW} value is read whole into memory, as every other cell of
+ * a result is, so a very large one costs its size; no bound is imposed here. Every type is matched by the name the
+ * metadata gives ({@code getColumnTypeName}, upper-cased), not by its JDBC type code, so a driver naming them differently
+ * would not take these branches.
  */
 public final class OracleResultParser {
 
@@ -39,8 +48,10 @@ public final class OracleResultParser {
     static final String TIMESTAMP_WITH_LOCAL_TIME_ZONE = "TIMESTAMP WITH LOCAL TIME ZONE";
     static final String INTERVAL_DAY_TO_SECOND = "INTERVALDS";
     static final String INTERVAL_YEAR_TO_MONTH = "INTERVALYM";
+    static final String LONG = "LONG";
+    static final String LONG_RAW = "LONG RAW";
 
-    private static final Set<String> TEXT_TYPES = Set.of(CLOB, NCLOB, ROWID);
+    private static final Set<String> TEXT_TYPES = Set.of(CLOB, NCLOB, ROWID, LONG);
     private static final Set<String> ZONED_TIMESTAMP_TYPES = Set.of(TIMESTAMP_WITH_TIME_ZONE, TIMESTAMP_WITH_LOCAL_TIME_ZONE);
 
     private OracleResultParser() {
@@ -76,6 +87,9 @@ public final class OracleResultParser {
         if (INTERVAL_YEAR_TO_MONTH.equals(type)) {
             Period value = resultSet.getObject(i, Period.class);
             return value == null ? null : value.toString();
+        }
+        if (LONG_RAW.equals(type)) {
+            return resultSet.getBytes(i);
         }
         return ResultSetParser.getValue(resultSet, i, typeName);
     }

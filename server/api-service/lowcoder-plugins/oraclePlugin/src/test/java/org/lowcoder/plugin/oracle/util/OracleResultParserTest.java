@@ -1,6 +1,8 @@
 package org.lowcoder.plugin.oracle.util;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.math.BigDecimal;
@@ -17,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.contract.FakeJdbc;
 import org.lowcoder.sdk.contract.FakeJdbc.Column;
 import org.lowcoder.sdk.contract.FakeJdbc.FailingCell;
+import org.lowcoder.sdk.contract.FakeJdbc.StreamedCell;
 
 /**
  * BF-052: {@link OracleResultParser} reads the Oracle types the driver hands over as its own objects as text, and hands
@@ -35,6 +38,12 @@ public class OracleResultParserTest {
     static final Period YEAR_TO_MONTH = Period.of(2, 3, 0);
     static final BigDecimal NUMBER = new BigDecimal("12.34");
     static final String DRIVER_OBJECT = "getObject answers a driver object for this type";
+    static final String LONG_TEXT = "long text";
+    static final String AFTER = "after";
+    static final byte[] LONG_RAW_BYTES = {0, 1, (byte) 0xFF};
+
+    private static final List<Column> LONG_COLUMNS = List.of(new Column("C_LONG", "long"), new Column("C_AFTER", "VARCHAR2"));
+    private static final List<Column> LONG_RAW_COLUMNS = List.of(new Column("C_NUM", "NUMBER"), new Column("C_LONG_RAW", "long raw"));
 
     private static final List<Column> COLUMNS = List.of(
             new Column("C_CLOB", OracleResultParser.CLOB),
@@ -47,9 +56,23 @@ public class OracleResultParserTest {
             new Column("C_NUM", "NUMBER"));
 
     private static List<Map<String, Object>> parse(List<List<Object>> rows) throws SQLException {
-        List<Map<String, Object>> parsed = OracleResultParser.parseRows(FakeJdbc.resultSet(COLUMNS, rows));
-        System.out.println("[OracleResultParserTest] " + parsed);
+        return parse(COLUMNS, rows);
+    }
+
+    private static List<Map<String, Object>> parse(List<Column> columns, List<List<Object>> rows) throws SQLException {
+        List<Map<String, Object>> parsed = OracleResultParser.parseRows(FakeJdbc.resultSet(columns, rows));
+        System.out.println("[OracleResultParserTest] " + columns.stream().map(column -> column.label() + " " + column.typeName()).toList()
+                + " -> " + parsed.stream().map(row -> row.entrySet().stream()
+                        .map(cell -> cell.getKey() + "=" + describe(cell.getValue())).toList()).toList());
         return parsed;
+    }
+
+    /** The class and the value of a parsed cell, bytes as a list, so a hex string and bytes read differently. */
+    private static String describe(Object value) {
+        if (value == null) {
+            return "null";
+        }
+        return value.getClass().getSimpleName() + ":" + (value instanceof byte[] bytes ? Arrays.toString(bytes) : value);
     }
 
     @Test
@@ -74,5 +97,39 @@ public class OracleResultParserTest {
 
         assertEquals(COLUMNS.size(), row.size());
         row.forEach((column, value) -> assertNull(value, column));
+    }
+
+    /**
+     * NEW-15 fixed: the Oracle driver streams a {@code LONG} column, so its cell can be read once; the shared result parser
+     * read every cell twice (once for its null check), and the query failed with ORA-17027 "Stream has already been closed."
+     * A {@code LONG} is now read once as text, like a CLOB. The {@link StreamedCell} fails on a second read, as the driver
+     * does; the column after it still reads, and a null row stays null.
+     */
+    @Test
+    public void aLongCellIsReadOnceAsTextNEW15() throws SQLException {
+        List<Map<String, Object>> rows = parse(LONG_COLUMNS,
+                List.of(List.of(new StreamedCell(LONG_TEXT), AFTER), Arrays.asList(new Object[LONG_COLUMNS.size()])));
+
+        assertEquals(LONG_TEXT, rows.get(0).get("C_LONG"));
+        assertInstanceOf(String.class, rows.get(0).get("C_LONG"), "a type name in lower case is matched too");
+        assertEquals(AFTER, rows.get(0).get("C_AFTER"), "the column after the streamed one still reads");
+        rows.get(1).forEach((column, value) -> assertNull(value, column));
+    }
+
+    /**
+     * NEW-15 fixed for the binary twin: a {@code LONG RAW} column is streamed as well and is now read once with
+     * {@code getBytes}, which answers the bytes, the value a {@code RAW} column has had all along. The column is the last
+     * one here, so the parser reaches it after another column; a null row stays null.
+     */
+    @Test
+    public void aLongRawCellIsReadOnceAsBytesNEW15() throws SQLException {
+        List<Map<String, Object>> rows = parse(LONG_RAW_COLUMNS,
+                List.of(List.of(NUMBER, new StreamedCell(LONG_RAW_BYTES)), Arrays.asList(new Object[LONG_RAW_COLUMNS.size()])));
+
+        Object cell = rows.get(0).get("C_LONG_RAW");
+        assertInstanceOf(byte[].class, cell, "bytes, not the hex text of getString");
+        assertArrayEquals(LONG_RAW_BYTES, (byte[]) cell);
+        assertEquals(NUMBER, rows.get(0).get("C_NUM"), "a type the shared rules handle is passed through as before");
+        rows.get(1).forEach((column, value) -> assertNull(value, column));
     }
 }
