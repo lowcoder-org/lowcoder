@@ -20,7 +20,7 @@ import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_ARGUMENT_E
  *
  * <p>What consumes the result (MongoPlugin.java): the raw URI is what {@code MongoClients.create} gets in URI mode
  * ({@code buildClientUri}, lines 324-336), so the parsed host and credentials are never used to connect; the parts only
- * validate the string ({@code validateConfig} 425-444, {@code buildClientUri} 330-333) and the database name comes from here
+ * validate the string ({@code validateConfig} 469-495, {@code buildClientUri} 330-333) and the database name comes from here
  * ({@code getParsedDatabase}, used at lines 189, 212, 307 and 365). A misread therefore shows as a wrong or missing database
  * name, not as a wrong host.
  *
