@@ -2,6 +2,7 @@ package org.lowcoder.plugin.mongo;
 
 import com.mongodb.ConnectionString;
 import org.junit.jupiter.api.Test;
+import org.lowcoder.plugin.mongo.model.MongoConnectionUriParser;
 import org.lowcoder.plugin.mongo.model.MongoDatasourceConfig;
 import org.lowcoder.sdk.config.dynamic.ConfigCenterForTest;
 import org.lowcoder.sdk.models.DatasourceConnectionConfig;
@@ -14,6 +15,7 @@ import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit MG-3 (task L5-8b): {@code MongoPlugin.MongoEngine.validateConfig} for every branch: URI mode (blank, invalid, valid),
@@ -22,9 +24,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * <p>Host names are resolved by the loopback check (BF-023), in the host field and in the connection string the driver would
  * use; the names used for accepted hosts here do not resolve, which the check lets pass.
  *
- * <p>Limits: the second check of the URI branch ({@code extractInfoFromConnectionStringURI == null}, MongoPlugin.java:435-438)
- * cannot fire, because {@code isValid} true implies a non-null parse, so it is not covered. The message codes are asserted, not
- * their localized texts.
+ * <p>The URI branch now has three checks before the loopback one: the regex ({@code isValid}), the parse into parts
+ * ({@code extractInfoFromConnectionStringURI == null}) and the driver's own parser ({@code driverParse == null}, NEW-20).
+ *
+ * <p>Limits: the second of those cannot fire (MongoPlugin.java:479-482), because {@code isValid} true implies a non-null
+ * parse, so it is not covered.
+ * The message codes are asserted, not their localized texts, and nothing here asserts the HTTP status or body those codes
+ * become. Host mode is not fixed for a driver refusal (NEW-55): today's silence is pinned below rather than corrected.
  */
 public class MongoPluginValidateConfigTest {
 
@@ -35,6 +41,28 @@ public class MongoPluginValidateConfigTest {
     static final String DATABASE_EMPTY = "DATABASE_EMPTY";
     static final String GOOD_HOST = "db.example.org";
     static final String GOOD_DATABASE = "app";
+
+    /**
+     * NEW-20: connection strings {@code MONGO_URL_REGEX} matches and the driver refuses, one per reason - an authority
+     * read as host {@code u:p} with a non-numeric port (BF-060's split case), a database holding '/' or ' ', options
+     * without the leading '/', an option without '=', an SRV host carrying a port, a username without a password, a
+     * port that is not a number and one out of range, an unknown read preference, an unknown auth mechanism, and an
+     * unenclosed IPv6 literal. Both tests below assert the driver's verdict case by case, so this list pins the
+     * parsing decisions of whichever driver the classpath resolves rather than a stable MongoDB URI specification.
+     */
+    static final List<String> DRIVER_REFUSED_URIS = List.of(
+            "mongodb://u:p/ss@h/db", "mongodb://h/db/x", "mongodb://h?x=1", "mongodb://localhost?x=1",
+            "mongodb://h/db?x", "mongodb+srv://h:27017/db", "mongodb://u@h/db", "mongodb://h:notaport/db",
+            "mongodb://h:99999/db", "mongodb://h/db?readPreference=bogus", "mongodb://h/a b",
+            "mongodb://u:p@h/db?authMechanism=NOPE", "mongodb://[::1/db");
+
+    /** NEW-20: connection strings that look malformed and the driver accepts; the last two are BF-060's cases. */
+    static final List<String> DRIVER_ACCEPTED_URIS = List.of(
+            "mongodb://h/db#frag", "mongodb://h,/db", "mongodb://h/db?ssl=notabool", "mongodb://h/db?w=x=y",
+            "mongodb://realhost/db?appName=a:b@other", "mongodb://u?x:p?q@h/db");
+
+    /** NEW-55: host-field values the driver refuses once the connection string is built around them. */
+    static final List<String> DRIVER_REFUSED_HOSTS = List.of("h:notaport", "[::1", "h:99999");
 
     private final MongoPlugin.MongoEngine engine = new MongoPlugin.MongoEngine(new ConfigCenterForTest());
 
@@ -75,6 +103,63 @@ public class MongoPluginValidateConfigTest {
         for (String emptyAuthority : List.of("mongodb:///:p@h/db", "mongodb+srv:///db:x@h")) {
             assertEquals(Set.of(URL_INVALID), uri(emptyAuthority), emptyAuthority);
             assertThrows(IllegalArgumentException.class, () -> new ConnectionString(emptyAuthority), "the driver refuses " + emptyAuthority);
+        }
+    }
+
+    /**
+     * NEW-20: a connection string the regex matches but the driver's own parser refuses is now reported, instead of
+     * saving and failing later on connect. Each case asserts three things in order: that the regex accepts it, so the
+     * check that fires is the driver one and not {@code isValid}; that the driver refuses it, so the expectation is the
+     * driver's own verdict and not a list copied from a probe; and the resulting code. `mongodb://localhost?x=1` also
+     * pins the choice of code: a loopback host inside a refused URI gives the URL code alone, because a refused string
+     * yields no hosts for the loopback check to see.
+     *
+     * <p>The printed driver messages can quote the part of the URI that was refused, which for two of these is a
+     * credential pair; both are fabricated constants here, and the production path prints nothing at all.
+     */
+    @Test
+    public void aUriTheDriverRefusesIsInvalidNEW20() {
+        for (String refused : DRIVER_REFUSED_URIS) {
+            assertTrue(MongoConnectionUriParser.isValid(refused), "the regex accepts '" + refused + "'");
+            IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                    () -> new ConnectionString(refused), "the driver refuses '" + refused + "'");
+            System.out.println("[MongoPluginValidateConfigTest] driver refuses " + refused + " -> " + thrown.getMessage());
+            assertEquals(Set.of(URL_INVALID), uri(refused), refused);
+        }
+        Set<String> throughSdkEntry = engine.doValidateConfig(
+                MongoDatasourceConfig.builder().usingUri(true).uri(DRIVER_REFUSED_URIS.get(0)).build());
+        System.out.println("[MongoPluginValidateConfigTest] doValidateConfig " + DRIVER_REFUSED_URIS.get(0) + " -> " + throughSdkEntry);
+        assertEquals(Set.of(URL_INVALID), throughSdkEntry, "the same key through the sdk entry the server calls");
+    }
+
+    /**
+     * NEW-20, the guard: a URI the driver accepts gains no message from the new check. It asserts that and no more -
+     * not that the datasource is usable. Each of these looks malformed and is not, so an implementation that rejected
+     * on appearance rather than on the driver's verdict would fail here; the last two are BF-060's cases, which carry a
+     * ':' and an '@' past the authority. `mongodb://h` and `mongodb://h/` are driver-accepted too but deliberately
+     * absent: they carry no database, so asserting an empty result would pin something this task has no view on, which
+     * {@code MongoConnectionUriParser.parseDatabaseFrom} contradicts later anyway.
+     */
+    @Test
+    public void aUriTheDriverAcceptsIsNotRejectedByTheNewCheckNEW20() {
+        for (String accepted : DRIVER_ACCEPTED_URIS) {
+            ConnectionString parsed = new ConnectionString(accepted);
+            System.out.println("[MongoPluginValidateConfigTest] driver accepts " + accepted + " -> hosts " + parsed.getHosts()
+                    + " database " + parsed.getDatabase());
+            assertEquals(Set.of(), uri(accepted), accepted);
+        }
+    }
+
+    /**
+     * NEW-55, asserted as today's behaviour and not as behaviour this task endorses: host mode answers nothing for a
+     * host the driver cannot parse, so such a datasource still saves and fails on connect. It is pinned here because
+     * NEW-20's fix rewrote {@code driverHosts(String)}, which host mode is the only caller of, and the rewrite must not
+     * turn that silence into a {@code NullPointerException}.
+     */
+    @Test
+    public void hostModeStillAnswersNothingWhenTheDriverRefusesTheBuiltStringNEW55() {
+        for (String refusedHost : DRIVER_REFUSED_HOSTS) {
+            assertEquals(Set.of(), host(refusedHost, GOOD_DATABASE), refusedHost);
         }
     }
 
