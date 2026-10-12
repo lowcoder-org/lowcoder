@@ -1,6 +1,9 @@
 import styled from "styled-components";
 import { EditPopover, PointIcon, Search, TacoButton } from "lowcoder-design";
-import { useState, useEffect } from "react";
+import { useState, useCallback } from "react";
+import { AdminPage, AdminPageHeader, AdminSurface } from "components/layout/adminTheme";
+import { useAdminPagination } from "components/layout/useAdminPagination";
+import { AdminListError } from "components/layout/AdminListFeedback";
 import { useDebouncedValue } from "util/hooks";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataSourceTypesMap } from "../../redux/selectors/datasourceSelectors";
@@ -18,32 +21,17 @@ import { DatasourcePermissionDialog } from "../../components/PermissionDialog/Da
 import DataSourceIcon from "components/DataSourceIcon";
 import { Helmet } from "react-helmet";
 import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
-import PaginationComp from "@lowcoder-ee/util/pagination/Pagination";
+import { AdminPagination } from "components/layout/AdminPagination";
 import {DatasourceInfo} from "@lowcoder-ee/api/datasourceApi";
 import {fetchDatasourcePagination} from "@lowcoder-ee/util/pagination/axios";
 import {getUser} from "@lowcoder-ee/redux/selectors/usersSelectors";
 
-const DatasourceWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-`;
+const DatasourceWrapper = AdminPage;
 
-const HeaderWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  height: 92px;
-  padding: 28px 36px;
-  width: 100%;
-`;
+const HeaderWrapper = AdminPageHeader;
 
 const Title = styled.div`
-  font-weight: 500;
-  font-size: 18px;
-  color: #222222;
-  line-height: 18px;
-  flex-grow: 1;
+  flex: 1 0 240px;
 `;
 
 const AddBtn = styled(TacoButton)`
@@ -53,15 +41,14 @@ const AddBtn = styled(TacoButton)`
 `;
 
 const EditBtn = styled(TacoButton)`
-  opacity: 0;
+  opacity: 1;
   width: 52px;
   height: 24px;
 `;
 
-const BodyWrapper = styled.div`
-  width: 100%;
-  flex-grow: 1;
-  padding: 0 24px;
+const BodyWrapper = styled(AdminSurface)`
+  padding: 12px 16px;
+  @media (max-width: 720px) { padding: 8px; }
 `;
 
 const DatasourceName = styled.div`
@@ -108,57 +95,20 @@ const StyledTable = styled(Table)`
 export const DatasourceList = () => {
   const dispatch = useDispatch();
   const [searchValue, setSearchValue] = useState("");
-  const [searchValues, setSearchValues] = useState("");
   const [isCreateFormShow, showCreateForm] = useState(false);
   const [shareDatasourceId, setShareDatasourceId] = useState<string | undefined>(undefined);
   const [modify, setModify] = useState(false);
   const currentUser = useSelector(getUser);
   const orgId = currentUser.currentOrgId;
   const plugins = useSelector(getDataSourceTypesMap);
-  interface ElementsState {
-    elements: DatasourceInfo[];
-    total: number;
-  }
 
-  const [elements, setElements] = useState<ElementsState>({ elements: [], total: 0 });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [paginationLoading, setPaginationLoading] = useState(false);
-
-  const debouncedSearchValue = useDebouncedValue(searchValue, 500);
-
-  useEffect(() => {
-    if (debouncedSearchValue.trim().length > 0 || debouncedSearchValue === "") {
-      setSearchValues(debouncedSearchValue);
-    }
-  }, [debouncedSearchValue]);
-
-  useEffect( () => {
-    setPaginationLoading(true);
-    fetchDatasourcePagination(
-      {
-        orgId: orgId,
-        pageNum: currentPage,
-        pageSize: pageSize,
-        name: searchValues
-      }
-    ).then((result: any) => {
-      if (result.success){
-        setElements({elements: result.data || [], total: result.total || 1})
-      }
-      else
-        console.error("ERROR: fetchFolderElements", result.error)
-    }).finally(() => {
-      setPaginationLoading(false);
-    })
-  }, [currentPage, pageSize, searchValues, modify]
-  )
-
-  useEffect( () => {
-        if (searchValues !== "")
-          setCurrentPage(1);
-      }, [searchValues]
-  );
+  const debouncedSearch = useDebouncedValue(searchValue, 300).trim();
+  const loadPage = useCallback((page: number, size: number) => fetchDatasourcePagination({
+    orgId, pageNum: page, pageSize: size, name: debouncedSearch,
+  }), [orgId, debouncedSearch, modify]);
+  const pagination = useAdminPagination<DatasourceInfo>({ scope: orgId, filterKey: debouncedSearch, loadPage });
+  const { currentPage, pageSize, setCurrentPage, setPageSize, loading: paginationLoading } = pagination;
+  const elements = pagination;
 
   return (
     <>
@@ -186,8 +136,9 @@ export const DatasourceList = () => {
           ]} />
 
         <HeaderWrapper>
-          <Title>{trans("home.datasource")}</Title>
+          <Title><h1>{trans("home.datasource")}</h1><p>{trans("admin.datasourceDescription")}</p></Title>
           <Search
+            aria-label={trans("search")}
             placeholder={trans("search")}
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
@@ -197,6 +148,7 @@ export const DatasourceList = () => {
           </AddBtn>
         </HeaderWrapper>
         <BodyWrapper>
+          {pagination.error && <AdminListError retry={pagination.retry} />}
           <StyledTable
             loading={{
               spinning: paginationLoading,
@@ -204,7 +156,7 @@ export const DatasourceList = () => {
             }}
             rowClassName={(record: any) => (!record.edit ? "datasource-can-not-edit" : "")}
             tableLayout={"auto"}
-            scroll={{ x: "100%" }}
+            scroll={{ x: 780 }}
             pagination={false}
             onRow={(record: any) => ({
               onClick: () => record.edit && history.push(buildDatasourceEditUrl(record.id)),
@@ -213,6 +165,7 @@ export const DatasourceList = () => {
               {
                 title: trans("home.datasourceName"),
                 dataIndex: "name",
+                render: (name, record: any) => <DatasourceName><DataSourceIcon dataSourceType={record.datasourceType} />{name}</DatasourceName>,
                 ellipsis: true,
                 sorter: (a: any, b: any) => {
                   if (a.name === b.name) {
@@ -259,7 +212,7 @@ export const DatasourceList = () => {
                   if (a.creator === b.creator) {
                     return 0;
                   }
-                  return a.type > b.type ? 1 : -1;
+                  return (a.creator ?? "").localeCompare(b.creator ?? "");
                 },
                 render: (text) => <SubColumnCell>{text}</SubColumnCell>,
               },
@@ -283,6 +236,7 @@ export const DatasourceList = () => {
               {
                 title: " ",
                 dataIndex: "operation",
+                fixed: "right",
                 width: "152px",
                 render: (_, record: any) => (
                   <>
@@ -324,14 +278,10 @@ export const DatasourceList = () => {
             ]}
             dataSource={elements.elements
               .map((info, i) => ({
-                key: i,
+                key: info.datasource.id,
                 id: info.datasource.id,
-                name: (
-                  <DatasourceName>
-                    <DataSourceIcon dataSourceType={info.datasource.type} />
-                    {info.datasource.name}
-                  </DatasourceName>
-                ),
+                name: info.datasource.name,
+                datasourceType: info.datasource.type,
                 type: plugins[info.datasource.type]?.name,
                 database: (info.datasource.datasourceConfig as any)?.database ??
                   (info.datasource.datasourceConfig as any)?.serviceName,
@@ -339,7 +289,7 @@ export const DatasourceList = () => {
                 creator: info.creatorName,
                 edit: info.edit,
               }))} />
-          { !!elements.elements.length ? <PaginationComp
+          { !!elements.elements.length ? <AdminPagination
             currentPage={currentPage}
             pageSize={pageSize}
             setPageSize={setPageSize}

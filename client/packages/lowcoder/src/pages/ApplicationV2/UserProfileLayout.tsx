@@ -1,3 +1,4 @@
+import { AdminPage, AdminCover } from "components/layout/adminTheme";
 import CountUp from 'react-countup';
 import { useSelector } from "react-redux";
 import styled from "styled-components";
@@ -43,31 +44,16 @@ import UserApiKeysCard from './components/UserApiKeysCard';
 const { Text, Title, Link } = Typography;
 const { Option } = Select;
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-`;
+const Wrapper = AdminPage;
 
-const HeaderWrapper = styled.div`
-  height: 84px;
-  width: 100%;
-  display: flex;
-  padding: 0 36px;
-  align-items: center;
-  flex-shrink: 0;
-  @media screen and (max-width: 500px) {
-    padding: 0 24px;
-  }
-`;
+const HeaderWrapper = styled.div`margin-bottom: 18px;`;
 
 const ContentWrapper = styled.div`
   position: relative;
 `;
 
 const Breadcrumb = styled(AntdBreadcrumb)`
-  font-size: 20px;
+  font-size: 12px;
 
   li:not(:last-child) {
     color: #8b8fa3;
@@ -85,7 +71,7 @@ const Breadcrumb = styled(AntdBreadcrumb)`
   }
 
   @media screen and (max-width: 720px) {
-    display:none
+    font-size: 12px;
   }
 `;
 
@@ -93,29 +79,13 @@ const BreadcrumbItem = styled.div`
   cursor: pointer;
 `;
 
-const ProfileView = styled.div`
-  font-size: 14px;
-  color: #8b8fa3;
-  flex-grow: 1;
-  padding-top: 00px;
-  padding-left: 40px;
-  max-width: 95%;
-`;
+const ProfileView = styled.div`min-width: 0;`;
 
-const StyleProfileCover = styled.div`
-    background: rgb(2,0,36);
-    background: -moz-linear-gradient(31deg, rgba(2,0,36,1) 0%, rgba(121,9,102,1) 35%, rgba(0,212,255,1) 100%);
-    background: -webkit-linear-gradient(31deg, rgba(2,0,36,1) 0%, rgba(121,9,102,1) 35%, rgba(0,212,255,1) 100%);
-    background: linear-gradient(31deg, rgba(2,0,36,1) 0%, rgba(121,9,102,1) 35%, rgba(0,212,255,1) 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#020024",endColorstr="#00d4ff",GradientType=1);
-    padding: 25px;
-    height: 120px;
-    border-radius:10px 10px 0 0;
-`;
+const StyleProfileCover = AdminCover;
 
 const StyleProfileContent = styled.div` 
     position: relative;
-    margin-top:-50px;
+    margin-top: 0;
     display: flex;
     align-items: end;
     gap: 20px;
@@ -142,8 +112,8 @@ const StyleAvatar = styled(Avatar)`
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  background-color: #0093E9;
-  background-image: linear-gradient(160deg, #0093E9 0%, #80D0C7 100%);
+  background: #8050a0;
+  border-radius: 20px;
   .ant-avatar-string {
     font-size: 2em;
   }
@@ -246,12 +216,11 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
 
       <ContentWrapper>
         <ProfileView>
-          <StyleProfileCover>
-          </StyleProfileCover>
+<StyleProfileCover><h1>{trans("home.profile")}</h1><p>{trans("admin.profileDescription")}</p></StyleProfileCover>
           <Card style={{ marginBottom: "20px" }}>
             <StyleProfileContent>
               <Row gutter={[24, 24]} style={{ display: 'flex', alignItems: 'end' }}>
-                <Col lg={4}>
+                <Col flex="none">
                   {user.avatarUrl ? (
                     <StyleAvatar src={fullAvatarUrl(user.avatarUrl)} shape="square" size={120} />
                   ) : (
@@ -260,8 +229,8 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                     </StyleAvatar>
                   )}
                 </Col>
-                <Col lg={20}>
-                  <Space style={{paddingLeft : "80px"}}>
+                <Col flex="auto" style={{ minWidth: 0 }}>
+                  <Space style={{ overflowWrap: "anywhere" }}>
                     <div>
                       <Title level={4} style={{ marginBottom: '10px'}}>{user.username}</Title>
                       <Space className='subtitle' size={15} style={{ marginRight: '20px', gap: '8px', marginBottom: '10px' }}>
@@ -347,9 +316,9 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
 
           <Card style={{ marginBottom: "20px" }}>
             <Title level={4}>{trans("profile.info")}</Title>
-            <Space direction="horizontal" size={10}>
+            <Space direction="horizontal" size={10} style={{ width: "100%" }}>
               <Row gutter={[24,24]}>
-                <Col xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: "350px"}} span={8}>
+                <Col xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: 0}} span={8}>
                     <Card hoverable extra={<a href="#" onClick={() => history.replace(ALL_APPLICATIONS_URL)}>{trans("home.show")}</a>}>
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <div>
@@ -371,7 +340,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                         </div>
                     </Card>
                 </Col>
-                <Col  xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: "350px"}} flex="auto" span={8}>
+                <Col  xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: 0}} flex="auto" span={8}>
                     <Card hoverable extra={<a href="#" onClick={() => history.replace(ALL_APPLICATIONS_URL)}>{trans("home.show")}</a>}>
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <div>
@@ -394,7 +363,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                     </Card>
                 </Col>
 
-                <Col xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: "350px"}} span={8}>
+                <Col xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: 0}} span={8}>
                     <Card hoverable extra={<a href="#" onClick={() => history.replace(ALL_APPLICATIONS_URL)}>{trans("home.show")}</a>}>
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <div>
@@ -416,7 +385,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                         </div>
                     </Card>
                 </Col>
-                <Col  xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: "350px"}} flex="auto" span={8}>
+                <Col  xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: 0}} flex="auto" span={8}>
                     <Card hoverable extra={<a href="#" onClick={() => history.replace(ALL_APPLICATIONS_URL)}>{trans("home.show")}</a>}>
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <div>

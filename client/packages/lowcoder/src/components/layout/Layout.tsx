@@ -12,6 +12,7 @@ import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { MenuOutlined } from "@ant-design/icons";
 import { Drawer, Button } from "antd";
+import { trans } from "i18n";
 import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
 
 type LayoutProps = {
@@ -24,26 +25,30 @@ const SideBarV2 = styled(SideBar)<{
   $activeBgColor?: string,
   $activeFontColor?: string,
 }>`
-  background: ${props => props.$bgColor ? props.$bgColor : '#f7f9fc'} !important;
+  background: ${props => props.$bgColor ? props.$bgColor : '#f8f3fb'} !important;
   ${props => props.$fontColor && `color: ${props.$fontColor}`};
-  padding: 28px 10px;
-  border-right: 1px solid #ebebeb;
+  padding: 20px 14px;
+  overflow-y: auto;
+  flex-shrink: 0;
+  border-right: 1px solid #e9e0ee;
 
   .sidebar-section:not(:last-child)::after {
     content: "";
     display: block;
-    width: 204px;
+    width: calc(100% - 24px);
     height: 1px;
-    background: #ebebeb !important;
-    margin: 0 auto 4px;
+    background: #e9e0ee;
+    margin: 12px auto;
   }
 `;
 
 const MobileMenuButton = styled(Button)`
   display: none;
   position: fixed;
-  top: 75px;
-  right: 22px;
+  top: 12px;
+  left: 12px;
+  width: 36px;
+  height: 36px;
   z-index: 1000;
 
   @media screen and (max-width: 720px) {
@@ -59,7 +64,7 @@ const DrawerContentWrapper = styled.div`
 
 export function Layout(props: LayoutProps) {
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 720);
   const brandingSettings = useSelector(getBrandingSetting);
 
   const toggleDrawer = () => {
@@ -100,12 +105,14 @@ export function Layout(props: LayoutProps) {
 
   return (
     <AntdLayout style={{ height: "100%" }}>
-      <AppHeader />
+      <AppHeader showBrandName />
       <HelpDropdown />
 
       {/* Mobile Hamburger Button */}
       {isMobile && (
         <MobileMenuButton
+          aria-label={trans("admin.navigation")}
+          aria-expanded={drawerVisible}
           type="primary"
           shape="circle"
           icon={<MenuOutlined />}
@@ -115,10 +122,11 @@ export function Layout(props: LayoutProps) {
 
       {/* Drawer for Mobile Sidebar */}
       <Drawer
-        width={"240px"}
-        placement="right"
+        title={trans("admin.navigation")}
+        width={280}
+        placement="left"
         closable={true}
-        onClose={toggleDrawer}
+        onClose={() => setDrawerVisible(false)}
         open={drawerVisible}
         styles={{
           body: { padding: "0px" }
@@ -127,6 +135,8 @@ export function Layout(props: LayoutProps) {
       >
         <DrawerContentWrapper>
           <SideBarV2
+            width="100%"
+            style={{ height: "100%" }}
             className={CNSidebar}
             $bgColor={brandingSettings?.config_set?.adminSidebarColor}
             $fontColor={brandingSettings?.config_set?.adminSidebarFontColor}
@@ -163,7 +173,7 @@ export function Layout(props: LayoutProps) {
               ))}
           </SideBarV2>
         )}
-        <MainContent className={CNMainContent}>
+        <MainContent id="admin-main" tabIndex={-1} className={CNMainContent}>
           <Switch>{routes}</Switch>
         </MainContent>
       </AntdLayout>

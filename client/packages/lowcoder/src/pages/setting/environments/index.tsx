@@ -90,7 +90,7 @@ const EnvironmentsPromo = () => {
       <StyledSection>
         <Card title={trans("enterprise.EnvironmentsFeaturePreviewTitle")}>
           <Row gutter={[24, 24]}>
-            <Col span={8}>
+            <Col xs={24} md={8}>
               <Image
                 width="100%"
                 height={180}
@@ -102,7 +102,7 @@ const EnvironmentsPromo = () => {
                 }}
               />
             </Col>
-            <Col span={8}>
+            <Col xs={24} md={8}>
               <Image
                 width="100%"
                 height={180}
@@ -114,7 +114,7 @@ const EnvironmentsPromo = () => {
                 }}
               />
             </Col>
-            <Col span={8}>
+            <Col xs={24} md={8}>
               <Image
                 width="100%"
                 height={180}

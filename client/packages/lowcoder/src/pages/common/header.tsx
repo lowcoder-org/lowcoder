@@ -688,19 +688,21 @@ export default function Header(props: HeaderProps) {
 }
 
 // header in manager page
-export function AppHeader() {
+export function AppHeader({ showBrandName = false }: { showBrandName?: boolean }) {
   const user = useSelector(getUser);
   const brandingSettings = useSelector(getBrandingSetting);
 
   const headerStart = (
-    <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
+    <StyledLink href={ALL_APPLICATIONS_URL} aria-label={trans("home.home")} onClick={(event) => { event.preventDefault(); history.push(ALL_APPLICATIONS_URL); }}>
       {/* {REACT_APP_LOWCODER_SHOW_BRAND === 'true' ?  REACT_APP_LOWCODER_CUSTOM_LOGO !== "" ? <img src={REACT_APP_LOWCODER_CUSTOM_LOGO}  height={28} alt="logo" /> :<LogoWithName branding={!user.orgDev} /> : <LogoHome />} */}
       { brandingSettings?.config_set?.logo
         ? (
           Boolean(brandingSettings?.orgId)
           ? <BrandLogo src={buildMaterialPreviewURL(brandingSettings?.config_set?.logo)} />
           : <BrandLogo src={brandingSettings?.config_set?.logo} />
-        ) : <LogoHome />
+        ) : showBrandName
+          ? <span className="admin-brand-name" style={{ display: "flex", alignItems: "center", gap: 10, color: "#d2a5ee", fontSize: 20, fontWeight: 500 }}><span className="admin-brand-mark"><Logo /></span>Lowcoder</span>
+          : <LogoHome />
       }
     </StyledLink>
   );

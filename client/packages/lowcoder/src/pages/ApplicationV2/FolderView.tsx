@@ -1,7 +1,8 @@
+import { useAdminPagination } from "components/layout/useAdminPagination";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { HomeBreadcrumbType, HomeLayout } from "./HomeLayout";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useDebouncedValue } from "util/hooks";
 import {ApplicationCategoriesEnum, ApplicationMeta, FolderMeta} from "../../constants/applicationConstants";
 import { buildFolderUrl } from "../../constants/routesURL";
@@ -14,18 +15,8 @@ import { fetchFolderElements as fetchFolderElementsRedux } from "../../redux/red
 import { getUser } from "../../redux/selectors/usersSelectors";
 import { flattenFolderTree, getFolderPath } from "../../util/folderUtils";
 
-interface ElementsState {
-  elements: Array<ApplicationMeta | FolderMeta>;
-  total: number;
-}
-
 export function FolderView() {
   const { folderId } = useParams<{ folderId: string }>();
-
-  const [elements, setElements] = useState<ElementsState>({ elements: [], total: 0 });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [searchValues, setSearchValues] = useState("");
   const [typeFilter, setTypeFilter] = useState<number>(0);
   const [modify, setModify] = useState(true);
   const [searchValue, setSearchValue] = useState("");
@@ -57,62 +48,25 @@ export function FolderView() {
     }
   }, [allFolders.length, user.currentOrgId, dispatch]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [folderId]);
-
-  useEffect(() => {
-    let active = true;
-
-    fetchFolderElements({
+  const debouncedSearch = useDebouncedValue(searchValue, 300).trim();
+  const loadPage = useCallback((page: number, size: number) => fetchFolderElements({
       id: folderId,
-      pageNum: currentPage,
-      pageSize,
+      pageNum: page, pageSize: size, name: debouncedSearch,
       applicationType: ApplicationPaginationType[typeFilter],
-      name: searchValues,
       category: categoryFilter === "All" ? "" : categoryFilter,
-    }).then((data: any) => {
-      if (!active) {
-        return;
-      }
-      if (data.success) {
-        setElements({ elements: data.data || [], total: data.total || 0 });
-      } else {
-        console.error("ERROR: fetchFolderElements", data.error);
-      }
-    });
-
-    return () => {
-      active = false;
-    };
-  }, [
-    folderId,
-    currentPage,
-    pageSize,
-    searchValues,
-    typeFilter,
-    modify,
-    categoryFilter,
-  ]);
-
-    useEffect( () => {
-            if (searchValues !== "")
-                setCurrentPage(1);
-        }, [searchValues]
-    );
-
-    const debouncedSearchValue = useDebouncedValue(searchValue, 500);
-
-    useEffect(() => {
-        if (debouncedSearchValue.trim().length > 0 || debouncedSearchValue === "")
-            setSearchValues(debouncedSearchValue);
-    }, [debouncedSearchValue]);
+  }), [debouncedSearch, typeFilter, modify, categoryFilter, folderId]);
+  const pagination = useAdminPagination<ApplicationMeta | FolderMeta>({
+    scope: user.currentOrgId ? `${user.currentOrgId}:${folderId}` : "",
+    filterKey: JSON.stringify([debouncedSearch, typeFilter, categoryFilter]),
+    loadPage,
+  });
+  const { currentPage, pageSize, setCurrentPage, setPageSize } = pagination;
 
   return (
     <>
       <Helmet>{<title>{folder?.name || trans("home.yourFolders")}</title>}</Helmet>
       <HomeLayout
-          elements={elements.elements}
+          elements={pagination.elements}
           mode={"folder"}
           breadcrumb={breadcrumbs}
           title={folder?.name}
@@ -120,7 +74,10 @@ export function FolderView() {
           setCurrentPage={setCurrentPage}
           pageSize={pageSize}
           setPageSize={setPageSize}
-          total={elements.total}
+          total={pagination.total}
+        loading={pagination.loading}
+        error={pagination.error}
+        onRetry={pagination.retry}
           setSearchValue={setSearchValue}
           searchValue={searchValue}
           setTypeFilterPagination={setTypeFilter}

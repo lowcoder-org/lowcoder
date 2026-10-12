@@ -40,6 +40,7 @@ import { clearStyleEval, evalStyle } from "lowcoder-core";
 import { QueryLibraryEditor } from "../queryLibrary/QueryLibraryEditor";
 import { ProductLoading } from "components/ProductLoading";
 import { Layout } from "../../components/layout/Layout";
+import { AdminTheme } from "components/layout/adminTheme";
 import { HomeView } from "./HomeView";
 import { UserProfileView } from "./UserProfileView";
 import { NewsView } from "./NewsView";
@@ -69,17 +70,6 @@ import {LoadingBarHideTrigger} from "@lowcoder-ee/util/hideLoading";
 
 const TabLabel = styled.div`
   font-weight: 500;
-`;
-
-const DivStyled = styled.div`
-  @media screen and (max-width: 500px) {
-    .ant-layout-sider {
-      visibility: hidden;
-      padding: 0;
-      max-width: 0 !important;
-      min-width: 0 !important;
-    }
-  }
 `;
 
 export default function ApplicationHome() {
@@ -129,7 +119,7 @@ export default function ApplicationHome() {
   }
 
   return (
-    <DivStyled>
+    <AdminTheme>
       <LoadingBarHideTrigger />
       {/* <EnterpriseProvider> */}
         {/*  <SimpleSubscriptionContextProvider> */}
@@ -149,7 +139,6 @@ export default function ApplicationHome() {
                     routeComp: NewsView,
                     icon: ({ selected, ...otherProps }) => selected ? <NewsIcon {...otherProps} width={"24px"}/> : <NewsIcon {...otherProps} width={"24px"}/>,
                     visible: ({ user }) => user.orgDev,
-                    style: { color: "red" },
                   },
                   {
                     text: <TabLabel>{trans("home.orgHome")}</TabLabel>,
@@ -191,7 +180,6 @@ export default function ApplicationHome() {
                     icon: ({ selected, ...otherProps }) => selected ? <HomeDataSourceIcon {...otherProps} width={"24px"}/> : <HomeDataSourceIcon {...otherProps} width={"24px"}/>,
                     visible: ({ user }) => user.orgDev,
                     onSelected: (_, currentPath) => currentPath.split("/")[1] === "datasource",
-                    mobileVisible: false,
                   },
                   {
                     text: <TabLabel>{trans("home.queryLibrary")}</TabLabel>,
@@ -199,7 +187,6 @@ export default function ApplicationHome() {
                     routeComp: QueryLibraryEditor,
                     icon: ({ selected, ...otherProps }) => selected ? <HomeQueryLibraryIcon {...otherProps} width={"24px"}/> : <HomeQueryLibraryIcon {...otherProps} width={"24px"}/>,
                     visible: ({ user }) => user.orgDev,
-                    mobileVisible: false,
                   }
                 ],
               },
@@ -229,7 +216,6 @@ export default function ApplicationHome() {
                     icon: ({ selected, ...otherProps }) => <EnterpriseIcon {...otherProps} width={"24px"} />,
                     mobileVisible: true,
                     visible: () => !isLicenseActive,
-                    style: { color: "#ff6f3c" },
                   }
                 ]
               },
@@ -277,6 +263,6 @@ export default function ApplicationHome() {
         {/* </SimpleSubscriptionContextProvider>  */}
       {/* </EnterpriseProvider> */}
 
-    </DivStyled>
+    </AdminTheme>
   );
 }

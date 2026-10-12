@@ -1,64 +1,35 @@
+import { AdminPage, AdminCover } from "components/layout/adminTheme";
 import styled from "styled-components";
 import { trans } from "../../i18n";
 import { default as Divider } from "antd/es/divider";
 import { getReleases, getYoutubeVideos, getHubspotContent } from "api/newsApi";
-import { Card, Col, Row, Typography } from "antd";
+import { Card, Col, Row, Typography, Skeleton, Empty } from "antd";
+import { AdminListError } from "components/layout/AdminListFeedback";
 import React, { useEffect, useState } from "react";
 
 const { Title, Paragraph } = Typography;
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-`;
+const Wrapper = AdminPage;
 
-const HeaderWrapper = styled.div`
-  height: 40px;
-  width: 100%;
-  display: flex;
-  padding: 0 36px;
-  align-items: center;
-  flex-shrink: 0;
-  @media screen and (max-width: 500px) {
-    padding: 0 24px;
-  }
-`;
+const HeaderWrapper = styled.div`margin-bottom: 18px;`;
 
 const ContentWrapper = styled.div`
   position: relative;
 `;
 
 
-const NewsView = styled.div`
-  font-size: 14px;
-  color: #8b8fa3;
-  flex-grow: 1;
-  padding-top: 0px;
-  padding-left: 40px;
-  max-width: 95%;
-`;
+const NewsView = styled.div`min-width: 0;`;
 
-const StyleNewsCover = styled.div`
-    background: rgb(2,0,36);
-    background: -moz-linear-gradient(39deg, rgba(2,0,36,1) 0%, rgba(104,9,121,1) 35%, rgba(255,83,0,1) 100%);
-    background: -webkit-linear-gradient(39deg, rgba(2,0,36,1) 0%, rgba(104,9,121,1) 35%, rgba(255,83,0,1) 100%);
-    background: linear-gradient(39deg, rgba(2,0,36,1) 0%, rgba(104,9,121,1) 35%, rgba(255,83,0,1) 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#020024",endColorstr="#ff5300",GradientType=1);
-    padding: 25px;
-    height: 120px;
-    border-radius:10px 10px 0 0;
-`;
+const StyleNewsCover = AdminCover;
 
 const SectionTitle = styled(Title)`
   margin-top: 24px;
-  font-size: 0.9em;
+  &.ant-typography { font-size: 20px; font-weight: 500; margin-bottom: 24px; }
 `;
 
 const CardImage = styled.img`
   width: 100%;
-  height: 160px;
+  height: 190px;
   object-fit: cover;
   border-radius: 4px;
 `;
@@ -82,44 +53,52 @@ interface NewsGridProps {
 }
 
 
+// Blog publication is paused while HubSpot is replaced with Solan.
+// Replace the blog loader before enabling this section again.
+const BLOG_NEWS_ENABLED = false;
+
+function useNewsFeed(load: () => Promise<any[]>, enabled = true) {
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(enabled);
+  const [error, setError] = useState(false);
+  const [revision, setRevision] = useState(0);
+  useEffect(() => {
+    if (!enabled) return;
+    let active = true;
+    setLoading(true);
+    setError(false);
+    load().then(result => { if (active) setData(result); })
+      .catch(() => { if (active) setError(true); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [load, revision, enabled]);
+  const feedback = loading ? <Skeleton active paragraph={{ rows: 3 }} />
+    : error ? <AdminListError retry={() => setRevision(value => value + 1)} />
+    : data.length === 0 ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> : null;
+  return { data, feedback };
+}
+
 export function NewsLayout() {
-
-  const [releasesData, setReleasesData] = useState<any[]>([]);
-
-  useEffect(() => {
-    getReleases()
-      .then(data => setReleasesData(data))
-      .catch(err => console.error("Failed to load news:", err));
-  }, []);
-
-  const [youTubeData, setYouTubeData] = useState<any[]>([]);
-
-  useEffect(() => {
-    getYoutubeVideos()
-      .then(data => setYouTubeData(data))
-      .catch(err => console.error("Failed to load news:", err));
-  }, []);
-
-  const [hubspotData, setHubspotData] = useState<any[]>([]);
-
-  useEffect(() => {
-    getHubspotContent()
-      .then(data => setHubspotData(data))
-      .catch(err => console.error("Failed to load news:", err));
-  }, []);
+  const releases = useNewsFeed(getReleases);
+  const videos = useNewsFeed(getYoutubeVideos);
+  const blog = useNewsFeed(getHubspotContent, BLOG_NEWS_ENABLED);
+  const releasesData = releases.data;
+  const youTubeData = videos.data;
+  const hubspotData = blog.data;
 
   return (
     <Wrapper>
-      <HeaderWrapper></HeaderWrapper>
 
       <ContentWrapper>
         <NewsView>
           <StyleNewsCover>
-            <h1 style={{color: "#ffffff", marginTop : "12px"}}>Lowcoder {trans("home.news")}</h1>
+            <h1>{trans("home.news")}</h1><p>{trans("admin.newsDescription")}</p>
           </StyleNewsCover>
-          <Card style={{ marginBottom: "20px", minHeight : "800px" }}>
+          <Card style={{ marginBottom: "20px" }}>
 
-          <SectionTitle level={2}>📝 Latest Blog Posts</SectionTitle>
+          {BLOG_NEWS_ENABLED && <>
+          <SectionTitle level={2}>{trans("admin.blogPosts")}</SectionTitle>
+            {blog.feedback}
             <Row gutter={[16, 16]}>
               {hubspotData?.map((item: { htmlTitle: any; publishDate: any; postSummary: any; url: any; featuredImage: any; metaDescription: any; }, idx: any) => {
                 const {
@@ -149,7 +128,7 @@ export function NewsLayout() {
                       hoverable
                       cover={
                         <a href={url} target="_blank" rel="noreferrer">
-                          <CardImage src={coverImage} alt={htmlTitle} style={{minHeight : "500px"}}/>
+                          <CardImage src={coverImage} alt={htmlTitle} loading="lazy"/>
                         </a>
                       }
                     >
@@ -181,8 +160,9 @@ export function NewsLayout() {
             </Row>
           
             <Divider />
+          </>}
           
-            <SectionTitle level={2}>📺 Latest YouTube Videos
+            <SectionTitle level={2}>{trans("admin.videos")}
             <Paragraph type="secondary" style={{ marginBottom: 0, marginTop: 4 }}>
                 <Typography.Link href="https://www.youtube.com/@Lowcoder_cloud" target="_blank" rel="noopener noreferrer">
                   Visit YouTube Channel →
@@ -190,6 +170,7 @@ export function NewsLayout() {
               </Paragraph>
             </SectionTitle>
 
+            {videos.feedback}
             <Row gutter={[16, 16]}>
               {youTubeData.map((item, idx) => {
                 const s = item.snippet;
@@ -215,13 +196,14 @@ export function NewsLayout() {
 
             <Divider />
 
-            <SectionTitle level={2}>🚀 Latest Releases
+            <SectionTitle level={2}>{trans("admin.releases")}
               <Paragraph type="secondary" style={{ marginBottom: 0, marginTop: 4 }}>
                 <Typography.Link href="https://github.com/lowcoder-org/lowcoder/releases" target="_blank" rel="noopener noreferrer">
                   View all GitHub Releases →
                 </Typography.Link>
               </Paragraph>
             </SectionTitle>
+            {releases.feedback}
             <Row gutter={[16, 16]}>
               {releasesData.map((item, idx) => {
                 const c = item;

@@ -10,6 +10,7 @@ import apiRouter from "./routes/apiRouter";
 import systemRouter from "./routes/systemRouter";
 import cors, { CorsOptions } from "cors";
 import bodyParser from "body-parser";
+import { createMarketplaceRenderHandler } from "./services/marketplacePreview";
 collectDefaultMetrics();
 
 const prefix = "/node-service";
@@ -71,6 +72,7 @@ const corsOptions: CorsOptions = {
 router.use(cors(corsOptions));
 
 /** Routes */
+router.post(`${prefix}/api/marketplace/render`, createMarketplaceRenderHandler());
 router.use(`${prefix}/api`, apiRouter);
 router.use(`${prefix}/system`, systemRouter);
 

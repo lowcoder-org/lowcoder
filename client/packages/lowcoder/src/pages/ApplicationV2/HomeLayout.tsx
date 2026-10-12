@@ -1,3 +1,4 @@
+import { FolderNavigator } from "./FolderNavigator";
 import { User } from "constants/userConstants";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
@@ -9,8 +10,10 @@ import { default as AntdBreadcrumb } from "antd/es/breadcrumb";
 import { default as Select } from "antd/es/select";
 import { default as Skeleton } from "antd/es/skeleton";
 import { default as Empty } from "antd/es/empty";
-import { Card } from "antd";
-import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { Card, Button, Segmented } from "antd";
+import { AdminPage, AdminCover } from "components/layout/adminTheme";
+import { AdminListError } from "components/layout/AdminListFeedback";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import {
   ArrowIcon,
   ArrowSolidIcon,
@@ -32,231 +35,98 @@ import { HomeTableView } from "./HomeTableView";
 import { Layers } from "../../constants/Layers";
 import { CreateDropdown } from "./CreateDropdown";
 import { trans } from "../../i18n";
-import { isFetchingFolderElements } from "../../redux/selectors/folderSelector";
 import { checkIsMobile } from "util/commonUtils";
 import { default as Divider } from "antd/es/divider";
 import { ApplicationCategoriesEnum } from "constants/applicationConstants";
 import { Pagination } from 'antd';
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
+const Wrapper = styled(AdminPage)`
+  min-height: 100%;
 `;
 
 const HeaderWrapper = styled.div`
-  height: 84px;
-  width: 100%;
   display: flex;
-  padding: 0 36px;
+  justify-content: space-between;
   align-items: center;
-  flex-shrink: 0;
-  @media screen and (max-width: 720px) {
-    padding: 0 24px;
-  }
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+  min-width: 0;
 `;
 
 const OperationWrapper = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  height: auto;
-  padding: 0 36px;
-  margin: 8px 0 20px 0;
-  @media screen and (max-width: 850px) {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 20px 24px;
+  @media (max-width: 720px) { padding: 16px; }
 `;
 
 const ContentWrapper = styled.div`
   position: relative;
+  min-height: 240px;
 `;
 
 const Breadcrumb = styled(AntdBreadcrumb)`
-  font-size: 20px;
-  max-width: 100%;
-  overflow-x: auto;
-  white-space: nowrap;
-
-  li:not(:last-child) {
-    color: #8b8fa3;
-  }
-
-  li:last-child {
-    font-weight: 500;
-    color: #222222;
-  }
-
-  li.ant-breadcrumb-separator {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  @media screen and (max-width: 720px) {
-    display:none
-  }
+  font-size: 12px;
+  color: var(--admin-muted);
+  ol { flex-wrap: wrap; }
+  li:last-child { color: var(--admin-ink); }
+  .ant-breadcrumb-separator { display: flex; align-items: center; }
+  a { color: var(--admin-muted); }
 `;
 
 const FilterDropdown = styled(Select)`
-  .ant-select-selector {
-    padding: 0 11px 0 0 !important;
-  }
-
-  .ant-select-selector > .ant-select-selection-item {
-    font-size: 16px !important;
-    font-weight: 500;
-  }
-
-  .ant-select-selector .ant-select-selection-item svg {
-    margin-top: 7px !important;
-  }
-
-  .ant-select-item-option-content {
-    font-size: 13px;
-    line-height: 13px;
-  }
-
-  &:is(.ant-select-open) {
-    .ant-select-selection-item {
-      color: #315efb;
-    }
-  }
-
-  .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
-    background-color: #f2f7fc;
-  }
-
-  .ant-select-dropdown {
-    padding: 8px;
-    border-radius: 8px;
-    width: fit-content !important;
-  }
-
-  .ant-select-item {
-    height: 29px;
-    min-height: 0;
-    padding: 0 8px;
-    border-radius: 4px;
-  }
-
-  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
-    font-weight: 400;
-    color: #4965f2;
-    background-color: white;
-  }
+  min-width: 140px;
+  max-width: 100%;
+  .ant-select-selector { border-radius: 8px; font-size: 13px; }
 `;
 
 const FilterMenuItem = styled.div`
   display: flex;
-  align-items: left;
-  height: 29px;
-  width: 100%;
-`;
-
-const BreadcrumbItem = styled.div<{ $clickable: boolean }>`
-  cursor: ${(props) => (props.$clickable ? "pointer" : "default")};
+  align-items: center;
+  gap: 4px;
 `;
 
 const SkeletonStyle = styled(Skeleton)`
-  margin: 80px 36px;
-
-  .ant-skeleton-content .ant-skeleton-paragraph > li {
-    width: 504px;
-    display: inline-block;
-
-    &:nth-of-type(2n + 1) {
-      margin-right: 120px;
-    }
-  }
-
-  @media screen and (max-width: 500px) {
-    .ant-skeleton-content .ant-skeleton-paragraph > li {
-      max-width: calc(100vw - 72px);
-      min-width: calc(100vw - 72px);
-      margin-right: 0;
-    }
-  }
+  padding: 32px;
 `;
 
 const EmptyView = styled.div`
   font-size: 14px;
-  color: #8b8fa3;
+  color: var(--admin-muted);
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex-grow: 1;
-  padding-top: 120px;
-  @media screen and (max-width: 500px) {
-    > div,
-    > button {
-      display: none;
-    }
-  }
+  text-align: center;
+  gap: 12px;
+  padding: 56px 24px;
 `;
 const PaginationLayout = styled.div`
   display: flex;
-  justify-content: center;
-  margin-top: 20px;
-  margin-bottom: 20px;  
-`
-
-const LayoutSwitcher = styled.div`
-  position: absolute;
-  left: 20px;
-  top: 40px;
-  cursor: pointer;
-  width: 32px;
-  height: 16px;
-  border-radius: 4px;
-  z-index: ${Layers.homeLayoutSwitcher};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &:hover {
-    background-color: #f5f5f6;
-  }
+  justify-content: flex-end;
+  padding: 20px 24px;
+  border-top: 1px solid var(--admin-line);
+  @media (max-width: 720px) { justify-content: center; padding: 16px; }
 `;
 
 const HomeView = styled.div`
-  font-size: 14px;
-  color: #8b8fa3;
-  flex-grow: 1;
-  padding-top: 0px;
-  padding-left: 40px;
-  max-width: 95%;
+  min-width: 0;
+  .admin-resource-surface { border: 1px solid var(--admin-line); border-radius: 16px; }
+  .admin-resource-surface > .ant-card-body { padding: 0; }
 `;
 
-const StyleHomeCover = styled.div`
-    background: rgb(2,0,36);
-    background: -moz-linear-gradient(121deg, rgba(2,0,36,1) 0%, rgba(23,102,167,1) 42%, rgba(243,130,244,1) 100%);
-    background: -webkit-linear-gradient(121deg, rgba(2,0,36,1) 0%, rgba(23,102,167,1) 42%, rgba(243,130,244,1) 100%);
-    background: linear-gradient(121deg, rgba(2,0,36,1) 0%, rgba(23,102,167,1) 42%, rgba(243,130,244,1) 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#020024",endColorstr="#f382f4",GradientType=1);
-    padding: 25px;
-    height: 120px;
-    border-radius:10px 10px 0 0;
-`;
+const StyleHomeCover = AdminCover;
 
 const SearchWrapper = styled.div`
-  width: auto;
-
   display: flex;
   align-items: center;
-  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 10px;
   margin-left: auto;
-
-  @media screen and (max-width: 980px) {
-    width: 100%;
-    > Button {
-      display: none;
-    }
-  }
+  @media (max-width: 980px) { margin-left: 0; }
+  @media (max-width: 520px) { width: 100%; > div:first-child { flex: 1; } }
 `;
 
 function showNewUserGuide(user: User) {
@@ -310,10 +180,12 @@ export interface HomeLayoutProps {
   isCreated?: boolean;
   setModify?: any;
   modify?: boolean;
+  loading?: boolean;
+  error?: boolean;
+  onRetry?: () => void;
 }
 
 export function HomeLayout(props: HomeLayoutProps) {
-  const mounted = useRef(true);
   const { breadcrumb = [],
     title,
     elements = [],
@@ -332,68 +204,37 @@ export function HomeLayout(props: HomeLayoutProps) {
     setModify,
     modify,
     setIsCreated,
-    isCreated
+    isCreated,
+    loading = false,
+    error = false,
+    onRetry = () => {}
   } = props;
 
   const user = useSelector(getUser);
-  const isFetching = useSelector(isFetchingFolderElements);
+  const isFetching = loading;
   const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
   const [typeFilter, setTypeFilter] = useState<HomeResKey>("All");
   const [categoryFilter, setCategoryFilter] = useState<ApplicationCategoriesEnum | "All">("All");
-  const [visibility, setVisibility] = useState(mode === "view" || mode === "trash" || mode === "folder");
+  const visibility = mode === "view" || mode === "trash" || mode === "folder";
   const [layout, setLayout] = useState<HomeLayoutType>(
     checkIsMobile(window.innerWidth) ? "card" : getHomeLayout()
   );
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      mounted.current = false;
-    };
-  }, []);
-
-  const handlePageChange = useCallback((page: number) => {
-    if (mounted.current && setCurrentPage) {
-      setCurrentPage(page);
-    }
-  }, [setCurrentPage]);
-
-  const handlePageSizeChange = useCallback((current: number, size: number) => {
-    if (mounted.current && setPageSize) {
-      setPageSize(size);
-    }
-  }, [setPageSize]);
-
-  const handleTypeFilterChange = useCallback((value: any) => {
-    if (mounted.current) {
-      setTypeFilter(value as HomeResKey);
-      if (visibility && setTypeFilterPagination) {
-        setTypeFilterPagination(HomeResTypeEnum[value]);
-      }
-    }
-  }, [visibility, setTypeFilterPagination]);
-
-  const handleCategoryFilterChange = useCallback((value: any) => {
-    if (mounted.current) {
-      setCategoryFilter(value as ApplicationCategoriesEnum);
-      if (setCategoryFilterPagination) {
-        setCategoryFilterPagination(value as ApplicationCategoriesEnum);
-      }
-    }
-  }, [setCategoryFilterPagination]);
-
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (mounted.current && setSearchValue) {
-      setSearchValue(e.target.value);
-    }
-  }, [setSearchValue]);
-
-  const handleLayoutChange = useCallback(() => {
-    if (mounted.current) {
-      setLayout(layout === "list" ? "card" : "list");
-    }
-  }, [layout]);
-
+  const handleTypeFilterChange = (value: any) => {
+    setTypeFilter(value as HomeResKey);
+    setTypeFilterPagination?.(HomeResTypeEnum[value]);
+  };
+  const handleCategoryFilterChange = (value: any) => {
+    setCategoryFilter(value);
+    setCategoryFilterPagination?.(value);
+  };
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => setSearchValue?.(e.target.value);
+  const hasFilters = Boolean(searchValue?.trim()) || typeFilter !== "All" || categoryFilter !== "All";
+  const clearFilters = () => {
+    setSearchValue?.("");
+    handleTypeFilterChange("All");
+    handleCategoryFilterChange("All");
+  };
 
   useEffect(() => saveHomeLayout(layout), [layout]);
 
@@ -455,6 +296,7 @@ export function HomeLayout(props: HomeLayoutProps) {
         }
         return true;
       })
+      .filter((e) => visibility || categoryFilter === "All" || (!e.folder && e.category === categoryFilter))
       .map((e) =>
         e.folder
           ? {
@@ -485,7 +327,7 @@ export function HomeLayout(props: HomeLayoutProps) {
               isLocalMarketplace: e.isLocalMarketplace,
             }
       );
-  }, [displayElements, visibility, searchValue, typeFilter, mode, user]);
+  }, [displayElements, visibility, searchValue, typeFilter, categoryFilter, mode, user]);
 
   const getFilterMenuItem = useCallback((type: HomeResTypeEnum) => {
     const Icon = HomeResInfo[type].icon;
@@ -525,7 +367,7 @@ export function HomeLayout(props: HomeLayoutProps) {
     getFilterMenuItem(HomeResTypeEnum.Application),
     getFilterMenuItem(HomeResTypeEnum.Module),
     ...(mode !== "marketplace" ? [getFilterMenuItem(HomeResTypeEnum.Navigation), getFilterMenuItem(HomeResTypeEnum.MobileTabLayout)] : []),
-    ...(mode !== "trash" && mode !== "marketplace" && mode !== "folder" ? [getFilterMenuItem(HomeResTypeEnum.Folder)] : []),
+    ...(mode !== "trash" && mode !== "marketplace" ? [getFilterMenuItem(HomeResTypeEnum.Folder)] : []),
   ], [mode, getFilterMenuItem]);
 
   const localMarketplaceAppsList = useMemo(() => {
@@ -554,7 +396,7 @@ export function HomeLayout(props: HomeLayoutProps) {
   }
 
   return (
-    <Wrapper>
+    <Wrapper data-testid="admin-resource-page">
       <HeaderWrapper>
         <Breadcrumb
           separator={<ArrowIcon />}
@@ -562,25 +404,21 @@ export function HomeLayout(props: HomeLayoutProps) {
           itemRender={(item) => {
             const isCurrent = item.key === breadcrumbItems[breadcrumbItems.length - 1]?.key;
             return (
-              <BreadcrumbItem
-                key={item.key}
-                $clickable={!isCurrent}
-                onClick={item.onClick}
-                aria-current={isCurrent ? "page" : undefined}
-              >
-                {item.title}
-              </BreadcrumbItem>
+              isCurrent ? <span aria-current="page">{item.title}</span> :
+                <a href={item.key === 0 ? ALL_APPLICATIONS_URL : breadcrumb[Number(item.key) - 1]?.path}
+                  onClick={(event) => { event.preventDefault(); item.onClick?.(event); }}>{item.title}</a>
             );
           }}
         >
         </Breadcrumb>
+        {(mode === "view" || mode === "folder") && <FolderNavigator />}
       </HeaderWrapper>
 
       {showNewUserGuide(user) && <HomepageTourV2 />}
 
         <HomeView>
           <StyleHomeCover>
-            <h1 style={{color: "#ffffff", marginTop : "12px"}}>
+            <h1>
               {mode === "marketplace" && trans("home.appMarketplace")}
               {mode === "folders" && trans("home.allFolders")}
               {mode === "folder" && (title || trans("home.folder"))}
@@ -588,13 +426,15 @@ export function HomeLayout(props: HomeLayoutProps) {
               {mode === "trash" && trans("home.trash")}
               {mode === "view" && trans("home.allApplications")}
             </h1>
+            <p>{trans(mode === "marketplace" ? "admin.marketplaceDescription" : mode === "trash" ? "admin.trashDescription" : mode === "folder" ? "admin.folderDescription" : "admin.appsDescription")}</p>
           </StyleHomeCover>
-          <Card style={{ marginBottom: "20px" }}>
+          <Card className="admin-resource-surface">
             
             <OperationWrapper>
               {mode !== "folders" && mode !== "module" && (
                 <FilterDropdown
-                  variant="borderless"
+                  aria-label={trans("home.type")}
+                  variant="outlined"
                   value={typeFilter}
                   onChange={handleTypeFilterChange}
                   options={filterMenuItems}
@@ -603,29 +443,38 @@ export function HomeLayout(props: HomeLayoutProps) {
               )}
               {(mode === "view" || mode === "folder") &&
                 <FilterDropdown
-                    style={{ minWidth: "220px" }}
-                    variant="borderless"
-                    value={categoryFilter}
+                    style={{ minWidth: "180px" }}
+                    variant="outlined"
+                    aria-label={trans("home.allCategories")}
+                  value={categoryFilter}
                     onChange={handleCategoryFilterChange}
                     options={categoryOptions}
                     suffixIcon={<ArrowSolidIcon />}
                 />}
               {mode === "marketplace" && (
                 <FilterDropdown
-                  style={{ minWidth: "220px" }}
-                  variant="borderless"
+                  style={{ minWidth: "180px" }}
+                  variant="outlined"
+                  aria-label={trans("home.allCategories")}
                   value={categoryFilter}
                   onChange={(value: any) => handleCategoryFilterChange(value as ApplicationCategoriesEnum)}
                   options={categoryOptions}
                   suffixIcon={<ArrowSolidIcon />} />
               )}
 
-              <LayoutSwitcher onClick={handleLayoutChange}>
-                {layout === "list" ? <HomeCardIcon/> : <HomeListIcon/>}
-              </LayoutSwitcher>
+              {mode !== "trash" && <Segmented
+                aria-label={trans("admin.viewMode")}
+                value={layout}
+                onChange={(value) => setLayout(value as HomeLayoutType)}
+                options={[
+                  { value: "list", label: <span title={trans("admin.listView")}><HomeListIcon aria-label={trans("admin.listView")} /></span> },
+                  { value: "card", label: <span title={trans("admin.cardView")}><HomeCardIcon aria-label={trans("admin.cardView")} /></span> },
+                ]}
+              />}
 
               <SearchWrapper>
                 <Search
+                  aria-label={trans("search")}
                   placeholder={trans("search")}
                   value={searchValue || ""}
                   onChange={handleSearchChange}
@@ -644,12 +493,14 @@ export function HomeLayout(props: HomeLayoutProps) {
 
             </OperationWrapper>
 
-            <Divider />
+            {hasFilters && <div style={{ padding: "0 24px 16px" }}><Button size="small" onClick={clearFilters}>{trans("admin.clearFilters")}</Button></div>}
+            <Divider style={{ margin: 0 }} />
 
-            <ContentWrapper>     
+            <ContentWrapper aria-busy={isFetching}>
 
-              {isFetching && resList.length === 0 ? (
-                <SkeletonStyle active paragraph={{ rows: 8, width: 648 }} title={false} />
+              {error && <div style={{ padding: 24 }}><AdminListError retry={onRetry} /></div>}
+              {isFetching ? (
+                <SkeletonStyle active paragraph={{ rows: 6 }} title={false} />
               ) : (
                 <>
                   {resList.length > 0 ? (
@@ -717,11 +568,11 @@ export function HomeLayout(props: HomeLayoutProps) {
                         </>
                       )}
                     </>
-                  ) : (
+                  ) : !error && (
                     <EmptyView>
                       <HomeEmptyIcon style={{ width: "90px", height: "120px" }} />
                       <div style={{ marginBottom: "16px" }}>
-                        {mode === "trash"
+                        {hasFilters ? trans("admin.noResults") : mode === "trash"
                           ? trans("home.trashEmpty")
                           : mode === "marketplace"
                           ? trans("home.noMarketplaceApps")
@@ -729,19 +580,23 @@ export function HomeLayout(props: HomeLayoutProps) {
                           ? trans("home.projectEmptyCanAdd")
                           : trans("home.projectEmpty")}
                       </div>
-                      {mode !== "trash" && mode !== "marketplace" && user.orgDev && <CreateDropdown mode={mode} setModify={createRefreshSetter} modify={createRefreshValue!}/>}
+                      {!hasFilters && mode !== "trash" && mode !== "marketplace" && user.orgDev && <CreateDropdown mode={mode} setModify={createRefreshSetter} modify={createRefreshValue!}/>}
                     </EmptyView>
                   )}
                 </>
               )}
             </ContentWrapper>
-            {visibility && resList.length ? <div>
+            {visibility && !error && (total ?? 0) > 0 ? <div>
               <PaginationLayout>
                 <Pagination
                     current={currentPage}
                     pageSize={pageSize}
-                    onChange={handlePageChange}
-                    onShowSizeChange={handlePageSizeChange}
+                    onChange={(page, size) => {
+                      if (size !== pageSize) setPageSize?.(size);
+                      else setCurrentPage?.(page);
+                    }}
+                    showTotal={(count, range) => trans("admin.resultCount", { start: range[0], end: range[1], total: count })}
+                    responsive
                     total={total}
                     showSizeChanger
                 />

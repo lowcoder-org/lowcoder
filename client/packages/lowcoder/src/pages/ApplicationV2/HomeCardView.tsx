@@ -7,16 +7,10 @@ import { MoveToFolderModal } from "./MoveToFolderModal";
 
 const ApplicationCardsWrapper = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(408px, 1fr));
-  grid-template-rows: repeat(auto-fill, min(auto, 100%));
-  grid-column-gap: 112px;
-  grid-row-gap: 20px;
-  margin: 48px 26px 80px;
-  overflow: hidden;
-  @media screen and (max-width: 500px) {
-    display: block;
-    margin: 48px 18px 80px;
-  }
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 16px;
+  padding: 24px;
+  @media (max-width: 720px) { padding: 16px; }
 `;
 
 export function HomeCardView(props: { resources: HomeRes[], setModify?: any, modify?: boolean, mode?: string, parentPath?: string, parentLabel?: string }) {
