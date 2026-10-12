@@ -9,8 +9,25 @@ import { SubscriptionProductsEnum } from "constants/subscriptionConstants";
 import { trans } from "i18n";
 
 const ProductCardContainer = styled(Card)`
-  width: 300px;
-  margin-bottom: 20px;
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  .ant-card-body { flex: 1; }
+  .ant-card-cover img, .product-placeholder {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    background: #f2f2f2;
+  }
+  .product-placeholder { display: grid; place-items: center; }
+  .ant-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    > li { flex: 1 1 125px; }
+    .ant-btn { height: auto; min-height: 32px; white-space: normal; }
+    .ant-btn > span { min-width: 0; overflow-wrap: anywhere; }
+  }
 `;
 
 const ProductTitle = styled.h3`
@@ -86,7 +103,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       hoverable
       loading={loading}
       cover={
-        image ? <img loading="lazy" alt={title} src={image} style={{width: '300px', height: '300px', background: '#f2f2f2'}} /> : <div style={{ height: 300, display: "grid", placeItems: "center", background: "#f2f2f2" }}><RobotOutlined style={{ fontSize: 96, color: "#ff6f3c" }} /></div>
+        image ? <img loading="lazy" alt={title} src={image} /> : <div className="product-placeholder"><RobotOutlined style={{ fontSize: 96, color: "#ff6f3c" }} /></div>
       }
       actions={[
         <Button type="default" block onClick={goToSubscriptionInformation} style={{width:"90%"}} icon={<InfoCircleOutlined />}>{trans("automator.subscription.explore")}</Button>,

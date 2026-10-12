@@ -19,7 +19,7 @@ const EditButton = styled(TacoButton)`
   padding: 5px 12px;
   margin-right: 12px;
   @media screen and (max-width: 500px) {
-    display: none;
+    display: inline-flex;
   }
 `;
 
@@ -27,7 +27,7 @@ const ExecButton = styled(TacoButton)`
   width: 52px;
   height: 24px;
   padding: 5px 12px;
-  margin-right: 24px;
+  margin-right: 0;
   background: #fafbff;
   border: 1px solid #c9d1fc;
   border-radius: 4px;
@@ -42,17 +42,18 @@ const ExecButton = styled(TacoButton)`
 
   @media screen and (max-width: 500px) {
     margin-right: 0;
-    display: none;
+    display: inline-flex;
   }
 `;
 
 const Wrapper = styled.div`
   height: auto;
-  padding: 0 6px;
-  border-radius: 8px;
-  margin-bottom: -1px;
+  padding: 12px;
+  border: 1px solid var(--admin-line);
+  border-radius: 12px;
+  margin-bottom: 0;
   margin-top: 1px;
-  background-color: #fcfcfc;
+  background-color: white;
 
   &:hover {
     background-color: #f5f7fa;
@@ -60,16 +61,18 @@ const Wrapper = styled.div`
 `;
 
 const Card = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 14px 8px;
   align-items: center;
   height: 100%;
   min-height:100px;
   width: 100%;
-  border-bottom: 1px solid #f5f5f6;
+
   padding: 0 10px;
 
   button {
-    opacity: 0;
+    opacity: 1;
   }
 
   &:hover {
@@ -84,6 +87,9 @@ const Card = styled.div`
     }
 
     padding: 0;
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 14px 8px;
   }
 `;
 
@@ -91,14 +97,15 @@ const CardInfo = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin-left: 14px;
+  margin-left: 0;
   white-space: wrap;
-  width: 284px;
-  max-height: 150px;
+  min-width: 0;
+  width: auto;
+  min-height: 100px;
   flex-grow: 1;
   cursor: pointer;
   overflow: hidden;
-  padding-right: 12px;
+  padding-right: 0;
   padding-top: 12px;
 
   &:hover {
@@ -109,6 +116,11 @@ const CardInfo = styled.div`
 
   .ant-typography {
     padding: 2px 2px 8px 2px;
+    white-space: normal; overflow-wrap: anywhere; line-height: 1.4;
+  }
+  @media (max-width: 500px) {
+    width: auto; margin-left: 0; padding-right: 0; min-height: 0;
+    .ant-typography { white-space: normal; overflow-wrap: anywhere; line-height: 1.4; }
   }
 `;
 
@@ -134,12 +146,15 @@ const AppDescription = styled.div`
 
 const OperationWrapper = styled.div`
   display: flex;
+  grid-column: 1 / -1;
+  justify-content: flex-end;
   align-items: center;
   @media screen and (max-width: 500px) {
     > svg {
-      display: none;
+      display: inline-flex;
     }
   }
+  @media (max-width: 500px) { grid-column: 1 / -1; justify-content: flex-end; padding-right: 0; gap: 8px; }
 `;
 
 const MONTH_MILLIS = 30 * 24 * 60 * 60 * 1000;
@@ -157,6 +172,8 @@ export function MarketplaceResCard(props: { res: HomeRes; }) {
       <Card>
         <MultiIconDisplay identifier={res.icon && typeof res.icon === 'string' ? res.icon : '/icon:antd/appstoreoutlined'} width="30px" height="30px" style={{ marginRight: "6px", flexShrink: 0, color: "#b766db" }} />
         <CardInfo
+          role="button" tabIndex={0}
+          onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); event.currentTarget.click(); } }}
           onClick={(e) => {
             if(res.isMarketplace) {
               handleMarketplaceAppViewClick(res.id , res.isLocalMarketplace);

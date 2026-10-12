@@ -1,3 +1,5 @@
+import { Skeleton } from "antd";
+import { AdminListError } from "components/layout/AdminListFeedback";
 import { useEffect, useState } from "react";
 import { useDebouncedValue } from "util/hooks";
 import styled, { css } from "styled-components";
@@ -22,14 +24,18 @@ import { trans } from "i18n";
 import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 import { saveAs } from "file-saver";
 import DataSourceIcon from "components/DataSourceIcon";
-import PaginationComp from "@lowcoder-ee/util/pagination/Pagination";
+import { AdminPagination } from "components/layout/AdminPagination";
 
 const Wrapper = styled.div<{ $readOnly?: boolean }>`
   display: flex;
   flex-direction: column;
-  width: 264px;
+  width: 280px;
+  flex: 0 0 280px;
+  min-height: 0;
   height: 100%;
-  border-right: 1px solid #e1e3eb;
+  border-right: 1px solid var(--admin-line);
+  background: #fdfbfe;
+  @media (max-width: 1000px) { width: 100%; flex: 0 0 300px; height: 300px; border-right: 0; border-bottom: 1px solid var(--admin-line); }
   ${(props) => {
     if (props.$readOnly) {
       return css`
@@ -42,7 +48,7 @@ const Wrapper = styled.div<{ $readOnly?: boolean }>`
 const Header = styled.div`
   display: flex;
   gap: 8px;
-  margin-top: 16px;
+  margin-top: 0;
   padding: 16px;
   height: 64px;
 `;
@@ -74,7 +80,8 @@ const CreateBtn = styled(TacoButton)<{ $readOnly?: boolean }>`
 `;
 
 const Body = styled.div`
-  height: calc(100% - 120px);
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 `;
@@ -92,14 +99,18 @@ const SelectListWrapper = styled.div`
   height: calc(100% - 19px);
 `;
 const SelectItem = styled.div<{ $selected: boolean; $readOnly?: boolean }>`
-  height: 80px;
+  height: 88px;
+  margin: 4px 10px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  &:focus-visible { outline: 2px solid #b480de; outline-offset: -2px; }
   padding: 0 16px;
   background-color: ${(props) =>
-    props.$selected ? (props.$readOnly ? "#EFEFF1" : "#F2F7FC") : "unset"};
+    props.$selected ? (props.$readOnly ? "#EFEFF1" : "#f0e5f7") : "unset"};
   cursor: pointer;
 
   &:hover {
-    background-color: ${(props) => !props.$selected && "#f2f7fc80"};
+    background-color: ${(props) => !props.$selected && "#f7f0fb"};
   }
 `;
 
@@ -156,6 +167,9 @@ const PopoverIcon = styled(PointIcon)`
 
 export const LeftNav = (props: {
   queryList: LibraryQuery[];
+  loading?: boolean;
+  error?: boolean;
+  onRetry?: () => void;
   selectedQuery?: string;
   addQuery: () => void;
   onSelect: (queryId: string) => void;
@@ -179,7 +193,7 @@ export const LeftNav = (props: {
 
   useEffect(() => {
     if (debouncedSearchValue.trim().length > 0 || debouncedSearchValue === "") {
-      setSearchValues(debouncedSearchValue);
+      setSearchValues(debouncedSearchValue.trim());
     }
   }, [debouncedSearchValue]);
 
@@ -200,11 +214,11 @@ export const LeftNav = (props: {
             {trans("newItem")}
           </CreateBtn>
         </Header>
-        <Body>
+        <Body aria-busy={props.loading}>
           <Title>{trans("queryLibrary.allQuery")}</Title>
           <SelectListWrapper>
             <ScrollBar>
-              {props.queryList.length > 0 ? (
+              {props.loading ? <Skeleton active title={false} paragraph={{ rows: 4 }} style={{ padding: 16 }} /> : props.error ? <AdminListError retry={props.onRetry ?? (() => {})} /> : props.queryList.length > 0 ? (
                 props.queryList
                   .filter((q) => {
                     let datasourceTypeName =
@@ -215,6 +229,12 @@ export const LeftNav = (props: {
                   .map((q) => (
                     <SelectItem
                       key={q.id}
+                      role="button"
+                      tabIndex={props.readOnly ? -1 : 0}
+                      aria-pressed={q.id === props.selectedQuery}
+                      onKeyDown={(event) => {
+                        if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); props.onSelect(q.id); }
+                      }}
                       $selected={q.id === props.selectedQuery}
                       $readOnly={props.readOnly}
                       onClick={() => props.onSelect(q.id)}
@@ -291,10 +311,7 @@ export const LeftNav = (props: {
             </ScrollBar>
           </SelectListWrapper>
         </Body>
-        <PaginationComp
-            height={40}
-            marginTop={0}
-            marginBottom={0}
+        <AdminPagination
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
             pageSize={pageSize}

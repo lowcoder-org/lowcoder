@@ -10,7 +10,7 @@ import { ThemeHome } from "./theme";
 import { AdvancedSetting } from "./advanced/AdvancedSetting";
 import { currentOrgAdmin } from "util/permissionUtils";
 import { trans } from "i18n";
-import { Level1SettingPageContent, Level1SettingPageTitle, TwoColumnSettingPageContent } from "./styled";
+import { Level1SettingPageContent, Level1SettingPageTitle, SubscriptionPageContent, TwoColumnSettingPageContent } from "./styled";
 import SubSideBar from "components/layout/SubSideBar";
 import {
   Menu,
@@ -93,7 +93,7 @@ export function SettingHome() {
     {
       key: SettingPageEnum.Environments,
       label: (
-        <span>
+        <span className="settings-nav-label">
           <span className="text">{trans("settings.environments")}</span>
           {!isLicenseActive && <FreeLimitTag text={trans("settings.premium")} />}
         </span>
@@ -104,7 +104,7 @@ export function SettingHome() {
     {
       key: SettingPageEnum.AppUsage,
       label: (
-        <span>
+        <span className="settings-nav-label">
           <span className="text">{trans("settings.appUsage")}</span>
           {!isLicenseActive && <FreeLimitTag text={trans("settings.premium")} />}
         </span>
@@ -115,7 +115,7 @@ export function SettingHome() {
     {
       key: SettingPageEnum.AuditLog,
       label: (
-        <span>
+        <span className="settings-nav-label">
           <span className="text">{trans("settings.audit")}</span>
           {!isLicenseActive && <FreeLimitTag text={trans("settings.premium")} />}
         </span>
@@ -126,7 +126,7 @@ export function SettingHome() {
     {
       key: SettingPageEnum.Branding,
       label: (
-        <span>
+        <span className="settings-nav-label">
           <span className="text">{trans("settings.branding")}</span>
           {!isLicenseActive && <FreeLimitTag text={trans("settings.premium")} />}
         </span>
@@ -162,7 +162,7 @@ export function SettingHome() {
           />
 
           {isPublicCloud ? (
-            <Card style={{ marginTop: 40 }}>
+            <Card>
               <div style={{ marginBottom: 12 }}>{trans("enterprise.selfHosted.sidebarNotice")}</div>
               <Button onClick={() => history.push("/setting/enterprise")}
                 style={{ height: "auto", whiteSpace: "normal" }}>
@@ -170,7 +170,7 @@ export function SettingHome() {
               </Button>
             </Card>
           ) : !isLicenseActive && currentOrgAdmin(user) && (
-            <Card style={{ marginTop: "40px", color: "#aaa" }}>
+            <Card>
               <div style={{ marginBottom: 12 }}>
                 {trans("enterprise.premiumFeaturesNotice")}
               </div>
@@ -212,7 +212,7 @@ export function SettingHome() {
         {selectKey === SettingPageEnum.AppUsage && <AppUsage />}
         {selectKey === SettingPageEnum.AuditLog && <AuditLog />}
         {selectKey === SettingPageEnum.Branding && <Branding />}
-        {selectKey === SettingPageEnum.Subscription && <div style={{ minWidth: 0, width: "100%" }}><Subscription /><EnterpriseLicenses /></div>}
+        {selectKey === SettingPageEnum.Subscription && <SubscriptionPageContent><Subscription /><EnterpriseLicenses /></SubscriptionPageContent>}
         {selectKey === SettingPageEnum.Enterprise && <Level1SettingPageContent style={{ minWidth: 0 }}>
           <Level1SettingPageTitle>{trans("enterprise.selfHosted.title")}</Level1SettingPageTitle>
           <EnterpriseEditionInfo />

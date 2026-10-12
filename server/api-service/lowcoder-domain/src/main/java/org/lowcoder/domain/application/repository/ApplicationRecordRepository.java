@@ -12,6 +12,8 @@ import java.util.List;
 @Repository
 public interface ApplicationRecordRepository extends ReactiveMongoRepository<ApplicationVersion, String> {
 
+    Mono<Boolean> existsByApplicationId(String applicationId);
+
     Mono<Long> deleteByApplicationId(String applicationId);
 
     Flux<ApplicationVersion> findByApplicationId(String applicationId);

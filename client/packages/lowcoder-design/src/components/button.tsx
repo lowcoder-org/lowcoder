@@ -198,6 +198,7 @@ const TacoButton = forwardRef(
     return (
       <StyledAntdButton
         {...restProps}
+        data-button-type={buttonType ?? "normal"}
         $buttonType={props.buttonType ?? "normal"}
         $loading={!!props.loading}
         ref={ref}

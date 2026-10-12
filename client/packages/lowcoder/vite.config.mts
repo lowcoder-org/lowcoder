@@ -81,6 +81,7 @@ export const viteConfig: UserConfig = {
     assetsDir: "static",
     emptyOutDir: false,
     rollupOptions: {
+      input: { main: path.resolve(__dirname, "index.html"), marketplacePreview: path.resolve(__dirname, "marketplace-preview.html") },
       treeshake: {
         moduleSideEffects: true, 
         propertyReadSideEffects: false,
@@ -274,11 +275,10 @@ export const viteConfig: UserConfig = {
     globalDepPlugin(),
     createHtmlPlugin({
       minify: true,
-      inject: {
-        data: {
-          browserCheckScript: isDev ? "" : `<script src="${base}${browserCheckFileName}"></script>`,
-        },
-      },
+      pages: [
+        { filename: "index.html", template: "index.html", injectOptions: { data: { browserCheckScript: isDev ? "" : `<script src="${base}${browserCheckFileName}"></script>` } } },
+        { filename: "marketplace-preview.html", template: "marketplace-preview.html" },
+      ],
     }),
     isVisualizerEnabled && visualizer(),
     dynamicImport(),
@@ -297,6 +297,7 @@ const browserCheckConfig: UserConfig = {
     manifest: false,
     copyPublicDir: true,
     emptyOutDir: true,
+    rollupOptions: { ...viteConfig.build?.rollupOptions, input: undefined },
     lib: {
       formats: ["es"],
       name: "BrowserCheck",
