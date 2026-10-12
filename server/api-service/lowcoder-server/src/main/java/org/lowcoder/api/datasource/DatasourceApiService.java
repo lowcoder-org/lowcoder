@@ -1,17 +1,17 @@
 package org.lowcoder.api.datasource;
 
-import jakarta.annotation.Nullable;
+import java.util.List;
+import java.util.Set;
+
 import org.lowcoder.api.permission.view.CommonPermissionView;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.plugin.client.dto.GetPluginDynamicConfigRequestDTO;
 import org.lowcoder.sdk.models.DatasourceTestResult;
-import org.springframework.web.bind.annotation.RequestParam;
+
+import jakarta.annotation.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
-import java.util.Set;
 
 public interface DatasourceApiService {
     Mono<Datasource> create(Datasource datasource);
@@ -41,4 +41,6 @@ public interface DatasourceApiService {
     Mono<Boolean> updatePermission(String permissionId, ResourceRole role);
 
     Mono<Boolean> deletePermission(String permissionId);
+
+    Mono<List<Object>> getGroupsOrMembersWithoutPermissions(String datasourceId);
 }
