@@ -10,6 +10,7 @@ import org.lowcoder.plugin.oracle.model.OracleDatasourceConfig;
 import org.lowcoder.sdk.contract.FakeJdbc;
 import org.lowcoder.sdk.contract.FakeJdbc.Column;
 import org.lowcoder.sdk.contract.FakeJdbc.FailingCell;
+import org.lowcoder.sdk.contract.FakeJdbc.MissingClassCell;
 import org.lowcoder.sdk.contract.FakeJdbc.Rows;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.DatasourceStructure;
@@ -47,6 +48,10 @@ import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR
 public class OracleQueryExecutorTest {
 
     static final Duration TIMEOUT = Duration.ofSeconds(20);
+    /** For the NEW-16 test, whose failure mode at HEAD is a hang: short, so the suite is not held for 20 s. */
+    static final Duration MISSING_CLASS_TIMEOUT = Duration.ofMillis(250);
+    /** A class the Oracle driver would need for an XMLTYPE column; the answer must name it. */
+    static final String MISSING_CLASS = "oracle.xdb.XMLType";
     static final String QUERY = "select * from items";
     static final String TABLE_NAME = "table_name";
     static final String COLUMN_NAME = "column_name";
@@ -89,6 +94,34 @@ public class OracleQueryExecutorTest {
         assertEquals(1, first.get("ID"));
         assertEquals("žluť", first.get("NAME"));
         assertNull(assertInstanceOf(Map.class, data.get(1)).get("NAME"));
+    }
+
+    /**
+     * NEW-16 (T165): a cell whose type needs a class the deployment lacks. The read throws a
+     * {@link NoClassDefFoundError}, which Reactor used to rethrow as JVM-fatal on the plugin scheduler's worker, so the
+     * query never answered; it now fails with an execution error naming the class. The path is the real one for this
+     * defect - {@link OracleQueryExecutor} over {@code GeneralSqlExecutor} and
+     * {@code BlockingQueryExecutor.executeQuery} - with the failure raised while a result is read.
+     *
+     * <p>It blocks for {@link #MISSING_CLASS_TIMEOUT} rather than the class's 20 s {@link #TIMEOUT}, so that at HEAD it
+     * fails fast instead of holding the suite for twenty seconds. Limit: the missing class is simulated by
+     * {@link FakeJdbc.MissingClassCell}, not produced by a real Oracle driver reading an {@code XMLTYPE} column; that
+     * check is its own task.
+     */
+    @Test
+    public void aCellWhoseClassIsMissingFailsTheQueryWithAnExecutionErrorNEW16() {
+        SqlBasedQueryExecutionContext context = SqlBasedQueryExecutionContext.builder().query(QUERY).requestParams(Map.of()).build();
+        PluginException thrown = assertThrows(PluginException.class, () -> executor.executeQuery(
+                OracleFakeConnections.wrap(FakeJdbc.connection(List.of(new Rows(FakeJdbc.resultSet(
+                        List.of(new Column("X", "XMLTYPE")),
+                        List.of(List.of(new MissingClassCell(MISSING_CLASS)))))))),
+                context).block(MISSING_CLASS_TIMEOUT));
+
+        System.out.println("[OracleQueryExecutorTest] missing class: " + thrown.getError() + " " + thrown.getMessageKey()
+                + " " + Arrays.toString(thrown.getArgs()));
+        assertEquals(QUERY_EXECUTION_ERROR, thrown.getError());
+        assertTrue(Arrays.toString(thrown.getArgs()).contains(MISSING_CLASS),
+                "the answer must name the missing class, was " + Arrays.toString(thrown.getArgs()));
     }
 
     @Test
