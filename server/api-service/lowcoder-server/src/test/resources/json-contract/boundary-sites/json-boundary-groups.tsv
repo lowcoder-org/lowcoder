@@ -17,6 +17,7 @@ error-handler	WP1	lowcoder-server/src/test/java
 api-flow	WP7	lowcoder-server/src/test/java
 js-library	WP7	lowcoder-server/src/test/java
 npm-outbound	WP7	lowcoder-server/src/test/java
+subscription-relay	WP7	lowcoder-server/src/test/java
 payload-getters	WP2,WP4,WP6	lowcoder-server/src/test/java
 upsert-datasource	WP5	lowcoder-server/src/test/java
 dynamic-roundtrip	WP9	lowcoder-domain/src/test/java
