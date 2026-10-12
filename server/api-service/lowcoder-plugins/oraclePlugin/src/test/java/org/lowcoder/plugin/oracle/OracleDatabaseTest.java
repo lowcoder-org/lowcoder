@@ -309,6 +309,55 @@ public class OracleDatabaseTest {
         }
     }
 
+    /**
+     * NEW-15 fixed: the Oracle driver streams a {@code LONG} and a {@code LONG RAW} column, so each cell can be read once,
+     * and the shared result parser read every cell twice (once for its null check): every query selecting such a column
+     * failed with ORA-17027 "Stream has already been closed." A {@code LONG} is read once as text now and a
+     * {@code LONG RAW} once as bytes, which the result JSON writes as base64, as it does a RAW or a BLOB. Oracle allows one
+     * such column per table (ORA-01754), so each type has its own table, and the streamed column is selected last as well
+     * as first. Limits: the values are a few bytes, so this shows the one-read rule and the value types, not the reading of
+     * large streamed values; it runs the executor, not an HTTP endpoint.
+     */
+    @Test
+    public void longAndLongRawColumnsReachTheResultNEW15() throws Exception {
+        try (Connection jdbc = jdbc()) {
+            execute(jdbc, "drop table t_long", "create table t_long (id number, c_long long, c_after varchar2(10))",
+                    "insert into t_long values (1, 'long text', 'after')", "insert into t_long values (2, null, null)");
+            execute(jdbc, "drop table t_long_raw", "create table t_long_raw (id number, c_long_raw long raw)",
+                    "insert into t_long_raw values (1, hextoraw('0001FF'))", "insert into t_long_raw values (2, null)");
+            OracleDatasourceConfig config = config();
+            HikariPerfWrapper pool = connect(config);
+            try {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> longRows = (List<Map<String, Object>>) sql(pool, config, "select * from t_long order by id", Map.of());
+                System.out.println("[OracleDatabaseTest] LONG rows: " + longRows);
+                assertEquals(new LinkedHashMap<>(Map.of("ID", BigDecimal.ONE, "C_LONG", "long text", "C_AFTER", "after")), longRows.get(0));
+                longRows.get(1).forEach((column, value) -> assertEquals("ID".equals(column) ? new BigDecimal(2) : null, value, column));
+
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> longLast = (List<Map<String, Object>>) sql(pool, config, "select c_after, c_long from t_long order by id", Map.of());
+                System.out.println("[OracleDatabaseTest] LONG selected last: " + longLast);
+                assertEquals("long text", longLast.get(0).get("C_LONG"), "a LONG after another column reads too");
+
+                Object rawData = sql(pool, config, "select * from t_long_raw order by id", Map.of());
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> rawRows = (List<Map<String, Object>>) rawData;
+                String json = org.lowcoder.sdk.util.JsonUtils.toJson(rawData);
+                System.out.println("[OracleDatabaseTest] LONG RAW rows: " + rawRows.stream().map(Map::keySet).toList() + " json " + json);
+                assertArrayEquals(new byte[] {0, 1, (byte) 0xFF}, (byte[]) rawRows.get(0).get("C_LONG_RAW"), "bytes, not the driver's hex text");
+                assertNull(rawRows.get(1).get("C_LONG_RAW"));
+                assertTrue(json.contains("\"C_LONG_RAW\":\"AAH/\""), "the bytes are written as base64, as a RAW or BLOB is: " + json);
+
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> rawFirst = (List<Map<String, Object>>) sql(pool, config, "select c_long_raw, id from t_long_raw order by id", Map.of());
+                System.out.println("[OracleDatabaseTest] LONG RAW selected first: " + rawFirst.stream().map(Map::keySet).toList());
+                assertArrayEquals(new byte[] {0, 1, (byte) 0xFF}, (byte[]) rawFirst.get(0).get("C_LONG_RAW"), "a LONG RAW before another column reads too");
+            } finally {
+                destroy(pool);
+            }
+        }
+    }
+
     // ---- GUI commands
 
     @Test
