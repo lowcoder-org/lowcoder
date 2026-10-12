@@ -22,12 +22,15 @@ import java.util.function.Function;
  * {@code build()} calls too) answers the real client builder, codecs and exchange strategies included, with only its
  * connector replaced by a {@link RedirectingConnector}: same method, path and query, the test server's scheme, host and
  * port. Used for fixed {@code https} endpoints: the GitHub and Google OAuth requests, the npm registry of
- * {@code JsLibraryController#fetch} and the flow endpoint of {@code ApiFlowController}.
+ * {@code JsLibraryController#fetch}, the flow endpoint of {@code ApiFlowController}, and the subscription relays of
+ * {@code EnterpriseLicenseController} and {@code WorkspaceSeatSyncService} (through their test subclasses
+ * {@code RedirectedEnterpriseLicenseController} and {@code RedirectedWorkspaceSeatSyncService}).
  *
  * <p>Limits: the redirection is a Mockito static mock, which applies on the thread that opened it only, so the
  * production method must build its client on that thread: called directly by the test, not through a scheduler, or
  * by a test subclass that opens the redirection itself around the production method (the controller of
- * {@code ApiFlowEndpointsContractTest}, on the request's thread); and it replaces the transport (proxy, timeouts), not
+ * {@code ApiFlowEndpointsContractTest}, on the request's thread, and the two subscription subclasses, around the relay
+ * method {@code send}, which builds its client before it returns); and it replaces the transport (proxy, timeouts), not
  * the codecs.
  */
 public final class WebClientRedirect {
