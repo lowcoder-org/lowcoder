@@ -402,11 +402,55 @@ public class MongoPlugin extends Plugin {
 
         /**
          * The hosts the driver connects to for a connection string, as {@link ConnectionString} parses it, without ports;
-         * none when the driver cannot parse it, since no connection can be made from it either.
+         * none when the driver cannot parse it, since no connection can be made from it either. This is the overload host
+         * mode uses: it answers no hosts for a string the driver refuses, which is why a refusal is invisible there
+         * (NEW-55), and it is the null-safe way in - callers that have not parsed yet must use it and not
+         * {@link #driverParse} plus {@link #driverHosts(ConnectionString)} by hand.
          */
         private static List<String> driverHosts(String connectionString) {
+            ConnectionString parsed = driverParse(connectionString);
+            return parsed == null ? List.of() : driverHosts(parsed);
+        }
+
+        /**
+         * The connection string as the driver's own parser reads it, or null when the driver refuses it. The only method
+         * here that answers null, so every caller must branch on it.
+         *
+         * <p>NEW-20: the URI branch of {@link #validateConfig} reports that refusal as
+         * {@code INVALID_MONGODB_URL_PLZ_CHECK}. Before it did, the only driver call of that branch was
+         * {@link #driverHosts(String)}, and an empty host list for a refused string reads exactly like a string with no
+         * loopback host - so the datasource saved, and the refusal reached the caller only on connect, where
+         * {@code MongoClients.create} raises the {@link IllegalArgumentException} that {@link #createConnection} maps to
+         * {@code DATASOURCE_ARGUMENT_ERROR}. The strings this affects are the ones {@code MONGO_URL_REGEX} matches and
+         * the driver does not: a port that is not a number, a database holding '/' or ' ', options without the leading
+         * '/', an unenclosed IPv6 literal, a username without a password, an unknown read preference or auth mechanism.
+         *
+         * <p>The reason is deliberately carried nowhere. {@code validateConfig} answers message keys rather than text,
+         * and the driver's message quotes the part of the string it refused, which for a URI can be the credentials; so
+         * the caller is told only that the URL is invalid, and nothing is logged here either. The cost is real and is the
+         * price of not risking a password in a log: which of the reasons above applies is not reported.
+         *
+         * <p>Limits. {@code MongoException} is caught beside {@link IllegalArgumentException} because
+         * {@link #driverHosts(String)} has always caught both and this method took over that parse; no refusal seen while
+         * this was written raises it, so only the {@code IllegalArgumentException} half has a test. Host mode is not
+         * fixed here: it goes through {@link #driverHosts(String)}, whose empty answer still hides a refusal, and which
+         * code it should report is a separate decision because that form has no URL field (NEW-55).
+         */
+        private static ConnectionString driverParse(String connectionString) {
             try {
-                return new ConnectionString(connectionString).getHosts().stream()
+                return new ConnectionString(connectionString);
+            } catch (IllegalArgumentException | MongoException e) {
+                return null;
+            }
+        }
+
+        /**
+         * The hosts of a connection string the driver has already accepted, without ports; none if it cannot name them.
+         * Takes the parse rather than the string so that a caller which already has one does not make it twice.
+         */
+        private static List<String> driverHosts(ConnectionString parsed) {
+            try {
+                return parsed.getHosts().stream()
                         .map(hostAndPort -> new ServerAddress(hostAndPort).getHost())
                         .toList();
             } catch (IllegalArgumentException | MongoException e) {
@@ -437,7 +481,14 @@ public class MongoPlugin extends Plugin {
                     return ImmutableSet.of("INVALID_MONGODB_URL_PLZ_CHECK");
                 }
 
-                if (anyLoopbackOrWildcard(driverHosts(mongoUri))) {
+                // NEW-20: the checks above are this file's own regex; this one asks the driver, which refuses strings that
+                // regex matches. See driverParse for what is refused and why no reason is reported.
+                ConnectionString parsed = driverParse(mongoUri);
+                if (parsed == null) {
+                    return ImmutableSet.of("INVALID_MONGODB_URL_PLZ_CHECK");
+                }
+
+                if (anyLoopbackOrWildcard(driverHosts(parsed))) {
                     invalids.add("INVALID_HOST");
                 }
                 return invalids;
