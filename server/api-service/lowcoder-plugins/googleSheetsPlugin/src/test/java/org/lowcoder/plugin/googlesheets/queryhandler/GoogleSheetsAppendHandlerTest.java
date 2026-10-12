@@ -8,8 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.lowcoder.sdk.contract.RecordingHttpServer.Handler;
 import org.lowcoder.sdk.contract.RecordingHttpServer.Request;
 import org.lowcoder.sdk.models.QueryExecutionResult;
@@ -27,11 +31,36 @@ public class GoogleSheetsAppendHandlerTest extends GoogleSheetsCallSupport {
     private static final String QUERY_PARAM_EMPTY_TEXT = "Google Sheets query parameter is empty.";
     private static final String APPENDED = "{\"spreadsheetId\":\"sid\",\"tableRange\":\"Sheet1!A1:C2\",\"updates\":{\"spreadsheetId\":\"sid\","
             + "\"updatedRange\":\"Sheet1!A3:C3\",\"updatedRows\":1,\"updatedColumns\":3,\"updatedCells\":3}}";
+    private static final String HEADER_NAME_AGE_CITY = "{\"range\":\"Sheet1!A1:C2\",\"values\":[[\"name\",\"age\",\"city\"],[\"x\",\"1\",\"y\"]]}";
+    private static final String BLANK_EMPTY = "";
+    private static final String BLANK_TWO_SPACES = "  ";
 
     private static Map<String, Object> command(String column, String value) {
         return Map.of("spreadsheetId", SPREADSHEET, "sheetName", "Sheet1",
                 "changeSet", Map.of("compType", "KEY_VALUE_PAIRS", "comp", List.of(
                         Map.of("column", column, "value", value), Map.of("column", "name", "value", "Ann"), Map.of("column", "other", "value", "ignored"))));
+    }
+
+    /** {@link #command} with the given pair in place of the first one; {@code command} always sends a non-null value. */
+    private static Map<String, Object> commandWithPair(Map<String, Object> pair) {
+        return Map.of("spreadsheetId", SPREADSHEET, "sheetName", "Sheet1",
+                "changeSet", Map.of("compType", "KEY_VALUE_PAIRS", "comp", List.of(
+                        pair, Map.of("column", "name", "value", "Ann"), Map.of("column", "other", "value", "ignored"))));
+    }
+
+    private static Map<String, Object> pairWithNullValue(String column) {
+        Map<String, Object> pair = new HashMap<>();
+        pair.put("column", column);
+        pair.put("value", null);
+        return pair;
+    }
+
+    static Stream<Arguments> blankValues() {
+        return Stream.of(Arguments.of("empty", BLANK_EMPTY), Arguments.of("two spaces", BLANK_TWO_SPACES));
+    }
+
+    static Stream<Arguments> pairsWithoutAValue() {
+        return Stream.of(Arguments.of("no value key", Map.of("column", "city")), Arguments.of("explicit null value", pairWithNullValue("city")));
     }
 
     private Map<String, Handler> routes(String readAnswer) {
@@ -47,7 +76,7 @@ public class GoogleSheetsAppendHandlerTest extends GoogleSheetsCallSupport {
 
     @Test
     public void appendPostsOneRowInHeaderOrderWithBlanksForColumnsWithoutAValue() {
-        start(routes("{\"range\":\"Sheet1!A1:C2\",\"values\":[[\"name\",\"age\",\"city\"],[\"x\",\"1\",\"y\"]]}"));
+        start(routes(HEADER_NAME_AGE_CITY));
 
         QueryExecutionResult result = run("appendData", command("city", "Brno"));
 
@@ -115,5 +144,40 @@ public class GoogleSheetsAppendHandlerTest extends GoogleSheetsCallSupport {
         assertEquals("GOOGLESHEETS_REQUEST_ERROR", result.getMessageKey());
         assertEquals(QUERY_PARAM_EMPTY_TEXT, failureText(result));
         assertEquals(List.of("GET"), apiRequests().stream().map(Request::method).toList(), "nothing is appended");
+    }
+
+    /**
+     * NEW-13 fixed: a blank pair value was rendered as an empty JSON object and appended as the text {@code {}}. It is now
+     * appended as itself; {@code age} has no pair, so it stays empty as before.
+     */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("blankValues")
+    public void aBlankValueIsAppendedAsItselfNotAsAnEmptyObjectNEW13(String label, String blank) {
+        start(routes(HEADER_NAME_AGE_CITY));
+
+        QueryExecutionResult result = run("appendData", command("city", blank));
+
+        List<Request> api = apiRequests();
+        System.out.println("[GoogleSheetsAppendHandlerTest] blank city (" + label + ") -> success=" + result.isSuccess() + " "
+                + api.stream().map(Request::method).toList() + (api.size() > 1 ? " body " + bodyText(api.get(1)) : ""));
+        assertTrue(result.isSuccess(), String.valueOf(result.getMessageArgs()));
+        assertEquals(List.of("GET", "POST"), api.stream().map(Request::method).toList());
+        assertEquals(Map.of("majorDimension", "ROWS", "range", "Sheet1!A1", "values", List.of(List.of("Ann", "", blank))), body(api.get(1)));
+    }
+
+    /** BF-047 through the handler: a pair without a value, or with a null one, appends an empty cell, not the text null. */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("pairsWithoutAValue")
+    public void aPairWithoutAValueIsAppendedAsAnEmptyCellBF047(String label, Map<String, Object> pair) {
+        start(routes(HEADER_NAME_AGE_CITY));
+
+        QueryExecutionResult result = run("appendData", commandWithPair(pair));
+
+        List<Request> api = apiRequests();
+        System.out.println("[GoogleSheetsAppendHandlerTest] city pair " + label + " " + pair + " -> success=" + result.isSuccess() + " "
+                + api.stream().map(Request::method).toList() + (api.size() > 1 ? " body " + bodyText(api.get(1)) : ""));
+        assertTrue(result.isSuccess(), String.valueOf(result.getMessageArgs()));
+        assertEquals(List.of("GET", "POST"), api.stream().map(Request::method).toList());
+        assertEquals(Map.of("majorDimension", "ROWS", "range", "Sheet1!A1", "values", List.of(List.of("Ann", "", ""))), body(api.get(1)));
     }
 }

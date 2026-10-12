@@ -8,8 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.lowcoder.sdk.contract.RecordingHttpServer.Handler;
 import org.lowcoder.sdk.contract.RecordingHttpServer.Request;
 import org.lowcoder.sdk.models.QueryExecutionResult;
@@ -28,10 +32,34 @@ public class GoogleSheetsUpdateHandlerTest extends GoogleSheetsCallSupport {
     private static final String HEADER = "{\"range\":\"Sheet1!A1:C1\",\"majorDimension\":\"ROWS\",\"values\":[[\"name\",\"age\",\"city\"]]}";
     private static final String UPDATED = "{\"spreadsheetId\":\"sid\",\"updatedRange\":\"Sheet1!A8:C8\",\"updatedRows\":1,\"updatedColumns\":3,"
             + "\"updatedCells\":3,\"updatedData\":{\"range\":\"Sheet1!A8:C8\",\"values\":[[\"x\",\"6\",\"y\"]]}}";
+    private static final String ROW_X_5_Y = "{\"range\":\"Sheet1!A8:C8\",\"majorDimension\":\"ROWS\",\"values\":[[\"x\",\"5\",\"y\"]]}";
+    private static final String BLANK_EMPTY = "";
+    private static final String BLANK_TWO_SPACES = "  ";
 
     private static Map<String, Object> command(String column, String value) {
         return Map.of("spreadsheetId", SPREADSHEET, "sheetName", "Sheet1", "rowIndexString", "7",
                 "changeSet", Map.of("compType", "KEY_VALUE_PAIRS", "comp", List.of(Map.of("column", column, "value", value))));
+    }
+
+    /** {@link #command} with the given pair; {@code command} always sends a non-null value. */
+    private static Map<String, Object> commandWithPair(Map<String, Object> pair) {
+        return Map.of("spreadsheetId", SPREADSHEET, "sheetName", "Sheet1", "rowIndexString", "7",
+                "changeSet", Map.of("compType", "KEY_VALUE_PAIRS", "comp", List.of(pair)));
+    }
+
+    private static Map<String, Object> pairWithNullValue(String column) {
+        Map<String, Object> pair = new HashMap<>();
+        pair.put("column", column);
+        pair.put("value", null);
+        return pair;
+    }
+
+    static Stream<Arguments> blankValues() {
+        return Stream.of(Arguments.of("empty", BLANK_EMPTY), Arguments.of("two spaces", BLANK_TWO_SPACES));
+    }
+
+    static Stream<Arguments> pairsWithoutAValue() {
+        return Stream.of(Arguments.of("no value key", Map.of("column", "age")), Arguments.of("explicit null value", pairWithNullValue("age")));
     }
 
     private void startWith(String rowAnswer) {
@@ -43,7 +71,7 @@ public class GoogleSheetsUpdateHandlerTest extends GoogleSheetsCallSupport {
 
     @Test
     public void updateChangesOnlyTheNamedColumnsAndKeepsTheStoredCells() {
-        startWith("{\"range\":\"Sheet1!A8:C8\",\"majorDimension\":\"ROWS\",\"values\":[[\"x\",\"5\",\"y\"]]}");
+        startWith(ROW_X_5_Y);
 
         QueryExecutionResult result = run("updateData", command("age", "6"));
 
@@ -95,12 +123,44 @@ public class GoogleSheetsUpdateHandlerTest extends GoogleSheetsCallSupport {
 
     @Test
     public void whenNoChangeSetColumnMatchesAHeaderTheCallFailsAndNothingIsPut() {
-        startWith("{\"range\":\"Sheet1!A8:C8\",\"majorDimension\":\"ROWS\",\"values\":[[\"x\",\"5\",\"y\"]]}");
+        startWith(ROW_X_5_Y);
 
         QueryExecutionResult result = run("updateData", command("nothing", "6"));
 
         assertFalse(result.isSuccess());
         assertEquals("Google Sheets query parameter is empty.", failureText(result));
         assertEquals(List.of("GET", "GET"), apiRequests().stream().map(Request::method).toList());
+    }
+
+    /** NEW-13 fixed: a blank pair value was rendered as an empty JSON object and written as the text {@code {}}; now as itself. */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("blankValues")
+    public void aBlankValueIsWrittenAsItselfNotAsAnEmptyObjectNEW13(String label, String blank) {
+        startWith(ROW_X_5_Y);
+
+        QueryExecutionResult result = run("updateData", command("age", blank));
+
+        List<Request> api = apiRequests();
+        System.out.println("[GoogleSheetsUpdateHandlerTest] blank age (" + label + ") -> success=" + result.isSuccess() + " "
+                + api.stream().map(Request::method).toList() + (api.size() > 2 ? " body " + bodyText(api.get(2)) : ""));
+        assertTrue(result.isSuccess(), String.valueOf(result.getMessageArgs()));
+        assertEquals(List.of("GET", "GET", "PUT"), api.stream().map(Request::method).toList());
+        assertEquals(Map.of("majorDimension", "ROWS", "values", List.of(List.of("x", blank, "y"))), body(api.get(2)));
+    }
+
+    /** BF-047 through the handler: a pair without a value, or with a null one, writes an empty cell, not the text null. */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("pairsWithoutAValue")
+    public void aPairWithoutAValueIsWrittenAsAnEmptyCellBF047(String label, Map<String, Object> pair) {
+        startWith(ROW_X_5_Y);
+
+        QueryExecutionResult result = run("updateData", commandWithPair(pair));
+
+        List<Request> api = apiRequests();
+        System.out.println("[GoogleSheetsUpdateHandlerTest] age pair " + label + " " + pair + " -> success=" + result.isSuccess() + " "
+                + api.stream().map(Request::method).toList() + (api.size() > 2 ? " body " + bodyText(api.get(2)) : ""));
+        assertTrue(result.isSuccess(), String.valueOf(result.getMessageArgs()));
+        assertEquals(List.of("GET", "GET", "PUT"), api.stream().map(Request::method).toList());
+        assertEquals(Map.of("majorDimension", "ROWS", "values", List.of(List.of("x", "", "y"))), body(api.get(2)));
     }
 }
