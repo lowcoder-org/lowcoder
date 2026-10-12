@@ -12,6 +12,7 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.sql.Time;
 import java.time.LocalDate;
+import java.util.HexFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,7 +24,8 @@ import java.util.Map;
  * driver hands out without a database (docs/API_PAYLOAD_TEST_PLAN.md §4.6, task T8.2).
  *
  * <p>A {@link #resultSet} answers {@code getObject} with the cell as given, and the typed getters the parsers call
- * ({@code getDate}, {@code getTime}, {@code getString}, {@code getBlob}, {@code getArray}, {@code getObject(i, type)})
+ * ({@code getDate}, {@code getTime}, {@code getString}, {@code getBytes}, {@code getBlob}, {@code getArray},
+ * {@code getObject(i, type)})
  * from it the way a driver converts. A {@link #connection} hands out one statement that yields the given
  * {@link StatementResult}s in order, through {@code execute}, {@code getResultSet}, {@code getUpdateCount},
  * {@code getMoreResults} and {@code getGeneratedKeys}; given a bind log, it records every {@code set...(index, value)}
@@ -32,7 +34,8 @@ import java.util.Map;
  *
  * <p>Limits: only the methods named here are implemented; any other call fails with
  * {@link SQLFeatureNotSupportedException} naming the method, so a parser that starts calling another method fails
- * the test instead of reading a default. The conversions are those of the JDBC specification, not of one driver.
+ * the test instead of reading a default. The conversions are those of the JDBC specification, not of one driver; the one
+ * exception is {@link StreamedCell}, a cell of a streamed column, which models the Oracle driver and says so.
  */
 public final class FakeJdbc {
 
@@ -49,6 +52,35 @@ public final class FakeJdbc {
      * value that is a duration) and whose {@code getString} gives {@code text}.
      */
     public record FailingCell(String message, String text) {
+    }
+
+    /**
+     * A cell of a streamed column, which the driver lets read once: the first read through any getter answers
+     * {@code value} ({@code getObject} and {@code getBytes} as it is, {@code getString} its text, a {@code byte[]} as
+     * upper-case hex), every later read fails with an {@link SQLException} of {@link #STREAM_CLOSED}. Not JDBC-specification
+     * behaviour, unlike the rest of this class: it models one driver, the Oracle driver's {@code LONG} and {@code LONG RAW}
+     * (NEW-15). One instance is one cell of one row: an instance put in a second row is already read and fails there, which
+     * is not what a driver does.
+     */
+    public static final class StreamedCell {
+
+        /** The message of the driver observed (ORA-17027 of ojdbc11 against Oracle Free 23). */
+        public static final String STREAM_CLOSED = "Stream has already been closed.";
+
+        private final Object value;
+        private boolean read;
+
+        public StreamedCell(Object value) {
+            this.value = value;
+        }
+
+        private Object readOnce() throws SQLException {
+            if (read) {
+                throw new SQLException(STREAM_CLOSED);
+            }
+            read = true;
+            return value;
+        }
     }
 
     /** One result of a statement: rows, or an update count with the generated keys (none: {@code null}). */
@@ -137,6 +169,7 @@ public final class FakeJdbc {
             case "getObject" -> args.length == 1 ? object(rows.get(row[0]).get((int) args[0] - 1))
                     : typed(rows.get(row[0]).get((int) args[0] - 1), (Class<?>) args[1]);
             case "getString" -> string(rows.get(row[0]).get((int) args[0] - 1));
+            case "getBytes" -> typed(rows.get(row[0]).get((int) args[0] - 1), byte[].class);
             case "getDate" -> date(rows.get(row[0]).get((int) args[0] - 1));
             case "getTime" -> time(rows.get(row[0]).get((int) args[0] - 1));
             case "getBlob" -> typed(rows.get(row[0]).get((int) args[0] - 1), Blob.class);
@@ -194,6 +227,9 @@ public final class FakeJdbc {
         if (cell instanceof FailingCell failing) {
             throw new SQLException(failing.message());
         }
+        if (cell instanceof StreamedCell streamed) {
+            return streamed.readOnce();
+        }
         return cell;
     }
 
@@ -205,9 +241,16 @@ public final class FakeJdbc {
         throw new SQLException("cell of " + value.getClass().getName() + " is not a " + type.getName());
     }
 
-    private static String string(Object cell) {
+    private static String string(Object cell) throws SQLException {
         if (cell instanceof FailingCell failing) {
             return failing.text();
+        }
+        if (cell instanceof StreamedCell streamed) {
+            Object value = streamed.readOnce();
+            if (value instanceof byte[] bytes) {
+                return HexFormat.of().withUpperCase().formatHex(bytes);
+            }
+            return value == null ? null : value.toString();
         }
         return cell == null ? null : cell.toString();
     }
