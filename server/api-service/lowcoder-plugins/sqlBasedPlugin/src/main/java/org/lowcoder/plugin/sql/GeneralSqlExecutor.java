@@ -113,13 +113,29 @@ public class GeneralSqlExecutor {
         return result;
     }
 
-    private static ResultSet getGeneratedKeys(Statement statement) {
+    private ResultSet getGeneratedKeys(Statement statement) throws SQLException {
         // Oracle will throw exception here in some cases, so we catch the exception here
         try {
             return statement.getGeneratedKeys();
         } catch (Exception e) {
+            if (e instanceof SQLException sqlException && isQueryFailure(sqlException)) {
+                throw sqlException;
+            }
             return null;
         }
+    }
+
+    /**
+     * Whether a {@link SQLException} that {@link Statement#getGeneratedKeys()} throws reports a failure of the query itself
+     * rather than that no keys can be read (NEW-9: SQL Server raises the error of the next statement of a batch there). A
+     * failure is rethrown and fails the query as QUERY_EXECUTION_ERROR; anything else means "no keys". The default is
+     * false: every exception means "no keys", as Oracle needs.
+     * <p>Limits: only the exception of {@code getGeneratedKeys} is asked (a failure surfacing from {@code getMoreResults}
+     * already fails the query); any other exception type always means "no keys"; whether other drivers lose errors the same
+     * way was not examined.
+     */
+    protected boolean isQueryFailure(SQLException e) {
+        return false;
     }
 
     private static boolean isGeneratedKeysWithNullValue(List<Map<String, Object>> dataRows) {
