@@ -108,7 +108,10 @@ public final class ContractRegistry {
             "the node service's List<Object> (Appendix A, node-service); DatasourceEndpointsContractTest pins it with the §4.6 representative input",
             "DatasourceEndpoints#info(String)",
             "connection pool statistics, a list of maps of Integers and Properties (Appendix A); DatasourceEndpointsContractTest builds them "
-                    + "with the production ClientBasedConnectionPool and pins them in dynamic/DatasourceEndpoints.info.output.json");
+                    + "with the production ClientBasedConnectionPool and pins them in dynamic/DatasourceEndpoints.info.output.json",
+            "EnterpriseLicenseController#request(String, JsonNode, ServerHttpRequest)",
+            "the browser's request and the relay's answer, both JsonNode (dynamic content); EnterpriseLicenseControllerContractTest pins "
+                    + "them with the §4.6 representative input");
     private static final String COLUMN_SEPARATOR = "\t";
     private static final String COMMENT = "#";
     private static final String ASSIGNMENT = "=";

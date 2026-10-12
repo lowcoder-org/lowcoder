@@ -97,10 +97,11 @@ class GroupEndpointsContractTest {
     static final String USERS_KEY = "users";
     /**
      * {@code getOrgGroups}' members: one admin, one super admin and two members in the dev group, three other members.
-     * The counts {@code GroupController#getOrgGroups} derives: admins 1 (role {@code ADMIN} only), admins and developers
-     * 4, developers only 2, other members 3.
+     * The counts {@code GroupController#getOrgGroups} derives: admins 2 (admins and super admins, distinct user ids,
+     * {@code GroupController.java:89-91}), admins and developers 4 ({@code WorkspaceSeatCounter.count}, {@code :92}: the
+     * admin, the super admin and the two developers, distinct), developers only 2, other members 3.
      */
-    static final int TOTAL_ADMINS = 1;
+    static final int TOTAL_ADMINS = 2;
     static final int TOTAL_ADMINS_AND_DEVELOPERS = 4;
     static final int TOTAL_DEVELOPERS_ONLY = 2;
     static final int TOTAL_OTHER_MEMBERS = 3;
