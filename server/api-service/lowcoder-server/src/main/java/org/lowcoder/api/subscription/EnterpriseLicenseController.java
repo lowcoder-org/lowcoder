@@ -1,7 +1,9 @@
 package org.lowcoder.api.subscription;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.lowcoder.domain.enterprise.EnterpriseLicenseCapabilityService;
+import org.lowcoder.domain.enterprise.EnterpriseLicenseCapabilityService.PurchaseState;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.sdk.config.dynamic.ConfigCenter;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
@@ -9,6 +11,7 @@ import org.lowcoder.api.framework.view.ResponseView;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -60,7 +63,7 @@ public class EnterpriseLicenseController {
                                 "Enterprise Edition is self-hosted. Purchase a license from your own Lowcoder installation."));
                     }
                     String hostId = config.deployment().ofString("id", "").get();
-                    if (hostId == null || hostId.isBlank() || relayUrl.isBlank()) {
+                    if (hostId == null || hostId.isBlank()) {
                         return Mono.error(new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                                 "Enterprise licensing is not configured for this installation"));
                     }
@@ -69,7 +72,9 @@ public class EnterpriseLicenseController {
                     payload.put("hostId", hostId);
                     payload.put("orgId", member.getOrgId());
                     payload.put("userId", member.getUserId());
-                    payload.put("issuedAt", System.currentTimeMillis());
+                    if (action.equals("status") || action.equals("sync")) {
+                        return library(payload, action.equals("status") && body.path("refresh").asBoolean(false));
+                    }
                     if (action.equals("checkout")) {
                         JsonNode deployments = body.path("deploymentIds");
                         if (!deployments.isArray() || deployments.size() < 1 || deployments.size() > 3 ||
@@ -85,7 +90,11 @@ public class EnterpriseLicenseController {
                     if (action.equals("portal")) payload.put("requestId", body.path("requestId").asText());
                     if (action.equals("checkout") || action.equals("portal")) {
                         String origin = publicUrl.isBlank() ? body.path("returnOrigin").asText() : publicUrl;
-                        URI base = URI.create(origin);
+                        URI base;
+                        try { base = URI.create(origin); }
+                        catch (IllegalArgumentException error) {
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Enterprise return origin");
+                        }
                         // Local development may return over HTTP. Payment and relay traffic still use HTTPS.
                         boolean loopback = base.getHost() != null && List.of("localhost", "127.0.0.1", "[::1]").contains(base.getHost());
                         if (!("https".equals(base.getScheme()) || ("http".equals(base.getScheme()) && loopback)) ||
@@ -98,8 +107,75 @@ public class EnterpriseLicenseController {
                         payload.put("returnUrl", origin.replaceAll("/+$", "") + "/setting/subscription?enterpriseLicense=return");
                     }
                     return capabilities.token(hostId, member.getOrgId(), member.getUserId())
-                            .flatMap(token -> send(payload, token));
+                            .flatMap(token -> {
+                                if (!action.equals("checkout")) return relay(payload, token);
+                                return capabilities.checkoutAttempted(hostId, member.getOrgId(), member.getUserId())
+                                        .then(Mono.defer(() -> relay(payload, token)))
+                                        .flatMap(result -> capabilities.recordPurchaseStatus(hostId, member.getOrgId(), member.getUserId(), true)
+                                                .thenReturn(result));
+                            });
                 }).map(ResponseView::success);
+    }
+
+    private Mono<JsonNode> library(Map<String, Object> payload, boolean refresh) {
+        String hostId = (String) payload.get("hostId"), orgId = (String) payload.get("orgId"), userId = (String) payload.get("userId");
+        return capabilities.purchaseState(hostId, orgId, userId).flatMap(state -> {
+            if (state == PurchaseState.NONE && !refresh) {
+                var empty = JsonNodeFactory.instance.objectNode().put("success", true);
+                empty.putArray("orders");
+                empty.putArray("licenses");
+                return Mono.just(empty);
+            }
+            return capabilities.token(hostId, orgId, userId).flatMap(token -> {
+                Map<String, Object> lookup = new LinkedHashMap<>(payload);
+                // Legacy credentials and ambiguous checkouts are discovered without issuing files.
+                if (state != PurchaseState.CONFIRMED) lookup.put("action", "status");
+                return relay(lookup, token).flatMap(result -> {
+                    boolean purchased = hasPurchase(result);
+                    return capabilities.recordPurchaseStatus(hostId, orgId, userId, purchased)
+                            .then(Mono.defer(() -> "sync".equals(payload.get("action")) &&
+                                    "status".equals(lookup.get("action")) && purchased
+                                            ? relay(payload, token) : Mono.just(result)));
+                });
+            });
+        });
+    }
+
+    private static boolean hasPurchase(JsonNode result) {
+        return !result.path("orders").isEmpty() || !result.path("licenses").isEmpty();
+    }
+
+    private Mono<JsonNode> relay(Map<String, Object> payload, String token) {
+        return Mono.defer(() -> {
+            // Database work must not consume the relay's authenticated-request freshness window.
+            payload.put("issuedAt", System.currentTimeMillis());
+            return send(payload, token);
+        }).filter(result -> {
+            if (!result.path("success").asBoolean(false)) return false;
+            String action = (String) payload.get("action");
+            if (action.equals("status") || action.equals("sync")) {
+                return result.path("orders").isArray() && result.path("licenses").isArray();
+            }
+            if (action.equals("checkout")) {
+                return !result.path("checkoutUrl").asText().isBlank() &&
+                        result.path("requestId").equals(payload.get("requestId"));
+            }
+            return true;
+        }).switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                "Enterprise license service returned an invalid response. Please retry shortly.")))
+                .onErrorMap(error -> !(error instanceof ResponseStatusException), error ->
+                        new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                                "Enterprise license service is temporarily unavailable. Please retry shortly.", error));
+    }
+
+    // The global handler converts non-plugin ResponseStatusExceptions to 500. Keep the
+    // licensing API's authorization, validation and availability statuses intact locally.
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ResponseView<Void>> licensingError(ResponseStatusException error) {
+        var response = ResponseEntity.status(error.getStatusCode());
+        if (error.getStatusCode().value() == 503) response.header("Retry-After", "60");
+        return response.body(ResponseView.error(error.getStatusCode().value(),
+                error.getReason() == null ? "Enterprise licensing request could not be completed" : error.getReason()));
     }
 
     private static boolean isPublicCloudUrl(String url) {
@@ -112,7 +188,11 @@ public class EnterpriseLicenseController {
     }
 
     Mono<JsonNode> send(Map<String, Object> payload, String token) {
-        URI target = URI.create(relayUrl);
+        URI target;
+        try { target = URI.create(relayUrl); }
+        catch (IllegalArgumentException error) {
+            return Mono.error(new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Enterprise relay requires HTTPS"));
+        }
         if (!"https".equals(target.getScheme()) || target.getHost() == null || target.getUserInfo() != null) {
             return Mono.error(new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Enterprise relay requires HTTPS"));
         }
