@@ -18,12 +18,15 @@ jest.mock("util/permissionUtils", () => ({ currentOrgAdmin: () => true }));
 
 const post = Api.post as jest.Mock;
 const location = window.location;
-const setHost = (hostname: string) => Object.defineProperty(window, "location", {
-  configurable: true, value: { hostname, origin: `https://${hostname}` },
-});
+const testLocation = { hostname: "", origin: "" };
+const setHost = (hostname: string) => {
+  Object.assign(testLocation, { hostname, origin: `https://${hostname}` });
+  Object.defineProperty(window, "location", { configurable: true, value: testLocation });
+};
 
 beforeEach(() => {
   setHost("app.lowcoder.cloud");
+  Object.defineProperty(navigator, "onLine", { configurable: true, value: true });
   (useSelector as jest.Mock).mockImplementation(selector => selector === getDeploymentId ? "deployment-1" :
     { currentOrgId: "org", id: "admin", name: "Admin" });
   window.matchMedia = jest.fn().mockImplementation(() => ({
@@ -75,6 +78,7 @@ test.each(["en", "de", "es", "it", "pt", "ru", "zh"])("self-hosting guidance is 
 
 test("self-hosted administrators can still open the purchase form", () => {
   setHost("private.lowcoder.cloud");
+  expect(isPublicLowcoderCloud()).toBe(false);
   render(<EnterpriseLicenses />);
   fireEvent.click(screen.getByRole("button", { name: "Request Enterprise licenses" }));
   expect(screen.getByRole("dialog")).toHaveTextContent("Enterprise License Request");
@@ -87,7 +91,7 @@ test("cloud API calls cannot create checkout even if the form is bypassed", asyn
   expect(post).not.toHaveBeenCalled();
 });
 
-test("license polling is skipped on cloud but still runs on a self-hosted installation", async () => {
+test("cloud skips licensing and an empty self-hosted account stops after status", async () => {
   jest.useFakeTimers();
   post.mockResolvedValue({ data: { data: { success: true, orders: [], licenses: [] } } });
   const cloud = renderHook(() => useEnterpriseLicenseSync("org", "admin", true));
@@ -100,6 +104,8 @@ test("license polling is skipped on cloud but still runs on a self-hosted instal
   setHost("lowcoder.example");
   const selfHosted = renderHook(() => useEnterpriseLicenseSync("org", "admin", true));
   await act(async () => {});
-  expect(post).toHaveBeenCalledWith("/enterprise-licenses/sync", { orgId: "org", returnOrigin: "https://lowcoder.example" }, undefined, { timeout: 120000 });
+  expect(post).toHaveBeenCalledWith("/enterprise-licenses/status", { orgId: "org", returnOrigin: "https://lowcoder.example" }, undefined, { timeout: 120000 });
+  await act(async () => { jest.advanceTimersByTime(3600000); });
+  expect(post).toHaveBeenCalledTimes(1);
   selfHosted.unmount();
 });

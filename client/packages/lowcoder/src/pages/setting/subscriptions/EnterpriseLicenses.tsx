@@ -50,8 +50,8 @@ function SelfHostedEnterpriseLicenses() {
       <Button type="primary" onClick={() => setOpen(true)}>Request Enterprise licenses</Button>
       <Button onClick={refreshEnterpriseLicenses} loading={state.loading}>Refresh licenses</Button>
     </Space>
-    {state.error && <Alert type="warning" showIcon style={{ marginBottom: 16 }} message="License service unavailable"
-      description="Licenses could not be refreshed. Try again shortly, or ask your installation administrator to check its licensing connection." />}
+    {state.error && <Alert type="warning" showIcon style={{ marginBottom: 16 }} message="License refresh failed"
+      description={state.error} />}
     {state.data.orders.map(order => <Card size="small" key={order.requestId} style={{ marginBottom: 12 }}>
       <Space wrap><Typography.Text strong>{order.companyName}</Typography.Text><Tag>{order.status}</Tag>
         <Typography.Text>{order.deploymentIds.length} instances · {order.billingInterval === "year" ? "Annual" : "Monthly"}</Typography.Text>
