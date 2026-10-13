@@ -36,16 +36,16 @@ const ExecButton = styled(TacoButton)`
   height: 24px;
   padding: 5px 12px;
   margin-right: 10px;
-  background: #f8f1fc;
-  border: 1px solid #e5d4f0;
+  background: var(--admin-tint);
+  border: 1px solid var(--admin-line);
   border-radius: 4px;
   font-weight: 500;
-  color: #754394;
+  color: var(--admin-link);
 
   &:hover {
-    background: #f9fbff;
-    border: 1px solid #c2d6ff;
-    color: #315efb;
+    background: var(--admin-hover);
+    border: 1px solid var(--admin-line-hover);
+    color: var(--admin-link);
   }
 
   @media screen and (max-width: 500px) {
@@ -60,7 +60,7 @@ const Wrapper = styled.div`
   background: white;
   min-height: 116px;
   transition: border-color 150ms, box-shadow 150ms;
-  &:hover, &:focus-within { border-color: #c7a8dc; box-shadow: 0 6px 20px #683e860a; }
+  &:hover, &:focus-within { border-color: var(--admin-line-hover); box-shadow: 0 6px 20px #0000000a; }
 `;
 
 const Card = styled.div`
@@ -120,7 +120,7 @@ const CardInfo = styled.div`
 
 const AppTimeOwnerInfoLabel = styled.div`
   font-size: 13px;
-  color: #8b8fa3;
+  color: var(--admin-muted);
   line-height: 15px;
   overflow: hidden;
   white-space: nowrap;
@@ -139,14 +139,14 @@ const OperationWrapper = styled.div`
 
 export const StyledTypographyText = styled(AntdTypographyText)`
   font-size: 14px;
-  color: #333333;
+  color: var(--admin-ink);
   line-height: 14px;
   overflow: hidden;
   text-overflow: ellipsis;
   display: block;
 
   &:hover {
-  color: #315efb;
+  color: var(--admin-link);
   }
 `;
 
@@ -284,7 +284,7 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
             style={{ 
               marginRight: "6px", 
               flexShrink: 0, 
-              color: "#b766db" 
+              color: "var(--admin-link)"
               }} 
             /> :
             Icon && (

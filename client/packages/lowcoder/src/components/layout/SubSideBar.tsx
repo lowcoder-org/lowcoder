@@ -7,7 +7,8 @@ const Wrapper = styled.div`
   flex-shrink: 0;
   overflow-y: auto;
   height: 100%;
-  background: #fdfbfe;
+  background: var(--admin-sidebar, #fdfbfe);
+  color: var(--admin-sidebar-text, #222222);
   border-right: 1px solid var(--admin-line, #e9e0ee);
   box-sizing: border-box;
   border-radius: 2px;
@@ -16,13 +17,18 @@ const Wrapper = styled.div`
   h2 {
     font-weight: 500;
     font-size: 20px;
-    color: #222222;
+    color: inherit;
     margin: 0 0 20px 14px;
   }
   summary { list-style: none; pointer-events: none; }
   summary::-webkit-details-marker { display: none; }
 
-  .ant-menu { background: transparent; }
+  .ant-menu { background: transparent; color: inherit; }
+  .ant-menu .ant-menu-item { color: var(--admin-sidebar-text); }
+  .ant-menu .ant-menu-item-selected, .ant-menu .ant-menu-item:hover {
+    background: var(--admin-sidebar-active);
+    color: var(--admin-sidebar-active-text);
+  }
   && .ant-menu-inline .ant-menu-item {
     display: flex;
     align-items: center;

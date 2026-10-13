@@ -23,7 +23,7 @@ const NameWrapper = styled.div`
   display: flex;
   align-items: center;
   font-size: 14px;
-  color: #333333;
+  color: var(--admin-ink);
 `;
 
 const EditBtn = styled(TacoButton)`

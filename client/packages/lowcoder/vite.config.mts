@@ -278,6 +278,7 @@ export const viteConfig: UserConfig = {
       pages: [
         { filename: "index.html", template: "index.html", injectOptions: { data: { browserCheckScript: isDev ? "" : `<script src="${base}${browserCheckFileName}"></script>` } } },
         { filename: "marketplace-preview.html", template: "marketplace-preview.html" },
+        ...(isDev ? [{ filename: "admin-branding-preview.html", template: "admin-branding-preview.html" }] : []),
       ],
     }),
     isVisualizerEnabled && visualizer(),

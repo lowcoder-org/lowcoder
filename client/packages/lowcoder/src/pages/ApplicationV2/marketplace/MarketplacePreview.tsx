@@ -10,7 +10,7 @@ const Frame = styled.div`
   width: 100%;
   aspect-ratio: 16 / 10;
   overflow: hidden;
-  background: linear-gradient(145deg, #f4ecfa, #ece7f5);
+  background: var(--admin-tint);
   border-bottom: 1px solid var(--admin-line);
   display: flex;
   align-items: center;
@@ -26,7 +26,7 @@ const Frame = styled.div`
     align-items: center;
     flex-direction: column;
     gap: 14px;
-    color: #8b709b;
+    color: var(--admin-muted);
     padding: 20px;
     text-align: center;
     font-size: 12px;
