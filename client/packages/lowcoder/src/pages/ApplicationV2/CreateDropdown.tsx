@@ -10,14 +10,13 @@ import {
   PcNavIcon,
   TacoButton,
 } from "lowcoder-design";
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import type { ItemType } from "antd/es/menu/interface";
 import { HomeResInfo } from "../../util/homeResUtils";
 import { createAppItemClass } from "../tutorials/HomeTutorialsV2";
 import styled from "styled-components";
 import { default as AntdDropdown } from "antd/es/dropdown";
-import { default as AntdMenu } from "antd/es/menu";
-import { HomeLayoutMode } from "./HomeLayout";
+import type { HomeLayoutMode } from "./HomeLayout";
 import { useSelector } from "react-redux";
 import { getUser } from "../../redux/selectors/usersSelectors";
 import { useCreateHomeRes } from "./useCreateHomeRes";
@@ -28,35 +27,6 @@ const Dropdown = styled(AntdDropdown)`
   &:not(.ant-dropdown-open) > svg {
     transform: rotate(-180deg);
   }
-`;
-
-const CreateDropdownMenu = styled(AntdMenu)`
-&&& {
-  width: fit-content;
-  min-width: 110px;
-  padding: 8px;
-  background: #ffffff;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-
-  .ant-dropdown-menu-item,
-  .ant-dropdown-menu-submenu-title {
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    &:hover {
-      background: #f2f7fc;
-      border-radius: 4px;
-    }
-  }
-
-  .ant-dropdown-menu-title-content {
-    font-size: 13px;
-    color: #333333;
-    line-height: 13px;
-    display: flex;
-  }
-}
 `;
 
 const CreateMenuItem = styled.div`
@@ -74,15 +44,13 @@ const CreateBtn = styled(TacoButton)`
   padding: 0 16px;
   margin-left: 0;
   border-radius: 10px;
-  && { background: #8050a0; border-color: #8050a0; color: white; }
-  &&:hover { background: #683e86; border-color: #683e86; }
 
   & > svg {
     width: 16px;
     height: 16px;
 
     path {
-      fill: white;
+      fill: currentColor;
     }
   }
 `;
@@ -191,8 +159,11 @@ function NavLayoutPickModal(props: {
 
 export const CreateDropdown = (props: { defaultVisible?: boolean; mode: HomeLayoutMode; setModify: any; modify: boolean }) => {
   const { defaultVisible, mode, setModify, modify} = props;
-  const [createDropdownVisible, setCreateDropdownVisible] = useState(false);
+  const [createDropdownVisible, setCreateDropdownVisible] = useState(Boolean(defaultVisible));
   const [layoutPickerVisible, setLayoutPickerVisible] = useState(false);
+
+  // The tutorial opens this menu initially and dismisses it when the guide ends.
+  useEffect(() => setCreateDropdownVisible(Boolean(defaultVisible)), [defaultVisible]);
 
   const user = useSelector(getUser);
 
@@ -221,7 +192,7 @@ export const CreateDropdown = (props: { defaultVisible?: boolean; mode: HomeLayo
         <CreateMenuItem
           className={type === HomeResTypeEnum.Application ? createAppItemClass : undefined}
         >
-          {Icon && <Icon style={{ width: "16px", height: "16px", marginRight: "4px" }} />}
+          {Icon && <Icon aria-hidden="true" style={{ width: "16px", height: "16px", marginRight: "4px" }} />}
           {HomeResInfo[type].name}
         </CreateMenuItem>
       ),
@@ -244,38 +215,40 @@ export const CreateDropdown = (props: { defaultVisible?: boolean; mode: HomeLayo
         setVisible={setLayoutPickerVisible}
       />
       <Dropdown
-        open={createDropdownVisible || defaultVisible}
-        trigger={["hover"]}
-        getPopupContainer={(node) => node}
-        onOpenChange={() => setCreateDropdownVisible(!createDropdownVisible)}
-        popupRender={() => (
-          <CreateDropdownMenu
-            items={[
-              getCreateMenuItem(HomeResTypeEnum.Application, mode),
-              getCreateMenuItem(HomeResTypeEnum.Module, mode),
-              getCreateMenuItem(HomeResTypeEnum.Navigation, mode),
-              getCreateMenuItem(HomeResTypeEnum.Folder, mode),
-              mode === "view" || mode === "module" || mode === "folder"
-                ? {
-                    label: (
-                      <AppImport orgId={user.currentOrgId}>
-                        <CreateMenuItem>
-                          <ImportIconV2 width="16px" height="16px" style={{ marginRight: "4px" }} />
-                          {trans("home.import")}
-                        </CreateMenuItem>
-                      </AppImport>
-                    ),
-                    key: "import",
-                    style: { height: "32px" },
-                  }
-                : null,
-            ]}
-          />
-        )}
+        open={createDropdownVisible}
+        trigger={["click"]}
+        placement="bottomRight"
+        autoFocus
+        // Portaling into the button traps the menu underneath the resource cards.
+        getPopupContainer={(node) => node.ownerDocument.body}
+        onOpenChange={setCreateDropdownVisible}
+        overlayStyle={{ minWidth: 180 }}
+        menu={{
+          items: [
+            getCreateMenuItem(HomeResTypeEnum.Application, mode),
+            getCreateMenuItem(HomeResTypeEnum.Module, mode),
+            getCreateMenuItem(HomeResTypeEnum.Navigation, mode),
+            getCreateMenuItem(HomeResTypeEnum.Folder, mode),
+            mode === "view" || mode === "module" || mode === "folder"
+              ? {
+                  label: (
+                    <AppImport orgId={user.currentOrgId}>
+                      <CreateMenuItem>
+                        <ImportIconV2 aria-hidden="true" width="16px" height="16px" style={{ marginRight: "4px" }} />
+                        {trans("home.import")}
+                      </CreateMenuItem>
+                    </AppImport>
+                  ),
+                  key: "import",
+                  style: { height: "32px" },
+                }
+              : null,
+          ],
+        }}
       >
-        <CreateBtn buttonType={"primary"}>
+        <CreateBtn buttonType="primary" aria-haspopup="menu" aria-expanded={createDropdownVisible}>
           {isCreating ? trans("home.creating") : trans("newItem")}
-          <PackUpIcon />
+          <PackUpIcon aria-hidden="true" />
         </CreateBtn>
       </Dropdown>
     </>
