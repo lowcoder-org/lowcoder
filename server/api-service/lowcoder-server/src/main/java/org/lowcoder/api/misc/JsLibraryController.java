@@ -6,6 +6,7 @@ import java.nio.charset.Charset;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -54,7 +55,7 @@ public class JsLibraryController implements JsLibraryEndpoints
             .build(new CacheLoader<>() {
                 @Override
                 public Mono<JsLibraryMeta> load(@NotNull String key) {
-                    return fetch(key).cache();
+                    return fetchOrNameOnly(key).cache();
                 }
             });
 
@@ -63,7 +64,11 @@ public class JsLibraryController implements JsLibraryEndpoints
             .codecs(configure -> configure.defaultCodecs().maxInMemorySize(-1))
             .build();
 
+    /** The resource's {@code downloadUrl} of each recommended library, by name; read-only once the class is loaded. */
+    private static final Map<String, String> RECOMMENDED_DOWNLOAD_URLS;
+
     static {
+        Map<String, String> downloadUrls = new HashMap<>();
         try (InputStream is = JsLibraryController.class.getClassLoader().getResourceAsStream("recommendedJsLibraries.json")) {
             if (is != null) {
                 String content = IOUtils.toString(is, Charset.defaultCharset());
@@ -71,6 +76,7 @@ public class JsLibraryController implements JsLibraryEndpoints
                 }, Collections.emptyList());
                 Map<String, Map<String, Object>> recommendedJsLibraryMap = recommendedJsLibraries.stream()
                         .collect(Collectors.toMap(map -> MapUtils.getString(map, "name"), Function.identity()));
+                recommendedJsLibraryMap.forEach((name, library) -> downloadUrls.put(name, MapUtils.getString(library, "downloadUrl")));
 
                 log.info("find recommended js library names: {}", recommendedJsLibraryMap.keySet());
                 for (String libName : recommendedJsLibraryMap.keySet()) {
@@ -90,6 +96,7 @@ public class JsLibraryController implements JsLibraryEndpoints
         } catch (IOException e) {
             log.error("load recommended js library name error.", e);
         }
+        RECOMMENDED_DOWNLOAD_URLS = Collections.unmodifiableMap(downloadUrls);
     }
 
     @Override
@@ -105,7 +112,8 @@ public class JsLibraryController implements JsLibraryEndpoints
         return Flux.fromIterable(names)
                 .flatMap(name -> {
                     if (RECOMMENDED_JS_LIB_META_CACHE.containsKey(name)) {
-                        return RECOMMENDED_JS_LIB_META_CACHE.get(name).getMonoValue();
+                        return RECOMMENDED_JS_LIB_META_CACHE.get(name).getMonoValue()
+                                .defaultIfEmpty(recommendedPlaceholder(name));
                     }
                     return JS_LIB_META_CACHE.getUnchecked(name)
                             .onErrorReturn(JsLibraryMeta.builder().name(name).build());
@@ -113,7 +121,27 @@ public class JsLibraryController implements JsLibraryEndpoints
                 .collectList()
                 .map(ResponseView::success);
     }
-        
+
+    /**
+     * The answer for a recommended library with no cached value whose registry sent no document: its name and the
+     * resource's {@code downloadUrl}. It is not cached, so the next request loads the library again (NEW-57: while the
+     * registry sends nothing, every request for such a library asks it). Limit: a failed load is not answered with it;
+     * the recommended branch has no {@code onErrorReturn}, so the whole request fails (NEW-56).
+     */
+    private static JsLibraryMeta recommendedPlaceholder(String name) {
+        return JsLibraryMeta.builder()
+                .name(name)
+                .downloadUrl(RECOMMENDED_DOWNLOAD_URLS.get(name))
+                .build();
+    }
+
+    /**
+     * The registry's metadata of {@code name}, or empty when the registry sent no document: a non-2xx answer, or a
+     * 2xx answer with no body or a JSON {@code null}. Empty rather than a name-only meta, so that a recommended
+     * library's scheduled reload keeps the value it has (NEW-22). Limit: a 2xx document is trusted whatever it carries,
+     * so one with none of the fields read here ({@code {}}) maps to the name alone, and a reload stores that (NEW-59):
+     * in the response it cannot be told from a package that has no such metadata.
+     */
     @SuppressWarnings("unchecked")
     private static Mono<JsLibraryMeta> fetch(String name) {
         log.info("fetch js library:{}", name);
@@ -150,8 +178,12 @@ public class JsLibraryController implements JsLibraryEndpoints
                             .homepage(homepage)
                             .description(description)
                             .build();
-                })
-                .defaultIfEmpty(JsLibraryMeta.builder().name(name).build());
+                });
+    }
+
+    /** {@link #fetch}, answering the name alone when the registry sent no document: the per-name cache's loader. */
+    private static Mono<JsLibraryMeta> fetchOrNameOnly(String name) {
+        return fetch(name).defaultIfEmpty(JsLibraryMeta.builder().name(name).build());
     }
 
     @Data
