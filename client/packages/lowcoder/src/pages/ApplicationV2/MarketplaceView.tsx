@@ -1,3 +1,4 @@
+import { getBrandingSetting } from "redux/selectors/enterpriseSelectors";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
@@ -64,6 +65,7 @@ const initials = (name: string) =>
     .toUpperCase();
 
 export function MarketplaceView() {
+  const brandName = useSelector(getBrandingSetting)?.config_set?.standardTitle || trans("productName");
   const workspaceId = useSelector(getUser).currentOrgId;
   const history = useHistory();
   const location = useLocation();
@@ -370,7 +372,7 @@ export function MarketplaceView() {
         <>
           <div className="marketplace-heading">
             <div>
-              <div className="eyebrow">{trans("marketplace.eyebrow")}</div>
+              <div className="eyebrow">{trans("marketplace.eyebrow", { brandName })}</div>
               <h1>{trans("marketplace.title")}</h1>
               <p className="intro">{trans("marketplace.description")}</p>
             </div>
@@ -448,7 +450,7 @@ export function MarketplaceView() {
               aria-label={trans("marketplace.search")}
               placeholder={trans("marketplace.search")}
               prefix={
-                <SearchOutlined style={{ color: "#a38eaf", marginRight: 6 }} />
+                <SearchOutlined style={{ color: "var(--admin-muted)", marginRight: 6 }} />
               }
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
@@ -584,7 +586,7 @@ export function MarketplaceView() {
               <Skeleton active paragraph={{ rows: 10 }} />
             ) : apps.length === 0 ? (
               <div className="empty">
-                <GlobalOutlined style={{ fontSize: 32, color: "#ad8abd" }} />
+                <GlobalOutlined style={{ fontSize: 32, color: "var(--admin-accent)" }} />
                 <h2>
                   {trans(
                     filtered

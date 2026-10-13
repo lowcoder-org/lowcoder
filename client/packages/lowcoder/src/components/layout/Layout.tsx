@@ -5,42 +5,18 @@ import * as React from "react";
 import { ReactElement, useState, useEffect } from "react";
 import { HelpDropdown } from "pages/common/help";
 import MainContent from "components/layout/MainContent";
-import SideBar from "components/layout/SideBar";
+import { AdminSidebar } from "./AdminSidebar";
 import { CNMainContent, CNSidebar } from "constants/styleSelectors";
 import { SideBarSection, SideBarSectionProps } from "./SideBarSection";
 import styled from "styled-components";
-import { useSelector } from "react-redux";
 import { MenuOutlined } from "@ant-design/icons";
 import { Drawer, Button } from "antd";
 import { trans } from "i18n";
-import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
 
 type LayoutProps = {
   sections: SideBarSectionProps[];
 };
 
-const SideBarV2 = styled(SideBar)<{
-  $bgColor?: string,
-  $fontColor?: string,
-  $activeBgColor?: string,
-  $activeFontColor?: string,
-}>`
-  background: ${props => props.$bgColor ? props.$bgColor : '#f8f3fb'} !important;
-  ${props => props.$fontColor && `color: ${props.$fontColor}`};
-  padding: 20px 14px;
-  overflow-y: auto;
-  flex-shrink: 0;
-  border-right: 1px solid #e9e0ee;
-
-  .sidebar-section:not(:last-child)::after {
-    content: "";
-    display: block;
-    width: calc(100% - 24px);
-    height: 1px;
-    background: #e9e0ee;
-    margin: 12px auto;
-  }
-`;
 
 const MobileMenuButton = styled(Button)`
   display: none;
@@ -65,7 +41,6 @@ const DrawerContentWrapper = styled.div`
 export function Layout(props: LayoutProps) {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 720);
-  const brandingSettings = useSelector(getBrandingSetting);
 
   const toggleDrawer = () => {
     setDrawerVisible(!drawerVisible);
@@ -134,14 +109,10 @@ export function Layout(props: LayoutProps) {
         destroyOnHidden // Ensure drawer content is removed when closed
       >
         <DrawerContentWrapper>
-          <SideBarV2
+          <AdminSidebar
             width="100%"
             style={{ height: "100%" }}
             className={CNSidebar}
-            $bgColor={brandingSettings?.config_set?.adminSidebarColor}
-            $fontColor={brandingSettings?.config_set?.adminSidebarFontColor}
-            $activeBgColor={brandingSettings?.config_set?.adminSidebarActiveBgColor}
-            $activeFontColor={brandingSettings?.config_set?.adminSidebarActiveFontColor}
           >
             {mobileSections
               .filter((section) => section.items.length > 0)
@@ -152,26 +123,22 @@ export function Layout(props: LayoutProps) {
                   onItemClick={handleMenuClick} // Pass handler to close the drawer
                 />
               ))}
-          </SideBarV2>
+          </AdminSidebar>
         </DrawerContentWrapper>
       </Drawer>
 
       {/* Desktop Layout */}
       <AntdLayout>
         {!isMobile && (
-          <SideBarV2
+          <AdminSidebar
             className={`${CNSidebar} desktop-only`}
-            $bgColor={brandingSettings?.config_set?.adminSidebarColor}
-            $fontColor={brandingSettings?.config_set?.adminSidebarFontColor}
-            $activeBgColor={brandingSettings?.config_set?.adminSidebarActiveBgColor}
-            $activeFontColor={brandingSettings?.config_set?.adminSidebarActiveFontColor}
           >
             {desktopSections
               .filter((section) => section.items.length > 0)
               .map((section, index) => (
                 <SideBarSection key={index} {...section} />
               ))}
-          </SideBarV2>
+          </AdminSidebar>
         )}
         <MainContent id="admin-main" tabIndex={-1} className={CNMainContent}>
           <Switch>{routes}</Switch>

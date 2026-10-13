@@ -19,7 +19,7 @@ export const MarketplaceShell = styled.div`
     font-weight: 500;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--admin-accent);
+    color: var(--admin-link);
     margin-bottom: 10px;
   }
   h1 {
@@ -54,14 +54,14 @@ export const MarketplaceShell = styled.div`
     cursor: pointer;
   }
   .tabs button[aria-selected="true"] {
-    color: var(--admin-accent);
-    border-bottom-color: var(--admin-accent);
+    color: var(--admin-link);
+    border-bottom-color: var(--admin-link);
   }
   .tab-count {
     font-size: 11px;
     padding: 3px 7px;
     margin-left: 7px;
-    background: #eee6f3;
+    background: var(--admin-tint);
     border-radius: 8px;
   }
   .toolbar {
@@ -95,8 +95,8 @@ export const MarketplaceShell = styled.div`
   }
   .categories button[aria-pressed="true"] {
     background: var(--admin-accent);
-    color: white;
-    border-color: var(--admin-accent);
+    color: var(--admin-on-accent);
+    border-color: var(--admin-link);
   }
   .results-bar {
     display: flex;
@@ -176,7 +176,7 @@ export const MarketplaceShell = styled.div`
     white-space: pre-wrap;
     overflow-wrap: anywhere;
     line-height: 1.8;
-    color: #66556e;
+    color: var(--admin-muted);
   }
   .creator-panel {
     background: white;
@@ -204,8 +204,8 @@ export const MarketplaceShell = styled.div`
     border-radius: 50%;
     align-items: center;
     justify-content: center;
-    background: #efe4f7;
-    color: var(--admin-accent);
+    background: var(--admin-tint);
+    color: var(--admin-link);
     font-size: 11px;
     font-weight: 500;
   }
@@ -236,7 +236,7 @@ export const MarketplaceShell = styled.div`
   }
   .tag {
     background: var(--admin-tint);
-    color: #79558b;
+    color: var(--admin-link);
     border-radius: 6px;
     padding: 4px 7px;
     font-size: 10px;
@@ -309,8 +309,8 @@ export const MarketplaceGrid = styled.div<{ $list: boolean }>`
       border-color 0.2s;
   }
   .marketplace-card:hover {
-    border-color: #cdb5dc;
-    box-shadow: 0 10px 28px #4a255e10;
+    border-color: var(--admin-line-hover);
+    box-shadow: 0 10px 28px #00000010;
   }
   .cover-link {
     display: block;
@@ -333,7 +333,7 @@ export const MarketplaceGrid = styled.div<{ $list: boolean }>`
     overflow-wrap: anywhere;
   }
   .title-link:hover {
-    color: var(--admin-accent);
+    color: var(--admin-link);
   }
   .card-description {
     color: var(--admin-muted);
@@ -348,7 +348,7 @@ export const MarketplaceGrid = styled.div<{ $list: boolean }>`
   }
   .card-footer {
     margin-top: auto;
-    border-top: 1px solid #f1ebf4;
+    border-top: 1px solid var(--admin-line);
     padding-top: 14px;
     display: flex;
     align-items: center;

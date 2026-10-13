@@ -32,17 +32,21 @@ const enterpriseReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.SET_GLOBAL_BRANDING_SETTING]: (
     state: EnterpriseReduxState,
-    action: ReduxAction<BrandingSettingResponse>
+    action: ReduxAction<BrandingSettingResponse | undefined>
   ) => ({
     ...state,
     globalBranding: action.payload,
   }),
   [ReduxActionTypes.SET_WORKSPACE_BRANDING_SETTING]: (
     state: EnterpriseReduxState,
-    action: ReduxAction<BrandingSettingResponse>
+    action: ReduxAction<BrandingSettingResponse | undefined>
   ) => ({
     ...state,
     workspaceBranding: action.payload,
+  }),
+  [ReduxActionTypes.LOGOUT_USER_SUCCESS]: (state: EnterpriseReduxState) => ({
+    ...state,
+    workspaceBranding: undefined,
   }),
   
   [ReduxActionTypes.FETCH_ENVIRONMENTS]: (

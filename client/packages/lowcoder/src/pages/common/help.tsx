@@ -197,17 +197,17 @@ function HelpDropdownComp(props: HelpDropdownProps) {
   const showDocLink = useMemo(() => {
     if (!Boolean(brandingSettings)) return Boolean(docHomeUrl);
     return brandingSettings?.config_set?.showDocumentation;
-  }, [brandingSettings?.config_set?.showDocumentation]);
+  }, [brandingSettings]);
 
   const showSubmitIssueLink = useMemo(() => {
     if (!Boolean(brandingSettings)) return Boolean(issueUrl);
     return brandingSettings?.config_set?.submitIssue;
-  }, [brandingSettings?.config_set?.submitIssue]);
+  }, [brandingSettings]);
 
   const showWhatsNewLink = useMemo(() => {
     if (!Boolean(brandingSettings)) return Boolean(changeLogDocUrl);
     return brandingSettings?.config_set?.whatsNew;
-  }, [brandingSettings?.config_set?.whatsNew]);
+  }, [brandingSettings]);
 
   const closeTooltip = () => {
     // turn of tooltip
@@ -294,7 +294,7 @@ function HelpDropdownComp(props: HelpDropdownProps) {
           return;
       }
     },
-    [dispatch, setVideoVisible, setShowHelp, user]
+    [dispatch, setVideoVisible, setShowHelp, user, brandingSettings, props.setShowShortcutList]
   );
 
   const overlayMenus = (

@@ -1,3 +1,4 @@
+import { getBrandingSetting } from "redux/selectors/enterpriseSelectors";
 import { FolderNavigator } from "./FolderNavigator";
 import { User } from "constants/userConstants";
 import { useSelector } from "react-redux";
@@ -186,6 +187,7 @@ export interface HomeLayoutProps {
 }
 
 export function HomeLayout(props: HomeLayoutProps) {
+  const brandName = useSelector(getBrandingSetting)?.config_set?.standardTitle || trans("productName");
   const { breadcrumb = [],
     title,
     elements = [],
@@ -426,7 +428,7 @@ export function HomeLayout(props: HomeLayoutProps) {
               {mode === "trash" && trans("home.trash")}
               {mode === "view" && trans("home.allApplications")}
             </h1>
-            <p>{trans(mode === "marketplace" ? "admin.marketplaceDescription" : mode === "trash" ? "admin.trashDescription" : mode === "folder" ? "admin.folderDescription" : "admin.appsDescription")}</p>
+            <p>{trans(mode === "marketplace" ? "admin.marketplaceDescription" : mode === "trash" ? "admin.trashDescription" : mode === "folder" ? "admin.folderDescription" : "admin.appsDescription", { brandName })}</p>
           </StyleHomeCover>
           <Card className="admin-resource-surface">
             

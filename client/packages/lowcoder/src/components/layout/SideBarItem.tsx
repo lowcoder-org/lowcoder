@@ -30,11 +30,11 @@ const Wrapper = styled.button<{
 
   &:hover {
     background: ${(props) => (props.$selected ? (
-      `${props.$selectedBgColor ? props.$selectedBgColor : '#eadcf3'}`
+      `${props.$selectedBgColor ? props.$selectedBgColor : 'var(--admin-sidebar-active, #eadcf3)'}`
     ) : (
-      `${props.$selectedBgColor ? props.$selectedBgColor : '#f0e6f6'}`
+      `${props.$selectedBgColor ? props.$selectedBgColor : 'var(--admin-sidebar-active, #f0e6f6)'}`
     ))};
-    color: ${(props) => props.$selectedFontColor ? props.$selectedFontColor : '#683e86'}
+    color: ${(props) => props.$selectedFontColor ? props.$selectedFontColor : 'var(--admin-sidebar-active-text, #683e86)'}
   }
 
   svg {
@@ -44,8 +44,8 @@ const Wrapper = styled.button<{
   ${(props) =>
     props.$selected &&
     css`
-      color: ${props.$selectedFontColor ? props.$selectedFontColor : '#683e86'};
-      background: ${props.$selectedBgColor ? props.$selectedBgColor : '#eadcf3'};
+      color: ${props.$selectedFontColor ? props.$selectedFontColor : 'var(--admin-sidebar-active-text, #683e86)'};
+      background: ${props.$selectedBgColor ? props.$selectedBgColor : 'var(--admin-sidebar-active, #eadcf3)'};
     `}
 `;
 

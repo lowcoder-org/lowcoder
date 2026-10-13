@@ -6,6 +6,7 @@ import { default as Flex} from "antd/es/flex";
 import { default as Popover } from "antd/es/popover";
 import { default as Typography } from "antd/es/typography";
 import LayoutHeader from "components/layout/Header";
+import { AdminBrand } from "components/layout/AdminBrand";
 import { SHARE_TITLE } from "constants/apiConstants";
 import { AppTypeEnum } from "constants/applicationConstants";
 import {
@@ -694,16 +695,7 @@ export function AppHeader({ showBrandName = false }: { showBrandName?: boolean }
 
   const headerStart = (
     <StyledLink href={ALL_APPLICATIONS_URL} aria-label={trans("home.home")} onClick={(event) => { event.preventDefault(); history.push(ALL_APPLICATIONS_URL); }}>
-      {/* {REACT_APP_LOWCODER_SHOW_BRAND === 'true' ?  REACT_APP_LOWCODER_CUSTOM_LOGO !== "" ? <img src={REACT_APP_LOWCODER_CUSTOM_LOGO}  height={28} alt="logo" /> :<LogoWithName branding={!user.orgDev} /> : <LogoHome />} */}
-      { brandingSettings?.config_set?.logo
-        ? (
-          Boolean(brandingSettings?.orgId)
-          ? <BrandLogo src={buildMaterialPreviewURL(brandingSettings?.config_set?.logo)} />
-          : <BrandLogo src={brandingSettings?.config_set?.logo} />
-        ) : showBrandName
-          ? <span className="admin-brand-name" style={{ display: "flex", alignItems: "center", gap: 10, color: "#d2a5ee", fontSize: 20, fontWeight: 500 }}><span className="admin-brand-mark"><Logo /></span>Lowcoder</span>
-          : <LogoHome />
-      }
+      <AdminBrand branding={brandingSettings} showName={showBrandName} />
     </StyledLink>
   );
   const headerEnd = (

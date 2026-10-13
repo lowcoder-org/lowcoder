@@ -5,6 +5,7 @@ import styled, { css } from "styled-components";
 import { Loading } from "./Loading";
 import * as React from "react";
 import { CSSProperties, forwardRef } from "react";
+import { adminThemeVariables } from "./adminThemeVariables";
 
 const buttonStyleConfig = {
   normal: css`
@@ -28,95 +29,95 @@ const buttonStyleConfig = {
   `,
   primary: css`
   &&& {
-      background: #4965f2;
-      border: 1px solid #4965f2;
-      color: #ffffff;
+      background: var(--admin-accent, #4965f2);
+      border: 1px solid var(--admin-accent, #4965f2);
+      color: var(--admin-on-accent, #ffffff);
 
       &.ant-btn-background-ghost {
-        background-color: #fafbff;
-        color: #4965f2;
-        border-color: #c9d1fc;
+        background-color: var(--admin-tint, #fafbff);
+        color: var(--admin-link, #4965f2);
+        border-color: var(--admin-line-hover, #c9d1fc);
 
         &:hover {
-          color: #315efb;
-          background-color: #f5faff;
-          border-color: #c2d6ff;
+          color: var(--admin-link-hover, #315efb);
+          background-color: var(--admin-hover, #f5faff);
+          border-color: var(--admin-line-hover, #c2d6ff);
         }
 
         &:focus {
-          color: #315efb;
-          background-color: #f5faff;
-          border-color: #c2d6ff;
+          color: var(--admin-link-hover, #315efb);
+          background-color: var(--admin-hover, #f5faff);
+          border-color: var(--admin-line-hover, #c2d6ff);
         }
       }
 
       &:focus {
-        background: #4965f2;
-        border: 1px solid #4965f2;
-        color: #ffffff;
+        background: var(--admin-accent, #4965f2);
+        border: 1px solid var(--admin-accent, #4965f2);
+        color: var(--admin-on-accent, #ffffff);
       }
 
       &:hover {
-        border: 1px solid #315efb;
-        background: #315efb;
-        color: #ffffff;
+        border: 1px solid var(--admin-accent-hover, #315efb);
+        background: var(--admin-accent-hover, #315efb);
+        color: var(--admin-on-accent, #ffffff);
       }
 
       :disabled {
         &:hover {
-          border: 1px solid #dbe1fd;
-          background: #dbe1fd;
-          color: #ffffff;
+          border: 1px solid var(--admin-line, #dbe1fd);
+          background: var(--admin-line, #dbe1fd);
+          color: var(--admin-on-accent, #ffffff);
           opacity: 1;
         }
 
-        border: 1px solid #dbe1fd;
-        background: #dbe1fd;
-        color: #ffffff;
+        border: 1px solid var(--admin-line, #dbe1fd);
+        background: var(--admin-line, #dbe1fd);
+        color: var(--admin-on-accent, #ffffff);
         opacity: 1;
       }
     }
   `,
   blue: css`
-    background-color: #fafbff;
-    color: #4965f2;
-    border-color: #c9d1fc;
+    background-color: var(--admin-tint, #fafbff);
+    color: var(--admin-link, #4965f2);
+    border-color: var(--admin-line-hover, #c9d1fc);
 
     &:hover {
-      color: #315efb;
-      background-color: #f5faff;
-      border-color: #c2d6ff;
+      color: var(--admin-link-hover, #315efb);
+      background-color: var(--admin-hover, #f5faff);
+      border-color: var(--admin-line-hover, #c2d6ff);
     }
 
     &:focus {
-      color: #315efb;
-      background-color: #f5faff;
-      border-color: #c2d6ff;
+      color: var(--admin-link-hover, #315efb);
+      background-color: var(--admin-hover, #f5faff);
+      border-color: var(--admin-line-hover, #c2d6ff);
     }
 
     :disabled,
     :disabled:hover {
-      background: #f9fbff;
+      background: var(--admin-hover, #f9fbff);
       border: 1px solid #dee9ff;
       border-radius: 4px;
     }
   `,
   link: css`
     &&& {
-      color: #4955f2;
-      border-color: #c9d1fc;
-      background-color: #fafbff;
+      color: var(--admin-link, #4955f2);
+      border-color: var(--admin-line-hover, #c9d1fc);
+      background-color: var(--admin-tint, #fafbff);
   
       &:hover {
-        color: #315efb;
-        border-color: #c2d6ff;
-        background-color: #f9fbff;
+        color: var(--admin-link-hover, #315efb);
+        border-color: var(--admin-line-hover, #c2d6ff);
+        background-color: var(--admin-hover, #f9fbff);
       }
   
       &:focus {
-        color: #315efb;
-        border-color: #c2d6ff;
-        background-color: #f9fbff;
+        color: var(--admin-link-hover, #315efb);
+        border-color: var(--admin-line-hover, #c2d6ff);
+        background-color: var(--admin-hover, #f9fbff);
       }
     }
   `,
@@ -143,6 +144,7 @@ const buttonStyleConfig = {
 export type TacoButtonType = keyof typeof buttonStyleConfig;
 
 const StyledAntdButton = styled(Button)<{ $buttonType: TacoButtonType; $loading: boolean }>`
+  ${adminThemeVariables};
   ${(props) => buttonStyleConfig[props.$buttonType]};
   display: flex;
   align-items: center;
@@ -189,8 +191,8 @@ const TacoButton = forwardRef(
     let loadingBackground;
     let loadingColor;
     if (buttonType === "link") {
-      loadingBackground = "#fafbff";
-      loadingColor = "#3377FF";
+      loadingBackground = "var(--admin-tint, #fafbff)";
+      loadingColor = "var(--admin-accent-hover, #3377FF)";
     } else if (buttonType === "delete") {
       loadingBackground = "#fef4f4";
       loadingColor = "#f73131";
@@ -227,9 +229,9 @@ export const BigButtonStyle = styled.button`
   height: 30px;
   width: 280px;
   margin-right: 2px;
-  color: #4965f2;
-  border: 1px solid #c9d1fc;
-  background: #fafbff;
+  color: var(--admin-accent, #4965f2);
+  border: 1px solid var(--admin-line-hover, #c9d1fc);
+  background: var(--admin-tint, #fafbff);
   border-radius: 4px;
 
   font-size: 13px;
@@ -239,9 +241,9 @@ export const BigButtonStyle = styled.button`
   cursor: pointer;
 
   &:hover {
-    color: #3377ff;
-    border: 1px solid #c2d6ff;
-    background: #f9fbff;
+    color: var(--admin-accent-hover, #3377ff);
+    border: 1px solid var(--admin-line-hover, #c2d6ff);
+    background: var(--admin-hover, #f9fbff);
     transition: all 0.4s ease;
   }
 `;
@@ -270,7 +272,7 @@ export const RedButton = styled(BigButtonStyle)`
 const StyledAddButton = styled.button`
   display: flex;
   align-items: center;
-  color: #4965f2;
+  color: var(--admin-accent, #4965f2);
   font-size: 13px;
   line-height: 13px;
   gap: 4px;
@@ -281,17 +283,17 @@ const StyledAddButton = styled.button`
   padding: 0;
 
   &:hover {
-    color: #315efb;
+    color: var(--admin-accent-hover, #315efb);
     background: white;
 
     svg g {
-      stroke: #315efb;
+      stroke: var(--admin-accent-hover, #315efb);
     }
   }
 
   &:focus {
     background: white;
-    color: #315efb;
+    color: var(--admin-accent-hover, #315efb);
   }
 
   svg {

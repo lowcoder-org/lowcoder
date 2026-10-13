@@ -1,3 +1,5 @@
+import { useSelector } from "react-redux";
+import { getBrandingSetting } from "redux/selectors/enterpriseSelectors";
 import { AdminPage, AdminCover } from "components/layout/adminTheme";
 import styled from "styled-components";
 import { trans } from "../../i18n";
@@ -79,6 +81,7 @@ function useNewsFeed(load: () => Promise<any[]>, enabled = true) {
 }
 
 export function NewsLayout() {
+  const brandName = useSelector(getBrandingSetting)?.config_set?.standardTitle || trans("productName");
   const releases = useNewsFeed(getReleases);
   const videos = useNewsFeed(getYoutubeVideos);
   const blog = useNewsFeed(getHubspotContent, BLOG_NEWS_ENABLED);
@@ -92,7 +95,7 @@ export function NewsLayout() {
       <ContentWrapper>
         <NewsView>
           <StyleNewsCover>
-            <h1>{trans("home.news")}</h1><p>{trans("admin.newsDescription")}</p>
+            <h1>{trans("home.news")}</h1><p>{trans("admin.newsDescription", { brandName })}</p>
           </StyleNewsCover>
           <Card style={{ marginBottom: "20px" }}>
 

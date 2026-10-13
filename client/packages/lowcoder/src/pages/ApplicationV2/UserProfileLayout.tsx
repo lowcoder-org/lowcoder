@@ -56,12 +56,12 @@ const Breadcrumb = styled(AntdBreadcrumb)`
   font-size: 12px;
 
   li:not(:last-child) {
-    color: #8b8fa3;
+    color: var(--admin-muted);
   }
 
   li:last-child {
     font-weight: 500;
-    color: #222222;
+    color: var(--admin-ink);
   }
 
   li.ant-breadcrumb-separator {
@@ -91,7 +91,7 @@ const StyleProfileContent = styled.div`
     gap: 20px;
 
     .subtitle {
-        color: #8b8fa3;
+        color: var(--admin-muted);
     }
 
     .button-end {
@@ -107,12 +107,12 @@ const StyleProfileContent = styled.div`
 const StyleAvatar = styled(Avatar)`
   position: relative;
   border: 3px solid #eee;
-  color: #fff;
+  color: var(--admin-on-accent);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  background: #8050a0;
+  background: var(--admin-accent);
   border-radius: 20px;
   .ant-avatar-string {
     font-size: 2em;
@@ -120,7 +120,7 @@ const StyleAvatar = styled(Avatar)`
 `;
 
 const TextMuted = styled.div`
-    color: "#8b8fa3";
+    color: "var(--admin-muted)";
 `;
 
 const BgSuccess = styled.div`

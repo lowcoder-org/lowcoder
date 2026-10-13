@@ -16,7 +16,11 @@ export const selectIsLicenseActive = (state: AppState) => {
 };
 
 export const getBrandingSetting = (state: AppState) => {
-  return state.ui.enterprise?.workspaceBranding || state.ui.enterprise?.globalBranding;
+  const { workspaceBranding, globalBranding } = state.ui.enterprise || {};
+  // Do not show the old workspace's identity while the new branding is loading.
+  const currentOrgId = state.ui.users.user.currentOrgId;
+  return workspaceBranding?.orgId === currentOrgId && Object.keys(workspaceBranding?.config_set || {}).length > 0
+    ? workspaceBranding : globalBranding;
 }
 
 export const getGlobalBrandingSetting = (state: AppState) => {

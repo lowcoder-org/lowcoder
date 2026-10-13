@@ -4,7 +4,7 @@ import { en } from "./en";
 export const zh = {
   ...en,
   "marketplace": {
-    "eyebrow": "使用 Lowcoder 构建",
+    "eyebrow": "使用 {brandName} 构建",
     "title": "寻找下一份灵感",
     "description": "探索实用应用，了解其功能，并认识背后的创作者。",
     "community": "社区",
@@ -63,10 +63,10 @@ export const zh = {
     "appsDescription": "管理应用、模块和文件夹，构建让工作更轻松的工具。",
     "folderDescription": "将相关应用整理在一起，打开文件夹查看内容。",
     "trashDescription": "查看已删除的应用，恢复所需应用或将其永久删除。",
-    "marketplaceDescription": "为下一个项目寻找灵感，探索使用 Lowcoder 构建的应用。",
+    "marketplaceDescription": "为下一个项目寻找灵感，探索使用 {brandName} 构建的应用。",
     "datasourceDescription": "连接数据库和服务，并在整个工作空间中使用。",
     "queriesDescription": "创建、测试和共享可在应用之间复用的查询。",
-    "newsDescription": "了解产品动态，获取使用 Lowcoder 构建应用的实用方法。",
+    "newsDescription": "了解产品动态，获取使用 {brandName} 构建应用的实用方法。",
     "profileDescription": "管理个人资料和个人偏好设置。",
     "blogPosts": "博客精选",
     "videos": "观看与学习",
