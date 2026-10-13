@@ -1,11 +1,11 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
+import type { Action } from 'redux';
 import { ReduxAction, ReduxActionTypes } from "constants/reduxActionConstants";
 import { setEnterpriseLicense, fetchEnvironmentsSuccess, fetchEnvironmentsFailure } from "redux/reduxActions/enterpriseActions";
 import { BrandingSettingResponse, EnterpriseLicenseResponse, FetchBrandingSettingPayload, getBranding, getEnterpriseLicense } from "api/enterpriseApi";
 import { getEnvironmentsWithLicenseStatus } from "pages/setting/environments/services/environments.service";
 import { Environment } from "pages/setting/environments/types/environment.types";
 
-import { AxiosResponse } from 'axios';
 
 function* fetchEnterpriseLicenseSaga(): Generator<any, void, EnterpriseLicenseResponse> {
   try {
@@ -27,36 +27,29 @@ function* fetchEnvironmentsSaga(): Generator<any, void, Environment[]> {
   }
 }
 
-function* fetchBrandingSettingSaga(action: ReduxAction<FetchBrandingSettingPayload>) {
+export function* fetchBrandingSettingSaga(action: ReduxAction<FetchBrandingSettingPayload>): Generator<any, void, BrandingSettingResponse> {
+  const { orgId, fallbackToGlobal = true } = action.payload;
+  const type = orgId ? ReduxActionTypes.SET_WORKSPACE_BRANDING_SETTING : ReduxActionTypes.SET_GLOBAL_BRANDING_SETTING;
+  let response: BrandingSettingResponse | undefined;
   try {
-    const response: BrandingSettingResponse = yield getBranding(action.payload.orgId);
-    if (response && response.id) {
-      if (action.payload.orgId) {
-        yield put({
-          type: ReduxActionTypes.SET_WORKSPACE_BRANDING_SETTING,
-          payload: response,
-        });
-        return;
-      }
-      yield put({
-        type: ReduxActionTypes.SET_GLOBAL_BRANDING_SETTING,
-        payload: response,
-      });
-    }
+    response = yield call(getBranding, orgId);
   } catch (error) {
     console.error('Failed to fetch branding setting:', error);
-    // fetch global branding if org's branding setting is not available
-    if (Boolean(action.payload.orgId) && action.payload.fallbackToGlobal) {
-      yield put({
-        type: ReduxActionTypes.FETCH_BRANDING_SETTING,
-        payload: {},
-      })
-    }
+  }
+  // Empty/reset configurations must clear the previous workspace's brand.
+  const hasBranding = response?.id && Object.keys(response.config_set || {}).length > 0;
+  yield put({ type, payload: hasBranding ? { ...response, ...(orgId ? { orgId } : {}) } : undefined });
+  if (orgId && !hasBranding && fallbackToGlobal) {
+    yield put({ type: ReduxActionTypes.FETCH_BRANDING_SETTING, payload: {} });
   }
 }
 
 export default function* enterpriseSagas() {
   yield takeLatest(ReduxActionTypes.FETCH_ENTERPRISE_LICENSE, fetchEnterpriseLicenseSaga);
-  yield takeLatest(ReduxActionTypes.FETCH_BRANDING_SETTING, fetchBrandingSettingSaga);
+  // A global fallback request must not cancel a workspace branding request.
+  yield takeLatest((action: Action): action is ReduxAction<FetchBrandingSettingPayload> =>
+    action.type === ReduxActionTypes.FETCH_BRANDING_SETTING && !(action as ReduxAction<FetchBrandingSettingPayload>).payload.orgId, fetchBrandingSettingSaga);
+  yield takeLatest((action: Action): action is ReduxAction<FetchBrandingSettingPayload> =>
+    action.type === ReduxActionTypes.FETCH_BRANDING_SETTING && Boolean((action as ReduxAction<FetchBrandingSettingPayload>).payload.orgId), fetchBrandingSettingSaga);
   yield takeLatest(ReduxActionTypes.FETCH_ENVIRONMENTS, fetchEnvironmentsSaga);
 }

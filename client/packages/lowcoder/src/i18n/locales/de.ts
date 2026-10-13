@@ -3,7 +3,7 @@ import { en } from "./en";
 export const de = {
   ...en,
   "marketplace": {
-    "eyebrow": "Mit Lowcoder erstellt",
+    "eyebrow": "Mit {brandName} erstellt",
     "title": "Inspiration für deine nächste App",
     "description": "Entdecke nützliche Apps, ihre Funktionsweise und die Menschen dahinter.",
     "community": "Community",
@@ -62,10 +62,10 @@ export const de = {
     "appsDescription": "Deine Apps, Module und Ordner. Entwickle etwas, das die Arbeit leichter macht.",
     "folderDescription": "Organisiere zusammengehörige Apps. Öffne einen Ordner, um seinen Inhalt zu sehen.",
     "trashDescription": "Gelöschte Apps prüfen, wiederherstellen oder endgültig entfernen.",
-    "marketplaceDescription": "Inspiration für dein nächstes Projekt. Entdecke Apps, die mit Lowcoder entwickelt wurden.",
+    "marketplaceDescription": "Inspiration für dein nächstes Projekt. Entdecke Apps, die mit {brandName} entwickelt wurden.",
     "datasourceDescription": "Verbinde Datenbanken und Dienste und nutze sie im gesamten Arbeitsbereich.",
     "queriesDescription": "Erstelle, teste und teile wiederverwendbare Abfragen für deine Apps.",
-    "newsDescription": "Ideen, Produktneuigkeiten und praktische Tipps für Lowcoder.",
+    "newsDescription": "Ideen, Produktneuigkeiten und praktische Tipps für {brandName}.",
     "profileDescription": "Verwalte dein Profil und deine persönlichen Einstellungen.",
     "blogPosts": "Aus dem Blog",
     "videos": "Ansehen und lernen",

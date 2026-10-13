@@ -34,7 +34,7 @@ const Wrapper = styled.div<{ $readOnly?: boolean }>`
   min-height: 0;
   height: 100%;
   border-right: 1px solid var(--admin-line);
-  background: #fdfbfe;
+  background: var(--admin-surface, #fdfbfe);
   @media (max-width: 1000px) { width: 100%; flex: 0 0 300px; height: 300px; border-right: 0; border-bottom: 1px solid var(--admin-line); }
   ${(props) => {
     if (props.$readOnly) {
@@ -68,13 +68,13 @@ const CreateBtn = styled(TacoButton)<{ $readOnly?: boolean }>`
   opacity: ${(props) => (props.$readOnly ? 0.5 : 1)};
 
   &:hover ${AddIcon} g {
-    stroke: #315efb;
+    stroke: var(--admin-link, #315efb);
   }
 
   &:disabled,
   &:disabled:hover {
     ${AddIcon} g {
-      stroke: #4965f230;
+      stroke: var(--admin-line, #4965f230);
     }
   }
 `;
@@ -103,14 +103,14 @@ const SelectItem = styled.div<{ $selected: boolean; $readOnly?: boolean }>`
   margin: 4px 10px;
   border-radius: 10px;
   border: 1px solid transparent;
-  &:focus-visible { outline: 2px solid #b480de; outline-offset: -2px; }
+  &:focus-visible { outline: 2px solid var(--admin-focus, #b480de); outline-offset: -2px; }
   padding: 0 16px;
   background-color: ${(props) =>
-    props.$selected ? (props.$readOnly ? "#EFEFF1" : "#f0e5f7") : "unset"};
+    props.$selected ? (props.$readOnly ? "#EFEFF1" : "var(--admin-tint, #f0e5f7)") : "unset"};
   cursor: pointer;
 
   &:hover {
-    background-color: ${(props) => !props.$selected && "#f7f0fb"};
+    background-color: ${(props) => !props.$selected && "var(--admin-hover, #f7f0fb)"};
   }
 `;
 
@@ -160,7 +160,7 @@ const PopoverIcon = styled(PointIcon)`
     cursor: pointer;
 
     g {
-      fill: #3377ff;
+      fill: var(--admin-link, #3377ff);
     }
   }
 `;
@@ -299,7 +299,7 @@ export const LeftNav = (props: {
                     <>
                       <div>{trans("query.noQueries")}</div>
                       <span
-                        style={{ color: "#4965f2", cursor: "pointer", margin: "0 4px" }}
+                        style={{ color: "var(--admin-link, #4965f2)", cursor: "pointer", margin: "0 4px" }}
                         onClick={props.addQuery}
                       >
                         {trans("newItem")}

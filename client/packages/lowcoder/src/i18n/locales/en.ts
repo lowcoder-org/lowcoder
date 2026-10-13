@@ -2,7 +2,7 @@
 
 export const en = {
   "marketplace": {
-    "eyebrow": "Made with Lowcoder",
+    "eyebrow": "Made with {brandName}",
     "title": "Find your next inspiration",
     "description": "Explore useful apps, discover how they work, and meet the people who built them.",
     "community": "Community",
@@ -61,10 +61,10 @@ export const en = {
     "appsDescription": "Your apps, modules and folders. Build something that makes work better.",
     "folderDescription": "Keep related apps together. Open a folder to explore what is inside.",
     "trashDescription": "Review deleted apps. Restore what you need, or remove it permanently.",
-    "marketplaceDescription": "A little inspiration for your next build. Explore apps made with Lowcoder.",
+    "marketplaceDescription": "A little inspiration for your next build. Explore apps made with {brandName}.",
     "datasourceDescription": "Connect your databases and services. Use them across your workspace.",
     "queriesDescription": "Build, test and share reusable queries across your apps.",
-    "newsDescription": "Ideas, product updates and practical ways to build with Lowcoder.",
+    "newsDescription": "Ideas, product updates and practical ways to build with {brandName}.",
     "profileDescription": "Make yourself at home. Manage your profile and personal preferences.",
     "blogPosts": "From the blog",
     "videos": "Watch and learn",

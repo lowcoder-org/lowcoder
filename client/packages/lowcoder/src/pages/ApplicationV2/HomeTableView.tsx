@@ -36,11 +36,11 @@ const NameWrapper = styled.div`
   display: flex;
   align-items: center;
   font-size: 14px;
-  color: #333333;
+  color: var(--admin-ink);
 `;
 
 const SubColumnCell = styled.div`
-  color: #8b8fa3;
+  color: var(--admin-muted);
 `;
 
 const EditBtn = styled(TacoButton)`
@@ -157,7 +157,7 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
                     style={{ 
                       marginRight: "6px", 
                       flexShrink: 0, 
-                      color: "#b766db" 
+                      color: "var(--admin-link)"
                       }} 
                     /> : Icon && (
                     <BrandedIcon>

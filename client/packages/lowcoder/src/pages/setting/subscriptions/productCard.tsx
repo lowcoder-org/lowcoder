@@ -103,7 +103,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       hoverable
       loading={loading}
       cover={
-        image ? <img loading="lazy" alt={title} src={image} /> : <div className="product-placeholder"><RobotOutlined style={{ fontSize: 96, color: "#ff6f3c" }} /></div>
+        image ? <img loading="lazy" alt={title} src={image} /> : <div className="product-placeholder"><RobotOutlined style={{ fontSize: 96, color: "var(--admin-accent)" }} /></div>
       }
       actions={[
         <Button type="default" block onClick={goToSubscriptionInformation} style={{width:"90%"}} icon={<InfoCircleOutlined />}>{trans("automator.subscription.explore")}</Button>,
@@ -112,7 +112,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         ) : (
         !activeSubscription && (
           checkoutLinkDataLoaded && checkoutLink ? (
-            <Button type="primary" block onClick={goToCheckout} style={{width:"90%", backgroundColor: "#ff6f3c"}}>
+            <Button type="primary" block onClick={goToCheckout} style={{width:"90%"}}>
               {trans("iconScout.buySubscriptionButton")}
             </Button>
           ) : (

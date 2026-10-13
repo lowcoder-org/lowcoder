@@ -77,7 +77,7 @@ const PopoverIcon = styled(PointIcon)`
     cursor: pointer;
 
     g {
-      fill: #3377ff;
+      fill: var(--admin-link, #3377ff);
     }
   }
 `;
