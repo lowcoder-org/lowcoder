@@ -35,12 +35,12 @@ const ExecButton = styled(TacoButton)`
   width: 52px;
   height: 24px;
   padding: 5px 12px;
-  margin-right: 24px;
-  background: #fafbff;
-  border: 1px solid #c9d1fc;
+  margin-right: 10px;
+  background: #f8f1fc;
+  border: 1px solid #e5d4f0;
   border-radius: 4px;
   font-weight: 500;
-  color: #4965f2;
+  color: #754394;
 
   &:hover {
     background: #f9fbff;
@@ -50,26 +50,23 @@ const ExecButton = styled(TacoButton)`
 
   @media screen and (max-width: 500px) {
     margin-right: 0;
-    display: none;
   }
 `;
 
 const Wrapper = styled.div`
-  padding: 0 6px;
-  border-radius: 8px;
-  margin-bottom: 2px;
-  margin-top: 2px;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  background-color: #fcfcfc;
-  min-height: 100px;
-  &:hover {
-     background-color: #f5f5f6
-  }
+  border: 1px solid var(--admin-line, #e9e0ee);
+  border-radius: 12px;
+  padding: 18px 12px;
+  background: white;
+  min-height: 116px;
+  transition: border-color 150ms, box-shadow 150ms;
+  &:hover, &:focus-within { border-color: #c7a8dc; box-shadow: 0 6px 20px #683e860a; }
 `;
 
 const Card = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 14px 8px;
   align-items: center;
   height: 100%;
   width: 100%;
@@ -77,7 +74,7 @@ const Card = styled.div`
   padding: 0 10px;
 
   button {
-    opacity: 0;
+    opacity: 1;
   }
 
   &:hover {
@@ -92,23 +89,32 @@ const Card = styled.div`
     }
 
     padding: 0;
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 14px 8px;
   }
 `;
 
 const CardInfo = styled.div`
+  min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin-left: 14px;
-  white-space: nowrap;
-  width: 30%;
+  margin-left: 0;
+  white-space: normal;
+  width: auto;
   height: 100%;
   flex-grow: 1;
   cursor: pointer;
-  padding-right: 12px;
+  padding-right: 0;
 
   .ant-typography {
     padding: 2px 2px 8px 2px;
+    white-space: normal; overflow-wrap: anywhere; line-height: 1.4;
+  }
+  @media (max-width: 500px) {
+    width: auto; margin-left: 0; padding-right: 0; min-height: 0;
+    .ant-typography { white-space: normal; overflow-wrap: anywhere; line-height: 1.4; }
   }
 `;
 
@@ -123,13 +129,12 @@ const AppTimeOwnerInfoLabel = styled.div`
 
 const OperationWrapper = styled.div`
   display: flex;
+  grid-column: 1 / -1;
+  justify-content: flex-end;
   align-items: center;
   padding-right: 10px;
-  @media screen and (max-width: 500px) {
-    > svg {
-      display: none;
-    }
-  }
+
+  @media (max-width: 500px) { grid-column: 1 / -1; justify-content: flex-end; padding-right: 0; gap: 8px; }
 `;
 
 export const StyledTypographyText = styled(AntdTypographyText)`
@@ -295,6 +300,9 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
             )
           }
           <CardInfo
+            role="button"
+            tabIndex={0}
+            onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); event.currentTarget.click(); } }}
             onClick={(e) => {
               if (res.type === HomeResTypeEnum.Folder) {
                 handleFolderViewClick(res.id);
@@ -368,6 +376,9 @@ export function Back(props: { mode: string; parentPath?: string; parentLabel?: s
             }
           } />
           <CardInfo
+            role="button"
+            tabIndex={0}
+            onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); event.currentTarget.click(); } }}
               onClick={() => {
                 backFolderViewClick(parentPath);
               }}

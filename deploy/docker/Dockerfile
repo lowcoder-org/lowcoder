@@ -102,6 +102,13 @@ RUN apt-get update \
 
 COPY --from=build-node-service /lowcoder/node-service /lowcoder/node-service
 
+# Automatic marketplace layout captures. Use Playwright's matching Chromium build.
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/lowcoder-browsers
+RUN cd /lowcoder/node-service/app && node node_modules/playwright/cli.js install --with-deps chromium \
+  && chmod -R a+rX /opt/lowcoder-browsers \
+  && rm -rf /var/lib/apt/lists/*
+
+
 EXPOSE 6060
 CMD [ "/bin/sh", "/lowcoder/node-service/entrypoint.sh" ]
 
@@ -410,6 +417,11 @@ RUN mkdir -p /lowcoder/plugins/ && chown lowcoder:lowcoder /lowcoder/plugins/
 
 # Add lowcoder node-service
 COPY --chown=lowcoder:lowcoder --from=lowcoder-ce-node-service /lowcoder/node-service /lowcoder/node-service
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/lowcoder-browsers
+COPY --from=lowcoder-ce-node-service /opt/lowcoder-browsers /opt/lowcoder-browsers
+RUN cd /lowcoder/node-service/app && node node_modules/playwright/cli.js install-deps chromium \
+  && rm -rf /var/lib/apt/lists/*
+
 
 # Add lowcoder proxy-service
 COPY --chown=lowcoder:lowcoder --from=build-proxy-service /lowcoder/proxy-service /lowcoder/proxy-service

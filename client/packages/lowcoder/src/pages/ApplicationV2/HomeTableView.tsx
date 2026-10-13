@@ -44,7 +44,7 @@ const SubColumnCell = styled.div`
 `;
 
 const EditBtn = styled(TacoButton)`
-  opacity: 0;
+  opacity: 1;
   width: 52px;
   height: 24px;
 `;
@@ -74,11 +74,11 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
 
   const handleModalOk = (values: any) => {
     if (currentRes) {
-      currentRes.type === HomeResTypeEnum.Folder &&
-        dispatch(updateFolder({ id: currentRes.id, name: values.appName || currentRes.name }))
-      dispatch(
-        updateAppMetaAction({ applicationId: currentRes.id, name: values.appName || currentRes.name, folderId: folderId })
-      );
+      if (currentRes.type === HomeResTypeEnum.Folder) {
+        dispatch(updateFolder({ id: currentRes.id, name: values.appName || currentRes.name }));
+      } else {
+        dispatch(updateAppMetaAction({ applicationId: currentRes.id, name: values.appName || currentRes.name, folderId }));
+      }
       
       setUpdateModalVisible(false);
       setTimeout(() => {
@@ -104,11 +104,17 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
       />}
 
       <Table
-        style={{ padding: "0 24px 60px", color: "#8B8FA3" }}
+        style={{ padding: "8px 16px 16px" }}
         tableLayout={"auto"}
-        scroll={{ x: "100%" }}
+        scroll={{ x: 900 }}
         pagination={false}
         onRow={(record) => ({
+          tabIndex: 0,
+          onKeyDown: (event) => {
+            if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) {
+              event.preventDefault(); event.currentTarget.click();
+            }
+          },
           onClick: (e) => {
             if ((record as HomeRes).id === back.id) {
               backFolderViewClick(parentPath)
@@ -120,7 +126,7 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
               if (item.type === HomeResTypeEnum.Folder) {
                 handleFolderViewClick(item.id);
               } else if(item.isMarketplace) {
-                handleMarketplaceAppViewClick(item.id);
+                handleMarketplaceAppViewClick(item.id, item.isLocalMarketplace);
               } else {
                 item.isEditable ? handleAppEditClick(e, item.id) : handleAppViewClick(item.id);
               }
@@ -190,12 +196,7 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
             title: trans("home.creator"),
             dataIndex: "creator",
             ellipsis: true,
-            sorter: (a: any, b: any) => {
-              if (a.creator === b.creator) {
-                return 0;
-              }
-              return a.type > b.type ? 1 : -1;
-            },
+            sorter: (a: any, b: any) => (a.creator ?? "").localeCompare(b.creator ?? ""),
             render: (text) => <SubColumnCell>{text}</SubColumnCell>,
           },
           {
@@ -203,12 +204,7 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
             dataIndex: "description",
             ellipsis: true,
             width: "250px",
-            sorter: (a: any, b: any) => {
-              if (a.creator === b.creator) {
-                return 0;
-              }
-              return a.type > b.type ? 1 : -1;
-            },
+            sorter: (a: any, b: any) => (a.description ?? "").localeCompare(b.description ?? ""),
             render: (text) => <SubColumnCell>{text}</SubColumnCell>,
           },
           {
@@ -231,7 +227,8 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
           {
             title: " ",
             dataIndex: "operation",
-            width: "298px",
+            fixed: "right",
+            width: "180px",
             render: (text, record) => {
               const item = record as HomeRes;
               return (
@@ -254,10 +251,10 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
                       return item.type === HomeResTypeEnum.Folder
                         ? handleFolderViewClick(item.id)
                         : item.isMarketplace
-                        ? handleMarketplaceAppViewClick(item.id)
+                        ? handleMarketplaceAppViewClick(item.id, item.isLocalMarketplace)
                         : handleAppViewClick(item.id);
                     }}
-                    style={{ marginRight: "52px", display: item.id === back.id ? "none" : "block" }}
+                    style={{ marginRight: "12px", display: item.id === back.id ? "none" : "block" }}
                   >
                     {trans("view")}
                   </EditBtn>

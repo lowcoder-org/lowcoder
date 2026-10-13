@@ -19,6 +19,7 @@ import java.util.HexFormat;
 
 @Service
 public class EnterpriseLicenseCapabilityService {
+    public enum PurchaseState { NONE, UNKNOWN, CONFIRMED }
     private final ReactiveMongoTemplate mongo;
     private final EncryptionService encryption;
     private final SecureRandom random = new SecureRandom();
@@ -36,7 +37,8 @@ public class EnterpriseLicenseCapabilityService {
                 byte[] bytes = new byte[32];
                 random.nextBytes(bytes);
                 String token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
-                Update update = new Update().setOnInsert("encryptedToken", encryption.encryptString(token));
+                Update update = new Update().setOnInsert("encryptedToken", encryption.encryptString(token))
+                        .setOnInsert("purchaseConfirmed", false);
                 // Concurrent first visits must all keep the original token, never rotate it.
                 return mongo.findAndModify(query, update,
                     FindAndModifyOptions.options().upsert(true).returnNew(true), EnterpriseLicenseCapability.class)
@@ -45,6 +47,30 @@ public class EnterpriseLicenseCapabilityService {
             }))
             .switchIfEmpty(Mono.error(new IllegalStateException("License ownership credential unavailable")))
             .map(record -> encryption.decryptString(record.getEncryptedToken()));
+    }
+
+    /** Reading Community status must not create credentials or contact the relay. */
+    public Mono<PurchaseState> purchaseState(String hostId, String orgId, String userId) {
+        return mongo.findById(ownerKey(hostId, orgId, userId), EnterpriseLicenseCapability.class)
+                .map(record -> Boolean.TRUE.equals(record.getPurchaseConfirmed()) ? PurchaseState.CONFIRMED
+                        : record.getPurchaseConfirmed() == null || record.isCheckoutAttempted()
+                                ? PurchaseState.UNKNOWN : PurchaseState.NONE)
+                .defaultIfEmpty(PurchaseState.NONE);
+    }
+
+    /** Persist before contacting checkout so an ambiguous response remains discoverable. */
+    public Mono<Void> checkoutAttempted(String hostId, String orgId, String userId) {
+        return mongo.updateFirst(Query.query(Criteria.where("_id").is(ownerKey(hostId, orgId, userId))),
+                new Update().set("checkoutAttempted", true), EnterpriseLicenseCapability.class).then();
+    }
+
+    public Mono<Void> recordPurchaseStatus(String hostId, String orgId, String userId, boolean purchased) {
+        Criteria criteria = Criteria.where("_id").is(ownerKey(hostId, orgId, userId));
+        // A concurrent empty/old response must never erase a purchase or an in-flight checkout.
+        if (!purchased) criteria = criteria.and("purchaseConfirmed").ne(true).and("checkoutAttempted").ne(true);
+        Update update = new Update().set("purchaseConfirmed", purchased);
+        if (purchased) update.set("checkoutAttempted", false);
+        return mongo.updateFirst(Query.query(criteria), update, EnterpriseLicenseCapability.class).then();
     }
 
     static String ownerKey(String hostId, String orgId, String userId) {

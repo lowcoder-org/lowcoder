@@ -6,27 +6,35 @@ import { useLocation } from "react-router-dom";
 
 type SideBarSize = "medium" | "small";
 
-const Wrapper = styled.div<{
+const Wrapper = styled.button<{
   $size?: SideBarSize;
   $selected?: boolean;
   $selectedBgColor?: string;
   $selectedFontColor?: string;
 }>`
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  transition: background 150ms, color 150ms;
   width: 100%;
   height: ${(props) => (props.$size === "small" ? "36px" : "44px")};
-  border-radius: 4px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
-  padding: 0 8px 0 26px;
+  padding: 0 12px;
+  gap: 4px;
   cursor: pointer;
 
   &:hover {
     background: ${(props) => (props.$selected ? (
-      `${props.$selectedBgColor ? props.$selectedBgColor : '#ebf0f7'}`
+      `${props.$selectedBgColor ? props.$selectedBgColor : '#eadcf3'}`
     ) : (
-      `${props.$selectedBgColor ? props.$selectedBgColor : '#efeff1'}`
+      `${props.$selectedBgColor ? props.$selectedBgColor : '#f0e6f6'}`
     ))};
-    color: ${(props) => props.$selectedFontColor ? props.$selectedFontColor : '#4965f2'}
+    color: ${(props) => props.$selectedFontColor ? props.$selectedFontColor : '#683e86'}
   }
 
   svg {
@@ -36,8 +44,8 @@ const Wrapper = styled.div<{
   ${(props) =>
     props.$selected &&
     css`
-      color: ${props.$selectedFontColor ? props.$selectedFontColor : '#4965f2'};
-      background: ${props.$selectedBgColor ? props.$selectedBgColor : '#ebf0f7'};
+      color: ${props.$selectedFontColor ? props.$selectedFontColor : '#683e86'};
+      background: ${props.$selectedBgColor ? props.$selectedBgColor : '#eadcf3'};
     `}
 `;
 
@@ -47,6 +55,8 @@ export const SideBarItem = (props: SideBarItemProps) => {
   const currentPath = useLocation().pathname;
   return (
     <Wrapper
+      type="button"
+      aria-current={props.selected ? "page" : undefined}
       style={props.style}
       className={CNSidebarItem}
       $size={props.size}

@@ -16,7 +16,7 @@ const OperationWrapper = styled.div`
   align-items: center;
   justify-content: flex-end;
   width: 100%;
-  padding-right: 84px;
+  padding-right: 0;
 `;
 
 const NameWrapper = styled.div`
@@ -27,7 +27,7 @@ const NameWrapper = styled.div`
 `;
 
 const EditBtn = styled(TacoButton)`
-  opacity: 0;
+  opacity: 1;
   min-width: 52px !important;
   width: auto !important;
   height: 24px;
@@ -39,9 +39,9 @@ export const TrashTableView = (props: { resources: HomeRes[] , setModify: any, m
 
   return (
     <Table
-      style={{ padding: " 0 24px 80px", color: "#8B8FA3" }}
+      style={{ padding: "8px 16px 16px" }}
       tableLayout={"auto"}
-      scroll={{ x: "100%" }}
+      scroll={{ x: 900 }}
       pagination={false}
       columns={[
         {
@@ -90,12 +90,7 @@ export const TrashTableView = (props: { resources: HomeRes[] , setModify: any, m
           title: trans("home.creator"),
           dataIndex: "creator",
           ellipsis: true,
-          sorter: (a: any, b: any) => {
-            if (a.creator === b.creator) {
-              return 0;
-            }
-            return a.type > b.type ? 1 : -1;
-          },
+          sorter: (a: any, b: any) => (a.creator ?? "").localeCompare(b.creator ?? ""),
         },
         {
           title: trans("home.deleteTime"),
@@ -113,7 +108,8 @@ export const TrashTableView = (props: { resources: HomeRes[] , setModify: any, m
         {
           title: " ",
           dataIndex: "operation",
-          width: "298px",
+            fixed: "right",
+          width: "180px",
           render: (text, record) => {
             const item = record as HomeRes;
             return (
