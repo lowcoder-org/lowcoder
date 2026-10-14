@@ -23,7 +23,7 @@ import java.util.Map;
  *
  * <p>Limit: the redirection is a static mock that applies only on the opening thread and only while open, so it relies on
  * the production {@code send} building its client before it returns the {@code Mono}
- * ({@code EnterpriseLicenseController.java:119}). A {@code send} that built its client later would miss the redirection
+ * ({@code EnterpriseLicenseController.java:199}). A {@code send} that built its client later would miss the redirection
  * and send to the configured relay URL; with the {@code .invalid} relay hosts of the tests that request fails, and the
  * tests that expect a relay request fail with it.
  */
