@@ -128,7 +128,6 @@ export function NewsLayout() {
                 return (
                   <Col xs={24} sm={12} md={12} lg={8} key={`blog-${idx}`}>
                     <Card
-                      hoverable
                       cover={
                         <a href={url} target="_blank" rel="noreferrer">
                           <CardImage src={coverImage} alt={htmlTitle} loading="lazy"/>
@@ -177,15 +176,22 @@ export function NewsLayout() {
             <Row gutter={[16, 16]}>
               {youTubeData.map((item, idx) => {
                 const s = item.snippet;
+                const videoUrl = `https://www.youtube.com/watch?v=${item.id.videoId}`;
                 return (
                   <Col xs={24} sm={12} md={8} lg={6} key={`yt-${idx}`}>
                     <Card
                       hoverable
-                      cover={
-                        <a href={`https://www.youtube.com/watch?v=${item.id.videoId}`} target="_blank" rel="noreferrer">
-                          <CardImage src={s.thumbnails.high.url} alt={s.title} />
-                        </a>
-                      }
+                      role="link"
+                      tabIndex={0}
+                      aria-label={s.title}
+                      onClick={() => window.open(videoUrl, "_blank", "noopener,noreferrer")}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                          event.currentTarget.click();
+                        }
+                      }}
+                      cover={<CardImage src={s.thumbnails.high.url} alt={s.title} />}
                     >
                       <Card.Meta
                         title={s.title}
@@ -213,7 +219,6 @@ export function NewsLayout() {
                 return (
                   <Col xs={24} sm={12} md={12} lg={8} key={`gh-${idx}`}>
                     <Card
-                      hoverable
                       title={`${c.tag_name} (${c.name})`}
                       extra={<a href={c.html_url} target="_blank" rel="noreferrer">View</a>}
                     >
