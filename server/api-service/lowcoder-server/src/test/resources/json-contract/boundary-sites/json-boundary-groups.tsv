@@ -12,6 +12,7 @@ downstream-encode	WP8	lowcoder-plugins/restApiPlugin/src/test/java,lowcoder-plug
 error-message-json	WP9,WP8	lowcoder-server/src/test/java,lowcoder-sdk/src/test/java
 oauth	WP9	lowcoder-server/src/test/java
 node-service	WP9	lowcoder-domain/src/test/java
+marketplace-render	WP9	lowcoder-server/src/test/java
 client-codec-guard	WP0	lowcoder-server/src/test/java,lowcoder-plugins/graphqlPlugin/src/test/java,lowcoder-plugins/restApiPlugin/src/test/java
 error-handler	WP1	lowcoder-server/src/test/java
 api-flow	WP7	lowcoder-server/src/test/java

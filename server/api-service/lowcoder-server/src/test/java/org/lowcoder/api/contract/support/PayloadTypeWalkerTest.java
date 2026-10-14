@@ -41,15 +41,15 @@ import java.util.TreeSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Self-test of {@link PayloadTypeWalker} (docs/API_PAYLOAD_TEST_PLAN.md §3.2, §8.1): today's compiled API gives 25
- * declaration types, 176 endpoints and 123 closure types, and a test-only API ({@link SampleApi}) shows each rule of
+ * Self-test of {@link PayloadTypeWalker} (docs/API_PAYLOAD_TEST_PLAN.md §3.2, §8.1): today's compiled API gives 26
+ * declaration types, 177 endpoints and 123 closure types, and a test-only API ({@link SampleApi}) shows each rule of
  * the walk.
  */
 class PayloadTypeWalkerTest {
 
     /** §1.3 and §3.2: today's declaration, endpoint and closure-type counts. */
-    private static final int DECLARATION_TYPES = 25;
-    private static final int ENDPOINTS = 176;
+    private static final int DECLARATION_TYPES = 26;
+    private static final int ENDPOINTS = 177;
     private static final int CLOSURE_TYPES = 123;
     private static final String HEALTH_CHECK = "StateEndpoints#healthCheck()";
     private static final String SAMPLE_UPDATE = "SampleApi#update(SampleRequest)";
