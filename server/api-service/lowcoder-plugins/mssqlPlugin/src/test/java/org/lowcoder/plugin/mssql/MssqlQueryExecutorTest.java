@@ -17,6 +17,7 @@ import org.lowcoder.sdk.models.DatasourceStructure.Table;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
+import org.lowcoder.sdk.util.MustacheHelper;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -53,6 +55,10 @@ public class MssqlQueryExecutorTest {
     static final String QUERY = "select * from items";
     static final String BRACKET_SQL = "select [a/*b*/], [c--d], [e]]/*f*/] from items /* {{x}} */";
     static final String BRACKET_SQL_WITHOUT_COMMENT = "select [a/*b*/], [c--d], [e]]/*f*/] from items";
+    /** A mustache inside a bracket identifier, after a comment start, and one in a block comment after it (NEW-33). */
+    static final String BRACKET_FIELDS_SQL = "select [a/*{{x}}*/] from items /* {{y}} */";
+    static final String IDENTIFIER_KEY = "{{x}}";
+    static final String FIELDS_KEY = "fields";
     static final String MODE_KEY = "mode";
     static final String SQL_MODE = "SQL";
     static final String SQL_KEY = "sql";
@@ -128,12 +134,31 @@ public class MssqlQueryExecutorTest {
      */
     @Test
     public void aCommentStartInsideABracketIdentifierIsKeptBF092() {
-        MssqlDatasourceConfig datasource = new MssqlDatasourceConfig("db", "user", "password", "localhost", 1433L, false, null, false,
-                false, null);
-        SqlBasedQueryExecutionContext context = executor.buildQueryExecutionContext(datasource,
+        SqlBasedQueryExecutionContext context = executor.buildQueryExecutionContext(datasource(),
                 Map.of(MODE_KEY, SQL_MODE, SQL_KEY, BRACKET_SQL), Map.of(), null);
         System.out.println("[MssqlQueryExecutorTest] [" + BRACKET_SQL + "] -> [" + context.getQuery() + "]");
         assertEquals(BRACKET_SQL_WITHOUT_COMMENT, context.getQuery());
+    }
+
+    /**
+     * NEW-33 under SQL Server's rules: the fields a published app's viewer gets are the mustache tokens of the template
+     * execution builds, so {@code {{x}}}, text of the identifier {@code [a/*{{x}}*}{@code /]}, is listed and {@code {{y}}}, in
+     * the removed comment, is not. Catches: the raw SQL's keys, or the default rules, which read the bracket as a subscript
+     * and remove both.
+     */
+    @Test
+    public void sanitizeQueryConfigListsTheKeysExecutionLooksUpUnderBracketRulesNEW33() {
+        Map<String, Object> config = Map.of(MODE_KEY, SQL_MODE, SQL_KEY, BRACKET_FIELDS_SQL);
+        Object fields = executor.sanitizeQueryConfig(config).get(FIELDS_KEY);
+        String executed = executor.buildQueryExecutionContext(datasource(), config, Map.of(), null).getQuery();
+        System.out.println("[MssqlQueryExecutorTest] [" + BRACKET_FIELDS_SQL + "] -> fields " + fields + ", executed [" + executed + "]");
+        assertEquals(Set.of(IDENTIFIER_KEY), fields, "fields of [" + BRACKET_FIELDS_SQL + "]");
+        assertEquals(MustacheHelper.extractMustacheKeysWithCurlyBraces(executed), fields,
+                "fields against the tokens of the executed query [" + executed + "]");
+    }
+
+    private static MssqlDatasourceConfig datasource() {
+        return new MssqlDatasourceConfig("db", "user", "password", "localhost", 1433L, false, null, false, false, null);
     }
 
     @Test

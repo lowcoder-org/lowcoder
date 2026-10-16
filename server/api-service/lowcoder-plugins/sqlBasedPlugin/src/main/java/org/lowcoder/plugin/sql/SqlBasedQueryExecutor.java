@@ -168,6 +168,20 @@ public abstract class SqlBasedQueryExecutor extends BlockingQueryExecutor<SqlBas
     protected abstract DatasourceStructure getDatabaseMetadata(Connection connection,
             SqlBasedDatasourceConnectionConfig connectionConfig);
 
+    /**
+     * What a published app's viewer gets instead of the query config: a map with only {@code fields}, the mustache keys whose
+     * values the client sends. In SQL mode they are the mustache tokens of the template {@link #buildQueryExecutionContext}
+     * builds, the SQL after {@link SqlQueryUtils#removeQueryComments(String, QuotingRules)} with this database's
+     * {@link #quotingRules()}, before its values are bound or rendered; the SQL itself is not given. A key written only in a
+     * removed comment used to be listed too (NEW-33), so the viewer saw the mustache expressions of the comments although
+     * execution never looks their values up. In GUI mode they are the keys of the command, as before; no SQL template is built.
+     * <p>
+     * Limits: a key inside a comment the removal keeps (an optimizer hint, a MySQL executable comment, a nested or unterminated
+     * comment, every block comment after a backslash-ambiguous literal) is listed, as execution looks its value up; whether the
+     * database accepts a placeholder there is the database's. The fields are tokens with their braces, a set, not the ordered
+     * keys the binder uses, and they do not depend on whether the values are bound or rendered. A query of only comments lists
+     * no key; it never runs, {@link #buildQueryExecutionContext} refuses it with SQL_EMPTY.
+     */
     @Override
     public Map<String, Object> sanitizeQueryConfig(Map<String, Object> configMap) {
         SqlQueryConfig queryConfig = SqlQueryConfig.from(configMap);
@@ -178,7 +192,7 @@ public abstract class SqlBasedQueryExecutor extends BlockingQueryExecutor<SqlBas
             return result;
         }
 
-        String sql = queryConfig.getSql();
+        String sql = SqlQueryUtils.removeQueryComments(queryConfig.getSql(), quotingRules());
         Set<String> mustacheKeys = MustacheHelper.extractMustacheKeysWithCurlyBraces(sql);
         result.put("fields", mustacheKeys);
         return result;
