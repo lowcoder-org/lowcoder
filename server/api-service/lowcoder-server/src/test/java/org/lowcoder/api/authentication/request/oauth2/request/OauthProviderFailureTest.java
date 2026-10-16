@@ -16,6 +16,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -23,11 +24,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.api.authentication.request.AuthException;
+import org.lowcoder.api.authentication.request.oauth2.OAuth2RequestContext;
+import org.lowcoder.api.authentication.request.oauth2.Oauth2AuthRequestFactory;
+import org.lowcoder.sdk.auth.AbstractAuthConfig;
 import org.lowcoder.domain.user.model.AuthToken;
 import org.lowcoder.domain.user.model.AuthUser;
 import org.lowcoder.sdk.auth.Oauth2GenericAuthConfig;
+import org.lowcoder.sdk.auth.Oauth2SimpleAuthConfig;
 import org.lowcoder.sdk.auth.constants.AuthTypeConstants;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
@@ -432,5 +438,291 @@ class OauthProviderFailureTest {
         return Stream.of(
                 Arguments.of("{\"id\":42,\"login\":\"octo\",\"avatar_url\":\"https://avatars/42\"}", "octo"),
                 Arguments.of("{\"id\":42,\"login\":\"octo\",\"email\":\"octo@example.com\",\"avatar_url\":\"https://avatars/42\"}", "octo@example.com"));
+    }
+
+    // ------------------------------------------------- NEW-27: a user without a uid
+
+    private static final String NO_SUB_EMAIL = "nosub@example.com";
+    private static final String USER_WITHOUT_SUB = "{\"email\":\"" + NO_SUB_EMAIL + "\"}";
+    private static final String USER_WITH_NULL_SUB = "{\"sub\":null,\"email\":\"" + NO_SUB_EMAIL + "\"}";
+    private static final String USER_WITH_EMPTY_SUB = "{\"sub\":\"\",\"email\":\"" + NO_SUB_EMAIL + "\"}";
+    private static final String USER_WITH_BLANK_SUB = "{\"sub\":\"  \",\"email\":\"" + NO_SUB_EMAIL + "\"}";
+    /** A uid with a {@code |} and a trailing space: the controls require it back exactly as sent, untrimmed. */
+    private static final String UID_AS_SENT = "auth0|u-27 ";
+    private static final String USER_WITH_SUB = "{\"sub\":\"" + UID_AS_SENT + "\",\"email\":\"u27@example.com\"}";
+    private static final String GITHUB_WITHOUT_ID = "{\"login\":\"octo\"}";
+    private static final String GITHUB_WITH_NULL_ID = "{\"id\":null,\"login\":\"octo\"}";
+    private static final String GITHUB_WITH_EMPTY_ID = "{\"id\":\"\",\"login\":\"octo\"}";
+    private static final String GITHUB_WITH_BLANK_ID = "{\"id\":\"  \",\"login\":\"octo\"}";
+    private static final String GITHUB_UID_AS_SENT = "auth0|42 ";
+    private static final String GITHUB_WITH_ID = "{\"id\":\"" + GITHUB_UID_AS_SENT + "\",\"login\":\"octo\"}";
+    private static final String TOKEN_ANSWER = "{\"access_token\":\"" + ACCESS_TOKEN + "\",\"expires_in\":300,\"refresh_token\":\"rt.new27\"}";
+    private static final List<String> USERS_WITHOUT_A_USABLE_SUB = List.of(USER_WITHOUT_SUB, USER_WITH_NULL_SUB, USER_WITH_EMPTY_SUB, USER_WITH_BLANK_SUB);
+    private static final List<String> GITHUB_USERS_WITHOUT_A_USABLE_ID = List.of(GITHUB_WITHOUT_ID, GITHUB_WITH_NULL_ID, GITHUB_WITH_EMPTY_ID, GITHUB_WITH_BLANK_ID);
+    /** Legacy GitHub dereferences the id ({@code GithubRequest.java:120}): these two throw before any uid check. */
+    private static final List<String> GITHUB_USERS_THAT_THROW = List.of(GITHUB_WITHOUT_ID, GITHUB_WITH_NULL_ID);
+
+    /** The production request for {@code config}: what {@code Oauth2AuthRequestFactory} builds, a GenericAuthRequest for every type. */
+    private static AbstractOauth2Request<?> factoryBuilt(AbstractAuthConfig config) {
+        OAuth2RequestContext context = context();
+        context.setAuthConfig(config);
+        AbstractOauth2Request<?> request = (AbstractOauth2Request<?>) new Oauth2AuthRequestFactory().build(context).block(BLOCK_TIMEOUT);
+        assertThat(request).as(config.getAuthType() + " request").isInstanceOf(GenericAuthRequest.class);
+        return request;
+    }
+
+    /**
+     * An {@link AbstractOauth2Request} whose token step answers {@link #token()} and whose user step answers a publisher
+     * built beforehand: the base class's {@code auth} and {@code refresh} run as for any provider, on its worker thread.
+     */
+    private static final class Assembled extends AbstractOauth2Request<Oauth2SimpleAuthConfig> {
+        private final Mono<AuthUser> user;
+
+        Assembled(Mono<AuthUser> user) {
+            super(null, null);
+            this.user = user;
+        }
+
+        @Override
+        protected Mono<AuthToken> getAuthToken(OAuth2RequestContext context) {
+            return Mono.just(token());
+        }
+
+        @Override
+        protected Mono<AuthToken> refreshAuthToken(String refreshToken) {
+            return Mono.just(token());
+        }
+
+        @Override
+        protected Mono<AuthUser> getAuthUser(AuthToken authToken) {
+            return user;
+        }
+    }
+
+    private static void expectFailToGetOidcInfo(String site, Mono<AuthUser> call, String reason) {
+        StepVerifier.create(call)
+                .expectErrorSatisfies(e -> {
+                    System.out.println("[OauthProviderFailureTest] " + site + " -> " + e);
+                    assertThat(e).as(site).isInstanceOf(BizException.class);
+                    assertThat(((BizException) e).getError()).as(site).isEqualTo(BizError.FAIL_TO_GET_OIDC_INFO);
+                    if (reason != null) {
+                        assertThat(e.getMessage()).as(site).contains(reason);
+                    }
+                })
+                .verify(BLOCK_TIMEOUT);
+    }
+
+    private static AuthUser expectUser(String site, Mono<AuthUser> call) {
+        AuthUser user = call.block(BLOCK_TIMEOUT);
+        System.out.println("[OauthProviderFailureTest] " + site + " -> uid [" + (user == null ? null : user.getUid()) + "]");
+        assertThat(user).as(site).isNotNull();
+        return user;
+    }
+
+    private static void stubTokenAndUser(WireMockRuntimeInfo wireMock, String tokenPath, String userPath, String userBody) {
+        stubAnyMethod(wireMock, tokenPath, OK, TOKEN_ANSWER);
+        stubAnyMethod(wireMock, userPath, OK, userBody);
+    }
+
+    private static int requestsTo(WireMockRuntimeInfo wireMock, String path) {
+        return wireMock.getWireMock().find(anyRequestedFor(urlPathEqualTo(path))).size();
+    }
+
+    private static Stream<Arguments> oryAndKeycloakUsersWithoutAUsableSub() {
+        Stream.Builder<Arguments> cases = Stream.builder();
+        for (String body : USERS_WITHOUT_A_USABLE_SUB) {
+            cases.add(Arguments.of(AuthTypeConstants.ORY, body));
+            cases.add(Arguments.of(AuthTypeConstants.KEYCLOAK, body));
+        }
+        return cases.build();
+    }
+
+    private static AbstractAuthConfig oryOrKeycloak(String authType, String baseUrl) {
+        return AuthTypeConstants.ORY.equals(authType) ? ory(baseUrl) : keycloak(baseUrl);
+    }
+
+    private static String tokenPath(String authType) {
+        return AuthTypeConstants.ORY.equals(authType) ? ORY_TOKEN_PATH : KEYCLOAK_TOKEN_PATH;
+    }
+
+    private static String userPath(String authType) {
+        return AuthTypeConstants.ORY.equals(authType) ? ORY_USER_PATH : KEYCLOAK_USER_PATH;
+    }
+
+    /**
+     * NEW-27 on the production path: an Ory or Keycloak login, through the request the factory builds, whose user
+     * information has no usable {@code sub} fails with FAIL_TO_GET_OIDC_INFO carrying Generic's {@code NO_UID} (T67's
+     * check), after the user endpoint was asked once, so the login never looks a user up with a null uid.
+     */
+    @ParameterizedTest(name = "{0}, user {1}")
+    @MethodSource("oryAndKeycloakUsersWithoutAUsableSub")
+    void factoryBuiltOryAndKeycloakLogins_refuseAUserWithoutAUidNEW27(String authType, String userBody, WireMockRuntimeInfo wireMock) {
+        stubTokenAndUser(wireMock, tokenPath(authType), userPath(authType), userBody);
+        AbstractOauth2Request<?> request = factoryBuilt(oryOrKeycloak(authType, wireMock.getHttpBaseUrl()));
+
+        expectFailToGetOidcInfo(authType + " factory-built auth, user " + userBody, request.auth(context()), GenericAuthRequest.NO_UID);
+        assertThat(requestsTo(wireMock, userPath(authType))).as("user-info requests").isEqualTo(1);
+    }
+
+    /** The control: the same exchange with a {@code sub} answers that uid exactly as sent, with the token set. */
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = {AuthTypeConstants.ORY, AuthTypeConstants.KEYCLOAK})
+    void factoryBuiltOryAndKeycloakLogins_acceptAUserWithAUid(String authType, WireMockRuntimeInfo wireMock) {
+        stubTokenAndUser(wireMock, tokenPath(authType), userPath(authType), USER_WITH_SUB);
+        AbstractOauth2Request<?> request = factoryBuilt(oryOrKeycloak(authType, wireMock.getHttpBaseUrl()));
+
+        AuthUser user = expectUser(authType + " factory-built auth, user " + USER_WITH_SUB, request.auth(context()));
+
+        assertThat(user.getUid()).isEqualTo(UID_AS_SENT);
+        assertThat(user.getAuthToken().getAccessToken()).isEqualTo(ACCESS_TOKEN);
+    }
+
+    private static Stream<Arguments> googleAndGithubUsers() {
+        Stream.Builder<Arguments> cases = Stream.builder();
+        for (String body : USERS_WITHOUT_A_USABLE_SUB) {
+            cases.add(Arguments.of(AuthTypeConstants.GOOGLE, body, null));
+        }
+        cases.add(Arguments.of(AuthTypeConstants.GOOGLE, USER_WITH_SUB, UID_AS_SENT));
+        for (String body : GITHUB_USERS_WITHOUT_A_USABLE_ID) {
+            cases.add(Arguments.of(AuthTypeConstants.GITHUB, body, null));
+        }
+        cases.add(Arguments.of(AuthTypeConstants.GITHUB, GITHUB_WITH_ID, GITHUB_UID_AS_SENT));
+        return cases.build();
+    }
+
+    private static String fixedUserPath(String authType) {
+        return AuthTypeConstants.GOOGLE.equals(authType) ? GOOGLE_USER_PATH : GITHUB_USER_PATH;
+    }
+
+    /**
+     * Google's and GitHub's user step composed with the base class's {@code auth}: their endpoints are fixed {@code https}
+     * URLs, reached only through the thread-local {@link OauthProviderStubs#redirectTo}, which does not apply on
+     * {@code auth}'s worker thread, so the provider's real {@code getAuthUser} is built on the test thread under the
+     * redirect and handed to {@link Assembled}, and the subscription runs while the redirect is open. Limit: this is the
+     * provider's mapping plus the base class's {@code auth} code, not the request's own {@code auth} call.
+     */
+    private static void composedWithTheBaseAuth(String site, WireMockRuntimeInfo wireMock, String authType, String userBody,
+                                                String expectedUid, Function<AuthToken, Mono<AuthUser>> userStep, String reason) {
+        stubAnyMethod(wireMock, fixedUserPath(authType), OK, userBody);
+        try (MockedStatic<WebClientBuildHelper> ignored = redirectTo(wireMock.getHttpBaseUrl())) {
+            Mono<AuthUser> auth = new Assembled(userStep.apply(token())).auth(context());
+            if (expectedUid == null) {
+                expectFailToGetOidcInfo(site, auth, reason);
+            } else {
+                assertThat(expectUser(site, auth).getUid()).as(site).isEqualTo(expectedUid);
+            }
+        }
+        assertThat(requestsTo(wireMock, fixedUserPath(authType))).as(site + " user-info requests").isEqualTo(1);
+    }
+
+    /**
+     * NEW-27 for Google and GitHub through the request the factory builds: T67's Generic check refuses a user without a
+     * uid ({@code NO_UID}) before the base check sees it; the controls come back exactly as sent.
+     */
+    @ParameterizedTest(name = "{0}, user {1}")
+    @MethodSource("googleAndGithubUsers")
+    void factoryBuiltGoogleAndGithubUserMappings_areRefusedNEW27(String authType, String userBody, String expectedUid, WireMockRuntimeInfo wireMock) {
+        AbstractOauth2Request<?> request = factoryBuilt(simple(authType));
+
+        composedWithTheBaseAuth(authType + " factory-built user step, user " + userBody, wireMock, authType, userBody, expectedUid,
+                request::getAuthUser, GenericAuthRequest.NO_UID);
+    }
+
+    /**
+     * The base check for the legacy {@code GoogleRequest} and {@code GithubRequest}, which production no longer builds:
+     * their user without a uid is refused with {@code NO_USER_ID}. Legacy GitHub's missing and null {@code id} throw in
+     * the provider first, which {@code auth} turns into FAIL_TO_GET_OIDC_INFO as well.
+     */
+    @ParameterizedTest(name = "{0}, user {1}")
+    @MethodSource("googleAndGithubUsers")
+    void legacyGoogleAndGithubUserMappings_areRefusedByTheBaseCheckNEW27(String authType, String userBody, String expectedUid, WireMockRuntimeInfo wireMock) {
+        AbstractOauth2Request<?> request = AuthTypeConstants.GOOGLE.equals(authType)
+                ? new GoogleRequest(simple(authType)) : new GithubRequest(simple(authType));
+        String reason = GITHUB_USERS_THAT_THROW.contains(userBody) ? null : AbstractOauth2Request.NO_USER_ID;
+
+        composedWithTheBaseAuth(authType + " legacy user step, user " + userBody, wireMock, authType, userBody, expectedUid,
+                request::getAuthUser, reason);
+    }
+
+    private static Stream<Arguments> legacyLoginsWithoutAUsableSub() {
+        Stream.Builder<Arguments> cases = Stream.builder();
+        for (String body : USERS_WITHOUT_A_USABLE_SUB) {
+            cases.add(Arguments.of(AuthTypeConstants.ORY, body));
+            cases.add(Arguments.of(AuthTypeConstants.KEYCLOAK, body));
+        }
+        return cases.build();
+    }
+
+    private static AbstractOauth2Request<?> legacy(String authType, String baseUrl) {
+        return AuthTypeConstants.ORY.equals(authType) ? new OryRequest(ory(baseUrl)) : new KeycloakRequest(keycloak(baseUrl));
+    }
+
+    private static AuthUser userWithUid(String uid) {
+        return AuthUser.builder().uid(uid).username(NO_SUB_EMAIL).build();
+    }
+
+    /**
+     * The base check in {@code auth}: the legacy {@code OryRequest} and {@code KeycloakRequest} (their real token and
+     * user steps on WireMock) refuse a user without a usable {@code sub} with {@code NO_USER_ID}, which no provider
+     * check refused before T168.
+     */
+    @ParameterizedTest(name = "{0}, user {1}")
+    @MethodSource("legacyLoginsWithoutAUsableSub")
+    void everyOauth2Request_refusesAUserWithoutAUidInAuthNEW27(String authType, String userBody, WireMockRuntimeInfo wireMock) {
+        stubTokenAndUser(wireMock, tokenPath(authType), userPath(authType), userBody);
+
+        expectFailToGetOidcInfo(authType + " legacy auth, user " + userBody, legacy(authType, wireMock.getHttpBaseUrl()).auth(context()),
+                AbstractOauth2Request.NO_USER_ID);
+    }
+
+    /** The same check for a provider the factory does not know: a test subclass whose user has a null, empty or blank uid. */
+    @ParameterizedTest(name = "uid [{0}]")
+    @NullSource
+    @ValueSource(strings = {"", "  "})
+    void anyOauth2Request_refusesAUserWithoutAUidInAuthNEW27(String uid) {
+        expectFailToGetOidcInfo("subclass auth, uid [" + uid + "]", new Assembled(Mono.fromSupplier(() -> userWithUid(uid))).auth(context()),
+                AbstractOauth2Request.NO_USER_ID);
+    }
+
+    /** Its control, the legacy classes and the subclass: a uid comes back exactly as sent, with the token set. */
+    @Test
+    void everyOauth2Request_acceptsAUserWithAUidInAuthAndRefresh(WireMockRuntimeInfo wireMock) {
+        for (String authType : List.of(AuthTypeConstants.ORY, AuthTypeConstants.KEYCLOAK)) {
+            stubTokenAndUser(wireMock, tokenPath(authType), userPath(authType), USER_WITH_SUB);
+            AbstractOauth2Request<?> request = legacy(authType, wireMock.getHttpBaseUrl());
+            for (AuthUser user : List.of(expectUser(authType + " legacy auth", request.auth(context())),
+                    expectUser(authType + " legacy refresh", request.refresh(REFRESH_TOKEN)))) {
+                assertThat(user.getUid()).isEqualTo(UID_AS_SENT);
+                assertThat(user.getAuthToken().getAccessToken()).isEqualTo(ACCESS_TOKEN);
+            }
+        }
+        Assembled subclass = new Assembled(Mono.fromSupplier(() -> userWithUid(UID_AS_SENT)));
+        for (AuthUser user : List.of(expectUser("subclass auth", subclass.auth(context())), expectUser("subclass refresh", subclass.refresh(REFRESH_TOKEN)))) {
+            assertThat(user.getUid()).isEqualTo(UID_AS_SENT);
+            assertThat(user.getAuthToken().getAccessToken()).isEqualTo(ACCESS_TOKEN);
+        }
+    }
+
+    /**
+     * The base check in {@code refresh}, a test of its own so that a failure of the {@code auth} one cannot hide it: the
+     * legacy Ory and Keycloak refresh (their real refresh-token and user steps) and the test subclass refuse a user
+     * without a uid with {@code NO_USER_ID}.
+     */
+    @ParameterizedTest(name = "{0}, user {1}")
+    @MethodSource("legacyLoginsWithoutAUsableSub")
+    void everyOauth2Request_refusesAUserWithoutAUidInRefreshNEW27(String authType, String userBody, WireMockRuntimeInfo wireMock) {
+        stubTokenAndUser(wireMock, tokenPath(authType), userPath(authType), userBody);
+
+        expectFailToGetOidcInfo(authType + " legacy refresh, user " + userBody, legacy(authType, wireMock.getHttpBaseUrl()).refresh(REFRESH_TOKEN),
+                AbstractOauth2Request.NO_USER_ID);
+    }
+
+    /** The same check in {@code refresh} for the test subclass whose user has a null, empty or blank uid. */
+    @ParameterizedTest(name = "uid [{0}]")
+    @NullSource
+    @ValueSource(strings = {"", "  "})
+    void anyOauth2Request_refusesAUserWithoutAUidInRefreshNEW27(String uid) {
+        expectFailToGetOidcInfo("subclass refresh, uid [" + uid + "]", new Assembled(Mono.fromSupplier(() -> userWithUid(uid))).refresh(REFRESH_TOKEN),
+                AbstractOauth2Request.NO_USER_ID);
     }
 }
