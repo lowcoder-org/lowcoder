@@ -25,7 +25,7 @@ import static org.lowcoder.api.authentication.request.oauth2.request.OauthProvid
  * The OAuth rows of group {@code error-message-json} (docs/API_PAYLOAD_TEST_PLAN.md §4.9): at 14 sites a provider
  * error response, decoded by the client codecs, is written back with {@code JsonUtils.toJson} into the
  * {@code AuthException} message, which {@code AbstractOauth2Request.auth}/{@code refresh} pass as the argument of
- * {@code FAIL_TO_GET_OIDC_INFO} ({@code AbstractOauth2Request.java:33-35}, {@code :43-45}). The message text of
+ * {@code FAIL_TO_GET_OIDC_INFO} ({@code AbstractOauth2Request.java:35-37}, {@code :45-47}). The message text of
  * every site, and the two {@code BizException} messages, are pinned in
  * {@code boundary/error-message-json/<class>.messages.json}: a number lexeme the decoder changes ({@code 1.50}), key
  * order, escapes and non-ASCII text all show in it.
