@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.sql.Connection;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,10 +70,15 @@ import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
 import org.lowcoder.domain.solutions.TemplateSolutionService;
 import org.lowcoder.domain.template.model.Template;
 import org.lowcoder.domain.template.service.TemplateService;
+import org.lowcoder.plugin.sql.GeneralSqlExecutor;
+import org.lowcoder.plugin.sql.SqlBasedQueryExecutor;
 import org.lowcoder.sdk.constants.Authentication;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
+import org.lowcoder.sdk.models.DatasourceStructure;
 import org.lowcoder.sdk.plugin.common.QueryExecutor;
+import org.lowcoder.sdk.plugin.common.sql.SqlBasedDatasourceConnectionConfig;
+import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -83,16 +89,18 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 /**
- * Branch tests of {@link ApplicationApiServiceImpl} with every collaborator mocked: the request-type gate of the
- * published view, the DSL sanitising of published and module DSL, the readable permission errors, the update and
- * datasource-permission checks and the small guards around them. The Spring tests of this class
+ * Branch tests of {@link ApplicationApiServiceImpl} with its collaborators mocked (one exception below): the request-type
+ * gate of the published view, the DSL sanitising of published and module DSL, the readable permission errors, the update
+ * and datasource-permission checks and the small guards around them. The Spring tests of this class
  * ({@code ApplicationApiServiceTest}, {@code ApplicationApiServiceIntegrationTest}) run the happy paths with the real
  * services.
  *
  * <p>Split with L3-12 (plan section 6.5): {@code ApplicationService}, {@code ApplicationRecordService} and the other
  * domain services are mocked here, so no {@code ApplicationServiceImpl} or {@code BundleServiceImpl} code runs; the
  * dependent-module expansion is only stubbed. Lines {@code :570-572} (the catch of the 5 second {@code block}) stay
- * uncovered on purpose: they need a timeout, and a 5 second test is not worth it.
+ * uncovered on purpose: they need a timeout, and a 5 second test is not worth it. The one exception to the mocked
+ * collaborators: {@link #getPublishedApplication_givesASqlQueryOnlyTheKeysOutsideItsCommentsNEW33} sanitizes with a real
+ * SQL executor (NEW-33).
  *
  * <p>Fixed since: the plan section 9 row "ApplicationApiServiceImpl.getEditingApplication skips the edit-permission check
  * for an app that is public to all and to the marketplace, and that read also writes the application" (BF-018), see
@@ -123,6 +131,10 @@ class ApplicationApiServiceImplBranchesTest {
     private static final String MSG_NO_EDIT = "NO_PERMISSION_TO_EDIT";
     private static final String MSG_NO_VIEW = "NO_PERMISSION_TO_VIEW";
     private static final String MSG_LACK_OF_DATASOURCE = "APPLICATION_EDIT_ERROR_LACK_OF_DATASOURCE_PERMISSIONS";
+    /** A SQL query with a key in the SQL, one in a {@code --} comment and one in a block comment (NEW-33). */
+    private static final String SQL_WITH_KEYS_IN_COMMENTS = "select {{a}} from t -- {{b}}\nwhere c = 1 /* {{c}} */";
+    private static final String KEY_OUTSIDE_COMMENTS = "{{a}}";
+    private static final String NOT_CALLED_IN_SQL_MODE = "not called when a SQL-mode query is sanitized";
 
     @Mock
     private ApplicationService applicationService;
@@ -580,6 +592,34 @@ class ApplicationApiServiceImplBranchesTest {
         assertThat(moduleDsl.get("queries")).isEqualTo(List.of(dsl("id", "q1", "compType", "view", "comp", dsl("fields", list("a")))));
         assertThat(moduleDsl.get("ui")).isEqualTo(dsl("comp", dsl("io", dsl("inputs", list(dsl("name", "in"))))));
         say("published view: module %s DSL sanitised: %s", MODULE_ID, moduleDsl);
+    }
+
+    /**
+     * NEW-33 with the real SQL sanitizer behind the published view (a service-level test: no HTTP, no serialization): a
+     * SQL-mode query becomes a {@code view} query whose fields are the keys of its comment-stripped template only, and its
+     * SQL is not in the view. Catches: keys written only in comments published, or the SQL kept.
+     */
+    @Test
+    void getPublishedApplication_givesASqlQueryOnlyTheKeysOutsideItsCommentsNEW33() {
+        SqlBasedQueryExecutor sqlExecutor = new SqlBasedQueryExecutor(new GeneralSqlExecutor()) {
+            @Override
+            protected GuiSqlCommand parseSqlCommand(String guiStatementType, Map<String, Object> detail) {
+                throw new UnsupportedOperationException(NOT_CALLED_IN_SQL_MODE);
+            }
+
+            @Override
+            protected DatasourceStructure getDatabaseMetadata(Connection connection, SqlBasedDatasourceConnectionConfig connectionConfig) {
+                throw new UnsupportedOperationException(NOT_CALLED_IN_SQL_MODE);
+            }
+        };
+        doReturn(sqlExecutor).when(datasourceMetaInfoService).getQueryExecutor("mysql");
+
+        ApplicationView view = published(app(dsl("queries", list(
+                dsl("id", "q1", "compType", "mysql", "comp", dsl("mode", "SQL", "sql", SQL_WITH_KEYS_IN_COMMENTS))))));
+
+        say("published view of [%s]: %s", SQL_WITH_KEYS_IN_COMMENTS.replace("\n", "\\n"), view.getApplicationDSL().get("queries"));
+        assertThat(view.getApplicationDSL().get("queries"))
+                .isEqualTo(List.of(dsl("id", "q1", "compType", "view", "comp", dsl("fields", Set.of(KEY_OUTSIDE_COMMENTS)))));
     }
 
     static Stream<Arguments> testValueRows() {
