@@ -119,6 +119,8 @@ class MessageKeyBundlesTest {
             "a PluginException's own key, read at its new PluginException( or helper site",
             "QueryExecutionServiceImpl.java#QueryExecutionResult.error(pluginException)))",
             "the PluginException overload; the exception's key is read at its new PluginException( or helper site",
+            "LibraryQueryApiServiceImpl.java#QueryExecutionResult.error(pluginException));",
+            "the PluginException overload (NEW-29); the exception's key is read at its new PluginException( or helper site",
             "QueryResultView.java#LocaleUtils.getMessage(locale, queryResult.getLocaleMessage()) : queryResult.get",
             "the result's LocaleMessage, whose key is read at its QueryExecutionResult.error( site");
 

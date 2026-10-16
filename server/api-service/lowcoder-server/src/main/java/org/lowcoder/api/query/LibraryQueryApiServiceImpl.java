@@ -27,6 +27,7 @@ import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.PluginCommonError;
+import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
 import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.models.QueryExecutionResult;
@@ -259,6 +260,10 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
     /**
      * Runs the library query of the given name in the visitor's organization. A visitor without an organization, a name
      * that only another organization uses, and a record id of another library query are all LIBRARY_QUERY_NOT_FOUND.
+     * <p>
+     * Only a failure thrown by the call of the execution service is normalized (NEW-29): a {@link PluginException} keeps
+     * its code (an invalid or too large stored timeout), any other becomes QUERY_EXECUTION_ERROR, like a failure its
+     * {@code Mono} emits. The work before the call is not covered.
      */
     @Override
     public Mono<QueryExecutionResult> executeLibraryQueryFromJs(ServerWebExchange exchange, LibraryQueryRequestFromJs request) {
@@ -295,9 +300,15 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
 
                     Map<String, Object> queryConfig = baseQuery.getQueryConfig();
                     String timeoutStr = firstNonBlank(baseQuery.getTimeoutStr(), "5s");
+                    Map<String, Object> params = request.paramMap();
 
-                    return queryExecutionService.executeQuery(datasource, queryConfig, request.paramMap(), timeoutStr,
-                                    queryVisitorContext)
+                    return Mono.defer(() -> {
+                                try {
+                                    return queryExecutionService.executeQuery(datasource, queryConfig, params, timeoutStr, queryVisitorContext);
+                                } catch (PluginException pluginException) {
+                                    return Mono.just(QueryExecutionResult.error(pluginException));
+                                }
+                            })
                             .onErrorResume(throwable -> Mono.just(QueryExecutionResult.error(PluginCommonError.QUERY_EXECUTION_ERROR,
                                     "QUERY_EXECUTION_ERROR", throwable.getMessage())));
                 });
