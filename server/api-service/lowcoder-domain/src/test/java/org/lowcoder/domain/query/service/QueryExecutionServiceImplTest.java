@@ -180,7 +180,7 @@ class QueryExecutionServiceImplTest {
     }
 
     /**
-     * Catches invalid timeouts reaching the executor (QueryExecutionServiceImpl:48): they are thrown synchronously, outside the
+     * Catches invalid timeouts reaching the executor (QueryExecutionServiceImpl:57): they are thrown synchronously, outside the
      * reactive chain; "NaN" among them (BF-079: it was a 0 ms timeout).
      */
     @ParameterizedTest
