@@ -15,8 +15,8 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class EnterpriseLicenseCapabilityServiceTest {
-    final ReactiveMongoTemplate mongo = mock(ReactiveMongoTemplate.class, withSettings().mockMaker("mock-maker-subclass"));
-    final EncryptionService encryption = mock(EncryptionService.class, withSettings().mockMaker("mock-maker-subclass"));
+    final ReactiveMongoTemplate mongo = mock(ReactiveMongoTemplate.class);
+    final EncryptionService encryption = mock(EncryptionService.class);
     final EnterpriseLicenseCapabilityService service = new EnterpriseLicenseCapabilityService(mongo, encryption);
     final String owner = EnterpriseLicenseCapabilityService.ownerKey("host", "org", "admin");
 
