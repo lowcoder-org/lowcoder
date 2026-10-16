@@ -48,7 +48,7 @@ import static org.mockito.Mockito.verify;
  * <p>BF-152 (fixed; was pinned as plan section 9 row "folder move to an unknown gid"): {@code GidService.convertFolderIdToObjectId}
  * answered {@code Optional.empty()} for an unknown gid, which the controller passed on as {@code null}, the root folder: the
  * application was taken out of its folder, the audit event recorded a move to nothing, and the client got a success. The converter
- * now answers {@code FOLDER_NOT_EXIST} for it ({@code GidService.java:96-102}), before the move runs
+ * now answers {@code FOLDER_NOT_EXIST} for it ({@code GidService.java:113-119}), before the move runs
  * ({@code FolderController.java:98-101}).
  *
  * <p>Limits: the repositories and the permission, session and event services are mocks; what the real queries match and what the
