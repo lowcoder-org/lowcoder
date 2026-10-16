@@ -51,7 +51,8 @@ import org.lowcoder.api.contract.support.JsonBoundaryScanner;
  * Limits: the keys behind {@link #RUN_TIME_KEYS} and {@link #UNREAD_CALLS} are not checked here (each reason names where
  * they are); a key passed to a helper of another name, or held in an annotation, an enum or a map literal
  * ({@code SystemGroups}), is not read; a declaration is told from a call by the word before its name only.
- * {@code locale_de} is partial (NEW-35); only that its keys are keys of {@code locale_en} is asserted.
+ * {@code locale_de} is partial (NEW-35); only that its keys are keys of {@code locale_en} is asserted;
+ * {@code LocaleUtils.getMessage} answers a key it lacks with the {@code locale_en} text (T173).
  * <p>
  * Every text of the three bundles is a valid {@code MessageFormat} pattern whose apostrophes are literal quoting (T110:
  * BF-116, {@code CONTENT_PARSE_ERROR} could not be formatted). Limit: the number of arguments a text uses is not compared
