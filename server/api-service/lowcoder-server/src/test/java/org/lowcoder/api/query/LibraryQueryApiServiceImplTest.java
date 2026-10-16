@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -120,6 +121,21 @@ class LibraryQueryApiServiceImplTest {
     /** The shipped maximum written in minutes, and one minute above it. */
     private static final String MINUTES_AT_THE_MAXIMUM = (MAX_QUERY_TIMEOUT_SECONDS / 60) + "m";
     private static final String MINUTES_ABOVE_THE_MAXIMUM = (MAX_QUERY_TIMEOUT_SECONDS / 60 + 1) + "m";
+    /** NEW-29: stored timeouts that {@code QueryTimeoutUtils} refuses, and one it accepts. */
+    private static final String INVALID_TIMEOUT = "abc";
+    private static final String NEGATIVE_TIMEOUT = "-5";
+    private static final String NAN_TIMEOUT = "NaN";
+    private static final String VALID_TIMEOUT = "9s";
+    private static final String VALID_TIMEOUT_MS = "9000";
+    private static final String TIMEOUT_MS_KEY = "timeoutMs";
+    private static final String INVALID_TIMEOUT_SETTING_KEY = "INVALID_TIMEOUT_SETTING";
+    private static final String EXCEED_MAX_QUERY_TIMEOUT_KEY = "EXCEED_MAX_QUERY_TIMEOUT";
+    private static final String QUERY_EXECUTION_ERROR_KEY = "QUERY_EXECUTION_ERROR";
+    private static final String SYNC_FAILURE_MESSAGE = "boom";
+    private static final String JS_QUERY_NAME = "name-1";
+    /** How the mocked execution fails: its call throws, or its {@code Mono} emits the failure. */
+    private static final String THROWN = "thrown";
+    private static final String EMITTED = "emitted";
 
     private static final String ORG = "org-1";
     private static final String OTHER_ORG = "org-other";
@@ -1107,6 +1123,137 @@ class LibraryQueryApiServiceImplTest {
                 })
                 .verifyComplete();
         say("fromJs: executor failure -> error result");
+    }
+
+    /**
+     * Stubs the library query found by {@link #JS_QUERY_NAME} and its editing version, which a request without a record
+     * id runs (node-service sends none), with this timeout and query config in its DSL.
+     */
+    private void storedJsQuery(String timeout, Map<String, Object> config) {
+        LibraryQuery stored = LibraryQuery.builder().organizationId(ORG).name(JS_QUERY_NAME)
+                .libraryQueryDSL(dsl(DS_ID, config, timeout)).build();
+        stored.setId(LQ_ID);
+        lenient().when(libraryQueryService.getByOrganizationIdAndName(ORG, JS_QUERY_NAME)).thenReturn(Mono.just(stored));
+        lenient().when(libraryQueryService.getById(LQ_ID)).thenReturn(Mono.just(stored));
+    }
+
+    /**
+     * NEW-29: the execution service throws a stored invalid timeout when called, before its {@code Mono} exists; with
+     * the real execution service that is now an error result with QUERY_ARGUMENT_ERROR, the key and the timeout text,
+     * not an error signal, and nothing runs.
+     */
+    @ParameterizedTest(name = "stored timeout [{0}]")
+    @ValueSource(strings = {INVALID_TIMEOUT, NEGATIVE_TIMEOUT, NAN_TIMEOUT})
+    void executeFromJs_invalidStoredTimeout_isAnArgumentErrorResultNEW29(String timeout) {
+        RealExecution execution = new RealExecution();
+        storedJsQuery(timeout, new HashMap<>(Map.of("sql", "x")));
+
+        StepVerifier.create(serviceOver(execution).executeLibraryQueryFromJs(exchange, jsRequest(null)))
+                .assertNext(answer -> {
+                    say("fromJs, stored timeout [%s] -> %s %s %s", timeout, answer.getQueryCode(), answer.getMessageKey(),
+                            List.of(answer.getMessageArgs()));
+                    assertThat(answer.getQueryCode()).isEqualTo(PluginCommonError.QUERY_ARGUMENT_ERROR.name());
+                    assertThat(answer.getMessageKey()).isEqualTo(INVALID_TIMEOUT_SETTING_KEY);
+                    assertThat(answer.getMessageArgs()).containsExactly(timeout);
+                })
+                .verifyComplete();
+        execution.assertNothingRan();
+    }
+
+    /** NEW-29: a stored timeout above the shipped maximum is an EXCEED_MAX_QUERY_TIMEOUT result naming the maximum. */
+    @Test
+    void executeFromJs_timeoutAboveTheMaximum_isAnExceedErrorResultNEW29() {
+        RealExecution execution = new RealExecution();
+        storedJsQuery(ABOVE_THE_MAXIMUM, new HashMap<>(Map.of("sql", "x")));
+
+        StepVerifier.create(serviceOver(execution).executeLibraryQueryFromJs(exchange, jsRequest(null)))
+                .assertNext(answer -> {
+                    say("fromJs, stored timeout [%s] with a %d s maximum -> %s %s %s", ABOVE_THE_MAXIMUM, MAX_QUERY_TIMEOUT_SECONDS,
+                            answer.getQueryCode(), answer.getMessageKey(), List.of(answer.getMessageArgs()));
+                    assertThat(answer.getQueryCode()).isEqualTo(PluginCommonError.EXCEED_MAX_QUERY_TIMEOUT.name());
+                    assertThat(answer.getMessageKey()).isEqualTo(EXCEED_MAX_QUERY_TIMEOUT_KEY);
+                    assertThat(answer.getMessageArgs()).containsExactly(MAX_QUERY_TIMEOUT_SECONDS);
+                })
+                .verifyComplete();
+        execution.assertNothingRan();
+    }
+
+    /**
+     * Control for NEW-29: a valid stored timeout runs through the real execution service; the query config the executor
+     * receives (a new one, built from the DSL) carries the timeout in milliseconds.
+     */
+    @Test
+    void executeFromJs_validTimeout_runsThroughTheRealExecutionService() {
+        RealExecution execution = new RealExecution();
+        execution.runs(datasource.getType());
+        storedJsQuery(VALID_TIMEOUT, new HashMap<>(Map.of("sql", "x")));
+
+        StepVerifier.create(serviceOver(execution).executeLibraryQueryFromJs(exchange, jsRequest(null))).expectNext(result).verifyComplete();
+
+        ArgumentCaptor<Map<String, Object>> config = mapCaptor();
+        verify(execution.executor).buildQueryExecutionContextMono(any(), config.capture(), any(), any());
+        say("fromJs, stored timeout [%s] -> ran with the config %s", VALID_TIMEOUT, config.getValue());
+        assertThat(config.getValue()).containsEntry(TIMEOUT_MS_KEY, VALID_TIMEOUT_MS);
+    }
+
+    static Stream<Arguments> failuresOfTheExecution() {
+        PluginException invalidTimeout = new PluginException(PluginCommonError.QUERY_ARGUMENT_ERROR, INVALID_TIMEOUT_SETTING_KEY, INVALID_TIMEOUT);
+        return Stream.of(
+                Arguments.of(THROWN, new IllegalStateException(SYNC_FAILURE_MESSAGE), PluginCommonError.QUERY_EXECUTION_ERROR,
+                        QUERY_EXECUTION_ERROR_KEY, SYNC_FAILURE_MESSAGE),
+                Arguments.of(THROWN, invalidTimeout, PluginCommonError.QUERY_ARGUMENT_ERROR, INVALID_TIMEOUT_SETTING_KEY, INVALID_TIMEOUT),
+                Arguments.of(EMITTED, invalidTimeout, PluginCommonError.QUERY_EXECUTION_ERROR, QUERY_EXECUTION_ERROR_KEY,
+                        invalidTimeout.getMessage()));
+    }
+
+    /**
+     * NEW-29: a failure the call of the execution service throws is an error result too, a {@code PluginException} with
+     * its own code and any other with QUERY_EXECUTION_ERROR; a failure its {@code Mono} emits stays QUERY_EXECUTION_ERROR,
+     * a {@code PluginException} included.
+     */
+    @ParameterizedTest(name = "{0} {1}")
+    @MethodSource("failuresOfTheExecution")
+    void executeFromJs_aFailureOfTheMockedExecution_isAnErrorResultNEW29(String how, RuntimeException failure, PluginCommonError code,
+            String key, Object argument) {
+        stubJsQuery(null);
+        if (how.equals(THROWN)) {
+            when(queryExecutionService.executeQuery(any(), anyMap(), anyMap(), any(), any())).thenThrow(failure);
+        } else {
+            when(queryExecutionService.executeQuery(any(), anyMap(), anyMap(), any(), any())).thenReturn(Mono.error(failure));
+        }
+
+        StepVerifier.create(service.executeLibraryQueryFromJs(exchange, jsRequest("latest")))
+                .assertNext(answer -> {
+                    say("fromJs: %s %s -> %s %s %s", how, failure, answer.getQueryCode(), answer.getMessageKey(),
+                            List.of(answer.getMessageArgs()));
+                    assertThat(answer.getQueryCode()).isEqualTo(code.name());
+                    assertThat(answer.getMessageKey()).isEqualTo(key);
+                    assertThat(answer.getMessageArgs()).containsExactly(argument);
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * Guards the boundary of the NEW-29 fix: the arguments are built before the guarded call, so a {@code params} list
+     * with a null entry, on which {@code paramMap} fails, stays an error signal (from {@code LibraryQueryRequestFromJs})
+     * and does not become a result; the lookup was made and the execution was not called. Neither the exception's type
+     * nor its message is asserted.
+     */
+    @Test
+    void executeFromJs_aNullParamEntry_isNotTurnedIntoAResult() {
+        storedJsQuery(VALID_TIMEOUT, new HashMap<>(Map.of("sql", "x")));
+        LibraryQueryRequestFromJs request = jsRequest(null);
+        request.setParams(Collections.singletonList(null));
+
+        StepVerifier.create(service.executeLibraryQueryFromJs(exchange, request))
+                .expectErrorSatisfies(error -> {
+                    say("fromJs, params [null] -> %s", error);
+                    assertThat(error.getStackTrace()).anySatisfy(frame ->
+                            assertThat(frame.getClassName()).startsWith(LibraryQueryRequestFromJs.class.getName()));
+                })
+                .verify();
+        verify(libraryQueryService).getByOrganizationIdAndName(ORG, JS_QUERY_NAME);
+        verify(queryExecutionService, never()).executeQuery(any(), any(), any(), any(), any());
     }
 
     /**
