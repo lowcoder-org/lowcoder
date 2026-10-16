@@ -1,7 +1,6 @@
 package org.lowcoder.api.authentication.request.oauth2.request;
 
 import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.authentication.request.AuthException;
 import org.lowcoder.api.authentication.request.oauth2.GenericOAuthProviderSource;
 import org.lowcoder.api.authentication.request.oauth2.OAuth2RequestContext;
@@ -85,8 +84,8 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
      * a misspelled key, or since BF-074 a malformed index) made the login look the user up with a null uid, which can find
      * the account an earlier login without a uid created.
      * <p>
-     * Limits: only a null or blank uid is refused; the other providers set the uid from a fixed claim and are not checked
-     * here.
+     * Limits: only a null or blank uid is refused; {@link AbstractOauth2Request#auth} and {@code refresh} repeat the check
+     * for every subclass that inherits them.
      */
     @Override
     protected Mono<AuthUser> getAuthUser(AuthToken authToken) {
@@ -102,7 +101,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
 
         if(!Boolean.TRUE.equals(config.getUserInfoIntrospection())) {
             if(jwtMap == null) return Mono.error(new AuthException("No JWT token found"));
-            return requireUid(mapToAuthUser(jwtMap, config.getSourceMappings()));
+            return requireUid(mapToAuthUser(jwtMap, config.getSourceMappings()), NO_UID);
         }
 
         Map<String, Object> finalJwtMap = jwtMap;
@@ -120,14 +119,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
                         return Mono.error(new AuthException(JsonUtils.toJson(map)));
                     }
                     AuthUser merged = mergeAuthUser(mapToAuthUser(finalJwtMap, config.getSourceMappings()), mapToAuthUser(map, config.getSourceMappings()));
-                    return requireUid(merged);
+                    return requireUid(merged, NO_UID);
                 });
-    }
-
-    private static Mono<AuthUser> requireUid(AuthUser authUser) {
-        if (StringUtils.isBlank(authUser.getUid())) {
-            return Mono.error(new AuthException(NO_UID));
-        }
-        return Mono.just(authUser);
     }
 }

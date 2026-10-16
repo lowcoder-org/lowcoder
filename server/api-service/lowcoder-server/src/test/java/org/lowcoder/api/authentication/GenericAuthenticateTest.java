@@ -3,6 +3,7 @@ package org.lowcoder.api.authentication;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.google.common.collect.Iterables;
+import org.bson.Document;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +19,9 @@ import org.lowcoder.domain.user.model.Connection;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.model.UserState;
 import org.lowcoder.domain.user.repository.UserRepository;
+import org.lowcoder.sdk.auth.Oauth2KeycloakAuthConfig;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
 import org.lowcoder.sdk.auth.EmailAuthConfig;
 import org.lowcoder.sdk.auth.Oauth2GenericAuthConfig;
@@ -28,18 +32,25 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.http.ResponseCookie;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Signal;
 import reactor.test.StepVerifier;
 import reactor.util.context.Context;
 
+import java.time.Duration;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -66,6 +77,8 @@ public class GenericAuthenticateTest {
     private EncryptionService encryptionService;
     @Autowired
     private InitData initData;
+    @Autowired
+    private ReactiveMongoTemplate mongoTemplate;
 
     @BeforeEach
     public void beforeEach() {
@@ -183,6 +196,135 @@ public class GenericAuthenticateTest {
                 .verifyComplete();
 
         // Mockito.framework().clearInlineMocks();
+    }
+
+    private static final String NEW27_SOURCE_PREFIX = "KEYCLOAK_NEW27_";
+    private static final String NEW27_AUTH_ID = "keycloak-new27";
+    private static final String NEW27_REALM = "lowcoder";
+    private static final String NEW27_TOKEN_PATH = "/realms/" + NEW27_REALM + "/protocol/openid-connect/token";
+    private static final String NEW27_USER_PATH = "/realms/" + NEW27_REALM + "/protocol/openid-connect/userinfo";
+    private static final String NEW27_TOKEN_ANSWER = "{\"access_token\":\"at.new27\",\"expires_in\":300,\"refresh_token\":\"rt.new27\"}";
+    private static final String NEW27_SEEDED_EMAIL_TEMPLATE = "seeded-%s@example.com";
+    private static final String NEW27_LOGIN_EMAIL_TEMPLATE = "new27-%s@example.com";
+    private static final String NEW27_ORG_ID = "org01";
+    private static final String NEW27_CODE = "new27-code";
+    private static final String NEW27_REDIRECT_URL = "https://test.com";
+    private static final String NEW27_SEEDED_NAME = "Seeded";
+    private static final String NEW27_SOURCE_NAME = "Keycloak NEW-27";
+    private static final String NEW27_CLIENT_ID = "clientid";
+    private static final String NEW27_CLIENT_SECRET = "clientsecret";
+    private static final String NEW27_SCOPE = "openid";
+    private static final String EMAIL_KEY = "email";
+    /** The user endpoint's answer: an email and no {@code sub}. */
+    private static final String NEW27_USER_WITHOUT_SUB_TEMPLATE = "{\"email\":\"%s\"}";
+    /** The uid refusals the login may answer: Generic's ({@code GenericAuthRequest.NO_UID}), or the base class's
+     * ({@code AbstractOauth2Request.NO_USER_ID}) should Generic's no longer run; both are package-private elsewhere. */
+    private static final Set<String> NEW27_UID_REFUSALS = Set.of("The user information has no value for the source mapping uid",
+            "The identity provider's user information has no user id");
+    private static final int NEW27_ONE_REQUEST = 1;
+    private static final int NEW27_REFUSAL_ARGUMENTS = 1;
+    private static final String CONNECTIONS_FIELD = "connections";
+    private static final String RAW_ID_FIELD = "rawId";
+    private static final Duration NEW27_TIMEOUT = Duration.ofSeconds(30);
+
+    /**
+     * NEW-27's collision: an account left by an earlier login without a uid (its connection stored without a raw id) must
+     * not be found by a later login without a uid. The test establishes the premise first — the stored connection has no
+     * {@code rawId} key, and the login's null lookup finds that account — then logs in through the controller with a
+     * Keycloak user that has no {@code sub}: the account's raw document is unchanged, the null lookup still finds only it,
+     * no account has the login's email, and the login fails with FAIL_TO_GET_OIDC_INFO after one token and one user
+     * request, for a uid refusal. The source is a fresh UUID, so no earlier state can match.
+     * <p>
+     * Limits: the HTTP mapping of the refusal (the global exception handler) and {@code /tp/link}, which runs the same
+     * {@code authenticateByOauth2}, are not run here.
+     */
+    @Test
+    @WithMockUser
+    @SuppressWarnings("unchecked")
+    public void keycloakLoginWithoutASub_isRefusedAndLeavesAnAccountWithoutARawIdAloneNEW27(WireMockRuntimeInfo wmRuntimeInfo) {
+        String run = UUID.randomUUID().toString();
+        String source = NEW27_SOURCE_PREFIX + run;
+        String seededEmail = String.format(NEW27_SEEDED_EMAIL_TEMPLATE, run);
+        String loginEmail = String.format(NEW27_LOGIN_EMAIL_TEMPLATE, run);
+        String seededId = null;
+        Throwable primary = null;
+        try {
+            assertNull(userRepository.findByConnections_SourceAndConnections_RawId(source, null).block(NEW27_TIMEOUT), "source unknown before the test");
+            Connection withoutRawId = Connection.builder().authId(NEW27_AUTH_ID).source(source).name(NEW27_SEEDED_NAME).email(seededEmail)
+                    .orgIds(new HashSet<>(Set.of(NEW27_ORG_ID))).rawUserInfo(Map.of(EMAIL_KEY, seededEmail)).build();
+            User seeded = userRepository.save(User.builder().name(NEW27_SEEDED_NAME).email(seededEmail).state(UserState.ACTIVATED).isEnabled(true)
+                    .connections(new HashSet<>(Set.of(withoutRawId))).build()).block(NEW27_TIMEOUT);
+            seededId = seeded.getId();
+            String collection = mongoTemplate.getCollectionName(User.class);
+            Document baseline = mongoTemplate.findById(seededId, Document.class, collection).block(NEW27_TIMEOUT);
+            Document storedConnection = ((List<Document>) baseline.get(CONNECTIONS_FIELD)).get(0);
+            System.out.println("[GenericAuthenticateTest] NEW-27 source " + source + ", seeded " + seededId + ", stored connection " + storedConnection.toJson());
+            assertFalse(storedConnection.containsKey(RAW_ID_FIELD), "the connection is stored without a rawId key");
+            User foundByNull = userRepository.findByConnections_SourceAndConnections_RawId(source, null).block(NEW27_TIMEOUT);
+            System.out.println("[GenericAuthenticateTest] NEW-27 null lookup before the login -> " + (foundByNull == null ? null : foundByNull.getId()));
+            assertNotNull(foundByNull, "the null lookup matches a connection without a rawId key");
+            assertEquals(seededId, foundByNull.getId());
+            assertTrue(userRepository.findByEmailOrConnections_Email(loginEmail, loginEmail).collectList().block(NEW27_TIMEOUT).isEmpty(), "login email unknown");
+
+            var keycloak = Oauth2KeycloakAuthConfig.builder().id(NEW27_AUTH_ID).authType(AuthTypeConstants.KEYCLOAK).source(source)
+                    .sourceName(NEW27_SOURCE_NAME).enable(true).enableRegister(true).clientId(NEW27_CLIENT_ID).clientSecret(NEW27_CLIENT_SECRET)
+                    .baseUrl(wmRuntimeInfo.getHttpBaseUrl()).realm(NEW27_REALM).scope(NEW27_SCOPE).build();
+            var found = new FindAuthConfig(keycloak, Organization.builder().id(NEW27_ORG_ID).build());
+            Mockito.when(authenticationService.findAuthConfigByAuthId(Mockito.any(), Mockito.any())).thenReturn(Mono.just(found));
+            stubFor(post(urlPathEqualTo(NEW27_TOKEN_PATH)).willReturn(okJson(NEW27_TOKEN_ANSWER)));
+            stubFor(any(urlPathEqualTo(NEW27_USER_PATH)).willReturn(okJson(String.format(NEW27_USER_WITHOUT_SUB_TEMPLATE, loginEmail))));
+
+            MockServerWebExchange exchange = MockServerWebExchange.builder(MockServerHttpRequest.post("").build()).build();
+            Signal<?> outcome = authenticationController.loginWithThirdParty(NEW27_AUTH_ID, source, NEW27_CODE, null, NEW27_REDIRECT_URL, NEW27_ORG_ID, exchange)
+                    .materialize().block(NEW27_TIMEOUT);
+            System.out.println("[GenericAuthenticateTest] NEW-27 login outcome " + outcome);
+            int tokenRequests = findAll(postRequestedFor(urlPathEqualTo(NEW27_TOKEN_PATH))).size();
+            int userRequests = findAll(anyRequestedFor(urlPathEqualTo(NEW27_USER_PATH))).size();
+            System.out.println("[GenericAuthenticateTest] NEW-27 token requests " + tokenRequests + ", user requests " + userRequests);
+
+            Document after = mongoTemplate.findById(seededId, Document.class, collection).block(NEW27_TIMEOUT);
+            System.out.println("[GenericAuthenticateTest] NEW-27 seeded after the login " + (after == null ? null : after.toJson()));
+            assertEquals(baseline, after, "the seeded account without a rawId is unchanged by the login without a uid");
+            User foundByNullAfter = userRepository.findByConnections_SourceAndConnections_RawId(source, null).block(NEW27_TIMEOUT);
+            System.out.println("[GenericAuthenticateTest] NEW-27 null lookup after the login -> " + (foundByNullAfter == null ? null : foundByNullAfter.getId()));
+            assertEquals(seededId, foundByNullAfter == null ? null : foundByNullAfter.getId(), "the null lookup still finds only the seeded account");
+            assertTrue(userRepository.findByEmailOrConnections_Email(loginEmail, loginEmail).collectList().block(NEW27_TIMEOUT).isEmpty(),
+                    "no account has the login's email");
+            assertNotNull(outcome);
+            assertTrue(outcome.isOnError(), "the login fails");
+            BizException error = assertInstanceOf(BizException.class, outcome.getThrowable());
+            assertEquals(BizError.FAIL_TO_GET_OIDC_INFO, error.getError());
+            System.out.println("[GenericAuthenticateTest] NEW-27 refusal " + error.getMessage());
+            assertEquals(NEW27_ONE_REQUEST, tokenRequests, "the login reached the token endpoint");
+            assertEquals(NEW27_ONE_REQUEST, userRequests, "the login reached the user endpoint, so the refusal is about its answer");
+            assertEquals(NEW27_REFUSAL_ARGUMENTS, error.getArgs().length);
+            assertTrue(NEW27_UID_REFUSALS.contains(error.getArgs()[0]), "the refusal is a uid refusal: " + error.getArgs()[0]);
+        } catch (Throwable failure) {
+            primary = failure;
+        }
+        try {
+            if (seededId != null) {
+                userRepository.deleteById(seededId).block(NEW27_TIMEOUT);
+            }
+            Long removed = userRepository.findByEmailOrConnections_Email(loginEmail, loginEmail).flatMap(user -> userRepository.delete(user).thenReturn(user))
+                    .count().block(NEW27_TIMEOUT);
+            System.out.println("[GenericAuthenticateTest] NEW-27 cleanup: seeded " + seededId + " deleted, " + removed + " account(s) with the login email deleted");
+        } catch (Throwable cleanupFailure) {
+            if (primary == null) {
+                primary = cleanupFailure;
+            } else {
+                primary.addSuppressed(cleanupFailure);
+            }
+        }
+        if (primary instanceof RuntimeException runtime) {
+            throw runtime;
+        }
+        if (primary instanceof Error error) {
+            throw error;
+        }
+        if (primary != null) {
+            throw new AssertionError(primary);
+        }
     }
 
     private String getEmailAuthConfigId() {
