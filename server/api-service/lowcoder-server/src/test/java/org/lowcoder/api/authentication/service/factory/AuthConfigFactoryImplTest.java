@@ -1,14 +1,21 @@
 package org.lowcoder.api.authentication.service.factory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
@@ -33,6 +40,17 @@ class AuthConfigFactoryImplTest {
     private static final String CLIENT_SECRET = "secret-1";
     private static final String CONFIG_ID = "cfg-1";
     private static final String UNSUPPORTED_AUTH_TYPE = "SAML";
+    private static final String CLIENT_ID_KEY = "clientId";
+    /** The name a request without a client id is refused with (NEW-34). */
+    private static final String CLIENT_ID_PARAMETER = "clientId";
+    /** Client ids that are not null, each kept as {@code String.valueOf} of it (NEW-34's limits). */
+    private static final String EMPTY_CLIENT_ID = "";
+    private static final String SPACE_CLIENT_ID = " ";
+    private static final String TAB_CLIENT_ID = "\t";
+    private static final Integer NUMERIC_CLIENT_ID = 42;
+    private static final Boolean BOOLEAN_CLIENT_ID = Boolean.TRUE;
+    private static final List<String> LIST_CLIENT_ID = List.of("a");
+    private static final Map<String, String> OBJECT_CLIENT_ID = Map.of("k", "v");
 
     private final AuthConfigFactoryImpl factory = new AuthConfigFactoryImpl();
 
@@ -114,16 +132,54 @@ class AuthConfigFactoryImplTest {
         System.out.println("[AuthConfigFactoryImplTest] KEYCLOAK base=" + keycloak.getBaseUrl() + " realm=" + keycloak.getRealm());
     }
 
-    /** Catches a login config being saved without a client id: every OAuth type rejects it. */
+    /**
+     * NEW-34 (fixed; was pinned here as a NullPointerException "clientId can not be null."): every OAuth type refuses a
+     * request without a client id as INVALID_PARAMETER naming {@code clientId}. Catches: the raw exception back, or a
+     * refusal that does not name the field.
+     */
     @ParameterizedTest
-    @ValueSource(strings = {"GITHUB", "GOOGLE", "ORY", "KEYCLOAK", "GENERIC"})
-    void build_everyOauthType_requiresAClientId(String authType) {
+    @ValueSource(strings = {AuthTypeConstants.GITHUB, AuthTypeConstants.GOOGLE, AuthTypeConstants.ORY, AuthTypeConstants.KEYCLOAK,
+            AuthTypeConstants.GENERIC})
+    void build_everyOauthTypeWithoutAClientId_isInvalidParameterNEW34(String authType) {
         AuthConfigRequest request = request(authType, "baseUrl", "https://x.example", "realm", "r", "scope", "s");
 
         assertThatThrownBy(() -> factory.build(request, true))
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("clientId can not be null.");
-        System.out.println("[AuthConfigFactoryImplTest] " + authType + " without clientId -> NullPointerException");
+                .isInstanceOfSatisfying(BizException.class, e -> {
+                    System.out.println("[AuthConfigFactoryImplTest] " + authType + " without clientId -> " + e.getError() + " "
+                            + e.getMessageKey() + " " + List.of(e.getArgs()) + ": " + e.getMessage());
+                    assertThat(e.getError()).isEqualTo(BizError.INVALID_PARAMETER);
+                    assertThat(e.getMessageKey()).isEqualTo(BizError.INVALID_PARAMETER.name());
+                    assertThat(e.getArgs()).containsExactly(CLIENT_ID_PARAMETER);
+                });
+    }
+
+    static Stream<Arguments> oauthTypesAndKeptClientIds() {
+        List<Object> clientIds = List.of(EMPTY_CLIENT_ID, SPACE_CLIENT_ID, TAB_CLIENT_ID, NUMERIC_CLIENT_ID, BOOLEAN_CLIENT_ID,
+                LIST_CLIENT_ID, OBJECT_CLIENT_ID);
+        return Stream.of(AuthTypeConstants.GITHUB, AuthTypeConstants.GOOGLE, AuthTypeConstants.ORY, AuthTypeConstants.KEYCLOAK,
+                        AuthTypeConstants.GENERIC)
+                .flatMap(authType -> clientIds.stream().map(clientId -> Arguments.of(authType, clientId)));
+    }
+
+    /**
+     * NEW-34's limits: only a null client id is refused; an empty or blank string, and a value that is not a string, is kept,
+     * the latter as its string form. Catches: a refusal widened beyond null.
+     */
+    @ParameterizedTest(name = "{0} clientId=[{1}]")
+    @MethodSource("oauthTypesAndKeptClientIds")
+    void build_everyOauthTypeKeepsANonNullClientIdAsItsStringNEW34(String authType, Object clientId) {
+        AuthConfigRequest request = request(authType);
+        request.put(CLIENT_ID_KEY, clientId);
+
+        AtomicReference<AbstractAuthConfig> built = new AtomicReference<>();
+
+        assertThatCode(() -> built.set(factory.build(request, true))).as("a client id that is not null is not refused")
+                .doesNotThrowAnyException();
+        assertThat(built.get()).isInstanceOf(Oauth2SimpleAuthConfig.class);
+        String kept = ((Oauth2SimpleAuthConfig) built.get()).getClientId();
+        System.out.println("[AuthConfigFactoryImplTest] " + authType + " clientId " + clientId.getClass().getSimpleName() + " ["
+                + clientId + "] -> [" + kept + "]");
+        assertThat(kept).isEqualTo(String.valueOf(clientId));
     }
 
     /** Catches the generic defaults changing: introspection off, account selection on, GET for the user endpoint. */

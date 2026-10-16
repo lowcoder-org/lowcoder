@@ -1,6 +1,5 @@
 package org.lowcoder.api.authentication.service.factory;
 
-import static java.util.Objects.requireNonNull;
 import static org.lowcoder.sdk.constants.AuthSourceConstants.GITHUB;
 import static org.lowcoder.sdk.constants.AuthSourceConstants.GITHUB_NAME;
 import static org.lowcoder.sdk.constants.AuthSourceConstants.GOOGLE;
@@ -59,7 +58,7 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
                 .enableRegister(authConfigRequest.isEnableRegister())
                 .source(source)
                 .sourceName(sourceName)
-                .clientId(requireNonNull(authConfigRequest.getClientId(), "clientId can not be null."))
+                .clientId(AuthConfigFactory.requireClientId(authConfigRequest))
                 .clientSecret(authConfigRequest.getClientSecret())
                 .authType(authConfigRequest.getAuthType())
                 .build();
@@ -72,7 +71,7 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
                 .enableRegister(authConfigRequest.isEnableRegister())
                 .source(AuthTypeConstants.ORY)
                 .sourceName(org.lowcoder.sdk.constants.AuthSourceConstants.ORY_NAME)
-                .clientId(requireNonNull(authConfigRequest.getClientId(), "clientId can not be null."))
+                .clientId(AuthConfigFactory.requireClientId(authConfigRequest))
                 .clientSecret(authConfigRequest.getClientSecret())
                 .baseUrl(authConfigRequest.getString("baseUrl"))
                 .scope(authConfigRequest.getString("scope"))
@@ -87,7 +86,7 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
                 .enableRegister(authConfigRequest.isEnableRegister())
                 .source(AuthTypeConstants.KEYCLOAK)
                 .sourceName(org.lowcoder.sdk.constants.AuthSourceConstants.KEYCLOAK_NAME)
-                .clientId(requireNonNull(authConfigRequest.getClientId(), "clientId can not be null."))
+                .clientId(AuthConfigFactory.requireClientId(authConfigRequest))
                 .clientSecret(authConfigRequest.getClientSecret())
                 .baseUrl(authConfigRequest.getString("baseUrl"))
                 .realm(authConfigRequest.getString("realm"))
@@ -113,7 +112,7 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
                 .sourceIcon(authConfigRequest.getSourceIcon())
                 .sourceCategory(authConfigRequest.getSourceCategory())
                 .sourceMappings(authConfigRequest.getSourceMappings())
-                .clientId(requireNonNull(authConfigRequest.getClientId(), "clientId can not be null."))
+                .clientId(AuthConfigFactory.requireClientId(authConfigRequest))
                 .clientSecret(authConfigRequest.getClientSecret())
                 .issuerUri(authConfigRequest.getIssuerUri())
                 .authorizationEndpoint(authConfigRequest.getAuthorizationEndpoint())
