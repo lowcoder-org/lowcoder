@@ -28,6 +28,13 @@ public class BizExceptionAndExceptionUtilsTest {
     private static final String KEY_WITHOUT_ARG = "FILE_NOT_EXIST";
     private static final String ENGLISH_WITH_ARG = "Failed to connect data source: boom.";
     private static final String ENGLISH_WITHOUT_ARG = "Invalid parameter: the file does not exist.";
+    /** A key of the German bundle, and its German text. */
+    private static final String GERMAN_KEY = "INVALID_GROUP_ID";
+    private static final String GERMAN_TEXT = "Ungültige Gruppen-ID, bitte überprüfen und erneut versuchen.";
+    /** A key the German bundle lacks (NEW-35), its argument, and the English text. */
+    private static final String KEY_THE_GERMAN_BUNDLE_LACKS = "QUERY_EXECUTION_ERROR";
+    private static final String QUERY_EXECUTION_ERROR_ARGUMENT = "boom";
+    private static final String ENGLISH_OF_THE_KEY_THE_GERMAN_BUNDLE_LACKS = "Query execution error: boom.";
 
     @Test
     public void statusAndCodeComeFromTheErrorAndTheMessageIsLocalised() {
@@ -59,12 +66,24 @@ public class BizExceptionAndExceptionUtilsTest {
 
     @Test
     public void aMessageInAnotherLocaleUsesThatBundleAndAnUnknownKeyFallsBackToTheServiceBusyText() {
-        BizException german = new BizException(BizError.INVALID_PARAMETER, KEY_WITHOUT_ARG);
+        BizException german = new BizException(BizError.INVALID_PARAMETER, GERMAN_KEY);
         BizException unknown = new BizException(BizError.INVALID_PARAMETER, "NO_SUCH_KEY_FOR_THE_TEST");
 
         System.out.println("[BizExceptionAndExceptionUtilsTest] de: " + german.getMessage(Locale.GERMAN) + " / unknown: " + unknown.getMessage());
-        assertTrue(!german.getMessage(Locale.GERMAN).equals(ENGLISH_WITHOUT_ARG), "the German bundle has its own text");
+        assertEquals(GERMAN_TEXT, german.getMessage(Locale.GERMAN), "the German bundle has its own text");
         assertEquals("Oops! Service is busy, please try again later.", unknown.getMessage());
+    }
+
+    /** NEW-35: a business or plugin error whose key the German bundle lacks has the English message in German. */
+    @Test
+    public void aKeyTheGermanBundleLacksGivesTheEnglishMessageInGermanNEW35() {
+        BizException biz = new BizException(BizError.QUERY_EXECUTION_ERROR, KEY_THE_GERMAN_BUNDLE_LACKS, QUERY_EXECUTION_ERROR_ARGUMENT);
+        PluginException plugin = new PluginException(PluginCommonError.QUERY_EXECUTION_ERROR, KEY_THE_GERMAN_BUNDLE_LACKS, QUERY_EXECUTION_ERROR_ARGUMENT);
+
+        System.out.println("[BizExceptionAndExceptionUtilsTest] de " + KEY_THE_GERMAN_BUNDLE_LACKS + ": biz " + biz.getMessage(Locale.GERMAN)
+                + " / plugin " + plugin.getLocaleMessage(Locale.GERMAN));
+        assertEquals(ENGLISH_OF_THE_KEY_THE_GERMAN_BUNDLE_LACKS, biz.getMessage(Locale.GERMAN));
+        assertEquals(ENGLISH_OF_THE_KEY_THE_GERMAN_BUNDLE_LACKS, plugin.getLocaleMessage(Locale.GERMAN));
     }
 
     @Test

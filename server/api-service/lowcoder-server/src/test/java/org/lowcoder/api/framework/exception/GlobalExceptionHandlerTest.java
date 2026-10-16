@@ -51,6 +51,15 @@ import reactor.util.context.Context;
  */
 class GlobalExceptionHandlerTest {
 
+    /** A key the German bundle lacks (NEW-35), its argument, and the English text a German request now gets. */
+    private static final String KEY_THE_GERMAN_BUNDLE_LACKS = "QUERY_EXECUTION_ERROR";
+    private static final String QUERY_EXECUTION_ERROR_ARGUMENT = "boom";
+    private static final String QUERY_EXECUTION_ERROR_ENGLISH = "Query execution error: boom.";
+    /** The English text of PLUGIN_EXECUTION_TIMEOUT_WITHOUT_TIME, a key the German bundle lacks. */
+    private static final String QUERY_EXECUTE_PATH = "/api/query/execute";
+    private static final String TIMEOUT_DETAIL = "slow";
+    private static final String TIMEOUT_ENGLISH = "Sorry, query execution timed out, please try again or check related settings.";
+
     private ApiPerfHelper apiPerfHelper;
     private GlobalExceptionHandler handler;
 
@@ -97,6 +106,30 @@ class GlobalExceptionHandlerTest {
         verify(apiPerfHelper).perf(BizError.REQUEST_THROTTLED, exchange.getRequest().getPath());
     }
 
+    /** NEW-35: a German request whose error key the German bundle lacks gets the English text, not the busy text. */
+    @Test
+    void bizException_inGermanWithAKeyTheGermanBundleLacks_answersTheEnglishTextNEW35() {
+        MockServerWebExchange exchange = exchange(QUERY_EXECUTE_PATH);
+        BizException error = new BizException(BizError.QUERY_EXECUTION_ERROR, KEY_THE_GERMAN_BUNDLE_LACKS, QUERY_EXECUTION_ERROR_ARGUMENT);
+
+        ResponseView<?> view = body(handler.catchBizException(error, exchange), Locale.GERMAN);
+
+        assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        assertThat(view.getCode()).isEqualTo(BizError.QUERY_EXECUTION_ERROR.getBizErrorCode());
+        assertThat(view.getMessage()).isEqualTo(QUERY_EXECUTION_ERROR_ENGLISH);
+    }
+
+    /** NEW-35: the handler's own key of a timeout, which the German bundle lacks, is answered in English in German. */
+    @Test
+    void timeoutException_inGerman_answersTheEnglishTimeoutTextNEW35() {
+        MockServerWebExchange exchange = exchange(QUERY_EXECUTE_PATH);
+
+        ResponseView<?> view = body(handler.catchTimeoutException(new TimeoutException(TIMEOUT_DETAIL), exchange), Locale.GERMAN);
+
+        assertThat(view.getCode()).isEqualTo(BizError.PLUGIN_EXECUTION_TIMEOUT_WITHOUT_TIME.getBizErrorCode());
+        assertThat(view.getMessage()).isEqualTo(TIMEOUT_ENGLISH);
+    }
+
     @Test
     void bizException_withoutHeaders_addsNone() {
         MockServerWebExchange exchange = exchange("/api/orders");
@@ -111,7 +144,7 @@ class GlobalExceptionHandlerTest {
     void timeoutException_answersThePluginTimeout() {
         MockServerWebExchange exchange = exchange("/api/query");
 
-        ResponseView<?> view = body(handler.catchTimeoutException(new TimeoutException("slow"), exchange), Locale.ENGLISH);
+        ResponseView<?> view = body(handler.catchTimeoutException(new TimeoutException(TIMEOUT_DETAIL), exchange), Locale.ENGLISH);
 
         assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.GATEWAY_TIMEOUT);
         assertThat(view.getCode()).isEqualTo(BizError.PLUGIN_EXECUTION_TIMEOUT_WITHOUT_TIME.getBizErrorCode());
