@@ -25,6 +25,10 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 class GroupServiceImplMongoTest extends OrganizationMongoTestBase {
 
+    /** The English names of the two system groups, which a German request now stores (NEW-35: locale_de lacks their keys). */
+    private static final String ALL_USERS_ENGLISH = "All Users";
+    private static final String DEVELOPERS_ENGLISH = "Developers";
+
     /** The name field as stored: for a system group getName(locale) re-localises, so the document is read raw. */
     private String storedName(Group group) {
         org.bson.Document stored = mongo.findById(group.getId(), org.bson.Document.class, mongo.getCollectionName(Group.class)).block(TIMEOUT);
@@ -101,7 +105,10 @@ class GroupServiceImplMongoTest extends OrganizationMongoTestBase {
         assertThat(groupService.getDevGroup(bareOrg).blockOptional(TIMEOUT)).isEmpty();
     }
 
-    /** Catches: the system group name ignoring the locale of the request context (the stored name is what clients see). */
+    /**
+     * Catches: the system group name ignoring the locale of the request context. The stored name is what a reader of the
+     * stored field sees; {@code Group.getName(Locale)} recomputes a system group's name for the reading request.
+     */
     @Test
     void systemGroupNameFollowsTheLocaleOfTheReactorContext() {
         Group chinese = groupService.createAllUserGroup(newId())
@@ -111,6 +118,20 @@ class GroupServiceImplMongoTest extends OrganizationMongoTestBase {
         System.out.println("[GroupServiceImplMongoTest] stored names: " + storedName(chinese) + " / " + storedName(english));
         assertThat(storedName(chinese)).isEqualTo("所有用户");
         assertThat(storedName(english)).isEqualTo("Developers");
+    }
+
+    /** NEW-35: a German request stores the English system group names, not the German busy text. */
+    @Test
+    void systemGroupNamesOfAGermanRequestAreTheEnglishNamesNEW35() {
+        Group allUsers = groupService.createAllUserGroup(newId())
+                .contextWrite(context -> context.put(GlobalContext.CLIENT_LOCALE, Locale.GERMAN)).block(TIMEOUT);
+        Group dev = groupService.createDevGroup(newId())
+                .contextWrite(context -> context.put(GlobalContext.CLIENT_LOCALE, Locale.GERMAN)).block(TIMEOUT);
+
+        System.out.println("[GroupServiceImplMongoTest] German stored names: " + storedName(allUsers) + " / " + storedName(dev));
+        assertThat(storedName(allUsers)).isEqualTo(ALL_USERS_ENGLISH);
+        assertThat(storedName(dev)).isEqualTo(DEVELOPERS_ENGLISH);
+        assertThat(allUsers.getName(Locale.GERMAN)).isEqualTo(ALL_USERS_ENGLISH);
     }
 
     /** Catches: a partial update overwriting the unset fields with null. */

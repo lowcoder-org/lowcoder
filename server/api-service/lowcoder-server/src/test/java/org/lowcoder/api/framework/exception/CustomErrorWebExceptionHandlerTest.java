@@ -66,6 +66,10 @@ class CustomErrorWebExceptionHandlerTest {
     private static final String PATH = "/api/orders";
     private static final String MALFORMED_ACCEPT_LANGUAGE = "not !! a language";
     private static final String GERMAN = "de";
+    /** A key the German bundle lacks (NEW-35), its argument, and the English text a German request now gets. */
+    private static final String KEY_THE_GERMAN_BUNDLE_LACKS = "QUERY_EXECUTION_ERROR";
+    private static final String QUERY_EXECUTION_ERROR_ARGUMENT = "boom";
+    private static final String QUERY_EXECUTION_ERROR_ENGLISH = "Query execution error: boom.";
 
     private ApiPerfHelper apiPerfHelper;
     private CustomErrorWebExceptionHandler handler;
@@ -124,6 +128,18 @@ class CustomErrorWebExceptionHandlerTest {
         assertThat(body.get("message").asText()).isEqualTo(LocaleUtils.getMessage(Locale.GERMAN, "REQUEST_THROTTLED"));
         assertThat(exchange.getResponse().getHeaders().getFirst("X-ORG-ID")).isEqualTo("org-1");
         verify(apiPerfHelper).perf(any(BizError.class), any());
+    }
+
+    /** NEW-35: with {@code Accept-Language: de}, an error key the German bundle lacks is answered with the English text. */
+    @Test
+    void bizException_withAcceptLanguageGermanAndAKeyTheGermanBundleLacks_answersTheEnglishTextNEW35() throws Exception {
+        MockServerWebExchange exchange = exchange(GERMAN);
+
+        JsonNode body = handle(exchange, new BizException(BizError.QUERY_EXECUTION_ERROR, KEY_THE_GERMAN_BUNDLE_LACKS, QUERY_EXECUTION_ERROR_ARGUMENT));
+
+        assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        assertThat(body.get("code").asInt()).isEqualTo(BizError.QUERY_EXECUTION_ERROR.getBizErrorCode());
+        assertThat(body.get("message").asText()).isEqualTo(QUERY_EXECUTION_ERROR_ENGLISH);
     }
 
     static Stream<Arguments> infrastructureErrors() {
