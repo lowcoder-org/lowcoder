@@ -27,6 +27,7 @@ import java.util.Optional;
 @Component
 public class GidService {
     private static final String FOLDER_NOT_EXIST_KEY = "FOLDER_NOT_EXIST";
+    private static final String CANT_FIND_APPLICATION_KEY = "CANT_FIND_APPLICATION";
 
     @Autowired
     private ApplicationRepository applicationRepository;
@@ -43,11 +44,27 @@ public class GidService {
     @Autowired
     private BundleRepository bundleRepository;
 
+    /**
+     * Converts the id a client sends for an application: a slug match whose application has an id gives that id, for any id;
+     * otherwise (no slug match, or one without an id) an id with a hyphen ({@code FieldName.isGID}) is looked up as a gid, and
+     * any other id is passed through unchanged and not checked. An id with a hyphen that matches no slug and then no
+     * application gid, or whose application has no id, is the error {@code NO_RESOURCE_FOUND} with the key
+     * {@code CANT_FIND_APPLICATION} and the id as its argument (NEW-30): the same error, not the same lookup, as
+     * {@code ApplicationServiceImpl#findById} gives for an object id that names nothing; the texts of that key have no
+     * placeholder, so the message does not show the id. It used to be empty, so an endpoint that converts with it answered an
+     * empty 200.
+     * <p>
+     * Limits: an id without a hyphen that is no slug is answered as given, and whether such an application exists is left to
+     * the caller, as before; the method does not defend against a null id (its HTTP callers never pass one: their ids are path
+     * variables or required parameters); the datasource, group, library query and bundle converters, and the organization
+     * converter after its slug lookup, still answer a gid that names nothing with an empty {@code Mono}.
+     */
     public Mono<String> convertApplicationIdToObjectId(String id) {
         return applicationRepository.findBySlug(id).next().mapNotNull(HasIdAndAuditing::getId).switchIfEmpty(
                 Mono.defer(() -> {
                     if (FieldName.isGID(id)) {
-                        return applicationRepository.findByGid(id).next().mapNotNull(HasIdAndAuditing::getId);
+                        return applicationRepository.findByGid(id).next().mapNotNull(HasIdAndAuditing::getId)
+                                .switchIfEmpty(Mono.error(() -> new BizException(BizError.NO_RESOURCE_FOUND, CANT_FIND_APPLICATION_KEY, id)));
                     }
                     return Mono.just(id);
                 }));

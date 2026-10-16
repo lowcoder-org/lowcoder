@@ -62,6 +62,10 @@ public class ApiUtilGidServiceTest {
     static final String UNKNOWN_FOLDER_GID = "unknown-gid-3";
     static final String FOLDER_GID_WITHOUT_ID = "no-id-gid";
     static final String FOLDER_NOT_EXIST_KEY = "FOLDER_NOT_EXIST";
+    static final String UNKNOWN_APPLICATION_GID = "unknown-gid-1";
+    static final String APPLICATION_GID_WITHOUT_ID = "no-id-app-gid";
+    static final String SLUG_WITHOUT_ID_GID = "slug-without-id-gid";
+    static final String CANT_FIND_APPLICATION_KEY = "CANT_FIND_APPLICATION";
 
     @Mock
     private ApplicationRepository applicationRepository;
@@ -162,11 +166,32 @@ public class ApiUtilGidServiceTest {
         when(applicationRepository.findBySlug(OBJECT_ID)).thenReturn(Flux.empty());
         StepVerifier.create(service.convertApplicationIdToObjectId(OBJECT_ID)).expectNext(OBJECT_ID).verifyComplete();
         verify(applicationRepository, never()).findByGid(OBJECT_ID);
+    }
 
-        String unknown = "unknown-gid-1";
-        when(applicationRepository.findBySlug(unknown)).thenReturn(Flux.empty());
-        when(applicationRepository.findByGid(unknown)).thenReturn(Flux.empty());
-        StepVerifier.create(service.convertApplicationIdToObjectId(unknown)).verifyComplete();
+    /**
+     * NEW-30 (fixed; the L1-13 pin answered an empty Mono): a gid that no application has, a gid whose application has no id,
+     * and a gid whose slug match has no id while no application has the gid are the error NO_RESOURCE_FOUND with
+     * CANT_FIND_APPLICATION naming the gid; the slug is still tried first.
+     */
+    @Test
+    public void applicationConverterRefusesAGidThatNamesNoApplicationNEW30() {
+        when(applicationRepository.findBySlug(UNKNOWN_APPLICATION_GID)).thenReturn(Flux.empty());
+        when(applicationRepository.findByGid(UNKNOWN_APPLICATION_GID)).thenReturn(Flux.empty());
+        when(applicationRepository.findBySlug(APPLICATION_GID_WITHOUT_ID)).thenReturn(Flux.empty());
+        when(applicationRepository.findByGid(APPLICATION_GID_WITHOUT_ID)).thenReturn(Flux.just(new Application()));
+        when(applicationRepository.findBySlug(SLUG_WITHOUT_ID_GID)).thenReturn(Flux.just(new Application()));
+        when(applicationRepository.findByGid(SLUG_WITHOUT_ID_GID)).thenReturn(Flux.empty());
+        for (String gid : List.of(UNKNOWN_APPLICATION_GID, APPLICATION_GID_WITHOUT_ID, SLUG_WITHOUT_ID_GID)) {
+            StepVerifier.create(service.convertApplicationIdToObjectId(gid)).expectErrorSatisfies(error -> {
+                System.out.println(TAG + "application gid " + gid + " -> " + error);
+                assertTrue(error instanceof BizException, "BizException expected, was " + error);
+                assertEquals(BizError.NO_RESOURCE_FOUND, ((BizException) error).getError());
+                assertEquals(CANT_FIND_APPLICATION_KEY, ((BizException) error).getMessageKey());
+                assertEquals(List.of(gid), List.of(((BizException) error).getArgs()));
+            }).verify();
+            verify(applicationRepository).findBySlug(gid);
+            verify(applicationRepository).findByGid(gid);
+        }
     }
 
     @Test
@@ -189,12 +214,22 @@ public class ApiUtilGidServiceTest {
         StepVerifier.create(service.convertOrganizationIdToObjectId(unknown)).verifyComplete();
     }
 
-    /** A slug match whose entity has no id is treated as no match, so the lookup goes on to the gid (and then to the id itself). */
+    /**
+     * A slug match whose entity has no id is treated as no match, so the lookup goes on to the gid for a gid, and to the id
+     * itself, without a gid lookup, for an object id.
+     */
     @Test
     public void aSlugMatchWithoutAnIdFallsThroughToTheGidLookup() {
         when(applicationRepository.findBySlug(GID)).thenReturn(Flux.just(new Application()));
         when(applicationRepository.findByGid(GID)).thenReturn(Flux.just(application(REAL_ID)));
         StepVerifier.create(service.convertApplicationIdToObjectId(GID)).expectNext(REAL_ID).verifyComplete();
+
+        when(applicationRepository.findBySlug(OBJECT_ID)).thenReturn(Flux.just(new Application()));
+        StepVerifier.create(service.convertApplicationIdToObjectId(OBJECT_ID)).expectNext(OBJECT_ID).verifyComplete();
+        verify(applicationRepository).findBySlug(GID);
+        verify(applicationRepository).findBySlug(OBJECT_ID);
+        verify(applicationRepository, never()).findByGid(OBJECT_ID);
+        System.out.println(TAG + "slug match without an id: gid " + GID + " -> " + REAL_ID + ", object id " + OBJECT_ID + " -> itself");
     }
 
     // ---- folder: the one converter that returns an Optional
