@@ -31,7 +31,7 @@ public abstract class SheetChangeSet {
             throw new PluginException(INVALID_GUI_SETTINGS, OPERATION_DATA_EMPTY_MESSAGE_KEY);
         }
 
-        String changeSetType = MapUtils.getString(changeSet, COMP_TYPE_KEY, "").toUpperCase();
+        String changeSetType = MapUtils.getString(changeSet, COMP_TYPE_KEY, "").toUpperCase(java.util.Locale.ROOT);
         if (StringUtils.isBlank(changeSetType)) {
             throw new PluginException(INVALID_GUI_SETTINGS, "GUI_OPERATION_DATA_TYPE_ERROR");
         }

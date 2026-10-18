@@ -1,12 +1,17 @@
 package org.lowcoder.plugin.graphql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.lowcoder.sdk.contract.RecordingHttpServer;
 import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
@@ -17,6 +22,10 @@ import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
  * GraphQLRequestBodyContractTest and not repeated.
  */
 class GraphQLBodyTypesTest {
+
+    /** A default locale whose case mapping of {@code i} and {@code I} differs from {@code Locale.ROOT}'s (NEW-40). */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+    private static final String UPPER_CASE_JSON = "APPLICATION/JSON";
 
     private static final String PATH = "/graphql";
     private static final String CONTENT_TYPE = "Content-Type";
@@ -88,5 +97,30 @@ class GraphQLBodyTypesTest {
 
         assertThat(String.join(",", request.header(CONTENT_TYPE))).startsWith("application/json");
         assertThat(request.bodyText()).isEqualTo("{\"query\":\"" + GraphQLCallSupport.QUERY + "\"}");
+    }
+
+
+    /**
+     * NEW-40: a Content-Type written in upper case is accepted under a Turkish default locale too; the default locale's
+     * rule made it {@code applıcatıon/json}, which is no media type, so the query was refused with
+     * INVALID_CONTENT_TYPE. The case holds JUnit's {@code Resources.LOCALE} lock while it changes the default locale;
+     * the lock orders it only against tests that hold the same lock, and it restores the locale after its calls, which
+     * block, have completed.
+     */
+    @Test
+    @ResourceLock(Resources.LOCALE)
+    void anUpperCaseContentTypeIsAcceptedUnderATurkishDefaultLocaleNEW40() {
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            AtomicReference<RecordingHttpServer.Request> sent = new AtomicReference<>();
+            assertThatCode(() -> sent.set(send(UPPER_CASE_JSON, GraphQLCallSupport.query()))).doesNotThrowAnyException();
+            RecordingHttpServer.Request request = sent.get();
+            System.out.println("[GraphQLBodyTypesTest] under " + Locale.getDefault() + ": Content-Type " + request.header(CONTENT_TYPE)
+                    + ", body " + request.bodyText());
+            assertThat(request.bodyText()).isNotEmpty();
+        } finally {
+            Locale.setDefault(previous);
+        }
     }
 }

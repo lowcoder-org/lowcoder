@@ -23,7 +23,7 @@ public class UriUtils {
         ServerHttpRequest request = exchange.getRequest();
         return Optional.ofNullable(getRefererURI(request))
                 .map(URI::getHost)
-                .map(String::toLowerCase)
+                .map(host -> host.toLowerCase(java.util.Locale.ROOT))
                 .orElse("");
     }
 
@@ -68,7 +68,7 @@ public class UriUtils {
         } catch (Exception e) {
             log.error("get top private domain error", e);
         }
-        return uri.getHost().toLowerCase();
+        return uri.getHost().toLowerCase(java.util.Locale.ROOT);
     }
 
 }

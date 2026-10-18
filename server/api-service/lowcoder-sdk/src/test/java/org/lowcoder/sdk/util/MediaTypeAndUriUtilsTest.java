@@ -10,6 +10,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.springframework.http.MediaType;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
@@ -21,6 +23,17 @@ import reactor.core.publisher.Mono;
  * cookie domain of a request).
  */
 public class MediaTypeAndUriUtilsTest {
+
+    private static final String UPPER_CASE_REFERER = "https://API.EXAMPLE.COM/x";
+    private static final String UPPER_CASE_SINGLE_LABEL_URL = "http://INTRANET/x";
+    private static final String UPPER_CASE_REGISTRABLE_URL = "https://WWW.EXAMPLE.IO/x";
+    private static final String LOWER_CASE_REFERER_DOMAIN = "api.example.com";
+    private static final String LOWER_CASE_SINGLE_LABEL = "intranet";
+    private static final String LOWER_CASE_REGISTRABLE_DOMAIN = "example.io";
+    /** The request URL of an exchange whose Referer is what a case reads. */
+    private static final String ANY_REQUEST_URL = "http://x/";
+    /** An exchange without a Referer, for a case that reads only the request URL. */
+    private static final String NO_REFERER = null;
 
     private static final MediaType SVG = new MediaType("image", "svg+xml");
     private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
@@ -156,5 +169,51 @@ public class MediaTypeAndUriUtilsTest {
         MockServerWebExchange hostless = MockServerWebExchange.from(MockServerHttpRequest.get("/relative").build());
 
         assertThrows(NullPointerException.class, () -> UriUtils.getTopPrivateDomain(hostless));
+    }
+
+
+    /**
+     * NEW-40: the referer domain is lower-cased with {@code Locale.ROOT}'s rule under a Turkish default locale; the
+     * default locale's rule made {@code API.EXAMPLE.COM} {@code apı.example.com}. The case holds JUnit's
+     * {@code Resources.LOCALE} lock while it changes the default locale; the lock orders it only against tests that
+     * hold the same lock, and it restores the locale after its calls, which block, have completed.
+     */
+    @Test
+    @ResourceLock(Resources.LOCALE)
+    public void theRefererDomainIsLowerCasedUnderATurkishDefaultLocaleNEW40() {
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            String referer = UriUtils.getRefererDomainFromRequest(exchange(ANY_REQUEST_URL, UPPER_CASE_REFERER));
+            System.out.println("[MediaTypeAndUriUtilsTest] under " + Locale.getDefault() + ": referer " + UPPER_CASE_REFERER + " -> " + referer);
+            assertEquals(LOWER_CASE_REFERER_DOMAIN, referer);
+        } finally {
+            Locale.setDefault(previous);
+        }
+    }
+
+    /**
+     * NEW-40: the host the top private domain falls back to (a single label, which has no public suffix) is lower-cased
+     * with {@code Locale.ROOT}'s rule under a Turkish default locale; the default locale's rule made {@code INTRANET}
+     * {@code ıntranet}. The registrable domain comes lower-cased from Guava ({@code InternetDomainName}), so the
+     * conversion after it, left with the default locale, gives it unchanged; its case is the control. The case holds
+     * JUnit's {@code Resources.LOCALE} lock while it changes the default locale; the lock orders it only against tests
+     * that hold the same lock, and it restores the locale after its calls, which block, have completed.
+     */
+    @Test
+    @ResourceLock(Resources.LOCALE)
+    public void theHostFallbackIsLowerCasedUnderATurkishDefaultLocaleNEW40() {
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            String singleLabel = UriUtils.getTopPrivateDomain(exchange(UPPER_CASE_SINGLE_LABEL_URL, NO_REFERER));
+            String registrable = UriUtils.getTopPrivateDomain(exchange(UPPER_CASE_REGISTRABLE_URL, NO_REFERER));
+            System.out.println("[MediaTypeAndUriUtilsTest] under " + Locale.getDefault() + ": single label " + UPPER_CASE_SINGLE_LABEL_URL + " -> "
+                    + singleLabel + ", registrable " + UPPER_CASE_REGISTRABLE_URL + " -> " + registrable);
+            assertEquals(LOWER_CASE_SINGLE_LABEL, singleLabel);
+            assertEquals(LOWER_CASE_REGISTRABLE_DOMAIN, registrable);
+        } finally {
+            Locale.setDefault(previous);
+        }
     }
 }

@@ -1,15 +1,20 @@
 package org.lowcoder.plugin.restapi;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.lowcoder.sdk.contract.RecordingHttpServer;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.Property;
@@ -20,6 +25,14 @@ import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
  * query each contribute, and who wins. The multipart file part and the encoding cases are in RestApiEngineTest.
  */
 class RestApiBodyAndContentTypeTest {
+
+    /** A default locale whose case mapping of {@code i} and {@code I} differs from {@code Locale.ROOT}'s (NEW-40). */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+    private static final String UPPER_CASE_JSON = "APPLICATION/JSON";
+    private static final String JSON_BODY = "{\"q\":1}";
+    private static final String HTTP_METHOD_KEY = "httpMethod";
+    private static final String BODY_KEY = "body";
+    private static final String POST = "POST";
 
     private static final String PATH = "/post";
     private static final String CONTENT_TYPE = "Content-Type";
@@ -135,5 +148,31 @@ class RestApiBodyAndContentTypeTest {
         System.out.println("[RestApiBodyAndContentTypeTest] json object " + object.bodyText() + ", array " + array.bodyText());
         assertThat(object.bodyText()).isEqualTo("{\"q\":1,\"only\":\"ds\"}");
         assertThat(array.bodyText()).isEqualTo("[1,2]");
+    }
+
+
+    /**
+     * NEW-40: a Content-Type written in upper case is accepted under a Turkish default locale too, and the body is sent
+     * as JSON; the default locale's rule made it {@code applıcatıon/json}, which is no media type, so the query was
+     * refused with INVALID_CONTENT_TYPE before any request. The case holds JUnit's {@code Resources.LOCALE} lock while
+     * it changes the default locale; the lock orders it only against tests that hold the same lock, and it restores the
+     * locale after its calls, which block, have completed.
+     */
+    @Test
+    @ResourceLock(Resources.LOCALE)
+    void anUpperCaseContentTypeIsAcceptedUnderATurkishDefaultLocaleNEW40() {
+        RestApiDatasourceConfig datasource = datasource().headers(List.of(new Property(CONTENT_TYPE, UPPER_CASE_JSON))).build();
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            AtomicReference<RecordingHttpServer.Request> sent = new AtomicReference<>();
+            assertThatCode(() -> sent.set(send(datasource, Map.of(HTTP_METHOD_KEY, POST, BODY_KEY, JSON_BODY)))).doesNotThrowAnyException();
+            RecordingHttpServer.Request request = sent.get();
+            System.out.println("[RestApiBodyAndContentTypeTest] under " + Locale.getDefault() + ": Content-Type " + request.header(CONTENT_TYPE)
+                    + ", body " + request.bodyText());
+            assertThat(request.bodyText()).isEqualTo(JSON_BODY);
+        } finally {
+            Locale.setDefault(previous);
+        }
     }
 }

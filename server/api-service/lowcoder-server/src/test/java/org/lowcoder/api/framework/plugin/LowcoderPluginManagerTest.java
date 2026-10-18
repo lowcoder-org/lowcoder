@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -17,6 +18,8 @@ import java.util.function.Consumer;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.lowcoder.api.framework.plugin.PluginTestSupport.RecordingPlugin;
 import org.lowcoder.api.framework.plugin.PluginTestSupport.SameIdPlugin;
 import org.lowcoder.api.framework.plugin.PluginTestSupport.SecondPlugin;
@@ -42,6 +45,16 @@ import reactor.core.publisher.Mono;
  * not observable (every plugin gets its own thread and the order of thread starts is not a guarantee), so it has no test.
  */
 class LowcoderPluginManagerTest {
+
+    /** A default locale whose case mapping of {@code i} and {@code I} differs from {@code Locale.ROOT}'s (NEW-40). */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+    /** A plugin id with an {@code i}, its environment key and value. */
+    private static final String PLUGIN_ID_WITH_I = "recording-plugin";
+    private static final String PLUGIN_ENVIRONMENT_KEY = "PLUGIN_RECORDING_PLUGIN_API_KEY";
+    private static final String PLUGIN_ENVIRONMENT_VALUE = "k-1";
+    private static final String PLUGIN_ENVIRONMENT_NAME = "API_KEY";
+    /** The private method that collects a plugin's environment variables. */
+    private static final String ENVIRONMENT_METHOD = "getPluginEnvironmentVariables";
 
     private static final long WAIT_SECONDS = 20;
 
@@ -252,5 +265,31 @@ class LowcoderPluginManagerTest {
         assertThat(shared.getConfig("k")).isEqualTo("stored");
         assertThat(shared.getConfig("missing")).isNull();
         System.out.println("[LowcoderPluginManagerTest] config round trip");
+    }
+
+
+    /**
+     * NEW-40: the environment prefix of a plugin whose id has an {@code i} is upper-cased with {@code Locale.ROOT}'s
+     * rule under a Turkish default locale too; the default locale's rule made {@code recording-plugin}
+     * {@code RECORDİNG-PLUGİN}, so the plugin got none of its {@code PLUGIN_RECORDING_PLUGIN_*} variables. The case
+     * holds JUnit's {@code Resources.LOCALE} lock while it changes the default locale; the lock orders it only against
+     * tests that hold the same lock, and it restores the locale after its calls, which block, have completed.
+     */
+    @Test
+    @ResourceLock(Resources.LOCALE)
+    void pluginEnvironmentIsFoundUnderATurkishDefaultLocaleNEW40() {
+        LowcoderPlugin plugin = mock(LowcoderPlugin.class);
+        when(plugin.pluginId()).thenReturn(PLUGIN_ID_WITH_I);
+        LowcoderPluginManager manager = new LowcoderPluginManager(services, mock(PluginLoader.class),
+                environment(Map.<String, Object>of(PLUGIN_ENVIRONMENT_KEY, PLUGIN_ENVIRONMENT_VALUE)));
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            Map<String, Object> env = ReflectionTestUtils.invokeMethod(manager, ENVIRONMENT_METHOD, plugin);
+            System.out.println("[LowcoderPluginManagerTest] under " + Locale.getDefault() + ": " + PLUGIN_ID_WITH_I + " -> " + env);
+            assertThat(env).containsExactly(Map.entry(PLUGIN_ENVIRONMENT_NAME, PLUGIN_ENVIRONMENT_VALUE));
+        } finally {
+            Locale.setDefault(previous);
+        }
     }
 }

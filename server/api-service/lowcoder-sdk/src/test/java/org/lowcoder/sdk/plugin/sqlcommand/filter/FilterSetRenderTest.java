@@ -6,9 +6,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -23,6 +26,22 @@ import org.lowcoder.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
 
 /** Rendering and parsing of the GUI filter conditions of {@link FilterSet} (the where clause of GUI update/delete). */
 class FilterSetRenderTest {
+
+    /** A default locale whose case mapping of {@code i} and {@code I} differs from {@code Locale.ROOT}'s (NEW-40). */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+    private static final String LOWER_CASE_IN = "in";
+    private static final String LOWER_CASE_IS_NOT = "is not";
+    private static final String IN = "IN";
+    private static final String IS_NOT = "IS NOT";
+    private static final String IN_AND_IS_NOT_SQL = " where `id` IN (?,?) and `note` IS NOT null ";
+    private static final String FILTER_BY_KEY = "filterBy";
+    private static final String ID_COLUMN = "id";
+    private static final String NOTE_COLUMN = "note";
+    /** The value an {@code IS NOT} condition compares with. */
+    private static final Object NULL_VALUE = null;
+    /** Render with bind parameters, not as raw SQL. */
+    private static final boolean PREPARED_STATEMENT = false;
+    private static final List<Integer> TWO_IDS = List.of(1, 2);
 
     private static final String FRONT = "`";
     private static final String BACK = "`";
@@ -270,5 +289,29 @@ class FilterSetRenderTest {
     void parseFilterSetRejectsMalformedFilters(String label, Map<String, Object> detail, String messageKey, Object[] args) {
         assertPluginError(() -> FilterSet.parseFilterSet(detail), PluginCommonError.INVALID_GUI_SETTINGS, messageKey, args);
         System.out.println("[FilterSetRenderTest] parse error: " + label + " -> " + messageKey);
+    }
+
+
+    /**
+     * NEW-40: an operator sent in lower case (this client's editor sends upper case; the parser upper-cases whatever it
+     * is given) is upper-cased with {@code Locale.ROOT}'s rule under a Turkish default locale too; the default locale's
+     * rule made {@code in} {@code İN}, an unknown operator. The case holds JUnit's {@code Resources.LOCALE} lock while
+     * it changes the default locale; the lock orders it only against tests that hold the same lock, and it restores the
+     * locale after its calls, which block, have completed.
+     */
+    @Test
+    @ResourceLock(Resources.LOCALE)
+    void parseFilterSetUpperCasesTheOperatorUnderATurkishDefaultLocaleNEW40() {
+        Map<String, Object> detail = Map.of(FILTER_BY_KEY, List.of(condition(ID_COLUMN, LOWER_CASE_IN, TWO_IDS), condition(NOTE_COLUMN, LOWER_CASE_IS_NOT, NULL_VALUE)));
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            FilterSet set = FilterSet.parseFilterSet(detail);
+            System.out.println("[FilterSetRenderTest] under " + Locale.getDefault() + ": " + set.stream().map(FilterSet.FilterCondition::getCondition).toList());
+            assertThat(set).extracting(FilterSet.FilterCondition::getCondition).containsExactly(IN, IS_NOT);
+            assertThat(render(set, NO_PARAMS, PREPARED_STATEMENT).sql()).isEqualTo(IN_AND_IS_NOT_SQL);
+        } finally {
+            Locale.setDefault(previous);
+        }
     }
 }

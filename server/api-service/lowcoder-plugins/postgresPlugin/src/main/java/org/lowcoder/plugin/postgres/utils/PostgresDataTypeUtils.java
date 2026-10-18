@@ -188,7 +188,7 @@ public class PostgresDataTypeUtils {
         if (query.startsWith(CAST, afterParameter)) {
             Matcher type = CAST_TYPE.matcher(query).region(afterParameter + CAST.length(), query.length());
             if (type.lookingAt()) {
-                String dataTypeFromInput = type.group().toLowerCase();
+                String dataTypeFromInput = type.group().toLowerCase(java.util.Locale.ROOT);
                 // Either a supported type, or no explicit casting: implicit type casting (the default) is used for null
                 inputDataTypes.add(dataType.getDataTypes().contains(dataTypeFromInput) ? getDataTypeMapper().get(dataTypeFromInput) : null);
                 return type.end();

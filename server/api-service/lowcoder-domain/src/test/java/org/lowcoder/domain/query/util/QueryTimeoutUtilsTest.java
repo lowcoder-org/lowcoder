@@ -1,13 +1,19 @@
 package org.lowcoder.domain.query.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.lowcoder.domain.query.util.QueryTimeoutUtils.parseQueryTimeoutMs;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
@@ -22,6 +28,10 @@ import org.lowcoder.sdk.exception.PluginException;
  */
 class QueryTimeoutUtilsTest {
 
+    /** A default locale whose case mapping of {@code i} and {@code I} differs from {@code Locale.ROOT}'s (NEW-40). */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+    private static final long MILLIS_PER_MINUTE = 60_000L;
+
     private static final int DEFAULT_SECONDS = 10;
     private static final int MAX_SECONDS = 300;
     /** 2148 s multiplied by 1000 as the caller did before BF-043: its milliseconds leave the int range. */
@@ -32,6 +42,17 @@ class QueryTimeoutUtilsTest {
     private static final String EXCEED_MAX_QUERY_TIMEOUT_KEY = "EXCEED_MAX_QUERY_TIMEOUT";
     /** The text {@code Double.parseDouble} reads as NaN (BF-079). */
     private static final String NAN = "NaN";
+    /** Timeouts whose minute unit is written in upper case; each unit has an {@code I} (NEW-40). */
+    private static final String TWO_MIN = "2MIN";
+    private static final String TWO_MINS = "2MINS";
+    private static final String ONE_MINUTE = "1MINUTE";
+    private static final String THREE_MINUTES = "3MINUTES";
+    private static final long ONE = 1L;
+    private static final long TWO = 2L;
+    private static final long THREE = 3L;
+    /** Those timeouts with their minute counts, in a fixed order. */
+    private static final List<Map.Entry<String, Long>> UPPER_CASE_MINUTES = List.of(Map.entry(TWO_MIN, TWO), Map.entry(TWO_MINS, TWO),
+            Map.entry(ONE_MINUTE, ONE), Map.entry(THREE_MINUTES, THREE));
 
     @AfterEach
     void resetTheStaticDefault() {
@@ -180,5 +201,31 @@ class QueryTimeoutUtilsTest {
     @Test
     void parse_aTimeoutBeyondTheIntRange_isCutToIntegerMaxValueMilliseconds() {
         assertThat(parseQueryTimeoutMs(BEYOND_THE_INT_RANGE, Integer.MAX_VALUE)).isEqualTo(Integer.MAX_VALUE);
+    }
+
+
+    /**
+     * NEW-40: minutes written in upper case are read under a Turkish default locale too; the default locale's rule made
+     * {@code MIN} {@code mın}, an unknown unit, so the timeout was refused. The case holds JUnit's
+     * {@code Resources.LOCALE} lock while it changes the default locale; the lock orders it only against tests that
+     * hold the same lock, and it restores the locale after its calls, which block, have completed.
+     */
+    @Test
+    @ResourceLock(Resources.LOCALE)
+    void parse_upperCaseMinutes_areReadUnderATurkishDefaultLocaleNEW40() {
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            for (Map.Entry<String, Long> minutes : UPPER_CASE_MINUTES) {
+                String text = minutes.getKey();
+                AtomicInteger parsed = new AtomicInteger();
+                assertThatCode(() -> parsed.set(parseQueryTimeoutMs(text, MAX_SECONDS))).as(text).doesNotThrowAnyException();
+                int millis = parsed.get();
+                System.out.println("[QueryTimeoutUtilsTest] under " + Locale.getDefault() + ": " + text + " -> " + millis + " ms");
+                assertThat(millis).as(text).isEqualTo((int) (minutes.getValue() * MILLIS_PER_MINUTE));
+            }
+        } finally {
+            Locale.setDefault(previous);
+        }
     }
 }

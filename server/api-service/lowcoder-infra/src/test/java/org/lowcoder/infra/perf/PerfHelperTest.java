@@ -7,6 +7,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.google.common.base.Ascii;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Tag;
@@ -15,12 +16,15 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.ToDoubleFunction;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -28,6 +32,11 @@ import org.slf4j.LoggerFactory;
  * {@code @Autowired} field). The helper is fire-and-forget: a failing metrics backend must never fail the caller.
  */
 class PerfHelperTest {
+
+    /** A default locale whose case mapping of {@code i} and {@code I} differs from {@code Locale.ROOT}'s (NEW-40). */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+    /** The counter name of {@code PerfEvent.API_ERROR_CODE}, whose name has an {@code I}. */
+    private static final String API_ERROR_CODE_NAME = "api_error_code";
 
     private static final PerfEvent EVENT = PerfEvent.SERVER_LOG_BATCH_INSERT;
     private static final String EVENT_NAME = "server_log_batch_insert";
@@ -206,5 +215,31 @@ class PerfHelperTest {
 
         assertThat(registry.get(TIMER_NAME).tags(TAGS).timer().count()).as("both runs were timed").isEqualTo(2);
         assertThat(registry.get(TIMER_NAME + ".percentile").tags(TAGS).tag("phi", "0.95").gauge()).isNotNull();
+    }
+
+
+    /**
+     * NEW-40: every event's metric name is its constant's name lower-cased with {@code Locale.ROOT}'s rule under a
+     * Turkish default locale too (the default locale's rule made {@code API_ERROR_CODE} {@code apı_error_code}); the
+     * expected names come from Guava's {@code Ascii.toLowerCase}, which no locale affects, and a counter is registered
+     * under the name. The case holds JUnit's {@code Resources.LOCALE} lock while it changes the default locale; the
+     * lock orders it only against tests that hold the same lock, and it restores the locale after its calls, which
+     * block, have completed.
+     */
+    @Test
+    @ResourceLock(Resources.LOCALE)
+    void eventsAreNamedInLowerCaseUnderATurkishDefaultLocaleNEW40() {
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            for (PerfEvent event : PerfEvent.values()) {
+                System.out.println("[PerfHelperTest] under " + Locale.getDefault() + ": " + event + " -> " + event.perfKey());
+                assertThat(event.perfKey()).as(event.name()).isEqualTo(Ascii.toLowerCase(event.name()));
+            }
+            helper.count(PerfEvent.API_ERROR_CODE, TAGS);
+            assertThat(registry.find(API_ERROR_CODE_NAME).counter()).as("counter " + API_ERROR_CODE_NAME).isNotNull();
+        } finally {
+            Locale.setDefault(previous);
+        }
     }
 }

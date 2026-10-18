@@ -1,6 +1,8 @@
 package org.lowcoder.plugin.postgres;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -16,6 +18,7 @@ import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -32,6 +35,10 @@ import static org.lowcoder.plugin.postgres.utils.PostgresDataTypeUtils.extractEx
  * {@link PostgresDataTypeUtils}.
  */
 public class PostgresDataTypeUtilsTest {
+
+    /** A default locale whose case mapping of {@code i} and {@code I} differs from {@code Locale.ROOT}'s (NEW-40). */
+    static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+    static final String UPPER_CASE_CASTS = "select ?::INT4, ?::INT8, ?::INT";
 
     /** BF-032: a decimal a float cannot hold (as a float it was 1.23456792E7). */
     static final String DECIMAL_TEXT = "12345678.9";
@@ -259,5 +266,26 @@ public class PostgresDataTypeUtilsTest {
         Set<?> first = PostgresDataTypeUtils.dataType.getDataTypes();
         assertEquals(SUPPORTED, first);
         assertSame(first, PostgresDataTypeUtils.dataType.getDataTypes());
+    }
+
+
+    /**
+     * NEW-40: cast types written in upper case are read under a Turkish default locale too; the default locale's rule
+     * made {@code INT4} {@code ınt4}, an unsupported type, so the parameter was bound without its type. The case holds
+     * JUnit's {@code Resources.LOCALE} lock while it changes the default locale; the lock orders it only against tests
+     * that hold the same lock, and it restores the locale after its calls, which block, have completed.
+     */
+    @Test
+    @ResourceLock(Resources.LOCALE)
+    public void upperCaseCastTypesAreReadUnderATurkishDefaultLocaleNEW40() {
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            List<DataType> casts = extractExplicitCasting(UPPER_CASE_CASTS);
+            System.out.println("[PostgresDataTypeUtilsTest] under " + Locale.getDefault() + ": " + UPPER_CASE_CASTS + " -> " + casts);
+            assertEquals(List.of(DataType.INTEGER, DataType.LONG, DataType.INTEGER), casts);
+        } finally {
+            Locale.setDefault(previous);
+        }
     }
 }

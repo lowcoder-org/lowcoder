@@ -11,6 +11,8 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -42,6 +44,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
@@ -52,6 +55,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -63,6 +67,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.request;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -125,6 +130,13 @@ import static org.mockito.ArgumentMatchers.eq;
  */
 @WireMockTest
 class ApiFlowEndpointsContractTest {
+
+    /** A default locale whose case mapping of {@code i} and {@code I} differs from {@code Locale.ROOT}'s (NEW-40). */
+    static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+    /** The one standard method with an {@code i}, in lower case as a client may send it. */
+    static final String LOWER_CASE_OPTIONS = "options";
+    /** The separator before the upstream path a flow request names. */
+    static final String PATH_SEPARATOR = "/";
 
     static final EndpointContract CONTRACT = new EndpointContract(ApiFlowEndpoints.class);
     static final String FLOW = "flow";
@@ -579,5 +591,41 @@ class ApiFlowEndpointsContractTest {
                 return super.flow(flowRequest);
             }
         }
+    }
+
+
+    /**
+     * NEW-40: on both mounts, a method with an {@code i} sent in lower case reaches the upstream as that method under a
+     * Turkish default locale too; the default locale's rule made {@code options} {@code OPTİONS}, a method of another
+     * name. The retries and the timeout are left out, as in {@link #flowUpstreamFailed}, so that a failure is not
+     * retried. The case holds JUnit's {@code Resources.LOCALE} lock while it changes the default locale; the lock
+     * orders it only against tests that hold the same lock, and it restores the locale after its calls, which block,
+     * have completed.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {NewUrl.FLOW_URL, Url.FLOW_URL})
+    @ResourceLock(Resources.LOCALE)
+    void flowWithALowerCaseOptionsMethodUnderATurkishDefaultLocaleNEW40(String mount, WireMockRuntimeInfo wireMock) throws JsonProcessingException {
+        FlowRequest sample = sample();
+        wireMock.getWireMock().register(request(HttpMethod.OPTIONS.name(), urlPathEqualTo(PATH_SEPARATOR + sample.path()))
+                .willReturn(aResponse().withStatus(OK).withBody(UPSTREAM_ANSWER)));
+        String body = d1Without(tree -> {
+            tree.remove(List.of(RETRIES, TIMEOUT));
+            tree.put(METHOD, LOWER_CASE_OPTIONS);
+        });
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        EntityExchangeResult<byte[]> result;
+        try {
+            result = exchangeOn(mount, body);
+        } finally {
+            Locale.setDefault(previous);
+        }
+        List<LoggedRequest> requests = wireMock.getWireMock().find(anyRequestedFor(urlPathEqualTo(PATH_SEPARATOR + sample.path())));
+        System.out.println("[ApiFlowEndpointsContractTest] " + mount + " under " + TURKISH + ": upstream methods " + requests.stream().map(LoggedRequest::getMethod).toList()
+                + ", answer " + result.getStatus());
+        assertThat(requests).as("upstream requests").singleElement().satisfies(request ->
+                assertThat(request.getMethod().value()).as("upstream method").isEqualTo(HttpMethod.OPTIONS.name()));
+        EndpointContract.assertBytes(result, HttpStatus.OK, TEXT_PLAIN_UTF8, UPSTREAM_ANSWER.getBytes(StandardCharsets.UTF_8));
     }
 }

@@ -73,7 +73,7 @@ public class RawHttpHandlerHelper {
     public static Map<String, String> buildHeaders(List<Property> queryHeaders) {
         return queryHeaders.stream()
                 .filter(it -> StringUtils.isNotBlank(it.getKey()) && StringUtils.isNotBlank(it.getValue()))
-                .collect(Collectors.toUnmodifiableMap(property -> property.getKey().trim().toLowerCase(),
+                .collect(Collectors.toUnmodifiableMap(property -> property.getKey().trim().toLowerCase(java.util.Locale.ROOT),
                         Property::getValue,
                         (oldValue, newValue) -> newValue));
     }

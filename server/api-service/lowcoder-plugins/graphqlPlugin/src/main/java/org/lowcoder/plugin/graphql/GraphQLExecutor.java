@@ -151,7 +151,7 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
         if (!MoreMapUtils.containsStringKeyIgnoreCase(allHeaders, HttpHeaders.CONTENT_TYPE)) {
             allHeaders.put(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         }
-        String contentType = parseContentType(allHeaders).toLowerCase();
+        String contentType = parseContentType(allHeaders).toLowerCase(Locale.ROOT);
         if (!isValidContentType(contentType)) {
             throw new PluginException(QUERY_ARGUMENT_ERROR, "INVALID_CONTENT_TYPE", contentType);
         }

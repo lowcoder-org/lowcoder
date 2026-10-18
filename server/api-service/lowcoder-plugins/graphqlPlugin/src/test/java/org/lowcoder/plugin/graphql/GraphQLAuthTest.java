@@ -9,20 +9,26 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
+import org.lowcoder.plugin.graphql.helpers.AuthHelper;
 import org.lowcoder.sdk.contract.RecordingHttpServer;
 import org.lowcoder.sdk.contract.RecordingHttpServer.Request;
 import org.lowcoder.sdk.contract.RecordingHttpServer.Response;
 import org.lowcoder.sdk.exception.PluginException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.BasicAuthConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType;
+import org.springframework.web.reactive.function.client.ClientResponse;
 
 /**
  * Basic and digest authentication of {@link GraphQLExecutor} against a local server. The REST API plugin has the same
@@ -34,10 +40,15 @@ import org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType;
  */
 class GraphQLAuthTest {
 
+    /** A default locale whose case mapping of {@code i} and {@code I} differs from {@code Locale.ROOT}'s (NEW-40). */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+
     private static final String PATH = "/graphql";
     private static final String USER = "postman";
     private static final String PASSWORD = "password";
     private static final String REALM = "Users";
+    /** A digest challenge whose scheme is in upper case (NEW-40). */
+    private static final String UPPER_CASE_DIGEST_CHALLENGE = "DIGEST realm=\"" + REALM + "\", nonce=\"n\"";
     private static final String NONCE = "f2a8d2c6b1e04a7f9c3d5e6b7a8c9d0e";
     private static final String DIGEST = "Digest ";
     private static final Pattern DIGEST_PARAM = Pattern.compile("(\\w+)=(?:\"([^\"]*)\"|([^,\\s]+))");
@@ -208,6 +219,28 @@ class GraphQLAuthTest {
             return HexFormat.of().formatHex(MessageDigest.getInstance("MD5").digest(text.getBytes(StandardCharsets.UTF_8)));
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+
+    /**
+     * NEW-40: a digest challenge whose scheme is written in upper case is recognised under a Turkish default locale
+     * too; the default locale's rule made {@code DIGEST} {@code dıgest}, so the challenge was not answered. The case
+     * holds JUnit's {@code Resources.LOCALE} lock while it changes the default locale; the lock orders it only against
+     * tests that hold the same lock, and it restores the locale after its calls, which block, have completed.
+     */
+    @Test
+    @ResourceLock(Resources.LOCALE)
+    void anUpperCaseDigestChallengeIsRecognisedUnderATurkishDefaultLocaleNEW40() {
+        ClientResponse challenge = ClientResponse.create(HttpStatus.UNAUTHORIZED).header(HttpHeaders.WWW_AUTHENTICATE, UPPER_CASE_DIGEST_CHALLENGE).build();
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            boolean digest = AuthHelper.shouldDigestAuth(challenge);
+            System.out.println("[GraphQLAuthTest] under " + Locale.getDefault() + ": " + UPPER_CASE_DIGEST_CHALLENGE + " -> digest " + digest);
+            assertThat(digest).isTrue();
+        } finally {
+            Locale.setDefault(previous);
         }
     }
 }

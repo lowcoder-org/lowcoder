@@ -18,6 +18,6 @@ public enum PerfEvent {
     ;
 
     public String perfKey() {
-        return name().toLowerCase();
+        return name().toLowerCase(java.util.Locale.ROOT);
     }
 }
