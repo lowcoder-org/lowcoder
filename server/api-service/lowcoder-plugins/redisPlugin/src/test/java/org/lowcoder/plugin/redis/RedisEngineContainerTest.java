@@ -3,6 +3,7 @@ package org.lowcoder.plugin.redis;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.lowcoder.plugin.redis.constants.RedisFieldName;
 import org.lowcoder.plugin.redis.model.RedisDatasourceConfig;
 import org.lowcoder.plugin.redis.model.RedisQueryExecutionContext;
 import org.lowcoder.sdk.models.DatasourceTestResult;
@@ -18,6 +19,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -57,15 +59,19 @@ public class RedisEngineContainerTest {
         return name + ":" + UUID.randomUUID().toString().substring(0, 8) + ":";
     }
 
-    private static QueryExecutionResult run(String type, String... fieldsAndValues) {
+    private static Map<String, Object> form(String type, String... fieldsAndValues) {
         Map<String, Object> comp = new HashMap<>();
         for (int i = 0; i < fieldsAndValues.length; i += 2) {
             comp.put(fieldsAndValues[i], fieldsAndValues[i + 1]);
         }
         Map<String, Object> form = new HashMap<>();
-        form.put("compType", type);
-        form.put("comp", comp);
-        return execute(form);
+        form.put(RedisFieldName.COMMAND, type);
+        form.put(RedisFieldName.COMP, comp);
+        return form;
+    }
+
+    private static QueryExecutionResult run(String type, String... fieldsAndValues) {
+        return execute(form(type, fieldsAndValues));
     }
 
     private static QueryExecutionResult raw(String command) {
@@ -117,6 +123,46 @@ public class RedisEngineContainerTest {
         assertEquals("1", data(run("DEL", "key", p + "a")));
         assertNull(data(run("GET", "key", p + "a")));
         assertEquals("0", data(run("DEL", "key", p + "a")));
+    }
+
+    /** Form types in lower case, the form fields they read, and the key and value written and read back. */
+    static final String LOWER_CASE_SET = "set";
+    static final String LOWER_CASE_GET = "get";
+    static final String KEY_FIELD = "key";
+    static final String VALUE_FIELD = "value";
+    static final String LOWER_CASE_PREFIX = "lower";
+    static final String LOWER_CASE_KEY_NAME = "k";
+    static final String LOWER_CASE_VALUE = "lower-case-value";
+
+    /**
+     * Runs a form through the executor contract: the two {@code QueryExecutor} defaults that
+     * {@code QueryExecutionServiceImpl.executeLocally} calls, {@code buildQueryExecutionContextMono}, which turns a failure to
+     * build the context that is not already a coded exception into INVALID_QUERY_SETTINGS / QUERY_ARGUMENT_ERROR, and
+     * {@code doExecuteQuery}, which turns a failure to run it that is neither a PluginException nor a BizException into
+     * QUERY_EXECUTION_ERROR (the engine itself answers a Redis failure with a REDIS_EXECUTION_ERROR result). Not the service
+     * itself: no executor lookup, connection pool or service error conversion.
+     */
+    private static QueryExecutionResult executeThroughTheExecutorContract(Map<String, Object> form) {
+        RedisQueryExecutionContext context = ENGINE.buildQueryExecutionContextMono(CONFIG, form, Map.of(), null).block(BLOCK_TIMEOUT);
+        QueryExecutionResult result = ENGINE.doExecuteQuery(pool, context).block(BLOCK_TIMEOUT);
+        System.out.println(TAG + "through the executor contract: " + context.getProtocolCommand() + " " + Arrays.toString(context.getArgs()) + " -> "
+                + result.getQueryCode() + " " + result.getData());
+        return result;
+    }
+
+    /**
+     * NEW-39 against the server, through the executor contract: a lower-case form {@code set} and {@code get} run and
+     * the value is read back; the lookup of the type as sent made the context's build fail, which
+     * {@code buildQueryExecutionContextMono} answered with INVALID_QUERY_SETTINGS / QUERY_ARGUMENT_ERROR carrying the enum's
+     * message.
+     */
+    @Test
+    public void lowerCaseFormCommandsRunNEW39() {
+        String key = prefix(LOWER_CASE_PREFIX) + LOWER_CASE_KEY_NAME;
+        System.out.println(TAG + "running " + LOWER_CASE_SET + " and " + LOWER_CASE_GET + " on " + key);
+        assertEquals(OK_REPLY, data(assertDoesNotThrow(
+                () -> executeThroughTheExecutorContract(form(LOWER_CASE_SET, KEY_FIELD, key, VALUE_FIELD, LOWER_CASE_VALUE)), LOWER_CASE_SET)));
+        assertEquals(LOWER_CASE_VALUE, data(assertDoesNotThrow(() -> executeThroughTheExecutorContract(form(LOWER_CASE_GET, KEY_FIELD, key)), LOWER_CASE_GET)));
     }
 
     @Test

@@ -20,6 +20,7 @@ import static org.lowcoder.plugin.redis.constants.RedisFieldName.VALUE;
 import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.getStringValueSafelyFromFormData;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
@@ -35,8 +36,15 @@ public abstract class RedisCommand {
         this.formData = formData;
     }
 
+    /**
+     * The protocol command of the form's type, upper-cased with the root locale's rule as the dispatch
+     * ({@code RedisQueryUtils.convertRedisFormInputToRedisCommand}) matches it (NEW-39: the type was looked up as sent, so a
+     * lower- or mixed-case type the dispatch accepted failed with the enum's IllegalArgumentException). Limits: only the case
+     * is normalised, and the type is not checked against the command's class (the dispatch builds the class its type names;
+     * a command built directly through a public nested constructor is not checked).
+     */
     public Protocol.Command getProtocolCommand() {
-        return Protocol.Command.valueOf(getStringValueSafelyFromFormData(formData, COMMAND));
+        return Protocol.Command.valueOf(getStringValueSafelyFromFormData(formData, COMMAND).toUpperCase(Locale.ROOT));
     }
 
     public String[] getArgs() {

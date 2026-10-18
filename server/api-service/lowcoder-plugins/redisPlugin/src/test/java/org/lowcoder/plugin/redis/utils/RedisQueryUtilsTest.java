@@ -1,6 +1,8 @@
 package org.lowcoder.plugin.redis.utils;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.lowcoder.plugin.redis.commands.RedisCommand;
 import org.lowcoder.sdk.exception.PluginException;
 import redis.clients.jedis.Protocol;
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -23,7 +26,8 @@ import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
  * Unit RD-2 (task L5-9): {@code RedisQueryUtils.convertRedisFormInputToRedisCommand} for all 34 form commands. The table
  * {@link #SYNTAX} is written from the Redis command reference (not from the code): each command with its arguments in
  * Redis order, in terms of the distinct form values of {@link #FORM_VALUES}, so a swapped pair (key and value, score and
- * member, min and max) fails. Also the dispatch rules and the lower-case type (defect D17).
+ * member, min and max) fails. Also the dispatch rules and the lower-case type (defect D17), and the protocol command of a
+ * type in any case (NEW-39).
  *
  * <p>Limits: only the command and the argument list are built; the server's reading of them is RD-6.
  */
@@ -163,14 +167,79 @@ public class RedisQueryUtilsTest {
         assertInstanceOf(RedisCommand.Lindex.class, RedisQueryUtils.convertRedisFormInputToRedisCommand(form("lindex")), "locale restored: " + Locale.getDefault());
     }
 
+    /** The pinned observation's type, in lower case, and the protocol command it names. */
+    static final String LOWER_CASE_GET = "get";
+    static final String GET_TYPE = "GET";
+
     /**
-     * Observation (no row): the dispatch accepts a lower-case type, but {@code RedisCommand.getProtocolCommand} reads the type
-     * without upper-casing it, so the command it hands on fails with the enum's own {@code IllegalArgumentException}. The client
-     * sends upper case, so this is reachable by an API call only.
+     * NEW-39, the observation pinned before this branch had a row for it: the dispatch accepts the lower-case type
+     * {@code get}, and the protocol command lookup now gives {@code GET}; it failed with the enum's
+     * {@code IllegalArgumentException}, as {@code RedisCommand.getProtocolCommand} looked the type up as sent.
      */
     @Test
-    public void lowerCaseTypeIsAcceptedByTheDispatchButNotByTheProtocolCommandLookup() {
-        RedisCommand command = RedisQueryUtils.convertRedisFormInputToRedisCommand(form("get"));
-        assertThrows(IllegalArgumentException.class, command::getProtocolCommand);
+    public void lowerCaseTypeIsAcceptedByTheDispatchAndByTheProtocolCommandLookupNEW39() {
+        assertProtocolCommand(GET_TYPE, LOWER_CASE_GET);
+    }
+
+    /** The letter whose lower case a Turkish default locale upper-cases to a dotted capital I, and the types holding it. */
+    static final String LETTER_I = "I";
+    static final List<String> TYPES_WITH_AN_I = List.of("LINDEX", "SISMEMBER");
+
+    /** The type in alternating case, lower case first ({@code hGeTaLl}): neither all lower nor all upper case. */
+    private static String alternatingCase(String type) {
+        StringBuilder alternating = new StringBuilder();
+        for (int i = 0; i < type.length(); i++) {
+            String letter = type.substring(i, i + 1);
+            alternating.append(i % 2 == 0 ? letter.toLowerCase(Locale.ROOT) : letter.toUpperCase(Locale.ROOT));
+        }
+        return alternating.toString();
+    }
+
+    /**
+     * Asserts that the command built for {@code type} has the protocol command of {@code syntaxType}; prints the type before
+     * the lookup (a failing lookup's exception is in the assertion's message) and the result after it.
+     */
+    private static void assertProtocolCommand(String syntaxType, String type) {
+        System.out.println(TAG + "looking up " + type + " under " + Locale.getDefault());
+        RedisCommand command = RedisQueryUtils.convertRedisFormInputToRedisCommand(form(type));
+        Protocol.Command protocolCommand = assertDoesNotThrow(command::getProtocolCommand, type);
+        System.out.println(TAG + type + " -> " + protocolCommand + " " + Arrays.toString(command.getArgs()));
+        assertEquals(Protocol.Command.valueOf(syntaxType), protocolCommand, type);
+    }
+
+    /**
+     * NEW-39 over the whole table: every type of {@link #SYNTAX}, in lower case and in alternating case, gives its protocol
+     * command. The client sends upper case (redisQuery.tsx), so only another writer of a query reaches it.
+     */
+    @Test
+    public void aTypeInLowerOrAlternatingCaseGivesItsProtocolCommandNEW39() {
+        for (String syntaxType : SYNTAX.keySet()) {
+            for (String type : List.of(syntaxType.toLowerCase(Locale.ROOT), alternatingCase(syntaxType))) {
+                assertProtocolCommand(syntaxType, type);
+            }
+        }
+    }
+
+    /**
+     * NEW-39 under a Turkish default locale: the lookup upper-cases with the root locale's rule, as the dispatch does, so the
+     * lower-case types with an {@code i} give their commands; the default locale's rule makes that {@code i} a dotted capital
+     * I, which names no protocol command. The case holds JUnit's {@code Resources.LOCALE} lock while it changes the default
+     * locale; the lock orders it only against tests that hold the same lock, not against this class's
+     * {@code lowerCaseCommandTypeIsReadUnderATurkishDefaultLocaleBF122}, which holds none (NEW-73), and it restores the
+     * locale in a {@code finally}.
+     */
+    @Test
+    @ResourceLock(Resources.LOCALE)
+    public void aLowerCaseTypeWithAnIGivesItsProtocolCommandUnderATurkishDefaultLocaleNEW39() {
+        assertEquals(TYPES_WITH_AN_I, SYNTAX.keySet().stream().filter(type -> type.contains(LETTER_I)).toList());
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            for (String syntaxType : TYPES_WITH_AN_I) {
+                assertProtocolCommand(syntaxType, syntaxType.toLowerCase(Locale.ROOT));
+            }
+        } finally {
+            Locale.setDefault(previous);
+        }
     }
 }
