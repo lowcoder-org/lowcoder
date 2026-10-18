@@ -18,6 +18,7 @@ import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.model.DatasourceStatus;
 import org.lowcoder.domain.organization.event.OrgDeletedEvent;
+import org.lowcoder.domain.organization.model.MemberRole;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.service.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,8 @@ import org.springframework.test.context.TestPropertySource;
  * collecting listener and the extra property give this class a Spring context (and database) of its own. The real
  * OrgAndGroupEventListener runs too, asynchronously: the tests wait for it by polling the org's groups or, for its last
  * step, the datasource's status (bounded, 20 s, 100 ms interval). What it does with the members is the L4-8 section 9 row on
- * BiRelationServiceImpl.removeAllBiRelations (fixed by BF-016) and is not asserted here.
+ * BiRelationServiceImpl.removeAllBiRelations (fixed by BF-016); only the gid case (NEW-41) asserts the member count, of its
+ * one member, which is not the super admin.
  */
 @SpringBootTest(classes = ServerApplication.class)
 @ActiveProfiles("test")
@@ -98,6 +100,60 @@ class OrganizationServiceImplDeleteMongoTest extends OrganizationMongoTestBase {
         String unknown = newId();
         assertThat(organizationService.delete(unknown).block(TIMEOUT)).as("an unknown org changes nothing").isFalse();
         assertThat(DELETED_ORG_IDS).doesNotContain(unknown);
+    }
+
+    /** The org, application, datasource and their types of the gid case. */
+    static final String BY_GID_ORG_NAME = "doomed-by-gid";
+    static final String BY_GID_APPLICATION_NAME = "app-of-the-org-deleted-by-gid";
+    static final int APPLICATION_TYPE = 1;
+    static final String BY_GID_DATASOURCE_NAME = "datasource-of-the-org-deleted-by-gid";
+    static final String DATASOURCE_TYPE = "postgres";
+    static final int DATASOURCE_CREATION_SOURCE = 0;
+    /** The count of members and of groups the gid case creates. */
+    static final long ONE_RECORD = 1L;
+
+    /**
+     * NEW-41: an org deleted by its gid gets the cleanups of one deleted by its object id: the event carries the object id, so
+     * the real listener removes the org's member and group and soft-deletes its application and datasource, the last step of
+     * its chain. Before NEW-41 the event carried the gid, by which the listener's cleanups match nothing.
+     */
+    @Test
+    void deletingAnOrgByItsGidRunsItsCleanupsNEW41() throws Exception {
+        String gid = UUID.randomUUID().toString();
+        String orgId = mongo.save(Organization.builder().name(BY_GID_ORG_NAME).gid(gid).state(ACTIVE).build()).block(TIMEOUT).getId();
+        orgMemberService.addMember(orgId, newId(), MemberRole.MEMBER).block(TIMEOUT);
+        groupService.createAllUserGroup(orgId).block(TIMEOUT);
+        Application application = mongo.save(Application.builder().organizationId(orgId).name(BY_GID_APPLICATION_NAME)
+                .gid(UUID.randomUUID().toString()).applicationType(APPLICATION_TYPE).applicationStatus(ApplicationStatus.NORMAL)
+                .build()).block(TIMEOUT);
+        Datasource datasource = mongo.save(Datasource.builder().organizationId(orgId).name(BY_GID_DATASOURCE_NAME)
+                .type(DATASOURCE_TYPE).creationSource(DATASOURCE_CREATION_SOURCE).build()).block(TIMEOUT);
+        System.out.println("[OrganizationServiceImplDeleteMongoTest] deleting org " + orgId + " by its gid " + gid + ", members "
+                + orgMemberService.getOrgMemberCount(orgId).block(TIMEOUT) + ", groups " + groupService.getOrgGroupCount(orgId).block(TIMEOUT)
+                + ", application " + application.getId() + ", datasource " + datasource.getId());
+
+        assertThat(orgMemberService.getOrgMemberCount(orgId).block(TIMEOUT)).as("the member before the delete").isEqualTo(ONE_RECORD);
+        assertThat(groupService.getOrgGroupCount(orgId).block(TIMEOUT)).as("the group before the delete").isEqualTo(ONE_RECORD);
+
+        assertThat(organizationService.delete(gid).block(TIMEOUT)).isTrue();
+        Datasource datasourceAfter;
+        try {
+            datasourceAfter = awaitDatasourceDeleted(datasource.getId());
+        } finally {
+            // printed whether or not the poll succeeds, so that a failing run shows which earlier step did not run
+            System.out.println("[OrganizationServiceImplDeleteMongoTest] after the delete by gid: members "
+                    + orgMemberService.getOrgMemberCount(orgId).block(TIMEOUT) + ", groups " + groupService.getOrgGroupCount(orgId).block(TIMEOUT)
+                    + ", application status=" + mongo.findById(application.getId(), Application.class).block(TIMEOUT).getApplicationStatus()
+                    + ", events " + DELETED_ORG_IDS);
+        }
+
+        Application applicationAfter = mongo.findById(application.getId(), Application.class).block(TIMEOUT);
+        System.out.println("[OrganizationServiceImplDeleteMongoTest] datasource status=" + datasourceAfter.getDatasourceStatus());
+        assertThat(stored(orgId).getState()).isEqualTo(DELETED);
+        assertThat(orgMemberService.getOrgMemberCount(orgId).block(TIMEOUT)).isZero();
+        assertThat(groupService.getOrgGroupCount(orgId).block(TIMEOUT)).isZero();
+        assertThat(applicationAfter.getApplicationStatus()).isEqualTo(ApplicationStatus.DELETED);
+        assertThat(DELETED_ORG_IDS).containsOnlyOnce(orgId).doesNotContain(gid);
     }
 
     /** Polls (bounded) until the asynchronous org-deletion handler has soft-deleted the datasource, its last step. */

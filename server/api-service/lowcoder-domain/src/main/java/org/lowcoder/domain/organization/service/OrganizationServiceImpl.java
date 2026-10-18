@@ -281,26 +281,52 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     /**
-     * Marks the organization deleted and publishes one {@link OrgDeletedEvent}, whose listener removes its members, groups,
-     * applications and datasources. Only an organization that is not deleted yet is matched (BF-135: the update matched a
-     * deleted one too and, since its auditing fields moved, reported a change, so a second delete answered true and
-     * published the event again); a second delete answers false and publishes nothing. The key is an object id or a gid,
-     * as for {@code MongoUpsertHelper.updateById}. Limit: the event carries the key as given, so a delete by gid sends the
-     * gid to the cleanup listener, which removes by object id (the REST caller passes the object id).
+     * Marks the organization deleted and publishes one {@link OrgDeletedEvent} with its object id, whose listener removes its
+     * members (except the super admin's member relation), groups, applications and datasources. Only an organization that
+     * is not deleted yet is matched (BF-135: the update matched a deleted one too and, since its auditing fields moved,
+     * reported a change, so a second delete answered true and published the event again); a second delete answers false
+     * and publishes nothing. The key is an object id or a gid; a gid is first resolved to its org's object id
+     * ({@code objectIdOf}), which the update and the event then use (NEW-41: the event carried the gid as given, by which
+     * the listener, removing by object id, found nothing). A key that resolves to nothing answers false.
+     * <p>
+     * Limits: a slug is not resolved (a key holding a hyphen is taken as a gid and any other as an object id, as before).
+     * The gid is resolved by a separate read before the conditional update, not atomically with it, and the update then
+     * targets the object id that read returned: it deletes the org the read returned even if that org no longer has the gid
+     * when the update runs, so a gid moved to another org between the two still deletes the org that had it at the read.
+     * A gid is assumed unique, as the unique index on organization gids makes it.
      */
     @Override
     public Mono<Boolean> delete(String orgId) {
-        Organization organization = new Organization();
-        organization.setState(OrganizationState.DELETED);
-        Query notYetDeleted = new Query(Criteria.where(FieldName.guessFieldNameFromId(orgId)).is(orgId)
-                .and(fieldName(QOrganization.organization.state)).ne(OrganizationState.DELETED));
-        return mongoUpsertHelper.update(organization, notYetDeleted)
-                .delayUntil(success -> {
-                    if (Boolean.TRUE.equals(success)) {
-                        return sendOrgDeletedEvent(orgId);
-                    }
-                    return Mono.empty();
-                });
+        return objectIdOf(orgId)
+                .flatMap(objectId -> {
+                    Organization organization = new Organization();
+                    organization.setState(OrganizationState.DELETED);
+                    Query notYetDeleted = new Query(Criteria.where(FieldName.ID).is(objectId)
+                            .and(fieldName(QOrganization.organization.state)).ne(OrganizationState.DELETED));
+                    return mongoUpsertHelper.update(organization, notYetDeleted)
+                            .delayUntil(success -> {
+                                if (Boolean.TRUE.equals(success)) {
+                                    return sendOrgDeletedEvent(objectId);
+                                }
+                                return Mono.empty();
+                            });
+                })
+                .defaultIfEmpty(false);
+    }
+
+    /**
+     * The object id an organization key names: for a gid (a key holding a hyphen) the object id of the org the gid read
+     * returns, deleted or not, or nothing when no org has the gid; any other key as given (nothing for null). A failing read
+     * fails the result.
+     * <p>
+     * Limits: a slug is not resolved. The read is not atomic with the caller's update. It relies on the unique index on
+     * organization gids: where that index is missing, it takes the first org the read returns, deleted or not.
+     */
+    private Mono<String> objectIdOf(String orgId) {
+        if (FieldName.isGID(orgId)) {
+            return repository.findByGid(orgId).next().map(Organization::getId);
+        }
+        return Mono.justOrEmpty(orgId);
     }
 
     private Mono<Void> sendOrgDeletedEvent(String orgId) {
