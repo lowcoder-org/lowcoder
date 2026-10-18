@@ -9,6 +9,8 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.lowcoder.api.ServerApplication;
 import org.lowcoder.domain.organization.event.OrgDeletedEvent;
 import org.lowcoder.domain.organization.model.Organization;
@@ -65,23 +67,69 @@ class OrganizationServiceImplDeleteTwicePinMongoTest extends OrganizationMongoTe
         assertThat(events).isEqualTo(1L);
     }
 
+    /** The name of the org the gid case creates, and the count of events of one delete. */
+    static final String BY_GID_NAME = "by-gid";
+    static final long ONE_EVENT = 1L;
+
     /**
-     * BF-135: the org is also deleted when named by its gid, as before (the key is an object id or a gid). The event
-     * carries the gid as given, a limit stated on delete (NEW-41 in the plan); the REST caller passes the object id.
+     * BF-135 and NEW-41: the org is also deleted, once, when named by its gid, and its one event carries the org's object
+     * id, the key the cleanup listener removes by; the event carried the gid as given (NEW-41), so the cleanups found nothing.
      */
     @Test
-    void anOrgNamedByItsGidIsDeletedOnceBF135() {
+    void anOrgNamedByItsGidIsDeletedOnceAndItsEventCarriesItsObjectIdNEW41() {
         String gid = UUID.randomUUID().toString();
-        String orgId = mongo.save(Organization.builder().name("by-gid").gid(gid).state(ACTIVE).build()).block(TIMEOUT).getId();
+        String orgId = mongo.save(Organization.builder().name(BY_GID_NAME).gid(gid).state(ACTIVE).build()).block(TIMEOUT).getId();
+        System.out.println("[OrganizationServiceImplDeleteTwicePinMongoTest] deleting org " + orgId + " twice by its gid " + gid);
 
         Boolean first = organizationService.delete(gid).block(TIMEOUT);
         Boolean second = organizationService.delete(gid).block(TIMEOUT);
 
-        System.out.println("[OrganizationServiceImplDeleteTwicePinMongoTest] by gid first=" + first + " second=" + second);
+        long objectIdEvents = DELETED_ORG_IDS.stream().filter(orgId::equals).count();
+        long gidEvents = DELETED_ORG_IDS.stream().filter(gid::equals).count();
+        System.out.println("[OrganizationServiceImplDeleteTwicePinMongoTest] by gid first=" + first + " second=" + second
+                + " events with the object id=" + objectIdEvents + " with the gid=" + gidEvents);
         assertThat(mongo.findById(orgId, Organization.class).block(TIMEOUT).getState()).isEqualTo(DELETED);
         assertThat(first).isTrue();
         assertThat(second).isFalse();
-        assertThat(DELETED_ORG_IDS.stream().filter(gid::equals).count()).isEqualTo(1L);
+        assertThat(objectIdEvents).isEqualTo(ONE_EVENT);
+        assertThat(gidEvents).isZero();
+    }
+
+    /**
+     * NEW-41: a gid that names no org answers false and publishes nothing, as before. Nothing published is checked as no
+     * event collected during the call, which holds since this module's tests run one at a time (no JUnit parallel
+     * execution is configured).
+     */
+    @Test
+    void deletingAnUnknownGidAnswersFalseAndPublishesNothingNEW41() {
+        String unknownGid = UUID.randomUUID().toString();
+        int eventsBefore = DELETED_ORG_IDS.size();
+        System.out.println("[OrganizationServiceImplDeleteTwicePinMongoTest] deleting the unknown gid " + unknownGid + ", events before " + eventsBefore);
+
+        Boolean answer = organizationService.delete(unknownGid).block(TIMEOUT);
+
+        System.out.println("[OrganizationServiceImplDeleteTwicePinMongoTest] unknown gid " + unknownGid + " -> " + answer
+                + ", events after " + DELETED_ORG_IDS.size());
+        assertThat(answer).isFalse();
+        assertThat(DELETED_ORG_IDS).hasSize(eventsBefore);
+    }
+
+    /**
+     * A null or empty key names no org: the delete answers false and publishes nothing, as before NEW-41 (checked as in the
+     * unknown-gid case).
+     */
+    @ParameterizedTest(name = "key=[{0}]")
+    @NullAndEmptySource
+    void deletingANullOrEmptyKeyAnswersFalseAndPublishesNothing(String key) {
+        int eventsBefore = DELETED_ORG_IDS.size();
+        System.out.println("[OrganizationServiceImplDeleteTwicePinMongoTest] deleting the key [" + key + "], events before " + eventsBefore);
+
+        Boolean answer = organizationService.delete(key).block(TIMEOUT);
+
+        System.out.println("[OrganizationServiceImplDeleteTwicePinMongoTest] key [" + key + "] -> " + answer + ", events after "
+                + DELETED_ORG_IDS.size());
+        assertThat(answer).isFalse();
+        assertThat(DELETED_ORG_IDS).hasSize(eventsBefore);
     }
 
     /** BF-135: deleting an org id that names no org answers false and publishes nothing. */
