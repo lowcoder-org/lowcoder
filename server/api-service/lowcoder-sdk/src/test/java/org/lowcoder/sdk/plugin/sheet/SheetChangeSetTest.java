@@ -1,6 +1,7 @@
 package org.lowcoder.sdk.plugin.sheet;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.lowcoder.sdk.plugin.common.constant.Constants.CHANGE_SET_FORM_KEY;
 import static org.lowcoder.sdk.plugin.common.constant.Constants.COMP_KEY;
@@ -12,9 +13,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -34,6 +39,12 @@ import org.lowcoder.sdk.plugin.sqlcommand.changeset.KeyValuePairChangeSet;
  * differ, this class says so.
  */
 class SheetChangeSetTest {
+
+    /** A default locale whose case mapping of {@code i} and {@code I} differs from {@code Locale.ROOT}'s (NEW-40). */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+    private static final String LOWER_CASE_KEY_VALUE_PAIRS = "key_value_pairs";
+    private static final String PAIR_COLUMN = "a";
+    private static final String PAIR_VALUE = "1";
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final String BLANK_EMPTY = "";
@@ -267,5 +278,28 @@ class SheetChangeSetTest {
         assertPluginError(() -> SheetChangeSetRows.fromJsonNode(json("[1,2]")), "GUI_INVALID_JSON_MAP_TYPE");
         assertPluginError(() -> SheetChangeSetRow.fromJsonNode(json("\"text\"")), "GUI_INVALID_JSON_MAP_TYPE");
         assertThat(SheetChangeSetRow.fromJsonNode(json("{\"a\":1,\"b\":null}")).getItem("b").renderedValue()).isNull();
+    }
+
+
+    /**
+     * NEW-40: the sheet twin of ChangeSetParseTest's case: a lower-case type is read under a Turkish default locale.
+     * The case holds JUnit's {@code Resources.LOCALE} lock while it changes the default locale; the lock orders it only
+     * against tests that hold the same lock, and it restores the locale after its calls, which block, have completed.
+     */
+    @Test
+    @ResourceLock(Resources.LOCALE)
+    void sheetParseChangeSetReadsALowerCaseTypeUnderATurkishDefaultLocaleNEW40() {
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            AtomicReference<SheetChangeSet> parsed = new AtomicReference<>();
+            assertThatCode(() -> parsed.set(SheetChangeSet.parseChangeSet(detail(changeSet(LOWER_CASE_KEY_VALUE_PAIRS, List.of(pair(PAIR_COLUMN, PAIR_VALUE)))))))
+                    .doesNotThrowAnyException();
+            SheetChangeSet changeSet = parsed.get();
+            System.out.println("[SheetChangeSetTest] " + LOWER_CASE_KEY_VALUE_PAIRS + " under " + Locale.getDefault() + " -> " + changeSet.getClass().getSimpleName());
+            assertThat(changeSet).isInstanceOf(SheetKeyValuePairChangeSet.class);
+        } finally {
+            Locale.setDefault(previous);
+        }
     }
 }

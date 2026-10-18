@@ -110,7 +110,7 @@ public final class QueryTimeoutUtils {
         if (unitIndex == -1) {
             return Pair.of(MILLISECONDS, -1);
         }
-        return Pair.of(str.substring(unitIndex).trim().toLowerCase(), unitIndex);
+        return Pair.of(str.substring(unitIndex).trim().toLowerCase(java.util.Locale.ROOT), unitIndex);
 
     }
 

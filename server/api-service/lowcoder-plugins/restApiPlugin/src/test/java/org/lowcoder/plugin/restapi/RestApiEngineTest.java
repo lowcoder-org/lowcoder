@@ -7,9 +7,13 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
+import org.lowcoder.plugin.restapi.helpers.AuthHelper;
 import org.lowcoder.plugin.restapi.model.RestApiQueryExecutionContext;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.contract.RecordingHttpServer;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.models.QueryExecutionResult;
@@ -19,11 +23,13 @@ import org.lowcoder.sdk.plugin.restapi.auth.BasicAuthConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType;
 import org.lowcoder.sdk.query.QueryExecutionContext;
 import org.lowcoder.sdk.query.QueryVisitorContext;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static java.util.Collections.emptyList;
@@ -38,6 +44,10 @@ import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.DIGEST_AUTH;
  * binding, basic and digest authentication, and JSON response content types.
  */
 public class RestApiEngineTest {
+
+    /** A default locale whose case mapping of {@code i} and {@code I} differs from {@code Locale.ROOT}'s (NEW-40). */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+    private static final String UPPER_CASE_DIGEST_CHALLENGE = "DIGEST realm=\"Users\", nonce=\"n\"";
 
     private static final String WRONG_PASSWORD = "wrong";
     /** A digest-authenticated request: the challenged request and the one that answers the challenge. */
@@ -405,5 +415,27 @@ public class RestApiEngineTest {
         QueryExecutionContext context = executor.doBuildQueryExecutionContext(datasourceConfig,
                 queryConfig, params, queryVisitorContext);
         return executor.doExecuteQuery(null, context);
+    }
+
+
+    /**
+     * NEW-40: a digest challenge whose scheme is written in upper case is recognised under a Turkish default locale
+     * too; the default locale's rule made {@code DIGEST} {@code dıgest}, so the challenge was not answered. The case
+     * holds JUnit's {@code Resources.LOCALE} lock while it changes the default locale; the lock orders it only against
+     * tests that hold the same lock, and it restores the locale after its calls, which block, have completed.
+     */
+    @Test
+    @ResourceLock(Resources.LOCALE)
+    public void anUpperCaseDigestChallengeIsRecognisedUnderATurkishDefaultLocaleNEW40() {
+        ClientResponse challenge = ClientResponse.create(HttpStatus.UNAUTHORIZED).header(HttpHeaders.WWW_AUTHENTICATE, UPPER_CASE_DIGEST_CHALLENGE).build();
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            boolean digest = AuthHelper.shouldDigestAuth(challenge);
+            System.out.println("[RestApiEngineTest] under " + Locale.getDefault() + ": " + UPPER_CASE_DIGEST_CHALLENGE + " -> digest " + digest);
+            assertTrue(digest);
+        } finally {
+            Locale.setDefault(previous);
+        }
     }
 }

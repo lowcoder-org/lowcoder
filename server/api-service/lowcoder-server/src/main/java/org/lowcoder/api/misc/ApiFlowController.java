@@ -53,7 +53,7 @@ public class ApiFlowController implements ApiFlowEndpoints
                     .systemProxy()
                     .timeoutMs(HTTP_TIMEOUT)
                     .build()
-                    .method(HttpMethod.valueOf(flowRequest.method().toUpperCase()))
+                    .method(HttpMethod.valueOf(flowRequest.method().toUpperCase(java.util.Locale.ROOT)))
                     .uri(url)
                     .body(BodyInserters.fromValue(jsonBody))
                     .headers(httpHeaders -> flowRequest.headers().forEach(httpHeaders::add))

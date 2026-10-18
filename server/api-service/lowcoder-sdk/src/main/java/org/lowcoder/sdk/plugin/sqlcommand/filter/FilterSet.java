@@ -203,7 +203,7 @@ public class FilterSet extends ForwardingList<FilterCondition> {
                 throw new PluginException(INVALID_GUI_SETTINGS, "GUI_INVALID_FILTER_CONDITION");
             }
 
-            filterSet.addCondition(column, condition.toUpperCase(), value);
+            filterSet.addCondition(column, condition.toUpperCase(Locale.ROOT), value);
         }
         return filterSet;
     }

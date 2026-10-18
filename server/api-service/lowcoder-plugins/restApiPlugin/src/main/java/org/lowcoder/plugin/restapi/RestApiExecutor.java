@@ -140,7 +140,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
         List<Property> updatedQueryHeaders = renderMustacheValueInProperties(queryHeaders, requestParams);
 
         Map<String, String> allHeaders = buildHeaders(datasourceHeaders, updatedQueryHeaders);
-        String contentType = parseContentType(allHeaders).toLowerCase();
+        String contentType = parseContentType(allHeaders).toLowerCase(Locale.ROOT);
         if (!isValidContentType(contentType)) {
             throw new PluginException(QUERY_ARGUMENT_ERROR, "INVALID_CONTENT_TYPE", contentType);
         }
