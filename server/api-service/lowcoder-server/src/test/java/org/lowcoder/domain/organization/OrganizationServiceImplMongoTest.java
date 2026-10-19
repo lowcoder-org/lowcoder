@@ -1,17 +1,23 @@
 package org.lowcoder.domain.organization;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.lowcoder.domain.organization.model.OrganizationState.ACTIVE;
 import static org.lowcoder.domain.organization.model.OrganizationState.DELETED;
 import static org.lowcoder.infra.birelation.BiRelationBizType.ORG_MEMBER;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.lowcoder.api.ServerApplication;
 import org.lowcoder.domain.asset.model.Asset;
 import org.lowcoder.domain.asset.service.AssetRepository;
@@ -19,6 +25,7 @@ import org.lowcoder.domain.organization.model.MemberRole;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.model.OrganizationState;
 import org.lowcoder.domain.organization.service.OrganizationService;
+import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.mockito.Mockito;
@@ -26,6 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
@@ -45,6 +54,17 @@ import reactor.core.publisher.Mono;
 class OrganizationServiceImplMongoTest extends OrganizationMongoTestBase {
 
     private static final String INVALID_ORG_ID = "INVALID_ORG_ID";
+    /** The organizations without a slug the null-key case stores, so that a slug lookup by null matches several. */
+    private static final int ORGS_WITHOUT_A_SLUG = 2;
+    private static final String WITHOUT_A_SLUG_NAME = "without-a-slug";
+    private static final String BLANK_SLUG_NAME = "blank-slug";
+    /** The blank keys: none, empty, one space, and other whitespace. */
+    private static final String NULL_KEY = null;
+    private static final String EMPTY_KEY = "";
+    private static final String WHITESPACE_KEY = " ";
+    private static final String MIXED_WHITESPACE_KEY = "\t \n";
+    /** The key lookups {@code lookupAnswers} runs: getById, getByIdWithDeleted, getOrgCommonSettings. */
+    private static final int LOOKUPS = 3;
     private static final byte[] LOGO_BYTES = "logo-bytes".getBytes(StandardCharsets.UTF_8);
 
     @Autowired
@@ -107,6 +127,130 @@ class OrganizationServiceImplMongoTest extends OrganizationMongoTestBase {
         } catch (Exception e) {
             assertNoValidOrg(e);
         }
+    }
+
+    /**
+     * The answer of each of the three key lookups for {@code key}, in the order getById, getByIdWithDeleted,
+     * getOrgCommonSettings: the error it failed with, else what it answered.
+     */
+    private List<Object> lookupAnswers(String key) {
+        List<Object> answers = new ArrayList<>();
+        for (Supplier<Object> lookup : List.<Supplier<Object>>of(
+                () -> organizationService.getById(key).block(TIMEOUT),
+                () -> organizationService.getByIdWithDeleted(key).block(TIMEOUT),
+                () -> organizationService.getOrgCommonSettings(key).block(TIMEOUT))) {
+            Object[] answer = new Object[1];
+            Throwable error = catchThrowable(() -> answer[0] = lookup.get());
+            answers.add(error != null ? error : answer[0]);
+        }
+        System.out.println("[OrganizationServiceImplMongoTest] key [" + key + "]: getById, getByIdWithDeleted, getOrgCommonSettings -> "
+                + answers.stream().map(OrganizationServiceImplMongoTest::describe).toList());
+        return answers;
+    }
+
+    /** A lookup's answer as printed: {@code error/message key} for a BizException, else the error or the answer as text. */
+    private static String describe(Object answer) {
+        return answer instanceof BizException biz ? biz.getError() + "/" + biz.getMessageKey() : String.valueOf(answer);
+    }
+
+    /**
+     * All three lookups failed with a BizException UNABLE_TO_FIND_VALID_ORG / INVALID_ORG_ID; {@code allSatisfy} reports every
+     * lookup that did not, so that none hides another.
+     */
+    private static void assertNoValidOrgInEveryLookup(List<Object> answers) {
+        assertThat(answers).as("getById, getByIdWithDeleted, getOrgCommonSettings").hasSize(LOOKUPS)
+                .allSatisfy(answer -> assertThat(answer).isInstanceOfSatisfying(BizException.class, biz -> {
+                    assertThat(biz.getError()).isEqualTo(BizError.UNABLE_TO_FIND_VALID_ORG);
+                    assertThat(biz.getMessageKey()).isEqualTo(INVALID_ORG_ID);
+                }));
+    }
+
+    /**
+     * NEW-43: a null key names no organization; each of the three lookups refuses it with UNABLE_TO_FIND_VALID_ORG. It used
+     * to be looked up as a slug, which matches every organization without one: with two of them, getById and
+     * getOrgCommonSettings failed with Spring's non-unique-result error, and getByIdWithDeleted failed with an
+     * IllegalArgumentException from its id lookup.
+     */
+    @Test
+    void aNullKeyIsNoValidOrgInEveryLookupNEW43() {
+        List<String> storedGids = new ArrayList<>();
+        runThenRemove(storedGids, () -> {
+            for (int i = 0; i < ORGS_WITHOUT_A_SLUG; i++) {
+                String gid = UUID.randomUUID().toString();
+                storedGids.add(gid);
+                mongo.save(Organization.builder().name(WITHOUT_A_SLUG_NAME).gid(gid).state(ACTIVE).build()).block(TIMEOUT);
+            }
+            System.out.println("[OrganizationServiceImplMongoTest] stored " + ORGS_WITHOUT_A_SLUG + " active orgs without a slug; looking up [" + NULL_KEY + "]");
+
+            assertNoValidOrgInEveryLookup(lookupAnswers(NULL_KEY));
+        });
+    }
+
+    static Stream<String> blankKeys() {
+        return Stream.of(EMPTY_KEY, WHITESPACE_KEY, MIXED_WHITESPACE_KEY);
+    }
+
+    /**
+     * Runs a case's body, then removes the organizations with the gids it recorded (each before its save, so that a save that
+     * reached the database but not the case is removed too), so that no other case of the shared database meets them; when
+     * the body fails, a failing removal is attached to the body's failure as suppressed instead of replacing it.
+     */
+    private void runThenRemove(List<String> storedGids, Runnable body) {
+        try {
+            body.run();
+        } catch (RuntimeException | Error failure) {
+            try {
+                removeStored(storedGids);
+            } catch (RuntimeException | Error removal) {
+                failure.addSuppressed(removal);
+            }
+            throw failure;
+        }
+        removeStored(storedGids);
+    }
+
+    /** Removes the organizations with these gids in one query, and checks that one was removed for each gid. */
+    private void removeStored(List<String> storedGids) {
+        long removed = mongo.remove(Query.query(Criteria.where(FieldName.GID).in(storedGids)), Organization.class).block(TIMEOUT)
+                .getDeletedCount();
+        System.out.println("[OrganizationServiceImplMongoTest] removed " + removed + " of the " + storedGids.size() + " org(s) the case stored");
+        assertThat(removed).as("organizations removed").isEqualTo(storedGids.size());
+    }
+
+    /**
+     * NEW-43: an empty or whitespace key names no organization either, even when an organization has it as its slug (an
+     * empty slug passes {@code SlugUtils}); each lookup refuses it with UNABLE_TO_FIND_VALID_ORG. It used to find that
+     * organization.
+     */
+    @ParameterizedTest(name = "key=[{0}]")
+    @MethodSource("blankKeys")
+    void aBlankKeyIsNoValidOrgInEveryLookupEvenWhenAnOrgHasItAsItsSlugNEW43(String key) {
+        List<String> storedGids = new ArrayList<>();
+        runThenRemove(storedGids, () -> {
+            String gid = UUID.randomUUID().toString();
+            storedGids.add(gid);
+            Organization blank = mongo.save(Organization.builder().name(BLANK_SLUG_NAME).gid(gid).slug(key).state(ACTIVE).build())
+                    .block(TIMEOUT);
+            System.out.println("[OrganizationServiceImplMongoTest] stored org " + blank.getId() + " with the slug [" + key + "]; looking it up");
+
+            assertNoValidOrgInEveryLookup(lookupAnswers(key));
+        });
+    }
+
+    static Stream<String> unknownKeys() {
+        return Stream.of(newId(), UUID.randomUUID().toString());
+    }
+
+    /**
+     * An unknown non-blank key, an object id and a gid, names no organization either: each lookup refuses it with
+     * UNABLE_TO_FIND_VALID_ORG / INVALID_ORG_ID, as before NEW-43, whose fix routes these refusals through one helper too.
+     */
+    @ParameterizedTest(name = "key=[{0}]")
+    @MethodSource("unknownKeys")
+    void anUnknownKeyIsNoValidOrgInEveryLookupAsBefore(String key) {
+        System.out.println("[OrganizationServiceImplMongoTest] looking up the unknown key [" + key + "]");
+
+        assertNoValidOrgInEveryLookup(lookupAnswers(key));
     }
 
     /** Catches: the with-deleted lookup filtering by state, or not resolving a key type; unknown keys must fail. */
