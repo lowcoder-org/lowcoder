@@ -57,6 +57,9 @@ import static org.lowcoder.sdk.util.LocaleUtils.getMessage;
 @Service
 public class OrganizationServiceImpl implements OrganizationService {
 
+    /** The message key of UNABLE_TO_FIND_VALID_ORG for a key that names no organization. */
+    private static final String INVALID_ORG_ID_KEY = "INVALID_ORG_ID";
+
     /** The Organization property that holds the logo's asset id. */
     private static final String LOGO_ASSET_ID = "logoAssetId";
 
@@ -180,37 +183,83 @@ public class OrganizationServiceImpl implements OrganizationService {
      * as a slug (BF-133: SlugUtils accepts a hyphen in a slug, and such a slug was never looked up), any other key as a
      * slug and then as an object id. The same order holds for {@link #getByIdWithDeleted} and {@link #getOrgCommonSettings};
      * {@link #getByIds} takes the kind of its first key for the whole list, as before.
+     * <p>
+     * A blank key (null, empty or only whitespace, as {@code StringUtils.isBlank} decides) names no organization: this
+     * method refuses it with UNABLE_TO_FIND_VALID_ORG before any query (NEW-43).
+     * <p>
+     * Limits: an organization whose stored slug is blank is not found by that slug by this method, only by a non-blank
+     * id or gid; a key of invisible characters that {@code StringUtils.isBlank} does not count as whitespace, such as a
+     * no-break space or a zero-width space, is not blank and is looked up as before; a caller that looks a blank key, a
+     * null one included, up as a slug before calling, as the server's
+     * {@code GidService.convertOrganizationIdToObjectId} does (NEW-86), passes on the object id of the organization it
+     * finds, which this guard does not see; {@link #getByIds} is not guarded: a blank key in its list is passed to its
+     * queries as before, whether a query then matches it depending on the kind of the first key and on what the first
+     * query finds, and a null first key fails in its {@code findFirst} before any query, as before.
      */
     @Override
     public Mono<Organization> getById(String id) {
+        if (StringUtils.isBlank(id))
+            return noValidOrg();
         if(FieldName.isGID(id))
             return repository.findByGidAndState(id, ACTIVE)
                     .switchIfEmpty(repository.findBySlugAndState(id, ACTIVE))
-                    .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
+                    .switchIfEmpty(noValidOrg());
         return repository.findBySlugAndState(id, ACTIVE).switchIfEmpty(repository.findByIdAndState(id, ACTIVE))
-                .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
+                .switchIfEmpty(noValidOrg());
     }
 
+    /**
+     * The organization named by an object id, a gid or a slug, deleted ones included, in the order of {@link #getById}.
+     * A blank key, as {@link #getById} defines it, is refused with UNABLE_TO_FIND_VALID_ORG before any query (NEW-43).
+     * <p>
+     * Limits: an organization whose stored slug is blank is not found by that slug by this method, only by a non-blank
+     * id or gid; a key of invisible characters that {@code StringUtils.isBlank} does not count as whitespace, such as a
+     * no-break space or a zero-width space, is not blank and is looked up as before; a caller that looks a blank key, a
+     * null one included, up as a slug before calling, as the server's
+     * {@code GidService.convertOrganizationIdToObjectId} does (NEW-86), passes on the object id of the organization it
+     * finds, which this guard does not see.
+     */
     @Override
     public Mono<Organization> getByIdWithDeleted(String id) {
+        if (StringUtils.isBlank(id))
+            return noValidOrg();
         if(FieldName.isGID(id))
             return repository.findByGid(id).next()
                     .switchIfEmpty(repository.findBySlug(id).next())
-                    .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
+                    .switchIfEmpty(noValidOrg());
         return repository.findBySlug(id).next().switchIfEmpty(repository.findById(id))
-                .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
+                .switchIfEmpty(noValidOrg());
     }
 
+    /**
+     * The common settings of the active organization named by an object id, a gid or a slug, in the order of
+     * {@link #getById}. A blank key, as {@link #getById} defines it, is refused with UNABLE_TO_FIND_VALID_ORG before any
+     * query (NEW-43).
+     * <p>
+     * Limits: an organization whose stored slug is blank is not found by that slug by this method, only by a non-blank
+     * id or gid; a key of invisible characters that {@code StringUtils.isBlank} does not count as whitespace, such as a
+     * no-break space or a zero-width space, is not blank and is looked up as before; a caller that looks a blank key, a
+     * null one included, up as a slug before calling, as the server's
+     * {@code GidService.convertOrganizationIdToObjectId} does (NEW-86), passes on the object id of the organization it
+     * finds, which this guard does not see.
+     */
     @Override
     public Mono<OrganizationCommonSettings> getOrgCommonSettings(String orgId) {
+        if (StringUtils.isBlank(orgId))
+            return noValidOrg();
         if(FieldName.isGID(orgId))
             return repository.findByGidAndState(orgId, ACTIVE)
                     .switchIfEmpty(repository.findBySlugAndState(orgId, ACTIVE))
-                    .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"))
+                    .switchIfEmpty(noValidOrg())
                     .map(Organization::getCommonSettings);
         return repository.findBySlugAndState(orgId, ACTIVE).switchIfEmpty(repository.findByIdAndState(orgId, ACTIVE))
-                .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"))
+                .switchIfEmpty(noValidOrg())
                 .map(Organization::getCommonSettings);
+    }
+
+    /** The answer of the three key lookups above for a key that names no organization. */
+    private static <T> Mono<T> noValidOrg() {
+        return deferredError(UNABLE_TO_FIND_VALID_ORG, INVALID_ORG_ID_KEY);
     }
 
     @Override
