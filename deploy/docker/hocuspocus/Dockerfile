@@ -1,6 +1,6 @@
 # Hocuspocus (Yjs WebSocket) server for lowcoder ChatBox.
 # Build context: client/packages/lowcoder (see Dockerfile.dockerignore next to this file)
-FROM node:26-alpine
+FROM node:26.12.1-alpine
 
 ARG HOCUSPOCUS_SERVER_VERSION=4.3.0
 
