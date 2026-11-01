@@ -77,12 +77,39 @@ public class ApiFlowController implements ApiFlowEndpoints
                     .retrieve()
                     .bodyToMono(String.class)
                     .onErrorResume(Mono::error)
-                    .retryWhen(Retry.backoff(Objects.requireNonNullElse(flowRequest.retries(), 0),
-                                    Duration.of(Objects.requireNonNullElse(flowRequest.timeout(), HTTP_TIMEOUT), ChronoUnit.SECONDS))
-                            .onRetryExhaustedThrow(((retryBackoffSpec, retrySignal) -> new BizException(BizError.FLOW_ERROR, "FLOW_ERROR", retrySignal.failure().getMessage()))));
+                    .retryWhen(retrySpec(flowRequest));
         } catch (Exception e) {
             return Mono.error(e);
         }
+    }
+
+    /** The retry count of {@link #retrySpec} when the request has no {@code retries}: no retry. */
+    static final int DEFAULT_RETRIES = 0;
+
+    /** The unit of a request's {@code timeout}, which {@link #retrySpec} reads as the first retry's minimum backoff. */
+    static final ChronoUnit TIMEOUT_UNIT = ChronoUnit.SECONDS;
+
+    /**
+     * The minimum backoff of {@link #retrySpec} when the request has no {@code timeout}: {@code HTTP_TIMEOUT} read as
+     * milliseconds, as {@code WebClientBuildHelper.timeoutMs} reads it for the request itself (10 s).
+     */
+    static final Duration DEFAULT_RETRY_BACKOFF = Duration.ofMillis(HTTP_TIMEOUT);
+
+    /**
+     * The retry of a relayed flow request: {@code Retry.backoff} with at most {@code retries} retries ({@link #DEFAULT_RETRIES}
+     * when absent) and a minimum backoff of {@code timeout} in {@link #TIMEOUT_UNIT} ({@link #DEFAULT_RETRY_BACKOFF} when
+     * absent); once the retries are exhausted, FLOW_ERROR with the last failure's message.
+     *
+     * <p>Limits: {@code retries} and {@code timeout} are taken from the request unchecked and unbounded (NEW-92): a zero,
+     * negative or very large value is handed to Reactor as it is (a negative {@code timeout} made Reactor fail with an
+     * ArithmeticException instead of FLOW_ERROR in a probe); {@code timeout} sets only the backoff, not the request's own
+     * timeout, which stays {@code HTTP_TIMEOUT} milliseconds; the backoff is a minimum before Reactor's default jitter (a retry may fire earlier than {@code timeout}; the delays themselves are not tested) and the maximum backoff is Reactor's default; a
+     * null request is not checked.
+     */
+    static reactor.util.retry.RetryBackoffSpec retrySpec(FlowRequest flowRequest) {
+        Duration minBackoff = flowRequest.timeout() == null ? DEFAULT_RETRY_BACKOFF : Duration.of(flowRequest.timeout(), TIMEOUT_UNIT);
+        return Retry.backoff(Objects.requireNonNullElse(flowRequest.retries(), DEFAULT_RETRIES), minBackoff)
+                .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> new BizException(BizError.FLOW_ERROR, "FLOW_ERROR", retrySignal.failure().getMessage()));
     }
 
 }

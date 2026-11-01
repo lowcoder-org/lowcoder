@@ -47,9 +47,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.RetryBackoffSpec;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -102,7 +104,7 @@ import static org.mockito.ArgumentMatchers.eq;
  *       receive the request's method, path and headers and, as body, D1's {@code data} written again (compared
  *       canonically); the upstream's text must reach the client unchanged;</li>
  *   <li>{@link #flowUpstreamFailed}: without {@code retries} and {@code timeout} (so no retry), an upstream error becomes
- *       {@code BizException(FLOW_ERROR)} with the upstream exception's message ({@code :82});</li>
+ *       {@code BizException(FLOW_ERROR)} with the upstream exception's message ({@code :112});</li>
  *   <li>{@link #flowWithoutHeaders}: with {@code headers} left out or null the request is sent with none of its own and
  *       the upstream's text answered, on both mounts (NEW-44; before, the controller threw at the headers and answered
  *       {@code INTERNAL_SERVER_ERROR});</li>
@@ -110,7 +112,9 @@ import static org.mockito.ArgumentMatchers.eq;
  *       whitespace only, with or without the D1 sample's retries, is refused with
  *       {@code INVALID_PARAMETER} "method" before the client is built (NEW-44), on both mounts;</li>
  *   <li>{@link #flowFailingBeforeTheRequest}: the client cannot be built (the test makes the builder throw), before any
- *       I/O, and {@code :83-85} answer {@code Mono.error}: the global handler's {@code INTERNAL_SERVER_ERROR};</li>
+ *       I/O, and {@code :81-83} answer {@code Mono.error}: the global handler's {@code INTERNAL_SERVER_ERROR};</li>
+ *   <li>{@link #flowRetriesWithoutTimeoutBackOffTenSeconds}: with {@code retries} and no {@code timeout}, the retry {@code flow}
+ *       returns is configured with a 10 s minimum backoff, jitter aside (NEW-45; before, {@code HTTP_TIMEOUT} was read as seconds, about 2.8 h);</li>
  *   <li>{@link #flowRepresentativeData}: {@code data} is the §4.6 representative input, spliced in as text; the body
  *       WireMock receives, the bare mapper's writing of what the server codec bound, is pinned in
  *       {@value #REPRESENTATIVE_BODY}. This is the {@code api-flow} group's test;</li>
@@ -189,6 +193,12 @@ class ApiFlowEndpointsContractTest {
     static final long JOIN_TIME = 0L;
     static final int QUANTITY = 4;
     static final String POST = "post";
+    /** The retries of {@link #flowRetriesWithoutTimeoutBackOffTenSeconds}. */
+    static final int TWO_RETRIES = 2;
+    /** {@code HTTP_TIMEOUT} (10000 ms) as the minimum backoff a request without {@code timeout} gets: 10 s, not 10000 s. */
+    static final Duration EXPECTED_DEFAULT_BACKOFF = Duration.ofSeconds(10);
+    /** The package-private field of Reactor's {@code MonoRetryWhen} that holds the retry spec ({@code javap -p}, reactor-core 3.6.4). */
+    static final String RETRY_SPEC_FIELD = "whenSourceFactory";
     static final String OTHER_METHOD = "get";
     /** Blank methods a client can send: empty, one space, and a mix of the whitespace {@code StringUtils.isBlank} counts. */
     static final String EMPTY_METHOD = "";
@@ -413,6 +423,32 @@ class ApiFlowEndpointsContractTest {
                 .isSameAs(failure);
         assertThat(wireMock.getWireMock().find(anyRequestedFor(anyUrl()))).as("upstream requests").isEmpty();
         EndpointContract.assertBizError(result, BizError.INTERNAL_SERVER_ERROR, BizError.INTERNAL_SERVER_ERROR.name());
+    }
+
+    /**
+     * NEW-45: a request with {@code retries} and no {@code timeout} gets a retry whose minimum backoff is 10 s, read from the
+     * answer {@code flow} returns (the upstream answers 200, so no retry runs and no delay is waited for). The spec is read
+     * through {@code ReflectionTestUtils} from the package-private field of Reactor's {@code MonoRetryWhen}; a Reactor
+     * change of that field makes the read throw and fails the case. Limits: the delays themselves are not run; one mount.
+     */
+    @Test
+    void flowRetriesWithoutTimeoutBackOffTenSeconds(WireMockRuntimeInfo wireMock) throws JsonProcessingException {
+        FlowRequest sample = sample();
+        upstreamAnswers(wireMock, sample, aResponse().withStatus(OK).withBody(UPSTREAM_ANSWER));
+        EntityExchangeResult<byte[]> result = exchange(d1Without(tree -> {
+            tree.remove(TIMEOUT);
+            tree.put(RETRIES, TWO_RETRIES);
+        }));
+        assertThat(decoded()).as("the D1 request with two retries and no timeout")
+                .isEqualTo(new FlowRequest(sample.path(), sample.method(), sample.data(), sample.headers(), null, TWO_RETRIES));
+        assertThat(controller.answers).as("answers flow returned").hasSize(1);
+        Object spec = ReflectionTestUtils.getField(controller.answers.get(0), RETRY_SPEC_FIELD);
+        System.out.println("[ApiFlowEndpointsContractTest] retry spec of flow's answer: " + spec);
+        assertThat(spec).as("the retry spec of flow's answer").isInstanceOf(RetryBackoffSpec.class);
+        RetryBackoffSpec backoff = (RetryBackoffSpec) spec;
+        assertThat(backoff.maxAttempts).as("maxAttempts").isEqualTo(TWO_RETRIES);
+        assertThat(backoff.minBackoff).as("minBackoff").isEqualTo(EXPECTED_DEFAULT_BACKOFF);
+        EndpointContract.assertBytes(result, HttpStatus.OK, TEXT_PLAIN_UTF8, UPSTREAM_ANSWER.getBytes(StandardCharsets.UTF_8));
     }
 
     @BoundarySites({
