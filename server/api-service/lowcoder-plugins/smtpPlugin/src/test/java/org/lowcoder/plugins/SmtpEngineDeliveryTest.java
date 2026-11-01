@@ -54,6 +54,18 @@ public class SmtpEngineDeliveryTest {
     /** How a header encoded as UTF-8 (RFC 2047) starts. */
     static final String UTF_8_ENCODED_WORD = "=?UTF-8?";
     static final String HTML_UTF_8 = "text/html; charset=UTF-8";
+    /** How an RFC 2231 extended parameter value in UTF-8 starts, after the parameter name's {@code *=}. */
+    static final String UTF_8_EXTENDED_VALUE = "UTF-8''";
+    static final String FILENAME_EXTENDED = "filename*=" + UTF_8_EXTENDED_VALUE;
+    static final String NAME_EXTENDED = "name*=" + UTF_8_EXTENDED_VALUE;
+    static final String CONTENT_DISPOSITION = "Content-Disposition";
+    static final String CONTENT_TYPE = "Content-Type";
+    static final String NON_ASCII_PDF_NAME = "Přehled-ğşıİ-Müller.pdf";
+    static final String NON_ASCII_TEXT_NAME = "poznámka.txt";
+    static final String PDF_TYPE = "application/pdf";
+    static final String US_ASCII = "us-ascii";
+    static final byte[] PDF_BYTES = {0x25, 0x50, 0x44};
+    static final String TEXT_CONTENT = "hello";
 
     private static GreenMail server;
     private final SmtpEngine engine = new SmtpEngine();
@@ -174,6 +186,7 @@ public class SmtpEngineDeliveryTest {
         assertEquals(3, multipart.getCount(), "body plus two attachments");
         Part first = multipart.getBodyPart(1);
         assertEquals("all-bytes.bin", first.getFileName());
+        assertAsciiNameParameters(first, "all-bytes.bin");
         assertEquals(Part.ATTACHMENT, first.getDisposition());
         assertTrue(first.getContentType().startsWith("application/octet-stream"), first.getContentType());
         try (InputStream in = first.getInputStream()) {
@@ -181,10 +194,80 @@ public class SmtpEngineDeliveryTest {
         }
         Part second = multipart.getBodyPart(2);
         assertEquals("note.txt", second.getFileName());
+        assertAsciiNameParameters(second, "note.txt");
         assertTrue(second.getContentType().startsWith("text/plain"), second.getContentType());
         try (InputStream in = second.getInputStream()) {
             assertEquals("hello", new String(in.readAllBytes()));
         }
+    }
+
+    /** The part's own unfolded header, as received. */
+    private static String rawHeader(Part part, String name) throws Exception {
+        String[] values = part.getHeader(name);
+        assertNotNull(values, name + " header of the part");
+        return jakarta.mail.internet.MimeUtility.unfold(values[0]);
+    }
+
+    /** An ASCII name is sent as a plain parameter in both headers, not as an extended one (unchanged by GH-01). */
+    private static void assertAsciiNameParameters(Part part, String name) throws Exception {
+        String disposition = rawHeader(part, CONTENT_DISPOSITION);
+        String type = rawHeader(part, CONTENT_TYPE);
+        System.out.println(TAG + "ASCII name raw headers: " + disposition + " | " + type);
+        assertTrue(disposition.contains("filename=" + name) && !disposition.contains("filename*="), disposition);
+        assertTrue(type.contains("name=" + name) && !type.contains("name*="), type);
+    }
+
+    private static String escaped(String text) {
+        StringBuilder out = new StringBuilder();
+        text.chars().forEach(c -> out.append(c < 0x80 ? String.valueOf((char) c) : String.format("\\u%04x", c)));
+        return out.toString();
+    }
+
+    /**
+     * GH-01 (GitHub #727): the file names of attachments arrive intact, as RFC 2231 UTF-8 parameters of both the
+     * Content-Disposition {@code filename} and the Content-Type {@code name}, whatever the JVM's default charset. Before, both
+     * were encoded with Jakarta Mail's default charset, so names arrived with "?" wherever that was not UTF-8. Runs in the
+     * {@code us-ascii-default-charset} execution too (limit: it also runs on a UTF-8 JVM, so only that execution can fail on the
+     * defect; the library is the test dependency 2.0.1, the server ships 2.0.3).
+     * Catches: an attachment name encoded with the default charset, in either header.
+     */
+    @Test
+    public void nonAsciiAttachmentNamesArriveIntactWhateverTheJvmCharsetGH01() throws Exception {
+        String attachments = "[{\"name\": \"" + NON_ASCII_PDF_NAME + "\", \"contentType\": \"" + PDF_TYPE + "\", \"content\": \""
+                + Base64.getEncoder().encodeToString(PDF_BYTES) + "\"},"
+                + " {\"name\": \"" + NON_ASCII_TEXT_NAME + "\", \"contentType\": \"text/plain\", \"content\": \""
+                + Base64.getEncoder().encodeToString(TEXT_CONTENT.getBytes()) + "\"}]";
+        Map<String, Object> queryConfig = query("[\"" + TO_1 + "\"]", "non-ASCII attachment names", "see attached");
+        queryConfig.put("attachments", attachments);
+        assertEquals(QUERY_CODE_OK, sendAuthenticated(queryConfig).getQueryCode());
+        assertTrue(server.waitForIncomingEmail(WAIT_MILLIS, 1));
+        Multipart multipart = (Multipart) only(TO_1).getContent();
+        assertEquals(3, multipart.getCount(), "body plus two attachments");
+        System.out.println(TAG + "default charset " + java.nio.charset.Charset.defaultCharset());
+        Part pdf = multipart.getBodyPart(1);
+        Part text = multipart.getBodyPart(2);
+        assertNonAsciiName(pdf, NON_ASCII_PDF_NAME);
+        assertNonAsciiName(text, NON_ASCII_TEXT_NAME);
+        assertEquals(PDF_TYPE, new jakarta.mail.internet.ContentType(pdf.getContentType()).getBaseType());
+        assertEquals(US_ASCII, new jakarta.mail.internet.ContentType(text.getContentType()).getParameter("charset"));
+        try (InputStream in = pdf.getInputStream()) {
+            assertArrayEquals(PDF_BYTES, in.readAllBytes());
+        }
+        try (InputStream in = text.getInputStream()) {
+            assertEquals(TEXT_CONTENT, new String(in.readAllBytes()));
+        }
+    }
+
+    private static void assertNonAsciiName(Part part, String name) throws Exception {
+        String disposition = rawHeader(part, CONTENT_DISPOSITION);
+        String type = rawHeader(part, CONTENT_TYPE);
+        String typeName = new jakarta.mail.internet.ContentType(part.getContentType()).getParameter("name");
+        System.out.println(TAG + "name " + escaped(name) + ": getFileName " + escaped(String.valueOf(part.getFileName())) + ", Content-Type name "
+                + escaped(String.valueOf(typeName)) + ", raw " + disposition + " | " + type);
+        assertEquals(name, part.getFileName(), "Content-Disposition filename");
+        assertEquals(name, typeName, "Content-Type name");
+        assertTrue(disposition.contains(FILENAME_EXTENDED), disposition);
+        assertTrue(type.contains(NAME_EXTENDED), type);
     }
 
     /**

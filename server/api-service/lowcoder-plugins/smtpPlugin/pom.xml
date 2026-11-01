@@ -100,9 +100,9 @@
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
             </plugin>
-            <!-- GH-01 / BF-149: the mail charset test once more in a JVM whose default charset is US-ASCII, the default of a
+            <!-- GH-01 / BF-149: the mail charset tests (subject and body, attachment names) once more in a JVM whose default charset is US-ASCII, the default of a
                  JVM 17 under the POSIX locale (as in a container that sets no LANG); on a UTF-8 JVM a subject sent without a
-                 charset is UTF-8 by accident, so only this run catches it. It runs this one test whatever -Dtest selects. -->
+                 charset is UTF-8 by accident, so only this run catches it. It runs these two tests whatever -Dtest selects. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -116,7 +116,7 @@
                         </goals>
                         <configuration>
                             <argLine>@{argLine} -Dfile.encoding=ANSI_X3.4-1968</argLine>
-                            <test>SmtpEngineDeliveryTest#nonAsciiSubjectAndBodyArriveIntactWhateverTheJvmCharsetGH01</test>
+                            <test>SmtpEngineDeliveryTest#nonAsciiSubjectAndBodyArriveIntactWhateverTheJvmCharsetGH01+nonAsciiAttachmentNamesArriveIntactWhateverTheJvmCharsetGH01</test>
                             <failIfNoSpecifiedTests>true</failIfNoSpecifiedTests>
                             <reportNameSuffix>us-ascii</reportNameSuffix>
                         </configuration>

@@ -74,7 +74,7 @@ public class SmtpPlugin extends Plugin {
         private static final int DEFAULT_PORT = 25;
         /** How a rendered address field that is a JSON string (the renderer writes text as a JSON text node) starts. */
         private static final String JSON_STRING_START = "\"";
-        /** The charset of the subject and the body of every mail. */
+        /** The charset of the subject, the body and the attachment file names of every mail. */
         private static final String MAIL_CHARSET = StandardCharsets.UTF_8.name();
         /** The body is HTML (text/html). */
         private static final String HTML_SUBTYPE = "html";
@@ -268,16 +268,51 @@ public class SmtpPlugin extends Plugin {
             if (CollectionUtils.isNotEmpty(context.getAttachments())) {
                 Decoder decoder = Base64.getDecoder();
                 for (Attachment attachment : context.getAttachments()) {
-                    MimeBodyPart attachmentPart = new MimeBodyPart();
-                    attachmentPart.setDataHandler(
-                            new DataHandler(new ByteArrayDataSource(decoder.decode(attachment.content()), attachment.contentType())));
-                    attachmentPart.setDisposition(Part.ATTACHMENT);
-                    attachmentPart.setFileName(attachment.name());
+                    MimeBodyPart attachmentPart = new AttachmentPart(
+                            new DataHandler(new ByteArrayDataSource(decoder.decode(attachment.content()), attachment.contentType())),
+                            attachment.name());
                     multipart.addBodyPart(attachmentPart);
                 }
             }
             message.setContent(multipart);
             return message;
+        }
+
+        /**
+         * An attachment whose file name is sent as UTF-8 (RFC 2231 {@code filename*=UTF-8''...}, the same in the Content-Type
+         * {@code name}), whatever Jakarta Mail's default charset (GH-01; {@code setFileName} used that charset, so names
+         * arrived with "?" wherever it was not UTF-8). Limits: only while {@code mail.mime.encodeparameters} and, for
+         * {@code name}, {@code mail.mime.setcontenttypefilename} keep their default true; an ASCII name is sent unencoded, as
+         * before; the name is not checked (null fails with a NullPointerException); a reader without RFC 2231 shows the
+         * encoded form.
+         */
+        static final class AttachmentPart extends MimeBodyPart {
+            private static final String CONTENT_DISPOSITION_HEADER = "Content-Disposition";
+            private static final String CONTENT_TYPE_HEADER = "Content-Type";
+            private static final String FILENAME_PARAMETER = "filename";
+            private static final String NAME_PARAMETER = "name";
+
+            private final String fileName;
+
+            AttachmentPart(DataHandler content, String fileName) throws MessagingException {
+                this.fileName = fileName;
+                setDataHandler(content);
+                jakarta.mail.internet.ParameterList parameters = new jakarta.mail.internet.ParameterList();
+                parameters.set(FILENAME_PARAMETER, fileName, MAIL_CHARSET);
+                setHeader(CONTENT_DISPOSITION_HEADER, new jakarta.mail.internet.ContentDisposition(Part.ATTACHMENT, parameters).toString());
+            }
+
+            /** Jakarta Mail sets the Content-Type {@code name} here, with its default charset; it is set again as UTF-8. */
+            @Override
+            protected void updateHeaders() throws MessagingException {
+                super.updateHeaders();
+                jakarta.mail.internet.ContentType type = new jakarta.mail.internet.ContentType(getContentType());
+                jakarta.mail.internet.ParameterList parameters = type.getParameterList();
+                if (parameters != null && parameters.get(NAME_PARAMETER) != null) {
+                    parameters.set(NAME_PARAMETER, fileName, MAIL_CHARSET);
+                    setHeader(CONTENT_TYPE_HEADER, type.toString());
+                }
+            }
         }
     }
 }
