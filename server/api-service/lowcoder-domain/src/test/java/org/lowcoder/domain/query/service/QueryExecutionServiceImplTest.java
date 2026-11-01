@@ -56,6 +56,12 @@ class QueryExecutionServiceImplTest {
 
     private static final String JAVA_TYPE = "L3-6-java";
     private static final String JS_TYPE = "L3-6-js";
+    /** NEW-18 (T156b-1): Lowcoder's session cookie, a cookie a datasource selects, and one it does not. */
+    private static final String SESSION_COOKIE = "LOWCODER_CE_SELFHOST_TOKEN";
+    private static final String SELECTED_COOKIE = "tenant";
+    private static final String OTHER_COOKIE = "tracking";
+    private static final String CONTEXT_KEY = "key";
+    private static final String CONTEXT_VALUE = "value";
     private static final Duration VERIFY_TIMEOUT = Duration.ofSeconds(5);
     /** {@code CommonConfig}'s maximum query timeout, in seconds. */
     private static final int DEFAULT_MAX_SECONDS = 300;
@@ -83,6 +89,7 @@ class QueryExecutionServiceImplTest {
         metaInfoService = mock(DatasourceMetaInfoService.class);
         pluginClient = mock(DatasourcePluginClient.class);
         common = new CommonConfig();
+        common.setCookieName(SESSION_COOKIE);
         service = new QueryExecutionServiceImpl(pool, metaInfoService, pluginClient, common);
 
         executor = mock(QueryExecutor.class);
@@ -121,6 +128,31 @@ class QueryExecutionServiceImplTest {
             config.put("authConfig", authConfig);
         }
         return config;
+    }
+
+    /** The browser's cookies: another cookie, the session cookie and a selected one with two values. */
+    private static MultiValueMap<String, HttpCookie> browserCookies() {
+        MultiValueMap<String, HttpCookie> cookies = new LinkedMultiValueMap<>();
+        cookies.add(OTHER_COOKIE, new HttpCookie(OTHER_COOKIE, "other-value"));
+        cookies.add(SESSION_COOKIE, new HttpCookie(SESSION_COOKIE, "session-value"));
+        cookies.add(SELECTED_COOKIE, new HttpCookie(SELECTED_COOKIE, "first"));
+        cookies.add(SELECTED_COOKIE, new HttpCookie(SELECTED_COOKIE, "second"));
+        return cookies;
+    }
+
+    /** Runs a JS query with these params and cookies and answers the context the node client was given. */
+    private List<Map<String, Object>> contextSentToNode(Datasource datasource, Map<String, Object> params,
+            MultiValueMap<String, HttpCookie> cookies) {
+        Map<String, Object> queryConfig = new HashMap<>();
+        when(pluginClient.executeQuery(eq(JS_TYPE), any(), any(), any())).thenReturn(Mono.just(success));
+        StepVerifier.create(service.executeQuery(datasource, queryConfig, params, "", visitor(cookies, Mono.just(List.of()))))
+                .expectNext(success).verifyComplete();
+        org.mockito.ArgumentCaptor<List<Map<String, Object>>> context = org.mockito.ArgumentCaptor.forClass(List.class);
+        verify(pluginClient).executeQuery(eq(JS_TYPE), eq(queryConfig), context.capture(), any());
+        List<Map<String, Object>> sent = context.getValue();
+        System.out.println("[QueryExecutionServiceImplTest] context keys sent to node: "
+                + sent.stream().map(entry -> entry.get(CONTEXT_KEY)).toList());
+        return sent;
     }
 
     // ---------------------------------------------------------------- timeout
@@ -230,6 +262,7 @@ class QueryExecutionServiceImplTest {
     @Test
     void executeQuery_jsPlugin_handsParamsAndCookiesAsKeyValueContextToTheNodeClient() {
         JsDatasourceConnectionConfig config = jsConfigWithAuthType(null);
+        config.put(JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY, List.of("session"));
         Datasource datasource = jsDatasource(config);
         Map<String, Object> queryConfig = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
@@ -251,6 +284,55 @@ class QueryExecutionServiceImplTest {
         assertThat(sent.get(2)).containsEntry("key", "session").containsEntry("value", cookies.get("session"));
         verifyNoInteractions(executor, pool);
         System.out.println("[QueryExecutionServiceImplTest] JS plugin: params then cookies sent as key/value context");
+    }
+
+    /**
+     * NEW-18 (T156b-1): only the cookies the datasource selects reach node, never the session cookie, even when it is listed;
+     * a param of a selected cookie's name stays before it, so the cookie wins in node. Catches the session cookie, or an
+     * unselected cookie, forwarded.
+     */
+    @Test
+    void selectedCookiesOnlyNeverTheSessionCookieNEW18() {
+        JsDatasourceConnectionConfig config = jsConfigWithAuthType(null);
+        config.put(JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY, List.of(SELECTED_COOKIE, SESSION_COOKIE));
+        Map<String, Object> params = new HashMap<>();
+        params.put(SELECTED_COOKIE, "param-value");
+        MultiValueMap<String, HttpCookie> cookies = browserCookies();
+
+        List<Map<String, Object>> sent = contextSentToNode(jsDatasource(config), params, cookies);
+
+        assertThat(sent).as("the param, then exactly one cookie entry").hasSize(2);
+        assertThat(sent.get(0)).containsEntry(CONTEXT_KEY, SELECTED_COOKIE).containsEntry(CONTEXT_VALUE, "param-value");
+        assertThat(sent.get(1)).containsEntry(CONTEXT_KEY, SELECTED_COOKIE).containsEntry(CONTEXT_VALUE, cookies.get(SELECTED_COOKIE));
+        assertThat(sent).extracting(entry -> entry.get(CONTEXT_KEY)).doesNotContain(SESSION_COOKIE, OTHER_COOKIE);
+    }
+
+    /** NEW-18 (T156b-1): forward-all sends every cookie but the session cookie. Catches the session cookie forwarded with it. */
+    @Test
+    void forwardAllSendsEveryCookieButTheSessionCookieNEW18() {
+        JsDatasourceConnectionConfig config = jsConfigWithAuthType(null);
+        config.put(JsDatasourceConnectionConfig.FORWARD_ALL_COOKIES_KEY, Boolean.TRUE);
+
+        List<Map<String, Object>> sent = contextSentToNode(jsDatasource(config), new HashMap<>(), browserCookies());
+
+        assertThat(sent).extracting(entry -> entry.get(CONTEXT_KEY)).containsExactly(OTHER_COOKIE, SELECTED_COOKIE);
+        assertThat(sent.get(1).get(CONTEXT_VALUE)).isEqualTo(browserCookies().get(SELECTED_COOKIE));
+    }
+
+    /** NEW-18 (T156b-1): without cookie settings no cookie is sent, for a config of either type. Catches the old forward-everything. */
+    @Test
+    void withoutSettingsNoCookieIsSentNEW18() {
+        Map<String, Object> params = new HashMap<>();
+        params.put("param", "value");
+
+        List<Map<String, Object>> forJsConfig = contextSentToNode(jsDatasource(jsConfigWithAuthType(null)), params, browserCookies());
+        assertThat(forJsConfig).as("JS config without settings: the param only").hasSize(1);
+        assertThat(forJsConfig.get(0)).containsEntry(CONTEXT_KEY, "param");
+
+        clearInvocations(pluginClient);
+        Datasource otherConfig = Datasource.builder().id("ds-js-other").type(JS_TYPE).detailConfig(mock(DatasourceConnectionConfig.class)).build();
+        List<Map<String, Object>> forOtherConfig = contextSentToNode(otherConfig, params, browserCookies());
+        assertThat(forOtherConfig).as("config that is not a JsDatasourceConnectionConfig: the param only").hasSize(1);
     }
 
     /**

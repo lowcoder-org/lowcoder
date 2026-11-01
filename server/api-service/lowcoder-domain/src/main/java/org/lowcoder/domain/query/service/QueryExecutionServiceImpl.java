@@ -16,6 +16,7 @@ import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.query.QueryExecutionContext;
 import org.lowcoder.sdk.query.QueryVisitorContext;
+import org.lowcoder.sdk.util.CookieForwarding;
 import org.lowcoder.sdk.util.MustacheHelper;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -100,12 +101,12 @@ public class QueryExecutionServiceImpl implements QueryExecutionService {
                 })
                 .collect(Collectors.toList());
 
-        //forward cookies to js datasource
-        List<Map<String, Object>> cookies = queryVisitorContext.getCookies().entrySet()
-                .stream()
-                .map(entry -> Map.<String, Object>of(CONTEXT_KEY, entry.getKey(), CONTEXT_VALUE, entry.getValue()))
-                .collect(Collectors.toList());
-        context.addAll(cookies);
+        // forward the cookies the js datasource selects, never the session cookie (NEW-18, T156b-1)
+        if (datasource.getDetailConfig() instanceof JsDatasourceConnectionConfig cookieConfig) {
+            CookieForwarding.select(queryVisitorContext.getCookies(), cookieConfig.isForwardAllCookies(),
+                            cookieConfig.getForwardCookies(), common.getCookieName())
+                    .forEach((name, httpCookies) -> context.add(Map.<String, Object>of(CONTEXT_KEY, name, CONTEXT_VALUE, httpCookies)));
+        }
 
         // forward oauth2 access token in case of oauth2(inherit from login)
 
