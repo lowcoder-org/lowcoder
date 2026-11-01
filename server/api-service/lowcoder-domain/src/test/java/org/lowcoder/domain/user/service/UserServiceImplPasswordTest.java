@@ -343,6 +343,65 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] unknown and deleted accounts -> no mail, no save");
     }
 
+    private static final Duration RESET_TOKEN_LIFETIME = Duration.ofHours(12);
+    private static final String ORG_LOOKUP_ERROR_KEY = "INVALID_ORG_ID";
+    private static final String MEMBERSHIP_LOOKUP_FAILURE = "UserServiceImplPasswordTest.membership-lookup-failure";
+
+    /**
+     * GitHub #1043: an account in no organization ({@code getCurrentOrgMember} empty) used to end {@code lostPassword}
+     * before the mail and the token; it now gets the default template and a stored token hash with its expiry. Shows that
+     * the mail service is called, not that mail is delivered.
+     */
+    @Test
+    void lostPassword_accountInNoOrg_sendsTheDefaultTemplateAndStoresTheTokenGH1043() {
+        User user = User.builder().id(USER_ID).email(USER_EMAIL).build();
+        stubEmailLookup(user);
+        when(fixture.orgMemberService.getCurrentOrgMember(USER_ID)).thenReturn(Mono.empty());
+        when(fixture.emailCommunicationService.sendPasswordResetEmail(eq(USER_EMAIL), any(), any())).thenReturn(true);
+        Instant before = Instant.now();
+
+        StepVerifier.create(service.lostPassword(USER_EMAIL)).verifyComplete();
+
+        System.out.println("[UserServiceImplPasswordTest] no-org account: stored token " + user.getPasswordResetToken()
+                + ", expiry " + user.getPasswordResetTokenExpiry());
+        assertThat(user.getPasswordResetToken()).as("stored token hash").isNotNull();
+        ArgumentCaptor<String> token = ArgumentCaptor.forClass(String.class);
+        verify(fixture.emailCommunicationService).sendPasswordResetEmail(eq(USER_EMAIL), token.capture(),
+                eq(PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT));
+        assertThat(user.getPasswordResetToken()).as("hash of the mailed token")
+                .isEqualTo(HashUtils.hash(token.getValue().getBytes()));
+        assertThat(user.getPasswordResetTokenExpiry()).as("expiry")
+                .isBetween(before.plus(RESET_TOKEN_LIFETIME).minusSeconds(60), Instant.now().plus(RESET_TOKEN_LIFETIME).plusSeconds(60));
+        verify(fixture.repository).save(user);
+        verify(fixture.organizationService, never()).getById(any());
+    }
+
+    /** The fallback is only for an empty lookup: an error of either lookup still fails the request, with no mail and no save. */
+    @ParameterizedTest(name = "{0}")
+    @org.junit.jupiter.params.provider.ValueSource(strings = {"membership lookup fails", "organization lookup fails"})
+    void lostPassword_lookupFails_failsWithoutMailOrToken(String label) {
+        User user = User.builder().id(USER_ID).email(USER_EMAIL).build();
+        stubEmailLookup(user);
+        Throwable injected;
+        if (label.startsWith("membership")) {
+            injected = new IllegalStateException(MEMBERSHIP_LOOKUP_FAILURE);
+            when(fixture.orgMemberService.getCurrentOrgMember(USER_ID)).thenReturn(Mono.error(injected));
+        } else {
+            injected = new BizException(BizError.UNABLE_TO_FIND_VALID_ORG, ORG_LOOKUP_ERROR_KEY);
+            when(fixture.orgMemberService.getCurrentOrgMember(USER_ID))
+                    .thenReturn(Mono.just(OrgMember.builder().orgId(ORG_ID).userId(USER_ID).build()));
+            when(fixture.organizationService.getById(ORG_ID)).thenReturn(Mono.error(injected));
+        }
+
+        StepVerifier.create(service.lostPassword(USER_EMAIL)).expectErrorSatisfies(error -> {
+            System.out.println("[UserServiceImplPasswordTest] " + label + " -> " + error);
+            assertThat(error).isSameAs(injected);
+        }).verify();
+        verify(fixture.emailCommunicationService, never()).sendPasswordResetEmail(any(), any(), any());
+        verify(fixture.repository, never()).save(any(User.class));
+        assertThat(user.getPasswordResetToken()).isNull();
+    }
+
     private static final String CUSTOM_RESET_TEMPLATE = "<p>custom %s %s</p>";
 
     /** Runs lostPassword for a member of an org with these common settings and answers the template the mail was sent with. */
