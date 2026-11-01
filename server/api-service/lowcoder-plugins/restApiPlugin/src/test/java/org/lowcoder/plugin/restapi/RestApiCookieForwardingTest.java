@@ -24,6 +24,8 @@ class RestApiCookieForwardingTest {
 
     private static final String PATH = "/echo";
     private static final String SESSION_VALUE = "session-secret";
+    /** NEW-18 (T156b-2): a session cookie name that selects no cookie to exclude. */
+    private static final String BLANK_SESSION_COOKIE_NAME = " ";
 
     private final RestApiCallSupport support = new RestApiCallSupport();
     private RecordingHttpServer server;
@@ -38,11 +40,17 @@ class RestApiCookieForwardingTest {
         server.close();
     }
 
-    private String cookieHeaderSentFor(RestApiDatasourceConfig.RestApiDatasourceConfigBuilder datasource, MultiValueMap<String, HttpCookie> cookies) {
-        support.run(datasource.url(server.baseUrl() + PATH).build(), Map.of("httpMethod", "GET"), RestApiCallSupport.visitor(cookies, null));
+    /** The values of the Cookie header(s) the server recorded for one call made with {@code callSupport}; none: empty. */
+    private List<String> cookieValuesSentFor(RestApiCallSupport callSupport, RestApiDatasourceConfig.RestApiDatasourceConfigBuilder datasource,
+            MultiValueMap<String, HttpCookie> cookies) {
+        callSupport.run(datasource.url(server.baseUrl() + PATH).build(), Map.of("httpMethod", "GET"), RestApiCallSupport.visitor(cookies, null));
         List<RecordingHttpServer.Request> requests = RestApiCallSupport.requestsTo(server, PATH);
         assertThat(requests).hasSize(1);
-        String cookie = String.join("; ", requests.get(0).header("Cookie"));
+        return requests.get(0).header("Cookie");
+    }
+
+    private String cookieHeaderSentFor(RestApiDatasourceConfig.RestApiDatasourceConfigBuilder datasource, MultiValueMap<String, HttpCookie> cookies) {
+        String cookie = String.join("; ", cookieValuesSentFor(support, datasource, cookies));
         System.out.println("[RestApiCookieForwardingTest] Cookie header sent: '" + cookie + "'");
         return cookie;
     }
@@ -76,5 +84,19 @@ class RestApiCookieForwardingTest {
                 RestApiCallSupport.cookies(SESSION_COOKIE, SESSION_VALUE, "a", "1"));
 
         assertThat(cookie).isEmpty();
+    }
+
+    /**
+     * NEW-18 (T156b-2): with a blank session cookie name the cookie to exclude is unknown, so nothing is forwarded, not even
+     * under forward-all (the executor used to forward every cookie then, the session cookie included). Catches that.
+     */
+    @Test
+    void aBlankSessionCookieNameSendsNoCookieHeaderEvenWithForwardAllNEW18() {
+        List<String> values = cookieValuesSentFor(new RestApiCallSupport(BLANK_SESSION_COOKIE_NAME),
+                RestApiDatasourceConfig.builder().forwardAllCookies(true),
+                RestApiCallSupport.cookies(SESSION_COOKIE, SESSION_VALUE, "a", "1"));
+
+        System.out.println("[RestApiCookieForwardingTest] blank session cookie name: Cookie header values sent " + values.size());
+        assertThat(values).as("no Cookie header").isEmpty();
     }
 }

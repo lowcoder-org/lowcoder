@@ -38,8 +38,13 @@ final class RestApiCallSupport {
     private final RestApiExecutor executor;
 
     RestApiCallSupport() {
+        this(SESSION_COOKIE);
+    }
+
+    /** An executor whose {@code CommonConfig} names the session cookie as given (NEW-18, T156b-2: a blank name too). */
+    RestApiCallSupport(String sessionCookieName) {
         CommonConfig config = new CommonConfig();
-        config.setCookieName(SESSION_COOKIE);
+        config.setCookieName(sessionCookieName);
         executor = new RestApiExecutor(config);
     }
 
