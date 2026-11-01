@@ -27,9 +27,15 @@ public class JwtDecoderUtil {
         byte[] decodedBytes = Base64.getUrlDecoder().decode(payload);
 
         // Convert the decoded bytes to a JSON string
-        String decodedString = new String(decodedBytes);
+        String decodedString = new String(decodedBytes, PAYLOAD_CHARSET);
 
         // Convert the JSON string to a Map
         return objectMapper.readValue(decodedString, Map.class);
     }
+
+    /**
+     * The payload's JSON charset, UTF-8 (RFC 8259 section 8.1), not the JVM default (GH-01). Limits: invalid UTF-8 bytes become
+     * U+FFFD, not refused; the signature is still not verified.
+     */
+    private static final java.nio.charset.Charset PAYLOAD_CHARSET = java.nio.charset.StandardCharsets.UTF_8;
 }
