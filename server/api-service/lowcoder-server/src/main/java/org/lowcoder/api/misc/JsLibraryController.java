@@ -2,7 +2,7 @@ package org.lowcoder.api.misc;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
@@ -64,14 +64,14 @@ public class JsLibraryController implements JsLibraryEndpoints
             .codecs(configure -> configure.defaultCodecs().maxInMemorySize(-1))
             .build();
 
-    /** The resource's {@code downloadUrl} of each recommended library, by name; read-only once the class is loaded. */
+    /** The resource's {@code downloadUrl} of each recommended library, by name, read as UTF-8 (GH-01; bytes that are not UTF-8 become U+FFFD); read-only once the class is loaded. */
     private static final Map<String, String> RECOMMENDED_DOWNLOAD_URLS;
 
     static {
         Map<String, String> downloadUrls = new HashMap<>();
         try (InputStream is = JsLibraryController.class.getClassLoader().getResourceAsStream("recommendedJsLibraries.json")) {
             if (is != null) {
-                String content = IOUtils.toString(is, Charset.defaultCharset());
+                String content = IOUtils.toString(is, StandardCharsets.UTF_8);
                 List<Map<String, Object>> recommendedJsLibraries = JsonUtils.fromJsonSafely(content, new TypeReference<>() {
                 }, Collections.emptyList());
                 Map<String, Map<String, Object>> recommendedJsLibraryMap = recommendedJsLibraries.stream()

@@ -359,6 +359,27 @@
 						<exclude>**/*IntegrationTest.java</exclude>
 					</excludes>
 				</configuration>
+				<executions>
+					<execution>
+						<id>default-test</id>
+						<configuration>
+							<excludedGroups>us-ascii-default-charset</excludedGroups>
+						</configuration>
+					</execution>
+					<!-- GH-01 (T182): UsAsciiDefaultCharsetTest, tagged us-ascii-default-charset, in a JVM whose default charset is US-ASCII -->
+					<execution>
+						<id>us-ascii-default-charset</id>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<argLine>@{argLine} -Dfile.encoding=ANSI_X3.4-1968</argLine>
+							<test>UsAsciiDefaultCharsetTest</test>
+							<failIfNoSpecifiedTests>true</failIfNoSpecifiedTests>
+							<reportNameSuffix>us-ascii</reportNameSuffix>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

@@ -9,7 +9,6 @@ import org.lowcoder.sdk.contract.GoldenJson;
 import org.lowcoder.sdk.contract.JavaValueWalker;
 import org.lowcoder.sdk.util.JsonUtils;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.LinkedHashMap;
@@ -26,8 +25,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * values as the production mapper writes them are pinned in {@code boundary/jwt-claims/claims.read.json}.
  *
  * <p>Limits: the signature is never verified by production and is a fixed placeholder here. The input is ASCII
- * (non-ASCII written as JSON unicode escapes); raw non-ASCII bytes are decoded with the platform charset (plan §9,
- * O30), which {@link #rawNonAsciiClaimsAreDecodedWithThePlatformCharset} pins without assuming which charset that is.
+ * (non-ASCII written as JSON unicode escapes); raw non-ASCII bytes are decoded as UTF-8 (GH-01; before, with the platform
+ * charset, plan §9, O30), which {@link #rawNonAsciiClaimsAreDecodedAsUtf8GH01} pins; that it holds under a non-UTF-8 default
+ * charset is {@code UsAsciiDefaultCharsetTest}'s.
  */
 public class JwtClaimsContractTest {
 
@@ -40,11 +40,19 @@ public class JwtClaimsContractTest {
     static final String SIGNATURE = "c2lnbmF0dXJl";
     static final String NO_PAYLOAD_JWT = "eyJhbGciOiJub25lIn0";
     static final String NOT_JSON_PAYLOAD = "not json";
-    static final String RAW_NON_ASCII_PAYLOAD = "{\"name\":\"Ján Žltý\"}";
+    static final String RAW_NON_ASCII_NAME = "Ján Žltý";
+    static final String RAW_NON_ASCII_PAYLOAD = "{\"name\":\"" + RAW_NON_ASCII_NAME + "\"}";
     static final String NAME_CLAIM = "name";
 
     private static final ObjectMapper MAPPER = JsonUtils.getObjectMapper();
     private static final GoldenJson GOLDEN = GoldenJson.forModule();
+
+    /** {@code text} with every non-ASCII character as a backslash, a lower-case u and four hex digits, so that a diagnostic reads the same under any console charset. */
+    public static String escaped(String text) {
+        StringBuilder out = new StringBuilder();
+        text.chars().forEach(c -> out.append(c < 0x80 ? String.valueOf((char) c) : String.format("\\u%04x", c)));
+        return out.toString();
+    }
 
     /** A compact JWT whose payload segment is exactly {@code payload}'s UTF-8 bytes, base64url without padding. */
     public static String jwt(String payload) {
@@ -71,17 +79,14 @@ public class JwtClaimsContractTest {
     }
 
     /**
-     * O30: the payload bytes become a {@code String} with {@code new String(bytes)}, the platform charset, before
-     * Jackson reads them. The claim equals the platform-charset decoding of its UTF-8 bytes, whichever charset that is.
+     * GH-01 (was O30, the platform charset): the payload bytes become a {@code String} as UTF-8 before Jackson reads
+     * them, so the claim equals the UTF-8 text whichever charset the JVM defaults to.
      */
     @Test
-    void rawNonAsciiClaimsAreDecodedWithThePlatformCharset() throws Exception {
+    void rawNonAsciiClaimsAreDecodedAsUtf8GH01() throws Exception {
         Map<String, Object> claims = JwtDecoderUtil.decodeJwtPayload(jwt(RAW_NON_ASCII_PAYLOAD));
-        String platformDecoded = new String(RAW_NON_ASCII_PAYLOAD.getBytes(StandardCharsets.UTF_8), Charset.defaultCharset());
-        Object expected = MAPPER.readValue(platformDecoded, Map.class).get(NAME_CLAIM);
-        System.out.println("[JwtClaimsContractTest] platform charset " + Charset.defaultCharset() + ": name claim "
-                + claims.get(NAME_CLAIM) + ", UTF-8 would give " + MAPPER.readValue(RAW_NON_ASCII_PAYLOAD, Map.class).get(NAME_CLAIM));
-        assertThat(claims.get(NAME_CLAIM)).isEqualTo(expected);
+        System.out.println("[JwtClaimsContractTest] name claim " + escaped(String.valueOf(claims.get(NAME_CLAIM))) + ", expected " + escaped(RAW_NON_ASCII_NAME));
+        assertThat(claims.get(NAME_CLAIM)).isEqualTo(RAW_NON_ASCII_NAME);
     }
 
     /** The exception class of each malformed input; Generic's caller swallows every one of them. */
