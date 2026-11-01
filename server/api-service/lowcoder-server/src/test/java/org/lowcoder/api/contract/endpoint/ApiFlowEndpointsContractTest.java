@@ -59,6 +59,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -70,6 +71,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.request;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -79,10 +81,12 @@ import static org.mockito.ArgumentMatchers.eq;
  * Tests of the 1 {@link ApiFlowEndpoints} endpoint (docs/API_PAYLOAD_TEST_PLAN.md §1.3, §4.9, task T7.3), level
  * {@code decode-only}, and groups {@code api-flow} and {@code subscription-relay}. {@code ApiFlowController#flow} decodes a
  * {@link FlowRequest} with the server codec. For any path but the seat-sync path it writes its {@code data} with a bare
- * {@code new ObjectMapper()} ({@code ApiFlowController.java:50-51}) and sends that text unchanged ({@code :58}), with the
- * request's headers ({@code :59}), to a fixed {@code https} URL through a client built inline; it answers the upstream's
- * text as a {@code String}. The seat-sync path ({@code WorkspaceSeatSyncService.FLOW_PATH}, {@code :41-47}) takes only the
- * method {@code post} ({@code :42-43}) and hands {@code data.orgId}, when it is a string, else "" ({@code :45-46}), to
+ * {@code new ObjectMapper()} ({@code ApiFlowController.java:67-68}) and sends that text unchanged ({@code :75}), with the
+ * request's headers, none when they are absent ({@code :76}), to a fixed {@code https} URL through a client built
+ * inline; it answers the upstream's text as a {@code String}. Outside the seat-sync path a blank method is refused
+ * before the request is built ({@code :62-64}). The seat-sync path ({@code WorkspaceSeatSyncService.FLOW_PATH},
+ * {@code :55-61}) takes only the method {@code post} ({@code :56-57}) and hands {@code data.orgId}, when it is a
+ * string, else "" ({@code :59-60}), to
  * {@code WorkspaceSeatSyncService#synchronize}, which authenticates the visitor itself, takes a Redis lease, sends the
  * server's own seat count to the seat relay and answers the relay's confirmation as text.
  *
@@ -98,9 +102,15 @@ import static org.mockito.ArgumentMatchers.eq;
  *       receive the request's method, path and headers and, as body, D1's {@code data} written again (compared
  *       canonically); the upstream's text must reach the client unchanged;</li>
  *   <li>{@link #flowUpstreamFailed}: without {@code retries} and {@code timeout} (so no retry), an upstream error becomes
- *       {@code BizException(FLOW_ERROR)} with the upstream exception's message ({@code :65});</li>
- *   <li>{@link #flowWithoutHeaders}: without {@code headers} the controller throws at {@code :59}, before any I/O, and
- *       {@code :66-68} answer {@code Mono.error}: the global handler's {@code INTERNAL_SERVER_ERROR};</li>
+ *       {@code BizException(FLOW_ERROR)} with the upstream exception's message ({@code :82});</li>
+ *   <li>{@link #flowWithoutHeaders}: with {@code headers} left out or null the request is sent with none of its own and
+ *       the upstream's text answered, on both mounts (NEW-44; before, the controller threw at the headers and answered
+ *       {@code INTERNAL_SERVER_ERROR});</li>
+ *   <li>{@link #flowWithoutMethod} and {@link #flowWithoutMethodKeepingTheRetries}: a method absent, null, empty or of
+ *       whitespace only, with or without the D1 sample's retries, is refused with
+ *       {@code INVALID_PARAMETER} "method" before the client is built (NEW-44), on both mounts;</li>
+ *   <li>{@link #flowFailingBeforeTheRequest}: the client cannot be built (the test makes the builder throw), before any
+ *       I/O, and {@code :83-85} answer {@code Mono.error}: the global handler's {@code INTERNAL_SERVER_ERROR};</li>
  *   <li>{@link #flowRepresentativeData}: {@code data} is the §4.6 representative input, spliced in as text; the body
  *       WireMock receives, the bare mapper's writing of what the server codec bound, is pinned in
  *       {@value #REPRESENTATIVE_BODY}. This is the {@code api-flow} group's test;</li>
@@ -110,9 +120,11 @@ import static org.mockito.ArgumentMatchers.eq;
  *       text, pinned in {@value #SEAT_SYNC_ANSWER} with the request id replaced. This is the {@code subscription-relay}
  *       group's seat-sync test;</li>
  *   <li>{@link #flowSeatSyncWithAnotherMethod}, {@link #flowSeatSyncAlreadyRunning} and {@link #flowSeatSyncRefused}:
- *       another method ({@code :43}), a lease already held, and the service's own checks (session, member, workspace,
+ *       another method ({@code :57}), a lease already held, and the service's own checks (session, member, workspace,
  *       configuration) refuse before the relay; {@link #flowSeatSyncRelayFailed} and {@link #flowSeatSyncNotConfirmed}:
- *       a relay error, or an answer that does not confirm the snapshot, keeps the lease.</li>
+ *       a relay error, or an answer that does not confirm the snapshot, keeps the lease; and
+ *       {@link #flowSeatSyncWithoutMethod}: a blank method is refused there as another method is, not with the generic
+ *       path's {@code INVALID_PARAMETER}.</li>
  * </ul>
  *
  * <p>Every seat-sync test runs on both mounts, {@code /api/flow} through {@link #CONTRACT} and {@code /api/v1/flow}
@@ -178,6 +190,12 @@ class ApiFlowEndpointsContractTest {
     static final int QUANTITY = 4;
     static final String POST = "post";
     static final String OTHER_METHOD = "get";
+    /** Blank methods a client can send: empty, one space, and a mix of the whitespace {@code StringUtils.isBlank} counts. */
+    static final String EMPTY_METHOD = "";
+    static final String SPACE_METHOD = " ";
+    static final String MIXED_WHITESPACE_METHOD = "\t \n";
+    /** The message of the failure {@link #flowFailingBeforeTheRequest} makes the client builder throw. */
+    static final String BUILDER_FAILURE = "ApiFlowEndpointsContractTest.builder-failure";
     /** The deployment id's configuration key and default, as {@code WorkspaceSeatSyncService.java:53} reads it. */
     static final String DEPLOYMENT_ID_KEY = "id";
     static final String LEASE_KEY_PREFIX = "billing:seat-sync:";
@@ -252,12 +270,147 @@ class ApiFlowEndpointsContractTest {
         EndpointContract.assertBizError(result, BizError.FLOW_ERROR, BizError.FLOW_ERROR.name(), upstreamMessage);
     }
 
-    @Test
-    void flowWithoutHeaders(WireMockRuntimeInfo wireMock) throws JsonProcessingException {
+    /** The ways a client can send no headers: the member left out, or JSON null. */
+    enum NoHeaders {
+        ABSENT, NULL;
+
+        /** Writes this into a request tree. */
+        void writeInto(ObjectNode tree) {
+            if (this == ABSENT) {
+                tree.remove(HEADERS);
+            } else {
+                tree.putNull(HEADERS);
+            }
+        }
+    }
+
+    /** Every value on both mounts, {@code /api/flow} first. */
+    private static Stream<Arguments> onBothMounts(Object... values) {
+        List<Arguments> cases = new ArrayList<>();
+        for (String mount : List.of(NewUrl.FLOW_URL, Url.FLOW_URL)) {
+            for (Object value : values) {
+                cases.add(Arguments.of(mount, value));
+            }
+        }
+        return cases.stream();
+    }
+
+    static Stream<Arguments> noHeadersOnBothMounts() {
+        return onBothMounts((Object[]) NoHeaders.values());
+    }
+
+    /**
+     * NEW-44: with {@code headers} left out or null the request goes upstream without the sample's headers, and the
+     * upstream's text is answered. The retries and the timeout are left out, as in {@link #flowUpstreamFailed}, so that
+     * a failure is not retried.
+     */
+    @ParameterizedTest
+    @MethodSource("noHeadersOnBothMounts")
+    void flowWithoutHeaders(String mount, NoHeaders headers, WireMockRuntimeInfo wireMock) throws JsonProcessingException {
         FlowRequest sample = sample();
-        EntityExchangeResult<byte[]> result = exchange(d1Without(tree -> tree.remove(HEADERS)));
-        assertThat(decoded()).as("the D1 request without headers")
-                .isEqualTo(new FlowRequest(sample.path(), sample.method(), sample.data(), null, sample.timeout(), sample.retries()));
+        upstreamAnswers(wireMock, sample, aResponse().withStatus(OK).withBody(UPSTREAM_ANSWER));
+        EntityExchangeResult<byte[]> result = exchangeOn(mount, d1Without(tree -> {
+            tree.remove(List.of(RETRIES, TIMEOUT));
+            headers.writeInto(tree);
+        }));
+        System.out.println("[ApiFlowEndpointsContractTest] " + mount + " headers " + headers);
+        assertThat(decoded()).as("the D1 request without headers, retries and timeout")
+                .isEqualTo(new FlowRequest(sample.path(), sample.method(), sample.data(), null, null, null));
+        LoggedRequest sent = sentRequest(wireMock);
+        assertThat(sent.getMethod().value()).as("upstream method").isEqualTo(sample.method().toUpperCase(Locale.ROOT));
+        assertThat(sent.getUrl()).as("upstream path").isEqualTo(PATH_SEPARATOR + sample.path());
+        sample.headers().keySet().forEach(name -> assertThat(sent.containsHeader(name)).as("upstream header " + name + " left out").isFalse());
+        CanonicalJson.assertEquivalent(d1Data(), sent.getBodyAsString());
+        EndpointContract.assertBytes(result, HttpStatus.OK, TEXT_PLAIN_UTF8, UPSTREAM_ANSWER.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /** The ways a client can send no usable method: the member left out, JSON null, empty, one space, mixed whitespace. */
+    enum BlankMethod {
+        ABSENT(null), NULL(null), EMPTY(EMPTY_METHOD), SPACE(SPACE_METHOD), MIXED_WHITESPACE(MIXED_WHITESPACE_METHOD);
+
+        /** The method the server codec decodes. */
+        final String decoded;
+
+        BlankMethod(String decoded) {
+            this.decoded = decoded;
+        }
+
+        /** Writes this method into a request tree. */
+        void writeInto(ObjectNode tree) {
+            switch (this) {
+                case ABSENT -> tree.remove(METHOD);
+                case NULL -> tree.putNull(METHOD);
+                default -> tree.put(METHOD, decoded);
+            }
+        }
+    }
+
+    static Stream<Arguments> blankMethodsOnBothMounts() {
+        return onBothMounts((Object[]) BlankMethod.values());
+    }
+
+    /**
+     * NEW-44: a blank method is refused with {@code INVALID_PARAMETER} "method" before the client is built, so no request is
+     * sent and no retry is set up; before, a
+     * null method threw at its upper-casing and answered {@code INTERNAL_SERVER_ERROR}, and an empty or whitespace one
+     * failed in the client. The retries and the timeout are left out, as in {@link #flowUpstreamFailed}, so that such a
+     * failure is not retried.
+     */
+    @ParameterizedTest
+    @MethodSource("blankMethodsOnBothMounts")
+    void flowWithoutMethod(String mount, BlankMethod method, WireMockRuntimeInfo wireMock) throws JsonProcessingException {
+        FlowRequest sample = sample();
+        upstreamAnswers(wireMock, sample, aResponse().withStatus(OK).withBody(UPSTREAM_ANSWER));
+        EntityExchangeResult<byte[]> result = exchangeOn(mount, d1Without(tree -> {
+            tree.remove(List.of(RETRIES, TIMEOUT));
+            method.writeInto(tree);
+        }));
+        System.out.println("[ApiFlowEndpointsContractTest] " + mount + " method " + method + " decoded as "
+                + (method.decoded == null ? "null" : "\"" + method.decoded.replace("\t", "\\t").replace("\n", "\\n") + "\""));
+        assertThat(decoded().method()).as("decoded method of " + method).isEqualTo(method.decoded);
+        assertThat(controller.builderCalls).as("builder calls: the refusal comes before the client is built").hasValue(0);
+        assertThat(wireMock.getWireMock().find(anyRequestedFor(anyUrl()))).as("upstream requests").isEmpty();
+        EndpointContract.assertInvalidParameter(result, METHOD);
+    }
+
+    /**
+     * NEW-44: an absent method is refused before the client is built also when the request asks for the D1 sample's
+     * retries and timeout, so no retry set-up delays the refusal (a delayed answer fails the case on the client's blocking
+     * timeout); before, the method threw at its upper-casing and answered {@code INTERNAL_SERVER_ERROR}.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {NewUrl.FLOW_URL, Url.FLOW_URL})
+    void flowWithoutMethodKeepingTheRetries(String mount, WireMockRuntimeInfo wireMock) throws JsonProcessingException {
+        FlowRequest sample = sample();
+        upstreamAnswers(wireMock, sample, aResponse().withStatus(OK).withBody(UPSTREAM_ANSWER));
+        EntityExchangeResult<byte[]> result = exchangeOn(mount, d1Without(tree -> tree.remove(METHOD)));
+        System.out.println("[ApiFlowEndpointsContractTest] " + mount + " no method, retries " + sample.retries() + ", timeout " + sample.timeout());
+        assertThat(decoded()).as("the D1 request without method, its retries and timeout kept")
+                .isEqualTo(new FlowRequest(sample.path(), null, sample.data(), sample.headers(), sample.timeout(), sample.retries()));
+        assertThat(controller.builderCalls).as("builder calls: the refusal comes before the client is built").hasValue(0);
+        assertThat(wireMock.getWireMock().find(anyRequestedFor(anyUrl()))).as("upstream requests").isEmpty();
+        EndpointContract.assertInvalidParameter(result, METHOD);
+    }
+
+    /**
+     * The client cannot be built ({@code WebClientBuildHelper.builder()} throws, as the test controller is told to make
+     * it), so the request fails before any I/O; the controller's catch answers the exception as {@code Mono.error}: the
+     * failure was thrown once, {@code flow} returned an answer instead of letting it escape, that answer's error is the
+     * failure itself, and the global handler answers it with its generic {@code INTERNAL_SERVER_ERROR}. Limit: an
+     * injected synchronous failure; a failure during the request takes the retry path ({@link #flowUpstreamFailed}).
+     */
+    @Test
+    void flowFailingBeforeTheRequest(WireMockRuntimeInfo wireMock) throws JsonProcessingException {
+        IllegalStateException failure = new IllegalStateException(BUILDER_FAILURE);
+        controller.builderFailure = failure;
+        EntityExchangeResult<byte[]> result = exchange(EndpointContract.d1(FlowRequest.class));
+        PayloadAssertions.assertBindsTo(PayloadSamples.of(FlowRequest.class), decoded());
+        System.out.println("[ApiFlowEndpointsContractTest] builder calls " + controller.builderCalls + ", answers returned "
+                + controller.answers.size());
+        assertThat(controller.builderCalls).as("builder calls, the one that threw").hasValue(1);
+        assertThat(controller.answers).as("answers flow returned (none if the failure escaped it)").hasSize(1);
+        assertThatThrownBy(() -> controller.answers.get(0).block()).as("the error of flow's answer: the injected failure, from the catch")
+                .isSameAs(failure);
         assertThat(wireMock.getWireMock().find(anyRequestedFor(anyUrl()))).as("upstream requests").isEmpty();
         EndpointContract.assertBizError(result, BizError.INTERNAL_SERVER_ERROR, BizError.INTERNAL_SERVER_ERROR.name());
     }
@@ -319,6 +472,24 @@ class ApiFlowEndpointsContractTest {
         Mockito.verify(redis.opsForValue(), Mockito.never()).setIfAbsent(anyString(), anyString(), any(Duration.class));
     }
 
+    static Stream<Arguments> blankSeatSyncMethodsOnBothMounts() {
+        return onBothMounts(null, EMPTY_METHOD, SPACE_METHOD);
+    }
+
+    /**
+     * The seat-sync path checks its method before the generic path's blank-method check (NEW-44), so a null, empty or
+     * whitespace method is refused there as another method is, not with {@code INVALID_PARAMETER}.
+     */
+    @ParameterizedTest
+    @MethodSource("blankSeatSyncMethodsOnBothMounts")
+    void flowSeatSyncWithoutMethod(String mount, String method) throws JsonProcessingException {
+        EntityExchangeResult<byte[]> result = exchangeOn(mount, seatSyncRequest(method, orgData(SEAT_ORG_ID)));
+        assertThat(decoded().method()).as("decoded seat-sync method").isEqualTo(method);
+        assertStatusExceptionAnsweredAs500NEW53(result);
+        assertNoRelayRequest();
+        Mockito.verify(sessions, Mockito.never()).getVisitorOrgMember();
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {NewUrl.FLOW_URL, Url.FLOW_URL})
     void flowSeatSyncAlreadyRunning(String mount) throws JsonProcessingException {
@@ -357,11 +528,11 @@ class ApiFlowEndpointsContractTest {
         INVALID_MEMBER,
         /** {@code data.orgId} names another workspace than the member's ({@code :50}). */
         ANOTHER_WORKSPACE,
-        /** {@code data} without {@code orgId}: the controller passes "" ({@code ApiFlowController.java:45-46}). */
+        /** {@code data} without {@code orgId}: the controller passes "" ({@code ApiFlowController.java:59-60}). */
         NO_ORG_ID,
-        /** {@code data} null: the controller passes "" ({@code ApiFlowController.java:45-46}). */
+        /** {@code data} null: the controller passes "" ({@code ApiFlowController.java:59-60}). */
         NO_DATA,
-        /** {@code data.orgId} the number 7 for a member of workspace "7": the controller passes "" for a non-string ({@code :46}). */
+        /** {@code data.orgId} the number 7 for a member of workspace "7": the controller passes "" for a non-string ({@code :60}). */
         ORG_ID_NOT_A_STRING,
         /** No deployment id: the {@code SERVICE_UNAVAILABLE} of {@code WorkspaceSeatSyncService.java:54-55}. */
         NO_HOST_ID,
@@ -572,12 +743,19 @@ class ApiFlowEndpointsContractTest {
      * The production controller, which records each request the server codec decoded and runs the production
      * {@code flow} with {@link WebClientRedirect} open on the calling thread: {@code flow} builds its client before it
      * returns, so the client is built against {@code baseUrl}. The seat-sync path builds no client in {@code flow}; its
-     * service redirects its own relay request.
+     * service redirects its own relay request. It counts the calls of {@code WebClientBuildHelper.builder()} made in
+     * {@code flow}, and when {@link #builderFailure} is set, that call throws it, a failure while the request is built.
      */
     static final class RedirectedApiFlowController extends ApiFlowController {
 
         final List<FlowRequest> decoded = new CopyOnWriteArrayList<>();
         private final String baseUrl;
+        /** Thrown by {@code WebClientBuildHelper.builder()} inside {@code flow} when set; null for a redirected client. */
+        RuntimeException builderFailure;
+        /** The calls of {@code WebClientBuildHelper.builder()} in {@code flow}, a throwing one included. */
+        final AtomicInteger builderCalls = new AtomicInteger();
+        /** The answers {@code flow} returned, in order; an exception thrown out of it adds none. */
+        final List<Mono<String>> answers = new CopyOnWriteArrayList<>();
 
         RedirectedApiFlowController(WorkspaceSeatSyncService seatSyncService, String baseUrl) {
             super(seatSyncService);
@@ -587,8 +765,15 @@ class ApiFlowEndpointsContractTest {
         @Override
         public Mono<String> flow(FlowRequest flowRequest) {
             decoded.add(flowRequest);
-            try (MockedStatic<WebClientBuildHelper> ignored = WebClientRedirect.redirectTo(baseUrl)) {
-                return super.flow(flowRequest);
+            try (MockedStatic<WebClientBuildHelper> ignored = WebClientRedirect.redirectTo(baseUrl, () -> {
+                builderCalls.incrementAndGet();
+                if (builderFailure != null) {
+                    throw builderFailure;
+                }
+            })) {
+                Mono<String> answer = super.flow(flowRequest);
+                answers.add(answer);
+                return answer;
             }
         }
     }

@@ -40,9 +40,20 @@ public final class WebClientRedirect {
 
     /** Redirects every client built through {@code WebClientBuildHelper.builder()} on this thread to {@code baseUrl}; close it to stop. */
     public static MockedStatic<WebClientBuildHelper> redirectTo(String baseUrl) {
+        return redirectTo(baseUrl, () -> { });
+    }
+
+    /**
+     * As {@link #redirectTo(String)}, running {@code onBuilder} first on each call of {@code WebClientBuildHelper.builder()}:
+     * a test can count the calls, or make the call fail by throwing from it. {@code onBuilder} runs on the calling thread,
+     * in the static mock's answer, before the real builder is created; a runtime exception it throws comes out of
+     * {@code builder()} as it is, and no builder is created.
+     */
+    public static MockedStatic<WebClientBuildHelper> redirectTo(String baseUrl, Runnable onBuilder) {
         URI target = URI.create(baseUrl);
         MockedStatic<WebClientBuildHelper> helper = Mockito.mockStatic(WebClientBuildHelper.class, Mockito.CALLS_REAL_METHODS);
         helper.when(WebClientBuildHelper::builder).thenAnswer(invocation -> {
+            onBuilder.run();
             WebClientBuildHelper redirected = Mockito.spy((WebClientBuildHelper) invocation.callRealMethod());
             Mockito.doAnswer(builder -> ((WebClient.Builder) builder.callRealMethod()).clientConnector(new RedirectingConnector(target)))
                     .when(redirected).toWebClientBuilder();
