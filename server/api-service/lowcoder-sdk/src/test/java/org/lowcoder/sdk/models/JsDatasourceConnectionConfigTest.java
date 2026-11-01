@@ -414,4 +414,37 @@ class JsDatasourceConnectionConfigTest {
         assertThat(config.getAuthId()).isNull();
         System.out.println("[JsDatasourceConnectionConfigTest] authConfig " + label + " -> inherit=false, authId=null");
     }
+
+    /** NEW-18 (T156b-1): the forward-all setting is on for Boolean true or the text "true" in any case, off for anything else. */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("forwardAllValues")
+    void isForwardAllCookiesReadsTheFormSetting(String label, Object stored, boolean expected) {
+        JsDatasourceConnectionConfig config = new JsDatasourceConnectionConfig();
+        if (stored != ABSENT) {
+            config.put(JsDatasourceConnectionConfig.FORWARD_ALL_COOKIES_KEY, stored);
+        }
+        System.out.println("[JsDatasourceConnectionConfigTest] forwardAllCookies " + label + " -> " + config.isForwardAllCookies());
+        assertThat(config.isForwardAllCookies()).as(label).isEqualTo(expected);
+    }
+
+    private static final Object ABSENT = new Object();
+
+    static Stream<Arguments> forwardAllValues() {
+        return Stream.of(Arguments.of("absent", ABSENT, false), Arguments.of("FALSE", Boolean.FALSE, false),
+                Arguments.of("text false", "false", false), Arguments.of("text yes", "yes", false), Arguments.of("number 1", 1, false),
+                Arguments.of("TRUE", Boolean.TRUE, true), Arguments.of("text true", "true", true), Arguments.of("text TRUE", "TRUE", true));
+    }
+
+    /** NEW-18 (T156b-1): the forwarded cookie names are the text elements of the list, trimmed, blank ones dropped, in order. */
+    @Test
+    void getForwardCookiesReadsTheFormListTrimmedInOrder() {
+        JsDatasourceConnectionConfig config = new JsDatasourceConnectionConfig();
+        config.put(JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY, new ArrayList<Object>(java.util.Arrays.asList(" tenant ", "", 5, null, "b", "tenant")));
+        System.out.println("[JsDatasourceConnectionConfigTest] forwardCookies " + config.getForwardCookies());
+        assertThat(config.getForwardCookies()).containsExactly("tenant", "b");
+        config.put(JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY, "tenant");
+        assertThat(config.getForwardCookies()).as("a plain string").isEmpty();
+        config.remove(JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY);
+        assertThat(config.getForwardCookies()).as("absent").isEmpty();
+    }
 }

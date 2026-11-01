@@ -34,9 +34,10 @@ public class JsDatasourceConnectionConfig extends HashMap<String, Object> implem
     public static final String SELF_SIGNED_CERT_KEY = "selfSignedCert";
     /**
      * The settings the plugin form adds to every plugin's own params (headers and the "Advanced settings" section), which
-     * an update keeps as sent (NEW-18, GitHub #2053). Limits: api-service and node-service do not apply them when a query
-     * runs (every request cookie is still forwarded to every JS datasource; whether to honour them is an owner decision),
-     * and the form reads the SSL setting back from an {@code sslConfig} entry, so it does not show the stored flat keys.
+     * an update keeps as sent (NEW-18, GitHub #2053). Limits: the cookie settings are applied when a query runs
+     * ({@link #isForwardAllCookies}, {@link #getForwardCookies}); the headers and the SSL settings are not yet applied by
+     * api-service or node-service (T156c, T156d), and the form reads the SSL setting back from an {@code sslConfig} entry,
+     * so it does not show the stored flat keys.
      */
     private static final List<String> FORM_SETTING_KEYS = List.of(HEADERS_KEY, FORWARD_COOKIES_KEY, FORWARD_ALL_COOKIES_KEY,
             SSL_CERT_VERIFICATION_TYPE_KEY, SELF_SIGNED_CERT_KEY);
@@ -251,6 +252,31 @@ public class JsDatasourceConnectionConfig extends HashMap<String, Object> implem
             return MapUtils.getString(getAuthConfig(), AUTH_ID_KEY);
         }
         return null;
+    }
+
+    /**
+     * Whether the datasource forwards every request cookie but the session cookie: true for {@code Boolean.TRUE} (the form's
+     * checkbox) or the text "true" in any case, else false (no setting included).
+     */
+    public boolean isForwardAllCookies() {
+        Object value = this.get(FORWARD_ALL_COOKIES_KEY);
+        return Boolean.TRUE.equals(value) || (value instanceof String text && "true".equalsIgnoreCase(text));
+    }
+
+    /**
+     * The cookie names the datasource forwards (the form's tags select): for a collection value its text elements, trimmed,
+     * blank ones dropped, in order; anything else gives an empty set.
+     */
+    public Set<String> getForwardCookies() {
+        Set<String> names = new LinkedHashSet<>();
+        if (this.get(FORWARD_COOKIES_KEY) instanceof Collection<?> values) {
+            for (Object value : values) {
+                if (value instanceof String text && !text.isBlank()) {
+                    names.add(text.trim());
+                }
+            }
+        }
+        return Collections.unmodifiableSet(names);
     }
 
     @SuppressWarnings("unchecked")
