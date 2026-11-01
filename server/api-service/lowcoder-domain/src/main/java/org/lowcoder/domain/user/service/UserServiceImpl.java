@@ -424,9 +424,7 @@ public class UserServiceImpl implements UserService {
         return findByEmailDeep(userEmail)
                 .switchIfEmpty(Mono.defer(() -> findByName(userEmail)))
                 .filter(UserServiceImpl::canRecoverPassword)
-                .zipWhen(user -> orgMemberService.getCurrentOrgMember(user.getId())
-                .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
-                .map(organization -> passwordResetEmailTemplate(organization.getCommonSettings())))
+                .zipWhen(user -> passwordResetEmailTemplateOf(user.getId()))
                 .flatMap(tuple -> {
                     User user = tuple.getT1();
                     String emailTemplate = tuple.getT2();
@@ -440,6 +438,24 @@ public class UserServiceImpl implements UserService {
                     user.setPasswordResetTokenExpiry(tokenExpiry);
                     return repository.save(user).then(Mono.empty());
                 });
+    }
+
+    /**
+     * The password reset mail template for an account: its current organization's, or
+     * {@code PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT} when the account has no current organization (GitHub #1043: the empty
+     * lookup used to end {@link #lostPassword} without a mail or a token).
+     *
+     * <p>Limits: it runs only for an account {@code lostPassword} resolved and kept as not deleted; it falls back only on an
+     * empty membership lookup, so an error of the membership or organization lookup still fails the request (a missing
+     * organization is UNABLE_TO_FIND_VALID_ORG); in ENTERPRISE mode with an enterprise org id the lookup first adds the
+     * account to that organization, so the fallback is normally not reached there; the template is the current
+     * organization's because the request names none.
+     */
+    private Mono<String> passwordResetEmailTemplateOf(String userId) {
+        return orgMemberService.getCurrentOrgMember(userId)
+                .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
+                .map(organization -> passwordResetEmailTemplate(organization.getCommonSettings()))
+                .defaultIfEmpty(PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT);
     }
 
     /**

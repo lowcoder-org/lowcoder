@@ -4,8 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.lowcoder.domain.organization.service.OrganizationService.PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT;
 import static org.lowcoder.sdk.exception.BizError.ALREADY_BIND;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
@@ -14,17 +20,21 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.lowcoder.domain.encryption.EncryptionService;
+import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.user.model.Connection;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.model.UserState;
 import org.lowcoder.domain.user.repository.UserRepository;
+import org.lowcoder.domain.user.service.EmailCommunicationService;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.runner.migrations.job.EmailNormalizationBackfill;
 import org.lowcoder.sdk.constants.AuthSourceConstants;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.HashUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -59,6 +69,13 @@ public class EmailBackfillEndToEndTest {
     private EncryptionService encryptionService;
     @Autowired
     private MongoTemplate blockingMongoTemplate;
+    @Autowired
+    private OrgMemberService orgMemberService;
+    /** Replaces the SMTP sender; no other case of this class requests a password reset mail. */
+    @MockBean
+    private EmailCommunicationService emailCommunicationService;
+
+    private static final Duration RESET_TOKEN_LIFETIME = Duration.ofHours(12);
 
     /** Writes a row in the shape a pre-normalization install holds it: whatever casing the user typed. */
     private User seedLegacy(String storedAddress) {
@@ -237,28 +254,38 @@ public class EmailBackfillEndToEndTest {
     }
 
     /**
-     * ...but <b>requesting</b> the token does not, and fails silently.
+     * ...and <b>requesting</b> the token works too (GitHub #1043; it used to fail silently).
      *
-     * <p>{@code lostPassword} zips the user with their current organization to pick an email template, and
-     * {@code getCurrentOrgMember} completes empty for an account in no workspace. {@code zipWhen} with an
-     * empty inner publisher yields empty, so the method stores no token, sends no mail, and reports
-     * nothing — the caller cannot distinguish it from success.
-     *
-     * <p>Pre-existing and not caused by the email work, but it means password recovery is unusable for
-     * this class of account regardless of casing, so it is pinned here rather than left as folklore.
+     * <p>{@code lostPassword} picks an email template from the account's current organization, and
+     * {@code getCurrentOrgMember} completes empty for an account in no workspace; {@code zipWhen} over that empty lookup
+     * used to end the method with no mail and no token. It now falls back to the default template. The mail service is a
+     * mock, so this shows it is called with the default template and the token, not that mail is delivered.
      */
     @Test
-    public void requestingAPasswordResetSilentlyDoesNothingForAnAccountInNoOrg() {
+    public void requestingAPasswordResetForAnAccountInNoOrgSendsTheDefaultTemplateAndStoresTheToken() {
         String address = "orgless.request@example.com";
         User seeded = seedLegacy(address);
+        when(emailCommunicationService.sendPasswordResetEmail(any(), any(), any())).thenReturn(true);
+        assertNull(orgMemberService.getCurrentOrgMember(seeded.getId()).block(),
+                "precondition: the account has no current organization");
 
         Boolean requested = userService.lostPassword(address).block();
         log.info("lostPassword for an org-less account returned {}", requested);
+        System.out.println("[EmailBackfillEndToEndTest] lostPassword for an org-less account returned " + requested);
 
+        assertNull(requested, "lostPassword emits no value");
         User after = userRepository.findById(seeded.getId()).block();
         assertNotNull(after);
-        assertNull(after.getPasswordResetToken(),
-                "no token is stored, and the caller is told nothing -- this is the gap");
+        assertNotNull(after.getPasswordResetToken(), "a token is stored");
+        ArgumentCaptor<String> token = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> template = ArgumentCaptor.forClass(String.class);
+        verify(emailCommunicationService).sendPasswordResetEmail(eq(address), token.capture(), template.capture());
+        assertEquals(HashUtils.hash(token.getValue().getBytes()), after.getPasswordResetToken());
+        assertEquals(PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT, template.getValue());
+        System.out.println("[EmailBackfillEndToEndTest] mail template " + (PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT.equals(template.getValue()) ? "default" : "other")
+                + ", token stored " + after.getPasswordResetToken() + ", expiry " + after.getPasswordResetTokenExpiry());
+        assertTrue(after.getPasswordResetTokenExpiry().isAfter(Instant.now().plus(RESET_TOKEN_LIFETIME).minusSeconds(60)),
+                "the expiry is twelve hours ahead");
     }
 
     /**
