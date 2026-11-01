@@ -27,7 +27,6 @@ import jakarta.annotation.Nullable;
 import lombok.Builder;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lowcoder.plugin.restapi.constants.ResponseDataType;
@@ -50,6 +49,7 @@ import org.lowcoder.sdk.plugin.restapi.auth.AuthConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.BasicAuthConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType;
 import org.lowcoder.sdk.query.QueryVisitorContext;
+import org.lowcoder.sdk.util.CookieForwarding;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
 import org.lowcoder.sdk.webclient.WebClientRedirects;
 import org.pf4j.Extension;
@@ -365,34 +365,11 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
                 .then();
     }
 
+    /** Adds the values of the request cookies the datasource forwards, as {@link CookieForwarding#select} selects them. */
     private Consumer<MultiValueMap<String, String>> injectCookies(RestApiQueryExecutionContext request) {
-        return currentCookies -> {
-            Set<String> forwardCookies = request.getForwardCookies();
-            MultiValueMap<String, HttpCookie> requestCookies = request.getRequestCookies();
-            if (requestCookies == null) {
-                return;
-            }
-
-            if (request.isForwardAllCookies()) {
-                requestCookies.forEach((cookieName, httpCookies) -> {
-                    if (StringUtils.equals(cookieName, commonConfig.getCookieName())) {
-                        return;
-                    }
-                    currentCookies.addAll(cookieName, collectList(httpCookies, HttpCookie::getValue));
-                });
-                return;
-            }
-
-            requestCookies.entrySet()
-                    .stream()
-                    .filter(it -> forwardCookies.contains(it.getKey()))
-                    .filter(it -> ObjectUtils.notEqual(it.getKey(), commonConfig.getCookieName()))
-                    .forEach(entry -> {
-                        String cookieName = entry.getKey();
-                        List<HttpCookie> httpCookies = entry.getValue();
-                        currentCookies.addAll(cookieName, collectList(httpCookies, HttpCookie::getValue));
-                    });
-        };
+        return currentCookies -> CookieForwarding.select(request.getRequestCookies(), request.isForwardAllCookies(),
+                        request.getForwardCookies(), commonConfig.getCookieName())
+                .forEach((cookieName, httpCookies) -> currentCookies.addAll(cookieName, collectList(httpCookies, HttpCookie::getValue)));
     }
 
     private QueryExecutionResult convertToQueryExecutionResult(ResponseEntity<byte[]> responseEntity) {
