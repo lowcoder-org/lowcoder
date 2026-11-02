@@ -36,8 +36,13 @@ final class GraphQLCallSupport {
     private final GraphQLExecutor executor;
 
     GraphQLCallSupport() {
+        this(SESSION_COOKIE);
+    }
+
+    /** An executor whose {@code CommonConfig} names the session cookie as given (NEW-100, T156b-3: a blank or null name too). */
+    GraphQLCallSupport(String sessionCookieName) {
         CommonConfig config = new CommonConfig();
-        config.setCookieName(SESSION_COOKIE);
+        config.setCookieName(sessionCookieName);
         executor = new GraphQLExecutor(config);
     }
 
