@@ -40,6 +40,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 
 import static org.lowcoder.domain.organization.model.OrganizationState.ACTIVE;
@@ -182,7 +183,7 @@ public class OrganizationServiceImpl implements OrganizationService {
      * The active organization named by an object id, a gid or a slug. A key with a hyphen is looked up as a gid and then
      * as a slug (BF-133: SlugUtils accepts a hyphen in a slug, and such a slug was never looked up), any other key as a
      * slug and then as an object id. The same order holds for {@link #getByIdWithDeleted} and {@link #getOrgCommonSettings};
-     * {@link #getByIds} takes the kind of its first key for the whole list, as before.
+     * {@link #getByIds} takes the kind of its first non-blank key for the whole list.
      * <p>
      * A blank key (null, empty or only whitespace, as {@code StringUtils.isBlank} decides) names no organization: this
      * method refuses it with UNABLE_TO_FIND_VALID_ORG before any query (NEW-43).
@@ -192,9 +193,7 @@ public class OrganizationServiceImpl implements OrganizationService {
      * no-break space or a zero-width space, is not blank and is looked up as before; a caller that looks a blank key, a
      * null one included, up as a slug before calling, as the server's
      * {@code GidService.convertOrganizationIdToObjectId} does (NEW-86), passes on the object id of the organization it
-     * finds, which this guard does not see; {@link #getByIds} is not guarded: a blank key in its list is passed to its
-     * queries as before, whether a query then matches it depending on the kind of the first key and on what the first
-     * query finds, and a null first key fails in its {@code findFirst} before any query, as before.
+     * finds, which this guard does not see; {@link #getByIds} drops blank keys (see its javadoc).
      */
     @Override
     public Mono<Organization> getById(String id) {
@@ -262,11 +261,23 @@ public class OrganizationServiceImpl implements OrganizationService {
         return deferredError(UNABLE_TO_FIND_VALID_ORG, INVALID_ORG_ID_KEY);
     }
 
+    /**
+     * The active organizations named by the non-blank keys. A blank key (null, empty or only whitespace, as
+     * {@code StringUtils.isBlank} decides) names no organization and is dropped before any query (NEW-81).
+     *
+     * <p>Limits: a null collection fails as before; the kind of the first kept key (gid or not) is taken for every key, and
+     * a non-empty first query skips the second, so a list mixing kinds can miss organizations, as before; a key of
+     * invisible characters {@code StringUtils.isBlank} does not count as whitespace is not blank.
+     */
     @Override
     public Flux<Organization> getByIds(Collection<String> ids) {
-        if(!ids.isEmpty() && FieldName.isGID(ids.stream().findFirst().get()))
-            return repository.findByGidInAndState(ids, ACTIVE).switchIfEmpty(repository.findBySlugInAndState(ids, ACTIVE));
-        return repository.findBySlugInAndState(ids, ACTIVE).switchIfEmpty(repository.findByIdInAndState(ids, ACTIVE));
+        List<String> keys = ids.stream().filter(StringUtils::isNotBlank).toList();
+        if (keys.isEmpty()) {
+            return Flux.empty();
+        }
+        if (FieldName.isGID(keys.get(0)))
+            return repository.findByGidInAndState(keys, ACTIVE).switchIfEmpty(repository.findBySlugInAndState(keys, ACTIVE));
+        return repository.findBySlugInAndState(keys, ACTIVE).switchIfEmpty(repository.findByIdInAndState(keys, ACTIVE));
     }
 
     @Override

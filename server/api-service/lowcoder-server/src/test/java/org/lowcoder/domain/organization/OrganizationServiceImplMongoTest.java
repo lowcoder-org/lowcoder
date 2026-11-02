@@ -237,6 +237,77 @@ class OrganizationServiceImplMongoTest extends OrganizationMongoTestBase {
         });
     }
 
+    /** Throws nothing: the failure of {@code call}, or null. */
+    private static Throwable failureOf(Runnable call) {
+        return catchThrowable(call::run);
+    }
+
+    /**
+     * NEW-81: a null key in the list names no organization; {@code getByIds([C.id, null])} answers C only. The slug query ran
+     * first (C's id is no gid) and its null key matched the organizations without a slug, which skipped the id query.
+     */
+    @Test
+    void aNullKeyInGetByIdsMatchesNoOrganizationWithoutASlugNEW81() {
+        List<String> storedGids = new ArrayList<>();
+        runThenRemove(storedGids, () -> {
+            for (int i = 0; i < ORGS_WITHOUT_A_SLUG; i++) {
+                String gid = UUID.randomUUID().toString();
+                storedGids.add(gid);
+                mongo.save(Organization.builder().name(WITHOUT_A_SLUG_NAME).gid(gid).state(ACTIVE).build()).block(TIMEOUT);
+            }
+            Organization c = saveOrgRecorded(storedGids);
+
+            List<String> answered = organizationService.getByIds(java.util.Arrays.asList(c.getId(), null)).map(Organization::getId)
+                    .collectList().block(TIMEOUT);
+            System.out.println("[OrganizationServiceImplMongoTest] getByIds([" + c.getId() + ", null]) with " + ORGS_WITHOUT_A_SLUG
+                    + " orgs without a slug stored -> " + answered);
+            assertThat(answered).as("ids answered").containsExactly(c.getId());
+        });
+    }
+
+    /** NEW-81: a null first key does not fail the call; the answer is the organization of the other key. */
+    @Test
+    void aNullFirstKeyInGetByIdsDoesNotFailNEW81() {
+        List<String> storedGids = new ArrayList<>();
+        runThenRemove(storedGids, () -> {
+            Organization c = saveOrgRecorded(storedGids);
+            Object[] answer = new Object[1];
+
+            Throwable failure = failureOf(() -> answer[0] = organizationService.getByIds(java.util.Arrays.asList(null, c.getId()))
+                    .map(Organization::getId).collectList().block(TIMEOUT));
+            System.out.println("[OrganizationServiceImplMongoTest] getByIds([null, " + c.getId() + "]) -> failure " + failure + ", answer " + answer[0]);
+            assertThat(failure).as("failure of getByIds").isNull();
+            assertThat(answer[0]).as("ids answered").isEqualTo(List.of(c.getId()));
+        });
+    }
+
+    /** NEW-81: an empty or whitespace key finds no organization by a blank slug in the list either. */
+    @ParameterizedTest(name = "key=[{0}]")
+    @MethodSource("blankKeys")
+    void aBlankKeyInGetByIdsDoesNotFindAnOrgWithThatSlugNEW81(String key) {
+        List<String> storedGids = new ArrayList<>();
+        runThenRemove(storedGids, () -> {
+            String gid = UUID.randomUUID().toString();
+            storedGids.add(gid);
+            Organization blank = mongo.save(Organization.builder().name(BLANK_SLUG_NAME).gid(gid).slug(key).state(ACTIVE).build())
+                    .block(TIMEOUT);
+            Organization c = saveOrgRecorded(storedGids);
+
+            List<String> answered = organizationService.getByIds(List.of(c.getId(), key)).map(Organization::getId).collectList()
+                    .block(TIMEOUT);
+            System.out.println("[OrganizationServiceImplMongoTest] getByIds([" + c.getId() + ", [" + key + "]]) with org " + blank.getId()
+                    + " holding that slug -> " + answered);
+            assertThat(answered).as("ids answered").containsExactly(c.getId());
+        });
+    }
+
+    /** {@link #saveOrg} for a case that removes its organizations: the gid is recorded in {@code storedGids} first. */
+    private Organization saveOrgRecorded(List<String> storedGids) {
+        Organization org = Organization.builder().name("c").gid(UUID.randomUUID().toString()).slug("s" + newId()).state(ACTIVE).build();
+        storedGids.add(org.getGid());
+        return mongo.save(org).block(TIMEOUT);
+    }
+
     static Stream<String> unknownKeys() {
         return Stream.of(newId(), UUID.randomUUID().toString());
     }
