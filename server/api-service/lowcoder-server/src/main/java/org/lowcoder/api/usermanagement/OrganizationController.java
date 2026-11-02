@@ -1,8 +1,6 @@
 package org.lowcoder.api.usermanagement;
 
-import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.validation.Valid;
-import org.apache.commons.lang.StringUtils;
 import org.lowcoder.api.authentication.dto.OrganizationDomainCheckResult;
 import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
@@ -82,7 +80,6 @@ public class OrganizationController implements OrganizationEndpoints
 
     @Override
     public Mono<ResponseView<OrgView>> create(@Valid @RequestBody Organization organization) {
-        if(StringUtils.isEmpty(organization.getGid())) organization.setGid(UuidCreator.getTimeOrderedEpoch().toString());
         return orgApiService.create(organization)
                 .map(ResponseView::success);
     }
