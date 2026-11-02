@@ -47,7 +47,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping(NewUrl.JS_LIBRARY)
 public class JsLibraryController implements JsLibraryEndpoints
 {
-    private static final String META_URL_TEMPLATE = "https://registry.npmjs.com/%s";
+    private static final String REGISTRY_BASE_URL = "https://registry.npmjs.com";
     private static final ConcurrentMap<String, ReloadableCache<JsLibraryMeta>> RECOMMENDED_JS_LIB_META_CACHE = new ConcurrentHashMap<>();
     private static final LoadingCache<String, Mono<JsLibraryMeta>> JS_LIB_META_CACHE = CacheBuilder.newBuilder()
             .maximumSize(1000)
@@ -151,7 +151,7 @@ public class JsLibraryController implements JsLibraryEndpoints
                 .exchangeStrategies(EXCHANGE_STRATEGY)
                 .build()
                 .get()
-                .uri(META_URL_TEMPLATE.formatted(name))
+                .uri(registryUriOf(name))
                 .exchangeToMono(response -> {
                     if (response.statusCode().is2xxSuccessful()) {
                         return response.bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
@@ -184,6 +184,16 @@ public class JsLibraryController implements JsLibraryEndpoints
     /** {@link #fetch}, answering the name alone when the registry sent no document: the per-name cache's loader. */
     private static Mono<JsLibraryMeta> fetchOrNameOnly(String name) {
         return fetch(name).defaultIfEmpty(JsLibraryMeta.builder().name(name).build());
+    }
+
+    /**
+     * The registry URL of {@code name}, built without template expansion and with the name percent-encoded as one path
+     * (NEW-96: braces failed the request, and {@code ?} or {@code #} changed it). Limits: {@code /} is kept, so a scoped
+     * name ({@code @scope/pkg}) and any other slash reach the registry as path separators; dot segments are not checked;
+     * the name is not checked against npm's naming rules.
+     */
+    private static java.net.URI registryUriOf(String name) {
+        return org.springframework.web.util.UriComponentsBuilder.fromUriString(REGISTRY_BASE_URL).path("/").path(name).build().encode().toUri();
     }
 
     @Data

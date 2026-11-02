@@ -71,7 +71,7 @@ public class ApiFlowController implements ApiFlowEndpoints
                     .timeoutMs(HTTP_TIMEOUT)
                     .build()
                     .method(HttpMethod.valueOf(flowRequest.method().toUpperCase(java.util.Locale.ROOT)))
-                    .uri(url)
+                    .uri(flowUriOf(url))
                     .body(BodyInserters.fromValue(jsonBody))
                     .headers(httpHeaders -> Objects.requireNonNullElse(flowRequest.headers(), Map.<String, String>of()).forEach(httpHeaders::add))
                     .retrieve()
@@ -110,6 +110,16 @@ public class ApiFlowController implements ApiFlowEndpoints
         Duration minBackoff = flowRequest.timeout() == null ? DEFAULT_RETRY_BACKOFF : Duration.of(flowRequest.timeout(), TIMEOUT_UNIT);
         return Retry.backoff(Objects.requireNonNullElse(flowRequest.retries(), DEFAULT_RETRIES), minBackoff)
                 .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> new BizException(BizError.FLOW_ERROR, "FLOW_ERROR", retrySignal.failure().getMessage()));
+    }
+
+    /**
+     * The flow URL, parsed as before (a {@code ?} starts the query; the {@code a?x=1} control pins it) but not expanded as a
+     * template (NEW-91: a {@code {name}} in the path failed the request before it was sent). Limits: the path is not
+     * checked; it follows the fixed prefix's {@code /}, so it cannot change the host, but it chooses any path and query of
+     * the flow service.
+     */
+    static java.net.URI flowUriOf(String url) {
+        return org.springframework.web.util.UriComponentsBuilder.fromUriString(url).build().encode().toUri();
     }
 
 }
