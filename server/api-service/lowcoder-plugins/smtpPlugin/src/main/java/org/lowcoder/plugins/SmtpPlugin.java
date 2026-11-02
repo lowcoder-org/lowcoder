@@ -266,10 +266,11 @@ public class SmtpPlugin extends Plugin {
             contentPart.setText(context.getContent(), MAIL_CHARSET, HTML_SUBTYPE);
             multipart.addBodyPart(contentPart);
             if (CollectionUtils.isNotEmpty(context.getAttachments())) {
-                Decoder decoder = Base64.getDecoder();
+                int position = 0;
                 for (Attachment attachment : context.getAttachments()) {
+                    position++;
                     MimeBodyPart attachmentPart = new AttachmentPart(
-                            new DataHandler(new ByteArrayDataSource(decoder.decode(attachment.content()), attachment.contentType())),
+                            new DataHandler(new ByteArrayDataSource(decodedContentOf(attachment, position), attachment.contentType())),
                             attachment.name());
                     multipart.addBodyPart(attachmentPart);
                 }
@@ -278,12 +279,43 @@ public class SmtpPlugin extends Plugin {
             return message;
         }
 
+        static final String ATTACHMENT_MISSING = "attachment %d is missing";
+        static final String ATTACHMENT_WITHOUT_NAME = "attachment %d has no name";
+        static final String ATTACHMENT_WITHOUT_CONTENT = "attachment %d has no content";
+        static final String ATTACHMENT_CONTENT_NOT_BASE64 = "attachment %d: the content is not Base64";
+
+        /**
+         * The decoded content of the attachment at {@code position} (1-based), or a MessagingException naming what is missing
+         * (NEW-98: these failed with a NullPointerException or an IllegalArgumentException outside {@code executeQuery}'s
+         * error result). The messages never include the content. Limits: an empty name is not refused; {@code contentType}
+         * is not checked; a {@code text/*} type without a {@code charset} parameter is labelled with the charset Jakarta Mail
+         * guesses ({@code us-ascii} for 7-bit bytes, else its default), not the file's (NEW-97); a {@code charset} given in
+         * {@code contentType} is kept.
+         */
+        private static byte[] decodedContentOf(Attachment attachment, int position) throws MessagingException {
+            if (attachment == null) {
+                throw new MessagingException(String.format(ATTACHMENT_MISSING, position));
+            }
+            if (attachment.name() == null) {
+                throw new MessagingException(String.format(ATTACHMENT_WITHOUT_NAME, position));
+            }
+            if (attachment.content() == null) {
+                throw new MessagingException(String.format(ATTACHMENT_WITHOUT_CONTENT, position));
+            }
+            Decoder decoder = Base64.getDecoder();
+            try {
+                return decoder.decode(attachment.content());
+            } catch (IllegalArgumentException e) {
+                throw new MessagingException(String.format(ATTACHMENT_CONTENT_NOT_BASE64, position), e);
+            }
+        }
+
         /**
          * An attachment whose file name is sent as UTF-8 (RFC 2231 {@code filename*=UTF-8''...}, the same in the Content-Type
          * {@code name}), whatever Jakarta Mail's default charset (GH-01; {@code setFileName} used that charset, so names
          * arrived with "?" wherever it was not UTF-8). Limits: only while {@code mail.mime.encodeparameters} and, for
          * {@code name}, {@code mail.mime.setcontenttypefilename} keep their default true; an ASCII name is sent unencoded, as
-         * before; the name is not checked (null fails with a NullPointerException); a reader without RFC 2231 shows the
+         * before; a null name is refused before, by {@code decodedContentOf}; a reader without RFC 2231 shows the
          * encoded form.
          */
         static final class AttachmentPart extends MimeBodyPart {

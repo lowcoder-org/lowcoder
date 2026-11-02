@@ -94,6 +94,20 @@ public class SmtpEngineDeliveryTest {
         return result;
     }
 
+    /** What a send gave: the result, or the exception that escaped the engine (one of them is null). */
+    private record Sent(QueryExecutionResult result, Throwable failure) {
+    }
+
+    /** {@link #sendAuthenticated}, but an exception that escapes {@code executeQuery} is returned, not thrown. */
+    private Sent sendCatching(Map<String, Object> queryConfig) {
+        try {
+            return new Sent(sendAuthenticated(queryConfig), null);
+        } catch (RuntimeException e) {
+            System.out.println(TAG + "escaped: " + e);
+            return new Sent(null, e);
+        }
+    }
+
     private static Map<String, Object> query(String to, String subject, String content) {
         Map<String, Object> query = new HashMap<>();
         query.put("from", FROM);
@@ -340,5 +354,71 @@ public class SmtpEngineDeliveryTest {
         System.out.println(TAG + "no recipient: " + result.getQueryCode() + " " + (result.getMessageArgs() == null ? null : result.getMessageArgs()[0]));
         assertEquals("QUERY_EXECUTION_ERROR", result.getQueryCode());
         assertEquals(0, server.getReceivedMessages().length);
+    }
+
+    /** The first attachment of every NEW-98 query: valid, so that the position of the malformed one is 2. */
+    private static final String VALID_ATTACHMENT = "{\"name\": \"ok.txt\", \"contentType\": \"text/plain\", \"content\": \""
+            + Base64.getEncoder().encodeToString(TEXT_CONTENT.getBytes()) + "\"}";
+    static final String QUERY_EXECUTION_ERROR = "QUERY_EXECUTION_ERROR";
+    /** The messages of the second attachment's refusals, written out here, not read from the plugin. */
+    static final String SECOND_WITHOUT_NAME = "attachment 2 has no name";
+    static final String SECOND_WITHOUT_CONTENT = "attachment 2 has no content";
+    static final String SECOND_NOT_BASE64 = "attachment 2: the content is not Base64";
+    static final String SECOND_MISSING = "attachment 2 is missing";
+
+    private void assertErrorResultWithMessage(String attachments, String expectedMessage) {
+        Map<String, Object> queryConfig = query("[\"" + TO_1 + "\"]", "malformed attachment", "x");
+        queryConfig.put("attachments", attachments);
+        Sent sent = sendCatching(queryConfig);
+
+        assertNull(sent.failure(), "an exception escaped executeQuery");
+        QueryExecutionResult result = sent.result();
+        System.out.println(TAG + "malformed attachment: " + result.getQueryCode() + " / " + result.getMessageKey() + " / "
+                + Arrays.toString(result.getMessageArgs()));
+        assertEquals(QUERY_EXECUTION_ERROR, result.getQueryCode());
+        assertEquals(QUERY_EXECUTION_ERROR, result.getMessageKey());
+        assertEquals(expectedMessage, result.getMessageArgs()[0]);
+        assertEquals(0, server.getReceivedMessages().length, "nothing is delivered");
+    }
+
+    /** NEW-98: an attachment without a name gives the error result naming it; it failed with a NullPointerException. */
+    @Test
+    public void anAttachmentWithoutANameGivesAnErrorResultNEW98() {
+        assertErrorResultWithMessage("[" + VALID_ATTACHMENT + ", {\"contentType\": \"text/plain\", \"content\": \"aGk=\"}]",
+                SECOND_WITHOUT_NAME);
+    }
+
+    /** NEW-98: an attachment without content gives the error result naming it. */
+    @Test
+    public void anAttachmentWithoutContentGivesAnErrorResultNEW98() {
+        assertErrorResultWithMessage("[" + VALID_ATTACHMENT + ", {\"name\": \"b.txt\", \"contentType\": \"text/plain\"}]",
+                SECOND_WITHOUT_CONTENT);
+    }
+
+    /** NEW-98: content that is not Base64 gives the error result naming the attachment, without the content. */
+    @Test
+    public void anAttachmentWhoseContentIsNotBase64GivesAnErrorResultNEW98() {
+        assertErrorResultWithMessage("[" + VALID_ATTACHMENT + ", {\"name\": \"b.txt\", \"contentType\": \"text/plain\", \"content\": \"not base64!\"}]",
+                SECOND_NOT_BASE64);
+    }
+
+    /** NEW-98: a null element of the list gives the error result naming its position. */
+    @Test
+    public void aNullAttachmentGivesAnErrorResultNEW98() {
+        assertErrorResultWithMessage("[" + VALID_ATTACHMENT + ", null]", SECOND_MISSING);
+    }
+
+    /** NEW-97 (control): a charset named in a text attachment's content type is kept on the delivered part. */
+    @Test
+    public void aTextAttachmentKeepsTheCharsetItsTypeNamesNEW97() throws Exception {
+        String attachments = "[{\"name\": \"c.txt\", \"contentType\": \"text/plain; charset=UTF-8\", \"content\": \""
+                + Base64.getEncoder().encodeToString(TEXT_CONTENT.getBytes()) + "\"}]";
+        Map<String, Object> queryConfig = query("[\"" + TO_1 + "\"]", "charset kept", "x");
+        queryConfig.put("attachments", attachments);
+        assertEquals(QUERY_CODE_OK, sendAuthenticated(queryConfig).getQueryCode());
+        assertTrue(server.waitForIncomingEmail(WAIT_MILLIS, 1));
+        Part part = ((Multipart) only(TO_1).getContent()).getBodyPart(1);
+        System.out.println(TAG + "delivered content type: " + part.getContentType());
+        assertTrue(part.getContentType().toLowerCase(java.util.Locale.ROOT).contains("charset=utf-8"), part.getContentType());
     }
 }
