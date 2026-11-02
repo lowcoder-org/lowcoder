@@ -91,6 +91,20 @@ class GraphQLBodyTypesTest {
         assertThat(new String(request.body(), StandardCharsets.UTF_8)).isEqualTo(GraphQLCallSupport.QUERY);
     }
 
+    /**
+     * P1 (T156b-3): an {@code application/graphql} query whose text and datasource body are both blank has no body to send,
+     * so the request goes out with an empty body (the executor's null-body branch). Added to keep the graphqlPlugin line
+     * coverage floor after {@code injectCookies} (covered lines) was replaced by the shared helper.
+     */
+    @Test
+    void applicationGraphqlWithoutQueryTextSendsAnEmptyBody() {
+        RecordingHttpServer.Request request = send("application/graphql", Map.of("body", "", "variables", List.of()));
+
+        System.out.println("[GraphQLBodyTypesTest] blank application/graphql body length " + request.body().length);
+        assertThat(request.header(CONTENT_TYPE)).containsExactly("application/graphql");
+        assertThat(request.body()).as("request body").isEmpty();
+    }
+
     @Test
     void theJsonBodyWrapsTheQueryAndOmitsAnEmptyVariablesObject() {
         RecordingHttpServer.Request request = send("application/json", GraphQLCallSupport.query());
