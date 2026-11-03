@@ -7,6 +7,8 @@ import static org.lowcoder.domain.application.service.ApplicationServiceImplTest
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Duration;
@@ -18,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 import org.lowcoder.domain.application.model.Application;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 
 import reactor.core.publisher.Flux;
@@ -25,10 +28,11 @@ import reactor.core.publisher.Flux;
 /**
  * BF-154 and BF-156 (fixed; were pinned as candidate rows G1 and G2 of task L3-12) in ApplicationServiceImpl.findByIdIn,
  * which is reached with client-supplied ids by MetaController.java:46 ({@code applicationServiceImpl.findByIdIn(param.appIds())})
- * and, for the module ids found in a DSL, by getAllDependentModulesFromDsl. Every key is looked up by slug, and the keys no
+ * and, for the module ids found in a DSL, by getAllDependentModulesFromDsl. Every non-blank key is looked up by slug, and the keys no
  * slug matched by object id or gid. G1 was "a slug match drops the ids of the list"; G2 was "a list starting with a
- * slug that has a hyphen goes to the gid query and is never looked up by slug". The repository is a mock: each test answers
- * a query only for the keys it is given, so a key sent to the wrong query finds nothing.
+ * slug that has a hyphen goes to the gid query and is never looked up by slug". The repository is a mock: the BF-154 to BF-156 tests answer
+ * a query only for the keys it is given, so a key sent to the wrong query finds nothing; the NEW-104 test B2 stubs the id query for
+ * any keys and asserts the keys each query received by capture.
  */
 class ApplicationServiceImplFindByIdInPinTest {
 
@@ -94,5 +98,53 @@ class ApplicationServiceImplFindByIdInPinTest {
         System.out.println("[ApplicationServiceImplFindByIdInPinTest] my-slug -> " + found.stream().map(Application::getId).toList() + ", gid queries " + gidQueries.get());
         assertThat(found).extracting(Application::getId).containsExactly("app-of-the-slug");
         assertThat(gidQueries.get()).as("a key a slug matched is not looked up again").isZero();
+    }
+
+    /** The blank keys: none, empty, one space, and other whitespace (a tab, a space, a newline). */
+    private static final String NULL_KEY = null;
+    private static final String EMPTY_KEY = "";
+    private static final String WHITESPACE_KEY = " ";
+    private static final String MIXED_WHITESPACE_KEY = "\t \n";
+    private static final String APP_ID = "65a1b2c3d4e5f60718293a4b";
+    private static final String LOG_PREFIX = "[ApplicationServiceImplFindByIdInPinTest] ";
+
+    /**
+     * NEW-104: a list of blank keys only names no application and asks no query. Catches the slug query asked with the
+     * blank keys (HEAD): the repository mock is touched.
+     */
+    @Test
+    void findByIdInWithOnlyBlankKeysAsksNoQueryNEW104() {
+        List<String> keys = java.util.Arrays.asList(NULL_KEY, EMPTY_KEY, WHITESPACE_KEY, MIXED_WHITESPACE_KEY);
+
+        List<Application> found = s.service.findByIdIn(keys).collectList().block(TIMEOUT);
+
+        System.out.println(LOG_PREFIX + "findByIdIn " + keys + " -> " + found);
+        assertThat(found).as("answer").isEmpty();
+        verifyNoInteractions(s.repository);
+    }
+
+    /**
+     * NEW-104: the blank keys are dropped before the queries: with {@code [null, APP_ID, " "]} the slug query and the id
+     * query see {@code [APP_ID]} only. Catches the blank keys passed on to either query.
+     */
+    @Test
+    void findByIdInDropsBlankKeysBeforeItsQueriesNEW104() {
+        Application app = appWithSlug(APP_ID, null);
+        when(s.repository.findByIdIn(any())).thenReturn(Flux.just(app));
+        List<String> keys = java.util.Arrays.asList(NULL_KEY, APP_ID, WHITESPACE_KEY);
+
+        List<Application> found = s.service.findByIdIn(keys).collectList().block(TIMEOUT);
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Collection<String>> slugKeys = ArgumentCaptor.forClass(Collection.class);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Collection<String>> idKeys = ArgumentCaptor.forClass(Collection.class);
+        verify(s.repository).findBySlugIn(slugKeys.capture());
+        verify(s.repository).findByIdIn(idKeys.capture());
+        System.out.println(LOG_PREFIX + "findByIdIn " + keys + " -> slug query keys " + slugKeys.getValue() + ", id query keys "
+                + idKeys.getValue() + ", answered " + found.stream().map(Application::getId).toList());
+        assertThat(new java.util.ArrayList<>(slugKeys.getValue())).as("keys of the slug query").containsExactly(APP_ID);
+        assertThat(new java.util.ArrayList<>(idKeys.getValue())).as("keys of the id query").containsExactly(APP_ID);
+        assertThat(found).extracting(Application::getId).containsExactly(APP_ID);
     }
 }

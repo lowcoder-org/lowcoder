@@ -127,15 +127,24 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     /**
      * The applications of a list of keys, each a slug, an object id or a gid, in any mix. As for one key
-     * ({@link #findByIdWithoutDsl}), every key is looked up by slug first, and the keys no slug matched by object id or gid
+     * ({@link #findByIdWithoutDsl}), every non-blank key is looked up by slug first, and the keys no slug matched by object id or gid
      * ({@link IdOrGidLookup}); an application named by two keys is answered once. Before, a slug match dropped every other
      * key (BF-154), the kind of the list was taken from its first element (BF-155), and a list starting with a slug that
      * has a hyphen was taken for gids and never looked up by slug (BF-156).
+     * <p>
+     * A blank key (null, empty or only whitespace, as {@code StringUtils.isBlank} decides) names no application and is
+     * dropped before any query (NEW-104: a null key matched every application without a slug, a blank one the application
+     * stored with that slug). Limits: a null list fails as before; the slug query has no state filter, as before; a key of
+     * invisible characters {@code StringUtils.isBlank} does not count as whitespace is not blank.
      */
     @Override
     public Flux<Application> findByIdIn(List<String> applicationIds) {
-        return repository.findBySlugIn(applicationIds).collectList()
-                .flatMapMany(bySlug -> Flux.concat(Flux.fromIterable(bySlug), IdOrGidLookup.find(keysWithoutSlugMatch(applicationIds, bySlug),
+        List<String> keys = applicationIds.stream().filter(StringUtils::isNotBlank).toList();
+        if (keys.isEmpty()) {
+            return Flux.empty();
+        }
+        return repository.findBySlugIn(keys).collectList()
+                .flatMapMany(bySlug -> Flux.concat(Flux.fromIterable(bySlug), IdOrGidLookup.find(keysWithoutSlugMatch(keys, bySlug),
                         repository::findByIdIn, repository::findByGidIn)))
                 .distinct(HasIdAndAuditing::getId);
     }

@@ -173,9 +173,10 @@ class ApplicationServiceImplTest {
     }
 
     /**
-     * Catches: the findByIdIn routing changed for homogeneous lists (BF-154, BF-155, BF-156): every list asks the slugs once;
+     * Catches: the findByIdIn routing changed for homogeneous lists (BF-154, BF-155, BF-156): every list of non-blank keys asks the slugs once;
      * the keys no slug matched go to the id query (plain keys) or the gid query (keys with a hyphen), each only when the list
-     * has keys of it, so an empty list asks the slugs only. The mixed lists are in ApplicationServiceImplFindByIdInPinTest
+     * has keys of it; an empty list (like a list of blank keys, NEW-104)
+     * asks no query at all. The mixed lists are in ApplicationServiceImplFindByIdInPinTest
      * and ApplicationServiceImplIdKindFamilyPinTest.
      */
     @Test
@@ -188,17 +189,17 @@ class ApplicationServiceImplTest {
         when(s.repository.findByGidIn(anyCollection())).thenReturn(counted(Flux.just(app("g1")), gidQueries));
 
         assertThat(service.findByIdIn(List.of()).collectList().block(TIMEOUT)).isEmpty();
-        assertThat(slugQueries.get()).isEqualTo(1);
+        assertThat(slugQueries.get()).as("an empty list asks no query (NEW-104)").isZero();
         assertThat(idQueries.get()).isZero();
 
         assertThat(service.findByIdIn(List.of("plain1", "plain2")).collectList().block(TIMEOUT)).extracting(Application::getId).containsExactly("i1");
-        assertThat(slugQueries.get()).isEqualTo(2);
+        assertThat(slugQueries.get()).isEqualTo(1);
         assertThat(idQueries.get()).isEqualTo(1);
         assertThat(gidQueries.get()).isZero();
 
         assertThat(service.findByIdIn(List.of("gid-1", "gid-2")).collectList().block(TIMEOUT)).extracting(Application::getId).containsExactly("g1");
         assertThat(gidQueries.get()).isEqualTo(1);
-        assertThat(slugQueries.get()).isEqualTo(3);
+        assertThat(slugQueries.get()).isEqualTo(2);
         assertThat(idQueries.get()).isEqualTo(1);
 
         when(s.repository.findBySlugIn(anyCollection())).thenReturn(counted(Flux.just(appWithSlug("s1", "plain1")), slugQueries));
