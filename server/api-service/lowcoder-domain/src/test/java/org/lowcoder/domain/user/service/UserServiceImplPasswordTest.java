@@ -76,7 +76,7 @@ class UserServiceImplPasswordTest {
 
     // ---------------------------------------------------------------- updatePassword
 
-    /** Catches a password changed although the old one does not match (:389). */
+    /** Catches a password changed although the old one does not match ({@code UserServiceImpl.updatePassword}). */
     @Test
     void updatePassword_wrongOldPassword_failsAndNeverSaves() {
         User user = fixture.userWithPassword(OLD_PASSWORD);
@@ -91,7 +91,7 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] wrong old password -> INVALID_PASSWORD, nothing saved");
     }
 
-    /** Catches an account without a password (SSO-only) getting one set through the change-password flow (:384). */
+    /** Catches an account without a password (SSO-only) getting one set through the change-password flow ({@code UserServiceImpl.updatePassword}). */
     @ParameterizedTest
     @NullAndEmptySource
     void updatePassword_blankStoredPassword_failsWithInvalidPassword(String storedPassword) {
@@ -105,7 +105,7 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] blank stored password (" + storedPassword + ") rejected");
     }
 
-    /** Catches the new password stored in plain text or the old one kept (:393). */
+    /** Catches the new password stored in plain text or the old one kept ({@code UserServiceImpl.updatePassword}). */
     @Test
     void updatePassword_correctOldPassword_savesHashOfNewPassword() {
         User user = fixture.userWithPassword(OLD_PASSWORD);
@@ -126,7 +126,7 @@ class UserServiceImplPasswordTest {
 
     // ---------------------------------------------------------------- resetPassword / setPassword / markAsSuperAdmin
 
-    /** Catches a plaintext password persisted, or a different value returned than the one hashed (:409-412). */
+    /** Catches a plaintext password persisted, or a different value returned than the one hashed ({@code UserServiceImpl.resetPassword}). */
     @Test
     void resetPassword_returnsPlaintextOnce_andStoresItsHash() {
         User user = fixture.userWithPassword(OLD_PASSWORD);
@@ -144,7 +144,7 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] resetPassword returned a 12 char password whose hash was saved");
     }
 
-    /** Catches a reset on an account that never had a password (:405). */
+    /** Catches a reset on an account that never had a password ({@code UserServiceImpl.resetPassword}). */
     @ParameterizedTest
     @NullAndEmptySource
     void resetPassword_blankStoredPassword_failsPasswordNotSetYet(String storedPassword) {
@@ -157,7 +157,7 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] resetPassword on blank password -> PASSWORD_NOT_SET_YET");
     }
 
-    /** Catches a plaintext password stored by setPassword (:478). */
+    /** Catches a plaintext password stored by setPassword ({@code UserServiceImpl.setPassword}). */
     @Test
     void setPassword_encryptsAndSaves() {
         User user = User.builder().id(USER_ID).build();
@@ -169,7 +169,7 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] setPassword stored a hash that matches the password");
     }
 
-    /** Catches the super admin flag not being set (:489). */
+    /** Catches the super admin flag not being set ({@code UserServiceImpl.markAsSuperAdmin}). */
     @Test
     void markAsSuperAdmin_setsFlagAndSaves() {
         User user = User.builder().id(USER_ID).build();
@@ -191,7 +191,7 @@ class UserServiceImplPasswordTest {
                 .build();
     }
 
-    /** Catches an account takeover with a guessed token (:453): wrong token is rejected and nothing is saved. */
+    /** Catches an account takeover with a guessed token ({@code UserServiceImpl.resetLostPassword}): wrong token is rejected and nothing is saved. */
     @Test
     void resetLostPassword_wrongToken_isRejectedAndPasswordUnchanged() {
         User user = userWithResetToken(TOKEN, Instant.now().plus(ONE_HOUR));
@@ -213,7 +213,7 @@ class UserServiceImplPasswordTest {
                 Arguments.of("no expiry stored", null));
     }
 
-    /** Catches an expiry bypass or an NPE on an account without an expiry (:448-449), even with the right token. */
+    /** Catches an expiry bypass or an NPE on an account without an expiry ({@code UserServiceImpl.resetLostPassword}), even with the right token. */
     @ParameterizedTest(name = "{0}")
     @MethodSource("expiries")
     void resetLostPassword_expiredOrMissingExpiry_isRejected(String label, Instant expiry) {
@@ -227,7 +227,7 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] reset token " + label + " -> TOKEN_EXPIRED");
     }
 
-    /** Catches token reuse after a successful reset (:457-459): the token is cleared and a second use fails. */
+    /** Catches token reuse after a successful reset ({@code UserServiceImpl.resetLostPassword}): the token is cleared and a second use fails. */
     @Test
     void resetLostPassword_success_setsHashAndInvalidatesTheToken() {
         User user = userWithResetToken(TOKEN, Instant.now().plus(ONE_HOUR));
@@ -249,7 +249,7 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] reset succeeded once; the same token fails the second time");
     }
 
-    /** Catches resetting a soft-deleted account (:443). */
+    /** Catches resetting a soft-deleted account ({@code UserServiceImpl.resetLostPassword}). */
     @Test
     void resetLostPassword_deletedAccount_isNotRecoverable() {
         User user = userWithResetToken(TOKEN, Instant.now().plus(ONE_HOUR));
@@ -262,7 +262,7 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] deleted account -> empty result, nothing saved");
     }
 
-    /** Catches the lookup by name being lost (:442): an e-mail lookup without hit falls back to the user name. */
+    /** Catches the lookup by name being lost ({@code UserServiceImpl.resetLostPassword}): an e-mail lookup without hit falls back to the user name. */
     @Test
     void resetLostPassword_fallsBackToLookupByName() {
         User user = userWithResetToken(TOKEN, Instant.now().plus(ONE_HOUR));
@@ -285,7 +285,7 @@ class UserServiceImplPasswordTest {
     }
 
     /**
-     * Catches a plaintext reset token stored, or a wrong lifetime (:429-435): the token handed to the mail hashes to
+     * Catches a plaintext reset token stored, or a wrong lifetime ({@code UserServiceImpl.lostPassword}): the token handed to the mail hashes to
      * the stored value, and the expiry is twelve hours ahead.
      */
     @Test
@@ -310,7 +310,7 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] lostPassword stored the token hash and a 12 hour expiry");
     }
 
-    /** Catches a valid token stored for a mail that was never sent (:430). */
+    /** Catches a valid token stored for a mail that was never sent ({@code UserServiceImpl.lostPassword}). */
     @Test
     void lostPassword_mailSendFails_storesNothing() {
         User user = User.builder().id(USER_ID).email(USER_EMAIL).build();
@@ -325,7 +325,7 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] mail not sent -> no token stored");
     }
 
-    /** Catches a mail sent for an unknown or soft-deleted account (:420): both end empty without a mail or a save. */
+    /** Catches a mail sent for an unknown or soft-deleted account ({@code UserServiceImpl.lostPassword}): both end empty without a mail or a save. */
     @Test
     void lostPassword_unknownAndDeletedAccount_sendNothing() {
         when(fixture.repository.findByEmailOrConnections_Email("nobody@example.com", "nobody@example.com")).thenReturn(Flux.empty());
