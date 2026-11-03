@@ -82,4 +82,73 @@ class ApiFlowControllerRetryTest {
                     assertThat(e.getMessage()).as("message").contains(UPSTREAM_MESSAGE);
                 });
     }
+
+    // ------------------------------------------------------------------ NEW-92 (P6): the bounds and the relay deadline
+
+    private static final int EXPECTED_MAX_RETRIES = 3;
+    private static final int EXPECTED_MAX_TIMEOUT = 10;
+    private static final Duration EXPECTED_DEADLINE = Duration.ofSeconds(60);
+    private static final String EXPECTED_DEADLINE_MESSAGE = "the flow relay did not answer within 60 s";
+    private static final String ANSWER = "ApiFlowControllerRetryTest.answer";
+    private static final int ZERO_TIMEOUT = 0;
+    private static final Duration ZERO_BACKOFF_WAIT = Duration.ofSeconds(10);
+
+    static java.util.stream.Stream<org.junit.jupiter.params.provider.Arguments> boundaryValues() {
+        return java.util.stream.Stream.of(
+                org.junit.jupiter.params.provider.Arguments.of(0, 0, Duration.ZERO),
+                org.junit.jupiter.params.provider.Arguments.of(EXPECTED_MAX_TIMEOUT, EXPECTED_MAX_RETRIES, Duration.ofSeconds(EXPECTED_MAX_TIMEOUT)),
+                org.junit.jupiter.params.provider.Arguments.of(null, null, EXPECTED_DEFAULT_BACKOFF));
+    }
+
+    /** The edges of the accepted range, and no value at all, are in range and give the spec they gave before. */
+    @ParameterizedTest(name = "timeout {0}, retries {1}")
+    @org.junit.jupiter.params.provider.MethodSource("boundaryValues")
+    void boundaryValuesAreAcceptedNEW92(Integer timeout, Integer retries, Duration expectedBackoff) {
+        RetryBackoffSpec spec = specOf(timeout, retries);
+        assertThat(ApiFlowController.outOfRangeParameter(request(timeout, retries))).as("the field out of range").isNull();
+        assertThat(spec.maxAttempts).as("maxAttempts").isEqualTo(retries == null ? NO_RETRIES : retries);
+        assertThat(spec.minBackoff).as("minBackoff").isEqualTo(expectedBackoff);
+    }
+
+    /** A zero timeout is a zero minimum backoff: the retries run at once and the run ends in FLOW_ERROR after the last. */
+    @Test
+    void aZeroTimeoutRetriesWithoutWaitingAndEndsInFlowErrorNEW92() {
+        RetryBackoffSpec spec = specOf(ZERO_TIMEOUT, RETRIES);
+        assertThat(spec.minBackoff).as("minBackoff").isEqualTo(Duration.ZERO);
+        assertThat(spec.maxAttempts).as("maxAttempts").isEqualTo(RETRIES);
+        java.util.concurrent.atomic.AtomicInteger subscriptions = new java.util.concurrent.atomic.AtomicInteger();
+        Mono<Object> failing = Mono.defer(() -> {
+            subscriptions.incrementAndGet();
+            return Mono.error(new IllegalStateException(UPSTREAM_MESSAGE));
+        });
+        assertThatThrownBy(() -> failing.retryWhen(spec).block(ZERO_BACKOFF_WAIT))
+                .isInstanceOfSatisfying(BizException.class, e -> {
+                    System.out.println(TAG + " zero timeout: " + subscriptions + " subscriptions, " + e.getError() + " / " + e.getMessage());
+                    assertThat(e.getError()).as("error").isEqualTo(BizError.FLOW_ERROR);
+                });
+        assertThat(subscriptions).as("subscriptions: the first attempt and the retries").hasValue(RETRIES + 1);
+    }
+
+    @Test
+    void theRelayDeadlineAnswersFlowErrorNEW92() {
+        reactor.test.StepVerifier.withVirtualTime(() -> ApiFlowController.withinDeadline(Mono.never()))
+                .expectSubscription()
+                .expectNoEvent(EXPECTED_DEADLINE.minusMillis(1))
+                .thenAwait(Duration.ofMillis(1))
+                .expectErrorSatisfies(error -> {
+                    System.out.println(TAG + " deadline: " + error);
+                    assertThat(error).isInstanceOfSatisfying(BizException.class, e -> {
+                        assertThat(e.getError()).as("error").isEqualTo(BizError.FLOW_ERROR);
+                        assertThat(e.getArgs()).as("arguments").containsExactly(EXPECTED_DEADLINE_MESSAGE);
+                    });
+                })
+                .verify(Duration.ofSeconds(5));
+    }
+
+    @Test
+    void aRelayFasterThanTheDeadlinePassesThroughNEW92() {
+        String answer = ApiFlowController.withinDeadline(Mono.just(ANSWER)).block(Duration.ofSeconds(5));
+        System.out.println(TAG + " a relay faster than the deadline answered " + answer);
+        assertThat(answer).as("answer").isEqualTo(ANSWER);
+    }
 }
