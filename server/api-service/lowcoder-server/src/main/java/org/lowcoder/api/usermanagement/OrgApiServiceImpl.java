@@ -174,6 +174,18 @@ public class OrgApiServiceImpl implements OrgApiService {
                         MemberRole.fromValue(updateRoleRequest.getRole())));
     }
 
+    /**
+     * Sets the slug for an admin of the organization (ADMIN or SUPER_ADMIN, {@link #checkVisitorAdminRole}; NEW-102: any
+     * signed-in user could). Limits: {@code orgId} is the object id, not converted from a gid or slug, as before, so a
+     * gid or slug answers NOT_AUTHORIZED; the slug rules are {@code OrganizationService.updateSlug}'s; the answer is the
+     * whole organization, as before.
+     */
+    @Override
+    public Mono<Organization> updateSlug(String orgId, String slug) {
+        return checkVisitorAdminRole(orgId)
+                .then(Mono.defer(() -> organizationService.updateSlug(orgId, slug)));
+    }
+
     @Override
     public Mono<OrgMember> checkVisitorAdminRole(String orgId) {
         return sessionUserService.getVisitorId()

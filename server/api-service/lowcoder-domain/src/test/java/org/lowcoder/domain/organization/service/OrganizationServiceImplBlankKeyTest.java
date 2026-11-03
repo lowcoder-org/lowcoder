@@ -176,4 +176,30 @@ class OrganizationServiceImplBlankKeyTest {
         assertThat(new ArrayList<>(gidKeys.getValue())).as("keys of the gid query").containsExactly(GID);
         assertThat(new ArrayList<>(slugKeys.getValue())).as("keys of the slug query").containsExactly(GID);
     }
+
+    /** The slugs U2 refuses: none and empty (a whitespace slug is refused by the slug pattern at HEAD too). */
+    static Stream<String> blankSlugs() {
+        return Stream.of(NULL_KEY, EMPTY_KEY);
+    }
+
+    /**
+     * NEW-83: a null or empty slug is SLUG_INVALID before any query. Catches the existence query asked first (HEAD), and
+     * a null slug failing with a NullPointerException instead of SLUG_INVALID (the repository mock answers null, which
+     * HEAD dereferences).
+     */
+    @ParameterizedTest(name = "slug=[{0}]")
+    @MethodSource("blankSlugs")
+    void updateSlugWithABlankSlugAsksNoQueryNEW83(String slug) {
+        Throwable failure = catchThrowable(() -> service.updateSlug(OBJECT_ID, slug).block(TIMEOUT));
+
+        System.out.println(LOG_PREFIX + "updateSlug(" + OBJECT_ID + ", [" + slug + "]) -> " + failure);
+        assertThat(failure).as("failure of updateSlug").isInstanceOf(BizException.class);
+        BizException refusal = (BizException) failure;
+        assertThat(refusal.getError()).isEqualTo(BizError.SLUG_INVALID);
+        assertThat(refusal.getMessageKey()).isEqualTo(SLUG_INVALID_KEY);
+        verifyNoInteractions(repository);
+    }
+
+    /** The message key of the slug refusal. */
+    static final String SLUG_INVALID_KEY = "SLUG_INVALID";
 }

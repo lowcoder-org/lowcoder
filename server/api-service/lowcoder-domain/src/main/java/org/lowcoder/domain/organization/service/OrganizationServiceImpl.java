@@ -191,9 +191,9 @@ public class OrganizationServiceImpl implements OrganizationService {
      * Limits: an organization whose stored slug is blank is not found by that slug by this method, only by a non-blank
      * id or gid; a key of invisible characters that {@code StringUtils.isBlank} does not count as whitespace, such as a
      * no-break space or a zero-width space, is not blank and is looked up as before; a caller that looks a blank key, a
-     * null one included, up as a slug before calling, as the server's
-     * {@code GidService.convertOrganizationIdToObjectId} does (NEW-86), passes on the object id of the organization it
-     * finds, which this guard does not see; {@link #getByIds} drops blank keys (see its javadoc).
+     * null one included, up as a slug before calling passes on the object id of the organization it finds, which this
+     * guard does not see (the server's {@code GidService.convertOrganizationIdToObjectId} skips the slug lookup for a
+     * blank key, NEW-86); {@link #getByIds} drops blank keys (see its javadoc).
      */
     @Override
     public Mono<Organization> getById(String id) {
@@ -214,9 +214,9 @@ public class OrganizationServiceImpl implements OrganizationService {
      * Limits: an organization whose stored slug is blank is not found by that slug by this method, only by a non-blank
      * id or gid; a key of invisible characters that {@code StringUtils.isBlank} does not count as whitespace, such as a
      * no-break space or a zero-width space, is not blank and is looked up as before; a caller that looks a blank key, a
-     * null one included, up as a slug before calling, as the server's
-     * {@code GidService.convertOrganizationIdToObjectId} does (NEW-86), passes on the object id of the organization it
-     * finds, which this guard does not see.
+     * null one included, up as a slug before calling passes on the object id of the organization it finds, which this
+     * guard does not see (the server's {@code GidService.convertOrganizationIdToObjectId} skips the slug lookup for a
+     * blank key, NEW-86).
      */
     @Override
     public Mono<Organization> getByIdWithDeleted(String id) {
@@ -238,9 +238,9 @@ public class OrganizationServiceImpl implements OrganizationService {
      * Limits: an organization whose stored slug is blank is not found by that slug by this method, only by a non-blank
      * id or gid; a key of invisible characters that {@code StringUtils.isBlank} does not count as whitespace, such as a
      * no-break space or a zero-width space, is not blank and is looked up as before; a caller that looks a blank key, a
-     * null one included, up as a slug before calling, as the server's
-     * {@code GidService.convertOrganizationIdToObjectId} does (NEW-86), passes on the object id of the organization it
-     * finds, which this guard does not see.
+     * null one included, up as a slug before calling passes on the object id of the organization it finds, which this
+     * guard does not see (the server's {@code GidService.convertOrganizationIdToObjectId} skips the slug lookup for a
+     * blank key, NEW-86).
      */
     @Override
     public Mono<OrganizationCommonSettings> getOrgCommonSettings(String orgId) {
@@ -419,12 +419,19 @@ public class OrganizationServiceImpl implements OrganizationService {
         return OrganizationCommonSettings.updateTimeKey(key);
     }
 
+    /**
+     * A blank slug (null, empty or whitespace, as {@code StringUtils.isBlank} decides) is SLUG_INVALID before any query
+     * (NEW-83). Limits: uniqueness is a read before the save, with no unique index (NEW-87); the organization's state is
+     * not checked; an unknown id completes empty, as before.
+     */
     @Override
     public Mono<Organization> updateSlug(String organizationId, String newSlug) {
-        return repository.existsBySlug(newSlug).flatMap(exists -> {
-            if (!SlugUtils.validate(newSlug)) {
+        return Mono.defer(() -> {
+            if (StringUtils.isBlank(newSlug) || !SlugUtils.validate(newSlug)) {
                 return Mono.error(new BizException(BizError.SLUG_INVALID, "SLUG_INVALID"));
             }
+            return repository.existsBySlug(newSlug);
+        }).flatMap(exists -> {
             if (exists) {
                 return Mono.error(new BizException(BizError.SLUG_DUPLICATE_ENTRY, "SLUG_DUPLICATE_ENTRY"));
             }

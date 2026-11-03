@@ -377,6 +377,34 @@ class OrgApiServiceImplTest {
         say("checkVisitorAdminRole: role %s -> admitted=%s", role, admitted);
     }
 
+    /** The slug the NEW-102 case sets. */
+    private static final String NEW_SLUG = "the-new-slug";
+
+    /**
+     * NEW-102: catches the slug of an organization set by a visitor who is not an admin of it: ADMIN and SUPER_ADMIN
+     * reach {@code organizationService.updateSlug} (once, with the id and the slug) and get its organization back; a
+     * MEMBER and an outsider get NOT_AUTHORIZED, {@code organizationService.updateSlug} is never called (so no Mono
+     * is built either) and never subscribed.
+     */
+    @ParameterizedTest(name = "role {0} -> admitted {1}")
+    @MethodSource("adminRoles")
+    void updateSlug_onlyAdminsReachTheSlugUpdateNEW102(MemberRole role, boolean admitted) {
+        stubVisitorRole(ORG_ID, role);
+        Organization organization = new Organization();
+        lenient().when(organizationService.updateSlug(ORG_ID, NEW_SLUG)).thenReturn(counting(organization));
+
+        if (admitted) {
+            StepVerifier.create(service.updateSlug(ORG_ID, NEW_SLUG)).expectNext(organization).verifyComplete();
+            assertThat(mutations).hasValue(1);
+        } else {
+            StepVerifier.create(service.updateSlug(ORG_ID, NEW_SLUG))
+                    .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")).verify();
+            assertThat(mutations).hasValue(0);
+            verify(organizationService, never()).updateSlug(any(), any());
+        }
+        say("updateSlug: role %s -> admitted=%s, service subscriptions %d", role, admitted, mutations.get());
+    }
+
     enum AdminOperation {
         UPDATE_ROLE(1), DELETE_LOGO(1), UPLOAD_LOGO(2), REMOVE_USER(2), REMOVE_ORG(1), UPDATE(1), UPDATE_SETTINGS(1), API_USAGE(1);
 

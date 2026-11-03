@@ -1,5 +1,6 @@
 package org.lowcoder.api.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.repository.ApplicationRepository;
 import org.lowcoder.domain.bundle.model.Bundle;
@@ -77,7 +78,16 @@ public class GidService {
         return Mono.just(id);
     }
 
+    /**
+     * The object id an organization key names: a slug match first, then a gid for a key with a hyphen, otherwise the
+     * key itself. A blank key (empty or whitespace) is not looked up as a slug and is answered as given (NEW-86).
+     * Limits: a null key is not defended (its HTTP callers pass path variables, or a parameter refused when blank); a
+     * gid that names nothing answers empty, as before.
+     */
     public Mono<String> convertOrganizationIdToObjectId(String id) {
+        if (StringUtils.isBlank(id)) {
+            return Mono.just(id);
+        }
         return organizationRepository.findBySlug(id).next().mapNotNull(HasIdAndAuditing::getId).switchIfEmpty(
                 Mono.defer(() -> {
                     if(FieldName.isGID(id)) {

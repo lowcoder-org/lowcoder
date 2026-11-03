@@ -22,6 +22,7 @@ import org.lowcoder.api.ServerApplication;
 import org.lowcoder.domain.asset.model.Asset;
 import org.lowcoder.domain.asset.service.AssetRepository;
 import org.lowcoder.domain.organization.model.MemberRole;
+import org.lowcoder.api.util.GidService;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.model.OrganizationState;
 import org.lowcoder.domain.organization.service.OrganizationService;
@@ -71,6 +72,8 @@ class OrganizationServiceImplMongoTest extends OrganizationMongoTestBase {
     private OrganizationService organizationService;
     @Autowired
     private AssetRepository assetRepository;
+    @Autowired
+    private GidService gidService;
 
     /** An organisation with a GID-shaped gid (contains a hyphen) and a hyphen-free slug, so every lookup key is usable. */
     private Organization saveOrg(OrganizationState state, String name) {
@@ -363,6 +366,48 @@ class OrganizationServiceImplMongoTest extends OrganizationMongoTestBase {
         assertThat(stored(first.getId()).getSlug()).isEqualTo(newSlug);
         assertThat(organizationService.updateSlug(newId(), "u" + newId()).blockOptional(TIMEOUT)).as("unknown org completes empty").isEmpty();
         System.out.println("[OrganizationServiceImplMongoTest] slug errors checked; unknown org completes empty");
+    }
+
+    /**
+     * NEW-83: catches an empty slug stored (HEAD accepts it, and the guarded lookups cannot find it); the whitespace
+     * slug is the control, which the slug pattern refused at HEAD too. The stored slug stays as it was.
+     */
+    @ParameterizedTest(name = "slug=[{0}]")
+    @MethodSource("emptyAndWhitespaceSlugs")
+    void updateSlugRefusesABlankSlugNEW83(String slug) {
+        Organization org = saveOrg(ACTIVE, "blank-slug-update");
+
+        BizError refused = slugError(org.getId(), slug);
+
+        System.out.println("[OrganizationServiceImplMongoTest] updateSlug(" + org.getId() + ", [" + slug + "]) -> " + refused
+                + ", stored slug [" + stored(org.getId()).getSlug() + "]");
+        assertThat(refused).isEqualTo(BizError.SLUG_INVALID);
+        assertThat(stored(org.getId()).getSlug()).as("a refused slug is not applied").isEqualTo(org.getSlug());
+    }
+
+    static Stream<String> emptyAndWhitespaceSlugs() {
+        return Stream.of(EMPTY_KEY, WHITESPACE_KEY);
+    }
+
+    /**
+     * NEW-86: catches a whitespace organization key converted to the organization stored with that slug: the converter
+     * answers the key as given.
+     */
+    @Test
+    void aBlankKeyIsNotConvertedToTheOrgWithThatSlugNEW86() {
+        List<String> storedGids = new ArrayList<>();
+        runThenRemove(storedGids, () -> {
+            String gid = UUID.randomUUID().toString();
+            storedGids.add(gid);
+            Organization blank = mongo.save(Organization.builder().name(BLANK_SLUG_NAME).gid(gid).slug(WHITESPACE_KEY).state(ACTIVE).build())
+                    .block(TIMEOUT);
+
+            String converted = gidService.convertOrganizationIdToObjectId(WHITESPACE_KEY).block(TIMEOUT);
+
+            System.out.println("[OrganizationServiceImplMongoTest] convert([" + WHITESPACE_KEY + "]) with org " + blank.getId()
+                    + " holding that slug -> [" + converted + "]");
+            assertThat(converted).as("converted key").isEqualTo(WHITESPACE_KEY);
+        });
     }
 
     private BizError slugError(String orgId, String slug) {
