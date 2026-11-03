@@ -4,8 +4,10 @@ import static org.lowcoder.domain.organization.model.OrganizationState.ACTIVE;
 import static org.lowcoder.sdk.exception.BizError.NO_RESOURCE_FOUND;
 
 import java.util.Collection;
+import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.domain.folder.model.Folder;
 import org.lowcoder.domain.folder.repository.FolderRepository;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
@@ -47,11 +49,25 @@ public class FolderServiceImpl implements FolderService {
                 .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "FOLDER_NOT_FOUND", id)));
     }
 
+    /**
+     * The folders named by the non-blank keys. A blank key (null, empty or only whitespace, as {@code StringUtils.isBlank}
+     * decides) names no folder and is dropped before any query (NEW-106: a null first key failed the call with a
+     * NullPointerException, and with it the whole meta answer).
+     * <p>
+     * Limits: a null collection fails as before; the kind of the first kept key (gid or not) is taken for every key, so a
+     * list mixing kinds misses the folders of the other kind, as before; a key of invisible characters
+     * {@code StringUtils.isBlank} does not count as whitespace is not blank; {@link #deleteAllById} keeps its own first-key
+     * rule (its keys come from the stored folder tree).
+     */
     @Override
     public Flux<Folder> findByIds(Collection<String> ids) {
-        if(!ids.isEmpty() && FieldName.isGID(ids.stream().findFirst().get()))
-            return repository.findByGidIn(ids);
-        return repository.findAllById(ids);
+        List<String> keys = ids.stream().filter(StringUtils::isNotBlank).toList();
+        if (keys.isEmpty()) {
+            return Flux.empty();
+        }
+        if (FieldName.isGID(keys.get(0)))
+            return repository.findByGidIn(keys);
+        return repository.findAllById(keys);
     }
 
     @Override
