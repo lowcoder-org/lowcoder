@@ -380,9 +380,11 @@ class OrganizationEndpointsContractTest {
     /** A {@code String} body is passed through as text (§5.2): the slug keeps the JSON quotes. The answer is O22's. */
     @Test
     void updateSlug() {
-        Mockito.when(organizationService.updateSlug(ORG_ID, SLUG_BODY)).thenReturn(Mono.just(OrganizationSamples.organization()));
+        Mockito.when(orgApiService.updateSlug(ORG_ID, SLUG_BODY)).thenReturn(Mono.just(OrganizationSamples.organization()));
         try (ContractTestClient client = client()) {
             assertOrganization(CONTRACT.exchange(client, "updateSlug", Map.of(), SLUG_BODY, ORG_ID));
+            Mockito.verify(orgApiService).updateSlug(ORG_ID, SLUG_BODY);
+            Mockito.verify(organizationService, Mockito.never()).updateSlug(Mockito.anyString(), Mockito.anyString());
         }
     }
 

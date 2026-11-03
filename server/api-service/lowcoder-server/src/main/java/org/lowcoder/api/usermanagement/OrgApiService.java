@@ -40,6 +40,8 @@ public interface OrgApiService {
 
     Mono<OrgView> create(Organization organization);
 
+    Mono<Organization> updateSlug(String orgId, String slug);
+
     Mono<Boolean> update(String orgId, UpdateOrgRequest updateOrgRequest);
 
     Mono<OrganizationDomainCheckResult> checkOrganizationDomain();

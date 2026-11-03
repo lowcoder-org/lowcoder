@@ -2,6 +2,8 @@ package org.lowcoder.api.util;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.repository.ApplicationRepository;
 import org.lowcoder.domain.bundle.model.Bundle;
@@ -34,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -192,6 +195,20 @@ public class ApiUtilGidServiceTest {
             verify(applicationRepository).findBySlug(gid);
             verify(applicationRepository).findByGid(gid);
         }
+    }
+
+    /**
+     * NEW-86: catches a blank organization key looked up as a slug: it is answered as given and no repository is asked.
+     */
+    @ParameterizedTest(name = "key=[{0}]")
+    @ValueSource(strings = {"", " ", "\t \n"})
+    public void aBlankOrganizationKeyIsNotLookedUpAsASlugNEW86(String key) {
+        // lenient: the fixed converter never asks; before it, the stub makes the slug lookup answer no match, so that the
+        // case fails on the assertions below instead of on an unstubbed mock
+        lenient().when(organizationRepository.findBySlug(key)).thenReturn(Flux.empty());
+        StepVerifier.create(service.convertOrganizationIdToObjectId(key)).expectNext(key).verifyComplete();
+        System.out.println(TAG + "organization key [" + key + "] answered as given");
+        verifyNoInteractions(organizationRepository);
     }
 
     @Test
