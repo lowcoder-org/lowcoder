@@ -186,6 +186,58 @@ public class OrgApiServiceImpl implements OrgApiService {
                 .then(Mono.defer(() -> organizationService.updateSlug(orgId, slug)));
     }
 
+    /**
+     * The organization for a member of it, whatever the role; with {@code withDeleted} (deleted organizations
+     * included) also for the instance's super admin, the stored user's {@code superAdmin} flag (not an
+     * organization role), read as {@code ConfigController.updateServerConfig} reads it. Anyone else gets
+     * NOT_AUTHORIZED before this method reads the organization ({@code organizationService.getById} or {@code
+     * getByIdWithDeleted}), whether it exists or not (NEW-102: any signed-in user read any organization). Limits:
+     * the answer is still the whole organization, its auth configs' {@code clientSecret} included (O22, an owner
+     * decision not made here); a deleted organization is read, with {@code withDeleted}, by its former members
+     * until the asynchronous cleanup that follows its deletion ({@code OrgAndGroupEventListener.onOrgDeleted}) has
+     * removed their memberships, and by all of them whose membership deletion did not happen (it is the listener's
+     * first step; a later step failing for good does not undo it); that cleanup keeps every membership with the
+     * organization role SUPER_ADMIN ({@code BiRelationServiceImpl.removeAllBiRelations}), so a former member with
+     * that role (an organization role, not the {@code superAdmin} flag) keeps reading the deleted organization
+     * with {@code withDeleted} after the cleanup, while every other former member loses it unless the instance
+     * super admin exception admits them (a former MEMBER or ADMIN whose stored user has the flag, reading with
+     * {@code withDeleted}); the membership check and the organization read are two separate operations, not one
+     * atomic step, so a membership removed between them (by that cleanup or by a member's removal) still lets that
+     * one read through; the super admin's exception holds for every organization {@code withDeleted} reads, active
+     * ones included, and only with {@code withDeleted}; a null {@code superAdmin} flag, or a visitor with no
+     * stored user, counts as not a super admin; an organization the visitor may read but that is not found answers
+     * the read's UNABLE_TO_FIND_VALID_ORG, as before; {@code orgId} is the object id: the controller converts a
+     * gid or slug first, querying the organizations' slugs for a non-blank key and their gids for a key with a
+     * hyphen that matches no slug, before this method runs, and a key with a hyphen that names no organization's
+     * slug or gid answers ORGANIZATION_NOT_FOUND there, to anyone, before this check.
+     */
+    @Override
+    public Mono<Organization> getOrganization(String orgId, boolean withDeleted) {
+        return visitorOrgMember(orgId).hasElement()
+                .flatMap(isMember -> isMember || !withDeleted ? Mono.just(isMember) : visitorIsInstanceSuperAdmin())
+                .filter(Boolean::booleanValue)
+                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                .flatMap(allowed -> withDeleted ? organizationService.getByIdWithDeleted(orgId) : organizationService.getById(orgId));
+    }
+
+    /**
+     * The visitor's membership of the organization, any role; empty when the visitor is not a member.
+     */
+    private Mono<OrgMember> visitorOrgMember(String orgId) {
+        return sessionUserService.getVisitorId()
+                .flatMap(visitor -> orgMemberService.getOrgMember(orgId, visitor));
+    }
+
+    /**
+     * Whether the visitor's stored user has the {@code superAdmin} flag; null, false or no stored user is false.
+     */
+    private Mono<Boolean> visitorIsInstanceSuperAdmin() {
+        return sessionUserService.getVisitorId()
+                .flatMap(userService::findById)
+                .map(user -> Boolean.TRUE.equals(user.getSuperAdmin()))
+                .defaultIfEmpty(false);
+    }
+
     @Override
     public Mono<OrgMember> checkVisitorAdminRole(String orgId) {
         return sessionUserService.getVisitorId()
@@ -454,8 +506,7 @@ public class OrgApiServiceImpl implements OrgApiService {
 
     @Override
     public Mono<OrganizationCommonSettings> getOrgCommonSettings(String orgId) {
-        return sessionUserService.getVisitorId()
-                .flatMap(visitor -> orgMemberService.getOrgMember(orgId, visitor))
+        return visitorOrgMember(orgId)
                 .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
                 .flatMap(it -> organizationService.getById(orgId))
                 .map(Organization::getCommonSettings);

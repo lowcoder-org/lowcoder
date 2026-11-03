@@ -42,6 +42,8 @@ public interface OrgApiService {
 
     Mono<Organization> updateSlug(String orgId, String slug);
 
+    Mono<Organization> getOrganization(String orgId, boolean withDeleted);
+
     Mono<Boolean> update(String orgId, UpdateOrgRequest updateOrgRequest);
 
     Mono<OrganizationDomainCheckResult> checkOrganizationDomain();

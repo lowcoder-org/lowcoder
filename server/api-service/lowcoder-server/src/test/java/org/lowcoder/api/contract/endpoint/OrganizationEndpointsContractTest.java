@@ -388,31 +388,61 @@ class OrganizationEndpointsContractTest {
         }
     }
 
-    /** {@code withDeleted=true} reads deleted organizations too; the answer is O22's. */
+    /** {@code withDeleted=true} is handed on to {@code OrgApiService.getOrganization}; the answer is O22's. */
     @Test
     void getOrganization() {
-        Mockito.when(organizationService.getByIdWithDeleted(ORG_ID)).thenReturn(Mono.just(OrganizationSamples.organization()));
+        Mockito.when(orgApiService.getOrganization(ORG_ID, true)).thenReturn(Mono.just(OrganizationSamples.organization()));
         try (ContractTestClient client = client()) {
             assertOrganization(CONTRACT.exchange(client, "getOrganization", Map.of("withDeleted", TRUE), null, ORG_ID));
+            Mockito.verify(orgApiService).getOrganization(ORG_ID, true);
+            verifyNoOrganizationRead();
         }
     }
 
     /** Without {@code withDeleted}, the active organization; same answer. */
     @Test
     void getOrganizationExcludingDeleted() {
-        Mockito.when(organizationService.getById(ORG_ID)).thenReturn(Mono.just(OrganizationSamples.organization()));
+        Mockito.when(orgApiService.getOrganization(ORG_ID, false)).thenReturn(Mono.just(OrganizationSamples.organization()));
         try (ContractTestClient client = client()) {
             assertOrganization(CONTRACT.exchange(client, "getOrganization", Map.of(), null, ORG_ID));
+            Mockito.verify(orgApiService).getOrganization(ORG_ID, false);
+            verifyNoOrganizationRead();
         }
     }
 
+    /** An empty answer (in production only the converter's, for an unknown gid) is ORGANIZATION_NOT_FOUND. */
     @Test
     void getOrganizationNotFound() {
-        Mockito.when(organizationService.getById(ORG_ID)).thenReturn(Mono.empty());
+        Mockito.when(orgApiService.getOrganization(ORG_ID, false)).thenReturn(Mono.empty());
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getOrganization", Map.of(), null, ORG_ID);
             EndpointContract.assertBizError(result, BizError.ORGANIZATION_NOT_FOUND, BizError.ORGANIZATION_NOT_FOUND.name());
+            Mockito.verify(orgApiService).getOrganization(ORG_ID, false);
+            verifyNoOrganizationRead();
         }
+    }
+
+    /**
+     * NEW-102: the service's NOT_AUTHORIZED for a caller who may not read the organization is 401 with code 5001. This
+     * checks the harness's mapping of the error to a response, not the authorization, which the service's and the
+     * integration tests check.
+     */
+    @Test
+    void getOrganizationByANonMember() {
+        Mockito.when(orgApiService.getOrganization(ORG_ID, false))
+                .thenReturn(Mono.error(new BizException(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getOrganization", Map.of(), null, ORG_ID);
+            EndpointContract.assertBizError(result, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED");
+            Mockito.verify(orgApiService).getOrganization(ORG_ID, false);
+            verifyNoOrganizationRead();
+        }
+    }
+
+    /** The controller reads no organization itself: the check and the read are the service's. */
+    private void verifyNoOrganizationRead() {
+        Mockito.verify(organizationService, Mockito.never()).getById(Mockito.anyString());
+        Mockito.verify(organizationService, Mockito.never()).getByIdWithDeleted(Mockito.anyString());
     }
 
     private ContractTestClient client() {
