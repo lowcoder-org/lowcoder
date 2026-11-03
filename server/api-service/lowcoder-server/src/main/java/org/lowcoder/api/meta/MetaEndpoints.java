@@ -23,8 +23,8 @@ public interface MetaEndpoints
 	 * {@code common.security.forbiddenEndpoints} (NEW-105: kept as upstream designed, owner decision D4).
 	 * <p>
 	 * Limits: a caller who knows a key can learn that entity's meta view; the eight lookups are joined, so one failing
-	 * lookup fails the whole answer; blank keys name nothing in the organization and application lists (NEW-81, NEW-104),
-	 * not in every list (NEW-106).
+	 * lookup fails the whole answer; blank keys are dropped from the organization, application and folder lists (NEW-81,
+	 * NEW-104, NEW-106), and the other lists pass them to their queries (a null bundle key matched no bundle, NEW-110).
 	 */
 	@Operation(
 			tags = TAG_META_MANAGEMENT,
