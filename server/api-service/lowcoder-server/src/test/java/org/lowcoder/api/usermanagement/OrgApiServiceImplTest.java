@@ -405,6 +405,139 @@ class OrgApiServiceImplTest {
         say("updateSlug: role %s -> admitted=%s, service subscriptions %d", role, admitted, mutations.get());
     }
 
+    // ------------------------------------------------------------------ the organization read (NEW-102)
+
+    /** {@code getOrganization}'s {@code withDeleted} argument: deleted organizations included. */
+    private static final boolean WITH_DELETED = true;
+    /** {@code getOrganization}'s {@code withDeleted} argument: active organizations only. */
+    private static final boolean ACTIVE_ONLY = false;
+
+    private static Organization organizationInState(String name, OrganizationState state) {
+        Organization organization = new Organization();
+        organization.setName(name);
+        organization.setState(state);
+        return organization;
+    }
+
+    private static final Organization ACTIVE_ORG = organizationInState("active-org", OrganizationState.ACTIVE);
+    private static final Organization DELETED_ORG = organizationInState("deleted-org", OrganizationState.DELETED);
+
+    static Stream<Arguments> memberRoles() {
+        return Stream.of(
+                Arguments.of((MemberRole) null, false),
+                Arguments.of(MemberRole.MEMBER, true),
+                Arguments.of(MemberRole.ADMIN, true),
+                Arguments.of(MemberRole.SUPER_ADMIN, true));
+    }
+
+    /**
+     * The stored user the instance super admin check reads: {@code userService.findById(VISITOR_ID)} answers a user
+     * with that {@code superAdmin} flag (null: a user stored without it).
+     */
+    private void stubVisitorSuperAdmin(Boolean flag) {
+        stubVisitor();
+        User stored = user(VISITOR_ID, "visitor");
+        stored.setSuperAdmin(flag);
+        lenient().when(userService.findById(VISITOR_ID)).thenReturn(Mono.just(stored));
+    }
+
+    /**
+     * Both organization reads, counted: {@code getById} answers the active fixture, {@code getByIdWithDeleted} answers
+     * {@code withDeletedAnswer}. A read made before the check then fails on an assertion, not on a NullPointerException.
+     */
+    private void stubOrganizationReads(Organization withDeletedAnswer) {
+        lenient().when(organizationService.getById(ORG_ID)).thenReturn(counting(ACTIVE_ORG));
+        lenient().when(organizationService.getByIdWithDeleted(ORG_ID)).thenReturn(counting(withDeletedAnswer));
+    }
+
+    private void assertNoOrganizationRead() {
+        assertThat(mutations).hasValue(0);
+        verify(organizationService, never()).getById(any());
+        verify(organizationService, never()).getByIdWithDeleted(any());
+    }
+
+    /**
+     * NEW-102: catches the organization read by a visitor who is not a member of it: a MEMBER, an ADMIN and a
+     * SUPER_ADMIN (organization roles) get the organization ({@code getById}, once; {@code getByIdWithDeleted} never),
+     * an outsider whose stored user has no {@code superAdmin} flag gets NOT_AUTHORIZED and neither read is called (so no
+     * Mono is built either) nor subscribed.
+     */
+    @ParameterizedTest(name = "role {0} -> admitted {1}")
+    @MethodSource("memberRoles")
+    void getOrganization_onlyMembersReadTheOrganizationNEW102(MemberRole role, boolean admitted) {
+        stubVisitorRole(ORG_ID, role);
+        stubVisitorSuperAdmin(null);
+        stubOrganizationReads(DELETED_ORG);
+
+        if (admitted) {
+            StepVerifier.create(service.getOrganization(ORG_ID, ACTIVE_ONLY)).expectNext(ACTIVE_ORG).verifyComplete();
+            assertThat(mutations).hasValue(1);
+            verify(organizationService, never()).getByIdWithDeleted(any());
+        } else {
+            StepVerifier.create(service.getOrganization(ORG_ID, ACTIVE_ONLY))
+                    .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")).verify();
+            assertNoOrganizationRead();
+        }
+        say("getOrganization: role %s, withDeleted %s -> admitted=%s, organization reads %d", role, ACTIVE_ONLY, admitted, mutations.get());
+    }
+
+    /**
+     * NEW-102: catches the member's read with {@code withDeleted} going wrong: a MEMBER, and a SUPER_ADMIN (the
+     * organization role whose membership the deletion cleanup keeps), get the deleted organization from
+     * {@code getByIdWithDeleted} (once; {@code getById} never) on the role alone (the stored user's flag is FALSE), and
+     * a member never has the stored user read ({@code userService.findById} never called).
+     */
+    @ParameterizedTest(name = "role {0}")
+    @EnumSource(value = MemberRole.class, names = {"MEMBER", "SUPER_ADMIN"})
+    void getOrganization_withDeletedReadsTheDeletedOrganizationForAMemberNEW102(MemberRole role) {
+        stubVisitorRole(ORG_ID, role);
+        stubVisitorSuperAdmin(Boolean.FALSE);
+        stubOrganizationReads(DELETED_ORG);
+
+        StepVerifier.create(service.getOrganization(ORG_ID, WITH_DELETED)).expectNext(DELETED_ORG).verifyComplete();
+
+        assertThat(mutations).hasValue(1);
+        verify(organizationService, never()).getById(any());
+        verify(userService, never()).findById(any());
+        say("getOrganization: role %s, withDeleted %s, flag FALSE -> the deleted organization, organization reads %d, user reads 0",
+                role, WITH_DELETED, mutations.get());
+    }
+
+    static Stream<Arguments> instanceSuperAdminReads() {
+        return Stream.of(
+                Arguments.of(Boolean.TRUE, WITH_DELETED, true, DELETED_ORG),
+                Arguments.of(Boolean.TRUE, WITH_DELETED, true, ACTIVE_ORG),
+                Arguments.of(Boolean.TRUE, ACTIVE_ONLY, false, DELETED_ORG),
+                Arguments.of(Boolean.FALSE, WITH_DELETED, false, DELETED_ORG),
+                Arguments.of((Boolean) null, WITH_DELETED, false, DELETED_ORG));
+    }
+
+    /**
+     * NEW-102: catches the instance super admin's exception going wrong. The visitor is not a member. Only the stored
+     * user's TRUE {@code superAdmin} flag admits, and only with {@code withDeleted}, for a deleted organization and for
+     * an active one ({@code getByIdWithDeleted} answers that active organization in the active row); without
+     * {@code withDeleted}, with FALSE and with a null flag the answer is NOT_AUTHORIZED and neither read is called.
+     */
+    @ParameterizedTest(name = "flag {0}, withDeleted {1} -> admitted {2}, answer {3}")
+    @MethodSource("instanceSuperAdminReads")
+    void getOrganization_theInstanceSuperAdminReadsOnlyWithDeletedNEW102(Boolean flag, boolean withDeleted, boolean admitted,
+            Organization withDeletedAnswer) {
+        stubVisitorRole(ORG_ID, null);
+        stubVisitorSuperAdmin(flag);
+        stubOrganizationReads(withDeletedAnswer);
+
+        if (admitted) {
+            StepVerifier.create(service.getOrganization(ORG_ID, withDeleted)).expectNext(withDeletedAnswer).verifyComplete();
+            assertThat(mutations).hasValue(1);
+            verify(organizationService, never()).getById(any());
+        } else {
+            StepVerifier.create(service.getOrganization(ORG_ID, withDeleted))
+                    .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")).verify();
+            assertNoOrganizationRead();
+        }
+        say("getOrganization: non-member, flag %s, withDeleted %s -> admitted=%s, organization reads %d", flag, withDeleted, admitted, mutations.get());
+    }
+
     enum AdminOperation {
         UPDATE_ROLE(1), DELETE_LOGO(1), UPLOAD_LOGO(2), REMOVE_USER(2), REMOVE_ORG(1), UPDATE(1), UPDATE_SETTINGS(1), API_USAGE(1);
 
