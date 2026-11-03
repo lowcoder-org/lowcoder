@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -23,6 +24,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.test.context.ActiveProfiles;
 
 /**
@@ -47,6 +49,8 @@ class ApplicationServiceImplBlankKeyMongoTest {
     private static final String KEPT_NAME = "kept";
     private static final String EMPTY_KEY = "";
     private static final String WHITESPACE_KEY = " ";
+    private static final String CREATOR_PREFIX = "blank-key-creator-";
+    private static final String CREATED_BY_FIELD = "createdBy";
 
     @Autowired
     private ApplicationService applicationService;
@@ -149,6 +153,67 @@ class ApplicationServiceImplBlankKeyMongoTest {
             System.out.println(LOG_PREFIX + "findByIdIn([" + c.getId() + ", [" + key + "]]) with application " + blank.getId()
                     + " holding that slug -> " + answered);
             assertThat(answered).as("ids answered").containsExactly(c.getId());
+        });
+    }
+
+    /**
+     * Gives the stored applications of the case to a fresh creator and returns that creator's id: the answer of
+     * {@code getPrivateApplicationIds} is then scoped to the case's own records, so the blank slugs need not be unique.
+     */
+    private String giveToAFreshCreator(List<String> storedGids) {
+        String creator = CREATOR_PREFIX + UUID.randomUUID();
+        long modified = mongo.updateMulti(Query.query(Criteria.where(FieldName.GID).in(storedGids)), new Update().set(CREATED_BY_FIELD, creator),
+                Application.class).block(TIMEOUT).getModifiedCount();
+        System.out.println(LOG_PREFIX + "gave " + modified + " stored application(s) to creator " + creator);
+        assertThat(modified).as("applications given to the creator").isEqualTo(storedGids.size());
+        return creator;
+    }
+
+    private Set<String> answeredPrivate(List<String> keys, String creator) {
+        return applicationService.getPrivateApplicationIds(keys, creator).block(TIMEOUT);
+    }
+
+    /**
+     * NEW-109: a null key in {@code getPrivateApplicationIds} names no application; {@code ([C.id, null], creator)} answers C
+     * only. The slug query matched the creator's applications without a slug.
+     */
+    @Test
+    void aNullKeyInGetPrivateApplicationIdsAnswersNoOtherApplicationNEW109() {
+        List<String> storedGids = new ArrayList<>();
+        runThenRemove(storedGids, () -> {
+            for (int i = 0; i < APPS_WITHOUT_A_SLUG; i++) {
+                save(storedGids, WITHOUT_A_SLUG_NAME, null);
+            }
+            Application c = saveKept(storedGids);
+            String creator = giveToAFreshCreator(storedGids);
+            Object[] answer = new Object[1];
+
+            Throwable failure = catchThrowable(() -> answer[0] = answeredPrivate(Arrays.asList(c.getId(), null), creator));
+
+            System.out.println(LOG_PREFIX + "getPrivateApplicationIds([" + c.getId() + ", null], " + creator + ") with " + APPS_WITHOUT_A_SLUG
+                    + " applications without a slug -> failure " + failure + ", answer " + answer[0]);
+            assertThat(failure).as("failure of getPrivateApplicationIds").isNull();
+            assertThat(answer[0]).as("ids answered").isEqualTo(Set.of(c.getId()));
+        });
+    }
+
+    /** NEW-109: an empty or whitespace key does not find the creator's application stored with that slug. */
+    @ParameterizedTest(name = "key=[{0}]")
+    @MethodSource("blankKeys")
+    void aBlankKeyInGetPrivateApplicationIdsDoesNotFindThatSlugNEW109(String key) {
+        List<String> storedGids = new ArrayList<>();
+        runThenRemove(storedGids, () -> {
+            Application blank = save(storedGids, BLANK_SLUG_NAME, key);
+            Application c = saveKept(storedGids);
+            String creator = giveToAFreshCreator(storedGids);
+            Object[] answer = new Object[1];
+
+            Throwable failure = catchThrowable(() -> answer[0] = answeredPrivate(Arrays.asList(c.getId(), key), creator));
+
+            System.out.println(LOG_PREFIX + "getPrivateApplicationIds([" + c.getId() + ", [" + key + "]], " + creator + ") with application "
+                    + blank.getId() + " holding that slug -> failure " + failure + ", answer " + answer[0]);
+            assertThat(failure).as("failure of getPrivateApplicationIds").isNull();
+            assertThat(answer[0]).as("ids answered").isEqualTo(Set.of(c.getId()));
         });
     }
 }
