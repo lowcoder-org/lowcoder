@@ -296,6 +296,12 @@ public class ApplicationServiceImpl implements ApplicationService {
      * mix (BF-154, BF-155: a slug match dropped every other key, and the kind of the set was taken from its first element).
      * A key found by object id or gid is answered as given; a key found by slug is answered as the application's object id,
      * as before.
+     * <p>
+     * A blank key (null, empty or only whitespace, as {@code StringUtils.isBlank} decides) names no application and is
+     * dropped before any query (NEW-109: a null key answered every application of the creator without a slug, a blank key
+     * the creator's application stored with that slug). Limits: a null collection fails as before; a key found by slug is
+     * answered as the application's object id, so the answer can hold ids that were not keys, as before; a key of invisible
+     * characters {@code StringUtils.isBlank} does not count as whitespace is not blank.
      */
     @Override
     @NonEmptyMono
@@ -303,8 +309,12 @@ public class ApplicationServiceImpl implements ApplicationService {
     public Mono<Set<String>> getPrivateApplicationIds(Collection<String> applicationIds, String userId) {
 
     	// TODO: in 2.4.0 we need to check whether the app was published or not
-        return repository.findByCreatedByAndSlugIn(userId, applicationIds).collectList()
-                .flatMap(bySlug -> IdOrGidLookup.matchingKeys(keysWithoutSlugMatch(applicationIds, bySlug),
+        List<String> nonBlankKeys = applicationIds.stream().filter(StringUtils::isNotBlank).toList();
+        if (nonBlankKeys.isEmpty()) {
+            return Mono.just(new HashSet<>());
+        }
+        return repository.findByCreatedByAndSlugIn(userId, nonBlankKeys).collectList()
+                .flatMap(bySlug -> IdOrGidLookup.matchingKeys(keysWithoutSlugMatch(nonBlankKeys, bySlug),
                                 ids -> repository.findByCreatedByAndIdIn(userId, ids), HasIdAndAuditing::getId,
                                 gids -> repository.findByCreatedByAndGidIn(userId, gids), Application::getGid)
                         .map(keys -> {

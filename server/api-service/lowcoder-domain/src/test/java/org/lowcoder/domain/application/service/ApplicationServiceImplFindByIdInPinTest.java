@@ -1,6 +1,7 @@
 package org.lowcoder.domain.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.lowcoder.domain.application.service.ApplicationServiceImplTestSupport.appWithGid;
 import static org.lowcoder.domain.application.service.ApplicationServiceImplTestSupport.appWithSlug;
 import static org.lowcoder.domain.application.service.ApplicationServiceImplTestSupport.counted;
@@ -107,6 +108,7 @@ class ApplicationServiceImplFindByIdInPinTest {
     private static final String MIXED_WHITESPACE_KEY = "\t \n";
     private static final String APP_ID = "65a1b2c3d4e5f60718293a4b";
     private static final String LOG_PREFIX = "[ApplicationServiceImplFindByIdInPinTest] ";
+    private static final String USER_ID = "user";
 
     /**
      * NEW-104: a list of blank keys only names no application and asks no query. Catches the slug query asked with the
@@ -146,5 +148,49 @@ class ApplicationServiceImplFindByIdInPinTest {
         assertThat(new java.util.ArrayList<>(slugKeys.getValue())).as("keys of the slug query").containsExactly(APP_ID);
         assertThat(new java.util.ArrayList<>(idKeys.getValue())).as("keys of the id query").containsExactly(APP_ID);
         assertThat(found).extracting(Application::getId).containsExactly(APP_ID);
+    }
+
+    /**
+     * NEW-109: a list of blank keys only names no application and asks no query; the answer is an empty set (the method is
+     * {@code @NonEmptyMono} and both callers zip it). The call and its {@code block} run inside {@code catchThrowable}, so a
+     * throw is a failed assertion.
+     */
+    @Test
+    void getPrivateApplicationIdsWithOnlyBlankKeysAsksNoQueryNEW109() {
+        List<String> keys = java.util.Arrays.asList(NULL_KEY, EMPTY_KEY, WHITESPACE_KEY, MIXED_WHITESPACE_KEY);
+        Object[] answer = new Object[1];
+
+        Throwable failure = catchThrowable(() -> answer[0] = s.service.getPrivateApplicationIds(keys, USER_ID).block(TIMEOUT));
+
+        System.out.println(LOG_PREFIX + "getPrivateApplicationIds " + keys + " -> failure " + failure + ", answer " + answer[0]);
+        assertThat(failure).as("failure of getPrivateApplicationIds").isNull();
+        assertThat(answer[0]).as("answer").isEqualTo(new HashSet<String>());
+        verifyNoInteractions(s.repository);
+    }
+
+    /**
+     * NEW-109: the blank keys are dropped before the queries: with {@code [null, APP_ID, " "]} the slug query and the id query
+     * see {@code [APP_ID]} only, and the answer is {@code APP_ID}.
+     */
+    @Test
+    void getPrivateApplicationIdsDropsBlankKeysBeforeItsQueriesNEW109() {
+        when(s.repository.findByCreatedByAndIdIn(eq(USER_ID), any())).thenReturn(Flux.just(appWithSlug(APP_ID, null)));
+        List<String> keys = java.util.Arrays.asList(NULL_KEY, APP_ID, WHITESPACE_KEY);
+        Object[] answer = new Object[1];
+
+        Throwable failure = catchThrowable(() -> answer[0] = s.service.getPrivateApplicationIds(keys, USER_ID).block(TIMEOUT));
+
+        System.out.println(LOG_PREFIX + "getPrivateApplicationIds " + keys + " -> failure " + failure + ", answer " + answer[0]);
+        assertThat(failure).as("failure of getPrivateApplicationIds").isNull();
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Collection<String>> slugKeys = ArgumentCaptor.forClass(Collection.class);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Collection<String>> idKeys = ArgumentCaptor.forClass(Collection.class);
+        verify(s.repository).findByCreatedByAndSlugIn(eq(USER_ID), slugKeys.capture());
+        verify(s.repository).findByCreatedByAndIdIn(eq(USER_ID), idKeys.capture());
+        System.out.println(LOG_PREFIX + "slug query keys " + slugKeys.getValue() + ", id query keys " + idKeys.getValue());
+        assertThat(new java.util.ArrayList<>(slugKeys.getValue())).as("keys of the slug query").containsExactly(APP_ID);
+        assertThat(new java.util.ArrayList<>(idKeys.getValue())).as("keys of the id query").containsExactly(APP_ID);
+        assertThat(answer[0]).as("answer").isEqualTo(Set.of(APP_ID));
     }
 }
