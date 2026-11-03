@@ -35,7 +35,10 @@ public class JwtDecoderUtil {
 
     /**
      * The payload's JSON charset, UTF-8 (RFC 8259 section 8.1), not the JVM default (GH-01). Limits: invalid UTF-8 bytes become
-     * U+FFFD, not refused; the signature is still not verified.
+     * U+FFFD, not refused; the signature is still not verified. A uid stored from a non-ASCII claim, before this, by a JVM
+     * whose default charset was not UTF-8 holds U+FFFD (US-ASCII) or other wrong characters and no longer matches the
+     * claim. No migration is planned: U+FFFD cannot be turned back into the original characters from the stored value
+     * alone (NEW-95: kept, owner decision D7).
      */
     private static final java.nio.charset.Charset PAYLOAD_CHARSET = java.nio.charset.StandardCharsets.UTF_8;
 }
