@@ -15,7 +15,6 @@ import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.api.util.GidService;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.service.DatasourceService;
-import org.lowcoder.domain.datasource.service.DatasourceStructureService;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.plugin.client.dto.GetPluginDynamicConfigRequestDTO;
@@ -43,7 +42,8 @@ import static org.lowcoder.sdk.util.LocaleUtils.getLocale;
 @Slf4j
 public class DatasourceController implements DatasourceEndpoints
 {
-    private final DatasourceStructureService datasourceStructureService;
+    // No DatasourceStructureService here: a structure is read only through
+    // DatasourceApiService.getStructureWithPermission, which checks USE_DATASOURCES first.
     private final DatasourceApiService datasourceApiService;
     private final UpsertDatasourceRequestMapper upsertDatasourceRequestMapper;
     private final BusinessEventPublisher businessEventPublisher;
@@ -114,7 +114,7 @@ public class DatasourceController implements DatasourceEndpoints
     public Mono<ResponseView<DatasourceStructure>> getStructure(@PathVariable String datasourceId,
             @RequestParam(required = false, defaultValue = "false") boolean ignoreCache) {
         return gidService.convertDatasourceIdToObjectId(datasourceId).flatMap(objectId ->
-            datasourceStructureService.getStructure(objectId, ignoreCache)
+            datasourceApiService.getStructureWithPermission(objectId, ignoreCache)
                 .map(ResponseView::success));
     }
 

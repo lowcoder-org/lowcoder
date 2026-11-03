@@ -5,6 +5,7 @@ import org.lowcoder.api.permission.view.CommonPermissionView;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.plugin.client.dto.GetPluginDynamicConfigRequestDTO;
+import org.lowcoder.sdk.models.DatasourceStructure;
 import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Flux;
@@ -25,6 +26,8 @@ public interface DatasourceApiService {
     Mono<Datasource> update(String datasourceId, Datasource updatedDatasource);
 
     Mono<Datasource> findByIdWithPermission(String datasourceId);
+
+    Mono<DatasourceStructure> getStructureWithPermission(String datasourceId, boolean ignoreCache);
 
     Mono<DatasourceTestResult> testDatasource(Datasource testDatasource);
 

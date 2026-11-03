@@ -22,7 +22,6 @@ import org.lowcoder.api.util.GidService;
 import org.lowcoder.domain.application.repository.ApplicationRepository;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.service.DatasourceService;
-import org.lowcoder.domain.datasource.service.DatasourceStructureService;
 import org.lowcoder.domain.datasource.service.impl.ClientBasedConnectionPool;
 import org.lowcoder.domain.datasource.service.impl.ClientBasedConnectionPool.ClientBasedDatasourceCacheKey;
 import org.lowcoder.domain.datasource.service.impl.DatasourceConnectionPoolFacade;
@@ -35,6 +34,7 @@ import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
 import org.lowcoder.infra.perf.PerfHelper;
 import org.lowcoder.sdk.contract.GoldenJson;
 import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.models.DatasourceStructure;
 import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.lowcoder.sdk.plugin.common.sql.HikariPerfWrapper;
@@ -129,11 +129,11 @@ class DatasourceEndpointsContractTest {
     static final String HIKARI_PERF_WRAPPER_MAP = "HIKARI_PERF_WRAPPER_MAP";
 
     private static final GoldenJson GOLDEN = GoldenJson.forModule();
+    private static final String NOT_AUTHORIZED_KEY = "NOT_AUTHORIZED";
 
     private ContractTestClient.Builder builder;
     private DatasourceApiService datasourceApiService;
     private DatasourceService datasourceService;
-    private DatasourceStructureService datasourceStructureService;
     private UpsertDatasourceRequestMapper requestMapper;
     private ResourcePermissionService resourcePermissionService;
 
@@ -141,7 +141,6 @@ class DatasourceEndpointsContractTest {
     void mocks() {
         builder = ContractTestClient.builder();
         datasourceApiService = builder.mock(DatasourceApiService.class);
-        datasourceStructureService = builder.mock(DatasourceStructureService.class);
         requestMapper = builder.mock(UpsertDatasourceRequestMapper.class);
         resourcePermissionService = builder.mock(ResourcePermissionService.class);
         datasourceService = Mockito.mock(DatasourceService.class, ApplicationEndpointsContractTest.EMPTY_MONO);
@@ -248,21 +247,39 @@ class DatasourceEndpointsContractTest {
 
     @Test
     void getStructure() {
-        Mockito.when(datasourceStructureService.getStructure(DATASOURCE_ID, true)).thenReturn(Mono.just(DatasourceSamples.datasourceStructure()));
+        Mockito.when(datasourceApiService.getStructureWithPermission(DATASOURCE_ID, true)).thenReturn(Mono.just(DatasourceSamples.datasourceStructure()));
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getStructure", Map.of(IGNORE_CACHE_PARAMETER, TRUE), null, DATASOURCE_ID);
             EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.success(EndpointContract.s1(DatasourceStructure.class)));
         }
+        Mockito.verify(datasourceApiService).getStructureWithPermission(DATASOURCE_ID, true);
+    }
+
+    /**
+     * NEW-114: a visitor who may not use the datasource gets NOT_AUTHORIZED. This checks how the error maps to a response; the
+     * authorization itself is tested in {@code DatasourceApiServiceImplStructureAuthzTest}.
+     */
+    @Test
+    void getStructureForAVisitorWhoMayNotUseTheDatasource() {
+        Mockito.when(datasourceApiService.getStructureWithPermission(DATASOURCE_ID, true))
+                .thenReturn(Mono.error(new BizException(BizError.NOT_AUTHORIZED, NOT_AUTHORIZED_KEY)));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getStructure", Map.of(IGNORE_CACHE_PARAMETER, TRUE), null, DATASOURCE_ID);
+            System.out.println("[DatasourceEndpointsContractTest] getStructure denied: status " + result.getStatus() + ", expecting " + BizError.NOT_AUTHORIZED + " / " + NOT_AUTHORIZED_KEY);
+            EndpointContract.assertBizError(result, BizError.NOT_AUTHORIZED, NOT_AUTHORIZED_KEY);
+        }
+        Mockito.verify(datasourceApiService).getStructureWithPermission(DATASOURCE_ID, true);
     }
 
     /** {@code ignoreCache} defaults to {@code false}. */
     @Test
     void getStructureUsesTheCacheByDefault() {
-        Mockito.when(datasourceStructureService.getStructure(DATASOURCE_ID, false)).thenReturn(Mono.just(DatasourceSamples.datasourceStructure()));
+        Mockito.when(datasourceApiService.getStructureWithPermission(DATASOURCE_ID, false)).thenReturn(Mono.just(DatasourceSamples.datasourceStructure()));
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getStructure", Map.of(), null, DATASOURCE_ID);
             EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.success(EndpointContract.s1(DatasourceStructure.class)));
         }
+        Mockito.verify(datasourceApiService).getStructureWithPermission(DATASOURCE_ID, false);
     }
 
     /**
