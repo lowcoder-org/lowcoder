@@ -419,6 +419,17 @@ public class UserServiceImpl implements UserService {
                 });
     }
 
+    /**
+     * Looks up the account named by {@code userEmail} (an email, else a name) and, when it can recover its password, mails a
+     * password reset link to {@code userEmail} as given and then stores the token's hash and a 12 hour expiry; completes
+     * empty when it ends normally, a mail that is not sent included, and fails when a lookup or the save fails or the mail
+     * call throws.
+     * <p>
+     * Limits: for an account found by its name the recipient is that name, which the mail call uses as an address, so such a
+     * mail is sent only if the name is accepted as one; the mail is sent before the token is saved (NEW-93: kept, owner
+     * decision D6), so a save that fails after a sent mail leaves a link that no stored token matches; a mail that is not
+     * sent stores nothing ({@code lostPassword_mailSendFails_storesNothing}).
+     */
     @Override
     public Mono<Boolean> lostPassword(String userEmail) {
         return findByEmailDeep(userEmail)
