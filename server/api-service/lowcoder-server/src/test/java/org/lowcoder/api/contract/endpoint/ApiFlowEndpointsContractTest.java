@@ -83,12 +83,12 @@ import static org.mockito.ArgumentMatchers.eq;
  * Tests of the 1 {@link ApiFlowEndpoints} endpoint (docs/API_PAYLOAD_TEST_PLAN.md §1.3, §4.9, task T7.3), level
  * {@code decode-only}, and groups {@code api-flow} and {@code subscription-relay}. {@code ApiFlowController#flow} decodes a
  * {@link FlowRequest} with the server codec. For any path but the seat-sync path it writes its {@code data} with a bare
- * {@code new ObjectMapper()} ({@code ApiFlowController.java:67-68}) and sends that text unchanged ({@code :75}), with the
- * request's headers, none when they are absent ({@code :76}), to a fixed {@code https} URL through a client built
+ * {@code new ObjectMapper()} ({@code ApiFlowController.java:82-83}) and sends that text unchanged ({@code :90}), with the
+ * request's headers, none when they are absent ({@code :91}), to a fixed {@code https} URL through a client built
  * inline; it answers the upstream's text as a {@code String}. Outside the seat-sync path a blank method is refused
- * before the request is built ({@code :62-64}). The seat-sync path ({@code WorkspaceSeatSyncService.FLOW_PATH},
- * {@code :55-61}) takes only the method {@code post} ({@code :56-57}) and hands {@code data.orgId}, when it is a
- * string, else "" ({@code :59-60}), to
+ * before the request is built ({@code :73-75}), as is a {@code retries} outside 0 to 3 or a {@code timeout} outside 0 to 10 ({@code :76-79}, NEW-92). The seat-sync path ({@code WorkspaceSeatSyncService.FLOW_PATH},
+ * {@code :62-72}) takes only the method {@code post} ({@code :63-64}), the same bounds ({@code :66-69}) and hands {@code data.orgId}, when it is a
+ * string, else "" ({@code :70-71}), to
  * {@code WorkspaceSeatSyncService#synchronize}, which authenticates the visitor itself, takes a Redis lease, sends the
  * server's own seat count to the seat relay and answers the relay's confirmation as text.
  *
@@ -100,11 +100,11 @@ import static org.mockito.ArgumentMatchers.eq;
  * request is the client's ({@code client/packages/lowcoder/src/util/workspaceSeatSync.ts:18-19}):
  *
  * <ul>
- *   <li>{@link #flow}: the decoded request must bind as D1 does ({@link PayloadAssertions#assertBindsTo}); WireMock must
+ *   <li>{@link #flow}: the decoded request must equal D1 with an in-range {@code timeout} and {@code retries} (D1's own are refused, see {@link #flowWithRetriesOrTimeoutOutOfRange}); WireMock must
  *       receive the request's method, path and headers and, as body, D1's {@code data} written again (compared
  *       canonically); the upstream's text must reach the client unchanged;</li>
  *   <li>{@link #flowUpstreamFailed}: without {@code retries} and {@code timeout} (so no retry), an upstream error becomes
- *       {@code BizException(FLOW_ERROR)} with the upstream exception's message ({@code :112});</li>
+ *       {@code BizException(FLOW_ERROR)} with the upstream exception's message ({@code :139});</li>
  *   <li>{@link #flowWithoutHeaders}: with {@code headers} left out or null the request is sent with none of its own and
  *       the upstream's text answered, on both mounts (NEW-44; before, the controller threw at the headers and answered
  *       {@code INTERNAL_SERVER_ERROR});</li>
@@ -112,7 +112,7 @@ import static org.mockito.ArgumentMatchers.eq;
  *       whitespace only, with or without the D1 sample's retries, is refused with
  *       {@code INVALID_PARAMETER} "method" before the client is built (NEW-44), on both mounts;</li>
  *   <li>{@link #flowFailingBeforeTheRequest}: the client cannot be built (the test makes the builder throw), before any
- *       I/O, and {@code :81-83} answer {@code Mono.error}: the global handler's {@code INTERNAL_SERVER_ERROR};</li>
+ *       I/O, and {@code :97-98} answer {@code Mono.error}: the global handler's {@code INTERNAL_SERVER_ERROR};</li>
  *   <li>{@link #flowRetriesWithoutTimeoutBackOffTenSeconds}: with {@code retries} and no {@code timeout}, the retry {@code flow}
  *       returns is configured with a 10 s minimum backoff, jitter aside (NEW-45; before, {@code HTTP_TIMEOUT} was read as seconds, about 2.8 h);</li>
  *   <li>{@link #flowRepresentativeData}: {@code data} is the §4.6 representative input, spliced in as text; the body
@@ -124,7 +124,7 @@ import static org.mockito.ArgumentMatchers.eq;
  *       text, pinned in {@value #SEAT_SYNC_ANSWER} with the request id replaced. This is the {@code subscription-relay}
  *       group's seat-sync test;</li>
  *   <li>{@link #flowSeatSyncWithAnotherMethod}, {@link #flowSeatSyncAlreadyRunning} and {@link #flowSeatSyncRefused}:
- *       another method ({@code :57}), a lease already held, and the service's own checks (session, member, workspace,
+ *       another method ({@code :64}), a lease already held, and the service's own checks (session, member, workspace,
  *       configuration) refuse before the relay; {@link #flowSeatSyncRelayFailed} and {@link #flowSeatSyncNotConfirmed}:
  *       a relay error, or an answer that does not confirm the snapshot, keeps the lease; and
  *       {@link #flowSeatSyncWithoutMethod}: a blank method is refused there as another method is, not with the generic
@@ -139,7 +139,8 @@ import static org.mockito.ArgumentMatchers.eq;
  * <p>Limits: the controller is a test subclass, so the request reaches {@code flow} through its override, which only
  * records and redirects; the transport (system proxy, timeout) is WireMock's, not the production one; the answer is
  * the upstream's text, which no JSON codec writes, so the level stays {@code decode-only}. Retries with a backoff are
- * not run: the D1 request asks for {@value MiscSamples#FLOW_RETRIES} of them, which only an error would start. The
+ * not run: the D1 request asks for {@value MiscSamples#FLOW_RETRIES} of them, which is out of range and refused
+ * ({@link #flowWithRetriesOrTimeoutOutOfRange}); the other cases send in-range values, which only an error would start. The
  * seat-sync lease is a Redis mock, so Redis's own {@code SET NX} exclusivity is not run.
  *
  * <p>Stubbing group (registry column {@code group}): {@code pass-through}: the answer is the upstream's.
@@ -195,6 +196,17 @@ class ApiFlowEndpointsContractTest {
     static final String POST = "post";
     /** The retries of {@link #flowRetriesWithoutTimeoutBackOffTenSeconds}. */
     static final int TWO_RETRIES = 2;
+    /** The in-range {@code timeout} and {@code retries} the cases that need the D1 sample's relay use (NEW-92; D1's own are refused). */
+    static final int IN_RANGE_TIMEOUT = 10;
+    static final int IN_RANGE_RETRIES = 3;
+    /** A {@code retries} above the accepted 3. */
+    static final int RETRIES_OUT_OF_RANGE = 4;
+    /** The field names the INVALID_PARAMETER answers of NEW-92 carry. */
+    static final String RETRIES_FIELD = "retries";
+    /** The class name of Reactor's timeout operator, which {@code flow}'s answer now is (NEW-92). */
+    static final String TIMEOUT_OPERATOR = "MonoTimeout";
+    /** The field of Reactor's {@code MonoOperator} that holds the source ({@code javap -p}, reactor-core 3.6.4). */
+    static final String OPERATOR_SOURCE_FIELD = "source";
     /** {@code HTTP_TIMEOUT} (10000 ms) as the minimum backoff a request without {@code timeout} gets: 10 s, not 10000 s. */
     static final Duration EXPECTED_DEFAULT_BACKOFF = Duration.ofSeconds(10);
     /** The package-private field of Reactor's {@code MonoRetryWhen} that holds the retry spec ({@code javap -p}, reactor-core 3.6.4). */
@@ -256,8 +268,8 @@ class ApiFlowEndpointsContractTest {
         FlowRequest sample = sample();
         upstreamAnswers(wireMock, sample, aResponse().withStatus(OK).withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .withBody(UPSTREAM_ANSWER));
-        EntityExchangeResult<byte[]> result = exchange(EndpointContract.d1(FlowRequest.class));
-        PayloadAssertions.assertBindsTo(PayloadSamples.of(FlowRequest.class), decoded());
+        EntityExchangeResult<byte[]> result = exchange(d1InRange());
+        assertThat(decoded()).as("the D1 request with an in-range timeout and retries").isEqualTo(d1InRangeRequest());
         LoggedRequest sent = sentRequest(wireMock);
         assertThat(sent.getMethod().value()).as("upstream method").isEqualTo(sample.method().toUpperCase());
         assertThat(sent.getUrl()).as("upstream path").isEqualTo("/" + sample.path());
@@ -403,6 +415,23 @@ class ApiFlowEndpointsContractTest {
     }
 
     /**
+     * NEW-92: the D1 sample asks for 40092 retries and a 40091 s timeout, both out of range, so it is refused with
+     * INVALID_PARAMETER naming {@code retries} before the client is built; D1 itself stays as the binding check.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {NewUrl.FLOW_URL, Url.FLOW_URL})
+    void flowWithRetriesOrTimeoutOutOfRange(String mount, WireMockRuntimeInfo wireMock) throws JsonProcessingException {
+        FlowRequest sample = sample();
+        upstreamAnswers(wireMock, sample, aResponse().withStatus(OK).withBody(UPSTREAM_ANSWER));
+        EntityExchangeResult<byte[]> result = exchangeOn(mount, EndpointContract.d1(FlowRequest.class));
+        System.out.println("[ApiFlowEndpointsContractTest] " + mount + " retries " + sample.retries() + ", timeout " + sample.timeout());
+        PayloadAssertions.assertBindsTo(PayloadSamples.of(FlowRequest.class), decoded());
+        assertThat(controller.builderCalls).as("builder calls: the refusal comes before the client is built").hasValue(0);
+        assertThat(wireMock.getWireMock().find(anyRequestedFor(anyUrl()))).as("upstream requests").isEmpty();
+        EndpointContract.assertInvalidParameter(result, RETRIES_FIELD);
+    }
+
+    /**
      * The client cannot be built ({@code WebClientBuildHelper.builder()} throws, as the test controller is told to make
      * it), so the request fails before any I/O; the controller's catch answers the exception as {@code Mono.error}: the
      * failure was thrown once, {@code flow} returned an answer instead of letting it escape, that answer's error is the
@@ -413,8 +442,8 @@ class ApiFlowEndpointsContractTest {
     void flowFailingBeforeTheRequest(WireMockRuntimeInfo wireMock) throws JsonProcessingException {
         IllegalStateException failure = new IllegalStateException(BUILDER_FAILURE);
         controller.builderFailure = failure;
-        EntityExchangeResult<byte[]> result = exchange(EndpointContract.d1(FlowRequest.class));
-        PayloadAssertions.assertBindsTo(PayloadSamples.of(FlowRequest.class), decoded());
+        EntityExchangeResult<byte[]> result = exchange(d1InRange());
+        assertThat(decoded()).as("the D1 request with an in-range timeout and retries").isEqualTo(d1InRangeRequest());
         System.out.println("[ApiFlowEndpointsContractTest] builder calls " + controller.builderCalls + ", answers returned "
                 + controller.answers.size());
         assertThat(controller.builderCalls).as("builder calls, the one that threw").hasValue(1);
@@ -442,7 +471,10 @@ class ApiFlowEndpointsContractTest {
         assertThat(decoded()).as("the D1 request with two retries and no timeout")
                 .isEqualTo(new FlowRequest(sample.path(), sample.method(), sample.data(), sample.headers(), null, TWO_RETRIES));
         assertThat(controller.answers).as("answers flow returned").hasSize(1);
-        Object spec = ReflectionTestUtils.getField(controller.answers.get(0), RETRY_SPEC_FIELD);
+        Mono<String> answer = controller.answers.get(0);
+        assertThat(answer.getClass().getSimpleName()).as("flow's answer: the relay deadline around the retry (NEW-92)").isEqualTo(TIMEOUT_OPERATOR);
+        Object retry = ReflectionTestUtils.getField(answer, OPERATOR_SOURCE_FIELD);
+        Object spec = ReflectionTestUtils.getField(retry, RETRY_SPEC_FIELD);
         System.out.println("[ApiFlowEndpointsContractTest] retry spec of flow's answer: " + spec);
         assertThat(spec).as("the retry spec of flow's answer").isInstanceOf(RetryBackoffSpec.class);
         RetryBackoffSpec backoff = (RetryBackoffSpec) spec;
@@ -459,7 +491,11 @@ class ApiFlowEndpointsContractTest {
     void flowRepresentativeData(WireMockRuntimeInfo wireMock) throws JsonProcessingException {
         FlowRequest sample = sample();
         upstreamAnswers(wireMock, sample, aResponse().withStatus(OK).withBody(UPSTREAM_ANSWER));
-        String request = d1Without(tree -> tree.put(DATA, DATA_PLACEHOLDER))
+        String request = d1Without(tree -> {
+            tree.put(TIMEOUT, IN_RANGE_TIMEOUT);
+            tree.put(RETRIES, IN_RANGE_RETRIES);
+            tree.put(DATA, DATA_PLACEHOLDER);
+        })
                 .replace("\"" + DATA_PLACEHOLDER + "\"", PayloadSamples.representativeInputText());
         EntityExchangeResult<byte[]> result = exchange(request);
         assertThat(result.getStatus().value()).as("status").isEqualTo(OK);
@@ -502,6 +538,25 @@ class ApiFlowEndpointsContractTest {
     void flowSeatSyncWithAnotherMethod(String mount) throws JsonProcessingException {
         EntityExchangeResult<byte[]> result = exchangeOn(mount, seatSyncRequest(OTHER_METHOD, orgData(SEAT_ORG_ID)));
         assertStatusExceptionAnsweredAs500NEW53(result);
+        assertNoRelayRequest();
+        Mockito.verify(sessions, Mockito.never()).getVisitorOrgMember();
+        Mockito.verify(seats, Mockito.never()).count(anyString());
+        Mockito.verify(redis.opsForValue(), Mockito.never()).setIfAbsent(anyString(), anyString(), any(Duration.class));
+    }
+
+    /**
+     * NEW-92: a seat-sync request with {@code retries} out of range is refused with INVALID_PARAMETER naming it before any
+     * lease is taken, any session read or relay request, on both mounts.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {NewUrl.FLOW_URL, Url.FLOW_URL})
+    void flowSeatSyncWithRetriesOutOfRange(String mount) throws JsonProcessingException {
+        ObjectNode request = (ObjectNode) PayloadAssertions.FIXTURE_EDITOR.readTree(seatSyncRequest(POST, orgData(SEAT_ORG_ID)));
+        request.put(RETRIES, RETRIES_OUT_OF_RANGE);
+        EntityExchangeResult<byte[]> result = exchangeOn(mount, PayloadAssertions.FIXTURE_EDITOR.writeValueAsString(request));
+        System.out.println("[ApiFlowEndpointsContractTest] " + mount + " seat sync with retries " + RETRIES_OUT_OF_RANGE);
+        assertThat(decoded().retries()).as("decoded retries").isEqualTo(RETRIES_OUT_OF_RANGE);
+        EndpointContract.assertInvalidParameter(result, RETRIES_FIELD);
         assertNoRelayRequest();
         Mockito.verify(sessions, Mockito.never()).getVisitorOrgMember();
         Mockito.verify(seats, Mockito.never()).count(anyString());
@@ -564,11 +619,11 @@ class ApiFlowEndpointsContractTest {
         INVALID_MEMBER,
         /** {@code data.orgId} names another workspace than the member's ({@code :50}). */
         ANOTHER_WORKSPACE,
-        /** {@code data} without {@code orgId}: the controller passes "" ({@code ApiFlowController.java:59-60}). */
+        /** {@code data} without {@code orgId}: the controller passes "" ({@code ApiFlowController.java:70-71}). */
         NO_ORG_ID,
-        /** {@code data} null: the controller passes "" ({@code ApiFlowController.java:59-60}). */
+        /** {@code data} null: the controller passes "" ({@code ApiFlowController.java:70-71}). */
         NO_DATA,
-        /** {@code data.orgId} the number 7 for a member of workspace "7": the controller passes "" for a non-string ({@code :60}). */
+        /** {@code data.orgId} the number 7 for a member of workspace "7": the controller passes "" for a non-string ({@code :71}). */
         ORG_ID_NOT_A_STRING,
         /** No deployment id: the {@code SERVICE_UNAVAILABLE} of {@code WorkspaceSeatSyncService.java:54-55}. */
         NO_HOST_ID,
@@ -766,6 +821,20 @@ class ApiFlowEndpointsContractTest {
     private static String d1Data() throws JsonProcessingException {
         return PayloadAssertions.FIXTURE_EDITOR.writeValueAsString(PayloadAssertions.FIXTURE_EDITOR.readTree(EndpointContract.d1(FlowRequest.class))
                 .get(DATA));
+    }
+
+    /** The D1 golden with {@code timeout} and {@code retries} in range (D1's own are refused, NEW-92). */
+    private static String d1InRange() throws JsonProcessingException {
+        return d1Without(tree -> {
+            tree.put(TIMEOUT, IN_RANGE_TIMEOUT);
+            tree.put(RETRIES, IN_RANGE_RETRIES);
+        });
+    }
+
+    /** The request {@link #d1InRange} decodes as. */
+    private static FlowRequest d1InRangeRequest() {
+        FlowRequest sample = sample();
+        return new FlowRequest(sample.path(), sample.method(), sample.data(), sample.headers(), IN_RANGE_TIMEOUT, IN_RANGE_RETRIES);
     }
 
     /** The D1 golden after {@code edit}, with its number lexemes. */

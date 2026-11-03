@@ -44,7 +44,7 @@ class WorkspaceSeatSyncServiceTest {
         }).when(service).send(anyMap());
         String response = new ApiFlowController(service).flow(new FlowRequest(WorkspaceSeatSyncService.FLOW_PATH,
                 "post", Map.of("orgId", "workspace", "quantity", 0, "hostId", "foreign"),
-                Map.of("Lowcoder-Seat-Sync-Token", "browser-forgery"), 1, 5)).block();
+                Map.of("Lowcoder-Seat-Sync-Token", "browser-forgery"), 1, 3)).block();
         assertTrue(response.contains("\"quantity\":3"));
         verify(redis).execute(any(), anyList(), anyList());
     }
