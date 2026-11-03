@@ -10,7 +10,6 @@ import org.lowcoder.api.util.GidService;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.model.DatasourceStatus;
 import org.lowcoder.domain.datasource.service.DatasourceService;
-import org.lowcoder.domain.datasource.service.DatasourceStructureService;
 import org.lowcoder.domain.permission.model.ResourcePermission;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
@@ -30,13 +29,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import org.lowcoder.api.datasource.DatasourceView;
 
 class DatasourceEndpointsTest {
 
-    private DatasourceStructureService datasourceStructureService;
     private DatasourceApiService datasourceApiService;
     private UpsertDatasourceRequestMapper upsertDatasourceRequestMapper;
     private BusinessEventPublisher businessEventPublisher;
@@ -48,11 +48,16 @@ class DatasourceEndpointsTest {
     private static final String TEST_DATASOURCE_ID = "test-datasource-id";
     private static final String TEST_ORGANIZATION_ID = "test-org-id";
     private static final String TEST_PERMISSION_ID = "test-permission-id";
+    private static final String NOT_AUTHORIZED_KEY = "NOT_AUTHORIZED";
+    private static final String LOG_PREFIX = "[DatasourceEndpointsTest] ";
+
+    private static void say(String format, Object... args) {
+        System.out.println(LOG_PREFIX + String.format(format, args));
+    }
 
     @BeforeEach
     void setUp() {
         // Create mocks manually
-        datasourceStructureService = Mockito.mock(DatasourceStructureService.class);
         datasourceApiService = Mockito.mock(DatasourceApiService.class);
         upsertDatasourceRequestMapper = Mockito.mock(UpsertDatasourceRequestMapper.class);
         businessEventPublisher = Mockito.mock(BusinessEventPublisher.class);
@@ -86,7 +91,6 @@ class DatasourceEndpointsTest {
 
         // Create controller with all required dependencies
         controller = new DatasourceController(
-                datasourceStructureService,
                 datasourceApiService,
                 upsertDatasourceRequestMapper,
                 businessEventPublisher,
@@ -293,7 +297,7 @@ class DatasourceEndpointsTest {
     void testGetStructure_Success() {
         // Arrange
         DatasourceStructure mockStructure = new DatasourceStructure();
-        when(datasourceStructureService.getStructure(TEST_DATASOURCE_ID, false)).thenReturn(Mono.just(mockStructure));
+        when(datasourceApiService.getStructureWithPermission(TEST_DATASOURCE_ID, false)).thenReturn(Mono.just(mockStructure));
 
         // Act
         Mono<ResponseView<DatasourceStructure>> result = controller.getStructure(TEST_DATASOURCE_ID, false);
@@ -301,17 +305,19 @@ class DatasourceEndpointsTest {
         // Assert
         StepVerifier.create(result)
                 .assertNext(response -> {
-                    assert response.isSuccess();
-                    assert response.getData().equals(mockStructure);
+                    say("structure answer: success=%s data=%s", response.isSuccess(), response.getData());
+                    assertTrue(response.isSuccess());
+                    assertEquals(mockStructure, response.getData());
                 })
                 .verifyComplete();
+        Mockito.verify(datasourceApiService).getStructureWithPermission(TEST_DATASOURCE_ID, false);
     }
 
     @Test
     void testGetStructure_WithIgnoreCache() {
         // Arrange
         DatasourceStructure mockStructure = new DatasourceStructure();
-        when(datasourceStructureService.getStructure(TEST_DATASOURCE_ID, true)).thenReturn(Mono.just(mockStructure));
+        when(datasourceApiService.getStructureWithPermission(TEST_DATASOURCE_ID, true)).thenReturn(Mono.just(mockStructure));
 
         // Act
         Mono<ResponseView<DatasourceStructure>> result = controller.getStructure(TEST_DATASOURCE_ID, true);
@@ -319,10 +325,33 @@ class DatasourceEndpointsTest {
         // Assert
         StepVerifier.create(result)
                 .assertNext(response -> {
-                    assert response.isSuccess();
-                    assert response.getData().equals(mockStructure);
+                    say("structure answer: success=%s data=%s", response.isSuccess(), response.getData());
+                    assertTrue(response.isSuccess());
+                    assertEquals(mockStructure, response.getData());
                 })
                 .verifyComplete();
+        Mockito.verify(datasourceApiService).getStructureWithPermission(TEST_DATASOURCE_ID, true);
+    }
+
+    @Test
+    void testGetStructure_PermissionDenied() {
+        // Arrange
+        when(datasourceApiService.getStructureWithPermission(TEST_DATASOURCE_ID, true))
+                .thenReturn(Mono.error(new BizException(BizError.NOT_AUTHORIZED, NOT_AUTHORIZED_KEY)));
+
+        // Act
+        Mono<ResponseView<DatasourceStructure>> result = controller.getStructure(TEST_DATASOURCE_ID, true);
+
+        // Assert
+        StepVerifier.create(result)
+                .expectErrorSatisfies(error -> {
+                    say("structure denied: %s", error);
+                    assertTrue(error instanceof BizException);
+                    assertEquals(BizError.NOT_AUTHORIZED, ((BizException) error).getError());
+                    assertEquals(NOT_AUTHORIZED_KEY, ((BizException) error).getMessageKey());
+                })
+                .verify();
+        Mockito.verify(datasourceApiService).getStructureWithPermission(TEST_DATASOURCE_ID, true);
     }
 
     @Test
