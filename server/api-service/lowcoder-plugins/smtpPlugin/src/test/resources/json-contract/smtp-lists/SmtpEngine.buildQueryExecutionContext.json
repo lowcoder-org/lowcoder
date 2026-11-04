@@ -138,16 +138,7 @@
     "visitorId" : null
   },
   "attachmentNotObject" : {
-    "@class" : "org.lowcoder.plugins.SmtpQueryExecutionContext",
-    "from" : "sender@example.com",
-    "to" : [ "x@example.com" ],
-    "cc" : [ ],
-    "bcc" : [ ],
-    "replyTo" : [ ],
-    "subject" : "s",
-    "content" : "",
-    "attachments" : null,
-    "visitorId" : null
+    "error" : "org.lowcoder.sdk.exception.PluginException: QUERY_ARGUMENT_ERROR QUERY_ARGUMENT_ERROR"
   },
   "attachmentNumberContent" : {
     "@class" : "org.lowcoder.plugins.SmtpQueryExecutionContext",

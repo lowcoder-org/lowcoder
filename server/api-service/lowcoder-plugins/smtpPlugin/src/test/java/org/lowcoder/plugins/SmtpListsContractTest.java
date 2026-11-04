@@ -24,7 +24,8 @@ import java.util.Map;
  * address list (NEW-36, GitHub #1491); one that renders to an array is read element by element.
  *
  * <p>Limits: no mail is sent; {@code fromJsonList} logs and returns {@code null} for text it cannot read, which the
- * engine treats as no addresses or no attachments, and the report shows that as an empty array or {@code null}.
+ * engine treats as no addresses (an empty array in the report); attachments that are not a JSON list of attachments are
+ * refused (NEW-107), and a blank or JSON {@code null} attachments value is no attachments ({@code null}).
  */
 public class SmtpListsContractTest {
 
