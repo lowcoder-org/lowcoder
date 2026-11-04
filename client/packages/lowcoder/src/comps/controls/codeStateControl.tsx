@@ -26,6 +26,7 @@ import {
   CompAction,
   CompActionTypes,
   ConstructorToView,
+  CustomAction,
   evalNodeOrMinor,
   updateNodesV2Action,
 } from "lowcoder-core";
@@ -42,8 +43,14 @@ import {
   toStringNumberArray,
 } from "util/convertUtils";
 import { JSONObject, JSONValue } from "util/jsonTypes";
-import { getPromiseAfterDispatch } from "../../util/promiseUtils";
-import { EvalParamType, ParamConfig, ParamType } from "./actionSelector/executeCompTypes";
+import { getPromiseAfterDispatch, handlePromiseAfterResult } from "../../util/promiseUtils";
+import {
+  EvalParamType,
+  ExecuteAction,
+  MethodConfig,
+  ParamConfig,
+  ParamType,
+} from "./actionSelector/executeCompTypes";
 
 export const __TMP_STATE_FIELD_NAME = "__TMP_STATE_FIELD_NAME";
 
@@ -187,6 +194,43 @@ export function withLinkedDefaultValue<
         }
       }
       return ret;
+    }
+
+    // Someone called a method on this component, e.g. switch1.resetValue().
+    // "call" holds the method's name and its arguments.
+    // Returns true if this function took care of the call.
+    executeMethod(call: CustomAction<ExecuteAction>): boolean {
+      const calledMethodName = call.value.methodName;
+
+      // What the component shows right now (e.g. the switch is on or off).
+      const currentValueField = (this.children as any)[valueKey];
+
+      // What was entered as "Default value" in the property panel.
+      const defaultValueField = (this.children as any)[defaultValueKey];
+
+      // The current value field offers three methods: set…, clear… and reset…
+      // (e.g. setValue, clearValue, resetValue). Find the name of the reset one.
+      const currentValueMethods: MethodConfig[] = currentValueField.getMethodConfig();
+      const resetMethod = currentValueMethods.find((method) => method.name.startsWith("reset"));
+
+      if (calledMethodName !== resetMethod?.name) {
+        // Any other method (setValue, clearValue, focus, ...): handle it as before.
+        return super.executeMethod(call);
+      }
+
+      // The current value field's own reset would read a default of its own,
+      // which is always empty. Take the one from the property panel instead.
+      let defaultValue = defaultValueField.getView().value;
+      if (transformDefaultValue) {
+        defaultValue = transformDefaultValue(defaultValue, this);
+      }
+
+      // Same as calling setValue(defaultValue).
+      const doneWhenChanged = currentValueField.change(defaultValue);
+
+      // Lets the caller wait for the change, e.g. "await switch1.resetValue()".
+      handlePromiseAfterResult(call, doneWhenChanged);
+      return true;
     }
   }
 
