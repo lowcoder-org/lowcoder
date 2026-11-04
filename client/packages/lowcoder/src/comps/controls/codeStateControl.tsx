@@ -182,7 +182,8 @@ export function withLinkedDefaultValue<
         const valueChild = (ret.children as any)[valueKey];
         const newValue = transformDefaultValue ? transformDefaultValue(defaultValue, ret) : defaultValue;
         if (!_.isEqual(newValue, valueChild.getView().value)) {
-          return (ret as any).setChild(valueKey, valueChild.reduce(changeChildAction("value", newValue, false)));
+          const message = changeChildAction("value", newValue, false);
+          setTimeout(valueChild.dispatch, 0, message);
         }
       }
       return ret;
@@ -305,7 +306,7 @@ export const jsonObjectStateControl = (defaultValue?: JSONObject) =>
 
 export const arrayObjectStateControl = (defaultValue?: JSONObject[]) =>
   withTmpState(jsonArrayControl(defaultValue), {});
-  
+
 export const jsonValueStateControl = (defaultValue?: JSONValue) =>
   withTmpState(jsonValueControl(defaultValue), "");
 
