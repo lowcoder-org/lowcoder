@@ -1,6 +1,7 @@
 package org.lowcoder.api.authentication;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -21,6 +22,10 @@ import org.lowcoder.api.home.SessionUserService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.test.util.ReflectionTestUtils;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.lowcoder.domain.user.repository.UserRepository;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
 import org.lowcoder.sdk.auth.EmailAuthConfig;
@@ -41,6 +46,8 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -67,8 +74,22 @@ class AuthenticationEndpointsIntegrationTest {
     private static final String NO_KEYS_USER_ID = "usergh03nokeys";
     private static final String TWO_KEYS_USER_ID = "usergh03twokeys";
     private static final String PARTIAL_UPDATE_USER_ID = "usergh03partialupdate";
+    // NEW-134: ids without a hyphen as above.
+    private static final String SAME_SECOND_USER_ID = "usernew134samesecond";
+    private static final String OLD_TOKEN_USER_ID = "usernew134oldtoken";
     private static final List<String> GH03_USER_IDS =
-            List.of(ONLY_KEY_USER_ID, NO_KEYS_USER_ID, TWO_KEYS_USER_ID, PARTIAL_UPDATE_USER_ID);
+            List.of(ONLY_KEY_USER_ID, NO_KEYS_USER_ID, TWO_KEYS_USER_ID, PARTIAL_UPDATE_USER_ID, SAME_SECOND_USER_ID, OLD_TOKEN_USER_ID);
+    /** NEW-134: the most pairs of keys created to get two inside one second. */
+    private static final int SAME_SECOND_ATTEMPTS = 5;
+    /** NEW-134: the keys a same-second pair creates. */
+    private static final int KEYS_CREATED_TOGETHER = 2;
+    private static final long MILLIS_PER_SECOND = 1000L;
+    private static final String OLD_KEY_ID = "new134-old-key";
+    private static final String OLD_KEY_NAME = "new134 key with an old token";
+    private static final String BASE64_SECRET_FIELD = "base64EncodedSecret";
+    private static final String USER_ID_CLAIM = "userId";
+    private static final String CREATED_BY_CLAIM = "createdBy";
+    private static final String NEW134_LOG = "[NEW-134] ";
     private static final String UNKNOWN_KEY_ID = "gh03-no-such-key";
     /** The name of the stored field that holds a user's API keys (User.apiKeys). */
     private static final String STORED_API_KEYS_FIELD = "apiKeys";
@@ -773,8 +794,10 @@ class AuthenticationEndpointsIntegrationTest {
 
     /** What APIKeyAuthFilter asks for a bearer token: does a stored key of this user carry this token? */
     private boolean tokenAuthenticates(String userId, String token) {
+        Claims claims = jwtUtils.parseJwtClaims(token);
+        assertNotNull(claims, "the token does not parse");
         boolean authenticates = sessionUserService
-                .resolveSessionUserForJWT(jwtUtils.parseJwtClaims(token), token)
+                .resolveSessionUserForJWT(claims, token)
                 .blockOptional()
                 .map(user -> Objects.equals(user.getId(), userId))
                 .orElse(false);
@@ -867,5 +890,75 @@ class AuthenticationEndpointsIntegrationTest {
                 () -> assertEquals(List.of(key.getId()), storedKeyIds(PARTIAL_UPDATE_USER_ID), "the key survives the partial update"),
                 () -> assertTrue(tokenAuthenticates(PARTIAL_UPDATE_USER_ID, key.getToken()), "the key's token still authenticates")
         );
+    }
+
+    private long issuedAtSecond(String token) {
+        Claims claims = jwtUtils.parseJwtClaims(token);
+        assertNotNull(claims, "the token does not parse");
+        assertNotNull(claims.getIssuedAt(), "the token has no iat");
+        return claims.getIssuedAt().getTime() / MILLIS_PER_SECOND;
+    }
+
+    /**
+     * NEW-134, best-effort: two keys created in one second must get different tokens, so deleting one revokes its token. A
+     * same-second pair is not guaranteed (the stored keys are reloaded between the two creates), so with no pair in
+     * SAME_SECOND_ATTEMPTS tries the case is skipped, which is INCONCLUSIVE and never a failure of NEW-134.
+     */
+    @Test
+    @WithMockUser(id = SAME_SECOND_USER_ID)
+    void testDeleteAPIKey_oneOfTwoKeysCreatedTogether_revokesItsTokenNEW134() {
+        freshUserWithoutKeys(SAME_SECOND_USER_ID);
+        for (int attempt = 1; attempt <= SAME_SECOND_ATTEMPTS; attempt++) {
+            APIKeyVO first = createKey(KEY_NAME_FIRST);
+            loadKeysAsANewRequestWould(SAME_SECOND_USER_ID);
+            APIKeyVO second = createKey(KEY_NAME_SECOND);
+            assertEquals(KEYS_CREATED_TOGETHER, storedKeyIds(SAME_SECOND_USER_ID).size(), "precondition: both keys are stored");
+            assertTrue(tokenAuthenticates(SAME_SECOND_USER_ID, first.getToken()), "precondition: the first key's token authenticates");
+            assertTrue(tokenAuthenticates(SAME_SECOND_USER_ID, second.getToken()), "precondition: the second key's token authenticates");
+            long firstSecond = issuedAtSecond(first.getToken());
+            long secondSecond = issuedAtSecond(second.getToken());
+            System.out.println(NEW134_LOG + "attempt " + attempt + ": iat seconds " + firstSecond + " / " + secondSecond);
+            if (firstSecond == secondSecond) {
+                loadKeysAsANewRequestWould(SAME_SECOND_USER_ID);
+                assertTrue(authenticationController.deleteAPIKey(first.getId()).block().isSuccess(), "the delete answers success");
+                boolean firstAuthenticates = tokenAuthenticates(SAME_SECOND_USER_ID, first.getToken());
+                boolean secondAuthenticates = tokenAuthenticates(SAME_SECOND_USER_ID, second.getToken());
+                List<String> storedAfter = storedKeyIds(SAME_SECOND_USER_ID);
+                assertAll(
+                        () -> assertEquals(List.of(second.getId()), storedAfter, "exactly the other key is stored after the delete"),
+                        () -> assertNotEquals(first.getToken(), second.getToken(), "two keys created in one second share a token"),
+                        () -> assertFalse(firstAuthenticates, "the deleted key's token still authenticates (through the other key)"),
+                        () -> assertTrue(secondAuthenticates, "the other key's token authenticates"));
+                return;
+            }
+            loadKeysAsANewRequestWould(SAME_SECOND_USER_ID);
+            authenticationController.deleteAPIKey(first.getId()).block();
+            loadKeysAsANewRequestWould(SAME_SECOND_USER_ID);
+            authenticationController.deleteAPIKey(second.getId()).block();
+            loadKeysAsANewRequestWould(SAME_SECOND_USER_ID);
+        }
+        Assumptions.assumeTrue(false, "no same-second pair found: INCONCLUSIVE, not a failure of NEW-134");
+    }
+
+    /** NEW-134: a stored key whose token has no jti (issued before it existed) still authenticates; validation never reads a jti. */
+    @Test
+    @WithMockUser(id = OLD_TOKEN_USER_ID)
+    void testAKeyWithAnOldTokenWithoutJtiStillAuthenticatesNEW134() {
+        freshUserWithoutKeys(OLD_TOKEN_USER_ID);
+        String base64Secret = (String) ReflectionTestUtils.getField(jwtUtils, BASE64_SECRET_FIELD);
+        String oldToken = Jwts.builder().setSubject(OLD_TOKEN_USER_ID).setIssuedAt(new Date())
+                .claim(USER_ID_CLAIM, OLD_TOKEN_USER_ID).claim(CREATED_BY_CLAIM, GH03_USER_NAME)
+                .signWith(SignatureAlgorithm.HS256, base64Secret).compact();
+        Claims oldClaims = jwtUtils.parseJwtClaims(oldToken);
+        assertNotNull(oldClaims, "precondition: the hand-made token parses");
+        assertNull(oldClaims.getId(), "precondition: the hand-made token has no jti");
+
+        User principal = sessionUserService.getVisitor().block();
+        principal.setApiKeysList(new ArrayList<>(List.of(new APIKey(OLD_KEY_ID, OLD_KEY_NAME, KEY_DESCRIPTION, oldToken))));
+        userService.update(OLD_TOKEN_USER_ID, principal).block();
+
+        assertAll(
+                () -> assertEquals(List.of(OLD_KEY_ID), storedKeyIds(OLD_TOKEN_USER_ID), "the old key is stored"),
+                () -> assertTrue(tokenAuthenticates(OLD_TOKEN_USER_ID, oldToken), "a token without a jti no longer authenticates"));
     }
 }
