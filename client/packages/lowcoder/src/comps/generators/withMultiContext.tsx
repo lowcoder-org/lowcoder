@@ -137,8 +137,8 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
           comp = this.getOriginalComp();
         } else {
           comp = this.getOriginalComp()
-            .setParams(params)
-            .changeDispatch(wrapDispatch(wrapDispatch(this.dispatch, MAP_KEY), key));
+            .changeDispatch(wrapDispatch(wrapDispatch(this.dispatch, MAP_KEY), key))
+            .setParams(params);
         }
       }
       return comp;
@@ -184,8 +184,8 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
         if (params) {
           const childComp = comp
             .getOriginalComp()
-            .setParams(params)
-            .changeDispatch(wrapDispatch(wrapDispatch(comp.dispatch, MAP_KEY), key));
+            .changeDispatch(wrapDispatch(wrapDispatch(comp.dispatch, MAP_KEY), key))
+            .setParams(params);
           const newChildComp = childComp.reduce(childAction);
           
           if (childComp !== newChildComp) {
