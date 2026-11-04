@@ -64,6 +64,9 @@ import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 public class AuthenticationApiServiceImpl implements AuthenticationApiService {
 
     private static final String DUPLICATE_AUTH_CONFIG_ADDITION_KEY = "DUPLICATE_AUTH_CONFIG_ADDITION";
+    private static final int VISIBLE_TOKEN_CHARS = 6;
+    private static final int MIN_MASKED_LENGTH = 24;
+    private static final String TOKEN_MASK = "*************";
 
     private final OrgApiService orgApiService;
     private final OrganizationService organizationService;
@@ -404,15 +407,28 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
         user.replaceApiKeys(apiKeys);
     }
 
+    /**
+     * The visitor's API keys with their tokens masked, as copies (NEW-135): the visitor's own keys keep their
+     * tokens, so a later write of the same user object in one request cannot store a masked token. A token of
+     * {@code MIN_MASKED_LENGTH} or more characters shows its first and last six; a null or shorter token is answered
+     * as the mask alone, where it used to fail the listing (null, or under six characters) or show all of a token of
+     * six to twelve characters and twelve characters of a longer one. Limits: the write path still encrypts the
+     * caller's key objects in place ({@code User#beforeMongodbWrite}).
+     */
     @Override
     public Flux<APIKey> findAPIKeys() {
         return sessionUserService.getVisitor()
                 .flatMapIterable(user ->
                         new ArrayList<>(user.getApiKeysList())
                 )
-                .doOnNext(apiKey -> {
-                    apiKey.setToken(apiKey.getToken().substring(0, 6) + "*************" + apiKey.getToken().substring(apiKey.getToken().length() - 6));
-                });
+                .map(apiKey -> new APIKey(apiKey.getId(), apiKey.getName(), apiKey.getDescription(), masked(apiKey.getToken())));
+    }
+
+    private static String masked(String token) {
+        if (token == null || token.length() < MIN_MASKED_LENGTH) {
+            return TOKEN_MASK;
+        }
+        return token.substring(0, VISIBLE_TOKEN_CHARS) + TOKEN_MASK + token.substring(token.length() - VISIBLE_TOKEN_CHARS);
     }
 
     private Mono<Void> removeTokensByAuthId(String authId) {
