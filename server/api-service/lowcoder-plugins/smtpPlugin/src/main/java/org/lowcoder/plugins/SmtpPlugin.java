@@ -189,7 +189,7 @@ public class SmtpPlugin extends Plugin {
                     .replyTo(renderAsArrayAndParse(getString(queryConfig, "replyTo", ""), requestParams))
                     .subject(renderMustacheString(getString(queryConfig, "subject"), requestParams))
                     .content(renderMustacheString(getString(queryConfig, "content", ""), requestParams))
-                    .attachments(fromJsonList(renderMustacheJsonString(getString(queryConfig, "attachments", ""), requestParams), Attachment.class))
+                    .attachments(attachmentsOf(getString(queryConfig, "attachments", ""), template -> renderMustacheJsonString(template, requestParams), rendered -> fromJsonList(rendered, Attachment.class)))
                     .build();
         }
 
@@ -230,6 +230,35 @@ public class SmtpPlugin extends Plugin {
                     .flatMap(Stream::of)
                     .toList()
                     .toArray(new InternetAddress[0]);
+        }
+
+        /**
+         * The attachments the query names (NEW-107). None (null) when the template is absent or blank, decided before rendering
+         * because a blank template renders to {@code {}}, or when it renders to JSON {@code null} (the literal, or a parameter that
+         * is missing or null). The list when the rendered text reads as a JSON array of attachments, an empty one included.
+         * Anything else is a PluginException QUERY_ARGUMENT_ERROR naming {@code ATTACHMENTS_NOT_A_LIST}, thrown before any mail is
+         * built; before, the mail was sent without attachments. The render and the read are passed in so that both JSON calls stay
+         * in {@code buildQueryExecutionContext}, the member their JSON boundary rows key.
+         * <p>
+         * Limits: the message does not say what was given instead and never includes the value; a single attachment object is
+         * refused, not read as a list of one; a JSON string, the empty string included, is refused, unlike an address field's; a
+         * value that is refused still logs {@code fromJsonList}'s error once; the elements are checked later, by
+         * {@code decodedContentOf}.
+         */
+        private static List<Attachment> attachmentsOf(String template, java.util.function.UnaryOperator<String> render,
+                java.util.function.Function<String, List<Attachment>> read) {
+            if (isBlank(template)) {
+                return null;
+            }
+            String rendered = render.apply(template);
+            if (JSON_NULL.equals(rendered)) {
+                return null;
+            }
+            List<Attachment> attachments = read.apply(rendered);
+            if (attachments == null) {
+                throw new PluginException(QUERY_ARGUMENT_ERROR, "QUERY_ARGUMENT_ERROR", ATTACHMENTS_NOT_A_LIST);
+            }
+            return attachments;
         }
 
         @Override
@@ -283,6 +312,8 @@ public class SmtpPlugin extends Plugin {
         static final String ATTACHMENT_WITHOUT_NAME = "attachment %d has no name";
         static final String ATTACHMENT_WITHOUT_CONTENT = "attachment %d has no content";
         static final String ATTACHMENT_CONTENT_NOT_BASE64 = "attachment %d: the content is not Base64";
+        static final String ATTACHMENTS_NOT_A_LIST = "the attachments are not a JSON list of attachments";
+        private static final String JSON_NULL = "null";
 
         /**
          * The decoded content of the attachment at {@code position} (1-based), or a MessagingException naming what is missing

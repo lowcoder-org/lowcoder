@@ -11,7 +11,12 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.plugins.SmtpPlugin.SmtpEngine;
+import org.lowcoder.sdk.exception.PluginCommonError;
+import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 
 import java.io.InputStream;
@@ -21,9 +26,11 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -98,7 +105,7 @@ public class SmtpEngineDeliveryTest {
     private record Sent(QueryExecutionResult result, Throwable failure) {
     }
 
-    /** {@link #sendAuthenticated}, but an exception that escapes {@code executeQuery} is returned, not thrown. */
+    /** {@link #sendAuthenticated}, but an exception that escapes the engine ({@code buildQueryExecutionContext} or {@code executeQuery}) is returned, not thrown. */
     private Sent sendCatching(Map<String, Object> queryConfig) {
         try {
             return new Sent(sendAuthenticated(queryConfig), null);
@@ -420,5 +427,70 @@ public class SmtpEngineDeliveryTest {
         Part part = ((Multipart) only(TO_1).getContent()).getBodyPart(1);
         System.out.println(TAG + "delivered content type: " + part.getContentType());
         assertTrue(part.getContentType().toLowerCase(java.util.Locale.ROOT).contains("charset=utf-8"), part.getContentType());
+    }
+
+    // ------------------------------------------------------------------ NEW-107: attachments that are not a list
+
+    /** The refusal's message argument, written out here, not read from the plugin. */
+    static final String NOT_A_LIST = "the attachments are not a JSON list of attachments";
+    static final String QUERY_ARGUMENT_ERROR_KEY = "QUERY_ARGUMENT_ERROR";
+    /** Templates that do not render to a JSON list of attachments (R), and values that are no attachments (K). */
+    static final String EMPTY_OBJECT = "{}";
+    static final String PLAIN_TEXT = "a.txt";
+    static final String JSON_EMPTY_STRING = "\"\"";
+    static final String NUMBER = "42";
+    static final String ARRAY_OF_TEXT = "[\"a.txt\"]";
+    static final String BLANK = "";
+    static final String SPACES = "   ";
+    static final String JSON_NULL_TEXT = "null";
+    static final String ABSENT_PARAMETER = "{{absent}}";
+    static final String EMPTY_LIST = "[]";
+
+    /** The six refused values. {@code VALID_ATTACHMENT} is built at class load, so it cannot sit in an annotation: a method source. */
+    static Stream<String> notAList() {
+        return Stream.of(VALID_ATTACHMENT, EMPTY_OBJECT, PLAIN_TEXT, JSON_EMPTY_STRING, NUMBER, ARRAY_OF_TEXT);
+    }
+
+    /**
+     * NEW-107: an attachments value that renders to anything but a JSON list of attachments is refused by the engine
+     * (PluginException QUERY_ARGUMENT_ERROR, the message naming it) and no mail is sent; before, the mail went out without
+     * the attachments and the result was OK. A single attachment object is refused, not read as a list of one.
+     */
+    @ParameterizedTest(name = "attachments={0}")
+    @MethodSource("notAList")
+    public void aValueThatIsNotAListOfAttachmentsIsRefusedNEW107(String attachments) {
+        Map<String, Object> queryConfig = query("[\"" + TO_1 + "\"]", "not a list", "x");
+        queryConfig.put("attachments", attachments);
+
+        Sent sent = sendCatching(queryConfig);
+
+        System.out.println(TAG + "attachments [" + attachments + "] -> failure " + sent.failure() + ", result "
+                + (sent.result() == null ? null : sent.result().getQueryCode()) + ", delivered " + server.getReceivedMessages().length);
+        assertInstanceOf(PluginException.class, sent.failure(), "the engine refuses the value");
+        PluginException refusal = (PluginException) sent.failure();
+        assertEquals(PluginCommonError.QUERY_ARGUMENT_ERROR, refusal.getError());
+        assertEquals(QUERY_ARGUMENT_ERROR_KEY, refusal.getMessageKey());
+        assertEquals(NOT_A_LIST, refusal.getArgs()[0]);
+        assertEquals(0, server.getReceivedMessages().length, "nothing is delivered");
+    }
+
+    /**
+     * NEW-107 (controls, expected green at HEAD): a blank template, the JSON text {@code null}, a parameter that is not
+     * supplied (it renders to {@code null}) and an empty list are no attachments: the mail is sent with its body only.
+     */
+    @ParameterizedTest(name = "attachments=[{0}]")
+    @ValueSource(strings = {BLANK, SPACES, JSON_NULL_TEXT, ABSENT_PARAMETER, EMPTY_LIST})
+    public void aBlankNullOrEmptyListValueSendsWithoutAttachmentsNEW107(String attachments) throws Exception {
+        Map<String, Object> queryConfig = query("[\"" + TO_1 + "\"]", "no attachments", "x");
+        queryConfig.put("attachments", attachments);
+
+        Sent sent = sendCatching(queryConfig);
+
+        System.out.println(TAG + "attachments [" + attachments + "] -> failure " + sent.failure() + ", result "
+                + (sent.result() == null ? null : sent.result().getQueryCode()));
+        assertNull(sent.failure(), "the engine does not refuse a value that is no attachments");
+        assertEquals(QUERY_CODE_OK, sent.result().getQueryCode());
+        assertTrue(server.waitForIncomingEmail(WAIT_MILLIS, 1));
+        assertEquals(1, ((Multipart) only(TO_1).getContent()).getCount(), "the body only");
     }
 }
