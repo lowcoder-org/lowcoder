@@ -2,6 +2,10 @@ package org.lowcoder.api.authentication.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -25,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
 import org.lowcoder.api.authentication.request.AuthRequestFactory;
@@ -48,6 +53,7 @@ import org.lowcoder.domain.organization.model.OrganizationDomain;
 import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.model.AuthToken;
+import org.lowcoder.domain.user.model.APIKey;
 import org.lowcoder.domain.user.model.AuthUser;
 import org.lowcoder.domain.user.model.Connection;
 import org.lowcoder.domain.user.model.ConnectionAuthToken;
@@ -64,6 +70,7 @@ import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.CookieHelper;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opentest4j.AssertionFailedError;
 import org.springframework.web.server.ServerWebExchange;
 
 import reactor.core.publisher.Flux;
@@ -101,6 +108,16 @@ class AuthenticationApiServiceImplMutationsTest {
     private static final String GROUP_ID = "group-1";
     private static final String INVITATION_ID = "invitation-1";
     private static final String EMAIL_AUTH_ID = AuthSourceConstants.EMAIL;
+    private static final String KEY_ID = "key-1";
+    private static final String KEY_NAME = "key name";
+    private static final String KEY_DESCRIPTION = "key description";
+    /** 30 characters: the first six are A, the last six are C. */
+    private static final String RAW_TOKEN = "AAAAAAbbbbbbbbbbbbbbbbbbCCCCCC";
+    private static final String MASK = "*************";
+    private static final String MASKED_RAW_TOKEN = "AAAAAA" + MASK + "CCCCCC";
+    /** 24 characters, the shortest token that is shown by its ends (NEW-135). */
+    private static final String MIN_LENGTH_TOKEN = "abcdefghijklmnopqrstuvwx";
+    private static final String MASKED_MIN_LENGTH_TOKEN = "abcdef" + MASK + "stuvwx";
 
     @Mock private OrgApiService orgApiService;
     @Mock private OrganizationService organizationService;
@@ -806,5 +823,85 @@ class AuthenticationApiServiceImplMutationsTest {
         verify(businessEventPublisher).publishUserLoginEvent(SOURCE_GOOGLE);
         System.out.println("[AuthenticationApiServiceImplMutationsTest] new=" + isNewUser + " org=" + orgId + " invitation="
                 + invitationId + " creation=" + workspaceCreation + " -> createDefault=" + expectCreate);
+    }
+
+    // ----------------------------------------------------------------- findAPIKeys (NEW-135)
+
+    private User visitorWithKey(String token) {
+        User visitor = User.builder().id(USER_ID).build();
+        visitor.setApiKeysList(new ArrayList<>(List.of(new APIKey(KEY_ID, KEY_NAME, KEY_DESCRIPTION, token))));
+        when(sessionUserService.getVisitor()).thenReturn(Mono.just(visitor));
+        return visitor;
+    }
+
+    /** The listing as a list; an error signal fails as an assertion, not as a test error. */
+    private List<APIKey> listedKeys() {
+        try {
+            return service.findAPIKeys().collectList().block();
+        } catch (RuntimeException e) {
+            throw new AssertionFailedError("findAPIKeys() failed with " + e, e);
+        }
+    }
+
+    /** The listing answers masked copies and leaves the visitor's own keys as they were read. */
+    @Test
+    void findAPIKeys_answersMaskedCopies_andLeavesTheVisitorsKeysAloneNEW135() {
+        User visitor = visitorWithKey(RAW_TOKEN);
+        APIKey visitorKey = visitor.getApiKeysList().get(0);
+
+        List<APIKey> answered = listedKeys();
+        assertEquals(1, answered.size(), "one key is answered");
+
+        assertAll(
+                () -> assertEquals(MASKED_RAW_TOKEN, answered.get(0).getToken(), "the answered token is masked"),
+                () -> assertEquals(KEY_ID, answered.get(0).getId(), "the id is kept"),
+                () -> assertEquals(KEY_NAME, answered.get(0).getName(), "the name is kept"),
+                () -> assertEquals(KEY_DESCRIPTION, answered.get(0).getDescription(), "the description is kept"),
+                () -> assertNotSame(visitorKey, answered.get(0), "the answer is a copy"),
+                () -> assertEquals(RAW_TOKEN, visitorKey.getToken(), "the visitor's key keeps its token"),
+                () -> assertSame(visitorKey, visitor.getApiKeysList().get(0), "the visitor's list is untouched"));
+        System.out.println("[AuthenticationApiServiceImplMutationsTest] listed " + answered.get(0).getToken()
+                + ", visitor token still " + visitorKey.getToken());
+    }
+
+    /** Listing twice answers the same text both times and does not change the visitor's token. */
+    @Test
+    void findAPIKeys_listedTwice_answersTheSameMaskBothTimesNEW135() {
+        User visitor = visitorWithKey(RAW_TOKEN);
+
+        List<APIKey> first = listedKeys();
+        List<APIKey> second = listedKeys();
+        assertEquals(1, first.size(), "keys answered by the first listing");
+        assertEquals(1, second.size(), "keys answered by the second listing");
+
+        assertAll(
+                () -> assertEquals(MASKED_RAW_TOKEN, first.get(0).getToken(), "first listing"),
+                () -> assertEquals(MASKED_RAW_TOKEN, second.get(0).getToken(), "second listing"),
+                () -> assertEquals(RAW_TOKEN, visitor.getApiKeysList().get(0).getToken(),
+                        "the visitor's token after two listings"));
+    }
+
+    /** A null token or one shorter than the minimum masked length is answered as the mask alone. */
+    @ParameterizedTest(name = "token [{0}] -> mask alone")
+    @NullSource
+    @ValueSource(strings = {"abcde", "abcdef", "abcdefghijk", "abcdefghijkl", "abcdefghijklm",
+            "abcdefghijklmnopqrstuvw"})
+    void findAPIKeys_tokenShorterThanMinMaskedLength_answersTheMaskAloneNEW135(String token) {
+        visitorWithKey(token);
+
+        StepVerifier.create(service.findAPIKeys())
+                .assertNext(key -> assertEquals(MASK, key.getToken(), "answered token of [" + token + "]"))
+                .verifyComplete();
+        System.out.println("[AuthenticationApiServiceImplMutationsTest] token [" + token + "] -> mask alone");
+    }
+
+    /** A token of exactly the minimum masked length is shown by its first and last six characters. */
+    @Test
+    void findAPIKeys_tokenOfMinMaskedLength_showsOnlyItsEndsNEW135() {
+        visitorWithKey(MIN_LENGTH_TOKEN);
+
+        StepVerifier.create(service.findAPIKeys())
+                .assertNext(key -> assertEquals(MASKED_MIN_LENGTH_TOKEN, key.getToken()))
+                .verifyComplete();
     }
 }
