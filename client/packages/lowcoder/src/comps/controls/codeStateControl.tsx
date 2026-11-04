@@ -180,20 +180,39 @@ export function withLinkedDefaultValue<
 ): TCtor {
   class LinkedDefaultValueComp extends (Base as any) {
     reduce(action: CompAction): this {
-      const ret = super.reduce(action) as this;
-      if (
-        action.type === CompActionTypes.UPDATE_NODES_V2 &&
-        (ret.children as any)[defaultValueKey] !== (this.children as any)[defaultValueKey]
-      ) {
-        const defaultValue = (ret.children as any)[defaultValueKey].getView().value;
-        const valueChild = (ret.children as any)[valueKey];
-        const newValue = transformDefaultValue ? transformDefaultValue(defaultValue, ret) : defaultValue;
-        if (!_.isEqual(newValue, valueChild.getView().value)) {
-          const message = changeChildAction("value", newValue, false);
-          setTimeout(valueChild.dispatch, 0, message);
-        }
+      const updated = super.reduce(action) as this;
+
+      const defaultValueFieldBefore = (this.children as any)[defaultValueKey];
+      const defaultValueFieldAfter = (updated.children as any)[defaultValueKey];
+      if (defaultValueFieldAfter === defaultValueFieldBefore) {
+        return updated;
       }
-      return ret;
+
+      const defaultBefore = defaultValueFieldBefore.getView().value;
+      const defaultAfter = defaultValueFieldAfter.getView().value;
+      if (_.isEqual(defaultBefore, defaultAfter)) {
+        return updated;
+      }
+
+      const currentValueField = (updated.children as any)[valueKey];
+
+      let newValue = defaultAfter;
+      if (transformDefaultValue) {
+        newValue = transformDefaultValue(newValue, updated);
+      }
+      if (_.isEqual(newValue, currentValueField.getView().value)) {
+        return updated;
+      }
+
+      const setValueMessage = changeChildAction("value", newValue, false);
+
+      if (action.type === CompActionTypes.UPDATE_NODES_V2) {
+        setTimeout(currentValueField.dispatch, 0, setValueMessage);
+        return updated;
+      }
+
+      const updatedCurrentValueField = currentValueField.reduce(setValueMessage);
+      return (updated as any).setChild(valueKey, updatedCurrentValueField);
     }
 
     // Someone called a method on this component, e.g. switch1.resetValue().
