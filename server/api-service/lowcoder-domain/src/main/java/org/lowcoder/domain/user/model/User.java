@@ -166,4 +166,17 @@ public class User extends HasIdAndAuditing implements BeforeMongodbWrite, AfterM
             this.uiLanguage = UiConstants.DEFAULT_UI_LANGUAGE;
         }
     }
+
+    /**
+     * Makes {@code apiKeys} this user's API keys, and resets the stored form so that the next write stores exactly this list (GH-03).
+     * {@link #beforeMongodbWrite} rebuilds the stored form only from a non-empty list. So without the reset, an empty list left the keys
+     * read with the user in place, and a user's last key could not be deleted. An empty list is stored as an empty array, which
+     * {@link #afterMongodbRead} reads as no keys. Use it only on a user read in full, such as the visitor of a request: on a partial user
+     * passed to an update it replaces every key the user has. Limits: the write is not atomic with the read it is based on, so two
+     * concurrent changes of one user's keys can lose one; the write encrypts the list's tokens in place.
+     */
+    public void replaceApiKeys(List<APIKey> apiKeys) {
+        this.apiKeysList = apiKeys;
+        this.apiKeys = new ArrayList<>();
+    }
 }

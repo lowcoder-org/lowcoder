@@ -401,7 +401,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .map(User::getApiKeysList)
                 .orElse(Collections.emptyList());
         apiKeys.removeIf(apiKey -> Objects.equals(apiKey.getId(), apiKeyId));
-        user.setApiKeysList(apiKeys);
+        user.replaceApiKeys(apiKeys);
     }
 
     @Override

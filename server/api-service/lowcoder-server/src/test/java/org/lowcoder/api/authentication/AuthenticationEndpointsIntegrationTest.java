@@ -1,5 +1,6 @@
 package org.lowcoder.api.authentication;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -12,6 +13,14 @@ import org.lowcoder.api.usermanagement.view.APIKeyVO;
 import org.lowcoder.domain.authentication.AuthenticationService;
 import org.lowcoder.domain.authentication.FindAuthConfig;
 import org.lowcoder.domain.user.model.APIKey;
+import org.lowcoder.domain.user.model.User;
+import org.lowcoder.domain.user.model.UserState;
+import org.lowcoder.domain.user.service.UserService;
+import org.lowcoder.api.authentication.util.JWTUtils;
+import org.lowcoder.api.home.SessionUserService;
+import org.apache.commons.collections4.CollectionUtils;
+import org.bson.Document;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.lowcoder.domain.user.repository.UserRepository;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
 import org.lowcoder.sdk.auth.EmailAuthConfig;
@@ -33,6 +42,8 @@ import reactor.test.StepVerifier;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.lowcoder.sdk.exception.BizError.INVALID_PASSWORD;
@@ -50,6 +61,25 @@ class AuthenticationEndpointsIntegrationTest {
     /** The client id of the GOOGLE configs the duplicate test adds (a GOOGLE config requires one). */
     private static final String DUPLICATE_TEST_CLIENT_ID = "duplicate-test-client-id";
 
+    // GH-03 (#2194): one user per case, so that no other test's keys interfere and InitData never has to reset them.
+    // The ids hold no hyphen: FieldName.guessFieldNameFromId reads an id with one as a gid, and UserService.update would not find the user.
+    private static final String ONLY_KEY_USER_ID = "usergh03onlykey";
+    private static final String NO_KEYS_USER_ID = "usergh03nokeys";
+    private static final String TWO_KEYS_USER_ID = "usergh03twokeys";
+    private static final String PARTIAL_UPDATE_USER_ID = "usergh03partialupdate";
+    private static final List<String> GH03_USER_IDS =
+            List.of(ONLY_KEY_USER_ID, NO_KEYS_USER_ID, TWO_KEYS_USER_ID, PARTIAL_UPDATE_USER_ID);
+    private static final String UNKNOWN_KEY_ID = "gh03-no-such-key";
+    /** The name of the stored field that holds a user's API keys (User.apiKeys). */
+    private static final String STORED_API_KEYS_FIELD = "apiKeys";
+    private static final String GH03_USER_NAME = "GH-03 user";
+    private static final String RENAMED_USER_NAME = "GH-03 renamed";
+    private static final String KEY_NAME_FIRST = "gh03 first key";
+    private static final String KEY_NAME_SECOND = "gh03 second key";
+    private static final String KEY_DESCRIPTION = "created by a GH-03 case";
+    private static final int NO_KEYS = 0;
+    private static final String GH03_LOG = "[GH-03] ";
+
     @Autowired
     private AuthenticationController authenticationController;
     
@@ -64,6 +94,18 @@ class AuthenticationEndpointsIntegrationTest {
 
     @Autowired
     private CookieHelper cookieHelper;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private SessionUserService sessionUserService;
+
+    @Autowired
+    private JWTUtils jwtUtils;
+
+    @Autowired
+    private ReactiveMongoTemplate reactiveMongoTemplate;
 
     private ServerWebExchange mockExchange;
 
@@ -686,4 +728,144 @@ class AuthenticationEndpointsIntegrationTest {
                 .map(AbstractAuthConfig::getId)
                 .block();
     }
-} 
+
+    // ---------------------------------------------------------------------------------------------------------------
+    // GH-03 (lowcoder-org/lowcoder#2194): deleting a user's last API key. Each case has its own user. The principal of a
+    // @WithMockUser case is one User object that keeps the in-place changes of earlier calls and starts without the key
+    // fields a production request reads from Mongo, so loadKeysAsANewRequestWould copies both of them first.
+    // ---------------------------------------------------------------------------------------------------------------
+
+    @AfterEach
+    void removeGh03Users() {
+        GH03_USER_IDS.forEach(id -> userRepository.deleteById(id).block());
+    }
+
+    private void freshUserWithoutKeys(String userId) {
+        userRepository.deleteById(userId).block();
+        userRepository.save(User.builder().id(userId).name(GH03_USER_NAME).state(UserState.ACTIVATED).build()).block();
+    }
+
+    private APIKeyVO createKey(String name) {
+        APIKeyRequest request = new APIKeyRequest();
+        request.put("name", name);
+        request.put("description", KEY_DESCRIPTION);
+        return authenticationController.createAPIKey(request).block().getData();
+    }
+
+    /** The ids of the keys stored for the user, read from Mongo. */
+    private List<String> storedKeyIds(String userId) {
+        User stored = userRepository.findById(userId).block();
+        System.out.println(GH03_LOG + "stored apiKeys of " + userId + ": "
+                + (stored.getApiKeys() == null ? "absent" : String.valueOf(stored.getApiKeys().size()))
+                + ", read as " + stored.getApiKeysList().size() + " key(s)");
+        return CollectionUtils.emptyIfNull(stored.getApiKeysList()).stream().map(APIKey::getId).toList();
+    }
+
+    /** The stored document's apiKeys field as it is in Mongo: empty when the key is absent, otherwise the list. */
+    private Optional<List<?>> rawStoredApiKeys(String userId) {
+        Document document = reactiveMongoTemplate
+                .findById(userId, Document.class, reactiveMongoTemplate.getCollectionName(User.class)).block();
+        boolean present = document.containsKey(STORED_API_KEYS_FIELD);
+        System.out.println(GH03_LOG + "raw document of " + userId + ": " + STORED_API_KEYS_FIELD + " "
+                + (present ? "present, value " + document.get(STORED_API_KEYS_FIELD) : "absent"));
+        return present ? Optional.of((List<?>) document.get(STORED_API_KEYS_FIELD)) : Optional.empty();
+    }
+
+    /** What APIKeyAuthFilter asks for a bearer token: does a stored key of this user carry this token? */
+    private boolean tokenAuthenticates(String userId, String token) {
+        boolean authenticates = sessionUserService
+                .resolveSessionUserForJWT(jwtUtils.parseJwtClaims(token), token)
+                .blockOptional()
+                .map(user -> Objects.equals(user.getId(), userId))
+                .orElse(false);
+        System.out.println(GH03_LOG + "token authenticates for " + userId + ": " + authenticates);
+        return authenticates;
+    }
+
+    /** A production request starts with both key fields read from Mongo; this principal keeps earlier in-place changes. */
+    private void loadKeysAsANewRequestWould(String userId) {
+        User principal = sessionUserService.getVisitor().block();
+        User stored = userRepository.findById(userId).block();
+        principal.setApiKeysList(stored.getApiKeysList());
+        principal.setApiKeys(stored.getApiKeys());
+    }
+
+    @Test
+    @WithMockUser(id = ONLY_KEY_USER_ID)
+    void testDeleteAPIKey_onlyKey_isRemovedAndItsTokenRevokedGH03() {
+        freshUserWithoutKeys(ONLY_KEY_USER_ID);
+        APIKeyVO key = createKey(KEY_NAME_FIRST);
+        assertEquals(List.of(key.getId()), storedKeyIds(ONLY_KEY_USER_ID), "precondition: the created key is stored");
+        assertTrue(tokenAuthenticates(ONLY_KEY_USER_ID, key.getToken()), "precondition: the created key's token authenticates");
+
+        loadKeysAsANewRequestWould(ONLY_KEY_USER_ID);
+        ResponseView<Void> response = authenticationController.deleteAPIKey(key.getId()).block();
+        assertTrue(response.isSuccess(), "the delete answers success");
+
+        Optional<List<?>> raw = rawStoredApiKeys(ONLY_KEY_USER_ID);
+        List<String> stored = storedKeyIds(ONLY_KEY_USER_ID);
+        boolean authenticates = tokenAuthenticates(ONLY_KEY_USER_ID, key.getToken());
+        loadKeysAsANewRequestWould(ONLY_KEY_USER_ID);
+        List<String> listed = authenticationController.getAllAPIKeys().block().getData().stream().map(APIKey::getId).toList();
+        assertAll(
+                () -> assertEquals(NO_KEYS, stored.size(), "the deleted last key is still stored"),
+                () -> assertTrue(raw.isPresent() && raw.get().isEmpty(), "the stored field is not an empty array: " + raw),
+                () -> assertFalse(authenticates, "the deleted last key's token still authenticates"),
+                () -> assertEquals(NO_KEYS, listed.size(), "the next listing shows the deleted key again: " + listed)
+        );
+    }
+
+    @Test
+    @WithMockUser(id = NO_KEYS_USER_ID)
+    void testDeleteAPIKey_unknownIdOfAUserWithoutKeys_succeedsAndStoresAnEmptyListGH03() {
+        freshUserWithoutKeys(NO_KEYS_USER_ID);
+        assertTrue(rawStoredApiKeys(NO_KEYS_USER_ID).isEmpty(), "precondition: a user saved without keys has no stored apiKeys field");
+
+        ResponseView<Void> response = authenticationController.deleteAPIKey(UNKNOWN_KEY_ID).block();
+        assertTrue(response.isSuccess(), "the delete of an unknown id answers success");
+
+        Optional<List<?>> raw = rawStoredApiKeys(NO_KEYS_USER_ID);
+        List<String> stored = storedKeyIds(NO_KEYS_USER_ID);
+        assertAll(
+                () -> assertTrue(raw.isPresent() && raw.get().isEmpty(), "the stored field is not an empty array: " + raw),
+                () -> assertEquals(NO_KEYS, stored.size(), "the user has no keys")
+        );
+    }
+
+    @Test
+    @WithMockUser(id = TWO_KEYS_USER_ID)
+    void testDeleteAPIKey_oneOfTwoKeys_keepsTheOtherGH03() {
+        freshUserWithoutKeys(TWO_KEYS_USER_ID);
+        APIKeyVO first = createKey(KEY_NAME_FIRST);
+        loadKeysAsANewRequestWould(TWO_KEYS_USER_ID);
+        APIKeyVO second = createKey(KEY_NAME_SECOND);
+        assertEquals(2, storedKeyIds(TWO_KEYS_USER_ID).size(), "precondition: both keys are stored");
+
+        loadKeysAsANewRequestWould(TWO_KEYS_USER_ID);
+        assertTrue(authenticationController.deleteAPIKey(first.getId()).block().isSuccess(), "the delete answers success");
+
+        List<String> stored = storedKeyIds(TWO_KEYS_USER_ID);
+        assertAll(
+                () -> assertEquals(List.of(second.getId()), stored, "exactly the other key is stored"),
+                () -> assertTrue(tokenAuthenticates(TWO_KEYS_USER_ID, second.getToken()), "the other key's token authenticates")
+        );
+    }
+
+    @Test
+    @WithMockUser(id = PARTIAL_UPDATE_USER_ID)
+    void testPartialUserUpdate_leavesTheApiKeysAloneGH03() {
+        freshUserWithoutKeys(PARTIAL_UPDATE_USER_ID);
+        APIKeyVO key = createKey(KEY_NAME_FIRST);
+
+        User partial = new User();
+        partial.setName(RENAMED_USER_NAME);
+        userService.update(PARTIAL_UPDATE_USER_ID, partial).block();
+
+        User stored = userRepository.findById(PARTIAL_UPDATE_USER_ID).block();
+        assertAll(
+                () -> assertEquals(RENAMED_USER_NAME, stored.getName(), "the partial update was applied"),
+                () -> assertEquals(List.of(key.getId()), storedKeyIds(PARTIAL_UPDATE_USER_ID), "the key survives the partial update"),
+                () -> assertTrue(tokenAuthenticates(PARTIAL_UPDATE_USER_ID, key.getToken()), "the key's token still authenticates")
+        );
+    }
+}
