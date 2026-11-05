@@ -21,6 +21,9 @@ import org.lowcoder.domain.organization.event.OrgDeletedEvent;
 import org.lowcoder.domain.organization.model.MemberRole;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.service.OrganizationService;
+import org.lowcoder.domain.user.model.User;
+import org.lowcoder.infra.birelation.BiRelation;
+import org.lowcoder.infra.birelation.BiRelationBizType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -35,8 +38,8 @@ import org.springframework.test.context.TestPropertySource;
  * collecting listener and the extra property give this class a Spring context (and database) of its own. The real
  * OrgAndGroupEventListener runs too, asynchronously: the tests wait for it by polling the org's groups or, for its last
  * step, the datasource's status (bounded, 20 s, 100 ms interval). What it does with the members is the L4-8 section 9 row on
- * BiRelationServiceImpl.removeAllBiRelations (fixed by BF-016); only the gid case (NEW-41) asserts the member count, of its
- * one member, which is not the super admin.
+ * BiRelationServiceImpl.removeAllBiRelations (fixed by BF-016); only the gid case (NEW-41) asserts on the members, on the one
+ * the case adds (see {@link #deletingAnOrgByItsGidRunsItsCleanupsNEW41}).
  */
 @SpringBootTest(classes = ServerApplication.class)
 @ActiveProfiles("test")
@@ -109,19 +112,28 @@ class OrganizationServiceImplDeleteMongoTest extends OrganizationMongoTestBase {
     static final String BY_GID_DATASOURCE_NAME = "datasource-of-the-org-deleted-by-gid";
     static final String DATASOURCE_TYPE = "postgres";
     static final int DATASOURCE_CREATION_SOURCE = 0;
-    /** The count of members and of groups the gid case creates. */
+    /** The count of groups the gid case creates. */
     static final long ONE_RECORD = 1L;
+    static final String MEMBER_RELATION = MemberRole.MEMBER.getValue();
+    static final String SUPER_ADMIN_RELATION = MemberRole.SUPER_ADMIN.getValue();
+    static final int AT_MOST_ONE_OTHER_ROW = 1;
 
     /**
      * NEW-41: an org deleted by its gid gets the cleanups of one deleted by its object id: the event carries the object id, so
      * the real listener removes the org's member and group and soft-deletes its application and datasource, the last step of
      * its chain. Before NEW-41 the event carried the gid, by which the listener's cleanups match nothing.
+     *
+     * <p>The asserts name the member the case added, not a count (NEW-111): the startup super admin job
+     * ({@code AddSuperAdminRunner}, not waited for) may make the super admin a SUPER_ADMIN member of this org at any point
+     * of the case, if its query for the active orgs runs after the org is saved. Besides the case's member the case accepts
+     * that one row, and no other. Limit: a defect that added or kept a super admin row wrongly is not caught here.
      */
     @Test
     void deletingAnOrgByItsGidRunsItsCleanupsNEW41() throws Exception {
         String gid = UUID.randomUUID().toString();
         String orgId = mongo.save(Organization.builder().name(BY_GID_ORG_NAME).gid(gid).state(ACTIVE).build()).block(TIMEOUT).getId();
-        orgMemberService.addMember(orgId, newId(), MemberRole.MEMBER).block(TIMEOUT);
+        String memberId = newId();
+        orgMemberService.addMember(orgId, memberId, MemberRole.MEMBER).block(TIMEOUT);
         groupService.createAllUserGroup(orgId).block(TIMEOUT);
         Application application = mongo.save(Application.builder().organizationId(orgId).name(BY_GID_APPLICATION_NAME)
                 .gid(UUID.randomUUID().toString()).applicationType(APPLICATION_TYPE).applicationStatus(ApplicationStatus.NORMAL)
@@ -130,9 +142,10 @@ class OrganizationServiceImplDeleteMongoTest extends OrganizationMongoTestBase {
                 .type(DATASOURCE_TYPE).creationSource(DATASOURCE_CREATION_SOURCE).build()).block(TIMEOUT);
         System.out.println("[OrganizationServiceImplDeleteMongoTest] deleting org " + orgId + " by its gid " + gid + ", members "
                 + orgMemberService.getOrgMemberCount(orgId).block(TIMEOUT) + ", groups " + groupService.getOrgGroupCount(orgId).block(TIMEOUT)
-                + ", application " + application.getId() + ", datasource " + datasource.getId());
+                + ", application " + application.getId() + ", datasource " + datasource.getId() + ", member rows " + memberRowsOf(orgId));
 
-        assertThat(orgMemberService.getOrgMemberCount(orgId).block(TIMEOUT)).as("the member before the delete").isEqualTo(ONE_RECORD);
+        assertThat(singleRow(BiRelationBizType.ORG_MEMBER, orgId, memberId).getRelation()).as("the member the case added, before the delete").isEqualTo(MEMBER_RELATION);
+        assertOnlyTheStartupSuperAdminBesides(orgId, memberId, "before the delete");
         assertThat(groupService.getOrgGroupCount(orgId).block(TIMEOUT)).as("the group before the delete").isEqualTo(ONE_RECORD);
 
         assertThat(organizationService.delete(gid).block(TIMEOUT)).isTrue();
@@ -142,7 +155,8 @@ class OrganizationServiceImplDeleteMongoTest extends OrganizationMongoTestBase {
         } finally {
             // printed whether or not the poll succeeds, so that a failing run shows which earlier step did not run
             System.out.println("[OrganizationServiceImplDeleteMongoTest] after the delete by gid: members "
-                    + orgMemberService.getOrgMemberCount(orgId).block(TIMEOUT) + ", groups " + groupService.getOrgGroupCount(orgId).block(TIMEOUT)
+                    + orgMemberService.getOrgMemberCount(orgId).block(TIMEOUT) + ", member rows " + memberRowsOf(orgId)
+                    + ", groups " + groupService.getOrgGroupCount(orgId).block(TIMEOUT)
                     + ", application status=" + mongo.findById(application.getId(), Application.class).block(TIMEOUT).getApplicationStatus()
                     + ", events " + DELETED_ORG_IDS);
         }
@@ -150,10 +164,40 @@ class OrganizationServiceImplDeleteMongoTest extends OrganizationMongoTestBase {
         Application applicationAfter = mongo.findById(application.getId(), Application.class).block(TIMEOUT);
         System.out.println("[OrganizationServiceImplDeleteMongoTest] datasource status=" + datasourceAfter.getDatasourceStatus());
         assertThat(stored(orgId).getState()).isEqualTo(DELETED);
-        assertThat(orgMemberService.getOrgMemberCount(orgId).block(TIMEOUT)).isZero();
+        assertThat(rows(BiRelationBizType.ORG_MEMBER, orgId, memberId)).as("the cleanup removed the member the case added").isEmpty();
+        assertOnlyTheStartupSuperAdminBesides(orgId, memberId, "after the delete");
         assertThat(groupService.getOrgGroupCount(orgId).block(TIMEOUT)).isZero();
         assertThat(applicationAfter.getApplicationStatus()).isEqualTo(ApplicationStatus.DELETED);
         assertThat(DELETED_ORG_IDS).containsOnlyOnce(orgId).doesNotContain(gid);
+    }
+
+    /** The ORG_MEMBER rows of the org as "targetId/relation/superAdmin flag of the target user", for the prints. */
+    private List<String> memberRowsOf(String orgId) {
+        return rowsOfSource(BiRelationBizType.ORG_MEMBER, orgId).stream().map(this::described).toList();
+    }
+
+    private String described(BiRelation row) {
+        User user = mongo.findById(row.getTargetId(), User.class).block(TIMEOUT);
+        return row.getTargetId() + "/" + row.getRelation() + "/superAdmin=" + (user == null ? "no user" : user.getSuperAdmin());
+    }
+
+    /**
+     * Asserts that the org's ORG_MEMBER rows hold, besides the case's member, at most one row, and that it is the startup super
+     * admin job's: relation SUPER_ADMIN, on a user whose superAdmin flag is true (NEW-111).
+     */
+    private void assertOnlyTheStartupSuperAdminBesides(String orgId, String memberId, String when) {
+        List<BiRelation> others = rowsOfSource(BiRelationBizType.ORG_MEMBER, orgId).stream()
+                .filter(row -> !memberId.equals(row.getTargetId())).toList();
+        System.out.println("[OrganizationServiceImplDeleteMongoTest] " + when + ": ORG_MEMBER rows besides the case's member "
+                + memberId + ": " + others.stream().map(this::described).toList());
+        assertThat(others).as("rows besides the case's member " + when + " (only the startup super admin job, AddSuperAdminRunner, may add one)")
+                .hasSizeLessThanOrEqualTo(AT_MOST_ONE_OTHER_ROW);
+        for (BiRelation other : others) {
+            User user = mongo.findById(other.getTargetId(), User.class).block(TIMEOUT);
+            assertThat(other.getRelation()).as("relation of the other row " + when + " (the startup super admin job)").isEqualTo(SUPER_ADMIN_RELATION);
+            assertThat(user).as("the user of the other row " + when).isNotNull();
+            assertThat(user.getSuperAdmin()).as("superAdmin flag of the user of the other row " + when).isTrue();
+        }
     }
 
     /** Polls (bounded) until the asynchronous org-deletion handler has soft-deleted the datasource, its last step. */
