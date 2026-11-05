@@ -53,6 +53,7 @@ import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
@@ -97,6 +98,9 @@ class UserEndpointsContractTest {
     static final String PROFILE_PHOTO_BY_ID = "UserEndpoints#getProfilePhoto(ServerWebExchange, String)";
     static final String ORG_ID = "UserEndpointsContractTest.orgId";
     static final String USER_ID = "UserEndpointsContractTest.userId";
+    /** NEW-136: a language the sample request does not use, and the name of the field under test. */
+    static final String OTHER_LANGUAGE = "xx-NEW136";
+    static final String HAS_SET_NICKNAME_FIELD = "hasSetNickname";
     static final String ORG_NAME = "UserEndpointsContractTest.orgName";
     static final String PASSWORD = "UserEndpointsContractTest.password";
     static final String BLANK = " ";
@@ -310,6 +314,18 @@ class UserEndpointsContractTest {
     @Test
     void updateById() {
         assertUpdate(UPDATE_BY_ID, USER_ID, ORG_ID, USER_ID);
+    }
+
+    /** NEW-136: a language-only body must leave the nickname flag unset in the partial, so the update does not write it. */
+    @Test
+    void updateUser_languageOnlyBody_leavesTheFlagUnsetNEW136() {
+        assertPartialLeavesTheFlagUnset("{\"uiLanguage\":\"" + OTHER_LANGUAGE + "\"}");
+    }
+
+    /** NEW-136: an empty body must leave the nickname flag unset in the partial, so the update does not write it. */
+    @Test
+    void updateUser_emptyBody_leavesTheFlagUnsetNEW136() {
+        assertPartialLeavesTheFlagUnset("{}");
     }
 
     @Test
@@ -550,6 +566,22 @@ class UserEndpointsContractTest {
             assertThat(partial.getValue().getName()).isEqualTo(expected.getName());
             assertThat(partial.getValue().getUiLanguage()).isEqualTo(expected.getUiLanguage());
             assertThat(partial.getValue().isHasSetNickname()).isTrue();
+        }
+    }
+
+    /** Sends {@code body} to the visitor's own update and asserts that the partial the controller builds leaves {@code hasSetNickname} null. */
+    private void assertPartialLeavesTheFlagUnset(String body) {
+        User updated = UserSamples.user();
+        Mockito.when(userService.update(eq(VISITOR_ID), any())).thenReturn(Mono.just(updated));
+        Mockito.when(userHomeApiService.buildUserProfileView(eq(updated), any())).thenReturn(Mono.just(UserManagementSamples.userProfileView()));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, UPDATE_SELF, Map.of(), body);
+            EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.success(EndpointContract.s1(UserProfileView.class)));
+            ArgumentCaptor<User> partial = ArgumentCaptor.forClass(User.class);
+            Mockito.verify(userService).update(eq(VISITOR_ID), partial.capture());
+            Object flag = ReflectionTestUtils.getField(partial.getValue(), HAS_SET_NICKNAME_FIELD);
+            System.out.println("[UserEndpointsContractTest] [NEW-136] body " + body + " -> partial hasSetNickname field: " + flag);
+            assertThat(flag).as("[NEW-136] the partial built for body " + body + " must not set the flag").isNull();
         }
     }
 
