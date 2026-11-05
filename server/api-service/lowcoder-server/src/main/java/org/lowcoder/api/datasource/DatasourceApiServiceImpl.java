@@ -22,6 +22,7 @@ import org.lowcoder.domain.datasource.service.JsDatasourceHelper;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.organization.service.OrganizationService;
+import org.lowcoder.domain.permission.model.ResourceAction;
 import org.lowcoder.domain.permission.model.ResourcePermission;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.permission.model.ResourceType;
@@ -334,19 +335,25 @@ public class DatasourceApiServiceImpl implements DatasourceApiService {
     }
 
     /**
-     * check if current user has the permission of managing the datasource.
+     * Whether the visitor may manage the datasource ({@code MANAGE_DATASOURCES}, the OWNER role). No visitor is NOT_AUTHORIZED.
      */
     private Mono<Void> checkCurrentUserManageDatasourcePermission(String datasourceId) {
-        return sessionUserService.getVisitorId()
-                .flatMap(visitorId -> resourcePermissionService.checkResourcePermissionWithError(visitorId, datasourceId, MANAGE_DATASOURCES));
+        return checkCurrentUserDatasourcePermission(datasourceId, MANAGE_DATASOURCES);
     }
 
     /**
-     * Whether the visitor may use the datasource ({@code USE_DATASOURCES}), for this one id: a batched lookup resolves the organization and the admin role from the first id only. No visitor is NOT_AUTHORIZED, unlike {@link #checkCurrentUserManageDatasourcePermission}.
+     * Whether the visitor may use the datasource ({@code USE_DATASOURCES}, the VIEWER role or higher). No visitor is NOT_AUTHORIZED.
      */
     private Mono<Void> checkCurrentUserUseDatasourcePermission(String datasourceId) {
+        return checkCurrentUserDatasourcePermission(datasourceId, USE_DATASOURCES);
+    }
+
+    /**
+     * Whether the visitor may do {@code action} on the datasource, for this one id: a batched lookup would resolve the organization and the admin role from the first id only. A call with no visitor ({@code getVisitorId()} completes empty: no security context) is NOT_AUTHORIZED before the permission service is asked (NEW-115). Limits: the check and the guarded operation are two steps, not one atomic step; an anonymous visitor is a visitor and is judged by the permission service as before; system static datasource ids pass for every visitor.
+     */
+    private Mono<Void> checkCurrentUserDatasourcePermission(String datasourceId, ResourceAction action) {
         return sessionUserService.getVisitorId()
                 .switchIfEmpty(deferredError(NOT_AUTHORIZED, "NOT_AUTHORIZED"))
-                .flatMap(visitorId -> resourcePermissionService.checkResourcePermissionWithError(visitorId, datasourceId, USE_DATASOURCES));
+                .flatMap(visitorId -> resourcePermissionService.checkResourcePermissionWithError(visitorId, datasourceId, action));
     }
 }
