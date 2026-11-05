@@ -128,7 +128,7 @@ class OrganizationEndpointsContractTest {
     }
 
     /**
-     * SaaS mode: the user's active organizations, sorted by name ({@code OrganizationController.java:74-79}): the service
+     * SaaS mode: the user's active organizations, sorted by name ({@code OrganizationController.getOrganizationByUser}): the service
      * hands them in reverse order; the defaults sent explicitly, page 1 and size 0 (all).
      */
     @Test
@@ -147,7 +147,7 @@ class OrganizationEndpointsContractTest {
         }
     }
 
-    /** An organization without a name compares as equal ({@code OrganizationController.java:75-77}): the order stays. */
+    /** An organization without a name compares as equal ({@code OrganizationController.getOrganizationByUser}'s comparator): the order stays. */
     @Test
     void getOrganizationByUserWithUnnamedOrganization() throws JsonProcessingException {
         Organization unnamed = UserManagementSamples.orgViewOrganization();
