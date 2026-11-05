@@ -93,7 +93,7 @@ public class User extends HasIdAndAuditing implements BeforeMongodbWrite, AfterM
     @JsonIgnore
     private Boolean isNewUser = false;
 
-    private boolean hasSetNickname;
+    @Getter(AccessLevel.NONE) private Boolean hasSetNickname;
 
     private OrgTransformedUserInfo orgTransformedUserInfo;
 
@@ -178,5 +178,15 @@ public class User extends HasIdAndAuditing implements BeforeMongodbWrite, AfterM
     public void replaceApiKeys(List<APIKey> apiKeys) {
         this.apiKeysList = apiKeys;
         this.apiKeys = new ArrayList<>();
+    }
+
+    /**
+     * Whether the user chose their name (NEW-136). Stored as a nullable {@code Boolean} so that a partial user passed to an update,
+     * which leaves it null, does not overwrite it: as a primitive it was written as {@code false} by every partial update that did not
+     * set it, a language-only or empty profile update and a photo upload among them. Null, an absent field included, reads as false.
+     * Limits: {@code isEnabled} is still written as {@code true} by such updates, its builder default.
+     */
+    public boolean isHasSetNickname() {
+        return Boolean.TRUE.equals(hasSetNickname);
     }
 }
