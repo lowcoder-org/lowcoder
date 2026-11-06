@@ -193,9 +193,8 @@ public class OrganizationController implements OrganizationEndpoints
 
     @Override
     public Mono<ResponseView<Organization>> getOrganization(@PathVariable String orgId, @RequestParam(required = false) Boolean withDeleted) {
-        return gidService.convertOrganizationIdToObjectId(orgId)
+        return gidService.convertOrganizationIdToObjectIdOrRefuse(orgId)
                 .flatMap(id -> orgApiService.getOrganization(id, Boolean.TRUE.equals(withDeleted)))
-                .switchIfEmpty(Mono.error(new BizException(BizError.ORGANIZATION_NOT_FOUND, "ORGANIZATION_NOT_FOUND")))
                 .map(ResponseView::success);
     }
 

@@ -119,6 +119,7 @@ class OrganizationEndpointsContractTest {
         Mockito.when(builder.mock(CommonConfig.class).getWorkspace()).thenReturn(workspace);
         GidService gidService = builder.mock(GidService.class);
         Mockito.when(gidService.convertOrganizationIdToObjectId(anyString())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
+        Mockito.when(gidService.convertOrganizationIdToObjectIdOrRefuse(anyString())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
         builder.singleton("businessEventPublisher", Mockito.mock(BusinessEventPublisher.class, ApplicationEndpointsContractTest.EMPTY_MONO));
     }
 
@@ -410,14 +411,18 @@ class OrganizationEndpointsContractTest {
         }
     }
 
-    /** An empty answer (in production only the converter's, for an unknown gid) is ORGANIZATION_NOT_FOUND. */
+    /**
+     * NEW-132: a key that names no organization is refused by the converter (the refusing one) with NOT_AUTHORIZED, before the
+     * service is called; the controller maps nothing else (it used to turn an empty answer into ORGANIZATION_NOT_FOUND).
+     */
     @Test
-    void getOrganizationNotFound() {
-        Mockito.when(orgApiService.getOrganization(ORG_ID, false)).thenReturn(Mono.empty());
+    void getOrganizationForAnUnknownKey() {
+        Mockito.when(builder.mock(GidService.class).convertOrganizationIdToObjectIdOrRefuse(ORG_ID))
+                .thenReturn(Mono.error(new BizException(BizError.NOT_AUTHORIZED, BizError.NOT_AUTHORIZED.name())));
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getOrganization", Map.of(), null, ORG_ID);
-            EndpointContract.assertBizError(result, BizError.ORGANIZATION_NOT_FOUND, BizError.ORGANIZATION_NOT_FOUND.name());
-            Mockito.verify(orgApiService).getOrganization(ORG_ID, false);
+            EndpointContract.assertBizError(result, BizError.NOT_AUTHORIZED, BizError.NOT_AUTHORIZED.name());
+            Mockito.verify(orgApiService, Mockito.never()).getOrganization(Mockito.anyString(), Mockito.anyBoolean());
             verifyNoOrganizationRead();
         }
     }
