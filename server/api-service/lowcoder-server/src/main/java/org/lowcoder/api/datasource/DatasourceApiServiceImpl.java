@@ -101,14 +101,31 @@ public class DatasourceApiServiceImpl implements DatasourceApiService {
                 .doOnNext(datasource -> datasource.setDetailConfig(null));
     }
 
+    /**
+     * The datasources of the application's organization the visitor may use. Unlike {@link #listOrgDataSources}, it checks no
+     * organization membership (and no application permission): the datasource USE filter is the only gate, as before NEW-132.
+     */
     @Override
     public Flux<DatasourceView> listAppDataSources(String appId, String name, String type) {
         return applicationService.findById(appId)
-                .flatMapMany(application -> listOrgDataSources(application.getOrganizationId(), name, type));
+                .flatMapMany(application -> listUsableDataSourcesOfOrg(application.getOrganizationId(), name, type));
     }
 
+    /**
+     * The datasources of the organization the visitor may use (the datasource USE filter), for a visitor who is a member of the
+     * organization, any role; a visitor who is not a member is NOT_AUTHORIZED, the answer the other organization routes give,
+     * so that an organization that exists and one that does not cannot be told apart (NEW-132). Limits: the membership is the
+     * stored one, whatever the organization's state; a member sees only the datasources they may use.
+     */
     @Override
     public Flux<DatasourceView> listOrgDataSources(String orgId, String name, String type) {
+        return sessionUserService.getVisitorId()
+                .flatMap(visitorId -> orgMemberService.getOrgMember(orgId, visitorId))
+                .switchIfEmpty(deferredError(NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                .flatMapMany(orgMember -> listUsableDataSourcesOfOrg(orgId, name, type));
+    }
+
+    private Flux<DatasourceView> listUsableDataSourcesOfOrg(String orgId, String name, String type) {
         // get datasource
         Flux<Datasource> datasourceFlux = datasourceService.getByOrgId(orgId)
                 .filter(datasource -> datasource.getDatasourceStatus() == DatasourceStatus.NORMAL &&

@@ -152,7 +152,7 @@ public class DatasourceController implements DatasourceEndpoints
         if (StringUtils.isBlank(orgId)) {
             return ofError(BizError.INVALID_PARAMETER, "ORG_ID_EMPTY");
         }
-        return gidService.convertOrganizationIdToObjectId(orgId).flatMap(objectId ->
+        return gidService.convertOrganizationIdToObjectIdOrRefuse(orgId).flatMap(objectId ->
             fluxToPageResponseView(pageNum, pageSize, datasourceApiService.listOrgDataSources(objectId, name, type)));
     }
 

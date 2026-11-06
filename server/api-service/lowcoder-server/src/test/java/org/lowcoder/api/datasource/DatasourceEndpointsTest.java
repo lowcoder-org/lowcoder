@@ -83,6 +83,10 @@ class DatasourceEndpointsTest {
             String organizationId = invocation.getArgument(0);
             return organizationId != null ? Mono.just(organizationId) : Mono.empty();
         });
+        when(gidService.convertOrganizationIdToObjectIdOrRefuse(any())).thenAnswer(invocation -> {
+            String organizationId = invocation.getArgument(0);
+            return organizationId != null ? Mono.just(organizationId) : Mono.empty();
+        });
         when(resourcePermissionService.getById(any())).thenAnswer(invocation -> {
             String permissionId = invocation.getArgument(0);
             ResourcePermission mockPermission = Mockito.mock(ResourcePermission.class);

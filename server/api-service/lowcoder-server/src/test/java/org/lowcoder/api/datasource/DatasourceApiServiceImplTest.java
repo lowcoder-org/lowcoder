@@ -355,8 +355,13 @@ class DatasourceApiServiceImplTest {
     }
 
     private ArgumentCaptor<Collection<String>> stubOrgListing(Map<String, ResourceRole> usable) {
+        return stubOrgListing(usable, false);
+    }
+
+    /** {@code lenient}: for a case in which the listing is not reached, so that the case fails on its assertions, not on an unused or missing stub. */
+    private ArgumentCaptor<Collection<String>> stubOrgListing(Map<String, ResourceRole> usable, boolean lenient) {
         stubVisitor();
-        when(datasourceService.getByOrgId(ORG_ID)).thenAnswer(invocation -> Flux.just(
+        (lenient ? lenient().when(datasourceService.getByOrgId(ORG_ID)) : when(datasourceService.getByOrgId(ORG_ID))).thenAnswer(invocation -> Flux.just(
                 listed("d1", "Alpha", SQL_TYPE, DatasourceStatus.NORMAL, "u1"),
                 listed("d2", "Beta", SQL_TYPE, DatasourceStatus.NORMAL, "u-unknown"),
                 listed("d3", "Gamma", SQL_TYPE, DatasourceStatus.NORMAL, "u1"),
@@ -366,7 +371,8 @@ class DatasourceApiServiceImplTest {
         ArgumentCaptor<Collection<String>> lookedUp = ArgumentCaptor.forClass(Collection.class);
         Map<String, ResourcePermission> permissions = new HashMap<>();
         usable.forEach((id, role) -> permissions.put(id, ResourcePermission.builder().resourceRole(role).build()));
-        when(resourcePermissionService.getMaxMatchingPermission(eq(VISITOR_ID), lookedUp.capture(), eq(USE_DATASOURCES)))
+        (lenient ? lenient().when(resourcePermissionService.getMaxMatchingPermission(eq(VISITOR_ID), lookedUp.capture(), eq(USE_DATASOURCES)))
+                : when(resourcePermissionService.getMaxMatchingPermission(eq(VISITOR_ID), lookedUp.capture(), eq(USE_DATASOURCES))))
                 .thenReturn(Mono.just(permissions));
         User creator = new User();
         creator.setId("u1");
@@ -375,6 +381,13 @@ class DatasourceApiServiceImplTest {
         lenient().when(datasourceService.removePasswordTypeKeysFromJsDatasourcePluginConfig(any())).thenReturn(Mono.empty());
         lenient().when(jsDatasourceHelper.processDynamicQueryConfig(any())).thenReturn(Mono.empty());
         return lookedUp;
+    }
+
+    /** The visitor's membership of {@link #ORG_ID}, any role, or none. */
+    private void stubOrgMembership(boolean member) {
+        stubVisitor();
+        lenient().when(orgMemberService.getOrgMember(ORG_ID, VISITOR_ID))
+                .thenReturn(member ? Mono.just(new OrgMember(ORG_ID, VISITOR_ID, MemberRole.MEMBER, "CURRENT", 0L)) : Mono.empty());
     }
 
     static Stream<Arguments> orgListingFilters() {
@@ -396,6 +409,7 @@ class DatasourceApiServiceImplTest {
     @MethodSource("orgListingFilters")
     void listOrgDataSources_listsOnlyUsableMatchingDatasources_withEditFlagAndCreatorName(String name, String type,
             List<String> lookedUpIds, List<String> listedIds) {
+        stubOrgMembership(true);
         ArgumentCaptor<Collection<String>> lookedUp = stubOrgListing(Map.of(
                 "d1", ResourceRole.OWNER, "d2", ResourceRole.VIEWER, "d5", ResourceRole.VIEWER));
 
@@ -415,6 +429,40 @@ class DatasourceApiServiceImplTest {
         verify(datasourceService, times(listedIds.size())).removePasswordTypeKeysFromJsDatasourcePluginConfig(any());
         verify(jsDatasourceHelper, times(listedIds.size())).processDynamicQueryConfig(any());
         say("listOrgDataSources name=%s type=%s: permission lookup %s, listed %s", name, type, lookedUp.getValue(), listedIds);
+    }
+
+    /**
+     * D1, NEW-132: a visitor who is not a member of the organization is NOT_AUTHORIZED, even when they hold USE on one of its
+     * datasources, and the organization's datasources are not read.
+     */
+    @Test
+    void listOrgDataSources_aNonMemberIsRefusedNEW132() {
+        stubOrgMembership(false);
+        stubOrgListing(Map.of("d1", ResourceRole.VIEWER), true);
+
+        StepVerifier.create(service.listOrgDataSources(ORG_ID, null, null))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")).verify();
+
+        verify(datasourceService, never()).getByOrgId(any());
+        say("listOrgDataSources: a non-member is refused, no datasource read");
+    }
+
+    /**
+     * D2, NEW-132: the application listing keeps the datasource USE filter and has no membership check: a visitor who is not a
+     * member of the organization, and holds USE on d1, still gets d1 through the application (the organization listing refuses
+     * them, D1).
+     */
+    @Test
+    void listAppDataSources_aNonMemberWithUsePermissionStillListsNEW132() {
+        stubOrgMembership(false);
+        stubOrgListing(Map.of("d1", ResourceRole.VIEWER));
+        when(applicationService.findById(APP_ID))
+                .thenReturn(Mono.just(Application.builder().id(APP_ID).organizationId(ORG_ID).build()));
+
+        StepVerifier.create(service.listAppDataSources(APP_ID, null, null).collectList())
+                .assertNext(views -> assertThat(views).extracting(view -> view.datasource().getId()).containsExactly("d1"))
+                .verifyComplete();
+        say("listAppDataSources: a non-member holding USE on d1 lists d1 through the application");
     }
 
     /**
