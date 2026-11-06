@@ -79,13 +79,8 @@ public class GidService {
         return Mono.just(id);
     }
 
-    /**
-     * The object id an organization key names: a slug match first, then a gid for a key with a hyphen, otherwise the
-     * key itself. A blank key (empty or whitespace) is not looked up as a slug and is answered as given (NEW-86).
-     * Limits: a null key is not defended (its HTTP callers pass path variables, or a parameter refused when blank); a
-     * gid that names nothing answers empty, as before.
-     */
-    public Mono<String> convertOrganizationIdToObjectId(String id) {
+    /** The conversion {@link #convertOrganizationIdToObjectIdOrRefuse} documents, before its refusal of an empty answer. */
+    private Mono<String> convertOrganizationIdToObjectId(String id) {
         if (StringUtils.isBlank(id)) {
             return Mono.just(id);
         }
@@ -99,13 +94,15 @@ public class GidService {
     }
 
     /**
-     * The object id an organization key names, as {@link #convertOrganizationIdToObjectId} finds it, for a route that refuses a
-     * visitor who may not use the organization: a key that names no organization there (a key with a hyphen that matches no
-     * slug and no gid) is NOT_AUTHORIZED, the answer such a route gives a non-member for a key that names one, so that the two
-     * cannot be told apart (NEW-132; it used to complete empty, an HTTP 200 without a body, or ORGANIZATION_NOT_FOUND on the
-     * organization read). Limits: a key without a hyphen, or a blank key, is passed on as before, and the route's own check
-     * decides; a deleted organization's gid still converts (the lookup does not filter by state); the conversion's queries run
-     * for every caller, and their timing is not equalized.
+     * The object id an organization key names, for a route that refuses a visitor who may not use the organization: a slug
+     * match first, then a gid for a key with a hyphen, otherwise the key itself. A blank key (empty or whitespace) is not
+     * looked up as a slug and is answered as given (NEW-86). A key that names no organization there (a key with a hyphen that
+     * matches no slug and no gid) is NOT_AUTHORIZED, the answer such a route gives a non-member for a key that names one, so
+     * that the two cannot be told apart (NEW-132; it used to complete empty, an HTTP 200 without a body, or
+     * ORGANIZATION_NOT_FOUND on the organization read). Limits: a null key is not defended (its HTTP callers pass path
+     * variables, or a parameter refused when blank); a key without a hyphen, or a blank key, is passed on as given, and the
+     * route's own check decides; a deleted organization's gid still converts (the lookup does not filter by state); the
+     * conversion's queries run for every caller, and their timing is not equalized.
      */
     public Mono<String> convertOrganizationIdToObjectIdOrRefuse(String id) {
         return convertOrganizationIdToObjectId(id)

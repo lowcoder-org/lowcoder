@@ -119,7 +119,6 @@ class OrganizationEndpointsContractTest {
         workspace = new CommonConfig.Workspace();
         Mockito.when(builder.mock(CommonConfig.class).getWorkspace()).thenReturn(workspace);
         GidService gidService = builder.mock(GidService.class);
-        Mockito.when(gidService.convertOrganizationIdToObjectId(anyString())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
         Mockito.when(gidService.convertOrganizationIdToObjectIdOrRefuse(anyString())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
         businessEventPublisher = Mockito.mock(BusinessEventPublisher.class, ApplicationEndpointsContractTest.EMPTY_MONO);
         builder.singleton("businessEventPublisher", businessEventPublisher);

@@ -267,7 +267,7 @@ public class ApiUtilGidServiceTest {
         // lenient: the fixed converter never asks; before it, the stub makes the slug lookup answer no match, so that the
         // case fails on the assertions below instead of on an unstubbed mock
         lenient().when(organizationRepository.findBySlug(key)).thenReturn(Flux.empty());
-        StepVerifier.create(service.convertOrganizationIdToObjectId(key)).expectNext(key).verifyComplete();
+        StepVerifier.create(service.convertOrganizationIdToObjectIdOrRefuse(key)).expectNext(key).verifyComplete();
         System.out.println(TAG + "organization key [" + key + "] answered as given");
         verifyNoInteractions(organizationRepository);
     }
@@ -275,21 +275,24 @@ public class ApiUtilGidServiceTest {
     @Test
     public void organizationSlugBeatsGidAndNonGidIdsFallBackToThemselves() {
         when(organizationRepository.findBySlug(SLUG)).thenReturn(Flux.just(organization(REAL_ID)));
-        StepVerifier.create(service.convertOrganizationIdToObjectId(SLUG)).expectNext(REAL_ID).verifyComplete();
+        StepVerifier.create(service.convertOrganizationIdToObjectIdOrRefuse(SLUG)).expectNext(REAL_ID).verifyComplete();
         verify(organizationRepository, never()).findByGid(SLUG);
 
         when(organizationRepository.findBySlug(GID)).thenReturn(Flux.empty());
         when(organizationRepository.findByGid(GID)).thenReturn(Flux.just(organization(OTHER_ID)));
-        StepVerifier.create(service.convertOrganizationIdToObjectId(GID)).expectNext(OTHER_ID).verifyComplete();
+        StepVerifier.create(service.convertOrganizationIdToObjectIdOrRefuse(GID)).expectNext(OTHER_ID).verifyComplete();
 
         when(organizationRepository.findBySlug(OBJECT_ID)).thenReturn(Flux.empty());
-        StepVerifier.create(service.convertOrganizationIdToObjectId(OBJECT_ID)).expectNext(OBJECT_ID).verifyComplete();
+        StepVerifier.create(service.convertOrganizationIdToObjectIdOrRefuse(OBJECT_ID)).expectNext(OBJECT_ID).verifyComplete();
         verify(organizationRepository, never()).findByGid(OBJECT_ID);
 
-        String unknown = "unknown-gid-2";
-        when(organizationRepository.findBySlug(unknown)).thenReturn(Flux.empty());
-        when(organizationRepository.findByGid(unknown)).thenReturn(Flux.empty());
-        StepVerifier.create(service.convertOrganizationIdToObjectId(unknown)).verifyComplete();
+        when(organizationRepository.findBySlug(UNKNOWN_ORGANIZATION_GID)).thenReturn(Flux.empty());
+        when(organizationRepository.findByGid(UNKNOWN_ORGANIZATION_GID)).thenReturn(Flux.empty());
+        StepVerifier.create(service.convertOrganizationIdToObjectIdOrRefuse(UNKNOWN_ORGANIZATION_GID)).expectErrorSatisfies(error -> {
+            System.out.println(TAG + "organization gid " + UNKNOWN_ORGANIZATION_GID + " that names nothing -> " + error);
+            assertTrue(error instanceof BizException, "BizException expected, was " + error);
+            assertEquals(BizError.NOT_AUTHORIZED, ((BizException) error).getError());
+        }).verify();
     }
 
     /** H1, NEW-132: the refusing organization converter passes a key that names an organization as the plain converter does. */
