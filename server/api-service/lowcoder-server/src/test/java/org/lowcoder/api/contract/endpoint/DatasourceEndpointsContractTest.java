@@ -151,11 +151,13 @@ class DatasourceEndpointsContractTest {
 
     /**
      * The production {@link GidService}: the test ids hold no {@code -}, so they are not gids and the datasource ids
-     * are used as they are; application and organization ids are looked up as slugs first, which find nothing.
+     * are used as they are; an application id is looked up by object id, then as a slug (NEW-78), an organization id as a slug,
+     * and the lookups find nothing.
      */
     private static GidService gidService() {
         GidService gidService = new GidService();
         ApplicationRepository applications = Mockito.mock(ApplicationRepository.class);
+        Mockito.when(applications.findById(anyString())).thenReturn(Mono.empty());
         Mockito.when(applications.findBySlug(anyString())).thenReturn(Flux.empty());
         OrganizationRepository organizations = Mockito.mock(OrganizationRepository.class);
         Mockito.when(organizations.findBySlug(anyString())).thenReturn(Flux.empty());

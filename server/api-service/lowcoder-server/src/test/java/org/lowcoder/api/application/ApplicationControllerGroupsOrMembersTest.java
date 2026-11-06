@@ -75,6 +75,7 @@ class ApplicationControllerGroupsOrMembersTest {
         ReflectionTestUtils.setField(gidService, "applicationRepository", applicationRepository);
         ReflectionTestUtils.setField(gidService, "libraryQueryRepository", libraryQueryRepository);
         when(libraryQueryRepository.findByGid(anyString())).thenReturn(Flux.empty());
+        when(applicationRepository.findById(anyString())).thenReturn(Mono.empty());
         when(applicationRepository.findByGid(anyString())).thenReturn(Flux.empty());
         when(applicationRepository.findBySlug(anyString())).thenReturn(Flux.empty());
         controller = new ApplicationController(mock(UserHomeApiService.class), applicationApiService,
@@ -96,6 +97,8 @@ class ApplicationControllerGroupsOrMembersTest {
     }
 
     private void serviceReturns(List<Object> items) {
+        // any other id answers nothing, so a wrong id reaching the service fails the assertions instead of a null Mono throwing
+        when(applicationApiService.getGroupsOrMembersWithoutPermissions(anyString())).thenReturn(Mono.empty());
         when(applicationApiService.getGroupsOrMembersWithoutPermissions(OBJECT_ID)).thenReturn(Mono.just(items));
     }
 

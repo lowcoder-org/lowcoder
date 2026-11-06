@@ -21,6 +21,7 @@ import org.lowcoder.domain.query.repository.LibraryQueryRepository;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -36,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -44,8 +46,8 @@ import static org.mockito.Mockito.when;
 
 /**
  * Unit I2 (task L1-13, lane L5): {@code GidService}, the converters from the id a client sends (an object id, a slug or a gid) to
- * the stored object id. A gid is any text with a hyphen ({@code FieldName.isGID}); applications and organizations try the slug
- * first. Mockito: the seven repositories are mocks, the entities are real objects.
+ * the stored object id. A gid is any text with a hyphen ({@code FieldName.isGID}); organizations try the slug first, applications
+ * try the object id or gid first and a unique slug after it (NEW-78). Mockito: the seven repositories are mocks, the entities are real objects.
  *
  * <p>Not a re-pin: the permission-bypass row of plan section 9 ({@code DatasourceRepository.retainNoneExistAndNonCurrentOrgDatasourceIds},
  * pinned by 1f8d88dce and 1b81200d8, fixed as BF-002) starts from gids that come through {@code convertDatasourceIdToObjectId}; this class
@@ -69,6 +71,13 @@ public class ApiUtilGidServiceTest {
     static final String APPLICATION_GID_WITHOUT_ID = "no-id-app-gid";
     static final String SLUG_WITHOUT_ID_GID = "slug-without-id-gid";
     static final String CANT_FIND_APPLICATION_KEY = "CANT_FIND_APPLICATION";
+    /** A slug without a hyphen, so it is told from a gid only by the lookups that find nothing by id. */
+    static final String PLAIN_SLUG = "myslug";
+    static final String SHARED_SLUG = "sharedslug";
+    static final String SLUG_OWNER_ID = "slug-owner-id";
+    /** The id of an application that holds a key as its slug while another application has that key as its id or gid. */
+    static final String SLUG_DECOY_ID = "slug-decoy-id";
+    static final String UNKNOWN_OBJECT_ID = "65a1b2c3d4e5f60718293a99";
 
     @Mock
     private ApplicationRepository applicationRepository;
@@ -153,37 +162,56 @@ public class ApiUtilGidServiceTest {
         StepVerifier.create(service.convertBundleIdToObjectId(GID)).verifyComplete();
     }
 
-    // ---- application and organization: slug first
+    // ---- application: object id or gid first, then a unique slug (NEW-78); organization: slug first
 
 
+    /**
+     * Catches (NEW-78): the slug asked before the object id or gid. A decoy application holds each id or gid as its slug; an
+     * object id and a gid are answered by their own application and never ask the slug, only a key nothing names by id or gid
+     * is answered by its one slug owner, and an unknown object id with no slug owner is answered as given.
+     */
     @Test
-    public void applicationSlugBeatsGidAndNonGidIdsFallBackToThemselves() {
-        when(applicationRepository.findBySlug(SLUG)).thenReturn(Flux.just(application(REAL_ID)));
-        StepVerifier.create(service.convertApplicationIdToObjectId(SLUG)).expectNext(REAL_ID).verifyComplete();
-        verify(applicationRepository, never()).findByGid(SLUG);
+    public void applicationIdOrGidBeatsSlugNEW78() {
+        // lenient: the decoy slug stubs are not reached after the fix, the id stubs are not reached before it; either way the
+        // case must fail on the assertions below instead of on an unstubbed mock
+        lenient().when(applicationRepository.findBySlug(OBJECT_ID)).thenReturn(Flux.just(application(SLUG_DECOY_ID)));
+        when(applicationRepository.findById(OBJECT_ID)).thenReturn(Mono.just(application(REAL_ID)));
+        StepVerifier.create(service.convertApplicationIdToObjectId(OBJECT_ID)).expectNext(REAL_ID).verifyComplete();
+        verify(applicationRepository, never()).findBySlug(OBJECT_ID);
+        verify(applicationRepository, never()).findByGid(OBJECT_ID);
 
-        when(applicationRepository.findBySlug(GID)).thenReturn(Flux.empty());
+        lenient().when(applicationRepository.findBySlug(GID)).thenReturn(Flux.just(application(SLUG_DECOY_ID)));
         when(applicationRepository.findByGid(GID)).thenReturn(Flux.just(application(OTHER_ID)));
         StepVerifier.create(service.convertApplicationIdToObjectId(GID)).expectNext(OTHER_ID).verifyComplete();
+        verify(applicationRepository, never()).findBySlug(GID);
+        verify(applicationRepository, never()).findById(GID);
 
-        when(applicationRepository.findBySlug(OBJECT_ID)).thenReturn(Flux.empty());
-        StepVerifier.create(service.convertApplicationIdToObjectId(OBJECT_ID)).expectNext(OBJECT_ID).verifyComplete();
-        verify(applicationRepository, never()).findByGid(OBJECT_ID);
+        lenient().when(applicationRepository.findById(PLAIN_SLUG)).thenReturn(Mono.empty());
+        when(applicationRepository.findBySlug(PLAIN_SLUG)).thenReturn(Flux.just(application(SLUG_OWNER_ID)));
+        StepVerifier.create(service.convertApplicationIdToObjectId(PLAIN_SLUG)).expectNext(SLUG_OWNER_ID).verifyComplete();
+
+        lenient().when(applicationRepository.findById(UNKNOWN_OBJECT_ID)).thenReturn(Mono.empty());
+        when(applicationRepository.findBySlug(UNKNOWN_OBJECT_ID)).thenReturn(Flux.empty());
+        StepVerifier.create(service.convertApplicationIdToObjectId(UNKNOWN_OBJECT_ID)).expectNext(UNKNOWN_OBJECT_ID).verifyComplete();
+        System.out.println(TAG + "id " + OBJECT_ID + " -> " + REAL_ID + ", gid " + GID + " -> " + OTHER_ID + ", slug " + PLAIN_SLUG
+                + " -> " + SLUG_OWNER_ID + ", unknown " + UNKNOWN_OBJECT_ID + " -> itself");
     }
 
     /**
      * NEW-30 (fixed; the L1-13 pin answered an empty Mono): a gid that no application has, a gid whose application has no id,
      * and a gid whose slug match has no id while no application has the gid are the error NO_RESOURCE_FOUND with
-     * CANT_FIND_APPLICATION naming the gid; the slug is still tried first.
+     * CANT_FIND_APPLICATION naming the gid. Since NEW-78 the gid is asked before the slug, and a gid that an application has
+     * (without an id) is not looked up as a slug.
      */
     @Test
     public void applicationConverterRefusesAGidThatNamesNoApplicationNEW30() {
-        when(applicationRepository.findBySlug(UNKNOWN_APPLICATION_GID)).thenReturn(Flux.empty());
         when(applicationRepository.findByGid(UNKNOWN_APPLICATION_GID)).thenReturn(Flux.empty());
-        when(applicationRepository.findBySlug(APPLICATION_GID_WITHOUT_ID)).thenReturn(Flux.empty());
+        when(applicationRepository.findBySlug(UNKNOWN_APPLICATION_GID)).thenReturn(Flux.empty());
         when(applicationRepository.findByGid(APPLICATION_GID_WITHOUT_ID)).thenReturn(Flux.just(new Application()));
-        when(applicationRepository.findBySlug(SLUG_WITHOUT_ID_GID)).thenReturn(Flux.just(new Application()));
+        // lenient: before NEW-78 the slug was asked first, so that this case fails on the verifications below
+        lenient().when(applicationRepository.findBySlug(APPLICATION_GID_WITHOUT_ID)).thenReturn(Flux.empty());
         when(applicationRepository.findByGid(SLUG_WITHOUT_ID_GID)).thenReturn(Flux.empty());
+        when(applicationRepository.findBySlug(SLUG_WITHOUT_ID_GID)).thenReturn(Flux.just(new Application()));
         for (String gid : List.of(UNKNOWN_APPLICATION_GID, APPLICATION_GID_WITHOUT_ID, SLUG_WITHOUT_ID_GID)) {
             StepVerifier.create(service.convertApplicationIdToObjectId(gid)).expectErrorSatisfies(error -> {
                 System.out.println(TAG + "application gid " + gid + " -> " + error);
@@ -192,9 +220,40 @@ public class ApiUtilGidServiceTest {
                 assertEquals(CANT_FIND_APPLICATION_KEY, ((BizException) error).getMessageKey());
                 assertEquals(List.of(gid), List.of(((BizException) error).getArgs()));
             }).verify();
-            verify(applicationRepository).findBySlug(gid);
-            verify(applicationRepository).findByGid(gid);
+            InOrder order = inOrder(applicationRepository);
+            order.verify(applicationRepository).findByGid(gid);
+            if (APPLICATION_GID_WITHOUT_ID.equals(gid)) {
+                verify(applicationRepository, never()).findBySlug(gid);
+            } else {
+                order.verify(applicationRepository).findBySlug(gid);
+            }
         }
+    }
+
+    /** Catches (NEW-78): a slug two applications share answered with the first one instead of the refusal CANT_FIND_APPLICATION. */
+    @Test
+    public void anApplicationSlugTwoApplicationsShareIsRefusedNEW78() {
+        lenient().when(applicationRepository.findById(SHARED_SLUG)).thenReturn(Mono.empty());
+        when(applicationRepository.findBySlug(SHARED_SLUG)).thenReturn(Flux.just(application(REAL_ID), application(OTHER_ID)));
+        StepVerifier.create(service.convertApplicationIdToObjectId(SHARED_SLUG)).expectErrorSatisfies(error -> {
+            System.out.println(TAG + "shared slug " + SHARED_SLUG + " -> " + error);
+            assertTrue(error instanceof BizException, "BizException expected, was " + error);
+            assertEquals(BizError.NO_RESOURCE_FOUND, ((BizException) error).getError());
+            assertEquals(CANT_FIND_APPLICATION_KEY, ((BizException) error).getMessageKey());
+            assertEquals(List.of(SHARED_SLUG), List.of(((BizException) error).getArgs()));
+        }).verify();
+    }
+
+    /** Catches (NEW-78, NEW-86's rule): a blank application key looked up as a slug: it is answered as given and no repository is asked. */
+    @ParameterizedTest(name = "key=[{0}]")
+    @ValueSource(strings = {"", " ", "\t \n"})
+    public void aBlankApplicationKeyIsNotLookedUpNEW78(String key) {
+        // lenient: the fixed converter never asks; before it, the stub makes the slug lookup answer another application, so that
+        // the case fails on the assertions below instead of on an unstubbed mock
+        lenient().when(applicationRepository.findBySlug(key)).thenReturn(Flux.just(application(SLUG_DECOY_ID)));
+        StepVerifier.create(service.convertApplicationIdToObjectId(key)).expectNext(key).verifyComplete();
+        System.out.println(TAG + "application key [" + key + "] answered as given");
+        verifyNoInteractions(applicationRepository);
     }
 
     /**
@@ -232,21 +291,25 @@ public class ApiUtilGidServiceTest {
     }
 
     /**
-     * A slug match whose entity has no id is treated as no match, so the lookup goes on to the gid for a gid, and to the id
-     * itself, without a gid lookup, for an object id.
+     * Catches (NEW-78): an application slug match without an id (found after the object id or gid found nothing) is no match:
+     * a key with a hyphen is then the NEW-30 error, a key without one is answered as given.
      */
     @Test
-    public void aSlugMatchWithoutAnIdFallsThroughToTheGidLookup() {
+    public void anApplicationSlugMatchWithoutAnIdIsNoMatchNEW78() {
+        // lenient: the id lookup of a key without a hyphen is not asked before NEW-78
+        lenient().when(applicationRepository.findById(OBJECT_ID)).thenReturn(Mono.empty());
+        when(applicationRepository.findByGid(GID)).thenReturn(Flux.empty());
         when(applicationRepository.findBySlug(GID)).thenReturn(Flux.just(new Application()));
-        when(applicationRepository.findByGid(GID)).thenReturn(Flux.just(application(REAL_ID)));
-        StepVerifier.create(service.convertApplicationIdToObjectId(GID)).expectNext(REAL_ID).verifyComplete();
+        StepVerifier.create(service.convertApplicationIdToObjectId(GID)).expectErrorSatisfies(error -> {
+            assertTrue(error instanceof BizException, "BizException expected, was " + error);
+            assertEquals(CANT_FIND_APPLICATION_KEY, ((BizException) error).getMessageKey());
+            assertEquals(List.of(GID), List.of(((BizException) error).getArgs()));
+        }).verify();
 
         when(applicationRepository.findBySlug(OBJECT_ID)).thenReturn(Flux.just(new Application()));
         StepVerifier.create(service.convertApplicationIdToObjectId(OBJECT_ID)).expectNext(OBJECT_ID).verifyComplete();
-        verify(applicationRepository).findBySlug(GID);
-        verify(applicationRepository).findBySlug(OBJECT_ID);
         verify(applicationRepository, never()).findByGid(OBJECT_ID);
-        System.out.println(TAG + "slug match without an id: gid " + GID + " -> " + REAL_ID + ", object id " + OBJECT_ID + " -> itself");
+        System.out.println(TAG + "slug match without an id: gid " + GID + " -> NEW-30 error, object id " + OBJECT_ID + " -> itself");
     }
 
     // ---- folder: the one converter that returns an Optional

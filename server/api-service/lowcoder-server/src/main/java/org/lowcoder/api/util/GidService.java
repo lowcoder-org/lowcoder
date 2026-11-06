@@ -15,6 +15,7 @@ import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.repository.OrganizationRepository;
 import org.lowcoder.domain.query.model.LibraryQuery;
 import org.lowcoder.domain.query.repository.LibraryQueryRepository;
+import org.lowcoder.domain.util.IdGidOrSlugLookup;
 import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
@@ -46,29 +47,28 @@ public class GidService {
     private BundleRepository bundleRepository;
 
     /**
-     * Converts the id a client sends for an application: a slug match whose application has an id gives that id, for any id;
-     * otherwise (no slug match, or one without an id) an id with a hyphen ({@code FieldName.isGID}) is looked up as a gid, and
-     * any other id is passed through unchanged and not checked. An id with a hyphen that matches no slug and then no
-     * application gid, or whose application has no id, is the error {@code NO_RESOURCE_FOUND} with the key
-     * {@code CANT_FIND_APPLICATION} and the id as its argument (NEW-30): the same error, not the same lookup, as
-     * {@code ApplicationServiceImpl#findById} gives for an object id that names nothing; the texts of that key have no
-     * placeholder, so the message does not show the id. It used to be empty, so an endpoint that converts with it answered an
-     * empty 200.
+     * Converts the key a client sends for an application to its object id (NEW-78), as {@code IdGidOrSlugLookup.find} decides: a
+     * key with a hyphen ({@code FieldName.isGID}) is looked up as a gid and any other key as an object id, and only a key that
+     * names no application that way is looked up as a slug, answered when exactly one application has it. A slug several
+     * applications share, and a key with a hyphen that names no application by gid or slug (NEW-30), are the error
+     * {@code NO_RESOURCE_FOUND} with the key {@code CANT_FIND_APPLICATION} and the key as its argument (the texts of that key have
+     * no placeholder). A key without a hyphen that names nothing is answered as given, and so is a blank key (empty or
+     * whitespace), with no query (NEW-86's rule).
      * <p>
-     * Limits: an id without a hyphen that is no slug is answered as given, and whether such an application exists is left to
-     * the caller, as before; the method does not defend against a null id (its HTTP callers never pass one: their ids are path
-     * variables or required parameters); the datasource, group, library query and bundle converters, and the organization
-     * converter after its slug lookup, still answer a gid that names nothing with an empty {@code Mono}.
+     * Limits: the slug lookup is not scoped to the caller's organization, so a slug only another organization's application has
+     * resolves to it, before any permission check, and a slug two organizations' applications share is refused for everyone; no
+     * index makes slugs unique (NEW-87); a gid two applications share resolves to the first; whether an application exists for a
+     * key without a hyphen that names nothing is left to the caller, as before; a null key is not defended (its HTTP callers
+     * pass path variables or required parameters); the datasource, group, library query and bundle converters, and the
+     * organization converter after its slug lookup, still answer a gid that names nothing with an empty {@code Mono}.
      */
     public Mono<String> convertApplicationIdToObjectId(String id) {
-        return applicationRepository.findBySlug(id).next().mapNotNull(HasIdAndAuditing::getId).switchIfEmpty(
-                Mono.defer(() -> {
-                    if (FieldName.isGID(id)) {
-                        return applicationRepository.findByGid(id).next().mapNotNull(HasIdAndAuditing::getId)
-                                .switchIfEmpty(Mono.error(() -> new BizException(BizError.NO_RESOURCE_FOUND, CANT_FIND_APPLICATION_KEY, id)));
-                    }
-                    return Mono.just(id);
-                }));
+        return IdGidOrSlugLookup.find(id, applicationRepository::findById, applicationRepository::findByGid,
+                        applicationRepository::findBySlug, () -> new BizException(BizError.NO_RESOURCE_FOUND, CANT_FIND_APPLICATION_KEY, id))
+                .mapNotNull(HasIdAndAuditing::getId)
+                .switchIfEmpty(Mono.defer(() -> FieldName.isGID(id)
+                        ? Mono.error(() -> new BizException(BizError.NO_RESOURCE_FOUND, CANT_FIND_APPLICATION_KEY, id))
+                        : Mono.just(id)));
     }
 
     public Mono<String> convertDatasourceIdToObjectId(String id) {
