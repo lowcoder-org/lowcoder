@@ -377,6 +377,28 @@ class OrgApiServiceImplTest {
         say("checkVisitorAdminRole: role %s -> admitted=%s", role, admitted);
     }
 
+    /** C1, NEW-132: a visitor who is not a member of the organization is NOT_AUTHORIZED, whatever the organization is. */
+    @Test
+    void checkVisitorMember_refusesANonMemberNEW132() {
+        stubVisitorRole(ORG_ID, null);
+
+        StepVerifier.create(service.checkVisitorMember(ORG_ID))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")).verify();
+        say("checkVisitorMember: a non-member is refused");
+    }
+
+    /** C2, NEW-132: a member of any role passes and gets their membership back. */
+    @Test
+    void checkVisitorMember_admitsAMemberOfAnyRoleNEW132() {
+        for (MemberRole role : List.of(MemberRole.MEMBER, MemberRole.ADMIN, MemberRole.SUPER_ADMIN)) {
+            stubVisitorRole(ORG_ID, role);
+
+            StepVerifier.create(service.checkVisitorMember(ORG_ID))
+                    .assertNext(member -> assertThat(member.getRole()).isEqualTo(role)).verifyComplete();
+            say("checkVisitorMember: role %s admitted", role);
+        }
+    }
+
     /** The slug the NEW-102 case sets. */
     private static final String NEW_SLUG = "the-new-slug";
 
@@ -892,7 +914,7 @@ class OrgApiServiceImplTest {
     @ParameterizedTest(name = "{0}: leaves {2}")
     @MethodSource("leaveCases")
     void leaveOrganization_theOnlyAdminCannotLeave(String label, List<String> adminIds, boolean leaves) {
-        stubVisitor();
+        stubVisitorRole(ORG_ID, MemberRole.ADMIN);
         when(orgMemberService.getAllOrgAdmins(ORG_ID)).thenReturn(Mono.just(adminIds.stream().map(OrgApiServiceImplTest::admin).toList()));
         lenient().when(orgMemberService.removeMember(ORG_ID, VISITOR_ID)).thenReturn(counting(true));
 
@@ -915,7 +937,7 @@ class OrgApiServiceImplTest {
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     void leaveOrganization_publishesTheLeaveEventOnlyWhenTheMemberWasRemoved(boolean removed) {
-        stubVisitor();
+        stubVisitorRole(ORG_ID, MemberRole.MEMBER);
         when(orgMemberService.getAllOrgAdmins(ORG_ID)).thenReturn(Mono.just(List.of(admin("other-admin"))));
         when(orgMemberService.removeMember(ORG_ID, VISITOR_ID)).thenReturn(Mono.just(removed));
 
@@ -923,6 +945,22 @@ class OrgApiServiceImplTest {
 
         assertEventPublished(removed, ORG_ID, VISITOR_ID);
         say("leaveOrganization: removal=%s -> event published=%s", removed, removed);
+    }
+
+    /**
+     * L1, NEW-132: a visitor who is not a member is NOT_AUTHORIZED before anything is read or removed (it was a 200 with
+     * {@code false}).
+     */
+    @Test
+    void leaveOrganization_aNonMemberIsRefusedNEW132() {
+        stubVisitorRole(ORG_ID, null);
+
+        StepVerifier.create(service.leaveOrganization(ORG_ID))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")).verify();
+
+        verify(orgMemberService, never()).getAllOrgAdmins(ORG_ID);
+        verify(orgMemberService, never()).removeMember(ORG_ID, VISITOR_ID);
+        say("leaveOrganization: a non-member is refused, nothing read or removed");
     }
 
     private void assertEventPublished(boolean published, String orgId, String userId) {

@@ -37,16 +37,19 @@ import reactor.test.StepVerifier;
 
 /**
  * NEW-132: the ten organization routes whose service already refuses a non-member (update, uploadLogo, deleteLogo, getOrgMembers,
- * updateRoleForMember, removeOrg, removeUserFromOrg, getOrgCommonSettings, updateOrgCommonSettings, getOrgApiUsageCount) through
- * the real {@link OrganizationController} bean (the real key conversion over the test database, the real {@link OrgApiService}),
+ * updateRoleForMember, removeOrg, removeUserFromOrg, getOrgCommonSettings, updateOrgCommonSettings, getOrgApiUsageCount) and, since
+ * P19.3, the switch and the leave (setCurrentOrganization, leaveOrganization; which answered INVALID_ORG_ID or {@code false} to a
+ * non-member) through the real {@link OrganizationController} bean (the real key conversion over the test database, the real {@link OrgApiService}),
  * with no HTTP layer and no security filter chain. Each route is called by {@code user01}, who is no member of the organizations
  * used, with three keys, and refuses each one with NOT_AUTHORIZED, so that a key that names nothing cannot be told from a
  * known organization the visitor may not use: U1 a gid that names nothing (it used to complete empty, an HTTP 200 without a
- * body), U2 the gid of an organization stored without memberships, U3 an object id that names nothing.
+ * body), U2 the gid of an organization stored without memberships, U3 an object id that names nothing; the switch and the leave
+ * also get U4, a whitespace key, which the converter passes on as given (a non-member's direct call used to be INVALID_ORG_ID on
+ * the switch and 200 {@code false} on the leave).
  *
  * <p>Not covered: the production security filter chain and the HTTP routing; the keys are never refused by the converter for a
- * key without a hyphen, so U3 shows the service's own refusal; the other three routes that convert an organization key (switch,
- * leave, the datasource listing) are P19.3 and P19.4's.
+ * key without a hyphen, so U3 and U4 show the service's own refusal; the datasource listing is P19.4's. That the logout event is
+ * not published for a refused switch is the contract test's ({@code setCurrentOrganizationByANonMember}).
  */
 @SpringBootTest
 @ActiveProfiles("test")
@@ -63,6 +66,7 @@ class OrganizationUnknownKeyIntegrationTest {
     private static final int PAGE_NUM = 1;
     private static final int PAGE_SIZE = 1000;
     private static final boolean LAST_MONTH_ONLY = false;
+    private static final String BLANK_KEY_VALUE = " ";
 
     /** The kinds of key one route is called with. */
     enum KeyKind {
@@ -71,7 +75,9 @@ class OrganizationUnknownKeyIntegrationTest {
         /** The gid of a stored organization the visitor is no member of. */
         KNOWN_GID_OF_A_NON_MEMBER_ORG,
         /** An object id (no hyphen) that names no organization: the converter passes it on and the service refuses. */
-        UNKNOWN_OBJECT_ID
+        UNKNOWN_OBJECT_ID,
+        /** A whitespace key, which the converter passes on as given: only for the switch and the leave. */
+        BLANK_KEY
     }
 
     @Autowired
@@ -125,7 +131,13 @@ class OrganizationUnknownKeyIntegrationTest {
                 new Route("updateOrgCommonSettings", (controller, key) ->
                         controller.updateOrgCommonSettings(key, new UpdateOrgCommonSettingsRequest(SETTING_KEY, SETTING_VALUE))),
                 new Route("getOrgApiUsageCount", (controller, key) -> controller.getOrgApiUsageCount(key, LAST_MONTH_ONLY)));
-        return routes.stream().flatMap(route -> Stream.of(KeyKind.values()).map(kind -> Arguments.of(route, kind)));
+        List<Route> blankKeyRoutes = List.of(
+                new Route("setCurrentOrganization", (controller, key) -> controller.setCurrentOrganization(key, null)),
+                new Route("leaveOrganization", (controller, key) -> controller.leaveOrganization(key)));
+        List<KeyKind> keyKinds = List.of(KeyKind.UNKNOWN_GID, KeyKind.KNOWN_GID_OF_A_NON_MEMBER_ORG, KeyKind.UNKNOWN_OBJECT_ID);
+        return Stream.concat(
+                Stream.concat(routes.stream(), blankKeyRoutes.stream()).flatMap(route -> keyKinds.stream().map(kind -> Arguments.of(route, kind))),
+                blankKeyRoutes.stream().map(route -> Arguments.of(route, KeyKind.BLANK_KEY)));
     }
 
     private static UpdateRoleRequest roleRequest() {
@@ -152,6 +164,7 @@ class OrganizationUnknownKeyIntegrationTest {
             case UNKNOWN_GID -> UUID.randomUUID().toString();
             case KNOWN_GID_OF_A_NON_MEMBER_ORG -> storeOrganizationAndReturnItsGid();
             case UNKNOWN_OBJECT_ID -> new ObjectId().toHexString();
+            case BLANK_KEY -> BLANK_KEY_VALUE;
         };
     }
 
