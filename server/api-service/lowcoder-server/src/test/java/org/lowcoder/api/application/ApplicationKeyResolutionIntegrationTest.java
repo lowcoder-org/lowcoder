@@ -16,8 +16,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.lowcoder.api.application.view.ApplicationView;
 import org.lowcoder.api.common.InitData;
 import org.lowcoder.api.common.mockuser.WithMockUser;
+import org.lowcoder.api.framework.view.ResponseView;
+import org.lowcoder.api.util.GidService;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.service.ApplicationService;
@@ -40,14 +43,16 @@ import reactor.core.publisher.Mono;
 
 /**
  * NEW-78: the one application a key names, through the real {@link ApplicationService#findByIdWithoutDsl}, the real
- * permission check and the real {@link ApplicationApiService#update} over the test database, with no HTTP layer and no
- * security filter chain. An application's object id or gid is answered by that application, never by another application
+ * {@link GidService#convertApplicationIdToObjectId} (C-cases, and the editing route {@link ApplicationController#getEditingApplication}
+ * behind it), the real permission check and the real {@link ApplicationApiService#update} over the test database, with no HTTP
+ * layer and no security filter chain. An application's object id or gid is answered by that application, never by another application
  * whose slug happens to equal the key; only a key that names nothing that way is answered by the one application holding it
  * as a slug, and a slug several applications hold is refused.
  *
- * <p>Every case stores its own applications with fresh slugs and gids (the init data resets nothing) and removes them
- * afterwards. E3 and E4 store a foreign organization, ACTIVE with no member; E1, E2 and E5 only name a foreign organization id that is
- * not stored, as the lookup does not read the organization; E6-E8 use the seeded {@code org01}.
+ * <p>Every case but C8 stores its own applications with fresh slugs and gids (the init data resets nothing) and removes them
+ * afterwards; C8 stores none. E3, E4 and C5 store a foreign organization, ACTIVE with no member; E1, E2, E5 and C1-C4 only name a
+ * foreign organization id that is not stored, as the lookup does not read the organization; the applications of E6-E8, C6 and C7, and
+ * the own applications of the other cases, are in the seeded {@code org01}.
  *
  * <p>Not covered: HTTP routing and the security filter chain. The application events, the status checks and the marketplace
  * preview call {@code findByIdWithoutDsl} and are not observed directly; E1, E2, E5 and E7 test the lookup they share.
@@ -70,11 +75,16 @@ class ApplicationKeyResolutionIntegrationTest {
     private static final String NOT_AUTHORIZED_KEY = "NOT_AUTHORIZED";
     private static final Boolean KEEP_STATUS = null;
     private static final String NO_ANSWER = "completed empty";
+    private static final Boolean WITH_DELETED_UNSET = null;
 
     @Autowired
     private ApplicationService applicationService;
     @Autowired
     private ApplicationApiService applicationApiService;
+    @Autowired
+    private GidService gidService;
+    @Autowired
+    private ApplicationController applicationController;
     @Autowired
     private ResourcePermissionService resourcePermissionService;
     @Autowired
@@ -222,6 +232,105 @@ class ApplicationKeyResolutionIntegrationTest {
         assertAnswered("E8 object id " + v.getId(), v.getId(), v);
     }
 
+    // ------------------------------------------------------------------ the converter and the routes behind it
+
+    /** C1. Catches: the converter answering the slug owner for an application's own object id. */
+    @Test
+    @WithMockUser(id = ORG_ADMIN)
+    void theConverterAnswersTheObjectIdNotTheSlugOwnerNEW78() {
+        Application v = store("C1-V", ORG_ID, null, null);
+        Application w = store("C1-W", foreignOrganizationId(), v.getId(), null);
+        say("C1 V=%s W=%s (slug = V.id)", v.getId(), w.getId());
+
+        assertConverted("C1 object id " + v.getId(), v.getId(), v.getId());
+    }
+
+    /** C2. Catches: the converter answering the slug owner for an application's own gid. */
+    @Test
+    @WithMockUser(id = ORG_ADMIN)
+    void theConverterAnswersTheGidOwnerNotTheSlugOwnerNEW78() {
+        String gid = UUID.randomUUID().toString();
+        Application v2 = store("C2-V2", ORG_ID, null, gid);
+        Application w2 = store("C2-W2", foreignOrganizationId(), gid, null);
+        say("C2 V2=%s W2=%s (slug = gid %s)", v2.getId(), w2.getId(), gid);
+
+        assertConverted("C2 gid " + gid, gid, v2.getId());
+    }
+
+    /** C3. Catches: the converter answering the first of two applications that share a slug. */
+    @Test
+    @WithMockUser(id = ORG_ADMIN)
+    void theConverterRefusesASharedSlugNEW78() {
+        String slug = freshSlug();
+        Application a = store("C3-A", ORG_ID, slug, null);
+        Application b = store("C3-B", foreignOrganizationId(), slug, null);
+        say("C3 A=%s B=%s share slug %s", a.getId(), b.getId(), slug);
+
+        Throwable error = outcomeError(() -> gidService.convertApplicationIdToObjectId(slug));
+
+        say("C3 shared slug %s -> %s", slug, error == null ? NO_ANSWER : describe(error));
+        assertCantFindApplication("C3 shared slug " + slug, error);
+    }
+
+    /** C4. Catches: the editing route refusing a user their own application because another application holds its id as a slug. */
+    @Test
+    @WithMockUser(id = ORG_ADMIN)
+    void theEditingRouteServesTheOwnApplicationByObjectIdNEW78() {
+        Application v = store("C4-V", ORG_ID, null, null);
+        Application w = store("C4-W", foreignOrganizationId(), v.getId(), null);
+        say("C4 V=%s W=%s (slug = V.id)", v.getId(), w.getId());
+
+        String answered = editingRouteAnswer(v.getId());
+
+        say("C4 editing route for %s -> %s", v.getId(), answered);
+        assertThat(answered).as("C4: the application the route answers").isEqualTo(v.getId());
+    }
+
+    /** C5. Catches: a foreign application served through another application's slug equal to its id (the converter alone would admit the visitor). */
+    @Test
+    @WithMockUser(id = ORG_ADMIN)
+    void aForeignApplicationReachedByASlugEqualToItsIdIsRefusedNEW78() {
+        Application x = store("C5-X", storedForeignOrganizationId(), null, null);
+        Application y = store("C5-Y", ORG_ID, x.getId(), null);
+        say("C5 X=%s (foreign) Y=%s (org01, slug = X.id)", x.getId(), y.getId());
+
+        Throwable error = outcomeError(() -> applicationController.getEditingApplication(x.getId(), WITH_DELETED_UNSET));
+
+        say("C5 editing route for %s -> %s", x.getId(), error == null ? NO_ANSWER : describe(error));
+        assertThat(error).as("C5: error").isInstanceOf(BizException.class);
+        assertThat(((BizException) error).getError()).as("C5: BizError").isEqualTo(BizError.NO_PERMISSION_TO_REQUEST_APP);
+    }
+
+    /** C6. Catches: a blank key looked up as a slug, answering the id of the application stored with that blank slug. */
+    @ParameterizedTest
+    @ValueSource(strings = {"", " "})
+    @WithMockUser(id = ORG_ADMIN)
+    void aBlankApplicationKeyIsAnsweredAsGivenNEW78(String blankSlug) {
+        Application a = store("C6-A", ORG_ID, blankSlug, null);
+        say("C6 A=%s stored with slug '%s'", a.getId(), blankSlug);
+
+        assertConverted("C6 blank key '" + blankSlug + "'", blankSlug, blankSlug);
+    }
+
+    /** C7. Control: a slug exactly one application holds still converts to that application's id. */
+    @Test
+    @WithMockUser(id = ORG_ADMIN)
+    void aUniqueSlugStillConvertsNEW78() {
+        String slug = freshSlug();
+        Application a = store("C7-A", ORG_ID, slug, null);
+
+        assertConverted("C7 unique slug " + slug, slug, a.getId());
+    }
+
+    /** C8. Control: an object id that names no application is answered as given. */
+    @Test
+    @WithMockUser(id = ORG_ADMIN)
+    void anUnknownObjectIdIsAnsweredAsGivenNEW78() {
+        String unknown = new ObjectId().toHexString();
+
+        assertConverted("C8 unknown object id " + unknown, unknown, unknown);
+    }
+
     // ------------------------------------------------------------------ helpers
 
     private static void say(String format, Object... args) {
@@ -284,6 +393,31 @@ class ApplicationKeyResolutionIntegrationTest {
     private void assertCantFindApplication(String scenario, String key) {
         Throwable error = outcomeError(() -> applicationService.findByIdWithoutDsl(key));
         say("%s -> %s", scenario, error == null ? NO_ANSWER : describe(error));
+        assertCantFindApplication(scenario, error);
+    }
+
+    /** The id of the application the editing route answers, or the text of the error it ends with, so a refusal fails an assertion. */
+    private String editingRouteAnswer(String key) {
+        Throwable error = null;
+        ResponseView<ApplicationView> view = null;
+        try {
+            view = applicationController.getEditingApplication(key, WITH_DELETED_UNSET).block(TIMEOUT);
+        } catch (RuntimeException failure) {
+            error = NestedExceptionUtils.getMostSpecificCause(failure);
+        }
+        if (error != null) {
+            return "error " + describe(error);
+        }
+        return view == null ? NO_ANSWER : view.getData().getApplicationInfoView().getApplicationId();
+    }
+
+    private void assertConverted(String scenario, String key, String expectedId) {
+        String answer = outcome(() -> gidService.convertApplicationIdToObjectId(key));
+        say("%s -> %s", scenario, answer == null ? NO_ANSWER : answer);
+        assertThat(answer).as("%s: converted id", scenario).isEqualTo(expectedId);
+    }
+
+    private static void assertCantFindApplication(String scenario, Throwable error) {
         assertThat(error).as("%s: error", scenario).isInstanceOf(BizException.class);
         BizException biz = (BizException) error;
         assertThat(biz.getError()).as("%s: BizError", scenario).isEqualTo(BizError.NO_RESOURCE_FOUND);
