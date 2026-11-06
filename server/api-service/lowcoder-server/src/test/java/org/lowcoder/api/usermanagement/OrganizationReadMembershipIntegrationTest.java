@@ -44,6 +44,9 @@ import reactor.test.StepVerifier;
  * while one case runs (the shared test database: a stored super admin would become a member of every organization
  * created meanwhile, see {@code ConfigEndpointsIntegrationTest}); the stored organizations are removed after each case.
  *
+ * <p>NEW-132: a key with a hyphen that names no organization gets the same NOT_AUTHORIZED, the super admin included; the super
+ * admin reading with {@code withDeleted} still gets UNABLE_TO_FIND_VALID_ORG for one without a hyphen.
+ *
  * <p>Not covered: the production security filter chain and the HTTP routing (this class calls the controller bean), and
  * that the controller's conversion and the membership check are not one atomic step.
  */
@@ -62,7 +65,7 @@ class OrganizationReadMembershipIntegrationTest {
     private static final String SEED_ORG_GID = "019053a4-c5c8-7621-8740-e3a43e1e85d1";
     private static final String BLANK_KEY = " ";
     private static final String NOT_AUTHORIZED_KEY = "NOT_AUTHORIZED";
-    private static final String ORGANIZATION_NOT_FOUND_KEY = "ORGANIZATION_NOT_FOUND";
+    private static final String INVALID_ORG_ID_KEY = "INVALID_ORG_ID";
     /** {@code withDeleted} as the controller receives it: absent (null) or {@code true}. */
     private static final Boolean WITHOUT_WITH_DELETED = null;
     private static final Boolean WITH_DELETED = Boolean.TRUE;
@@ -243,14 +246,31 @@ class OrganizationReadMembershipIntegrationTest {
     }
 
     /**
-     * NEW-112 as it stands (green before and after the fix): a key with a hyphen that names no organization's slug or gid is
-     * ORGANIZATION_NOT_FOUND, from the converter's empty answer, before the membership check.
+     * R5, NEW-132 (NEW-112): a key with a hyphen that names no organization's slug or gid is refused as a known organization the
+     * visitor may not read: NOT_AUTHORIZED from the converter, before the membership check (it was ORGANIZATION_NOT_FOUND).
      */
     @Test
     @WithMockUser
-    void anUnknownKeyWithAHyphenIsNotFoundBeforeTheCheckNEW112() {
+    void anUnknownKeyWithAHyphenIsRefusedAsAKnownOneNEW132() {
         String unknownKey = UUID.randomUUID().toString();
-        assertRefused(unknownKey, WITHOUT_WITH_DELETED, BizError.ORGANIZATION_NOT_FOUND, ORGANIZATION_NOT_FOUND_KEY);
+        assertRefused(unknownKey, WITHOUT_WITH_DELETED, BizError.NOT_AUTHORIZED, NOT_AUTHORIZED_KEY);
+    }
+
+    /**
+     * R14, NEW-132: with {@code withDeleted}, a non-member gets the same answer for the gid of a stored (deleted) organization and
+     * for a gid that names nothing, so the two cannot be told apart.
+     */
+    @Test
+    @WithMockUser
+    void aNonMemberGetsTheSameAnswerForAKnownAndAnUnknownGidNEW132() {
+        assertUser01IsNoInstanceSuperAdmin();
+        String orgId = storeOrganization(OrganizationState.DELETED, null);
+        String knownGid = mongo.findById(orgId, Organization.class).block(TIMEOUT).getGid();
+        String unknownGid = UUID.randomUUID().toString();
+        say("R14 known gid %s of org %s, unknown gid %s", knownGid, orgId, unknownGid);
+
+        assertRefused(knownGid, WITH_DELETED, BizError.NOT_AUTHORIZED, NOT_AUTHORIZED_KEY);
+        assertRefused(unknownGid, WITH_DELETED, BizError.NOT_AUTHORIZED, NOT_AUTHORIZED_KEY);
     }
 
     // ------------------------------------------------------------------ a member
@@ -297,6 +317,25 @@ class OrganizationReadMembershipIntegrationTest {
         storeSuperAdmin();
         String orgId = storeOrganization(OrganizationState.ACTIVE, null);
         assertRefused(orgId, WITHOUT_WITH_DELETED, BizError.NOT_AUTHORIZED, NOT_AUTHORIZED_KEY);
+    }
+
+    /** R13, NEW-132: the instance's super admin is refused a key with a hyphen that names nothing, with withDeleted (it was ORGANIZATION_NOT_FOUND). */
+    @Test
+    @WithMockUser(id = SUPER_ADMIN_USER_ID)
+    void theInstanceSuperAdminIsRefusedAnUnknownKeyWithDeletedNEW132() {
+        storeSuperAdmin();
+        assertRefused(UUID.randomUUID().toString(), WITH_DELETED, BizError.NOT_AUTHORIZED, NOT_AUTHORIZED_KEY);
+    }
+
+    /**
+     * R15, NEW-132, exception E1 (green before and after): the instance's super admin reading with {@code withDeleted} a key
+     * without a hyphen that names no organization passes the membership rule and gets the read's UNABLE_TO_FIND_VALID_ORG.
+     */
+    @Test
+    @WithMockUser(id = SUPER_ADMIN_USER_ID)
+    void theInstanceSuperAdminStillGetsNotFoundForAnUnknownIdWithDeletedNEW132() {
+        storeSuperAdmin();
+        assertRefused(new ObjectId().toHexString(), WITH_DELETED, BizError.UNABLE_TO_FIND_VALID_ORG, INVALID_ORG_ID_KEY);
     }
 
     /** A control: the exception holds for an active organization too, with withDeleted. */

@@ -208,8 +208,10 @@ public class OrgApiServiceImpl implements OrgApiService {
      * stored user, counts as not a super admin; an organization the visitor may read but that is not found answers
      * the read's UNABLE_TO_FIND_VALID_ORG, as before; {@code orgId} is the object id: the controller converts a
      * gid or slug first, querying the organizations' slugs for a non-blank key and their gids for a key with a
-     * hyphen that matches no slug, before this method runs, and a key with a hyphen that names no organization's
-     * slug or gid answers ORGANIZATION_NOT_FOUND there, to anyone, before this check.
+     * hyphen that matches no slug, before this method runs, and a key with a hyphen that names no
+     * organization's slug or gid is refused with the same NOT_AUTHORIZED, to anyone, the instance's super admin included,
+     * before this check (NEW-132); a key without a hyphen that names no organization is not refused there, and this check
+     * and the read decide, as above.
      */
     @Override
     public Mono<Organization> getOrganization(String orgId, boolean withDeleted) {

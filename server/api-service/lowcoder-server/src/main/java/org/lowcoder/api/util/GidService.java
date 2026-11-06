@@ -30,6 +30,7 @@ import java.util.Optional;
 public class GidService {
     private static final String FOLDER_NOT_EXIST_KEY = "FOLDER_NOT_EXIST";
     private static final String CANT_FIND_APPLICATION_KEY = "CANT_FIND_APPLICATION";
+    private static final String NOT_AUTHORIZED_KEY = "NOT_AUTHORIZED";
 
     @Autowired
     private ApplicationRepository applicationRepository;
@@ -95,6 +96,20 @@ public class GidService {
                     }
                     return Mono.just(id);
                 }));
+    }
+
+    /**
+     * The object id an organization key names, as {@link #convertOrganizationIdToObjectId} finds it, for a route that refuses a
+     * visitor who may not use the organization: a key that names no organization there (a key with a hyphen that matches no
+     * slug and no gid) is NOT_AUTHORIZED, the answer such a route gives a non-member for a key that names one, so that the two
+     * cannot be told apart (NEW-132; it used to complete empty, an HTTP 200 without a body, or ORGANIZATION_NOT_FOUND on the
+     * organization read). Limits: a key without a hyphen, or a blank key, is passed on as before, and the route's own check
+     * decides; a deleted organization's gid still converts (the lookup does not filter by state); the conversion's queries run
+     * for every caller, and their timing is not equalized.
+     */
+    public Mono<String> convertOrganizationIdToObjectIdOrRefuse(String id) {
+        return convertOrganizationIdToObjectId(id)
+                .switchIfEmpty(Mono.error(() -> new BizException(BizError.NOT_AUTHORIZED, NOT_AUTHORIZED_KEY)));
     }
 
     public Mono<String> convertGroupIdToObjectId(String id) {

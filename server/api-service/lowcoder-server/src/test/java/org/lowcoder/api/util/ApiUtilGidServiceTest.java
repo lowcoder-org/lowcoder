@@ -78,6 +78,8 @@ public class ApiUtilGidServiceTest {
     /** The id of an application that holds a key as its slug while another application has that key as its id or gid. */
     static final String SLUG_DECOY_ID = "slug-decoy-id";
     static final String UNKNOWN_OBJECT_ID = "65a1b2c3d4e5f60718293a99";
+    static final String UNKNOWN_ORGANIZATION_GID = "unknown-org-gid-4";
+    static final String NOT_AUTHORIZED_KEY = "NOT_AUTHORIZED";
 
     @Mock
     private ApplicationRepository applicationRepository;
@@ -288,6 +290,50 @@ public class ApiUtilGidServiceTest {
         when(organizationRepository.findBySlug(unknown)).thenReturn(Flux.empty());
         when(organizationRepository.findByGid(unknown)).thenReturn(Flux.empty());
         StepVerifier.create(service.convertOrganizationIdToObjectId(unknown)).verifyComplete();
+    }
+
+    /** H1, NEW-132: the refusing organization converter passes a key that names an organization as the plain converter does. */
+    @Test
+    public void theRefusingOrganizationConverterPassesAKeyThatNamesAnOrganizationNEW132() {
+        when(organizationRepository.findBySlug(SLUG)).thenReturn(Flux.just(organization(REAL_ID)));
+        StepVerifier.create(service.convertOrganizationIdToObjectIdOrRefuse(SLUG)).expectNext(REAL_ID).verifyComplete();
+
+        when(organizationRepository.findBySlug(GID)).thenReturn(Flux.empty());
+        when(organizationRepository.findByGid(GID)).thenReturn(Flux.just(organization(OTHER_ID)));
+        StepVerifier.create(service.convertOrganizationIdToObjectIdOrRefuse(GID)).expectNext(OTHER_ID).verifyComplete();
+
+        when(organizationRepository.findBySlug(OBJECT_ID)).thenReturn(Flux.empty());
+        StepVerifier.create(service.convertOrganizationIdToObjectIdOrRefuse(OBJECT_ID)).expectNext(OBJECT_ID).verifyComplete();
+        System.out.println(TAG + "refusing organization converter: slug " + SLUG + " -> " + REAL_ID + ", gid " + GID + " -> " + OTHER_ID
+                + ", object id " + OBJECT_ID + " -> itself");
+    }
+
+    /** H2, NEW-132: a gid that names no organization is NOT_AUTHORIZED, the key without arguments; both lookups ran. */
+    @Test
+    public void theRefusingOrganizationConverterRefusesAGidThatNamesNothingNEW132() {
+        when(organizationRepository.findBySlug(UNKNOWN_ORGANIZATION_GID)).thenReturn(Flux.empty());
+        when(organizationRepository.findByGid(UNKNOWN_ORGANIZATION_GID)).thenReturn(Flux.empty());
+        StepVerifier.create(service.convertOrganizationIdToObjectIdOrRefuse(UNKNOWN_ORGANIZATION_GID)).expectErrorSatisfies(error -> {
+            System.out.println(TAG + "refusing organization converter, gid " + UNKNOWN_ORGANIZATION_GID + " -> " + error);
+            assertTrue(error instanceof BizException, "BizException expected, was " + error);
+            assertEquals(BizError.NOT_AUTHORIZED, ((BizException) error).getError());
+            assertEquals(NOT_AUTHORIZED_KEY, ((BizException) error).getMessageKey());
+            assertEquals(List.of(), List.of(((BizException) error).getArgs()));
+        }).verify();
+        verify(organizationRepository).findBySlug(UNKNOWN_ORGANIZATION_GID);
+        verify(organizationRepository).findByGid(UNKNOWN_ORGANIZATION_GID);
+    }
+
+    /** H3, NEW-132: a blank key is answered as given and no repository is asked. */
+    @ParameterizedTest(name = "key=[{0}]")
+    @ValueSource(strings = {"", " ", "\t \n"})
+    public void theRefusingOrganizationConverterPassesABlankKeyNEW132(String key) {
+        // lenient: the converter never asks for a blank key; without its guard, the stub makes the slug lookup answer an
+        // organization, so that the case fails on the assertions below instead of on an unstubbed mock
+        lenient().when(organizationRepository.findBySlug(key)).thenReturn(Flux.just(organization(OTHER_ID)));
+        StepVerifier.create(service.convertOrganizationIdToObjectIdOrRefuse(key)).expectNext(key).verifyComplete();
+        System.out.println(TAG + "refusing organization converter, blank key [" + key + "] answered as given");
+        verifyNoInteractions(organizationRepository);
     }
 
     /**
