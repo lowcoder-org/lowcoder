@@ -79,10 +79,6 @@ class DatasourceEndpointsTest {
             String applicationId = invocation.getArgument(0);
             return applicationId != null ? Mono.just(applicationId) : Mono.empty();
         });
-        when(gidService.convertOrganizationIdToObjectId(any())).thenAnswer(invocation -> {
-            String organizationId = invocation.getArgument(0);
-            return organizationId != null ? Mono.just(organizationId) : Mono.empty();
-        });
         when(gidService.convertOrganizationIdToObjectIdOrRefuse(any())).thenAnswer(invocation -> {
             String organizationId = invocation.getArgument(0);
             return organizationId != null ? Mono.just(organizationId) : Mono.empty();

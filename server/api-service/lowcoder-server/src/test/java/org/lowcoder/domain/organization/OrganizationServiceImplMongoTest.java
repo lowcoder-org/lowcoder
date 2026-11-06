@@ -402,7 +402,7 @@ class OrganizationServiceImplMongoTest extends OrganizationMongoTestBase {
             Organization blank = mongo.save(Organization.builder().name(BLANK_SLUG_NAME).gid(gid).slug(WHITESPACE_KEY).state(ACTIVE).build())
                     .block(TIMEOUT);
 
-            String converted = gidService.convertOrganizationIdToObjectId(WHITESPACE_KEY).block(TIMEOUT);
+            String converted = gidService.convertOrganizationIdToObjectIdOrRefuse(WHITESPACE_KEY).block(TIMEOUT);
 
             System.out.println("[OrganizationServiceImplMongoTest] convert([" + WHITESPACE_KEY + "]) with org " + blank.getId()
                     + " holding that slug -> [" + converted + "]");

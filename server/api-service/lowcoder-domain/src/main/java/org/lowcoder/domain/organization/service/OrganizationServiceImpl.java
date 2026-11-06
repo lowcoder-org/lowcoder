@@ -192,7 +192,7 @@ public class OrganizationServiceImpl implements OrganizationService {
      * id or gid; a key of invisible characters that {@code StringUtils.isBlank} does not count as whitespace, such as a
      * no-break space or a zero-width space, is not blank and is looked up as before; a caller that looks a blank key, a
      * null one included, up as a slug before calling passes on the object id of the organization it finds, which this
-     * guard does not see (the server's {@code GidService.convertOrganizationIdToObjectId} skips the slug lookup for a
+     * guard does not see (the server's {@code GidService.convertOrganizationIdToObjectIdOrRefuse} skips the slug lookup for a
      * blank key, NEW-86); {@link #getByIds} drops blank keys (see its javadoc).
      */
     @Override
@@ -215,7 +215,7 @@ public class OrganizationServiceImpl implements OrganizationService {
      * id or gid; a key of invisible characters that {@code StringUtils.isBlank} does not count as whitespace, such as a
      * no-break space or a zero-width space, is not blank and is looked up as before; a caller that looks a blank key, a
      * null one included, up as a slug before calling passes on the object id of the organization it finds, which this
-     * guard does not see (the server's {@code GidService.convertOrganizationIdToObjectId} skips the slug lookup for a
+     * guard does not see (the server's {@code GidService.convertOrganizationIdToObjectIdOrRefuse} skips the slug lookup for a
      * blank key, NEW-86).
      */
     @Override
@@ -239,7 +239,7 @@ public class OrganizationServiceImpl implements OrganizationService {
      * id or gid; a key of invisible characters that {@code StringUtils.isBlank} does not count as whitespace, such as a
      * no-break space or a zero-width space, is not blank and is looked up as before; a caller that looks a blank key, a
      * null one included, up as a slug before calling passes on the object id of the organization it finds, which this
-     * guard does not see (the server's {@code GidService.convertOrganizationIdToObjectId} skips the slug lookup for a
+     * guard does not see (the server's {@code GidService.convertOrganizationIdToObjectIdOrRefuse} skips the slug lookup for a
      * blank key, NEW-86).
      */
     @Override
