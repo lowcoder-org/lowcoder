@@ -26,6 +26,8 @@ public interface OrgApiService {
 
     Mono<OrgMember> checkVisitorAdminRole(String orgId);
 
+    Mono<OrgMember> checkVisitorMember(String orgId);
+
     Mono<Boolean> switchCurrentOrganizationTo(String orgId);
 
     Mono<Boolean> switchCurrentOrganizationTo(String userId, String orgId);

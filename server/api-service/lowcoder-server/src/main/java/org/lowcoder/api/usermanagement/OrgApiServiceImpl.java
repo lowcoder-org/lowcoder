@@ -249,6 +249,18 @@ public class OrgApiServiceImpl implements OrgApiService {
     }
 
     /**
+     * The visitor's membership of the organization, any role (NEW-132); NOT_AUTHORIZED when the visitor is not a member, the
+     * answer the other organization routes give a non-member, so that an organization that exists and one that does not cannot
+     * be told apart. Limits: the membership is the stored one, whatever the organization's state; the instance super admin is
+     * a member only through a membership row, as for every route that uses this check.
+     */
+    @Override
+    public Mono<OrgMember> checkVisitorMember(String orgId) {
+        return visitorOrgMember(orgId)
+                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"));
+    }
+
+    /**
      * Refuses, with UNSUPPORTED_OPERATION, the requested role SUPER_ADMIN and any change to a member who has it, whoever
      * the visitor is (BF-005): that role is given only by the super admin setup
      * ({@code OrgMemberService.addToAllOrgAsAdminIfNot}). Deferred, so the target's membership is read only once the
@@ -316,7 +328,7 @@ public class OrgApiServiceImpl implements OrgApiService {
 
     @Override
     public Mono<Boolean> leaveOrganization(String orgId) {
-        return Mono.zip(sessionUserService.getVisitorId(), orgMemberService.getAllOrgAdmins(orgId))
+        return checkVisitorMember(orgId).flatMap(visitorMember -> Mono.zip(sessionUserService.getVisitorId(), orgMemberService.getAllOrgAdmins(orgId))
                 .flatMap(tuple -> {
                     String visitorId = tuple.getT1();
                     List<OrgMember> orgAdmins = tuple.getT2();
@@ -332,7 +344,7 @@ public class OrgApiServiceImpl implements OrgApiService {
                                 }
                                 sink.next(false);
                             });
-                });
+                }));
     }
 
     @Override

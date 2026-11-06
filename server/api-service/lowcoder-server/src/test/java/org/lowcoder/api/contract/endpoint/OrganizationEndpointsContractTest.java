@@ -109,6 +109,7 @@ class OrganizationEndpointsContractTest {
     private OrgApiService orgApiService;
     private OrganizationService organizationService;
     private CommonConfig.Workspace workspace;
+    private BusinessEventPublisher businessEventPublisher;
 
     @BeforeEach
     void mocks() {
@@ -120,7 +121,8 @@ class OrganizationEndpointsContractTest {
         GidService gidService = builder.mock(GidService.class);
         Mockito.when(gidService.convertOrganizationIdToObjectId(anyString())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
         Mockito.when(gidService.convertOrganizationIdToObjectIdOrRefuse(anyString())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
-        builder.singleton("businessEventPublisher", Mockito.mock(BusinessEventPublisher.class, ApplicationEndpointsContractTest.EMPTY_MONO));
+        businessEventPublisher = Mockito.mock(BusinessEventPublisher.class, ApplicationEndpointsContractTest.EMPTY_MONO);
+        builder.singleton("businessEventPublisher", businessEventPublisher);
     }
 
     @AfterAll
@@ -290,6 +292,24 @@ class OrganizationEndpointsContractTest {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "setCurrentOrganization", Map.of(), null, ORG_ID);
             BizError error = BizError.NEED_BIND_THIRD_PARTY_CONNECTION;
             EndpointContract.assertBizError(result, error, error.name());
+        }
+    }
+
+    /**
+     * NEW-132: the membership is checked before the logout event: a visitor who is no member of the organization gets
+     * NOT_AUTHORIZED, no logout or login event is published, and the switch is not called.
+     */
+    @Test
+    void setCurrentOrganizationByANonMember() {
+        stubSwitch(OrganizationDomainCheckResult.success());
+        Mockito.when(orgApiService.checkVisitorMember(ORG_ID))
+                .thenReturn(Mono.error(new BizException(BizError.NOT_AUTHORIZED, BizError.NOT_AUTHORIZED.name())));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "setCurrentOrganization", Map.of(), null, ORG_ID);
+            EndpointContract.assertBizError(result, BizError.NOT_AUTHORIZED, BizError.NOT_AUTHORIZED.name());
+            Mockito.verify(businessEventPublisher, Mockito.never()).publishUserLogoutEvent();
+            Mockito.verify(businessEventPublisher, Mockito.never()).publishUserLoginEvent(any());
+            Mockito.verify(orgApiService, Mockito.never()).switchCurrentOrganizationTo(anyString());
         }
     }
 
@@ -468,6 +488,7 @@ class OrganizationEndpointsContractTest {
     }
 
     private void stubSwitch(OrganizationDomainCheckResult domainCheck) {
+        Mockito.when(orgApiService.checkVisitorMember(ORG_ID)).thenReturn(Mono.just(new OrgMember(ORG_ID, USER_ID, MemberRole.MEMBER, ORG_ID + ".state", 3_000_000_170L)));
         Mockito.when(orgApiService.switchCurrentOrganizationTo(ORG_ID)).thenReturn(Mono.just(Boolean.TRUE));
         Mockito.when(orgApiService.checkOrganizationDomain()).thenReturn(Mono.just(domainCheck));
     }

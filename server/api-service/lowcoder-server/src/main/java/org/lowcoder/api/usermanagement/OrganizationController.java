@@ -126,7 +126,7 @@ public class OrganizationController implements OrganizationEndpoints
 
     @Override
     public Mono<ResponseView<?>> setCurrentOrganization(@PathVariable String orgId, ServerWebExchange serverWebExchange) {
-        return gidService.convertOrganizationIdToObjectId(orgId).flatMap(id ->
+        return gidService.convertOrganizationIdToObjectIdOrRefuse(orgId).delayUntil(orgApiService::checkVisitorMember).flatMap(id ->
             businessEventPublisher.publishUserLogoutEvent()
                 .then(orgApiService.switchCurrentOrganizationTo(id))
                 .delayUntil(result -> businessEventPublisher.publishUserLoginEvent(null))
@@ -144,7 +144,7 @@ public class OrganizationController implements OrganizationEndpoints
 
     @Override
     public Mono<ResponseView<Boolean>> leaveOrganization(@PathVariable String orgId) {
-        return gidService.convertOrganizationIdToObjectId(orgId).flatMap(id ->
+        return gidService.convertOrganizationIdToObjectIdOrRefuse(orgId).flatMap(id ->
             orgApiService.leaveOrganization(id)
                 .map(ResponseView::success));
     }
