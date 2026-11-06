@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
  * whole list used to be taken from one element, so the keys of the other kind were dropped.
  * <p>
  * Limits: the kind of a key is the {@link FieldName#isGID} guess (a key with a hyphen is a gid), so a key is looked up as
- * one kind only; slugs are not handled here (the application lookups query them first).
+ * one kind only; slugs are not handled here (the application one-key lookup {@code ApplicationService#findByIdWithoutDsl} adds them, after the id or gid, with {@link IdGidOrSlugLookup}).
  */
 public final class IdOrGidLookup {
 

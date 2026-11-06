@@ -18,6 +18,7 @@ import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.permission.model.ResourceType;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.user.repository.UserRepository;
+import org.lowcoder.domain.util.IdGidOrSlugLookup;
 import org.lowcoder.domain.util.IdOrGidLookup;
 import org.lowcoder.domain.util.SlugUtils;
 import org.lowcoder.infra.annotation.NonEmptyMono;
@@ -40,6 +41,8 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class ApplicationServiceImpl implements ApplicationService {
 
+    private static final String CANT_FIND_APPLICATION = "CANT_FIND_APPLICATION";
+
     private final MongoUpsertHelper mongoUpsertHelper;
     private final ResourcePermissionService resourcePermissionService;
     private final ApplicationRepository repository;
@@ -53,23 +56,27 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
 
         return repository.findByIdWithDsl(id)
-                .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_APPLICATION", id)));
+                .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, CANT_FIND_APPLICATION, id)));
     }
 
+    /**
+     * The application a key names, as {@link IdGidOrSlugLookup#find} decides: by gid for a key with a hyphen, else by object id,
+     * and only then by slug, a slug exactly one application has (NEW-78: the slug came first, so the application whose slug
+     * equalled another application's object id or gid was answered for it, to the permission check's organization lookup, the
+     * application events and the status checks among others). A null key is INVALID_PARAMETER, as before; a blank key, a key
+     * that names nothing and a slug several applications share are NO_RESOURCE_FOUND with CANT_FIND_APPLICATION. Limits: the
+     * slug lookup is global, not scoped to an organization; no index makes slugs unique (NEW-87); the gid lookup takes the
+     * first match; the answer is not filtered by status, as before.
+     */
     @Override
     public Mono<Application> findByIdWithoutDsl(String id) {
         if (id == null) {
             return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ID));
         }
 
-        return Mono.from(repository.findBySlug(id))
-                .switchIfEmpty(
-                        Mono.defer(() -> {
-                            if (FieldName.isGID(id))
-                                return Mono.from(repository.findByGid(id));
-                            return repository.findById(id);
-                        }))
-                .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_APPLICATION", id)));
+        return IdGidOrSlugLookup.find(id, repository::findById, repository::findByGid, repository::findBySlug,
+                        () -> new BizException(BizError.NO_RESOURCE_FOUND, CANT_FIND_APPLICATION, id))
+                .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, CANT_FIND_APPLICATION, id)));
     }
 
     @Override
@@ -126,8 +133,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     /**
-     * The applications of a list of keys, each a slug, an object id or a gid, in any mix. As for one key
-     * ({@link #findByIdWithoutDsl}), every non-blank key is looked up by slug first, and the keys no slug matched by object id or gid
+     * The applications of a list of keys, each a slug, an object id or a gid, in any mix. Unlike one key
+     * ({@link #findByIdWithoutDsl}, NEW-78), every non-blank key is looked up by slug first, and the keys no slug matched by object id or gid
      * ({@link IdOrGidLookup}); an application named by two keys is answered once. Before, a slug match dropped every other
      * key (BF-154), the kind of the list was taken from its first element (BF-155), and a list starting with a slug that
      * has a hyphen was taken for gids and never looked up by slug (BF-156).

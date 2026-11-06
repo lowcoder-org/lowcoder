@@ -73,36 +73,74 @@ class ApplicationServiceImplTest {
         assertThat(unknown.getMessageKey()).isEqualTo("CANT_FIND_APPLICATION");
     }
 
+    private static final String CANT_FIND_APPLICATION_KEY = "CANT_FIND_APPLICATION";
+    private static final String SLUG_KEY = "myslug";
+    private static final String GID_KEY = "abc-def";
+    private static final String OBJECT_ID_KEY = "plainid";
+    private static final String UNKNOWN_KEY = "unknown";
+    private static final String SHARED_SLUG_KEY = "sharedslug";
+    private static final String DECOY_APP_ID = "decoy";
+    private static final String GID_DECOY_APP_ID = "gid-decoy";
+    private static final String BY_SLUG_APP_ID = "by-slug";
+    private static final String BY_GID_APP_ID = "g1";
+    private static final String BY_ID_APP_ID = "i1";
+    private static final String SHARED_SLUG_APP_ID_1 = "a1";
+    private static final String SHARED_SLUG_APP_ID_2 = "a2";
+
     /**
-     * Catches: the slug / gid / id routing of findByIdWithoutDsl (:65-71) changed: a slug hit stops the lookup, a "-" routes to
-     * the gid query only, anything else to the id query only. The audit-event consequence of the slug route is the L1-8 row and
-     * the hyphen heuristic's consequence the L3-11b row, neither is re-pinned here.
+     * Catches (NEW-78): the order of findByIdWithoutDsl changed back to the slug first: a "-" routes to the gid query, anything
+     * else to the id query, an id or gid hit asks no slug query (a decoy application holds the key as its slug), and only a key
+     * nothing names by id or gid is answered by its one slug match. The audit-event consequence of the slug route is the L1-8
+     * row and the hyphen heuristic's consequence the L3-11b row, neither is re-pinned here.
      */
     @Test
-    void findByIdWithoutDslRoutesSlugThenGidOrId() {
-        Application bySlug = app("by-slug");
-        Application byGid = app("g1");
-        Application byId = app("i1");
+    void findByIdWithoutDslRoutesIdOrGidThenSlugNEW78() {
+        Application decoy = appWithSlug(DECOY_APP_ID, OBJECT_ID_KEY);
+        Application gidDecoy = appWithSlug(GID_DECOY_APP_ID, GID_KEY);
+        Application bySlug = app(BY_SLUG_APP_ID);
+        Application byGid = app(BY_GID_APP_ID);
+        Application byId = app(BY_ID_APP_ID);
+        System.out.println("[ApplicationServiceImplTest] routing setup: decoys " + DECOY_APP_ID + " (slug " + OBJECT_ID_KEY + "), "
+                + GID_DECOY_APP_ID + " (slug " + GID_KEY + "); targets " + BY_SLUG_APP_ID + " (slug " + SLUG_KEY + "), " + BY_GID_APP_ID
+                + " (gid " + GID_KEY + "), " + BY_ID_APP_ID + " (id " + OBJECT_ID_KEY + ")");
         AtomicInteger gidQueries = new AtomicInteger();
         AtomicInteger idQueries = new AtomicInteger();
-        when(s.repository.findBySlug("my-slug")).thenReturn(Flux.just(bySlug));
-        when(s.repository.findByGid("abc-def")).thenReturn(counted(Flux.just(byGid), gidQueries));
-        when(s.repository.findById("plainid")).thenReturn(counted(Mono.just(byId), idQueries));
+        AtomicInteger slugQueries = new AtomicInteger();
+        when(s.repository.findBySlug(OBJECT_ID_KEY)).thenReturn(counted(Flux.just(decoy), slugQueries));
+        when(s.repository.findBySlug(GID_KEY)).thenReturn(counted(Flux.just(gidDecoy), slugQueries));
+        when(s.repository.findBySlug(SLUG_KEY)).thenReturn(counted(Flux.just(bySlug), slugQueries));
+        when(s.repository.findByGid(GID_KEY)).thenReturn(counted(Flux.just(byGid), gidQueries));
+        when(s.repository.findById(OBJECT_ID_KEY)).thenReturn(counted(Mono.just(byId), idQueries));
 
-        assertThat(service.findByIdWithoutDsl("my-slug").block(TIMEOUT)).isSameAs(bySlug);
-        assertThat(gidQueries.get() + idQueries.get()).as("a slug hit stops the lookup").isZero();
-
-        assertThat(service.findByIdWithoutDsl("abc-def").block(TIMEOUT)).isSameAs(byGid);
+        assertThat(service.findByIdWithoutDsl(GID_KEY).block(TIMEOUT)).isSameAs(byGid);
         assertThat(gidQueries.get()).isEqualTo(1);
         assertThat(idQueries.get()).isZero();
+        assertThat(slugQueries.get()).as("a gid hit asks no slug query").isZero();
 
-        assertThat(service.findByIdWithoutDsl("plainid").block(TIMEOUT)).isSameAs(byId);
+        assertThat(service.findByIdWithoutDsl(OBJECT_ID_KEY).block(TIMEOUT)).isSameAs(byId);
         assertThat(gidQueries.get()).isEqualTo(1);
         assertThat(idQueries.get()).isEqualTo(1);
+        assertThat(slugQueries.get()).as("an id hit asks no slug query").isZero();
 
-        BizException unknown = failure(() -> service.findByIdWithoutDsl("unknown").block(TIMEOUT));
+        assertThat(service.findByIdWithoutDsl(SLUG_KEY).block(TIMEOUT)).isSameAs(bySlug);
+        assertThat(slugQueries.get()).as("a key nothing names by id is answered by its slug").isEqualTo(1);
+
+        BizException unknown = failure(() -> service.findByIdWithoutDsl(UNKNOWN_KEY).block(TIMEOUT));
         assertThat(unknown.getError()).isEqualTo(BizError.NO_RESOURCE_FOUND);
+        assertThat(unknown.getMessageKey()).isEqualTo(CANT_FIND_APPLICATION_KEY);
         assertThat(failure(() -> service.findByIdWithoutDsl(null).block(TIMEOUT)).getError()).isEqualTo(BizError.INVALID_PARAMETER);
+    }
+
+    /** Catches (NEW-78): a slug several applications share answered with the first stored one instead of NO_RESOURCE_FOUND. */
+    @Test
+    void findByIdWithoutDslRefusesASharedSlugNEW78() {
+        when(s.repository.findBySlug(SHARED_SLUG_KEY)).thenReturn(Flux.just(appWithSlug(SHARED_SLUG_APP_ID_1, SHARED_SLUG_KEY), appWithSlug(SHARED_SLUG_APP_ID_2, SHARED_SLUG_KEY)));
+
+        BizException shared = failure(() -> service.findByIdWithoutDsl(SHARED_SLUG_KEY).block(TIMEOUT));
+
+        System.out.println("[ApplicationServiceImplTest] shared slug '" + SHARED_SLUG_KEY + "' -> " + shared.getError() + " " + shared.getMessageKey());
+        assertThat(shared.getError()).isEqualTo(BizError.NO_RESOURCE_FOUND);
+        assertThat(shared.getMessageKey()).isEqualTo(CANT_FIND_APPLICATION_KEY);
     }
 
     /** Catches: updateById not rejecting null, not delegating the application and id. */
