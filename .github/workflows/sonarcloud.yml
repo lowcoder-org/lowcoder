@@ -1,35 +1,94 @@
 name: Sonarcloud
-on:
-  push:
-    branches:
-      - main
-  pull_request_target:
-    types: [opened, synchronize, reopened]
 
-permissions:
-  contents: read
+# TRUSTED half of the SonarCloud analysis; the only place SONAR_TOKEN is used.
+# It runs from the default branch via workflow_run and never executes PR code: the PR
+# tree is checked out as data and the artifact from "Sonarcloud Build" is validated
+# before use. Not covered: the scanner still parses untrusted sources and class files.
+on:
+  workflow_run: # zizmor: ignore[dangerous-triggers] artifact and PR tree are handled as data only
+    workflows: ["Sonarcloud Build"]
+    types: [completed]
+
+permissions: {}
 
 jobs:
   sonarcloud:
     name: SonarCloud
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.path == '.github/workflows/sonarcloud-build.yml' &&
+      (github.event.workflow_run.event == 'pull_request' || github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      actions: read
     steps:
-      - name: Setup Java JDK
-        uses: actions/setup-java@v1
+      - name: Checkout trusted default branch
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
-          java-version: 17
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-          ref: ${{ github.event.pull_request.head.sha }}
-      - name: Build Java
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+          persist-credentials: false
+
+      - name: Stash trusted inputs
+        # Must happen BEFORE any PR content touches the workspace.
         run: |
-          # Downstream modules need the SDK's shared test-helper JAR, which is
-          # attached during package. Keep test compilation enabled for that JAR.
-          mvn --batch-mode --no-transfer-progress clean package -DskipTests -f ./server/api-service/pom.xml
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+          set -euo pipefail
+          install -d -m 0755 "$RUNNER_TEMP/trusted"
+          cp sonar-project.properties "$RUNNER_TEMP/trusted/"
+          cp .github/scripts/sonar_resolve_target.py \
+             .github/scripts/sonar_artifact_extract.py \
+             .github/scripts/sonar_checkout_target.sh "$RUNNER_TEMP/trusted/"
+          chmod -R a-w "$RUNNER_TEMP/trusted"
+
+      - name: Download build output
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: sonar-build-output
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/sonar-artifact
+
+      - name: Resolve analysis target
+        id: target
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          RUN_EVENT: ${{ github.event.workflow_run.event }}
+          RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          RUN_HEAD_REPO: ${{ github.event.workflow_run.head_repository.full_name }}
+        run: python3 -I "$RUNNER_TEMP/trusted/sonar_resolve_target.py" --metadata "$RUNNER_TEMP/sonar-artifact/metadata.json" >> "$GITHUB_OUTPUT"
+
+      - name: Check out analysed commit (data only)
+        env:
+          MODE: ${{ steps.target.outputs.mode }}
+          PR_NUMBER: ${{ steps.target.outputs.pr_number }}
+          HEAD_SHA: ${{ steps.target.outputs.head_sha }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: bash "$RUNNER_TEMP/trusted/sonar_checkout_target.sh"
+
+      - name: Place compiled classes
+        run: >-
+          python3 -I "$RUNNER_TEMP/trusted/sonar_artifact_extract.py"
+          --properties "$RUNNER_TEMP/trusted/sonar-project.properties"
+          --archive "$RUNNER_TEMP/sonar-artifact/sonar-binaries.tar"
+          --staging "$RUNNER_TEMP/sonar-staging"
+          --workspace "$GITHUB_WORKSPACE"
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@4d1dc0c91ee400dcf8a6dddf2f705ac36542e304 # v8.4.0
+        env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_SCANNER_OPTS: "-Dsonar.javascript.node.maxspace=8192 -Xmx8192m"
+        with:
+          projectBaseDir: ${{ github.workspace }}
+          # CLI properties win over any project file, so a PR cannot redirect the token.
+          args: >-
+            -Dproject.settings=${{ runner.temp }}/trusted/sonar-project.properties
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.organization=lowcoder
+            -Dsonar.projectKey=lowcoder-org_lowcoder
+            -Dsonar.working.directory=${{ runner.temp }}/scannerwork
+            ${{ steps.target.outputs.scanner_args }}
