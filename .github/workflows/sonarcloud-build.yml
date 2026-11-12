@@ -1,0 +1,78 @@
+name: Sonarcloud Build
+
+# UNTRUSTED half of the SonarCloud analysis. It builds PR code, so it must never see
+# repository secrets: no secret references, no token env, no cache. The trusted half is
+# sonarcloud.yml (workflow_run), which only consumes the artifact uploaded here as data.
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: SonarCloud Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout analysed commit
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          # PR head, not the merge commit: the scan job analyses the head, so the
+          # classes must come from the head too.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4.8.0
+        with:
+          distribution: zulu
+          java-version: "17"
+
+      - name: Self-test sonar helper scripts
+        run: python3 -I -m unittest discover -s .github/scripts/tests -v
+
+      - name: Build Java
+        run: |
+          # Downstream modules need the SDK's shared test-helper JAR, which is
+          # attached during package. Keep test compilation enabled for that JAR.
+          mvn --batch-mode --no-transfer-progress clean package -DskipTests -f ./server/api-service/pom.xml
+
+      - name: Package binaries and metadata
+        env:
+          # Event values go through env, never straight into the script.
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref || github.ref_name }}
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/sonar-upload"
+          mkdir -p "$out"
+          binaries="$(sed -n 's/^sonar\.java\.binaries=//p' sonar-project.properties)"
+          [ -n "$binaries" ] || { echo "sonar.java.binaries not found" >&2; exit 1; }
+          IFS=',' read -r -a dirs <<< "$binaries"
+          # tar fails if a listed directory is missing.
+          tar --create --file "$out/sonar-binaries.tar" -- "${dirs[@]}"
+          jq -n \
+            --arg event "$EVENT_NAME" \
+            --arg pr_number "$PR_NUMBER" \
+            --arg head_sha "$HEAD_SHA" \
+            --arg base_ref "$BASE_REF" \
+            --arg head_ref "$HEAD_REF" \
+            '{event: $event, pr_number: $pr_number, head_sha: $head_sha, base_ref: $base_ref, head_ref: $head_ref}' \
+            > "$out/metadata.json"
+          ls -l "$out"
+
+      - name: Upload build output
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: sonar-build-output
+          path: ${{ runner.temp }}/sonar-upload/
+          if-no-files-found: error
+          retention-days: 1
