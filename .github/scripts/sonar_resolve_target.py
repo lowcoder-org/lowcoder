@@ -7,6 +7,8 @@ every value is validated here before it can reach `GITHUB_OUTPUT` or the scanner
 `args`. Only the PR number is taken from the artifact; branch names and the head
 repository come from the GitHub API.
 
+The --metadata path is canonicalised and must resolve inside $RUNNER_TEMP.
+
 Limits: this script binds a PR number to a head SHA and a head repository. It does
 not make the *contents* of the commit trustworthy; the scanner still parses them.
 
@@ -29,6 +31,7 @@ REPO_RE = re.compile(r"^[A-Za-z0-9._-]{1,100}/[A-Za-z0-9._-]{1,100}$")
 
 MAX_METADATA_BYTES = 4096
 API_TIMEOUT_SECONDS = 60
+ENV_TEMP_ROOT = "RUNNER_TEMP"
 
 EVENT_PULL_REQUEST = "pull_request"
 EVENT_PUSH = "push"
@@ -62,6 +65,27 @@ class UnsupportedEventError(ResolveError):
 
 class ApiError(ResolveError):
     """The GitHub API call failed or returned an unusable payload."""
+
+
+class PathConfinementError(ResolveError):
+    """A CLI path resolves outside the directory it must stay inside."""
+
+
+def confine_path(path: str, root: str, what: str) -> str:
+    """Canonicalise `path` and require it to be `root` or inside it.
+
+    Order matters: normalise with realpath (resolves `..` and symlinks), then compare
+    against the realpath of the root with a trailing separator, so `/base-evil` does
+    not pass for `/base`. The same helper is duplicated in sonar_artifact_extract.py,
+    because these scripts run with `python3 -I` and cannot import each other.
+    """
+    if not root:
+        raise PathConfinementError(f"no trusted root directory for {what}")
+    base = os.path.realpath(root)
+    resolved = os.path.realpath(path)
+    if resolved != base and not resolved.startswith(base + os.sep):
+        raise PathConfinementError(f"{what} {path!r} resolves outside {base}")
+    return resolved
 
 
 def _require(value: str, pattern: "re.Pattern[str]", what: str) -> str:
@@ -186,12 +210,14 @@ def format_outputs(outputs: Mapping[str, str]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def main(argv=None) -> int:
+def main(argv=None, env=None) -> int:
+    env = os.environ if env is None else env
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--metadata", required=True, help="path to the artifact metadata.json")
     args = parser.parse_args(argv)
     try:
-        outputs = resolve(os.environ, load_metadata(args.metadata))
+        metadata_path = confine_path(args.metadata, env.get(ENV_TEMP_ROOT, ""), "--metadata")
+        outputs = resolve(env, load_metadata(metadata_path))
         sys.stdout.write(format_outputs(outputs))
     except ResolveError as exc:
         print(f"sonar_resolve_target: {type(exc).__name__}: {exc}", file=sys.stderr)
