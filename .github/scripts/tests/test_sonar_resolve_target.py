@@ -1,3 +1,4 @@
+import io
 import json
 import os
 import sys
@@ -200,6 +201,73 @@ class MetadataAndOutputTest(unittest.TestCase):
             rt.fetch_pr(REPO, "5\n")
         with self.assertRaises(rt.InvalidValueError):
             rt.fetch_pr(REPO, "5; id")
+
+
+class MainAndConfinementTest(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.tmp = Path(self._tmp.name)
+        self.metadata = self.tmp / "metadata.json"
+        self.metadata.write_text(json.dumps({"event": "push", "pr_number": "", "head_sha": SHA}))
+        self.env = {
+            rt.ENV_TEMP_ROOT: str(self.tmp),
+            "REPO": REPO,
+            "DEFAULT_BRANCH": "main",
+            "RUN_EVENT": "push",
+            "RUN_HEAD_SHA": SHA,
+            "RUN_HEAD_BRANCH": "main",
+            "RUN_HEAD_REPO": REPO,
+        }
+
+    def run_main(self, metadata_path, env):
+        stdout, stderr = io.StringIO(), io.StringIO()
+        old_out, old_err = sys.stdout, sys.stderr
+        sys.stdout, sys.stderr = stdout, stderr
+        try:
+            code = rt.main(["--metadata", str(metadata_path)], env)
+        finally:
+            sys.stdout, sys.stderr = old_out, old_err
+        return code, stdout.getvalue(), stderr.getvalue()
+
+    def test_main_happy_path_inside_temp_root(self):
+        code, out, _ = self.run_main(self.metadata, self.env)
+        self.assertEqual(code, rt.EXIT_OK)
+        self.assertIn("mode=push\n", out)
+
+    def test_main_rejects_metadata_outside_temp_root(self):
+        outside = tempfile.TemporaryDirectory()
+        self.addCleanup(outside.cleanup)
+        elsewhere = Path(outside.name) / "metadata.json"
+        elsewhere.write_text(self.metadata.read_text())
+        code, out, err = self.run_main(elsewhere, self.env)
+        self.assertEqual(code, rt.EXIT_FAILURE)
+        self.assertEqual(out, "")
+        self.assertIn("PathConfinementError", err)
+
+    def test_main_rejects_dotdot_escape(self):
+        code, _, err = self.run_main(self.tmp / ".." / "metadata.json", self.env)
+        self.assertEqual(code, rt.EXIT_FAILURE)
+        self.assertIn("PathConfinementError", err)
+
+    def test_main_requires_temp_root_in_env(self):
+        env = dict(self.env)
+        del env[rt.ENV_TEMP_ROOT]
+        code, _, err = self.run_main(self.metadata, env)
+        self.assertEqual(code, rt.EXIT_FAILURE)
+        self.assertIn("PathConfinementError", err)
+
+    def test_partial_prefix_sibling_is_rejected(self):
+        with self.assertRaises(rt.PathConfinementError):
+            rt.confine_path(str(self.tmp) + "-evil/f", str(self.tmp), "x")
+
+    def test_symlink_escape_is_rejected(self):
+        outside = tempfile.TemporaryDirectory()
+        self.addCleanup(outside.cleanup)
+        link = self.tmp / "link"
+        os.symlink(outside.name, link)
+        with self.assertRaises(rt.PathConfinementError):
+            rt.confine_path(str(link / "f"), str(self.tmp), "x")
 
 
 if __name__ == "__main__":

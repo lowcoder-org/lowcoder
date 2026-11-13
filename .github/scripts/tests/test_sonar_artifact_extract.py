@@ -258,17 +258,99 @@ class ExtractTest(Base):
         with self.assertRaises(ex.ArchiveError):
             self.run_extract()
 
+    def cli_args(self, **overrides):
+        values = {
+            "--properties": str(self.props),
+            "--archive": str(self.archive),
+            "--staging": str(self.staging),
+            "--workspace": str(self.workspace),
+        }
+        values.update(overrides)
+        return [item for pair in values.items() for item in pair]
+
+    def cli_env(self):
+        return {ex.ENV_TEMP_ROOT: str(self.tmp), ex.ENV_WORKSPACE_ROOT: str(self.workspace)}
+
+    def run_main(self, args, env):
+        stderr = io.StringIO()
+        original = sys.stderr
+        sys.stderr = stderr
+        try:
+            code = ex.main(args, env)
+        finally:
+            sys.stderr = original
+        return code, stderr.getvalue()
+
+    def test_main_happy_path(self):
+        self.build_tar(self.good_entries())
+        code, _ = self.run_main(self.cli_args(), self.cli_env())
+        self.assertEqual(code, ex.EXIT_OK)
+        self.assertTrue((self.workspace / DIR_A / "classes" / "A.class").is_file())
+
     def test_main_returns_nonzero_with_specific_message(self):
         self.build_tar(self.good_entries() + [("/tmp/x", "file", b"x")])
-        code = ex.main(
-            [
-                "--properties", str(self.props),
-                "--archive", str(self.archive),
-                "--staging", str(self.staging),
-                "--workspace", str(self.workspace),
-            ]
-        )
+        code, err = self.run_main(self.cli_args(), self.cli_env())
         self.assertEqual(code, ex.EXIT_FAILURE)
+        self.assertIn("MemberError", err)
+
+    def test_main_rejects_each_path_outside_its_root(self):
+        self.build_tar(self.good_entries())
+        outside = tempfile.TemporaryDirectory()
+        self.addCleanup(outside.cleanup)
+        elsewhere = os.path.join(outside.name, "x")
+        for flag in ["--properties", "--archive", "--staging", "--workspace"]:
+            with self.subTest(flag=flag):
+                code, err = self.run_main(self.cli_args(**{flag: elsewhere}), self.cli_env())
+                self.assertEqual(code, ex.EXIT_FAILURE)
+                self.assertIn("PathConfinementError", err)
+                self.assertIn(flag, err)
+        self.assertFalse(self.staging.exists())
+        self.assertFalse((self.workspace / DIR_A).exists())
+
+    def test_main_rejects_dotdot_escape(self):
+        self.build_tar(self.good_entries())
+        escape = str(self.tmp / ".." / "escape")
+        code, err = self.run_main(self.cli_args(**{"--staging": escape}), self.cli_env())
+        self.assertEqual(code, ex.EXIT_FAILURE)
+        self.assertIn("PathConfinementError", err)
+
+    def test_main_requires_trusted_roots_in_env(self):
+        self.build_tar(self.good_entries())
+        for missing in [ex.ENV_TEMP_ROOT, ex.ENV_WORKSPACE_ROOT]:
+            with self.subTest(missing=missing):
+                env = self.cli_env()
+                del env[missing]
+                code, err = self.run_main(self.cli_args(), env)
+                self.assertEqual(code, ex.EXIT_FAILURE)
+                self.assertIn("PathConfinementError", err)
+
+
+class ConfinePathTest(Base):
+    def test_inside_and_root_itself(self):
+        inside = self.tmp / "a" / "b"
+        self.assertEqual(ex.confine_path(str(inside), str(self.tmp), "x"), os.path.realpath(inside))
+        self.assertEqual(ex.confine_path(str(self.tmp), str(self.tmp), "x"), os.path.realpath(self.tmp))
+
+    def test_relative_dotdot_escape(self):
+        with self.assertRaises(ex.PathConfinementError):
+            ex.confine_path(str(self.tmp / "a" / ".." / ".." / "x"), str(self.tmp), "x")
+
+    def test_partial_prefix_sibling_is_rejected(self):
+        sibling = Path(str(self.tmp) + "-evil")
+        with self.assertRaises(ex.PathConfinementError):
+            ex.confine_path(str(sibling / "f"), str(self.tmp), "x")
+
+    def test_symlink_escape_is_rejected(self):
+        outside = tempfile.TemporaryDirectory()
+        self.addCleanup(outside.cleanup)
+        link = self.tmp / "link"
+        os.symlink(outside.name, link)
+        with self.assertRaises(ex.PathConfinementError):
+            ex.confine_path(str(link / "f"), str(self.tmp), "x")
+
+    def test_empty_root_is_rejected(self):
+        with self.assertRaises(ex.PathConfinementError):
+            ex.confine_path(str(self.tmp), "", "x")
 
 
 if __name__ == "__main__":

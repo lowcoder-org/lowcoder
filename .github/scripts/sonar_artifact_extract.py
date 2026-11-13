@@ -6,9 +6,13 @@ requests, so it is checked member by member before anything is written to the
 workspace. The allowlist is the `sonar.java.binaries` list of the TRUSTED copy of
 sonar-project.properties, so there is no second list to drift.
 
+Every CLI path is canonicalised and confined before use: --properties, --archive and
+--staging must resolve inside $RUNNER_TEMP, --workspace inside $GITHUB_WORKSPACE.
+
 Limits: this guarantees that only regular files and directories under the allowed
 `target/` dirs are placed. It says nothing about whether the class files themselves
-are benign; the scanner parses them as data.
+are benign; the scanner parses them as data. The path confinement is a guard on the
+arguments only; it does not make the archive contents trustworthy.
 """
 
 import argparse
@@ -24,6 +28,8 @@ ALLOWED_DIR_RE = re.compile(r"^server/api-service/[A-Za-z0-9._/-]+/target$")
 MAX_MEMBERS = 200_000
 MAX_TOTAL_BYTES = 3 * 1024 ** 3
 MIN_PYTHON = (3, 12)
+ENV_TEMP_ROOT = "RUNNER_TEMP"
+ENV_WORKSPACE_ROOT = "GITHUB_WORKSPACE"
 
 EXIT_OK = 0
 EXIT_FAILURE = 1
@@ -47,6 +53,27 @@ class MemberError(ExtractError):
 
 class PlacementError(ExtractError):
     """The workspace cannot safely receive the extracted directories."""
+
+
+class PathConfinementError(ExtractError):
+    """A CLI path resolves outside the directory it must stay inside."""
+
+
+def confine_path(path: str, root: str, what: str) -> str:
+    """Canonicalise `path` and require it to be `root` or inside it.
+
+    Order matters: normalise with realpath (resolves `..` and symlinks), then compare
+    against the realpath of the root with a trailing separator, so `/base-evil` does
+    not pass for `/base`. The same helper is duplicated in sonar_resolve_target.py,
+    because these scripts run with `python3 -I` and cannot import each other.
+    """
+    if not root:
+        raise PathConfinementError(f"no trusted root directory for {what}")
+    base = os.path.realpath(root)
+    resolved = os.path.realpath(path)
+    if resolved != base and not resolved.startswith(base + os.sep):
+        raise PathConfinementError(f"{what} {path!r} resolves outside {base}")
+    return resolved
 
 
 def parse_allowed_dirs(properties_path: str) -> List[str]:
@@ -172,7 +199,8 @@ def extract_and_place(
     place(staging, workspace, allowed)
 
 
-def main(argv=None) -> int:
+def main(argv=None, env=None) -> int:
+    env = os.environ if env is None else env
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--properties", required=True, help="TRUSTED sonar-project.properties")
     parser.add_argument("--archive", required=True)
@@ -180,7 +208,14 @@ def main(argv=None) -> int:
     parser.add_argument("--workspace", required=True)
     args = parser.parse_args(argv)
     try:
-        extract_and_place(args.properties, args.archive, args.staging, args.workspace)
+        temp_root = env.get(ENV_TEMP_ROOT, "")
+        workspace_root = env.get(ENV_WORKSPACE_ROOT, "")
+        extract_and_place(
+            confine_path(args.properties, temp_root, "--properties"),
+            confine_path(args.archive, temp_root, "--archive"),
+            confine_path(args.staging, temp_root, "--staging"),
+            confine_path(args.workspace, workspace_root, "--workspace"),
+        )
     except ExtractError as exc:
         print(f"sonar_artifact_extract: {type(exc).__name__}: {exc}", file=sys.stderr)
         return EXIT_FAILURE
