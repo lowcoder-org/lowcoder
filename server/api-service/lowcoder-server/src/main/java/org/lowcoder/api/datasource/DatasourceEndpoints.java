@@ -190,6 +190,21 @@ public interface DatasourceEndpoints
     @GetMapping("/info")
     public Mono<ResponseView<Object>> info(@RequestParam(required = false) String datasourceId);
 
+
+	@Operation(
+			tags = TAG_DATASOURCE_PERMISSIONS,
+			operationId = "listGroupsOrMembersWithoutPermissionsForDatasource",
+			summary = "Get groups or members without permissions for datasource",
+			description = "Retrieve the groups or members of a specific datasource identified by its ID that do not have permissions."
+	)
+	@GetMapping("/{datasourceId}/available")
+	public Mono<PageResponseView<?>> getGroupsOrMembersWithoutPermissions(
+			@PathVariable String datasourceId,
+			@RequestParam(required = false) String search,
+			@RequestParam(required = false, defaultValue = "1") Integer pageNum,
+			@RequestParam(required = false, defaultValue = "1000") Integer pageSize
+	);
+
     public record BatchAddPermissionRequest(String role, Set<String> userIds, Set<String> groupIds) {
     }
 
