@@ -8620,7 +8620,7 @@ __metadata:
     nodemon: ^3.1.9
     openapi-types: ^12.1.3
     pino: ^9.5.0
-    playwright: 1.64.0
+    playwright: 1.65.1
     postman-to-openapi: ^3.0.1
     prom-client: ^14.2.0
     proxy-agent: ^6.5.0
@@ -9703,23 +9703,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.64.0":
-  version: 1.64.0
-  resolution: "playwright-core@npm:1.64.0"
+"playwright-core@npm:1.65.1":
+  version: 1.65.1
+  resolution: "playwright-core@npm:1.65.1"
   bin:
     playwright-core: cli.js
-  checksum: 60384301a8acd54dc91d8053e76616406db540b322f19f617c77ae4db8e6d3dc2f9f7b6ed0999dcbf455c65130316897c7f5c721b4591734ec237e121a322561
+  checksum: efc868c56e146861b50e7c581eebb99e0530c5aa88645ff324e29ced183dfe085b86e58400a4a6f00c6c3bc30dbefd0a7a98497bf5bd38bfb09eaaae3db9a9d7
   languageName: node
   linkType: hard
 
-"playwright@npm:1.64.0":
-  version: 1.64.0
-  resolution: "playwright@npm:1.64.0"
+"playwright@npm:1.65.1":
+  version: 1.65.1
+  resolution: "playwright@npm:1.65.1"
   dependencies:
-    playwright-core: 1.64.0
+    playwright-core: 1.65.1
   bin:
     playwright: cli.js
-  checksum: fa6aa08097d305bffc99613ae5484651670e2210bb9d7bfb268570d9d957feccce975b7f74fb6042f4e714e05fabcfd54166e48c3ac88f68a59e7d308e9663af
+  checksum: f633e048a73f5e09e3d1093484a184f90b405ea0eddc5e15541d43099f2d3ca0a8eff1f1523f868fa9bbd3417e2d153f0085e9f0f24fb3f4dd1a4c2baabd0e48
   languageName: node
   linkType: hard
 
