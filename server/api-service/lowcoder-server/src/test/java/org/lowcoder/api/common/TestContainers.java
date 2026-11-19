@@ -21,14 +21,18 @@ import org.testcontainers.utility.DockerImageName;
  *
  * <p>Limits: the tests need a running Docker daemon; without one the first context fails to start with Testcontainers'
  * "Could not find a valid Docker environment". MongoDB runs as a single-node replica set (how {@link MongoDBContainer}
- * starts it), where the embedded mongod was standalone; the module's whole suite passed against it (1117 unit and 93
- * integration tests, 2026-10-04), which shows no test depends on the difference, not that none ever could.
+ * starts it), where the embedded mongod was standalone; the module's whole suite passed against it on MongoDB 7.0
+ * (3285 tests with 5 skipped, plus the 2 of UsAsciiDefaultCharsetTest, {@code mvn clean verify}, 2026-11-19),
+ * which shows no test depends on the difference, not that none ever could.
  */
 public final class TestContainers {
 
-    /** MongoDB 4.0, the line of the embedded mongod the tests ran against before (4.0.2); pinned by digest. */
+    /**
+     * MongoDB 7.0, pinned by digest: 7.x is the supported minimum of self-hosted installs (decision D2 of
+     * BOOT4-JDK25-p0-index-plan.md), and the MongoDB driver 5.5 of Spring Boot 3.5 refuses servers below 4.2.
+     */
     static final DockerImageName MONGO_IMAGE =
-            DockerImageName.parse(ContainerImages.MONGO_4_0).asCompatibleSubstituteFor("mongo");
+            DockerImageName.parse(ContainerImages.MONGO_7_0).asCompatibleSubstituteFor("mongo");
     static final DockerImageName REDIS_IMAGE = DockerImageName.parse(ContainerImages.REDIS_7_2);
     static final int REDIS_PORT = 6379;
 

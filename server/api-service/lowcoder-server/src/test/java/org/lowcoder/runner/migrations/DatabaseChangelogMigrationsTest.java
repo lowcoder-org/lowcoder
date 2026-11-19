@@ -56,10 +56,11 @@ import lombok.extern.slf4j.Slf4j;
  * manual re-run; the tests that run a changeset twice describe what such a re-run does, not something the application
  * does by itself.
  *
- * <p>The container is {@code mongo:4.0.28}, so {@code addTimeSeriesSnapshotHistory} takes its {@code < 5} ({@code $out})
- * branch; its {@code >= 5} branch is not reachable here and stays uncovered. {@link ArchiveSnapshotTask} runs once at
+ * <p>The container is {@code mongo:7.0}, so {@code addTimeSeriesSnapshotHistory} takes its {@code >= 5} branch (a
+ * time-series archive, filled with inserts); its {@code < 5} ({@code $out}) branch is not reachable here and stays
+ * uncovered. {@link ArchiveSnapshotTask} runs once at
  * context start (initialDelay 0) against the same collections; the test waits for the scheduler thread to go idle before it
- * seeds anything. The task's archival itself is tested by ArchiveSnapshotTaskTest and ArchiveSnapshotTaskBelow5Test (L2-11b).
+ * seeds anything. The task's archival itself is tested by ArchiveSnapshotTaskTest and ArchiveSnapshotTaskMongo5Test (L2-11b).
  */
 @SpringBootTest(classes = ServerApplication.class)
 @ActiveProfiles("databaseChangelog")
@@ -91,6 +92,7 @@ public class DatabaseChangelogMigrationsTest {
     private static final String FIRST_VERSION_TAG = "1.0.0";
     private static final int KEEP_DAYS_TOLERANCE_DAYS = 1;
     private static final int MONGO_TIME_SERIES_MAJOR = 5;
+    private static final String TIME_SERIES_TYPE = "timeseries";
     private static final String SCHEDULER_THREAD = "scheduling-1";
     private static final Duration ARCHIVE_WAIT = Duration.ofSeconds(60);
 
@@ -340,12 +342,12 @@ public class DatabaseChangelogMigrationsTest {
         assertThat(byId(USER, only)).isNotNull();
     }
 
-    // ---------------------------------------------------------------- 026 time-series snapshot history (MongoDB < 5)
+    // ---------------------------------------------------------------- 026 time-series snapshot history (MongoDB 5 and later)
 
     @Test
-    public void addTimeSeriesSnapshotHistory_onMongoBelow5_movesOnlySnapshotsOlderThanTheKeepDuration() {
-        assertThat(mongoMajorVersion()).as("the container's MongoDB major version (the < 5 branch is the one that runs)")
-                .isLessThan(MONGO_TIME_SERIES_MAJOR);
+    public void addTimeSeriesSnapshotHistory_onMongo5AndLater_movesOnlySnapshotsOlderThanTheKeepDuration() {
+        assertThat(mongoMajorVersion()).as("the container's MongoDB major version (the >= 5 branch is the one that runs)")
+                .isGreaterThanOrEqualTo(MONGO_TIME_SERIES_MAJOR);
         Instant oldEnough = Instant.now().minus(commonConfig.getQuery().getAppSnapshotKeepDuration() + KEEP_DAYS_TOLERANCE_DAYS, java.time.temporal.ChronoUnit.DAYS);
         Instant recent = Instant.now().minus(1, java.time.temporal.ChronoUnit.DAYS);
         ObjectId oldOne = new ObjectId();
@@ -367,25 +369,37 @@ public class DatabaseChangelogMigrationsTest {
     }
 
     /**
-     * On MongoDB below 5 the changeset moves the old snapshots with {@code $out}, which replaces the target collection:
-     * what the time-series collection held before the run is gone afterwards, and a run with nothing to move empties it.
-     * Pinned as observed (a manual re-run only: Mongock runs the changeset once per database).
+     * On MongoDB 5 and later the changeset creates the archive as a time-series collection when it is missing, and it
+     * moves the old snapshots with inserts, which add to the target: what the archive held before the run stays, and a run
+     * with nothing to move leaves it as it is. (A manual re-run only: Mongock runs the changeset once per database.)
      */
     @Test
-    public void addTimeSeriesSnapshotHistory_onMongoBelow5_outReplacesWhatTheTargetHeld() {
+    public void addTimeSeriesSnapshotHistory_onMongo5AndLater_createsATimeSeriesArchive_andKeepsWhatTheTargetHeld() {
+        assertThat(mongoMajorVersion()).as("the container's MongoDB major version (the >= 5 branch is the one that runs)")
+                .isGreaterThanOrEqualTo(MONGO_TIME_SERIES_MAJOR);
         Instant oldEnough = Instant.now().minus(commonConfig.getQuery().getAppSnapshotKeepDuration() + KEEP_DAYS_TOLERANCE_DAYS, java.time.temporal.ChronoUnit.DAYS);
-        db.getCollection(SNAPSHOT_TS).insertOne(snapshot(new ObjectId(), "archived-earlier", oldEnough));
-        db.getCollection(SNAPSHOT).insertOne(snapshot(new ObjectId(), "moved-now", oldEnough));
+        db.getCollection(SNAPSHOT_TS).drop();
+        db.getCollection(SNAPSHOT).insertOne(snapshot(new ObjectId(), "moved-first", oldEnough));
 
         changelog.addTimeSeriesSnapshotHistory(mongock, commonConfig);
 
+        String type = collectionType(SNAPSHOT_TS);
         List<String> afterFirst = applicationIds(SNAPSHOT_TS);
-        log.info("{}after first run: {}", TAG, afterFirst);
-        assertThat(afterFirst).as("the earlier archive row is replaced").containsExactly("moved-now");
+        log.info("{}archive type={} after first run: {}", TAG, type, afterFirst);
+        assertThat(type).as("type of " + SNAPSHOT_TS + " as listCollections reports it after the changeset created it")
+                .isEqualTo(TIME_SERIES_TYPE);
+        assertThat(afterFirst).as("the old snapshot is in the new archive").containsExactly("moved-first");
+
+        db.getCollection(SNAPSHOT).insertOne(snapshot(new ObjectId(), "moved-second", oldEnough));
+        changelog.addTimeSeriesSnapshotHistory(mongock, commonConfig);
+
+        assertThat(applicationIds(SNAPSHOT_TS)).as("the earlier archive row stays and the new one is added")
+                .containsExactlyInAnyOrder("moved-first", "moved-second");
 
         changelog.addTimeSeriesSnapshotHistory(mongock, commonConfig);
 
-        assertThat(applicationIds(SNAPSHOT_TS)).as("a run with nothing to move empties the archive").isEmpty();
+        assertThat(applicationIds(SNAPSHOT_TS)).as("a run with nothing to move leaves the archive as it is")
+                .containsExactlyInAnyOrder("moved-first", "moved-second");
     }
 
     // ---------------------------------------------------------------- helpers of the changelog
@@ -446,6 +460,13 @@ public class DatabaseChangelogMigrationsTest {
 
     private List<String> collectionNames() {
         return db.listCollectionNames().into(new ArrayList<>());
+    }
+
+    /** The {@code type} listCollections reports for the collection: {@code collection} or {@code timeseries}. */
+    private String collectionType(String name) {
+        Document info = db.listCollections().filter(new Document("name", name)).first();
+        assertThat(info).as("listCollections entry of " + name).isNotNull();
+        return info.getString("type");
     }
 
     private static List<String> indexNames(MongoCollection<Document> collection) {

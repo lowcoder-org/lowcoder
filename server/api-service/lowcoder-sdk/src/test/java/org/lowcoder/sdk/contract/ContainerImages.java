@@ -22,10 +22,7 @@ package org.lowcoder.sdk.contract;
  */
 public final class ContainerImages {
 
-    /** The server's tests: the line of the embedded mongod they ran against before (4.0.2). */
-    public static final String MONGO_4_0 =
-            "mongo:4.0.28@sha256:4ca81c89ad08f4cfa9906005126112bffe8fb363800466ef5e50f6238f6f6af1";
-    /** mongoPlugin's container tests. */
+    /** The MongoDB container of lowcoder-server's Spring tests ({@code TestContainers}) and of mongoPlugin's container tests. */
     public static final String MONGO_7_0 =
             "mongo:7.0@sha256:d5b3ca8c3f3cdce78d44870dc0871b76d5235e9b2ad4ea6bea5d1fbff8027703";
     public static final String REDIS_7_2 =
