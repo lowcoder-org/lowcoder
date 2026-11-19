@@ -3,6 +3,7 @@ package org.lowcoder.infra.birelation;
 import com.google.common.base.Preconditions;
 import lombok.RequiredArgsConstructor;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
+import org.lowcoder.sdk.constants.FieldName;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -25,6 +26,8 @@ public class BiRelationServiceImpl implements BiRelationService {
     private static final String SOURCE_ID = "sourceId";
     private static final String TARGET_ID = "targetId";
     private static final String RELATION = "relation";
+    /** The relation of a super admin's membership, which removing all of a source's relations keeps. */
+    private static final String SUPER_ADMIN_RELATION = "super_admin";
 
     private final BiRelationRepository biRelationRepository;
     private final MongoUpsertHelper mongoUpsertHelper;
@@ -127,12 +130,20 @@ public class BiRelationServiceImpl implements BiRelationService {
         return mongoUpsertHelper.remove(query, BiRelation.class);
     }
 
+    /**
+     * Removes every relation of the source except the super admin's (BF-016: the criterion is {@code ne}; the former
+     * {@code is(...).not()} was rendered as {@code {relation: "super_admin"}} and removed only the super admin's row). It
+     * runs when an organization or a group is deleted, through {@code deleteOrgMembers} and {@code deleteGroupMembers}.
+     * <p>
+     * Limits: the super admin's row of the deleted source stays, by design; the list variant
+     * {@link #removeAllBiRelations(BiRelationBizType, List)} keeps no row.
+     */
     @Override
     public Mono<Boolean> removeAllBiRelations(BiRelationBizType bizType, String sourceId) {
         Query query = new Query();
         query.addCriteria(where(BIZ_TYPE).is(bizType));
         query.addCriteria(where(SOURCE_ID).is(sourceId));
-        query.addCriteria(where(RELATION).is("super_admin").not());
+        query.addCriteria(where(RELATION).ne(SUPER_ADMIN_RELATION));
         return mongoUpsertHelper.remove(query, BiRelation.class);
     }
 
@@ -226,10 +237,13 @@ public class BiRelationServiceImpl implements BiRelationService {
         return biRelationRepository.findById(id);
     }
 
+    /**
+     * Whether a row with this id was removed: false for an id no row has (BF-084: the completion of the delete was
+     * answered with true whether or not a row existed). An error still answers false, as before.
+     */
     @Override
     public Mono<Boolean> removeBiRelationById(String id) {
-        return biRelationRepository.deleteById(id)
-                .thenReturn(true)
+        return mongoUpsertHelper.remove(new Query(where(FieldName.ID).is(id)), BiRelation.class)
                 .onErrorReturn(false);
     }
 }

@@ -67,6 +67,8 @@ public class SuggestAppAdminSolutionServiceImpl implements SuggestAppAdminSoluti
                 .flatMapIterable(list -> list)
                 .map(GroupMember::getUserId)
                 .filter(it -> !adminUserIdSet.contains(it))
+                // BF-138: a member of several owner groups is suggested once, and counts once against the limit
+                .distinct()
                 .take(limit - adminUserIds.size())
                 .collectList()
                 .map(groupUserIds -> {

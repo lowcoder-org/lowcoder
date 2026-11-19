@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.sql.Connection;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,10 +70,15 @@ import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
 import org.lowcoder.domain.solutions.TemplateSolutionService;
 import org.lowcoder.domain.template.model.Template;
 import org.lowcoder.domain.template.service.TemplateService;
+import org.lowcoder.plugin.sql.GeneralSqlExecutor;
+import org.lowcoder.plugin.sql.SqlBasedQueryExecutor;
 import org.lowcoder.sdk.constants.Authentication;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
+import org.lowcoder.sdk.models.DatasourceStructure;
 import org.lowcoder.sdk.plugin.common.QueryExecutor;
+import org.lowcoder.sdk.plugin.common.sql.SqlBasedDatasourceConnectionConfig;
+import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -83,23 +89,22 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 /**
- * Branch tests of {@link ApplicationApiServiceImpl} with every collaborator mocked: the request-type gate of the
- * published view, the DSL sanitising of published and module DSL, the readable permission errors, the update and
- * datasource-permission checks and the small guards around them. The Spring tests of this class
+ * Branch tests of {@link ApplicationApiServiceImpl} with its collaborators mocked (one exception below): the request-type
+ * gate of the published view, the DSL sanitising of published and module DSL, the readable permission errors, the update
+ * and datasource-permission checks and the small guards around them. The Spring tests of this class
  * ({@code ApplicationApiServiceTest}, {@code ApplicationApiServiceIntegrationTest}) run the happy paths with the real
  * services.
  *
  * <p>Split with L3-12 (plan section 6.5): {@code ApplicationService}, {@code ApplicationRecordService} and the other
  * domain services are mocked here, so no {@code ApplicationServiceImpl} or {@code BundleServiceImpl} code runs; the
- * dependent-module expansion is only stubbed. Lines {@code :539-541} (the catch of the 5 second {@code block}) stay
- * uncovered on purpose: they need a timeout, and a 5 second test is not worth it.
+ * dependent-module expansion is only stubbed. Lines {@code :570-572} (the catch of the 5 second {@code block}) stay
+ * uncovered on purpose: they need a timeout, and a 5 second test is not worth it. The one exception to the mocked
+ * collaborators: {@link #getPublishedApplication_givesASqlQueryOnlyTheKeysOutsideItsCommentsNEW33} sanitizes with a real
+ * SQL executor (NEW-33).
  *
- * <p>Pinned production defects (owner decision D-6: fixes are deferred, a fix changes these tests on purpose):
- * <ul>
- * <li>plan section 9 row "ApplicationApiServiceImpl.getEditingApplication skips the edit-permission check for an app
- * that is public to all and to the marketplace, and that read also writes the application", see
- * {@link #getEditingApplication_publicMarketplaceApp_skipsTheEditPermissionCheckAndWritesTheApplication}.</li>
- * </ul>
+ * <p>Fixed since: the plan section 9 row "ApplicationApiServiceImpl.getEditingApplication skips the edit-permission check
+ * for an app that is public to all and to the marketplace, and that read also writes the application" (BF-018), see
+ * {@link #getEditingApplication_publicMarketplaceApp_withoutEditPermission_getsTheMarketplaceView_andWritesNothing}.
  */
 @ExtendWith(MockitoExtension.class)
 class ApplicationApiServiceImplBranchesTest {
@@ -126,6 +131,10 @@ class ApplicationApiServiceImplBranchesTest {
     private static final String MSG_NO_EDIT = "NO_PERMISSION_TO_EDIT";
     private static final String MSG_NO_VIEW = "NO_PERMISSION_TO_VIEW";
     private static final String MSG_LACK_OF_DATASOURCE = "APPLICATION_EDIT_ERROR_LACK_OF_DATASOURCE_PERMISSIONS";
+    /** A SQL query with a key in the SQL, one in a {@code --} comment and one in a block comment (NEW-33). */
+    private static final String SQL_WITH_KEYS_IN_COMMENTS = "select {{a}} from t -- {{b}}\nwhere c = 1 /* {{c}} */";
+    private static final String KEY_OUTSIDE_COMMENTS = "{{a}}";
+    private static final String NOT_CALLED_IN_SQL_MODE = "not called when a SQL-mode query is sanitized";
 
     @Mock
     private ApplicationService applicationService;
@@ -585,6 +594,34 @@ class ApplicationApiServiceImplBranchesTest {
         say("published view: module %s DSL sanitised: %s", MODULE_ID, moduleDsl);
     }
 
+    /**
+     * NEW-33 with the real SQL sanitizer behind the published view (a service-level test: no HTTP, no serialization): a
+     * SQL-mode query becomes a {@code view} query whose fields are the keys of its comment-stripped template only, and its
+     * SQL is not in the view. Catches: keys written only in comments published, or the SQL kept.
+     */
+    @Test
+    void getPublishedApplication_givesASqlQueryOnlyTheKeysOutsideItsCommentsNEW33() {
+        SqlBasedQueryExecutor sqlExecutor = new SqlBasedQueryExecutor(new GeneralSqlExecutor()) {
+            @Override
+            protected GuiSqlCommand parseSqlCommand(String guiStatementType, Map<String, Object> detail) {
+                throw new UnsupportedOperationException(NOT_CALLED_IN_SQL_MODE);
+            }
+
+            @Override
+            protected DatasourceStructure getDatabaseMetadata(Connection connection, SqlBasedDatasourceConnectionConfig connectionConfig) {
+                throw new UnsupportedOperationException(NOT_CALLED_IN_SQL_MODE);
+            }
+        };
+        doReturn(sqlExecutor).when(datasourceMetaInfoService).getQueryExecutor("mysql");
+
+        ApplicationView view = published(app(dsl("queries", list(
+                dsl("id", "q1", "compType", "mysql", "comp", dsl("mode", "SQL", "sql", SQL_WITH_KEYS_IN_COMMENTS))))));
+
+        say("published view of [%s]: %s", SQL_WITH_KEYS_IN_COMMENTS.replace("\n", "\\n"), view.getApplicationDSL().get("queries"));
+        assertThat(view.getApplicationDSL().get("queries"))
+                .isEqualTo(List.of(dsl("id", "q1", "compType", "view", "comp", dsl("fields", Set.of(KEY_OUTSIDE_COMMENTS)))));
+    }
+
     static Stream<Arguments> testValueRows() {
         Supplier<Map<String, Object>> noUi = () -> dsl("x", 1);
         Supplier<Map<String, Object>> uiWithoutComp = () -> dsl("ui", dsl());
@@ -642,8 +679,8 @@ class ApplicationApiServiceImplBranchesTest {
 
     /**
      * Catches the editor losing its own test data (the edited application's DSL is returned unsanitised) and a module
-     * leaking its secrets (dependent module DSL is sanitised); the application is written back, and the view carries
-     * the org common settings and the folder id of the folder relation.
+     * leaking its secrets (dependent module DSL is sanitised); nothing is written (BF-018), and the view carries the org
+     * common settings and the folder id of the folder relation.
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
@@ -668,31 +705,119 @@ class ApplicationApiServiceImplBranchesTest {
         assertThat(view.getOrgCommonSettings()).containsEntry("k", "v");
         assertThat(view.getApplicationInfoView().getFolderId()).isEqualTo(FOLDER_ID);
         assertThat(view.getApplicationInfoView().getRole()).isEqualTo(ResourceRole.EDITOR.getValue());
-        verify(applicationService).updateById(APP_ID, application);
+        verify(applicationService, never()).updateById(any(), any());
         say("getEditingApplication: own DSL kept, module DSL sanitised, folder %s, role %s", FOLDER_ID,
                 view.getApplicationInfoView().getRole());
     }
 
+    /** Org settings as stored: the password-reset template and its update time, and one other setting with its own. */
+    private static OrganizationCommonSettings storedSettingsWithTheTemplate() {
+        OrganizationCommonSettings settings = new OrganizationCommonSettings();
+        settings.put(OrganizationCommonSettings.PASSWORD_RESET_EMAIL_TEMPLATE, "<p>org template %s</p>");
+        settings.put(OrganizationCommonSettings.updateTimeKey(OrganizationCommonSettings.PASSWORD_RESET_EMAIL_TEMPLATE), 1L);
+        settings.put("themeId", "theme-1");
+        settings.put(OrganizationCommonSettings.updateTimeKey("themeId"), 2L);
+        return settings;
+    }
+
     /**
-     * Pins the plan section 9 row "ApplicationApiServiceImpl.getEditingApplication skips the edit-permission check for
-     * an app that is public to all and to the marketplace, and that read also writes the application": a visitor with
-     * no permission at all gets the editing DSL with role "viewer", the edit-permission check is never run, and
-     * {@code updateById} is called. A fix changes this test on purpose. The private-app contrast is
-     * {@link #getEditingApplication_appNotPublicToBoth_needsTheEditPermission}.
+     * GH-02 (GitHub #924): the editing view and the published view (public to all, so also anonymous visitors) carry the
+     * org settings without the password-reset template and its update time; other settings stay. Catches: either view
+     * taking the stored settings unsanitized.
      */
     @Test
-    void getEditingApplication_publicMarketplaceApp_skipsTheEditPermissionCheckAndWritesTheApplication() {
-        Map<String, Object> draftDsl = dsl("draft", "unpublished");
-        Application application = appBuilder(APP_ID, draftDsl).publicToAll(true).publicToMarketplace(true).build();
+    void editingAndPublishedViewsLeaveOutThePasswordResetTemplateGH02() {
+        Application application = app(dsl("ui", dsl()));
         stubEditing(application, List.of());
+        stubPublished(application, ApplicationRequestType.PUBLIC_TO_ALL, List.of());
+        when(organizationService.getOrgCommonSettings(ORG_ID)).thenAnswer(invocation -> Mono.just(storedSettingsWithTheTemplate()));
+
+        ApplicationView editing = service.getEditingApplication(APP_ID, false).block();
+        ApplicationView published = service.getPublishedApplication(APP_ID, ApplicationRequestType.PUBLIC_TO_ALL, false).block();
+
+        say("GH-02 editing settings %s, published settings %s", editing.getOrgCommonSettings(), published.getOrgCommonSettings());
+        Map<String, Object> expected = Map.of("themeId", "theme-1", "themeId_updateTime", 2L);
+        assertThat(editing.getOrgCommonSettings()).isEqualTo(expected);
+        assertThat(published.getOrgCommonSettings()).isEqualTo(expected);
+    }
+
+    /** A public-to-all marketplace application whose editing DSL is a draft and whose published version differs. */
+    private Application publicMarketplaceAppWithAPublishedVersion(ApplicationStatus status) {
+        Application application = appBuilder(APP_ID, dsl("draft", "unpublished")).publicToAll(true).publicToMarketplace(true)
+                .applicationStatus(status).build();
+        stubEditing(application, List.of());
+        stubPublished(application, ApplicationRequestType.PUBLIC_TO_MARKETPLACE, List.of());
+        when(applicationRecordService.getLatestRecordByApplicationId(APP_ID))
+                .thenReturn(Mono.just(ApplicationVersion.builder().applicationDSL(dsl("published", "v1")).build()));
+        return application;
+    }
+
+    static Stream<Arguments> visitorsWithoutEditPermission() {
+        return Stream.of(
+                Arguments.of("anonymous", UserPermissionOnResourceStatus.anonymousUser()),
+                Arguments.of("not in the org", UserPermissionOnResourceStatus.notInOrg()),
+                Arguments.of("without permission", UserPermissionOnResourceStatus.notEnoughPermission()),
+                Arguments.of("viewer permission (as for an application's creator)",
+                        UserPermissionOnResourceStatus.success(permission(ResourceRole.VIEWER))));
+    }
+
+    /**
+     * BF-018 (was the pin of the plan section 9 row "getEditingApplication skips the edit-permission check for an app that
+     * is public to all and to the marketplace, and that read also writes the application"): a visitor without
+     * EDIT_APPLICATIONS on such an application gets the marketplace view (role viewer, the published DSL), not the
+     * unpublished draft, and nothing is written. A status that carries a permission whose role cannot edit counts as no edit
+     * permission. The marketplace read check is the one the marketplace view runs.
+     */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("visitorsWithoutEditPermission")
+    void getEditingApplication_publicMarketplaceApp_withoutEditPermission_getsTheMarketplaceView_andWritesNothing(String label,
+            UserPermissionOnResourceStatus editStatus) {
+        publicMarketplaceAppWithAPublishedVersion(ApplicationStatus.NORMAL);
+        when(resourcePermissionService.checkUserPermissionStatusOnResource(VISITOR_ID, APP_ID, ResourceAction.EDIT_APPLICATIONS))
+                .thenReturn(Mono.just(editStatus));
 
         ApplicationView view = service.getEditingApplication(APP_ID, false).block();
 
         assertThat(view.getApplicationInfoView().getRole()).isEqualTo(ResourceRole.VIEWER.getValue());
-        assertThat(view.getApplicationDSL()).isEqualTo(draftDsl);
-        verify(resourcePermissionService, never()).checkUserPermissionStatusOnResource(any(), any(), any());
-        verify(applicationService).updateById(APP_ID, application);
-        say("getEditingApplication of a public+marketplace app: role viewer, edit check skipped, updateById called (section 9 defect pinned)");
+        assertThat(view.getApplicationDSL()).isEqualTo(dsl("published", "v1"));
+        verify(resourcePermissionService).checkUserPermissionStatusOnApplication(VISITOR_ID, APP_ID, ResourceAction.READ_APPLICATIONS,
+                ApplicationRequestType.PUBLIC_TO_MARKETPLACE);
+        verify(applicationService, never()).updateById(any(), any());
+        say("getEditingApplication of a public+marketplace app, visitor %s: published DSL, role viewer, nothing written", label);
+    }
+
+    /**
+     * BF-018: an editor of a public marketplace application gets the editing view with their own role (it used to be
+     * "viewer" for everyone) and the draft DSL, and nothing is written.
+     */
+    @Test
+    void getEditingApplication_publicMarketplaceApp_editorGetsTheEditingView() {
+        publicMarketplaceAppWithAPublishedVersion(ApplicationStatus.NORMAL);
+
+        ApplicationView view = service.getEditingApplication(APP_ID, false).block();
+
+        assertThat(view.getApplicationInfoView().getRole()).isEqualTo(ResourceRole.EDITOR.getValue());
+        assertThat(view.getApplicationDSL()).isEqualTo(dsl("draft", "unpublished"));
+        verify(applicationService, never()).updateById(any(), any());
+        say("getEditingApplication of a public+marketplace app, editor: draft DSL, role editor");
+    }
+
+    /**
+     * BF-018: a visitor without the edit permission never gets a recycled marketplace application, even when asking with
+     * {@code withDeleted = true} (as the marketplace view, which never passes it); an editor still does.
+     */
+    @Test
+    void getEditingApplication_recycledPublicMarketplaceApp_withDeleted_isServedToEditorsOnly() {
+        publicMarketplaceAppWithAPublishedVersion(ApplicationStatus.RECYCLED);
+
+        StepVerifier.create(service.getEditingApplication(APP_ID, true)).expectNextCount(1).verifyComplete();
+
+        when(resourcePermissionService.checkUserPermissionStatusOnResource(VISITOR_ID, APP_ID, ResourceAction.EDIT_APPLICATIONS))
+                .thenReturn(Mono.just(UserPermissionOnResourceStatus.notEnoughPermission()));
+        StepVerifier.create(service.getEditingApplication(APP_ID, true))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.UNSUPPORTED_OPERATION, MSG_BAD_REQUEST))
+                .verify();
+        say("recycled public+marketplace app with withDeleted: editor served, non-editor BAD_REQUEST");
     }
 
     static Stream<Arguments> notPublicToBoth() {
@@ -700,7 +825,7 @@ class ApplicationApiServiceImplBranchesTest {
     }
 
     /**
-     * Contrast to the pinned defect: an application that is not public to both (all, marketplace) needs the
+     * Contrast to the marketplace case: an application that is not public to both (all, marketplace) needs the
      * EDIT_APPLICATIONS permission check, and a visitor without it is refused.
      */
     @ParameterizedTest(name = "publicToAll={0} marketplace={1}")
@@ -981,6 +1106,7 @@ class ApplicationApiServiceImplBranchesTest {
             usableIds.forEach(id -> permitted.put(id, permission(ResourceRole.VIEWER)));
             when(resourcePermissionService.getMaxMatchingPermission(VISITOR_ID, checkedIds, ResourceAction.USE_DATASOURCES))
                     .thenReturn(Mono.just(permitted));
+            when(datasourceService.getObjectIdsByIdOrGid(checkedIds)).thenReturn(Mono.just(Map.of()));
             when(datasourceService.retainNoneExistAndNonCurrentOrgDatasourceIds(checkedIds, ORG_ID))
                     .thenReturn(Flux.fromIterable(noneExistIds));
         }

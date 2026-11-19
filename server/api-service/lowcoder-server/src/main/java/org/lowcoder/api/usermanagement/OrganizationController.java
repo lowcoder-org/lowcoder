@@ -1,8 +1,6 @@
 package org.lowcoder.api.usermanagement;
 
-import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.validation.Valid;
-import org.apache.commons.lang.StringUtils;
 import org.lowcoder.api.authentication.dto.OrganizationDomainCheckResult;
 import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
@@ -82,7 +80,6 @@ public class OrganizationController implements OrganizationEndpoints
 
     @Override
     public Mono<ResponseView<OrgView>> create(@Valid @RequestBody Organization organization) {
-        if(StringUtils.isEmpty(organization.getGid())) organization.setGid(UuidCreator.getTimeOrderedEpoch().toString());
         return orgApiService.create(organization)
                 .map(ResponseView::success);
     }
@@ -90,7 +87,7 @@ public class OrganizationController implements OrganizationEndpoints
     @Override
     public Mono<ResponseView<Boolean>> update(@PathVariable String orgId,
             @Valid @RequestBody UpdateOrgRequest updateOrgRequest) {
-        return gidService.convertOrganizationIdToObjectId(orgId).flatMap(id ->
+        return gidService.convertOrganizationIdToObjectIdOrRefuse(orgId).flatMap(id ->
             orgApiService.update(id, updateOrgRequest)
                 .map(ResponseView::success));
     }
@@ -98,14 +95,14 @@ public class OrganizationController implements OrganizationEndpoints
     @Override
     public Mono<ResponseView<Boolean>> uploadLogo(@PathVariable String orgId,
             @RequestPart("file") Mono<Part> fileMono) {
-        return gidService.convertOrganizationIdToObjectId(orgId).flatMap(id ->
+        return gidService.convertOrganizationIdToObjectIdOrRefuse(orgId).flatMap(id ->
             orgApiService.uploadLogo(id, fileMono)
                 .map(ResponseView::success));
     }
 
     @Override
     public Mono<ResponseView<Boolean>> deleteLogo(@PathVariable String orgId) {
-        return gidService.convertOrganizationIdToObjectId(orgId).flatMap(id ->
+        return gidService.convertOrganizationIdToObjectIdOrRefuse(orgId).flatMap(id ->
             orgApiService.deleteLogo(id)
                 .map(ResponseView::success));
     }
@@ -114,7 +111,7 @@ public class OrganizationController implements OrganizationEndpoints
     public Mono<ResponseView<OrgMemberListView>> getOrgMembers(@PathVariable String orgId,
             @RequestParam(required = false, defaultValue = "1") int pageNum,
             @RequestParam(required = false, defaultValue = "1000") int pageSize) {
-        return gidService.convertOrganizationIdToObjectId(orgId).flatMap(id ->
+        return gidService.convertOrganizationIdToObjectIdOrRefuse(orgId).flatMap(id ->
             orgApiService.getOrganizationMembers(id, pageNum, pageSize)
                 .map(ResponseView::success));
     }
@@ -122,14 +119,14 @@ public class OrganizationController implements OrganizationEndpoints
     @Override
     public Mono<ResponseView<Boolean>> updateRoleForMember(@RequestBody UpdateRoleRequest updateRoleRequest,
             @PathVariable String orgId) {
-        return gidService.convertOrganizationIdToObjectId(orgId).flatMap(id ->
+        return gidService.convertOrganizationIdToObjectIdOrRefuse(orgId).flatMap(id ->
             orgApiService.updateRoleForMember(id, updateRoleRequest)
                 .map(ResponseView::success));
     }
 
     @Override
     public Mono<ResponseView<?>> setCurrentOrganization(@PathVariable String orgId, ServerWebExchange serverWebExchange) {
-        return gidService.convertOrganizationIdToObjectId(orgId).flatMap(id ->
+        return gidService.convertOrganizationIdToObjectIdOrRefuse(orgId).delayUntil(orgApiService::checkVisitorMember).flatMap(id ->
             businessEventPublisher.publishUserLogoutEvent()
                 .then(orgApiService.switchCurrentOrganizationTo(id))
                 .delayUntil(result -> businessEventPublisher.publishUserLoginEvent(null))
@@ -140,14 +137,14 @@ public class OrganizationController implements OrganizationEndpoints
 
     @Override
     public Mono<ResponseView<Boolean>> removeOrg(@PathVariable String orgId) {
-        return gidService.convertOrganizationIdToObjectId(orgId).flatMap(id ->
+        return gidService.convertOrganizationIdToObjectIdOrRefuse(orgId).flatMap(id ->
             orgApiService.removeOrg(id)
                 .map(ResponseView::success));
     }
 
     @Override
     public Mono<ResponseView<Boolean>> leaveOrganization(@PathVariable String orgId) {
-        return gidService.convertOrganizationIdToObjectId(orgId).flatMap(id ->
+        return gidService.convertOrganizationIdToObjectIdOrRefuse(orgId).flatMap(id ->
             orgApiService.leaveOrganization(id)
                 .map(ResponseView::success));
     }
@@ -155,7 +152,7 @@ public class OrganizationController implements OrganizationEndpoints
     @Override
     public Mono<ResponseView<Boolean>> removeUserFromOrg(@PathVariable String orgId,
             @RequestParam String userId) {
-        return gidService.convertOrganizationIdToObjectId(orgId).flatMap(id ->
+        return gidService.convertOrganizationIdToObjectIdOrRefuse(orgId).flatMap(id ->
             orgApiService.removeUserFromOrg(id, userId)
                 .map(ResponseView::success));
     }
@@ -169,36 +166,35 @@ public class OrganizationController implements OrganizationEndpoints
 
     @Override
     public Mono<ResponseView<OrganizationCommonSettings>> getOrgCommonSettings(@PathVariable String orgId) {
-        return gidService.convertOrganizationIdToObjectId(orgId).flatMap(id ->
+        return gidService.convertOrganizationIdToObjectIdOrRefuse(orgId).flatMap(id ->
             orgApiService.getOrgCommonSettings(id)
                 .map(ResponseView::success));
     }
 
     @Override
     public Mono<ResponseView<Boolean>> updateOrgCommonSettings(@PathVariable String orgId, @RequestBody UpdateOrgCommonSettingsRequest request) {
-        return gidService.convertOrganizationIdToObjectId(orgId).flatMap(id ->
+        return gidService.convertOrganizationIdToObjectIdOrRefuse(orgId).flatMap(id ->
             orgApiService.updateOrgCommonSettings(id, request.key(), request.value())
                 .map(ResponseView::success));
     }
 
     @Override
     public Mono<ResponseView<Long>> getOrgApiUsageCount(String orgId, Boolean lastMonthOnly) {
-        return gidService.convertOrganizationIdToObjectId(orgId).flatMap(id ->
+        return gidService.convertOrganizationIdToObjectIdOrRefuse(orgId).flatMap(id ->
             orgApiService.getApiUsageCount(id, lastMonthOnly)
                 .map(ResponseView::success));
     }
 
     @Override
     public Mono<ResponseView<Organization>> updateSlug(@PathVariable String orgId, @RequestBody String slug) {
-        return organizationService.updateSlug(orgId, slug)
+        return orgApiService.updateSlug(orgId, slug)
                 .map(ResponseView::success);
     }
 
     @Override
     public Mono<ResponseView<Organization>> getOrganization(@PathVariable String orgId, @RequestParam(required = false) Boolean withDeleted) {
-        return gidService.convertOrganizationIdToObjectId(orgId)
-                .flatMap(id -> Boolean.TRUE.equals(withDeleted) ? organizationService.getByIdWithDeleted(id) : organizationService.getById(id))
-                .switchIfEmpty(Mono.error(new BizException(BizError.ORGANIZATION_NOT_FOUND, "ORGANIZATION_NOT_FOUND")))
+        return gidService.convertOrganizationIdToObjectIdOrRefuse(orgId)
+                .flatMap(id -> orgApiService.getOrganization(id, Boolean.TRUE.equals(withDeleted)))
                 .map(ResponseView::success);
     }
 

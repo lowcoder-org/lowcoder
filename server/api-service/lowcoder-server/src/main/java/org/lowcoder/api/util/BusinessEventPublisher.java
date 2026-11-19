@@ -106,11 +106,17 @@ public class BusinessEventPublisher {
                 });
     }
 
+    /**
+     * Publishes the application event of {@code eventType} for the application named by {@code applicationId}: an object
+     * id, a gid or a slug ({@code findByIdWithoutDsl}). The event carries the application's object id (BF-136: it carried
+     * the key as given, and the detail lookup by that key, which takes an object id or a gid only, failed for a slug, so
+     * the recycle and restore events of an application addressed by its slug were dropped).
+     */
     public Mono<Void> publishApplicationCommonEvent(ApplicationView originalApplicationView, String applicationId, @Nullable String folderIdFrom, @Nullable String folderId, EventType eventType) {
         return applicationService.findByIdWithoutDsl(applicationId)
                 .map(application -> {
                     ApplicationInfoView applicationInfoView = ApplicationInfoView.builder()
-                            .applicationId(applicationId)
+                            .applicationId(application.getId())
                             .name(application.getName())
                             .folderId(folderId)
                             .folderIdFrom(folderIdFrom)

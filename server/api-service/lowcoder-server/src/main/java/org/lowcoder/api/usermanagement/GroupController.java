@@ -97,7 +97,7 @@ public class GroupController implements GroupEndpoints
                             .filter(orgMember -> !orgMember.isAdmin() && !orgMember.isSuperAdmin() &&
                                 devMembers.stream().noneMatch(devMember -> devMember.getUserId().equals(orgMember.getUserId()))).toList().size();
 
-                        var subList = groupList.subList((pageNum - 1) * pageSize, pageSize <= 0?groupList.size():Math.min(pageNum * pageSize, groupList.size()));
+                        var subList = org.lowcoder.api.util.Pagination.pageOf(groupList, pageNum, pageSize);
                         return new GroupListResponseView<>(ResponseView.SUCCESS,
                             "",
                             subList,

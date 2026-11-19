@@ -28,6 +28,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.lowcoder.plugin.postgres.PostgresContainerSupport.CONNECTOR;
 import static org.lowcoder.plugin.postgres.PostgresContainerSupport.EXECUTOR;
 import static org.lowcoder.plugin.postgres.PostgresContainerSupport.PASSWORD;
+import static org.lowcoder.plugin.postgres.PostgresContainerSupport.port;
+import static org.lowcoder.plugin.postgres.PostgresContainerSupport.host;
+import static org.lowcoder.plugin.postgres.PostgresContainerSupport.USER;
 import static org.lowcoder.plugin.postgres.PostgresContainerSupport.config;
 import static org.lowcoder.plugin.postgres.PostgresContainerSupport.connect;
 import static org.lowcoder.plugin.postgres.PostgresContainerSupport.destroy;
@@ -49,6 +52,8 @@ import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR
 public class PostgresDatabaseTest {
 
     static final String WRONG_PASSWORD = "not-the-password";
+    /** BF-032: a decimal with more digits than a float holds (through a float the server answered 12345678). */
+    static final String DECIMAL_TEXT = "12345678.123456";
     static final int POSTGRES_POOL_SIZE = 100;
     static final String INJECTION = "x'; drop table t_gui; --";
 
@@ -137,23 +142,92 @@ public class PostgresDatabaseTest {
     }
 
     /**
-     * Shows through the server the plan section 9 row "PostgresDataTypeUtils maps an explicit ?::decimal cast to FLOAT":
-     * the decimals of the bound text are gone when the database answers. A fix (BigDecimal) changes this test on purpose.
+     * BF-027 through the server: a database whose name looks like URL parameters ({@code app?ssl=true}, against this
+     * non-TLS image) is reached by that exact name; the name no longer turns SSL on.
      */
     @Test
-    public void explicitCastsRoundTripAndDecimalLosesItsDigitsThroughTheServer() {
+    public void aDatabaseNamedLikeUrlParametersIsReachedByItsNameBF027() throws Exception {
+        String database = "app?ssl=true";
+        try (Connection jdbc = jdbc()) {
+            execute(jdbc, "drop database if exists \"" + database + "\"", "create database \"" + database + "\"");
+        }
+        PostgresDatasourceConfig config = PostgresDatasourceConfig.builder().database(database).username(USER).password(PASSWORD)
+                .host(host()).port((long) port()).usingSsl(false).build();
+        HikariPerfWrapper pool = connect(config);
+        try {
+            Object answer = sql(pool, config, "select current_database() as name", Map.of());
+            System.out.println("[PostgresDatabaseTest] database '" + database + "' answers " + answer);
+            assertEquals(List.of(Map.of("name", database)), answer);
+        } finally {
+            destroy(pool);
+        }
+    }
+
+    /**
+     * BF-032 fixed: the decimals of a value bound with {@code ?::decimal} were gone when the database answered (it went
+     * through a Java float); the database now answers the bound text exactly.
+     */
+    @Test
+    public void explicitCastsRoundTripAndADecimalKeepsEveryDigitBF032() {
         PostgresDatasourceConfig config = config();
         HikariPerfWrapper pool = connect(config);
         try {
             Object data = sql(pool, config, "select {{a}}::int4 as a, {{b}}::decimal as b, {{c}}::date as c, {{d}}::bool as d, {{e}}::text as e, {{f}}::float8 as f",
-                    Map.of("a", "42", "b", "12345678.123456", "c", "2024-02-29", "d", "true", "e", "x", "f", "0.1"));
+                    Map.of("a", "42", "b", DECIMAL_TEXT, "c", "2024-02-29", "d", "true", "e", "x", "f", "0.1"));
             System.out.println("[PostgresDatabaseTest] casts through the server: " + data);
             assertEquals(42, cell(data, "a"));
             assertEquals("2024-02-29", cell(data, "c"));
             assertEquals(true, cell(data, "d"));
             assertEquals("x", cell(data, "e"));
             assertEquals(0.1d, ((Number) cell(data, "f")).doubleValue());
-            assertEquals("12345678", String.valueOf(cell(data, "b")), "the digits after the point of ?::decimal are lost");
+            assertEquals(new java.math.BigDecimal(DECIMAL_TEXT), cell(data, "b"), "every digit of ?::decimal is kept");
+        } finally {
+            destroy(pool);
+        }
+    }
+
+    /**
+     * BF-045 fixed, through the server: a {@code ?::bool} in a string literal took the cast of the first parameter (5 was
+     * bound as false and came back as 0), and {@code ?::int8} was read as {@code int} (a number above the int range failed
+     * before reaching the server). The literal stays text, and each parameter is cast as written.
+     */
+    @Test
+    public void aCastInALiteralNoLongerShiftsTheParameterCastsBF045() {
+        PostgresDatasourceConfig config = config();
+        HikariPerfWrapper pool = connect(config);
+        try {
+            Object data = sql(pool, config, "select '?::bool' as lit, {{b}}::int4 as b, {{big}}::int8 as big, {{f}}::float8 as f",
+                    Map.of("b", "5", "big", "3000000001", "f", "0.1"));
+            System.out.println("[PostgresDatabaseTest] literal and casts through the server: " + data);
+            assertEquals("?::bool", cell(data, "lit"));
+            assertEquals(5, cell(data, "b"));
+            assertEquals(3000000001L, ((Number) cell(data, "big")).longValue());
+            assertEquals(0.1d, ((Number) cell(data, "f")).doubleValue());
+        } finally {
+            destroy(pool);
+        }
+    }
+
+    /**
+     * NEW-17 (GitHub #2068), through the server: a null parameter with an explicit cast is bound as SQL NULL for every
+     * mapped cast (int, int4, int8, float8, decimal, varchar, text, bool, date, time), as it is without one; before, {@code ::varchar} and {@code ::text} stored the text "null", {@code ::bool}
+     * false, and the number, date and time casts failed with a bind error.
+     */
+    @Test
+    public void aNullWithAnExplicitCastIsBoundAsNullNEW17() {
+        PostgresDatasourceConfig config = config();
+        HikariPerfWrapper pool = connect(config);
+        Map<String, Object> params = new HashMap<>();
+        params.put("x", null);
+        try {
+            Object data = sql(pool, config, "select {{x}}::varchar is null as varchar, {{x}}::text is null as text, {{x}}::bool is null as bool, "
+                    + "{{x}}::int is null as int, {{x}}::int4 is null as int4, {{x}}::int8 is null as int8, {{x}}::float8 is null as float8, "
+                    + "{{x}}::decimal is null as decimal, {{x}}::date is null as date, {{x}}::time is null as time", params);
+            System.out.println("[PostgresDatabaseTest] null with a cast through the server: " + data);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> row = ((List<Map<String, Object>>) data).get(0);
+            assertEquals(10, row.size());
+            row.forEach((cast, isNull) -> assertEquals(true, isNull, cast));
         } finally {
             destroy(pool);
         }
@@ -286,6 +360,61 @@ public class PostgresDatabaseTest {
 
             gui("INSERT", Map.of("table", "\"Odd \"\"name\"", "changeSet", keyValues("id", "{{id}}", "name", "{{name}}")), Map.of("id", 7, "name", "quoted"));
             assertEquals("quoted", rows(jdbc, "select name from \"Odd \"\"name\"").get(0).get("name"));
+        }
+    }
+
+    /**
+     * F01 (GitHub #1641) on a real Postgres: a bulk update with a filter changes the records' rows that match it; a record whose
+     * row the filter excludes keeps its value; the value is written as a dollar-quoted literal (the filter used to be ignored, so that row was updated too).
+     */
+    @Test
+    public void guiBulkUpdateWithAFilterLeavesTheRowTheFilterExcludesF01() throws Exception {
+        try (Connection jdbc = jdbc()) {
+            execute(jdbc, "drop table if exists t_bulk_filter", "create table t_bulk_filter (id int primary key, name text, status text)",
+                    "insert into t_bulk_filter values (1, 'a', 'o''pen'), (2, 'b', 'closed'), (3, 'c', 'o''pen')");
+            Object updated = gui("BULK_UPDATE", Map.of("table", "t_bulk_filter", "primaryKey", "id",
+                    "records", "[{\"id\":1,\"name\":\"A\"},{\"id\":2,\"name\":\"B\"}]",
+                    "filterBy", List.of(Map.of("column", "status", "condition", "=", "value", "{{status}}"))), Map.of("status", "o'pen"));
+            System.out.println("[PostgresDatabaseTest] F01 bulk update with filter status = o'pen: " + updated);
+            assertEquals(List.of("A", "b", "c"), rows(jdbc, "select name from t_bulk_filter order by id").stream().map(r -> r.get("name")).toList());
+        }
+    }
+
+    /**
+     * BF-007 and BF-008 end to end for the raw-SQL dialect: every element of a GUI {@code IN} filter is dollar-quoted, so
+     * an element written to break out of a quoted string ({@code x' or '1'='1}) is compared as text and deletes nothing
+     * else; a column name with a {@code "} stays one identifier, and a table name that is not an identifier is refused.
+     */
+    @Test
+    public void guiDeleteWithAnInListEscapesEveryElementAndRefusesATableThatIsNotAnIdentifier() throws Exception {
+        try (Connection jdbc = jdbc()) {
+            execute(jdbc, "drop table if exists t_gui_in", "create table t_gui_in (id int primary key, name text, \"odd\"\"col\" int)",
+                    "insert into t_gui_in values (1, 'ann', 10), (2, 'bob', 20), (3, 'x'' or ''1''=''1', 30)");
+            Map<String, Object> inFilter = Map.of("column", "name", "condition", "IN", "value", "{{names}}");
+
+            Object none = gui("DELETE", Map.of("table", "t_gui_in", "filterBy", List.of(inFilter), "allowMultiModify", true),
+                    Map.of("names", List.of("nobody' or '1'='1")));
+            System.out.println("[PostgresDatabaseTest] IN delete with an injection element: " + none);
+            assertEquals(0, ((Map<?, ?>) none).get("affectedRows"), "the element is a value, not SQL");
+            assertEquals(3, rows(jdbc, "select id from t_gui_in").size());
+
+            Object two = gui("DELETE", Map.of("table", "t_gui_in", "filterBy", List.of(inFilter), "allowMultiModify", true),
+                    Map.of("names", List.of("ann", "x' or '1'='1")));
+            System.out.println("[PostgresDatabaseTest] IN delete of ann and the literal text: " + two);
+            assertEquals(2, ((Map<?, ?>) two).get("affectedRows"));
+            assertEquals(List.of(2), rows(jdbc, "select id from t_gui_in").stream().map(r -> r.get("id")).toList());
+
+            Object byOddColumn = gui("DELETE", Map.of("table", "t_gui_in", "allowMultiModify", true,
+                    "filterBy", List.of(Map.of("column", "odd\"col", "condition", "=", "value", "{{v}}"))), Map.of("v", 20));
+            System.out.println("[PostgresDatabaseTest] delete by the column odd\"col: " + byOddColumn);
+            assertEquals(1, ((Map<?, ?>) byOddColumn).get("affectedRows"));
+
+            execute(jdbc, "insert into t_gui_in values (4, 'dan', 40)");
+            PluginException refused = assertThrows(PluginException.class, () -> gui("DELETE", Map.of("table", "t_gui_in; delete from t_gui_in",
+                    "filterBy", List.of(inFilter), "allowMultiModify", true), Map.of("names", List.of("nobody"))));
+            System.out.println("[PostgresDatabaseTest] table that is not an identifier: " + refused.getMessageKey());
+            assertEquals("GUI_INVALID_TABLE_NAME", refused.getMessageKey());
+            assertEquals(1, rows(jdbc, "select id from t_gui_in").size(), "nothing ran");
         }
     }
 

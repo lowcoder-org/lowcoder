@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -40,8 +39,9 @@ import java.util.function.Function;
  * {@code BigDecimal}, {@code BigInteger}, boolean, null, text, nested map and list parameters, literals on both sides
  * of 2^31 and 2^63, decimals with trailing zeros and exponents) are rendered with {@link #PARAMS}: one by one by
  * {@code renderMustacheJson}, {@code renderPsBindValue} and the sheet key-value change set; inside one object
- * ({@link #OBJECT_TEMPLATE}) or an array of it by the object and bulk change sets, which also get one case per
- * template of {@link #FAIL_INSIDE_JSON} ({@link #failingCases}). {@code convertToMultiformFileValue} accepts only
+ * ({@link #OBJECT_TEMPLATE}) or an array of it by the object and bulk change sets (BF-096: the {@code BigDecimal}
+ * and {@code BigInteger} parameters and the literal past {@code Long} used to fail there, so each had a case of its own
+ * outside the object). {@code convertToMultiformFileValue} accepts only
  * file objects and gets file templates of its own. Each report pins the Java class of every value it produces ({@link JavaValueWalker}) and
  * the text the production mapper writes for it, or the error. One golden per entry point, under
  * {@value #DIRECTORY}.
@@ -62,19 +62,15 @@ public class NodeConversionContractTest {
     static final Map<String, Object> PARAMS = params();
     /** The GUI strings every entry point renders, by name. */
     static final Map<String, String> TEMPLATES = templates();
-    /**
-     * The templates that fail inside a JSON text: a {@code BigDecimal} or {@code BigInteger} parameter, and a literal
-     * past {@code Long} (each becomes a number that {@code RjsonMustacheParser} has no node for, O79).
-     */
-    static final Set<String> FAIL_INSIDE_JSON = Set.of("param:bigDecimal", "param:bigInteger", "longMaxPlusOne");
-    /** An object of every template but {@link #FAIL_INSIDE_JSON}, as a GUI "object" change set holds it. */
+    /** An object of every template, as a GUI "object" change set holds it. */
     static final String OBJECT_TEMPLATE = objectTemplate();
 
     private static final GoldenJson GOLDEN = GoldenJson.forModule();
 
     @BoundarySites({
             "lowcoder-sdk/src/main/java/org/lowcoder/sdk/util/MustacheHelper.java#MustacheHelper.renderMustacheJson#renderMustacheJson#1",
-            "lowcoder-sdk/src/main/java/org/lowcoder/sdk/util/RjsonMustacheParser.java#RjsonMustacheParser.convertToJsonNode#valueToTree#1"})
+            "lowcoder-sdk/src/main/java/org/lowcoder/sdk/util/RjsonMustacheParser.java#RjsonMustacheParser.convertToJsonNode#valueToTree#1",
+            "lowcoder-sdk/src/main/java/org/lowcoder/sdk/util/RjsonMustacheParser.java#RjsonMustacheParser.tryGetNumberNode#valueToTree#1"})
     @Test
     public void renderMustacheJson() {
         assertReport("renderMustacheJson", perTemplate(template -> nodeReport(MustacheHelper.renderMustacheJson(template, PARAMS))));
@@ -97,7 +93,6 @@ public class NodeConversionContractTest {
         Map<String, Object> report = new LinkedHashMap<>();
         report.put("object", outcome(() -> rowReport(new ObjectChangeSet(OBJECT_TEMPLATE).render(PARAMS))));
         report.put("array", outcome(() -> rowReport(new ObjectChangeSet("[" + OBJECT_TEMPLATE + "]").render(PARAMS))));
-        failingCases(false).forEach((name, template) -> report.put(name, outcome(() -> rowReport(new ObjectChangeSet(template).render(PARAMS)))));
         report.put("invalid", outcome(() -> rowReport(new ObjectChangeSet("{\"a\": ").render(PARAMS))));
         assertReport("ObjectChangeSet.render", report);
     }
@@ -112,7 +107,6 @@ public class NodeConversionContractTest {
         report.put("listParameter", outcome(() -> rowsReport(new BulkObjectChangeSet("{{rows}}").render(PARAMS))));
         report.put("object", outcome(() -> rowsReport(new BulkObjectChangeSet(OBJECT_TEMPLATE).render(PARAMS))));
         report.put("arrayOfScalars", outcome(() -> rowsReport(new BulkObjectChangeSet("[1, 2]").render(PARAMS))));
-        failingCases(true).forEach((name, template) -> report.put(name, outcome(() -> rowsReport(new BulkObjectChangeSet(template).render(PARAMS)))));
         report.put("invalid", outcome(() -> rowsReport(new BulkObjectChangeSet("[{\"a\": 1},").render(PARAMS))));
         assertReport("BulkObjectChangeSet.render", report);
     }
@@ -126,7 +120,6 @@ public class NodeConversionContractTest {
         Map<String, Object> report = new LinkedHashMap<>();
         report.put("object", outcome(() -> sheetRowReport(new SheetObjectChangeSet(OBJECT_TEMPLATE).render(PARAMS))));
         report.put("array", outcome(() -> sheetRowReport(new SheetObjectChangeSet("[" + OBJECT_TEMPLATE + "]").render(PARAMS))));
-        failingCases(false).forEach((name, template) -> report.put(name, outcome(() -> sheetRowReport(new SheetObjectChangeSet(template).render(PARAMS)))));
         report.put("invalid", outcome(() -> sheetRowReport(new SheetObjectChangeSet("{\"a\": ").render(PARAMS))));
         assertReport("SheetObjectChangeSet.render", report);
     }
@@ -142,7 +135,6 @@ public class NodeConversionContractTest {
         report.put("listParameter", outcome(() -> sheetRowsReport(new SheetBulkObjectChangeSet("{{rows}}").render(PARAMS))));
         report.put("object", outcome(() -> sheetRowsReport(new SheetBulkObjectChangeSet(OBJECT_TEMPLATE).render(PARAMS))));
         report.put("arrayOfScalars", outcome(() -> sheetRowsReport(new SheetBulkObjectChangeSet("[1, 2]").render(PARAMS))));
-        failingCases(true).forEach((name, template) -> report.put(name, outcome(() -> sheetRowsReport(new SheetBulkObjectChangeSet(template).render(PARAMS)))));
         assertReport("SheetBulkObjectChangeSet.render", report);
     }
 
@@ -183,18 +175,6 @@ public class NodeConversionContractTest {
         } catch (RuntimeException e) {
             return Map.of(QueryResults.ERROR_KEY, ConfigBinding.errorText(e));
         }
-    }
-
-    /** One object per {@link #FAIL_INSIDE_JSON} template, {@code {"value": template}}, in an array when {@code bulk}. */
-    private static Map<String, String> failingCases(boolean bulk) {
-        Map<String, String> cases = new LinkedHashMap<>();
-        TEMPLATES.forEach((name, template) -> {
-            if (FAIL_INSIDE_JSON.contains(name)) {
-                String object = "{\"" + VALUE_KEY + "\": " + template + "}";
-                cases.put("failing:" + name, bulk ? "[" + object + "]" : object);
-            }
-        });
-        return cases;
     }
 
     private static Map<String, Object> perTemplate(Function<String, Object> entryPoint) {
@@ -308,9 +288,6 @@ public class NodeConversionContractTest {
     private static String objectTemplate() {
         StringBuilder object = new StringBuilder("{");
         templates().forEach((name, template) -> {
-            if (FAIL_INSIDE_JSON.contains(name)) {
-                return;
-            }
             if (object.length() > 1) {
                 object.append(", ");
             }

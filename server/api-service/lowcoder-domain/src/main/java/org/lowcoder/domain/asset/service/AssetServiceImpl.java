@@ -8,6 +8,7 @@ import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferLimitException;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
@@ -17,7 +18,6 @@ import org.springframework.http.codec.multipart.Part;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.imageio.ImageIO;
@@ -32,6 +32,7 @@ import java.util.Set;
 public class AssetServiceImpl implements AssetService {
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG);
+    static final int BYTES_PER_KB = 1024;
 
     private final AssetRepository repository;
     private final Conf<Integer> thumbNailPhotoDimension;
@@ -63,18 +64,13 @@ public class AssetServiceImpl implements AssetService {
             return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INCORRECT_IMAGE_TYPE"));
         }
 
-        final Flux<DataBuffer> contentCache = filePart.content().cache();
-
-        return contentCache.count()
-                .defaultIfEmpty(0L)
-                .flatMap(count -> {
-                    // Default implementation for the BufferFactory used breaks down the FilePart into chunks of 4KB.
-                    // So we multiply the count of chunks with 4 to get an estimate on the file size in KB.
-                    if (4 * count > maxFileSizeKB) {
-                        return Mono.error(new BizException(BizError.PAYLOAD_TOO_LARGE, "PAYLOAD_TOO_LARGE", maxFileSizeKB));
-                    }
-                    return DataBufferUtils.join(contentCache);
-                })
+        // BF-150: the limit counts bytes. It used to count chunks × 4 KB, but a multipart part has no fixed chunk size: with the
+        // server's codecs (in-memory size 20 MB, CustomWebFluxConfiguration) a part up to 20 MB arrives as one buffer, so a
+        // 20 MB file passed a 300 KB limit (measured in AssetServiceImplMultipartUploadTest). join stops at the limit and
+        // releases what it collected; a part without content completes empty and nothing is saved.
+        return DataBufferUtils.join(filePart.content(), maxBytes(maxFileSizeKB))
+                .onErrorMap(DataBufferLimitException.class,
+                        e -> new BizException(BizError.PAYLOAD_TOO_LARGE, "PAYLOAD_TOO_LARGE", maxFileSizeKB))
                 .flatMap(dataBuffer -> {
                     try {
                         return repository.save(createAsset(dataBuffer, contentType, isThumbnail));
@@ -83,6 +79,11 @@ public class AssetServiceImpl implements AssetService {
                         return Mono.error(new BizException(BizError.INVALID_PARAMETER, "IMAGE_PARSE_ERROR"));
                     }
                 });
+    }
+
+    /** The limit in bytes: a limit below 0 counts as 0, one beyond {@code int} is capped at {@link Integer#MAX_VALUE}. */
+    static int maxBytes(int maxFileSizeKB) {
+        return (int) Math.min(Math.max(0L, (long) maxFileSizeKB * BYTES_PER_KB), Integer.MAX_VALUE);
     }
 
     @Override
@@ -95,21 +96,32 @@ public class AssetServiceImpl implements AssetService {
         byte[] imageData;
         MediaType contentType;
 
-        if (createThumbnail) {
-            imageData = resizeImage(dataBuffer);
-            contentType = MediaType.IMAGE_JPEG;
-        } else {
-            imageData = new byte[dataBuffer.readableByteCount()];
-            dataBuffer.read(imageData);
-            contentType = srcContentType;
+        try {
+            if (createThumbnail) {
+                imageData = resizeImage(dataBuffer);
+                contentType = MediaType.IMAGE_JPEG;
+            } else {
+                imageData = new byte[dataBuffer.readableByteCount()];
+                dataBuffer.read(imageData);
+                contentType = srcContentType;
+            }
+        } finally {
+            // BF-128: released on every path; a failed thumbnail (bytes that are no image) used to keep it
+            DataBufferUtils.release(dataBuffer);
         }
-        DataBufferUtils.release(dataBuffer);
         return Asset.from(contentType, imageData);
     }
+
+    /** The IOException text for content that no ImageIO reader recognises; the caller answers IMAGE_PARSE_ERROR. */
+    private static final String NOT_AN_IMAGE = "the content is not an image ImageIO can read";
 
     private byte[] resizeImage(DataBuffer dataBuffer) throws IOException {
         int dimension = thumbNailPhotoDimension.get();
         BufferedImage bufferedImage = ImageIO.read(dataBuffer.asInputStream());
+        if (bufferedImage == null) {
+            // BF-128: ImageIO.read answers null, not an exception, for bytes no reader recognises (a NullPointerException below)
+            throw new IOException(NOT_AN_IMAGE);
+        }
         Image scaledImage = bufferedImage.getScaledInstance(dimension, dimension, Image.SCALE_SMOOTH);
         BufferedImage imageBuff = new BufferedImage(dimension, dimension, BufferedImage.TYPE_INT_RGB);
         imageBuff.getGraphics().drawImage(scaledImage, 0, 0, new Color(0, 0, 0), null);
@@ -117,13 +129,18 @@ public class AssetServiceImpl implements AssetService {
         ImageIO.write(imageBuff, "jpg", buffer);
         byte[] data = buffer.toByteArray();
         buffer.close();
-        DataBufferUtils.release(dataBuffer);
         return data;
     }
 
+    /**
+     * Writes the asset's bytes with status 200 and its content type, or, for an id no asset has, completes the response
+     * with status 404 and no body (BF-129: the response used to be left untouched, so the framework answered 200 with an
+     * empty body). The 404 is decided before the write, because the write itself completes empty.
+     */
     @Override
     public Mono<Void> makeImageResponse(ServerWebExchange exchange, String assetId) {
         return getById(assetId)
+                .switchIfEmpty(Mono.defer(() -> notFound(exchange.getResponse())))
                 .flatMap(asset -> {
                     final String contentType = asset.getContentType();
                     final ServerHttpResponse response = exchange.getResponse();
@@ -136,6 +153,12 @@ public class AssetServiceImpl implements AssetService {
 
                     return response.writeWith(Mono.just(new DefaultDataBufferFactory().wrap(asset.getData())));
                 });
+    }
+
+    /** Completes {@code response} with status 404 and no body; empty, so the image write that follows is skipped. */
+    private static Mono<Asset> notFound(ServerHttpResponse response) {
+        response.setStatusCode(HttpStatus.NOT_FOUND);
+        return response.setComplete().then(Mono.empty());
     }
 
 }

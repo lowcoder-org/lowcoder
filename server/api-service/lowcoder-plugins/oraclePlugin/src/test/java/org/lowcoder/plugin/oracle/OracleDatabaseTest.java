@@ -4,7 +4,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.oracle.model.OracleDatasourceConfig;
-import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.DatasourceStructure;
 import org.lowcoder.sdk.models.DatasourceStructure.Table;
 import org.lowcoder.sdk.models.DatasourceStructure.TableType;
@@ -13,8 +12,12 @@ import org.lowcoder.sdk.plugin.common.sql.HikariPerfWrapper;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,7 +49,6 @@ import static org.lowcoder.plugin.oracle.OracleContainerSupport.rows;
 import static org.lowcoder.plugin.oracle.OracleContainerSupport.run;
 import static org.lowcoder.plugin.oracle.OracleContainerSupport.serviceConfig;
 import static org.lowcoder.plugin.oracle.OracleContainerSupport.sql;
-import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
 
 /**
  * Unit OR-3 (task L5-6): {@code OracleConnector}, {@code OracleQueryExecutor} (structure), the shared result parsing and the
@@ -65,6 +67,8 @@ public class OracleDatabaseTest {
     static final String INJECTION = "x'; drop table t_gui; --";
     static final String LOGON_DENIED = "ORA-01017";
     static final long INIT_TIMEOUT_MILLIS = 10_000;
+    static final String AFFECTED_ROWS = "affectedRows";
+    static final String GENERATED_KEYS = "generatedKeys";
 
     private static Map<String, Object> keyValues(Object... columnsAndValues) {
         List<Map<String, Object>> comp = new ArrayList<>();
@@ -258,29 +262,96 @@ public class OracleDatabaseTest {
     }
 
     /**
-     * Pins the plan section 9 row "CLOB/TIMESTAMPTZ/INTERVALDS cells as driver objects, toJson empty" (D-6: fix deferred): the shared result parser hands {@code CLOB}, {@code TIMESTAMP WITH TIME ZONE} and {@code INTERVAL DAY TO SECOND} cells to the result
-     * as the driver's own objects ({@code oracle.sql.CLOB}, {@code oracle.sql.TIMESTAMPTZ}, {@code oracle.sql.INTERVALDS}) instead of text, so the query
-     * result holds objects that are not readable data, and writing the result as JSON gives an empty string. A fix (reading them as text) changes this test on purpose.
+     * BF-052 fixed (plan section 9 row "CLOB/TIMESTAMPTZ/INTERVALDS cells as driver objects, toJson empty"): the shared
+     * result parser handed {@code CLOB}, {@code TIMESTAMP WITH TIME ZONE} and {@code INTERVAL DAY TO SECOND} cells, and
+     * their siblings {@code NCLOB}, {@code TIMESTAMP WITH LOCAL TIME ZONE}, {@code INTERVAL YEAR TO MONTH} and
+     * {@code ROWID}, to the result as the driver's own objects, so the result was written as an empty string. They are text
+     * now, the result is written as JSON, and the null cells of a row stay null (its rowid is text like any other).
      */
     @Test
-    public void lobTimeZoneAndIntervalCellsReachTheResultAsDriverObjects_pinsTheSection9Row() throws Exception {
+    public void lobTimeZoneIntervalAndRowidCellsReachTheResultAsTextBF052() throws Exception {
         try (Connection jdbc = jdbc()) {
-            execute(jdbc, "drop table t_lob", "create table t_lob (c_clob clob, c_tstz timestamp with time zone, c_intv interval day to second)");
-            execute(jdbc, "insert into t_lob values ('long text', timestamp '2024-02-29 13:14:15.123 +05:30', interval '1 02:03:04' day to second)");
+            execute(jdbc, "drop table t_lob", "create table t_lob (c_clob clob, c_nclob nclob, c_tstz timestamp with time zone, "
+                            + "c_tstz_region timestamp with time zone, c_tsltz timestamp with local time zone, c_intv interval day to second, "
+                            + "c_iym interval year to month)",
+                    "insert into t_lob values ('long text', N'žluťoučký', timestamp '2024-02-29 13:14:15.123 +05:30', "
+                            + "timestamp '2024-02-29 13:14:15.123 Europe/Prague', timestamp '2024-02-29 13:14:15.123', "
+                            + "interval '1 02:03:04.5' day to second, interval '2-3' year to month)",
+                    "insert into t_lob (c_clob) values (null)");
+            String rowid = column(jdbc, "select rowidtochar(rowid) as r from t_lob where c_clob is not null", "R").get(0).toString();
+            String localTimeZone = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
+                    LocalDateTime.parse("2024-02-29T13:14:15.123").atZone(ZoneId.systemDefault()).toOffsetDateTime());
             OracleDatasourceConfig config = config();
             HikariPerfWrapper pool = connect(config);
             try {
-                Object data = sql(pool, config, "select * from t_lob", Map.of());
-                Object clob = cell(data, "C_CLOB");
-                Object tstz = cell(data, "C_TSTZ");
-                Object interval = cell(data, "C_INTV");
-                System.out.println("[OracleDatabaseTest] clob " + clob.getClass().getName() + ", timestamptz " + tstz.getClass().getName() + ", interval " + interval.getClass().getName());
-                assertEquals("oracle.sql.INTERVALDS", interval.getClass().getName());
-                assertEquals("oracle.sql.CLOB", clob.getClass().getName());
-                assertEquals("oracle.sql.TIMESTAMPTZ", tstz.getClass().getName());
+                Object data = sql(pool, config, "select t.*, rowid as c_rowid from t_lob t order by c_intv nulls last", Map.of());
                 String json = org.lowcoder.sdk.util.JsonUtils.toJson(data);
-                System.out.println("[OracleDatabaseTest] json of the result: '" + json + "'");
-                assertEquals("", json, "the result with these objects cannot be written as JSON: the JSON helper returns an empty string");
+                System.out.println("[OracleDatabaseTest] lob, time zone, interval and rowid cells: " + json);
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> rows = (List<Map<String, Object>>) data;
+                Map<String, Object> expected = new LinkedHashMap<>();
+                expected.put("C_CLOB", "long text");
+                expected.put("C_NCLOB", "žluťoučký");
+                expected.put("C_TSTZ", "2024-02-29T13:14:15.123+05:30");
+                expected.put("C_TSTZ_REGION", "2024-02-29T13:14:15.123+01:00");
+                expected.put("C_TSLTZ", localTimeZone);
+                expected.put("C_INTV", "PT26H3M4.5S");
+                expected.put("C_IYM", "P2Y3M");
+                expected.put("C_ROWID", rowid);
+                assertEquals(expected, rows.get(0));
+                Map<String, Object> nulls = new LinkedHashMap<>(rows.get(1));
+                assertTrue(nulls.remove("C_ROWID") instanceof String rowOfNulls && !rowOfNulls.isBlank(), "every row has a rowid");
+                nulls.forEach((column, value) -> assertNull(value, column));
+                assertTrue(json.contains("\"C_CLOB\":\"long text\""), "the result is written as JSON: " + json);
+            } finally {
+                destroy(pool);
+            }
+        }
+    }
+
+    /**
+     * NEW-15 fixed: the Oracle driver streams a {@code LONG} and a {@code LONG RAW} column, so each cell can be read once,
+     * and the shared result parser read every cell twice (once for its null check): every query selecting such a column
+     * failed with ORA-17027 "Stream has already been closed." A {@code LONG} is read once as text now and a
+     * {@code LONG RAW} once as bytes, which the result JSON writes as base64, as it does a RAW or a BLOB. Oracle allows one
+     * such column per table (ORA-01754), so each type has its own table, and the streamed column is selected last as well
+     * as first. Limits: the values are a few bytes, so this shows the one-read rule and the value types, not the reading of
+     * large streamed values; it runs the executor, not an HTTP endpoint.
+     */
+    @Test
+    public void longAndLongRawColumnsReachTheResultNEW15() throws Exception {
+        try (Connection jdbc = jdbc()) {
+            execute(jdbc, "drop table t_long", "create table t_long (id number, c_long long, c_after varchar2(10))",
+                    "insert into t_long values (1, 'long text', 'after')", "insert into t_long values (2, null, null)");
+            execute(jdbc, "drop table t_long_raw", "create table t_long_raw (id number, c_long_raw long raw)",
+                    "insert into t_long_raw values (1, hextoraw('0001FF'))", "insert into t_long_raw values (2, null)");
+            OracleDatasourceConfig config = config();
+            HikariPerfWrapper pool = connect(config);
+            try {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> longRows = (List<Map<String, Object>>) sql(pool, config, "select * from t_long order by id", Map.of());
+                System.out.println("[OracleDatabaseTest] LONG rows: " + longRows);
+                assertEquals(new LinkedHashMap<>(Map.of("ID", BigDecimal.ONE, "C_LONG", "long text", "C_AFTER", "after")), longRows.get(0));
+                longRows.get(1).forEach((column, value) -> assertEquals("ID".equals(column) ? new BigDecimal(2) : null, value, column));
+
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> longLast = (List<Map<String, Object>>) sql(pool, config, "select c_after, c_long from t_long order by id", Map.of());
+                System.out.println("[OracleDatabaseTest] LONG selected last: " + longLast);
+                assertEquals("long text", longLast.get(0).get("C_LONG"), "a LONG after another column reads too");
+
+                Object rawData = sql(pool, config, "select * from t_long_raw order by id", Map.of());
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> rawRows = (List<Map<String, Object>>) rawData;
+                String json = org.lowcoder.sdk.util.JsonUtils.toJson(rawData);
+                System.out.println("[OracleDatabaseTest] LONG RAW rows: " + rawRows.stream().map(Map::keySet).toList() + " json " + json);
+                assertArrayEquals(new byte[] {0, 1, (byte) 0xFF}, (byte[]) rawRows.get(0).get("C_LONG_RAW"), "bytes, not the driver's hex text");
+                assertNull(rawRows.get(1).get("C_LONG_RAW"));
+                assertTrue(json.contains("\"C_LONG_RAW\":\"AAH/\""), "the bytes are written as base64, as a RAW or BLOB is: " + json);
+
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> rawFirst = (List<Map<String, Object>>) sql(pool, config, "select c_long_raw, id from t_long_raw order by id", Map.of());
+                System.out.println("[OracleDatabaseTest] LONG RAW selected first: " + rawFirst.stream().map(Map::keySet).toList());
+                assertArrayEquals(new byte[] {0, 1, (byte) 0xFF}, (byte[]) rawFirst.get(0).get("C_LONG_RAW"), "a LONG RAW before another column reads too");
             } finally {
                 destroy(pool);
             }
@@ -309,6 +380,43 @@ public class OracleDatabaseTest {
 
             gui("DELETE", filterOn("t_gui", "ID", false), Map.of("key", 3));
             assertEquals(List.of(BigDecimal.ONE, new BigDecimal(2)), column(jdbc, "select id from t_gui order by id", "ID"));
+        }
+    }
+
+    /**
+     * BF-051 on a real Oracle: a table whose key column was created quoted in lower case ({@code "id"}). The bulk update
+     * quotes the key in its CASE WHEN; the where clause wrote it raw, which Oracle folds to {@code ID}, a column that does
+     * not exist (ORA-00904). Both now quote it, and the two named rows change while the third keeps its value.
+     */
+    @Test
+    public void bulkUpdateWithALowerCaseQuotedKeyChangesTheNamedRowsBF051() throws Exception {
+        try (Connection jdbc = jdbc()) {
+            execute(jdbc, "drop table t_bulk_key", "create table t_bulk_key (\"id\" number primary key, \"name\" varchar2(10))",
+                    "insert into t_bulk_key values (1, 'a')", "insert into t_bulk_key values (2, 'b')", "insert into t_bulk_key values (3, 'c')");
+            Object updated = gui("BULK_UPDATE", Map.of("table", "t_bulk_key", "primaryKey", "id",
+                    "records", "[{\"id\":1,\"name\":\"A\"},{\"id\":3,\"name\":\"C\"}]"), Map.of());
+            System.out.println("[OracleDatabaseTest] bulk update with the lower-case key \"id\": " + updated);
+            assertEquals(2, ((Map<?, ?>) updated).get(AFFECTED_ROWS));
+            assertEquals(List.of("A", "b", "C"), column(jdbc, "select \"name\" from t_bulk_key order by \"id\"", "name"));
+        }
+    }
+
+    /**
+     * F01 (GitHub #1641) on a real Oracle: a bulk update with a filter changes the records' rows that match it; a record whose
+     * row the filter excludes keeps its value (the filter used to be ignored, so that row was updated too).
+     */
+    @Test
+    public void guiBulkUpdateWithAFilterLeavesTheRowTheFilterExcludesF01() throws Exception {
+        try (Connection jdbc = jdbc()) {
+            execute(jdbc, "drop table t_bulk_filter", "create table t_bulk_filter (id number primary key, name varchar2(20), status varchar2(10))",
+                    "insert into t_bulk_filter values (1, 'a', 'open')", "insert into t_bulk_filter values (2, 'b', 'closed')",
+                    "insert into t_bulk_filter values (3, 'c', 'open')");
+            Object updated = gui("BULK_UPDATE", Map.of("table", "t_bulk_filter", "primaryKey", "ID",
+                    "records", "[{\"ID\":1,\"NAME\":\"A\"},{\"ID\":2,\"NAME\":\"B\"}]",
+                    "filterBy", List.of(Map.of("column", "STATUS", "condition", "=", "value", "{{status}}"))), Map.of("status", "open"));
+            System.out.println("[OracleDatabaseTest] F01 bulk update with filter STATUS = open: " + updated);
+            assertEquals(1, ((Map<?, ?>) updated).get(AFFECTED_ROWS));
+            assertEquals(List.of("A", "b", "c"), column(jdbc, "select name from t_bulk_filter order by id", "NAME"));
         }
     }
 
@@ -341,23 +449,22 @@ public class OracleDatabaseTest {
     }
 
     /**
-     * Pins the plan section 9 row "bulk insert of two or more records fails with ORA-63809" (D-6: fix deferred): the bulk insert renders one {@code insert ... values (?,?),(?,?)} (a table value constructor) and
-     * the executor asks for generated keys, which Oracle 23 refuses for such a statement (ORA-63809), so a bulk insert of two
-     * or more records fails and nothing is written; a single record works.
+     * BF-050 fixed (plan section 9 row "bulk insert of two or more records fails with ORA-63809"): the bulk insert renders
+     * one {@code insert ... values (?,?),(?,?)} and the executor asked for generated keys, which Oracle 23 refuses for such
+     * a statement (ORA-63809), so nothing was written. A bulk insert of two records now runs without generated keys and
+     * answers its affected rows; a single record still answers its generated key (the ROWID).
      */
     @Test
-    public void bulkInsertOfTwoRecordsFailsOnOracleWhileOneRecordWorks_pinsTheSection9Row() throws Exception {
+    public void bulkInsertOfTwoRecordsWritesBothAndOneRecordKeepsItsGeneratedKeyBF050() throws Exception {
         try (Connection jdbc = jdbc()) {
             execute(jdbc, "drop table t_bulk", "create table t_bulk (id number, name varchar2(10))");
             Object one = gui("BULK_INSERT", Map.of("table", "t_bulk", "records", "[{\"ID\":1,\"NAME\":\"a\"}]"), Map.of());
-            System.out.println("[OracleDatabaseTest] bulk insert of one record: " + one);
-            assertEquals(1, rows(jdbc, "select * from t_bulk").size());
-            PluginException thrown = assertThrows(PluginException.class, () -> gui("BULK_INSERT",
-                    Map.of("table", "t_bulk", "records", "[{\"ID\":2,\"NAME\":\"b\"},{\"ID\":3,\"NAME\":\"c\"}]"), Map.of()));
-            System.out.println("[OracleDatabaseTest] bulk insert of two records: " + thrown.getError() + " " + thrown.getMessage());
-            assertEquals(QUERY_EXECUTION_ERROR, thrown.getError());
-            assertTrue(thrown.getMessage().contains("ORA-63809"), thrown.getMessage());
-            assertEquals(1, rows(jdbc, "select * from t_bulk").size(), "nothing of the failed bulk insert was written");
+            Object two = gui("BULK_INSERT", Map.of("table", "t_bulk", "records", "[{\"ID\":2,\"NAME\":\"b\"},{\"ID\":3,\"NAME\":\"c\"}]"), Map.of());
+            System.out.println("[OracleDatabaseTest] bulk insert of one record: " + one + ", of two records: " + two);
+            assertEquals(1, ((Map<?, ?>) one).get(AFFECTED_ROWS));
+            assertEquals(1, ((List<?>) ((Map<?, ?>) one).get(GENERATED_KEYS)).size(), "the single-row insert keeps its generated key");
+            assertEquals(Map.of(AFFECTED_ROWS, 2), two, "affected rows only: Oracle has no generated keys for a multi-row insert");
+            assertEquals(List.of(new BigDecimal(1), new BigDecimal(2), new BigDecimal(3)), column(jdbc, "select id from t_bulk order by id", "ID"));
         }
     }
 }

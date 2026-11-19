@@ -5,8 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.net.URI;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.springframework.http.MediaType;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
@@ -18,6 +23,22 @@ import reactor.core.publisher.Mono;
  * cookie domain of a request).
  */
 public class MediaTypeAndUriUtilsTest {
+
+    private static final String UPPER_CASE_REFERER = "https://API.EXAMPLE.COM/x";
+    private static final String UPPER_CASE_SINGLE_LABEL_URL = "http://INTRANET/x";
+    private static final String UPPER_CASE_REGISTRABLE_URL = "https://WWW.EXAMPLE.IO/x";
+    private static final String LOWER_CASE_REFERER_DOMAIN = "api.example.com";
+    private static final String LOWER_CASE_SINGLE_LABEL = "intranet";
+    private static final String LOWER_CASE_REGISTRABLE_DOMAIN = "example.io";
+    /** The request URL of an exchange whose Referer is what a case reads. */
+    private static final String ANY_REQUEST_URL = "http://x/";
+    /** An exchange without a Referer, for a case that reads only the request URL. */
+    private static final String NO_REFERER = null;
+
+    private static final MediaType SVG = new MediaType("image", "svg+xml");
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+    /** Referer values that {@code URI.create} rejects: a blank in the host, a blank in the authority, markup. */
+    private static final String[] UNPARSABLE_REFERERS = {"http://bad host/", "http://a b", "<script>"};
 
     private static MockServerWebExchange exchange(String url, String referer) {
         MockServerHttpRequest.BaseBuilder<?> builder = MockServerHttpRequest.get(url);
@@ -54,19 +75,42 @@ public class MediaTypeAndUriUtilsTest {
     }
 
     /**
-     * DEFECT pinned (new plan section 9 row "MediaTypeUtils is case-sensitive: IMG.JPG is served as
-     * application/octet-stream"; D-6, fix deferred). {@code getMediaType} switches on the extension as written
-     * (MediaTypeUtils.java:34-41), and the only caller, MaterialController.download (MaterialController.java:59), passes the
-     * stored file name as uploaded (MaterialApiServiceImpl.upload keeps it unchanged), so a file named {@code IMG_0001.JPG} or
-     * {@code LOGO.PNG} is served with {@code application/octet-stream}, also for the inline preview. A fix that lower-cases
-     * the extension turns these assertions red.
+     * BF-141 (plan section 9 row "MediaTypeUtils is case-sensitive: IMG.JPG is served as application/octet-stream"): the
+     * extension is matched in any case, so {@code LOGO.PNG} or {@code IMG_0001.JPG}, stored with the name as uploaded and
+     * served by MaterialController.download, get their media type. Catches: the extension matched as written.
      */
     @Test
-    public void anUpperCaseExtensionIsNotRecognisedAndGetsOctetStreamD() {
-        for (String name : new String[] {"LOGO.PNG", "IMG_0001.JPG", "Photo.Jpeg", "SCAN.PDF", "ICON.SVG", "a.GIF"}) {
-            MediaType type = MediaTypeUtils.parse(name);
-            System.out.println("[MediaTypeAndUriUtilsTest] " + name + " -> " + type);
-            assertEquals(MediaType.APPLICATION_OCTET_STREAM, type, name);
+    public void anExtensionIsRecognisedInAnyCaseBF141() {
+        Map<String, MediaType> expected = new LinkedHashMap<>();
+        expected.put("LOGO.PNG", MediaType.IMAGE_PNG);
+        expected.put("IMG_0001.JPG", MediaType.IMAGE_JPEG);
+        expected.put("Photo.Jpeg", MediaType.IMAGE_JPEG);
+        expected.put("SCAN.PDF", MediaType.APPLICATION_PDF);
+        expected.put("ICON.SVG", SVG);
+        expected.put("a.GIF", MediaType.IMAGE_GIF);
+        expected.put("ARCHIVE.ZIP", MediaType.APPLICATION_OCTET_STREAM);
+        expected.forEach((name, type) -> {
+            MediaType actual = MediaTypeUtils.parse(name);
+            System.out.println("[MediaTypeAndUriUtilsTest] " + name + " -> " + actual);
+            assertEquals(type, actual, name);
+        });
+        assertEquals(MediaType.IMAGE_PNG, MediaTypeUtils.getMediaType("PNG"));
+    }
+
+    /**
+     * BF-141: the extension is lower-cased without the default locale, under which a Turkish {@code GIF} becomes
+     * {@code gıf} (dotless i). Catches: {@code toLowerCase()} with the default locale.
+     */
+    @Test
+    public void anUpperCaseExtensionIsRecognisedUnderATurkishDefaultLocaleBF141() {
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            MediaType actual = MediaTypeUtils.parse("a.GIF");
+            System.out.println("[MediaTypeAndUriUtilsTest] a.GIF under " + Locale.getDefault() + " -> " + actual);
+            assertEquals(MediaType.IMAGE_GIF, actual);
+        } finally {
+            Locale.setDefault(previous);
         }
     }
 
@@ -81,16 +125,19 @@ public class MediaTypeAndUriUtilsTest {
     }
 
     /**
-     * Observation (callers reported to the coordinator): the referer header is client-controlled and is parsed with
-     * {@code URI.create}, so a value that is not a valid URI (a space is enough) throws an IllegalArgumentException. Callers:
-     * GlobalContextFilter.java:111 (every request, inside the context write) and CookieHelper.java:50 (the session cookie).
+     * BF-143: the referer header is client-controlled; a value that is not a valid URI (a space is enough) is treated as
+     * no referer, an empty domain and a null URI, instead of an IllegalArgumentException that GlobalContextFilter (every
+     * request) and CookieHelper (the session cookie) let escape. Catches: the parse failure escaping again.
      */
     @Test
-    public void anInvalidRefererThrowsAnIllegalArgumentExceptionToItsCaller() {
-        for (String referer : new String[] {"http://bad host/", "http://a b", "<script>"}) {
-            IllegalArgumentException failure = assertThrows(IllegalArgumentException.class,
-                    () -> UriUtils.getRefererDomainFromRequest(exchange("http://x/", referer)), referer);
-            System.out.println("[MediaTypeAndUriUtilsTest] referer '" + referer + "' -> " + failure.getMessage());
+    public void anUnparsableRefererIsTreatedAsAbsentBF143() {
+        for (String referer : UNPARSABLE_REFERERS) {
+            MockServerWebExchange exchange = exchange("http://x/", referer);
+            String domain = UriUtils.getRefererDomainFromRequest(exchange);
+            URI uri = UriUtils.getRefererURI(exchange.getRequest());
+            System.out.println("[MediaTypeAndUriUtilsTest] referer '" + referer + "' -> domain '" + domain + "', uri " + uri);
+            assertEquals("", domain, referer);
+            assertNull(uri, referer);
         }
     }
 
@@ -122,5 +169,51 @@ public class MediaTypeAndUriUtilsTest {
         MockServerWebExchange hostless = MockServerWebExchange.from(MockServerHttpRequest.get("/relative").build());
 
         assertThrows(NullPointerException.class, () -> UriUtils.getTopPrivateDomain(hostless));
+    }
+
+
+    /**
+     * NEW-40: the referer domain is lower-cased with {@code Locale.ROOT}'s rule under a Turkish default locale; the
+     * default locale's rule made {@code API.EXAMPLE.COM} {@code apı.example.com}. The case holds JUnit's
+     * {@code Resources.LOCALE} lock while it changes the default locale; the lock orders it only against tests that
+     * hold the same lock, and it restores the locale after its calls, which block, have completed.
+     */
+    @Test
+    @ResourceLock(Resources.LOCALE)
+    public void theRefererDomainIsLowerCasedUnderATurkishDefaultLocaleNEW40() {
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            String referer = UriUtils.getRefererDomainFromRequest(exchange(ANY_REQUEST_URL, UPPER_CASE_REFERER));
+            System.out.println("[MediaTypeAndUriUtilsTest] under " + Locale.getDefault() + ": referer " + UPPER_CASE_REFERER + " -> " + referer);
+            assertEquals(LOWER_CASE_REFERER_DOMAIN, referer);
+        } finally {
+            Locale.setDefault(previous);
+        }
+    }
+
+    /**
+     * NEW-40: the host the top private domain falls back to (a single label, which has no public suffix) is lower-cased
+     * with {@code Locale.ROOT}'s rule under a Turkish default locale; the default locale's rule made {@code INTRANET}
+     * {@code ıntranet}. The registrable domain comes lower-cased from Guava ({@code InternetDomainName}), so the
+     * conversion after it, left with the default locale, gives it unchanged; its case is the control. The case holds
+     * JUnit's {@code Resources.LOCALE} lock while it changes the default locale; the lock orders it only against tests
+     * that hold the same lock, and it restores the locale after its calls, which block, have completed.
+     */
+    @Test
+    @ResourceLock(Resources.LOCALE)
+    public void theHostFallbackIsLowerCasedUnderATurkishDefaultLocaleNEW40() {
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            String singleLabel = UriUtils.getTopPrivateDomain(exchange(UPPER_CASE_SINGLE_LABEL_URL, NO_REFERER));
+            String registrable = UriUtils.getTopPrivateDomain(exchange(UPPER_CASE_REGISTRABLE_URL, NO_REFERER));
+            System.out.println("[MediaTypeAndUriUtilsTest] under " + Locale.getDefault() + ": single label " + UPPER_CASE_SINGLE_LABEL_URL + " -> "
+                    + singleLabel + ", registrable " + UPPER_CASE_REGISTRABLE_URL + " -> " + registrable);
+            assertEquals(LOWER_CASE_SINGLE_LABEL, singleLabel);
+            assertEquals(LOWER_CASE_REGISTRABLE_DOMAIN, registrable);
+        } finally {
+            Locale.setDefault(previous);
+        }
     }
 }

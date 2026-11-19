@@ -12,6 +12,9 @@ import com.zaxxer.hikari.HikariConfig;
 @Extension
 public class MssqlConnector extends SqlBasedConnector<MssqlDatasourceConfig> {
     private static final String JDBC_DRIVER = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+    private static final String URL_PREFIX = "jdbc:sqlserver://";
+    private static final String BRACE_OPEN = "{";
+    private static final String BRACE_CLOSE = "}";
 
     protected MssqlConnector() {
         super(50);
@@ -38,46 +41,37 @@ public class MssqlConnector extends SqlBasedConnector<MssqlDatasourceConfig> {
         long port = datasourceConfig.getPort();
         String database = datasourceConfig.getDatabase();
 
-        StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append("jdbc:sqlserver://");
+        // User and password reach the driver only through Hikari's properties above, never through the URL (BF-027, and
+        // BF-026 c: Hikari masks a URL password only up to its first ';'). Host and database are braced property values,
+        // so a ';' in them cannot add a property of its own.
+        StringBuilder urlBuilder = new StringBuilder(URL_PREFIX);
+        urlBuilder.append(";serverName=").append(braced(host));
 
-        // SQL Server supports instanceName like this: jdbc:sqlserver://INNOWAVE-99\SQLEXPRESS01;databaseName=EDS
+        // SQL Server supports instanceName like this: serverName=INNOWAVE-99\SQLEXPRESS01
         // And when host contains instanceName, port should be ignored, see https://stackoverflow.com/a/40830281/2139436
-        if (host.contains("\\")) {
-            urlBuilder.append(host)
-                    .append(";");
-        } else {
-            urlBuilder.append(host)
-                    .append(":")
-                    .append(port)
-                    .append(";");
+        if (!host.contains("\\")) {
+            urlBuilder.append(";portNumber=").append(port);
         }
-
 
         if (isNotBlank(database)) {
-            urlBuilder.append("databaseName=")
-                    .append(database)
-                    .append(";");
+            urlBuilder.append(";databaseName=").append(braced(database));
         }
 
-        if (isNotBlank(username)) {
-            urlBuilder.append("user=")
-                    .append(username)
-                    .append(";");
-        }
-
-        if (isNotBlank(password)) {
-            urlBuilder.append("password=")
-                    .append(password)
-                    .append(";");
-        }
-
-        urlBuilder.append("encrypt=")
+        urlBuilder.append(";encrypt=")
                 .append(datasourceConfig.isUsingSsl())
                 .append(";");
 
         config.setJdbcUrl(urlBuilder.toString());
         config.setReadOnly(datasourceConfig.isReadonly());
+    }
+
+    /**
+     * A connection-string property value in braces, a closing brace doubled, as the SQL Server driver reads it: the value
+     * cannot end the property or start another one. Limit: it keeps the value from adding properties, it does not check
+     * that the value is a reachable host or an existing database.
+     */
+    static String braced(String value) {
+        return BRACE_OPEN + value.replace(BRACE_CLOSE, BRACE_CLOSE + BRACE_CLOSE) + BRACE_CLOSE;
     }
 
 }

@@ -2,6 +2,10 @@ package org.lowcoder.api.authentication.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -25,6 +29,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
 import org.lowcoder.api.authentication.request.AuthRequestFactory;
 import org.lowcoder.api.authentication.service.factory.AuthConfigFactory;
@@ -47,12 +53,14 @@ import org.lowcoder.domain.organization.model.OrganizationDomain;
 import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.model.AuthToken;
+import org.lowcoder.domain.user.model.APIKey;
 import org.lowcoder.domain.user.model.AuthUser;
 import org.lowcoder.domain.user.model.Connection;
 import org.lowcoder.domain.user.model.ConnectionAuthToken;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
+import org.lowcoder.sdk.auth.constants.AuthTypeConstants;
 import org.lowcoder.sdk.config.AuthProperties;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.constants.AuthSourceConstants;
@@ -62,6 +70,7 @@ import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.CookieHelper;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opentest4j.AssertionFailedError;
 import org.springframework.web.server.ServerWebExchange;
 
 import reactor.core.publisher.Flux;
@@ -73,15 +82,14 @@ import reactor.test.StepVerifier;
  * the connection update after re-authentication, user lookup/creation routing, the post-login organisation and
  * group join, and the login orchestration.
  *
- * <p>Defects pinned here (owner decision D-6: today's behaviour is asserted, a fix changes the test on purpose):
- * <ul>
- *   <li>plan §9 "builds a duplicate-config error and drops it": {@code enableAuthConfig} (and
- *       {@code addOrUpdateNewAuthConfig}, which always reports a duplicate) never signals
- *       DUPLICATE_AUTH_CONFIG_ADDITION;</li>
- *   <li>plan §9 / analysis H3: {@code disableAuthConfig(.., delete=true)} on an organisation without an
- *       organisation domain throws a NullPointerException;</li>
- *   <li>plan §9 "findAuthConfigs ignores its enableOnly parameter".</li>
- * </ul>
+ * <p>Fixed since (each was pinned under owner decision D-6): plan §9 "builds a duplicate-config error and drops it"
+ * (BF-087): a new config of a type the organisation already has is refused
+ * ({@link #enableAuthConfig_newConfigOfATypeAlreadyAdded_isRefusedAsADuplicateBF087});
+ * plan §9 "findAuthConfigs ignores its enableOnly parameter" (BF-088): the parameter is passed on
+ * ({@link #findAuthConfigs_admin_queriesOwnOrg_withTheCallersEnableOnlyBF088});
+ * plan §9 / analysis H3 (BF-089): {@code disableAuthConfig(.., delete=true)} on an organisation without an
+ * organisation domain threw a NullPointerException; it now updates the organisation, which has nothing to delete
+ * ({@link #disableAuthConfig_deleteTrue_organizationWithoutDomain_updatesTheOrganizationWithoutAnErrorBF089}).
  */
 @ExtendWith(MockitoExtension.class)
 class AuthenticationApiServiceImplMutationsTest {
@@ -93,11 +101,23 @@ class AuthenticationApiServiceImplMutationsTest {
     private static final String CONFIG_A = "cfg-a";
     private static final String CONFIG_B = "cfg-b";
     private static final String SOURCE_GOOGLE = "GOOGLE";
+    private static final String STUB_TYPE = "STUB";
+    private static final String OTHER_TYPE = "OTHER";
     private static final String UID = "uid-1";
     private static final String OLD_AUTH_ID = "old-auth-id";
     private static final String GROUP_ID = "group-1";
     private static final String INVITATION_ID = "invitation-1";
     private static final String EMAIL_AUTH_ID = AuthSourceConstants.EMAIL;
+    private static final String KEY_ID = "key-1";
+    private static final String KEY_NAME = "key name";
+    private static final String KEY_DESCRIPTION = "key description";
+    /** 30 characters: the first six are A, the last six are C. */
+    private static final String RAW_TOKEN = "AAAAAAbbbbbbbbbbbbbbbbbbCCCCCC";
+    private static final String MASK = "*************";
+    private static final String MASKED_RAW_TOKEN = "AAAAAA" + MASK + "CCCCCC";
+    /** 24 characters, the shortest token that is shown by its ends (NEW-135). */
+    private static final String MIN_LENGTH_TOKEN = "abcdefghijklmnopqrstuvwx";
+    private static final String MASKED_MIN_LENGTH_TOKEN = "abcdef" + MASK + "stuvwx";
 
     @Mock private OrgApiService orgApiService;
     @Mock private OrganizationService organizationService;
@@ -122,8 +142,8 @@ class AuthenticationApiServiceImplMutationsTest {
     private static class StubAuthConfig extends AbstractAuthConfig {
         private AbstractAuthConfig mergedFrom;
 
-        StubAuthConfig(String id, String source, boolean enable, boolean enableRegister) {
-            super(id, source, source, enable, enableRegister, "STUB");
+        StubAuthConfig(String id, String source, boolean enable, boolean enableRegister, String authType) {
+            super(id, source, source, enable, enableRegister, authType);
         }
 
         @Override
@@ -152,13 +172,22 @@ class AuthenticationApiServiceImplMutationsTest {
     }
 
     private static StubAuthConfig config(String id, boolean enable) {
-        return new StubAuthConfig(id, SOURCE_GOOGLE, enable, true);
+        return new StubAuthConfig(id, SOURCE_GOOGLE, enable, true, STUB_TYPE);
+    }
+
+    private static StubAuthConfig config(String id, String authType) {
+        return new StubAuthConfig(id, SOURCE_GOOGLE, true, true, authType);
     }
 
     private static AuthConfigRequest request(String id) {
         AuthConfigRequest request = new AuthConfigRequest();
         request.put("id", id);
         return request;
+    }
+
+    /** A request that creates a config: it carries no id, as the client's "Add OAuth Provider" form sends it. */
+    private static AuthConfigRequest newConfigRequest() {
+        return new AuthConfigRequest();
     }
 
     private static Organization organization(AbstractAuthConfig... configs) {
@@ -184,7 +213,7 @@ class AuthenticationApiServiceImplMutationsTest {
 
     private static AuthUser authUser(String source, String uid, String orgId, String authConfigId, boolean enableRegister) {
         FormAuthRequestContext context = new FormAuthRequestContext("login", "pw", false, orgId);
-        context.setAuthConfig(new StubAuthConfig(authConfigId, source, true, enableRegister));
+        context.setAuthConfig(new StubAuthConfig(authConfigId, source, true, enableRegister, STUB_TYPE));
         return AuthUser.builder().uid(uid).orgId(orgId).authContext(context).build();
     }
 
@@ -278,24 +307,59 @@ class AuthenticationApiServiceImplMutationsTest {
     }
 
     /**
-     * Pins the plan §9 defect "AuthenticationApiServiceImpl builds a duplicate-config error and drops it":
-     * {@code addOrUpdateNewAuthConfig} always returns true and the {@code deferredError(..)} Mono is discarded,
-     * so enabling an id that already exists completes normally and DUPLICATE_AUTH_CONFIG_ADDITION is never
-     * signalled. A fix changes this test on purpose.
+     * BF-087 (fixed; was pinned as the plan §9 defect "builds a duplicate-config error and drops it"): a new config (a
+     * request without an id) of a type the organization already has is refused with DUPLICATE_AUTH_CONFIG_ADDITION, and
+     * the organization is not updated.
      */
     @Test
-    void enableAuthConfig_existingId_neverSignalsDuplicateError_pinsDroppedDuplicateErrorDefect() {
+    void enableAuthConfig_newConfigOfATypeAlreadyAdded_isRefusedAsADuplicateBF087() {
         visitorIs(MemberRole.ADMIN);
-        Organization organization = organization(config(CONFIG_A, true));
+        StubAuthConfig existing = config(CONFIG_A, STUB_TYPE);
+        Organization organization = organization(existing);
         organizationIs(organization);
-        when(authConfigFactory.build(any(), eq(true))).thenReturn(config(CONFIG_A, true));
+        when(authConfigFactory.build(any(), eq(true))).thenReturn(config(CONFIG_B, STUB_TYPE));
+
+        StepVerifier.create(service.enableAuthConfig(newConfigRequest()))
+                .expectErrorSatisfies(e -> {
+                    System.out.println("[AuthenticationApiServiceImplMutationsTest] new " + STUB_TYPE + " config beside an existing one -> " + e);
+                    assertBizError(e, BizError.DUPLICATE_AUTH_CONFIG_ADDITION);
+                })
+                .verify();
+        verify(organizationService, never()).update(anyString(), any());
+        assertThat(organization.getAuthConfigs()).containsExactly(existing);
+    }
+
+    /** BF-087: the generic OAuth type may be added more than once, as the client offers it; a second one is added. */
+    @Test
+    void enableAuthConfig_newGenericConfigBesideAnotherGeneric_isAddedBF087() {
+        visitorIs(MemberRole.ADMIN);
+        StubAuthConfig existing = config(CONFIG_A, AuthTypeConstants.GENERIC);
+        Organization organization = organization(existing);
+        organizationIs(organization);
+        StubAuthConfig built = config(CONFIG_B, AuthTypeConstants.GENERIC);
+        when(authConfigFactory.build(any(), eq(true))).thenReturn(built);
         when(organizationService.update(ORG_ID, organization)).thenReturn(Mono.just(true));
 
-        StepVerifier.create(service.enableAuthConfig(request(CONFIG_A)))
-                .expectNext(true)
-                .verifyComplete();
-        System.out.println("[AuthenticationApiServiceImplMutationsTest] existing id enabled again -> completes with true, "
-                + "no DUPLICATE_AUTH_CONFIG_ADDITION (today's behaviour)");
+        StepVerifier.create(service.enableAuthConfig(newConfigRequest())).expectNext(true).verifyComplete();
+
+        System.out.println("[AuthenticationApiServiceImplMutationsTest] second GENERIC config -> " + organization.getAuthConfigs().size() + " configs");
+        assertThat(organization.getAuthConfigs()).containsExactlyInAnyOrder(existing, built);
+    }
+
+    /** BF-087: a new config of a type the organization does not have yet is added beside the others. */
+    @Test
+    void enableAuthConfig_newConfigOfAnotherType_isAddedBF087() {
+        visitorIs(MemberRole.ADMIN);
+        StubAuthConfig existing = config(CONFIG_A, STUB_TYPE);
+        Organization organization = organization(existing);
+        organizationIs(organization);
+        StubAuthConfig built = config(CONFIG_B, OTHER_TYPE);
+        when(authConfigFactory.build(any(), eq(true))).thenReturn(built);
+        when(organizationService.update(ORG_ID, organization)).thenReturn(Mono.just(true));
+
+        StepVerifier.create(service.enableAuthConfig(newConfigRequest())).expectNext(true).verifyComplete();
+
+        assertThat(organization.getAuthConfigs()).containsExactlyInAnyOrder(existing, built);
     }
 
     // ----------------------------------------------------- disableAuthConfig
@@ -403,22 +467,24 @@ class AuthenticationApiServiceImplMutationsTest {
     }
 
     /**
-     * Pins the plan §9 / analysis H3 defect: {@code disableAuthConfig(.., delete=true)} dereferences
-     * {@code organization.getOrganizationDomain()} without a null check, so an organisation without a domain
-     * fails with a NullPointerException and is never updated. A fix changes this test on purpose.
+     * BF-089 (plan §9 / analysis H3, was pinned): {@code disableAuthConfig(.., delete=true)} on an organisation without a
+     * domain has no config to delete; the organisation is updated as it is, without a NullPointerException, and is given
+     * no domain.
      */
     @Test
-    void disableAuthConfig_deleteTrue_organizationWithoutDomain_failsWithNpe_pinsNullDomainDefect() {
+    void disableAuthConfig_deleteTrue_organizationWithoutDomain_updatesTheOrganizationWithoutAnErrorBF089() {
         visitorIs(MemberRole.ADMIN);
         enoughEffectiveConfigs();
-        organizationIs(organizationWithoutDomain());
+        Organization organization = organizationWithoutDomain();
+        organizationIs(organization);
+        when(organizationService.update(ORG_ID, organization)).thenReturn(Mono.just(false));
 
-        StepVerifier.create(service.disableAuthConfig(CONFIG_A, true))
-                .expectError(NullPointerException.class)
-                .verify();
+        StepVerifier.create(service.disableAuthConfig(CONFIG_A, true)).expectNext(false).verifyComplete();
 
-        verify(organizationService, never()).update(anyString(), any());
-        System.out.println("[AuthenticationApiServiceImplMutationsTest] no domain + delete=true -> NPE, no update (today's behaviour)");
+        verify(organizationService).update(ORG_ID, organization);
+        assertThat(organization.getOrganizationDomain()).isNull();
+        assertThat(organization.getAuthConfigs()).isEmpty();
+        System.out.println("[AuthenticationApiServiceImplMutationsTest] no domain + delete=true -> updated as it is, no error");
     }
 
     /** Catches sessions of a disabled provider staying valid: every org member's tokens for that auth id are removed. */
@@ -481,20 +547,22 @@ class AuthenticationApiServiceImplMutationsTest {
     }
 
     /**
-     * Pins the plan §9 defect "findAuthConfigs ignores its enableOnly parameter": the admin's own organisation is
-     * queried with enableOnly=false even when the caller passes true. A fix changes this test on purpose.
+     * BF-088 (fixed; was pinned as the plan §9 defect "findAuthConfigs ignores its enableOnly parameter": the
+     * organisation was queried with enableOnly=false whatever the caller passed): the admin's own organisation is
+     * queried with the enableOnly the caller passes, true and false alike.
      */
-    @Test
-    void findAuthConfigs_admin_queriesOwnOrg_andIgnoresEnableOnly_pinsEnableOnlyDefect() {
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void findAuthConfigs_admin_queriesOwnOrg_withTheCallersEnableOnlyBF088(boolean enableOnly) {
         visitorIs(MemberRole.ADMIN);
-        FindAuthConfig found = new FindAuthConfig(config(CONFIG_A, false), null);
-        when(authenticationService.findAllAuthConfigs(ORG_ID, false)).thenReturn(Flux.just(found));
+        FindAuthConfig found = new FindAuthConfig(config(CONFIG_A, true), null);
+        when(authenticationService.findAllAuthConfigs(ORG_ID, enableOnly)).thenReturn(Flux.just(found));
 
-        StepVerifier.create(service.findAuthConfigs(true)).expectNext(found).verifyComplete();
+        StepVerifier.create(service.findAuthConfigs(enableOnly)).expectNext(found).verifyComplete();
 
-        verify(authenticationService).findAllAuthConfigs(ORG_ID, false);
-        verify(authenticationService, never()).findAllAuthConfigs(anyString(), eq(true));
-        System.out.println("[AuthenticationApiServiceImplMutationsTest] findAuthConfigs(true) still queried enableOnly=false");
+        verify(authenticationService).findAllAuthConfigs(ORG_ID, enableOnly);
+        verify(authenticationService, never()).findAllAuthConfigs(anyString(), eq(!enableOnly));
+        System.out.println("[AuthenticationApiServiceImplMutationsTest] findAuthConfigs(" + enableOnly + ") queried enableOnly=" + enableOnly);
     }
 
     // -------------------------------------------------------- updateConnection
@@ -755,5 +823,85 @@ class AuthenticationApiServiceImplMutationsTest {
         verify(businessEventPublisher).publishUserLoginEvent(SOURCE_GOOGLE);
         System.out.println("[AuthenticationApiServiceImplMutationsTest] new=" + isNewUser + " org=" + orgId + " invitation="
                 + invitationId + " creation=" + workspaceCreation + " -> createDefault=" + expectCreate);
+    }
+
+    // ----------------------------------------------------------------- findAPIKeys (NEW-135)
+
+    private User visitorWithKey(String token) {
+        User visitor = User.builder().id(USER_ID).build();
+        visitor.setApiKeysList(new ArrayList<>(List.of(new APIKey(KEY_ID, KEY_NAME, KEY_DESCRIPTION, token))));
+        when(sessionUserService.getVisitor()).thenReturn(Mono.just(visitor));
+        return visitor;
+    }
+
+    /** The listing as a list; an error signal fails as an assertion, not as a test error. */
+    private List<APIKey> listedKeys() {
+        try {
+            return service.findAPIKeys().collectList().block();
+        } catch (RuntimeException e) {
+            throw new AssertionFailedError("findAPIKeys() failed with " + e, e);
+        }
+    }
+
+    /** The listing answers masked copies and leaves the visitor's own keys as they were read. */
+    @Test
+    void findAPIKeys_answersMaskedCopies_andLeavesTheVisitorsKeysAloneNEW135() {
+        User visitor = visitorWithKey(RAW_TOKEN);
+        APIKey visitorKey = visitor.getApiKeysList().get(0);
+
+        List<APIKey> answered = listedKeys();
+        assertEquals(1, answered.size(), "one key is answered");
+
+        assertAll(
+                () -> assertEquals(MASKED_RAW_TOKEN, answered.get(0).getToken(), "the answered token is masked"),
+                () -> assertEquals(KEY_ID, answered.get(0).getId(), "the id is kept"),
+                () -> assertEquals(KEY_NAME, answered.get(0).getName(), "the name is kept"),
+                () -> assertEquals(KEY_DESCRIPTION, answered.get(0).getDescription(), "the description is kept"),
+                () -> assertNotSame(visitorKey, answered.get(0), "the answer is a copy"),
+                () -> assertEquals(RAW_TOKEN, visitorKey.getToken(), "the visitor's key keeps its token"),
+                () -> assertSame(visitorKey, visitor.getApiKeysList().get(0), "the visitor's list is untouched"));
+        System.out.println("[AuthenticationApiServiceImplMutationsTest] listed " + answered.get(0).getToken()
+                + ", visitor token still " + visitorKey.getToken());
+    }
+
+    /** Listing twice answers the same text both times and does not change the visitor's token. */
+    @Test
+    void findAPIKeys_listedTwice_answersTheSameMaskBothTimesNEW135() {
+        User visitor = visitorWithKey(RAW_TOKEN);
+
+        List<APIKey> first = listedKeys();
+        List<APIKey> second = listedKeys();
+        assertEquals(1, first.size(), "keys answered by the first listing");
+        assertEquals(1, second.size(), "keys answered by the second listing");
+
+        assertAll(
+                () -> assertEquals(MASKED_RAW_TOKEN, first.get(0).getToken(), "first listing"),
+                () -> assertEquals(MASKED_RAW_TOKEN, second.get(0).getToken(), "second listing"),
+                () -> assertEquals(RAW_TOKEN, visitor.getApiKeysList().get(0).getToken(),
+                        "the visitor's token after two listings"));
+    }
+
+    /** A null token or one shorter than the minimum masked length is answered as the mask alone. */
+    @ParameterizedTest(name = "token [{0}] -> mask alone")
+    @NullSource
+    @ValueSource(strings = {"abcde", "abcdef", "abcdefghijk", "abcdefghijkl", "abcdefghijklm",
+            "abcdefghijklmnopqrstuvw"})
+    void findAPIKeys_tokenShorterThanMinMaskedLength_answersTheMaskAloneNEW135(String token) {
+        visitorWithKey(token);
+
+        StepVerifier.create(service.findAPIKeys())
+                .assertNext(key -> assertEquals(MASK, key.getToken(), "answered token of [" + token + "]"))
+                .verifyComplete();
+        System.out.println("[AuthenticationApiServiceImplMutationsTest] token [" + token + "] -> mask alone");
+    }
+
+    /** A token of exactly the minimum masked length is shown by its first and last six characters. */
+    @Test
+    void findAPIKeys_tokenOfMinMaskedLength_showsOnlyItsEndsNEW135() {
+        visitorWithKey(MIN_LENGTH_TOKEN);
+
+        StepVerifier.create(service.findAPIKeys())
+                .assertNext(key -> assertEquals(MASKED_MIN_LENGTH_TOKEN, key.getToken()))
+                .verifyComplete();
     }
 }

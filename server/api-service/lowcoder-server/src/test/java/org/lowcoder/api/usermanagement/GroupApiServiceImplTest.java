@@ -2,7 +2,9 @@ package org.lowcoder.api.usermanagement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -27,6 +29,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.api.bizthreshold.AbstractBizThresholdChecker;
 import org.lowcoder.api.home.SessionUserService;
@@ -68,14 +71,13 @@ import reactor.test.StepVerifier;
  * subscribed does not mutate), not by {@code verify(never())} on the call: {@code updateRoleForMember} and
  * {@code deleteGroup} build the service Mono eagerly, then chain it with {@code then(..)}.
  *
- * <p>Pinned production defects (owner decision D-6: fixes are deferred, a fix changes these tests on purpose):
- * <ul>
- * <li>A1 {@code subList}: {@code getGroupMembers} slices with an unguarded {@code subList}
- * (see {@link #getGroupMembers_pageBeyondLastPage_failsWithIllegalArgumentException} and
- * {@link #getGroupMembers_pageZero_failsWithIndexOutOfBounds}); the search variant guards it.</li>
- * <li>A1 {@code getPotentialGroupMembers} has no role or same-org check
- * (see {@link #getPotentialGroupMembers_hasNoPermissionOrSameOrgCheck_pinsDefect}).</li>
- * </ul>
+ * <p>Fixed since: A1 {@code subList}: {@code getGroupMembers} sliced with an unguarded {@code subList}; it now pages
+ * with {@code Pagination.pageOf}, as the search variant does (BF-086, see
+ * {@link #getGroupMembers_pageOutsideTheMembers_isAnEmptyPageWithTheTotalBF086});
+ * A1 {@code getPotentialGroupMembers} had no role or same-org check (BF-021); it now has the gate of
+ * {@code addGroupMember} (see {@link #getPotentialGroupMembers_groupOfAnotherOrg_isInvalidGroupId_andListsNobody});
+ * {@code getGroups} for a plain member counted only the visitor's own membership rows (BF-042, see
+ * {@link #getGroups_plainMemberSeesTheSameMembersAsAnOrgAdminBF042}).
  */
 @ExtendWith(MockitoExtension.class)
 class GroupApiServiceImplTest {
@@ -406,38 +408,28 @@ class GroupApiServiceImplTest {
     }
 
     /**
-     * Pins defect A1 (plan section 9): {@code getGroupMembers} slices with {@code list.subList((page - 1) * count,
-     * min(page * count, total))} unguarded. Three members, page 3 of size 2 gives subList(4, 3) and the call fails
-     * with an IllegalArgumentException instead of returning an empty page (the search variant guards it, see
-     * {@link #roster_pagination_returnsRequestedSliceAndFullTotal}). A fix changes this test on purpose.
+     * BF-086 (fixed; was pinned as defect A1, plan section 9: {@code getGroupMembers} sliced with an unchecked
+     * {@code subList}, which failed with an IllegalArgumentException for a page after the last and an
+     * IndexOutOfBoundsException for page 0): three members, a page after the last (3 or 4 of size 2) or before the first
+     * (0) is an empty page with the full total, as in the search variant
+     * ({@link #roster_pagination_returnsRequestedSliceAndFullTotal}).
      */
     @ParameterizedTest
-    @ValueSource(ints = {3, 4})
-    void getGroupMembers_pageBeyondLastPage_failsWithIllegalArgumentException(int page) {
+    @ValueSource(ints = {0, 3, 4})
+    void getGroupMembers_pageOutsideTheMembers_isAnEmptyPageWithTheTotalBF086(int page) {
         stubVisitor(orgMember(MemberRole.ADMIN), null, normalGroup());
         stubRoster(Variant.PLAIN, roster(3));
         when(userService.getByIds(anyCollection())).thenReturn(Mono.just(usersOf(3)));
 
         StepVerifier.create(service.getGroupMembers(GROUP_ID, page, 2))
-                .expectErrorSatisfies(error -> assertThat(error).isExactlyInstanceOf(IllegalArgumentException.class))
-                .verify();
-        say("getGroupMembers: 3 members, page %d size 2 -> IllegalArgumentException (defect A1 pinned)", page);
-    }
-
-    /**
-     * Pins defect A1 (plan section 9), same unguarded {@code subList}: page 0 gives a negative fromIndex and the call
-     * fails with an IndexOutOfBoundsException. A fix changes this test on purpose.
-     */
-    @Test
-    void getGroupMembers_pageZero_failsWithIndexOutOfBounds() {
-        stubVisitor(orgMember(MemberRole.ADMIN), null, normalGroup());
-        stubRoster(Variant.PLAIN, roster(3));
-        when(userService.getByIds(anyCollection())).thenReturn(Mono.just(usersOf(3)));
-
-        StepVerifier.create(service.getGroupMembers(GROUP_ID, 0, 2))
-                .expectErrorSatisfies(error -> assertThat(error).isInstanceOf(IndexOutOfBoundsException.class))
-                .verify();
-        say("getGroupMembers: page 0 size 2 -> IndexOutOfBoundsException (defect A1 pinned)");
+                .assertNext(view -> {
+                    say("getGroupMembers: 3 members, page %d size 2 -> members %s, total %d", page, view.getMembers(), view.getTotal());
+                    assertThat(view.getMembers()).isEmpty();
+                    assertThat(view.getTotal()).isEqualTo(3);
+                    assertThat(view.getPageNum()).isEqualTo(page);
+                    assertThat(view.getPageSize()).isEqualTo(2);
+                })
+                .verifyComplete();
     }
 
     // ------------------------------------------------------------------ roster: search, role filter, sort
@@ -968,7 +960,7 @@ class GroupApiServiceImplTest {
     /**
      * Catches a plain member seeing groups they do not belong to: only the groups of their own memberships are loaded
      * (never the whole org), each carries the visitor's role in that group, and the all-users group counts all org
-     * admins while an ordinary group counts the org admins among the listed members.
+     * admins while an ordinary group counts the org admins among its members (since BF-042 all members of the group).
      */
     @Test
     void getGroups_plainMember_seesOnlyOwnGroupsWithOwnRole() {
@@ -982,13 +974,20 @@ class GroupApiServiceImplTest {
         ArgumentCaptor<Collection<String>> requestedGroups = ArgumentCaptor.forClass(Collection.class);
         when(groupService.getByIds(requestedGroups.capture())).thenReturn(Flux.just(
                 group("g-ordinary", ORG_ID, null, null), group("g-all", ORG_ID, SystemGroups.ALL_USER, null)));
+        when(groupMemberService.getGroupMembers("g-ordinary")).thenReturn(Mono.just(List.of(
+                new GroupMember("g-ordinary", VISITOR_ID, MemberRole.ADMIN, ORG_ID, 1L),
+                new GroupMember("g-ordinary", "admin-1", MemberRole.MEMBER, ORG_ID, 2L))));
+        when(groupMemberService.getGroupMembers("g-all")).thenReturn(Mono.just(List.of(
+                new GroupMember("g-all", VISITOR_ID, MemberRole.MEMBER, ORG_ID, 1L),
+                new GroupMember("g-all", "admin-1", MemberRole.MEMBER, ORG_ID, 2L),
+                new GroupMember("g-all", "admin-2", MemberRole.MEMBER, ORG_ID, 3L))));
 
         StepVerifier.create(service.getGroups())
                 .assertNext(views -> {
                     assertThat(views).extracting(GroupView::getGroupId).containsExactly("g-all", "g-ordinary");
                     assertThat(views).extracting(GroupView::getVisitorRole).containsExactly(ROLE_MEMBER, ROLE_ADMIN);
                     assertThat(views.get(0).getStats()).containsEntry(STATS_ADMIN_COUNT, 2);
-                    assertThat(views.get(1).getStats()).containsEntry(STATS_ADMIN_COUNT, 0);
+                    assertThat(views.get(1).getStats()).containsEntry(STATS_ADMIN_COUNT, 1);
                 })
                 .verifyComplete();
         assertThat(requestedGroups.getValue()).containsExactlyInAnyOrder("g-ordinary", "g-all");
@@ -1008,6 +1007,8 @@ class GroupApiServiceImplTest {
         when(groupMemberService.getUserGroupMembersInOrg(ORG_ID, VISITOR_ID)).thenReturn(Mono.just(List.of(
                 new GroupMember("g-ordinary", VISITOR_ID, MemberRole.SUPER_ADMIN, ORG_ID, 1L))));
         when(groupService.getByIds(anyCollection())).thenReturn(Flux.just(group("g-ordinary", ORG_ID, null, null)));
+        when(groupMemberService.getGroupMembers("g-ordinary")).thenReturn(Mono.just(List.of(
+                new GroupMember("g-ordinary", VISITOR_ID, MemberRole.SUPER_ADMIN, ORG_ID, 1L))));
 
         StepVerifier.create(service.getGroups())
                 .assertNext(views -> {
@@ -1019,16 +1020,14 @@ class GroupApiServiceImplTest {
     }
 
     /**
-     * Pins the plan section 9 defect row "GroupApiServiceImpl.getGroups for a plain member counts and lists only the
-     * visitor's own membership rows": for the same group of three members an org admin gets userCount 3 and all three
-     * users, while a plain member gets userCount 1 and users = [visitor] (the member path filters the visitor's own
-     * rows from {@code getUserGroupMembersInOrg}, which returns only that user's rows). A fix changes this test on
-     * purpose.
+     * BF-042 fixed: for the same group of three members an org admin got userCount 3 and all three users, while a plain
+     * member got userCount 1 and users = [visitor], because the member path counted the visitor's own membership rows
+     * ({@code getUserGroupMembersInOrg}). Both now see the group's members: three users, the org admin among them counted.
      */
     @Test
-    void getGroups_plainMemberSeesOnlyOwnRowsWhereAdminSeesAllMembers_pinsSection9Defect() {
+    void getGroups_plainMemberSeesTheSameMembersAsAnOrgAdminBF042() {
         when(sessionUserService.isAnonymousUser()).thenReturn(Mono.just(false));
-        when(orgMemberService.getAllOrgAdmins(ORG_ID)).thenReturn(Mono.just(List.of()));
+        when(orgMemberService.getAllOrgAdmins(ORG_ID)).thenReturn(Mono.just(List.of(orgAdmin("other-1"))));
         Group ordinary = group("g-ordinary", ORG_ID, null, null);
         GroupMember visitorRow = new GroupMember("g-ordinary", VISITOR_ID, MemberRole.MEMBER, ORG_ID, 1L);
         when(groupMemberService.getGroupMembers("g-ordinary")).thenReturn(Mono.just(List.of(visitorRow,
@@ -1037,30 +1036,33 @@ class GroupApiServiceImplTest {
         when(groupService.getByOrgId(ORG_ID)).thenReturn(Flux.just(ordinary));
         when(groupMemberService.getUserGroupMembersInOrg(ORG_ID, VISITOR_ID)).thenReturn(Mono.just(List.of(visitorRow)));
         when(groupService.getByIds(anyCollection())).thenReturn(Flux.just(ordinary));
+        List<String> allThree = List.of(VISITOR_ID, "other-1", "other-2");
 
         when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(orgMember(MemberRole.ADMIN)));
         StepVerifier.create(service.getGroups())
                 .assertNext(views -> assertThat(views.get(0).getStats())
-                        .containsEntry(STATS_USER_COUNT, 3)
-                        .containsEntry(STATS_USERS, List.of(VISITOR_ID, "other-1", "other-2")))
+                        .containsEntry(STATS_USER_COUNT, 3).containsEntry(STATS_ADMIN_COUNT, 1).containsEntry(STATS_USERS, allThree))
                 .verifyComplete();
 
         when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(orgMember(MemberRole.MEMBER)));
         StepVerifier.create(service.getGroups())
-                .assertNext(views -> assertThat(views.get(0).getStats())
-                        .containsEntry(STATS_USER_COUNT, 1)
-                        .containsEntry(STATS_USERS, List.of(VISITOR_ID)))
+                .assertNext(views -> {
+                    say("getGroups as plain member, same 3-member group -> stats %s", views.get(0).getStats());
+                    assertThat(views.get(0).getVisitorRole()).isEqualTo(ROLE_MEMBER);
+                    assertThat(views.get(0).getStats())
+                            .containsEntry(STATS_USER_COUNT, 3).containsEntry(STATS_ADMIN_COUNT, 1).containsEntry(STATS_USERS, allThree);
+                })
                 .verifyComplete();
-        say("getGroups: same 3-member group, org admin sees 3 users, plain member sees only itself (section 9 defect pinned)");
     }
 
     // ------------------------------------------------------------------ getPotentialGroupMembers
 
+    /** The group of {@code orgId} with its org and group members, and an org admin of {@value #ORG_ID} as the visitor. */
     private void stubPotentialMembers(String orgId, List<String> orgUserIds, List<String> groupUserIds) {
-        when(groupService.getById(GROUP_ID)).thenReturn(Mono.just(group(GROUP_ID, orgId, null, null)));
-        when(orgMemberService.getOrganizationMembers(orgId)).thenReturn(Flux.fromIterable(orgUserIds.stream()
+        stubVisitor(orgMember(MemberRole.ADMIN), null, group(GROUP_ID, orgId, null, null));
+        lenient().when(orgMemberService.getOrganizationMembers(orgId)).thenReturn(Flux.fromIterable(orgUserIds.stream()
                 .map(id -> new OrgMember(orgId, id, MemberRole.MEMBER, ORG_MEMBER_STATE, 0L)).toList()));
-        when(groupMemberService.getGroupMembers(GROUP_ID)).thenReturn(Mono.just(
+        lenient().when(groupMemberService.getGroupMembers(GROUP_ID)).thenReturn(Mono.just(
                 groupUserIds.stream().map(id -> groupMember(id, MemberRole.MEMBER, 1L)).toList()));
     }
 
@@ -1129,39 +1131,74 @@ class GroupApiServiceImplTest {
     }
 
     /**
-     * Pins today's behaviour for an unknown group: an empty Mono (no item, no error), not INVALID_GROUP_ID as the
-     * roster readers answer.
+     * The user lookups of the candidate list, answering {@code userId}. Lenient: the refusal tests stub them so that a
+     * listing that skips the gate shows up as a list, and assert that they are not used.
      */
-    @Test
-    void getPotentialGroupMembers_unknownGroup_completesEmpty() {
-        when(groupService.getById(GROUP_ID)).thenReturn(Mono.empty());
+    private void candidateUsers(String userId) {
+        lenient().when(userService.findUsersByIdsAndSearchNameForPagination(anyCollection(), any(), anyBoolean(), any(), any(Pageable.class)))
+                .thenReturn(Flux.just(user(userId, "Candidate")));
+        lenient().when(userService.countUsersByIdsAndSearchName(anyCollection(), any(), anyBoolean(), any())).thenReturn(Mono.just(1L));
+    }
 
-        StepVerifier.create(service.getPotentialGroupMembers(GROUP_ID, null, 1, 10)).verifyComplete();
+    /** BF-021: an unknown group is INVALID_GROUP_ID, as the roster readers answer, and nobody is listed. */
+    @Test
+    void getPotentialGroupMembers_unknownGroup_isInvalidGroupId() {
+        stubVisitor(orgMember(MemberRole.ADMIN), null, null);
+
+        StepVerifier.create(service.getPotentialGroupMembers(GROUP_ID, null, 1, 10))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.INVALID_GROUP_ID))
+                .verify();
         verifyNoInteractions(orgMemberService, userService);
-        say("getPotentialGroupMembers: unknown group -> empty Mono, no error");
+        say("getPotentialGroupMembers: unknown group -> INVALID_GROUP_ID");
     }
 
     /**
-     * Pins defect A1 (plan section 9): {@code getPotentialGroupMembers} has no permission and no same-org check. The
-     * group belongs to another organization, no visitor is resolved at all (the session service is never touched),
-     * and the org's users are listed anyway. A fix (authorisation, INVALID_GROUP_ID for a foreign group) changes this
-     * test on purpose.
+     * BF-021 (was the pin of defect A1, plan section 9: no permission and no same-org check): for a group of another
+     * organization, even an admin of the visitor's own organization gets INVALID_GROUP_ID, and neither that organization's
+     * members nor any user is read.
      */
     @Test
-    void getPotentialGroupMembers_hasNoPermissionOrSameOrgCheck_pinsDefect() {
+    void getPotentialGroupMembers_groupOfAnotherOrg_isInvalidGroupId_andListsNobody() {
         stubPotentialMembers(OTHER_ORG_ID, List.of("foreign-1"), List.of());
-        String activated = String.valueOf(UserState.ACTIVATED);
-        when(userService.findUsersByIdsAndSearchNameForPagination(anyCollection(), eq(activated), eq(true),
-                eq(ALL_USERS_SEARCH_REGEX), any(Pageable.class))).thenReturn(Flux.just(user("foreign-1", "Foreign")));
-        when(userService.countUsersByIdsAndSearchName(anyCollection(), eq(activated), eq(true), any()))
-                .thenReturn(Mono.just(1L));
+        candidateUsers("foreign-1");
 
         StepVerifier.create(service.getPotentialGroupMembers(GROUP_ID, null, 1, 10))
-                .assertNext(view -> assertThat(view.getMembers())
-                        .extracting(OrgMemberListView.OrgMemberView::getUserId).containsExactly("foreign-1"))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.INVALID_GROUP_ID))
+                .verify();
+        verify(orgMemberService, never()).getOrganizationMembers(anyString());
+        verifyNoInteractions(userService);
+        say("getPotentialGroupMembers: group of org %s -> INVALID_GROUP_ID, nobody listed", OTHER_ORG_ID);
+    }
+
+    /**
+     * BF-021: in the visitor's own organization, a visitor who may not add members (an org member outside the group, or a
+     * plain group member) gets NOT_AUTHORIZED and nobody is listed.
+     */
+    @ParameterizedTest(name = "group role {0}")
+    @NullSource
+    @EnumSource(value = MemberRole.class, names = "MEMBER")
+    void getPotentialGroupMembers_withoutManagePermission_isNotAuthorized_andListsNobody(MemberRole groupRole) {
+        stubPotentialMembers(ORG_ID, List.of("m1"), List.of());
+        stubVisitor(orgMember(MemberRole.MEMBER), visitorGroupMember(groupRole), normalGroup());
+        candidateUsers("m1");
+
+        StepVerifier.create(service.getPotentialGroupMembers(GROUP_ID, null, 1, 10))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED))
+                .verify();
+        verify(orgMemberService, never()).getOrganizationMembers(anyString());
+        verifyNoInteractions(userService);
+        say("getPotentialGroupMembers: org member, group role %s -> NOT_AUTHORIZED", groupRole);
+    }
+
+    /** BF-021: a group admin who is a plain org member may add members, so the candidates are listed for them too. */
+    @Test
+    void getPotentialGroupMembers_groupAdminWhoIsAPlainOrgMember_isServed() {
+        stubPotentialMembers(ORG_ID, List.of("m1", "m2"), List.of("m1", "m2"));
+        stubVisitor(orgMember(MemberRole.MEMBER), visitorGroupMember(MemberRole.ADMIN), normalGroup());
+
+        StepVerifier.create(service.getPotentialGroupMembers(GROUP_ID, null, 1, 10))
+                .assertNext(view -> assertThat(view.getTotal()).isZero())
                 .verifyComplete();
-        verifyNoInteractions(sessionUserService);
-        say("getPotentialGroupMembers: group of org %s listed with no visitor or org check (defect A1 pinned)",
-                OTHER_ORG_ID);
+        say("getPotentialGroupMembers: group admin, org member -> served");
     }
 }

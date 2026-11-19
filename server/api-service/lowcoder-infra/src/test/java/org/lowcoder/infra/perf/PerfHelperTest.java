@@ -7,6 +7,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.google.common.base.Ascii;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Tag;
@@ -15,12 +16,15 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.ToDoubleFunction;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -29,10 +33,19 @@ import org.slf4j.LoggerFactory;
  */
 class PerfHelperTest {
 
+    /** A default locale whose case mapping of {@code i} and {@code I} differs from {@code Locale.ROOT}'s (NEW-40). */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+    /** The counter name of {@code PerfEvent.API_ERROR_CODE}, whose name has an {@code I}. */
+    private static final String API_ERROR_CODE_NAME = "api_error_code";
+
     private static final PerfEvent EVENT = PerfEvent.SERVER_LOG_BATCH_INSERT;
     private static final String EVENT_NAME = "server_log_batch_insert";
     private static final List<Tag> TAGS = List.of(Tag.of("size", "3"));
     private static final String TIMER_NAME = "test.timer";
+    private static final String HIKARI_ACTIVE_NAME = "hikari_pool_active_connections";
+    private static final List<Tag> OTHER_TAGS = List.of(Tag.of("size", "4"));
+    /** Enough collections for a weakly held AtomicInteger to be collected in practice; the fixed gauge does not depend on it. */
+    private static final int GC_ROUNDS = 3;
 
     private SimpleMeterRegistry registry;
     private PerfHelper helper;
@@ -141,25 +154,29 @@ class PerfHelperTest {
     }
 
     /**
-     * Pins the plan section 9 row "PerfHelper.gaugeInt keeps the AtomicInteger it registered first" (D-6, fix
-     * deferred): {@code MeterRegistry.gauge(name, tags, number)} returns the object it was given, so the later
-     * {@code gauge.set(number)} updates a fresh AtomicInteger the registry does not know, while the registry holds
-     * only a weak reference to the first one. The registered gauge therefore never shows the second value: it stays at
-     * the first value (3.0) or, once the first AtomicInteger has been garbage collected, reads NaN. Both are accepted
-     * here because the test must not depend on the garbage collector (and does not call System.gc()). A fix changes
-     * this test on purpose.
+     * BF-103 (was pinned as the plan section 9 row "PerfHelper.gaugeInt keeps the AtomicInteger it registered first",
+     * D-6): the registered gauge shows the latest value, and still does after garbage collections, because the helper
+     * keeps the AtomicInteger the registry holds only weakly. It used to give the registry a new AtomicInteger on each
+     * call, so the gauge kept the first value (3.0) or read NaN once that one was collected. A gauge with other tags is
+     * a gauge of its own.
      */
     @Test
-    void gaugeIntRegistersAGaugeButNeverShowsTheSecondValue() {
+    void gaugeIntShowsTheLatestValueAndKeepsItAcrossGarbageCollectionsBF103() {
         helper.gaugeInt(PerfEvent.HIKARI_POOL_ACTIVE_CONNECTIONS, TAGS, 3);
-        Gauge gauge = registry.get("hikari_pool_active_connections").tags(TAGS).gauge();
+        Gauge gauge = registry.get(HIKARI_ACTIVE_NAME).tags(TAGS).gauge();
 
         helper.gaugeInt(PerfEvent.HIKARI_POOL_ACTIVE_CONNECTIONS, TAGS, 7);
+        helper.gaugeInt(PerfEvent.HIKARI_POOL_ACTIVE_CONNECTIONS, OTHER_TAGS, 11);
+        for (int i = 0; i < GC_ROUNDS; i++) {
+            System.gc();
+        }
 
         double value = gauge.value();
-        System.out.println("[PerfHelperTest] gauge after gaugeInt(3) then gaugeInt(7) reads " + value + " (plan section 9 row, pinned: 3.0 or NaN, never 7.0)");
-        assertThat(value).isNotEqualTo(7.0);
-        assertThat(value == 3.0 || Double.isNaN(value)).isTrue();
+        double other = registry.get(HIKARI_ACTIVE_NAME).tags(OTHER_TAGS).gauge().value();
+        System.out.println("[PerfHelperTest] gauge after gaugeInt(3), gaugeInt(7) and " + GC_ROUNDS + " GCs reads " + value + "; other tags read " + other + " (BF-103)");
+        assertThat(value).isEqualTo(7.0);
+        assertThat(other).isEqualTo(11.0);
+        assertThat(registry.find(HIKARI_ACTIVE_NAME).gauges()).hasSize(2);
         assertThat(appender.list).isEmpty();
     }
 
@@ -198,5 +215,31 @@ class PerfHelperTest {
 
         assertThat(registry.get(TIMER_NAME).tags(TAGS).timer().count()).as("both runs were timed").isEqualTo(2);
         assertThat(registry.get(TIMER_NAME + ".percentile").tags(TAGS).tag("phi", "0.95").gauge()).isNotNull();
+    }
+
+
+    /**
+     * NEW-40: every event's metric name is its constant's name lower-cased with {@code Locale.ROOT}'s rule under a
+     * Turkish default locale too (the default locale's rule made {@code API_ERROR_CODE} {@code apı_error_code}); the
+     * expected names come from Guava's {@code Ascii.toLowerCase}, which no locale affects, and a counter is registered
+     * under the name. The case holds JUnit's {@code Resources.LOCALE} lock while it changes the default locale; the
+     * lock orders it only against tests that hold the same lock, and it restores the locale after its calls, which
+     * block, have completed.
+     */
+    @Test
+    @ResourceLock(Resources.LOCALE)
+    void eventsAreNamedInLowerCaseUnderATurkishDefaultLocaleNEW40() {
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            for (PerfEvent event : PerfEvent.values()) {
+                System.out.println("[PerfHelperTest] under " + Locale.getDefault() + ": " + event + " -> " + event.perfKey());
+                assertThat(event.perfKey()).as(event.name()).isEqualTo(Ascii.toLowerCase(event.name()));
+            }
+            helper.count(PerfEvent.API_ERROR_CODE, TAGS);
+            assertThat(registry.find(API_ERROR_CODE_NAME).counter()).as("counter " + API_ERROR_CODE_NAME).isNotNull();
+        } finally {
+            Locale.setDefault(previous);
+        }
     }
 }

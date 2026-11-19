@@ -53,6 +53,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static org.lowcoder.sdk.auth.constants.AuthTypeConstants.GENERIC;
 import static org.lowcoder.sdk.exception.BizError.*;
 import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
@@ -61,6 +62,11 @@ import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthenticationApiServiceImpl implements AuthenticationApiService {
+
+    private static final String DUPLICATE_AUTH_CONFIG_ADDITION_KEY = "DUPLICATE_AUTH_CONFIG_ADDITION";
+    private static final int VISIBLE_TOKEN_CHARS = 6;
+    private static final int MIN_MASKED_LENGTH = 24;
+    private static final String TOKEN_MASK = "*************";
 
     private final OrgApiService orgApiService;
     private final OrganizationService organizationService;
@@ -309,17 +315,36 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
         return checkIfAdmin()
                 .then(sessionUserService.getVisitorOrgMemberCache())
                 .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
-                .doOnNext(organization -> {
+                .flatMap(organization -> {
                     if(authConfigRequest.getId().equals("EMAIL")) {
                         organization.setIsEmailDisabled(false);
-                    } else {
-                        boolean duplicateAuthType = addOrUpdateNewAuthConfig(organization, authConfigFactory.build(authConfigRequest, true));
-                        if (duplicateAuthType) {
-                            deferredError(DUPLICATE_AUTH_CONFIG_ADDITION, "DUPLICATE_AUTH_CONFIG_ADDITION");
-                        }
+                        return Mono.just(organization);
                     }
+                    AbstractAuthConfig newAuthConfig = authConfigFactory.build(authConfigRequest, true);
+                    if (authConfigRequest.isNewConfig() && hasAnotherConfigOfItsType(organization, newAuthConfig)) {
+                        return ofError(DUPLICATE_AUTH_CONFIG_ADDITION, DUPLICATE_AUTH_CONFIG_ADDITION_KEY);
+                    }
+                    addOrUpdateNewAuthConfig(organization, newAuthConfig);
+                    return Mono.just(organization);
                 })
                 .flatMap(organization -> organizationService.update(organization.getId(), organization));
+    }
+
+    /**
+     * Whether the organization already has an auth config of the type of {@code newAuthConfig}, which a new config may not
+     * add (BF-087: the error was built and dropped, so a second config of a type was added silently). The client offers
+     * each type once, except the generic OAuth type, of which an organization may have several, so that type is never a
+     * duplicate here.
+     * <p>
+     * Limits: only a new config (a request without an id) is checked, so an organization that already has two configs of
+     * one type can still update either; the type is compared, not the provider's issuer or client id.
+     */
+    private boolean hasAnotherConfigOfItsType(Organization organization, AbstractAuthConfig newAuthConfig) {
+        if (GENERIC.equals(newAuthConfig.getAuthType())) {
+            return false;
+        }
+        return organization.getAuthConfigs().stream()
+                .anyMatch(config -> StringUtils.equals(config.getAuthType(), newAuthConfig.getAuthType()));
     }
 
     @Override
@@ -342,7 +367,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     public Flux<FindAuthConfig> findAuthConfigs(boolean enableOnly) {
         return checkIfAdmin().
                 then(sessionUserService.getVisitorOrgMemberCache())
-                .flatMapMany(orgMember -> authenticationService.findAllAuthConfigs(orgMember.getOrgId(),false));
+                .flatMapMany(orgMember -> authenticationService.findAllAuthConfigs(orgMember.getOrgId(), enableOnly));
     }
 
     @Override
@@ -379,18 +404,31 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .map(User::getApiKeysList)
                 .orElse(Collections.emptyList());
         apiKeys.removeIf(apiKey -> Objects.equals(apiKey.getId(), apiKeyId));
-        user.setApiKeysList(apiKeys);
+        user.replaceApiKeys(apiKeys);
     }
 
+    /**
+     * The visitor's API keys with their tokens masked, as copies (NEW-135): the visitor's own keys keep their
+     * tokens, so a later write of the same user object in one request cannot store a masked token. A token of
+     * {@code MIN_MASKED_LENGTH} or more characters shows its first and last six; a null or shorter token is answered
+     * as the mask alone, where it used to fail the listing (null, or under six characters) or show all of a token of
+     * six to twelve characters and twelve characters of a longer one. Limits: the write path still encrypts the
+     * caller's key objects in place ({@code User#beforeMongodbWrite}).
+     */
     @Override
     public Flux<APIKey> findAPIKeys() {
         return sessionUserService.getVisitor()
                 .flatMapIterable(user ->
                         new ArrayList<>(user.getApiKeysList())
                 )
-                .doOnNext(apiKey -> {
-                    apiKey.setToken(apiKey.getToken().substring(0, 6) + "*************" + apiKey.getToken().substring(apiKey.getToken().length() - 6));
-                });
+                .map(apiKey -> new APIKey(apiKey.getId(), apiKey.getName(), apiKey.getDescription(), masked(apiKey.getToken())));
+    }
+
+    private static String masked(String token) {
+        if (token == null || token.length() < MIN_MASKED_LENGTH) {
+            return TOKEN_MASK;
+        }
+        return token.substring(0, VISIBLE_TOKEN_CHARS) + TOKEN_MASK + token.substring(token.length() - VISIBLE_TOKEN_CHARS);
     }
 
     private Mono<Void> removeTokensByAuthId(String authId) {
@@ -440,14 +478,9 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
             Predicate<AbstractAuthConfig> authConfigPredicate = abstractAuthConfig -> Objects.equals(abstractAuthConfig.getId(), authId);
 
             if (delete) {
-                List<AbstractAuthConfig> abstractAuthConfigs = Optional.of(organization)
-                        .map(Organization::getAuthConfigs)
-                        .orElse(Collections.emptyList());
-
-                abstractAuthConfigs.removeIf(authConfigPredicate);
-
-                organization.getOrganizationDomain().setConfigs(abstractAuthConfigs);
-
+                // BF-089: getAuthConfigs is the domain's own list, or an empty one for an organization without a domain
+                // (which has nothing to delete); the domain used to be dereferenced, which threw for the latter
+                organization.getAuthConfigs().removeIf(authConfigPredicate);
             } else {
                 Optional.of(organization)
                         .map(Organization::getAuthConfigs)
@@ -463,7 +496,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     /**
      * If the source of the newAuthConfig exists in the auth configs of the organization, update it. Otherwise, add it.
      */
-    private boolean addOrUpdateNewAuthConfig(Organization organization, AbstractAuthConfig newAuthConfig) {
+    private void addOrUpdateNewAuthConfig(Organization organization, AbstractAuthConfig newAuthConfig) {
         OrganizationDomain organizationDomain = organization.getOrganizationDomain();
         if (organizationDomain == null) {
             organizationDomain = new OrganizationDomain();
@@ -481,9 +514,6 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
         }
         authConfigMap.put(newAuthConfig.getId(), newAuthConfig);
         organizationDomain.setConfigs(new ArrayList<>(authConfigMap.values()));
-
-        return true;
-
     }
 
     // static inner class

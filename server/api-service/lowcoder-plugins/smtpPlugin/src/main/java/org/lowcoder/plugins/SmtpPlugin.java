@@ -6,18 +6,19 @@ import static jakarta.mail.Message.RecipientType.TO;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.lowcoder.sdk.exception.BizError.DATASOURCE_CLOSE_FAILED;
 import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_ARGUMENT_ERROR;
 import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
 import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
 import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.querySharedScheduler;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofPluginException;
+import static org.lowcoder.sdk.util.JsonUtils.fromJson;
 import static org.lowcoder.sdk.util.JsonUtils.fromJsonList;
 import static org.lowcoder.sdk.util.JsonUtils.toJson;
 import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheArrayJsonString;
 import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheJsonString;
 import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheString;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.HashSet;
@@ -47,7 +48,6 @@ import jakarta.mail.util.ByteArrayDataSource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.plugins.SmtpQueryExecutionContext.Attachment;
-import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.lowcoder.sdk.models.QueryExecutionResult;
@@ -72,6 +72,12 @@ public class SmtpPlugin extends Plugin {
     public static class SmtpEngine implements DatasourceQueryEngine<SmtpDatasourceConfig, Session, SmtpQueryExecutionContext> {
 
         private static final int DEFAULT_PORT = 25;
+        /** How a rendered address field that is a JSON string (the renderer writes text as a JSON text node) starts. */
+        private static final String JSON_STRING_START = "\"";
+        /** The charset of the subject, the body and the attachment file names of every mail. */
+        private static final String MAIL_CHARSET = StandardCharsets.UTF_8.name();
+        /** The body is HTML (text/html). */
+        private static final String HTML_SUBTYPE = "html";
 
         /**
          * session is thread-safe and can be reused
@@ -84,8 +90,8 @@ public class SmtpPlugin extends Plugin {
             prop.put("mail.transport.protocol", "smtp");
             prop.put("mail.smtp.host", connectionConfig.getHost());
             prop.put("mail.smtp.port", connectionConfig.getPort() <= 0 ? DEFAULT_PORT : connectionConfig.getPort());
-            prop.put("mail.smtp.auth", true);
-            prop.put("mail.smtp.username", connectionConfig.getUsername());
+            prop.put("mail.smtp.auth", connectionConfig.getUsername() != null); // BF-125: no user name, no AUTH
+            java.util.Optional.ofNullable(connectionConfig.getUsername()).ifPresent(user -> prop.put("mail.smtp.username", user)); // Properties refuses null
             prop.put("mail.smtp.starttls.enable", "true");
             prop.put("mail.smtp.ssl.protocols", "TLSv1.2");
             prop.put("mail.smtp.ssl.checkserveridentity", false);
@@ -101,41 +107,53 @@ public class SmtpPlugin extends Plugin {
                     .subscribeOn(querySharedScheduler());
         }
 
+        /**
+         * Nothing to close: a {@link Session} holds no connection. {@code executeQuery} sends with {@code Transport.send}, which
+         * opens and closes its own transport, and {@code testConnection} closes the transport it connects (BF-126: this closed
+         * {@code session.getTransport()}, a new transport on every call that was never connected, and the connected one was
+         * left open).
+         */
         @Override
         public Mono<Void> destroyConnection(Session session) {
-            return Mono.<Void> fromRunnable(() -> {
-                        try {
-                            if (session.getTransport() != null) {
-                                session.getTransport().close();
-                            }
-                        } catch (MessagingException e) {
-                            throw new BizException(DATASOURCE_CLOSE_FAILED, "DATASOURCE_CLOSE_FAILED", e.getMessage());
-                        }
-                    })
-                    .subscribeOn(querySharedScheduler());
+            return Mono.empty();
         }
 
         @Override
         public Mono<DatasourceTestResult> testConnection(SmtpDatasourceConfig connectionConfig) {
-            Mono<Session> sessionMono = doCreateConnection(connectionConfig).cache();
-            return sessionMono
+            return doCreateConnection(connectionConfig)
                     .map(session -> {
                         try {
-                            if (connectionConfig.getUsername() != null) {
-                                session.getTransport().connect(connectionConfig.getUsername(), connectionConfig.getPassword());
+                            // BF-126: the transport that is connected is the one that is closed
+                            Transport transport = session.getTransport();
+                            try {
+                                if (connectionConfig.getUsername() != null) {
+                                    transport.connect(connectionConfig.getUsername(), connectionConfig.getPassword());
+                                } else {
+                                    transport.connect();
+                                }
+                                return DatasourceTestResult.testSuccess();
+                            } finally {
+                                closeQuietly(transport);
                             }
-                            else {
-                                session.getTransport().connect();
-                            }
-                            return DatasourceTestResult.testSuccess();
                         } catch (MessagingException e) {
                             log.debug("SmtpPlugin.testConnection() failed!", e);
                             return DatasourceTestResult.testFail(e);
                         }
                     })
                     .onErrorResume(throwable -> Mono.just(DatasourceTestResult.testFail(throwable)))
-                    .doFinally(signalType -> sessionMono.flatMap(this::destroyConnection).subscribeOn(querySharedScheduler()).subscribe())
                     .subscribeOn(querySharedScheduler());
+        }
+
+        /** Closes a transport the test connected; a failure to close does not change the test's answer, it is logged. */
+        static void closeQuietly(Transport transport) {
+            if (!transport.isConnected()) {
+                return;
+            }
+            try {
+                transport.close();
+            } catch (MessagingException e) {
+                log.debug("SmtpPlugin: closing the tested transport failed", e);
+            }
         }
 
         @Nonnull
@@ -171,7 +189,7 @@ public class SmtpPlugin extends Plugin {
                     .replyTo(renderAsArrayAndParse(getString(queryConfig, "replyTo", ""), requestParams))
                     .subject(renderMustacheString(getString(queryConfig, "subject"), requestParams))
                     .content(renderMustacheString(getString(queryConfig, "content", ""), requestParams))
-                    .attachments(fromJsonList(renderMustacheJsonString(getString(queryConfig, "attachments", ""), requestParams), Attachment.class))
+                    .attachments(attachmentsOf(getString(queryConfig, "attachments", ""), template -> renderMustacheJsonString(template, requestParams), rendered -> fromJsonList(rendered, Attachment.class)))
                     .build();
         }
 
@@ -188,6 +206,11 @@ public class SmtpPlugin extends Plugin {
                 return new InternetAddress[0];
             }
             String rendered = renderMustacheArrayJsonString(template, paramMap);
+            // NEW-36 (GitHub #1491): text, or a parameter holding text, renders to a JSON string, not an array; it is one
+            // address list (comma-separated, as InternetAddress.parse reads it), as the "from" field is read
+            if (rendered.startsWith(JSON_STRING_START)) {
+                return parse(List.of(fromJson(rendered, String.class)));
+            }
             List<String> addresses = fromJsonList(rendered, String.class);
             return parse(addresses);
         }
@@ -207,6 +230,35 @@ public class SmtpPlugin extends Plugin {
                     .flatMap(Stream::of)
                     .toList()
                     .toArray(new InternetAddress[0]);
+        }
+
+        /**
+         * The attachments the query names (NEW-107). None (null) when the template is absent or blank, decided before rendering
+         * because a blank template renders to {@code {}}, or when it renders to JSON {@code null} (the literal, or a parameter that
+         * is missing or null). The list when the rendered text reads as a JSON array of attachments, an empty one included.
+         * Anything else is a PluginException QUERY_ARGUMENT_ERROR naming {@code ATTACHMENTS_NOT_A_LIST}, thrown before any mail is
+         * built; before, the mail was sent without attachments. The render and the read are passed in so that both JSON calls stay
+         * in {@code buildQueryExecutionContext}, the member their JSON boundary rows key.
+         * <p>
+         * Limits: the message does not say what was given instead and never includes the value; a single attachment object is
+         * refused, not read as a list of one; a JSON string, the empty string included, is refused, unlike an address field's; a
+         * value that is refused still logs {@code fromJsonList}'s error once; the elements are checked later, by
+         * {@code decodedContentOf}.
+         */
+        private static List<Attachment> attachmentsOf(String template, java.util.function.UnaryOperator<String> render,
+                java.util.function.Function<String, List<Attachment>> read) {
+            if (isBlank(template)) {
+                return null;
+            }
+            String rendered = render.apply(template);
+            if (JSON_NULL.equals(rendered)) {
+                return null;
+            }
+            List<Attachment> attachments = read.apply(rendered);
+            if (attachments == null) {
+                throw new PluginException(QUERY_ARGUMENT_ERROR, "QUERY_ARGUMENT_ERROR", ATTACHMENTS_NOT_A_LIST);
+            }
+            return attachments;
         }
 
         @Override
@@ -234,25 +286,96 @@ public class SmtpPlugin extends Plugin {
             if (isNotEmpty(context.getBcc())) {
                 message.setRecipients(BCC, context.getBcc());
             }
-            message.setSubject(context.getSubject());
+            // GH-01 (GitHub #727) and BF-149: subject and body in UTF-8, named in their headers; without a charset the subject
+            // took the JVM's default charset and the HTML body single-byte text, so letters such as ğ ş ı arrived as "?"
+            message.setSubject(context.getSubject(), MAIL_CHARSET);
 
             Multipart multipart = new MimeMultipart();
             MimeBodyPart contentPart = new MimeBodyPart();
-            contentPart.setContent(context.getContent(), "text/html");// default mime type
+            contentPart.setText(context.getContent(), MAIL_CHARSET, HTML_SUBTYPE);
             multipart.addBodyPart(contentPart);
             if (CollectionUtils.isNotEmpty(context.getAttachments())) {
-                Decoder decoder = Base64.getDecoder();
+                int position = 0;
                 for (Attachment attachment : context.getAttachments()) {
-                    MimeBodyPart attachmentPart = new MimeBodyPart();
-                    attachmentPart.setDataHandler(
-                            new DataHandler(new ByteArrayDataSource(decoder.decode(attachment.content()), attachment.contentType())));
-                    attachmentPart.setDisposition(Part.ATTACHMENT);
-                    attachmentPart.setFileName(attachment.name());
+                    position++;
+                    MimeBodyPart attachmentPart = new AttachmentPart(
+                            new DataHandler(new ByteArrayDataSource(decodedContentOf(attachment, position), attachment.contentType())),
+                            attachment.name());
                     multipart.addBodyPart(attachmentPart);
                 }
             }
             message.setContent(multipart);
             return message;
+        }
+
+        static final String ATTACHMENT_MISSING = "attachment %d is missing";
+        static final String ATTACHMENT_WITHOUT_NAME = "attachment %d has no name";
+        static final String ATTACHMENT_WITHOUT_CONTENT = "attachment %d has no content";
+        static final String ATTACHMENT_CONTENT_NOT_BASE64 = "attachment %d: the content is not Base64";
+        static final String ATTACHMENTS_NOT_A_LIST = "the attachments are not a JSON list of attachments";
+        private static final String JSON_NULL = "null";
+
+        /**
+         * The decoded content of the attachment at {@code position} (1-based), or a MessagingException naming what is missing
+         * (NEW-98: these failed with a NullPointerException or an IllegalArgumentException outside {@code executeQuery}'s
+         * error result). The messages never include the content. Limits: an empty name is not refused; {@code contentType}
+         * is not checked; a {@code text/*} type without a {@code charset} parameter is labelled with the charset Jakarta Mail
+         * guesses ({@code us-ascii} for 7-bit bytes, else its default), not the file's (NEW-97); a {@code charset} given in
+         * {@code contentType} is kept.
+         */
+        private static byte[] decodedContentOf(Attachment attachment, int position) throws MessagingException {
+            if (attachment == null) {
+                throw new MessagingException(String.format(ATTACHMENT_MISSING, position));
+            }
+            if (attachment.name() == null) {
+                throw new MessagingException(String.format(ATTACHMENT_WITHOUT_NAME, position));
+            }
+            if (attachment.content() == null) {
+                throw new MessagingException(String.format(ATTACHMENT_WITHOUT_CONTENT, position));
+            }
+            Decoder decoder = Base64.getDecoder();
+            try {
+                return decoder.decode(attachment.content());
+            } catch (IllegalArgumentException e) {
+                throw new MessagingException(String.format(ATTACHMENT_CONTENT_NOT_BASE64, position), e);
+            }
+        }
+
+        /**
+         * An attachment whose file name is sent as UTF-8 (RFC 2231 {@code filename*=UTF-8''...}, the same in the Content-Type
+         * {@code name}), whatever Jakarta Mail's default charset (GH-01; {@code setFileName} used that charset, so names
+         * arrived with "?" wherever it was not UTF-8). Limits: only while {@code mail.mime.encodeparameters} and, for
+         * {@code name}, {@code mail.mime.setcontenttypefilename} keep their default true; an ASCII name is sent unencoded, as
+         * before; a null name is refused before, by {@code decodedContentOf}; a reader without RFC 2231 shows the
+         * encoded form.
+         */
+        static final class AttachmentPart extends MimeBodyPart {
+            private static final String CONTENT_DISPOSITION_HEADER = "Content-Disposition";
+            private static final String CONTENT_TYPE_HEADER = "Content-Type";
+            private static final String FILENAME_PARAMETER = "filename";
+            private static final String NAME_PARAMETER = "name";
+
+            private final String fileName;
+
+            AttachmentPart(DataHandler content, String fileName) throws MessagingException {
+                this.fileName = fileName;
+                setDataHandler(content);
+                jakarta.mail.internet.ParameterList parameters = new jakarta.mail.internet.ParameterList();
+                parameters.set(FILENAME_PARAMETER, fileName, MAIL_CHARSET);
+                setHeader(CONTENT_DISPOSITION_HEADER, new jakarta.mail.internet.ContentDisposition(Part.ATTACHMENT, parameters).toString());
+            }
+
+            /** Jakarta Mail sets the Content-Type {@code name} here, with its default charset; it is set again as UTF-8. */
+            @Override
+            protected void updateHeaders() throws MessagingException {
+                super.updateHeaders();
+                jakarta.mail.internet.ContentType type = new jakarta.mail.internet.ContentType(getContentType());
+                jakarta.mail.internet.ParameterList parameters = type.getParameterList();
+                if (parameters != null && parameters.get(NAME_PARAMETER) != null) {
+                    parameters.set(NAME_PARAMETER, fileName, MAIL_CHARSET);
+                    setHeader(CONTENT_TYPE_HEADER, type.toString());
+                }
+            }
         }
     }
 }

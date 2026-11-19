@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.sdk.exception.PluginCommonError;
+import org.lowcoder.sdk.plugin.sqlcommand.filter.FilterSet;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand.GuiSqlCommandRenderResult;
@@ -158,17 +159,16 @@ class GuiSqlCommandRenderTest {
     }
 
     /**
-     * Pins the plan section 9 row "PostgresDeleteCommand.render without filters and without multi-modify builds the
-     * guard's count query from the unrendered table" (D-6, fix deferred, source: lane L4, L4-3 plan): the delete is
-     * rendered ({@code users}) but the count query keeps the mustache ({@code {{tbl}}}). A fix changes this test on purpose.
+     * BF-070: a PostgreSQL delete without filters and without multi-modify builds the single-row guard's count query from
+     * the rendered table ({@code users}), the same table the delete uses, not from the mustache template ({@code {{tbl}}}).
      */
     @Test
-    void postgresDeleteWithoutFilterBuildsTheCountQueryFromTheUnrenderedTable() {
+    void postgresDeleteWithoutFilterBuildsTheCountQueryFromTheRenderedTable() {
         UpdateOrDeleteSingleCommandRenderResult result = (UpdateOrDeleteSingleCommandRenderResult) print("pg delete, mustache table, no filter",
                 PostgresDeleteCommand.from(detail(TEMPLATE_TABLE, false, List.of(), null)).render(TABLE_PARAM));
 
         assertThat(result.sql()).isEqualTo("delete from users");
-        assertThat(result.getSelectQuery()).as("today's behaviour: the table is not rendered").isEqualTo("select count(1) as count from {{tbl}}");
+        assertThat(result.getSelectQuery()).isEqualTo("select count(1) as count from users");
     }
 
     @Test
@@ -231,27 +231,22 @@ class GuiSqlCommandRenderTest {
     }
 
     /**
-     * Pins the plan section 9 row "UpdateCommand.render without filters returns a plain result before appendLimit and
-     * without the single-row guard" (D-6, fix deferred, source: lane L4, L4-3 plan): a MySQL GUI update with
-     * multi-modify off and no filter changes every row. Both halves are asserted: no {@code limit 1} and a plain
-     * {@link GuiSqlCommandRenderResult}, so the executor's single-row guard is skipped. The delete in the same case is
-     * the contrast. A fix changes this test on purpose.
+     * BF-030 (plan section 9 row "UpdateCommand.render without filters returns a plain result before appendLimit"): a
+     * MySQL GUI update with multi-modify off and no filter is limited to one row, as the delete in the same case is; with
+     * multi-modify on it still has no limit.
      */
     @Test
-    void mysqlUpdateWithoutFilterAndWithoutMultiModifyHasNoLimitAndNoSingleRowGuard() {
-        GuiSqlCommandRenderResult update = print("mysql update, no filter, multi off",
+    void mysqlUpdateWithoutFilterIsLimitedToOneRowUnlessMultiModifyBF030() {
+        GuiSqlCommandRenderResult single = print("mysql update, no filter, multi off",
                 MysqlUpdateCommand.from(detail(TABLE, false, List.of(), keyValueChangeSet("age", 30))).render(NO_PARAMS));
+        GuiSqlCommandRenderResult multi = print("mysql update, no filter, multi on",
+                MysqlUpdateCommand.from(detail(TABLE, true, List.of(), keyValueChangeSet("age", 30))).render(NO_PARAMS));
 
-        assertThat(update.sql()).as("today's behaviour: every row is updated").isEqualTo("update users set `age`=?");
-        assertThat(update.sql()).doesNotContain("limit");
-        assertThat(update.bindParams()).containsExactly(30);
-        assertThat(update).as("today's behaviour: the single-row guard result is not used")
-                .isNotInstanceOf(UpdateOrDeleteSingleCommandRenderResult.class);
-
-        // contrast: the same situation for a delete is limited to one row (MySQL) or guarded (PostgreSQL)
-        assertThat(MysqlDeleteCommand.from(detail(TABLE, false, List.of(), null)).render(NO_PARAMS).sql()).endsWith(" limit 1");
-        assertThat(PostgresDeleteCommand.from(detail(TABLE, false, List.of(), null)).render(NO_PARAMS))
-                .isInstanceOf(UpdateOrDeleteSingleCommandRenderResult.class);
+        assertThat(single.sql()).isEqualTo("update users set `age`=? limit 1");
+        assertThat(single.bindParams()).containsExactly(30);
+        assertThat(multi.sql()).isEqualTo("update users set `age`=?");
+        assertThat(MysqlDeleteCommand.from(detail(TABLE, false, List.of(), null)).render(NO_PARAMS).sql())
+                .as("the delete in the same case").endsWith(" limit 1");
     }
 
     // ---- insert ----
@@ -306,6 +301,19 @@ class GuiSqlCommandRenderTest {
         assertThat(postgres.bindParams()).isEmpty();
     }
 
+    /** BF-050: a render result asks for generated keys unless its command says otherwise; the shared bulk insert does. */
+    @Test
+    void renderResultsAskForGeneratedKeysUnlessTheCommandSaysOtherwiseBF050() {
+        Map<String, Object> detail = bulkDetail("[{\"a\":1,\"b\":\"x\"},{\"a\":2,\"b\":\"y\"}]", null);
+        GuiSqlCommandRenderResult mysql = MysqlBulkInsertCommand.from(detail).render(NO_PARAMS);
+        GuiSqlCommandRenderResult postgres = PostgresBulkInsertCommand.from(detail).render(NO_PARAMS);
+        System.out.println("[GuiSqlCommandRenderTest] generated keys: mysql bulk " + mysql.returnsGeneratedKeys() + ", pg bulk " + postgres.returnsGeneratedKeys());
+        assertThat(mysql.returnsGeneratedKeys()).isTrue();
+        assertThat(postgres.returnsGeneratedKeys()).isTrue();
+        assertThat(new GuiSqlCommandRenderResult("select 1", List.of()).returnsGeneratedKeys()).isTrue();
+        assertThat(new GuiSqlCommandRenderResult("select 1", List.of(), false).returnsGeneratedKeys()).isFalse();
+    }
+
     @Test
     void bulkInsertRejectsEmptyMisalignedAndMalformedRecords() {
         assertPluginError(() -> MysqlBulkInsertCommand.from(bulkDetail("[]", null)).render(NO_PARAMS),
@@ -331,7 +339,7 @@ class GuiSqlCommandRenderTest {
 
         GuiSqlCommandRenderResult result = print("mysql bulk update", MysqlBulkUpdateCommand.from(detail).render(NO_PARAMS));
 
-        assertThat(result.sql()).isEqualTo("UPDATE users set\n`name` = CASE WHEN `id` = ? THEN ? WHEN `id` = ? THEN ? ELSE `name` END\nwhere id in (?,?)");
+        assertThat(result.sql()).isEqualTo("UPDATE users set\n`name` = CASE WHEN `id` = ? THEN ? WHEN `id` = ? THEN ? ELSE `name` END\nwhere `id` in (?,?)");
         assertThat(result.bindParams()).as("pk and value per WHEN, then the pks of the where").containsExactly(1, "a", 2, "b", 1, 2);
     }
 
@@ -341,7 +349,7 @@ class GuiSqlCommandRenderTest {
 
         GuiSqlCommandRenderResult result = print("pg bulk update", PostgresBulkUpdateCommand.from(detail).render(NO_PARAMS));
 
-        assertThat(result.sql()).isEqualTo("UPDATE users set\n\"qty\" = CASE WHEN \"id\" = 1 THEN 5 WHEN \"id\" = 2 THEN 6 ELSE \"qty\" END\nwhere id in (1,2)");
+        assertThat(result.sql()).isEqualTo("UPDATE users set\n\"qty\" = CASE WHEN \"id\" = 1 THEN 5 WHEN \"id\" = 2 THEN 6 ELSE \"qty\" END\nwhere \"id\" in (1,2)");
         assertThat(result.bindParams()).isEmpty();
     }
 
@@ -353,6 +361,73 @@ class GuiSqlCommandRenderTest {
                 PluginCommonError.INVALID_INSERT_COMMAND, "BULK_UPDATE_DATA_NOT_CONTAIN_PRIMARY_KEY");
         assertPluginError(() -> MysqlBulkUpdateCommand.from(bulkDetail("[{\"id\":1}]", null)),
                 PluginCommonError.INVALID_GUI_SETTINGS, "GUI_PRIMARY_KEY_EMPTY");
+    }
+
+    private static Map<String, Object> filteredBulkDetail(Object filterBy) {
+        Map<String, Object> detail = bulkDetail("[{\"id\":1,\"name\":\"a\"},{\"id\":2,\"name\":\"b\"}]", "id");
+        detail.put(FilterSet.FILTER_BY_KEY, filterBy);
+        return detail;
+    }
+
+    /**
+     * F01 (GitHub #1641): a bulk update's filter is ANDed to the primary key list, its values bound after the keys, so a
+     * record whose row the filter excludes is not updated. Catches the filter ignored (the state before), its conditions
+     * joined to the keys without parentheses or with a second {@code where}, and its values bound out of order.
+     */
+    @Test
+    void bulkUpdateAndsTheFilterToTheKeysAndBindsItsValuesLastForMysqlF01() {
+        Map<String, Object> detail = filteredBulkDetail(List.of(filter("status", "=", "{{status}}"), filter("qty", ">", 3)));
+
+        GuiSqlCommandRenderResult result = print("mysql bulk update with filter", MysqlBulkUpdateCommand.from(detail).render(Map.of("status", "open")));
+
+        assertThat(result.sql()).isEqualTo("UPDATE users set\n`name` = CASE WHEN `id` = ? THEN ? WHEN `id` = ? THEN ? ELSE `name` END\n"
+                + "where `id` in (?,?) and (`status` = ?  and `qty` > ? )");
+        assertThat(result.bindParams()).as("the CASE WHEN binds, the keys, then the filter values").containsExactly(1, "a", 2, "b", 1, 2, "open", 3);
+        assertThat(MysqlBulkUpdateCommand.from(detail).extractMustacheKeys()).as("the filter's mustache keys are the query's too").contains("{{status}}");
+    }
+
+    /** F01: in the raw-SQL dialect the filter value is written as the update's filter writes it, dollar-quoted. */
+    @Test
+    void bulkUpdateWritesTheFilterValuesAsLiteralsForPostgresF01() {
+        Map<String, Object> detail = filteredBulkDetail(List.of(filter("status", "=", "{{status}}")));
+
+        GuiSqlCommandRenderResult result = print("pg bulk update with filter", PostgresBulkUpdateCommand.from(detail).render(Map.of("status", "o'pen")));
+
+        assertThat(result.sql()).matches("(?s)UPDATE users set\n\"name\" = CASE WHEN \"id\" = 1 THEN " + pgQuoted("a", 1)
+                + " WHEN \"id\" = 2 THEN " + pgQuoted("b", 2) + " ELSE \"name\" END\n"
+                + "where \"id\" in \\(1,2\\) and \\(\"status\" = " + pgQuoted("o'pen", 3) + "\\)");
+        assertThat(result.bindParams()).isEmpty();
+    }
+
+    /**
+     * F01: a bulk update without a filter renders as before, also when {@code filterBy} is null (a bulk update saved before
+     * the editor had a filter sends none) or empty; an empty IN list matches no row, as in the update. Catches a missing
+     * filter refused as the update refuses it (GUI_FILTER_FIELD_EMPTY) and an empty filter rendered as {@code and ()}.
+     */
+    @Test
+    void aBulkUpdateWithoutFilterRendersAsBeforeAndAnEmptyInListMatchesNoRowF01() {
+        String unfiltered = "UPDATE users set\n`name` = CASE WHEN `id` = ? THEN ? WHEN `id` = ? THEN ? ELSE `name` END\nwhere `id` in (?,?)";
+        Map<String, Object> absent = bulkDetail("[{\"id\":1,\"name\":\"a\"},{\"id\":2,\"name\":\"b\"}]", "id");
+        for (Map<String, Object> detail : List.of(absent, filteredBulkDetail(null), filteredBulkDetail(List.of()))) {
+            GuiSqlCommandRenderResult result = print("mysql bulk update, filterBy " + detail.get(FilterSet.FILTER_BY_KEY), MysqlBulkUpdateCommand.from(detail).render(NO_PARAMS));
+            assertThat(result.sql()).isEqualTo(unfiltered);
+            assertThat(result.bindParams()).containsExactly(1, "a", 2, "b", 1, 2);
+        }
+
+        GuiSqlCommandRenderResult emptyIn = print("mysql bulk update, empty IN", MysqlBulkUpdateCommand.from(
+                filteredBulkDetail(List.of(filter("status", "IN", "{{none}}")))).render(Map.of("none", List.of())));
+        assertThat(emptyIn.sql()).endsWith("where `id` in (?,?) and (false)");
+    }
+
+    /** F01: a bulk update's filter is checked as the update's is: not a list, a blank condition, an IN value that is not a list. */
+    @Test
+    void aBulkUpdateFilterIsCheckedAsTheUpdateFilterIsF01() {
+        assertPluginError(() -> MysqlBulkUpdateCommand.from(filteredBulkDetail("status = 1")),
+                PluginCommonError.INVALID_GUI_SETTINGS, "GUI_INVALID_FILTER_FIELD", "String");
+        assertPluginError(() -> MysqlBulkUpdateCommand.from(filteredBulkDetail(List.of(filter("status", " ", 1)))),
+                PluginCommonError.INVALID_GUI_SETTINGS, "GUI_INVALID_FILTER_CONDITION");
+        assertPluginError(() -> PostgresBulkUpdateCommand.from(filteredBulkDetail(List.of(filter("status", "IN", "x")))).render(NO_PARAMS),
+                PluginCommonError.INVALID_IN_OPERATOR_SETTINGS, "INVALID_IN");
     }
 
     // ---- upsert ----
@@ -421,5 +496,67 @@ class GuiSqlCommandRenderTest {
     @Test
     void fromRejectsABlankTable() {
         assertPluginError(() -> MysqlDeleteCommand.from(detail(" ", false, List.of(), null)), PluginCommonError.INVALID_GUI_SETTINGS, "GUI_FIELD_EMPTY");
+    }
+    // ---- bind values against placeholders (BF-146, T145) ----
+
+    private static final String SORT_KEY = "sort";
+    private static final Map<String, Object> SORT_MAP = Map.of(SORT_KEY, "desc");
+    private static final String SORT_PARAM = "{{s}}";
+    private static final Map<String, Object> SORT_PARAMS = Map.of("s", SORT_MAP);
+    /** How a sort map's JSON text starts its key, to recognise it among the bind values. */
+    private static final String SORT_JSON_KEY = "\"" + SORT_KEY + "\"";
+    /** Bulk records whose non-key values are a JSON object with a {@code sort} key, so they bind as such a map. */
+    private static final String SORT_RECORDS = "[{\"id\":1,\"a\":{\"sort\":\"desc\"}},{\"id\":2,\"a\":{\"sort\":\"asc\"}}]";
+
+    private static int placeholders(String sql) {
+        return sql.split("\\?", -1).length - 1;
+    }
+
+    /**
+     * Asserts that {@code result} binds no more values than it has {@code ?} and binds no map (the guard select of a
+     * single-row result too); returns how many of its bind values are a sort map's JSON text.
+     */
+    private static int assertNoMoreBindValuesThanPlaceholders(String label, GuiSqlCommandRenderResult result) {
+        print(label, result);
+        assertThat(result.bindParams().size()).as(label).isLessThanOrEqualTo(placeholders(result.sql()));
+        assertThat(result.bindParams()).as(label + ": no bind value is a map").noneMatch(Map.class::isInstance);
+        if (result instanceof UpdateOrDeleteSingleCommandRenderResult single) {
+            assertThat(single.getSelectBindParams().size()).as(label + " guard").isLessThanOrEqualTo(placeholders(single.getSelectQuery()));
+            assertThat(single.getSelectBindParams()).as(label + " guard: no bind value is a map").noneMatch(Map.class::isInstance);
+        }
+        return (int) result.bindParams().stream().filter(value -> value instanceof String text && text.contains(SORT_JSON_KEY)).count();
+    }
+
+    /**
+     * BF-146 (T145, verify first): {@code GeneralSqlExecutor}'s sort rewrite acts on a bind value that is a map with a
+     * {@code sort} key and would loop endlessly on one without a {@code ?} of its own. Every GUI command factory of the sdk,
+     * rendered with such maps as its values and filter values, binds them as their JSON text (MySQL) or writes them into the
+     * SQL (Postgres), never as a map, and binds no more values than it has {@code ?}; so a GUI statement cannot reach that
+     * branch, nor the rewrite at all. The MSSQL and Oracle commands (plugin modules) are run the same way in
+     * {@code MssqlQueryExecutorTest} and {@code OracleQueryExecutorTest}. The {@code ?} are counted as the rewrite counts
+     * them, literal ones included, on purpose: that is the loop's own condition. Catches: a renderer that binds a value
+     * without writing its {@code ?}, or that starts binding maps.
+     */
+    @Test
+    void everyGuiCommandBindsNoMoreValuesThanPlaceholdersWithSortMapValuesBF146() {
+        List<Map<String, Object>> filters = List.of(filter("id", "=", SORT_PARAM), filter("grp", "IN", List.of(1, 2)));
+        Map<String, Object> changeSet = keyValueChangeSet("a", SORT_PARAM, "b", 2);
+        int sortMaps = 0;
+        sortMaps += assertNoMoreBindValuesThanPlaceholders("mysql insert", MysqlInsertCommand.from(detail(TABLE, false, null, changeSet)).render(SORT_PARAMS));
+        sortMaps += assertNoMoreBindValuesThanPlaceholders("pg insert", PostgresInsertCommand.from(detail(TABLE, false, null, changeSet)).render(SORT_PARAMS));
+        for (boolean multi : new boolean[] {false, true}) {
+            sortMaps += assertNoMoreBindValuesThanPlaceholders("mysql update multi=" + multi, MysqlUpdateCommand.from(detail(TABLE, multi, filters, changeSet)).render(SORT_PARAMS));
+            sortMaps += assertNoMoreBindValuesThanPlaceholders("pg update multi=" + multi, PostgresUpdateCommand.from(detail(TABLE, multi, filters, changeSet)).render(SORT_PARAMS));
+            sortMaps += assertNoMoreBindValuesThanPlaceholders("mysql delete multi=" + multi, MysqlDeleteCommand.from(detail(TABLE, multi, filters, null)).render(SORT_PARAMS));
+            sortMaps += assertNoMoreBindValuesThanPlaceholders("pg delete multi=" + multi, PostgresDeleteCommand.from(detail(TABLE, multi, filters, null)).render(SORT_PARAMS));
+        }
+        sortMaps += assertNoMoreBindValuesThanPlaceholders("mysql bulk insert", MysqlBulkInsertCommand.from(bulkDetail(SORT_RECORDS, null)).render(NO_PARAMS));
+        sortMaps += assertNoMoreBindValuesThanPlaceholders("pg bulk insert", PostgresBulkInsertCommand.from(bulkDetail(SORT_RECORDS, null)).render(NO_PARAMS));
+        sortMaps += assertNoMoreBindValuesThanPlaceholders("mysql bulk update", MysqlBulkUpdateCommand.from(bulkDetail(SORT_RECORDS, "id")).render(NO_PARAMS));
+        sortMaps += assertNoMoreBindValuesThanPlaceholders("pg bulk update", PostgresBulkUpdateCommand.from(bulkDetail(SORT_RECORDS, "id")).render(NO_PARAMS));
+        sortMaps += assertNoMoreBindValuesThanPlaceholders("mysql upsert",
+                MysqlUpsertCommand.from(upsertDetail(changeSet, keyValueChangeSet("b", SORT_PARAM))).render(SORT_PARAMS));
+        System.out.println("[GuiSqlCommandRenderTest] BF-146: " + sortMaps + " sort maps bound as JSON text, none as a map, none without a placeholder");
+        assertThat(sortMaps).as("the sort maps must reach the renders").isGreaterThan(0);
     }
 }

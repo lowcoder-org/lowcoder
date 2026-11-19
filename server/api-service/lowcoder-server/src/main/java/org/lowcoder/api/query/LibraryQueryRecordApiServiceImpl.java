@@ -2,6 +2,7 @@ package org.lowcoder.api.query;
 
 import static org.lowcoder.api.util.ViewBuilder.multiBuild;
 import static org.lowcoder.sdk.exception.BizError.LIBRARY_QUERY_AND_ORG_NOT_MATCH;
+import static org.lowcoder.sdk.exception.BizError.LIBRARY_QUERY_NOT_FOUND;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
 import java.util.List;
@@ -95,9 +96,21 @@ public class LibraryQueryRecordApiServiceImpl implements LibraryQueryRecordApiSe
                     if (!orgMember.getOrgId().equals(libraryQuery.getOrganizationId())) {
                         return ofError(LIBRARY_QUERY_AND_ORG_NOT_MATCH, "LIBRARY_QUERY_AND_ORG_NOT_MATCH");
                     }
+                    // a record is read under its own library query only (NEW-2); the answer is the unknown record's
+                    if (!isCombinedQuery(libraryQuery, libraryQueryCombineId.libraryQueryId())) {
+                        return ofError(LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND");
+                    }
                     return Mono.empty();
                 });
     }
 
+    /**
+     * Whether {@code libraryQuery} is the library query a combined id names, by its object id or its gid. Records store
+     * the object id, so a record checked under a gid matches through the query it resolves to.
+     */
+    private static boolean isCombinedQuery(LibraryQuery libraryQuery, String combinedLibraryQueryId) {
+        return combinedLibraryQueryId != null
+                && (combinedLibraryQueryId.equals(libraryQuery.getId()) || combinedLibraryQueryId.equals(libraryQuery.getGid()));
+    }
 
 }

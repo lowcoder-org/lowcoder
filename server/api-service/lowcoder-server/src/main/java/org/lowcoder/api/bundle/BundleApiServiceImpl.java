@@ -5,7 +5,6 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.bundle.BundleEndpoints.CreateBundleRequest;
 import org.lowcoder.api.bundle.view.BundleInfoView;
@@ -311,8 +310,7 @@ public class BundleApiServiceImpl implements BundleApiService {
     public Mono<Void> moveApp(String applicationId, String fromBundleId, String toBundleId) {
         return sessionUserService.getVisitorId()
                 // check permissions
-                .delayUntil(userId -> resourcePermissionService.checkResourcePermissionWithError(userId, applicationId,
-                        ResourceAction.MANAGE_APPLICATIONS))
+                .delayUntil(userId -> checkAppAndBundlesManageable(userId, applicationId, fromBundleId, toBundleId))
                 // remove old relations
                 .then(bundleElementRelationService.deleteByBundleIdAndElementId(fromBundleId, applicationId))
                 .flatMap(b -> {
@@ -334,6 +332,32 @@ public class BundleApiServiceImpl implements BundleApiService {
                 .then();
     }
 
+    /**
+     * The checks before an application is moved or added (BF-011): the visitor may manage the application and each bundle
+     * whose relations and editing DSL are written, and each of those bundles belongs to the application's organization
+     * (APPLICATION_AND_ORG_NOT_MATCH otherwise). The permission of a resource is computed in the resource's own organization,
+     * so a member of two organizations may manage a bundle of either; the organization comparison is what keeps the
+     * application in its own.
+     * <p>
+     * Limits: blank bundle ids are not checked; no bundle has one, so the relation removal the callers still run for a blank
+     * id matches nothing and no editing DSL is written. A missing application or bundle is already refused by the permission
+     * check, whose handler looks the resource up (NO_RESOURCE_FOUND); the APPLICATION_NOT_FOUND and BUNDLE_NOT_EXIST of the
+     * lookups here only keep an empty lookup from passing the organization comparison.
+     */
+    private Mono<Void> checkAppAndBundlesManageable(String userId, String applicationId, String... bundleIds) {
+        List<String> writtenBundleIds = Arrays.stream(bundleIds).filter(StringUtils::isNotBlank).distinct().toList();
+        return resourcePermissionService.checkResourcePermissionWithError(userId, applicationId, ResourceAction.MANAGE_APPLICATIONS)
+                .thenMany(Flux.fromIterable(writtenBundleIds))
+                .concatMap(bundleId -> resourcePermissionService.checkResourcePermissionWithError(userId, bundleId, MANAGE_BUNDLES))
+                .then(applicationRepository.findById(applicationId)
+                        .switchIfEmpty(deferredError(APPLICATION_NOT_FOUND, "APPLICATION_NOT_FOUND")))
+                .flatMapMany(application -> Flux.fromIterable(writtenBundleIds)
+                        .concatMap(this::checkBundleExist)
+                        .filter(bundle -> !Objects.equals(application.getOrganizationId(), bundle.getOrganizationId())))
+                .next()
+                .flatMap(foreignBundle -> ofError(APPLICATION_AND_ORG_NOT_MATCH, "APPLICATION_AND_ORG_NOT_MATCH"));
+    }
+
     private Mono<Bundle> addAppToBundle(Bundle bundle, Application newapplication) {
         var map = bundle.getEditingBundleDSL();
         if(map == null) map = new HashMap<>();
@@ -350,8 +374,7 @@ public class BundleApiServiceImpl implements BundleApiService {
     public Mono<Void> addApp(String applicationId, String toBundleId) {
         return sessionUserService.getVisitorId()
                 // check permissions
-                .delayUntil(userId -> resourcePermissionService.checkResourcePermissionWithError(userId, applicationId,
-                        ResourceAction.MANAGE_APPLICATIONS))
+                .delayUntil(userId -> checkAppAndBundlesManageable(userId, applicationId, toBundleId))
                 // remove old relations
                 .then(bundleElementRelationService.deleteByBundleIdAndElementId(toBundleId, applicationId))
                 .flatMap(b -> {
@@ -389,13 +412,18 @@ public class BundleApiServiceImpl implements BundleApiService {
     }
 
     /**
-     * get the sub elements of a bundle or root.
+     * The elements of a bundle, with the checks of {@link #getEditingBundle} (BF-020): the visitor may read the bundle
+     * (READ_BUNDLES, computed in the bundle's organization; the readable errors of
+     * {@link #checkPermissionWithReadableErrorMsg}) and the bundle is NORMAL (BAD_REQUEST otherwise).
      *
-     * @return flux of {@link ApplicationInfoView} or {@link BundleInfoView}
+     * @return flux of {@link BundleApplication}
      */
     @Override
-    public Flux<?> getElements(@Nullable String bundleId, @Nullable ApplicationType applicationType) {
-        return biRelationService.getBySourceId(BiRelationBizType.BUNDLE_ELEMENT, bundleId)
+    public Flux<?> getElements(String bundleId, @Nullable ApplicationType applicationType) {
+        return checkPermissionWithReadableErrorMsg(bundleId, READ_BUNDLES)
+                .then(bundleService.findById(bundleId))
+                .flatMap(bundle -> checkBundleStatus(bundle, BundleStatus.NORMAL))
+                .thenMany(biRelationService.getBySourceId(BiRelationBizType.BUNDLE_ELEMENT, bundleId))
                 .sort((o1, o2) -> {
                     var pos1 = Integer.parseInt(o1.getExtParam1());
                     var pos2 = Integer.parseInt(o2.getExtParam1());
@@ -577,36 +605,6 @@ public class BundleApiServiceImpl implements BundleApiService {
     }
 
     @Override
-    public Mono<BundlePermissionView> getPermissions(String bundleId) {
-
-        Mono<List<ResourcePermission>> bundlePermissions =
-                resourcePermissionService.getByResourceTypeAndResourceId(ResourceType.BUNDLE, bundleId).cache();
-
-        Mono<List<PermissionItemView>> groupPermissionPairsMono = bundlePermissions
-                .flatMap(permissionHelper::getGroupPermissions);
-
-        Mono<List<PermissionItemView>> userPermissionPairsMono = bundlePermissions
-                .flatMap(permissionHelper::getUserPermissions);
-
-        return bundleService.findById(bundleId)
-                .flatMap(bundle -> {
-                    Mono<Organization> orgMono = organizationService.getById(bundle.getCreatedBy());
-                    return Mono.zip(groupPermissionPairsMono, userPermissionPairsMono, orgMono)
-                            .map(tuple -> {
-                                List<PermissionItemView> groupPermissionPairs = tuple.getT1();
-                                List<PermissionItemView> userPermissionPairs = tuple.getT2();
-                                Organization organization = tuple.getT3();
-                                return BundlePermissionView.builder()
-                                        .groupPermissions(groupPermissionPairs)
-                                        .userPermissions(userPermissionPairs)
-                                        .creatorId(bundle.getCreatedBy())
-                                        .orgName(organization.getName())
-                                        .build();
-                            });
-                });
-    }
-
-    @Override
     public Mono<BundleInfoView> buildBundleInfoView(Bundle bundle, boolean visible, boolean manageable, String folderId) {
         return userService.findById(bundle.getCreatedBy())
                 .map(user -> BundleInfoView.builder()
@@ -632,14 +630,14 @@ public class BundleApiServiceImpl implements BundleApiService {
 
     @Override
     public Mono<Boolean> setBundlePublicToAll(String bundleId, boolean publicToAll) {
-        return checkCurrentUserBundlePermission(bundleId, ResourceAction.SET_APPLICATIONS_PUBLIC)
+        return checkCurrentUserBundlePermission(bundleId, ResourceAction.SET_BUNDLES_PUBLIC)
                 .then(checkBundleStatus(bundleId, BundleStatus.NORMAL))
                 .then(bundleService.setBundlePublicToAll(bundleId, publicToAll));
     }
 
     @Override
     public Mono<Boolean> setBundlePublicToMarketplace(String bundleId, BundleEndpoints.BundlePublicToMarketplaceRequest request) {
-        return checkCurrentUserBundlePermission(bundleId, ResourceAction.SET_APPLICATIONS_PUBLIC_TO_MARKETPLACE)
+        return checkCurrentUserBundlePermission(bundleId, ResourceAction.SET_BUNDLES_PUBLIC_TO_MARKETPLACE)
                 .then(checkBundleStatus(bundleId, BundleStatus.NORMAL))
                 .then(bundleService.setBundlePublicToMarketplace
                         (bundleId, request.publicToMarketplace()));
@@ -648,7 +646,7 @@ public class BundleApiServiceImpl implements BundleApiService {
     // Falk: why we have request.publicToMarketplace() - but here only agencyProfile? Not from request?
     @Override
     public Mono<Boolean> setBundleAsAgencyProfile(String bundleId, boolean agencyProfile) {
-        return checkCurrentUserBundlePermission(bundleId, ResourceAction.SET_APPLICATIONS_AS_AGENCY_PROFILE)
+        return checkCurrentUserBundlePermission(bundleId, ResourceAction.SET_BUNDLES_AS_AGENCY_PROFILE)
                 .then(checkBundleStatus(bundleId, BundleStatus.NORMAL))
                 .then(bundleService.setBundleAsAgencyProfile
                         (bundleId, agencyProfile));

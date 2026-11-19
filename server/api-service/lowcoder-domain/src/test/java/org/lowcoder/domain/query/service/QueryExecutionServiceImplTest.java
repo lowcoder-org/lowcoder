@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -38,6 +39,7 @@ import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.common.QueryExecutor;
 import org.lowcoder.sdk.query.QueryExecutionContext;
 import org.lowcoder.sdk.query.QueryVisitorContext;
+import org.lowcoder.sdk.util.JsonUtils;
 import org.springframework.http.HttpCookie;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -54,7 +56,22 @@ class QueryExecutionServiceImplTest {
 
     private static final String JAVA_TYPE = "L3-6-java";
     private static final String JS_TYPE = "L3-6-js";
+    /** NEW-18 (T156b-1): Lowcoder's session cookie, a cookie a datasource selects, and one it does not. */
+    private static final String SESSION_COOKIE = "LOWCODER_CE_SELFHOST_TOKEN";
+    private static final String SELECTED_COOKIE = "tenant";
+    private static final String OTHER_COOKIE = "tracking";
+    private static final String CONTEXT_KEY = "key";
+    private static final String CONTEXT_VALUE = "value";
     private static final Duration VERIFY_TIMEOUT = Duration.ofSeconds(5);
+    /** {@code CommonConfig}'s maximum query timeout, in seconds. */
+    private static final int DEFAULT_MAX_SECONDS = 300;
+    private static final String AT_THE_MAXIMUM = DEFAULT_MAX_SECONDS + "s";
+    private static final String ABOVE_THE_MAXIMUM = (DEFAULT_MAX_SECONDS + 100) + "s";
+    /** The smallest maximum whose milliseconds, multiplied by 1000 again as the caller did (BF-043), leave the int range. */
+    private static final int OVERFLOWING_MAX_SECONDS = 2148;
+    private static final String DEFAULT_TIMEOUT_MS = "10000";
+    /** A timeout text that parses to NaN (BF-079). */
+    private static final String NAN_TIMEOUT = "NaN";
 
     private DatasourceConnectionPool pool;
     private DatasourceMetaInfoService metaInfoService;
@@ -72,6 +89,7 @@ class QueryExecutionServiceImplTest {
         metaInfoService = mock(DatasourceMetaInfoService.class);
         pluginClient = mock(DatasourcePluginClient.class);
         common = new CommonConfig();
+        common.setCookieName(SESSION_COOKIE);
         service = new QueryExecutionServiceImpl(pool, metaInfoService, pluginClient, common);
 
         executor = mock(QueryExecutor.class);
@@ -112,6 +130,31 @@ class QueryExecutionServiceImplTest {
         return config;
     }
 
+    /** The browser's cookies: another cookie, the session cookie and a selected one with two values. */
+    private static MultiValueMap<String, HttpCookie> browserCookies() {
+        MultiValueMap<String, HttpCookie> cookies = new LinkedMultiValueMap<>();
+        cookies.add(OTHER_COOKIE, new HttpCookie(OTHER_COOKIE, "other-value"));
+        cookies.add(SESSION_COOKIE, new HttpCookie(SESSION_COOKIE, "session-value"));
+        cookies.add(SELECTED_COOKIE, new HttpCookie(SELECTED_COOKIE, "first"));
+        cookies.add(SELECTED_COOKIE, new HttpCookie(SELECTED_COOKIE, "second"));
+        return cookies;
+    }
+
+    /** Runs a JS query with these params and cookies and answers the context the node client was given. */
+    private List<Map<String, Object>> contextSentToNode(Datasource datasource, Map<String, Object> params,
+            MultiValueMap<String, HttpCookie> cookies) {
+        Map<String, Object> queryConfig = new HashMap<>();
+        when(pluginClient.executeQuery(eq(JS_TYPE), any(), any(), any())).thenReturn(Mono.just(success));
+        StepVerifier.create(service.executeQuery(datasource, queryConfig, params, "", visitor(cookies, Mono.just(List.of()))))
+                .expectNext(success).verifyComplete();
+        org.mockito.ArgumentCaptor<List<Map<String, Object>>> context = org.mockito.ArgumentCaptor.forClass(List.class);
+        verify(pluginClient).executeQuery(eq(JS_TYPE), eq(queryConfig), context.capture(), any());
+        List<Map<String, Object>> sent = context.getValue();
+        System.out.println("[QueryExecutionServiceImplTest] context keys sent to node: "
+                + sent.stream().map(entry -> entry.get(CONTEXT_KEY)).toList());
+        return sent;
+    }
+
     // ---------------------------------------------------------------- timeout
 
     /** Catches a user-set timeout being overwritten (:48) and the default not being written. */
@@ -128,44 +171,52 @@ class QueryExecutionServiceImplTest {
     }
 
     /**
-     * Pins the plan section 9 row "the maximum query timeout is multiplied by 1000 twice over" (:47): the caller
-     * passes {@code getMaxQueryTimeout() * 1000} to a method that takes seconds, so with the default maximum of 300 s
-     * a "400s" timeout is accepted (limit 300000 s). A fix changes this test on purpose.
+     * BF-043 fixed: the caller passed {@code getMaxQueryTimeout() * 1000} to a method that takes seconds, so with the
+     * default maximum of 300 s a "400s" timeout was accepted (limit 300000 s). The maximum is now enforced: 300 s is
+     * accepted, 400 s is refused with EXCEED_MAX_QUERY_TIMEOUT naming 300 (the message reads "{0}s"), before any executor.
      */
     @Test
-    void executeQuery_timeoutAboveTheConfiguredMaximum_isAcceptedToday_pinsSection9Row() {
-        assertThat(common.getMaxQueryTimeout()).isEqualTo(300);
-        Map<String, Object> queryConfig = new HashMap<>();
+    void executeQuery_timeoutAboveTheConfiguredMaximum_isRefusedBF043() {
+        assertThat(common.getMaxQueryTimeout()).isEqualTo(DEFAULT_MAX_SECONDS);
+        Map<String, Object> atTheMaximum = new HashMap<>();
+        StepVerifier.create(service.executeQuery(javaDatasource(), atTheMaximum, Map.of(), AT_THE_MAXIMUM, visitor())).expectNext(success).verifyComplete();
+        assertThat(atTheMaximum).containsEntry("timeoutMs", String.valueOf(DEFAULT_MAX_SECONDS * 1000));
+        clearInvocations(executor, pluginClient, pool);
 
-        StepVerifier.create(service.executeQuery(javaDatasource(), queryConfig, Map.of(), "400s", visitor())).expectNext(success).verifyComplete();
-
-        assertThat(queryConfig).containsEntry("timeoutMs", "400000");
-        System.out.println("[QueryExecutionServiceImplTest] pins the section 9 row: 400s accepted with a 300 s maximum");
+        assertThatThrownBy(() -> service.executeQuery(javaDatasource(), new HashMap<>(), Map.of(), ABOVE_THE_MAXIMUM, visitor()))
+                .isInstanceOfSatisfying(PluginException.class, plugin -> {
+                    System.out.println("[QueryExecutionServiceImplTest] " + ABOVE_THE_MAXIMUM + " with a " + DEFAULT_MAX_SECONDS + " s maximum -> "
+                            + plugin.getError() + " " + java.util.Arrays.toString(plugin.getArgs()));
+                    assertThat(plugin.getError()).isEqualTo(PluginCommonError.EXCEED_MAX_QUERY_TIMEOUT);
+                    assertThat(plugin.getArgs()).containsExactly(DEFAULT_MAX_SECONDS);
+                });
+        verifyNoInteractions(executor, pluginClient, pool);
     }
 
     /**
-     * Pins the overflow extension of the same section 9 row: with the x1000 a configured maximum of 2148 s makes the
-     * argument exceed 2,147,483 s, the int cast in {@code QueryTimeoutUtils:36} turns negative, and the blank-timeout
-     * default becomes a NEGATIVE timeoutMs, so the query times out at once. A fix (no x1000) changes this test.
+     * BF-043 fixed, overflow part: with the x1000 a configured maximum of 2148 s made the blank-timeout default a
+     * NEGATIVE timeoutMs, so every query timed out at once. Now the default (10 s) is used and the query answers.
      */
     @Test
-    void executeQuery_maximumOf2148Seconds_makesTheDefaultTimeoutNegative_pinsSection9Row() {
-        common.setMaxQueryTimeout(2148);
+    void executeQuery_maximumOf2148Seconds_keepsTheDefaultTimeoutBF043() {
+        common.setMaxQueryTimeout(OVERFLOWING_MAX_SECONDS);
         Map<String, Object> queryConfig = new HashMap<>();
-        when(executor.doExecuteQuery(any(), any())).thenReturn(Mono.never());
 
         StepVerifier.create(service.executeQuery(javaDatasource(), queryConfig, Map.of(), "", visitor()))
-                .assertNext(result -> assertThat(result.getQueryCode()).isEqualTo(PluginCommonError.QUERY_EXECUTION_TIMEOUT.name()))
+                .expectNext(success)
                 .expectComplete()
                 .verify(VERIFY_TIMEOUT);
 
-        assertThat(Integer.parseInt((String) queryConfig.get("timeoutMs"))).isNegative();
-        System.out.println("[QueryExecutionServiceImplTest] pins the section 9 row: maximum 2148 -> timeoutMs " + queryConfig.get("timeoutMs"));
+        System.out.println("[QueryExecutionServiceImplTest] maximum " + OVERFLOWING_MAX_SECONDS + " s -> timeoutMs " + queryConfig.get("timeoutMs"));
+        assertThat(queryConfig).containsEntry("timeoutMs", DEFAULT_TIMEOUT_MS);
     }
 
-    /** Catches invalid timeouts reaching the executor (:47): they are thrown synchronously, outside the reactive chain. */
+    /**
+     * Catches invalid timeouts reaching the executor (QueryExecutionServiceImpl:57): they are thrown synchronously, outside the
+     * reactive chain; "NaN" among them (BF-079: it was a 0 ms timeout).
+     */
     @ParameterizedTest
-    @ValueSource(strings = {"-5", "abc"})
+    @ValueSource(strings = {"-5", "abc", NAN_TIMEOUT})
     void executeQuery_invalidTimeout_throwsSynchronouslyBeforeAnyExecutor(String timeout) {
         assertThatThrownBy(() -> service.executeQuery(javaDatasource(), new HashMap<>(), Map.of(), timeout, visitor()))
                 .isInstanceOfSatisfying(PluginException.class, plugin -> assertThat(plugin.getError()).isEqualTo(PluginCommonError.QUERY_ARGUMENT_ERROR));
@@ -211,6 +262,7 @@ class QueryExecutionServiceImplTest {
     @Test
     void executeQuery_jsPlugin_handsParamsAndCookiesAsKeyValueContextToTheNodeClient() {
         JsDatasourceConnectionConfig config = jsConfigWithAuthType(null);
+        config.put(JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY, List.of("session"));
         Datasource datasource = jsDatasource(config);
         Map<String, Object> queryConfig = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
@@ -232,6 +284,55 @@ class QueryExecutionServiceImplTest {
         assertThat(sent.get(2)).containsEntry("key", "session").containsEntry("value", cookies.get("session"));
         verifyNoInteractions(executor, pool);
         System.out.println("[QueryExecutionServiceImplTest] JS plugin: params then cookies sent as key/value context");
+    }
+
+    /**
+     * NEW-18 (T156b-1): only the cookies the datasource selects reach node, never the session cookie, even when it is listed;
+     * a param of a selected cookie's name stays before it, so the cookie wins in node. Catches the session cookie, or an
+     * unselected cookie, forwarded.
+     */
+    @Test
+    void selectedCookiesOnlyNeverTheSessionCookieNEW18() {
+        JsDatasourceConnectionConfig config = jsConfigWithAuthType(null);
+        config.put(JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY, List.of(SELECTED_COOKIE, SESSION_COOKIE));
+        Map<String, Object> params = new HashMap<>();
+        params.put(SELECTED_COOKIE, "param-value");
+        MultiValueMap<String, HttpCookie> cookies = browserCookies();
+
+        List<Map<String, Object>> sent = contextSentToNode(jsDatasource(config), params, cookies);
+
+        assertThat(sent).as("the param, then exactly one cookie entry").hasSize(2);
+        assertThat(sent.get(0)).containsEntry(CONTEXT_KEY, SELECTED_COOKIE).containsEntry(CONTEXT_VALUE, "param-value");
+        assertThat(sent.get(1)).containsEntry(CONTEXT_KEY, SELECTED_COOKIE).containsEntry(CONTEXT_VALUE, cookies.get(SELECTED_COOKIE));
+        assertThat(sent).extracting(entry -> entry.get(CONTEXT_KEY)).doesNotContain(SESSION_COOKIE, OTHER_COOKIE);
+    }
+
+    /** NEW-18 (T156b-1): forward-all sends every cookie but the session cookie. Catches the session cookie forwarded with it. */
+    @Test
+    void forwardAllSendsEveryCookieButTheSessionCookieNEW18() {
+        JsDatasourceConnectionConfig config = jsConfigWithAuthType(null);
+        config.put(JsDatasourceConnectionConfig.FORWARD_ALL_COOKIES_KEY, Boolean.TRUE);
+
+        List<Map<String, Object>> sent = contextSentToNode(jsDatasource(config), new HashMap<>(), browserCookies());
+
+        assertThat(sent).extracting(entry -> entry.get(CONTEXT_KEY)).containsExactly(OTHER_COOKIE, SELECTED_COOKIE);
+        assertThat(sent.get(1).get(CONTEXT_VALUE)).isEqualTo(browserCookies().get(SELECTED_COOKIE));
+    }
+
+    /** NEW-18 (T156b-1): without cookie settings no cookie is sent, for a config of either type. Catches the old forward-everything. */
+    @Test
+    void withoutSettingsNoCookieIsSentNEW18() {
+        Map<String, Object> params = new HashMap<>();
+        params.put("param", "value");
+
+        List<Map<String, Object>> forJsConfig = contextSentToNode(jsDatasource(jsConfigWithAuthType(null)), params, browserCookies());
+        assertThat(forJsConfig).as("JS config without settings: the param only").hasSize(1);
+        assertThat(forJsConfig.get(0)).containsEntry(CONTEXT_KEY, "param");
+
+        clearInvocations(pluginClient);
+        Datasource otherConfig = Datasource.builder().id("ds-js-other").type(JS_TYPE).detailConfig(mock(DatasourceConnectionConfig.class)).build();
+        List<Map<String, Object>> forOtherConfig = contextSentToNode(otherConfig, params, browserCookies());
+        assertThat(forOtherConfig).as("config that is not a JsDatasourceConnectionConfig: the param only").hasSize(1);
     }
 
     /**
@@ -282,6 +383,62 @@ class QueryExecutionServiceImplTest {
 
         assertThat(events).isEmpty();
         System.out.println("[QueryExecutionServiceImplTest] auth type " + authType + " -> the token is not requested");
+    }
+
+    /**
+     * NEW-37 (GitHub #2036): a token written with spaces inside the braces, anywhere in the query config, gets the value of
+     * its trimmed key once more under the text as written, which is the key node-service looks up. Catches: the spaced key
+     * missing (node-service finds nothing and the parameter is dropped), a key added for a token without spaces or without a
+     * value, or a parameter already sent under that text replaced.
+     */
+    @Test
+    void executeQuery_jsPlugin_addsTheKeyAsWrittenForATokenWithSpacesNEW37() {
+        JsDatasourceConnectionConfig config = jsConfigWithAuthType(null);
+        Map<String, Object> queryConfig = new HashMap<>();
+        queryConfig.put("password", "{{ui_newPassword.value }}");
+        queryConfig.put("params", List.of(Map.of("value", "pre {{  user.id}} and {{plain}} and {{ unknown }}"), "{{ kept }}"));
+        Map<String, Object> params = new HashMap<>();
+        params.put("ui_newPassword.value", "s3cret");
+        params.put("user.id", null);
+        params.put("plain", "p");
+        params.put("kept", "trimmed value");
+        params.put(" kept ", "sent as written");
+        when(pluginClient.executeQuery(eq(JS_TYPE), any(), any(), any())).thenReturn(Mono.just(success));
+
+        StepVerifier.create(service.executeQuery(jsDatasource(config), queryConfig, params, "", visitor())).expectNext(success).verifyComplete();
+
+        org.mockito.ArgumentCaptor<List<Map<String, Object>>> context = org.mockito.ArgumentCaptor.forClass(List.class);
+        verify(pluginClient).executeQuery(eq(JS_TYPE), eq(queryConfig), context.capture(), eq(config));
+        List<Map<String, Object>> sent = context.getValue();
+        System.out.println("[QueryExecutionServiceImplTest] NEW-37 context: " + JsonUtils.toJson(sent));
+        Map<String, Object> userId = new HashMap<>();
+        userId.put("key", "  user.id");
+        userId.put("value", null);
+        assertThat(sent.subList(params.size(), sent.size())).containsExactlyInAnyOrder(
+                Map.of("key", "ui_newPassword.value ", "value", "s3cret"), userId);
+        assertThat(sent).filteredOn(entry -> " kept ".equals(entry.get("key"))).containsExactly(Map.of("key", " kept ", "value", "sent as written"));
+    }
+
+    /**
+     * NEW-37: with tokens inherited from the login, a spaced token naming one of them gets its value too (added after the
+     * injection). A request parameter of the same name comes earlier in the context and loses in node-service
+     * ({@code Object.fromEntries}: the last entry wins), so the spaced token gets the inherited token, as the unspaced one
+     * does. Catches: the value copied from the first entry of a key, letting a parameter shadow the inherited token.
+     */
+    @Test
+    void executeQuery_jsPluginWithOauth2InheritFromLogin_addsTheKeyAsWrittenForATokenNEW37() {
+        JsDatasourceConnectionConfig config = jsConfigWithAuthType("OAUTH2_INHERIT_FROM_LOGIN");
+        Map<String, Object> queryConfig = new HashMap<>(Map.of("header", "Bearer {{ access_token }}"));
+        when(pluginClient.executeQuery(eq(JS_TYPE), any(), any(), any())).thenReturn(Mono.just(success));
+
+        StepVerifier.create(service.executeQuery(jsDatasource(config), queryConfig, Map.of("access_token", "from the request"), "",
+                visitor(new LinkedMultiValueMap<>(), Mono.just(List.of(new Property("access_token", "tok-1")))))).expectNext(success).verifyComplete();
+
+        org.mockito.ArgumentCaptor<List<Map<String, Object>>> context = org.mockito.ArgumentCaptor.forClass(List.class);
+        verify(pluginClient).executeQuery(eq(JS_TYPE), eq(queryConfig), context.capture(), eq(config));
+        System.out.println("[QueryExecutionServiceImplTest] NEW-37 oauth2 context: " + context.getValue());
+        assertThat(context.getValue()).containsExactly(Map.of("key", "access_token", "value", "from the request"),
+                Map.of("key", "access_token", "value", "tok-1"), Map.of("key", " access_token ", "value", "tok-1"));
     }
 
     // ---------------------------------------------------------------- error mapping

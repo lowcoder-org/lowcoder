@@ -40,7 +40,7 @@ public interface BundleApiService {
 
     Mono<Void> addApp(String applicationId, String toBundleId);
 
-    Flux<?> getElements(@Nullable String bundleId, @Nullable ApplicationType applicationType);
+    Flux<?> getElements(String bundleId, @Nullable ApplicationType applicationType);
 
     @Nonnull
     Mono<ResourcePermission> checkBundlePermissionWithReadableErrorMsg(String bundleId, ResourceAction action, BundleRequestType requestType);
@@ -52,8 +52,6 @@ public interface BundleApiService {
     Mono<Boolean> updatePermission(String bundleId, String permissionId, ResourceRole role);
 
     Mono<Boolean> removePermission(String bundleId, String permissionId);
-
-    Mono<BundlePermissionView> getPermissions(String bundleId);
 
     Mono<BundleInfoView> buildBundleInfoView(Bundle bundle, boolean visible, boolean manageable, String folderId);
 

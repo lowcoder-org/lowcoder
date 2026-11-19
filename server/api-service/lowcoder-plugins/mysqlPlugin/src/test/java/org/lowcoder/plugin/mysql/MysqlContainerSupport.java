@@ -35,6 +35,8 @@ final class MysqlContainerSupport {
     static final String ROOT = "root";
 
     static final int MYSQL_PORT = 3306;
+    /** The URL parameter of the plain JDBC helpers ({@link #app()}, {@link #root()}): TLS required. */
+    private static final String HELPER_SSL_MODE = "?sslMode=REQUIRED";
     /** The final server logs its TCP port; the temporary one of the image's init phase logs "port: 0". */
     private static final String READY_PATTERN = ".*ready for connections.*port: 3306.*";
     private static final Duration START_TIMEOUT = Duration.ofMinutes(2);
@@ -57,18 +59,6 @@ final class MysqlContainerSupport {
                 + (System.nanoTime() - start) / 1_000_000 + " ms on " + MYSQL.getHost() + ":" + MYSQL.getMappedPort(MYSQL_PORT));
     }
 
-    static {
-        // MySQL 8 authenticates with caching_sha2_password: the first login of a user needs a secure channel or the RSA key
-        // ("Public Key Retrieval is not allowed" without SSL) and afterwards the server has the user's hash cached. One TLS
-        // login per user here (as a database client would have made) keeps the tests of the pools without SSL independent
-        // of their order; the behaviour itself is pinned in MysqlDatabaseTest.
-        try (Connection app = open(DATABASE, USER, PASSWORD); Connection root = open(DATABASE, ROOT, PASSWORD)) {
-            System.out.println("[MysqlContainerSupport] credentials cached by the server: " + app.isValid(1) + " " + root.isValid(1));
-        } catch (SQLException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
     static final MysqlConnector CONNECTOR = new MysqlConnector();
     static final MysqlQueryExecutor EXECUTOR = new MysqlQueryExecutor();
 
@@ -80,8 +70,13 @@ final class MysqlContainerSupport {
     }
 
     static MysqlDatasourceConfig config(String database, String user, String password, boolean ssl, boolean readonly, boolean enableTurnOffPreparedStatement) {
+        return config(database, user, password, ssl, readonly, enableTurnOffPreparedStatement, null);
+    }
+
+    static MysqlDatasourceConfig config(String database, String user, String password, boolean ssl, boolean readonly, boolean enableTurnOffPreparedStatement,
+            Map<String, Object> extParams) {
         return new MysqlDatasourceConfig(database, user, password, MYSQL.getHost(), (long) MYSQL.getMappedPort(MYSQL_PORT), ssl, null,
-                readonly, enableTurnOffPreparedStatement, null);
+                readonly, enableTurnOffPreparedStatement, extParams);
     }
 
     static MysqlDatasourceConfig config() {
@@ -111,9 +106,15 @@ final class MysqlContainerSupport {
         return open(DATABASE, ROOT, PASSWORD);
     }
 
+    /**
+     * Over TLS ({@code sslMode=REQUIRED}, the certificate not verified), so the first login of a user the server has not
+     * cached needs no RSA key and this helper works whatever the order of the tests; the connector's own path without SSL is
+     * tested in MysqlDatabaseTest.
+     */
     private static Connection open(String database, String user, String password) {
         try {
-            return DriverManager.getConnection("jdbc:mysql://" + MYSQL.getHost() + ":" + MYSQL.getMappedPort(MYSQL_PORT) + "/" + database, user, password);
+            return DriverManager.getConnection("jdbc:mysql://" + MYSQL.getHost() + ":" + MYSQL.getMappedPort(MYSQL_PORT) + "/" + database
+                    + HELPER_SSL_MODE, user, password);
         } catch (SQLException e) {
             throw new IllegalStateException("cannot connect as " + user, e);
         }

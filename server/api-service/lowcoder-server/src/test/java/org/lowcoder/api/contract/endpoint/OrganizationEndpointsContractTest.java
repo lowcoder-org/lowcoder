@@ -38,6 +38,7 @@ import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.constants.WorkspaceMode;
 import org.lowcoder.sdk.contract.CanonicalJson;
 import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -108,6 +109,7 @@ class OrganizationEndpointsContractTest {
     private OrgApiService orgApiService;
     private OrganizationService organizationService;
     private CommonConfig.Workspace workspace;
+    private BusinessEventPublisher businessEventPublisher;
 
     @BeforeEach
     void mocks() {
@@ -117,8 +119,9 @@ class OrganizationEndpointsContractTest {
         workspace = new CommonConfig.Workspace();
         Mockito.when(builder.mock(CommonConfig.class).getWorkspace()).thenReturn(workspace);
         GidService gidService = builder.mock(GidService.class);
-        Mockito.when(gidService.convertOrganizationIdToObjectId(anyString())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
-        builder.singleton("businessEventPublisher", Mockito.mock(BusinessEventPublisher.class, ApplicationEndpointsContractTest.EMPTY_MONO));
+        Mockito.when(gidService.convertOrganizationIdToObjectIdOrRefuse(anyString())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
+        businessEventPublisher = Mockito.mock(BusinessEventPublisher.class, ApplicationEndpointsContractTest.EMPTY_MONO);
+        builder.singleton("businessEventPublisher", businessEventPublisher);
     }
 
     @AfterAll
@@ -127,7 +130,7 @@ class OrganizationEndpointsContractTest {
     }
 
     /**
-     * SaaS mode: the user's active organizations, sorted by name ({@code OrganizationController.java:74-79}): the service
+     * SaaS mode: the user's active organizations, sorted by name ({@code OrganizationController.getOrganizationByUser}): the service
      * hands them in reverse order; the defaults sent explicitly, page 1 and size 0 (all).
      */
     @Test
@@ -146,7 +149,7 @@ class OrganizationEndpointsContractTest {
         }
     }
 
-    /** An organization without a name compares as equal ({@code OrganizationController.java:75-77}): the order stays. */
+    /** An organization without a name compares as equal ({@code OrganizationController.getOrganizationByUser}'s comparator): the order stays. */
     @Test
     void getOrganizationByUserWithUnnamedOrganization() throws JsonProcessingException {
         Organization unnamed = UserManagementSamples.orgViewOrganization();
@@ -291,6 +294,24 @@ class OrganizationEndpointsContractTest {
         }
     }
 
+    /**
+     * NEW-132: the membership is checked before the logout event: a visitor who is no member of the organization gets
+     * NOT_AUTHORIZED, no logout or login event is published, and the switch is not called.
+     */
+    @Test
+    void setCurrentOrganizationByANonMember() {
+        stubSwitch(OrganizationDomainCheckResult.success());
+        Mockito.when(orgApiService.checkVisitorMember(ORG_ID))
+                .thenReturn(Mono.error(new BizException(BizError.NOT_AUTHORIZED, BizError.NOT_AUTHORIZED.name())));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "setCurrentOrganization", Map.of(), null, ORG_ID);
+            EndpointContract.assertBizError(result, BizError.NOT_AUTHORIZED, BizError.NOT_AUTHORIZED.name());
+            Mockito.verify(businessEventPublisher, Mockito.never()).publishUserLogoutEvent();
+            Mockito.verify(businessEventPublisher, Mockito.never()).publishUserLoginEvent(any());
+            Mockito.verify(orgApiService, Mockito.never()).switchCurrentOrganizationTo(anyString());
+        }
+    }
+
     @Test
     void removeOrg() {
         Mockito.when(orgApiService.removeOrg(ORG_ID)).thenReturn(Mono.just(Boolean.TRUE));
@@ -308,6 +329,27 @@ class OrganizationEndpointsContractTest {
     void removeUserFromOrg() {
         Mockito.when(orgApiService.removeUserFromOrg(ORG_ID, USER_ID)).thenReturn(Mono.just(Boolean.TRUE));
         assertSuccessTrue("removeUserFromOrg", Map.of("userId", USER_ID), ORG_ID);
+    }
+
+    /**
+     * BF-072: the two refusals of the removal guard as the client receives them, HTTP 400 for a SUPER_ADMIN target and
+     * HTTP 500 for the last ADMIN, each with its code and message.
+     */
+    @Test
+    void removeUserFromOrgRefused() {
+        Map<BizException, HttpStatus> refusals = Map.of(
+                new BizException(BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"), HttpStatus.BAD_REQUEST,
+                new BizException(BizError.LAST_ADMIN_CANNOT_LEAVE_ORG, "LAST_ADMIN_CANNOT_LEAVE_ORG"), HttpStatus.INTERNAL_SERVER_ERROR);
+        refusals.forEach((refusal, status) -> {
+            Mockito.when(orgApiService.removeUserFromOrg(ORG_ID, USER_ID)).thenReturn(Mono.error(refusal));
+            try (ContractTestClient client = client()) {
+                EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "removeUserFromOrg", Map.of("userId", USER_ID), null, ORG_ID);
+                System.out.println("[OrganizationEndpointsContractTest] " + refusal.getError() + " -> " + result.getStatus() + " "
+                        + new String(result.getResponseBody(), StandardCharsets.UTF_8));
+                assertThat(result.getStatus()).isEqualTo(status);
+                EndpointContract.assertBizError(result, refusal.getError(), refusal.getMessageKey());
+            }
+        });
     }
 
     @Test
@@ -358,37 +400,73 @@ class OrganizationEndpointsContractTest {
     /** A {@code String} body is passed through as text (§5.2): the slug keeps the JSON quotes. The answer is O22's. */
     @Test
     void updateSlug() {
-        Mockito.when(organizationService.updateSlug(ORG_ID, SLUG_BODY)).thenReturn(Mono.just(OrganizationSamples.organization()));
+        Mockito.when(orgApiService.updateSlug(ORG_ID, SLUG_BODY)).thenReturn(Mono.just(OrganizationSamples.organization()));
         try (ContractTestClient client = client()) {
             assertOrganization(CONTRACT.exchange(client, "updateSlug", Map.of(), SLUG_BODY, ORG_ID));
+            Mockito.verify(orgApiService).updateSlug(ORG_ID, SLUG_BODY);
+            Mockito.verify(organizationService, Mockito.never()).updateSlug(Mockito.anyString(), Mockito.anyString());
         }
     }
 
-    /** {@code withDeleted=true} reads deleted organizations too; the answer is O22's. */
+    /** {@code withDeleted=true} is handed on to {@code OrgApiService.getOrganization}; the answer is O22's. */
     @Test
     void getOrganization() {
-        Mockito.when(organizationService.getByIdWithDeleted(ORG_ID)).thenReturn(Mono.just(OrganizationSamples.organization()));
+        Mockito.when(orgApiService.getOrganization(ORG_ID, true)).thenReturn(Mono.just(OrganizationSamples.organization()));
         try (ContractTestClient client = client()) {
             assertOrganization(CONTRACT.exchange(client, "getOrganization", Map.of("withDeleted", TRUE), null, ORG_ID));
+            Mockito.verify(orgApiService).getOrganization(ORG_ID, true);
+            verifyNoOrganizationRead();
         }
     }
 
     /** Without {@code withDeleted}, the active organization; same answer. */
     @Test
     void getOrganizationExcludingDeleted() {
-        Mockito.when(organizationService.getById(ORG_ID)).thenReturn(Mono.just(OrganizationSamples.organization()));
+        Mockito.when(orgApiService.getOrganization(ORG_ID, false)).thenReturn(Mono.just(OrganizationSamples.organization()));
         try (ContractTestClient client = client()) {
             assertOrganization(CONTRACT.exchange(client, "getOrganization", Map.of(), null, ORG_ID));
+            Mockito.verify(orgApiService).getOrganization(ORG_ID, false);
+            verifyNoOrganizationRead();
         }
     }
 
+    /**
+     * NEW-132: a key that names no organization is refused by the converter (the refusing one) with NOT_AUTHORIZED, before the
+     * service is called; the controller maps nothing else (it used to turn an empty answer into ORGANIZATION_NOT_FOUND).
+     */
     @Test
-    void getOrganizationNotFound() {
-        Mockito.when(organizationService.getById(ORG_ID)).thenReturn(Mono.empty());
+    void getOrganizationForAnUnknownKey() {
+        Mockito.when(builder.mock(GidService.class).convertOrganizationIdToObjectIdOrRefuse(ORG_ID))
+                .thenReturn(Mono.error(new BizException(BizError.NOT_AUTHORIZED, BizError.NOT_AUTHORIZED.name())));
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getOrganization", Map.of(), null, ORG_ID);
-            EndpointContract.assertBizError(result, BizError.ORGANIZATION_NOT_FOUND, BizError.ORGANIZATION_NOT_FOUND.name());
+            EndpointContract.assertBizError(result, BizError.NOT_AUTHORIZED, BizError.NOT_AUTHORIZED.name());
+            Mockito.verify(orgApiService, Mockito.never()).getOrganization(Mockito.anyString(), Mockito.anyBoolean());
+            verifyNoOrganizationRead();
         }
+    }
+
+    /**
+     * NEW-102: the service's NOT_AUTHORIZED for a caller who may not read the organization is 401 with code 5001. This
+     * checks the harness's mapping of the error to a response, not the authorization, which the service's and the
+     * integration tests check.
+     */
+    @Test
+    void getOrganizationByANonMember() {
+        Mockito.when(orgApiService.getOrganization(ORG_ID, false))
+                .thenReturn(Mono.error(new BizException(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getOrganization", Map.of(), null, ORG_ID);
+            EndpointContract.assertBizError(result, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED");
+            Mockito.verify(orgApiService).getOrganization(ORG_ID, false);
+            verifyNoOrganizationRead();
+        }
+    }
+
+    /** The controller reads no organization itself: the check and the read are the service's. */
+    private void verifyNoOrganizationRead() {
+        Mockito.verify(organizationService, Mockito.never()).getById(Mockito.anyString());
+        Mockito.verify(organizationService, Mockito.never()).getByIdWithDeleted(Mockito.anyString());
     }
 
     private ContractTestClient client() {
@@ -409,6 +487,7 @@ class OrganizationEndpointsContractTest {
     }
 
     private void stubSwitch(OrganizationDomainCheckResult domainCheck) {
+        Mockito.when(orgApiService.checkVisitorMember(ORG_ID)).thenReturn(Mono.just(new OrgMember(ORG_ID, USER_ID, MemberRole.MEMBER, ORG_ID + ".state", 3_000_000_170L)));
         Mockito.when(orgApiService.switchCurrentOrganizationTo(ORG_ID)).thenReturn(Mono.just(Boolean.TRUE));
         Mockito.when(orgApiService.checkOrganizationDomain()).thenReturn(Mono.just(domainCheck));
     }

@@ -4,6 +4,7 @@ import static org.lowcoder.plugin.googlesheets.GoogleSheetError.GOOGLESHEETS_REQ
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.List;
 
 import org.lowcoder.plugin.googlesheets.model.GoogleSheetsActionRequest;
 import org.lowcoder.plugin.googlesheets.model.GoogleSheetsAppendDataRequest;
@@ -69,5 +70,17 @@ public class GoogleSheetsGetPreParameters {
             changeSetItems = googleSheetsUpdateDataRequest.getChangeSetItems();
         }
         return changeSetItems;
+    }
+
+    /**
+     * The first row of the {@code values} of a {@code spreadsheets.values.get} answer, or an empty list when there is none:
+     * the API leaves {@code values} out for an empty range (BF-120: the handlers dereferenced it and failed with the
+     * JVM's NullPointerException text).
+     */
+    public static List<Object> firstRow(List<List<Object>> values) {
+        if (values == null || values.isEmpty() || values.get(0) == null) {
+            return List.of();
+        }
+        return values.get(0);
     }
 }

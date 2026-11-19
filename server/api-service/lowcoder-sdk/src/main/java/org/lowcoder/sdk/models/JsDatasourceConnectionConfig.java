@@ -20,13 +20,35 @@ import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 @Setter
 public class JsDatasourceConnectionConfig extends HashMap<String, Object> implements DatasourceConnectionConfig {
 
+    /** The key of the plugin-specific {@code extra} config, which is also put into plugin dynamic config requests. */
+    public static final String EXTRA_KEY = "extra";
+    /** The key of the stored auth config, a map with the auth {@code type} and, for OAuth inherited from login, the {@code authId}. */
+    public static final String AUTH_CONFIG_KEY = "authConfig";
+    private static final String AUTH_TYPE_KEY = "type";
+    private static final String AUTH_ID_KEY = "authId";
+    /** The headers the plugin form sends for every plugin, as a list of key-value entries. */
+    public static final String HEADERS_KEY = "headers";
+    public static final String FORWARD_COOKIES_KEY = "forwardCookies";
+    public static final String FORWARD_ALL_COOKIES_KEY = "forwardAllCookies";
+    public static final String SSL_CERT_VERIFICATION_TYPE_KEY = "sslCertVerificationType";
+    public static final String SELF_SIGNED_CERT_KEY = "selfSignedCert";
+    /**
+     * The settings the plugin form adds to every plugin's own params (headers and the "Advanced settings" section), which
+     * an update keeps as sent (NEW-18, GitHub #2053). Limits: the cookie settings are applied when a query runs
+     * ({@link #isForwardAllCookies}, {@link #getForwardCookies}); the headers and the SSL settings are not yet applied by
+     * api-service or node-service (T156c, T156d), and the form reads the SSL setting back from an {@code sslConfig} entry,
+     * so it does not show the stored flat keys.
+     */
+    private static final List<String> FORM_SETTING_KEYS = List.of(HEADERS_KEY, FORWARD_COOKIES_KEY, FORWARD_ALL_COOKIES_KEY,
+            SSL_CERT_VERIFICATION_TYPE_KEY, SELF_SIGNED_CERT_KEY);
+
     @Transient
     private Object definition;
     @Transient
     private String type;
 
     public Object getExtra() {
-        return this.get("extra");
+        return this.get(EXTRA_KEY);
     }
 
     @SuppressWarnings({"unchecked"})
@@ -148,21 +170,29 @@ public class JsDatasourceConnectionConfig extends HashMap<String, Object> implem
         //dynamic params definition
         newJsDatasourceConnectionConfig.put("dynamicParamsDef", jsDatasourceConnectionConfig.get("dynamicParamsDef"));
 
+        // NEW-18: the form's own settings are taken from the update, as create stores them, and one the update leaves out is
+        // cleared; a key the plugin definition declares too (gitlab's headers) keeps the static param handling above
+        for (String key : FORM_SETTING_KEYS) {
+            if (jsDatasourceConnectionConfig.containsKey(key)) {
+                newJsDatasourceConnectionConfig.putIfAbsent(key, jsDatasourceConnectionConfig.get(key));
+            }
+        }
+
         // For the "extra" field of dynamic data source plugin config, keep it.
-        if (this.containsKey("extra") || jsDatasourceConnectionConfig.containsKey("extra")) {
-            newJsDatasourceConnectionConfig.putIfAbsent("extra", ObjectUtils.firstNonNull(jsDatasourceConnectionConfig.getExtra(), this.getExtra()));
+        if (this.containsKey(EXTRA_KEY) || jsDatasourceConnectionConfig.containsKey(EXTRA_KEY)) {
+            newJsDatasourceConnectionConfig.putIfAbsent(EXTRA_KEY, ObjectUtils.firstNonNull(jsDatasourceConnectionConfig.getExtra(), this.getExtra()));
         }
 
         // for oauth handling
-        if(this.containsKey("authConfig")) {
-            if(jsDatasourceConnectionConfig.containsKey("authConfig")) {
-                newJsDatasourceConnectionConfig.put("authConfig", jsDatasourceConnectionConfig.get("authConfig"));
+        if(this.containsKey(AUTH_CONFIG_KEY)) {
+            if(jsDatasourceConnectionConfig.containsKey(AUTH_CONFIG_KEY)) {
+                newJsDatasourceConnectionConfig.put(AUTH_CONFIG_KEY, jsDatasourceConnectionConfig.get(AUTH_CONFIG_KEY));
             } else {
                 // do nothing, save empty ( this will clear db )
             }
         } else {
-            if(jsDatasourceConnectionConfig.containsKey("authConfig")) {
-                newJsDatasourceConnectionConfig.put("authConfig", jsDatasourceConnectionConfig.get("authConfig"));
+            if(jsDatasourceConnectionConfig.containsKey(AUTH_CONFIG_KEY)) {
+                newJsDatasourceConnectionConfig.put(AUTH_CONFIG_KEY, jsDatasourceConnectionConfig.get(AUTH_CONFIG_KEY));
             }
         }
 
@@ -207,17 +237,50 @@ public class JsDatasourceConnectionConfig extends HashMap<String, Object> implem
         return this;
     }
 
+    /**
+     * Whether the stored auth config is OAuth inherited from login. BF-091: an auth config without a type, or one that is
+     * not a map (both only written outside the form), is not; reading its type used to throw.
+     */
     public boolean isOauth2InheritFromLogin() {
-        if (this.get("authConfig") != null) {
-            return ((HashMap<String, String>)this.get("authConfig")).get("type").equals(RestApiAuthType.OAUTH2_INHERIT_FROM_LOGIN.name());
-        }
-        return false;
+        Map<String, Object> authConfig = getAuthConfig();
+        return authConfig != null
+                && RestApiAuthType.OAUTH2_INHERIT_FROM_LOGIN.name().equals(MapUtils.getString(authConfig, AUTH_TYPE_KEY));
     }
 
     public String getAuthId() {
-        if(isOauth2InheritFromLogin()) {
-            return ((HashMap<String, String>)this.get("authConfig")).get("authId");
+        if (isOauth2InheritFromLogin()) {
+            return MapUtils.getString(getAuthConfig(), AUTH_ID_KEY);
         }
         return null;
+    }
+
+    /**
+     * Whether the datasource forwards every request cookie but the session cookie: true for {@code Boolean.TRUE} (the form's
+     * checkbox) or the text "true" in any case, else false (no setting included).
+     */
+    public boolean isForwardAllCookies() {
+        Object value = this.get(FORWARD_ALL_COOKIES_KEY);
+        return Boolean.TRUE.equals(value) || (value instanceof String text && "true".equalsIgnoreCase(text));
+    }
+
+    /**
+     * The cookie names the datasource forwards (the form's tags select): for a collection value its text elements, trimmed,
+     * blank ones dropped, in order; anything else gives an empty set.
+     */
+    public Set<String> getForwardCookies() {
+        Set<String> names = new LinkedHashSet<>();
+        if (this.get(FORWARD_COOKIES_KEY) instanceof Collection<?> values) {
+            for (Object value : values) {
+                if (value instanceof String text && !text.isBlank()) {
+                    names.add(text.trim());
+                }
+            }
+        }
+        return Collections.unmodifiableSet(names);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> getAuthConfig() {
+        return this.get(AUTH_CONFIG_KEY) instanceof Map<?, ?> authConfig ? (Map<String, Object>) authConfig : null;
     }
 }

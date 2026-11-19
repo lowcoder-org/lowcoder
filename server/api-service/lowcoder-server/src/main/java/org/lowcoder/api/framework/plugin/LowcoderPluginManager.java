@@ -80,7 +80,7 @@ public class LowcoderPluginManager
 	{
 		Map<String, Object> env = new HashMap<>();
 		
-		String varPrefix = "PLUGIN_" + plugin.pluginId().toUpperCase().replaceAll("-", "_") + "_";
+		String varPrefix = "PLUGIN_" + plugin.pluginId().toUpperCase(java.util.Locale.ROOT).replaceAll("-", "_") + "_";
 		MutablePropertySources propertySources = ((AbstractEnvironment) environment).getPropertySources();
         List<String> properties = StreamSupport.stream(propertySources.spliterator(), false)
                 .filter(propertySource -> propertySource instanceof EnumerablePropertySource)

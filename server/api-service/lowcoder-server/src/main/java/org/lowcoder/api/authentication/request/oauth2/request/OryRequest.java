@@ -33,7 +33,7 @@ public class OryRequest extends AbstractOauth2Request<Oauth2OryAuthConfig> {
         try {
             uri = new URIBuilder(config.replaceAuthUrlClientIdPlaceholder(source.accessToken())).build();
         } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+            return Mono.error(e); // BF-108: so auth and refresh map a malformed baseUrl to FAIL_TO_GET_OIDC_INFO; it was thrown
         }
 
         return WebClientBuildHelper.builder()
@@ -70,7 +70,7 @@ public class OryRequest extends AbstractOauth2Request<Oauth2OryAuthConfig> {
         try {
             uri = new URIBuilder(config.replaceAuthUrlClientIdPlaceholder(source.refresh())).build();
         } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+            return Mono.error(e); // BF-108: so auth and refresh map a malformed baseUrl to FAIL_TO_GET_OIDC_INFO; it was thrown
         }
 
         return WebClientBuildHelper.builder()

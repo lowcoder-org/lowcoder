@@ -17,7 +17,9 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.lowcoder.plugin.es.model.EsConnection;
 import org.lowcoder.plugin.es.model.EsDatasourceConfig;
+import org.lowcoder.sdk.util.HostGuards;
 import org.lowcoder.sdk.config.CommonConfig;
+import org.lowcoder.sdk.config.JsonViews;
 import org.lowcoder.sdk.config.dynamic.Conf;
 import org.lowcoder.sdk.config.dynamic.ConfigCenter;
 import org.lowcoder.sdk.exception.BizError;
@@ -94,7 +96,8 @@ public class EsConnector implements DatasourceConnector<EsConnection, EsDatasour
      */
     private RestClient buildRestClient(EsDatasourceConfig esDatasourceConfig) {
         ConnectionStringParseResult parseResult = parseConnectionString(esDatasourceConfig.getConnectionString());
-        if (commonConfig.getDisallowedHosts().contains(parseResult.getHost())) {
+        // compared by address too, so another spelling of a disallowed host (localhost, 127.1) is refused as well
+        if (HostGuards.isDisallowed(parseResult.getHost(), commonConfig.getDisallowedHosts())) {
             throw new BizException(BizError.INVALID_DATASOURCE_CONFIG_TYPE, "INVALID_CONNECTION_STRING");
         }
         HttpHost httpHost = new HttpHost(parseResult.getHost(), parseResult.getPort(), parseResult.getSchema());
@@ -159,11 +162,11 @@ public class EsConnector implements DatasourceConnector<EsConnection, EsDatasour
                         return DatasourceTestResult.testSuccess();
                     }
 
-                    log.error("test es fail.{},{}", JsonUtils.toJson(connectionConfig), response);
+                    log.error("test es fail.{},{}", JsonUtils.toJsonSafely(connectionConfig, JsonViews.Public.class), response);
                     return DatasourceTestResult.testFail(response.getStatusLine().getReasonPhrase());
                 })
                 .onErrorResume(throwable -> {
-                    log.error("test es error.{}", JsonUtils.toJson(connectionConfig), throwable);
+                    log.error("test es error.{}", JsonUtils.toJsonSafely(connectionConfig, JsonViews.Public.class), throwable);
                     return Mono.just(DatasourceTestResult.testFail(throwable));
                 })
                 .subscribeOn(QueryExecutionUtils.querySharedScheduler());

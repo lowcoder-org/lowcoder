@@ -12,6 +12,7 @@ import org.lowcoder.sdk.models.DatasourceStructure;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.common.BlockingQueryExecutor;
 import org.lowcoder.sdk.plugin.common.SqlQueryUtils;
+import org.lowcoder.sdk.plugin.common.SqlQueryUtils.QuotingRules;
 import org.lowcoder.sdk.plugin.common.sql.HikariPerfWrapper;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedDatasourceConnectionConfig;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
@@ -51,7 +52,7 @@ public abstract class SqlBasedQueryExecutor extends BlockingQueryExecutor<SqlBas
                     .build();
         }
 
-        String query = SqlQueryUtils.removeQueryComments(sqlQueryConfig.getSql());
+        String query = SqlQueryUtils.removeQueryComments(sqlQueryConfig.getSql(), quotingRules());
         if (StringUtils.isBlank(query)) {
             throw new PluginException(QUERY_ARGUMENT_ERROR, "SQL_EMPTY");
         }
@@ -91,9 +92,61 @@ public abstract class SqlBasedQueryExecutor extends BlockingQueryExecutor<SqlBas
         );
 
         try (Connection connection = getConnection(dataSource)) {
+            if (rollsBackEveryQuery(dataSource)) {
+                return executeAndRollBack(dataSource, connection, context);
+            }
             return generalSqlExecutor.execute(connection, context);
         } catch (SQLException e) {
             throw wrapException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR", e);
+        }
+    }
+
+    /**
+     * Whether every query on this pool runs in a transaction that is rolled back afterwards, for a database whose driver
+     * cannot make a connection read-only (BF-025). None by default.
+     */
+    protected boolean rollsBackEveryQuery(HikariDataSource dataSource) {
+        return false;
+    }
+
+    /**
+     * How this database's SQL quotes identifiers, so that a comment start inside a quoted span is text when comments are
+     * removed (BF-092). {@link QuotingRules#STANDARD} by default: a bracket is a subscript.
+     */
+    protected QuotingRules quotingRules() {
+        return QuotingRules.STANDARD;
+    }
+
+    /**
+     * Runs the query with auto-commit off and rolls the transaction back whatever the outcome, so that nothing the query
+     * writes is kept. The pool turns auto-commit back on when the connection is returned (Hikari resets the connection state
+     * a borrower changed). If the rollback fails, the connection is evicted from the pool, so that a transaction it may still
+     * hold is never committed by a later query; the rollback failure is added to the query's own failure, or thrown if the
+     * query succeeded.
+     * <p>
+     * Limits: this covers what a transaction covers. An explicit {@code COMMIT} in the query commits what came before it, a
+     * statement that cannot run in a transaction is not covered, and effects outside the transaction (identity or sequence
+     * values, calls to other systems) stay. The answer still reports the affected rows of the rolled-back statements.
+     */
+    private QueryExecutionResult executeAndRollBack(HikariDataSource dataSource, Connection connection,
+            SqlBasedQueryExecutionContext context) throws SQLException {
+        connection.setAutoCommit(false);
+        Throwable queryFailure = null;
+        try {
+            return generalSqlExecutor.execute(connection, context);
+        } catch (Throwable e) {
+            queryFailure = e;
+            throw e;
+        } finally {
+            try {
+                connection.rollback();
+            } catch (SQLException rollbackFailure) {
+                dataSource.evictConnection(connection);
+                if (queryFailure == null) {
+                    throw rollbackFailure;
+                }
+                queryFailure.addSuppressed(rollbackFailure);
+            }
         }
     }
 
@@ -115,6 +168,20 @@ public abstract class SqlBasedQueryExecutor extends BlockingQueryExecutor<SqlBas
     protected abstract DatasourceStructure getDatabaseMetadata(Connection connection,
             SqlBasedDatasourceConnectionConfig connectionConfig);
 
+    /**
+     * What a published app's viewer gets instead of the query config: a map with only {@code fields}, the mustache keys whose
+     * values the client sends. In SQL mode they are the mustache tokens of the template {@link #buildQueryExecutionContext}
+     * builds, the SQL after {@link SqlQueryUtils#removeQueryComments(String, QuotingRules)} with this database's
+     * {@link #quotingRules()}, before its values are bound or rendered; the SQL itself is not given. A key written only in a
+     * removed comment used to be listed too (NEW-33), so the viewer saw the mustache expressions of the comments although
+     * execution never looks their values up. In GUI mode they are the keys of the command, as before; no SQL template is built.
+     * <p>
+     * Limits: a key inside a comment the removal keeps (an optimizer hint, a MySQL executable comment, a nested or unterminated
+     * comment, every block comment after a backslash-ambiguous literal) is listed, as execution looks its value up; whether the
+     * database accepts a placeholder there is the database's. The fields are tokens with their braces, a set, not the ordered
+     * keys the binder uses, and they do not depend on whether the values are bound or rendered. A query of only comments lists
+     * no key; it never runs, {@link #buildQueryExecutionContext} refuses it with SQL_EMPTY.
+     */
     @Override
     public Map<String, Object> sanitizeQueryConfig(Map<String, Object> configMap) {
         SqlQueryConfig queryConfig = SqlQueryConfig.from(configMap);
@@ -125,7 +192,7 @@ public abstract class SqlBasedQueryExecutor extends BlockingQueryExecutor<SqlBas
             return result;
         }
 
-        String sql = queryConfig.getSql();
+        String sql = SqlQueryUtils.removeQueryComments(queryConfig.getSql(), quotingRules());
         Set<String> mustacheKeys = MustacheHelper.extractMustacheKeysWithCurlyBraces(sql);
         result.put("fields", mustacheKeys);
         return result;

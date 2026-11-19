@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.api.application.view.ApplicationRecordMetaView;
 import org.lowcoder.api.contract.support.ContractTestClient;
+import org.lowcoder.api.contract.support.EndpointContract;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.usermanagement.OrgDevChecker;
 import org.lowcoder.domain.application.model.Application;
@@ -37,7 +38,7 @@ import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
-import org.springframework.http.HttpStatus;
+import org.springframework.test.web.reactive.server.EntityExchangeResult;
 
 import reactor.core.publisher.Mono;
 
@@ -46,12 +47,13 @@ import reactor.core.publisher.Mono;
  * real services: {@code ApplicationServiceImpl.findById} and {@code ApplicationRecordServiceImpl.getById} fail when the
  * row is missing (they do not complete empty), so a missing record or application is an error here as it is in production.
  *
- * <p>Pinned under D-6, plan §9 row "application version list readable for any application id by any signed-in user"
- * ({@link #getByApplicationId_asksNoPermissionQuestion_pinsTheSection9Row}): {@code getByApplicationId}
- * (ApplicationRecordApiServiceImpl:54-61) never looks at the caller. Reached from
+ * <p>BF-012 (was pinned under D-6 as plan §9 row "application version list readable for any application id by any
+ * signed-in user"): {@code getByApplicationId} (ApplicationRecordApiServiceImpl:59-67) now checks, like the record DSL and the
+ * delete, that the application belongs to the visitor's organization
+ * ({@link #getByApplicationId_otherOrgsApplication_failsWithApplicationAndOrgNotMatch_andReadsNoVersions}). It is reached from
  * {@code ApplicationRecordController.getByApplicationId} (:28-30) at {@code /api/application-records/listByApplicationId},
  * which has no matcher of its own in SecurityConfig and falls under {@code .pathMatchers("/api/**")} /
- * {@code .authenticated()} (SecurityConfig:156-157), so any signed-in user reaches it.
+ * {@code .authenticated()} (SecurityConfig:156-157), so any signed-in user reaches the check.
  */
 class ApplicationRecordApiServiceImplTest {
 
@@ -296,6 +298,7 @@ class ApplicationRecordApiServiceImplTest {
     void getByApplicationId_buildsViewsWithTheCreatorName_inTheServiceOrder() {
         ApplicationVersion newer = version("r2", APP, "u2", 2_000L);
         ApplicationVersion older = version("r1", APP, "u1", 1_000L);
+        applicationExists(APP, ORG);
         when(recordService.getByApplicationId(APP)).thenReturn(Mono.just(List.of(newer, older)));
         creators(user("u1", "Ada"), user("u2", "Grace"));
 
@@ -317,6 +320,7 @@ class ApplicationRecordApiServiceImplTest {
      */
     @Test
     void getByApplicationId_dropsVersionsWhoseCreatorIsUnknown_observedBehaviour() {
+        applicationExists(APP, ORG);
         when(recordService.getByApplicationId(APP)).thenReturn(Mono.just(List.of(
                 version("known", APP, "u1", 3_000L), version("unknownCreator", APP, "gone", 2_000L),
                 version("nullCreator", APP, null, 1_000L))));
@@ -330,6 +334,7 @@ class ApplicationRecordApiServiceImplTest {
 
     @Test
     void getByApplicationId_noRecords_returnsAnEmptyList() {
+        applicationExists(APP, ORG);
         when(recordService.getByApplicationId(APP)).thenReturn(Mono.just(List.of()));
         creators();
 
@@ -340,56 +345,75 @@ class ApplicationRecordApiServiceImplTest {
     }
 
     /**
-     * Pins plan §9 row "application version list readable for any application id by any signed-in user" (new row): the
-     * method asks nothing about the caller. It uses only the record service and the user service, so for any application id
-     * it returns tag, commit message, creation time and creator NAME, whatever org the application belongs to, unlike
-     * {@code getRecordDSLFromApplicationCombineId} and {@code delete} which check the org. The route is only behind
-     * SecurityConfig:156-157 ({@code /api/**} authenticated).
+     * BF-012 (was the pin of plan §9 row "application version list readable for any application id by any signed-in user"):
+     * for an application of another organization the answer is APPLICATION_AND_ORG_NOT_MATCH, and neither the versions nor
+     * their creators are read.
      */
     @Test
-    void getByApplicationId_asksNoPermissionQuestion_pinsTheSection9Row() {
-        ApplicationVersion foreign = version("r1", "foreign-app-of-another-org", "u1", 1_000L);
-        when(recordService.getByApplicationId("foreign-app-of-another-org")).thenReturn(Mono.just(List.of(foreign)));
-        creators(user("u1", "Ada"));
+    void getByApplicationId_otherOrgsApplication_failsWithApplicationAndOrgNotMatch_andReadsNoVersions() {
+        AtomicInteger versionReads = new AtomicInteger();
+        applicationExists(OTHER_APP, OTHER_ORG);
+        when(recordService.getByApplicationId(OTHER_APP)).thenReturn(Mono.defer(() -> {
+            versionReads.incrementAndGet();
+            return Mono.just(List.of(version("r1", OTHER_APP, "u1", 1_000L)));
+        }));
 
-        List<ApplicationRecordMetaView> views = service.getByApplicationId("foreign-app-of-another-org").block(WAIT);
+        BizException error = failure(service.getByApplicationId(OTHER_APP));
 
-        System.out.println(TAG + "list for an application of another org: " + views);
-        assertThat(views).extracting(ApplicationRecordMetaView::creatorName).containsExactly("Ada");
-        verifyNoInteractions(sessionUserService, orgDevChecker, applicationService);
+        assertCode(error, BizError.APPLICATION_AND_ORG_NOT_MATCH);
+        assertThat(versionReads).as("the version list is not read").hasValue(0);
+        verifyNoInteractions(userService);
     }
 
     /**
-     * The same row through the request stack: the production controller and the real service implementation behind it in
-     * the {@link ContractTestClient} harness, services behind them mocked, a signed-in visitor of {@value #ORG} asking for
-     * the versions of an application of another org gets HTTP 200 with the list and the creator name. Limit of the
-     * evidence: this does NOT exercise the real SecurityConfig (the harness has no security chain), only the controller
-     * and the service; the SecurityConfig fall-through is read from SecurityConfig:156-157.
+     * Catches the org check being skipped for an unknown application: the lookup's failure (ApplicationServiceImpl.findById
+     * answers a missing id with NO_RESOURCE_FOUND, CANT_FIND_APPLICATION) is the answer, and nothing is read.
      */
     @Test
-    void getByApplicationId_throughTheControllerAndTheRealService_answersForAnotherOrgsApplication() {
+    void getByApplicationId_unknownApplication_propagatesNotFound_andReadsNoVersions() {
+        when(applicationService.findById("missing-app"))
+                .thenReturn(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_APPLICATION", "missing-app")));
+        when(recordService.getByApplicationId("missing-app")).thenReturn(Mono.error(new AssertionError("versions read")));
+
+        BizException error = failure(service.getByApplicationId("missing-app"));
+
+        assertCode(error, BizError.NO_RESOURCE_FOUND);
+        verifyNoInteractions(userService);
+    }
+
+    /**
+     * BF-012 through the request stack: the production controller and the real service implementation behind it in the
+     * {@link ContractTestClient} harness, services behind them mocked. A signed-in visitor of {@value #ORG} asking for the
+     * versions of an application of another org gets the APPLICATION_AND_ORG_NOT_MATCH error response (HTTP 400) and no
+     * creator name. Limit of the evidence: this does NOT exercise the real SecurityConfig (the harness has no security
+     * chain), only the controller and the service; the SecurityConfig fall-through is read from SecurityConfig:156-157.
+     */
+    @Test
+    void getByApplicationId_throughTheControllerAndTheRealService_refusesAnotherOrgsApplication() {
         ContractTestClient.Builder builder = ContractTestClient.builder();
         builder.visitor("user-1", member(ORG));
         ApplicationRecordService records = builder.mock(ApplicationRecordService.class);
         UserService users = builder.mock(UserService.class);
         ApplicationService applications = builder.mock(ApplicationService.class);
+        SessionUserService sessions = builder.mock(SessionUserService.class);
+        when(sessions.getVisitorOrgMemberCache()).thenReturn(Mono.just(member(ORG)));
+        when(applications.findById("foreign-app-of-another-org")).thenReturn(Mono.just(application("foreign-app-of-another-org", OTHER_ORG)));
         when(records.getByApplicationId("foreign-app-of-another-org"))
                 .thenReturn(Mono.just(List.of(version("r1", "foreign-app-of-another-org", "u1", 1_000L))));
         when(users.getByIds(anyCollection())).thenReturn(Mono.just(Map.of("u1", user("u1", "Ada"))));
         builder.singleton("applicationRecordApiServiceImpl", new ApplicationRecordApiServiceImpl(applications, records,
-                mock(ApplicationApiServiceImpl.class), builder.mock(SessionUserService.class), builder.mock(OrgDevChecker.class), users));
+                mock(ApplicationApiServiceImpl.class), sessions, builder.mock(OrgDevChecker.class), users));
         builder.controller(ApplicationRecordController.class);
 
         try (ContractTestClient client = builder.build()) {
-            byte[] body = client.web().get()
+            EntityExchangeResult<byte[]> result = client.web().get()
                     .uri(uri -> uri.path(NewUrl.APPLICATION_RECORD_URL + "/listByApplicationId")
                             .queryParam("applicationId", "foreign-app-of-another-org").build())
-                    .exchange().expectStatus().isEqualTo(HttpStatus.OK)
-                    .expectBody().returnResult().getResponseBody();
-            String text = new String(body, java.nio.charset.StandardCharsets.UTF_8);
-            System.out.println(TAG + "HTTP 200 body: " + text);
-            assertThat(text).contains("\"creatorName\":\"Ada\"").contains("\"tag\":\"tag-r1\"");
-            verify(applications, never()).findById(any());
+                    .exchange().expectBody().returnResult();
+            System.out.println(TAG + "HTTP " + result.getStatus() + " body: "
+                    + new String(result.getResponseBodyContent(), java.nio.charset.StandardCharsets.UTF_8));
+            EndpointContract.assertBizError(result, BizError.APPLICATION_AND_ORG_NOT_MATCH, "APPLICATION_AND_ORG_NOT_MATCH");
+            verifyNoInteractions(users);
         }
     }
 }

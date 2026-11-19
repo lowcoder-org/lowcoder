@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
  * Spring's default client codecs as the application builds them (docs/API_PAYLOAD_TEST_PLAN.md §1.1, §3.2, §5.4).
  *
  * <p>All five {@code codecs(...)} constructions of the application set only {@code maxInMemorySize} on the default
- * codecs: {@code WebClientBuildHelper.java:131-134} (20 MB by default), {@code JsLibraryController.java:61-64} (-1),
- * {@code DatasourcePluginClient.java:42-45} (-1), {@code GraphQLExecutor.java:87-90} (10 MB) and
- * {@code RestApiExecutor.java:100-103} (-1). {@link #strategies(int)} builds the same thing, so tests can encode and
+ * codecs: {@code WebClientBuildHelper.java:131-134} (20 MB by default), {@code JsLibraryController.java:62-65} (-1),
+ * {@code DatasourcePluginClient.java:42-45} (-1), {@code GraphQLExecutor.java:88-91} (10 MB) and
+ * {@code RestApiExecutor.java:102-105} (-1). {@link #strategies(int)} builds the same thing, so tests can encode and
  * decode with the client codecs without a network client.
  *
  * <p><b>Effective limit (plan §9, O11; evidence E14).</b> {@code JsLibraryController}, {@code GraphQLExecutor} and
@@ -67,8 +67,8 @@ public final class ClientCodecs {
     /**
      * The strategies a {@link WebClient} built by the application from {@code declared} really uses: a builder from
      * {@code WebClientBuildHelper.builder().systemProxy().toWebClientBuilder()} with {@code exchangeStrategies(declared)},
-     * as {@code JsLibraryController.java:120-124}, {@code GraphQLExecutor.java:246-269} and
-     * {@code RestApiExecutor.java:220-244} build it. Their other builder calls (headers, cookies, filters, SSL, timeout,
+     * as {@code JsLibraryController.java:148-152}, {@code GraphQLExecutor.java:247-270} and
+     * {@code RestApiExecutor.java:236-262} build it. Their other builder calls (headers, cookies, filters, SSL, timeout,
      * disallowed hosts) do not touch the codecs.
      *
      * <p>Limit: it reads Spring's non-public {@code DefaultWebClientBuilder#initExchangeStrategies}, so a Spring upgrade

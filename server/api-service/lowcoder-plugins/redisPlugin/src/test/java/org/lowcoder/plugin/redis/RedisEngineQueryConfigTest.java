@@ -115,34 +115,46 @@ public class RedisEngineQueryConfigTest {
     // ---- D7
 
     /**
-     * Pins defect D7 (analysis-plugins section 0.6; plan section 9 D1-D20 row): for a raw command,
-     * {@code Protocol.Command.valueOf((String) cmdAndArgs.get("cmd"))} throws {@code NullPointerException} for a blank command
-     * and {@code IllegalArgumentException} for an unknown one, so a raw JDK error reaches the user, and the
-     * {@code COMMAND_EMPTY} check that follows is unreachable for raw commands. A fix (a {@code PluginException}) changes this test
-     * on purpose.
+     * BF-121 (D7): for a raw command, {@code Protocol.Command.valueOf((String) cmdAndArgs.get("cmd"))} threw
+     * {@code NullPointerException} for a blank command and {@code IllegalArgumentException} for an unknown one, so a raw JDK
+     * error reached the user. Now a blank command is QUERY_ARGUMENT_ERROR / COMMAND_EMPTY and an unknown one
+     * QUERY_ARGUMENT_ERROR / INVALID_REDIS_REQUEST naming the upper-cased word, the form's error for an unknown type.
      */
     @Test
-    public void blankAndUnknownRawCommandsEscapeAsRawJdkErrors_pinsD7() {
-        for (String blank : List.of("", "   ", "\t")) {
-            assertThrows(NullPointerException.class, () -> raw(blank), "[" + blank + "]");
+    public void blankAndUnknownRawCommandsAreCodedQueryArgumentErrorsBF121() {
+        for (String blank : List.of("", "   ", "\t", "{{empty}}")) {
+            PluginException thrown = assertThrows(PluginException.class, () -> raw(blank, Map.of("empty", "")), "[" + blank + "]");
+            System.out.println(TAG + "blank raw command [" + blank + "] -> " + thrown.getError() + " / " + thrown.getMessageKey());
+            assertEquals(QUERY_ARGUMENT_ERROR, thrown.getError(), "[" + blank + "]");
+            assertEquals("COMMAND_EMPTY", thrown.getMessageKey(), "[" + blank + "]");
         }
-        IllegalArgumentException unknown = assertThrows(IllegalArgumentException.class, () -> raw("flyhigh x"));
-        System.out.println(TAG + "unknown raw command: " + unknown.getMessage());
+        PluginException unknown = assertThrows(PluginException.class, () -> raw("flyhigh x"));
+        System.out.println(TAG + "unknown raw command -> " + unknown.getError() + " / " + unknown.getMessageKey() + " " + Arrays.toString(unknown.getArgs()));
+        assertEquals(QUERY_ARGUMENT_ERROR, unknown.getError());
+        assertEquals("INVALID_REDIS_REQUEST", unknown.getMessageKey());
+        assertArrayEquals(new Object[] {"FLYHIGH"}, unknown.getArgs());
+        assertEquals("invalid Redis request: FLYHIGH.", unknown.getMessage());
+        assertEquals(Protocol.Command.GET, raw("get k").getProtocolCommand(), "a known command is still read");
     }
 
+    /** The default locale under which upper-casing "i" gives a dotted capital I. */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+
     /**
-     * Pins defect D17 (analysis-plugins section 0.6; plan section 9 D1-D20 row) for the raw parser
-     * ({@code RedisPlugin.java}, {@code matcher.group().toUpperCase()}): under a Turkish default locale a lower-case
-     * {@code lindex} becomes a dotted capital I word, which is no command, so the raw command fails with the enum's error. The
-     * default locale is global state: restored in finally. A fix ({@code Locale.ROOT}) changes this test on purpose.
+     * BF-122 (D17) for the raw parser ({@code RedisPlugin.java}, {@code matcher.group().toUpperCase}): the command word was
+     * upper-cased with the default locale, so under a Turkish default locale a lower-case {@code lindex} became a dotted
+     * capital I word, which is no command (since BF-121 the coded INVALID_REDIS_REQUEST). The raw command is typed by the
+     * user, so a query such as {@code incr n} from the query editor failed. It is upper-cased with {@code Locale.ROOT} now.
+     * The default locale is global state: restored in finally.
      */
     @Test
-    public void lowerCaseRawCommandFailsUnderATurkishDefaultLocale_pinsD17() {
+    public void lowerCaseRawCommandIsReadUnderATurkishDefaultLocaleBF122() {
         Locale saved = Locale.getDefault();
         try {
-            Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+            Locale.setDefault(TURKISH);
             System.out.println(TAG + "default locale: " + Locale.getDefault());
-            assertThrows(IllegalArgumentException.class, () -> raw("lindex k 0"));
+            assertEquals(Protocol.Command.LINDEX, raw("lindex k 0").getProtocolCommand(), "under " + Locale.getDefault());
+            assertEquals(Protocol.Command.INCR, raw("incr n").getProtocolCommand(), "under " + Locale.getDefault());
             assertEquals(Protocol.Command.LINDEX, raw("LINDEX k 0").getProtocolCommand(), "upper case is unaffected");
         } finally {
             Locale.setDefault(saved);

@@ -26,9 +26,9 @@ import static org.mockito.Mockito.*;
 
 class EnterpriseLicenseControllerTest {
     final ObjectMapper mapper = new ObjectMapper();
-    final SessionUserService sessions = mock(SessionUserService.class,withSettings().mockMaker("mock-maker-subclass"));
-    final ConfigCenter config = mock(ConfigCenter.class,withSettings().mockMaker("mock-maker-subclass").defaultAnswer(RETURNS_DEEP_STUBS));
-    final EnterpriseLicenseCapabilityService capabilities = mock(EnterpriseLicenseCapabilityService.class,withSettings().mockMaker("mock-maker-subclass"));
+    final SessionUserService sessions = mock(SessionUserService.class);
+    final ConfigCenter config = mock(ConfigCenter.class,withSettings().defaultAnswer(RETURNS_DEEP_STUBS));
+    final EnterpriseLicenseCapabilityService capabilities = mock(EnterpriseLicenseCapabilityService.class);
     EnterpriseLicenseController controller;
     JsonNode body;
     final ServerHttpRequest request = MockServerHttpRequest.post("https://ui.example/api/enterprise-licenses/checkout").build();
@@ -43,14 +43,14 @@ class EnterpriseLicenseControllerTest {
         contexts.add(context);
         context.register(DelegatingWebFluxConfiguration.class);
         context.registerBean(EnterpriseLicenseController.class, () -> controller);
-        context.getBeanFactory().registerSingleton("apiPerfHelper", mock(ApiPerfHelper.class, withSettings().mockMaker("mock-maker-subclass")));
+        context.getBeanFactory().registerSingleton("apiPerfHelper", mock(ApiPerfHelper.class));
         context.registerBean(GlobalExceptionHandler.class);
         context.refresh();
         return WebTestClient.bindToApplicationContext(context).build();
     }
     @AfterEach void closeContexts() { contexts.forEach(AnnotationConfigApplicationContext::close); }
     @BeforeEach void setup() {
-        controller = mock(EnterpriseLicenseController.class,withSettings().mockMaker("mock-maker-subclass").useConstructor(sessions,config,capabilities,"https://flow.example/webhook/enterprise","https://ui.example").defaultAnswer(CALLS_REAL_METHODS));
+        controller = mock(EnterpriseLicenseController.class,withSettings().useConstructor(sessions,config,capabilities,"https://flow.example/webhook/enterprise","https://ui.example").defaultAnswer(CALLS_REAL_METHODS));
         when(capabilities.purchaseState("real-deployment", "org", "real-admin")).thenReturn(Mono.just(PurchaseState.CONFIRMED));
         when(capabilities.checkoutAttempted(anyString(), anyString(), anyString())).thenReturn(Mono.empty());
         when(capabilities.recordPurchaseStatus(anyString(), anyString(), anyString(), anyBoolean())).thenReturn(Mono.empty());
@@ -93,13 +93,13 @@ class EnterpriseLicenseControllerTest {
         assertNotNull(controller.request("download",body,request).block());
     }
     @Test void missingRelayConfigurationFailsClosed() {
-        controller=mock(EnterpriseLicenseController.class,withSettings().mockMaker("mock-maker-subclass").useConstructor(sessions,config,capabilities,"","https://ui.example").defaultAnswer(CALLS_REAL_METHODS));
+        controller=mock(EnterpriseLicenseController.class,withSettings().useConstructor(sessions,config,capabilities,"","https://ui.example").defaultAnswer(CALLS_REAL_METHODS));
         ResponseStatusException error = assertThrows(ResponseStatusException.class,()->controller.request("checkout",body,request).block());
         assertEquals(HttpStatus.SERVICE_UNAVAILABLE, error.getStatusCode());
         verify(capabilities, never()).recordPurchaseStatus(anyString(), anyString(), anyString(), anyBoolean());
     }
     @Test void localCheckoutAndPortalCanReturnToTheDevelopmentUi() {
-        controller=mock(EnterpriseLicenseController.class,withSettings().mockMaker("mock-maker-subclass").useConstructor(sessions,config,capabilities,"https://flow.example/webhook/enterprise","").defaultAnswer(CALLS_REAL_METHODS));
+        controller=mock(EnterpriseLicenseController.class,withSettings().useConstructor(sessions,config,capabilities,"https://flow.example/webhook/enterprise","").defaultAnswer(CALLS_REAL_METHODS));
         for (String origin:List.of("http://localhost:8000", "http://127.0.0.1:8000", "http://[::1]:8000", "https://ui.example")) {
             ((com.fasterxml.jackson.databind.node.ObjectNode)body).put("returnOrigin",origin);
             doAnswer(call->{ Map<String,Object> p=call.getArgument(0);
@@ -110,7 +110,7 @@ class EnterpriseLicenseControllerTest {
     }
     @Test void publicCloudConfigurationRejectsCheckoutEvenWithForgedOrigins() {
         for (String publicUrl : List.of("https://app.lowcoder.cloud", "https://APP.LOWCODER.CLOUD/", "https://app.lowcoder.cloud.:443/")) {
-            controller = mock(EnterpriseLicenseController.class,withSettings().mockMaker("mock-maker-subclass")
+            controller = mock(EnterpriseLicenseController.class,withSettings()
                     .useConstructor(sessions,config,capabilities,"https://flow.example/webhook/enterprise",publicUrl).defaultAnswer(CALLS_REAL_METHODS));
             ((com.fasterxml.jackson.databind.node.ObjectNode)body).put("returnOrigin", "https://self-hosted.example");
             ResponseStatusException error = assertThrows(ResponseStatusException.class, () -> controller.request("checkout",body,request).block());
@@ -120,7 +120,7 @@ class EnterpriseLicenseControllerTest {
         verifyNoInteractions(capabilities);
     }
     @Test void publicCloudRequestHostRejectsCheckoutWithoutPublicUrlConfiguration() {
-        controller = mock(EnterpriseLicenseController.class,withSettings().mockMaker("mock-maker-subclass")
+        controller = mock(EnterpriseLicenseController.class,withSettings()
                 .useConstructor(sessions,config,capabilities,"https://flow.example/webhook/enterprise","").defaultAnswer(CALLS_REAL_METHODS));
         ((com.fasterxml.jackson.databind.node.ObjectNode)body).put("returnOrigin", "https://self-hosted.example");
         ServerHttpRequest cloudRequest = MockServerHttpRequest.post("https://app.lowcoder.cloud/api/enterprise-licenses/checkout").build();
@@ -139,7 +139,7 @@ class EnterpriseLicenseControllerTest {
     @Test void otherLowcoderHostsAndSimilarDomainsKeepCheckout() {
         for (String origin : List.of("https://lowcoder.cloud", "https://staging.lowcoder.cloud", "https://private.app.lowcoder.cloud",
                 "https://app.lowcoder.cloud.example", "https://my-lowcoder.example")) {
-            controller = mock(EnterpriseLicenseController.class,withSettings().mockMaker("mock-maker-subclass")
+            controller = mock(EnterpriseLicenseController.class,withSettings()
                     .useConstructor(sessions,config,capabilities,"https://flow.example/webhook/enterprise",origin).defaultAnswer(CALLS_REAL_METHODS));
             doReturn(Mono.just(relayResult())).when(controller).send(anyMap(),anyString());
             assertNotNull(controller.request("checkout",body,MockServerHttpRequest.post(origin + "/api/enterprise-licenses/checkout").build()).block());
@@ -147,7 +147,7 @@ class EnterpriseLicenseControllerTest {
         }
     }
     @Test void existingCloudPurchasesRemainManageableWithoutNewCheckout() {
-        controller = mock(EnterpriseLicenseController.class,withSettings().mockMaker("mock-maker-subclass")
+        controller = mock(EnterpriseLicenseController.class,withSettings()
                 .useConstructor(sessions,config,capabilities,"https://flow.example/webhook/enterprise","https://app.lowcoder.cloud").defaultAnswer(CALLS_REAL_METHODS));
         doReturn(Mono.just(relayResult())).when(controller).send(anyMap(),anyString());
         for (String action : List.of("status", "download", "portal")) {
@@ -155,7 +155,7 @@ class EnterpriseLicenseControllerTest {
         }
     }
     @Test void httpReturnExceptionDoesNotAllowRemoteHostsOrUrlTricks() {
-        controller=mock(EnterpriseLicenseController.class,withSettings().mockMaker("mock-maker-subclass").useConstructor(sessions,config,capabilities,"https://flow.example/webhook/enterprise","").defaultAnswer(CALLS_REAL_METHODS));
+        controller=mock(EnterpriseLicenseController.class,withSettings().useConstructor(sessions,config,capabilities,"https://flow.example/webhook/enterprise","").defaultAnswer(CALLS_REAL_METHODS));
         for (String origin:List.of("http://example.test", "http://localhost.evil.test", "http://127.0.0.1.evil.test",
                 "http://localhost@evil.test", "http://evil.test@localhost", "http://192.168.1.2:8000", "http://localhost:0",
                 "http://localhost:65536", "http://localhost:8000/other", "http://localhost?next=elsewhere", "http://localhost#other", "file:///tmp")) {

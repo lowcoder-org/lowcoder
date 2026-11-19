@@ -88,9 +88,9 @@
         "/variables" : "null",
         "/disableEncodingParams" : "java.lang.Boolean"
       },
-      "noView" : {"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"variables":null,"httpMethod":{},"disableEncodingParams":false},
-      "Public" : {"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"variables":null,"httpMethod":{},"disableEncodingParams":false},
-      "Internal" : {"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"variables":null,"httpMethod":{},"disableEncodingParams":false}
+      "noView" : {"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"variables":[],"httpMethod":{},"disableEncodingParams":false},
+      "Public" : {"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"variables":[],"httpMethod":{},"disableEncodingParams":false},
+      "Internal" : {"body":null,"path":null,"params":[],"headers":[],"bodyFormData":[],"variables":[],"httpMethod":{},"disableEncodingParams":false}
     },
     "unknownProperty" : "ignored: binds as form full"
   }

@@ -18,6 +18,7 @@ import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Base64;
@@ -30,6 +31,7 @@ public class MaterialApiServiceImpl implements MaterialApiService {
 
     private static final long DEFAULT_SINGLE_FILE_SIZE_LIMIT = 20 * ONE_MB;
     private static final long DEFAULT_TOTAL_STORAGE_SIZE_LIMIT = 2 * ONE_GB;
+    private static final String MATERIAL_NOT_FOUND = "MATERIAL_NOT_FOUND";
 
     @Autowired
     private MaterialMetaService materialMetaService;
@@ -64,31 +66,51 @@ public class MaterialApiServiceImpl implements MaterialApiService {
         return checkSingleFileSize(decode.length)
                 .then(sessionUserService.getVisitorOrgMemberCache())
                 .delayUntil(__ -> orgDevChecker.checkCurrentOrgDev())
-                .delayUntil(orgMember -> checkTotalSize(orgMember.getOrgId(), decode.length))
-                .delayUntil(orgMember -> {
-                    // delete old logo or favicon.
-                    if (type == MaterialType.LOGO || type == MaterialType.FAVICON) {
-                        //noinspection ConstantConditions
-                        return materialMateRepository.findByOrgIdAndType(orgMember.getOrgId(), type)
-                                .delayUntil(materialMeta -> materialMateRepository.deleteById(materialMeta.getId()))
-                                .flatMap(materialMeta -> materialStorageService.delete(materialMeta));
-                    }
-                    // COMMON
-                    //noinspection ConstantConditions
-                    return materialMateRepository.findByOrgIdAndFilenameAndType(orgMember.getOrgId(), filename, type)
-                            .delayUntil(materialMeta -> materialMateRepository.deleteById(materialMeta.getId()))
-                            .flatMap(materialMeta -> materialStorageService.delete(materialMeta));
-                })
-                .flatMap(orgMember -> {
-                    MaterialMeta materialMeta = MaterialMeta.builder()
-                            .orgId(orgMember.getOrgId())
-                            .filename(filename)
-                            .size(decode.length)
-                            .type(type)
-                            .build();
-                    return materialMateRepository.save(materialMeta);
-                })
-                .delayUntil(materialMeta -> materialStorageService.save(materialMeta, decode));
+                .flatMap(orgMember -> findReplaced(orgMember.getOrgId(), filename, type).collectList()
+                        .delayUntil(replaced -> checkTotalSize(orgMember.getOrgId(), decode.length, replaced))
+                        .flatMap(replaced -> {
+                            MaterialMeta materialMeta = MaterialMeta.builder()
+                                    .orgId(orgMember.getOrgId())
+                                    .filename(filename)
+                                    .size(decode.length)
+                                    .type(type)
+                                    .build();
+                            return materialMateRepository.save(materialMeta)
+                                    .delayUntil(saved -> storeOrRemoveRow(saved, decode))
+                                    .delayUntil(saved -> Flux.fromIterable(replaced)
+                                            .concatMap(old -> materialStorageService.delete(old)
+                                                    .then(materialMateRepository.deleteById(old.getId()))));
+                        }));
+    }
+
+    /**
+     * The materials an upload replaces: the org's logo or favicon, or for other types the org's material of the same
+     * filename and type. They are removed only after the new file is stored (BF-028), each file before its row, so a
+     * failure never leaves a file without a row.
+     */
+    private Flux<MaterialMeta> findReplaced(String orgId, String filename, MaterialType type) {
+        if (type == MaterialType.LOGO || type == MaterialType.FAVICON) {
+            return materialMateRepository.findByOrgIdAndType(orgId, type);
+        }
+        return materialMateRepository.findByOrgIdAndFilenameAndType(orgId, filename, type);
+    }
+
+    /**
+     * Stores the file of a saved row; if that fails, the row is deleted again and the storage failure is the answer (a
+     * failure of that clean-up is added to it as suppressed), so the replaced materials stay as they were. Limit: a failure
+     * after the new file is stored, while a replaced material is removed, answers with that error; the new material is kept,
+     * and the replaced material's row stays beside it, with or without its file (a logo or favicon lookup may then still
+     * find that row). The next upload of the same material removes it.
+     */
+    private Mono<Void> storeOrRemoveRow(MaterialMeta saved, byte[] content) {
+        return materialStorageService.save(saved, content)
+                .then()
+                .onErrorResume(storageFailure -> materialMateRepository.deleteById(saved.getId())
+                        .onErrorResume(cleanupFailure -> {
+                            storageFailure.addSuppressed(cleanupFailure);
+                            return Mono.empty();
+                        })
+                        .then(Mono.error(storageFailure)));
     }
 
     @Override
@@ -117,7 +139,7 @@ public class MaterialApiServiceImpl implements MaterialApiService {
     @Override
     public Mono<Void> delete(String id) {
         return materialMetaService.findById(id)
-                .switchIfEmpty(Mono.defer(() -> Mono.error(new BizException(BizError.INVALID_PARAMETER, "10095"))))
+                .switchIfEmpty(Mono.defer(() -> Mono.error(new BizException(BizError.INVALID_PARAMETER, MATERIAL_NOT_FOUND, id))))
                 .delayUntil(materialMeta -> checkMaterialOrg(materialMeta.getOrgId()))
                 .delayUntil(__ -> orgDevChecker.checkCurrentOrgDev())
                 .delayUntil(__ -> materialMetaService.deleteById(id))
@@ -145,14 +167,21 @@ public class MaterialApiServiceImpl implements MaterialApiService {
         return Mono.empty();
     }
 
-    private Mono<Void> checkTotalSize(String orgId, long newSize) {
+    /**
+     * The org's stored total, less the materials the upload replaces, plus the new file must stay within the limit
+     * (BF-140: the replaced materials were counted too, so a replacement that does not grow the total was refused near
+     * the limit). Limit: the replaced materials are removed only after the new file is stored ({@link #upload}); if that
+     * removal fails, both are stored and the total may then be above the limit.
+     */
+    private Mono<Void> checkTotalSize(String orgId, long newSize, List<MaterialMeta> replaced) {
         if (commonConfig.isSelfHost()) {
             return Mono.empty();
         }
+        long replacedSize = replaced.stream().mapToLong(MaterialMeta::getSize).sum();
         return materialMetaService.totalSize(orgId)
                 .flatMap(size -> {
                     long totalSizeLimit = configInstance.ofLong("material.total-size-limit", DEFAULT_TOTAL_STORAGE_SIZE_LIMIT);
-                    if ((size + newSize) > totalSizeLimit) {
+                    if ((size - replacedSize + newSize) > totalSizeLimit) {
                         return Mono.error(
                                 new BizException(BizError.INVALID_MATERIAL_REQUEST, "EXCEEDS_ORG_SIZE_LIMIT",
                                         byteCountToDisplaySize(totalSizeLimit)));

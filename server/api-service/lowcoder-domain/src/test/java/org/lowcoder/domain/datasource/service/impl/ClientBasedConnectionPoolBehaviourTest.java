@@ -3,6 +3,7 @@ package org.lowcoder.domain.datasource.service.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
@@ -17,6 +18,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.StreamSupport;
@@ -33,6 +37,7 @@ import org.lowcoder.infra.perf.PerfEvent;
 import org.lowcoder.infra.perf.PerfHelper;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
+import org.lowcoder.sdk.exception.InvalidHikariDatasourceException;
 import org.lowcoder.sdk.exception.PluginCommonError;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.DatasourceConnectionConfig;
@@ -41,10 +46,14 @@ import org.lowcoder.sdk.plugin.common.sql.HikariPerfWrapper;
 import org.mockito.ArgumentCaptor;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 import io.micrometer.core.instrument.Tag;
+import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
 import reactor.test.StepVerifier;
 
 /**
@@ -62,6 +71,15 @@ class ClientBasedConnectionPoolBehaviourTest {
     private static final String ID_PREFIX = "L3-5-cb-";
     private static final Instant V1 = Instant.parse("2026-02-01T00:00:00Z");
     private static final Instant V2 = V1.plusSeconds(60);
+    private static final String DATABASE_DOWN = "database down";
+    private static final String RECOVERED = "connection-after-recovery";
+    private static final String STALE_DATASOURCE = "stale datasource";
+    /** {@code ClientBasedConnectionPool.DEFAULT_RETRIEVE_CONNECTION_TIMES}: the retries of a stale connection. */
+    private static final int STALE_RETRIES = 5;
+    /** How long a test waits to see that the asynchronous removal listener destroys nothing. */
+    private static final long NO_DESTRUCTION_WAIT_MS = 500;
+    private static final Duration WAIT = Duration.ofSeconds(5);
+    private static final long POLL_MS = 10;
 
     private DatasourceMetaInfoService metaInfoService;
     private PerfHelper perf;
@@ -131,8 +149,8 @@ class ClientBasedConnectionPoolBehaviourTest {
     // ---------------------------------------------------------------- init gauges
 
     /**
-     * Catches gauges registered for the wrong pool type (:67), a size gauge counting other types (:72), and Hikari
-     * gauges reading the wrong counter or type (:82, :85-88): the captured gauge functions are applied to real data.
+     * Catches gauges registered for the wrong pool type (:74), a size gauge counting other types (:79), and Hikari
+     * gauges reading the wrong counter or type (:89, :92-95): the captured gauge functions are applied to real data.
      */
     @Test
     void init_registersTheGaugesAndTheirFunctionsCountPerType() {
@@ -190,7 +208,7 @@ class ClientBasedConnectionPoolBehaviourTest {
 
     // ---------------------------------------------------------------- errors
 
-    /** Catches raw exceptions reaching callers (:153-159), while exceptions that already are BaseExceptions pass through (:154). */
+    /** Catches raw exceptions reaching callers (:184-190), while exceptions that already are BaseExceptions pass through (:185). */
     @Test
     void connectorFailure_isMappedToPluginCreateConnectionFailed_butPluginExceptionsPassThrough() {
         when(connector.doCreateConnection(any())).thenReturn(Mono.error(new IllegalStateException("boom")));
@@ -213,7 +231,7 @@ class ClientBasedConnectionPoolBehaviourTest {
 
     // ---------------------------------------------------------------- perf counters, destruction
 
-    /** Catches missing create (:120) or removal (:107) counters: counted once per version, removal with its cause and type. */
+    /** Catches missing create (:129) or removal (:114) counters: counted once per version, removal with its cause and type. */
     @Test
     void perfCounters_createOncePerLoad_andTheRemovalCountsItsCause() {
         connection(datasource("perf", TYPE_A, V1));
@@ -232,7 +250,7 @@ class ClientBasedConnectionPoolBehaviourTest {
     }
 
     /**
-     * Catches a connection leak after a datasource edit (:111) and collateral invalidation (:137): the old version's
+     * Catches a connection leak after a datasource edit (:118-120) and collateral invalidation (:164): the old version's
      * connection is destroyed on the connector, another datasource's connection is neither destroyed nor replaced.
      */
     @Test
@@ -254,8 +272,8 @@ class ClientBasedConnectionPoolBehaviourTest {
     // ---------------------------------------------------------------- info
 
     /**
-     * Catches info() listing other datasources for an id (:171), more than 100 entries (:173), and wrappers outliving
-     * their datasource version (:109): after an update only the new wrapper is listed.
+     * Catches info() listing other datasources for an id (:202), more than 100 entries (:204), and wrappers outliving
+     * their datasource version (:116): after an update only the new wrapper is listed.
      */
     @Test
     void info_listsHikariWrappersById_limitedTo100_andDropsReplacedVersions() {
@@ -289,7 +307,7 @@ class ClientBasedConnectionPoolBehaviourTest {
 
     // ---------------------------------------------------------------- cache key
 
-    /** Catches the cache key comparing the datasource object (:211): only id and update time count. */
+    /** Catches the cache key comparing the datasource object (:258): only id and update time count. */
     @Test
     void cacheKey_equalsOnIdAndUpdateTimeOnly() {
         ClientBasedDatasourceCacheKey key = ClientBasedDatasourceCacheKey.of(datasource("key", TYPE_A, V1));
@@ -305,39 +323,125 @@ class ClientBasedConnectionPoolBehaviourTest {
     // ---------------------------------------------------------------- section 9 candidates
 
     /**
-     * Pins the plan section 9 row "a failed client connection creation is cached" (ClientBasedConnectionPool:124-130,
-     * :152): the loader caches {@code create(...).cache()}, which also caches the error. After one transient failure
-     * the connector is not asked again: the second call for the same datasource version fails with the same error
-     * although the connector would now succeed (it was subscribed exactly once). A fix (do not cache errors) changes
-     * this test on purpose.
+     * BF-033 fixed: a failed creation was cached with the connection Mono, so every later query got the same failure until
+     * the datasource was edited or an hour passed without access. Now the failed entry is dropped: the connector runs once
+     * for the failing call (a failure is not retried), the next call creates the connection, which is then cached, and the
+     * dropped entry destroys nothing and drops no error (Reactor's dropped-error hook sees nothing; it is global, so it is
+     * reset afterwards).
      */
     @Test
-    void failedConnectionCreation_isCached_secondCallDoesNotRetryTheConnector_pinsSection9Row() {
+    void failedConnectionCreation_isNotCached_theNextCallCreatesTheConnectionBF033() {
+        List<Throwable> dropped = new CopyOnWriteArrayList<>();
+        Hooks.onErrorDropped(dropped::add);
+        try {
+            createsTheConnectionAfterAFailure();
+        } finally {
+            Hooks.resetOnErrorDropped();
+        }
+        assertThat(dropped).as("errors dropped by the removal of the failed entry").isEmpty();
+    }
+
+    private void createsTheConnectionAfterAFailure() {
         AtomicInteger subscriptions = new AtomicInteger();
         when(connector.doCreateConnection(any())).thenAnswer(invocation -> Mono.defer(() -> subscriptions.incrementAndGet() == 1
-                ? Mono.<Object>error(new IllegalStateException("database down"))
-                : Mono.just("connection-after-recovery")));
+                ? Mono.<Object>error(new IllegalStateException(DATABASE_DOWN))
+                : Mono.just(RECOVERED)));
         Datasource datasource = datasource("cached-failure", TYPE_A, V1);
 
-        StepVerifier.create(pool.getOrCreateConnection(datasource)).expectError(BizException.class).verify();
         StepVerifier.create(pool.getOrCreateConnection(datasource))
-                .expectErrorSatisfies(error -> assertThat(error).isInstanceOf(BizException.class).hasMessageContaining("database down"))
+                .expectErrorSatisfies(error -> assertThat(error).isInstanceOf(BizException.class).hasMessageContaining(DATABASE_DOWN))
                 .verify();
+        assertThat(subscriptions.get()).as("the failing call ran the connector once, no retry").isEqualTo(1);
 
-        assertThat(subscriptions.get()).as("the connector was subscribed exactly once, the failure is served from the cache").isEqualTo(1);
-        System.out.println("[ClientBasedConnectionPoolBehaviourTest] pins the section 9 row: failed creation cached, connector asked once");
+        ClientBasedDatasourceConnectionHolder recovered = connection(datasource);
+        System.out.println("[ClientBasedConnectionPoolBehaviourTest] after a failure the next call got " + recovered.connection()
+                + ", connector subscriptions " + subscriptions.get());
+        assertThat(recovered.connection()).isEqualTo(RECOVERED);
+        assertThat(connection(datasource)).as("the created connection is cached").isSameAs(recovered);
+        assertThat(subscriptions.get()).isEqualTo(2);
+        verify(connector, after(NO_DESTRUCTION_WAIT_MS).never()).destroyConnection(any());
     }
 
     /**
-     * Pins the plan section 9 row "a client based connector that returns no connection completes empty without an
-     * error" (ClientBasedConnectionPool:187-190; TokenBasedConnectionPool:43 has the switchIfEmpty this lacks): the
-     * caller of the pool gets an empty Mono. A fix (error on empty) changes this test on purpose.
+     * A connection that stays stale is retried {@value #STALE_RETRIES} times, then fails with its own message, as the plain
+     * {@code retry} did before BF-033 limited the retries to stale connections. The cache is replaced by one whose every load
+     * is a stale holder.
      */
     @Test
-    void connectorWithoutAConnection_completesEmptyWithoutAnError_pinsSection9Row() {
-        when(connector.doCreateConnection(any())).thenReturn(Mono.empty());
+    void aConnectionThatStaysStale_isRetriedFiveTimes_thenFailsAsStale() {
+        ClientBasedDatasourceConnectionHolder stale = new ClientBasedDatasourceConnectionHolder("stale-connection");
+        stale.onQueryError(new InvalidHikariDatasourceException());
+        AtomicInteger loads = new AtomicInteger();
+        ReflectionTestUtils.setField(pool, "cache", CacheBuilder.newBuilder().build(new CacheLoader<ClientBasedDatasourceCacheKey, Mono<ClientBasedDatasourceConnectionHolder>>() {
+            @Override
+            public Mono<ClientBasedDatasourceConnectionHolder> load(ClientBasedDatasourceCacheKey key) {
+                loads.incrementAndGet();
+                return Mono.just(stale);
+            }
+        }));
 
-        StepVerifier.create(pool.getOrCreateConnection(datasource("empty-connection", TYPE_A, V1))).verifyComplete();
-        System.out.println("[ClientBasedConnectionPoolBehaviourTest] pins the section 9 row: no connection -> empty completion, no error");
+        StepVerifier.create(pool.getOrCreateConnection(datasource("always-stale", TYPE_A, V1)))
+                .expectErrorSatisfies(error -> {
+                    System.out.println("[ClientBasedConnectionPoolBehaviourTest] always stale: " + error + " after " + loads.get() + " loads");
+                    assertThat(error).isInstanceOf(BizException.class).hasMessageContaining(STALE_DATASOURCE);
+                })
+                .verify();
+        assertThat(loads.get()).as("the first load and one per retry").isEqualTo(1 + STALE_RETRIES);
+    }
+
+    /**
+     * A failing creation removes only its own cache entry: an entry loaded for the same key while the creation was still
+     * running (here put in directly) stays and answers the next call.
+     */
+    @Test
+    void aFailedCreation_removesOnlyItsOwnEntry_notOneLoadedAfterIt() throws Exception {
+        Sinks.One<Object> creation = Sinks.one();
+        when(connector.doCreateConnection(any())).thenReturn(creation.asMono());
+        Datasource datasource = datasource("own-entry", TYPE_A, V1);
+        ClientBasedDatasourceCacheKey key = ClientBasedDatasourceCacheKey.of(datasource);
+        CompletableFuture<Throwable> failure = new CompletableFuture<>();
+        pool.getOrCreateConnection(datasource).subscribe(holder -> failure.complete(null), failure::complete);
+        awaitSubscriber(creation); // the failing entry is loaded and its creation is running
+        ClientBasedDatasourceConnectionHolder newer = new ClientBasedDatasourceConnectionHolder("newer-connection");
+
+        cache().asMap().put(key, Mono.just(newer));
+        creation.tryEmitError(new IllegalStateException(DATABASE_DOWN));
+
+        assertThat(failure.get(WAIT.toMillis(), TimeUnit.MILLISECONDS)).isInstanceOf(BizException.class);
+        System.out.println("[ClientBasedConnectionPoolBehaviourTest] after the failure the key holds " + cache().asMap().get(key));
+        assertThat(connection(datasource)).as("the entry loaded after the failing one is kept").isSameAs(newer);
+    }
+
+    private static void awaitSubscriber(Sinks.One<Object> creation) throws InterruptedException {
+        long deadline = System.nanoTime() + WAIT.toNanos();
+        while (creation.currentSubscriberCount() == 0) {
+            assertThat(System.nanoTime()).as("the connector's creation was never subscribed").isLessThan(deadline);
+            Thread.sleep(POLL_MS);
+        }
+    }
+
+    /**
+     * BF-081 (fixed; was pinned as the plan section 9 row "a client based connector that returns no connection completes
+     * empty without an error"): the creation fails with PLUGIN_CREATE_CONNECTION_FAILED, as in TokenBasedConnectionPool,
+     * and the failure is not cached, so the next call asks the connector again.
+     */
+    @Test
+    void connectorWithoutAConnection_failsWithPluginCreateConnectionFailedAndIsNotCachedBF081() {
+        when(connector.doCreateConnection(any())).thenReturn(Mono.empty());
+        Datasource datasource = datasource("empty-connection", TYPE_A, V1);
+
+        for (int call = 1; call <= 2; call++) {
+            StepVerifier.create(pool.getOrCreateConnection(datasource))
+                    .expectErrorSatisfies(error -> {
+                        System.out.println("[ClientBasedConnectionPoolBehaviourTest] no connection -> " + error);
+                        assertThat(error).isInstanceOf(BizException.class);
+                        BizException biz = (BizException) error;
+                        assertThat(biz.getError()).isEqualTo(BizError.PLUGIN_CREATE_CONNECTION_FAILED);
+                        assertThat(biz.getArgs()).containsExactly(ClientBasedConnectionPool.NO_CONNECTION_CREATED);
+                    })
+                    .verify(WAIT);
+            assertThat(cache().asMap()).as("cache after call " + call).isEmpty();
+        }
+        verify(connector, times(2)).doCreateConnection(any());
     }
 }

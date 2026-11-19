@@ -31,6 +31,11 @@ class GraphQLOauthInheritTest {
 
     private static final String PATH = "/graphql";
     private static final String TOKEN_HEADER = "X-Token";
+    /** GRAPHQL_EXECUTION_ERROR in locale_en (BF-115). */
+    private static final String EXECUTION_ERROR_TEXT = "GraphQL execution error: %s.";
+    /** The cause GraphQLExecutor gives for an empty token Mono. */
+    private static final String ACCESS_TOKEN_MISSING = "$ACCESS_TOKEN parameter missing.";
+    private static final String LOGIN_EXPIRED = "login expired";
 
     private final GraphQLCallSupport support = new GraphQLCallSupport();
     private RecordingHttpServer server;
@@ -94,19 +99,21 @@ class GraphQLOauthInheritTest {
                 GraphQLCallSupport.visitor(null, Mono.empty()));
 
         System.out.println("[GraphQLOauthInheritTest] empty token -> " + failure);
-        // The message is not asserted: the key GRAPHQL_EXECUTION_ERROR has no entry in any locale bundle, so the text is the
-        // generic "Oops! Service is busy" (probe GP5, reported in log-L4.md, L4-10); the REST executor's message names the cause.
+        // BF-115: the key GRAPHQL_EXECUTION_ERROR had no entry in any locale bundle, so the text was the generic
+        // "Oops! Service is busy" (probe GP5, log-L4.md, L4-10); it now names the cause, as the REST executor's does.
         assertThat(failure).isInstanceOf(PluginException.class);
+        assertThat(failure.getMessage()).isEqualTo(EXECUTION_ERROR_TEXT.formatted(ACCESS_TOKEN_MISSING));
         assertThat(server.requests()).isEmpty();
     }
 
     @Test
     void aFailingTokenMonoIsReportedAsAPluginExceptionAndSendsNoRequest() {
         Throwable failure = support.failureOf(datasource(oauthInherit()), GraphQLCallSupport.query(),
-                GraphQLCallSupport.visitor(null, Mono.error(new IllegalStateException("login expired"))));
+                GraphQLCallSupport.visitor(null, Mono.error(new IllegalStateException(LOGIN_EXPIRED))));
 
         System.out.println("[GraphQLOauthInheritTest] failing token -> " + failure);
-        assertThat(failure).isInstanceOf(PluginException.class); // message not asserted, see the empty-token test
+        assertThat(failure).isInstanceOf(PluginException.class);
+        assertThat(failure.getMessage()).isEqualTo(EXECUTION_ERROR_TEXT.formatted(LOGIN_EXPIRED));
         assertThat(server.requests()).isEmpty();
     }
 

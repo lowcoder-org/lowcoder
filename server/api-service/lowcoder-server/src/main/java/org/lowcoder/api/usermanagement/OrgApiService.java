@@ -26,6 +26,8 @@ public interface OrgApiService {
 
     Mono<OrgMember> checkVisitorAdminRole(String orgId);
 
+    Mono<OrgMember> checkVisitorMember(String orgId);
+
     Mono<Boolean> switchCurrentOrganizationTo(String orgId);
 
     Mono<Boolean> switchCurrentOrganizationTo(String userId, String orgId);
@@ -39,6 +41,10 @@ public interface OrgApiService {
     Mono<Boolean> removeOrg(String orgId);
 
     Mono<OrgView> create(Organization organization);
+
+    Mono<Organization> updateSlug(String orgId, String slug);
+
+    Mono<Organization> getOrganization(String orgId, boolean withDeleted);
 
     Mono<Boolean> update(String orgId, UpdateOrgRequest updateOrgRequest);
 

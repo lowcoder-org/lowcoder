@@ -11,7 +11,12 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.plugins.SmtpPlugin.SmtpEngine;
+import org.lowcoder.sdk.exception.PluginCommonError;
+import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 
 import java.io.InputStream;
@@ -21,9 +26,11 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -51,6 +58,21 @@ public class SmtpEngineDeliveryTest {
     static final String CC = "cc@example.com";
     static final String BCC = "bcc@example.com";
     static final String REPLY_TO = "reply@example.com";
+    /** How a header encoded as UTF-8 (RFC 2047) starts. */
+    static final String UTF_8_ENCODED_WORD = "=?UTF-8?";
+    static final String HTML_UTF_8 = "text/html; charset=UTF-8";
+    /** How an RFC 2231 extended parameter value in UTF-8 starts, after the parameter name's {@code *=}. */
+    static final String UTF_8_EXTENDED_VALUE = "UTF-8''";
+    static final String FILENAME_EXTENDED = "filename*=" + UTF_8_EXTENDED_VALUE;
+    static final String NAME_EXTENDED = "name*=" + UTF_8_EXTENDED_VALUE;
+    static final String CONTENT_DISPOSITION = "Content-Disposition";
+    static final String CONTENT_TYPE = "Content-Type";
+    static final String NON_ASCII_PDF_NAME = "Přehled-ğşıİ-Müller.pdf";
+    static final String NON_ASCII_TEXT_NAME = "poznámka.txt";
+    static final String PDF_TYPE = "application/pdf";
+    static final String US_ASCII = "us-ascii";
+    static final byte[] PDF_BYTES = {0x25, 0x50, 0x44};
+    static final String TEXT_CONTENT = "hello";
 
     private static GreenMail server;
     private final SmtpEngine engine = new SmtpEngine();
@@ -77,6 +99,20 @@ public class SmtpEngineDeliveryTest {
         QueryExecutionResult result = engine.executeQuery(session, context).block(BLOCK_TIMEOUT);
         System.out.println(TAG + "sent " + queryConfig.get("subject") + " -> " + result.getQueryCode() + " " + result.getMessageKey());
         return result;
+    }
+
+    /** What a send gave: the result, or the exception that escaped the engine (one of them is null). */
+    private record Sent(QueryExecutionResult result, Throwable failure) {
+    }
+
+    /** {@link #sendAuthenticated}, but an exception that escapes the engine ({@code buildQueryExecutionContext} or {@code executeQuery}) is returned, not thrown. */
+    private Sent sendCatching(Map<String, Object> queryConfig) {
+        try {
+            return new Sent(sendAuthenticated(queryConfig), null);
+        } catch (RuntimeException e) {
+            System.out.println(TAG + "escaped: " + e);
+            return new Sent(null, e);
+        }
     }
 
     private static Map<String, Object> query(String to, String subject, String content) {
@@ -171,6 +207,7 @@ public class SmtpEngineDeliveryTest {
         assertEquals(3, multipart.getCount(), "body plus two attachments");
         Part first = multipart.getBodyPart(1);
         assertEquals("all-bytes.bin", first.getFileName());
+        assertAsciiNameParameters(first, "all-bytes.bin");
         assertEquals(Part.ATTACHMENT, first.getDisposition());
         assertTrue(first.getContentType().startsWith("application/octet-stream"), first.getContentType());
         try (InputStream in = first.getInputStream()) {
@@ -178,32 +215,105 @@ public class SmtpEngineDeliveryTest {
         }
         Part second = multipart.getBodyPart(2);
         assertEquals("note.txt", second.getFileName());
+        assertAsciiNameParameters(second, "note.txt");
         assertTrue(second.getContentType().startsWith("text/plain"), second.getContentType());
         try (InputStream in = second.getInputStream()) {
             assertEquals("hello", new String(in.readAllBytes()));
         }
     }
 
+    /** The part's own unfolded header, as received. */
+    private static String rawHeader(Part part, String name) throws Exception {
+        String[] values = part.getHeader(name);
+        assertNotNull(values, name + " header of the part");
+        return jakarta.mail.internet.MimeUtility.unfold(values[0]);
+    }
+
+    /** An ASCII name is sent as a plain parameter in both headers, not as an extended one (unchanged by GH-01). */
+    private static void assertAsciiNameParameters(Part part, String name) throws Exception {
+        String disposition = rawHeader(part, CONTENT_DISPOSITION);
+        String type = rawHeader(part, CONTENT_TYPE);
+        System.out.println(TAG + "ASCII name raw headers: " + disposition + " | " + type);
+        assertTrue(disposition.contains("filename=" + name) && !disposition.contains("filename*="), disposition);
+        assertTrue(type.contains("name=" + name) && !type.contains("name*="), type);
+    }
+
+    private static String escaped(String text) {
+        StringBuilder out = new StringBuilder();
+        text.chars().forEach(c -> out.append(c < 0x80 ? String.valueOf((char) c) : String.format("\\u%04x", c)));
+        return out.toString();
+    }
+
     /**
-     * The subject is set with {@code MimeMessage.setSubject(String)}, which encodes with the JVM's default charset (no charset is
-     * given). With a UTF-8 default (the case on a UTF-8 locale and on Java 18 and later) a non-ASCII subject survives; with any
-     * other default (probed: {@code LC_ALL=C}, US-ASCII) every non-ASCII letter arrives as a question mark. The test asserts the
-     * outcome that belongs to the charset of the JVM it runs in and prints both; the dependence on the environment is an
-     * observation reported to the coordinator.
+     * GH-01 (GitHub #727): the file names of attachments arrive intact, as RFC 2231 UTF-8 parameters of both the
+     * Content-Disposition {@code filename} and the Content-Type {@code name}, whatever the JVM's default charset. Before, both
+     * were encoded with Jakarta Mail's default charset, so names arrived with "?" wherever that was not UTF-8. Runs in the
+     * {@code us-ascii-default-charset} execution too (limit: it also runs on a UTF-8 JVM, so only that execution can fail on the
+     * defect; the library is the test dependency 2.0.1, the server ships 2.0.3).
+     * Catches: an attachment name encoded with the default charset, in either header.
      */
     @Test
-    public void nonAsciiSubjectDependsOnTheJvmDefaultCharset() throws Exception {
-        String subject = "Příliš žluťoučký kůň";
-        java.nio.charset.Charset charset = java.nio.charset.Charset.defaultCharset();
-        sendAuthenticated(query("[\"" + TO_1 + "\"]", subject, "<p>Žluťoučký</p>"));
+    public void nonAsciiAttachmentNamesArriveIntactWhateverTheJvmCharsetGH01() throws Exception {
+        String attachments = "[{\"name\": \"" + NON_ASCII_PDF_NAME + "\", \"contentType\": \"" + PDF_TYPE + "\", \"content\": \""
+                + Base64.getEncoder().encodeToString(PDF_BYTES) + "\"},"
+                + " {\"name\": \"" + NON_ASCII_TEXT_NAME + "\", \"contentType\": \"text/plain\", \"content\": \""
+                + Base64.getEncoder().encodeToString(TEXT_CONTENT.getBytes()) + "\"}]";
+        Map<String, Object> queryConfig = query("[\"" + TO_1 + "\"]", "non-ASCII attachment names", "see attached");
+        queryConfig.put("attachments", attachments);
+        assertEquals(QUERY_CODE_OK, sendAuthenticated(queryConfig).getQueryCode());
+        assertTrue(server.waitForIncomingEmail(WAIT_MILLIS, 1));
+        Multipart multipart = (Multipart) only(TO_1).getContent();
+        assertEquals(3, multipart.getCount(), "body plus two attachments");
+        System.out.println(TAG + "default charset " + java.nio.charset.Charset.defaultCharset());
+        Part pdf = multipart.getBodyPart(1);
+        Part text = multipart.getBodyPart(2);
+        assertNonAsciiName(pdf, NON_ASCII_PDF_NAME);
+        assertNonAsciiName(text, NON_ASCII_TEXT_NAME);
+        assertEquals(PDF_TYPE, new jakarta.mail.internet.ContentType(pdf.getContentType()).getBaseType());
+        assertEquals(US_ASCII, new jakarta.mail.internet.ContentType(text.getContentType()).getParameter("charset"));
+        try (InputStream in = pdf.getInputStream()) {
+            assertArrayEquals(PDF_BYTES, in.readAllBytes());
+        }
+        try (InputStream in = text.getInputStream()) {
+            assertEquals(TEXT_CONTENT, new String(in.readAllBytes()));
+        }
+    }
+
+    private static void assertNonAsciiName(Part part, String name) throws Exception {
+        String disposition = rawHeader(part, CONTENT_DISPOSITION);
+        String type = rawHeader(part, CONTENT_TYPE);
+        String typeName = new jakarta.mail.internet.ContentType(part.getContentType()).getParameter("name");
+        System.out.println(TAG + "name " + escaped(name) + ": getFileName " + escaped(String.valueOf(part.getFileName())) + ", Content-Type name "
+                + escaped(String.valueOf(typeName)) + ", raw " + disposition + " | " + type);
+        assertEquals(name, part.getFileName(), "Content-Disposition filename");
+        assertEquals(name, typeName, "Content-Type name");
+        assertTrue(disposition.contains(FILENAME_EXTENDED), disposition);
+        assertTrue(type.contains(NAME_EXTENDED), type);
+    }
+
+    /**
+     * GH-01 (GitHub #727) and BF-149 (was pinned as "the subject depends on the JVM's default charset"): a Turkish subject
+     * and HTML body arrive intact, both declared UTF-8, whatever the JVM's default charset. Before, the body arrived with
+     * {@code ğ ş ı İ} as "?" and the other letters as Latin-1 bytes under a UTF-8 label on every JVM, and the subject as
+     * "?" on a non-UTF-8 JVM. Run it under {@code -DargLine=-Dfile.encoding=ANSI_X3.4-1968} too: the outcome must not change.
+     * Catches: the subject or the body sent without an explicit UTF-8 charset.
+     */
+    @Test
+    public void nonAsciiSubjectAndBodyArriveIntactWhateverTheJvmCharsetGH01() throws Exception {
+        String subject = "Konu ğĞçÇşŞüÜöÖıİ";
+        String body = "<p>Türkçe: ğĞçÇşŞüÜöÖıİ, česky: Příliš žluťoučký kůň</p>";
+        QueryExecutionResult result = sendAuthenticated(query("[\"" + TO_1 + "\"]", subject, body));
+        assertEquals(QUERY_CODE_OK, result.getQueryCode());
         assertTrue(server.waitForIncomingEmail(WAIT_MILLIS, 1));
         MimeMessage message = only(TO_1);
-        System.out.println(TAG + "default charset " + charset + ", delivered subject: " + message.getSubject());
-        if (charset.equals(java.nio.charset.StandardCharsets.UTF_8)) {
-            assertEquals(subject, message.getSubject());
-        } else {
-            assertEquals(subject.chars().mapToObj(c -> c < 128 ? String.valueOf((char) c) : "?").collect(java.util.stream.Collectors.joining()), message.getSubject());
-        }
+        Part bodyPart = ((Multipart) message.getContent()).getBodyPart(0);
+        System.out.println(TAG + "default charset " + java.nio.charset.Charset.defaultCharset() + ", raw subject " + message.getHeader("Subject")[0]
+                + ", body type " + bodyPart.getContentType() + ", delivered subject: " + message.getSubject() + ", body: " + bodyPart.getContent());
+        assertEquals(subject, message.getSubject());
+        assertTrue(message.getHeader("Subject")[0].startsWith(UTF_8_ENCODED_WORD), message.getHeader("Subject")[0]);
+        assertEquals(body, bodyPart.getContent());
+        assertEquals(HTML_UTF_8, new jakarta.mail.internet.ContentType(bodyPart.getContentType()).getBaseType() + "; charset="
+                + new jakarta.mail.internet.ContentType(bodyPart.getContentType()).getParameter("charset"));
     }
 
     @Test
@@ -227,6 +337,23 @@ public class SmtpEngineDeliveryTest {
         System.out.println(TAG + "stopped server message: " + result.getMessageArgs()[0]);
     }
 
+    /**
+     * NEW-36 (GitHub #1491): addresses typed as text, not as a JSON array, are delivered: a comma-separated "to" and a single
+     * "bcc". Before, the text read as no address at all and the send failed with "No recipient addresses".
+     */
+    @Test
+    public void addressesGivenAsTextAreDelivered() throws Exception {
+        Map<String, Object> queryConfig = query(TO_1 + ", " + TO_2, "Text addresses", "x");
+        queryConfig.put("bcc", BCC);
+        QueryExecutionResult result = sendAuthenticated(queryConfig);
+        System.out.println(TAG + "text addresses: " + result.getQueryCode() + " " + (result.getMessageArgs() == null ? null : Arrays.toString(result.getMessageArgs())));
+        assertEquals(QUERY_CODE_OK, result.getQueryCode());
+        assertTrue(server.waitForIncomingEmail(WAIT_MILLIS, 3));
+        for (String recipient : List.of(TO_1, TO_2, BCC)) {
+            assertEquals("[" + TO_1 + ", " + TO_2 + "]", addresses(only(recipient), Message.RecipientType.TO), recipient);
+        }
+    }
+
     /** Observation: a message with no recipient is refused by the mail library before anything is sent; the result is an error result, nothing is delivered. */
     @Test
     public void noRecipientGivesAnErrorResult() {
@@ -234,5 +361,136 @@ public class SmtpEngineDeliveryTest {
         System.out.println(TAG + "no recipient: " + result.getQueryCode() + " " + (result.getMessageArgs() == null ? null : result.getMessageArgs()[0]));
         assertEquals("QUERY_EXECUTION_ERROR", result.getQueryCode());
         assertEquals(0, server.getReceivedMessages().length);
+    }
+
+    /** The first attachment of every NEW-98 query: valid, so that the position of the malformed one is 2. */
+    private static final String VALID_ATTACHMENT = "{\"name\": \"ok.txt\", \"contentType\": \"text/plain\", \"content\": \""
+            + Base64.getEncoder().encodeToString(TEXT_CONTENT.getBytes()) + "\"}";
+    static final String QUERY_EXECUTION_ERROR = "QUERY_EXECUTION_ERROR";
+    /** The messages of the second attachment's refusals, written out here, not read from the plugin. */
+    static final String SECOND_WITHOUT_NAME = "attachment 2 has no name";
+    static final String SECOND_WITHOUT_CONTENT = "attachment 2 has no content";
+    static final String SECOND_NOT_BASE64 = "attachment 2: the content is not Base64";
+    static final String SECOND_MISSING = "attachment 2 is missing";
+
+    private void assertErrorResultWithMessage(String attachments, String expectedMessage) {
+        Map<String, Object> queryConfig = query("[\"" + TO_1 + "\"]", "malformed attachment", "x");
+        queryConfig.put("attachments", attachments);
+        Sent sent = sendCatching(queryConfig);
+
+        assertNull(sent.failure(), "an exception escaped executeQuery");
+        QueryExecutionResult result = sent.result();
+        System.out.println(TAG + "malformed attachment: " + result.getQueryCode() + " / " + result.getMessageKey() + " / "
+                + Arrays.toString(result.getMessageArgs()));
+        assertEquals(QUERY_EXECUTION_ERROR, result.getQueryCode());
+        assertEquals(QUERY_EXECUTION_ERROR, result.getMessageKey());
+        assertEquals(expectedMessage, result.getMessageArgs()[0]);
+        assertEquals(0, server.getReceivedMessages().length, "nothing is delivered");
+    }
+
+    /** NEW-98: an attachment without a name gives the error result naming it; it failed with a NullPointerException. */
+    @Test
+    public void anAttachmentWithoutANameGivesAnErrorResultNEW98() {
+        assertErrorResultWithMessage("[" + VALID_ATTACHMENT + ", {\"contentType\": \"text/plain\", \"content\": \"aGk=\"}]",
+                SECOND_WITHOUT_NAME);
+    }
+
+    /** NEW-98: an attachment without content gives the error result naming it. */
+    @Test
+    public void anAttachmentWithoutContentGivesAnErrorResultNEW98() {
+        assertErrorResultWithMessage("[" + VALID_ATTACHMENT + ", {\"name\": \"b.txt\", \"contentType\": \"text/plain\"}]",
+                SECOND_WITHOUT_CONTENT);
+    }
+
+    /** NEW-98: content that is not Base64 gives the error result naming the attachment, without the content. */
+    @Test
+    public void anAttachmentWhoseContentIsNotBase64GivesAnErrorResultNEW98() {
+        assertErrorResultWithMessage("[" + VALID_ATTACHMENT + ", {\"name\": \"b.txt\", \"contentType\": \"text/plain\", \"content\": \"not base64!\"}]",
+                SECOND_NOT_BASE64);
+    }
+
+    /** NEW-98: a null element of the list gives the error result naming its position. */
+    @Test
+    public void aNullAttachmentGivesAnErrorResultNEW98() {
+        assertErrorResultWithMessage("[" + VALID_ATTACHMENT + ", null]", SECOND_MISSING);
+    }
+
+    /** NEW-97 (control): a charset named in a text attachment's content type is kept on the delivered part. */
+    @Test
+    public void aTextAttachmentKeepsTheCharsetItsTypeNamesNEW97() throws Exception {
+        String attachments = "[{\"name\": \"c.txt\", \"contentType\": \"text/plain; charset=UTF-8\", \"content\": \""
+                + Base64.getEncoder().encodeToString(TEXT_CONTENT.getBytes()) + "\"}]";
+        Map<String, Object> queryConfig = query("[\"" + TO_1 + "\"]", "charset kept", "x");
+        queryConfig.put("attachments", attachments);
+        assertEquals(QUERY_CODE_OK, sendAuthenticated(queryConfig).getQueryCode());
+        assertTrue(server.waitForIncomingEmail(WAIT_MILLIS, 1));
+        Part part = ((Multipart) only(TO_1).getContent()).getBodyPart(1);
+        System.out.println(TAG + "delivered content type: " + part.getContentType());
+        assertTrue(part.getContentType().toLowerCase(java.util.Locale.ROOT).contains("charset=utf-8"), part.getContentType());
+    }
+
+    // ------------------------------------------------------------------ NEW-107: attachments that are not a list
+
+    /** The refusal's message argument, written out here, not read from the plugin. */
+    static final String NOT_A_LIST = "the attachments are not a JSON list of attachments";
+    static final String QUERY_ARGUMENT_ERROR_KEY = "QUERY_ARGUMENT_ERROR";
+    /** Templates that do not render to a JSON list of attachments (R), and values that are no attachments (K). */
+    static final String EMPTY_OBJECT = "{}";
+    static final String PLAIN_TEXT = "a.txt";
+    static final String JSON_EMPTY_STRING = "\"\"";
+    static final String NUMBER = "42";
+    static final String ARRAY_OF_TEXT = "[\"a.txt\"]";
+    static final String BLANK = "";
+    static final String SPACES = "   ";
+    static final String JSON_NULL_TEXT = "null";
+    static final String ABSENT_PARAMETER = "{{absent}}";
+    static final String EMPTY_LIST = "[]";
+
+    /** The six refused values. {@code VALID_ATTACHMENT} is built at class load, so it cannot sit in an annotation: a method source. */
+    static Stream<String> notAList() {
+        return Stream.of(VALID_ATTACHMENT, EMPTY_OBJECT, PLAIN_TEXT, JSON_EMPTY_STRING, NUMBER, ARRAY_OF_TEXT);
+    }
+
+    /**
+     * NEW-107: an attachments value that renders to anything but a JSON list of attachments is refused by the engine
+     * (PluginException QUERY_ARGUMENT_ERROR, the message naming it) and no mail is sent; before, the mail went out without
+     * the attachments and the result was OK. A single attachment object is refused, not read as a list of one.
+     */
+    @ParameterizedTest(name = "attachments={0}")
+    @MethodSource("notAList")
+    public void aValueThatIsNotAListOfAttachmentsIsRefusedNEW107(String attachments) {
+        Map<String, Object> queryConfig = query("[\"" + TO_1 + "\"]", "not a list", "x");
+        queryConfig.put("attachments", attachments);
+
+        Sent sent = sendCatching(queryConfig);
+
+        System.out.println(TAG + "attachments [" + attachments + "] -> failure " + sent.failure() + ", result "
+                + (sent.result() == null ? null : sent.result().getQueryCode()) + ", delivered " + server.getReceivedMessages().length);
+        assertInstanceOf(PluginException.class, sent.failure(), "the engine refuses the value");
+        PluginException refusal = (PluginException) sent.failure();
+        assertEquals(PluginCommonError.QUERY_ARGUMENT_ERROR, refusal.getError());
+        assertEquals(QUERY_ARGUMENT_ERROR_KEY, refusal.getMessageKey());
+        assertEquals(NOT_A_LIST, refusal.getArgs()[0]);
+        assertEquals(0, server.getReceivedMessages().length, "nothing is delivered");
+    }
+
+    /**
+     * NEW-107 (controls, expected green at HEAD): a blank template, the JSON text {@code null}, a parameter that is not
+     * supplied (it renders to {@code null}) and an empty list are no attachments: the mail is sent with its body only.
+     */
+    @ParameterizedTest(name = "attachments=[{0}]")
+    @ValueSource(strings = {BLANK, SPACES, JSON_NULL_TEXT, ABSENT_PARAMETER, EMPTY_LIST})
+    public void aBlankNullOrEmptyListValueSendsWithoutAttachmentsNEW107(String attachments) throws Exception {
+        Map<String, Object> queryConfig = query("[\"" + TO_1 + "\"]", "no attachments", "x");
+        queryConfig.put("attachments", attachments);
+
+        Sent sent = sendCatching(queryConfig);
+
+        System.out.println(TAG + "attachments [" + attachments + "] -> failure " + sent.failure() + ", result "
+                + (sent.result() == null ? null : sent.result().getQueryCode()));
+        assertNull(sent.failure(), "the engine does not refuse a value that is no attachments");
+        assertEquals(QUERY_CODE_OK, sent.result().getQueryCode());
+        assertTrue(server.waitForIncomingEmail(WAIT_MILLIS, 1));
+        assertEquals(1, ((Multipart) only(TO_1).getContent()).getCount(), "the body only");
     }
 }

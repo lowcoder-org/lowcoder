@@ -4,7 +4,7 @@ import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.lowcoder.sdk.plugin.sqlcommand.command.DeleteCommand;
 import org.lowcoder.sdk.plugin.sqlcommand.command.UpdateOrDeleteSingleCommandRenderResult;
 import org.lowcoder.sdk.plugin.sqlcommand.filter.FilterSet;
-import org.lowcoder.sdk.util.MustacheHelper;
+import org.lowcoder.sdk.util.SqlGuiUtils;
 import org.lowcoder.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
 
 import java.util.Map;
@@ -29,13 +29,13 @@ public class PostgresDeleteCommand extends DeleteCommand {
 
     @Override
     public GuiSqlCommandRenderResult render(Map<String, Object> requestMap) {
-        String renderedTable = MustacheHelper.renderMustacheString(table, requestMap);
+        String renderedTable = SqlGuiUtils.renderTableName(table, requestMap, columnFrontDelimiter, columnBackDelimiter);
 
         StringBuilder deleteSql = new StringBuilder();
         deleteSql.append("delete from ").append(renderedTable);
         if (filterSet.isEmpty()) {
             if (!allowMultiModify) {
-                return new UpdateOrDeleteSingleCommandRenderResult("select count(1) as count from " + table, emptyList(),
+                return new UpdateOrDeleteSingleCommandRenderResult("select count(1) as count from " + renderedTable, emptyList(),
                         deleteSql.toString(), emptyList());
             }
             return new GuiSqlCommandRenderResult(deleteSql.toString(), emptyList());

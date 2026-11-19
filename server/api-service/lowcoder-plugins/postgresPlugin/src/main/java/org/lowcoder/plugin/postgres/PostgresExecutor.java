@@ -66,7 +66,7 @@ public class PostgresExecutor extends SqlBasedQueryExecutor {
 
                 List<DataType> explicitCastDataTypes = extractExplicitCasting(preparedSql);
                 List<Object> finalValues = convertExplicitDataTypes(requestParams, mustacheKeysInOrder, explicitCastDataTypes);
-                return StatementInput.fromSql(true, preparedSql, finalValues);
+                return StatementInput.fromSql(true, preparedSql, finalValues, mustacheKeysInOrder); // BF-123: names the bind error
             }
 
             private List<Object> convertExplicitDataTypes(Map<String, Object> requestParams, List<String> mustacheKeysInOrder,
@@ -80,9 +80,10 @@ public class PostgresExecutor extends SqlBasedQueryExecutor {
                     }
 
                     Object value = requestParams.get(key);
-                    DataType targetType = explicitCastDataTypes.get(i);
+                    // fewer driver parameters than placeholders (one inside a $$ string): bound as is, the driver reports it
+                    DataType targetType = i < explicitCastDataTypes.size() ? explicitCastDataTypes.get(i) : null;
                     if (targetType != null) {
-                        finalValues.add(castValueWithTargetType(value, explicitCastDataTypes.get(i)));
+                        finalValues.add(castValueWithTargetType(value, targetType));
                     } else {
                         finalValues.add(value);
                     }
@@ -94,7 +95,7 @@ public class PostgresExecutor extends SqlBasedQueryExecutor {
     }
 
     protected GuiSqlCommand parseSqlCommand(String guiStatementType, Map<String, Object> detail) {
-        return switch (guiStatementType.toUpperCase()) {
+        return switch (guiStatementType.toUpperCase(java.util.Locale.ROOT)) { // BF-122: not the default locale
             case "INSERT" -> PostgresInsertCommand.from(detail);
             case "UPDATE" -> PostgresUpdateCommand.from(detail);
             case "DELETE" -> PostgresDeleteCommand.from(detail);

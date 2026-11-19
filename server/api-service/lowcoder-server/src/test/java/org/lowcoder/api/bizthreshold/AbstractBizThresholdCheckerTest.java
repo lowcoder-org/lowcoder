@@ -32,9 +32,10 @@ import reactor.test.StepVerifier;
  * Unit tests of {@link AbstractBizThresholdChecker} with a small concrete subclass whose limits and white lists the test sets,
  * and the four collaborating services mocked.
  *
- * <p>Every limit and white list read here comes from the {@code threshold.*} server configuration keys, which any signed-in
- * user can write (plan section 9 server-config row, pinned by L2-9 follow-up 4282da8b3 through the request stack). That row
- * is NOT re-pinned here: this class pins what the checker does with the values it is given, not who may change them.
+ * <p>Every limit and white list read here comes from the {@code threshold.*} server configuration keys, which only the
+ * deployment's super admin may write since BF-001 (it was the plan section 9 server-config row, tested through the request
+ * stack by ServerConfigWriteAuthorisationTest). Who may change them is not tested here: this class tests what the checker
+ * does with the values it is given.
  *
  * <p>Boundary arithmetic (behaviour, not a defect): the org, member, application and group checks run BEFORE the creation and
  * reject at {@code count >= limit}, so at most {@code limit} items exist afterwards; {@code checkMaxDeveloperCount} puts the
@@ -152,7 +153,7 @@ class AbstractBizThresholdCheckerTest {
     /**
      * The user's org count against {@code max(userOrgCountWhiteList[userId], maxOrgPerUser)}: below passes, at the limit is
      * rejected with EXCEED_MAX_USER_ORG_COUNT. A white list only raises the limit (Math.max), keyed by the user id. The limit
-     * and the white list are server configuration writable by any signed-in user (section 9 server-config row, not re-pinned).
+     * and the white list are server configuration (super admin only since BF-001; not tested here).
      */
     @ParameterizedTest(name = "org count: {0}")
     @MethodSource("countCases")
@@ -165,7 +166,7 @@ class AbstractBizThresholdCheckerTest {
         say("checkMaxOrgCount %s count=%d -> accepted=%s", label, count, accepted);
     }
 
-    /** The same matrix on the org's member count and {@code orgMemberCountWhiteList[orgId]} (section 9 server-config row, not re-pinned). */
+    /** The same matrix on the org's member count and {@code orgMemberCountWhiteList[orgId]} (server configuration, super admin only since BF-001; not tested here). */
     @ParameterizedTest(name = "org member count: {0}")
     @MethodSource("countCases")
     void checkMaxOrgMemberCount_boundaryAndWhiteList(String label, Integer subjectValue, Integer otherValue, long count, boolean accepted) {
@@ -179,7 +180,7 @@ class AbstractBizThresholdCheckerTest {
 
     /**
      * The same matrix on the application count with {@code orgAppCountWhiteList[orgId]}; the count is asked for the NORMAL
-     * applications of the org of the member that is passed in (section 9 server-config row, not re-pinned).
+     * applications of the org of the member that is passed in (server configuration, super admin only since BF-001; not tested here).
      */
     @ParameterizedTest(name = "org application count: {0}")
     @MethodSource("countCases")
@@ -194,7 +195,7 @@ class AbstractBizThresholdCheckerTest {
 
     /**
      * The org's group count of the member's org against {@code maxOrgGroupCount}; there is no white list for groups. The limit
-     * is server configuration writable by any signed-in user (section 9 server-config row, not re-pinned).
+     * is server configuration (super admin only since BF-001; not tested here).
      */
     @ParameterizedTest(name = "group count {0} -> accepted {1}")
     @MethodSource("groupCases")
@@ -217,7 +218,7 @@ class AbstractBizThresholdCheckerTest {
     /**
      * Developers are the SET of org admins, members of the developer group and the new user, so a user that is already an
      * admin or a group member (or in both lists) is not counted twice: size equal to the limit is accepted, one more is
-     * rejected. The limit is server configuration writable by any signed-in user (section 9 server-config row, not re-pinned).
+     * rejected. The limit is server configuration (super admin only since BF-001; not tested here).
      */
     static Stream<Arguments> developerCases() {
         return Stream.of(

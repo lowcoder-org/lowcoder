@@ -98,12 +98,14 @@ public class Find extends MongoCommand {
             document.put("skip", Long.parseLong(this.skip));
         }
 
+        putMaxTimeMs(document);
+
         return document;
     }
 
     private void setLimitAndBatchSize(String limitStr, Document document) {
         if (StringUtils.isBlank(limitStr)) {
-            document.put("batchSize", Integer.MAX_VALUE);
+            document.put("batchSize", UNLIMITED);
             return;
         }
 

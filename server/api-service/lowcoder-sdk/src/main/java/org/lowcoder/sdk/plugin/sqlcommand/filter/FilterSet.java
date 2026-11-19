@@ -19,9 +19,13 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
 import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
 import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_IN_OPERATOR_SETTINGS;
-import static org.lowcoder.sdk.util.JsonUtils.toJson;
 
 public class FilterSet extends ForwardingList<FilterCondition> {
+
+    /** The key of a command detail's filter, a list of {@code column}, {@code condition} and {@code value} entries. */
+    public static final String FILTER_BY_KEY = "filterBy";
+    private static final String WHERE = " where ";
+    private static final String AND = " and ";
 
     private final ArrayList<FilterCondition> filters = newArrayList();
 
@@ -41,10 +45,25 @@ public class FilterSet extends ForwardingList<FilterCondition> {
     public GuiSqlCommandRenderResult render(Map<String, Object> requestMap,
             String columnFrontDelimiter, String columnBackDelimiter, boolean renderWithRawSql, EscapeSql escapeSql) {
 
+        GuiSqlCommandRenderResult conditions = renderConditions(requestMap, columnFrontDelimiter, columnBackDelimiter,
+                renderWithRawSql, escapeSql);
+        if (filters.isEmpty()) {
+            return conditions;
+        }
+        return new GuiSqlCommandRenderResult(WHERE + conditions.sql(), conditions.bindParams());
+    }
+
+    /**
+     * The conditions joined by {@code and}, without the {@code where}: what a command with a {@code where} of its own
+     * appends (the bulk update, F01). Empty sql and no bind values for an empty filter.
+     */
+    public GuiSqlCommandRenderResult renderConditions(Map<String, Object> requestMap,
+            String columnFrontDelimiter, String columnBackDelimiter, boolean renderWithRawSql, EscapeSql escapeSql) {
+
         if (filters.isEmpty()) {
             return new GuiSqlCommandRenderResult("", emptyList());
         }
-        StringBuilder sb = new StringBuilder(" where ");
+        StringBuilder sb = new StringBuilder();
         List<Object> bindParams = newArrayList();
 
         for (int i = 0; i < filters.size(); i++) {
@@ -61,11 +80,9 @@ public class FilterSet extends ForwardingList<FilterCondition> {
                         columnFrontDelimiter, columnBackDelimiter, renderWithRawSql, escapeSql);
             }
             sb.append(renderItem.conditionSql());
-            if (renderItem.needBind()) {
-                bindParams.add(renderItem.bindValue());
-            }
+            bindParams.addAll(renderItem.bindValues());
             if (i != filters.size() - 1) {
-                sb.append(" and ");
+                sb.append(AND);
             }
         }
 
@@ -74,7 +91,7 @@ public class FilterSet extends ForwardingList<FilterCondition> {
 
     private RenderItem renderCondition(String condition, Object value, Map<String, Object> requestMap, String column,
             String columnFrontDelimiter, String columnBackDelimiter, boolean renderWithRawSql, EscapeSql escapeSql) {
-        String columnWithDelimiter = columnFrontDelimiter + column + columnBackDelimiter;
+        String columnWithDelimiter = SqlGuiUtils.quoteIdentifier(column, columnFrontDelimiter, columnBackDelimiter);
 
         switch (condition) {
             case "=", "!=", ">", "<", "<=", ">=" -> {
@@ -100,35 +117,43 @@ public class FilterSet extends ForwardingList<FilterCondition> {
                     return RenderItem.withRawSql("false");
                 }
 
-                return RenderItem.withRawSql(columnWithDelimiter + " " + condition + getCollectionStr(list));
+                if (renderWithRawSql) {
+                    return RenderItem.withRawSql(columnWithDelimiter + " " + condition + getEscapedCollectionStr(list, escapeSql));
+                }
+                return RenderItem.withPsValues(columnWithDelimiter + " " + condition + getPlaceholderCollectionStr(list.size()),
+                        list.stream().map(element -> GuiSqlValue.from(element).getValue()).toList());
             }
             default -> throw new PluginException(INVALID_GUI_SETTINGS, "GUI_INVALID_FILTER_FIELD", condition);
         }
     }
 
-    private static String getCollectionStr(List<?> list) {
+    /**
+     * The elements of an IN list for raw SQL: each one written as the other operators write a value, a string (and a
+     * nested list or object, as JSON) through the dialect's escaper.
+     */
+    private static String getEscapedCollectionStr(List<?> list, EscapeSql escapeSql) {
         String result = list.stream()
-                .map(obj -> {
-                    if (obj instanceof String) {
-                        return "'" + obj + "'";
-                    }
-                    if (obj instanceof Collection<?> || obj instanceof Map<?, ?>) {
-                        return toJson(obj);
-                    }
-                    return String.valueOf(obj);
-                })
+                .map(element -> GuiSqlValue.from(element).getConcatSqlStr(escapeSql))
                 .collect(Collectors.joining(","));
         return " (" + result + ")";
     }
 
-    private record RenderItem(String conditionSql, Object bindValue, boolean needBind) {
+    private static String getPlaceholderCollectionStr(int size) {
+        return " (" + String.join(",", Collections.nCopies(size, "?")) + ")";
+    }
+
+    private record RenderItem(String conditionSql, List<Object> bindValues) {
 
         public static RenderItem withPs(String conditionSql, Object bindValue) {
-            return new RenderItem(conditionSql, bindValue, true);
+            return new RenderItem(conditionSql, Collections.singletonList(bindValue));
+        }
+
+        public static RenderItem withPsValues(String conditionSql, List<Object> bindValues) {
+            return new RenderItem(conditionSql, bindValues);
         }
 
         public static RenderItem withRawSql(String conditionSql) {
-            return new RenderItem(conditionSql, null, false);
+            return new RenderItem(conditionSql, emptyList());
         }
     }
 
@@ -154,7 +179,7 @@ public class FilterSet extends ForwardingList<FilterCondition> {
 
     @SuppressWarnings("unchecked")
     public static FilterSet parseFilterSet(Map<String, Object> commandDetail) {
-        Object filterBy = MapUtils.getObject(commandDetail, "filterBy", null);
+        Object filterBy = MapUtils.getObject(commandDetail, FILTER_BY_KEY, null);
         if (filterBy == null) {
             throw new PluginException(INVALID_GUI_SETTINGS, "GUI_FILTER_FIELD_EMPTY");
         }
@@ -178,9 +203,21 @@ public class FilterSet extends ForwardingList<FilterCondition> {
                 throw new PluginException(INVALID_GUI_SETTINGS, "GUI_INVALID_FILTER_CONDITION");
             }
 
-            filterSet.addCondition(column, condition.toUpperCase(), value);
+            filterSet.addCondition(column, condition.toUpperCase(Locale.ROOT), value);
         }
         return filterSet;
+    }
+
+    /**
+     * The filter of a command whose filter is optional (the bulk update, F01): an empty one when {@code filterBy} is absent
+     * or null, as in a bulk update saved before the editor had a filter; otherwise as {@link #parseFilterSet}, which
+     * refuses a missing filter.
+     */
+    public static FilterSet parseOptionalFilterSet(Map<String, Object> commandDetail) {
+        if (MapUtils.getObject(commandDetail, FILTER_BY_KEY) == null) {
+            return new FilterSet();
+        }
+        return parseFilterSet(commandDetail);
     }
 
     public Set<String> extractMustacheKeys() {

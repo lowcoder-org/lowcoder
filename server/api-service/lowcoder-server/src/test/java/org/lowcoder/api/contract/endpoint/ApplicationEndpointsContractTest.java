@@ -3,6 +3,8 @@ package org.lowcoder.api.contract.endpoint;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.api.application.ApplicationApiService;
 import org.lowcoder.api.application.ApplicationController;
 import org.lowcoder.api.application.ApplicationEndpoints;
@@ -37,7 +39,11 @@ import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.application.model.ApplicationVersion;
 import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.infra.constant.NewUrl;
+import org.lowcoder.infra.constant.Url;
 import org.lowcoder.sdk.contract.CanonicalJson;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
@@ -55,6 +61,7 @@ import java.util.Set;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 
 /**
  * Codec-level tests of the 26 {@link ApplicationEndpoints} (docs/API_PAYLOAD_TEST_PLAN.md §5.2, task T2.1), through
@@ -95,6 +102,10 @@ class ApplicationEndpointsContractTest {
     /** {@code getGroupsOrMembersWithoutPermissions}'s defaults ({@code ApplicationEndpoints}). */
     static final int DEFAULT_PAGE_NUM = 1;
     static final int DEFAULT_PAGE_SIZE = 1000;
+    /** BF-153: a page before the first, and a negative page size (no limit, as 0). */
+    static final int ZERO_PAGE_NUM = 0;
+    static final int NEGATIVE_PAGE_SIZE = -2;
+    static final String ILLEGAL_PAGE_NUMBER = "ILLEGAL_PAGE_NUMBER";
     /** The keys and type names {@code ApplicationApiServiceImpl#getGroupsOrMembersWithoutPermissions} builds. */
     static final String ENTRY_TYPE = "type";
     static final String ENTRY_DATA = "data";
@@ -103,6 +114,8 @@ class ApplicationEndpointsContractTest {
     /** Matches {@code GroupView.groupName} ignoring case, and not {@code OrgMemberView.name}. */
     static final String GROUP_SEARCH = "groupview.GROUPNAME";
     static final String TRUE = "true";
+    /** NEW-4: the message key of the editing view's refusal of a user outside the application's org. */
+    static final String INSUFFICIENT_PERMISSION_KEY = "INSUFFICIENT_PERMISSION";
     /** The business events are fire-and-forget {@code Mono<Void>}s; their mock completes empty. */
     static final Answer<Object> EMPTY_MONO = invocation -> invocation.getMethod().getReturnType() == Mono.class
             ? Mono.empty() : Mockito.RETURNS_DEFAULTS.answer(invocation);
@@ -120,7 +133,6 @@ class ApplicationEndpointsContractTest {
         applicationRecordService = builder.mock(ApplicationRecordService.class);
         GidService gidService = builder.mock(GidService.class);
         Mockito.when(gidService.convertApplicationIdToObjectId(anyString())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
-        Mockito.when(gidService.convertLibraryQueryIdToObjectId(anyString())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
         builder.singleton("businessEventPublisher", Mockito.mock(BusinessEventPublisher.class, EMPTY_MONO));
         Mockito.when(applicationApiService.updateUserApplicationLastViewTime(anyString())).thenReturn(Mono.empty());
     }
@@ -199,6 +211,53 @@ class ApplicationEndpointsContractTest {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getEditingApplication", Map.of("withDeleted", TRUE), null, APPLICATION_ID);
             EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.success(EndpointContract.s1(ApplicationView.class)));
         }
+    }
+
+    /**
+     * NEW-4 regression pin: the editing view's refusal (the answer the fixed permission check now gives a creator outside
+     * the org) is 403 NO_PERMISSION_TO_REQUEST_APP on both mounts, and no last-view time is written. Limits: the service is
+     * mocked, so this pins the serialisation only; the real permission path is shown by the NEW-4 tests of
+     * {@code ApplicationApiServiceIntegrationTest} and the handler tests. The request is built by hand because
+     * {@code EndpointContract.exchange} calls only the shortest mount, so it does not count toward {@code assertComplete}
+     * (the {@code getEditingApplication} test above exercises that row). It passes before the fix as well.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {NewUrl.APPLICATION_URL, Url.APPLICATION_URL})
+    void getEditingApplication_permissionRefusalNEW4_is403OnBothMounts(String mount) {
+        Mockito.when(applicationApiService.getEditingApplication(eq(APPLICATION_ID), isNull()))
+                .thenReturn(Mono.error(new BizException(BizError.NO_PERMISSION_TO_REQUEST_APP, INSUFFICIENT_PERMISSION_KEY)));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = client.web().get().uri(mount + "/" + APPLICATION_ID).exchange().expectBody().returnResult();
+            EndpointContract.assertBizError(result, BizError.NO_PERMISSION_TO_REQUEST_APP, INSUFFICIENT_PERMISSION_KEY);
+        }
+        Mockito.verify(applicationApiService, Mockito.never()).updateUserApplicationLastViewTime(anyString());
+        System.out.println("[ApplicationEndpointsContractTest] NEW-4 GET " + mount + "/{id} refused -> 403 "
+                + BizError.NO_PERMISSION_TO_REQUEST_APP + " " + INSUFFICIENT_PERMISSION_KEY);
+    }
+
+    /**
+     * NEW-4 regression pin: recycle, restore, delete and update read the editing view first
+     * ({@code getEditingApplication(appId, true)}), so its refusal answers 403 and the operation is never called. The fix
+     * makes that refusal reach a creator outside the org, who used to pass it and then get 401 NOT_AUTHORIZED from the
+     * operation's own check. Mocked service: this pins the controller's preflight, not the permission path. It passes
+     * before the fix as well.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {"recycle", "restore", "delete", "update"})
+    void preflightRefusalNEW4_stopsTheOperation(String method) {
+        Mockito.when(applicationApiService.getEditingApplication(APPLICATION_ID, Boolean.TRUE))
+                .thenReturn(Mono.error(new BizException(BizError.NO_PERMISSION_TO_REQUEST_APP, INSUFFICIENT_PERMISSION_KEY)));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = "update".equals(method)
+                    ? CONTRACT.exchange(client, method, Map.of("updateStatus", TRUE), EndpointContract.d1(Application.class), APPLICATION_ID)
+                    : CONTRACT.exchange(client, method, Map.of(), null, APPLICATION_ID);
+            EndpointContract.assertBizError(result, BizError.NO_PERMISSION_TO_REQUEST_APP, INSUFFICIENT_PERMISSION_KEY);
+        }
+        Mockito.verify(applicationApiService, Mockito.never()).recycle(anyString());
+        Mockito.verify(applicationApiService, Mockito.never()).restore(anyString());
+        Mockito.verify(applicationApiService, Mockito.never()).delete(anyString());
+        Mockito.verify(applicationApiService, Mockito.never()).update(anyString(), any(), any());
+        System.out.println("[ApplicationEndpointsContractTest] NEW-4 " + method + " with a refused preflight -> 403, operation not called");
     }
 
     @Test
@@ -313,6 +372,30 @@ class ApplicationEndpointsContractTest {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getApplications", query, null);
             EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.page(
                     EndpointContract.array(EndpointContract.s1(ApplicationInfoView.class)), PAGE_NUM, PAGE_SIZE, 3));
+        }
+    }
+
+    /** BF-153: page 0 is the parameter error {@code Pagination.check()} gives, where the negative skip count was a raw 500 (code 5000). */
+    @Test
+    void getApplicationsWithPageNumZeroBF153() {
+        Mockito.when(userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(null, null, true, null, null))
+                .thenReturn(Flux.just(ApplicationSamples.applicationInfoView(), ApplicationSamples.applicationInfoView()));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getApplications", query("pageNum", ZERO_PAGE_NUM), null);
+            EndpointContract.assertBizError(result, BizError.INVALID_PARAMETER, ILLEGAL_PAGE_NUMBER, ZERO_PAGE_NUM);
+        }
+    }
+
+    /** BF-153: a negative page size on page 2 takes every application, as 0 does, where the negative skip count was a raw 500. */
+    @Test
+    void getApplicationsWithANegativePageSizeOnPageTwoBF153() {
+        Mockito.when(userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(null, null, true, null, null))
+                .thenReturn(Flux.just(ApplicationSamples.applicationInfoView(), ApplicationSamples.applicationInfoView()));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getApplications",
+                    query("pageNum", PAGE_NUM, "pageSize", NEGATIVE_PAGE_SIZE), null);
+            EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.page(EndpointContract.array(
+                    EndpointContract.s1(ApplicationInfoView.class), EndpointContract.s1(ApplicationInfoView.class)), PAGE_NUM, NEGATIVE_PAGE_SIZE, 2));
         }
     }
 

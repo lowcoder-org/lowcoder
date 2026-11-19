@@ -57,11 +57,24 @@ public class MongoUpsertHelper {
      * @see #updatePurely(HasIdAndAuditing, Query) for purely update.
      */
     public <T extends HasIdAndAuditing> Mono<Boolean> update(T partialResource, Query query) {
+        return updateAndUnset(partialResource, query);
+    }
+
+    /**
+     * Like {@link #update(HasIdAndAuditing, Query)}, and also removes the given fields from the matched document. A field
+     * cannot be cleared by leaving it null in the partial resource, because only its non-null fields are written (BF-064).
+     * The field names are the names stored in the document (for a property without {@code @Field}, its name).
+     */
+    public <T extends HasIdAndAuditing> Mono<Boolean> updateAndUnset(T partialResource, Query query, String... fieldsToUnset) {
         return Mono.deferContextual(ctx -> {
                     partialResource.setUpdatedAt(Instant.now());
                     partialResource.setModifiedBy(ctx.getOrDefault(GlobalContext.VISITOR_ID, GlobalContext.SYSTEM_USER_ID));
                     applicationEventPublisher.publishEvent(new BeforeSaveEvent<>(partialResource));
-                    return Mono.just(convertToUpdate(partialResource));
+                    Update update = convertToUpdate(partialResource);
+                    for (String field : fieldsToUnset) {
+                        update.unset(field);
+                    }
+                    return Mono.just(update);
                 })
                 .flatMap(updateData -> reactiveMongoTemplate.updateFirst(query, updateData, partialResource.getClass()))
                 .map(updateResult -> updateResult.getModifiedCount() > 0);
@@ -130,9 +143,14 @@ public class MongoUpsertHelper {
         return upsert(update, criteria, newResource.getClass());
     }
 
+    /**
+     * Applies {@code update} to the first document {@code criteria} matches, or inserts one, and answers whether a document
+     * was written: true for an insert and for a change, false for a match that the update leaves as it was (BF-134: an
+     * insert answered false, since only the modified count was read). The other upsert overloads answer the same.
+     */
     public Mono<Boolean> upsert(Update update, Criteria criteria, Class<?> collection) {
         return reactiveMongoTemplate.upsert(new Query(criteria), update, collection)
-                .map(updateResult -> updateResult.getModifiedCount() > 0);
+                .map(updateResult -> updateResult.getModifiedCount() > 0 || updateResult.getUpsertedId() != null);
     }
 
     @SuppressWarnings("unchecked")

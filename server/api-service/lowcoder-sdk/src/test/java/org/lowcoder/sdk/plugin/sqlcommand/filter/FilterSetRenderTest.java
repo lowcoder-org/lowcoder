@@ -6,9 +6,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -23,6 +26,22 @@ import org.lowcoder.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
 
 /** Rendering and parsing of the GUI filter conditions of {@link FilterSet} (the where clause of GUI update/delete). */
 class FilterSetRenderTest {
+
+    /** A default locale whose case mapping of {@code i} and {@code I} differs from {@code Locale.ROOT}'s (NEW-40). */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+    private static final String LOWER_CASE_IN = "in";
+    private static final String LOWER_CASE_IS_NOT = "is not";
+    private static final String IN = "IN";
+    private static final String IS_NOT = "IS NOT";
+    private static final String IN_AND_IS_NOT_SQL = " where `id` IN (?,?) and `note` IS NOT null ";
+    private static final String FILTER_BY_KEY = "filterBy";
+    private static final String ID_COLUMN = "id";
+    private static final String NOTE_COLUMN = "note";
+    /** The value an {@code IS NOT} condition compares with. */
+    private static final Object NULL_VALUE = null;
+    /** Render with bind parameters, not as raw SQL. */
+    private static final boolean PREPARED_STATEMENT = false;
+    private static final List<Integer> TWO_IDS = List.of(1, 2);
 
     private static final String FRONT = "`";
     private static final String BACK = "`";
@@ -100,12 +119,24 @@ class FilterSetRenderTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"IN", "NOT IN"})
-    void inAndNotInRenderListsWithQuotedStringsAndJsonForNestedValues(String operator) {
+    void inAndNotInBindEveryElementAndSendNestedValuesAsJson(String operator) {
         List<Object> list = List.of(1, "a", true, List.of(2), Map.of("k", "v"));
 
         GuiSqlCommandRenderResult result = render(filterSet("id", operator, "{{list}}"), Map.of("list", list), false);
 
-        assertThat(result.sql()).isEqualTo(" where `id` " + operator + " (1,'a',true,[2],{\"k\":\"v\"})");
+        assertThat(result.sql()).isEqualTo(" where `id` " + operator + " (?,?,?,?,?)");
+        assertThat(result.bindParams()).containsExactly(1, "a", true, "[2]", "{\"k\":\"v\"}");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"IN", "NOT IN"})
+    void inAndNotInInRawModeEscapeEveryStringElementWithTheDialectEscaper(String operator) {
+        List<Object> list = new ArrayList<>(List.of(1, "a", true, List.of(2)));
+        list.add(null);
+
+        GuiSqlCommandRenderResult result = render(filterSet("id", operator, "{{list}}"), Map.of("list", list), true);
+
+        assertThat(result.sql()).isEqualTo(" where `id` " + operator + " (1,'a',true,'[2]',null)");
         assertThat(result.bindParams()).isEmpty();
     }
 
@@ -127,28 +158,28 @@ class FilterSetRenderTest {
     }
 
     /**
-     * Pins the plan section 9 row "FilterSet IN / NOT IN renders the list as raw SQL in every dialect, prepared or not,
-     * String elements quoted without the escapeSql the other operators use" (SQL injection, D-6, fix deferred): an
-     * element {@code x' OR '1'='1} ends up verbatim inside the rendered SQL and is not a bind parameter, for a MySQL
-     * command (prepared statements) and a PostgreSQL command (raw SQL). A fix changes this test on purpose.
+     * BF-007 (SQL injection through GUI {@code IN} / {@code NOT IN} filters): an element {@code x' OR '1'='1} is a bind
+     * parameter of the MySQL command (prepared statements) and is dollar-quoted by the PostgreSQL command (raw SQL), the
+     * same treatment the {@code =} operator gives the value; it is never part of the SQL text as written.
      */
     @Test
-    void inListStringElementsAreWrittenUnescapedIntoTheSqlForMysqlAndPostgres() {
+    void inListStringElementsAreBoundForMysqlAndDollarQuotedForPostgres() {
         String injection = "x' OR '1'='1";
-        Map<String, Object> request = Map.of("value", List.of(injection));
+        Map<String, Object> request = Map.of("value", List.of(injection, "plain"));
 
         GuiSqlCommandRenderResult mysql = MysqlDeleteCommand.from(deleteDetail("IN")).render(request);
         GuiSqlCommandRenderResult postgres = PostgresDeleteCommand.from(deleteDetail("IN")).render(request);
 
         System.out.println("[FilterSetRenderTest] mysql IN: " + mysql.sql() + " " + mysql.bindParams());
         System.out.println("[FilterSetRenderTest] postgres IN: " + postgres.sql() + " " + postgres.bindParams());
-        assertThat(mysql.sql()).as("today's behaviour: the element is part of the SQL text").isEqualTo("delete from users where `id` IN ('x' OR '1'='1')");
-        assertThat(mysql.bindParams()).as("and not a bind parameter").isEmpty();
-        assertThat(postgres.sql()).isEqualTo("delete from users where \"id\" IN ('x' OR '1'='1')");
+        assertThat(mysql.sql()).isEqualTo("delete from users where `id` IN (?,?)");
+        assertThat(mysql.bindParams()).containsExactly(injection, "plain");
+        assertThat(postgres.sql()).matches("delete from users where \"id\" IN \\(\\$([A-Za-z]{7})\\$x' OR '1'='1\\$\\1\\$,"
+                + "\\$([A-Za-z]{7})\\$plain\\$\\2\\$\\)");
         assertThat(postgres.bindParams()).isEmpty();
     }
 
-    /** The contrast to the pin above: the {@code =} operator with the same value is bound (MySQL) or dollar-quoted (PostgreSQL). */
+    /** The {@code =} operator with the same value is bound (MySQL) or dollar-quoted (PostgreSQL), as the IN elements above. */
     @Test
     void equalsOperatorWithTheSameValueIsBoundOrEscaped() {
         String injection = "x' OR '1'='1";
@@ -187,6 +218,18 @@ class FilterSetRenderTest {
 
         assertThat(result.sql()).isEqualTo(" where `a` = ?  and id > 5 or 1=1");
         assertThat(result.bindParams()).containsExactly(1);
+    }
+
+    /** BF-008: a closing delimiter inside a column name is doubled, so the name cannot end the quoted identifier. */
+    @Test
+    void aClosingDelimiterInsideAColumnNameIsDoubled() {
+        GuiSqlCommandRenderResult backtick = render(filterSet("a` = 1 or `b", "=", 1), NO_PARAMS, false);
+        GuiSqlCommandRenderResult bracket = filterSet("a] = 1 or [b", "IN", List.of(1)).render(NO_PARAMS, "[", "]", false, QUOTE);
+        System.out.println("[FilterSetRenderTest] bracket -> [" + bracket.sql() + "] " + bracket.bindParams());
+
+        assertThat(backtick.sql()).isEqualTo(" where `a`` = 1 or ``b` = ? ");
+        assertThat(bracket.sql()).isEqualTo(" where [a]] = 1 or [b] IN (?)");
+        assertThat(bracket.bindParams()).containsExactly(1);
     }
 
     @Test
@@ -246,5 +289,29 @@ class FilterSetRenderTest {
     void parseFilterSetRejectsMalformedFilters(String label, Map<String, Object> detail, String messageKey, Object[] args) {
         assertPluginError(() -> FilterSet.parseFilterSet(detail), PluginCommonError.INVALID_GUI_SETTINGS, messageKey, args);
         System.out.println("[FilterSetRenderTest] parse error: " + label + " -> " + messageKey);
+    }
+
+
+    /**
+     * NEW-40: an operator sent in lower case (this client's editor sends upper case; the parser upper-cases whatever it
+     * is given) is upper-cased with {@code Locale.ROOT}'s rule under a Turkish default locale too; the default locale's
+     * rule made {@code in} {@code İN}, an unknown operator. The case holds JUnit's {@code Resources.LOCALE} lock while
+     * it changes the default locale; the lock orders it only against tests that hold the same lock, and it restores the
+     * locale after its calls, which block, have completed.
+     */
+    @Test
+    @ResourceLock(Resources.LOCALE)
+    void parseFilterSetUpperCasesTheOperatorUnderATurkishDefaultLocaleNEW40() {
+        Map<String, Object> detail = Map.of(FILTER_BY_KEY, List.of(condition(ID_COLUMN, LOWER_CASE_IN, TWO_IDS), condition(NOTE_COLUMN, LOWER_CASE_IS_NOT, NULL_VALUE)));
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            FilterSet set = FilterSet.parseFilterSet(detail);
+            System.out.println("[FilterSetRenderTest] under " + Locale.getDefault() + ": " + set.stream().map(FilterSet.FilterCondition::getCondition).toList());
+            assertThat(set).extracting(FilterSet.FilterCondition::getCondition).containsExactly(IN, IS_NOT);
+            assertThat(render(set, NO_PARAMS, PREPARED_STATEMENT).sql()).isEqualTo(IN_AND_IS_NOT_SQL);
+        } finally {
+            Locale.setDefault(previous);
+        }
     }
 }

@@ -27,7 +27,6 @@ import jakarta.annotation.Nullable;
 import lombok.Builder;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lowcoder.plugin.restapi.constants.ResponseDataType;
@@ -50,7 +49,9 @@ import org.lowcoder.sdk.plugin.restapi.auth.AuthConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.BasicAuthConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType;
 import org.lowcoder.sdk.query.QueryVisitorContext;
+import org.lowcoder.sdk.util.CookieForwarding;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
+import org.lowcoder.sdk.webclient.WebClientRedirects;
 import org.pf4j.Extension;
 import org.springframework.http.*;
 import org.springframework.http.client.reactive.ClientHttpRequest;
@@ -68,6 +69,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -126,6 +128,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
         boolean encodeParams = !queryConfig.isDisableEncodingParams();
 
         String queryBody = trimToEmpty(queryConfig.getBody());
+        String bodyType = trimToEmpty(queryConfig.getBodyType());
         String queryPath = trimToEmpty(queryConfig.getPath());
         List<Property> queryParams = queryConfig.getParams();
         List<Property> queryHeaders = queryConfig.getHeaders();
@@ -137,9 +140,22 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
         List<Property> updatedQueryHeaders = renderMustacheValueInProperties(queryHeaders, requestParams);
 
         Map<String, String> allHeaders = buildHeaders(datasourceHeaders, updatedQueryHeaders);
-        String contentType = parseContentType(allHeaders).toLowerCase();
+        String contentType = parseContentType(allHeaders).toLowerCase(Locale.ROOT);
         if (!isValidContentType(contentType)) {
             throw new PluginException(QUERY_ARGUMENT_ERROR, "INVALID_CONTENT_TYPE", contentType);
+        }
+        // No Content-Type header (BF-057: the body was dropped silently). The editor's body type decides, as the editor
+        // shows the query: a content-type body type (the header was removed by hand) stands in for the header; "None"
+        // sends no body, even when the query still holds text from a body type chosen before; no body type (a query not
+        // saved by the editor) sends the body text as it is, without a Content-Type. Limit: in that last case form fields
+        // (bodyFormData) are not sent, as a form cannot be encoded without its content type.
+        if (isNoneContentType(contentType)) {
+            if (RestApiQueryConfig.CONTENT_TYPE_BODY_TYPES.contains(bodyType)) {
+                contentType = bodyType;
+                allHeaders = withContentType(allHeaders, contentType);
+            } else if (RestApiQueryConfig.BODY_TYPE_NONE.equals(bodyType)) {
+                queryBody = "";
+            }
         }
 
         List<Property> updatedQueryBodyParams = renderMustacheValueForQueryBody(queryBodyParams, requestParams, contentType);
@@ -158,12 +174,14 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
         Map<String, String> urlParams = buildUrlParams(datasourceUrlParams, updatedQueryParams);
         List<Property> bodyParams = mergeBody(datasourceBodyFormData, updatedQueryBodyParams);
 
-        URI uri = RestApiUriBuilder.buildUri(urlDomain, updatedQueryPath, requestParams, urlParams);
+        Function<Map<String, String>, URI> uriForUrlParams = params -> RestApiUriBuilder.buildUri(urlDomain, updatedQueryPath, requestParams, params);
+        URI uri = uriForUrlParams.apply(urlParams);
 
         QueryBody mergedQueryBody = mergeBody(updatedQueryBody, datasourceBodyFormData);
         return RestApiQueryExecutionContext.builder()
                 .httpMethod(httpMethod)
                 .uri(uri)
+                .uriForUrlParams(uriForUrlParams)
                 .headers(allHeaders)
                 .contentType(contentType)
                 .urlParams(urlParams)
@@ -203,9 +221,9 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
         }
         JsonNode jsonNode = queryBody.getJsonValue();
         if (jsonNode instanceof ObjectNode objectNode) {
-            for (Property property : datasourceBody) {
-                objectNode.put(property.getKey(), property.getValue());
-            }
+            // BF-114: a field the query sets wins over the datasource's, as in a form body and for params and headers
+            datasourceBody.stream().filter(property -> !objectNode.has(property.getKey()))
+                    .forEach(property -> objectNode.put(property.getKey(), property.getValue()));
             return queryBody;
         }
 
@@ -250,18 +268,28 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
                             context.getQueryBody(),
                             context.getBodyParams());
 
-                    return httpCall(client, context.getHttpMethod(), context.getUri(), bodyInserter, 0, authConfig, DEFAULT_HEADERS_CONSUMER)
+                    return httpCall(client, context.getHttpMethod(), context.getUri(), bodyInserter, 0, authConfig, DEFAULT_HEADERS_CONSUMER, false)
                             .map(this::convertToQueryExecutionResult)
                             .onErrorResume(e -> propagateError(REST_API_EXECUTION_ERROR, DEFAULT_REST_ERROR_CODE, e));
                 }));
     }
 
+    /**
+     * Sends the request, follows a redirect up to {@code MAX_REDIRECTS} requests, and answers a digest challenge once per
+     * request: {@code digestAnswered} is true for the request that carries the answer, so a new challenge to it, the server's
+     * answer to wrong credentials, is returned as the 401 it is (BF-078: every challenge was answered again until the request
+     * limit, and the query failed with the redirect-limit error). A followed redirect is a new request and may be answered.
+     * <p>
+     * Limits: the flag is not kept per URI, so a redirect back to an answered URI is answered again (within MAX_REDIRECTS);
+     * a challenge with {@code stale=true} (an expired nonce, right credentials) is not answered a second time; it gets the 401.
+     */
     private Mono<ResponseEntity<byte[]>> httpCall(WebClient webClient, HttpMethod httpMethod,
             URI uri,
             BodyInserter<?, ? super ClientHttpRequest> requestBody,
             int iteration,
             @Nullable AuthConfig authConfig,
-            Consumer<HttpHeaders> headersConsumer) {
+            Consumer<HttpHeaders> headersConsumer,
+            boolean digestAnswered) {
         if (iteration == MAX_REDIRECTS) {
             return Mono.error(new PluginException(QUERY_EXECUTION_ERROR, "REACH_REDIRECT_LIMIT", MAX_REDIRECTS));
         }
@@ -272,22 +300,27 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
                 .headers(headersConsumer)
                 .body(requestBody)
                 .exchangeToMono(response -> {
-                    if (response.statusCode().is3xxRedirection()) {
-                        String redirectUrl = response.headers().header("Location").get(0);
+                    String redirectUrl = WebClientRedirects.redirectLocation(response); // BF-113: null for a 3xx without a Location
+                    if (redirectUrl != null) {
                         URI redirectUri;
                         try {
-                            redirectUri = new URI(redirectUrl);
+                            redirectUri = WebClientRedirects.resolveLocation(uri, redirectUrl);
                         } catch (URISyntaxException e) {
                             return propagateError(REST_API_EXECUTION_ERROR, DEFAULT_REST_ERROR_CODE, e);
                         }
-                        return httpCall(webClient, httpMethod, redirectUri, requestBody, iteration + 1, authConfig, headersConsumer);
+                        if (WebClientRedirects.isSameOrigin(uri, redirectUri)) {
+                            return httpCall(webClient, httpMethod, redirectUri, requestBody, iteration + 1, authConfig, headersConsumer, false);
+                        }
+                        // another origin: only content headers, no forwarded cookies, no digest answer
+                        return httpCall(WebClientRedirects.forAnotherOrigin(webClient), httpMethod, redirectUri, requestBody,
+                                iteration + 1, null, DEFAULT_HEADERS_CONSUMER, false);
                     }
                     //digest auth
-                    if (authConfig != null && authConfig.getType() == DIGEST_AUTH && AuthHelper.shouldDigestAuth(response)) {
+                    if (!digestAnswered && authConfig != null && authConfig.getType() == DIGEST_AUTH && AuthHelper.shouldDigestAuth(response)) {
                         try {
                             return httpCall(webClient, httpMethod, uri, requestBody, iteration + 1, authConfig,
                                     headersConsumer.andThen(
-                                            AuthHelper.digestAuth((BasicAuthConfig) authConfig, response, httpMethod, uri.getPath())));
+                                            AuthHelper.digestAuth((BasicAuthConfig) authConfig, response, httpMethod, uri.getPath())), true);
                         } catch (ParseException e) {
                             return propagateError(REST_API_EXECUTION_ERROR, DEFAULT_REST_ERROR_CODE, e);
                         }
@@ -313,6 +346,8 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
                             paramMap.put(param.getKey(), param.getValue());
                         }
                         context.setUrlParams(ImmutableMap.copyOf(paramMap));
+                        // the URI was built from the parameters before the token's (BF-058: they never reached the URL)
+                        context.setUri(context.uriForUrlParams(context.getUrlParams()));
                     }
 
                     List<Property> headers = propertyMap.get("header");
@@ -330,34 +365,11 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
                 .then();
     }
 
+    /** Adds the values of the request cookies the datasource forwards, as {@link CookieForwarding#select} selects them. */
     private Consumer<MultiValueMap<String, String>> injectCookies(RestApiQueryExecutionContext request) {
-        return currentCookies -> {
-            Set<String> forwardCookies = request.getForwardCookies();
-            MultiValueMap<String, HttpCookie> requestCookies = request.getRequestCookies();
-            if (requestCookies == null) {
-                return;
-            }
-
-            if (request.isForwardAllCookies()) {
-                requestCookies.forEach((cookieName, httpCookies) -> {
-                    if (StringUtils.equals(cookieName, commonConfig.getCookieName())) {
-                        return;
-                    }
-                    currentCookies.addAll(cookieName, collectList(httpCookies, HttpCookie::getValue));
-                });
-                return;
-            }
-
-            requestCookies.entrySet()
-                    .stream()
-                    .filter(it -> forwardCookies.contains(it.getKey()))
-                    .filter(it -> ObjectUtils.notEqual(it.getKey(), commonConfig.getCookieName()))
-                    .forEach(entry -> {
-                        String cookieName = entry.getKey();
-                        List<HttpCookie> httpCookies = entry.getValue();
-                        currentCookies.addAll(cookieName, collectList(httpCookies, HttpCookie::getValue));
-                    });
-        };
+        return currentCookies -> CookieForwarding.select(request.getRequestCookies(), request.isForwardAllCookies(),
+                        request.getForwardCookies(), commonConfig.getCookieName())
+                .forEach((cookieName, httpCookies) -> currentCookies.addAll(cookieName, collectList(httpCookies, HttpCookie::getValue)));
     }
 
     private QueryExecutionResult convertToQueryExecutionResult(ResponseEntity<byte[]> responseEntity) {
@@ -456,6 +468,16 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
                         (oldValue, newValue) -> newValue));
     }
 
+    /**
+     * The headers with the given Content-Type added, for a query whose editor body type stands in for the missing header
+     * (BF-057): the request then goes out as if the editor had set the header, as it does when the body type is chosen.
+     */
+    private static Map<String, String> withContentType(Map<String, String> headers, String contentType) {
+        Map<String, String> withContentType = new HashMap<>(headers);
+        withContentType.put(HttpHeaders.CONTENT_TYPE, contentType);
+        return Collections.unmodifiableMap(withContentType);
+    }
+
     private Map<String, String> buildHeaders(List<Property> datasourceHeaders, List<Property> updatedQueryHeaders) {
         return Stream.concat(datasourceHeaders.stream(),
                         updatedQueryHeaders.stream())
@@ -476,7 +498,8 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
         }
 
         if (isNoneContentType(requestContentType)) {
-            return BodyInserters.fromValue(new byte[0]);
+            // no Content-Type: the body as typed, as bytes, so that no encoder adds a Content-Type (BF-057: it was dropped)
+            return BodyInserters.fromValue(String.valueOf(queryBody.value()).getBytes(StandardCharsets.UTF_8));
         }
 
         if (queryBody.isSpecialJson()) {

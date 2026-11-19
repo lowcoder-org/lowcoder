@@ -73,7 +73,7 @@ public class MongoQueryUtils {
     public static Document parseSafely(String fieldName, String input) {
         try {
             return Document.parse(input);
-        } catch (JsonParseException e) {
+        } catch (JsonParseException | org.bson.BsonInvalidOperationException e) { // BF-117: Document.parse throws the latter for a text that is no document, e.g. "[}"
             throw new PluginException(QUERY_ARGUMENT_ERROR, "INVALID_JSON_FORMAT", fieldName);
         }
     }
@@ -87,7 +87,7 @@ public class MongoQueryUtils {
 
         // Parse the commands into raw appropriately
         String commandType = (String) formData.getOrDefault(COMMAND_TYPE, "");
-        MongoCommand command = switch (commandType.toUpperCase()) {
+        MongoCommand command = switch (commandType.toUpperCase(java.util.Locale.ROOT)) { // BF-122: not the default locale
             case "INSERT" -> new Insert(formData);
             case "FIND" -> new Find(formData);
             case "UPDATE" -> new UpdateMany(formData);

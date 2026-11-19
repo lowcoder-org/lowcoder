@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.sdk.exception.PluginCommonError;
@@ -246,47 +247,72 @@ class MustacheHelperEdgeCasesTest {
     }
 
     /**
-     * Pins the plan section 9 row "RjsonMustacheParser.checkString recognises escaped braces but the rendered JSON drops
-     * them" (D-6, fix deferred): {@code \{\{x\}\}} is unescaped to {@code {{x}}} and then rendered as a mustache against
-     * the replaced-token map, so the literal is lost: a top-level value gives a JSON null, a value inside an object (or
-     * array) gives an empty string, even though the parameter {@code x} exists. A fix (the literal text
-     * {@code {{x}}}) changes this test on purpose.
+     * BF-097 (was pinned as the plan section 9 row "RjsonMustacheParser.checkString recognises escaped braces but the
+     * rendered JSON drops them", D-6): an escaped mustache {@code \{\{x\}\}} is the literal text {@code {{x}}}, at the top
+     * level, inside an object or array, quoted or not, as a key, and next to a mustache of the same parameter that is
+     * rendered; it used to be unescaped and rendered against the generated keys, so it became a JSON null or "".
      */
-    @Test
-    void escapedBracesAreUnescapedAndThenRenderedSoTheLiteralIsDropped() {
-        Map<String, Object> params = Map.of("x", "X");
+    @ParameterizedTest(name = "[{index}] {0}")
+    @CsvSource(delimiter = '|', value = {
+            "\\{\\{x\\}\\}|\"{{x}}\"",
+            "\"\\{\\{x\\}\\}\"|\"{{x}}\"",
+            "{\"a\": \"\\{\\{x\\}\\}\"}|{\"a\":\"{{x}}\"}",
+            "[\"\\{\\{x\\}\\}\"]|[\"{{x}}\"]",
+            "{\"a\": \"\\{\\{x\\}\\}\", \"b\": {{n}}}|{\"a\":\"{{x}}\",\"b\":5}",
+            "{\"a\": \\{\\{x\\}\\}, \"b\": {{n}}}|{\"a\":\"{{x}}\",\"b\":5}",
+            "{\"a\": \"pre \\{\\{x\\}\\} {{x}}\"}|{\"a\":\"pre {{x}} X\"}",
+            "{\"\\{\\{x\\}\\}\": {{n}}}|{\"{{x}}\":5}",
+            "[\"\\{\\{ x \\}\\}{{x}}\\{\\{n\\}\\}\", {{x}}]|[\"{{ x }}X{{n}}\",\"X\"]"
+    })
+    void anEscapedMustacheIsItsLiteralTextBF097(String template, String expected) {
+        assertThat(renderJson(template, Map.of("x", "X", "n", 5)).toString()).isEqualTo(expected);
+    }
 
-        assertThat(renderJson("\\{\\{x\\}\\}", params).isNull()).as("today's behaviour: top level gives null").isTrue();
-        assertThat(renderJson("{\"a\": \"\\{\\{x\\}\\}\"}", params).toString()).as("today's behaviour: empty string inside an object").isEqualTo("{\"a\":\"\"}");
-        assertThat(renderJson("[\"\\{\\{x\\}\\}\"]", params).toString()).isEqualTo("[\"\"]");
+    /** BF-097, what does not change: a mustache of a parameter that is missing is still null alone and "" in text. */
+    @Test
+    void aMustacheOfAMissingParameterIsStillNullAloneAndEmptyInTextBF097() {
+        assertThat(renderJson("{\"a\": {{missing}}, \"b\": \"{{missing}}\", \"c\": {{x}}}", Map.of("x", "X")).toString())
+                .isEqualTo("{\"a\":null,\"b\":\"\",\"c\":\"X\"}");
     }
 
     /**
-     * Pins the plan section 9 row "renderMustacheJson throws JSON_PARSE_ERROR 'unknown number node' for a BigInteger,
-     * BigDecimal or Short value" (D-6, fix deferred; BigInteger is the leading case, reachable for an integer beyond the
-     * long range). A fix changes this test on purpose.
+     * BF-096 (was pinned as the plan section 9 row "renderMustacheJson throws JSON_PARSE_ERROR 'unknown number node' for a
+     * BigInteger, BigDecimal or Short value", D-6): a Number without a node of its own renders as the number, alone and
+     * inside JSON text, and as the same node it gets inside a list parameter (the production mapper's {@code valueToTree},
+     * which writes a {@code BigDecimal} without its trailing zeros).
      */
     @ParameterizedTest(name = "[{index}] {0}")
-    @MethodSource("unsupportedNumbers")
-    void jsonRenderingOfAnUnsupportedNumberTypeThrowsUnknownNumberNode(Number value) {
-        for (String template : List.of("{{x}}", "[{{x}}, 1]")) {
-            assertThatThrownBy(() -> MustacheHelper.renderMustacheJson(template, Map.of("x", value))).isInstanceOfSatisfying(PluginException.class, e -> {
-                assertThat(e.getError()).isEqualTo(PluginCommonError.JSON_PARSE_ERROR);
-                assertThat(e.getMessageKey()).isEqualTo(JSON_PARSE_ERROR_KEY);
-                assertThat(String.valueOf(e.getArgs()[1])).isEqualTo("unknown number node: " + value.getClass().getSimpleName());
-            });
-        }
-        System.out.println("[MustacheHelperEdgeCasesTest] " + value.getClass().getSimpleName() + " -> unknown number node (plan section 9 row, pinned)");
+    @MethodSource("numbersWithoutANodeOfTheirOwn")
+    void aNumberWithoutANodeOfItsOwnRendersAsTheNumberItGetsInsideAListBF096(Number value, String written) {
+        JsonNode alone = renderJson("{{x}}", Map.of("x", value));
+        JsonNode insideAList = renderJson("{{list}}", Map.of("list", List.of(value)));
+
+        assertThat(alone.isNumber()).as("a number node, not text").isTrue();
+        assertThat(alone.toString()).isEqualTo(written);
+        assertThat(alone).isEqualTo(insideAList.get(0));
+        assertThat(renderJson("[{{x}}, 1]", Map.of("x", value)).toString()).isEqualTo("[" + written + ",1]");
+        System.out.println("[MustacheHelperEdgeCasesTest] " + value.getClass().getSimpleName() + " -> " + alone.getClass().getSimpleName() + " " + alone);
     }
 
-    static Stream<Number> unsupportedNumbers() {
-        return Stream.of(new BigInteger("12345678901234567890"), new BigDecimal("1.5"), (short) 3);
+    static Stream<Arguments> numbersWithoutANodeOfTheirOwn() {
+        return Stream.of(
+                Arguments.of(new BigInteger("12345678901234567890"), "12345678901234567890"),
+                Arguments.of(new BigDecimal("1.50"), "1.5"),
+                Arguments.of((short) 3, "3"),
+                Arguments.of((byte) 7, "7"));
     }
 
-    /** The same row, reached by a JSON literal beyond the long range in a template that also has a mustache. */
+    /**
+     * BF-096, reached by a JSON literal beyond the long range: inside a template that also has a mustache it is the
+     * number (it used to fail the template), and a template that is only the literal is the number, not its text.
+     */
     @Test
-    void anIntegerLiteralBeyondTheLongRangeInATemplateWithAMustacheThrowsUnknownNumberNode() {
-        assertThatThrownBy(() -> MustacheHelper.renderMustacheJson("{\"a\": 12345678901234567890, \"b\": {{n}}}", jsonParams()))
-                .isInstanceOfSatisfying(PluginException.class, e -> assertThat(String.valueOf(e.getArgs()[1])).isEqualTo("unknown number node: BigInteger"));
+    void anIntegerLiteralBeyondTheLongRangeIsTheNumberBF096() {
+        assertThat(renderJson("{\"a\": 12345678901234567890, \"b\": {{n}}}", jsonParams()).toString())
+                .isEqualTo("{\"a\":12345678901234567890,\"b\":5}");
+
+        JsonNode alone = renderJson("12345678901234567890", Map.of());
+        assertThat(alone.isBigInteger()).isTrue();
+        assertThat(alone.bigIntegerValue()).isEqualTo(new BigInteger("12345678901234567890"));
     }
 }

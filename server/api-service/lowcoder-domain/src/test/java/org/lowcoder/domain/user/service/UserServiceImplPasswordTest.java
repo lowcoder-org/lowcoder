@@ -45,6 +45,8 @@ class UserServiceImplPasswordTest {
     private static final String OLD_PASSWORD = "old-password";
     private static final String NEW_PASSWORD = "new-password";
     private static final String TOKEN = "reset-token";
+    private static final String MISSING_USER_ID = "missing";
+    private static final String USER_NOT_EXIST_KEY = "USER_NOT_EXIST";
     /** Wide margin so nothing depends on timing. */
     private static final Duration ONE_HOUR = Duration.ofHours(1);
 
@@ -74,7 +76,7 @@ class UserServiceImplPasswordTest {
 
     // ---------------------------------------------------------------- updatePassword
 
-    /** Catches a password changed although the old one does not match (:389). */
+    /** Catches a password changed although the old one does not match ({@code UserServiceImpl.updatePassword}). */
     @Test
     void updatePassword_wrongOldPassword_failsAndNeverSaves() {
         User user = fixture.userWithPassword(OLD_PASSWORD);
@@ -89,7 +91,7 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] wrong old password -> INVALID_PASSWORD, nothing saved");
     }
 
-    /** Catches an account without a password (SSO-only) getting one set through the change-password flow (:384). */
+    /** Catches an account without a password (SSO-only) getting one set through the change-password flow ({@code UserServiceImpl.updatePassword}). */
     @ParameterizedTest
     @NullAndEmptySource
     void updatePassword_blankStoredPassword_failsWithInvalidPassword(String storedPassword) {
@@ -103,7 +105,7 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] blank stored password (" + storedPassword + ") rejected");
     }
 
-    /** Catches the new password stored in plain text or the old one kept (:393). */
+    /** Catches the new password stored in plain text or the old one kept ({@code UserServiceImpl.updatePassword}). */
     @Test
     void updatePassword_correctOldPassword_savesHashOfNewPassword() {
         User user = fixture.userWithPassword(OLD_PASSWORD);
@@ -124,7 +126,7 @@ class UserServiceImplPasswordTest {
 
     // ---------------------------------------------------------------- resetPassword / setPassword / markAsSuperAdmin
 
-    /** Catches a plaintext password persisted, or a different value returned than the one hashed (:409-412). */
+    /** Catches a plaintext password persisted, or a different value returned than the one hashed ({@code UserServiceImpl.resetPassword}). */
     @Test
     void resetPassword_returnsPlaintextOnce_andStoresItsHash() {
         User user = fixture.userWithPassword(OLD_PASSWORD);
@@ -142,7 +144,7 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] resetPassword returned a 12 char password whose hash was saved");
     }
 
-    /** Catches a reset on an account that never had a password (:405). */
+    /** Catches a reset on an account that never had a password ({@code UserServiceImpl.resetPassword}). */
     @ParameterizedTest
     @NullAndEmptySource
     void resetPassword_blankStoredPassword_failsPasswordNotSetYet(String storedPassword) {
@@ -155,7 +157,7 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] resetPassword on blank password -> PASSWORD_NOT_SET_YET");
     }
 
-    /** Catches a plaintext password stored by setPassword (:478). */
+    /** Catches a plaintext password stored by setPassword ({@code UserServiceImpl.setPassword}). */
     @Test
     void setPassword_encryptsAndSaves() {
         User user = User.builder().id(USER_ID).build();
@@ -167,7 +169,7 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] setPassword stored a hash that matches the password");
     }
 
-    /** Catches the super admin flag not being set (:489). */
+    /** Catches the super admin flag not being set ({@code UserServiceImpl.markAsSuperAdmin}). */
     @Test
     void markAsSuperAdmin_setsFlagAndSaves() {
         User user = User.builder().id(USER_ID).build();
@@ -189,7 +191,7 @@ class UserServiceImplPasswordTest {
                 .build();
     }
 
-    /** Catches an account takeover with a guessed token (:453): wrong token is rejected and nothing is saved. */
+    /** Catches an account takeover with a guessed token ({@code UserServiceImpl.resetLostPassword}): wrong token is rejected and nothing is saved. */
     @Test
     void resetLostPassword_wrongToken_isRejectedAndPasswordUnchanged() {
         User user = userWithResetToken(TOKEN, Instant.now().plus(ONE_HOUR));
@@ -211,7 +213,7 @@ class UserServiceImplPasswordTest {
                 Arguments.of("no expiry stored", null));
     }
 
-    /** Catches an expiry bypass or an NPE on an account without an expiry (:448-449), even with the right token. */
+    /** Catches an expiry bypass or an NPE on an account without an expiry ({@code UserServiceImpl.resetLostPassword}), even with the right token. */
     @ParameterizedTest(name = "{0}")
     @MethodSource("expiries")
     void resetLostPassword_expiredOrMissingExpiry_isRejected(String label, Instant expiry) {
@@ -225,7 +227,7 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] reset token " + label + " -> TOKEN_EXPIRED");
     }
 
-    /** Catches token reuse after a successful reset (:457-459): the token is cleared and a second use fails. */
+    /** Catches token reuse after a successful reset ({@code UserServiceImpl.resetLostPassword}): the token is cleared and a second use fails. */
     @Test
     void resetLostPassword_success_setsHashAndInvalidatesTheToken() {
         User user = userWithResetToken(TOKEN, Instant.now().plus(ONE_HOUR));
@@ -247,7 +249,7 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] reset succeeded once; the same token fails the second time");
     }
 
-    /** Catches resetting a soft-deleted account (:443). */
+    /** Catches resetting a soft-deleted account ({@code UserServiceImpl.resetLostPassword}). */
     @Test
     void resetLostPassword_deletedAccount_isNotRecoverable() {
         User user = userWithResetToken(TOKEN, Instant.now().plus(ONE_HOUR));
@@ -260,7 +262,7 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] deleted account -> empty result, nothing saved");
     }
 
-    /** Catches the lookup by name being lost (:442): an e-mail lookup without hit falls back to the user name. */
+    /** Catches the lookup by name being lost ({@code UserServiceImpl.resetLostPassword}): an e-mail lookup without hit falls back to the user name. */
     @Test
     void resetLostPassword_fallsBackToLookupByName() {
         User user = userWithResetToken(TOKEN, Instant.now().plus(ONE_HOUR));
@@ -283,7 +285,7 @@ class UserServiceImplPasswordTest {
     }
 
     /**
-     * Catches a plaintext reset token stored, or a wrong lifetime (:429-435): the token handed to the mail hashes to
+     * Catches a plaintext reset token stored, or a wrong lifetime ({@code UserServiceImpl.lostPassword}): the token handed to the mail hashes to
      * the stored value, and the expiry is twelve hours ahead.
      */
     @Test
@@ -308,7 +310,7 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] lostPassword stored the token hash and a 12 hour expiry");
     }
 
-    /** Catches a valid token stored for a mail that was never sent (:430). */
+    /** Catches a valid token stored for a mail that was never sent ({@code UserServiceImpl.lostPassword}). */
     @Test
     void lostPassword_mailSendFails_storesNothing() {
         User user = User.builder().id(USER_ID).email(USER_EMAIL).build();
@@ -323,7 +325,7 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] mail not sent -> no token stored");
     }
 
-    /** Catches a mail sent for an unknown or soft-deleted account (:420): both end empty without a mail or a save. */
+    /** Catches a mail sent for an unknown or soft-deleted account ({@code UserServiceImpl.lostPassword}): both end empty without a mail or a save. */
     @Test
     void lostPassword_unknownAndDeletedAccount_sendNothing() {
         when(fixture.repository.findByEmailOrConnections_Email("nobody@example.com", "nobody@example.com")).thenReturn(Flux.empty());
@@ -341,50 +343,144 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] unknown and deleted accounts -> no mail, no save");
     }
 
+    private static final Duration RESET_TOKEN_LIFETIME = Duration.ofHours(12);
+    private static final String ORG_LOOKUP_ERROR_KEY = "INVALID_ORG_ID";
+    private static final String MEMBERSHIP_LOOKUP_FAILURE = "UserServiceImplPasswordTest.membership-lookup-failure";
+
     /**
-     * Pins the plan section 9 row "UserServiceImpl.lostPassword reads the org's reset-mail template with the wrong
-     * key" (UserServiceImpl:423): the lookup key is the default template's own text, not
-     * {@code PASSWORD_RESET_EMAIL_TEMPLATE}, so an org with a custom template still gets the default one. A fix changes
-     * this test on purpose.
+     * GitHub #1043: an account in no organization ({@code getCurrentOrgMember} empty) used to end {@code lostPassword}
+     * before the mail and the token; it now gets the default template and a stored token hash with its expiry. Shows that
+     * the mail service is called, not that mail is delivered.
      */
     @Test
-    void lostPassword_orgWithCustomResetTemplate_stillSendsTheDefaultTemplate() {
+    void lostPassword_accountInNoOrg_sendsTheDefaultTemplateAndStoresTheTokenGH1043() {
+        User user = User.builder().id(USER_ID).email(USER_EMAIL).build();
+        stubEmailLookup(user);
+        when(fixture.orgMemberService.getCurrentOrgMember(USER_ID)).thenReturn(Mono.empty());
+        when(fixture.emailCommunicationService.sendPasswordResetEmail(eq(USER_EMAIL), any(), any())).thenReturn(true);
+        Instant before = Instant.now();
+
+        StepVerifier.create(service.lostPassword(USER_EMAIL)).verifyComplete();
+
+        System.out.println("[UserServiceImplPasswordTest] no-org account: stored token " + user.getPasswordResetToken()
+                + ", expiry " + user.getPasswordResetTokenExpiry());
+        assertThat(user.getPasswordResetToken()).as("stored token hash").isNotNull();
+        ArgumentCaptor<String> token = ArgumentCaptor.forClass(String.class);
+        verify(fixture.emailCommunicationService).sendPasswordResetEmail(eq(USER_EMAIL), token.capture(),
+                eq(PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT));
+        assertThat(user.getPasswordResetToken()).as("hash of the mailed token")
+                .isEqualTo(HashUtils.hash(token.getValue().getBytes()));
+        assertThat(user.getPasswordResetTokenExpiry()).as("expiry")
+                .isBetween(before.plus(RESET_TOKEN_LIFETIME).minusSeconds(60), Instant.now().plus(RESET_TOKEN_LIFETIME).plusSeconds(60));
+        verify(fixture.repository).save(user);
+        verify(fixture.organizationService, never()).getById(any());
+    }
+
+    /** The fallback is only for an empty lookup: an error of either lookup still fails the request, with no mail and no save. */
+    @ParameterizedTest(name = "{0}")
+    @org.junit.jupiter.params.provider.ValueSource(strings = {"membership lookup fails", "organization lookup fails"})
+    void lostPassword_lookupFails_failsWithoutMailOrToken(String label) {
+        User user = User.builder().id(USER_ID).email(USER_EMAIL).build();
+        stubEmailLookup(user);
+        Throwable injected;
+        if (label.startsWith("membership")) {
+            injected = new IllegalStateException(MEMBERSHIP_LOOKUP_FAILURE);
+            when(fixture.orgMemberService.getCurrentOrgMember(USER_ID)).thenReturn(Mono.error(injected));
+        } else {
+            injected = new BizException(BizError.UNABLE_TO_FIND_VALID_ORG, ORG_LOOKUP_ERROR_KEY);
+            when(fixture.orgMemberService.getCurrentOrgMember(USER_ID))
+                    .thenReturn(Mono.just(OrgMember.builder().orgId(ORG_ID).userId(USER_ID).build()));
+            when(fixture.organizationService.getById(ORG_ID)).thenReturn(Mono.error(injected));
+        }
+
+        StepVerifier.create(service.lostPassword(USER_EMAIL)).expectErrorSatisfies(error -> {
+            System.out.println("[UserServiceImplPasswordTest] " + label + " -> " + error);
+            assertThat(error).isSameAs(injected);
+        }).verify();
+        verify(fixture.emailCommunicationService, never()).sendPasswordResetEmail(any(), any(), any());
+        verify(fixture.repository, never()).save(any(User.class));
+        assertThat(user.getPasswordResetToken()).isNull();
+    }
+
+    private static final String CUSTOM_RESET_TEMPLATE = "<p>custom %s %s</p>";
+
+    /** Runs lostPassword for a member of an org with these common settings and answers the template the mail was sent with. */
+    private String templateSentFor(OrganizationCommonSettings settings) {
         User user = User.builder().id(USER_ID).email(USER_EMAIL).build();
         stubEmailLookup(user);
         when(fixture.orgMemberService.getCurrentOrgMember(USER_ID))
                 .thenReturn(Mono.just(OrgMember.builder().orgId(ORG_ID).userId(USER_ID).build()));
-        OrganizationCommonSettings settings = new OrganizationCommonSettings();
-        settings.put(OrganizationCommonSettings.PASSWORD_RESET_EMAIL_TEMPLATE, "<p>custom %s %s</p>");
         when(fixture.organizationService.getById(ORG_ID))
                 .thenReturn(Mono.just(Organization.builder().commonSettings(settings).build()));
         when(fixture.emailCommunicationService.sendPasswordResetEmail(any(), any(), any())).thenReturn(true);
 
         StepVerifier.create(service.lostPassword(USER_EMAIL)).verifyComplete();
 
-        verify(fixture.emailCommunicationService).sendPasswordResetEmail(eq(USER_EMAIL), any(),
-                eq(PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT));
-        verify(fixture.emailCommunicationService, never()).sendPasswordResetEmail(any(), any(), eq("<p>custom %s %s</p>"));
-        System.out.println("[UserServiceImplPasswordTest] pins the section 9 row: custom reset template ignored, default sent");
+        ArgumentCaptor<String> template = ArgumentCaptor.forClass(String.class);
+        verify(fixture.emailCommunicationService).sendPasswordResetEmail(eq(USER_EMAIL), any(), template.capture());
+        return template.getValue();
     }
 
     /**
-     * Pins the plan section 9 row "updatePassword, setPassword and markAsSuperAdmin emit true though nothing was
-     * saved" (UserServiceImpl:396-397, :481-482, :492-493): for an unknown user id each ends in
-     * {@code flatMap(save).thenReturn(true)}, which emits true after an empty upstream, and save is never subscribed.
-     * A fix (switchIfEmpty or hasElement) changes this test on purpose.
+     * BF-041 fixed: lostPassword looked the org's reset-mail template up with the default template's own text as the key,
+     * so an org with a custom template still got the default one. It now reads {@code PASSWORD_RESET_EMAIL_TEMPLATE}.
+     */
+    @Test
+    void lostPassword_orgWithCustomResetTemplate_sendsTheCustomTemplateBF041() {
+        OrganizationCommonSettings settings = new OrganizationCommonSettings();
+        settings.put(OrganizationCommonSettings.PASSWORD_RESET_EMAIL_TEMPLATE, CUSTOM_RESET_TEMPLATE);
+
+        String sent = templateSentFor(settings);
+
+        System.out.println("[UserServiceImplPasswordTest] custom reset template -> sent with " + sent);
+        assertThat(sent).isEqualTo(CUSTOM_RESET_TEMPLATE);
+    }
+
+    static Stream<Arguments> noUsableTemplate() {
+        return Stream.of(
+                Arguments.of("no template stored", null, false),
+                Arguments.of("a blank template", "  ", true),
+                Arguments.of("a number (common settings take any JSON value)", 42, true),
+                Arguments.of("an object", java.util.Map.of("html", CUSTOM_RESET_TEMPLATE), true));
+    }
+
+    /**
+     * BF-041: with the right key, whatever an admin stored is read; anything but a non-blank text gives the default
+     * template instead of failing the unauthenticated lost-password request (a non-text value was cast to String).
+     */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("noUsableTemplate")
+    void lostPassword_withoutAUsableCustomTemplate_sendsTheDefaultTemplateBF041(String label, Object stored, boolean present) {
+        OrganizationCommonSettings settings = new OrganizationCommonSettings();
+        if (present) {
+            settings.put(OrganizationCommonSettings.PASSWORD_RESET_EMAIL_TEMPLATE, stored);
+        }
+
+        String sent = templateSentFor(settings);
+
+        System.out.println("[UserServiceImplPasswordTest] " + label + " -> default template sent: " + PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT.equals(sent));
+        assertThat(sent).isEqualTo(PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT);
+    }
+
+    /**
+     * BF-100 (was pinned as the plan section 9 row "updatePassword, setPassword and markAsSuperAdmin emit true though
+     * nothing was saved"): for an unknown user id each fails with USER_NOT_EXIST and saves nothing; each used to end in
+     * {@code flatMap(save).thenReturn(true)}, which emitted true after the empty lookup.
      */
     @ParameterizedTest
     @org.junit.jupiter.params.provider.ValueSource(strings = {"updatePassword", "setPassword", "markAsSuperAdmin"})
-    void unknownUser_updatePasswordSetPasswordMarkAsSuperAdmin_emitTrueAndSaveNothing(String method) {
-        when(fixture.repository.findById("missing")).thenReturn(Mono.empty());
+    void unknownUser_updatePasswordSetPasswordMarkAsSuperAdmin_failWithUserNotExistAndSaveNothingBF100(String method) {
+        when(fixture.repository.findById(MISSING_USER_ID)).thenReturn(Mono.empty());
         Mono<Boolean> result = switch (method) {
-            case "updatePassword" -> service.updatePassword("missing", OLD_PASSWORD, NEW_PASSWORD);
-            case "setPassword" -> service.setPassword("missing", NEW_PASSWORD);
-            default -> service.markAsSuperAdmin("missing");
+            case "updatePassword" -> service.updatePassword(MISSING_USER_ID, OLD_PASSWORD, NEW_PASSWORD);
+            case "setPassword" -> service.setPassword(MISSING_USER_ID, NEW_PASSWORD);
+            default -> service.markAsSuperAdmin(MISSING_USER_ID);
         };
 
-        StepVerifier.create(result).expectNext(true).verifyComplete();
+        StepVerifier.create(result)
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.USER_NOT_EXIST, USER_NOT_EXIST_KEY))
+                .verify();
         verify(fixture.repository, never()).save(any(User.class));
-        System.out.println("[UserServiceImplPasswordTest] pins the section 9 row: " + method + " on an unknown id emits true, nothing saved");
+        System.out.println("[UserServiceImplPasswordTest] " + method + " on an unknown id -> USER_NOT_EXIST, nothing saved (BF-100)");
     }
 }

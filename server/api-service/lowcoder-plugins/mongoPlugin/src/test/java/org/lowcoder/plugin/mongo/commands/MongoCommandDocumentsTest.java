@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.mongo.utils.MongoQueryUtils;
 import org.lowcoder.sdk.exception.PluginException;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +14,6 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
@@ -38,7 +36,7 @@ public class MongoCommandDocumentsTest {
     static final String SINGLE = "SINGLE";
     static final String INVALID_LIMIT = "INVALID_LIMIT_CONFIG";
     static final String INVALID_PARAMS = "INVALID_PARAM_CONFIG_PLZ_CHECK";
-    static final int DEFAULT_TIMEOUT_MS = 8000;
+    static final int QUERY_TIMEOUT_MS = 2500;
 
     private static Map<String, Object> form(String type, String collection, Object... compKeysAndValues) {
         Map<String, Object> comp = new HashMap<>();
@@ -100,6 +98,20 @@ public class MongoCommandDocumentsTest {
         assertEquals(new Document(), document(form("FIND", COLLECTION, "query", "   ")).get("filter"), "a blank query is an empty filter");
     }
 
+    /** BF-117 through another caller of parseSafely: a query, sort or projection that is an array is INVALID_JSON_FORMAT of its field. */
+    @Test
+    public void findFieldsThatAreNoDocumentAreCodedErrorsBF117() {
+        for (String[] field : new String[][] {{"query", "Query"}, {"sort", "Sort"}, {"projection", "Projection"}}) {
+            for (String notADocument : List.of("[]", "[{\"a\": 1}]", "[}")) {
+                PluginException coded = assertThrows(PluginException.class, () -> document(form("FIND", COLLECTION, field[0], notADocument)), notADocument);
+                System.out.println("[MongoCommandDocumentsTest] FIND " + field[0] + " " + notADocument + " -> " + coded.getMessageKey() + " " + coded.getArgs()[0]);
+                assertEquals(QUERY_ARGUMENT_ERROR, coded.getError());
+                assertEquals("INVALID_JSON_FORMAT", coded.getMessageKey());
+                assertEquals(field[1], coded.getArgs()[0]);
+            }
+        }
+    }
+
     @Test
     public void findLimitMustBeAPositiveInteger() {
         for (String limit : List.of("0", "-3", "abc", "1.5")) {
@@ -152,17 +164,24 @@ public class MongoCommandDocumentsTest {
     static final List<String> BROKEN_ARRAYS = List.of("[}", "[{\"a\": ");
 
     /**
-     * Pins the plan section 9 row "Insert/Aggregate: [} or a truncated array escapes as a raw BsonInvalidOperationException (catch handles JsonParseException only)" as observed. A fix (catching it) changes this test on purpose.
-     * Most malformed arrays tried ({@link #BROKEN_ARRAYS}) escape as a raw BsonInvalidOperationException instead
-     * of the INVALID_JSON_ARRAY_FORMAT error; only a JsonParseException input such as {@code [,]} or {@code [{'a':}]} is mapped.
+     * BF-117 (fixed; was pinned as plan section 9 row "Insert/Aggregate: [} or a truncated array escapes as a raw
+     * BsonInvalidOperationException"): a text that starts with {@code [} but does not end with {@code ]} ({@link #BROKEN_ARRAYS})
+     * is not an array to {@code isArrayStr}, so it is parsed as one document by {@code MongoQueryUtils.parseSafely}, whose
+     * {@code Document.parse} throws BsonInvalidOperationException for it; parseSafely now maps that to INVALID_JSON_FORMAT
+     * with the field's name, as it does a JsonParseException. A malformed text in brackets ({@code [,]}, {@code [{'a':}]}) is
+     * parsed as an array and is INVALID_JSON_ARRAY_FORMAT, as before.
      */
     @Test
-    public void insertMalformedArraysEscapeAsRawBsonExceptionsExceptCommaOnly() {
+    public void insertMalformedArraysAreCodedErrorsBF117() {
         PluginException mapped = assertThrows(PluginException.class, () -> document(form("INSERT", COLLECTION, "documents", "[,]")));
         assertEquals("INVALID_JSON_ARRAY_FORMAT", mapped.getMessageKey());
         assertEquals("INVALID_JSON_ARRAY_FORMAT", assertThrows(PluginException.class, () -> document(form("INSERT", COLLECTION, "documents", "[{'a':}]"))).getMessageKey());
         for (String broken : BROKEN_ARRAYS) {
-            assertThrows(org.bson.BsonInvalidOperationException.class, () -> document(form("INSERT", COLLECTION, "documents", broken)), broken);
+            PluginException coded = assertThrows(PluginException.class, () -> document(form("INSERT", COLLECTION, "documents", broken)), broken);
+            System.out.println("[MongoCommandDocumentsTest] INSERT " + broken + " -> " + coded.getError() + " " + coded.getMessageKey() + " " + coded.getMessage());
+            assertEquals(QUERY_ARGUMENT_ERROR, coded.getError(), broken);
+            assertEquals("INVALID_JSON_FORMAT", coded.getMessageKey(), broken);
+            assertEquals("Documents", coded.getArgs()[0], broken);
         }
     }
 
@@ -274,16 +293,16 @@ public class MongoCommandDocumentsTest {
     }
 
     /**
-     * The absent-limit assertion pins the plan section 9 row "data missing: a mongo aggregate with no limit field sends cursor {batchSize: 0} and MongoDB 7.0 returns zero rows" (server side:
-     * MongoEngineContainerTest.aggregateWithoutALimitFieldAgainstTheServer_pinsTheSection9Row). A fix (a default limit when the
-     * field is absent) changes it on purpose.
+     * BF-031 fixed: an absent limit field was sent as {@code {batchSize: 0}}, so the first batch was empty. It is now
+     * unlimited like a blank limit (server side: MongoEngineContainerTest.aggregateWithoutALimitFieldReturnsEveryRowBF031).
      */
     @Test
-    public void aggregateBatchSizeFollowsTheLimitField_pinsTheSection9Row() {
+    public void aggregateWithoutALimitIsUnlimitedLikeABlankLimitBF031() {
         assertEquals(Document.parse("{batchSize: 50}"), document(form("AGGREGATE", COLLECTION, "arrayPipelines", "[]", "limit", "50")).get("cursor"));
         assertEquals(Document.parse("{batchSize: " + Integer.MAX_VALUE + "}"), document(form("AGGREGATE", COLLECTION, "arrayPipelines", "[]", "limit", "  ")).get("cursor"), "a blank limit means unlimited");
         Document absent = document(form("AGGREGATE", COLLECTION, "arrayPipelines", "[]"));
-        assertEquals(Document.parse("{batchSize: 0}"), absent.get("cursor"), "an absent limit field leaves the limit at 0: batchSize 0 (observed; MG-6 confirms the rows against a server)");
+        System.out.println("[MongoCommandDocumentsTest] aggregate without a limit field: cursor " + absent.get("cursor"));
+        assertEquals(Document.parse("{batchSize: " + Integer.MAX_VALUE + "}"), absent.get("cursor"), "an absent limit field means unlimited");
     }
 
     @Test
@@ -295,12 +314,14 @@ public class MongoCommandDocumentsTest {
         }
     }
 
-    /** Aggregate side of the section 9 row named at {@link #insertMalformedArraysEscapeAsRawBsonExceptionsExceptCommaOnly}: Pins the plan section 9 row "Insert/Aggregate: [} or a truncated array escapes as a raw BsonInvalidOperationException (catch handles JsonParseException only)" as observed. */
+    /** Aggregate side of BF-117 ({@link #insertMalformedArraysAreCodedErrorsBF117}): the broken arrays are INVALID_JSON_FORMAT of "Array of Pipelines". */
     @Test
     public void aggregateMalformedPipelineAndMissingPipelineAreReported() {
         assertEquals("INVALID_MONGODB_BSON_ARRAY_FORMAT", assertThrows(PluginException.class, () -> document(form("AGGREGATE", COLLECTION, "arrayPipelines", "[,]", "limit", "5"))).getMessageKey());
         for (String broken : BROKEN_ARRAYS) {
-            assertThrows(org.bson.BsonInvalidOperationException.class, () -> document(form("AGGREGATE", COLLECTION, "arrayPipelines", broken, "limit", "5")), "observation: not mapped to INVALID_MONGODB_BSON_ARRAY_FORMAT: " + broken);
+            PluginException coded = assertThrows(PluginException.class, () -> document(form("AGGREGATE", COLLECTION, "arrayPipelines", broken, "limit", "5")), broken);
+            assertEquals("INVALID_JSON_FORMAT", coded.getMessageKey(), broken);
+            assertEquals("Array of Pipelines", coded.getArgs()[0], broken);
         }
         PluginException stage = assertThrows(PluginException.class, () -> document(form("AGGREGATE", COLLECTION, "arrayPipelines", "{\"$match\": ", "limit", "5")));
         assertEquals("INVALID_JSON_FORMAT", stage.getMessageKey());
@@ -348,22 +369,24 @@ public class MongoCommandDocumentsTest {
         assertFalse(MongoQueryUtils.isRawCommand(new HashMap<>()));
     }
 
+    /** The default locale under which upper-casing "i" gives a dotted capital I. */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+
     /**
-     * Pins defect D17 (analysis-plugins section 0.6; plan section 9 D1-D20 row: default-locale toUpperCase,
-     * {@code MongoQueryUtils.java:90}): under a Turkish default locale the command type {@code insert} (lower case) becomes a
-     * dotted capital I word and is rejected as unknown. The client sends upper-case types (mongoQuery.tsx:15-22), which a
-     * Turkish locale does not change, so only an API call with a lower-case type reaches it. A fix ({@code Locale.ROOT})
-     * changes this test on purpose. The default locale is global state: restored in finally.
+     * BF-122 (D17; {@code MongoQueryUtils.java:90}): the command type was upper-cased with the default locale, so under a
+     * Turkish default locale the type {@code insert} (lower case) became a dotted capital I word and was rejected as unknown
+     * (INVALID_MONGODB_REQUEST). The client sends upper-case types (mongoQuery.tsx:15-22), so only an API call with a
+     * lower-case type reached it. It is upper-cased with {@code Locale.ROOT} now. The default locale is global state:
+     * restored in finally.
      */
     @Test
-    public void lowerCaseCommandTypeIsRejectedUnderATurkishDefaultLocale_pinsD17() {
+    public void lowerCaseCommandTypeIsReadUnderATurkishDefaultLocaleBF122() {
         Locale saved = Locale.getDefault();
         try {
-            Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+            Locale.setDefault(TURKISH);
             System.out.println("[MongoCommandDocumentsTest] default locale: " + Locale.getDefault() + ", upper case of insert: " + "insert".toUpperCase());
-            PluginException thrown = invalid(form("insert", COLLECTION, "documents", "{}"));
-            assertEquals("INVALID_MONGODB_REQUEST", thrown.getMessageKey());
-            assertInstanceOf(Insert.class, MongoQueryUtils.convertMongoFormInputToRawCommand(form("INSERT", COLLECTION, "documents", "{}")), "the upper-case type the client sends is unaffected");
+            assertInstanceOf(Insert.class, MongoQueryUtils.convertMongoFormInputToRawCommand(form("insert", COLLECTION, "documents", "{}")), "under " + Locale.getDefault());
+            assertInstanceOf(Insert.class, MongoQueryUtils.convertMongoFormInputToRawCommand(form("INSERT", COLLECTION, "documents", "{}")), "the upper-case type the client sends");
         } finally {
             Locale.setDefault(saved);
         }
@@ -371,25 +394,40 @@ public class MongoCommandDocumentsTest {
     }
 
     /**
-     * Pins defect D12 (analysis-plugins section 0.6; plan section 9 D1-D20 row): the {@code timeout} form field is read into
-     * {@code timeoutMs} (default 8000) and never reaches a command document: none of them carries {@code maxTimeMS}, so the
-     * setting has no effect. A fix (adding {@code maxTimeMS}) changes this test on purpose.
+     * BF-061 (formerly pinned as D12, "the timeout form field is read into timeoutMs and never reaches a command document"):
+     * the query's timeout, which the server puts into the query config as {@code timeoutMs} (a number in text), is sent as
+     * {@code maxTimeMS} in the read commands (find, aggregate, count, distinct), and not in the writes (insert, update,
+     * delete). Without a positive {@code timeoutMs}, or with only the old {@code timeout} key, which nothing sends, no command
+     * carries it.
      */
     @Test
-    public void timeoutIsReadButNoCommandDocumentCarriesIt_pinsD12() {
-        Map<String, Object> withTimeout = form("FIND", COLLECTION);
-        withTimeout.put("timeout", 100);
-        assertEquals(100, MongoQueryUtils.convertMongoFormInputToRawCommand(withTimeout).getTimeoutMs());
-        assertEquals(DEFAULT_TIMEOUT_MS, MongoQueryUtils.convertMongoFormInputToRawCommand(form("FIND", COLLECTION)).getTimeoutMs());
-        List<Map<String, Object>> forms = new ArrayList<>(List.of(
-                form("FIND", COLLECTION), form("INSERT", COLLECTION, "documents", "{}"), form("UPDATE", COLLECTION, "query", "{}", "update", "{}"),
-                form("DELETE", COLLECTION, "query", "{}"), form("COUNT", COLLECTION), form("DISTINCT", COLLECTION, "key", "k"),
-                form("AGGREGATE", COLLECTION, "arrayPipelines", "[]", "limit", "1")));
-        for (Map<String, Object> form : forms) {
-            form.put("timeout", 100);
-            Document document = MongoQueryUtils.convertMongoFormInputToRawCommand(form).parseCommand();
-            assertFalse(document.containsKey("maxTimeMS"), form.get("compType") + ": " + document.toJson());
-            assertNull(document.get("timeout"));
+    public void theQueryTimeoutIsSentAsMaxTimeMsInTheReadCommandsBF061() {
+        List<Map<String, Object>> reads = List.of(form("FIND", COLLECTION), form("COUNT", COLLECTION), form("DISTINCT", COLLECTION, "key", "k"),
+                form("AGGREGATE", COLLECTION, "arrayPipelines", "[]", "limit", "1"));
+        List<Map<String, Object>> writes = List.of(form("INSERT", COLLECTION, "documents", "{}"), form("UPDATE", COLLECTION, "query", "{}", "update", "{}"),
+                form("DELETE", COLLECTION, "query", "{}"));
+        for (Map<String, Object> form : reads) {
+            assertEquals(QUERY_TIMEOUT_MS, command(form, "timeoutMs", String.valueOf(QUERY_TIMEOUT_MS)).get("maxTimeMS"), String.valueOf(form.get("compType")));
+            assertEquals(QUERY_TIMEOUT_MS, command(form, "timeoutMs", QUERY_TIMEOUT_MS).get("maxTimeMS"), "an Integer value too");
         }
+        for (Map<String, Object> form : writes) {
+            assertFalse(command(form, "timeoutMs", String.valueOf(QUERY_TIMEOUT_MS)).containsKey("maxTimeMS"), String.valueOf(form.get("compType")));
+        }
+        for (Map<String, Object> form : reads) {
+            assertFalse(command(form, null, null).containsKey("maxTimeMS"), "no timeoutMs: " + form.get("compType"));
+            assertFalse(command(form, "timeoutMs", "0").containsKey("maxTimeMS"), "0 would mean no limit: " + form.get("compType"));
+            assertFalse(command(form, "timeoutMs", "abc").containsKey("maxTimeMS"), "not a number: " + form.get("compType"));
+            assertFalse(command(form, "timeout", QUERY_TIMEOUT_MS).containsKey("maxTimeMS"), "the old key: " + form.get("compType"));
+        }
+    }
+
+    private static Document command(Map<String, Object> form, String key, Object value) {
+        Map<String, Object> withValue = new HashMap<>(form);
+        if (key != null) {
+            withValue.put(key, value);
+        }
+        Document document = MongoQueryUtils.convertMongoFormInputToRawCommand(withValue).parseCommand();
+        System.out.println("[MongoCommandDocumentsTest] " + withValue.get("compType") + " " + key + "=" + value + " -> " + document.toJson());
+        return document;
     }
 }

@@ -8,7 +8,6 @@ import jakarta.annotation.Nullable;
 import lombok.Builder;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.plugin.graphql.constants.ResponseDataType;
 import org.lowcoder.plugin.graphql.helpers.AuthHelper;
@@ -28,10 +27,12 @@ import org.lowcoder.sdk.plugin.restapi.auth.AuthConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.BasicAuthConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType;
 import org.lowcoder.sdk.query.QueryVisitorContext;
+import org.lowcoder.sdk.util.CookieForwarding;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.lowcoder.sdk.util.MoreMapUtils;
 import org.lowcoder.sdk.util.MustacheHelper;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
+import org.lowcoder.sdk.webclient.WebClientRedirects;
 import org.pf4j.Extension;
 import org.springframework.http.*;
 import org.springframework.http.client.reactive.ClientHttpRequest;
@@ -150,7 +151,7 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
         if (!MoreMapUtils.containsStringKeyIgnoreCase(allHeaders, HttpHeaders.CONTENT_TYPE)) {
             allHeaders.put(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         }
-        String contentType = parseContentType(allHeaders).toLowerCase();
+        String contentType = parseContentType(allHeaders).toLowerCase(Locale.ROOT);
         if (!isValidContentType(contentType)) {
             throw new PluginException(QUERY_ARGUMENT_ERROR, "INVALID_CONTENT_TYPE", contentType);
         }
@@ -185,7 +186,8 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
         url = renderMustacheString(url, paramsMap);
 
         try {
-            return new URI(url).normalize().toString();
+            // NEW-19 (GitHub #1929): characters a URI cannot hold are encoded, as RestApiUriBuilder does; an error names the url as written
+            return new URI(RestApiUriBuilder.encodeIllegalCharacters(url)).normalize().toString();
         } catch (URISyntaxException e) {
             throw new PluginException(QUERY_ARGUMENT_ERROR, "INVALID_REQUEST_URL", url);
         }
@@ -231,8 +233,8 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
     }
 
     private List<Property> buildBodyParams(List<Property> datasourceBodyFormData, List<Property> updatedQueryBodyParams) {
-        return Stream.concat(datasourceBodyFormData.stream(),
-                        updatedQueryBodyParams.stream())
+        return Stream.concat(updatedQueryBodyParams.stream(), // BF-114: the first of a key is kept, so the query's value wins
+                        datasourceBodyFormData.stream())
                 .filter(it -> it.getKey() != null)
                 .filter(distinctByKey(Property::getKey))
                 .toList();
@@ -275,7 +277,7 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
                             contentType,
                             context.getQueryBody(),
                             context.getBodyParams());
-                    return httpCall(client, context.getHttpMethod(), uri, bodyInserter, 0, authConfig, DEFAULT_HEADERS_CONSUMER)
+                    return httpCall(client, context.getHttpMethod(), uri, bodyInserter, 0, authConfig, DEFAULT_HEADERS_CONSUMER, false)
                             .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                             .map(this::convertToQueryExecutionResult)
                             .onErrorResume(error -> {
@@ -291,42 +293,29 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
                 }));
     }
 
+    /** The request cookies {@link CookieForwarding#select} keeps, by name, never the session cookie (see its limits). */
     private Consumer<MultiValueMap<String, String>> injectCookies(GraphQLQueryExecutionContext request) {
-        return currentCookies -> {
-            Set<String> forwardCookies = request.getForwardCookies();
-            MultiValueMap<String, HttpCookie> requestCookies = request.getRequestCookies();
-            if (requestCookies == null) {
-                return;
-            }
-
-            if (request.isForwardAllCookies()) {
-                requestCookies.forEach((cookieName, httpCookies) -> {
-                    if (StringUtils.equals(cookieName, commonConfig.getCookieName())) {
-                        return;
-                    }
-                    currentCookies.addAll(cookieName, collectList(httpCookies, HttpCookie::getValue));
-                });
-                return;
-            }
-
-            requestCookies.entrySet()
-                    .stream()
-                    .filter(it -> forwardCookies.contains(it.getKey()))
-                    .filter(it -> ObjectUtils.notEqual(it.getKey(), commonConfig.getCookieName()))
-                    .forEach(entry -> {
-                        String cookieName = entry.getKey();
-                        List<HttpCookie> httpCookies = entry.getValue();
-                        currentCookies.addAll(cookieName, collectList(httpCookies, HttpCookie::getValue));
-                    });
-        };
+        return currentCookies -> CookieForwarding.select(request.getRequestCookies(), request.isForwardAllCookies(),
+                        request.getForwardCookies(), commonConfig.getCookieName())
+                .forEach((cookieName, httpCookies) -> currentCookies.addAll(cookieName, collectList(httpCookies, HttpCookie::getValue)));
     }
 
+    /**
+     * Sends the request, follows a redirect up to {@code MAX_REDIRECTS} requests, and answers a digest challenge once per
+     * request: {@code digestAnswered} is true for the request that carries the answer, so a new challenge to it, the server's
+     * answer to wrong credentials, is returned as the 401 it is (BF-078: every challenge was answered again until the request
+     * limit, and the query failed with the redirect-limit error). A followed redirect is a new request and may be answered.
+     * <p>
+     * Limits: the flag is not kept per URI, so a redirect back to an answered URI is answered again (within MAX_REDIRECTS);
+     * a challenge with {@code stale=true} (an expired nonce, right credentials) is not answered a second time; it gets the 401.
+     */
     private Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod,
             URI uri,
             BodyInserter<?, ? super ClientHttpRequest> requestBody,
             int iteration,
             @Nullable AuthConfig authConfig,
-            Consumer<HttpHeaders> headersConsumer) {
+            Consumer<HttpHeaders> headersConsumer,
+            boolean digestAnswered) {
         if (iteration == MAX_REDIRECTS) {
             return Mono.error(new PluginException(QUERY_EXECUTION_ERROR, "REACH_REDIRECT_LIMIT", MAX_REDIRECTS));
         }
@@ -339,23 +328,28 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
                 .exchange()
                 .onErrorMap(e -> new PluginException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR", e.getMessage()))
                 .flatMap(response -> {
-                    if (response.statusCode().is3xxRedirection()) {
-                        String redirectUrl = response.headers().header("Location").get(0);
+                    String redirectUrl = WebClientRedirects.redirectLocation(response); // BF-113: null for a 3xx without a Location
+                    if (redirectUrl != null) {
                         URI redirectUri;
                         try {
-                            redirectUri = new URI(redirectUrl);
+                            redirectUri = WebClientRedirects.resolveLocation(uri, redirectUrl);
                         } catch (URISyntaxException e) {
                             return Mono.error(new PluginException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR",
                                     e.getMessage()));
                         }
-                        return httpCall(webClient, httpMethod, redirectUri, requestBody, iteration + 1, authConfig, headersConsumer);
+                        if (WebClientRedirects.isSameOrigin(uri, redirectUri)) {
+                            return httpCall(webClient, httpMethod, redirectUri, requestBody, iteration + 1, authConfig, headersConsumer, false);
+                        }
+                        // another origin: only content headers, no forwarded cookies, no digest answer
+                        return httpCall(WebClientRedirects.forAnotherOrigin(webClient), httpMethod, redirectUri, requestBody,
+                                iteration + 1, null, DEFAULT_HEADERS_CONSUMER, false);
                     }
                     //digest auth
-                    if (authConfig != null && authConfig.getType() == DIGEST_AUTH && AuthHelper.shouldDigestAuth(response)) {
+                    if (!digestAnswered && authConfig != null && authConfig.getType() == DIGEST_AUTH && AuthHelper.shouldDigestAuth(response)) {
                         try {
                             return httpCall(webClient, httpMethod, uri, requestBody, iteration + 1, authConfig,
                                     headersConsumer.andThen(
-                                            AuthHelper.digestAuth((BasicAuthConfig) authConfig, response, httpMethod, uri.getPath())));
+                                            AuthHelper.digestAuth((BasicAuthConfig) authConfig, response, httpMethod, uri.getPath())), true);
                         } catch (ParseException e) {
                             return Mono.error(new PluginException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR",
                                     e.getMessage()));

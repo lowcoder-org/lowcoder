@@ -1,6 +1,7 @@
 package org.lowcoder.domain.datasource.service;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.sdk.models.DatasourceTestResult;
@@ -30,4 +31,7 @@ public interface DatasourceService {
     Mono<Datasource> findWorkspacePredefinedDatasource(String organizationId, String datasourceType);
 
     Flux<String> retainNoneExistAndNonCurrentOrgDatasourceIds(Collection<String> datasourceIds, String organizationId);
+
+    /** Each given object id or gid of an existing datasource mapped to its object id; ids that match none are left out. */
+    Mono<Map<String, String>> getObjectIdsByIdOrGid(Collection<String> datasourceIds);
 }

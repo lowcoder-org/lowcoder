@@ -18,6 +18,16 @@ import org.junit.jupiter.api.Test;
  */
 class FolderTreeTest {
 
+    static final String SELF = "x";
+    static final String OK = "ok";
+    static final String A = "a";
+    static final String B = "b";
+    static final String C = "c";
+    /** Folders that name a cycle member as their parent, with ids that hash before and after the cycle's ids. */
+    static final List<String> LEADERS = List.of("0", "d", "z");
+    static final String E_SELF = "e-x";
+    static final String E_B = "e-b";
+
     record Fo(String id, String parent, String name, long view) {
         Fo(String id, String parent) {
             this(id, parent, id, 0);
@@ -108,7 +118,7 @@ class FolderTreeTest {
         assertThat(tree.get("missing")).isNull();
     }
 
-    /** Catches: the delete cascade (FolderApiServiceImpl:152) missing descendants, listing the null root or elements. */
+    /** Catches: the delete cascade (FolderApiServiceImpl:164) missing descendants, listing the null root or elements. */
     @Test
     void allFolderChildrenAreTheNestedFoldersChildrenFirstWithoutElementsOrTheRoot() {
         Fo f1 = new Fo("f1", null);
@@ -160,16 +170,15 @@ class FolderTreeTest {
     }
 
     /**
-     * Pins plan section 9 row "folder listings in heap order, FolderNode:29". With a comparator the children are a
-     * PriorityQueue and every accessor streams its heap array, so only the first child is guaranteed to be the
-     * comparator minimum. FolderApiServiceImpl.DEFAULT_COMPARATOR (last view time reversed, then name; used for the
-     * home listing at :349) is private in lowcoder-server and works on server view classes, so it is UNREACHABLE from the
-     * domain module; VIEW_TIME_DESC_THEN_NAME above, the same ordering on the test records, is used instead.
-     * Today 8 elements with view times 1..8 come back as e8, e7, e6, e4, e3, e2, e5, e1 instead of e8 ... e1. A fix
-     * (drain the queue in comparator order) changes this test on purpose.
+     * BF-137 (was pinned as plan section 9 row "folder listings in heap order, FolderNode:29"). With a comparator the
+     * children were a PriorityQueue and every accessor streamed its heap array, so only the first child was the comparator
+     * minimum: 8 elements with view times 1..8 came back as e8, e7, e6, e4, e3, e2, e5, e1. The tree now sorts every
+     * node's children once mounting is done. FolderApiServiceImpl.DEFAULT_COMPARATOR (last view time reversed, then name)
+     * is private in lowcoder-server and works on server view classes, so it is unreachable from the domain module;
+     * VIEW_TIME_DESC_THEN_NAME above, the same ordering on the test records, is used instead.
      */
     @Test
-    void pinsHeapOrderOfChildrenWhenAComparatorIsGiven() {
+    void childrenComeInComparatorOrderWhenAComparatorIsGivenBF137() {
         List<El> elements = new ArrayList<>();
         for (int i = 1; i <= 8; i++) {
             elements.add(new El("e" + i, i, null));
@@ -179,46 +188,98 @@ class FolderTreeTest {
         List<String> viaAccessor = tree.getElementChildren().stream().map(El::name).toList();
         List<String> viaPostOrder = new ArrayList<>();
         tree.postOrderIterate(node -> viaPostOrder.add(label(node)));
-        System.out.println("[FolderTreeTest] PINNED heap order: " + viaAccessor + " (comparator order is e8..e1)");
+        System.out.println("[FolderTreeTest] order: " + viaAccessor + " (comparator order is e8..e1)");
 
-        assertThat(viaAccessor.get(0)).isEqualTo("e8");
-        assertThat(viaAccessor).containsExactly("e8", "e7", "e6", "e4", "e3", "e2", "e5", "e1");
-        assertThat(viaPostOrder).containsExactly("e8", "e7", "e6", "e4", "e3", "e2", "e5", "e1", "ROOT");
+        assertThat(viaAccessor).containsExactly("e8", "e7", "e6", "e5", "e4", "e3", "e2", "e1");
+        assertThat(viaPostOrder).containsExactly("e8", "e7", "e6", "e5", "e4", "e3", "e2", "e1", "ROOT");
     }
 
     /**
-     * Pins plan section 9 row "self or cyclic parent: vanishes from listings; depth / getAllFolderChildren /
-     * postOrderIterate StackOverflowError" for the self-parent case: a folder whose parent id is its own id is mounted
-     * under itself, is missing from the root's listing and recurses forever. A fix (a self-parent guard) changes this
-     * test on purpose.
+     * BF-137: the children of a folder below the root, folders and elements mixed, come in comparator order too, and
+     * children the comparator ranks equal keep the order they were added (the sort is stable). Catches: only the root
+     * being sorted, and a sort that reorders ties.
      */
     @Test
-    void pinsASelfParentedFolderVanishingAndOverflowingTheStack() {
-        Fo self = new Fo("x", "x");
-        Tree<El, Fo> tree = tree(List.of(self, new Fo("ok", null)), List.of(), null);
-        FolderNode<El, Fo> node = tree.get("x");
+    void aSubFoldersMixedChildrenAreOrderedAndTiesKeepTheirOrderBF137() {
+        // "f-tie" (a folder named "tie") and the element "tie" rank equal; folders are mounted before elements
+        List<Fo> folders = List.of(new Fo("top", null, "top", 0), new Fo("f-old", "top", "f-old", 1), new Fo("f-tie", "top", "tie", 3),
+                new Fo("f-new", "top", "f-new", 9));
+        List<El> elements = List.of(new El("e-mid", 5, "top"), new El("tie", 3, "top"), new El("e-newest", 10, "top"));
+        Tree<El, Fo> tree = tree(folders, elements, VIEW_TIME_DESC_THEN_NAME);
 
-        System.out.println("[FolderTreeTest] PINNED self parent: root folders=" + tree.getFolderChildren());
-        assertThat(tree.getFolderChildren()).extracting(Fo::id).containsExactly("ok");
-        assertThat(tree.getAllFolderChildren()).extracting(Fo::id).containsExactly("ok");
-        assertThat(node.getParent()).isSameAs(node);
-        assertThat(node.getFolderChildren()).containsExactly(self);
-        assertThrows(StackOverflowError.class, node::depth);
-        assertThrows(StackOverflowError.class, node::getAllFolderChildren);
-        assertThrows(StackOverflowError.class, () -> node.postOrderIterate(n -> { }));
+        List<String> children = new ArrayList<>();
+        tree.get("top").getChildren().forEach(node -> children.add(label(node)));
+        System.out.println("[FolderTreeTest] children of top: " + children);
+
+        assertThat(children).containsExactly("e-newest", "f-new", "e-mid", "f-tie", "tie", "f-old");
+        assertThat(tree.get("top").getElementChildren()).extracting(El::name).containsExactly("e-newest", "e-mid", "tie");
+        assertThat(tree.get("top").getFolderChildren()).extracting(Fo::id).containsExactly("f-new", "f-tie", "f-old");
     }
 
-    /** Same pinned row for a two-folder cycle a -> b -> a: neither is reachable from the root, all walks overflow. */
+    /**
+     * BF-077 (fixed; was pinned as plan section 9 row "self or cyclic parent: vanishes from listings; depth /
+     * getAllFolderChildren / postOrderIterate StackOverflowError"): a folder whose parent id is its own id is mounted under
+     * the root, is listed there, and every walk ends.
+     */
     @Test
-    void pinsATwoFolderCycleVanishingAndOverflowingTheStack() {
-        Tree<El, Fo> tree = tree(List.of(new Fo("a", "b"), new Fo("b", "a"), new Fo("ok", null)), List.of(), null);
+    void aSelfParentedFolderIsMountedUnderTheRootAndEveryWalkEndsBF077() {
+        Fo self = new Fo(SELF, SELF);
+        Fo ok = new Fo(OK, null);
+        Tree<El, Fo> tree = tree(List.of(self, ok), List.of(new El(E_SELF, SELF)), null);
+        FolderNode<El, Fo> node = tree.get(SELF);
 
-        System.out.println("[FolderTreeTest] PINNED cycle: root folders=" + tree.getFolderChildren());
-        assertThat(tree.getFolderChildren()).extracting(Fo::id).containsExactly("ok");
-        assertThat(tree.getAllFolderChildren()).extracting(Fo::id).containsExactly("ok");
-        assertThat(tree.get("a").getParent()).isSameAs(tree.get("b"));
-        assertThrows(StackOverflowError.class, () -> tree.get("a").depth());
-        assertThrows(StackOverflowError.class, () -> tree.get("b").getAllFolderChildren());
-        assertThrows(StackOverflowError.class, () -> tree.get("a").postOrderIterate(n -> { }));
+        List<String> visited = new ArrayList<>();
+        tree.postOrderIterate(n -> visited.add(label(n)));
+        System.out.println("[FolderTreeTest] self parent: root folders=" + tree.getFolderChildren() + " post-order=" + visited);
+        assertThat(tree.getFolderChildren()).containsExactlyInAnyOrder(self, ok);
+        assertThat(node.getParent()).isSameAs(tree);
+        assertThat(node.depth()).isEqualTo(2);
+        assertThat(node.getFolderChildren()).isEmpty();
+        assertThat(node.getElementChildren()).extracting(El::name).containsExactly(E_SELF);
+        assertThat(node.getAllFolderChildren()).isEmpty();
+        assertThat(tree.getAllFolderChildren()).containsExactlyInAnyOrder(self, ok);
+        assertThat(visited).containsSubsequence(E_SELF, SELF).contains(OK).endsWith("ROOT").hasSize(4);
+    }
+
+    /**
+     * BF-077, a two-folder cycle a -> b -> a (was pinned: neither reachable from the root, all walks overflow): both folders
+     * of the cycle are mounted under the root, and what hangs under them (folder c under a, element e-b under b) stays there.
+     */
+    @Test
+    void theFoldersOfATwoFolderCycleAreMountedUnderTheRootWithWhatHangsUnderThemBF077() {
+        Fo a = new Fo(A, B);
+        Fo b = new Fo(B, A);
+        Fo c = new Fo(C, A);
+        Tree<El, Fo> tree = tree(List.of(a, b, c, new Fo(OK, null)), List.of(new El(E_B, B)), null);
+
+        List<String> visited = new ArrayList<>();
+        tree.get(A).postOrderIterate(n -> visited.add(label(n)));
+        System.out.println("[FolderTreeTest] cycle: root folders=" + tree.getFolderChildren() + " post-order under a=" + visited);
+        assertThat(tree.getFolderChildren()).extracting(Fo::id).containsExactlyInAnyOrder(A, B, OK);
+        assertThat(tree.get(A).getParent()).isSameAs(tree);
+        assertThat(tree.get(B).getParent()).isSameAs(tree);
+        assertThat(tree.get(A).depth()).isEqualTo(2);
+        assertThat(tree.get(C).getParent()).isSameAs(tree.get(A));
+        assertThat(tree.get(C).depth()).isEqualTo(3);
+        assertThat(tree.get(A).getAllFolderChildren()).containsExactly(c);
+        assertThat(tree.get(B).getAllFolderChildren()).isEmpty();
+        assertThat(tree.get(B).getElementChildren()).extracting(El::name).containsExactly(E_B);
+        assertThat(visited).containsExactly(C, A);
+    }
+
+    /**
+     * BF-077: a longer cycle a -> b -> c -> a is found too, and the folders that only lead into it (each names a as its
+     * parent) are not on it, whichever folder the walk starts from: the leader ids hash before and after the cycle's.
+     */
+    @Test
+    void everyFolderOfALongerCycleIsMountedUnderTheRootButTheFoldersLeadingIntoItAreNotBF077() {
+        List<Fo> folders = new ArrayList<>(List.of(new Fo(A, C), new Fo(B, A), new Fo(C, B)));
+        LEADERS.forEach(leader -> folders.add(new Fo(leader, A)));
+        Tree<El, Fo> tree = tree(folders, List.of(), null);
+
+        System.out.println("[FolderTreeTest] 3-cycle: root folders=" + tree.getFolderChildren() + " under a=" + tree.get(A).getFolderChildren());
+        assertThat(tree.getFolderChildren()).extracting(Fo::id).containsExactlyInAnyOrder(A, B, C);
+        assertThat(tree.get(A).getFolderChildren()).extracting(Fo::id).containsExactlyInAnyOrderElementsOf(LEADERS);
+        LEADERS.forEach(leader -> assertThat(tree.get(leader).depth()).as(leader).isEqualTo(3));
     }
 }

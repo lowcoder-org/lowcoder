@@ -30,6 +30,8 @@ import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.UriUtils;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 
 import static org.lowcoder.domain.organization.model.OrganizationState.ACTIVE;
@@ -54,6 +57,12 @@ import static org.lowcoder.sdk.util.LocaleUtils.getMessage;
 @RequiredArgsConstructor
 @Service
 public class OrganizationServiceImpl implements OrganizationService {
+
+    /** The message key of UNABLE_TO_FIND_VALID_ORG for a key that names no organization. */
+    private static final String INVALID_ORG_ID_KEY = "INVALID_ORG_ID";
+
+    /** The Organization property that holds the logo's asset id. */
+    private static final String LOGO_ASSET_ID = "logoAssetId";
 
     private final UserRepository userRepository;
     private Conf<Integer> logoMaxSizeInKb;
@@ -170,40 +179,105 @@ public class OrganizationServiceImpl implements OrganizationService {
         return orgMemberService.addMember(newOrg.getId(), userId, MemberRole.SUPER_ADMIN);
     }
 
+    /**
+     * The active organization named by an object id, a gid or a slug. A key with a hyphen is looked up as a gid and then
+     * as a slug (BF-133: SlugUtils accepts a hyphen in a slug, and such a slug was never looked up), any other key as a
+     * slug and then as an object id. The same order holds for {@link #getByIdWithDeleted} and {@link #getOrgCommonSettings};
+     * {@link #getByIds} takes the kind of its first non-blank key for the whole list.
+     * <p>
+     * A blank key (null, empty or only whitespace, as {@code StringUtils.isBlank} decides) names no organization: this
+     * method refuses it with UNABLE_TO_FIND_VALID_ORG before any query (NEW-43).
+     * <p>
+     * Limits: an organization whose stored slug is blank is not found by that slug by this method, only by a non-blank
+     * id or gid; a key of invisible characters that {@code StringUtils.isBlank} does not count as whitespace, such as a
+     * no-break space or a zero-width space, is not blank and is looked up as before; a caller that looks a blank key, a
+     * null one included, up as a slug before calling passes on the object id of the organization it finds, which this
+     * guard does not see (the server's {@code GidService.convertOrganizationIdToObjectIdOrRefuse} skips the slug lookup for a
+     * blank key, NEW-86); {@link #getByIds} drops blank keys (see its javadoc).
+     */
     @Override
     public Mono<Organization> getById(String id) {
+        if (StringUtils.isBlank(id))
+            return noValidOrg();
         if(FieldName.isGID(id))
             return repository.findByGidAndState(id, ACTIVE)
-                    .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
+                    .switchIfEmpty(repository.findBySlugAndState(id, ACTIVE))
+                    .switchIfEmpty(noValidOrg());
         return repository.findBySlugAndState(id, ACTIVE).switchIfEmpty(repository.findByIdAndState(id, ACTIVE))
-                .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
+                .switchIfEmpty(noValidOrg());
     }
 
+    /**
+     * The organization named by an object id, a gid or a slug, deleted ones included, in the order of {@link #getById}.
+     * A blank key, as {@link #getById} defines it, is refused with UNABLE_TO_FIND_VALID_ORG before any query (NEW-43).
+     * <p>
+     * Limits: an organization whose stored slug is blank is not found by that slug by this method, only by a non-blank
+     * id or gid; a key of invisible characters that {@code StringUtils.isBlank} does not count as whitespace, such as a
+     * no-break space or a zero-width space, is not blank and is looked up as before; a caller that looks a blank key, a
+     * null one included, up as a slug before calling passes on the object id of the organization it finds, which this
+     * guard does not see (the server's {@code GidService.convertOrganizationIdToObjectIdOrRefuse} skips the slug lookup for a
+     * blank key, NEW-86).
+     */
     @Override
     public Mono<Organization> getByIdWithDeleted(String id) {
+        if (StringUtils.isBlank(id))
+            return noValidOrg();
         if(FieldName.isGID(id))
             return repository.findByGid(id).next()
-                    .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
+                    .switchIfEmpty(repository.findBySlug(id).next())
+                    .switchIfEmpty(noValidOrg());
         return repository.findBySlug(id).next().switchIfEmpty(repository.findById(id))
-                .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
+                .switchIfEmpty(noValidOrg());
     }
 
+    /**
+     * The common settings of the active organization named by an object id, a gid or a slug, in the order of
+     * {@link #getById}. A blank key, as {@link #getById} defines it, is refused with UNABLE_TO_FIND_VALID_ORG before any
+     * query (NEW-43).
+     * <p>
+     * Limits: an organization whose stored slug is blank is not found by that slug by this method, only by a non-blank
+     * id or gid; a key of invisible characters that {@code StringUtils.isBlank} does not count as whitespace, such as a
+     * no-break space or a zero-width space, is not blank and is looked up as before; a caller that looks a blank key, a
+     * null one included, up as a slug before calling passes on the object id of the organization it finds, which this
+     * guard does not see (the server's {@code GidService.convertOrganizationIdToObjectIdOrRefuse} skips the slug lookup for a
+     * blank key, NEW-86).
+     */
     @Override
     public Mono<OrganizationCommonSettings> getOrgCommonSettings(String orgId) {
+        if (StringUtils.isBlank(orgId))
+            return noValidOrg();
         if(FieldName.isGID(orgId))
             return repository.findByGidAndState(orgId, ACTIVE)
-                    .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"))
+                    .switchIfEmpty(repository.findBySlugAndState(orgId, ACTIVE))
+                    .switchIfEmpty(noValidOrg())
                     .map(Organization::getCommonSettings);
         return repository.findBySlugAndState(orgId, ACTIVE).switchIfEmpty(repository.findByIdAndState(orgId, ACTIVE))
-                .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"))
+                .switchIfEmpty(noValidOrg())
                 .map(Organization::getCommonSettings);
     }
 
+    /** The answer of the three key lookups above for a key that names no organization. */
+    private static <T> Mono<T> noValidOrg() {
+        return deferredError(UNABLE_TO_FIND_VALID_ORG, INVALID_ORG_ID_KEY);
+    }
+
+    /**
+     * The active organizations named by the non-blank keys. A blank key (null, empty or only whitespace, as
+     * {@code StringUtils.isBlank} decides) names no organization and is dropped before any query (NEW-81).
+     *
+     * <p>Limits: a null collection fails as before; the kind of the first kept key (gid or not) is taken for every key, and
+     * a non-empty first query skips the second, so a list mixing kinds can miss organizations, as before; a key of
+     * invisible characters {@code StringUtils.isBlank} does not count as whitespace is not blank.
+     */
     @Override
     public Flux<Organization> getByIds(Collection<String> ids) {
-        if(!ids.isEmpty() && FieldName.isGID(ids.stream().findFirst().get()))
-            return repository.findByGidInAndState(ids, ACTIVE);
-        return repository.findBySlugInAndState(ids, ACTIVE).switchIfEmpty(repository.findByIdInAndState(ids, ACTIVE));
+        List<String> keys = ids.stream().filter(StringUtils::isNotBlank).toList();
+        if (keys.isEmpty()) {
+            return Flux.empty();
+        }
+        if (FieldName.isGID(keys.get(0)))
+            return repository.findByGidInAndState(keys, ACTIVE).switchIfEmpty(repository.findBySlugInAndState(keys, ACTIVE));
+        return repository.findBySlugInAndState(keys, ACTIVE).switchIfEmpty(repository.findByIdInAndState(keys, ACTIVE));
     }
 
     @Override
@@ -211,49 +285,54 @@ public class OrganizationServiceImpl implements OrganizationService {
         return repository.findByState(ACTIVE);
     }
 
+    /**
+     * Stores the uploaded logo, points the organization at it, and then removes the logo it pointed at before (BF-063: the
+     * previous id was read from a new, empty Organization, so the old logo was never removed). The organization is looked up
+     * first (by id, gid or slug, {@link #getById}) and updated by its id.
+     * <p>
+     * Limits: two uploads for the same organization at the same time both read the same previous logo, so the asset of
+     * the upload that is overwritten first is left stored.
+     */
     @Override
     public Mono<Boolean> uploadLogo(String organizationId, Part filePart) {
-
-        Mono<Asset> uploadAssetMono = assetService.upload(filePart, logoMaxSizeInKb.get(), false);
-
-        return uploadAssetMono
-                .flatMap(uploadedAsset -> {
-                    Organization organization = new Organization();
-                    final String prevAssetId = organization.getLogoAssetId();
-                    organization.setLogoAssetId(uploadedAsset.getId());
-
-                    return mongoUpsertHelper.updateById(organization, organizationId)
-                            .flatMap(updateResult -> {
-                                if (StringUtils.isEmpty(prevAssetId)) {
-                                    return Mono.just(updateResult);
-                                }
-                                return assetService.remove(prevAssetId).thenReturn(updateResult);
-                            });
-                });
+        return getById(organizationId)
+                .flatMap(organization -> assetService.upload(filePart, logoMaxSizeInKb.get(), false)
+                        .flatMap(uploadedAsset -> {
+                            Organization update = new Organization();
+                            update.setLogoAssetId(uploadedAsset.getId());
+                            return mongoUpsertHelper.updateById(update, organization.getId());
+                        })
+                        .flatMap(updateResult -> {
+                            String prevAssetId = organization.getLogoAssetId();
+                            if (StringUtils.isEmpty(prevAssetId)) {
+                                return Mono.just(updateResult);
+                            }
+                            return assetService.remove(prevAssetId).thenReturn(updateResult);
+                        }));
     }
 
+    /**
+     * Removes the organization's logo: its reference is unset and then its asset deleted (BF-064: the reference was left,
+     * because a null field is not written, and the update used the raw argument instead of the organization found by gid
+     * or slug). Clearing the reference first means a failed asset delete leaves an unused asset, not a broken logo.
+     * <p>
+     * Limits: a reference to an asset that no longer exists fails with {@code ASSET_NOT_FOUND} and is kept; uploading a
+     * new logo replaces it.
+     */
     @Override
     public Mono<Boolean> deleteLogo(String organizationId) {
-        Mono<Organization> organizationMono;
-        if(FieldName.isGID(organizationId)) organizationMono = repository.findByGidAndState(organizationId, ACTIVE);
-        else organizationMono = repository.findBySlugAndState(organizationId, ACTIVE).switchIfEmpty(repository.findByIdAndState(organizationId, ACTIVE));
-        return organizationMono
+        return getById(organizationId)
                 .flatMap(organization -> {
-                    // delete from asset repo.
                     final String prevAssetId = organization.getLogoAssetId();
                     if (StringUtils.isBlank(prevAssetId)) {
                         return Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "ASSET_NOT_FOUND", ""));
                     }
                     return assetRepository.findById(prevAssetId)
                             .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "ASSET_NOT_FOUND", prevAssetId)))
-                            .flatMap(asset -> assetRepository.delete(asset));
-                })
-                .then(Mono.defer(() -> {
-                    // update org.
-                    Organization organization = new Organization();
-                    organization.setLogoAssetId(null);
-                    return mongoUpsertHelper.updateById(organization, organizationId);
-                }));
+                            .flatMap(asset -> mongoUpsertHelper.updateAndUnset(new Organization(),
+                                            new Query(Criteria.where(FieldName.ID).is(organization.getId())), LOGO_ASSET_ID)
+                                    .flatMap(updateResult -> assetRepository.delete(asset).thenReturn(updateResult)));
+                });
     }
 
     @Override
@@ -261,17 +340,53 @@ public class OrganizationServiceImpl implements OrganizationService {
         return mongoUpsertHelper.updateById(updateOrg, orgId);
     }
 
+    /**
+     * Marks the organization deleted and publishes one {@link OrgDeletedEvent} with its object id, whose listener removes its
+     * members (except the super admin's member relation), groups, applications and datasources. Only an organization that
+     * is not deleted yet is matched (BF-135: the update matched a deleted one too and, since its auditing fields moved,
+     * reported a change, so a second delete answered true and published the event again); a second delete answers false
+     * and publishes nothing. The key is an object id or a gid; a gid is first resolved to its org's object id
+     * ({@code objectIdOf}), which the update and the event then use (NEW-41: the event carried the gid as given, by which
+     * the listener, removing by object id, found nothing). A key that resolves to nothing answers false.
+     * <p>
+     * Limits: a slug is not resolved (a key holding a hyphen is taken as a gid and any other as an object id, as before).
+     * The gid is resolved by a separate read before the conditional update, not atomically with it, and the update then
+     * targets the object id that read returned: it deletes the org the read returned even if that org no longer has the gid
+     * when the update runs, so a gid moved to another org between the two still deletes the org that had it at the read.
+     * A gid is assumed unique, as the unique index on organization gids makes it.
+     */
     @Override
     public Mono<Boolean> delete(String orgId) {
-        Organization organization = new Organization();
-        organization.setState(OrganizationState.DELETED);
-        return mongoUpsertHelper.updateById(organization, orgId)
-                .delayUntil(success -> {
-                    if (Boolean.TRUE.equals(success)) {
-                        return sendOrgDeletedEvent(orgId);
-                    }
-                    return Mono.empty();
-                });
+        return objectIdOf(orgId)
+                .flatMap(objectId -> {
+                    Organization organization = new Organization();
+                    organization.setState(OrganizationState.DELETED);
+                    Query notYetDeleted = new Query(Criteria.where(FieldName.ID).is(objectId)
+                            .and(fieldName(QOrganization.organization.state)).ne(OrganizationState.DELETED));
+                    return mongoUpsertHelper.update(organization, notYetDeleted)
+                            .delayUntil(success -> {
+                                if (Boolean.TRUE.equals(success)) {
+                                    return sendOrgDeletedEvent(objectId);
+                                }
+                                return Mono.empty();
+                            });
+                })
+                .defaultIfEmpty(false);
+    }
+
+    /**
+     * The object id an organization key names: for a gid (a key holding a hyphen) the object id of the org the gid read
+     * returns, deleted or not, or nothing when no org has the gid; any other key as given (nothing for null). A failing read
+     * fails the result.
+     * <p>
+     * Limits: a slug is not resolved. The read is not atomic with the caller's update. It relies on the unique index on
+     * organization gids: where that index is missing, it takes the first org the read returns, deleted or not.
+     */
+    private Mono<String> objectIdOf(String orgId) {
+        if (FieldName.isGID(orgId)) {
+            return repository.findByGid(orgId).next().map(Organization::getId);
+        }
+        return Mono.justOrEmpty(orgId);
     }
 
     private Mono<Void> sendOrgDeletedEvent(String orgId) {
@@ -301,15 +416,22 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     private String buildCommonSettingsUpdateTimeKey(String key) {
-        return key + "_updateTime";
+        return OrganizationCommonSettings.updateTimeKey(key);
     }
 
+    /**
+     * A blank slug (null, empty or whitespace, as {@code StringUtils.isBlank} decides) is SLUG_INVALID before any query
+     * (NEW-83). Limits: uniqueness is a read before the save, with no unique index (NEW-87); the organization's state is
+     * not checked; an unknown id completes empty, as before.
+     */
     @Override
     public Mono<Organization> updateSlug(String organizationId, String newSlug) {
-        return repository.existsBySlug(newSlug).flatMap(exists -> {
-            if (!SlugUtils.validate(newSlug)) {
+        return Mono.defer(() -> {
+            if (StringUtils.isBlank(newSlug) || !SlugUtils.validate(newSlug)) {
                 return Mono.error(new BizException(BizError.SLUG_INVALID, "SLUG_INVALID"));
             }
+            return repository.existsBySlug(newSlug);
+        }).flatMap(exists -> {
             if (exists) {
                 return Mono.error(new BizException(BizError.SLUG_DUPLICATE_ENTRY, "SLUG_DUPLICATE_ENTRY"));
             }

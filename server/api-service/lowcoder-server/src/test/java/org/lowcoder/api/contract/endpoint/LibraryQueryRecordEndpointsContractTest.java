@@ -15,6 +15,8 @@ import org.lowcoder.api.query.LibraryQueryRecordEndpoints;
 import org.lowcoder.api.query.view.LibraryQueryRecordMetaView;
 import org.lowcoder.domain.query.model.LibraryQueryCombineId;
 import org.lowcoder.sdk.contract.GoldenJson;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
@@ -56,6 +58,8 @@ class LibraryQueryRecordEndpointsContractTest {
     static final int DEFAULT_PAGE_SIZE = 100;
     /** {@code delete} answers {@code Mono<Void>}: no {@code Content-Type}. */
     static final MediaType NO_CONTENT_TYPE = null;
+    /** NEW-2: the message key of the refusal of a record of another library query. */
+    static final String LIBRARY_QUERY_NOT_FOUND_KEY = "LIBRARY_QUERY_NOT_FOUND";
 
     private static final GoldenJson GOLDEN = GoldenJson.forModule();
 
@@ -123,6 +127,23 @@ class LibraryQueryRecordEndpointsContractTest {
         Map<String, Object> stored = StoredValues.dsl(representativeDsl());
         GOLDEN.assertJson(ApplicationRecordEndpointsContractTest.STORED_OUTPUT, JsonUtils.getObjectMapper().writeValueAsString(stored));
         assertDsl(stored, GOLDEN.read(ApplicationRecordEndpointsContractTest.STORED_OUTPUT));
+    }
+
+    /**
+     * NEW-2 regression pin: the refusal of a record of another library query (LIBRARY_QUERY_NOT_FOUND) is a 400 with the
+     * error envelope. Limits: the service is mocked, so this pins only the status and envelope, not routing to the real
+     * service nor its decision (LibraryQueryRecordApiServiceImplTest proves that). It passes before the fix as well.
+     */
+    @Test
+    void dslById_libraryQueryNotFoundNEW2_is400() {
+        Mockito.when(recordApiService.getRecordDSLFromLibraryQueryCombineId(new LibraryQueryCombineId(LIBRARY_QUERY_ID, RECORD_ID)))
+                .thenReturn(Mono.error(new BizException(BizError.LIBRARY_QUERY_NOT_FOUND, LIBRARY_QUERY_NOT_FOUND_KEY)));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "dslById",
+                    Map.of(LIBRARY_QUERY_ID_PARAMETER, LIBRARY_QUERY_ID, RECORD_ID_PARAMETER, RECORD_ID), null);
+            EndpointContract.assertBizError(result, BizError.LIBRARY_QUERY_NOT_FOUND, LIBRARY_QUERY_NOT_FOUND_KEY);
+        }
+        System.out.println("[LibraryQueryRecordEndpointsContractTest] NEW-2 dslById refused -> 400 " + BizError.LIBRARY_QUERY_NOT_FOUND);
     }
 
     @SuppressWarnings("unchecked")

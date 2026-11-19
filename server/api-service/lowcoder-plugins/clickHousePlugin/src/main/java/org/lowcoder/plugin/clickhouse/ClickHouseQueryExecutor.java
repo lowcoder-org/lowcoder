@@ -78,7 +78,20 @@ public class ClickHouseQueryExecutor implements QueryExecutor<ClickHouseDatasour
         Map<String, Object> requestParams = queryExecutionContext.getRequestParams();
         boolean preparedStatement = !queryExecutionContext.isDisablePreparedStatement();
 
-        return Mono.fromSupplier(() -> executeQuery0(hikariDataSource, query, requestParams, preparedStatement))
+        // NEW-16: this executor does not inherit BlockingQueryExecutor, but its query has the same shape - a supplier
+        // subscribed on the shared plugin scheduler - so a NoClassDefFoundError was rethrown by Reactor as JVM-fatal on
+        // a worker thread, before the onErrorMap below could see it, and the query never answered. The catch throws the
+        // PluginException that same onErrorMap builds for an ordinary exception, which then passes it through
+        // unchanged; e.toString() rather than e.getMessage() so that a message-less error still names its class. See
+        // BlockingQueryExecutor for the full reasoning, and NEW-54 for the sites still unfixed, this executor's
+        // getStructure among them (its own .timeout bounds it, so it fails rather than hanging).
+        return Mono.fromSupplier(() -> {
+                    try {
+                        return executeQuery0(hikariDataSource, query, requestParams, preparedStatement);
+                    } catch (NoClassDefFoundError e) {
+                        throw new PluginException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR", e.toString());
+                    }
+                })
                 .onErrorMap(e -> {
                     if (e instanceof PluginException) {
                         return e;

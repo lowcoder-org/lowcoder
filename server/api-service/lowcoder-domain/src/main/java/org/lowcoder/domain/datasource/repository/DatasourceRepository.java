@@ -15,10 +15,10 @@ import org.lowcoder.domain.datasource.service.JsDatasourceHelper;
 import org.lowcoder.domain.encryption.EncryptionService;
 import org.lowcoder.domain.plugin.client.DatasourcePluginClient;
 import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
+import org.lowcoder.domain.util.IdOrGidLookup;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.models.DatasourceConnectionConfig;
-import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,12 +62,12 @@ public class DatasourceRepository {
                 .flatMap(this::convertToDomainObjectAndDecrypt);
     }
 
+    /**
+     * The datasources of a list of object ids and gids, in any mix (BF-076: the kind of the whole list was taken from one
+     * element, so a mixed list lost the other kind); see {@link IdOrGidLookup} for how a key's kind is told.
+     */
     public Flux<Datasource> findByIds(Collection<String> datasourceIds) {
-        Optional<String> first = datasourceIds.stream().findAny();
-        if(first.isPresent() && FieldName.isGID(first.get()))
-            return repository.findAllByGidIn(datasourceIds)
-                    .flatMap(this::convertToDomainObjectAndDecrypt);
-        return repository.findAllById(datasourceIds)
+        return findAllDOByIdOrGid(datasourceIds)
                 .flatMap(this::convertToDomainObjectAndDecrypt);
     }
 
@@ -78,24 +78,9 @@ public class DatasourceRepository {
     }
 
     public Flux<Datasource> findAllById(Iterable<String> ids) {
-        List<String> idList = new ArrayList<>();
-        List<String> gidList = new ArrayList<>();
-
-        for (String id : ids) {
-            if (FieldName.isGID(id)) {
-                gidList.add(id);
-            } else {
-                idList.add(id);
-            }
-        }
-
-        Flux<Datasource> idFlux = idList.isEmpty() ? Flux.empty() : repository.findAllById(idList)
-                .flatMap(this::convertToDomainObjectAndDecrypt);
-
-        Flux<Datasource> gidFlux = gidList.isEmpty() ? Flux.empty() : repository.findAllByGidIn(gidList)
-                .flatMap(this::convertToDomainObjectAndDecrypt);
-
-        return Flux.merge(idFlux, gidFlux);
+        List<String> keys = new ArrayList<>();
+        ids.forEach(keys::add);
+        return findByIds(keys);
     }
 
     public Flux<Datasource> findAllByOrganizationId(String orgId) {
@@ -115,25 +100,52 @@ public class DatasourceRepository {
         return mongoUpsertHelper.updateById(datasource, datasourceId);
     }
 
+    /**
+     * The given datasource ids that need no use permission: those that match no datasource and those of a datasource of
+     * another organization. Each entry may be an object id or a gid (a list may mix both); a datasource of the current
+     * organization found by either key is left out under that key (BF-002).
+     */
     public Flux<String> retainNoneExistAndNonCurrentOrgDatasourceIds(Collection<String> datasourceIds, String orgId) {
         if (CollectionUtils.isEmpty(datasourceIds)) {
             return Flux.empty();
         }
-        Flux<DatasourceDO> mixedMono;
-        if(FieldName.isGID(datasourceIds.stream().findFirst().orElseThrow()))
-            mixedMono = repository.findAllByGidIn(new HashSet<>(datasourceIds));
-        else
-            mixedMono = repository.findAllById(new HashSet<>(datasourceIds));
-        return mixedMono.collectList()
+        return findAllDOByIdOrGid(datasourceIds).collectList()
                 .map(existDatasources -> {
                     Set<String> result = new HashSet<>(datasourceIds);
                     existDatasources.stream()
-                            .filter(datasource -> datasource.getOrganizationId().equals(orgId))
-                            .map(HasIdAndAuditing::getId)
-                            .forEach(result::remove);
+                            .filter(datasource -> Objects.equals(orgId, datasource.getOrganizationId()))
+                            .forEach(datasource -> {
+                                result.remove(datasource.getId());
+                                result.remove(datasource.getGid());
+                            });
                     return result;
                 })
                 .flatMapIterable(Function.identity());
+    }
+
+    /**
+     * Each given object id or gid that matches a datasource, of any organization, mapped to that datasource's object id;
+     * entries that match none are not in the map (BF-002).
+     */
+    public Mono<Map<String, String>> findObjectIdsByIdOrGid(Collection<String> datasourceIds) {
+        if (CollectionUtils.isEmpty(datasourceIds)) {
+            return Mono.just(Map.of());
+        }
+        Set<String> keys = new HashSet<>(datasourceIds);
+        return findAllDOByIdOrGid(keys)
+                .collect(HashMap::new, (objectIds, datasource) -> {
+                    if (keys.contains(datasource.getId())) {
+                        objectIds.put(datasource.getId(), datasource.getId());
+                    }
+                    if (keys.contains(datasource.getGid())) {
+                        objectIds.put(datasource.getGid(), datasource.getId());
+                    }
+                });
+    }
+
+    /** The stored datasources whose object id or gid is one of the given keys, without decrypting them. */
+    private Flux<DatasourceDO> findAllDOByIdOrGid(Collection<String> datasourceIds) {
+        return IdOrGidLookup.find(datasourceIds, repository::findAllById, repository::findAllByGidIn);
     }
 
     public Mono<Long> countByOrganizationId(String orgId) {

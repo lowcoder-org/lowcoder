@@ -56,10 +56,11 @@ import reactor.test.StepVerifier;
  * called at assembly time), so "nothing was deleted or saved" and the order of the steps are asserted on what was
  * really executed.
  *
- * <p>Pinned under D-6, plan §9 row "material upload deletes the old file before the new one is stored; a storage
- * failure loses both (MaterialApiServiceImpl:84-91)":
- * {@link #upload_whenTheStorageSaveFails_theOldRowAndFileAreAlreadyGone_pinsTheSection9Row}; and plan §9 row "material
- * quota counts the file being replaced": {@link #upload_quotaCountsTheFileBeingReplaced_pinsTheSection9Row}. Pinned as
+ * <p>BF-028 (plan §9 row "material upload deletes the old file before the new one is stored"), fixed: the replaced
+ * material is removed only after the new file is stored, and a storage failure removes the new row and keeps the old
+ * material ({@link #upload_whenTheStorageSaveFails_theNewRowIsRemovedAndTheOldMaterialStaysBF028}). BF-140 (plan §9 row
+ * "material quota counts the file being replaced"), fixed: the replaced materials are not counted
+ * ({@link #upload_aSameSizeReplacementNearTheLimitIsAcceptedBF140}). Pinned as
  * behaviour (no row): a malformed base64 content is a synchronous IllegalArgumentException instead of a coded error
  * ({@link #upload_malformedBase64_throwsIllegalArgumentSynchronously_andTheClientGetsAGeneric500}).
  */
@@ -71,6 +72,8 @@ class MaterialApiServiceImplTest {
     private static final String TOTAL_LIMIT_KEY = "material.total-size-limit";
     private static final long ONE_MB = 1024L * 1024L;
     private static final Duration WAIT = Duration.ofSeconds(10);
+    private static final String MATERIAL_NOT_FOUND_KEY = "MATERIAL_NOT_FOUND";
+    private static final String MATERIAL_NOT_FOUND_GHOST_EN = "Sorry, the material ghost cannot be found.";
 
     private final List<String> ops = new ArrayList<>();
     private final Map<String, Long> limitOverrides = new java.util.HashMap<>();
@@ -241,7 +244,7 @@ class MaterialApiServiceImplTest {
         assertThat(ops).isEmpty();
     }
 
-    /** Catches an old LOGO or FAVICON staying behind, and the wrong org or type being replaced. */
+    /** Catches an old LOGO or FAVICON staying behind, the wrong org or type being replaced, and the old one removed before the new one is stored (BF-028). */
     @ParameterizedTest
     @EnumSource(value = MaterialType.class, names = {"LOGO", "FAVICON"})
     void upload_logoAndFavicon_replaceTheOrgsOldOneOfThatType(MaterialType type) {
@@ -249,7 +252,7 @@ class MaterialApiServiceImplTest {
 
         StepVerifier.create(upload(bytes(3), type)).expectNextCount(1).verifyComplete();
 
-        assertThat(ops).containsExactly("repo.delete:old-" + type, "storage.delete:old-" + type, "repo.save:" + type + ":file.png", "storage.save:new-id");
+        assertThat(ops).containsExactly("repo.save:" + type + ":file.png", "storage.save:new-id", "storage.delete:old-" + type, "repo.delete:old-" + type);
         verify(repository, never()).findByOrgIdAndFilenameAndType(anyString(), anyString(), any());
         System.out.println("[MaterialApiServiceImplTest] " + type + " replacement steps " + ops);
     }
@@ -270,7 +273,7 @@ class MaterialApiServiceImplTest {
 
         StepVerifier.create(upload(bytes(3), MaterialType.COMMON)).expectNextCount(1).verifyComplete();
 
-        assertThat(ops).containsExactly("repo.delete:old-common", "storage.delete:old-common", "repo.save:COMMON:file.png", "storage.save:new-id");
+        assertThat(ops).containsExactly("repo.save:COMMON:file.png", "storage.save:new-id", "storage.delete:old-common", "repo.delete:old-common");
         verify(repository, never()).findByOrgIdAndType(anyString(), any());
     }
 
@@ -334,41 +337,129 @@ class MaterialApiServiceImplTest {
     }
 
     /**
-     * Pins plan §9 row "material quota counts the file being replaced" ({@code checkTotalSize}, MaterialApiServiceImpl:147-160):
-     * the org total includes the file that is being replaced, so a user near the quota cannot replace a LOGO with one
-     * of the same size: it is refused within one file size of the limit although the replacement does not grow the total.
+     * BF-140 (plan §9 row "material quota counts the file being replaced", {@code checkTotalSize}): the org total is
+     * counted without the material the upload replaces, so near the limit a LOGO is replaced by one of the same size (it
+     * was refused at 96/100 with a 5 byte old logo). Catches: the replaced size not deducted.
      */
     @Test
-    void upload_quotaCountsTheFileBeingReplaced_pinsTheSection9Row() {
+    void upload_aSameSizeReplacementNearTheLimitIsAcceptedBF140() {
         limitOverrides.put(TOTAL_LIMIT_KEY, 100L);
         when(metaService.totalSize(ORG)).thenReturn(Mono.just(96L));
         when(repository.findByOrgIdAndType(ORG, MaterialType.LOGO)).thenReturn(Flux.just(meta("old-logo", ORG, "logo.png", 5, MaterialType.LOGO)));
 
-        expectBizError(upload(bytes(5), MaterialType.LOGO), BizError.INVALID_MATERIAL_REQUEST, "EXCEEDS_ORG_SIZE_LIMIT");
+        StepVerifier.create(upload(bytes(5), MaterialType.LOGO)).expectNextCount(1).verifyComplete();
 
+        System.out.println("[MaterialApiServiceImplTest] same-size logo replacement at 96/100 with a 5 byte old logo: " + ops);
+        assertThat(ops).containsExactly("repo.save:LOGO:file.png", "storage.save:new-id", "storage.delete:old-logo", "repo.delete:old-logo");
+    }
+
+    /**
+     * BF-140: a replacement that grows the total is still limited: 96 - 5 + 9 = 100 passes, 96 - 5 + 10 = 101 fails and
+     * nothing changes. Catches: the replaced size deducted twice, or the comparison moved off by one.
+     */
+    @Test
+    void upload_aReplacementIsLimitedByItsGrowthBF140() {
+        limitOverrides.put(TOTAL_LIMIT_KEY, 100L);
+        when(metaService.totalSize(ORG)).thenReturn(Mono.just(96L));
+        when(repository.findByOrgIdAndType(ORG, MaterialType.LOGO)).thenReturn(Flux.just(meta("old-logo", ORG, "logo.png", 5, MaterialType.LOGO)));
+
+        StepVerifier.create(upload(bytes(9), MaterialType.LOGO)).expectNextCount(1).verifyComplete();
+        ops.clear();
+
+        expectBizError(upload(bytes(10), MaterialType.LOGO), BizError.INVALID_MATERIAL_REQUEST, "EXCEEDS_ORG_SIZE_LIMIT");
         assertThat(ops).as("the old logo stays").isEmpty();
-        System.out.println("[MaterialApiServiceImplTest] same-size logo replacement refused at 96/100 with a 5 byte old logo");
+    }
+
+    /**
+     * BF-140: every material the upload replaces is deducted: a COMMON file of the same name, and two rows of a LOGO
+     * (a row a failed removal left beside the logo, see {@code storeOrRemoveRow}). Catches: only the first replaced
+     * material deducted, or only for LOGO and FAVICON.
+     */
+    @Test
+    void upload_everyReplacedMaterialIsDeductedBF140() {
+        limitOverrides.put(TOTAL_LIMIT_KEY, 100L);
+        when(metaService.totalSize(ORG)).thenReturn(Mono.just(98L));
+        when(repository.findByOrgIdAndFilenameAndType(ORG, "file.png", MaterialType.COMMON))
+                .thenReturn(Flux.just(meta("old-common", ORG, "file.png", 8, MaterialType.COMMON)));
+        when(repository.findByOrgIdAndType(ORG, MaterialType.LOGO))
+                .thenReturn(Flux.just(meta("old-logo", ORG, "logo.png", 4, MaterialType.LOGO), meta("stale-logo", ORG, "logo.png", 4, MaterialType.LOGO)));
+
+        StepVerifier.create(upload(bytes(10), MaterialType.COMMON)).expectNextCount(1).verifyComplete();
+        StepVerifier.create(upload(bytes(10), MaterialType.LOGO)).expectNextCount(1).verifyComplete();
+
+        System.out.println("[MaterialApiServiceImplTest] 98/100, a 10 byte COMMON over 8 bytes and a 10 byte LOGO over 4 + 4 bytes: " + ops);
+        assertThat(ops).contains("repo.delete:old-common", "repo.delete:old-logo", "repo.delete:stale-logo");
     }
 
     // ------------------------------------------------------- storage failure
 
-    /**
-     * Pins plan §9 row "material upload deletes the old file before the new one is stored; a storage failure loses
-     * both (MaterialApiServiceImpl:84-91)": the old row and its file are deleted first, the new row is saved, and when
-     * storing the new file fails the org is left with no old material and a new row without a file.
-     */
-    @Test
-    void upload_whenTheStorageSaveFails_theOldRowAndFileAreAlreadyGone_pinsTheSection9Row() {
-        when(repository.findByOrgIdAndType(ORG, MaterialType.LOGO)).thenReturn(Flux.just(meta("old-logo", ORG, "logo.png", 5, MaterialType.LOGO)));
+    private void failStorageSave() {
         when(storage.save(any(MaterialMeta.class), any(byte[].class))).thenAnswer(invocation -> Mono.defer(() -> {
             ops.add("storage.save:failed");
             return Mono.error(new IllegalStateException("storage backend down"));
         }));
+    }
 
-        StepVerifier.create(upload(bytes(3), MaterialType.LOGO)).expectError(IllegalStateException.class).verify(WAIT);
+    /**
+     * BF-028 (plan §9 row "material upload deletes the old file before the new one is stored; a storage failure loses
+     * both"): when storing the new file fails, the new row is deleted again, the old row and file are not touched, and the
+     * storage failure is the answer.
+     */
+    @Test
+    void upload_whenTheStorageSaveFails_theNewRowIsRemovedAndTheOldMaterialStaysBF028() {
+        when(repository.findByOrgIdAndType(ORG, MaterialType.LOGO)).thenReturn(Flux.just(meta("old-logo", ORG, "logo.png", 5, MaterialType.LOGO)));
+        failStorageSave();
 
-        assertThat(ops).containsExactly("repo.delete:old-logo", "storage.delete:old-logo", "repo.save:LOGO:file.png", "storage.save:failed");
+        StepVerifier.create(upload(bytes(3), MaterialType.LOGO))
+                .expectErrorSatisfies(error -> assertThat(error).isInstanceOf(IllegalStateException.class).hasMessage("storage backend down"))
+                .verify(WAIT);
+
         System.out.println("[MaterialApiServiceImplTest] failed storage save: " + ops);
+        assertThat(ops).containsExactly("repo.save:LOGO:file.png", "storage.save:failed", "repo.delete:new-id");
+    }
+
+    /** BF-028: if removing the new row after a storage failure fails too, the storage failure is still the answer and carries it. */
+    @Test
+    void upload_whenTheStorageSaveAndTheRowCleanupFail_theStorageFailureCarriesTheCleanupFailureBF028() {
+        failStorageSave();
+        when(repository.deleteById("new-id")).thenReturn(Mono.error(new IllegalStateException("row delete failed")));
+
+        StepVerifier.create(upload(bytes(3), MaterialType.COMMON))
+                .expectErrorSatisfies(error -> {
+                    System.out.println("[MaterialApiServiceImplTest] storage failure " + error.getMessage() + ", suppressed " + List.of(error.getSuppressed()));
+                    assertThat(error).hasMessage("storage backend down");
+                    // only the IllegalStateExceptions: Reactor's debug mode, when another test of the JVM turned it on, adds its assembly trace too
+                    assertThat(error.getSuppressed()).filteredOn(IllegalStateException.class::isInstance)
+                            .extracting(Throwable::getMessage).containsExactly("row delete failed");
+                })
+                .verify(WAIT);
+    }
+
+    /**
+     * BF-028, documented limit: if deleting a replaced material's file fails after the new file is stored, the upload
+     * answers with that error; the new material is kept and the replaced row stays (it is deleted only after its file).
+     */
+    @Test
+    void upload_whenDeletingTheReplacedFileFails_theNewOneIsKeptAndTheOldRowStaysBF028() {
+        when(repository.findByOrgIdAndFilenameAndType(ORG, "file.png", MaterialType.COMMON))
+                .thenReturn(Flux.just(meta("old-common", ORG, "file.png", 5, MaterialType.COMMON)));
+        when(storage.delete(any(MaterialMeta.class))).thenReturn(Mono.error(new IllegalStateException("old file delete failed")));
+
+        StepVerifier.create(upload(bytes(3), MaterialType.COMMON)).expectErrorMessage("old file delete failed").verify(WAIT);
+
+        assertThat(ops).containsExactly("repo.save:COMMON:file.png", "storage.save:new-id");
+    }
+
+    /** BF-028, documented limit: if deleting the replaced row fails after its file is deleted, that error is the answer; the new material is kept. */
+    @Test
+    void upload_whenDeletingTheReplacedRowFails_theNewOneIsKeptAndTheErrorIsTheAnswerBF028() {
+        when(repository.findByOrgIdAndFilenameAndType(ORG, "file.png", MaterialType.COMMON))
+                .thenReturn(Flux.just(meta("old-common", ORG, "file.png", 5, MaterialType.COMMON)));
+        when(repository.deleteById("old-common")).thenReturn(Mono.error(new IllegalStateException("old row delete failed")));
+
+        StepVerifier.create(upload(bytes(3), MaterialType.COMMON)).expectErrorMessage("old row delete failed").verify(WAIT);
+
+        assertThat(ops).containsExactly("repo.save:COMMON:file.png", "storage.save:new-id", "storage.delete:old-common");
     }
 
     // ----------------------------------------------------------------- download
@@ -428,10 +519,17 @@ class MaterialApiServiceImplTest {
     // ------------------------------------------------------------------- delete
 
     @Test
-    void delete_unknownId_failsWithInvalidParameter10095_andDeletesNothing() {
+    void delete_unknownId_failsWithInvalidParameterMaterialNotFound_andDeletesNothing() {
         when(metaService.findById("ghost")).thenReturn(Mono.empty());
 
-        expectBizError(service.delete("ghost"), BizError.INVALID_PARAMETER, "10095");
+        // the key was "10095", in no locale bundle, so the answer read "Oops! Service is busy" (found by MessageKeyBundlesTest, T109)
+        StepVerifier.create(service.delete("ghost")).expectErrorSatisfies(throwable -> {
+            assertThat(throwable).isInstanceOf(BizException.class);
+            assertThat(((BizException) throwable).getError()).isEqualTo(BizError.INVALID_PARAMETER);
+            assertThat(((BizException) throwable).getMessageKey()).isEqualTo(MATERIAL_NOT_FOUND_KEY);
+            System.out.println("[MaterialApiServiceImplTest] unknown material: " + throwable.getMessage());
+            assertThat(throwable.getMessage()).isEqualTo(MATERIAL_NOT_FOUND_GHOST_EN);
+        }).verify(WAIT);
 
         assertThat(ops).isEmpty();
     }

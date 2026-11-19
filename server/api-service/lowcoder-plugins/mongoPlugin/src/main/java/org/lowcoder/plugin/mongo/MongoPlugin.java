@@ -19,9 +19,13 @@ package org.lowcoder.plugin.mongo;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
+import com.mongodb.ConnectionString;
 import com.mongodb.MongoCommandException;
+import com.mongodb.MongoException;
+import com.mongodb.MongoExecutionTimeoutException;
 import com.mongodb.MongoSocketWriteException;
 import com.mongodb.MongoTimeoutException;
+import com.mongodb.ServerAddress;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import jakarta.annotation.Nonnull;
@@ -36,6 +40,7 @@ import org.lowcoder.plugin.mongo.model.MongoConnectionUriParser;
 import org.lowcoder.plugin.mongo.model.MongoDatasourceConfig;
 import org.lowcoder.plugin.mongo.model.MongoQueryExecutionContext;
 import org.lowcoder.plugin.mongo.utils.MongoQueryUtils;
+import org.lowcoder.sdk.util.HostGuards;
 import org.lowcoder.sdk.config.dynamic.Conf;
 import org.lowcoder.sdk.config.dynamic.ConfigCenter;
 import org.lowcoder.sdk.exception.PluginException;
@@ -59,6 +64,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static org.lowcoder.plugin.mongo.MongoPluginError.MONGO_COMMAND_ERROR;
@@ -120,7 +126,7 @@ public class MongoPlugin extends Plugin {
             }
 
             return Mono.from(source)
-                    .onErrorMap(MongoTimeoutException.class,
+                    .onErrorMap(error -> error instanceof MongoTimeoutException || error instanceof MongoExecutionTimeoutException,
                             error -> new PluginException(QUERY_EXECUTION_TIMEOUT, "QUERY_TIMEOUT_ERROR", error.getMessage()))
                     .onErrorMap(MongoCommandException.class, error -> new PluginException(QUERY_ARGUMENT_ERROR, "QUERY_ARGUMENT_ERROR",
                             error.getErrorMessage()))
@@ -198,8 +204,8 @@ public class MongoPlugin extends Plugin {
             Document command;
             try {
                 command = mongoCommand.parseCommand();
-            } catch (Exception e) {
-                throw new PluginException(INVALID_QUERY_SETTINGS, "INVALID_QUERY_SETTINGS", e.getMessage());
+            } catch (Exception e) { // BF-117: a coded PluginException (INVALID_JSON_FORMAT, ...) keeps its key, as on the raw path above
+                throw e instanceof PluginException pluginException ? pluginException : new PluginException(INVALID_QUERY_SETTINGS, "INVALID_QUERY_SETTINGS", e.getMessage());
             }
             return MongoQueryExecutionContext.builder()
                     .command(command)
@@ -383,6 +389,75 @@ public class MongoPlugin extends Plugin {
             return mongoConnection.close();
         }
 
+        /**
+         * The loopback restriction, in host and URI mode alike: a host is refused when any address it resolves to is a
+         * loopback or the wildcard address, whatever its spelling.
+         * <p>Limits: it runs when a datasource is validated (create, update and test of a datasource), not when a connection
+         * is made, so a datasource stored before this check is not re-checked until it is saved again; and the limits of
+         * {@link HostGuards} apply (a name that resolves to loopback later, and the targets of an SRV record, are not checked).
+         */
+        private static boolean anyLoopbackOrWildcard(List<String> hosts) {
+            return hosts.stream().anyMatch(HostGuards::isLoopbackOrWildcard);
+        }
+
+        /**
+         * The hosts the driver connects to for a connection string, as {@link ConnectionString} parses it, without ports;
+         * none when the driver cannot parse it, since no connection can be made from it either. This is the overload host
+         * mode uses: it answers no hosts for a string the driver refuses, which is why a refusal is invisible there
+         * (NEW-55), and it is the null-safe way in - callers that have not parsed yet must use it and not
+         * {@link #driverParse} plus {@link #driverHosts(ConnectionString)} by hand.
+         */
+        private static List<String> driverHosts(String connectionString) {
+            ConnectionString parsed = driverParse(connectionString);
+            return parsed == null ? List.of() : driverHosts(parsed);
+        }
+
+        /**
+         * The connection string as the driver's own parser reads it, or null when the driver refuses it. The only method
+         * here that answers null, so every caller must branch on it.
+         *
+         * <p>NEW-20: the URI branch of {@link #validateConfig} reports that refusal as
+         * {@code INVALID_MONGODB_URL_PLZ_CHECK}. Before it did, the only driver call of that branch was
+         * {@link #driverHosts(String)}, and an empty host list for a refused string reads exactly like a string with no
+         * loopback host - so the datasource saved, and the refusal reached the caller only on connect, where
+         * {@code MongoClients.create} raises the {@link IllegalArgumentException} that {@link #createConnection} maps to
+         * {@code DATASOURCE_ARGUMENT_ERROR}. The strings this affects are the ones {@code MONGO_URL_REGEX} matches and
+         * the driver does not: a port that is not a number, a database holding '/' or ' ', options without the leading
+         * '/', an unenclosed IPv6 literal, a username without a password, an unknown read preference or auth mechanism.
+         *
+         * <p>The reason is deliberately carried nowhere. {@code validateConfig} answers message keys rather than text,
+         * and the driver's message quotes the part of the string it refused, which for a URI can be the credentials; so
+         * the caller is told only that the URL is invalid, and nothing is logged here either. The cost is real and is the
+         * price of not risking a password in a log: which of the reasons above applies is not reported.
+         *
+         * <p>Limits. {@code MongoException} is caught beside {@link IllegalArgumentException} because
+         * {@link #driverHosts(String)} has always caught both and this method took over that parse; no refusal seen while
+         * this was written raises it, so only the {@code IllegalArgumentException} half has a test. Host mode is not
+         * fixed here: it goes through {@link #driverHosts(String)}, whose empty answer still hides a refusal, and which
+         * code it should report is a separate decision because that form has no URL field (NEW-55).
+         */
+        private static ConnectionString driverParse(String connectionString) {
+            try {
+                return new ConnectionString(connectionString);
+            } catch (IllegalArgumentException | MongoException e) {
+                return null;
+            }
+        }
+
+        /**
+         * The hosts of a connection string the driver has already accepted, without ports; none if it cannot name them.
+         * Takes the parse rather than the string so that a caller which already has one does not make it twice.
+         */
+        private static List<String> driverHosts(ConnectionString parsed) {
+            try {
+                return parsed.getHosts().stream()
+                        .map(hostAndPort -> new ServerAddress(hostAndPort).getHost())
+                        .toList();
+            } catch (IllegalArgumentException | MongoException e) {
+                return List.of();
+            }
+        }
+
         private boolean hostStringHasConnectionURIHead(String host) {
             return StringUtils.isNotBlank(host) && (host.contains("mongodb://") || host.contains("mongodb+srv"));
         }
@@ -406,6 +481,16 @@ public class MongoPlugin extends Plugin {
                     return ImmutableSet.of("INVALID_MONGODB_URL_PLZ_CHECK");
                 }
 
+                // NEW-20: the checks above are this file's own regex; this one asks the driver, which refuses strings that
+                // regex matches. See driverParse for what is refused and why no reason is reported.
+                ConnectionString parsed = driverParse(mongoUri);
+                if (parsed == null) {
+                    return ImmutableSet.of("INVALID_MONGODB_URL_PLZ_CHECK");
+                }
+
+                if (anyLoopbackOrWildcard(driverHosts(parsed))) {
+                    invalids.add("INVALID_HOST");
+                }
                 return invalids;
             }
 
@@ -419,7 +504,10 @@ public class MongoPlugin extends Plugin {
                 invalids.add("HOST_EMPTY_PLZ_CHECK");
             }
 
-            if (StringUtils.equalsIgnoreCase(host, "localhost") || StringUtils.equals(host, "127.0.0.1")) {
+            // the host field goes into the connection string as is, so the hosts the driver reads from that string are checked
+            // as well as the field itself (the driver cannot parse every spelling, such as a bare IPv6 address)
+            if (StringUtils.isNotBlank(host) && !hostStringHasConnectionURIHead(host)
+                    && anyLoopbackOrWildcard(Stream.concat(Stream.of(host), driverHosts(buildClientUri(connectionConfig)).stream()).toList())) {
                 invalids.add("INVALID_HOST");
             }
 

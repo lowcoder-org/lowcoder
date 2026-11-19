@@ -30,7 +30,7 @@ public final class AuthHelper {
 
         return response.statusCode() == HttpStatus.UNAUTHORIZED
                 && Optional.ofNullable(Iterables.getFirst(response.headers().header(WWW_AUTHENTICATE), null))
-                .map(header -> header.trim().toLowerCase())
+                .map(header -> header.trim().toLowerCase(java.util.Locale.ROOT))
                 .map(header -> header.startsWith("digest"))
                 .orElse(false);
     }

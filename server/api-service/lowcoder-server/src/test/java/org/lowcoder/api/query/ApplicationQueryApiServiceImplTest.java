@@ -48,13 +48,22 @@ import org.lowcoder.domain.query.service.QueryExecutionService;
 import org.lowcoder.domain.user.model.Connection;
 import org.lowcoder.domain.user.model.ConnectionAuthToken;
 import org.lowcoder.domain.user.model.User;
+import org.lowcoder.domain.datasource.service.DatasourceConnectionPool;
+import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
+import org.lowcoder.domain.plugin.client.DatasourcePluginClient;
+import org.lowcoder.domain.query.service.QueryExecutionServiceImpl;
 import org.lowcoder.sdk.config.CommonConfig;
+import org.lowcoder.sdk.query.QueryExecutionContext;
+import org.lowcoder.sdk.plugin.common.QueryExecutor;
+import org.lowcoder.domain.datasource.model.DatasourceConnectionHolder;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.models.DatasourceConnectionConfig;
 import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
 import org.lowcoder.sdk.models.Param;
 import org.lowcoder.sdk.models.Property;
+import org.lowcoder.sdk.exception.PluginCommonError;
+import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
 import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
@@ -80,15 +89,20 @@ import reactor.test.StepVerifier;
  * (own, live library record, recorded library record), what reaches {@code QueryExecutionService.executeQuery}, and
  * the "OAuth inherited from login" headers.
  *
- * <p>Pinned production defect (owner decision D-6: fixes are deferred, a fix changes this test on purpose): the plan
- * section 9 row "UserSessionPersistenceFilter: connection.getAuthId().equals(...) NPE for a connection with a null
- * authId" (this site added by the coordinator). See
- * {@link #oauthInherit_connectionWithNullAuthIdBeforeTheMatch_isANullPointerException_pinsSection9Row}.
+ * <p>Fixed since: the NullPointerException for a connection with a null authId (BF-040), now asserted by
+ * {@link #oauthInherit_connectionWithNullAuthId_isSkippedInEitherOrderBF040} and
+ * {@link #oauthInherit_noActiveAuthId_doesNotMatchAConnectionWithoutAuthIdBF040}.
  */
 @ExtendWith(MockitoExtension.class)
 class ApplicationQueryApiServiceImplTest {
 
     private static final String LOG_PREFIX = "[ApplicationQueryApiServiceImplTest] ";
+    /** The shipped maximum query timeout ({@code application.yaml} {@code common.max-query-timeout}), in seconds. */
+    private static final int MAX_QUERY_TIMEOUT_SECONDS = 120;
+    private static final String ABOVE_THE_MAXIMUM = (MAX_QUERY_TIMEOUT_SECONDS + 1) + "s";
+    /** The shipped maximum written in minutes, and one minute above it. */
+    private static final String MINUTES_AT_THE_MAXIMUM = (MAX_QUERY_TIMEOUT_SECONDS / 60) + "m";
+    private static final String MINUTES_ABOVE_THE_MAXIMUM = (MAX_QUERY_TIMEOUT_SECONDS / 60 + 1) + "m";
 
     private static final String APP_ID = "app-1";
     private static final String ROOT_APP_ID = "root-app";
@@ -435,6 +449,101 @@ class ApplicationQueryApiServiceImplTest {
         say("library query, record id %s -> %s version executed", recordId, live ? "live" : "recorded");
     }
 
+    /**
+     * The real {@link QueryExecutionServiceImpl} with the shipped maximum of {@value #MAX_QUERY_TIMEOUT_SECONDS} s over
+     * mocked execution collaborators; {@link #runs} lets a query of a type reach the executor and answer {@code result}.
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private final class RealExecution {
+        final DatasourceConnectionPool pool = org.mockito.Mockito.mock(DatasourceConnectionPool.class);
+        final DatasourceMetaInfoService metaInfo = org.mockito.Mockito.mock(DatasourceMetaInfoService.class);
+        final DatasourcePluginClient pluginClient = org.mockito.Mockito.mock(DatasourcePluginClient.class);
+        final QueryExecutor executor = org.mockito.Mockito.mock(QueryExecutor.class);
+        final QueryExecutionServiceImpl service;
+
+        RealExecution() {
+            CommonConfig limits = new CommonConfig();
+            limits.setMaxQueryTimeout(MAX_QUERY_TIMEOUT_SECONDS);
+            service = new QueryExecutionServiceImpl(pool, metaInfo, pluginClient, limits);
+        }
+
+        void runs(String datasourceType) {
+            when(metaInfo.getQueryExecutor(datasourceType)).thenReturn(executor);
+            when(executor.buildQueryExecutionContextMono(any(), any(), any(), any())).thenReturn(Mono.just(org.mockito.Mockito.mock(QueryExecutionContext.class)));
+            when(pool.getOrCreateConnection(any())).thenReturn((Mono) Mono.just(org.mockito.Mockito.mock(DatasourceConnectionHolder.class)));
+            when(executor.doExecuteQuery(any(), any())).thenReturn(Mono.just(result));
+        }
+
+        void assertNothingRan() {
+            verifyNoInteractions(pool, metaInfo, pluginClient, executor);
+        }
+    }
+
+    private ApplicationQueryApiServiceImpl serviceOver(RealExecution execution) {
+        ApplicationQueryApiServiceImpl withRealExecution = new ApplicationQueryApiServiceImpl(sessionUserService, libraryQueryService,
+                libraryQueryRecordService, applicationService, resourcePermissionService, datasourceService, execution.service,
+                commonConfig, applicationRecordService);
+        ReflectionTestUtils.setField(withRealExecution, "port", PORT);
+        return withRealExecution;
+    }
+
+    private void storedTimeout(String timeout, Map<String, Object> queryConfig) {
+        appQuery = new ApplicationQuery("q-id", "q-gid", "q-name", DATASOURCE_ID, queryConfig, "manual", timeout, PLAIN_TYPE);
+    }
+
+    private static void assertRefusedOverTheMaximum(Throwable error) {
+        assertThat(error).isInstanceOfSatisfying(PluginException.class, plugin -> {
+            assertThat(plugin.getError()).isEqualTo(PluginCommonError.EXCEED_MAX_QUERY_TIMEOUT);
+            assertThat(plugin.getArgs()).containsExactly(MAX_QUERY_TIMEOUT_SECONDS);
+        });
+    }
+
+    /**
+     * BF-043 through the application branch of {@code POST /api/query/execute}: with the real execution service and the
+     * shipped maximum, a query whose timeout is above it is answered with EXCEED_MAX_QUERY_TIMEOUT naming the maximum in
+     * seconds, and nothing runs. Before the fix the maximum was multiplied by 1000 and the query ran.
+     */
+    @Test
+    void execute_timeoutAboveTheMaximum_isRefusedThroughTheRealExecutionServiceBF043() {
+        RealExecution execution = new RealExecution();
+        storedTimeout(ABOVE_THE_MAXIMUM, Map.of("sql", "select 1"));
+
+        StepVerifier.create(serviceOver(execution).executeApplicationQuery(exchange, validRequest()))
+                .expectErrorSatisfies(error -> {
+                    say("timeout %s with a %d s maximum -> %s", ABOVE_THE_MAXIMUM, MAX_QUERY_TIMEOUT_SECONDS, error);
+                    assertRefusedOverTheMaximum(error);
+                })
+                .verify();
+        execution.assertNothingRan();
+    }
+
+    /**
+     * BF-044 through the application branch: a stored timeout in minutes is read in minutes. With the shipped maximum
+     * of {@value #MAX_QUERY_TIMEOUT_SECONDS} s, {@value #MINUTES_ABOVE_THE_MAXIMUM} is refused and nothing runs, while
+     * {@value #MINUTES_AT_THE_MAXIMUM} runs with its timeout in milliseconds handed to the executor. Before the fix both
+     * were read as milliseconds and ran.
+     */
+    @Test
+    void execute_timeoutInMinutes_isReadInMinutesThroughTheRealExecutionServiceBF044() {
+        RealExecution refusing = new RealExecution();
+        storedTimeout(MINUTES_ABOVE_THE_MAXIMUM, new HashMap<>(Map.of("sql", "select 1")));
+        StepVerifier.create(serviceOver(refusing).executeApplicationQuery(exchange, validRequest()))
+                .expectErrorSatisfies(error -> {
+                    say("timeout %s with a %d s maximum -> %s", MINUTES_ABOVE_THE_MAXIMUM, MAX_QUERY_TIMEOUT_SECONDS, error);
+                    assertRefusedOverTheMaximum(error);
+                })
+                .verify();
+        refusing.assertNothingRan();
+
+        RealExecution running = new RealExecution();
+        running.runs(PLAIN_TYPE);
+        Map<String, Object> queryConfig = new HashMap<>(Map.of("sql", "select 1"));
+        storedTimeout(MINUTES_AT_THE_MAXIMUM, queryConfig);
+        StepVerifier.create(serviceOver(running).executeApplicationQuery(exchange, validRequest())).expectNext(result).verifyComplete();
+        say("timeout %s -> ran with timeoutMs %s", MINUTES_AT_THE_MAXIMUM, queryConfig.get("timeoutMs"));
+        assertThat(queryConfig).containsEntry("timeoutMs", String.valueOf(MAX_QUERY_TIMEOUT_SECONDS * 1000));
+    }
+
     /** Catches a query run without its datasource: DATASOURCE_NOT_FOUND carrying the datasource id, nothing executed. */
     @Test
     void execute_missingDatasource_isDatasourceNotFound() {
@@ -618,27 +727,47 @@ class ApplicationQueryApiServiceImplTest {
         say("%s -> no headers", label);
     }
 
+    static Stream<Arguments> nullAuthIdOrderRows() {
+        List<Arguments> rows = new ArrayList<>();
+        for (Kind kind : Kind.values()) {
+            rows.add(Arguments.of(kind, true));
+            rows.add(Arguments.of(kind, false));
+        }
+        return rows.stream();
+    }
+
     /**
-     * Pins the plan section 9 row "UserSessionPersistenceFilter: connection.getAuthId().equals(...) NPE for a connection
-     * with a null authId" (same defect family, this call site added by the coordinator): when a visitor has a connection
-     * with a null auth id (legacy data) that comes before the matching one, every inherit-from-login query of that user
-     * fails with a NullPointerException. When the matching connection comes first the stream short-circuits and the query
-     * runs, so the failure depends on the connection order. A fix (null-safe comparison) changes this test on purpose.
+     * BF-040 fixed: a connection with a null auth id (legacy data) placed before the matching one made every
+     * inherit-from-login query of that user fail with a NullPointerException, while with the matching one first the
+     * stream short-circuited. It now matches no auth id, so the matching connection supplies the header in either order.
+     */
+    @ParameterizedTest(name = "{0}: null-authId connection first={1}")
+    @MethodSource("nullAuthIdOrderRows")
+    void oauthInherit_connectionWithNullAuthId_isSkippedInEitherOrderBF040(Kind kind, boolean nullAuthIdFirst) {
+        datasource.setDetailConfig(oauthConfig(kind, "auth-A"));
+        Connection withoutAuthId = connection(null, "t0");
+        Connection matching = connection("auth-A", "tA");
+        visitorWithConnections("auth-A", nullAuthIdFirst ? new Connection[] {withoutAuthId, matching} : new Connection[] {matching, withoutAuthId});
+
+        List<Property> properties = inheritedProperties();
+
+        say("%s: null-authId connection first=%s -> %s", kind, nullAuthIdFirst, properties);
+        assertThat(properties).containsExactly(expectedHeader(kind, "tA"));
+    }
+
+    /**
+     * BF-040: with an empty configured auth id and no active auth id the lookup id is null; a connection without an auth
+     * id is not taken as its match (nor does it throw), so no header is sent.
      */
     @ParameterizedTest
     @EnumSource(Kind.class)
-    void oauthInherit_connectionWithNullAuthIdBeforeTheMatch_isANullPointerException_pinsSection9Row(Kind kind) {
-        datasource.setDetailConfig(oauthConfig(kind, "auth-A"));
-        visitorWithConnections("auth-A", connection(null, "t0"), connection("auth-A", "tA"));
+    void oauthInherit_noActiveAuthId_doesNotMatchAConnectionWithoutAuthIdBF040(Kind kind) {
+        datasource.setDetailConfig(oauthConfig(kind, ""));
+        visitorWithConnections(null, connection(null, "t0"));
 
-        StepVerifier.create(service.executeApplicationQuery(exchange, validRequest()))
-                .expectError(NullPointerException.class)
-                .verify();
-        verify(queryExecutionService, never()).executeQuery(any(), any(), any(), any(), any());
+        List<Property> properties = inheritedProperties();
 
-        visitorWithConnections("auth-A", connection("auth-A", "tA"), connection(null, "t0"));
-        events.clear();
-        assertThat(inheritedProperties()).containsExactly(expectedHeader(kind, "tA"));
-        say("%s: null-authId connection first -> NullPointerException (section 9 row pinned); matching first -> works", kind);
+        say("%s: no active auth id, only a null-authId connection -> %s", kind, properties);
+        assertThat(properties).isNull();
     }
 }

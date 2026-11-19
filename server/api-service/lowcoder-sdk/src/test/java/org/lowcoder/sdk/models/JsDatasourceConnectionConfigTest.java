@@ -123,6 +123,83 @@ class JsDatasourceConnectionConfigTest {
         System.out.println("[JsDatasourceConnectionConfigTest] non-password key comes from the update only: " + merged);
     }
 
+    /** The Lowcoder plugin's datasource params (node-service {@code plugins/lowcoder/index.ts}): the plugin of GitHub #2053. */
+    private static Map<String, Object> lowcoderPluginDefinition() {
+        Map<String, Object> dataSourceConfig = new HashMap<>();
+        dataSourceConfig.put("params", List.of(param("serverURL", "textInput"), param("bearerAuth.value", "password"),
+                param("specVersion", "select")));
+        return values("dataSourceConfig", dataSourceConfig);
+    }
+
+    /** What the plugin form sends on save for the Lowcoder plugin with every advanced setting filled in (GitHub #2053). */
+    private static Map<String, Object> lowcoderFormUpdate() {
+        return values("serverURL", "http://api:8080", "specVersion", "v1.3",
+                JsDatasourceConnectionConfig.HEADERS_KEY, List.of(values("key", "X-A", "value", "1")),
+                JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY, List.of("LOWCODER_CE_SELFHOST_TOKEN"),
+                JsDatasourceConnectionConfig.FORWARD_ALL_COOKIES_KEY, true,
+                JsDatasourceConnectionConfig.SSL_CERT_VERIFICATION_TYPE_KEY, "VERIFY_SELF_SIGNED_CERT",
+                JsDatasourceConnectionConfig.SELF_SIGNED_CERT_KEY, "-----BEGIN CERTIFICATE-----",
+                "outside", "ignored");
+    }
+
+    /**
+     * NEW-18 (GitHub #2053): the headers and advanced settings the plugin form sends are kept on update, as create keeps
+     * them; they used to be dropped with every key outside the plugin definition. Catches a setting left out of the kept
+     * keys, the stored password lost, and other keys outside the definition kept.
+     */
+    @Test
+    void mergeKeepsTheHeadersAndAdvancedSettingsTheFormSendsNEW18() {
+        JsDatasourceConnectionConfig storedConfig = config(PLUGIN_TYPE, lowcoderPluginDefinition(),
+                values("serverURL", "http://old", "bearerAuth.value", "enc", "specVersion", "v1.3"));
+        Map<String, Object> sent = lowcoderFormUpdate();
+
+        JsDatasourceConnectionConfig merged = merge(storedConfig, update(sent));
+
+        System.out.println("[JsDatasourceConnectionConfigTest] NEW-18 update sent: " + sent);
+        System.out.println("[JsDatasourceConnectionConfigTest] NEW-18 merged     : " + merged);
+        for (String key : List.of(JsDatasourceConnectionConfig.HEADERS_KEY, JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY,
+                JsDatasourceConnectionConfig.FORWARD_ALL_COOKIES_KEY, JsDatasourceConnectionConfig.SSL_CERT_VERIFICATION_TYPE_KEY,
+                JsDatasourceConnectionConfig.SELF_SIGNED_CERT_KEY)) {
+            assertThat(merged.get(key)).as(key).isEqualTo(sent.get(key));
+        }
+        assertThat(merged).containsEntry("serverURL", "http://api:8080").containsEntry("bearerAuth.value", "enc")
+                .doesNotContainKey("outside");
+    }
+
+    /**
+     * NEW-18: the update decides, as for a non-password param: a stored setting the update leaves out is cleared, and an
+     * update without settings adds no keys. Catches a stored setting falling back in and settings added as nulls.
+     */
+    @Test
+    void aSettingTheUpdateLeavesOutIsClearedAndNoneIsAddedNEW18() {
+        JsDatasourceConnectionConfig storedConfig = config(PLUGIN_TYPE, lowcoderPluginDefinition(), values("serverURL", "http://old",
+                JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY, List.of("stored"), JsDatasourceConnectionConfig.FORWARD_ALL_COOKIES_KEY, true));
+
+        JsDatasourceConnectionConfig merged = merge(storedConfig, update(values("serverURL", "http://new",
+                JsDatasourceConnectionConfig.FORWARD_ALL_COOKIES_KEY, false)));
+
+        System.out.println("[JsDatasourceConnectionConfigTest] NEW-18 settings left out of the update: " + merged);
+        assertThat(merged).containsEntry(JsDatasourceConnectionConfig.FORWARD_ALL_COOKIES_KEY, false)
+                .doesNotContainKeys(JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY, JsDatasourceConnectionConfig.HEADERS_KEY,
+                        JsDatasourceConnectionConfig.SSL_CERT_VERIFICATION_TYPE_KEY, JsDatasourceConnectionConfig.SELF_SIGNED_CERT_KEY);
+    }
+
+    /**
+     * NEW-18: a plugin that declares a setting's key as its own param keeps that param's handling; for a password param an
+     * update sending no value keeps the stored one. Catches the kept settings overwriting the static param handling.
+     */
+    @Test
+    void aSettingKeyThePluginDeclaresAsAPasswordKeepsThePasswordHandlingNEW18() {
+        Map<String, Object> dataSourceConfig = values("params", List.of(param(JsDatasourceConnectionConfig.SELF_SIGNED_CERT_KEY, "password")));
+        JsDatasourceConnectionConfig storedConfig = config(PLUGIN_TYPE, values("dataSourceConfig", dataSourceConfig),
+                values(JsDatasourceConnectionConfig.SELF_SIGNED_CERT_KEY, STORED_PASSWORD));
+
+        JsDatasourceConnectionConfig merged = merge(storedConfig, update(values(JsDatasourceConnectionConfig.SELF_SIGNED_CERT_KEY, null)));
+
+        System.out.println("[JsDatasourceConnectionConfigTest] NEW-18 declared password param sent empty: " + merged);
+        assertThat(merged).containsEntry(JsDatasourceConnectionConfig.SELF_SIGNED_CERT_KEY, STORED_PASSWORD);
+    }
+
     @Test
     void mergeHandlesDynamicParamsDefinitionAndConfig() {
         JsDatasourceConnectionConfig storedConfig = stored(values(
@@ -317,17 +394,57 @@ class JsDatasourceConnectionConfigTest {
         System.out.println("[JsDatasourceConnectionConfigTest] " + label + " -> inherit=" + expectedInherit + ", authId=" + expectedAuthId);
     }
 
-    /**
-     * Pins the plan section 9 row "JsDatasourceConnectionConfig.isOauth2InheritFromLogin ... throws a NullPointerException
-     * when the stored authConfig map has no type key" (D-6, fix deferred): the authConfig is user-supplied JSON and
-     * line 212 does {@code get("type").equals(...)}. A fix of that row changes this test on purpose.
-     */
-    @Test
-    void isOauth2InheritFromLoginAndGetAuthIdThrowWhenAuthConfigHasNoType() {
-        JsDatasourceConnectionConfig config = stored(values(KEY_AUTH, new HashMap<>(values("authId", "auth-3"))));
+    static Stream<Arguments> malformedAuthConfigs() {
+        return Stream.of(
+                Arguments.of("map without type", new HashMap<>(values("authId", "auth-3"))),
+                Arguments.of("not a map", RestApiAuthType.OAUTH2_INHERIT_FROM_LOGIN.name()));
+    }
 
-        assertThatThrownBy(config::isOauth2InheritFromLogin).isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(config::getAuthId).isInstanceOf(NullPointerException.class);
-        System.out.println("[JsDatasourceConnectionConfigTest] authConfig without type -> NullPointerException (plan section 9 row, pinned)");
+    /**
+     * BF-091 (plan section 9 row "JsDatasourceConnectionConfig.isOauth2InheritFromLogin ... throws a NullPointerException
+     * when the stored authConfig map has no type key", was pinned): the authConfig is user-supplied JSON; one without a
+     * type, or one that is not a map, is not OAuth inherited from login and has no auth id, instead of throwing.
+     */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("malformedAuthConfigs")
+    void aMalformedAuthConfigIsNotInheritedFromLoginAndHasNoAuthIdBF091(String label, Object authConfig) {
+        JsDatasourceConnectionConfig config = stored(values(KEY_AUTH, authConfig));
+
+        assertThat(config.isOauth2InheritFromLogin()).isFalse();
+        assertThat(config.getAuthId()).isNull();
+        System.out.println("[JsDatasourceConnectionConfigTest] authConfig " + label + " -> inherit=false, authId=null");
+    }
+
+    /** NEW-18 (T156b-1): the forward-all setting is on for Boolean true or the text "true" in any case, off for anything else. */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("forwardAllValues")
+    void isForwardAllCookiesReadsTheFormSetting(String label, Object stored, boolean expected) {
+        JsDatasourceConnectionConfig config = new JsDatasourceConnectionConfig();
+        if (stored != ABSENT) {
+            config.put(JsDatasourceConnectionConfig.FORWARD_ALL_COOKIES_KEY, stored);
+        }
+        System.out.println("[JsDatasourceConnectionConfigTest] forwardAllCookies " + label + " -> " + config.isForwardAllCookies());
+        assertThat(config.isForwardAllCookies()).as(label).isEqualTo(expected);
+    }
+
+    private static final Object ABSENT = new Object();
+
+    static Stream<Arguments> forwardAllValues() {
+        return Stream.of(Arguments.of("absent", ABSENT, false), Arguments.of("FALSE", Boolean.FALSE, false),
+                Arguments.of("text false", "false", false), Arguments.of("text yes", "yes", false), Arguments.of("number 1", 1, false),
+                Arguments.of("TRUE", Boolean.TRUE, true), Arguments.of("text true", "true", true), Arguments.of("text TRUE", "TRUE", true));
+    }
+
+    /** NEW-18 (T156b-1): the forwarded cookie names are the text elements of the list, trimmed, blank ones dropped, in order. */
+    @Test
+    void getForwardCookiesReadsTheFormListTrimmedInOrder() {
+        JsDatasourceConnectionConfig config = new JsDatasourceConnectionConfig();
+        config.put(JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY, new ArrayList<Object>(java.util.Arrays.asList(" tenant ", "", 5, null, "b", "tenant")));
+        System.out.println("[JsDatasourceConnectionConfigTest] forwardCookies " + config.getForwardCookies());
+        assertThat(config.getForwardCookies()).containsExactly("tenant", "b");
+        config.put(JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY, "tenant");
+        assertThat(config.getForwardCookies()).as("a plain string").isEmpty();
+        config.remove(JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY);
+        assertThat(config.getForwardCookies()).as("absent").isEmpty();
     }
 }

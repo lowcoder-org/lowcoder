@@ -8,10 +8,18 @@ import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.common.sql.HikariPerfWrapper;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
+import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -31,6 +39,11 @@ public class GeneralSqlExecutorStatementTest {
     static final String QUOTED_VALUE = "x' || 'y";
     static final String POOL_NAME = "GeneralSqlExecutorStatementTest";
     static final int FAILING_RUNS = 3;
+    static final String QUERY_FAILURE_STATE = "QF001";
+    static final String OTHER_STATE = "QF002";
+    static final String KEYS_FAILURE_TEXT = "the keys failed on purpose";
+    static final String INSERT_A = "insert into " + TABLE + " (v) values ('a')";
+    static final Map<String, Object> ONE_ROW = Map.of("affectedRows", 1);
 
     private static final String URL = H2SqlTestSupport.newUrl("stmt");
     private static Connection connection;
@@ -86,6 +99,47 @@ public class GeneralSqlExecutorStatementTest {
         System.out.println("[GeneralSqlExecutorStatementTest] keys: " + keyed + " ; none when unsupported ; prepared " + prepared.getData());
     }
 
+    /** A GUI statement prepared with or without generated keys, as its render result asks (BF-050). */
+    private QueryExecutionResult runGui(boolean returnsGeneratedKeys) {
+        return runGui(new GeneralSqlExecutor(), connection, returnsGeneratedKeys);
+    }
+
+    /** The GUI insert of {@link #runGui(boolean)}, run by {@code executor} on {@code target}. */
+    static QueryExecutionResult runGui(GeneralSqlExecutor executor, Connection target, boolean returnsGeneratedKeys) {
+        GuiSqlCommand command = new GuiSqlCommand() {
+            @Override
+            public GuiSqlCommandRenderResult render(Map<String, Object> requestMap) {
+                return new GuiSqlCommandRenderResult("insert into " + TABLE + " (v) values (?)", List.of(VALUE), returnsGeneratedKeys);
+            }
+
+            @Override
+            public boolean isInsertCommand() {
+                return true;
+            }
+
+            @Override
+            public Set<String> extractMustacheKeys() {
+                return Set.of();
+            }
+        };
+        return executor.execute(target, SqlBasedQueryExecutionContext.builder().guiSqlCommand(command).requestParams(Map.of()).build());
+    }
+
+    /**
+     * BF-050: the executor asked for generated keys on every prepared statement, which Oracle refuses for a multi-row insert.
+     * A render result that does not want them is now prepared with NO_GENERATED_KEYS: the insert runs and answers its
+     * affected rows only; the default still answers the keys.
+     */
+    @Test
+    public void aGuiStatementIsPreparedWithGeneratedKeysOnlyWhenItsRenderResultAsksBF050() {
+        QueryExecutionResult withKeys = runGui(true);
+        QueryExecutionResult withoutKeys = runGui(false);
+        System.out.println("[GeneralSqlExecutorStatementTest] GUI insert with keys " + withKeys.getData() + ", without " + withoutKeys.getData());
+        assertEquals(Map.of("affectedRows", 1, "generatedKeys", List.of(1L)), withKeys.getData());
+        assertEquals(Map.of("affectedRows", 1), withoutKeys.getData());
+        assertEquals(2L, H2SqlTestSupport.scalar(connection, "select count(*) from " + TABLE), "both inserts ran");
+    }
+
     @Test
     public void invalidSqlIsWrappedAsQueryExecutionErrorInBothModes() {
         for (boolean plain : new boolean[] {false, true}) {
@@ -115,5 +169,62 @@ public class GeneralSqlExecutorStatementTest {
         }
         assertTrue(((HikariDataSource) wrapper.getHikariDataSource()).isClosed());
         assertFalse(((HikariDataSource) wrapper.getHikariDataSource()).isRunning());
+    }
+
+    /**
+     * NEW-9 test support: {@code target} behind a {@link Proxy} whose {@code prepareStatement} and {@code createStatement}
+     * (every overload; the executor calls {@code prepareStatement(String, int)} and {@code createStatement()}) answer a proxy
+     * of the real statement that throws {@code failure} from {@code getGeneratedKeys}. Every other call of either proxy goes
+     * to the real object, an {@link InvocationTargetException} rethrown as its cause. Each real statement is added to
+     * {@code handedOut}, so a test can ask it whether the executor closed it.
+     * <p>Limits: only those two connection methods are intercepted, and only {@code getGeneratedKeys} is changed.
+     */
+    static Connection keysFailWith(Connection target, Exception failure, List<Statement> handedOut) {
+        return (Connection) Proxy.newProxyInstance(GeneralSqlExecutorStatementTest.class.getClassLoader(), new Class<?>[] {Connection.class},
+                (self, method, args) -> {
+                    Object value = invoke(target, method, args);
+                    if (method.getName().equals("prepareStatement") || method.getName().equals("createStatement")) {
+                        Statement statement = (Statement) value;
+                        handedOut.add(statement);
+                        return Proxy.newProxyInstance(GeneralSqlExecutorStatementTest.class.getClassLoader(), new Class<?>[] {method.getReturnType()},
+                                (statementSelf, statementMethod, statementArgs) -> {
+                                    if (statementMethod.getName().equals("getGeneratedKeys")) {
+                                        throw failure;
+                                    }
+                                    return invoke(statement, statementMethod, statementArgs);
+                                });
+                    }
+                    return value;
+                });
+    }
+
+    private static Object invoke(Object target, Method method, Object[] args) throws Throwable {
+        try {
+            return method.invoke(target, args);
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
+    }
+
+    /**
+     * NEW-9: the base executor still treats every exception of {@code getGeneratedKeys} as "no keys" (the default that Oracle,
+     * MySQL, Postgres and Snowflake keep), prepared and plain: the insert answers its affected rows and is stored.
+     */
+    @Test
+    public void anExceptionOfGetGeneratedKeysMeansNoKeysForTheBaseExecutorNEW9() {
+        List<Exception> failures = List.of(new SQLException(KEYS_FAILURE_TEXT, QUERY_FAILURE_STATE), new IllegalStateException(KEYS_FAILURE_TEXT));
+        int inserts = 0;
+        for (Exception failure : failures) {
+            for (boolean plain : new boolean[] {false, true}) {
+                List<Statement> handedOut = new ArrayList<>();
+                QueryExecutionResult result = new GeneralSqlExecutor().execute(keysFailWith(connection, failure, handedOut), context(INSERT_A, Map.of(), plain));
+                System.out.println("[GeneralSqlExecutorStatementTest] NEW-9 base executor, plain=" + plain + ", keys threw "
+                        + failure.getClass().getSimpleName() + " -> " + result.getData());
+                assertEquals(ONE_ROW, result.getData());
+                assertEquals(1, handedOut.size());
+                inserts++;
+            }
+        }
+        assertEquals((long) inserts, H2SqlTestSupport.scalar(connection, "select count(*) from " + TABLE), "every insert was stored");
     }
 }

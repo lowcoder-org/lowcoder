@@ -85,8 +85,10 @@ import reactor.test.StepVerifier;
  * <p>Pinned production defects (owner decision D-6: fixes are deferred, a fix changes these tests on purpose):
  * <ul>
  * <li>plan section 9 row "DatasourceApiServiceImpl.getPluginDynamicConfig loads the requested datasource ids ... with no
- * permission or organization check ... a null dataSourceConfig throws a NullPointerException", see
- * {@link #getPluginDynamicConfig_foreignOrganizationsDatasource_extraIsCopiedWithNoPermissionCheck_pinsDefect} and
+ * permission or organization check ... a null dataSourceConfig throws a NullPointerException": the missing permission
+ * check is fixed (BF-019, see
+ * {@link #getPluginDynamicConfig_datasourceTheVisitorMayNotManage_givesNoExtraAndIsNotLoaded}); the
+ * NullPointerException is still pinned, see
  * {@link #getPluginDynamicConfig_nullDataSourceConfig_throwsNullPointerException_pinsDefect}.</li>
  * </ul>
  */
@@ -353,8 +355,13 @@ class DatasourceApiServiceImplTest {
     }
 
     private ArgumentCaptor<Collection<String>> stubOrgListing(Map<String, ResourceRole> usable) {
+        return stubOrgListing(usable, false);
+    }
+
+    /** {@code lenient}: for a case in which the listing is not reached, so that the case fails on its assertions, not on an unused or missing stub. */
+    private ArgumentCaptor<Collection<String>> stubOrgListing(Map<String, ResourceRole> usable, boolean lenient) {
         stubVisitor();
-        when(datasourceService.getByOrgId(ORG_ID)).thenAnswer(invocation -> Flux.just(
+        (lenient ? lenient().when(datasourceService.getByOrgId(ORG_ID)) : when(datasourceService.getByOrgId(ORG_ID))).thenAnswer(invocation -> Flux.just(
                 listed("d1", "Alpha", SQL_TYPE, DatasourceStatus.NORMAL, "u1"),
                 listed("d2", "Beta", SQL_TYPE, DatasourceStatus.NORMAL, "u-unknown"),
                 listed("d3", "Gamma", SQL_TYPE, DatasourceStatus.NORMAL, "u1"),
@@ -364,7 +371,8 @@ class DatasourceApiServiceImplTest {
         ArgumentCaptor<Collection<String>> lookedUp = ArgumentCaptor.forClass(Collection.class);
         Map<String, ResourcePermission> permissions = new HashMap<>();
         usable.forEach((id, role) -> permissions.put(id, ResourcePermission.builder().resourceRole(role).build()));
-        when(resourcePermissionService.getMaxMatchingPermission(eq(VISITOR_ID), lookedUp.capture(), eq(USE_DATASOURCES)))
+        (lenient ? lenient().when(resourcePermissionService.getMaxMatchingPermission(eq(VISITOR_ID), lookedUp.capture(), eq(USE_DATASOURCES)))
+                : when(resourcePermissionService.getMaxMatchingPermission(eq(VISITOR_ID), lookedUp.capture(), eq(USE_DATASOURCES))))
                 .thenReturn(Mono.just(permissions));
         User creator = new User();
         creator.setId("u1");
@@ -373,6 +381,13 @@ class DatasourceApiServiceImplTest {
         lenient().when(datasourceService.removePasswordTypeKeysFromJsDatasourcePluginConfig(any())).thenReturn(Mono.empty());
         lenient().when(jsDatasourceHelper.processDynamicQueryConfig(any())).thenReturn(Mono.empty());
         return lookedUp;
+    }
+
+    /** The visitor's membership of {@link #ORG_ID}, any role, or none. */
+    private void stubOrgMembership(boolean member) {
+        stubVisitor();
+        lenient().when(orgMemberService.getOrgMember(ORG_ID, VISITOR_ID))
+                .thenReturn(member ? Mono.just(new OrgMember(ORG_ID, VISITOR_ID, MemberRole.MEMBER, "CURRENT", 0L)) : Mono.empty());
     }
 
     static Stream<Arguments> orgListingFilters() {
@@ -394,6 +409,7 @@ class DatasourceApiServiceImplTest {
     @MethodSource("orgListingFilters")
     void listOrgDataSources_listsOnlyUsableMatchingDatasources_withEditFlagAndCreatorName(String name, String type,
             List<String> lookedUpIds, List<String> listedIds) {
+        stubOrgMembership(true);
         ArgumentCaptor<Collection<String>> lookedUp = stubOrgListing(Map.of(
                 "d1", ResourceRole.OWNER, "d2", ResourceRole.VIEWER, "d5", ResourceRole.VIEWER));
 
@@ -413,6 +429,40 @@ class DatasourceApiServiceImplTest {
         verify(datasourceService, times(listedIds.size())).removePasswordTypeKeysFromJsDatasourcePluginConfig(any());
         verify(jsDatasourceHelper, times(listedIds.size())).processDynamicQueryConfig(any());
         say("listOrgDataSources name=%s type=%s: permission lookup %s, listed %s", name, type, lookedUp.getValue(), listedIds);
+    }
+
+    /**
+     * D1, NEW-132: a visitor who is not a member of the organization is NOT_AUTHORIZED, even when they hold USE on one of its
+     * datasources, and the organization's datasources are not read.
+     */
+    @Test
+    void listOrgDataSources_aNonMemberIsRefusedNEW132() {
+        stubOrgMembership(false);
+        stubOrgListing(Map.of("d1", ResourceRole.VIEWER), true);
+
+        StepVerifier.create(service.listOrgDataSources(ORG_ID, null, null))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")).verify();
+
+        verify(datasourceService, never()).getByOrgId(any());
+        say("listOrgDataSources: a non-member is refused, no datasource read");
+    }
+
+    /**
+     * D2, NEW-132: the application listing keeps the datasource USE filter and has no membership check: a visitor who is not a
+     * member of the organization, and holds USE on d1, still gets d1 through the application (the organization listing refuses
+     * them, D1).
+     */
+    @Test
+    void listAppDataSources_aNonMemberWithUsePermissionStillListsNEW132() {
+        stubOrgMembership(false);
+        stubOrgListing(Map.of("d1", ResourceRole.VIEWER));
+        when(applicationService.findById(APP_ID))
+                .thenReturn(Mono.just(Application.builder().id(APP_ID).organizationId(ORG_ID).build()));
+
+        StepVerifier.create(service.listAppDataSources(APP_ID, null, null).collectList())
+                .assertNext(views -> assertThat(views).extracting(view -> view.datasource().getId()).containsExactly("d1"))
+                .verifyComplete();
+        say("listAppDataSources: a non-member holding USE on d1 lists d1 through the application");
     }
 
     /**
@@ -845,7 +895,7 @@ class DatasourceApiServiceImplTest {
 
         StepVerifier.create(service.getPluginDynamicConfig(request)).expectNext(List.of("result")).verifyComplete();
 
-        verifyNoInteractions(datasourceRepository);
+        verifyNoInteractions(datasourceRepository, sessionUserService, resourcePermissionService);
         request.forEach(item -> assertThat(item.getDataSourceConfig()).doesNotContainKey(EXTRA_KEY));
         say("getPluginDynamicConfig: only blank datasource ids -> forwarded unchanged");
     }
@@ -857,10 +907,50 @@ class DatasourceApiServiceImplTest {
     }
 
     /**
+     * The visitor may manage exactly {@code manageable}, and the single-id permission lookup answers that, as the real
+     * handler does for one id (it resolves the organization of that id). The batched lookups answer every asked id as
+     * granted, as the real handler does for an admin of the organization of the first id: a batched check would let
+     * every other id through. Returns the ids the single-id lookup was asked for, in order.
+     */
+    private List<String> stubManageableDatasources(String... manageable) {
+        stubVisitor();
+        Set<String> granted = Set.of(manageable);
+        List<String> askedIds = new ArrayList<>();
+        lenient().when(resourcePermissionService.getMaxMatchingPermission(eq(VISITOR_ID), any(String.class), eq(MANAGE_DATASOURCES)))
+                .thenAnswer(invocation -> {
+                    String datasourceId = invocation.getArgument(1);
+                    askedIds.add(datasourceId);
+                    return granted.contains(datasourceId)
+                           ? Mono.just(ResourcePermission.builder().resourceId(datasourceId).resourceRole(ResourceRole.OWNER).build())
+                           : Mono.empty();
+                });
+        lenient().when(resourcePermissionService.filterResourceWithPermission(eq(VISITOR_ID), anyCollection(), eq(MANAGE_DATASOURCES)))
+                .thenAnswer(invocation -> Flux.fromIterable(invocation.<Collection<String>>getArgument(1)));
+        lenient().when(resourcePermissionService.getMaxMatchingPermission(eq(VISITOR_ID), anyCollection(), eq(MANAGE_DATASOURCES)))
+                .thenAnswer(invocation -> Flux.fromIterable(invocation.<Collection<String>>getArgument(1))
+                        .collectMap(id -> id, id -> ResourcePermission.builder().resourceId(id).resourceRole(ResourceRole.OWNER).build()));
+        return askedIds;
+    }
+
+    /** The repository answers, from {@code stored}, the datasources whose id it is asked for, as {@code findAllById} does. */
+    private ArgumentCaptor<Iterable<String>> stubRepository(Datasource... stored) {
+        Map<String, Datasource> byId = new HashMap<>();
+        for (Datasource datasource : stored) {
+            byId.put(datasource.getId(), datasource);
+        }
+        ArgumentCaptor<Iterable<String>> askedIds = ArgumentCaptor.forClass(Iterable.class);
+        when(datasourceRepository.findAllById(askedIds.capture())).thenAnswer(invocation ->
+                Flux.fromIterable(invocation.<Iterable<String>>getArgument(0)).mapNotNull(byId::get));
+        return askedIds;
+    }
+
+    /**
      * Catches the wrong plugin config being forwarded: {@code extra} is taken only from JS-plugin datasources whose
      * config is a JS connection config with a non-null extra; each request with a non-blank datasource id gets the
      * {@code extra} key (null when its datasource supplied none), a request with a blank id is untouched, and the plugin
-     * client is called after the injection with the same requests and its result is returned.
+     * client is called after the injection with the same requests and its result is returned. The visitor may manage
+     * every stored datasource here; the permission is asked once for every non-blank id and the repository only for the
+     * ids it let through.
      */
     @Test
     void getPluginDynamicConfig_injectsExtraOfJsDatasourcesOnly_beforeCallingThePluginClient() {
@@ -873,12 +963,13 @@ class DatasourceApiServiceImplTest {
         List<GetPluginDynamicConfigRequestDTO> request = List.of(withExtra, withoutExtra, nonJs, notJsConfig, unknown, blank);
         when(datasourceMetaInfoService.isJsDatasourcePlugin(any())).thenAnswer(invocation ->
                 JS_TYPE.equals(invocation.getArgument(0)));
-        ArgumentCaptor<Iterable<String>> askedIds = ArgumentCaptor.forClass(Iterable.class);
-        when(datasourceRepository.findAllById(askedIds.capture())).thenReturn(Flux.just(
+        List<String> permissionAskedIds = stubManageableDatasources("js-with-extra", "js-without-extra", "sql-with-extra",
+                "js-with-other-config");
+        ArgumentCaptor<Iterable<String>> askedIds = stubRepository(
                 stored("js-with-extra", JS_TYPE, jsConfig("EXTRA")),
                 stored("js-without-extra", JS_TYPE, jsConfig(null)),
                 stored("sql-with-extra", SQL_TYPE, jsConfig("NOT-FOR-SQL")),
-                stored("js-with-other-config", JS_TYPE, org.mockito.Mockito.mock(DatasourceConnectionConfig.class))));
+                stored("js-with-other-config", JS_TYPE, org.mockito.Mockito.mock(DatasourceConnectionConfig.class)));
         AtomicReference<Map<String, Object>> configAtClientCall = new AtomicReference<>();
         when(datasourcePluginClient.getPluginDynamicConfig(request)).thenReturn(Mono.defer(() -> {
             configAtClientCall.set(new HashMap<>(withExtra.getDataSourceConfig()));
@@ -887,8 +978,10 @@ class DatasourceApiServiceImplTest {
 
         StepVerifier.create(service.getPluginDynamicConfig(request)).expectNext(List.of("client-result")).verifyComplete();
 
-        assertThat(askedIds.getValue()).containsExactlyInAnyOrder("js-with-extra", "js-without-extra", "sql-with-extra",
+        assertThat(permissionAskedIds).containsExactlyInAnyOrder("js-with-extra", "js-without-extra", "sql-with-extra",
                 "js-with-other-config", "unknown-id");
+        assertThat(askedIds.getValue()).containsExactlyInAnyOrder("js-with-extra", "js-without-extra", "sql-with-extra",
+                "js-with-other-config");
         assertThat(configAtClientCall.get()).containsEntry("k", "v").containsEntry(EXTRA_KEY, "EXTRA");
         assertThat(withoutExtra.getDataSourceConfig()).containsKey(EXTRA_KEY).containsEntry(EXTRA_KEY, null);
         assertThat(nonJs.getDataSourceConfig()).containsKey(EXTRA_KEY).containsEntry(EXTRA_KEY, null);
@@ -899,26 +992,86 @@ class DatasourceApiServiceImplTest {
     }
 
     /**
-     * Pins the plan section 9 row "DatasourceApiServiceImpl.getPluginDynamicConfig loads the requested datasource ids
-     * ... with no permission or organization check": the request names a JS datasource of another organization, the
-     * datasource is loaded by id and its {@code extra} is copied into the request that is forwarded to the plugin
-     * service, and no session or permission service is touched. A fix changes this test on purpose.
+     * Catches another datasource's {@code extra} reaching the plugin service (BF-019, formerly pinned as "loads the
+     * requested datasource ids ... with no permission or organization check"): the visitor may not manage the requested
+     * JS datasource, so the repository is not asked at all, the request is forwarded with a null {@code extra}, and no
+     * error is raised (it is treated like an unknown id). Which organization the datasource is in is decided by the
+     * permission lookup of that id (the real handler resolves it from the datasource), so it is not modelled here.
      */
     @Test
-    void getPluginDynamicConfig_foreignOrganizationsDatasource_extraIsCopiedWithNoPermissionCheck_pinsDefect() {
-        Datasource foreign = stored("foreign-js", JS_TYPE, jsConfig("FOREIGN-EXTRA"));
-        foreign.setOrganizationId(OTHER_ORG_ID);
-        GetPluginDynamicConfigRequestDTO request = dto("foreign-js", new HashMap<>());
-        when(datasourceMetaInfoService.isJsDatasourcePlugin(JS_TYPE)).thenReturn(true);
-        when(datasourceRepository.findAllById(any())).thenReturn(Flux.just(foreign));
+    void getPluginDynamicConfig_datasourceTheVisitorMayNotManage_givesNoExtraAndIsNotLoaded() {
+        Datasource notManageable = stored("not-manageable-js", JS_TYPE, jsConfig("FOREIGN-EXTRA"));
+        notManageable.setOrganizationId(OTHER_ORG_ID);
+        GetPluginDynamicConfigRequestDTO request = dto("not-manageable-js", new HashMap<>());
+        lenient().when(datasourceMetaInfoService.isJsDatasourcePlugin(JS_TYPE)).thenReturn(true);
+        List<String> permissionAskedIds = stubManageableDatasources();
+        lenient().when(datasourceRepository.findAllById(any())).thenReturn(Flux.just(notManageable));
         when(datasourcePluginClient.getPluginDynamicConfig(List.of(request))).thenReturn(Mono.just(List.of()));
 
         StepVerifier.create(service.getPluginDynamicConfig(List.of(request))).expectNext(List.of()).verifyComplete();
 
-        assertThat(request.getDataSourceConfig()).containsEntry(EXTRA_KEY, "FOREIGN-EXTRA");
-        verifyNoInteractions(sessionUserService, resourcePermissionService);
-        say("getPluginDynamicConfig: extra of a datasource of %s copied, no permission or org check (section 9 defect pinned)",
-                OTHER_ORG_ID);
+        assertThat(request.getDataSourceConfig()).containsKey(EXTRA_KEY).containsEntry(EXTRA_KEY, null);
+        verify(datasourceRepository, never()).findAllById(any());
+        assertThat(permissionAskedIds).containsExactly("not-manageable-js");
+        say("getPluginDynamicConfig: datasource the visitor may not manage -> not loaded, extra null");
+    }
+
+    /**
+     * Catches the permission being checked for the whole request instead of for each datasource (a batched lookup grants
+     * an admin of the first id's organization every id): of two JS datasources only the one the visitor may manage gives
+     * its {@code extra}; the other request gets a null one. Both orders are run, so neither id is always the first.
+     */
+    @ParameterizedTest(name = "[{index}] manageable first: {0}")
+    @ValueSource(booleans = {true, false})
+    void getPluginDynamicConfig_mixedRequest_onlyTheManageableDatasourceGivesItsExtra(boolean manageableFirst) {
+        Datasource manageable = stored("manageable-js", JS_TYPE, jsConfig("OWN-EXTRA"));
+        Datasource foreign = stored("foreign-js", JS_TYPE, jsConfig("FOREIGN-EXTRA"));
+        foreign.setOrganizationId(OTHER_ORG_ID);
+        GetPluginDynamicConfigRequestDTO own = dto("manageable-js", new HashMap<>());
+        GetPluginDynamicConfigRequestDTO other = dto("foreign-js", new HashMap<>());
+        when(datasourceMetaInfoService.isJsDatasourcePlugin(JS_TYPE)).thenReturn(true);
+        List<String> permissionAskedIds = stubManageableDatasources("manageable-js");
+        ArgumentCaptor<Iterable<String>> repositoryAskedIds = stubRepository(manageable, foreign);
+        List<GetPluginDynamicConfigRequestDTO> request = manageableFirst ? List.of(own, other) : List.of(other, own);
+        when(datasourcePluginClient.getPluginDynamicConfig(request)).thenReturn(Mono.just(List.of("result")));
+
+        StepVerifier.create(service.getPluginDynamicConfig(request)).expectNext(List.of("result")).verifyComplete();
+
+        assertThat(other.getDataSourceConfig()).containsKey(EXTRA_KEY).containsEntry(EXTRA_KEY, null);
+        assertThat(own.getDataSourceConfig()).containsEntry(EXTRA_KEY, "OWN-EXTRA");
+        assertThat(repositoryAskedIds.getValue()).containsExactly("manageable-js");
+        assertThat(permissionAskedIds).containsExactlyInAnyOrder("manageable-js", "foreign-js");
+        say("getPluginDynamicConfig: mixed request (manageable first: %s) -> extra of the manageable datasource only",
+                manageableFirst);
+    }
+
+    /**
+     * Catches a failed visitor or permission lookup being forwarded anyway: the error is returned, and neither the
+     * repository nor the plugin client is subscribed.
+     */
+    @ParameterizedTest(name = "[{index}] {0} fails")
+    @ValueSource(strings = {"visitor", "permission"})
+    void getPluginDynamicConfig_lookupFails_errorIsReturnedAndNothingIsForwarded(String failing) {
+        GetPluginDynamicConfigRequestDTO request = dto("js-1", new HashMap<>());
+        BizException failure = denied();
+        if ("visitor".equals(failing)) {
+            when(sessionUserService.getVisitorId()).thenReturn(Mono.error(failure));
+        } else {
+            stubVisitor();
+            when(resourcePermissionService.getMaxMatchingPermission(eq(VISITOR_ID), any(String.class), eq(MANAGE_DATASOURCES)))
+                    .thenReturn(Mono.error(failure));
+        }
+        lenient().when(datasourceRepository.findAllById(any())).thenReturn(Flux.defer(() -> {
+            events.add("repository");
+            return Flux.empty();
+        }));
+        lenient().when(datasourcePluginClient.getPluginDynamicConfig(any())).thenReturn(logged("plugin client", List.of()));
+
+        StepVerifier.create(service.getPluginDynamicConfig(List.of(request))).expectErrorMatches(failure::equals).verify();
+
+        assertThat(events).isEmpty();
+        assertThat(request.getDataSourceConfig()).doesNotContainKey(EXTRA_KEY);
+        say("getPluginDynamicConfig: %s lookup fails -> error returned, nothing loaded or forwarded", failing);
     }
 
     /**
@@ -930,7 +1083,8 @@ class DatasourceApiServiceImplTest {
     void getPluginDynamicConfig_nullDataSourceConfig_throwsNullPointerException_pinsDefect() {
         GetPluginDynamicConfigRequestDTO request = dto("js-1", null);
         when(datasourceMetaInfoService.isJsDatasourcePlugin(JS_TYPE)).thenReturn(true);
-        when(datasourceRepository.findAllById(any())).thenReturn(Flux.just(stored("js-1", JS_TYPE, jsConfig("E"))));
+        stubManageableDatasources("js-1");
+        stubRepository(stored("js-1", JS_TYPE, jsConfig("E")));
         lenient().when(datasourcePluginClient.getPluginDynamicConfig(any())).thenReturn(Mono.just(List.of()));
 
         StepVerifier.create(service.getPluginDynamicConfig(List.of(request)))

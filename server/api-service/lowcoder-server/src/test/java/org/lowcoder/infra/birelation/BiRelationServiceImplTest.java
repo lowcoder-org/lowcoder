@@ -114,7 +114,8 @@ class BiRelationServiceImplTest {
         Boolean modified = service.upsert(changed).block(TIMEOUT);
         service.upsert(otherType).block(TIMEOUT);
 
-        assertThat(List.of(inserted, unchanged, modified)).containsExactly(false, false, true);
+        // BF-134: the insert answers true, a repeat that changes nothing false
+        assertThat(List.of(inserted, unchanged, modified)).containsExactly(true, false, true);
         assertThat(service.getBySourceId(BIZ_TYPE, id("s")).collectList().block(TIMEOUT)).singleElement()
                 .satisfies(row -> assertThat(row.getRelation()).isEqualTo(id("r2")));
         assertThat(service.getBySourceId(OTHER_BIZ_TYPE, id("s")).collectList().block(TIMEOUT)).hasSize(1);
@@ -219,16 +220,14 @@ class BiRelationServiceImplTest {
     }
 
     /**
-     * DEFECT pinned (plan section 9 row, D-6, fix deferred): {@code removeAllBiRelations(bizType, sourceId)} builds
-     * {@code where(RELATION).is("super_admin").not()} (BiRelationServiceImpl.java:135), and Spring turns that into the
-     * plain criterion {@code {"relation": "super_admin"}}: the negation is lost. The call therefore deletes only the
-     * super_admin row of the source and keeps every other member. It runs when an organization or a group is deleted
-     * (deleteOrgMembers, deleteGroupMembers, through OrgAndGroupEventListener.java:62 and :110), so a deleted org or
-     * group keeps all its members except the super admin. The obvious fix is {@code where(RELATION).ne("super_admin")}
-     * (delete everything except super_admin, as the code reads), which turns this test red.
+     * Catches a deleted org or group keeping its members (BF-016, formerly pinned as "removeAllBiRelations deletes only
+     * the super_admin row": {@code is("super_admin").not()} was rendered as {@code {"relation": "super_admin"}}): the
+     * call runs when an organization or a group is deleted (deleteOrgMembers, deleteGroupMembers, through
+     * OrgAndGroupEventListener.java:73 and :159) and now removes every relation of the source except the super admin's,
+     * of that bizType only.
      */
     @Test
-    void removeAllBiRelationsOfASourceDeletesOnlyTheSuperAdminRow() {
+    void removeAllBiRelationsOfASourceKeepsOnlyTheSuperAdminRow() {
         service.addBiRelation(BIZ_TYPE, id("s"), id("t1"), "super_admin", "state").block(TIMEOUT);
         service.addBiRelation(BIZ_TYPE, id("s"), id("t2"), "member", "state").block(TIMEOUT);
         service.addBiRelation(BIZ_TYPE, id("s"), id("t3"), "viewer", "state").block(TIMEOUT);
@@ -239,21 +238,25 @@ class BiRelationServiceImplTest {
         List<BiRelation> left = service.getBySourceId(BIZ_TYPE, id("s")).collectList().block(TIMEOUT);
         System.out.println("[BiRelationServiceImplTest] removeAllBiRelations(source) answered " + removed + ", left " + targets(left));
         assertThat(removed).isTrue();
-        assertThat(targets(left)).containsExactlyInAnyOrder(id("t2"), id("t3"));
+        assertThat(targets(left)).containsExactly(id("t1"));
         assertThat(service.countBySourceId(OTHER_BIZ_TYPE, id("s")).block(TIMEOUT)).as("another bizType is not touched").isEqualTo(1);
     }
 
     /**
-     * DEFECT pinned (plan section 9 row, D-6, fix deferred): {@code removeBiRelationById} answers true for an id that
-     * no row has, because it maps the completion of {@code deleteById} (which is empty for a missing id) to true
-     * (BiRelationServiceImpl.java:231-233); false is only produced by an error. Caller:
-     * ResourcePermissionRepositoryImpl.java:79 (removePermissionById). The obvious fix is to answer from whether a row
-     * existed (for example {@code existsById} before the delete), which turns this test red.
+     * BF-084 (fixed; was pinned as the plan section 9 row "removeBiRelationById answers true for an id that does not
+     * exist"): the answer says whether a row was removed, so an id no row has, and an id whose row was already removed,
+     * answer false. Caller: ResourcePermissionRepositoryImpl.java:79 (removePermissionById).
      */
     @Test
-    void removeBiRelationByIdAnswersTrueForAnIdNoRowHas() {
-        Boolean answer = service.removeBiRelationById(new org.bson.types.ObjectId().toHexString()).block(TIMEOUT);
+    void removeBiRelationByIdAnswersFalseForAnIdNoRowHasBF084() {
+        Boolean unknown = service.removeBiRelationById(new org.bson.types.ObjectId().toHexString()).block(TIMEOUT);
+        BiRelation saved = add(BIZ_TYPE, "s", "t", "r");
+        Boolean first = service.removeBiRelationById(saved.getId()).block(TIMEOUT);
+        Boolean again = service.removeBiRelationById(saved.getId()).block(TIMEOUT);
 
-        assertThat(answer).isTrue();
+        System.out.println("[BiRelationServiceImplTest] removeBiRelationById: unknown id " + unknown + ", saved row " + first + ", again " + again);
+        assertThat(unknown).as("an id no row has").isFalse();
+        assertThat(first).as("the saved row").isTrue();
+        assertThat(again).as("the same id after its row was removed").isFalse();
     }
 }

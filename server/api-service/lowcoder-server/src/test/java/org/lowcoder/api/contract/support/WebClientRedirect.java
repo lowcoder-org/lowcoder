@@ -22,12 +22,15 @@ import java.util.function.Function;
  * {@code build()} calls too) answers the real client builder, codecs and exchange strategies included, with only its
  * connector replaced by a {@link RedirectingConnector}: same method, path and query, the test server's scheme, host and
  * port. Used for fixed {@code https} endpoints: the GitHub and Google OAuth requests, the npm registry of
- * {@code JsLibraryController#fetch} and the flow endpoint of {@code ApiFlowController}.
+ * {@code JsLibraryController#fetch}, the flow endpoint of {@code ApiFlowController}, and the subscription relays of
+ * {@code EnterpriseLicenseController} and {@code WorkspaceSeatSyncService} (through their test subclasses
+ * {@code RedirectedEnterpriseLicenseController} and {@code RedirectedWorkspaceSeatSyncService}).
  *
  * <p>Limits: the redirection is a Mockito static mock, which applies on the thread that opened it only, so the
  * production method must build its client on that thread: called directly by the test, not through a scheduler, or
  * by a test subclass that opens the redirection itself around the production method (the controller of
- * {@code ApiFlowEndpointsContractTest}, on the request's thread); and it replaces the transport (proxy, timeouts), not
+ * {@code ApiFlowEndpointsContractTest}, on the request's thread, and the two subscription subclasses, around the relay
+ * method {@code send}, which builds its client before it returns); and it replaces the transport (proxy, timeouts), not
  * the codecs.
  */
 public final class WebClientRedirect {
@@ -37,9 +40,20 @@ public final class WebClientRedirect {
 
     /** Redirects every client built through {@code WebClientBuildHelper.builder()} on this thread to {@code baseUrl}; close it to stop. */
     public static MockedStatic<WebClientBuildHelper> redirectTo(String baseUrl) {
+        return redirectTo(baseUrl, () -> { });
+    }
+
+    /**
+     * As {@link #redirectTo(String)}, running {@code onBuilder} first on each call of {@code WebClientBuildHelper.builder()}:
+     * a test can count the calls, or make the call fail by throwing from it. {@code onBuilder} runs on the calling thread,
+     * in the static mock's answer, before the real builder is created; a runtime exception it throws comes out of
+     * {@code builder()} as it is, and no builder is created.
+     */
+    public static MockedStatic<WebClientBuildHelper> redirectTo(String baseUrl, Runnable onBuilder) {
         URI target = URI.create(baseUrl);
         MockedStatic<WebClientBuildHelper> helper = Mockito.mockStatic(WebClientBuildHelper.class, Mockito.CALLS_REAL_METHODS);
         helper.when(WebClientBuildHelper::builder).thenAnswer(invocation -> {
+            onBuilder.run();
             WebClientBuildHelper redirected = Mockito.spy((WebClientBuildHelper) invocation.callRealMethod());
             Mockito.doAnswer(builder -> ((WebClient.Builder) builder.callRealMethod()).clientConnector(new RedirectingConnector(target)))
                     .when(redirected).toWebClientBuilder();

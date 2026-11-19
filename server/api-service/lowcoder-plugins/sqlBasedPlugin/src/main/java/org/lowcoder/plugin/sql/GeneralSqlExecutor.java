@@ -113,13 +113,29 @@ public class GeneralSqlExecutor {
         return result;
     }
 
-    private static ResultSet getGeneratedKeys(Statement statement) {
+    private ResultSet getGeneratedKeys(Statement statement) throws SQLException {
         // Oracle will throw exception here in some cases, so we catch the exception here
         try {
             return statement.getGeneratedKeys();
         } catch (Exception e) {
+            if (e instanceof SQLException sqlException && isQueryFailure(sqlException)) {
+                throw sqlException;
+            }
             return null;
         }
+    }
+
+    /**
+     * Whether a {@link SQLException} that {@link Statement#getGeneratedKeys()} throws reports a failure of the query itself
+     * rather than that no keys can be read (NEW-9: SQL Server raises the error of the next statement of a batch there). A
+     * failure is rethrown and fails the query as QUERY_EXECUTION_ERROR; anything else means "no keys". The default is
+     * false: every exception means "no keys", as Oracle needs.
+     * <p>Limits: only the exception of {@code getGeneratedKeys} is asked (a failure surfacing from {@code getMoreResults}
+     * already fails the query); any other exception type always means "no keys"; whether other drivers lose errors the same
+     * way was not examined.
+     */
+    protected boolean isQueryFailure(SQLException e) {
+        return false;
     }
 
     private static boolean isGeneratedKeysWithNullValue(List<Map<String, Object>> dataRows) {
@@ -147,7 +163,10 @@ public class GeneralSqlExecutor {
         try {
             if (statementInput.isPreparedStatement()) {
                 String sql = statementInput.getSql();
-                List<Object> params = statementInput.getParams();
+                // A copy: the sort rewrite below removes params, and the input list may be immutable (BF-048: the default
+                // getPreparedStatementInput builds it with Stream.toList(), so a sort map failed on MySQL, MSSQL and Oracle).
+                List<Object> params = newArrayList(statementInput.getParams());
+                List<String> paramNames = newArrayList(statementInput.getParamNames()); // BF-123: removed with their values
 
                 int orderByIndex;
                 String sortValue;
@@ -188,13 +207,17 @@ public class GeneralSqlExecutor {
 
                             // Remove the Map from params since it's no longer a bind parameter
                             params.remove(orderByIndex);
+                            if (orderByIndex < paramNames.size()) {
+                                paramNames.remove(orderByIndex);
+                            }
                         }
                     }
                 } while(orderByIndex >= 0);
 
-                var statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                var statement = connection.prepareStatement(sql,
+                        statementInput.returnsGeneratedKeys() ? Statement.RETURN_GENERATED_KEYS : Statement.NO_GENERATED_KEYS);
 
-                bindPreparedStatementParams(statement, params);
+                bindPreparedStatementParams(statement, params, paramNames);
                 var isResultSet = statement.execute();
                 return Pair.of(statement, isResultSet);
             }
@@ -237,7 +260,7 @@ public class GeneralSqlExecutor {
                 return StatementInput.fromUpdateOrDeleteSingleRowSql(updateOrDeleteSingle);
             }
 
-            return StatementInput.fromSql(true, renderResult.sql(), renderResult.bindParams());
+            return StatementInput.fromRenderResult(renderResult);
         }
 
         return getPreparedStatementInput(query, requestParams);
@@ -249,18 +272,30 @@ public class GeneralSqlExecutor {
         List<Object> bindParams = mustacheKeysInOrder.stream()
                 .map(requestParams::get)
                 .toList();
-        return StatementInput.fromSql(true, preparedSql, bindParams);
+        return StatementInput.fromSql(true, preparedSql, bindParams, mustacheKeysInOrder);
     }
 
-    private void bindPreparedStatementParams(PreparedStatement preparedQuery, List<Object> bindParams) {
+    private void bindPreparedStatementParams(PreparedStatement preparedQuery, List<Object> bindParams, List<String> paramNames) {
         try {
             for (int index = 0; index < bindParams.size(); index++) {
                 Object value = bindParams.get(index);
-                bindParam(index + 1, value, preparedQuery, "");
+                bindParam(index + 1, value, preparedQuery, bindKeyName(paramNames, index));
             }
         } catch (Exception e) {
             throw wrapException(PREPARED_STATEMENT_BIND_PARAMETERS_ERROR, "PREPARED_STATEMENT_BIND_PARAMETERS_ERROR", e);
         }
+    }
+
+    /** Before the 1-based position of a parameter that has no mustache key, in a bind error: {@code #2}. */
+    static final String UNNAMED_PARAMETER_PREFIX = "#";
+
+    /**
+     * The name a bind error (PS_BIND_ERROR) gives the parameter at {@code index} (BF-123: it was always the empty string): its
+     * mustache key, or, when the statement has no keys (a GUI statement, whose render result carries values only), its
+     * 1-based position among the placeholders after {@link #UNNAMED_PARAMETER_PREFIX}.
+     */
+    static String bindKeyName(List<String> paramNames, int index) {
+        return index < paramNames.size() ? paramNames.get(index) : UNNAMED_PARAMETER_PREFIX + (index + 1);
     }
 
     private List<Object> getGeneratedIds(ResultSet generatedKeys) throws SQLException {
@@ -343,15 +378,30 @@ public class GeneralSqlExecutor {
         private final boolean preparedStatement;
         private final String sql;
         private final List<Object> params;
+        private final boolean returnsGeneratedKeys;
+        private final List<String> paramNames;
 
-        private StatementInput(boolean preparedStatement, String sql, List<Object> params) {
+        private StatementInput(boolean preparedStatement, String sql, List<Object> params, boolean returnsGeneratedKeys,
+                List<String> paramNames) {
             this.preparedStatement = preparedStatement;
             this.sql = sql;
             this.params = params;
+            this.returnsGeneratedKeys = returnsGeneratedKeys;
+            this.paramNames = paramNames;
         }
 
         public static StatementInput fromSql(boolean preparedStatement, String sql, List<Object> params) {
-            return new StatementInput(preparedStatement, sql, params);
+            return fromSql(preparedStatement, sql, params, emptyList());
+        }
+
+        /** A statement whose parameters are the mustache keys {@code paramNames}, in placeholder order (BF-123). */
+        public static StatementInput fromSql(boolean preparedStatement, String sql, List<Object> params, List<String> paramNames) {
+            return new StatementInput(preparedStatement, sql, params, true, paramNames);
+        }
+
+        /** A prepared GUI statement; it asks for generated keys only when the render result does (BF-050). */
+        public static StatementInput fromRenderResult(GuiSqlCommandRenderResult renderResult) {
+            return new StatementInput(true, renderResult.sql(), renderResult.bindParams(), renderResult.returnsGeneratedKeys(), emptyList());
         }
 
         public static StatementInput fromUpdateOrDeleteSingleRowSql(UpdateOrDeleteSingleCommandRenderResult updateOrDeleteSingle) {
@@ -371,6 +421,16 @@ public class GeneralSqlExecutor {
             return params;
         }
 
+        /** The mustache key of each parameter, in order; empty when the statement has none (a GUI statement). */
+        public List<String> getParamNames() {
+            return paramNames;
+        }
+
+        /** Whether a prepared statement is created with {@code RETURN_GENERATED_KEYS}. */
+        public boolean returnsGeneratedKeys() {
+            return returnsGeneratedKeys;
+        }
+
     }
 
     public static class UpdateOrDeleteSingleRowStatementInput extends StatementInput {
@@ -379,7 +439,7 @@ public class GeneralSqlExecutor {
         private final List<Object> selectParams;
 
         private UpdateOrDeleteSingleRowStatementInput(String sql, List<Object> params, String selectSql, List<Object> selectParams) {
-            super(true, sql, params);
+            super(true, sql, params, true, emptyList());
             this.selectSql = selectSql;
             this.selectParams = selectParams;
         }

@@ -1,6 +1,7 @@
 package org.lowcoder.sdk.plugin.sheet;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.lowcoder.sdk.plugin.common.constant.Constants.CHANGE_SET_FORM_KEY;
 import static org.lowcoder.sdk.plugin.common.constant.Constants.COMP_KEY;
@@ -12,9 +13,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -35,7 +40,19 @@ import org.lowcoder.sdk.plugin.sqlcommand.changeset.KeyValuePairChangeSet;
  */
 class SheetChangeSetTest {
 
+    /** A default locale whose case mapping of {@code i} and {@code I} differs from {@code Locale.ROOT}'s (NEW-40). */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+    private static final String LOWER_CASE_KEY_VALUE_PAIRS = "key_value_pairs";
+    private static final String PAIR_COLUMN = "a";
+    private static final String PAIR_VALUE = "1";
+
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final String BLANK_EMPTY = "";
+    private static final String BLANK_SPACE = " ";
+    private static final String BLANK_TAB_SPACE = "\t ";
+    private static final String BLANK_LINE_FEED = "\n";
+    private static final String BLANK_CRLF = "\r\n";
+    private static final String BLANK_EM_SPACE = "\u2003";
 
     private static void assertPluginError(Runnable action, String messageKey, Object... args) {
         assertThatThrownBy(action::run).isInstanceOfSatisfying(PluginException.class, e -> {
@@ -109,14 +126,13 @@ class SheetChangeSetTest {
     }
 
     /**
-     * Pins the twin of the plan section 9 row "ChangeSet.parseChangeSet: an object-type change set without data throws a
-     * NullPointerException instead of a PluginException" (D-6, fix deferred): the sheet class has the same
-     * {@code data.getClass()} and is named in that row. A fix changes this test on purpose.
+     * BF-094, the sheet twin (the plan section 9 row "ChangeSet.parseChangeSet: an object-type change set without data
+     * throws a NullPointerException instead of a PluginException" names both classes; was pinned): an object change set
+     * without data is GUI_OPERATION_DATA_EMPTY.
      */
     @Test
-    void sheetParseChangeSetObjectTypeWithoutDataThrowsNullPointerException() {
-        assertThatThrownBy(() -> SheetChangeSet.parseChangeSet(detail(changeSet("OBJECT", null)))).isInstanceOf(NullPointerException.class);
-        System.out.println("[SheetChangeSetTest] object type without data -> NullPointerException (plan section 9 U5 row twin, pinned)");
+    void sheetParseChangeSetObjectTypeWithoutDataIsOperationDataEmptyBF094() {
+        assertPluginError(() -> SheetChangeSet.parseChangeSet(detail(changeSet("OBJECT", null))), "GUI_OPERATION_DATA_EMPTY");
     }
 
     @Test
@@ -142,17 +158,69 @@ class SheetChangeSetTest {
     }
 
     /**
-     * Pins the plan section 9 row "KeyValuePairChangeSet / SheetKeyValuePairChangeSet throw a NullPointerException for
-     * an entry without a value" (D-6, fix deferred): {@code Collectors.toMap} rejects the null value, so a GUI
-     * command that sets a column to NULL fails when the change set is built. A fix changes this test on purpose.
+     * BF-047 fixed: {@code Collectors.toMap} refused a null value, so a GUI command that set a column to NULL failed with
+     * a NullPointerException when the change set was built; an entry with no {@code value} key ({@code c}) is the same. The SQL change set now renders the column as NULL (bound as
+     * null, or the literal {@code null} in an inlined statement); the sheet change set writes an empty cell, since a sheet
+     * has no NULL and its handlers write every value as text. The other column keeps its value in both.
      */
     @Test
-    void keyValueChangeSetsThrowNullPointerExceptionForAnEntryWithoutValue() {
-        List<Object> withoutValue = List.of(pair("a", null));
+    void keyValueChangeSetsKeepAnEntryWithoutValueBF047() {
+        List<Object> withoutValue = List.of(pair("a", null), pair("b", 1), Map.of("column", "c"));
 
-        assertThatThrownBy(() -> new SheetKeyValuePairChangeSet(withoutValue)).isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> new KeyValuePairChangeSet(withoutValue)).isInstanceOf(NullPointerException.class);
-        System.out.println("[SheetChangeSetTest] entry without value -> NullPointerException in both classes (plan section 9 row, pinned)");
+        List<String> sql = new ArrayList<>();
+        new KeyValuePairChangeSet(withoutValue).render(Map.of()).forEach(item -> sql.add(item.column() + "=" + item.guiSqlValue().getValue()
+                + " inlined as " + item.guiSqlValue().getConcatSqlStr(text -> "'" + text + "'")));
+        List<Object> sheet = new ArrayList<>();
+        new SheetKeyValuePairChangeSet(withoutValue).render(Map.of()).forEach(item -> sheet.add(item.column() + "=[" + item.renderedValue() + "]"));
+
+        System.out.println("[SheetChangeSetTest] entry without value -> sql " + sql + ", sheet " + sheet);
+        assertThat(sql).containsExactly("a=null inlined as null", "b=1 inlined as 1", "c=null inlined as null");
+        assertThat(sheet).containsExactlyInAnyOrder("a=[]", "b=[1]", "c=[]");
+    }
+
+    static Stream<Arguments> blankValues() {
+        return Stream.of(
+                Arguments.of("empty", BLANK_EMPTY),
+                Arguments.of("space", BLANK_SPACE),
+                Arguments.of("tab and space", BLANK_TAB_SPACE),
+                Arguments.of("line feed", BLANK_LINE_FEED),
+                Arguments.of("carriage return and line feed", BLANK_CRLF),
+                Arguments.of("em space", BLANK_EM_SPACE));
+    }
+
+    /**
+     * NEW-13 fixed: a blank value went through the mustache JSON renderer, which answers an empty object for blank text,
+     * so the sheet handlers wrote the text {@code {}} into the cell. A blank value is the editor's starting state (a new
+     * pair is {@code { column: "", value: "" }}); it now renders as itself, as the SQL GUI binds it. The other values of
+     * the same change set still render through the JSON path.
+     */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("blankValues")
+    void aBlankValueRendersAsItselfNotAnEmptyObjectNEW13(String label, String blank) {
+        List<Object> comp = List.of(pair("blank", blank), pair("n", "{{n}}"), pair("list", "[1, {{n}}]"));
+
+        SheetChangeSetRow row = new SheetKeyValuePairChangeSet(comp).render(Map.of("n", 5));
+
+        Object rendered = valueOf(row, "blank");
+        System.out.println("[SheetChangeSetTest] blank value (" + label + ") " + MAPPER.valueToTree(blank) + " -> "
+                + (rendered == null ? "null" : rendered.getClass().getSimpleName() + " " + MAPPER.valueToTree(rendered))
+                + ", n=" + valueOf(row, "n") + " list=" + valueOf(row, "list"));
+        assertThat(rendered).as("the blank value renders as itself").isInstanceOf(String.class).isEqualTo(blank);
+        assertThat(valueOf(row, "n")).isEqualTo(5);
+        assertThat(valueOf(row, "list")).isEqualTo(List.of(1, 5));
+    }
+
+    /** NEW-13: a blank last entry of a column replaces an earlier value with itself, not with an empty object. */
+    @Test
+    void aBlankLastDuplicateOverridesAnEarlierValueNEW13() {
+        List<Object> comp = List.of(pair("c", "plain"), pair("c", BLANK_SPACE));
+
+        SheetChangeSetRow row = new SheetKeyValuePairChangeSet(comp).render(Map.of());
+
+        System.out.println("[SheetChangeSetTest] c=plain then c=" + MAPPER.valueToTree(BLANK_SPACE) + " -> columns "
+                + row.getColumns() + ", c=" + MAPPER.valueToTree(valueOf(row, "c")));
+        assertThat(row.getColumns()).containsExactly("c");
+        assertThat(valueOf(row, "c")).as("the last entry wins, as itself").isEqualTo(BLANK_SPACE);
     }
 
     /**
@@ -210,5 +278,28 @@ class SheetChangeSetTest {
         assertPluginError(() -> SheetChangeSetRows.fromJsonNode(json("[1,2]")), "GUI_INVALID_JSON_MAP_TYPE");
         assertPluginError(() -> SheetChangeSetRow.fromJsonNode(json("\"text\"")), "GUI_INVALID_JSON_MAP_TYPE");
         assertThat(SheetChangeSetRow.fromJsonNode(json("{\"a\":1,\"b\":null}")).getItem("b").renderedValue()).isNull();
+    }
+
+
+    /**
+     * NEW-40: the sheet twin of ChangeSetParseTest's case: a lower-case type is read under a Turkish default locale.
+     * The case holds JUnit's {@code Resources.LOCALE} lock while it changes the default locale; the lock orders it only
+     * against tests that hold the same lock, and it restores the locale after its calls, which block, have completed.
+     */
+    @Test
+    @ResourceLock(Resources.LOCALE)
+    void sheetParseChangeSetReadsALowerCaseTypeUnderATurkishDefaultLocaleNEW40() {
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            AtomicReference<SheetChangeSet> parsed = new AtomicReference<>();
+            assertThatCode(() -> parsed.set(SheetChangeSet.parseChangeSet(detail(changeSet(LOWER_CASE_KEY_VALUE_PAIRS, List.of(pair(PAIR_COLUMN, PAIR_VALUE)))))))
+                    .doesNotThrowAnyException();
+            SheetChangeSet changeSet = parsed.get();
+            System.out.println("[SheetChangeSetTest] " + LOWER_CASE_KEY_VALUE_PAIRS + " under " + Locale.getDefault() + " -> " + changeSet.getClass().getSimpleName());
+            assertThat(changeSet).isInstanceOf(SheetKeyValuePairChangeSet.class);
+        } finally {
+            Locale.setDefault(previous);
+        }
     }
 }

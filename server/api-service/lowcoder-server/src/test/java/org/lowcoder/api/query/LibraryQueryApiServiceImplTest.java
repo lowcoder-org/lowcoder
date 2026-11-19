@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -58,13 +59,22 @@ import org.lowcoder.domain.user.model.Connection;
 import org.lowcoder.domain.user.model.ConnectionAuthToken;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
+import org.lowcoder.domain.datasource.service.DatasourceConnectionPool;
+import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
+import org.lowcoder.domain.plugin.client.DatasourcePluginClient;
+import org.lowcoder.domain.query.service.QueryExecutionServiceImpl;
 import org.lowcoder.sdk.config.CommonConfig;
+import org.lowcoder.sdk.query.QueryExecutionContext;
+import org.lowcoder.sdk.plugin.common.QueryExecutor;
+import org.lowcoder.domain.datasource.model.DatasourceConnectionHolder;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.models.DatasourceConnectionConfig;
 import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
 import org.lowcoder.sdk.models.Param;
 import org.lowcoder.sdk.models.Property;
+import org.lowcoder.sdk.exception.PluginCommonError;
+import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
 import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
@@ -90,21 +100,42 @@ import reactor.test.StepVerifier;
  * queries, the management and view permission checks, the mutations, and the two execution flows (editing version by
  * id, and from JS by name), plus {@link LibraryQueryRequestFromJs#paramMap()}.
  *
- * <p>Pinned production defect (owner decision D-6: fixes are deferred, a fix changes these tests on purpose): the plan
- * section 9 row (tenant isolation) "LibraryQueryApiServiceImpl does not compare the library query's org with the
- * visitor's on read or run", at three sites:
+ * <p>Tenant isolation (BF-003, fixed): read and run compare the library query's organization with the visitor's, at
+ * three sites:
  * <ul>
- * <li>{@link #get_libraryQueryOfAnotherOrganization_isReturnedWithItsDsl_pinsSection9Row}</li>
- * <li>{@link #executeLibraryQuery_libraryQueryOfAnotherOrganization_runsOnThatOrganizationsDatasource_pinsSection9Row}</li>
- * <li>{@link #executeFromJs_libraryQueryOfAnotherOrganization_runsOnThatOrganizationsDatasource_pinsSection9Row}</li>
+ * <li>{@link #get_libraryQueryOfAnotherOrganization_isRefused}</li>
+ * <li>{@link #executeLibraryQuery_libraryQueryOfAnotherOrganization_isRefused_andNothingRuns}</li>
+ * <li>{@link #executeFromJs_nameOnlyAnotherOrganizationUses_isNotFound_andNothingRuns}</li>
  * </ul>
- * Also pinned under the existing section 9 row "connection.getAuthId().equals(...) NPE for a connection with a null
- * authId": {@link #oauthInherit_connectionWithNullAuthIdBeforeTheMatch_isANullPointerException_pinsSection9Row}.
+ * Fixed since: the NullPointerException for a connection with a null authId (BF-040), now asserted by
+ * {@link #oauthInherit_connectionWithNullAuthId_isSkippedInEitherOrderBF040} and
+ * {@link #oauthInherit_editingFlow_emptyAuthId_doesNotMatchAConnectionWithoutAuthIdBF040}.
  */
 @ExtendWith(MockitoExtension.class)
 class LibraryQueryApiServiceImplTest {
 
     private static final String LOG_PREFIX = "[LibraryQueryApiServiceImplTest] ";
+    /** The shipped maximum query timeout ({@code application.yaml} {@code common.max-query-timeout}), in seconds. */
+    private static final int MAX_QUERY_TIMEOUT_SECONDS = 120;
+    private static final String ABOVE_THE_MAXIMUM = (MAX_QUERY_TIMEOUT_SECONDS + 1) + "s";
+    /** The shipped maximum written in minutes, and one minute above it. */
+    private static final String MINUTES_AT_THE_MAXIMUM = (MAX_QUERY_TIMEOUT_SECONDS / 60) + "m";
+    private static final String MINUTES_ABOVE_THE_MAXIMUM = (MAX_QUERY_TIMEOUT_SECONDS / 60 + 1) + "m";
+    /** NEW-29: stored timeouts that {@code QueryTimeoutUtils} refuses, and one it accepts. */
+    private static final String INVALID_TIMEOUT = "abc";
+    private static final String NEGATIVE_TIMEOUT = "-5";
+    private static final String NAN_TIMEOUT = "NaN";
+    private static final String VALID_TIMEOUT = "9s";
+    private static final String VALID_TIMEOUT_MS = "9000";
+    private static final String TIMEOUT_MS_KEY = "timeoutMs";
+    private static final String INVALID_TIMEOUT_SETTING_KEY = "INVALID_TIMEOUT_SETTING";
+    private static final String EXCEED_MAX_QUERY_TIMEOUT_KEY = "EXCEED_MAX_QUERY_TIMEOUT";
+    private static final String QUERY_EXECUTION_ERROR_KEY = "QUERY_EXECUTION_ERROR";
+    private static final String SYNC_FAILURE_MESSAGE = "boom";
+    private static final String JS_QUERY_NAME = "name-1";
+    /** How the mocked execution fails: its call throws, or its {@code Mono} emits the failure. */
+    private static final String THROWN = "thrown";
+    private static final String EMITTED = "emitted";
 
     private static final String ORG = "org-1";
     private static final String OTHER_ORG = "org-other";
@@ -117,6 +148,8 @@ class LibraryQueryApiServiceImplTest {
     private static final String DS_PERMITTED = "ds-permitted";
     private static final String DS_DENIED = "ds-denied";
     private static final String DS_FOREIGN = "ds-foreign";
+    private static final String DS_PERMITTED_OBJECT_ID = "dspermittedobjectid";
+    private static final String DS_DENIED_OBJECT_ID = "dsdeniedobjectid";
     private static final int PORT = 18081;
     private static final Instant CREATED_AT = Instant.ofEpochMilli(1_700_000_000_000L);
     private static final String OAUTH_TYPE_NAME = RestApiAuthType.OAUTH2_INHERIT_FROM_LOGIN.name();
@@ -183,6 +216,7 @@ class LibraryQueryApiServiceImplTest {
         lenient().when(queryExecutionService.executeQuery(any(), any(), any(), any(), any()))
                 .thenAnswer(invocation -> logged("execute", result));
         lenient().when(userService.findById(CREATOR_ID)).thenReturn(Mono.just(creator));
+        lenient().when(libraryQueryService.getById(LQ_ID)).thenReturn(Mono.just(libraryQuery(LQ_ID, ORG, "stored", DS_ID, CREATOR_ID)));
     }
 
     // ------------------------------------------------------------------ fixtures
@@ -273,6 +307,7 @@ class LibraryQueryApiServiceImplTest {
         when(libraryQueryService.getByOrganizationId(ORG)).thenReturn(Flux.just(alpha, beta, gamma, delta, epsilon, zeta));
         when(resourcePermissionService.filterResourceWithPermission(VISITOR_ID, catalogueDatasourceIds, USE_DATASOURCES))
                 .thenReturn(Flux.just(DS_PERMITTED));
+        when(datasourceService.getObjectIdsByIdOrGid(catalogueDatasourceIds)).thenReturn(Mono.just(Map.of()));
         when(datasourceService.retainNoneExistAndNonCurrentOrgDatasourceIds(catalogueDatasourceIds, ORG))
                 .thenReturn(Flux.just(DS_FOREIGN));
         lenient().when(userService.getByIds(any())).thenReturn(Mono.just(Map.of(CREATOR_ID, creator)));
@@ -307,6 +342,33 @@ class LibraryQueryApiServiceImplTest {
                 })
                 .verifyComplete();
         say("list [%s] -> %s", name, expectedNames);
+    }
+
+    /**
+     * BF-002: a library query may name its datasource by gid, while the use permissions are stored under object ids. The gids
+     * are converted first, so the permission filter and the other-org check are asked about the object ids: a gid of a
+     * datasource the visitor may use is listed, a gid of one the visitor may not use is hidden (it used to be listed, as the
+     * gid was reported as missing).
+     */
+    @Test
+    void listLibraryQueries_gidReferences_areCheckedUnderTheObjectIds() {
+        String permittedGid = "gid-of-" + DS_PERMITTED_OBJECT_ID;
+        String deniedGid = "gid-of-" + DS_DENIED_OBJECT_ID;
+        List<String> objectIds = List.of(DS_PERMITTED_OBJECT_ID, DS_DENIED_OBJECT_ID);
+        when(libraryQueryService.getByOrganizationId(ORG)).thenReturn(Flux.just(
+                libraryQuery("lq-gid-permitted", ORG, "gid-permitted", permittedGid, CREATOR_ID),
+                libraryQuery("lq-gid-denied", ORG, "gid-denied", deniedGid, CREATOR_ID)));
+        when(datasourceService.getObjectIdsByIdOrGid(List.of(permittedGid, deniedGid)))
+                .thenReturn(Mono.just(Map.of(permittedGid, DS_PERMITTED_OBJECT_ID, deniedGid, DS_DENIED_OBJECT_ID)));
+        when(resourcePermissionService.filterResourceWithPermission(VISITOR_ID, objectIds, USE_DATASOURCES))
+                .thenReturn(Flux.just(DS_PERMITTED_OBJECT_ID));
+        when(datasourceService.retainNoneExistAndNonCurrentOrgDatasourceIds(objectIds, ORG)).thenReturn(Flux.empty());
+        lenient().when(userService.getByIds(any())).thenReturn(Mono.just(Map.of(CREATOR_ID, creator)));
+
+        StepVerifier.create(service.listLibraryQueries(""))
+                .assertNext(views -> assertThat(views).extracting(LibraryQueryView::name).containsExactly("gid-permitted"))
+                .verifyComplete();
+        say("list by gid: %s permitted, %s denied -> only gid-permitted", permittedGid, deniedGid);
     }
 
     /** Catches listing without the developer check: a failing check is the result and no library query is read. */
@@ -391,26 +453,23 @@ class LibraryQueryApiServiceImplTest {
     }
 
     /**
-     * Pins the plan section 9 row (tenant isolation) "LibraryQueryApiServiceImpl does not compare the library query's org
-     * with the visitor's on read or run": a library query of another organization is returned to the visitor with its
-     * DSL (datasource id and query text), and neither the developer check nor the visitor's organization is consulted.
-     * {@code checkLibraryQueryViewPermission} exists but only the record service uses it. A fix changes this test on
-     * purpose.
+     * BF-003 (was pinned as the plan section 9 tenant-isolation row): a library query of another organization is refused
+     * with LIBRARY_QUERY_AND_ORG_NOT_MATCH, so neither its DSL nor its creator is returned. It is a view check: the visitor's
+     * organization is compared, no developer check.
      */
     @Test
-    void get_libraryQueryOfAnotherOrganization_isReturnedWithItsDsl_pinsSection9Row() {
+    void get_libraryQueryOfAnotherOrganization_isRefused() {
         LibraryQuery foreign = libraryQuery("lq-foreign", OTHER_ORG, "secret-query", DS_FOREIGN, CREATOR_ID);
         when(libraryQueryService.getById("lq-foreign")).thenReturn(Mono.just(foreign));
 
         StepVerifier.create(service.get("lq-foreign"))
-                .assertNext(view -> {
-                    assertThat(view.organizationId()).isEqualTo(OTHER_ORG);
-                    assertThat(view.libraryQueryDSL()).isSameAs(foreign.getLibraryQueryDSL());
-                })
-                .verifyComplete();
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.LIBRARY_QUERY_AND_ORG_NOT_MATCH, "LIBRARY_QUERY_AND_ORG_NOT_MATCH"))
+                .verify();
 
-        verifyNoInteractions(orgDevChecker, sessionUserService);
-        say("get: another org's library query returned, no org check (section 9 row pinned)");
+        verify(sessionUserService).getVisitorOrgMemberCache();
+        verify(userService, never()).findById(anyString());
+        verifyNoInteractions(orgDevChecker);
+        say("get: another org's library query refused (BF-003)");
     }
 
     // ------------------------------------------------------------------ management permission and mutations
@@ -660,25 +719,26 @@ class LibraryQueryApiServiceImplTest {
     }
 
     /**
-     * Pins the plan section 9 row (tenant isolation) "LibraryQueryApiServiceImpl does not compare the library query's org
-     * with the visitor's on read or run": a developer of one organization runs, by id, the library query of another
-     * organization on that organization's datasource; the executor receives it, and the stored query's organization is
-     * never read ({@code libraryQueryService.getById}, which the permission checks use, is not called). A fix changes this
-     * test on purpose.
+     * BF-003 (was pinned as the plan section 9 tenant-isolation row): a developer of one organization asks to run, by id,
+     * the library query of another organization. The stored query's organization is compared with the visitor's after
+     * the developer check, the mismatch is LIBRARY_QUERY_AND_ORG_NOT_MATCH, and neither the other organization's datasource
+     * is loaded nor the query executed.
      */
     @Test
-    void executeLibraryQuery_libraryQueryOfAnotherOrganization_runsOnThatOrganizationsDatasource_pinsSection9Row() {
+    void executeLibraryQuery_libraryQueryOfAnotherOrganization_isRefused_andNothingRuns() {
         datasource.setOrganizationId(OTHER_ORG);
+        when(libraryQueryService.getById("lq-foreign")).thenReturn(Mono.just(libraryQuery("lq-foreign", OTHER_ORG, "theirs", DS_ID, CREATOR_ID)));
         when(libraryQueryService.getEditingBaseQueryByLibraryQueryId("lq-foreign"))
                 .thenReturn(Mono.just(baseQuery(Map.of("sql", "select * from their_secrets"), null)));
 
-        StepVerifier.create(service.executeLibraryQuery(exchange, editingRequest("lq-foreign"))).expectNext(result).verifyComplete();
+        StepVerifier.create(service.executeLibraryQuery(exchange, editingRequest("lq-foreign")))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.LIBRARY_QUERY_AND_ORG_NOT_MATCH, "LIBRARY_QUERY_AND_ORG_NOT_MATCH"))
+                .verify();
 
-        ArgumentCaptor<Datasource> executed = ArgumentCaptor.forClass(Datasource.class);
-        verify(queryExecutionService).executeQuery(executed.capture(), any(), any(), any(), any());
-        assertThat(executed.getValue().getOrganizationId()).isEqualTo(OTHER_ORG);
-        verify(libraryQueryService, never()).getById(anyString());
-        say("executeLibraryQuery: another org's query ran on org %s datasource (section 9 row pinned)", OTHER_ORG);
+        assertThat(events).containsExactly("dev");
+        verify(datasourceService, never()).getById(anyString());
+        verify(queryExecutionService, never()).executeQuery(any(), any(), any(), any(), any());
+        say("executeLibraryQuery: another org's query refused, nothing ran (BF-003)");
     }
 
     // ------------------------------------------------------------------ OAuth inherited from login (editing flow)
@@ -806,25 +866,139 @@ class LibraryQueryApiServiceImplTest {
         say("%s -> no headers", label);
     }
 
+    static Stream<Arguments> nullAuthIdOrderRows() {
+        List<Arguments> rows = new ArrayList<>();
+        for (Kind kind : Kind.values()) {
+            rows.add(Arguments.of(kind, true));
+            rows.add(Arguments.of(kind, false));
+        }
+        return rows.stream();
+    }
+
     /**
-     * Pins the plan section 9 row "connection.getAuthId().equals(...) NPE for a connection with a null authId"
-     * ({@code getParamsAndHeadersInheritFromLogin} uses the same {@code connection.getAuthId().equals(...)} as the
-     * application flow): a connection with a null auth id placed before the matching one gives a NullPointerException;
-     * with the matching connection first the stream short-circuits and the query runs. A fix changes this test on purpose.
+     * BF-040 fixed: {@code getParamsAndHeadersInheritFromLogin} used the same {@code connection.getAuthId().equals(...)}
+     * as the application flow, so a connection with a null auth id placed before the matching one gave a
+     * NullPointerException. It now matches no auth id, so the matching connection supplies the header in either order.
      */
+    @ParameterizedTest(name = "{0}: null-authId connection first={1}")
+    @MethodSource("nullAuthIdOrderRows")
+    void oauthInherit_connectionWithNullAuthId_isSkippedInEitherOrderBF040(Kind kind, boolean nullAuthIdFirst) {
+        datasource.setDetailConfig(oauthConfig(kind, "auth-A"));
+        Connection withoutAuthId = connection(null, "t0");
+        Connection matching = connection("auth-A", "tA");
+        visitorWithConnections(nullAuthIdFirst ? new Connection[] {withoutAuthId, matching} : new Connection[] {matching, withoutAuthId});
+
+        List<Property> properties = inheritedPropertiesOfTheEditingFlow();
+
+        say("%s: null-authId connection first=%s -> %s", kind, nullAuthIdFirst, properties);
+        assertThat(properties).containsExactly(expectedHeader(kind, "tA"));
+    }
+
+    /** BF-040: an empty configured auth id is not the null auth id of a stored connection; no header, no exception. */
     @ParameterizedTest
     @EnumSource(Kind.class)
-    void oauthInherit_connectionWithNullAuthIdBeforeTheMatch_isANullPointerException_pinsSection9Row(Kind kind) {
-        datasource.setDetailConfig(oauthConfig(kind, "auth-A"));
-        when(libraryQueryService.getEditingBaseQueryByLibraryQueryId(LQ_ID)).thenReturn(Mono.just(baseQuery(Map.of("sql", "x"), null)));
-        visitorWithConnections(connection(null, "t0"), connection("auth-A", "tA"));
+    void oauthInherit_editingFlow_emptyAuthId_doesNotMatchAConnectionWithoutAuthIdBF040(Kind kind) {
+        datasource.setDetailConfig(oauthConfig(kind, ""));
+        visitorWithConnections(connection(null, "t0"));
 
-        StepVerifier.create(service.executeLibraryQuery(exchange, editingRequest(LQ_ID))).expectError(NullPointerException.class).verify();
-        verify(queryExecutionService, never()).executeQuery(any(), any(), any(), any(), any());
+        List<Property> properties = inheritedPropertiesOfTheEditingFlow();
 
-        visitorWithConnections(connection("auth-A", "tA"), connection(null, "t0"));
-        assertThat(inheritedPropertiesOfTheEditingFlow()).containsExactly(expectedHeader(kind, "tA"));
-        say("%s: null-authId connection first -> NullPointerException (section 9 row pinned); matching first -> works", kind);
+        say("%s: empty configured authId, only a null-authId connection -> %s", kind, properties);
+        assertThat(properties).isNull();
+    }
+
+    /**
+     * The real {@link QueryExecutionServiceImpl} with the shipped maximum of {@value #MAX_QUERY_TIMEOUT_SECONDS} s over
+     * mocked execution collaborators; {@link #runs} lets a query of a type reach the executor and answer {@code result}.
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private final class RealExecution {
+        final DatasourceConnectionPool pool = mock(DatasourceConnectionPool.class);
+        final DatasourceMetaInfoService metaInfo = mock(DatasourceMetaInfoService.class);
+        final DatasourcePluginClient pluginClient = mock(DatasourcePluginClient.class);
+        final QueryExecutor executor = mock(QueryExecutor.class);
+        final QueryExecutionServiceImpl service;
+
+        RealExecution() {
+            CommonConfig limits = new CommonConfig();
+            limits.setMaxQueryTimeout(MAX_QUERY_TIMEOUT_SECONDS);
+            service = new QueryExecutionServiceImpl(pool, metaInfo, pluginClient, limits);
+        }
+
+        void runs(String datasourceType) {
+            when(metaInfo.getQueryExecutor(datasourceType)).thenReturn(executor);
+            when(executor.buildQueryExecutionContextMono(any(), any(), any(), any())).thenReturn(Mono.just(mock(QueryExecutionContext.class)));
+            when(pool.getOrCreateConnection(any())).thenReturn((Mono) Mono.just(mock(DatasourceConnectionHolder.class)));
+            when(executor.doExecuteQuery(any(), any())).thenReturn(Mono.just(result));
+        }
+
+        void assertNothingRan() {
+            verifyNoInteractions(pool, metaInfo, pluginClient, executor);
+        }
+    }
+
+    private LibraryQueryApiServiceImpl serviceOver(RealExecution execution) {
+        LibraryQueryApiServiceImpl withRealExecution = new LibraryQueryApiServiceImpl(libraryQueryService, libraryQueryRecordService,
+                userService, orgDevChecker, sessionUserService, execution.service, datasourceService, businessEventPublisher,
+                resourcePermissionService, commonConfig, authenticationService);
+        ReflectionTestUtils.setField(withRealExecution, "port", PORT);
+        return withRealExecution;
+    }
+
+    private void storedTimeout(String timeout, Map<String, Object> queryConfig) {
+        datasource.setDetailConfig(null);
+        when(libraryQueryService.getEditingBaseQueryByLibraryQueryId(LQ_ID)).thenReturn(Mono.just(baseQuery(queryConfig, timeout)));
+    }
+
+    private static void assertRefusedOverTheMaximum(Throwable error) {
+        assertThat(error).isInstanceOfSatisfying(PluginException.class, plugin -> {
+            assertThat(plugin.getError()).isEqualTo(PluginCommonError.EXCEED_MAX_QUERY_TIMEOUT);
+            assertThat(plugin.getArgs()).containsExactly(MAX_QUERY_TIMEOUT_SECONDS);
+        });
+    }
+
+    /**
+     * BF-043 through the library branch of {@code POST /api/query/execute}: with the real execution service and the
+     * shipped maximum, a library query whose timeout is above it is answered with EXCEED_MAX_QUERY_TIMEOUT naming the
+     * maximum in seconds, and nothing runs.
+     */
+    @Test
+    void executeLibraryQuery_timeoutAboveTheMaximum_isRefusedThroughTheRealExecutionServiceBF043() {
+        RealExecution execution = new RealExecution();
+        storedTimeout(ABOVE_THE_MAXIMUM, Map.of("sql", "x"));
+
+        StepVerifier.create(serviceOver(execution).executeLibraryQuery(exchange, editingRequest(LQ_ID)))
+                .expectErrorSatisfies(error -> {
+                    say("library query, timeout %s with a %d s maximum -> %s", ABOVE_THE_MAXIMUM, MAX_QUERY_TIMEOUT_SECONDS, error);
+                    assertRefusedOverTheMaximum(error);
+                })
+                .verify();
+        execution.assertNothingRan();
+    }
+
+    /**
+     * BF-044 through the library branch: a stored timeout in minutes is read in minutes; one minute above the shipped
+     * maximum is refused and nothing runs, the maximum written in minutes runs with its timeout in milliseconds.
+     */
+    @Test
+    void executeLibraryQuery_timeoutInMinutes_isReadInMinutesThroughTheRealExecutionServiceBF044() {
+        RealExecution refusing = new RealExecution();
+        storedTimeout(MINUTES_ABOVE_THE_MAXIMUM, new HashMap<>(Map.of("sql", "x")));
+        StepVerifier.create(serviceOver(refusing).executeLibraryQuery(exchange, editingRequest(LQ_ID)))
+                .expectErrorSatisfies(error -> {
+                    say("library query, timeout %s with a %d s maximum -> %s", MINUTES_ABOVE_THE_MAXIMUM, MAX_QUERY_TIMEOUT_SECONDS, error);
+                    assertRefusedOverTheMaximum(error);
+                })
+                .verify();
+        refusing.assertNothingRan();
+
+        RealExecution running = new RealExecution();
+        running.runs(datasource.getType());
+        Map<String, Object> queryConfig = new HashMap<>(Map.of("sql", "x"));
+        storedTimeout(MINUTES_AT_THE_MAXIMUM, queryConfig);
+        StepVerifier.create(serviceOver(running).executeLibraryQuery(exchange, editingRequest(LQ_ID))).expectNext(result).verifyComplete();
+        say("library query, timeout %s -> ran with timeoutMs %s", MINUTES_AT_THE_MAXIMUM, queryConfig.get("timeoutMs"));
+        assertThat(queryConfig).containsEntry("timeoutMs", String.valueOf(MAX_QUERY_TIMEOUT_SECONDS * 1000));
     }
 
     // ------------------------------------------------------------------ executeLibraryQueryFromJs (by name)
@@ -855,10 +1029,11 @@ class LibraryQueryApiServiceImplTest {
     @MethodSource("recordIdRows")
     void executeFromJs_picksTheVersionByRecordId(String recordId, String version) {
         LibraryQuery named = libraryQuery(LQ_ID, ORG, "editing", DS_ID, CREATOR_ID);
-        when(libraryQueryService.getByName("name-1")).thenReturn(Mono.just(named));
+        when(libraryQueryService.getByOrganizationIdAndName(ORG, "name-1")).thenReturn(Mono.just(named));
         Map<String, Object> liveConfig = Map.of("sql", "live");
         Map<String, Object> recordedConfig = Map.of("sql", "recorded");
         LibraryQueryRecord recorded = mock(LibraryQueryRecord.class);
+        lenient().when(recorded.getLibraryQueryId()).thenReturn(LQ_ID);
         lenient().when(recorded.getQuery()).thenReturn(baseQuery(recordedConfig, null));
         lenient().when(libraryQueryService.getById(LQ_ID)).thenReturn(Mono.just(named));
         lenient().when(libraryQueryService.getLiveBaseQueryByLibraryQueryId(LQ_ID)).thenReturn(Mono.just(baseQuery(liveConfig, null)));
@@ -892,7 +1067,7 @@ class LibraryQueryApiServiceImplTest {
 
     private void stubJsQuery(String timeout) {
         LibraryQuery named = libraryQuery(LQ_ID, ORG, "editing", DS_ID, CREATOR_ID);
-        lenient().when(libraryQueryService.getByName("name-1")).thenReturn(Mono.just(named));
+        lenient().when(libraryQueryService.getByOrganizationIdAndName(ORG, "name-1")).thenReturn(Mono.just(named));
         lenient().when(libraryQueryService.getLiveBaseQueryByLibraryQueryId(LQ_ID))
                 .thenReturn(Mono.just(baseQuery(Map.of("sql", "live"), timeout)));
     }
@@ -914,7 +1089,7 @@ class LibraryQueryApiServiceImplTest {
     @Test
     void executeFromJs_unknownNameAndMissingDatasource_areErrors() {
         BizException notFound = new BizException(BizError.LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND");
-        when(libraryQueryService.getByName("name-1")).thenReturn(Mono.error(notFound));
+        when(libraryQueryService.getByOrganizationIdAndName(ORG, "name-1")).thenReturn(Mono.error(notFound));
         StepVerifier.create(service.executeLibraryQueryFromJs(exchange, jsRequest("latest")))
                 .expectErrorSatisfies(error -> assertThat(error).isSameAs(notFound)).verify();
 
@@ -951,18 +1126,144 @@ class LibraryQueryApiServiceImplTest {
     }
 
     /**
-     * Catches the wrong identity in the context: a visitor with an organization member gets that member's user id and org
-     * id, port, cookies and disallowed hosts; a visitor whose organization member lookup fails is mapped to
-     * {@code OrgMember.NOT_EXIST} (empty user and org ids) and still runs, with no inherited headers (pinned as behaviour).
+     * Stubs the library query found by {@link #JS_QUERY_NAME} and its editing version, which a request without a record
+     * id runs (node-service sends none), with this timeout and query config in its DSL.
      */
-    @ParameterizedTest(name = "member lookup fails: {0}")
-    @ValueSource(booleans = {false, true})
-    void executeFromJs_contextCarriesTheMembersIds_orEmptyIdsWhenTheLookupFails(boolean lookupFails) {
+    private void storedJsQuery(String timeout, Map<String, Object> config) {
+        LibraryQuery stored = LibraryQuery.builder().organizationId(ORG).name(JS_QUERY_NAME)
+                .libraryQueryDSL(dsl(DS_ID, config, timeout)).build();
+        stored.setId(LQ_ID);
+        lenient().when(libraryQueryService.getByOrganizationIdAndName(ORG, JS_QUERY_NAME)).thenReturn(Mono.just(stored));
+        lenient().when(libraryQueryService.getById(LQ_ID)).thenReturn(Mono.just(stored));
+    }
+
+    /**
+     * NEW-29: the execution service throws a stored invalid timeout when called, before its {@code Mono} exists; with
+     * the real execution service that is now an error result with QUERY_ARGUMENT_ERROR, the key and the timeout text,
+     * not an error signal, and nothing runs.
+     */
+    @ParameterizedTest(name = "stored timeout [{0}]")
+    @ValueSource(strings = {INVALID_TIMEOUT, NEGATIVE_TIMEOUT, NAN_TIMEOUT})
+    void executeFromJs_invalidStoredTimeout_isAnArgumentErrorResultNEW29(String timeout) {
+        RealExecution execution = new RealExecution();
+        storedJsQuery(timeout, new HashMap<>(Map.of("sql", "x")));
+
+        StepVerifier.create(serviceOver(execution).executeLibraryQueryFromJs(exchange, jsRequest(null)))
+                .assertNext(answer -> {
+                    say("fromJs, stored timeout [%s] -> %s %s %s", timeout, answer.getQueryCode(), answer.getMessageKey(),
+                            List.of(answer.getMessageArgs()));
+                    assertThat(answer.getQueryCode()).isEqualTo(PluginCommonError.QUERY_ARGUMENT_ERROR.name());
+                    assertThat(answer.getMessageKey()).isEqualTo(INVALID_TIMEOUT_SETTING_KEY);
+                    assertThat(answer.getMessageArgs()).containsExactly(timeout);
+                })
+                .verifyComplete();
+        execution.assertNothingRan();
+    }
+
+    /** NEW-29: a stored timeout above the shipped maximum is an EXCEED_MAX_QUERY_TIMEOUT result naming the maximum. */
+    @Test
+    void executeFromJs_timeoutAboveTheMaximum_isAnExceedErrorResultNEW29() {
+        RealExecution execution = new RealExecution();
+        storedJsQuery(ABOVE_THE_MAXIMUM, new HashMap<>(Map.of("sql", "x")));
+
+        StepVerifier.create(serviceOver(execution).executeLibraryQueryFromJs(exchange, jsRequest(null)))
+                .assertNext(answer -> {
+                    say("fromJs, stored timeout [%s] with a %d s maximum -> %s %s %s", ABOVE_THE_MAXIMUM, MAX_QUERY_TIMEOUT_SECONDS,
+                            answer.getQueryCode(), answer.getMessageKey(), List.of(answer.getMessageArgs()));
+                    assertThat(answer.getQueryCode()).isEqualTo(PluginCommonError.EXCEED_MAX_QUERY_TIMEOUT.name());
+                    assertThat(answer.getMessageKey()).isEqualTo(EXCEED_MAX_QUERY_TIMEOUT_KEY);
+                    assertThat(answer.getMessageArgs()).containsExactly(MAX_QUERY_TIMEOUT_SECONDS);
+                })
+                .verifyComplete();
+        execution.assertNothingRan();
+    }
+
+    /**
+     * Control for NEW-29: a valid stored timeout runs through the real execution service; the query config the executor
+     * receives (a new one, built from the DSL) carries the timeout in milliseconds.
+     */
+    @Test
+    void executeFromJs_validTimeout_runsThroughTheRealExecutionService() {
+        RealExecution execution = new RealExecution();
+        execution.runs(datasource.getType());
+        storedJsQuery(VALID_TIMEOUT, new HashMap<>(Map.of("sql", "x")));
+
+        StepVerifier.create(serviceOver(execution).executeLibraryQueryFromJs(exchange, jsRequest(null))).expectNext(result).verifyComplete();
+
+        ArgumentCaptor<Map<String, Object>> config = mapCaptor();
+        verify(execution.executor).buildQueryExecutionContextMono(any(), config.capture(), any(), any());
+        say("fromJs, stored timeout [%s] -> ran with the config %s", VALID_TIMEOUT, config.getValue());
+        assertThat(config.getValue()).containsEntry(TIMEOUT_MS_KEY, VALID_TIMEOUT_MS);
+    }
+
+    static Stream<Arguments> failuresOfTheExecution() {
+        PluginException invalidTimeout = new PluginException(PluginCommonError.QUERY_ARGUMENT_ERROR, INVALID_TIMEOUT_SETTING_KEY, INVALID_TIMEOUT);
+        return Stream.of(
+                Arguments.of(THROWN, new IllegalStateException(SYNC_FAILURE_MESSAGE), PluginCommonError.QUERY_EXECUTION_ERROR,
+                        QUERY_EXECUTION_ERROR_KEY, SYNC_FAILURE_MESSAGE),
+                Arguments.of(THROWN, invalidTimeout, PluginCommonError.QUERY_ARGUMENT_ERROR, INVALID_TIMEOUT_SETTING_KEY, INVALID_TIMEOUT),
+                Arguments.of(EMITTED, invalidTimeout, PluginCommonError.QUERY_EXECUTION_ERROR, QUERY_EXECUTION_ERROR_KEY,
+                        invalidTimeout.getMessage()));
+    }
+
+    /**
+     * NEW-29: a failure the call of the execution service throws is an error result too, a {@code PluginException} with
+     * its own code and any other with QUERY_EXECUTION_ERROR; a failure its {@code Mono} emits stays QUERY_EXECUTION_ERROR,
+     * a {@code PluginException} included.
+     */
+    @ParameterizedTest(name = "{0} {1}")
+    @MethodSource("failuresOfTheExecution")
+    void executeFromJs_aFailureOfTheMockedExecution_isAnErrorResultNEW29(String how, RuntimeException failure, PluginCommonError code,
+            String key, Object argument) {
+        stubJsQuery(null);
+        if (how.equals(THROWN)) {
+            when(queryExecutionService.executeQuery(any(), anyMap(), anyMap(), any(), any())).thenThrow(failure);
+        } else {
+            when(queryExecutionService.executeQuery(any(), anyMap(), anyMap(), any(), any())).thenReturn(Mono.error(failure));
+        }
+
+        StepVerifier.create(service.executeLibraryQueryFromJs(exchange, jsRequest("latest")))
+                .assertNext(answer -> {
+                    say("fromJs: %s %s -> %s %s %s", how, failure, answer.getQueryCode(), answer.getMessageKey(),
+                            List.of(answer.getMessageArgs()));
+                    assertThat(answer.getQueryCode()).isEqualTo(code.name());
+                    assertThat(answer.getMessageKey()).isEqualTo(key);
+                    assertThat(answer.getMessageArgs()).containsExactly(argument);
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * Guards the boundary of the NEW-29 fix: the arguments are built before the guarded call, so a {@code params} list
+     * with a null entry, on which {@code paramMap} fails, stays an error signal (from {@code LibraryQueryRequestFromJs})
+     * and does not become a result; the lookup was made and the execution was not called. Neither the exception's type
+     * nor its message is asserted.
+     */
+    @Test
+    void executeFromJs_aNullParamEntry_isNotTurnedIntoAResult() {
+        storedJsQuery(VALID_TIMEOUT, new HashMap<>(Map.of("sql", "x")));
+        LibraryQueryRequestFromJs request = jsRequest(null);
+        request.setParams(Collections.singletonList(null));
+
+        StepVerifier.create(service.executeLibraryQueryFromJs(exchange, request))
+                .expectErrorSatisfies(error -> {
+                    say("fromJs, params [null] -> %s", error);
+                    assertThat(error.getStackTrace()).anySatisfy(frame ->
+                            assertThat(frame.getClassName()).startsWith(LibraryQueryRequestFromJs.class.getName()));
+                })
+                .verify();
+        verify(libraryQueryService).getByOrganizationIdAndName(ORG, JS_QUERY_NAME);
+        verify(queryExecutionService, never()).executeQuery(any(), any(), any(), any(), any());
+    }
+
+    /**
+     * Catches the wrong identity in the context: a visitor with an organization member gets that member's user id and org
+     * id, port, cookies and disallowed hosts, with no inherited headers.
+     */
+    @Test
+    void executeFromJs_contextCarriesTheMembersIds() {
         stubJsQuery(null);
         cookies.add("SESSION", new HttpCookie("SESSION", "abc"));
-        if (lookupFails) {
-            when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.error(new IllegalStateException("no member")));
-        }
         LibraryQueryRequestFromJs request = jsRequest("latest");
         request.setParams(List.of(Param.of(" a ", 1), Param.of("", 2), Param.of("a", 4)));
 
@@ -973,13 +1274,55 @@ class LibraryQueryApiServiceImplTest {
         verify(queryExecutionService).executeQuery(any(), any(), params.capture(), any(), contextCaptor.capture());
         assertThat(params.getValue()).isEqualTo(Map.of("a", 4));
         QueryVisitorContext context = contextCaptor.getValue();
-        assertThat(context.getVisitorId()).isEqualTo(lookupFails ? "" : MEMBER_USER_ID);
-        assertThat(context.getApplicationOrgId()).isEqualTo(lookupFails ? "" : ORG);
+        assertThat(context.getVisitorId()).isEqualTo(MEMBER_USER_ID);
+        assertThat(context.getApplicationOrgId()).isEqualTo(ORG);
         assertThat(context.getSystemPort()).isEqualTo(PORT);
         assertThat(context.getCookies()).isSameAs(cookies);
         assertThat(context.getDisallowedHosts()).isSameAs(disallowedHosts);
         assertThat(context.getAuthTokenMono().block()).isNull();
-        say("fromJs context for lookupFails=%s: user [%s] org [%s]", lookupFails, context.getVisitorId(), context.getApplicationOrgId());
+        say("fromJs context: user [%s] org [%s]", context.getVisitorId(), context.getApplicationOrgId());
+    }
+
+    /**
+     * BF-003: a visitor without an organization (the member lookup fails and is mapped to {@code OrgMember.NOT_EXIST}, or
+     * the member has no org id) has no organization to look the name up in, so the result is LIBRARY_QUERY_NOT_FOUND, no
+     * lookup by name is made and nothing runs. Before the fix such a visitor ran the query of that name of any organization.
+     */
+    @ParameterizedTest(name = "member lookup fails: {0}")
+    @ValueSource(booleans = {true, false})
+    void executeFromJs_visitorWithoutAnOrganization_isNotFound_andNothingRuns(boolean lookupFails) {
+        when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(lookupFails
+                ? Mono.error(new IllegalStateException("no member"))
+                : Mono.just(member("")));
+
+        StepVerifier.create(service.executeLibraryQueryFromJs(exchange, jsRequest("latest")))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"))
+                .verify();
+
+        verify(libraryQueryService, never()).getByOrganizationIdAndName(any(), any());
+        verify(queryExecutionService, never()).executeQuery(any(), any(), any(), any(), any());
+        say("fromJs: visitor without an organization (lookup fails: %s) -> LIBRARY_QUERY_NOT_FOUND", lookupFails);
+    }
+
+    /**
+     * BF-003: a record id names the version to run, and it must be a record of the library query found by name; a record
+     * of another library query (any organization's) is LIBRARY_QUERY_NOT_FOUND and nothing runs.
+     */
+    @Test
+    void executeFromJs_recordOfAnotherLibraryQuery_isNotFound_andNothingRuns() {
+        when(libraryQueryService.getByOrganizationIdAndName(ORG, "name-1"))
+                .thenReturn(Mono.just(libraryQuery(LQ_ID, ORG, "name-1", DS_ID, CREATOR_ID)));
+        LibraryQueryRecord foreignRecord = mock(LibraryQueryRecord.class);
+        when(foreignRecord.getLibraryQueryId()).thenReturn("lq-foreign");
+        when(libraryQueryRecordService.getById("rec-foreign")).thenReturn(Mono.just(foreignRecord));
+
+        StepVerifier.create(service.executeLibraryQueryFromJs(exchange, jsRequest("rec-foreign")))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"))
+                .verify();
+
+        verify(foreignRecord, never()).getQuery();
+        verify(queryExecutionService, never()).executeQuery(any(), any(), any(), any(), any());
+        say("fromJs: record of another library query -> LIBRARY_QUERY_NOT_FOUND");
     }
 
     /**
@@ -1001,29 +1344,30 @@ class LibraryQueryApiServiceImplTest {
     }
 
     /**
-     * Pins the plan section 9 row (tenant isolation) "LibraryQueryApiServiceImpl does not compare the library query's org
-     * with the visitor's on read or run": a visitor runs, by name, a library query of another organization on that
-     * organization's datasource. The name is looked up with {@code libraryQueryService.getByName} (not scoped to an
-     * organization), no organization is compared, and the executor receives the other organization's datasource.
-     * Reachability: {@code POST /api/query/execute-from-node} (also under {@code /api/v1}) is not in the permit-all list of
-     * {@code SecurityConfig} (only {@code POST .../query/execute} is), so it falls under {@code /api/**} which requires a
-     * signed-in user; any signed-in user suffices, there is no organization check. A fix changes this test on purpose.
+     * BF-003 (was pinned as the plan section 9 tenant-isolation row): a visitor of one organization asks, by name, for a
+     * library query only another organization has. The name is looked up in the visitor's organization only (the service
+     * here answers like the repository: the query for its own organization, not found for any other), so the result is
+     * LIBRARY_QUERY_NOT_FOUND and the other organization's datasource is neither loaded nor run.
+     * Reachability: {@code POST /api/query/execute-from-node} (also under {@code /api/v1}) requires a signed-in user and a
+     * loopback client IP ({@code QueryController#checkIp}).
      */
     @Test
-    void executeFromJs_libraryQueryOfAnotherOrganization_runsOnThatOrganizationsDatasource_pinsSection9Row() {
+    void executeFromJs_nameOnlyAnotherOrganizationUses_isNotFound_andNothingRuns() {
         datasource.setOrganizationId(OTHER_ORG);
         LibraryQuery foreign = libraryQuery(LQ_ID, OTHER_ORG, "name-1", DS_ID, CREATOR_ID);
-        when(libraryQueryService.getByName("name-1")).thenReturn(Mono.just(foreign));
-        when(libraryQueryService.getLiveBaseQueryByLibraryQueryId(LQ_ID))
-                .thenReturn(Mono.just(baseQuery(Map.of("sql", "select * from their_secrets"), null)));
+        BizException notFound = new BizException(BizError.LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND");
+        when(libraryQueryService.getByOrganizationIdAndName(anyString(), eq("name-1")))
+                .thenAnswer(invocation -> OTHER_ORG.equals(invocation.getArgument(0)) ? Mono.just(foreign) : Mono.error(notFound));
 
-        StepVerifier.create(service.executeLibraryQueryFromJs(exchange, jsRequest("latest"))).expectNext(result).verifyComplete();
+        StepVerifier.create(service.executeLibraryQueryFromJs(exchange, jsRequest("latest")))
+                .expectErrorSatisfies(error -> assertThat(error).isSameAs(notFound))
+                .verify();
 
-        ArgumentCaptor<Datasource> executed = ArgumentCaptor.forClass(Datasource.class);
-        verify(queryExecutionService).executeQuery(executed.capture(), any(), any(), any(), any());
-        assertThat(executed.getValue().getOrganizationId()).isEqualTo(OTHER_ORG);
-        assertThat(capturedContext().getApplicationOrgId()).isEqualTo(ORG);
-        say("fromJs: another org's query ran on org %s datasource (section 9 row pinned)", OTHER_ORG);
+        verify(libraryQueryService).getByOrganizationIdAndName(ORG, "name-1");
+        verify(libraryQueryService, never()).getByOrganizationIdAndName(eq(OTHER_ORG), anyString());
+        verify(datasourceService, never()).getById(anyString());
+        verify(queryExecutionService, never()).executeQuery(any(), any(), any(), any(), any());
+        say("fromJs: name only org %s uses -> LIBRARY_QUERY_NOT_FOUND for a visitor of %s (BF-003, BF-068)", OTHER_ORG, ORG);
     }
 
     // ------------------------------------------------------------------ LibraryQueryRequestFromJs.paramMap

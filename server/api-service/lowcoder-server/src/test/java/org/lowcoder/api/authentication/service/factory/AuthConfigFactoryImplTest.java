@@ -1,14 +1,22 @@
 package org.lowcoder.api.authentication.service.factory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
@@ -18,20 +26,31 @@ import org.lowcoder.sdk.auth.Oauth2KeycloakAuthConfig;
 import org.lowcoder.sdk.auth.Oauth2OryAuthConfig;
 import org.lowcoder.sdk.auth.Oauth2SimpleAuthConfig;
 import org.lowcoder.sdk.auth.constants.AuthTypeConstants;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 
 /**
  * Tests of {@link AuthConfigFactoryImpl#build}: what each auth type builds from the request (the generic type with a
  * fully populated request is covered by {@code AuthConfigRequestConsumerTest}; this class covers the other types, the
  * defaults and the failures).
- *
- * <p>Pinned under D-6, plan §9 row "malformed admin auth-config input fails with raw exceptions instead of a coded
- * error": a null {@code authType} fails with a NullPointerException (switch on null). A fix changes the test on purpose.
  */
 class AuthConfigFactoryImplTest {
 
     private static final String CLIENT_ID = "client-1";
     private static final String CLIENT_SECRET = "secret-1";
     private static final String CONFIG_ID = "cfg-1";
+    private static final String UNSUPPORTED_AUTH_TYPE = "SAML";
+    private static final String CLIENT_ID_KEY = "clientId";
+    /** The name a request without a client id is refused with (NEW-34). */
+    private static final String CLIENT_ID_PARAMETER = "clientId";
+    /** Client ids that are not null, each kept as {@code String.valueOf} of it (NEW-34's limits). */
+    private static final String EMPTY_CLIENT_ID = "";
+    private static final String SPACE_CLIENT_ID = " ";
+    private static final String TAB_CLIENT_ID = "\t";
+    private static final Integer NUMERIC_CLIENT_ID = 42;
+    private static final Boolean BOOLEAN_CLIENT_ID = Boolean.TRUE;
+    private static final List<String> LIST_CLIENT_ID = List.of("a");
+    private static final Map<String, String> OBJECT_CLIENT_ID = Map.of("k", "v");
 
     private final AuthConfigFactoryImpl factory = new AuthConfigFactoryImpl();
 
@@ -113,16 +132,54 @@ class AuthConfigFactoryImplTest {
         System.out.println("[AuthConfigFactoryImplTest] KEYCLOAK base=" + keycloak.getBaseUrl() + " realm=" + keycloak.getRealm());
     }
 
-    /** Catches a login config being saved without a client id: every OAuth type rejects it. */
+    /**
+     * NEW-34 (fixed; was pinned here as a NullPointerException "clientId can not be null."): every OAuth type refuses a
+     * request without a client id as INVALID_PARAMETER naming {@code clientId}. Catches: the raw exception back, or a
+     * refusal that does not name the field.
+     */
     @ParameterizedTest
-    @ValueSource(strings = {"GITHUB", "GOOGLE", "ORY", "KEYCLOAK", "GENERIC"})
-    void build_everyOauthType_requiresAClientId(String authType) {
+    @ValueSource(strings = {AuthTypeConstants.GITHUB, AuthTypeConstants.GOOGLE, AuthTypeConstants.ORY, AuthTypeConstants.KEYCLOAK,
+            AuthTypeConstants.GENERIC})
+    void build_everyOauthTypeWithoutAClientId_isInvalidParameterNEW34(String authType) {
         AuthConfigRequest request = request(authType, "baseUrl", "https://x.example", "realm", "r", "scope", "s");
 
         assertThatThrownBy(() -> factory.build(request, true))
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("clientId can not be null.");
-        System.out.println("[AuthConfigFactoryImplTest] " + authType + " without clientId -> NullPointerException");
+                .isInstanceOfSatisfying(BizException.class, e -> {
+                    System.out.println("[AuthConfigFactoryImplTest] " + authType + " without clientId -> " + e.getError() + " "
+                            + e.getMessageKey() + " " + List.of(e.getArgs()) + ": " + e.getMessage());
+                    assertThat(e.getError()).isEqualTo(BizError.INVALID_PARAMETER);
+                    assertThat(e.getMessageKey()).isEqualTo(BizError.INVALID_PARAMETER.name());
+                    assertThat(e.getArgs()).containsExactly(CLIENT_ID_PARAMETER);
+                });
+    }
+
+    static Stream<Arguments> oauthTypesAndKeptClientIds() {
+        List<Object> clientIds = List.of(EMPTY_CLIENT_ID, SPACE_CLIENT_ID, TAB_CLIENT_ID, NUMERIC_CLIENT_ID, BOOLEAN_CLIENT_ID,
+                LIST_CLIENT_ID, OBJECT_CLIENT_ID);
+        return Stream.of(AuthTypeConstants.GITHUB, AuthTypeConstants.GOOGLE, AuthTypeConstants.ORY, AuthTypeConstants.KEYCLOAK,
+                        AuthTypeConstants.GENERIC)
+                .flatMap(authType -> clientIds.stream().map(clientId -> Arguments.of(authType, clientId)));
+    }
+
+    /**
+     * NEW-34's limits: only a null client id is refused; an empty or blank string, and a value that is not a string, is kept,
+     * the latter as its string form. Catches: a refusal widened beyond null.
+     */
+    @ParameterizedTest(name = "{0} clientId=[{1}]")
+    @MethodSource("oauthTypesAndKeptClientIds")
+    void build_everyOauthTypeKeepsANonNullClientIdAsItsStringNEW34(String authType, Object clientId) {
+        AuthConfigRequest request = request(authType);
+        request.put(CLIENT_ID_KEY, clientId);
+
+        AtomicReference<AbstractAuthConfig> built = new AtomicReference<>();
+
+        assertThatCode(() -> built.set(factory.build(request, true))).as("a client id that is not null is not refused")
+                .doesNotThrowAnyException();
+        assertThat(built.get()).isInstanceOf(Oauth2SimpleAuthConfig.class);
+        String kept = ((Oauth2SimpleAuthConfig) built.get()).getClientId();
+        System.out.println("[AuthConfigFactoryImplTest] " + authType + " clientId " + clientId.getClass().getSimpleName() + " ["
+                + clientId + "] -> [" + kept + "]");
+        assertThat(kept).isEqualTo(String.valueOf(clientId));
     }
 
     /** Catches the generic defaults changing: introspection off, account selection on, GET for the user endpoint. */
@@ -179,36 +236,43 @@ class AuthConfigFactoryImplTest {
     }
 
     /**
-     * Pins the plan §9 candidate "FORM config without an enableRegister key" (reproduced by L2-5): the request's value
-     * is read with {@code MapUtils.getBoolean(request, "enableRegister")}, which is null when the key is absent, and
-     * {@code EmailAuthConfig}'s constructor takes a primitive {@code boolean}, so building fails with a
-     * NullPointerException on unboxing (the other types default to true). A fix changes this test on purpose.
+     * BF-107 (fixed; was pinned as the plan §9 candidate "FORM config without an enableRegister key", reproduced by L2-5):
+     * a FORM request without {@code enableRegister} builds a config that registers, as the other types default to; the
+     * absent key was unboxed into {@code EmailAuthConfig}'s primitive {@code boolean} and failed with a NullPointerException.
      */
-    @Test
-    void build_formWithoutEnableRegister_failsWithNpeOnUnboxing_pinsMissingEnableRegisterDefect() {
-        assertThatThrownBy(() -> factory.build(request(AuthTypeConstants.FORM, "id", CONFIG_ID), true))
-                .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("enableRegister");
-        System.out.println("[AuthConfigFactoryImplTest] FORM without enableRegister -> NullPointerException on unboxing (today's behaviour)");
-    }
+    @ParameterizedTest(name = "enable={0}")
+    @ValueSource(booleans = {true, false})
+    void build_formWithoutEnableRegister_defaultsToRegisteringBF107(boolean enable) {
+        AbstractAuthConfig built = factory.build(request(AuthTypeConstants.FORM, "id", CONFIG_ID), enable);
 
-    /** Catches an unsupported auth type building something: it is an UnsupportedOperationException naming the type. */
-    @Test
-    void build_unsupportedAuthType_failsWithUnsupportedOperation() {
-        assertThatThrownBy(() -> factory.build(request("SAML"), true))
-                .isInstanceOf(UnsupportedOperationException.class)
-                .hasMessage("SAML");
-        System.out.println("[AuthConfigFactoryImplTest] SAML -> UnsupportedOperationException");
+        assertThat(built).isExactlyInstanceOf(EmailAuthConfig.class);
+        assertThat(built.isEnable()).isEqualTo(enable);
+        assertThat(built.isEnableRegister()).as("enableRegister defaults to true").isTrue();
+        System.out.println("[AuthConfigFactoryImplTest] FORM without enableRegister, enable=" + enable + " -> enableRegister=" + built.isEnableRegister());
     }
 
     /**
-     * Pins plan §9 row "malformed admin auth-config input fails with raw exceptions instead of a coded error": a
-     * request without {@code authType} fails with a NullPointerException from the switch, not a coded error.
+     * BF-108 (fixed; the null case was pinned as the plan §9 row "malformed admin auth-config input fails with raw
+     * exceptions instead of a coded error"): a request without {@code authType}, or with one no factory builds, is an
+     * INVALID_PARAMETER naming the type; they were a NullPointerException (switch on null) and an
+     * UnsupportedOperationException.
      */
-    @Test
-    void build_nullAuthType_failsWithNpe_pinsRawExceptionDefect() {
-        assertThatThrownBy(() -> factory.build(new AuthConfigRequest(), true)).isInstanceOf(NullPointerException.class);
-        System.out.println("[AuthConfigFactoryImplTest] missing authType -> NullPointerException (today's behaviour)");
+    @ParameterizedTest(name = "authType={0}")
+    @NullSource
+    @ValueSource(strings = {"", UNSUPPORTED_AUTH_TYPE})
+    void build_missingOrUnsupportedAuthType_isInvalidParameterBF108(String authType) {
+        AuthConfigRequest request = new AuthConfigRequest();
+        if (authType != null) {
+            request.put("authType", authType);
+        }
+
+        assertThatThrownBy(() -> factory.build(request, true))
+                .isInstanceOfSatisfying(BizException.class, e -> {
+                    System.out.println("[AuthConfigFactoryImplTest] authType [" + authType + "] -> " + e.getError() + ": " + e.getMessage());
+                    assertThat(e.getError()).isEqualTo(BizError.INVALID_PARAMETER);
+                    assertThat(e.getMessageKey()).isEqualTo(BizError.INVALID_PARAMETER.name());
+                    assertThat(e.getMessage()).contains(String.format(AuthConfigFactory.AUTH_TYPE_PARAMETER, authType));
+                });
     }
 
     @Test

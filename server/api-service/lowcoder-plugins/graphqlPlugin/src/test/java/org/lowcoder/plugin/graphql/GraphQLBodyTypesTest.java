@@ -1,12 +1,17 @@
 package org.lowcoder.plugin.graphql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.lowcoder.sdk.contract.RecordingHttpServer;
 import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
@@ -18,15 +23,23 @@ import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
  */
 class GraphQLBodyTypesTest {
 
+    /** A default locale whose case mapping of {@code i} and {@code I} differs from {@code Locale.ROOT}'s (NEW-40). */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+    private static final String UPPER_CASE_JSON = "APPLICATION/JSON";
+
     private static final String PATH = "/graphql";
     private static final String CONTENT_TYPE = "Content-Type";
 
     private final GraphQLCallSupport support = new GraphQLCallSupport();
 
     private RecordingHttpServer.Request send(String contentType, Map<String, Object> query) {
+        return send(contentType, List.of(), query);
+    }
+
+    private RecordingHttpServer.Request send(String contentType, List<Property> datasourceBodyFormData, Map<String, Object> query) {
         try (RecordingHttpServer server = RecordingHttpServer.start(Map.of(PATH, GraphQLCallSupport.json(200, "{}")))) {
             GraphQLDatasourceConfig datasource = GraphQLDatasourceConfig.builder().url(server.baseUrl() + PATH)
-                    .headers(List.of(new Property(CONTENT_TYPE, contentType))).build();
+                    .headers(List.of(new Property(CONTENT_TYPE, contentType))).bodyFormData(datasourceBodyFormData).build();
             support.run(datasource, query, GraphQLCallSupport.visitor(null, null));
             assertThat(server.requests()).hasSize(1);
             return server.requests().get(0);
@@ -41,6 +54,21 @@ class GraphQLBodyTypesTest {
         System.out.println("[GraphQLBodyTypesTest] form body " + request.bodyText());
         assertThat(String.join(",", request.header(CONTENT_TYPE))).startsWith("application/x-www-form-urlencoded");
         assertThat(request.bodyText().split("&")).containsExactlyInAnyOrder("a=x+y%26z", "b=2");
+    }
+
+    /**
+     * BF-114: for a key that the datasource's and the query's body parameters both set, the query's value is sent, as in
+     * the REST API plugin and for URL parameters and headers; the datasource's other keys are added. The datasource's
+     * value was sent.
+     */
+    @Test
+    void inAFormBodyTheQueryValueOverridesTheDatasourceValueForTheSameKeyBF114() {
+        RecordingHttpServer.Request request = send("application/x-www-form-urlencoded",
+                List.of(new Property("k", "fromDatasource"), new Property("only", "ds")),
+                GraphQLCallSupport.query(Map.of("bodyFormData", List.of(new Property("k", "fromQuery")))));
+
+        System.out.println("[GraphQLBodyTypesTest] merged form body " + request.bodyText());
+        assertThat(request.bodyText().split("&")).containsExactlyInAnyOrder("k=fromQuery", "only=ds");
     }
 
     @Test
@@ -63,11 +91,50 @@ class GraphQLBodyTypesTest {
         assertThat(new String(request.body(), StandardCharsets.UTF_8)).isEqualTo(GraphQLCallSupport.QUERY);
     }
 
+    /**
+     * P1 (T156b-3): an {@code application/graphql} query whose text and datasource body are both blank has no body to send,
+     * so the request goes out with an empty body (the executor's null-body branch). Added to keep the graphqlPlugin line
+     * coverage floor after {@code injectCookies} (covered lines) was replaced by the shared helper.
+     */
+    @Test
+    void applicationGraphqlWithoutQueryTextSendsAnEmptyBody() {
+        RecordingHttpServer.Request request = send("application/graphql", Map.of("body", "", "variables", List.of()));
+
+        System.out.println("[GraphQLBodyTypesTest] blank application/graphql body length " + request.body().length);
+        assertThat(request.header(CONTENT_TYPE)).containsExactly("application/graphql");
+        assertThat(request.body()).as("request body").isEmpty();
+    }
+
     @Test
     void theJsonBodyWrapsTheQueryAndOmitsAnEmptyVariablesObject() {
         RecordingHttpServer.Request request = send("application/json", GraphQLCallSupport.query());
 
         assertThat(String.join(",", request.header(CONTENT_TYPE))).startsWith("application/json");
         assertThat(request.bodyText()).isEqualTo("{\"query\":\"" + GraphQLCallSupport.QUERY + "\"}");
+    }
+
+
+    /**
+     * NEW-40: a Content-Type written in upper case is accepted under a Turkish default locale too; the default locale's
+     * rule made it {@code applıcatıon/json}, which is no media type, so the query was refused with
+     * INVALID_CONTENT_TYPE. The case holds JUnit's {@code Resources.LOCALE} lock while it changes the default locale;
+     * the lock orders it only against tests that hold the same lock, and it restores the locale after its calls, which
+     * block, have completed.
+     */
+    @Test
+    @ResourceLock(Resources.LOCALE)
+    void anUpperCaseContentTypeIsAcceptedUnderATurkishDefaultLocaleNEW40() {
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            AtomicReference<RecordingHttpServer.Request> sent = new AtomicReference<>();
+            assertThatCode(() -> sent.set(send(UPPER_CASE_JSON, GraphQLCallSupport.query()))).doesNotThrowAnyException();
+            RecordingHttpServer.Request request = sent.get();
+            System.out.println("[GraphQLBodyTypesTest] under " + Locale.getDefault() + ": Content-Type " + request.header(CONTENT_TYPE)
+                    + ", body " + request.bodyText());
+            assertThat(request.bodyText()).isNotEmpty();
+        } finally {
+            Locale.setDefault(previous);
+        }
     }
 }

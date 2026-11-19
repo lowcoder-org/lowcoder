@@ -25,6 +25,7 @@ import org.lowcoder.api.usermanagement.view.GroupView;
 import org.lowcoder.api.usermanagement.view.OrgMemberListView.OrgMemberView;
 import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.api.util.GidService;
+import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.repository.ApplicationRepository;
 import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.query.repository.LibraryQueryRepository;
@@ -41,21 +42,24 @@ import reactor.test.StepVerifier;
  * with the REAL {@link GidService} over mocked repositories, so the id converter the controller picks is exercised (the
  * endpoint tests mock the converter and cannot see it).
  *
- * <p>Section 9 row "ApplicationController uses convertLibraryQueryIdToObjectId for an application id" is pinned by
- * {@link #applicationGid_isResolvedInTheLibraryQueryRepository_andTheMonoEndsEmpty_pinsTheSection9Row} and
- * {@link #applicationSlug_isForwardedUnresolved_pinsTheSection9Row}; a fix (convertApplicationIdToObjectId) changes both on purpose.
+ * <p>BF-085 (fixed; was pinned as the section 9 row "ApplicationController uses convertLibraryQueryIdToObjectId for an
+ * application id"): {@link #applicationGid_isResolvedInTheApplicationRepositoryBF085} and
+ * {@link #applicationSlug_isResolvedInTheApplicationRepositoryBF085}.
  */
 class ApplicationControllerGroupsOrMembersTest {
 
     private static final String OBJECT_ID = "appobjectid1";
     private static final String GID = "app-gid-1"; // an id with a dash is looked up as a GID
+    private static final String SLUG = "myslug";
     private static final String TYPE = "type";
     private static final String DATA = "data";
     private static final String GROUP_TYPE = "Group";
     private static final String USER_TYPE = "User";
     private static final int DEFAULT_PAGE_NUM = 1;
     private static final int DEFAULT_PAGE_SIZE = 1000;
-    private static final int INTERNAL_SERVER_ERROR_BIZ_CODE = BizError.INTERNAL_SERVER_ERROR.getBizErrorCode();
+    private static final int NEGATIVE_PAGE_NUM = -2;
+    private static final int NEGATIVE_PAGE_SIZE = -5;
+    private static final String ILLEGAL_PAGE_NUMBER = "ILLEGAL_PAGE_NUMBER";
 
     private ApplicationApiService applicationApiService;
     private ApplicationRepository applicationRepository;
@@ -71,6 +75,7 @@ class ApplicationControllerGroupsOrMembersTest {
         ReflectionTestUtils.setField(gidService, "applicationRepository", applicationRepository);
         ReflectionTestUtils.setField(gidService, "libraryQueryRepository", libraryQueryRepository);
         when(libraryQueryRepository.findByGid(anyString())).thenReturn(Flux.empty());
+        when(applicationRepository.findById(anyString())).thenReturn(Mono.empty());
         when(applicationRepository.findByGid(anyString())).thenReturn(Flux.empty());
         when(applicationRepository.findBySlug(anyString())).thenReturn(Flux.empty());
         controller = new ApplicationController(mock(UserHomeApiService.class), applicationApiService,
@@ -92,6 +97,8 @@ class ApplicationControllerGroupsOrMembersTest {
     }
 
     private void serviceReturns(List<Object> items) {
+        // any other id answers nothing, so a wrong id reaching the service fails the assertions instead of a null Mono throwing
+        when(applicationApiService.getGroupsOrMembersWithoutPermissions(anyString())).thenReturn(Mono.empty());
         when(applicationApiService.getGroupsOrMembersWithoutPermissions(OBJECT_ID)).thenReturn(Mono.just(items));
     }
 
@@ -121,37 +128,41 @@ class ApplicationControllerGroupsOrMembersTest {
     // ---- id forms (section 9 row) ----
 
     /**
-     * Pins the section 9 row "ApplicationController uses convertLibraryQueryIdToObjectId for an application id" (first
-     * consequence): an application GID is looked up in the LIBRARY QUERY repository, finds nothing, and the Mono ends empty, so
-     * the application service is never called (over HTTP an empty Mono is an empty 200 body, which the unit test cannot show).
-     * A fix changes this test on purpose.
+     * BF-085 (fixed; was pinned: the GID was looked up in the LIBRARY QUERY repository, found nothing, and the Mono ended
+     * empty, an empty 200 body over HTTP): an application GID is resolved in the application repository and the
+     * application's object id reaches the service.
      */
     @Test
-    void applicationGid_isResolvedInTheLibraryQueryRepository_andTheMonoEndsEmpty_pinsTheSection9Row() {
-        StepVerifier.create(controller.getGroupsOrMembersWithoutPermissions(GID, null, DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE))
-                .verifyComplete();
+    void applicationGid_isResolvedInTheApplicationRepositoryBF085() {
+        when(applicationRepository.findByGid(GID)).thenReturn(Flux.just(Application.builder().id(OBJECT_ID).build()));
+        serviceReturns(List.of(group("a")));
 
-        verify(libraryQueryRepository).findByGid(GID);
-        verify(applicationRepository, never()).findByGid(anyString());
-        verify(applicationRepository, never()).findBySlug(anyString());
-        verify(applicationApiService, never()).getGroupsOrMembersWithoutPermissions(anyString());
+        ResponseView<List<Object>> view = controller.getGroupsOrMembersWithoutPermissions(GID, null, DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE).block();
+
+        System.out.println("[ApplicationControllerGroupsOrMembersTest] gid " + GID + " -> " + (view == null ? null : names(view)));
+        verify(applicationRepository).findByGid(GID);
+        verify(libraryQueryRepository, never()).findByGid(anyString());
+        verify(applicationApiService).getGroupsOrMembersWithoutPermissions(OBJECT_ID);
+        assertThat(view).isNotNull();
+        assertPage(view, DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE, 1);
     }
 
     /**
-     * Pins the same section 9 row (second consequence): a slug (an id without a dash) is not resolved at all. The application
-     * repository is never asked for the slug and the slug itself reaches the application service, whose findById(slug) then
-     * finds no application at run time; every sibling method resolves slugs through convertApplicationIdToObjectId. A fix
-     * changes this test on purpose.
+     * BF-085 (fixed; was pinned: a slug was forwarded unresolved, so the service looked up an application by the slug as
+     * its id): a slug is resolved in the application repository, like every sibling endpoint, and the application's object
+     * id reaches the service.
      */
     @Test
-    void applicationSlug_isForwardedUnresolved_pinsTheSection9Row() {
-        String slug = "myslug";
-        when(applicationApiService.getGroupsOrMembersWithoutPermissions(slug)).thenReturn(Mono.just(List.of(group("a"))));
+    void applicationSlug_isResolvedInTheApplicationRepositoryBF085() {
+        when(applicationRepository.findBySlug(SLUG)).thenReturn(Flux.just(Application.builder().id(OBJECT_ID).build()));
+        serviceReturns(List.of(group("a")));
 
-        ResponseView<List<Object>> view = controller.getGroupsOrMembersWithoutPermissions(slug, null, DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE).block();
+        ResponseView<List<Object>> view = controller.getGroupsOrMembersWithoutPermissions(SLUG, null, DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE).block();
 
-        verify(applicationApiService).getGroupsOrMembersWithoutPermissions(slug);
-        verify(applicationRepository, never()).findBySlug(anyString());
+        System.out.println("[ApplicationControllerGroupsOrMembersTest] slug " + SLUG + " -> " + (view == null ? null : names(view)));
+        verify(applicationRepository).findBySlug(SLUG);
+        verify(applicationApiService).getGroupsOrMembersWithoutPermissions(OBJECT_ID);
+        verify(applicationApiService, never()).getGroupsOrMembersWithoutPermissions(SLUG);
         assertThat(view).isNotNull();
         assertPage(view, DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE, 1);
     }
@@ -282,28 +293,31 @@ class ApplicationControllerGroupsOrMembersTest {
     }
 
     /**
-     * Behaviour (consistent with L3's C6, not a section 9 row): pageNum 0 makes {@code skip((pageNum - 1) * pageSize)}
-     * negative, and Reactor's {@code Flux.skip} rejects it with an IllegalArgumentException that arrives as an error signal.
-     * It is not a BizException, so GlobalExceptionHandler.catchException (the catch-all for non-Biz exceptions) answers it:
-     * HTTP 500 with bizErrorCode 5000 (BizError.INTERNAL_SERVER_ERROR) and the generic INTERNAL_SERVER_ERROR message, i.e. a
-     * raw 500 for {@code ?pageNum=0}; the unit test does not run the handler. A negative pageSize on page 1 skips 0 and, since
-     * pageSize is not positive, applies no limit; on page 2 or later it is negative again and fails the same way.
+     * BF-153 (was pinned here: {@code skip((pageNum - 1) * pageSize)} went negative and Reactor's {@code Flux.skip} threw an
+     * IllegalArgumentException, which GlobalExceptionHandler.catchException answered as a raw 500 with code 5000): page 0
+     * or less is the {@code Pagination.check()} error, INVALID_PARAMETER with ILLEGAL_PAGE_NUMBER, and a negative page size
+     * is no limit on every page, as 0 is. Catches: the inline unchecked skip back in the controller.
      */
     @Test
-    void pageNumZero_andNegativePageSizeOnLaterPages_endInIllegalArgumentException() {
+    void pageNumZeroOrLessIsAnIllegalPageNumber_andANegativePageSizeIsNoLimitBF153() {
         serviceReturns(List.of(group("g1"), group("g2"), group("g3")));
 
-        StepVerifier.create(controller.getGroupsOrMembersWithoutPermissions(OBJECT_ID, null, 0, DEFAULT_PAGE_SIZE))
-                .expectErrorSatisfies(error -> assertThat(error).isInstanceOf(IllegalArgumentException.class)
-                        .isNotInstanceOf(BizException.class))
-                .verify();
-        StepVerifier.create(controller.getGroupsOrMembersWithoutPermissions(OBJECT_ID, null, 2, -5))
-                .expectErrorSatisfies(error -> assertThat(error).isInstanceOf(IllegalArgumentException.class))
-                .verify();
+        for (int bad : new int[] {0, NEGATIVE_PAGE_NUM}) {
+            StepVerifier.create(controller.getGroupsOrMembersWithoutPermissions(OBJECT_ID, null, bad, DEFAULT_PAGE_SIZE))
+                    .expectErrorSatisfies(error -> {
+                        System.out.println("[ApplicationControllerGroupsOrMembersTest] pageNum " + bad + " -> " + error);
+                        assertThat(error).isInstanceOf(BizException.class);
+                        assertThat(((BizException) error).getError()).isEqualTo(BizError.INVALID_PARAMETER);
+                        assertThat(((BizException) error).getMessageKey()).isEqualTo(ILLEGAL_PAGE_NUMBER);
+                        assertThat(((BizException) error).getArgs()).containsExactly(bad);
+                    })
+                    .verify();
+        }
 
-        ResponseView<List<Object>> firstPage = call(null, 1, -5);
-        assertThat(names(firstPage)).containsExactly("g1", "g2", "g3");
-        assertPage(firstPage, 1, -5, 3);
-        assertThat(INTERNAL_SERVER_ERROR_BIZ_CODE).as("code the catch-all handler answers").isEqualTo(5000);
+        for (int page : new int[] {1, 2}) {
+            ResponseView<List<Object>> view = call(null, page, NEGATIVE_PAGE_SIZE);
+            assertThat(names(view)).as("page " + page).containsExactly("g1", "g2", "g3");
+            assertPage(view, page, NEGATIVE_PAGE_SIZE, 3);
+        }
     }
 }

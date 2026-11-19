@@ -23,6 +23,7 @@ import org.lowcoder.domain.group.model.Group;
 import org.lowcoder.domain.group.model.GroupMember;
 import org.lowcoder.domain.user.model.UserState;
 import org.lowcoder.api.usermanagement.view.OrgMemberListView;
+import org.lowcoder.api.util.Pagination;
 import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.model.MemberRole;
@@ -94,7 +95,7 @@ public class GroupApiServiceImpl implements GroupApiService {
                                     .filter(Objects::nonNull)
                                     .toList();
                             var pageTotal = list.size();
-                            list = list.subList((page - 1) * count, count == 0 ? pageTotal : Math.min(page * count, pageTotal));
+                            list = Pagination.pageOf(list, page, count);
                             return Pair.of(list, pageTotal);
                     });
                 })
@@ -176,9 +177,7 @@ public class GroupApiServiceImpl implements GroupApiService {
                         }
 
                         int pageTotal = mutableList.size();
-                        int fromIndex = Math.max(0, (pageNum - 1) * pageSize);
-                        int toIndex = pageSize == 0 ? pageTotal : Math.min(pageNum * pageSize, pageTotal);
-                        List<GroupMemberView> pagedList = fromIndex < toIndex ? mutableList.subList(fromIndex, toIndex) : emptyList();
+                        List<GroupMemberView> pagedList = Pagination.pageOf(mutableList, pageNum, pageSize);
 
                         return Pair.of(pagedList, pageTotal);
                     });
@@ -283,22 +282,10 @@ public class GroupApiServiceImpl implements GroupApiService {
                                     } else {
                                         memberRole = MemberRole.SUPER_ADMIN;
                                     }
-                                    return groupService.getByOrgId(orgId)
+                                    return orgAdminsMono.flatMap(orgAdmins -> groupService.getByOrgId(orgId)
                                             .sort()
-                                            .flatMapSequential(group -> groupMemberService.getGroupMembers(group.getId())
-                                                .zipWith(orgAdminsMono)
-                                                .flatMap(tuple -> {
-                                                    var users = tuple.getT1().stream().filter(user ->  user.getRole() != MemberRole.SUPER_ADMIN).toList();
-                                                    var orgAdmins = tuple.getT2();
-                                                    var adminMembers = orgAdmins.stream().filter(orgAdmin -> users.stream().anyMatch(member -> member.getUserId().equals(orgAdmin.getUserId()))).toList();
-                                                    if(group.isAllUsersGroup()) {
-                                                        return GroupView.from(group, memberRole.getValue(), orgAdmins.size(), users.size(), users.stream().map(GroupMember::getUserId).toList());
-                                                    } else {
-                                                        return GroupView.from(group, memberRole.getValue(), adminMembers.size(), users.size(), users.stream().map(GroupMember::getUserId).toList());
-                                                    }
-                                                })
-                                            )
-                                            .collectList();
+                                            .flatMapSequential(group -> groupView(group, memberRole.getValue(), orgAdmins))
+                                            .collectList());
                                 }
                                 return groupMemberService.getUserGroupMembersInOrg(orgId, orgMember.getUserId())
                                         .zipWith(orgAdminsMono)
@@ -309,27 +296,30 @@ public class GroupApiServiceImpl implements GroupApiService {
                                             Map<String, GroupMember> groupMemberMap = collectMap(groupMembers, GroupMember::getGroupId, it -> it);
                                             return groupService.getByIds(groupIds)
                                                     .sort()
-                                                    .flatMapSequential(group -> {
-                                                        var allMembers = groupMembers.stream().filter(groupMember -> groupMember.getGroupId().equals(group.getId()) && groupMember.getRole() != MemberRole.SUPER_ADMIN).toList();
-                                                        var adminMembers = orgAdmins.stream().filter(orgAdmin -> allMembers.stream().anyMatch(member -> member.getUserId().equals(orgAdmin.getUserId()))).toList();
-                                                        if(group.isAllUsersGroup()) {
-                                                            return GroupView.from(group,
-                                                                    groupMemberMap.get(group.getId()).getRole().getValue(),
-                                                                    orgAdmins.size(),
-                                                                    allMembers.size(),
-                                                                    allMembers.stream().map(GroupMember::getUserId).toList());
-                                                        } else {
-                                                            return GroupView.from(group,
-                                                                    groupMemberMap.get(group.getId()).getRole().getValue(),
-                                                                    adminMembers.size(),
-                                                                    allMembers.size(),
-                                                                    allMembers.stream().map(GroupMember::getUserId).toList());
-                                                        }
-                                                    })
+                                                    .flatMapSequential(group -> groupView(group,
+                                                            groupMemberMap.get(group.getId()).getRole().getValue(), orgAdmins))
                                                     .collectList();
                                         });
                             });
 
+                });
+    }
+
+    /**
+     * The listing view of one group with the visitor's role in it: the users are all members of the group except
+     * SUPER_ADMIN rows; the admin count is every org admin for the all-users group, otherwise the org admins among the
+     * users. Plain members and org admins get the same counts (BF-042: a plain member's view was built from the visitor's
+     * own membership rows only, so every group showed one user, the visitor). A plain member is shown only the groups they
+     * belong to, whose members they can already list ({@link #getGroupMembers}).
+     */
+    private Mono<GroupView> groupView(Group group, String visitorRole, List<OrgMember> orgAdmins) {
+        return groupMemberService.getGroupMembers(group.getId())
+                .flatMap(members -> {
+                    List<GroupMember> users = members.stream().filter(member -> member.getRole() != MemberRole.SUPER_ADMIN).toList();
+                    int adminCount = group.isAllUsersGroup()
+                            ? orgAdmins.size()
+                            : (int) orgAdmins.stream().filter(orgAdmin -> users.stream().anyMatch(member -> member.getUserId().equals(orgAdmin.getUserId()))).count();
+                    return GroupView.from(group, visitorRole, adminCount, users.size(), collectList(users, GroupMember::getUserId));
                 });
     }
 
@@ -393,9 +383,17 @@ public class GroupApiServiceImpl implements GroupApiService {
                 });
     }
 
+    /**
+     * The users of the group's organization who are not in the group yet, for a visitor who may add members: the gate of
+     * {@link #addGroupMember} (BF-021). A group of another organization, or one that does not exist, is INVALID_GROUP_ID; a
+     * visitor who is neither a group admin nor an org admin is NOT_AUTHORIZED.
+     */
     @Override
     public Mono<OrgMemberListView> getPotentialGroupMembers(String groupId, String searchName, Integer pageNum, Integer pageSize) {
-        return groupService.getById(groupId)
+        return getGroupAndOrgMemberInfo(groupId)
+                .filter(this::hasManagePermission)
+                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, NOT_AUTHORIZED))
+                .then(groupService.getById(groupId))
                 .flatMap(group -> {
                     String orgId = group.getOrganizationId();
                     Mono<List<OrgMember>> orgMemberUserIdsMono = orgMemberService.getOrganizationMembers(orgId).collectList();

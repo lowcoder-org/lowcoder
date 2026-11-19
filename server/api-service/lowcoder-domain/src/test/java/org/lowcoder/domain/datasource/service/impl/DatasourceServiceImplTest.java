@@ -18,11 +18,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.repository.ApplicationRepository;
@@ -41,6 +44,7 @@ import org.lowcoder.sdk.models.DatasourceConnectionConfig;
 import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
 import org.lowcoder.sdk.plugin.common.DatasourceConnector;
+import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
 import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
 import org.lowcoder.sdk.util.LocaleUtils;
 import org.springframework.dao.DuplicateKeyException;
@@ -107,7 +111,7 @@ class DatasourceServiceImplTest {
 
     // ---------------------------------------------------------------- getById / getByIds
 
-    /** Catches a system-static datasource getting lost (:88/:92/:96): each static id yields its shared constant. */
+    /** Catches a system-static datasource getting lost (:89/:93/:97): each static id yields its shared constant. */
     @Test
     void getById_staticIds_returnTheSharedStaticDatasourceWithoutTouchingTheRepository() {
         StepVerifier.create(service.getById(Datasource.QUICK_REST_API_ID)).expectNext(Datasource.QUICK_REST_API).verifyComplete();
@@ -124,7 +128,7 @@ class DatasourceServiceImplTest {
     /**
      * Pins the real order of getByIds (the analysis said "preserving order", which is wrong): the static datasources
      * come first, in input order, then the repository result; the repository only receives the non-static ids
-     * (:110, :133).
+     * (:111, :134).
      */
     @Test
     void getByIds_staticFirstThenRepositoryResult_repositoryGetsOnlyNonStaticIds() {
@@ -144,7 +148,7 @@ class DatasourceServiceImplTest {
 
     // ---------------------------------------------------------------- create
 
-    /** Catches a client-chosen id overwriting a row (:61). */
+    /** Catches a client-chosen id overwriting a row (:62). */
     @Test
     void create_withId_failsInvalidParameterAndNeverSaves() {
         StepVerifier.create(service.create(datasource("client-id", "n", JAVA_TYPE, null), CREATOR_ID))
@@ -154,7 +158,7 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] create with an id -> INVALID_PARAMETER(id)");
     }
 
-    /** Catches an invalid datasource being persisted: org id (:146), name (:150) and type (:154) are required. */
+    /** Catches an invalid datasource being persisted: org id (:147), name (:151) and type (:155) are required. */
     @Test
     void create_missingOrganizationNameOrType_failsAsErrorSignalAndNeverSaves() {
         Datasource noOrg = Datasource.builder().name("n").type(JAVA_TYPE).build();
@@ -172,7 +176,7 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] missing org / blank name / missing type rejected before saving");
     }
 
-    /** Catches connector validation being applied to JS plugins (:158): they are validated by the node side only. */
+    /** Catches connector validation being applied to JS plugins (:159): they are validated by the node side only. */
     @Test
     void create_jsPlugin_skipsConnectorValidation() {
         JsDatasourceConnectionConfig config = new JsDatasourceConnectionConfig();
@@ -183,7 +187,7 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] JS plugin datasource saved without connector validation");
     }
 
-    /** Catches unvalidated configs being saved, and the localised messages not being joined (:171-173). */
+    /** Catches unvalidated configs being saved, and the localised messages not being joined (:173-175). */
     @Test
     void create_javaPlugin_connectorValidationErrorsAreJoinedAndNothingIsSaved() {
         DatasourceConnectionConfig config = mock(DatasourceConnectionConfig.class);
@@ -203,7 +207,30 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] connector validation errors joined with newline, nothing saved");
     }
 
-    /** Catches a datasource nobody can manage: the creator gets OWNER after the save (:68), and the saved row is returned. */
+    /**
+     * Catches a plugin check running on the request thread: a connector's validation may block (the Mongo loopback check
+     * resolves host names, BF-023), so it runs on the shared plugin scheduler ({@code plugin-executor} threads), never on
+     * the thread that subscribed.
+     */
+    @Test
+    void create_javaPlugin_connectorValidationRunsOnThePluginScheduler() {
+        DatasourceConnectionConfig config = mock(DatasourceConnectionConfig.class);
+        List<String> validatingThreads = new ArrayList<>();
+        when(connector.doValidateConfig(config)).thenAnswer(invocation -> {
+            validatingThreads.add(Thread.currentThread().getName());
+            return Set.of("INTERNAL_SERVER_ERROR");
+        });
+        String subscribingThread = Thread.currentThread().getName();
+
+        StepVerifier.create(service.create(datasource(null, "pg", JAVA_TYPE, config), CREATOR_ID))
+                .expectError(BizException.class)
+                .verify(Duration.ofSeconds(10));
+
+        System.out.println("[DatasourceServiceImplTest] validation ran on " + validatingThreads + ", subscribed on " + subscribingThread);
+        assertThat(validatingThreads).singleElement().asString().startsWith("plugin-executor").isNotEqualTo(subscribingThread);
+    }
+
+    /** Catches a datasource nobody can manage: the creator gets OWNER after the save (:69), and the saved row is returned. */
     @Test
     void create_success_savesThenGrantsCreatorOwnerAndReturnsTheSavedDatasource() {
         List<String> events = new ArrayList<>();
@@ -231,7 +258,7 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] create: save, then OWNER grant, saved row emitted; failed grant fails create");
     }
 
-    /** Catches a 500 on a duplicate name (:185) and swallowed or rewritten other errors, for create and update. */
+    /** Catches a 500 on a duplicate name (:187) and swallowed or rewritten other errors, for create and update. */
     @Test
     void save_duplicateKeyBecomesDuplicateDatabaseName_otherErrorsPassThrough() {
         when(repository.save(any(Datasource.class))).thenReturn(Mono.error(new DuplicateKeyException("index")));
@@ -250,7 +277,7 @@ class DatasourceServiceImplTest {
 
     // ---------------------------------------------------------------- update
 
-    /** Catches a null id reaching the repository (:75) and an unknown id producing a value. */
+    /** Catches a null id reaching the repository (:76) and an unknown id producing a value. */
     @Test
     void update_nullId_failsInvalidParameter_unknownIdIsEmpty() {
         StepVerifier.create(service.update(null, datasource(null, "n", JAVA_TYPE, null)))
@@ -263,7 +290,7 @@ class DatasourceServiceImplTest {
     }
 
     /**
-     * Catches a merge on a datasource without its plugin definition (:80) and a skipped merge (:81): the stored row
+     * Catches a merge on a datasource without its plugin definition (:81) and a skipped merge (:82): the stored row
      * gets the plugin definition filled, then the update merged into it, then validated and saved.
      */
     @Test
@@ -295,25 +322,80 @@ class DatasourceServiceImplTest {
     }
 
     /**
-     * Pins the plan section 9 row "Datasource.mergeWith NPE on a null config" (Datasource.java:103,
-     * {@code Optional.of(getDetailConfig())}) as it is reached through update(): a stored datasource without a detail
-     * config fails with a NullPointerException instead of taking the update's config (the else branch is dead). A fix
-     * changes this test on purpose.
+     * BF-102 (was pinned as the plan section 9 row "Datasource.mergeWith NPE on a null config",
+     * {@code Optional.of(getDetailConfig())}), reached through update(): a stored datasource without a detail config takes
+     * the update's config, which is validated and saved; it used to fail with a NullPointerException.
      */
     @Test
-    void update_storedDatasourceWithoutDetailConfig_failsWithNullPointerException() {
-        when(repository.findById(DATASOURCE_ID)).thenReturn(Mono.just(datasource(DATASOURCE_ID, "old", JAVA_TYPE, null)));
+    void update_storedDatasourceWithoutDetailConfig_takesTheUpdatesConfigBF102() {
+        DatasourceConnectionConfig updatedConfig = mock(DatasourceConnectionConfig.class);
+        Datasource current = datasource(DATASOURCE_ID, "old", JAVA_TYPE, null);
+        when(repository.findById(DATASOURCE_ID)).thenReturn(Mono.just(current));
 
-        StepVerifier.create(service.update(DATASOURCE_ID, datasource(null, "new", JAVA_TYPE, mock(DatasourceConnectionConfig.class))))
-                .expectError(NullPointerException.class)
-                .verify();
-        verify(repository, never()).save(any(Datasource.class));
-        System.out.println("[DatasourceServiceImplTest] pins the section 9 row: mergeWith on a null stored config -> NPE");
+        StepVerifier.create(service.update(DATASOURCE_ID, datasource(null, "new", JAVA_TYPE, updatedConfig)))
+                .assertNext(saved -> {
+                    assertThat(saved).isSameAs(current);
+                    assertThat(saved.getName()).isEqualTo("new");
+                    assertThat(saved.getDetailConfig()).isSameAs(updatedConfig);
+                })
+                .verifyComplete();
+        verify(connector).doValidateConfig(updatedConfig);
+        verify(repository).save(current);
+        System.out.println("[DatasourceServiceImplTest] stored datasource without config takes the update's config (BF-102)");
+    }
+
+    /**
+     * BF-102: the update's JS plugin config gets the datasource type also when the stored datasource has no config, as it
+     * does when the two configs are merged.
+     */
+    @Test
+    void update_jsPluginWithoutStoredDetailConfig_givesTheUpdatesConfigTheTypeBF102() {
+        JsDatasourceConnectionConfig updatedConfig = new JsDatasourceConnectionConfig();
+        when(repository.findById(DATASOURCE_ID)).thenReturn(Mono.just(datasource(DATASOURCE_ID, "old", JS_TYPE, null)));
+
+        StepVerifier.create(service.update(DATASOURCE_ID, datasource(null, "new", JS_TYPE, updatedConfig)))
+                .assertNext(saved -> {
+                    assertThat(saved.getDetailConfig()).isSameAs(updatedConfig);
+                    assertThat(updatedConfig.getType()).isEqualTo(JS_TYPE);
+                })
+                .verifyComplete();
+        System.out.println("[DatasourceServiceImplTest] JS config without a stored one gets type " + updatedConfig.getType() + " (BF-102)");
+    }
+
+    /**
+     * NEW-18 (GitHub #2053), the path of PUT /api/datasources/{id}: a JS plugin datasource keeps the cookie settings and
+     * headers its form sends, next to its own params; they used to be dropped by the merge, so the form showed them empty
+     * after save. Catches the merge dropping them again.
+     */
+    @Test
+    void update_jsPluginKeepsTheFormsCookieSettingsAndHeadersNEW18() {
+        JsDatasourceConnectionConfig storedConfig = new JsDatasourceConnectionConfig();
+        storedConfig.setType(JS_TYPE);
+        storedConfig.setDefinition(Map.of("dataSourceConfig", Map.of("params", List.of(Map.of("key", "serverURL", "type", "textInput")))));
+        storedConfig.put("serverURL", "http://old");
+        when(repository.findById(DATASOURCE_ID)).thenReturn(Mono.just(datasource(DATASOURCE_ID, "old", JS_TYPE, storedConfig)));
+        JsDatasourceConnectionConfig updatedConfig = new JsDatasourceConnectionConfig();
+        updatedConfig.put("serverURL", "http://api:8080");
+        updatedConfig.put(JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY, List.of("LOWCODER_CE_SELFHOST_TOKEN"));
+        updatedConfig.put(JsDatasourceConnectionConfig.FORWARD_ALL_COOKIES_KEY, true);
+        updatedConfig.put(JsDatasourceConnectionConfig.HEADERS_KEY, List.of(Map.of("key", "X-A", "value", "1")));
+
+        StepVerifier.create(service.update(DATASOURCE_ID, datasource(null, "new", JS_TYPE, updatedConfig)))
+                .assertNext(saved -> {
+                    System.out.println("[DatasourceServiceImplTest] NEW-18 saved JS config: " + saved.getDetailConfig());
+                    assertThat((Map<String, Object>) saved.getDetailConfig())
+                            .containsEntry("serverURL", "http://api:8080")
+                            .containsEntry(JsDatasourceConnectionConfig.FORWARD_COOKIES_KEY, List.of("LOWCODER_CE_SELFHOST_TOKEN"))
+                            .containsEntry(JsDatasourceConnectionConfig.FORWARD_ALL_COOKIES_KEY, true)
+                            .containsEntry(JsDatasourceConnectionConfig.HEADERS_KEY, List.of(Map.of("key", "X-A", "value", "1")));
+                })
+                .verifyComplete();
+        verify(repository).save(any(Datasource.class));
     }
 
     // ---------------------------------------------------------------- testDatasource
 
-    /** Catches the given datasource not being tested as is when it has no id (:196). */
+    /** Catches the given datasource not being tested as is when it has no id (:198). */
     @Test
     void testDatasource_withoutId_testsTheGivenDatasourceWithoutLookup() {
         DatasourceConnectionConfig config = mock(DatasourceConnectionConfig.class);
@@ -326,7 +408,7 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] test without id: given config tested, no lookup");
     }
 
-    /** Catches testing with credentials the user may not use (:198): an unknown id is NOT_AUTHORIZED. */
+    /** Catches testing with credentials the user may not use (:200): an unknown id is NOT_AUTHORIZED. */
     @Test
     void testDatasource_unknownId_failsNotAuthorized() {
         when(repository.findById("missing")).thenReturn(Mono.empty());
@@ -338,7 +420,7 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] test with an unknown id -> NOT_AUTHORIZED");
     }
 
-    /** Catches the stored credentials not being merged in before validation and test (:200). */
+    /** Catches the stored credentials not being merged in before validation and test (:204). */
     @Test
     void testDatasource_knownId_mergesTheStoredDatasourceBeforeTesting() {
         DatasourceConnectionConfig currentConfig = mock(DatasourceConnectionConfig.class);
@@ -355,7 +437,7 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] test with a known id: merged config validated and tested");
     }
 
-    /** Catches the wrong test path per plugin kind (:206): JS plugins go to the node client, Java plugins to the connector. */
+    /** Catches the wrong test path per plugin kind (:210): JS plugins go to the node client, Java plugins to the connector. */
     @Test
     void testDatasource_jsPluginGoesToTheNodeClient_javaPluginToTheLocalConnector() {
         JsDatasourceConnectionConfig jsConfig = new JsDatasourceConnectionConfig();
@@ -371,7 +453,7 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] test routing: JS -> node client, Java -> local connector");
     }
 
-    /** Catches a connector failure surfacing as an error signal (:217): it must become a failed test result. */
+    /** Catches a connector failure surfacing as an error signal (:221): it must become a failed test result. */
     @Test
     void testDatasource_connectorError_becomesAFailedResultNotAnError() {
         when(connector.doTestConnection(any())).thenReturn(Mono.error(new IllegalStateException("boom")));
@@ -385,7 +467,7 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] connector error -> failed DatasourceTestResult");
     }
 
-    /** Catches a hanging connector blocking the request (:216): after 10 seconds (virtual time) the test fails as a timeout. */
+    /** Catches a hanging connector blocking the request (:220): after 10 seconds (virtual time) the test fails as a timeout. */
     @Test
     void testDatasource_connectorNeverAnswers_failsAsTimeoutAfterTenSeconds() {
         when(connector.doTestConnection(any())).thenReturn(Mono.never());
@@ -404,36 +486,52 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] connector without answer -> timeout result after 10 s");
     }
 
-    // ---------------------------------------------------------------- shared static datasource (section 9 candidate)
+    // ---------------------------------------------------------------- shared static datasource (BF-014)
+
+    private static final String HIJACKED_NAME = "hijacked-name";
+    private static final String HIJACKED_URL = "http://hijacked.example";
+
+    static Stream<Arguments> systemStaticDatasources() {
+        return Stream.of(
+                Arguments.of(Datasource.QUICK_REST_API, RestApiDatasourceConfig.builder().url(HIJACKED_URL).build()),
+                Arguments.of(Datasource.QUICK_GRAPHQL_API, GraphQLDatasourceConfig.builder().url(HIJACKED_URL).build()),
+                Arguments.of(Datasource.JS_CODE, RestApiDatasourceConfig.builder().url(HIJACKED_URL).build()));
+    }
 
     /**
-     * Pins the plan section 9 row "testDatasource merges into the shared static datasource": for a system-static id,
-     * {@code getById} returns the shared constant and {@code mergeWith} (:200) mutates it, so a connection test changes
-     * the global QUICK_REST_API for every later caller. The shared constant is restored in {@code finally}. A fix (merge
-     * into a copy) changes this test on purpose.
+     * Catches a connection test changing a shared static datasource (BF-014, formerly pinned as "testDatasource merges
+     * into the shared static datasource"): for a system-static id {@code getById} answers the shared constant, so the
+     * request is merged into a copy. The answer is the one a static datasource always gave (the copy has no
+     * organization id, so validation refuses it with INVALID_PARAMETER organizationId), and the constant keeps its
+     * name, status and config object. The constant is restored in {@code finally}, so a regression does not leak into
+     * later tests.
      */
-    @Test
-    void testDatasource_staticId_mutatesTheSharedStaticDatasource() {
-        Datasource shared = Datasource.QUICK_REST_API;
+    @ParameterizedTest(name = "[{index}] {0}")
+    @MethodSource("systemStaticDatasources")
+    void testDatasource_staticId_mergesIntoACopyAndLeavesTheSharedStaticDatasourceUnchanged(Datasource shared,
+            DatasourceConnectionConfig requestConfig) {
         String originalName = shared.getName();
         DatasourceStatus originalStatus = shared.getDatasourceStatus();
         DatasourceConnectionConfig originalConfig = shared.getDetailConfig();
         try {
-            Datasource request = datasource(Datasource.QUICK_REST_API_ID, "hijacked-name", shared.getType(), RestApiDatasourceConfig.EMPTY_CONFIG);
+            Datasource request = datasource(shared.getId(), HIJACKED_NAME, shared.getType(), requestConfig);
             request.setDatasourceStatus(DatasourceStatus.DELETED);
 
-            // the static datasource has no organization id, so validation fails after the merge: the outcome is not the point
-            StepVerifier.create(service.testDatasource(request)).expectError(BizException.class).verify();
+            StepVerifier.create(service.testDatasource(request))
+                    .expectErrorSatisfies(error -> assertBizError(error, BizError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID))
+                    .verify();
 
-            assertThat(shared.getName()).as("the shared constant was mutated by the test request").isEqualTo("hijacked-name");
-            assertThat(shared.getDatasourceStatus()).isEqualTo(DatasourceStatus.DELETED);
+            assertThat(shared.getName()).as("the shared constant keeps its name").isEqualTo(originalName);
+            assertThat(shared.getDatasourceStatus()).isEqualTo(originalStatus);
+            assertThat(shared.getDetailConfig()).as("the shared constant keeps its config object").isSameAs(originalConfig);
+            assertThat(service.getById(shared.getId()).block()).isSameAs(shared);
         } finally {
             shared.setName(originalName);
             shared.setDatasourceStatus(originalStatus);
             shared.setDetailConfig(originalConfig);
         }
-        assertThat(Datasource.QUICK_REST_API.getName()).isEqualTo(originalName);
-        System.out.println("[DatasourceServiceImplTest] pins the section 9 row: static datasource mutated by testDatasource, restored");
+        System.out.println("[DatasourceServiceImplTest] testDatasource(" + shared.getId()
+                + ") -> INVALID_PARAMETER(organizationId), shared constant unchanged");
     }
 
     // ---------------------------------------------------------------- removePasswordTypeKeys...
@@ -448,7 +546,7 @@ class DatasourceServiceImplTest {
         return config;
     }
 
-    /** Catches secrets going unmasked to the client (:230): JS plugin password-type keys are removed, others kept. */
+    /** Catches secrets going unmasked to the client (:234): JS plugin password-type keys are removed, others kept. */
     @Test
     void removePasswordTypeKeys_jsPlugin_removesPasswordKeysAfterFillingTheDefinition() {
         JsDatasourceConnectionConfig config = jsConfigWithPasswordParam();
@@ -461,7 +559,7 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] JS plugin: password-type keys removed, other keys kept");
     }
 
-    /** Catches passwords being removed even when filling the definition fails (doFinally), and for non-JS plugins (:228). */
+    /** Catches passwords being removed even when filling the definition fails (doFinally), and for non-JS plugins (:232). */
     @Test
     void removePasswordTypeKeys_removesEvenWhenFillFails_andNeverForJavaPlugins() {
         JsDatasourceConnectionConfig failing = jsConfigWithPasswordParam();
@@ -480,7 +578,7 @@ class DatasourceServiceImplTest {
 
     // ---------------------------------------------------------------- retain / delete
 
-    /** Catches a repository call for an empty or null id collection (:252). */
+    /** Catches a repository call for an empty or null id collection (:256). */
     @Test
     void retainNoneExist_emptyOrNullCollection_returnsEmptyWithoutRepository_otherwiseDelegates() {
         StepVerifier.create(service.retainNoneExistAndNonCurrentOrgDatasourceIds(List.of(), ORG_ID)).verifyComplete();
@@ -490,6 +588,16 @@ class DatasourceServiceImplTest {
         when(repository.retainNoneExistAndNonCurrentOrgDatasourceIds(List.of("a", "b"), ORG_ID)).thenReturn(Flux.just("b"));
         StepVerifier.create(service.retainNoneExistAndNonCurrentOrgDatasourceIds(List.of("a", "b"), ORG_ID)).expectNext("b").verifyComplete();
         System.out.println("[DatasourceServiceImplTest] retain: empty/null short-circuit, otherwise delegated");
+    }
+
+    /** Catches the id-to-object-id map not being the repository's (BF-002): the service hands the keys on unchanged. */
+    @Test
+    void getObjectIdsByIdOrGid_delegatesToTheRepository() {
+        Map<String, String> objectIds = Map.of("ds-gid-1", DATASOURCE_ID, DATASOURCE_ID, DATASOURCE_ID);
+        when(repository.findObjectIdsByIdOrGid(List.of("ds-gid-1", DATASOURCE_ID))).thenReturn(Mono.just(objectIds));
+
+        StepVerifier.create(service.getObjectIdsByIdOrGid(List.of("ds-gid-1", DATASOURCE_ID))).expectNext(objectIds).verifyComplete();
+        System.out.println("[DatasourceServiceImplTest] object ids delegated: " + objectIds);
     }
 
     private static Application application(ApplicationStatus status) {
@@ -506,7 +614,7 @@ class DatasourceServiceImplTest {
         return subscriptions;
     }
 
-    /** Catches deleting a datasource that live applications still use (:262): their queries would break. */
+    /** Catches deleting a datasource that live applications still use (:271): their queries would break. */
     @ParameterizedTest
     @EnumSource(value = ApplicationStatus.class, names = {"NORMAL", "RECYCLED"})
     void delete_stillUsedByANonDeletedApplication_failsAndDoesNotMarkDeleted(ApplicationStatus status) {
@@ -520,7 +628,7 @@ class DatasourceServiceImplTest {
         System.out.println("[DatasourceServiceImplTest] delete refused while a " + status + " application uses the datasource");
     }
 
-    /** Catches deleted applications blocking the delete (:274), and the delete not being executed once allowed. */
+    /** Catches deleted applications blocking the delete (:283), and the delete not being executed once allowed. */
     @Test
     void delete_unusedOrOnlyUsedByDeletedApplications_marksDeletedOnce() {
         AtomicInteger subscriptions = countDeleteSubscriptions();

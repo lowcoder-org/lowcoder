@@ -19,6 +19,7 @@ import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.service.OrgMemberService;
+import org.lowcoder.domain.organization.model.Organization.OrganizationCommonSettings;
 import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.model.*;
 import org.lowcoder.domain.user.model.User.TransformedUserInfo;
@@ -56,6 +57,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static org.lowcoder.domain.organization.service.OrganizationServiceImpl.PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT;
 import static org.lowcoder.domain.user.model.UserDetail.ANONYMOUS_CURRENT_USER;
 import static org.lowcoder.sdk.constants.GlobalContext.CLIENT_IP;
+import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 
@@ -264,6 +266,7 @@ public class UserServiceImpl implements UserService {
         newUser.setActiveAuthId(connection.getAuthId());
         newUser.setIsNewUser(true);
         if(isSuperAdmin) {
+            newUser.setHasSetNickname(false);
             return repository.findBySuperAdminIsTrue()
                     .flatMap(user -> update(user.getId(), newUser))
                     .switchIfEmpty(create(newUser));
@@ -371,6 +374,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public Mono<Void> deleteProfilePhoto(User visitor) {
         String userAvatar = visitor.getAvatar();
+        if (StringUtils.isBlank(userAvatar)) {
+            // BF-098: no photo to delete (blank, as User#getAvatarUrl reads it); thenReturn(null) below used to throw a NullPointerException
+            return Mono.empty();
+        }
         visitor.setAvatar(null);
         return repository.save(visitor).thenReturn(userAvatar)
                 .flatMap(assetService::remove);
@@ -378,7 +385,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Mono<Boolean> updatePassword(String userId, String oldPassword, String newPassword) {
-        return findById(userId)
+        return findExistingById(userId)
                 .<User> handle((user, sink) -> {
                     String password = user.getPassword();
                     if (StringUtils.isBlank(password)) {
@@ -413,17 +420,26 @@ public class UserServiceImpl implements UserService {
                 });
     }
 
+    /**
+     * Looks up the account named by {@code userEmail} (an email, else a name) and, when it can recover its password, mails a
+     * password reset link to {@code userEmail} as given and then stores the token's hash and a 12 hour expiry; completes
+     * empty when it ends normally, a mail that is not sent included, and fails when a lookup or the save fails or the mail
+     * call throws.
+     * <p>
+     * Limits: for an account found by its name the recipient is that name, which the mail call uses as an address, so such a
+     * mail is sent only if the name is accepted as one; the mail is sent before the token is saved (NEW-93: kept, owner
+     * decision D6), so a save that fails after a sent mail leaves a link that no stored token matches; a mail that is not
+     * sent stores nothing ({@code lostPassword_mailSendFails_storesNothing}).
+     */
     @Override
     public Mono<Boolean> lostPassword(String userEmail) {
         return findByEmailDeep(userEmail)
                 .switchIfEmpty(Mono.defer(() -> findByName(userEmail)))
                 .filter(UserServiceImpl::canRecoverPassword)
-                .zipWhen(user -> orgMemberService.getCurrentOrgMember(user.getId())
-                .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
-                .map(organization -> organization.getCommonSettings().getOrDefault(PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT, PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT)))
+                .zipWhen(user -> passwordResetEmailTemplateOf(user.getId()))
                 .flatMap(tuple -> {
                     User user = tuple.getT1();
-                    String emailTemplate = (String)tuple.getT2();
+                    String emailTemplate = tuple.getT2();
 
                     String token = generateNewRandomPwd();
                     Instant tokenExpiry = Instant.now().plus(12, ChronoUnit.HOURS);
@@ -434,6 +450,35 @@ public class UserServiceImpl implements UserService {
                     user.setPasswordResetTokenExpiry(tokenExpiry);
                     return repository.save(user).then(Mono.empty());
                 });
+    }
+
+    /**
+     * The password reset mail template for an account: its current organization's, or
+     * {@code PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT} when the account has no current organization (GitHub #1043: the empty
+     * lookup used to end {@link #lostPassword} without a mail or a token).
+     *
+     * <p>Limits: it runs only for an account {@code lostPassword} resolved and kept as not deleted; it falls back only on an
+     * empty membership lookup, so an error of the membership or organization lookup still fails the request (a missing
+     * organization is UNABLE_TO_FIND_VALID_ORG); in ENTERPRISE mode with an enterprise org id the lookup first adds the
+     * account to that organization, so the fallback is normally not reached there; the template is the current
+     * organization's because the request names none.
+     */
+    private Mono<String> passwordResetEmailTemplateOf(String userId) {
+        return orgMemberService.getCurrentOrgMember(userId)
+                .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
+                .map(organization -> passwordResetEmailTemplate(organization.getCommonSettings()))
+                .defaultIfEmpty(PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT);
+    }
+
+    /**
+     * The org's password-reset mail template, stored under {@link OrganizationCommonSettings#PASSWORD_RESET_EMAIL_TEMPLATE}
+     * (BF-041: it was looked up with the default template's text as the key, so a custom template was never used). Common
+     * settings take any JSON value, so anything but a non-blank text falls back to the default template.
+     */
+    private static String passwordResetEmailTemplate(OrganizationCommonSettings settings) {
+        return settings.get(OrganizationCommonSettings.PASSWORD_RESET_EMAIL_TEMPLATE) instanceof String template && StringUtils.isNotBlank(template)
+                ? template
+                : PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT;
     }
 
     @Override
@@ -473,7 +518,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Mono<Boolean> setPassword(String userId, String password) {
-        return findById(userId)
+        return findExistingById(userId)
                 .map(user -> {
                     user.setPassword(encryptionService.encryptPassword(password));
                     return user;
@@ -484,13 +529,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Mono<Boolean> markAsSuperAdmin(String userId) {
-        return findById(userId)
+        return findExistingById(userId)
                 .map(user -> {
                     user.setSuperAdmin(true);
                     return user;
                 })
                 .flatMap(repository::save)
                 .thenReturn(true);
+    }
+
+    /**
+     * The user, or USER_NOT_EXIST when there is none (BF-100: updatePassword, setPassword and markAsSuperAdmin answered
+     * true for an unknown id, as {@code thenReturn(true)} follows an empty upstream, though nothing was saved).
+     */
+    private Mono<User> findExistingById(String userId) {
+        return findById(userId)
+                .switchIfEmpty(deferredError(BizError.USER_NOT_EXIST, "USER_NOT_EXIST"));
     }
 
     @Override
@@ -507,7 +561,7 @@ public class UserServiceImpl implements UserService {
                         OrgMember orgMember = tuple2.getT1();
                         List<Map<String, String>> groups = tuple2.getT2();
                         String activeAuthId = user.getActiveAuthId();
-                        Optional<Connection> connection = user.getConnections().stream().filter(con -> con.getAuthId().equals(activeAuthId)).findFirst();
+                        Optional<Connection> connection = user.getConnections().stream().filter(con -> con.hasAuthId(activeAuthId)).findFirst();
                         HashMap<String, Object> userAuth = connectionToUserAuthDetail(connection);
                         return UserDetail.builder()
                                 .id(user.getId())
@@ -560,7 +614,7 @@ public class UserServiceImpl implements UserService {
         return Optional.ofNullable(user.getOrgTransformedUserInfo())
                 .map(orgTransformedUserInfo -> orgTransformedUserInfo.get(orgId))
                 .map(TransformedUserInfo::extra)
-                .orElse(convertConnections(user.getConnections().stream().filter(c -> c.getAuthId().equals(user.getActiveAuthId())).collect(Collectors.toSet())));
+                .orElse(convertConnections(user.getConnections().stream().filter(c -> c.hasAuthId(user.getActiveAuthId())).collect(Collectors.toSet())));
     }
 
     protected Mono<List<Map<String, String>>> buildUserDetailGroups(String userId, OrgMember orgMember, boolean withoutDynamicGroups,

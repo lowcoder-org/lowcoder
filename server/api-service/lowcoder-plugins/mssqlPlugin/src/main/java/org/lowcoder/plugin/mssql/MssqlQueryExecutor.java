@@ -26,9 +26,13 @@ import org.lowcoder.plugin.sql.SqlBasedQueryExecutor;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.DatasourceStructure;
 import org.lowcoder.sdk.models.DatasourceStructure.Table;
+import org.lowcoder.sdk.plugin.common.SqlQueryUtils.QuotingRules;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedDatasourceConnectionConfig;
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.pf4j.Extension;
+
+import com.microsoft.sqlserver.jdbc.SQLServerException;
+import com.zaxxer.hikari.HikariDataSource;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,7 +54,35 @@ public class MssqlQueryExecutor extends SqlBasedQueryExecutor {
                 }
                 return result;
             }
+
+            /**
+             * A {@link SQLServerException} with a server error reports an error the server raised for the batch (NEW-9); the
+             * driver's own "no keys" exception (for example after a statement that was not the last of the batch) carries none
+             * and still means "no keys". Limits: only the top-level exception is classified, not a cause or
+             * {@code getNextException()}; the rule rests on what mssql-jdbc 10.2.1 was observed to do, not on a driver contract,
+             * so a driver upgrade needs the NEW-9 tests of {@code MssqlDatabaseTest} re-run.
+             */
+            @Override
+            protected boolean isQueryFailure(SQLException e) {
+                return e instanceof SQLServerException serverException && serverException.getSQLServerError() != null;
+            }
         });
+    }
+
+    /**
+     * A read-only datasource rolls every query back (BF-025): the SQL Server driver ignores {@code Connection.setReadOnly}, so
+     * the read-only pool {@code MssqlConnector} sets up would otherwise keep every write. The limits of the rollback are on
+     * {@code SqlBasedQueryExecutor.executeAndRollBack}.
+     */
+    @Override
+    protected boolean rollsBackEveryQuery(HikariDataSource dataSource) {
+        return dataSource.isReadOnly();
+    }
+
+    /** SQL Server quotes identifiers with {@code [...]}: a comment start inside one is not a comment (BF-092). */
+    @Override
+    protected QuotingRules quotingRules() {
+        return QuotingRules.BRACKET_IDENTIFIERS;
     }
 
     @Override
@@ -71,7 +103,7 @@ public class MssqlQueryExecutor extends SqlBasedQueryExecutor {
 
     @Override
     protected GuiSqlCommand parseSqlCommand(String guiStatementType, Map<String, Object> detail) {
-        return switch (guiStatementType.toUpperCase()) {
+        return switch (guiStatementType.toUpperCase(java.util.Locale.ROOT)) { // BF-122: not the default locale
             case "INSERT" -> MssqlInsertCommand.from(detail);
             case "UPDATE" -> MssqlUpdateCommand.from(detail);
             case "DELETE" -> MssqlDeleteCommand.from(detail);

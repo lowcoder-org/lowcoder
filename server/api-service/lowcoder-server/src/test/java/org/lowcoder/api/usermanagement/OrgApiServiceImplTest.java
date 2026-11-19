@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -26,6 +27,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.api.authentication.dto.OrganizationDomainCheckResult;
 import org.lowcoder.api.usermanagement.view.OrgMemberListView;
@@ -78,17 +80,15 @@ import reactor.test.StepVerifier;
  * {@code updateRoleForMember} and {@code removeUserFromOrg} assemble {@code .then(orgMemberService...)} eagerly, so
  * {@code verify(never())} on the call itself would not show a mutation.
  *
- * <p>Pinned production defects (owner decision D-6: fixes are deferred, a fix changes these tests on purpose):
- * <ul>
- * <li>plan section 9 subList row, second site {@code OrgApiServiceImpl.getOrgMemberListView} :115: a page past the end
- * and page 0 (see {@link #getOrganizationMembers_pageBeyondTheEnd_failsWithIllegalArgumentException_pinsSection9SubListRow}).</li>
- * <li>plan section 9 row "updateRoleForMember ... an org ADMIN can make any member, themselves included, super_admin ...
- * skips the quota" (privilege escalation), including the demotion of a SUPER_ADMIN by an ADMIN (see
- * {@link #updateRoleForMember_adminMakesAnyoneSuperAdmin_skippingTheQuota_pinsSection9Row} and
- * {@link #updateRoleForMember_adminDemotesASuperAdmin_pinsSection9Row}).</li>
- * <li>plan section 9 row "removeUserFromOrg has no last-admin or super-admin guard" (see
- * {@link #removeUserFromOrg_adminRemovesTheOnlyOtherAdminOrASuperAdmin_pinsSection9Row}).</li>
- * </ul>
+ * <p>The plan section 9 subList row, second site {@code OrgApiServiceImpl.getOrgMemberListView}, is fixed (BF-086): a
+ * page past the end and page 0 are an empty page with the total (see
+ * {@link #getOrganizationMembers_pageOutsideTheMembers_isAnEmptyPageWithTheTotalBF086}).
+ * The plan section 9 row "removeUserFromOrg has no last-admin or super-admin guard" is fixed (BF-072): see
+ * {@link #removeUserFromOrg_refusesASuperAdminAndTheLastAdmin}.
+ * The plan section 9 row "updateRoleForMember ... an org ADMIN can make any member, themselves included, super_admin ...
+ * skips the quota", including the demotion of a SUPER_ADMIN by an ADMIN, is fixed (BF-005): see
+ * {@link #updateRoleForMember_superAdminRole_isRefusedForEveryVisitorAndTarget} and
+ * {@link #updateRoleForMember_targetIsSuperAdmin_isRefusedForEveryVisitor}.
  */
 @ExtendWith(MockitoExtension.class)
 class OrgApiServiceImplTest {
@@ -196,6 +196,14 @@ class OrgApiServiceImplTest {
         stubVisitor();
         lenient().when(orgMemberService.getOrgMember(orgId, VISITOR_ID))
                 .thenReturn(role == null ? Mono.empty() : Mono.just(orgMember(orgId, VISITOR_ID, role, OrgMemberState.NORMAL)));
+    }
+
+    /** The target's membership, as the super admin check and the removal check read it (logged as "target read"); null: not a member. */
+    private void stubTargetRole(String userId, MemberRole role) {
+        lenient().when(orgMemberService.getOrgMember(ORG_ID, userId)).thenReturn(Mono.defer(() -> {
+            events.add("target read");
+            return role == null ? Mono.empty() : Mono.just(orgMember(ORG_ID, userId, role, OrgMemberState.NORMAL));
+        }));
     }
 
     private Workspace stubWorkspace(WorkspaceMode mode, String enterpriseOrgId) {
@@ -318,36 +326,26 @@ class OrgApiServiceImplTest {
     }
 
     /**
-     * Pins the plan section 9 subList row at its second site, {@code getOrgMemberListView} :115: the slice is the
-     * unguarded {@code list.subList((page - 1) * count, min(page * count, total))}; three resolvable members, page 3
-     * of size 2 gives subList(4, 3) and the call fails with an IllegalArgumentException. A fix changes this test on
-     * purpose.
+     * BF-086 (fixed; was pinned as the plan section 9 subList row at its second site, {@code getOrgMemberListView}: the
+     * unchecked {@code subList} failed with an IllegalArgumentException for a page after the last and an
+     * IndexOutOfBoundsException for page 0): three resolvable members, a page after the last (3 or 4 of size 2) or before
+     * the first (0) is an empty page with the full total and the requested paging.
      */
     @ParameterizedTest
-    @ValueSource(ints = {3, 4})
-    void getOrganizationMembers_pageBeyondTheEnd_failsWithIllegalArgumentException_pinsSection9SubListRow(int page) {
+    @ValueSource(ints = {0, 3, 4})
+    void getOrganizationMembers_pageOutsideTheMembers_isAnEmptyPageWithTheTotalBF086(int page) {
         stubRoster();
         lenient().when(commonConfig.isCloud()).thenReturn(false);
 
         StepVerifier.create(service.getOrganizationMembers(ORG_ID, page, 2))
-                .expectErrorSatisfies(error -> assertThat(error).isExactlyInstanceOf(IllegalArgumentException.class))
-                .verify();
-        say("getOrganizationMembers: page %d size 2 over 3 members -> IllegalArgumentException (section 9 subList row pinned)", page);
-    }
-
-    /**
-     * Pins the same plan section 9 subList row: page 0 gives a negative fromIndex and the call fails with an
-     * IndexOutOfBoundsException. A fix changes this test on purpose.
-     */
-    @Test
-    void getOrganizationMembers_pageZero_failsWithIndexOutOfBounds_pinsSection9SubListRow() {
-        stubRoster();
-        lenient().when(commonConfig.isCloud()).thenReturn(false);
-
-        StepVerifier.create(service.getOrganizationMembers(ORG_ID, 0, 2))
-                .expectErrorSatisfies(error -> assertThat(error).isInstanceOf(IndexOutOfBoundsException.class))
-                .verify();
-        say("getOrganizationMembers: page 0 -> IndexOutOfBoundsException (section 9 subList row pinned)");
+                .assertNext(view -> {
+                    say("getOrganizationMembers: page %d size 2 over 3 members -> members %s, total %d", page, view.getMembers(), view.getTotal());
+                    assertThat(view.getMembers()).isEmpty();
+                    assertThat(view.getTotal()).isEqualTo(3);
+                    assertThat(view.getPageNum()).isEqualTo(page);
+                    assertThat(view.getPageSize()).isEqualTo(2);
+                })
+                .verifyComplete();
     }
 
     // ------------------------------------------------------------------ the admin gate
@@ -377,6 +375,189 @@ class OrgApiServiceImplTest {
                     .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")).verify();
         }
         say("checkVisitorAdminRole: role %s -> admitted=%s", role, admitted);
+    }
+
+    /** C1, NEW-132: a visitor who is not a member of the organization is NOT_AUTHORIZED, whatever the organization is. */
+    @Test
+    void checkVisitorMember_refusesANonMemberNEW132() {
+        stubVisitorRole(ORG_ID, null);
+
+        StepVerifier.create(service.checkVisitorMember(ORG_ID))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")).verify();
+        say("checkVisitorMember: a non-member is refused");
+    }
+
+    /** C2, NEW-132: a member of any role passes and gets their membership back. */
+    @Test
+    void checkVisitorMember_admitsAMemberOfAnyRoleNEW132() {
+        for (MemberRole role : List.of(MemberRole.MEMBER, MemberRole.ADMIN, MemberRole.SUPER_ADMIN)) {
+            stubVisitorRole(ORG_ID, role);
+
+            StepVerifier.create(service.checkVisitorMember(ORG_ID))
+                    .assertNext(member -> assertThat(member.getRole()).isEqualTo(role)).verifyComplete();
+            say("checkVisitorMember: role %s admitted", role);
+        }
+    }
+
+    /** The slug the NEW-102 case sets. */
+    private static final String NEW_SLUG = "the-new-slug";
+
+    /**
+     * NEW-102: catches the slug of an organization set by a visitor who is not an admin of it: ADMIN and SUPER_ADMIN
+     * reach {@code organizationService.updateSlug} (once, with the id and the slug) and get its organization back; a
+     * MEMBER and an outsider get NOT_AUTHORIZED, {@code organizationService.updateSlug} is never called (so no Mono
+     * is built either) and never subscribed.
+     */
+    @ParameterizedTest(name = "role {0} -> admitted {1}")
+    @MethodSource("adminRoles")
+    void updateSlug_onlyAdminsReachTheSlugUpdateNEW102(MemberRole role, boolean admitted) {
+        stubVisitorRole(ORG_ID, role);
+        Organization organization = new Organization();
+        lenient().when(organizationService.updateSlug(ORG_ID, NEW_SLUG)).thenReturn(counting(organization));
+
+        if (admitted) {
+            StepVerifier.create(service.updateSlug(ORG_ID, NEW_SLUG)).expectNext(organization).verifyComplete();
+            assertThat(mutations).hasValue(1);
+        } else {
+            StepVerifier.create(service.updateSlug(ORG_ID, NEW_SLUG))
+                    .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")).verify();
+            assertThat(mutations).hasValue(0);
+            verify(organizationService, never()).updateSlug(any(), any());
+        }
+        say("updateSlug: role %s -> admitted=%s, service subscriptions %d", role, admitted, mutations.get());
+    }
+
+    // ------------------------------------------------------------------ the organization read (NEW-102)
+
+    /** {@code getOrganization}'s {@code withDeleted} argument: deleted organizations included. */
+    private static final boolean WITH_DELETED = true;
+    /** {@code getOrganization}'s {@code withDeleted} argument: active organizations only. */
+    private static final boolean ACTIVE_ONLY = false;
+
+    private static Organization organizationInState(String name, OrganizationState state) {
+        Organization organization = new Organization();
+        organization.setName(name);
+        organization.setState(state);
+        return organization;
+    }
+
+    private static final Organization ACTIVE_ORG = organizationInState("active-org", OrganizationState.ACTIVE);
+    private static final Organization DELETED_ORG = organizationInState("deleted-org", OrganizationState.DELETED);
+
+    static Stream<Arguments> memberRoles() {
+        return Stream.of(
+                Arguments.of((MemberRole) null, false),
+                Arguments.of(MemberRole.MEMBER, true),
+                Arguments.of(MemberRole.ADMIN, true),
+                Arguments.of(MemberRole.SUPER_ADMIN, true));
+    }
+
+    /**
+     * The stored user the instance super admin check reads: {@code userService.findById(VISITOR_ID)} answers a user
+     * with that {@code superAdmin} flag (null: a user stored without it).
+     */
+    private void stubVisitorSuperAdmin(Boolean flag) {
+        stubVisitor();
+        User stored = user(VISITOR_ID, "visitor");
+        stored.setSuperAdmin(flag);
+        lenient().when(userService.findById(VISITOR_ID)).thenReturn(Mono.just(stored));
+    }
+
+    /**
+     * Both organization reads, counted: {@code getById} answers the active fixture, {@code getByIdWithDeleted} answers
+     * {@code withDeletedAnswer}. A read made before the check then fails on an assertion, not on a NullPointerException.
+     */
+    private void stubOrganizationReads(Organization withDeletedAnswer) {
+        lenient().when(organizationService.getById(ORG_ID)).thenReturn(counting(ACTIVE_ORG));
+        lenient().when(organizationService.getByIdWithDeleted(ORG_ID)).thenReturn(counting(withDeletedAnswer));
+    }
+
+    private void assertNoOrganizationRead() {
+        assertThat(mutations).hasValue(0);
+        verify(organizationService, never()).getById(any());
+        verify(organizationService, never()).getByIdWithDeleted(any());
+    }
+
+    /**
+     * NEW-102: catches the organization read by a visitor who is not a member of it: a MEMBER, an ADMIN and a
+     * SUPER_ADMIN (organization roles) get the organization ({@code getById}, once; {@code getByIdWithDeleted} never),
+     * an outsider whose stored user has no {@code superAdmin} flag gets NOT_AUTHORIZED and neither read is called (so no
+     * Mono is built either) nor subscribed.
+     */
+    @ParameterizedTest(name = "role {0} -> admitted {1}")
+    @MethodSource("memberRoles")
+    void getOrganization_onlyMembersReadTheOrganizationNEW102(MemberRole role, boolean admitted) {
+        stubVisitorRole(ORG_ID, role);
+        stubVisitorSuperAdmin(null);
+        stubOrganizationReads(DELETED_ORG);
+
+        if (admitted) {
+            StepVerifier.create(service.getOrganization(ORG_ID, ACTIVE_ONLY)).expectNext(ACTIVE_ORG).verifyComplete();
+            assertThat(mutations).hasValue(1);
+            verify(organizationService, never()).getByIdWithDeleted(any());
+        } else {
+            StepVerifier.create(service.getOrganization(ORG_ID, ACTIVE_ONLY))
+                    .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")).verify();
+            assertNoOrganizationRead();
+        }
+        say("getOrganization: role %s, withDeleted %s -> admitted=%s, organization reads %d", role, ACTIVE_ONLY, admitted, mutations.get());
+    }
+
+    /**
+     * NEW-102: catches the member's read with {@code withDeleted} going wrong: a MEMBER, and a SUPER_ADMIN (the
+     * organization role whose membership the deletion cleanup keeps), get the deleted organization from
+     * {@code getByIdWithDeleted} (once; {@code getById} never) on the role alone (the stored user's flag is FALSE), and
+     * a member never has the stored user read ({@code userService.findById} never called).
+     */
+    @ParameterizedTest(name = "role {0}")
+    @EnumSource(value = MemberRole.class, names = {"MEMBER", "SUPER_ADMIN"})
+    void getOrganization_withDeletedReadsTheDeletedOrganizationForAMemberNEW102(MemberRole role) {
+        stubVisitorRole(ORG_ID, role);
+        stubVisitorSuperAdmin(Boolean.FALSE);
+        stubOrganizationReads(DELETED_ORG);
+
+        StepVerifier.create(service.getOrganization(ORG_ID, WITH_DELETED)).expectNext(DELETED_ORG).verifyComplete();
+
+        assertThat(mutations).hasValue(1);
+        verify(organizationService, never()).getById(any());
+        verify(userService, never()).findById(any());
+        say("getOrganization: role %s, withDeleted %s, flag FALSE -> the deleted organization, organization reads %d, user reads 0",
+                role, WITH_DELETED, mutations.get());
+    }
+
+    static Stream<Arguments> instanceSuperAdminReads() {
+        return Stream.of(
+                Arguments.of(Boolean.TRUE, WITH_DELETED, true, DELETED_ORG),
+                Arguments.of(Boolean.TRUE, WITH_DELETED, true, ACTIVE_ORG),
+                Arguments.of(Boolean.TRUE, ACTIVE_ONLY, false, DELETED_ORG),
+                Arguments.of(Boolean.FALSE, WITH_DELETED, false, DELETED_ORG),
+                Arguments.of((Boolean) null, WITH_DELETED, false, DELETED_ORG));
+    }
+
+    /**
+     * NEW-102: catches the instance super admin's exception going wrong. The visitor is not a member. Only the stored
+     * user's TRUE {@code superAdmin} flag admits, and only with {@code withDeleted}, for a deleted organization and for
+     * an active one ({@code getByIdWithDeleted} answers that active organization in the active row); without
+     * {@code withDeleted}, with FALSE and with a null flag the answer is NOT_AUTHORIZED and neither read is called.
+     */
+    @ParameterizedTest(name = "flag {0}, withDeleted {1} -> admitted {2}, answer {3}")
+    @MethodSource("instanceSuperAdminReads")
+    void getOrganization_theInstanceSuperAdminReadsOnlyWithDeletedNEW102(Boolean flag, boolean withDeleted, boolean admitted,
+            Organization withDeletedAnswer) {
+        stubVisitorRole(ORG_ID, null);
+        stubVisitorSuperAdmin(flag);
+        stubOrganizationReads(withDeletedAnswer);
+
+        if (admitted) {
+            StepVerifier.create(service.getOrganization(ORG_ID, withDeleted)).expectNext(withDeletedAnswer).verifyComplete();
+            assertThat(mutations).hasValue(1);
+            verify(organizationService, never()).getById(any());
+        } else {
+            StepVerifier.create(service.getOrganization(ORG_ID, withDeleted))
+                    .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")).verify();
+            assertNoOrganizationRead();
+        }
+        say("getOrganization: non-member, flag %s, withDeleted %s -> admitted=%s, organization reads %d", flag, withDeleted, admitted, mutations.get());
     }
 
     enum AdminOperation {
@@ -431,6 +612,7 @@ class OrgApiServiceImplTest {
     @MethodSource("adminOperations")
     void adminOperation_requiresAnAdminOfTheOrganization(AdminOperation operation, MemberRole role, boolean allowed) {
         stubVisitorRole(ORG_ID, role);
+        stubTargetRole(TARGET_ID, MemberRole.MEMBER);
         stubWorkspace(WorkspaceMode.SAAS, null);
         Part part = mock(Part.class);
         lenient().when(orgMemberService.updateMemberRole(ORG_ID, TARGET_ID, MemberRole.MEMBER)).thenReturn(counting(true));
@@ -467,26 +649,28 @@ class OrgApiServiceImplTest {
     }
 
     /**
-     * Catches the developer quota bypass: for the role "admin" the dev group is looked up and
-     * {@code checkMaxDeveloperCount(orgId, devGroupId, userId)} completes before {@code updateMemberRole}; a quota
+     * Catches the developer quota bypass: for the role "admin" the target's role is read, then the dev group is looked
+     * up and {@code checkMaxDeveloperCount(orgId, devGroupId, userId)} completes before {@code updateMemberRole}; a quota
      * error stops the update; an org without a dev group goes straight to the update.
      */
     @Test
     void updateRoleForMember_roleAdmin_checksTheDeveloperQuotaBeforeUpdating() {
         stubVisitorRole(ORG_ID, MemberRole.ADMIN);
+        stubTargetRole(TARGET_ID, MemberRole.MEMBER);
         when(groupService.getDevGroup(ORG_ID)).thenReturn(Mono.just(Group.builder().id(DEV_GROUP_ID).build()));
         when(bizThresholdChecker.checkMaxDeveloperCount(ORG_ID, DEV_GROUP_ID, TARGET_ID)).thenReturn(loggedVoid("quota", null));
         when(orgMemberService.updateMemberRole(ORG_ID, TARGET_ID, MemberRole.ADMIN)).thenReturn(logged("update", true));
 
         StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(TARGET_ID, "admin"))).expectNext(true).verifyComplete();
 
-        assertThat(events).containsExactly("quota", "update");
+        assertThat(events).containsExactly("target read", "quota", "update");
         say("updateRoleForMember role admin: %s", events);
     }
 
     @Test
     void updateRoleForMember_roleAdmin_quotaExceeded_updatesNothing() {
         stubVisitorRole(ORG_ID, MemberRole.ADMIN);
+        stubTargetRole(TARGET_ID, MemberRole.MEMBER);
         when(groupService.getDevGroup(ORG_ID)).thenReturn(Mono.just(Group.builder().id(DEV_GROUP_ID).build()));
         when(bizThresholdChecker.checkMaxDeveloperCount(ORG_ID, DEV_GROUP_ID, TARGET_ID))
                 .thenReturn(loggedVoid("quota", new BizException(BizError.EXCEED_MAX_DEVELOPER_COUNT, "EXCEED_MAX_DEVELOPER_COUNT")));
@@ -495,19 +679,20 @@ class OrgApiServiceImplTest {
         StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(TARGET_ID, "admin")))
                 .expectErrorSatisfies(error -> assertBizError(error, BizError.EXCEED_MAX_DEVELOPER_COUNT, "EXCEED_MAX_DEVELOPER_COUNT"))
                 .verify();
-        assertThat(events).containsExactly("quota");
+        assertThat(events).containsExactly("target read", "quota");
         say("updateRoleForMember role admin over quota -> EXCEED_MAX_DEVELOPER_COUNT, role not updated");
     }
 
     @Test
     void updateRoleForMember_roleAdmin_orgWithoutDevGroup_updatesWithoutQuotaCall() {
         stubVisitorRole(ORG_ID, MemberRole.ADMIN);
+        stubTargetRole(TARGET_ID, MemberRole.MEMBER);
         when(groupService.getDevGroup(ORG_ID)).thenReturn(Mono.empty());
         when(orgMemberService.updateMemberRole(ORG_ID, TARGET_ID, MemberRole.ADMIN)).thenReturn(logged("update", true));
 
         StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(TARGET_ID, "admin"))).expectNext(true).verifyComplete();
 
-        assertThat(events).containsExactly("update");
+        assertThat(events).containsExactly("target read", "update");
         verifyNoInteractions(bizThresholdChecker);
         say("updateRoleForMember role admin, no dev group: %s", events);
     }
@@ -520,49 +705,119 @@ class OrgApiServiceImplTest {
     @ValueSource(strings = {"member", "no-such-role"})
     void updateRoleForMember_otherRoleNames_updateAsMemberWithoutAQuotaCheck(String roleName) {
         stubVisitorRole(ORG_ID, MemberRole.ADMIN);
+        stubTargetRole(TARGET_ID, MemberRole.MEMBER);
         when(orgMemberService.updateMemberRole(ORG_ID, TARGET_ID, MemberRole.MEMBER)).thenReturn(logged("update", true));
 
         StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(TARGET_ID, roleName))).expectNext(true).verifyComplete();
 
-        assertThat(events).containsExactly("update");
+        assertThat(events).containsExactly("target read", "update");
         verifyNoInteractions(groupService, bizThresholdChecker);
         say("updateRoleForMember role [%s] -> MEMBER, no quota check", roleName);
     }
 
-    /**
-     * Pins the plan section 9 row "updateRoleForMember ... an org ADMIN can make any member, themselves included,
-     * super_admin ... skips the quota" (privilege escalation): an ADMIN visitor writes the role "super_admin" for
-     * another member and for themselves, the update is subscribed, and neither the dev group nor the developer quota
-     * is consulted. A fix changes this test on purpose.
-     */
-    @ParameterizedTest(name = "target {0}")
-    @ValueSource(strings = {TARGET_ID, VISITOR_ID})
-    void updateRoleForMember_adminMakesAnyoneSuperAdmin_skippingTheQuota_pinsSection9Row(String targetId) {
-        stubVisitorRole(ORG_ID, MemberRole.ADMIN);
-        when(orgMemberService.updateMemberRole(ORG_ID, targetId, MemberRole.SUPER_ADMIN)).thenReturn(logged("update", true));
-
-        StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(targetId, "super_admin"))).expectNext(true).verifyComplete();
-
-        assertThat(events).containsExactly("update");
-        verifyNoInteractions(groupService, bizThresholdChecker);
-        say("updateRoleForMember: ADMIN made %s super_admin, no quota (section 9 row pinned)", targetId);
+    static Stream<Arguments> superAdminRoleRequests() {
+        List<Arguments> args = new ArrayList<>();
+        for (MemberRole visitorRole : List.of(MemberRole.ADMIN, MemberRole.SUPER_ADMIN)) {
+            for (String targetId : List.of(TARGET_ID, VISITOR_ID)) {
+                args.add(Arguments.of(visitorRole, targetId));
+            }
+        }
+        return args.stream();
     }
 
     /**
-     * Pins the same plan section 9 row (the gate looks at the visitor's role only, never at the target's): an ADMIN
-     * demotes a SUPER_ADMIN to MEMBER and the update is subscribed, with the target's membership never read. A fix
-     * changes this test on purpose.
+     * Catches a privilege escalation (BF-005, formerly pinned as "updateRoleForMember ... an org ADMIN can make any
+     * member, themselves included, super_admin ... skips the quota"): the role "super_admin" is refused with
+     * UNSUPPORTED_OPERATION for an ADMIN and for a SUPER_ADMIN visitor, for another member and for themselves, before
+     * the target is read, the quota is looked at or the role is written.
+     */
+    @ParameterizedTest(name = "visitor {0}, target {1}")
+    @MethodSource("superAdminRoleRequests")
+    void updateRoleForMember_superAdminRole_isRefusedForEveryVisitorAndTarget(MemberRole visitorRole, String targetId) {
+        stubVisitorRole(ORG_ID, visitorRole);
+        lenient().when(orgMemberService.updateMemberRole(ORG_ID, targetId, MemberRole.SUPER_ADMIN)).thenReturn(logged("update", true));
+
+        StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(targetId, MemberRole.SUPER_ADMIN.getValue())))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"))
+                .verify();
+
+        assertThat(events).isEmpty();
+        verifyNoInteractions(groupService, bizThresholdChecker);
+        say("updateRoleForMember: %s asked super_admin for %s -> UNSUPPORTED_OPERATION, nothing written", visitorRole, targetId);
+    }
+
+    static Stream<Arguments> superAdminTargetRequests() {
+        List<Arguments> args = new ArrayList<>();
+        for (MemberRole visitorRole : List.of(MemberRole.ADMIN, MemberRole.SUPER_ADMIN)) {
+            for (MemberRole requested : List.of(MemberRole.MEMBER, MemberRole.ADMIN)) {
+                args.add(Arguments.of(visitorRole, requested));
+            }
+        }
+        return args.stream();
+    }
+
+    /**
+     * Catches the demotion of a super admin (BF-005, formerly pinned as the gate looking at the visitor's role only):
+     * changing the role of a SUPER_ADMIN member is refused with UNSUPPORTED_OPERATION for an ADMIN and for a
+     * SUPER_ADMIN visitor, whichever role is asked; the target is read, the dev group and the quota are not subscribed
+     * (the quota check is assembled eagerly for the role "admin"), nothing is written.
+     */
+    @ParameterizedTest(name = "visitor {0}, requested {1}")
+    @MethodSource("superAdminTargetRequests")
+    void updateRoleForMember_targetIsSuperAdmin_isRefusedForEveryVisitor(MemberRole visitorRole, MemberRole requested) {
+        stubVisitorRole(ORG_ID, visitorRole);
+        stubTargetRole(SUPER_ADMIN_ID, MemberRole.SUPER_ADMIN);
+        lenient().when(groupService.getDevGroup(ORG_ID)).thenReturn(logged("dev group", Group.builder().id(DEV_GROUP_ID).build()));
+        lenient().when(bizThresholdChecker.checkMaxDeveloperCount(ORG_ID, DEV_GROUP_ID, SUPER_ADMIN_ID))
+                .thenReturn(loggedVoid("quota", null));
+        lenient().when(orgMemberService.updateMemberRole(ORG_ID, SUPER_ADMIN_ID, requested)).thenReturn(logged("update", true));
+
+        StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(SUPER_ADMIN_ID, requested.getValue())))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"))
+                .verify();
+
+        assertThat(events).containsExactly("target read");
+        say("updateRoleForMember: %s asked %s for the super admin -> UNSUPPORTED_OPERATION, nothing written", visitorRole,
+                requested);
+    }
+
+    /**
+     * Catches the target being read for a visitor who may not change roles: a visitor who is a MEMBER or not in the
+     * organization gets NOT_AUTHORIZED, even for the role "super_admin", and the target is never read.
+     */
+    @ParameterizedTest(name = "visitor {0}")
+    @NullSource
+    @EnumSource(value = MemberRole.class, names = "MEMBER")
+    void updateRoleForMember_visitorNotAnAdmin_isRefusedBeforeTheTargetIsRead(MemberRole visitorRole) {
+        stubVisitorRole(ORG_ID, visitorRole);
+        stubTargetRole(SUPER_ADMIN_ID, MemberRole.SUPER_ADMIN);
+        lenient().when(orgMemberService.updateMemberRole(ORG_ID, SUPER_ADMIN_ID, MemberRole.SUPER_ADMIN))
+                .thenReturn(logged("update", true));
+
+        StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(SUPER_ADMIN_ID, MemberRole.SUPER_ADMIN.getValue())))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                .verify();
+
+        assertThat(events).isEmpty();
+        say("updateRoleForMember: visitor %s -> NOT_AUTHORIZED, target not read", visitorRole);
+    }
+
+    /**
+     * Catches a refusal for a target who is not a member (the documented limit): the check finds no membership, so the
+     * update runs and its answer is returned. The real update answers false here, it changes nothing (BF-130, tested in
+     * OrgMemberServiceImplMongoTest), so the stub answers false.
      */
     @Test
-    void updateRoleForMember_adminDemotesASuperAdmin_pinsSection9Row() {
+    void updateRoleForMember_targetNotAMember_updateRunsAndItsAnswerIsReturned() {
         stubVisitorRole(ORG_ID, MemberRole.ADMIN);
-        when(orgMemberService.updateMemberRole(ORG_ID, SUPER_ADMIN_ID, MemberRole.MEMBER)).thenReturn(logged("update", true));
+        stubTargetRole(TARGET_ID, null);
+        when(orgMemberService.updateMemberRole(ORG_ID, TARGET_ID, MemberRole.MEMBER)).thenReturn(logged("update", false));
 
-        StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(SUPER_ADMIN_ID, "member"))).expectNext(true).verifyComplete();
+        StepVerifier.create(service.updateRoleForMember(ORG_ID, roleRequest(TARGET_ID, MemberRole.MEMBER.getValue())))
+                .expectNext(false).verifyComplete();
 
-        assertThat(events).containsExactly("update");
-        verify(orgMemberService, never()).getOrgMember(ORG_ID, SUPER_ADMIN_ID);
-        say("updateRoleForMember: ADMIN demoted the super admin, target role never read (section 9 row pinned)");
+        assertThat(events).containsExactly("target read", "update");
+        say("updateRoleForMember: target not a member -> %s", events);
     }
 
     // ------------------------------------------------------------------ switchCurrentOrganizationTo
@@ -659,7 +914,7 @@ class OrgApiServiceImplTest {
     @ParameterizedTest(name = "{0}: leaves {2}")
     @MethodSource("leaveCases")
     void leaveOrganization_theOnlyAdminCannotLeave(String label, List<String> adminIds, boolean leaves) {
-        stubVisitor();
+        stubVisitorRole(ORG_ID, MemberRole.ADMIN);
         when(orgMemberService.getAllOrgAdmins(ORG_ID)).thenReturn(Mono.just(adminIds.stream().map(OrgApiServiceImplTest::admin).toList()));
         lenient().when(orgMemberService.removeMember(ORG_ID, VISITOR_ID)).thenReturn(counting(true));
 
@@ -682,7 +937,7 @@ class OrgApiServiceImplTest {
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     void leaveOrganization_publishesTheLeaveEventOnlyWhenTheMemberWasRemoved(boolean removed) {
-        stubVisitor();
+        stubVisitorRole(ORG_ID, MemberRole.MEMBER);
         when(orgMemberService.getAllOrgAdmins(ORG_ID)).thenReturn(Mono.just(List.of(admin("other-admin"))));
         when(orgMemberService.removeMember(ORG_ID, VISITOR_ID)).thenReturn(Mono.just(removed));
 
@@ -690,6 +945,22 @@ class OrgApiServiceImplTest {
 
         assertEventPublished(removed, ORG_ID, VISITOR_ID);
         say("leaveOrganization: removal=%s -> event published=%s", removed, removed);
+    }
+
+    /**
+     * L1, NEW-132: a visitor who is not a member is NOT_AUTHORIZED before anything is read or removed (it was a 200 with
+     * {@code false}).
+     */
+    @Test
+    void leaveOrganization_aNonMemberIsRefusedNEW132() {
+        stubVisitorRole(ORG_ID, null);
+
+        StepVerifier.create(service.leaveOrganization(ORG_ID))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")).verify();
+
+        verify(orgMemberService, never()).getAllOrgAdmins(ORG_ID);
+        verify(orgMemberService, never()).removeMember(ORG_ID, VISITOR_ID);
+        say("leaveOrganization: a non-member is refused, nothing read or removed");
     }
 
     private void assertEventPublished(boolean published, String orgId, String userId) {
@@ -714,35 +985,58 @@ class OrgApiServiceImplTest {
     @ValueSource(booleans = {true, false})
     void removeUserFromOrg_publishesTheLeaveEventOnlyWhenRemoved_andAlwaysMarksTheUser(boolean removed) {
         stubVisitorRole(ORG_ID, MemberRole.ADMIN);
+        stubTargetRole(TARGET_ID, MemberRole.MEMBER);
         when(orgMemberService.removeMember(ORG_ID, TARGET_ID)).thenReturn(Mono.just(removed));
         when(userService.markUserDeletedAndInvalidConnectionsAtEnterpriseMode(TARGET_ID)).thenReturn(logged("mark", true));
 
         StepVerifier.create(service.removeUserFromOrg(ORG_ID, TARGET_ID)).expectNext(removed).verifyComplete();
 
         assertEventPublished(removed, ORG_ID, TARGET_ID);
-        assertThat(events).containsExactly("mark");
+        assertThat(events).containsExactly("target read", "mark");
         say("removeUserFromOrg: removal=%s -> event %s, user marked", removed, removed);
     }
 
+    static Stream<Arguments> removalCases() {
+        return Stream.of(
+                Arguments.of("a SUPER_ADMIN", MemberRole.ADMIN, SUPER_ADMIN_ID, MemberRole.SUPER_ADMIN, List.of(VISITOR_ID), BizError.UNSUPPORTED_OPERATION),
+                Arguments.of("the visitor, the only ADMIN", MemberRole.ADMIN, VISITOR_ID, MemberRole.ADMIN, List.of(VISITOR_ID), BizError.LAST_ADMIN_CANNOT_LEAVE_ORG),
+                Arguments.of("the only ADMIN, by a SUPER_ADMIN", MemberRole.SUPER_ADMIN, TARGET_ID, MemberRole.ADMIN, List.of(TARGET_ID), BizError.LAST_ADMIN_CANNOT_LEAVE_ORG),
+                Arguments.of("an ADMIN with another ADMIN left", MemberRole.ADMIN, TARGET_ID, MemberRole.ADMIN, List.of(VISITOR_ID, TARGET_ID), null),
+                Arguments.of("the visitor, with another ADMIN left", MemberRole.ADMIN, VISITOR_ID, MemberRole.ADMIN, List.of(VISITOR_ID, TARGET_ID), null),
+                Arguments.of("a MEMBER", MemberRole.ADMIN, TARGET_ID, MemberRole.MEMBER, List.of(VISITOR_ID), null),
+                Arguments.of("a user who is not a member", MemberRole.ADMIN, TARGET_ID, null, List.of(VISITOR_ID), null));
+    }
+
     /**
-     * Pins the plan section 9 row "removeUserFromOrg has no last-admin or super-admin guard": an ADMIN visitor removes
-     * the only other admin and a SUPER_ADMIN, the removal is subscribed each time, and no admin or membership lookup
-     * is made for the target (compare {@code leaveOrganization}, which refuses the last admin). A fix changes this
-     * test on purpose.
+     * BF-072 (fixed; was pinned as the plan section 9 row "removeUserFromOrg has no last-admin or super-admin guard"):
+     * a SUPER_ADMIN is not removed (UNSUPPORTED_OPERATION, as for a change of that role), and neither is the last ADMIN
+     * (LAST_ADMIN_CANNOT_LEAVE_ORG, the rule of leaveOrganization), whether the visitor removes themselves or a SUPER_ADMIN
+     * removes them; a refused removal subscribes neither the removal nor the user marking. The admins are read only for an
+     * ADMIN target.
      */
-    @ParameterizedTest(name = "target {0}")
-    @ValueSource(strings = {"only-other-admin", SUPER_ADMIN_ID})
-    void removeUserFromOrg_adminRemovesTheOnlyOtherAdminOrASuperAdmin_pinsSection9Row(String targetId) {
-        stubVisitorRole(ORG_ID, MemberRole.ADMIN);
-        when(orgMemberService.removeMember(ORG_ID, targetId)).thenReturn(counting(true));
-        when(userService.markUserDeletedAndInvalidConnectionsAtEnterpriseMode(targetId)).thenReturn(Mono.just(true));
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("removalCases")
+    void removeUserFromOrg_refusesASuperAdminAndTheLastAdmin(String label, MemberRole visitorRole, String targetId, MemberRole targetRole,
+            List<String> adminIds, BizError refusal) {
+        stubVisitorRole(ORG_ID, visitorRole);
+        stubTargetRole(targetId, targetRole);
+        lenient().when(orgMemberService.getAllOrgAdmins(ORG_ID)).thenReturn(Mono.just(adminIds.stream().map(OrgApiServiceImplTest::admin).toList()));
+        lenient().when(orgMemberService.removeMember(ORG_ID, targetId)).thenReturn(counting(true));
+        lenient().when(userService.markUserDeletedAndInvalidConnectionsAtEnterpriseMode(targetId)).thenReturn(counting(true));
 
-        StepVerifier.create(service.removeUserFromOrg(ORG_ID, targetId)).expectNext(true).verifyComplete();
-
-        assertThat(mutations).hasValue(1);
-        verify(orgMemberService, never()).getAllOrgAdmins(any());
-        verify(orgMemberService, never()).getOrgMember(ORG_ID, targetId);
-        say("removeUserFromOrg: ADMIN removed %s without any guard (section 9 row pinned)", targetId);
+        if (refusal == null) {
+            StepVerifier.create(service.removeUserFromOrg(ORG_ID, targetId)).expectNext(true).verifyComplete();
+            assertThat(mutations).hasValue(2);
+        } else {
+            String messageKey = refusal == BizError.UNSUPPORTED_OPERATION ? "BAD_REQUEST" : refusal.name();
+            StepVerifier.create(service.removeUserFromOrg(ORG_ID, targetId))
+                    .expectErrorSatisfies(error -> assertBizError(error, refusal, messageKey)).verify();
+            assertThat(mutations).hasValue(0);
+        }
+        verify(orgMemberService, targetRole == MemberRole.ADMIN ? times(1) : never()).getAllOrgAdmins(ORG_ID);
+        // the visitor's own membership is the same stub when the visitor is the target, read once by the admin check too
+        assertThat(events).containsOnly("target read").hasSize(targetId.equals(VISITOR_ID) ? 2 : 1);
+        say("removeUserFromOrg: %s as %s -> %s, service subscriptions %d", label, visitorRole, refusal == null ? "removed" : refusal, mutations.get());
     }
 
     // ------------------------------------------------------------------ removeOrg, create, update
@@ -803,7 +1097,7 @@ class OrgApiServiceImplTest {
         Organization requested = new Organization();
         when(bizThresholdChecker.checkMaxOrgCount(VISITOR_ID)).thenReturn(loggedVoid("quota",
                 quotaFails ? new BizException(BizError.EXCEED_MAX_USER_ORG_COUNT, "EXCEED_MAX_USER_ORG_COUNT") : null));
-        lenient().when(organizationService.create(requested, VISITOR_ID, false)).thenReturn(logged("create", created()));
+        lenient().when(organizationService.create(any(Organization.class), eq(VISITOR_ID), eq(false))).thenReturn(logged("create", created()));
 
         Mono<?> result = service.create(requested);
 
@@ -828,6 +1122,157 @@ class OrgApiServiceImplTest {
                 Arguments.of("SaaS, quota ok", WorkspaceMode.SAAS, false, List.of("quota", "create")),
                 Arguments.of("enterprise mode", WorkspaceMode.ENTERPRISE, false, List.of("quota")),
                 Arguments.of("quota exceeded", WorkspaceMode.SAAS, true, List.of("quota")));
+    }
+
+    private static final String CLIENT_GID = "client-chosen-gid";
+    private static final String CLIENT_SLUG = "client-chosen-slug";
+    private static final String CLIENT_DOMAIN = "client-chosen.example.com";
+    private static final String CLIENT_SOURCE = "client-source";
+    private static final String CLIENT_COMPANY_ID = "client-company";
+    private static final String CLIENT_CREATED_BY = "client-created-by";
+    private static final String CLIENT_ID = "client-chosen-id";
+    private static final String CLIENT_NAME = "Client Name";
+    private static final String CLIENT_CONTACT_NAME = "Client Contact";
+    private static final String CLIENT_CONTACT_EMAIL = "contact@example.com";
+    private static final String CLIENT_CONTACT_PHONE = "+421000000";
+    private static final String CLIENT_SETTING_KEY = "clientSetting";
+    private static final int UUID_VERSION_7 = 7;
+
+    /** Stubs a successful SaaS creation and returns the captor of the Organization handed to the service. */
+    private ArgumentCaptor<Organization> stubCreateAndCapture() {
+        stubVisitor();
+        stubWorkspace(WorkspaceMode.SAAS, null);
+        when(bizThresholdChecker.checkMaxOrgCount(VISITOR_ID)).thenReturn(Mono.empty());
+        ArgumentCaptor<Organization> captured = ArgumentCaptor.forClass(Organization.class);
+        when(organizationService.create(captured.capture(), eq(VISITOR_ID), eq(false))).thenReturn(Mono.just(created()));
+        return captured;
+    }
+
+    private static Organization requestWithEveryFieldSet() {
+        Organization request = new Organization();
+        request.setId(CLIENT_ID);
+        request.setGid(CLIENT_GID);
+        request.setSlug(CLIENT_SLUG);
+        request.setName(CLIENT_NAME);
+        request.setContactName(CLIENT_CONTACT_NAME);
+        request.setContactEmail(CLIENT_CONTACT_EMAIL);
+        request.setContactPhoneNumber(CLIENT_CONTACT_PHONE);
+        request.setIsAutoGeneratedOrganization(true);
+        request.setIsEmailDisabled(true);
+        request.setSource(CLIENT_SOURCE);
+        request.setThirdPartyCompanyId(CLIENT_COMPANY_ID);
+        request.setState(OrganizationState.DELETED);
+        request.setCreatedBy(CLIENT_CREATED_BY);
+        OrganizationCommonSettings settings = new OrganizationCommonSettings();
+        settings.put(CLIENT_SETTING_KEY, true);
+        request.setCommonSettings(settings);
+        OrganizationDomain domain = new OrganizationDomain();
+        domain.setDomain(CLIENT_DOMAIN);
+        domain.setConfigs(List.of(new org.lowcoder.sdk.auth.EmailAuthConfig("client-config", true, true)));
+        request.setOrganizationDomain(domain);
+        return request;
+    }
+
+    private static final int NOT_A_UUID = -1;
+
+    /** The UUID version of {@code gid}, or {@code NOT_A_UUID}, so that a malformed gid fails an assertion, not the run. */
+    private static int uuidVersionOf(String gid) {
+        try {
+            return java.util.UUID.fromString(gid).version();
+        } catch (IllegalArgumentException notAUuid) {
+            return NOT_A_UUID;
+        }
+    }
+
+    /**
+     * Catches a creation that saves the client's own fields (NEW-103, NEW-88): the Organization handed to
+     * {@code organizationService.create} carries the request's name and three contact fields and a server gid
+     * (a version 7 UUID), and nothing else of the request.
+     */
+    @Test
+    void createHandsTheServiceOnlyTheNameAndTheContactFieldsNEW103() {
+        ArgumentCaptor<Organization> captured = stubCreateAndCapture();
+        Organization request = requestWithEveryFieldSet();
+        say("C1 request: %s", request);
+
+        StepVerifier.create(service.create(request)).expectNextCount(1).verifyComplete();
+
+        Organization handed = captured.getValue();
+        say("C1 handed to the service: %s", handed);
+        org.assertj.core.api.SoftAssertions soft = new org.assertj.core.api.SoftAssertions();
+        soft.assertThat(handed.getName()).as("name").isEqualTo(CLIENT_NAME);
+        soft.assertThat(handed.getContactName()).as("contactName").isEqualTo(CLIENT_CONTACT_NAME);
+        soft.assertThat(handed.getContactEmail()).as("contactEmail").isEqualTo(CLIENT_CONTACT_EMAIL);
+        soft.assertThat(handed.getContactPhoneNumber()).as("contactPhoneNumber").isEqualTo(CLIENT_CONTACT_PHONE);
+        soft.assertThat(handed.getId()).as("id").isNull();
+        soft.assertThat(handed.getSlug()).as("slug").isNull();
+        soft.assertThat(handed.getOrganizationDomain()).as("organizationDomain").isNull();
+        soft.assertThat(handed.getSource()).as("source").isNull();
+        soft.assertThat(handed.getThirdPartyCompanyId()).as("thirdPartyCompanyId").isNull();
+        soft.assertThat(handed.getIsAutoGeneratedOrganization()).as("isAutoGeneratedOrganization").isNull();
+        soft.assertThat(handed.getIsEmailDisabled()).as("isEmailDisabled").isFalse();
+        soft.assertThat(handed.getCreatedBy()).as("createdBy").isNull();
+        soft.assertThat(handed.getState()).as("state").isNull();
+        soft.assertThat(handed.getCommonSettings()).as("commonSettings").isEmpty();
+        soft.assertThat(handed.getGid()).as("gid").isNotNull().isNotEqualTo(CLIENT_GID);
+        if (handed.getGid() != null && !CLIENT_GID.equals(handed.getGid())) {
+            soft.assertThat(uuidVersionOf(handed.getGid())).as("gid UUID version").isEqualTo(UUID_VERSION_7);
+        }
+        soft.assertAll();
+    }
+
+    /** Catches a missing server gid: a request with only a name gets a version 7 UUID (the controller no longer sets one). */
+    @Test
+    void createSetsAServerGidWhenTheRequestHasNoneNEW103() {
+        ArgumentCaptor<Organization> captured = stubCreateAndCapture();
+        Organization request = new Organization();
+        request.setName(CLIENT_NAME);
+
+        StepVerifier.create(service.create(request)).expectNextCount(1).verifyComplete();
+
+        String gid = captured.getValue().getGid();
+        say("C2 gid handed to the service: %s", gid);
+        assertThat(gid).as("gid").isNotNull();
+        assertThat(uuidVersionOf(gid)).as("gid UUID version").isEqualTo(UUID_VERSION_7);
+    }
+
+    /** Catches a constant gid: two creations get two different gids. */
+    @Test
+    void twoCreationsGetDifferentGidsNEW103() {
+        ArgumentCaptor<Organization> captured = stubCreateAndCapture();
+        Organization request = new Organization();
+        request.setName(CLIENT_NAME);
+
+        StepVerifier.create(service.create(request)).expectNextCount(1).verifyComplete();
+        StepVerifier.create(service.create(request)).expectNextCount(1).verifyComplete();
+
+        List<String> gids = captured.getAllValues().stream().map(Organization::getGid).toList();
+        say("C3 gids handed to the service: %s", gids);
+        assertThat(gids).as("two gids").hasSize(2).doesNotContainNull();
+        assertThat(gids.get(0)).as("the second gid differs").isNotEqualTo(gids.get(1));
+    }
+
+    /** Catches a synchronous failure on a null request: it is handed on as null, so the service's own error answers. */
+    @Test
+    void createHandsANullRequestOnAsNullNEW103() {
+        stubVisitor();
+        stubWorkspace(WorkspaceMode.SAAS, null);
+        when(bizThresholdChecker.checkMaxOrgCount(VISITOR_ID)).thenReturn(Mono.empty());
+        BizException invalid = new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", "organization");
+        when(organizationService.create(eq(null), eq(VISITOR_ID), eq(false))).thenReturn(Mono.error(invalid));
+
+        Mono<?> result = null;
+        Throwable thrown = null;
+        try {
+            result = service.create(null);
+        } catch (RuntimeException failure) {
+            thrown = failure;
+        }
+
+        say("C4 null request -> thrown %s, service answers %s", thrown, invalid.getError());
+        assertThat(thrown).as("create(null) fails synchronously").isNull();
+        StepVerifier.create(result).expectErrorSatisfies(error ->
+                assertThat(error).isSameAs(invalid)).verify();
     }
 
     /**

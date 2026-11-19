@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.plugin.sql.GeneralSqlExecutor;
 import org.lowcoder.plugin.sql.SqlBasedQueryExecutor;
+import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.DatasourceStructure;
 import org.lowcoder.sdk.models.DatasourceStructure.Column;
 import org.lowcoder.sdk.models.DatasourceStructure.Table;
@@ -17,14 +18,15 @@ import org.lowcoder.sdk.util.ExceptionUtils;
 import org.pf4j.Extension;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_GET_STRUCTURE_ERROR;
+import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
 
 @SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
 @Slf4j
@@ -35,6 +37,17 @@ public class SnowflakeQueryExecutor extends SqlBasedQueryExecutor {
         super(new GeneralSqlExecutor(false));
     }
 
+    /** The message key of a GUI command type the executor does not support, shared with the other SQL executors. */
+    private static final String INVALID_GUI_COMMAND_TYPE = "INVALID_GUI_COMMAND_TYPE";
+
+    /** The data source ext param that limits the structure to one schema; blank or absent lists every schema. */
+    static final String SCHEMA_EXT_PARAM = "schema";
+
+    /**
+     * The structure query for one schema. The schema is a bind parameter (BF-069): it was replaced into the quoted literal,
+     * so a quote in the value changed the statement. Escaping the quote would not have been enough, because Snowflake also
+     * reads a backslash in a single-quoted literal as an escape.
+     */
     @SuppressWarnings("SqlDialectInspection")
     public static final String COLUMNS_QUERY = """
             SELECT
@@ -43,7 +56,7 @@ public class SnowflakeQueryExecutor extends SqlBasedQueryExecutor {
                column_name as "column_name",
                data_type as "column_type"
                FROM INFORMATION_SCHEMA.COLUMNS
-               where table_schema = '#SCHEMA'
+               where table_schema = ?
                ORDER BY table_name, ordinal_position""";
 
     @SuppressWarnings("SqlDialectInspection")
@@ -58,7 +71,8 @@ public class SnowflakeQueryExecutor extends SqlBasedQueryExecutor {
              """;
 
     /**
-     * Snowflake does not support preparedStatement
+     * The user's query always runs as a plain statement, with its values rendered into the SQL, whatever the query config
+     * says. The structure query ({@link #getDatabaseMetadata}) is separate: it binds its schema filter.
      */
     @Override
     public SqlBasedQueryExecutionContext buildQueryExecutionContext(SqlBasedDatasourceConnectionConfig datasourceConfig,
@@ -74,8 +88,20 @@ public class SnowflakeQueryExecutor extends SqlBasedQueryExecutor {
     protected DatasourceStructure getDatabaseMetadata(Connection connection, SqlBasedDatasourceConnectionConfig connectionConfig) {
         Map<String, Table> tablesByName = new LinkedHashMap<>();
 
-        try (Statement statement = connection.createStatement();
-                ResultSet resultSet = statement.executeQuery(getTableSchemaQuery(connectionConfig))) {
+        String schema = getSchemaFilter(connectionConfig);
+        try (PreparedStatement statement = connection.prepareStatement(schema == null ? COLUMNS_QUERY_WITHOUT_SCHEMA : COLUMNS_QUERY)) {
+            if (schema != null) {
+                statement.setString(1, schema);
+            }
+            readStructure(statement, tablesByName);
+        } catch (SQLException throwable) {
+            throw ExceptionUtils.wrapException(DATASOURCE_GET_STRUCTURE_ERROR, "DATASOURCE_GET_STRUCTURE_ERROR", throwable);
+        }
+        return new DatasourceStructure(new ArrayList<>(tablesByName.values()));
+    }
+
+    private static void readStructure(PreparedStatement statement, Map<String, Table> tablesByName) throws SQLException {
+        try (ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
                 String tableName = resultSet.getString("table_name");
                 String schema = resultSet.getString("table_schema");
@@ -93,24 +119,34 @@ public class SnowflakeQueryExecutor extends SqlBasedQueryExecutor {
                         false
                 ));
             }
-        } catch (SQLException throwable) {
-            throw ExceptionUtils.wrapException(DATASOURCE_GET_STRUCTURE_ERROR, "DATASOURCE_GET_STRUCTURE_ERROR", throwable);
         }
-        return new DatasourceStructure(new ArrayList<>(tablesByName.values()));
     }
 
-    private static String getTableSchemaQuery(SqlBasedDatasourceConnectionConfig connectionConfig) {
-        Object schema = connectionConfig.getExtParams().get("schema");
-
+    /**
+     * The {@code schema} ext param, bound to {@link #COLUMNS_QUERY}, or null when it is absent or blank, for the query without
+     * the filter. The value is compared as it is, as before: it is not trimmed and its case is not changed.
+     * <p>
+     * Limits: the tests run the structure query on H2, not on a Snowflake server; that the Snowflake driver sends the value
+     * as a bind variable rests on its {@code PreparedStatement} implementation, which is not exercised here.
+     */
+    private static String getSchemaFilter(SqlBasedDatasourceConnectionConfig connectionConfig) {
+        Object schema = connectionConfig.getExtParams().get(SCHEMA_EXT_PARAM);
         if (schema != null && StringUtils.isNotBlank(String.valueOf(schema))) {
-            return COLUMNS_QUERY.replace("#SCHEMA", String.valueOf(schema));
+            return String.valueOf(schema);
         }
-        return COLUMNS_QUERY_WITHOUT_SCHEMA;
+        return null;
     }
 
+    /**
+     * Snowflake has no GUI commands, so every GUI type is refused as the other SQL executors refuse a type they do not know:
+     * QUERY_ARGUMENT_ERROR with INVALID_GUI_COMMAND_TYPE naming the type (BF-160: a bare {@code UnsupportedOperationException},
+     * which query execution reported as "Illegal query configuration: null.").
+     * <p>
+     * Limits: the client does not offer GUI mode for Snowflake, so only a query config written outside it reaches this.
+     */
     @Override
     protected GuiSqlCommand parseSqlCommand(String guiStatementType, Map<String, Object> detail) {
-        throw new UnsupportedOperationException();
+        throw new PluginException(QUERY_ARGUMENT_ERROR, INVALID_GUI_COMMAND_TYPE, guiStatementType);
     }
 
 }

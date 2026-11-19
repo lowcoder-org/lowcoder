@@ -1,6 +1,7 @@
 package org.lowcoder.sdk.plugin.sqlcommand.changeset;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.lowcoder.sdk.plugin.common.constant.Constants.CHANGE_SET_FORM_KEY;
 import static org.lowcoder.sdk.plugin.common.constant.Constants.COMP_KEY;
@@ -13,9 +14,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -27,6 +32,12 @@ import org.lowcoder.sdk.exception.PluginException;
  * message of {@link KeyValuePairChangeSet} is pinned by KeyValuePairChangeSetErrorMessageContractTest and not repeated.
  */
 class ChangeSetParseTest {
+
+    /** A default locale whose case mapping of {@code i} and {@code I} differs from {@code Locale.ROOT}'s (NEW-40). */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+    private static final String LOWER_CASE_KEY_VALUE_PAIRS = "key_value_pairs";
+    private static final String PAIR_COLUMN = "a";
+    private static final int PAIR_VALUE = 1;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -114,17 +125,16 @@ class ChangeSetParseTest {
     }
 
     /**
-     * Pins the plan section 9 row "ChangeSet.parseChangeSet: an object-type change set without data throws a
-     * NullPointerException instead of a PluginException" (D-6, fix deferred, source: lane L4, L4-3 plan). A fix
-     * changes this test on purpose.
+     * BF-094 (the plan section 9 row "ChangeSet.parseChangeSet: an object-type change set without data throws a
+     * NullPointerException instead of a PluginException", was pinned): an object change set without data is
+     * GUI_OPERATION_DATA_EMPTY.
      */
     @Test
-    void parseChangeSetObjectTypeWithoutDataThrowsNullPointerException() {
+    void parseChangeSetObjectTypeWithoutDataIsOperationDataEmptyBF094() {
         Map<String, Object> detail = new HashMap<>();
         detail.put(CHANGE_SET_FORM_KEY, changeSet("OBJECT", null));
 
-        assertThatThrownBy(() -> ChangeSet.parseChangeSet(detail)).isInstanceOf(NullPointerException.class);
-        System.out.println("[ChangeSetParseTest] object type without data -> NullPointerException (plan section 9 row, pinned)");
+        assertPluginError(() -> ChangeSet.parseChangeSet(detail), "GUI_OPERATION_DATA_EMPTY");
     }
 
     @Test
@@ -224,5 +234,30 @@ class ChangeSetParseTest {
         assertPluginError(() -> ChangeSetRows.fromJsonNode(json("{\"a\":1}")), "GUI_INVALID_JSON_ARRAY_FORMAT");
         assertPluginError(() -> ChangeSetRows.fromJsonNode(json("[1,2]")), "GUI_INVALID_JSON_MAP_TYPE");
         assertPluginError(() -> new ChangeSetRow(json("\"text\"")), "GUI_INVALID_JSON_MAP_TYPE");
+    }
+
+
+    /**
+     * NEW-40: a change-set type sent in lower case (this client's editor sends upper case; the parser upper-cases
+     * whatever it is given) is read under a Turkish default locale too. The case holds JUnit's {@code Resources.LOCALE}
+     * lock while it changes the default locale; the lock orders it only against tests that hold the same lock, and it
+     * restores the locale after its calls, which block, have completed.
+     */
+    @Test
+    @ResourceLock(Resources.LOCALE)
+    void parseChangeSetReadsALowerCaseTypeUnderATurkishDefaultLocaleNEW40() {
+        Map<String, Object> detail = new HashMap<>();
+        detail.put(CHANGE_SET_FORM_KEY, changeSet(LOWER_CASE_KEY_VALUE_PAIRS, List.of(pair(PAIR_COLUMN, PAIR_VALUE))));
+        Locale previous = Locale.getDefault();
+        Locale.setDefault(TURKISH);
+        try {
+            AtomicReference<ChangeSet> parsed = new AtomicReference<>();
+            assertThatCode(() -> parsed.set(ChangeSet.parseChangeSet(detail))).doesNotThrowAnyException();
+            ChangeSet changeSet = parsed.get();
+            System.out.println("[ChangeSetParseTest] " + LOWER_CASE_KEY_VALUE_PAIRS + " under " + Locale.getDefault() + " -> " + changeSet.getClass().getSimpleName());
+            assertThat(changeSet).isInstanceOf(KeyValuePairChangeSet.class);
+        } finally {
+            Locale.setDefault(previous);
+        }
     }
 }

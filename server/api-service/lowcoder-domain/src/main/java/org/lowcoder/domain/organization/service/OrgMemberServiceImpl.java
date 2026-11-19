@@ -34,6 +34,9 @@ import static org.lowcoder.infra.birelation.BiRelationBizType.ORG_MEMBER;
 @RequiredArgsConstructor
 public class OrgMemberServiceImpl implements OrgMemberService {
 
+    /** The org roles whose holders count as administrators in {@link #doesAtleastOneAdminExist()}. */
+    private static final List<MemberRole> ADMIN_ROLES = List.of(MemberRole.ADMIN, MemberRole.SUPER_ADMIN);
+
     private final BiRelationService biRelationService;
     private final GroupMemberService groupMemberService;
     private final GroupService groupService;
@@ -59,12 +62,12 @@ public class OrgMemberServiceImpl implements OrgMemberService {
     @Override
     public Flux<OrgMember> getAllActiveOrgs(String userId) {
         // get all.
-        Flux<OrgMember> orgMemberFlux = biRelationService.getByTargetId(ORG_MEMBER, userId)
-                .map(OrgMember::from)
+        Flux<OrgMember> orgMemberFlux = membershipsOf(userId)
+                // read once, for the active org ids and for the answer
                 .cache();
 
         // get all active org ids.
-        Mono<HashSet<String>> activeOrgIds = orgMemberFlux.map(OrgMember::getOrgId)
+        Mono<ActiveOrgIds> activeOrgIds = orgMemberFlux.map(OrgMember::getOrgId)
                 .collectList()
                 .flatMapMany(organizationService::getByIds)
                 .filter(organization -> organization.getState() != OrganizationState.DELETED)
@@ -77,23 +80,23 @@ public class OrgMemberServiceImpl implements OrgMemberService {
                         String enterpriseOrgId = workspace.getEnterpriseOrgId();
                         if (StringUtils.isNotBlank(enterpriseOrgId)) {
                             if (orgIds.contains(enterpriseOrgId)) {
-                                return Mono.just(List.of(enterpriseOrgId));
+                                return Mono.just(new ActiveOrgIds(List.of(enterpriseOrgId), false));
                             }
                             return addMember(enterpriseOrgId, userId, MemberRole.MEMBER)
-                                    .thenReturn(List.of(enterpriseOrgId));
+                                    .thenReturn(new ActiveOrgIds(List.of(enterpriseOrgId), true));
                         }
                         if (orgIds.size() > 1) {
-                            return Mono.just(orgIds.subList(0, 1));
+                            return Mono.just(new ActiveOrgIds(orgIds.subList(0, 1), false));
                         }
                     }
-                    return Mono.just(orgIds);
+                    return Mono.just(new ActiveOrgIds(orgIds, false));
                 })
-                .map(HashSet::new)
+                // BF-131: after an enrolment the answer reads the memberships again, as orgMemberFlux predates it
                 .cache();
 
         // filter by activeOrgIds.
-        return orgMemberFlux
-                .filterWhen(orgMember -> activeOrgIds.map(orgIds -> orgIds.contains(orgMember.getOrgId())));
+        return activeOrgIds.flatMapMany(active -> (active.enrolled() ? membershipsOf(userId) : orgMemberFlux)
+                .filter(orgMember -> active.orgIds().contains(orgMember.getOrgId())));
     }
 
     /**
@@ -111,11 +114,16 @@ public class OrgMemberServiceImpl implements OrgMemberService {
         return biRelationService.countBySourceId(ORG_MEMBER, orgId);
     }
 
+    /**
+     * Whether any organization has an administrator, a member with the ADMIN or the SUPER_ADMIN role (BF-013): the super
+     * admin a deployment configures is created as SUPER_ADMIN of its first organization, so it counts as that
+     * deployment's admin.
+     */
     @Override
     public Mono<Boolean> doesAtleastOneAdminExist() {
-        return biRelationService.countByRelation(ORG_MEMBER, MemberRole.ADMIN.getValue())
-                .single()
-                .map(count -> count != 0);
+        return Flux.fromIterable(ADMIN_ROLES)
+                .concatMap(role -> biRelationService.countByRelation(ORG_MEMBER, role.getValue()))
+                .any(count -> count != 0);
     }
 
     @Override
@@ -139,8 +147,8 @@ public class OrgMemberServiceImpl implements OrgMemberService {
 
     @Override
     public Mono<Boolean> updateMemberRole(String orgId, String userId, MemberRole memberRole) {
-        return biRelationService.updateRelation(ORG_MEMBER, orgId, userId, memberRole.getValue())
-                .hasElement();
+        // BF-130: whether a membership was modified; hasElement() answered true for the update's false too
+        return biRelationService.updateRelation(ORG_MEMBER, orgId, userId, memberRole.getValue());
     }
 
     @Override
@@ -253,5 +261,21 @@ public class OrgMemberServiceImpl implements OrgMemberService {
     private Mono<Void> bulkAddToAllUserGroup(Collection<String> orgIds, String userId, MemberRole memberRole) {
         return Flux.fromIterable(orgIds).flatMap(orgId -> groupService.getAllUsersGroup(orgId)
                 .flatMap(group -> groupMemberService.addMember(orgId, group.getId(), userId, memberRole))).then();
+    }
+
+    private Flux<OrgMember> membershipsOf(String userId) {
+        return biRelationService.getByTargetId(ORG_MEMBER, userId)
+                .map(OrgMember::from);
+    }
+
+    /**
+     * The org ids {@link #getAllActiveOrgs} answers memberships of, and whether finding them enrolled the user in the
+     * enterprise org, a membership written after the memberships were read (BF-131).
+     */
+    private record ActiveOrgIds(HashSet<String> orgIds, boolean enrolled) {
+
+        private ActiveOrgIds(List<String> orgIds, boolean enrolled) {
+            this(new HashSet<>(orgIds), enrolled);
+        }
     }
 }

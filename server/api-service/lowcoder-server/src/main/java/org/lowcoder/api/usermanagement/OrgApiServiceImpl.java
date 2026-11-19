@@ -13,6 +13,7 @@ import org.lowcoder.api.usermanagement.view.OrgMemberListView.OrgMemberView;
 import org.lowcoder.api.usermanagement.view.OrgView;
 import org.lowcoder.api.usermanagement.view.UpdateOrgRequest;
 import org.lowcoder.api.usermanagement.view.UpdateRoleRequest;
+import org.lowcoder.api.util.Pagination;
 import org.lowcoder.domain.authentication.AuthenticationService;
 import org.lowcoder.domain.authentication.FindAuthConfig;
 import org.lowcoder.domain.group.service.GroupService;
@@ -58,6 +59,9 @@ import reactor.util.function.Tuples;
 @Slf4j
 @Service
 public class OrgApiServiceImpl implements OrgApiService {
+
+    private static final String BAD_REQUEST = "BAD_REQUEST";
+    private static final String LAST_ADMIN_CANNOT_LEAVE_ORG_KEY = "LAST_ADMIN_CANNOT_LEAVE_ORG";
 
     @Autowired
     private SessionUserService sessionUserService;
@@ -112,7 +116,7 @@ public class OrgApiServiceImpl implements OrgApiService {
                             .filter(Objects::nonNull)
                             .collect(Collectors.toList());
                         var pageTotal = list.size();
-                        list = list.subList((page - 1) * count, count == 0 ? pageTotal : Math.min(page * count, pageTotal));
+                        list = Pagination.pageOf(list, page, count);
                         return Pair.of(list, pageTotal);
                     });
                 })
@@ -155,13 +159,85 @@ public class OrgApiServiceImpl implements OrgApiService {
                 .collect(Collectors.toMap(Connection::getSource, Connection::getRawUserInfo, (map, map2) -> map));
     }
 
+    /**
+     * Sets a member's role in the organization, for a visitor who is ADMIN or SUPER_ADMIN of it; the SUPER_ADMIN role is
+     * neither granted nor changed ({@link #checkSuperAdminRoleUnchanged}), and granting ADMIN is checked against the
+     * developer quota.
+     */
     @Override
     public Mono<Boolean> updateRoleForMember(String orgId, UpdateRoleRequest updateRoleRequest) {
         return checkVisitorAdminRole(orgId)
+                .then(checkSuperAdminRoleUnchanged(orgId, updateRoleRequest))
                 .then(checkDeveloperCount(orgId, updateRoleRequest.getRole(), updateRoleRequest.getUserId()))
                 .then(orgMemberService.updateMemberRole(orgId,
                         updateRoleRequest.getUserId(),
                         MemberRole.fromValue(updateRoleRequest.getRole())));
+    }
+
+    /**
+     * Sets the slug for an admin of the organization (ADMIN or SUPER_ADMIN, {@link #checkVisitorAdminRole}; NEW-102: any
+     * signed-in user could). Limits: {@code orgId} is the object id, not converted from a gid or slug, as before, so a
+     * gid or slug answers NOT_AUTHORIZED; the slug rules are {@code OrganizationService.updateSlug}'s; the answer is the
+     * whole organization, as before.
+     */
+    @Override
+    public Mono<Organization> updateSlug(String orgId, String slug) {
+        return checkVisitorAdminRole(orgId)
+                .then(Mono.defer(() -> organizationService.updateSlug(orgId, slug)));
+    }
+
+    /**
+     * The organization for a member of it, whatever the role; with {@code withDeleted} (deleted organizations
+     * included) also for the instance's super admin, the stored user's {@code superAdmin} flag (not an
+     * organization role), read as {@code ConfigController.updateServerConfig} reads it. Anyone else gets
+     * NOT_AUTHORIZED before this method reads the organization ({@code organizationService.getById} or {@code
+     * getByIdWithDeleted}), whether it exists or not (NEW-102: any signed-in user read any organization). Limits:
+     * the answer is still the whole organization, its auth configs' {@code clientSecret} included (O22, an owner
+     * decision not made here); a deleted organization is read, with {@code withDeleted}, by its former members
+     * until the asynchronous cleanup that follows its deletion ({@code OrgAndGroupEventListener.onOrgDeleted}) has
+     * removed their memberships, and by all of them whose membership deletion did not happen (it is the listener's
+     * first step; a later step failing for good does not undo it); that cleanup keeps every membership with the
+     * organization role SUPER_ADMIN ({@code BiRelationServiceImpl.removeAllBiRelations}), so a former member with
+     * that role (an organization role, not the {@code superAdmin} flag) keeps reading the deleted organization
+     * with {@code withDeleted} after the cleanup, while every other former member loses it unless the instance
+     * super admin exception admits them (a former MEMBER or ADMIN whose stored user has the flag, reading with
+     * {@code withDeleted}); the membership check and the organization read are two separate operations, not one
+     * atomic step, so a membership removed between them (by that cleanup or by a member's removal) still lets that
+     * one read through; the super admin's exception holds for every organization {@code withDeleted} reads, active
+     * ones included, and only with {@code withDeleted}; a null {@code superAdmin} flag, or a visitor with no
+     * stored user, counts as not a super admin; an organization the visitor may read but that is not found answers
+     * the read's UNABLE_TO_FIND_VALID_ORG, as before; {@code orgId} is the object id: the controller converts a
+     * gid or slug first, querying the organizations' slugs for a non-blank key and their gids for a key with a
+     * hyphen that matches no slug, before this method runs, and a key with a hyphen that names no
+     * organization's slug or gid is refused with the same NOT_AUTHORIZED, to anyone, the instance's super admin included,
+     * before this check (NEW-132); a key without a hyphen that names no organization is not refused there, and this check
+     * and the read decide, as above.
+     */
+    @Override
+    public Mono<Organization> getOrganization(String orgId, boolean withDeleted) {
+        return visitorOrgMember(orgId).hasElement()
+                .flatMap(isMember -> isMember || !withDeleted ? Mono.just(isMember) : visitorIsInstanceSuperAdmin())
+                .filter(Boolean::booleanValue)
+                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                .flatMap(allowed -> withDeleted ? organizationService.getByIdWithDeleted(orgId) : organizationService.getById(orgId));
+    }
+
+    /**
+     * The visitor's membership of the organization, any role; empty when the visitor is not a member.
+     */
+    private Mono<OrgMember> visitorOrgMember(String orgId) {
+        return sessionUserService.getVisitorId()
+                .flatMap(visitor -> orgMemberService.getOrgMember(orgId, visitor));
+    }
+
+    /**
+     * Whether the visitor's stored user has the {@code superAdmin} flag; null, false or no stored user is false.
+     */
+    private Mono<Boolean> visitorIsInstanceSuperAdmin() {
+        return sessionUserService.getVisitorId()
+                .flatMap(userService::findById)
+                .map(user -> Boolean.TRUE.equals(user.getSuperAdmin()))
+                .defaultIfEmpty(false);
     }
 
     @Override
@@ -170,6 +246,39 @@ public class OrgApiServiceImpl implements OrgApiService {
                 .flatMap(visitor -> orgMemberService.getOrgMember(orgId, visitor))
                 .filter(it -> it.getRole() == MemberRole.ADMIN || it.getRole() == MemberRole.SUPER_ADMIN)
                 .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"));
+    }
+
+    /**
+     * The visitor's membership of the organization, any role (NEW-132); NOT_AUTHORIZED when the visitor is not a member, the
+     * answer the other organization routes give a non-member, so that an organization that exists and one that does not cannot
+     * be told apart. Limits: the membership is the stored one, whatever the organization's state; the instance super admin is
+     * a member only through a membership row, as for every route that uses this check.
+     */
+    @Override
+    public Mono<OrgMember> checkVisitorMember(String orgId) {
+        return visitorOrgMember(orgId)
+                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"));
+    }
+
+    /**
+     * Refuses, with UNSUPPORTED_OPERATION, the requested role SUPER_ADMIN and any change to a member who has it, whoever
+     * the visitor is (BF-005): that role is given only by the super admin setup
+     * ({@code OrgMemberService.addToAllOrgAsAdminIfNot}). Deferred, so the target's membership is read only once the
+     * visitor has passed the admin check.
+     * <p>
+     * Limits: an unknown role name is not refused (it is written as MEMBER, {@link MemberRole#fromValue}), and neither is
+     * a target who is not a member: the update then changes nothing and answers false (BF-130: it answered true), the
+     * answer of {@code OrgMemberService.updateMemberRole}.
+     */
+    private Mono<Void> checkSuperAdminRoleUnchanged(String orgId, UpdateRoleRequest updateRoleRequest) {
+        return Mono.defer(() -> {
+            if (MemberRole.fromValue(updateRoleRequest.getRole()) == MemberRole.SUPER_ADMIN) {
+                return Mono.error(new BizException(UNSUPPORTED_OPERATION, BAD_REQUEST));
+            }
+            return orgMemberService.getOrgMember(orgId, updateRoleRequest.getUserId())
+                    .filter(target -> target.getRole() == MemberRole.SUPER_ADMIN)
+                    .flatMap(target -> Mono.error(new BizException(UNSUPPORTED_OPERATION, BAD_REQUEST)));
+        });
     }
 
     private Mono<Void> checkDeveloperCount(String orgId, String role, String userId) {
@@ -219,12 +328,12 @@ public class OrgApiServiceImpl implements OrgApiService {
 
     @Override
     public Mono<Boolean> leaveOrganization(String orgId) {
-        return Mono.zip(sessionUserService.getVisitorId(), orgMemberService.getAllOrgAdmins(orgId))
+        return checkVisitorMember(orgId).flatMap(visitorMember -> Mono.zip(sessionUserService.getVisitorId(), orgMemberService.getAllOrgAdmins(orgId))
                 .flatMap(tuple -> {
                     String visitorId = tuple.getT1();
                     List<OrgMember> orgAdmins = tuple.getT2();
-                    if (orgAdmins.size() == 1 && orgAdmins.get(0).getUserId().equals(visitorId)) {
-                        return ofError(LAST_ADMIN_CANNOT_LEAVE_ORG, "LAST_ADMIN_CANNOT_LEAVE_ORG");
+                    if (isLastAdmin(orgAdmins, visitorId)) {
+                        return ofError(LAST_ADMIN_CANNOT_LEAVE_ORG, LAST_ADMIN_CANNOT_LEAVE_ORG_KEY);
                     }
                     return orgMemberService.removeMember(orgId, visitorId)
                             .handle((result, sink) -> {
@@ -235,7 +344,7 @@ public class OrgApiServiceImpl implements OrgApiService {
                                 }
                                 sink.next(false);
                             });
-                });
+                }));
     }
 
     @Override
@@ -252,11 +361,21 @@ public class OrgApiServiceImpl implements OrgApiService {
     }
 
     /**
-     * Remove the specified user from the organization, and if in enterprise mode, mark the user deleted.
+     * Whether {@code userId} is the only member of {@code orgAdmins} ({@link OrgMemberService#getAllOrgAdmins}, the members
+     * whose role is ADMIN; a SUPER_ADMIN is not among them).
+     */
+    private static boolean isLastAdmin(List<OrgMember> orgAdmins, String userId) {
+        return orgAdmins.size() == 1 && orgAdmins.get(0).getUserId().equals(userId);
+    }
+
+    /**
+     * Remove the specified user from the organization, and if in enterprise mode, mark the user deleted. The target must
+     * be removable ({@link #checkMemberRemovable}).
      */
     @Override
     public Mono<Boolean> removeUserFromOrg(String orgId, String userId) {
         return checkVisitorAdminRole(orgId)
+                .then(checkMemberRemovable(orgId, userId))
                 .then(orgMemberService.removeMember(orgId, userId))
                 .doOnNext(result -> {
                     if (result) {
@@ -266,26 +385,73 @@ public class OrgApiServiceImpl implements OrgApiService {
                 .delayUntil(__ -> userService.markUserDeletedAndInvalidConnectionsAtEnterpriseMode(userId));
     }
 
+    /**
+     * Refuses, before anything is removed (BF-072), the removal of a SUPER_ADMIN, with UNSUPPORTED_OPERATION as for a change
+     * of that role ({@link #checkSuperAdminRoleUnchanged}), and of the last ADMIN, with LAST_ADMIN_CANNOT_LEAVE_ORG by the
+     * rule of {@link #leaveOrganization}, so an admin cannot remove themselves or be removed when no other ADMIN is left.
+     * Deferred, so the target is read only once the visitor has passed the admin check.
+     * <p>
+     * Limits: as in {@link #leaveOrganization}, only the role ADMIN counts, so the last ADMIN is kept even when a SUPER_ADMIN
+     * is also a member; a target who is not a member is not refused (the removal then answers false). The two reads and the
+     * removal are not atomic: two concurrent removals of the last two ADMINs can both pass.
+     */
+    private Mono<Void> checkMemberRemovable(String orgId, String userId) {
+        return Mono.defer(() -> orgMemberService.getOrgMember(orgId, userId)
+                .flatMap(target -> {
+                    if (target.getRole() == MemberRole.SUPER_ADMIN) {
+                        return Mono.error(new BizException(UNSUPPORTED_OPERATION, BAD_REQUEST));
+                    }
+                    if (target.getRole() != MemberRole.ADMIN) {
+                        return Mono.empty();
+                    }
+                    return orgMemberService.getAllOrgAdmins(orgId)
+                            .filter(orgAdmins -> isLastAdmin(orgAdmins, userId))
+                            .flatMap(__ -> ofError(LAST_ADMIN_CANNOT_LEAVE_ORG, LAST_ADMIN_CANNOT_LEAVE_ORG_KEY));
+                }));
+    }
+
     @Override
     public Mono<Boolean> removeOrg(String orgId) {
         return checkVisitorAdminRole(orgId)
                 .then(Mono.defer(() -> {
                     Workspace workspace = commonConfig.getWorkspace();
                     if (workspace.getMode() == WorkspaceMode.ENTERPRISE && orgId.equals(workspace.getEnterpriseOrgId())) {
-                        return Mono.error(new BizException(UNSUPPORTED_OPERATION, "BAD_REQUEST"));
+                        return Mono.error(new BizException(UNSUPPORTED_OPERATION, BAD_REQUEST));
                     }
                     return Mono.empty();
                 }))
                 .then(organizationService.delete(orgId));
     }
 
+    /**
+     * Creates an organization for the visitor in SAAS mode from the request's {@code name}, {@code contactName},
+     * {@code contactEmail} and {@code contactPhoneNumber} only; the gid is the server's, a time-ordered UUID
+     * (NEW-103, NEW-88). Every other field of the request ({@code id}, {@code gid}, {@code slug},
+     * {@code organizationDomain} and its auth configs, {@code source}, {@code thirdPartyCompanyId},
+     * {@code isAutoGeneratedOrganization}, {@code isEmailDisabled}, {@code state}, {@code commonSettings},
+     * {@code createdBy}) is ignored, not refused. Limits: the copied fields are not validated (a blank name is stored
+     * as before); a slug is set afterwards with {@code PUT .../{orgId}/slug}; {@code OrganizationService.create}
+     * itself still saves what its caller passes; a null request is handed on as null (the service answers INVALID_PARAMETER).
+     */
     @Override
     public Mono<OrgView> create(Organization organization) {
+        Organization toCreate = organization == null ? null : creationOf(organization);
         return sessionUserService.getVisitorId()
                 .delayUntil(userId -> bizThresholdChecker.checkMaxOrgCount(userId))
                 .delayUntil(__ -> checkIfSaasMode())
-                .flatMap(userId -> organizationService.create(organization, userId, false))
+                .flatMap(userId -> organizationService.create(toCreate, userId, false))
                 .map(OrgView::new);
+    }
+
+    /** The organization to create from the request: the copied fields and a server gid (a null request stays null, as before). */
+    private static Organization creationOf(Organization request) {
+        Organization toCreate = new Organization();
+        toCreate.setName(request.getName());
+        toCreate.setContactName(request.getContactName());
+        toCreate.setContactEmail(request.getContactEmail());
+        toCreate.setContactPhoneNumber(request.getContactPhoneNumber());
+        toCreate.setGid(com.github.f4b6a3.uuid.UuidCreator.getTimeOrderedEpoch().toString());
+        return toCreate;
     }
 
     @Override
@@ -354,8 +520,7 @@ public class OrgApiServiceImpl implements OrgApiService {
 
     @Override
     public Mono<OrganizationCommonSettings> getOrgCommonSettings(String orgId) {
-        return sessionUserService.getVisitorId()
-                .flatMap(visitor -> orgMemberService.getOrgMember(orgId, visitor))
+        return visitorOrgMember(orgId)
                 .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
                 .flatMap(it -> organizationService.getById(orgId))
                 .map(Organization::getCommonSettings);
@@ -401,7 +566,7 @@ public class OrgApiServiceImpl implements OrgApiService {
     private Mono<Void> checkIfSaasMode() {
         return Mono.defer(() -> {
             if (commonConfig.getWorkspace().getMode() == WorkspaceMode.ENTERPRISE) {
-                return Mono.error(new BizException(UNSUPPORTED_OPERATION, "BAD_REQUEST"));
+                return Mono.error(new BizException(UNSUPPORTED_OPERATION, BAD_REQUEST));
             }
             return Mono.empty();
         });

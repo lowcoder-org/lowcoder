@@ -6,6 +6,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import jakarta.annotation.Nonnull;
+
 import org.lowcoder.sdk.models.DatasourceConnectionConfig;
 import org.lowcoder.sdk.models.DatasourceStructure;
 import org.lowcoder.sdk.models.DatasourceTestResult;
@@ -16,9 +18,9 @@ import org.lowcoder.sdk.query.QueryVisitorContext;
 import reactor.core.publisher.Mono;
 
 /**
- * Minimal plugin types for the contract tests of {@link QueryExecutor}, {@link DatasourceConnector} and
- * {@link BlockingDatasourceConnector}: a config, a second config of another type, a query context, and implementations
- * whose behaviour the test sets through public fields.
+ * Minimal plugin types for the contract tests of {@link QueryExecutor}, {@link DatasourceConnector},
+ * {@link BlockingDatasourceConnector} and {@link BlockingQueryExecutor}: a config, a second config of another type, a
+ * query context, and implementations whose behaviour the test sets through public fields.
  */
 final class ConnectorTestTypes {
 
@@ -147,6 +149,50 @@ final class ConnectorTestTypes {
                 throw failure;
             }
             return "blocking:" + connectionConfig.host;
+        }
+    }
+
+    /**
+     * A blocking query executor whose two blocking methods throw whatever the test sets, so that
+     * {@link BlockingQueryExecutor}'s handling of an {@link Error} raised inside its lambdas can be pinned (NEW-16).
+     * Each method has its own failure field, because the two are caught separately and the mutation runs must be able
+     * to break one without the other.
+     */
+    static final class TestBlockingExecutor extends BlockingQueryExecutor<TestConfig, String, TestContext> {
+        Throwable queryFailure;
+        Throwable structureFailure;
+
+        @Override
+        public TestContext buildQueryExecutionContext(TestConfig datasourceConfig, Map<String, Object> queryConfig,
+                Map<String, Object> requestParams, QueryVisitorContext queryVisitorContext) {
+            return new TestContext("select 1");
+        }
+
+        @Nonnull
+        @Override
+        protected QueryExecutionResult blockingExecuteQuery(String connection, TestContext context) {
+            throwIfSet(queryFailure);
+            return QueryExecutionResult.success(context.sql);
+        }
+
+        @Nonnull
+        @Override
+        protected DatasourceStructure blockingGetStructure(String connection, TestConfig connectionConfig) {
+            throwIfSet(structureFailure);
+            return new DatasourceStructure();
+        }
+
+        /**
+         * Throws the two unchecked kinds the tests set. A checked exception is not thrown at all rather than being
+         * sneaked through: these blocking methods declare none, and no test of this class needs one.
+         */
+        private static void throwIfSet(Throwable failure) {
+            if (failure instanceof Error error) {
+                throw error;
+            }
+            if (failure instanceof RuntimeException runtime) {
+                throw runtime;
+            }
         }
     }
 }

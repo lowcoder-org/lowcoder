@@ -15,7 +15,9 @@ public class FolderNode<T, F> implements Node<T, F> {
 
     private final F self;
     private FolderNode<T, F> parent;
-    protected final Collection<Node<T, F>> children;
+    protected final List<Node<T, F>> children = new ArrayList<>();
+    @Nullable
+    private final Comparator<Node<T, F>> comparator;
     @Nonnull
     private final Function<F, String> idExtractor;
     @Nonnull
@@ -26,7 +28,19 @@ public class FolderNode<T, F> implements Node<T, F> {
         this.self = self;
         this.idExtractor = idExtractor;
         this.parentIdExtractor = parentIdExtractor;
-        this.children = comparator == null ? new ArrayList<>() : new PriorityQueue<>(comparator);
+        this.comparator = comparator;
+    }
+
+    /**
+     * Puts the children in the comparator's order, ties in the order they were added; without a comparator they keep the
+     * order they were added. The tree calls it once every node is mounted (BF-137: the children were a PriorityQueue, and
+     * every accessor streamed its heap array, so only the first child came in comparator order). Children added after
+     * that are not ordered.
+     */
+    void sortChildren() {
+        if (comparator != null) {
+            children.sort(comparator);
+        }
     }
 
     public String id() {

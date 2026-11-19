@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -26,8 +27,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.bundle.BundleEndpoints.BundlePublicToMarketplaceRequest;
 import org.lowcoder.api.bundle.BundleEndpoints.CreateBundleRequest;
@@ -90,16 +93,18 @@ import reactor.test.StepVerifier;
  * {@link BundleApiServiceImpl} with every collaborator mocked: the permission and status checks before each mutation, the
  * view-request matrix, the readable permission errors, the permission and element operations, creation and update.
  *
- * <p>Pinned production defects (owner decision D-6: fixes are deferred, a fix changes these tests on purpose), each in a
- * test named {@code ..._pinsTheSection9Row}:
- * <ul>
- * <li>"getPermissions looks up the org by the creator's user id; no permission check":
- * {@link #getPermissions_looksUpTheOrganizationByTheCreatorsUserId_andChecksNoPermission_pinsTheSection9Row}</li>
- * <li>"moveApp/addApp check only MANAGE_APPLICATIONS on the app, never the bundle":
- * {@link #moveAndAddApp_checkNoBundlePermission_pinsTheSection9Row}</li>
- * <li>"getElements has no permission/status/org check":
- * {@link #getElements_hasNoPermissionStatusOrOrgCheck_pinsTheSection9Row}</li>
- * </ul>
+ * <p>Fixed since: "getPermissions looks up the org by the creator's user id; no permission check" (BF-145: the method is
+ * gone, {@code GET /bundles/{id}/permissions} now uses {@code getBundlePermissions}), now asserted by
+ * {@link #getBundlePermissions_readsAfterTheReadCheck_andBuildsTheView},
+ * {@link #getBundlePermissions_deniedRead_andWrongStatus} and
+ * {@link #getBundlePermissions_withTheRealOrganizationService_findsTheBundlesOrganizationBF145}; "moveApp/addApp check
+ * only MANAGE_APPLICATIONS on the app, never the bundle" (BF-011), now asserted by
+ * {@link #moveAndAddApp_withoutTheBundlePermission_areRefused_andChangeNothing} and
+ * {@link #moveAndAddApp_withABundleOfAnotherOrganization_areRefused_andChangeNothing}; "getElements has no
+ * permission/status/org check" (BF-020), now asserted by {@link #getElements_withoutReadPermission_isRefused_andReadsNoElements}
+ * and {@link #getElements_ofABundleThatIsNotNormal_isBadRequest_andReadsNoElements}; "the bundle flag setters ask
+ * application actions" (BF-035), now the PUBLIC_TO_ALL, PUBLIC_TO_MARKETPLACE and AGENCY_PROFILE rows of
+ * {@link #mutatingOperation_checksPermissionAndStatus_beforeAnyChange}, which expect SET_BUNDLES_*.
  * Pinned as behaviour (no row): the null-flag NullPointerException of the view request (reachable only with documents
  * lacking the flag fields) and the application-copied EDIT action comparison of the readable error message.
  */
@@ -255,9 +260,9 @@ class BundleApiServiceImplPermissionsTest {
         GRANT(ResourceAction.MANAGE_BUNDLES, BundleStatus.NORMAL, false),
         UPDATE_PERMISSION(ResourceAction.MANAGE_BUNDLES, BundleStatus.NORMAL, false),
         REMOVE_PERMISSION(ResourceAction.MANAGE_BUNDLES, BundleStatus.NORMAL, false),
-        PUBLIC_TO_ALL(ResourceAction.SET_APPLICATIONS_PUBLIC, BundleStatus.NORMAL, false),
-        PUBLIC_TO_MARKETPLACE(ResourceAction.SET_APPLICATIONS_PUBLIC_TO_MARKETPLACE, BundleStatus.NORMAL, false),
-        AGENCY_PROFILE(ResourceAction.SET_APPLICATIONS_AS_AGENCY_PROFILE, BundleStatus.NORMAL, false),
+        PUBLIC_TO_ALL(ResourceAction.SET_BUNDLES_PUBLIC, BundleStatus.NORMAL, false),
+        PUBLIC_TO_MARKETPLACE(ResourceAction.SET_BUNDLES_PUBLIC_TO_MARKETPLACE, BundleStatus.NORMAL, false),
+        AGENCY_PROFILE(ResourceAction.SET_BUNDLES_AS_AGENCY_PROFILE, BundleStatus.NORMAL, false),
         REORDER(ResourceAction.MANAGE_BUNDLES, null, false);
 
         final ResourceAction action;
@@ -327,8 +332,8 @@ class BundleApiServiceImplPermissionsTest {
     /**
      * Catches a viewer toggling the public/marketplace/agency flags, editing permissions or changing the state of a bundle:
      * every mutating operation asks the permission its action requires (MANAGE_BUNDLES; PUBLISH_BUNDLES through
-     * {@code checkAndReturnMaxPermission}; and, as the code stands, the SET_APPLICATIONS_* actions for the three flags: they
-     * are application actions, see the log candidate D6), requires the bundle status it needs (NORMAL, RECYCLED for restore
+     * {@code checkAndReturnMaxPermission}; the bundle actions SET_BUNDLES_* for the three flags, BF-035: they asked the
+     * application actions SET_APPLICATIONS_*, which no user could pass on a bundle id), requires the bundle status it needs (NORMAL, RECYCLED for restore
      * and delete) with BAD_REQUEST otherwise, in the order the code has (recycle, restore, delete, publish check the status
      * first; the others the permission first), and mutates nothing when either check fails (counted subscriptions).
      */
@@ -792,8 +797,8 @@ class BundleApiServiceImplPermissionsTest {
      * visitor outside the organization NO_PERMISSION_TO_REQUEST_APP / INSUFFICIENT_PERMISSION, otherwise
      * NO_PERMISSION_TO_REQUEST_APP with NO_PERMISSION_TO_EDIT or NO_PERMISSION_TO_VIEW. The bundle variant picks the EDIT key
      * for EDIT_BUNDLES. The id-based variant was copied from the application code and compares with EDIT_APPLICATIONS, so even
-     * EDIT_BUNDLES gives the VIEW key there (pinned as behaviour, no row: its only caller, getEditingBundle, passes
-     * READ_BUNDLES, so no user sees it today).
+     * EDIT_BUNDLES gives the VIEW key there (pinned as behaviour, no row: its callers, getEditingBundle and getElements,
+     * pass READ_BUNDLES, so no user sees it today).
      */
     @ParameterizedTest(name = "bundle variant {0}, {1}, {2} -> {3}")
     @MethodSource("messageRows")
@@ -871,47 +876,14 @@ class BundleApiServiceImplPermissionsTest {
     }
 
     /**
-     * Pins the plan section 9 row "getPermissions looks up the org by the creator's user id; no permission check" (the
-     * method behind {@code GET /bundles/{id}/permissions}, {@code BundleController.getBundlePermissions}): the organization
-     * is looked up with {@code bundle.getCreatedBy()}, a user id, not with the bundle's organization id (the sibling
-     * {@code getBundlePermissions} uses the organization id), and no permission, status or organization is checked at all.
-     * A fix changes this test on purpose. What this test cannot show: with the mocked {@code OrganizationService} here the
-     * lookup by the creator's id is stubbed to succeed; that the endpoint "always fails" with the real service is shown by the
-     * next test.
+     * BF-145 with the real {@code OrganizationServiceImpl} over a mocked repository that knows the bundle's organization:
+     * {@code getBundlePermissions}, which {@code GET /bundles/{id}/permissions} now uses, finds the organization by the
+     * bundle's organization id; the removed {@code getPermissions} looked it up by the creator's user id and failed here with
+     * UNABLE_TO_FIND_VALID_ORG. Catches: the organization looked up by the creator again. Limit: the repository is a mock that
+     * returns the organization for its id only (what a database does), no database is involved.
      */
     @Test
-    void getPermissions_looksUpTheOrganizationByTheCreatorsUserId_andChecksNoPermission_pinsTheSection9Row() {
-        Organization organization = new Organization();
-        organization.setName("Org Name");
-        when(organizationService.getById(VISITOR)).thenReturn(Mono.just(organization));
-        stubPermissionLists(List.of());
-
-        StepVerifier.create(service.getPermissions(BUNDLE_ID)).assertNext(view -> {
-            assertThat(view.getCreatorId()).isEqualTo(VISITOR);
-            assertThat(view.getOrgName()).isEqualTo("Org Name");
-            assertThat(view.getGroupPermissions()).extracting(PermissionItemView::getId).containsExactly("g1");
-            assertThat(view.getUserPermissions()).extracting(PermissionItemView::getId).containsExactly("u1");
-        }).verifyComplete();
-
-        verify(organizationService).getById(VISITOR);
-        verify(organizationService, never()).getById(ORG);
-        verify(resourcePermissionService, never()).checkResourcePermissionWithError(anyString(), anyString(), any(ResourceAction.class));
-        verify(resourcePermissionService, never()).checkAndReturnMaxPermission(anyString(), anyString(), any(ResourceAction.class));
-        verify(resourcePermissionService, never()).checkUserPermissionStatusOnResource(anyString(), anyString(), any(ResourceAction.class));
-        verifyNoInteractions(sessionUserService);
-        say("getPermissions: organization looked up by creator id %s, no permission check (section 9 row pinned)", VISITOR);
-    }
-
-    /**
-     * Shows the consequence of the same section 9 row with the real {@code OrganizationServiceImpl} over a mocked
-     * repository that knows the bundle's organization: {@code getPermissions} (organization looked up by the creator's user
-     * id) fails with UNABLE_TO_FIND_VALID_ORG (key INVALID_ORG_ID) for a bundle whose organization exists, while the sibling
-     * {@code getBundlePermissions} (organization looked up by the organization id) succeeds on the same fixtures. A fix
-     * changes this test on purpose. Limit: the repository is a mock that returns the organization for its id only (what a
-     * database does), no database is involved.
-     */
-    @Test
-    void getPermissions_withTheRealOrganizationService_failsWhileGetBundlePermissionsWorks_pinsTheSection9Row() {
+    void getBundlePermissions_withTheRealOrganizationService_findsTheBundlesOrganizationBF145() {
         // object-id-like ids (no dash: an id with a dash is looked up as a GID)
         bundle.setCreatedBy("5f1234abcd");
         bundle.setOrganizationId("6a9876fedc");
@@ -928,11 +900,14 @@ class BundleApiServiceImplPermissionsTest {
         BundleApiServiceImpl withRealOrganizations = newService(realOrganizations);
         stubPermissionLists(List.of());
 
-        StepVerifier.create(withRealOrganizations.getPermissions(BUNDLE_ID))
-                .expectErrorSatisfies(error -> assertBizError(error, BizError.UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID")).verify();
         StepVerifier.create(withRealOrganizations.getBundlePermissions(BUNDLE_ID))
-                .assertNext(view -> assertThat(view.getOrgName()).isEqualTo("Org Name")).verifyComplete();
-        say("getPermissions fails with UNABLE_TO_FIND_VALID_ORG, getBundlePermissions works (section 9 row pinned)");
+                .assertNext(view -> {
+                    assertThat(view.getOrgName()).isEqualTo("Org Name");
+                    assertThat(view.getCreatorId()).isEqualTo("5f1234abcd");
+                }).verifyComplete();
+        verify(organizationRepository).findByIdAndState("6a9876fedc", OrganizationState.ACTIVE);
+        verify(organizationRepository, never()).findByIdAndState("5f1234abcd", OrganizationState.ACTIVE);
+        say("getBundlePermissions finds the bundle's organization by its organization id (BF-145)");
     }
 
     // ------------------------------------------------------------------ moveApp / addApp
@@ -940,6 +915,7 @@ class BundleApiServiceImplPermissionsTest {
     private Application app() {
         Application application = mock(Application.class);
         lenient().when(application.getId()).thenReturn(APP_ID);
+        lenient().when(application.getOrganizationId()).thenReturn(ORG);
         return application;
     }
 
@@ -970,10 +946,11 @@ class BundleApiServiceImplPermissionsTest {
     }
 
     /**
-     * Catches an application moved or added without the permission on the application, or a wrong move: the application
-     * permission (MANAGE_APPLICATIONS) is asked first, a denial stops everything (nothing deleted or written); a blank target
-     * only removes the old relation; otherwise the application leaves the old bundle's editing DSL, enters the new one's, both
-     * are saved and the new relation is created.
+     * Catches an application moved or added without the permissions, or a wrong move: the application permission
+     * (MANAGE_APPLICATIONS) is asked first, then MANAGE_BUNDLES on each bundle that is written, then each of those bundles is
+     * read to compare its organization (BF-011); a blank bundle id is not checked; a blank target only removes the old relation
+     * (for addApp, the removal of a relation of the blank id, which matches nothing); otherwise the application leaves the old
+     * bundle's editing DSL, enters the new one's, both are saved and the new relation is created.
      */
     @Test
     void moveApp_andAddApp_changeTheBundlesAfterTheApplicationPermission() {
@@ -984,8 +961,9 @@ class BundleApiServiceImplPermissionsTest {
 
         StepVerifier.create(service.moveApp(APP_ID, "from-bundle", "to-bundle")).verifyComplete();
 
-        assertThat(events).containsExactly("perm:" + ResourceAction.MANAGE_APPLICATIONS, "deleteRelation:from-bundle", "findFrom", "save:from-bundle",
-                "repoFindTo", "save:to-bundle", "createRelation:to-bundle");
+        assertThat(events).containsExactly("perm:" + ResourceAction.MANAGE_APPLICATIONS, "perm:" + ResourceAction.MANAGE_BUNDLES + "@from-bundle",
+                "perm:" + ResourceAction.MANAGE_BUNDLES + "@to-bundle", "findFrom", "findTo",
+                "deleteRelation:from-bundle", "findFrom", "save:from-bundle", "repoFindTo", "save:to-bundle", "createRelation:to-bundle");
         assertThat(applicationsOf(from)).isEmpty();
         assertThat(applicationsOf(to)).containsExactly(application);
 
@@ -993,13 +971,14 @@ class BundleApiServiceImplPermissionsTest {
         Bundle target = bundleWithApps("to-bundle", List.of());
         stubRelations(from, target, application);
         StepVerifier.create(service.addApp(APP_ID, "to-bundle")).verifyComplete();
-        assertThat(events).containsExactly("perm:" + ResourceAction.MANAGE_APPLICATIONS, "deleteRelation:to-bundle", "findTo", "save:to-bundle",
-                "createRelation:to-bundle");
+        assertThat(events).containsExactly("perm:" + ResourceAction.MANAGE_APPLICATIONS, "perm:" + ResourceAction.MANAGE_BUNDLES + "@to-bundle",
+                "findTo", "deleteRelation:to-bundle", "findTo", "save:to-bundle", "createRelation:to-bundle");
         assertThat(applicationsOf(target)).containsExactly(application);
 
         events.clear();
         StepVerifier.create(service.moveApp(APP_ID, "from-bundle", "")).verifyComplete();
-        assertThat(events).containsExactly("perm:" + ResourceAction.MANAGE_APPLICATIONS, "deleteRelation:from-bundle");
+        assertThat(events).containsExactly("perm:" + ResourceAction.MANAGE_APPLICATIONS, "perm:" + ResourceAction.MANAGE_BUNDLES + "@from-bundle",
+                "findFrom", "deleteRelation:from-bundle");
         events.clear();
         StepVerifier.create(service.addApp(APP_ID, " ")).verifyComplete();
         assertThat(events).containsExactly("perm:" + ResourceAction.MANAGE_APPLICATIONS, "deleteRelation: ");
@@ -1039,32 +1018,89 @@ class BundleApiServiceImplPermissionsTest {
     }
 
     /**
-     * Pins the plan section 9 row "moveApp/addApp check only MANAGE_APPLICATIONS on the app, never the bundle": a visitor who
-     * manages the application but has NO permission on either bundle (every bundle permission check would be denied here, and
-     * none is ever asked) moves or adds the application into any bundle: the target bundle's editing DSL and relations are
-     * written. A fix changes this test on purpose. What this test cannot show: the organization of the bundles is not compared
-     * either, and no real permission service is involved.
+     * No relation was deleted or created and no bundle saved. The relation calls are asserted on the logged events, which are
+     * added on subscription: moveApp and addApp build those calls eagerly as arguments of {@code then}, so an invocation alone
+     * does not mean the relation was changed.
      */
-    @Test
-    void moveAndAddApp_checkNoBundlePermission_pinsTheSection9Row() {
+    private void assertNothingWritten() {
+        assertThat(events).noneMatch(event -> event.startsWith("deleteRelation:") || event.startsWith("createRelation:"));
+        verify(bundleRepository, never()).save(any());
+    }
+
+    /**
+     * BF-011 (was the pin of the plan section 9 row "moveApp/addApp check only MANAGE_APPLICATIONS on the app, never the
+     * bundle"): a visitor who manages the application but may not manage the bundle is refused with NOT_AUTHORIZED, for the
+     * source bundle of a move as for the target of a move or add; no relation is deleted or created and no bundle is saved.
+     */
+    @ParameterizedTest(name = "denied bundle {0}")
+    @ValueSource(strings = {"from-bundle", "to-bundle"})
+    void moveAndAddApp_withoutTheBundlePermission_areRefused_andChangeNothing(String deniedBundleId) {
+        Application application = app();
+        stubRelations(bundleWithApps("from-bundle", List.of(application)), bundleWithApps("to-bundle", List.of()), application);
+        BizException denial = new BizException(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED");
+        when(resourcePermissionService.checkResourcePermissionWithError(VISITOR, deniedBundleId, ResourceAction.MANAGE_BUNDLES))
+                .thenReturn(Mono.error(denial));
+
+        StepVerifier.create(service.moveApp(APP_ID, "from-bundle", "to-bundle"))
+                .expectErrorSatisfies(error -> assertThat(error).isSameAs(denial)).verify();
+        if ("to-bundle".equals(deniedBundleId)) {
+            StepVerifier.create(service.addApp(APP_ID, "to-bundle"))
+                    .expectErrorSatisfies(error -> assertThat(error).isSameAs(denial)).verify();
+        }
+
+        assertNothingWritten();
+        say("move/add without MANAGE_BUNDLES on %s -> NOT_AUTHORIZED, nothing changed; events %s", deniedBundleId, events);
+    }
+
+    /**
+     * BF-011: a bundle of another organization is refused with APPLICATION_AND_ORG_NOT_MATCH even when the visitor may manage
+     * it (as a member of both organizations can), whether it is the source or the target; nothing is changed.
+     */
+    @ParameterizedTest(name = "foreign bundle {0}")
+    @ValueSource(strings = {"from-bundle", "to-bundle"})
+    void moveAndAddApp_withABundleOfAnotherOrganization_areRefused_andChangeNothing(String foreignBundleId) {
         Application application = app();
         Bundle from = bundleWithApps("from-bundle", List.of(application));
-        Bundle foreignTarget = bundleWithApps("to-bundle", List.of());
-        foreignTarget.setOrganizationId("someone-elses-org");
-        stubRelations(from, foreignTarget, application);
-        lenient().when(resourcePermissionService.checkResourcePermissionWithError(eq(VISITOR), eq("from-bundle"), any(ResourceAction.class)))
-                .thenReturn(Mono.error(new BizException(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")));
-        lenient().when(resourcePermissionService.checkResourcePermissionWithError(eq(VISITOR), eq("to-bundle"), any(ResourceAction.class)))
-                .thenReturn(Mono.error(new BizException(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")));
+        Bundle to = bundleWithApps("to-bundle", List.of());
+        ("from-bundle".equals(foreignBundleId) ? from : to).setOrganizationId("someone-elses-org");
+        stubRelations(from, to, application);
 
-        StepVerifier.create(service.moveApp(APP_ID, "from-bundle", "to-bundle")).verifyComplete();
-        StepVerifier.create(service.addApp(APP_ID, "to-bundle")).verifyComplete();
+        StepVerifier.create(service.moveApp(APP_ID, "from-bundle", "to-bundle"))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.APPLICATION_AND_ORG_NOT_MATCH, "APPLICATION_AND_ORG_NOT_MATCH"))
+                .verify();
+        if ("to-bundle".equals(foreignBundleId)) {
+            StepVerifier.create(service.addApp(APP_ID, "to-bundle"))
+                    .expectErrorSatisfies(error -> assertBizError(error, BizError.APPLICATION_AND_ORG_NOT_MATCH, "APPLICATION_AND_ORG_NOT_MATCH"))
+                    .verify();
+        }
 
-        assertThat(applicationsOf(foreignTarget)).contains(application);
-        verify(resourcePermissionService, never()).checkResourcePermissionWithError(eq(VISITOR), eq("from-bundle"), any(ResourceAction.class));
-        verify(resourcePermissionService, never()).checkResourcePermissionWithError(eq(VISITOR), eq("to-bundle"), any(ResourceAction.class));
-        verify(resourcePermissionService, never()).checkAndReturnMaxPermission(anyString(), anyString(), any(ResourceAction.class));
-        say("move/add wrote into a bundle without any bundle permission (section 9 row pinned)");
+        assertThat(applicationsOf(from)).containsExactly(application);
+        assertThat(applicationsOf(to)).isEmpty();
+        assertNothingWritten();
+        say("move/add with %s of another org -> APPLICATION_AND_ORG_NOT_MATCH, nothing changed", foreignBundleId);
+    }
+
+    /**
+     * BF-011, the fail-closed fallback of the organization comparison: should the bundle or application lookup come back empty,
+     * the move or add is refused (BUNDLE_NOT_EXIST, APPLICATION_NOT_FOUND) instead of passing with nothing compared; nothing is
+     * changed. With the real services this is not the answer for a missing resource: the permission check, mocked as granted
+     * here, already fails with NO_RESOURCE_FOUND, and BundleServiceImpl.findById itself errors instead of completing empty.
+     */
+    @Test
+    void moveAndAddApp_whenABundleOrApplicationLookupIsEmpty_areRefused_andChangeNothing() {
+        Application application = app();
+        stubRelations(bundleWithApps("from-bundle", List.of(application)), bundleWithApps("to-bundle", List.of()), application);
+        when(bundleService.findById("no-such-bundle")).thenReturn(Mono.empty());
+
+        StepVerifier.create(service.addApp(APP_ID, "no-such-bundle"))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.BUNDLE_NOT_EXIST, "BUNDLE_NOT_EXIST")).verify();
+
+        when(applicationRepository.findById(APP_ID)).thenReturn(Mono.empty());
+        StepVerifier.create(service.moveApp(APP_ID, "from-bundle", "to-bundle"))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.APPLICATION_NOT_FOUND, "APPLICATION_NOT_FOUND")).verify();
+
+        assertNothingWritten();
+        say("empty bundle lookup -> BUNDLE_NOT_EXIST, empty application lookup -> APPLICATION_NOT_FOUND, nothing changed");
     }
 
     // ------------------------------------------------------------------ getElements
@@ -1073,13 +1109,22 @@ class BundleApiServiceImplPermissionsTest {
         return BiRelation.builder().targetId(target).extParam1(position).build();
     }
 
+    private void readGranted(String bundleId) {
+        when(resourcePermissionService.checkUserPermissionStatusOnResource(VISITOR, bundleId, ResourceAction.READ_BUNDLES))
+                .thenReturn(Mono.just(UserPermissionOnResourceStatus.success(permission(bundleId))));
+    }
+
     /**
-     * Catches elements in the wrong order or wrongly numbered: the bundle's element relations are sorted by the numeric
-     * position in extParam1, each target is resolved through the application service, and each result is wrapped with its
-     * index in the sorted order. A null or non-numeric position is a NumberFormatException (pinned as behaviour).
+     * Catches elements in the wrong order or wrongly numbered: once the read check passes, the bundle's element relations are
+     * sorted by the numeric position in extParam1, each target is resolved through the application service, and each result
+     * is wrapped with its index in the sorted order. A null or non-numeric position is a NumberFormatException (pinned as
+     * behaviour).
      */
     @Test
     void getElements_sortsByPosition_andIndexesTheApplications() {
+        readGranted(BUNDLE_ID);
+        readGranted("bad-bundle");
+        when(bundleService.findById("bad-bundle")).thenReturn(Mono.just(bundle("bad-bundle", BundleStatus.NORMAL)));
         Application a0 = mock(Application.class);
         Application a1 = mock(Application.class);
         Application a2 = mock(Application.class);
@@ -1103,22 +1148,58 @@ class BundleApiServiceImplPermissionsTest {
     }
 
     /**
-     * Pins the plan section 9 row "getElements has no permission/status/org check" (behind
-     * {@code GET /bundles/{id}/elements}, {@code BundleController.getElements}): the elements of any bundle id are listed with
-     * nothing but the relation lookup: no session, organization, permission or status is consulted. A fix changes this test on
-     * purpose. What this test cannot show: how the controller maps the elements to the response.
+     * BF-020 (was the pin of the plan section 9 row "getElements has no permission/status/org check", behind
+     * {@code GET /bundles/{id}/elements}, {@code BundleController.getElements}): a visitor who may not read the bundle gets the
+     * readable error of {@code checkPermissionWithReadableErrorMsg} (another organization's bundle: INSUFFICIENT_PERMISSION),
+     * and neither the bundle nor its element relations are read.
      */
-    @Test
-    void getElements_hasNoPermissionStatusOrOrgCheck_pinsTheSection9Row() {
-        bundle.setBundleStatus(BundleStatus.DELETED);
-        Application application = mock(Application.class);
-        when(biRelationService.getBySourceId(BiRelationBizType.BUNDLE_ELEMENT, "someone-elses-bundle")).thenReturn(Flux.just(relation("t0", "0")));
-        when(applicationServiceImpl.findById("t0")).thenReturn(Mono.just(application));
+    @ParameterizedTest(name = "{0} -> {1}")
+    @CsvSource({"NOT_IN_ORG, INSUFFICIENT_PERMISSION", "NOT_ENOUGH, NO_PERMISSION_TO_VIEW", "ANONYMOUS, USER_NOT_SIGNED_IN"})
+    void getElements_withoutReadPermission_isRefused_andReadsNoElements(Status denial, String messageKey) {
+        when(resourcePermissionService.checkUserPermissionStatusOnResource(VISITOR, "someone-elses-bundle", ResourceAction.READ_BUNDLES))
+                .thenReturn(Mono.just(status(denial)));
+        AtomicInteger bundleReads = new AtomicInteger();
+        when(bundleService.findById("someone-elses-bundle")).thenReturn(Mono.defer(() -> {
+            bundleReads.incrementAndGet();
+            return Mono.just(bundle("someone-elses-bundle", BundleStatus.NORMAL));
+        }));
+        AtomicInteger relationReads = new AtomicInteger();
+        when(biRelationService.getBySourceId(BiRelationBizType.BUNDLE_ELEMENT, "someone-elses-bundle"))
+                .thenReturn(Flux.defer(() -> {
+                    relationReads.incrementAndGet();
+                    return Flux.just(relation("t0", "0"));
+                }));
+        lenient().when(applicationServiceImpl.findById("t0")).thenReturn(Mono.just(mock(Application.class)));
+        BizError expected = denial == Status.ANONYMOUS ? BizError.USER_NOT_SIGNED_IN : BizError.NO_PERMISSION_TO_REQUEST_APP;
 
-        StepVerifier.create(service.getElements("someone-elses-bundle", null)).expectNextCount(1).verifyComplete();
+        StepVerifier.create(service.getElements("someone-elses-bundle", null))
+                .expectErrorSatisfies(error -> assertBizError(error, expected, messageKey)).verify();
 
-        verifyNoInteractions(sessionUserService, resourcePermissionService, orgMemberService, bundleService, organizationService);
-        say("getElements listed another bundle's elements without any check (section 9 row pinned)");
+        assertThat(bundleReads).as("the bundle is not read").hasValue(0);
+        assertThat(relationReads).as("the element relations are not read").hasValue(0);
+        verify(applicationServiceImpl, never()).findById(anyString());
+        say("getElements %s -> %s, nothing read", denial, messageKey);
+    }
+
+    /** BF-020: a recycled or deleted bundle is BAD_REQUEST even for a visitor who may read it, and its elements are not read. */
+    @ParameterizedTest
+    @EnumSource(value = BundleStatus.class, names = {"RECYCLED", "DELETED"})
+    void getElements_ofABundleThatIsNotNormal_isBadRequest_andReadsNoElements(BundleStatus status) {
+        readGranted(BUNDLE_ID);
+        bundle.setBundleStatus(status);
+        AtomicInteger relationReads = new AtomicInteger();
+        when(biRelationService.getBySourceId(BiRelationBizType.BUNDLE_ELEMENT, BUNDLE_ID)).thenReturn(Flux.defer(() -> {
+            relationReads.incrementAndGet();
+            return Flux.just(relation("t0", "0"));
+        }));
+        lenient().when(applicationServiceImpl.findById("t0")).thenReturn(Mono.just(mock(Application.class)));
+
+        StepVerifier.create(service.getElements(BUNDLE_ID, null))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST")).verify();
+
+        assertThat(relationReads).hasValue(0);
+        verify(applicationServiceImpl, never()).findById(anyString());
+        say("getElements of a %s bundle -> BAD_REQUEST, nothing read", status);
     }
 
     // ------------------------------------------------------------------ small ones

@@ -4,30 +4,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.lowcoder.sdk.util.LocaleUtils;
 
 /**
- * Pins the plan section 9 row "Datasource.getDisplayName(JS_CODE_ID) returns the INTERNAL_SERVER_ERROR text; key
- * JS_CODE_DATASOURCE_NAME in no .properties" (task L3-7). The key is missing from every messages file, so
- * {@code LocaleUtils.getMessage} falls back to the INTERNAL_SERVER_ERROR text. A fix (adding the key) changes this
- * test on purpose.
+ * BF-110 (fixed; was pinned as the plan section 9 row "Datasource.getDisplayName(JS_CODE_ID) returns the
+ * INTERNAL_SERVER_ERROR text; key JS_CODE_DATASOURCE_NAME in no .properties", task L3-7): the key is now in locale_en,
+ * locale_de and locale_zh, so the JS code datasource has a name. {@code LocaleUtils.getMessage} answered the
+ * INTERNAL_SERVER_ERROR text.
  */
 class DatasourceJsCodeDisplayNamePinTest {
 
-    private static final String MISSING_KEY = "JS_CODE_DATASOURCE_NAME";
     private static final String INTERNAL_SERVER_ERROR_KEY = "INTERNAL_SERVER_ERROR";
 
-    @Test
-    void pinsTheJsCodeDatasourceDisplayNameBeingTheInternalServerErrorText() {
-        for (Locale locale : new Locale[] {Locale.ENGLISH, Locale.CHINESE}) {
-            String name = Datasource.getDisplayName(Datasource.JS_CODE_ID, locale);
-            String internalError = LocaleUtils.getMessage(locale, INTERNAL_SERVER_ERROR_KEY);
-            System.out.println("[DatasourceJsCodeDisplayNamePinTest] " + locale + " JS code name=[" + name + "]");
-            assertThat(name).isEqualTo(internalError).isNotBlank();
-        }
-        assertThat(Datasource.getDisplayName(Datasource.JS_CODE_ID, Locale.ENGLISH))
-                .isEqualTo("Oops! Service is busy, please try again later.");
-        System.out.println("[DatasourceJsCodeDisplayNamePinTest] pinned: key " + MISSING_KEY + " is missing");
+    @ParameterizedTest
+    @CsvSource({"en,JS Code", "de,JS-Code", "zh,JS 代码"})
+    void theJsCodeDatasourceIsNamedInEveryBundleBF110(String language, String expectedName) {
+        Locale locale = Locale.forLanguageTag(language);
+
+        String name = Datasource.getDisplayName(Datasource.JS_CODE_ID, locale);
+
+        System.out.println("[DatasourceJsCodeDisplayNamePinTest] " + locale + " JS code name=[" + name + "]");
+        assertThat(name).isEqualTo(expectedName).isNotEqualTo(LocaleUtils.getMessage(locale, INTERNAL_SERVER_ERROR_KEY));
     }
 }

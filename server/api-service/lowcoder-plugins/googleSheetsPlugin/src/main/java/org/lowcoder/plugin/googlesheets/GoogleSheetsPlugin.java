@@ -1,8 +1,6 @@
 package org.lowcoder.plugin.googlesheets;
 
 
-import com.google.api.services.sheets.v4.SheetsScopes;
-import com.google.auth.oauth2.ServiceAccountCredentials;
 import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
@@ -22,7 +20,6 @@ import org.pf4j.PluginWrapper;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -62,7 +59,7 @@ public class GoogleSheetsPlugin extends Plugin {
 
         @Override
         public Mono<DatasourceTestResult> testConnection(GoogleSheetsDatasourceConfig connectionConfig) {
-            return Mono.just(DatasourceTestResult.testSuccess());
+            return Mono.fromCallable(() -> testResultOf(connectionConfig.getServiceAccount())); // BF-119: it reported success for any key
         }
 
         @Override
@@ -112,20 +109,7 @@ public class GoogleSheetsPlugin extends Plugin {
             context.setVisitorId(queryVisitorContext.getVisitorId());
             context.setGoogleSheetsActionRequest(googleSheetsActionRequest);
             context.setServiceAccount(datasourceConfig.getServiceAccount());
-            ServiceAccountJsonUtils serviceAccountJsonUtils = new ServiceAccountJsonUtils();
-            serviceAccountJsonUtils.getData(context.getServiceAccount());
-            ServiceAccountCredentials serviceAccountCredentials;
-            try {
-                serviceAccountCredentials = ServiceAccountCredentials.fromPkcs8(
-                        serviceAccountJsonUtils.getClientId(),
-                        serviceAccountJsonUtils.getClientEmail(),
-                        serviceAccountJsonUtils.getPrivateKeyPkcs8(),
-                        serviceAccountJsonUtils.getPrivateKeyId(),
-                        SheetsScopes.all());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            context.setServiceAccountCredentials(serviceAccountCredentials);
+            context.setServiceAccountCredentials(ServiceAccountCredentialsReader.read(context.getServiceAccount()));
             return context;
         }
 
@@ -141,5 +125,19 @@ public class GoogleSheetsPlugin extends Plugin {
                     });
         }
 
+        /**
+         * Success when the service-account key can be read into credentials, else the failure of
+         * {@link ServiceAccountCredentialsReader#read} (GOOGLESHEETS_DATASOURCE_CONFIG_ERROR). Limits: nothing is sent to
+         * Google, so a readable key of a deleted or unauthorised service account, or a sheet it cannot open, passes the
+         * test and fails when a query runs.
+         */
+        private static DatasourceTestResult testResultOf(String serviceAccount) {
+            try {
+                ServiceAccountCredentialsReader.read(serviceAccount);
+                return DatasourceTestResult.testSuccess();
+            } catch (PluginException e) {
+                return DatasourceTestResult.testFail(e);
+            }
+        }
     }
 }

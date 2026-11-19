@@ -3,6 +3,7 @@ package org.lowcoder.plugin.oracle;
 import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.plugin.oracle.gui.*;
+import org.lowcoder.plugin.oracle.util.OracleResultParser;
 import org.lowcoder.plugin.sql.GeneralSqlExecutor;
 import org.lowcoder.plugin.sql.SqlBasedQueryExecutor;
 import org.lowcoder.sdk.exception.PluginException;
@@ -28,8 +29,14 @@ import static org.lowcoder.sdk.plugin.common.sql.StructureParser.QUERY_STRUCTURE
 @Extension
 public class OracleQueryExecutor extends SqlBasedQueryExecutor {
 
+    /** Result rows go through {@link OracleResultParser}, which reads the Oracle driver objects as text (BF-052). */
     public OracleQueryExecutor() {
-        super(new GeneralSqlExecutor());
+        super(new GeneralSqlExecutor() {
+            @Override
+            protected List<Map<String, Object>> parseDataRows(ResultSet resultSet) throws SQLException {
+                return OracleResultParser.parseRows(resultSet);
+            }
+        });
     }
 
     @Nonnull
@@ -47,7 +54,7 @@ public class OracleQueryExecutor extends SqlBasedQueryExecutor {
 
     @Override
     protected GuiSqlCommand parseSqlCommand(String guiStatementType, Map<String, Object> detail) {
-        return switch (guiStatementType.toUpperCase()) {
+        return switch (guiStatementType.toUpperCase(java.util.Locale.ROOT)) { // BF-122: not the default locale
             case "INSERT" -> OracleInsertCommand.from(detail);
             case "UPDATE" -> OracleUpdateCommand.from(detail);
             case "DELETE" -> OracleDeleteCommand.from(detail);

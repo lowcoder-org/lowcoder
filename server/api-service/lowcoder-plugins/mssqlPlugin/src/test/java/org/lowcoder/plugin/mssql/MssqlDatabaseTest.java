@@ -11,6 +11,7 @@ import org.lowcoder.sdk.models.DatasourceStructure.Table;
 import org.lowcoder.sdk.models.DatasourceStructure.TableType;
 import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.lowcoder.sdk.plugin.common.sql.HikariPerfWrapper;
+import org.lowcoder.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -21,9 +22,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -42,6 +46,7 @@ import static org.lowcoder.plugin.mssql.MssqlContainerSupport.jdbc;
 import static org.lowcoder.plugin.mssql.MssqlContainerSupport.rows;
 import static org.lowcoder.plugin.mssql.MssqlContainerSupport.run;
 import static org.lowcoder.plugin.mssql.MssqlContainerSupport.sql;
+import static org.lowcoder.plugin.mssql.MssqlContainerSupport.sqlConfig;
 
 /**
  * Unit MS-4 (task L5-5b): {@code MssqlConnector}, {@code MssqlQueryExecutor}, {@code MssqlStructureParser},
@@ -49,8 +54,8 @@ import static org.lowcoder.plugin.mssql.MssqlContainerSupport.sql;
  * {@code ContainerImages.MSSQL_2022}, the module's {@code mssql-jdbc 10.2.1.jre11} driver), started once per JVM by
  * {@link MssqlContainerSupport}. Heavy-container tag: the default build does not run it (run command in log-L5.md).
  * Each test uses its own tables or schemas in database {@code app}. The self-signed certificate of the image is not
- * trusted, so a pool with usingSsl fails; {@code readOnly} is not enforced by the driver (see
- * {@link #readonlyFlagDoesNotStopAWriteBecauseTheDriverIgnoresIt}).
+ * trusted, so a pool with usingSsl fails. The driver ignores {@code readOnly}, so a read-only pool rolls every query back
+ * instead (BF-025, see {@link #readonlyPoolRollsBackAWriteAndStillAnswersAReadBF025}).
  */
 @Tag("heavy-container")
 public class MssqlDatabaseTest {
@@ -64,6 +69,16 @@ public class MssqlDatabaseTest {
     static final String SEMICOLON_USER = "semiuser";
     static final String SEMICOLON_PASSWORD = "Str0ng;Pass1";
     static final long INIT_TIMEOUT_MILLIS = 10_000;
+    /** The type name the driver reports for a rowversion column, and the column's size in bytes. */
+    static final String ROWVERSION_TYPE_NAME = "timestamp";
+    static final int ROWVERSION_BYTES = 8;
+    static final String NEW9_TABLE = "dbo.t_new9";
+    static final String NEW9_WRITE_THEN_DUPLICATE = "insert into " + NEW9_TABLE + " values (2); insert into " + NEW9_TABLE + " values (1)";
+    static final String NEW9_WRITE_THEN_DIVIDE_BY_ZERO = "insert into " + NEW9_TABLE + " values (2); select 1/0 as boom";
+    static final String NEW9_TWO_WRITES = "insert into " + NEW9_TABLE + " values (2); insert into " + NEW9_TABLE + " values (3)";
+    static final String DUPLICATE_KEY_TEXT = "PRIMARY KEY";
+    static final String DIVIDE_BY_ZERO_TEXT = "Divide by zero";
+    static final String DISABLE_PREPARED_KEY = "disablePreparedStatement";
 
     private static Map<String, Object> keyValues(Object... columnsAndValues) {
         List<Map<String, Object>> comp = new ArrayList<>();
@@ -119,14 +134,15 @@ public class MssqlDatabaseTest {
             assertTrue(dataSource.isRunning());
             assertEquals(DRIVER, dataSource.getDriverClassName());
             assertEquals(MSSQL_POOL_SIZE, dataSource.getMaximumPoolSize());
-            assertEquals("jdbc:sqlserver://" + MssqlContainerSupport.host() + ":" + MssqlContainerSupport.port() + ";databaseName=app;user=" + USER
-                    + ";password=" + PASSWORD + ";encrypt=false;", dataSource.getJdbcUrl());
+            assertEquals("jdbc:sqlserver://;serverName={" + MssqlContainerSupport.host() + "};portNumber=" + MssqlContainerSupport.port()
+                    + ";databaseName={app};encrypt=false;", dataSource.getJdbcUrl());
+            assertEquals(USER, dataSource.getUsername(), "the credentials go to Hikari, not into the URL");
             assertEquals(1, cell(sql(pool, config, "select 1 as one", Map.of()), "one"));
             assertEquals(42, cell(sql(pool, config, "select {{a}} + 1 as r", Map.of("a", 41)), "r"), "a bound parameter reaches the server");
             DatasourceTestResult test = CONNECTOR.testConnection(config).block();
             assertNotNull(test);
             assertTrue(test.isSuccess());
-            System.out.println("[MssqlDatabaseTest] pool url (password included, see D4): " + dataSource.getJdbcUrl() + ", test connection succeeded");
+            System.out.println("[MssqlDatabaseTest] pool url (no credentials, BF-027): " + dataSource.getJdbcUrl() + ", test connection succeeded");
         } finally {
             destroy(pool);
         }
@@ -153,37 +169,39 @@ public class MssqlDatabaseTest {
     }
 
     /**
-     * Pins defect D4 (analysis-plugins section 0.6; plan section 9 D1-D20 row) as the real driver shows it: the password is
-     * appended raw into the JDBC URL, so a password with {@code ;} and {@code }} that the server accepts for a login makes
-     * the pool fail before any connection: the driver does not accept the URL. A password with only a {@code ;} fails the
-     * same way. A fix (braces in the URL) changes this test on purpose.
+     * BF-027 (defect D4) as the real driver shows it: logins whose passwords contain {@code ;} and {@code }} connect and
+     * run a query, because the password reaches the driver through Hikari's properties, not through the URL.
      */
     @Test
-    public void passwordWithSemicolonAndBraceCannotConnect_pinsD4() {
+    public void passwordsWithSemicolonAndBraceConnectBF027() {
         createD4Logins();
-        RuntimeException braces = assertThrows(RuntimeException.class, () -> connect(config(D4_USER, D4_PASSWORD, false, false)));
-        System.out.println("[MssqlDatabaseTest] D4 password with ; and }: " + braces.getClass().getSimpleName() + ": " + braces.getMessage());
-        assertTrue(braces.getMessage().contains("claims to not accept jdbcUrl"), braces.getMessage());
-        RuntimeException semicolon = assertThrows(RuntimeException.class, () -> connect(config(SEMICOLON_USER, SEMICOLON_PASSWORD, false, false)));
-        System.out.println("[MssqlDatabaseTest] D4 password with ; only: " + semicolon.getClass().getSimpleName() + ": " + semicolon.getMessage());
-        assertTrue(semicolon.getMessage().contains("claims to not accept jdbcUrl"), semicolon.getMessage());
+        for (String[] login : new String[][] {{D4_USER, D4_PASSWORD}, {SEMICOLON_USER, SEMICOLON_PASSWORD}}) {
+            MssqlDatasourceConfig config = config(login[0], login[1], false, false);
+            HikariPerfWrapper pool = connect(config);
+            try {
+                Object answer = sql(pool, config, "select suser_name() as login", Map.of());
+                System.out.println("[MssqlDatabaseTest] D4 login " + login[0] + " connected: " + answer);
+                assertEquals(List.of(Map.of("login", login[0])), answer);
+            } finally {
+                destroy(pool);
+            }
+        }
     }
 
     /**
-     * Pins the plan section 9 row "secret in error text" (D-6: fix deferred): the pool failure of the previous test carries
-     * the URL with the password masked only up to its first {@code ;}, so everything after it is in the exception message
-     * (here {@code Pass}word1} and {@code Pass1}). A fix (braces quoting, so the URL is accepted, or masking the whole
-     * password) changes this test on purpose.
+     * BF-026 c: a failed login with a password containing {@code ;} shows no part of the password in the error text (it
+     * was masked by Hikari only up to its first {@code ;} while it was part of the URL).
      */
     @Test
-    public void failureTextContainsThePasswordTailAfterTheFirstSemicolon_pinsTheSecretInErrorTextRow() {
+    public void failureTextHasNoPartOfAPasswordWithASemicolonBF026() {
         createD4Logins();
-        for (String[] login : new String[][] {{D4_USER, D4_PASSWORD}, {SEMICOLON_USER, SEMICOLON_PASSWORD}}) {
-            String tail = login[1].substring(login[1].indexOf(';') + 1);
-            RuntimeException thrown = assertThrows(RuntimeException.class, () -> connect(config(login[0], login[1], false, false)));
-            System.out.println("[MssqlDatabaseTest] password tail '" + tail + "' in the failure text: " + thrown.getMessage());
-            assertTrue(thrown.getMessage().contains("password=<masked>;" + tail + ";"), "the tail after the first ';' is in the message: " + thrown.getMessage());
-            assertTrue(!thrown.getMessage().contains(login[1]), "the part before the ';' is masked: " + thrown.getMessage());
+        for (String password : new String[] {D4_PASSWORD + "x", SEMICOLON_PASSWORD + "x"}) {
+            RuntimeException thrown = assertThrows(RuntimeException.class, () -> connect(config(D4_USER, password, false, false)));
+            String tail = password.substring(password.indexOf(';') + 1);
+            System.out.println("[MssqlDatabaseTest] wrong password with ';': " + thrown.getMessage());
+            assertTrue(thrown.getMessage().contains("Login failed for user '" + D4_USER + "'"), thrown.getMessage());
+            assertFalse(thrown.getMessage().contains(tail), "no password tail in the message: " + thrown.getMessage());
+            assertFalse(thrown.getMessage().contains(password.substring(0, password.indexOf(';'))), "no password head: " + thrown.getMessage());
         }
     }
 
@@ -197,27 +215,80 @@ public class MssqlDatabaseTest {
     }
 
     /**
-     * Shows where the read-only switch stops: the connector hands {@code readOnly} to Hikari (asserted in
-     * {@code MssqlConnectorUrlTest}), but the SQL Server driver treats {@code Connection.setReadOnly} as a hint and sends
-     * nothing to the server, so an insert through a read-only pool succeeds and the row is stored. Pins the plan section 9 row
-     * "read-only not enforced" (D-6: fix deferred): the driver ignores the hint, the connector does set it, and even an
-     * {@code applicationIntent=ReadOnly} property does not make this server refuse the write.
+     * BF-025: the connector hands {@code readOnly} to Hikari (asserted in {@code MssqlConnectorUrlTest}), but the SQL Server
+     * driver treats {@code Connection.setReadOnly} as a hint and sends nothing to the server. {@code MssqlQueryExecutor}
+     * therefore runs every query of a read-only pool in a transaction it rolls back: the insert answers its affected rows,
+     * but no row is stored, and a read still answers.
      */
     @Test
-    public void readonlyFlagDoesNotStopAWriteBecauseTheDriverIgnoresIt() throws Exception {
+    public void readonlyPoolRollsBackAWriteAndStillAnswersAReadBF025() throws Exception {
         try (Connection jdbc = jdbc()) {
-            execute(jdbc, "drop table if exists dbo.t_readonly", "create table dbo.t_readonly (id int)");
+            execute(jdbc, "drop table if exists dbo.t_readonly", "create table dbo.t_readonly (id int)", "insert into dbo.t_readonly values (7)");
             MssqlDatasourceConfig readonly = config(USER, PASSWORD, false, true);
             HikariPerfWrapper pool = connect(readonly);
             try {
                 assertTrue(((HikariDataSource) pool.getHikariDataSource()).isReadOnly(), "the connector set read-only on the pool");
                 Object result = sql(pool, readonly, "insert into dbo.t_readonly values (1)", Map.of());
                 System.out.println("[MssqlDatabaseTest] insert through a read-only pool: " + result);
-                assertEquals(1, ((Map<?, ?>) result).get("affectedRows"));
+                assertEquals(1, ((Map<?, ?>) result).get("affectedRows"), "the rolled-back insert still reports its row");
+                Object read = sql(pool, readonly, "select id from dbo.t_readonly", Map.of());
+                System.out.println("[MssqlDatabaseTest] read through the read-only pool: " + read);
+                assertEquals(List.of(Map.of("id", 7)), read);
             } finally {
                 destroy(pool);
             }
-            assertEquals(List.of(1), column(jdbc, "select id from dbo.t_readonly", "id"), "the write reached the table");
+            assertEquals(List.of(7), column(jdbc, "select id from dbo.t_readonly", "id"), "the write was rolled back");
+        }
+    }
+
+    /**
+     * BF-025: a query that fails on a read-only pool is rolled back too and leaves the pooled connection usable. SQL Server
+     * runs the rest of a batch after a statement fails, so without the rollback the second insert would be stored although
+     * the query reports the first one's error.
+     */
+    @Test
+    public void readonlyPoolRollsBackAFailingQueryAndKeepsWorkingBF025() throws Exception {
+        try (Connection jdbc = jdbc()) {
+            execute(jdbc, "drop table if exists dbo.t_readonly_fail", "create table dbo.t_readonly_fail (id int primary key)",
+                    "insert into dbo.t_readonly_fail values (1)");
+            MssqlDatasourceConfig readonly = config(USER, PASSWORD, false, true);
+            HikariPerfWrapper pool = connect(readonly);
+            try {
+                PluginException thrown = assertThrows(PluginException.class, () -> sql(pool, readonly,
+                        "insert into dbo.t_readonly_fail values (1); insert into dbo.t_readonly_fail values (2)", Map.of()));
+                System.out.println("[MssqlDatabaseTest] failing batch through a read-only pool: " + thrown.getMessage());
+                assertEquals(QUERY_EXECUTION_ERROR, thrown.getError());
+                assertTrue(thrown.getMessage().contains("PRIMARY KEY"), thrown.getMessage());
+                assertEquals(List.of(Map.of("id", 1)), sql(pool, readonly, "select id from dbo.t_readonly_fail", Map.of()),
+                        "the next query on the pool runs and sees no row of the failed batch");
+            } finally {
+                destroy(pool);
+            }
+            assertEquals(List.of(1), column(jdbc, "select id from dbo.t_readonly_fail", "id"),
+                    "the insert after the failing statement was rolled back");
+        }
+    }
+
+    /**
+     * Pins the documented limit of BF-025: the rollback covers what a transaction covers, so a {@code COMMIT} inside the
+     * query commits the writes before it. Only the writes after it are rolled back.
+     */
+    @Test
+    public void readonlyPoolKeepsWritesBeforeAnExplicitCommit_pinsTheRollbackLimitBF025() throws Exception {
+        try (Connection jdbc = jdbc()) {
+            execute(jdbc, "drop table if exists dbo.t_readonly_commit", "create table dbo.t_readonly_commit (id int)");
+            MssqlDatasourceConfig readonly = config(USER, PASSWORD, false, true);
+            HikariPerfWrapper pool = connect(readonly);
+            try {
+                Object result = sql(pool, readonly,
+                        "insert into dbo.t_readonly_commit values (1); commit; insert into dbo.t_readonly_commit values (2)", Map.of());
+                System.out.println("[MssqlDatabaseTest] insert, commit, insert through a read-only pool: " + result);
+            } finally {
+                destroy(pool);
+            }
+            List<Object> kept = column(jdbc, "select id from dbo.t_readonly_commit", "id");
+            System.out.println("[MssqlDatabaseTest] rows kept after the explicit commit: " + kept);
+            assertEquals(List.of(1), kept, "the write before COMMIT is kept, the one after it is rolled back");
         }
     }
 
@@ -317,23 +388,33 @@ public class MssqlDatabaseTest {
     }
 
     /**
-     * Pins the plan section 9 row "timestamp (rowversion) columns cannot be read" (D-6: fix deferred): {@code MssqlResultParser}
-     * formats the type name {@code timestamp} with {@code getTimestamp}, but on SQL Server {@code timestamp} is the binary
-     * row version, which the driver refuses to convert. So {@code select *} from a table with a rowversion column fails the
-     * whole query. A fix (reading {@code timestamp} as bytes) changes this test on purpose.
+     * BF-049 fixed (plan section 9 row "timestamp (rowversion) columns cannot be read"): the driver reports a rowversion
+     * column as type {@code timestamp}, which {@code MssqlResultParser} read with {@code getTimestamp}, refused by the
+     * driver ("The conversion from timestamp to TIMESTAMP is unsupported"), so {@code select *} from such a table failed
+     * the whole query. The column now comes back as its 8 bytes, the ones plain JDBC reads, and the other column as before.
      */
     @Test
-    public void tableWithARowversionColumnCannotBeQueried_pinsTheRowversionRow() throws Exception {
+    public void tableWithARowversionColumnReturnsItsBytesBF049() throws Exception {
         try (Connection jdbc = jdbc()) {
             execute(jdbc, "drop table if exists dbo.t_rowversion", "create table dbo.t_rowversion (id int, rv rowversion)", "insert into dbo.t_rowversion (id) values (1)");
+            String typeName;
+            byte[] expected;
+            try (Statement statement = jdbc.createStatement(); ResultSet resultSet = statement.executeQuery("select rv from dbo.t_rowversion")) {
+                typeName = resultSet.getMetaData().getColumnTypeName(1);
+                resultSet.next();
+                expected = resultSet.getBytes(1);
+            }
             MssqlDatasourceConfig config = config();
             HikariPerfWrapper pool = connect(config);
             try {
-                assertEquals(1, cell(sql(pool, config, "select id from dbo.t_rowversion", Map.of()), "id"), "without the rowversion column the table reads fine");
-                PluginException thrown = assertThrows(PluginException.class, () -> sql(pool, config, "select * from dbo.t_rowversion", Map.of()));
-                System.out.println("[MssqlDatabaseTest] select * with a rowversion column: " + thrown.getError() + " " + thrown.getMessage());
-                assertEquals(QUERY_EXECUTION_ERROR, thrown.getError());
-                assertTrue(thrown.getMessage().contains("The conversion from timestamp to TIMESTAMP is unsupported"), thrown.getMessage());
+                Object data = sql(pool, config, "select * from dbo.t_rowversion", Map.of());
+                Object rv = cell(data, "rv");
+                System.out.println("[MssqlDatabaseTest] select * with a rowversion column (driver type " + typeName + "): id " + cell(data, "id")
+                        + ", rv " + (rv instanceof byte[] bytes ? java.util.Arrays.toString(bytes) : rv));
+                assertEquals(ROWVERSION_TYPE_NAME, typeName, "the driver's name for a rowversion column");
+                assertEquals(1, cell(data, "id"));
+                assertEquals(ROWVERSION_BYTES, expected.length);
+                assertArrayEquals(expected, (byte[]) rv);
             } finally {
                 destroy(pool);
             }
@@ -366,6 +447,23 @@ public class MssqlDatabaseTest {
         }
     }
 
+    /**
+     * F01 (GitHub #1641) on a real SQL Server: a bulk update with a filter changes the records' rows that match it; a record whose
+     * row the filter excludes keeps its value (the filter used to be ignored, so that row was updated too).
+     */
+    @Test
+    public void guiBulkUpdateWithAFilterLeavesTheRowTheFilterExcludesF01() throws Exception {
+        try (Connection jdbc = jdbc()) {
+            execute(jdbc, "drop table if exists dbo.t_bulk_filter", "create table dbo.t_bulk_filter (id int primary key, name nvarchar(20), status nvarchar(10))",
+                    "insert into dbo.t_bulk_filter values (1, 'a', 'open'), (2, 'b', 'closed'), (3, 'c', 'open')");
+            Object updated = gui("BULK_UPDATE", Map.of("table", "dbo.t_bulk_filter", "primaryKey", "id",
+                    "records", "[{\"id\":1,\"name\":\"A\"},{\"id\":2,\"name\":\"B\"}]",
+                    "filterBy", List.of(Map.of("column", "status", "condition", "=", "value", "{{status}}"))), Map.of("status", "open"));
+            System.out.println("[MssqlDatabaseTest] F01 bulk update with filter status = open: " + updated);
+            assertEquals(List.of("A", "b", "c"), column(jdbc, "select name from dbo.t_bulk_filter order by id", "name"));
+        }
+    }
+
     @Test
     public void topOneChangesAndDeletesExactlyOneOfThreeMatchingRows() throws Exception {
         try (Connection jdbc = jdbc()) {
@@ -391,6 +489,76 @@ public class MssqlDatabaseTest {
             multiUpdate.put("changeSet", keyValues("marker", "all"));
             assertEquals(1, ((Map<?, ?>) gui("UPDATE", multiUpdate, Map.of("key", 2))).get("affectedRows"));
             assertEquals(List.of("all"), column(jdbc, "select marker from dbo.t_top", "marker"));
+        }
+    }
+
+    // ---- NEW-9: an update count followed directly by a failing statement
+
+    /** Drops and recreates {@link #NEW9_TABLE} with the single row 1, so a case does not depend on an earlier one. */
+    private static void resetNew9Table(Connection jdbc) {
+        execute(jdbc, "drop table if exists " + NEW9_TABLE, "create table " + NEW9_TABLE + " (id int primary key)",
+                "insert into " + NEW9_TABLE + " values (1)");
+    }
+
+    /** Runs {@code sql} on a fresh pool of {@code config}, prepared or plain; a plain run first proves it really is plain. */
+    private static Object runNew9(MssqlDatasourceConfig config, String sql, boolean plain) {
+        Map<String, Object> queryConfig = sqlConfig(sql);
+        queryConfig.put(DISABLE_PREPARED_KEY, plain);
+        SqlBasedQueryExecutionContext context = EXECUTOR.buildQueryExecutionContext(config, queryConfig, Map.of(), null);
+        assertEquals(plain, context.isDisablePreparedStatement(), "the query runs " + (plain ? "plain" : "prepared"));
+        HikariPerfWrapper pool = connect(config);
+        try {
+            return run(pool, config, queryConfig, Map.of());
+        } finally {
+            destroy(pool);
+        }
+    }
+
+    private static void assertFailsWith(Connection jdbc, String label, Supplier<Object> query, String messagePart, List<Object> idsAfter) {
+        resetNew9Table(jdbc);
+        PluginException thrown = assertThrows(PluginException.class, query::get, label + ": the failing statement must fail the query");
+        System.out.println("[MssqlDatabaseTest] NEW-9 " + label + ": " + thrown.getMessage());
+        assertEquals(QUERY_EXECUTION_ERROR, thrown.getError(), label);
+        assertTrue(thrown.getMessage().contains(messagePart), label + ": " + thrown.getMessage());
+        assertEquals(idsAfter, column(jdbc, "select id from " + NEW9_TABLE + " order by id", "id"), label);
+    }
+
+    /**
+     * NEW-9: SQL Server raises the error of the statement after an update count from {@code getGeneratedKeys}, which the
+     * executor took for "no keys", so the query answered {@code {affectedRows=1}}. It now fails, prepared and plain; the
+     * earlier write stays (auto-commit, as for any failing batch), a read-only pool rolls it back. A failure that already
+     * surfaced through {@code getMoreResults} (a result set after the write) keeps failing.
+     */
+    @Test
+    public void aFailingStatementAfterAWriteFailsTheQueryNEW9() throws Exception {
+        MssqlDatasourceConfig prepared = config();
+        MssqlDatasourceConfig plainAllowed = config(USER, PASSWORD, false, false, true);
+        MssqlDatasourceConfig readonly = config(USER, PASSWORD, false, true);
+        try (Connection jdbc = jdbc()) {
+            assertAll(
+                    () -> assertFailsWith(jdbc, "prepared", () -> runNew9(prepared, NEW9_WRITE_THEN_DUPLICATE, false), DUPLICATE_KEY_TEXT, List.of(1, 2)),
+                    () -> assertFailsWith(jdbc, "plain", () -> runNew9(plainAllowed, NEW9_WRITE_THEN_DUPLICATE, true), DUPLICATE_KEY_TEXT, List.of(1, 2)),
+                    () -> assertFailsWith(jdbc, "read-only prepared", () -> runNew9(readonly, NEW9_WRITE_THEN_DUPLICATE, false), DUPLICATE_KEY_TEXT, List.of(1)),
+                    () -> assertFailsWith(jdbc, "prepared, result set after the write", () -> runNew9(prepared, NEW9_WRITE_THEN_DIVIDE_BY_ZERO, false),
+                            DIVIDE_BY_ZERO_TEXT, List.of(1, 2)));
+        }
+    }
+
+    /**
+     * NEW-9 guard: the driver's own "no keys" exception after an update count (it carries no server error) still means "no
+     * keys", prepared and plain, so a batch without a failing statement succeeds. The answer is today's: only the first
+     * count, the second is lost (NEW-50, not fixed here); fixing NEW-50 changes the expected value below.
+     */
+    @Test
+    public void aWriteBatchWithoutAFailingStatementStillSucceedsNEW9() throws Exception {
+        try (Connection jdbc = jdbc()) {
+            for (boolean plain : new boolean[] {false, true}) {
+                resetNew9Table(jdbc);
+                Object answer = runNew9(config(USER, PASSWORD, false, false, plain), NEW9_TWO_WRITES, plain);
+                System.out.println("[MssqlDatabaseTest] NEW-9 guard, plain=" + plain + ": two writes -> " + answer);
+                assertEquals(Map.of("affectedRows", 1), answer, "plain=" + plain);
+                assertEquals(List.of(1, 2, 3), column(jdbc, "select id from " + NEW9_TABLE + " order by id", "id"), "plain=" + plain);
+            }
         }
     }
 }

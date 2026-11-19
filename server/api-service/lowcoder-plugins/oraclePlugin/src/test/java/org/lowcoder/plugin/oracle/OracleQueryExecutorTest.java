@@ -10,6 +10,7 @@ import org.lowcoder.plugin.oracle.model.OracleDatasourceConfig;
 import org.lowcoder.sdk.contract.FakeJdbc;
 import org.lowcoder.sdk.contract.FakeJdbc.Column;
 import org.lowcoder.sdk.contract.FakeJdbc.FailingCell;
+import org.lowcoder.sdk.contract.FakeJdbc.MissingClassCell;
 import org.lowcoder.sdk.contract.FakeJdbc.Rows;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.DatasourceStructure;
@@ -47,6 +48,10 @@ import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR
 public class OracleQueryExecutorTest {
 
     static final Duration TIMEOUT = Duration.ofSeconds(20);
+    /** For the NEW-16 test, whose failure mode at HEAD is a hang: short, so the suite is not held for 20 s. */
+    static final Duration MISSING_CLASS_TIMEOUT = Duration.ofMillis(250);
+    /** A class the Oracle driver would need for an XMLTYPE column; the answer must name it. */
+    static final String MISSING_CLASS = "oracle.xdb.XMLType";
     static final String QUERY = "select * from items";
     static final String TABLE_NAME = "table_name";
     static final String COLUMN_NAME = "column_name";
@@ -89,6 +94,34 @@ public class OracleQueryExecutorTest {
         assertEquals(1, first.get("ID"));
         assertEquals("žluť", first.get("NAME"));
         assertNull(assertInstanceOf(Map.class, data.get(1)).get("NAME"));
+    }
+
+    /**
+     * NEW-16 (T165): a cell whose type needs a class the deployment lacks. The read throws a
+     * {@link NoClassDefFoundError}, which Reactor used to rethrow as JVM-fatal on the plugin scheduler's worker, so the
+     * query never answered; it now fails with an execution error naming the class. The path is the real one for this
+     * defect - {@link OracleQueryExecutor} over {@code GeneralSqlExecutor} and
+     * {@code BlockingQueryExecutor.executeQuery} - with the failure raised while a result is read.
+     *
+     * <p>It blocks for {@link #MISSING_CLASS_TIMEOUT} rather than the class's 20 s {@link #TIMEOUT}, so that at HEAD it
+     * fails fast instead of holding the suite for twenty seconds. Limit: the missing class is simulated by
+     * {@link FakeJdbc.MissingClassCell}, not produced by a real Oracle driver reading an {@code XMLTYPE} column; that
+     * check is its own task.
+     */
+    @Test
+    public void aCellWhoseClassIsMissingFailsTheQueryWithAnExecutionErrorNEW16() {
+        SqlBasedQueryExecutionContext context = SqlBasedQueryExecutionContext.builder().query(QUERY).requestParams(Map.of()).build();
+        PluginException thrown = assertThrows(PluginException.class, () -> executor.executeQuery(
+                OracleFakeConnections.wrap(FakeJdbc.connection(List.of(new Rows(FakeJdbc.resultSet(
+                        List.of(new Column("X", "XMLTYPE")),
+                        List.of(List.of(new MissingClassCell(MISSING_CLASS)))))))),
+                context).block(MISSING_CLASS_TIMEOUT));
+
+        System.out.println("[OracleQueryExecutorTest] missing class: " + thrown.getError() + " " + thrown.getMessageKey()
+                + " " + Arrays.toString(thrown.getArgs()));
+        assertEquals(QUERY_EXECUTION_ERROR, thrown.getError());
+        assertTrue(Arrays.toString(thrown.getArgs()).contains(MISSING_CLASS),
+                "the answer must name the missing class, was " + Arrays.toString(thrown.getArgs()));
     }
 
     @Test
@@ -148,22 +181,71 @@ public class OracleQueryExecutorTest {
         assertEquals("merge", thrown.getArgs()[0]);
     }
 
+    /** The default locale under which upper-casing "i" gives a dotted capital I. */
+    private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
+
     /**
-     * Pins defect D17 (analysis-plugins section 0.6; plan section 9 D1-D20 row: default-locale toUpperCase): under a
-     * Turkish default locale "insert" becomes a dotted capital I word and falls into the error branch. A fix
-     * ({@code Locale.ROOT}) changes this test on purpose. The default locale is global state: restored in finally.
+     * BF-122 (D17): the GUI type was upper-cased with the default locale, so under a Turkish default locale "insert" became a
+     * dotted capital I word and fell into the error branch (INVALID_GUI_COMMAND_TYPE). It is upper-cased with
+     * {@code Locale.ROOT} now. The default locale is global state: restored in finally.
      */
     @Test
-    public void guiTypeInsertFailsUnderATurkishDefaultLocale_pinsD17() {
+    public void guiTypeInsertIsReadUnderATurkishDefaultLocaleBF122() {
         Locale saved = Locale.getDefault();
         try {
-            Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+            Locale.setDefault(TURKISH);
             System.out.println("[OracleQueryExecutorTest] default locale: " + Locale.getDefault() + ", upper case of insert: " + "insert".toUpperCase());
-            PluginException thrown = assertThrows(PluginException.class, () -> executor.parseSqlCommand("insert", DETAILS.get("insert")));
-            assertEquals("INVALID_GUI_COMMAND_TYPE", thrown.getMessageKey());
+            assertInstanceOf(OracleInsertCommand.class, executor.parseSqlCommand("insert", DETAILS.get("insert")), "under " + Locale.getDefault());
         } finally {
             Locale.setDefault(saved);
         }
         assertInstanceOf(OracleInsertCommand.class, executor.parseSqlCommand("insert", DETAILS.get("insert")), "locale restored: " + Locale.getDefault());
+    }
+    // ---- BF-146 (T145): bind values against placeholders with sort maps
+
+    static final Map<String, Object> SORT_PARAMS_BF146 = Map.of("s", Map.of("sort", "desc"));
+    static final Map<String, Object> SORT_VALUES_BF146 = Map.of("compType", "KEY_VALUE_PAIRS", "comp", List.of(Map.of("column", "a", "value", "{{s}}")));
+    static final List<Map<String, Object>> SORT_FILTER_BF146 = List.of(Map.of("column", "id", "condition", "=", "value", "{{s}}"));
+    static final String SORT_RECORDS_BF146 = "[{\"a\":1,\"b\":{\"sort\":\"desc\"}}]";
+    static final Map<String, Map<String, Object>> SORT_DETAILS_BF146 = Map.of(
+            "insert", Map.of("table", "t", "changeSet", SORT_VALUES_BF146),
+            "update", Map.of("table", "t", "changeSet", SORT_VALUES_BF146, "filterBy", SORT_FILTER_BF146),
+            "delete", Map.of("table", "t", "filterBy", SORT_FILTER_BF146),
+            "bulk_insert", Map.of("table", "t", "records", SORT_RECORDS_BF146),
+            "bulk_update", Map.of("table", "t", "primaryKey", "a", "records", SORT_RECORDS_BF146));
+
+    /**
+     * BF-146 (T145, verify first): {@code GeneralSqlExecutor}'s sort rewrite would loop endlessly on a bind value that is a
+     * map with a {@code sort} key and no {@code ?} of its own. Every GUI type of this dialect, rendered with such maps as its
+     * values, filter values and record values, binds them as text, never as a map, and binds no more values than its SQL has
+     * {@code ?} (counted as the rewrite counts them, literal ones included), the guard select of a single-row result too.
+     * Each render must bind the sort value (as its JSON text), so a renderer that dropped it would fail too.
+     * Catches: a renderer of this dialect that binds a value without writing its {@code ?}, or that binds a map.
+     */
+    @Test
+    public void everyGuiTypeBindsNoMapAndNoMoreValuesThanPlaceholdersBF146() {
+        int sortTexts = 0;
+        for (String type : TYPES.keySet()) {
+            for (boolean multi : new boolean[] {false, true}) {
+                Map<String, Object> detail = new java.util.HashMap<>(SORT_DETAILS_BF146.get(type));
+                detail.put("allowMultiModify", multi);
+                GuiSqlCommand.GuiSqlCommandRenderResult result = executor.parseSqlCommand(type, detail).render(SORT_PARAMS_BF146);
+                System.out.println("[BF-146] " + type + " multi=" + multi + " -> [" + result.sql().replace('\n', ' ') + "] " + result.bindParams());
+                assertNoMapAndEnoughPlaceholdersBF146(type, result.sql(), result.bindParams());
+                long reached = result.bindParams().stream().filter(value -> value instanceof String text && text.contains("\"sort\"")).count();
+                org.junit.jupiter.api.Assertions.assertTrue(reached > 0, type + " multi=" + multi + ": the sort value must reach the bind list");
+                sortTexts += (int) reached;
+                if (result instanceof org.lowcoder.sdk.plugin.sqlcommand.command.UpdateOrDeleteSingleCommandRenderResult single) {
+                    assertNoMapAndEnoughPlaceholdersBF146(type + " guard", single.getSelectQuery(), single.getSelectBindParams());
+                }
+            }
+        }
+        System.out.println("[BF-146] " + sortTexts + " sort values bound as JSON text, none as a map, none without a placeholder");
+    }
+
+    private static void assertNoMapAndEnoughPlaceholdersBF146(String label, String sql, List<Object> bindParams) {
+        int placeholders = sql.split("\\?", -1).length - 1;
+        org.junit.jupiter.api.Assertions.assertTrue(bindParams.size() <= placeholders, label + ": " + bindParams.size() + " values, " + placeholders + " ?");
+        org.junit.jupiter.api.Assertions.assertTrue(bindParams.stream().noneMatch(Map.class::isInstance), label + ": a map is bound");
     }
 }

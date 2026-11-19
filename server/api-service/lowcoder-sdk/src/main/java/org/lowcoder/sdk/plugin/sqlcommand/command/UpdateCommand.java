@@ -15,7 +15,8 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_UPDATE_COMMAND;
 import static org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSet.parseChangeSet;
 import static org.lowcoder.sdk.plugin.sqlcommand.filter.FilterSet.parseFilterSet;
-import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheString;
+import static org.lowcoder.sdk.util.SqlGuiUtils.quoteIdentifier;
+import static org.lowcoder.sdk.util.SqlGuiUtils.renderTableName;
 
 @SuppressWarnings("DuplicatedCode")
 public class UpdateCommand implements GuiSqlCommand {
@@ -24,8 +25,8 @@ public class UpdateCommand implements GuiSqlCommand {
     protected final ChangeSet changeSet;
     protected final FilterSet filterSet;
     protected final boolean allowMultiModify;
-    private final String columnFrontDelimiter;
-    private final String columnBackDelimiter;
+    protected final String columnFrontDelimiter;
+    protected final String columnBackDelimiter;
 
     protected UpdateCommand(String table, ChangeSet changeSet,
             FilterSet filterSet, boolean allowMultiModify,
@@ -50,7 +51,7 @@ public class UpdateCommand implements GuiSqlCommand {
     @Override
     public GuiSqlCommandRenderResult render(Map<String, Object> requestMap) {
 
-        String renderedTable = renderMustacheString(table, requestMap);
+        String renderedTable = renderTableName(table, requestMap, columnFrontDelimiter, columnBackDelimiter);
         ChangeSetRow updateRow = changeSet.render(requestMap);
         if (updateRow.isEmpty()) {
             throw new PluginException(INVALID_UPDATE_COMMAND, "UPDATE_DATA_EMPTY");
@@ -62,11 +63,10 @@ public class UpdateCommand implements GuiSqlCommand {
         appendTable(renderedTable, sb);
         appendSet(updateRow, sb, bindParams);
 
-        if (filterSet.isEmpty()) {
-            return new GuiSqlCommandRenderResult(sb.toString(), bindParams);
+        // without a filter too: with multi-modify off an update changes at most one row, as a delete does (BF-030)
+        if (!filterSet.isEmpty()) {
+            appendFilter(requestMap, sb, bindParams);
         }
-
-        appendFilter(requestMap, sb, bindParams);
         appendLimit(sb);
 
         return new GuiSqlCommandRenderResult(sb.toString(), bindParams);
@@ -77,9 +77,7 @@ public class UpdateCommand implements GuiSqlCommand {
         if (isRenderWithRawSql()) {
             sb.append(" set ");
             updateRow
-                    .forEach(item -> sb.append(columnFrontDelimiter)
-                            .append(item.column())
-                            .append(columnBackDelimiter)
+                    .forEach(item -> sb.append(quoteIdentifier(item.column(), columnFrontDelimiter, columnBackDelimiter))
                             .append("=")
                             .append(item.guiSqlValue().getConcatSqlStr(escapeStrFunc()))
                             .append(",")
@@ -95,9 +93,7 @@ public class UpdateCommand implements GuiSqlCommand {
 
         sb.append(" set ");
         updateRow.getColumns()
-                .forEach(column -> sb.append(columnFrontDelimiter)
-                        .append(column)
-                        .append(columnBackDelimiter)
+                .forEach(column -> sb.append(quoteIdentifier(column, columnFrontDelimiter, columnBackDelimiter))
                         .append("=?,")
                 );
         sb.deleteCharAt(sb.length() - 1);

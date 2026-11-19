@@ -9,6 +9,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.sdk.config.AuthProperties;
+import org.lowcoder.sdk.util.IDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -37,10 +38,19 @@ public class JWTUtils {
                 .build();
     }
 
+    /**
+     * Signs a new API-key token for the user. The token carries a random {@code jti} (NEW-134), so two keys created within the same
+     * second get different tokens with overwhelming probability; without it the claims of two such calls were equal, and deleting
+     * one of the keys left its token valid through the other. No uniqueness check is made. Validation does not read the {@code jti}:
+     * tokens issued before it was added keep authenticating, and keys that already share a token keep sharing it. Limits: the tokens
+     * still never expire; a token stops authenticating when no stored key of the user carries it any more (so keys that share a token
+     * must all be removed) or when the user is deleted ({@code SessionUserServiceImpl.resolveSessionUserForJWT}).
+     */
     public String createToken(User user) {
         Claims claims = Jwts.claims()
                 .setSubject(user.getId())
-                .setIssuedAt(new Date());
+                .setIssuedAt(new Date())
+                .setId(IDUtils.generate());
         claims.put("userId", user.getId() );
         claims.put("createdBy", user.getName());
         return Jwts.builder()

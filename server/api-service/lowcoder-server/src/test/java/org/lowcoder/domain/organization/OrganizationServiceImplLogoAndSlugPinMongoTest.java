@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.lowcoder.domain.organization.model.OrganizationState.ACTIVE;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -26,8 +27,8 @@ import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Flux;
 
 /**
- * Pins of two section 9 rows found by L3-11b on OrganizationServiceImpl (follow-up): the dangling logo reference and the
- * hyphenated slug. Shared {@code test} context, ids generated per test.
+ * Two section 9 rows found by L3-11b on OrganizationServiceImpl (follow-up): the dangling logo reference (BF-064, fixed)
+ * and the hyphenated slug (BF-133, fixed). Shared {@code test} context, ids generated per test.
  */
 @SpringBootTest(classes = ServerApplication.class)
 @ActiveProfiles("test")
@@ -58,58 +59,91 @@ class OrganizationServiceImplLogoAndSlugPinMongoTest extends OrganizationMongoTe
     }
 
     /**
-     * Pins plan section 9 row "deleteLogo keeps a dangling logoAssetId (null not written by convertToUpdate)": deleteLogo
-     * (OrganizationServiceImpl:251-256) clears the logo with updateById on an Organization whose logoAssetId is null, and
-     * MongoUpsertHelper.convertToUpdate (:139-147) writes only non-null fields, so the asset is deleted but the org keeps
-     * its logoAssetId (for the real id and, a fortiori, for a gid or slug). A second deleteLogo then fails naming the
-     * deleted asset. A fix (unset the field) changes this test on purpose.
+     * BF-064 (formerly pinned as plan section 9 row "deleteLogo keeps a dangling logoAssetId (null not written by
+     * convertToUpdate)": the asset was deleted, the reference stayed, and a second delete failed naming the deleted asset):
+     * deleteLogo unsets the reference and deletes the asset, by the organization's id, gid or slug, and a second delete
+     * fails as "no logo" ({@code ASSET_NOT_FOUND} with an empty argument).
      */
     @Test
-    void deleteLogoKeepsADanglingLogoAssetId_pinsTheSection9Row() {
-        Organization org = saveOrg();
-        organizationService.uploadLogo(org.getId(), pngPart()).block(TIMEOUT);
-        String assetId = stored(org.getId()).getLogoAssetId();
+    void deleteLogoRemovesTheReferenceAndTheAssetByIdGidOrSlugBF064() {
+        for (String by : List.of("id", "gid", "slug")) {
+            Organization org = saveOrg();
+            String key = switch (by) {
+                case "gid" -> org.getGid();
+                case "slug" -> org.getSlug();
+                default -> org.getId();
+            };
+            organizationService.uploadLogo(key, pngPart()).block(TIMEOUT);
+            String assetId = stored(org.getId()).getLogoAssetId();
+            assertThat(assetId).as("uploaded by " + by).isNotBlank();
 
-        organizationService.deleteLogo(org.getId()).block(TIMEOUT);
+            assertThat(organizationService.deleteLogo(key).block(TIMEOUT)).as("deleted by " + by).isTrue();
 
-        System.out.println("[OrganizationServiceImplLogoAndSlugPinMongoTest] PINNED asset " + assetId + " present="
-                + assetRepository.findById(assetId).blockOptional(TIMEOUT).isPresent() + ", reference " + stored(org.getId()).getLogoAssetId());
-        assertThat(assetRepository.findById(assetId).blockOptional(TIMEOUT)).as("the asset is deleted").isEmpty();
-        assertThat(stored(org.getId()).getLogoAssetId()).as("the reference stays").isEqualTo(assetId);
-        BizException again = assertThrows(BizException.class, () -> {
-            try {
-                organizationService.deleteLogo(org.getId()).block(TIMEOUT);
-            } catch (RuntimeException e) {
-                throw e instanceof BizException ? e : (BizException) e.getCause();
-            }
-        });
-        assertThat(again.getError()).isEqualTo(BizError.NO_RESOURCE_FOUND);
-        assertThat(again.getArgs()).containsExactly(assetId);
+            System.out.println("[OrganizationServiceImplLogoAndSlugPinMongoTest] by " + by + ": asset " + assetId + " present="
+                    + assetRepository.findById(assetId).blockOptional(TIMEOUT).isPresent() + ", reference " + stored(org.getId()).getLogoAssetId());
+            assertThat(assetRepository.findById(assetId).blockOptional(TIMEOUT)).as("the asset is deleted").isEmpty();
+            assertThat(stored(org.getId()).getLogoAssetId()).as("the reference is removed").isNull();
+            BizException again = assertThrows(BizException.class, () -> {
+                try {
+                    organizationService.deleteLogo(key).block(TIMEOUT);
+                } catch (RuntimeException e) {
+                    throw e instanceof BizException ? e : (BizException) e.getCause();
+                }
+            });
+            assertThat(again.getError()).isEqualTo(BizError.NO_RESOURCE_FOUND);
+            assertThat(again.getMessageKey()).isEqualTo("ASSET_NOT_FOUND");
+            assertThat(again.getArgs()).containsExactly("");
+        }
     }
 
     /**
-     * Pins plan section 9 row "a hyphenated slug is accepted but unreachable (isGID)": SlugUtils.validate accepts a hyphen,
-     * but getById (OrganizationServiceImpl:175-179) decides GID-or-not by "contains a hyphen" (FieldName.guessFieldNameFromId),
-     * so the org cannot be found by that slug. A fix (reject hyphens, or look the slug up before the GID guess) changes this
-     * test on purpose.
+     * BF-133 (was pinned as plan section 9 row "a hyphenated slug is accepted but unreachable (isGID)"): SlugUtils.validate
+     * accepts a hyphen, and the lookups took every key with a hyphen for a gid (FieldName.guessFieldNameFromId), so such a
+     * slug was never found. A key with a hyphen is now looked up as a gid and then as a slug, in getById,
+     * getByIdWithDeleted, getOrgCommonSettings and getByIds.
      */
     @Test
-    void aHyphenatedSlugIsAcceptedButUnreachable_pinsTheSection9Row() {
+    void aHyphenatedSlugIsFoundByEveryLookupBF133() {
         Organization org = saveOrg();
         String slug = "my-" + newId();
 
         assertThat(organizationService.updateSlug(org.getId(), slug).block(TIMEOUT).getSlug()).isEqualTo(slug);
 
         assertThat(stored(org.getId()).getSlug()).isEqualTo(slug);
+        Organization found = organizationService.getById(slug).block(TIMEOUT);
+        System.out.println("[OrganizationServiceImplLogoAndSlugPinMongoTest] slug " + slug + " -> " + found.getId());
+        assertThat(found.getId()).isEqualTo(org.getId());
+        assertThat(organizationService.getByIdWithDeleted(slug).block(TIMEOUT).getId()).isEqualTo(org.getId());
+        assertThat(organizationService.getOrgCommonSettings(slug).block(TIMEOUT)).isEqualTo(stored(org.getId()).getCommonSettings());
+        assertThat(organizationService.getByIds(List.of(slug)).map(Organization::getId).collectList().block(TIMEOUT))
+                .containsExactly(org.getId());
+        assertThat(organizationService.getById(org.getId()).block(TIMEOUT).getId()).as("the id still works").isEqualTo(org.getId());
+        assertThat(organizationService.getById(org.getGid()).block(TIMEOUT).getId()).as("the gid still works").isEqualTo(org.getId());
+    }
+
+    /**
+     * BF-133: the gid is looked up first, so a slug that spells another organization's gid does not take its lookups over;
+     * a key with a hyphen that names no organization is still UNABLE_TO_FIND_VALID_ORG.
+     */
+    @Test
+    void aGidIsLookedUpBeforeASlugAndAnUnknownHyphenatedKeyIsNotFoundBF133() {
+        Organization owner = saveOrg();
+        Organization other = saveOrg();
+        assertThat(organizationService.updateSlug(other.getId(), owner.getGid()).block(TIMEOUT).getSlug()).isEqualTo(owner.getGid());
+
+        assertThat(organizationService.getById(owner.getGid()).block(TIMEOUT).getId()).isEqualTo(owner.getId());
+        assertThat(organizationService.getByIdWithDeleted(owner.getGid()).block(TIMEOUT).getId()).isEqualTo(owner.getId());
+
+        String unknown = "no-such-" + newId();
         BizException error = assertThrows(BizException.class, () -> {
             try {
-                organizationService.getById(slug).block(TIMEOUT);
+                organizationService.getById(unknown).block(TIMEOUT);
             } catch (RuntimeException e) {
                 throw e instanceof BizException ? e : (BizException) e.getCause();
             }
         });
-        System.out.println("[OrganizationServiceImplLogoAndSlugPinMongoTest] PINNED slug " + slug + " not resolvable: " + error.getError());
+        System.out.println("[OrganizationServiceImplLogoAndSlugPinMongoTest] unknown " + unknown + " -> " + error.getError());
         assertThat(error.getError()).isEqualTo(BizError.UNABLE_TO_FIND_VALID_ORG);
-        assertThat(organizationService.getById(org.getId()).block(TIMEOUT).getId()).as("the id still works").isEqualTo(org.getId());
+        assertThat(organizationService.getByIds(List.of(unknown)).collectList().block(TIMEOUT)).isEmpty();
     }
 }

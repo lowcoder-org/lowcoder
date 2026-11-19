@@ -1,7 +1,6 @@
 package org.lowcoder.domain.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.lowcoder.domain.user.service.UserServiceFixture.AVATAR_MAX_SIZE_KB;
 import static org.lowcoder.domain.user.service.UserServiceFixture.USER_ID;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.domain.asset.model.Asset;
 import org.lowcoder.domain.authentication.context.AuthRequestContext;
 import org.lowcoder.domain.authentication.context.FormAuthRequestContext;
@@ -36,6 +36,7 @@ import org.lowcoder.sdk.exception.BizException;
 import org.mockito.ArgumentCaptor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -50,7 +51,11 @@ class UserServiceImplAccountTest {
     private static final String AUTH_CONFIG_ID = "auth-config-1";
     private static final String GITHUB = "GITHUB";
     private static final String PREVIOUS_AVATAR = "asset-old";
+    /** NEW-136: the name of the field under test. */
+    private static final String HAS_SET_NICKNAME_FIELD = "hasSetNickname";
     private static final String NEW_AVATAR = "asset-new";
+    /** An avatar that is only whitespace: no photo, as {@code User#getAvatarUrl} reads it. */
+    private static final String BLANK_AVATAR = " ";
 
     private UserServiceFixture fixture;
     private UserServiceImpl service;
@@ -92,6 +97,23 @@ class UserServiceImplAccountTest {
         verify(fixture.mongoUpsertHelper).updateById(update.capture(), eq(USER_ID));
         assertThat(update.getValue().getAvatar()).isEqualTo(NEW_AVATAR);
         System.out.println("[UserServiceImplAccountTest] photo saved: old asset removed first, new asset id written");
+    }
+
+    /** NEW-136 (D1): the partial written for a new photo must leave the nickname flag unset, so the photo does not reset it. */
+    @Test
+    void saveProfilePhoto_writesAPartialWithoutTheFlagNEW136() {
+        Part part = mock(Part.class);
+        stubUpload(part);
+        when(fixture.mongoUpsertHelper.updateById(any(User.class), eq(USER_ID))).thenReturn(Mono.just(true));
+        User user = User.builder().id(USER_ID).build();
+
+        StepVerifier.create(service.saveProfilePhoto(part, user)).expectNext(true).verifyComplete();
+
+        ArgumentCaptor<User> update = ArgumentCaptor.forClass(User.class);
+        verify(fixture.mongoUpsertHelper).updateById(update.capture(), eq(USER_ID));
+        Object flag = ReflectionTestUtils.getField(update.getValue(), HAS_SET_NICKNAME_FIELD);
+        System.out.println("[UserServiceImplAccountTest] [NEW-136] photo partial hasSetNickname field: " + flag);
+        assertThat(flag).as("[NEW-136] the photo partial must not set the flag").isNull();
     }
 
     /** Catches a remove call for an empty previous avatar (:206). */
@@ -137,17 +159,24 @@ class UserServiceImplAccountTest {
     }
 
     /**
-     * Pins the plan section 9 candidate "deleteProfilePhoto thenReturn(null)" (UserServiceImpl:375): for a user
-     * without an avatar, {@code thenReturn(userAvatar)} receives null and Reactor rejects it with a
-     * NullPointerException at assembly, so the call fails instead of doing nothing. A fix changes this test on purpose.
+     * BF-098 (was pinned as the plan section 9 candidate "deleteProfilePhoto thenReturn(null)"): for a user without an
+     * avatar (null, or blank as {@code User#getAvatarUrl} reads it) there is no photo to delete, so the call completes
+     * without saving the user or removing an asset; for a null avatar it used to throw a NullPointerException
+     * ({@code thenReturn(null)}).
      */
-    @Test
-    void deleteProfilePhoto_userWithoutAvatar_throwsNullPointerException() {
-        User user = User.builder().id(USER_ID).build();
+    @ParameterizedTest(name = "[{index}] avatar <{0}>")
+    @NullAndEmptySource
+    @ValueSource(strings = BLANK_AVATAR)
+    void deleteProfilePhoto_userWithoutAvatar_completesWithoutSavingOrRemovingBF098(String avatar) {
+        when(fixture.assetService.remove(anyString())).thenReturn(Mono.empty());
+        User user = User.builder().id(USER_ID).avatar(avatar).build();
 
-        assertThatThrownBy(() -> service.deleteProfilePhoto(user)).isInstanceOf(NullPointerException.class);
+        StepVerifier.create(service.deleteProfilePhoto(user)).verifyComplete();
+
+        assertThat(user.getAvatar()).isEqualTo(avatar);
+        verify(fixture.repository, never()).save(any(User.class));
         verify(fixture.assetService, never()).remove(any());
-        System.out.println("[UserServiceImplAccountTest] pins the section 9 candidate: no avatar -> NPE");
+        System.out.println("[UserServiceImplAccountTest] avatar <" + avatar + "> -> nothing saved, nothing removed (BF-098)");
     }
 
     // ---------------------------------------------------------------- enterprise-mode deletion
@@ -304,6 +333,52 @@ class UserServiceImplAccountTest {
         verify(fixture.mongoUpsertHelper).updateById(any(User.class), eq("sa-1"));
         assertThat(inserted).as("no second super admin row inserted").isEmpty();
         System.out.println("[UserServiceImplAccountTest] super admin exists -> updated in place, no insert");
+    }
+
+    /** NEW-136 (D2, O6): re-registering the super admin keeps passing {@code false} to the update, as before. */
+    @Test
+    void createNewUser_superAdmin_passesTheFlagFalseToTheUpdateNEW136() {
+        User existing = User.builder().id("sa-1").superAdmin(true).build();
+        when(fixture.repository.findBySuperAdminIsTrue()).thenReturn(Mono.just(existing));
+        when(fixture.mongoUpsertHelper.updateById(any(User.class), eq("sa-1"))).thenReturn(Mono.just(true));
+        when(fixture.repository.findById("sa-1")).thenReturn(Mono.just(existing));
+
+        StepVerifier.create(service.createNewUserByAuthUser(formAuthUser(AuthSourceConstants.EMAIL, "root@example.com", "pw"), true))
+                .expectNext(existing)
+                .verifyComplete();
+
+        ArgumentCaptor<User> update = ArgumentCaptor.forClass(User.class);
+        verify(fixture.mongoUpsertHelper).updateById(update.capture(), eq("sa-1"));
+        Object flag = ReflectionTestUtils.getField(update.getValue(), HAS_SET_NICKNAME_FIELD);
+        System.out.println("[UserServiceImplAccountTest] [NEW-136] super admin update partial hasSetNickname field: " + flag);
+        assertThat(flag).as("[NEW-136] the super admin update passes the flag false").isEqualTo(Boolean.FALSE);
+    }
+
+    /** NEW-136 (D3, O6): an ordinary registration passes no flag to the repository (null), which reads as false. */
+    @Test
+    void createNewUser_notSuperAdmin_leavesTheFlagUnsetNEW136() {
+        StepVerifier.create(service.createNewUserByAuthUser(formAuthUser(AuthSourceConstants.EMAIL, "jane@example.com", "pw"), false))
+                .assertNext(created -> {
+                    Object flag = ReflectionTestUtils.getField(created, HAS_SET_NICKNAME_FIELD);
+                    System.out.println("[UserServiceImplAccountTest] [NEW-136] ordinary registration hasSetNickname field: " + flag);
+                    assertThat(flag).as("[NEW-136] the stored field is unset").isNull();
+                    assertThat(created.isHasSetNickname()).as("[NEW-136] it reads as false").isFalse();
+                })
+                .verifyComplete();
+    }
+
+    /** NEW-136 (D4, O6): the first super admin keeps being created with the flag {@code false}. */
+    @Test
+    void createNewUser_superAdmin_noneExisting_passesTheFlagFalseNEW136() {
+        when(fixture.repository.findBySuperAdminIsTrue()).thenReturn(Mono.empty());
+
+        StepVerifier.create(service.createNewUserByAuthUser(formAuthUser(AuthSourceConstants.EMAIL, "root@example.com", "pw"), true))
+                .assertNext(created -> {
+                    Object flag = ReflectionTestUtils.getField(created, HAS_SET_NICKNAME_FIELD);
+                    System.out.println("[UserServiceImplAccountTest] [NEW-136] first super admin hasSetNickname field: " + flag);
+                    assertThat(flag).as("[NEW-136] the first super admin is created with the flag false").isEqualTo(Boolean.FALSE);
+                })
+                .verifyComplete();
     }
 
     /** Catches the first super admin not being created when none exists (:269). */
