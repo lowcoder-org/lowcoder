@@ -26,7 +26,7 @@ RUN chmod +x /lowcoder/api-service/*.sh
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-api-service --target lowcoder-ce-api-service .
 ##
-FROM eclipse-temurin:17-jammy AS lowcoder-ce-api-service
+FROM eclipse-temurin:17.0.21_9-jdk-jammy AS lowcoder-ce-api-service
 LABEL maintainer="lowcoder"
 
 RUN apt-get update && apt-get install -y --no-install-recommends gosu \
@@ -62,7 +62,7 @@ RUN mkdir -p /etc/apt/keyrings \
 
 # Download nodejs and install yarn
 RUN apt-get update \
-  && apt-get install --no-install-recommends -y nodejs \
+  && apt-get install --no-install-recommends -y nodejs=22.23.5-1nodesource1 \
   && npm install -g yarn
 
 # Copy and build the node-service app
@@ -94,7 +94,7 @@ RUN mkdir -p /etc/apt/keyrings \
 
 # Download nodejs and install yarn
 RUN apt-get update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y nodejs gosu \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y nodejs=22.23.5-1nodesource1 gosu \
   && npm install -g yarn \
   && rm -rf /var/cache/apt/lists \
   && addgroup --system --gid 9001 lowcoder \
@@ -119,7 +119,7 @@ CMD [ "/bin/sh", "/lowcoder/node-service/entrypoint.sh" ]
 ##
 ## Standalone image is built from server/proxy-service/Dockerfile
 ##
-FROM node:22.23-slim AS build-proxy-service
+FROM node:22.23.5-slim AS build-proxy-service
 
 # Copy only the build inputs, so local build/ and node_modules folders are never picked up
 COPY server/proxy-service/package.json server/proxy-service/yarn.lock server/proxy-service/tsconfig.json /lowcoder/proxy-service/app/
@@ -144,7 +144,7 @@ RUN chmod +x /lowcoder/proxy-service/*.sh
 ##
 ## Standalone image is built from deploy/docker/agora-token-service/Dockerfile
 ##
-FROM node:22.23-slim AS build-agora-token-service
+FROM node:22.23.5-slim AS build-agora-token-service
 
 WORKDIR /lowcoder/agora-token-service/app
 COPY deploy/docker/agora-token-service/package.json ./
@@ -164,7 +164,7 @@ RUN chmod +x /lowcoder/agora-token-service/*.sh
 ## HOCUSPOCUS_SERVER_VERSION in sync with it.
 ## @hocuspocus/server 4.x requires node >= 22.
 ##
-FROM node:22.23-slim AS build-hocuspocus
+FROM node:22.23.5-slim AS build-hocuspocus
 
 ARG HOCUSPOCUS_SERVER_VERSION=4.3.0
 
@@ -183,7 +183,7 @@ RUN chmod +x /lowcoder/hocuspocus/*.sh
 ##
 ## Build lowcoder client application
 ##
-FROM node:22.23-slim AS build-client
+FROM node:22.23.5-slim AS build-client
 
 # curl is required for yarn build to succeed, because it calls it while building client
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
@@ -224,7 +224,7 @@ RUN yarn build
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-frontend --target lowcoder-ce-frontend .
 ##
-FROM nginx:1.27.1 AS lowcoder-ce-frontend
+FROM nginx:1.31.9 AS lowcoder-ce-frontend
 LABEL maintainer="lowcoder"
 
 # Change default nginx user into lowcoder user and remove default nginx config
@@ -265,7 +265,7 @@ EXPOSE 3443
 ##
 ## Build lowcoder client (Enterprise) application
 ##
-FROM node:22.23-slim AS build-client-ee
+FROM node:22.23.5-slim AS build-client-ee
 
 # curl is required for yarn build to succeed, because it calls it while building client
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
@@ -306,7 +306,7 @@ RUN yarn build
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ee-frontend --target lowcoder-ee-frontend .
 ##
-FROM nginx:1.27.1 AS lowcoder-enterprise-frontend
+FROM nginx:1.31.9 AS lowcoder-enterprise-frontend
 LABEL maintainer="lowcoder"
 
 # Change default nginx user into lowcoder user and remove default nginx config
@@ -369,13 +369,13 @@ RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg -
 
 # Install required packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends -y \
-      nginx=1.27.1-1~jammy \
-      mongodb-org \
-      redis \
+      nginx=1.31.9-1~jammy \
+      mongodb-org=7.0.48 \
+      redis=6:8.10.3-1rl1~jammy1 \
       supervisor \
       gosu \
-      nodejs \
-      openjdk-17-jdk-headless \
+      nodejs=22.23.5-1nodesource1 \
+      openjdk-17-jdk-headless=17.0.21.1+2-1~22.04.1 \
   && npm install -g yarn \
   && rm -rf /var/cache/apt/lists /var/lib/apt/lists/* /var/log/dpkg.log \
   && apt-get clean \
@@ -383,8 +383,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-ins
 
 # Use configuration setup from official nginx image
 RUN rm -rf /etc/nginx/nginx.conf
-COPY --from=nginx:1.27.1 /docker-entrypoint.d /docker-entrypoint.d
-COPY --from=nginx:1.27.1 /docker-entrypoint.sh /docker-entrypoint.sh
+COPY --from=nginx:1.31.9 /docker-entrypoint.d /docker-entrypoint.d
+COPY --from=nginx:1.31.9 /docker-entrypoint.sh /docker-entrypoint.sh
 
 # Add lowcoder user
 RUN usermod --login lowcoder --uid 9001 nginx \
