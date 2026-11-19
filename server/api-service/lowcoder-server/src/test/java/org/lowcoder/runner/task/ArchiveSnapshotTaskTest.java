@@ -45,8 +45,8 @@ import com.mongodb.client.MongoDatabase;
  * context start, racing the test that started it (plan §2.3); calling it here makes its coverage deterministic.
  *
  * <p>What a mock can and cannot show: that the task no longer asks the server's version and always copies with inserts
- * (BF-065) is asserted here; that a real MongoDB below 5 accepts those inserts and keeps what was archived before is
- * shown against mongo:4.0.28 by {@code ArchiveSnapshotTaskBelow5Test}.
+ * (BF-065) is asserted here; that a real MongoDB 5 or later accepts those inserts into its time-series archive and keeps what was
+ * archived before is shown against mongo:7.0 by {@code ArchiveSnapshotTaskMongo5Test}.
  */
 @ExtendWith(MockitoExtension.class)
 class ArchiveSnapshotTaskTest {

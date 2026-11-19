@@ -35,33 +35,35 @@ import ch.qos.logback.core.read.ListAppender;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * {@link ArchiveSnapshotTask} against a real MongoDB below 5 (the test container {@code mongo:4.0.28}), where the archive
- * collection is a regular collection.
+ * {@link ArchiveSnapshotTask} against a real MongoDB 5 or later (the test container {@code mongo:7.0}), where the archive
+ * collection is a time-series collection.
  *
- * <p>Profile {@code archiveSnapshotBelow5}: a context and database ({@code lowcoder_test_<n>}) of its own. The task is
+ * <p>Profile {@code archiveSnapshotMongo5}: a context and database ({@code lowcoder_test_<n>}) of its own. The task is
  * scheduled with initialDelay 0 and fires once at context start (thread {@value #SCHEDULER_THREAD}); the class waits,
  * bounded, for that thread to be idle before it seeds anything, and then calls {@code archive()} itself, so the test
  * decides when the task runs. The daily re-run is a day away and cannot fire during a test.
  *
- * <p>BF-065 (formerly pinned under D-6, plan §9 row "ArchiveSnapshotTask's pipeline for MongoDB < 5": the server rejected
- * the per-document aggregate and nothing was archived): see {@link #threeOldSnapshotsAreArchivedBF065}.
+ * <p>BF-065 (formerly pinned under D-6, plan §9 row "ArchiveSnapshotTask's pipeline for MongoDB < 5": on a server below 5 the
+ * per-document aggregate was rejected and nothing was archived; the task now inserts on every version): see
+ * {@link #threeOldSnapshotsAreArchivedBF065}.
  *
- * <p>Not covered: a MongoDB 5 or later with its time-series archive (the container is 4.x; the task runs the same inserts
- * there), failed inserts, failed deletes and cursor failures (covered with mocks by {@code ArchiveSnapshotTaskTest}; a real
- * server cannot be made to fail them here).
+ * <p>Not covered: a MongoDB below 5 with its regular-collection archive (the container is 7.x; the task runs the same
+ * inserts there, and that server is below the supported minimum), failed inserts, failed deletes and cursor failures
+ * (covered with mocks by {@code ArchiveSnapshotTaskTest}; a real server cannot be made to fail them here).
  */
 @SpringBootTest(classes = ServerApplication.class)
-@ActiveProfiles("archiveSnapshotBelow5")
+@ActiveProfiles("archiveSnapshotMongo5")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
-public class ArchiveSnapshotTaskBelow5Test {
+public class ArchiveSnapshotTaskMongo5Test {
 
-    private static final String TAG = "[ArchiveSnapshotTaskBelow5Test] ";
+    private static final String TAG = "[ArchiveSnapshotTaskMongo5Test] ";
     private static final String SNAPSHOT = "applicationHistorySnapshot";
     private static final String SNAPSHOT_TS = "applicationHistorySnapshotTS";
     private static final String SCHEDULER_THREAD = "scheduling-1";
     private static final Duration SCHEDULER_WAIT = Duration.ofSeconds(60);
     private static final int TIME_SERIES_MAJOR = 5;
+    private static final String TIME_SERIES_TYPE = "timeseries";
     private static final long OLD_EXTRA_DAYS = 1;
     private static final String FAILED = "Failed";
     private static final String TO_ARCHIVE = "Total documents to archive: ";
@@ -133,22 +135,28 @@ public class ArchiveSnapshotTaskBelow5Test {
                 .map(d -> d.getString("applicationId")).collect(Collectors.toList());
     }
 
-    private void assertBelow5() {
+    private void assertMongo5AndLater() {
         Document buildInfo = db.runCommand(new Document("buildInfo", 1));
         int major = Integer.parseInt(buildInfo.getString("version").split("\\.")[0]);
-        assertThat(major).as("MongoDB major version of the container (below 5: the archive is a regular collection)")
-                .isLessThan(TIME_SERIES_MAJOR);
+        assertThat(major).as("MongoDB major version of the container (5 or later: the archive is a time-series collection)")
+                .isGreaterThanOrEqualTo(TIME_SERIES_MAJOR);
+    }
+
+    private String collectionType(String name) {
+        Document info = db.listCollections().filter(new Document("name", name)).first();
+        assertThat(info).as("listCollections entry of " + name).isNotNull();
+        return info.getString("type");
     }
 
     /**
      * BF-065 (formerly pinned as plan §9 row "ArchiveSnapshotTask's pipeline for MongoDB < 5": mongo:4.0.28 rejected the
      * per-document aggregate, each old snapshot failed and stayed, and nothing was archived): the three old snapshots are
-     * inserted into the archive, with their {@code _id} as the field {@code id} and their content unchanged, and deleted
+     * inserted into the archive, a time-series collection on this server, with their {@code _id} as the field {@code id} and their content unchanged, and deleted
      * from the snapshot collection. The recent snapshot is not selected.
      */
     @Test
     public void threeOldSnapshotsAreArchivedBF065() {
-        assertBelow5();
+        assertMongo5AndLater();
         ObjectId a = new ObjectId();
         ObjectId b = new ObjectId();
         ObjectId c = new ObjectId();
@@ -170,6 +178,8 @@ public class ArchiveSnapshotTaskBelow5Test {
         assertThat(messages().stream().filter(m -> m.startsWith(FAILED))).isEmpty();
         assertThat(source).as("only the recent snapshot stays").containsExactly("app-recent");
         assertThat(target).as("the old ones are archived").containsExactlyInAnyOrder("app-a", "app-b", "app-c");
+        assertThat(collectionType(SNAPSHOT_TS)).as("type of " + SNAPSHOT_TS + " as listCollections reports it")
+                .isEqualTo(TIME_SERIES_TYPE);
         expectedA.remove("_id");
         archivedA.remove("_id");
         expectedA.put("id", a);
@@ -178,7 +188,7 @@ public class ArchiveSnapshotTaskBelow5Test {
 
     @Test
     public void theRecentSnapshotStaysUnchanged() {
-        assertBelow5();
+        assertMongo5AndLater();
         ObjectId recent = new ObjectId();
         Document recentDoc = snapshot(recent, "app-recent", Instant.now().minus(1, ChronoUnit.DAYS));
         db.getCollection(SNAPSHOT).insertMany(List.of(recentDoc, snapshot(new ObjectId(), "app-old", old())));
@@ -196,7 +206,7 @@ public class ArchiveSnapshotTaskBelow5Test {
      */
     @Test
     public void aRowAlreadyInTheTarget_isKept_andTheNewOnesAreAdded() {
-        assertBelow5();
+        assertMongo5AndLater();
         db.getCollection(SNAPSHOT_TS).insertOne(snapshot(new ObjectId(), "archived-earlier", old()));
         db.getCollection(SNAPSHOT).insertMany(List.of(snapshot(new ObjectId(), "app-1", old()), snapshot(new ObjectId(), "app-2", old())));
 
@@ -210,7 +220,7 @@ public class ArchiveSnapshotTaskBelow5Test {
 
     @Test
     public void emptySource_writesNothing() {
-        assertBelow5();
+        assertMongo5AndLater();
         db.getCollection(SNAPSHOT_TS).insertOne(snapshot(new ObjectId(), "archived-earlier", old()));
         db.getCollection(SNAPSHOT).insertOne(snapshot(new ObjectId(), "app-recent", Instant.now().minus(1, ChronoUnit.DAYS)));
 
