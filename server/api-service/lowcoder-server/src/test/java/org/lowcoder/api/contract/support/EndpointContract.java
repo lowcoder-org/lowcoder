@@ -1,7 +1,6 @@
 package org.lowcoder.api.contract.support;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.lowcoder.api.contract.support.ContractRegistry.Row;
@@ -21,6 +20,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.reactive.function.BodyInserters;
+import tools.jackson.core.JacksonException;
 
 import java.lang.reflect.Method;
 import java.nio.file.Files;
@@ -396,7 +396,7 @@ public final class EndpointContract {
             }
             envelope.put(DATA, DATA_PLACEHOLDER);
             return PayloadAssertions.FIXTURE_EDITOR.writeValueAsString(envelope).replace("\"" + DATA_PLACEHOLDER + "\"", dataJson);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("cannot build the envelope from " + golden, e);
         }
     }

@@ -1,6 +1,6 @@
 package org.lowcoder.sdk.contract;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;

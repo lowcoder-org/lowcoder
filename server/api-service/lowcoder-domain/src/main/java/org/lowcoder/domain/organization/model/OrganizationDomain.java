@@ -1,6 +1,6 @@
 package org.lowcoder.domain.organization.model;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import lombok.Getter;
 import lombok.Setter;
 import org.lowcoder.domain.mongodb.MongodbInterceptorContext;

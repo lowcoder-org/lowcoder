@@ -1,5 +1,5 @@
 package org.lowcoder.domain.plugin.client;
-
+import tools.jackson.databind.json.JsonMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -15,11 +15,11 @@ import org.lowcoder.sdk.config.CommonConfigHelper;
 import org.lowcoder.sdk.exception.ServerException;
 import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.lowcoder.sdk.models.QueryExecutionResult;
+import org.lowcoder.sdk.webclient.JacksonClientCodecs;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
-import org.lowcoder.sdk.webclient.Jackson2ClientCodecs;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -33,7 +33,7 @@ import java.util.function.Function;
 
 import static org.lowcoder.sdk.constants.GlobalContext.REQUEST;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -43,7 +43,7 @@ public class DatasourcePluginClient implements NodeServerClient {
     private static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies
             .builder()
             .codecs(configurer -> {
-                Jackson2ClientCodecs.apply(configurer);
+                JacksonClientCodecs.apply(configurer);
                 configurer.defaultCodecs().maxInMemorySize(-1);
             })
             .build();
@@ -62,7 +62,7 @@ public class DatasourcePluginClient implements NodeServerClient {
     private static final String VALIDATE_PLUGIN_DATA_SOURCE_CONFIG = "validatePluginDataSourceConfig";
     private static final String GET_PLUGIN_DYNAMIC_CONFIG = "getPluginDynamicConfig";
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builderWithJackson2Defaults().build();
 
     public Mono<List<Object>> getPluginDynamicConfigSafely(List<GetPluginDynamicConfigRequestDTO> getPluginDynamicConfigRequestDTOS) {
         return getPluginDynamicConfig(getPluginDynamicConfigRequestDTOS)

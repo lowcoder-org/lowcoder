@@ -10,14 +10,15 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.deser.std.StringDeserializer;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.PropertyNamingStrategies;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonNaming;
+import tools.jackson.databind.annotation.JsonPOJOBuilder;
+import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.deser.jdk.StringDeserializer;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.ser.std.ToStringSerializer;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.util.JsonUtils;
 
@@ -223,7 +224,9 @@ public class JacksonAnnotationGuardTest {
         assertViolation(PRODUCTION, ClassFormatted.class, JSON_FORMAT);
         assertViolation(PRODUCTION, InheritsClassFormat.class, JSON_FORMAT);
         assertViolation(PRODUCTION, ImplementsFormatted.class, "@JsonNaming");
-        ObjectMapper withMixIn = new ObjectMapper().addMixIn(Plain.class, ClassFormatMixIn.class);
+        ObjectMapper withMixIn = JsonMapper.builder()
+                .addMixIn(Plain.class, ClassFormatMixIn.class)
+                .build();
         assertViolation(withMixIn, Plain.class, "@JsonPropertyOrder");
     }
 
@@ -234,7 +237,9 @@ public class JacksonAnnotationGuardTest {
 
     @Test
     public void mixInOfTheGivenMapperIsSeen() {
-        ObjectMapper withMixIn = new ObjectMapper().addMixIn(Plain.class, FormatMixIn.class);
+        ObjectMapper withMixIn = JsonMapper.builder()
+                .addMixIn(Plain.class, FormatMixIn.class)
+                .build();
         assertThat(violationsOf(PRODUCTION, Plain.class)).isEmpty();
         assertViolation(withMixIn, Plain.class, JSON_FORMAT);
     }

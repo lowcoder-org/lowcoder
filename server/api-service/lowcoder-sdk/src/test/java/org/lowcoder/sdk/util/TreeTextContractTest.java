@@ -1,8 +1,7 @@
 package org.lowcoder.sdk.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.contract.BoundarySites;
 import org.lowcoder.sdk.contract.ConfigBinding;
@@ -80,7 +79,7 @@ public class TreeTextContractTest {
      * as embedded error text, since its mapper registers no modules; the production mapper writes it as a number.
      */
     @Test
-    public void toStringIsNotTheProductionMapper() throws JsonProcessingException {
+    public void toStringIsNotTheProductionMapper() {
         ObjectNode node = JsonNodeFactory.instance.objectNode();
         node.put(DECIMAL_KEY, new BigDecimal(DECIMAL_TEXT));
         node.putPOJO(INSTANT_KEY, Instant.EPOCH);

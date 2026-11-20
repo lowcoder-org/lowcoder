@@ -1,13 +1,15 @@
 package org.lowcoder.api.contract.support;
 
+import tools.jackson.databind.json.JsonMapper;
+import org.lowcoder.sdk.contract.JacksonIntrospection;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
-import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
+import tools.jackson.databind.BeanDescription;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.introspect.AnnotatedClass;
+import tools.jackson.databind.introspect.BeanPropertyDefinition;
+import tools.jackson.databind.jsontype.NamedType;
 import org.lowcoder.api.ServerApplication;
 import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
@@ -96,7 +98,7 @@ public final class PayloadTypeWalker {
     private static final Set<Class<?>> ENVELOPES = Set.of(ResponseView.class, PageResponseView.class);
     private static final List<String> LEAF_PACKAGE_PREFIXES = List.of("java.", "javax.", "jakarta.", "org.springframework.", "org.bson.");
 
-    private static final ObjectMapper MAPPER = JsonUtils.getObjectMapper();
+    private static final JsonMapper MAPPER = JsonUtils.getObjectMapper();
 
     public enum Direction { REQUEST, RESPONSE }
 
@@ -285,10 +287,10 @@ public final class PayloadTypeWalker {
             }
         }
         // subtypes belong to the value type, never to its @JsonPOJOBuilder class
-        AnnotatedClass annotatedClass = MAPPER.getSerializationConfig().introspectClassAnnotations(type).getClassInfo();
+        AnnotatedClass annotatedClass = JacksonIntrospection.serializationClass(MAPPER, type);
         Collection<NamedType> subtypes = direction == Direction.RESPONSE
-                ? MAPPER.getSubtypeResolver().collectAndResolveSubtypesByClass(MAPPER.getSerializationConfig(), annotatedClass)
-                : MAPPER.getSubtypeResolver().collectAndResolveSubtypesByTypeId(MAPPER.getDeserializationConfig(), annotatedClass);
+                ? JacksonIntrospection.subtypesByClass(MAPPER, annotatedClass)
+                : JacksonIntrospection.subtypesByTypeId(MAPPER, annotatedClass);
         for (NamedType subtype : subtypes) {
             if (subtype.getType() != raw) {
                 visit(MAPPER.getTypeFactory().constructType(subtype.getType()), endpointKey, direction,
@@ -303,12 +305,12 @@ public final class PayloadTypeWalker {
      */
     public static BeanDescription beanDescription(JavaType type, Direction direction) {
         if (direction == Direction.RESPONSE) {
-            return MAPPER.getSerializationConfig().introspect(type);
+            return JacksonIntrospection.serialization(MAPPER, type);
         }
-        BeanDescription description = MAPPER.getDeserializationConfig().introspect(type);
-        Class<?> builder = description.findPOJOBuilder();
+        BeanDescription description = JacksonIntrospection.deserialization(MAPPER, type);
+        Class<?> builder = JacksonIntrospection.builderOf(MAPPER, description);
         if (builder != null) {
-            return MAPPER.getDeserializationConfig().introspectForBuilder(MAPPER.getTypeFactory().constructType(builder), description);
+            return JacksonIntrospection.builderDescription(MAPPER, MAPPER.getTypeFactory().constructType(builder), description);
         }
         return description;
     }
@@ -324,8 +326,8 @@ public final class PayloadTypeWalker {
 
         static TypeRecord describe(JavaType type) {
             Class<?> raw = type.getRawClass();
-            BeanDescription deserialization = MAPPER.getDeserializationConfig().introspect(type);
-            Class<?> builder = deserialization.findPOJOBuilder();
+            BeanDescription deserialization = JacksonIntrospection.deserialization(MAPPER, type);
+            Class<?> builder = JacksonIntrospection.builderOf(MAPPER, deserialization);
             SortedSet<String> annotations = new TreeSet<>(JacksonAnnotationGuard.annotationNames(MAPPER, raw));
             if (builder != null) {
                 annotations.addAll(JacksonAnnotationGuard.annotationNames(MAPPER, builder));
@@ -334,7 +336,7 @@ public final class PayloadTypeWalker {
                     ? Arrays.stream(raw.getEnumConstants()).map(constant -> MAPPER.convertValue(constant, String.class)).toList()
                     : List.of();
             return new TypeRecord(raw, kind(raw), EnumSet.noneOf(Direction.class), new TreeSet<>(), annotations, builder,
-                    raw.isEnum() ? List.of() : properties(MAPPER.getSerializationConfig().introspect(type), true),
+                    raw.isEnum() ? List.of() : properties(JacksonIntrospection.serialization(MAPPER, type), true),
                     raw.isEnum() ? List.of() : properties(beanDescription(type, Direction.REQUEST), false), enumValues);
         }
 

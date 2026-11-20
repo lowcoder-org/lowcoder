@@ -1,13 +1,13 @@
 package org.lowcoder.api.contract.boundary;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.api.authentication.util.JwtDecoderUtil;
 import org.lowcoder.sdk.contract.BoundarySites;
 import org.lowcoder.sdk.contract.GoldenJson;
 import org.lowcoder.sdk.contract.JavaValueWalker;
 import org.lowcoder.sdk.util.JsonUtils;
+import tools.jackson.core.JacksonException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -62,7 +62,7 @@ public class JwtClaimsContractTest {
     }
 
     @BoundarySites({
-            "lowcoder-server/src/main/java/org/lowcoder/api/authentication/util/JwtDecoderUtil.java#JwtDecoderUtil.objectMapper#new ObjectMapper#1",
+            "lowcoder-server/src/main/java/org/lowcoder/api/authentication/util/JwtDecoderUtil.java#JwtDecoderUtil.objectMapper#JsonMapper.builder#1",
             "lowcoder-server/src/main/java/org/lowcoder/api/authentication/util/JwtDecoderUtil.java#JwtDecoderUtil.decodeJwtPayload#readValue#1",
             "lowcoder-server/src/main/java/org/lowcoder/api/authentication/util/JwtDecoderUtil.java#<file>#import#1"})
     @Test
@@ -103,7 +103,7 @@ public class JwtClaimsContractTest {
             return "no error: " + JwtDecoderUtil.decodeJwtPayload(jwt);
         } catch (IllegalArgumentException e) {
             return e.getClass().getName() + ": " + e.getMessage();
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             return e.getClass().getName();
         } catch (Exception e) {
             throw new AssertionError("unexpected exception for " + jwt, e);

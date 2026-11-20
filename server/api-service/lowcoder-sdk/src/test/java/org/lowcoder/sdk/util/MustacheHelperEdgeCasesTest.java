@@ -3,7 +3,7 @@ package org.lowcoder.sdk.util;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -220,11 +220,11 @@ class MustacheHelperEdgeCasesTest {
         assertThat(renderJson("{\"{{k}}\": 1}", params).toString()).as("an object key is resolved too").isEqualTo("{\"key\":1}");
         assertThat(renderJson("{\"a\": \"  \"}", params).toString()).as("a blank string value becomes empty").isEqualTo("{\"a\":\"\"}");
         assertThat(renderJson("{\"a\": {{nul}}}", params).toString()).isEqualTo("{\"a\":null}");
-        assertThat(renderJson("{{ x }}", params).textValue()).isEqualTo("X");
-        assertThat(renderJson("{{e}}", params).textValue()).isEmpty();
+        assertThat(renderJson("{{ x }}", params).stringValue()).isEqualTo("X");
+        assertThat(renderJson("{{e}}", params).stringValue()).isEmpty();
         assertThat(renderJson("{{nul}}", params).isNull()).isTrue();
         assertThat(renderJson("{{missing}}", params).isNull()).isTrue();
-        assertThat(renderJson("plain text", params).textValue()).isEqualTo("plain text");
+        assertThat(renderJson("plain text", params).stringValue()).isEqualTo("plain text");
     }
 
     @Test

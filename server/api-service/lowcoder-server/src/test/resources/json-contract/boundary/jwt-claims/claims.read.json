@@ -70,7 +70,7 @@
   },
   "errors" : {
     "noPayloadSegment" : "java.lang.IllegalArgumentException: Invalid JWT format.",
-    "payloadNotJson" : "com.fasterxml.jackson.core.JsonParseException",
-    "payloadNotAnObject" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+    "payloadNotJson" : "tools.jackson.core.exc.StreamReadException",
+    "payloadNotAnObject" : "tools.jackson.databind.exc.MismatchedInputException"
   }
 }

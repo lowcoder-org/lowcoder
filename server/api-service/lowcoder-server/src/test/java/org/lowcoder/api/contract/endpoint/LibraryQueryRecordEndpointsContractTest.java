@@ -1,6 +1,5 @@
 package org.lowcoder.api.contract.endpoint;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -123,7 +122,7 @@ class LibraryQueryRecordEndpointsContractTest {
 
     /** {@link #dslById()} with the DSL as the store gives it back; the body is pinned in the stored output. */
     @Test
-    void dslByIdAsStored() throws JsonProcessingException {
+    void dslByIdAsStored() {
         Map<String, Object> stored = StoredValues.dsl(representativeDsl());
         GOLDEN.assertJson(ApplicationRecordEndpointsContractTest.STORED_OUTPUT, JsonUtils.getObjectMapper().writeValueAsString(stored));
         assertDsl(stored, GOLDEN.read(ApplicationRecordEndpointsContractTest.STORED_OUTPUT));

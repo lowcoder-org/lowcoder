@@ -1,9 +1,8 @@
 package org.lowcoder.api.contract.endpoint;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.NullNode;
+import tools.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
@@ -52,6 +51,7 @@ import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.RetryBackoffSpec;
+import tools.jackson.core.JacksonException;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -264,7 +264,7 @@ class ApiFlowEndpointsContractTest {
     }
 
     @Test
-    void flow(WireMockRuntimeInfo wireMock) throws JsonProcessingException {
+    void flow(WireMockRuntimeInfo wireMock) {
         FlowRequest sample = sample();
         upstreamAnswers(wireMock, sample, aResponse().withStatus(OK).withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .withBody(UPSTREAM_ANSWER));
@@ -282,7 +282,7 @@ class ApiFlowEndpointsContractTest {
     }
 
     @Test
-    void flowUpstreamFailed(WireMockRuntimeInfo wireMock) throws JsonProcessingException {
+    void flowUpstreamFailed(WireMockRuntimeInfo wireMock) {
         FlowRequest sample = sample();
         upstreamAnswers(wireMock, sample, aResponse().withStatus(UPSTREAM_ERROR));
         EntityExchangeResult<byte[]> result = exchange(d1Without(tree -> tree.remove(List.of(RETRIES, TIMEOUT))));
@@ -329,7 +329,7 @@ class ApiFlowEndpointsContractTest {
      */
     @ParameterizedTest
     @MethodSource("noHeadersOnBothMounts")
-    void flowWithoutHeaders(String mount, NoHeaders headers, WireMockRuntimeInfo wireMock) throws JsonProcessingException {
+    void flowWithoutHeaders(String mount, NoHeaders headers, WireMockRuntimeInfo wireMock) {
         FlowRequest sample = sample();
         upstreamAnswers(wireMock, sample, aResponse().withStatus(OK).withBody(UPSTREAM_ANSWER));
         EntityExchangeResult<byte[]> result = exchangeOn(mount, d1Without(tree -> {
@@ -381,7 +381,7 @@ class ApiFlowEndpointsContractTest {
      */
     @ParameterizedTest
     @MethodSource("blankMethodsOnBothMounts")
-    void flowWithoutMethod(String mount, BlankMethod method, WireMockRuntimeInfo wireMock) throws JsonProcessingException {
+    void flowWithoutMethod(String mount, BlankMethod method, WireMockRuntimeInfo wireMock) {
         FlowRequest sample = sample();
         upstreamAnswers(wireMock, sample, aResponse().withStatus(OK).withBody(UPSTREAM_ANSWER));
         EntityExchangeResult<byte[]> result = exchangeOn(mount, d1Without(tree -> {
@@ -403,7 +403,7 @@ class ApiFlowEndpointsContractTest {
      */
     @ParameterizedTest
     @ValueSource(strings = {NewUrl.FLOW_URL, Url.FLOW_URL})
-    void flowWithoutMethodKeepingTheRetries(String mount, WireMockRuntimeInfo wireMock) throws JsonProcessingException {
+    void flowWithoutMethodKeepingTheRetries(String mount, WireMockRuntimeInfo wireMock) {
         FlowRequest sample = sample();
         upstreamAnswers(wireMock, sample, aResponse().withStatus(OK).withBody(UPSTREAM_ANSWER));
         EntityExchangeResult<byte[]> result = exchangeOn(mount, d1Without(tree -> tree.remove(METHOD)));
@@ -421,7 +421,7 @@ class ApiFlowEndpointsContractTest {
      */
     @ParameterizedTest
     @ValueSource(strings = {NewUrl.FLOW_URL, Url.FLOW_URL})
-    void flowWithRetriesOrTimeoutOutOfRange(String mount, WireMockRuntimeInfo wireMock) throws JsonProcessingException {
+    void flowWithRetriesOrTimeoutOutOfRange(String mount, WireMockRuntimeInfo wireMock) {
         FlowRequest sample = sample();
         upstreamAnswers(wireMock, sample, aResponse().withStatus(OK).withBody(UPSTREAM_ANSWER));
         EntityExchangeResult<byte[]> result = exchangeOn(mount, EndpointContract.d1(FlowRequest.class));
@@ -440,7 +440,7 @@ class ApiFlowEndpointsContractTest {
      * injected synchronous failure; a failure during the request takes the retry path ({@link #flowUpstreamFailed}).
      */
     @Test
-    void flowFailingBeforeTheRequest(WireMockRuntimeInfo wireMock) throws JsonProcessingException {
+    void flowFailingBeforeTheRequest(WireMockRuntimeInfo wireMock) {
         IllegalStateException failure = new IllegalStateException(BUILDER_FAILURE);
         controller.builderFailure = failure;
         EntityExchangeResult<byte[]> result = exchange(d1InRange());
@@ -462,7 +462,7 @@ class ApiFlowEndpointsContractTest {
      * change of that field makes the read throw and fails the case. Limits: the delays themselves are not run; one mount.
      */
     @Test
-    void flowRetriesWithoutTimeoutBackOffTenSeconds(WireMockRuntimeInfo wireMock) throws JsonProcessingException {
+    void flowRetriesWithoutTimeoutBackOffTenSeconds(WireMockRuntimeInfo wireMock) {
         FlowRequest sample = sample();
         upstreamAnswers(wireMock, sample, aResponse().withStatus(OK).withBody(UPSTREAM_ANSWER));
         EntityExchangeResult<byte[]> result = exchange(d1Without(tree -> {
@@ -485,11 +485,11 @@ class ApiFlowEndpointsContractTest {
     }
 
     @BoundarySites({
-            "lowcoder-server/src/main/java/org/lowcoder/api/misc/ApiFlowController.java#ApiFlowController.flow#new ObjectMapper#1",
+            "lowcoder-server/src/main/java/org/lowcoder/api/misc/ApiFlowController.java#ApiFlowController.flow#JsonMapper.builder#1",
             "lowcoder-server/src/main/java/org/lowcoder/api/misc/ApiFlowController.java#ApiFlowController.flow#writeValueAsString#1",
             "lowcoder-server/src/main/java/org/lowcoder/api/misc/ApiFlowController.java#<file>#import#1"})
     @Test
-    void flowRepresentativeData(WireMockRuntimeInfo wireMock) throws JsonProcessingException {
+    void flowRepresentativeData(WireMockRuntimeInfo wireMock) {
         FlowRequest sample = sample();
         upstreamAnswers(wireMock, sample, aResponse().withStatus(OK).withBody(UPSTREAM_ANSWER));
         String request = d1Without(tree -> {
@@ -517,7 +517,7 @@ class ApiFlowEndpointsContractTest {
             "lowcoder-server/src/main/java/org/lowcoder/api/subscription/WorkspaceSeatSyncService.java#<file>#import#1"})
     @ParameterizedTest
     @ValueSource(strings = {NewUrl.FLOW_URL, Url.FLOW_URL})
-    void flowSeatSync(String mount) throws JsonProcessingException {
+    void flowSeatSync(String mount) {
         long before = System.currentTimeMillis();
         EntityExchangeResult<byte[]> result = exchangeOn(mount, seatSyncRequest(POST, orgData(SEAT_ORG_ID)));
         long after = System.currentTimeMillis();
@@ -536,7 +536,7 @@ class ApiFlowEndpointsContractTest {
 
     @ParameterizedTest
     @ValueSource(strings = {NewUrl.FLOW_URL, Url.FLOW_URL})
-    void flowSeatSyncWithAnotherMethod(String mount) throws JsonProcessingException {
+    void flowSeatSyncWithAnotherMethod(String mount) {
         EntityExchangeResult<byte[]> result = exchangeOn(mount, seatSyncRequest(OTHER_METHOD, orgData(SEAT_ORG_ID)));
         assertStatusExceptionAnswer(result, HttpStatus.METHOD_NOT_ALLOWED);
         assertNoRelayRequest();
@@ -551,7 +551,7 @@ class ApiFlowEndpointsContractTest {
      */
     @ParameterizedTest
     @ValueSource(strings = {NewUrl.FLOW_URL, Url.FLOW_URL})
-    void flowSeatSyncWithRetriesOutOfRange(String mount) throws JsonProcessingException {
+    void flowSeatSyncWithRetriesOutOfRange(String mount) {
         ObjectNode request = (ObjectNode) PayloadAssertions.FIXTURE_EDITOR.readTree(seatSyncRequest(POST, orgData(SEAT_ORG_ID)));
         request.put(RETRIES, RETRIES_OUT_OF_RANGE);
         EntityExchangeResult<byte[]> result = exchangeOn(mount, PayloadAssertions.FIXTURE_EDITOR.writeValueAsString(request));
@@ -574,7 +574,7 @@ class ApiFlowEndpointsContractTest {
      */
     @ParameterizedTest
     @MethodSource("blankSeatSyncMethodsOnBothMounts")
-    void flowSeatSyncWithoutMethod(String mount, String method) throws JsonProcessingException {
+    void flowSeatSyncWithoutMethod(String mount, String method) {
         EntityExchangeResult<byte[]> result = exchangeOn(mount, seatSyncRequest(method, orgData(SEAT_ORG_ID)));
         assertThat(decoded().method()).as("decoded seat-sync method").isEqualTo(method);
         assertStatusExceptionAnswer(result, HttpStatus.METHOD_NOT_ALLOWED);
@@ -584,7 +584,7 @@ class ApiFlowEndpointsContractTest {
 
     @ParameterizedTest
     @ValueSource(strings = {NewUrl.FLOW_URL, Url.FLOW_URL})
-    void flowSeatSyncAlreadyRunning(String mount) throws JsonProcessingException {
+    void flowSeatSyncAlreadyRunning(String mount) {
         Mockito.when(redis.opsForValue().setIfAbsent(anyString(), anyString(), any(Duration.class))).thenReturn(Mono.just(false));
         EntityExchangeResult<byte[]> result = exchangeOn(mount, seatSyncRequest(POST, orgData(SEAT_ORG_ID)));
         assertStatusExceptionAnswer(result, HttpStatus.CONFLICT);
@@ -594,7 +594,7 @@ class ApiFlowEndpointsContractTest {
 
     @ParameterizedTest
     @ValueSource(strings = {NewUrl.FLOW_URL, Url.FLOW_URL})
-    void flowSeatSyncRelayFailed(String mount) throws JsonProcessingException {
+    void flowSeatSyncRelayFailed(String mount) {
         leaseThenRelayAnswers(requestId -> aResponse().withStatus(UPSTREAM_ERROR));
         EntityExchangeResult<byte[]> result = exchangeOn(mount, seatSyncRequest(POST, orgData(SEAT_ORG_ID)));
         EndpointContract.assertBizError(result, BizError.INTERNAL_SERVER_ERROR, BizError.INTERNAL_SERVER_ERROR.name());
@@ -604,7 +604,7 @@ class ApiFlowEndpointsContractTest {
 
     @ParameterizedTest
     @ValueSource(strings = {NewUrl.FLOW_URL, Url.FLOW_URL})
-    void flowSeatSyncNotConfirmed(String mount) throws JsonProcessingException {
+    void flowSeatSyncNotConfirmed(String mount) {
         leaseThenRelayAnswers(requestId -> relayConfirmation(UNCONFIRMED_REQUEST_ID));
         EntityExchangeResult<byte[]> result = exchangeOn(mount, seatSyncRequest(POST, orgData(SEAT_ORG_ID)));
         EndpointContract.assertBizError(result, BizError.INTERNAL_SERVER_ERROR, BizError.INTERNAL_SERVER_ERROR.name());
@@ -644,7 +644,7 @@ class ApiFlowEndpointsContractTest {
 
     @ParameterizedTest
     @MethodSource("seatSyncRefusals")
-    void flowSeatSyncRefused(String mount, SeatSyncRefusal refusal) throws JsonProcessingException {
+    void flowSeatSyncRefused(String mount, SeatSyncRefusal refusal) {
         JsonNode data = orgData(SEAT_ORG_ID);
         switch (refusal) {
             case NO_SESSION -> Mockito.when(sessions.getVisitorOrgMember()).thenReturn(Mono.empty());
@@ -717,7 +717,7 @@ class ApiFlowEndpointsContractTest {
             String body = PayloadAssertions.FIXTURE_EDITOR.writeValueAsString(confirmation)
                     .replace("\"" + DETAIL_PLACEHOLDER + "\"", PayloadSamples.representativeInputText());
             return aResponse().withStatus(OK).withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).withBody(body);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("cannot write the seat relay's confirmation", e);
         }
     }
@@ -725,16 +725,16 @@ class ApiFlowEndpointsContractTest {
     /** The snapshot the seat relay received: exactly the five members, the server's values, {@code issuedAt} in the exchange. */
     private void assertSeatSnapshot(JsonNode snapshot, long before, long after) {
         List<String> members = new ArrayList<>();
-        snapshot.fieldNames().forEachRemaining(members::add);
+        snapshot.propertyNames().iterator().forEachRemaining(members::add);
         assertThat(members).as("snapshot members").containsExactlyInAnyOrder(HOST_ID_MEMBER, ORG_ID_MEMBER, QUANTITY_MEMBER,
                 REQUEST_ID_MEMBER, ISSUED_AT_MEMBER);
-        assertThat(snapshot.get(HOST_ID_MEMBER).isTextual() ? snapshot.get(HOST_ID_MEMBER).asText() : null).as("snapshot hostId")
+        assertThat(snapshot.get(HOST_ID_MEMBER).isString() ? snapshot.get(HOST_ID_MEMBER).asString() : null).as("snapshot hostId")
                 .isEqualTo(SEAT_HOST_ID);
-        assertThat(snapshot.get(ORG_ID_MEMBER).isTextual() ? snapshot.get(ORG_ID_MEMBER).asText() : null).as("snapshot orgId")
+        assertThat(snapshot.get(ORG_ID_MEMBER).isString() ? snapshot.get(ORG_ID_MEMBER).asString() : null).as("snapshot orgId")
                 .isEqualTo(SEAT_ORG_ID);
         assertThat(snapshot.get(QUANTITY_MEMBER).isInt() ? snapshot.get(QUANTITY_MEMBER).intValue() : null).as("snapshot quantity, an integer")
                 .isEqualTo(QUANTITY);
-        assertThat(snapshot.get(REQUEST_ID_MEMBER).isTextual() ? snapshot.get(REQUEST_ID_MEMBER).asText() : null)
+        assertThat(snapshot.get(REQUEST_ID_MEMBER).isString() ? snapshot.get(REQUEST_ID_MEMBER).asString() : null)
                 .as("snapshot requestId, the lease's").isEqualTo(leaseRequestId);
         assertThat(snapshot.get(ISSUED_AT_MEMBER).isIntegralNumber()).as("snapshot issuedAt is an integral number").isTrue();
         assertThat(snapshot.get(ISSUED_AT_MEMBER).longValue()).as("snapshot issuedAt, a time of the exchange").isBetween(before, after);
@@ -775,7 +775,7 @@ class ApiFlowEndpointsContractTest {
     }
 
     /** The client's seat-sync request ({@code workspaceSeatSync.ts:18-19}) with {@code method} and {@code data}. */
-    private static String seatSyncRequest(String method, JsonNode data) throws JsonProcessingException {
+    private static String seatSyncRequest(String method, JsonNode data) {
         ObjectNode request = PayloadAssertions.FIXTURE_EDITOR.createObjectNode().put(PATH, WorkspaceSeatSyncService.FLOW_PATH).put(METHOD, method);
         request.set(DATA, data);
         request.set(HEADERS, PayloadAssertions.FIXTURE_EDITOR.createObjectNode());
@@ -831,13 +831,13 @@ class ApiFlowEndpointsContractTest {
     }
 
     /** D1's {@code data} member as text, with its number lexemes. */
-    private static String d1Data() throws JsonProcessingException {
+    private static String d1Data() {
         return PayloadAssertions.FIXTURE_EDITOR.writeValueAsString(PayloadAssertions.FIXTURE_EDITOR.readTree(EndpointContract.d1(FlowRequest.class))
                 .get(DATA));
     }
 
     /** The D1 golden with {@code timeout} and {@code retries} in range (D1's own are refused, NEW-92). */
-    private static String d1InRange() throws JsonProcessingException {
+    private static String d1InRange() {
         return d1Without(tree -> {
             tree.put(TIMEOUT, IN_RANGE_TIMEOUT);
             tree.put(RETRIES, IN_RANGE_RETRIES);
@@ -851,7 +851,7 @@ class ApiFlowEndpointsContractTest {
     }
 
     /** The D1 golden after {@code edit}, with its number lexemes. */
-    private static String d1Without(Consumer<ObjectNode> edit) throws JsonProcessingException {
+    private static String d1Without(Consumer<ObjectNode> edit) {
         ObjectNode tree = (ObjectNode) PayloadAssertions.FIXTURE_EDITOR.readTree(EndpointContract.d1(FlowRequest.class));
         edit.accept(tree);
         return PayloadAssertions.FIXTURE_EDITOR.writeValueAsString(tree);
@@ -908,7 +908,7 @@ class ApiFlowEndpointsContractTest {
     @ParameterizedTest
     @ValueSource(strings = {NewUrl.FLOW_URL, Url.FLOW_URL})
     @ResourceLock(Resources.LOCALE)
-    void flowWithALowerCaseOptionsMethodUnderATurkishDefaultLocaleNEW40(String mount, WireMockRuntimeInfo wireMock) throws JsonProcessingException {
+    void flowWithALowerCaseOptionsMethodUnderATurkishDefaultLocaleNEW40(String mount, WireMockRuntimeInfo wireMock) {
         FlowRequest sample = sample();
         wireMock.getWireMock().register(request(HttpMethod.OPTIONS.name(), urlPathEqualTo(PATH_SEPARATOR + sample.path()))
                 .willReturn(aResponse().withStatus(OK).withBody(UPSTREAM_ANSWER)));

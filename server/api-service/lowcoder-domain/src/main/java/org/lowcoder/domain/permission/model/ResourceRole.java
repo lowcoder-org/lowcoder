@@ -1,5 +1,6 @@
 package org.lowcoder.domain.permission.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Streams;
 import jakarta.annotation.Nullable;
@@ -31,6 +32,7 @@ public enum ResourceRole {
     private final String value;
     private final int roleWeight; // used for sorting roles
 
+    @JsonCreator
     ResourceRole(String value, int roleWeight) {
         this.value = value;
         this.roleWeight = roleWeight;

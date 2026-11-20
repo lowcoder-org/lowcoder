@@ -1,6 +1,6 @@
 package org.lowcoder.api.contract.support;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.lowcoder.api.query.view.LibraryQueryRequestFromJs;
 import org.lowcoder.api.query.view.QueryExecutionRequest;
 import org.lowcoder.api.query.view.QueryResultView;

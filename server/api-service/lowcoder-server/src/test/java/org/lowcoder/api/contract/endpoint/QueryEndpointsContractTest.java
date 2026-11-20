@@ -1,7 +1,6 @@
 package org.lowcoder.api.contract.endpoint;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -113,7 +112,7 @@ class QueryEndpointsContractTest {
 
     /** Without an application id, the request is a library query's, with the same answer. */
     @Test
-    void executeLibraryQuery() throws JsonProcessingException {
+    void executeLibraryQuery() {
         Mockito.when(libraryQueryApiService.executeLibraryQuery(any(), any())).thenReturn(Mono.just(QuerySamples.queryExecutionResult()));
         ObjectNode request = (ObjectNode) PayloadAssertions.FIXTURE_EDITOR.readTree(EndpointContract.d1(QueryExecutionRequest.class));
         request.remove(APPLICATION_ID);

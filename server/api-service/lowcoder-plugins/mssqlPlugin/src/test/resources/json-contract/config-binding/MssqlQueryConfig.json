@@ -70,13 +70,13 @@
         "/guiStatementDetail/filterBy/0/value" : "java.lang.String"
       },
       "noView" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
+        "error" : "tools.jackson.databind.DatabindException: Cannot invoke \"String.trim()\" because \"this.sql\" is null\n at [No location information] (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
       },
       "Public" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
+        "error" : "tools.jackson.databind.DatabindException: Cannot invoke \"String.trim()\" because \"this.sql\" is null\n at [No location information] (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
       },
       "Internal" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
+        "error" : "tools.jackson.databind.DatabindException: Cannot invoke \"String.trim()\" because \"this.sql\" is null\n at [No location information] (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
       }
     },
     "guiJavaNames" : {
@@ -98,13 +98,13 @@
         "/guiStatementDetail" : "null"
       },
       "noView" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
+        "error" : "tools.jackson.databind.DatabindException: Cannot invoke \"String.trim()\" because \"this.sql\" is null\n at [No location information] (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
       },
       "Public" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
+        "error" : "tools.jackson.databind.DatabindException: Cannot invoke \"String.trim()\" because \"this.sql\" is null\n at [No location information] (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
       },
       "Internal" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
+        "error" : "tools.jackson.databind.DatabindException: Cannot invoke \"String.trim()\" because \"this.sql\" is null\n at [No location information] (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
       }
     },
     "scalarsAsStrings" : {
@@ -148,13 +148,13 @@
         "/guiStatementDetail" : "null"
       },
       "noView" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
+        "error" : "tools.jackson.databind.DatabindException: Cannot invoke \"String.trim()\" because \"this.sql\" is null\n at [No location information] (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
       },
       "Public" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
+        "error" : "tools.jackson.databind.DatabindException: Cannot invoke \"String.trim()\" because \"this.sql\" is null\n at [No location information] (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
       },
       "Internal" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"String.trim()\" because \"this.sql\" is null (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
+        "error" : "tools.jackson.databind.DatabindException: Cannot invoke \"String.trim()\" because \"this.sql\" is null\n at [No location information] (through reference chain: org.lowcoder.plugin.mssql.model.MssqlQueryConfig[\"sql\"])"
       }
     },
     "empty" : {

@@ -1,6 +1,6 @@
 package org.lowcoder.sdk.contract;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -53,7 +53,7 @@ public final class JavaValueWalker {
             }
         } else if (value instanceof JsonNode node && node.isObject()) {
             List<String> keys = new ArrayList<>();
-            for (Iterator<Map.Entry<String, JsonNode>> fields = node.fields(); fields.hasNext(); ) {
+            for (Iterator<Map.Entry<String, JsonNode>> fields = node.properties().iterator(); fields.hasNext(); ) {
                 Map.Entry<String, JsonNode> field = fields.next();
                 keys.add(field.getKey());
                 walk(pointer + "/" + escape(field.getKey()), field.getValue(), classes, keyOrder);

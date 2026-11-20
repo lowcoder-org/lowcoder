@@ -1,6 +1,5 @@
 package org.lowcoder.api.contract.payload;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.api.contract.support.OrganizationSamples;
 import org.lowcoder.api.contract.support.UserSamples;
@@ -61,7 +60,7 @@ class UserManagementPayloadGettersTest {
     @BoundarySites({"lowcoder-domain/src/main/java/org/lowcoder/domain/user/model/User.java#User.beforeMongodbWrite#fromJsonSafely#1",
             "lowcoder-domain/src/main/java/org/lowcoder/domain/user/model/User.java#User.beforeMongodbWrite#toJsonSafely#1"})
     @Test
-    void userBeforeMongodbWrite() throws JsonProcessingException {
+    void userBeforeMongodbWrite() {
         User user = UserSamples.user();
         user.beforeMongodbWrite(CONTEXT);
         assertStored(USER_WRITE_GOLDEN, user.getApiKeys());
@@ -82,7 +81,7 @@ class UserManagementPayloadGettersTest {
     @BoundarySites({"lowcoder-domain/src/main/java/org/lowcoder/domain/organization/model/OrganizationDomain.java#OrganizationDomain.beforeMongodbWrite#fromJsonSafely#1",
             "lowcoder-domain/src/main/java/org/lowcoder/domain/organization/model/OrganizationDomain.java#OrganizationDomain.beforeMongodbWrite#toJsonSafely#1"})
     @Test
-    void organizationDomainBeforeMongodbWrite() throws JsonProcessingException {
+    void organizationDomainBeforeMongodbWrite() {
         Organization organization = OrganizationSamples.organization();
         organization.beforeMongodbWrite(CONTEXT);
         assertStored(ORGANIZATION_DOMAIN_WRITE_GOLDEN, ReflectionTestUtils.getField(organization.getOrganizationDomain(), AUTH_CONFIGS_FIELD));
@@ -101,7 +100,7 @@ class UserManagementPayloadGettersTest {
     }
 
     /** The stored value against its golden, as JSON and as Java values. */
-    private static void assertStored(String golden, Object stored) throws JsonProcessingException {
+    private static void assertStored(String golden, Object stored) {
         System.out.println("[UserManagementPayloadGettersTest] " + golden + ": stored " + stored);
         GOLDEN.assertJson(golden, JsonUtils.getObjectMapper().writeValueAsString(stored));
         CanonicalJson.assertSameJava(javaValue(CanonicalJson.parse(GOLDEN.read(golden))), stored);

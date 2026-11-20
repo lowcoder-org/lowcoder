@@ -1,7 +1,7 @@
 package org.lowcoder.sdk.plugin.sqlcommand.changeset;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
 import com.google.common.collect.Streams;
 import jakarta.annotation.Nonnull;
 import org.lowcoder.sdk.exception.PluginException;

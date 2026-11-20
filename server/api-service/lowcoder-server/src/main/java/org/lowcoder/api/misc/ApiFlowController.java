@@ -1,6 +1,7 @@
 package org.lowcoder.api.misc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import org.lowcoder.api.authentication.request.AuthException;
@@ -79,7 +80,7 @@ public class ApiFlowController implements ApiFlowEndpoints
         }
         try {
             String url = "https://flow.lowcoder.cloud/" + flowRequest.path();
-            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectMapper objectMapper = JsonMapper.builderWithJackson2Defaults().build();
             String jsonBody = objectMapper.writeValueAsString(flowRequest.data());
             return WebClientBuildHelper.builder()
                     .systemProxy()

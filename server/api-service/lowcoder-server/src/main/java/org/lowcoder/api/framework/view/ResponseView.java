@@ -1,7 +1,7 @@
 package org.lowcoder.api.framework.view;
 
 import org.lowcoder.sdk.exception.BizError;
-
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Getter;
@@ -15,6 +15,7 @@ public class ResponseView<T> {
     private final String message;
     private final T data;
 
+    @JsonCreator
     protected ResponseView(int code, String message, T data) {
         this.code = code;
         this.message = message;

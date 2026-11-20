@@ -1,6 +1,5 @@
 package org.lowcoder.api.contract.payload;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.api.contract.support.ContractTestClient;
 import org.lowcoder.api.contract.support.EndpointContract;
@@ -18,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import reactor.core.publisher.Mono;
+import tools.jackson.core.JacksonException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -88,7 +88,7 @@ class QueryResultViewContractTest {
     private static String write(QueryExecutionResult result) {
         try {
             return JsonUtils.toJsonThrows(new QueryResultView(result, QuerySamples.RESULT_LOCALE));
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("the production mapper cannot write the mixed result", e);
         }
     }

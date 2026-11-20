@@ -1,6 +1,6 @@
 package org.lowcoder.plugin.graphql.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import jakarta.annotation.Nullable;
 import lombok.Builder;
 import lombok.Getter;

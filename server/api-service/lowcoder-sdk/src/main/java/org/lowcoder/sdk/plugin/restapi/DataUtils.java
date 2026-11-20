@@ -18,9 +18,9 @@
 // copied and adapted for rest api request
 package org.lowcoder.sdk.plugin.restapi;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.google.common.collect.Streams;
 import jakarta.annotation.Nonnull;
 import org.apache.commons.collections4.CollectionUtils;
@@ -60,8 +60,7 @@ public class DataUtils {
     }
 
     private DataUtils() {
-        this.objectMapper = new ObjectMapper();
-        this.objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        this.objectMapper = JsonMapper.builderWithJackson2Defaults().build();
     }
 
     public static DataUtils getInstance() {
@@ -200,16 +199,16 @@ public class DataUtils {
     private static MultipartFormData parseMultipartFormData(JsonNode jsonObject) {
         MultipartFormData result = new MultipartFormData();
         JsonNode data = jsonObject.get("data");
-        if (!data.isTextual()) {
+        if (!data.isString()) {
             throw new PluginException(DATASOURCE_ARGUMENT_ERROR, "MULTIFORM_DATA_IS_NOT_STRING");
         }
-        result.setData(data.asText());
+        result.setData(data.asString());
 
         JsonNode name = jsonObject.get("name");
-        if (!name.isTextual()) {
+        if (!name.isString()) {
             throw new PluginException(DATASOURCE_ARGUMENT_ERROR, "MULTIFORM_NAME_IS_NOT_STRING");
         }
-        result.setName(name.asText());
+        result.setName(name.asString());
         return result;
     }
 }

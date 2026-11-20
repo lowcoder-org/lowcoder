@@ -1,7 +1,6 @@
 package org.lowcoder.plugin.mongo;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.bson.Document;
 import org.bson.json.JsonMode;
 import org.bson.json.JsonWriterSettings;
@@ -88,7 +87,7 @@ public class MongoTreeTextContractTest {
 
     @BoundarySites("lowcoder-plugins/mongoPlugin/src/main/java/org/lowcoder/plugin/mongo/utils/MongoQueryUtils.java#<file>#import#1")
     @Test
-    public void distinctResultNode() throws JsonProcessingException {
+    public void distinctResultNode() {
         Document reply = new Document("values", List.of(1, 3_000_000_001L, 2.5, "žluť \"quoted\"", new ObjectId("65f0c0ffee0000000000abcd"),
                 new Decimal128(new BigDecimal("10.50")), new Document("nested", List.of(true)))).append("ok", 1.0);
         JsonNode node = MongoQueryUtils.parseResultBody(new JSONObject(reply.toJson()));

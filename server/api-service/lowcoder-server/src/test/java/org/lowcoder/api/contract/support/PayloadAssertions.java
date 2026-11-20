@@ -1,20 +1,21 @@
 package org.lowcoder.api.contract.support;
 
-import com.fasterxml.jackson.core.JsonPointer;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.cfg.JsonNodeFeature;
+import tools.jackson.core.JsonPointer;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.introspect.BeanPropertyDefinition;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.util.ClassUtil;
 import org.lowcoder.api.contract.support.PayloadSamples.Sample;
 import org.lowcoder.api.contract.support.PayloadTypeWalker.Direction;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.bundle.model.BundleApplication;
 import org.lowcoder.sdk.contract.CanonicalJson;
+import tools.jackson.core.JacksonException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -39,8 +40,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public final class PayloadAssertions {
 
     /** Edits fixture trees without touching number lexemes ({@code 1.50} stays {@code 1.50}); not for duplicate keys. */
-    public static final ObjectMapper FIXTURE_EDITOR = new ObjectMapper().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
-            .setNodeFactory(JsonNodeFactory.withExactBigDecimals(true));
+    public static final ObjectMapper FIXTURE_EDITOR = JsonMapper.builder()
+            .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+            .disable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)
+            .build();
 
     /**
      * Type → JSON pointers (from the type's own output) of arrays that production writes from a {@code HashSet} of a
@@ -76,7 +79,7 @@ public final class PayloadAssertions {
                 }
             }
             return FIXTURE_EDITOR.writeValueAsString(tree);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalArgumentException("not JSON: " + json, e);
         }
     }

@@ -9,8 +9,10 @@ import static org.lowcoder.sdk.plugin.common.constant.Constants.COMP_TYPE_KEY;
 import static org.lowcoder.sdk.plugin.common.constant.Constants.PRIMARY_KEY_FORM_KEY;
 import static org.lowcoder.sdk.plugin.common.constant.Constants.RECORD_FORM_KEY;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +28,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.lowcoder.sdk.exception.PluginCommonError;
 import org.lowcoder.sdk.exception.PluginException;
+import tools.jackson.core.JacksonException;
 
 /**
  * Parsing and rendering of the change sets behind the GUI insert/update/upsert commands. The non-list {@code comp}
@@ -39,7 +42,7 @@ class ChangeSetParseTest {
     private static final String PAIR_COLUMN = "a";
     private static final int PAIR_VALUE = 1;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = JsonMapper.builderWithJackson2Defaults().build();
 
     private static void assertPluginError(Runnable action, String messageKey, Object... args) {
         assertThatThrownBy(action::run).isInstanceOfSatisfying(PluginException.class, e -> {
@@ -211,7 +214,7 @@ class ChangeSetParseTest {
     private static JsonNode json(String text) {
         try {
             return MAPPER.readTree(text);
-        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalArgumentException(text, e);
         }
     }

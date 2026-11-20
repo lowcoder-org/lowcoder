@@ -1,6 +1,7 @@
 package org.lowcoder.api.subscription;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.api.home.SessionUserService;
@@ -40,7 +41,7 @@ class WorkspaceSeatSyncServiceTest {
             Map<String, Object> snapshot = call.getArgument(0);
             assertEquals("host", snapshot.get("hostId"));
             assertEquals(3, snapshot.get("quantity"));
-            return Mono.just(new ObjectMapper().valueToTree(Map.of("success", true, "quantity", 3,
+            return Mono.just(JsonMapper.builderWithJackson2Defaults().build().valueToTree(Map.of("success", true, "quantity", 3,
                     "requestId", snapshot.get("requestId"))));
         }).when(service).send(anyMap());
         String response = new ApiFlowController(service).flow(new FlowRequest(WorkspaceSeatSyncService.FLOW_PATH,
@@ -88,7 +89,7 @@ class WorkspaceSeatSyncServiceTest {
     }
 
     @Test void mismatchedConfirmationIsNotReportedAsSuccess() {
-        doReturn(Mono.just(new ObjectMapper().valueToTree(Map.of("success", true, "quantity", 3, "requestId", "wrong"))))
+        doReturn(Mono.just(JsonMapper.builderWithJackson2Defaults().build().valueToTree(Map.of("success", true, "quantity", 3, "requestId", "wrong"))))
                 .when(service).send(anyMap());
         assertThrows(IllegalStateException.class, () -> service.synchronize("workspace").block());
         verify(redis, never()).execute(any(), anyList(), anyList());

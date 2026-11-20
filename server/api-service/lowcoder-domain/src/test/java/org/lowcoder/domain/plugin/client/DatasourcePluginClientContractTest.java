@@ -45,9 +45,10 @@ import java.util.function.Function;
  *       dynamic-config {@code List<Object>}, the plugin definitions, the {@code QueryExecutionResult} as a §4.6 producer
  *       report ({@link QueryResults#report}), and the {@code DatasourceTestResult} ({@link FieldTree}).</li>
  * </ul>
- * {@code runPluginQuery} is sent plain and encrypted; its encrypted body is written by the client's bare
- * {@code new ObjectMapper()} (E11, O10), the plain one by the client codecs, and a {@code queryDsl} holding an
- * {@link Instant} pins how each treats a {@code java.time} value. Pinned in {@value #REPORT}.
+ * {@code runPluginQuery} is sent plain and encrypted; its encrypted body is written by the client's own
+ * {@code OBJECT_MAPPER} (Jackson 2 defaults), the plain one by the client codecs, and a {@code queryDsl} holding an
+ * {@link Instant} pins how each treats a {@code java.time} value: both write it as the epoch-seconds number, where
+ * Jackson 2 without its time module failed the call. Pinned in {@value #REPORT}.
  *
  * <p>Limits: the node service is a recording stand-in answering fixed bodies; the {@code Accept-Language} header is
  * empty, as no request is in the reactor context; the body of {@code runPluginQuery} is a {@code Map.of}, whose member
@@ -91,7 +92,7 @@ class DatasourcePluginClientContractTest {
 
     @BoundarySites({
             "lowcoder-domain/src/main/java/org/lowcoder/domain/plugin/client/DatasourcePluginClient.java#<file>#import#1",
-            "lowcoder-domain/src/main/java/org/lowcoder/domain/plugin/client/DatasourcePluginClient.java#DatasourcePluginClient.OBJECT_MAPPER#new ObjectMapper#1",
+            "lowcoder-domain/src/main/java/org/lowcoder/domain/plugin/client/DatasourcePluginClient.java#DatasourcePluginClient.OBJECT_MAPPER#JsonMapper.builder#1",
             "lowcoder-domain/src/main/java/org/lowcoder/domain/plugin/client/DatasourcePluginClient.java#DatasourcePluginClient.getPluginDynamicConfig#bodyValue#1",
             "lowcoder-domain/src/main/java/org/lowcoder/domain/plugin/client/DatasourcePluginClient.java#DatasourcePluginClient.getPluginDynamicConfig#bodyToMono#1",
             "lowcoder-domain/src/main/java/org/lowcoder/domain/plugin/client/DatasourcePluginClient.java#DatasourcePluginClient.getDatasourcePluginDefinitions#bodyToMono#1",
@@ -157,7 +158,7 @@ class DatasourcePluginClientContractTest {
             report.putAll(encrypted ? Map.of(RecordingHttpServer.CONTENT_TYPE_KEY, request.header(RecordingHttpServer.CONTENT_TYPE))
                     : request.jsonBodyReport());
             if (encrypted) {
-                report.put(DECRYPTED_KEY, new com.fasterxml.jackson.databind.util.RawValue(
+                report.put(DECRYPTED_KEY, new tools.jackson.databind.util.RawValue(
                         Encryptors.text(NODE_PASSWORD, Hex.encodeHexString(NODE_SALT.getBytes(StandardCharsets.UTF_8))).decrypt(request.bodyText())));
             }
         }

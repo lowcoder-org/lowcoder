@@ -1,7 +1,7 @@
 package org.lowcoder.sdk.plugin.sqlcommand.changeset;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Streams;
 import jakarta.annotation.Nonnull;
 import org.lowcoder.sdk.exception.PluginException;
@@ -33,7 +33,7 @@ public class ChangeSetRow implements Iterable<ChangeSetItem> {
             throw new PluginException(INVALID_GUI_SETTINGS, "GUI_INVALID_JSON_MAP_TYPE");
         }
 
-        return Streams.stream(objectNode.fields())
+        return Streams.stream(objectNode.properties().iterator())
                 .map(next -> {
                     String column = next.getKey();
                     JsonNode value = next.getValue();

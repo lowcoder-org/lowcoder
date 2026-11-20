@@ -1,6 +1,6 @@
 package org.lowcoder.api.contract.error;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -349,8 +349,8 @@ class ErrorCasesContractTest {
         assertThat(body.path(CODE).isInt()).as("code is a JSON integer").isTrue();
         assertThat(body.path(CODE).intValue()).isEqualTo(code);
         assertThat(body.path(SUCCESS).isBoolean() && !body.path(SUCCESS).booleanValue()).as("success is false").isTrue();
-        assertThat(body.path(MESSAGE).asText()).isNotBlank();
-        return body.path(MESSAGE).asText();
+        assertThat(body.path(MESSAGE).asString()).isNotBlank();
+        return body.path(MESSAGE).asString();
     }
 
     private static void assertPinned(String errorCase, EntityExchangeResult<byte[]> result, HttpStatus status) {

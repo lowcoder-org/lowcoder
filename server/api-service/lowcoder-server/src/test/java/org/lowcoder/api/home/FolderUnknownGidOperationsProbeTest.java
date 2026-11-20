@@ -1,7 +1,8 @@
 package org.lowcoder.api.home;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.lowcoder.domain.folder.model.Folder;
 import org.lowcoder.domain.folder.repository.FolderRepository;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import reactor.test.publisher.PublisherProbe;
+import tools.jackson.core.JacksonException;
 import org.lowcoder.domain.folder.service.FolderElementRelationService;
 import org.lowcoder.domain.folder.service.FolderService;
 import org.lowcoder.domain.folder.service.FolderServiceImpl;
@@ -69,7 +71,7 @@ public class FolderUnknownGidOperationsProbeTest {
     static final String USER_ID = "user-id";
     static final String ROLE_VALUE = "viewer";
     static final String FOLDERS = NewUrl.FOLDER_URL + "/";
-    static final ObjectMapper JSON = new ObjectMapper();
+    static final ObjectMapper JSON = JsonMapper.builderWithJackson2Defaults().build();
 
     /** The HTTP status and the {@code code} of the envelope. */
     record Outcome(int status, int code) {
@@ -169,7 +171,7 @@ public class FolderUnknownGidOperationsProbeTest {
             Outcome outcome = new Outcome(result.getStatus().value(), json.get("code").asInt());
             System.out.println(TAG + label + " -> " + outcome + " " + json);
             return outcome;
-        } catch (java.io.IOException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("response is not JSON", e);
         }
     }

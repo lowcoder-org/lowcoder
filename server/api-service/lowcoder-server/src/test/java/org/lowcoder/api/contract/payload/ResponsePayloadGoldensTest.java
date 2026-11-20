@@ -1,9 +1,8 @@
 package org.lowcoder.api.contract.payload;
 
+import tools.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -22,6 +21,7 @@ import org.lowcoder.sdk.config.JsonViews;
 import org.lowcoder.sdk.contract.CanonicalJson;
 import org.lowcoder.sdk.contract.GoldenJson;
 import org.lowcoder.sdk.util.JsonUtils;
+import tools.jackson.databind.DatabindException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -85,7 +85,7 @@ class ResponsePayloadGoldensTest {
     static final String INDEX_OPEN = "[";
     static final String INDEX_CLOSE = "]";
 
-    private static final ObjectMapper MAPPER = JsonUtils.getObjectMapper();
+    private static final JsonMapper MAPPER = JsonUtils.getObjectMapper();
     private static final GoldenJson GOLDEN = GoldenJson.forModule();
     private static Closure closure;
 
@@ -107,7 +107,7 @@ class ResponsePayloadGoldensTest {
 
     @ParameterizedTest(name = "S1 {0}")
     @MethodSource("responseSamples")
-    void s1WritesTheSample(Sample sample) throws JsonProcessingException {
+    void s1WritesTheSample(Sample sample) {
         String output = write(sample, sample.value(), null);
         System.out.println("[ResponsePayloadGoldensTest] S1 " + sample.name() + " " + output);
         GOLDEN.assertJson(sample.fixture(S1), output);
@@ -123,7 +123,7 @@ class ResponsePayloadGoldensTest {
 
     @ParameterizedTest(name = "views {0}")
     @MethodSource("responseSamples")
-    void viewsArePinnedWhereTheyChangeTheOutput(Sample sample) throws JsonProcessingException {
+    void viewsArePinnedWhereTheyChangeTheOutput(Sample sample) {
         String withoutView = write(sample, sample.value(), null);
         for (Map.Entry<String, Class<?>> view : VIEWS.entrySet()) {
             String output = write(sample, sample.value(), view.getValue());
@@ -149,7 +149,7 @@ class ResponsePayloadGoldensTest {
 
     @ParameterizedTest(name = "S2 {0}")
     @MethodSource("responseSamples")
-    void s2NullsAsPinned(Sample sample) throws JsonProcessingException {
+    void s2NullsAsPinned(Sample sample) {
         if (sample.type().isContainerType()) {
             // a map or collection type has no properties to null: its entries are data, and S1 pins them
             System.out.println("[ResponsePayloadGoldensTest] S2 skips " + sample.name() + ": a map or collection type");
@@ -183,7 +183,7 @@ class ResponsePayloadGoldensTest {
      * a nested bean and one of a list element, with distinct root causes.
      */
     @Test
-    void failuresAreCollectedAtEveryDepth() throws JsonProcessingException {
+    void failuresAreCollectedAtEveryDepth() {
         Map<String, String> failures = failures(new FailingHolder());
         System.out.println("[ResponsePayloadGoldensTest] failures of FailingHolder: " + failures);
         assertThat(failures).containsExactlyEntriesOf(new TreeMap<>(Map.of(
@@ -253,7 +253,7 @@ class ResponsePayloadGoldensTest {
      * instance of that class, so where the same property of one class fails at several paths only the first is
      * found; a failure that is not inside a property (a list element's own serializer) fails the test.
      */
-    static Map<String, String> failures(Object probe) throws JsonProcessingException {
+    static Map<String, String> failures(Object probe) {
         Map<String, String> failures = new TreeMap<>();
         Map<Class<?>, Set<String>> ignored = new LinkedHashMap<>();
         ObjectMapper mapper = MAPPER;
@@ -261,20 +261,22 @@ class ResponsePayloadGoldensTest {
             try {
                 mapper.writeValueAsString(probe);
                 return failures;
-            } catch (JsonMappingException e) {
-                List<JsonMappingException.Reference> references = e.getPath();
+            } catch (DatabindException e) {
+                List<DatabindException.Reference> references = e.getPath();
                 String path = jsonPath(references);
-                JsonMappingException.Reference failing = references.isEmpty() ? null : references.get(references.size() - 1);
-                assertThat(failing != null && failing.getFieldName() != null && failing.getFrom() != null)
+                DatabindException.Reference failing = references.isEmpty() ? null : references.get(references.size() - 1);
+                assertThat(failing != null && failing.getPropertyName() != null && failing.from() != null)
                         .as("the failure at '" + path + "' is not inside a property: " + e.getOriginalMessage()).isTrue();
-                Class<?> owner = failing.getFrom() instanceof Class<?> type ? type : failing.getFrom().getClass();
-                assertThat(ignored.computeIfAbsent(owner, ignoredOwner -> new TreeSet<>()).add(failing.getFieldName()))
-                        .as("ignoring " + owner.getName() + "." + failing.getFieldName() + " did not remove its failure at " + path).isTrue();
+                Class<?> owner = failing.from() instanceof Class<?> type ? type : failing.from().getClass();
+                assertThat(ignored.computeIfAbsent(owner, ignoredOwner -> new TreeSet<>()).add(failing.getPropertyName()))
+                        .as("ignoring " + owner.getName() + "." + failing.getPropertyName() + " did not remove its failure at " + path).isTrue();
                 failures.put(path, ExceptionUtils.getRootCause(e).getClass().getName());
-                mapper = MAPPER.copy();
+                JsonMapper.Builder rebuilt = MAPPER.rebuild();
                 for (Map.Entry<Class<?>, Set<String>> entry : ignored.entrySet()) {
-                    mapper.configOverride(entry.getKey()).setIgnorals(JsonIgnoreProperties.Value.forIgnoredProperties(entry.getValue()));
+                    rebuilt.withConfigOverride(entry.getKey(),
+                            override -> override.setIgnorals(JsonIgnoreProperties.Value.forIgnoredProperties(entry.getValue())));
                 }
+                mapper = rebuilt.build();
             }
         }
     }
@@ -284,20 +286,20 @@ class ResponsePayloadGoldensTest {
      * array elements as {@code [index]}. Limit: a map key is written as a property name, so a key containing
      * {@value #PATH_SEPARATOR} reads like two levels.
      */
-    static String jsonPath(List<JsonMappingException.Reference> references) {
+    static String jsonPath(List<DatabindException.Reference> references) {
         StringBuilder path = new StringBuilder();
-        for (JsonMappingException.Reference reference : references) {
-            if (reference.getFieldName() == null) {
+        for (DatabindException.Reference reference : references) {
+            if (reference.getPropertyName() == null) {
                 path.append(INDEX_OPEN).append(reference.getIndex()).append(INDEX_CLOSE);
             } else {
-                path.append(path.isEmpty() ? "" : PATH_SEPARATOR).append(reference.getFieldName());
+                path.append(path.isEmpty() ? "" : PATH_SEPARATOR).append(reference.getPropertyName());
             }
         }
         return path.toString();
     }
 
     /** The sample written with {@code view} ({@code null}: none), its {@link PayloadAssertions#UNORDERED_ARRAYS} sorted. */
-    private static String write(Sample sample, Object value, Class<?> view) throws JsonProcessingException {
+    private static String write(Sample sample, Object value, Class<?> view) {
         String output = view == null ? MAPPER.writeValueAsString(value) : MAPPER.writerWithView(view).writeValueAsString(value);
         return PayloadAssertions.sortUnorderedArrays(output, PayloadAssertions.UNORDERED_ARRAYS.getOrDefault(sample.name(), List.of()));
     }

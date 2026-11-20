@@ -1,6 +1,6 @@
 package org.lowcoder.plugin.mongo;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.mongo.model.MongoConnection;
 import org.lowcoder.plugin.mongo.model.MongoDatasourceConfig;

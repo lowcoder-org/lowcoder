@@ -1,12 +1,12 @@
 package org.lowcoder.sdk.contract;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.RawValue;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.util.RawValue;
 import org.lowcoder.sdk.config.JsonViews;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.util.JsonUtils;
+import tools.jackson.core.JacksonException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -85,7 +85,7 @@ public final class ConfigBinding {
         try {
             return MAPPER.readValue(json, new TypeReference<LinkedHashMap<String, Map<String, Object>>>() {
             });
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalArgumentException("config-binding input is not an object of forms: " + e.getOriginalMessage(), e);
         }
     }
@@ -146,7 +146,7 @@ public final class ConfigBinding {
     public static String write(Object report) {
         try {
             return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(report);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("cannot write config-binding report", e);
         }
     }
@@ -154,7 +154,7 @@ public final class ConfigBinding {
     private static Object written(Object bound, Class<?> view) {
         try {
             return new RawValue(view == null ? MAPPER.writeValueAsString(bound) : MAPPER.writerWithView(view).writeValueAsString(bound));
-        } catch (JsonProcessingException | RuntimeException e) {
+        } catch (RuntimeException e) {
             return Map.of(ERROR_KEY, errorText(e));
         }
     }

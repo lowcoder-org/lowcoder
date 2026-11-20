@@ -1,5 +1,6 @@
 package org.lowcoder.sdk.plugin.common.ssl;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -20,6 +21,7 @@ public abstract class SslConfig implements Encrypt {
 
     protected final SslCertVerificationType sslCertVerificationType;
 
+    @JsonCreator
     protected SslConfig(SslCertVerificationType sslCertVerificationType) {
         this.sslCertVerificationType = sslCertVerificationType;
     }

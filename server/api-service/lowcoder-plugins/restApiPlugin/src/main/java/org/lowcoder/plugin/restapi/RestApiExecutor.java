@@ -19,9 +19,8 @@
 
 package org.lowcoder.plugin.restapi;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import jakarta.annotation.Nullable;
 import lombok.Builder;
@@ -51,9 +50,9 @@ import org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType;
 import org.lowcoder.sdk.query.QueryVisitorContext;
 import org.lowcoder.sdk.util.CookieForwarding;
 import org.lowcoder.sdk.util.HttpHeaderMaps;
-import org.lowcoder.sdk.webclient.Jackson2ClientCodecs;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
 import org.lowcoder.sdk.webclient.WebClientRedirects;
+import org.lowcoder.sdk.webclient.JacksonClientCodecs;
 import org.pf4j.Extension;
 import org.springframework.http.*;
 import org.springframework.http.client.reactive.ClientHttpRequest;
@@ -63,8 +62,8 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import tools.jackson.core.JacksonException;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -104,7 +103,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
     private final ExchangeStrategies exchangeStrategies = ExchangeStrategies
             .builder()
             .codecs(configurer -> {
-                Jackson2ClientCodecs.apply(configurer);
+                JacksonClientCodecs.apply(configurer);
                 configurer.defaultCodecs().maxInMemorySize(-1);
             })
             .build();
@@ -410,7 +409,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
                         .dataType(ResponseDataType.JSON)
                         .build();
 
-            } catch (IOException e) {
+            } catch (JacksonException e) {
                 throw new PluginException(REST_API_EXECUTION_ERROR, "INVALID_JSON_FROM_RESPONSE");
             }
         }
@@ -439,14 +438,14 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
         String headerInJsonString;
         try {
             headerInJsonString = toJsonThrows(HttpHeaderMaps.copyOf(headers));
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new PluginException(QUERY_EXECUTION_ERROR, DEFAULT_REST_ERROR_CODE, e.getMessage());
         }
 
         // Set headers in the result now
         try {
             return (readTree(headerInJsonString));
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new PluginException(JSON_PARSE_ERROR, "JSON_PARSE_ERROR", headerInJsonString, e.getMessage());
         }
     }

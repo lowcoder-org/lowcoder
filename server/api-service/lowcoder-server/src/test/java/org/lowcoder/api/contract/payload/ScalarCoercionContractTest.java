@@ -1,9 +1,11 @@
 package org.lowcoder.api.contract.payload;
 
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import tools.jackson.databind.json.JsonMapper;
+import org.lowcoder.sdk.contract.JacksonIntrospection;
+import tools.jackson.databind.BeanDescription;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.introspect.BeanPropertyDefinition;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -68,7 +70,7 @@ class ScalarCoercionContractTest {
     static final String VALUE_KEY = "value";
     static final String NULL = "null";
 
-    private static final ObjectMapper MAPPER = JsonUtils.getObjectMapper();
+    private static final JsonMapper MAPPER = JsonUtils.getObjectMapper();
     private static final GoldenJson GOLDEN = GoldenJson.forModule();
 
     enum Mechanism {
@@ -123,7 +125,7 @@ class ScalarCoercionContractTest {
 
     /** The mechanism Jackson binds {@code property} of a request type with (see the class comment). */
     static Mechanism mechanism(JavaType owner, BeanPropertyDefinition property) {
-        if (MAPPER.getDeserializationConfig().introspect(owner).findPOJOBuilder() != null) {
+        if (JacksonIntrospection.builderOf(MAPPER, JacksonIntrospection.deserialization(MAPPER, owner)) != null) {
             return Mechanism.BUILDER;
         }
         return property.getConstructorParameter() != null ? Mechanism.CREATOR : Mechanism.SETTER;

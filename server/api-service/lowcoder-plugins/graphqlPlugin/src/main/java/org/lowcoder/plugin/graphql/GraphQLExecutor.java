@@ -1,8 +1,7 @@
 package org.lowcoder.plugin.graphql;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import jakarta.annotation.Nullable;
 import lombok.Builder;
@@ -32,9 +31,9 @@ import org.lowcoder.sdk.util.HttpHeaderMaps;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.lowcoder.sdk.util.MoreMapUtils;
 import org.lowcoder.sdk.util.MustacheHelper;
-import org.lowcoder.sdk.webclient.Jackson2ClientCodecs;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
 import org.lowcoder.sdk.webclient.WebClientRedirects;
+import org.lowcoder.sdk.webclient.JacksonClientCodecs;
 import org.pf4j.Extension;
 import org.springframework.http.*;
 import org.springframework.http.client.reactive.ClientHttpRequest;
@@ -45,8 +44,8 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import tools.jackson.core.JacksonException;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -90,7 +89,7 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
     private final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies
             .builder()
             .codecs(configurer -> {
-                Jackson2ClientCodecs.apply(configurer);
+                JacksonClientCodecs.apply(configurer);
                 configurer.defaultCodecs().maxInMemorySize(10 * 1024 * 1024);
             })
             .build();
@@ -393,14 +392,14 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
         String headerInJsonString;
         try {
             headerInJsonString = toJsonThrows(HttpHeaderMaps.copyOf(headers));
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new PluginException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR", e.getMessage());
         }
 
         // Set headers in the result now
         try {
             return (readTree(headerInJsonString));
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new PluginException(JSON_PARSE_ERROR, "JSON_PARSE_ERROR", headerInJsonString, e.getMessage());
         }
     }
@@ -414,7 +413,7 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
                         .dataType(ResponseDataType.JSON)
                         .build();
 
-            } catch (IOException e) {
+            } catch (JacksonException e) {
                 throw new PluginException(GRAPHQL_EXECUTION_ERROR, "INVALID_JSON_FROM_RESPONSE");
             }
         }

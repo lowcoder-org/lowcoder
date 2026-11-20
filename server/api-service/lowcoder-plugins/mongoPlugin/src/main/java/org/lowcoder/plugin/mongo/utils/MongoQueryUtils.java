@@ -53,11 +53,9 @@ import org.lowcoder.plugin.mongo.commands.MongoCommand;
 import org.lowcoder.plugin.mongo.commands.UpdateMany;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.DatasourceStructure;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 public class MongoQueryUtils {
 
@@ -148,7 +146,7 @@ public class MongoQueryUtils {
         return URLEncoder.encode(text, StandardCharsets.UTF_8);
     }
 
-    public static JsonNode parseResultBody(JSONObject outputJson) throws JsonProcessingException {
+    public static JsonNode parseResultBody(JSONObject outputJson) {
             /*
              For the `findAndModify` command, we don't get the count of modifications made. Instead,
              we either get the modified new value or the pre-modified old value (depending on the

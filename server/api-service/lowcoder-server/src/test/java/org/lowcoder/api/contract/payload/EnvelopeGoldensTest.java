@@ -1,6 +1,5 @@
 package org.lowcoder.api.contract.payload;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.api.contract.support.PayloadTypeWalker;
 import org.lowcoder.api.contract.support.PayloadTypeWalker.Property;
@@ -97,8 +96,7 @@ class EnvelopeGoldensTest {
     }
 
     /** Writes {@code envelope}, compares it with its fixture and its names with the walker's, minus {@code nullProperties}. */
-    private static void assertEnvelope(Class<?> type, String envelopeCase, Object envelope, String... nullProperties)
-            throws JsonProcessingException {
+    private static void assertEnvelope(Class<?> type, String envelopeCase, Object envelope, String... nullProperties) {
         String json = JsonUtils.getObjectMapper().writeValueAsString(envelope);
         String fixture = DIRECTORY + type.getSimpleName() + "." + envelopeCase + ".json";
         System.out.println("[EnvelopeGoldensTest] " + fixture + ": " + json);
@@ -107,7 +105,7 @@ class EnvelopeGoldensTest {
                 .collect(Collectors.toCollection(TreeSet::new));
         expectedNames.removeAll(Set.of(nullProperties));
         Set<String> names = new TreeSet<>();
-        JsonUtils.getObjectMapper().readTree(json).fieldNames().forEachRemaining(names::add);
+        JsonUtils.getObjectMapper().readTree(json).propertyNames().iterator().forEachRemaining(names::add);
         assertThat(names).as("top-level names of " + fixture).isEqualTo(expectedNames);
     }
 }

@@ -1,8 +1,9 @@
 package org.lowcoder.sdk.contract;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
 import org.lowcoder.sdk.util.JsonUtils;
+import tools.jackson.core.JacksonException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,8 +36,8 @@ public final class RepresentativeInput {
         try {
             return JsonUtils.getObjectMapper().readValue(TEXT, new TypeReference<Map<String, Object>>() {
             });
-        } catch (IOException e) {
-            throw new UncheckedIOException("cannot read " + RESOURCE, e);
+        } catch (JacksonException e) {
+            throw new IllegalStateException("cannot read " + RESOURCE, e);
         }
     }
 
@@ -44,8 +45,8 @@ public final class RepresentativeInput {
     public static JsonNode node() {
         try {
             return JsonUtils.getObjectMapper().readTree(TEXT);
-        } catch (IOException e) {
-            throw new UncheckedIOException("cannot read " + RESOURCE, e);
+        } catch (JacksonException e) {
+            throw new IllegalStateException("cannot read " + RESOURCE, e);
         }
     }
 

@@ -247,13 +247,13 @@
         "/authConfig/type" : "null"
       },
       "noView" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.name()\" because the return value of \"org.lowcoder.sdk.plugin.restapi.auth.AuthConfig.getType()\" is null (through reference chain: org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig[\"oauth2InheritFromLogin\"])"
+        "error" : "tools.jackson.databind.DatabindException: Cannot invoke \"org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.name()\" because the return value of \"org.lowcoder.sdk.plugin.restapi.auth.AuthConfig.getType()\" is null\n at [No location information] (through reference chain: org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig[\"oauth2InheritFromLogin\"])"
       },
       "Public" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.name()\" because the return value of \"org.lowcoder.sdk.plugin.restapi.auth.AuthConfig.getType()\" is null (through reference chain: org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig[\"oauth2InheritFromLogin\"])"
+        "error" : "tools.jackson.databind.DatabindException: Cannot invoke \"org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.name()\" because the return value of \"org.lowcoder.sdk.plugin.restapi.auth.AuthConfig.getType()\" is null\n at [No location information] (through reference chain: org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig[\"oauth2InheritFromLogin\"])"
       },
       "Internal" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Cannot invoke \"org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.name()\" because the return value of \"org.lowcoder.sdk.plugin.restapi.auth.AuthConfig.getType()\" is null (through reference chain: org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig[\"oauth2InheritFromLogin\"])"
+        "error" : "tools.jackson.databind.DatabindException: Cannot invoke \"org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.name()\" because the return value of \"org.lowcoder.sdk.plugin.restapi.auth.AuthConfig.getType()\" is null\n at [No location information] (through reference chain: org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig[\"oauth2InheritFromLogin\"])"
       }
     },
     "unknownAuthType" : {

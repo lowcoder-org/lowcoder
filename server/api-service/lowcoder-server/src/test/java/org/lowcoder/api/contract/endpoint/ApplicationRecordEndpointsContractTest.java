@@ -1,6 +1,5 @@
 package org.lowcoder.api.contract.endpoint;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -102,7 +101,7 @@ class ApplicationRecordEndpointsContractTest {
     }
 
     @Test
-    void dslByIdAsStored() throws JsonProcessingException {
+    void dslByIdAsStored() {
         Map<String, Object> stored = StoredValues.dsl(representativeDsl());
         GOLDEN.assertJson(STORED_OUTPUT, JsonUtils.getObjectMapper().writeValueAsString(stored));
         Mockito.when(recordApiService.getRecordDSLFromApplicationCombineId(new ApplicationCombineId(APPLICATION_ID, RECORD_ID)))
