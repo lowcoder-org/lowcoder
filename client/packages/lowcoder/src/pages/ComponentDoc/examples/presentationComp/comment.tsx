@@ -78,50 +78,6 @@ export default function CommentExample() {
         />
       </ExampleGroup>
 
-      <ExampleGroup
-        title="Animation Style"
-        description="The Following Examples Show different animations on the Comment Component."
-        >
-        <Example
-          title="Bounce Animation"
-          width={600}
-          config={{
-            animationStyle: {
-            "animation": "bounce",
-            "animationDelay": "1s",
-            "animationDuration": "3s",
-            "animationIterationCount": "infinite"
-            },
-          }}
-          compFactory={CommentComp}
-        />
-        <Example
-          title="Swing Animation"
-          width={600}
-          config={{
-            animationStyle: {
-            "animation": "swing",
-            "animationDelay": "1s",
-            "animationDuration": "3s",
-            "animationIterationCount": "infinite"
-            },
-          }}
-          compFactory={CommentComp}
-        />
-        <Example
-        title="Tada Animation"
-        width={600}
-        config={{
-            animationStyle: {
-            "animation": "tada",
-            "animationDelay": "1s",
-            "animationDuration": "3s",
-            "animationIterationCount": "infinite"
-            },
-        }}
-        compFactory={CommentComp}
-      />
-      </ExampleGroup>
     </>
   );
 }

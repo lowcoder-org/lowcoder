@@ -1002,54 +1002,6 @@ export default function FormExample() {
                 compFactory={FormComp}
             />
         </ExampleGroup>
-
-        <ExampleGroup
-        title="Animation Style"
-        description="The Following Examples Show different animations on the Form Component."
-        >
-        <Example
-        title="Bounce Animation"
-        hideSettings={true}
-        config={{
-            container: container, 
-            animationStyle: {
-            "animation": "bounce",
-            "animationDelay": "1s",
-            "animationDuration": "3s",
-            "animationIterationCount": "infinite"
-            },
-        }}
-        compFactory={FormComp}
-        />
-        <Example
-        title="Swing Animation"
-        hideSettings={true}
-        config={{
-            container: container, 
-            animationStyle: {
-            "animation": "swing",
-            "animationDelay": "1s",
-            "animationDuration": "3s",
-            "animationIterationCount": "infinite"
-            },
-        }}
-        compFactory={FormComp}
-        />
-        <Example
-        title="Tada Animation"
-        hideSettings={true}
-        config={{
-            container: container, 
-            animationStyle: {
-            "animation": "tada",
-            "animationDelay": "1s",
-            "animationDuration": "3s",
-            "animationIterationCount": "infinite"
-            },
-        }}
-        compFactory={FormComp}
-        />
-        </ExampleGroup>
     </>
   );
 }
