@@ -36,6 +36,7 @@ test("an invited member sees an app only when it is shared with them, and cannot
     code: API_CODE_APP_PERMISSION_DENIED,
   });
   await memberView.open(appId);
+  await expect(memberView.permissionDeniedMessage, "the app tells them they may not view it").toBeVisible();
   await expect(memberView.byTestId(TEST_ID), "the app is not rendered for them").toHaveCount(0);
 
   await grantAppPermission(page.request, appId, { role: "viewer", userIds: [await currentUserId(memberRequest)] });

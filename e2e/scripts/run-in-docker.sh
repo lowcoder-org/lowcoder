@@ -22,6 +22,8 @@
 ##   POSTGRES_IMAGE      PostgreSQL sidecar for the data source tests (pinned by digest)
 ##   E2E_HOST_PORT       also publish the app on 127.0.0.1:<port> to look at it in a browser while the run lasts
 ##
+## One run per checkout at a time (a lock on e2e/.run.lock; needs flock, on macOS `brew install flock`).
+##
 ## Results: e2e/playwright-report (HTML), e2e/test-results (JUnit, traces, videos, screenshots of failures).
 ## Exit code: the one of `playwright test`; non-zero when the app does not start or the versions differ.
 ##
@@ -181,6 +183,13 @@ run_tests() {
     return "$status"
 }
 
+# Two runs on one checkout would share node_modules, test-results and playwright-report in e2e/: refuse the second.
+acquire_run_lock() {
+    exec 9> "$E2E_DIR/.run.lock"
+    flock -n 9 || fail "another run uses $E2E_DIR (lock $E2E_DIR/.run.lock); wait for it or use another checkout"
+}
+
+acquire_run_lock
 check_playwright_versions
 check_app_image
 docker network create "$NETWORK" > /dev/null

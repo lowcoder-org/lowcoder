@@ -1,5 +1,5 @@
 import { createApp, getAppDsl } from "../../src/api/client";
-import { SAVE_POLL_TIMEOUT_MS, TAGS } from "../../src/constants";
+import { BUTTON_COMP_TYPE, BUTTON_SEARCH_TEXT, DROP_TARGET, SAVE_POLL_TIMEOUT_MS, TAGS } from "../../src/constants";
 import { expect, test } from "../../src/fixtures";
 import { EditorPage } from "../../src/pages/EditorPage";
 
@@ -20,15 +20,15 @@ test("a component dropped right after the editor is ready has a usable width", {
   const editor = new EditorPage(page);
 
   await editor.open(appId, { settleGrid: false });
-  await editor.dragFromInsertPanel("button", "Button", { x: 120, y: 40 });
-  await expect(editor.canvasItems("button")).toHaveCount(1);
+  await editor.dragFromInsertPanel(BUTTON_COMP_TYPE, BUTTON_SEARCH_TEXT, DROP_TARGET);
+  await expect(editor.canvasItems(BUTTON_COMP_TYPE)).toHaveCount(1);
 
   await expect
     .poll(async () => JSON.stringify((await getAppDsl(page.request, appId)).applicationDSL), {
       timeout: SAVE_POLL_TIMEOUT_MS,
       message: "the saved app contains the button",
     })
-    .toContain('"compType":"button"');
+    .toContain(`"compType":"${BUTTON_COMP_TYPE}"`);
   const dsl = (await getAppDsl(page.request, appId)).applicationDSL as { ui: { layout: Record<string, SavedLayoutItem> } };
   const [item] = Object.values(dsl.ui.layout);
   expect(item?.w, "the saved width of the dropped button").toBeGreaterThan(0);

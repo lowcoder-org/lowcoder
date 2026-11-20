@@ -3,3 +3,4 @@ playwright-report/
 test-results/
 blob-report/
 playwright/.auth/
+.run.lock

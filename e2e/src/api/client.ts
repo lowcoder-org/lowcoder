@@ -91,15 +91,6 @@ export async function dismissNewUserGuidance(request: APIRequestContext): Promis
   );
 }
 
-export async function loginUser(request: APIRequestContext, email: string, password = TEST_PASSWORD): Promise<void> {
-  await unwrap<unknown>(
-    `login ${email}`,
-    await request.post(API_PATHS.LOGIN, {
-      data: { loginId: email, password, register: false, source: AUTH_SOURCE_EMAIL, authId: AUTH_ID_EMAIL },
-    }),
-  );
-}
-
 export async function currentUser(request: APIRequestContext): Promise<CurrentUserData> {
   return unwrap<CurrentUserData>("current user", await request.get(API_PATHS.CURRENT_USER));
 }
