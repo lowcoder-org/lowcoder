@@ -119,7 +119,7 @@ CMD [ "/bin/sh", "/lowcoder/node-service/entrypoint.sh" ]
 ##
 ## Standalone image is built from server/proxy-service/Dockerfile
 ##
-FROM node:22.23-slim AS build-proxy-service
+FROM node:22.23.4-slim AS build-proxy-service
 
 # Copy only the build inputs, so local build/ and node_modules folders are never picked up
 COPY server/proxy-service/package.json server/proxy-service/yarn.lock server/proxy-service/tsconfig.json /lowcoder/proxy-service/app/
@@ -144,7 +144,7 @@ RUN chmod +x /lowcoder/proxy-service/*.sh
 ##
 ## Standalone image is built from deploy/docker/agora-token-service/Dockerfile
 ##
-FROM node:22.23-slim AS build-agora-token-service
+FROM node:22.23.4-slim AS build-agora-token-service
 
 WORKDIR /lowcoder/agora-token-service/app
 COPY deploy/docker/agora-token-service/package.json ./
@@ -164,7 +164,7 @@ RUN chmod +x /lowcoder/agora-token-service/*.sh
 ## HOCUSPOCUS_SERVER_VERSION in sync with it.
 ## @hocuspocus/server 4.x requires node >= 22.
 ##
-FROM node:22.23-slim AS build-hocuspocus
+FROM node:22.23.4-slim AS build-hocuspocus
 
 ARG HOCUSPOCUS_SERVER_VERSION=4.3.0
 
@@ -183,7 +183,7 @@ RUN chmod +x /lowcoder/hocuspocus/*.sh
 ##
 ## Build lowcoder client application
 ##
-FROM node:22.23-slim AS build-client
+FROM node:22.23.4-slim AS build-client
 
 # curl is required for yarn build to succeed, because it calls it while building client
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
@@ -224,7 +224,7 @@ RUN yarn build
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-frontend --target lowcoder-ce-frontend .
 ##
-FROM nginx:1.27.1 AS lowcoder-ce-frontend
+FROM nginx:1.30.6 AS lowcoder-ce-frontend
 LABEL maintainer="lowcoder"
 
 # Change default nginx user into lowcoder user and remove default nginx config
@@ -265,7 +265,7 @@ EXPOSE 3443
 ##
 ## Build lowcoder client (Enterprise) application
 ##
-FROM node:22.23-slim AS build-client-ee
+FROM node:22.23.4-slim AS build-client-ee
 
 # curl is required for yarn build to succeed, because it calls it while building client
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
@@ -306,7 +306,7 @@ RUN yarn build
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ee-frontend --target lowcoder-ee-frontend .
 ##
-FROM nginx:1.27.1 AS lowcoder-enterprise-frontend
+FROM nginx:1.30.6 AS lowcoder-enterprise-frontend
 LABEL maintainer="lowcoder"
 
 # Change default nginx user into lowcoder user and remove default nginx config
@@ -364,12 +364,12 @@ RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg -
   && curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-archive-keyring.gpg \
   && echo "deb [signed-by=/usr/share/keyrings/mongodb-archive-keyring.gpg] https://repo.mongodb.org/apt/ubuntu `lsb_release -cs`/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list \
   && curl -fsSL https://nginx.org/keys/nginx_signing.key | gpg --dearmor -o /usr/share/keyrings/nginx-archive-keyring.gpg \
-  && echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] http://nginx.org/packages/mainline/ubuntu `lsb_release -cs` nginx" | tee /etc/apt/sources.list.d/nginx.list
+  && echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] http://nginx.org/packages/ubuntu `lsb_release -cs` nginx" | tee /etc/apt/sources.list.d/nginx.list
 
 
 # Install required packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends -y \
-      nginx=1.27.1-1~jammy \
+      nginx=1.30.6-1~jammy \
       mongodb-org \
       redis \
       supervisor \
@@ -383,8 +383,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-ins
 
 # Use configuration setup from official nginx image
 RUN rm -rf /etc/nginx/nginx.conf
-COPY --from=nginx:1.27.1 /docker-entrypoint.d /docker-entrypoint.d
-COPY --from=nginx:1.27.1 /docker-entrypoint.sh /docker-entrypoint.sh
+COPY --from=nginx:1.30.6 /docker-entrypoint.d /docker-entrypoint.d
+COPY --from=nginx:1.30.6 /docker-entrypoint.sh /docker-entrypoint.sh
 
 # Add lowcoder user
 RUN usermod --login lowcoder --uid 9001 nginx \
@@ -462,4 +462,3 @@ EXPOSE 8081
 
 ENTRYPOINT [ "/bin/sh" , "/lowcoder/entrypoint.sh" ]
 CMD ["/usr/bin/supervisord", "-n" , "-c" , "/lowcoder/etc/supervisord.conf"]
-
