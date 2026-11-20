@@ -45,21 +45,21 @@ public class MongoPluginValidateConfigTest {
     /**
      * NEW-20: connection strings {@code MONGO_URL_REGEX} matches and the driver refuses, one per reason - an authority
      * read as host {@code u:p} with a non-numeric port (BF-060's split case), a database holding '/' or ' ', options
-     * without the leading '/', an option without '=', an SRV host carrying a port, a username without a password, a
+     * after a '?' in the credentials, an option without '=', an SRV host carrying a port, a username without a password, a
      * port that is not a number and one out of range, an unknown read preference, an unknown auth mechanism, and an
      * unenclosed IPv6 literal. Both tests below assert the driver's verdict case by case, so this list pins the
      * parsing decisions of whichever driver the classpath resolves rather than a stable MongoDB URI specification.
      */
     static final List<String> DRIVER_REFUSED_URIS = List.of(
-            "mongodb://u:p/ss@h/db", "mongodb://h/db/x", "mongodb://h?x=1", "mongodb://localhost?x=1",
+            "mongodb://u:p/ss@h/db", "mongodb://h/db/x", "mongodb://u?x:p?q@h/db", "mongodb://localhost/db?x",
             "mongodb://h/db?x", "mongodb+srv://h:27017/db", "mongodb://u@h/db", "mongodb://h:notaport/db",
             "mongodb://h:99999/db", "mongodb://h/db?readPreference=bogus", "mongodb://h/a b",
             "mongodb://u:p@h/db?authMechanism=NOPE", "mongodb://[::1/db");
 
-    /** NEW-20: connection strings that look malformed and the driver accepts; the last two are BF-060's cases. */
+    /** NEW-20: connection strings that look malformed and the driver accepts; the last two are BF-060's case and an options part without the leading '/' (the authority ends at the '?'). */
     static final List<String> DRIVER_ACCEPTED_URIS = List.of(
             "mongodb://h/db#frag", "mongodb://h,/db", "mongodb://h/db?ssl=notabool", "mongodb://h/db?w=x=y",
-            "mongodb://realhost/db?appName=a:b@other", "mongodb://u?x:p?q@h/db");
+            "mongodb://realhost/db?appName=a:b@other", "mongodb://h?x=1");
 
     /** NEW-55: host-field values the driver refuses once the connection string is built around them. */
     static final List<String> DRIVER_REFUSED_HOSTS = List.of("h:notaport", "[::1", "h:99999");
@@ -110,7 +110,7 @@ public class MongoPluginValidateConfigTest {
      * NEW-20: a connection string the regex matches but the driver's own parser refuses is now reported, instead of
      * saving and failing later on connect. Each case asserts three things in order: that the regex accepts it, so the
      * check that fires is the driver one and not {@code isValid}; that the driver refuses it, so the expectation is the
-     * driver's own verdict and not a list copied from a probe; and the resulting code. `mongodb://localhost?x=1` also
+     * driver's own verdict and not a list copied from a probe; and the resulting code. `mongodb://localhost/db?x` also
      * pins the choice of code: a loopback host inside a refused URI gives the URL code alone, because a refused string
      * yields no hosts for the loopback check to see.
      *

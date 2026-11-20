@@ -92,7 +92,6 @@ public final class JacksonAnnotationGuard {
             add(type, CLASS_MEMBER, classAnnotations(config, annotatedClass), seen, result);
             annotatedClass.fields().forEach(field -> add(type, field.getFullName(), annotations(field.getAllAnnotations()), seen, result));
             annotatedClass.memberMethods().forEach(method -> addWithParameters(type, method, seen, result));
-            annotatedClass.getStaticMethods().forEach(method -> addWithParameters(type, method, seen, result));
             annotatedClass.getFactoryMethods().forEach(method -> addWithParameters(type, method, seen, result));
             annotatedClass.getConstructors().forEach(constructor -> addWithParameters(type, constructor, seen, result));
             if (annotatedClass.getDefaultConstructor() != null) {

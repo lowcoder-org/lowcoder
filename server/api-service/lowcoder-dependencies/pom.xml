@@ -34,7 +34,7 @@
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
-				<version>3.2.4</version>
+				<version>3.5.16</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -145,12 +145,6 @@
 			</dependency>
 
 			<dependency>
-				<groupId>io.projectreactor</groupId>
-				<artifactId>reactor-core</artifactId>
-				<version>3.6.4</version>
-			</dependency>
-
-			<dependency>
 				<groupId>org.pf4j</groupId>
 				<artifactId>pf4j-spring</artifactId>
 				<version>0.8.0</version>
@@ -234,20 +228,9 @@
 			</dependency>
 
 			<dependency>
-				<groupId>io.projectreactor</groupId>
-				<artifactId>reactor-test</artifactId>
-				<version>3.6.4</version>
-			</dependency>
-			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>
 				<version>4.5.14</version>
-			</dependency>
-			<dependency>
-				<groupId>org.mockito</groupId>
-				<artifactId>mockito-inline</artifactId>
-				<version>5.2.0</version>
-				<scope>test</scope>
 			</dependency>
 			<dependency>
 			    <groupId>jakarta.validation</groupId>
@@ -257,7 +240,7 @@
 			<dependency>
 				<groupId>org.springdoc</groupId>
 				<artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
-				<version>2.5.0</version>
+				<version>2.10.0</version>
 			</dependency>
 
 		</dependencies>
