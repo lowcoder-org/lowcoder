@@ -7,13 +7,13 @@ import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 import org.springframework.data.mongodb.core.convert.NoOpDbRefResolver;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 
-import java.util.List;
 import java.util.Map;
 
 /**
  * Values as the store gives them back (docs/API_PAYLOAD_TEST_PLAN.md §9 O19): written into a document by Spring
- * Data's {@link MappingMongoConverter} and read back, the converter built as Spring Boot builds it (an empty
- * {@link MongoCustomConversions}) with the map-key dot replacement that {@code MongoConfig#init} sets. Limit: the
+ * Data's {@link MappingMongoConverter} and read back, the converter built as Spring Boot builds it (no custom
+ * converters, {@code spring.data.mongodb.representation.big-decimal: string} as the application's {@code application.yaml}
+ * sets it) with the map-key dot replacement that {@code MongoConfig#init} sets. Limit: the
  * database driver's encoding between write and read is not run.
  */
 public final class StoredValues {
@@ -26,7 +26,8 @@ public final class StoredValues {
 
     /** {@code dsl} as a record's or an application's DSL read from the store holds it. */
     public static Map<String, Object> dsl(Map<String, Object> dsl) {
-        MongoCustomConversions conversions = new MongoCustomConversions(List.of());
+        MongoCustomConversions conversions = MongoCustomConversions.create(
+                configurer -> configurer.bigDecimal(MongoCustomConversions.BigDecimalRepresentation.STRING));
         MongoMappingContext context = new MongoMappingContext();
         context.setSimpleTypeHolder(conversions.getSimpleTypeHolder());
         context.afterPropertiesSet();

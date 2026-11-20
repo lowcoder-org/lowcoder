@@ -24,7 +24,6 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -91,9 +90,6 @@ class BundleEndpointsIntegrationTest {
 
     @Autowired
     private InitData initData;
-
-    @Autowired
-    private WebTestClient webTestClient;
 
     private String testBundleId;
     private String testBundleId2;

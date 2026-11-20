@@ -21,9 +21,8 @@ import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.LocaleUtils;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.autoconfigure.web.WebProperties;
-import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
+import org.springframework.boot.webflux.error.DefaultErrorAttributes;
 import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
@@ -80,7 +79,7 @@ class CustomErrorWebExceptionHandlerTest {
         apiPerfHelper = mock(ApiPerfHelper.class);
         ObjectProvider<ViewResolver> viewResolvers = mock(ObjectProvider.class);
         when(viewResolvers.orderedStream()).thenAnswer(invocation -> Stream.<ViewResolver>empty());
-        handler = new CustomErrorWebExceptionHandler(new DefaultErrorAttributes(), new WebProperties.Resources(), new ServerProperties(),
+        handler = new CustomErrorWebExceptionHandler(new DefaultErrorAttributes(), new WebProperties.Resources(), new WebProperties(),
                 new StaticApplicationContext(), viewResolvers, ServerCodecConfigurer.create());
         ReflectionTestUtils.setField(handler, "apiPerfHelper", apiPerfHelper);
         ReflectionTestUtils.setField(handler, "globalContextService", new GlobalContextServiceImpl());

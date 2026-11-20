@@ -9,7 +9,9 @@ import javax.crypto.spec.SecretKeySpec;
 import lombok.RequiredArgsConstructor;
 import org.lowcoder.infra.js.NodeServerHelper;
 import org.lowcoder.sdk.config.CommonConfig;
+import org.lowcoder.sdk.webclient.Jackson2ClientCodecs;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -18,8 +20,14 @@ import reactor.core.publisher.Mono;
 public class MarketplaceRenderClient {
     private final CommonConfig config;
     private final NodeServerHelper nodeServer;
-    private final WebClient client = WebClient.builder().codecs(codecs ->
-            codecs.defaultCodecs().maxInMemorySize(2 * 1024 * 1024)).build();
+    private static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
+            .codecs(codecs -> {
+                Jackson2ClientCodecs.apply(codecs);
+                codecs.defaultCodecs().maxInMemorySize(2 * 1024 * 1024);
+            })
+            .build();
+
+    private final WebClient client = WebClient.builder().exchangeStrategies(EXCHANGE_STRATEGIES).build();
 
     public boolean isConfigured() {
         return config.getJsExecutor().getPassword() != null && !config.getJsExecutor().getPassword().isBlank();

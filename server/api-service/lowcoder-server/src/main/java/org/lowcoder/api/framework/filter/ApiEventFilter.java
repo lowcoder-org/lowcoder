@@ -10,6 +10,7 @@ import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.infra.event.APICallEvent;
 import org.lowcoder.plugin.api.event.LowcoderEvent;
 import org.lowcoder.sdk.constants.Authentication;
+import org.lowcoder.sdk.util.HttpHeaderMaps;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -27,7 +28,6 @@ import java.util.List;
 
 import static org.lowcoder.sdk.constants.GlobalContext.CURRENT_ORG_MEMBER;
 import static org.lowcoder.sdk.constants.GlobalContext.VISITOR_TOKEN;
-import static org.springframework.http.HttpHeaders.writableHttpHeaders;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -58,7 +58,7 @@ public class ApiEventFilter implements WebFilter {
     }
 
     private void emitEvent(ServerHttpRequest request, String token, OrgMember orgMember, ContextView contextView) {
-        MultiValueMap<String, String> headers = writableHttpHeaders(request.getHeaders());
+        MultiValueMap<String, String> headers = HttpHeaderMaps.copyOf(request.getHeaders());
         headers.remove(HttpHeaders.COOKIE);
         String ipAddress = firstValueOrEmpty(headers.remove(X_REAL_IP));
 

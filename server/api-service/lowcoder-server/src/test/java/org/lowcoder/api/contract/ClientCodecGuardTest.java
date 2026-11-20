@@ -2,6 +2,7 @@ package org.lowcoder.api.contract;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.lowcoder.api.application.marketplace.MarketplaceRenderClient;
 import org.lowcoder.api.misc.JsLibraryController;
 import org.lowcoder.domain.plugin.client.DatasourcePluginClient;
 import org.lowcoder.sdk.contract.BoundarySites;
@@ -21,8 +22,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * (docs/API_PAYLOAD_TEST_PLAN.md §5.4, group {@code client-codec-guard}; evidence E8, E11). Each case reads the
  * real {@code ExchangeStrategies} object the application uses, not a copy.
  *
- * <p>Sites: {@code WebClientBuildHelper.java:132}, {@code DatasourcePluginClient.java:44},
- * {@code JsLibraryController.java:64}. {@code DatasourcePluginClient} builds a plain {@code WebClient} from its
+ * <p>Sites: {@code WebClientBuildHelper}, {@code DatasourcePluginClient}, {@code JsLibraryController} and
+ * {@code MarketplaceRenderClient} (its 2 MiB limit is declared and in effect: its client takes the strategies as they
+ * are). {@code DatasourcePluginClient} builds a plain {@code WebClient} from its
  * strategies, so its declared limit is the effective one; {@code JsLibraryController}'s requests get the
  * {@code WebClientBuildHelper} limit instead of the declared one (plan §9, O11; evidence E14), and that is what is pinned. The executors' sites are guarded in {@code graphqlPlugin} and
  * {@code restApiPlugin}.
@@ -41,7 +43,10 @@ class ClientCodecGuardTest {
     /** E11: the bare mapper registers nothing and fails on unknown properties. */
     private static final MapperProfile BARE_MAPPER_PROFILE = new MapperProfile(true, true, true, List.of());
 
-    @BoundarySites("lowcoder-sdk/src/main/java/org/lowcoder/sdk/webclient/WebClientBuildHelper.java#WebClientBuildHelper.toWebClientBuilder#codecs#1")
+    @BoundarySites({"lowcoder-sdk/src/main/java/org/lowcoder/sdk/webclient/WebClientBuildHelper.java#WebClientBuildHelper.toWebClientBuilder#codecs#1",
+            "lowcoder-sdk/src/main/java/org/lowcoder/sdk/webclient/Jackson2ClientCodecs.java#Jackson2ClientCodecs.apply#jackson2JsonEncoder#1",
+            "lowcoder-sdk/src/main/java/org/lowcoder/sdk/webclient/Jackson2ClientCodecs.java#Jackson2ClientCodecs.apply#jackson2JsonDecoder#1",
+            "lowcoder-sdk/src/main/java/org/lowcoder/sdk/webclient/Jackson2ClientCodecs.java#<file>#import#1"})
     @Test
     void webClientBuildHelperUsesDefaultClientCodecs() {
         ClientCodecs.assertDefaultClientCodecs("WebClientBuildHelper",
@@ -57,12 +62,21 @@ class ClientCodecGuardTest {
     }
 
     /** Declared unlimited at {@code JsLibraryController.java:62-65}; requests get 20 MB (O11, E14). */
-    @BoundarySites("lowcoder-server/src/main/java/org/lowcoder/api/misc/JsLibraryController.java#JsLibraryController.EXCHANGE_STRATEGY#codecs#1")
+    @BoundarySites({"lowcoder-server/src/main/java/org/lowcoder/api/misc/JsLibraryController.java#JsLibraryController.EXCHANGE_STRATEGY#codecs#1",
+            "lowcoder-server/src/main/java/org/lowcoder/api/misc/JsLibraryController.java#<file>#import#1"})
     @Test
     void jsLibraryControllerRequestsUseDefaultClientCodecsWithTheHelperLimit() throws ReflectiveOperationException {
         ExchangeStrategies declared = (ExchangeStrategies) staticField(JsLibraryController.class, JS_LIBRARY_STRATEGIES_FIELD);
         ClientCodecs.assertDefaultClientCodecs("JsLibraryController",
                 ClientCodecs.effectiveThroughWebClientBuildHelper(declared), ClientCodecs.WEB_CLIENT_BUILD_HELPER_DEFAULT_SIZE);
+    }
+
+    @BoundarySites({"lowcoder-server/src/main/java/org/lowcoder/api/application/marketplace/MarketplaceRenderClient.java#MarketplaceRenderClient.EXCHANGE_STRATEGIES#codecs#1",
+            "lowcoder-server/src/main/java/org/lowcoder/api/application/marketplace/MarketplaceRenderClient.java#<file>#import#1"})
+    @Test
+    void marketplaceRenderClientUsesDefaultClientCodecsWithTwoMebibytes() throws ReflectiveOperationException {
+        ClientCodecs.assertDefaultClientCodecs("MarketplaceRenderClient",
+                (ExchangeStrategies) staticField(MarketplaceRenderClient.class, NODE_CLIENT_STRATEGIES_FIELD), 2 * 1024 * 1024);
     }
 
     @Test

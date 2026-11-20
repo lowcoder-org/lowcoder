@@ -42,7 +42,7 @@ import org.springframework.core.ResolvableType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
@@ -156,14 +156,14 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 		log.info("Running plugin endpoint method {}\nRequest: {}", handler.getName(), request);
 
 		Mono<Authentication> monoAuthentication = ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication).cache();
-		Mono<AuthorizationDecision> decisionMono = monoAuthentication.flatMap(authentication -> {
+		Mono<AuthorizationResult> decisionMono = monoAuthentication.flatMap(authentication -> {
 			MethodInvocation methodInvocation = null;
 			try {
 				methodInvocation = getMethodInvocation(endpointMeta, authentication);
 			} catch (NoSuchMethodException e) {
 				return Mono.error(new RuntimeException(e));
 			}
-			return pluginAuthorizationManager.check(monoAuthentication, methodInvocation);
+			return pluginAuthorizationManager.authorize(monoAuthentication, methodInvocation);
 		});
 
 		return decisionMono.flatMap(authorizationDecision -> {

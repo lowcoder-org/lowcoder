@@ -4,10 +4,9 @@ import org.junit.jupiter.api.*;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.domain.enterprise.EnterpriseLicenseCapabilityService;
 import org.lowcoder.domain.enterprise.EnterpriseLicenseCapabilityService.PurchaseState;
-import org.lowcoder.api.framework.exception.GlobalExceptionHandler;
-import org.lowcoder.api.framework.exception.ApiPerfHelper;
+import org.lowcoder.api.contract.support.ContractHarness;
+import org.lowcoder.sdk.webclient.Jackson2ClientCodecs;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.web.reactive.config.DelegatingWebFluxConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.http.HttpHeaders;
@@ -39,14 +38,13 @@ class EnterpriseLicenseControllerTest {
     JsonNode emptyLibrary() { return mapper.valueToTree(Map.of("success", true, "orders", List.of(), "licenses", List.of())); }
     final List<AnnotationConfigApplicationContext> contexts = new ArrayList<>();
     WebTestClient webClient() {
-        var context = new AnnotationConfigApplicationContext();
+        // the production server codecs: the request body is a Jackson 2 JsonNode
+        var context = ContractHarness.codecContext();
         contexts.add(context);
-        context.register(DelegatingWebFluxConfiguration.class);
         context.registerBean(EnterpriseLicenseController.class, () -> controller);
-        context.getBeanFactory().registerSingleton("apiPerfHelper", mock(ApiPerfHelper.class));
-        context.registerBean(GlobalExceptionHandler.class);
         context.refresh();
-        return WebTestClient.bindToApplicationContext(context).build();
+        // the request body is a Jackson 2 JsonNode, which the default client codecs (Jackson 3) would not write as its content
+        return WebTestClient.bindToApplicationContext(context).configureClient().codecs(Jackson2ClientCodecs::apply).build();
     }
     @AfterEach void closeContexts() { contexts.forEach(AnnotationConfigApplicationContext::close); }
     @BeforeEach void setup() {

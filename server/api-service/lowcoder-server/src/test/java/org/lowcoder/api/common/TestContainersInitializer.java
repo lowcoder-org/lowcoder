@@ -18,13 +18,13 @@ import org.springframework.core.env.MapPropertySource;
  * embedded redis-server was.
  *
  * <p>Limits: a context built without {@code SpringApplication} (a plain {@code @ContextConfiguration} test) does not run
- * this initializer and keeps the configured {@code spring.data.*} values.
+ * this initializer and keeps the configured {@code spring.mongodb.*} and {@code spring.data.redis.*} values.
  */
 public class TestContainersInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     static final String PROPERTY_SOURCE = "testContainers";
     static final String DATABASE_PREFIX = "lowcoder_test_";
-    static final String MONGO_URI_PROPERTY = "spring.data.mongodb.uri";
+    static final String MONGO_URI_PROPERTY = "spring.mongodb.uri";
     static final String REDIS_URL_PROPERTY = "spring.data.redis.url";
 
     private static final AtomicInteger CONTEXTS = new AtomicInteger();

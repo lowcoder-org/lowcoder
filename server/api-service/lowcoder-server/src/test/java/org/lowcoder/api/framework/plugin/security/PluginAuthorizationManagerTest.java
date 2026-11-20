@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.lowcoder.plugin.api.EndpointExtension;
 import org.lowcoder.plugin.api.PluginEndpoint;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -89,8 +89,8 @@ class PluginAuthorizationManagerTest {
                 List.of(roles).stream().map(SimpleGrantedAuthority::new).toList()));
     }
 
-    private Mono<AuthorizationDecision> check(String authorize, Mono<Authentication> auth) {
-        return manager.check(auth, invocation(extension(authorize)));
+    private Mono<AuthorizationResult> check(String authorize, Mono<Authentication> auth) {
+        return manager.authorize(auth, invocation(extension(authorize)));
     }
 
     /** Catches an endpoint without an expression being evaluated (the erroring authentication would fail it). */
@@ -99,17 +99,17 @@ class PluginAuthorizationManagerTest {
         Mono<Authentication> failing = Mono.error(new IllegalStateException("must not be read"));
 
         for (String authorize : new String[]{null, "", "   "}) {
-            StepVerifier.create(check(authorize, failing)).expectNextMatches(AuthorizationDecision::isGranted).verifyComplete();
+            StepVerifier.create(check(authorize, failing)).expectNextMatches(AuthorizationResult::isGranted).verifyComplete();
         }
-        StepVerifier.create(manager.check(failing, invocation(null))).expectNextMatches(AuthorizationDecision::isGranted).verifyComplete();
+        StepVerifier.create(manager.authorize(failing, invocation(null))).expectNextMatches(AuthorizationResult::isGranted).verifyComplete();
         System.out.println("[PluginAuthorizationManagerTest] null/blank expression and null extension granted");
     }
 
     /** Catches roles being ignored or inverted. */
     @Test
     void check_roleExpressions_decideByTheAuthorities() {
-        StepVerifier.create(check("isAuthenticated()", user("ROLE_USER"))).expectNextMatches(AuthorizationDecision::isGranted).verifyComplete();
-        StepVerifier.create(check("hasRole('USER')", user("ROLE_USER"))).expectNextMatches(AuthorizationDecision::isGranted).verifyComplete();
+        StepVerifier.create(check("isAuthenticated()", user("ROLE_USER"))).expectNextMatches(AuthorizationResult::isGranted).verifyComplete();
+        StepVerifier.create(check("hasRole('USER')", user("ROLE_USER"))).expectNextMatches(AuthorizationResult::isGranted).verifyComplete();
         StepVerifier.create(check("hasRole('ADMIN')", user("ROLE_USER"))).expectNextMatches(d -> !d.isGranted()).verifyComplete();
         System.out.println("[PluginAuthorizationManagerTest] role expressions decided by authorities");
     }
@@ -117,7 +117,7 @@ class PluginAuthorizationManagerTest {
     /** Catches a Mono-valued expression not being unwrapped (true and false both). */
     @Test
     void check_monoBooleanExpression_isUnwrapped() {
-        StepVerifier.create(check("T(reactor.core.publisher.Mono).just(true)", user())).expectNextMatches(AuthorizationDecision::isGranted).verifyComplete();
+        StepVerifier.create(check("T(reactor.core.publisher.Mono).just(true)", user())).expectNextMatches(AuthorizationResult::isGranted).verifyComplete();
         StepVerifier.create(check("T(reactor.core.publisher.Mono).just(false)", user())).expectNextMatches(d -> !d.isGranted()).verifyComplete();
         System.out.println("[PluginAuthorizationManagerTest] Mono<Boolean> unwrapped");
     }
