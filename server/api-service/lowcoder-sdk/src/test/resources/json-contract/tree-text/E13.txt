@@ -1,2 +1,2 @@
 production	{"decimal":1.10,"instant":0.0}
-toString	{"decimal":1.10,"instant":"[ERROR: (com.fasterxml.jackson.databind.exc.InvalidDefinitionException) Java 8 date/time type `java.time.Instant` not supported by default: add Module \"com.fasterxml.jackson.datatype:jackson-datatype-jsr310\" to enable handling (or disable `MapperFeature.REQUIRE_HANDLERS_FOR_JAVA8_TIMES`)]"}
+toString	{"decimal":1.10,"instant":"1970-01-01T00:00:00Z"}

@@ -1,12 +1,14 @@
 package org.lowcoder.api.authentication.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+
 import java.util.Base64;
 import java.util.Map;
 
 public class JwtDecoderUtil {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = JsonMapper.builderWithJackson2Defaults().build();
 
     /**
      * Decodes the payload of a JWT without verifying its signature.

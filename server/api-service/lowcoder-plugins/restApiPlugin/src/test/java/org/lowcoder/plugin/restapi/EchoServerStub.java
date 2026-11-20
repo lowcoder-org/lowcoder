@@ -16,11 +16,11 @@ import java.util.regex.Pattern;
 import org.lowcoder.sdk.contract.RecordingHttpServer;
 import org.lowcoder.sdk.contract.RecordingHttpServer.Request;
 import org.lowcoder.sdk.contract.RecordingHttpServer.Response;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * A local stand-in for the parts of postman-echo.com that {@link RestApiEngineTest} uses, served by
@@ -69,7 +69,7 @@ final class EchoServerStub {
     private static final String CRLF = "\r\n";
     private static final Pattern DIGEST_PARAM = Pattern.compile("(\\w+)=(?:\"([^\"]*)\"|([^,\\s]+))");
     private static final Pattern DISPOSITION_PARAM = Pattern.compile("(name|filename)=\"([^\"]*)\"");
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = JsonMapper.builderWithJackson2Defaults().build();
 
     private EchoServerStub() {
     }
@@ -134,7 +134,7 @@ final class EchoServerStub {
         parameters.forEach((name, value) -> headers.put(name, List.of(value)));
         try {
             return new Response(OK, headers, MAPPER.writeValueAsBytes(parameters));
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException(e);
         }
     }
@@ -234,7 +234,7 @@ final class EchoServerStub {
     private static JsonNode parseOrNull(String text) {
         try {
             return MAPPER.readTree(text);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             return null;
         }
     }

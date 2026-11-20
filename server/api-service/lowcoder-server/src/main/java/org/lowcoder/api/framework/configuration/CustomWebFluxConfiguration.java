@@ -1,6 +1,6 @@
 package org.lowcoder.api.framework.configuration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.framework.plugin.endpoint.ReloadableRouterFunctionMapping;
@@ -11,8 +11,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.i18n.LocaleContext;
 import org.springframework.context.i18n.SimpleLocaleContext;
 import org.springframework.http.codec.ServerCodecConfigurer;
-import org.springframework.http.codec.json.Jackson2JsonDecoder;
-import org.springframework.http.codec.json.Jackson2JsonEncoder;
+import org.springframework.http.codec.json.JacksonJsonDecoder;
+import org.springframework.http.codec.json.JacksonJsonEncoder;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.reactive.config.DelegatingWebFluxConfiguration;
 import org.springframework.web.reactive.function.server.support.RouterFunctionMapping;
@@ -30,7 +30,7 @@ public class CustomWebFluxConfiguration extends DelegatingWebFluxConfiguration
 	private String codecMaxInMemorySize = "20MB";
 
 	@Bean
-	public ObjectMapper objectMapper() {
+	public JsonMapper objectMapper() {
 		return JsonUtils.getObjectMapper();
 	}
 
@@ -46,9 +46,9 @@ public class CustomWebFluxConfiguration extends DelegatingWebFluxConfiguration
 		configurer.defaultCodecs()
 				.maxInMemorySize((int)DataSize.parse(codecMaxInMemorySize).toBytes());
 		configurer.defaultCodecs()
-				.jackson2JsonDecoder(new Jackson2JsonDecoder(objectMapper()));
+				.jacksonJsonDecoder(new JacksonJsonDecoder(objectMapper()));
 		configurer.defaultCodecs()
-				.jackson2JsonEncoder(new Jackson2JsonEncoder(objectMapper()));
+				.jacksonJsonEncoder(new JacksonJsonEncoder(objectMapper()));
 	}
 
 	@Bean

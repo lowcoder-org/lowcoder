@@ -1,7 +1,6 @@
 package org.lowcoder.api.contract.endpoint;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -134,7 +133,7 @@ class OrganizationEndpointsContractTest {
      * hands them in reverse order; the defaults sent explicitly, page 1 and size 0 (all).
      */
     @Test
-    void getOrganizationByUser() throws JsonProcessingException {
+    void getOrganizationByUser() {
         Organization later = UserManagementSamples.orgViewOrganization();
         later.setName(LATER_NAME_PREFIX + later.getName());
         stubUserOrganizations(later, UserManagementSamples.orgViewOrganization());
@@ -151,7 +150,7 @@ class OrganizationEndpointsContractTest {
 
     /** An organization without a name compares as equal ({@code OrganizationController.getOrganizationByUser}'s comparator): the order stays. */
     @Test
-    void getOrganizationByUserWithUnnamedOrganization() throws JsonProcessingException {
+    void getOrganizationByUserWithUnnamedOrganization() {
         Organization unnamed = UserManagementSamples.orgViewOrganization();
         unnamed.setName(null);
         stubUserOrganizations(UserManagementSamples.orgViewOrganization(), unnamed);

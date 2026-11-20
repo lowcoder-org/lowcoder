@@ -21,10 +21,10 @@
       "json" : "[\"1\",\"true\"]"
     },
     "\"a\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.InvalidDefinitionException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "\"\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+      "exception" : "tools.jackson.databind.exc.InvalidFormatException"
     },
     "null" : {
       "class" : "null",
@@ -32,10 +32,10 @@
       "json" : "null"
     },
     "{}" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "{\"a\": 1, \"b\": true, \"c\": null, \"d\": 1.5}" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     }
   },
   "[Ljava.lang.String; @ field-setter (QueryExecutionRequest.path)" : {
@@ -60,10 +60,10 @@
       "json" : "[\"1\",\"true\"]"
     },
     "\"a\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.InvalidDefinitionException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "\"\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+      "exception" : "tools.jackson.databind.exc.InvalidFormatException"
     },
     "null" : {
       "class" : "null",
@@ -71,10 +71,10 @@
       "json" : "null"
     },
     "{}" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "{\"a\": 1, \"b\": true, \"c\": null, \"d\": 1.5}" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     }
   },
   "java.lang.Object @ creator (UpdateOrgCommonSettingsRequest.value)" : {
@@ -173,22 +173,22 @@
   },
   "java.util.HashMap<java.lang.String,java.lang.String> @ builder (Oauth2GenericAuthConfig.sourceMappings)" : {
     "[]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "[\"a\",\"a\"]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "[\"a\",null]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "[1, true]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "\"a\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "\"\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+      "exception" : "tools.jackson.databind.exc.InvalidFormatException"
     },
     "null" : {
       "class" : "null",
@@ -228,10 +228,10 @@
       "json" : "[\"1\",\"true\"]"
     },
     "\"a\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "\"\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+      "exception" : "tools.jackson.databind.exc.InvalidFormatException"
     },
     "null" : {
       "class" : "null",
@@ -239,10 +239,10 @@
       "json" : "null"
     },
     "{}" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "{\"a\": 1, \"b\": true, \"c\": null, \"d\": 1.5}" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     }
   },
   "java.util.List<org.lowcoder.sdk.auth.AbstractAuthConfig> @ field-setter (OrganizationDomain.configs)" : {
@@ -252,19 +252,19 @@
       "json" : "[]"
     },
     "[\"a\",\"a\"]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.InvalidTypeIdException"
+      "exception" : "tools.jackson.databind.exc.InvalidTypeIdException"
     },
     "[\"a\",null]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.InvalidTypeIdException"
+      "exception" : "tools.jackson.databind.exc.InvalidTypeIdException"
     },
     "[1, true]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.InvalidTypeIdException"
+      "exception" : "tools.jackson.databind.exc.InvalidTypeIdException"
     },
     "\"a\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "\"\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "null" : {
       "class" : "null",
@@ -272,10 +272,10 @@
       "json" : "null"
     },
     "{}" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "{\"a\": 1, \"b\": true, \"c\": null, \"d\": 1.5}" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     }
   },
   "java.util.List<org.lowcoder.sdk.models.Param> @ field-setter (LibraryQueryRequestFromJs.params)" : {
@@ -285,19 +285,19 @@
       "json" : "[]"
     },
     "[\"a\",\"a\"]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "[\"a\",null]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "[1, true]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "\"a\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "\"\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "null" : {
       "class" : "null",
@@ -305,30 +305,30 @@
       "json" : "null"
     },
     "{}" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "{\"a\": 1, \"b\": true, \"c\": null, \"d\": 1.5}" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     }
   },
   "java.util.Map<java.lang.String,java.lang.Object> @ builder (Application.editingApplicationDSL)" : {
     "[]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "[\"a\",\"a\"]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "[\"a\",null]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "[1, true]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "\"a\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "\"\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+      "exception" : "tools.jackson.databind.exc.InvalidFormatException"
     },
     "null" : {
       "class" : "null",
@@ -348,22 +348,22 @@
   },
   "java.util.Map<java.lang.String,java.lang.Object> @ creator (CreateApplicationRequest.editingApplicationDSL)" : {
     "[]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "[\"a\",\"a\"]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "[\"a\",null]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "[1, true]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "\"a\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "\"\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+      "exception" : "tools.jackson.databind.exc.InvalidFormatException"
     },
     "null" : {
       "class" : "null",
@@ -383,22 +383,22 @@
   },
   "java.util.Map<java.lang.String,java.lang.Object> @ field-setter (UpsertDatasourceRequest.datasourceConfig)" : {
     "[]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "[\"a\",\"a\"]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "[\"a\",null]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "[1, true]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "\"a\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "\"\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+      "exception" : "tools.jackson.databind.exc.InvalidFormatException"
     },
     "null" : {
       "class" : "null",
@@ -418,22 +418,22 @@
   },
   "java.util.Map<java.lang.String,java.lang.String> @ creator (FlowRequest.headers)" : {
     "[]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "[\"a\",\"a\"]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "[\"a\",null]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "[1, true]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "\"a\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "\"\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+      "exception" : "tools.jackson.databind.exc.InvalidFormatException"
     },
     "null" : {
       "class" : "null",
@@ -473,10 +473,10 @@
       "json" : "[\"1\",\"true\"]"
     },
     "\"a\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "\"\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+      "exception" : "tools.jackson.databind.exc.InvalidFormatException"
     },
     "null" : {
       "class" : "null",
@@ -484,30 +484,30 @@
       "json" : "null"
     },
     "{}" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "{\"a\": 1, \"b\": true, \"c\": null, \"d\": 1.5}" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     }
   },
   "org.lowcoder.domain.organization.model.Organization$OrganizationCommonSettings @ builder (Organization.commonSettings)" : {
     "[]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "[\"a\",\"a\"]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "[\"a\",null]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "[1, true]" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "\"a\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.MismatchedInputException"
+      "exception" : "tools.jackson.databind.exc.MismatchedInputException"
     },
     "\"\"" : {
-      "exception" : "com.fasterxml.jackson.databind.exc.InvalidFormatException"
+      "exception" : "tools.jackson.databind.exc.InvalidFormatException"
     },
     "null" : {
       "class" : "null",

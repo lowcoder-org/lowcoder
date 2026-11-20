@@ -1,6 +1,6 @@
 package org.lowcoder.api.contract;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.api.contract.support.ContractTestClient;
 import org.lowcoder.api.framework.exception.ApiPerfHelper;

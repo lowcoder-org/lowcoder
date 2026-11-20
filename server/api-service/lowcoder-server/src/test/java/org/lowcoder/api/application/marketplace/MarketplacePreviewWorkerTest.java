@@ -13,9 +13,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.json.JsonMapper;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +91,7 @@ class MarketplacePreviewWorkerTest {
     private static final Map<String, Object> APP_DSL = Map.of("ui", Map.of("title", APP_NAME), QUERIES_KEY, List.of("secret"));
     private static final Map<String, Object> MODULE_DSL = Map.of("ui", Map.of("title", MODULE_ID), QUERIES_KEY, List.of("secret"));
     private static final Map<String, Object> RECYCLED_MODULE_DSL = Map.of("ui", Map.of("title", RECYCLED_MODULE_ID));
-    private static final ObjectMapper JSON = new ObjectMapper();
+    private static final ObjectMapper JSON = JsonMapper.builderWithJackson2Defaults().build();
 
     private final ApplicationService apps = mock(ApplicationService.class);
     private final ApplicationRecordService versions = mock(ApplicationRecordService.class);
@@ -294,8 +296,8 @@ class MarketplacePreviewWorkerTest {
         JsonNode snapshot = JSON.readTree(json);
         assertThat(fieldNames(snapshot.get(MODULE_DSL_KEY))).containsExactly(MODULE_ID);
         assertThat(snapshot.get(MODULE_DSL_KEY).get(MODULE_ID).get(QUERIES_KEY).isEmpty()).isTrue();
-        assertThat(snapshot.get(ORG_SETTINGS_KEY).get(DEFAULT_THEME_KEY).asText()).isEqualTo(DEFAULT_THEME);
-        assertThat(snapshot.get(ORG_SETTINGS_KEY).get(THEME_LIST_KEY).get(0).asText()).isEqualTo(DEFAULT_THEME);
+        assertThat(snapshot.get(ORG_SETTINGS_KEY).get(DEFAULT_THEME_KEY).asString()).isEqualTo(DEFAULT_THEME);
+        assertThat(snapshot.get(ORG_SETTINGS_KEY).get(THEME_LIST_KEY).get(0).asString()).isEqualTo(DEFAULT_THEME);
         verify(versions, never()).getLatestRecordByApplicationId(RECYCLED_MODULE_ID);
     }
 
@@ -348,7 +350,7 @@ class MarketplacePreviewWorkerTest {
 
     private static List<String> fieldNames(JsonNode node) {
         List<String> names = new ArrayList<>();
-        node.fieldNames().forEachRemaining(names::add);
+        node.propertyNames().iterator().forEachRemaining(names::add);
         return names;
     }
 }

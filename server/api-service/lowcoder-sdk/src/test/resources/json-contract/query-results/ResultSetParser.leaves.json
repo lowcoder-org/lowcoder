@@ -64,14 +64,14 @@
       "typeName" : "OTHER",
       "class" : "javax.sql.rowset.serial.SerialClob",
       "written" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Unsupported operation. SerialClob cannot return a the CLOB value as an ascii stream, unless instantiated with a fully implemented Clob object. (through reference chain: javax.sql.rowset.serial.SerialClob[\"asciiStream\"])"
+        "error" : "tools.jackson.databind.DatabindException: Unsupported operation. SerialClob cannot return a the CLOB value as an ascii stream, unless instantiated with a fully implemented Clob object.\n at [No location information] (through reference chain: javax.sql.rowset.serial.SerialClob[\"asciiStream\"])"
       }
     },
     "nclob" : {
       "typeName" : "OTHER",
       "class" : "org.lowcoder.sdk.plugin.common.sql.ResultSetParserContractTest$TestNClob",
       "written" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: Unsupported operation. SerialClob cannot return a the CLOB value as an ascii stream, unless instantiated with a fully implemented Clob object. (through reference chain: org.lowcoder.sdk.plugin.common.sql.ResultSetParserContractTest$TestNClob[\"asciiStream\"])"
+        "error" : "tools.jackson.databind.DatabindException: Unsupported operation. SerialClob cannot return a the CLOB value as an ascii stream, unless instantiated with a fully implemented Clob object.\n at [No location information] (through reference chain: org.lowcoder.sdk.plugin.common.sql.ResultSetParserContractTest$TestNClob[\"asciiStream\"])"
       }
     },
     "blobLeaf" : {
@@ -83,7 +83,7 @@
       "typeName" : "OTHER",
       "class" : "javax.sql.rowset.serial.SerialArray",
       "written" : {
-        "error" : "com.fasterxml.jackson.databind.JsonMappingException: (was javax.sql.rowset.serial.SerialException) (through reference chain: javax.sql.rowset.serial.SerialArray[\"resultSet\"])"
+        "error" : "tools.jackson.databind.DatabindException: (was javax.sql.rowset.serial.SerialException)\n at [No location information] (through reference chain: javax.sql.rowset.serial.SerialArray[\"resultSet\"])"
       }
     },
     "struct" : {
@@ -187,7 +187,7 @@
       }
     },
     "written" : {
-      "error" : "com.fasterxml.jackson.databind.JsonMappingException: Unsupported operation. SerialClob cannot return a the CLOB value as an ascii stream, unless instantiated with a fully implemented Clob object. (through reference chain: org.lowcoder.sdk.models.QueryExecutionResult[\"data\"]->java.util.ArrayList[0]->java.util.LinkedHashMap[\"clob\"]->javax.sql.rowset.serial.SerialClob[\"asciiStream\"])"
+      "error" : "tools.jackson.databind.DatabindException: Unsupported operation. SerialClob cannot return a the CLOB value as an ascii stream, unless instantiated with a fully implemented Clob object.\n at [No location information] (through reference chain: org.lowcoder.sdk.models.QueryExecutionResult[\"data\"]->java.util.ArrayList[0]->java.util.LinkedHashMap[\"clob\"]->javax.sql.rowset.serial.SerialClob[\"asciiStream\"])"
     }
   }
 }

@@ -1,5 +1,6 @@
 package org.lowcoder.api.authentication;
 
+import tools.jackson.core.JacksonException;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.api.authentication.util.JwtDecoderUtil;
 
@@ -43,7 +44,7 @@ class JwtDecoderUtilTest {
             JwtDecoderUtil.decodeJwtPayload(jwt);
         });
 
-        assertTrue(exception instanceof IllegalArgumentException || exception instanceof java.io.IOException);
+        assertTrue(exception instanceof IllegalArgumentException || exception instanceof JacksonException);
     }
 
     @Test
@@ -55,6 +56,6 @@ class JwtDecoderUtilTest {
             JwtDecoderUtil.decodeJwtPayload(jwt);
         });
 
-        assertTrue(exception instanceof java.io.IOException);
+        assertTrue(exception instanceof JacksonException);
     }
 }

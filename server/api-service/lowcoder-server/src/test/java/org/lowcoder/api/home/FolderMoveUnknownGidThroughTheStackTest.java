@@ -1,7 +1,8 @@
 package org.lowcoder.api.home;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import tools.jackson.core.JacksonException;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
@@ -67,7 +69,7 @@ public class FolderMoveUnknownGidThroughTheStackTest {
     static final String MOVE_URL = NewUrl.FOLDER_URL + "/move/" + APPLICATION_ID;
     static final String TARGET_PARAMETER = "targetFolderId";
     static final int SUCCESS_CODE = 1;
-    static final ObjectMapper JSON = new ObjectMapper();
+    static final ObjectMapper JSON = JsonMapper.builderWithJackson2Defaults().build();
 
 
     private ContractTestClient client;
@@ -140,7 +142,7 @@ public class FolderMoveUnknownGidThroughTheStackTest {
             System.out.println(TAG + "PUT " + MOVE_URL + " " + TARGET_PARAMETER + "=" + targetFolderId + " -> "
                     + result.getStatus() + " " + body);
             return body;
-        } catch (java.io.IOException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("response is not JSON", e);
         }
     }

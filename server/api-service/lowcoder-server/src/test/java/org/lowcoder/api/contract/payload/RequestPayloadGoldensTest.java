@@ -1,11 +1,13 @@
 package org.lowcoder.api.contract.payload;
 
+import tools.jackson.databind.json.JsonMapper;
+import org.lowcoder.sdk.contract.JacksonIntrospection;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.BeanDescription;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.introspect.BeanPropertyDefinition;
+import tools.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -67,7 +69,7 @@ class RequestPayloadGoldensTest {
     static final String VALUE_KEY = "value";
     static final String BUILDER_DEFAULT_PREFIX = "$default$";
 
-    private static final ObjectMapper MAPPER = JsonUtils.getObjectMapper();
+    private static final JsonMapper MAPPER = JsonUtils.getObjectMapper();
     private static final GoldenJson GOLDEN = GoldenJson.forModule();
     private static Closure closure;
 
@@ -103,7 +105,7 @@ class RequestPayloadGoldensTest {
             Set<String> expectedNames = deserializedProperties(sample.type()).stream().map(Property::name)
                     .collect(Collectors.toCollection(TreeSet::new));
             Set<String> fixtureNames = new TreeSet<>();
-            PayloadAssertions.FIXTURE_EDITOR.readTree(fixture).fieldNames().forEachRemaining(fixtureNames::add);
+            PayloadAssertions.FIXTURE_EDITOR.readTree(fixture).propertyNames().iterator().forEachRemaining(fixtureNames::add);
             assertThat(fixtureNames).as("D1 names of " + sample.name()).isEqualTo(expectedNames);
         }
     }
@@ -111,8 +113,8 @@ class RequestPayloadGoldensTest {
     @ParameterizedTest(name = "D2 {0}")
     @MethodSource("requestSamples")
     void d2IgnoredInputBindsToTheSameSample(Sample sample) throws IOException {
-        BeanDescription description = MAPPER.getDeserializationConfig().introspect(sample.type());
-        JsonIgnoreProperties.Value ignorals = MAPPER.getDeserializationConfig()
+        BeanDescription description = JacksonIntrospection.deserialization(MAPPER, sample.type());
+        JsonIgnoreProperties.Value ignorals = MAPPER.deserializationConfig()
                 .getDefaultPropertyIgnorals(sample.type().getRawClass(), description.getClassInfo());
         // Jackson collects properties, and with them the ignored names, lazily
         description.findProperties();

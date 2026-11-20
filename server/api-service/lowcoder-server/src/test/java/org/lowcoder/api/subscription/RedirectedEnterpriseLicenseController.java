@@ -1,6 +1,6 @@
 package org.lowcoder.api.subscription;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.lowcoder.api.contract.support.WebClientRedirect;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.domain.enterprise.EnterpriseLicenseCapabilityService;

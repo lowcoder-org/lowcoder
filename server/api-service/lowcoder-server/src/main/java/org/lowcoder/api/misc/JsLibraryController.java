@@ -24,15 +24,15 @@ import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.infra.localcache.ReloadableCache;
 import org.lowcoder.sdk.util.JsonUtils;
-import org.lowcoder.sdk.webclient.Jackson2ClientCodecs;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
+import org.lowcoder.sdk.webclient.JacksonClientCodecs;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -63,7 +63,7 @@ public class JsLibraryController implements JsLibraryEndpoints
     private static final ExchangeStrategies EXCHANGE_STRATEGY = ExchangeStrategies
             .builder()
             .codecs(configure -> {
-                Jackson2ClientCodecs.apply(configure);
+                JacksonClientCodecs.apply(configure);
                 configure.defaultCodecs().maxInMemorySize(-1);
             })
             .build();

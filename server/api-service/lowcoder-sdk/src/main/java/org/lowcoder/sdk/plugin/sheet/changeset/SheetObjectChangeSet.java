@@ -1,7 +1,7 @@
 package org.lowcoder.sdk.plugin.sheet.changeset;
 
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.util.MustacheHelper;
 

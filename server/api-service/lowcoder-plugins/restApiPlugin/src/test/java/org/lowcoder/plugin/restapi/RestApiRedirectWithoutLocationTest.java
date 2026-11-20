@@ -15,7 +15,7 @@ import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
 import org.springframework.http.HttpStatus;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.google.common.collect.Streams;
 
 /**
@@ -68,7 +68,7 @@ class RestApiRedirectWithoutLocationTest {
     /** The values of the result header named {@code name}, compared without case (the test server normalizes names). */
     private static JsonNode header(QueryExecutionResult result, String name) {
         JsonNode headers = result.getHeaders();
-        return Streams.stream(headers.fieldNames()).filter(name::equalsIgnoreCase).findFirst().map(headers::get).orElse(null);
+        return Streams.stream(headers.propertyNames().iterator()).filter(name::equalsIgnoreCase).findFirst().map(headers::get).orElse(null);
     }
 
     private void assertOrdinaryAnswer(int status, Response response) {
@@ -83,10 +83,10 @@ class RestApiRedirectWithoutLocationTest {
             assertThat(result.getQueryCode()).isEqualTo(HTTP_CODE_PREFIX + HttpStatus.valueOf(status).name());
             assertThat(server.requests()).hasSize(1);
             assertThat(header(result, ANSWER_HEADER)).as("the answer's headers").isNotNull();
-            assertThat(header(result, ANSWER_HEADER).get(0).asText()).isEqualTo(ANSWER_HEADER_VALUE);
+            assertThat(header(result, ANSWER_HEADER).get(0).asString()).isEqualTo(ANSWER_HEADER_VALUE);
             if (status != NOT_MODIFIED) {
                 assertThat(result.getData()).as("the answer's body").isInstanceOf(JsonNode.class);
-                assertThat(((JsonNode) result.getData()).get(ANSWER_FIELD).asText()).isEqualTo(ANSWER_HEADER_VALUE);
+                assertThat(((JsonNode) result.getData()).get(ANSWER_FIELD).asString()).isEqualTo(ANSWER_HEADER_VALUE);
             }
         }
     }

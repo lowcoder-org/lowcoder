@@ -1,12 +1,13 @@
 package org.lowcoder.sdk.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.*;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.*;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.lowcoder.sdk.exception.PluginException;
+import tools.jackson.databind.node.StringNode;
 import tv.twelvetone.json.Json;
 import tv.twelvetone.json.JsonObject.Member;
 import tv.twelvetone.json.JsonValue;
@@ -51,7 +52,7 @@ class RjsonMustacheParser {
                 return traverse(RjsonParser.parse(oneTokenStr), Map.of());
             } catch (Throwable e) {
                 // return as a textNode if fails to parse
-                return TextNode.valueOf(oneTokenStr);
+                return StringNode.valueOf(oneTokenStr);
             }
         }
 
@@ -124,28 +125,28 @@ class RjsonMustacheParser {
 
     private static String tryResolveAsString(String input, Map<String, Object> paramMap) {
         JsonNode jsonNode = tryResolve(Json.INSTANCE.value(input), paramMap, true);
-        return jsonNode.textValue();
+        return jsonNode.stringValue();
     }
 
     private static JsonNode tryResolve(JsonValue jsonValue, Map<String, Object> paramMap, boolean toStringType) {
 
         String input = jsonValue.asString().trim();
         if (isBlank(input)) {
-            return TextNode.valueOf(input);
+            return StringNode.valueOf(input);
         }
 
         var checkStringResult = checkString(input);
         if (checkStringResult.isRawStr()) {
-            return TextNode.valueOf(input);
+            return StringNode.valueOf(input);
         }
 
         if (toStringType || checkStringResult.isQuotedStr()) {
-            return TextNode.valueOf(MustacheHelper.renderMustacheTokens(tokenize(checkStringResult.result()), paramMap, true, token -> isGeneratedMustache(token, paramMap)));
+            return StringNode.valueOf(MustacheHelper.renderMustacheTokens(tokenize(checkStringResult.result()), paramMap, true, token -> isGeneratedMustache(token, paramMap)));
         }
 
         List<String> tokenize = tokenize(input);
         if (tokenize.isEmpty()) {
-            return TextNode.valueOf(input);
+            return StringNode.valueOf(input);
         }
 
         if (tokenize.size() == 1) {
@@ -156,7 +157,7 @@ class RjsonMustacheParser {
             }
         }
 
-        return TextNode.valueOf(MustacheHelper.renderMustacheTokens(tokenize, paramMap, true, token -> isGeneratedMustache(token, paramMap)));
+        return StringNode.valueOf(MustacheHelper.renderMustacheTokens(tokenize, paramMap, true, token -> isGeneratedMustache(token, paramMap)));
     }
 
     private static JsonNode convertToJsonNode(Object mustacheValue) {
@@ -176,7 +177,7 @@ class RjsonMustacheParser {
             return BooleanNode.valueOf((boolean) mustacheValue);
         }
 
-        return TextNode.valueOf(mustacheValue.toString());
+        return StringNode.valueOf(mustacheValue.toString());
     }
 
     @Nullable

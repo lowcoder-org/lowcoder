@@ -47,6 +47,8 @@ public final class JsonBoundaryScanner {
 
     public static final String MAPPER_KIND = "mapper";
     public static final String MAPPER_CALLEE = "new ObjectMapper";
+    /** The Jackson 3 way to make a mapper: an immutable one is built from {@code JsonMapper.builder()}. */
+    public static final String BUILDER_CALLEE = "JsonMapper.builder";
     public static final String IMPORT_CALLEE = "import";
     public static final String FILE_MEMBER = "<file>";
     public static final String INITIALIZER_MEMBER = "<init>";
@@ -77,7 +79,7 @@ public final class JsonBoundaryScanner {
             .map(name -> Pattern.quote(name).replace(".", "\\E\\s*\\.\\s*\\Q"))
             .collect(Collectors.joining("|"));
     private static final Pattern CALL_PATTERN = Pattern.compile(
-            "(::\\s*)\\b(" + NAMES + ")\\b|\\b(" + NAMES + ")\\b\\s*\\(|\\bnew\\s+ObjectMapper\\s*\\(", FLAGS);
+            "(::\\s*)\\b(" + NAMES + ")\\b|\\b(" + NAMES + ")\\b\\s*\\(|\\bnew\\s+ObjectMapper\\s*\\(|\\bJsonMapper\\s*\\.\\s*builder(?:WithJackson2Defaults)?\\s*\\(", FLAGS);
     private static final String MODIFIERS = "(?:public|protected|private|static|final|default|synchronized|abstract)";
     private static final String STATEMENT_KEYWORDS = "(?!(?:return|throw|new|else|case|yield|assert)\\b)";
     private static final Pattern DECLARATION_PATTERN = Pattern.compile(
@@ -92,8 +94,16 @@ public final class JsonBoundaryScanner {
             Pattern.DOTALL | FLAGS);
     private static final Pattern NON_NEWLINE = Pattern.compile("[^\\n]");
     private static final Pattern WHITESPACE = Pattern.compile("\\s+", FLAGS);
+    /**
+     * The raw Jackson types of the sources: Jackson 3's ({@code tools.jackson}, what the sources use) and Jackson 2's
+     * ({@code com.fasterxml.jackson}, still matched so that a reintroduced import is classified like any other, and the
+     * control fixtures, which the Python prototype reads too, keep their meaning).
+     */
     private static final String RAW_JACKSON_TYPES =
-            "com\\.fasterxml\\.jackson\\.databind\\.(?:JsonNode\\b|node\\.|ObjectMapper|ObjectReader|ObjectWriter|SerializerProvider"
+            "tools\\.jackson\\.databind\\.(?:JsonNode\\b|node\\.|ObjectMapper|ObjectReader|ObjectWriter|SerializationContext"
+                    + "|ValueSerializer|ValueDeserializer|DeserializationContext|module\\.|cfg\\.|ser\\.|deser\\.)"
+                    + "|tools\\.jackson\\.core\\.(?:JsonParser|JsonGenerator|json\\.JsonFactory)"
+                    + "|com\\.fasterxml\\.jackson\\.databind\\.(?:JsonNode\\b|node\\.|ObjectMapper|ObjectReader|ObjectWriter|SerializerProvider"
                     + "|JsonSerializer|JsonDeserializer|DeserializationContext|module\\.|cfg\\.|ser\\.|deser\\.)"
                     + "|com\\.fasterxml\\.jackson\\.core\\.(?:JsonFactory|JsonParser|JsonGenerator)"
                     + "|org\\.springframework\\.http\\.codec\\.json\\."
@@ -124,7 +134,7 @@ public final class JsonBoundaryScanner {
                 "createGenerator"));
         kinds.put("codec-decode", List.of("bodyToMono", "bodyToFlux", "toEntity", "toEntityList"));
         kinds.put("codec-encode", List.of("bodyValue", "BodyInserters.fromValue"));
-        kinds.put("codec-config", List.of("codecs", "jackson2JsonEncoder", "jackson2JsonDecoder"));
+        kinds.put("codec-config", List.of("codecs", "jacksonJsonEncoder", "jacksonJsonDecoder", "jackson2JsonEncoder", "jackson2JsonDecoder"));
         kinds.put("mapper-access", List.of("getObjectMapper"));
         kinds.put(WRAPPER_KIND, List.of("renderMustacheJsonString", "renderMustacheArrayJsonString", "renderMustacheJson",
                 "parseResultBody", "getConcatSqlStr"));
@@ -265,7 +275,7 @@ public final class JsonBoundaryScanner {
                 callee = WHITESPACE.matcher(matcher.group(3)).replaceAll("");
                 kind = KIND_OF.get(callee);
             } else {
-                callee = MAPPER_CALLEE;
+                callee = matcher.group().startsWith("new") ? MAPPER_CALLEE : BUILDER_CALLEE;
                 kind = MAPPER_KIND;
             }
             rawSites.add(new int[]{lineNumber, WRAPPER_SOURCE_KINDS.contains(kind) ? 1 : 0});

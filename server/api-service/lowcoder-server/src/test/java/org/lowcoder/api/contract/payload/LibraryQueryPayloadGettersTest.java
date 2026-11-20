@@ -1,6 +1,5 @@
 package org.lowcoder.api.contract.payload;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.api.contract.support.LibraryQuerySamples;
 import org.lowcoder.api.contract.support.PayloadSamples;
@@ -54,7 +53,7 @@ class LibraryQueryPayloadGettersTest {
     @Test
     @BoundarySites({"lowcoder-domain/src/main/java/org/lowcoder/domain/query/model/LibraryQuery.java#LibraryQuery.baseQuerySupplier#toJson#1",
             "lowcoder-domain/src/main/java/org/lowcoder/domain/query/model/LibraryQuery.java#LibraryQuery.baseQuerySupplier#fromJson#1"})
-    void libraryQueryQuery() throws JsonProcessingException {
+    void libraryQueryQuery() {
         Map<String, Object> dsl = dsl(LIBRARY_QUERY_PREFIX);
         BaseQuery query = LibraryQuery.builder().libraryQueryDSL(dsl).build().getQuery();
         assertConverted("LibraryQuery#getQuery", dsl, query, LIBRARY_QUERY_GOLDEN);
@@ -63,7 +62,7 @@ class LibraryQueryPayloadGettersTest {
     @Test
     @BoundarySites({"lowcoder-domain/src/main/java/org/lowcoder/domain/query/model/LibraryQueryRecord.java#LibraryQueryRecord.baseQuerySupplier#toJson#1",
             "lowcoder-domain/src/main/java/org/lowcoder/domain/query/model/LibraryQueryRecord.java#LibraryQueryRecord.baseQuerySupplier#fromJson#1"})
-    void libraryQueryRecordQuery() throws JsonProcessingException {
+    void libraryQueryRecordQuery() {
         Map<String, Object> dsl = dsl(RECORD_PREFIX);
         BaseQuery query = LibraryQueryRecord.builder().libraryQueryDSL(dsl).build().getQuery();
         assertConverted("LibraryQueryRecord#getQuery", dsl, query, RECORD_GOLDEN);
@@ -97,8 +96,7 @@ class LibraryQueryPayloadGettersTest {
         return (Map<String, Object>) dsl.get(LibraryQuerySamples.QUERY);
     }
 
-    private static void assertConverted(String getter, Map<String, Object> dsl, BaseQuery converted, String golden)
-            throws JsonProcessingException {
+    private static void assertConverted(String getter, Map<String, Object> dsl, BaseQuery converted, String golden) {
         String written = JsonUtils.getObjectMapper().writeValueAsString(converted);
         System.out.println("[LibraryQueryPayloadGettersTest] " + getter + ": written " + written.length() + " chars");
         GOLDEN.assertJson(golden, written);

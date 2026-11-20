@@ -6,7 +6,7 @@ import java.util.Locale;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.util.LocaleUtils;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 
 public class QueryResultView {
 

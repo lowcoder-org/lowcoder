@@ -1,5 +1,6 @@
 package org.lowcoder.sdk.auth;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import jakarta.annotation.Nullable;
@@ -29,6 +30,7 @@ public abstract class AbstractAuthConfig {
 
     protected String authType;
 
+    @JsonCreator
     protected AbstractAuthConfig(@Nullable String id, String source, String sourceName, Boolean enable, Boolean enableRegister, String authType) {
         this.id = id;
         this.source = source;

@@ -1,7 +1,8 @@
 package org.lowcoder.api.plugin;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.icegreen.greenmail.configuration.GreenMailConfiguration;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
@@ -80,7 +81,7 @@ public class ShadedPluginJarsIntegrationTest {
     static final String TAG = "[ShadedPluginJarsIntegrationTest] ";
     static final Duration TIMEOUT = Duration.ofSeconds(60);
     static final String QUERY_CODE_OK = "OK";
-    static final ObjectMapper JSON = new ObjectMapper();
+    static final ObjectMapper JSON = JsonMapper.builderWithJackson2Defaults().build();
 
     static final String POSTGRES = "postgres-plugin";
     static final String MYSQL = "mysql-plugin";
@@ -552,11 +553,11 @@ public class ShadedPluginJarsIntegrationTest {
             QueryExecutionResult created = datasource.run(connection, write);
             assertEquals(QUERY_CODE_OK, created.getQueryCode());
             assertEquals(7, ((JsonNode) created.getData()).path("id").asInt(), "the POST answer is returned as JSON");
-            assertEquals("widget", ((JsonNode) created.getData()).path("created").path("name").asText(), "the server received the body that was written");
+            assertEquals("widget", ((JsonNode) created.getData()).path("created").path("name").asString(), "the server received the body that was written");
 
             QueryExecutionResult read = datasource.run(connection, Map.of("httpMethod", "GET", "path", REST_ITEMS_PATH));
             assertEquals(QUERY_CODE_OK, read.getQueryCode());
-            assertEquals("widget", ((JsonNode) read.getData()).path("items").path(0).path("name").asText(), "the GET answer is returned as JSON");
+            assertEquals("widget", ((JsonNode) read.getData()).path("items").path(0).path("name").asString(), "the GET answer is returned as JSON");
         } finally {
             datasource.destroy(connection);
         }
@@ -576,17 +577,17 @@ public class ShadedPluginJarsIntegrationTest {
         try {
             QueryExecutionResult mutation = datasource.run(connection, Map.of("path", GRAPHQL_PATH, "body", "mutation { addHero(name: \"x\") { id } }", "variables", List.of()));
             assertEquals(QUERY_CODE_OK, mutation.getQueryCode());
-            assertEquals("42", ((JsonNode) mutation.getData()).path("data").path("addHero").path("id").asText(), "the mutation answer is returned");
+            assertEquals("42", ((JsonNode) mutation.getData()).path("data").path("addHero").path("id").asString(), "the mutation answer is returned");
 
             QueryExecutionResult query = datasource.run(connection, Map.of("path", GRAPHQL_PATH, "body", "query { hero { name } }", "variables", List.of()));
             assertEquals(QUERY_CODE_OK, query.getQueryCode());
-            assertEquals("R2-D2", ((JsonNode) query.getData()).path("data").path("hero").path("name").asText(), "the query answer is returned");
+            assertEquals("R2-D2", ((JsonNode) query.getData()).path("data").path("hero").path("name").asString(), "the query answer is returned");
         } finally {
             datasource.destroy(connection);
         }
         List<RecordingHttpServer.Request> requests = graphqlServer.requests().subList(before, graphqlServer.requests().size());
         assertEquals(2, requests.size());
-        assertTrue(JSON.readTree(requests.get(0).bodyText()).path("query").asText().startsWith("mutation"), "the first request carried the mutation: " + requests.get(0).bodyText());
-        assertTrue(JSON.readTree(requests.get(1).bodyText()).path("query").asText().startsWith("query"), "the second request carried the query: " + requests.get(1).bodyText());
+        assertTrue(JSON.readTree(requests.get(0).bodyText()).path("query").asString().startsWith("mutation"), "the first request carried the mutation: " + requests.get(0).bodyText());
+        assertTrue(JSON.readTree(requests.get(1).bodyText()).path("query").asString().startsWith("query"), "the second request carried the query: " + requests.get(1).bodyText());
     }
 }

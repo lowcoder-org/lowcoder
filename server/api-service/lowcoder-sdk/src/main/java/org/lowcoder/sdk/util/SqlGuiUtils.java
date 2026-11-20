@@ -1,6 +1,6 @@
 package org.lowcoder.sdk.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import jakarta.annotation.Nonnull;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.lowcoder.sdk.exception.PluginException;

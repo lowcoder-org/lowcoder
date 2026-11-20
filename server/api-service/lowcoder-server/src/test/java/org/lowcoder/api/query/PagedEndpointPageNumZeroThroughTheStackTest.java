@@ -1,7 +1,8 @@
 package org.lowcoder.api.query;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import reactor.core.publisher.Mono;
+import tools.jackson.core.JacksonException;
 
 import java.util.List;
 
@@ -53,7 +55,7 @@ public class PagedEndpointPageNumZeroThroughTheStackTest {
     /** {@code ILLEGAL_PAGE_NUMBER} in {@code locale_en.properties}. */
     static final String INVALID_PAGE_NUMBER_MESSAGE = "Invalid page number.";
     static final int SUCCESS_CODE = 1;
-    static final ObjectMapper JSON = new ObjectMapper();
+    static final ObjectMapper JSON = JsonMapper.builderWithJackson2Defaults().build();
 
     private ContractTestClient client;
     private LibraryQueryApiService libraryQueryApiService;
@@ -93,7 +95,7 @@ public class PagedEndpointPageNumZeroThroughTheStackTest {
             System.out.println(TAG + "GET " + LIST_URL + " " + PAGE_NUM + "=" + pageNum + " " + PAGE_SIZE + "=" + pageSize
                     + " -> " + result.getStatus() + " " + body);
             return body;
-        } catch (java.io.IOException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("response is not JSON", e);
         }
     }
@@ -101,7 +103,7 @@ public class PagedEndpointPageNumZeroThroughTheStackTest {
     /** Asserts the BF-153 parameter error: HTTP 500 (set by the test's {@code get}), code 5002, the English message, no data. */
     private static void assertInvalidPageNumber(JsonNode body) {
         assertEquals(BizError.INVALID_PARAMETER.getBizErrorCode(), body.get("code").asInt());
-        assertEquals(INVALID_PAGE_NUMBER_MESSAGE, body.get("message").asText());
+        assertEquals(INVALID_PAGE_NUMBER_MESSAGE, body.get("message").asString());
         assertTrue(body.get("data") == null || body.get("data").isNull());
     }
 

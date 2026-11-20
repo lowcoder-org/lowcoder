@@ -1,7 +1,8 @@
 package org.lowcoder.api.contract.boundary;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.google.common.cache.LoadingCache;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
@@ -305,8 +306,8 @@ class JsLibraryFetchContractTest {
         try (InputStream resource = JsLibraryController.class.getClassLoader().getResourceAsStream(RECOMMENDED_RESOURCE)) {
             assertThat(resource).as(RECOMMENDED_RESOURCE).isNotNull();
             TreeSet<String> names = new TreeSet<>();
-            for (JsonNode library : new ObjectMapper().readTree(new String(resource.readAllBytes(), StandardCharsets.UTF_8))) {
-                names.add(library.path(NAME_KEY).asText());
+            for (JsonNode library : JsonMapper.builderWithJackson2Defaults().build().readTree(new String(resource.readAllBytes(), StandardCharsets.UTF_8))) {
+                names.add(library.path(NAME_KEY).asString());
             }
             return names;
         }
@@ -317,9 +318,9 @@ class JsLibraryFetchContractTest {
         try (InputStream resource = JsLibraryController.class.getClassLoader().getResourceAsStream(RECOMMENDED_RESOURCE)) {
             assertThat(resource).as(RECOMMENDED_RESOURCE).isNotNull();
             TreeMap<String, String> urls = new TreeMap<>();
-            for (JsonNode library : new ObjectMapper().readTree(new String(resource.readAllBytes(), StandardCharsets.UTF_8))) {
+            for (JsonNode library : JsonMapper.builderWithJackson2Defaults().build().readTree(new String(resource.readAllBytes(), StandardCharsets.UTF_8))) {
                 JsonNode url = library.path(DOWNLOAD_URL_KEY);
-                urls.put(library.path(NAME_KEY).asText(), url.isTextual() ? url.asText() : null);
+                urls.put(library.path(NAME_KEY).asString(), url.isString() ? url.asString() : null);
             }
             return urls;
         }

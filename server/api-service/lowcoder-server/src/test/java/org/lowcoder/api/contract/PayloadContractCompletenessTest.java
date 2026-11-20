@@ -1,7 +1,7 @@
 package org.lowcoder.api.contract;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.JsonNode;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -18,6 +18,7 @@ import org.lowcoder.api.contract.support.PayloadTypeWalker.Property;
 import org.lowcoder.api.contract.support.WorkPackageStatus;
 import org.lowcoder.sdk.contract.JacksonAnnotationGuard;
 import org.lowcoder.sdk.util.JsonUtils;
+import tools.jackson.core.JacksonException;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -296,8 +297,8 @@ class PayloadContractCompletenessTest {
             ruleFindings.add(new Finding(ALWAYS, 7, ContractRegistry.FUNCTIONAL_ROUTES_FILE + " needs a '" + ROUTES_FIELD + "' array"));
         }
         routes.forEach(route -> {
-            if (entries.put(route.path("key").asText(), route) != null) {
-                ruleFindings.add(new Finding(ALWAYS, 7, "route entry listed twice: " + route.path("key").asText()));
+            if (entries.put(route.path("key").asString(), route) != null) {
+                ruleFindings.add(new Finding(ALWAYS, 7, "route entry listed twice: " + route.path("key").asString()));
             }
         });
         List<ContractSources.CallSite> sites = ContractSources.routeSites(root);
@@ -309,14 +310,14 @@ class PayloadContractCompletenessTest {
             if (!keys.contains(key)) {
                 ruleFindings.add(new Finding(ALWAYS, 7, "stale route entry " + key));
             }
-            String body = entry.path("body").asText();
+            String body = entry.path("body").asString();
             if (!ROUTE_BODIES.contains(body)) {
                 ruleFindings.add(new Finding(ALWAYS, 7, key + ": body must be one of " + ROUTE_BODIES));
             }
-            if (JSON_BODY.equals(body) && !testClassExists(entry.path("test").asText())) {
+            if (JSON_BODY.equals(body) && !testClassExists(entry.path("test").asString())) {
                 ruleFindings.add(new Finding(ALWAYS, 7, key + ": JSON route without an existing test class"));
             }
-            if (!JSON_BODY.equals(body) && entry.path("note").asText().isBlank()) {
+            if (!JSON_BODY.equals(body) && entry.path("note").asString().isBlank()) {
                 ruleFindings.add(new Finding(ALWAYS, 7, key + ": a non-JSON route needs its reason in note"));
             }
         });
@@ -397,10 +398,10 @@ class PayloadContractCompletenessTest {
         try {
             JsonNode node = JsonUtils.getObjectMapper().readTree(Files.readString(file, StandardCharsets.UTF_8));
             Set<String> names = new TreeSet<>();
-            node.fieldNames().forEachRemaining(names::add);
+            node.propertyNames().iterator().forEachRemaining(names::add);
             return names;
-        } catch (IOException e) {
-            throw new UncheckedIOException("cannot read fixture " + file, e);
+        } catch (IOException | JacksonException e) {
+            throw new IllegalStateException("cannot read fixture " + file, e);
         }
     }
 

@@ -8,8 +8,10 @@ import static org.lowcoder.sdk.plugin.common.constant.Constants.COMP_KEY;
 import static org.lowcoder.sdk.plugin.common.constant.Constants.COMP_TYPE_KEY;
 import static org.lowcoder.sdk.plugin.common.constant.Constants.RECORD_FORM_KEY;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +34,7 @@ import org.lowcoder.sdk.plugin.sheet.changeset.SheetChangeSetRows;
 import org.lowcoder.sdk.plugin.sheet.changeset.SheetKeyValuePairChangeSet;
 import org.lowcoder.sdk.plugin.sheet.changeset.SheetObjectChangeSet;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.KeyValuePairChangeSet;
+import tools.jackson.core.JacksonException;
 
 /**
  * Parsing and rendering of the change sets of the sheet (Google Sheets) GUI commands: the twins of the
@@ -46,7 +49,7 @@ class SheetChangeSetTest {
     private static final String PAIR_COLUMN = "a";
     private static final String PAIR_VALUE = "1";
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = JsonMapper.builderWithJackson2Defaults().build();
     private static final String BLANK_EMPTY = "";
     private static final String BLANK_SPACE = " ";
     private static final String BLANK_TAB_SPACE = "\t ";
@@ -92,7 +95,7 @@ class SheetChangeSetTest {
     private static JsonNode json(String text) {
         try {
             return MAPPER.readTree(text);
-        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalArgumentException(text, e);
         }
     }

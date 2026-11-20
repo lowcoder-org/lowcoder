@@ -1,8 +1,7 @@
 package org.lowcoder.api.application.marketplace;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -133,11 +132,11 @@ class MarketplaceRenderContractTest {
      * text ({@code :116-117}); both pinned as strings, so a change of order changes the comparison.
      */
     @BoundarySites({
-            "lowcoder-server/src/main/java/org/lowcoder/api/application/marketplace/MarketplacePreviewWorker.java#MarketplacePreviewWorker.JSON#new ObjectMapper#1",
+            "lowcoder-server/src/main/java/org/lowcoder/api/application/marketplace/MarketplacePreviewWorker.java#MarketplacePreviewWorker.JSON#JsonMapper.builder#1",
             "lowcoder-server/src/main/java/org/lowcoder/api/application/marketplace/MarketplacePreviewWorker.java#MarketplacePreviewWorker.snapshotOf#writeValueAsString#1",
             "lowcoder-server/src/main/java/org/lowcoder/api/application/marketplace/MarketplacePreviewWorker.java#<file>#import#1"})
     @Test
-    void snapshotWrittenWithSortedKeys() throws JsonProcessingException {
+    void snapshotWrittenWithSortedKeys() {
         Map<String, Object> modules = new LinkedHashMap<>();
         modules.put(MODULE_ID, Map.of(LAYOUT_MEMBER, LAYOUT));
         Map<String, Object> settings = new LinkedHashMap<>();
@@ -152,7 +151,7 @@ class MarketplaceRenderContractTest {
         ObjectNode pinned = PayloadAssertions.FIXTURE_EDITOR.createObjectNode().put(HASH_MEMBER, snapshot.hash()).put(TEXT_MEMBER, snapshot.json());
         GOLDEN.assertJson(SNAPSHOT, PayloadAssertions.FIXTURE_EDITOR.writeValueAsString(pinned));
         List<String> topLevel = new ArrayList<>();
-        PayloadAssertions.FIXTURE_EDITOR.readTree(snapshot.json()).fieldNames().forEachRemaining(topLevel::add);
+        PayloadAssertions.FIXTURE_EDITOR.readTree(snapshot.json()).propertyNames().iterator().forEachRemaining(topLevel::add);
         assertThat(topLevel).as("top-level keys of the snapshot").isSorted();
     }
 
@@ -164,7 +163,7 @@ class MarketplaceRenderContractTest {
      */
     @BoundarySites("lowcoder-server/src/main/java/org/lowcoder/api/application/marketplace/MarketplaceRenderClient.java#MarketplaceRenderClient.render#bodyValue#1")
     @Test
-    void renderRequestBody() throws JsonProcessingException, GeneralSecurityException {
+    void renderRequestBody() throws GeneralSecurityException {
         rendererAnswers(JPEG);
         long before = System.currentTimeMillis();
         byte[] rendered = client.render(PAYLOAD).block(TIMEOUT);
@@ -172,14 +171,14 @@ class MarketplaceRenderContractTest {
         LoggedRequest request = receivedRequest();
         ObjectNode body = (ObjectNode) PayloadAssertions.FIXTURE_EDITOR.readTree(request.getBodyAsString());
         List<String> members = new ArrayList<>();
-        body.fieldNames().forEachRemaining(members::add);
+        body.propertyNames().iterator().forEachRemaining(members::add);
         assertThat(members).as("members of the render body").containsExactlyInAnyOrder(TIMESTAMP_MEMBER, PAYLOAD_MEMBER, SIGNATURE_MEMBER);
         JsonNode timestamp = body.get(TIMESTAMP_MEMBER);
         assertThat(timestamp.isIntegralNumber()).as("timestamp is an integral number: " + timestamp).isTrue();
         assertThat(timestamp.asLong()).as("timestamp, a time of the call").isBetween(before, after);
-        String signature = body.get(SIGNATURE_MEMBER).asText();
+        String signature = body.get(SIGNATURE_MEMBER).asString();
         assertThat(signature).as("signature").matches(SIGNATURE_FORMAT);
-        String expected = hmac(timestamp.asLong() + SIGNED_SEPARATOR + body.get(PAYLOAD_MEMBER).asText());
+        String expected = hmac(timestamp.asLong() + SIGNED_SEPARATOR + body.get(PAYLOAD_MEMBER).asString());
         System.out.println("[MarketplaceRenderContractTest] recomputed signature " + expected);
         assertThat(signature).as("signature, recomputed").isEqualTo(expected);
         body.put(TIMESTAMP_MEMBER, TIMESTAMP_PLACEHOLDER).put(SIGNATURE_MEMBER, SIGNATURE_PLACEHOLDER);

@@ -2,7 +2,7 @@ package org.lowcoder.sdk.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.sdk.exception.PluginError;

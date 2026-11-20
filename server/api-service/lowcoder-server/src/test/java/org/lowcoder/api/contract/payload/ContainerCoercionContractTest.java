@@ -1,10 +1,11 @@
 package org.lowcoder.api.contract.payload;
 
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.BeanDescription;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.introspect.BeanPropertyDefinition;
+import tools.jackson.databind.jsontype.TypeSerializer;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.api.contract.payload.ScalarCoercionContractTest.Mechanism;
 import org.lowcoder.api.contract.support.PayloadAssertions;
@@ -59,7 +60,7 @@ class ContainerCoercionContractTest {
     static final String JSON_KEY = "json";
     static final String NULL = "null";
 
-    private static final ObjectMapper MAPPER = JsonUtils.getObjectMapper();
+    private static final JsonMapper MAPPER = JsonUtils.getObjectMapper();
     private static final GoldenJson GOLDEN = GoldenJson.forModule();
 
     /** One (shape, mechanism) pair and the closure property that represents it. */
@@ -69,12 +70,12 @@ class ContainerCoercionContractTest {
             // the serializer's resolver maps a class to its registered id; the deserializer's only ids to classes
             TypeSerializer typed;
             try {
-                typed = MAPPER.getSerializerProviderInstance().findTypeSerializer(owner);
+                typed = MAPPER._serializationContext().findTypeSerializer(owner);
             } catch (Exception e) {
                 throw new IllegalStateException("type serializer of " + owner, e);
             }
             String typeId = typed == null ? ""
-                    : "\"" + typed.getPropertyName() + "\": \"" + typed.getTypeIdResolver().idFromValueAndType(null, owner.getRawClass()) + "\", ";
+                    : "\"" + typed.getPropertyName() + "\": \"" + typed.getTypeIdResolver().idFromValueAndType(MAPPER._serializationContext(), null, owner.getRawClass()) + "\", ";
             return "{" + typeId + "\"" + property.getName() + "\": " + input + "}";
         }
 

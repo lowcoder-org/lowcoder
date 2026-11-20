@@ -1,7 +1,9 @@
 package org.lowcoder.api.application.marketplace;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Instant;
@@ -31,7 +33,9 @@ import reactor.core.publisher.Mono;
 public class MarketplacePreviewWorker {
     // Bump when the renderer/components change. No time-based expiration of successful images.
     static final String RENDER_VERSION = "layout-v3-1280x800";
-    private static final ObjectMapper JSON = new ObjectMapper().enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
+    private static final ObjectMapper JSON = JsonMapper.builderWithJackson2Defaults()
+            .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
+            .build();
     private final ApplicationService applications;
     private final ApplicationRecordService versions;
     private final OrganizationService organizations;

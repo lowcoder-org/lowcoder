@@ -1,6 +1,5 @@
 package org.lowcoder.api.contract.endpoint;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.api.contract.support.ContractTestClient;
 import org.lowcoder.api.contract.support.MiscSamples;
@@ -13,6 +12,7 @@ import org.lowcoder.sdk.contract.GoldenJson;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
+import tools.jackson.core.JacksonException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -84,7 +84,7 @@ class PluginRouteContractTest {
     private static String firstInfo(String body) {
         try {
             return PayloadAssertions.FIXTURE_EDITOR.writeValueAsString(PayloadAssertions.FIXTURE_EDITOR.readTree(body).get(0).get(INFO));
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("the plugin list is not JSON: " + body, e);
         }
     }

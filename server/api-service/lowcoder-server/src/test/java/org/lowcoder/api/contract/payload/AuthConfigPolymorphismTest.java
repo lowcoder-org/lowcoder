@@ -1,10 +1,13 @@
 package org.lowcoder.api.contract.payload;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
-import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.lowcoder.sdk.contract.JacksonIntrospection;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.InvalidTypeIdException;
+import tools.jackson.databind.introspect.AnnotatedClass;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.jsontype.NamedType;
+import tools.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.api.contract.support.PayloadAssertions;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
@@ -43,7 +46,7 @@ class AuthConfigPolymorphismTest {
     static final String UNKNOWN_ID = "AUTH_CONFIG_POLYMORPHISM_UNKNOWN";
     static final String D1 = "D1";
 
-    private static final ObjectMapper MAPPER = JsonUtils.getObjectMapper();
+    private static final JsonMapper MAPPER = JsonUtils.getObjectMapper();
     private static final GoldenJson GOLDEN = GoldenJson.forModule();
 
     @Test
@@ -78,7 +81,8 @@ class AuthConfigPolymorphismTest {
 
     @Test
     void aBareMapperResolvesNoId() throws IOException {
-        ObjectMapper bare = new ObjectMapper();
+        // parameter names on, as in production, so that the type definition resolves and only the registered subtypes are missing
+        ObjectMapper bare = JsonMapper.builderWithJackson2Defaults().enable(MapperFeature.DETECT_PARAMETER_NAMES).build();
         for (Map.Entry<String, String> id : registeredIds().entrySet()) {
             String input = withId(id.getValue(), id.getKey());
             assertThatThrownBy(() -> bare.readValue(input, AbstractAuthConfig.class)).isInstanceOf(InvalidTypeIdException.class)
@@ -89,9 +93,9 @@ class AuthConfigPolymorphismTest {
 
     /** Registered id → class name, as the production mapper resolves them for {@link AbstractAuthConfig}. */
     static Map<String, String> registeredIds() {
-        AnnotatedClass base = MAPPER.getDeserializationConfig().introspectClassAnnotations(AbstractAuthConfig.class).getClassInfo();
+        AnnotatedClass base = JacksonIntrospection.deserializationClass(MAPPER, MAPPER.constructType(AbstractAuthConfig.class));
         Map<String, String> ids = new TreeMap<>();
-        for (NamedType subtype : MAPPER.getSubtypeResolver().collectAndResolveSubtypesByTypeId(MAPPER.getDeserializationConfig(), base)) {
+        for (NamedType subtype : JacksonIntrospection.subtypesByTypeId(MAPPER, base)) {
             if (subtype.hasName()) {
                 ids.put(subtype.getName(), subtype.getType().getName());
             }

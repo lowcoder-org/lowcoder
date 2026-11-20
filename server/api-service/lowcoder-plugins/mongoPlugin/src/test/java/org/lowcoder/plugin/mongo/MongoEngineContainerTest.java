@@ -1,6 +1,7 @@
 package org.lowcoder.plugin.mongo;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 import org.bson.Document;
 import org.bson.types.Decimal128;
 import org.bson.types.ObjectId;
@@ -50,7 +51,7 @@ public class MongoEngineContainerTest {
     static final long SLOW_FILTER_MILLIS = 1500;
     static final long QUERY_TIMEOUT_MILLIS = 200;
 
-    private static final com.fasterxml.jackson.databind.ObjectMapper JSON = new com.fasterxml.jackson.databind.ObjectMapper();
+    private static final tools.jackson.databind.ObjectMapper JSON = JsonMapper.builderWithJackson2Defaults().build();
     private static MongoConnection connection;
     private static final MongoDatasourceConfig CONFIG = MongoContainerSupport.hostConfig();
 
