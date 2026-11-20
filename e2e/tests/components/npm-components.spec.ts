@@ -37,7 +37,7 @@ const COMPONENTS: NpmComponent[] = [
 ];
 
 function compNameOf(dsl: { ui: { items: Record<string, { name: string }> } }): string {
-  return Object.values(dsl.ui.items)[0].name;
+  return Object.values(dsl.ui.items)[0]!.name;
 }
 
 test.describe("components loaded from npm", () => {
