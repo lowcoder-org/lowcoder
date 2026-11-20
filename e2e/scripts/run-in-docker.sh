@@ -52,7 +52,9 @@ readonly POSTGRES_DATABASE="shop"
 readonly POSTGRES_USER="postgres"
 readonly POSTGRES_PASSWORD="e2e-postgres-password"
 
-readonly APP_PORT=3000
+# shellcheck source=app-host.sh
+source "$(dirname "${BASH_SOURCE[0]}")/app-host.sh"
+readonly APP_PORT="$E2E_APP_PORT"
 readonly READY_PATH="/api/configs"
 # Seconds to wait for the app to answer, and between two checks
 readonly STARTUP_TIMEOUT=300
@@ -120,8 +122,8 @@ start_app() {
         publish=(-p "127.0.0.1:${E2E_HOST_PORT}:${APP_PORT}")
     fi
     log "Starting $APP_IMAGE as $APP_CONTAINER"
-    docker run -d --name "$APP_CONTAINER" --network "$NETWORK" "${publish[@]}" \
-        -e LOWCODER_PUBLIC_URL="http://${APP_CONTAINER}:${APP_PORT}/" \
+    docker run -d --name "$APP_CONTAINER" --network "$NETWORK" --network-alias "$E2E_APP_HOST" "${publish[@]}" \
+        -e LOWCODER_PUBLIC_URL="http://${E2E_APP_HOST}:${APP_PORT}/" \
         -e LOWCODER_SUPERUSER_PASSWORD="$(head -c 18 /dev/urandom | od -An -tx1 | tr -d ' \n')" \
         "$APP_IMAGE" > /dev/null
 }
@@ -174,7 +176,7 @@ run_tests() {
     docker run --rm --name "$RUNNER_CONTAINER" --network "$NETWORK" --init --ipc=host \
         --user "$(id -u):$(id -g)" -e HOME=/tmp \
         -e CI="${CI:-}" \
-        -e LOWCODER_BASE_URL="http://${APP_CONTAINER}:${APP_PORT}" \
+        -e LOWCODER_BASE_URL="http://${E2E_APP_HOST}:${APP_PORT}" \
         -e E2E_POSTGRES_HOST="$POSTGRES_CONTAINER" \
         -e E2E_INCLUDE_QUARANTINE="${E2E_INCLUDE_QUARANTINE:-}" \
         -v "$E2E_DIR":/work -w /work \

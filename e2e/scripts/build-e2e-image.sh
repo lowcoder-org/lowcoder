@@ -20,6 +20,10 @@
 ## and build arguments), then `docker build` a layer that replaces /lowcoder/client of the base image with the built
 ## client. Takes several minutes.
 ##
+## The client is built with REACT_APP_HOCUSPOCUS_URL=ws://$E2E_APP_HOST:$E2E_APP_PORT/hocuspocus (app-host.sh), so the chat
+## components reach the hocuspocus server of the image through the app's own nginx. That host name exists only inside the
+## network of a run-in-docker.sh run; in a browser opened through E2E_HOST_PORT the chat components cannot connect.
+##
 ## Not covered: the server (api-service, node-service) stays the one of the base image, and so do the components
 ## (client-comps), the SDK and the embed bundle; only the main client (packages/lowcoder) is replaced. The patch has
 ## to apply to CLIENT_REF; for another ref it may need regenerating.
@@ -27,6 +31,8 @@
 
 set -euo pipefail
 
+# shellcheck source=app-host.sh
+source "$(dirname "${BASH_SOURCE[0]}")/app-host.sh"
 readonly DEFAULT_BASE_IMAGE="lowcoderorg/lowcoder-ce:3.0.0"
 readonly DEFAULT_TARGET_IMAGE="lowcoderorg/lowcoder-ce:3.0.0-e2e"
 readonly BASE_IMAGE="${BASE_IMAGE:-$DEFAULT_BASE_IMAGE}"
@@ -64,7 +70,7 @@ patch -p1 -d "$WORK_DIR" < "$HOOKS_PATCH"
 log "Building the client with $NODE_IMAGE (several minutes)"
 docker run --rm --name "$BUILD_CONTAINER" -v "$WORK_DIR/client":/lowcoder-client -w /lowcoder-client \
     -e REACT_APP_COMMIT_ID=test -e REACT_APP_ENV=production -e REACT_APP_EDITION=community \
-    -e HOST_OWNER="$(id -u):$(id -g)" -e REACT_APP_DISABLE_JS_SANDBOX=true -e NODE_OPTIONS="--max-old-space-size=${NODE_MAX_OLD_SPACE_MB}" \
+    -e HOST_OWNER="$(id -u):$(id -g)" -e REACT_APP_DISABLE_JS_SANDBOX=true -e REACT_APP_HOCUSPOCUS_URL="ws://${E2E_APP_HOST}:${E2E_APP_PORT}${E2E_HOCUSPOCUS_PATH}" -e NODE_OPTIONS="--max-old-space-size=${NODE_MAX_OLD_SPACE_MB}" \
     "$NODE_IMAGE" sh -c 'apt-get update > /dev/null && apt-get install -y --no-install-recommends curl ca-certificates > /dev/null && yarn --immutable && yarn build; status=$?; chown -R "$HOST_OWNER" /lowcoder-client; exit $status'
 
 [ -f "$WORK_DIR/client/$CLIENT_BUILD_SUBDIR/index.html" ] || { echo "ERROR: the build produced no index.html" >&2; exit 1; }
