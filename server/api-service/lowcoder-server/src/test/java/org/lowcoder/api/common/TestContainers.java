@@ -28,8 +28,8 @@ import org.testcontainers.utility.DockerImageName;
 public final class TestContainers {
 
     /**
-     * MongoDB 7.0, pinned by digest: 7.x is the supported minimum of self-hosted installs (decision D2 of
-     * BOOT4-JDK25-p0-index-plan.md), and the MongoDB driver 5.5 of Spring Boot 3.5 refuses servers below 4.2.
+     * MongoDB 7.0, pinned by digest: 7.x is the supported minimum of self-hosted installs, and the MongoDB driver
+     * of Spring Boot 3.5 and later (5.5+) refuses servers below 4.2.
      */
     static final DockerImageName MONGO_IMAGE =
             DockerImageName.parse(ContainerImages.MONGO_7_0).asCompatibleSubstituteFor("mongo");
