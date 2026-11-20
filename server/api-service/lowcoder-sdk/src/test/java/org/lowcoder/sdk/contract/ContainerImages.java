@@ -18,7 +18,7 @@ package org.lowcoder.sdk.contract;
  * <p>Licences (confirmed from each image's documentation, 2026-10-04): MySQL GPLv2; PostgreSQL License; Redis 7.2.4
  * BSD-3; MongoDB SSPL; ClickHouse Apache-2.0; SQL Server under its EULA (Developer/Express editions, no production use);
  * Elasticsearch 8.15 Elastic License 2.0; Oracle Database Free under the Oracle Free Use Terms (the image packaging
- * Apache-2.0). They are used for tests only (owner decision D-5).
+ * Apache-2.0). smtp4dev BSD-3-Clause (the repository's licence on GitHub, 2026-11-20). They are used for tests only (owner decision D-5).
  */
 public final class ContainerImages {
 
@@ -33,6 +33,14 @@ public final class ContainerImages {
             "mysql:8.0@sha256:7dcddc01f13bab2f15cde676d44d01f61fc9f99fe7785e86196dfc07d358ae2b";
     public static final String CLICKHOUSE_24_8 =
             "clickhouse/clickhouse-server:24.8-alpine@sha256:b002e56ed5c16e224c312527f6fcba7e77216fec5d7a88a7828f59efc614feb5";
+    /**
+     * An SMTP server that generates its own self-signed certificate at start and offers STARTTLS when started with
+     * {@code ServerOptions__TlsMode=StartTls} (smtpPlugin's STARTTLS tests); its HTTP API on port 80 lists the messages it received.
+     * The digest is the registry's index digest, read with {@code docker pull} and {@code docker inspect --format '{{index .RepoDigests 0}}'}
+     * on 2026-11-20.
+     */
+    public static final String SMTP4DEV_3_6 =
+            "rnwood/smtp4dev:3.6.1@sha256:912304153668068188d83b612fe0b7c4ec852dddb45fb2946895c7a72e89c6f2";
     /** Heavy: started only by tests tagged {@code heavy-container} (task P0-6). */
     public static final String MSSQL_2022 =
             "mcr.microsoft.com/mssql/server:2022-CU27-ubuntu-22.04@sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090";

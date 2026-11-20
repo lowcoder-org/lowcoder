@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.DatasourceStructure;
+import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.lowcoder.sdk.models.DatasourceStructure.Column;
 import org.lowcoder.sdk.models.DatasourceStructure.ForeignKey;
 import org.lowcoder.sdk.models.DatasourceStructure.PrimaryKey;
@@ -16,16 +17,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
 import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
+import static org.lowcoder.plugin.mysql.MysqlContainerSupport.CONNECTOR;
 import static org.lowcoder.plugin.mysql.MysqlContainerSupport.app;
 import static org.lowcoder.plugin.mysql.MysqlContainerSupport.config;
 import static org.lowcoder.plugin.mysql.MysqlContainerSupport.connect;
@@ -102,6 +107,38 @@ public class MysqlDatabaseTest {
             assertEquals("2024-02-29 13:14:15", String.valueOf(value(data, 0, "created")).replace('T', ' '));
         } finally {
             destroy(wrapper);
+        }
+    }
+
+    @Test
+    public void testConnectionSucceedsWithoutAndWithSsl() {
+        for (boolean ssl : new boolean[] {false, true}) {
+            MysqlDatasourceConfig config = config(MysqlContainerSupport.DATABASE, MysqlContainerSupport.PASSWORD, ssl, false, false);
+            long start = System.nanoTime();
+            DatasourceTestResult test = CONNECTOR.testConnection(config).block();
+            System.out.println("[MysqlDatabaseTest] test connection, ssl=" + ssl + ": success=" + (test != null && test.isSuccess())
+                    + " after " + (System.nanoTime() - start) / 1_000_000 + " ms");
+            assertNotNull(test, "testConnection emits a result (ssl=" + ssl + ")");
+            assertTrue(test.isSuccess(), "the right credentials pass the test (ssl=" + ssl + ")");
+        }
+    }
+
+    @Test
+    public void testConnectionWithAWrongPasswordErrorsWithAccessDeniedAndTheServerMapsItToAFailedResult() {
+        for (boolean ssl : new boolean[] {false, true}) {
+            MysqlDatasourceConfig config = config(MysqlContainerSupport.DATABASE, WRONG_PASSWORD, ssl, false, false);
+            RuntimeException thrown = assertThrows(RuntimeException.class, () -> CONNECTOR.testConnection(config).block(),
+                    "a wrong password must not give a successful result (ssl=" + ssl + ")");
+            System.out.println("[MysqlDatabaseTest] test connection with a wrong password, ssl=" + ssl + ": " + thrown.getClass().getSimpleName()
+                    + ": " + thrown.getMessage());
+            assertTrue(String.valueOf(thrown.getMessage()).contains(ACCESS_DENIED), "the error names the refusal (ssl=" + ssl + "): " + thrown.getMessage());
+            // what DatasourceServiceImpl.testDatasourceLocally does with the error
+            DatasourceTestResult mapped = CONNECTOR.testConnection(config).onErrorResume(error -> reactor.core.publisher.Mono.just(DatasourceTestResult.testFail(error))).block();
+            assertNotNull(mapped);
+            assertFalse(mapped.isSuccess(), "the mapped result is a failure (ssl=" + ssl + ")");
+            String message = mapped.getInvalidMessage(Locale.ENGLISH);
+            System.out.println("[MysqlDatabaseTest] mapped failed result, ssl=" + ssl + ": " + message);
+            assertTrue(String.valueOf(message).contains(ACCESS_DENIED), "the failed result carries the refusal (ssl=" + ssl + "): " + message);
         }
     }
 
