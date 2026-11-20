@@ -1,0 +1,136 @@
+{
+ "ui": {
+  "layout": {
+   "ae9d65a0": {
+    "i": "ae9d65a0",
+    "h": 5,
+    "w": 8,
+    "x": 0,
+    "y": 3,
+    "pos": 0
+   }
+  },
+  "items": {
+   "ae9d65a0": {
+    "compType": "cascader",
+    "comp": {
+     "value": "[\"California\",\"San Francisco\",\"The Golden Gate Bridge\"]",
+     "label": {
+      "text": "Label",
+      "width": "33",
+      "widthUnit": "%",
+      "position": "row",
+      "align": "left"
+     },
+     "options": "[\n {\n  \"value\": \"California\",\n  \"label\": \"California\",\n  \"children\": [\n   {\n    \"value\": \"San Francisco\",\n    \"label\": \"San Francisco\",\n    \"children\": [\n     {\n      \"value\": \"The Golden Gate Bridge\",\n      \"label\": \"The Golden Gate Bridge\"\n     }\n    ]\n   }\n  ]\n },\n {\n  \"value\": \"New South Wales\",\n  \"label\": \"New South Wales\",\n  \"children\": [\n   {\n    \"value\": \"Sydney\",\n    \"label\": \"Sydney\",\n    \"children\": [\n     {\n      \"value\": \"Sydney Opera House\",\n      \"label\": \"Sydney Opera House\"\n     }\n    ]\n   }\n  ]\n }\n]",
+     "showSearch": true,
+     "margin": {
+      "left": "",
+      "right": "",
+      "top": "",
+      "bottom": ""
+     },
+     "padding": {
+      "left": "",
+      "right": "",
+      "top": "",
+      "bottom": ""
+     },
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "cascader1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

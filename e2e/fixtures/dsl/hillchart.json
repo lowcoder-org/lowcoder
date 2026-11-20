@@ -1,0 +1,116 @@
+{
+ "ui": {
+  "layout": {
+   "2abdc4e4": {
+    "i": "2abdc4e4",
+    "h": 50,
+    "w": 9,
+    "x": 0,
+    "y": 0,
+    "pos": 0
+   }
+  },
+  "items": {
+   "2abdc4e4": {
+    "compType": "hillchart",
+    "comp": {
+     "autoHeight": "auto",
+     "data": "[\n  {\n    \"id\": 1,\n    \"color\": \"gray\",\n    \"description\": \"Validation: Salesforce Integration\",\n    \"x\": 25,\n    \"size\": 15\n  },\n  {\n    \"id\": 2,\n    \"color\": \"maroon\",\n    \"description\": \"Renewals\",\n    \"x\": 80,\n    \"size\": 10\n  },\n  {\n    \"id\": 3,\n    \"color\": \"maroon\",\n    \"description\": \"Refactor: Fancy Pants\",\n    \"x\": 35,\n    \"size\": 10\n  },\n  {\n    \"id\": 4,\n    \"color\": \"cyan\",\n    \"description\": \"Refactor: Lighthouse Orbs\",\n    \"x\": 45,\n    \"size\": 10\n  },\n  {\n    \"id\": 5,\n    \"color\": \"yellow\",\n    \"description\": \"Migration & Legacy Data Updates\",\n    \"x\": 50,\n    \"size\": 20\n  }\n]",
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "hillchart1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

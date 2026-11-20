@@ -1,0 +1,157 @@
+{
+ "ui": {
+  "layout": {
+   "e8043595": {
+    "i": "e8043595",
+    "h": 25,
+    "w": 15,
+    "delayCollision": true,
+    "x": 0,
+    "y": 0,
+    "pos": 0
+   }
+  },
+  "items": {
+   "e8043595": {
+    "compType": "splitLayout",
+    "comp": {
+     "columns": {
+      "manual": [
+       {
+        "id": 0,
+        "label": "Area 1",
+        "key": "Area1",
+        "minWidth": "10%",
+        "maxWidth": "90%",
+        "width": "50%",
+        "collapsible": false,
+        "background": "",
+        "backgroundImage": "",
+        "padding": ""
+       },
+       {
+        "id": 1,
+        "label": "Area 2",
+        "key": "Area2",
+        "minWidth": "10%",
+        "maxWidth": "90%",
+        "width": "50%",
+        "collapsible": true,
+        "background": "",
+        "backgroundImage": "",
+        "padding": ""
+       }
+      ]
+     },
+     "containers": {
+      "0": {
+       "layout": {}
+      },
+      "1": {
+       "layout": {}
+      }
+     },
+     "autoHeight": "auto",
+     "horizontalGridCells": 24,
+     "verticalGridCells": 24,
+     "orientation": "horizontal",
+     "matchColumnsHeight": true,
+     "mainScrollbar": false,
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "splitLayout1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

@@ -1,0 +1,182 @@
+{
+ "ui": {
+  "layout": {
+   "de193661": {
+    "i": "de193661",
+    "h": 40,
+    "w": 9,
+    "x": 0,
+    "y": 0,
+    "pos": 0
+   }
+  },
+  "items": {
+   "de193661": {
+    "compType": "lineChart",
+    "comp": {
+     "mode": "ui",
+     "title": "Line Chart",
+     "data": "[\n  {\n    \"date\": \"Jan\",\n    \"sales\": 320,\n    \"growth\": 250\n  },\n  {\n    \"date\": \"Feb\",\n    \"sales\": 450,\n    \"growth\": 300\n  },\n  {\n    \"date\": \"Mar\",\n    \"sales\": 380,\n    \"growth\": 340\n  },\n  {\n    \"date\": \"Apr\",\n    \"sales\": 520,\n    \"growth\": 400\n  },\n  {\n    \"date\": \"May\",\n    \"sales\": 480,\n    \"growth\": 450\n  },\n  {\n    \"date\": \"Jun\",\n    \"sales\": 600,\n    \"growth\": 500\n  }\n]",
+     "xAxisKey": "date",
+     "xAxisDirection": "horizontal",
+     "xAxisData": "[]",
+     "series": [
+      {
+       "columnName": "sales",
+       "seriesName": "Sales",
+       "dataIndex": "5da52851",
+       "step": ""
+      },
+      {
+       "columnName": "growth",
+       "seriesName": "Growth",
+       "dataIndex": "5500e757",
+       "step": ""
+      }
+     ],
+     "xConfig": {
+      "type": "default"
+     },
+     "yConfig": {
+      "yAxisType": "value"
+     },
+     "legendConfig": {
+      "position": "bottom"
+     },
+     "chartConfig": {
+      "compType": "line",
+      "comp": {
+       "symbol": "emptyCircle",
+       "symbolSize": "4",
+       "polarRadiusStart": "30",
+       "polarRadiusEnd": "80%",
+       "polarStartAngle": "90",
+       "polarEndAngle": "-180",
+       "polarIsTangent": false,
+       "labelData": "[]",
+       "borderType": "solid"
+      }
+     },
+     "animationDuration": "1000",
+     "echartsOption": "{\n  \"data\": [\n    {\n      \"value\": 100,\n      \"name\": \"Show\",\n      \"color\": \"#fc8452\"\n    },\n    {\n      \"value\": 80,\n      \"name\": \"Click\",\n      \"color\": \"#9a60b4\"\n    },\n    {\n      \"value\": 60,\n      \"name\": \"Visit\",\n      \"color\": \"#fac858\"\n    },\n    {\n      \"value\": 40,\n      \"name\": \"Query\",\n      \"color\": \"#ee6666\"\n    },\n    {\n      \"value\": 20,\n      \"name\": \"Buy\",\n      \"color\": \"#3ba272\"\n    }\n  ]\n}",
+     "echartsTitle": "Chart",
+     "echartsLegendConfig": {
+      "position": "bottom"
+     },
+     "echartsLabelConfig": {
+      "position": "inside"
+     },
+     "echartsConfig": {
+      "compType": "funnel",
+      "comp": {}
+     },
+     "echartsTitleVerticalConfig": {
+      "position": "top"
+     },
+     "echartsTitleConfig": {
+      "position": "center"
+     },
+     "left": "10",
+     "right": "10",
+     "top": "20",
+     "bottom": "20",
+     "tooltip": true,
+     "legendVisibility": true,
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "lineChart1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

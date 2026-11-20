@@ -1,0 +1,122 @@
+{
+ "ui": {
+  "layout": {
+   "fed9b1fe": {
+    "i": "fed9b1fe",
+    "h": 50,
+    "w": 9,
+    "x": 0,
+    "y": 0,
+    "pos": 0
+   }
+  },
+  "items": {
+   "fed9b1fe": {
+    "compType": "jsonSchemaForm",
+    "comp": {
+     "formType": "rjsf",
+     "schema": "{\n  \"title\": \"User Information\",\n  \"description\": \"Form Example\",\n  \"type\": \"object\",\n  \"required\": [\n    \"name\",\n    \"phone\"\n  ],\n  \"properties\": {\n    \"name\": {\n      \"type\": \"string\",\n      \"title\": \"Name\"\n    },\n    \"phone\": {\n      \"type\": \"string\",\n      \"title\": \"Phone\",\n      \"minLength\": 11\n    },\n    \"birthday\": {\n      \"type\": \"string\",\n      \"title\": \"Birthday\"\n    }\n  }\n}",
+     "showVerticalScrollbar": false,
+     "uiSchema": "{\n  \"name\": {\n    \"ui:autofocus\": true,\n    \"ui:emptyValue\": \"\"\n  },\n  \"phone\": {\n    \"ui:help\": \"at least 11 characters\"\n  },\n  \"birthday\": {\n    \"ui:widget\": \"date\"\n  }\n}",
+     "autoHeight": "auto",
+     "data": "{\n  \"name\": \"David\",\n  \"phone\": \"13488886666\",\n  \"birthday\": \"1980-03-16\"\n}",
+     "errorSchema": "{\n  \"__errors\": [\n    \"Custom error message for the entire form\"\n  ],\n  \"fieldName\": {\n    \"__errors\": [\n      \"Custom error for specific field\"\n    ]\n  }\n}",
+     "validationState": "{}",
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "jsonSchemaForm1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

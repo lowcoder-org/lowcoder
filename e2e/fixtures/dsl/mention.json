@@ -1,0 +1,127 @@
+{
+ "ui": {
+  "layout": {
+   "104f6603": {
+    "i": "104f6603",
+    "h": 5,
+    "w": 5,
+    "x": 1,
+    "y": 3,
+    "pos": 0
+   }
+  },
+  "items": {
+   "104f6603": {
+    "compType": "mention",
+    "comp": {
+     "defaultValue": "",
+     "value": "",
+     "label": {
+      "text": "Label",
+      "width": "33",
+      "widthUnit": "%",
+      "position": "row",
+      "align": "left"
+     },
+     "validationType": "Text",
+     "autoHeight": "auto",
+     "mentionList": "{\n  \"@\": [\n    \"John Doe\",\n    \"Jane Doe\",\n    \"Michael Smith\",\n    \"Emily Davis\",\n    \"Robert Johnson\",\n    \"Patricia Brown\",\n    \"William Jones\",\n    \"Jennifer Miller\",\n    \"David Wilson\",\n    \"Linda Moore\"\n  ],\n  \"#\": [\n    \"#lowcode\",\n    \"#automation\",\n    \"#appbuilder\",\n    \"#nocode\",\n    \"#workflow\",\n    \"#draganddrop\",\n    \"#rapiddevelopment\",\n    \"#digitaltransformation\",\n    \"#integration\",\n    \"#api\"\n  ]\n}",
+     "invalid": "",
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "mention1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

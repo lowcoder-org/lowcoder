@@ -82,6 +82,8 @@ export const TAGS = {
   CORE: "@core",
   SLOW: "@slow",
   QUARANTINE: "@quarantine",
+  /** Components the browser loads from npm through the app's node-service; the app container needs internet access. */
+  NPM: "@npm",
 } as const;
 
 /**

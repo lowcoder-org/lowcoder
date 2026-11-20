@@ -1,0 +1,127 @@
+{
+ "ui": {
+  "layout": {
+   "31fd7bd9": {
+    "i": "31fd7bd9",
+    "h": 5,
+    "w": 5,
+    "x": 1,
+    "y": 3,
+    "pos": 0
+   }
+  },
+  "items": {
+   "31fd7bd9": {
+    "compType": "colorPicker",
+    "comp": {
+     "defaultValue": "",
+     "value": "#3377ff",
+     "label": {
+      "text": "Label",
+      "width": "33",
+      "widthUnit": "%",
+      "position": "row",
+      "align": "left"
+     },
+     "validationType": "Text",
+     "color": "{}",
+     "trigger": "click",
+     "presets": "{\n  \"label\": \"Recommended\",\n  \"colors\": [\n    \"#000000\",\n    \"#000000E0\",\n    \"#000000A6\",\n    \"#00000073\",\n    \"#00000040\",\n    \"#00000026\",\n    \"#0000001A\",\n    \"#00000012\",\n    \"#0000000A\",\n    \"#00000005\",\n    \"#F5222D\",\n    \"#FA8C16\",\n    \"#FADB14\",\n    \"#8BBB11\",\n    \"#52C41A\",\n    \"#13A8A8\",\n    \"#1677FF\",\n    \"#2F54EB\",\n    \"#722ED1\",\n    \"#EB2F96\",\n    \"#F5222D4D\",\n    \"#FA8C164D\",\n    \"#FADB144D\",\n    \"#8BBB114D\",\n    \"#52C41A4D\",\n    \"#13A8A84D\",\n    \"#1677FF4D\",\n    \"#2F54EB4D\",\n    \"#722ED14D\",\n    \"#EB2F964D\"\n  ]\n}",
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "colorPicker1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

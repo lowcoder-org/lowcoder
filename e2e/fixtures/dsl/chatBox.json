@@ -1,0 +1,143 @@
+{
+ "ui": {
+  "layout": {
+   "42b8e1df": {
+    "i": "42b8e1df",
+    "h": 24,
+    "w": 9,
+    "x": 0,
+    "y": 0,
+    "pos": 0
+   }
+  },
+  "items": {
+   "42b8e1df": {
+    "compType": "chatBox",
+    "comp": {
+     "chatTitle": "Chat",
+     "showHeader": true,
+     "messages": "[]",
+     "currentUserId": "user_1",
+     "currentUserName": "User",
+     "typingUsers": "[]",
+     "isAiThinking": false,
+     "lastSentMessageText": "",
+     "lastSentMessageTagsLlm": "",
+     "messageText": "",
+     "allowMessageFileUpload": true,
+     "maxMessageFiles": "10",
+     "rooms": "[]",
+     "currentRoomId": "",
+     "pendingInvites": "[]",
+     "onlineUsers": "[]",
+     "mentionCandidates": "[]",
+     "showRoomsPanel": true,
+     "roomsPanelWidth": "240px",
+     "allowRoomCreation": true,
+     "allowRoomSearch": true,
+     "pendingRoomId": "",
+     "newRoomName": "",
+     "newRoomType": "public",
+     "newRoomDescription": "",
+     "newRoomLlmQuery": "",
+     "inviteTargetUserId": "",
+     "pendingInviteId": "",
+     "autoHeight": "auto",
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "chatBox1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

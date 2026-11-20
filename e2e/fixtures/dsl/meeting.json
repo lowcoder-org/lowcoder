@@ -1,0 +1,123 @@
+{
+ "ui": {
+  "layout": {}
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  },
+  {
+   "compType": "meeting",
+   "comp": {
+    "visible": "false",
+    "autoHeight": "auto",
+    "placement": "right",
+    "maskClosable": true,
+    "showMask": true,
+    "meetingActive": "false",
+    "audioControl": "false",
+    "videoControl": "true",
+    "endCall": "false",
+    "sharing": "false",
+    "appId": "Agora Application ID",
+    "localUser": "",
+    "localUserID": "d7fac767-6309-4875-9fac-1868d33f3c2c",
+    "localUserName": "",
+    "meetingName": "53cc9ecf-dff1-44cd-b3bb-1c9ff89b2407",
+    "rtmToken": "Agora RTM Token",
+    "rtcToken": "Agora RTC Token",
+    "container": {
+     "layout": {}
+    },
+    "showDataLoadingIndicators": false,
+    "preventStyleOverwriting": false,
+    "appliedThemeId": "",
+    "version": "latest"
+   },
+   "name": "meeting1"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

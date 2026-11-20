@@ -1,0 +1,171 @@
+{
+ "ui": {
+  "layout": {
+   "d513e9a5": {
+    "i": "d513e9a5",
+    "h": 6,
+    "w": 13,
+    "x": 0,
+    "y": 2,
+    "pos": 0
+   }
+  },
+  "items": {
+   "d513e9a5": {
+    "compType": "step",
+    "comp": {
+     "autoHeight": "auto",
+     "initialValue": "",
+     "value": "",
+     "stepStatus": "",
+     "stepPercent": "",
+     "size": "default",
+     "displayType": "default",
+     "direction": "horizontal",
+     "responsive": true,
+     "labelPlacement": "horizontal",
+     "options": {
+      "optionType": "manual",
+      "manual": {
+       "manual": [
+        {
+         "value": "1",
+         "label": "Step 1",
+         "subTitle": "Initialization",
+         "description": "Initial setup of parameters.",
+         "icon": "/icon:solid/play",
+         "status": "finish",
+         "disabled": "false"
+        },
+        {
+         "value": "2",
+         "label": "Step 2",
+         "subTitle": "Execution",
+         "description": "Execution of the main process.",
+         "icon": "/icon:solid/person-running",
+         "status": "process",
+         "disabled": "false"
+        },
+        {
+         "value": "3",
+         "label": "Step 3",
+         "subTitle": "Finalization",
+         "description": "Final steps to complete the process.",
+         "icon": "/icon:solid/circle-check",
+         "status": "wait",
+         "disabled": "true"
+        },
+        {
+         "value": "4",
+         "label": "Step 4",
+         "subTitle": "Completion",
+         "description": "Process completed successfully.",
+         "status": "wait",
+         "disabled": "true"
+        }
+       ]
+      },
+      "mapData": {
+       "data": "[]"
+      }
+     },
+     "showScrollBars": false,
+     "minHorizontalWidth": "180px",
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "step1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

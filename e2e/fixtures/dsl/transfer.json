@@ -1,0 +1,126 @@
+{
+ "ui": {
+  "layout": {
+   "8b98c149": {
+    "i": "8b98c149",
+    "h": 50,
+    "w": 9,
+    "x": 0,
+    "y": 0,
+    "pos": 0
+   }
+  },
+  "items": {
+   "8b98c149": {
+    "compType": "transfer",
+    "comp": {
+     "sourceTitle": "Source Data",
+     "targetTitle": "Target Data",
+     "showSearch": true,
+     "pageSize": "10",
+     "items": "[\n  {\n    \"key\": \"1\",\n    \"title\": \"Content 1\"\n  },\n  {\n    \"key\": \"2\",\n    \"title\": \"Content 2\"\n  },\n  {\n    \"key\": \"3\",\n    \"title\": \"Content 3\"\n  },\n  {\n    \"key\": \"4\",\n    \"title\": \"Content 4\"\n  },\n  {\n    \"key\": \"5\",\n    \"title\": \"Content 5\"\n  },\n  {\n    \"key\": \"6\",\n    \"title\": \"Content 6\"\n  },\n  {\n    \"key\": \"7\",\n    \"title\": \"Content 7\"\n  }\n]",
+     "targetKeys": "[]",
+     "selectedKeys": "[]",
+     "targetObject": "[]",
+     "searchInfo": [
+      "",
+      ""
+     ],
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "transfer1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

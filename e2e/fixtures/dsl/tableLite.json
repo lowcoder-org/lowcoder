@@ -1,0 +1,579 @@
+{
+ "ui": {
+  "layout": {
+   "b61ceeb8": {
+    "i": "b61ceeb8",
+    "h": 40,
+    "w": 9,
+    "x": 0,
+    "y": 0,
+    "pos": 0
+   }
+  },
+  "items": {
+   "b61ceeb8": {
+    "compType": "tableLite",
+    "comp": {
+     "showRowGridBorder": true,
+     "showHRowGridBorder": true,
+     "autoHeight": "auto",
+     "data": "[\n {\n  \"id\": 1,\n  \"name\": \"Reagen Gilberthorpe\",\n  \"date\": \"7/5/2022\",\n  \"department\": \"Marketing\"\n },\n {\n  \"id\": 2,\n  \"name\": \"Haroun Lortzing\",\n  \"date\": \"11/6/2022\",\n  \"department\": \"Human Resources\"\n },\n {\n  \"id\": 3,\n  \"name\": \"Garret Kilmaster\",\n  \"date\": \"11/14/2021\",\n  \"department\": \"Research and Development\"\n },\n {\n  \"id\": 4,\n  \"name\": \"Israel Harrowsmith\",\n  \"date\": \"4/3/2022\",\n  \"department\": \"Training\"\n },\n {\n  \"id\": 5,\n  \"name\": \"Loren O'Lagen\",\n  \"date\": \"9/10/2022\",\n  \"department\": \"Services\"\n },\n {\n  \"id\": 6,\n  \"name\": \"Wallis Hothersall\",\n  \"date\": \"4/18/2022\",\n  \"department\": \"Accounting\"\n },\n {\n  \"id\": 7,\n  \"name\": \"Kaia Biskup\",\n  \"date\": \"3/4/2022\",\n  \"department\": \"Sales\"\n },\n {\n  \"id\": 8,\n  \"name\": \"Travers Saterweyte\",\n  \"date\": \"1/9/2022\",\n  \"department\": \"Human Resources\"\n },\n {\n  \"id\": 9,\n  \"name\": \"Mikey Niemetz\",\n  \"date\": \"1/4/2022\",\n  \"department\": \"Marketing\"\n },\n {\n  \"id\": 10,\n  \"name\": \"Mano Meckiff\",\n  \"date\": \"2/19/2022\",\n  \"department\": \"Research and Development\"\n }\n]",
+     "columns": [
+      {
+       "title": "ID",
+       "showTitle": true,
+       "isCustom": false,
+       "dataIndex": "id",
+       "filterable": false,
+       "width": "55",
+       "autoWidth": "fixed",
+       "render": {
+        "compType": "text",
+        "comp": {
+         "text": "{{currentCell}}"
+        }
+       },
+       "align": "left",
+       "fixed": "close",
+       "background": "",
+       "margin": "",
+       "text": "",
+       "border": "",
+       "borderWidth": "",
+       "radius": "",
+       "textSize": "",
+       "textWeight": "normal",
+       "fontFamily": "sans-serif",
+       "fontStyle": "normal",
+       "textOverflow": "wrap",
+       "linkColor": "#3377ff",
+       "linkHoverColor": "",
+       "linkActiveColor": "",
+       "summaryColumns": [
+        {
+         "isCustom": false,
+         "dataIndex": "",
+         "render": {
+          "compType": "text",
+          "comp": {}
+         },
+         "align": "left",
+         "background": "",
+         "margin": "",
+         "text": "",
+         "border": "",
+         "radius": "",
+         "textSize": "",
+         "textWeight": "normal",
+         "fontFamily": "sans-serif",
+         "fontStyle": "normal",
+         "textOverflow": "wrap",
+         "linkColor": "#3377ff",
+         "linkHoverColor": "",
+         "linkActiveColor": ""
+        },
+        {
+         "isCustom": false,
+         "dataIndex": "",
+         "render": {
+          "compType": "text",
+          "comp": {}
+         },
+         "align": "left",
+         "background": "",
+         "margin": "",
+         "text": "",
+         "border": "",
+         "radius": "",
+         "textSize": "",
+         "textWeight": "normal",
+         "fontFamily": "sans-serif",
+         "fontStyle": "normal",
+         "textOverflow": "wrap",
+         "linkColor": "#3377ff",
+         "linkHoverColor": "",
+         "linkActiveColor": ""
+        },
+        {
+         "isCustom": false,
+         "dataIndex": "",
+         "render": {
+          "compType": "text",
+          "comp": {}
+         },
+         "align": "left",
+         "background": "",
+         "margin": "",
+         "text": "",
+         "border": "",
+         "radius": "",
+         "textSize": "",
+         "textWeight": "normal",
+         "fontFamily": "sans-serif",
+         "fontStyle": "normal",
+         "textOverflow": "wrap",
+         "linkColor": "#3377ff",
+         "linkHoverColor": "",
+         "linkActiveColor": ""
+        }
+       ]
+      },
+      {
+       "title": "Name",
+       "showTitle": true,
+       "isCustom": false,
+       "dataIndex": "name",
+       "filterable": false,
+       "width": "200",
+       "autoWidth": "fixed",
+       "render": {
+        "compType": "text",
+        "comp": {
+         "text": "{{currentCell}}"
+        }
+       },
+       "align": "left",
+       "fixed": "close",
+       "background": "",
+       "margin": "",
+       "text": "",
+       "border": "",
+       "borderWidth": "",
+       "radius": "",
+       "textSize": "",
+       "textWeight": "normal",
+       "fontFamily": "sans-serif",
+       "fontStyle": "normal",
+       "textOverflow": "wrap",
+       "linkColor": "#3377ff",
+       "linkHoverColor": "",
+       "linkActiveColor": "",
+       "summaryColumns": [
+        {
+         "isCustom": false,
+         "dataIndex": "",
+         "render": {
+          "compType": "text",
+          "comp": {}
+         },
+         "align": "left",
+         "background": "",
+         "margin": "",
+         "text": "",
+         "border": "",
+         "radius": "",
+         "textSize": "",
+         "textWeight": "normal",
+         "fontFamily": "sans-serif",
+         "fontStyle": "normal",
+         "textOverflow": "wrap",
+         "linkColor": "#3377ff",
+         "linkHoverColor": "",
+         "linkActiveColor": ""
+        },
+        {
+         "isCustom": false,
+         "dataIndex": "",
+         "render": {
+          "compType": "text",
+          "comp": {}
+         },
+         "align": "left",
+         "background": "",
+         "margin": "",
+         "text": "",
+         "border": "",
+         "radius": "",
+         "textSize": "",
+         "textWeight": "normal",
+         "fontFamily": "sans-serif",
+         "fontStyle": "normal",
+         "textOverflow": "wrap",
+         "linkColor": "#3377ff",
+         "linkHoverColor": "",
+         "linkActiveColor": ""
+        },
+        {
+         "isCustom": false,
+         "dataIndex": "",
+         "render": {
+          "compType": "text",
+          "comp": {}
+         },
+         "align": "left",
+         "background": "",
+         "margin": "",
+         "text": "",
+         "border": "",
+         "radius": "",
+         "textSize": "",
+         "textWeight": "normal",
+         "fontFamily": "sans-serif",
+         "fontStyle": "normal",
+         "textOverflow": "wrap",
+         "linkColor": "#3377ff",
+         "linkHoverColor": "",
+         "linkActiveColor": ""
+        }
+       ]
+      },
+      {
+       "title": "Date",
+       "showTitle": true,
+       "isCustom": false,
+       "dataIndex": "date",
+       "filterable": false,
+       "width": "110",
+       "autoWidth": "fixed",
+       "render": {
+        "compType": "text",
+        "comp": {
+         "text": "{{currentCell}}"
+        }
+       },
+       "align": "left",
+       "fixed": "close",
+       "background": "",
+       "margin": "",
+       "text": "",
+       "border": "",
+       "borderWidth": "",
+       "radius": "",
+       "textSize": "",
+       "textWeight": "normal",
+       "fontFamily": "sans-serif",
+       "fontStyle": "normal",
+       "textOverflow": "wrap",
+       "linkColor": "#3377ff",
+       "linkHoverColor": "",
+       "linkActiveColor": "",
+       "summaryColumns": [
+        {
+         "isCustom": false,
+         "dataIndex": "",
+         "render": {
+          "compType": "text",
+          "comp": {}
+         },
+         "align": "left",
+         "background": "",
+         "margin": "",
+         "text": "",
+         "border": "",
+         "radius": "",
+         "textSize": "",
+         "textWeight": "normal",
+         "fontFamily": "sans-serif",
+         "fontStyle": "normal",
+         "textOverflow": "wrap",
+         "linkColor": "#3377ff",
+         "linkHoverColor": "",
+         "linkActiveColor": ""
+        },
+        {
+         "isCustom": false,
+         "dataIndex": "",
+         "render": {
+          "compType": "text",
+          "comp": {}
+         },
+         "align": "left",
+         "background": "",
+         "margin": "",
+         "text": "",
+         "border": "",
+         "radius": "",
+         "textSize": "",
+         "textWeight": "normal",
+         "fontFamily": "sans-serif",
+         "fontStyle": "normal",
+         "textOverflow": "wrap",
+         "linkColor": "#3377ff",
+         "linkHoverColor": "",
+         "linkActiveColor": ""
+        },
+        {
+         "isCustom": false,
+         "dataIndex": "",
+         "render": {
+          "compType": "text",
+          "comp": {}
+         },
+         "align": "left",
+         "background": "",
+         "margin": "",
+         "text": "",
+         "border": "",
+         "radius": "",
+         "textSize": "",
+         "textWeight": "normal",
+         "fontFamily": "sans-serif",
+         "fontStyle": "normal",
+         "textOverflow": "wrap",
+         "linkColor": "#3377ff",
+         "linkHoverColor": "",
+         "linkActiveColor": ""
+        }
+       ]
+      },
+      {
+       "title": "Department",
+       "showTitle": true,
+       "isCustom": false,
+       "dataIndex": "department",
+       "filterable": false,
+       "width": "250",
+       "autoWidth": "fixed",
+       "render": {
+        "compType": "tag",
+        "comp": {
+         "text": "{{currentCell}}",
+         "tagColors": {
+          "optionType": "manual",
+          "manual": {
+           "manual": [
+            {
+             "label": "Tag1",
+             "icon": "/icon:solid/tag",
+             "colorType": "preset",
+             "presetColor": "blue",
+             "color": "#1890ff",
+             "textColor": "#ffffff",
+             "border": "",
+             "radius": "",
+             "margin": "",
+             "padding": ""
+            },
+            {
+             "label": "Tag2",
+             "icon": "/icon:solid/tag",
+             "colorType": "preset",
+             "presetColor": "green",
+             "color": "#1890ff",
+             "textColor": "#ffffff",
+             "border": "",
+             "radius": "",
+             "margin": "",
+             "padding": ""
+            }
+           ]
+          },
+          "mapData": {
+           "data": "[]",
+           "mapData": {
+            "colorType": "preset",
+            "presetColor": "blue",
+            "color": "#1890ff",
+            "textColor": "#ffffff",
+            "border": "",
+            "radius": "",
+            "margin": "",
+            "padding": ""
+           }
+          }
+         }
+        }
+       },
+       "align": "left",
+       "fixed": "close",
+       "background": "",
+       "margin": "",
+       "text": "",
+       "border": "",
+       "borderWidth": "",
+       "radius": "",
+       "textSize": "",
+       "textWeight": "normal",
+       "fontFamily": "sans-serif",
+       "fontStyle": "normal",
+       "textOverflow": "wrap",
+       "linkColor": "#3377ff",
+       "linkHoverColor": "",
+       "linkActiveColor": "",
+       "summaryColumns": [
+        {
+         "isCustom": false,
+         "dataIndex": "",
+         "render": {
+          "compType": "text",
+          "comp": {}
+         },
+         "align": "left",
+         "background": "",
+         "margin": "",
+         "text": "",
+         "border": "",
+         "radius": "",
+         "textSize": "",
+         "textWeight": "normal",
+         "fontFamily": "sans-serif",
+         "fontStyle": "normal",
+         "textOverflow": "wrap",
+         "linkColor": "#3377ff",
+         "linkHoverColor": "",
+         "linkActiveColor": ""
+        },
+        {
+         "isCustom": false,
+         "dataIndex": "",
+         "render": {
+          "compType": "text",
+          "comp": {}
+         },
+         "align": "left",
+         "background": "",
+         "margin": "",
+         "text": "",
+         "border": "",
+         "radius": "",
+         "textSize": "",
+         "textWeight": "normal",
+         "fontFamily": "sans-serif",
+         "fontStyle": "normal",
+         "textOverflow": "wrap",
+         "linkColor": "#3377ff",
+         "linkHoverColor": "",
+         "linkActiveColor": ""
+        },
+        {
+         "isCustom": false,
+         "dataIndex": "",
+         "render": {
+          "compType": "text",
+          "comp": {}
+         },
+         "align": "left",
+         "background": "",
+         "margin": "",
+         "text": "",
+         "border": "",
+         "radius": "",
+         "textSize": "",
+         "textWeight": "normal",
+         "fontFamily": "sans-serif",
+         "fontStyle": "normal",
+         "textOverflow": "wrap",
+         "linkColor": "#3377ff",
+         "linkHoverColor": "",
+         "linkActiveColor": ""
+        }
+       ]
+      }
+     ],
+     "size": "middle",
+     "selection": {
+      "mode": "single"
+     },
+     "pagination": {
+      "changeablePageSize": null,
+      "pageSizeOptions": "[5, 10, 20, 50]"
+     },
+     "sort": [],
+     "toolbar": {
+      "showRefresh": true,
+      "showDownload": true,
+      "position": "below",
+      "columnSeparator": ","
+     },
+     "summaryRows": "1",
+     "hideToolbar": false,
+     "rowAutoHeight": "auto",
+     "tableAutoHeight": "auto",
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "tableLite1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

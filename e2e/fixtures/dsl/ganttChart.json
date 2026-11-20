@@ -1,0 +1,218 @@
+{
+ "ui": {
+  "layout": {
+   "36981f27": {
+    "i": "36981f27",
+    "h": 60,
+    "w": 13,
+    "x": 0,
+    "y": 0,
+    "pos": 0
+   }
+  },
+  "items": {
+   "36981f27": {
+    "compType": "ganttChart",
+    "comp": {
+     "autoHeight": "auto",
+     "showHeaders": true,
+     "showLegendTable": true,
+     "data": {
+      "optionType": "manual",
+      "manual": {
+       "manual": [
+        {
+         "label": "Some Project",
+         "start": "Sun Nov 01 2026 00:00:00 GMT+0000 (Coordinated Universal Time)",
+         "end": "Sun Nov 15 2026 00:00:00 GMT+0000 (Coordinated Universal Time)",
+         "id": "ProjectSample",
+         "progress": "25",
+         "type": "project",
+         "hideChildren": "false",
+         "displayOrder": "1"
+        },
+        {
+         "label": "Idea",
+         "start": "Sun Nov 01 2026 00:00:00 GMT+0000 (Coordinated Universal Time)",
+         "end": "Mon Nov 02 2026 12:28:00 GMT+0000 (Coordinated Universal Time)",
+         "id": "Task 0",
+         "project": "ProjectSample",
+         "progress": "45",
+         "type": "task",
+         "displayOrder": "2"
+        },
+        {
+         "label": "Research",
+         "start": "Mon Nov 02 2026 00:00:00 GMT+0000 (Coordinated Universal Time)",
+         "end": "Wed Nov 04 2026 00:00:00 GMT+0000 (Coordinated Universal Time)",
+         "id": "Task 1",
+         "project": "ProjectSample",
+         "progress": "25",
+         "type": "task",
+         "displayOrder": "3",
+         "dependencies": "Task 0"
+        },
+        {
+         "label": "Discussion with team",
+         "start": "Wed Nov 04 2026 00:00:00 GMT+0000 (Coordinated Universal Time)",
+         "end": "Sun Nov 08 2026 00:00:00 GMT+0000 (Coordinated Universal Time)",
+         "id": "Task 2",
+         "project": "ProjectSample",
+         "progress": "10",
+         "type": "task",
+         "displayOrder": "4",
+         "dependencies": "Task 1"
+        },
+        {
+         "label": "Developing",
+         "start": "Sun Nov 08 2026 00:00:00 GMT+0000 (Coordinated Universal Time)",
+         "end": "Mon Nov 09 2026 00:00:00 GMT+0000 (Coordinated Universal Time)",
+         "id": "Task 3",
+         "project": "ProjectSample",
+         "progress": "2",
+         "type": "task",
+         "displayOrder": "5",
+         "dependencies": "Task 2"
+        },
+        {
+         "label": "Review",
+         "start": "Sun Nov 08 2026 00:00:00 GMT+0000 (Coordinated Universal Time)",
+         "end": "Tue Nov 10 2026 00:00:00 GMT+0000 (Coordinated Universal Time)",
+         "id": "Task 4",
+         "project": "ProjectSample",
+         "progress": "70",
+         "type": "task",
+         "displayOrder": "6",
+         "dependencies": "Task 2"
+        },
+        {
+         "label": "Release",
+         "start": "Sun Nov 15 2026 00:00:00 GMT+0000 (Coordinated Universal Time)",
+         "end": "Sun Nov 15 2026 00:00:00 GMT+0000 (Coordinated Universal Time)",
+         "id": "Task 6",
+         "project": "ProjectSample",
+         "progress": "10",
+         "type": "milestone",
+         "displayOrder": "7",
+         "dependencies": "Task 4"
+        },
+        {
+         "label": "Party Time",
+         "start": "Wed Nov 18 2026 00:00:00 GMT+0000 (Coordinated Universal Time)",
+         "end": "Thu Nov 19 2026 00:00:00 GMT+0000 (Coordinated Universal Time)",
+         "id": "Task 9",
+         "progress": "0",
+         "type": "task"
+        }
+       ]
+      },
+      "mapData": {
+       "data": "[]"
+      }
+     },
+     "activeViewMode": "Day",
+     "legendWidth": "300px",
+     "headerHeight": "30",
+     "columnWidth": "65",
+     "listCellWidth": "80px",
+     "rowHeight": "40",
+     "handleWidth": "10",
+     "arrowIndent": "20",
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "ganttChart1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

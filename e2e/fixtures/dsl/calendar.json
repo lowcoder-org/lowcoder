@@ -1,0 +1,191 @@
+{
+ "ui": {
+  "layout": {
+   "2fbcc939": {
+    "i": "2fbcc939",
+    "h": 60,
+    "w": 13,
+    "x": 0,
+    "y": 0,
+    "pos": 0
+   }
+  },
+  "items": {
+   "2fbcc939": {
+    "compType": "calendar",
+    "comp": {
+     "events": {
+      "optionType": "manual",
+      "manual": {
+       "manual": [
+        {
+         "id": "1",
+         "label": "Coding",
+         "detail": "Discuss project milestones and deliverables.",
+         "start": "2026-11-20 10:00:00",
+         "end": "2026-11-20 12:30:00",
+         "color": "#079968",
+         "backgroundColor": "#ffffff",
+         "titleColor": "#000000",
+         "detailColor": "#000000",
+         "titleFontWeight": "normal",
+         "titleFontStyle": "italic",
+         "detailFontWeight": "normal",
+         "detailFontStyle": "italic",
+         "animation": "none",
+         "animationDelay": "0s",
+         "animationDuration": "0s",
+         "animationIterationCount": "0"
+        },
+        {
+         "id": "2",
+         "label": "Rest",
+         "start": "2026-11-21",
+         "end": "2026-11-22",
+         "allDay": true,
+         "color": "#079968"
+        },
+        {
+         "id": "3",
+         "label": "event 1",
+         "resourceId": "d1",
+         "start": "2026-11-20 10:00:00",
+         "end": "2026-11-20 17:30:00",
+         "color": "#079968"
+        },
+        {
+         "id": "4",
+         "label": "event 5",
+         "resourceId": "b",
+         "start": "2026-11-20 08:00:00",
+         "end": "2026-11-20 16:30:00",
+         "color": "#079968"
+        },
+        {
+         "id": "5",
+         "label": "event 3",
+         "resourceId": "a",
+         "start": "2026-11-20 12:00:00",
+         "end": "2026-11-20 21:30:00",
+         "color": "#079968"
+        }
+       ]
+      },
+      "mapData": {
+       "data": "[]"
+      }
+     },
+     "resources": "[\n  {\n    \"id\": \"a\",\n    \"title\": \"Auditorium A\"\n  },\n  {\n    \"id\": \"b\",\n    \"title\": \"Auditorium B\",\n    \"eventColor\": \"green\"\n  },\n  {\n    \"id\": \"d\",\n    \"title\": \"Auditorium D\",\n    \"children\": [\n      {\n        \"id\": \"d1\",\n        \"title\": \"Room D1\"\n      },\n      {\n        \"id\": \"d2\",\n        \"title\": \"Room D2\"\n      }\n    ]\n  }\n]",
+     "resourceName": "Rooms",
+     "editable": true,
+     "showEventTime": true,
+     "showWeekends": true,
+     "showAllDay": true,
+     "defaultDate": "{{ new Date() }}",
+     "firstDay": "1",
+     "dayMaxEvents": "2",
+     "eventMaxStack": "0",
+     "licenseKey": "",
+     "currentFreeView": "timeGridWeek",
+     "currentPremiumView": "resourceTimelineDay",
+     "showVerticalScrollbar": false,
+     "showResourceEventsInFreeView": false,
+     "inputFormat": "YYYY-MM-DD HH:mm:ss",
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "calendar1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

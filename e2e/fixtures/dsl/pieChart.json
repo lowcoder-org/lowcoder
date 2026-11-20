@@ -1,0 +1,184 @@
+{
+ "ui": {
+  "layout": {
+   "33c62524": {
+    "i": "33c62524",
+    "h": 40,
+    "w": 9,
+    "x": 0,
+    "y": 0,
+    "pos": 0
+   }
+  },
+  "items": {
+   "33c62524": {
+    "compType": "pieChart",
+    "comp": {
+     "mode": "ui",
+     "title": "Chart",
+     "data": "[\n  {\n    \"category\": \"Market Share\",\n    \"name\": \"Samsung\",\n    \"value\": 21.8\n  },\n  {\n    \"category\": \"Market Share\",\n    \"name\": \"Apple\",\n    \"value\": 20.5\n  },\n  {\n    \"category\": \"Market Share\",\n    \"name\": \"Xiaomi\",\n    \"value\": 13.4\n  },\n  {\n    \"category\": \"Market Share\",\n    \"name\": \"Oppo\",\n    \"value\": 8.8\n  },\n  {\n    \"category\": \"Market Share\",\n    \"name\": \"Vivo\",\n    \"value\": 8.1\n  },\n  {\n    \"category\": \"Market Share\",\n    \"name\": \"Others\",\n    \"value\": 27.4\n  }\n]",
+     "xAxisKey": "name",
+     "xAxisDirection": "horizontal",
+     "xAxisData": "[]",
+     "series": [
+      {
+       "columnName": "value",
+       "seriesName": "value",
+       "showLabel": true,
+       "radius": "30",
+       "left": "",
+       "top": "",
+       "startAngle": "0",
+       "endAngle": "360",
+       "roseType": "none",
+       "labelAlignTo": "none",
+       "labelPosition": "outer",
+       "labelBleedMargin": "5",
+       "labelEdgeDistance": "25%",
+       "labelLineLength": "10",
+       "labelLineLength2": "10",
+       "padAngle": "0",
+       "borderRadius": "0",
+       "dataIndex": "d8ab1a82"
+      }
+     ],
+     "xConfig": {
+      "type": "default"
+     },
+     "yConfig": {
+      "yAxisType": "value"
+     },
+     "legendConfig": {
+      "position": "bottom"
+     },
+     "chartConfig": {
+      "compType": "pie",
+      "comp": {
+       "type": "basicPie",
+       "cellSize": "40",
+       "range": "2021-09",
+       "mapUrl": "https://echarts.apache.org/examples/data/asset/geo/USA.json"
+      }
+     },
+     "echartsOption": "{\n  \"data\": [\n    {\n      \"value\": 100,\n      \"name\": \"Show\",\n      \"color\": \"#fc8452\"\n    },\n    {\n      \"value\": 80,\n      \"name\": \"Click\",\n      \"color\": \"#9a60b4\"\n    },\n    {\n      \"value\": 60,\n      \"name\": \"Visit\",\n      \"color\": \"#fac858\"\n    },\n    {\n      \"value\": 40,\n      \"name\": \"Query\",\n      \"color\": \"#ee6666\"\n    },\n    {\n      \"value\": 20,\n      \"name\": \"Buy\",\n      \"color\": \"#3ba272\"\n    }\n  ]\n}",
+     "echartsTitle": "Chart",
+     "echartsLegendConfig": {
+      "position": "bottom"
+     },
+     "echartsLabelConfig": {
+      "position": "inside"
+     },
+     "echartsConfig": {
+      "compType": "funnel",
+      "comp": {}
+     },
+     "echartsTitleVerticalConfig": {
+      "position": "top"
+     },
+     "echartsTitleConfig": {
+      "position": "center"
+     },
+     "left": "10",
+     "right": "10",
+     "top": "20",
+     "bottom": "20",
+     "tooltip": true,
+     "legendVisibility": true,
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "pieChart1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}
