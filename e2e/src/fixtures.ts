@@ -1,5 +1,5 @@
 import { test as base, expect, type BrowserContext, type Page } from "@playwright/test";
-import { BLOCKED_BY_CLIENT_ERROR, TEST_EMAIL_DOMAIN } from "./constants";
+import { TEST_EMAIL_DOMAIN } from "./constants";
 import { registerUser, type RegisteredUser } from "./api/client";
 
 export interface NetworkGuard {
@@ -13,18 +13,29 @@ export interface NetworkGuard {
  * HubSpot; no test may reach them. Every context a test uses has to get this guard: the `context` of the test
  * gets it from the automatic `networkGuard` fixture, further contexts come from `newUserSession`.
  *
- * Limits: it covers HTTP(S) requests of the pages of the context. It does not cover requests made by the
- * backend inside the application container, and not WebSocket connections (context routes do not see them).
- * Service workers are blocked in the config, so none can bypass the route. The suite never switches the guard off.
+ * It covers HTTP(S) requests and WebSocket connections of the pages of the context. Service workers are blocked
+ * (config and `newUserSession`), so none can bypass the routes. The suite never switches the guard off.
+ *
+ * Limits: it does not cover requests made by the backend inside the application container, nor requests that do
+ * not go through a page of the context.
  */
 export async function installNetworkGuard(context: BrowserContext, baseURL: string): Promise<NetworkGuard> {
-  const allowedOrigin = new URL(baseURL).origin;
+  const allowed = new URL(baseURL);
+  const allowedOrigin = allowed.origin;
   const guard: NetworkGuard = { blockedUrls: [] };
   await context.route(
     (url) => url.origin !== allowedOrigin,
     (route) => {
       guard.blockedUrls.push(route.request().url());
       return route.abort("blockedbyclient");
+    },
+  );
+  // The app's own WebSocket is on its own host (nginx proxies it); any other host is blocked.
+  await context.routeWebSocket(
+    (url) => url.host !== allowed.host,
+    (socket) => {
+      guard.blockedUrls.push(socket.url());
+      return socket.close();
     },
   );
   return guard;
@@ -79,7 +90,7 @@ export const test = base.extend<Fixtures>({
     }
     const sessions: UserSession[] = [];
     await use(async () => {
-      const context = await browser.newContext({ baseURL });
+      const context = await browser.newContext({ baseURL, serviceWorkers: "block" });
       await installNetworkGuard(context, baseURL);
       const session = { context, page: await context.newPage() };
       sessions.push(session);
@@ -89,4 +100,4 @@ export const test = base.extend<Fixtures>({
   },
 });
 
-export { expect, BLOCKED_BY_CLIENT_ERROR };
+export { expect };

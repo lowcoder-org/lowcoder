@@ -24,6 +24,11 @@ export class AppViewPage {
     await this.page.waitForURL(UI_PATHS.LOGIN_IN_ORG);
   }
 
+  /** The message the app shows a signed-in user who may not view it (it names the app owner). */
+  get permissionDeniedMessage(): Locator {
+    return this.page.getByText("It appears you don't have the permission to view").first();
+  }
+
   /** A component addressed by the "Individual ID" property it was given in the DSL. */
   byTestId(testId: string): Locator {
     return this.page.getByTestId(testId);

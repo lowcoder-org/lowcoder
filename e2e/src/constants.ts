@@ -114,3 +114,12 @@ export const POSTGRES = {
 } as const;
 
 export const SEEDED_ITEM_NAMES = ["alpha", "beta"] as const;
+
+/** Component type, panel search text, drop position and generated name of the button the editor tests drop. */
+export const BUTTON_COMP_TYPE = "button";
+export const BUTTON_SEARCH_TEXT = "Button";
+export const FIRST_BUTTON_NAME = "button1";
+export const DROP_TARGET = { x: 120, y: 40 } as const;
+
+/** A WebSocket endpoint on lowcoder.cloud, for the network guard test. */
+export const LOWCODER_CLOUD_WS_URL = "wss://api-service.lowcoder.cloud/e2e-guard-check";

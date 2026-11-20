@@ -1,5 +1,5 @@
 import { createApp, getAppDsl } from "../../src/api/client";
-import { SAVE_POLL_TIMEOUT_MS, TAGS } from "../../src/constants";
+import { BUTTON_COMP_TYPE, BUTTON_SEARCH_TEXT, DROP_TARGET, SAVE_POLL_TIMEOUT_MS, TAGS } from "../../src/constants";
 import { expect, test } from "../../src/fixtures";
 import { EditorPage } from "../../src/pages/EditorPage";
 import { PropertyPanel } from "../../src/pages/PropertyPanel";
@@ -16,7 +16,7 @@ test("a property changed in the editor is shown, saved and still there after a r
   const properties = new PropertyPanel(page);
 
   await editor.open(appId);
-  await editor.dragFromInsertPanel("button", "Button", { x: 120, y: 40 });
+  await editor.dragFromInsertPanel(BUTTON_COMP_TYPE, BUTTON_SEARCH_TEXT, DROP_TARGET);
   await editor.canvasButton(DEFAULT_LABEL).click();
   await properties.setValue("Text", NEW_LABEL);
 

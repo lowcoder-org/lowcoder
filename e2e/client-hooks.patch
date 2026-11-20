@@ -1,0 +1,121 @@
+diff --git a/client/packages/lowcoder-design/src/components/Tab.tsx b/client/packages/lowcoder-design/src/components/Tab.tsx
+index 3828b7e27..a4e447a9f 100644
+--- a/client/packages/lowcoder-design/src/components/Tab.tsx
++++ b/client/packages/lowcoder-design/src/components/Tab.tsx
+@@ -96,6 +96,8 @@ const Tabs = React.memo((props: ITabs) => {
+     return (
+       <IconAndName 
+         key={tab.key} 
++        role="tab"
++        aria-selected={isActive}
+         onClick={() => handleTabClick(tab.key)} 
+         $isActive={isActive}
+       >
+@@ -107,7 +109,7 @@ const Tabs = React.memo((props: ITabs) => {
+ 
+   return (
+     <>
+-      <HeaderDiv>
++      <HeaderDiv role="tablist">
+         {tabsConfig.map(renderTab)}
+       </HeaderDiv>
+       <ChildDiv>{activeTab.content}</ChildDiv>
+diff --git a/client/packages/lowcoder/src/layout/gridItem.tsx b/client/packages/lowcoder/src/layout/gridItem.tsx
+index 8d02232bf..e48396abf 100644
+--- a/client/packages/lowcoder/src/layout/gridItem.tsx
++++ b/client/packages/lowcoder/src/layout/gridItem.tsx
+@@ -278,6 +278,7 @@ export const GridItem = React.memo((props: GridItemProps) => {
+     return (
+       <div
+         className={testSelectorClass}
++        data-comp-name={props.name}
+         ref={elementRef}
+         draggable={isDraggable}
+         onDragStart={isDraggable ? onDragStart : undefined}
+diff --git a/client/packages/lowcoder/src/pages/editor/appEditorInternal.tsx b/client/packages/lowcoder/src/pages/editor/appEditorInternal.tsx
+index 161fadf16..44ee07a27 100644
+--- a/client/packages/lowcoder/src/pages/editor/appEditorInternal.tsx
++++ b/client/packages/lowcoder/src/pages/editor/appEditorInternal.tsx
+@@ -32,13 +32,17 @@ import { isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSel
+  * FIXME: optimize the logic of saving comps
+  * compose debounce + throttle
+  * make sure savingComps succeed before executing
++ *
++ * Returns whether the baseline exists: the first comp state seen after mounting is taken as the baseline and is
++ * never sent, so an edit that lands before this is true is not saved. It is false while the app is read-only or
++ * editing is blocked, because no baseline is taken then.
+  */
+ function useSaveComp(
+   applicationId: string,
+   readOnly: boolean,
+   rootCompInstance: RootCompInstanceType | undefined,
+   blockEditing?: boolean,
+-) {
++): boolean {
+   const originalComp = rootCompInstance?.comp;
+   // throttle comp change
+   const comp = useThrottle(originalComp, 1000);
+@@ -100,6 +104,9 @@ function useSaveComp(
+     setPrevJsonStr(undefined);
+     setPrevAppId(undefined);
+   });
++
++  // Saving is off while read-only or blocked, so no edit is saved then, whatever baseline was taken before.
++  return Boolean(prevJsonStr) && !readOnly && !blockEditing;
+ }
+ 
+ const exportAppToJson = (appDSL?: any) => {
+@@ -216,7 +223,7 @@ export const AppEditorInternalView = React.memo((props: AppEditorInternalViewPro
+     };
+   }, [isUserViewMode]);
+ 
+-  useSaveComp(appInfo.id, readOnly, compInstance, blockEditing);
++  const saveBaselineTaken = useSaveComp(appInfo.id, readOnly, compInstance, blockEditing);
+ 
+   const loading =
+     !compInstance || !compInstance.comp || !compInstance.comp.preloaded || props.loading;
+@@ -246,6 +253,8 @@ export const AppEditorInternalView = React.memo((props: AppEditorInternalViewPro
+       }}
+     >
+       <ExternalEditorContext.Provider value={externalEditorState}>
++        {/* Tells tests (and anything else watching the DOM) that edits made from now on are saved. */}
++        {saveBaselineTaken && <span hidden data-editor-ready="true" />}
+         {compInstance?.comp?.getView()}
+       </ExternalEditorContext.Provider>
+     </ConfigProvider>
+diff --git a/client/packages/lowcoder/src/pages/editor/right/ModulePanel.tsx b/client/packages/lowcoder/src/pages/editor/right/ModulePanel.tsx
+index 5b216cd70..8eee8cb09 100644
+--- a/client/packages/lowcoder/src/pages/editor/right/ModulePanel.tsx
++++ b/client/packages/lowcoder/src/pages/editor/right/ModulePanel.tsx
+@@ -228,6 +228,7 @@ function ModuleItem(props: ModuleItemProps) {
+     return (
+         <ItemWrapper
+             draggable
++            data-testid={`insert-comp-${compType}`}
+             onDragStart={(e) => {
+                 e.stopPropagation();
+                 e.dataTransfer.setData("compType", compType);
+diff --git a/client/packages/lowcoder/src/pages/editor/right/PluginPanel/PluginCompItem.tsx b/client/packages/lowcoder/src/pages/editor/right/PluginPanel/PluginCompItem.tsx
+index bbf8123c8..ce5e1fd73 100644
+--- a/client/packages/lowcoder/src/pages/editor/right/PluginPanel/PluginCompItem.tsx
++++ b/client/packages/lowcoder/src/pages/editor/right/PluginPanel/PluginCompItem.tsx
+@@ -85,6 +85,7 @@ export function PluginCompItem(props: PluginCompItemProps) {
+   return (
+     <ItemWrapper
+       draggable
++      data-testid={`insert-comp-${compType}`}
+       onDragStart={(e) => {
+         e.dataTransfer.setData("compType", compType);
+         e.dataTransfer.setDragImage(TransparentImg, 0, 0);
+diff --git a/client/packages/lowcoder/src/pages/editor/right/uiCompPanel.tsx b/client/packages/lowcoder/src/pages/editor/right/uiCompPanel.tsx
+index b12d59f31..9cb3009a0 100644
+--- a/client/packages/lowcoder/src/pages/editor/right/uiCompPanel.tsx
++++ b/client/packages/lowcoder/src/pages/editor/right/uiCompPanel.tsx
+@@ -175,6 +175,7 @@ export const UICompPanel = () => {
+                     <CompDiv key={info[0]} className={info[0] === "table" ? tableDragClassName : ""}>
+                       <HovDiv
+                         draggable
++                        data-testid={`insert-comp-${info[0]}`}
+                         onDragStart={(e) => {
+                           e.dataTransfer.setData("compType", info[0]);
+                           e.dataTransfer.setDragImage(TransparentImg, 0, 0);
