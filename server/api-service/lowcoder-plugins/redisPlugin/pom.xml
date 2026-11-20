@@ -16,9 +16,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
         <plugin.id>redis-plugin</plugin.id>
         <plugin.class>org.lowcoder.plugin.redis.RedisPlugin</plugin.class>
         <plugin.version>${revision}</plugin.version>

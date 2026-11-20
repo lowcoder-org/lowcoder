@@ -1,7 +1,7 @@
 ##
 ## Build Lowcoder api-service application
 ##
-FROM maven:3.9-eclipse-temurin-17 AS build-api-service
+FROM maven:3.9-eclipse-temurin-25 AS build-api-service
 
 # Build lowcoder-api
 COPY ./server/api-service /lowcoder-server
@@ -26,7 +26,7 @@ RUN chmod +x /lowcoder/api-service/*.sh
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-api-service --target lowcoder-ce-api-service .
 ##
-FROM eclipse-temurin:17.0.21_9-jdk-jammy AS lowcoder-ce-api-service
+FROM eclipse-temurin:25-jdk-jammy AS lowcoder-ce-api-service
 LABEL maintainer="lowcoder"
 
 RUN apt-get update && apt-get install -y --no-install-recommends gosu \
@@ -377,7 +377,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-ins
       supervisor \
       gosu \
       nodejs=22.23.5-1nodesource1 \
-      openjdk-17-jdk-headless=17.0.21.1+2-1~22.04.1 \
+      openjdk-25-jdk-headless \
   && npm install -g yarn \
   && rm -rf /var/cache/apt/lists /var/lib/apt/lists/* /var/log/dpkg.log \
   && apt-get clean \

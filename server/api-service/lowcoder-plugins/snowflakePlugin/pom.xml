@@ -13,9 +13,6 @@
     <artifactId>snowflakePlugin</artifactId>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <plugin.id>snowflake-plugin</plugin.id>
