@@ -98,6 +98,7 @@ class ContractTestClientTest {
     private static final String FORWARDED_FOR_HEADER = "X-Forwarded-For";
     private static final String PLUGIN_INFO_CLASS = "org.lowcoder.api.framework.plugin.LowcoderPluginManager$PluginInfo";
     /** E9: what the production error handler writes for an unexpected exception. */
+    private static final String NOT_FOUND_BODY = "{\"code\":404,\"message\":\"Not Found\",\"success\":false}";
     private static final String SERVICE_BUSY_BODY = "{\"code\":5000,\"message\":\"Oops! Service is busy, please try again later.\",\"success\":false}";
 
     // ---- a test controller whose payloads show which mapper and which view the harness applies ----
@@ -249,7 +250,7 @@ class ContractTestClientTest {
             default -> chain.filter(exchange);
         };
         try (ContractTestClient client = ContractTestClient.builder().webFilter(failing).build()) {
-            CanonicalJson.assertEquivalent(SERVICE_BUSY_BODY, get(client.web(), UNKNOWN_PATH, HttpStatus.INTERNAL_SERVER_ERROR));
+            CanonicalJson.assertEquivalent(NOT_FOUND_BODY, get(client.web(), UNKNOWN_PATH, HttpStatus.NOT_FOUND));
             CanonicalJson.assertEquivalent(SERVICE_BUSY_BODY, get(client.web(), FAILING_FILTER_PATH, HttpStatus.INTERNAL_SERVER_ERROR));
             CanonicalJson.assertEquivalent("{\"code\":403,\"message\":\"Forbidden\",\"success\":false}",
                     get(client.web(), REJECTING_FILTER_PATH, HttpStatus.FORBIDDEN));
