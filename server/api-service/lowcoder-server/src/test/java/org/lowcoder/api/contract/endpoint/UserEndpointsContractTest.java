@@ -488,14 +488,15 @@ class UserEndpointsContractTest {
 
     /**
      * {@code deleteProfilePhoto} maps the service's {@code Mono<Void>} to a {@code ResponseView}, which never happens:
-     * the answer is HTTP 200 with a JSON {@code Content-Type} and an empty body, not an envelope (O21).
+     * the answer is HTTP 200 with an empty body and no {@code Content-Type}, not an envelope (O21). Spring Framework 6.1
+     * still set the JSON type of the body it would have written; 6.2 sets none for an empty body.
      */
     @Test
     void deleteProfilePhoto() {
         Mockito.when(userService.deleteProfilePhoto(VISITOR)).thenReturn(Mono.empty());
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "deleteProfilePhoto", Map.of(), null);
-            EndpointContract.assertEmptyResponse(result, HttpStatus.OK, MediaType.APPLICATION_JSON);
+            EndpointContract.assertEmptyResponse(result, HttpStatus.OK, NO_CONTENT_TYPE);
             Mockito.verify(userService).deleteProfilePhoto(VISITOR);
         }
     }
@@ -508,7 +509,7 @@ class UserEndpointsContractTest {
         Mockito.when(userService.deleteProfilePhoto(member)).thenReturn(Mono.empty());
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "deleteProfilePhotoById", Map.of(), null, ORG_ID, USER_ID);
-            EndpointContract.assertEmptyResponse(result, HttpStatus.OK, MediaType.APPLICATION_JSON);
+            EndpointContract.assertEmptyResponse(result, HttpStatus.OK, NO_CONTENT_TYPE);
             Mockito.verify(userService).deleteProfilePhoto(member);
         }
     }
@@ -700,12 +701,12 @@ class UserEndpointsContractTest {
         }
     }
 
-    /** A blank email: the controller answers an empty {@code Mono}, so HTTP 200, JSON, with an empty body (O21). */
+    /** A blank email: the controller answers an empty {@code Mono}, so HTTP 200 with an empty body and no {@code Content-Type} (O21). */
     @Test
     void lostPasswordWithoutEmail() {
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "lostPassword", Map.of(), "{\"userEmail\": \"" + BLANK + "\"}");
-            EndpointContract.assertEmptyResponse(result, HttpStatus.OK, MediaType.APPLICATION_JSON);
+            EndpointContract.assertEmptyResponse(result, HttpStatus.OK, NO_CONTENT_TYPE);
             Mockito.verifyNoInteractions(userApiService);
         }
     }

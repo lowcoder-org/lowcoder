@@ -17,19 +17,19 @@ public final class MongoConnectionUriParser {
      *   - mongodb+srv://user:pass@some-url/some-db...
      *   - mongodb://user:pass@some-url:port,some-url:port,.../some-db...
      * - It has been grouped like this: (mongodb+srv://)(user):(pass)@(some-url)/(some-db...)?(params...)
-     * - User and password are matched only in the authority, before the first / (CREDENTIAL_PART), as the driver reads
-     *   them (driver 4.11: the authority ends at the first /, so a ? before it belongs to the credentials): a : and a later
-     *   @ in the path or the options are not credentials (BF-060: they were, and the database was lost or another one was
-     *   taken). The URIs this changes are exactly those where the credentials were taken across a /; each is now read with
-     *   the / ending the authority, or is invalid when that leaves no host (mongodb:///:p@h/db). The host list
-     *   (HOST_LIST_PART) ends at the first / or ?, as before.
+     * - User and password are matched only in the authority, which ends at the first / or ? (CREDENTIAL_PART), as the
+     *   driver reads it (driver 5.5): a : and a later @ in the path or the options are not credentials (BF-060: they were,
+     *   and the database was lost or another one was taken), and neither is a ? with what follows it. So
+     *   mongodb://u?x:p?q@h/db?a=1 is host u, no credentials, no database and the options x:p?q@h/db?a=1, which is how the
+     *   driver reads it. The URIs this changes are exactly those where the credentials were taken across a / or a ?; each
+     *   is now read with that / or ? ending the authority, or is invalid when that leaves no host (mongodb:///:p@h/db).
+     *   The host list (HOST_LIST_PART) ends at the first / or ?, as before.
      * - Limits: this is a split, not the driver's check. A URI the driver refuses can still match: an unencoded /, : or @
-     *   in the credentials (mongodb://u:p/ss@h/db is read as host u:p, database ss@h/db), options without a / before the ?,
-     *   or a / in the database name. The driver refuses such a URI when it connects.
+     *   in the credentials (mongodb://u:p/ss@h/db is read as host u:p, database ss@h/db), or a / in the database name. The driver refuses such a URI when it connects.
      *
-     * ^(mongodb(?:\+srv)?:\/\/)(?:([^\/]+):([^\/]+)@)?([^\/\?]+)\/?([^\?]+)?\??(.+)?$
+     * ^(mongodb(?:\+srv)?:\/\/)(?:([^\/\?]+):([^\/\?]+)@)?([^\/\?]+)\/?([^\?]+)?\??(.+)?$
      */
-    private static final String CREDENTIAL_PART = "[^/]+";
+    private static final String CREDENTIAL_PART = "[^/?]+";
 
     private static final String HOST_LIST_PART = "[^/?]+";
 

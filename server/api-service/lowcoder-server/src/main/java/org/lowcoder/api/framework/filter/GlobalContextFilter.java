@@ -98,7 +98,8 @@ public class GlobalContextFilter implements WebFilter, Ordered {
                 .collect(toMap(v -> v.getKey().substring((MDC_HEADER_PREFIX.length())), Map.Entry::getValue));
         contextMap.put(VISITOR_ID, visitorId);
         contextMap.put(CLIENT_IP, NetworkUtils.getRemoteIp(serverWebExchange));
-        contextMap.put(REQUEST_ID_LOG, getOrCreateRequestId(request));
+        String requestId = getOrCreateRequestId(request);
+        contextMap.put(REQUEST_ID_LOG, requestId);
         contextMap.put(REQUEST_PATH, request.getPath().pathWithinApplication().value());
         contextMap.put(REQUEST, request);
         contextMap.put(REQUEST_METHOD, ofNullable(request.getMethod()).map(HttpMethod::name).orElse(""));
@@ -113,17 +114,13 @@ public class GlobalContextFilter implements WebFilter, Ordered {
         //Analytics related fields
         MultiValueMap<String, String> headers = writableHttpHeaders(request.getHeaders());
         headers.remove("Cookie");
+        headers.addIfAbsent(REQUEST_ID_HEADER, requestId);
         contextMap.put(HEADERS, headers);
         return contextMap;
     }
 
-    @SuppressWarnings("ConstantConditions")
     private String getOrCreateRequestId(final ServerHttpRequest request) {
-        if (!request.getHeaders().containsKey(REQUEST_ID_HEADER)) {
-            request.mutate().header(REQUEST_ID_HEADER, generate()).build();
-        }
-
-        return request.getHeaders().get(REQUEST_ID_HEADER).get(0);
+        return ofNullable(request.getHeaders().getFirst(REQUEST_ID_HEADER)).orElseGet(() -> generate());
     }
 
     @Override

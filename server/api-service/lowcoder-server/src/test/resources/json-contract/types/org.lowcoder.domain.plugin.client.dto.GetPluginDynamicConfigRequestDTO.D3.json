@@ -1,0 +1,42 @@
+{
+  "dataSourceId" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "pluginName" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "path" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  },
+  "dataSourceConfig" : {
+    "absent" : {
+      "class" : "null",
+      "value" : "null"
+    },
+    "null" : {
+      "class" : "null",
+      "value" : "null"
+    }
+  }
+}
