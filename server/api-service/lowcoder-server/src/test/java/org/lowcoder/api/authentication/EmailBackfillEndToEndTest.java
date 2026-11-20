@@ -34,7 +34,7 @@ import org.lowcoder.sdk.util.HashUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -72,7 +72,7 @@ public class EmailBackfillEndToEndTest {
     @Autowired
     private OrgMemberService orgMemberService;
     /** Replaces the SMTP sender; no other case of this class requests a password reset mail. */
-    @MockBean
+    @MockitoBean
     private EmailCommunicationService emailCommunicationService;
 
     private static final Duration RESET_TOKEN_LIFETIME = Duration.ofHours(12);

@@ -26,7 +26,7 @@ import java.util.Locale;
 @Configuration
 public class CustomWebFluxConfiguration extends DelegatingWebFluxConfiguration
 {
-	@Value("${spring.codec.max-in-memory-size:20MB}")
+	@Value("${spring.http.codecs.max-in-memory-size:${spring.codec.max-in-memory-size:20MB}}")
 	private String codecMaxInMemorySize = "20MB";
 
 	@Bean

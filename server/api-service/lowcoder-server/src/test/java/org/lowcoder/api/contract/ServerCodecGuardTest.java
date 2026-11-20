@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ServerCodecGuardTest {
 
     private static final String OBJECT_MAPPER_BEAN_NAME = "objectMapper";
-    /** E7: {@code spring.codec.max-in-memory-size} defaults to 20MB ({@code CustomWebFluxConfiguration.java:29-30}). */
+    /** E7: {@code spring.http.codecs.max-in-memory-size} defaults to 20MB ({@code CustomWebFluxConfiguration.java:29-30}). */
     static final int SERVER_MAX_IN_MEMORY_SIZE = 20 * 1024 * 1024;
     /** E3: Jackson's defaults, which {@code JsonUtils} does not override. */
     private static final int MAX_NESTING_DEPTH = 1000;

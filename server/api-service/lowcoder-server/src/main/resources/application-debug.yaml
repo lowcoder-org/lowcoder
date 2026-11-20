@@ -8,8 +8,9 @@ spring:
   main:
     allow-bean-definition-overriding: false
     allow-circular-references: false
-  codec:
-    max-in-memory-size: 20MB
+  http:
+    codecs:
+      max-in-memory-size: 20MB
   webflux:
     base-path: /
   mail:
