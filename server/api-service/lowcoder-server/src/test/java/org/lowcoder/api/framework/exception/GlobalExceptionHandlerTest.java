@@ -137,7 +137,7 @@ class GlobalExceptionHandlerTest {
 
         body(handler.catchBizException(new BizException(BizError.USER_BANNED, "USER_BANNED"), exchange), Locale.ENGLISH);
 
-        assertThat(exchange.getResponse().getHeaders()).doesNotContainKey("X-ORG-ID");
+        assertThat(exchange.getResponse().getHeaders().containsHeader("X-ORG-ID")).as("X-ORG-ID header on the error response").isFalse();
         assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

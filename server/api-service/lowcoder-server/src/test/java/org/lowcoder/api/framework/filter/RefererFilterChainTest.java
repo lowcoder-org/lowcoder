@@ -26,9 +26,8 @@ import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.constants.Authentication;
 import org.lowcoder.sdk.util.CookieHelper;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.autoconfigure.web.WebProperties;
-import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
+import org.springframework.boot.webflux.error.DefaultErrorAttributes;
 import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
@@ -91,7 +90,7 @@ class RefererFilterChainTest {
         ObjectProvider<ViewResolver> viewResolvers = mock(ObjectProvider.class);
         when(viewResolvers.orderedStream()).thenAnswer(invocation -> Stream.<ViewResolver>empty());
         CustomErrorWebExceptionHandler errorHandler = new CustomErrorWebExceptionHandler(new DefaultErrorAttributes(),
-                new WebProperties.Resources(), new ServerProperties(), new StaticApplicationContext(), viewResolvers,
+                new WebProperties.Resources(), new WebProperties(), new StaticApplicationContext(), viewResolvers,
                 ServerCodecConfigurer.create());
         ReflectionTestUtils.setField(errorHandler, "apiPerfHelper", mock(ApiPerfHelper.class));
         ReflectionTestUtils.setField(errorHandler, "globalContextService", new GlobalContextServiceImpl());

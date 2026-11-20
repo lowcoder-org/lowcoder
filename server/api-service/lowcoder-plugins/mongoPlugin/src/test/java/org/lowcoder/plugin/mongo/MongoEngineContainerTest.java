@@ -144,9 +144,10 @@ public class MongoEngineContainerTest {
         MongoConnection closing = ENGINE.createConnection(CONFIG).block(BLOCK_TIMEOUT);
         assertEquals(1.0, closing.ping().block(BLOCK_TIMEOUT).get("ok"));
         ENGINE.destroyConnection(closing).block(BLOCK_TIMEOUT);
-        QueryExecutionResult after = run(closing, form("COUNT", collection("closed")), Map.of());
-        assertEquals("MONGO_EXECUTION_ERROR", after.getQueryCode(), "observed: a closed client gives an error result, not an exception");
-        assertEquals("MONGODB_EXECUTE_ERROR", after.getMessageKey());
+        PluginException thrown = assertThrows(PluginException.class, () -> run(closing, form("COUNT", collection("closed")), Map.of()),
+                "observed with driver 5.8: a closed client refuses the command when it is issued, as a command error");
+        assertEquals("MONGODB_COMMAND_ERROR", thrown.getMessageKey());
+        assertTrue(thrown.getMessage().contains("state should be: open"), "the driver's reason is in the message: " + thrown.getMessage());
     }
 
     // ---- commands

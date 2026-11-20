@@ -3,6 +3,7 @@ package org.lowcoder.api.framework.plugin.data;
 import org.lowcoder.plugin.api.PluginEndpoint;
 import org.lowcoder.plugin.api.PluginEndpoint.Method;
 import org.lowcoder.plugin.api.data.EndpointRequest;
+import org.lowcoder.sdk.util.HttpHeaderMaps;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -52,7 +53,7 @@ public class PluginServerRequest implements EndpointRequest
 		if (request.headers() != null)
 		{
 			HttpHeaders httpHeaders = request.headers().asHttpHeaders();
-			psr.headers = httpHeaders;
+			psr.headers = HttpHeaderMaps.copyOf(httpHeaders);
 		}
 		
 		if (request.cookies() != null)

@@ -28,9 +28,11 @@ import org.lowcoder.sdk.plugin.restapi.auth.BasicAuthConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType;
 import org.lowcoder.sdk.query.QueryVisitorContext;
 import org.lowcoder.sdk.util.CookieForwarding;
+import org.lowcoder.sdk.util.HttpHeaderMaps;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.lowcoder.sdk.util.MoreMapUtils;
 import org.lowcoder.sdk.util.MustacheHelper;
+import org.lowcoder.sdk.webclient.Jackson2ClientCodecs;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
 import org.lowcoder.sdk.webclient.WebClientRedirects;
 import org.pf4j.Extension;
@@ -39,7 +41,6 @@ import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -53,6 +54,7 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -87,7 +89,10 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
             "application/x-binary");
     private final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies
             .builder()
-            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(10 * 1024 * 1024))
+            .codecs(configurer -> {
+                Jackson2ClientCodecs.apply(configurer);
+                configurer.defaultCodecs().maxInMemorySize(10 * 1024 * 1024);
+            })
             .build();
     private final Scheduler scheduler = QueryExecutionUtils.querySharedScheduler();
     private final DataUtils dataUtils = DataUtils.getInstance();
@@ -278,7 +283,6 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
                             context.getQueryBody(),
                             context.getBodyParams());
                     return httpCall(client, context.getHttpMethod(), uri, bodyInserter, 0, authConfig, DEFAULT_HEADERS_CONSUMER, false)
-                            .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                             .map(this::convertToQueryExecutionResult)
                             .onErrorResume(error -> {
                                 if (error instanceof TimeoutException) {
@@ -309,7 +313,7 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
      * Limits: the flag is not kept per URI, so a redirect back to an answered URI is answered again (within MAX_REDIRECTS);
      * a challenge with {@code stale=true} (an expired nonce, right credentials) is not answered a second time; it gets the 401.
      */
-    private Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod,
+    private Mono<ResponseEntity<byte[]>> httpCall(WebClient webClient, HttpMethod httpMethod,
             URI uri,
             BodyInserter<?, ? super ClientHttpRequest> requestBody,
             int iteration,
@@ -320,44 +324,49 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
             return Mono.error(new PluginException(QUERY_EXECUTION_ERROR, "REACH_REDIRECT_LIMIT", MAX_REDIRECTS));
         }
 
-        return webClient
-                .method(httpMethod)
-                .uri(uri)
-                .headers(headersConsumer)
-                .body(requestBody)
-                .exchange()
-                .onErrorMap(e -> new PluginException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR", e.getMessage()))
-                .flatMap(response -> {
-                    String redirectUrl = WebClientRedirects.redirectLocation(response); // BF-113: null for a 3xx without a Location
-                    if (redirectUrl != null) {
-                        URI redirectUri;
-                        try {
-                            redirectUri = WebClientRedirects.resolveLocation(uri, redirectUrl);
-                        } catch (URISyntaxException e) {
-                            return Mono.error(new PluginException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR",
-                                    e.getMessage()));
+        // Only a failure before the response arrives is wrapped; what follows (a redirect, a digest answer, reading the
+        // body) reports its own error, as the nested call has already wrapped its own.
+        return Mono.defer(() -> {
+            AtomicBoolean responseReceived = new AtomicBoolean();
+            return webClient
+                    .method(httpMethod)
+                    .uri(uri)
+                    .headers(headersConsumer)
+                    .body(requestBody)
+                    .exchangeToMono(response -> {
+                        responseReceived.set(true);
+                        String redirectUrl = WebClientRedirects.redirectLocation(response); // BF-113: null for a 3xx without a Location
+                        if (redirectUrl != null) {
+                            URI redirectUri;
+                            try {
+                                redirectUri = WebClientRedirects.resolveLocation(uri, redirectUrl);
+                            } catch (URISyntaxException e) {
+                                return Mono.<ResponseEntity<byte[]>>error(new PluginException(QUERY_EXECUTION_ERROR,
+                                        "QUERY_EXECUTION_ERROR", e.getMessage()));
+                            }
+                            if (WebClientRedirects.isSameOrigin(uri, redirectUri)) {
+                                return httpCall(webClient, httpMethod, redirectUri, requestBody, iteration + 1, authConfig, headersConsumer, false);
+                            }
+                            // another origin: only content headers, no forwarded cookies, no digest answer
+                            return httpCall(WebClientRedirects.forAnotherOrigin(webClient), httpMethod, redirectUri, requestBody,
+                                    iteration + 1, null, DEFAULT_HEADERS_CONSUMER, false);
                         }
-                        if (WebClientRedirects.isSameOrigin(uri, redirectUri)) {
-                            return httpCall(webClient, httpMethod, redirectUri, requestBody, iteration + 1, authConfig, headersConsumer, false);
+                        //digest auth
+                        if (!digestAnswered && authConfig != null && authConfig.getType() == DIGEST_AUTH && AuthHelper.shouldDigestAuth(response)) {
+                            try {
+                                return httpCall(webClient, httpMethod, uri, requestBody, iteration + 1, authConfig,
+                                        headersConsumer.andThen(
+                                                AuthHelper.digestAuth((BasicAuthConfig) authConfig, response, httpMethod, uri.getPath())), true);
+                            } catch (ParseException e) {
+                                return Mono.<ResponseEntity<byte[]>>error(new PluginException(QUERY_EXECUTION_ERROR,
+                                        "QUERY_EXECUTION_ERROR", e.getMessage()));
+                            }
                         }
-                        // another origin: only content headers, no forwarded cookies, no digest answer
-                        return httpCall(WebClientRedirects.forAnotherOrigin(webClient), httpMethod, redirectUri, requestBody,
-                                iteration + 1, null, DEFAULT_HEADERS_CONSUMER, false);
-                    }
-                    //digest auth
-                    if (!digestAnswered && authConfig != null && authConfig.getType() == DIGEST_AUTH && AuthHelper.shouldDigestAuth(response)) {
-                        try {
-                            return httpCall(webClient, httpMethod, uri, requestBody, iteration + 1, authConfig,
-                                    headersConsumer.andThen(
-                                            AuthHelper.digestAuth((BasicAuthConfig) authConfig, response, httpMethod, uri.getPath())), true);
-                        } catch (ParseException e) {
-                            return Mono.error(new PluginException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR",
-                                    e.getMessage()));
-                        }
-                    }
-                    return Mono.just(response);
-                })
-                .subscribeOn(scheduler);
+                        return response.toEntity(byte[].class);
+                    })
+                    .onErrorMap(e -> !responseReceived.get(),
+                            e -> new PluginException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR", e.getMessage()));
+        }).subscribeOn(scheduler);
     }
 
     private QueryExecutionResult convertToQueryExecutionResult(ResponseEntity<byte[]> stringResponseEntity) {
@@ -383,7 +392,7 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
         // Convert the headers into json tree to store in the results
         String headerInJsonString;
         try {
-            headerInJsonString = toJsonThrows(headers);
+            headerInJsonString = toJsonThrows(HttpHeaderMaps.copyOf(headers));
         } catch (JsonProcessingException e) {
             throw new PluginException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR", e.getMessage());
         }

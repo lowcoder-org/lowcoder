@@ -7,9 +7,9 @@ import org.lowcoder.infra.birelation.BiRelationServiceImpl;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.lowcoder.sdk.event.BeforeSaveEvent;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.autoconfigure.mongo.MongoReactiveAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.mongo.MongoReactiveRepositoriesAutoConfiguration;
+import org.springframework.boot.mongodb.autoconfigure.MongoReactiveAutoConfiguration;
+import org.springframework.boot.data.mongodb.autoconfigure.DataMongoReactiveAutoConfiguration;
+import org.springframework.boot.data.mongodb.autoconfigure.DataMongoReactiveRepositoriesAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.event.EventListener;
@@ -28,8 +28,8 @@ import reactor.core.publisher.Mono;
  * class to the full-application tests. A class passed in {@code @SpringBootTest(classes=...)} is processed as a lite
  * configuration (its {@code @Import}, {@code @Enable...} and {@code @Bean} methods), which is all this needs.
  */
-@ImportAutoConfiguration({MongoReactiveAutoConfiguration.class, MongoReactiveDataAutoConfiguration.class,
-        MongoReactiveRepositoriesAutoConfiguration.class})
+@ImportAutoConfiguration({MongoReactiveAutoConfiguration.class, DataMongoReactiveAutoConfiguration.class,
+        DataMongoReactiveRepositoriesAutoConfiguration.class})
 @org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories(basePackages = "org.lowcoder.infra.birelation")
 @EnableReactiveMongoAuditing
 @Import({MongoUpsertHelper.class, BiRelationServiceImpl.class})

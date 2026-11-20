@@ -92,7 +92,7 @@ class WebClientRedirectsTest {
         assertThat(original.headers().get(HttpHeaders.AUTHORIZATION)).containsExactly("Basic dXNlcjpzZWNyZXQ=");
         assertThat(original.headers().get("X-Api-Key")).containsExactly("key");
         assertThat(original.cookies().get("a")).containsExactly("1");
-        assertThat(other.headers().keySet().stream().map(name -> name.toLowerCase(Locale.ROOT)))
+        assertThat(other.headers().headerNames().stream().map(name -> name.toLowerCase(Locale.ROOT)))
                 .as("header names are compared without case").containsExactlyInAnyOrder("accept", "accept-language", "content-type", "user-agent");
         assertThat(other.headers().getAccept()).hasToString("[application/json]");
         assertThat(other.cookies()).isEmpty();

@@ -69,7 +69,7 @@ class AssetEndpointsContractTest {
         EntityExchangeResult<byte[]> result = getAsset(Mono.empty());
 
         EndpointContract.assertEmptyResponse(result, HttpStatus.NOT_FOUND, null);
-        assertThat(result.getResponseHeaders().containsKey(HttpHeaders.CACHE_CONTROL)).isFalse();
+        assertThat(result.getResponseHeaders().containsHeader(HttpHeaders.CACHE_CONTROL)).isFalse();
     }
 
     /** Catches: an error answer that carries the 90-day immutable cache header. */
@@ -78,7 +78,7 @@ class AssetEndpointsContractTest {
         EntityExchangeResult<byte[]> result = getAsset(Mono.error(new IllegalStateException(READ_FAILURE)));
 
         EndpointContract.assertBizError(result, BizError.INTERNAL_SERVER_ERROR, BizError.INTERNAL_SERVER_ERROR.name());
-        assertThat(result.getResponseHeaders().containsKey(HttpHeaders.CACHE_CONTROL)).isFalse();
+        assertThat(result.getResponseHeaders().containsHeader(HttpHeaders.CACHE_CONTROL)).isFalse();
     }
 
     /** GET of {@link #ASSET_ID} with the real service reading {@code stored} from the repository. */

@@ -10,6 +10,7 @@ import org.springframework.expression.Expression;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.ExpressionAuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -28,7 +29,7 @@ public class PluginAuthorizationManager implements ReactiveAuthorizationManager<
 	}
 	
 	@Override
-	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, MethodInvocation invocation) 
+	public Mono<AuthorizationResult> authorize(Mono<Authentication> authentication, MethodInvocation invocation) 
 	{
 		log.info("Checking plugin reactive endpoint invocation security for {}", invocation.getMethod().getName());
 

@@ -93,7 +93,7 @@ public final class WebClientRedirects {
     public static WebClient forAnotherOrigin(WebClient webClient) {
         return webClient.mutate()
                 .defaultHeaders(headers -> {
-                    List<String> dropped = headers.keySet().stream()
+                    List<String> dropped = headers.headerNames().stream()
                             .filter(name -> !HEADERS_KEPT_FOR_ANOTHER_ORIGIN.contains(name.toLowerCase(Locale.ROOT)))
                             .toList();
                     dropped.forEach(headers::remove);

@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
@@ -18,6 +19,16 @@ public class QueryExecutionResult {
 
     private static final String CODE_FAILED = "FAILED";
     private static final String CODE_OK = "OK";
+    private static final String HTTP_CODE_PREFIX = "HTTP";
+
+    /**
+     * The names under which the status codes whose {@link HttpStatus} constant Spring 7 renamed (RFC 9110) were reported in
+     * a query's {@code queryCode}, which stays what it was for the apps that compare it.
+     */
+    private static final Map<HttpStatus, String> LEGACY_HTTP_STATUS_NAMES = Map.of(
+            HttpStatus.CONTENT_TOO_LARGE, "PAYLOAD_TOO_LARGE",
+            HttpStatus.MISDIRECTED_REQUEST, "DESTINATION_LOCKED",
+            HttpStatus.UNPROCESSABLE_CONTENT, "UNPROCESSABLE_ENTITY");
 
     private String queryCode = CODE_OK;
     private JsonNode headers;
@@ -75,7 +86,7 @@ public class QueryExecutionResult {
     public static QueryExecutionResult ofRestApiResult(HttpStatus httpStatus, JsonNode resultHeaders, Object body) {
         QueryExecutionResult result = new QueryExecutionResult();
         if (!httpStatus.is2xxSuccessful()) {
-            result.queryCode = "HTTP" + httpStatus.name();
+            result.queryCode = HTTP_CODE_PREFIX + LEGACY_HTTP_STATUS_NAMES.getOrDefault(httpStatus, httpStatus.name());
         }
         result.headers = resultHeaders;
         result.data = body;

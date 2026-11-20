@@ -10,6 +10,7 @@ import org.lowcoder.infra.serverlog.ServerLog;
 import org.lowcoder.infra.serverlog.ServerLogService;
 import org.lowcoder.infra.util.NetworkUtils;
 import org.lowcoder.sdk.util.CookieHelper;
+import org.lowcoder.sdk.util.HttpHeaderMaps;
 import org.lowcoder.sdk.util.UriUtils;
 import org.springframework.context.i18n.LocaleContext;
 import org.springframework.core.Ordered;
@@ -33,7 +34,6 @@ import static org.lowcoder.api.framework.filter.FilterOrder.GLOBAL_CONTEXT;
 import static org.lowcoder.sdk.constants.Authentication.isAnonymousUser;
 import static org.lowcoder.sdk.constants.GlobalContext.*;
 import static org.lowcoder.sdk.util.IDUtils.generate;
-import static org.springframework.http.HttpHeaders.writableHttpHeaders;
 
 @Component
 @RequiredArgsConstructor
@@ -112,7 +112,7 @@ public class GlobalContextFilter implements WebFilter, Ordered {
         contextMap.put(DOMAIN, UriUtils.getRefererDomainFromRequest(serverWebExchange));
 
         //Analytics related fields
-        MultiValueMap<String, String> headers = writableHttpHeaders(request.getHeaders());
+        MultiValueMap<String, String> headers = HttpHeaderMaps.copyOf(request.getHeaders());
         headers.remove("Cookie");
         headers.addIfAbsent(REQUEST_ID_HEADER, requestId);
         contextMap.put(HEADERS, headers);

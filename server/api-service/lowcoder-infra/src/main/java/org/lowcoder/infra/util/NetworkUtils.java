@@ -2,6 +2,7 @@ package org.lowcoder.infra.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.lowcoder.sdk.util.HttpHeaderMaps;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -23,14 +24,14 @@ public class NetworkUtils {
         /** Try to find remote id in headers **/
         String foundHeader;
         for (String header : CLIENT_IP_HEADERS) {
-            foundHeader = getMatchingKey(header, headers.keySet());
+            foundHeader = getMatchingKey(header, headers.headerNames());
             if (foundHeader != null) {
                 log.debug("Found client IP in header: {}", foundHeader);
                 return headers.getFirst(foundHeader);
             }
         }
 
-        log.debug("get remote ip from remoteAddress , header {}", JsonUtils.toJson(headers));
+        log.debug("get remote ip from remoteAddress , header {}", JsonUtils.toJson(HttpHeaderMaps.copyOf(headers)));
         return Optional.ofNullable(serverWebExchange.getRequest().getRemoteAddress())
                 .map(InetSocketAddress::getAddress)
                 .map(InetAddress::getHostAddress)

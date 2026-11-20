@@ -274,8 +274,9 @@ class ApiFlowEndpointsContractTest {
         assertThat(sent.getMethod().value()).as("upstream method").isEqualTo(sample.method().toUpperCase());
         assertThat(sent.getUrl()).as("upstream path").isEqualTo("/" + sample.path());
         sample.headers().forEach((name, value) -> assertThat(sent.getHeader(name)).as("upstream header " + name).isEqualTo(value));
+        // Spring 7's string encoder writes the charset parameter in lower case; media type parameters are case-insensitive
         assertThat(sent.getHeader(HttpHeaders.CONTENT_TYPE)).as("upstream Content-Type of the String body")
-                .isEqualTo(MediaType.TEXT_PLAIN_VALUE + ";charset=UTF-8");
+                .isEqualTo(MediaType.TEXT_PLAIN_VALUE + ";charset=utf-8");
         CanonicalJson.assertEquivalent(d1Data(), sent.getBodyAsString());
         EndpointContract.assertBytes(result, HttpStatus.OK, TEXT_PLAIN_UTF8, UPSTREAM_ANSWER.getBytes(StandardCharsets.UTF_8));
     }

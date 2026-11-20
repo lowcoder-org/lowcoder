@@ -60,10 +60,10 @@ public class ApplicationHistorySnapshotController implements ApplicationHistoryS
     public Mono<ResponseView<Map<String, Object>>> listAllHistorySnapshotBriefInfo(@PathVariable String applicationId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam String compName,
-            @RequestParam String theme,
-            @RequestParam Instant from,
-            @RequestParam Instant to) {
+            @RequestParam(required = false) String compName,
+            @RequestParam(required = false) String theme,
+            @RequestParam(required = false) Instant from,
+            @RequestParam(required = false) Instant to) {
 
         Pagination pagination = Pagination.of(page, size).check();
 
@@ -97,10 +97,10 @@ public class ApplicationHistorySnapshotController implements ApplicationHistoryS
     public Mono<ResponseView<Map<String, Object>>> listAllHistorySnapshotBriefInfoArchived(@PathVariable String applicationId,
                                                                                    @RequestParam(defaultValue = "1") int page,
                                                                                    @RequestParam(defaultValue = "10") int size,
-                                                                                   @RequestParam String compName,
-                                                                                   @RequestParam String theme,
-                                                                                   @RequestParam Instant from,
-                                                                                   @RequestParam Instant to) {
+                                                                                   @RequestParam(required = false) String compName,
+                                                                                   @RequestParam(required = false) String theme,
+                                                                                   @RequestParam(required = false) Instant from,
+                                                                                   @RequestParam(required = false) Instant to) {
 
         Pagination pagination = Pagination.of(page, size).check();
 

@@ -7,11 +7,16 @@ auth:
   workspace-creation: ${LOWCODER_CREATE_WORKSPACE_ON_SIGNUP:true}
 
 spring:
+  mongodb:
+    authentication-database: admin
+    representation:
+      uuid: java-legacy
+    uri: ${LOWCODER_MONGODB_URL:mongodb://lowcoder:secret123@localhost:27017/lowcoder?retryWrites=true&loadBalanced=false&connectTimeoutMS=10000&authSource=admin&authMechanism=SCRAM-SHA-256}
   data:
     mongodb:
-      authentication-database: admin
       auto-index-creation: false
-      uri: ${LOWCODER_MONGODB_URL:mongodb://lowcoder:secret123@localhost:27017/lowcoder?retryWrites=true&loadBalanced=false&connectTimeoutMS=10000&authSource=admin&authMechanism=SCRAM-SHA-256}
+      representation:
+        big-decimal: string
     redis:
       url: ${LOWCODER_REDIS_URL:redis://localhost:6379}
   main:
@@ -20,6 +25,7 @@ spring:
   http:
     codecs:
       max-in-memory-size: 20MB
+      preferred-json-mapper: jackson2
   webflux:
     base-path: /
   mail:

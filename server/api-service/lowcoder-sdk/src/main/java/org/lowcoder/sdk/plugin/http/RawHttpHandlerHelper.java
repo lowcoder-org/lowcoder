@@ -23,6 +23,10 @@ public class RawHttpHandlerHelper {
 
     private static final DataUtils DATA_UTILS = DataUtils.getInstance();
 
+    /** The charset-suffixed forms of the JSON media types, which Spring 7 no longer declares as constants. */
+    private static final String JSON_UTF8_CONTENT_TYPE = MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8";
+    private static final String PROBLEM_JSON_UTF8_CONTENT_TYPE = MediaType.APPLICATION_PROBLEM_JSON_VALUE + ";charset=UTF-8";
+
 
     public static BodyInserter<?, ? super ClientHttpRequest> buildBodyInserter(HttpMethod httpMethod,
             boolean isEncodeParams,
@@ -49,12 +53,11 @@ public class RawHttpHandlerHelper {
         return BodyInserters.fromValue(queryBody);
     }
 
-    @SuppressWarnings("deprecation")
     private static boolean isJsonContentType(String requestContentType) {
         return MediaType.APPLICATION_JSON_VALUE.equals(requestContentType)
-                || MediaType.APPLICATION_JSON_UTF8_VALUE.equals(requestContentType)
+                || JSON_UTF8_CONTENT_TYPE.equals(requestContentType)
                 || MediaType.APPLICATION_PROBLEM_JSON_VALUE.equals(requestContentType)
-                || MediaType.APPLICATION_PROBLEM_JSON_UTF8_VALUE.equals(requestContentType);
+                || PROBLEM_JSON_UTF8_CONTENT_TYPE.equals(requestContentType);
     }
 
     private static boolean isNoneContentType(String requestContentType) {
