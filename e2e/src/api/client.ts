@@ -178,6 +178,15 @@ export interface AppSummary {
   applicationStatus: string;
 }
 
+/** Names of the apps in the current workspace's list (not the trash). */
+export async function listAppNames(request: APIRequestContext): Promise<string[]> {
+  const apps = await unwrap<{ name: string }[]>(
+    "list apps",
+    await request.get(API_PATHS.APPLICATION_LIST, { params: { applicationType: APP_TYPE_APPLICATION } }),
+  );
+  return apps.map((app) => app.name);
+}
+
 export async function listRecycledApps(request: APIRequestContext): Promise<AppSummary[]> {
   return unwrap<AppSummary[]>("list recycled apps", await request.get(API_PATHS.APPLICATION_RECYCLE_LIST));
 }

@@ -12,6 +12,7 @@ export const API_PATHS = {
   LOGIN: "/api/auth/form/login",
   CURRENT_USER: "/api/users/me",
   APPLICATIONS: "/api/applications",
+  APPLICATION_LIST: "/api/applications/list",
   APPLICATION_RECYCLE_LIST: "/api/applications/recycle/list",
   INVITATION: "/api/invitation",
   MARK_USER_STATUS: "/api/users/mark-status",
@@ -123,3 +124,6 @@ export const DROP_TARGET = { x: 120, y: 40 } as const;
 
 /** A WebSocket endpoint on lowcoder.cloud, for the network guard test. */
 export const LOWCODER_CLOUD_WS_URL = "wss://api-service.lowcoder.cloud/e2e-guard-check";
+
+export const IMPORT_ATTEMPT_TIMEOUT_MS = 3_000;
+export const IMPORT_TIMEOUT_MS = 20_000;

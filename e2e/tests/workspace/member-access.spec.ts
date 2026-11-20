@@ -9,9 +9,10 @@ import {
   registerUser,
   viewAppRaw,
 } from "../../src/api/client";
-import { API_CODE_APP_PERMISSION_DENIED, API_OK, TAGS } from "../../src/constants";
+import { API_CODE_APP_PERMISSION_DENIED, API_OK, TAGS, UI_PATHS } from "../../src/constants";
 import { appDsl, button } from "../../src/dsl/builders";
 import { expect, test, uniqueEmail } from "../../src/fixtures";
+import { AppListPage } from "../../src/pages/AppListPage";
 import { AppViewPage } from "../../src/pages/AppViewPage";
 
 const TEST_ID = "e2e-shared-button";
@@ -47,4 +48,28 @@ test("an invited member sees an app only when it is shared with them, and cannot
   expect(await editAppRaw(memberRequest, appId), "a viewer may not open the app for editing").toMatchObject({
     code: API_CODE_APP_PERMISSION_DENIED,
   });
+});
+
+test("a member who opens the invitation link lands in the workspace and sees an app once it is shared", { tag: TAGS.CORE }, async ({
+  page,
+  apiUser,
+  newUserSession,
+}, testInfo) => {
+  const appName = "e2e-shared-listed";
+  const { appId } = await createApp(page.request, { orgId: apiUser.orgId, name: appName });
+  await publishApp(page.request, appId);
+  const inviteCode = await createInvitation(page.request, apiUser.orgId);
+  const member = await newUserSession();
+  await registerUser(member.context.request, uniqueEmail("link", testInfo.workerIndex));
+  const memberList = new AppListPage(member.page);
+
+  await memberList.openInvitation(inviteCode);
+  await expect(member.page, "the invitation leads to the app list").toHaveURL(UI_PATHS.APP_LIST);
+  await expect(memberList.nothingShared, "nothing is shared with the new member yet").toBeVisible();
+  await expect(memberList.appNamed(appName)).toHaveCount(0);
+
+  await grantAppPermission(page.request, appId, { role: "viewer", userIds: [await currentUserId(member.context.request)] });
+  await member.page.reload();
+
+  await expect(memberList.appNamed(appName), "the shared app is in the member's list").toBeVisible();
 });

@@ -12,7 +12,7 @@ function dslShowing(text: string): object {
   return appDsl([button({ id: "b1", name: "button1", text, testId: TEST_ID })]);
 }
 
-test("the published view shows the last published version, not the newer draft", { tag: TAGS.CORE }, async ({
+test("the published view shows the last published version, not the newer draft", { tag: [TAGS.SMOKE, TAGS.CORE] }, async ({
   page,
   apiUser,
 }) => {

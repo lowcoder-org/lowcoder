@@ -28,6 +28,30 @@ export class EditorPage {
     return this.canvas.getByRole("button", { name: label });
   }
 
+  /** Drags a button already on the canvas to a position on the canvas (relative to the canvas). */
+  async moveButton(label: string, to: { x: number; y: number }): Promise<void> {
+    await this.canvasButton(label).dragTo(this.canvas, { sourcePosition: { x: 20, y: 10 }, targetPosition: to });
+  }
+
+  /**
+   * Widens the selected canvas item by dragging its right resize handle (the handle at the right edge of the
+   * item; the item has one on each side).
+   */
+  async widenSelected(byPixels: number): Promise<void> {
+    const handle = this.page.locator(".react-resizable-handle:not(.react-resizable-handle-n)").first();
+    const box = await handle.boundingBox();
+    if (!box) {
+      throw new Error("the selected item has no resize handle on the canvas");
+    }
+    const startX = box.x + box.width / 2;
+    const startY = box.y + box.height / 2;
+    await this.page.mouse.move(startX, startY);
+    await this.page.mouse.down();
+    await this.page.mouse.move(startX + byPixels / 2, startY, { steps: 5 });
+    await this.page.mouse.move(startX + byPixels, startY, { steps: 5 });
+    await this.page.mouse.up();
+  }
+
   /**
    * Opens the editor and waits until edits are saved. The editor marks itself with `data-editor-ready` once its
    * save baseline exists; an edit made before that is lost. Then waits GRID_SETTLE_MS so that a dropped component
@@ -48,7 +72,8 @@ export class EditorPage {
    */
   async dragFromInsertPanel(compType: string, searchText: string, target: { x: number; y: number }): Promise<void> {
     await this.page.getByRole("tab", { name: "Insert" }).click();
-    const source = this.page.getByTestId(`insert-comp-${compType}`);
+    // A component can be listed in more than one category of the panel (`text` is, three times): take the first tile.
+    const source = this.page.getByTestId(`insert-comp-${compType}`).first();
     await expect(this.canvas).toBeVisible();
     // The panel re-renders while the editor finishes loading and clears the search box, so the tile can vanish
     // between finding it and dragging it. An attempt that cannot drag drops nothing, so the whole attempt

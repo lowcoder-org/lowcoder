@@ -29,6 +29,11 @@ export class AppViewPage {
     return this.page.getByText("It appears you don't have the permission to view").first();
   }
 
+  /** The button inside a component addressed by test id. */
+  buttonByTestId(testId: string): Locator {
+    return this.byTestId(testId).getByRole("button");
+  }
+
   /** A component addressed by the "Individual ID" property it was given in the DSL. */
   byTestId(testId: string): Locator {
     return this.page.getByTestId(testId);
