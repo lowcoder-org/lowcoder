@@ -17,8 +17,9 @@ spring:
   main:
     allow-bean-definition-overriding: false
     allow-circular-references: false
-  codec:
-    max-in-memory-size: 20MB
+  http:
+    codecs:
+      max-in-memory-size: 20MB
   webflux:
     base-path: /
   mail:
@@ -111,7 +112,8 @@ springdoc:
 
 management:
   endpoints:
-    enabled-by-default: false
+    access:
+      default: none
     web:
       base-path: "/api/status"
       exposure:
@@ -120,11 +122,11 @@ management:
     health:
       show-details: never
       show-components: always
-      enabled: true
+      access: read-only
     metrics:
-      enabled: true
+      access: read-only
     prometheus:
-      enabled: true
+      access: read-only
   health:
     mail:
       enabled: false
