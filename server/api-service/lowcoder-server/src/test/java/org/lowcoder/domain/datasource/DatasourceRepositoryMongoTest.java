@@ -23,7 +23,7 @@ import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
 import org.lowcoder.sdk.util.IDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -50,9 +50,9 @@ class DatasourceRepositoryMongoTest {
     private static final String JS_TYPE = "someJsPlugin";
     private static final String BROKEN_TYPE = "brokenPlugin";
 
-    @MockBean
+    @MockitoBean
     private DatasourceMetaInfoService datasourceMetaInfoService;
-    @MockBean
+    @MockitoBean
     private DatasourcePluginClient datasourcePluginClient;
     @Autowired
     private DatasourceRepository repository;
