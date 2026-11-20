@@ -1,18 +1,12 @@
 package org.lowcoder.domain.configurations;
 
-import com.mongodb.ReadConcern;
 import com.mongodb.ReadPreference;
-import com.mongodb.WriteConcern;
-import io.mongock.driver.mongodb.springdata.v4.SpringDataMongoV4Driver;
-import io.mongock.runner.springboot.MongockSpringboot;
-import io.mongock.runner.springboot.base.MongockApplicationRunner;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.sdk.config.MaterialProperties;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -27,8 +21,6 @@ import org.springframework.data.mongodb.gridfs.ReactiveGridFsTemplate;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 
-import java.util.List;
-
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
@@ -42,19 +34,6 @@ public class MongoConfig {
     @PostConstruct
     public void init() {
         mappingMongoConverter.setMapKeyDotReplacement("##OB_REPLACE##");
-    }
-
-    @Bean
-    public MongockApplicationRunner mongockApplicationRunner(ApplicationContext springContext, MongoTemplate mongoTemplate) {
-        SpringDataMongoV4Driver driver = SpringDataMongoV4Driver.withDefaultLock(mongoTemplate);
-        driver.setWriteConcern(WriteConcern.JOURNALED.withJournal(false));
-        driver.setReadConcern(ReadConcern.LOCAL);
-
-        return MongockSpringboot.builder()
-                .setDriver(driver)
-                .addMigrationScanPackages(List.of("org.lowcoder.runner.migrations"))
-                .setSpringContext(springContext)
-                .buildApplicationRunner();
     }
 
     /**
@@ -92,7 +71,7 @@ public class MongoConfig {
     }
 
     /**
-     * used by mongock
+     * The blocking template of the database migrations ({@code org.lowcoder.runner.migrations}).
      */
     @Bean
     public MongoTemplate mongoTemplate(MongoDatabaseFactory mongoDbFactory, MappingMongoConverter mappingMongoConverter) {

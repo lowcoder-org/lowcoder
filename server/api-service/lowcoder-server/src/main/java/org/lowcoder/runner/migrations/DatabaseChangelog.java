@@ -1,8 +1,5 @@
 package org.lowcoder.runner.migrations;
 
-import com.github.cloudyrock.mongock.ChangeLog;
-import com.github.cloudyrock.mongock.ChangeSet;
-import com.github.cloudyrock.mongock.driver.mongodb.springdata.v4.decorator.impl.MongockTemplate;
 import com.github.f4b6a3.uuid.UuidCreator;
 import com.mongodb.MongoNamespace;
 import com.mongodb.client.MongoCollection;
@@ -38,11 +35,11 @@ import org.lowcoder.runner.migrations.job.CompleteAuthType;
 import org.lowcoder.runner.migrations.job.EmailNormalizationBackfill;
 import org.lowcoder.runner.migrations.job.MigrateAuthConfigJob;
 import org.lowcoder.sdk.config.CommonConfig;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.data.mongodb.core.CollectionOptions;
 import org.springframework.data.mongodb.core.DocumentCallbackHandler;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
@@ -62,14 +59,16 @@ import static org.lowcoder.api.authentication.util.AdvancedMapUtils.documentToMa
 import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
 import static org.lowcoder.sdk.util.IDUtils.generate;
 
+/**
+ * The data migrations. {@link MigrationRunner} runs them in the order {@link DatabaseChangelogRegistry} lists, once per
+ * database: the {@code id} and {@code author} of each entry there are the keys of the migration history. A change set
+ * body is never edited after release in a way that changes what a database that ran it holds.
+ */
 @SuppressWarnings("all")
 @Slf4j
-@ChangeLog(order = "001")
-@Profile("!test")
 public class DatabaseChangelog {
 
-    @ChangeSet(order = "001", id = "init-indexes", author = "")
-    public void addInitialIndexes(MongockTemplate mongoTemplate) {
+    public void addInitialIndexes(MongoTemplate mongoTemplate) {
         Index updatedAtIndex = makeIndex("updateAt");
 
         ensureIndexes(mongoTemplate, Application.class,
@@ -111,58 +110,50 @@ public class DatabaseChangelog {
         );
     }
 
-    @ChangeSet(order = "002", id = "add-organization-indexes-v2", author = "")
-    public void addOrganizationIndexes(MongockTemplate mongoTemplate) {
+    public void addOrganizationIndexes(MongoTemplate mongoTemplate) {
         ensureIndexes(mongoTemplate, Organization.class,
                 makeIndex("source", "tpCompanyId").unique().sparse()
         );
     }
 
-    @ChangeSet(order = "003", id = "add-serverlog-indexes", author = "")
-    public void addServerLogIndexes(MongockTemplate mongoTemplate) {
+    public void addServerLogIndexes(MongoTemplate mongoTemplate) {
         ensureIndexes(mongoTemplate, ServerLog.class,
                 makeIndex("userId"),
                 makeIndex("createTime")
         );
     }
 
-    @ChangeSet(order = "004", id = "add-token-based-connection-indexes", author = "")
-    public void addDatasourceConnectionIndexes(MongockTemplate mongoTemplate) {
+    public void addDatasourceConnectionIndexes(MongoTemplate mongoTemplate) {
         ensureIndexes(mongoTemplate, TokenBasedConnection.class,
                 makeIndex("datasourceId").unique()
         );
     }
 
-    @ChangeSet(order = "006", id = "add-org-domain-indexes", author = "")
-    public void addOrgDomainIndexes(MongockTemplate mongoTemplate) {
+    public void addOrgDomainIndexes(MongoTemplate mongoTemplate) {
         ensureIndexes(mongoTemplate, Organization.class,
                 makeIndex("organizationDomain.domain").unique().sparse()
         );
     }
 
-    @ChangeSet(order = "008", id = "generate-deployment-id", author = "")
-    public void generateInstanceId(MongockTemplate mongoTemplate) {
+    public void generateInstanceId(MongoTemplate mongoTemplate) {
         mongoTemplate.insert(ServerConfig.builder()
                 .key("deployment.id")
                 .value(generate())
                 .build());
     }
 
-    @ChangeSet(order = "009", id = "add-group-type-indexes", author = "")
-    public void addGroupTypeIndex(MongockTemplate mongoTemplate) {
+    public void addGroupTypeIndex(MongoTemplate mongoTemplate) {
         ensureIndexes(mongoTemplate, Group.class, makeIndex("organizationId", "type"));
     }
 
-    @ChangeSet(order = "010", id = "add-event-log-indexes", author = "")
-    public void addEventLogIndex(MongockTemplate mongoTemplate) {
+    public void addEventLogIndex(MongoTemplate mongoTemplate) {
         ensureIndexes(mongoTemplate, EventLog.class,
                 makeIndex("deploymentId", "eventType", "log.applicationId").sparse(),
                 makeIndex("deploymentId", "eventType", "log.userId").sparse()
         );
     }
 
-    @ChangeSet(order = "012", id = "add-library-query-indexes", author = "")
-    public void addLibraryQueryIndex(MongockTemplate mongoTemplate) {
+    public void addLibraryQueryIndex(MongoTemplate mongoTemplate) {
         ensureIndexes(mongoTemplate, LibraryQuery.class,
                 makeIndex("organizationId").sparse());
 
@@ -170,44 +161,37 @@ public class DatabaseChangelog {
                 makeIndex("libraryQueryId").sparse());
     }
 
-    @ChangeSet(order = "013", id = "update-datasource-idnexes", author = "")
-    public void updateDatasourceIndex(MongockTemplate mongoTemplate) {
+    public void updateDatasourceIndex(MongoTemplate mongoTemplate) {
         dropIndexIfExists(mongoTemplate, Datasource.class, "organization_datasource_compound_index");
         ensureIndexes(mongoTemplate, Datasource.class,
                 makeIndex("organizationId", "name").named("organization_datasource_index"));
     }
 
 
-    @ChangeSet(order = "014", id = "add-material-meta-indexes", author = "")
-    public void addMaterialMetaIndex(MongockTemplate mongoTemplate) {
+    public void addMaterialMetaIndex(MongoTemplate mongoTemplate) {
         ensureIndexes(mongoTemplate, MaterialMeta.class,
                 makeIndex("orgId", "type", "filename").unique());
     }
 
-    @ChangeSet(order = "015", id = "add-bi-relation-indexes", author = "")
-    public void addBiRelationIndex(MongockTemplate mongoTemplate) {
+    public void addBiRelationIndex(MongoTemplate mongoTemplate) {
         ensureIndexes(mongoTemplate, BiRelation.class,
                 makeIndex("bizType", "sourceId", "relation"));
     }
 
-    @ChangeSet(order = "016", id = "update-user-connections-index", author = "")
-    public void updateUserConnectionsIndex(MongockTemplate mongoTemplate) {
+    public void updateUserConnectionsIndex(MongoTemplate mongoTemplate) {
         dropIndexIfExists(mongoTemplate, User.class, "connections.source_1_connections.rawId_1");
         ensureIndexes(mongoTemplate, User.class, makeIndex("connections.source", "connections.rawId").unique().sparse());
     }
 
-    @ChangeSet(order = "017", id = "migrate-auth-configs", author = "")
     public void migrateAuthConfigs(MigrateAuthConfigJob migrateAuthConfigJob) {
         migrateAuthConfigJob.migrateAuthConfig();
     }
 
-    @ChangeSet(order = "018", id = "complete-auth-type", author = "")
     public void completeAuthType(CompleteAuthType completeAuthType) {
         completeAuthType.complete();
     }
 
-    @ChangeSet(order = "019", id = "add-org-id-index-on-server-log", author = "")
-    public void addOrgIdIndexOnServerLog(MongockTemplate mongoTemplate) {
+    public void addOrgIdIndexOnServerLog(MongoTemplate mongoTemplate) {
         ensureIndexes(mongoTemplate, ServerLog.class,
                 makeIndex("orgId")
         );
@@ -215,21 +199,19 @@ public class DatabaseChangelog {
 
     /**
      * Waits for every step of the super-admin job (BF-037), as the other job changesets do with {@code block()}: a failing
-     * step fails the changeset, which Mongock (an ApplicationRunner) then does not record, so it runs again at the next start.
-     * No timeout of its own: a step that never completes holds the startup.
+     * step fails the changeset, which {@link MigrationRunner} (an ApplicationRunner) records as {@code FAILED}, never as
+     * {@code EXECUTED}, so it runs again at the next start. No timeout of its own: a step that never completes holds the
+     * startup.
      */
-    @ChangeSet(order = "020", id = "add-super-admin-user", author = "")
     public void addSuperAdminUser(AddSuperAdminUser addSuperAdminUser) {
         addSuperAdminUser.addOrUpdateSuperAdmin().block();
     }
 
-    @ChangeSet(order = "021", id = "add-ptm-fields-to-applications", author = "")
     public void addPtmFieldsToApplicatgions(AddPtmFieldsJob addPtmFieldsJob) {
         addPtmFieldsJob.migrateApplicationsToInitPtmFields();
     }
 
-    @ChangeSet(order = "022", id = "add-gid", author = "")
-    public void addGidToDBObjects(MongockTemplate mongoTemplate) {
+    public void addGidToDBObjects(MongoTemplate mongoTemplate) {
         // Define an array of collection names
         String[] collectionNames = {"application", "bundle", "datasource", "libraryQuery", "folder"};
 
@@ -245,8 +227,7 @@ public class DatabaseChangelog {
         }
     }
 
-    @ChangeSet(order = "023", id = "add-email", author = "")
-    public void addEmailField(MongockTemplate mongoTemplate) {
+    public void addEmailField(MongoTemplate mongoTemplate) {
         // Create a query to match all documents
         Query query = new Query();
 
@@ -269,8 +250,7 @@ public class DatabaseChangelog {
         });
     }
 
-    @ChangeSet(order = "024", id = "fill-create-at", author = "")
-    public void fillCreateAt(MongockTemplate mongoTemplate) {
+    public void fillCreateAt(MongoTemplate mongoTemplate) {
         // Create a query to match all documents
         Query query = new Query();
 
@@ -293,8 +273,7 @@ public class DatabaseChangelog {
         });
     }
   
-    @ChangeSet(order = "025", id = "add-gid-indexes-unique", author = "")
-    public void addGidIndexesUnique(MongockTemplate mongoTemplate) {
+    public void addGidIndexesUnique(MongoTemplate mongoTemplate) {
         // collections to add gid
         String[] collectionNames = {"group", "organization", "application", "bundle", "datasource", "libraryQuery", "folder"};
 
@@ -318,7 +297,7 @@ public class DatabaseChangelog {
         ensureIndexes(mongoTemplate, LibraryQuery.class, makeIndex("gid").unique());
     }
 
-    private int getMongoDBVersion(MongockTemplate mongoTemplate) {
+    private int getMongoDBVersion(MongoTemplate mongoTemplate) {
         Document buildInfo = mongoTemplate.executeCommand(new Document("buildInfo", 1));
         String versionString = buildInfo.getString("version");
         if(versionString == null) return -1;
@@ -327,8 +306,7 @@ public class DatabaseChangelog {
         return majorVersion;
     }
 
-    @ChangeSet(order = "026", id = "add-time-series-snapshot-history", author = "")
-    public void addTimeSeriesSnapshotHistory(MongockTemplate mongoTemplate, CommonConfig commonConfig) {
+    public void addTimeSeriesSnapshotHistory(MongoTemplate mongoTemplate, CommonConfig commonConfig) {
         int mongoVersion = getMongoDBVersion(mongoTemplate);
 
         Instant thresholdDate = Instant.now().minus(commonConfig.getQuery().getAppSnapshotKeepDuration(), ChronoUnit.DAYS);
@@ -409,8 +387,7 @@ public class DatabaseChangelog {
                 makeIndex("createdAt"));
     }
 
-    @ChangeSet(order = "027", id = "populate-email-in-user-connections", author = "Thomas")
-    public void populateEmailInUserConnections(MongockTemplate mongoTemplate, CommonConfig commonConfig) {
+    public void populateEmailInUserConnections(MongoTemplate mongoTemplate, CommonConfig commonConfig) {
         Query query = new Query(Criteria.where("connections.authId").is("EMAIL")
                 .and("connections.email").is(null));
 
@@ -435,8 +412,7 @@ public class DatabaseChangelog {
 
     }
 
-    @ChangeSet(order = "028", id = "published-to-record", author = "Thomas")
-    public void publishedToRecord(MongockTemplate mongoTemplate, CommonConfig commonConfig) {
+    public void publishedToRecord(MongoTemplate mongoTemplate, CommonConfig commonConfig) {
         Query query = new Query(Criteria.where("publishedApplicationDSL").exists(true));
 
         MongoCursor<Document> cursor = mongoTemplate.getCollection("application").find(query.getQueryObject()).iterator();
@@ -460,13 +436,11 @@ public class DatabaseChangelog {
             mongoTemplate.insert(record);
         }
     }
-    @ChangeSet(order = "029", id = "add-tag-index-to-record", author = "Thomas")
-    public void addTagIndexToRecord(MongockTemplate mongoTemplate, CommonConfig commonConfig) {
+    public void addTagIndexToRecord(MongoTemplate mongoTemplate, CommonConfig commonConfig) {
         ensureIndexes(mongoTemplate, ApplicationVersion.class, makeIndex("applicationId", "tag").unique());
     }
 
-    @ChangeSet(order = "030", id = "rename-application-record-collection", author = "Thomas")
-    public void renameApplicationRecordCollection(MongockTemplate mongoTemplate, MongoDatabase mongoDatabase) {
+    public void renameApplicationRecordCollection(MongoTemplate mongoTemplate, MongoDatabase mongoDatabase) {
         String oldCollectionName = "applicationRecord";
         String newCollectionName = "applicationVersion";
 
@@ -486,8 +460,7 @@ public class DatabaseChangelog {
 
     }
 
-    @ChangeSet(order = "031", id = "delete-old-super-admin", author = "Thomas")
-    public void deleteOldSuperAdmin(MongockTemplate mongoTemplate, MongoDatabase mongoDatabase) {
+    public void deleteOldSuperAdmin(MongoTemplate mongoTemplate, MongoDatabase mongoDatabase) {
         List<User> users = mongoTemplate.find(
                 Query.query(Criteria.where("superAdmin").is(true))
                         .with(Sort.by(Sort.Direction.DESC, "createdAt")),
@@ -513,12 +486,11 @@ public class DatabaseChangelog {
      * sanitization change. Accounts that would collide are left as they are and reported; see
      * {@link EmailNormalizationBackfill} and EMAIL-SANITIZATION.md.
      */
-    @ChangeSet(order = "032", id = "normalize-email-backfill", author = "")
     public void normalizeEmailBackfill(MongoDatabase mongoDatabase) {
         EmailNormalizationBackfill.run(mongoDatabase);
     }
 
-    private void addGidField(MongockTemplate mongoTemplate, String collectionName) {
+    private void addGidField(MongoTemplate mongoTemplate, String collectionName) {
         // Create a query to match all documents
         Query query = new Query();
 
@@ -545,7 +517,7 @@ public class DatabaseChangelog {
         });
     }
 
-    private boolean isGidPresent(MongockTemplate mongoTemplate, String collectionName, String gid) {
+    private boolean isGidPresent(MongoTemplate mongoTemplate, String collectionName, String gid) {
         Query query = new Query(Criteria.where("gid").is(gid));
         return mongoTemplate.exists(query, collectionName);
     }
@@ -562,14 +534,14 @@ public class DatabaseChangelog {
         }
     }
 
-    public static void ensureIndexes(MongockTemplate mongoTemplate, Class<?> entityClass, Index... indexes) {
+    public static void ensureIndexes(MongoTemplate mongoTemplate, Class<?> entityClass, Index... indexes) {
         IndexOperations indexOps = mongoTemplate.indexOps(entityClass);
         for (Index index : indexes) {
             indexOps.ensureIndex(index);
         }
     }
 
-    public static void dropIndexIfExists(MongockTemplate mongoTemplate, Class<?> entityClass, String name) {
+    public static void dropIndexIfExists(MongoTemplate mongoTemplate, Class<?> entityClass, String name) {
         try {
             mongoTemplate.indexOps(entityClass).dropIndex(name);
         } catch (UncategorizedMongoDbException ignored) {

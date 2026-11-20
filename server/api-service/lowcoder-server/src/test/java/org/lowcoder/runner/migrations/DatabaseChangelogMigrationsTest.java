@@ -3,7 +3,6 @@ package org.lowcoder.runner.migrations;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.lang.reflect.Method;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -30,8 +29,6 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.github.cloudyrock.mongock.ChangeSet;
-import com.github.cloudyrock.mongock.driver.mongodb.springdata.v4.decorator.impl.MongockTemplate;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
@@ -40,20 +37,21 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Drives the data changesets of {@link DatabaseChangelog} against the MongoDB test container.
  *
- * <p>Profile and isolation. The profile is {@code databaseChangelog}, not {@code test}: the class is
- * {@code @Profile("!test")} (DatabaseChangelog:68), so under {@code test} Mongock skips it, while under this profile
- * Mongock runs the whole changelog at startup. {@code TestContainersInitializer} gives this context its own database
- * ({@code lowcoder_test_<n>}); {@code mongockChangeLog}, {@code mongockLock} and every collection used here live in that
- * database, so no other context is reachable. A failing changeset at startup would stop the context from loading, and
- * that is a finding, not something to work around.
+ * <p>Profile and isolation. The profile is {@code databaseChangelog}, not {@code test}: {@link MigrationRunner} and
+ * {@link DatabaseChangelogRegistry} are {@code @Profile("!test")}, so under {@code test} the changelog does not run,
+ * while under this profile the runner runs the whole changelog at startup. {@code TestContainersInitializer} gives this
+ * context its own database ({@code lowcoder_test_<n>}); the {@code mongockChangeLog} history, the migration lock
+ * collection and every collection used here live in that database, so no other context is reachable. A failing
+ * changeset at startup would stop the context from loading, and that is a finding, not something to work around.
  *
  * <p>Each test seeds legacy-shaped documents into the collections the changeset reads and calls the changeset directly
- * with a {@link MongockTemplate} over the context's {@link MongoTemplate}. The collections are emptied before each test.
- * Changeset 032 ({@code normalizeEmailBackfill}) is covered by {@code EmailNormalizationBackfillTest} and
- * {@code EmailBackfillEndToEndTest} and is only checked here as part of the startup record.
+ * with the context's {@link MongoTemplate}. The collections are emptied before each test. Changeset 032
+ * ({@code normalizeEmailBackfill}) is covered by {@code EmailNormalizationBackfillTest} and
+ * {@code EmailBackfillEndToEndTest} and is only checked here as part of the startup record. The runner itself (lock,
+ * history rule, failures) is covered by {@code MigrationRunnerMongoTest}.
  *
- * <p>Re-runs. Mongock records each changeset and runs it once, so a second run of a changeset happens only through a
- * manual re-run; the tests that run a changeset twice describe what such a re-run does, not something the application
+ * <p>Re-runs. The runner records each changeset and runs it once, so a second run of a changeset happens only through
+ * a manual re-run; the tests that run a changeset twice describe what such a re-run does, not something the application
  * does by itself.
  *
  * <p>The container is {@code mongo:7.0}, so {@code addTimeSeriesSnapshotHistory} takes its {@code >= 5} branch (a
@@ -70,13 +68,12 @@ public class DatabaseChangelogMigrationsTest {
 
     private static final String TAG = "[DatabaseChangelogMigrationsTest] ";
 
-    private static final String CHANGE_LOG_COLLECTION = "mongockChangeLog";
+    private static final String CHANGE_LOG_COLLECTION = MigrationHistory.COLLECTION;
     private static final String CHANGE_ID_FIELD = "changeId";
-    private static final String MONGOCK_SYSTEM_CHANGE_PREFIX = "system-change-";
     private static final String STATE_FIELD = "state";
     private static final String STATE_EXECUTED = "EXECUTED";
 
-    /** Number of {@code @ChangeSet} methods on DatabaseChangelog (order 001-032, with gaps); update when one is added. */
+    /** Number of change sets registered by DatabaseChangelogRegistry (order 001-032, with gaps); update when one is added. */
     private static final int DECLARED_CHANGE_SETS = 29;
 
     private static final String FOLDER = "folder";
@@ -100,14 +97,15 @@ public class DatabaseChangelogMigrationsTest {
     private MongoTemplate mongoTemplate;
     @Autowired
     private CommonConfig commonConfig;
+    @Autowired
+    private MigrationRegistry registry;
 
     private MongoDatabase db;
-    private MongockTemplate mongock;
     private final DatabaseChangelog changelog = new DatabaseChangelog();
 
     /**
      * The scheduler of the application runs the archive task on its thread {@value #SCHEDULER_THREAD} (the task is
-     * scheduled with initialDelay 0 and fires when the context is refreshed, before the Mongock runner and so before
+     * scheduled with initialDelay 0 and fires when the context is refreshed, before the migration runner and so before
      * the test instance exists). Wait, bounded, until that thread exists and is no longer runnable, i.e. the start-up
      * run has finished. Console capture of the task's completion message was tried and does not work: the message is
      * not in the captured output.
@@ -129,37 +127,29 @@ public class DatabaseChangelogMigrationsTest {
     @BeforeEach
     public void emptyTheCollections() {
         db = mongoTemplate.getDb();
-        mongock = new MongockTemplate(mongoTemplate);
         db.getCollection(APPLICATION_RECORD).drop();
         for (String name : List.of(FOLDER, USER, APPLICATION, APPLICATION_VERSION, SNAPSHOT, SNAPSHOT_TS)) {
             db.getCollection(name).deleteMany(new Document());
         }
         // 029 built the unique (applicationId, tag) index at startup; a test that dropped the collection gets it back.
-        changelog.addTagIndexToRecord(mongock, commonConfig);
+        changelog.addTagIndexToRecord(mongoTemplate, commonConfig);
     }
 
     // ---------------------------------------------------------------- start-up run
 
     @Test
     public void startup_recordsEveryChangeSetAsExecuted() {
-        Set<String> declared = new TreeSet<>();
-        for (Method method : DatabaseChangelog.class.getDeclaredMethods()) {
-            ChangeSet changeSet = method.getAnnotation(ChangeSet.class);
-            if (changeSet != null) {
-                declared.add(changeSet.id());
-            }
-        }
-        // Mongock also records its own system change (ids "system-change-00001" and "..._before"); only ours are compared.
-        List<Document> recorded = db.getCollection(CHANGE_LOG_COLLECTION).find().into(new ArrayList<>()).stream()
-                .filter(d -> !d.getString(CHANGE_ID_FIELD).startsWith(MONGOCK_SYSTEM_CHANGE_PREFIX))
-                .collect(Collectors.toList());
+        Set<String> declared = registry.steps().stream().map(MigrationStep::id)
+                .collect(Collectors.toCollection(TreeSet::new));
+        List<Document> recorded = db.getCollection(CHANGE_LOG_COLLECTION).find().into(new ArrayList<>());
         Set<String> recordedIds = recorded.stream().map(d -> d.getString(CHANGE_ID_FIELD))
                 .collect(Collectors.toCollection(TreeSet::new));
         log.info("{}declared change sets: {}, recorded: {}", TAG, declared.size(), recordedIds.size());
 
-        assertThat(declared).as("change sets declared on DatabaseChangelog").hasSize(DECLARED_CHANGE_SETS);
+        assertThat(declared).as("change sets registered by DatabaseChangelogRegistry").hasSize(DECLARED_CHANGE_SETS);
         assertThat(recordedIds).as("change ids recorded in " + CHANGE_LOG_COLLECTION + " of this context's database")
                 .isEqualTo(declared);
+        assertThat(recorded).as("one history entry per change set, none for a retry").hasSize(DECLARED_CHANGE_SETS);
         assertThat(recorded).extracting(d -> d.getString(STATE_FIELD)).containsOnly(STATE_EXECUTED);
         assertThat(recordedIds).contains("init-indexes", "normalize-email-backfill");
     }
@@ -177,7 +167,7 @@ public class DatabaseChangelogMigrationsTest {
                 new Document("_id", present).append("gid", uniqueGid()).append("name", "has createdAt")
                         .append("createdAt", original)));
 
-        changelog.fillCreateAt(mongock);
+        changelog.fillCreateAt(mongoTemplate);
 
         Document filled = byId(FOLDER, missing);
         Document kept = byId(FOLDER, present);
@@ -186,7 +176,7 @@ public class DatabaseChangelogMigrationsTest {
         assertThat(kept.getDate("createdAt")).as("an existing createdAt is not touched").isEqualTo(original);
 
         Date firstFill = filled.getDate("createdAt");
-        changelog.fillCreateAt(mongock);
+        changelog.fillCreateAt(mongoTemplate);
         assertThat(byId(FOLDER, missing).getDate("createdAt")).as("second run changes nothing").isEqualTo(firstFill);
         assertThat(byId(FOLDER, present).getDate("createdAt")).isEqualTo(original);
         assertThat(db.getCollection(FOLDER).countDocuments()).isEqualTo(2);
@@ -210,7 +200,7 @@ public class DatabaseChangelogMigrationsTest {
                         connection(EMAIL, "mixed@example.com", "mixed-email@example.com", true),
                         connection(GOOGLE, "mixed google", null, false)))));
 
-        changelog.populateEmailInUserConnections(mongock, commonConfig);
+        changelog.populateEmailInUserConnections(mongoTemplate, commonConfig);
 
         List<Document> lackingConnections = connectionsOf(lacking);
         log.info("{}populateEmail: lacking={}", TAG, lackingConnections);
@@ -224,7 +214,7 @@ public class DatabaseChangelogMigrationsTest {
     /**
      * An EMAIL connection whose {@code email} is stored as an explicit null matches the changeset's query but is skipped
      * by its loop ({@code !connection.containsKey("email")}, DatabaseChangelog:421), so it stays null. Pinned as observed;
-     * the changeset runs once per database (Mongock), so this is a property of a manual re-run on such data.
+     * the changeset runs once per database (the migration runner), so this is a property of a manual re-run on such data.
      */
     @Test
     public void populateEmailInUserConnections_anExplicitNullEmailIsNotFilled() {
@@ -232,7 +222,7 @@ public class DatabaseChangelogMigrationsTest {
         db.getCollection(USER).insertOne(new Document("_id", id).append("connections",
                 List.of(connection(EMAIL, "null-email@example.com", null, true))));
 
-        changelog.populateEmailInUserConnections(mongock, commonConfig);
+        changelog.populateEmailInUserConnections(mongoTemplate, commonConfig);
 
         Document connection = connectionsOf(id).get(0);
         log.info("{}populateEmail explicit null: {}", TAG, connection);
@@ -253,7 +243,7 @@ public class DatabaseChangelogMigrationsTest {
                 new Document("_id", unpublished).append("gid", uniqueGid()).append("createdBy", "creator-2")
                         .append("editingApplicationDSL", new Document("comp", "only editing"))));
 
-        changelog.publishedToRecord(mongock, commonConfig);
+        changelog.publishedToRecord(mongoTemplate, commonConfig);
 
         List<Document> versions = db.getCollection(APPLICATION_VERSION).find().into(new ArrayList<>());
         log.info("{}publishedToRecord: {}", TAG, versions);
@@ -273,16 +263,16 @@ public class DatabaseChangelogMigrationsTest {
 
     /**
      * A second run inserts the same (applicationId, tag) again and the unique index from changeset 029 rejects it, so the
-     * changeset is not idempotent. Mongock runs it once per database; only a manual re-run gets here.
+     * changeset is not idempotent. The runner runs it once per database; only a manual re-run gets here.
      */
     @Test
     public void publishedToRecord_runTwice_failsOnTheUniqueApplicationIdTagIndex() {
         ObjectId id = new ObjectId();
         db.getCollection(APPLICATION).insertOne(new Document("_id", id).append("gid", uniqueGid()).append("createdBy", "c")
                 .append("publishedApplicationDSL", new Document("a", 1)));
-        changelog.publishedToRecord(mongock, commonConfig);
+        changelog.publishedToRecord(mongoTemplate, commonConfig);
 
-        assertThatThrownBy(() -> changelog.publishedToRecord(mongock, commonConfig))
+        assertThatThrownBy(() -> changelog.publishedToRecord(mongoTemplate, commonConfig))
                 .as("second run").isInstanceOf(DuplicateKeyException.class);
         assertThat(db.getCollection(APPLICATION_VERSION).countDocuments()).isEqualTo(1);
     }
@@ -294,7 +284,7 @@ public class DatabaseChangelogMigrationsTest {
         db.getCollection(APPLICATION_VERSION).drop();
         db.getCollection(APPLICATION_RECORD).insertOne(new Document("applicationId", "app-1").append("tag", "x"));
 
-        changelog.renameApplicationRecordCollection(mongock, db);
+        changelog.renameApplicationRecordCollection(mongoTemplate, db);
 
         assertThat(collectionNames()).contains(APPLICATION_VERSION).doesNotContain(APPLICATION_RECORD);
         List<Document> moved = db.getCollection(APPLICATION_VERSION).find().into(new ArrayList<>());
@@ -305,7 +295,7 @@ public class DatabaseChangelogMigrationsTest {
     public void renameApplicationRecordCollection_skipsWhenTheOldCollectionIsAbsent() {
         db.getCollection(APPLICATION_VERSION).insertOne(new Document("applicationId", "stays"));
 
-        changelog.renameApplicationRecordCollection(mongock, db);
+        changelog.renameApplicationRecordCollection(mongoTemplate, db);
 
         assertThat(collectionNames()).doesNotContain(APPLICATION_RECORD).contains(APPLICATION_VERSION);
         assertThat(db.getCollection(APPLICATION_VERSION).countDocuments()).isEqualTo(1);
@@ -323,7 +313,7 @@ public class DatabaseChangelogMigrationsTest {
                 admin(oldest, 1_000_000L), admin(newest, 3_000_000L), admin(middle, 2_000_000L),
                 new Document("_id", ordinary).append("createdAt", new Date(500L)).append("connections", List.of(connection(EMAIL, "ordinary", "o@example.com", true)))));
 
-        changelog.deleteOldSuperAdmin(mongock, db);
+        changelog.deleteOldSuperAdmin(mongoTemplate, db);
 
         List<ObjectId> remaining = db.getCollection(USER).find().into(new ArrayList<>()).stream()
                 .map(d -> d.getObjectId("_id")).collect(Collectors.toList());
@@ -336,7 +326,7 @@ public class DatabaseChangelogMigrationsTest {
         ObjectId only = new ObjectId();
         db.getCollection(USER).insertOne(admin(only, 1_000L));
 
-        changelog.deleteOldSuperAdmin(mongock, db);
+        changelog.deleteOldSuperAdmin(mongoTemplate, db);
 
         assertThat(db.getCollection(USER).countDocuments()).isEqualTo(1);
         assertThat(byId(USER, only)).isNotNull();
@@ -357,7 +347,7 @@ public class DatabaseChangelogMigrationsTest {
                 snapshot(oldOne, "app-old-1", oldEnough), snapshot(oldTwo, "app-old-2", oldEnough.minusSeconds(60)),
                 snapshot(kept, "app-recent", recent)));
 
-        changelog.addTimeSeriesSnapshotHistory(mongock, commonConfig);
+        changelog.addTimeSeriesSnapshotHistory(mongoTemplate, commonConfig);
 
         List<Document> archived = db.getCollection(SNAPSHOT_TS).find().into(new ArrayList<>());
         List<Document> remaining = db.getCollection(SNAPSHOT).find().into(new ArrayList<>());
@@ -371,7 +361,7 @@ public class DatabaseChangelogMigrationsTest {
     /**
      * On MongoDB 5 and later the changeset creates the archive as a time-series collection when it is missing, and it
      * moves the old snapshots with inserts, which add to the target: what the archive held before the run stays, and a run
-     * with nothing to move leaves it as it is. (A manual re-run only: Mongock runs the changeset once per database.)
+     * with nothing to move leaves it as it is. (A manual re-run only: the runner runs the changeset once per database.)
      */
     @Test
     public void addTimeSeriesSnapshotHistory_onMongo5AndLater_createsATimeSeriesArchive_andKeepsWhatTheTargetHeld() {
@@ -381,7 +371,7 @@ public class DatabaseChangelogMigrationsTest {
         db.getCollection(SNAPSHOT_TS).drop();
         db.getCollection(SNAPSHOT).insertOne(snapshot(new ObjectId(), "moved-first", oldEnough));
 
-        changelog.addTimeSeriesSnapshotHistory(mongock, commonConfig);
+        changelog.addTimeSeriesSnapshotHistory(mongoTemplate, commonConfig);
 
         String type = collectionType(SNAPSHOT_TS);
         List<String> afterFirst = applicationIds(SNAPSHOT_TS);
@@ -391,12 +381,12 @@ public class DatabaseChangelogMigrationsTest {
         assertThat(afterFirst).as("the old snapshot is in the new archive").containsExactly("moved-first");
 
         db.getCollection(SNAPSHOT).insertOne(snapshot(new ObjectId(), "moved-second", oldEnough));
-        changelog.addTimeSeriesSnapshotHistory(mongock, commonConfig);
+        changelog.addTimeSeriesSnapshotHistory(mongoTemplate, commonConfig);
 
         assertThat(applicationIds(SNAPSHOT_TS)).as("the earlier archive row stays and the new one is added")
                 .containsExactlyInAnyOrder("moved-first", "moved-second");
 
-        changelog.addTimeSeriesSnapshotHistory(mongock, commonConfig);
+        changelog.addTimeSeriesSnapshotHistory(mongoTemplate, commonConfig);
 
         assertThat(applicationIds(SNAPSHOT_TS)).as("a run with nothing to move leaves the archive as it is")
                 .containsExactlyInAnyOrder("moved-first", "moved-second");
@@ -407,14 +397,14 @@ public class DatabaseChangelogMigrationsTest {
     @Test
     public void dropIndexIfExists_dropsAKnownIndex_andIgnoresAnUnknownOne() {
         String field = "probe" + UUID.randomUUID().toString().replace("-", "");
-        DatabaseChangelog.ensureIndexes(mongock, org.lowcoder.domain.folder.model.Folder.class, DatabaseChangelog.makeIndex(field));
+        DatabaseChangelog.ensureIndexes(mongoTemplate, org.lowcoder.domain.folder.model.Folder.class, DatabaseChangelog.makeIndex(field));
         MongoCollection<Document> folders = db.getCollection(FOLDER);
         assertThat(indexNames(folders)).contains(field);
 
-        DatabaseChangelog.dropIndexIfExists(mongock, org.lowcoder.domain.folder.model.Folder.class, field);
+        DatabaseChangelog.dropIndexIfExists(mongoTemplate, org.lowcoder.domain.folder.model.Folder.class, field);
         assertThat(indexNames(folders)).doesNotContain(field);
 
-        DatabaseChangelog.dropIndexIfExists(mongock, org.lowcoder.domain.folder.model.Folder.class, field);
+        DatabaseChangelog.dropIndexIfExists(mongoTemplate, org.lowcoder.domain.folder.model.Folder.class, field);
         assertThat(indexNames(folders)).as("unknown index: the exception is swallowed").doesNotContain(field);
     }
 

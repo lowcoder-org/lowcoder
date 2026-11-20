@@ -235,7 +235,7 @@ public class MigrationJobAddSuperAdminTest {
 
     /**
      * BF-037 fixed (part 2): a step that failed after the changeset had returned went to Reactor's dropped-error hook and the
-     * later steps never ran. Now the changeset fails with it, so Mongock does not record it; nothing is dropped.
+     * later steps never ran. Now the changeset fails with it, so the migration runner records it as FAILED, not EXECUTED; nothing is dropped.
      */
     @Test
     public void aStepThatFailsWhilePendingFailsTheChangesetAndStopsTheLaterStepsBF037() throws Exception {
