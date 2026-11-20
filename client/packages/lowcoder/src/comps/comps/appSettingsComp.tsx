@@ -221,6 +221,7 @@ const childrenMap = {
   gridRowCount: withDefault(NumberControl, DEFAULT_ROW_COUNT),
   gridPaddingX: withDefault(NumberControl, 0),
   gridPaddingY: withDefault(NumberControl, 0),
+  gridStretchHeight: withDefault(BoolControl, false),
   gridBg: ColorControl,
   gridBgImage: StringControl,
   gridBgImageRepeat: StringControl,
@@ -355,6 +356,7 @@ function AppCanvasSettingsModal(props: ChildrenInstance) {
     gridColumns,
     gridRowHeight,
     gridRowCount,
+    gridStretchHeight,
     gridPaddingX,
     gridPaddingY,
     gridBg,
@@ -477,6 +479,9 @@ function AppCanvasSettingsModal(props: ChildrenInstance) {
           {!isAggregation && gridRowCount.propertyView({
             label: trans("appSetting.gridRowCount"),
             placeholder: 'Infinity',
+          })}
+          {gridRowCount.getView() !== DEFAULT_ROW_COUNT && gridStretchHeight.propertyView({
+            label: "Stretch canvas to available height",
           })}
           {gridPaddingX.propertyView({
             label: trans("appSetting.gridPaddingX"),
