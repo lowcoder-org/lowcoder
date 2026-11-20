@@ -32,8 +32,8 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Drives {@link EmailNormalizationBackfill} directly against the MongoDB test container.
  *
- * <p>The changeset itself is never driven through Mongock here. Under {@code @ActiveProfiles("test")},
- * {@code DatabaseChangelog} is {@code @Profile("!test")} and Mongock skips it — which also means the real
+ * <p>The changeset itself is never driven through the migration runner here. Under {@code @ActiveProfiles("test")},
+ * the migration runner is {@code @Profile("!test")} and does not run it — which also means the real
  * {@code (connections.source, connections.rawId)} unique sparse index does not exist in this context, so
  * each test builds it on its own throwaway collection. That is a gift rather than a nuisance: it makes the
  * duplicate-key path testable in isolation, which it would not be against the shared {@code user}
@@ -416,11 +416,11 @@ public class EmailNormalizationBackfillTest {
     /**
      * The survey is not atomic with the backfill, and on this codebase that window is not theoretical:
      * {@code AddSuperAdminRunner} writes the super-admin from a {@code @PostConstruct} ending in a bare
-     * {@code subscribe()}, so it is unordered against Mongock on every boot, and other replicas keep
+     * {@code subscribe()}, so it is unordered against the migration runner on every boot, and other replicas keep
      * serving registrations throughout.
      *
      * <p>Simulated by surveying, then letting someone take the target key, then backfilling. The run must
-     * absorb the duplicate key and report it — if it threw, Mongock would record the changeset FAILED and
+     * absorb the duplicate key and report it — if it threw, the runner would record the changeset FAILED and
      * the application would not start, which on a replicated deployment is a boot loop on exactly the
      * installs that most need the migration.
      */
@@ -542,7 +542,7 @@ public class EmailNormalizationBackfillTest {
     /**
      * {@code @ActiveProfiles} replaces the active profiles rather than adding to them, so the eight test
      * classes that name their own profile do not have {@code test} active, {@code @Profile("!test")}
-     * matches, and Mongock really does run this changeset at their context startup — against a database
+     * matches, and the migration runner really does run this changeset at their context startup — against a database
      * their fixtures have not populated yet.
      */
     @Test

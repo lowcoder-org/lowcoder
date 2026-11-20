@@ -24,7 +24,7 @@ import org.springframework.test.context.TestPropertySource;
 
 /**
  * addPermission when the unique BiRelation index rejects the insert (unit U14, task L3-11c, candidate D6). The test profile does
- * not run the Mongock changelog, so this class (own Spring context, hence its own database) creates the index the production
+ * not run the migration changelog, so this class (own Spring context, hence its own database) creates the index the production
  * changelog defines (DatabaseChangelog: bizType, sourceId, targetId, unique, "biztype_sourceid_targetid_uniq") in that database
  * only. Behaviour, not a defect row: addPermission maps every error to false (onErrorResume), so a caller cannot tell "already
  * granted" from a database failure, and the existing permission, including its role, is left unchanged.

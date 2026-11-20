@@ -51,7 +51,7 @@ import lombok.extern.slf4j.Slf4j;
  * account that took the key is not part of that report -- it was not a conflict when it was read, and
  * finding it would need a third pass. Such a group is therefore reported by one member, not all of them.
  *
- * <p><b>Nothing in the data it finds may prevent the application from starting.</b> Mongock runs as an
+ * <p><b>Nothing in the data it finds may prevent the application from starting.</b> The migration runner runs as an
  * {@code ApplicationRunner} at boot and records a throwing changeset as FAILED, which by default stops
  * startup. Worse, {@code AddSuperAdminRunner} writes the super-admin user from a {@code @PostConstruct}
  * that ends in a bare {@code subscribe()}, so it is not ordered against this migration and can land a
@@ -115,7 +115,7 @@ public final class EmailNormalizationBackfill {
      * <p>The absent-collection guard is load-bearing rather than defensive. {@code @ActiveProfiles} replaces
      * the active profile set rather than adding to it, so every test class that names its own profile --
      * {@code emailSanitization}, {@code testGeneric}, {@code testFolder} and the rest -- does NOT have
-     * {@code test} active, {@code @Profile("!test")} matches, and Mongock runs this changeset at context
+     * {@code test} active, {@code @Profile("!test")} matches, and the migration runner runs this changeset at context
      * startup against a database those suites have not populated yet.
      */
     static Summary run(MongoDatabase db, String usersCollection, String reportCollection) {
@@ -340,7 +340,7 @@ public final class EmailNormalizationBackfill {
                 survey.conflictingRawIds().size() + survey.conflictingEmails().size(), collidedAtWrite,
                 notConverged);
         // The user data is the valuable part and it is already written. Losing the report is bad, but
-        // failing the changeset over it is worse: Mongock would record 032 FAILED and stop the application
+        // failing the changeset over it is worse: the runner would record 032 FAILED and stop the application
         // from starting, having already normalized the collection.
         try {
             upsertConflictRows(report, reportRows);
