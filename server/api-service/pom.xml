@@ -15,6 +15,9 @@
 		<java.version>17</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<!-- javac 23+ no longer runs annotation processors found on the class path unless asked to: Lombok, the Spring Boot
+		     configuration processor and the Querydsl processor are all discovered that way -->
+		<maven.compiler.proc>full</maven.compiler.proc>
 		<javadoc.disabled>true</javadoc.disabled>
 		<deploy.disabled>true</deploy.disabled>
 		<source.disabled>true</source.disabled>
@@ -140,8 +143,7 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.13.0</version>
 					<configuration>
-						<source>${java.version}</source>
-						<target>${java.version}</target>
+						<release>${java.version}</release>
 						<compilerArgs>
 							<arg>-parameters</arg>
 						</compilerArgs>

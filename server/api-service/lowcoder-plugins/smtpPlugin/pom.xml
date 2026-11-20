@@ -101,7 +101,8 @@
                 <artifactId>maven-antrun-plugin</artifactId>
             </plugin>
             <!-- GH-01 / BF-149: the mail charset tests (subject and body, attachment names) once more in a JVM whose default charset is US-ASCII, the default of a
-                 JVM 17 under the POSIX locale (as in a container that sets no LANG); on a UTF-8 JVM a subject sent without a
+                 JVM before 18 under the POSIX locale (as in a container that sets no LANG). A JVM 18+ defaults to UTF-8 whatever the locale, so
+                 the charset is forced here with -Dfile.encoding; on a UTF-8 JVM a subject sent without a
                  charset is UTF-8 by accident, so only this run catches it. It runs these two tests whatever -Dtest selects. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
