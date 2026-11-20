@@ -1,6 +1,6 @@
 import { createApp, createPostgresDatasource, getAppDsl, publishApp } from "../../src/api/client";
 import { SAVE_POLL_TIMEOUT_MS, SEEDED_ITEM_NAMES, TAGS } from "../../src/constants";
-import { appDsl, text } from "../../src/dsl/builders";
+import { appDsl, postgresQuery, text } from "../../src/dsl/builders";
 import { expect, test } from "../../src/fixtures";
 import { postgresConnection } from "../../src/postgres";
 import { AppViewPage } from "../../src/pages/AppViewPage";
@@ -56,7 +56,7 @@ test.describe("PostgreSQL data source", () => {
     });
     const dsl = appDsl(
       [text({ id: "t1", name: "text1", text: `{{${QUERY_NAME}.data.map(row => row.name).join(", ")}}`, testId: NAMES_TEST_ID })],
-      [{ id: "q1", name: QUERY_NAME, datasourceId, sql: SELECT_ITEMS }],
+      { queries: [postgresQuery({ id: "q1", name: QUERY_NAME, datasourceId, sql: SELECT_ITEMS })] },
     );
     const { appId } = await createApp(page.request, { orgId: apiUser.orgId, name: "e2e-query-view", dsl });
     await publishApp(page.request, appId);
