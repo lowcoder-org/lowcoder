@@ -1,0 +1,17 @@
+{
+  "name": "lowcoder-e2e",
+  "private": true,
+  "description": "End-to-end tests of the Lowcoder all-in-one image, run with Playwright from scripts/run-in-docker.sh",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:core": "playwright test --grep @core",
+    "report": "playwright show-report",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.6.0"
+  }
+}
